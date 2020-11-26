@@ -28,7 +28,14 @@ def _delete_db(db_url: str) -> None:
 	print('Deleting all tables with engine url: {}'.format(db_url))
 	engine = sqlalchemy.create_engine(db_url)
 
-	models.Customer.__table__.drop(engine)
+	table_classes = [
+		('customers', models.Customer), 
+		('purchase_orders', models.PurchaseOrder)
+	]
+	for (table_name, table_class) in table_classes:
+		if not engine.dialect.has_table(engine, table_name):
+			continue
+		table_class.__table__.drop(engine)
 
 class TestWorkflows(unittest.TestCase):
 
@@ -38,15 +45,41 @@ class TestWorkflows(unittest.TestCase):
 		_delete_db(db_url)
 		engine = sqlalchemy.create_engine(db_url)
 		models.Base.metadata.create_all(engine)
-
 		session_maker = sessionmaker(engine)
+
+		# Create the customer
 		customer1 = make_customer('customer1')
 		customer_name = customer1.name
 		with session_scope(session_maker) as session:
 			session.add(customer1)
 
+		# Customer creates the purchase order
+		po_number = 'po_12345678'
+		with session_scope(session_maker) as session:
+			session.add(models.PurchaseOrder(
+				number=po_number,
+				total_requested=3000.02,
+				confirmed=False
+			))
+
+		# Checks based on first couple DB queries
 		with session_scope(session_maker) as session:
 			query_customer1 = session.query(models.Customer).first()
 			self.assertEqual(customer_name, query_customer1.name)
 
-		self.assertTrue(True)
+			po = session.query(models.PurchaseOrder).filter(
+				models.PurchaseOrder.number == po_number).first()
+			self.assertFalse(po.confirmed)
+
+		# Anchor confirms the purchase order
+		with session_scope(session_maker) as session:
+			po = session.query(models.PurchaseOrder).filter(
+				models.PurchaseOrder.number == po_number).first()
+			po.confirmed = True
+
+		# Checks
+
+		with session_scope(session_maker) as session:
+			po = session.query(models.PurchaseOrder).filter(
+				models.PurchaseOrder.number == po_number).first()
+			self.assertTrue(po.confirmed)

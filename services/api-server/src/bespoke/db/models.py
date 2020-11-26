@@ -1,7 +1,7 @@
 import sqlalchemy
 
 from contextlib import contextmanager
-from sqlalchemy import Column, Integer, String, JSON
+from sqlalchemy import Column, Boolean, Float, Integer, String, JSON
 from sqlalchemy.ext.declarative import declarative_base
 from typing import TYPE_CHECKING, Any, Callable, Generator
 
@@ -37,3 +37,17 @@ class Customer(Base):
 		name = Column(String)
 		phone = Column(String)
 		email = Column(String)
+
+class PurchaseOrder(Base):
+	"""
+	   Purchase orders created by customers for financing
+	"""
+	__tablename__ = 'purchase_orders'
+
+	if False:
+		pass
+	else:
+		id = Column(Integer, primary_key=True)
+		number = Column(String)
+		total_requested = Column(Float)
+		confirmed = Column(Boolean)
