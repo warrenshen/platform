@@ -1,0 +1,7 @@
+tap "homebrew/cask"
+brew "pyenv"
+brew "pyenv-virtualenv"
+brew "yarn"
+brew "direnv"
+brew "postgresql"
+brew "nvm"
