@@ -1,25 +1,31 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Route, Switch } from "react-router-dom";
+import "./App.css";
+import Home from "./components/Home";
+import Layout from "./components/Layout";
+import Loans from "./components/Loans";
+import Partners from "./components/Partners";
+import Profile from "./components/Profile";
+import PurchaseOrders from "./components/PurchaseOrders";
+import routes from "./routes";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Layout>
+        <Switch>
+          <Route exact path={routes.root} component={Home}></Route>
+          <Route exact path={routes.overview} component={Home}></Route>
+          <Route exact path={routes.loans} component={Loans}></Route>
+          <Route
+            exact
+            path={routes.purchaseOrders}
+            component={PurchaseOrders}
+          ></Route>
+          <Route exact path={routes.partners} component={Partners}></Route>
+          <Route exact path={routes.profile} component={Profile}></Route>
+        </Switch>
+      </Layout>
+    </BrowserRouter>
   );
 }
 
