@@ -1,0 +1,15 @@
+- table:
+    schema: public
+    name: companies
+- table:
+    schema: public
+    name: loans
+- table:
+    schema: public
+    name: purchase_order_line_items
+- table:
+    schema: public
+    name: purchase_orders
+- table:
+    schema: public
+    name: users
