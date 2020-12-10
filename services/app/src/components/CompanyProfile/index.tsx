@@ -4,7 +4,7 @@ function CompanyProfile() {
   useTitle("Profile | Bespoke");
   const { data } = useCompaniesQuery();
 
-  return <div>Company Profile for customer, {data?.companies[0].name}</div>;
+  return <div>Profile for customer, {data?.companies[0]?.name}</div>;
 }
 
 export default CompanyProfile;
