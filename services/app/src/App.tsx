@@ -1,12 +1,12 @@
+import CompanyProfile from "components/CompanyProfile";
+import Home from "components/Home";
+import Layout from "components/Layout";
+import Loans from "components/Loans";
+import Partners from "components/Partners";
+import PurchaseOrders from "components/PurchaseOrders";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
+import routes from "routes";
 import "./App.css";
-import Home from "./components/Home";
-import Layout from "./components/Layout";
-import Loans from "./components/Loans";
-import Partners from "./components/Partners";
-import Profile from "./components/Profile";
-import PurchaseOrders from "./components/PurchaseOrders";
-import routes from "./routes";
 
 function App() {
   return (
@@ -22,7 +22,7 @@ function App() {
             component={PurchaseOrders}
           ></Route>
           <Route exact path={routes.partners} component={Partners}></Route>
-          <Route exact path={routes.profile} component={Profile}></Route>
+          <Route exact path={routes.profile} component={CompanyProfile}></Route>
         </Switch>
       </Layout>
     </BrowserRouter>

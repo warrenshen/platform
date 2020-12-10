@@ -3,16 +3,19 @@ import React from "react";
 import ReactDOM from "react-dom";
 import ApolloWrapper from "./ApolloWrapper";
 import App from "./App";
+import CurrentUserWrapper from "./CurrentUserWrapper";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 
 ReactDOM.render(
   <React.StrictMode>
-    <ApolloWrapper>
-      <CssBaseline>
-        <App />
-      </CssBaseline>
-    </ApolloWrapper>
+    <CurrentUserWrapper>
+      <ApolloWrapper>
+        <CssBaseline>
+          <App />
+        </CssBaseline>
+      </ApolloWrapper>
+    </CurrentUserWrapper>
   </React.StrictMode>,
   document.getElementById("root")
 );

@@ -1,10 +1,10 @@
 import { useTitle } from "react-use";
 import { useCompaniesQuery } from "../../generated/graphql";
-function Profile() {
+function CompanyProfile() {
   useTitle("Profile | Bespoke");
   const { data } = useCompaniesQuery();
 
-  return <div>Profile for customer, {data?.companies[0].name}</div>;
+  return <div>Company Profile for customer, {data?.companies[0].name}</div>;
 }
 
-export default Profile;
+export default CompanyProfile;

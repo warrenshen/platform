@@ -1,20 +1,14 @@
-import {
-  Box,
-  Divider,
-  IconButton,
-  ListItem,
-  ListItemText,
-} from "@material-ui/core";
+import { Box, Divider, ListItem, ListItemText } from "@material-ui/core";
 import AppBar from "@material-ui/core/AppBar";
 import Drawer from "@material-ui/core/Drawer";
 import List from "@material-ui/core/List";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import { AccountCircle } from "@material-ui/icons";
+import UserProfile from "components/UserProfile";
 import React from "react";
 import { Link, matchPath, useLocation } from "react-router-dom";
-import routes from "../../routes";
+import routes from "routes";
 
 const DRAWER_WIDTH = 240;
 
@@ -85,9 +79,7 @@ function Layout(props: { children: React.ReactNode }) {
             </Typography>
           </Box>
           <Box>
-            <IconButton>
-              <AccountCircle></AccountCircle>
-            </IconButton>
+            <UserProfile></UserProfile>
           </Box>
         </Toolbar>
       </AppBar>
