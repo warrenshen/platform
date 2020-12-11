@@ -1,6 +1,65 @@
 - table:
     schema: public
     name: companies
+  array_relationships:
+  - name: agreements
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          schema: public
+          name: company_agreements
+  - name: banks
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          schema: public
+          name: company_banks
+  - name: company_vendor_partnerships
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          schema: public
+          name: company_vendor_partnership
+  - name: licenses
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          schema: public
+          name: company_license
+  - name: users
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          schema: public
+          name: users
+- table:
+    schema: public
+    name: company_agreements
+- table:
+    schema: public
+    name: company_banks
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+- table:
+    schema: public
+    name: company_license
+- table:
+    schema: public
+    name: company_vendor_partnership
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  - name: vendor
+    using:
+      foreign_key_constraint_on: vendor_id
 - table:
     schema: public
     name: loans

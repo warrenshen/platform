@@ -91,14 +91,15 @@ function Layout(props: { children: React.ReactNode }) {
         }}
         anchor="left"
       >
-        <div className={classes.toolbar} >
-          <img src="./logo.png" alt="Logo"/>
+        <div className={classes.toolbar}>
+          <img src="./logo.png" alt="Logo" />
         </div>
         <Divider></Divider>
         <List>
           {CUSTOMER_LEFT_NAV_ITEMS.map((item) => {
             return (
               <ListItem
+                key={item.link}
                 button
                 component={Link}
                 to={item.link}
