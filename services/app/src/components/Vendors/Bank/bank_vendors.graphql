@@ -1,0 +1,83 @@
+fragment BankVendorPartnership on company_vendor_partnerships {
+  id
+  company_id
+  vendor_id
+  vendor_agreement_id
+  vendor_bank {
+    ...BankAccount
+  }
+  vendor_license_id
+  vendor {
+    id
+    name
+    address
+    country
+    state
+    city
+    zip_code
+    phone_number
+  }
+}
+
+fragment BankAccount on company_banks {
+  id
+  name
+  account_name
+  account_number
+  routing_number
+  notes
+  confirmed_at
+}
+
+query BankListVendorPartnerships {
+  company_vendor_partnerships {
+    ...BankVendorPartnership
+  }
+}
+
+mutation BankUpdateVendorPartnership(
+  $vendor: company_vendor_partnerships_insert_input!
+) {
+  insert_company_vendor_partnerships_one(object: $vendor) {
+    ...BankVendorPartnership
+  }
+}
+
+query BankVendorPartnership($id: uuid!) {
+  company_vendor_partnerships_by_pk(id: $id) {
+    ...BankVendorPartnership
+  }
+}
+
+query CompanyBankAccounts($companyId: uuid!) {
+  company_banks(where: { company_id: { _eq: $companyId } }) {
+    ...BankAccount
+  }
+}
+
+mutation AddBankAccount($bankAccount: company_banks_insert_input!) {
+  insert_company_banks_one(object: $bankAccount) {
+    ...BankAccount
+  }
+}
+
+mutation UpdateBankAccount($id: uuid!, $bankAccount: company_banks_set_input) {
+  update_company_banks_by_pk(pk_columns: { id: $id }, _set: $bankAccount) {
+    ...BankAccount
+  }
+}
+
+mutation ChangeBankAccount(
+  $companyVendorPartnershipId: uuid!
+  $bankAccountId: uuid!
+) {
+  update_company_vendor_partnerships_by_pk(
+    pk_columns: { id: $companyVendorPartnershipId }
+    _set: { vendor_bank_id: $bankAccountId }
+  ) {
+    id
+    vendor_bank {
+      ...BankAccount
+    }
+  }
+}

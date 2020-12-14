@@ -13,7 +13,7 @@ import {
 } from "@material-ui/core";
 import {
   CompaniesInsertInput,
-  useRegisterVendorMutation,
+  useAddVendorPartnershipMutation,
 } from "generated/graphql";
 import { useState } from "react";
 
@@ -35,7 +35,7 @@ interface Props {
 function AddVendorModal(props: Props) {
   const classes = useStyles();
   const [vendor, setVendor] = useState<CompaniesInsertInput>({});
-  const [registerVendor, { loading }] = useRegisterVendorMutation();
+  const [addVendorPartnership, { loading }] = useAddVendorPartnershipMutation();
 
   return (
     <Dialog
@@ -112,7 +112,7 @@ function AddVendorModal(props: Props) {
           <Button
             disabled={loading}
             onClick={async () => {
-              await registerVendor({
+              await addVendorPartnership({
                 variables: {
                   vendor: {
                     company_id: "57ee8797-1d5b-4a90-83c9-84c740590e42",

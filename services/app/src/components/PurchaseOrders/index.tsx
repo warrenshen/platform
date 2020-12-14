@@ -1,10 +1,18 @@
 import { Box } from "@material-ui/core";
 import AddButton from "components/PurchaseOrders/AddPurchaseOrder/AddButton";
 import ListPurchaseOrders from "components/PurchaseOrders/ListPurchaseOrders";
-import { useState } from "react";
+import { PageContext } from "contexts/PageContext";
+import { useContext, useEffect, useState } from "react";
 import { useTitle } from "react-use";
 
 function PurchaseOrders() {
+  useTitle("Purchase Orders | Bespoke");
+  const pageContext = useContext(PageContext);
+
+  useEffect(() => {
+    pageContext.setAppBarTitle("Purchase Orders");
+  }, []);
+
   const handleSetOpen = (value: boolean) => {
     setOpen((state) => value);
     if (!value) {
@@ -18,7 +26,7 @@ function PurchaseOrders() {
     setId(value);
     setOpen(true);
   };
-  useTitle("Purchase Orders | Bespoke");
+
   const [open, setOpen] = useState(false);
   const [id, setId] = useState("");
   const [reloadTrigger, setReloadTrigger] = useState(false);

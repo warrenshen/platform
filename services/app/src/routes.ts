@@ -1,10 +1,12 @@
-const routes = {
+export const routes = {
   root: "/",
   overview: "/overview",
   loans: "/loans",
   purchaseOrders: "/purchase-orders",
-  partners: "/partners",
+  vendors: "/vendors",
   profile: "/profile",
 };
 
-export default routes;
+export const bankRoutes = {
+  customers: "/customers",
+};

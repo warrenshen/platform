@@ -2,10 +2,10 @@ import CompanyProfile from "components/CompanyProfile";
 import Home from "components/Home";
 import Layout from "components/Layout";
 import Loans from "components/Loans";
-import Partners from "components/Partners";
 import PurchaseOrders from "components/PurchaseOrders";
+import Vendors from "components/Vendors";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
-import routes from "routes";
+import { bankRoutes, routes } from "routes";
 import "./App.css";
 
 function App() {
@@ -21,8 +21,9 @@ function App() {
             path={routes.purchaseOrders}
             component={PurchaseOrders}
           ></Route>
-          <Route exact path={routes.partners} component={Partners}></Route>
+          <Route exact path={routes.vendors} component={Vendors}></Route>
           <Route exact path={routes.profile} component={CompanyProfile}></Route>
+          <Route exact path={bankRoutes.customers} component={Home}></Route>
         </Switch>
       </Layout>
     </BrowserRouter>

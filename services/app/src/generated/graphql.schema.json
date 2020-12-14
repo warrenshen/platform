@@ -726,7 +726,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "ENUM",
-                      "name": "company_vendor_partnership_select_column",
+                      "name": "company_vendor_partnerships_select_column",
                       "ofType": null
                     }
                   }
@@ -764,7 +764,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "company_vendor_partnership_order_by",
+                      "name": "company_vendor_partnerships_order_by",
                       "ofType": null
                     }
                   }
@@ -776,7 +776,7 @@
                 "description": "filter the rows returned",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_vendor_partnership_bool_exp",
+                  "name": "company_vendor_partnerships_bool_exp",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -793,7 +793,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "OBJECT",
-                    "name": "company_vendor_partnership",
+                    "name": "company_vendor_partnerships",
                     "ofType": null
                   }
                 }
@@ -817,7 +817,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "ENUM",
-                      "name": "company_vendor_partnership_select_column",
+                      "name": "company_vendor_partnerships_select_column",
                       "ofType": null
                     }
                   }
@@ -855,7 +855,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "company_vendor_partnership_order_by",
+                      "name": "company_vendor_partnerships_order_by",
                       "ofType": null
                     }
                   }
@@ -867,7 +867,7 @@
                 "description": "filter the rows returned",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_vendor_partnership_bool_exp",
+                  "name": "company_vendor_partnerships_bool_exp",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -878,7 +878,181 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "company_vendor_partnership_aggregate",
+                "name": "company_vendor_partnerships_aggregate",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "company_vendor_partnerships_by_vendor",
+            "description": "An array relationship",
+            "args": [
+              {
+                "name": "distinct_on",
+                "description": "distinct select on columns",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "ENUM",
+                      "name": "company_vendor_partnerships_select_column",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "limit",
+                "description": "limit the number of rows returned",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "offset",
+                "description": "skip the first n rows. Use only with order_by",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "order_by",
+                "description": "sort the rows by one or more columns",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "company_vendor_partnerships_order_by",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "where",
+                "description": "filter the rows returned",
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "company_vendor_partnerships_bool_exp",
+                  "ofType": null
+                },
+                "defaultValue": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "company_vendor_partnerships",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "company_vendor_partnerships_by_vendor_aggregate",
+            "description": "An aggregated array relationship",
+            "args": [
+              {
+                "name": "distinct_on",
+                "description": "distinct select on columns",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "ENUM",
+                      "name": "company_vendor_partnerships_select_column",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "limit",
+                "description": "limit the number of rows returned",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "offset",
+                "description": "skip the first n rows. Use only with order_by",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "order_by",
+                "description": "sort the rows by one or more columns",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "company_vendor_partnerships_order_by",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "where",
+                "description": "filter the rows returned",
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "company_vendor_partnerships_bool_exp",
+                  "ofType": null
+                },
+                "defaultValue": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "company_vendor_partnerships_aggregate",
                 "ofType": null
               }
             },
@@ -980,7 +1154,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "ENUM",
-                      "name": "company_license_select_column",
+                      "name": "company_licenses_select_column",
                       "ofType": null
                     }
                   }
@@ -1018,7 +1192,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "company_license_order_by",
+                      "name": "company_licenses_order_by",
                       "ofType": null
                     }
                   }
@@ -1030,7 +1204,7 @@
                 "description": "filter the rows returned",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_license_bool_exp",
+                  "name": "company_licenses_bool_exp",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -1047,7 +1221,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "OBJECT",
-                    "name": "company_license",
+                    "name": "company_licenses",
                     "ofType": null
                   }
                 }
@@ -1071,7 +1245,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "ENUM",
-                      "name": "company_license_select_column",
+                      "name": "company_licenses_select_column",
                       "ofType": null
                     }
                   }
@@ -1109,7 +1283,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "company_license_order_by",
+                      "name": "company_licenses_order_by",
                       "ofType": null
                     }
                   }
@@ -1121,7 +1295,7 @@
                 "description": "filter the rows returned",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_license_bool_exp",
+                  "name": "company_licenses_bool_exp",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -1132,7 +1306,7 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "company_license_aggregate",
+                "name": "company_licenses_aggregate",
                 "ofType": null
               }
             },
@@ -1683,7 +1857,17 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_vendor_partnership_bool_exp",
+              "name": "company_vendor_partnerships_bool_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "company_vendor_partnerships_by_vendor",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "company_vendor_partnerships_bool_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -1753,7 +1937,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_license_bool_exp",
+              "name": "company_licenses_bool_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -1891,7 +2075,17 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_vendor_partnership_arr_rel_insert_input",
+              "name": "company_vendor_partnerships_arr_rel_insert_input",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "company_vendor_partnerships_by_vendor",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "company_vendor_partnerships_arr_rel_insert_input",
               "ofType": null
             },
             "defaultValue": null
@@ -1961,7 +2155,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_license_arr_rel_insert_input",
+              "name": "company_licenses_arr_rel_insert_input",
               "ofType": null
             },
             "defaultValue": null
@@ -2841,7 +3035,17 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_vendor_partnership_aggregate_order_by",
+              "name": "company_vendor_partnerships_aggregate_order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "company_vendor_partnerships_by_vendor_aggregate",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "company_vendor_partnerships_aggregate_order_by",
               "ofType": null
             },
             "defaultValue": null
@@ -2911,7 +3115,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_license_aggregate_order_by",
+              "name": "company_licenses_aggregate_order_by",
               "ofType": null
             },
             "defaultValue": null
@@ -4358,6 +4562,22 @@
             "deprecationReason": null
           },
           {
+            "name": "company",
+            "description": "An object relationship",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "companies",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "company_id",
             "description": null,
             "args": [],
@@ -4723,6 +4943,16 @@
             "defaultValue": null
           },
           {
+            "name": "company",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "companies_bool_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "company_id",
             "description": null,
             "type": {
@@ -4826,6 +5056,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "company",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "companies_obj_rel_insert_input",
               "ofType": null
             },
             "defaultValue": null
@@ -5461,6 +5701,16 @@
             "defaultValue": null
           },
           {
+            "name": "company",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "companies_order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "company_id",
             "description": null,
             "type": {
@@ -5761,9 +6011,25 @@
       },
       {
         "kind": "OBJECT",
-        "name": "company_license",
-        "description": "columns and relationships of \"company_license\"",
+        "name": "company_licenses",
+        "description": "columns and relationships of \"company_licenses\"",
         "fields": [
+          {
+            "name": "company",
+            "description": "An object relationship",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "companies",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "company_id",
             "description": null,
@@ -5820,8 +6086,8 @@
       },
       {
         "kind": "OBJECT",
-        "name": "company_license_aggregate",
-        "description": "aggregated selection of \"company_license\"",
+        "name": "company_licenses_aggregate",
+        "description": "aggregated selection of \"company_licenses\"",
         "fields": [
           {
             "name": "aggregate",
@@ -5829,7 +6095,7 @@
             "args": [],
             "type": {
               "kind": "OBJECT",
-              "name": "company_license_aggregate_fields",
+              "name": "company_licenses_aggregate_fields",
               "ofType": null
             },
             "isDeprecated": false,
@@ -5850,7 +6116,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "OBJECT",
-                    "name": "company_license",
+                    "name": "company_licenses",
                     "ofType": null
                   }
                 }
@@ -5867,8 +6133,8 @@
       },
       {
         "kind": "OBJECT",
-        "name": "company_license_aggregate_fields",
-        "description": "aggregate fields of \"company_license\"",
+        "name": "company_licenses_aggregate_fields",
+        "description": "aggregate fields of \"company_licenses\"",
         "fields": [
           {
             "name": "count",
@@ -5885,7 +6151,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "ENUM",
-                      "name": "company_license_select_column",
+                      "name": "company_licenses_select_column",
                       "ofType": null
                     }
                   }
@@ -5917,7 +6183,7 @@
             "args": [],
             "type": {
               "kind": "OBJECT",
-              "name": "company_license_max_fields",
+              "name": "company_licenses_max_fields",
               "ofType": null
             },
             "isDeprecated": false,
@@ -5929,7 +6195,7 @@
             "args": [],
             "type": {
               "kind": "OBJECT",
-              "name": "company_license_min_fields",
+              "name": "company_licenses_min_fields",
               "ofType": null
             },
             "isDeprecated": false,
@@ -5943,8 +6209,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_license_aggregate_order_by",
-        "description": "order by aggregate values of table \"company_license\"",
+        "name": "company_licenses_aggregate_order_by",
+        "description": "order by aggregate values of table \"company_licenses\"",
         "fields": null,
         "inputFields": [
           {
@@ -5962,7 +6228,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_license_max_order_by",
+              "name": "company_licenses_max_order_by",
               "ofType": null
             },
             "defaultValue": null
@@ -5972,7 +6238,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_license_min_order_by",
+              "name": "company_licenses_min_order_by",
               "ofType": null
             },
             "defaultValue": null
@@ -5984,8 +6250,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_license_arr_rel_insert_input",
-        "description": "input type for inserting array relation for remote table \"company_license\"",
+        "name": "company_licenses_arr_rel_insert_input",
+        "description": "input type for inserting array relation for remote table \"company_licenses\"",
         "fields": null,
         "inputFields": [
           {
@@ -6002,7 +6268,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "company_license_insert_input",
+                    "name": "company_licenses_insert_input",
                     "ofType": null
                   }
                 }
@@ -6015,7 +6281,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_license_on_conflict",
+              "name": "company_licenses_on_conflict",
               "ofType": null
             },
             "defaultValue": null
@@ -6027,8 +6293,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_license_bool_exp",
-        "description": "Boolean expression to filter rows from the table \"company_license\". All fields are combined with a logical 'AND'.",
+        "name": "company_licenses_bool_exp",
+        "description": "Boolean expression to filter rows from the table \"company_licenses\". All fields are combined with a logical 'AND'.",
         "fields": null,
         "inputFields": [
           {
@@ -6039,7 +6305,7 @@
               "name": null,
               "ofType": {
                 "kind": "INPUT_OBJECT",
-                "name": "company_license_bool_exp",
+                "name": "company_licenses_bool_exp",
                 "ofType": null
               }
             },
@@ -6050,7 +6316,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_license_bool_exp",
+              "name": "company_licenses_bool_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -6063,9 +6329,19 @@
               "name": null,
               "ofType": {
                 "kind": "INPUT_OBJECT",
-                "name": "company_license_bool_exp",
+                "name": "company_licenses_bool_exp",
                 "ofType": null
               }
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "company",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "companies_bool_exp",
+              "ofType": null
             },
             "defaultValue": null
           },
@@ -6106,8 +6382,8 @@
       },
       {
         "kind": "ENUM",
-        "name": "company_license_constraint",
-        "description": "unique or primary key constraints on table \"company_license\"",
+        "name": "company_licenses_constraint",
+        "description": "unique or primary key constraints on table \"company_licenses\"",
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -6123,10 +6399,20 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_license_insert_input",
-        "description": "input type for inserting data into table \"company_license\"",
+        "name": "company_licenses_insert_input",
+        "description": "input type for inserting data into table \"company_licenses\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "company",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "companies_obj_rel_insert_input",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "company_id",
             "description": null,
@@ -6164,7 +6450,7 @@
       },
       {
         "kind": "OBJECT",
-        "name": "company_license_max_fields",
+        "name": "company_licenses_max_fields",
         "description": "aggregate max on columns",
         "fields": [
           {
@@ -6211,8 +6497,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_license_max_order_by",
-        "description": "order by max() on columns of table \"company_license\"",
+        "name": "company_licenses_max_order_by",
+        "description": "order by max() on columns of table \"company_licenses\"",
         "fields": null,
         "inputFields": [
           {
@@ -6252,7 +6538,7 @@
       },
       {
         "kind": "OBJECT",
-        "name": "company_license_min_fields",
+        "name": "company_licenses_min_fields",
         "description": "aggregate min on columns",
         "fields": [
           {
@@ -6299,8 +6585,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_license_min_order_by",
-        "description": "order by min() on columns of table \"company_license\"",
+        "name": "company_licenses_min_order_by",
+        "description": "order by min() on columns of table \"company_licenses\"",
         "fields": null,
         "inputFields": [
           {
@@ -6340,8 +6626,8 @@
       },
       {
         "kind": "OBJECT",
-        "name": "company_license_mutation_response",
-        "description": "response of any mutation on the table \"company_license\"",
+        "name": "company_licenses_mutation_response",
+        "description": "response of any mutation on the table \"company_licenses\"",
         "fields": [
           {
             "name": "affected_rows",
@@ -6374,7 +6660,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "OBJECT",
-                    "name": "company_license",
+                    "name": "company_licenses",
                     "ofType": null
                   }
                 }
@@ -6391,8 +6677,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_license_obj_rel_insert_input",
-        "description": "input type for inserting object relation for remote table \"company_license\"",
+        "name": "company_licenses_obj_rel_insert_input",
+        "description": "input type for inserting object relation for remote table \"company_licenses\"",
         "fields": null,
         "inputFields": [
           {
@@ -6403,7 +6689,7 @@
               "name": null,
               "ofType": {
                 "kind": "INPUT_OBJECT",
-                "name": "company_license_insert_input",
+                "name": "company_licenses_insert_input",
                 "ofType": null
               }
             },
@@ -6414,7 +6700,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_license_on_conflict",
+              "name": "company_licenses_on_conflict",
               "ofType": null
             },
             "defaultValue": null
@@ -6426,8 +6712,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_license_on_conflict",
-        "description": "on conflict condition type for table \"company_license\"",
+        "name": "company_licenses_on_conflict",
+        "description": "on conflict condition type for table \"company_licenses\"",
         "fields": null,
         "inputFields": [
           {
@@ -6438,7 +6724,7 @@
               "name": null,
               "ofType": {
                 "kind": "ENUM",
-                "name": "company_license_constraint",
+                "name": "company_licenses_constraint",
                 "ofType": null
               }
             },
@@ -6458,7 +6744,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "ENUM",
-                    "name": "company_license_update_column",
+                    "name": "company_licenses_update_column",
                     "ofType": null
                   }
                 }
@@ -6471,7 +6757,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_license_bool_exp",
+              "name": "company_licenses_bool_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -6483,10 +6769,20 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_license_order_by",
-        "description": "ordering options when selecting data from \"company_license\"",
+        "name": "company_licenses_order_by",
+        "description": "ordering options when selecting data from \"company_licenses\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "company",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "companies_order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "company_id",
             "description": null,
@@ -6524,8 +6820,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_license_pk_columns_input",
-        "description": "primary key columns input for table: \"company_license\"",
+        "name": "company_licenses_pk_columns_input",
+        "description": "primary key columns input for table: \"company_licenses\"",
         "fields": null,
         "inputFields": [
           {
@@ -6549,8 +6845,8 @@
       },
       {
         "kind": "ENUM",
-        "name": "company_license_select_column",
-        "description": "select columns of table \"company_license\"",
+        "name": "company_licenses_select_column",
+        "description": "select columns of table \"company_licenses\"",
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -6578,8 +6874,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_license_set_input",
-        "description": "input type for updating data in table \"company_license\"",
+        "name": "company_licenses_set_input",
+        "description": "input type for updating data in table \"company_licenses\"",
         "fields": null,
         "inputFields": [
           {
@@ -6619,8 +6915,8 @@
       },
       {
         "kind": "ENUM",
-        "name": "company_license_update_column",
-        "description": "update columns of table \"company_license\"",
+        "name": "company_licenses_update_column",
+        "description": "update columns of table \"company_licenses\"",
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -6648,8 +6944,8 @@
       },
       {
         "kind": "OBJECT",
-        "name": "company_vendor_partnership",
-        "description": "columns and relationships of \"company_vendor_partnership\"",
+        "name": "company_vendor_partnerships",
+        "description": "columns and relationships of \"company_vendor_partnerships\"",
         "fields": [
           {
             "name": "company",
@@ -6663,18 +6959,6 @@
                 "name": "companies",
                 "ofType": null
               }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "company_bank_id",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
-              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -6740,6 +7024,30 @@
             "deprecationReason": null
           },
           {
+            "name": "vendor_bank",
+            "description": "An object relationship",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "company_banks",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "vendor_bank_id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "vendor_id",
             "description": null,
             "args": [],
@@ -6775,8 +7083,8 @@
       },
       {
         "kind": "OBJECT",
-        "name": "company_vendor_partnership_aggregate",
-        "description": "aggregated selection of \"company_vendor_partnership\"",
+        "name": "company_vendor_partnerships_aggregate",
+        "description": "aggregated selection of \"company_vendor_partnerships\"",
         "fields": [
           {
             "name": "aggregate",
@@ -6784,7 +7092,7 @@
             "args": [],
             "type": {
               "kind": "OBJECT",
-              "name": "company_vendor_partnership_aggregate_fields",
+              "name": "company_vendor_partnerships_aggregate_fields",
               "ofType": null
             },
             "isDeprecated": false,
@@ -6805,7 +7113,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "OBJECT",
-                    "name": "company_vendor_partnership",
+                    "name": "company_vendor_partnerships",
                     "ofType": null
                   }
                 }
@@ -6822,8 +7130,8 @@
       },
       {
         "kind": "OBJECT",
-        "name": "company_vendor_partnership_aggregate_fields",
-        "description": "aggregate fields of \"company_vendor_partnership\"",
+        "name": "company_vendor_partnerships_aggregate_fields",
+        "description": "aggregate fields of \"company_vendor_partnerships\"",
         "fields": [
           {
             "name": "count",
@@ -6840,7 +7148,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "ENUM",
-                      "name": "company_vendor_partnership_select_column",
+                      "name": "company_vendor_partnerships_select_column",
                       "ofType": null
                     }
                   }
@@ -6872,7 +7180,7 @@
             "args": [],
             "type": {
               "kind": "OBJECT",
-              "name": "company_vendor_partnership_max_fields",
+              "name": "company_vendor_partnerships_max_fields",
               "ofType": null
             },
             "isDeprecated": false,
@@ -6884,7 +7192,7 @@
             "args": [],
             "type": {
               "kind": "OBJECT",
-              "name": "company_vendor_partnership_min_fields",
+              "name": "company_vendor_partnerships_min_fields",
               "ofType": null
             },
             "isDeprecated": false,
@@ -6898,8 +7206,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_vendor_partnership_aggregate_order_by",
-        "description": "order by aggregate values of table \"company_vendor_partnership\"",
+        "name": "company_vendor_partnerships_aggregate_order_by",
+        "description": "order by aggregate values of table \"company_vendor_partnerships\"",
         "fields": null,
         "inputFields": [
           {
@@ -6917,7 +7225,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_vendor_partnership_max_order_by",
+              "name": "company_vendor_partnerships_max_order_by",
               "ofType": null
             },
             "defaultValue": null
@@ -6927,7 +7235,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_vendor_partnership_min_order_by",
+              "name": "company_vendor_partnerships_min_order_by",
               "ofType": null
             },
             "defaultValue": null
@@ -6939,8 +7247,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_vendor_partnership_arr_rel_insert_input",
-        "description": "input type for inserting array relation for remote table \"company_vendor_partnership\"",
+        "name": "company_vendor_partnerships_arr_rel_insert_input",
+        "description": "input type for inserting array relation for remote table \"company_vendor_partnerships\"",
         "fields": null,
         "inputFields": [
           {
@@ -6957,7 +7265,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "company_vendor_partnership_insert_input",
+                    "name": "company_vendor_partnerships_insert_input",
                     "ofType": null
                   }
                 }
@@ -6970,7 +7278,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_vendor_partnership_on_conflict",
+              "name": "company_vendor_partnerships_on_conflict",
               "ofType": null
             },
             "defaultValue": null
@@ -6982,8 +7290,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_vendor_partnership_bool_exp",
-        "description": "Boolean expression to filter rows from the table \"company_vendor_partnership\". All fields are combined with a logical 'AND'.",
+        "name": "company_vendor_partnerships_bool_exp",
+        "description": "Boolean expression to filter rows from the table \"company_vendor_partnerships\". All fields are combined with a logical 'AND'.",
         "fields": null,
         "inputFields": [
           {
@@ -6994,7 +7302,7 @@
               "name": null,
               "ofType": {
                 "kind": "INPUT_OBJECT",
-                "name": "company_vendor_partnership_bool_exp",
+                "name": "company_vendor_partnerships_bool_exp",
                 "ofType": null
               }
             },
@@ -7005,7 +7313,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_vendor_partnership_bool_exp",
+              "name": "company_vendor_partnerships_bool_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -7018,7 +7326,7 @@
               "name": null,
               "ofType": {
                 "kind": "INPUT_OBJECT",
-                "name": "company_vendor_partnership_bool_exp",
+                "name": "company_vendor_partnerships_bool_exp",
                 "ofType": null
               }
             },
@@ -7030,16 +7338,6 @@
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "companies_bool_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "company_bank_id",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "uuid_comparison_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -7076,6 +7374,26 @@
           },
           {
             "name": "vendor_agreement_id",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "uuid_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "vendor_bank",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "company_banks_bool_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "vendor_bank_id",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
@@ -7111,8 +7429,8 @@
       },
       {
         "kind": "ENUM",
-        "name": "company_vendor_partnership_constraint",
-        "description": "unique or primary key constraints on table \"company_vendor_partnership\"",
+        "name": "company_vendor_partnerships_constraint",
+        "description": "unique or primary key constraints on table \"company_vendor_partnerships\"",
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -7128,8 +7446,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_vendor_partnership_insert_input",
-        "description": "input type for inserting data into table \"company_vendor_partnership\"",
+        "name": "company_vendor_partnerships_insert_input",
+        "description": "input type for inserting data into table \"company_vendor_partnerships\"",
         "fields": null,
         "inputFields": [
           {
@@ -7138,16 +7456,6 @@
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "companies_obj_rel_insert_input",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "company_bank_id",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
               "ofType": null
             },
             "defaultValue": null
@@ -7193,6 +7501,26 @@
             "defaultValue": null
           },
           {
+            "name": "vendor_bank",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "company_banks_obj_rel_insert_input",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "vendor_bank_id",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "vendor_id",
             "description": null,
             "type": {
@@ -7219,22 +7547,10 @@
       },
       {
         "kind": "OBJECT",
-        "name": "company_vendor_partnership_max_fields",
+        "name": "company_vendor_partnerships_max_fields",
         "description": "aggregate max on columns",
         "fields": [
           {
-            "name": "company_bank_id",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "company_id",
             "description": null,
             "args": [],
@@ -7260,6 +7576,18 @@
           },
           {
             "name": "vendor_agreement_id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "vendor_bank_id",
             "description": null,
             "args": [],
             "type": {
@@ -7302,20 +7630,10 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_vendor_partnership_max_order_by",
-        "description": "order by max() on columns of table \"company_vendor_partnership\"",
+        "name": "company_vendor_partnerships_max_order_by",
+        "description": "order by max() on columns of table \"company_vendor_partnerships\"",
         "fields": null,
         "inputFields": [
-          {
-            "name": "company_bank_id",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
           {
             "name": "company_id",
             "description": null,
@@ -7338,6 +7656,16 @@
           },
           {
             "name": "vendor_agreement_id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "vendor_bank_id",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -7373,22 +7701,10 @@
       },
       {
         "kind": "OBJECT",
-        "name": "company_vendor_partnership_min_fields",
+        "name": "company_vendor_partnerships_min_fields",
         "description": "aggregate min on columns",
         "fields": [
           {
-            "name": "company_bank_id",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "company_id",
             "description": null,
             "args": [],
@@ -7414,6 +7730,18 @@
           },
           {
             "name": "vendor_agreement_id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "vendor_bank_id",
             "description": null,
             "args": [],
             "type": {
@@ -7456,20 +7784,10 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_vendor_partnership_min_order_by",
-        "description": "order by min() on columns of table \"company_vendor_partnership\"",
+        "name": "company_vendor_partnerships_min_order_by",
+        "description": "order by min() on columns of table \"company_vendor_partnerships\"",
         "fields": null,
         "inputFields": [
-          {
-            "name": "company_bank_id",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
           {
             "name": "company_id",
             "description": null,
@@ -7492,6 +7810,16 @@
           },
           {
             "name": "vendor_agreement_id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "vendor_bank_id",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -7527,8 +7855,8 @@
       },
       {
         "kind": "OBJECT",
-        "name": "company_vendor_partnership_mutation_response",
-        "description": "response of any mutation on the table \"company_vendor_partnership\"",
+        "name": "company_vendor_partnerships_mutation_response",
+        "description": "response of any mutation on the table \"company_vendor_partnerships\"",
         "fields": [
           {
             "name": "affected_rows",
@@ -7561,7 +7889,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "OBJECT",
-                    "name": "company_vendor_partnership",
+                    "name": "company_vendor_partnerships",
                     "ofType": null
                   }
                 }
@@ -7578,8 +7906,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_vendor_partnership_obj_rel_insert_input",
-        "description": "input type for inserting object relation for remote table \"company_vendor_partnership\"",
+        "name": "company_vendor_partnerships_obj_rel_insert_input",
+        "description": "input type for inserting object relation for remote table \"company_vendor_partnerships\"",
         "fields": null,
         "inputFields": [
           {
@@ -7590,7 +7918,7 @@
               "name": null,
               "ofType": {
                 "kind": "INPUT_OBJECT",
-                "name": "company_vendor_partnership_insert_input",
+                "name": "company_vendor_partnerships_insert_input",
                 "ofType": null
               }
             },
@@ -7601,7 +7929,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_vendor_partnership_on_conflict",
+              "name": "company_vendor_partnerships_on_conflict",
               "ofType": null
             },
             "defaultValue": null
@@ -7613,8 +7941,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_vendor_partnership_on_conflict",
-        "description": "on conflict condition type for table \"company_vendor_partnership\"",
+        "name": "company_vendor_partnerships_on_conflict",
+        "description": "on conflict condition type for table \"company_vendor_partnerships\"",
         "fields": null,
         "inputFields": [
           {
@@ -7625,7 +7953,7 @@
               "name": null,
               "ofType": {
                 "kind": "ENUM",
-                "name": "company_vendor_partnership_constraint",
+                "name": "company_vendor_partnerships_constraint",
                 "ofType": null
               }
             },
@@ -7645,7 +7973,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "ENUM",
-                    "name": "company_vendor_partnership_update_column",
+                    "name": "company_vendor_partnerships_update_column",
                     "ofType": null
                   }
                 }
@@ -7658,7 +7986,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_vendor_partnership_bool_exp",
+              "name": "company_vendor_partnerships_bool_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -7670,8 +7998,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_vendor_partnership_order_by",
-        "description": "ordering options when selecting data from \"company_vendor_partnership\"",
+        "name": "company_vendor_partnerships_order_by",
+        "description": "ordering options when selecting data from \"company_vendor_partnerships\"",
         "fields": null,
         "inputFields": [
           {
@@ -7680,16 +8008,6 @@
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "companies_order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "company_bank_id",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
               "ofType": null
             },
             "defaultValue": null
@@ -7735,6 +8053,26 @@
             "defaultValue": null
           },
           {
+            "name": "vendor_bank",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "company_banks_order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "vendor_bank_id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "vendor_id",
             "description": null,
             "type": {
@@ -7761,8 +8099,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_vendor_partnership_pk_columns_input",
-        "description": "primary key columns input for table: \"company_vendor_partnership\"",
+        "name": "company_vendor_partnerships_pk_columns_input",
+        "description": "primary key columns input for table: \"company_vendor_partnerships\"",
         "fields": null,
         "inputFields": [
           {
@@ -7786,18 +8124,12 @@
       },
       {
         "kind": "ENUM",
-        "name": "company_vendor_partnership_select_column",
-        "description": "select columns of table \"company_vendor_partnership\"",
+        "name": "company_vendor_partnerships_select_column",
+        "description": "select columns of table \"company_vendor_partnerships\"",
         "fields": null,
         "inputFields": null,
         "interfaces": null,
         "enumValues": [
-          {
-            "name": "company_bank_id",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
           {
             "name": "company_id",
             "description": "column name",
@@ -7812,6 +8144,12 @@
           },
           {
             "name": "vendor_agreement_id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "vendor_bank_id",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -7833,20 +8171,10 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_vendor_partnership_set_input",
-        "description": "input type for updating data in table \"company_vendor_partnership\"",
+        "name": "company_vendor_partnerships_set_input",
+        "description": "input type for updating data in table \"company_vendor_partnerships\"",
         "fields": null,
         "inputFields": [
-          {
-            "name": "company_bank_id",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
           {
             "name": "company_id",
             "description": null,
@@ -7869,6 +8197,16 @@
           },
           {
             "name": "vendor_agreement_id",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "vendor_bank_id",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -7904,18 +8242,12 @@
       },
       {
         "kind": "ENUM",
-        "name": "company_vendor_partnership_update_column",
-        "description": "update columns of table \"company_vendor_partnership\"",
+        "name": "company_vendor_partnerships_update_column",
+        "description": "update columns of table \"company_vendor_partnerships\"",
         "fields": null,
         "inputFields": null,
         "interfaces": null,
         "enumValues": [
-          {
-            "name": "company_bank_id",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
           {
             "name": "company_id",
             "description": "column name",
@@ -7930,6 +8262,12 @@
           },
           {
             "name": "vendor_agreement_id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "vendor_bank_id",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -8907,8 +9245,8 @@
             "deprecationReason": null
           },
           {
-            "name": "delete_company_license",
-            "description": "delete data from the table: \"company_license\"",
+            "name": "delete_company_licenses",
+            "description": "delete data from the table: \"company_licenses\"",
             "args": [
               {
                 "name": "where",
@@ -8918,7 +9256,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "company_license_bool_exp",
+                    "name": "company_licenses_bool_exp",
                     "ofType": null
                   }
                 },
@@ -8927,15 +9265,15 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_license_mutation_response",
+              "name": "company_licenses_mutation_response",
               "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
           },
           {
-            "name": "delete_company_license_by_pk",
-            "description": "delete single row from the table: \"company_license\"",
+            "name": "delete_company_licenses_by_pk",
+            "description": "delete single row from the table: \"company_licenses\"",
             "args": [
               {
                 "name": "id",
@@ -8954,15 +9292,15 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_license",
+              "name": "company_licenses",
               "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
           },
           {
-            "name": "delete_company_vendor_partnership",
-            "description": "delete data from the table: \"company_vendor_partnership\"",
+            "name": "delete_company_vendor_partnerships",
+            "description": "delete data from the table: \"company_vendor_partnerships\"",
             "args": [
               {
                 "name": "where",
@@ -8972,7 +9310,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "company_vendor_partnership_bool_exp",
+                    "name": "company_vendor_partnerships_bool_exp",
                     "ofType": null
                   }
                 },
@@ -8981,15 +9319,15 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_vendor_partnership_mutation_response",
+              "name": "company_vendor_partnerships_mutation_response",
               "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
           },
           {
-            "name": "delete_company_vendor_partnership_by_pk",
-            "description": "delete single row from the table: \"company_vendor_partnership\"",
+            "name": "delete_company_vendor_partnerships_by_pk",
+            "description": "delete single row from the table: \"company_vendor_partnerships\"",
             "args": [
               {
                 "name": "id",
@@ -9008,7 +9346,7 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_vendor_partnership",
+              "name": "company_vendor_partnerships",
               "ofType": null
             },
             "isDeprecated": false,
@@ -9477,8 +9815,8 @@
             "deprecationReason": null
           },
           {
-            "name": "insert_company_license",
-            "description": "insert data into the table: \"company_license\"",
+            "name": "insert_company_licenses",
+            "description": "insert data into the table: \"company_licenses\"",
             "args": [
               {
                 "name": "objects",
@@ -9494,7 +9832,7 @@
                       "name": null,
                       "ofType": {
                         "kind": "INPUT_OBJECT",
-                        "name": "company_license_insert_input",
+                        "name": "company_licenses_insert_input",
                         "ofType": null
                       }
                     }
@@ -9507,7 +9845,7 @@
                 "description": "on conflict condition",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_license_on_conflict",
+                  "name": "company_licenses_on_conflict",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -9515,15 +9853,15 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_license_mutation_response",
+              "name": "company_licenses_mutation_response",
               "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
           },
           {
-            "name": "insert_company_license_one",
-            "description": "insert a single row into the table: \"company_license\"",
+            "name": "insert_company_licenses_one",
+            "description": "insert a single row into the table: \"company_licenses\"",
             "args": [
               {
                 "name": "object",
@@ -9533,7 +9871,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "company_license_insert_input",
+                    "name": "company_licenses_insert_input",
                     "ofType": null
                   }
                 },
@@ -9544,7 +9882,7 @@
                 "description": "on conflict condition",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_license_on_conflict",
+                  "name": "company_licenses_on_conflict",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -9552,15 +9890,15 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_license",
+              "name": "company_licenses",
               "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
           },
           {
-            "name": "insert_company_vendor_partnership",
-            "description": "insert data into the table: \"company_vendor_partnership\"",
+            "name": "insert_company_vendor_partnerships",
+            "description": "insert data into the table: \"company_vendor_partnerships\"",
             "args": [
               {
                 "name": "objects",
@@ -9576,7 +9914,7 @@
                       "name": null,
                       "ofType": {
                         "kind": "INPUT_OBJECT",
-                        "name": "company_vendor_partnership_insert_input",
+                        "name": "company_vendor_partnerships_insert_input",
                         "ofType": null
                       }
                     }
@@ -9589,7 +9927,7 @@
                 "description": "on conflict condition",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_vendor_partnership_on_conflict",
+                  "name": "company_vendor_partnerships_on_conflict",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -9597,15 +9935,15 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_vendor_partnership_mutation_response",
+              "name": "company_vendor_partnerships_mutation_response",
               "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
           },
           {
-            "name": "insert_company_vendor_partnership_one",
-            "description": "insert a single row into the table: \"company_vendor_partnership\"",
+            "name": "insert_company_vendor_partnerships_one",
+            "description": "insert a single row into the table: \"company_vendor_partnerships\"",
             "args": [
               {
                 "name": "object",
@@ -9615,7 +9953,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "company_vendor_partnership_insert_input",
+                    "name": "company_vendor_partnerships_insert_input",
                     "ofType": null
                   }
                 },
@@ -9626,7 +9964,7 @@
                 "description": "on conflict condition",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_vendor_partnership_on_conflict",
+                  "name": "company_vendor_partnerships_on_conflict",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -9634,7 +9972,7 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_vendor_partnership",
+              "name": "company_vendor_partnerships",
               "ofType": null
             },
             "isDeprecated": false,
@@ -10191,15 +10529,15 @@
             "deprecationReason": null
           },
           {
-            "name": "update_company_license",
-            "description": "update data of the table: \"company_license\"",
+            "name": "update_company_licenses",
+            "description": "update data of the table: \"company_licenses\"",
             "args": [
               {
                 "name": "_set",
                 "description": "sets the columns of the filtered rows to the given values",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_license_set_input",
+                  "name": "company_licenses_set_input",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -10212,7 +10550,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "company_license_bool_exp",
+                    "name": "company_licenses_bool_exp",
                     "ofType": null
                   }
                 },
@@ -10221,22 +10559,22 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_license_mutation_response",
+              "name": "company_licenses_mutation_response",
               "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
           },
           {
-            "name": "update_company_license_by_pk",
-            "description": "update single row of the table: \"company_license\"",
+            "name": "update_company_licenses_by_pk",
+            "description": "update single row of the table: \"company_licenses\"",
             "args": [
               {
                 "name": "_set",
                 "description": "sets the columns of the filtered rows to the given values",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_license_set_input",
+                  "name": "company_licenses_set_input",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -10249,7 +10587,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "company_license_pk_columns_input",
+                    "name": "company_licenses_pk_columns_input",
                     "ofType": null
                   }
                 },
@@ -10258,22 +10596,22 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_license",
+              "name": "company_licenses",
               "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
           },
           {
-            "name": "update_company_vendor_partnership",
-            "description": "update data of the table: \"company_vendor_partnership\"",
+            "name": "update_company_vendor_partnerships",
+            "description": "update data of the table: \"company_vendor_partnerships\"",
             "args": [
               {
                 "name": "_set",
                 "description": "sets the columns of the filtered rows to the given values",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_vendor_partnership_set_input",
+                  "name": "company_vendor_partnerships_set_input",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -10286,7 +10624,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "company_vendor_partnership_bool_exp",
+                    "name": "company_vendor_partnerships_bool_exp",
                     "ofType": null
                   }
                 },
@@ -10295,22 +10633,22 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_vendor_partnership_mutation_response",
+              "name": "company_vendor_partnerships_mutation_response",
               "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
           },
           {
-            "name": "update_company_vendor_partnership_by_pk",
-            "description": "update single row of the table: \"company_vendor_partnership\"",
+            "name": "update_company_vendor_partnerships_by_pk",
+            "description": "update single row of the table: \"company_vendor_partnerships\"",
             "args": [
               {
                 "name": "_set",
                 "description": "sets the columns of the filtered rows to the given values",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_vendor_partnership_set_input",
+                  "name": "company_vendor_partnerships_set_input",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -10323,7 +10661,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "company_vendor_partnership_pk_columns_input",
+                    "name": "company_vendor_partnerships_pk_columns_input",
                     "ofType": null
                   }
                 },
@@ -10332,7 +10670,7 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_vendor_partnership",
+              "name": "company_vendor_partnerships",
               "ofType": null
             },
             "isDeprecated": false,
@@ -14839,8 +15177,8 @@
             "deprecationReason": null
           },
           {
-            "name": "company_license",
-            "description": "fetch data from the table: \"company_license\"",
+            "name": "company_licenses",
+            "description": "fetch data from the table: \"company_licenses\"",
             "args": [
               {
                 "name": "distinct_on",
@@ -14853,7 +15191,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "ENUM",
-                      "name": "company_license_select_column",
+                      "name": "company_licenses_select_column",
                       "ofType": null
                     }
                   }
@@ -14891,7 +15229,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "company_license_order_by",
+                      "name": "company_licenses_order_by",
                       "ofType": null
                     }
                   }
@@ -14903,7 +15241,7 @@
                 "description": "filter the rows returned",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_license_bool_exp",
+                  "name": "company_licenses_bool_exp",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -14920,7 +15258,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "OBJECT",
-                    "name": "company_license",
+                    "name": "company_licenses",
                     "ofType": null
                   }
                 }
@@ -14930,8 +15268,8 @@
             "deprecationReason": null
           },
           {
-            "name": "company_license_aggregate",
-            "description": "fetch aggregated fields from the table: \"company_license\"",
+            "name": "company_licenses_aggregate",
+            "description": "fetch aggregated fields from the table: \"company_licenses\"",
             "args": [
               {
                 "name": "distinct_on",
@@ -14944,7 +15282,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "ENUM",
-                      "name": "company_license_select_column",
+                      "name": "company_licenses_select_column",
                       "ofType": null
                     }
                   }
@@ -14982,7 +15320,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "company_license_order_by",
+                      "name": "company_licenses_order_by",
                       "ofType": null
                     }
                   }
@@ -14994,7 +15332,7 @@
                 "description": "filter the rows returned",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_license_bool_exp",
+                  "name": "company_licenses_bool_exp",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -15005,7 +15343,7 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "company_license_aggregate",
+                "name": "company_licenses_aggregate",
                 "ofType": null
               }
             },
@@ -15013,8 +15351,8 @@
             "deprecationReason": null
           },
           {
-            "name": "company_license_by_pk",
-            "description": "fetch data from the table: \"company_license\" using primary key columns",
+            "name": "company_licenses_by_pk",
+            "description": "fetch data from the table: \"company_licenses\" using primary key columns",
             "args": [
               {
                 "name": "id",
@@ -15033,15 +15371,15 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_license",
+              "name": "company_licenses",
               "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
           },
           {
-            "name": "company_vendor_partnership",
-            "description": "fetch data from the table: \"company_vendor_partnership\"",
+            "name": "company_vendor_partnerships",
+            "description": "fetch data from the table: \"company_vendor_partnerships\"",
             "args": [
               {
                 "name": "distinct_on",
@@ -15054,7 +15392,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "ENUM",
-                      "name": "company_vendor_partnership_select_column",
+                      "name": "company_vendor_partnerships_select_column",
                       "ofType": null
                     }
                   }
@@ -15092,7 +15430,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "company_vendor_partnership_order_by",
+                      "name": "company_vendor_partnerships_order_by",
                       "ofType": null
                     }
                   }
@@ -15104,7 +15442,7 @@
                 "description": "filter the rows returned",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_vendor_partnership_bool_exp",
+                  "name": "company_vendor_partnerships_bool_exp",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -15121,7 +15459,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "OBJECT",
-                    "name": "company_vendor_partnership",
+                    "name": "company_vendor_partnerships",
                     "ofType": null
                   }
                 }
@@ -15131,8 +15469,8 @@
             "deprecationReason": null
           },
           {
-            "name": "company_vendor_partnership_aggregate",
-            "description": "fetch aggregated fields from the table: \"company_vendor_partnership\"",
+            "name": "company_vendor_partnerships_aggregate",
+            "description": "fetch aggregated fields from the table: \"company_vendor_partnerships\"",
             "args": [
               {
                 "name": "distinct_on",
@@ -15145,7 +15483,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "ENUM",
-                      "name": "company_vendor_partnership_select_column",
+                      "name": "company_vendor_partnerships_select_column",
                       "ofType": null
                     }
                   }
@@ -15183,7 +15521,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "company_vendor_partnership_order_by",
+                      "name": "company_vendor_partnerships_order_by",
                       "ofType": null
                     }
                   }
@@ -15195,7 +15533,7 @@
                 "description": "filter the rows returned",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_vendor_partnership_bool_exp",
+                  "name": "company_vendor_partnerships_bool_exp",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -15206,7 +15544,7 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "company_vendor_partnership_aggregate",
+                "name": "company_vendor_partnerships_aggregate",
                 "ofType": null
               }
             },
@@ -15214,8 +15552,8 @@
             "deprecationReason": null
           },
           {
-            "name": "company_vendor_partnership_by_pk",
-            "description": "fetch data from the table: \"company_vendor_partnership\" using primary key columns",
+            "name": "company_vendor_partnerships_by_pk",
+            "description": "fetch data from the table: \"company_vendor_partnerships\" using primary key columns",
             "args": [
               {
                 "name": "id",
@@ -15234,7 +15572,7 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_vendor_partnership",
+              "name": "company_vendor_partnerships",
               "ofType": null
             },
             "isDeprecated": false,
@@ -16659,8 +16997,8 @@
             "deprecationReason": null
           },
           {
-            "name": "company_license",
-            "description": "fetch data from the table: \"company_license\"",
+            "name": "company_licenses",
+            "description": "fetch data from the table: \"company_licenses\"",
             "args": [
               {
                 "name": "distinct_on",
@@ -16673,7 +17011,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "ENUM",
-                      "name": "company_license_select_column",
+                      "name": "company_licenses_select_column",
                       "ofType": null
                     }
                   }
@@ -16711,7 +17049,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "company_license_order_by",
+                      "name": "company_licenses_order_by",
                       "ofType": null
                     }
                   }
@@ -16723,7 +17061,7 @@
                 "description": "filter the rows returned",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_license_bool_exp",
+                  "name": "company_licenses_bool_exp",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -16740,7 +17078,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "OBJECT",
-                    "name": "company_license",
+                    "name": "company_licenses",
                     "ofType": null
                   }
                 }
@@ -16750,8 +17088,8 @@
             "deprecationReason": null
           },
           {
-            "name": "company_license_aggregate",
-            "description": "fetch aggregated fields from the table: \"company_license\"",
+            "name": "company_licenses_aggregate",
+            "description": "fetch aggregated fields from the table: \"company_licenses\"",
             "args": [
               {
                 "name": "distinct_on",
@@ -16764,7 +17102,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "ENUM",
-                      "name": "company_license_select_column",
+                      "name": "company_licenses_select_column",
                       "ofType": null
                     }
                   }
@@ -16802,7 +17140,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "company_license_order_by",
+                      "name": "company_licenses_order_by",
                       "ofType": null
                     }
                   }
@@ -16814,7 +17152,7 @@
                 "description": "filter the rows returned",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_license_bool_exp",
+                  "name": "company_licenses_bool_exp",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -16825,7 +17163,7 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "company_license_aggregate",
+                "name": "company_licenses_aggregate",
                 "ofType": null
               }
             },
@@ -16833,8 +17171,8 @@
             "deprecationReason": null
           },
           {
-            "name": "company_license_by_pk",
-            "description": "fetch data from the table: \"company_license\" using primary key columns",
+            "name": "company_licenses_by_pk",
+            "description": "fetch data from the table: \"company_licenses\" using primary key columns",
             "args": [
               {
                 "name": "id",
@@ -16853,15 +17191,15 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_license",
+              "name": "company_licenses",
               "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
           },
           {
-            "name": "company_vendor_partnership",
-            "description": "fetch data from the table: \"company_vendor_partnership\"",
+            "name": "company_vendor_partnerships",
+            "description": "fetch data from the table: \"company_vendor_partnerships\"",
             "args": [
               {
                 "name": "distinct_on",
@@ -16874,7 +17212,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "ENUM",
-                      "name": "company_vendor_partnership_select_column",
+                      "name": "company_vendor_partnerships_select_column",
                       "ofType": null
                     }
                   }
@@ -16912,7 +17250,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "company_vendor_partnership_order_by",
+                      "name": "company_vendor_partnerships_order_by",
                       "ofType": null
                     }
                   }
@@ -16924,7 +17262,7 @@
                 "description": "filter the rows returned",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_vendor_partnership_bool_exp",
+                  "name": "company_vendor_partnerships_bool_exp",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -16941,7 +17279,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "OBJECT",
-                    "name": "company_vendor_partnership",
+                    "name": "company_vendor_partnerships",
                     "ofType": null
                   }
                 }
@@ -16951,8 +17289,8 @@
             "deprecationReason": null
           },
           {
-            "name": "company_vendor_partnership_aggregate",
-            "description": "fetch aggregated fields from the table: \"company_vendor_partnership\"",
+            "name": "company_vendor_partnerships_aggregate",
+            "description": "fetch aggregated fields from the table: \"company_vendor_partnerships\"",
             "args": [
               {
                 "name": "distinct_on",
@@ -16965,7 +17303,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "ENUM",
-                      "name": "company_vendor_partnership_select_column",
+                      "name": "company_vendor_partnerships_select_column",
                       "ofType": null
                     }
                   }
@@ -17003,7 +17341,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "company_vendor_partnership_order_by",
+                      "name": "company_vendor_partnerships_order_by",
                       "ofType": null
                     }
                   }
@@ -17015,7 +17353,7 @@
                 "description": "filter the rows returned",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_vendor_partnership_bool_exp",
+                  "name": "company_vendor_partnerships_bool_exp",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -17026,7 +17364,7 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "company_vendor_partnership_aggregate",
+                "name": "company_vendor_partnerships_aggregate",
                 "ofType": null
               }
             },
@@ -17034,8 +17372,8 @@
             "deprecationReason": null
           },
           {
-            "name": "company_vendor_partnership_by_pk",
-            "description": "fetch data from the table: \"company_vendor_partnership\" using primary key columns",
+            "name": "company_vendor_partnerships_by_pk",
+            "description": "fetch data from the table: \"company_vendor_partnerships\" using primary key columns",
             "args": [
               {
                 "name": "id",
@@ -17054,7 +17392,7 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_vendor_partnership",
+              "name": "company_vendor_partnerships",
               "ofType": null
             },
             "isDeprecated": false,

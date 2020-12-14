@@ -22,14 +22,21 @@
         column: company_id
         table:
           schema: public
-          name: company_vendor_partnership
+          name: company_vendor_partnerships
+  - name: company_vendor_partnerships_by_vendor
+    using:
+      foreign_key_constraint_on:
+        column: vendor_id
+        table:
+          schema: public
+          name: company_vendor_partnerships
   - name: licenses
     using:
       foreign_key_constraint_on:
         column: company_id
         table:
           schema: public
-          name: company_license
+          name: company_licenses
   - name: users
     using:
       foreign_key_constraint_on:
@@ -49,10 +56,14 @@
       foreign_key_constraint_on: company_id
 - table:
     schema: public
-    name: company_license
+    name: company_licenses
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
 - table:
     schema: public
-    name: company_vendor_partnership
+    name: company_vendor_partnerships
   object_relationships:
   - name: company
     using:
@@ -60,6 +71,9 @@
   - name: vendor
     using:
       foreign_key_constraint_on: vendor_id
+  - name: vendor_bank
+    using:
+      foreign_key_constraint_on: vendor_bank_id
 - table:
     schema: public
     name: loans
