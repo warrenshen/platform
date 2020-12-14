@@ -3,7 +3,7 @@ fragment BankVendorPartnership on company_vendor_partnerships {
   company_id
   vendor_id
   vendor_agreement_id
-  vendor_bank {
+  vendor_bank_account {
     ...BankAccount
   }
   vendor_license_id
@@ -19,14 +19,14 @@ fragment BankVendorPartnership on company_vendor_partnerships {
   }
 }
 
-fragment BankAccount on company_banks {
+fragment BankAccount on company_bank_accounts {
   id
   name
   account_name
   account_number
   routing_number
   notes
-  confirmed_at
+  verified_at
 }
 
 query BankListVendorPartnerships {
@@ -50,19 +50,25 @@ query BankVendorPartnership($id: uuid!) {
 }
 
 query CompanyBankAccounts($companyId: uuid!) {
-  company_banks(where: { company_id: { _eq: $companyId } }) {
+  company_bank_accounts(where: { company_id: { _eq: $companyId } }) {
     ...BankAccount
   }
 }
 
-mutation AddBankAccount($bankAccount: company_banks_insert_input!) {
-  insert_company_banks_one(object: $bankAccount) {
+mutation AddBankAccount($bankAccount: company_bank_accounts_insert_input!) {
+  insert_company_bank_accounts_one(object: $bankAccount) {
     ...BankAccount
   }
 }
 
-mutation UpdateBankAccount($id: uuid!, $bankAccount: company_banks_set_input) {
-  update_company_banks_by_pk(pk_columns: { id: $id }, _set: $bankAccount) {
+mutation UpdateBankAccount(
+  $id: uuid!
+  $bankAccount: company_bank_accounts_set_input
+) {
+  update_company_bank_accounts_by_pk(
+    pk_columns: { id: $id }
+    _set: $bankAccount
+  ) {
     ...BankAccount
   }
 }
@@ -76,7 +82,7 @@ mutation ChangeBankAccount(
     _set: { vendor_bank_id: $bankAccountId }
   ) {
     id
-    vendor_bank {
+    vendor_bank_account {
       ...BankAccount
     }
   }

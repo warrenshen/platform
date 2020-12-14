@@ -526,7 +526,7 @@
             "deprecationReason": null
           },
           {
-            "name": "banks",
+            "name": "bank_accounts",
             "description": "An array relationship",
             "args": [
               {
@@ -540,7 +540,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "ENUM",
-                      "name": "company_banks_select_column",
+                      "name": "company_bank_accounts_select_column",
                       "ofType": null
                     }
                   }
@@ -578,7 +578,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "company_banks_order_by",
+                      "name": "company_bank_accounts_order_by",
                       "ofType": null
                     }
                   }
@@ -590,7 +590,7 @@
                 "description": "filter the rows returned",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_banks_bool_exp",
+                  "name": "company_bank_accounts_bool_exp",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -607,7 +607,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "OBJECT",
-                    "name": "company_banks",
+                    "name": "company_bank_accounts",
                     "ofType": null
                   }
                 }
@@ -617,7 +617,7 @@
             "deprecationReason": null
           },
           {
-            "name": "banks_aggregate",
+            "name": "bank_accounts_aggregate",
             "description": "An aggregated array relationship",
             "args": [
               {
@@ -631,7 +631,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "ENUM",
-                      "name": "company_banks_select_column",
+                      "name": "company_bank_accounts_select_column",
                       "ofType": null
                     }
                   }
@@ -669,7 +669,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "company_banks_order_by",
+                      "name": "company_bank_accounts_order_by",
                       "ofType": null
                     }
                   }
@@ -681,7 +681,7 @@
                 "description": "filter the rows returned",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_banks_bool_exp",
+                  "name": "company_bank_accounts_bool_exp",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -692,7 +692,7 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "company_banks_aggregate",
+                "name": "company_bank_accounts_aggregate",
                 "ofType": null
               }
             },
@@ -1833,11 +1833,11 @@
             "defaultValue": null
           },
           {
-            "name": "banks",
+            "name": "bank_accounts",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_banks_bool_exp",
+              "name": "company_bank_accounts_bool_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -2051,11 +2051,11 @@
             "defaultValue": null
           },
           {
-            "name": "banks",
+            "name": "bank_accounts",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_banks_arr_rel_insert_input",
+              "name": "company_bank_accounts_arr_rel_insert_input",
               "ofType": null
             },
             "defaultValue": null
@@ -3011,11 +3011,11 @@
             "defaultValue": null
           },
           {
-            "name": "banks_aggregate",
+            "name": "bank_accounts_aggregate",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_banks_aggregate_order_by",
+              "name": "company_bank_accounts_aggregate_order_by",
               "ofType": null
             },
             "defaultValue": null
@@ -4526,8 +4526,8 @@
       },
       {
         "kind": "OBJECT",
-        "name": "company_banks",
-        "description": "columns and relationships of \"company_banks\"",
+        "name": "company_bank_accounts",
+        "description": "columns and relationships of \"company_bank_accounts\"",
         "fields": [
           {
             "name": "account_name",
@@ -4594,18 +4594,6 @@
             "deprecationReason": null
           },
           {
-            "name": "confirmed_at",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "timestamptz",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "id",
             "description": null,
             "args": [],
@@ -4664,6 +4652,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "verified_at",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -4673,8 +4673,8 @@
       },
       {
         "kind": "OBJECT",
-        "name": "company_banks_aggregate",
-        "description": "aggregated selection of \"company_banks\"",
+        "name": "company_bank_accounts_aggregate",
+        "description": "aggregated selection of \"company_bank_accounts\"",
         "fields": [
           {
             "name": "aggregate",
@@ -4682,7 +4682,7 @@
             "args": [],
             "type": {
               "kind": "OBJECT",
-              "name": "company_banks_aggregate_fields",
+              "name": "company_bank_accounts_aggregate_fields",
               "ofType": null
             },
             "isDeprecated": false,
@@ -4703,7 +4703,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "OBJECT",
-                    "name": "company_banks",
+                    "name": "company_bank_accounts",
                     "ofType": null
                   }
                 }
@@ -4720,8 +4720,8 @@
       },
       {
         "kind": "OBJECT",
-        "name": "company_banks_aggregate_fields",
-        "description": "aggregate fields of \"company_banks\"",
+        "name": "company_bank_accounts_aggregate_fields",
+        "description": "aggregate fields of \"company_bank_accounts\"",
         "fields": [
           {
             "name": "count",
@@ -4738,7 +4738,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "ENUM",
-                      "name": "company_banks_select_column",
+                      "name": "company_bank_accounts_select_column",
                       "ofType": null
                     }
                   }
@@ -4770,7 +4770,7 @@
             "args": [],
             "type": {
               "kind": "OBJECT",
-              "name": "company_banks_max_fields",
+              "name": "company_bank_accounts_max_fields",
               "ofType": null
             },
             "isDeprecated": false,
@@ -4782,7 +4782,7 @@
             "args": [],
             "type": {
               "kind": "OBJECT",
-              "name": "company_banks_min_fields",
+              "name": "company_bank_accounts_min_fields",
               "ofType": null
             },
             "isDeprecated": false,
@@ -4796,8 +4796,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_banks_aggregate_order_by",
-        "description": "order by aggregate values of table \"company_banks\"",
+        "name": "company_bank_accounts_aggregate_order_by",
+        "description": "order by aggregate values of table \"company_bank_accounts\"",
         "fields": null,
         "inputFields": [
           {
@@ -4815,7 +4815,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_banks_max_order_by",
+              "name": "company_bank_accounts_max_order_by",
               "ofType": null
             },
             "defaultValue": null
@@ -4825,7 +4825,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_banks_min_order_by",
+              "name": "company_bank_accounts_min_order_by",
               "ofType": null
             },
             "defaultValue": null
@@ -4837,8 +4837,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_banks_arr_rel_insert_input",
-        "description": "input type for inserting array relation for remote table \"company_banks\"",
+        "name": "company_bank_accounts_arr_rel_insert_input",
+        "description": "input type for inserting array relation for remote table \"company_bank_accounts\"",
         "fields": null,
         "inputFields": [
           {
@@ -4855,7 +4855,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "company_banks_insert_input",
+                    "name": "company_bank_accounts_insert_input",
                     "ofType": null
                   }
                 }
@@ -4868,7 +4868,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_banks_on_conflict",
+              "name": "company_bank_accounts_on_conflict",
               "ofType": null
             },
             "defaultValue": null
@@ -4880,8 +4880,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_banks_bool_exp",
-        "description": "Boolean expression to filter rows from the table \"company_banks\". All fields are combined with a logical 'AND'.",
+        "name": "company_bank_accounts_bool_exp",
+        "description": "Boolean expression to filter rows from the table \"company_bank_accounts\". All fields are combined with a logical 'AND'.",
         "fields": null,
         "inputFields": [
           {
@@ -4892,7 +4892,7 @@
               "name": null,
               "ofType": {
                 "kind": "INPUT_OBJECT",
-                "name": "company_banks_bool_exp",
+                "name": "company_bank_accounts_bool_exp",
                 "ofType": null
               }
             },
@@ -4903,7 +4903,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_banks_bool_exp",
+              "name": "company_bank_accounts_bool_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -4916,7 +4916,7 @@
               "name": null,
               "ofType": {
                 "kind": "INPUT_OBJECT",
-                "name": "company_banks_bool_exp",
+                "name": "company_bank_accounts_bool_exp",
                 "ofType": null
               }
             },
@@ -4963,16 +4963,6 @@
             "defaultValue": null
           },
           {
-            "name": "confirmed_at",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "timestamptz_comparison_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "id",
             "description": null,
             "type": {
@@ -5011,6 +5001,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "verified_at",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "timestamptz_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -5019,8 +5019,8 @@
       },
       {
         "kind": "ENUM",
-        "name": "company_banks_constraint",
-        "description": "unique or primary key constraints on table \"company_banks\"",
+        "name": "company_bank_accounts_constraint",
+        "description": "unique or primary key constraints on table \"company_bank_accounts\"",
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -5036,8 +5036,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_banks_insert_input",
-        "description": "input type for inserting data into table \"company_banks\"",
+        "name": "company_bank_accounts_insert_input",
+        "description": "input type for inserting data into table \"company_bank_accounts\"",
         "fields": null,
         "inputFields": [
           {
@@ -5081,16 +5081,6 @@
             "defaultValue": null
           },
           {
-            "name": "confirmed_at",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "timestamptz",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "id",
             "description": null,
             "type": {
@@ -5129,6 +5119,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "verified_at",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -5137,7 +5137,7 @@
       },
       {
         "kind": "OBJECT",
-        "name": "company_banks_max_fields",
+        "name": "company_bank_accounts_max_fields",
         "description": "aggregate max on columns",
         "fields": [
           {
@@ -5177,18 +5177,6 @@
             "deprecationReason": null
           },
           {
-            "name": "confirmed_at",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "timestamptz",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "id",
             "description": null,
             "args": [],
@@ -5235,6 +5223,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "verified_at",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -5244,8 +5244,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_banks_max_order_by",
-        "description": "order by max() on columns of table \"company_banks\"",
+        "name": "company_bank_accounts_max_order_by",
+        "description": "order by max() on columns of table \"company_bank_accounts\"",
         "fields": null,
         "inputFields": [
           {
@@ -5270,16 +5270,6 @@
           },
           {
             "name": "company_id",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "confirmed_at",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -5327,6 +5317,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "verified_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -5335,7 +5335,7 @@
       },
       {
         "kind": "OBJECT",
-        "name": "company_banks_min_fields",
+        "name": "company_bank_accounts_min_fields",
         "description": "aggregate min on columns",
         "fields": [
           {
@@ -5375,18 +5375,6 @@
             "deprecationReason": null
           },
           {
-            "name": "confirmed_at",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "timestamptz",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "id",
             "description": null,
             "args": [],
@@ -5433,6 +5421,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "verified_at",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -5442,8 +5442,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_banks_min_order_by",
-        "description": "order by min() on columns of table \"company_banks\"",
+        "name": "company_bank_accounts_min_order_by",
+        "description": "order by min() on columns of table \"company_bank_accounts\"",
         "fields": null,
         "inputFields": [
           {
@@ -5468,16 +5468,6 @@
           },
           {
             "name": "company_id",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "confirmed_at",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -5525,6 +5515,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "verified_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -5533,8 +5533,8 @@
       },
       {
         "kind": "OBJECT",
-        "name": "company_banks_mutation_response",
-        "description": "response of any mutation on the table \"company_banks\"",
+        "name": "company_bank_accounts_mutation_response",
+        "description": "response of any mutation on the table \"company_bank_accounts\"",
         "fields": [
           {
             "name": "affected_rows",
@@ -5567,7 +5567,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "OBJECT",
-                    "name": "company_banks",
+                    "name": "company_bank_accounts",
                     "ofType": null
                   }
                 }
@@ -5584,8 +5584,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_banks_obj_rel_insert_input",
-        "description": "input type for inserting object relation for remote table \"company_banks\"",
+        "name": "company_bank_accounts_obj_rel_insert_input",
+        "description": "input type for inserting object relation for remote table \"company_bank_accounts\"",
         "fields": null,
         "inputFields": [
           {
@@ -5596,7 +5596,7 @@
               "name": null,
               "ofType": {
                 "kind": "INPUT_OBJECT",
-                "name": "company_banks_insert_input",
+                "name": "company_bank_accounts_insert_input",
                 "ofType": null
               }
             },
@@ -5607,7 +5607,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_banks_on_conflict",
+              "name": "company_bank_accounts_on_conflict",
               "ofType": null
             },
             "defaultValue": null
@@ -5619,8 +5619,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_banks_on_conflict",
-        "description": "on conflict condition type for table \"company_banks\"",
+        "name": "company_bank_accounts_on_conflict",
+        "description": "on conflict condition type for table \"company_bank_accounts\"",
         "fields": null,
         "inputFields": [
           {
@@ -5631,7 +5631,7 @@
               "name": null,
               "ofType": {
                 "kind": "ENUM",
-                "name": "company_banks_constraint",
+                "name": "company_bank_accounts_constraint",
                 "ofType": null
               }
             },
@@ -5651,7 +5651,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "ENUM",
-                    "name": "company_banks_update_column",
+                    "name": "company_bank_accounts_update_column",
                     "ofType": null
                   }
                 }
@@ -5664,7 +5664,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_banks_bool_exp",
+              "name": "company_bank_accounts_bool_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -5676,8 +5676,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_banks_order_by",
-        "description": "ordering options when selecting data from \"company_banks\"",
+        "name": "company_bank_accounts_order_by",
+        "description": "ordering options when selecting data from \"company_bank_accounts\"",
         "fields": null,
         "inputFields": [
           {
@@ -5721,16 +5721,6 @@
             "defaultValue": null
           },
           {
-            "name": "confirmed_at",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "id",
             "description": null,
             "type": {
@@ -5769,6 +5759,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "verified_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -5777,8 +5777,8 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_banks_pk_columns_input",
-        "description": "primary key columns input for table: \"company_banks\"",
+        "name": "company_bank_accounts_pk_columns_input",
+        "description": "primary key columns input for table: \"company_bank_accounts\"",
         "fields": null,
         "inputFields": [
           {
@@ -5802,8 +5802,8 @@
       },
       {
         "kind": "ENUM",
-        "name": "company_banks_select_column",
-        "description": "select columns of table \"company_banks\"",
+        "name": "company_bank_accounts_select_column",
+        "description": "select columns of table \"company_bank_accounts\"",
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -5822,12 +5822,6 @@
           },
           {
             "name": "company_id",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "confirmed_at",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -5855,14 +5849,20 @@
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "verified_at",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "possibleTypes": null
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_banks_set_input",
-        "description": "input type for updating data in table \"company_banks\"",
+        "name": "company_bank_accounts_set_input",
+        "description": "input type for updating data in table \"company_bank_accounts\"",
         "fields": null,
         "inputFields": [
           {
@@ -5896,16 +5896,6 @@
             "defaultValue": null
           },
           {
-            "name": "confirmed_at",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "timestamptz",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "id",
             "description": null,
             "type": {
@@ -5944,6 +5934,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "verified_at",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -5952,8 +5952,8 @@
       },
       {
         "kind": "ENUM",
-        "name": "company_banks_update_column",
-        "description": "update columns of table \"company_banks\"",
+        "name": "company_bank_accounts_update_column",
+        "description": "update columns of table \"company_bank_accounts\"",
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -5972,12 +5972,6 @@
           },
           {
             "name": "company_id",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "confirmed_at",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -6002,6 +5996,12 @@
           },
           {
             "name": "routing_number",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "verified_at",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -7024,12 +7024,12 @@
             "deprecationReason": null
           },
           {
-            "name": "vendor_bank",
+            "name": "vendor_bank_account",
             "description": "An object relationship",
             "args": [],
             "type": {
               "kind": "OBJECT",
-              "name": "company_banks",
+              "name": "company_bank_accounts",
               "ofType": null
             },
             "isDeprecated": false,
@@ -7383,11 +7383,11 @@
             "defaultValue": null
           },
           {
-            "name": "vendor_bank",
+            "name": "vendor_bank_account",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_banks_bool_exp",
+              "name": "company_bank_accounts_bool_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -7501,11 +7501,11 @@
             "defaultValue": null
           },
           {
-            "name": "vendor_bank",
+            "name": "vendor_bank_account",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_banks_obj_rel_insert_input",
+              "name": "company_bank_accounts_obj_rel_insert_input",
               "ofType": null
             },
             "defaultValue": null
@@ -8053,11 +8053,11 @@
             "defaultValue": null
           },
           {
-            "name": "vendor_bank",
+            "name": "vendor_bank_account",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "company_banks_order_by",
+              "name": "company_bank_accounts_order_by",
               "ofType": null
             },
             "defaultValue": null
@@ -9191,8 +9191,8 @@
             "deprecationReason": null
           },
           {
-            "name": "delete_company_banks",
-            "description": "delete data from the table: \"company_banks\"",
+            "name": "delete_company_bank_accounts",
+            "description": "delete data from the table: \"company_bank_accounts\"",
             "args": [
               {
                 "name": "where",
@@ -9202,7 +9202,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "company_banks_bool_exp",
+                    "name": "company_bank_accounts_bool_exp",
                     "ofType": null
                   }
                 },
@@ -9211,15 +9211,15 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_banks_mutation_response",
+              "name": "company_bank_accounts_mutation_response",
               "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
           },
           {
-            "name": "delete_company_banks_by_pk",
-            "description": "delete single row from the table: \"company_banks\"",
+            "name": "delete_company_bank_accounts_by_pk",
+            "description": "delete single row from the table: \"company_bank_accounts\"",
             "args": [
               {
                 "name": "id",
@@ -9238,7 +9238,7 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_banks",
+              "name": "company_bank_accounts",
               "ofType": null
             },
             "isDeprecated": false,
@@ -9733,8 +9733,8 @@
             "deprecationReason": null
           },
           {
-            "name": "insert_company_banks",
-            "description": "insert data into the table: \"company_banks\"",
+            "name": "insert_company_bank_accounts",
+            "description": "insert data into the table: \"company_bank_accounts\"",
             "args": [
               {
                 "name": "objects",
@@ -9750,7 +9750,7 @@
                       "name": null,
                       "ofType": {
                         "kind": "INPUT_OBJECT",
-                        "name": "company_banks_insert_input",
+                        "name": "company_bank_accounts_insert_input",
                         "ofType": null
                       }
                     }
@@ -9763,7 +9763,7 @@
                 "description": "on conflict condition",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_banks_on_conflict",
+                  "name": "company_bank_accounts_on_conflict",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -9771,15 +9771,15 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_banks_mutation_response",
+              "name": "company_bank_accounts_mutation_response",
               "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
           },
           {
-            "name": "insert_company_banks_one",
-            "description": "insert a single row into the table: \"company_banks\"",
+            "name": "insert_company_bank_accounts_one",
+            "description": "insert a single row into the table: \"company_bank_accounts\"",
             "args": [
               {
                 "name": "object",
@@ -9789,7 +9789,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "company_banks_insert_input",
+                    "name": "company_bank_accounts_insert_input",
                     "ofType": null
                   }
                 },
@@ -9800,7 +9800,7 @@
                 "description": "on conflict condition",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_banks_on_conflict",
+                  "name": "company_bank_accounts_on_conflict",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -9808,7 +9808,7 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_banks",
+              "name": "company_bank_accounts",
               "ofType": null
             },
             "isDeprecated": false,
@@ -10455,15 +10455,15 @@
             "deprecationReason": null
           },
           {
-            "name": "update_company_banks",
-            "description": "update data of the table: \"company_banks\"",
+            "name": "update_company_bank_accounts",
+            "description": "update data of the table: \"company_bank_accounts\"",
             "args": [
               {
                 "name": "_set",
                 "description": "sets the columns of the filtered rows to the given values",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_banks_set_input",
+                  "name": "company_bank_accounts_set_input",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -10476,7 +10476,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "company_banks_bool_exp",
+                    "name": "company_bank_accounts_bool_exp",
                     "ofType": null
                   }
                 },
@@ -10485,22 +10485,22 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_banks_mutation_response",
+              "name": "company_bank_accounts_mutation_response",
               "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
           },
           {
-            "name": "update_company_banks_by_pk",
-            "description": "update single row of the table: \"company_banks\"",
+            "name": "update_company_bank_accounts_by_pk",
+            "description": "update single row of the table: \"company_bank_accounts\"",
             "args": [
               {
                 "name": "_set",
                 "description": "sets the columns of the filtered rows to the given values",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_banks_set_input",
+                  "name": "company_bank_accounts_set_input",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -10513,7 +10513,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "company_banks_pk_columns_input",
+                    "name": "company_bank_accounts_pk_columns_input",
                     "ofType": null
                   }
                 },
@@ -10522,7 +10522,7 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_banks",
+              "name": "company_bank_accounts",
               "ofType": null
             },
             "isDeprecated": false,
@@ -14976,8 +14976,8 @@
             "deprecationReason": null
           },
           {
-            "name": "company_banks",
-            "description": "fetch data from the table: \"company_banks\"",
+            "name": "company_bank_accounts",
+            "description": "fetch data from the table: \"company_bank_accounts\"",
             "args": [
               {
                 "name": "distinct_on",
@@ -14990,7 +14990,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "ENUM",
-                      "name": "company_banks_select_column",
+                      "name": "company_bank_accounts_select_column",
                       "ofType": null
                     }
                   }
@@ -15028,7 +15028,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "company_banks_order_by",
+                      "name": "company_bank_accounts_order_by",
                       "ofType": null
                     }
                   }
@@ -15040,7 +15040,7 @@
                 "description": "filter the rows returned",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_banks_bool_exp",
+                  "name": "company_bank_accounts_bool_exp",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -15057,7 +15057,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "OBJECT",
-                    "name": "company_banks",
+                    "name": "company_bank_accounts",
                     "ofType": null
                   }
                 }
@@ -15067,8 +15067,8 @@
             "deprecationReason": null
           },
           {
-            "name": "company_banks_aggregate",
-            "description": "fetch aggregated fields from the table: \"company_banks\"",
+            "name": "company_bank_accounts_aggregate",
+            "description": "fetch aggregated fields from the table: \"company_bank_accounts\"",
             "args": [
               {
                 "name": "distinct_on",
@@ -15081,7 +15081,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "ENUM",
-                      "name": "company_banks_select_column",
+                      "name": "company_bank_accounts_select_column",
                       "ofType": null
                     }
                   }
@@ -15119,7 +15119,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "company_banks_order_by",
+                      "name": "company_bank_accounts_order_by",
                       "ofType": null
                     }
                   }
@@ -15131,7 +15131,7 @@
                 "description": "filter the rows returned",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_banks_bool_exp",
+                  "name": "company_bank_accounts_bool_exp",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -15142,7 +15142,7 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "company_banks_aggregate",
+                "name": "company_bank_accounts_aggregate",
                 "ofType": null
               }
             },
@@ -15150,8 +15150,8 @@
             "deprecationReason": null
           },
           {
-            "name": "company_banks_by_pk",
-            "description": "fetch data from the table: \"company_banks\" using primary key columns",
+            "name": "company_bank_accounts_by_pk",
+            "description": "fetch data from the table: \"company_bank_accounts\" using primary key columns",
             "args": [
               {
                 "name": "id",
@@ -15170,7 +15170,7 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_banks",
+              "name": "company_bank_accounts",
               "ofType": null
             },
             "isDeprecated": false,
@@ -16796,8 +16796,8 @@
             "deprecationReason": null
           },
           {
-            "name": "company_banks",
-            "description": "fetch data from the table: \"company_banks\"",
+            "name": "company_bank_accounts",
+            "description": "fetch data from the table: \"company_bank_accounts\"",
             "args": [
               {
                 "name": "distinct_on",
@@ -16810,7 +16810,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "ENUM",
-                      "name": "company_banks_select_column",
+                      "name": "company_bank_accounts_select_column",
                       "ofType": null
                     }
                   }
@@ -16848,7 +16848,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "company_banks_order_by",
+                      "name": "company_bank_accounts_order_by",
                       "ofType": null
                     }
                   }
@@ -16860,7 +16860,7 @@
                 "description": "filter the rows returned",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_banks_bool_exp",
+                  "name": "company_bank_accounts_bool_exp",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -16877,7 +16877,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "OBJECT",
-                    "name": "company_banks",
+                    "name": "company_bank_accounts",
                     "ofType": null
                   }
                 }
@@ -16887,8 +16887,8 @@
             "deprecationReason": null
           },
           {
-            "name": "company_banks_aggregate",
-            "description": "fetch aggregated fields from the table: \"company_banks\"",
+            "name": "company_bank_accounts_aggregate",
+            "description": "fetch aggregated fields from the table: \"company_bank_accounts\"",
             "args": [
               {
                 "name": "distinct_on",
@@ -16901,7 +16901,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "ENUM",
-                      "name": "company_banks_select_column",
+                      "name": "company_bank_accounts_select_column",
                       "ofType": null
                     }
                   }
@@ -16939,7 +16939,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "company_banks_order_by",
+                      "name": "company_bank_accounts_order_by",
                       "ofType": null
                     }
                   }
@@ -16951,7 +16951,7 @@
                 "description": "filter the rows returned",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "company_banks_bool_exp",
+                  "name": "company_bank_accounts_bool_exp",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -16962,7 +16962,7 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "company_banks_aggregate",
+                "name": "company_bank_accounts_aggregate",
                 "ofType": null
               }
             },
@@ -16970,8 +16970,8 @@
             "deprecationReason": null
           },
           {
-            "name": "company_banks_by_pk",
-            "description": "fetch data from the table: \"company_banks\" using primary key columns",
+            "name": "company_bank_accounts_by_pk",
+            "description": "fetch data from the table: \"company_bank_accounts\" using primary key columns",
             "args": [
               {
                 "name": "id",
@@ -16990,7 +16990,7 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "company_banks",
+              "name": "company_bank_accounts",
               "ofType": null
             },
             "isDeprecated": false,

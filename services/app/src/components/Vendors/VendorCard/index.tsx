@@ -54,7 +54,7 @@ function VendorCard(props: Props) {
           <Box display="flex">
             <CheckCircle
               color={
-                props.vendorPartnership.vendor_bank?.confirmed_at
+                props.vendorPartnership.vendor_bank_account?.verified_at
                   ? "primary"
                   : "disabled"
               }

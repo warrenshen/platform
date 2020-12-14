@@ -1,23 +1,25 @@
 import {
   Box,
   Button,
+  debounce,
   makeStyles,
   MenuItem,
   Select,
   TextField,
 } from "@material-ui/core";
+import { CheckBox } from "@material-ui/icons";
 import {
   BankAccountFragment,
   Companies,
   CompanyBankAccountsDocument,
-  CompanyBanksInsertInput,
+  CompanyBankAccountsInsertInput,
   CompanyVendorPartnerships,
   useAddBankAccountMutation,
   useChangeBankAccountMutation,
   useCompanyBankAccountsQuery,
   useUpdateBankAccountMutation,
 } from "generated/graphql";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const useStyles = makeStyles({
   baseInput: {
@@ -31,7 +33,10 @@ function NewBankAccountForm(props: {
 }) {
   const classes = useStyles();
   const [addBankAccount, { loading }] = useAddBankAccountMutation();
-  const [bankAccount, setBankAccount] = useState<CompanyBanksInsertInput>({
+  const [
+    bankAccount,
+    setBankAccount,
+  ] = useState<CompanyBankAccountsInsertInput>({
     company_id: props.companyId,
   });
 
@@ -139,24 +144,22 @@ function BankAccountInput(props: {
     setSelectedBankAccount(props.bankAccount || null);
   }, [props.bankAccount]);
 
-  // const debouncedUpdateBankAccount = useRef(
-  //   debounce((value: BankAccountFragment | null) => {
-  //     if (selectedBankAccount?.id) {
-  //       updateBankAccount({
-  //         variables: {
-  //           id: selectedBankAccount?.id,
-  //           bankAccount: {
-  //             name: selectedBankAccount.name,
-  //           },
-  //         },
-  //       });
-  //     }
-  //   }, 1000)
-  // ).current;
+  const debouncedUpdateBankAccount = useRef(
+    debounce((value: BankAccountFragment | null) => {
+      if (value?.id) {
+        updateBankAccount({
+          variables: {
+            id: value.id,
+            bankAccount: value,
+          },
+        });
+      }
+    }, 300)
+  ).current;
 
-  // useEffect(() => {
-  //   debouncedUpdateBankAccount(selectedBankAccount);
-  // }, [debouncedUpdateBankAccount, selectedBankAccount]);
+  useEffect(() => {
+    debouncedUpdateBankAccount(selectedBankAccount);
+  }, [debouncedUpdateBankAccount, selectedBankAccount]);
 
   return (
     <>
@@ -171,7 +174,7 @@ function BankAccountInput(props: {
           >
             New
           </Button>
-          {data?.company_banks.length ? (
+          {data?.company_bank_accounts.length ? (
             <Select
               variant="outlined"
               value={props.bankAccount?.id || null}
@@ -185,7 +188,7 @@ function BankAccountInput(props: {
                   optimisticResponse: {
                     update_company_vendor_partnerships_by_pk: {
                       id: props.companyVendorPartnershipId,
-                      vendor_bank: data.company_banks.find(
+                      vendor_bank_account: data.company_bank_accounts.find(
                         (bank) => bank.id === value
                       ),
                     },
@@ -193,10 +196,10 @@ function BankAccountInput(props: {
                 });
               }}
             >
-              {data.company_banks.map((company_bank) => {
+              {data.company_bank_accounts.map((bank_account) => {
                 return (
-                  <MenuItem value={company_bank.id}>
-                    {company_bank.name} + {company_bank.account_name}
+                  <MenuItem value={bank_account.id}>
+                    {bank_account.name} + {bank_account.account_name}
                   </MenuItem>
                 );
               })}
@@ -266,6 +269,7 @@ function BankAccountInput(props: {
               });
             }}
           ></TextField>
+          <CheckBox></CheckBox>
         </Box>
       )}
     </>

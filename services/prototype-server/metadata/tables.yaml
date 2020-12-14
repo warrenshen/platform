@@ -9,13 +9,13 @@
         table:
           schema: public
           name: company_agreements
-  - name: banks
+  - name: bank_accounts
     using:
       foreign_key_constraint_on:
         column: company_id
         table:
           schema: public
-          name: company_banks
+          name: company_bank_accounts
   - name: company_vendor_partnerships
     using:
       foreign_key_constraint_on:
@@ -49,7 +49,7 @@
     name: company_agreements
 - table:
     schema: public
-    name: company_banks
+    name: company_bank_accounts
   object_relationships:
   - name: company
     using:
@@ -71,7 +71,7 @@
   - name: vendor
     using:
       foreign_key_constraint_on: vendor_id
-  - name: vendor_bank
+  - name: vendor_bank_account
     using:
       foreign_key_constraint_on: vendor_bank_id
 - table:

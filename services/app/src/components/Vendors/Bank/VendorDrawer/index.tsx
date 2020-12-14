@@ -101,7 +101,9 @@ function VendorDrawer(props: {
         <BankAccountInput
           companyId={vendor.id}
           companyVendorPartnershipId={data.company_vendor_partnerships_by_pk.id}
-          bankAccount={data.company_vendor_partnerships_by_pk.vendor_bank}
+          bankAccount={
+            data.company_vendor_partnerships_by_pk.vendor_bank_account
+          }
         ></BankAccountInput>
         <Typography variant="h6"> Licenses </Typography>
         <Box

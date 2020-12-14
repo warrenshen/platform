@@ -1,5 +1,6 @@
 import {
   ApolloClient,
+  ApolloLink,
   ApolloProvider,
   HttpLink,
   InMemoryCache,
@@ -23,6 +24,19 @@ const createApolloClient = () => {
         },
   });
 
+  const stripTypenameLink = new ApolloLink((operation, forward) => {
+    const omitTypename = (key: string, value: any): boolean => {
+      return key === "__typename" ? undefined : value;
+    };
+    if (operation.variables) {
+      operation.variables = JSON.parse(
+        JSON.stringify(operation.variables),
+        omitTypename
+      );
+    }
+    return forward(operation);
+  });
+
   const wsLink = new WebSocketLink({
     uri: process.env.REACT_APP_BESPOKE_WS_GRAPHQL_ENDPOINT || "",
     options: {
@@ -41,7 +55,7 @@ const createApolloClient = () => {
     },
   });
 
-  const link = split(
+  const transportLink = split(
     ({ query }) => {
       const definition = getMainDefinition(query);
       return (
@@ -54,7 +68,7 @@ const createApolloClient = () => {
   );
 
   return new ApolloClient({
-    link: link,
+    link: ApolloLink.from([stripTypenameLink, transportLink]),
     cache: new InMemoryCache(),
     connectToDevTools: true,
   });
