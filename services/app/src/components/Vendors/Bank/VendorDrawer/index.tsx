@@ -1,11 +1,6 @@
-import {
-  Box,
-  Drawer,
-  makeStyles,
-  TextField,
-  Typography,
-} from "@material-ui/core";
-import BankAccountInput from "components/Vendors/Bank/VendorDrawer/BankAccountInput";
+import { Box, Drawer, makeStyles, Typography } from "@material-ui/core";
+import BankAccount from "components/Vendors/Bank/VendorDrawer/BankAccount";
+import ContactInfo from "components/Vendors/Bank/VendorDrawer/ContactInfo";
 import {
   CompanyVendorPartnerships,
   useBankVendorPartnershipQuery,
@@ -50,61 +45,17 @@ function VendorDrawer(props: {
     <Drawer open anchor="right" onClose={props.onClose}>
       <Box className={classes.drawerContent} p={4}>
         <Typography variant="h6">{vendor.name}</Typography>
-        <TextField
-          label="Name"
-          className={classes.baseInput}
-          value={vendor.name}
-          onChange={({ target: { value } }) => {
-            // setVendor({ ...vendor, name: value });
-          }}
-        ></TextField>
-        <Box
-          display="flex"
-          flexDirection="column"
-          my={3}
-          className={classes.addressForm}
-        >
-          <TextField
-            label="Address"
-            onChange={({ target: { value } }) => {
-              // setVendor({ ...vendor, address: value });
-            }}
-          ></TextField>
-          <Box display="flex" justifyContent="space-between" pt={1}>
-            <TextField
-              label="Country"
-              onChange={({ target: { value } }) => {
-                // setVendor({ ...vendor, country: value });
-              }}
-            ></TextField>
-            <TextField
-              label="State"
-              onChange={({ target: { value } }) => {
-                // setVendor({ ...vendor, state: value });
-              }}
-            ></TextField>
-            <TextField
-              label="City"
-              onChange={({ target: { value } }) => {
-                // setVendor({ ...vendor, city: value });
-              }}
-            ></TextField>
-            <TextField
-              label="Zip Code"
-              onChange={({ target: { value } }) => {
-                // setVendor({ ...vendor, zip_code: value });
-              }}
-            ></TextField>
-          </Box>
+        <Box py={3}>
+          <ContactInfo vendor={vendor}></ContactInfo>
         </Box>
         <Typography variant="h6"> Bank Information </Typography>
-        <BankAccountInput
+        <BankAccount
           companyId={vendor.id}
           companyVendorPartnershipId={data.company_vendor_partnerships_by_pk.id}
           bankAccount={
             data.company_vendor_partnerships_by_pk.vendor_bank_account
           }
-        ></BankAccountInput>
+        ></BankAccount>
         <Typography variant="h6"> Licenses </Typography>
         <Box
           mt={1}
@@ -127,6 +78,7 @@ function VendorDrawer(props: {
         >
           <Box>Upload</Box>
         </Box>
+        <Typography variant="h6"> Customers </Typography>
       </Box>
     </Drawer>
   );

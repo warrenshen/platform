@@ -4,6 +4,9 @@ import {
   Card,
   CardActions,
   CardContent,
+  createStyles,
+  makeStyles,
+  Theme,
   Typography,
 } from "@material-ui/core";
 import { CheckCircle } from "@material-ui/icons";
@@ -14,11 +17,21 @@ interface Props {
   onClick?: () => void;
 }
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    card: {
+      width: 300,
+      minHeight: 235,
+    },
+  })
+);
+
 function VendorCard(props: Props) {
+  const classes = useStyles();
   const vendor = props.vendorPartnership.vendor;
 
   return (
-    <Card style={{ width: 300 }}>
+    <Card className={classes.card}>
       <CardContent>
         <Typography variant="h6">{vendor.name}</Typography>
         <Box py={1}>
@@ -49,7 +62,7 @@ function VendorCard(props: Props) {
                   : "disabled"
               }
             ></CheckCircle>
-            <Box pl={1}>License verified</Box>
+            <Box pl={1}>Verified license</Box>
           </Box>
           <Box display="flex">
             <CheckCircle
@@ -59,7 +72,7 @@ function VendorCard(props: Props) {
                   : "disabled"
               }
             ></CheckCircle>
-            <Box pl={1}>Bank account verified</Box>
+            <Box pl={1}>Verified bank account</Box>
           </Box>
         </Box>
       </CardContent>

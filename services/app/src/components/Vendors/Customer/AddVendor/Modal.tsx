@@ -13,6 +13,7 @@ import {
 } from "@material-ui/core";
 import {
   CompaniesInsertInput,
+  ListVendorPartnershipsDocument,
   useAddVendorPartnershipMutation,
 } from "generated/graphql";
 import { useState } from "react";
@@ -23,7 +24,10 @@ const useStyles = makeStyles((theme: Theme) =>
       width: 400,
     },
     addressForm: {
-      width: 700,
+      width: 600,
+    },
+    addressSubForm: {
+      width: 140,
     },
   })
 );
@@ -32,7 +36,7 @@ interface Props {
   handleClose: () => void;
 }
 
-function AddVendorModal(props: Props) {
+function RegisterVendorModal(props: Props) {
   const classes = useStyles();
   const [vendor, setVendor] = useState<CompaniesInsertInput>({});
   const [addVendorPartnership, { loading }] = useAddVendorPartnershipMutation();
@@ -44,12 +48,12 @@ function AddVendorModal(props: Props) {
       // className={classes.dialog}
       maxWidth="md"
     >
-      <DialogTitle>Add Vendor</DialogTitle>
+      <DialogTitle>Register Vendor</DialogTitle>
       <DialogContent>
         <DialogContentText>
           Please provide details about the vendor you'll be working with.
         </DialogContentText>
-        <Box pb={5}>
+        <Box pb={3} pt={2}>
           <TextField
             label="Name"
             className={classes.nameInput}
@@ -72,24 +76,28 @@ function AddVendorModal(props: Props) {
             ></TextField>
             <Box display="flex" justifyContent="space-between" pt={1}>
               <TextField
+                className={classes.addressSubForm}
                 label="Country"
                 onChange={({ target: { value } }) => {
                   setVendor({ ...vendor, country: value });
                 }}
               ></TextField>
               <TextField
+                className={classes.addressSubForm}
                 label="State"
                 onChange={({ target: { value } }) => {
                   setVendor({ ...vendor, state: value });
                 }}
               ></TextField>
               <TextField
+                className={classes.addressSubForm}
                 label="City"
                 onChange={({ target: { value } }) => {
                   setVendor({ ...vendor, city: value });
                 }}
               ></TextField>
               <TextField
+                className={classes.addressSubForm}
                 label="Zip Code"
                 onChange={({ target: { value } }) => {
                   setVendor({ ...vendor, zip_code: value });
@@ -107,8 +115,11 @@ function AddVendorModal(props: Props) {
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Box>
-          <Button onClick={props.handleClose}>Cancel</Button>
+        <Box display="flex">
+          <Box pr={1}>
+            <Button onClick={props.handleClose}>Cancel</Button>
+          </Box>
+
           <Button
             disabled={loading}
             onClick={async () => {
@@ -121,6 +132,14 @@ function AddVendorModal(props: Props) {
                     },
                   },
                 },
+                refetchQueries: [
+                  {
+                    query: ListVendorPartnershipsDocument,
+                    variables: {
+                      companyId: "57ee8797-1d5b-4a90-83c9-84c740590e42",
+                    },
+                  },
+                ],
               });
               props.handleClose();
             }}
@@ -135,4 +154,4 @@ function AddVendorModal(props: Props) {
   );
 }
 
-export default AddVendorModal;
+export default RegisterVendorModal;

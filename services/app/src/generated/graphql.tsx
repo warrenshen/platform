@@ -1037,7 +1037,9 @@ export type CompanyVendorPartnerships = {
   /** An object relationship */
   company: Companies;
   company_id: Scalars['uuid'];
+  created_at: Scalars['timestamptz'];
   id: Scalars['uuid'];
+  updated_at: Scalars['timestamptz'];
   /** An object relationship */
   vendor: Companies;
   vendor_agreement_id?: Maybe<Scalars['uuid']>;
@@ -1088,7 +1090,9 @@ export type CompanyVendorPartnershipsBoolExp = {
   _or?: Maybe<Array<Maybe<CompanyVendorPartnershipsBoolExp>>>;
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
   vendor?: Maybe<CompaniesBoolExp>;
   vendor_agreement_id?: Maybe<UuidComparisonExp>;
   vendor_bank_account?: Maybe<CompanyBankAccountsBoolExp>;
@@ -1107,7 +1111,9 @@ export enum CompanyVendorPartnershipsConstraint {
 export type CompanyVendorPartnershipsInsertInput = {
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars['uuid']>;
+  created_at?: Maybe<Scalars['timestamptz']>;
   id?: Maybe<Scalars['uuid']>;
+  updated_at?: Maybe<Scalars['timestamptz']>;
   vendor?: Maybe<CompaniesObjRelInsertInput>;
   vendor_agreement_id?: Maybe<Scalars['uuid']>;
   vendor_bank_account?: Maybe<CompanyBankAccountsObjRelInsertInput>;
@@ -1119,7 +1125,9 @@ export type CompanyVendorPartnershipsInsertInput = {
 /** aggregate max on columns */
 export type CompanyVendorPartnershipsMaxFields = {
   company_id?: Maybe<Scalars['uuid']>;
+  created_at?: Maybe<Scalars['timestamptz']>;
   id?: Maybe<Scalars['uuid']>;
+  updated_at?: Maybe<Scalars['timestamptz']>;
   vendor_agreement_id?: Maybe<Scalars['uuid']>;
   vendor_bank_id?: Maybe<Scalars['uuid']>;
   vendor_id?: Maybe<Scalars['uuid']>;
@@ -1129,7 +1137,9 @@ export type CompanyVendorPartnershipsMaxFields = {
 /** order by max() on columns of table "company_vendor_partnerships" */
 export type CompanyVendorPartnershipsMaxOrderBy = {
   company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
   vendor_agreement_id?: Maybe<OrderBy>;
   vendor_bank_id?: Maybe<OrderBy>;
   vendor_id?: Maybe<OrderBy>;
@@ -1139,7 +1149,9 @@ export type CompanyVendorPartnershipsMaxOrderBy = {
 /** aggregate min on columns */
 export type CompanyVendorPartnershipsMinFields = {
   company_id?: Maybe<Scalars['uuid']>;
+  created_at?: Maybe<Scalars['timestamptz']>;
   id?: Maybe<Scalars['uuid']>;
+  updated_at?: Maybe<Scalars['timestamptz']>;
   vendor_agreement_id?: Maybe<Scalars['uuid']>;
   vendor_bank_id?: Maybe<Scalars['uuid']>;
   vendor_id?: Maybe<Scalars['uuid']>;
@@ -1149,7 +1161,9 @@ export type CompanyVendorPartnershipsMinFields = {
 /** order by min() on columns of table "company_vendor_partnerships" */
 export type CompanyVendorPartnershipsMinOrderBy = {
   company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
   vendor_agreement_id?: Maybe<OrderBy>;
   vendor_bank_id?: Maybe<OrderBy>;
   vendor_id?: Maybe<OrderBy>;
@@ -1181,7 +1195,9 @@ export type CompanyVendorPartnershipsOnConflict = {
 export type CompanyVendorPartnershipsOrderBy = {
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
   vendor?: Maybe<CompaniesOrderBy>;
   vendor_agreement_id?: Maybe<OrderBy>;
   vendor_bank_account?: Maybe<CompanyBankAccountsOrderBy>;
@@ -1200,7 +1216,11 @@ export enum CompanyVendorPartnershipsSelectColumn {
   /** column name */
   CompanyId = 'company_id',
   /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
   Id = 'id',
+  /** column name */
+  UpdatedAt = 'updated_at',
   /** column name */
   VendorAgreementId = 'vendor_agreement_id',
   /** column name */
@@ -1214,7 +1234,9 @@ export enum CompanyVendorPartnershipsSelectColumn {
 /** input type for updating data in table "company_vendor_partnerships" */
 export type CompanyVendorPartnershipsSetInput = {
   company_id?: Maybe<Scalars['uuid']>;
+  created_at?: Maybe<Scalars['timestamptz']>;
   id?: Maybe<Scalars['uuid']>;
+  updated_at?: Maybe<Scalars['timestamptz']>;
   vendor_agreement_id?: Maybe<Scalars['uuid']>;
   vendor_bank_id?: Maybe<Scalars['uuid']>;
   vendor_id?: Maybe<Scalars['uuid']>;
@@ -1226,7 +1248,11 @@ export enum CompanyVendorPartnershipsUpdateColumn {
   /** column name */
   CompanyId = 'company_id',
   /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
   Id = 'id',
+  /** column name */
+  UpdatedAt = 'updated_at',
   /** column name */
   VendorAgreementId = 'vendor_agreement_id',
   /** column name */
@@ -3215,7 +3241,7 @@ export type BankVendorPartnershipFragment = (
   & { vendor_bank_account?: Maybe<BankAccountFragment>, vendor: Pick<Companies, 'id' | 'name' | 'address' | 'country' | 'state' | 'city' | 'zip_code' | 'phone_number'> }
 );
 
-export type BankAccountFragment = Pick<CompanyBankAccounts, 'id' | 'name' | 'account_name' | 'account_number' | 'routing_number' | 'notes' | 'verified_at'>;
+export type BankAccountFragment = Pick<CompanyBankAccounts, 'id' | 'company_id' | 'name' | 'account_name' | 'account_number' | 'routing_number' | 'notes' | 'verified_at'>;
 
 export type BankListVendorPartnershipsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3269,9 +3295,19 @@ export type ChangeBankAccountMutation = { update_company_vendor_partnerships_by_
     & { vendor_bank_account?: Maybe<BankAccountFragment> }
   )> };
 
+export type UpdateVendorContactInfoMutationVariables = Exact<{
+  id: Scalars['uuid'];
+  company: CompaniesSetInput;
+}>;
+
+
+export type UpdateVendorContactInfoMutation = { update_companies_by_pk?: Maybe<VendorFragment> };
+
+export type VendorFragment = Pick<Companies, 'id' | 'name' | 'address' | 'country' | 'state' | 'city' | 'zip_code' | 'phone_number'>;
+
 export type VendorPartnershipFragment = (
   Pick<CompanyVendorPartnerships, 'id' | 'company_id' | 'vendor_id' | 'vendor_agreement_id' | 'vendor_license_id'>
-  & { vendor_bank_account?: Maybe<Pick<CompanyBankAccounts, 'id' | 'verified_at'>>, vendor: Pick<Companies, 'id' | 'name' | 'address' | 'country' | 'state' | 'city' | 'zip_code' | 'phone_number'> }
+  & { vendor_bank_account?: Maybe<Pick<CompanyBankAccounts, 'id' | 'verified_at'>>, vendor: VendorFragment }
 );
 
 export type AddVendorPartnershipMutationVariables = Exact<{
@@ -3291,6 +3327,7 @@ export type ListVendorPartnershipsQuery = { company_vendor_partnerships: Array<V
 export const BankAccountFragmentDoc = gql`
     fragment BankAccount on company_bank_accounts {
   id
+  company_id
   name
   account_name
   account_number
@@ -3321,6 +3358,18 @@ export const BankVendorPartnershipFragmentDoc = gql`
   }
 }
     ${BankAccountFragmentDoc}`;
+export const VendorFragmentDoc = gql`
+    fragment Vendor on companies {
+  id
+  name
+  address
+  country
+  state
+  city
+  zip_code
+  phone_number
+}
+    `;
 export const VendorPartnershipFragmentDoc = gql`
     fragment VendorPartnership on company_vendor_partnerships {
   id
@@ -3333,17 +3382,10 @@ export const VendorPartnershipFragmentDoc = gql`
   }
   vendor_license_id
   vendor {
-    id
-    name
-    address
-    country
-    state
-    city
-    zip_code
-    phone_number
+    ...Vendor
   }
 }
-    `;
+    ${VendorFragmentDoc}`;
 export const CompaniesDocument = gql`
     query Companies {
   companies(limit: 1) {
@@ -3611,6 +3653,39 @@ export function useChangeBankAccountMutation(baseOptions?: Apollo.MutationHookOp
 export type ChangeBankAccountMutationHookResult = ReturnType<typeof useChangeBankAccountMutation>;
 export type ChangeBankAccountMutationResult = Apollo.MutationResult<ChangeBankAccountMutation>;
 export type ChangeBankAccountMutationOptions = Apollo.BaseMutationOptions<ChangeBankAccountMutation, ChangeBankAccountMutationVariables>;
+export const UpdateVendorContactInfoDocument = gql`
+    mutation UpdateVendorContactInfo($id: uuid!, $company: companies_set_input!) {
+  update_companies_by_pk(pk_columns: {id: $id}, _set: $company) {
+    ...Vendor
+  }
+}
+    ${VendorFragmentDoc}`;
+export type UpdateVendorContactInfoMutationFn = Apollo.MutationFunction<UpdateVendorContactInfoMutation, UpdateVendorContactInfoMutationVariables>;
+
+/**
+ * __useUpdateVendorContactInfoMutation__
+ *
+ * To run a mutation, you first call `useUpdateVendorContactInfoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateVendorContactInfoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateVendorContactInfoMutation, { data, loading, error }] = useUpdateVendorContactInfoMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      company: // value for 'company'
+ *   },
+ * });
+ */
+export function useUpdateVendorContactInfoMutation(baseOptions?: Apollo.MutationHookOptions<UpdateVendorContactInfoMutation, UpdateVendorContactInfoMutationVariables>) {
+        return Apollo.useMutation<UpdateVendorContactInfoMutation, UpdateVendorContactInfoMutationVariables>(UpdateVendorContactInfoDocument, baseOptions);
+      }
+export type UpdateVendorContactInfoMutationHookResult = ReturnType<typeof useUpdateVendorContactInfoMutation>;
+export type UpdateVendorContactInfoMutationResult = Apollo.MutationResult<UpdateVendorContactInfoMutation>;
+export type UpdateVendorContactInfoMutationOptions = Apollo.BaseMutationOptions<UpdateVendorContactInfoMutation, UpdateVendorContactInfoMutationVariables>;
 export const AddVendorPartnershipDocument = gql`
     mutation AddVendorPartnership($vendor: company_vendor_partnerships_insert_input!) {
   insert_company_vendor_partnerships_one(object: $vendor) {

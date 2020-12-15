@@ -1,5 +1,5 @@
 import { Button } from "@material-ui/core";
-import AddVendorModal from "components/Vendors/Customer/AddVendor/Modal";
+import RegisterVendorModal from "components/Vendors/Customer/AddVendor/Modal";
 import { useState } from "react";
 
 function AddButton() {
@@ -8,7 +8,7 @@ function AddButton() {
   return (
     <>
       {open && (
-        <AddVendorModal handleClose={() => setOpen(false)}></AddVendorModal>
+        <RegisterVendorModal handleClose={() => setOpen(false)}></RegisterVendorModal>
       )}
       <Button onClick={() => setOpen(true)} color="primary" variant="contained">
         Add Vendor

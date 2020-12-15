@@ -1,3 +1,14 @@
+fragment Vendor on companies {
+  id
+  name
+  address
+  country
+  state
+  city
+  zip_code
+  phone_number
+}
+
 fragment VendorPartnership on company_vendor_partnerships {
   id
   company_id
@@ -9,14 +20,7 @@ fragment VendorPartnership on company_vendor_partnerships {
   }
   vendor_license_id
   vendor {
-    id
-    name
-    address
-    country
-    state
-    city
-    zip_code
-    phone_number
+    ...Vendor
   }
 }
 
