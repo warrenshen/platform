@@ -3286,7 +3286,7 @@ export type UpdateBankAccountMutation = { update_company_bank_accounts_by_pk?: M
 
 export type ChangeBankAccountMutationVariables = Exact<{
   companyVendorPartnershipId: Scalars['uuid'];
-  bankAccountId: Scalars['uuid'];
+  bankAccountId?: Maybe<Scalars['uuid']>;
 }>;
 
 
@@ -3615,7 +3615,7 @@ export type UpdateBankAccountMutationHookResult = ReturnType<typeof useUpdateBan
 export type UpdateBankAccountMutationResult = Apollo.MutationResult<UpdateBankAccountMutation>;
 export type UpdateBankAccountMutationOptions = Apollo.BaseMutationOptions<UpdateBankAccountMutation, UpdateBankAccountMutationVariables>;
 export const ChangeBankAccountDocument = gql`
-    mutation ChangeBankAccount($companyVendorPartnershipId: uuid!, $bankAccountId: uuid!) {
+    mutation ChangeBankAccount($companyVendorPartnershipId: uuid!, $bankAccountId: uuid) {
   update_company_vendor_partnerships_by_pk(
     pk_columns: {id: $companyVendorPartnershipId}
     _set: {vendor_bank_id: $bankAccountId}

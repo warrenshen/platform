@@ -116,14 +116,7 @@ function AccountForm(props: {
               color="primary"
             />
           }
-          label={
-            "Verified Bank account"
-            // selectedBankAccount.verified_at
-            //   ? `Verified Bank Account on ${dateTimestamp(
-            //       selectedBankAccount.verified_at
-            //     )}`
-            //   : `Verified Bank Account`
-          }
+          label={"Verified bank account transfer"}
         />
         <Box display="flex" flexDirection="row-reverse" my={3}>
           <Button
@@ -154,7 +147,10 @@ function AccountForm(props: {
               } else {
                 await addBankAccount({
                   variables: {
-                    bankAccount,
+                    bankAccount: {
+                      ...bankAccount,
+                      company_id: props.companyId,
+                    },
                   },
                   refetchQueries: [
                     {

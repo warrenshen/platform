@@ -76,7 +76,7 @@ mutation UpdateBankAccount(
 
 mutation ChangeBankAccount(
   $companyVendorPartnershipId: uuid!
-  $bankAccountId: uuid!
+  $bankAccountId: uuid
 ) {
   update_company_vendor_partnerships_by_pk(
     pk_columns: { id: $companyVendorPartnershipId }

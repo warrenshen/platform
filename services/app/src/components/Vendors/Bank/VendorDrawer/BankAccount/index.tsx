@@ -43,11 +43,11 @@ function BankAccount(props: {
             <Select
               className={classes.selectInput}
               variant="outlined"
-              value={props.bankAccount?.id || null}
+              value={props.bankAccount?.id || "None"}
               onChange={({ target: { value } }) => {
                 changeBankAccount({
                   variables: {
-                    bankAccountId: value,
+                    bankAccountId: value === "None" ? null : value,
                     companyVendorPartnershipId:
                       props.companyVendorPartnershipId,
                   },
@@ -62,6 +62,9 @@ function BankAccount(props: {
                 });
               }}
             >
+              <MenuItem key="none" value="None">
+                {`None (${data.company_bank_accounts.length} available)`}
+              </MenuItem>
               {data.company_bank_accounts.map((bank_account) => {
                 return (
                   <MenuItem key={bank_account.id} value={bank_account.id}>
