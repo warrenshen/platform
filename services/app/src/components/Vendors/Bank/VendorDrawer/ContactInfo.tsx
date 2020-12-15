@@ -107,6 +107,11 @@ function ContactInfo(props: Props) {
                   id: editedVendor.id,
                   company: editedVendor,
                 },
+                optimisticResponse: {
+                  update_companies_by_pk: {
+                    ...editedVendor,
+                  },
+                },
               });
               setEditing(false);
             }}
