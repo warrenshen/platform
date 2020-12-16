@@ -1,13 +1,17 @@
 import { IconButton, Menu, MenuItem } from "@material-ui/core";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import { useState } from "react";
+import { ActionType } from "../models/ActionType";
 
 interface Props {
   purchaseOrderId: string;
-  createPurchaseOrderReplica: (arg0: string) => void;
+  manipulatePurchaseOrder: (
+    actionType: ActionType,
+    purchaseOrderId: string
+  ) => void;
 }
 
-function ActionMenu({ purchaseOrderId, createPurchaseOrderReplica }: Props) {
+function ActionMenu({ purchaseOrderId, manipulatePurchaseOrder }: Props) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -30,7 +34,15 @@ function ActionMenu({ purchaseOrderId, createPurchaseOrderReplica }: Props) {
       >
         <MenuItem
           onClick={() => {
-            createPurchaseOrderReplica(purchaseOrderId);
+            manipulatePurchaseOrder(ActionType.Update, purchaseOrderId);
+            handleClose();
+          }}
+        >
+          Edit
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            manipulatePurchaseOrder(ActionType.Copy, purchaseOrderId);
             handleClose();
           }}
         >
@@ -38,7 +50,6 @@ function ActionMenu({ purchaseOrderId, createPurchaseOrderReplica }: Props) {
         </MenuItem>
         <MenuItem
           onClick={() => {
-            // currentUser.setRole(UserRole.Customer);
             handleClose();
           }}
         >
@@ -46,7 +57,6 @@ function ActionMenu({ purchaseOrderId, createPurchaseOrderReplica }: Props) {
         </MenuItem>
         <MenuItem
           onClick={() => {
-            // currentUser.setRole(UserRole.Customer);
             handleClose();
           }}
         >
@@ -54,7 +64,6 @@ function ActionMenu({ purchaseOrderId, createPurchaseOrderReplica }: Props) {
         </MenuItem>
         <MenuItem
           onClick={() => {
-            // currentUser.setRole(UserRole.Customer);
             handleClose();
           }}
         >

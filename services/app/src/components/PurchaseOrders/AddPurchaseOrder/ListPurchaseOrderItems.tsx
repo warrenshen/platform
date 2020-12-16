@@ -7,8 +7,23 @@ import {
 } from "@material-ui/core";
 import Add from "@material-ui/icons/Add";
 import DeleteIcon from "@material-ui/icons/Delete";
+import {
+  PurchaseOrderLineItemsArrRelInsertInput,
+  PurchaseOrderLineItemsInsertInput,
+} from "generated/graphql";
+import { Maybe } from "graphql/jsutils/Maybe";
 import { useState } from "react";
-import { PurchaseOrderItem } from "../models/PurchaseOrderItem";
+
+function nullableNumbersHelper(num: Maybe<number>): number {
+  return num ? num : 0;
+}
+
+function multiplyNullableNumbers(
+  num1: Maybe<number>,
+  num2: Maybe<number>
+): number {
+  return nullableNumbersHelper(num1) * nullableNumbersHelper(num2);
+}
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -32,8 +47,10 @@ const useStyles = makeStyles(() =>
 );
 
 interface Props {
-  purchaseOrderItems: PurchaseOrderItem[];
-  handlePurchaseOrderItems: (items: PurchaseOrderItem[]) => void;
+  purchaseOrderItems: PurchaseOrderLineItemsArrRelInsertInput;
+  handlePurchaseOrderItems: (
+    items: PurchaseOrderLineItemsArrRelInsertInput
+  ) => void;
 }
 
 function ListPurchaseOrderItems({
@@ -44,25 +61,18 @@ function ListPurchaseOrderItems({
   const [
     newPurchaseOrderItem,
     setNewPurchaseOrderItem,
-  ] = useState<PurchaseOrderItem>({
-    id: 0,
-    item: "",
-    descritpion: "",
-    units: 0,
-    unit: "",
-    pricePerUnit: 0,
-  });
+  ] = useState<PurchaseOrderLineItemsInsertInput>({});
   return (
     <>
-      {purchaseOrderItems.map((purchaseOrderItem) => (
+      {purchaseOrderItems.data.map((purchaseOrderItem) => (
         <Box display="flex" m={1} key={purchaseOrderItem.id}>
           <TextField
             label="Item"
             className={classes.itemInput}
             value={purchaseOrderItem.item}
             onChange={({ target: { value } }) => {
-              const pois = [...purchaseOrderItems];
-              let poi = pois.find((i) => i.id === purchaseOrderItem.id);
+              const pois = { ...purchaseOrderItems };
+              let poi = pois.data.find((i) => i.id === purchaseOrderItem.id);
               if (poi) {
                 poi.item = value;
               }
@@ -72,12 +82,12 @@ function ListPurchaseOrderItems({
           <TextField
             label="Description"
             className={classes.itemInput}
-            value={purchaseOrderItem.descritpion}
+            value={purchaseOrderItem.description}
             onChange={({ target: { value } }) => {
-              const pois = [...purchaseOrderItems];
-              let poi = pois.find((i) => i.id === purchaseOrderItem.id);
+              const pois = { ...purchaseOrderItems };
+              let poi = pois.data.find((i) => i.id === purchaseOrderItem.id);
               if (poi) {
-                poi.descritpion = value;
+                poi.description = value;
               }
               handlePurchaseOrderItems(pois);
             }}
@@ -85,13 +95,13 @@ function ListPurchaseOrderItems({
           <TextField
             label="Units"
             className={classes.itemInput}
-            value={purchaseOrderItem.units}
+            value={purchaseOrderItem.num_units}
             onChange={({ target: { value } }) => {
-              const pois = [...purchaseOrderItems];
-              let poi = pois.find((i) => i.id === purchaseOrderItem.id);
+              const pois = { ...purchaseOrderItems };
+              let poi = pois.data.find((i) => i.id === purchaseOrderItem.id);
               if (poi) {
                 const u = +value;
-                poi.units = isNaN(u) ? 0 : u;
+                poi.num_units = isNaN(u) ? 0 : u;
               }
               handlePurchaseOrderItems(pois);
             }}
@@ -101,8 +111,8 @@ function ListPurchaseOrderItems({
             className={classes.itemInput}
             value={purchaseOrderItem.unit}
             onChange={({ target: { value } }) => {
-              const pois = [...purchaseOrderItems];
-              let poi = pois.find((i) => i.id === purchaseOrderItem.id);
+              const pois = { ...purchaseOrderItems };
+              let poi = pois.data.find((i) => i.id === purchaseOrderItem.id);
               if (poi) {
                 poi.unit = value;
               }
@@ -112,13 +122,13 @@ function ListPurchaseOrderItems({
           <TextField
             label="Price Per Unit"
             className={classes.itemInput}
-            value={purchaseOrderItem.pricePerUnit}
+            value={purchaseOrderItem.price_per_unit}
             onChange={({ target: { value } }) => {
-              const pois = [...purchaseOrderItems];
-              let poi = pois.find((i) => i.id === purchaseOrderItem.id);
+              const pois = { ...purchaseOrderItems };
+              let poi = pois.data.find((i) => i.id === purchaseOrderItem.id);
               if (poi) {
                 const u = +value;
-                poi.pricePerUnit = isNaN(u) ? 0 : u;
+                poi.price_per_unit = isNaN(u) ? 0 : u;
               }
               handlePurchaseOrderItems(pois);
             }}
@@ -127,15 +137,19 @@ function ListPurchaseOrderItems({
             label="Total"
             disabled={true}
             className={classes.itemInput}
-            value={purchaseOrderItem.units * purchaseOrderItem.pricePerUnit}
+            value={multiplyNullableNumbers(
+              purchaseOrderItem.num_units,
+              purchaseOrderItem.price_per_unit
+            )}
           ></TextField>
           <IconButton
             onClick={() => {
-              handlePurchaseOrderItems([
-                ...purchaseOrderItems.filter(
+              handlePurchaseOrderItems({
+                ...purchaseOrderItems,
+                data: purchaseOrderItems.data.filter(
                   (i) => i.id !== purchaseOrderItem.id
                 ),
-              ]);
+              });
             }}
             component="span"
             color="secondary"
@@ -156,23 +170,23 @@ function ListPurchaseOrderItems({
         <TextField
           label="Description"
           className={classes.itemInput}
-          value={newPurchaseOrderItem.descritpion}
+          value={newPurchaseOrderItem.description}
           onChange={({ target: { value } }) => {
             setNewPurchaseOrderItem({
               ...newPurchaseOrderItem,
-              descritpion: value,
+              description: value,
             });
           }}
         ></TextField>
         <TextField
           label="Units"
           className={classes.itemInput}
-          value={newPurchaseOrderItem.units}
+          value={newPurchaseOrderItem.num_units}
           onChange={({ target: { value } }) => {
             const u = +value;
             setNewPurchaseOrderItem({
               ...newPurchaseOrderItem,
-              units: isNaN(u) ? 0 : u,
+              num_units: isNaN(u) ? 0 : u,
             });
           }}
         ></TextField>
@@ -187,12 +201,12 @@ function ListPurchaseOrderItems({
         <TextField
           label="Price Per Unit"
           className={classes.itemInput}
-          value={newPurchaseOrderItem.pricePerUnit}
+          value={newPurchaseOrderItem.price_per_unit}
           onChange={({ target: { value } }) => {
             const ppU = +value;
             setNewPurchaseOrderItem({
               ...newPurchaseOrderItem,
-              pricePerUnit: isNaN(ppU) ? 0 : ppU,
+              price_per_unit: isNaN(ppU) ? 0 : ppU,
             });
           }}
         ></TextField>
@@ -200,22 +214,25 @@ function ListPurchaseOrderItems({
           label="Total"
           disabled={true}
           className={classes.itemInputLast}
-          value={newPurchaseOrderItem.units * newPurchaseOrderItem.pricePerUnit}
+          value={multiplyNullableNumbers(
+            newPurchaseOrderItem.num_units,
+            newPurchaseOrderItem.price_per_unit
+          )}
         ></TextField>
         <Box>
           <IconButton
             onClick={() => {
-              handlePurchaseOrderItems([
+              handlePurchaseOrderItems({
                 ...purchaseOrderItems,
-                { ...newPurchaseOrderItem, id: purchaseOrderItems.length },
-              ]);
+                data: [...purchaseOrderItems.data, newPurchaseOrderItem],
+              });
               setNewPurchaseOrderItem({
                 id: 0,
                 item: "",
-                descritpion: "",
-                units: 0,
+                description: "",
+                num_units: 0,
                 unit: "",
-                pricePerUnit: 0,
+                price_per_unit: 0,
               });
             }}
             component="span"
@@ -231,11 +248,18 @@ function ListPurchaseOrderItems({
           disabled={true}
           className={classes.itemInputGrandTotal}
           value={
-            purchaseOrderItems.reduce(
-              (acc, curr) => (acc += curr.units * curr.pricePerUnit),
+            purchaseOrderItems.data.reduce(
+              (acc, curr) =>
+                (acc += multiplyNullableNumbers(
+                  curr.num_units,
+                  curr.price_per_unit
+                )),
               0
             ) +
-            newPurchaseOrderItem.units * newPurchaseOrderItem.pricePerUnit
+            multiplyNullableNumbers(
+              newPurchaseOrderItem.num_units,
+              newPurchaseOrderItem.price_per_unit
+            )
           }
         ></TextField>
       </Box>

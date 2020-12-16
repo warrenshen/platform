@@ -5,65 +5,70 @@ import {
   RowsProp,
   ValueFormatterParams,
 } from "@material-ui/data-grid";
-import { useEffect, useState } from "react";
-import { PURCHASE_ORDERS, VENDORS } from "../models/fakeData";
-import { PurchaseOrder } from "../models/PurchaseOrder";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  PurchaseOrderFragment,
+  useListPurchaseOrdersQuery,
+} from "generated/graphql";
+import { Maybe } from "graphql/jsutils/Maybe";
+import { useContext, useState } from "react";
+import { ActionType } from "../models/ActionType";
 import ViewModal from "../ViewPurhcaseOrder/ViewModal";
 import ActionMenu from "./ActionMenu";
 import Status from "./Status";
 
-function populateRows(purchaseOrders: PurchaseOrder[]): RowsProp {
-  return purchaseOrders.map((item) => {
-    return { ...item, action: 1 };
-  });
+function populateRows(
+  purchaseOrders: Maybe<PurchaseOrderFragment[]>
+): RowsProp {
+  return purchaseOrders
+    ? purchaseOrders.map((item) => {
+        return {
+          ...item,
+          action: 1,
+          vendor_name: item.vendor?.name,
+          parent_purchase_order_number:
+            item.parent_purchase_order?.purchase_order_number,
+        };
+      })
+    : [];
 }
 
 interface Props {
-  reloadTrigger: boolean;
-  createPurchaseOrderReplica: (arg0: string) => void;
+  manipulatePurchaseOrder: (
+    actionType: ActionType,
+    originalPurchaseOrder: Maybe<PurchaseOrderFragment>
+  ) => void;
 }
 
-function ListPurchaseOrders({
-  reloadTrigger,
-  createPurchaseOrderReplica,
-}: Props) {
-  const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([]);
+function ListPurchaseOrders({ manipulatePurchaseOrder }: Props) {
+  const { company_id: curentUserCompanyId } = useContext(CurrentUserContext);
   const [currentId, setCurrentId] = useState("");
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    setPurchaseOrders(
-      PURCHASE_ORDERS.filter((po) => po.associatedPurchaseOrderIds.length === 0)
-    );
-  }, [reloadTrigger]);
+  const { data, loading } = useListPurchaseOrdersQuery({
+    variables: {
+      company_id: curentUserCompanyId,
+    },
+  });
 
-  const rows = populateRows(purchaseOrders);
+  const rows = populateRows(data ? data.purchase_orders : []);
 
   const columns: ColDef[] = [
     {
-      field: "vendor_id",
+      field: "vendor_name",
       headerName: "Anchor",
       width: 200,
-      valueFormatter: (params: ValueFormatterParams) => {
-        const vendor = VENDORS.find((v) => v.id === params.value);
-        return `${vendor ? vendor.name : ""}`;
-      },
     },
     {
-      field: "parent_purchase_order_id",
+      field: "parent_purchase_order_number",
       headerName: "Parent PO Number",
       width: 200,
-      valueFormatter: (params: ValueFormatterParams) => {
-        const parentPO = PURCHASE_ORDERS.find((po) => po.id === params.value);
-        return `${parentPO ? parentPO.purchase_order_number : ""}`;
-      },
     },
     {
       field: "purchase_order_number",
       headerName: "PO Number",
       width: 250,
       renderCell: (params: ValueFormatterParams) => (
-        // <ViewButton id={params.row.id as string} name={params.value as string} />
         <Button
           onClick={() => {
             setCurrentId(params.row.id as string);
@@ -78,13 +83,11 @@ function ListPurchaseOrders({
       field: "amount",
       headerName: "Purchase Order Amount",
       width: 200,
-      valueFormatter: (params: ValueFormatterParams) => `$${params.value}.00`,
     },
     {
       field: "amount_invoiced",
       headerName: "Amount Invoiced",
       width: 150,
-      valueFormatter: (params: ValueFormatterParams) => `$${params.value}.00`,
     },
     {
       field: "status",
@@ -102,17 +105,28 @@ function ListPurchaseOrders({
         return (
           <ActionMenu
             purchaseOrderId={params.row.id as string}
-            createPurchaseOrderReplica={createPurchaseOrderReplica}
+            manipulatePurchaseOrder={handleCreatePurchaseOrderReplica}
           />
         );
       },
     },
   ];
+
+  const handleCreatePurchaseOrderReplica = (
+    actionType: ActionType,
+    originalId: string
+  ) => {
+    manipulatePurchaseOrder(
+      actionType,
+      data?.purchase_orders.find((po) => po.id === originalId)
+    );
+  };
+
   return (
     <>
       {open && (
         <ViewModal
-          createPurchaseOrderReplica={createPurchaseOrderReplica}
+          manipulatePurchaseOrder={handleCreatePurchaseOrderReplica}
           id={currentId}
           handleClose={() => setOpen(false)}
         ></ViewModal>

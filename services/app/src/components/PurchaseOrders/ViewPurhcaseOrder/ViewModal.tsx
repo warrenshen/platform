@@ -7,13 +7,14 @@ import {
   DialogContent,
   DialogTitle,
   makeStyles,
+  Theme,
 } from "@material-ui/core";
 import { Attachment, Create, Email, Print } from "@material-ui/icons";
-import { useEffect, useState } from "react";
-import { PURCHASE_ORDERS, VENDORS } from "../models/fakeData";
-import { PurchaseOrder, PURCHASE_ORDER_EMPTY } from "../models/PurchaseOrder";
+import { usePurchaseOrderQuery } from "generated/graphql";
+import { ActionType } from "../models/ActionType";
 import ItemsList from "./ItemsList";
-const useStyles = makeStyles(() =>
+
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     dialogTitle: {
       marginLeft: 21,
@@ -26,50 +27,32 @@ const useStyles = makeStyles(() =>
     propertyLabel: {
       flexGrow: 1,
     },
+    constLabels: {
+      minWidth: 150,
+    },
+    dialogActions: {
+      margin: theme.spacing(2),
+      marginTop: 0,
+      marginBottom: 15,
+    },
   })
 );
 interface Props {
   id: string;
   handleClose: () => void;
-  createPurchaseOrderReplica: (id: string) => void;
+  manipulatePurchaseOrder: (actionType: ActionType, id: string) => void;
 }
 
-function ViewModal({ id, handleClose, createPurchaseOrderReplica }: Props) {
+function ViewModal({ id, handleClose, manipulatePurchaseOrder }: Props) {
   const classes = useStyles();
-  const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrder>(
-    PURCHASE_ORDER_EMPTY
-  );
-  const [parentPurchaseOrder, setParentPurchaseOrder] = useState<PurchaseOrder>(
-    PURCHASE_ORDER_EMPTY
-  );
-  const [vendor, setVendor] = useState({ id: "", name: "" });
-  useEffect(() => {
-    const purchaseOrderFromApi = PURCHASE_ORDERS.find((po) => po.id === id);
-    if (purchaseOrderFromApi) {
-      setPurchaseOrder(purchaseOrderFromApi);
-    }
-  }, [id]);
-  useEffect(() => {
-    const parentPurchaseOrderFromApi = PURCHASE_ORDERS.find(
-      (ppo) => ppo.id === purchaseOrder.parent_purchase_order_id
-    );
-    if (parentPurchaseOrderFromApi) {
-      setParentPurchaseOrder(parentPurchaseOrderFromApi);
-    }
-  }, [purchaseOrder]);
-  useEffect(() => {
-    const vendorFromApi = VENDORS.find((v) => v.id === purchaseOrder.vendor_id);
-    if (vendorFromApi) {
-      setVendor(vendorFromApi);
-    }
-  }, [purchaseOrder]);
+  const { data, loading } = usePurchaseOrderQuery({
+    variables: {
+      id: id,
+    },
+  });
+  const purchaseOrder = data?.purchase_orders_by_pk;
   return (
-    <Dialog
-      open
-      onClose={handleClose}
-      // className={classes.dialog}
-      maxWidth="xl"
-    >
+    <Dialog open onClose={handleClose} maxWidth="xl">
       {" "}
       <DialogTitle className={classes.dialogTitle}>
         Purchase Order Details
@@ -79,71 +62,78 @@ function ViewModal({ id, handleClose, createPurchaseOrderReplica }: Props) {
           <Box flexDirection="column" flexGrow={1}>
             <Box display="flex" flexDirection="row" m={1}>
               <p className={classes.propertyLabel}>
-                <strong>PO Number</strong>
+                <strong>PO Number:</strong>
               </p>
-              <p>{purchaseOrder.purchase_order_number}</p>
+              <p>{purchaseOrder?.purchase_order_number}</p>
             </Box>
             <Box display="flex" flexDirection="row" m={1}>
               <p className={classes.propertyLabel}>
-                <strong>Parent PO Number</strong>
+                <strong>Amount:</strong>
               </p>
-              <p>{parentPurchaseOrder.purchase_order_number}</p>
+              <p>{purchaseOrder?.amount}</p>
             </Box>
             <Box display="flex" flexDirection="row" m={1}>
               <p className={classes.propertyLabel}>
-                <strong>Parent PO Amount</strong>
+                <strong>PO Date:</strong>
               </p>
-              <p>{`$${purchaseOrder.parent_amount}.00`}</p>
+              <p>{purchaseOrder?.created_at}</p>
             </Box>
             <Box display="flex" flexDirection="row" m={1}>
               <p className={classes.propertyLabel}>
-                <strong>PO Date</strong>
+                <strong>Debtor:</strong>
               </p>
-              <p>{purchaseOrder.created_at.toDateString()}</p>
+              <p>{purchaseOrder?.company?.name}</p>
             </Box>
           </Box>
           <Box flexDirection="column" flexGrow={1}>
             <Box display="flex" flexDirection="row" m={1}>
               <p className={classes.propertyLabel}>
+                <strong>Parent PO Number:</strong>
+              </p>
+              <p>{purchaseOrder?.parent_purchase_order_id}</p>
+            </Box>
+            <Box display="flex" flexDirection="row" m={1}>
+              <p className={classes.propertyLabel}>
+                <strong>Parent PO Amount:</strong>
+              </p>
+              <p>{purchaseOrder?.parent_purchase_order?.amount}</p>
+            </Box>
+            <Box display="flex" flexDirection="row" m={1}>
+              <p className={classes.propertyLabel}>
                 <strong>Status</strong>
               </p>
-              <p>{purchaseOrder.status}</p>
+              <p>{purchaseOrder?.status}</p>
             </Box>
             <Box display="flex" flexDirection="row" m={1}>
               <p className={classes.propertyLabel}>
-                <strong>Amount</strong>
+                <strong>Anchor:</strong>
               </p>
-              <p>{`$${purchaseOrder.amount}.00`}</p>
-            </Box>
-            <Box display="flex" flexDirection="row" m={1}>
-              <p className={classes.propertyLabel}>
-                <strong>Debtor</strong>
-              </p>
-              <p>{purchaseOrder.debtor}</p>
-            </Box>
-            <Box display="flex" flexDirection="row" m={1}>
-              <p className={classes.propertyLabel}>
-                <strong>Anchor</strong>
-              </p>
-              <p>{vendor.name}</p>
+              <p>{purchaseOrder?.vendor?.name}</p>
             </Box>
           </Box>
         </Box>
         <Box>
-          <p>
-            <strong>Remark</strong>
-            {purchaseOrder.remarks}
-          </p>
-
-          <p>
-            <strong>Delivery Address</strong>
-            {purchaseOrder.delivery_address}
-          </p>
+          <Box display="flex" flexDirection="row" m={1}>
+            <p className={classes.propertyLabel}>
+              <strong>Remark:</strong>
+            </p>
+            <p>{purchaseOrder?.remarks}</p>
+          </Box>
+          <Box display="flex" flexDirection="row" m={1}>
+            <p className={classes.propertyLabel}>
+              <strong>Delivery Address:</strong>
+            </p>
+            <p>{` ${purchaseOrder?.address}, ${purchaseOrder?.country}, ${purchaseOrder?.city}, ${purchaseOrder?.zip_code}`}</p>
+          </Box>
         </Box>
 
-        <ItemsList purchaseOrderItems={purchaseOrder.items}></ItemsList>
+        <ItemsList
+          purchaseOrderItems={
+            purchaseOrder?.line_items ? purchaseOrder?.line_items : []
+          }
+        ></ItemsList>
       </DialogContent>
-      <DialogActions>
+      <DialogActions className={classes.dialogActions}>
         <Box>
           <Button className={classes.buttonClass} onClick={handleClose}>
             Cancel
@@ -154,7 +144,19 @@ function ViewModal({ id, handleClose, createPurchaseOrderReplica }: Props) {
             color="primary"
             onClick={() => {
               handleClose();
-              createPurchaseOrderReplica(id);
+              manipulatePurchaseOrder(ActionType.Update, id);
+            }}
+            startIcon={<Create />}
+          >
+            Edit
+          </Button>
+          <Button
+            className={classes.buttonClass}
+            variant="contained"
+            color="primary"
+            onClick={() => {
+              handleClose();
+              manipulatePurchaseOrder(ActionType.Copy, id);
             }}
             startIcon={<Create />}
           >

@@ -1,25 +1,42 @@
 import { Button } from "@material-ui/core";
+import { PurchaseOrderFragment } from "generated/graphql";
+import { Maybe } from "graphql/jsutils/Maybe";
+import { ActionType } from "../models/ActionType";
 import AddPurchaseOrderModal from "./AddPurchaseOrderModal";
 
 interface Props {
-  id: string;
+  actionType: ActionType;
+  originalPurchaseOrder: Maybe<PurchaseOrderFragment>;
   open: boolean;
   setOpen: (arg0: boolean) => void;
+  manipulatePurchaseOrder: (
+    actionType: ActionType,
+    purchaseOrder: Maybe<PurchaseOrderFragment>
+  ) => void;
   clearId: () => void;
 }
 
-function AddButton({ id, open, setOpen, clearId }: Props) {
+function AddButton({
+  actionType,
+  originalPurchaseOrder,
+  open,
+  setOpen,
+  manipulatePurchaseOrder,
+  clearId,
+}: Props) {
   return (
     <>
       {open && (
         <AddPurchaseOrderModal
-          id={id}
+          actionType={actionType}
+          originalPurchaseOrder={originalPurchaseOrder}
           handleClose={() => setOpen(false)}
         ></AddPurchaseOrderModal>
       )}
       <Button
         onClick={() => {
           clearId();
+          manipulatePurchaseOrder(ActionType.New, null);
           setOpen(true);
         }}
         color="primary"

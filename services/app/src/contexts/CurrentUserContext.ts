@@ -5,14 +5,16 @@ export enum UserRole {
   Customer = "Customer",
 }
 
-export type CurrentUseContextType = {
+export type CurrentUserContextType = {
   id: string;
   role: UserRole;
+  company_id: string;
   setRole: (role: UserRole) => void;
 };
 
-export const CurrentUserContext = createContext<CurrentUseContextType>({
+export const CurrentUserContext = createContext<CurrentUserContextType>({
   id: "",
+  company_id: "",
   role: UserRole.Customer,
   setRole: () => {},
 });

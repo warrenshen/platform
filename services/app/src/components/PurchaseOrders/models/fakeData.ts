@@ -52,9 +52,12 @@ export const PURCHASE_ORDERS: PurchaseOrder[] = [
     delivery_date: new Date(),
     created_at: new Date(),
     updated_at: new Date(),
-    delivery_address: "",
+    address: "",
     remarks: "",
     debtor: "",
+    country: "",
+    zip_code: "",
+    city: "",
     items: [
       {
         id: 1,
@@ -80,9 +83,12 @@ export const PURCHASE_ORDERS: PurchaseOrder[] = [
     delivery_date: new Date(),
     created_at: new Date(),
     updated_at: new Date(),
-    delivery_address: "",
+    address: "",
     remarks: "",
     debtor: "",
+    country: "",
+    zip_code: "",
+    city: "",
     items: [
       {
         id: 1,
@@ -108,9 +114,12 @@ export const PURCHASE_ORDERS: PurchaseOrder[] = [
     delivery_date: new Date(),
     created_at: new Date(),
     updated_at: new Date(),
-    delivery_address: "",
+    address: "",
     remarks: "",
     debtor: "",
+    country: "",
+    zip_code: "",
+    city: "",
     items: [
       {
         id: 1,
@@ -136,9 +145,12 @@ export const PURCHASE_ORDERS: PurchaseOrder[] = [
     delivery_date: new Date(),
     created_at: new Date(),
     updated_at: new Date(),
-    delivery_address: "",
+    address: "",
     remarks: "",
     debtor: "",
+    country: "",
+    zip_code: "",
+    city: "",
     items: [
       {
         id: 1,
@@ -164,9 +176,12 @@ export const PURCHASE_ORDERS: PurchaseOrder[] = [
     delivery_date: new Date(),
     created_at: new Date(),
     updated_at: new Date(),
-    delivery_address: "",
+    address: "",
     remarks: "",
     debtor: "",
+    country: "",
+    zip_code: "",
+    city: "",
     items: [
       {
         id: 1,
@@ -192,9 +207,12 @@ export const PURCHASE_ORDERS: PurchaseOrder[] = [
     delivery_date: new Date(),
     created_at: new Date(),
     updated_at: new Date(),
-    delivery_address: "",
+    address: "",
     remarks: "",
     debtor: "",
+    country: "",
+    zip_code: "",
+    city: "",
     items: [
       {
         id: 1,
@@ -220,9 +238,12 @@ export const PURCHASE_ORDERS: PurchaseOrder[] = [
     delivery_date: new Date(),
     created_at: new Date(),
     updated_at: new Date(),
-    delivery_address: "",
+    address: "",
     remarks: "",
     debtor: "",
+    country: "",
+    zip_code: "",
+    city: "",
     items: [
       {
         id: 1,
@@ -248,9 +269,12 @@ export const PURCHASE_ORDERS: PurchaseOrder[] = [
     delivery_date: new Date(),
     created_at: new Date(),
     updated_at: new Date(),
-    delivery_address: "",
+    address: "",
     remarks: "",
     debtor: "",
+    country: "",
+    zip_code: "",
+    city: "",
     items: [
       {
         id: 1,
@@ -276,9 +300,12 @@ export const PURCHASE_ORDERS: PurchaseOrder[] = [
     delivery_date: new Date(),
     created_at: new Date(),
     updated_at: new Date(),
-    delivery_address: "",
+    address: "",
     remarks: "",
     debtor: "",
+    country: "",
+    zip_code: "",
+    city: "",
     items: [
       {
         id: 1,

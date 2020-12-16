@@ -22,14 +22,22 @@ import {
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
 import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
-// import {
-//   CompaniesInsertInput,
-//   useRegisterVendorMutation,
-// } from "generated/graphql";
-import { useEffect, useState } from "react";
-import { CURRENCIES, PURCHASE_ORDERS, VENDORS } from "../models/fakeData";
-import { PurchaseOrder, PURCHASE_ORDER_EMPTY } from "../models/PurchaseOrder";
-import { PurchaseOrderItem } from "../models/PurchaseOrderItem";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  ListPurchaseOrdersDocument,
+  PurchaseOrderFragment,
+  PurchaseOrderLineItemsArrRelInsertInput,
+  PurchaseOrderLineItemsInsertInput,
+  PurchaseOrdersInsertInput,
+  useAddPurchaseOrderMutation,
+  useListPurchaseOrdersQuery,
+  useListPurchaseOrderVendorsQuery,
+  useUpdatePurchaseOrderMutation,
+} from "generated/graphql";
+import { Maybe } from "graphql/jsutils/Maybe";
+import { useContext, useState } from "react";
+import { ActionType } from "../models/ActionType";
+import { CURRENCIES } from "../models/fakeData";
 import ListPurchaseOrderItems from "./ListPurchaseOrderItems";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -62,44 +70,98 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  id: string;
+  actionType: ActionType;
+  originalPurchaseOrder: Maybe<PurchaseOrderFragment>;
   handleClose: () => void;
 }
 
-function AddPurchaseOrderModal({ id, handleClose }: Props) {
+function AddPurchaseOrderModal({
+  actionType,
+  originalPurchaseOrder,
+  handleClose,
+}: Props) {
   const classes = useStyles();
-  const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrder>(
-    PURCHASE_ORDER_EMPTY
-  );
-  const handlePurchaseOrderItems = (items: PurchaseOrderItem[]) => {
-    setPurchaseOrder({ ...purchaseOrder, items: items });
-  };
-  useEffect(() => {
-    if (id !== "") {
-      const purchaseOrderOriginal = PURCHASE_ORDERS.find((po) => po.id === id);
-      if (purchaseOrderOriginal) {
-        setPurchaseOrder(purchaseOrderOriginal);
-      }
-    } else {
-      setPurchaseOrder(PURCHASE_ORDER_EMPTY);
+  const { company_id: currentUserCompanyId } = useContext(CurrentUserContext);
+  const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrdersInsertInput>(
+    {
+      id:
+        actionType === ActionType.Update
+          ? originalPurchaseOrder?.id
+          : undefined,
+      amount: originalPurchaseOrder?.amount,
+      address: originalPurchaseOrder?.address,
+      amount_invoiced: originalPurchaseOrder?.amount_invoiced,
+      city: originalPurchaseOrder?.city,
+      company_id: originalPurchaseOrder?.company_id,
+      country: originalPurchaseOrder?.country,
+      currency: originalPurchaseOrder?.currency,
+      parent_purchase_order_id: originalPurchaseOrder?.parent_purchase_order_id,
+      line_items: {
+        data: originalPurchaseOrder
+          ? originalPurchaseOrder.line_items.map((ppoi) => {
+              return {
+                item: ppoi.item,
+                description: ppoi.description,
+                num_units: ppoi.num_units,
+                unit: ppoi.unit,
+                price_per_unit: ppoi.price_per_unit,
+              } as PurchaseOrderLineItemsInsertInput;
+            })
+          : [],
+      },
+      purchase_order_number: originalPurchaseOrder
+        ? `${actionType === ActionType.Copy ? "Copy of " : ""}${
+            originalPurchaseOrder?.purchase_order_number
+          }`
+        : "",
+      remarks: originalPurchaseOrder?.remarks,
+      status: originalPurchaseOrder?.status,
+      vendor_id: originalPurchaseOrder?.vendor_id,
+      zip_code: originalPurchaseOrder?.zip_code,
     }
-  }, [id]);
-  // const [registerVendor, { loading }] = useRegisterVendorMutation();
+  );
+  const [
+    addPurchaseOrder,
+    { loading: addPurchaseOrderLoading },
+  ] = useAddPurchaseOrderMutation();
+
+  const [
+    updatePurchaseOrder,
+    { loading: updatePurchaseOrderLoading },
+  ] = useUpdatePurchaseOrderMutation();
+
+  const {
+    data: vendorsData,
+    loading: getVendorsLoading,
+  } = useListPurchaseOrderVendorsQuery();
+  const vendors = vendorsData?.companies.filter(
+    (v) => v.id !== currentUserCompanyId
+  );
+
+  const {
+    data: parentPurchaseOrdersData,
+    loading: getParentPurchaseOrdersLoading,
+  } = useListPurchaseOrdersQuery({
+    variables: { company_id: currentUserCompanyId },
+  });
+  const parentPurchaseOrders = parentPurchaseOrdersData?.purchase_orders;
+  const handlePurchaseOrderItems = (
+    items: PurchaseOrderLineItemsArrRelInsertInput
+  ) => {
+    setPurchaseOrder({ ...purchaseOrder, line_items: items });
+  };
+
+  const isFormValid =
+    !!purchaseOrder.purchase_order_number && !!purchaseOrder.vendor_id;
 
   return (
-    <Dialog
-      open
-      onClose={handleClose}
-      // className={classes.dialog}
-      maxWidth="xl"
-    >
+    <Dialog open onClose={handleClose} maxWidth="xl">
       <DialogTitle className={classes.dialogTitle}>
-        Create Purchase Order
+        {`${
+          actionType === ActionType.Update ? "Edit" : "Create"
+        } Purchase Order`}
       </DialogTitle>
       <DialogContent>
-        {/* <DialogContentText>
-          Please provide details about the purchase order.
-        </DialogContentText> */}
         <Box display="flex" flexDirection="column">
           <Box display="flex" flexDirection="row">
             <FormControl className={classes.formControlLeft}>
@@ -110,7 +172,11 @@ function AddPurchaseOrderModal({ id, handleClose }: Props) {
                 className={classes.purchaseOrderInput}
                 labelId="parent-purchase-order-number-select-label"
                 id="parent-purchase-order-number-select"
-                value={purchaseOrder.parent_purchase_order_id}
+                value={
+                  purchaseOrder.parent_purchase_order_id
+                    ? purchaseOrder.parent_purchase_order_id
+                    : ""
+                }
                 onChange={({ target: { value } }) => {
                   setPurchaseOrder({
                     ...purchaseOrder,
@@ -121,9 +187,7 @@ function AddPurchaseOrderModal({ id, handleClose }: Props) {
                 <MenuItem value="">
                   <em>None</em>
                 </MenuItem>
-                {PURCHASE_ORDERS.filter(
-                  (po) => po.associatedPurchaseOrderIds.length > 0
-                ).map((parentPurchaseOrder) => (
+                {parentPurchaseOrders?.map((parentPurchaseOrder) => (
                   <MenuItem
                     key={parentPurchaseOrder.id}
                     value={parentPurchaseOrder.id}
@@ -139,7 +203,7 @@ function AddPurchaseOrderModal({ id, handleClose }: Props) {
                 className={classes.purchaseOrderInput}
                 labelId="vendor-select-label"
                 id="vendor-select"
-                value={purchaseOrder.vendor_id}
+                value={purchaseOrder.vendor_id ? purchaseOrder.vendor_id : ""}
                 onChange={({ target: { value } }) => {
                   setPurchaseOrder({
                     ...purchaseOrder,
@@ -150,7 +214,7 @@ function AddPurchaseOrderModal({ id, handleClose }: Props) {
                 <MenuItem value="">
                   <em>None</em>
                 </MenuItem>
-                {VENDORS.map((vendor) => (
+                {vendors?.map((vendor) => (
                   <MenuItem key={vendor.id} value={vendor.id}>
                     {vendor.name}
                   </MenuItem>
@@ -178,7 +242,7 @@ function AddPurchaseOrderModal({ id, handleClose }: Props) {
                 className={classes.purchaseOrderInput}
                 labelId="currency-select-label"
                 id="currency-select"
-                value={purchaseOrder.currency}
+                value={purchaseOrder.currency ? purchaseOrder.currency : "USD"}
                 onChange={({ target: { value } }) => {
                   setPurchaseOrder({
                     ...purchaseOrder,
@@ -251,7 +315,7 @@ function AddPurchaseOrderModal({ id, handleClose }: Props) {
               onChange={({ target: { value } }) => {
                 setPurchaseOrder({
                   ...purchaseOrder,
-                  delivery_address: value,
+                  address: value,
                 });
               }}
             />
@@ -274,7 +338,9 @@ function AddPurchaseOrderModal({ id, handleClose }: Props) {
         </Box>
         <DialogContentText>Description.</DialogContentText>
         <ListPurchaseOrderItems
-          purchaseOrderItems={purchaseOrder.items}
+          purchaseOrderItems={
+            purchaseOrder.line_items ? purchaseOrder.line_items : { data: [] }
+          }
           handlePurchaseOrderItems={handlePurchaseOrderItems}
         ></ListPurchaseOrderItems>
       </DialogContent>
@@ -282,29 +348,65 @@ function AddPurchaseOrderModal({ id, handleClose }: Props) {
         <Box>
           <Button onClick={handleClose}>Cancel</Button>
           <Button
-            disabled={
-              !purchaseOrder.purchase_order_number && !purchaseOrder.vendor_id
-            }
-            onClick={() => {
-              PURCHASE_ORDERS.push({
-                ...purchaseOrder,
-                id: "2aa6e053-0e9b-4b1f-b351-2f62f820612f",
-                status: "New",
-                amount: purchaseOrder.items.reduce(
-                  (acc, curr) => (acc += curr.units * curr.pricePerUnit),
-                  0
-                ),
-              });
-              // await registerVendor({
-              //   variables: {
-              //     vendor: {
-              //       company_id: "57ee8797-1d5b-4a90-83c9-84c740590e42",
-              //       vendor: {
-              //         data: purchaseOrder,
-              //       },
-              //     },
-              //   },
-              // });
+            disabled={!isFormValid}
+            onClick={async () => {
+              if (actionType === ActionType.Update) {
+                await updatePurchaseOrder({
+                  variables: {
+                    id: purchaseOrder.id,
+                    purchaseOrder: {
+                      purchase_order_number:
+                        purchaseOrder.purchase_order_number,
+                      address: purchaseOrder.address,
+                      amount: purchaseOrder.amount,
+                      amount_invoiced: purchaseOrder.amount_invoiced,
+                      city: purchaseOrder.city,
+                      country: purchaseOrder.country,
+                      currency: purchaseOrder.currency,
+                      delivery_date: purchaseOrder.delivery_date,
+                      parent_purchase_order_id:
+                        purchaseOrder.parent_purchase_order_id,
+                      remarks: purchaseOrder.remarks,
+                      status: purchaseOrder.status,
+                      vendor_id: purchaseOrder.vendor_id,
+                      zip_code: purchaseOrder.zip_code,
+                    },
+                    purchaseOrderLineItems: purchaseOrder?.line_items?.data
+                      ? purchaseOrder.line_items.data.map((item) => {
+                          return {
+                            ...item,
+                            purchase_order_id: purchaseOrder.id,
+                          };
+                        })
+                      : [],
+                  },
+                  refetchQueries: [
+                    {
+                      query: ListPurchaseOrdersDocument,
+                      variables: {
+                        company_id: currentUserCompanyId,
+                      },
+                    },
+                  ],
+                });
+              } else {
+                await addPurchaseOrder({
+                  variables: {
+                    purhcase_order: {
+                      ...purchaseOrder,
+                      company_id: currentUserCompanyId,
+                    },
+                  },
+                  refetchQueries: [
+                    {
+                      query: ListPurchaseOrdersDocument,
+                      variables: {
+                        company_id: currentUserCompanyId,
+                      },
+                    },
+                  ],
+                });
+              }
               handleClose();
             }}
             variant="contained"

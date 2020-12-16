@@ -9,6 +9,7 @@ function CurrentUserWrapper(props: { children: React.ReactNode }) {
     <CurrentUserContext.Provider
       value={{
         id: uuidv4(),
+        company_id: "57ee8797-1d5b-4a90-83c9-84c740590e42",
         role,
         setRole,
       }}

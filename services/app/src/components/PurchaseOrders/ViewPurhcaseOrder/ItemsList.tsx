@@ -4,21 +4,36 @@ import {
   RowsProp,
   ValueFormatterParams,
 } from "@material-ui/data-grid";
-import { PurchaseOrderItem } from "../models/PurchaseOrderItem";
+import { PurchaseOrderLineItemFragment } from "generated/graphql";
 
-function populateRows(purchaseOrderItems: PurchaseOrderItem[]): RowsProp {
-  return purchaseOrderItems.map((item) => {
-    return { ...item, total: item.units * item.pricePerUnit };
-  });
+function populateRows(
+  purchaseOrderItems: PurchaseOrderLineItemFragment[]
+): RowsProp {
+  return [
+    ...purchaseOrderItems.map((item) => {
+      return { ...item, total: item.num_units * item.price_per_unit };
+    }),
+    {
+      id: "",
+      item: "Total",
+      description: "",
+      units: "",
+      price_per_unit: "",
+      unit: "",
+      total: purchaseOrderItems.reduce(
+        (acc, cur) => (acc += cur.price_per_unit * cur.num_units),
+        0
+      ),
+    },
+  ];
 }
 
 interface Props {
-  purchaseOrderItems: PurchaseOrderItem[];
+  purchaseOrderItems: PurchaseOrderLineItemFragment[];
 }
 
 function ItemsList({ purchaseOrderItems }: Props) {
   const columns: ColDef[] = [
-    { field: "id", headerName: "Number", width: 100 },
     {
       field: "item",
       headerName: "Item Name",
@@ -30,7 +45,7 @@ function ItemsList({ purchaseOrderItems }: Props) {
       width: 200,
     },
     {
-      field: "units",
+      field: "num_units",
       headerName: "Units",
       width: 100,
     },
@@ -40,16 +55,20 @@ function ItemsList({ purchaseOrderItems }: Props) {
       width: 100,
     },
     {
-      field: "pricePerUnit",
+      field: "price_per_unit",
       headerName: "Price Per Unit",
       width: 100,
-      valueFormatter: (params: ValueFormatterParams) => `$${params.value}.00`,
+      valueFormatter: (params: ValueFormatterParams) => {
+        return params.value ? `$${params.value}.00` : "";
+      },
     },
     {
       field: "total",
       headerName: "Total",
       width: 100,
-      valueFormatter: (params: ValueFormatterParams) => `$${params.value}.00`,
+      valueFormatter: (params: ValueFormatterParams) => {
+        return params.value ? `$${params.value}.00` : "";
+      },
     },
   ];
 

@@ -12,6 +12,7 @@ export type Scalars = {
   Int: number;
   Float: number;
   date: any;
+  money: any;
   timestamptz: any;
   uuid: any;
 };
@@ -1402,6 +1403,20 @@ export enum LoansUpdateColumn {
   Id = 'id'
 }
 
+
+/** expression to compare columns of type money. All fields are combined with logical 'AND'. */
+export type MoneyComparisonExp = {
+  _eq?: Maybe<Scalars['money']>;
+  _gt?: Maybe<Scalars['money']>;
+  _gte?: Maybe<Scalars['money']>;
+  _in?: Maybe<Array<Scalars['money']>>;
+  _is_null?: Maybe<Scalars['Boolean']>;
+  _lt?: Maybe<Scalars['money']>;
+  _lte?: Maybe<Scalars['money']>;
+  _neq?: Maybe<Scalars['money']>;
+  _nin?: Maybe<Array<Scalars['money']>>;
+};
+
 /** mutation root */
 export type MutationRoot = {
   /** delete data from the table: "companies" */
@@ -1851,6 +1866,7 @@ export type MutationRootUpdatePurchaseOrderLineItemsByPkArgs = {
 
 /** mutation root */
 export type MutationRootUpdatePurchaseOrdersArgs = {
+  _inc?: Maybe<PurchaseOrdersIncInput>;
   _set?: Maybe<PurchaseOrdersSetInput>;
   where: PurchaseOrdersBoolExp;
 };
@@ -1858,6 +1874,7 @@ export type MutationRootUpdatePurchaseOrdersArgs = {
 
 /** mutation root */
 export type MutationRootUpdatePurchaseOrdersByPkArgs = {
+  _inc?: Maybe<PurchaseOrdersIncInput>;
   _set?: Maybe<PurchaseOrdersSetInput>;
   pk_columns: PurchaseOrdersPkColumnsInput;
 };
@@ -1900,6 +1917,8 @@ export type PurchaseOrderLineItems = {
   item: Scalars['String'];
   num_units: Scalars['Int'];
   price_per_unit: Scalars['Int'];
+  /** An object relationship */
+  purchase_order: PurchaseOrders;
   purchase_order_id: Scalars['uuid'];
   unit: Scalars['String'];
   updated_at: Scalars['timestamptz'];
@@ -1977,6 +1996,7 @@ export type PurchaseOrderLineItemsBoolExp = {
   item?: Maybe<StringComparisonExp>;
   num_units?: Maybe<IntComparisonExp>;
   price_per_unit?: Maybe<IntComparisonExp>;
+  purchase_order?: Maybe<PurchaseOrdersBoolExp>;
   purchase_order_id?: Maybe<UuidComparisonExp>;
   unit?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
@@ -2002,6 +2022,7 @@ export type PurchaseOrderLineItemsInsertInput = {
   item?: Maybe<Scalars['String']>;
   num_units?: Maybe<Scalars['Int']>;
   price_per_unit?: Maybe<Scalars['Int']>;
+  purchase_order?: Maybe<PurchaseOrdersObjRelInsertInput>;
   purchase_order_id?: Maybe<Scalars['uuid']>;
   unit?: Maybe<Scalars['String']>;
   updated_at?: Maybe<Scalars['timestamptz']>;
@@ -2088,6 +2109,7 @@ export type PurchaseOrderLineItemsOrderBy = {
   item?: Maybe<OrderBy>;
   num_units?: Maybe<OrderBy>;
   price_per_unit?: Maybe<OrderBy>;
+  purchase_order?: Maybe<PurchaseOrdersOrderBy>;
   purchase_order_id?: Maybe<OrderBy>;
   unit?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
@@ -2241,12 +2263,53 @@ export type PurchaseOrderLineItemsVarianceOrderBy = {
 
 /** columns and relationships of "purchase_orders" */
 export type PurchaseOrders = {
+  address?: Maybe<Scalars['String']>;
+  amount?: Maybe<Scalars['money']>;
+  amount_invoiced?: Maybe<Scalars['money']>;
+  city?: Maybe<Scalars['String']>;
+  /** An object relationship */
+  company?: Maybe<Companies>;
+  company_id?: Maybe<Scalars['uuid']>;
+  country?: Maybe<Scalars['String']>;
   created_at: Scalars['timestamptz'];
   currency: Scalars['String'];
-  delivery_date: Scalars['date'];
+  delivery_date?: Maybe<Scalars['date']>;
   id: Scalars['uuid'];
+  /** An array relationship */
+  line_items: Array<PurchaseOrderLineItems>;
+  /** An aggregated array relationship */
+  line_items_aggregate: PurchaseOrderLineItemsAggregate;
+  /** An object relationship */
+  parent_purchase_order?: Maybe<PurchaseOrders>;
+  parent_purchase_order_id?: Maybe<Scalars['uuid']>;
+  purchase_order_number?: Maybe<Scalars['String']>;
+  remarks?: Maybe<Scalars['String']>;
+  status: Scalars['String'];
   updated_at: Scalars['timestamptz'];
+  /** An object relationship */
+  vendor?: Maybe<Companies>;
   vendor_id: Scalars['uuid'];
+  zip_code?: Maybe<Scalars['String']>;
+};
+
+
+/** columns and relationships of "purchase_orders" */
+export type PurchaseOrdersLineItemsArgs = {
+  distinct_on?: Maybe<Array<PurchaseOrderLineItemsSelectColumn>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<PurchaseOrderLineItemsOrderBy>>;
+  where?: Maybe<PurchaseOrderLineItemsBoolExp>;
+};
+
+
+/** columns and relationships of "purchase_orders" */
+export type PurchaseOrdersLineItemsAggregateArgs = {
+  distinct_on?: Maybe<Array<PurchaseOrderLineItemsSelectColumn>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<PurchaseOrderLineItemsOrderBy>>;
+  where?: Maybe<PurchaseOrderLineItemsBoolExp>;
 };
 
 /** aggregated selection of "purchase_orders" */
@@ -2257,9 +2320,17 @@ export type PurchaseOrdersAggregate = {
 
 /** aggregate fields of "purchase_orders" */
 export type PurchaseOrdersAggregateFields = {
+  avg?: Maybe<PurchaseOrdersAvgFields>;
   count?: Maybe<Scalars['Int']>;
   max?: Maybe<PurchaseOrdersMaxFields>;
   min?: Maybe<PurchaseOrdersMinFields>;
+  stddev?: Maybe<PurchaseOrdersStddevFields>;
+  stddev_pop?: Maybe<PurchaseOrdersStddevPopFields>;
+  stddev_samp?: Maybe<PurchaseOrdersStddevSampFields>;
+  sum?: Maybe<PurchaseOrdersSumFields>;
+  var_pop?: Maybe<PurchaseOrdersVarPopFields>;
+  var_samp?: Maybe<PurchaseOrdersVarSampFields>;
+  variance?: Maybe<PurchaseOrdersVarianceFields>;
 };
 
 
@@ -2271,9 +2342,17 @@ export type PurchaseOrdersAggregateFieldsCountArgs = {
 
 /** order by aggregate values of table "purchase_orders" */
 export type PurchaseOrdersAggregateOrderBy = {
+  avg?: Maybe<PurchaseOrdersAvgOrderBy>;
   count?: Maybe<OrderBy>;
   max?: Maybe<PurchaseOrdersMaxOrderBy>;
   min?: Maybe<PurchaseOrdersMinOrderBy>;
+  stddev?: Maybe<PurchaseOrdersStddevOrderBy>;
+  stddev_pop?: Maybe<PurchaseOrdersStddevPopOrderBy>;
+  stddev_samp?: Maybe<PurchaseOrdersStddevSampOrderBy>;
+  sum?: Maybe<PurchaseOrdersSumOrderBy>;
+  var_pop?: Maybe<PurchaseOrdersVarPopOrderBy>;
+  var_samp?: Maybe<PurchaseOrdersVarSampOrderBy>;
+  variance?: Maybe<PurchaseOrdersVarianceOrderBy>;
 };
 
 /** input type for inserting array relation for remote table "purchase_orders" */
@@ -2282,17 +2361,44 @@ export type PurchaseOrdersArrRelInsertInput = {
   on_conflict?: Maybe<PurchaseOrdersOnConflict>;
 };
 
+/** aggregate avg on columns */
+export type PurchaseOrdersAvgFields = {
+  amount?: Maybe<Scalars['Float']>;
+  amount_invoiced?: Maybe<Scalars['Float']>;
+};
+
+/** order by avg() on columns of table "purchase_orders" */
+export type PurchaseOrdersAvgOrderBy = {
+  amount?: Maybe<OrderBy>;
+  amount_invoiced?: Maybe<OrderBy>;
+};
+
 /** Boolean expression to filter rows from the table "purchase_orders". All fields are combined with a logical 'AND'. */
 export type PurchaseOrdersBoolExp = {
   _and?: Maybe<Array<Maybe<PurchaseOrdersBoolExp>>>;
   _not?: Maybe<PurchaseOrdersBoolExp>;
   _or?: Maybe<Array<Maybe<PurchaseOrdersBoolExp>>>;
+  address?: Maybe<StringComparisonExp>;
+  amount?: Maybe<MoneyComparisonExp>;
+  amount_invoiced?: Maybe<MoneyComparisonExp>;
+  city?: Maybe<StringComparisonExp>;
+  company?: Maybe<CompaniesBoolExp>;
+  company_id?: Maybe<UuidComparisonExp>;
+  country?: Maybe<StringComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   currency?: Maybe<StringComparisonExp>;
   delivery_date?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  line_items?: Maybe<PurchaseOrderLineItemsBoolExp>;
+  parent_purchase_order?: Maybe<PurchaseOrdersBoolExp>;
+  parent_purchase_order_id?: Maybe<UuidComparisonExp>;
+  purchase_order_number?: Maybe<StringComparisonExp>;
+  remarks?: Maybe<StringComparisonExp>;
+  status?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
+  vendor?: Maybe<CompaniesBoolExp>;
   vendor_id?: Maybe<UuidComparisonExp>;
+  zip_code?: Maybe<StringComparisonExp>;
 };
 
 /** unique or primary key constraints on table "purchase_orders" */
@@ -2301,54 +2407,119 @@ export enum PurchaseOrdersConstraint {
   PurchaseOrdersPkey = 'purchase_orders_pkey'
 }
 
+/** input type for incrementing integer column in table "purchase_orders" */
+export type PurchaseOrdersIncInput = {
+  amount?: Maybe<Scalars['money']>;
+  amount_invoiced?: Maybe<Scalars['money']>;
+};
+
 /** input type for inserting data into table "purchase_orders" */
 export type PurchaseOrdersInsertInput = {
+  address?: Maybe<Scalars['String']>;
+  amount?: Maybe<Scalars['money']>;
+  amount_invoiced?: Maybe<Scalars['money']>;
+  city?: Maybe<Scalars['String']>;
+  company?: Maybe<CompaniesObjRelInsertInput>;
+  company_id?: Maybe<Scalars['uuid']>;
+  country?: Maybe<Scalars['String']>;
   created_at?: Maybe<Scalars['timestamptz']>;
   currency?: Maybe<Scalars['String']>;
   delivery_date?: Maybe<Scalars['date']>;
   id?: Maybe<Scalars['uuid']>;
+  line_items?: Maybe<PurchaseOrderLineItemsArrRelInsertInput>;
+  parent_purchase_order?: Maybe<PurchaseOrdersObjRelInsertInput>;
+  parent_purchase_order_id?: Maybe<Scalars['uuid']>;
+  purchase_order_number?: Maybe<Scalars['String']>;
+  remarks?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
   updated_at?: Maybe<Scalars['timestamptz']>;
+  vendor?: Maybe<CompaniesObjRelInsertInput>;
   vendor_id?: Maybe<Scalars['uuid']>;
+  zip_code?: Maybe<Scalars['String']>;
 };
 
 /** aggregate max on columns */
 export type PurchaseOrdersMaxFields = {
+  address?: Maybe<Scalars['String']>;
+  amount?: Maybe<Scalars['money']>;
+  amount_invoiced?: Maybe<Scalars['money']>;
+  city?: Maybe<Scalars['String']>;
+  company_id?: Maybe<Scalars['uuid']>;
+  country?: Maybe<Scalars['String']>;
   created_at?: Maybe<Scalars['timestamptz']>;
   currency?: Maybe<Scalars['String']>;
   delivery_date?: Maybe<Scalars['date']>;
   id?: Maybe<Scalars['uuid']>;
+  parent_purchase_order_id?: Maybe<Scalars['uuid']>;
+  purchase_order_number?: Maybe<Scalars['String']>;
+  remarks?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
   updated_at?: Maybe<Scalars['timestamptz']>;
   vendor_id?: Maybe<Scalars['uuid']>;
+  zip_code?: Maybe<Scalars['String']>;
 };
 
 /** order by max() on columns of table "purchase_orders" */
 export type PurchaseOrdersMaxOrderBy = {
+  address?: Maybe<OrderBy>;
+  amount?: Maybe<OrderBy>;
+  amount_invoiced?: Maybe<OrderBy>;
+  city?: Maybe<OrderBy>;
+  company_id?: Maybe<OrderBy>;
+  country?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   currency?: Maybe<OrderBy>;
   delivery_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  parent_purchase_order_id?: Maybe<OrderBy>;
+  purchase_order_number?: Maybe<OrderBy>;
+  remarks?: Maybe<OrderBy>;
+  status?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_id?: Maybe<OrderBy>;
+  zip_code?: Maybe<OrderBy>;
 };
 
 /** aggregate min on columns */
 export type PurchaseOrdersMinFields = {
+  address?: Maybe<Scalars['String']>;
+  amount?: Maybe<Scalars['money']>;
+  amount_invoiced?: Maybe<Scalars['money']>;
+  city?: Maybe<Scalars['String']>;
+  company_id?: Maybe<Scalars['uuid']>;
+  country?: Maybe<Scalars['String']>;
   created_at?: Maybe<Scalars['timestamptz']>;
   currency?: Maybe<Scalars['String']>;
   delivery_date?: Maybe<Scalars['date']>;
   id?: Maybe<Scalars['uuid']>;
+  parent_purchase_order_id?: Maybe<Scalars['uuid']>;
+  purchase_order_number?: Maybe<Scalars['String']>;
+  remarks?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
   updated_at?: Maybe<Scalars['timestamptz']>;
   vendor_id?: Maybe<Scalars['uuid']>;
+  zip_code?: Maybe<Scalars['String']>;
 };
 
 /** order by min() on columns of table "purchase_orders" */
 export type PurchaseOrdersMinOrderBy = {
+  address?: Maybe<OrderBy>;
+  amount?: Maybe<OrderBy>;
+  amount_invoiced?: Maybe<OrderBy>;
+  city?: Maybe<OrderBy>;
+  company_id?: Maybe<OrderBy>;
+  country?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   currency?: Maybe<OrderBy>;
   delivery_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  parent_purchase_order_id?: Maybe<OrderBy>;
+  purchase_order_number?: Maybe<OrderBy>;
+  remarks?: Maybe<OrderBy>;
+  status?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_id?: Maybe<OrderBy>;
+  zip_code?: Maybe<OrderBy>;
 };
 
 /** response of any mutation on the table "purchase_orders" */
@@ -2374,12 +2545,27 @@ export type PurchaseOrdersOnConflict = {
 
 /** ordering options when selecting data from "purchase_orders" */
 export type PurchaseOrdersOrderBy = {
+  address?: Maybe<OrderBy>;
+  amount?: Maybe<OrderBy>;
+  amount_invoiced?: Maybe<OrderBy>;
+  city?: Maybe<OrderBy>;
+  company?: Maybe<CompaniesOrderBy>;
+  company_id?: Maybe<OrderBy>;
+  country?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   currency?: Maybe<OrderBy>;
   delivery_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  line_items_aggregate?: Maybe<PurchaseOrderLineItemsAggregateOrderBy>;
+  parent_purchase_order?: Maybe<PurchaseOrdersOrderBy>;
+  parent_purchase_order_id?: Maybe<OrderBy>;
+  purchase_order_number?: Maybe<OrderBy>;
+  remarks?: Maybe<OrderBy>;
+  status?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
+  vendor?: Maybe<CompaniesOrderBy>;
   vendor_id?: Maybe<OrderBy>;
+  zip_code?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: "purchase_orders" */
@@ -2390,6 +2576,18 @@ export type PurchaseOrdersPkColumnsInput = {
 /** select columns of table "purchase_orders" */
 export enum PurchaseOrdersSelectColumn {
   /** column name */
+  Address = 'address',
+  /** column name */
+  Amount = 'amount',
+  /** column name */
+  AmountInvoiced = 'amount_invoiced',
+  /** column name */
+  City = 'city',
+  /** column name */
+  CompanyId = 'company_id',
+  /** column name */
+  Country = 'country',
+  /** column name */
   CreatedAt = 'created_at',
   /** column name */
   Currency = 'currency',
@@ -2398,24 +2596,105 @@ export enum PurchaseOrdersSelectColumn {
   /** column name */
   Id = 'id',
   /** column name */
+  ParentPurchaseOrderId = 'parent_purchase_order_id',
+  /** column name */
+  PurchaseOrderNumber = 'purchase_order_number',
+  /** column name */
+  Remarks = 'remarks',
+  /** column name */
+  Status = 'status',
+  /** column name */
   UpdatedAt = 'updated_at',
   /** column name */
-  VendorId = 'vendor_id'
+  VendorId = 'vendor_id',
+  /** column name */
+  ZipCode = 'zip_code'
 }
 
 /** input type for updating data in table "purchase_orders" */
 export type PurchaseOrdersSetInput = {
+  address?: Maybe<Scalars['String']>;
+  amount?: Maybe<Scalars['money']>;
+  amount_invoiced?: Maybe<Scalars['money']>;
+  city?: Maybe<Scalars['String']>;
+  company_id?: Maybe<Scalars['uuid']>;
+  country?: Maybe<Scalars['String']>;
   created_at?: Maybe<Scalars['timestamptz']>;
   currency?: Maybe<Scalars['String']>;
   delivery_date?: Maybe<Scalars['date']>;
   id?: Maybe<Scalars['uuid']>;
+  parent_purchase_order_id?: Maybe<Scalars['uuid']>;
+  purchase_order_number?: Maybe<Scalars['String']>;
+  remarks?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
   updated_at?: Maybe<Scalars['timestamptz']>;
   vendor_id?: Maybe<Scalars['uuid']>;
+  zip_code?: Maybe<Scalars['String']>;
+};
+
+/** aggregate stddev on columns */
+export type PurchaseOrdersStddevFields = {
+  amount?: Maybe<Scalars['Float']>;
+  amount_invoiced?: Maybe<Scalars['Float']>;
+};
+
+/** order by stddev() on columns of table "purchase_orders" */
+export type PurchaseOrdersStddevOrderBy = {
+  amount?: Maybe<OrderBy>;
+  amount_invoiced?: Maybe<OrderBy>;
+};
+
+/** aggregate stddev_pop on columns */
+export type PurchaseOrdersStddevPopFields = {
+  amount?: Maybe<Scalars['Float']>;
+  amount_invoiced?: Maybe<Scalars['Float']>;
+};
+
+/** order by stddev_pop() on columns of table "purchase_orders" */
+export type PurchaseOrdersStddevPopOrderBy = {
+  amount?: Maybe<OrderBy>;
+  amount_invoiced?: Maybe<OrderBy>;
+};
+
+/** aggregate stddev_samp on columns */
+export type PurchaseOrdersStddevSampFields = {
+  amount?: Maybe<Scalars['Float']>;
+  amount_invoiced?: Maybe<Scalars['Float']>;
+};
+
+/** order by stddev_samp() on columns of table "purchase_orders" */
+export type PurchaseOrdersStddevSampOrderBy = {
+  amount?: Maybe<OrderBy>;
+  amount_invoiced?: Maybe<OrderBy>;
+};
+
+/** aggregate sum on columns */
+export type PurchaseOrdersSumFields = {
+  amount?: Maybe<Scalars['money']>;
+  amount_invoiced?: Maybe<Scalars['money']>;
+};
+
+/** order by sum() on columns of table "purchase_orders" */
+export type PurchaseOrdersSumOrderBy = {
+  amount?: Maybe<OrderBy>;
+  amount_invoiced?: Maybe<OrderBy>;
 };
 
 /** update columns of table "purchase_orders" */
 export enum PurchaseOrdersUpdateColumn {
   /** column name */
+  Address = 'address',
+  /** column name */
+  Amount = 'amount',
+  /** column name */
+  AmountInvoiced = 'amount_invoiced',
+  /** column name */
+  City = 'city',
+  /** column name */
+  CompanyId = 'company_id',
+  /** column name */
+  Country = 'country',
+  /** column name */
   CreatedAt = 'created_at',
   /** column name */
   Currency = 'currency',
@@ -2424,10 +2703,56 @@ export enum PurchaseOrdersUpdateColumn {
   /** column name */
   Id = 'id',
   /** column name */
+  ParentPurchaseOrderId = 'parent_purchase_order_id',
+  /** column name */
+  PurchaseOrderNumber = 'purchase_order_number',
+  /** column name */
+  Remarks = 'remarks',
+  /** column name */
+  Status = 'status',
+  /** column name */
   UpdatedAt = 'updated_at',
   /** column name */
-  VendorId = 'vendor_id'
+  VendorId = 'vendor_id',
+  /** column name */
+  ZipCode = 'zip_code'
 }
+
+/** aggregate var_pop on columns */
+export type PurchaseOrdersVarPopFields = {
+  amount?: Maybe<Scalars['Float']>;
+  amount_invoiced?: Maybe<Scalars['Float']>;
+};
+
+/** order by var_pop() on columns of table "purchase_orders" */
+export type PurchaseOrdersVarPopOrderBy = {
+  amount?: Maybe<OrderBy>;
+  amount_invoiced?: Maybe<OrderBy>;
+};
+
+/** aggregate var_samp on columns */
+export type PurchaseOrdersVarSampFields = {
+  amount?: Maybe<Scalars['Float']>;
+  amount_invoiced?: Maybe<Scalars['Float']>;
+};
+
+/** order by var_samp() on columns of table "purchase_orders" */
+export type PurchaseOrdersVarSampOrderBy = {
+  amount?: Maybe<OrderBy>;
+  amount_invoiced?: Maybe<OrderBy>;
+};
+
+/** aggregate variance on columns */
+export type PurchaseOrdersVarianceFields = {
+  amount?: Maybe<Scalars['Float']>;
+  amount_invoiced?: Maybe<Scalars['Float']>;
+};
+
+/** order by variance() on columns of table "purchase_orders" */
+export type PurchaseOrdersVarianceOrderBy = {
+  amount?: Maybe<OrderBy>;
+  amount_invoiced?: Maybe<OrderBy>;
+};
 
 /** query root */
 export type QueryRoot = {
@@ -3236,6 +3561,48 @@ export type CompaniesQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type CompaniesQuery = { companies: Array<Pick<Companies, 'id' | 'name'>> };
 
+export type PurchaseOrderLineItemFragment = Pick<PurchaseOrderLineItems, 'id' | 'item' | 'description' | 'num_units' | 'unit' | 'price_per_unit'>;
+
+export type PurchaseOrderFragment = (
+  Pick<PurchaseOrders, 'amount_invoiced' | 'company_id' | 'created_at' | 'currency' | 'delivery_date' | 'id' | 'amount' | 'parent_purchase_order_id' | 'purchase_order_number' | 'remarks' | 'status' | 'address' | 'country' | 'city' | 'zip_code' | 'vendor_id'>
+  & { vendor?: Maybe<Pick<Companies, 'id' | 'name'>>, company?: Maybe<Pick<Companies, 'id' | 'name'>>, parent_purchase_order?: Maybe<Pick<PurchaseOrders, 'id' | 'purchase_order_number' | 'amount'>>, line_items: Array<PurchaseOrderLineItemFragment> }
+);
+
+export type ListPurchaseOrdersQueryVariables = Exact<{
+  company_id: Scalars['uuid'];
+}>;
+
+
+export type ListPurchaseOrdersQuery = { purchase_orders: Array<PurchaseOrderFragment> };
+
+export type PurchaseOrderQueryVariables = Exact<{
+  id: Scalars['uuid'];
+}>;
+
+
+export type PurchaseOrderQuery = { purchase_orders_by_pk?: Maybe<PurchaseOrderFragment> };
+
+export type AddPurchaseOrderMutationVariables = Exact<{
+  purhcase_order: PurchaseOrdersInsertInput;
+}>;
+
+
+export type AddPurchaseOrderMutation = { insert_purchase_orders_one?: Maybe<PurchaseOrderFragment> };
+
+export type ListPurchaseOrderVendorsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListPurchaseOrderVendorsQuery = { companies: Array<Pick<Companies, 'id' | 'name'>> };
+
+export type UpdatePurchaseOrderMutationVariables = Exact<{
+  id: Scalars['uuid'];
+  purchaseOrder: PurchaseOrdersSetInput;
+  purchaseOrderLineItems: Array<PurchaseOrderLineItemsInsertInput>;
+}>;
+
+
+export type UpdatePurchaseOrderMutation = { delete_purchase_order_line_items?: Maybe<Pick<PurchaseOrderLineItemsMutationResponse, 'affected_rows'>>, insert_purchase_order_line_items?: Maybe<Pick<PurchaseOrderLineItemsMutationResponse, 'affected_rows'>>, update_purchase_orders_by_pk?: Maybe<PurchaseOrderFragment> };
+
 export type BankVendorPartnershipFragment = (
   Pick<CompanyVendorPartnerships, 'id' | 'company_id' | 'vendor_id' | 'vendor_agreement_id' | 'vendor_license_id'>
   & { vendor_bank_account?: Maybe<BankAccountFragment>, vendor: Pick<Companies, 'id' | 'name' | 'address' | 'country' | 'state' | 'city' | 'zip_code' | 'phone_number'> }
@@ -3324,6 +3691,52 @@ export type ListVendorPartnershipsQueryVariables = Exact<{
 
 export type ListVendorPartnershipsQuery = { company_vendor_partnerships: Array<VendorPartnershipFragment> };
 
+export const PurchaseOrderLineItemFragmentDoc = gql`
+    fragment PurchaseOrderLineItem on purchase_order_line_items {
+  id
+  item
+  description
+  num_units
+  unit
+  price_per_unit
+}
+    `;
+export const PurchaseOrderFragmentDoc = gql`
+    fragment PurchaseOrder on purchase_orders {
+  amount_invoiced
+  company_id
+  created_at
+  currency
+  delivery_date
+  id
+  amount
+  parent_purchase_order_id
+  purchase_order_number
+  remarks
+  status
+  address
+  country
+  city
+  zip_code
+  vendor_id
+  vendor {
+    id
+    name
+  }
+  company {
+    id
+    name
+  }
+  parent_purchase_order {
+    id
+    purchase_order_number
+    amount
+  }
+  line_items {
+    ...PurchaseOrderLineItem
+  }
+}
+    ${PurchaseOrderLineItemFragmentDoc}`;
 export const BankAccountFragmentDoc = gql`
     fragment BankAccount on company_bank_accounts {
   id
@@ -3419,6 +3832,177 @@ export function useCompaniesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<
 export type CompaniesQueryHookResult = ReturnType<typeof useCompaniesQuery>;
 export type CompaniesLazyQueryHookResult = ReturnType<typeof useCompaniesLazyQuery>;
 export type CompaniesQueryResult = Apollo.QueryResult<CompaniesQuery, CompaniesQueryVariables>;
+export const ListPurchaseOrdersDocument = gql`
+    query ListPurchaseOrders($company_id: uuid!) {
+  purchase_orders(where: {company_id: {_eq: $company_id}}) {
+    ...PurchaseOrder
+  }
+}
+    ${PurchaseOrderFragmentDoc}`;
+
+/**
+ * __useListPurchaseOrdersQuery__
+ *
+ * To run a query within a React component, call `useListPurchaseOrdersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListPurchaseOrdersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListPurchaseOrdersQuery({
+ *   variables: {
+ *      company_id: // value for 'company_id'
+ *   },
+ * });
+ */
+export function useListPurchaseOrdersQuery(baseOptions: Apollo.QueryHookOptions<ListPurchaseOrdersQuery, ListPurchaseOrdersQueryVariables>) {
+        return Apollo.useQuery<ListPurchaseOrdersQuery, ListPurchaseOrdersQueryVariables>(ListPurchaseOrdersDocument, baseOptions);
+      }
+export function useListPurchaseOrdersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListPurchaseOrdersQuery, ListPurchaseOrdersQueryVariables>) {
+          return Apollo.useLazyQuery<ListPurchaseOrdersQuery, ListPurchaseOrdersQueryVariables>(ListPurchaseOrdersDocument, baseOptions);
+        }
+export type ListPurchaseOrdersQueryHookResult = ReturnType<typeof useListPurchaseOrdersQuery>;
+export type ListPurchaseOrdersLazyQueryHookResult = ReturnType<typeof useListPurchaseOrdersLazyQuery>;
+export type ListPurchaseOrdersQueryResult = Apollo.QueryResult<ListPurchaseOrdersQuery, ListPurchaseOrdersQueryVariables>;
+export const PurchaseOrderDocument = gql`
+    query PurchaseOrder($id: uuid!) {
+  purchase_orders_by_pk(id: $id) {
+    ...PurchaseOrder
+  }
+}
+    ${PurchaseOrderFragmentDoc}`;
+
+/**
+ * __usePurchaseOrderQuery__
+ *
+ * To run a query within a React component, call `usePurchaseOrderQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePurchaseOrderQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePurchaseOrderQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function usePurchaseOrderQuery(baseOptions: Apollo.QueryHookOptions<PurchaseOrderQuery, PurchaseOrderQueryVariables>) {
+        return Apollo.useQuery<PurchaseOrderQuery, PurchaseOrderQueryVariables>(PurchaseOrderDocument, baseOptions);
+      }
+export function usePurchaseOrderLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PurchaseOrderQuery, PurchaseOrderQueryVariables>) {
+          return Apollo.useLazyQuery<PurchaseOrderQuery, PurchaseOrderQueryVariables>(PurchaseOrderDocument, baseOptions);
+        }
+export type PurchaseOrderQueryHookResult = ReturnType<typeof usePurchaseOrderQuery>;
+export type PurchaseOrderLazyQueryHookResult = ReturnType<typeof usePurchaseOrderLazyQuery>;
+export type PurchaseOrderQueryResult = Apollo.QueryResult<PurchaseOrderQuery, PurchaseOrderQueryVariables>;
+export const AddPurchaseOrderDocument = gql`
+    mutation AddPurchaseOrder($purhcase_order: purchase_orders_insert_input!) {
+  insert_purchase_orders_one(object: $purhcase_order) {
+    ...PurchaseOrder
+  }
+}
+    ${PurchaseOrderFragmentDoc}`;
+export type AddPurchaseOrderMutationFn = Apollo.MutationFunction<AddPurchaseOrderMutation, AddPurchaseOrderMutationVariables>;
+
+/**
+ * __useAddPurchaseOrderMutation__
+ *
+ * To run a mutation, you first call `useAddPurchaseOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddPurchaseOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addPurchaseOrderMutation, { data, loading, error }] = useAddPurchaseOrderMutation({
+ *   variables: {
+ *      purhcase_order: // value for 'purhcase_order'
+ *   },
+ * });
+ */
+export function useAddPurchaseOrderMutation(baseOptions?: Apollo.MutationHookOptions<AddPurchaseOrderMutation, AddPurchaseOrderMutationVariables>) {
+        return Apollo.useMutation<AddPurchaseOrderMutation, AddPurchaseOrderMutationVariables>(AddPurchaseOrderDocument, baseOptions);
+      }
+export type AddPurchaseOrderMutationHookResult = ReturnType<typeof useAddPurchaseOrderMutation>;
+export type AddPurchaseOrderMutationResult = Apollo.MutationResult<AddPurchaseOrderMutation>;
+export type AddPurchaseOrderMutationOptions = Apollo.BaseMutationOptions<AddPurchaseOrderMutation, AddPurchaseOrderMutationVariables>;
+export const ListPurchaseOrderVendorsDocument = gql`
+    query ListPurchaseOrderVendors {
+  companies {
+    id
+    name
+  }
+}
+    `;
+
+/**
+ * __useListPurchaseOrderVendorsQuery__
+ *
+ * To run a query within a React component, call `useListPurchaseOrderVendorsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListPurchaseOrderVendorsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListPurchaseOrderVendorsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListPurchaseOrderVendorsQuery(baseOptions?: Apollo.QueryHookOptions<ListPurchaseOrderVendorsQuery, ListPurchaseOrderVendorsQueryVariables>) {
+        return Apollo.useQuery<ListPurchaseOrderVendorsQuery, ListPurchaseOrderVendorsQueryVariables>(ListPurchaseOrderVendorsDocument, baseOptions);
+      }
+export function useListPurchaseOrderVendorsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListPurchaseOrderVendorsQuery, ListPurchaseOrderVendorsQueryVariables>) {
+          return Apollo.useLazyQuery<ListPurchaseOrderVendorsQuery, ListPurchaseOrderVendorsQueryVariables>(ListPurchaseOrderVendorsDocument, baseOptions);
+        }
+export type ListPurchaseOrderVendorsQueryHookResult = ReturnType<typeof useListPurchaseOrderVendorsQuery>;
+export type ListPurchaseOrderVendorsLazyQueryHookResult = ReturnType<typeof useListPurchaseOrderVendorsLazyQuery>;
+export type ListPurchaseOrderVendorsQueryResult = Apollo.QueryResult<ListPurchaseOrderVendorsQuery, ListPurchaseOrderVendorsQueryVariables>;
+export const UpdatePurchaseOrderDocument = gql`
+    mutation UpdatePurchaseOrder($id: uuid!, $purchaseOrder: purchase_orders_set_input!, $purchaseOrderLineItems: [purchase_order_line_items_insert_input!]!) {
+  delete_purchase_order_line_items(where: {purchase_order_id: {_eq: $id}}) {
+    affected_rows
+  }
+  insert_purchase_order_line_items(objects: $purchaseOrderLineItems) {
+    affected_rows
+  }
+  update_purchase_orders_by_pk(pk_columns: {id: $id}, _set: $purchaseOrder) {
+    ...PurchaseOrder
+  }
+}
+    ${PurchaseOrderFragmentDoc}`;
+export type UpdatePurchaseOrderMutationFn = Apollo.MutationFunction<UpdatePurchaseOrderMutation, UpdatePurchaseOrderMutationVariables>;
+
+/**
+ * __useUpdatePurchaseOrderMutation__
+ *
+ * To run a mutation, you first call `useUpdatePurchaseOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePurchaseOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePurchaseOrderMutation, { data, loading, error }] = useUpdatePurchaseOrderMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      purchaseOrder: // value for 'purchaseOrder'
+ *      purchaseOrderLineItems: // value for 'purchaseOrderLineItems'
+ *   },
+ * });
+ */
+export function useUpdatePurchaseOrderMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePurchaseOrderMutation, UpdatePurchaseOrderMutationVariables>) {
+        return Apollo.useMutation<UpdatePurchaseOrderMutation, UpdatePurchaseOrderMutationVariables>(UpdatePurchaseOrderDocument, baseOptions);
+      }
+export type UpdatePurchaseOrderMutationHookResult = ReturnType<typeof useUpdatePurchaseOrderMutation>;
+export type UpdatePurchaseOrderMutationResult = Apollo.MutationResult<UpdatePurchaseOrderMutation>;
+export type UpdatePurchaseOrderMutationOptions = Apollo.BaseMutationOptions<UpdatePurchaseOrderMutation, UpdatePurchaseOrderMutationVariables>;
 export const BankListVendorPartnershipsDocument = gql`
     query BankListVendorPartnerships {
   company_vendor_partnerships {

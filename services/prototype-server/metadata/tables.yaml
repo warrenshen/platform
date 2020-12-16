@@ -80,9 +80,46 @@
 - table:
     schema: public
     name: purchase_order_line_items
+  object_relationships:
+  - name: purchase_order
+    using:
+      foreign_key_constraint_on: purchase_order_id
 - table:
     schema: public
     name: purchase_orders
+  object_relationships:
+  - name: company
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: companies
+        column_mapping:
+          company_id: id
+  - name: parent_purchase_order
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: purchase_orders
+        column_mapping:
+          parent_purchase_order_id: id
+  - name: vendor
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: companies
+        column_mapping:
+          vendor_id: id
+  array_relationships:
+  - name: line_items
+    using:
+      foreign_key_constraint_on:
+        column: purchase_order_id
+        table:
+          schema: public
+          name: purchase_order_line_items
 - table:
     schema: public
     name: users
