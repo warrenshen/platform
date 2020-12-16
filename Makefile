@@ -13,6 +13,7 @@ run-api-server:
 
 mypy-all:
 	mypy services/api-server/src/bespoke/db/models.py --config-file=mypy.ini
+	mypy services/api-server/src/bespoke/db/main.py --config-file=mypy.ini
 	mypy services/api-server/src/manage.py --config-file=mypy.ini
 
 setup:
@@ -28,3 +29,6 @@ setup-for-mac:
 setup-for-linux:
 	echo 'You need to install postgresql on Linux'
 	echo 'For example in Ubuntu, use this: `apt-get install -y libpq-dev python3-psycopg2`'
+
+setup-db:
+	cd services/api-server && $(MAKE) setup-db

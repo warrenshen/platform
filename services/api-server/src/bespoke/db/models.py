@@ -38,6 +38,7 @@ class User(Base):
     if TYPE_CHECKING:
     	def __init__(self, username: str, password: str) -> None:
     		self.username: str = None
+    		self.__table__: Any = None
     else:
 	    id = Column(Integer, primary_key=True)
 	    username = Column(String(120), unique=True, nullable=False)
@@ -49,8 +50,9 @@ class Customer(Base):
 	"""
 	__tablename__ = 'customer'
 
-	if False:
-		pass
+	if TYPE_CHECKING:
+		def __init__(self, name: str, phone: str, email: str) -> None:
+			self.__table__: Any = None
 	else:
 		id = Column(Integer, primary_key=True)
 		name = Column(String)
@@ -63,8 +65,9 @@ class PurchaseOrder(Base):
 	"""
 	__tablename__ = 'purchase_orders'
 
-	if False:
-		pass
+	if TYPE_CHECKING:
+		def __init__(self, number: str, total_requested: float, confirmed: bool) -> None:
+			self.__table__: Any = None
 	else:
 		id = Column(Integer, primary_key=True)
 		number = Column(String)
