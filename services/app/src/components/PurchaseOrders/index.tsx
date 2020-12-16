@@ -1,20 +1,16 @@
 import { Box } from "@material-ui/core";
 import AddButton from "components/PurchaseOrders/AddPurchaseOrder/AddButton";
 import ListPurchaseOrders from "components/PurchaseOrders/ListPurchaseOrders";
-import { PageContext } from "contexts/PageContext";
 import { PurchaseOrderFragment } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
-import { useContext, useEffect, useState } from "react";
+import useAppBarTitle from "hooks/useAppBarTitle";
+import { useState } from "react";
 import { useTitle } from "react-use";
 import { ActionType } from "./models/ActionType";
 
 function PurchaseOrders() {
   useTitle("Purchase Orders | Bespoke");
-  const pageContext = useContext(PageContext);
-
-  useEffect(() => {
-    pageContext.setAppBarTitle("Purchase Orders");
-  }, []);
+  useAppBarTitle("Purchase Orders");
 
   const clearId = () => {
     setOriginalPurchaseOrder(null);

@@ -10,8 +10,10 @@ import {
   Typography,
 } from "@material-ui/core";
 import { useBankCustomersQuery } from "generated/graphql";
+import useAppBarTitle from "hooks/useAppBarTitle";
 import { sortBy } from "lodash";
 import { Link, useRouteMatch } from "react-router-dom";
+import { useTitle } from "react-use";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -24,6 +26,10 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function Customers() {
   const classes = useStyles();
+
+  useTitle("Customers | Bespoke");
+  useAppBarTitle("Customers");
+
   const { url } = useRouteMatch();
   const { data } = useBankCustomersQuery();
 

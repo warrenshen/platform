@@ -1,14 +1,9 @@
-import { PageContext } from "contexts/PageContext";
-import { useContext, useEffect } from "react";
+import useAppBarTitle from "hooks/useAppBarTitle";
 import { useTitle } from "react-use";
 
 function Home() {
   useTitle("Overview | Bespoke");
-  const pageContext = useContext(PageContext);
-
-  useEffect(() => {
-    pageContext.setAppBarTitle("Overview");
-  }, []);
+  useAppBarTitle("Overview");
 
   return <div>Dashboard for customer</div>;
 }

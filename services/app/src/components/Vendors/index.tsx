@@ -1,17 +1,13 @@
 import BankVendors from "components/Vendors/Bank";
 import CustomerVendors from "components/Vendors/Customer";
 import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
-import { PageContext } from "contexts/PageContext";
-import { useContext, useEffect } from "react";
+import useAppBarTitle from "hooks/useAppBarTitle";
+import { useContext } from "react";
 import { useTitle } from "react-use";
 
 function Vendors() {
   useTitle("Vendors | Bespoke");
-  const pageContext = useContext(PageContext);
-
-  useEffect(() => {
-    pageContext.setAppBarTitle("Vendors");
-  }, []);
+  useAppBarTitle("Vendors");
 
   const currentUser = useContext(CurrentUserContext);
 

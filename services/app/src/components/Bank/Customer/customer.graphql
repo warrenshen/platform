@@ -1,0 +1,5 @@
+query BankCustomer($id: uuid!) {
+  companies_by_pk(id: $id) {
+    ...BankCustomer
+  }
+}

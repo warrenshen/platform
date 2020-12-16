@@ -1,14 +1,9 @@
-import { PageContext } from "contexts/PageContext";
-import { useContext, useEffect } from "react";
+import useAppBarTitle from "hooks/useAppBarTitle";
 import { useTitle } from "react-use";
 import { useCompaniesQuery } from "../../generated/graphql";
 function CompanyProfile() {
   useTitle("Company Profile | Bespoke");
-  const pageContext = useContext(PageContext);
-
-  useEffect(() => {
-    pageContext.setAppBarTitle("Company Profile");
-  }, []);
+  useAppBarTitle("Company Profile");
 
   const { data } = useCompaniesQuery();
 

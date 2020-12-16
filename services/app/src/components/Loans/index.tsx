@@ -1,15 +1,9 @@
-import { PageContext } from "contexts/PageContext";
-import { useContext, useEffect } from "react";
+import useAppBarTitle from "hooks/useAppBarTitle";
 import { useTitle } from "react-use";
 
 function Loans() {
   useTitle("Loans | Bespoke");
-
-  const pageContext = useContext(PageContext);
-
-  useEffect(() => {
-    pageContext.setAppBarTitle("Loans");
-  }, []);
+  useAppBarTitle("Loans");
 
   return <div>Loans for customer</div>;
 }
