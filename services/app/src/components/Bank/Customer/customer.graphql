@@ -3,3 +3,9 @@ query BankCustomer($id: uuid!) {
     ...BankCustomer
   }
 }
+
+query BankCustomerListVendorPartnerships($companyId: uuid!) {
+  company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
+    ...BankVendorPartnership
+  }
+}

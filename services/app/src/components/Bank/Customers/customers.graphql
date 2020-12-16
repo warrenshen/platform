@@ -12,7 +12,7 @@ fragment BankCustomer on companies {
 }
 
 query BankCustomers {
-  companies {
+  companies(where: { is_vendor: { _eq: false } }) {
     ...BankCustomer
   }
 }

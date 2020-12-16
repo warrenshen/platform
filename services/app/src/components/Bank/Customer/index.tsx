@@ -4,7 +4,7 @@ import Overview from "components/Bank/Customer/Overview";
 import Profile from "components/Bank/Customer/Profile";
 import PurchaseOrders from "components/Bank/Customer/PurchaseOrders";
 import Users from "components/Bank/Customer/Users";
-import Vendors from "components/Vendors/Bank";
+import Vendors from "components/Bank/Customer/Vendors";
 import { useBankCustomerQuery } from "generated/graphql";
 import useAppBarTitle from "hooks/useAppBarTitle";
 import { findIndex } from "lodash";
@@ -17,6 +17,10 @@ import {
   useRouteMatch,
 } from "react-router-dom";
 import { bankPaths } from "routes";
+
+export interface CustomerParams {
+  customerId: string;
+}
 
 const customerPaths = [
   {
@@ -52,7 +56,7 @@ const customerPaths = [
 ];
 
 function Customer() {
-  const { customerId } = useParams<{ customerId: string }>();
+  const { customerId } = useParams<CustomerParams>();
   const { url, path } = useRouteMatch();
   const location = useLocation();
   const [tabIndex, setTabIndex] = useState<number | null>(null);
@@ -100,7 +104,7 @@ function Customer() {
           })}
         </Tabs>
       </Paper>
-      <Box>
+      <Box pt={2}>
         <Route exact path={path} component={Overview} />
         {customerPaths.map((customerPath, index) => {
           return (

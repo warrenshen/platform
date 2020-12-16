@@ -1,10 +1,10 @@
-import { Box, Drawer } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import ClickableVendorCard from "components/Vendors/Bank/ClickableVendorCard";
 import { useBankListVendorPartnershipsQuery } from "generated/graphql";
 import { sortBy } from "lodash";
 
 function ListVendors() {
-  const { data, loading } = useBankListVendorPartnershipsQuery();
+  const { data } = useBankListVendorPartnershipsQuery();
 
   if (!data || !data.company_vendor_partnerships) {
     return null;

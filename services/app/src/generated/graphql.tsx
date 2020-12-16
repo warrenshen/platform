@@ -17,6 +17,19 @@ export type Scalars = {
   uuid: any;
 };
 
+/** expression to compare columns of type Boolean. All fields are combined with logical 'AND'. */
+export type BooleanComparisonExp = {
+  _eq?: Maybe<Scalars['Boolean']>;
+  _gt?: Maybe<Scalars['Boolean']>;
+  _gte?: Maybe<Scalars['Boolean']>;
+  _in?: Maybe<Array<Scalars['Boolean']>>;
+  _is_null?: Maybe<Scalars['Boolean']>;
+  _lt?: Maybe<Scalars['Boolean']>;
+  _lte?: Maybe<Scalars['Boolean']>;
+  _neq?: Maybe<Scalars['Boolean']>;
+  _nin?: Maybe<Array<Scalars['Boolean']>>;
+};
+
 /** expression to compare columns of type Int. All fields are combined with logical 'AND'. */
 export type IntComparisonExp = {
   _eq?: Maybe<Scalars['Int']>;
@@ -75,6 +88,7 @@ export type Companies = {
   dba_name?: Maybe<Scalars['String']>;
   employer_identification_number?: Maybe<Scalars['String']>;
   id: Scalars['uuid'];
+  is_vendor: Scalars['Boolean'];
   /** An array relationship */
   licenses: Array<CompanyLicenses>;
   /** An aggregated array relationship */
@@ -260,6 +274,7 @@ export type CompaniesBoolExp = {
   dba_name?: Maybe<StringComparisonExp>;
   employer_identification_number?: Maybe<StringComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  is_vendor?: Maybe<BooleanComparisonExp>;
   licenses?: Maybe<CompanyLicensesBoolExp>;
   name?: Maybe<StringComparisonExp>;
   phone_number?: Maybe<StringComparisonExp>;
@@ -289,6 +304,7 @@ export type CompaniesInsertInput = {
   dba_name?: Maybe<Scalars['String']>;
   employer_identification_number?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['uuid']>;
+  is_vendor?: Maybe<Scalars['Boolean']>;
   licenses?: Maybe<CompanyLicensesArrRelInsertInput>;
   name?: Maybe<Scalars['String']>;
   phone_number?: Maybe<Scalars['String']>;
@@ -401,6 +417,7 @@ export type CompaniesOrderBy = {
   dba_name?: Maybe<OrderBy>;
   employer_identification_number?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  is_vendor?: Maybe<OrderBy>;
   licenses_aggregate?: Maybe<CompanyLicensesAggregateOrderBy>;
   name?: Maybe<OrderBy>;
   phone_number?: Maybe<OrderBy>;
@@ -434,6 +451,8 @@ export enum CompaniesSelectColumn {
   /** column name */
   Id = 'id',
   /** column name */
+  IsVendor = 'is_vendor',
+  /** column name */
   Name = 'name',
   /** column name */
   PhoneNumber = 'phone_number',
@@ -455,6 +474,7 @@ export type CompaniesSetInput = {
   dba_name?: Maybe<Scalars['String']>;
   employer_identification_number?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['uuid']>;
+  is_vendor?: Maybe<Scalars['Boolean']>;
   name?: Maybe<Scalars['String']>;
   phone_number?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['String']>;
@@ -480,6 +500,8 @@ export enum CompaniesUpdateColumn {
   EmployerIdentificationNumber = 'employer_identification_number',
   /** column name */
   Id = 'id',
+  /** column name */
+  IsVendor = 'is_vendor',
   /** column name */
   Name = 'name',
   /** column name */
@@ -3563,6 +3585,13 @@ export type BankCustomerQueryVariables = Exact<{
 
 export type BankCustomerQuery = { companies_by_pk?: Maybe<BankCustomerFragment> };
 
+export type BankCustomerListVendorPartnershipsQueryVariables = Exact<{
+  companyId: Scalars['uuid'];
+}>;
+
+
+export type BankCustomerListVendorPartnershipsQuery = { company_vendor_partnerships: Array<BankVendorPartnershipFragment> };
+
 export type BankCustomerFragment = Pick<Companies, 'id' | 'name' | 'employer_identification_number' | 'dba_name' | 'address' | 'country' | 'state' | 'city' | 'zip_code' | 'phone_number'>;
 
 export type BankCustomersQueryVariables = Exact<{ [key: string]: never; }>;
@@ -3860,9 +3889,42 @@ export function useBankCustomerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptio
 export type BankCustomerQueryHookResult = ReturnType<typeof useBankCustomerQuery>;
 export type BankCustomerLazyQueryHookResult = ReturnType<typeof useBankCustomerLazyQuery>;
 export type BankCustomerQueryResult = Apollo.QueryResult<BankCustomerQuery, BankCustomerQueryVariables>;
+export const BankCustomerListVendorPartnershipsDocument = gql`
+    query BankCustomerListVendorPartnerships($companyId: uuid!) {
+  company_vendor_partnerships(where: {company_id: {_eq: $companyId}}) {
+    ...BankVendorPartnership
+  }
+}
+    ${BankVendorPartnershipFragmentDoc}`;
+
+/**
+ * __useBankCustomerListVendorPartnershipsQuery__
+ *
+ * To run a query within a React component, call `useBankCustomerListVendorPartnershipsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBankCustomerListVendorPartnershipsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBankCustomerListVendorPartnershipsQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useBankCustomerListVendorPartnershipsQuery(baseOptions: Apollo.QueryHookOptions<BankCustomerListVendorPartnershipsQuery, BankCustomerListVendorPartnershipsQueryVariables>) {
+        return Apollo.useQuery<BankCustomerListVendorPartnershipsQuery, BankCustomerListVendorPartnershipsQueryVariables>(BankCustomerListVendorPartnershipsDocument, baseOptions);
+      }
+export function useBankCustomerListVendorPartnershipsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<BankCustomerListVendorPartnershipsQuery, BankCustomerListVendorPartnershipsQueryVariables>) {
+          return Apollo.useLazyQuery<BankCustomerListVendorPartnershipsQuery, BankCustomerListVendorPartnershipsQueryVariables>(BankCustomerListVendorPartnershipsDocument, baseOptions);
+        }
+export type BankCustomerListVendorPartnershipsQueryHookResult = ReturnType<typeof useBankCustomerListVendorPartnershipsQuery>;
+export type BankCustomerListVendorPartnershipsLazyQueryHookResult = ReturnType<typeof useBankCustomerListVendorPartnershipsLazyQuery>;
+export type BankCustomerListVendorPartnershipsQueryResult = Apollo.QueryResult<BankCustomerListVendorPartnershipsQuery, BankCustomerListVendorPartnershipsQueryVariables>;
 export const BankCustomersDocument = gql`
     query BankCustomers {
-  companies {
+  companies(where: {is_vendor: {_eq: false}}) {
     ...BankCustomer
   }
 }
