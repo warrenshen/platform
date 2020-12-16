@@ -125,7 +125,7 @@ function Layout(props: { children: React.ReactNode }) {
           anchor="left"
         >
           <div className={classes.toolbar}>
-            <img src="./logo.png" alt="Logo" />
+            <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="Logo" />
           </div>
           <Divider></Divider>
           <List>
