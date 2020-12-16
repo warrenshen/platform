@@ -10,7 +10,7 @@ import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
 import { PageContext } from "contexts/PageContext";
 import React, { useContext, useState } from "react";
 import { Link, matchPath, useLocation } from "react-router-dom";
-import { bankRoutes, routes } from "routes";
+import { bankPaths, routes } from "routes";
 
 const DRAWER_WIDTH = 240;
 
@@ -82,7 +82,7 @@ const BANK_LEFT_NAV_ITEMS = [
   },
   {
     text: "Customers",
-    link: bankRoutes.customers,
+    link: bankPaths.customers,
   },
 ];
 

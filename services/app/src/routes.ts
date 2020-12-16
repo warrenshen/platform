@@ -7,6 +7,15 @@ export const routes = {
   profile: "/profile",
 };
 
-export const bankRoutes = {
+export const bankPaths = {
   customers: "/customers",
+  customer: {
+    root: "/customers/:customerId",
+    overview: "/overview",
+    loans: "/loans",
+    purchaseOrders: "/purchase-orders",
+    vendors: "/vendors",
+    profile: "/profile",
+    users: "/users",
+  },
 };

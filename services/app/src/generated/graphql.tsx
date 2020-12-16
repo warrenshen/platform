@@ -3556,6 +3556,13 @@ export type UuidComparisonExp = {
   _nin?: Maybe<Array<Scalars['uuid']>>;
 };
 
+export type BankCustomerFragment = Pick<Companies, 'id' | 'name' | 'employer_identification_number' | 'dba_name' | 'address' | 'country' | 'state' | 'city' | 'zip_code' | 'phone_number'>;
+
+export type BankCustomersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type BankCustomersQuery = { companies: Array<BankCustomerFragment> };
+
 export type CompaniesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -3691,6 +3698,20 @@ export type ListVendorPartnershipsQueryVariables = Exact<{
 
 export type ListVendorPartnershipsQuery = { company_vendor_partnerships: Array<VendorPartnershipFragment> };
 
+export const BankCustomerFragmentDoc = gql`
+    fragment BankCustomer on companies {
+  id
+  name
+  employer_identification_number
+  dba_name
+  address
+  country
+  state
+  city
+  zip_code
+  phone_number
+}
+    `;
 export const PurchaseOrderLineItemFragmentDoc = gql`
     fragment PurchaseOrderLineItem on purchase_order_line_items {
   id
@@ -3799,6 +3820,38 @@ export const VendorPartnershipFragmentDoc = gql`
   }
 }
     ${VendorFragmentDoc}`;
+export const BankCustomersDocument = gql`
+    query BankCustomers {
+  companies {
+    ...BankCustomer
+  }
+}
+    ${BankCustomerFragmentDoc}`;
+
+/**
+ * __useBankCustomersQuery__
+ *
+ * To run a query within a React component, call `useBankCustomersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBankCustomersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBankCustomersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useBankCustomersQuery(baseOptions?: Apollo.QueryHookOptions<BankCustomersQuery, BankCustomersQueryVariables>) {
+        return Apollo.useQuery<BankCustomersQuery, BankCustomersQueryVariables>(BankCustomersDocument, baseOptions);
+      }
+export function useBankCustomersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<BankCustomersQuery, BankCustomersQueryVariables>) {
+          return Apollo.useLazyQuery<BankCustomersQuery, BankCustomersQueryVariables>(BankCustomersDocument, baseOptions);
+        }
+export type BankCustomersQueryHookResult = ReturnType<typeof useBankCustomersQuery>;
+export type BankCustomersLazyQueryHookResult = ReturnType<typeof useBankCustomersLazyQuery>;
+export type BankCustomersQueryResult = Apollo.QueryResult<BankCustomersQuery, BankCustomersQueryVariables>;
 export const CompaniesDocument = gql`
     query Companies {
   companies(limit: 1) {

@@ -1,0 +1,18 @@
+fragment BankCustomer on companies {
+  id
+  name
+  employer_identification_number
+  dba_name
+  address
+  country
+  state
+  city
+  zip_code
+  phone_number
+}
+
+query BankCustomers {
+  companies {
+    ...BankCustomer
+  }
+}

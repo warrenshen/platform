@@ -3,7 +3,7 @@ import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 function CurrentUserWrapper(props: { children: React.ReactNode }) {
-  const [role, setRole] = useState(UserRole.Customer);
+  const [role, setRole] = useState(UserRole.Bank);
 
   return (
     <CurrentUserContext.Provider

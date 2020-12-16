@@ -1,3 +1,5 @@
+import Customer from "components/Bank/Customer";
+import Customers from "components/Bank/Customers";
 import CompanyProfile from "components/CompanyProfile";
 import Home from "components/Home";
 import Layout from "components/Layout";
@@ -5,7 +7,7 @@ import Loans from "components/Loans";
 import PurchaseOrders from "components/PurchaseOrders";
 import Vendors from "components/Vendors";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
-import { bankRoutes, routes } from "routes";
+import { bankPaths, routes } from "routes";
 import "./App.css";
 
 function App() {
@@ -23,7 +25,8 @@ function App() {
           ></Route>
           <Route exact path={routes.vendors} component={Vendors}></Route>
           <Route exact path={routes.profile} component={CompanyProfile}></Route>
-          <Route exact path={bankRoutes.customers} component={Home}></Route>
+          <Route exact path={bankPaths.customers} component={Customers}></Route>
+          <Route path={bankPaths.customer.root} component={Customer}></Route>
         </Switch>
       </Layout>
     </BrowserRouter>
