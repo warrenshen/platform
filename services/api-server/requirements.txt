@@ -5,7 +5,8 @@
 #    pip-compile --output-file=requirements.txt requirements.in
 #
 click==7.1.2              # via flask
-flask==1.1.2              # via -r requirements.in
+flask-script==2.0.6       # via -r requirements.in
+flask==1.1.2              # via -r requirements.in, flask-script
 gunicorn==20.0.4          # via -r requirements.in
 itsdangerous==1.1.0       # via flask
 jinja2==2.11.2            # via -r requirements.in, flask

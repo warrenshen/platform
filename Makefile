@@ -8,8 +8,12 @@ install-requirements:
 run-test-local:
 	cd services/api-server && $(MAKE) run-test-local
 
+run-api-server:
+	cd services/api-server && $(MAKE) runlocal
+
 mypy-all:
 	mypy services/api-server/src/bespoke/db/models.py --config-file=mypy.ini
+	mypy services/api-server/src/manage.py --config-file=mypy.ini
 
 setup:
 	pip3 install pip-tools==5.1.2
