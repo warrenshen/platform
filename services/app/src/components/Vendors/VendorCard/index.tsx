@@ -36,10 +36,15 @@ function VendorCard(props: Props) {
         <Typography variant="h6">{vendor.name}</Typography>
         <Box py={1}>
           <Box>
-            <Box>{vendor.address}</Box>
-            <Box>
-              {vendor.city}, {vendor.state} {vendor.country} {vendor.zip_code}
-            </Box>
+            {vendor.address && (
+              <>
+                <Box>{vendor.address}</Box>
+                <Box>
+                  {vendor.city}, {vendor.state} {vendor.country}{" "}
+                  {vendor.zip_code}
+                </Box>
+              </>
+            )}
           </Box>
         </Box>
         {vendor.phone_number ? <Box>{vendor.phone_number}</Box> : null}
@@ -52,7 +57,7 @@ function VendorCard(props: Props) {
                   : "disabled"
               }
             ></CheckCircle>
-            <Box pl={1}>Signed Vender Agreement</Box>
+            <Box pl={1}>Signed Vendor Agreement</Box>
           </Box>
           <Box display="flex">
             <CheckCircle

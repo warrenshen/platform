@@ -1,8 +1,5 @@
 import { Box, Button, makeStyles, TextField } from "@material-ui/core";
-import {
-  useUpdateVendorContactInfoMutation,
-  VendorFragment,
-} from "generated/graphql";
+import { useUpdateVendorInfoMutation, VendorFragment } from "generated/graphql";
 import { useState } from "react";
 
 interface Props {
@@ -21,15 +18,16 @@ const useStyles = makeStyles({
   },
 });
 
-function ContactInfo(props: Props) {
+function VendorInfo(props: Props) {
   const classes = useStyles();
   const [editing, setEditing] = useState(false);
   const [editedVendor, setEditedVendor] = useState<VendorFragment>(
     props.vendor || {}
   );
-  const [updateVendorContactInfo] = useUpdateVendorContactInfoMutation();
+  const [updateVendorContactInfo] = useUpdateVendorInfoMutation();
 
   const vendor = props.vendor;
+  console.log(vendor);
 
   return editing ? (
     <>
@@ -134,14 +132,16 @@ function ContactInfo(props: Props) {
   ) : (
     <Box>
       {vendor.phone_number ? <Box>{vendor.phone_number}</Box> : null}
-      <Box py={1}>
-        <Box>
-          <Box>{vendor.address}</Box>
+      {vendor.address && (
+        <Box py={1}>
           <Box>
-            {vendor.city}, {vendor.state} {vendor.country} {vendor.zip_code}
+            <Box>{vendor.address}</Box>
+            <Box>
+              {vendor.city}, {vendor.state} {vendor.country} {vendor.zip_code}
+            </Box>
           </Box>
         </Box>
-      </Box>
+      )}
       <Button variant="outlined" size="small" onClick={() => setEditing(true)}>
         Edit
       </Button>
@@ -149,4 +149,4 @@ function ContactInfo(props: Props) {
   );
 }
 
-export default ContactInfo;
+export default VendorInfo;

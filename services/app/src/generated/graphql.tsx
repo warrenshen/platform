@@ -3382,6 +3382,7 @@ export type Users = {
   full_name: Scalars['String'];
   id: Scalars['uuid'];
   last_name: Scalars['String'];
+  phone_number?: Maybe<Scalars['String']>;
 };
 
 /** aggregated selection of "users" */
@@ -3428,6 +3429,7 @@ export type UsersBoolExp = {
   full_name?: Maybe<StringComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   last_name?: Maybe<StringComparisonExp>;
+  phone_number?: Maybe<StringComparisonExp>;
 };
 
 /** unique or primary key constraints on table "users" */
@@ -3444,6 +3446,7 @@ export type UsersInsertInput = {
   full_name?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['uuid']>;
   last_name?: Maybe<Scalars['String']>;
+  phone_number?: Maybe<Scalars['String']>;
 };
 
 /** aggregate max on columns */
@@ -3454,6 +3457,7 @@ export type UsersMaxFields = {
   full_name?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['uuid']>;
   last_name?: Maybe<Scalars['String']>;
+  phone_number?: Maybe<Scalars['String']>;
 };
 
 /** order by max() on columns of table "users" */
@@ -3464,6 +3468,7 @@ export type UsersMaxOrderBy = {
   full_name?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   last_name?: Maybe<OrderBy>;
+  phone_number?: Maybe<OrderBy>;
 };
 
 /** aggregate min on columns */
@@ -3474,6 +3479,7 @@ export type UsersMinFields = {
   full_name?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['uuid']>;
   last_name?: Maybe<Scalars['String']>;
+  phone_number?: Maybe<Scalars['String']>;
 };
 
 /** order by min() on columns of table "users" */
@@ -3484,6 +3490,7 @@ export type UsersMinOrderBy = {
   full_name?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   last_name?: Maybe<OrderBy>;
+  phone_number?: Maybe<OrderBy>;
 };
 
 /** response of any mutation on the table "users" */
@@ -3515,6 +3522,7 @@ export type UsersOrderBy = {
   full_name?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   last_name?: Maybe<OrderBy>;
+  phone_number?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: "users" */
@@ -3535,7 +3543,9 @@ export enum UsersSelectColumn {
   /** column name */
   Id = 'id',
   /** column name */
-  LastName = 'last_name'
+  LastName = 'last_name',
+  /** column name */
+  PhoneNumber = 'phone_number'
 }
 
 /** input type for updating data in table "users" */
@@ -3546,6 +3556,7 @@ export type UsersSetInput = {
   full_name?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['uuid']>;
   last_name?: Maybe<Scalars['String']>;
+  phone_number?: Maybe<Scalars['String']>;
 };
 
 /** update columns of table "users" */
@@ -3561,7 +3572,9 @@ export enum UsersUpdateColumn {
   /** column name */
   Id = 'id',
   /** column name */
-  LastName = 'last_name'
+  LastName = 'last_name',
+  /** column name */
+  PhoneNumber = 'phone_number'
 }
 
 
@@ -3603,6 +3616,30 @@ export type CompaniesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type CompaniesQuery = { companies: Array<Pick<Companies, 'id' | 'name'>> };
+
+export type ContactFragment = Pick<Users, 'id' | 'company_id' | 'full_name' | 'first_name' | 'last_name' | 'email' | 'phone_number'>;
+
+export type UpdateVendorContactMutationVariables = Exact<{
+  userId: Scalars['uuid'];
+  contact: UsersSetInput;
+}>;
+
+
+export type UpdateVendorContactMutation = { update_users_by_pk?: Maybe<ContactFragment> };
+
+export type DeleteVendorContactMutationVariables = Exact<{
+  userId: Scalars['uuid'];
+}>;
+
+
+export type DeleteVendorContactMutation = { delete_users_by_pk?: Maybe<Pick<Users, 'id'>> };
+
+export type AddVendorContactMutationVariables = Exact<{
+  contact: UsersInsertInput;
+}>;
+
+
+export type AddVendorContactMutation = { insert_users_one?: Maybe<ContactFragment> };
 
 export type PurchaseOrderLineItemFragment = Pick<PurchaseOrderLineItems, 'id' | 'item' | 'description' | 'num_units' | 'unit' | 'price_per_unit'>;
 
@@ -3648,7 +3685,10 @@ export type UpdatePurchaseOrderMutation = { delete_purchase_order_line_items?: M
 
 export type BankVendorPartnershipFragment = (
   Pick<CompanyVendorPartnerships, 'id' | 'company_id' | 'vendor_id' | 'vendor_agreement_id' | 'vendor_license_id'>
-  & { vendor_bank_account?: Maybe<BankAccountFragment>, vendor: Pick<Companies, 'id' | 'name' | 'address' | 'country' | 'state' | 'city' | 'zip_code' | 'phone_number'> }
+  & { vendor_bank_account?: Maybe<BankAccountFragment>, vendor: (
+    Pick<Companies, 'id' | 'name' | 'address' | 'country' | 'state' | 'city' | 'zip_code' | 'phone_number'>
+    & { users: Array<ContactFragment> }
+  ) }
 );
 
 export type BankAccountFragment = Pick<CompanyBankAccounts, 'id' | 'company_id' | 'name' | 'account_name' | 'account_number' | 'routing_number' | 'notes' | 'verified_at'>;
@@ -3705,13 +3745,13 @@ export type ChangeBankAccountMutation = { update_company_vendor_partnerships_by_
     & { vendor_bank_account?: Maybe<BankAccountFragment> }
   )> };
 
-export type UpdateVendorContactInfoMutationVariables = Exact<{
+export type UpdateVendorInfoMutationVariables = Exact<{
   id: Scalars['uuid'];
   company: CompaniesSetInput;
 }>;
 
 
-export type UpdateVendorContactInfoMutation = { update_companies_by_pk?: Maybe<VendorFragment> };
+export type UpdateVendorInfoMutation = { update_companies_by_pk?: Maybe<VendorFragment> };
 
 export type VendorFragment = Pick<Companies, 'id' | 'name' | 'address' | 'country' | 'state' | 'city' | 'zip_code' | 'phone_number'>;
 
@@ -3806,6 +3846,17 @@ export const BankAccountFragmentDoc = gql`
   verified_at
 }
     `;
+export const ContactFragmentDoc = gql`
+    fragment Contact on users {
+  id
+  company_id
+  full_name
+  first_name
+  last_name
+  email
+  phone_number
+}
+    `;
 export const BankVendorPartnershipFragmentDoc = gql`
     fragment BankVendorPartnership on company_vendor_partnerships {
   id
@@ -3825,9 +3876,13 @@ export const BankVendorPartnershipFragmentDoc = gql`
     city
     zip_code
     phone_number
+    users {
+      ...Contact
+    }
   }
 }
-    ${BankAccountFragmentDoc}`;
+    ${BankAccountFragmentDoc}
+${ContactFragmentDoc}`;
 export const VendorFragmentDoc = gql`
     fragment Vendor on companies {
   id
@@ -3987,6 +4042,103 @@ export function useCompaniesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<
 export type CompaniesQueryHookResult = ReturnType<typeof useCompaniesQuery>;
 export type CompaniesLazyQueryHookResult = ReturnType<typeof useCompaniesLazyQuery>;
 export type CompaniesQueryResult = Apollo.QueryResult<CompaniesQuery, CompaniesQueryVariables>;
+export const UpdateVendorContactDocument = gql`
+    mutation UpdateVendorContact($userId: uuid!, $contact: users_set_input!) {
+  update_users_by_pk(pk_columns: {id: $userId}, _set: $contact) {
+    ...Contact
+  }
+}
+    ${ContactFragmentDoc}`;
+export type UpdateVendorContactMutationFn = Apollo.MutationFunction<UpdateVendorContactMutation, UpdateVendorContactMutationVariables>;
+
+/**
+ * __useUpdateVendorContactMutation__
+ *
+ * To run a mutation, you first call `useUpdateVendorContactMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateVendorContactMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateVendorContactMutation, { data, loading, error }] = useUpdateVendorContactMutation({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      contact: // value for 'contact'
+ *   },
+ * });
+ */
+export function useUpdateVendorContactMutation(baseOptions?: Apollo.MutationHookOptions<UpdateVendorContactMutation, UpdateVendorContactMutationVariables>) {
+        return Apollo.useMutation<UpdateVendorContactMutation, UpdateVendorContactMutationVariables>(UpdateVendorContactDocument, baseOptions);
+      }
+export type UpdateVendorContactMutationHookResult = ReturnType<typeof useUpdateVendorContactMutation>;
+export type UpdateVendorContactMutationResult = Apollo.MutationResult<UpdateVendorContactMutation>;
+export type UpdateVendorContactMutationOptions = Apollo.BaseMutationOptions<UpdateVendorContactMutation, UpdateVendorContactMutationVariables>;
+export const DeleteVendorContactDocument = gql`
+    mutation DeleteVendorContact($userId: uuid!) {
+  delete_users_by_pk(id: $userId) {
+    id
+  }
+}
+    `;
+export type DeleteVendorContactMutationFn = Apollo.MutationFunction<DeleteVendorContactMutation, DeleteVendorContactMutationVariables>;
+
+/**
+ * __useDeleteVendorContactMutation__
+ *
+ * To run a mutation, you first call `useDeleteVendorContactMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteVendorContactMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteVendorContactMutation, { data, loading, error }] = useDeleteVendorContactMutation({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useDeleteVendorContactMutation(baseOptions?: Apollo.MutationHookOptions<DeleteVendorContactMutation, DeleteVendorContactMutationVariables>) {
+        return Apollo.useMutation<DeleteVendorContactMutation, DeleteVendorContactMutationVariables>(DeleteVendorContactDocument, baseOptions);
+      }
+export type DeleteVendorContactMutationHookResult = ReturnType<typeof useDeleteVendorContactMutation>;
+export type DeleteVendorContactMutationResult = Apollo.MutationResult<DeleteVendorContactMutation>;
+export type DeleteVendorContactMutationOptions = Apollo.BaseMutationOptions<DeleteVendorContactMutation, DeleteVendorContactMutationVariables>;
+export const AddVendorContactDocument = gql`
+    mutation AddVendorContact($contact: users_insert_input!) {
+  insert_users_one(object: $contact) {
+    ...Contact
+  }
+}
+    ${ContactFragmentDoc}`;
+export type AddVendorContactMutationFn = Apollo.MutationFunction<AddVendorContactMutation, AddVendorContactMutationVariables>;
+
+/**
+ * __useAddVendorContactMutation__
+ *
+ * To run a mutation, you first call `useAddVendorContactMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddVendorContactMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addVendorContactMutation, { data, loading, error }] = useAddVendorContactMutation({
+ *   variables: {
+ *      contact: // value for 'contact'
+ *   },
+ * });
+ */
+export function useAddVendorContactMutation(baseOptions?: Apollo.MutationHookOptions<AddVendorContactMutation, AddVendorContactMutationVariables>) {
+        return Apollo.useMutation<AddVendorContactMutation, AddVendorContactMutationVariables>(AddVendorContactDocument, baseOptions);
+      }
+export type AddVendorContactMutationHookResult = ReturnType<typeof useAddVendorContactMutation>;
+export type AddVendorContactMutationResult = Apollo.MutationResult<AddVendorContactMutation>;
+export type AddVendorContactMutationOptions = Apollo.BaseMutationOptions<AddVendorContactMutation, AddVendorContactMutationVariables>;
 export const ListPurchaseOrdersDocument = gql`
     query ListPurchaseOrders($company_id: uuid!) {
   purchase_orders(where: {company_id: {_eq: $company_id}}) {
@@ -4392,39 +4544,39 @@ export function useChangeBankAccountMutation(baseOptions?: Apollo.MutationHookOp
 export type ChangeBankAccountMutationHookResult = ReturnType<typeof useChangeBankAccountMutation>;
 export type ChangeBankAccountMutationResult = Apollo.MutationResult<ChangeBankAccountMutation>;
 export type ChangeBankAccountMutationOptions = Apollo.BaseMutationOptions<ChangeBankAccountMutation, ChangeBankAccountMutationVariables>;
-export const UpdateVendorContactInfoDocument = gql`
-    mutation UpdateVendorContactInfo($id: uuid!, $company: companies_set_input!) {
+export const UpdateVendorInfoDocument = gql`
+    mutation UpdateVendorInfo($id: uuid!, $company: companies_set_input!) {
   update_companies_by_pk(pk_columns: {id: $id}, _set: $company) {
     ...Vendor
   }
 }
     ${VendorFragmentDoc}`;
-export type UpdateVendorContactInfoMutationFn = Apollo.MutationFunction<UpdateVendorContactInfoMutation, UpdateVendorContactInfoMutationVariables>;
+export type UpdateVendorInfoMutationFn = Apollo.MutationFunction<UpdateVendorInfoMutation, UpdateVendorInfoMutationVariables>;
 
 /**
- * __useUpdateVendorContactInfoMutation__
+ * __useUpdateVendorInfoMutation__
  *
- * To run a mutation, you first call `useUpdateVendorContactInfoMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateVendorContactInfoMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useUpdateVendorInfoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateVendorInfoMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [updateVendorContactInfoMutation, { data, loading, error }] = useUpdateVendorContactInfoMutation({
+ * const [updateVendorInfoMutation, { data, loading, error }] = useUpdateVendorInfoMutation({
  *   variables: {
  *      id: // value for 'id'
  *      company: // value for 'company'
  *   },
  * });
  */
-export function useUpdateVendorContactInfoMutation(baseOptions?: Apollo.MutationHookOptions<UpdateVendorContactInfoMutation, UpdateVendorContactInfoMutationVariables>) {
-        return Apollo.useMutation<UpdateVendorContactInfoMutation, UpdateVendorContactInfoMutationVariables>(UpdateVendorContactInfoDocument, baseOptions);
+export function useUpdateVendorInfoMutation(baseOptions?: Apollo.MutationHookOptions<UpdateVendorInfoMutation, UpdateVendorInfoMutationVariables>) {
+        return Apollo.useMutation<UpdateVendorInfoMutation, UpdateVendorInfoMutationVariables>(UpdateVendorInfoDocument, baseOptions);
       }
-export type UpdateVendorContactInfoMutationHookResult = ReturnType<typeof useUpdateVendorContactInfoMutation>;
-export type UpdateVendorContactInfoMutationResult = Apollo.MutationResult<UpdateVendorContactInfoMutation>;
-export type UpdateVendorContactInfoMutationOptions = Apollo.BaseMutationOptions<UpdateVendorContactInfoMutation, UpdateVendorContactInfoMutationVariables>;
+export type UpdateVendorInfoMutationHookResult = ReturnType<typeof useUpdateVendorInfoMutation>;
+export type UpdateVendorInfoMutationResult = Apollo.MutationResult<UpdateVendorInfoMutation>;
+export type UpdateVendorInfoMutationOptions = Apollo.BaseMutationOptions<UpdateVendorInfoMutation, UpdateVendorInfoMutationVariables>;
 export const AddVendorPartnershipDocument = gql`
     mutation AddVendorPartnership($vendor: company_vendor_partnerships_insert_input!) {
   insert_company_vendor_partnerships_one(object: $vendor) {

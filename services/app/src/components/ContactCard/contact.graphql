@@ -1,0 +1,27 @@
+fragment Contact on users {
+  id
+  company_id
+  full_name
+  first_name
+  last_name
+  email
+  phone_number
+}
+
+mutation UpdateVendorContact($userId: uuid!, $contact: users_set_input!) {
+  update_users_by_pk(pk_columns: { id: $userId }, _set: $contact) {
+    ...Contact
+  }
+}
+
+mutation DeleteVendorContact($userId: uuid!) {
+  delete_users_by_pk(id: $userId) {
+    id
+  }
+}
+
+mutation AddVendorContact($contact: users_insert_input!) {
+  insert_users_one(object: $contact) {
+    ...Contact
+  }
+}

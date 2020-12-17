@@ -10,11 +10,13 @@ import {
   makeStyles,
   TextField,
   Theme,
+  Typography,
 } from "@material-ui/core";
 import {
   CompaniesInsertInput,
   ListVendorPartnershipsDocument,
   useAddVendorPartnershipMutation,
+  UsersInsertInput,
 } from "generated/graphql";
 import { useState } from "react";
 
@@ -39,15 +41,11 @@ interface Props {
 function RegisterVendorModal(props: Props) {
   const classes = useStyles();
   const [vendor, setVendor] = useState<CompaniesInsertInput>({});
+  const [contact, setContact] = useState<UsersInsertInput>({});
   const [addVendorPartnership, { loading }] = useAddVendorPartnershipMutation();
 
   return (
-    <Dialog
-      open
-      onClose={props.handleClose}
-      // className={classes.dialog}
-      maxWidth="md"
-    >
+    <Dialog open onClose={props.handleClose} maxWidth="md">
       <DialogTitle>Register Vendor</DialogTitle>
       <DialogContent>
         <DialogContentText>
@@ -55,7 +53,8 @@ function RegisterVendorModal(props: Props) {
         </DialogContentText>
         <Box pb={3} pt={2}>
           <TextField
-            label="Name"
+            label="Vendor Name"
+            required
             className={classes.nameInput}
             value={vendor.name}
             onChange={({ target: { value } }) => {
@@ -68,39 +67,41 @@ function RegisterVendorModal(props: Props) {
             my={3}
             className={classes.addressForm}
           >
-            <TextField
-              label="Address"
-              onChange={({ target: { value } }) => {
-                setVendor({ ...vendor, address: value });
-              }}
-            ></TextField>
-            <Box display="flex" justifyContent="space-between" pt={1}>
+            <Typography variant="subtitle1">Primary Contact</Typography>
+            <Box ml={1}>
               <TextField
-                className={classes.addressSubForm}
-                label="Country"
+                label="First Name"
+                required
+                className={classes.nameInput}
+                value={contact.first_name}
                 onChange={({ target: { value } }) => {
-                  setVendor({ ...vendor, country: value });
+                  setContact({ ...contact, first_name: value });
                 }}
               ></TextField>
               <TextField
-                className={classes.addressSubForm}
-                label="State"
+                label="Last Name"
+                required
+                className={classes.nameInput}
+                value={contact.last_name}
                 onChange={({ target: { value } }) => {
-                  setVendor({ ...vendor, state: value });
+                  setContact({ ...contact, last_name: value });
                 }}
               ></TextField>
               <TextField
-                className={classes.addressSubForm}
-                label="City"
+                label="Email"
+                required
+                className={classes.nameInput}
+                value={contact.email}
                 onChange={({ target: { value } }) => {
-                  setVendor({ ...vendor, city: value });
+                  setContact({ ...contact, email: value });
                 }}
               ></TextField>
               <TextField
-                className={classes.addressSubForm}
-                label="Zip Code"
+                label="Phone Number"
+                className={classes.nameInput}
+                value={contact.phone_number}
                 onChange={({ target: { value } }) => {
-                  setVendor({ ...vendor, zip_code: value });
+                  setContact({ ...contact, phone_number: value });
                 }}
               ></TextField>
             </Box>
@@ -121,14 +122,25 @@ function RegisterVendorModal(props: Props) {
           </Box>
 
           <Button
-            disabled={loading}
+            disabled={
+              loading ||
+              !vendor.name ||
+              !contact.first_name ||
+              !contact.last_name ||
+              !contact.email
+            }
             onClick={async () => {
               await addVendorPartnership({
                 variables: {
                   vendor: {
                     company_id: "57ee8797-1d5b-4a90-83c9-84c740590e42",
                     vendor: {
-                      data: vendor,
+                      data: {
+                        ...vendor,
+                        users: {
+                          data: [{ ...contact }],
+                        },
+                      },
                     },
                   },
                 },

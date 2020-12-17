@@ -1,6 +1,7 @@
 import { Box, Drawer, makeStyles, Typography } from "@material-ui/core";
 import BankAccount from "components/Vendors/Bank/VendorDrawer/BankAccount";
-import ContactInfo from "components/Vendors/Bank/VendorDrawer/ContactInfo";
+import Contacts from "components/Vendors/Bank/VendorDrawer/Contacts";
+import VendorInfo from "components/Vendors/Bank/VendorDrawer/VendorInfo";
 import {
   CompanyVendorPartnerships,
   useBankVendorPartnershipQuery,
@@ -46,8 +47,10 @@ function VendorDrawer(props: {
       <Box className={classes.drawerContent} p={4}>
         <Typography variant="h6">{vendor.name}</Typography>
         <Box py={3}>
-          <ContactInfo vendor={vendor}></ContactInfo>
+          <VendorInfo vendor={{ ...vendor }}></VendorInfo>
         </Box>
+        <Typography variant="h6"> Contacts </Typography>
+        <Contacts contacts={vendor.users} companyId={vendor.id}></Contacts>
         <Typography variant="h6"> Bank Information </Typography>
         <BankAccount
           companyId={vendor.id}

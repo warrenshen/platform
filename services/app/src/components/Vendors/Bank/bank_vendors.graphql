@@ -16,6 +16,9 @@ fragment BankVendorPartnership on company_vendor_partnerships {
     city
     zip_code
     phone_number
+    users {
+      ...Contact
+    }
   }
 }
 
@@ -89,7 +92,7 @@ mutation ChangeBankAccount(
   }
 }
 
-mutation UpdateVendorContactInfo($id: uuid!, $company: companies_set_input!) {
+mutation UpdateVendorInfo($id: uuid!, $company: companies_set_input!) {
   update_companies_by_pk(pk_columns: { id: $id }, _set: $company) {
     ...Vendor
   }
