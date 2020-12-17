@@ -7,6 +7,7 @@ from flask_jwt_extended import (
 	create_access_token, create_refresh_token, jwt_required, 
 	jwt_refresh_token_required, get_jwt_identity, get_raw_jwt
 )
+from passlib.hash import pbkdf2_sha256 as sha256
 
 from bespoke.db import models
 from bespoke.db.models import session_scope
@@ -20,26 +21,34 @@ class RegistrationView(MethodView):
 
 	def post(self) -> Response:
 		data = json.loads(request.data)
-		# TODO: password should be hashed
-		user = models.User(
-			username=data['username'],
-			password=data['password']
-		)
+		# TODO: demand minimum requirements for password strength
+		# and on username requirements
+		username = data['username']
+		password = data['password']
 
-		# TODO: check if user already exists
+		if not username or not password:
+			return make_error_response('No username or password provided')
+
+		user = models.User(
+			username=username,
+			password=sha256.hash(password)
+		)
 
 		try:
 			with session_scope(current_app.session_maker) as session:
+				existing_user = session.query(models.User).filter(models.User.username == username).first()
+				if existing_user:
+					return make_error_response('User {} already exists. Please choose another'.format(username))
 				session.add(user)
 
-			access_token = create_access_token(identity=data['username'])
-			refresh_token = create_refresh_token(identity=data['username'])
+			access_token = create_access_token(identity=username)
+			refresh_token = create_refresh_token(identity=username)
 		except Exception as e:
 			return make_error_response('{}'.format(e))
 
 		return make_response(json.dumps({
 			'status': 'OK',
-			'msg': 'User {} created'.format(data['username']),
+			'msg': 'User {} created'.format(username),
 			'access_token': access_token,
 			'refresh_token': refresh_token
 		}), 200)
@@ -48,22 +57,25 @@ class LoginView(MethodView):
 
 	def post(self) -> Response:
 		data = json.loads(request.data)
+		username = data["username"]
+		password = data['password']
+		if not username or not password:
+			return make_error_response('No username or password provided')
 
 		with session_scope(current_app.session_maker) as session:
-			user = session.query(models.User).filter(models.User.username == data['username']).first()
+			user = session.query(models.User).filter(models.User.username == username).first()
 			if not user:
-				return make_error_response(f'User {data["username"]} does not exist')
+				return make_error_response('User {} does not exist'.format(username))
 
-			# TODO: check pw via hash
-			if data['password'] != user.password:
+			if not sha256.verify(password, user.password):
 				return make_error_response(f'Invalid password provided')
 
-		access_token = create_access_token(identity=data['username'])
-		refresh_token = create_refresh_token(identity=data['username'])
+		access_token = create_access_token(identity=username)
+		refresh_token = create_refresh_token(identity=username)
 
 		return make_response(json.dumps({
 			'status': 'OK',
-			'msg': 'Logged in as {}'.format(data['username']),
+			'msg': 'Logged in as {}'.format(username),
 			'access_token': access_token,
 			'refresh_token': refresh_token
 		}), 200)
