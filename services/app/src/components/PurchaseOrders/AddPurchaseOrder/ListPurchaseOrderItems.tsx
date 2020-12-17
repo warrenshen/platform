@@ -11,19 +11,8 @@ import {
   PurchaseOrderLineItemsArrRelInsertInput,
   PurchaseOrderLineItemsInsertInput,
 } from "generated/graphql";
-import { Maybe } from "graphql/jsutils/Maybe";
 import { useState } from "react";
-
-function nullableNumbersHelper(num: Maybe<number>): number {
-  return num ? num : 0;
-}
-
-function multiplyNullableNumbers(
-  num1: Maybe<number>,
-  num2: Maybe<number>
-): number {
-  return nullableNumbersHelper(num1) * nullableNumbersHelper(num2);
-}
+import { multiplyNullableNumbers } from "../models/NumberHelper";
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -36,12 +25,16 @@ const useStyles = makeStyles(() =>
       marginRight: "15px",
     },
     itemInputLast: {
-      width: 200,
+      minWidth: 200,
       marginRight: "0",
     },
     itemInputGrandTotal: {
       width: 200,
       marginRight: "48px",
+    },
+    removeLiBulets: {
+      listStyleType: "none",
+      paddingLeft: 0,
     },
   })
 );
@@ -64,100 +57,114 @@ function ListPurchaseOrderItems({
   ] = useState<PurchaseOrderLineItemsInsertInput>({});
   return (
     <>
-      {purchaseOrderItems.data.map((purchaseOrderItem) => (
-        <Box display="flex" m={1} key={purchaseOrderItem.id}>
-          <TextField
-            label="Item"
-            className={classes.itemInput}
-            value={purchaseOrderItem.item}
-            onChange={({ target: { value } }) => {
-              const pois = { ...purchaseOrderItems };
-              let poi = pois.data.find((i) => i.id === purchaseOrderItem.id);
-              if (poi) {
-                poi.item = value;
-              }
-              handlePurchaseOrderItems(pois);
-            }}
-          ></TextField>
-          <TextField
-            label="Description"
-            className={classes.itemInput}
-            value={purchaseOrderItem.description}
-            onChange={({ target: { value } }) => {
-              const pois = { ...purchaseOrderItems };
-              let poi = pois.data.find((i) => i.id === purchaseOrderItem.id);
-              if (poi) {
-                poi.description = value;
-              }
-              handlePurchaseOrderItems(pois);
-            }}
-          ></TextField>
-          <TextField
-            label="Units"
-            className={classes.itemInput}
-            value={purchaseOrderItem.num_units}
-            onChange={({ target: { value } }) => {
-              const pois = { ...purchaseOrderItems };
-              let poi = pois.data.find((i) => i.id === purchaseOrderItem.id);
-              if (poi) {
-                const u = +value;
-                poi.num_units = isNaN(u) ? 0 : u;
-              }
-              handlePurchaseOrderItems(pois);
-            }}
-          ></TextField>
-          <TextField
-            label="Unit"
-            className={classes.itemInput}
-            value={purchaseOrderItem.unit}
-            onChange={({ target: { value } }) => {
-              const pois = { ...purchaseOrderItems };
-              let poi = pois.data.find((i) => i.id === purchaseOrderItem.id);
-              if (poi) {
-                poi.unit = value;
-              }
-              handlePurchaseOrderItems(pois);
-            }}
-          ></TextField>
-          <TextField
-            label="Price Per Unit"
-            className={classes.itemInput}
-            value={purchaseOrderItem.price_per_unit}
-            onChange={({ target: { value } }) => {
-              const pois = { ...purchaseOrderItems };
-              let poi = pois.data.find((i) => i.id === purchaseOrderItem.id);
-              if (poi) {
-                const u = +value;
-                poi.price_per_unit = isNaN(u) ? 0 : u;
-              }
-              handlePurchaseOrderItems(pois);
-            }}
-          ></TextField>
-          <TextField
-            label="Total"
-            disabled={true}
-            className={classes.itemInput}
-            value={multiplyNullableNumbers(
-              purchaseOrderItem.num_units,
-              purchaseOrderItem.price_per_unit
-            )}
-          ></TextField>
-          <IconButton
-            onClick={() => {
-              handlePurchaseOrderItems({
-                ...purchaseOrderItems,
-                data: purchaseOrderItems.data.filter(
-                  (i) => i.id !== purchaseOrderItem.id
-                ),
-              });
-            }}
-            component="span"
-            color="secondary"
-          >
-            <DeleteIcon />
-          </IconButton>
-        </Box>
-      ))}
+      <ul className={classes.removeLiBulets}>
+        {purchaseOrderItems.data.map((purchaseOrderItem) => (
+          <li key={purchaseOrderItem.id}>
+            <Box display="flex" m={1} key={purchaseOrderItem.id}>
+              <TextField
+                label="Item"
+                className={classes.itemInput}
+                value={purchaseOrderItem.item}
+                onChange={({ target: { value } }) => {
+                  const pois = { ...purchaseOrderItems };
+                  let poi = pois.data.find(
+                    (i) => i.id === purchaseOrderItem.id
+                  );
+                  if (poi) {
+                    poi.item = value;
+                  }
+                  handlePurchaseOrderItems(pois);
+                }}
+              ></TextField>
+              <TextField
+                label="Description"
+                className={classes.itemInput}
+                value={purchaseOrderItem.description}
+                onChange={({ target: { value } }) => {
+                  const pois = { ...purchaseOrderItems };
+                  let poi = pois.data.find(
+                    (i) => i.id === purchaseOrderItem.id
+                  );
+                  if (poi) {
+                    poi.description = value;
+                  }
+                  handlePurchaseOrderItems(pois);
+                }}
+              ></TextField>
+              <TextField
+                label="Units"
+                className={classes.itemInput}
+                value={purchaseOrderItem.num_units}
+                onChange={({ target: { value } }) => {
+                  const pois = { ...purchaseOrderItems };
+                  let poi = pois.data.find(
+                    (i) => i.id === purchaseOrderItem.id
+                  );
+                  if (poi) {
+                    const u = +value;
+                    poi.num_units = isNaN(u) ? 0 : u;
+                  }
+                  handlePurchaseOrderItems(pois);
+                }}
+              ></TextField>
+              <TextField
+                label="Unit"
+                className={classes.itemInput}
+                value={purchaseOrderItem.unit}
+                onChange={({ target: { value } }) => {
+                  const pois = { ...purchaseOrderItems };
+                  let poi = pois.data.find(
+                    (i) => i.id === purchaseOrderItem.id
+                  );
+                  if (poi) {
+                    poi.unit = value;
+                  }
+                  handlePurchaseOrderItems(pois);
+                }}
+              ></TextField>
+              <TextField
+                label="Price Per Unit"
+                className={classes.itemInput}
+                value={purchaseOrderItem.price_per_unit}
+                onChange={({ target: { value } }) => {
+                  const pois = { ...purchaseOrderItems };
+                  let poi = pois.data.find(
+                    (i) => i.id === purchaseOrderItem.id
+                  );
+                  if (poi) {
+                    const u = +value;
+                    poi.price_per_unit = isNaN(u) ? 0 : u;
+                  }
+                  handlePurchaseOrderItems(pois);
+                }}
+              ></TextField>
+              <TextField
+                label="Total"
+                disabled={true}
+                className={classes.itemInputLast}
+                value={multiplyNullableNumbers(
+                  purchaseOrderItem.num_units,
+                  purchaseOrderItem.price_per_unit
+                )}
+              ></TextField>
+              <IconButton
+                onClick={() => {
+                  handlePurchaseOrderItems({
+                    ...purchaseOrderItems,
+                    data: purchaseOrderItems.data.filter(
+                      (i) => i.id !== purchaseOrderItem.id
+                    ),
+                  });
+                }}
+                component="span"
+                color="secondary"
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Box>
+          </li>
+        ))}
+      </ul>
       <Box display="flex" m={1}>
         <TextField
           label="Item"

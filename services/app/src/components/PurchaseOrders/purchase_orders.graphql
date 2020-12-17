@@ -18,7 +18,7 @@ fragment PurchaseOrder on purchase_orders {
   purchase_order_number
   remarks
   status
-  address
+  delivery_address
   country
   city
   zip_code

@@ -2285,7 +2285,6 @@ export type PurchaseOrderLineItemsVarianceOrderBy = {
 
 /** columns and relationships of "purchase_orders" */
 export type PurchaseOrders = {
-  address?: Maybe<Scalars['String']>;
   amount?: Maybe<Scalars['money']>;
   amount_invoiced?: Maybe<Scalars['money']>;
   city?: Maybe<Scalars['String']>;
@@ -2295,6 +2294,7 @@ export type PurchaseOrders = {
   country?: Maybe<Scalars['String']>;
   created_at: Scalars['timestamptz'];
   currency: Scalars['String'];
+  delivery_address?: Maybe<Scalars['String']>;
   delivery_date?: Maybe<Scalars['date']>;
   id: Scalars['uuid'];
   /** An array relationship */
@@ -2400,7 +2400,6 @@ export type PurchaseOrdersBoolExp = {
   _and?: Maybe<Array<Maybe<PurchaseOrdersBoolExp>>>;
   _not?: Maybe<PurchaseOrdersBoolExp>;
   _or?: Maybe<Array<Maybe<PurchaseOrdersBoolExp>>>;
-  address?: Maybe<StringComparisonExp>;
   amount?: Maybe<MoneyComparisonExp>;
   amount_invoiced?: Maybe<MoneyComparisonExp>;
   city?: Maybe<StringComparisonExp>;
@@ -2409,6 +2408,7 @@ export type PurchaseOrdersBoolExp = {
   country?: Maybe<StringComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   currency?: Maybe<StringComparisonExp>;
+  delivery_address?: Maybe<StringComparisonExp>;
   delivery_date?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   line_items?: Maybe<PurchaseOrderLineItemsBoolExp>;
@@ -2437,7 +2437,6 @@ export type PurchaseOrdersIncInput = {
 
 /** input type for inserting data into table "purchase_orders" */
 export type PurchaseOrdersInsertInput = {
-  address?: Maybe<Scalars['String']>;
   amount?: Maybe<Scalars['money']>;
   amount_invoiced?: Maybe<Scalars['money']>;
   city?: Maybe<Scalars['String']>;
@@ -2446,6 +2445,7 @@ export type PurchaseOrdersInsertInput = {
   country?: Maybe<Scalars['String']>;
   created_at?: Maybe<Scalars['timestamptz']>;
   currency?: Maybe<Scalars['String']>;
+  delivery_address?: Maybe<Scalars['String']>;
   delivery_date?: Maybe<Scalars['date']>;
   id?: Maybe<Scalars['uuid']>;
   line_items?: Maybe<PurchaseOrderLineItemsArrRelInsertInput>;
@@ -2462,7 +2462,6 @@ export type PurchaseOrdersInsertInput = {
 
 /** aggregate max on columns */
 export type PurchaseOrdersMaxFields = {
-  address?: Maybe<Scalars['String']>;
   amount?: Maybe<Scalars['money']>;
   amount_invoiced?: Maybe<Scalars['money']>;
   city?: Maybe<Scalars['String']>;
@@ -2470,6 +2469,7 @@ export type PurchaseOrdersMaxFields = {
   country?: Maybe<Scalars['String']>;
   created_at?: Maybe<Scalars['timestamptz']>;
   currency?: Maybe<Scalars['String']>;
+  delivery_address?: Maybe<Scalars['String']>;
   delivery_date?: Maybe<Scalars['date']>;
   id?: Maybe<Scalars['uuid']>;
   parent_purchase_order_id?: Maybe<Scalars['uuid']>;
@@ -2483,7 +2483,6 @@ export type PurchaseOrdersMaxFields = {
 
 /** order by max() on columns of table "purchase_orders" */
 export type PurchaseOrdersMaxOrderBy = {
-  address?: Maybe<OrderBy>;
   amount?: Maybe<OrderBy>;
   amount_invoiced?: Maybe<OrderBy>;
   city?: Maybe<OrderBy>;
@@ -2491,6 +2490,7 @@ export type PurchaseOrdersMaxOrderBy = {
   country?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   currency?: Maybe<OrderBy>;
+  delivery_address?: Maybe<OrderBy>;
   delivery_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   parent_purchase_order_id?: Maybe<OrderBy>;
@@ -2504,7 +2504,6 @@ export type PurchaseOrdersMaxOrderBy = {
 
 /** aggregate min on columns */
 export type PurchaseOrdersMinFields = {
-  address?: Maybe<Scalars['String']>;
   amount?: Maybe<Scalars['money']>;
   amount_invoiced?: Maybe<Scalars['money']>;
   city?: Maybe<Scalars['String']>;
@@ -2512,6 +2511,7 @@ export type PurchaseOrdersMinFields = {
   country?: Maybe<Scalars['String']>;
   created_at?: Maybe<Scalars['timestamptz']>;
   currency?: Maybe<Scalars['String']>;
+  delivery_address?: Maybe<Scalars['String']>;
   delivery_date?: Maybe<Scalars['date']>;
   id?: Maybe<Scalars['uuid']>;
   parent_purchase_order_id?: Maybe<Scalars['uuid']>;
@@ -2525,7 +2525,6 @@ export type PurchaseOrdersMinFields = {
 
 /** order by min() on columns of table "purchase_orders" */
 export type PurchaseOrdersMinOrderBy = {
-  address?: Maybe<OrderBy>;
   amount?: Maybe<OrderBy>;
   amount_invoiced?: Maybe<OrderBy>;
   city?: Maybe<OrderBy>;
@@ -2533,6 +2532,7 @@ export type PurchaseOrdersMinOrderBy = {
   country?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   currency?: Maybe<OrderBy>;
+  delivery_address?: Maybe<OrderBy>;
   delivery_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   parent_purchase_order_id?: Maybe<OrderBy>;
@@ -2567,7 +2567,6 @@ export type PurchaseOrdersOnConflict = {
 
 /** ordering options when selecting data from "purchase_orders" */
 export type PurchaseOrdersOrderBy = {
-  address?: Maybe<OrderBy>;
   amount?: Maybe<OrderBy>;
   amount_invoiced?: Maybe<OrderBy>;
   city?: Maybe<OrderBy>;
@@ -2576,6 +2575,7 @@ export type PurchaseOrdersOrderBy = {
   country?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   currency?: Maybe<OrderBy>;
+  delivery_address?: Maybe<OrderBy>;
   delivery_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   line_items_aggregate?: Maybe<PurchaseOrderLineItemsAggregateOrderBy>;
@@ -2598,8 +2598,6 @@ export type PurchaseOrdersPkColumnsInput = {
 /** select columns of table "purchase_orders" */
 export enum PurchaseOrdersSelectColumn {
   /** column name */
-  Address = 'address',
-  /** column name */
   Amount = 'amount',
   /** column name */
   AmountInvoiced = 'amount_invoiced',
@@ -2613,6 +2611,8 @@ export enum PurchaseOrdersSelectColumn {
   CreatedAt = 'created_at',
   /** column name */
   Currency = 'currency',
+  /** column name */
+  DeliveryAddress = 'delivery_address',
   /** column name */
   DeliveryDate = 'delivery_date',
   /** column name */
@@ -2635,7 +2635,6 @@ export enum PurchaseOrdersSelectColumn {
 
 /** input type for updating data in table "purchase_orders" */
 export type PurchaseOrdersSetInput = {
-  address?: Maybe<Scalars['String']>;
   amount?: Maybe<Scalars['money']>;
   amount_invoiced?: Maybe<Scalars['money']>;
   city?: Maybe<Scalars['String']>;
@@ -2643,6 +2642,7 @@ export type PurchaseOrdersSetInput = {
   country?: Maybe<Scalars['String']>;
   created_at?: Maybe<Scalars['timestamptz']>;
   currency?: Maybe<Scalars['String']>;
+  delivery_address?: Maybe<Scalars['String']>;
   delivery_date?: Maybe<Scalars['date']>;
   id?: Maybe<Scalars['uuid']>;
   parent_purchase_order_id?: Maybe<Scalars['uuid']>;
@@ -2705,8 +2705,6 @@ export type PurchaseOrdersSumOrderBy = {
 /** update columns of table "purchase_orders" */
 export enum PurchaseOrdersUpdateColumn {
   /** column name */
-  Address = 'address',
-  /** column name */
   Amount = 'amount',
   /** column name */
   AmountInvoiced = 'amount_invoiced',
@@ -2720,6 +2718,8 @@ export enum PurchaseOrdersUpdateColumn {
   CreatedAt = 'created_at',
   /** column name */
   Currency = 'currency',
+  /** column name */
+  DeliveryAddress = 'delivery_address',
   /** column name */
   DeliveryDate = 'delivery_date',
   /** column name */
@@ -3607,7 +3607,7 @@ export type CompaniesQuery = { companies: Array<Pick<Companies, 'id' | 'name'>> 
 export type PurchaseOrderLineItemFragment = Pick<PurchaseOrderLineItems, 'id' | 'item' | 'description' | 'num_units' | 'unit' | 'price_per_unit'>;
 
 export type PurchaseOrderFragment = (
-  Pick<PurchaseOrders, 'amount_invoiced' | 'company_id' | 'created_at' | 'currency' | 'delivery_date' | 'id' | 'amount' | 'parent_purchase_order_id' | 'purchase_order_number' | 'remarks' | 'status' | 'address' | 'country' | 'city' | 'zip_code' | 'vendor_id'>
+  Pick<PurchaseOrders, 'amount_invoiced' | 'company_id' | 'created_at' | 'currency' | 'delivery_date' | 'id' | 'amount' | 'parent_purchase_order_id' | 'purchase_order_number' | 'remarks' | 'status' | 'delivery_address' | 'country' | 'city' | 'zip_code' | 'vendor_id'>
   & { vendor?: Maybe<Pick<Companies, 'id' | 'name'>>, company?: Maybe<Pick<Companies, 'id' | 'name'>>, parent_purchase_order?: Maybe<Pick<PurchaseOrders, 'id' | 'purchase_order_number' | 'amount'>>, line_items: Array<PurchaseOrderLineItemFragment> }
 );
 
@@ -3771,7 +3771,7 @@ export const PurchaseOrderFragmentDoc = gql`
   purchase_order_number
   remarks
   status
-  address
+  delivery_address
   country
   city
   zip_code

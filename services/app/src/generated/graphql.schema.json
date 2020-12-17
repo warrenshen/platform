@@ -13953,18 +13953,6 @@
         "description": "columns and relationships of \"purchase_orders\"",
         "fields": [
           {
-            "name": "address",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "amount",
             "description": null,
             "args": [],
@@ -14064,6 +14052,18 @@
                 "name": "String",
                 "ofType": null
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "delivery_address",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -14890,16 +14890,6 @@
             "defaultValue": null
           },
           {
-            "name": "address",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "String_comparison_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "amount",
             "description": null,
             "type": {
@@ -14971,6 +14961,16 @@
           },
           {
             "name": "currency",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "String_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "delivery_address",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
@@ -15159,16 +15159,6 @@
         "fields": null,
         "inputFields": [
           {
-            "name": "address",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "amount",
             "description": null,
             "type": {
@@ -15240,6 +15230,16 @@
           },
           {
             "name": "currency",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "delivery_address",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -15379,18 +15379,6 @@
         "description": "aggregate max on columns",
         "fields": [
           {
-            "name": "address",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "amount",
             "description": null,
             "args": [],
@@ -15464,6 +15452,18 @@
           },
           {
             "name": "currency",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "delivery_address",
             "description": null,
             "args": [],
             "type": {
@@ -15595,16 +15595,6 @@
         "fields": null,
         "inputFields": [
           {
-            "name": "address",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "amount",
             "description": null,
             "type": {
@@ -15666,6 +15656,16 @@
           },
           {
             "name": "currency",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "delivery_address",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -15775,18 +15775,6 @@
         "description": "aggregate min on columns",
         "fields": [
           {
-            "name": "address",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "amount",
             "description": null,
             "args": [],
@@ -15860,6 +15848,18 @@
           },
           {
             "name": "currency",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "delivery_address",
             "description": null,
             "args": [],
             "type": {
@@ -15991,16 +15991,6 @@
         "fields": null,
         "inputFields": [
           {
-            "name": "address",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "amount",
             "description": null,
             "type": {
@@ -16062,6 +16052,16 @@
           },
           {
             "name": "currency",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "delivery_address",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -16315,16 +16315,6 @@
         "fields": null,
         "inputFields": [
           {
-            "name": "address",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "amount",
             "description": null,
             "type": {
@@ -16396,6 +16386,16 @@
           },
           {
             "name": "currency",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "delivery_address",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -16563,12 +16563,6 @@
         "interfaces": null,
         "enumValues": [
           {
-            "name": "address",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "amount",
             "description": "column name",
             "isDeprecated": false,
@@ -16606,6 +16600,12 @@
           },
           {
             "name": "currency",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "delivery_address",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -16674,16 +16674,6 @@
         "fields": null,
         "inputFields": [
           {
-            "name": "address",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "amount",
             "description": null,
             "type": {
@@ -16745,6 +16735,16 @@
           },
           {
             "name": "currency",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "delivery_address",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -17121,12 +17121,6 @@
         "interfaces": null,
         "enumValues": [
           {
-            "name": "address",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "amount",
             "description": "column name",
             "isDeprecated": false,
@@ -17164,6 +17158,12 @@
           },
           {
             "name": "currency",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "delivery_address",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

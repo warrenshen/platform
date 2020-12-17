@@ -1,5 +1,7 @@
+import { default as PurchaseOrdersGeneral } from "../../PurchaseOrders";
+
 function PurchaseOrders() {
-  return <>PurchaseOrders tab</>;
+  return <PurchaseOrdersGeneral></PurchaseOrdersGeneral>;
 }
 
 export default PurchaseOrders;

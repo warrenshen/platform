@@ -1,14 +1,16 @@
 import { Box } from "@material-ui/core";
 import AddButton from "components/PurchaseOrders/AddPurchaseOrder/AddButton";
 import ListPurchaseOrders from "components/PurchaseOrders/ListPurchaseOrders";
+import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
 import { PurchaseOrderFragment } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
 import useAppBarTitle from "hooks/useAppBarTitle";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useTitle } from "react-use";
 import { ActionType } from "./models/ActionType";
 
 function PurchaseOrders() {
+  const { role: currentUserRole } = useContext(CurrentUserContext);
   useTitle("Purchase Orders | Bespoke");
   useAppBarTitle("Purchase Orders");
 
@@ -31,14 +33,16 @@ function PurchaseOrders() {
   const [actionType, setActionType] = useState(ActionType.New);
   return (
     <Box>
-      <AddButton
-        actionType={actionType}
-        originalPurchaseOrder={originalPurchaseOrder}
-        open={open}
-        setOpen={setOpen}
-        manipulatePurchaseOrder={manipulatePurchaseOrder}
-        clearId={clearId}
-      ></AddButton>
+      {currentUserRole === UserRole.Customer && (
+        <AddButton
+          actionType={actionType}
+          originalPurchaseOrder={originalPurchaseOrder}
+          open={open}
+          setOpen={setOpen}
+          manipulatePurchaseOrder={manipulatePurchaseOrder}
+          clearId={clearId}
+        ></AddButton>
+      )}
       <ListPurchaseOrders
         manipulatePurchaseOrder={manipulatePurchaseOrder}
       ></ListPurchaseOrders>

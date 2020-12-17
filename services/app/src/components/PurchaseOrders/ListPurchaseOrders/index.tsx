@@ -5,7 +5,7 @@ import {
   RowsProp,
   ValueFormatterParams,
 } from "@material-ui/data-grid";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
 import {
   PurchaseOrderFragment,
   useListPurchaseOrdersQuery,
@@ -41,7 +41,9 @@ interface Props {
 }
 
 function ListPurchaseOrders({ manipulatePurchaseOrder }: Props) {
-  const { company_id: curentUserCompanyId } = useContext(CurrentUserContext);
+  const { company_id: curentUserCompanyId, role: currentUserRole } = useContext(
+    CurrentUserContext
+  );
   const [currentId, setCurrentId] = useState("");
   const [open, setOpen] = useState(false);
 
@@ -97,7 +99,10 @@ function ListPurchaseOrders({ manipulatePurchaseOrder }: Props) {
         <Status statusValue={params.value as string} />
       ),
     },
-    {
+  ];
+
+  if (currentUserRole === UserRole.Customer) {
+    columns.push({
       field: "action",
       headerName: "Action",
       width: 100,
@@ -109,8 +114,8 @@ function ListPurchaseOrders({ manipulatePurchaseOrder }: Props) {
           />
         );
       },
-    },
-  ];
+    });
+  }
 
   const handleCreatePurchaseOrderReplica = (
     actionType: ActionType,
@@ -121,6 +126,10 @@ function ListPurchaseOrders({ manipulatePurchaseOrder }: Props) {
       data?.purchase_orders.find((po) => po.id === originalId)
     );
   };
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <>

@@ -6,7 +6,6 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   FormControl,
   InputLabel,
@@ -38,14 +37,13 @@ import { Maybe } from "graphql/jsutils/Maybe";
 import { useContext, useState } from "react";
 import { ActionType } from "../models/ActionType";
 import { CURRENCIES } from "../models/fakeData";
+import { multiplyNullableNumbers } from "../models/NumberHelper";
 import ListPurchaseOrderItems from "./ListPurchaseOrderItems";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     dialogTitle: {
-      margin: theme.spacing(4),
-      marginTop: 10,
-      marginBottom: 0,
+      paddingLeft: theme.spacing(4),
       borderBottom: "1px solid #c7c7c7",
     },
     purchaseOrderInput: {
@@ -65,6 +63,9 @@ const useStyles = makeStyles((theme: Theme) =>
       margin: theme.spacing(4),
       marginTop: 0,
       marginBottom: 15,
+    },
+    submitButton: {
+      marginLeft: theme.spacing(1),
     },
   })
 );
@@ -89,7 +90,7 @@ function AddPurchaseOrderModal({
           ? originalPurchaseOrder?.id
           : undefined,
       amount: originalPurchaseOrder?.amount,
-      address: originalPurchaseOrder?.address,
+      delivery_address: originalPurchaseOrder?.delivery_address,
       amount_invoiced: originalPurchaseOrder?.amount_invoiced,
       city: originalPurchaseOrder?.city,
       company_id: originalPurchaseOrder?.company_id,
@@ -154,6 +155,9 @@ function AddPurchaseOrderModal({
   const isFormValid =
     !!purchaseOrder.purchase_order_number && !!purchaseOrder.vendor_id;
 
+  if (getVendorsLoading && getParentPurchaseOrdersLoading) {
+    return <p>Loading...</p>;
+  }
   return (
     <Dialog open onClose={handleClose} maxWidth="xl">
       <DialogTitle className={classes.dialogTitle}>
@@ -169,6 +173,7 @@ function AddPurchaseOrderModal({
                 Parent Purchase Order Number
               </InputLabel>
               <Select
+                disabled={getParentPurchaseOrdersLoading}
                 className={classes.purchaseOrderInput}
                 labelId="parent-purchase-order-number-select-label"
                 id="parent-purchase-order-number-select"
@@ -200,6 +205,7 @@ function AddPurchaseOrderModal({
             <FormControl className={classes.formControlRight}>
               <InputLabel id="vendor-select-label">Vendor</InputLabel>
               <Select
+                disabled={getVendorsLoading}
                 className={classes.purchaseOrderInput}
                 labelId="vendor-select-label"
                 id="vendor-select"
@@ -315,7 +321,7 @@ function AddPurchaseOrderModal({
               onChange={({ target: { value } }) => {
                 setPurchaseOrder({
                   ...purchaseOrder,
-                  address: value,
+                  delivery_address: value,
                 });
               }}
             />
@@ -336,7 +342,6 @@ function AddPurchaseOrderModal({
             />
           </Box>
         </Box>
-        <DialogContentText>Description.</DialogContentText>
         <ListPurchaseOrderItems
           purchaseOrderItems={
             purchaseOrder.line_items ? purchaseOrder.line_items : { data: [] }
@@ -348,7 +353,12 @@ function AddPurchaseOrderModal({
         <Box>
           <Button onClick={handleClose}>Cancel</Button>
           <Button
-            disabled={!isFormValid}
+            className={classes.submitButton}
+            disabled={
+              !isFormValid ||
+              addPurchaseOrderLoading ||
+              updatePurchaseOrderLoading
+            }
             onClick={async () => {
               if (actionType === ActionType.Update) {
                 await updatePurchaseOrder({
@@ -357,8 +367,15 @@ function AddPurchaseOrderModal({
                     purchaseOrder: {
                       purchase_order_number:
                         purchaseOrder.purchase_order_number,
-                      address: purchaseOrder.address,
-                      amount: purchaseOrder.amount,
+                      delivery_address: purchaseOrder.delivery_address,
+                      amount: purchaseOrder?.line_items?.data.reduce(
+                        (acc, cur) =>
+                          (acc += multiplyNullableNumbers(
+                            cur?.num_units,
+                            cur?.price_per_unit
+                          )),
+                        0
+                      ),
                       amount_invoiced: purchaseOrder.amount_invoiced,
                       city: purchaseOrder.city,
                       country: purchaseOrder.country,
@@ -394,6 +411,14 @@ function AddPurchaseOrderModal({
                   variables: {
                     purhcase_order: {
                       ...purchaseOrder,
+                      amount: purchaseOrder?.line_items?.data.reduce(
+                        (acc, cur) =>
+                          (acc += multiplyNullableNumbers(
+                            cur?.num_units,
+                            cur?.price_per_unit
+                          )),
+                        0
+                      ),
                       company_id: currentUserCompanyId,
                     },
                   },

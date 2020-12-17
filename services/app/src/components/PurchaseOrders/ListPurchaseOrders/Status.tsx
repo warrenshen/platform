@@ -1,5 +1,14 @@
+import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
 import Create from "@material-ui/icons/Create";
 import ThumbUp from "@material-ui/icons/ThumbUp";
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    statusLabel: {
+      marginLeft: theme.spacing(1),
+    },
+  })
+);
 
 const PurchaseOrderStatus = {
   Accepted: "Accepted",
@@ -16,6 +25,7 @@ const PurchaseOrderStatusColor = {
 };
 
 function Status({ statusValue }: { statusValue: string }) {
+  const classes = useStyles();
   return (
     <>
       {(statusValue === PurchaseOrderStatus.Paid ||
@@ -28,7 +38,7 @@ function Status({ statusValue }: { statusValue: string }) {
       {statusValue === PurchaseOrderStatus.New && (
         <Create style={{ color: PurchaseOrderStatusColor.New }} />
       )}
-      {statusValue}
+      <Box className={classes.statusLabel}>{statusValue}</Box>
     </>
   );
 }

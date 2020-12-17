@@ -10,19 +10,20 @@ import {
   Theme,
 } from "@material-ui/core";
 import { Attachment, Create, Email, Print } from "@material-ui/icons";
+import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
 import { usePurchaseOrderQuery } from "generated/graphql";
+import { calendarDateTimestamp } from "lib/time";
+import { useContext } from "react";
 import { ActionType } from "../models/ActionType";
 import ItemsList from "./ItemsList";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     dialogTitle: {
-      marginLeft: 21,
-      marginRight: 21,
       borderBottom: "1px solid #c7c7c7",
     },
     buttonClass: {
-      marginLeft: 10,
+      marginLeft: theme.spacing(1),
     },
     propertyLabel: {
       flexGrow: 1,
@@ -33,7 +34,7 @@ const useStyles = makeStyles((theme: Theme) =>
     dialogActions: {
       margin: theme.spacing(2),
       marginTop: 0,
-      marginBottom: 15,
+      marginBottom: theme.spacing(2),
     },
   })
 );
@@ -44,6 +45,7 @@ interface Props {
 }
 
 function ViewModal({ id, handleClose, manipulatePurchaseOrder }: Props) {
+  const { role: currentUserRole } = useContext(CurrentUserContext);
   const classes = useStyles();
   const { data, loading } = usePurchaseOrderQuery({
     variables: {
@@ -51,6 +53,11 @@ function ViewModal({ id, handleClose, manipulatePurchaseOrder }: Props) {
     },
   });
   const purchaseOrder = data?.purchase_orders_by_pk;
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
   return (
     <Dialog open onClose={handleClose} maxWidth="xl">
       {" "}
@@ -76,7 +83,8 @@ function ViewModal({ id, handleClose, manipulatePurchaseOrder }: Props) {
               <p className={classes.propertyLabel}>
                 <strong>PO Date:</strong>
               </p>
-              <p>{purchaseOrder?.created_at}</p>
+              <p>{calendarDateTimestamp(purchaseOrder?.created_at)}</p>
+              {/* <p>{purchaseOrder?.created_at}</p> */}
             </Box>
             <Box display="flex" flexDirection="row" m={1}>
               <p className={classes.propertyLabel}>
@@ -90,7 +98,9 @@ function ViewModal({ id, handleClose, manipulatePurchaseOrder }: Props) {
               <p className={classes.propertyLabel}>
                 <strong>Parent PO Number:</strong>
               </p>
-              <p>{purchaseOrder?.parent_purchase_order_id}</p>
+              <p>
+                {purchaseOrder?.parent_purchase_order?.purchase_order_number}
+              </p>
             </Box>
             <Box display="flex" flexDirection="row" m={1}>
               <p className={classes.propertyLabel}>
@@ -123,7 +133,11 @@ function ViewModal({ id, handleClose, manipulatePurchaseOrder }: Props) {
             <p className={classes.propertyLabel}>
               <strong>Delivery Address:</strong>
             </p>
-            <p>{` ${purchaseOrder?.address}, ${purchaseOrder?.country}, ${purchaseOrder?.city}, ${purchaseOrder?.zip_code}`}</p>
+            <p>{` ${
+              purchaseOrder?.delivery_address
+                ? purchaseOrder.delivery_address
+                : ""
+            }`}</p>
           </Box>
         </Box>
 
@@ -138,57 +152,61 @@ function ViewModal({ id, handleClose, manipulatePurchaseOrder }: Props) {
           <Button className={classes.buttonClass} onClick={handleClose}>
             Cancel
           </Button>
-          <Button
-            className={classes.buttonClass}
-            variant="contained"
-            color="primary"
-            onClick={() => {
-              handleClose();
-              manipulatePurchaseOrder(ActionType.Update, id);
-            }}
-            startIcon={<Create />}
-          >
-            Edit
-          </Button>
-          <Button
-            className={classes.buttonClass}
-            variant="contained"
-            color="primary"
-            onClick={() => {
-              handleClose();
-              manipulatePurchaseOrder(ActionType.Copy, id);
-            }}
-            startIcon={<Create />}
-          >
-            Replicate Purchase Order
-          </Button>
-          <Button
-            className={classes.buttonClass}
-            variant="contained"
-            color="primary"
-            onClick={handleClose}
-            startIcon={<Attachment />}
-          >
-            Attachments
-          </Button>
-          <Button
-            className={classes.buttonClass}
-            variant="contained"
-            color="primary"
-            onClick={handleClose}
-            startIcon={<Print />}
-          >
-            Print
-          </Button>
-          <Button
-            className={classes.buttonClass}
-            variant="contained"
-            color="primary"
-            onClick={handleClose}
-            startIcon={<Email />}
-          >
-            Chat
-          </Button>
+          {currentUserRole === UserRole.Customer && (
+            <>
+              <Button
+                className={classes.buttonClass}
+                variant="contained"
+                color="primary"
+                onClick={() => {
+                  handleClose();
+                  manipulatePurchaseOrder(ActionType.Update, id);
+                }}
+                startIcon={<Create />}
+              >
+                Edit
+              </Button>
+              <Button
+                className={classes.buttonClass}
+                variant="contained"
+                color="primary"
+                onClick={() => {
+                  handleClose();
+                  manipulatePurchaseOrder(ActionType.Copy, id);
+                }}
+                startIcon={<Create />}
+              >
+                Replicate Purchase Order
+              </Button>
+              <Button
+                className={classes.buttonClass}
+                variant="contained"
+                color="primary"
+                onClick={handleClose}
+                startIcon={<Attachment />}
+              >
+                Attachments
+              </Button>
+              <Button
+                className={classes.buttonClass}
+                variant="contained"
+                color="primary"
+                onClick={handleClose}
+                startIcon={<Print />}
+              >
+                Print
+              </Button>
+              <Button
+                className={classes.buttonClass}
+                variant="contained"
+                color="primary"
+                onClick={handleClose}
+                startIcon={<Email />}
+              >
+                Chat
+              </Button>
+            </>
+          )}
         </Box>
       </DialogActions>
     </Dialog>

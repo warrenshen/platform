@@ -22,6 +22,12 @@ export function timestamptzNowFromDate(date: Date) {
 }
 
 export function calendarDateTimestamp(dateString: string) {
-  const parsedDate = dateFromTimestamptzNow(dateString);
-  return parsedDate ? format(parsedDate, "LLLL do, yyyy") : "";
+  let result = "";
+  try {
+    const parsedDate = dateFromTimestamptzNow(dateString);
+    result = parsedDate ? format(parsedDate, "LLLL do, yyyy") : "";
+  } catch (error) {
+    result = "";
+  }
+  return result;
 }
