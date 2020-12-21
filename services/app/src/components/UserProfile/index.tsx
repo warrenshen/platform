@@ -43,6 +43,14 @@ function UserProfile() {
         >
           Sign in as Customer
         </MenuItem>
+        <MenuItem
+          onClick={() => {
+            currentUser.setAuthentication(false);
+            handleClose();
+          }}
+        >
+          Logout
+        </MenuItem>
       </Menu>
     </>
   );

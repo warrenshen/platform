@@ -5,6 +5,7 @@ export const routes = {
   purchaseOrders: "/purchase-orders",
   vendors: "/vendors",
   profile: "/profile",
+  login: "/login",
 };
 
 export const bankPaths = {

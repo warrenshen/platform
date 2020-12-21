@@ -10,6 +10,8 @@ export type CurrentUserContextType = {
   role: UserRole;
   company_id: string;
   setRole: (role: UserRole) => void;
+  setAuthentication: (value: boolean) => void;
+  isAuthenticated: boolean;
 };
 
 export const CurrentUserContext = createContext<CurrentUserContextType>({
@@ -17,4 +19,6 @@ export const CurrentUserContext = createContext<CurrentUserContextType>({
   company_id: "",
   role: UserRole.Customer,
   setRole: () => {},
+  setAuthentication: () => {},
+  isAuthenticated: false,
 });
