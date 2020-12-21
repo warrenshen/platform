@@ -14,6 +14,7 @@ import useAppBarTitle from "hooks/useAppBarTitle";
 import { sortBy } from "lodash";
 import { Link, useRouteMatch } from "react-router-dom";
 import { useTitle } from "react-use";
+import { bankPaths } from "routes";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -62,7 +63,7 @@ function Customers() {
                   <Button
                     size="small"
                     component={Link}
-                    to={`${url}/${customer.id}`}
+                    to={`${url}/${customer.id}${bankPaths.customer.overview}`}
                   >
                     See more
                   </Button>
