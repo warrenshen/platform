@@ -1,7 +1,7 @@
 import { Button } from "@material-ui/core";
 import { PurchaseOrderFragment } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
-import { ActionType } from "../models/ActionType";
+import { ActionType } from "../../../lib/ActionType";
 import AddPurchaseOrderModal from "./AddPurchaseOrderModal";
 
 interface Props {

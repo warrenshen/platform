@@ -12,7 +12,7 @@ import {
 } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
 import { useContext, useState } from "react";
-import { ActionType } from "../models/ActionType";
+import { ActionType } from "../../../lib/ActionType";
 import ViewModal from "../ViewPurhcaseOrder/ViewModal";
 import ActionMenu from "./ActionMenu";
 import Status from "./Status";

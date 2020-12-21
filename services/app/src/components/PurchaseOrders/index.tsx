@@ -9,7 +9,7 @@ import useAppBarTitle from "hooks/useAppBarTitle";
 import { useContext, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useTitle } from "react-use";
-import { ActionType } from "./models/ActionType";
+import { ActionType } from "../../lib/ActionType";
 
 function PurchaseOrders() {
   const { customerId } = useParams<CustomerParams>();

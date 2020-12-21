@@ -3611,17 +3611,68 @@ export type BankCustomerListVendorPartnershipsQuery = { company_vendor_partnersh
     & BankVendorPartnershipFragment
   )> };
 
-export type BankCustomerFragment = Pick<Companies, 'id' | 'name' | 'employer_identification_number' | 'dba_name' | 'address' | 'country' | 'state' | 'city' | 'zip_code' | 'phone_number'>;
+export type BankCustomerFragment = Pick<Companies, 'id' | 'name' | 'employer_identification_number' | 'dba_name' | 'address' | 'country' | 'state' | 'city' | 'zip_code' | 'phone_number' | 'contact_email_address'>;
 
 export type BankCustomersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type BankCustomersQuery = { companies: Array<BankCustomerFragment> };
 
+export type CompanyVendorsQueryVariables = Exact<{
+  companyId: Scalars['uuid'];
+}>;
+
+
+export type CompanyVendorsQuery = { company_vendor_partnerships: Array<{ vendor: Pick<Companies, 'name'> }> };
+
+export type CompanyBankAccountFragment = Pick<CompanyBankAccounts, 'name' | 'account_name' | 'account_number' | 'notes' | 'verified_at' | 'routing_number' | 'id' | 'company_id'>;
+
+export type CompanyFragment = (
+  Pick<Companies, 'id' | 'name' | 'dba_name' | 'employer_identification_number' | 'address' | 'contact_email_address' | 'phone_number'>
+  & { bank_accounts: Array<CompanyBankAccountFragment> }
+);
+
+export type CompanyQueryVariables = Exact<{
+  companyId: Scalars['uuid'];
+}>;
+
+
+export type CompanyQuery = { companies_by_pk?: Maybe<CompanyFragment> };
+
+export type UpdateCompanyProfileMutationVariables = Exact<{
+  id: Scalars['uuid'];
+  company: CompaniesSetInput;
+}>;
+
+
+export type UpdateCompanyProfileMutation = { update_companies_by_pk?: Maybe<CompanyFragment> };
+
 export type CompaniesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type CompaniesQuery = { companies: Array<Pick<Companies, 'id' | 'name'>> };
+
+export type ListBankAccountsQueryVariables = Exact<{
+  companyId: Scalars['uuid'];
+}>;
+
+
+export type ListBankAccountsQuery = { company_bank_accounts: Array<CompanyBankAccountFragment> };
+
+export type AddCompanyBankAccountMutationVariables = Exact<{
+  bankAccount: CompanyBankAccountsInsertInput;
+}>;
+
+
+export type AddCompanyBankAccountMutation = { insert_company_bank_accounts_one?: Maybe<CompanyBankAccountFragment> };
+
+export type UpdateCompanyBankAccountMutationVariables = Exact<{
+  id: Scalars['uuid'];
+  bankAccount: CompanyBankAccountsSetInput;
+}>;
+
+
+export type UpdateCompanyBankAccountMutation = { update_company_bank_accounts_by_pk?: Maybe<BankAccountFragment> };
 
 export type ContactFragment = Pick<Users, 'id' | 'company_id' | 'full_name' | 'first_name' | 'last_name' | 'email' | 'phone_number'>;
 
@@ -3800,8 +3851,35 @@ export const BankCustomerFragmentDoc = gql`
   city
   zip_code
   phone_number
+  contact_email_address
 }
     `;
+export const CompanyBankAccountFragmentDoc = gql`
+    fragment CompanyBankAccount on company_bank_accounts {
+  name
+  account_name
+  account_number
+  notes
+  verified_at
+  routing_number
+  id
+  company_id
+}
+    `;
+export const CompanyFragmentDoc = gql`
+    fragment Company on companies {
+  id
+  name
+  dba_name
+  employer_identification_number
+  address
+  contact_email_address
+  phone_number
+  bank_accounts {
+    ...CompanyBankAccount
+  }
+}
+    ${CompanyBankAccountFragmentDoc}`;
 export const ContactFragmentDoc = gql`
     fragment Contact on users {
   id
@@ -4014,6 +4092,107 @@ export function useBankCustomersLazyQuery(baseOptions?: Apollo.LazyQueryHookOpti
 export type BankCustomersQueryHookResult = ReturnType<typeof useBankCustomersQuery>;
 export type BankCustomersLazyQueryHookResult = ReturnType<typeof useBankCustomersLazyQuery>;
 export type BankCustomersQueryResult = Apollo.QueryResult<BankCustomersQuery, BankCustomersQueryVariables>;
+export const CompanyVendorsDocument = gql`
+    query CompanyVendors($companyId: uuid!) {
+  company_vendor_partnerships(where: {company_id: {_eq: $companyId}}) {
+    vendor {
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useCompanyVendorsQuery__
+ *
+ * To run a query within a React component, call `useCompanyVendorsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCompanyVendorsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCompanyVendorsQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useCompanyVendorsQuery(baseOptions: Apollo.QueryHookOptions<CompanyVendorsQuery, CompanyVendorsQueryVariables>) {
+        return Apollo.useQuery<CompanyVendorsQuery, CompanyVendorsQueryVariables>(CompanyVendorsDocument, baseOptions);
+      }
+export function useCompanyVendorsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CompanyVendorsQuery, CompanyVendorsQueryVariables>) {
+          return Apollo.useLazyQuery<CompanyVendorsQuery, CompanyVendorsQueryVariables>(CompanyVendorsDocument, baseOptions);
+        }
+export type CompanyVendorsQueryHookResult = ReturnType<typeof useCompanyVendorsQuery>;
+export type CompanyVendorsLazyQueryHookResult = ReturnType<typeof useCompanyVendorsLazyQuery>;
+export type CompanyVendorsQueryResult = Apollo.QueryResult<CompanyVendorsQuery, CompanyVendorsQueryVariables>;
+export const CompanyDocument = gql`
+    query Company($companyId: uuid!) {
+  companies_by_pk(id: $companyId) {
+    ...Company
+  }
+}
+    ${CompanyFragmentDoc}`;
+
+/**
+ * __useCompanyQuery__
+ *
+ * To run a query within a React component, call `useCompanyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCompanyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCompanyQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useCompanyQuery(baseOptions: Apollo.QueryHookOptions<CompanyQuery, CompanyQueryVariables>) {
+        return Apollo.useQuery<CompanyQuery, CompanyQueryVariables>(CompanyDocument, baseOptions);
+      }
+export function useCompanyLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CompanyQuery, CompanyQueryVariables>) {
+          return Apollo.useLazyQuery<CompanyQuery, CompanyQueryVariables>(CompanyDocument, baseOptions);
+        }
+export type CompanyQueryHookResult = ReturnType<typeof useCompanyQuery>;
+export type CompanyLazyQueryHookResult = ReturnType<typeof useCompanyLazyQuery>;
+export type CompanyQueryResult = Apollo.QueryResult<CompanyQuery, CompanyQueryVariables>;
+export const UpdateCompanyProfileDocument = gql`
+    mutation UpdateCompanyProfile($id: uuid!, $company: companies_set_input!) {
+  update_companies_by_pk(pk_columns: {id: $id}, _set: $company) {
+    ...Company
+  }
+}
+    ${CompanyFragmentDoc}`;
+export type UpdateCompanyProfileMutationFn = Apollo.MutationFunction<UpdateCompanyProfileMutation, UpdateCompanyProfileMutationVariables>;
+
+/**
+ * __useUpdateCompanyProfileMutation__
+ *
+ * To run a mutation, you first call `useUpdateCompanyProfileMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCompanyProfileMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCompanyProfileMutation, { data, loading, error }] = useUpdateCompanyProfileMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      company: // value for 'company'
+ *   },
+ * });
+ */
+export function useUpdateCompanyProfileMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCompanyProfileMutation, UpdateCompanyProfileMutationVariables>) {
+        return Apollo.useMutation<UpdateCompanyProfileMutation, UpdateCompanyProfileMutationVariables>(UpdateCompanyProfileDocument, baseOptions);
+      }
+export type UpdateCompanyProfileMutationHookResult = ReturnType<typeof useUpdateCompanyProfileMutation>;
+export type UpdateCompanyProfileMutationResult = Apollo.MutationResult<UpdateCompanyProfileMutation>;
+export type UpdateCompanyProfileMutationOptions = Apollo.BaseMutationOptions<UpdateCompanyProfileMutation, UpdateCompanyProfileMutationVariables>;
 export const CompaniesDocument = gql`
     query Companies {
   companies(limit: 1) {
@@ -4047,6 +4226,104 @@ export function useCompaniesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<
 export type CompaniesQueryHookResult = ReturnType<typeof useCompaniesQuery>;
 export type CompaniesLazyQueryHookResult = ReturnType<typeof useCompaniesLazyQuery>;
 export type CompaniesQueryResult = Apollo.QueryResult<CompaniesQuery, CompaniesQueryVariables>;
+export const ListBankAccountsDocument = gql`
+    query ListBankAccounts($companyId: uuid!) {
+  company_bank_accounts(where: {company_id: {_eq: $companyId}}) {
+    ...CompanyBankAccount
+  }
+}
+    ${CompanyBankAccountFragmentDoc}`;
+
+/**
+ * __useListBankAccountsQuery__
+ *
+ * To run a query within a React component, call `useListBankAccountsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListBankAccountsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListBankAccountsQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useListBankAccountsQuery(baseOptions: Apollo.QueryHookOptions<ListBankAccountsQuery, ListBankAccountsQueryVariables>) {
+        return Apollo.useQuery<ListBankAccountsQuery, ListBankAccountsQueryVariables>(ListBankAccountsDocument, baseOptions);
+      }
+export function useListBankAccountsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListBankAccountsQuery, ListBankAccountsQueryVariables>) {
+          return Apollo.useLazyQuery<ListBankAccountsQuery, ListBankAccountsQueryVariables>(ListBankAccountsDocument, baseOptions);
+        }
+export type ListBankAccountsQueryHookResult = ReturnType<typeof useListBankAccountsQuery>;
+export type ListBankAccountsLazyQueryHookResult = ReturnType<typeof useListBankAccountsLazyQuery>;
+export type ListBankAccountsQueryResult = Apollo.QueryResult<ListBankAccountsQuery, ListBankAccountsQueryVariables>;
+export const AddCompanyBankAccountDocument = gql`
+    mutation AddCompanyBankAccount($bankAccount: company_bank_accounts_insert_input!) {
+  insert_company_bank_accounts_one(object: $bankAccount) {
+    ...CompanyBankAccount
+  }
+}
+    ${CompanyBankAccountFragmentDoc}`;
+export type AddCompanyBankAccountMutationFn = Apollo.MutationFunction<AddCompanyBankAccountMutation, AddCompanyBankAccountMutationVariables>;
+
+/**
+ * __useAddCompanyBankAccountMutation__
+ *
+ * To run a mutation, you first call `useAddCompanyBankAccountMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddCompanyBankAccountMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addCompanyBankAccountMutation, { data, loading, error }] = useAddCompanyBankAccountMutation({
+ *   variables: {
+ *      bankAccount: // value for 'bankAccount'
+ *   },
+ * });
+ */
+export function useAddCompanyBankAccountMutation(baseOptions?: Apollo.MutationHookOptions<AddCompanyBankAccountMutation, AddCompanyBankAccountMutationVariables>) {
+        return Apollo.useMutation<AddCompanyBankAccountMutation, AddCompanyBankAccountMutationVariables>(AddCompanyBankAccountDocument, baseOptions);
+      }
+export type AddCompanyBankAccountMutationHookResult = ReturnType<typeof useAddCompanyBankAccountMutation>;
+export type AddCompanyBankAccountMutationResult = Apollo.MutationResult<AddCompanyBankAccountMutation>;
+export type AddCompanyBankAccountMutationOptions = Apollo.BaseMutationOptions<AddCompanyBankAccountMutation, AddCompanyBankAccountMutationVariables>;
+export const UpdateCompanyBankAccountDocument = gql`
+    mutation UpdateCompanyBankAccount($id: uuid!, $bankAccount: company_bank_accounts_set_input!) {
+  update_company_bank_accounts_by_pk(pk_columns: {id: $id}, _set: $bankAccount) {
+    ...BankAccount
+  }
+}
+    ${BankAccountFragmentDoc}`;
+export type UpdateCompanyBankAccountMutationFn = Apollo.MutationFunction<UpdateCompanyBankAccountMutation, UpdateCompanyBankAccountMutationVariables>;
+
+/**
+ * __useUpdateCompanyBankAccountMutation__
+ *
+ * To run a mutation, you first call `useUpdateCompanyBankAccountMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCompanyBankAccountMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCompanyBankAccountMutation, { data, loading, error }] = useUpdateCompanyBankAccountMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      bankAccount: // value for 'bankAccount'
+ *   },
+ * });
+ */
+export function useUpdateCompanyBankAccountMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCompanyBankAccountMutation, UpdateCompanyBankAccountMutationVariables>) {
+        return Apollo.useMutation<UpdateCompanyBankAccountMutation, UpdateCompanyBankAccountMutationVariables>(UpdateCompanyBankAccountDocument, baseOptions);
+      }
+export type UpdateCompanyBankAccountMutationHookResult = ReturnType<typeof useUpdateCompanyBankAccountMutation>;
+export type UpdateCompanyBankAccountMutationResult = Apollo.MutationResult<UpdateCompanyBankAccountMutation>;
+export type UpdateCompanyBankAccountMutationOptions = Apollo.BaseMutationOptions<UpdateCompanyBankAccountMutation, UpdateCompanyBankAccountMutationVariables>;
 export const UpdateVendorContactDocument = gql`
     mutation UpdateVendorContact($userId: uuid!, $contact: users_set_input!) {
   update_users_by_pk(pk_columns: {id: $userId}, _set: $contact) {

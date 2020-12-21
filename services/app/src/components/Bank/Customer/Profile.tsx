@@ -1,5 +1,7 @@
+import CompanyProfile from "components/CompanyProfile";
+
 function Profile() {
-  return <>Profile tab</>;
+  return <CompanyProfile></CompanyProfile>;
 }
 
 export default Profile;

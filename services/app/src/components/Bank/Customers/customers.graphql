@@ -9,10 +9,19 @@ fragment BankCustomer on companies {
   city
   zip_code
   phone_number
+  contact_email_address
 }
 
 query BankCustomers {
   companies(where: { is_vendor: { _eq: false } }) {
     ...BankCustomer
+  }
+}
+
+query CompanyVendors($companyId: uuid!) {
+  company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
+    vendor {
+      name
+    }
   }
 }

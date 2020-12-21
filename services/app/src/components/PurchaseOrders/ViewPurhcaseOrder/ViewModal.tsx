@@ -14,7 +14,7 @@ import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
 import { usePurchaseOrderQuery } from "generated/graphql";
 import { calendarDateTimestamp } from "lib/time";
 import { useContext } from "react";
-import { ActionType } from "../models/ActionType";
+import { ActionType } from "../../../lib/ActionType";
 import ItemsList from "./ItemsList";
 
 const useStyles = makeStyles((theme: Theme) =>

@@ -1,6 +1,68 @@
+fragment CompanyBankAccount on company_bank_accounts {
+  name
+  account_name
+  account_number
+  notes
+  verified_at
+  routing_number
+  id
+  company_id
+}
+
+fragment Company on companies {
+  id
+  name
+  dba_name
+  employer_identification_number
+  address
+  contact_email_address
+  phone_number
+  bank_accounts {
+    ...CompanyBankAccount
+  }
+}
+
+query Company($companyId: uuid!) {
+  companies_by_pk(id: $companyId) {
+    ...Company
+  }
+}
+
+mutation UpdateCompanyProfile($id: uuid!, $company: companies_set_input!) {
+  update_companies_by_pk(pk_columns: { id: $id }, _set: $company) {
+    ...Company
+  }
+}
+
 query Companies {
   companies(limit: 1) {
     id
     name
+  }
+}
+
+query ListBankAccounts($companyId: uuid!) {
+  company_bank_accounts(where: { company_id: { _eq: $companyId } }) {
+    ...CompanyBankAccount
+  }
+}
+
+mutation AddCompanyBankAccount(
+  $bankAccount: company_bank_accounts_insert_input!
+) {
+  insert_company_bank_accounts_one(object: $bankAccount) {
+    ...CompanyBankAccount
+  }
+}
+
+mutation UpdateCompanyBankAccount(
+  $id: uuid!
+  $bankAccount: company_bank_accounts_set_input!
+) {
+  update_company_bank_accounts_by_pk(
+    pk_columns: { id: $id }
+    _set: $bankAccount
+  ) {
+    ...BankAccount
   }
 }

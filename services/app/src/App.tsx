@@ -4,8 +4,8 @@ import CompanyProfile from "components/CompanyProfile";
 import Home from "components/Home";
 import Layout from "components/Layout";
 import Loans from "components/Loans";
-import Login from "components/Login";
 import PurchaseOrders from "components/PurchaseOrders";
+import SignIn from "components/SignIn";
 import Vendors from "components/Vendors";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useContext } from "react";
@@ -15,7 +15,7 @@ import "./App.css";
 
 function App() {
   const currentUser = useContext(CurrentUserContext);
-  if (!currentUser.isAuthenticated) return <Login />;
+  if (!currentUser.isAuthenticated) return <SignIn />;
   return (
     <BrowserRouter>
       <Layout>

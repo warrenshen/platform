@@ -1,13 +1,48 @@
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import useAppBarTitle from "hooks/useAppBarTitle";
+import { useContext } from "react";
+import { useParams } from "react-router-dom";
 import { useTitle } from "react-use";
-import { useCompaniesQuery } from "../../generated/graphql";
+import { useCompanyQuery } from "../../generated/graphql";
+import BankAccounts from "./BankAccounts";
+import CompanyInfo from "./CompanyInfo";
+
+export interface CustomerParams {
+  customerId: string;
+}
+
 function CompanyProfile() {
   useTitle("Company Profile | Bespoke");
   useAppBarTitle("Company Profile");
+  const { customerId } = useParams<CustomerParams>();
+  const { company_id: currentUserCompanyId } = useContext(CurrentUserContext);
 
-  const { data } = useCompaniesQuery();
+  const { data: companyData, loading: companyLoading } = useCompanyQuery({
+    variables: {
+      companyId: customerId ? customerId : currentUserCompanyId,
+    },
+  });
 
-  return <div>Profile for customer, {data?.companies[0]?.name}</div>;
+  if (!companyData?.companies_by_pk) {
+    return null;
+  }
+
+  const company = companyData?.companies_by_pk;
+
+  if (companyLoading) {
+    return <p>Loading...</p>;
+  }
+
+  return (
+    <>
+      <CompanyInfo company={company}></CompanyInfo>
+
+      <BankAccounts
+        companyId={company.id}
+        bankAccounts={company.bank_accounts}
+      ></BankAccounts>
+    </>
+  );
 }
 
 export default CompanyProfile;
