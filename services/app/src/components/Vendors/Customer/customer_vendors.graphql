@@ -19,9 +19,6 @@ fragment VendorPartnership on company_vendor_partnerships {
     verified_at
   }
   vendor_license_id
-  vendor {
-    ...Vendor
-  }
 }
 
 mutation AddVendorPartnership(
@@ -29,11 +26,17 @@ mutation AddVendorPartnership(
 ) {
   insert_company_vendor_partnerships_one(object: $vendor) {
     ...VendorPartnership
+    vendor {
+      ...Vendor
+    }
   }
 }
 
 query ListVendorPartnerships($companyId: uuid!) {
   company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
     ...VendorPartnership
+    vendor {
+      ...Vendor
+    }
   }
 }

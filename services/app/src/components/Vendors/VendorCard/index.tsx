@@ -10,10 +10,10 @@ import {
   Typography,
 } from "@material-ui/core";
 import { CheckCircle } from "@material-ui/icons";
-import { VendorPartnershipFragment } from "generated/graphql";
+import { VendorFragment, VendorPartnershipFragment } from "generated/graphql";
 
 interface Props {
-  vendorPartnership: VendorPartnershipFragment;
+  vendorPartnership: VendorPartnershipFragment & { vendor: VendorFragment };
   onClick?: () => void;
 }
 

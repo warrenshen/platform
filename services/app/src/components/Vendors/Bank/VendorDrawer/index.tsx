@@ -6,6 +6,7 @@ import {
   CompanyVendorPartnerships,
   useBankVendorPartnershipQuery,
 } from "generated/graphql";
+import { omit } from "lodash";
 
 const useStyles = makeStyles({
   drawerContent: {
@@ -47,10 +48,14 @@ function VendorDrawer(props: {
       <Box className={classes.drawerContent} p={4}>
         <Typography variant="h6">{vendor.name}</Typography>
         <Box py={3}>
-          <VendorInfo vendor={{ ...vendor }}></VendorInfo>
+          <VendorInfo vendor={omit(vendor, ["users"])}></VendorInfo>
         </Box>
         <Typography variant="h6"> Contacts </Typography>
-        <Contacts contacts={vendor.users} companyId={vendor.id}></Contacts>
+        <Contacts
+          contacts={vendor.users}
+          companyId={vendor.id}
+          companyVendorPartnershipId={data.company_vendor_partnerships_by_pk.id}
+        ></Contacts>
         <Typography variant="h6"> Bank Information </Typography>
         <BankAccount
           companyId={vendor.id}

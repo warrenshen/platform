@@ -7,19 +7,6 @@ fragment BankVendorPartnership on company_vendor_partnerships {
     ...BankAccount
   }
   vendor_license_id
-  vendor {
-    id
-    name
-    address
-    country
-    state
-    city
-    zip_code
-    phone_number
-    users {
-      ...Contact
-    }
-  }
 }
 
 fragment BankAccount on company_bank_accounts {
@@ -36,20 +23,24 @@ fragment BankAccount on company_bank_accounts {
 query BankListVendorPartnerships {
   company_vendor_partnerships {
     ...BankVendorPartnership
-  }
-}
-
-mutation BankUpdateVendorPartnership(
-  $vendor: company_vendor_partnerships_insert_input!
-) {
-  insert_company_vendor_partnerships_one(object: $vendor) {
-    ...BankVendorPartnership
+    vendor {
+      ...Vendor
+      users {
+        ...Contact
+      }
+    }
   }
 }
 
 query BankVendorPartnership($id: uuid!) {
   company_vendor_partnerships_by_pk(id: $id) {
     ...BankVendorPartnership
+    vendor {
+      ...Vendor
+      users {
+        ...Contact
+      }
+    }
   }
 }
 

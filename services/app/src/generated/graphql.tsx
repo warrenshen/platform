@@ -3603,7 +3603,13 @@ export type BankCustomerListVendorPartnershipsQueryVariables = Exact<{
 }>;
 
 
-export type BankCustomerListVendorPartnershipsQuery = { company_vendor_partnerships: Array<BankVendorPartnershipFragment> };
+export type BankCustomerListVendorPartnershipsQuery = { company_vendor_partnerships: Array<(
+    { vendor: (
+      { users: Array<ContactFragment> }
+      & VendorFragment
+    ) }
+    & BankVendorPartnershipFragment
+  )> };
 
 export type BankCustomerFragment = Pick<Companies, 'id' | 'name' | 'employer_identification_number' | 'dba_name' | 'address' | 'country' | 'state' | 'city' | 'zip_code' | 'phone_number'>;
 
@@ -3685,10 +3691,7 @@ export type UpdatePurchaseOrderMutation = { delete_purchase_order_line_items?: M
 
 export type BankVendorPartnershipFragment = (
   Pick<CompanyVendorPartnerships, 'id' | 'company_id' | 'vendor_id' | 'vendor_agreement_id' | 'vendor_license_id'>
-  & { vendor_bank_account?: Maybe<BankAccountFragment>, vendor: (
-    Pick<Companies, 'id' | 'name' | 'address' | 'country' | 'state' | 'city' | 'zip_code' | 'phone_number'>
-    & { users: Array<ContactFragment> }
-  ) }
+  & { vendor_bank_account?: Maybe<BankAccountFragment> }
 );
 
 export type BankAccountFragment = Pick<CompanyBankAccounts, 'id' | 'company_id' | 'name' | 'account_name' | 'account_number' | 'routing_number' | 'notes' | 'verified_at'>;
@@ -3696,21 +3699,26 @@ export type BankAccountFragment = Pick<CompanyBankAccounts, 'id' | 'company_id' 
 export type BankListVendorPartnershipsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type BankListVendorPartnershipsQuery = { company_vendor_partnerships: Array<BankVendorPartnershipFragment> };
-
-export type BankUpdateVendorPartnershipMutationVariables = Exact<{
-  vendor: CompanyVendorPartnershipsInsertInput;
-}>;
-
-
-export type BankUpdateVendorPartnershipMutation = { insert_company_vendor_partnerships_one?: Maybe<BankVendorPartnershipFragment> };
+export type BankListVendorPartnershipsQuery = { company_vendor_partnerships: Array<(
+    { vendor: (
+      { users: Array<ContactFragment> }
+      & VendorFragment
+    ) }
+    & BankVendorPartnershipFragment
+  )> };
 
 export type BankVendorPartnershipQueryVariables = Exact<{
   id: Scalars['uuid'];
 }>;
 
 
-export type BankVendorPartnershipQuery = { company_vendor_partnerships_by_pk?: Maybe<BankVendorPartnershipFragment> };
+export type BankVendorPartnershipQuery = { company_vendor_partnerships_by_pk?: Maybe<(
+    { vendor: (
+      { users: Array<ContactFragment> }
+      & VendorFragment
+    ) }
+    & BankVendorPartnershipFragment
+  )> };
 
 export type CompanyBankAccountsQueryVariables = Exact<{
   companyId: Scalars['uuid'];
@@ -3757,7 +3765,7 @@ export type VendorFragment = Pick<Companies, 'id' | 'name' | 'address' | 'countr
 
 export type VendorPartnershipFragment = (
   Pick<CompanyVendorPartnerships, 'id' | 'company_id' | 'vendor_id' | 'vendor_agreement_id' | 'vendor_license_id'>
-  & { vendor_bank_account?: Maybe<Pick<CompanyBankAccounts, 'id' | 'verified_at'>>, vendor: VendorFragment }
+  & { vendor_bank_account?: Maybe<Pick<CompanyBankAccounts, 'id' | 'verified_at'>> }
 );
 
 export type AddVendorPartnershipMutationVariables = Exact<{
@@ -3765,14 +3773,20 @@ export type AddVendorPartnershipMutationVariables = Exact<{
 }>;
 
 
-export type AddVendorPartnershipMutation = { insert_company_vendor_partnerships_one?: Maybe<VendorPartnershipFragment> };
+export type AddVendorPartnershipMutation = { insert_company_vendor_partnerships_one?: Maybe<(
+    { vendor: VendorFragment }
+    & VendorPartnershipFragment
+  )> };
 
 export type ListVendorPartnershipsQueryVariables = Exact<{
   companyId: Scalars['uuid'];
 }>;
 
 
-export type ListVendorPartnershipsQuery = { company_vendor_partnerships: Array<VendorPartnershipFragment> };
+export type ListVendorPartnershipsQuery = { company_vendor_partnerships: Array<(
+    { vendor: VendorFragment }
+    & VendorPartnershipFragment
+  )> };
 
 export const BankCustomerFragmentDoc = gql`
     fragment BankCustomer on companies {
@@ -3785,6 +3799,17 @@ export const BankCustomerFragmentDoc = gql`
   state
   city
   zip_code
+  phone_number
+}
+    `;
+export const ContactFragmentDoc = gql`
+    fragment Contact on users {
+  id
+  company_id
+  full_name
+  first_name
+  last_name
+  email
   phone_number
 }
     `;
@@ -3846,17 +3871,6 @@ export const BankAccountFragmentDoc = gql`
   verified_at
 }
     `;
-export const ContactFragmentDoc = gql`
-    fragment Contact on users {
-  id
-  company_id
-  full_name
-  first_name
-  last_name
-  email
-  phone_number
-}
-    `;
 export const BankVendorPartnershipFragmentDoc = gql`
     fragment BankVendorPartnership on company_vendor_partnerships {
   id
@@ -3867,22 +3881,8 @@ export const BankVendorPartnershipFragmentDoc = gql`
     ...BankAccount
   }
   vendor_license_id
-  vendor {
-    id
-    name
-    address
-    country
-    state
-    city
-    zip_code
-    phone_number
-    users {
-      ...Contact
-    }
-  }
 }
-    ${BankAccountFragmentDoc}
-${ContactFragmentDoc}`;
+    ${BankAccountFragmentDoc}`;
 export const VendorFragmentDoc = gql`
     fragment Vendor on companies {
   id
@@ -3906,11 +3906,8 @@ export const VendorPartnershipFragmentDoc = gql`
     verified_at
   }
   vendor_license_id
-  vendor {
-    ...Vendor
-  }
 }
-    ${VendorFragmentDoc}`;
+    `;
 export const BankCustomerDocument = gql`
     query BankCustomer($id: uuid!) {
   companies_by_pk(id: $id) {
@@ -3948,9 +3945,17 @@ export const BankCustomerListVendorPartnershipsDocument = gql`
     query BankCustomerListVendorPartnerships($companyId: uuid!) {
   company_vendor_partnerships(where: {company_id: {_eq: $companyId}}) {
     ...BankVendorPartnership
+    vendor {
+      ...Vendor
+      users {
+        ...Contact
+      }
+    }
   }
 }
-    ${BankVendorPartnershipFragmentDoc}`;
+    ${BankVendorPartnershipFragmentDoc}
+${VendorFragmentDoc}
+${ContactFragmentDoc}`;
 
 /**
  * __useBankCustomerListVendorPartnershipsQuery__
@@ -4314,9 +4319,17 @@ export const BankListVendorPartnershipsDocument = gql`
     query BankListVendorPartnerships {
   company_vendor_partnerships {
     ...BankVendorPartnership
+    vendor {
+      ...Vendor
+      users {
+        ...Contact
+      }
+    }
   }
 }
-    ${BankVendorPartnershipFragmentDoc}`;
+    ${BankVendorPartnershipFragmentDoc}
+${VendorFragmentDoc}
+${ContactFragmentDoc}`;
 
 /**
  * __useBankListVendorPartnershipsQuery__
@@ -4342,45 +4355,21 @@ export function useBankListVendorPartnershipsLazyQuery(baseOptions?: Apollo.Lazy
 export type BankListVendorPartnershipsQueryHookResult = ReturnType<typeof useBankListVendorPartnershipsQuery>;
 export type BankListVendorPartnershipsLazyQueryHookResult = ReturnType<typeof useBankListVendorPartnershipsLazyQuery>;
 export type BankListVendorPartnershipsQueryResult = Apollo.QueryResult<BankListVendorPartnershipsQuery, BankListVendorPartnershipsQueryVariables>;
-export const BankUpdateVendorPartnershipDocument = gql`
-    mutation BankUpdateVendorPartnership($vendor: company_vendor_partnerships_insert_input!) {
-  insert_company_vendor_partnerships_one(object: $vendor) {
-    ...BankVendorPartnership
-  }
-}
-    ${BankVendorPartnershipFragmentDoc}`;
-export type BankUpdateVendorPartnershipMutationFn = Apollo.MutationFunction<BankUpdateVendorPartnershipMutation, BankUpdateVendorPartnershipMutationVariables>;
-
-/**
- * __useBankUpdateVendorPartnershipMutation__
- *
- * To run a mutation, you first call `useBankUpdateVendorPartnershipMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useBankUpdateVendorPartnershipMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [bankUpdateVendorPartnershipMutation, { data, loading, error }] = useBankUpdateVendorPartnershipMutation({
- *   variables: {
- *      vendor: // value for 'vendor'
- *   },
- * });
- */
-export function useBankUpdateVendorPartnershipMutation(baseOptions?: Apollo.MutationHookOptions<BankUpdateVendorPartnershipMutation, BankUpdateVendorPartnershipMutationVariables>) {
-        return Apollo.useMutation<BankUpdateVendorPartnershipMutation, BankUpdateVendorPartnershipMutationVariables>(BankUpdateVendorPartnershipDocument, baseOptions);
-      }
-export type BankUpdateVendorPartnershipMutationHookResult = ReturnType<typeof useBankUpdateVendorPartnershipMutation>;
-export type BankUpdateVendorPartnershipMutationResult = Apollo.MutationResult<BankUpdateVendorPartnershipMutation>;
-export type BankUpdateVendorPartnershipMutationOptions = Apollo.BaseMutationOptions<BankUpdateVendorPartnershipMutation, BankUpdateVendorPartnershipMutationVariables>;
 export const BankVendorPartnershipDocument = gql`
     query BankVendorPartnership($id: uuid!) {
   company_vendor_partnerships_by_pk(id: $id) {
     ...BankVendorPartnership
+    vendor {
+      ...Vendor
+      users {
+        ...Contact
+      }
+    }
   }
 }
-    ${BankVendorPartnershipFragmentDoc}`;
+    ${BankVendorPartnershipFragmentDoc}
+${VendorFragmentDoc}
+${ContactFragmentDoc}`;
 
 /**
  * __useBankVendorPartnershipQuery__
@@ -4581,9 +4570,13 @@ export const AddVendorPartnershipDocument = gql`
     mutation AddVendorPartnership($vendor: company_vendor_partnerships_insert_input!) {
   insert_company_vendor_partnerships_one(object: $vendor) {
     ...VendorPartnership
+    vendor {
+      ...Vendor
+    }
   }
 }
-    ${VendorPartnershipFragmentDoc}`;
+    ${VendorPartnershipFragmentDoc}
+${VendorFragmentDoc}`;
 export type AddVendorPartnershipMutationFn = Apollo.MutationFunction<AddVendorPartnershipMutation, AddVendorPartnershipMutationVariables>;
 
 /**
@@ -4613,9 +4606,13 @@ export const ListVendorPartnershipsDocument = gql`
     query ListVendorPartnerships($companyId: uuid!) {
   company_vendor_partnerships(where: {company_id: {_eq: $companyId}}) {
     ...VendorPartnership
+    vendor {
+      ...Vendor
+    }
   }
 }
-    ${VendorPartnershipFragmentDoc}`;
+    ${VendorPartnershipFragmentDoc}
+${VendorFragmentDoc}`;
 
 /**
  * __useListVendorPartnershipsQuery__

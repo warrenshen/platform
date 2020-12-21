@@ -10,8 +10,11 @@ import {
   Typography,
 } from "@material-ui/core";
 import {
-  BankVendorPartnershipFragmentDoc,
+  BankVendorPartnershipDocument,
+  BankVendorPartnershipQuery,
+  BankVendorPartnershipQueryVariables,
   Companies,
+  CompanyVendorPartnerships,
   ContactFragment,
   useAddVendorContactMutation,
   UsersInsertInput,
@@ -41,6 +44,7 @@ interface Props {
   creating?: boolean;
   onCreateComplete?: () => void;
   companyId?: Companies["id"];
+  companyVendorPartnershipId: CompanyVendorPartnerships["id"];
 }
 
 function ContactCard(props: Props) {
@@ -57,10 +61,6 @@ function ContactCard(props: Props) {
   useEffect(() => {
     setContact(props.contact || { company_id: props.companyId });
   }, [props.companyId, props.contact]);
-
-  console.log("props.companyId", props.companyId);
-  console.log("props.contact", props.contact);
-  console.log("contact", contact);
 
   return (
     <Card className={classes.card}>
@@ -167,16 +167,44 @@ function ContactCard(props: Props) {
                         ...(contact as ContactFragment),
                       },
                     },
-                    update: (proxy, { data }) => {
+                    update: (proxy, { data: optimisticResponse }) => {
                       if (props.companyId) {
-                        const frag = proxy.readFragment({
-                          id: props.companyId,
-                          fragment: BankVendorPartnershipFragmentDoc,
+                        const data = proxy.readQuery<
+                          BankVendorPartnershipQuery,
+                          BankVendorPartnershipQueryVariables
+                        >({
+                          query: BankVendorPartnershipDocument,
+                          variables: { id: props.companyVendorPartnershipId },
                         });
 
-                        // proxy.writeFragment({
-                        //   id: prp
-                        // })
+                        if (
+                          !data?.company_vendor_partnerships_by_pk?.vendor ||
+                          !optimisticResponse?.insert_users_one
+                        ) {
+                          return;
+                        }
+
+                        proxy.writeQuery<
+                          BankVendorPartnershipQuery,
+                          BankVendorPartnershipQueryVariables
+                        >({
+                          query: BankVendorPartnershipDocument,
+                          variables: { id: props.companyVendorPartnershipId },
+                          data: {
+                            company_vendor_partnerships_by_pk: {
+                              ...data.company_vendor_partnerships_by_pk,
+                              vendor: {
+                                ...data.company_vendor_partnerships_by_pk
+                                  .vendor,
+                                users: [
+                                  ...data.company_vendor_partnerships_by_pk
+                                    .vendor.users,
+                                  optimisticResponse.insert_users_one,
+                                ],
+                              },
+                            },
+                          },
+                        });
                       }
                     },
                   });

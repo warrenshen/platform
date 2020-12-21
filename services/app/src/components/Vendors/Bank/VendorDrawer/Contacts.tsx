@@ -1,10 +1,15 @@
 import { Box, Button } from "@material-ui/core";
 import ContactCard from "components/ContactCard";
-import { Companies, ContactFragment } from "generated/graphql";
+import {
+  Companies,
+  CompanyVendorPartnerships,
+  ContactFragment,
+} from "generated/graphql";
 import { useState } from "react";
 
 interface Props {
   companyId: Companies["id"];
+  companyVendorPartnershipId: CompanyVendorPartnerships["id"];
   contacts: Array<ContactFragment>;
 }
 
@@ -27,12 +32,18 @@ function Contacts(props: Props) {
       {addingContact && (
         <ContactCard
           companyId={props.companyId}
+          companyVendorPartnershipId={props.companyVendorPartnershipId}
           creating
           onCreateComplete={() => setAddingContact(false)}
         ></ContactCard>
       )}
       {props.contacts.map((contact) => {
-        return <ContactCard contact={contact}></ContactCard>;
+        return (
+          <ContactCard
+            contact={contact}
+            companyVendorPartnershipId={props.companyVendorPartnershipId}
+          ></ContactCard>
+        );
       })}
     </Box>
   );

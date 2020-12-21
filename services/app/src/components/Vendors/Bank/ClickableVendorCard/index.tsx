@@ -1,13 +1,14 @@
 import VendorDrawer from "components/Vendors/Bank/VendorDrawer";
 import VendorCard from "components/Vendors/VendorCard";
-import { BankVendorPartnershipFragment } from "generated/graphql";
+import {
+  BankVendorPartnershipFragment,
+  VendorFragment,
+} from "generated/graphql";
 import { useState } from "react";
 
-
 function ClickableVendorCard(props: {
-  vendorPartnership: BankVendorPartnershipFragment;
+  vendorPartnership: BankVendorPartnershipFragment & { vendor: VendorFragment };
 }) {
-  
   const [open, setOpen] = useState(false);
 
   return (

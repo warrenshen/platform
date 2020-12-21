@@ -27,7 +27,6 @@ function VendorInfo(props: Props) {
   const [updateVendorContactInfo] = useUpdateVendorInfoMutation();
 
   const vendor = props.vendor;
-  console.log(vendor);
 
   return editing ? (
     <>
