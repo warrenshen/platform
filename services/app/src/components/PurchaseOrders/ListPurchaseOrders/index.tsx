@@ -34,13 +34,14 @@ function populateRows(
 }
 
 interface Props {
+  companyId: string;
   manipulatePurchaseOrder: (
     actionType: ActionType,
     originalPurchaseOrder: Maybe<PurchaseOrderFragment>
   ) => void;
 }
 
-function ListPurchaseOrders({ manipulatePurchaseOrder }: Props) {
+function ListPurchaseOrders({ companyId, manipulatePurchaseOrder }: Props) {
   const { company_id: curentUserCompanyId, role: currentUserRole } = useContext(
     CurrentUserContext
   );
@@ -49,7 +50,7 @@ function ListPurchaseOrders({ manipulatePurchaseOrder }: Props) {
 
   const { data, loading } = useListPurchaseOrdersQuery({
     variables: {
-      company_id: curentUserCompanyId,
+      company_id: companyId ? companyId : curentUserCompanyId,
     },
   });
 

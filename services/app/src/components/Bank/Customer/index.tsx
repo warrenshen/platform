@@ -85,7 +85,7 @@ function Customer() {
     <>
       <Paper>
         <Tabs
-          value={tabIndex === null ? undefined : tabIndex}
+          value={tabIndex === null || tabIndex < 0 ? 0 : tabIndex}
           onChange={(event: ChangeEvent<{}>, newValue: number) => {
             setTabIndex(newValue);
           }}

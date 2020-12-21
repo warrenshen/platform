@@ -6,21 +6,13 @@ import {
   TextField,
 } from "@material-ui/core";
 import Add from "@material-ui/icons/Add";
-import DeleteIcon from "@material-ui/icons/Delete";
-import {
-  PurchaseOrderLineItemsArrRelInsertInput,
-  PurchaseOrderLineItemsInsertInput,
-} from "generated/graphql";
-import { useState } from "react";
+import { PurchaseOrderLineItemFragment } from "generated/graphql";
+import { ItemAction } from "../models/ItemAction";
 import { multiplyNullableNumbers } from "../models/NumberHelper";
+import PurchaseOrderLineItem from "./PurchaseOrderLineItem";
 
 const useStyles = makeStyles(() =>
   createStyles({
-    dialogTitle: {
-      marginLeft: "21px",
-      marginRight: "21px",
-      borderBottom: "1px solid #c7c7c7",
-    },
     itemInput: {
       marginRight: "15px",
     },
@@ -32,139 +24,43 @@ const useStyles = makeStyles(() =>
       width: 200,
       marginRight: "48px",
     },
-    removeLiBulets: {
-      listStyleType: "none",
-      paddingLeft: 0,
-    },
   })
 );
 
 interface Props {
-  purchaseOrderItems: PurchaseOrderLineItemsArrRelInsertInput;
-  handlePurchaseOrderItems: (
-    items: PurchaseOrderLineItemsArrRelInsertInput
+  newPurchaseOrderItem: PurchaseOrderLineItemFragment;
+  setNewPurchaseOrderItem: (item: PurchaseOrderLineItemFragment) => void;
+  purchaseOrderItems: PurchaseOrderLineItemFragment[];
+  handlePurchaseOrderItem: (
+    item: PurchaseOrderLineItemFragment,
+    action: ItemAction,
+    position: number
   ) => void;
 }
 
 function ListPurchaseOrderItems({
+  newPurchaseOrderItem,
+  setNewPurchaseOrderItem,
   purchaseOrderItems,
-  handlePurchaseOrderItems,
+  handlePurchaseOrderItem,
 }: Props) {
   const classes = useStyles();
-  const [
-    newPurchaseOrderItem,
-    setNewPurchaseOrderItem,
-  ] = useState<PurchaseOrderLineItemsInsertInput>({});
+  const isValid =
+    newPurchaseOrderItem.item &&
+    newPurchaseOrderItem.num_units &&
+    newPurchaseOrderItem.description &&
+    newPurchaseOrderItem.price_per_unit &&
+    newPurchaseOrderItem.price_per_unit;
   return (
     <>
-      <ul className={classes.removeLiBulets}>
-        {purchaseOrderItems.data.map((purchaseOrderItem) => (
-          <li key={purchaseOrderItem.id}>
-            <Box display="flex" m={1} key={purchaseOrderItem.id}>
-              <TextField
-                label="Item"
-                className={classes.itemInput}
-                value={purchaseOrderItem.item}
-                onChange={({ target: { value } }) => {
-                  const pois = { ...purchaseOrderItems };
-                  let poi = pois.data.find(
-                    (i) => i.id === purchaseOrderItem.id
-                  );
-                  if (poi) {
-                    poi.item = value;
-                  }
-                  handlePurchaseOrderItems(pois);
-                }}
-              ></TextField>
-              <TextField
-                label="Description"
-                className={classes.itemInput}
-                value={purchaseOrderItem.description}
-                onChange={({ target: { value } }) => {
-                  const pois = { ...purchaseOrderItems };
-                  let poi = pois.data.find(
-                    (i) => i.id === purchaseOrderItem.id
-                  );
-                  if (poi) {
-                    poi.description = value;
-                  }
-                  handlePurchaseOrderItems(pois);
-                }}
-              ></TextField>
-              <TextField
-                label="Units"
-                className={classes.itemInput}
-                value={purchaseOrderItem.num_units}
-                onChange={({ target: { value } }) => {
-                  const pois = { ...purchaseOrderItems };
-                  let poi = pois.data.find(
-                    (i) => i.id === purchaseOrderItem.id
-                  );
-                  if (poi) {
-                    const u = +value;
-                    poi.num_units = isNaN(u) ? 0 : u;
-                  }
-                  handlePurchaseOrderItems(pois);
-                }}
-              ></TextField>
-              <TextField
-                label="Unit"
-                className={classes.itemInput}
-                value={purchaseOrderItem.unit}
-                onChange={({ target: { value } }) => {
-                  const pois = { ...purchaseOrderItems };
-                  let poi = pois.data.find(
-                    (i) => i.id === purchaseOrderItem.id
-                  );
-                  if (poi) {
-                    poi.unit = value;
-                  }
-                  handlePurchaseOrderItems(pois);
-                }}
-              ></TextField>
-              <TextField
-                label="Price Per Unit"
-                className={classes.itemInput}
-                value={purchaseOrderItem.price_per_unit}
-                onChange={({ target: { value } }) => {
-                  const pois = { ...purchaseOrderItems };
-                  let poi = pois.data.find(
-                    (i) => i.id === purchaseOrderItem.id
-                  );
-                  if (poi) {
-                    const u = +value;
-                    poi.price_per_unit = isNaN(u) ? 0 : u;
-                  }
-                  handlePurchaseOrderItems(pois);
-                }}
-              ></TextField>
-              <TextField
-                label="Total"
-                disabled={true}
-                className={classes.itemInputLast}
-                value={multiplyNullableNumbers(
-                  purchaseOrderItem.num_units,
-                  purchaseOrderItem.price_per_unit
-                )}
-              ></TextField>
-              <IconButton
-                onClick={() => {
-                  handlePurchaseOrderItems({
-                    ...purchaseOrderItems,
-                    data: purchaseOrderItems.data.filter(
-                      (i) => i.id !== purchaseOrderItem.id
-                    ),
-                  });
-                }}
-                component="span"
-                color="secondary"
-              >
-                <DeleteIcon />
-              </IconButton>
-            </Box>
-          </li>
-        ))}
-      </ul>
+      {purchaseOrderItems?.map((purchaseOrderItem, index) => (
+        <PurchaseOrderLineItem
+          key={index}
+          position={index}
+          purchaseOrderItem={purchaseOrderItem}
+          handlePurchaseOrderItem={handlePurchaseOrderItem}
+        ></PurchaseOrderLineItem>
+      ))}
       <Box display="flex" m={1}>
         <TextField
           label="Item"
@@ -228,11 +124,9 @@ function ListPurchaseOrderItems({
         ></TextField>
         <Box>
           <IconButton
+            disabled={!isValid}
             onClick={() => {
-              handlePurchaseOrderItems({
-                ...purchaseOrderItems,
-                data: [...purchaseOrderItems.data, newPurchaseOrderItem],
-              });
+              handlePurchaseOrderItem(newPurchaseOrderItem, ItemAction.Add, 0);
               setNewPurchaseOrderItem({
                 id: 0,
                 item: "",
@@ -255,14 +149,16 @@ function ListPurchaseOrderItems({
           disabled={true}
           className={classes.itemInputGrandTotal}
           value={
-            purchaseOrderItems.data.reduce(
-              (acc, curr) =>
-                (acc += multiplyNullableNumbers(
-                  curr.num_units,
-                  curr.price_per_unit
-                )),
-              0
-            ) +
+            (purchaseOrderItems
+              ? purchaseOrderItems.reduce(
+                  (acc, curr) =>
+                    (acc += multiplyNullableNumbers(
+                      curr.num_units,
+                      curr.price_per_unit
+                    )),
+                  0
+                )
+              : 0) +
             multiplyNullableNumbers(
               newPurchaseOrderItem.num_units,
               newPurchaseOrderItem.price_per_unit

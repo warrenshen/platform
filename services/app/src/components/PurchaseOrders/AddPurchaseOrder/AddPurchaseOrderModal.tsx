@@ -25,8 +25,8 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   ListPurchaseOrdersDocument,
   PurchaseOrderFragment,
+  PurchaseOrderLineItemFragment,
   PurchaseOrderLineItemsArrRelInsertInput,
-  PurchaseOrderLineItemsInsertInput,
   PurchaseOrdersInsertInput,
   useAddPurchaseOrderMutation,
   useListPurchaseOrdersQuery,
@@ -37,6 +37,7 @@ import { Maybe } from "graphql/jsutils/Maybe";
 import { useContext, useState } from "react";
 import { ActionType } from "../models/ActionType";
 import { CURRENCIES } from "../models/fakeData";
+import { ItemAction } from "../models/ItemAction";
 import { multiplyNullableNumbers } from "../models/NumberHelper";
 import ListPurchaseOrderItems from "./ListPurchaseOrderItems";
 
@@ -83,54 +84,6 @@ function AddPurchaseOrderModal({
 }: Props) {
   const classes = useStyles();
   const { company_id: currentUserCompanyId } = useContext(CurrentUserContext);
-  const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrdersInsertInput>(
-    {
-      id:
-        actionType === ActionType.Update
-          ? originalPurchaseOrder?.id
-          : undefined,
-      amount: originalPurchaseOrder?.amount,
-      delivery_address: originalPurchaseOrder?.delivery_address,
-      amount_invoiced: originalPurchaseOrder?.amount_invoiced,
-      city: originalPurchaseOrder?.city,
-      company_id: originalPurchaseOrder?.company_id,
-      country: originalPurchaseOrder?.country,
-      currency: originalPurchaseOrder?.currency,
-      parent_purchase_order_id: originalPurchaseOrder?.parent_purchase_order_id,
-      line_items: {
-        data: originalPurchaseOrder
-          ? originalPurchaseOrder.line_items.map((ppoi) => {
-              return {
-                item: ppoi.item,
-                description: ppoi.description,
-                num_units: ppoi.num_units,
-                unit: ppoi.unit,
-                price_per_unit: ppoi.price_per_unit,
-              } as PurchaseOrderLineItemsInsertInput;
-            })
-          : [],
-      },
-      purchase_order_number: originalPurchaseOrder
-        ? `${actionType === ActionType.Copy ? "Copy of " : ""}${
-            originalPurchaseOrder?.purchase_order_number
-          }`
-        : "",
-      remarks: originalPurchaseOrder?.remarks,
-      status: originalPurchaseOrder?.status,
-      vendor_id: originalPurchaseOrder?.vendor_id,
-      zip_code: originalPurchaseOrder?.zip_code,
-    }
-  );
-  const [
-    addPurchaseOrder,
-    { loading: addPurchaseOrderLoading },
-  ] = useAddPurchaseOrderMutation();
-
-  const [
-    updatePurchaseOrder,
-    { loading: updatePurchaseOrderLoading },
-  ] = useUpdatePurchaseOrderMutation();
-
   const {
     data: vendorsData,
     loading: getVendorsLoading,
@@ -145,11 +98,61 @@ function AddPurchaseOrderModal({
   } = useListPurchaseOrdersQuery({
     variables: { company_id: currentUserCompanyId },
   });
-  const parentPurchaseOrders = parentPurchaseOrdersData?.purchase_orders;
-  const handlePurchaseOrderItems = (
-    items: PurchaseOrderLineItemsArrRelInsertInput
+  const parentPurchaseOrders =
+    actionType === ActionType.Update
+      ? parentPurchaseOrdersData?.purchase_orders.filter(
+          (po) => po.id !== originalPurchaseOrder?.id
+        )
+      : parentPurchaseOrdersData?.purchase_orders;
+  const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrderFragment>(
+    actionType === ActionType.Update && originalPurchaseOrder
+      ? originalPurchaseOrder
+      : ({
+          purchase_order_number: "",
+          parent_purchase_order_id: "",
+          vendor_id: "",
+          currency: "USD",
+          line_items: [] as PurchaseOrderLineItemFragment[],
+        } as PurchaseOrderFragment)
+  );
+  const [
+    addPurchaseOrder,
+    { loading: addPurchaseOrderLoading },
+  ] = useAddPurchaseOrderMutation();
+
+  const [
+    updatePurchaseOrder,
+    { loading: updatePurchaseOrderLoading },
+  ] = useUpdatePurchaseOrderMutation();
+
+  const [
+    newPurchaseOrderItem,
+    setNewPurchaseOrderItem,
+  ] = useState<PurchaseOrderLineItemFragment>({
+    item: "",
+    description: "",
+    num_units: 0,
+    unit: "",
+    price_per_unit: 0,
+  } as PurchaseOrderLineItemFragment);
+
+  const handlePurchaseOrderItem = (
+    item: PurchaseOrderLineItemFragment,
+    action: ItemAction,
+    position: number
   ) => {
-    setPurchaseOrder({ ...purchaseOrder, line_items: items });
+    var items = purchaseOrder.line_items ? [...purchaseOrder.line_items] : [];
+    if (action === ItemAction.Add) {
+      items.push(item);
+    } else if (action === ItemAction.Remove) {
+      items.splice(position, 1);
+    } else {
+      items[position] = item;
+    }
+    setPurchaseOrder({
+      ...purchaseOrder,
+      line_items: [...items],
+    });
   };
 
   const isFormValid =
@@ -209,7 +212,7 @@ function AddPurchaseOrderModal({
                 className={classes.purchaseOrderInput}
                 labelId="vendor-select-label"
                 id="vendor-select"
-                value={purchaseOrder.vendor_id ? purchaseOrder.vendor_id : ""}
+                value={purchaseOrder.vendor_id}
                 onChange={({ target: { value } }) => {
                   setPurchaseOrder({
                     ...purchaseOrder,
@@ -343,10 +346,10 @@ function AddPurchaseOrderModal({
           </Box>
         </Box>
         <ListPurchaseOrderItems
-          purchaseOrderItems={
-            purchaseOrder.line_items ? purchaseOrder.line_items : { data: [] }
-          }
-          handlePurchaseOrderItems={handlePurchaseOrderItems}
+          newPurchaseOrderItem={newPurchaseOrderItem}
+          setNewPurchaseOrderItem={setNewPurchaseOrderItem}
+          purchaseOrderItems={purchaseOrder.line_items}
+          handlePurchaseOrderItem={handlePurchaseOrderItem}
         ></ListPurchaseOrderItems>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
@@ -360,36 +363,63 @@ function AddPurchaseOrderModal({
               updatePurchaseOrderLoading
             }
             onClick={async () => {
+              var toAddNewItem =
+                newPurchaseOrderItem.item &&
+                newPurchaseOrderItem.description &&
+                newPurchaseOrderItem.num_units &&
+                newPurchaseOrderItem.unit &&
+                newPurchaseOrderItem.price_per_unit;
               if (actionType === ActionType.Update) {
+                const {
+                  line_items,
+                  vendor,
+                  parent_purchase_order,
+                  company,
+                  id,
+                  ...purchaseOrderSet
+                } = purchaseOrder;
                 await updatePurchaseOrder({
                   variables: {
                     id: purchaseOrder.id,
                     purchaseOrder: {
-                      purchase_order_number:
-                        purchaseOrder.purchase_order_number,
-                      delivery_address: purchaseOrder.delivery_address,
-                      amount: purchaseOrder?.line_items?.data.reduce(
-                        (acc, cur) =>
-                          (acc += multiplyNullableNumbers(
-                            cur?.num_units,
-                            cur?.price_per_unit
-                          )),
-                        0
-                      ),
-                      amount_invoiced: purchaseOrder.amount_invoiced,
-                      city: purchaseOrder.city,
-                      country: purchaseOrder.country,
-                      currency: purchaseOrder.currency,
-                      delivery_date: purchaseOrder.delivery_date,
-                      parent_purchase_order_id:
-                        purchaseOrder.parent_purchase_order_id,
-                      remarks: purchaseOrder.remarks,
-                      status: purchaseOrder.status,
-                      vendor_id: purchaseOrder.vendor_id,
-                      zip_code: purchaseOrder.zip_code,
+                      ...purchaseOrderSet,
+                      parent_purchase_order_id: purchaseOrderSet.parent_purchase_order_id
+                        ? purchaseOrderSet.parent_purchase_order_id
+                        : undefined,
+                      amount:
+                        purchaseOrder?.line_items?.reduce(
+                          (acc, cur) =>
+                            (acc += multiplyNullableNumbers(
+                              cur?.num_units,
+                              cur?.price_per_unit
+                            )),
+                          0
+                        ) +
+                        (toAddNewItem
+                          ? multiplyNullableNumbers(
+                              newPurchaseOrderItem.num_units,
+                              newPurchaseOrderItem.price_per_unit
+                            )
+                          : 0),
                     },
-                    purchaseOrderLineItems: purchaseOrder?.line_items?.data
-                      ? purchaseOrder.line_items.data.map((item) => {
+                    purchaseOrderLineItems: toAddNewItem
+                      ? [
+                          ...(line_items
+                            ? line_items.map((item) => {
+                                return {
+                                  ...item,
+                                  purchase_order_id: purchaseOrder.id,
+                                };
+                              })
+                            : []),
+                          {
+                            ...newPurchaseOrderItem,
+                            id: undefined,
+                            purchase_order_id: purchaseOrder.id,
+                          },
+                        ]
+                      : line_items
+                      ? line_items.map((item) => {
                           return {
                             ...item,
                             purchase_order_id: purchaseOrder.id,
@@ -407,20 +437,55 @@ function AddPurchaseOrderModal({
                   ],
                 });
               } else {
+                const ccc = {
+                  data: toAddNewItem
+                    ? [
+                        ...(purchaseOrder.line_items
+                          ? purchaseOrder.line_items
+                          : []),
+                        { ...newPurchaseOrderItem, id: undefined },
+                      ]
+                    : purchaseOrder.line_items,
+                } as PurchaseOrderLineItemsArrRelInsertInput;
+                console.log("ccc", ccc);
                 await addPurchaseOrder({
                   variables: {
                     purhcase_order: {
                       ...purchaseOrder,
-                      amount: purchaseOrder?.line_items?.data.reduce(
-                        (acc, cur) =>
-                          (acc += multiplyNullableNumbers(
-                            cur?.num_units,
-                            cur?.price_per_unit
-                          )),
-                        0
-                      ),
+                      parent_purchase_order_id: purchaseOrder.parent_purchase_order_id
+                        ? purchaseOrder.parent_purchase_order_id
+                        : undefined,
+                      amount:
+                        purchaseOrder?.line_items?.reduce(
+                          (acc, cur) =>
+                            (acc += multiplyNullableNumbers(
+                              cur?.num_units,
+                              cur?.price_per_unit
+                            )),
+                          0
+                        ) +
+                        (toAddNewItem
+                          ? multiplyNullableNumbers(
+                              newPurchaseOrderItem.num_units,
+                              newPurchaseOrderItem.price_per_unit
+                            )
+                          : 0),
                       company_id: currentUserCompanyId,
-                    },
+                      line_items: {
+                        data: toAddNewItem
+                          ? [
+                              ...(purchaseOrder.line_items
+                                ? purchaseOrder.line_items
+                                : []),
+                              {
+                                ...newPurchaseOrderItem,
+                                id: undefined,
+                                purchase_order_id: purchaseOrder.id,
+                              },
+                            ]
+                          : purchaseOrder.line_items,
+                      } as PurchaseOrderLineItemsArrRelInsertInput,
+                    } as PurchaseOrdersInsertInput,
                   },
                   refetchQueries: [
                     {

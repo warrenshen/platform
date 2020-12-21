@@ -1,4 +1,5 @@
 import { Box } from "@material-ui/core";
+import { CustomerParams } from "components/Bank/Customer";
 import AddButton from "components/PurchaseOrders/AddPurchaseOrder/AddButton";
 import ListPurchaseOrders from "components/PurchaseOrders/ListPurchaseOrders";
 import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
@@ -6,10 +7,12 @@ import { PurchaseOrderFragment } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
 import useAppBarTitle from "hooks/useAppBarTitle";
 import { useContext, useState } from "react";
+import { useParams } from "react-router-dom";
 import { useTitle } from "react-use";
 import { ActionType } from "./models/ActionType";
 
 function PurchaseOrders() {
+  const { customerId } = useParams<CustomerParams>();
   const { role: currentUserRole } = useContext(CurrentUserContext);
   useTitle("Purchase Orders | Bespoke");
   useAppBarTitle("Purchase Orders");
@@ -44,6 +47,7 @@ function PurchaseOrders() {
         ></AddButton>
       )}
       <ListPurchaseOrders
+        companyId={customerId}
         manipulatePurchaseOrder={manipulatePurchaseOrder}
       ></ListPurchaseOrders>
     </Box>
