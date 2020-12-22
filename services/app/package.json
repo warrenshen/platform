@@ -28,6 +28,7 @@
     "dotenv": "^8.2.0",
     "graphql": "^15.4.0",
     "lodash": "^4.17.20",
+    "prettier": "^2.2.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",
@@ -43,7 +44,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "gql-gen": "graphql-codegen --config codegen.js --require dotenv/config"
+    "gql-gen": "graphql-codegen --config codegen.js --require dotenv/config",
+    "prettier": "prettier --config .prettierrc --check \"src/{,!(generated)/**/}*.{js,ts,jsx,tsx}\""
   },
   "eslintConfig": {
     "extends": [

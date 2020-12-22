@@ -8,7 +8,9 @@ function AddButton() {
   return (
     <>
       {open && (
-        <RegisterVendorModal handleClose={() => setOpen(false)}></RegisterVendorModal>
+        <RegisterVendorModal
+          handleClose={() => setOpen(false)}
+        ></RegisterVendorModal>
       )}
       <Button onClick={() => setOpen(true)} color="primary" variant="contained">
         Add Vendor

@@ -52,7 +52,9 @@ function AccountInfo(props: { bankAccount: BankAccountFragment }) {
           ></CheckCircle>
           <Box pl={1}>
             {props.bankAccount.verified_at
-              ? `Verified on ${calendarDateTimestamp(props.bankAccount.verified_at)}`
+              ? `Verified on ${calendarDateTimestamp(
+                  props.bankAccount.verified_at
+                )}`
               : "Not yet verified"}
           </Box>
         </Box>
