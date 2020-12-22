@@ -10,7 +10,9 @@ from typing import Dict
 from bespoke.db import models
 from server.views import auth
 
-load_dotenv(os.path.join(os.environ.get('PROJECT_DIR'), '.env'))
+if os.environ.get('FLASK_ENV') == 'development':
+  load_dotenv(os.path.join(os.environ.get('PROJECT_DIR'), '.env'))
+
 logging.basicConfig(format='%(asctime)s [%(levelname)s] - %(message)s',
                     datefmt='%m/%d/%Y %H:%M:%S',
                     level=logging.INFO)

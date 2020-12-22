@@ -75,7 +75,7 @@ class PurchaseOrder(Base):
 		confirmed = Column(Boolean)
 
 def get_db_url() -> str:
-	return os.environ.get('DB_URL')
+	return os.environ.get('DATABASE_URL')
 
 def create_engine() -> object:
 	return sqlalchemy.create_engine(
