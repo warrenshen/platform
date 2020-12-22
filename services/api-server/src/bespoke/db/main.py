@@ -18,7 +18,7 @@ def _setup_db() -> None:
 	models.Base.metadata.create_all(db)
 
 	# Create
-	#job1 = models.Job(id='2020-05-18', username='david', params={}, info={'key1': 'val1'}, status={}, state_vars={})
+	#job1 = models.Job(id='2020-05-18', email='david', params={}, info={'key1': 'val1'}, status={}, state_vars={})
 	#session.add(job1)
 	session.commit()
 

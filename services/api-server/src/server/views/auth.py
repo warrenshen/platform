@@ -22,33 +22,33 @@ class RegistrationView(MethodView):
 	def post(self) -> Response:
 		data = json.loads(request.data)
 		# TODO: demand minimum requirements for password strength
-		# and on username requirements
-		username = data['username']
+		# and on email requirements
+		email = data['email']
 		password = data['password']
 
-		if not username or not password:
-			return make_error_response('No username or password provided')
+		if not email or not password:
+			return make_error_response('No email or password provided')
 
 		user = models.User(
-			username=username,
+			email=email,
 			password=sha256.hash(password)
 		)
 
 		try:
 			with session_scope(current_app.session_maker) as session:
-				existing_user = session.query(models.User).filter(models.User.username == username).first()
+				existing_user = session.query(models.User).filter(models.User.email == email).first()
 				if existing_user:
-					return make_error_response('User {} already exists. Please choose another'.format(username))
+					return make_error_response('User {} already exists. Please choose another'.format(email))
 				session.add(user)
 
-			access_token = create_access_token(identity=username)
-			refresh_token = create_refresh_token(identity=username)
+			access_token = create_access_token(identity=email)
+			refresh_token = create_refresh_token(identity=email)
 		except Exception as e:
 			return make_error_response('{}'.format(e))
 
 		return make_response(json.dumps({
 			'status': 'OK',
-			'msg': 'User {} created'.format(username),
+			'msg': 'User {} created'.format(email),
 			'access_token': access_token,
 			'refresh_token': refresh_token
 		}), 200)
@@ -57,25 +57,25 @@ class LoginView(MethodView):
 
 	def post(self) -> Response:
 		data = json.loads(request.data)
-		username = data["username"]
+		email = data["email"]
 		password = data['password']
-		if not username or not password:
-			return make_error_response('No username or password provided')
+		if not email or not password:
+			return make_error_response('No email or password provided')
 
 		with session_scope(current_app.session_maker) as session:
-			user = session.query(models.User).filter(models.User.username == username).first()
+			user = session.query(models.User).filter(models.User.email == email).first()
 			if not user:
-				return make_error_response('User {} does not exist'.format(username))
+				return make_error_response('User {} does not exist'.format(email))
 
 			if not sha256.verify(password, user.password):
 				return make_error_response(f'Invalid password provided')
 
-		access_token = create_access_token(identity=username)
-		refresh_token = create_refresh_token(identity=username)
+		access_token = create_access_token(identity=email)
+		refresh_token = create_refresh_token(identity=email)
 
 		return make_response(json.dumps({
 			'status': 'OK',
-			'msg': 'Logged in as {}'.format(username),
+			'msg': 'Logged in as {}'.format(email),
 			'access_token': access_token,
 			'refresh_token': refresh_token
 		}), 200)

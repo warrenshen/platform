@@ -55,10 +55,10 @@ function SignIn() {
   const classes = useStyles();
   useTitle("Login | Bespoke");
 
-  const [usernameInput, setUsername] = useState("");
+  const [emailInput, setEmail] = useState("");
   const [passwordInput, setPassword] = useState("");
 
-  const loginUser = (username: string, password: string) => {
+  const loginUser = (email: string, password: string) => {
     currentUser.setAuthentication(true);
   };
 
@@ -69,11 +69,11 @@ function SignIn() {
           <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="Logo" />
         </Box>
         <TextField
-          label="Username"
+          label="Email"
           className={classes.formInput}
-          value={usernameInput}
+          value={emailInput}
           onChange={({ target: { value } }) => {
-            setUsername(value);
+            setEmail(value);
           }}
         ></TextField>
         <TextField
@@ -87,9 +87,9 @@ function SignIn() {
         ></TextField>
         <Button
           className={classes.loginButton}
-          disabled={!usernameInput || !passwordInput}
+          disabled={!emailInput || !passwordInput}
           onClick={async () => {
-            loginUser(usernameInput, passwordInput);
+            loginUser(emailInput, passwordInput);
           }}
           variant="contained"
           color="primary"

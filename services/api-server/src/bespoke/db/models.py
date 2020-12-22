@@ -36,12 +36,12 @@ class User(Base):
     __tablename__ = 'users'
 
     if TYPE_CHECKING:
-    	def __init__(self, username: str, password: str) -> None:
-    		self.username: str = None
+    	def __init__(self, email: str, password: str) -> None:
+    		self.email: str = None
     		self.__table__: Any = None
     else:
 	    id = Column(Integer, primary_key=True)
-	    username = Column(String(120), unique=True, nullable=False)
+	    email = Column(String(120), unique=True, nullable=False)
 	    password = Column(String(120), nullable=False)
 
 class Customer(Base):
