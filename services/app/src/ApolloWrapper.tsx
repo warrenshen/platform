@@ -20,7 +20,8 @@ const createApolloClient = () => {
           "X-Hasura-Role": "FILL_ME_IN",
         }
       : {
-          "x-hasura-admin-secret": "myadminsecretkey",
+          "x-hasura-admin-secret":
+            process.env.REACT_APP_BESPOKE_HASURA_ADMIN_SECRET,
         },
   });
 
