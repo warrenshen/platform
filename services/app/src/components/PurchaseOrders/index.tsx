@@ -12,7 +12,7 @@ import { useTitle } from "react-use";
 import { ActionType } from "../../lib/ActionType";
 
 function PurchaseOrders() {
-  const { customerId } = useParams<CustomerParams>();
+  const { companyId } = useParams<CustomerParams>();
   const { role: currentUserRole } = useContext(CurrentUserContext);
   useTitle("Purchase Orders | Bespoke");
   useAppBarTitle("Purchase Orders");
@@ -47,7 +47,7 @@ function PurchaseOrders() {
         ></AddButton>
       )}
       <ListPurchaseOrders
-        companyId={customerId}
+        companyId={companyId}
         manipulatePurchaseOrder={manipulatePurchaseOrder}
       ></ListPurchaseOrders>
     </Box>

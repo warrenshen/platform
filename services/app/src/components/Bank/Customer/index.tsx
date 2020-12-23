@@ -19,7 +19,7 @@ import {
 import { bankPaths } from "routes";
 
 export interface CustomerParams {
-  customerId: string;
+  companyId: string;
 }
 
 const customerPaths = [
@@ -56,7 +56,7 @@ const customerPaths = [
 ];
 
 function Customer() {
-  const { customerId } = useParams<CustomerParams>();
+  const { companyId } = useParams<CustomerParams>();
   const { url, path } = useRouteMatch();
   const location = useLocation();
   const [tabIndex, setTabIndex] = useState<number | null>(null);
@@ -70,7 +70,7 @@ function Customer() {
 
   const { data } = useBankCustomerQuery({
     variables: {
-      id: customerId,
+      id: companyId,
     },
   });
 

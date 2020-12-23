@@ -8,18 +8,18 @@ import BankAccounts from "./BankAccounts";
 import CompanyInfo from "./CompanyInfo";
 
 export interface CustomerParams {
-  customerId: string;
+  companyId: string;
 }
 
 function CompanyProfile() {
   useTitle("Company Profile | Bespoke");
   useAppBarTitle("Company Profile");
-  const { customerId } = useParams<CustomerParams>();
+  const { companyId } = useParams<CustomerParams>();
   const { company_id: currentUserCompanyId } = useContext(CurrentUserContext);
 
   const { data: companyData, loading: companyLoading } = useCompanyQuery({
     variables: {
-      companyId: customerId ? customerId : currentUserCompanyId,
+      companyId: companyId ? companyId : currentUserCompanyId,
     },
   });
 

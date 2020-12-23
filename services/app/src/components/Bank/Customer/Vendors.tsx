@@ -6,10 +6,10 @@ import { sortBy } from "lodash";
 import { useParams } from "react-router-dom";
 
 function Vendors() {
-  const { customerId } = useParams<CustomerParams>();
+  const { companyId } = useParams<CustomerParams>();
   const { data } = useBankCustomerListVendorPartnershipsQuery({
     variables: {
-      companyId: customerId,
+      companyId: companyId,
     },
   });
 
