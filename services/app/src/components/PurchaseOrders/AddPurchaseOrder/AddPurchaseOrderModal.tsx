@@ -437,17 +437,6 @@ function AddPurchaseOrderModal({
                   ],
                 });
               } else {
-                const ccc = {
-                  data: toAddNewItem
-                    ? [
-                        ...(purchaseOrder.line_items
-                          ? purchaseOrder.line_items
-                          : []),
-                        { ...newPurchaseOrderItem, id: undefined },
-                      ]
-                    : purchaseOrder.line_items,
-                } as PurchaseOrderLineItemsArrRelInsertInput;
-                console.log("ccc", ccc);
                 await addPurchaseOrder({
                   variables: {
                     purhcase_order: {

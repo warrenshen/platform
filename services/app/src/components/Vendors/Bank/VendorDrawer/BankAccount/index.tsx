@@ -1,6 +1,6 @@
 import { Box, Button, makeStyles, MenuItem, Select } from "@material-ui/core";
-import AccountForm from "components/Vendors/Bank/VendorDrawer/BankAccount/AccountForm";
-import AccountInfo from "components/Vendors/Bank/VendorDrawer/BankAccount/AccountInfo";
+import AccountForm from "components/Shared/BankAccount/AccountForm";
+import AccountInfo from "components/Shared/BankAccount/AccountInfo";
 import {
   BankAccountFragment,
   Companies,

@@ -1,9 +1,28 @@
-import { Box, Button } from "@material-ui/core";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  createStyles,
+  makeStyles,
+  Theme,
+} from "@material-ui/core";
+import AccountForm from "components/Shared/BankAccount/AccountForm";
+import AccountInfo from "components/Shared/BankAccount/AccountInfo";
 import { CompanyBankAccountFragment } from "generated/graphql";
-import { ActionType } from "lib/ActionType";
-import { useState } from "react";
-import BankAccountInfo from "./BankAccountInfo";
-import EditBankAccountModal from "./EditBankAccount/EditBankAccountModal";
+import { useEffect, useState } from "react";
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    card: {
+      marginRight: theme.spacing(2),
+      marginTop: theme.spacing(2),
+    },
+    addAccountButton: {
+      marginTop: theme.spacing(2),
+    },
+  })
+);
 
 interface Params {
   companyId: string;
@@ -11,47 +30,62 @@ interface Params {
 }
 
 function BankAccounts({ companyId, bankAccounts }: Params) {
-  const [open, setOpen] = useState(false);
-  const [actionType, setActionType] = useState(ActionType.New);
-  const [currentBankAccount, setCurrentBankAccount] = useState(
-    {} as CompanyBankAccountFragment
+  const classes = useStyles();
+  const [accounts, setAccounts] = useState(
+    bankAccounts.map((bankAccount) => {
+      return { addNew: false, bankAccount: bankAccount };
+    })
   );
+
+  useEffect(() => {
+    setAddingNewAccount(false);
+    setAccounts(
+      bankAccounts.map((bankAccount) => {
+        return { addNew: false, bankAccount: bankAccount };
+      })
+    );
+  }, [bankAccounts]);
+
+  const [addingNewAccount, setAddingNewAccount] = useState(false);
+
   return (
     <>
-      {" "}
-      {open && (
-        <EditBankAccountModal
-          actionType={actionType}
-          bankAccount={currentBankAccount}
-          handleClose={() => setOpen(false)}
-        ></EditBankAccountModal>
-      )}
-      <Box m={2}>
-        <Button
-          onClick={() => {
-            setCurrentBankAccount({
-              company_id: companyId,
-            } as CompanyBankAccountFragment);
-            setActionType(ActionType.New);
-            setOpen(true);
-          }}
-          color="primary"
-          variant="contained"
-        >
-          Add Bank Account
-        </Button>
-      </Box>
+      <Button
+        disabled={addingNewAccount}
+        className={classes.addAccountButton}
+        onClick={() => {
+          setAddingNewAccount(true);
+          setAccounts((current) => [
+            { addNew: true, bankAccount: {} as CompanyBankAccountFragment },
+            ...current,
+          ]);
+        }}
+        color="primary"
+        variant="contained"
+      >
+        Add Bank Account
+      </Button>
       <Box display="flex">
-        {bankAccounts.map((bankAccount) => (
-          <BankAccountInfo
-            actionType={actionType}
-            setActionType={setActionType}
-            key={bankAccount.id}
-            bankAccount={bankAccount}
-            open={open}
-            setOpen={setOpen}
-            setCurrentBankAccount={setCurrentBankAccount}
-          ></BankAccountInfo>
+        {accounts.map((account) => (
+          <Card className={classes.card}>
+            <CardContent>
+              <Box mb={3}>
+                {account && account.addNew && (
+                  <AccountForm
+                    companyId={companyId}
+                    bankAccount={undefined}
+                    onCancel={() => {
+                      setAccounts([...accounts.slice(1)]);
+                      setAddingNewAccount(false);
+                    }}
+                  ></AccountForm>
+                )}
+                {account && !account.addNew && (
+                  <AccountInfo bankAccount={account.bankAccount}></AccountInfo>
+                )}
+              </Box>
+            </CardContent>
+          </Card>
         ))}
       </Box>
     </>
