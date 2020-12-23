@@ -3382,7 +3382,9 @@ export type Users = {
   full_name: Scalars['String'];
   id: Scalars['uuid'];
   last_name: Scalars['String'];
+  password: Scalars['String'];
   phone_number?: Maybe<Scalars['String']>;
+  role: Scalars['String'];
 };
 
 /** aggregated selection of "users" */
@@ -3429,7 +3431,9 @@ export type UsersBoolExp = {
   full_name?: Maybe<StringComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   last_name?: Maybe<StringComparisonExp>;
+  password?: Maybe<StringComparisonExp>;
   phone_number?: Maybe<StringComparisonExp>;
+  role?: Maybe<StringComparisonExp>;
 };
 
 /** unique or primary key constraints on table "users" */
@@ -3446,7 +3450,9 @@ export type UsersInsertInput = {
   full_name?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['uuid']>;
   last_name?: Maybe<Scalars['String']>;
+  password?: Maybe<Scalars['String']>;
   phone_number?: Maybe<Scalars['String']>;
+  role?: Maybe<Scalars['String']>;
 };
 
 /** aggregate max on columns */
@@ -3457,7 +3463,9 @@ export type UsersMaxFields = {
   full_name?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['uuid']>;
   last_name?: Maybe<Scalars['String']>;
+  password?: Maybe<Scalars['String']>;
   phone_number?: Maybe<Scalars['String']>;
+  role?: Maybe<Scalars['String']>;
 };
 
 /** order by max() on columns of table "users" */
@@ -3468,7 +3476,9 @@ export type UsersMaxOrderBy = {
   full_name?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   last_name?: Maybe<OrderBy>;
+  password?: Maybe<OrderBy>;
   phone_number?: Maybe<OrderBy>;
+  role?: Maybe<OrderBy>;
 };
 
 /** aggregate min on columns */
@@ -3479,7 +3489,9 @@ export type UsersMinFields = {
   full_name?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['uuid']>;
   last_name?: Maybe<Scalars['String']>;
+  password?: Maybe<Scalars['String']>;
   phone_number?: Maybe<Scalars['String']>;
+  role?: Maybe<Scalars['String']>;
 };
 
 /** order by min() on columns of table "users" */
@@ -3490,7 +3502,9 @@ export type UsersMinOrderBy = {
   full_name?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   last_name?: Maybe<OrderBy>;
+  password?: Maybe<OrderBy>;
   phone_number?: Maybe<OrderBy>;
+  role?: Maybe<OrderBy>;
 };
 
 /** response of any mutation on the table "users" */
@@ -3522,7 +3536,9 @@ export type UsersOrderBy = {
   full_name?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   last_name?: Maybe<OrderBy>;
+  password?: Maybe<OrderBy>;
   phone_number?: Maybe<OrderBy>;
+  role?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: "users" */
@@ -3545,7 +3561,11 @@ export enum UsersSelectColumn {
   /** column name */
   LastName = 'last_name',
   /** column name */
-  PhoneNumber = 'phone_number'
+  Password = 'password',
+  /** column name */
+  PhoneNumber = 'phone_number',
+  /** column name */
+  Role = 'role'
 }
 
 /** input type for updating data in table "users" */
@@ -3556,7 +3576,9 @@ export type UsersSetInput = {
   full_name?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['uuid']>;
   last_name?: Maybe<Scalars['String']>;
+  password?: Maybe<Scalars['String']>;
   phone_number?: Maybe<Scalars['String']>;
+  role?: Maybe<Scalars['String']>;
 };
 
 /** update columns of table "users" */
@@ -3574,7 +3596,11 @@ export enum UsersUpdateColumn {
   /** column name */
   LastName = 'last_name',
   /** column name */
-  PhoneNumber = 'phone_number'
+  Password = 'password',
+  /** column name */
+  PhoneNumber = 'phone_number',
+  /** column name */
+  Role = 'role'
 }
 
 
