@@ -60,6 +60,7 @@ function SignIn() {
 
   const loginUser = (email: string, password: string) => {
     currentUser.setAuthentication(true);
+    currentUser.setId("094c8cca-3bc6-4fe0-be0e-a23858aca52b");
   };
 
   return (

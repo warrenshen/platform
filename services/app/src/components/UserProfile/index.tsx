@@ -1,57 +1,93 @@
-import { IconButton, Menu, MenuItem } from "@material-ui/core";
-import { AccountCircle } from "@material-ui/icons";
-import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
+import {
+  Box,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  makeStyles,
+  Typography,
+} from "@material-ui/core";
+import { grey } from "@material-ui/core/colors";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
+import { UserFragment, useUserByIdQuery } from "generated/graphql";
+import { Maybe } from "graphql/jsutils/Maybe";
+import useAppBarTitle from "hooks/useAppBarTitle";
 import { useContext, useState } from "react";
+import { useTitle } from "react-use";
+import EditUserProfile from "./EditUserProfile";
+
+const useStyles = makeStyles({
+  label: {
+    width: 130,
+    color: grey[600],
+  },
+});
 
 function UserProfile() {
-  const currentUser = useContext(CurrentUserContext);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  useTitle("Users | Profile");
+  useAppBarTitle("User Profile");
 
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
+  const classes = useStyles();
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  const currentUserFromContext = useContext(CurrentUserContext);
+
+  const [open, setOpen] = useState(false);
+
+  const { data } = useUserByIdQuery({
+    variables: {
+      id: currentUserFromContext.id,
+    },
+  });
+
+  const user: Maybe<UserFragment> = data?.users_by_pk;
 
   return (
     <>
-      <IconButton onClick={handleClick}>
-        <AccountCircle></AccountCircle>
-      </IconButton>
-      <Menu
-        anchorEl={anchorEl}
-        keepMounted
-        open={Boolean(anchorEl)}
-        onClose={handleClose}
-      >
-        <MenuItem onClick={handleClose}>Profile ({currentUser.role})</MenuItem>
-        <MenuItem
-          onClick={() => {
-            currentUser.setRole(UserRole.Bank);
-            handleClose();
-          }}
-        >
-          Sign in as Bank
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            currentUser.setRole(UserRole.Customer);
-            handleClose();
-          }}
-        >
-          Sign in as Customer
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            currentUser.setAuthentication(false);
-            handleClose();
-          }}
-        >
-          Logout
-        </MenuItem>
-      </Menu>
+      {user && open && (
+        <EditUserProfile
+          userId={currentUserFromContext.id}
+          originalUserProfile={user}
+          handleClose={() => setOpen(false)}
+        ></EditUserProfile>
+      )}
+      <Box display="flex">
+        <Card>
+          <CardContent>
+            <Typography variant="h6">User Profile Info</Typography>
+            <Box py={3}>
+              <Box display="flex" pb={0.25}>
+                <Box className={classes.label}>First Name</Box>
+                <Box>{user?.first_name}</Box>
+              </Box>
+              <Box display="flex" pb={0.25}>
+                <Box className={classes.label}>Last Name</Box>
+                <Box>{user?.last_name}</Box>
+              </Box>
+              <Box display="flex" pb={0.25}>
+                <Box className={classes.label}>Email</Box>
+                <Box>{user?.email}</Box>
+              </Box>
+              <Box display="flex" pb={0.25}>
+                <Box className={classes.label}>Phone Number</Box>
+                <Box>{user?.phone_number}</Box>
+              </Box>
+              <Box display="flex" pb={0.25}>
+                <Box className={classes.label}>Role</Box>
+                <Box>{user?.role}</Box>
+              </Box>
+            </Box>
+          </CardContent>
+          <CardActions>
+            <Button
+              onClick={() => {
+                setOpen(true);
+              }}
+            >
+              Edit
+            </Button>
+          </CardActions>
+        </Card>
+      </Box>
     </>
   );
 }

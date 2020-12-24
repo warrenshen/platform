@@ -6,6 +6,7 @@ import Layout from "components/Layout";
 import Loans from "components/Loans";
 import PurchaseOrders from "components/PurchaseOrders";
 import SignIn from "components/SignIn";
+import UserProfile from "components/UserProfile";
 import Vendors from "components/Vendors";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useContext } from "react";
@@ -32,6 +33,7 @@ function App() {
           <Route exact path={routes.profile} component={CompanyProfile}></Route>
           <Route exact path={bankPaths.customers} component={Customers}></Route>
           <Route path={bankPaths.customer.root} component={Customer}></Route>
+          <Route path={routes.userProfile} component={UserProfile}></Route>
         </Switch>
       </Layout>
     </BrowserRouter>

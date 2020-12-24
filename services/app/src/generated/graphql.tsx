@@ -3766,6 +3766,23 @@ export type UpdatePurchaseOrderMutationVariables = Exact<{
 
 export type UpdatePurchaseOrderMutation = { delete_purchase_order_line_items?: Maybe<Pick<PurchaseOrderLineItemsMutationResponse, 'affected_rows'>>, insert_purchase_order_line_items?: Maybe<Pick<PurchaseOrderLineItemsMutationResponse, 'affected_rows'>>, update_purchase_orders_by_pk?: Maybe<PurchaseOrderFragment> };
 
+export type UserFragment = Pick<Users, 'first_name' | 'last_name' | 'full_name' | 'email' | 'phone_number' | 'role'>;
+
+export type UserByIdQueryVariables = Exact<{
+  id: Scalars['uuid'];
+}>;
+
+
+export type UserByIdQuery = { users_by_pk?: Maybe<UserFragment> };
+
+export type UpdateUserMutationVariables = Exact<{
+  id: Scalars['uuid'];
+  user: UsersSetInput;
+}>;
+
+
+export type UpdateUserMutation = { update_users_by_pk?: Maybe<UserFragment> };
+
 export type BankVendorPartnershipFragment = (
   Pick<CompanyVendorPartnerships, 'id' | 'company_id' | 'vendor_id' | 'vendor_agreement_id' | 'vendor_license_id'>
   & { vendor_bank_account?: Maybe<BankAccountFragment> }
@@ -3963,6 +3980,16 @@ export const PurchaseOrderFragmentDoc = gql`
   }
 }
     ${PurchaseOrderLineItemFragmentDoc}`;
+export const UserFragmentDoc = gql`
+    fragment User on users {
+  first_name
+  last_name
+  full_name
+  email
+  phone_number
+  role
+}
+    `;
 export const BankAccountFragmentDoc = gql`
     fragment BankAccount on company_bank_accounts {
   id
@@ -4618,6 +4645,72 @@ export function useUpdatePurchaseOrderMutation(baseOptions?: Apollo.MutationHook
 export type UpdatePurchaseOrderMutationHookResult = ReturnType<typeof useUpdatePurchaseOrderMutation>;
 export type UpdatePurchaseOrderMutationResult = Apollo.MutationResult<UpdatePurchaseOrderMutation>;
 export type UpdatePurchaseOrderMutationOptions = Apollo.BaseMutationOptions<UpdatePurchaseOrderMutation, UpdatePurchaseOrderMutationVariables>;
+export const UserByIdDocument = gql`
+    query UserById($id: uuid!) {
+  users_by_pk(id: $id) {
+    ...User
+  }
+}
+    ${UserFragmentDoc}`;
+
+/**
+ * __useUserByIdQuery__
+ *
+ * To run a query within a React component, call `useUserByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUserByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useUserByIdQuery(baseOptions: Apollo.QueryHookOptions<UserByIdQuery, UserByIdQueryVariables>) {
+        return Apollo.useQuery<UserByIdQuery, UserByIdQueryVariables>(UserByIdDocument, baseOptions);
+      }
+export function useUserByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserByIdQuery, UserByIdQueryVariables>) {
+          return Apollo.useLazyQuery<UserByIdQuery, UserByIdQueryVariables>(UserByIdDocument, baseOptions);
+        }
+export type UserByIdQueryHookResult = ReturnType<typeof useUserByIdQuery>;
+export type UserByIdLazyQueryHookResult = ReturnType<typeof useUserByIdLazyQuery>;
+export type UserByIdQueryResult = Apollo.QueryResult<UserByIdQuery, UserByIdQueryVariables>;
+export const UpdateUserDocument = gql`
+    mutation UpdateUser($id: uuid!, $user: users_set_input!) {
+  update_users_by_pk(pk_columns: {id: $id}, _set: $user) {
+    ...User
+  }
+}
+    ${UserFragmentDoc}`;
+export type UpdateUserMutationFn = Apollo.MutationFunction<UpdateUserMutation, UpdateUserMutationVariables>;
+
+/**
+ * __useUpdateUserMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserMutation, { data, loading, error }] = useUpdateUserMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      user: // value for 'user'
+ *   },
+ * });
+ */
+export function useUpdateUserMutation(baseOptions?: Apollo.MutationHookOptions<UpdateUserMutation, UpdateUserMutationVariables>) {
+        return Apollo.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(UpdateUserDocument, baseOptions);
+      }
+export type UpdateUserMutationHookResult = ReturnType<typeof useUpdateUserMutation>;
+export type UpdateUserMutationResult = Apollo.MutationResult<UpdateUserMutation>;
+export type UpdateUserMutationOptions = Apollo.BaseMutationOptions<UpdateUserMutation, UpdateUserMutationVariables>;
 export const BankListVendorPartnershipsDocument = gql`
     query BankListVendorPartnerships {
   company_vendor_partnerships {
