@@ -56,8 +56,8 @@ function SignIn() {
   useTitle("Login | Bespoke");
 
   const { setSignedIn } = useContext(CurrentUserContext);
-  const [email, setEmail] = useState("admin@bespoke.com");
-  const [password, setPassword] = useState("password123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   return (
     <Box className={classes.container}>
