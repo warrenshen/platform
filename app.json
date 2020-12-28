@@ -1,0 +1,18 @@
+{
+  "name": "Bespoke App",
+  "description": "Frontend Web App Bespoke, powered by React",
+  "repository": "https://github.com/bespoke-capital/platform/tree/master/services/app",
+  "environments": {
+    "review": {
+      "buildpacks": [
+        {
+          "url": "https://github.com/timanovsky/subdir-heroku-buildpack"
+        },
+        {
+          "url": "https://github.com/mars/create-react-app-buildpack"
+        }
+      ]
+    }
+  },
+  "stack": "heroku-20"
+}
