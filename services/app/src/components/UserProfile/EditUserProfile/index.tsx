@@ -123,7 +123,7 @@ function EditUserProfile({ userId, originalUserProfile, handleClose }: Props) {
             className={classes.submitButton}
             disabled={!userProfile.first_name || !userProfile.last_name}
             onClick={async () => {
-              const { email, role, ...userSet } = userProfile;
+              const { email, role, full_name, ...userSet } = userProfile;
               await updateUser({
                 variables: {
                   id: userId,

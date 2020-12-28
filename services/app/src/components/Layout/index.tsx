@@ -89,11 +89,11 @@ const BANK_LEFT_NAV_ITEMS = [
 function Layout(props: { children: React.ReactNode }) {
   const classes = useStyles();
   const location = useLocation();
-  const currentUser = useContext(CurrentUserContext);
+  const { user } = useContext(CurrentUserContext);
   const [appBarTitle, setAppBarTitle] = useState<React.ReactNode | string>("");
 
   const leftNavOptions =
-    currentUser.role === UserRole.Bank
+    user.role === UserRole.BankAdmin
       ? BANK_LEFT_NAV_ITEMS
       : CUSTOMER_LEFT_NAV_ITEMS;
 

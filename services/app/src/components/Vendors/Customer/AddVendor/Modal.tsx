@@ -12,13 +12,14 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   CompaniesInsertInput,
   ListVendorPartnershipsDocument,
   useAddVendorPartnershipMutation,
   UsersInsertInput,
 } from "generated/graphql";
-import { useState } from "react";
+import { useContext, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -39,6 +40,10 @@ interface Props {
 }
 
 function RegisterVendorModal(props: Props) {
+  const {
+    user: { companyId },
+  } = useContext(CurrentUserContext);
+
   const classes = useStyles();
   const [vendor, setVendor] = useState<CompaniesInsertInput>({});
   const [contact, setContact] = useState<UsersInsertInput>({});
@@ -132,8 +137,7 @@ function RegisterVendorModal(props: Props) {
             onClick={async () => {
               await addVendorPartnership({
                 variables: {
-                  vendor: {
-                    company_id: "57ee8797-1d5b-4a90-83c9-84c740590e42",
+                  vendorPartnership: {
                     vendor: {
                       data: {
                         ...vendor,
@@ -148,7 +152,7 @@ function RegisterVendorModal(props: Props) {
                   {
                     query: ListVendorPartnershipsDocument,
                     variables: {
-                      companyId: "57ee8797-1d5b-4a90-83c9-84c740590e42",
+                      companyId: companyId,
                     },
                   },
                 ],

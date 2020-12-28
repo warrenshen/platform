@@ -8,21 +8,24 @@ import {
 } from "@apollo/client";
 import { WebSocketLink } from "@apollo/client/link/ws";
 import { getMainDefinition } from "@apollo/client/utilities";
+import { CurrentUserContext, User } from "contexts/CurrentUserContext";
+import { useContext } from "react";
 
-const createApolloClient = () => {
-  const jwtToken = false;
+const createApolloClient = (user: User) => {
+  let jwtToken;
+  if (user.id) {
+    jwtToken = localStorage.getItem("access_token");
+  }
+
   const httpLink = new HttpLink({
     uri: process.env.REACT_APP_BESPOKE_GRAPHQL_ENDPOINT,
     credentials: "include",
     headers: jwtToken
       ? {
           Authorization: `Bearer ${jwtToken}`,
-          "X-Hasura-Role": "FILL_ME_IN",
+          "X-Hasura-Role": user.role,
         }
-      : {
-          "x-hasura-admin-secret":
-            process.env.REACT_APP_BESPOKE_HASURA_ADMIN_SECRET,
-        },
+      : undefined,
   });
 
   const stripTypenameLink = new ApolloLink((operation, forward) => {
@@ -47,12 +50,9 @@ const createApolloClient = () => {
         headers: jwtToken
           ? {
               Authorization: `Bearer ${jwtToken}`,
-              "X-Hasura-Role": "FILL_ME_IN",
+              "X-Hasura-Role": user.role,
             }
-          : {
-              "x-hasura-admin-secret":
-                process.env.REACT_APP_BESPOKE_HASURA_ADMIN_SECRET,
-            },
+          : undefined,
       },
     },
   });
@@ -77,7 +77,8 @@ const createApolloClient = () => {
 };
 
 function ApolloWrapper(props: { children: React.ReactNode }) {
-  const client = createApolloClient();
+  const { user } = useContext(CurrentUserContext);
+  const client = createApolloClient(user);
   return <ApolloProvider client={client}>{props.children}</ApolloProvider>;
 }
 

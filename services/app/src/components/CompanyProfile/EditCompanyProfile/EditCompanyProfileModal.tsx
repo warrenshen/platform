@@ -17,6 +17,7 @@ import {
   useUpdateCompanyProfileMutation,
 } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
+import { omit } from "lodash";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -143,7 +144,7 @@ function EditCompanyProfileModal({
               await updateCompany({
                 variables: {
                   id: company?.id,
-                  company: companySet,
+                  company: omit(companySet, ["id"]),
                 },
                 refetchQueries: [
                   {

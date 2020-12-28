@@ -20,6 +20,7 @@ import {
   UsersInsertInput,
   useUpdateVendorContactMutation,
 } from "generated/graphql";
+import { omit } from "lodash";
 import { useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -149,7 +150,7 @@ function ContactCard(props: Props) {
                   await updateContact({
                     variables: {
                       userId: contact.id,
-                      contact,
+                      contact: omit(contact, ["id", "company_id", "full_name"]),
                     },
                     optimisticResponse: {
                       update_users_by_pk: {

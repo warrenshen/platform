@@ -42,15 +42,13 @@ interface Props {
 }
 
 function ListPurchaseOrders({ companyId, manipulatePurchaseOrder }: Props) {
-  const { company_id: curentUserCompanyId, role: currentUserRole } = useContext(
-    CurrentUserContext
-  );
+  const { user } = useContext(CurrentUserContext);
   const [currentId, setCurrentId] = useState("");
   const [open, setOpen] = useState(false);
 
   const { data, loading } = useListPurchaseOrdersQuery({
     variables: {
-      company_id: companyId ? companyId : curentUserCompanyId,
+      company_id: companyId ? companyId : user.companyId,
     },
   });
 
@@ -102,7 +100,7 @@ function ListPurchaseOrders({ companyId, manipulatePurchaseOrder }: Props) {
     },
   ];
 
-  if (currentUserRole === UserRole.Customer) {
+  if (user.role === UserRole.CompanyAdmin) {
     columns.push({
       field: "action",
       headerName: "Action",

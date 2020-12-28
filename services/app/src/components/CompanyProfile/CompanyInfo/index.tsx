@@ -19,11 +19,11 @@ const useStyles = makeStyles({
   },
 });
 
-interface Params {
+interface Props {
   company: CompanyFragment;
 }
 
-function CompanyInfo({ company }: Params) {
+function CompanyInfo({ company }: Props) {
   const classes = useStyles();
   return (
     <Box display="flex">

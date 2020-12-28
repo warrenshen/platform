@@ -3376,15 +3376,17 @@ export type TimestamptzComparisonExp = {
 
 /** columns and relationships of "users" */
 export type Users = {
+  /** An object relationship */
+  company?: Maybe<Companies>;
   company_id?: Maybe<Scalars['uuid']>;
   email: Scalars['String'];
   first_name: Scalars['String'];
   full_name: Scalars['String'];
   id: Scalars['uuid'];
   last_name: Scalars['String'];
-  password: Scalars['String'];
+  password?: Maybe<Scalars['String']>;
   phone_number?: Maybe<Scalars['String']>;
-  role: Scalars['String'];
+  role?: Maybe<Scalars['String']>;
 };
 
 /** aggregated selection of "users" */
@@ -3425,6 +3427,7 @@ export type UsersBoolExp = {
   _and?: Maybe<Array<Maybe<UsersBoolExp>>>;
   _not?: Maybe<UsersBoolExp>;
   _or?: Maybe<Array<Maybe<UsersBoolExp>>>;
+  company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   email?: Maybe<StringComparisonExp>;
   first_name?: Maybe<StringComparisonExp>;
@@ -3444,6 +3447,7 @@ export enum UsersConstraint {
 
 /** input type for inserting data into table "users" */
 export type UsersInsertInput = {
+  company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars['uuid']>;
   email?: Maybe<Scalars['String']>;
   first_name?: Maybe<Scalars['String']>;
@@ -3530,6 +3534,7 @@ export type UsersOnConflict = {
 
 /** ordering options when selecting data from "users" */
 export type UsersOrderBy = {
+  company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
   email?: Maybe<OrderBy>;
   first_name?: Maybe<OrderBy>;
@@ -3863,7 +3868,7 @@ export type VendorPartnershipFragment = (
 );
 
 export type AddVendorPartnershipMutationVariables = Exact<{
-  vendor: CompanyVendorPartnershipsInsertInput;
+  vendorPartnership: CompanyVendorPartnershipsInsertInput;
 }>;
 
 
@@ -4963,8 +4968,8 @@ export type UpdateVendorInfoMutationHookResult = ReturnType<typeof useUpdateVend
 export type UpdateVendorInfoMutationResult = Apollo.MutationResult<UpdateVendorInfoMutation>;
 export type UpdateVendorInfoMutationOptions = Apollo.BaseMutationOptions<UpdateVendorInfoMutation, UpdateVendorInfoMutationVariables>;
 export const AddVendorPartnershipDocument = gql`
-    mutation AddVendorPartnership($vendor: company_vendor_partnerships_insert_input!) {
-  insert_company_vendor_partnerships_one(object: $vendor) {
+    mutation AddVendorPartnership($vendorPartnership: company_vendor_partnerships_insert_input!) {
+  insert_company_vendor_partnerships_one(object: $vendorPartnership) {
     ...VendorPartnership
     vendor {
       ...Vendor
@@ -4988,7 +4993,7 @@ export type AddVendorPartnershipMutationFn = Apollo.MutationFunction<AddVendorPa
  * @example
  * const [addVendorPartnershipMutation, { data, loading, error }] = useAddVendorPartnershipMutation({
  *   variables: {
- *      vendor: // value for 'vendor'
+ *      vendorPartnership: // value for 'vendorPartnership'
  *   },
  * });
  */

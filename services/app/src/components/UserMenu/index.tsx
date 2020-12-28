@@ -1,12 +1,12 @@
 import { IconButton, Menu, MenuItem } from "@material-ui/core";
 import { AccountCircle } from "@material-ui/icons";
-import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { routes } from "routes";
 
 function UserMenu() {
-  const currentUser = useContext(CurrentUserContext);
+  const { setSignedIn } = useContext(CurrentUserContext);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -33,27 +33,12 @@ function UserMenu() {
           to={routes.userProfile}
           onClick={handleClose}
         >
-          Profile ({currentUser.role})
+          Profile
         </MenuItem>
         <MenuItem
           onClick={() => {
-            currentUser.setRole(UserRole.Bank);
-            handleClose();
-          }}
-        >
-          Sign in as Bank
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            currentUser.setRole(UserRole.Customer);
-            handleClose();
-          }}
-        >
-          Sign in as Customer
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            currentUser.setAuthentication(false);
+            localStorage.removeItem("access_token");
+            setSignedIn(false);
             handleClose();
           }}
         >

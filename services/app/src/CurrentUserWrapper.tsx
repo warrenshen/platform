@@ -1,29 +1,48 @@
 import {
   CurrentUserContext,
-  CurrentUserContextType,
+  User,
   UserRole,
 } from "contexts/CurrentUserContext";
-import { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
+import JwtDecode from "jwt-decode";
+import { useEffect, useState } from "react";
+
+const blankUser = {
+  id: "",
+  companyId: "",
+  role: UserRole.CompanyAdmin,
+};
+
+function decodeToken(jwtToken: string) {
+  const decodedJwtToken: any = JwtDecode(jwtToken);
+  const claims = decodedJwtToken["https://hasura.io/jwt/claims"];
+  return {
+    id: claims["X-Hasura-User-Id"],
+    companyId: claims["X-Hasura-Company-Id"],
+    role: claims["X-Hasura-Default-Role"],
+  };
+}
 
 function CurrentUserWrapper(props: { children: React.ReactNode }) {
-  const [role, setRole] = useState(UserRole.Customer);
-  const [isAuthenticated, setAuthentication] = useState(false);
-  const [id, setId] = useState(uuidv4());
+  const jwtToken = localStorage.getItem("access_token");
+  const [signedIn, setSignedIn] = useState(!!jwtToken);
+  const [user, setUser] = useState<User>(
+    jwtToken ? decodeToken(jwtToken) : blankUser
+  );
+
+  useEffect(() => {
+    if (jwtToken) {
+      setUser(decodeToken(jwtToken));
+    } else {
+      setUser(blankUser);
+    }
+  }, [signedIn, jwtToken]);
 
   return (
     <CurrentUserContext.Provider
-      value={
-        {
-          id,
-          setId,
-          company_id: "57ee8797-1d5b-4a90-83c9-84c740590e42",
-          role,
-          setRole,
-          isAuthenticated,
-          setAuthentication,
-        } as CurrentUserContextType
-      }
+      value={{
+        user,
+        setSignedIn,
+      }}
     >
       {props.children}
     </CurrentUserContext.Provider>

@@ -17,6 +17,7 @@ import {
   useUpdateBankAccountMutation,
 } from "generated/graphql";
 import { timestamptzNow } from "lib/time";
+import { omit } from "lodash";
 import { ChangeEvent, useContext, useEffect, useState } from "react";
 
 const useStyles = makeStyles({
@@ -33,7 +34,9 @@ function AccountForm(props: {
   onCancel: () => void;
   bankAccount?: BankAccountFragment;
 }) {
-  const { role: currentUserRole } = useContext(CurrentUserContext);
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
   const classes = useStyles();
   const [
     addBankAccount,
@@ -97,7 +100,7 @@ function AccountForm(props: {
             setBankAccount({ ...bankAccount, account_number: value });
           }}
         ></TextField>
-        {currentUserRole === UserRole.Bank && (
+        {role === UserRole.BankAdmin && (
           <>
             <TextField
               multiline
@@ -145,7 +148,12 @@ function AccountForm(props: {
                 await updateBankAccount({
                   variables: {
                     id: bankAccount.id,
-                    bankAccount,
+                    bankAccount: omit(
+                      bankAccount,
+                      role === UserRole.CompanyAdmin
+                        ? ["id", "company_id", "notes", "verified_at"]
+                        : ["id", "company_id"]
+                    ),
                   },
                   optimisticResponse: {
                     update_company_bank_accounts_by_pk: {
@@ -158,7 +166,10 @@ function AccountForm(props: {
                   variables: {
                     bankAccount: {
                       ...bankAccount,
-                      company_id: props.companyId,
+                      company_id:
+                        role === UserRole.BankAdmin
+                          ? props.companyId
+                          : undefined,
                     },
                   },
                   refetchQueries: [

@@ -15,8 +15,8 @@ import { bankPaths, routes } from "routes";
 import "./App.css";
 
 function App() {
-  const currentUser = useContext(CurrentUserContext);
-  if (!currentUser.isAuthenticated) return <SignIn />;
+  const { user } = useContext(CurrentUserContext);
+  if (!user.id) return <SignIn />;
   return (
     <BrowserRouter>
       <Layout>

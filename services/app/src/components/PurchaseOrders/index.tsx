@@ -13,7 +13,9 @@ import { ActionType } from "../../lib/ActionType";
 
 function PurchaseOrders() {
   const { companyId } = useParams<CustomerParams>();
-  const { role: currentUserRole } = useContext(CurrentUserContext);
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
   useTitle("Purchase Orders | Bespoke");
   useAppBarTitle("Purchase Orders");
 
@@ -36,7 +38,7 @@ function PurchaseOrders() {
   const [actionType, setActionType] = useState(ActionType.New);
   return (
     <Box>
-      {currentUserRole === UserRole.Customer && (
+      {role === UserRole.CompanyAdmin && (
         <AddButton
           actionType={actionType}
           originalPurchaseOrder={originalPurchaseOrder}

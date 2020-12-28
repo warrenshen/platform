@@ -1,4 +1,8 @@
 import json
+import os
+import datetime
+
+import jwt
 
 from flask import Response, Blueprint
 from flask import current_app, request, make_response
@@ -31,7 +35,7 @@ class RegistrationView(MethodView):
 
 		user = models.User(
 			email=email,
-			password=sha256.hash(password)
+			password=sha256.hash(os.environ.get("PASSWORD_SALT") + password)
 		)
 
 		try:
@@ -67,18 +71,27 @@ class LoginView(MethodView):
 			if not user:
 				return make_error_response('User {} does not exist'.format(email))
 
-			if not sha256.verify(password, user.password):
+			if not sha256.verify(os.environ.get("PASSWORD_SALT") + password, user.password):
 				return make_error_response(f'Invalid password provided')
 
-		access_token = create_access_token(identity=email)
-		refresh_token = create_refresh_token(identity=email)
+			payload = {
+				'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1),
+				'iat': datetime.datetime.utcnow(),
+				'sub': str(user.id),
+				'https://hasura.io/jwt/claims': {
+					'X-Hasura-User-Id': str(user.id),
+					'X-Hasura-Default-Role': user.role,
+					'X-Hasura-Allowed-Roles': [user.role],
+					'X-Hasura-Company-Id': str(user.company_id)
+				}
+			}
+			access_token = jwt.encode(payload, current_app.config['JWT_SECRET_KEY'], algorithm=current_app.config['JWT_ALGORITHM'])
 
-		return make_response(json.dumps({
-			'status': 'OK',
-			'msg': 'Logged in as {}'.format(email),
-			'access_token': access_token,
-			'refresh_token': refresh_token
-		}), 200)
+			return make_response(json.dumps({
+				'status': 'OK',
+				'msg': 'Logged in as {}'.format(email),
+				'access_token': access_token.decode(),
+			}), 200)
 
 class LogoutAccessView(MethodView):
 

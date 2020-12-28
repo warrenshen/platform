@@ -17,6 +17,12 @@ def _setup_db() -> None:
 
 	models.Base.metadata.create_all(db)
 
+	user = session.query(models.User).filter(models.User.email == "admin@bespoke.com").first()
+	print(user.id)
+	print(user.email)
+	print(user.password)
+	print(user.company_id)
+
 	# Create
 	#job1 = models.Job(id='2020-05-18', email='david', params={}, info={'key1': 'val1'}, status={}, state_vars={})
 	#session.add(job1)

@@ -1,12 +1,17 @@
 import { Box } from "@material-ui/core";
 import VendorCard from "components/Vendors/VendorCard";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useListVendorPartnershipsQuery } from "generated/graphql";
 import { sortBy } from "lodash";
+import { useContext } from "react";
 
 function ListVendors() {
-  const { data, loading } = useListVendorPartnershipsQuery({
+  const {
+    user: { companyId },
+  } = useContext(CurrentUserContext);
+  const { data } = useListVendorPartnershipsQuery({
     variables: {
-      companyId: "57ee8797-1d5b-4a90-83c9-84c740590e42",
+      companyId,
     },
   });
 

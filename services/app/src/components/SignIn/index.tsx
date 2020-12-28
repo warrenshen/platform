@@ -9,6 +9,7 @@ import {
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useContext, useState } from "react";
 import { useTitle } from "react-use";
+import { authEndpoints } from "routes";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -51,17 +52,12 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 function SignIn() {
-  const currentUser = useContext(CurrentUserContext);
   const classes = useStyles();
   useTitle("Login | Bespoke");
 
-  const [emailInput, setEmail] = useState("");
-  const [passwordInput, setPassword] = useState("");
-
-  const loginUser = (email: string, password: string) => {
-    currentUser.setAuthentication(true);
-    currentUser.setId("094c8cca-3bc6-4fe0-be0e-a23858aca52b");
-  };
+  const { setSignedIn } = useContext(CurrentUserContext);
+  const [email, setEmail] = useState("admin@bespoke.com");
+  const [password, setPassword] = useState("password123");
 
   return (
     <Box className={classes.container}>
@@ -72,7 +68,7 @@ function SignIn() {
         <TextField
           label="Email"
           className={classes.formInput}
-          value={emailInput}
+          value={email}
           onChange={({ target: { value } }) => {
             setEmail(value);
           }}
@@ -81,16 +77,27 @@ function SignIn() {
           type="password"
           label="Password"
           className={classes.formInput}
-          value={passwordInput}
+          value={password}
           onChange={({ target: { value } }) => {
             setPassword(value);
           }}
         ></TextField>
         <Button
           className={classes.loginButton}
-          disabled={!emailInput || !passwordInput}
+          disabled={!email || !password}
           onClick={async () => {
-            loginUser(emailInput, passwordInput);
+            const response = await fetch(authEndpoints.login, {
+              method: "POST",
+              mode: "cors",
+              cache: "no-cache",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ email, password }),
+            });
+            const data = await response.json();
+            localStorage.setItem("access_token", data.access_token);
+            setSignedIn(true);
           }}
           variant="contained"
           color="primary"

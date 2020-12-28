@@ -83,20 +83,20 @@ function AddPurchaseOrderModal({
   handleClose,
 }: Props) {
   const classes = useStyles();
-  const { company_id: currentUserCompanyId } = useContext(CurrentUserContext);
+  const {
+    user: { companyId },
+  } = useContext(CurrentUserContext);
   const {
     data: vendorsData,
     loading: getVendorsLoading,
   } = useListPurchaseOrderVendorsQuery();
-  const vendors = vendorsData?.companies.filter(
-    (v) => v.id !== currentUserCompanyId
-  );
+  const vendors = vendorsData?.companies.filter((v) => v.id !== companyId);
 
   const {
     data: parentPurchaseOrdersData,
     loading: getParentPurchaseOrdersLoading,
   } = useListPurchaseOrdersQuery({
-    variables: { company_id: currentUserCompanyId },
+    variables: { company_id: companyId },
   });
   const parentPurchaseOrders =
     actionType === ActionType.Update
@@ -431,7 +431,7 @@ function AddPurchaseOrderModal({
                     {
                       query: ListPurchaseOrdersDocument,
                       variables: {
-                        company_id: currentUserCompanyId,
+                        company_id: companyId,
                       },
                     },
                   ],
@@ -459,7 +459,7 @@ function AddPurchaseOrderModal({
                               newPurchaseOrderItem.price_per_unit
                             )
                           : 0),
-                      company_id: currentUserCompanyId,
+                      company_id: companyId,
                       line_items: {
                         data: toAddNewItem
                           ? [
@@ -480,7 +480,7 @@ function AddPurchaseOrderModal({
                     {
                       query: ListPurchaseOrdersDocument,
                       variables: {
-                        company_id: currentUserCompanyId,
+                        company_id: companyId,
                       },
                     },
                   ],

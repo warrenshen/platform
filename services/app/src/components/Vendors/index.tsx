@@ -9,9 +9,11 @@ function Vendors() {
   useTitle("Vendors | Bespoke");
   useAppBarTitle("Vendors");
 
-  const currentUser = useContext(CurrentUserContext);
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
 
-  return currentUser.role === UserRole.Bank ? (
+  return role === UserRole.BankAdmin ? (
     <BankVendors></BankVendors>
   ) : (
     <CustomerVendors></CustomerVendors>

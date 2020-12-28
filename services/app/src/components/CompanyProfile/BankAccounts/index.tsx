@@ -24,12 +24,12 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-interface Params {
+interface Props {
   companyId: string;
   bankAccounts: CompanyBankAccountFragment[];
 }
 
-function BankAccounts({ companyId, bankAccounts }: Params) {
+function BankAccounts({ companyId, bankAccounts }: Props) {
   const classes = useStyles();
   const [accounts, setAccounts] = useState(
     bankAccounts.map((bankAccount) => {

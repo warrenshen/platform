@@ -21,3 +21,7 @@ export const bankPaths = {
     users: "/users",
   },
 };
+
+export const authEndpoints = {
+  login: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}/auth/login`,
+};

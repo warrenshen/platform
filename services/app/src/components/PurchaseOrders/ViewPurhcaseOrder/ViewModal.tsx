@@ -45,7 +45,9 @@ interface Props {
 }
 
 function ViewModal({ id, handleClose, manipulatePurchaseOrder }: Props) {
-  const { role: currentUserRole } = useContext(CurrentUserContext);
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
   const classes = useStyles();
   const { data, loading } = usePurchaseOrderQuery({
     variables: {
@@ -152,7 +154,7 @@ function ViewModal({ id, handleClose, manipulatePurchaseOrder }: Props) {
           <Button className={classes.buttonClass} onClick={handleClose}>
             Cancel
           </Button>
-          {currentUserRole === UserRole.Customer && (
+          {role === UserRole.CompanyAdmin && (
             <>
               <Button
                 className={classes.buttonClass}

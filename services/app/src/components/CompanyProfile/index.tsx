@@ -14,12 +14,14 @@ export interface CustomerParams {
 function CompanyProfile() {
   useTitle("Company Profile | Bespoke");
   useAppBarTitle("Company Profile");
-  const { companyId } = useParams<CustomerParams>();
-  const { company_id: currentUserCompanyId } = useContext(CurrentUserContext);
+  const { companyId: companyIdFromParams } = useParams<CustomerParams>();
+  const { user } = useContext(CurrentUserContext);
 
-  const { data: companyData, loading: companyLoading } = useCompanyQuery({
+  const companyId = companyIdFromParams ? companyIdFromParams : user.companyId;
+
+  const { data: companyData } = useCompanyQuery({
     variables: {
-      companyId: companyId ? companyId : currentUserCompanyId,
+      companyId,
     },
   });
 
@@ -29,14 +31,9 @@ function CompanyProfile() {
 
   const company = companyData?.companies_by_pk;
 
-  if (companyLoading) {
-    return <p>Loading...</p>;
-  }
-
   return (
     <>
       <CompanyInfo company={company}></CompanyInfo>
-
       <BankAccounts
         companyId={company.id}
         bankAccounts={company.bank_accounts}

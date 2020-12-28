@@ -1,26 +1,27 @@
+import { Users } from "generated/graphql";
 import { createContext } from "react";
 
 export enum UserRole {
-  Bank = "Bank",
-  Customer = "Customer",
+  BankAdmin = "bank_admin",
+  CompanyAdmin = "company_admin",
 }
 
-export type CurrentUserContextType = {
-  id: string;
+export type User = {
+  id: Users["id"];
+  companyId: Users["company_id"];
   role: UserRole;
-  company_id: string;
-  setRole: (role: UserRole) => void;
-  setAuthentication: (value: boolean) => void;
-  setId: (value: string) => void;
-  isAuthenticated: boolean;
+};
+
+export type CurrentUserContextType = {
+  user: User;
+  setSignedIn: (signedIn: boolean) => void;
 };
 
 export const CurrentUserContext = createContext<CurrentUserContextType>({
-  id: "",
-  company_id: "",
-  role: UserRole.Customer,
-  setRole: () => {},
-  setAuthentication: () => {},
-  setId: () => {},
-  isAuthenticated: false,
+  user: {
+    id: "",
+    companyId: "",
+    role: UserRole.CompanyAdmin,
+  },
+  setSignedIn: () => {},
 });

@@ -29,13 +29,13 @@ function UserProfile() {
 
   const classes = useStyles();
 
-  const currentUserFromContext = useContext(CurrentUserContext);
+  const { user: currentUser } = useContext(CurrentUserContext);
 
   const [open, setOpen] = useState(false);
 
   const { data } = useUserByIdQuery({
     variables: {
-      id: currentUserFromContext.id,
+      id: currentUser.id,
     },
   });
 
@@ -45,7 +45,7 @@ function UserProfile() {
     <>
       {user && open && (
         <EditUserProfile
-          userId={currentUserFromContext.id}
+          userId={currentUser.id}
           originalUserProfile={user}
           handleClose={() => setOpen(false)}
         ></EditUserProfile>

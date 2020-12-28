@@ -22,9 +22,9 @@ fragment VendorPartnership on company_vendor_partnerships {
 }
 
 mutation AddVendorPartnership(
-  $vendor: company_vendor_partnerships_insert_input!
+  $vendorPartnership: company_vendor_partnerships_insert_input!
 ) {
-  insert_company_vendor_partnerships_one(object: $vendor) {
+  insert_company_vendor_partnerships_one(object: $vendorPartnership) {
     ...VendorPartnership
     vendor {
       ...Vendor
