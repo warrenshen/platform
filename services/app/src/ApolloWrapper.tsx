@@ -11,12 +11,7 @@ import { getMainDefinition } from "@apollo/client/utilities";
 import { CurrentUserContext, User } from "contexts/CurrentUserContext";
 import { useContext } from "react";
 
-const createApolloClient = (user: User) => {
-  let jwtToken;
-  if (user.id) {
-    jwtToken = localStorage.getItem("access_token");
-  }
-
+const createApolloClient = (user: User, jwtToken: string | null) => {
   const httpLink = new HttpLink({
     uri: process.env.REACT_APP_BESPOKE_GRAPHQL_ENDPOINT,
     credentials: "include",
@@ -26,19 +21,6 @@ const createApolloClient = (user: User) => {
           "X-Hasura-Role": user.role,
         }
       : undefined,
-  });
-
-  const stripTypenameLink = new ApolloLink((operation, forward) => {
-    const omitTypename = (key: string, value: any): boolean => {
-      return key === "__typename" ? undefined : value;
-    };
-    if (operation.variables) {
-      operation.variables = JSON.parse(
-        JSON.stringify(operation.variables),
-        omitTypename
-      );
-    }
-    return forward(operation);
   });
 
   const wsLink = new WebSocketLink({
@@ -69,6 +51,19 @@ const createApolloClient = (user: User) => {
     httpLink
   );
 
+  const stripTypenameLink = new ApolloLink((operation, forward) => {
+    const omitTypename = (key: string, value: any): boolean => {
+      return key === "__typename" ? undefined : value;
+    };
+    if (operation.variables) {
+      operation.variables = JSON.parse(
+        JSON.stringify(operation.variables),
+        omitTypename
+      );
+    }
+    return forward(operation);
+  });
+
   return new ApolloClient({
     link: ApolloLink.from([stripTypenameLink, transportLink]),
     cache: new InMemoryCache(),
@@ -77,8 +72,8 @@ const createApolloClient = (user: User) => {
 };
 
 function ApolloWrapper(props: { children: React.ReactNode }) {
-  const { user } = useContext(CurrentUserContext);
-  const client = createApolloClient(user);
+  const { user, jwtToken } = useContext(CurrentUserContext);
+  const client = createApolloClient(user, jwtToken);
   return <ApolloProvider client={client}>{props.children}</ApolloProvider>;
 }
 

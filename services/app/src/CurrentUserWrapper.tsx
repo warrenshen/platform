@@ -1,16 +1,20 @@
+import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
 import {
   CurrentUserContext,
   User,
   UserRole,
 } from "contexts/CurrentUserContext";
 import JwtDecode from "jwt-decode";
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
+import { authEndpoints } from "routes";
 
 const blankUser = {
   id: "",
   companyId: "",
   role: UserRole.CompanyAdmin,
 };
+
+export const LOCAL_STORAGE_ACCESS_TOKEN_KEY = "access_token";
 
 function decodeToken(jwtToken: string) {
   const decodedJwtToken: any = JwtDecode(jwtToken);
@@ -23,25 +27,45 @@ function decodeToken(jwtToken: string) {
 }
 
 function CurrentUserWrapper(props: { children: React.ReactNode }) {
-  const jwtToken = localStorage.getItem("access_token");
-  const [signedIn, setSignedIn] = useState(!!jwtToken);
+  const jwtToken = localStorage.getItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY);
   const [user, setUser] = useState<User>(
     jwtToken ? decodeToken(jwtToken) : blankUser
   );
 
-  useEffect(() => {
-    if (jwtToken) {
-      setUser(decodeToken(jwtToken));
-    } else {
+  const signIn = useCallback(async (email: string, password: string) => {
+    const response = await fetch(authEndpoints.login, {
+      method: "POST",
+      mode: "cors",
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+    try {
+      const data = await response.json();
+      if (data.status === "OK") {
+        localStorage.setItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY, data.access_token);
+        setUser(decodeToken(data.access_token));
+      }
+    } catch {
       setUser(blankUser);
     }
-  }, [signedIn, jwtToken]);
+  }, []);
+
+  const signOut = useCallback((client: ApolloClient<NormalizedCacheObject>) => {
+    localStorage.removeItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY);
+    client.clearStore();
+    setUser(blankUser);
+  }, []);
 
   return (
     <CurrentUserContext.Provider
       value={{
         user,
-        setSignedIn,
+        jwtToken,
+        signIn,
+        signOut,
       }}
     >
       {props.children}

@@ -1,3 +1,8 @@
+import {
+  ApolloClient,
+  NormalizedCacheObject,
+  useApolloClient,
+} from "@apollo/client";
 import { IconButton, Menu, MenuItem } from "@material-ui/core";
 import { AccountCircle } from "@material-ui/icons";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
@@ -6,7 +11,8 @@ import { Link } from "react-router-dom";
 import { routes } from "routes";
 
 function UserMenu() {
-  const { setSignedIn } = useContext(CurrentUserContext);
+  const client = useApolloClient() as ApolloClient<NormalizedCacheObject>;
+  const { signOut } = useContext(CurrentUserContext);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -37,8 +43,7 @@ function UserMenu() {
         </MenuItem>
         <MenuItem
           onClick={() => {
-            localStorage.removeItem("access_token");
-            setSignedIn(false);
+            signOut(client);
             handleClose();
           }}
         >

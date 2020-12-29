@@ -1,3 +1,4 @@
+import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
 import { Users } from "generated/graphql";
 import { createContext } from "react";
 
@@ -14,7 +15,9 @@ export type User = {
 
 export type CurrentUserContextType = {
   user: User;
-  setSignedIn: (signedIn: boolean) => void;
+  jwtToken: string | null;
+  signIn: (email: string, password: string) => void;
+  signOut: (client: ApolloClient<NormalizedCacheObject>) => void;
 };
 
 export const CurrentUserContext = createContext<CurrentUserContextType>({
@@ -23,5 +26,7 @@ export const CurrentUserContext = createContext<CurrentUserContextType>({
     companyId: "",
     role: UserRole.CompanyAdmin,
   },
-  setSignedIn: () => {},
+  jwtToken: null,
+  signIn: () => {},
+  signOut: () => {},
 });

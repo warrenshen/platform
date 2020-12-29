@@ -9,7 +9,6 @@ import {
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useContext, useState } from "react";
 import { useTitle } from "react-use";
-import { authEndpoints } from "routes";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -55,7 +54,7 @@ function SignIn() {
   const classes = useStyles();
   useTitle("Login | Bespoke");
 
-  const { setSignedIn } = useContext(CurrentUserContext);
+  const { signIn } = useContext(CurrentUserContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -86,18 +85,7 @@ function SignIn() {
           className={classes.loginButton}
           disabled={!email || !password}
           onClick={async () => {
-            const response = await fetch(authEndpoints.login, {
-              method: "POST",
-              mode: "cors",
-              cache: "no-cache",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ email, password }),
-            });
-            const data = await response.json();
-            localStorage.setItem("access_token", data.access_token);
-            setSignedIn(true);
+            await signIn(email, password);
           }}
           variant="contained"
           color="primary"
