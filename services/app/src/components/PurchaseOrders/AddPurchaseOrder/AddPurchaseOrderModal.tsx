@@ -34,8 +34,8 @@ import {
   useUpdatePurchaseOrderMutation,
 } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
+import { ActionType } from "lib/ActionType";
 import { useContext, useState } from "react";
-import { ActionType } from "../../../lib/ActionType";
 import { CURRENCIES } from "../models/fakeData";
 import { ItemAction } from "../models/ItemAction";
 import { multiplyNullableNumbers } from "../models/NumberHelper";

@@ -5,14 +5,15 @@ import {
   RowsProp,
   ValueFormatterParams,
 } from "@material-ui/data-grid";
-import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   PurchaseOrderFragment,
   useListPurchaseOrdersQuery,
 } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
+import { ActionType } from "lib/ActionType";
+import { Action, check } from "lib/rbac-rules";
 import { useContext, useState } from "react";
-import { ActionType } from "../../../lib/ActionType";
 import ViewModal from "../ViewPurhcaseOrder/ViewModal";
 import ActionMenu from "./ActionMenu";
 import Status from "./Status";
@@ -100,7 +101,7 @@ function ListPurchaseOrders({ companyId, manipulatePurchaseOrder }: Props) {
     },
   ];
 
-  if (user.role === UserRole.CompanyAdmin) {
+  if (check(user.role, Action.ViewPurchaseOrdersActionMenu)) {
     columns.push({
       field: "action",
       headerName: "Action",

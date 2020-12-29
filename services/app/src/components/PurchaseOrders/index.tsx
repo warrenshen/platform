@@ -1,15 +1,17 @@
 import { Box } from "@material-ui/core";
 import { CustomerParams } from "components/Bank/Customer";
+import Can from "components/Can";
 import AddButton from "components/PurchaseOrders/AddPurchaseOrder/AddButton";
 import ListPurchaseOrders from "components/PurchaseOrders/ListPurchaseOrders";
-import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { PurchaseOrderFragment } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
 import useAppBarTitle from "hooks/useAppBarTitle";
+import { ActionType } from "lib/ActionType";
+import { Action } from "lib/rbac-rules";
 import { useContext, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useTitle } from "react-use";
-import { ActionType } from "../../lib/ActionType";
 
 function PurchaseOrders() {
   const { companyId } = useParams<CustomerParams>();
@@ -38,7 +40,7 @@ function PurchaseOrders() {
   const [actionType, setActionType] = useState(ActionType.New);
   return (
     <Box>
-      {role === UserRole.CompanyAdmin && (
+      <Can perform={Action.AddPurchaseOrders}>
         <AddButton
           actionType={actionType}
           originalPurchaseOrder={originalPurchaseOrder}
@@ -47,7 +49,7 @@ function PurchaseOrders() {
           manipulatePurchaseOrder={manipulatePurchaseOrder}
           clearId={clearId}
         ></AddButton>
-      )}
+      </Can>
       <ListPurchaseOrders
         companyId={companyId}
         manipulatePurchaseOrder={manipulatePurchaseOrder}

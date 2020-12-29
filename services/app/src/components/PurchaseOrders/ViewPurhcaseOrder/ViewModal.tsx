@@ -10,11 +10,13 @@ import {
   Theme,
 } from "@material-ui/core";
 import { Attachment, Create, Email, Print } from "@material-ui/icons";
-import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
+import Can from "components/Can";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { usePurchaseOrderQuery } from "generated/graphql";
+import { ActionType } from "lib/ActionType";
+import { Action } from "lib/rbac-rules";
 import { calendarDateTimestamp } from "lib/time";
 import { useContext } from "react";
-import { ActionType } from "../../../lib/ActionType";
 import ItemsList from "./ItemsList";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -154,61 +156,59 @@ function ViewModal({ id, handleClose, manipulatePurchaseOrder }: Props) {
           <Button className={classes.buttonClass} onClick={handleClose}>
             Cancel
           </Button>
-          {role === UserRole.CompanyAdmin && (
-            <>
-              <Button
-                className={classes.buttonClass}
-                variant="contained"
-                color="primary"
-                onClick={() => {
-                  handleClose();
-                  manipulatePurchaseOrder(ActionType.Update, id);
-                }}
-                startIcon={<Create />}
-              >
-                Edit
-              </Button>
-              <Button
-                className={classes.buttonClass}
-                variant="contained"
-                color="primary"
-                onClick={() => {
-                  handleClose();
-                  manipulatePurchaseOrder(ActionType.Copy, id);
-                }}
-                startIcon={<Create />}
-              >
-                Replicate Purchase Order
-              </Button>
-              <Button
-                className={classes.buttonClass}
-                variant="contained"
-                color="primary"
-                onClick={handleClose}
-                startIcon={<Attachment />}
-              >
-                Attachments
-              </Button>
-              <Button
-                className={classes.buttonClass}
-                variant="contained"
-                color="primary"
-                onClick={handleClose}
-                startIcon={<Print />}
-              >
-                Print
-              </Button>
-              <Button
-                className={classes.buttonClass}
-                variant="contained"
-                color="primary"
-                onClick={handleClose}
-                startIcon={<Email />}
-              >
-                Chat
-              </Button>
-            </>
-          )}
+          <Can perform={Action.ManipulatePurchaseOrders}>
+            <Button
+              className={classes.buttonClass}
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                handleClose();
+                manipulatePurchaseOrder(ActionType.Update, id);
+              }}
+              startIcon={<Create />}
+            >
+              Edit
+            </Button>
+            <Button
+              className={classes.buttonClass}
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                handleClose();
+                manipulatePurchaseOrder(ActionType.Copy, id);
+              }}
+              startIcon={<Create />}
+            >
+              Replicate Purchase Order
+            </Button>
+            <Button
+              className={classes.buttonClass}
+              variant="contained"
+              color="primary"
+              onClick={handleClose}
+              startIcon={<Attachment />}
+            >
+              Attachments
+            </Button>
+            <Button
+              className={classes.buttonClass}
+              variant="contained"
+              color="primary"
+              onClick={handleClose}
+              startIcon={<Print />}
+            >
+              Print
+            </Button>
+            <Button
+              className={classes.buttonClass}
+              variant="contained"
+              color="primary"
+              onClick={handleClose}
+              startIcon={<Email />}
+            >
+              Chat
+            </Button>
+          </Can>
         </Box>
       </DialogActions>
     </Dialog>

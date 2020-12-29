@@ -1,7 +1,7 @@
 import { IconButton, Menu, MenuItem } from "@material-ui/core";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
+import { ActionType } from "lib/ActionType";
 import { useState } from "react";
-import { ActionType } from "../../../lib/ActionType";
 
 interface Props {
   purchaseOrderId: string;

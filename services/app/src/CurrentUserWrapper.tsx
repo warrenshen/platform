@@ -14,7 +14,7 @@ const blankUser = {
   role: UserRole.CompanyAdmin,
 };
 
-export const LOCAL_STORAGE_ACCESS_TOKEN_KEY = "access_token";
+const LOCAL_STORAGE_ACCESS_TOKEN_KEY = "access_token";
 
 function decodeToken(jwtToken: string) {
   const decodedJwtToken: any = JwtDecode(jwtToken);
@@ -44,7 +44,7 @@ function CurrentUserWrapper(props: { children: React.ReactNode }) {
     });
     try {
       const data = await response.json();
-      if (data.status === "OK") {
+      if (data.status === "OK" && data.access_token) {
         localStorage.setItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY, data.access_token);
         setUser(decodeToken(data.access_token));
       }
