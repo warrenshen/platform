@@ -10,11 +10,7 @@ import {
   TextField,
   Theme,
 } from "@material-ui/core";
-import {
-  UserByIdDocument,
-  UserFragment,
-  useUpdateUserMutation,
-} from "generated/graphql";
+import { UserFragment, useUpdateUserMutation } from "generated/graphql";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -39,11 +35,17 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   userId: string;
+  companyId: string;
   originalUserProfile: UserFragment;
   handleClose: () => void;
 }
 
-function EditUserProfile({ userId, originalUserProfile, handleClose }: Props) {
+function EditUserProfile({
+  userId,
+  companyId,
+  originalUserProfile,
+  handleClose,
+}: Props) {
   const classes = useStyles();
 
   const [userProfile, setUserProfile] = useState(originalUserProfile);
@@ -121,22 +123,35 @@ function EditUserProfile({ userId, originalUserProfile, handleClose }: Props) {
           <Button onClick={handleClose}>Cancel</Button>
           <Button
             className={classes.submitButton}
+            variant="contained"
+            color="primary"
+            onClick={handleClose}
+          >
+            Disable Account
+          </Button>
+          <Button
+            className={classes.submitButton}
+            variant="contained"
+            color="primary"
+            onClick={handleClose}
+          >
+            Reset Password
+          </Button>
+          <Button
+            className={classes.submitButton}
             disabled={!userProfile.first_name || !userProfile.last_name}
             onClick={async () => {
-              const { email, role, full_name, ...userSet } = userProfile;
+              const { email, role, full_name, id, ...userSet } = userProfile;
               await updateUser({
                 variables: {
                   id: userId,
                   user: userSet,
                 },
-                refetchQueries: [
-                  {
-                    query: UserByIdDocument,
-                    variables: {
-                      id: userId,
-                    },
+                optimisticResponse: {
+                  update_users_by_pk: {
+                    ...(userProfile as UserFragment),
                   },
-                ],
+                },
               });
               handleClose();
             }}

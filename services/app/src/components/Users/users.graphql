@@ -1,0 +1,26 @@
+# fragment User on users {
+#   first_name
+#   last_name
+#   full_name
+#   email
+#   phone_number
+#   role
+# }
+
+query ListUsersByRole($role: String!) {
+  users(where: { role: { _eq: $role } }) {
+    ...User
+  }
+}
+
+query ListUsersByCompanyId($companyId: uuid!) {
+  users(where: { company_id: { _eq: $companyId } }) {
+    ...User
+  }
+}
+
+mutation AddUser($user: users_insert_input!) {
+  insert_users_one(object: $user) {
+    ...User
+  }
+}

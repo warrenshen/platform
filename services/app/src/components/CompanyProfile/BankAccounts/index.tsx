@@ -66,8 +66,8 @@ function BankAccounts({ companyId, bankAccounts }: Props) {
         Add Bank Account
       </Button>
       <Box display="flex">
-        {accounts.map((account) => (
-          <Card className={classes.card}>
+        {accounts.map((account, index) => (
+          <Card key={index} className={classes.card}>
             <CardContent>
               <Box mb={3}>
                 {account && account.addNew && (

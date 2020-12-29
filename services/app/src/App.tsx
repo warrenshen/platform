@@ -7,6 +7,7 @@ import Loans from "components/Loans";
 import PurchaseOrders from "components/PurchaseOrders";
 import SignIn from "components/SignIn";
 import UserProfile from "components/UserProfile";
+import Users from "components/Users";
 import Vendors from "components/Vendors";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useContext } from "react";
@@ -34,6 +35,7 @@ function App() {
           <Route exact path={bankPaths.customers} component={Customers}></Route>
           <Route path={bankPaths.customer.root} component={Customer}></Route>
           <Route path={routes.userProfile} component={UserProfile}></Route>
+          <Route path={routes.users} component={Users}></Route>
         </Switch>
       </Layout>
     </BrowserRouter>

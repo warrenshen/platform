@@ -8,13 +8,13 @@ import {
   Typography,
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
+import EditUserProfile from "components/Shared/Users/EditUserProfile";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { UserFragment, useUserByIdQuery } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
 import useAppBarTitle from "hooks/useAppBarTitle";
 import { useContext, useState } from "react";
 import { useTitle } from "react-use";
-import EditUserProfile from "./EditUserProfile";
 
 const useStyles = makeStyles({
   label: {
@@ -45,6 +45,7 @@ function UserProfile() {
     <>
       {user && open && (
         <EditUserProfile
+          companyId={currentUser.companyId}
           userId={currentUser.id}
           originalUserProfile={user}
           handleClose={() => setOpen(false)}

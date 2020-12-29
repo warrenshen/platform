@@ -65,6 +65,10 @@ const CUSTOMER_LEFT_NAV_ITEMS = [
     text: "Profile",
     link: routes.profile,
   },
+  {
+    text: "Users",
+    link: routes.users,
+  },
 ];
 
 const BANK_LEFT_NAV_ITEMS = [
@@ -83,6 +87,10 @@ const BANK_LEFT_NAV_ITEMS = [
   {
     text: "Customers",
     link: bankPaths.customers,
+  },
+  {
+    text: "Users",
+    link: routes.users,
   },
 ];
 

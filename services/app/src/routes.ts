@@ -7,6 +7,7 @@ export const routes = {
   profile: "/profile",
   login: "/login",
   userProfile: "/user-profile",
+  users: "/users",
 };
 
 export const bankPaths = {

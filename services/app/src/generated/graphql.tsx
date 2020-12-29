@@ -3771,7 +3771,7 @@ export type UpdatePurchaseOrderMutationVariables = Exact<{
 
 export type UpdatePurchaseOrderMutation = { delete_purchase_order_line_items?: Maybe<Pick<PurchaseOrderLineItemsMutationResponse, 'affected_rows'>>, insert_purchase_order_line_items?: Maybe<Pick<PurchaseOrderLineItemsMutationResponse, 'affected_rows'>>, update_purchase_orders_by_pk?: Maybe<PurchaseOrderFragment> };
 
-export type UserFragment = Pick<Users, 'first_name' | 'last_name' | 'full_name' | 'email' | 'phone_number' | 'role'>;
+export type UserFragment = Pick<Users, 'id' | 'first_name' | 'last_name' | 'full_name' | 'email' | 'phone_number' | 'role'>;
 
 export type UserByIdQueryVariables = Exact<{
   id: Scalars['uuid'];
@@ -3787,6 +3787,34 @@ export type UpdateUserMutationVariables = Exact<{
 
 
 export type UpdateUserMutation = { update_users_by_pk?: Maybe<UserFragment> };
+
+export type UsersByEmailQueryVariables = Exact<{
+  email: Scalars['String'];
+}>;
+
+
+export type UsersByEmailQuery = { users: Array<Pick<Users, 'id' | 'company_id' | 'role'>> };
+
+export type ListUsersByRoleQueryVariables = Exact<{
+  role: Scalars['String'];
+}>;
+
+
+export type ListUsersByRoleQuery = { users: Array<UserFragment> };
+
+export type ListUsersByCompanyIdQueryVariables = Exact<{
+  companyId: Scalars['uuid'];
+}>;
+
+
+export type ListUsersByCompanyIdQuery = { users: Array<UserFragment> };
+
+export type AddUserMutationVariables = Exact<{
+  user: UsersInsertInput;
+}>;
+
+
+export type AddUserMutation = { insert_users_one?: Maybe<UserFragment> };
 
 export type BankVendorPartnershipFragment = (
   Pick<CompanyVendorPartnerships, 'id' | 'company_id' | 'vendor_id' | 'vendor_agreement_id' | 'vendor_license_id'>
@@ -3987,6 +4015,7 @@ export const PurchaseOrderFragmentDoc = gql`
     ${PurchaseOrderLineItemFragmentDoc}`;
 export const UserFragmentDoc = gql`
     fragment User on users {
+  id
   first_name
   last_name
   full_name
@@ -4716,6 +4745,139 @@ export function useUpdateUserMutation(baseOptions?: Apollo.MutationHookOptions<U
 export type UpdateUserMutationHookResult = ReturnType<typeof useUpdateUserMutation>;
 export type UpdateUserMutationResult = Apollo.MutationResult<UpdateUserMutation>;
 export type UpdateUserMutationOptions = Apollo.BaseMutationOptions<UpdateUserMutation, UpdateUserMutationVariables>;
+export const UsersByEmailDocument = gql`
+    query UsersByEmail($email: String!) {
+  users(where: {email: {_eq: $email}}) {
+    id
+    company_id
+    role
+  }
+}
+    `;
+
+/**
+ * __useUsersByEmailQuery__
+ *
+ * To run a query within a React component, call `useUsersByEmailQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUsersByEmailQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUsersByEmailQuery({
+ *   variables: {
+ *      email: // value for 'email'
+ *   },
+ * });
+ */
+export function useUsersByEmailQuery(baseOptions: Apollo.QueryHookOptions<UsersByEmailQuery, UsersByEmailQueryVariables>) {
+        return Apollo.useQuery<UsersByEmailQuery, UsersByEmailQueryVariables>(UsersByEmailDocument, baseOptions);
+      }
+export function useUsersByEmailLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UsersByEmailQuery, UsersByEmailQueryVariables>) {
+          return Apollo.useLazyQuery<UsersByEmailQuery, UsersByEmailQueryVariables>(UsersByEmailDocument, baseOptions);
+        }
+export type UsersByEmailQueryHookResult = ReturnType<typeof useUsersByEmailQuery>;
+export type UsersByEmailLazyQueryHookResult = ReturnType<typeof useUsersByEmailLazyQuery>;
+export type UsersByEmailQueryResult = Apollo.QueryResult<UsersByEmailQuery, UsersByEmailQueryVariables>;
+export const ListUsersByRoleDocument = gql`
+    query ListUsersByRole($role: String!) {
+  users(where: {role: {_eq: $role}}) {
+    ...User
+  }
+}
+    ${UserFragmentDoc}`;
+
+/**
+ * __useListUsersByRoleQuery__
+ *
+ * To run a query within a React component, call `useListUsersByRoleQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListUsersByRoleQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListUsersByRoleQuery({
+ *   variables: {
+ *      role: // value for 'role'
+ *   },
+ * });
+ */
+export function useListUsersByRoleQuery(baseOptions: Apollo.QueryHookOptions<ListUsersByRoleQuery, ListUsersByRoleQueryVariables>) {
+        return Apollo.useQuery<ListUsersByRoleQuery, ListUsersByRoleQueryVariables>(ListUsersByRoleDocument, baseOptions);
+      }
+export function useListUsersByRoleLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListUsersByRoleQuery, ListUsersByRoleQueryVariables>) {
+          return Apollo.useLazyQuery<ListUsersByRoleQuery, ListUsersByRoleQueryVariables>(ListUsersByRoleDocument, baseOptions);
+        }
+export type ListUsersByRoleQueryHookResult = ReturnType<typeof useListUsersByRoleQuery>;
+export type ListUsersByRoleLazyQueryHookResult = ReturnType<typeof useListUsersByRoleLazyQuery>;
+export type ListUsersByRoleQueryResult = Apollo.QueryResult<ListUsersByRoleQuery, ListUsersByRoleQueryVariables>;
+export const ListUsersByCompanyIdDocument = gql`
+    query ListUsersByCompanyId($companyId: uuid!) {
+  users(where: {company_id: {_eq: $companyId}}) {
+    ...User
+  }
+}
+    ${UserFragmentDoc}`;
+
+/**
+ * __useListUsersByCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useListUsersByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListUsersByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListUsersByCompanyIdQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useListUsersByCompanyIdQuery(baseOptions: Apollo.QueryHookOptions<ListUsersByCompanyIdQuery, ListUsersByCompanyIdQueryVariables>) {
+        return Apollo.useQuery<ListUsersByCompanyIdQuery, ListUsersByCompanyIdQueryVariables>(ListUsersByCompanyIdDocument, baseOptions);
+      }
+export function useListUsersByCompanyIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListUsersByCompanyIdQuery, ListUsersByCompanyIdQueryVariables>) {
+          return Apollo.useLazyQuery<ListUsersByCompanyIdQuery, ListUsersByCompanyIdQueryVariables>(ListUsersByCompanyIdDocument, baseOptions);
+        }
+export type ListUsersByCompanyIdQueryHookResult = ReturnType<typeof useListUsersByCompanyIdQuery>;
+export type ListUsersByCompanyIdLazyQueryHookResult = ReturnType<typeof useListUsersByCompanyIdLazyQuery>;
+export type ListUsersByCompanyIdQueryResult = Apollo.QueryResult<ListUsersByCompanyIdQuery, ListUsersByCompanyIdQueryVariables>;
+export const AddUserDocument = gql`
+    mutation AddUser($user: users_insert_input!) {
+  insert_users_one(object: $user) {
+    ...User
+  }
+}
+    ${UserFragmentDoc}`;
+export type AddUserMutationFn = Apollo.MutationFunction<AddUserMutation, AddUserMutationVariables>;
+
+/**
+ * __useAddUserMutation__
+ *
+ * To run a mutation, you first call `useAddUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addUserMutation, { data, loading, error }] = useAddUserMutation({
+ *   variables: {
+ *      user: // value for 'user'
+ *   },
+ * });
+ */
+export function useAddUserMutation(baseOptions?: Apollo.MutationHookOptions<AddUserMutation, AddUserMutationVariables>) {
+        return Apollo.useMutation<AddUserMutation, AddUserMutationVariables>(AddUserDocument, baseOptions);
+      }
+export type AddUserMutationHookResult = ReturnType<typeof useAddUserMutation>;
+export type AddUserMutationResult = Apollo.MutationResult<AddUserMutation>;
+export type AddUserMutationOptions = Apollo.BaseMutationOptions<AddUserMutation, AddUserMutationVariables>;
 export const BankListVendorPartnershipsDocument = gql`
     query BankListVendorPartnerships {
   company_vendor_partnerships {
