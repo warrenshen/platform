@@ -12,6 +12,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import { CustomerParams } from "components/Bank/Customer";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   CompaniesInsertInput,
@@ -20,6 +21,7 @@ import {
   UsersInsertInput,
 } from "generated/graphql";
 import { useContext, useState } from "react";
+import { useParams } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -41,12 +43,21 @@ interface Props {
 
 function RegisterVendorModal(props: Props) {
   const {
-    user: { companyId },
+    user: { companyId: userCompanyId },
   } = useContext(CurrentUserContext);
 
+  const { companyId: paramsCompanyId } = useParams<CustomerParams>();
+
+  const companyId = paramsCompanyId ? paramsCompanyId : userCompanyId;
+
   const classes = useStyles();
-  const [vendor, setVendor] = useState<CompaniesInsertInput>({});
-  const [contact, setContact] = useState<UsersInsertInput>({});
+  const [vendor, setVendor] = useState<CompaniesInsertInput>({ name: "" });
+  const [contact, setContact] = useState<UsersInsertInput>({
+    first_name: "",
+    email: "",
+    last_name: "",
+    phone_number: "",
+  });
   const [addVendorPartnership, { loading }] = useAddVendorPartnershipMutation();
 
   return (
@@ -138,6 +149,7 @@ function RegisterVendorModal(props: Props) {
               await addVendorPartnership({
                 variables: {
                   vendorPartnership: {
+                    company_id: companyId,
                     vendor: {
                       data: {
                         ...vendor,

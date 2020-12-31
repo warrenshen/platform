@@ -1,5 +1,5 @@
 import { Box } from "@material-ui/core";
-import AddButton from "components/Vendors/Customer/AddVendor/Button";
+import AddButton from "components/Vendors/AddVendor/Button";
 import ListVendors from "components/Vendors/Customer/ListVendors";
 
 function Vendors() {

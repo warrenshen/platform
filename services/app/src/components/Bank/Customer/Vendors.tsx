@@ -1,5 +1,6 @@
 import { Box } from "@material-ui/core";
 import { CustomerParams } from "components/Bank/Customer";
+import AddButton from "components/Vendors/AddVendor/Button";
 import ClickableVendorCard from "components/Vendors/Bank/ClickableVendorCard";
 import { useBankCustomerListVendorPartnershipsQuery } from "generated/graphql";
 import { sortBy } from "lodash";
@@ -24,6 +25,9 @@ function Vendors() {
 
   return (
     <>
+      <Box display="flex" flexDirection="row-reverse">
+        <AddButton></AddButton>
+      </Box>
       <Box display="flex" flexWrap="wrap">
         {vendorPartnerships.map((vendorPartnership) => {
           return (
