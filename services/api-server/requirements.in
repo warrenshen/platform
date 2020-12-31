@@ -19,3 +19,7 @@ mypy==0.770
 # Security
 safety==1.9.0
 passlib==1.7.4
+pyjwt==1.7.1
+
+# Logging
+sentry-sdk[flask]==0.19.5

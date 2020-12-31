@@ -1,4 +1,5 @@
 import { CssBaseline } from "@material-ui/core";
+import * as Sentry from "@sentry/react";
 import React from "react";
 import ReactDOM from "react-dom";
 import ApolloWrapper from "./ApolloWrapper";
@@ -6,6 +7,11 @@ import App from "./App";
 import CurrentUserWrapper from "./CurrentUserWrapper";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
+
+Sentry.init({
+  dsn: process.env.REACT_APP_BESPOKE_SENTRY_DNS,
+  environment: process.env.NODE_ENV,
+});
 
 ReactDOM.render(
   <React.StrictMode>

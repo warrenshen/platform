@@ -1,25 +1,37 @@
+import json
 import logging
 import os
-import json
+from typing import Dict
 
+import sentry_sdk
 from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
-from flask_script import Manager
 from flask_jwt_extended import JWTManager
-from typing import Dict
+from flask_script import Manager
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 from bespoke.db import models
 from server.views import auth
 
 if os.environ.get('FLASK_ENV') == 'development':
-  load_dotenv(os.path.join(os.environ.get('PROJECT_DIR'), '.env'))
+    load_dotenv(os.path.join(os.environ.get('PROJECT_DIR'), '.env'))
+
+sentry_sdk.init(
+    dsn=os.environ.get('SENTRY_DSN'),
+    integrations=[FlaskIntegration()],
+    environment=os.environ.get('FLASK_ENV'),
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # We recommend adjusting this value in production,
+    traces_sample_rate=1.0
+)
 
 logging.basicConfig(format='%(asctime)s [%(levelname)s] - %(message)s',
                     datefmt='%m/%d/%Y %H:%M:%S',
                     level=logging.INFO)
 
-config = dict() # type: Dict
+config = dict()  # type: Dict
 
 app = Flask(__name__)
 CORS(app)
@@ -39,4 +51,4 @@ app.session_maker = models.new_sessionmaker(app.engine)
 app.jwt_manager = JWTManager(app)
 
 if __name__ == '__main__':
-	manager.run()
+    manager.run()
