@@ -24,10 +24,13 @@ config = dict() # type: Dict
 app = Flask(__name__)
 CORS(app)
 manager = Manager(app)
-app.config.update(config)
+
 jwt_config = json.loads(os.environ.get('HASURA_GRAPHQL_JWT_SECRET'))
-app.config['JWT_SECRET_KEY'] = jwt_config["key"]
-app.config['JWT_ALGORITHM'] = jwt_config["type"]
+config['JWT_SECRET_KEY'] = jwt_config['key']
+config['JWT_ALGORITHM'] = jwt_config['type']
+config['JWT_IDENTITY_CLAIM'] = 'https://hasura.io/jwt/claims'
+
+app.config.update(config)
 
 app.register_blueprint(auth.handler, url_prefix='/auth')
 

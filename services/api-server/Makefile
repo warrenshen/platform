@@ -8,7 +8,7 @@ run-test-local:
 	cd test && PYTHONPATH=$(current_dir)/src python3 -m unittest discover .
 
 runlocal:
-	cd src && FLASK_ENV=development PYTHONPATH=$(project_dir) PROJECT_DIR=$(project_dir) gunicorn --bind 0.0.0.0:7000 --timeout 300 --threads 4 manage:app
+	cd src && FLASK_ENV=development PYTHONPATH=$(project_dir) PROJECT_DIR=$(project_dir) gunicorn --reload --bind 0.0.0.0:7000 --timeout 300 --threads 4 manage:app
 
 runshell:
 	cd src && FLASK_ENV=development PYTHONPATH=$(project_dir) PROJECT_DIR=$(project_dir) python3

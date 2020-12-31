@@ -74,23 +74,20 @@ class LoginView(MethodView):
 			if not sha256.verify(os.environ.get("PASSWORD_SALT") + password, user.password):
 				return make_error_response(f'Invalid password provided')
 
-			payload = {
-				'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1),
-				'iat': datetime.datetime.utcnow(),
-				'sub': str(user.id),
-				'https://hasura.io/jwt/claims': {
-					'X-Hasura-User-Id': str(user.id),
-					'X-Hasura-Default-Role': user.role,
-					'X-Hasura-Allowed-Roles': [user.role],
-					'X-Hasura-Company-Id': str(user.company_id)
-				}
+			claims_payload = {
+				'X-Hasura-User-Id': str(user.id),
+				'X-Hasura-Default-Role': user.role,
+				'X-Hasura-Allowed-Roles': [user.role],
+				'X-Hasura-Company-Id': str(user.company_id)
 			}
-			access_token = jwt.encode(payload, current_app.config['JWT_SECRET_KEY'], algorithm=current_app.config['JWT_ALGORITHM'])
+			access_token = create_access_token(identity=claims_payload)
+			refresh_token = create_refresh_token(identity=claims_payload)
 
 			return make_response(json.dumps({
 				'status': 'OK',
 				'msg': 'Logged in as {}'.format(email),
-				'access_token': access_token.decode(),
+				'access_token': access_token,
+				'refresh_token': refresh_token
 			}), 200)
 
 class LogoutAccessView(MethodView):

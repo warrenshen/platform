@@ -22,7 +22,7 @@ mypy==0.770               # via -r requirements.in
 packaging==20.8           # via dparse, safety
 passlib==1.7.4            # via -r requirements.in
 psycopg2-binary==2.8.5    # via -r requirements.in
-pyjwt==1.7.1              # via -r requirements.in, flask-jwt-extended
+pyjwt==1.7.1              # via flask-jwt-extended
 pyparsing==2.4.7          # via packaging
 python-dotenv==0.13.0     # via -r requirements.in
 pyyaml==5.3.1             # via dparse
