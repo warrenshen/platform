@@ -6,9 +6,11 @@ import {
   CardContent,
   Typography,
 } from "@material-ui/core";
+import Can from "components/Can";
 import EditUserProfile from "components/Shared/Users/EditUserProfile";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { UserFragment } from "generated/graphql";
+import { Action } from "lib/rbac-rules";
 import { useContext, useState } from "react";
 
 interface Props {
@@ -52,14 +54,16 @@ function ListUsers({ companyId, users }: Props) {
                   </Box>
                 </CardContent>
                 <CardActions>
-                  <Button
-                    onClick={() => {
-                      setSelectedUser(user);
-                      setOpen(true);
-                    }}
-                  >
-                    See more
-                  </Button>
+                  <Can perform={Action.ManipulateUser} userIdForCheck={user.id}>
+                    <Button
+                      onClick={() => {
+                        setSelectedUser(user);
+                        setOpen(true);
+                      }}
+                    >
+                      See more
+                    </Button>
+                  </Can>
                 </CardActions>
               </Card>
             </Box>

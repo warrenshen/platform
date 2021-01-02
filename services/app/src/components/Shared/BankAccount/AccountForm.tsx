@@ -17,7 +17,6 @@ import {
   useUpdateBankAccountMutation,
 } from "generated/graphql";
 import { timestamptzNow } from "lib/time";
-import { omit } from "lodash";
 import { ChangeEvent, useContext, useEffect, useState } from "react";
 
 const useStyles = makeStyles({
@@ -148,12 +147,20 @@ function AccountForm(props: {
                 await updateBankAccount({
                   variables: {
                     id: bankAccount.id,
-                    bankAccount: omit(
-                      bankAccount,
-                      role === UserRole.CompanyAdmin
-                        ? ["id", "company_id", "notes", "verified_at"]
-                        : ["id", "company_id"]
-                    ),
+                    bankAccount: {
+                      account_name: bankAccount.account_name,
+                      account_number: bankAccount.account_number,
+                      name: bankAccount.name,
+                      notes:
+                        role === UserRole.CompanyAdmin
+                          ? undefined
+                          : bankAccount.notes,
+                      routing_number: bankAccount.routing_number,
+                      verified_at:
+                        role === UserRole.CompanyAdmin
+                          ? undefined
+                          : bankAccount.verified_at,
+                    },
                   },
                   optimisticResponse: {
                     update_company_bank_accounts_by_pk: {
@@ -165,7 +172,18 @@ function AccountForm(props: {
                 await addBankAccount({
                   variables: {
                     bankAccount: {
-                      ...bankAccount,
+                      account_name: bankAccount.account_name,
+                      account_number: bankAccount.account_number,
+                      name: bankAccount.name,
+                      notes:
+                        role === UserRole.CompanyAdmin
+                          ? undefined
+                          : bankAccount.notes,
+                      routing_number: bankAccount.routing_number,
+                      verified_at:
+                        role === UserRole.CompanyAdmin
+                          ? undefined
+                          : bankAccount.verified_at,
                       company_id:
                         role === UserRole.BankAdmin
                           ? props.companyId

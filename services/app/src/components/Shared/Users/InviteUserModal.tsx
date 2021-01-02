@@ -16,6 +16,7 @@ import {
 } from "@material-ui/core";
 import { UserRole } from "contexts/CurrentUserContext";
 import {
+  ListUsersByCompanyIdDocument,
   ListUsersByCompanyIdQuery,
   ListUsersByCompanyIdQueryVariables,
   ListUsersByRoleDocument,
@@ -88,9 +89,11 @@ function InviteUserModal({ companyId, handleClose }: Props) {
                   {UserRole.BankAdmin}
                 </MenuItem>
               )}
-              <MenuItem value={UserRole.CompanyAdmin}>
-                {UserRole.CompanyAdmin}
-              </MenuItem>
+              {companyId && (
+                <MenuItem value={UserRole.CompanyAdmin}>
+                  {UserRole.CompanyAdmin}
+                </MenuItem>
+              )}
             </Select>
           </FormControl>
           <TextField
@@ -148,12 +151,23 @@ function InviteUserModal({ companyId, handleClose }: Props) {
             onClick={async () => {
               await addUser({
                 variables: {
-                  user: { ...user, company_id: companyId, password: "" },
+                  user: {
+                    company_id: companyId,
+                    email: user.email,
+                    first_name: user.first_name,
+                    last_name: user.last_name,
+                    phone_number: user.phone_number,
+                    role: user.role,
+                  },
                 },
                 optimisticResponse: {
                   insert_users_one: {
-                    ...(user as UserFragment),
-                  },
+                    email: user.email ? user.email : "",
+                    first_name: user.first_name ? user.first_name : "",
+                    last_name: user.last_name ? user.last_name : "",
+                    phone_number: user.phone_number,
+                    role: user.role,
+                  } as UserFragment,
                 },
                 update: (proxy, { data: optimisticResponse }) => {
                   const dataUsersByRole = proxy.readQuery<
@@ -190,7 +204,7 @@ function InviteUserModal({ companyId, handleClose }: Props) {
                     ListUsersByCompanyIdQuery,
                     ListUsersByCompanyIdQueryVariables
                   >({
-                    query: ListUsersByRoleDocument,
+                    query: ListUsersByCompanyIdDocument,
                     variables: { companyId: companyId },
                   });
 
@@ -206,7 +220,7 @@ function InviteUserModal({ companyId, handleClose }: Props) {
                     ListUsersByCompanyIdQuery,
                     ListUsersByCompanyIdQueryVariables
                   >({
-                    query: ListUsersByRoleDocument,
+                    query: ListUsersByCompanyIdDocument,
                     variables: { companyId: companyId },
                     data: {
                       users: [

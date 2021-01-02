@@ -17,7 +17,6 @@ import {
   useUpdateCompanyProfileMutation,
 } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
-import { omit } from "lodash";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -137,14 +136,18 @@ function EditCompanyProfileModal({
           <Button
             disabled={updateCompanyLoading}
             onClick={async () => {
-              const {
-                bank_accounts,
-                ...companySet
-              } = company as CompanyFragment;
               await updateCompany({
                 variables: {
                   id: company?.id,
-                  company: omit(companySet, ["id"]),
+                  company: {
+                    address: company?.address,
+                    contact_email_address: company?.contact_email_address,
+                    phone_number: company?.phone_number,
+                    employer_identification_number:
+                      company?.employer_identification_number,
+                    dba_name: company?.dba_name,
+                    name: company?.name,
+                  },
                 },
                 refetchQueries: [
                   {

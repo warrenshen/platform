@@ -1,6 +1,5 @@
 import { Box, Button, makeStyles, TextField } from "@material-ui/core";
 import { useUpdateVendorInfoMutation, VendorFragment } from "generated/graphql";
-import { omit } from "lodash";
 import { useState } from "react";
 
 interface Props {
@@ -103,7 +102,15 @@ function VendorInfo(props: Props) {
               await updateVendorContactInfo({
                 variables: {
                   id: editedVendor.id,
-                  company: omit(editedVendor, ["id"]),
+                  company: {
+                    address: editedVendor.address,
+                    city: editedVendor.city,
+                    country: editedVendor.country,
+                    name: editedVendor.name,
+                    phone_number: editedVendor.phone_number,
+                    state: editedVendor.state,
+                    zip_code: editedVendor.zip_code,
+                  },
                 },
                 optimisticResponse: {
                   update_companies_by_pk: {

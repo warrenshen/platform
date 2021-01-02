@@ -91,7 +91,6 @@ function AddPurchaseOrderModal({
     loading: getVendorsLoading,
   } = useListPurchaseOrderVendorsQuery();
   const vendors = vendorsData?.companies.filter((v) => v.id !== companyId);
-
   const {
     data: parentPurchaseOrdersData,
     loading: getParentPurchaseOrdersLoading,
@@ -108,6 +107,7 @@ function AddPurchaseOrderModal({
     actionType === ActionType.Update && originalPurchaseOrder
       ? originalPurchaseOrder
       : ({
+          company_id: companyId,
           purchase_order_number: "",
           parent_purchase_order_id: "",
           vendor_id: "",
@@ -370,21 +370,24 @@ function AddPurchaseOrderModal({
                 newPurchaseOrderItem.unit &&
                 newPurchaseOrderItem.price_per_unit;
               if (actionType === ActionType.Update) {
-                const {
-                  line_items,
-                  vendor,
-                  parent_purchase_order,
-                  company,
-                  id,
-                  ...purchaseOrderSet
-                } = purchaseOrder;
                 await updatePurchaseOrder({
                   variables: {
                     id: purchaseOrder.id,
                     purchaseOrder: {
-                      ...purchaseOrderSet,
-                      parent_purchase_order_id: purchaseOrderSet.parent_purchase_order_id
-                        ? purchaseOrderSet.parent_purchase_order_id
+                      amount_invoiced: purchaseOrder.amount_invoiced,
+                      city: purchaseOrder.city,
+                      country: purchaseOrder.country,
+                      currency: purchaseOrder.currency,
+                      delivery_address: purchaseOrder.delivery_address,
+                      delivery_date: purchaseOrder.delivery_date,
+                      purchase_order_number:
+                        purchaseOrder.purchase_order_number,
+                      remarks: purchaseOrder.remarks,
+                      status: purchaseOrder.status,
+                      vendor_id: purchaseOrder.vendor_id,
+                      zip_code: purchaseOrder.zip_code,
+                      parent_purchase_order_id: purchaseOrder.parent_purchase_order_id
+                        ? purchaseOrder.parent_purchase_order_id
                         : undefined,
                       amount:
                         purchaseOrder?.line_items?.reduce(
@@ -404,8 +407,8 @@ function AddPurchaseOrderModal({
                     },
                     purchaseOrderLineItems: toAddNewItem
                       ? [
-                          ...(line_items
-                            ? line_items.map((item) => {
+                          ...(purchaseOrder.line_items
+                            ? purchaseOrder.line_items.map((item) => {
                                 return {
                                   ...item,
                                   purchase_order_id: purchaseOrder.id,
@@ -418,8 +421,8 @@ function AddPurchaseOrderModal({
                             purchase_order_id: purchaseOrder.id,
                           },
                         ]
-                      : line_items
-                      ? line_items.map((item) => {
+                      : purchaseOrder.line_items
+                      ? purchaseOrder.line_items.map((item) => {
                           return {
                             ...item,
                             purchase_order_id: purchaseOrder.id,
@@ -440,7 +443,18 @@ function AddPurchaseOrderModal({
                 await addPurchaseOrder({
                   variables: {
                     purhcase_order: {
-                      ...purchaseOrder,
+                      amount_invoiced: purchaseOrder.amount_invoiced,
+                      city: purchaseOrder.city,
+                      country: purchaseOrder.country,
+                      currency: purchaseOrder.currency,
+                      delivery_address: purchaseOrder.delivery_address,
+                      delivery_date: purchaseOrder.delivery_date,
+                      purchase_order_number:
+                        purchaseOrder.purchase_order_number,
+                      remarks: purchaseOrder.remarks,
+                      status: purchaseOrder.status,
+                      vendor_id: purchaseOrder.vendor_id,
+                      zip_code: purchaseOrder.zip_code,
                       parent_purchase_order_id: purchaseOrder.parent_purchase_order_id
                         ? purchaseOrder.parent_purchase_order_id
                         : undefined,
@@ -459,7 +473,6 @@ function AddPurchaseOrderModal({
                               newPurchaseOrderItem.price_per_unit
                             )
                           : 0),
-                      company_id: companyId,
                       line_items: {
                         data: toAddNewItem
                           ? [

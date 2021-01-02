@@ -139,13 +139,20 @@ function EditUserProfile({
           </Button>
           <Button
             className={classes.submitButton}
-            disabled={!userProfile.first_name || !userProfile.last_name}
+            disabled={
+              !userProfile.first_name ||
+              !userProfile.last_name ||
+              !userProfile.email
+            }
             onClick={async () => {
-              const { email, role, full_name, id, ...userSet } = userProfile;
               await updateUser({
                 variables: {
-                  id: userId,
-                  user: userSet,
+                  id: userProfile.id,
+                  user: {
+                    first_name: userProfile.first_name,
+                    last_name: userProfile.last_name,
+                    phone_number: userProfile.phone_number,
+                  },
                 },
                 optimisticResponse: {
                   update_users_by_pk: {

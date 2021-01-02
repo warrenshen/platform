@@ -5,6 +5,7 @@ import { useContext } from "react";
 interface Props {
   perform: Action;
   children: React.ReactNode;
+  userIdForCheck?: string;
 }
 
 function Can(props: Props) {
@@ -15,7 +16,11 @@ function Can(props: Props) {
     return null;
   }
 
-  if (check(user.role, props.perform)) {
+  const data = props.userIdForCheck
+    ? { currentUserId: user.id, userIdForCheck: props.userIdForCheck }
+    : undefined;
+
+  if (check(user.role, props.perform, data)) {
     return <>{props.children}</>;
   }
 
