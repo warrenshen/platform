@@ -39,22 +39,24 @@ function PurchaseOrders() {
   >(null);
   const [actionType, setActionType] = useState(ActionType.New);
   return (
-    <Box>
-      <Can perform={Action.AddPurchaseOrders}>
-        <AddButton
-          actionType={actionType}
-          originalPurchaseOrder={originalPurchaseOrder}
-          open={open}
-          setOpen={setOpen}
-          manipulatePurchaseOrder={manipulatePurchaseOrder}
-          clearId={clearId}
-        ></AddButton>
-      </Can>
+    <>
+      <Box pb={2} display="flex" flexDirection="row-reverse">
+        <Can perform={Action.AddPurchaseOrders}>
+          <AddButton
+            actionType={actionType}
+            originalPurchaseOrder={originalPurchaseOrder}
+            open={open}
+            setOpen={setOpen}
+            manipulatePurchaseOrder={manipulatePurchaseOrder}
+            clearId={clearId}
+          ></AddButton>
+        </Can>
+      </Box>
       <ListPurchaseOrders
         companyId={companyId}
         manipulatePurchaseOrder={manipulatePurchaseOrder}
       ></ListPurchaseOrders>
-    </Box>
+    </>
   );
 }
 

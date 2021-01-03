@@ -25,17 +25,15 @@ function ListVendors() {
   );
 
   return (
-    <>
-      <Box display="flex" flexWrap="wrap">
-        {vendorPartnerships.map((vendorPartnership) => {
-          return (
-            <Box pt={2} pr={3} key={vendorPartnership.id}>
-              <VendorCard vendorPartnership={vendorPartnership}></VendorCard>
-            </Box>
-          );
-        })}
-      </Box>
-    </>
+    <Box display="flex" flexWrap="wrap">
+      {vendorPartnerships.map((vendorPartnership) => {
+        return (
+          <Box pt={2} pr={3} key={vendorPartnership.id}>
+            <VendorCard vendorPartnership={vendorPartnership}></VendorCard>
+          </Box>
+        );
+      })}
+    </Box>
   );
 }
 

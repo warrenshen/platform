@@ -11,13 +11,10 @@ import {
 } from "@material-ui/core";
 import { Attachment, Create, Email, Print } from "@material-ui/icons";
 import Can from "components/Can";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { usePurchaseOrderQuery } from "generated/graphql";
 import { ActionType } from "lib/ActionType";
 import { Action } from "lib/rbac-rules";
 import { calendarDateTimestamp } from "lib/time";
-import { useContext } from "react";
-import ItemsList from "./ItemsList";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -47,36 +44,22 @@ interface Props {
 }
 
 function ViewModal({ id, handleClose, manipulatePurchaseOrder }: Props) {
-  const {
-    user: { role },
-  } = useContext(CurrentUserContext);
   const classes = useStyles();
-  const { data, loading } = usePurchaseOrderQuery({
+  const { data } = usePurchaseOrderQuery({
     variables: {
       id: id,
     },
   });
   const purchaseOrder = data?.purchase_orders_by_pk;
 
-  if (loading) {
-    return <p>Loading...</p>;
-  }
-
   return (
     <Dialog open onClose={handleClose} maxWidth="xl">
-      {" "}
       <DialogTitle className={classes.dialogTitle}>
         Purchase Order Details
       </DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="row" width="100%">
           <Box flexDirection="column" flexGrow={1}>
-            <Box display="flex" flexDirection="row" m={1}>
-              <p className={classes.propertyLabel}>
-                <strong>PO Number:</strong>
-              </p>
-              <p>{purchaseOrder?.purchase_order_number}</p>
-            </Box>
             <Box display="flex" flexDirection="row" m={1}>
               <p className={classes.propertyLabel}>
                 <strong>Amount:</strong>
@@ -100,20 +83,6 @@ function ViewModal({ id, handleClose, manipulatePurchaseOrder }: Props) {
           <Box flexDirection="column" flexGrow={1}>
             <Box display="flex" flexDirection="row" m={1}>
               <p className={classes.propertyLabel}>
-                <strong>Parent PO Number:</strong>
-              </p>
-              <p>
-                {purchaseOrder?.parent_purchase_order?.purchase_order_number}
-              </p>
-            </Box>
-            <Box display="flex" flexDirection="row" m={1}>
-              <p className={classes.propertyLabel}>
-                <strong>Parent PO Amount:</strong>
-              </p>
-              <p>{purchaseOrder?.parent_purchase_order?.amount}</p>
-            </Box>
-            <Box display="flex" flexDirection="row" m={1}>
-              <p className={classes.propertyLabel}>
                 <strong>Status</strong>
               </p>
               <p>{purchaseOrder?.status}</p>
@@ -133,23 +102,7 @@ function ViewModal({ id, handleClose, manipulatePurchaseOrder }: Props) {
             </p>
             <p>{purchaseOrder?.remarks}</p>
           </Box>
-          <Box display="flex" flexDirection="row" m={1}>
-            <p className={classes.propertyLabel}>
-              <strong>Delivery Address:</strong>
-            </p>
-            <p>{` ${
-              purchaseOrder?.delivery_address
-                ? purchaseOrder.delivery_address
-                : ""
-            }`}</p>
-          </Box>
         </Box>
-
-        <ItemsList
-          purchaseOrderItems={
-            purchaseOrder?.line_items ? purchaseOrder?.line_items : []
-          }
-        ></ItemsList>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
         <Box>

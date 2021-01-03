@@ -163,7 +163,7 @@ function EditCompanyProfileModal({
             variant="contained"
             color="primary"
           >
-            Submit
+            Update
           </Button>
         </Box>
       </DialogActions>

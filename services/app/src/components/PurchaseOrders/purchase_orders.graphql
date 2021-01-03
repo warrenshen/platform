@@ -1,27 +1,12 @@
-fragment PurchaseOrderLineItem on purchase_order_line_items {
-  id
-  item
-  description
-  num_units
-  unit
-  price_per_unit
-}
 fragment PurchaseOrder on purchase_orders {
-  amount_invoiced
   company_id
   created_at
   currency
   delivery_date
   id
   amount
-  parent_purchase_order_id
-  purchase_order_number
   remarks
   status
-  delivery_address
-  country
-  city
-  zip_code
   vendor_id
   vendor {
     id
@@ -31,25 +16,20 @@ fragment PurchaseOrder on purchase_orders {
     id
     name
   }
-  parent_purchase_order {
-    id
-    purchase_order_number
-    amount
-  }
-  line_items {
-    ...PurchaseOrderLineItem
-  }
 }
+
 query ListPurchaseOrders($company_id: uuid!) {
   purchase_orders(where: { company_id: { _eq: $company_id } }) {
     ...PurchaseOrder
   }
 }
+
 query PurchaseOrder($id: uuid!) {
   purchase_orders_by_pk(id: $id) {
     ...PurchaseOrder
   }
 }
+
 mutation AddPurchaseOrder($purhcase_order: purchase_orders_insert_input!) {
   insert_purchase_orders_one(object: $purhcase_order) {
     ...PurchaseOrder
@@ -66,14 +46,7 @@ query ListPurchaseOrderVendors {
 mutation UpdatePurchaseOrder(
   $id: uuid!
   $purchaseOrder: purchase_orders_set_input!
-  $purchaseOrderLineItems: [purchase_order_line_items_insert_input!]!
 ) {
-  delete_purchase_order_line_items(where: { purchase_order_id: { _eq: $id } }) {
-    affected_rows
-  }
-  insert_purchase_order_line_items(objects: $purchaseOrderLineItems) {
-    affected_rows
-  }
   update_purchase_orders_by_pk(pk_columns: { id: $id }, _set: $purchaseOrder) {
     ...PurchaseOrder
   }

@@ -1,4 +1,4 @@
-import { Button } from "@material-ui/core";
+import { Box, Button } from "@material-ui/core";
 import InviteUserModal from "components/Shared/Users/InviteUserModal";
 import ListUsers from "components/Shared/Users/ListUsers";
 import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
@@ -47,9 +47,16 @@ function Users() {
           handleClose={() => setOpen(false)}
         ></InviteUserModal>
       )}
-      <Button onClick={() => setOpen(true)} variant="contained" color="primary">
-        Invite User
-      </Button>
+      <Box display="flex" flexDirection="row-reverse">
+        <Button
+          onClick={() => setOpen(true)}
+          variant="contained"
+          color="primary"
+        >
+          Invite User
+        </Button>
+      </Box>
+
       <ListUsers
         companyId={currentUserFromContext.user.companyId}
         users={users}

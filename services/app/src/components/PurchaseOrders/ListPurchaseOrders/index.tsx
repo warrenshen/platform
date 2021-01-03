@@ -27,8 +27,6 @@ function populateRows(
           ...item,
           action: 1,
           vendor_name: item.vendor?.name,
-          parent_purchase_order_number:
-            item.parent_purchase_order?.purchase_order_number,
         };
       })
     : [];
@@ -126,10 +124,6 @@ function ListPurchaseOrders({ companyId, manipulatePurchaseOrder }: Props) {
       data?.purchase_orders.find((po) => po.id === originalId)
     );
   };
-
-  if (loading) {
-    return <p>Loading...</p>;
-  }
 
   return (
     <>

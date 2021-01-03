@@ -13,7 +13,6 @@ import {
   MenuItem,
   Select,
   TextareaAutosize,
-  TextField,
   Theme,
 } from "@material-ui/core";
 import {
@@ -25,21 +24,14 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   ListPurchaseOrdersDocument,
   PurchaseOrderFragment,
-  PurchaseOrderLineItemFragment,
-  PurchaseOrderLineItemsArrRelInsertInput,
   PurchaseOrdersInsertInput,
   useAddPurchaseOrderMutation,
-  useListPurchaseOrdersQuery,
   useListPurchaseOrderVendorsQuery,
   useUpdatePurchaseOrderMutation,
 } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
 import { ActionType } from "lib/ActionType";
 import { useContext, useState } from "react";
-import { CURRENCIES } from "../models/fakeData";
-import { ItemAction } from "../models/ItemAction";
-import { multiplyNullableNumbers } from "../models/NumberHelper";
-import ListPurchaseOrderItems from "./ListPurchaseOrderItems";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -91,28 +83,14 @@ function AddPurchaseOrderModal({
     loading: getVendorsLoading,
   } = useListPurchaseOrderVendorsQuery();
   const vendors = vendorsData?.companies.filter((v) => v.id !== companyId);
-  const {
-    data: parentPurchaseOrdersData,
-    loading: getParentPurchaseOrdersLoading,
-  } = useListPurchaseOrdersQuery({
-    variables: { company_id: companyId },
-  });
-  const parentPurchaseOrders =
-    actionType === ActionType.Update
-      ? parentPurchaseOrdersData?.purchase_orders.filter(
-          (po) => po.id !== originalPurchaseOrder?.id
-        )
-      : parentPurchaseOrdersData?.purchase_orders;
+
   const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrderFragment>(
     actionType === ActionType.Update && originalPurchaseOrder
       ? originalPurchaseOrder
       : ({
           company_id: companyId,
-          purchase_order_number: "",
-          parent_purchase_order_id: "",
           vendor_id: "",
           currency: "USD",
-          line_items: [] as PurchaseOrderLineItemFragment[],
         } as PurchaseOrderFragment)
   );
   const [
@@ -125,42 +103,8 @@ function AddPurchaseOrderModal({
     { loading: updatePurchaseOrderLoading },
   ] = useUpdatePurchaseOrderMutation();
 
-  const [
-    newPurchaseOrderItem,
-    setNewPurchaseOrderItem,
-  ] = useState<PurchaseOrderLineItemFragment>({
-    item: "",
-    description: "",
-    num_units: 0,
-    unit: "",
-    price_per_unit: 0,
-  } as PurchaseOrderLineItemFragment);
+  const isFormValid = !!purchaseOrder.vendor_id;
 
-  const handlePurchaseOrderItem = (
-    item: PurchaseOrderLineItemFragment,
-    action: ItemAction,
-    position: number
-  ) => {
-    var items = purchaseOrder.line_items ? [...purchaseOrder.line_items] : [];
-    if (action === ItemAction.Add) {
-      items.push(item);
-    } else if (action === ItemAction.Remove) {
-      items.splice(position, 1);
-    } else {
-      items[position] = item;
-    }
-    setPurchaseOrder({
-      ...purchaseOrder,
-      line_items: [...items],
-    });
-  };
-
-  const isFormValid =
-    !!purchaseOrder.purchase_order_number && !!purchaseOrder.vendor_id;
-
-  if (getVendorsLoading && getParentPurchaseOrdersLoading) {
-    return <p>Loading...</p>;
-  }
   return (
     <Dialog open onClose={handleClose} maxWidth="xl">
       <DialogTitle className={classes.dialogTitle}>
@@ -171,40 +115,6 @@ function AddPurchaseOrderModal({
       <DialogContent>
         <Box display="flex" flexDirection="column">
           <Box display="flex" flexDirection="row">
-            <FormControl className={classes.formControlLeft}>
-              <InputLabel id="parent-purchase-order-number-select-label">
-                Parent Purchase Order Number
-              </InputLabel>
-              <Select
-                disabled={getParentPurchaseOrdersLoading}
-                className={classes.purchaseOrderInput}
-                labelId="parent-purchase-order-number-select-label"
-                id="parent-purchase-order-number-select"
-                value={
-                  purchaseOrder.parent_purchase_order_id
-                    ? purchaseOrder.parent_purchase_order_id
-                    : ""
-                }
-                onChange={({ target: { value } }) => {
-                  setPurchaseOrder({
-                    ...purchaseOrder,
-                    parent_purchase_order_id: value as string,
-                  });
-                }}
-              >
-                <MenuItem value="">
-                  <em>None</em>
-                </MenuItem>
-                {parentPurchaseOrders?.map((parentPurchaseOrder) => (
-                  <MenuItem
-                    key={parentPurchaseOrder.id}
-                    value={parentPurchaseOrder.id}
-                  >
-                    {parentPurchaseOrder.purchase_order_number}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
             <FormControl className={classes.formControlRight}>
               <InputLabel id="vendor-select-label">Vendor</InputLabel>
               <Select
@@ -232,19 +142,6 @@ function AddPurchaseOrderModal({
             </FormControl>
           </Box>
           <Box display="flex" flexDirection="row">
-            <Box flexDirection="column" m={1} flexGrow={1}>
-              <TextField
-                label="Purchase Order Number"
-                className={classes.purchaseOrderInput}
-                value={purchaseOrder.purchase_order_number}
-                onChange={({ target: { value } }) => {
-                  setPurchaseOrder({
-                    ...purchaseOrder,
-                    purchase_order_number: value,
-                  });
-                }}
-              ></TextField>
-            </Box>
             <FormControl className={classes.formControlRight}>
               <InputLabel id="currency-select-label">Currency</InputLabel>
               <Select
@@ -259,7 +156,7 @@ function AddPurchaseOrderModal({
                   });
                 }}
               >
-                {CURRENCIES.map((currency) => (
+                {[{ value: "USD" }].map((currency) => (
                   <MenuItem key={currency.value} value={currency.value}>
                     {currency.value}
                   </MenuItem>
@@ -317,20 +214,6 @@ function AddPurchaseOrderModal({
           </Box>
           <Box display="flex" m={1} flexDirection="row">
             <TextareaAutosize
-              className={classes.purchaseOrderInput}
-              aria-label="Delivery Address"
-              placeholder="Delivery Address"
-              rowsMin={5}
-              onChange={({ target: { value } }) => {
-                setPurchaseOrder({
-                  ...purchaseOrder,
-                  delivery_address: value,
-                });
-              }}
-            />
-          </Box>
-          <Box display="flex" m={1} flexDirection="row">
-            <TextareaAutosize
               id="remarks-text-area"
               className={classes.purchaseOrderInput}
               aria-label="Remarks"
@@ -345,12 +228,6 @@ function AddPurchaseOrderModal({
             />
           </Box>
         </Box>
-        <ListPurchaseOrderItems
-          newPurchaseOrderItem={newPurchaseOrderItem}
-          setNewPurchaseOrderItem={setNewPurchaseOrderItem}
-          purchaseOrderItems={purchaseOrder.line_items}
-          handlePurchaseOrderItem={handlePurchaseOrderItem}
-        ></ListPurchaseOrderItems>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
         <Box>
@@ -363,72 +240,18 @@ function AddPurchaseOrderModal({
               updatePurchaseOrderLoading
             }
             onClick={async () => {
-              var toAddNewItem =
-                newPurchaseOrderItem.item &&
-                newPurchaseOrderItem.description &&
-                newPurchaseOrderItem.num_units &&
-                newPurchaseOrderItem.unit &&
-                newPurchaseOrderItem.price_per_unit;
               if (actionType === ActionType.Update) {
                 await updatePurchaseOrder({
                   variables: {
                     id: purchaseOrder.id,
                     purchaseOrder: {
-                      amount_invoiced: purchaseOrder.amount_invoiced,
-                      city: purchaseOrder.city,
-                      country: purchaseOrder.country,
                       currency: purchaseOrder.currency,
-                      delivery_address: purchaseOrder.delivery_address,
                       delivery_date: purchaseOrder.delivery_date,
-                      purchase_order_number:
-                        purchaseOrder.purchase_order_number,
                       remarks: purchaseOrder.remarks,
                       status: purchaseOrder.status,
                       vendor_id: purchaseOrder.vendor_id,
-                      zip_code: purchaseOrder.zip_code,
-                      parent_purchase_order_id: purchaseOrder.parent_purchase_order_id
-                        ? purchaseOrder.parent_purchase_order_id
-                        : undefined,
-                      amount:
-                        purchaseOrder?.line_items?.reduce(
-                          (acc, cur) =>
-                            (acc += multiplyNullableNumbers(
-                              cur?.num_units,
-                              cur?.price_per_unit
-                            )),
-                          0
-                        ) +
-                        (toAddNewItem
-                          ? multiplyNullableNumbers(
-                              newPurchaseOrderItem.num_units,
-                              newPurchaseOrderItem.price_per_unit
-                            )
-                          : 0),
+                      amount: 0,
                     },
-                    purchaseOrderLineItems: toAddNewItem
-                      ? [
-                          ...(purchaseOrder.line_items
-                            ? purchaseOrder.line_items.map((item) => {
-                                return {
-                                  ...item,
-                                  purchase_order_id: purchaseOrder.id,
-                                };
-                              })
-                            : []),
-                          {
-                            ...newPurchaseOrderItem,
-                            id: undefined,
-                            purchase_order_id: purchaseOrder.id,
-                          },
-                        ]
-                      : purchaseOrder.line_items
-                      ? purchaseOrder.line_items.map((item) => {
-                          return {
-                            ...item,
-                            purchase_order_id: purchaseOrder.id,
-                          };
-                        })
-                      : [],
                   },
                   refetchQueries: [
                     {
@@ -443,50 +266,12 @@ function AddPurchaseOrderModal({
                 await addPurchaseOrder({
                   variables: {
                     purhcase_order: {
-                      amount_invoiced: purchaseOrder.amount_invoiced,
-                      city: purchaseOrder.city,
-                      country: purchaseOrder.country,
                       currency: purchaseOrder.currency,
-                      delivery_address: purchaseOrder.delivery_address,
                       delivery_date: purchaseOrder.delivery_date,
-                      purchase_order_number:
-                        purchaseOrder.purchase_order_number,
                       remarks: purchaseOrder.remarks,
                       status: purchaseOrder.status,
                       vendor_id: purchaseOrder.vendor_id,
-                      zip_code: purchaseOrder.zip_code,
-                      parent_purchase_order_id: purchaseOrder.parent_purchase_order_id
-                        ? purchaseOrder.parent_purchase_order_id
-                        : undefined,
-                      amount:
-                        purchaseOrder?.line_items?.reduce(
-                          (acc, cur) =>
-                            (acc += multiplyNullableNumbers(
-                              cur?.num_units,
-                              cur?.price_per_unit
-                            )),
-                          0
-                        ) +
-                        (toAddNewItem
-                          ? multiplyNullableNumbers(
-                              newPurchaseOrderItem.num_units,
-                              newPurchaseOrderItem.price_per_unit
-                            )
-                          : 0),
-                      line_items: {
-                        data: toAddNewItem
-                          ? [
-                              ...(purchaseOrder.line_items
-                                ? purchaseOrder.line_items
-                                : []),
-                              {
-                                ...newPurchaseOrderItem,
-                                id: undefined,
-                                purchase_order_id: purchaseOrder.id,
-                              },
-                            ]
-                          : purchaseOrder.line_items,
-                      } as PurchaseOrderLineItemsArrRelInsertInput,
+                      amount: 0,
                     } as PurchaseOrdersInsertInput,
                   },
                   refetchQueries: [

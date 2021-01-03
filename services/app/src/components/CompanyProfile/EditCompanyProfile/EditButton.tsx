@@ -31,8 +31,9 @@ function EditButton({ company }: Props) {
       <Button
         className={classes.editButton}
         onClick={() => setOpen(true)}
-        color="primary"
-        variant="contained"
+        color="default"
+        variant="outlined"
+        size="small"
       >
         Edit
       </Button>

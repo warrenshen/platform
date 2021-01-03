@@ -39,6 +39,7 @@ function AddButton({
           manipulatePurchaseOrder(ActionType.New, null);
           setOpen(true);
         }}
+        variant="contained"
         color="primary"
       >
         Add Purchase Order

@@ -60,6 +60,7 @@ function ListUsers({ companyId, users }: Props) {
                         setSelectedUser(user);
                         setOpen(true);
                       }}
+                      size="small"
                     >
                       See more
                     </Button>
