@@ -48,27 +48,6 @@ function ActionMenu({ purchaseOrderId, manipulatePurchaseOrder }: Props) {
         >
           Replicate
         </MenuItem>
-        <MenuItem
-          onClick={() => {
-            handleClose();
-          }}
-        >
-          Attachments
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            handleClose();
-          }}
-        >
-          Print
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            handleClose();
-          }}
-        >
-          Chat
-        </MenuItem>
       </Menu>
     </>
   );

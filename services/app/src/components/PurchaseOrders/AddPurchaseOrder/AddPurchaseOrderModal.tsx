@@ -13,6 +13,7 @@ import {
   MenuItem,
   Select,
   TextareaAutosize,
+  TextField,
   Theme,
 } from "@material-ui/core";
 import {
@@ -212,6 +213,19 @@ function AddPurchaseOrderModal({
               </MuiPickersUtilsProvider>
             </Box>
           </Box>
+          <Box flexDirection="column" m={1} flexGrow={1}>
+            <TextField
+              label="Amount"
+              className={classes.purchaseOrderInput}
+              value={purchaseOrder.amount}
+              onChange={({ target: { value } }) => {
+                setPurchaseOrder({
+                  ...purchaseOrder,
+                  amount: value,
+                });
+              }}
+            ></TextField>
+          </Box>
           <Box display="flex" m={1} flexDirection="row">
             <TextareaAutosize
               id="remarks-text-area"
@@ -250,7 +264,7 @@ function AddPurchaseOrderModal({
                       remarks: purchaseOrder.remarks,
                       status: purchaseOrder.status,
                       vendor_id: purchaseOrder.vendor_id,
-                      amount: 0,
+                      amount: purchaseOrder.amount,
                     },
                   },
                   refetchQueries: [
@@ -271,7 +285,7 @@ function AddPurchaseOrderModal({
                       remarks: purchaseOrder.remarks,
                       status: purchaseOrder.status,
                       vendor_id: purchaseOrder.vendor_id,
-                      amount: 0,
+                      amount: purchaseOrder.amount,
                     } as PurchaseOrdersInsertInput,
                   },
                   refetchQueries: [

@@ -1,10 +1,11 @@
-import { Button } from "@material-ui/core";
+import { IconButton } from "@material-ui/core";
 import {
   ColDef,
   DataGrid,
   RowsProp,
   ValueFormatterParams,
 } from "@material-ui/data-grid";
+import { LaunchOutlined } from "@material-ui/icons";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   PurchaseOrderFragment,
@@ -56,28 +57,8 @@ function ListPurchaseOrders({ companyId, manipulatePurchaseOrder }: Props) {
   const columns: ColDef[] = [
     {
       field: "vendor_name",
-      headerName: "Anchor",
+      headerName: "Vendor",
       width: 200,
-    },
-    {
-      field: "parent_purchase_order_number",
-      headerName: "Parent PO Number",
-      width: 200,
-    },
-    {
-      field: "purchase_order_number",
-      headerName: "PO Number",
-      width: 250,
-      renderCell: (params: ValueFormatterParams) => (
-        <Button
-          onClick={() => {
-            setCurrentId(params.row.id as string);
-            setOpen(true);
-          }}
-        >
-          {params.value}
-        </Button>
-      ),
     },
     {
       field: "amount",
@@ -85,16 +66,26 @@ function ListPurchaseOrders({ companyId, manipulatePurchaseOrder }: Props) {
       width: 200,
     },
     {
-      field: "amount_invoiced",
-      headerName: "Amount Invoiced",
-      width: 150,
-    },
-    {
       field: "status",
       headerName: "Purchase Order Status",
       width: 200,
       renderCell: (params: ValueFormatterParams) => (
         <Status statusValue={params.value as string} />
+      ),
+    },
+    {
+      field: "see_more",
+      headerName: "See More",
+      width: 100,
+      renderCell: (params: ValueFormatterParams) => (
+        <IconButton
+          onClick={() => {
+            setCurrentId(params.row.id as string);
+            setOpen(true);
+          }}
+        >
+          <LaunchOutlined></LaunchOutlined>
+        </IconButton>
       ),
     },
   ];

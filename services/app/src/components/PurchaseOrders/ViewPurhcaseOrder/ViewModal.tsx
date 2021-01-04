@@ -9,7 +9,7 @@ import {
   makeStyles,
   Theme,
 } from "@material-ui/core";
-import { Attachment, Create, Email, Print } from "@material-ui/icons";
+import { Create } from "@material-ui/icons";
 import Can from "components/Can";
 import { usePurchaseOrderQuery } from "generated/graphql";
 import { ActionType } from "lib/ActionType";
@@ -89,7 +89,7 @@ function ViewModal({ id, handleClose, manipulatePurchaseOrder }: Props) {
             </Box>
             <Box display="flex" flexDirection="row" m={1}>
               <p className={classes.propertyLabel}>
-                <strong>Anchor:</strong>
+                <strong>Vendor:</strong>
               </p>
               <p>{purchaseOrder?.vendor?.name}</p>
             </Box>
@@ -133,33 +133,6 @@ function ViewModal({ id, handleClose, manipulatePurchaseOrder }: Props) {
               startIcon={<Create />}
             >
               Replicate Purchase Order
-            </Button>
-            <Button
-              className={classes.buttonClass}
-              variant="contained"
-              color="primary"
-              onClick={handleClose}
-              startIcon={<Attachment />}
-            >
-              Attachments
-            </Button>
-            <Button
-              className={classes.buttonClass}
-              variant="contained"
-              color="primary"
-              onClick={handleClose}
-              startIcon={<Print />}
-            >
-              Print
-            </Button>
-            <Button
-              className={classes.buttonClass}
-              variant="contained"
-              color="primary"
-              onClick={handleClose}
-              startIcon={<Email />}
-            >
-              Chat
             </Button>
           </Can>
         </Box>
