@@ -1,6 +1,6 @@
 # Bespoke platform
 
-Bespoke is built with [Material UI](https://material-ui.com/), [Typescript](https://www.typescriptlang.org/), [React](https://reactjs.org/), [Apollo GraphQL](https://www.apollographql.com/), [Hasura](https://hasura.io/), [Postgres](https://www.postgresql.org/), [Flask](https://flask.palletsprojects.com/en/1.1.x/), and [Python](https://www.python.org/)
+Bespoke is built with [Material UI](https://material-ui.com/), [Typescript](https://www.typescriptlang.org/), [React](https://reactjs.org/), [Apollo GraphQL](https://www.apollographql.com/), [Hasura](https://hasura.io/), [Postgres](https://www.postgresql.org/), [Flask](https://flask.palletsprojects.com/en/1.1.x/), and [Python](https://www.python.org/).
 
 CI/CD via [Github Actions](https://github.com/features/actions). Hosted on [Heroku](https://heroku.com/).
 
