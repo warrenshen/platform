@@ -33,9 +33,11 @@ class RegistrationView(MethodView):
 		if not email or not password:
 			return make_error_response('No email or password provided')
 
+		# TODO(dlluncor): Change company_id to something other than default
 		user = models.User(
 			email=email,
-			password=sha256.hash(os.environ.get("PASSWORD_SALT") + password)
+			password=sha256.hash(os.environ.get("PASSWORD_SALT") + password),
+			company_id='default'
 		)
 
 		try:
