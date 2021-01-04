@@ -1,4 +1,4 @@
-## Getting Started
+# Installing
 
 2. Install Python 3 managed by pyenv
 
