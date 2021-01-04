@@ -7,7 +7,7 @@ import {
   Theme,
 } from "@material-ui/core";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { useContext, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import { useTitle } from "react-use";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -58,41 +58,49 @@ function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const onSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      await signIn(email, password);
+    },
+    [email, password, signIn]
+  );
+
   return (
     <Box className={classes.container}>
-      <Box className={classes.formContainer}>
-        <Box className={classes.imageBox}>
-          <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="Logo" />
+      <form onSubmit={onSubmit}>
+        <Box className={classes.formContainer}>
+          <Box className={classes.imageBox}>
+            <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="Logo" />
+          </Box>
+          <TextField
+            label="Email"
+            className={classes.formInput}
+            value={email}
+            onChange={({ target: { value } }) => {
+              setEmail(value);
+            }}
+          ></TextField>
+          <TextField
+            type="password"
+            label="Password"
+            className={classes.formInput}
+            value={password}
+            onChange={({ target: { value } }) => {
+              setPassword(value);
+            }}
+          ></TextField>
+          <Button
+            className={classes.loginButton}
+            disabled={!email || !password}
+            variant="contained"
+            color="primary"
+            type="submit"
+          >
+            Login
+          </Button>
         </Box>
-        <TextField
-          label="Email"
-          className={classes.formInput}
-          value={email}
-          onChange={({ target: { value } }) => {
-            setEmail(value);
-          }}
-        ></TextField>
-        <TextField
-          type="password"
-          label="Password"
-          className={classes.formInput}
-          value={password}
-          onChange={({ target: { value } }) => {
-            setPassword(value);
-          }}
-        ></TextField>
-        <Button
-          className={classes.loginButton}
-          disabled={!email || !password}
-          onClick={async () => {
-            await signIn(email, password);
-          }}
-          variant="contained"
-          color="primary"
-        >
-          Login
-        </Button>
-      </Box>
+      </form>
     </Box>
   );
 }
