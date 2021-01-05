@@ -14,7 +14,6 @@ Sentry.init({
 });
 
 ReactDOM.render(
-  <React.StrictMode>
     <CurrentUserWrapper>
       <ApolloWrapper>
         <CssBaseline>
@@ -22,7 +21,7 @@ ReactDOM.render(
         </CssBaseline>
       </ApolloWrapper>
     </CurrentUserWrapper>
-  </React.StrictMode>,
+  ,
   document.getElementById("root")
 );
 

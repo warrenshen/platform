@@ -51,6 +51,7 @@ function ListPurchaseOrders({ companyId, manipulatePurchaseOrder }: Props) {
       company_id: companyId ? companyId : user.companyId,
     },
   });
+  window.console.log('Is purhcase orders list loading ' + loading);
 
   const rows = populateRows(data ? data.purchase_orders : []);
 
