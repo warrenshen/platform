@@ -31,7 +31,7 @@ function Vendors() {
       <Box display="flex" flexWrap="wrap">
         {vendorPartnerships.map((vendorPartnership) => {
           return (
-            <Box pr={3} key={vendorPartnership.id}>
+            <Box pt={2} pr={3} key={vendorPartnership.id}>
               <ClickableVendorCard
                 vendorPartnership={vendorPartnership}
               ></ClickableVendorCard>
