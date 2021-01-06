@@ -12,7 +12,11 @@ from flask_script import Manager
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 from bespoke.db import models
+from server.views.triggers import purchase_order
 from server.views import auth
+from bespoke.email.email_manager import EmailConfigDict, SESConfigDict
+from bespoke.email import email_manager
+from server.config import get_config
 
 if os.environ.get('FLASK_ENV') == 'development':
     load_dotenv(os.path.join(os.environ.get('PROJECT_DIR'), '.env'))
@@ -31,19 +35,27 @@ logging.basicConfig(format='%(asctime)s [%(levelname)s] - %(message)s',
                     datefmt='%m/%d/%Y %H:%M:%S',
                     level=logging.INFO)
 
-config = dict()  # type: Dict
+config = get_config()
 
 app = Flask(__name__)
 CORS(app)
 manager = Manager(app)
 
-jwt_config = json.loads(os.environ.get('HASURA_GRAPHQL_JWT_SECRET'))
-config['JWT_SECRET_KEY'] = jwt_config['key']
-config['JWT_ALGORITHM'] = jwt_config['type']
-config['JWT_IDENTITY_CLAIM'] = 'https://hasura.io/jwt/claims'
+app.config.update(config.as_dict())
 
-app.config.update(config)
+email_config = EmailConfigDict(
+    email_provider=config.EMAIL_PROVIDER,
+    from_addr=config.NO_REPLY_EMAIL_ADDRESS,
+    ses_config=SESConfigDict(
+        use_aws_access_creds=config.USE_AWS_ACCESS_CREDS,
+        region_name=config.SES_REGION_NAME,
+        ses_access_key_id=config.SES_ACCESS_KEY_ID,
+        ses_secret_access_key=config.SES_SECRET_ACCESS_KEY)
+    )
+email_client = email_manager.new_client(email_config)
 
+app.email_client = email_client
+app.register_blueprint(purchase_order.handler, url_prefix='/trigger/purchase_order')
 app.register_blueprint(auth.handler, url_prefix='/auth')
 
 app.engine = models.create_engine()
