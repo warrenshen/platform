@@ -37,7 +37,7 @@ def create_email_template(title: str, msg: str) -> str:
 
 def _create_mime_message(from_addr: str, to_addr_list: List[str], subject: str, msg_body: str) -> MIMEMultipart:
   msg = MIMEMultipart('alternative')  # type: Any
-  msg['From'] = u'Instabase <{0}>'.format(from_addr)
+  msg['From'] = u'Bespoke <{0}>'.format(from_addr)
   msg['To'] = u",".join(to_addr_list)
   msg['Subject'] = subject
 
