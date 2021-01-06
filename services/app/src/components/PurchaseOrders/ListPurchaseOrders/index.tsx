@@ -46,7 +46,7 @@ function ListPurchaseOrders({ companyId, manipulatePurchaseOrder }: Props) {
   const [currentId, setCurrentId] = useState("");
   const [open, setOpen] = useState(false);
 
-  const { data, loading } = useListPurchaseOrdersQuery({
+  const { data } = useListPurchaseOrdersQuery({
     variables: {
       company_id: companyId ? companyId : user.companyId,
     },

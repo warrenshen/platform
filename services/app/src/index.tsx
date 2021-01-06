@@ -14,15 +14,13 @@ Sentry.init({
 });
 
 ReactDOM.render(
-  <React.StrictMode>
-    <CurrentUserWrapper>
-      <ApolloWrapper>
-        <CssBaseline>
-          <App />
-        </CssBaseline>
-      </ApolloWrapper>
-    </CurrentUserWrapper>
-  </React.StrictMode>,
+  <CurrentUserWrapper>
+    <ApolloWrapper>
+      <CssBaseline>
+        <App />
+      </CssBaseline>
+    </ApolloWrapper>
+  </CurrentUserWrapper>,
   document.getElementById("root")
 );
 
