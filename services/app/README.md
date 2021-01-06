@@ -2,6 +2,7 @@
 
 ```
 nvm use
+cp .env.example .env
 yarn install --frozen-lockfile
 ```
 

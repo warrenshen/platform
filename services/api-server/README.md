@@ -1,5 +1,11 @@
 # Installing
 
+1. Copy environment over from example.
+
+```
+cp .env.example .env
+```
+
 2. Install Python 3 managed by pyenv
 
 ```
