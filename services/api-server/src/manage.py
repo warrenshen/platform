@@ -12,7 +12,6 @@ from flask_script import Manager
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 from bespoke.db import models
-from server.views.triggers import purchase_order
 from server.views import auth
 from bespoke.email.email_manager import EmailConfigDict, SESConfigDict
 from bespoke.email import email_manager
@@ -52,10 +51,9 @@ email_config = EmailConfigDict(
         ses_access_key_id=config.SES_ACCESS_KEY_ID,
         ses_secret_access_key=config.SES_SECRET_ACCESS_KEY)
     )
-email_client = email_manager.new_client(email_config)
+#email_client = email_manager.new_client(email_config)
+#app.email_client = email_client
 
-app.email_client = email_client
-app.register_blueprint(purchase_order.handler, url_prefix='/trigger/purchase_order')
 app.register_blueprint(auth.handler, url_prefix='/auth')
 
 app.engine = models.create_engine()

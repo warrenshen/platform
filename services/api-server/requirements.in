@@ -23,3 +23,6 @@ pyjwt==1.7.1
 
 # Logging
 sentry-sdk[flask]==0.19.5
+
+# AWS
+boto3==1.16.50
