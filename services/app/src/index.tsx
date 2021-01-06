@@ -14,14 +14,13 @@ Sentry.init({
 });
 
 ReactDOM.render(
-    <CurrentUserWrapper>
-      <ApolloWrapper>
-        <CssBaseline>
-          <App />
-        </CssBaseline>
-      </ApolloWrapper>
-    </CurrentUserWrapper>
-  ,
+  <CurrentUserWrapper>
+    <ApolloWrapper>
+      <CssBaseline>
+        <App />
+      </CssBaseline>
+    </ApolloWrapper>
+  </CurrentUserWrapper>,
   document.getElementById("root")
 );
 
