@@ -13,7 +13,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import { CustomerParams } from "components/Bank/Customer";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
 import {
   CompaniesInsertInput,
   ListVendorPartnershipsDocument,
@@ -43,12 +43,12 @@ interface Props {
 
 function RegisterVendorModal(props: Props) {
   const {
-    user: { companyId: userCompanyId },
+    user: { companyId: userCompanyId, role },
   } = useContext(CurrentUserContext);
 
   const { companyId: paramsCompanyId } = useParams<CustomerParams>();
 
-  const companyId = paramsCompanyId ? paramsCompanyId : userCompanyId;
+  const companyId = paramsCompanyId || userCompanyId;
 
   const classes = useStyles();
   const [vendor, setVendor] = useState<CompaniesInsertInput>({ name: "" });
@@ -149,7 +149,8 @@ function RegisterVendorModal(props: Props) {
               await addVendorPartnership({
                 variables: {
                   vendorPartnership: {
-                    company_id: companyId,
+                    company_id:
+                      role === UserRole.BankAdmin ? companyId : undefined,
                     vendor: {
                       data: {
                         ...vendor,
