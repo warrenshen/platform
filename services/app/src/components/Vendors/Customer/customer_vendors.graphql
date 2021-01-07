@@ -1,12 +1,6 @@
-fragment Vendor on companies {
+fragment VendorLimited on vendors {
   id
   name
-  address
-  country
-  state
-  city
-  zip_code
-  phone_number
 }
 
 fragment VendorPartnership on company_vendor_partnerships {
@@ -26,8 +20,8 @@ mutation AddVendorPartnership(
 ) {
   insert_company_vendor_partnerships_one(object: $vendorPartnership) {
     ...VendorPartnership
-    vendor {
-      ...Vendor
+    vendor_limited {
+      ...VendorLimited
     }
   }
 }
@@ -35,8 +29,8 @@ mutation AddVendorPartnership(
 query ListVendorPartnerships($companyId: uuid!) {
   company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
     ...VendorPartnership
-    vendor {
-      ...Vendor
+    vendor_limited {
+      ...VendorLimited
     }
   }
 }

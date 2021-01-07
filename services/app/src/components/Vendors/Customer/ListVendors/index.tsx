@@ -21,16 +21,21 @@ function ListVendors() {
 
   const vendorPartnerships = sortBy(
     data.company_vendor_partnerships,
-    (item) => item.vendor.name
+    (item) => item.vendor_limited?.name
   );
 
   return (
     <Box display="flex" flexWrap="wrap">
       {vendorPartnerships.map((vendorPartnership) => {
         return (
-          <Box pt={2} pr={3} key={vendorPartnership.id}>
-            <VendorCard vendorPartnership={vendorPartnership}></VendorCard>
-          </Box>
+          vendorPartnership.vendor_limited && (
+            <Box pt={2} pr={3} key={vendorPartnership.id}>
+              <VendorCard
+                vendorPartnership={vendorPartnership}
+                vendor={vendorPartnership.vendor_limited}
+              ></VendorCard>
+            </Box>
+          )
         );
       })}
     </Box>

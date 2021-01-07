@@ -92,19 +92,6 @@ function EditCompanyProfileModal({
         </Box>
         <Box pb={3} pt={2}>
           <TextField
-            label="Email"
-            className={classes.nameInput}
-            value={company?.contact_email_address}
-            onChange={({ target: { value } }) => {
-              setCompany({
-                ...company,
-                contact_email_address: value,
-              } as CompanyFragment);
-            }}
-          ></TextField>
-        </Box>
-        <Box pb={3} pt={2}>
-          <TextField
             label="DBA"
             className={classes.nameInput}
             value={company?.dba_name}
@@ -141,7 +128,6 @@ function EditCompanyProfileModal({
                   id: company?.id,
                   company: {
                     address: company?.address,
-                    contact_email_address: company?.contact_email_address,
                     phone_number: company?.phone_number,
                     employer_identification_number:
                       company?.employer_identification_number,

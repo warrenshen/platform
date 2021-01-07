@@ -21,6 +21,7 @@ function ClickableVendorCard(props: {
       )}
       <VendorCard
         vendorPartnership={props.vendorPartnership}
+        vendor={props.vendorPartnership.vendor}
         onClick={() => {
           setOpen(true);
         }}

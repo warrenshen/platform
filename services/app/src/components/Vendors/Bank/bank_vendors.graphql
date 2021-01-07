@@ -1,3 +1,14 @@
+fragment Vendor on companies {
+  id
+  name
+  address
+  country
+  state
+  city
+  zip_code
+  phone_number
+}
+
 fragment BankVendorPartnership on company_vendor_partnerships {
   id
   company_id

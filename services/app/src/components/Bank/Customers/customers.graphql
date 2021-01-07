@@ -9,7 +9,6 @@ fragment BankCustomer on companies {
   city
   zip_code
   phone_number
-  contact_email_address
 }
 
 query BankCustomers {

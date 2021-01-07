@@ -15,7 +15,6 @@ fragment Company on companies {
   dba_name
   employer_identification_number
   address
-  contact_email_address
   phone_number
   bank_accounts {
     ...CompanyBankAccount

@@ -6,18 +6,22 @@ import {
   CardContent,
   createStyles,
   makeStyles,
-  Theme,
   Typography,
 } from "@material-ui/core";
 import { CheckCircle } from "@material-ui/icons";
-import { VendorFragment, VendorPartnershipFragment } from "generated/graphql";
+import {
+  VendorFragment,
+  VendorLimitedFragment,
+  VendorPartnershipFragment,
+} from "generated/graphql";
 
 interface Props {
-  vendorPartnership: VendorPartnershipFragment & { vendor: VendorFragment };
+  vendorPartnership: VendorPartnershipFragment;
+  vendor: VendorFragment | VendorLimitedFragment;
   onClick?: () => void;
 }
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     card: {
       width: 300,
@@ -26,28 +30,39 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+function isCompany(
+  vendor: VendorFragment | VendorLimitedFragment
+): vendor is VendorFragment {
+  return (vendor as VendorFragment).address !== undefined;
+}
+
 function VendorCard(props: Props) {
   const classes = useStyles();
-  const vendor = props.vendorPartnership.vendor;
+  const vendor = props.vendor;
 
   return (
     <Card className={classes.card}>
       <CardContent>
-        <Typography variant="h6">{vendor.name}</Typography>
-        <Box py={1}>
-          <Box>
-            {vendor.address && (
-              <>
-                <Box>{vendor.address}</Box>
-                <Box>
-                  {vendor.city}, {vendor.state} {vendor.country}{" "}
-                  {vendor.zip_code}
-                </Box>
-              </>
-            )}
-          </Box>
-        </Box>
-        {vendor.phone_number ? <Box>{vendor.phone_number}</Box> : null}
+        <Typography variant="h6">{vendor?.name}</Typography>
+        {isCompany(vendor) && (
+          <>
+            <Box py={1}>
+              <Box>
+                {vendor.address && (
+                  <>
+                    <Box>{vendor.address}</Box>
+                    <Box>
+                      {vendor.city}, {vendor.state} {vendor.country}{" "}
+                      {vendor.zip_code}
+                    </Box>
+                  </>
+                )}
+              </Box>
+            </Box>
+            {vendor.phone_number ? <Box>{vendor.phone_number}</Box> : null}
+          </>
+        )}
+
         <Box display="flex" flexDirection="column" pt={2}>
           <Box display="flex">
             <CheckCircle

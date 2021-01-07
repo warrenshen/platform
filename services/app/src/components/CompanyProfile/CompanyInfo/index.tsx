@@ -39,10 +39,6 @@ function CompanyInfo({ company }: Props) {
             <Box>{company?.phone_number}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
-            <Box className={classes.label}>Email</Box>
-            <Box>{company?.contact_email_address}</Box>
-          </Box>
-          <Box display="flex" pb={0.25}>
             <Box className={classes.label}>DBA</Box>
             <Box>{company?.dba_name}</Box>
           </Box>
