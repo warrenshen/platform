@@ -154,6 +154,8 @@ function RegisterVendorModal(props: Props) {
                     vendor: {
                       data: {
                         ...vendor,
+                        is_vendor:
+                          role === UserRole.BankAdmin ? true : undefined,
                         users: {
                           data: [{ ...contact }],
                         },
