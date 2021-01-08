@@ -74,6 +74,7 @@ function SignIn() {
             <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="Logo" />
           </Box>
           <TextField
+            data-cy="signin-input-email"
             label="Email"
             className={classes.formInput}
             value={email}
@@ -82,6 +83,7 @@ function SignIn() {
             }}
           ></TextField>
           <TextField
+            data-cy="signin-input-password"
             type="password"
             label="Password"
             className={classes.formInput}
@@ -91,13 +93,14 @@ function SignIn() {
             }}
           ></TextField>
           <Button
+            data-cy="signin-button"
             className={classes.loginButton}
             disabled={!email || !password}
             variant="contained"
             color="primary"
             type="submit"
           >
-            Login
+            Sign in
           </Button>
         </Box>
       </form>
