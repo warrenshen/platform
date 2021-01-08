@@ -8,12 +8,12 @@ import {
   DialogContent,
   DialogTitle,
   FormControl,
+  Input,
+  InputAdornment,
   InputLabel,
   makeStyles,
   MenuItem,
   Select,
-  TextareaAutosize,
-  TextField,
   Theme,
 } from "@material-ui/core";
 import {
@@ -36,22 +36,15 @@ import { useContext, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    dialog: {
+      minWidth: "500px",
+    },
     dialogTitle: {
       paddingLeft: theme.spacing(4),
       borderBottom: "1px solid #c7c7c7",
     },
     purchaseOrderInput: {
-      width: "100%",
-    },
-    formControlLeft: {
-      flexDirection: "column",
-      margin: theme.spacing(1),
-      flexGrow: 1,
-    },
-    formControlRight: {
-      flexDirection: "column",
-      margin: theme.spacing(1),
-      width: "50%",
+      width: "200px",
     },
     dialogActions: {
       margin: theme.spacing(4),
@@ -63,6 +56,13 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
+
+enum PurchaseOrderStatus {
+  Draft = "draft",
+  VendorApprovalRequested = "approval_requested",
+  ApprovedByVendor = "approved",
+  RejectedByVendor = "rejected",
+}
 
 interface Props {
   actionType: ActionType;
@@ -83,7 +83,7 @@ function AddPurchaseOrderModal({
     data: vendorsData,
     loading: getVendorsLoading,
   } = useListPurchaseOrderVendorsQuery();
-  const vendors = vendorsData?.companies.filter((v) => v.id !== companyId);
+  const vendors = vendorsData?.vendors;
 
   const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrderFragment>(
     actionType === ActionType.Update && originalPurchaseOrder
@@ -91,7 +91,6 @@ function AddPurchaseOrderModal({
       : ({
           company_id: companyId,
           vendor_id: "",
-          currency: "USD",
         } as PurchaseOrderFragment)
   );
   const [
@@ -107,7 +106,12 @@ function AddPurchaseOrderModal({
   const isFormValid = !!purchaseOrder.vendor_id;
 
   return (
-    <Dialog open onClose={handleClose} maxWidth="xl">
+    <Dialog
+      open
+      onClose={handleClose}
+      maxWidth="xl"
+      classes={{ paper: classes.dialog }}
+    >
       <DialogTitle className={classes.dialogTitle}>
         {`${
           actionType === ActionType.Update ? "Edit" : "Create"
@@ -116,11 +120,10 @@ function AddPurchaseOrderModal({
       <DialogContent>
         <Box display="flex" flexDirection="column">
           <Box display="flex" flexDirection="row">
-            <FormControl className={classes.formControlRight}>
+            <FormControl className={classes.purchaseOrderInput}>
               <InputLabel id="vendor-select-label">Vendor</InputLabel>
               <Select
                 disabled={getVendorsLoading}
-                className={classes.purchaseOrderInput}
                 labelId="vendor-select-label"
                 id="vendor-select"
                 value={purchaseOrder.vendor_id}
@@ -142,104 +145,71 @@ function AddPurchaseOrderModal({
               </Select>
             </FormControl>
           </Box>
-          <Box display="flex" flexDirection="row">
-            <FormControl className={classes.formControlRight}>
-              <InputLabel id="currency-select-label">Currency</InputLabel>
-              <Select
+          <Box>
+            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+              <KeyboardDatePicker
                 className={classes.purchaseOrderInput}
-                labelId="currency-select-label"
-                id="currency-select"
-                value={purchaseOrder.currency ? purchaseOrder.currency : "USD"}
+                disableToolbar
+                variant="inline"
+                format="MM/dd/yyyy"
+                margin="normal"
+                id="order-date-date-picker"
+                label="Order Date"
+                value={purchaseOrder.order_date || null}
+                onChange={(value: MaterialUiPickersDate) => {
+                  setPurchaseOrder({
+                    ...purchaseOrder,
+                    order_date: value ? value : new Date().getUTCDate(),
+                  });
+                }}
+                KeyboardButtonProps={{
+                  "aria-label": "change date",
+                }}
+              />
+            </MuiPickersUtilsProvider>
+          </Box>
+          <Box>
+            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+              <KeyboardDatePicker
+                className={classes.purchaseOrderInput}
+                disableToolbar
+                variant="inline"
+                format="MM/dd/yyyy"
+                margin="normal"
+                id="delivery-date-date-picker"
+                label="Delivery date"
+                value={purchaseOrder.delivery_date || null}
+                onChange={(value: MaterialUiPickersDate) => {
+                  setPurchaseOrder({
+                    ...purchaseOrder,
+                    delivery_date: value ? value : new Date().getUTCDate(),
+                  });
+                }}
+                KeyboardButtonProps={{
+                  "aria-label": "change date",
+                }}
+              />
+            </MuiPickersUtilsProvider>
+          </Box>
+          <Box mt={3}>
+            <FormControl fullWidth className={classes.purchaseOrderInput}>
+              <InputLabel htmlFor="standard-adornment-amount">
+                Amount
+              </InputLabel>
+              <Input
+                id="standard-adornment-amount"
+                value={purchaseOrder.amount}
                 onChange={({ target: { value } }) => {
                   setPurchaseOrder({
                     ...purchaseOrder,
-                    currency: value as string,
+                    amount: value,
                   });
                 }}
-              >
-                {[{ value: "USD" }].map((currency) => (
-                  <MenuItem key={currency.value} value={currency.value}>
-                    {currency.value}
-                  </MenuItem>
-                ))}
-              </Select>
+                startAdornment={
+                  <InputAdornment position="start">$</InputAdornment>
+                }
+              />
             </FormControl>
-          </Box>
-          <Box display="flex" flexDirection="row">
-            <Box flexDirection="column" m={1} flexGrow={1}>
-              <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                <KeyboardDatePicker
-                  className={classes.purchaseOrderInput}
-                  disableToolbar
-                  variant="inline"
-                  format="MM/dd/yyyy"
-                  margin="normal"
-                  id="created-at-date-picker"
-                  label="PO Date"
-                  value={purchaseOrder.created_at}
-                  onChange={(value: MaterialUiPickersDate) => {
-                    setPurchaseOrder({
-                      ...purchaseOrder,
-                      created_at: value ? value : new Date(),
-                    });
-                  }}
-                  KeyboardButtonProps={{
-                    "aria-label": "change date",
-                  }}
-                />
-              </MuiPickersUtilsProvider>
-            </Box>
-            <Box flexDirection="column" m={1} width="50%">
-              <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                <KeyboardDatePicker
-                  className={classes.purchaseOrderInput}
-                  disableToolbar
-                  variant="inline"
-                  format="MM/dd/yyyy"
-                  margin="normal"
-                  id="delivery-date-date-picker"
-                  label="Delivery date"
-                  value={purchaseOrder.delivery_date}
-                  onChange={(value: MaterialUiPickersDate) => {
-                    setPurchaseOrder({
-                      ...purchaseOrder,
-                      delivery_date: value ? value : new Date(),
-                    });
-                  }}
-                  KeyboardButtonProps={{
-                    "aria-label": "change date",
-                  }}
-                />
-              </MuiPickersUtilsProvider>
-            </Box>
-          </Box>
-          <Box flexDirection="column" m={1} flexGrow={1}>
-            <TextField
-              label="Amount"
-              className={classes.purchaseOrderInput}
-              value={purchaseOrder.amount}
-              onChange={({ target: { value } }) => {
-                setPurchaseOrder({
-                  ...purchaseOrder,
-                  amount: value,
-                });
-              }}
-            ></TextField>
-          </Box>
-          <Box display="flex" m={1} flexDirection="row">
-            <TextareaAutosize
-              id="remarks-text-area"
-              className={classes.purchaseOrderInput}
-              aria-label="Remarks"
-              placeholder="Remarks If any"
-              rowsMin={5}
-              onChange={({ target: { value } }) => {
-                setPurchaseOrder({
-                  ...purchaseOrder,
-                  remarks: value,
-                });
-              }}
-            />
           </Box>
         </Box>
       </DialogContent>
@@ -259,12 +229,11 @@ function AddPurchaseOrderModal({
                   variables: {
                     id: purchaseOrder.id,
                     purchaseOrder: {
-                      currency: purchaseOrder.currency,
                       delivery_date: purchaseOrder.delivery_date,
-                      remarks: purchaseOrder.remarks,
-                      status: purchaseOrder.status,
+                      order_date: purchaseOrder.order_date,
                       vendor_id: purchaseOrder.vendor_id,
                       amount: purchaseOrder.amount,
+                      status: PurchaseOrderStatus.Draft,
                     },
                   },
                   refetchQueries: [
@@ -280,12 +249,11 @@ function AddPurchaseOrderModal({
                 await addPurchaseOrder({
                   variables: {
                     purhcase_order: {
-                      currency: purchaseOrder.currency,
                       delivery_date: purchaseOrder.delivery_date,
-                      remarks: purchaseOrder.remarks,
-                      status: purchaseOrder.status,
+                      order_date: purchaseOrder.order_date,
                       vendor_id: purchaseOrder.vendor_id,
                       amount: purchaseOrder.amount,
+                      status: String(PurchaseOrderStatus.Draft),
                     } as PurchaseOrdersInsertInput,
                   },
                   refetchQueries: [

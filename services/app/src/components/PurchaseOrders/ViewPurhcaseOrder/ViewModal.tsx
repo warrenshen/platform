@@ -68,10 +68,9 @@ function ViewModal({ id, handleClose, manipulatePurchaseOrder }: Props) {
             </Box>
             <Box display="flex" flexDirection="row" m={1}>
               <p className={classes.propertyLabel}>
-                <strong>PO Date:</strong>
+                <strong>Order Date:</strong>
               </p>
-              <p>{calendarDateTimestamp(purchaseOrder?.created_at)}</p>
-              {/* <p>{purchaseOrder?.created_at}</p> */}
+              <p>{calendarDateTimestamp(purchaseOrder?.order_date)}</p>
             </Box>
             <Box display="flex" flexDirection="row" m={1}>
               <p className={classes.propertyLabel}>
@@ -93,14 +92,6 @@ function ViewModal({ id, handleClose, manipulatePurchaseOrder }: Props) {
               </p>
               <p>{purchaseOrder?.vendor?.name}</p>
             </Box>
-          </Box>
-        </Box>
-        <Box>
-          <Box display="flex" flexDirection="row" m={1}>
-            <p className={classes.propertyLabel}>
-              <strong>Remark:</strong>
-            </p>
-            <p>{purchaseOrder?.remarks}</p>
           </Box>
         </Box>
       </DialogContent>

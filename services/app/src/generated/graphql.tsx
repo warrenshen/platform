@@ -12,7 +12,7 @@ export type Scalars = {
   Int: number;
   Float: number;
   date: any;
-  money: any;
+  numeric: any;
   timestamptz: any;
   uuid: any;
 };
@@ -1404,20 +1404,6 @@ export enum LoansUpdateColumn {
   Id = 'id'
 }
 
-
-/** expression to compare columns of type money. All fields are combined with logical 'AND'. */
-export type MoneyComparisonExp = {
-  _eq?: Maybe<Scalars['money']>;
-  _gt?: Maybe<Scalars['money']>;
-  _gte?: Maybe<Scalars['money']>;
-  _in?: Maybe<Array<Scalars['money']>>;
-  _is_null?: Maybe<Scalars['Boolean']>;
-  _lt?: Maybe<Scalars['money']>;
-  _lte?: Maybe<Scalars['money']>;
-  _neq?: Maybe<Scalars['money']>;
-  _nin?: Maybe<Array<Scalars['money']>>;
-};
-
 /** mutation root */
 export type MutationRoot = {
   /** delete data from the table: "companies" */
@@ -1873,6 +1859,20 @@ export type MutationRootUpdateVendorsArgs = {
   where: VendorsBoolExp;
 };
 
+
+/** expression to compare columns of type numeric. All fields are combined with logical 'AND'. */
+export type NumericComparisonExp = {
+  _eq?: Maybe<Scalars['numeric']>;
+  _gt?: Maybe<Scalars['numeric']>;
+  _gte?: Maybe<Scalars['numeric']>;
+  _in?: Maybe<Array<Scalars['numeric']>>;
+  _is_null?: Maybe<Scalars['Boolean']>;
+  _lt?: Maybe<Scalars['numeric']>;
+  _lte?: Maybe<Scalars['numeric']>;
+  _neq?: Maybe<Scalars['numeric']>;
+  _nin?: Maybe<Array<Scalars['numeric']>>;
+};
+
 /** column ordering options */
 export enum OrderBy {
   /** in the ascending order, nulls last */
@@ -1891,19 +1891,18 @@ export enum OrderBy {
 
 /** columns and relationships of "purchase_orders" */
 export type PurchaseOrders = {
-  amount?: Maybe<Scalars['money']>;
+  amount: Scalars['numeric'];
   /** An object relationship */
-  company?: Maybe<Companies>;
-  company_id?: Maybe<Scalars['uuid']>;
+  company: Companies;
+  company_id: Scalars['uuid'];
   created_at: Scalars['timestamptz'];
-  currency: Scalars['String'];
-  delivery_date?: Maybe<Scalars['date']>;
+  delivery_date: Scalars['date'];
   id: Scalars['uuid'];
-  remarks?: Maybe<Scalars['String']>;
+  order_date: Scalars['date'];
   status: Scalars['String'];
   updated_at: Scalars['timestamptz'];
   /** An object relationship */
-  vendor?: Maybe<Companies>;
+  vendor?: Maybe<Vendors>;
   vendor_id: Scalars['uuid'];
 };
 
@@ -1971,17 +1970,16 @@ export type PurchaseOrdersBoolExp = {
   _and?: Maybe<Array<Maybe<PurchaseOrdersBoolExp>>>;
   _not?: Maybe<PurchaseOrdersBoolExp>;
   _or?: Maybe<Array<Maybe<PurchaseOrdersBoolExp>>>;
-  amount?: Maybe<MoneyComparisonExp>;
+  amount?: Maybe<NumericComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
-  currency?: Maybe<StringComparisonExp>;
   delivery_date?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
-  remarks?: Maybe<StringComparisonExp>;
+  order_date?: Maybe<DateComparisonExp>;
   status?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
-  vendor?: Maybe<CompaniesBoolExp>;
+  vendor?: Maybe<VendorsBoolExp>;
   vendor_id?: Maybe<UuidComparisonExp>;
 };
 
@@ -1993,34 +1991,32 @@ export enum PurchaseOrdersConstraint {
 
 /** input type for incrementing integer column in table "purchase_orders" */
 export type PurchaseOrdersIncInput = {
-  amount?: Maybe<Scalars['money']>;
+  amount?: Maybe<Scalars['numeric']>;
 };
 
 /** input type for inserting data into table "purchase_orders" */
 export type PurchaseOrdersInsertInput = {
-  amount?: Maybe<Scalars['money']>;
+  amount?: Maybe<Scalars['numeric']>;
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars['uuid']>;
   created_at?: Maybe<Scalars['timestamptz']>;
-  currency?: Maybe<Scalars['String']>;
   delivery_date?: Maybe<Scalars['date']>;
   id?: Maybe<Scalars['uuid']>;
-  remarks?: Maybe<Scalars['String']>;
+  order_date?: Maybe<Scalars['date']>;
   status?: Maybe<Scalars['String']>;
   updated_at?: Maybe<Scalars['timestamptz']>;
-  vendor?: Maybe<CompaniesObjRelInsertInput>;
+  vendor?: Maybe<VendorsObjRelInsertInput>;
   vendor_id?: Maybe<Scalars['uuid']>;
 };
 
 /** aggregate max on columns */
 export type PurchaseOrdersMaxFields = {
-  amount?: Maybe<Scalars['money']>;
+  amount?: Maybe<Scalars['numeric']>;
   company_id?: Maybe<Scalars['uuid']>;
   created_at?: Maybe<Scalars['timestamptz']>;
-  currency?: Maybe<Scalars['String']>;
   delivery_date?: Maybe<Scalars['date']>;
   id?: Maybe<Scalars['uuid']>;
-  remarks?: Maybe<Scalars['String']>;
+  order_date?: Maybe<Scalars['date']>;
   status?: Maybe<Scalars['String']>;
   updated_at?: Maybe<Scalars['timestamptz']>;
   vendor_id?: Maybe<Scalars['uuid']>;
@@ -2031,10 +2027,9 @@ export type PurchaseOrdersMaxOrderBy = {
   amount?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
-  currency?: Maybe<OrderBy>;
   delivery_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
-  remarks?: Maybe<OrderBy>;
+  order_date?: Maybe<OrderBy>;
   status?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_id?: Maybe<OrderBy>;
@@ -2042,13 +2037,12 @@ export type PurchaseOrdersMaxOrderBy = {
 
 /** aggregate min on columns */
 export type PurchaseOrdersMinFields = {
-  amount?: Maybe<Scalars['money']>;
+  amount?: Maybe<Scalars['numeric']>;
   company_id?: Maybe<Scalars['uuid']>;
   created_at?: Maybe<Scalars['timestamptz']>;
-  currency?: Maybe<Scalars['String']>;
   delivery_date?: Maybe<Scalars['date']>;
   id?: Maybe<Scalars['uuid']>;
-  remarks?: Maybe<Scalars['String']>;
+  order_date?: Maybe<Scalars['date']>;
   status?: Maybe<Scalars['String']>;
   updated_at?: Maybe<Scalars['timestamptz']>;
   vendor_id?: Maybe<Scalars['uuid']>;
@@ -2059,10 +2053,9 @@ export type PurchaseOrdersMinOrderBy = {
   amount?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
-  currency?: Maybe<OrderBy>;
   delivery_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
-  remarks?: Maybe<OrderBy>;
+  order_date?: Maybe<OrderBy>;
   status?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_id?: Maybe<OrderBy>;
@@ -2095,13 +2088,12 @@ export type PurchaseOrdersOrderBy = {
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
-  currency?: Maybe<OrderBy>;
   delivery_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
-  remarks?: Maybe<OrderBy>;
+  order_date?: Maybe<OrderBy>;
   status?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
-  vendor?: Maybe<CompaniesOrderBy>;
+  vendor?: Maybe<VendorsOrderBy>;
   vendor_id?: Maybe<OrderBy>;
 };
 
@@ -2119,13 +2111,11 @@ export enum PurchaseOrdersSelectColumn {
   /** column name */
   CreatedAt = 'created_at',
   /** column name */
-  Currency = 'currency',
-  /** column name */
   DeliveryDate = 'delivery_date',
   /** column name */
   Id = 'id',
   /** column name */
-  Remarks = 'remarks',
+  OrderDate = 'order_date',
   /** column name */
   Status = 'status',
   /** column name */
@@ -2136,13 +2126,12 @@ export enum PurchaseOrdersSelectColumn {
 
 /** input type for updating data in table "purchase_orders" */
 export type PurchaseOrdersSetInput = {
-  amount?: Maybe<Scalars['money']>;
+  amount?: Maybe<Scalars['numeric']>;
   company_id?: Maybe<Scalars['uuid']>;
   created_at?: Maybe<Scalars['timestamptz']>;
-  currency?: Maybe<Scalars['String']>;
   delivery_date?: Maybe<Scalars['date']>;
   id?: Maybe<Scalars['uuid']>;
-  remarks?: Maybe<Scalars['String']>;
+  order_date?: Maybe<Scalars['date']>;
   status?: Maybe<Scalars['String']>;
   updated_at?: Maybe<Scalars['timestamptz']>;
   vendor_id?: Maybe<Scalars['uuid']>;
@@ -2180,7 +2169,7 @@ export type PurchaseOrdersStddevSampOrderBy = {
 
 /** aggregate sum on columns */
 export type PurchaseOrdersSumFields = {
-  amount?: Maybe<Scalars['money']>;
+  amount?: Maybe<Scalars['numeric']>;
 };
 
 /** order by sum() on columns of table "purchase_orders" */
@@ -2197,13 +2186,11 @@ export enum PurchaseOrdersUpdateColumn {
   /** column name */
   CreatedAt = 'created_at',
   /** column name */
-  Currency = 'currency',
-  /** column name */
   DeliveryDate = 'delivery_date',
   /** column name */
   Id = 'id',
   /** column name */
-  Remarks = 'remarks',
+  OrderDate = 'order_date',
   /** column name */
   Status = 'status',
   /** column name */
@@ -3075,10 +3062,34 @@ export type UuidComparisonExp = {
 /** columns and relationships of "vendors" */
 export type Vendors = {
   address?: Maybe<Scalars['String']>;
+  /** An array relationship */
+  company_vendor_partnerships: Array<CompanyVendorPartnerships>;
+  /** An aggregated array relationship */
+  company_vendor_partnerships_aggregate: CompanyVendorPartnershipsAggregate;
   dba_name?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['uuid']>;
   name?: Maybe<Scalars['String']>;
   phone_number?: Maybe<Scalars['String']>;
+};
+
+
+/** columns and relationships of "vendors" */
+export type VendorsCompanyVendorPartnershipsArgs = {
+  distinct_on?: Maybe<Array<CompanyVendorPartnershipsSelectColumn>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<CompanyVendorPartnershipsOrderBy>>;
+  where?: Maybe<CompanyVendorPartnershipsBoolExp>;
+};
+
+
+/** columns and relationships of "vendors" */
+export type VendorsCompanyVendorPartnershipsAggregateArgs = {
+  distinct_on?: Maybe<Array<CompanyVendorPartnershipsSelectColumn>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<CompanyVendorPartnershipsOrderBy>>;
+  where?: Maybe<CompanyVendorPartnershipsBoolExp>;
 };
 
 /** aggregated selection of "vendors" */
@@ -3119,6 +3130,7 @@ export type VendorsBoolExp = {
   _not?: Maybe<VendorsBoolExp>;
   _or?: Maybe<Array<Maybe<VendorsBoolExp>>>;
   address?: Maybe<StringComparisonExp>;
+  company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsBoolExp>;
   dba_name?: Maybe<StringComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   name?: Maybe<StringComparisonExp>;
@@ -3128,6 +3140,7 @@ export type VendorsBoolExp = {
 /** input type for inserting data into table "vendors" */
 export type VendorsInsertInput = {
   address?: Maybe<Scalars['String']>;
+  company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsArrRelInsertInput>;
   dba_name?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['uuid']>;
   name?: Maybe<Scalars['String']>;
@@ -3186,6 +3199,7 @@ export type VendorsObjRelInsertInput = {
 /** ordering options when selecting data from "vendors" */
 export type VendorsOrderBy = {
   address?: Maybe<OrderBy>;
+  company_vendor_partnerships_aggregate?: Maybe<CompanyVendorPartnershipsAggregateOrderBy>;
   dba_name?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   name?: Maybe<OrderBy>;
@@ -3323,8 +3337,8 @@ export type AddVendorContactMutationVariables = Exact<{
 export type AddVendorContactMutation = { insert_users_one?: Maybe<ContactFragment> };
 
 export type PurchaseOrderFragment = (
-  Pick<PurchaseOrders, 'company_id' | 'created_at' | 'currency' | 'delivery_date' | 'id' | 'amount' | 'remarks' | 'status' | 'vendor_id'>
-  & { vendor?: Maybe<Pick<Companies, 'id' | 'name'>>, company?: Maybe<Pick<Companies, 'id' | 'name'>> }
+  Pick<PurchaseOrders, 'id' | 'company_id' | 'vendor_id' | 'order_date' | 'delivery_date' | 'amount' | 'status' | 'created_at'>
+  & { vendor?: Maybe<Pick<Vendors, 'id' | 'name'>>, company: Pick<Companies, 'id' | 'name'> }
 );
 
 export type ListPurchaseOrdersQueryVariables = Exact<{
@@ -3351,7 +3365,7 @@ export type AddPurchaseOrderMutation = { insert_purchase_orders_one?: Maybe<Purc
 export type ListPurchaseOrderVendorsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListPurchaseOrderVendorsQuery = { companies: Array<Pick<Companies, 'id' | 'name'>> };
+export type ListPurchaseOrderVendorsQuery = { vendors: Array<Pick<Vendors, 'id' | 'name'>> };
 
 export type UpdatePurchaseOrderMutationVariables = Exact<{
   id: Scalars['uuid'];
@@ -3559,15 +3573,14 @@ export const ContactFragmentDoc = gql`
     `;
 export const PurchaseOrderFragmentDoc = gql`
     fragment PurchaseOrder on purchase_orders {
-  company_id
-  created_at
-  currency
-  delivery_date
   id
-  amount
-  remarks
-  status
+  company_id
   vendor_id
+  order_date
+  delivery_date
+  amount
+  status
+  created_at
   vendor {
     id
     name
@@ -4179,7 +4192,7 @@ export type AddPurchaseOrderMutationResult = Apollo.MutationResult<AddPurchaseOr
 export type AddPurchaseOrderMutationOptions = Apollo.BaseMutationOptions<AddPurchaseOrderMutation, AddPurchaseOrderMutationVariables>;
 export const ListPurchaseOrderVendorsDocument = gql`
     query ListPurchaseOrderVendors {
-  companies {
+  vendors {
     id
     name
   }

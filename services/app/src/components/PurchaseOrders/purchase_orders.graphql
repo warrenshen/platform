@@ -1,13 +1,12 @@
 fragment PurchaseOrder on purchase_orders {
-  company_id
-  created_at
-  currency
-  delivery_date
   id
-  amount
-  remarks
-  status
+  company_id
   vendor_id
+  order_date
+  delivery_date
+  amount
+  status
+  created_at
   vendor {
     id
     name
@@ -37,7 +36,7 @@ mutation AddPurchaseOrder($purhcase_order: purchase_orders_insert_input!) {
 }
 
 query ListPurchaseOrderVendors {
-  companies {
+  vendors {
     id
     name
   }
