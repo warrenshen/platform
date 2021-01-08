@@ -12,9 +12,11 @@ from flask_jwt_extended import (
 	jwt_refresh_token_required, get_jwt_identity, get_raw_jwt
 )
 from passlib.hash import pbkdf2_sha256 as sha256
+from typing import cast
 
 from bespoke.db import models
 from bespoke.db.models import session_scope
+from server.config import Config
 
 handler = Blueprint('auth', __name__)
 
@@ -47,8 +49,15 @@ class RegistrationView(MethodView):
 					return make_error_response('User {} already exists. Please choose another'.format(email))
 				session.add(user)
 
-			access_token = create_access_token(identity=email)
-			refresh_token = create_refresh_token(identity=email)
+			cfg = cast(Config, current_app.app_config)
+			access_token = create_access_token(
+				identity=email,
+				expires_delta=datetime.timedelta(minutes=cfg.ACCESS_TOKEN_DURATION_MINUTES)
+			)
+			refresh_token = create_refresh_token(
+				identity=email,
+				expires_delta=datetime.timedelta(minutes=cfg.REFRESH_TOKEN_DURATION_MINUTES)
+			)
 		except Exception as e:
 			return make_error_response('{}'.format(e))
 
@@ -82,8 +91,15 @@ class LoginView(MethodView):
 				'X-Hasura-Allowed-Roles': [user.role],
 				'X-Hasura-Company-Id': str(user.company_id)
 			}
-			access_token = create_access_token(identity=claims_payload)
-			refresh_token = create_refresh_token(identity=claims_payload)
+			cfg = cast(Config, current_app.app_config)
+			access_token = create_access_token(
+				identity=claims_payload,
+				expires_delta=datetime.timedelta(minutes=cfg.ACCESS_TOKEN_DURATION_MINUTES)
+			)
+			refresh_token = create_refresh_token(
+				identity=claims_payload,
+				expires_delta=datetime.timedelta(minutes=cfg.REFRESH_TOKEN_DURATION_MINUTES)
+			)
 
 			return make_response(json.dumps({
 				'status': 'OK',

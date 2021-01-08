@@ -56,6 +56,7 @@ email_config = EmailConfigDict(
 
 app.register_blueprint(auth.handler, url_prefix='/auth')
 
+app.app_config = config
 app.engine = models.create_engine()
 app.session_maker = models.new_sessionmaker(app.engine)
 app.jwt_manager = JWTManager(app)

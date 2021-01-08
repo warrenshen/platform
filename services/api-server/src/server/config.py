@@ -16,7 +16,7 @@ class Config(object):
 
 		self.EMAIL_PROVIDER = os.environ.get('EMAIL_PROVIDER', 'ses')
 
-		# TODO I think donotreply@bespokefinancial.com is better
+		# TODO(dlluncor): I think donotreply@bespokefinancial.com is better
 		self.NO_REPLY_EMAIL_ADDRESS = os.environ.get(
 			'NO_REPLY_EMAIL_ADDRESS', 'jira@bespokefinancial.com')
 		self.USE_AWS_ACCESS_CREDS = _string_to_bool(
@@ -24,6 +24,10 @@ class Config(object):
 		self.SES_REGION_NAME = os.environ.get('SES_REGION_NAME', 'us-west-2')
 		self.SES_ACCESS_KEY_ID = os.environ.get('SES_ACCESS_KEY_ID')
 		self.SES_SECRET_ACCESS_KEY = os.environ.get('SES_SECRET_ACCESS_KEY')
+
+		# TODO(dlluncor): Change this to a shorter value for production
+		self.REFRESH_TOKEN_DURATION_MINUTES = 60 * 24
+		self.ACCESS_TOKEN_DURATION_MINUTES = 60 * 24
 
 	def as_dict(self) -> Dict:
 	  attr_names = dir(self)
