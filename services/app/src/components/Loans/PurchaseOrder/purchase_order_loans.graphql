@@ -1,0 +1,34 @@
+fragment PurchaseOrderLoanForCustomer on purchase_order_loans {
+  id
+  amount
+  status
+}
+
+# TODO(dlluncor): I need to filter by purchase orders that are "approved" here
+query ListApprovedPurchaseOrders {
+  purchase_orders {
+    id
+    amount
+    delivery_date
+    order_date
+    vendor {
+      id
+      name
+    }
+  }
+}
+
+mutation AddPurchaseOrderLoan($purchaseOrderId: uuid!, $amount: numeric!) {
+  insert_purchase_order_loans_one(
+    object: { purchase_order_id: $purchaseOrderId, amount: $amount }
+  ) {
+    id
+    amount
+  }
+}
+
+query ListPurchaseOrderLoansForCustomer($companyId: uuid!) {
+  purchase_order_loans(where: { company_id: { _eq: $companyId } }) {
+    ...PurchaseOrderLoanForCustomer
+  }
+}
