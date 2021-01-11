@@ -5,7 +5,7 @@ export const routes = {
   purchaseOrders: "/purchase-orders",
   vendors: "/vendors",
   profile: "/profile",
-  login: "/login",
+  signIn: "/signIn",
   userProfile: "/user-profile",
   users: "/users",
 };
@@ -24,5 +24,9 @@ export const bankPaths = {
 };
 
 export const authEndpoints = {
-  login: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}/auth/login`,
+  signIn: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}/auth/sign-in`,
+  resetPassword: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}/auth/reset-password`,
+  refreshToken: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}/auth/token/refresh`,
+  revokeAccessToken: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}/auth/sign-out/access`,
+  revokeRefreshToken: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}/auth/sign-out/refresh`,
 };

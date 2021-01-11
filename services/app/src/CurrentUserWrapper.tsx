@@ -1,11 +1,13 @@
 import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
+import * as Sentry from "@sentry/react";
 import {
   CurrentUserContext,
   User,
   UserRole,
 } from "contexts/CurrentUserContext";
+import useTokenStorage from "hooks/useTokenStorage";
 import JwtDecode from "jwt-decode";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { authEndpoints } from "routes";
 
 const blankUser = {
@@ -14,11 +16,10 @@ const blankUser = {
   role: UserRole.CompanyAdmin,
 };
 
-const LOCAL_STORAGE_ACCESS_TOKEN_KEY = "access_token";
-
-function decodeToken(jwtToken: string) {
-  const decodedJwtToken: any = JwtDecode(jwtToken);
-  const claims = decodedJwtToken["https://hasura.io/jwt/claims"];
+const JWT_CLAIMS_KEY = "https://hasura.io/jwt/claims";
+function userFrom(token: string) {
+  const decodedToken: any = JwtDecode(token);
+  const claims = decodedToken[JWT_CLAIMS_KEY];
   return {
     id: claims["X-Hasura-User-Id"],
     companyId: claims["X-Hasura-Company-Id"],
@@ -27,49 +28,104 @@ function decodeToken(jwtToken: string) {
 }
 
 function CurrentUserWrapper(props: { children: React.ReactNode }) {
-  const jwtToken = localStorage.getItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY);
-  const [user, setUser] = useState<User>(
-    jwtToken ? decodeToken(jwtToken) : blankUser
+  const {
+    getAccessToken,
+    getRefreshToken,
+    setAccessToken,
+    setRefreshToken,
+    removeAccessToken,
+    removeRefreshToken,
+  } = useTokenStorage();
+
+  const [user, setUser] = useState<User>(blankUser);
+  const [loadedToken, setLoadedToken] = useState(false);
+
+  useEffect(() => {
+    async function updateUser() {
+      const accessToken = await getAccessToken();
+      if (accessToken) {
+        setUser(userFrom(accessToken));
+      }
+      setLoadedToken(true);
+    }
+    updateUser();
+  }, [getAccessToken]);
+
+  const signIn = useCallback(
+    async (email: string, password: string) => {
+      const response = await fetch(authEndpoints.signIn, {
+        method: "POST",
+        mode: "cors",
+        cache: "no-cache",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      try {
+        const data = await response.json();
+        if (data.status === "OK" && data.access_token) {
+          setAccessToken(data.access_token);
+          setRefreshToken(data.refresh_token);
+          setUser(userFrom(data.access_token));
+        } else {
+          setUser(blankUser);
+        }
+      } catch (err) {
+        setUser(blankUser);
+      }
+    },
+    [setAccessToken, setRefreshToken]
   );
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const response = await fetch(authEndpoints.login, {
-      method: "POST",
-      mode: "cors",
-      cache: "no-cache",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
-    try {
-      const data = await response.json();
-      if (data.status === "OK" && data.access_token) {
-        localStorage.setItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY, data.access_token);
-        setUser(decodeToken(data.access_token));
+  const signOut = useCallback(
+    async (client: ApolloClient<NormalizedCacheObject>) => {
+      try {
+        const accessToken = await getAccessToken();
+        await fetch(authEndpoints.revokeAccessToken, {
+          method: "POST",
+          mode: "cors",
+          cache: "no-cache",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        const refreshToken = await getRefreshToken();
+        await fetch(authEndpoints.revokeRefreshToken, {
+          method: "POST",
+          mode: "cors",
+          cache: "no-cache",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${refreshToken}`,
+          },
+        });
+      } catch (e) {
+        Sentry.captureException(e);
+      } finally {
+        removeAccessToken();
+        removeRefreshToken();
+        client.clearStore();
+        setUser(blankUser);
       }
-    } catch {
-      setUser(blankUser);
-    }
-  }, []);
+    },
+    [getAccessToken, getRefreshToken, removeAccessToken, removeRefreshToken]
+  );
 
-  const signOut = useCallback((client: ApolloClient<NormalizedCacheObject>) => {
-    localStorage.removeItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY);
-    client.clearStore();
-    setUser(blankUser);
-  }, []);
-
-  return (
+  return loadedToken ? (
     <CurrentUserContext.Provider
       value={{
         user,
-        jwtToken,
         signIn,
         signOut,
       }}
     >
       {props.children}
     </CurrentUserContext.Provider>
+  ) : (
+    <></>
   );
 }
 

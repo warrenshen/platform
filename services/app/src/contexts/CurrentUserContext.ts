@@ -15,7 +15,6 @@ export type User = {
 
 export type CurrentUserContextType = {
   user: User;
-  jwtToken: string | null;
   signIn: (email: string, password: string) => void;
   signOut: (client: ApolloClient<NormalizedCacheObject>) => void;
 };
@@ -26,7 +25,6 @@ export const CurrentUserContext = createContext<CurrentUserContextType>({
     companyId: "",
     role: UserRole.CompanyAdmin,
   },
-  jwtToken: null,
   signIn: () => {},
   signOut: () => {},
 });

@@ -7,10 +7,13 @@ import {
   TextField,
   Theme,
 } from "@material-ui/core";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useTitle } from "react-use";
+
+export interface ResetPasswordParams {
+  hmac: string;
+}
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -52,26 +55,22 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function SignIn() {
+function ResetPassword() {
   const classes = useStyles();
-  useTitle("Sign In | Bespoke");
+  useTitle("Reset Password | Bespoke");
 
-  const { signIn } = useContext(CurrentUserContext);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const history = useHistory();
+  const [newPassword, setNewPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [error, setError] = useState("");
 
-  const onFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const onFormSubmit = async (e: any) => {
     e.preventDefault();
     setError("");
     try {
-      await signIn(email, password);
       history.push(history.location);
     } catch (err) {
-      setError(
-        "We encountered an error while attempting to sign in. Please try again!"
-      );
+      setError("Error occurred while trying to reset password.");
     }
   };
 
@@ -82,40 +81,40 @@ function SignIn() {
           <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="Logo" />
         </Box>
         <TextField
-          data-cy="sign-in-input-email"
-          label="Email"
+          type="password"
+          label="New Password"
           className={classes.formInput}
-          value={email}
+          value={newPassword}
           onChange={({ target: { value } }) => {
-            setEmail(value);
+            setNewPassword(value);
           }}
         ></TextField>
         <TextField
-          data-cy="sign-in-input-password"
           type="password"
-          label="Password"
+          label="Password Confirm"
           className={classes.formInput}
-          value={password}
+          value={passwordConfirm}
           onChange={({ target: { value } }) => {
-            setPassword(value);
+            setPasswordConfirm(value);
           }}
         ></TextField>
         <FormHelperText className={classes.formInput} error>
           {error}
         </FormHelperText>
         <Button
-          data-cy="sign-in-button"
           type="submit"
           className={classes.signInButton}
-          disabled={!email || !password}
+          disabled={
+            !newPassword || !passwordConfirm || newPassword !== passwordConfirm
+          }
           variant="contained"
           color="primary"
         >
-          Sign in
+          Reset
         </Button>
       </form>
     </Box>
   );
 }
 
-export default SignIn;
+export default ResetPassword;

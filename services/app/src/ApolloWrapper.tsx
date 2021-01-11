@@ -6,21 +6,31 @@ import {
   InMemoryCache,
   split,
 } from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
 import { WebSocketLink } from "@apollo/client/link/ws";
 import { getMainDefinition } from "@apollo/client/utilities";
 import { CurrentUserContext, User } from "contexts/CurrentUserContext";
+import useTokenStorage, { Storage } from "hooks/useTokenStorage";
 import { useContext } from "react";
 
-const createApolloClient = (user: User, jwtToken: string | null) => {
+const createApolloClient = (
+  user: User,
+  getAccessToken: Storage["getAccessToken"]
+) => {
+  const authLink = setContext(async (_, { headers }) => {
+    const accessToken = await getAccessToken();
+    return {
+      headers: {
+        ...headers,
+        Authorization: accessToken ? `Bearer ${accessToken}` : "",
+        "X-Hasura-Role": user.role,
+      },
+    };
+  });
+
   const httpLink = new HttpLink({
     uri: process.env.REACT_APP_BESPOKE_GRAPHQL_ENDPOINT,
     credentials: "include",
-    headers: jwtToken
-      ? {
-          Authorization: `Bearer ${jwtToken}`,
-          "X-Hasura-Role": user.role,
-        }
-      : undefined,
   });
 
   const wsLink = new WebSocketLink({
@@ -28,13 +38,16 @@ const createApolloClient = (user: User, jwtToken: string | null) => {
     options: {
       lazy: true,
       reconnect: true,
-      connectionParams: {
-        headers: jwtToken
-          ? {
-              Authorization: `Bearer ${jwtToken}`,
-              "X-Hasura-Role": user.role,
-            }
-          : undefined,
+      connectionParams: async () => {
+        const accessToken = await getAccessToken();
+        return {
+          headers: accessToken
+            ? {
+                Authorization: `Bearer ${accessToken}`,
+                "X-Hasura-Role": user.role,
+              }
+            : undefined,
+        };
       },
     },
   });
@@ -64,16 +77,19 @@ const createApolloClient = (user: User, jwtToken: string | null) => {
     return forward(operation);
   });
 
-  return new ApolloClient({
-    link: ApolloLink.from([stripTypenameLink, transportLink]),
+  const client = new ApolloClient({
+    link: ApolloLink.from([stripTypenameLink, authLink, transportLink]),
     cache: new InMemoryCache(),
     connectToDevTools: true,
   });
+
+  return client;
 };
 
 function ApolloWrapper(props: { children: React.ReactNode }) {
-  const { user, jwtToken } = useContext(CurrentUserContext);
-  const client = createApolloClient(user, jwtToken);
+  const { user } = useContext(CurrentUserContext);
+  const { getAccessToken } = useTokenStorage();
+  const client = createApolloClient(user, getAccessToken);
   return <ApolloProvider client={client}>{props.children}</ApolloProvider>;
 }
 

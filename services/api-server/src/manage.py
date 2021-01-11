@@ -5,13 +5,14 @@ from typing import Dict
 
 import sentry_sdk
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, current_app
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_script import Manager
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 from bespoke.db import models
+from bespoke.db.models import session_scope
 from server.views import auth
 from bespoke.email.email_manager import EmailConfigDict, SESConfigDict
 from bespoke.email import email_manager
@@ -37,6 +38,7 @@ logging.basicConfig(format='%(asctime)s [%(levelname)s] - %(message)s',
 config = get_config()
 
 app = Flask(__name__)
+
 CORS(app)
 manager = Manager(app)
 
@@ -60,6 +62,20 @@ app.app_config = config
 app.engine = models.create_engine()
 app.session_maker = models.new_sessionmaker(app.engine)
 app.jwt_manager = JWTManager(app)
+
+
+@app.jwt_manager.token_in_blacklist_loader
+def check_if_token_in_blacklist(decrypted_token):
+    jti = decrypted_token['jti']
+    with session_scope(current_app.session_maker) as session:
+        existing_revoked_token = session.query(models.RevokedTokenModel).filter(
+            models.RevokedTokenModel.jti == jti).first()
+        if existing_revoked_token:
+            return True
+        else:
+            return False
+    return False
+
 
 if __name__ == '__main__':
     manager.run()

@@ -17,7 +17,9 @@ import "./App.css";
 
 function App() {
   const { user } = useContext(CurrentUserContext);
+
   if (!user.id) return <SignIn />;
+
   return (
     <BrowserRouter>
       <Layout>
