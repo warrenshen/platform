@@ -29,7 +29,6 @@ fragment BankAccount on bank_accounts {
   account_number
   routing_number
   can_ach
-  can_reverse_draft_ach
   can_wire
   recipient_name
   recipient_address

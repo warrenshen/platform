@@ -56,7 +56,6 @@ export type BankAccounts = {
   bank_address?: Maybe<Scalars['String']>;
   bank_name: Scalars['String'];
   can_ach: Scalars['Boolean'];
-  can_reverse_draft_ach: Scalars['Boolean'];
   can_wire: Scalars['Boolean'];
   /** An object relationship */
   company?: Maybe<Companies>;
@@ -112,7 +111,6 @@ export type BankAccountsBoolExp = {
   bank_address?: Maybe<StringComparisonExp>;
   bank_name?: Maybe<StringComparisonExp>;
   can_ach?: Maybe<BooleanComparisonExp>;
-  can_reverse_draft_ach?: Maybe<BooleanComparisonExp>;
   can_wire?: Maybe<BooleanComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
@@ -137,7 +135,6 @@ export type BankAccountsInsertInput = {
   bank_address?: Maybe<Scalars['String']>;
   bank_name?: Maybe<Scalars['String']>;
   can_ach?: Maybe<Scalars['Boolean']>;
-  can_reverse_draft_ach?: Maybe<Scalars['Boolean']>;
   can_wire?: Maybe<Scalars['Boolean']>;
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars['uuid']>;
@@ -237,7 +234,6 @@ export type BankAccountsOrderBy = {
   bank_address?: Maybe<OrderBy>;
   bank_name?: Maybe<OrderBy>;
   can_ach?: Maybe<OrderBy>;
-  can_reverse_draft_ach?: Maybe<OrderBy>;
   can_wire?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
@@ -267,8 +263,6 @@ export enum BankAccountsSelectColumn {
   /** column name */
   CanAch = 'can_ach',
   /** column name */
-  CanReverseDraftAch = 'can_reverse_draft_ach',
-  /** column name */
   CanWire = 'can_wire',
   /** column name */
   CompanyId = 'company_id',
@@ -293,7 +287,6 @@ export type BankAccountsSetInput = {
   bank_address?: Maybe<Scalars['String']>;
   bank_name?: Maybe<Scalars['String']>;
   can_ach?: Maybe<Scalars['Boolean']>;
-  can_reverse_draft_ach?: Maybe<Scalars['Boolean']>;
   can_wire?: Maybe<Scalars['Boolean']>;
   company_id?: Maybe<Scalars['uuid']>;
   id?: Maybe<Scalars['uuid']>;
@@ -316,8 +309,6 @@ export enum BankAccountsUpdateColumn {
   BankName = 'bank_name',
   /** column name */
   CanAch = 'can_ach',
-  /** column name */
-  CanReverseDraftAch = 'can_reverse_draft_ach',
   /** column name */
   CanWire = 'can_wire',
   /** column name */
@@ -4018,7 +4009,7 @@ export type BankVendorPartnershipFragment = (
   & { vendor_bank_account?: Maybe<BankAccountFragment> }
 );
 
-export type BankAccountFragment = Pick<BankAccounts, 'id' | 'company_id' | 'bank_name' | 'bank_address' | 'account_type' | 'account_number' | 'routing_number' | 'can_ach' | 'can_reverse_draft_ach' | 'can_wire' | 'recipient_name' | 'recipient_address' | 'notes' | 'verified_at'>;
+export type BankAccountFragment = Pick<BankAccounts, 'id' | 'company_id' | 'bank_name' | 'bank_address' | 'account_type' | 'account_number' | 'routing_number' | 'can_ach' | 'can_wire' | 'recipient_name' | 'recipient_address' | 'notes' | 'verified_at'>;
 
 export type BankListVendorPartnershipsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4141,7 +4132,6 @@ export const BankAccountFragmentDoc = gql`
   account_number
   routing_number
   can_ach
-  can_reverse_draft_ach
   can_wire
   recipient_name
   recipient_address

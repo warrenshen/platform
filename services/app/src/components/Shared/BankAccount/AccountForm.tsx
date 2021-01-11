@@ -119,21 +119,6 @@ function AccountForm(props: {
         <FormControlLabel
           control={
             <Checkbox
-              checked={!!bankAccount.can_reverse_draft_ach}
-              onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                setBankAccount({
-                  ...bankAccount,
-                  can_reverse_draft_ach: event.target.checked,
-                });
-              }}
-              color="primary"
-            />
-          }
-          label={"Reverse Draft ACH"}
-        />
-        <FormControlLabel
-          control={
-            <Checkbox
               checked={!!bankAccount.can_wire}
               onChange={(event: ChangeEvent<HTMLInputElement>) => {
                 setBankAccount({
@@ -216,7 +201,6 @@ function AccountForm(props: {
                       account_number: bankAccount.account_number,
                       routing_number: bankAccount.routing_number,
                       can_ach: bankAccount.can_ach,
-                      can_reverse_draft_ach: bankAccount.can_reverse_draft_ach,
                       can_wire: bankAccount.can_wire,
                       notes:
                         role === UserRole.CompanyAdmin
@@ -244,7 +228,6 @@ function AccountForm(props: {
                       account_number: bankAccount.account_number,
                       routing_number: bankAccount.routing_number,
                       can_ach: bankAccount.can_ach,
-                      can_reverse_draft_ach: bankAccount.can_reverse_draft_ach,
                       can_wire: bankAccount.can_wire,
                       notes:
                         role === UserRole.CompanyAdmin
