@@ -1,5 +1,5 @@
 import { Box } from "@material-ui/core";
-import { CustomerParams } from "components/Bank/Customer";
+import { CustomerParams } from "pages/Bank/Customer";
 import AddButton from "components/Vendors/AddVendor/Button";
 import ClickableVendorCard from "components/Vendors/Bank/ClickableVendorCard";
 import { useBankCustomerListVendorPartnershipsQuery } from "generated/graphql";

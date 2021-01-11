@@ -1,5 +1,5 @@
 function Loans() {
-  return <>Loans tab</>;
+  return <></>;
 }
 
 export default Loans;

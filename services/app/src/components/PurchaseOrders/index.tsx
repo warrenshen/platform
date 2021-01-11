@@ -1,26 +1,18 @@
 import { Box } from "@material-ui/core";
-import { CustomerParams } from "components/Bank/Customer";
 import Can from "components/Can";
 import AddButton from "components/PurchaseOrders/AddPurchaseOrder/AddButton";
 import ListPurchaseOrders from "components/PurchaseOrders/ListPurchaseOrders";
 //import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { PurchaseOrderFragment } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
-import useAppBarTitle from "hooks/useAppBarTitle";
 import { ActionType } from "lib/ActionType";
 import { Action } from "lib/rbac-rules";
+import { CustomerParams } from "pages/Bank/Customer";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { useTitle } from "react-use";
 
 function PurchaseOrders() {
   const { companyId } = useParams<CustomerParams>();
-  /*  const {
-    user: { role },
-  } = useContext(CurrentUserContext);
-*/
-  useTitle("Purchase Orders | Bespoke");
-  useAppBarTitle("Purchase Orders");
 
   const clearId = () => {
     setOriginalPurchaseOrder(null);

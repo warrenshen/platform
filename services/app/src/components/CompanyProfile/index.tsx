@@ -1,8 +1,6 @@
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import useAppBarTitle from "hooks/useAppBarTitle";
 import { useContext } from "react";
 import { useParams } from "react-router-dom";
-import { useTitle } from "react-use";
 import { useCompanyQuery } from "../../generated/graphql";
 import BankAccounts from "./BankAccounts";
 import CompanyInfo from "./CompanyInfo";
@@ -12,8 +10,6 @@ export interface CustomerParams {
 }
 
 function CompanyProfile() {
-  useTitle("Company Profile | Bespoke");
-  useAppBarTitle("Company Profile");
   const { companyId: companyIdFromParams } = useParams<CustomerParams>();
   const { user } = useContext(CurrentUserContext);
 

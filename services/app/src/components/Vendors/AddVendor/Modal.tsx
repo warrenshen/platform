@@ -12,7 +12,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import { CustomerParams } from "components/Bank/Customer";
+import { CustomerParams } from "pages/Bank/Customer";
 import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
 import {
   CompaniesInsertInput,

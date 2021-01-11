@@ -1,16 +1,16 @@
-import Customer from "components/Bank/Customer";
-import Customers from "components/Bank/Customers";
-import CompanyProfile from "components/CompanyProfile";
-import Home from "components/Home";
 import Layout from "components/Layout";
-import Loans from "components/Loans";
-import PurchaseOrders from "components/PurchaseOrders";
-import SignIn from "components/SignIn";
-import UserProfile from "components/UserProfile";
-import Users from "components/Users";
-import Vendors from "components/Vendors";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import BankAccounts from "pages/Bank/BankAccounts";
+import Customer from "pages/Bank/Customer";
+import Customers from "pages/Bank/Customers";
+import CompanyProfilePage from "pages/Customer/CompanyProfile";
+import LoansPage from "pages/Customer/Loans";
+import PurchaseOrdersPage from "pages/Customer/PurchaseOrders";
+import Home from "pages/Home";
+import SignIn from "pages/SignIn";
+import UserProfile from "pages/UserProfile";
+import Users from "pages/Users";
+import Vendors from "pages/Vendors";
 import { useContext } from "react";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { bankPaths, routes } from "routes";
@@ -27,14 +27,18 @@ function App() {
         <Switch>
           <Route exact path={routes.root} component={Home}></Route>
           <Route exact path={routes.overview} component={Home}></Route>
-          <Route exact path={routes.loans} component={Loans}></Route>
+          <Route exact path={routes.loans} component={LoansPage}></Route>
           <Route
             exact
             path={routes.purchaseOrders}
-            component={PurchaseOrders}
+            component={PurchaseOrdersPage}
           ></Route>
           <Route exact path={routes.vendors} component={Vendors}></Route>
-          <Route exact path={routes.profile} component={CompanyProfile}></Route>
+          <Route
+            exact
+            path={routes.profile}
+            component={CompanyProfilePage}
+          ></Route>
           <Route path={routes.userProfile} component={UserProfile}></Route>
           <Route path={routes.users} component={Users}></Route>
 
