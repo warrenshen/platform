@@ -1,6 +1,7 @@
 import {
   Box,
   Card,
+  CardActions,
   CardContent,
   makeStyles,
   Typography,
@@ -46,8 +47,10 @@ function CompanyInfo({ company }: Props) {
             <Box className={classes.label}>EIN</Box>
             <Box>{company?.employer_identification_number}</Box>
           </Box>
-          <EditButton company={company}></EditButton>
         </CardContent>
+        <CardActions>
+          <EditButton company={company}></EditButton>
+        </CardActions>
       </Card>
     </Box>
   );

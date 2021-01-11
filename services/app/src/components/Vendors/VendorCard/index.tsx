@@ -25,7 +25,7 @@ const useStyles = makeStyles(() =>
   createStyles({
     card: {
       width: 300,
-      minHeight: 235,
+      minHeight: 200,
     },
   })
 );
@@ -100,6 +100,7 @@ function VendorCard(props: Props) {
         <CardActions>
           <Button
             size="small"
+            variant="outlined"
             onClick={() => {
               props.onClick && props.onClick();
             }}

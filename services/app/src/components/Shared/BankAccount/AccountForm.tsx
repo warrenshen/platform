@@ -162,8 +162,9 @@ function AccountForm(props: {
         {role === UserRole.BankAdmin && (
           <Box mt={2}>
             <TextField
+              className={classes.form}
               multiline
-              rows={3}
+              rows={2}
               label="Notes"
               value={bankAccount.notes}
               onChange={({ target: { value } }) => {

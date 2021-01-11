@@ -20,7 +20,6 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     card: {
       width: 300,
-      minHeight: 235,
     },
   })
 );
@@ -45,7 +44,7 @@ function Customers() {
       <Box display="flex" flexWrap="wrap">
         {customers.map((customer) => {
           return (
-            <Box pt={2} pr={3} key={customer.id}>
+            <Box mt={2} mr={3} key={customer.id}>
               <Card className={classes.card}>
                 <CardContent>
                   <Typography variant="h6">{customer.name}</Typography>
@@ -62,6 +61,7 @@ function Customers() {
                 <CardActions>
                   <Button
                     size="small"
+                    variant="outlined"
                     component={Link}
                     to={`${url}/${customer.id}${bankPaths.customer.overview}`}
                   >

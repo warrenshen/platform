@@ -83,6 +83,8 @@ function UserProfile() {
               onClick={() => {
                 setOpen(true);
               }}
+              variant="outlined"
+              size="small"
             >
               Edit
             </Button>
