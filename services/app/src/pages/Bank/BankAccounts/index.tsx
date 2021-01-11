@@ -1,8 +1,8 @@
-import { Box, Card, CardContent } from "@material-ui/core";
-import AccountInfo from "components/Shared/BankAccount/AccountInfo";
+import { Box } from "@material-ui/core";
+import AccountInfoCard from "components/Shared/BankAccount/AccountInfoCard";
+import AddAccountButton from "components/Shared/BankAccount/AddAccountButton";
 import { useBankAccountsQuery } from "generated/graphql";
 import useAppBarTitle from "hooks/useAppBarTitle";
-import AddBankAccountButton from "pages/Bank/BankAccounts/AddBankAccountButton";
 import React from "react";
 import { useTitle } from "react-use";
 
@@ -16,16 +16,12 @@ function BankAccounts() {
   return (
     <>
       <Box display="flex" flexDirection="row-reverse" mb={3}>
-        <AddBankAccountButton></AddBankAccountButton>
+        <AddAccountButton></AddAccountButton>
       </Box>
       <Box display="flex" flexWrap="wrap">
         {accounts.map((account, index) => (
           <Box key={index} mr={2} mb={2}>
-            <Card>
-              <CardContent>
-                <AccountInfo bankAccount={account}></AccountInfo>
-              </CardContent>
-            </Card>
+            <AccountInfoCard bankAccount={account}></AccountInfoCard>
           </Box>
         ))}
       </Box>

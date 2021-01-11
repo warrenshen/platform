@@ -136,14 +136,26 @@ function AccountForm(props: {
             <TextField
               className={classes.form}
               label="Bank Address"
+              value={bankAccount.bank_address}
+              onChange={({ target: { value } }) => {
+                setBankAccount({ ...bankAccount, bank_address: value });
+              }}
             ></TextField>
             <TextField
               label="Recipient Name"
               className={classes.form}
+              value={bankAccount.recipient_name}
+              onChange={({ target: { value } }) => {
+                setBankAccount({ ...bankAccount, recipient_name: value });
+              }}
             ></TextField>
             <TextField
               label="Recipient Address"
               className={classes.form}
+              value={bankAccount.recipient_address}
+              onChange={({ target: { value } }) => {
+                setBankAccount({ ...bankAccount, recipient_address: value });
+              }}
             ></TextField>
           </Box>
         )}
@@ -202,6 +214,9 @@ function AccountForm(props: {
                       routing_number: bankAccount.routing_number,
                       can_ach: bankAccount.can_ach,
                       can_wire: bankAccount.can_wire,
+                      bank_address: bankAccount.bank_address,
+                      recipient_name: bankAccount.recipient_name,
+                      recipient_address: bankAccount.recipient_address,
                       notes:
                         role === UserRole.CompanyAdmin
                           ? undefined
@@ -229,6 +244,9 @@ function AccountForm(props: {
                       routing_number: bankAccount.routing_number,
                       can_ach: bankAccount.can_ach,
                       can_wire: bankAccount.can_wire,
+                      bank_address: bankAccount.bank_address,
+                      recipient_name: bankAccount.recipient_name,
+                      recipient_address: bankAccount.recipient_address,
                       notes:
                         role === UserRole.CompanyAdmin
                           ? undefined
