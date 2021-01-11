@@ -63,10 +63,11 @@ function useTokenStorage(): Storage {
         if (data.status === "OK" && data.access_token) {
           setAccessToken(data.access_token);
           return data.access_token;
+        } else {
+          return null;
         }
       } catch (e) {
         Sentry.captureException(e);
-      } finally {
         return null;
       }
     } else if (refreshToken && accessToken) {
