@@ -7,6 +7,7 @@ export enum Action {
   ViewPurchaseOrdersActionMenu = "purchase-orders:view-action-menu",
   ManipulatePurchaseOrders = "purchase-orders:manipulate",
   ManipulateUser = "users:manipulate",
+  AssignBespokeBankAccountForCustomer = "bank-accounts:assign-to-customer",
 }
 
 export interface ActionData {
@@ -71,7 +72,7 @@ const rules: Rules = {
     ],
   },
   [UserRole.BankAdmin]: {
-    static: [],
+    static: [Action.AssignBespokeBankAccountForCustomer],
     dynamic: [
       {
         action: Action.ManipulateUser,

@@ -8,6 +8,9 @@ fragment Company on companies {
   bank_accounts {
     ...BankAccount
   }
+  assigned_bespoke_bank_account {
+    ...BankAccount
+  }
 }
 
 query Company($companyId: uuid!) {
@@ -19,13 +22,6 @@ query Company($companyId: uuid!) {
 mutation UpdateCompanyProfile($id: uuid!, $company: companies_set_input!) {
   update_companies_by_pk(pk_columns: { id: $id }, _set: $company) {
     ...Company
-  }
-}
-
-query Companies {
-  companies(limit: 1) {
-    id
-    name
   }
 }
 
@@ -47,5 +43,18 @@ mutation UpdateCompanyBankAccount(
 ) {
   update_bank_accounts_by_pk(pk_columns: { id: $id }, _set: $bankAccount) {
     ...BankAccount
+  }
+}
+
+mutation AssignBespokeBankAccount($companyId: uuid!, $bankAccountId: uuid) {
+  update_companies_by_pk(
+    pk_columns: { id: $companyId }
+    _set: { assigned_bespoke_bank_account_id: $bankAccountId }
+  ) {
+    id
+    assigned_bespoke_bank_account_id
+    assigned_bespoke_bank_account {
+      ...BankAccount
+    }
   }
 }

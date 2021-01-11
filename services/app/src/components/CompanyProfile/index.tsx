@@ -1,4 +1,8 @@
+import { Box } from "@material-ui/core";
+import Can from "components/Can";
+import AssignBankAccount from "components/CompanyProfile/BankAccounts/AssignBankAccount";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
+import { Action } from "lib/rbac-rules";
 import { useContext } from "react";
 import { useParams } from "react-router-dom";
 import { useCompanyQuery } from "../../generated/graphql";
@@ -15,17 +19,17 @@ function CompanyProfile() {
 
   const companyId = companyIdFromParams ? companyIdFromParams : user.companyId;
 
-  const { data: companyData } = useCompanyQuery({
+  const { data } = useCompanyQuery({
     variables: {
       companyId,
     },
   });
 
-  if (!companyData?.companies_by_pk) {
+  if (!data || !data?.companies_by_pk) {
     return null;
   }
 
-  const company = companyData?.companies_by_pk;
+  const company = data?.companies_by_pk;
 
   return (
     <>
@@ -34,6 +38,16 @@ function CompanyProfile() {
         companyId={company.id}
         bankAccounts={company.bank_accounts}
       ></BankAccounts>
+      <Can perform={Action.AssignBespokeBankAccountForCustomer}>
+        <Box mt={2}>
+          <AssignBankAccount
+            companyId={companyId}
+            assignedBespokeBankAccount={
+              data.companies_by_pk.assigned_bespoke_bank_account || undefined
+            }
+          ></AssignBankAccount>
+        </Box>
+      </Can>
     </>
   );
 }
