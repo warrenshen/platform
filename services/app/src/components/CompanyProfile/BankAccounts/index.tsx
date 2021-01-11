@@ -9,7 +9,7 @@ import {
 } from "@material-ui/core";
 import AccountForm from "components/Shared/BankAccount/AccountForm";
 import AccountInfo from "components/Shared/BankAccount/AccountInfo";
-import { CompanyBankAccountFragment } from "generated/graphql";
+import { BankAccountFragment } from "generated/graphql";
 import { useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   companyId: string;
-  bankAccounts: CompanyBankAccountFragment[];
+  bankAccounts: BankAccountFragment[];
 }
 
 function BankAccounts({ companyId, bankAccounts }: Props) {
@@ -56,7 +56,7 @@ function BankAccounts({ companyId, bankAccounts }: Props) {
         onClick={() => {
           setAddingNewAccount(true);
           setAccounts((current) => [
-            { addNew: true, bankAccount: {} as CompanyBankAccountFragment },
+            { addNew: true, bankAccount: {} as BankAccountFragment },
             ...current,
           ]);
         }}

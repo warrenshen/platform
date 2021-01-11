@@ -8,7 +8,7 @@ interface Props {
 function BankAccountModal(props: Props) {
   return (
     <Dialog open onClose={props.handleClose} maxWidth="md">
-      <DialogTitle>Add Bank ACcount</DialogTitle>
+      <DialogTitle>Add Bank Account</DialogTitle>
       <DialogContent>
         <AccountForm onCancel={props.handleClose}></AccountForm>
       </DialogContent>

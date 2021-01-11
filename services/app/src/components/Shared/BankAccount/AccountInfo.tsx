@@ -32,11 +32,11 @@ function AccountInfo(props: { bankAccount: BankAccountFragment }) {
       <Box py={3}>
         <Box display="flex" pb={0.25}>
           <Box className={classes.label}>Bank</Box>
-          <Box>{props.bankAccount.name}</Box>
+          <Box>{props.bankAccount.bank_name}</Box>
         </Box>
         <Box display="flex" pb={0.25}>
-          <Box className={classes.label}>Account Name</Box>
-          <Box>{props.bankAccount.account_name}</Box>
+          <Box className={classes.label}>Account Type</Box>
+          <Box>{props.bankAccount.account_type}</Box>
         </Box>
         <Box display="flex" pb={0.25}>
           <Box className={classes.label}>Routing Number</Box>

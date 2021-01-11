@@ -20,13 +20,19 @@ fragment BankVendorPartnership on company_vendor_partnerships {
   vendor_license_id
 }
 
-fragment BankAccount on company_bank_accounts {
+fragment BankAccount on bank_accounts {
   id
   company_id
-  name
-  account_name
+  bank_name
+  bank_address
+  account_type
   account_number
   routing_number
+  can_ach
+  can_reverse_draft_ach
+  can_wire
+  recipient_name
+  recipient_address
   notes
   verified_at
 }
@@ -56,25 +62,19 @@ query BankVendorPartnership($id: uuid!) {
 }
 
 query CompanyBankAccounts($companyId: uuid!) {
-  company_bank_accounts(where: { company_id: { _eq: $companyId } }) {
+  bank_accounts(where: { company_id: { _eq: $companyId } }) {
     ...BankAccount
   }
 }
 
-mutation AddBankAccount($bankAccount: company_bank_accounts_insert_input!) {
-  insert_company_bank_accounts_one(object: $bankAccount) {
+mutation AddBankAccount($bankAccount: bank_accounts_insert_input!) {
+  insert_bank_accounts_one(object: $bankAccount) {
     ...BankAccount
   }
 }
 
-mutation UpdateBankAccount(
-  $id: uuid!
-  $bankAccount: company_bank_accounts_set_input
-) {
-  update_company_bank_accounts_by_pk(
-    pk_columns: { id: $id }
-    _set: $bankAccount
-  ) {
+mutation UpdateBankAccount($id: uuid!, $bankAccount: bank_accounts_set_input) {
+  update_bank_accounts_by_pk(pk_columns: { id: $id }, _set: $bankAccount) {
     ...BankAccount
   }
 }

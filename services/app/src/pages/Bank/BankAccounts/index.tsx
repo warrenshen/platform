@@ -11,16 +11,16 @@ function BankAccounts() {
   useAppBarTitle("Bank Accounts");
 
   const { data } = useBankAccountsQuery();
-  const accounts = data?.company_bank_accounts || [];
+  const accounts = data?.bank_accounts || [];
 
   return (
     <>
       <Box display="flex" flexDirection="row-reverse" mb={3}>
         <AddBankAccountButton></AddBankAccountButton>
       </Box>
-      <Box display="flex">
+      <Box display="flex" flexWrap="wrap">
         {accounts.map((account, index) => (
-          <Box key={index} mr={2}>
+          <Box key={index} mr={2} mb={2}>
             <Card>
               <CardContent>
                 <AccountInfo bankAccount={account}></AccountInfo>

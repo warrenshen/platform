@@ -10,9 +10,9 @@ import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
 import {
   BankAccountFragment,
   BankAccountsDocument,
+  BankAccountsInsertInput,
   Companies,
   CompanyBankAccountsDocument,
-  CompanyBankAccountsInsertInput,
   CompanyDocument,
   useAddBankAccountMutation,
   useUpdateBankAccountMutation,
@@ -22,7 +22,8 @@ import { ChangeEvent, useContext, useEffect, useState } from "react";
 
 const useStyles = makeStyles({
   form: {
-    width: 300,
+    width: "100%",
+    maxWidth: 300,
   },
   selectInput: {
     height: 30,
@@ -46,10 +47,7 @@ function AccountForm(props: {
     updateBankAccount,
     { loading: updateLoading },
   ] = useUpdateBankAccountMutation();
-  const [
-    bankAccount,
-    setBankAccount,
-  ] = useState<CompanyBankAccountsInsertInput>(
+  const [bankAccount, setBankAccount] = useState<BankAccountsInsertInput>(
     props.bankAccount || {
       company_id: props.companyId,
     }
@@ -69,19 +67,20 @@ function AccountForm(props: {
         className={classes.form}
       >
         <TextField
-          label="Bank"
+          label="Bank Name"
           required
-          value={bankAccount.name}
+          value={bankAccount.bank_name}
           onChange={({ target: { value } }) => {
-            setBankAccount({ ...bankAccount, name: value });
+            setBankAccount({ ...bankAccount, bank_name: value });
           }}
         ></TextField>
         <TextField
-          label="Account Name"
+          label="Account Type"
+          placeholder="Checking, Savings, etc."
           required
-          value={bankAccount.account_name}
+          value={bankAccount.account_type}
           onChange={({ target: { value } }) => {
-            setBankAccount({ ...bankAccount, account_name: value });
+            setBankAccount({ ...bankAccount, account_type: value });
           }}
         ></TextField>
         <TextField
@@ -100,8 +99,71 @@ function AccountForm(props: {
             setBankAccount({ ...bankAccount, account_number: value });
           }}
         ></TextField>
+        <Box mt={2}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={!!bankAccount.can_ach}
+                onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                  setBankAccount({
+                    ...bankAccount,
+                    can_ach: event.target.checked,
+                  });
+                }}
+                color="primary"
+              />
+            }
+            label={"ACH"}
+          />
+        </Box>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={!!bankAccount.can_reverse_draft_ach}
+              onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                setBankAccount({
+                  ...bankAccount,
+                  can_reverse_draft_ach: event.target.checked,
+                });
+              }}
+              color="primary"
+            />
+          }
+          label={"Reverse Draft ACH"}
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={!!bankAccount.can_wire}
+              onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                setBankAccount({
+                  ...bankAccount,
+                  can_wire: event.target.checked,
+                });
+              }}
+              color="primary"
+            />
+          }
+          label={"Wire"}
+        />
+        {bankAccount.can_wire && (
+          <Box ml={4}>
+            <TextField
+              className={classes.form}
+              label="Bank Address"
+            ></TextField>
+            <TextField
+              label="Recipient Name"
+              className={classes.form}
+            ></TextField>
+            <TextField
+              label="Recipient Address"
+              className={classes.form}
+            ></TextField>
+          </Box>
+        )}
         {role === UserRole.BankAdmin && (
-          <>
+          <Box mt={2}>
             <TextField
               multiline
               rows={3}
@@ -128,7 +190,7 @@ function AccountForm(props: {
               }
               label={"Verified bank account transfer"}
             />
-          </>
+          </Box>
         )}
         <Box display="flex" flexDirection="row-reverse" my={3}>
           <Button
@@ -138,8 +200,8 @@ function AccountForm(props: {
             disabled={
               insertLoading ||
               updateLoading ||
-              !bankAccount.name ||
-              !bankAccount.account_name ||
+              !bankAccount.bank_name ||
+              !bankAccount.account_type ||
               !bankAccount.routing_number ||
               !bankAccount.account_number
             }
@@ -149,14 +211,18 @@ function AccountForm(props: {
                   variables: {
                     id: bankAccount.id,
                     bankAccount: {
-                      account_name: bankAccount.account_name,
+                      bank_name: bankAccount.bank_name,
+                      account_type: bankAccount.account_type,
                       account_number: bankAccount.account_number,
-                      name: bankAccount.name,
+                      routing_number: bankAccount.routing_number,
+                      can_ach: bankAccount.can_ach,
+                      can_reverse_draft_ach: bankAccount.can_reverse_draft_ach,
+                      can_wire: bankAccount.can_wire,
                       notes:
                         role === UserRole.CompanyAdmin
                           ? undefined
                           : bankAccount.notes,
-                      routing_number: bankAccount.routing_number,
+
                       verified_at:
                         role === UserRole.CompanyAdmin
                           ? undefined
@@ -164,7 +230,7 @@ function AccountForm(props: {
                     },
                   },
                   optimisticResponse: {
-                    update_company_bank_accounts_by_pk: {
+                    update_bank_accounts_by_pk: {
                       ...(bankAccount as BankAccountFragment),
                     },
                   },
@@ -173,14 +239,18 @@ function AccountForm(props: {
                 await addBankAccount({
                   variables: {
                     bankAccount: {
-                      account_name: bankAccount.account_name,
+                      bank_name: bankAccount.bank_name,
+                      account_type: bankAccount.account_type,
                       account_number: bankAccount.account_number,
-                      name: bankAccount.name,
+                      routing_number: bankAccount.routing_number,
+                      can_ach: bankAccount.can_ach,
+                      can_reverse_draft_ach: bankAccount.can_reverse_draft_ach,
+                      can_wire: bankAccount.can_wire,
                       notes:
                         role === UserRole.CompanyAdmin
                           ? undefined
                           : bankAccount.notes,
-                      routing_number: bankAccount.routing_number,
+
                       verified_at:
                         role === UserRole.CompanyAdmin
                           ? undefined

@@ -38,7 +38,7 @@ function BankAccount(props: {
   return (
     <>
       <Box display="flex" mt={1}>
-        {data?.company_bank_accounts.length ? (
+        {data?.bank_accounts.length ? (
           <Box mr={1}>
             <Select
               className={classes.selectInput}
@@ -54,7 +54,7 @@ function BankAccount(props: {
                   optimisticResponse: {
                     update_company_vendor_partnerships_by_pk: {
                       id: props.companyVendorPartnershipId,
-                      vendor_bank_account: data.company_bank_accounts.find(
+                      vendor_bank_account: data.bank_accounts.find(
                         (bank) => bank.id === value
                       ),
                     },
@@ -63,12 +63,12 @@ function BankAccount(props: {
               }}
             >
               <MenuItem key="none" value="None">
-                {`None (${data.company_bank_accounts.length} available)`}
+                {`None (${data.bank_accounts.length} available)`}
               </MenuItem>
-              {data.company_bank_accounts.map((bank_account) => {
+              {data.bank_accounts.map((bank_account) => {
                 return (
                   <MenuItem key={bank_account.id} value={bank_account.id}>
-                    {bank_account.name} + {bank_account.account_name}
+                    {bank_account.bank_name} + {bank_account.account_type}
                   </MenuItem>
                 );
               })}
