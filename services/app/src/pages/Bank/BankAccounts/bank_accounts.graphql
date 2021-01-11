@@ -1,0 +1,5 @@
+query BankAccounts {
+  company_bank_accounts(where: { company_id: { _is_null: true } }) {
+    ...BankAccount
+  }
+}

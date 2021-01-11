@@ -11,6 +11,7 @@ export const routes = {
 };
 
 export const bankPaths = {
+  bankAccounts: "/bank-accounts",
   customers: "/customers",
   customer: {
     root: "/customers/:companyId",

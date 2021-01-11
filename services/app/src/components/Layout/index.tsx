@@ -92,6 +92,10 @@ const BANK_LEFT_NAV_ITEMS = [
     text: "Users",
     link: routes.users,
   },
+  {
+    text: "Bank Accounts",
+    link: bankPaths.bankAccounts,
+  },
 ];
 
 function Layout(props: { children: React.ReactNode }) {

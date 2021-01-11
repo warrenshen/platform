@@ -10,6 +10,7 @@ import UserProfile from "components/UserProfile";
 import Users from "components/Users";
 import Vendors from "components/Vendors";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
+import BankAccounts from "pages/Bank/BankAccounts";
 import { useContext } from "react";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { bankPaths, routes } from "routes";
@@ -34,10 +35,16 @@ function App() {
           ></Route>
           <Route exact path={routes.vendors} component={Vendors}></Route>
           <Route exact path={routes.profile} component={CompanyProfile}></Route>
-          <Route exact path={bankPaths.customers} component={Customers}></Route>
-          <Route path={bankPaths.customer.root} component={Customer}></Route>
           <Route path={routes.userProfile} component={UserProfile}></Route>
           <Route path={routes.users} component={Users}></Route>
+
+          <Route exact path={bankPaths.customers} component={Customers}></Route>
+          <Route path={bankPaths.customer.root} component={Customer}></Route>
+          <Route
+            exact
+            path={bankPaths.bankAccounts}
+            component={BankAccounts}
+          ></Route>
         </Switch>
       </Layout>
     </BrowserRouter>

@@ -86,7 +86,6 @@ function AddLoanModal(props: Props) {
         },
       ],
     });
-    console.log(response);
     props.handleClose();
   };
 
@@ -141,7 +140,6 @@ function AddLoanModal(props: Props) {
                 type="number"
                 value={loan.amount <= 0 ? "" : loan.amount}
                 onChange={({ target: { value } }) => {
-                  window.console.log(value);
                   setLoan({
                     ...loan,
                     amount:

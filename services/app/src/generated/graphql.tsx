@@ -657,8 +657,8 @@ export type CompanyBankAccounts = {
   account_name: Scalars['String'];
   account_number: Scalars['String'];
   /** An object relationship */
-  company: Companies;
-  company_id: Scalars['uuid'];
+  company?: Maybe<Companies>;
+  company_id?: Maybe<Scalars['uuid']>;
   id: Scalars['uuid'];
   name: Scalars['String'];
   notes?: Maybe<Scalars['String']>;
@@ -4048,6 +4048,11 @@ export type ListVendorPartnershipsQuery = { company_vendor_partnerships: Array<(
     & VendorPartnershipFragment
   )> };
 
+export type BankAccountsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type BankAccountsQuery = { company_bank_accounts: Array<BankAccountFragment> };
+
 export const BankCustomerFragmentDoc = gql`
     fragment BankCustomer on companies {
   id
@@ -5421,3 +5426,35 @@ export function useListVendorPartnershipsLazyQuery(baseOptions?: Apollo.LazyQuer
 export type ListVendorPartnershipsQueryHookResult = ReturnType<typeof useListVendorPartnershipsQuery>;
 export type ListVendorPartnershipsLazyQueryHookResult = ReturnType<typeof useListVendorPartnershipsLazyQuery>;
 export type ListVendorPartnershipsQueryResult = Apollo.QueryResult<ListVendorPartnershipsQuery, ListVendorPartnershipsQueryVariables>;
+export const BankAccountsDocument = gql`
+    query BankAccounts {
+  company_bank_accounts(where: {company_id: {_is_null: true}}) {
+    ...BankAccount
+  }
+}
+    ${BankAccountFragmentDoc}`;
+
+/**
+ * __useBankAccountsQuery__
+ *
+ * To run a query within a React component, call `useBankAccountsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBankAccountsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBankAccountsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useBankAccountsQuery(baseOptions?: Apollo.QueryHookOptions<BankAccountsQuery, BankAccountsQueryVariables>) {
+        return Apollo.useQuery<BankAccountsQuery, BankAccountsQueryVariables>(BankAccountsDocument, baseOptions);
+      }
+export function useBankAccountsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<BankAccountsQuery, BankAccountsQueryVariables>) {
+          return Apollo.useLazyQuery<BankAccountsQuery, BankAccountsQueryVariables>(BankAccountsDocument, baseOptions);
+        }
+export type BankAccountsQueryHookResult = ReturnType<typeof useBankAccountsQuery>;
+export type BankAccountsLazyQueryHookResult = ReturnType<typeof useBankAccountsLazyQuery>;
+export type BankAccountsQueryResult = Apollo.QueryResult<BankAccountsQuery, BankAccountsQueryVariables>;

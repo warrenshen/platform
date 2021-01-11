@@ -9,6 +9,7 @@ import {
 import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
 import {
   BankAccountFragment,
+  BankAccountsDocument,
   Companies,
   CompanyBankAccountsDocument,
   CompanyBankAccountsInsertInput,
@@ -29,8 +30,8 @@ const useStyles = makeStyles({
 });
 
 function AccountForm(props: {
-  companyId: Companies["id"];
   onCancel: () => void;
+  companyId?: Companies["id"];
   bankAccount?: BankAccountFragment;
 }) {
   const {
@@ -190,20 +191,26 @@ function AccountForm(props: {
                           : undefined,
                     },
                   },
-                  refetchQueries: [
-                    {
-                      query: CompanyBankAccountsDocument,
-                      variables: {
-                        companyId: props.companyId,
-                      },
-                    },
-                    {
-                      query: CompanyDocument,
-                      variables: {
-                        companyId: props.companyId,
-                      },
-                    },
-                  ],
+                  refetchQueries: props.companyId
+                    ? [
+                        {
+                          query: CompanyBankAccountsDocument,
+                          variables: {
+                            companyId: props.companyId,
+                          },
+                        },
+                        {
+                          query: CompanyDocument,
+                          variables: {
+                            companyId: props.companyId,
+                          },
+                        },
+                      ]
+                    : [
+                        {
+                          query: BankAccountsDocument,
+                        },
+                      ],
                 });
               }
               props.onCancel();
