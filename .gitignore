@@ -9,7 +9,6 @@ __pycache__/
 *.log
 out*
 # Text files
-*.txt
 log*/
 .DS_Store
 output*/
