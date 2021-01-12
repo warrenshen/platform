@@ -7,7 +7,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
-import EditButton from "components/CompanyProfile/EditCompanyProfile/EditButton";
+import EditButton from "components/Shared/CompanyProfile/EditCompanyProfile/EditButton";
 import { CompanyFragment } from "generated/graphql";
 
 const useStyles = makeStyles({

@@ -1,12 +1,10 @@
 import { Button } from "@material-ui/core";
+import { useState } from "react";
 import AddLoanModal from "./AddLoanModal";
 
-interface Props {
-  open: boolean;
-  setOpen: (arg0: boolean) => void;
-}
+function AddButton() {
+  const [open, setOpen] = useState(false);
 
-function AddButton({ open, setOpen }: Props) {
   return (
     <>
       {open && <AddLoanModal handleClose={() => setOpen(false)}></AddLoanModal>}

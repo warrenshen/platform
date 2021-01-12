@@ -1,4 +1,4 @@
-import CompanyProfile from "components/CompanyProfile";
+import CompanyProfile from "components/Shared/CompanyProfile";
 import useAppBarTitle from "hooks/useAppBarTitle";
 import { useTitle } from "react-use";
 

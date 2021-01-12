@@ -22,7 +22,13 @@ const useStyles = makeStyles({
     color: grey[600],
   },
 });
-function AccountInfoCard(props: { bankAccount: BankAccountFragment }) {
+
+interface Props {
+  bankAccount: BankAccountFragment;
+  disableEditing?: boolean;
+}
+
+function AccountInfoCard(props: Props) {
   const classes = useStyles();
   const [editing, setEditing] = useState(false);
 
@@ -66,17 +72,19 @@ function AccountInfoCard(props: { bankAccount: BankAccountFragment }) {
             </Box>
           </Box>
         </CardContent>
-        <CardActions>
-          <Button
-            size="small"
-            variant="outlined"
-            onClick={() => {
-              setEditing(true);
-            }}
-          >
-            Edit
-          </Button>
-        </CardActions>
+        {props.disableEditing ? null : (
+          <CardActions>
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={() => {
+                setEditing(true);
+              }}
+            >
+              Edit
+            </Button>
+          </CardActions>
+        )}
       </Card>
     </>
   );

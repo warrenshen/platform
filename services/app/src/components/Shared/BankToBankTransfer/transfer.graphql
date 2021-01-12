@@ -1,0 +1,11 @@
+query BankAccountsForTransfer($companyId: uuid!) {
+  bank_accounts(where: { company_id: { _is_null: true } }) {
+    ...BankAccount
+  }
+  companies_by_pk(id: $companyId) {
+    id
+    assigned_bespoke_bank_account {
+      ...BankAccount
+    }
+  }
+}

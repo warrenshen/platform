@@ -5,7 +5,7 @@ import List from "@material-ui/core/List";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import UserMenu from "components/UserMenu";
+import UserMenu from "components/User/UserMenu";
 import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
 import { PageContext } from "contexts/PageContext";
 import React, { useContext, useState } from "react";

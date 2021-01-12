@@ -1,4 +1,4 @@
-import PurchaseOrders from "components/PurchaseOrders";
+import PurchaseOrders from "components/Shared/PurchaseOrders";
 import useAppBarTitle from "hooks/useAppBarTitle";
 import React from "react";
 import { useTitle } from "react-use";

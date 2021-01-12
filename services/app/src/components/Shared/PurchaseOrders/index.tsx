@@ -1,7 +1,7 @@
 import { Box } from "@material-ui/core";
 import Can from "components/Can";
-import AddButton from "components/PurchaseOrders/AddPurchaseOrder/AddButton";
-import ListPurchaseOrders from "components/PurchaseOrders/ListPurchaseOrders";
+import AddButton from "components/Shared/PurchaseOrders/AddPurchaseOrder/AddButton";
+import ListPurchaseOrders from "components/Shared/PurchaseOrders/ListPurchaseOrders";
 //import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { PurchaseOrderFragment } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";

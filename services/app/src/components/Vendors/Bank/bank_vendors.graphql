@@ -56,6 +56,9 @@ query BankVendorPartnership($id: uuid!) {
       users {
         ...Contact
       }
+      assigned_bespoke_bank_account {
+        ...BankAccount
+      }
     }
   }
 }

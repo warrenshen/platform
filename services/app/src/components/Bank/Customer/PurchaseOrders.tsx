@@ -1,4 +1,4 @@
-import { default as PurchaseOrdersForCustomer } from "components/PurchaseOrders";
+import { default as PurchaseOrdersForCustomer } from "components/Shared/PurchaseOrders";
 
 function PurchaseOrders() {
   return <PurchaseOrdersForCustomer></PurchaseOrdersForCustomer>;

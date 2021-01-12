@@ -1,0 +1,20 @@
+fragment PurchaseOrderLoan on purchase_order_loans {
+  id
+  company {
+    id
+    name
+  }
+  purchase_order {
+    ...PurchaseOrder
+  }
+  amount
+  status
+  maturity_date
+  adjusted_maturity_date
+}
+
+query PurchaseOrderLoan($id: uuid!) {
+  purchase_order_loans_by_pk(id: $id) {
+    ...PurchaseOrderLoan
+  }
+}

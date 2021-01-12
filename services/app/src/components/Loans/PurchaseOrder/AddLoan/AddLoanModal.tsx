@@ -18,6 +18,7 @@ import {
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   ListPurchaseOrderLoansForCustomerDocument,
+  PurchaseOrderLoansInsertInput,
   useAddPurchaseOrderLoanMutation,
   useListApprovedPurchaseOrdersQuery,
 } from "generated/graphql";
@@ -33,7 +34,7 @@ const useStyles = makeStyles((theme: Theme) =>
       borderBottom: "1px solid #c7c7c7",
     },
     purchaseOrderInput: {
-      width: "200px",
+      width: 400,
     },
     dialogActions: {
       margin: theme.spacing(4),
@@ -50,11 +51,6 @@ interface Props {
   handleClose: () => void;
 }
 
-type Loan = {
-  purchase_order_id: string;
-  amount: number;
-};
-
 function AddLoanModal(props: Props) {
   const classes = useStyles();
   const {
@@ -69,13 +65,21 @@ function AddLoanModal(props: Props) {
 
   const [addPOLoanMutation] = useAddPurchaseOrderLoanMutation();
 
-  const [loan, setLoan] = useState<Loan>({ purchase_order_id: "", amount: 0 });
+  const [loan, setLoan] = useState<PurchaseOrderLoansInsertInput>({});
 
   const handleSubmit = async () => {
-    const response = await addPOLoanMutation({
+    const dateInFifteenDays = new Date(
+      new Date().getTime() + 15 * 24 * 60 * 60 * 1000
+    );
+    await addPOLoanMutation({
       variables: {
-        purchaseOrderId: loan.purchase_order_id,
-        amount: loan.amount,
+        purchaseOrder: {
+          purchase_order_id: loan.purchase_order_id,
+          amount: loan.amount,
+          maturity_date: dateInFifteenDays,
+          adjusted_maturity_date: dateInFifteenDays,
+          status: "approved",
+        },
       },
       refetchQueries: [
         {
@@ -123,7 +127,11 @@ function AddLoanModal(props: Props) {
                 </MenuItem>
                 {approvedPOs?.map((purchase_order) => (
                   <MenuItem key={purchase_order.id} value={purchase_order.id}>
-                    {purchase_order.id}
+                    {`${purchase_order.vendor?.name} - $${Intl.NumberFormat(
+                      "en-US"
+                    ).format(purchase_order.amount)} - ${
+                      purchase_order.delivery_date
+                    }`}
                   </MenuItem>
                 ))}
               </Select>
@@ -138,12 +146,11 @@ function AddLoanModal(props: Props) {
               <Input
                 id="standard-adornment-amount"
                 type="number"
-                value={loan.amount <= 0 ? "" : loan.amount}
+                value={loan.amount}
                 onChange={({ target: { value } }) => {
                   setLoan({
                     ...loan,
-                    amount:
-                      value.trim().length > 0 ? parseFloat(value.trim()) : 0,
+                    amount: Number(value),
                   });
                 }}
                 startAdornment={

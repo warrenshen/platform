@@ -18,10 +18,10 @@ query ListApprovedPurchaseOrders {
   }
 }
 
-mutation AddPurchaseOrderLoan($purchaseOrderId: uuid!, $amount: numeric!) {
-  insert_purchase_order_loans_one(
-    object: { purchase_order_id: $purchaseOrderId, amount: $amount }
-  ) {
+mutation AddPurchaseOrderLoan(
+  $purchaseOrder: purchase_order_loans_insert_input!
+) {
+  insert_purchase_order_loans_one(object: $purchaseOrder) {
     id
     amount
   }

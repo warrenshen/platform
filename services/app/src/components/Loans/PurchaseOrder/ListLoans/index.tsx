@@ -1,11 +1,17 @@
-import { ColDef, DataGrid, RowsProp } from "@material-ui/data-grid";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  ColDef,
+  DataGrid,
+  RowsProp,
+  ValueFormatterParams,
+} from "@material-ui/data-grid";
+import Launcher from "components/Shared/PurchaseOrderLoanDrawer/Launcher";
 import {
   Maybe,
   PurchaseOrderLoanForCustomerFragment,
   useListPurchaseOrderLoansForCustomerQuery,
 } from "generated/graphql";
-import React, { useContext } from "react";
+import useCompanyContext from "hooks/useCustomerContext";
+import React from "react";
 
 function getRows(
   poLoans: Maybe<PurchaseOrderLoanForCustomerFragment[]>
@@ -20,10 +26,7 @@ function getRows(
 }
 
 function ListLoans() {
-  const {
-    user: { companyId },
-  } = useContext(CurrentUserContext);
-
+  const companyId = useCompanyContext();
   const { data: poLoansData } = useListPurchaseOrderLoansForCustomerQuery({
     variables: {
       companyId,
@@ -46,13 +49,21 @@ function ListLoans() {
       headerName: "Status",
       width: 100,
     },
+    {
+      field: "see_more",
+      headerName: "See More",
+      width: 100,
+      renderCell: (params: ValueFormatterParams) => {
+        const purchaseOrderLoanId = params.row.id as string;
+        return <Launcher purchaseOrderLoanId={purchaseOrderLoanId}></Launcher>;
+      },
+    },
   ];
 
   const rows = getRows(poLoansData ? poLoansData.purchase_order_loans : []);
 
   return (
-    <div style={{ minHeight: "300px", width: "100%" }}>
-      <h2>Purchase Order Loans</h2>
+    <div style={{ minHeight: "500px", width: "100%" }}>
       <DataGrid
         rows={rows}
         columns={columns}

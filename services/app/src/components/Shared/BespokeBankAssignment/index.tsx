@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-function AssignBankAccount(props: Props) {
+function BespokeBankAssignment(props: Props) {
   const classes = useStyles();
   const [assignBankAccount] = useAssignBespokeBankAccountMutation();
   const { data } = useBankAccountsQuery();
@@ -89,4 +89,4 @@ function AssignBankAccount(props: Props) {
   );
 }
 
-export default AssignBankAccount;
+export default BespokeBankAssignment;

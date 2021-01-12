@@ -199,10 +199,11 @@ function AddPurchaseOrderModal({
               <Input
                 id="standard-adornment-amount"
                 value={purchaseOrder.amount}
+                type="number"
                 onChange={({ target: { value } }) => {
                   setPurchaseOrder({
                     ...purchaseOrder,
-                    amount: value,
+                    amount: Number(value),
                   });
                 }}
                 startAdornment={

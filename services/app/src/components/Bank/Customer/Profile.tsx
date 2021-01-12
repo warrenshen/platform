@@ -1,4 +1,4 @@
-import CompanyProfile from "components/CompanyProfile";
+import CompanyProfile from "components/Shared/CompanyProfile";
 
 function Profile() {
   return <CompanyProfile></CompanyProfile>;
