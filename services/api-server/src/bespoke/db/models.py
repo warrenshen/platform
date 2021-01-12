@@ -39,8 +39,9 @@ class User(Base):
     __tablename__ = 'users'
 
     if TYPE_CHECKING:
-        def __init__(self, email: str, company_id: str, password: str) -> None:
+        def __init__(self, email: str, password: str, company_id: str = None) -> None:
             self.company_id: str = None
+            self.password: str = None
             self.email: str = None
             self.__table__: Any = None
     else:

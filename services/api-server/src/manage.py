@@ -13,13 +13,15 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 
 from bespoke.db import models
 from bespoke.db.models import session_scope
-from server.views import auth
-from bespoke.email.email_manager import EmailConfigDict, SESConfigDict
+from bespoke.email.email_manager import EmailConfigDict
 from bespoke.email import email_manager
+
 from server.config import get_config
+from server.views import auth
+from server.views import files
 
 if os.environ.get('FLASK_ENV') == 'development':
-    load_dotenv(os.path.join(os.environ.get('PROJECT_DIR'), '.env'))
+    load_dotenv(os.path.join(os.environ.get('SERVER_ROOT_DIR'), '.env'))
 
 sentry_sdk.init(
     dsn=os.environ.get('SENTRY_DSN'),
@@ -46,16 +48,12 @@ app.config.update(config.as_dict())
 
 email_config = EmailConfigDict(
     email_provider=config.EMAIL_PROVIDER,
-    from_addr=config.NO_REPLY_EMAIL_ADDRESS,
-    ses_config=SESConfigDict(
-        use_aws_access_creds=config.USE_AWS_ACCESS_CREDS,
-        region_name=config.SES_REGION_NAME,
-        ses_access_key_id=config.SES_ACCESS_KEY_ID,
-        ses_secret_access_key=config.SES_SECRET_ACCESS_KEY)
-    )
+    from_addr=config.NO_REPLY_EMAIL_ADDRESS
+)
 #email_client = email_manager.new_client(email_config)
 #app.email_client = email_client
 
+app.register_blueprint(files.handler, url_prefix='/files')
 app.register_blueprint(auth.handler, url_prefix='/auth')
 
 app.app_config = config
@@ -64,8 +62,8 @@ app.session_maker = models.new_sessionmaker(app.engine)
 app.jwt_manager = JWTManager(app)
 
 
-@app.jwt_manager.token_in_blacklist_loader
-def check_if_token_in_blacklist(decrypted_token):
+@app.jwt_manager.token_in_blacklist_loader # type: ignore
+def check_if_token_in_blacklist(decrypted_token: Dict) -> bool:
     jti = decrypted_token['jti']
     with session_scope(current_app.session_maker) as session:
         existing_revoked_token = session.query(models.RevokedTokenModel).filter(

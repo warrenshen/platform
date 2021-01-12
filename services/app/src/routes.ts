@@ -24,6 +24,8 @@ export const bankPaths = {
   },
 };
 
+export const API_BASE_URL = process.env.REACT_APP_BESPOKE_API_ENDPOINT;
+
 export const authEndpoints = {
   signIn: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}/auth/sign-in`,
   resetPassword: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}/auth/reset-password`,

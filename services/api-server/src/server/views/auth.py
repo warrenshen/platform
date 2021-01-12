@@ -126,7 +126,7 @@ class ResetPasswordView(MethodView):
 
 class SignOutAccessView(MethodView):
 
-	@jwt_required
+	@jwt_required # type: ignore
 	def post(self) -> Response:
 		jti = get_raw_jwt()['jti']
 		userId = get_raw_jwt()['https://hasura.io/jwt/claims']['X-Hasura-User-Id']		
@@ -146,7 +146,7 @@ class SignOutAccessView(MethodView):
 
 class SignOutRefreshView(MethodView):
 
-	@jwt_refresh_token_required
+	@jwt_refresh_token_required # type: ignore
 	def post(self) -> Response:
 		jti = get_raw_jwt()['jti']
 		userId = get_raw_jwt()['https://hasura.io/jwt/claims']['X-Hasura-User-Id']

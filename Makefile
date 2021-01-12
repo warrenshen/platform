@@ -12,9 +12,7 @@ run-api-server:
 	cd services/api-server && $(MAKE) runlocal
 
 mypy-all:
-	mypy services/api-server/src/bespoke/db/models.py --config-file=mypy.ini
-	mypy services/api-server/src/bespoke/db/main.py --config-file=mypy.ini
-	mypy services/api-server/src/manage.py --config-file=mypy.ini
+	cd services/api-server && $(MAKE) mypy 
 
 setup:
 	pip3 install pip-tools==5.1.2

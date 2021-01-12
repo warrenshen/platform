@@ -47,20 +47,10 @@ def _create_mime_message(from_addr: str, to_addr_list: List[str], subject: str, 
   msg.attach(part2)
   return msg
 
-
-SESConfigDict = TypedDict(
-    'SESConfigDict', {
-        'use_aws_access_creds': bool,
-        'region_name': Text,
-        'ses_access_key_id': Text,
-        'ses_secret_access_key': Text
-    })
-
 EmailConfigDict = TypedDict(
     'EmailConfigDict', {
         'email_provider': str,
-        'from_addr': Text,
-        'ses_config': SESConfigDict,
+        'from_addr': Text
     })
 
 
@@ -89,20 +79,4 @@ class SESClient(EmailClient):
 
 def new_client(config: EmailConfigDict) -> EmailClient:
   email_provider = config['email_provider']
-  if email_provider == 'ses':
-    ses_config = config['ses_config']
-    if not ses_config:
-      raise Exception(u'No SES config provided but email provider is "ses"')
-
-    kwargs = dict(region_name=ses_config['region_name'])
-    if ses_config['use_aws_access_creds']:
-      kwargs.update(
-          dict(
-              aws_access_key_id=ses_config['ses_access_key_id'],
-              aws_secret_access_key=ses_config['ses_secret_access_key']))
-
-    ses_client = boto3.client('ses', **kwargs)
-    return SESClient(
-        ses_client=ses_client, from_addr=config['from_addr'])
-
   raise Exception('Unsupported email provided {}'.format(email_provider))

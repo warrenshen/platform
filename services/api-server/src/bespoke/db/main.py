@@ -3,7 +3,7 @@ import sys
 
 from dotenv import load_dotenv
 
-load_dotenv(os.path.join(os.environ.get('PROJECT_DIR'), '.env'))
+load_dotenv(os.path.join(os.environ.get('SERVER_ROOT_DIR'), '.env'))
 
 from bespoke.db import models
  

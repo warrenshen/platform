@@ -24,11 +24,11 @@ class Config(object):
 		# TODO(dlluncor): I think donotreply@bespokefinancial.com is better
 		self.NO_REPLY_EMAIL_ADDRESS = os.environ.get(
 			'NO_REPLY_EMAIL_ADDRESS', 'jira@bespokefinancial.com')
-		self.USE_AWS_ACCESS_CREDS = _string_to_bool(
-			os.environ.get('USE_AWS_ACCESS_CREDS', 'true'))
-		self.SES_REGION_NAME = os.environ.get('SES_REGION_NAME', 'us-west-2')
-		self.SES_ACCESS_KEY_ID = os.environ.get('SES_ACCESS_KEY_ID')
-		self.SES_SECRET_ACCESS_KEY = os.environ.get('SES_SECRET_ACCESS_KEY')
+		self.LOCALHOST = 'http://localhost:7000'
+		
+		# Files
+		self.S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
+		self.ENV_TYPE = os.environ.get('ENV_TYPE')
 
 	def as_dict(self) -> Dict:
 	  attr_names = dir(self)
