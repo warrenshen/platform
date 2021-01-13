@@ -1,9 +1,9 @@
 import { Box } from "@material-ui/core";
-import { CustomerParams } from "pages/Bank/Customer";
 import AddButton from "components/Vendors/AddVendor/Button";
 import ClickableVendorCard from "components/Vendors/Bank/ClickableVendorCard";
 import { useBankCustomerListVendorPartnershipsQuery } from "generated/graphql";
 import { sortBy } from "lodash";
+import { CustomerParams } from "pages/Bank/Customer";
 import { useParams } from "react-router-dom";
 
 function Vendors() {

@@ -1,19 +1,20 @@
 import BespokeBankAssignment from "components/Shared/BespokeBankAssignment";
 import {
   BankAccountFragment,
+  Companies,
   useAssignCollectionsBespokeBankAccountMutation,
 } from "generated/graphql";
-import useCompanyContext from "hooks/useCustomerContext";
 
 interface Props {
+  companyId: Companies["id"];
   assignedBespokeBankAccount?: BankAccountFragment;
 }
 
 function CollectionsBank(props: Props) {
-  const companyId = useCompanyContext();
   const [
     assignCollectionsBankAccount,
   ] = useAssignCollectionsBespokeBankAccountMutation();
+
   return (
     <BespokeBankAssignment
       {...props}
@@ -22,11 +23,11 @@ function CollectionsBank(props: Props) {
         assignCollectionsBankAccount({
           variables: {
             bankAccountId: bankAccount?.id,
-            companyId,
+            companyId: props.companyId,
           },
           optimisticResponse: {
             update_companies_by_pk: {
-              id: companyId,
+              id: props.companyId,
               collections_bespoke_bank_account_id: bankAccount?.id,
               collections_bespoke_bank_account: bankAccount,
             },
