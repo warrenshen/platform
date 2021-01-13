@@ -1,5 +1,6 @@
 import { Box, Drawer, makeStyles, Typography } from "@material-ui/core";
-import BespokeBankAssignment from "components/Shared/BespokeBankAssignment";
+import AdvancesBank from "components/Shared/BespokeBankAssignment/AdvancesBank";
+import CollectionsBank from "components/Shared/BespokeBankAssignment/CollectionsBank";
 import BankAccount from "components/Vendors/Bank/VendorDrawer/BankAccount";
 import Contacts from "components/Vendors/Bank/VendorDrawer/Contacts";
 import VendorInfo from "components/Vendors/Bank/VendorDrawer/VendorInfo";
@@ -65,13 +66,20 @@ function VendorDrawer(props: {
             data.company_vendor_partnerships_by_pk.vendor_bank_account
           }
         ></BankAccount>
-        <BespokeBankAssignment
-          companyId={data.company_vendor_partnerships_by_pk.vendor.id}
-          assignedBespokeBankAccount={
-            data.company_vendor_partnerships_by_pk.vendor
-              .assigned_bespoke_bank_account || undefined
-          }
-        ></BespokeBankAssignment>
+        <Box display="flex" mt={1}>
+          <AdvancesBank
+            assignedBespokeBankAccount={
+              data.company_vendor_partnerships_by_pk.vendor
+                .advances_bespoke_bank_account || undefined
+            }
+          ></AdvancesBank>
+          <CollectionsBank
+            assignedBespokeBankAccount={
+              data.company_vendor_partnerships_by_pk.vendor
+                .collections_bespoke_bank_account || undefined
+            }
+          ></CollectionsBank>
+        </Box>
         <Typography variant="h6"> Licenses </Typography>
         <Box
           mt={1}

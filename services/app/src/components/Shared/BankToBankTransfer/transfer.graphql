@@ -4,8 +4,14 @@ query BankAccountsForTransfer($companyId: uuid!) {
   }
   companies_by_pk(id: $companyId) {
     id
-    assigned_bespoke_bank_account {
+    collections_bespoke_bank_account {
       ...BankAccount
     }
+  }
+}
+
+query ListBankAccounts($companyId: uuid!) {
+  bank_accounts(where: { company_id: { _eq: $companyId } }) {
+    ...BankAccount
   }
 }

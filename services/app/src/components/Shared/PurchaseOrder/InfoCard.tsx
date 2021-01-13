@@ -38,7 +38,9 @@ function InfoCard(props: Props) {
           </Box>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Amount</Box>
-            <Box>{props.purchaseOrder.amount}</Box>
+            <Box>{`$${Intl.NumberFormat("en-US").format(
+              props.purchaseOrder.amount
+            )}`}</Box>
           </Box>
           <Box display="flex" pt={0.5} pb={1}>
             <CheckCircle
@@ -48,13 +50,7 @@ function InfoCard(props: Props) {
                   : "disabled"
               }
             ></CheckCircle>
-            {/* <Box pl={1}>
-            {props.bankAccount.verified_at
-              ? `Verified on ${calendarDateTimestamp(
-                  props.bankAccount.verified_at
-                )}`
-              : "Not yet verified"}
-          </Box> */}
+            Approved
           </Box>
         </CardContent>
       </Card>

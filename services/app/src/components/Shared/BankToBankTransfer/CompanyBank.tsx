@@ -1,10 +1,4 @@
-import {
-  Box,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-} from "@material-ui/core";
+import { Box, FormControl, MenuItem, Select } from "@material-ui/core";
 import AccountInfoCard from "components/Shared/BankAccount/AccountInfoCard";
 import {
   BankAccounts,
@@ -15,6 +9,7 @@ import { useEffect, useState } from "react";
 
 interface Props {
   companyId: Companies["id"];
+  onCompanyBankAccountSelection: (id: BankAccounts["id"]) => void;
 }
 
 function CompanyBank(props: Props) {
@@ -30,7 +25,9 @@ function CompanyBank(props: Props) {
 
   useEffect(() => {
     if (data?.bank_accounts.length === 1) {
-      setCompanyBankAccountId(data?.bank_accounts[0].id);
+      const id = data?.bank_accounts[0].id;
+      setCompanyBankAccountId(id);
+      props.onCompanyBankAccountSelection(id);
     }
   }, [data?.bank_accounts]);
 
@@ -45,16 +42,17 @@ function CompanyBank(props: Props) {
   return (
     <Box>
       <FormControl fullWidth style={{ width: 200 }}>
-        <InputLabel id="bank-account-assignment-label">
+        {/* <InputLabel id="bank-account-assignment-label">
           Bespoke Bank Assignment
-        </InputLabel>
+        </InputLabel> */}
         <Select
-          label="Bespoke Bank Assignment"
-          id="bank-account-assignment"
-          labelId="bank-account-assignment-label"
+          // label="Bespoke Bank Assignment"
+          // id="bank-account-assignment"
+          // labelId="bank-account-assignment-label"
           value={companyBankAccountId}
           onChange={({ target: { value } }) => {
             setCompanyBankAccountId(value);
+            props.onCompanyBankAccountSelection(value);
           }}
         >
           <MenuItem key="none" value="None">

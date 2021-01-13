@@ -1,3 +1,16 @@
+fragment PurchaseOrderLoanDisbursement on purchase_order_loan_disbursements {
+  id
+  amount
+  type
+  direction
+  company {
+    id
+    name
+  }
+  submitted_at
+  settled_at
+}
+
 fragment PurchaseOrderLoan on purchase_order_loans {
   id
   company {
@@ -6,6 +19,9 @@ fragment PurchaseOrderLoan on purchase_order_loans {
   }
   purchase_order {
     ...PurchaseOrder
+  }
+  disbursements {
+    ...PurchaseOrderLoanDisbursement
   }
   amount
   status

@@ -1,0 +1,20 @@
+fragment Payment on payments {
+  id
+  amount
+  type
+  direction
+  company_id
+  submitted_at
+  company_bank_account {
+    ...BankAccount
+  }
+  bespoke_bank_account {
+    ...BankAccount
+  }
+}
+
+mutation SubmitDisbursement($payment: payments_insert_input!) {
+  insert_payments_one(object: $payment) {
+    ...Payment
+  }
+}

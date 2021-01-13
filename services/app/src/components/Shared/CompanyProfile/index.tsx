@@ -1,6 +1,7 @@
 import { Box } from "@material-ui/core";
 import Can from "components/Can";
-import BespokeBankAssignment from "components/Shared/BespokeBankAssignment";
+import AdvancesBank from "components/Shared/BespokeBankAssignment/AdvancesBank";
+import CollectionsBank from "components/Shared/BespokeBankAssignment/CollectionsBank";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { Action } from "lib/rbac-rules";
 import { useContext } from "react";
@@ -39,13 +40,17 @@ function CompanyProfile() {
         bankAccounts={company.bank_accounts}
       ></BankAccounts>
       <Can perform={Action.AssignBespokeBankAccountForCustomer}>
-        <Box mt={2}>
-          <BespokeBankAssignment
-            companyId={companyId}
+        <Box mt={2} display="flex">
+          <AdvancesBank
             assignedBespokeBankAccount={
-              data.companies_by_pk.assigned_bespoke_bank_account || undefined
+              data.companies_by_pk.advances_bespoke_bank_account || undefined
             }
-          ></BespokeBankAssignment>
+          ></AdvancesBank>
+          <CollectionsBank
+            assignedBespokeBankAccount={
+              data.companies_by_pk.collections_bespoke_bank_account || undefined
+            }
+          ></CollectionsBank>
         </Box>
       </Can>
     </>

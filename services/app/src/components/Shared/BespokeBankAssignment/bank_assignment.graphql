@@ -1,0 +1,31 @@
+mutation AssignCollectionsBespokeBankAccount(
+  $companyId: uuid!
+  $bankAccountId: uuid
+) {
+  update_companies_by_pk(
+    pk_columns: { id: $companyId }
+    _set: { collections_bespoke_bank_account_id: $bankAccountId }
+  ) {
+    id
+    collections_bespoke_bank_account_id
+    collections_bespoke_bank_account {
+      ...BankAccount
+    }
+  }
+}
+
+mutation AssignAdvancesBespokeBankAccount(
+  $companyId: uuid!
+  $bankAccountId: uuid
+) {
+  update_companies_by_pk(
+    pk_columns: { id: $companyId }
+    _set: { advances_bespoke_bank_account_id: $bankAccountId }
+  ) {
+    id
+    advances_bespoke_bank_account_id
+    advances_bespoke_bank_account {
+      ...BankAccount
+    }
+  }
+}

@@ -1,10 +1,4 @@
-import {
-  Box,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-} from "@material-ui/core";
+import { Box, FormControl, MenuItem, Select } from "@material-ui/core";
 import AccountInfoCard from "components/Shared/BankAccount/AccountInfoCard";
 import {
   BankAccounts,
@@ -15,6 +9,7 @@ import { useEffect, useState } from "react";
 
 interface Props {
   companyId: Companies["id"];
+  onBespokeBankAccountSelection: (id: BankAccounts["id"]) => void;
 }
 
 function BespokeBank(props: Props) {
@@ -25,12 +20,12 @@ function BespokeBank(props: Props) {
   });
 
   useEffect(() => {
-    if (data?.companies_by_pk?.assigned_bespoke_bank_account) {
-      setBespokeBankAccountId(
-        data?.companies_by_pk?.assigned_bespoke_bank_account.id
-      );
+    if (data?.companies_by_pk?.collections_bespoke_bank_account) {
+      const id = data?.companies_by_pk?.collections_bespoke_bank_account.id;
+      setBespokeBankAccountId(id);
+      props.onBespokeBankAccountSelection(id);
     }
-  }, [data?.companies_by_pk?.assigned_bespoke_bank_account]);
+  }, [data?.companies_by_pk?.collections_bespoke_bank_account]);
 
   const [bespokeBankAccountId, setBespokeBankAccountId] = useState<
     BankAccounts["id"] | "None"
@@ -47,16 +42,16 @@ function BespokeBank(props: Props) {
   return (
     <Box>
       <FormControl fullWidth style={{ width: 200 }}>
-        <InputLabel id="bank-account-assignment-label">
+        {/* <InputLabel id="bank-account-assignment-label">
           Bespoke Bank Assignment
-        </InputLabel>
+        </InputLabel> */}
         <Select
-          label="Bespoke Bank Assignment"
-          id="bank-account-assignment"
-          labelId="bank-account-assignment-label"
+          // id="bank-account-assignment"
+          // labelId="bank-account-assignment-label"
           value={bespokeBankAccountId}
           onChange={({ target: { value } }) => {
             setBespokeBankAccountId(value);
+            props.onBespokeBankAccountSelection(value);
           }}
         >
           <MenuItem key="none" value="None">

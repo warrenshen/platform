@@ -16,16 +16,22 @@ import BankToBankTransfer, {
   PaymentTransferDirection,
 } from "components/Shared/BankToBankTransfer";
 import CompanyBank from "components/Shared/BankToBankTransfer/CompanyBank";
-import { Companies } from "generated/graphql";
-import { useState } from "react";
+import {
+  BankAccounts,
+  Companies,
+  PaymentsInsertInput,
+} from "generated/graphql";
+import { useCallback, useState } from "react";
 
 interface Props {
   companyId: Companies["id"];
   direction: PaymentTransferDirection;
   handleClose: () => void;
+  allowablePaymentTypes?: Array<PaymentType>;
+  onCreate?: (payment: PaymentsInsertInput) => void;
 }
 
-enum PaymentType {
+export enum PaymentType {
   ACH = "ach",
   ReverseDraftACH = "reverse_draft_ach",
   Wire = "wire",
@@ -35,8 +41,29 @@ enum PaymentType {
 }
 
 function PaymentModal(props: Props) {
-  const [amount, setAmount] = useState<number | undefined>();
-  const [paymentType, setPaymentType] = useState<PaymentType>(PaymentType.None);
+  const [payment, setPayment] = useState<PaymentsInsertInput>({
+    company_id: props.companyId,
+    direction: props.direction,
+    type: PaymentType.None,
+  });
+
+  const onBespokeBankAccountSelection = useCallback(
+    (id: BankAccounts["id"]) => {
+      setPayment((payment) => {
+        return { ...payment, bespoke_bank_account_id: id };
+      });
+    },
+    []
+  );
+
+  const onCompanyBankAccountSelection = useCallback(
+    (id: BankAccounts["id"]) => {
+      setPayment((payment) => {
+        return { ...payment, company_bank_account_id: id };
+      });
+    },
+    []
+  );
 
   return (
     <Dialog open onClose={props.handleClose} fullWidth>
@@ -47,10 +74,12 @@ function PaymentModal(props: Props) {
             <InputLabel htmlFor="standard-adornment-amount">Amount</InputLabel>
             <Input
               id="standard-adornment-amount"
-              value={amount}
+              value={payment.amount}
               type="number"
               onChange={({ target: { value } }) => {
-                setAmount(Number(value));
+                setPayment((payment) => {
+                  return { ...payment, amount: Number(value) };
+                });
               }}
               startAdornment={
                 <InputAdornment position="start">$</InputAdornment>
@@ -59,30 +88,38 @@ function PaymentModal(props: Props) {
           </FormControl>
           <Box mt={3}>
             <Select
-              value={String(paymentType)}
+              value={payment.type}
               onChange={({ target: { value } }) => {
-                setPaymentType(value as PaymentType);
+                setPayment((payment) => {
+                  return { ...payment, type: value as PaymentType };
+                });
               }}
               style={{ width: 200 }}
             >
-              {[
-                PaymentType.None,
-                PaymentType.ACH,
-                PaymentType.ReverseDraftACH,
-                PaymentType.Wire,
-                PaymentType.Cash,
-                PaymentType.Check,
-              ].map((paymentType) => {
+              {(
+                props.allowablePaymentTypes || [
+                  PaymentType.None,
+                  PaymentType.ACH,
+                  PaymentType.ReverseDraftACH,
+                  PaymentType.Wire,
+                  PaymentType.Cash,
+                  PaymentType.Check,
+                ]
+              ).map((paymentType) => {
                 return <MenuItem value={paymentType}>{paymentType}</MenuItem>;
               })}
             </Select>
           </Box>
           <Box mt={3}>
-            {[PaymentType.ACH, PaymentType.Wire].includes(paymentType) && (
+            {[PaymentType.ACH, PaymentType.Wire].includes(
+              payment.type as PaymentType
+            ) && (
               <>
                 <BankToBankTransfer
                   direction={props.direction}
                   companyId={props.companyId}
+                  onBespokeBankAccountSelection={onBespokeBankAccountSelection}
+                  onCompanyBankAccountSelection={onCompanyBankAccountSelection}
                 ></BankToBankTransfer>
                 <Box mt={2}>
                   Action is required: You must initiate this transfer from your
@@ -92,9 +129,14 @@ function PaymentModal(props: Props) {
                 </Box>
               </>
             )}
-            {PaymentType.ReverseDraftACH === paymentType && (
+            {PaymentType.ReverseDraftACH === (payment.type as PaymentType) && (
               <>
-                <CompanyBank companyId={props.companyId}></CompanyBank>
+                <CompanyBank
+                  companyId={props.companyId}
+                  onCompanyBankAccountSelection={(id: BankAccounts["id"]) =>
+                    setPayment({ ...payment, company_bank_account_id: id })
+                  }
+                ></CompanyBank>
                 <Box mt={2}>
                   No further action is required: Bespoke will initiate this
                   transfer to pull funds from your bank account. Upon receipt
@@ -103,16 +145,18 @@ function PaymentModal(props: Props) {
                 </Box>
               </>
             )}
-            {PaymentType.Cash === paymentType && (
-              <>
+            {PaymentType.Cash === payment.type && (
+              <Box mt={2}>
                 A member of the Bespoke team will be in touch via email. We will
                 coordinate the dispatch of an armored vehicle with your team to
                 pick up the amount specified, in cash. This method of payment
                 will incur a $100 fee.
-              </>
+              </Box>
             )}
-            {PaymentType.Check === paymentType && (
-              <>Please make the check payable to Bespoke Financial.</>
+            {PaymentType.Check === payment.type && (
+              <Box mt={2}>
+                Please make the check payable to Bespoke Financial.
+              </Box>
             )}
           </Box>
         </Box>
@@ -122,7 +166,9 @@ function PaymentModal(props: Props) {
           <Box pr={1}>
             <Button onClick={props.handleClose}>Cancel</Button>
             <Button
-              onClick={props.handleClose}
+              onClick={() => {
+                props.onCreate && props.onCreate(payment);
+              }}
               variant="contained"
               color="primary"
             >
