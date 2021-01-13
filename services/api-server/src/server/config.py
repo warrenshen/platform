@@ -6,6 +6,10 @@ from typing import Dict
 def _string_to_bool(text: str) -> bool:
   return text.lower() == 'true'
 
+
+def is_development_env(flask_env: str) -> bool:
+	return flask_env == 'development'
+
 class Config(object):
 
 	def __init__(self) -> None:
@@ -19,16 +23,24 @@ class Config(object):
 		self.JWT_BLACKLIST_ENABLED = True
 		self.JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
 
-		self.EMAIL_PROVIDER = os.environ.get('EMAIL_PROVIDER', 'ses')
+		self.EMAIL_PROVIDER = os.environ.get('EMAIL_PROVIDER', 'sendgrid')
 
-		# TODO(dlluncor): I think donotreply@bespokefinancial.com is better
+		# Email
+		# TODO(dlluncor): Change to donotreply@bespokefinancial.com once SendGrid
+		# is completely setup
 		self.NO_REPLY_EMAIL_ADDRESS = os.environ.get(
-			'NO_REPLY_EMAIL_ADDRESS', 'jira@bespokefinancial.com')
-		self.LOCALHOST = 'http://localhost:7000'
-		
+			'NO_REPLY_EMAIL_ADDRESS', 'rachel@bespokefinancial.com')
+		self.SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
+
 		# Files
 		self.S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
-		self.ENV_TYPE = os.environ.get('ENV_TYPE')
+		self.FLASK_ENV = os.environ.get('FLASK_ENV')
+
+		# Logging
+		self.SENTRY_DSN = os.environ.get('SENTRY_DSN')
+
+	def is_development_env(self) -> bool:
+		return is_development_env(self.FLASK_ENV)
 
 	def as_dict(self) -> Dict:
 	  attr_names = dir(self)

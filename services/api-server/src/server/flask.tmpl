@@ -1,8 +1,9 @@
 import json
 
-from flask import request, make_response
+from flask import request, make_response, current_app
 from flask import Response, Blueprint
 from flask.views import MethodView
+from typing import cast
 
 handler = Blueprint('purchase_order', __name__)
 
@@ -12,8 +13,8 @@ def make_error_response(msg: str) -> Response:
 class ModifiedView(MethodView):
 
 	def post(self) -> Response:
-		data = json.loads(request.data)
-		if not data:
+		form = json.loads(request.data)
+		if not form:
 			return make_error_response('No data provided')
 
 		return make_response(json.dumps({

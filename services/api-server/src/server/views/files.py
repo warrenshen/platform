@@ -55,7 +55,7 @@ class PutSignedUrlView(MethodView):
 			return make_error_response('Failed to create upload url')
 
 		upload_via_server = False
-		if cfg.ENV_TYPE == 'dev':
+		if cfg.is_development_env():
 			upload_via_server = True
 
 		return make_response(json.dumps({

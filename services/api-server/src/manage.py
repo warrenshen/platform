@@ -13,20 +13,23 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 
 from bespoke.db import models
 from bespoke.db.models import session_scope
-from bespoke.email.email_manager import EmailConfigDict
+from bespoke.email.email_manager import EmailConfigDict, SendGridConfigDict
 from bespoke.email import email_manager
 
-from server.config import get_config
+from server.config import get_config, is_development_env
 from server.views import auth
+from server.views import email
 from server.views import files
 
-if os.environ.get('FLASK_ENV') == 'development':
+if is_development_env(os.environ.get('FLASK_ENV')):
     load_dotenv(os.path.join(os.environ.get('SERVER_ROOT_DIR'), '.env'))
 
+config = get_config()
+
 sentry_sdk.init(
-    dsn=os.environ.get('SENTRY_DSN'),
+    dsn=config.SENTRY_DSN,
     integrations=[FlaskIntegration()],
-    environment=os.environ.get('FLASK_ENV'),
+    environment=config.FLASK_ENV,
     # Set traces_sample_rate to 1.0 to capture 100%
     # of transactions for performance monitoring.
     # We recommend adjusting this value in production,
@@ -37,8 +40,6 @@ logging.basicConfig(format='%(asctime)s [%(levelname)s] - %(message)s',
                     datefmt='%m/%d/%Y %H:%M:%S',
                     level=logging.INFO)
 
-config = get_config()
-
 app = Flask(__name__)
 
 CORS(app)
@@ -48,11 +49,15 @@ app.config.update(config.as_dict())
 
 email_config = EmailConfigDict(
     email_provider=config.EMAIL_PROVIDER,
-    from_addr=config.NO_REPLY_EMAIL_ADDRESS
+    from_addr=config.NO_REPLY_EMAIL_ADDRESS,
+    sendgrid_config=SendGridConfigDict(
+        api_key=config.SENDGRID_API_KEY
+    )
 )
-#email_client = email_manager.new_client(email_config)
-#app.email_client = email_client
+email_client = email_manager.new_client(email_config)
+app.email_client = email_client
 
+app.register_blueprint(email.handler, url_prefix='/email')
 app.register_blueprint(files.handler, url_prefix='/files')
 app.register_blueprint(auth.handler, url_prefix='/auth')
 

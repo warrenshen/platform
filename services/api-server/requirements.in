@@ -26,3 +26,6 @@ sentry-sdk[flask]==0.19.5
 
 # AWS
 boto3==1.16.50
+
+# Email
+sendgrid==6.4.8
