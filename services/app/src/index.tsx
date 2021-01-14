@@ -2,9 +2,9 @@ import { CssBaseline } from "@material-ui/core";
 import * as Sentry from "@sentry/react";
 import React from "react";
 import ReactDOM from "react-dom";
-import ApolloWrapper from "./ApolloWrapper";
+import ApolloWrapper from "./contexts/ApolloClientProvider";
 import App from "./App";
-import CurrentUserWrapper from "./CurrentUserWrapper";
+import CurrentUserWrapper from "./contexts/CurrentUserProvider";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 

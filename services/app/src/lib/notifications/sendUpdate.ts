@@ -1,4 +1,4 @@
-import { notifyEndpoints } from "routes";
+import { notifyEndpoints } from "lib/routes";
 
 type Recipient = {
     email: string

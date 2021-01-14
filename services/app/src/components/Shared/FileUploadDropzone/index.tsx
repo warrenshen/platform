@@ -8,7 +8,7 @@ import {
 import axios from "axios";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { fileEndpoints } from "routes";
+import { fileEndpoints } from "lib/routes";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

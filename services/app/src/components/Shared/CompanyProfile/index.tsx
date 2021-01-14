@@ -1,5 +1,5 @@
 import { Box } from "@material-ui/core";
-import Can from "components/Can";
+import Can from "components/Shared/Can";
 import AdvancesBank from "components/Shared/BespokeBankAssignment/AdvancesBank";
 import CollectionsBank from "components/Shared/BespokeBankAssignment/CollectionsBank";
 import { CurrentUserContext } from "contexts/CurrentUserContext";

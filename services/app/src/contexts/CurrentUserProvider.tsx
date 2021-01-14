@@ -7,8 +7,8 @@ import {
 } from "contexts/CurrentUserContext";
 import useTokenStorage from "hooks/useTokenStorage";
 import JwtDecode from "jwt-decode";
+import { authEndpoints } from "lib/routes";
 import { useCallback, useEffect, useState } from "react";
-import { authEndpoints } from "routes";
 
 const blankUser = {
   id: "",

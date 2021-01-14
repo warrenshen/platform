@@ -12,7 +12,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import DisbursalButton from "components/Bank/Disbursal/DisbursalButton";
-import Can from "components/Can";
+import Can from "components/Shared/Can";
 import InfoCard from "components/Shared/PurchaseOrder/InfoCard";
 import {
   PurchaseOrderLoans,

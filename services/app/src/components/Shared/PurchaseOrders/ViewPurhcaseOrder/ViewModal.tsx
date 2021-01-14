@@ -10,7 +10,7 @@ import {
   Theme,
 } from "@material-ui/core";
 import { Create } from "@material-ui/icons";
-import Can from "components/Can";
+import Can from "components/Shared/Can";
 import { usePurchaseOrderQuery } from "generated/graphql";
 import { ActionType } from "lib/ActionType";
 import { Action } from "lib/rbac-rules";

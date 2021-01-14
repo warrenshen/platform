@@ -5,12 +5,12 @@ import List from "@material-ui/core/List";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import UserMenu from "components/User/UserMenu";
+import UserMenu from "components/Shared/User/UserMenu";
 import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
 import { PageContext } from "contexts/PageContext";
+import { bankPaths, routes } from "lib/routes";
 import React, { useContext, useState } from "react";
 import { Link, matchPath, useLocation } from "react-router-dom";
-import { bankPaths, routes } from "routes";
 
 const DRAWER_WIDTH = 240;
 

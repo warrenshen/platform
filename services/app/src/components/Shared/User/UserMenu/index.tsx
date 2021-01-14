@@ -8,7 +8,7 @@ import { AccountCircle } from "@material-ui/icons";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
-import { routes } from "routes";
+import { routes } from "lib/routes";
 
 function UserMenu() {
   const client = useApolloClient() as ApolloClient<NormalizedCacheObject>;

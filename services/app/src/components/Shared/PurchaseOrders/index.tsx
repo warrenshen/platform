@@ -1,5 +1,5 @@
 import { Box } from "@material-ui/core";
-import Can from "components/Can";
+import Can from "components/Shared/Can";
 import AddButton from "components/Shared/PurchaseOrders/AddPurchaseOrder/AddButton";
 import ListPurchaseOrders from "components/Shared/PurchaseOrders/ListPurchaseOrders";
 //import { CurrentUserContext } from "contexts/CurrentUserContext";

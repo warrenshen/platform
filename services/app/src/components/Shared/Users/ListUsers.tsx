@@ -6,7 +6,7 @@ import {
   CardContent,
   Typography,
 } from "@material-ui/core";
-import Can from "components/Can";
+import Can from "components/Shared/Can";
 import EditUserProfile from "components/Shared/Users/EditUserProfile";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { UserFragment } from "generated/graphql";

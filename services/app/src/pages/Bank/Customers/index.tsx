@@ -14,7 +14,7 @@ import useAppBarTitle from "hooks/useAppBarTitle";
 import { sortBy } from "lodash";
 import { Link, useRouteMatch } from "react-router-dom";
 import { useTitle } from "react-use";
-import { bankPaths } from "routes";
+import { bankPaths } from "lib/routes";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

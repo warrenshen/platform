@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/react";
 import jwtDecode from "jwt-decode";
 import { useCallback } from "react";
-import { authEndpoints } from "routes";
+import { authEndpoints } from "lib/routes";
 
 const LOCAL_STORAGE_ACCESS_TOKEN_KEY = "access_token";
 const LOCAL_STORAGE_REFRESH_TOKEN_KEY = "refresh_token";

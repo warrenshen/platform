@@ -86,11 +86,11 @@ const createApolloClient = (
   return client;
 };
 
-function ApolloWrapper(props: { children: React.ReactNode }) {
+function ApolloClientProvider(props: { children: React.ReactNode }) {
   const { user } = useContext(CurrentUserContext);
   const { getAccessToken } = useTokenStorage();
   const client = createApolloClient(user, getAccessToken);
   return <ApolloProvider client={client}>{props.children}</ApolloProvider>;
 }
 
-export default ApolloWrapper;
+export default ApolloClientProvider;

@@ -16,7 +16,7 @@ import {
   useParams,
   useRouteMatch,
 } from "react-router-dom";
-import { bankPaths } from "routes";
+import { bankPaths } from "lib/routes";
 
 export interface CustomerParams {
   companyId: string;

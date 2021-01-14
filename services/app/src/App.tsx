@@ -1,5 +1,6 @@
-import Layout from "components/Layout";
+import Layout from "components/Shared/Layout";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
+import { bankPaths, routes } from "lib/routes";
 import BankAccounts from "pages/Bank/BankAccounts";
 import Customer from "pages/Bank/Customer";
 import Customers from "pages/Bank/Customers";
@@ -13,8 +14,6 @@ import Users from "pages/Users";
 import Vendors from "pages/Vendors";
 import { useContext } from "react";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
-import { bankPaths, routes } from "routes";
-import "./App.css";
 
 function App() {
   const { user } = useContext(CurrentUserContext);
