@@ -123,22 +123,6 @@ function EditUserProfile({
           <Button onClick={handleClose}>Cancel</Button>
           <Button
             className={classes.submitButton}
-            variant="contained"
-            color="primary"
-            onClick={handleClose}
-          >
-            Disable Account
-          </Button>
-          <Button
-            className={classes.submitButton}
-            variant="contained"
-            color="primary"
-            onClick={handleClose}
-          >
-            Reset Password
-          </Button>
-          <Button
-            className={classes.submitButton}
             disabled={
               !userProfile.first_name ||
               !userProfile.last_name ||
