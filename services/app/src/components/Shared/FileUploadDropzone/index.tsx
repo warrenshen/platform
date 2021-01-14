@@ -8,7 +8,7 @@ import {
 import axios from "axios";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { API_BASE_URL } from "routes";
+import { fileEndpoints } from "routes";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -42,7 +42,7 @@ type UploadResponse = {
 async function getPutSignedUrl(
   reqData: GetSignedURLReq
 ): Promise<GetSignedURLResponse> {
-  return fetch(`${API_BASE_URL}/files/put_signed_url`, {
+  return fetch(fileEndpoints.putSignedUrl, {
     method: "POST",
     body: JSON.stringify(reqData),
   })
@@ -99,7 +99,7 @@ function FileUploadDropzone(props: Props) {
         },
       };
       return axios
-        .put(`${API_BASE_URL}/files/upload_signed_url`, file, options)
+        .put(fileEndpoints.uploadSignedUrl, file, options)
         .then((res) => {
           return { status: "OK" };
         })
@@ -139,28 +139,28 @@ function FileUploadDropzone(props: Props) {
       });
   };
 
-  const processFile = async (file: any): Promise<UploadResponse> => {
-    return getPutSignedUrl({
-      name: file.name,
-      content_type: file.type,
-      company_id: props.companyId,
-      doc_type: props.docType,
-    }).then((resp) => {
-      if (resp.status !== "OK") {
-        return { status: "ERROR", msg: resp.msg || "" };
-      }
-      return uploadFile(
-        file,
-        resp.url || "",
-        resp.path || "",
-        resp.upload_via_server || false
-      ).then((uploadResp) => {
-        return uploadResp;
-      });
-    });
-  };
-
   const onFileSubmit = useCallback(async () => {
+    const processFile = async (file: any): Promise<UploadResponse> => {
+      return getPutSignedUrl({
+        name: file.name,
+        content_type: file.type,
+        company_id: props.companyId,
+        doc_type: props.docType,
+      }).then((resp) => {
+        if (resp.status !== "OK") {
+          return { status: "ERROR", msg: resp.msg || "" };
+        }
+        return uploadFile(
+          file,
+          resp.url || "",
+          resp.path || "",
+          resp.upload_via_server || false
+        ).then((uploadResp) => {
+          return uploadResp;
+        });
+      });
+    };
+
     const uploadPromises = [];
     for (let i = 0; i < files.length; i++) {
       const file = files[i];

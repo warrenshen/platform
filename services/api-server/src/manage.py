@@ -18,7 +18,7 @@ from bespoke.email import email_manager
 
 from server.config import get_config, is_development_env
 from server.views import auth
-from server.views import email
+from server.views import notify
 from server.views import files
 
 if is_development_env(os.environ.get('FLASK_ENV')):
@@ -57,7 +57,7 @@ email_config = EmailConfigDict(
 email_client = email_manager.new_client(email_config)
 app.email_client = email_client
 
-app.register_blueprint(email.handler, url_prefix='/email')
+app.register_blueprint(notify.handler, url_prefix='/notify')
 app.register_blueprint(files.handler, url_prefix='/files')
 app.register_blueprint(auth.handler, url_prefix='/auth')
 

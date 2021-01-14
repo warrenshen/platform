@@ -9,6 +9,8 @@ import {
   useBankVendorPartnershipQuery,
 } from "generated/graphql";
 import { omit } from "lodash";
+import React from "react";
+import SendVendorAgreements from "./Notifications/SendVendorAgreements";
 
 const useStyles = makeStyles({
   drawerContent: {
@@ -104,6 +106,11 @@ function VendorDrawer(props: {
         >
           <Box>Upload</Box>
         </Box>
+        <Typography variant="h6"> Notifications </Typography>
+        <Box mt={1} mb={2}>
+          <SendVendorAgreements contacts={vendor.users}></SendVendorAgreements>
+        </Box>
+
         <Typography variant="h6"> Customers </Typography>
       </Box>
     </Drawer>

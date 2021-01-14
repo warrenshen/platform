@@ -1,3 +1,5 @@
+// Frontend endpoints
+
 export const routes = {
   root: "/",
   overview: "/overview",
@@ -24,7 +26,7 @@ export const bankPaths = {
   },
 };
 
-export const API_BASE_URL = process.env.REACT_APP_BESPOKE_API_ENDPOINT;
+// Backend endpoints
 
 export const authEndpoints = {
   signIn: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}/auth/sign-in`,
@@ -33,3 +35,12 @@ export const authEndpoints = {
   revokeAccessToken: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}/auth/sign-out/access`,
   revokeRefreshToken: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}/auth/sign-out/refresh`,
 };
+
+export const notifyEndpoints = {
+  sendNotification: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}/notify/send`
+}
+
+export const fileEndpoints = {
+  putSignedUrl: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}/files/put_signed_url`,
+  uploadSignedUrl: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}/files/upload_signed_url`
+} 
