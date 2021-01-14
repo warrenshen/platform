@@ -37,10 +37,10 @@ export const authEndpoints = {
 };
 
 export const notifyEndpoints = {
-  sendNotification: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}/notify/send`
-}
+  sendNotification: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}/notify/send`,
+};
 
 export const fileEndpoints = {
   putSignedUrl: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}/files/put_signed_url`,
-  uploadSignedUrl: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}/files/upload_signed_url`
-} 
+  uploadSignedUrl: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}/files/upload_signed_url`,
+};
