@@ -1,7 +1,10 @@
 import { Button } from "@material-ui/core";
 import ConfirmModal from "components/Shared/Confirmations/ConfirmModal";
 import { ContactFragment } from "generated/graphql";
-import { sendNotification } from "lib/notifications/sendUpdate";
+import {
+  notifyTemplates,
+  sendNotification,
+} from "lib/notifications/sendUpdate";
 import { useState } from "react";
 
 interface Props {
@@ -33,7 +36,10 @@ function SendVendorAgreements(props: Props) {
           handleConfirm={async () => {
             const resp = await sendNotification({
               type: "email",
-              template_id: "vendor_agreement_signup",
+              template_id: notifyTemplates.VENDOR_AGREEMENT_SIGNUP.id,
+              template_data: {
+                customer_name: "Customer 1",
+              },
               recipients: recipients,
             });
 

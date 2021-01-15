@@ -26,7 +26,7 @@ class SendView(MethodView):
 		if not form:
 			return make_error_response('No data provided')
 
-		required_keys = ['type', 'template_id', 'recipients']
+		required_keys = ['type', 'template_id', 'recipients', 'template_data']
 		for key in required_keys:
 			if key not in form:
 				return make_error_response('Send email missing key {}'.format(key))
@@ -40,16 +40,14 @@ class SendView(MethodView):
 		email_client = cast(email_manager.EmailClient, current_app.email_client)
 
 		template_id = form['template_id']
-		subject = 'Subject for {}'.format(template_id)
-		content = 'Content for {}'.format(template_id)
-
+		template_data = form['template_data']
 		recipients = [recipient['email'] for recipient in form['recipients']]
 
 		try:
-			email_client.send(
+			email_client.send_dynamic_email_template(
 			    to_=recipients,
-			    subject=subject,
-			    content=content
+			    template_id=template_id,
+			    template_data=template_data
 			)
 		except Exception as e:
 			logging.error('Could not send email: {}'.format(e))
