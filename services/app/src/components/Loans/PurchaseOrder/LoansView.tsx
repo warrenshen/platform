@@ -2,7 +2,7 @@ import { Box } from "@material-ui/core";
 import Can from "components/Shared/Can";
 import AddButton from "components/Loans/PurchaseOrder/AddLoan/AddButton";
 import ListLoans from "components/Loans/PurchaseOrder/ListLoans";
-import RepaymentButton from "components/Customer/RepaymentButton";
+import RepaymentButton from "components/Customer/PurchaseOrderLoanRepayment/RepaymentButton";
 import { Action } from "lib/rbac-rules";
 
 function LoansView() {

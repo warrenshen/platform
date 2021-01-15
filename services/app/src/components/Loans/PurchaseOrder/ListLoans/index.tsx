@@ -7,15 +7,13 @@ import {
 import Launcher from "components/Shared/PurchaseOrderLoanDrawer/Launcher";
 import {
   Maybe,
-  PurchaseOrderLoanForCustomerFragment,
+  PurchaseOrderLoanFragment,
   useListPurchaseOrderLoansForCustomerQuery,
 } from "generated/graphql";
 import useCompanyContext from "hooks/useCustomerContext";
 import React from "react";
 
-function getRows(
-  poLoans: Maybe<PurchaseOrderLoanForCustomerFragment[]>
-): RowsProp {
+function getRows(poLoans: Maybe<PurchaseOrderLoanFragment[]>): RowsProp {
   return poLoans
     ? poLoans.map((item) => {
         return {

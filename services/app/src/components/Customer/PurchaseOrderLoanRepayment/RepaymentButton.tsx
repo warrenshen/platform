@@ -1,6 +1,7 @@
 import { Button } from "@material-ui/core";
-import PaymentModal from "components/Shared/Payments/PaymentModal";
+import RepaymentCoverage from "components/Customer/PurchaseOrderLoanRepayment/RepaymentCoverage";
 import { PaymentTransferDirection } from "components/Shared/BankToBankTransfer";
+import PaymentModal from "components/Shared/Payments/PaymentModal";
 import useCompanyContext from "hooks/useCustomerContext";
 import { useState } from "react";
 
@@ -14,6 +15,9 @@ function RepaymentButton() {
           companyId={companyId}
           direction={PaymentTransferDirection.ToBank}
           handleClose={() => setOpen(false)}
+          coverageComponent={(amount: number) => (
+            <RepaymentCoverage amount={amount}></RepaymentCoverage>
+          )}
         ></PaymentModal>
       )}
       <Button variant="contained" color="primary" onClick={() => setOpen(true)}>

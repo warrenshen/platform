@@ -1,17 +1,6 @@
-import {
-  Box,
-  Drawer,
-  makeStyles,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-} from "@material-ui/core";
-import DisbursalButton from "components/Bank/Disbursal/DisbursalButton";
+import { Box, Drawer, makeStyles, Typography } from "@material-ui/core";
+import DisbursalButton from "components/Bank/PurchaseOrderLoanDisbursal/DisbursalButton";
+import Disbursements from "components/Bank/PurchaseOrderLoanDisbursal/Disbursements";
 import Can from "components/Shared/Can";
 import InfoCard from "components/Shared/PurchaseOrder/InfoCard";
 import {
@@ -19,7 +8,6 @@ import {
   usePurchaseOrderLoanQuery,
 } from "generated/graphql";
 import { Action } from "lib/rbac-rules";
-import { calendarDateTimestamp } from "lib/time";
 
 const useStyles = makeStyles({
   drawerContent: {
@@ -58,42 +46,11 @@ function PurchaseOrderLoanDrawer(props: Props) {
           <DisbursalButton
             vendorId={data.purchase_order_loans_by_pk.purchase_order.vendor?.id}
             purchaseOrderLoanId={data.purchase_order_loans_by_pk.id}
+            initialAmount={data.purchase_order_loans_by_pk.amount}
           ></DisbursalButton>
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Amount</TableCell>
-                  <TableCell>Vendor</TableCell>
-                  <TableCell>Submitted</TableCell>
-                  <TableCell>Settled</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {data.purchase_order_loans_by_pk.disbursements.map(
-                  (disbursement) => {
-                    return (
-                      <TableRow>
-                        <TableCell>
-                          $
-                          {Intl.NumberFormat("en-US").format(
-                            disbursement.amount
-                          )}
-                        </TableCell>
-                        <TableCell>{disbursement.company?.name}</TableCell>
-                        <TableCell>
-                          {calendarDateTimestamp(disbursement.submitted_at)}
-                        </TableCell>
-                        <TableCell>
-                          {calendarDateTimestamp(disbursement.settled_at)}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  }
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          <Disbursements
+            id={data.purchase_order_loans_by_pk.id}
+          ></Disbursements>
         </Can>
       </Box>
     </Drawer>

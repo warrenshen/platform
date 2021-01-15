@@ -11,27 +11,35 @@ fragment PurchaseOrder on purchase_orders {
     id
     name
   }
-  company {
-    id
-    name
-  }
 }
 
 query ListPurchaseOrders($company_id: uuid!) {
   purchase_orders(where: { company_id: { _eq: $company_id } }) {
     ...PurchaseOrder
+    company {
+      id
+      name
+    }
   }
 }
 
 query PurchaseOrder($id: uuid!) {
   purchase_orders_by_pk(id: $id) {
     ...PurchaseOrder
+    company {
+      id
+      name
+    }
   }
 }
 
 mutation AddPurchaseOrder($purhcase_order: purchase_orders_insert_input!) {
   insert_purchase_orders_one(object: $purhcase_order) {
     ...PurchaseOrder
+    company {
+      id
+      name
+    }
   }
 }
 

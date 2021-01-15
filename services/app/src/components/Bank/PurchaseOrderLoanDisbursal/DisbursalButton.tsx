@@ -1,7 +1,8 @@
 import { Button } from "@material-ui/core";
+import DisbursalCoverage from "components/Bank/PurchaseOrderLoanDisbursal/DisbursalCoverage";
 import { PaymentTransferDirection } from "components/Shared/BankToBankTransfer";
 import PaymentModal, {
-  PaymentType,
+  PaymentMethod,
 } from "components/Shared/Payments/PaymentModal";
 import {
   Companies,
@@ -14,6 +15,7 @@ import { useState } from "react";
 function DisbursalButton(props: {
   vendorId: Companies["id"];
   purchaseOrderLoanId: PurchaseOrderLoans["id"];
+  initialAmount: number;
 }) {
   const [open, setOpen] = useState(false);
   const [submitDisbursement] = useSubmitDisbursementMutation();
@@ -24,10 +26,11 @@ function DisbursalButton(props: {
         <PaymentModal
           companyId={props.vendorId}
           direction={PaymentTransferDirection.FromBank}
+          initialAmount={props.initialAmount}
           allowablePaymentTypes={[
-            PaymentType.None,
-            PaymentType.ACH,
-            PaymentType.Wire,
+            PaymentMethod.None,
+            PaymentMethod.ACH,
+            PaymentMethod.Wire,
           ]}
           handleClose={() => setOpen(false)}
           onCreate={async (payment: PaymentsInsertInput) => {
@@ -46,6 +49,12 @@ function DisbursalButton(props: {
             });
             setOpen(false);
           }}
+          coverageComponent={(amount: number) => (
+            <DisbursalCoverage
+              amount={amount}
+              purchaseOrderLoanId={props.purchaseOrderLoanId}
+            ></DisbursalCoverage>
+          )}
         ></PaymentModal>
       )}
       <Button variant="contained" color="primary" onClick={() => setOpen(true)}>

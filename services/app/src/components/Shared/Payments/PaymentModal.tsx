@@ -23,15 +23,7 @@ import {
 } from "generated/graphql";
 import { useCallback, useState } from "react";
 
-interface Props {
-  companyId: Companies["id"];
-  direction: PaymentTransferDirection;
-  handleClose: () => void;
-  allowablePaymentTypes?: Array<PaymentType>;
-  onCreate?: (payment: PaymentsInsertInput) => void;
-}
-
-export enum PaymentType {
+export enum PaymentMethod {
   ACH = "ach",
   ReverseDraftACH = "reverse_draft_ach",
   Wire = "wire",
@@ -39,12 +31,22 @@ export enum PaymentType {
   Cash = "cash",
   None = "none",
 }
+interface Props {
+  companyId: Companies["id"];
+  direction: PaymentTransferDirection;
+  handleClose: () => void;
+  initialAmount?: number;
+  allowablePaymentTypes?: Array<PaymentMethod>;
+  onCreate?: (payment: PaymentsInsertInput) => void;
+  coverageComponent?: (amount: number) => React.ReactNode;
+}
 
 function PaymentModal(props: Props) {
   const [payment, setPayment] = useState<PaymentsInsertInput>({
     company_id: props.companyId,
     direction: props.direction,
-    type: PaymentType.None,
+    amount: props.initialAmount,
+    method: PaymentMethod.None,
   });
 
   const onBespokeBankAccountSelection = useCallback(
@@ -88,22 +90,22 @@ function PaymentModal(props: Props) {
           </FormControl>
           <Box mt={3}>
             <Select
-              value={payment.type}
+              value={payment.method}
               onChange={({ target: { value } }) => {
                 setPayment((payment) => {
-                  return { ...payment, type: value as PaymentType };
+                  return { ...payment, method: value as PaymentMethod };
                 });
               }}
               style={{ width: 200 }}
             >
               {(
                 props.allowablePaymentTypes || [
-                  PaymentType.None,
-                  PaymentType.ACH,
-                  PaymentType.ReverseDraftACH,
-                  PaymentType.Wire,
-                  PaymentType.Cash,
-                  PaymentType.Check,
+                  PaymentMethod.None,
+                  PaymentMethod.ACH,
+                  PaymentMethod.ReverseDraftACH,
+                  PaymentMethod.Wire,
+                  PaymentMethod.Cash,
+                  PaymentMethod.Check,
                 ]
               ).map((paymentType) => {
                 return <MenuItem value={paymentType}>{paymentType}</MenuItem>;
@@ -111,8 +113,8 @@ function PaymentModal(props: Props) {
             </Select>
           </Box>
           <Box mt={3}>
-            {[PaymentType.ACH, PaymentType.Wire].includes(
-              payment.type as PaymentType
+            {[PaymentMethod.ACH, PaymentMethod.Wire].includes(
+              payment.method as PaymentMethod
             ) && (
               <>
                 <BankToBankTransfer
@@ -129,7 +131,8 @@ function PaymentModal(props: Props) {
                 </Box>
               </>
             )}
-            {PaymentType.ReverseDraftACH === (payment.type as PaymentType) && (
+            {PaymentMethod.ReverseDraftACH ===
+              (payment.method as PaymentMethod) && (
               <>
                 <CompanyBank
                   companyId={props.companyId}
@@ -145,7 +148,7 @@ function PaymentModal(props: Props) {
                 </Box>
               </>
             )}
-            {PaymentType.Cash === payment.type && (
+            {PaymentMethod.Cash === payment.method && (
               <Box mt={2}>
                 A member of the Bespoke team will be in touch via email. We will
                 coordinate the dispatch of an armored vehicle with your team to
@@ -153,13 +156,14 @@ function PaymentModal(props: Props) {
                 will incur a $100 fee.
               </Box>
             )}
-            {PaymentType.Check === payment.type && (
+            {PaymentMethod.Check === payment.method && (
               <Box mt={2}>
                 Please make the check payable to Bespoke Financial.
               </Box>
             )}
           </Box>
         </Box>
+        {props.coverageComponent && props.coverageComponent(payment.amount)}
       </DialogContent>
       <DialogActions>
         <Box display="flex">

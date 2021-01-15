@@ -1,28 +1,10 @@
-fragment PurchaseOrderLoanDisbursement on purchase_order_loan_disbursements {
-  id
-  amount
-  type
-  direction
-  company {
-    id
-    name
-  }
-  submitted_at
-  settled_at
+fragment PurchaseOrderLoanPayment on purchase_order_loan_payments {
+  purchase_order_loan_id
+  payment_id
 }
 
 fragment PurchaseOrderLoan on purchase_order_loans {
   id
-  company {
-    id
-    name
-  }
-  purchase_order {
-    ...PurchaseOrder
-  }
-  disbursements {
-    ...PurchaseOrderLoanDisbursement
-  }
   amount
   status
   maturity_date
@@ -32,5 +14,24 @@ fragment PurchaseOrderLoan on purchase_order_loans {
 query PurchaseOrderLoan($id: uuid!) {
   purchase_order_loans_by_pk(id: $id) {
     ...PurchaseOrderLoan
+    company {
+      id
+      name
+    }
+    purchase_order {
+      ...PurchaseOrder
+    }
+  }
+}
+
+query PurchaseOrderLoanDisbursements($id: uuid!) {
+  purchase_order_loans_by_pk(id: $id) {
+    id
+    payments {
+      ...PurchaseOrderLoanPayment
+      payment {
+        ...Payment
+      }
+    }
   }
 }

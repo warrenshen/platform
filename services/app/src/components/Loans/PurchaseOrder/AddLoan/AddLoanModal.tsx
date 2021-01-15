@@ -60,7 +60,9 @@ function AddLoanModal(props: Props) {
   const {
     data: approvedPOsData,
     loading: isLoadingPOs,
-  } = useListApprovedPurchaseOrdersQuery();
+  } = useListApprovedPurchaseOrdersQuery({
+    fetchPolicy: "network-only",
+  });
   const approvedPOs = approvedPOsData?.purchase_orders;
 
   const [addPOLoanMutation] = useAddPurchaseOrderLoanMutation();
@@ -116,9 +118,11 @@ function AddLoanModal(props: Props) {
                 id="purchase-order-select"
                 value={loan.purchase_order_id}
                 onChange={({ target: { value } }) => {
+                  const po = approvedPOs?.find((po) => po.id === value);
                   setLoan({
                     ...loan,
                     purchase_order_id: value as string,
+                    amount: po?.amount,
                   });
                 }}
               >
