@@ -43,8 +43,6 @@ function DisbursalButton(props: {
                   settled_at: new Date(
                     new Date().getTime() + 3 * 24 * 60 * 60 * 1000
                   ),
-                  resource_type: "purchase_order_loans",
-                  resource_id: props.purchaseOrderLoanId,
                 },
               },
             });
