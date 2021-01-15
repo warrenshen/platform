@@ -2098,8 +2098,6 @@ export type Payments = {
   id: Scalars['uuid'];
   items_covered: Scalars['jsonb'];
   method: Scalars['String'];
-  resource_id?: Maybe<Scalars['uuid']>;
-  resource_type?: Maybe<Scalars['String']>;
   settled_at?: Maybe<Scalars['timestamptz']>;
   submitted_at: Scalars['timestamptz'];
 };
@@ -2192,8 +2190,6 @@ export type PaymentsBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   items_covered?: Maybe<JsonbComparisonExp>;
   method?: Maybe<StringComparisonExp>;
-  resource_id?: Maybe<UuidComparisonExp>;
-  resource_type?: Maybe<StringComparisonExp>;
   settled_at?: Maybe<TimestamptzComparisonExp>;
   submitted_at?: Maybe<TimestamptzComparisonExp>;
 };
@@ -2239,8 +2235,6 @@ export type PaymentsInsertInput = {
   id?: Maybe<Scalars['uuid']>;
   items_covered?: Maybe<Scalars['jsonb']>;
   method?: Maybe<Scalars['String']>;
-  resource_id?: Maybe<Scalars['uuid']>;
-  resource_type?: Maybe<Scalars['String']>;
   settled_at?: Maybe<Scalars['timestamptz']>;
   submitted_at?: Maybe<Scalars['timestamptz']>;
 };
@@ -2256,8 +2250,6 @@ export type PaymentsMaxFields = {
   effective_date?: Maybe<Scalars['date']>;
   id?: Maybe<Scalars['uuid']>;
   method?: Maybe<Scalars['String']>;
-  resource_id?: Maybe<Scalars['uuid']>;
-  resource_type?: Maybe<Scalars['String']>;
   settled_at?: Maybe<Scalars['timestamptz']>;
   submitted_at?: Maybe<Scalars['timestamptz']>;
 };
@@ -2273,8 +2265,6 @@ export type PaymentsMaxOrderBy = {
   effective_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   method?: Maybe<OrderBy>;
-  resource_id?: Maybe<OrderBy>;
-  resource_type?: Maybe<OrderBy>;
   settled_at?: Maybe<OrderBy>;
   submitted_at?: Maybe<OrderBy>;
 };
@@ -2290,8 +2280,6 @@ export type PaymentsMinFields = {
   effective_date?: Maybe<Scalars['date']>;
   id?: Maybe<Scalars['uuid']>;
   method?: Maybe<Scalars['String']>;
-  resource_id?: Maybe<Scalars['uuid']>;
-  resource_type?: Maybe<Scalars['String']>;
   settled_at?: Maybe<Scalars['timestamptz']>;
   submitted_at?: Maybe<Scalars['timestamptz']>;
 };
@@ -2307,8 +2295,6 @@ export type PaymentsMinOrderBy = {
   effective_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   method?: Maybe<OrderBy>;
-  resource_id?: Maybe<OrderBy>;
-  resource_type?: Maybe<OrderBy>;
   settled_at?: Maybe<OrderBy>;
   submitted_at?: Maybe<OrderBy>;
 };
@@ -2349,8 +2335,6 @@ export type PaymentsOrderBy = {
   id?: Maybe<OrderBy>;
   items_covered?: Maybe<OrderBy>;
   method?: Maybe<OrderBy>;
-  resource_id?: Maybe<OrderBy>;
-  resource_type?: Maybe<OrderBy>;
   settled_at?: Maybe<OrderBy>;
   submitted_at?: Maybe<OrderBy>;
 };
@@ -2388,10 +2372,6 @@ export enum PaymentsSelectColumn {
   /** column name */
   Method = 'method',
   /** column name */
-  ResourceId = 'resource_id',
-  /** column name */
-  ResourceType = 'resource_type',
-  /** column name */
   SettledAt = 'settled_at',
   /** column name */
   SubmittedAt = 'submitted_at'
@@ -2409,8 +2389,6 @@ export type PaymentsSetInput = {
   id?: Maybe<Scalars['uuid']>;
   items_covered?: Maybe<Scalars['jsonb']>;
   method?: Maybe<Scalars['String']>;
-  resource_id?: Maybe<Scalars['uuid']>;
-  resource_type?: Maybe<Scalars['String']>;
   settled_at?: Maybe<Scalars['timestamptz']>;
   submitted_at?: Maybe<Scalars['timestamptz']>;
 };
@@ -2477,10 +2455,6 @@ export enum PaymentsUpdateColumn {
   ItemsCovered = 'items_covered',
   /** column name */
   Method = 'method',
-  /** column name */
-  ResourceId = 'resource_id',
-  /** column name */
-  ResourceType = 'resource_type',
   /** column name */
   SettledAt = 'settled_at',
   /** column name */
