@@ -8,6 +8,7 @@ from datetime import datetime
 from flask import request, make_response, current_app
 from flask import Response, Blueprint
 from flask.views import MethodView
+from flask_jwt_extended import jwt_required
 from io import BytesIO
 from typing import cast
 
@@ -20,6 +21,7 @@ def make_error_response(msg: str) -> Response:
 
 class PutSignedUrlView(MethodView):
 
+	@jwt_required
 	def post(self) -> Response:
 		s3_client = boto3.client('s3')
 		cfg = cast(Config, current_app.app_config)
@@ -67,6 +69,7 @@ class PutSignedUrlView(MethodView):
 
 class UploadSignedUrlView(MethodView):
 
+	@jwt_required
 	def put(self) -> Response:
 		s3_client = boto3.client('s3')
 		cfg = cast(Config, current_app.app_config)

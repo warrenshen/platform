@@ -1,6 +1,7 @@
 import { Button } from "@material-ui/core";
 import ConfirmModal from "components/Shared/Confirmations/ConfirmModal";
 import { ContactFragment } from "generated/graphql";
+import { getAccessToken } from "lib/auth/tokenStorage";
 import {
   notifyTemplates,
   sendNotification,
@@ -34,9 +35,12 @@ function SendVendorAgreements(props: Props) {
           title="Would you like to send the vendor sign-up email?"
           errMsg={errMsg}
           handleConfirm={async () => {
+            const accessToken = await getAccessToken();
+
             const resp = await sendNotification({
+              accessToken: accessToken,
               type: "email",
-              template_id: notifyTemplates.VENDOR_AGREEMENT_SIGNUP.id,
+              template_config: notifyTemplates.VENDOR_AGREEMENT_SIGNUP,
               template_data: {
                 customer_name: "Customer 1",
               },

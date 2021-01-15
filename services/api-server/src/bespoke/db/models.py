@@ -1,12 +1,14 @@
+import datetime
 import logging
 import os
 import time
 import uuid
+from mypy_extensions import TypedDict
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Callable, Generator
+from typing import TYPE_CHECKING, Any, Callable, Generator, Dict
 
 import sqlalchemy
-from sqlalchemy import JSON, Boolean, Column, Float, Integer, String
+from sqlalchemy import JSON, Boolean, Column, Float, Integer, String, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import OperationalError, StatementError, TimeoutError
 from sqlalchemy.ext.declarative import declarative_base
@@ -45,7 +47,7 @@ class User(Base):
             self.email: str = None
             self.__table__: Any = None
     else:
-        id = Column(UUID(as_uuid=True), primary_key=True)
+        id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
         company_id = Column(UUID(as_uuid=True), nullable=True)
         email = Column(String(120), unique=True, nullable=False)
         password = Column(String(120), nullable=False)
@@ -59,7 +61,7 @@ class Customer(Base):
         def __init__(self, name: str, phone: str, email: str) -> None:
             self.__table__: Any = None
     else:
-        id = Column(Integer, primary_key=True)
+        id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
         name = Column(String)
         phone = Column(String)
         email = Column(String)
@@ -75,10 +77,46 @@ class PurchaseOrder(Base):
         def __init__(self, number: str, total_requested: float, confirmed: bool) -> None:
             self.__table__: Any = None
     else:
-        id = Column(Integer, primary_key=True)
+        id = Column(UUID(as_uuid=True), primary_key=True)
         number = Column(String)
         total_requested = Column(Float)
         confirmed = Column(Boolean)
+
+class RevokedTokenModel(Base):
+    __tablename__ = 'revoked_tokens'
+    if TYPE_CHECKING:
+        def __init__(self, jti: str, user_id: str) -> None:
+            self.jti: str = None
+            self.user_id: str = None
+            self.__table__: Any = None
+    else:
+        id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
+        user_id = Column(UUID(as_uuid=True), nullable=False)
+        jti = Column(String(120), nullable=False)
+
+TwoFactorFormInfoDict = TypedDict('TwoFactorFormInfoDict', {
+    'type': str,
+    'payload': Dict
+})
+
+class TwoFactorLink(Base):
+    """
+            Two factor tokens for rendering pages when a user isnt signed in.
+    """
+    __tablename__ = 'two_factor_links'
+
+    if TYPE_CHECKING:
+        def __init__(self, token_states: Dict, form_info: TwoFactorFormInfoDict, expires_at: datetime.datetime) -> None:
+            self.__table__: Any = None
+            self.id: UUID = None
+            self.token_states = token_states
+            self.form_info = form_info
+            self.expires_at = expires_at
+    else:
+        id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
+        token_states = Column(JSON)
+        form_info = Column(JSON)
+        expires_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 
 def get_db_url() -> str:
@@ -145,25 +183,3 @@ class RetryingQuery(_Query):
 
 def new_sessionmaker(engine: object) -> Callable:
     return sessionmaker(engine, query_cls=RetryingQuery)
-
-
-class RevokedTokenModel(Base):
-	__tablename__ = 'revoked_tokens'
-	if TYPE_CHECKING:
-		def __init__(self, jti: str, user_id:str) -> None:
-			self.jti: str = None
-			self.user_id: str = None
-			self.__table__: Any = None
-	else:
-		id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-		user_id = Column(UUID(as_uuid=True), nullable=False)
-		jti = Column(String(120), nullable=False)
-
-    # def add(self):
-    #     db.session.add(self)
-    #     db.session.commit()
-
-    # @classmethod
-    # def is_jti_blacklisted(cls, jti):
-    #     query = cls.query.filter_by(jti=jti).first()
-    #     return bool(query)

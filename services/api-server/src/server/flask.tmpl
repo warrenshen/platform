@@ -3,6 +3,7 @@ import json
 from flask import request, make_response, current_app
 from flask import Response, Blueprint
 from flask.views import MethodView
+from flask_jwt_extended import jwt_required
 from typing import cast
 
 handler = Blueprint('purchase_order', __name__)
@@ -12,6 +13,7 @@ def make_error_response(msg: str) -> Response:
 
 class ModifiedView(MethodView):
 
+	@jwt_required
 	def post(self) -> Response:
 		form = json.loads(request.data)
 		if not form:

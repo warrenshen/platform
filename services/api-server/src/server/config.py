@@ -23,6 +23,11 @@ class Config(object):
 		self.JWT_BLACKLIST_ENABLED = True
 		self.JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
 
+		# Security
+		self.PASSWORD_SALT = os.environ.get('PASSWORD_SALT')
+		self.URL_SALT = os.environ.get('URL_SALT')
+		self.URL_SECRET_KEY = os.environ.get('URL_SECRET_KEY')
+
 		self.EMAIL_PROVIDER = os.environ.get('EMAIL_PROVIDER', 'sendgrid')
 
 		# Email
@@ -31,6 +36,7 @@ class Config(object):
 		self.NO_REPLY_EMAIL_ADDRESS = os.environ.get(
 			'NO_REPLY_EMAIL_ADDRESS', 'rachel@bespokefinancial.com')
 		self.SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
+		self.BESPOKE_DOMAIN = os.environ.get('BESPOKE_DOMAIN', 'http://localhost:3005')
 
 		# Files
 		self.S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
@@ -41,6 +47,9 @@ class Config(object):
 
 	def is_development_env(self) -> bool:
 		return is_development_env(self.FLASK_ENV)
+
+	def get_secure_link(self, two_factor_row_id: str) -> str:
+		return self.BESPOKE_DOMAIN + '/get_secure_link?val=' + two_factor_row_id 
 
 	def as_dict(self) -> Dict:
 	  attr_names = dir(self)

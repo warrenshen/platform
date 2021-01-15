@@ -18,5 +18,5 @@ setup-db:
 	cd src && PROJECT_DIR=$(project_dir) PYTHONPATH=$(current_dir)/src python3 bespoke/db/main.py setup
 
 mypy:
-	mypy src/bespoke/db/main.py --config-file=mypy.ini
-	mypy src/manage.py --config-file=mypy.ini
+	MYPYPATH=stubs mypy src/bespoke/db/main.py --config-file=mypy.ini
+	MYPYPATH=stubs mypy src/manage.py --config-file=mypy.ini
