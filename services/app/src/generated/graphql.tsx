@@ -4807,7 +4807,7 @@ export type AssignCollectionsBespokeBankAccountMutationVariables = Exact<{
 
 
 export type AssignCollectionsBespokeBankAccountMutation = { update_companies_by_pk?: Maybe<(
-    Pick<Companies, 'id' | 'collections_bespoke_bank_account_id'>
+    Pick<Companies, 'id'>
     & { collections_bespoke_bank_account?: Maybe<BankAccountFragment> }
   )> };
 
@@ -4818,7 +4818,7 @@ export type AssignAdvancesBespokeBankAccountMutationVariables = Exact<{
 
 
 export type AssignAdvancesBespokeBankAccountMutation = { update_companies_by_pk?: Maybe<(
-    Pick<Companies, 'id' | 'advances_bespoke_bank_account_id'>
+    Pick<Companies, 'id'>
     & { advances_bespoke_bank_account?: Maybe<BankAccountFragment> }
   )> };
 
@@ -5589,7 +5589,6 @@ export const AssignCollectionsBespokeBankAccountDocument = gql`
     _set: {collections_bespoke_bank_account_id: $bankAccountId}
   ) {
     id
-    collections_bespoke_bank_account_id
     collections_bespoke_bank_account {
       ...BankAccount
     }
@@ -5629,7 +5628,6 @@ export const AssignAdvancesBespokeBankAccountDocument = gql`
     _set: {advances_bespoke_bank_account_id: $bankAccountId}
   ) {
     id
-    advances_bespoke_bank_account_id
     advances_bespoke_bank_account {
       ...BankAccount
     }

@@ -2,6 +2,8 @@ import BespokeBankAssignment from "components/Shared/BespokeBankAssignment";
 import {
   BankAccountFragment,
   Companies,
+  CompanyFragment,
+  CompanyFragmentDoc,
   useAssignCollectionsBespokeBankAccountMutation,
 } from "generated/graphql";
 
@@ -28,9 +30,25 @@ function CollectionsBank(props: Props) {
           optimisticResponse: {
             update_companies_by_pk: {
               id: props.companyId,
-              collections_bespoke_bank_account_id: bankAccount?.id,
               collections_bespoke_bank_account: bankAccount,
             },
+          },
+          update: (proxy, { data: optimisticResponse }) => {
+            const fragmentOptions = {
+              fragment: CompanyFragmentDoc,
+              fragmentName: "Company",
+              id: `companies:${props.companyId}`,
+            };
+            const data = proxy.readFragment<CompanyFragment>(fragmentOptions);
+            proxy.writeFragment({
+              ...fragmentOptions,
+              data: {
+                ...data,
+                advances_bespoke_bank_account:
+                  optimisticResponse?.update_companies_by_pk
+                    ?.collections_bespoke_bank_account,
+              },
+            });
           },
         });
       }}

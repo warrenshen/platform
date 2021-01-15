@@ -7,7 +7,6 @@ mutation AssignCollectionsBespokeBankAccount(
     _set: { collections_bespoke_bank_account_id: $bankAccountId }
   ) {
     id
-    collections_bespoke_bank_account_id
     collections_bespoke_bank_account {
       ...BankAccount
     }
@@ -23,7 +22,6 @@ mutation AssignAdvancesBespokeBankAccount(
     _set: { advances_bespoke_bank_account_id: $bankAccountId }
   ) {
     id
-    advances_bespoke_bank_account_id
     advances_bespoke_bank_account {
       ...BankAccount
     }
