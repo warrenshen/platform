@@ -79,7 +79,13 @@ const createApolloClient = (
 
   const client = new ApolloClient({
     link: ApolloLink.from([stripTypenameLink, authLink, transportLink]),
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache({
+      typePolicies: {
+        purchase_order_loan_payments: {
+          keyFields: ["purchase_order_loan_id", "payment_id"],
+        },
+      },
+    }),
     connectToDevTools: true,
   });
 
