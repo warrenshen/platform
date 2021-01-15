@@ -18,8 +18,19 @@ fragment Payment on payments {
   }
 }
 
-mutation SubmitDisbursement($payment: payments_insert_input!) {
-  insert_payments_one(object: $payment) {
-    ...Payment
+mutation SubmitDisbursement(
+  $purchaseOrderLoanId: uuid!
+  $payment: payments_insert_input!
+) {
+  insert_purchase_order_loan_payments_one(
+    object: {
+      purchase_order_loan_id: $purchaseOrderLoanId
+      payment: { data: $payment }
+    }
+  ) {
+    ...PurchaseOrderLoanPayment
+    payment {
+      ...Payment
+    }
   }
 }

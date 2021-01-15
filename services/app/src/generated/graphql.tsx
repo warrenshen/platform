@@ -4889,11 +4889,15 @@ export type PaymentFragment = (
 );
 
 export type SubmitDisbursementMutationVariables = Exact<{
+  purchaseOrderLoanId: Scalars['uuid'];
   payment: PaymentsInsertInput;
 }>;
 
 
-export type SubmitDisbursementMutation = { insert_payments_one?: Maybe<PaymentFragment> };
+export type SubmitDisbursementMutation = { insert_purchase_order_loan_payments_one?: Maybe<(
+    { payment: PaymentFragment }
+    & PurchaseOrderLoanPaymentFragment
+  )> };
 
 export type PurchaseOrderLoanPaymentFragment = Pick<PurchaseOrderLoanPayments, 'purchase_order_loan_id' | 'payment_id'>;
 
@@ -5816,12 +5820,18 @@ export type UpdateCompanyBankAccountMutationHookResult = ReturnType<typeof useUp
 export type UpdateCompanyBankAccountMutationResult = Apollo.MutationResult<UpdateCompanyBankAccountMutation>;
 export type UpdateCompanyBankAccountMutationOptions = Apollo.BaseMutationOptions<UpdateCompanyBankAccountMutation, UpdateCompanyBankAccountMutationVariables>;
 export const SubmitDisbursementDocument = gql`
-    mutation SubmitDisbursement($payment: payments_insert_input!) {
-  insert_payments_one(object: $payment) {
-    ...Payment
+    mutation SubmitDisbursement($purchaseOrderLoanId: uuid!, $payment: payments_insert_input!) {
+  insert_purchase_order_loan_payments_one(
+    object: {purchase_order_loan_id: $purchaseOrderLoanId, payment: {data: $payment}}
+  ) {
+    ...PurchaseOrderLoanPayment
+    payment {
+      ...Payment
+    }
   }
 }
-    ${PaymentFragmentDoc}`;
+    ${PurchaseOrderLoanPaymentFragmentDoc}
+${PaymentFragmentDoc}`;
 export type SubmitDisbursementMutationFn = Apollo.MutationFunction<SubmitDisbursementMutation, SubmitDisbursementMutationVariables>;
 
 /**
@@ -5837,6 +5847,7 @@ export type SubmitDisbursementMutationFn = Apollo.MutationFunction<SubmitDisburs
  * @example
  * const [submitDisbursementMutation, { data, loading, error }] = useSubmitDisbursementMutation({
  *   variables: {
+ *      purchaseOrderLoanId: // value for 'purchaseOrderLoanId'
  *      payment: // value for 'payment'
  *   },
  * });

@@ -36,6 +36,7 @@ function DisbursalButton(props: {
           onCreate={async (payment: PaymentsInsertInput) => {
             await submitDisbursement({
               variables: {
+                purchaseOrderLoanId: props.purchaseOrderLoanId,
                 payment: {
                   ...payment,
                   submitted_at: new Date(Date.now()),
