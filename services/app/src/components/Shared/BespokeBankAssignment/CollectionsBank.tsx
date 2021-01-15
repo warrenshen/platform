@@ -44,7 +44,7 @@ function CollectionsBank(props: Props) {
               ...fragmentOptions,
               data: {
                 ...data,
-                advances_bespoke_bank_account:
+                collections_bespoke_bank_account:
                   optimisticResponse?.update_companies_by_pk
                     ?.collections_bespoke_bank_account,
               },
