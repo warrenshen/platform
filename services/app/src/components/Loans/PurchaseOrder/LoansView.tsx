@@ -3,7 +3,7 @@ import Can from "components/Shared/Can";
 import AddButton from "components/Loans/PurchaseOrder/AddLoan/AddButton";
 import ListLoans from "components/Loans/PurchaseOrder/ListLoans";
 import RepaymentButton from "components/Customer/PurchaseOrderLoanRepayment/RepaymentButton";
-import { Action } from "lib/rbac-rules";
+import { Action } from "lib/auth/rbac-rules";
 
 function LoansView() {
   return (

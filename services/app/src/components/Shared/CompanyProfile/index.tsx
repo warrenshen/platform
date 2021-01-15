@@ -3,7 +3,7 @@ import Can from "components/Shared/Can";
 import AdvancesBank from "components/Shared/BespokeBankAssignment/AdvancesBank";
 import CollectionsBank from "components/Shared/BespokeBankAssignment/CollectionsBank";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { Action } from "lib/rbac-rules";
+import { Action } from "lib/auth/rbac-rules";
 import { useContext } from "react";
 import { useParams } from "react-router-dom";
 import { useCompanyQuery } from "../../../generated/graphql";

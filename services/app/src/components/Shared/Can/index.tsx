@@ -1,5 +1,5 @@
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { Action, check } from "lib/rbac-rules";
+import { Action, check } from "lib/auth/rbac-rules";
 import { useContext } from "react";
 
 interface Props {

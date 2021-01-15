@@ -5,8 +5,15 @@ import {
   User,
   UserRole,
 } from "contexts/CurrentUserContext";
-import useTokenStorage from "hooks/useTokenStorage";
 import JwtDecode from "jwt-decode";
+import {
+  getAccessToken,
+  getRefreshToken,
+  removeAccessToken,
+  removeRefreshToken,
+  setAccessToken,
+  setRefreshToken,
+} from "lib/auth/tokenStorage";
 import { authEndpoints } from "lib/routes";
 import { useCallback, useEffect, useState } from "react";
 
@@ -28,15 +35,6 @@ function userFrom(token: string) {
 }
 
 function CurrentUserWrapper(props: { children: React.ReactNode }) {
-  const {
-    getAccessToken,
-    getRefreshToken,
-    setAccessToken,
-    setRefreshToken,
-    removeAccessToken,
-    removeRefreshToken,
-  } = useTokenStorage();
-
   const [user, setUser] = useState<User>(blankUser);
   const [loadedToken, setLoadedToken] = useState(false);
 
@@ -49,35 +47,32 @@ function CurrentUserWrapper(props: { children: React.ReactNode }) {
       setLoadedToken(true);
     }
     updateUser();
-  }, [getAccessToken]);
+  }, []);
 
-  const signIn = useCallback(
-    async (email: string, password: string) => {
-      const response = await fetch(authEndpoints.signIn, {
-        method: "POST",
-        mode: "cors",
-        cache: "no-cache",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+  const signIn = useCallback(async (email: string, password: string) => {
+    const response = await fetch(authEndpoints.signIn, {
+      method: "POST",
+      mode: "cors",
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
 
-      try {
-        const data = await response.json();
-        if (data.status === "OK" && data.access_token) {
-          setAccessToken(data.access_token);
-          setRefreshToken(data.refresh_token);
-          setUser(userFrom(data.access_token));
-        } else {
-          setUser(blankUser);
-        }
-      } catch (err) {
+    try {
+      const data = await response.json();
+      if (data.status === "OK" && data.access_token) {
+        setAccessToken(data.access_token);
+        setRefreshToken(data.refresh_token);
+        setUser(userFrom(data.access_token));
+      } else {
         setUser(blankUser);
       }
-    },
-    [setAccessToken, setRefreshToken]
-  );
+    } catch (err) {
+      setUser(blankUser);
+    }
+  }, []);
 
   const signOut = useCallback(
     async (client: ApolloClient<NormalizedCacheObject>) => {
@@ -111,7 +106,7 @@ function CurrentUserWrapper(props: { children: React.ReactNode }) {
         setUser(blankUser);
       }
     },
-    [getAccessToken, getRefreshToken, removeAccessToken, removeRefreshToken]
+    []
   );
 
   return loadedToken ? (

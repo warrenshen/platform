@@ -7,7 +7,7 @@ import {
   PurchaseOrderLoans,
   usePurchaseOrderLoanQuery,
 } from "generated/graphql";
-import { Action } from "lib/rbac-rules";
+import { Action } from "lib/auth/rbac-rules";
 
 const useStyles = makeStyles({
   drawerContent: {

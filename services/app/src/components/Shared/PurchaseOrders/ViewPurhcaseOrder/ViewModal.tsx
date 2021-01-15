@@ -13,7 +13,7 @@ import { Create } from "@material-ui/icons";
 import Can from "components/Shared/Can";
 import { usePurchaseOrderQuery } from "generated/graphql";
 import { ActionType } from "lib/ActionType";
-import { Action } from "lib/rbac-rules";
+import { Action } from "lib/auth/rbac-rules";
 import { calendarDateTimestamp } from "lib/time";
 
 const useStyles = makeStyles((theme: Theme) =>

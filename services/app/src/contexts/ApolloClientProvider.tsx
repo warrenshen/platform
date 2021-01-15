@@ -10,13 +10,10 @@ import { setContext } from "@apollo/client/link/context";
 import { WebSocketLink } from "@apollo/client/link/ws";
 import { getMainDefinition } from "@apollo/client/utilities";
 import { CurrentUserContext, User } from "contexts/CurrentUserContext";
-import useTokenStorage, { Storage } from "hooks/useTokenStorage";
+import { getAccessToken } from "lib/auth/tokenStorage";
 import { useContext } from "react";
 
-const createApolloClient = (
-  user: User,
-  getAccessToken: Storage["getAccessToken"]
-) => {
+const createApolloClient = (user: User) => {
   const authLink = setContext(async (_, { headers }) => {
     const accessToken = await getAccessToken();
     return {
@@ -94,8 +91,7 @@ const createApolloClient = (
 
 function ApolloClientProvider(props: { children: React.ReactNode }) {
   const { user } = useContext(CurrentUserContext);
-  const { getAccessToken } = useTokenStorage();
-  const client = createApolloClient(user, getAccessToken);
+  const client = createApolloClient(user);
   return <ApolloProvider client={client}>{props.children}</ApolloProvider>;
 }
 

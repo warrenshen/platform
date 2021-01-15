@@ -6,7 +6,7 @@ import ListPurchaseOrders from "components/Shared/PurchaseOrders/ListPurchaseOrd
 import { PurchaseOrderFragment } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
 import { ActionType } from "lib/ActionType";
-import { Action } from "lib/rbac-rules";
+import { Action } from "lib/auth/rbac-rules";
 import { CustomerParams } from "pages/Bank/Customer";
 import { useState } from "react";
 import { useParams } from "react-router-dom";

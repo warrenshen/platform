@@ -10,7 +10,7 @@ import Can from "components/Shared/Can";
 import EditUserProfile from "components/Shared/Users/EditUserProfile";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { UserFragment } from "generated/graphql";
-import { Action } from "lib/rbac-rules";
+import { Action } from "lib/auth/rbac-rules";
 import { useContext, useState } from "react";
 
 interface Props {
