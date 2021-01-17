@@ -35,10 +35,7 @@ function SendVendorAgreements(props: Props) {
           title="Would you like to send the vendor sign-up email?"
           errMsg={errMsg}
           handleConfirm={async () => {
-            const accessToken = await getAccessToken();
-
             const resp = await sendNotification({
-              accessToken: accessToken,
               type: "email",
               template_config: notifyTemplates.VENDOR_AGREEMENT_SIGNUP,
               template_data: {

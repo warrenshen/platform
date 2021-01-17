@@ -1,11 +1,13 @@
 import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
 import * as Sentry from "@sentry/react";
+import axios from "axios";
 import {
   CurrentUserContext,
   User,
   UserRole,
 } from "contexts/CurrentUserContext";
 import JwtDecode from "jwt-decode";
+import { authenticatedApi, authRoutes, unAuthenticatedApi } from "lib/api";
 import {
   getAccessToken,
   getRefreshToken,
@@ -14,7 +16,6 @@ import {
   setAccessToken,
   setRefreshToken,
 } from "lib/auth/tokenStorage";
-import { authEndpoints } from "lib/routes";
 import { useCallback, useEffect, useState } from "react";
 
 const blankUser = {
@@ -50,18 +51,13 @@ function CurrentUserWrapper(props: { children: React.ReactNode }) {
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    const response = await fetch(authEndpoints.signIn, {
-      method: "POST",
-      mode: "cors",
-      cache: "no-cache",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
+    const response = await unAuthenticatedApi.post(authRoutes.signIn, {
+      email,
+      password,
     });
 
     try {
-      const data = await response.json();
+      const data = response.data;
       if (data.status === "OK" && data.access_token) {
         setAccessToken(data.access_token);
         setRefreshToken(data.refresh_token);
@@ -77,26 +73,19 @@ function CurrentUserWrapper(props: { children: React.ReactNode }) {
   const signOut = useCallback(
     async (client: ApolloClient<NormalizedCacheObject>) => {
       try {
-        const accessToken = await getAccessToken();
-        await fetch(authEndpoints.revokeAccessToken, {
-          method: "POST",
-          mode: "cors",
-          cache: "no-cache",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
         const refreshToken = await getRefreshToken();
-        await fetch(authEndpoints.revokeRefreshToken, {
-          method: "POST",
-          mode: "cors",
-          cache: "no-cache",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${refreshToken}`,
-          },
-        });
+        await axios.all([
+          authenticatedApi.post(authRoutes.revokeAccessToken),
+          unAuthenticatedApi.post(
+            authRoutes.revokeRefreshToken,
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${refreshToken}`,
+              },
+            }
+          ),
+        ]);
       } catch (e) {
         Sentry.captureException(e);
       } finally {

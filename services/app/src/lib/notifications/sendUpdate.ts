@@ -1,4 +1,4 @@
-import { notifyEndpoints } from "lib/routes";
+import { authenticatedApi, notifyRoutes } from "lib/api";
 
 type Recipient = {
   email: string;
@@ -10,7 +10,6 @@ type NotifyTemplate = {
 };
 
 type SendNotificationReq = {
-  accessToken: string | null;
   type: string;
   template_config: NotifyTemplate;
   template_data: { [key: string]: string };
@@ -32,16 +31,10 @@ export const notifyTemplates: { [key: string]: NotifyTemplate } = {
 export async function sendNotification(
   req: SendNotificationReq
 ): Promise<SendNotificationResp> {
-  return fetch(notifyEndpoints.sendNotification, {
-    method: "POST",
-    body: JSON.stringify(req),
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${req.accessToken}`,
-    },
-  })
+  return authenticatedApi
+    .post(notifyRoutes.sendNotification, req)
     .then((res) => {
-      return res.json();
+      return res.data;
     })
     .then(
       (response) => {

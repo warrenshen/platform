@@ -6,9 +6,9 @@ import {
   Theme,
 } from "@material-ui/core";
 import axios from "axios";
+import { authenticatedApi, fileRoutes } from "lib/api";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { fileEndpoints } from "lib/routes";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -42,12 +42,10 @@ type UploadResponse = {
 async function getPutSignedUrl(
   reqData: GetSignedURLReq
 ): Promise<GetSignedURLResponse> {
-  return fetch(fileEndpoints.putSignedUrl, {
-    method: "POST",
-    body: JSON.stringify(reqData),
-  })
+  return authenticatedApi
+    .post(fileRoutes.putSignedUrl, reqData)
     .then((res) => {
-      return res.json();
+      return res.data;
     })
     .then(
       (response) => {
@@ -98,8 +96,8 @@ function FileUploadDropzone(props: Props) {
           Url: url,
         },
       };
-      return axios
-        .put(fileEndpoints.uploadSignedUrl, file, options)
+      return authenticatedApi
+        .put(fileRoutes.uploadSignedUrl, file, options)
         .then((res) => {
           return { status: "OK" };
         })

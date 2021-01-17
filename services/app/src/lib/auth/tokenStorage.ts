@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/react";
 import jwtDecode from "jwt-decode";
-import { authEndpoints } from "lib/routes";
+import { authRoutes, unAuthenticatedApi } from "lib/api";
 
 const LOCAL_STORAGE_ACCESS_TOKEN_KEY = "access_token";
 const LOCAL_STORAGE_REFRESH_TOKEN_KEY = "refresh_token";
@@ -39,16 +39,16 @@ export const getAccessToken = async (): Promise<string | null> => {
     (!accessToken || (accessToken && isTokenExpired(accessToken)))
   ) {
     try {
-      const response = await fetch(authEndpoints.refreshToken, {
-        method: "POST",
-        mode: "cors",
-        cache: "no-cache",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${refreshToken}`,
-        },
-      });
-      const data = await response.json();
+      const response = await unAuthenticatedApi.post(
+        authRoutes.refreshToken,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${refreshToken}`,
+          },
+        }
+      );
+      const data = response.data;
       if (data.status === "OK" && data.access_token) {
         setAccessToken(data.access_token);
         return data.access_token;
