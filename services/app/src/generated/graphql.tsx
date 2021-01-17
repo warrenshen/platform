@@ -3026,6 +3026,7 @@ export type PurchaseOrders = {
   /** An aggregated array relationship */
   loans_aggregate: PurchaseOrderLoansAggregate;
   order_date: Scalars['date'];
+  order_number: Scalars['String'];
   status: Scalars['String'];
   updated_at: Scalars['timestamptz'];
   /** An object relationship */
@@ -3125,6 +3126,7 @@ export type PurchaseOrdersBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   loans?: Maybe<PurchaseOrderLoansBoolExp>;
   order_date?: Maybe<DateComparisonExp>;
+  order_number?: Maybe<StringComparisonExp>;
   status?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
   vendor?: Maybe<VendorsBoolExp>;
@@ -3152,6 +3154,7 @@ export type PurchaseOrdersInsertInput = {
   id?: Maybe<Scalars['uuid']>;
   loans?: Maybe<PurchaseOrderLoansArrRelInsertInput>;
   order_date?: Maybe<Scalars['date']>;
+  order_number?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   updated_at?: Maybe<Scalars['timestamptz']>;
   vendor?: Maybe<VendorsObjRelInsertInput>;
@@ -3166,6 +3169,7 @@ export type PurchaseOrdersMaxFields = {
   delivery_date?: Maybe<Scalars['date']>;
   id?: Maybe<Scalars['uuid']>;
   order_date?: Maybe<Scalars['date']>;
+  order_number?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   updated_at?: Maybe<Scalars['timestamptz']>;
   vendor_id?: Maybe<Scalars['uuid']>;
@@ -3179,6 +3183,7 @@ export type PurchaseOrdersMaxOrderBy = {
   delivery_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   order_date?: Maybe<OrderBy>;
+  order_number?: Maybe<OrderBy>;
   status?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_id?: Maybe<OrderBy>;
@@ -3192,6 +3197,7 @@ export type PurchaseOrdersMinFields = {
   delivery_date?: Maybe<Scalars['date']>;
   id?: Maybe<Scalars['uuid']>;
   order_date?: Maybe<Scalars['date']>;
+  order_number?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   updated_at?: Maybe<Scalars['timestamptz']>;
   vendor_id?: Maybe<Scalars['uuid']>;
@@ -3205,6 +3211,7 @@ export type PurchaseOrdersMinOrderBy = {
   delivery_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   order_date?: Maybe<OrderBy>;
+  order_number?: Maybe<OrderBy>;
   status?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_id?: Maybe<OrderBy>;
@@ -3241,6 +3248,7 @@ export type PurchaseOrdersOrderBy = {
   id?: Maybe<OrderBy>;
   loans_aggregate?: Maybe<PurchaseOrderLoansAggregateOrderBy>;
   order_date?: Maybe<OrderBy>;
+  order_number?: Maybe<OrderBy>;
   status?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor?: Maybe<VendorsOrderBy>;
@@ -3267,6 +3275,8 @@ export enum PurchaseOrdersSelectColumn {
   /** column name */
   OrderDate = 'order_date',
   /** column name */
+  OrderNumber = 'order_number',
+  /** column name */
   Status = 'status',
   /** column name */
   UpdatedAt = 'updated_at',
@@ -3282,6 +3292,7 @@ export type PurchaseOrdersSetInput = {
   delivery_date?: Maybe<Scalars['date']>;
   id?: Maybe<Scalars['uuid']>;
   order_date?: Maybe<Scalars['date']>;
+  order_number?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   updated_at?: Maybe<Scalars['timestamptz']>;
   vendor_id?: Maybe<Scalars['uuid']>;
@@ -3341,6 +3352,8 @@ export enum PurchaseOrdersUpdateColumn {
   Id = 'id',
   /** column name */
   OrderDate = 'order_date',
+  /** column name */
+  OrderNumber = 'order_number',
   /** column name */
   Status = 'status',
   /** column name */
@@ -4901,7 +4914,7 @@ export type PurchaseOrderLoanDisbursementsQuery = { purchase_order_loans_by_pk?:
   )> };
 
 export type PurchaseOrderFragment = (
-  Pick<PurchaseOrders, 'id' | 'company_id' | 'vendor_id' | 'order_date' | 'delivery_date' | 'amount' | 'status' | 'created_at'>
+  Pick<PurchaseOrders, 'id' | 'company_id' | 'vendor_id' | 'order_date' | 'delivery_date' | 'order_number' | 'amount' | 'status' | 'created_at'>
   & { vendor?: Maybe<Pick<Vendors, 'id' | 'name'>> }
 );
 
@@ -4926,14 +4939,11 @@ export type PurchaseOrderQuery = { purchase_orders_by_pk?: Maybe<(
   )> };
 
 export type AddPurchaseOrderMutationVariables = Exact<{
-  purhcase_order: PurchaseOrdersInsertInput;
+  purchase_order: PurchaseOrdersInsertInput;
 }>;
 
 
-export type AddPurchaseOrderMutation = { insert_purchase_orders_one?: Maybe<(
-    { company: Pick<Companies, 'id' | 'name'> }
-    & PurchaseOrderFragment
-  )> };
+export type AddPurchaseOrderMutation = { insert_purchase_orders_one?: Maybe<PurchaseOrderFragment> };
 
 export type ListPurchaseOrderVendorsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -5216,6 +5226,7 @@ export const PurchaseOrderFragmentDoc = gql`
   vendor_id
   order_date
   delivery_date
+  order_number
   amount
   status
   created_at
@@ -5986,13 +5997,9 @@ export type PurchaseOrderQueryHookResult = ReturnType<typeof usePurchaseOrderQue
 export type PurchaseOrderLazyQueryHookResult = ReturnType<typeof usePurchaseOrderLazyQuery>;
 export type PurchaseOrderQueryResult = Apollo.QueryResult<PurchaseOrderQuery, PurchaseOrderQueryVariables>;
 export const AddPurchaseOrderDocument = gql`
-    mutation AddPurchaseOrder($purhcase_order: purchase_orders_insert_input!) {
-  insert_purchase_orders_one(object: $purhcase_order) {
+    mutation AddPurchaseOrder($purchase_order: purchase_orders_insert_input!) {
+  insert_purchase_orders_one(object: $purchase_order) {
     ...PurchaseOrder
-    company {
-      id
-      name
-    }
   }
 }
     ${PurchaseOrderFragmentDoc}`;
@@ -6011,7 +6018,7 @@ export type AddPurchaseOrderMutationFn = Apollo.MutationFunction<AddPurchaseOrde
  * @example
  * const [addPurchaseOrderMutation, { data, loading, error }] = useAddPurchaseOrderMutation({
  *   variables: {
- *      purhcase_order: // value for 'purhcase_order'
+ *      purchase_order: // value for 'purchase_order'
  *   },
  * });
  */

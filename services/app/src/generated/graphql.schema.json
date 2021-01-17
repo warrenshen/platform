@@ -18827,6 +18827,22 @@
             "deprecationReason": null
           },
           {
+            "name": "order_number",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "status",
             "description": null,
             "args": [],
@@ -19444,6 +19460,16 @@
             "defaultValue": null
           },
           {
+            "name": "order_number",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "String_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "status",
             "description": null,
             "type": {
@@ -19613,6 +19639,16 @@
             "defaultValue": null
           },
           {
+            "name": "order_number",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "status",
             "description": null,
             "type": {
@@ -19735,6 +19771,18 @@
             "deprecationReason": null
           },
           {
+            "name": "order_number",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "status",
             "description": null,
             "args": [],
@@ -19834,6 +19882,16 @@
           },
           {
             "name": "order_date",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "order_number",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -19955,6 +20013,18 @@
             "deprecationReason": null
           },
           {
+            "name": "order_number",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "status",
             "description": null,
             "args": [],
@@ -20054,6 +20124,16 @@
           },
           {
             "name": "order_date",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "order_number",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -20327,6 +20407,16 @@
             "defaultValue": null
           },
           {
+            "name": "order_number",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "status",
             "description": null,
             "type": {
@@ -20441,6 +20531,12 @@
             "deprecationReason": null
           },
           {
+            "name": "order_number",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "status",
             "description": "column name",
             "isDeprecated": false,
@@ -20523,6 +20619,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "date",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "order_number",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "defaultValue": null
@@ -20778,6 +20884,12 @@
           },
           {
             "name": "order_date",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "order_number",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

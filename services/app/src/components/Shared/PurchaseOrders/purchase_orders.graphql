@@ -4,6 +4,7 @@ fragment PurchaseOrder on purchase_orders {
   vendor_id
   order_date
   delivery_date
+  order_number
   amount
   status
   created_at
@@ -33,13 +34,9 @@ query PurchaseOrder($id: uuid!) {
   }
 }
 
-mutation AddPurchaseOrder($purhcase_order: purchase_orders_insert_input!) {
-  insert_purchase_orders_one(object: $purhcase_order) {
+mutation AddPurchaseOrder($purchase_order: purchase_orders_insert_input!) {
+  insert_purchase_orders_one(object: $purchase_order) {
     ...PurchaseOrder
-    company {
-      id
-      name
-    }
   }
 }
 

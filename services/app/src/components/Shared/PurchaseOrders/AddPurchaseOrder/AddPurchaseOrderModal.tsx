@@ -14,6 +14,7 @@ import {
   makeStyles,
   MenuItem,
   Select,
+  TextField,
   Theme,
 } from "@material-ui/core";
 import {
@@ -145,6 +146,18 @@ function AddPurchaseOrderModal({
               </Select>
             </FormControl>
           </Box>
+          <Box mt={2}>
+            <TextField
+              label="Order Number"
+              value={purchaseOrder.order_number}
+              onChange={({ target: { value } }) => {
+                setPurchaseOrder({
+                  ...purchaseOrder,
+                  order_number: value,
+                });
+              }}
+            ></TextField>
+          </Box>
           <Box>
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
               <KeyboardDatePicker
@@ -215,66 +228,66 @@ function AddPurchaseOrderModal({
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
-        <Box>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button
-            className={classes.submitButton}
-            disabled={
-              !isFormValid ||
-              addPurchaseOrderLoading ||
-              updatePurchaseOrderLoading
+        <Button onClick={handleClose}>Cancel</Button>
+        <Button
+          className={classes.submitButton}
+          disabled={
+            !isFormValid ||
+            addPurchaseOrderLoading ||
+            updatePurchaseOrderLoading
+          }
+          onClick={async () => {
+            if (actionType === ActionType.Update) {
+              await updatePurchaseOrder({
+                variables: {
+                  id: purchaseOrder.id,
+                  purchaseOrder: {
+                    delivery_date: purchaseOrder.delivery_date,
+                    order_number: purchaseOrder.order_number,
+                    order_date: purchaseOrder.order_date,
+                    vendor_id: purchaseOrder.vendor_id,
+                    amount: purchaseOrder.amount,
+                    status: PurchaseOrderStatus.Draft,
+                  },
+                },
+                refetchQueries: [
+                  {
+                    query: ListPurchaseOrdersDocument,
+                    variables: {
+                      company_id: companyId,
+                    },
+                  },
+                ],
+              });
+            } else {
+              await addPurchaseOrder({
+                variables: {
+                  purchase_order: {
+                    delivery_date: purchaseOrder.delivery_date,
+                    order_date: purchaseOrder.order_date,
+                    order_number: purchaseOrder.order_number,
+                    vendor_id: purchaseOrder.vendor_id,
+                    amount: purchaseOrder.amount,
+                    status: String(PurchaseOrderStatus.Draft),
+                  } as PurchaseOrdersInsertInput,
+                },
+                refetchQueries: [
+                  {
+                    query: ListPurchaseOrdersDocument,
+                    variables: {
+                      company_id: companyId,
+                    },
+                  },
+                ],
+              });
             }
-            onClick={async () => {
-              if (actionType === ActionType.Update) {
-                await updatePurchaseOrder({
-                  variables: {
-                    id: purchaseOrder.id,
-                    purchaseOrder: {
-                      delivery_date: purchaseOrder.delivery_date,
-                      order_date: purchaseOrder.order_date,
-                      vendor_id: purchaseOrder.vendor_id,
-                      amount: purchaseOrder.amount,
-                      status: PurchaseOrderStatus.Draft,
-                    },
-                  },
-                  refetchQueries: [
-                    {
-                      query: ListPurchaseOrdersDocument,
-                      variables: {
-                        company_id: companyId,
-                      },
-                    },
-                  ],
-                });
-              } else {
-                await addPurchaseOrder({
-                  variables: {
-                    purhcase_order: {
-                      delivery_date: purchaseOrder.delivery_date,
-                      order_date: purchaseOrder.order_date,
-                      vendor_id: purchaseOrder.vendor_id,
-                      amount: purchaseOrder.amount,
-                      status: String(PurchaseOrderStatus.Draft),
-                    } as PurchaseOrdersInsertInput,
-                  },
-                  refetchQueries: [
-                    {
-                      query: ListPurchaseOrdersDocument,
-                      variables: {
-                        company_id: companyId,
-                      },
-                    },
-                  ],
-                });
-              }
-              handleClose();
-            }}
-            variant="contained"
-            color="primary"
-          >
-            Submit
-          </Button>
-        </Box>
+            handleClose();
+          }}
+          variant="contained"
+          color="primary"
+        >
+          Submit
+        </Button>
       </DialogActions>
     </Dialog>
   );
