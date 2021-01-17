@@ -9,10 +9,9 @@ interface Props {
 }
 
 function Can(props: Props) {
-  const { user } = useContext(CurrentUserContext);
-  const isAuthenticated = !!user.id;
+  const { user, signedIn } = useContext(CurrentUserContext);
 
-  if (!isAuthenticated) {
+  if (!signedIn) {
     return null;
   }
 

@@ -5,18 +5,14 @@ import Profile from "components/Bank/Customer/Profile";
 import PurchaseOrders from "components/Bank/Customer/PurchaseOrders";
 import Users from "components/Bank/Customer/Users";
 import Vendors from "components/Bank/Customer/Vendors";
+import PrivateRoute from "components/Shared/PrivateRoute";
+import { UserRole } from "contexts/CurrentUserContext";
 import { useBankCustomerQuery } from "generated/graphql";
 import useAppBarTitle from "hooks/useAppBarTitle";
+import { bankRoutes } from "lib/routes";
 import { findIndex } from "lodash";
 import { ChangeEvent, useEffect, useState } from "react";
-import {
-  Link,
-  Route,
-  useLocation,
-  useParams,
-  useRouteMatch,
-} from "react-router-dom";
-import { bankPaths } from "lib/routes";
+import { Link, useLocation, useParams, useRouteMatch } from "react-router-dom";
 
 export interface CustomerParams {
   companyId: string;
@@ -24,32 +20,32 @@ export interface CustomerParams {
 
 const customerPaths = [
   {
-    path: bankPaths.customer.overview,
+    path: bankRoutes.customer.overview,
     component: Overview,
     label: "Overview",
   },
   {
-    path: bankPaths.customer.loans,
+    path: bankRoutes.customer.loans,
     component: Loans,
     label: "Loans",
   },
   {
-    path: bankPaths.customer.purchaseOrders,
+    path: bankRoutes.customer.purchaseOrders,
     component: PurchaseOrders,
     label: "Purchase Orders",
   },
   {
-    path: bankPaths.customer.vendors,
+    path: bankRoutes.customer.vendors,
     component: Vendors,
     label: "Vendors",
   },
   {
-    path: bankPaths.customer.users,
+    path: bankRoutes.customer.users,
     component: Users,
     label: "Users",
   },
   {
-    path: bankPaths.customer.profile,
+    path: bankRoutes.customer.profile,
     component: Profile,
     label: "Profile",
   },
@@ -105,14 +101,18 @@ function Customer() {
         </Tabs>
       </Paper>
       <Box pt={2}>
-        <Route exact path={path} component={Overview} />
+        <PrivateRoute exact path={path} requiredRoles={[UserRole.BankAdmin]}>
+          <Overview></Overview>
+        </PrivateRoute>
         {customerPaths.map((customerPath, index) => {
           return (
-            <Route
+            <PrivateRoute
               key={index}
               path={`${path}${customerPath.path}`}
-              component={customerPath.component}
-            />
+              requiredRoles={[UserRole.BankAdmin]}
+            >
+              {customerPath.component()}
+            </PrivateRoute>
           );
         })}
       </Box>

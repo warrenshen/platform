@@ -12,7 +12,10 @@ function useCompanyContext() {
     user: { companyId: companyIdForUser },
   } = useContext(CurrentUserContext);
 
-  return companyIdFromParams || companyIdForUser;
+  return (
+    companyIdFromParams ||
+    (companyIdForUser === "None" ? null : companyIdForUser)
+  );
 }
 
 export default useCompanyContext;

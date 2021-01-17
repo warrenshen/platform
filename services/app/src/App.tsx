@@ -1,6 +1,7 @@
 import Layout from "components/Shared/Layout";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { bankPaths, routes } from "lib/routes";
+import PrivateRoute from "components/Shared/PrivateRoute";
+import { UserRole } from "contexts/CurrentUserContext";
+import { bankRoutes, customerRoutes, routes } from "lib/routes";
 import BankAccounts from "pages/Bank/BankAccounts";
 import Customer from "pages/Bank/Customer";
 import Customers from "pages/Bank/Customers";
@@ -12,44 +13,72 @@ import SignIn from "pages/SignIn";
 import UserProfile from "pages/UserProfile";
 import Users from "pages/Users";
 import Vendors from "pages/Vendors";
-import { useContext } from "react";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 
 function App() {
-  const { user } = useContext(CurrentUserContext);
-
-  if (!user.id) return <SignIn />;
-
   return (
     <BrowserRouter>
-      <Layout>
-        <Switch>
-          <Route exact path={routes.root} component={Home}></Route>
-          <Route exact path={routes.overview} component={Home}></Route>
-          <Route exact path={routes.loans} component={LoansPage}></Route>
-          <Route
+      <Switch>
+        <Route exact path={routes.signIn}>
+          <SignIn></SignIn>
+        </Route>
+        <Layout>
+          <PrivateRoute exact path={routes.root}>
+            <Home></Home>
+          </PrivateRoute>
+          <PrivateRoute exact path={routes.overview}>
+            <Home></Home>
+          </PrivateRoute>
+          <PrivateRoute exact path={routes.vendors}>
+            <Vendors></Vendors>
+          </PrivateRoute>
+          <PrivateRoute exact path={routes.profile}>
+            <CompanyProfilePage></CompanyProfilePage>
+          </PrivateRoute>
+          <PrivateRoute path={routes.userProfile}>
+            <UserProfile></UserProfile>
+          </PrivateRoute>
+          <PrivateRoute path={routes.users}>
+            <Users></Users>
+          </PrivateRoute>
+          {/* Customer Routes */}
+          <PrivateRoute
             exact
-            path={routes.purchaseOrders}
-            component={PurchaseOrdersPage}
-          ></Route>
-          <Route exact path={routes.vendors} component={Vendors}></Route>
-          <Route
+            path={customerRoutes.loans}
+            requiredRoles={[UserRole.CompanyAdmin]}
+          >
+            <LoansPage></LoansPage>
+          </PrivateRoute>
+          <PrivateRoute
             exact
-            path={routes.profile}
-            component={CompanyProfilePage}
-          ></Route>
-          <Route path={routes.userProfile} component={UserProfile}></Route>
-          <Route path={routes.users} component={Users}></Route>
-
-          <Route exact path={bankPaths.customers} component={Customers}></Route>
-          <Route path={bankPaths.customer.root} component={Customer}></Route>
-          <Route
+            path={customerRoutes.purchaseOrders}
+            requiredRoles={[UserRole.CompanyAdmin]}
+          >
+            <PurchaseOrdersPage></PurchaseOrdersPage>
+          </PrivateRoute>
+          {/* Bank Routes */}
+          <PrivateRoute
             exact
-            path={bankPaths.bankAccounts}
-            component={BankAccounts}
-          ></Route>
-        </Switch>
-      </Layout>
+            path={bankRoutes.customers}
+            requiredRoles={[UserRole.BankAdmin]}
+          >
+            <Customers></Customers>
+          </PrivateRoute>
+          <PrivateRoute
+            path={bankRoutes.customer.root}
+            requiredRoles={[UserRole.BankAdmin]}
+          >
+            <Customer></Customer>
+          </PrivateRoute>
+          <PrivateRoute
+            exact
+            path={bankRoutes.bankAccounts}
+            requiredRoles={[UserRole.BankAdmin]}
+          >
+            <BankAccounts></BankAccounts>
+          </PrivateRoute>
+        </Layout>
+      </Switch>
     </BrowserRouter>
   );
 }

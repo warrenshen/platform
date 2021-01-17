@@ -39,6 +39,8 @@ function CurrentUserWrapper(props: { children: React.ReactNode }) {
   const [user, setUser] = useState<User>(blankUser);
   const [loadedToken, setLoadedToken] = useState(false);
 
+  const signedIn = !!(user.id && user.role);
+
   useEffect(() => {
     async function updateUser() {
       const accessToken = await getAccessToken();
@@ -102,6 +104,7 @@ function CurrentUserWrapper(props: { children: React.ReactNode }) {
     <CurrentUserContext.Provider
       value={{
         user,
+        signedIn,
         signIn,
         signOut,
       }}

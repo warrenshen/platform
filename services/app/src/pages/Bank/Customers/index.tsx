@@ -11,10 +11,10 @@ import {
 } from "@material-ui/core";
 import { useBankCustomersQuery } from "generated/graphql";
 import useAppBarTitle from "hooks/useAppBarTitle";
+import { bankRoutes } from "lib/routes";
 import { sortBy } from "lodash";
 import { Link, useRouteMatch } from "react-router-dom";
 import { useTitle } from "react-use";
-import { bankPaths } from "lib/routes";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -63,7 +63,7 @@ function Customers() {
                     size="small"
                     variant="outlined"
                     component={Link}
-                    to={`${url}/${customer.id}${bankPaths.customer.overview}`}
+                    to={`${url}/${customer.id}${bankRoutes.customer.overview}`}
                   >
                     See more
                   </Button>

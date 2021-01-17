@@ -8,7 +8,7 @@ import Typography from "@material-ui/core/Typography";
 import UserMenu from "components/Shared/User/UserMenu";
 import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
 import { PageContext } from "contexts/PageContext";
-import { bankPaths, routes } from "lib/routes";
+import { bankRoutes, customerRoutes, routes } from "lib/routes";
 import React, { useContext, useState } from "react";
 import { Link, matchPath, useLocation } from "react-router-dom";
 
@@ -51,11 +51,11 @@ const CUSTOMER_LEFT_NAV_ITEMS = [
   },
   {
     text: "Loans",
-    link: routes.loans,
+    link: customerRoutes.loans,
   },
   {
     text: "Purchase Orders",
-    link: routes.purchaseOrders,
+    link: customerRoutes.purchaseOrders,
   },
   {
     text: "Vendors",
@@ -77,16 +77,12 @@ const BANK_LEFT_NAV_ITEMS = [
     link: routes.overview,
   },
   {
-    text: "Loans",
-    link: routes.loans,
-  },
-  {
     text: "Vendors",
     link: routes.vendors,
   },
   {
     text: "Customers",
-    link: bankPaths.customers,
+    link: bankRoutes.customers,
   },
   {
     text: "Users",
@@ -94,7 +90,7 @@ const BANK_LEFT_NAV_ITEMS = [
   },
   {
     text: "Bank Accounts",
-    link: bankPaths.bankAccounts,
+    link: bankRoutes.bankAccounts,
   },
 ];
 

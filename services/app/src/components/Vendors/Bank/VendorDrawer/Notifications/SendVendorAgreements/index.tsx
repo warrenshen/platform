@@ -1,7 +1,6 @@
 import { Button } from "@material-ui/core";
 import ConfirmModal from "components/Shared/Confirmations/ConfirmModal";
 import { ContactFragment } from "generated/graphql";
-import { getAccessToken } from "lib/auth/tokenStorage";
 import {
   notifyTemplates,
   sendNotification,

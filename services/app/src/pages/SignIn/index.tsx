@@ -8,8 +8,9 @@ import {
   Theme,
 } from "@material-ui/core";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
+import { routes } from "lib/routes";
 import { useContext, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { useTitle } from "react-use";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -60,6 +61,7 @@ function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const { state }: any = useLocation();
   const history = useHistory();
 
   const onFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -67,7 +69,7 @@ function SignIn() {
     setError("");
     try {
       await signIn(email, password);
-      history.push(history.location);
+      history.push(state?.from || routes.root);
     } catch (err) {
       setError(
         "We encountered an error while attempting to sign in. Please try again!"

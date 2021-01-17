@@ -1,18 +1,21 @@
-// Frontend endpoints
+// Frontend routes
 
 export const routes = {
   root: "/",
+  signIn: "/sign-in",
   overview: "/overview",
-  loans: "/loans",
-  purchaseOrders: "/purchase-orders",
   vendors: "/vendors",
   profile: "/profile",
-  signIn: "/signIn",
   userProfile: "/user-profile",
   users: "/users",
 };
 
-export const bankPaths = {
+export const customerRoutes = {
+  loans: "/loans",
+  purchaseOrders: "/purchase-orders",
+};
+
+export const bankRoutes = {
   bankAccounts: "/bank-accounts",
   customers: "/customers",
   customer: {
