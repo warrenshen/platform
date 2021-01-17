@@ -1,7 +1,9 @@
+import datetime
 import json
 
 from bespoke.db import models
 from bespoke.db.models import session_scope
+from datetime import timezone
 from flask import request, make_response, current_app
 from flask import Response, Blueprint
 from flask.views import MethodView
@@ -17,6 +19,12 @@ handler = Blueprint('two_factor', __name__)
 
 def make_error_response(msg: str) -> Response:
 	return make_response(json.dumps({'status': 'ERROR', 'msg': msg}), 200)	
+
+def _now() -> datetime.datetime:
+	return datetime.datetime.now(timezone.utc)
+
+def _has_expired(expires_at: datetime.datetime) -> bool:
+	return _now() >= expires_at
 
 class GenerateCodeView(MethodView):
 
@@ -78,11 +86,12 @@ class GetSecureLinkView(MethodView):
 				return make_error_response('Link provided no longer exists')
 
 			expires_at = two_factor_link.expires_at
+			if _has_expired(expires_at):
+				return make_error_response('Link has expired')
+
 			form_info = two_factor_link.form_info
 
 		# Generate two-factor code upon someone visiting this link
-
-		# TODO: check expiration date of link
 
 		return make_response(json.dumps({
 			'status': 'OK',
@@ -125,6 +134,12 @@ class GetSecureLinkView(MethodView):
 			return make_error_response('Provided token value is not correct')
 
 		# Here's where you fetch the form information upon successful response.
+		# TODO(dlluncor): Grant access token to a token here, give it a limited
+		# sign in role.
+		# 'X-Hasura-User-Id': str,
+		# 'X-Hasura-Default-Role': str,
+		# 'X-Hasura-Allowed-Roles': List[str],
+		# 'X-Hasura-Company-Id': str # vendor_id
 
 		return make_response(json.dumps({
 			'status': 'OK',

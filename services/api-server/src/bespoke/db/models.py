@@ -42,9 +42,11 @@ class User(Base):
 
     if TYPE_CHECKING:
         def __init__(self, email: str, password: str, company_id: str = None) -> None:
+            self.id: uuid.UUID = None
             self.company_id: str = None
             self.password: str = None
             self.email: str = None
+            self.role: str = None
             self.__table__: Any = None
     else:
         id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)

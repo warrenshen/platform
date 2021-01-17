@@ -9,9 +9,10 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
 								get_jwt_identity, get_raw_jwt,
 								jwt_refresh_token_required, jwt_required)
 from passlib.hash import pbkdf2_sha256 as sha256
-from typing import cast
+from typing import cast, List
 
 from server.config import Config
+from server.views.common import auth_util
 
 handler = Blueprint('auth', __name__)
 
@@ -21,6 +22,8 @@ def make_error_response(msg: str, statusCode: int) -> Response:
 class SignUpView(MethodView):
 
 	def post(self) -> Response:
+		# TODO(dlluncor): Sign-up is not correct at all
+
 		cfg = cast(Config, current_app.app_config)
 		data = json.loads(request.data)
 		# TODO: demand minimum requirements for password strength
@@ -44,8 +47,8 @@ class SignUpView(MethodView):
 					return make_error_response('User {} already exists. Please choose another'.format(email), 200)
 				session.add(user)
 
-			access_token = create_access_token(identity=email)
-			refresh_token = create_refresh_token(identity=email)
+			access_token = create_access_token(identity=None)
+			refresh_token = create_refresh_token(identity=None)
 		except Exception as e:
 			return make_error_response('{}'.format(e), 200)
 
@@ -69,20 +72,15 @@ class SignInView(MethodView):
 			return make_error_response('No email or password provided', 401)
 
 		with session_scope(current_app.session_maker) as session:
-			user = session.query(models.User).filter(
-				models.User.email == email).first()
+			user = cast(models.User, session.query(models.User).filter(
+				models.User.email == email).first())
 			if not user:
 				return make_error_response('User {} does not exist'.format(email), 401)
 
 			if not sha256.verify(cfg.PASSWORD_SALT + password, user.password):
 				return make_error_response(f'Invalid password provided', 401)
 
-			claims_payload = {
-				'X-Hasura-User-Id': str(user.id),
-				'X-Hasura-Default-Role': user.role,
-				'X-Hasura-Allowed-Roles': [user.role],
-				'X-Hasura-Company-Id': str(user.company_id),
-			}
+			claims_payload = auth_util.get_claims_payload(user)
 			access_token = create_access_token(identity=claims_payload)
 			refresh_token = create_refresh_token(identity=claims_payload)
 
@@ -96,6 +94,8 @@ class SignInView(MethodView):
 class ResetPasswordView(MethodView):
 
 	def post(self) -> Response:
+		# TODO(dlluncor): Move this code over to use two-factor like in two_factor.py
+		# This needs to use a real flow.
 		cfg = cast(Config, current_app.app_config)
 		data = json.loads(request.data)
 		email = "admin@bespoke.com" # TODO(dlluncor) get it from HMAC token
@@ -113,12 +113,7 @@ class ResetPasswordView(MethodView):
 			user.password = sha256.hash(cfg.PASSWORD_SALT + password)
 			session.commit()
 
-			claims_payload = {
-				'X-Hasura-User-Id': str(user.id),
-				'X-Hasura-Default-Role': user.role,
-				'X-Hasura-Allowed-Roles': [user.role],
-				'X-Hasura-Company-Id': str(user.company_id),
-			}
+			claims_payload = auth_util.get_claims_payload(user)
 			access_token = create_access_token(identity=claims_payload)
 			refresh_token = create_refresh_token(identity=claims_payload)
 
@@ -180,15 +175,6 @@ class TokenRefreshView(MethodView):
 			'access_token': access_token
 		}), 200)
 
-
-class SecretView(MethodView):
-	# To test that you can get access to this endpoint when you pass a JWT token
-
-	@jwt_required
-	def get(self) -> Response:
-		return make_response(json.dumps({'hi': 'secret view', 'answer': 42}), 200)
-
-
 handler.add_url_rule(
 	'/sign-up', view_func=SignUpView.as_view(name='sign_up_view'))
 
@@ -206,6 +192,3 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/token/refresh', view_func=TokenRefreshView.as_view(name='token_refresh_view'))
-
-handler.add_url_rule(
-	'/secret', view_func=SecretView.as_view(name='secret_view'))

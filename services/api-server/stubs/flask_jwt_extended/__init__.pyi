@@ -1,14 +1,14 @@
 from flask import Response
 from typing import Union, Callable, Any, Dict
+from server.views.common import auth_util
 
-
-def create_access_token(identity: Union[str, Dict]) -> str:
+def create_access_token(identity: auth_util.UserPayloadDict) -> str:
 	pass
 
-def create_refresh_token(identity: Union[str, Dict]) -> str:
+def create_refresh_token(identity: auth_util.UserPayloadDict) -> str:
 	pass
 
-def get_jwt_identity() -> Dict:
+def get_jwt_identity() -> auth_util.UserPayloadDict:
 	pass
 
 def get_raw_jwt() -> Dict:

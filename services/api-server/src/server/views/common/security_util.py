@@ -15,6 +15,7 @@ LinkInfoDict = TypedDict('LinkInfoDict', {
 })
 
 def get_url_serializer(cfg: Config) -> URLSafeTimedSerializer:
+	# TODO(dlluncor): Check the expiration on this link
 	secret_key = cfg.URL_SECRET_KEY
 	signer_kwargs = dict(key_derivation='hmac', digest_method=hashlib.sha256)
 	return URLSafeTimedSerializer(
