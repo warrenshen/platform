@@ -19,9 +19,14 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-type GetSignedURLReq = {
+type FileInfo = {
   name: string;
+  size: number;
   content_type: string;
+};
+
+type GetSignedURLReq = {
+  file_info: FileInfo;
   company_id: string;
   doc_type: string;
 };
@@ -91,9 +96,9 @@ function FileUploadDropzone(props: Props) {
     if (uploadViaServer) {
       const options = {
         headers: {
-          "Content-Type": contentType,
-          FilePath: path,
-          Url: url,
+          "X-Bespoke-Content-Type": contentType,
+          "X-Bespoke-FilePath": path,
+          "X-Bespoke-Url": url,
         },
       };
       return authenticatedApi
@@ -140,8 +145,11 @@ function FileUploadDropzone(props: Props) {
   const onFileSubmit = useCallback(async () => {
     const processFile = async (file: any): Promise<UploadResponse> => {
       return getPutSignedUrl({
-        name: file.name,
-        content_type: file.type,
+        file_info: {
+          name: file.name,
+          content_type: file.type,
+          size: file.size,
+        },
         company_id: props.companyId,
         doc_type: props.docType,
       }).then((resp) => {

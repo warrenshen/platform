@@ -28,6 +28,7 @@ api.interceptors.request.use(async (config) => {
     ...config,
     headers: {
       Authorization: `Bearer ${token}`,
+      ...config.headers,
     },
   };
 });

@@ -8,7 +8,7 @@ from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, Callable, Generator, Dict
 
 import sqlalchemy
-from sqlalchemy import JSON, Boolean, Column, Float, Integer, String, DateTime
+from sqlalchemy import JSON, Boolean, Column, Float, Integer, String, DateTime, BigInteger, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import OperationalError, StatementError, TimeoutError
 from sqlalchemy.ext.declarative import declarative_base
@@ -120,6 +120,33 @@ class TwoFactorLink(Base):
         form_info = Column(JSON)
         expires_at = Column(DateTime, default=datetime.datetime.utcnow)
 
+class File(Base):
+    """
+            Two factor tokens for rendering pages when a user isnt signed in.
+    """
+    __tablename__ = 'files'
+
+    if TYPE_CHECKING:
+        def __init__(self, 
+            company_id: str, name: str, path: str, extension: str, 
+            size: int, mime_type: str, created_by_user_id: str) -> None:
+            self.__table__: Any = None
+            self.id: UUID = None
+            #self.token_states = token_states
+            #self.form_info = form_info
+            #self.expires_at = expires_at
+    else:
+        id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
+        sequential_id = Column(Integer)
+        company_id = Column(UUID)
+        name = Column(Text)
+        path = Column(Text)
+        extension = Column(Text)
+        size = Column(BigInteger)
+        mime_type = Column(Text)
+        created_by_user_id = Column(UUID)
+        created_at = Column(DateTime, default=datetime.datetime.utcnow)
+        updated_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 def get_db_url() -> str:
     return os.environ.get('DATABASE_URL')
