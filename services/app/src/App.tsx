@@ -13,12 +13,15 @@ import SignIn from "pages/SignIn";
 import UserProfile from "pages/UserProfile";
 import Users from "pages/Users";
 import Vendors from "pages/Vendors";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
+import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
+import { useLocation } from "react-use";
 
 function App() {
+  const { pathname } = useLocation();
   return (
     <BrowserRouter>
       <Switch>
+        <Redirect from="/:url*(/+)" to={pathname?.slice(0, -1) || "/"} />
         <Route exact path={routes.signIn}>
           <SignIn></SignIn>
         </Route>
