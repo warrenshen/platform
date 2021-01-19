@@ -1,5 +1,5 @@
 query ListApprovedPurchaseOrders {
-  purchase_orders(where: { status: { _eq: "approved" } }) {
+  purchase_orders(where: { status: { _eq: approved } }) {
     ...PurchaseOrder
   }
 }
@@ -20,7 +20,7 @@ query ListPurchaseOrderLoansForCustomer($companyId: uuid!) {
 
 query ApprovedPurchaseOrderLoans($companyId: uuid!) {
   purchase_order_loans(
-    where: { company_id: { _eq: $companyId }, status: { _eq: "approved" } }
+    where: { company_id: { _eq: $companyId }, status: { _eq: approved } }
   ) {
     ...PurchaseOrderLoan
   }

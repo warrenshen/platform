@@ -25,7 +25,7 @@ function BankAccounts({ companyId, bankAccounts }: Props) {
 
   return (
     <Box mt={4}>
-      <AddAccountButton></AddAccountButton>
+      <AddAccountButton companyId={companyId}></AddAccountButton>
       <Box display="flex" mt={2}>
         {accounts.map((account, index) => (
           <Box mr={2} key={index}>

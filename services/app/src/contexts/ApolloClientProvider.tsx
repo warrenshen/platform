@@ -81,6 +81,9 @@ const createApolloClient = (user: User) => {
         purchase_order_loan_payments: {
           keyFields: ["purchase_order_loan_id", "payment_id"],
         },
+        purchase_order_files: {
+          keyFields: ["purchase_order_id", "file_id"],
+        },
       },
     }),
     connectToDevTools: true,

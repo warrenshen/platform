@@ -161,16 +161,6 @@ function AccountForm(props: {
         )}
         {role === UserRole.BankAdmin && (
           <Box mt={2}>
-            <TextField
-              className={classes.form}
-              multiline
-              rows={2}
-              label="Notes"
-              value={bankAccount.notes}
-              onChange={({ target: { value } }) => {
-                setBankAccount({ ...bankAccount, notes: value });
-              }}
-            ></TextField>
             <FormControlLabel
               control={
                 <Checkbox
@@ -218,11 +208,6 @@ function AccountForm(props: {
                       bank_address: bankAccount.bank_address,
                       recipient_name: bankAccount.recipient_name,
                       recipient_address: bankAccount.recipient_address,
-                      notes:
-                        role === UserRole.CompanyAdmin
-                          ? undefined
-                          : bankAccount.notes,
-
                       verified_at:
                         role === UserRole.CompanyAdmin
                           ? undefined
@@ -248,11 +233,6 @@ function AccountForm(props: {
                       bank_address: bankAccount.bank_address,
                       recipient_name: bankAccount.recipient_name,
                       recipient_address: bankAccount.recipient_address,
-                      notes:
-                        role === UserRole.CompanyAdmin
-                          ? undefined
-                          : bankAccount.notes,
-
                       verified_at:
                         role === UserRole.CompanyAdmin
                           ? undefined

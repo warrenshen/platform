@@ -19,6 +19,7 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   ListPurchaseOrderLoansForCustomerDocument,
   PurchaseOrderLoansInsertInput,
+  RequestStatusEnum,
   useAddPurchaseOrderLoanMutation,
   useListApprovedPurchaseOrdersQuery,
 } from "generated/graphql";
@@ -80,7 +81,7 @@ function AddLoanModal(props: Props) {
           amount: loan.amount,
           maturity_date: dateInFifteenDays,
           adjusted_maturity_date: dateInFifteenDays,
-          status: "approved",
+          status: RequestStatusEnum.Approved,
         },
       },
       refetchQueries: [

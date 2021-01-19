@@ -32,7 +32,6 @@ fragment BankAccount on bank_accounts {
   can_wire
   recipient_name
   recipient_address
-  notes
   verified_at
 }
 

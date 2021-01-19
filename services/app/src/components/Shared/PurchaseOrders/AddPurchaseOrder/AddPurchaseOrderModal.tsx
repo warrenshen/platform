@@ -27,6 +27,7 @@ import {
   ListPurchaseOrdersDocument,
   PurchaseOrderFragment,
   PurchaseOrdersInsertInput,
+  RequestStatusEnum,
   useAddPurchaseOrderMutation,
   useListPurchaseOrderVendorsQuery,
   useUpdatePurchaseOrderMutation,
@@ -57,13 +58,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
-
-enum PurchaseOrderStatus {
-  Draft = "draft",
-  VendorApprovalRequested = "approval_requested",
-  ApprovedByVendor = "approved",
-  RejectedByVendor = "rejected",
-}
 
 interface Props {
   actionType: ActionType;
@@ -247,7 +241,6 @@ function AddPurchaseOrderModal({
                     order_date: purchaseOrder.order_date,
                     vendor_id: purchaseOrder.vendor_id,
                     amount: purchaseOrder.amount,
-                    status: PurchaseOrderStatus.Draft,
                   },
                 },
                 refetchQueries: [
@@ -268,7 +261,7 @@ function AddPurchaseOrderModal({
                     order_number: purchaseOrder.order_number,
                     vendor_id: purchaseOrder.vendor_id,
                     amount: purchaseOrder.amount,
-                    status: String(PurchaseOrderStatus.Draft),
+                    status: RequestStatusEnum.Drafted,
                   } as PurchaseOrdersInsertInput,
                 },
                 refetchQueries: [
