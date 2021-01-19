@@ -12,10 +12,10 @@ interface Props {
   onBespokeBankAccountSelection: (id: BankAccounts["id"]) => void;
 }
 
-function BespokeBank(props: Props) {
+function BespokeBank({ companyId, onBespokeBankAccountSelection }: Props) {
   const { data } = useBankAccountsForTransferQuery({
     variables: {
-      companyId: props.companyId,
+      companyId: companyId,
     },
   });
 
@@ -23,9 +23,12 @@ function BespokeBank(props: Props) {
     if (data?.companies_by_pk?.collections_bespoke_bank_account) {
       const id = data?.companies_by_pk?.collections_bespoke_bank_account.id;
       setBespokeBankAccountId(id);
-      props.onBespokeBankAccountSelection(id);
+      onBespokeBankAccountSelection(id);
     }
-  }, [data?.companies_by_pk?.collections_bespoke_bank_account]);
+  }, [
+    onBespokeBankAccountSelection,
+    data?.companies_by_pk?.collections_bespoke_bank_account,
+  ]);
 
   const [bespokeBankAccountId, setBespokeBankAccountId] = useState<
     BankAccounts["id"] | "None"
@@ -51,7 +54,7 @@ function BespokeBank(props: Props) {
           value={bespokeBankAccountId}
           onChange={({ target: { value } }) => {
             setBespokeBankAccountId(value);
-            props.onBespokeBankAccountSelection(value);
+            onBespokeBankAccountSelection(value);
           }}
         >
           <MenuItem key="none" value="None">

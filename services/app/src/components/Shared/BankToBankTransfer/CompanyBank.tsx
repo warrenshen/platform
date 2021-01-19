@@ -12,10 +12,10 @@ interface Props {
   onCompanyBankAccountSelection: (id: BankAccounts["id"]) => void;
 }
 
-function CompanyBank(props: Props) {
+function CompanyBank({ companyId, onCompanyBankAccountSelection }: Props) {
   const { data } = useListBankAccountsQuery({
     variables: {
-      companyId: props.companyId,
+      companyId: companyId,
     },
   });
 
@@ -27,9 +27,9 @@ function CompanyBank(props: Props) {
     if (data?.bank_accounts.length === 1) {
       const id = data?.bank_accounts[0].id;
       setCompanyBankAccountId(id);
-      props.onCompanyBankAccountSelection(id);
+      onCompanyBankAccountSelection(id);
     }
-  }, [data?.bank_accounts]);
+  }, [onCompanyBankAccountSelection, data?.bank_accounts]);
 
   if (!data || !data.bank_accounts) {
     return null;
@@ -52,7 +52,7 @@ function CompanyBank(props: Props) {
           value={companyBankAccountId}
           onChange={({ target: { value } }) => {
             setCompanyBankAccountId(value);
-            props.onCompanyBankAccountSelection(value);
+            onCompanyBankAccountSelection(value);
           }}
         >
           <MenuItem key="none" value="None">
