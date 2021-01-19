@@ -31,7 +31,11 @@ export interface Rules {
   [UserRolesEnum.CompanyAdmin]: Rule;
 }
 
-export const check = (role: UserRolesEnum, action: Action, data?: ActionData) => {
+export const check = (
+  role: UserRolesEnum,
+  action: Action,
+  data?: ActionData
+) => {
   const permissions = rules[role];
 
   if (!permissions) {

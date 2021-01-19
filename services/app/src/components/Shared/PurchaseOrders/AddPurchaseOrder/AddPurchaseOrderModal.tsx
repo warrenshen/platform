@@ -2,12 +2,14 @@ import DateFnsUtils from "@date-io/date-fns";
 import {
   Box,
   Button,
+  Checkbox,
   createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControl,
+  FormControlLabel,
   Input,
   InputAdornment,
   InputLabel,
@@ -34,7 +36,7 @@ import {
 } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
 import { ActionType } from "lib/ActionType";
-import { useContext, useState } from "react";
+import { ChangeEvent, useContext, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -218,6 +220,18 @@ function AddPurchaseOrderModal({
                 }
               />
             </FormControl>
+          </Box>
+          <Box mt={3}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={true}
+                  onChange={(event: ChangeEvent<HTMLInputElement>) => {}}
+                  color="primary"
+                />
+              }
+              label={"Order includes cannabis or derivatives"}
+            />
           </Box>
         </Box>
       </DialogContent>
