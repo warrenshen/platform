@@ -1,10 +1,11 @@
-import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
+import { UserRolesEnum } from "generated/graphql";
 import { routes } from "lib/routes";
 import { useContext } from "react";
 import { Redirect, Route, RouteProps } from "react-router-dom";
 
 interface Props {
-  requiredRoles?: Array<UserRole>;
+  requiredRoles?: Array<UserRolesEnum>;
 }
 
 function PrivateRoute(props: Props & RouteProps) {

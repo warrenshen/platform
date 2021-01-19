@@ -1,4 +1,5 @@
-import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
+import { UserRolesEnum } from "generated/graphql";
 import useAppBarTitle from "hooks/useAppBarTitle";
 import { useContext } from "react";
 import { useTitle } from "react-use";
@@ -12,7 +13,7 @@ function Home() {
   return (
     <div>
       {`Dashboard for ${
-        user.role === UserRole.BankAdmin ? "BANK USER" : "CUSTOMER USER"
+        user.role === UserRolesEnum.BankAdmin ? "BANK USER" : "CUSTOMER USER"
       }`}
     </div>
   );

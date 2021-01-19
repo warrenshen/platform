@@ -6,8 +6,7 @@ import PurchaseOrders from "components/Bank/Customer/PurchaseOrders";
 import Users from "components/Bank/Customer/Users";
 import Vendors from "components/Bank/Customer/Vendors";
 import PrivateRoute from "components/Shared/PrivateRoute";
-import { UserRole } from "contexts/CurrentUserContext";
-import { useBankCustomerQuery } from "generated/graphql";
+import { useBankCustomerQuery, UserRolesEnum } from "generated/graphql";
 import useAppBarTitle from "hooks/useAppBarTitle";
 import { bankRoutes } from "lib/routes";
 import { findIndex } from "lodash";
@@ -101,7 +100,11 @@ function Customer() {
         </Tabs>
       </Paper>
       <Box pt={2}>
-        <PrivateRoute exact path={path} requiredRoles={[UserRole.BankAdmin]}>
+        <PrivateRoute
+          exact
+          path={path}
+          requiredRoles={[UserRolesEnum.BankAdmin]}
+        >
           <Overview></Overview>
         </PrivateRoute>
         {customerPaths.map((customerPath, index) => {
@@ -109,7 +112,7 @@ function Customer() {
             <PrivateRoute
               key={index}
               path={`${path}${customerPath.path}`}
-              requiredRoles={[UserRole.BankAdmin]}
+              requiredRoles={[UserRolesEnum.BankAdmin]}
             >
               {customerPath.component()}
             </PrivateRoute>

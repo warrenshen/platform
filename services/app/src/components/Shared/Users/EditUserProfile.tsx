@@ -10,7 +10,11 @@ import {
   TextField,
   Theme,
 } from "@material-ui/core";
-import { UserFragment, useUpdateUserMutation } from "generated/graphql";
+import {
+  UserFragment,
+  UserRolesEnum,
+  useUpdateUserMutation,
+} from "generated/graphql";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -110,9 +114,20 @@ function EditUserProfile({
             className={classes.usersInput}
             value={userProfile.role}
             onChange={({ target: { value } }) => {
+              let roleEnum = null;
+              if (value === UserRolesEnum.BankAdmin) {
+                roleEnum = UserRolesEnum.BankAdmin;
+              } else if (value === UserRolesEnum.CompanyAdmin) {
+                roleEnum = UserRolesEnum.CompanyAdmin;
+              }
+
+              if (!roleEnum) {
+                return;
+              }
+
               setUserProfile({
                 ...userProfile,
-                role: value,
+                role: roleEnum,
               });
             }}
           ></TextField>

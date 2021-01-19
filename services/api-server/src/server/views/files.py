@@ -27,14 +27,20 @@ FileInfoDict = TypedDict('FileInfoDict', {
 	'size': int
 })
 
+FileInDBDict = TypedDict('FileInDBDict', {
+	'id': str,
+	'path': str
+})
+
 def make_error_response(msg: str) -> Response:
 	return make_response(json.dumps({'status': 'ERROR', 'msg': msg}), 200)	
 
 def _save_file_to_db(
-	session_maker: Callable, file_info: FileInfoDict, company_id: str, path: str, cur_user: UserPayloadDict) -> None:
+	session_maker: Callable, file_info: FileInfoDict, company_id: str, 
+	path: str, cur_user: UserPayloadDict) -> FileInDBDict:
 		_, ext = os.path.splitext(file_info['name'])
 		with session_scope(session_maker) as session:
-			session.add(models.File(
+			file_orm = models.File(
 		        company_id=company_id,
 		        name=file_info['name'],
 		        path=path,
@@ -42,7 +48,13 @@ def _save_file_to_db(
 		        size=file_info['size'],
 		        mime_type=file_info['content_type'],
 		        created_by_user_id=cur_user['X-Hasura-User-Id']
-			))
+			)
+			session.add(file_orm)
+			session.flush()
+			return FileInDBDict(
+				id=file_orm.id,
+				path=file_orm.path
+			)
 
 
 class PutSignedUrlView(MethodView):
@@ -88,12 +100,13 @@ class PutSignedUrlView(MethodView):
 			upload_via_server = True
 
 		# Keep track of the file, we assume the upload to S3 will succeed.
-		_save_file_to_db(current_app.session_maker, file_info, company_id, path, cur_user)
+		file_in_db_dict = _save_file_to_db(
+			current_app.session_maker, file_info, company_id, path, cur_user)
 
 		return make_response(json.dumps({
 			'status': 'OK',
 			'url': url,
-			'path': path,
+			'file_in_db': file_in_db_dict,
 			'upload_via_server': upload_via_server
 		}), 200)
 

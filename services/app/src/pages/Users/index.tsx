@@ -1,11 +1,12 @@
 import { Box, Button } from "@material-ui/core";
 import InviteUserModal from "components/Shared/Users/InviteUserModal";
 import ListUsers from "components/Shared/Users/ListUsers";
-import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   useListUsersByCompanyIdQuery,
   useListUsersByRoleQuery,
   UserFragment,
+  UserRolesEnum,
 } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
 import useAppBarTitle from "hooks/useAppBarTitle";
@@ -31,7 +32,7 @@ function Users() {
   });
 
   const users: Maybe<UserFragment[]> =
-    currentUserFromContext.user.role === UserRole.BankAdmin
+    currentUserFromContext.user.role === UserRolesEnum.BankAdmin
       ? bankUsers?.users
       : customerUsers?.users;
 
@@ -40,7 +41,7 @@ function Users() {
       {open && (
         <InviteUserModal
           companyId={
-            currentUserFromContext.user.role === UserRole.BankAdmin
+            currentUserFromContext.user.role === UserRolesEnum.BankAdmin
               ? undefined
               : currentUserFromContext.user.companyId
           }

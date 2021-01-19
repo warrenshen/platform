@@ -6,7 +6,7 @@ import {
   makeStyles,
   TextField,
 } from "@material-ui/core";
-import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   BankAccountFragment,
   BankAccountsDocument,
@@ -15,6 +15,7 @@ import {
   CompanyBankAccountsDocument,
   CompanyDocument,
   useAddBankAccountMutation,
+  UserRolesEnum,
   useUpdateBankAccountMutation,
 } from "generated/graphql";
 import { timestamptzNow } from "lib/time";
@@ -159,7 +160,7 @@ function AccountForm(props: {
             ></TextField>
           </Box>
         )}
-        {role === UserRole.BankAdmin && (
+        {role === UserRolesEnum.BankAdmin && (
           <Box mt={2}>
             <FormControlLabel
               control={
@@ -209,7 +210,7 @@ function AccountForm(props: {
                       recipient_name: bankAccount.recipient_name,
                       recipient_address: bankAccount.recipient_address,
                       verified_at:
-                        role === UserRole.CompanyAdmin
+                        role === UserRolesEnum.CompanyAdmin
                           ? undefined
                           : bankAccount.verified_at,
                     },
@@ -234,11 +235,11 @@ function AccountForm(props: {
                       recipient_name: bankAccount.recipient_name,
                       recipient_address: bankAccount.recipient_address,
                       verified_at:
-                        role === UserRole.CompanyAdmin
+                        role === UserRolesEnum.CompanyAdmin
                           ? undefined
                           : bankAccount.verified_at,
                       company_id:
-                        role === UserRole.BankAdmin
+                        role === UserRolesEnum.BankAdmin
                           ? props.companyId
                           : undefined,
                     },

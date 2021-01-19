@@ -1,16 +1,11 @@
 import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
-import { Users } from "generated/graphql";
+import { UserRolesEnum, Users } from "generated/graphql";
 import { createContext } from "react";
-
-export enum UserRole {
-  BankAdmin = "bank_admin",
-  CompanyAdmin = "company_admin",
-}
 
 export type User = {
   id: Users["id"];
   companyId: Users["company_id"];
-  role: UserRole;
+  role: UserRolesEnum;
 };
 
 export type CurrentUserContextType = {
@@ -24,7 +19,7 @@ export const CurrentUserContext = createContext<CurrentUserContextType>({
   user: {
     id: "",
     companyId: "",
-    role: UserRole.CompanyAdmin,
+    role: UserRolesEnum.CompanyAdmin,
   },
   signedIn: false,
   signIn: () => {},

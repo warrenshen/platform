@@ -13,8 +13,10 @@ import { useDropzone } from "react-dropzone";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     dropzone: {
-      border: "1px solid black",
+      border: "1px dotted black",
       textAlign: "center",
+      height: 100,
+      width: 600,
     },
   })
 );
@@ -31,11 +33,16 @@ type GetSignedURLReq = {
   doc_type: string;
 };
 
+type FileInDB = {
+  id: string;
+  path: string;
+};
+
 type GetSignedURLResponse = {
   status: string;
   msg?: string;
+  file_in_db: FileInDB;
   url?: string;
-  path?: string;
   upload_via_server?: boolean;
 };
 
@@ -159,7 +166,7 @@ function FileUploadDropzone(props: Props) {
         return uploadFile(
           file,
           resp.url || "",
-          resp.path || "",
+          resp.file_in_db?.path || "",
           resp.upload_via_server || false
         ).then((uploadResp) => {
           return uploadResp;
@@ -205,13 +212,20 @@ function FileUploadDropzone(props: Props) {
   }, [files, props]);
 
   return (
-    <div>
-      <div {...getRootProps()} className={classes.dropzone}>
+    <Box
+      mt={1}
+      mb={2}
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      className={classes.dropzone}
+    >
+      <div {...getRootProps()}>
         <input {...getInputProps()} />
         {isDragActive ? (
           <p>Drop the files here ...</p>
         ) : (
-          <p>Drag 'n' drop some files here, or click here to select</p>
+          <p>Drag-and-drop files here, or click here to select</p>
         )}
       </div>
 
@@ -226,7 +240,7 @@ function FileUploadDropzone(props: Props) {
           Save Files
         </Button>
       )}
-    </div>
+    </Box>
   );
 }
 

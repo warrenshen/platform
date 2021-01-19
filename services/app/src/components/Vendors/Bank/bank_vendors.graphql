@@ -20,6 +20,12 @@ fragment BankVendorPartnership on company_vendor_partnerships {
   vendor_license_id
 }
 
+fragment CompanyVendorAgreement on vendor_agreements {
+  company_id
+  vendor_id
+  agreement_file_id
+}
+
 fragment BankAccount on bank_accounts {
   id
   company_id
@@ -101,5 +107,13 @@ mutation ChangeBankAccount(
 mutation UpdateVendorInfo($id: uuid!, $company: companies_set_input!) {
   update_companies_by_pk(pk_columns: { id: $id }, _set: $company) {
     ...Vendor
+  }
+}
+
+mutation AddCompanyVendorAgreement(
+  $vendorAgreement: vendor_agreements_insert_input!
+) {
+  insert_vendor_agreements_one(object: $vendorAgreement) {
+    ...CompanyVendorAgreement
   }
 }

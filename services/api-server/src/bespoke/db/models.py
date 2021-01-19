@@ -132,6 +132,7 @@ class File(Base):
             size: int, mime_type: str, created_by_user_id: str) -> None:
             self.__table__: Any = None
             self.id: UUID = None
+            self.path: str = None
             #self.token_states = token_states
             #self.form_info = form_info
             #self.expires_at = expires_at

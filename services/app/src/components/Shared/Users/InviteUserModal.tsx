@@ -14,7 +14,6 @@ import {
   TextField,
   Theme,
 } from "@material-ui/core";
-import { UserRole } from "contexts/CurrentUserContext";
 import {
   ListUsersByCompanyIdDocument,
   ListUsersByCompanyIdQuery,
@@ -24,6 +23,7 @@ import {
   ListUsersByRoleQueryVariables,
   useAddUserMutation,
   UserFragment,
+  UserRolesEnum,
   UsersInsertInput,
 } from "generated/graphql";
 import { useState } from "react";
@@ -59,7 +59,7 @@ function InviteUserModal({ companyId, handleClose }: Props) {
   const [user, setUser] = useState<UsersInsertInput>({
     company_id: companyId,
     phone_number: "",
-    role: "",
+    role: null,
     email: "",
     first_name: "",
     full_name: "",
@@ -81,17 +81,17 @@ function InviteUserModal({ companyId, handleClose }: Props) {
               labelId="user-role-select-label"
               value={user?.role}
               onChange={({ target: { value } }) => {
-                setUser({ ...user, role: value as string });
+                setUser({ ...user, role: value as UserRolesEnum });
               }}
             >
               {!companyId && (
-                <MenuItem value={UserRole.BankAdmin}>
-                  {UserRole.BankAdmin}
+                <MenuItem value={UserRolesEnum.BankAdmin}>
+                  {UserRolesEnum.BankAdmin}
                 </MenuItem>
               )}
               {companyId && (
-                <MenuItem value={UserRole.CompanyAdmin}>
-                  {UserRole.CompanyAdmin}
+                <MenuItem value={UserRolesEnum.CompanyAdmin}>
+                  {UserRolesEnum.CompanyAdmin}
                 </MenuItem>
               )}
             </Select>
@@ -175,7 +175,7 @@ function InviteUserModal({ companyId, handleClose }: Props) {
                     ListUsersByRoleQueryVariables
                   >({
                     query: ListUsersByRoleDocument,
-                    variables: { role: user?.role ? user?.role : "" },
+                    variables: { role: user?.role ? user?.role : null },
                   });
 
                   if (
@@ -191,7 +191,7 @@ function InviteUserModal({ companyId, handleClose }: Props) {
                     ListUsersByRoleQueryVariables
                   >({
                     query: ListUsersByRoleDocument,
-                    variables: { role: user?.role ? user?.role : "" },
+                    variables: { role: user?.role ? user?.role : null },
                     data: {
                       users: [
                         ...dataUsersByRole?.users,

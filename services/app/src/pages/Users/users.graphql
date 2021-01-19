@@ -1,4 +1,4 @@
-query ListUsersByRole($role: String!) {
+query ListUsersByRole($role: user_roles_enum) {
   users(where: { role: { _eq: $role } }) {
     ...User
   }

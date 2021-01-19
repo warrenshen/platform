@@ -1,11 +1,8 @@
 import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
 import * as Sentry from "@sentry/react";
 import axios from "axios";
-import {
-  CurrentUserContext,
-  User,
-  UserRole,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext, User } from "contexts/CurrentUserContext";
+import { UserRolesEnum } from "generated/graphql";
 import JwtDecode from "jwt-decode";
 import { authenticatedApi, authRoutes, unAuthenticatedApi } from "lib/api";
 import {
@@ -21,7 +18,7 @@ import { useCallback, useEffect, useState } from "react";
 const blankUser = {
   id: "",
   companyId: "",
-  role: UserRole.CompanyAdmin,
+  role: UserRolesEnum.CompanyAdmin,
 };
 
 const JWT_CLAIMS_KEY = "https://hasura.io/jwt/claims";

@@ -1,6 +1,6 @@
 import Layout from "components/Shared/Layout";
 import PrivateRoute from "components/Shared/PrivateRoute";
-import { UserRole } from "contexts/CurrentUserContext";
+import { UserRolesEnum } from "generated/graphql";
 import { bankRoutes, customerRoutes, routes } from "lib/routes";
 import BankAccounts from "pages/Bank/BankAccounts";
 import Customer from "pages/Bank/Customer";
@@ -48,14 +48,14 @@ function App() {
           <PrivateRoute
             exact
             path={customerRoutes.loans}
-            requiredRoles={[UserRole.CompanyAdmin]}
+            requiredRoles={[UserRolesEnum.CompanyAdmin]}
           >
             <LoansPage></LoansPage>
           </PrivateRoute>
           <PrivateRoute
             exact
             path={customerRoutes.purchaseOrders}
-            requiredRoles={[UserRole.CompanyAdmin]}
+            requiredRoles={[UserRolesEnum.CompanyAdmin]}
           >
             <PurchaseOrdersPage></PurchaseOrdersPage>
           </PrivateRoute>
@@ -63,20 +63,20 @@ function App() {
           <PrivateRoute
             exact
             path={bankRoutes.customers}
-            requiredRoles={[UserRole.BankAdmin]}
+            requiredRoles={[UserRolesEnum.BankAdmin]}
           >
             <Customers></Customers>
           </PrivateRoute>
           <PrivateRoute
             path={bankRoutes.customer.root}
-            requiredRoles={[UserRole.BankAdmin]}
+            requiredRoles={[UserRolesEnum.BankAdmin]}
           >
             <Customer></Customer>
           </PrivateRoute>
           <PrivateRoute
             exact
             path={bankRoutes.bankAccounts}
-            requiredRoles={[UserRole.BankAdmin]}
+            requiredRoles={[UserRolesEnum.BankAdmin]}
           >
             <BankAccounts></BankAccounts>
           </PrivateRoute>

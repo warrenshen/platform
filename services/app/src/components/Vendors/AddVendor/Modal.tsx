@@ -12,14 +12,15 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import { CustomerParams } from "pages/Bank/Customer";
-import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   CompaniesInsertInput,
   ListVendorPartnershipsDocument,
   useAddVendorPartnershipMutation,
+  UserRolesEnum,
   UsersInsertInput,
 } from "generated/graphql";
+import { CustomerParams } from "pages/Bank/Customer";
 import { useContext, useState } from "react";
 import { useParams } from "react-router-dom";
 
@@ -150,12 +151,12 @@ function RegisterVendorModal(props: Props) {
                 variables: {
                   vendorPartnership: {
                     company_id:
-                      role === UserRole.BankAdmin ? companyId : undefined,
+                      role === UserRolesEnum.BankAdmin ? companyId : undefined,
                     vendor: {
                       data: {
                         ...vendor,
                         is_vendor:
-                          role === UserRole.BankAdmin ? true : undefined,
+                          role === UserRolesEnum.BankAdmin ? true : undefined,
                         users: {
                           data: [{ ...contact }],
                         },

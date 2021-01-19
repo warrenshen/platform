@@ -1,4 +1,4 @@
-import { UserRole } from "contexts/CurrentUserContext";
+import { UserRolesEnum } from "generated/graphql";
 
 // inspired by https://auth0.com/blog/role-based-access-control-rbac-and-react-apps/
 
@@ -27,11 +27,11 @@ export interface Rule {
   dynamic: Array<DynamicAction>;
 }
 export interface Rules {
-  [UserRole.BankAdmin]: Rule;
-  [UserRole.CompanyAdmin]: Rule;
+  [UserRolesEnum.BankAdmin]: Rule;
+  [UserRolesEnum.CompanyAdmin]: Rule;
 }
 
-export const check = (role: UserRole, action: Action, data?: ActionData) => {
+export const check = (role: UserRolesEnum, action: Action, data?: ActionData) => {
   const permissions = rules[role];
 
   if (!permissions) {
@@ -58,7 +58,7 @@ export const check = (role: UserRole, action: Action, data?: ActionData) => {
 };
 
 const rules: Rules = {
-  [UserRole.CompanyAdmin]: {
+  [UserRolesEnum.CompanyAdmin]: {
     static: [
       Action.AddPurchaseOrders,
       Action.ManipulatePurchaseOrders,
@@ -74,7 +74,7 @@ const rules: Rules = {
       },
     ],
   },
-  [UserRole.BankAdmin]: {
+  [UserRolesEnum.BankAdmin]: {
     static: [
       Action.AssignBespokeBankAccountForCustomer,
       Action.DisbursePurchaseOrderLoans,

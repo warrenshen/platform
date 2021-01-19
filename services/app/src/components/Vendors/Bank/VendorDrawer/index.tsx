@@ -1,6 +1,7 @@
 import { Box, Drawer, makeStyles, Typography } from "@material-ui/core";
 import AdvancesBank from "components/Shared/BespokeBankAssignment/AdvancesBank";
 import CollectionsBank from "components/Shared/BespokeBankAssignment/CollectionsBank";
+import FileUploadDropzone from "components/Shared/FileUploadDropzone";
 import BankAccount from "components/Vendors/Bank/VendorDrawer/BankAccount";
 import Contacts from "components/Vendors/Bank/VendorDrawer/Contacts";
 import VendorInfo from "components/Vendors/Bank/VendorDrawer/VendorInfo";
@@ -22,11 +23,7 @@ const useStyles = makeStyles({
   addressForm: {
     width: 600,
   },
-  fileDropbox: {
-    border: "1px dotted black",
-    height: 100,
-    width: 600,
-  },
+  fileDropbox: {},
 });
 
 function VendorDrawer(props: {
@@ -102,9 +99,14 @@ function VendorDrawer(props: {
           display="flex"
           alignItems="center"
           justifyContent="center"
-          className={classes.fileDropbox}
         >
-          <Box>Upload</Box>
+          <FileUploadDropzone
+            companyId={vendor.id}
+            docType="company_license"
+            onUploadComplete={(resp) => {
+              console.log(resp);
+            }}
+          ></FileUploadDropzone>
         </Box>
         <Typography variant="h6"> Notifications </Typography>
         <Box mt={1} mb={2}>

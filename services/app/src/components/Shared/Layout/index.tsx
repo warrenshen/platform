@@ -6,8 +6,9 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import UserMenu from "components/Shared/User/UserMenu";
-import { CurrentUserContext, UserRole } from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { PageContext } from "contexts/PageContext";
+import { UserRolesEnum } from "generated/graphql";
 import { bankRoutes, customerRoutes, routes } from "lib/routes";
 import React, { useContext, useState } from "react";
 import { Link, matchPath, useLocation } from "react-router-dom";
@@ -101,7 +102,7 @@ function Layout(props: { children: React.ReactNode }) {
   const [appBarTitle, setAppBarTitle] = useState<React.ReactNode | string>("");
 
   const leftNavOptions =
-    user.role === UserRole.BankAdmin
+    user.role === UserRolesEnum.BankAdmin
       ? BANK_LEFT_NAV_ITEMS
       : CUSTOMER_LEFT_NAV_ITEMS;
 
