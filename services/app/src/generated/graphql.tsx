@@ -4177,7 +4177,7 @@ export enum PurchaseOrderLoanPaymentsUpdateColumn {
 /** columns and relationships of "purchase_order_loans" */
 export type PurchaseOrderLoans = {
   adjusted_maturity_date?: Maybe<Scalars['date']>;
-  amount: Scalars['numeric'];
+  amount?: Maybe<Scalars['numeric']>;
   amount_owed: Scalars['numeric'];
   closed_at?: Maybe<Scalars['timestamptz']>;
   /** An object relationship */
@@ -4185,6 +4185,7 @@ export type PurchaseOrderLoans = {
   company_id: Scalars['uuid'];
   id: Scalars['uuid'];
   maturity_date?: Maybe<Scalars['date']>;
+  origination_date?: Maybe<Scalars['date']>;
   outstanding_principal_balance: Scalars['numeric'];
   /** An array relationship */
   payments: Array<PurchaseOrderLoanPayments>;
@@ -4296,6 +4297,7 @@ export type PurchaseOrderLoansBoolExp = {
   company_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   maturity_date?: Maybe<DateComparisonExp>;
+  origination_date?: Maybe<DateComparisonExp>;
   outstanding_principal_balance?: Maybe<NumericComparisonExp>;
   payments?: Maybe<PurchaseOrderLoanPaymentsBoolExp>;
   purchase_order?: Maybe<PurchaseOrdersBoolExp>;
@@ -4329,6 +4331,7 @@ export type PurchaseOrderLoansInsertInput = {
   company_id?: Maybe<Scalars['uuid']>;
   id?: Maybe<Scalars['uuid']>;
   maturity_date?: Maybe<Scalars['date']>;
+  origination_date?: Maybe<Scalars['date']>;
   outstanding_principal_balance?: Maybe<Scalars['numeric']>;
   payments?: Maybe<PurchaseOrderLoanPaymentsArrRelInsertInput>;
   purchase_order?: Maybe<PurchaseOrdersObjRelInsertInput>;
@@ -4348,6 +4351,7 @@ export type PurchaseOrderLoansMaxFields = {
   company_id?: Maybe<Scalars['uuid']>;
   id?: Maybe<Scalars['uuid']>;
   maturity_date?: Maybe<Scalars['date']>;
+  origination_date?: Maybe<Scalars['date']>;
   outstanding_principal_balance?: Maybe<Scalars['numeric']>;
   purchase_order_id?: Maybe<Scalars['uuid']>;
   requested_at?: Maybe<Scalars['timestamptz']>;
@@ -4363,6 +4367,7 @@ export type PurchaseOrderLoansMaxOrderBy = {
   company_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   maturity_date?: Maybe<OrderBy>;
+  origination_date?: Maybe<OrderBy>;
   outstanding_principal_balance?: Maybe<OrderBy>;
   purchase_order_id?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
@@ -4378,6 +4383,7 @@ export type PurchaseOrderLoansMinFields = {
   company_id?: Maybe<Scalars['uuid']>;
   id?: Maybe<Scalars['uuid']>;
   maturity_date?: Maybe<Scalars['date']>;
+  origination_date?: Maybe<Scalars['date']>;
   outstanding_principal_balance?: Maybe<Scalars['numeric']>;
   purchase_order_id?: Maybe<Scalars['uuid']>;
   requested_at?: Maybe<Scalars['timestamptz']>;
@@ -4393,6 +4399,7 @@ export type PurchaseOrderLoansMinOrderBy = {
   company_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   maturity_date?: Maybe<OrderBy>;
+  origination_date?: Maybe<OrderBy>;
   outstanding_principal_balance?: Maybe<OrderBy>;
   purchase_order_id?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
@@ -4430,6 +4437,7 @@ export type PurchaseOrderLoansOrderBy = {
   company_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   maturity_date?: Maybe<OrderBy>;
+  origination_date?: Maybe<OrderBy>;
   outstanding_principal_balance?: Maybe<OrderBy>;
   payments_aggregate?: Maybe<PurchaseOrderLoanPaymentsAggregateOrderBy>;
   purchase_order?: Maybe<PurchaseOrdersOrderBy>;
@@ -4462,6 +4470,8 @@ export enum PurchaseOrderLoansSelectColumn {
   /** column name */
   MaturityDate = 'maturity_date',
   /** column name */
+  OriginationDate = 'origination_date',
+  /** column name */
   OutstandingPrincipalBalance = 'outstanding_principal_balance',
   /** column name */
   PurchaseOrderId = 'purchase_order_id',
@@ -4482,6 +4492,7 @@ export type PurchaseOrderLoansSetInput = {
   company_id?: Maybe<Scalars['uuid']>;
   id?: Maybe<Scalars['uuid']>;
   maturity_date?: Maybe<Scalars['date']>;
+  origination_date?: Maybe<Scalars['date']>;
   outstanding_principal_balance?: Maybe<Scalars['numeric']>;
   purchase_order_id?: Maybe<Scalars['uuid']>;
   requested_at?: Maybe<Scalars['timestamptz']>;
@@ -4561,6 +4572,8 @@ export enum PurchaseOrderLoansUpdateColumn {
   Id = 'id',
   /** column name */
   MaturityDate = 'maturity_date',
+  /** column name */
+  OriginationDate = 'origination_date',
   /** column name */
   OutstandingPrincipalBalance = 'outstanding_principal_balance',
   /** column name */
@@ -7606,7 +7619,7 @@ export type ListApprovedPurchaseOrdersQueryVariables = Exact<{ [key: string]: ne
 export type ListApprovedPurchaseOrdersQuery = { purchase_orders: Array<PurchaseOrderFragment> };
 
 export type AddPurchaseOrderLoanMutationVariables = Exact<{
-  purchaseOrder: PurchaseOrderLoansInsertInput;
+  purchaseOrderLoan: PurchaseOrderLoansInsertInput;
 }>;
 
 
@@ -7718,7 +7731,7 @@ export type SubmitDisbursementMutation = { insert_purchase_order_loan_payments_o
 
 export type PurchaseOrderLoanPaymentFragment = Pick<PurchaseOrderLoanPayments, 'purchase_order_loan_id' | 'payment_id'>;
 
-export type PurchaseOrderLoanFragment = Pick<PurchaseOrderLoans, 'id' | 'amount' | 'status' | 'maturity_date' | 'adjusted_maturity_date'>;
+export type PurchaseOrderLoanFragment = Pick<PurchaseOrderLoans, 'id' | 'status' | 'amount' | 'origination_date' | 'maturity_date' | 'adjusted_maturity_date'>;
 
 export type PurchaseOrderLoanQueryVariables = Exact<{
   id: Scalars['uuid'];
@@ -8061,8 +8074,9 @@ export const PurchaseOrderLoanPaymentFragmentDoc = gql`
 export const PurchaseOrderLoanFragmentDoc = gql`
     fragment PurchaseOrderLoan on purchase_order_loans {
   id
-  amount
   status
+  amount
+  origination_date
   maturity_date
   adjusted_maturity_date
 }
@@ -8277,8 +8291,8 @@ export type ListApprovedPurchaseOrdersQueryHookResult = ReturnType<typeof useLis
 export type ListApprovedPurchaseOrdersLazyQueryHookResult = ReturnType<typeof useListApprovedPurchaseOrdersLazyQuery>;
 export type ListApprovedPurchaseOrdersQueryResult = Apollo.QueryResult<ListApprovedPurchaseOrdersQuery, ListApprovedPurchaseOrdersQueryVariables>;
 export const AddPurchaseOrderLoanDocument = gql`
-    mutation AddPurchaseOrderLoan($purchaseOrder: purchase_order_loans_insert_input!) {
-  insert_purchase_order_loans_one(object: $purchaseOrder) {
+    mutation AddPurchaseOrderLoan($purchaseOrderLoan: purchase_order_loans_insert_input!) {
+  insert_purchase_order_loans_one(object: $purchaseOrderLoan) {
     ...PurchaseOrderLoan
   }
 }
@@ -8298,7 +8312,7 @@ export type AddPurchaseOrderLoanMutationFn = Apollo.MutationFunction<AddPurchase
  * @example
  * const [addPurchaseOrderLoanMutation, { data, loading, error }] = useAddPurchaseOrderLoanMutation({
  *   variables: {
- *      purchaseOrder: // value for 'purchaseOrder'
+ *      purchaseOrderLoan: // value for 'purchaseOrderLoan'
  *   },
  * });
  */

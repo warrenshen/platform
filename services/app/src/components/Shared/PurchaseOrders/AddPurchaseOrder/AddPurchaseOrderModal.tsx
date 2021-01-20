@@ -86,6 +86,7 @@ function AddPurchaseOrderModal({
   });
   const vendors = vendorsData?.vendors;
 
+  // Default PurchaseOrder for CREATE case.
   const purchaseOrderForm = {
     company_id: companyId,
     vendor_id: "",
@@ -93,6 +94,7 @@ function AddPurchaseOrderModal({
     delivery_date: "",
     order_number: "",
     amount: "",
+    status: RequestStatusEnum.Drafted,
   } as PurchaseOrderFragment;
   const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrderFragment>({
     ...purchaseOrderForm,

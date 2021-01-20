@@ -56,8 +56,8 @@ function ListPurchaseOrders({ companyId, manipulatePurchaseOrder }: Props) {
 
   const columns: ColDef[] = [
     {
-      field: "vendor_name",
-      headerName: "Vendor",
+      field: "id",
+      headerName: "ID",
       width: 200,
     },
     {
@@ -67,6 +67,11 @@ function ListPurchaseOrders({ companyId, manipulatePurchaseOrder }: Props) {
       renderCell: (params: ValueFormatterParams) => (
         <Status statusValue={params.value as string} />
       ),
+    },
+    {
+      field: "vendor_name",
+      headerName: "Vendor",
+      width: 200,
     },
     {
       field: "order_number",

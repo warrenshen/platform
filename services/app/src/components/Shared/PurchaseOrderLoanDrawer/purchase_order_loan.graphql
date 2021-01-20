@@ -5,8 +5,9 @@ fragment PurchaseOrderLoanPayment on purchase_order_loan_payments {
 
 fragment PurchaseOrderLoan on purchase_order_loans {
   id
-  amount
   status
+  amount
+  origination_date
   maturity_date
   adjusted_maturity_date
 }

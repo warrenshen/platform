@@ -5,9 +5,9 @@ query ListApprovedPurchaseOrders {
 }
 
 mutation AddPurchaseOrderLoan(
-  $purchaseOrder: purchase_order_loans_insert_input!
+  $purchaseOrderLoan: purchase_order_loans_insert_input!
 ) {
-  insert_purchase_order_loans_one(object: $purchaseOrder) {
+  insert_purchase_order_loans_one(object: $purchaseOrderLoan) {
     ...PurchaseOrderLoan
   }
 }

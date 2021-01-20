@@ -34,18 +34,23 @@ function ListLoans() {
   const columns: ColDef[] = [
     {
       field: "id",
-      headerName: "Loan ID",
-      width: 200,
-    },
-    {
-      field: "amount",
-      headerName: "Loan Amount",
+      headerName: "ID",
       width: 200,
     },
     {
       field: "status",
       headerName: "Status",
-      width: 100,
+      width: 200,
+    },
+    {
+      field: "origination_date",
+      headerName: "Origination Date",
+      width: 200,
+    },
+    {
+      field: "amount",
+      headerName: "Amount",
+      width: 200,
     },
     {
       field: "see_more",

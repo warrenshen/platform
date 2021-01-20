@@ -1,3 +1,4 @@
+import DateFnsUtils from "@date-io/date-fns";
 import {
   Box,
   Button,
@@ -15,6 +16,11 @@ import {
   Select,
   Theme,
 } from "@material-ui/core";
+import {
+  KeyboardDatePicker,
+  MuiPickersUtilsProvider,
+} from "@material-ui/pickers";
+import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   ListPurchaseOrderLoansForCustomerDocument,
@@ -52,7 +58,7 @@ interface Props {
   handleClose: () => void;
 }
 
-function AddLoanModal(props: Props) {
+function AddLoanModal({ handleClose }: Props) {
   const classes = useStyles();
   const {
     user: { companyId },
@@ -66,22 +72,40 @@ function AddLoanModal(props: Props) {
   });
   const approvedPOs = approvedPOsData?.purchase_orders;
 
-  const [addPOLoanMutation] = useAddPurchaseOrderLoanMutation();
+  // Default PurchaseOrderLoan for CREATE case.
+  const loanForm = {
+    purchase_order_id: "",
+    origination_date: "",
+    maturity_date: "",
+    adjusted_maturity_date: "",
+    amount: "",
+    status: RequestStatusEnum.Drafted,
+  };
+  const [loan, setLoan] = useState<PurchaseOrderLoansInsertInput>({
+    ...loanForm,
+    ...{},
+  });
 
-  const [loan, setLoan] = useState<PurchaseOrderLoansInsertInput>({});
+  const [
+    addPOLoanMutation,
+    { loading: isLoadingAddPurchaseOrderLoan },
+  ] = useAddPurchaseOrderLoanMutation();
 
-  const handleSubmit = async () => {
+  const insertPurchaseOrderLoanWithStatus = async (
+    status: RequestStatusEnum
+  ) => {
     const dateInFifteenDays = new Date(
       new Date().getTime() + 15 * 24 * 60 * 60 * 1000
     );
     await addPOLoanMutation({
       variables: {
-        purchaseOrder: {
+        purchaseOrderLoan: {
           purchase_order_id: loan.purchase_order_id,
-          amount: loan.amount,
+          origination_date: loan.origination_date || null,
           maturity_date: dateInFifteenDays,
           adjusted_maturity_date: dateInFifteenDays,
-          status: RequestStatusEnum.Approved,
+          amount: loan.amount || null,
+          status: status,
         },
       },
       refetchQueries: [
@@ -93,13 +117,28 @@ function AddLoanModal(props: Props) {
         },
       ],
     });
-    props.handleClose();
   };
+
+  const handleClickSaveDraft = async () => {
+    insertPurchaseOrderLoanWithStatus(RequestStatusEnum.Drafted);
+    handleClose();
+  };
+
+  const handleClickSaveSubmit = async () => {
+    insertPurchaseOrderLoanWithStatus(RequestStatusEnum.ApprovalRequested);
+    handleClose();
+  };
+
+  const isFormValid = !!loan.purchase_order_id;
+  const isFormLoading = isLoadingPOs;
+  const isSaveDraftDisabled = !isFormValid || isLoadingAddPurchaseOrderLoan;
+  const isSaveSubmitDisabled =
+    !isFormValid || isFormLoading || !loan.origination_date || !loan.amount;
 
   return (
     <Dialog
       open
-      onClose={props.handleClose}
+      onClose={handleClose}
       maxWidth="xl"
       classes={{ paper: classes.dialog }}
     >
@@ -142,7 +181,29 @@ function AddLoanModal(props: Props) {
               </Select>
             </FormControl>
           </Box>
-
+          <Box>
+            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+              <KeyboardDatePicker
+                className={classes.purchaseOrderInput}
+                disableToolbar
+                variant="inline"
+                format="MM/dd/yyyy"
+                margin="normal"
+                id="origination-date-date-picker"
+                label="Origination Date"
+                value={loan.origination_date || null}
+                onChange={(value: MaterialUiPickersDate) => {
+                  setLoan({
+                    ...loan,
+                    origination_date: value ? value : new Date().getUTCDate(),
+                  });
+                }}
+                KeyboardButtonProps={{
+                  "aria-label": "change date",
+                }}
+              />
+            </MuiPickersUtilsProvider>
+          </Box>
           <Box mt={3}>
             <FormControl fullWidth className={classes.purchaseOrderInput}>
               <InputLabel htmlFor="standard-adornment-amount">
@@ -168,15 +229,23 @@ function AddLoanModal(props: Props) {
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
         <Box>
-          <Button onClick={props.handleClose}>Cancel</Button>
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button
+            disabled={isSaveDraftDisabled}
+            onClick={handleClickSaveDraft}
+            variant={"contained"}
+            color={"secondary"}
+          >
+            Save as Draft
+          </Button>
           <Button
             className={classes.submitButton}
-            disabled={loan.amount <= 0 || !loan.purchase_order_id}
+            disabled={isSaveSubmitDisabled}
+            onClick={handleClickSaveSubmit}
             variant="contained"
             color="primary"
-            onClick={handleSubmit}
           >
-            Submit
+            Save and Submit
           </Button>
         </Box>
       </DialogActions>

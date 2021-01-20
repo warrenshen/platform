@@ -24935,13 +24935,9 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "numeric",
-                "ofType": null
-              }
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -25024,6 +25020,18 @@
           },
           {
             "name": "maturity_date",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "origination_date",
             "description": null,
             "args": [],
             "type": {
@@ -25910,6 +25918,16 @@
             "defaultValue": null
           },
           {
+            "name": "origination_date",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "date_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "outstanding_principal_balance",
             "description": null,
             "type": {
@@ -26139,6 +26157,16 @@
             "defaultValue": null
           },
           {
+            "name": "origination_date",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "outstanding_principal_balance",
             "description": null,
             "type": {
@@ -26313,6 +26341,18 @@
             "deprecationReason": null
           },
           {
+            "name": "origination_date",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "outstanding_principal_balance",
             "description": null,
             "args": [],
@@ -26434,6 +26474,16 @@
           },
           {
             "name": "maturity_date",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "origination_date",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -26577,6 +26627,18 @@
             "deprecationReason": null
           },
           {
+            "name": "origination_date",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "outstanding_principal_balance",
             "description": null,
             "args": [],
@@ -26698,6 +26760,16 @@
           },
           {
             "name": "maturity_date",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "origination_date",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -26981,6 +27053,16 @@
             "defaultValue": null
           },
           {
+            "name": "origination_date",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "outstanding_principal_balance",
             "description": null,
             "type": {
@@ -27141,6 +27223,12 @@
             "deprecationReason": null
           },
           {
+            "name": "origination_date",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "outstanding_principal_balance",
             "description": "column name",
             "isDeprecated": false,
@@ -27241,6 +27329,16 @@
           },
           {
             "name": "maturity_date",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "origination_date",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -27702,6 +27800,12 @@
           },
           {
             "name": "maturity_date",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "origination_date",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
