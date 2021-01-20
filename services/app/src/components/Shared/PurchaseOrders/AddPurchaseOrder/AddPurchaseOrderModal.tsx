@@ -31,7 +31,7 @@ import {
   PurchaseOrdersInsertInput,
   RequestStatusEnum,
   useAddPurchaseOrderMutation,
-  useListPurchaseOrderVendorsQuery,
+  useListVendorsByCompanyQuery,
   useUpdatePurchaseOrderMutation,
 } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
@@ -79,21 +79,26 @@ function AddPurchaseOrderModal({
   const {
     data: vendorsData,
     loading: getVendorsLoading,
-  } = useListPurchaseOrderVendorsQuery();
+  } = useListVendorsByCompanyQuery({
+    variables: {
+      companyId,
+    },
+  });
   const vendors = vendorsData?.vendors;
 
-  const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrderFragment>(
-    actionType === ActionType.Update && originalPurchaseOrder
-      ? originalPurchaseOrder
-      : ({
-          company_id: companyId,
-          vendor_id: "",
-          order_date: "",
-          delivery_date: "",
-          order_number: "",
-          amount: "",
-        } as PurchaseOrderFragment)
-  );
+  const purchaseOrderForm = {
+    company_id: companyId,
+    vendor_id: "",
+    order_date: "",
+    delivery_date: "",
+    order_number: "",
+    amount: "",
+  } as PurchaseOrderFragment;
+  const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrderFragment>({
+    ...purchaseOrderForm,
+    ...(originalPurchaseOrder || {}),
+  });
+
   const [
     addPurchaseOrder,
     { loading: addPurchaseOrderLoading },
@@ -123,8 +128,8 @@ function AddPurchaseOrderModal({
           purchaseOrder: {
             vendor_id: purchaseOrder.vendor_id,
             delivery_date: purchaseOrder.delivery_date || null,
-            order_number: purchaseOrder.order_number || null,
-            order_date: purchaseOrder.order_date,
+            order_date: purchaseOrder.order_date || null,
+            order_number: purchaseOrder.order_number,
             amount: purchaseOrder.amount || null,
             status: status,
           },
@@ -206,7 +211,11 @@ function AddPurchaseOrderModal({
                 </MenuItem>
                 {vendors?.map((vendor) => (
                   <MenuItem key={vendor.id} value={vendor.id}>
-                    {vendor.name}
+                    {`${vendor.name} ${
+                      vendor.company_vendor_partnerships[0]?.verified_at
+                        ? "(Approved)"
+                        : "(Not approved)"
+                    }`}
                   </MenuItem>
                 ))}
               </Select>

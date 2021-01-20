@@ -1,0 +1,12 @@
+query ListVendorsByCompany($companyId: uuid!) {
+  vendors(
+    where: { company_vendor_partnerships: { company_id: { _eq: $companyId } } }
+  ) {
+    id
+    name
+    company_vendor_partnerships {
+      id
+      verified_at
+    }
+  }
+}

@@ -4617,19 +4617,19 @@ export type PurchaseOrderLoansVarianceOrderBy = {
 
 /** columns and relationships of "purchase_orders" */
 export type PurchaseOrders = {
-  amount: Scalars['numeric'];
+  amount?: Maybe<Scalars['numeric']>;
   approved_at?: Maybe<Scalars['timestamptz']>;
   /** An object relationship */
   company: Companies;
   company_id: Scalars['uuid'];
   created_at: Scalars['timestamptz'];
-  delivery_date: Scalars['date'];
+  delivery_date?: Maybe<Scalars['date']>;
   id: Scalars['uuid'];
   /** An array relationship */
   loans: Array<PurchaseOrderLoans>;
   /** An aggregated array relationship */
   loans_aggregate: PurchaseOrderLoansAggregate;
-  order_date: Scalars['date'];
+  order_date?: Maybe<Scalars['date']>;
   order_number: Scalars['String'];
   rejected_at?: Maybe<Scalars['timestamptz']>;
   rejection_note?: Maybe<Scalars['String']>;
@@ -7743,6 +7743,16 @@ export type PurchaseOrderLoanDisbursementsQuery = { purchase_order_loans_by_pk?:
     )> }
   )> };
 
+export type ListVendorsByCompanyQueryVariables = Exact<{
+  companyId: Scalars['uuid'];
+}>;
+
+
+export type ListVendorsByCompanyQuery = { vendors: Array<(
+    Pick<Vendors, 'id' | 'name'>
+    & { company_vendor_partnerships: Array<Pick<CompanyVendorPartnerships, 'id' | 'verified_at'>> }
+  )> };
+
 export type PurchaseOrderFragment = (
   Pick<PurchaseOrders, 'id' | 'company_id' | 'vendor_id' | 'order_date' | 'delivery_date' | 'order_number' | 'amount' | 'status' | 'created_at'>
   & { vendor?: Maybe<Pick<Vendors, 'id' | 'name'>> }
@@ -8767,6 +8777,44 @@ export function usePurchaseOrderLoanDisbursementsLazyQuery(baseOptions?: Apollo.
 export type PurchaseOrderLoanDisbursementsQueryHookResult = ReturnType<typeof usePurchaseOrderLoanDisbursementsQuery>;
 export type PurchaseOrderLoanDisbursementsLazyQueryHookResult = ReturnType<typeof usePurchaseOrderLoanDisbursementsLazyQuery>;
 export type PurchaseOrderLoanDisbursementsQueryResult = Apollo.QueryResult<PurchaseOrderLoanDisbursementsQuery, PurchaseOrderLoanDisbursementsQueryVariables>;
+export const ListVendorsByCompanyDocument = gql`
+    query ListVendorsByCompany($companyId: uuid!) {
+  vendors(where: {company_vendor_partnerships: {company_id: {_eq: $companyId}}}) {
+    id
+    name
+    company_vendor_partnerships {
+      id
+      verified_at
+    }
+  }
+}
+    `;
+
+/**
+ * __useListVendorsByCompanyQuery__
+ *
+ * To run a query within a React component, call `useListVendorsByCompanyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListVendorsByCompanyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListVendorsByCompanyQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useListVendorsByCompanyQuery(baseOptions: Apollo.QueryHookOptions<ListVendorsByCompanyQuery, ListVendorsByCompanyQueryVariables>) {
+        return Apollo.useQuery<ListVendorsByCompanyQuery, ListVendorsByCompanyQueryVariables>(ListVendorsByCompanyDocument, baseOptions);
+      }
+export function useListVendorsByCompanyLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListVendorsByCompanyQuery, ListVendorsByCompanyQueryVariables>) {
+          return Apollo.useLazyQuery<ListVendorsByCompanyQuery, ListVendorsByCompanyQueryVariables>(ListVendorsByCompanyDocument, baseOptions);
+        }
+export type ListVendorsByCompanyQueryHookResult = ReturnType<typeof useListVendorsByCompanyQuery>;
+export type ListVendorsByCompanyLazyQueryHookResult = ReturnType<typeof useListVendorsByCompanyLazyQuery>;
+export type ListVendorsByCompanyQueryResult = Apollo.QueryResult<ListVendorsByCompanyQuery, ListVendorsByCompanyQueryVariables>;
 export const ListPurchaseOrdersDocument = gql`
     query ListPurchaseOrders($company_id: uuid!) {
   purchase_orders(where: {company_id: {_eq: $company_id}}) {
