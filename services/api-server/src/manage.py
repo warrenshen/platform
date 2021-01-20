@@ -13,14 +13,10 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 
 from bespoke.db import models
 from bespoke.db.models import session_scope
-from bespoke.email.email_manager import EmailConfigDict, SendGridConfigDict
 from bespoke.email import email_manager
-
+from bespoke.email.email_manager import EmailConfigDict, SendGridConfigDict
 from server.config import get_config, is_development_env
-from server.views import auth
-from server.views import notify
-from server.views import files
-from server.views import two_factor
+from server.views import auth, files, notify, purchase_orders, two_factor
 
 if is_development_env(os.environ.get('FLASK_ENV')):
     load_dotenv(os.path.join(os.environ.get('SERVER_ROOT_DIR'), '.env'))
@@ -62,6 +58,7 @@ app.register_blueprint(two_factor.handler, url_prefix='/two_factor')
 app.register_blueprint(notify.handler, url_prefix='/notify')
 app.register_blueprint(files.handler, url_prefix='/files')
 app.register_blueprint(auth.handler, url_prefix='/auth')
+app.register_blueprint(purchase_orders.handler, url_prefix='/purchase_orders')
 
 app.app_config = config
 app.engine = models.create_engine()
