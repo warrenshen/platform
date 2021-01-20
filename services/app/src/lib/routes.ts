@@ -12,6 +12,7 @@ export const routes = {
 
 export const customerRoutes = {
   loans: "/loans",
+  settings: "/settings",
   purchaseOrders: "/purchase-orders",
 };
 
@@ -24,6 +25,7 @@ export const bankRoutes = {
     loans: "/loans",
     purchaseOrders: "/purchase-orders",
     vendors: "/vendors",
+    settings: "/settings",
     profile: "/profile",
     users: "/users",
   },

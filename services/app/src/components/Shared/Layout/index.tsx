@@ -70,6 +70,10 @@ const CUSTOMER_LEFT_NAV_ITEMS = [
     text: "Users",
     link: routes.users,
   },
+  {
+    text: "Settings",
+    link: customerRoutes.settings,
+  },
 ];
 
 const BANK_LEFT_NAV_ITEMS = [

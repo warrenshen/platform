@@ -7,6 +7,7 @@ import Customer from "pages/Bank/Customer";
 import Customers from "pages/Bank/Customers";
 import CompanyProfilePage from "pages/Customer/CompanyProfile";
 import LoansPage from "pages/Customer/Loans";
+import SettingsPage from "pages/Customer/Settings";
 import PurchaseOrdersPage from "pages/Customer/PurchaseOrders";
 import Home from "pages/Home";
 import SignIn from "pages/SignIn";
@@ -58,6 +59,9 @@ function App() {
             requiredRoles={[UserRolesEnum.CompanyAdmin]}
           >
             <PurchaseOrdersPage></PurchaseOrdersPage>
+          </PrivateRoute>
+          <PrivateRoute exact path={customerRoutes.settings}>
+            <SettingsPage></SettingsPage>
           </PrivateRoute>
           {/* Bank Routes */}
           <PrivateRoute

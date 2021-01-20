@@ -1,6 +1,7 @@
 import { Box, Paper, Tab, Tabs } from "@material-ui/core";
 import Loans from "components/Bank/Customer/Loans";
 import Overview from "components/Bank/Customer/Overview";
+import Settings from "components/Bank/Customer/Settings";
 import Profile from "components/Bank/Customer/Profile";
 import PurchaseOrders from "components/Bank/Customer/PurchaseOrders";
 import Users from "components/Bank/Customer/Users";
@@ -47,6 +48,11 @@ const customerPaths = [
     path: bankRoutes.customer.profile,
     component: Profile,
     label: "Profile",
+  },
+  {
+    path: bankRoutes.customer.settings,
+    component: Settings,
+    label: "Settings",
   },
 ];
 
