@@ -27,6 +27,13 @@ fragment CompanyAgreement on company_agreements {
   file_id
 }
 
+# A company license is a license that corresponds to licenses for a customer or a vendor
+fragment CompanyLicense on company_licenses {
+  id
+  company_id
+  file_id
+}
+
 fragment BankAccount on bank_accounts {
   id
   company_id
@@ -71,6 +78,9 @@ query BankVendorPartnership($id: uuid!) {
     }
     company_agreement {
       ...CompanyAgreement
+    }
+    company_license {
+      ...CompanyLicense
     }
   }
 }
@@ -136,5 +146,30 @@ mutation AddCompanyVendorAgreement(
 ) {
   insert_company_agreements_one(object: $vendorAgreement) {
     ...CompanyAgreement
+  }
+}
+
+# Licenses
+
+mutation UpdateVendorLicenseId(
+  $companyVendorPartnershipId: uuid!
+  $vendorLicenseId: uuid!
+) {
+  update_company_vendor_partnerships_by_pk(
+    pk_columns: { id: $companyVendorPartnershipId }
+    _set: { vendor_license_id: $vendorLicenseId }
+  ) {
+    id
+    company_license {
+      ...CompanyLicense
+    }
+  }
+}
+
+mutation AddCompanyVendorLicense(
+  $vendorLicense: company_licenses_insert_input!
+) {
+  insert_company_licenses_one(object: $vendorLicense) {
+    ...CompanyLicense
   }
 }

@@ -83,7 +83,7 @@ async function getPutSignedUrl(
 
 interface Props {
   companyId: string; // which companyID does this document correspond to
-  docType: string; // what type of document is this? e.g., purchase_order, etc.
+  docType: string; // what type of document is this? e.g., purchase_order, etc. This is used for the S3 path, not tied to a DB table
   maxFilesAllowed: number; // maximum number of files a user may upload
   onUploadComplete: (resp: OnUploadCompleteResp) => void;
 }

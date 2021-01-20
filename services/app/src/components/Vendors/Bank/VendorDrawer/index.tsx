@@ -9,10 +9,13 @@ import Contacts from "components/Vendors/Bank/VendorDrawer/Contacts";
 import VendorInfo from "components/Vendors/Bank/VendorDrawer/VendorInfo";
 import {
   CompanyAgreementsInsertInput,
+  CompanyLicensesInsertInput,
   CompanyVendorPartnerships,
   useAddCompanyVendorAgreementMutation,
+  useAddCompanyVendorLicenseMutation,
   useBankVendorPartnershipQuery,
   useUpdateVendorAgreementIdMutation,
+  useUpdateVendorLicenseIdMutation,
 } from "generated/graphql";
 import { omit } from "lodash";
 import React, { useState } from "react";
@@ -43,10 +46,13 @@ function VendorDrawer(props: {
     },
   });
 
-  const [agreementFileUrls, setAgreementFileUrls] = useState<string[]>([]);
-
   const [updateVendorAgreementId] = useUpdateVendorAgreementIdMutation();
   const [addCompanyVendorAgreement] = useAddCompanyVendorAgreementMutation();
+  const [agreementFileUrls, setAgreementFileUrls] = useState<string[]>([]);
+
+  const [updateVendorLicenseId] = useUpdateVendorLicenseIdMutation();
+  const [addVendorLicense] = useAddCompanyVendorLicenseMutation();
+  const [licenseFileUrls, setLicenseFileUrls] = useState<string[]>([]);
 
   if (!data?.company_vendor_partnerships_by_pk) {
     let msg = `Error querying for the bank vendor partner ${props.vendorPartnershipId}. Error: ${error}`;
@@ -56,10 +62,12 @@ function VendorDrawer(props: {
   }
 
   const vendor = data.company_vendor_partnerships_by_pk.vendor;
-  const companyId = data.company_vendor_partnerships_by_pk.company_id;
 
   const agreementFileId =
     data.company_vendor_partnerships_by_pk.company_agreement?.file_id;
+
+  const licenseFileId =
+    data.company_vendor_partnerships_by_pk.company_license?.file_id;
 
   return (
     <Drawer open anchor="right" onClose={props.onClose}>
@@ -98,7 +106,24 @@ function VendorDrawer(props: {
             }
           ></CollectionsBank>
         </Box>
-        <Typography variant="h6"> Licenses </Typography>
+
+        <Grid container direction="row" alignItems="center">
+          <Grid item>
+            <Typography variant="h6" display="inline">
+              {" "}
+              Licenses{" "}
+            </Typography>
+          </Grid>
+          {licenseFileId && (
+            <Grid item>
+              <DownloadThumbnail
+                fileIds={[licenseFileId]}
+                fileUrls={licenseFileUrls}
+                setFileUrls={setLicenseFileUrls}
+              ></DownloadThumbnail>
+            </Grid>
+          )}
+        </Grid>
         <Box
           mt={1}
           mb={2}
@@ -107,7 +132,40 @@ function VendorDrawer(props: {
           alignItems="center"
           justifyContent="center"
         >
-          <Box>Upload</Box>
+          <Box mt={1} mb={2}>
+            <FileUploadDropzone
+              companyId={vendor.id}
+              docType="vendor_license"
+              maxFilesAllowed={1}
+              onUploadComplete={async (resp) => {
+                if (!resp.succeeded) {
+                  return;
+                }
+                setLicenseFileUrls([]); // clear any file urls which may be displayed related to this vendor license
+                const fileId = resp.files_in_db[0].id;
+                // This is an agreement that the vendor signs with Bespoke, therefore
+                // company_id is vendor.id
+                const license: CompanyLicensesInsertInput = {
+                  file_id: fileId,
+                  company_id: vendor.id,
+                };
+                const vendorLicense = await addVendorLicense({
+                  variables: {
+                    vendorLicense: license,
+                  },
+                });
+                const vendorLicenseId =
+                  vendorLicense.data?.insert_company_licenses_one?.id;
+                await updateVendorLicenseId({
+                  variables: {
+                    companyVendorPartnershipId: props.vendorPartnershipId,
+                    vendorLicenseId: vendorLicenseId,
+                  },
+                });
+                console.log(resp);
+              }}
+            ></FileUploadDropzone>
+          </Box>
         </Box>
 
         <Grid container direction="row" alignItems="center">
