@@ -16,6 +16,7 @@ export const notifyRoutes = {
 export const fileRoutes = {
   putSignedUrl: "/files/put_signed_url",
   uploadSignedUrl: "/files/upload_signed_url",
+  downloadSignedUrl: "/files/download_signed_url",
 };
 
 const api = axios.create({

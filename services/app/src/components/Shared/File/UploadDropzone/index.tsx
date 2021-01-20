@@ -2,9 +2,11 @@ import {
   Box,
   Button,
   createStyles,
+  IconButton,
   makeStyles,
   Theme,
 } from "@material-ui/core";
+import ClearIcon from "@material-ui/icons/Clear";
 import axios from "axios";
 import { authenticatedApi, fileRoutes } from "lib/api";
 import { useCallback, useState } from "react";
@@ -15,7 +17,7 @@ const useStyles = makeStyles((theme: Theme) =>
     dropzone: {
       border: "1px dotted black",
       textAlign: "center",
-      height: 100,
+      height: 150,
       width: 600,
     },
   })
@@ -49,6 +51,15 @@ type GetSignedURLResponse = {
 type UploadResponse = {
   status: string;
   msg?: string;
+  file_in_db: FileInDB | null;
+};
+
+type OnUploadCompleteResp = {
+  numErrors: number;
+  numSucceeded: number;
+  succeeded: boolean;
+  msg: string;
+  files_in_db: FileInDB[];
 };
 
 async function getPutSignedUrl(
@@ -70,14 +81,10 @@ async function getPutSignedUrl(
     );
 }
 
-type OnUploadCompleteResp = {
-  numErrors: number;
-  numSucceeded: number;
-};
-
 interface Props {
   companyId: string; // which companyID does this document correspond to
   docType: string; // what type of document is this? e.g., purchase_order, etc.
+  maxFilesAllowed: number; // maximum number of files a user may upload
   onUploadComplete: (resp: OnUploadCompleteResp) => void;
 }
 
@@ -85,39 +92,62 @@ function FileUploadDropzone(props: Props) {
   const classes = useStyles();
   const [message, setMessage] = useState("");
   const [files, setFiles] = useState<any[]>([]);
+  const maxFilesAllowed = props.maxFilesAllowed;
 
-  const onDrop = useCallback((acceptedFiles) => {
-    // Do something with the files
-    setFiles(acceptedFiles);
+  const unattachFiles = useCallback(() => {
+    setFiles([]);
+    setMessage("");
   }, []);
+
+  const onDrop = useCallback(
+    (acceptedFiles) => {
+      if (acceptedFiles.length > maxFilesAllowed) {
+        setMessage(
+          `Too many files provided. Only ${maxFilesAllowed} may be uploaded`
+        );
+        return;
+      }
+      // Do something with the files
+      setMessage("");
+      setFiles(acceptedFiles);
+    },
+    [maxFilesAllowed]
+  );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
-  const uploadFile = (
+  const uploadFile = async (
     file: any,
-    url: string,
-    path: string,
-    uploadViaServer: boolean
+    getSignedURLResp: GetSignedURLResponse
   ): Promise<UploadResponse> => {
     const contentType = file.type;
 
+    const url = getSignedURLResp.url || "";
+    const path = getSignedURLResp.file_in_db?.path || "";
+    const uploadViaServer = getSignedURLResp.upload_via_server || false;
+    const fileInDB = getSignedURLResp.file_in_db;
+
     if (uploadViaServer) {
-      const options = {
+      let options = {
         headers: {
           "X-Bespoke-Content-Type": contentType,
           "X-Bespoke-FilePath": path,
           "X-Bespoke-Url": url,
+          "Content-Type": "multipart/form-data",
         },
       };
+      var formData = new FormData();
+      formData.append("file", file);
       return authenticatedApi
-        .put(fileRoutes.uploadSignedUrl, file, options)
+        .put(fileRoutes.uploadSignedUrl, formData, options)
         .then((res) => {
-          return { status: "OK" };
+          return { status: "OK", file_in_db: fileInDB };
         })
         .catch((err) => {
           console.log(err);
           return {
             status: "ERROR",
             msg: "Something went wrong uploading the file",
+            file_in_db: null,
           };
         });
     }
@@ -138,13 +168,14 @@ function FileUploadDropzone(props: Props) {
     return axios
       .put(putURL, file, options)
       .then((res) => {
-        return { status: "OK" };
+        return { status: "OK", file_in_db: fileInDB };
       })
       .catch((err) => {
         console.log(err);
         return {
           status: "ERROR",
           msg: "Something went wrong uploading the file",
+          file_in_db: null,
         };
       });
   };
@@ -161,14 +192,9 @@ function FileUploadDropzone(props: Props) {
         doc_type: props.docType,
       }).then((resp) => {
         if (resp.status !== "OK") {
-          return { status: "ERROR", msg: resp.msg || "" };
+          return { status: "ERROR", msg: resp.msg || "", file_in_db: null };
         }
-        return uploadFile(
-          file,
-          resp.url || "",
-          resp.file_in_db?.path || "",
-          resp.upload_via_server || false
-        ).then((uploadResp) => {
+        return uploadFile(file, resp).then((uploadResp) => {
           return uploadResp;
         });
       });
@@ -187,13 +213,15 @@ function FileUploadDropzone(props: Props) {
     let numErrors = 0;
     let numSucceeded = 0;
     let errMsg = "";
+    const filesInDB = [];
     for (let i = 0; i < uploadResps.length; i++) {
       const uploadResp = uploadResps[i];
-      if (uploadResp.status !== "OK") {
+      if (uploadResp.status !== "OK" || !uploadResp.file_in_db) {
         numErrors += 1;
         errMsg = uploadResp.msg || "";
       } else {
         numSucceeded += 1;
+        filesInDB.push(uploadResp.file_in_db);
       }
     }
 
@@ -207,6 +235,9 @@ function FileUploadDropzone(props: Props) {
       props.onUploadComplete({
         numSucceeded: numSucceeded,
         numErrors: numErrors,
+        succeeded: numErrors === 0,
+        msg: errMsg,
+        files_in_db: filesInDB,
       });
     }
   }, [files, props]);
@@ -215,24 +246,41 @@ function FileUploadDropzone(props: Props) {
     <Box
       mt={1}
       mb={2}
-      display="flex"
+      pt={3}
       alignItems="center"
       justifyContent="center"
       className={classes.dropzone}
     >
       <div {...getRootProps()}>
         <input {...getInputProps()} />
-        {isDragActive ? (
-          <p>Drop the files here ...</p>
-        ) : (
-          <p>Drag-and-drop files here, or click here to select</p>
+
+        {files.length === 0 && (
+          <div>
+            {isDragActive ? (
+              <p>Drop the files here ...</p>
+            ) : (
+              <p>Drag-and-drop files here, or click here to select</p>
+            )}
+          </div>
         )}
       </div>
 
       {message ? message : ""}
       {files.length > 0 && (
+        <Box textOverflow="clip">
+          {files
+            .map((file) => {
+              return file.name;
+            })
+            .join(", ")}
+        </Box>
+      )}
+      {files.length > 0 && (
         <Box>
           <span>{files.length} file(s) attached</span>
+          <IconButton onClick={unattachFiles}>
+            <ClearIcon></ClearIcon>
+          </IconButton>
         </Box>
       )}
       {files.length > 0 && (

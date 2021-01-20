@@ -17,3 +17,11 @@ def get_claims_payload(user: models.User) -> UserPayloadDict:
 		'X-Hasura-Company-Id': str(user.company_id),
 	}
 	return claims_payload
+
+class UserSession(object):
+
+	def __init__(self, payload: UserPayloadDict) -> None:
+		self.payload = payload
+
+	def is_bank_admin(self) -> bool:
+		return 'bank_admin' in self.payload['X-Hasura-Allowed-Roles']

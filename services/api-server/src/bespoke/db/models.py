@@ -133,6 +133,7 @@ class File(Base):
             self.__table__: Any = None
             self.id: UUID = None
             self.path: str = None
+            self.mime_type: str = None
             #self.token_states = token_states
             #self.form_info = form_info
             #self.expires_at = expires_at

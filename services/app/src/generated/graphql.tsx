@@ -900,11 +900,52 @@ export enum CompaniesUpdateColumn {
   ZipCode = 'zip_code'
 }
 
-/** columns and relationships of "company_agreements" */
+/**
+ * Agreements that a company signs with Bespoke, this can be for vendors or customers signing agreeements
+ * 
+ * 
+ * columns and relationships of "company_agreements"
+ */
 export type CompanyAgreements = {
+  /** An object relationship */
+  company: Companies;
   company_id: Scalars['uuid'];
+  /** An array relationship */
+  company_vendor_partnerships: Array<CompanyVendorPartnerships>;
+  /** An aggregated array relationship */
+  company_vendor_partnerships_aggregate: CompanyVendorPartnershipsAggregate;
   file_id: Scalars['uuid'];
   id: Scalars['uuid'];
+};
+
+
+/**
+ * Agreements that a company signs with Bespoke, this can be for vendors or customers signing agreeements
+ * 
+ * 
+ * columns and relationships of "company_agreements"
+ */
+export type CompanyAgreementsCompanyVendorPartnershipsArgs = {
+  distinct_on?: Maybe<Array<CompanyVendorPartnershipsSelectColumn>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<CompanyVendorPartnershipsOrderBy>>;
+  where?: Maybe<CompanyVendorPartnershipsBoolExp>;
+};
+
+
+/**
+ * Agreements that a company signs with Bespoke, this can be for vendors or customers signing agreeements
+ * 
+ * 
+ * columns and relationships of "company_agreements"
+ */
+export type CompanyAgreementsCompanyVendorPartnershipsAggregateArgs = {
+  distinct_on?: Maybe<Array<CompanyVendorPartnershipsSelectColumn>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<CompanyVendorPartnershipsOrderBy>>;
+  where?: Maybe<CompanyVendorPartnershipsBoolExp>;
 };
 
 /** aggregated selection of "company_agreements" */
@@ -945,7 +986,9 @@ export type CompanyAgreementsBoolExp = {
   _and?: Maybe<Array<Maybe<CompanyAgreementsBoolExp>>>;
   _not?: Maybe<CompanyAgreementsBoolExp>;
   _or?: Maybe<Array<Maybe<CompanyAgreementsBoolExp>>>;
+  company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
+  company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsBoolExp>;
   file_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
 };
@@ -958,7 +1001,9 @@ export enum CompanyAgreementsConstraint {
 
 /** input type for inserting data into table "company_agreements" */
 export type CompanyAgreementsInsertInput = {
+  company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars['uuid']>;
+  company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsArrRelInsertInput>;
   file_id?: Maybe<Scalars['uuid']>;
   id?: Maybe<Scalars['uuid']>;
 };
@@ -1014,7 +1059,9 @@ export type CompanyAgreementsOnConflict = {
 
 /** ordering options when selecting data from "company_agreements" */
 export type CompanyAgreementsOrderBy = {
+  company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
+  company_vendor_partnerships_aggregate?: Maybe<CompanyVendorPartnershipsAggregateOrderBy>;
   file_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
 };
@@ -1457,6 +1504,8 @@ export enum CompanySettingsUpdateColumn {
 export type CompanyVendorPartnerships = {
   /** An object relationship */
   company: Companies;
+  /** An object relationship */
+  company_agreement?: Maybe<CompanyAgreements>;
   company_id: Scalars['uuid'];
   created_at: Scalars['timestamptz'];
   id: Scalars['uuid'];
@@ -1513,6 +1562,7 @@ export type CompanyVendorPartnershipsBoolExp = {
   _not?: Maybe<CompanyVendorPartnershipsBoolExp>;
   _or?: Maybe<Array<Maybe<CompanyVendorPartnershipsBoolExp>>>;
   company?: Maybe<CompaniesBoolExp>;
+  company_agreement?: Maybe<CompanyAgreementsBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
@@ -1536,6 +1586,7 @@ export enum CompanyVendorPartnershipsConstraint {
 /** input type for inserting data into table "company_vendor_partnerships" */
 export type CompanyVendorPartnershipsInsertInput = {
   company?: Maybe<CompaniesObjRelInsertInput>;
+  company_agreement?: Maybe<CompanyAgreementsObjRelInsertInput>;
   company_id?: Maybe<Scalars['uuid']>;
   created_at?: Maybe<Scalars['timestamptz']>;
   id?: Maybe<Scalars['uuid']>;
@@ -1626,6 +1677,7 @@ export type CompanyVendorPartnershipsOnConflict = {
 /** ordering options when selecting data from "company_vendor_partnerships" */
 export type CompanyVendorPartnershipsOrderBy = {
   company?: Maybe<CompaniesOrderBy>;
+  company_agreement?: Maybe<CompanyAgreementsOrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
@@ -2290,10 +2342,6 @@ export type MutationRoot = {
   delete_users?: Maybe<UsersMutationResponse>;
   /** delete single row from the table: "users" */
   delete_users_by_pk?: Maybe<Users>;
-  /** delete data from the table: "vendor_agreements" */
-  delete_vendor_agreements?: Maybe<VendorAgreementsMutationResponse>;
-  /** delete single row from the table: "vendor_agreements" */
-  delete_vendor_agreements_by_pk?: Maybe<VendorAgreements>;
   /** delete data from the table: "vendors" */
   delete_vendors?: Maybe<VendorsMutationResponse>;
   /** insert data into the table: "bank_accounts" */
@@ -2368,10 +2416,6 @@ export type MutationRoot = {
   insert_users?: Maybe<UsersMutationResponse>;
   /** insert a single row into the table: "users" */
   insert_users_one?: Maybe<Users>;
-  /** insert data into the table: "vendor_agreements" */
-  insert_vendor_agreements?: Maybe<VendorAgreementsMutationResponse>;
-  /** insert a single row into the table: "vendor_agreements" */
-  insert_vendor_agreements_one?: Maybe<VendorAgreements>;
   /** insert data into the table: "vendors" */
   insert_vendors?: Maybe<VendorsMutationResponse>;
   /** insert a single row into the table: "vendors" */
@@ -2448,10 +2492,6 @@ export type MutationRoot = {
   update_users?: Maybe<UsersMutationResponse>;
   /** update single row of the table: "users" */
   update_users_by_pk?: Maybe<Users>;
-  /** update data of the table: "vendor_agreements" */
-  update_vendor_agreements?: Maybe<VendorAgreementsMutationResponse>;
-  /** update single row of the table: "vendor_agreements" */
-  update_vendor_agreements_by_pk?: Maybe<VendorAgreements>;
   /** update data of the table: "vendors" */
   update_vendors?: Maybe<VendorsMutationResponse>;
 };
@@ -2672,19 +2712,6 @@ export type MutationRootDeleteUsersArgs = {
 /** mutation root */
 export type MutationRootDeleteUsersByPkArgs = {
   id: Scalars['uuid'];
-};
-
-
-/** mutation root */
-export type MutationRootDeleteVendorAgreementsArgs = {
-  where: VendorAgreementsBoolExp;
-};
-
-
-/** mutation root */
-export type MutationRootDeleteVendorAgreementsByPkArgs = {
-  company_id: Scalars['uuid'];
-  vendor_id: Scalars['uuid'];
 };
 
 
@@ -2943,20 +2970,6 @@ export type MutationRootInsertUsersArgs = {
 export type MutationRootInsertUsersOneArgs = {
   object: UsersInsertInput;
   on_conflict?: Maybe<UsersOnConflict>;
-};
-
-
-/** mutation root */
-export type MutationRootInsertVendorAgreementsArgs = {
-  objects: Array<VendorAgreementsInsertInput>;
-  on_conflict?: Maybe<VendorAgreementsOnConflict>;
-};
-
-
-/** mutation root */
-export type MutationRootInsertVendorAgreementsOneArgs = {
-  object: VendorAgreementsInsertInput;
-  on_conflict?: Maybe<VendorAgreementsOnConflict>;
 };
 
 
@@ -3249,20 +3262,6 @@ export type MutationRootUpdateUsersArgs = {
 export type MutationRootUpdateUsersByPkArgs = {
   _set?: Maybe<UsersSetInput>;
   pk_columns: UsersPkColumnsInput;
-};
-
-
-/** mutation root */
-export type MutationRootUpdateVendorAgreementsArgs = {
-  _set?: Maybe<VendorAgreementsSetInput>;
-  where: VendorAgreementsBoolExp;
-};
-
-
-/** mutation root */
-export type MutationRootUpdateVendorAgreementsByPkArgs = {
-  _set?: Maybe<VendorAgreementsSetInput>;
-  pk_columns: VendorAgreementsPkColumnsInput;
 };
 
 
@@ -5166,12 +5165,6 @@ export type QueryRoot = {
   users_aggregate: UsersAggregate;
   /** fetch data from the table: "users" using primary key columns */
   users_by_pk?: Maybe<Users>;
-  /** fetch data from the table: "vendor_agreements" */
-  vendor_agreements: Array<VendorAgreements>;
-  /** fetch aggregated fields from the table: "vendor_agreements" */
-  vendor_agreements_aggregate: VendorAgreementsAggregate;
-  /** fetch data from the table: "vendor_agreements" using primary key columns */
-  vendor_agreements_by_pk?: Maybe<VendorAgreements>;
   /** fetch data from the table: "vendors" */
   vendors: Array<Vendors>;
   /** fetch aggregated fields from the table: "vendors" */
@@ -5650,33 +5643,6 @@ export type QueryRootUsersByPkArgs = {
 
 
 /** query root */
-export type QueryRootVendorAgreementsArgs = {
-  distinct_on?: Maybe<Array<VendorAgreementsSelectColumn>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<VendorAgreementsOrderBy>>;
-  where?: Maybe<VendorAgreementsBoolExp>;
-};
-
-
-/** query root */
-export type QueryRootVendorAgreementsAggregateArgs = {
-  distinct_on?: Maybe<Array<VendorAgreementsSelectColumn>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<VendorAgreementsOrderBy>>;
-  where?: Maybe<VendorAgreementsBoolExp>;
-};
-
-
-/** query root */
-export type QueryRootVendorAgreementsByPkArgs = {
-  company_id: Scalars['uuid'];
-  vendor_id: Scalars['uuid'];
-};
-
-
-/** query root */
 export type QueryRootVendorsArgs = {
   distinct_on?: Maybe<Array<VendorsSelectColumn>>;
   limit?: Maybe<Scalars['Int']>;
@@ -6127,12 +6093,6 @@ export type SubscriptionRoot = {
   users_aggregate: UsersAggregate;
   /** fetch data from the table: "users" using primary key columns */
   users_by_pk?: Maybe<Users>;
-  /** fetch data from the table: "vendor_agreements" */
-  vendor_agreements: Array<VendorAgreements>;
-  /** fetch aggregated fields from the table: "vendor_agreements" */
-  vendor_agreements_aggregate: VendorAgreementsAggregate;
-  /** fetch data from the table: "vendor_agreements" using primary key columns */
-  vendor_agreements_by_pk?: Maybe<VendorAgreements>;
   /** fetch data from the table: "vendors" */
   vendors: Array<Vendors>;
   /** fetch aggregated fields from the table: "vendors" */
@@ -6607,33 +6567,6 @@ export type SubscriptionRootUsersAggregateArgs = {
 /** subscription root */
 export type SubscriptionRootUsersByPkArgs = {
   id: Scalars['uuid'];
-};
-
-
-/** subscription root */
-export type SubscriptionRootVendorAgreementsArgs = {
-  distinct_on?: Maybe<Array<VendorAgreementsSelectColumn>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<VendorAgreementsOrderBy>>;
-  where?: Maybe<VendorAgreementsBoolExp>;
-};
-
-
-/** subscription root */
-export type SubscriptionRootVendorAgreementsAggregateArgs = {
-  distinct_on?: Maybe<Array<VendorAgreementsSelectColumn>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<VendorAgreementsOrderBy>>;
-  where?: Maybe<VendorAgreementsBoolExp>;
-};
-
-
-/** subscription root */
-export type SubscriptionRootVendorAgreementsByPkArgs = {
-  company_id: Scalars['uuid'];
-  vendor_id: Scalars['uuid'];
 };
 
 
@@ -7251,178 +7184,6 @@ export type UuidComparisonExp = {
   _nin?: Maybe<Array<Scalars['uuid']>>;
 };
 
-/**
- * Agreements that companies have with a vendor
- * 
- * 
- * columns and relationships of "vendor_agreements"
- */
-export type VendorAgreements = {
-  agreement_file_id: Scalars['uuid'];
-  /** An object relationship */
-  company: Companies;
-  /** An object relationship */
-  companyByVendorId: Companies;
-  company_id: Scalars['uuid'];
-  /** An object relationship */
-  file: Files;
-  vendor_id: Scalars['uuid'];
-};
-
-/** aggregated selection of "vendor_agreements" */
-export type VendorAgreementsAggregate = {
-  aggregate?: Maybe<VendorAgreementsAggregateFields>;
-  nodes: Array<VendorAgreements>;
-};
-
-/** aggregate fields of "vendor_agreements" */
-export type VendorAgreementsAggregateFields = {
-  count?: Maybe<Scalars['Int']>;
-  max?: Maybe<VendorAgreementsMaxFields>;
-  min?: Maybe<VendorAgreementsMinFields>;
-};
-
-
-/** aggregate fields of "vendor_agreements" */
-export type VendorAgreementsAggregateFieldsCountArgs = {
-  columns?: Maybe<Array<VendorAgreementsSelectColumn>>;
-  distinct?: Maybe<Scalars['Boolean']>;
-};
-
-/** order by aggregate values of table "vendor_agreements" */
-export type VendorAgreementsAggregateOrderBy = {
-  count?: Maybe<OrderBy>;
-  max?: Maybe<VendorAgreementsMaxOrderBy>;
-  min?: Maybe<VendorAgreementsMinOrderBy>;
-};
-
-/** input type for inserting array relation for remote table "vendor_agreements" */
-export type VendorAgreementsArrRelInsertInput = {
-  data: Array<VendorAgreementsInsertInput>;
-  on_conflict?: Maybe<VendorAgreementsOnConflict>;
-};
-
-/** Boolean expression to filter rows from the table "vendor_agreements". All fields are combined with a logical 'AND'. */
-export type VendorAgreementsBoolExp = {
-  _and?: Maybe<Array<Maybe<VendorAgreementsBoolExp>>>;
-  _not?: Maybe<VendorAgreementsBoolExp>;
-  _or?: Maybe<Array<Maybe<VendorAgreementsBoolExp>>>;
-  agreement_file_id?: Maybe<UuidComparisonExp>;
-  company?: Maybe<CompaniesBoolExp>;
-  companyByVendorId?: Maybe<CompaniesBoolExp>;
-  company_id?: Maybe<UuidComparisonExp>;
-  file?: Maybe<FilesBoolExp>;
-  vendor_id?: Maybe<UuidComparisonExp>;
-};
-
-/** unique or primary key constraints on table "vendor_agreements" */
-export enum VendorAgreementsConstraint {
-  /** unique or primary key constraint */
-  VendorAgreementsPkey1 = 'vendor_agreements_pkey1'
-}
-
-/** input type for inserting data into table "vendor_agreements" */
-export type VendorAgreementsInsertInput = {
-  agreement_file_id?: Maybe<Scalars['uuid']>;
-  company?: Maybe<CompaniesObjRelInsertInput>;
-  companyByVendorId?: Maybe<CompaniesObjRelInsertInput>;
-  company_id?: Maybe<Scalars['uuid']>;
-  file?: Maybe<FilesObjRelInsertInput>;
-  vendor_id?: Maybe<Scalars['uuid']>;
-};
-
-/** aggregate max on columns */
-export type VendorAgreementsMaxFields = {
-  agreement_file_id?: Maybe<Scalars['uuid']>;
-  company_id?: Maybe<Scalars['uuid']>;
-  vendor_id?: Maybe<Scalars['uuid']>;
-};
-
-/** order by max() on columns of table "vendor_agreements" */
-export type VendorAgreementsMaxOrderBy = {
-  agreement_file_id?: Maybe<OrderBy>;
-  company_id?: Maybe<OrderBy>;
-  vendor_id?: Maybe<OrderBy>;
-};
-
-/** aggregate min on columns */
-export type VendorAgreementsMinFields = {
-  agreement_file_id?: Maybe<Scalars['uuid']>;
-  company_id?: Maybe<Scalars['uuid']>;
-  vendor_id?: Maybe<Scalars['uuid']>;
-};
-
-/** order by min() on columns of table "vendor_agreements" */
-export type VendorAgreementsMinOrderBy = {
-  agreement_file_id?: Maybe<OrderBy>;
-  company_id?: Maybe<OrderBy>;
-  vendor_id?: Maybe<OrderBy>;
-};
-
-/** response of any mutation on the table "vendor_agreements" */
-export type VendorAgreementsMutationResponse = {
-  /** number of affected rows by the mutation */
-  affected_rows: Scalars['Int'];
-  /** data of the affected rows by the mutation */
-  returning: Array<VendorAgreements>;
-};
-
-/** input type for inserting object relation for remote table "vendor_agreements" */
-export type VendorAgreementsObjRelInsertInput = {
-  data: VendorAgreementsInsertInput;
-  on_conflict?: Maybe<VendorAgreementsOnConflict>;
-};
-
-/** on conflict condition type for table "vendor_agreements" */
-export type VendorAgreementsOnConflict = {
-  constraint: VendorAgreementsConstraint;
-  update_columns: Array<VendorAgreementsUpdateColumn>;
-  where?: Maybe<VendorAgreementsBoolExp>;
-};
-
-/** ordering options when selecting data from "vendor_agreements" */
-export type VendorAgreementsOrderBy = {
-  agreement_file_id?: Maybe<OrderBy>;
-  company?: Maybe<CompaniesOrderBy>;
-  companyByVendorId?: Maybe<CompaniesOrderBy>;
-  company_id?: Maybe<OrderBy>;
-  file?: Maybe<FilesOrderBy>;
-  vendor_id?: Maybe<OrderBy>;
-};
-
-/** primary key columns input for table: "vendor_agreements" */
-export type VendorAgreementsPkColumnsInput = {
-  company_id: Scalars['uuid'];
-  vendor_id: Scalars['uuid'];
-};
-
-/** select columns of table "vendor_agreements" */
-export enum VendorAgreementsSelectColumn {
-  /** column name */
-  AgreementFileId = 'agreement_file_id',
-  /** column name */
-  CompanyId = 'company_id',
-  /** column name */
-  VendorId = 'vendor_id'
-}
-
-/** input type for updating data in table "vendor_agreements" */
-export type VendorAgreementsSetInput = {
-  agreement_file_id?: Maybe<Scalars['uuid']>;
-  company_id?: Maybe<Scalars['uuid']>;
-  vendor_id?: Maybe<Scalars['uuid']>;
-};
-
-/** update columns of table "vendor_agreements" */
-export enum VendorAgreementsUpdateColumn {
-  /** column name */
-  AgreementFileId = 'agreement_file_id',
-  /** column name */
-  CompanyId = 'company_id',
-  /** column name */
-  VendorId = 'vendor_id'
-}
-
 /** columns and relationships of "vendors" */
 export type Vendors = {
   address?: Maybe<Scalars['String']>;
@@ -7842,7 +7603,7 @@ export type BankVendorPartnershipFragment = (
   & { vendor_bank_account?: Maybe<BankAccountFragment> }
 );
 
-export type CompanyVendorAgreementFragment = Pick<VendorAgreements, 'company_id' | 'vendor_id' | 'agreement_file_id'>;
+export type CompanyAgreementFragment = Pick<CompanyAgreements, 'id' | 'company_id' | 'file_id'>;
 
 export type BankAccountFragment = Pick<BankAccounts, 'id' | 'company_id' | 'bank_name' | 'bank_address' | 'account_type' | 'account_number' | 'routing_number' | 'can_ach' | 'can_wire' | 'recipient_name' | 'recipient_address' | 'verified_at'>;
 
@@ -7866,7 +7627,7 @@ export type BankVendorPartnershipQuery = { company_vendor_partnerships_by_pk?: M
     { vendor: (
       { users: Array<ContactFragment>, collections_bespoke_bank_account?: Maybe<BankAccountFragment>, advances_bespoke_bank_account?: Maybe<BankAccountFragment> }
       & VendorFragment
-    ) }
+    ), company_agreement?: Maybe<CompanyAgreementFragment> }
     & BankVendorPartnershipFragment
   )> };
 
@@ -7911,12 +7672,23 @@ export type UpdateVendorInfoMutationVariables = Exact<{
 
 export type UpdateVendorInfoMutation = { update_companies_by_pk?: Maybe<VendorFragment> };
 
-export type AddCompanyVendorAgreementMutationVariables = Exact<{
-  vendorAgreement: VendorAgreementsInsertInput;
+export type UpdateVendorAgreementIdMutationVariables = Exact<{
+  companyVendorPartnershipId: Scalars['uuid'];
+  vendorAgreementId?: Maybe<Scalars['uuid']>;
 }>;
 
 
-export type AddCompanyVendorAgreementMutation = { insert_vendor_agreements_one?: Maybe<CompanyVendorAgreementFragment> };
+export type UpdateVendorAgreementIdMutation = { update_company_vendor_partnerships_by_pk?: Maybe<(
+    Pick<CompanyVendorPartnerships, 'id'>
+    & { company_agreement?: Maybe<CompanyAgreementFragment> }
+  )> };
+
+export type AddCompanyVendorAgreementMutationVariables = Exact<{
+  vendorAgreement: CompanyAgreementsInsertInput;
+}>;
+
+
+export type AddCompanyVendorAgreementMutation = { insert_company_agreements_one?: Maybe<CompanyAgreementFragment> };
 
 export type VendorLimitedFragment = Pick<Vendors, 'id' | 'name'>;
 
@@ -8133,11 +7905,11 @@ export const BankVendorPartnershipFragmentDoc = gql`
   vendor_license_id
 }
     ${BankAccountFragmentDoc}`;
-export const CompanyVendorAgreementFragmentDoc = gql`
-    fragment CompanyVendorAgreement on vendor_agreements {
+export const CompanyAgreementFragmentDoc = gql`
+    fragment CompanyAgreement on company_agreements {
+  id
   company_id
-  vendor_id
-  agreement_file_id
+  file_id
 }
     `;
 export const VendorLimitedFragmentDoc = gql`
@@ -9154,12 +8926,16 @@ export const BankVendorPartnershipDocument = gql`
         ...BankAccount
       }
     }
+    company_agreement {
+      ...CompanyAgreement
+    }
   }
 }
     ${BankVendorPartnershipFragmentDoc}
 ${VendorFragmentDoc}
 ${ContactFragmentDoc}
-${BankAccountFragmentDoc}`;
+${BankAccountFragmentDoc}
+${CompanyAgreementFragmentDoc}`;
 
 /**
  * __useBankVendorPartnershipQuery__
@@ -9356,13 +9132,52 @@ export function useUpdateVendorInfoMutation(baseOptions?: Apollo.MutationHookOpt
 export type UpdateVendorInfoMutationHookResult = ReturnType<typeof useUpdateVendorInfoMutation>;
 export type UpdateVendorInfoMutationResult = Apollo.MutationResult<UpdateVendorInfoMutation>;
 export type UpdateVendorInfoMutationOptions = Apollo.BaseMutationOptions<UpdateVendorInfoMutation, UpdateVendorInfoMutationVariables>;
-export const AddCompanyVendorAgreementDocument = gql`
-    mutation AddCompanyVendorAgreement($vendorAgreement: vendor_agreements_insert_input!) {
-  insert_vendor_agreements_one(object: $vendorAgreement) {
-    ...CompanyVendorAgreement
+export const UpdateVendorAgreementIdDocument = gql`
+    mutation UpdateVendorAgreementId($companyVendorPartnershipId: uuid!, $vendorAgreementId: uuid) {
+  update_company_vendor_partnerships_by_pk(
+    pk_columns: {id: $companyVendorPartnershipId}
+    _set: {vendor_agreement_id: $vendorAgreementId}
+  ) {
+    id
+    company_agreement {
+      ...CompanyAgreement
+    }
   }
 }
-    ${CompanyVendorAgreementFragmentDoc}`;
+    ${CompanyAgreementFragmentDoc}`;
+export type UpdateVendorAgreementIdMutationFn = Apollo.MutationFunction<UpdateVendorAgreementIdMutation, UpdateVendorAgreementIdMutationVariables>;
+
+/**
+ * __useUpdateVendorAgreementIdMutation__
+ *
+ * To run a mutation, you first call `useUpdateVendorAgreementIdMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateVendorAgreementIdMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateVendorAgreementIdMutation, { data, loading, error }] = useUpdateVendorAgreementIdMutation({
+ *   variables: {
+ *      companyVendorPartnershipId: // value for 'companyVendorPartnershipId'
+ *      vendorAgreementId: // value for 'vendorAgreementId'
+ *   },
+ * });
+ */
+export function useUpdateVendorAgreementIdMutation(baseOptions?: Apollo.MutationHookOptions<UpdateVendorAgreementIdMutation, UpdateVendorAgreementIdMutationVariables>) {
+        return Apollo.useMutation<UpdateVendorAgreementIdMutation, UpdateVendorAgreementIdMutationVariables>(UpdateVendorAgreementIdDocument, baseOptions);
+      }
+export type UpdateVendorAgreementIdMutationHookResult = ReturnType<typeof useUpdateVendorAgreementIdMutation>;
+export type UpdateVendorAgreementIdMutationResult = Apollo.MutationResult<UpdateVendorAgreementIdMutation>;
+export type UpdateVendorAgreementIdMutationOptions = Apollo.BaseMutationOptions<UpdateVendorAgreementIdMutation, UpdateVendorAgreementIdMutationVariables>;
+export const AddCompanyVendorAgreementDocument = gql`
+    mutation AddCompanyVendorAgreement($vendorAgreement: company_agreements_insert_input!) {
+  insert_company_agreements_one(object: $vendorAgreement) {
+    ...CompanyAgreement
+  }
+}
+    ${CompanyAgreementFragmentDoc}`;
 export type AddCompanyVendorAgreementMutationFn = Apollo.MutationFunction<AddCompanyVendorAgreementMutation, AddCompanyVendorAgreementMutationVariables>;
 
 /**

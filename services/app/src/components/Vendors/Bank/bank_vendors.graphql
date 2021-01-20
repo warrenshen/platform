@@ -20,10 +20,11 @@ fragment BankVendorPartnership on company_vendor_partnerships {
   vendor_license_id
 }
 
-fragment CompanyVendorAgreement on vendor_agreements {
+# A company agreement can also correspond to an agreement that a vendor signs with Bespoke as well
+fragment CompanyAgreement on company_agreements {
+  id
   company_id
-  vendor_id
-  agreement_file_id
+  file_id
 }
 
 fragment BankAccount on bank_accounts {
@@ -68,6 +69,9 @@ query BankVendorPartnership($id: uuid!) {
         ...BankAccount
       }
     }
+    company_agreement {
+      ...CompanyAgreement
+    }
   }
 }
 
@@ -110,10 +114,27 @@ mutation UpdateVendorInfo($id: uuid!, $company: companies_set_input!) {
   }
 }
 
-mutation AddCompanyVendorAgreement(
-  $vendorAgreement: vendor_agreements_insert_input!
+# Agreements
+
+mutation UpdateVendorAgreementId(
+  $companyVendorPartnershipId: uuid!
+  $vendorAgreementId: uuid
 ) {
-  insert_vendor_agreements_one(object: $vendorAgreement) {
-    ...CompanyVendorAgreement
+  update_company_vendor_partnerships_by_pk(
+    pk_columns: { id: $companyVendorPartnershipId }
+    _set: { vendor_agreement_id: $vendorAgreementId }
+  ) {
+    id
+    company_agreement {
+      ...CompanyAgreement
+    }
+  }
+}
+
+mutation AddCompanyVendorAgreement(
+  $vendorAgreement: company_agreements_insert_input!
+) {
+  insert_company_agreements_one(object: $vendorAgreement) {
+    ...CompanyAgreement
   }
 }
