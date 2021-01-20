@@ -78,13 +78,13 @@ function AddPurchaseOrderModal({
   } = useContext(CurrentUserContext);
   const {
     data: vendorsData,
-    loading: getVendorsLoading,
+    loading: isSelectableVendorsLoading,
   } = useListVendorsByCompanyQuery({
     variables: {
       companyId,
     },
   });
-  const vendors = vendorsData?.vendors;
+  const selectableVendors = vendorsData?.vendors;
 
   // Default PurchaseOrder for CREATE case.
   const purchaseOrderForm = {
@@ -197,10 +197,12 @@ function AddPurchaseOrderModal({
             <FormControl className={classes.purchaseOrderInput}>
               <InputLabel id="vendor-select-label">Vendor</InputLabel>
               <Select
-                disabled={getVendorsLoading}
+                disabled={isSelectableVendorsLoading}
                 labelId="vendor-select-label"
                 id="vendor-select"
-                value={purchaseOrder.vendor_id}
+                value={
+                  isSelectableVendorsLoading ? "" : purchaseOrder.vendor_id
+                }
                 onChange={({ target: { value } }) => {
                   setPurchaseOrder({
                     ...purchaseOrder,
@@ -211,7 +213,7 @@ function AddPurchaseOrderModal({
                 <MenuItem value="">
                   <em>None</em>
                 </MenuItem>
-                {vendors?.map((vendor) => (
+                {selectableVendors?.map((vendor) => (
                   <MenuItem key={vendor.id} value={vendor.id}>
                     {`${vendor.name} ${
                       vendor.company_vendor_partnerships[0]?.verified_at
