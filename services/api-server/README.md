@@ -57,7 +57,7 @@ pip3 install -r requirements.txt
 
 # Running
 
-Start up hot-reloading Python server on localhost:7000:
+From this directory, to start up hot-reloading Python server on localhost:7000...
 
 ```
 make runlocal
