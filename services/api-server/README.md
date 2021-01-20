@@ -53,3 +53,12 @@ pip3 install -r requirements.txt
 ```
 
 7. NOTE: Update requirements.in, and then use `make update-requirements` which will generate the requirements.txt file.
+
+
+# Running
+
+Start up hot-reloading Python server on localhost:7000:
+
+```
+make runlocal
+```
