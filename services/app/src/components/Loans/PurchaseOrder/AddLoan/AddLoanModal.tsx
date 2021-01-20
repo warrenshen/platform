@@ -21,6 +21,7 @@ import {
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
 import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
+import InfoCard from "components/Shared/PurchaseOrder/InfoCard";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   ListPurchaseOrderLoansForCustomerDocument,
@@ -135,6 +136,10 @@ function AddLoanModal({ handleClose }: Props) {
   const isSaveSubmitDisabled =
     !isFormValid || isFormLoading || !loan.origination_date || !loan.amount;
 
+  const selectedPurchaseOrder = approvedPOs?.find(
+    (po) => po.id === loan.purchase_order_id
+  );
+
   return (
     <Dialog
       open
@@ -180,6 +185,13 @@ function AddLoanModal({ handleClose }: Props) {
                 ))}
               </Select>
             </FormControl>
+          </Box>
+          <Box display="flex" mt={3}>
+            {selectedPurchaseOrder ? (
+              <InfoCard purchaseOrder={selectedPurchaseOrder} />
+            ) : (
+              <Box>Purchase Order not selected yet</Box>
+            )}
           </Box>
           <Box>
             <MuiPickersUtilsProvider utils={DateFnsUtils}>

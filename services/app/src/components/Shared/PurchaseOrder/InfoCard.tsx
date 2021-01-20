@@ -29,6 +29,10 @@ function InfoCard(props: Props) {
             <Box>{props.purchaseOrder.vendor?.name}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
+            <Box className={classes.label}>Order Number</Box>
+            <Box>{props.purchaseOrder.order_number}</Box>
+          </Box>
+          <Box display="flex" pb={0.25}>
             <Box className={classes.label}>PO Date</Box>
             <Box>{props.purchaseOrder.order_date}</Box>
           </Box>
