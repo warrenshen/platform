@@ -61,17 +61,32 @@ function ListPurchaseOrders({ companyId, manipulatePurchaseOrder }: Props) {
       width: 200,
     },
     {
-      field: "amount",
-      headerName: "Purchase Order Amount",
-      width: 200,
-    },
-    {
       field: "status",
-      headerName: "Purchase Order Status",
+      headerName: "Status",
       width: 200,
       renderCell: (params: ValueFormatterParams) => (
         <Status statusValue={params.value as string} />
       ),
+    },
+    {
+      field: "order_number",
+      headerName: "Order Number",
+      width: 200,
+    },
+    {
+      field: "order_date",
+      headerName: "Order Date",
+      width: 200,
+    },
+    {
+      field: "delivery_date",
+      headerName: "Delivery Date",
+      width: 200,
+    },
+    {
+      field: "amount",
+      headerName: "Amount",
+      width: 200,
     },
     {
       field: "see_more",
