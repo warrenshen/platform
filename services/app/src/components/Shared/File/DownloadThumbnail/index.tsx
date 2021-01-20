@@ -2,10 +2,12 @@ import { Grid, IconButton, Link } from "@material-ui/core";
 import AttachFileIcon from "@material-ui/icons/AttachFile";
 import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
 import { authenticatedApi, fileRoutes } from "lib/api";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 
 interface Props {
   fileIds: string[];
+  fileUrls: string[];
+  setFileUrls: (urls: string[]) => void;
 }
 
 type DownloadSignedURLReq = {
@@ -38,15 +40,12 @@ async function getDownloadSignedUrl(
 }
 
 function DownloadThumbnail(props: Props) {
-  //v <span>Download thumbnail for {props.fileIds}</span>;
-  const [fileUrls, setFileUrls] = useState<string[]>([]);
-
   const downloadItems = useCallback(async () => {
     const resp = await getDownloadSignedUrl({ file_ids: props.fileIds });
     if (resp.status !== "OK") {
       window.console.log(resp.msg);
     }
-    setFileUrls(resp.urls);
+    props.setFileUrls(resp.urls);
   }, [props]);
 
   return (
@@ -57,8 +56,8 @@ function DownloadThumbnail(props: Props) {
             <AttachFileIcon onClick={downloadItems}></AttachFileIcon>
           </IconButton>
         </Grid>
-        {fileUrls &&
-          fileUrls.map((fileUrl) => {
+        {props.fileUrls &&
+          props.fileUrls.map((fileUrl) => {
             return (
               <Grid item>
                 <Link key={fileUrl} href={fileUrl}>

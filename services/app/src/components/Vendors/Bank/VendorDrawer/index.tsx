@@ -15,7 +15,7 @@ import {
   useUpdateVendorAgreementIdMutation,
 } from "generated/graphql";
 import { omit } from "lodash";
-import React from "react";
+import React, { useState } from "react";
 import SendVendorAgreements from "./Notifications/SendVendorAgreements";
 
 const useStyles = makeStyles({
@@ -42,6 +42,8 @@ function VendorDrawer(props: {
       id: props.vendorPartnershipId,
     },
   });
+
+  const [agreementFileUrls, setAgreementFileUrls] = useState<string[]>([]);
 
   const [updateVendorAgreementId] = useUpdateVendorAgreementIdMutation();
   const [addCompanyVendorAgreement] = useAddCompanyVendorAgreementMutation();
@@ -119,25 +121,22 @@ function VendorDrawer(props: {
             <Grid item>
               <DownloadThumbnail
                 fileIds={[agreementFileId]}
+                fileUrls={agreementFileUrls}
+                setFileUrls={setAgreementFileUrls}
               ></DownloadThumbnail>
             </Grid>
           )}
         </Grid>
-        <Box
-          mt={1}
-          mb={2}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
+        <Box mt={1} mb={2}>
           <FileUploadDropzone
-            companyId={companyId}
-            docType="company_license"
+            companyId={vendor.id}
+            docType="vendor_agreement"
             maxFilesAllowed={1}
             onUploadComplete={async (resp) => {
               if (!resp.succeeded) {
                 return;
               }
+              setAgreementFileUrls([]); // clear any file urls which may be displayed related to this vendor agreement
               const fileId = resp.files_in_db[0].id;
               // This is an agreement that the vendor signs with Bespoke, therefore
               // company_id is vendor.id
