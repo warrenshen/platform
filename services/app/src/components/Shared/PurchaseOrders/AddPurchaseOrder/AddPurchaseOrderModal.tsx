@@ -164,6 +164,7 @@ function AddPurchaseOrderModal({
 
   const handleClickSaveDraft = async () => {
     await upsertPurchaseOrderWithStatus(RequestStatusEnum.Drafted);
+    handleClose();
   };
 
   const handleClickSaveSubmit = async () => {
