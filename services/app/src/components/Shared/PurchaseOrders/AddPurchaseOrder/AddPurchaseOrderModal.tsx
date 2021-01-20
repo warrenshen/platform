@@ -88,6 +88,10 @@ function AddPurchaseOrderModal({
       : ({
           company_id: companyId,
           vendor_id: "",
+          order_date: "",
+          delivery_date: "",
+          order_number: "",
+          amount: "",
         } as PurchaseOrderFragment)
   );
   const [
@@ -101,6 +105,71 @@ function AddPurchaseOrderModal({
   ] = useUpdatePurchaseOrderMutation();
 
   const isFormValid = !!purchaseOrder.vendor_id;
+  const isFormLoading = addPurchaseOrderLoading || updatePurchaseOrderLoading;
+  const isSaveDraftDisabled = !isFormValid || isFormLoading;
+  const isSaveSubmitDisabled =
+    !isFormValid ||
+    isFormLoading ||
+    !purchaseOrder.delivery_date ||
+    !purchaseOrder.order_date ||
+    !purchaseOrder.order_number ||
+    !purchaseOrder.amount;
+
+  const upsertPurchaseOrderWithStatus = async (status: RequestStatusEnum) => {
+    if (actionType === ActionType.Update) {
+      await updatePurchaseOrder({
+        variables: {
+          id: purchaseOrder.id,
+          purchaseOrder: {
+            vendor_id: purchaseOrder.vendor_id,
+            delivery_date: purchaseOrder.delivery_date || null,
+            order_number: purchaseOrder.order_number || null,
+            order_date: purchaseOrder.order_date,
+            amount: purchaseOrder.amount || null,
+            status: status,
+          },
+        },
+        refetchQueries: [
+          {
+            query: ListPurchaseOrdersDocument,
+            variables: {
+              company_id: companyId,
+            },
+          },
+        ],
+      });
+    } else {
+      await addPurchaseOrder({
+        variables: {
+          purchase_order: {
+            vendor_id: purchaseOrder.vendor_id,
+            delivery_date: purchaseOrder.delivery_date || null,
+            order_date: purchaseOrder.order_date || null,
+            order_number: purchaseOrder.order_number,
+            amount: purchaseOrder.amount || null,
+            status: status,
+          } as PurchaseOrdersInsertInput,
+        },
+        refetchQueries: [
+          {
+            query: ListPurchaseOrdersDocument,
+            variables: {
+              company_id: companyId,
+            },
+          },
+        ],
+      });
+    }
+  };
+
+  const handleClickSaveDraft = async () => {
+    await upsertPurchaseOrderWithStatus(RequestStatusEnum.Drafted);
+  };
+
+  const handleClickSaveSubmit = async () => {
+    await upsertPurchaseOrderWithStatus(RequestStatusEnum.ApprovalRequested);
+    handleClose();
+  };
 
   return (
     <Dialog
@@ -238,62 +307,21 @@ function AddPurchaseOrderModal({
       <DialogActions className={classes.dialogActions}>
         <Button onClick={handleClose}>Cancel</Button>
         <Button
-          className={classes.submitButton}
-          disabled={
-            !isFormValid ||
-            addPurchaseOrderLoading ||
-            updatePurchaseOrderLoading
-          }
-          onClick={async () => {
-            if (actionType === ActionType.Update) {
-              await updatePurchaseOrder({
-                variables: {
-                  id: purchaseOrder.id,
-                  purchaseOrder: {
-                    delivery_date: purchaseOrder.delivery_date,
-                    order_number: purchaseOrder.order_number,
-                    order_date: purchaseOrder.order_date,
-                    vendor_id: purchaseOrder.vendor_id,
-                    amount: purchaseOrder.amount,
-                  },
-                },
-                refetchQueries: [
-                  {
-                    query: ListPurchaseOrdersDocument,
-                    variables: {
-                      company_id: companyId,
-                    },
-                  },
-                ],
-              });
-            } else {
-              await addPurchaseOrder({
-                variables: {
-                  purchase_order: {
-                    delivery_date: purchaseOrder.delivery_date,
-                    order_date: purchaseOrder.order_date,
-                    order_number: purchaseOrder.order_number,
-                    vendor_id: purchaseOrder.vendor_id,
-                    amount: purchaseOrder.amount,
-                    status: RequestStatusEnum.Drafted,
-                  } as PurchaseOrdersInsertInput,
-                },
-                refetchQueries: [
-                  {
-                    query: ListPurchaseOrdersDocument,
-                    variables: {
-                      company_id: companyId,
-                    },
-                  },
-                ],
-              });
-            }
-            handleClose();
-          }}
-          variant="contained"
-          color="primary"
+          disabled={isSaveDraftDisabled}
+          onClick={handleClickSaveDraft}
+          variant={"contained"}
+          color={"secondary"}
         >
-          Submit
+          Save as Draft
+        </Button>
+        <Button
+          className={classes.submitButton}
+          disabled={isSaveSubmitDisabled}
+          onClick={handleClickSaveSubmit}
+          variant={"contained"}
+          color={"primary"}
+        >
+          Save and Submit
         </Button>
       </DialogActions>
     </Dialog>
