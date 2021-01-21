@@ -10,7 +10,7 @@ import {
   PurchaseOrderLoanFragment,
   useListPurchaseOrderLoansForCustomerQuery,
 } from "generated/graphql";
-import useCompanyContext from "hooks/useCustomerContext";
+import useCompanyContext from "hooks/useCompanyContext";
 import React from "react";
 
 function getRows(poLoans: Maybe<PurchaseOrderLoanFragment[]>): RowsProp {

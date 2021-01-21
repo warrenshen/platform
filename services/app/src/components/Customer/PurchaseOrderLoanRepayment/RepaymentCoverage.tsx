@@ -1,6 +1,6 @@
 import { Box } from "@material-ui/core";
 import { useApprovedPurchaseOrderLoansQuery } from "generated/graphql";
-import useCompanyContext from "hooks/useCustomerContext";
+import useCompanyContext from "hooks/useCompanyContext";
 
 interface Props {
   amount: number;

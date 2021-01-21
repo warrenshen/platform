@@ -2,7 +2,7 @@ import { Button } from "@material-ui/core";
 import RepaymentCoverage from "components/Customer/PurchaseOrderLoanRepayment/RepaymentCoverage";
 import { PaymentTransferDirection } from "components/Shared/BankToBankTransfer";
 import PaymentModal from "components/Shared/Payments/PaymentModal";
-import useCompanyContext from "hooks/useCustomerContext";
+import useCompanyContext from "hooks/useCompanyContext";
 import { useState } from "react";
 
 function RepaymentButton() {
