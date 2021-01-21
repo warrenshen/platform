@@ -84,14 +84,14 @@ async function getPutSignedUrl(
 interface Props {
   companyId: string; // which companyID does this document correspond to
   docType: string; // what type of document is this? e.g., purchase_order, etc. This is used for the S3 path, not tied to a DB table
-  maxFilesAllowed?: number | null; // maximum number of files a user may upload, null means there is no limit
+  maxFilesAllowed?: number; // maximum number of files a user may upload, 10 is the default
   onUploadComplete: (resp: OnUploadCompleteResp) => void;
 }
 
 function FileUploadDropzone({
   companyId,
   docType,
-  maxFilesAllowed = null,
+  maxFilesAllowed = 10,
   onUploadComplete,
 }: Props) {
   const classes = useStyles();
