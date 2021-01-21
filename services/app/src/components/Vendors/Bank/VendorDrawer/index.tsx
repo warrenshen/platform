@@ -4,6 +4,7 @@ import AdvancesBank from "components/Shared/BespokeBankAssignment/AdvancesBank";
 import CollectionsBank from "components/Shared/BespokeBankAssignment/CollectionsBank";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileUploadDropzone from "components/Shared/File/UploadDropzone";
+import ApproveVendor from "components/Vendors/Bank/VendorDrawer/Actions/ApproveVendor";
 import BankAccount from "components/Vendors/Bank/VendorDrawer/BankAccount";
 import Contacts from "components/Vendors/Bank/VendorDrawer/Contacts";
 import VendorInfo from "components/Vendors/Bank/VendorDrawer/VendorInfo";
@@ -11,6 +12,7 @@ import {
   CompanyAgreementsInsertInput,
   CompanyLicensesInsertInput,
   CompanyVendorPartnerships,
+  ContactFragment,
   useAddCompanyVendorAgreementMutation,
   useAddCompanyVendorLicenseMutation,
   useBankVendorPartnershipQuery,
@@ -33,6 +35,24 @@ const useStyles = makeStyles({
   },
   fileDropbox: {},
 });
+
+// TODO(dlluncor): Check that time sorting works properly.
+// For now, the primary contact is the contact who was created first
+function getPrimaryContact(
+  contacts: ContactFragment[]
+): ContactFragment | null {
+  if (!contacts || contacts.length == 0) {
+    return null;
+  }
+  const contactsToSort = [...contacts];
+  contactsToSort.sort((c1, c2) => {
+    if (c1.created_at < c2.created_at) {
+      return 1;
+    }
+    return -1;
+  });
+  return contacts[0];
+}
 
 function VendorDrawer(props: {
   vendorPartnershipId: CompanyVendorPartnerships["id"];
@@ -62,15 +82,19 @@ function VendorDrawer(props: {
   }
 
   const vendor = data.company_vendor_partnerships_by_pk.vendor;
+  const customer = data.company_vendor_partnerships_by_pk.company;
 
   const agreementFileId =
     data.company_vendor_partnerships_by_pk.company_agreement?.file_id;
 
   const licenseFileId =
     data.company_vendor_partnerships_by_pk.company_license?.file_id;
-  const customerName = data.company_vendor_partnerships_by_pk.company?.name;
+  const customerName = customer?.name;
   // TODO(dlluncor): Fetch the actual docusign_link from the settings
   const docusignLink = "http://docusign.com/thelink";
+
+  const primaryVendorContact = getPrimaryContact(vendor.users);
+  const primaryCustomerContact = getPrimaryContact(customer?.users);
 
   return (
     <Drawer open anchor="right" onClose={props.onClose}>
@@ -226,11 +250,20 @@ function VendorDrawer(props: {
         <Typography variant="h6"> Notifications </Typography>
         <Box mt={1} mb={2}>
           <SendVendorAgreements
-            contacts={vendor.users}
+            vendorContact={primaryVendorContact}
             vendorName={vendor.name}
             customerName={customerName}
             docusignLink={docusignLink}
           ></SendVendorAgreements>
+        </Box>
+
+        <Typography variant="h6"> Actions </Typography>
+        <Box mt={1} mb={2}>
+          <ApproveVendor
+            vendorPartnershipId={props.vendorPartnershipId}
+            customerName={customerName}
+            vendorName={vendor.name}
+          ></ApproveVendor>
         </Box>
 
         <Typography variant="h6"> Customers </Typography>

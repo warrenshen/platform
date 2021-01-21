@@ -89,6 +89,9 @@ query BankVendorPartnership($id: uuid!) {
     }
     company {
       ...Company
+      users {
+        ...Contact
+      }
     }
     company_agreement {
       ...CompanyAgreement

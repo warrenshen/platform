@@ -107,7 +107,7 @@ function PurchaseOrderForm({ purchaseOrder, setPurchaseOrder }: Props) {
             {selectableVendors?.map((vendor) => (
               <MenuItem key={vendor.id} value={vendor.id}>
                 {`${vendor.name} ${
-                  vendor.company_vendor_partnerships[0]?.verified_at
+                  vendor.company_vendor_partnerships[0]?.approved_at
                     ? "(Approved)"
                     : "(Not approved)"
                 }`}

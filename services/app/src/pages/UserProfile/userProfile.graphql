@@ -6,6 +6,7 @@ fragment User on users {
   email
   phone_number
   role
+  created_at
 }
 
 query UserById($id: uuid!) {

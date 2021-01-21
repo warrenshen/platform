@@ -6,6 +6,7 @@ fragment Contact on users {
   last_name
   email
   phone_number
+  created_at
 }
 
 mutation UpdateVendorContact($userId: uuid!, $contact: users_set_input!) {

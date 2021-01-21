@@ -6,7 +6,7 @@ query ListVendorsByCompany($companyId: uuid!) {
     name
     company_vendor_partnerships {
       id
-      verified_at
+      approved_at
     }
   }
 }

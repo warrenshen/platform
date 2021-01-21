@@ -1507,6 +1507,8 @@ export enum CompanySettingsUpdateColumn {
 
 /** columns and relationships of "company_vendor_partnerships" */
 export type CompanyVendorPartnerships = {
+  /** Serves dual purpose of telling us when the vendor was approved */
+  approved_at?: Maybe<Scalars['timestamptz']>;
   /** An object relationship */
   company: Companies;
   /** An object relationship */
@@ -1527,7 +1529,6 @@ export type CompanyVendorPartnerships = {
   vendor_license_id?: Maybe<Scalars['uuid']>;
   /** An object relationship */
   vendor_limited?: Maybe<Vendors>;
-  verified_at?: Maybe<Scalars['timestamptz']>;
 };
 
 /** aggregated selection of "company_vendor_partnerships" */
@@ -1568,6 +1569,7 @@ export type CompanyVendorPartnershipsBoolExp = {
   _and?: Maybe<Array<Maybe<CompanyVendorPartnershipsBoolExp>>>;
   _not?: Maybe<CompanyVendorPartnershipsBoolExp>;
   _or?: Maybe<Array<Maybe<CompanyVendorPartnershipsBoolExp>>>;
+  approved_at?: Maybe<TimestamptzComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
   company_agreement?: Maybe<CompanyAgreementsBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
@@ -1582,7 +1584,6 @@ export type CompanyVendorPartnershipsBoolExp = {
   vendor_id?: Maybe<UuidComparisonExp>;
   vendor_license_id?: Maybe<UuidComparisonExp>;
   vendor_limited?: Maybe<VendorsBoolExp>;
-  verified_at?: Maybe<TimestamptzComparisonExp>;
 };
 
 /** unique or primary key constraints on table "company_vendor_partnerships" */
@@ -1593,6 +1594,7 @@ export enum CompanyVendorPartnershipsConstraint {
 
 /** input type for inserting data into table "company_vendor_partnerships" */
 export type CompanyVendorPartnershipsInsertInput = {
+  approved_at?: Maybe<Scalars['timestamptz']>;
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_agreement?: Maybe<CompanyAgreementsObjRelInsertInput>;
   company_id?: Maybe<Scalars['uuid']>;
@@ -1607,11 +1609,11 @@ export type CompanyVendorPartnershipsInsertInput = {
   vendor_id?: Maybe<Scalars['uuid']>;
   vendor_license_id?: Maybe<Scalars['uuid']>;
   vendor_limited?: Maybe<VendorsObjRelInsertInput>;
-  verified_at?: Maybe<Scalars['timestamptz']>;
 };
 
 /** aggregate max on columns */
 export type CompanyVendorPartnershipsMaxFields = {
+  approved_at?: Maybe<Scalars['timestamptz']>;
   company_id?: Maybe<Scalars['uuid']>;
   created_at?: Maybe<Scalars['timestamptz']>;
   id?: Maybe<Scalars['uuid']>;
@@ -1620,11 +1622,11 @@ export type CompanyVendorPartnershipsMaxFields = {
   vendor_bank_id?: Maybe<Scalars['uuid']>;
   vendor_id?: Maybe<Scalars['uuid']>;
   vendor_license_id?: Maybe<Scalars['uuid']>;
-  verified_at?: Maybe<Scalars['timestamptz']>;
 };
 
 /** order by max() on columns of table "company_vendor_partnerships" */
 export type CompanyVendorPartnershipsMaxOrderBy = {
+  approved_at?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
@@ -1633,11 +1635,11 @@ export type CompanyVendorPartnershipsMaxOrderBy = {
   vendor_bank_id?: Maybe<OrderBy>;
   vendor_id?: Maybe<OrderBy>;
   vendor_license_id?: Maybe<OrderBy>;
-  verified_at?: Maybe<OrderBy>;
 };
 
 /** aggregate min on columns */
 export type CompanyVendorPartnershipsMinFields = {
+  approved_at?: Maybe<Scalars['timestamptz']>;
   company_id?: Maybe<Scalars['uuid']>;
   created_at?: Maybe<Scalars['timestamptz']>;
   id?: Maybe<Scalars['uuid']>;
@@ -1646,11 +1648,11 @@ export type CompanyVendorPartnershipsMinFields = {
   vendor_bank_id?: Maybe<Scalars['uuid']>;
   vendor_id?: Maybe<Scalars['uuid']>;
   vendor_license_id?: Maybe<Scalars['uuid']>;
-  verified_at?: Maybe<Scalars['timestamptz']>;
 };
 
 /** order by min() on columns of table "company_vendor_partnerships" */
 export type CompanyVendorPartnershipsMinOrderBy = {
+  approved_at?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
@@ -1659,7 +1661,6 @@ export type CompanyVendorPartnershipsMinOrderBy = {
   vendor_bank_id?: Maybe<OrderBy>;
   vendor_id?: Maybe<OrderBy>;
   vendor_license_id?: Maybe<OrderBy>;
-  verified_at?: Maybe<OrderBy>;
 };
 
 /** response of any mutation on the table "company_vendor_partnerships" */
@@ -1685,6 +1686,7 @@ export type CompanyVendorPartnershipsOnConflict = {
 
 /** ordering options when selecting data from "company_vendor_partnerships" */
 export type CompanyVendorPartnershipsOrderBy = {
+  approved_at?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
   company_agreement?: Maybe<CompanyAgreementsOrderBy>;
   company_id?: Maybe<OrderBy>;
@@ -1699,7 +1701,6 @@ export type CompanyVendorPartnershipsOrderBy = {
   vendor_id?: Maybe<OrderBy>;
   vendor_license_id?: Maybe<OrderBy>;
   vendor_limited?: Maybe<VendorsOrderBy>;
-  verified_at?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: "company_vendor_partnerships" */
@@ -1710,6 +1711,8 @@ export type CompanyVendorPartnershipsPkColumnsInput = {
 /** select columns of table "company_vendor_partnerships" */
 export enum CompanyVendorPartnershipsSelectColumn {
   /** column name */
+  ApprovedAt = 'approved_at',
+  /** column name */
   CompanyId = 'company_id',
   /** column name */
   CreatedAt = 'created_at',
@@ -1724,13 +1727,12 @@ export enum CompanyVendorPartnershipsSelectColumn {
   /** column name */
   VendorId = 'vendor_id',
   /** column name */
-  VendorLicenseId = 'vendor_license_id',
-  /** column name */
-  VerifiedAt = 'verified_at'
+  VendorLicenseId = 'vendor_license_id'
 }
 
 /** input type for updating data in table "company_vendor_partnerships" */
 export type CompanyVendorPartnershipsSetInput = {
+  approved_at?: Maybe<Scalars['timestamptz']>;
   company_id?: Maybe<Scalars['uuid']>;
   created_at?: Maybe<Scalars['timestamptz']>;
   id?: Maybe<Scalars['uuid']>;
@@ -1739,11 +1741,12 @@ export type CompanyVendorPartnershipsSetInput = {
   vendor_bank_id?: Maybe<Scalars['uuid']>;
   vendor_id?: Maybe<Scalars['uuid']>;
   vendor_license_id?: Maybe<Scalars['uuid']>;
-  verified_at?: Maybe<Scalars['timestamptz']>;
 };
 
 /** update columns of table "company_vendor_partnerships" */
 export enum CompanyVendorPartnershipsUpdateColumn {
+  /** column name */
+  ApprovedAt = 'approved_at',
   /** column name */
   CompanyId = 'company_id',
   /** column name */
@@ -1759,9 +1762,7 @@ export enum CompanyVendorPartnershipsUpdateColumn {
   /** column name */
   VendorId = 'vendor_id',
   /** column name */
-  VendorLicenseId = 'vendor_license_id',
-  /** column name */
-  VerifiedAt = 'verified_at'
+  VendorLicenseId = 'vendor_license_id'
 }
 
 
@@ -6982,6 +6983,7 @@ export type Users = {
   /** An object relationship */
   company?: Maybe<Companies>;
   company_id?: Maybe<Scalars['uuid']>;
+  created_at?: Maybe<Scalars['timestamptz']>;
   email: Scalars['String'];
   first_name: Scalars['String'];
   full_name: Scalars['String'];
@@ -7032,6 +7034,7 @@ export type UsersBoolExp = {
   _or?: Maybe<Array<Maybe<UsersBoolExp>>>;
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
   email?: Maybe<StringComparisonExp>;
   first_name?: Maybe<StringComparisonExp>;
   full_name?: Maybe<StringComparisonExp>;
@@ -7052,6 +7055,7 @@ export enum UsersConstraint {
 export type UsersInsertInput = {
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars['uuid']>;
+  created_at?: Maybe<Scalars['timestamptz']>;
   email?: Maybe<Scalars['String']>;
   first_name?: Maybe<Scalars['String']>;
   full_name?: Maybe<Scalars['String']>;
@@ -7065,6 +7069,7 @@ export type UsersInsertInput = {
 /** aggregate max on columns */
 export type UsersMaxFields = {
   company_id?: Maybe<Scalars['uuid']>;
+  created_at?: Maybe<Scalars['timestamptz']>;
   email?: Maybe<Scalars['String']>;
   first_name?: Maybe<Scalars['String']>;
   full_name?: Maybe<Scalars['String']>;
@@ -7077,6 +7082,7 @@ export type UsersMaxFields = {
 /** order by max() on columns of table "users" */
 export type UsersMaxOrderBy = {
   company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
   email?: Maybe<OrderBy>;
   first_name?: Maybe<OrderBy>;
   full_name?: Maybe<OrderBy>;
@@ -7089,6 +7095,7 @@ export type UsersMaxOrderBy = {
 /** aggregate min on columns */
 export type UsersMinFields = {
   company_id?: Maybe<Scalars['uuid']>;
+  created_at?: Maybe<Scalars['timestamptz']>;
   email?: Maybe<Scalars['String']>;
   first_name?: Maybe<Scalars['String']>;
   full_name?: Maybe<Scalars['String']>;
@@ -7101,6 +7108,7 @@ export type UsersMinFields = {
 /** order by min() on columns of table "users" */
 export type UsersMinOrderBy = {
   company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
   email?: Maybe<OrderBy>;
   first_name?: Maybe<OrderBy>;
   full_name?: Maybe<OrderBy>;
@@ -7135,6 +7143,7 @@ export type UsersOnConflict = {
 export type UsersOrderBy = {
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
   email?: Maybe<OrderBy>;
   first_name?: Maybe<OrderBy>;
   full_name?: Maybe<OrderBy>;
@@ -7154,6 +7163,8 @@ export type UsersPkColumnsInput = {
 export enum UsersSelectColumn {
   /** column name */
   CompanyId = 'company_id',
+  /** column name */
+  CreatedAt = 'created_at',
   /** column name */
   Email = 'email',
   /** column name */
@@ -7175,6 +7186,7 @@ export enum UsersSelectColumn {
 /** input type for updating data in table "users" */
 export type UsersSetInput = {
   company_id?: Maybe<Scalars['uuid']>;
+  created_at?: Maybe<Scalars['timestamptz']>;
   email?: Maybe<Scalars['String']>;
   first_name?: Maybe<Scalars['String']>;
   full_name?: Maybe<Scalars['String']>;
@@ -7189,6 +7201,8 @@ export type UsersSetInput = {
 export enum UsersUpdateColumn {
   /** column name */
   CompanyId = 'company_id',
+  /** column name */
+  CreatedAt = 'created_at',
   /** column name */
   Email = 'email',
   /** column name */
@@ -7561,7 +7575,7 @@ export type ListVendorsByCompanyQueryVariables = Exact<{
 
 export type ListVendorsByCompanyQuery = { vendors: Array<(
     Pick<Vendors, 'id' | 'name'>
-    & { company_vendor_partnerships: Array<Pick<CompanyVendorPartnerships, 'id' | 'verified_at'>> }
+    & { company_vendor_partnerships: Array<Pick<CompanyVendorPartnerships, 'id' | 'approved_at'>> }
   )> };
 
 export type PurchaseOrderFragment = (
@@ -7609,7 +7623,7 @@ export type UpdatePurchaseOrderMutationVariables = Exact<{
 
 export type UpdatePurchaseOrderMutation = { update_purchase_orders_by_pk?: Maybe<PurchaseOrderFragment> };
 
-export type ContactFragment = Pick<Users, 'id' | 'company_id' | 'full_name' | 'first_name' | 'last_name' | 'email' | 'phone_number'>;
+export type ContactFragment = Pick<Users, 'id' | 'company_id' | 'full_name' | 'first_name' | 'last_name' | 'email' | 'phone_number' | 'created_at'>;
 
 export type UpdateVendorContactMutationVariables = Exact<{
   userId: Scalars['uuid'];
@@ -7668,7 +7682,10 @@ export type BankVendorPartnershipQuery = { company_vendor_partnerships_by_pk?: M
     { vendor: (
       { users: Array<ContactFragment>, collections_bespoke_bank_account?: Maybe<BankAccountFragment>, advances_bespoke_bank_account?: Maybe<BankAccountFragment> }
       & VendorFragment
-    ), company: CompanyFragment, company_agreement?: Maybe<CompanyAgreementFragment>, company_license?: Maybe<CompanyLicenseFragment> }
+    ), company: (
+      { users: Array<ContactFragment> }
+      & CompanyFragment
+    ), company_agreement?: Maybe<CompanyAgreementFragment>, company_license?: Maybe<CompanyLicenseFragment> }
     & BankVendorPartnershipFragment
   )> };
 
@@ -7795,7 +7812,7 @@ export type CompanyVendorsQueryVariables = Exact<{
 
 export type CompanyVendorsQuery = { company_vendor_partnerships: Array<{ vendor: Pick<Companies, 'name'> }> };
 
-export type UserFragment = Pick<Users, 'id' | 'first_name' | 'last_name' | 'full_name' | 'email' | 'phone_number' | 'role'>;
+export type UserFragment = Pick<Users, 'id' | 'first_name' | 'last_name' | 'full_name' | 'email' | 'phone_number' | 'role' | 'created_at'>;
 
 export type UserByIdQueryVariables = Exact<{
   id: Scalars['uuid'];
@@ -7938,6 +7955,7 @@ export const ContactFragmentDoc = gql`
   last_name
   email
   phone_number
+  created_at
 }
     `;
 export const VendorFragmentDoc = gql`
@@ -8031,6 +8049,7 @@ export const UserFragmentDoc = gql`
   email
   phone_number
   role
+  created_at
 }
     `;
 export const BankCustomerDocument = gql`
@@ -8647,7 +8666,7 @@ export const ListVendorsByCompanyDocument = gql`
     name
     company_vendor_partnerships {
       id
-      verified_at
+      approved_at
     }
   }
 }
@@ -9005,6 +9024,9 @@ export const BankVendorPartnershipDocument = gql`
     }
     company {
       ...Company
+      users {
+        ...Contact
+      }
     }
     company_agreement {
       ...CompanyAgreement
