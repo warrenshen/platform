@@ -84,15 +84,19 @@ async function getPutSignedUrl(
 interface Props {
   companyId: string; // which companyID does this document correspond to
   docType: string; // what type of document is this? e.g., purchase_order, etc. This is used for the S3 path, not tied to a DB table
-  maxFilesAllowed: number; // maximum number of files a user may upload
+  maxFilesAllowed?: number | null; // maximum number of files a user may upload, null means there is no limit
   onUploadComplete: (resp: OnUploadCompleteResp) => void;
 }
 
-function FileUploadDropzone(props: Props) {
+function FileUploadDropzone({
+  companyId,
+  docType,
+  maxFilesAllowed = null,
+  onUploadComplete,
+}: Props) {
   const classes = useStyles();
   const [message, setMessage] = useState("");
   const [files, setFiles] = useState<any[]>([]);
-  const maxFilesAllowed = props.maxFilesAllowed;
 
   const unattachFiles = useCallback(() => {
     setFiles([]);
@@ -101,7 +105,7 @@ function FileUploadDropzone(props: Props) {
 
   const onDrop = useCallback(
     (acceptedFiles) => {
-      if (acceptedFiles.length > maxFilesAllowed) {
+      if (maxFilesAllowed !== null && acceptedFiles.length > maxFilesAllowed) {
         setMessage(
           `Too many files provided. Only ${maxFilesAllowed} may be uploaded`
         );
@@ -188,8 +192,8 @@ function FileUploadDropzone(props: Props) {
           content_type: file.type,
           size: file.size,
         },
-        company_id: props.companyId,
-        doc_type: props.docType,
+        company_id: companyId,
+        doc_type: docType,
       }).then((resp) => {
         if (resp.status !== "OK") {
           return { status: "ERROR", msg: resp.msg || "", file_in_db: null };
@@ -231,8 +235,8 @@ function FileUploadDropzone(props: Props) {
       setMessage(`Uploaded ${files.length} file(s) successfully`);
     }
     setFiles([]);
-    if (props.onUploadComplete) {
-      props.onUploadComplete({
+    if (onUploadComplete) {
+      onUploadComplete({
         numSucceeded: numSucceeded,
         numErrors: numErrors,
         succeeded: numErrors === 0,
@@ -240,7 +244,7 @@ function FileUploadDropzone(props: Props) {
         files_in_db: filesInDB,
       });
     }
-  }, [files, props]);
+  }, [companyId, docType, files, onUploadComplete]);
 
   return (
     <Box
