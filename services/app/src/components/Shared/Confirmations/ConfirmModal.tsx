@@ -16,7 +16,7 @@ interface Props {
 
 function ConfirmModal(props: Props) {
   return (
-    <Dialog open onClose={props.handleClose} maxWidth="md">
+    <Dialog open onClose={props.handleClose} maxWidth="sm">
       <DialogTitle>{props.title}</DialogTitle>
       <DialogContent>
         {props.errMsg && (

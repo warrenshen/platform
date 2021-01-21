@@ -6,7 +6,6 @@ type Recipient = {
 
 type NotifyTemplate = {
   name: string;
-  id: string;
 };
 
 type SendNotificationReq = {
@@ -22,9 +21,8 @@ type SendNotificationResp = {
 };
 
 export const notifyTemplates: { [key: string]: NotifyTemplate } = {
-  VENDOR_AGREEMENT_SIGNUP: {
-    name: "vendor_agreement_signup",
-    id: "d-58c45054a5254f64a81bd6695709aed0",
+  VENDOR_AGREEMENT_WITH_CUSTOMER: {
+    name: "vendor_agreement_with_customer"
   },
 };
 

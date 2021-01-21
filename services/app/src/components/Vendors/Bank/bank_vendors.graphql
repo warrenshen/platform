@@ -20,6 +20,17 @@ fragment BankVendorPartnership on company_vendor_partnerships {
   vendor_license_id
 }
 
+# Full list of fields you can query for company settings
+fragment CompanySettings on company_settings {
+  id
+  company_id
+  vendor_agreement_docusign_template
+  collections_bespoke_bank_account_id
+  advances_bespoke_bank_account_id
+  product_type
+  product_config
+}
+
 # A company agreement can also correspond to an agreement that a vendor signs with Bespoke as well
 fragment CompanyAgreement on company_agreements {
   id
@@ -75,6 +86,9 @@ query BankVendorPartnership($id: uuid!) {
       advances_bespoke_bank_account {
         ...BankAccount
       }
+    }
+    company {
+      ...Company
     }
     company_agreement {
       ...CompanyAgreement

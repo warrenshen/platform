@@ -68,6 +68,9 @@ function VendorDrawer(props: {
 
   const licenseFileId =
     data.company_vendor_partnerships_by_pk.company_license?.file_id;
+  const customerName = data.company_vendor_partnerships_by_pk.company?.name;
+  // TODO(dlluncor): Fetch the actual docusign_link from the settings
+  const docusignLink = "http://docusign.com/thelink";
 
   return (
     <Drawer open anchor="right" onClose={props.onClose}>
@@ -222,7 +225,12 @@ function VendorDrawer(props: {
 
         <Typography variant="h6"> Notifications </Typography>
         <Box mt={1} mb={2}>
-          <SendVendorAgreements contacts={vendor.users}></SendVendorAgreements>
+          <SendVendorAgreements
+            contacts={vendor.users}
+            vendorName={vendor.name}
+            customerName={customerName}
+            docusignLink={docusignLink}
+          ></SendVendorAgreements>
         </Box>
 
         <Typography variant="h6"> Customers </Typography>

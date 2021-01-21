@@ -29,9 +29,34 @@ RecipientDict = TypedDict('RecipientDict', {
 def _hours_from_today(hours: int) -> datetime.datetime:
 	return datetime.datetime.now(timezone.utc) + timedelta(hours=hours)
 
-templates_that_require_two_factor = set([
-	'vendor_agreement_signup'
-])
+TemplateConfigDict = TypedDict('TemplateConfigDict', {
+ 'id': str,
+ 'requires_secure_link': bool
+})
+
+_TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
+	"vendor_agreement_with_customer": {
+		'id': "d-58c45054a5254f64a81bd6695709aed0",
+		'requires_secure_link': False
+	}
+}
+
+def get_template_id(template_name: str) -> str:
+	if template_name not in _TEMPLATE_NAME_TO_SENDGRID_CONFIG:
+		raise Exception('Template name "{}" requested is not configured'.format(template_name))
+
+	return _TEMPLATE_NAME_TO_SENDGRID_CONFIG[template_name]['id']
+
+def requires_secure_link(template_name: str) -> bool:
+	if template_name not in _TEMPLATE_NAME_TO_SENDGRID_CONFIG:
+		raise Exception('Template name "{}" requested is not configured'.format(template_name))
+
+	return _TEMPLATE_NAME_TO_SENDGRID_CONFIG[template_name]['requires_secure_link']
+
+def _get_template_defaults(template_name: str) -> Dict:
+	return {
+		'bespoke_contact_email': 'support@bespokefinancial.com'
+	}
 
 class SendView(MethodView):
 	"""
@@ -59,13 +84,13 @@ class SendView(MethodView):
 		if len(form['recipients']) == 0:
 			return make_error_response('No recipients specified')
 
-		template_id = form['template_config']['id']
 		template_name = form['template_config']['name']
+		template_id = get_template_id(template_name)
 		template_data = form['template_data']
+		template_data['defaults'] = _get_template_defaults(template_name)
 		recipients = [recipient['email'] for recipient in form['recipients']]
-		requires_secure_link = template_name in templates_that_require_two_factor
 
-		if not requires_secure_link:
+		if not requires_secure_link(template_name):
 			try:
 				email_client.send_dynamic_email_template(
 				    to_=recipients,

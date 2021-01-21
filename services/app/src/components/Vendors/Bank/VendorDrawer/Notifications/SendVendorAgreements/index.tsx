@@ -9,6 +9,9 @@ import { useState } from "react";
 
 interface Props {
   contacts: Array<ContactFragment>;
+  customerName: string;
+  vendorName: string;
+  docusignLink: string;
 }
 
 function SendVendorAgreements(props: Props) {
@@ -27,18 +30,21 @@ function SendVendorAgreements(props: Props) {
     return { email: contact.email };
   });
 
+  const customerName = props.customerName;
+
   return (
     <>
       {open && (
         <ConfirmModal
-          title="Would you like to send the vendor sign-up email?"
+          title={`Would you like to send the vendor agreement email to ${props.vendorName} for customer ${customerName}?`}
           errMsg={errMsg}
           handleConfirm={async () => {
             const resp = await sendNotification({
               type: "email",
-              template_config: notifyTemplates.VENDOR_AGREEMENT_SIGNUP,
+              template_config: notifyTemplates.VENDOR_AGREEMENT_WITH_CUSTOMER,
               template_data: {
-                customer_name: "Customer 1",
+                customer_name: customerName,
+                docusign_link: props.docusignLink,
               },
               recipients: recipients,
             });
@@ -60,7 +66,7 @@ function SendVendorAgreements(props: Props) {
           setOpen(true);
         }}
       >
-        Send Vendor Sign-up email
+        Send Vendor agreement email
       </Button>
     </>
   );

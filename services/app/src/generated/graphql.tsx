@@ -4653,10 +4653,6 @@ export type PurchaseOrders = {
   loans_aggregate: PurchaseOrderLoansAggregate;
   order_date?: Maybe<Scalars['date']>;
   order_number: Scalars['String'];
-  /** An array relationship */
-  purchase_order_files: Array<PurchaseOrderFiles>;
-  /** An aggregated array relationship */
-  purchase_order_files_aggregate: PurchaseOrderFilesAggregate;
   rejected_at?: Maybe<Scalars['timestamptz']>;
   rejection_note?: Maybe<Scalars['String']>;
   requested_at?: Maybe<Scalars['timestamptz']>;
@@ -4685,26 +4681,6 @@ export type PurchaseOrdersLoansAggregateArgs = {
   offset?: Maybe<Scalars['Int']>;
   order_by?: Maybe<Array<PurchaseOrderLoansOrderBy>>;
   where?: Maybe<PurchaseOrderLoansBoolExp>;
-};
-
-
-/** columns and relationships of "purchase_orders" */
-export type PurchaseOrdersPurchaseOrderFilesArgs = {
-  distinct_on?: Maybe<Array<PurchaseOrderFilesSelectColumn>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<PurchaseOrderFilesOrderBy>>;
-  where?: Maybe<PurchaseOrderFilesBoolExp>;
-};
-
-
-/** columns and relationships of "purchase_orders" */
-export type PurchaseOrdersPurchaseOrderFilesAggregateArgs = {
-  distinct_on?: Maybe<Array<PurchaseOrderFilesSelectColumn>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<PurchaseOrderFilesOrderBy>>;
-  where?: Maybe<PurchaseOrderFilesBoolExp>;
 };
 
 /** aggregated selection of "purchase_orders" */
@@ -4781,7 +4757,6 @@ export type PurchaseOrdersBoolExp = {
   loans?: Maybe<PurchaseOrderLoansBoolExp>;
   order_date?: Maybe<DateComparisonExp>;
   order_number?: Maybe<StringComparisonExp>;
-  purchase_order_files?: Maybe<PurchaseOrderFilesBoolExp>;
   rejected_at?: Maybe<TimestamptzComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
   requested_at?: Maybe<TimestamptzComparisonExp>;
@@ -4814,7 +4789,6 @@ export type PurchaseOrdersInsertInput = {
   loans?: Maybe<PurchaseOrderLoansArrRelInsertInput>;
   order_date?: Maybe<Scalars['date']>;
   order_number?: Maybe<Scalars['String']>;
-  purchase_order_files?: Maybe<PurchaseOrderFilesArrRelInsertInput>;
   rejected_at?: Maybe<Scalars['timestamptz']>;
   rejection_note?: Maybe<Scalars['String']>;
   requested_at?: Maybe<Scalars['timestamptz']>;
@@ -4925,7 +4899,6 @@ export type PurchaseOrdersOrderBy = {
   loans_aggregate?: Maybe<PurchaseOrderLoansAggregateOrderBy>;
   order_date?: Maybe<OrderBy>;
   order_number?: Maybe<OrderBy>;
-  purchase_order_files_aggregate?: Maybe<PurchaseOrderFilesAggregateOrderBy>;
   rejected_at?: Maybe<OrderBy>;
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
@@ -7640,6 +7613,8 @@ export type BankVendorPartnershipFragment = (
   & { vendor_bank_account?: Maybe<BankAccountFragment> }
 );
 
+export type CompanySettingsFragment = Pick<CompanySettings, 'id' | 'company_id' | 'vendor_agreement_docusign_template' | 'collections_bespoke_bank_account_id' | 'advances_bespoke_bank_account_id' | 'product_type' | 'product_config'>;
+
 export type CompanyAgreementFragment = Pick<CompanyAgreements, 'id' | 'company_id' | 'file_id'>;
 
 export type CompanyLicenseFragment = Pick<CompanyLicenses, 'id' | 'company_id' | 'file_id'>;
@@ -7666,7 +7641,7 @@ export type BankVendorPartnershipQuery = { company_vendor_partnerships_by_pk?: M
     { vendor: (
       { users: Array<ContactFragment>, collections_bespoke_bank_account?: Maybe<BankAccountFragment>, advances_bespoke_bank_account?: Maybe<BankAccountFragment> }
       & VendorFragment
-    ), company_agreement?: Maybe<CompanyAgreementFragment>, company_license?: Maybe<CompanyLicenseFragment> }
+    ), company: CompanyFragment, company_agreement?: Maybe<CompanyAgreementFragment>, company_license?: Maybe<CompanyLicenseFragment> }
     & BankVendorPartnershipFragment
   )> };
 
@@ -7962,6 +7937,17 @@ export const BankVendorPartnershipFragmentDoc = gql`
   vendor_license_id
 }
     ${BankAccountFragmentDoc}`;
+export const CompanySettingsFragmentDoc = gql`
+    fragment CompanySettings on company_settings {
+  id
+  company_id
+  vendor_agreement_docusign_template
+  collections_bespoke_bank_account_id
+  advances_bespoke_bank_account_id
+  product_type
+  product_config
+}
+    `;
 export const CompanyAgreementFragmentDoc = gql`
     fragment CompanyAgreement on company_agreements {
   id
@@ -8990,6 +8976,9 @@ export const BankVendorPartnershipDocument = gql`
         ...BankAccount
       }
     }
+    company {
+      ...Company
+    }
     company_agreement {
       ...CompanyAgreement
     }
@@ -9002,6 +8991,7 @@ export const BankVendorPartnershipDocument = gql`
 ${VendorFragmentDoc}
 ${ContactFragmentDoc}
 ${BankAccountFragmentDoc}
+${CompanyFragmentDoc}
 ${CompanyAgreementFragmentDoc}
 ${CompanyLicenseFragmentDoc}`;
 
