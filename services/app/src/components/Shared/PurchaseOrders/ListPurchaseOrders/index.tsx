@@ -52,40 +52,40 @@ function ListPurchaseOrders({ companyId }: Props) {
     {
       field: "id",
       headerName: "ID",
-      width: 200,
+      width: 150,
+    },
+    {
+      field: "order_number",
+      headerName: "Order Number",
+      width: 150,
+    },
+    {
+      field: "vendor_name",
+      headerName: "Vendor",
+      width: 150,
     },
     {
       field: "status",
       headerName: "Status",
-      width: 200,
+      width: 150,
       renderCell: (params: ValueFormatterParams) => (
         <Status statusValue={params.value as string} />
       ),
     },
     {
-      field: "vendor_name",
-      headerName: "Vendor",
-      width: 200,
-    },
-    {
-      field: "order_number",
-      headerName: "Order Number",
-      width: 200,
-    },
-    {
       field: "order_date",
       headerName: "Order Date",
-      width: 200,
+      width: 150,
     },
     {
       field: "delivery_date",
       headerName: "Delivery Date",
-      width: 200,
+      width: 150,
     },
     {
       field: "amount",
       headerName: "Amount",
-      width: 200,
+      width: 150,
     },
   ];
 

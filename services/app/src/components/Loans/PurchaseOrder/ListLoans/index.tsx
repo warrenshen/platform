@@ -35,27 +35,27 @@ function ListLoans() {
     {
       field: "id",
       headerName: "ID",
-      width: 200,
+      width: 150,
     },
     {
       field: "status",
       headerName: "Status",
-      width: 200,
+      width: 150,
     },
     {
       field: "origination_date",
       headerName: "Origination Date",
-      width: 200,
+      width: 150,
     },
     {
       field: "amount",
       headerName: "Amount",
-      width: 200,
+      width: 150,
     },
     {
       field: "see_more",
       headerName: "See More",
-      width: 100,
+      width: 150,
       renderCell: (params: ValueFormatterParams) => {
         const purchaseOrderLoanId = params.row.id as string;
         return <Launcher purchaseOrderLoanId={purchaseOrderLoanId}></Launcher>;
