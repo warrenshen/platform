@@ -1,11 +1,10 @@
-import { IconButton } from "@material-ui/core";
 import {
   ColDef,
   DataGrid,
   RowsProp,
   ValueFormatterParams,
 } from "@material-ui/data-grid";
-import { LaunchOutlined } from "@material-ui/icons";
+import CreateUpdatePurchaseOrderModal from "components/Shared/PurchaseOrders/CreateUpdatePurchaseOrderModal";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   PurchaseOrderFragment,
@@ -15,7 +14,6 @@ import { Maybe } from "graphql/jsutils/Maybe";
 import { ActionType } from "lib/ActionType";
 import { Action, check } from "lib/auth/rbac-rules";
 import { useContext, useState } from "react";
-import ViewModal from "../ViewPurhcaseOrder/ViewModal";
 import ActionMenu from "./ActionMenu";
 import Status from "./Status";
 
@@ -35,15 +33,11 @@ function populateRows(
 
 interface Props {
   companyId: string;
-  manipulatePurchaseOrder: (
-    actionType: ActionType,
-    originalPurchaseOrder: Maybe<PurchaseOrderFragment>
-  ) => void;
 }
 
-function ListPurchaseOrders({ companyId, manipulatePurchaseOrder }: Props) {
+function ListPurchaseOrders({ companyId }: Props) {
   const { user } = useContext(CurrentUserContext);
-  const [currentId, setCurrentId] = useState("");
+  const [selectedPurchaseOrderId, setSelectedPurchaseOrderId] = useState("");
   const [open, setOpen] = useState(false);
 
   const { data } = useListPurchaseOrdersQuery({
@@ -93,21 +87,6 @@ function ListPurchaseOrders({ companyId, manipulatePurchaseOrder }: Props) {
       headerName: "Amount",
       width: 200,
     },
-    {
-      field: "see_more",
-      headerName: "See More",
-      width: 100,
-      renderCell: (params: ValueFormatterParams) => (
-        <IconButton
-          onClick={() => {
-            setCurrentId(params.row.id as string);
-            setOpen(true);
-          }}
-        >
-          <LaunchOutlined></LaunchOutlined>
-        </IconButton>
-      ),
-    },
   ];
 
   if (check(user.role, Action.ViewPurchaseOrdersActionMenu)) {
@@ -118,42 +97,32 @@ function ListPurchaseOrders({ companyId, manipulatePurchaseOrder }: Props) {
       renderCell: (params: ValueFormatterParams) => {
         return (
           <ActionMenu
-            purchaseOrderId={params.row.id as string}
-            manipulatePurchaseOrder={handleCreatePurchaseOrderReplica}
-          />
+            handleClickEdit={() => {
+              setSelectedPurchaseOrderId(params.row.id as string);
+              setOpen(true);
+            }}
+          ></ActionMenu>
         );
       },
     });
   }
 
-  const handleCreatePurchaseOrderReplica = (
-    actionType: ActionType,
-    originalId: string
-  ) => {
-    manipulatePurchaseOrder(
-      actionType,
-      data?.purchase_orders.find((po) => po.id === originalId)
-    );
-  };
-
   return (
-    <>
+    <div style={{ height: "700px", width: "100%" }}>
       {open && (
-        <ViewModal
-          manipulatePurchaseOrder={handleCreatePurchaseOrderReplica}
-          id={currentId}
+        <CreateUpdatePurchaseOrderModal
+          actionType={ActionType.Update}
+          purchaseOrderId={selectedPurchaseOrderId}
           handleClose={() => setOpen(false)}
-        ></ViewModal>
+        ></CreateUpdatePurchaseOrderModal>
       )}
-      <div style={{ height: "700px", width: "100%" }}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          pageSize={10}
-          rowsPerPageOptions={[10, 20, 50]}
-        />
-      </div>
-    </>
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        pageSize={10}
+        rowsPerPageOptions={[10, 20, 50]}
+      />
+    </div>
   );
 }
 

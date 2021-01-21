@@ -1,17 +1,12 @@
 import { IconButton, Menu, MenuItem } from "@material-ui/core";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
-import { ActionType } from "lib/ActionType";
 import { useState } from "react";
 
 interface Props {
-  purchaseOrderId: string;
-  manipulatePurchaseOrder: (
-    actionType: ActionType,
-    purchaseOrderId: string
-  ) => void;
+  handleClickEdit: () => void;
 }
 
-function ActionMenu({ purchaseOrderId, manipulatePurchaseOrder }: Props) {
+function ActionMenu({ handleClickEdit }: Props) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -21,6 +16,7 @@ function ActionMenu({ purchaseOrderId, manipulatePurchaseOrder }: Props) {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
   return (
     <>
       <IconButton onClick={handleClick}>
@@ -34,19 +30,11 @@ function ActionMenu({ purchaseOrderId, manipulatePurchaseOrder }: Props) {
       >
         <MenuItem
           onClick={() => {
-            manipulatePurchaseOrder(ActionType.Update, purchaseOrderId);
+            handleClickEdit();
             handleClose();
           }}
         >
           Edit
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            manipulatePurchaseOrder(ActionType.Copy, purchaseOrderId);
-            handleClose();
-          }}
-        >
-          Replicate
         </MenuItem>
       </Menu>
     </>

@@ -4653,6 +4653,10 @@ export type PurchaseOrders = {
   loans_aggregate: PurchaseOrderLoansAggregate;
   order_date?: Maybe<Scalars['date']>;
   order_number: Scalars['String'];
+  /** An array relationship */
+  purchase_order_files: Array<PurchaseOrderFiles>;
+  /** An aggregated array relationship */
+  purchase_order_files_aggregate: PurchaseOrderFilesAggregate;
   rejected_at?: Maybe<Scalars['timestamptz']>;
   rejection_note?: Maybe<Scalars['String']>;
   requested_at?: Maybe<Scalars['timestamptz']>;
@@ -4681,6 +4685,26 @@ export type PurchaseOrdersLoansAggregateArgs = {
   offset?: Maybe<Scalars['Int']>;
   order_by?: Maybe<Array<PurchaseOrderLoansOrderBy>>;
   where?: Maybe<PurchaseOrderLoansBoolExp>;
+};
+
+
+/** columns and relationships of "purchase_orders" */
+export type PurchaseOrdersPurchaseOrderFilesArgs = {
+  distinct_on?: Maybe<Array<PurchaseOrderFilesSelectColumn>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<PurchaseOrderFilesOrderBy>>;
+  where?: Maybe<PurchaseOrderFilesBoolExp>;
+};
+
+
+/** columns and relationships of "purchase_orders" */
+export type PurchaseOrdersPurchaseOrderFilesAggregateArgs = {
+  distinct_on?: Maybe<Array<PurchaseOrderFilesSelectColumn>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<PurchaseOrderFilesOrderBy>>;
+  where?: Maybe<PurchaseOrderFilesBoolExp>;
 };
 
 /** aggregated selection of "purchase_orders" */
@@ -4757,6 +4781,7 @@ export type PurchaseOrdersBoolExp = {
   loans?: Maybe<PurchaseOrderLoansBoolExp>;
   order_date?: Maybe<DateComparisonExp>;
   order_number?: Maybe<StringComparisonExp>;
+  purchase_order_files?: Maybe<PurchaseOrderFilesBoolExp>;
   rejected_at?: Maybe<TimestamptzComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
   requested_at?: Maybe<TimestamptzComparisonExp>;
@@ -4789,6 +4814,7 @@ export type PurchaseOrdersInsertInput = {
   loans?: Maybe<PurchaseOrderLoansArrRelInsertInput>;
   order_date?: Maybe<Scalars['date']>;
   order_number?: Maybe<Scalars['String']>;
+  purchase_order_files?: Maybe<PurchaseOrderFilesArrRelInsertInput>;
   rejected_at?: Maybe<Scalars['timestamptz']>;
   rejection_note?: Maybe<Scalars['String']>;
   requested_at?: Maybe<Scalars['timestamptz']>;
@@ -4899,6 +4925,7 @@ export type PurchaseOrdersOrderBy = {
   loans_aggregate?: Maybe<PurchaseOrderLoansAggregateOrderBy>;
   order_date?: Maybe<OrderBy>;
   order_number?: Maybe<OrderBy>;
+  purchase_order_files_aggregate?: Maybe<PurchaseOrderFilesAggregateOrderBy>;
   rejected_at?: Maybe<OrderBy>;
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
