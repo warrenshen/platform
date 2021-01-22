@@ -3,16 +3,17 @@ import logging
 import os
 import time
 import uuid
-from mypy_extensions import TypedDict
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Callable, Generator, Dict
+from typing import TYPE_CHECKING, Any, Callable, Dict, Generator
 
 import sqlalchemy
-from sqlalchemy import JSON, Boolean, Column, Float, Integer, String, DateTime, BigInteger, Text
+from mypy_extensions import TypedDict
+from sqlalchemy import (JSON, BigInteger, Boolean, Column, DateTime, Float,
+                        ForeignKey, Integer, Numeric, String, Text)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import OperationalError, StatementError, TimeoutError
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.orm.query import Query as _Query
 from sqlalchemy.pool import QueuePool
 
@@ -49,7 +50,8 @@ class User(Base):
             self.role: str = None
             self.__table__: Any = None
     else:
-        id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
+        id = Column(UUID(as_uuid=True), primary_key=True,
+                    default=uuid.uuid4, unique=True)
         company_id = Column(UUID(as_uuid=True), nullable=True)
         email = Column(String(120), unique=True, nullable=False)
         password = Column(String(120), nullable=False)
@@ -63,15 +65,36 @@ class Customer(Base):
         def __init__(self, name: str, phone: str, email: str) -> None:
             self.__table__: Any = None
     else:
-        id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
+        id = Column(UUID(as_uuid=True), primary_key=True,
+                    default=uuid.uuid4, unique=True)
         name = Column(String)
         phone = Column(String)
         email = Column(String)
 
 
+class Company(Base):
+    """
+    """
+    __tablename__ = 'companies'
+
+    if TYPE_CHECKING:
+        def __init__(self) -> None:
+            self.id: uuid.UUID = None
+            self.name: str = None
+    else:
+        id = Column(UUID(as_uuid=True), primary_key=True,
+                    default=uuid.uuid4, unique=True)
+        name = Column(String)
+
+    purchase_orders = relationship(
+        'PurchaseOrder',
+        back_populates='vendor',
+    )
+
+
 class PurchaseOrder(Base):
     """
-             Purchase orders created by customers for financing
+            Purchase orders created by customers for financing
     """
     __tablename__ = 'purchase_orders'
 
@@ -80,9 +103,16 @@ class PurchaseOrder(Base):
             self.__table__: Any = None
     else:
         id = Column(UUID(as_uuid=True), primary_key=True)
-        number = Column(String)
-        total_requested = Column(Float)
-        confirmed = Column(Boolean)
+        vendor_id = Column(Integer, ForeignKey('companies.id'))
+        order_number = Column(String)
+        amount = Column(Numeric)
+        status = Column(String)
+
+    vendor = relationship(
+        'Company',
+        back_populates='purchase_orders',
+    )
+
 
 class RevokedTokenModel(Base):
     __tablename__ = 'revoked_tokens'
@@ -92,14 +122,17 @@ class RevokedTokenModel(Base):
             self.user_id: str = None
             self.__table__: Any = None
     else:
-        id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
+        id = Column(UUID(as_uuid=True), primary_key=True,
+                    default=uuid.uuid4, unique=True)
         user_id = Column(UUID(as_uuid=True), nullable=False)
         jti = Column(String(120), nullable=False)
+
 
 TwoFactorFormInfoDict = TypedDict('TwoFactorFormInfoDict', {
     'type': str,
     'payload': Dict
 })
+
 
 class TwoFactorLink(Base):
     """
@@ -115,10 +148,12 @@ class TwoFactorLink(Base):
             self.form_info = form_info
             self.expires_at = expires_at
     else:
-        id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
+        id = Column(UUID(as_uuid=True), primary_key=True,
+                    default=uuid.uuid4, unique=True)
         token_states = Column(JSON)
         form_info = Column(JSON)
         expires_at = Column(DateTime, default=datetime.datetime.utcnow)
+
 
 class File(Base):
     """
@@ -127,9 +162,9 @@ class File(Base):
     __tablename__ = 'files'
 
     if TYPE_CHECKING:
-        def __init__(self, 
-            company_id: str, name: str, path: str, extension: str, 
-            size: int, mime_type: str, created_by_user_id: str) -> None:
+        def __init__(self,
+                     company_id: str, name: str, path: str, extension: str,
+                     size: int, mime_type: str, created_by_user_id: str) -> None:
             self.__table__: Any = None
             self.id: UUID = None
             self.path: str = None
@@ -138,7 +173,8 @@ class File(Base):
             #self.form_info = form_info
             #self.expires_at = expires_at
     else:
-        id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
+        id = Column(UUID(as_uuid=True), primary_key=True,
+                    default=uuid.uuid4, unique=True)
         sequential_id = Column(Integer)
         company_id = Column(UUID)
         name = Column(Text)
@@ -149,6 +185,7 @@ class File(Base):
         created_by_user_id = Column(UUID)
         created_at = Column(DateTime, default=datetime.datetime.utcnow)
         updated_at = Column(DateTime, default=datetime.datetime.utcnow)
+
 
 def get_db_url() -> str:
     return os.environ.get('DATABASE_URL')

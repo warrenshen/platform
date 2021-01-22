@@ -32,12 +32,13 @@ class SubmitForApprovalView(MethodView):
 
         with session_scope(current_app.session_maker) as session:
             purchase_order = cast(models.PurchaseOrder, session.query(
-                models.PurchaseOrder).filter_by(id=purchase_order_id))
+                models.PurchaseOrder).filter_by(id=purchase_order_id).first())
 
             if purchase_order.amount <= 0:
                 return make_error_response('Invalid Purchase Order amount')
 
             purchase_order.status = RequestStatusEnum.ApprovalRequested
+            session.commit()
 
             return make_response(json.dumps({
                 'status': 'OK',
@@ -46,6 +47,6 @@ class SubmitForApprovalView(MethodView):
 
 
 handler.add_url_rule(
-    '/submit-for-approval',
+    '/submit_for_approval',
     view_func=SubmitForApprovalView.as_view(name='submit_for_approval_view')
 )
