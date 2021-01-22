@@ -4648,6 +4648,7 @@ export type PurchaseOrders = {
   created_at: Scalars['timestamptz'];
   delivery_date?: Maybe<Scalars['date']>;
   id: Scalars['uuid'];
+  is_cannabis?: Maybe<Scalars['Boolean']>;
   /** An array relationship */
   loans: Array<PurchaseOrderLoans>;
   /** An aggregated array relationship */
@@ -4779,6 +4780,7 @@ export type PurchaseOrdersBoolExp = {
   created_at?: Maybe<TimestamptzComparisonExp>;
   delivery_date?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  is_cannabis?: Maybe<BooleanComparisonExp>;
   loans?: Maybe<PurchaseOrderLoansBoolExp>;
   order_date?: Maybe<DateComparisonExp>;
   order_number?: Maybe<StringComparisonExp>;
@@ -4812,6 +4814,7 @@ export type PurchaseOrdersInsertInput = {
   created_at?: Maybe<Scalars['timestamptz']>;
   delivery_date?: Maybe<Scalars['date']>;
   id?: Maybe<Scalars['uuid']>;
+  is_cannabis?: Maybe<Scalars['Boolean']>;
   loans?: Maybe<PurchaseOrderLoansArrRelInsertInput>;
   order_date?: Maybe<Scalars['date']>;
   order_number?: Maybe<Scalars['String']>;
@@ -4923,6 +4926,7 @@ export type PurchaseOrdersOrderBy = {
   created_at?: Maybe<OrderBy>;
   delivery_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  is_cannabis?: Maybe<OrderBy>;
   loans_aggregate?: Maybe<PurchaseOrderLoansAggregateOrderBy>;
   order_date?: Maybe<OrderBy>;
   order_number?: Maybe<OrderBy>;
@@ -4956,6 +4960,8 @@ export enum PurchaseOrdersSelectColumn {
   /** column name */
   Id = 'id',
   /** column name */
+  IsCannabis = 'is_cannabis',
+  /** column name */
   OrderDate = 'order_date',
   /** column name */
   OrderNumber = 'order_number',
@@ -4981,6 +4987,7 @@ export type PurchaseOrdersSetInput = {
   created_at?: Maybe<Scalars['timestamptz']>;
   delivery_date?: Maybe<Scalars['date']>;
   id?: Maybe<Scalars['uuid']>;
+  is_cannabis?: Maybe<Scalars['Boolean']>;
   order_date?: Maybe<Scalars['date']>;
   order_number?: Maybe<Scalars['String']>;
   rejected_at?: Maybe<Scalars['timestamptz']>;
@@ -5045,6 +5052,8 @@ export enum PurchaseOrdersUpdateColumn {
   DeliveryDate = 'delivery_date',
   /** column name */
   Id = 'id',
+  /** column name */
+  IsCannabis = 'is_cannabis',
   /** column name */
   OrderDate = 'order_date',
   /** column name */
@@ -7579,7 +7588,7 @@ export type ListVendorsByCompanyQuery = { vendors: Array<(
   )> };
 
 export type PurchaseOrderFragment = (
-  Pick<PurchaseOrders, 'id' | 'company_id' | 'vendor_id' | 'order_date' | 'delivery_date' | 'order_number' | 'amount' | 'status' | 'created_at'>
+  Pick<PurchaseOrders, 'id' | 'company_id' | 'vendor_id' | 'order_number' | 'order_date' | 'delivery_date' | 'amount' | 'is_cannabis' | 'status' | 'created_at'>
   & { company: Pick<Companies, 'id' | 'name'>, vendor?: Maybe<Pick<Vendors, 'id' | 'name'>> }
 );
 
@@ -7946,10 +7955,11 @@ export const PurchaseOrderFragmentDoc = gql`
   id
   company_id
   vendor_id
+  order_number
   order_date
   delivery_date
-  order_number
   amount
+  is_cannabis
   status
   created_at
   company {

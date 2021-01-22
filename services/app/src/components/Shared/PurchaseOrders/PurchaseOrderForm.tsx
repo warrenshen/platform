@@ -216,33 +216,39 @@ function PurchaseOrderForm({
         <FormControlLabel
           control={
             <Checkbox
-              checked={true}
-              onChange={(event: ChangeEvent<HTMLInputElement>) => {}}
+              checked={!!purchaseOrder.is_cannabis}
+              onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                setPurchaseOrder({
+                  ...purchaseOrder,
+                  is_cannabis: event.target.checked,
+                });
+              }}
               color="primary"
             />
           }
           label={"Order includes cannabis or derivatives"}
         />
       </Box>
-      <Box mt={3}>
-        <FileUploadDropzone
-          companyId={companyId}
-          docType="purchase_order"
-          onUploadComplete={async (response) => {
-            if (!response.succeeded) {
-              return;
-            }
-            const { files_in_db: files } = response;
-            console.log({ files });
-            setPurchaseOrderSecondaryFiles(files);
-          }}
-        ></FileUploadDropzone>
-        <Box>
-          {purchaseOrderPrimaryFile
-            ? `${purchaseOrderSecondaryFiles.length} file(s) uploaded`
-            : "Please upload file(s) (don't forget to press SAVE)"}
+      {!!purchaseOrder.is_cannabis && (
+        <Box mt={3}>
+          <FileUploadDropzone
+            companyId={companyId}
+            docType="purchase_order"
+            onUploadComplete={async (response) => {
+              if (!response.succeeded) {
+                return;
+              }
+              const { files_in_db: files } = response;
+              setPurchaseOrderSecondaryFiles(files);
+            }}
+          ></FileUploadDropzone>
+          <Box>
+            {purchaseOrderPrimaryFile
+              ? `${purchaseOrderSecondaryFiles.length} file(s) uploaded`
+              : "Please upload file(s) (don't forget to press SAVE)"}
+          </Box>
         </Box>
-      </Box>
+      )}
     </Box>
   );
 }

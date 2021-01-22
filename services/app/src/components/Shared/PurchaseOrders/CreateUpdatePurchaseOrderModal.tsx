@@ -70,10 +70,11 @@ function CreateUpdatePurchaseOrderModal({
   const newPurchaseOrder = {
     company_id: companyId,
     vendor_id: "",
+    order_number: "",
     order_date: null,
     delivery_date: null,
-    order_number: "",
     amount: "",
+    is_cannabis: false,
     status: RequestStatusEnum.Drafted,
   } as PurchaseOrderFragment;
 
@@ -150,10 +151,11 @@ function CreateUpdatePurchaseOrderModal({
           id: purchaseOrder.id,
           purchaseOrder: {
             vendor_id: purchaseOrder.vendor_id,
-            delivery_date: purchaseOrder.delivery_date || null,
-            order_date: purchaseOrder.order_date || null,
             order_number: purchaseOrder.order_number,
+            order_date: purchaseOrder.order_date || null,
+            delivery_date: purchaseOrder.delivery_date || null,
             amount: purchaseOrder.amount || null,
+            is_cannabis: purchaseOrder.is_cannabis,
             status: status,
           },
           purchaseOrderFiles: purchaseOrderFilesData,
@@ -172,10 +174,11 @@ function CreateUpdatePurchaseOrderModal({
         variables: {
           purchase_order: {
             vendor_id: purchaseOrder.vendor_id,
-            delivery_date: purchaseOrder.delivery_date || null,
-            order_date: purchaseOrder.order_date || null,
             order_number: purchaseOrder.order_number,
+            order_date: purchaseOrder.order_date || null,
+            delivery_date: purchaseOrder.delivery_date || null,
             amount: purchaseOrder.amount || null,
+            is_cannabis: purchaseOrder.is_cannabis,
             status: status,
             purchase_order_files: {
               data: purchaseOrderFilesData,

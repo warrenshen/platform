@@ -2,10 +2,11 @@ fragment PurchaseOrder on purchase_orders {
   id
   company_id
   vendor_id
+  order_number
   order_date
   delivery_date
-  order_number
   amount
+  is_cannabis
   status
   created_at
   company {

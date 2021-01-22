@@ -28323,6 +28323,18 @@
             "deprecationReason": null
           },
           {
+            "name": "is_cannabis",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "loans",
             "description": "An array relationship",
             "args": [
@@ -29342,6 +29354,16 @@
             "defaultValue": null
           },
           {
+            "name": "is_cannabis",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "Boolean_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "loans",
             "description": null,
             "type": {
@@ -29566,6 +29588,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "is_cannabis",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null
@@ -30521,6 +30553,16 @@
             "defaultValue": null
           },
           {
+            "name": "is_cannabis",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "loans_aggregate",
             "description": null,
             "type": {
@@ -30705,6 +30747,12 @@
             "deprecationReason": null
           },
           {
+            "name": "is_cannabis",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "order_date",
             "description": "column name",
             "isDeprecated": false,
@@ -30817,6 +30865,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "is_cannabis",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null
@@ -31122,6 +31180,12 @@
           },
           {
             "name": "id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "is_cannabis",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
