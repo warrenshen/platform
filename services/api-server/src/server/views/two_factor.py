@@ -11,6 +11,7 @@ from flask_jwt_extended import jwt_required
 from sqlalchemy.orm.attributes import flag_modified
 from typing import cast
 
+from bespoke.date import date_util
 from bespoke.security import security_util
 from server.config import Config
 
@@ -19,12 +20,6 @@ handler = Blueprint('two_factor', __name__)
 
 def make_error_response(msg: str) -> Response:
 	return make_response(json.dumps({'status': 'ERROR', 'msg': msg}), 200)	
-
-def _now() -> datetime.datetime:
-	return datetime.datetime.now(timezone.utc)
-
-def _has_expired(expires_at: datetime.datetime) -> bool:
-	return _now() >= expires_at
 
 class GenerateCodeView(MethodView):
 
@@ -86,7 +81,7 @@ class GetSecureLinkView(MethodView):
 				return make_error_response('Link provided no longer exists')
 
 			expires_at = two_factor_link.expires_at
-			if _has_expired(expires_at):
+			if date_util.has_expired(expires_at):
 				return make_error_response('Link has expired')
 
 			form_info = two_factor_link.form_info

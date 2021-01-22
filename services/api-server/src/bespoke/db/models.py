@@ -86,12 +86,6 @@ class Company(Base):
                     default=uuid.uuid4, unique=True)
         name = Column(String)
 
-    purchase_orders = relationship(
-        'PurchaseOrder',
-        back_populates='vendor',
-    )
-
-
 class PurchaseOrder(Base):
     """
             Purchase orders created by customers for financing
@@ -103,17 +97,30 @@ class PurchaseOrder(Base):
             self.__table__: Any = None
             self.amount: float = None
             self.status: str = None
+            self.vendor_id: uuid.UUID = None
+            self.company_id: uuid.UUID = None
+            self.requested_at: datetime.datetime = None
+
+            self.vendor: Company = None
+            self.company: Company = None
     else:
         id = Column(UUID(as_uuid=True), primary_key=True)
-        vendor_id = Column(Integer, ForeignKey('companies.id'))
+        company_id = Column(UUID(as_uuid=True), ForeignKey('companies.id'))
+        vendor_id = Column(UUID(as_uuid=True), ForeignKey('companies.id'))
         order_number = Column(String)
         amount = Column(Numeric)
         status = Column(String)
+        requested_at = Column(DateTime)
 
-    vendor = relationship(
-        'Company',
-        back_populates='purchase_orders',
-    )
+        vendor = relationship(
+            'Company',
+            foreign_keys=[vendor_id]
+        )
+
+        company = relationship(
+            'Company',
+            foreign_keys=[company_id]
+        )
 
 
 class RevokedTokenModel(Base):

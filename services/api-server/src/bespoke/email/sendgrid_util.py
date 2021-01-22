@@ -11,6 +11,12 @@ from bespoke.db.models import session_scope
 from bespoke.email import email_manager
 from bespoke.security import security_util
 
+class TwoFactorLinkType(object):
+	CONFIRM_PURCHASE_ORDER = 'confirm_purchase_order'
+
+class TemplateNames(object):
+	VENDOR_TO_APPROVE_PURCHASE_ORDER = 'vendor_to_approve_purchase_order'
+
 TemplateConfigDict = TypedDict('TemplateConfigDict', {
  'id': str,
  'requires_secure_link': bool
@@ -28,7 +34,12 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 	"vendor_approved_notify_vendor": {
 		'id': 'd-53270032807346188f50bf0dca763bd0',
 		'requires_secure_link': False
+	},
+	TemplateNames.VENDOR_TO_APPROVE_PURCHASE_ORDER: {
+		'id': 'd-17349ff8699a44f18da7144452d3731a',
+		'requires_secure_link': True
 	}
+
 }
 
 def _hours_from_today(hours: int) -> datetime.datetime:
@@ -61,7 +72,8 @@ class Client(object):
 		self._security_cfg = security_config
 		self._session_maker = session_maker
 
-	def send(self, template_name: str, template_data: Dict, recipients: List[str]) -> Tuple[bool, Text]:
+	def send(self, template_name: str, template_data: Dict, recipients: List[str],
+			 two_factor_form_info: models.TwoFactorFormInfoDict = None) -> Tuple[bool, Text]:
 
 		template_id = _get_template_id(template_name)
 		template_data['defaults'] = _get_template_defaults(template_name, self._cfg)
@@ -85,12 +97,10 @@ class Client(object):
 			token_states[email] = {}
 
 		with session_scope(self._session_maker) as session:
-			two_factor_link = models.TwoFactorLink(token_states=token_states, form_info={
-				'type': 'confirm_purchase_order',
-				'payload': {
-					'purchase_order_id': '12345'
-				}
-			}, expires_at=_hours_from_today(24 * 7))
+			two_factor_link = models.TwoFactorLink(
+				token_states=token_states, form_info=two_factor_form_info, 
+				expires_at=_hours_from_today(24 * 7)
+			)
 			session.add(two_factor_link)
 			session.flush()
 			link_id = str(two_factor_link.id)
