@@ -36,7 +36,15 @@ TemplateConfigDict = TypedDict('TemplateConfigDict', {
 
 _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 	"vendor_agreement_with_customer": {
-		'id': "d-58c45054a5254f64a81bd6695709aed0",
+		'id': 'd-58c45054a5254f64a81bd6695709aed0',
+		'requires_secure_link': False
+	},
+	"vendor_approved_notify_customer": {
+		'id': 'd-43f5183c08cc4248bda2d5ed5133a493',
+		'requires_secure_link': False
+	},
+	"vendor_approved_notify_vendor": {
+		'id': 'd-53270032807346188f50bf0dca763bd0',
 		'requires_secure_link': False
 	}
 }

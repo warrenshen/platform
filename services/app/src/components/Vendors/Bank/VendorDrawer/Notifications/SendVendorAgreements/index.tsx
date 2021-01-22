@@ -1,10 +1,7 @@
 import { Button } from "@material-ui/core";
 import ConfirmModal from "components/Shared/Confirmations/ConfirmModal";
 import { ContactFragment } from "generated/graphql";
-import {
-  notifyTemplates,
-  sendNotification,
-} from "lib/notifications/sendUpdate";
+import { InventoryNotifier } from "lib/notifications/inventory";
 import { useState } from "react";
 
 interface Props {
@@ -12,6 +9,7 @@ interface Props {
   customerName: string;
   vendorName: string;
   docusignLink: string;
+  notifier: InventoryNotifier;
 }
 
 function SendVendorAgreements(props: Props) {
@@ -37,15 +35,13 @@ function SendVendorAgreements(props: Props) {
           title={`Would you like to send the vendor agreement email to ${props.vendorName} for customer ${customerName}?`}
           errMsg={errMsg}
           handleConfirm={async () => {
-            const resp = await sendNotification({
-              type: "email",
-              template_config: notifyTemplates.VENDOR_AGREEMENT_WITH_CUSTOMER,
-              template_data: {
+            const resp = await props.notifier.sendVendorAgreementWithCustomer(
+              {
                 customer_name: customerName,
                 docusign_link: props.docusignLink,
               },
-              recipients: recipients,
-            });
+              recipients
+            );
 
             if (resp.status !== "OK") {
               setErrMsg("Could not send email. Error: " + resp.msg);

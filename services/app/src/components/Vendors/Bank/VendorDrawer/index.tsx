@@ -19,6 +19,7 @@ import {
   useUpdateVendorAgreementIdMutation,
   useUpdateVendorLicenseIdMutation,
 } from "generated/graphql";
+import { InventoryNotifier } from "lib/notifications/inventory";
 import { omit } from "lodash";
 import React, { useState } from "react";
 import SendVendorAgreements from "./Notifications/SendVendorAgreements";
@@ -41,7 +42,7 @@ const useStyles = makeStyles({
 function getPrimaryContact(
   contacts: ContactFragment[]
 ): ContactFragment | null {
-  if (!contacts || contacts.length == 0) {
+  if (!contacts || contacts.length === 0) {
     return null;
   }
   const contactsToSort = [...contacts];
@@ -95,6 +96,7 @@ function VendorDrawer(props: {
 
   const primaryVendorContact = getPrimaryContact(vendor.users);
   const primaryCustomerContact = getPrimaryContact(customer?.users);
+  const notifier = new InventoryNotifier("email");
 
   return (
     <Drawer open anchor="right" onClose={props.onClose}>
@@ -254,15 +256,19 @@ function VendorDrawer(props: {
             vendorName={vendor.name}
             customerName={customerName}
             docusignLink={docusignLink}
+            notifier={notifier}
           ></SendVendorAgreements>
         </Box>
 
         <Typography variant="h6"> Actions </Typography>
         <Box mt={1} mb={2}>
           <ApproveVendor
+            vendorContact={primaryVendorContact}
+            customerContact={primaryCustomerContact}
             vendorPartnershipId={props.vendorPartnershipId}
             customerName={customerName}
             vendorName={vendor.name}
+            notifier={notifier}
           ></ApproveVendor>
         </Box>
 

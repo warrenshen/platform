@@ -1,29 +1,23 @@
 import { authenticatedApi, notifyRoutes } from "lib/api";
 
-type Recipient = {
+export type Recipient = {
   email: string;
 };
 
-type NotifyTemplate = {
+export type NotifyTemplate = {
   name: string;
 };
 
-type SendNotificationReq = {
+export type SendNotificationReq = {
   type: string;
   template_config: NotifyTemplate;
   template_data: { [key: string]: string };
   recipients: Recipient[];
 };
 
-type SendNotificationResp = {
+export type SendNotificationResp = {
   status: string;
   msg?: string;
-};
-
-export const notifyTemplates: { [key: string]: NotifyTemplate } = {
-  VENDOR_AGREEMENT_WITH_CUSTOMER: {
-    name: "vendor_agreement_with_customer",
-  },
 };
 
 export async function sendNotification(

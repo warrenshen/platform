@@ -7671,7 +7671,7 @@ export type AddVendorContactMutation = { insert_users_one?: Maybe<ContactFragmen
 export type VendorFragment = Pick<Companies, 'id' | 'name' | 'address' | 'country' | 'state' | 'city' | 'zip_code' | 'phone_number'>;
 
 export type BankVendorPartnershipFragment = (
-  Pick<CompanyVendorPartnerships, 'id' | 'company_id' | 'vendor_id' | 'vendor_agreement_id' | 'vendor_license_id'>
+  Pick<CompanyVendorPartnerships, 'id' | 'company_id' | 'vendor_id' | 'vendor_agreement_id' | 'vendor_license_id' | 'approved_at'>
   & { vendor_bank_account?: Maybe<BankAccountFragment> }
 );
 
@@ -7742,6 +7742,14 @@ export type ChangeBankAccountMutation = { update_company_vendor_partnerships_by_
     Pick<CompanyVendorPartnerships, 'id'>
     & { vendor_bank_account?: Maybe<BankAccountFragment> }
   )> };
+
+export type UpdateCompanyVendorPartnershipApprovedAtMutationVariables = Exact<{
+  companyVendorPartnershipId: Scalars['uuid'];
+  approvedAt?: Maybe<Scalars['timestamptz']>;
+}>;
+
+
+export type UpdateCompanyVendorPartnershipApprovedAtMutation = { update_company_vendor_partnerships_by_pk?: Maybe<BankVendorPartnershipFragment> };
 
 export type UpdateVendorInfoMutationVariables = Exact<{
   id: Scalars['uuid'];
@@ -8017,6 +8025,7 @@ export const BankVendorPartnershipFragmentDoc = gql`
     ...BankAccount
   }
   vendor_license_id
+  approved_at
 }
     ${BankAccountFragmentDoc}`;
 export const CompanySettingsFragmentDoc = gql`
@@ -9261,6 +9270,42 @@ export function useChangeBankAccountMutation(baseOptions?: Apollo.MutationHookOp
 export type ChangeBankAccountMutationHookResult = ReturnType<typeof useChangeBankAccountMutation>;
 export type ChangeBankAccountMutationResult = Apollo.MutationResult<ChangeBankAccountMutation>;
 export type ChangeBankAccountMutationOptions = Apollo.BaseMutationOptions<ChangeBankAccountMutation, ChangeBankAccountMutationVariables>;
+export const UpdateCompanyVendorPartnershipApprovedAtDocument = gql`
+    mutation UpdateCompanyVendorPartnershipApprovedAt($companyVendorPartnershipId: uuid!, $approvedAt: timestamptz) {
+  update_company_vendor_partnerships_by_pk(
+    pk_columns: {id: $companyVendorPartnershipId}
+    _set: {approved_at: $approvedAt}
+  ) {
+    ...BankVendorPartnership
+  }
+}
+    ${BankVendorPartnershipFragmentDoc}`;
+export type UpdateCompanyVendorPartnershipApprovedAtMutationFn = Apollo.MutationFunction<UpdateCompanyVendorPartnershipApprovedAtMutation, UpdateCompanyVendorPartnershipApprovedAtMutationVariables>;
+
+/**
+ * __useUpdateCompanyVendorPartnershipApprovedAtMutation__
+ *
+ * To run a mutation, you first call `useUpdateCompanyVendorPartnershipApprovedAtMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCompanyVendorPartnershipApprovedAtMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCompanyVendorPartnershipApprovedAtMutation, { data, loading, error }] = useUpdateCompanyVendorPartnershipApprovedAtMutation({
+ *   variables: {
+ *      companyVendorPartnershipId: // value for 'companyVendorPartnershipId'
+ *      approvedAt: // value for 'approvedAt'
+ *   },
+ * });
+ */
+export function useUpdateCompanyVendorPartnershipApprovedAtMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCompanyVendorPartnershipApprovedAtMutation, UpdateCompanyVendorPartnershipApprovedAtMutationVariables>) {
+        return Apollo.useMutation<UpdateCompanyVendorPartnershipApprovedAtMutation, UpdateCompanyVendorPartnershipApprovedAtMutationVariables>(UpdateCompanyVendorPartnershipApprovedAtDocument, baseOptions);
+      }
+export type UpdateCompanyVendorPartnershipApprovedAtMutationHookResult = ReturnType<typeof useUpdateCompanyVendorPartnershipApprovedAtMutation>;
+export type UpdateCompanyVendorPartnershipApprovedAtMutationResult = Apollo.MutationResult<UpdateCompanyVendorPartnershipApprovedAtMutation>;
+export type UpdateCompanyVendorPartnershipApprovedAtMutationOptions = Apollo.BaseMutationOptions<UpdateCompanyVendorPartnershipApprovedAtMutation, UpdateCompanyVendorPartnershipApprovedAtMutationVariables>;
 export const UpdateVendorInfoDocument = gql`
     mutation UpdateVendorInfo($id: uuid!, $company: companies_set_input!) {
   update_companies_by_pk(pk_columns: {id: $id}, _set: $company) {
