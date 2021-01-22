@@ -4,16 +4,11 @@ import {
   RowsProp,
   ValueFormatterParams,
 } from "@material-ui/data-grid";
-import CreateUpdatePurchaseOrderModal from "components/Shared/PurchaseOrders/CreateUpdatePurchaseOrderModal";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import {
-  PurchaseOrderFragment,
-  useListPurchaseOrdersQuery,
-} from "generated/graphql";
+import { PurchaseOrderFragment } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
-import { ActionType } from "lib/ActionType";
 import { Action, check } from "lib/auth/rbac-rules";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import ActionMenu from "./ActionMenu";
 import Status from "./Status";
 
@@ -32,21 +27,17 @@ function populateRows(
 }
 
 interface Props {
-  companyId: string;
+  purchaseOrders: PurchaseOrderFragment[];
+  handleEditPurchaseOrder: (purchaseOrderId: string) => void;
 }
 
-function ListPurchaseOrders({ companyId }: Props) {
+function ListPurchaseOrders({
+  purchaseOrders,
+  handleEditPurchaseOrder,
+}: Props) {
   const { user } = useContext(CurrentUserContext);
-  const [selectedPurchaseOrderId, setSelectedPurchaseOrderId] = useState("");
-  const [open, setOpen] = useState(false);
 
-  const { data } = useListPurchaseOrdersQuery({
-    variables: {
-      company_id: companyId ? companyId : user.companyId,
-    },
-  });
-
-  const rows = populateRows(data ? data.purchase_orders : []);
+  const rows = populateRows(purchaseOrders);
 
   const columns: ColDef[] = [
     {
@@ -97,10 +88,9 @@ function ListPurchaseOrders({ companyId }: Props) {
       renderCell: (params: ValueFormatterParams) => {
         return (
           <ActionMenu
-            handleClickEdit={() => {
-              setSelectedPurchaseOrderId(params.row.id as string);
-              setOpen(true);
-            }}
+            handleClickEdit={() =>
+              handleEditPurchaseOrder(params.row.id as string)
+            }
           ></ActionMenu>
         );
       },
@@ -109,13 +99,6 @@ function ListPurchaseOrders({ companyId }: Props) {
 
   return (
     <div style={{ height: "700px", width: "100%" }}>
-      {open && (
-        <CreateUpdatePurchaseOrderModal
-          actionType={ActionType.Update}
-          purchaseOrderId={selectedPurchaseOrderId}
-          handleClose={() => setOpen(false)}
-        ></CreateUpdatePurchaseOrderModal>
-      )}
       <DataGrid
         rows={rows}
         columns={columns}

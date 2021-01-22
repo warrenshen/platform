@@ -11,7 +11,6 @@ import {
 import PurchaseOrderForm from "components/Shared/PurchaseOrders/PurchaseOrderForm";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
-  ListPurchaseOrdersDocument,
   PurchaseOrderFragment,
   RequestStatusEnum,
   useAddPurchaseOrderMutation,
@@ -19,6 +18,7 @@ import {
   useUpdatePurchaseOrderMutation,
 } from "generated/graphql";
 import { ActionType } from "lib/ActionType";
+import { authenticatedApi, purchaseOrdersRoutes } from "lib/api";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
 
@@ -52,13 +52,13 @@ type FileInDB = {
 
 interface Props {
   actionType: ActionType;
-  purchaseOrderId?: string;
+  purchaseOrderId: string | null;
   handleClose: () => void;
 }
 
 function CreateUpdatePurchaseOrderModal({
   actionType,
-  purchaseOrderId,
+  purchaseOrderId = null,
   handleClose,
 }: Props) {
   const classes = useStyles();
@@ -130,7 +130,7 @@ function CreateUpdatePurchaseOrderModal({
     !purchaseOrder.order_number ||
     !purchaseOrder.amount;
 
-  const upsertPurchaseOrderWithStatus = async (status: RequestStatusEnum) => {
+  const upsertPurchaseOrder = async () => {
     const primaryPurchaseOrderFileData = purchaseOrderPrimaryFile && {
       purchase_order_id: purchaseOrder.id,
       file_id: purchaseOrderPrimaryFile.id,
@@ -156,18 +156,10 @@ function CreateUpdatePurchaseOrderModal({
             delivery_date: purchaseOrder.delivery_date || null,
             amount: purchaseOrder.amount || null,
             is_cannabis: purchaseOrder.is_cannabis,
-            status: status,
+            status: RequestStatusEnum.Drafted,
           },
           purchaseOrderFiles: purchaseOrderFilesData,
         },
-        refetchQueries: [
-          {
-            query: ListPurchaseOrdersDocument,
-            variables: {
-              company_id: companyId,
-            },
-          },
-        ],
       });
     } else {
       await addPurchaseOrder({
@@ -179,31 +171,27 @@ function CreateUpdatePurchaseOrderModal({
             delivery_date: purchaseOrder.delivery_date || null,
             amount: purchaseOrder.amount || null,
             is_cannabis: purchaseOrder.is_cannabis,
-            status: status,
+            status: RequestStatusEnum.Drafted,
             purchase_order_files: {
               data: purchaseOrderFilesData,
             },
           },
         },
-        refetchQueries: [
-          {
-            query: ListPurchaseOrdersDocument,
-            variables: {
-              company_id: companyId,
-            },
-          },
-        ],
       });
     }
   };
 
   const handleClickSaveDraft = async () => {
-    await upsertPurchaseOrderWithStatus(RequestStatusEnum.Drafted);
+    await upsertPurchaseOrder();
     handleClose();
   };
 
   const handleClickSaveSubmit = async () => {
-    await upsertPurchaseOrderWithStatus(RequestStatusEnum.ApprovalRequested);
+    await upsertPurchaseOrder();
+    // Since this is a SAVE AND SUBMIT action, hit the SubmitForApproval endpoint.
+    await authenticatedApi.post(purchaseOrdersRoutes.submitForApproval, {
+      purchase_order_id: purchaseOrder.id,
+    });
     handleClose();
   };
 

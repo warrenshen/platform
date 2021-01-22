@@ -9,14 +9,18 @@ export const authRoutes = {
   revokeRefreshToken: "/auth/sign-out/refresh",
 };
 
-export const notifyRoutes = {
-  sendNotification: "/notify/send",
-};
-
 export const fileRoutes = {
   putSignedUrl: "/files/put_signed_url",
   uploadSignedUrl: "/files/upload_signed_url",
   downloadSignedUrl: "/files/download_signed_url",
+};
+
+export const notifyRoutes = {
+  sendNotification: "/notify/send",
+};
+
+export const purchaseOrdersRoutes = {
+  submitForApproval: "/purchase_orders/submit_for_approval",
 };
 
 const api = axios.create({
