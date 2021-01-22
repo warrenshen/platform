@@ -22,7 +22,7 @@ type SendNotificationResp = {
 
 export const notifyTemplates: { [key: string]: NotifyTemplate } = {
   VENDOR_AGREEMENT_WITH_CUSTOMER: {
-    name: "vendor_agreement_with_customer"
+    name: "vendor_agreement_with_customer",
   },
 };
 

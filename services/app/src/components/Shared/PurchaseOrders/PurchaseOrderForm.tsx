@@ -25,7 +25,7 @@ import {
   PurchaseOrderFragment,
   useListVendorsByCompanyQuery,
 } from "generated/graphql";
-import { ChangeEvent, useContext, useState } from "react";
+import { ChangeEvent, useContext } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -57,10 +57,21 @@ type FileInDB = {
 
 interface Props {
   purchaseOrder: PurchaseOrderFragment;
+  purchaseOrderPrimaryFile: FileInDB | null;
+  purchaseOrderSecondaryFiles: FileInDB[];
   setPurchaseOrder: (purchaseOrder: PurchaseOrderFragment) => void;
+  setPurchaseOrderPrimaryFile: (file: FileInDB) => void;
+  setPurchaseOrderSecondaryFiles: (files: FileInDB[]) => void;
 }
 
-function PurchaseOrderForm({ purchaseOrder, setPurchaseOrder }: Props) {
+function PurchaseOrderForm({
+  purchaseOrder,
+  purchaseOrderPrimaryFile,
+  purchaseOrderSecondaryFiles,
+  setPurchaseOrder,
+  setPurchaseOrderPrimaryFile,
+  setPurchaseOrderSecondaryFiles,
+}: Props) {
   const classes = useStyles();
   const {
     user: { companyId },
@@ -74,15 +85,6 @@ function PurchaseOrderForm({ purchaseOrder, setPurchaseOrder }: Props) {
     },
   });
   const selectableVendors = data?.vendors;
-
-  const [
-    purchaseOrderPrimaryFile,
-    setPurchaseOrderPrimaryFile,
-  ] = useState<null | FileInDB>(null);
-  const [
-    purchaseOrderSecondaryFiles,
-    setPurchaseOrderSecondaryFiles,
-  ] = useState<FileInDB[]>([]);
 
   return (
     <Box display="flex" flexDirection="column">

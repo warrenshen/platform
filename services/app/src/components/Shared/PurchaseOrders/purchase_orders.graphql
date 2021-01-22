@@ -8,9 +8,23 @@ fragment PurchaseOrder on purchase_orders {
   amount
   status
   created_at
+  company {
+    id
+    name
+  }
   vendor {
     id
     name
+  }
+}
+
+fragment PurchaseOrderFile on purchase_order_files {
+  purchase_order_id
+  file_id
+  file {
+    id
+    name
+    path
   }
 }
 
@@ -24,22 +38,6 @@ query ListPurchaseOrders($company_id: uuid!) {
   }
 }
 
-query PurchaseOrder($id: uuid!) {
-  purchase_orders_by_pk(id: $id) {
-    ...PurchaseOrder
-    company {
-      id
-      name
-    }
-  }
-}
-
-mutation AddPurchaseOrder($purchase_order: purchase_orders_insert_input!) {
-  insert_purchase_orders_one(object: $purchase_order) {
-    ...PurchaseOrder
-  }
-}
-
 query ListPurchaseOrderVendors {
   vendors {
     id
@@ -47,11 +45,42 @@ query ListPurchaseOrderVendors {
   }
 }
 
+query PurchaseOrder($id: uuid!) {
+  purchase_orders_by_pk(id: $id) {
+    ...PurchaseOrder
+    purchase_order_files {
+      ...PurchaseOrderFile
+    }
+  }
+}
+
+mutation AddPurchaseOrder($purchase_order: purchase_orders_insert_input!) {
+  insert_purchase_orders_one(object: $purchase_order) {
+    ...PurchaseOrder
+    purchase_order_files {
+      ...PurchaseOrderFile
+    }
+  }
+}
+
 mutation UpdatePurchaseOrder(
   $id: uuid!
   $purchaseOrder: purchase_orders_set_input!
+  $purchaseOrderFiles: [purchase_order_files_insert_input!]!
 ) {
+  delete_purchase_order_files(where: { purchase_order_id: { _eq: $id } }) {
+    affected_rows
+  }
+  insert_purchase_order_files(objects: $purchaseOrderFiles) {
+    returning {
+      purchase_order_id
+      file_id
+    }
+  }
   update_purchase_orders_by_pk(pk_columns: { id: $id }, _set: $purchaseOrder) {
     ...PurchaseOrder
+    purchase_order_files {
+      ...PurchaseOrderFile
+    }
   }
 }

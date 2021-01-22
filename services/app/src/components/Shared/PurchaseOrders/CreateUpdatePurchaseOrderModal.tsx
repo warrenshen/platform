@@ -13,7 +13,6 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   ListPurchaseOrdersDocument,
   PurchaseOrderFragment,
-  PurchaseOrdersInsertInput,
   RequestStatusEnum,
   useAddPurchaseOrderMutation,
   usePurchaseOrderQuery,
@@ -79,6 +78,14 @@ function CreateUpdatePurchaseOrderModal({
   } as PurchaseOrderFragment;
 
   const [purchaseOrder, setPurchaseOrder] = useState(newPurchaseOrder);
+  const [
+    purchaseOrderPrimaryFile,
+    setPurchaseOrderPrimaryFile,
+  ] = useState<null | FileInDB>(null);
+  const [
+    purchaseOrderSecondaryFiles,
+    setPurchaseOrderSecondaryFiles,
+  ] = useState<FileInDB[]>([]);
 
   const { loading: isExistingPurchaseOrderLoading } = usePurchaseOrderQuery({
     variables: {
@@ -91,6 +98,9 @@ function CreateUpdatePurchaseOrderModal({
           mergeWith(newPurchaseOrder, existingPurchaseOrder, (a, b) =>
             isNull(b) ? a : b
           )
+        );
+        setPurchaseOrderPrimaryFile(
+          existingPurchaseOrder.purchase_order_files[0]?.file
         );
       }
     },
@@ -105,9 +115,6 @@ function CreateUpdatePurchaseOrderModal({
     updatePurchaseOrder,
     { loading: isUpdatePurchaseOrderLoading },
   ] = useUpdatePurchaseOrderMutation();
-
-  const [purchaseOrderPrimaryFile] = useState<null | FileInDB>(null);
-  const [purchaseOrderSecondaryFiles] = useState<FileInDB[]>([]);
 
   const isDialogReady = !isExistingPurchaseOrderLoading;
   const isFormValid = !!purchaseOrder.vendor_id;
@@ -124,11 +131,13 @@ function CreateUpdatePurchaseOrderModal({
 
   const upsertPurchaseOrderWithStatus = async (status: RequestStatusEnum) => {
     const primaryPurchaseOrderFileData = purchaseOrderPrimaryFile && {
+      purchase_order_id: purchaseOrder.id,
       file_id: purchaseOrderPrimaryFile.id,
     };
     const secondaryPurchaseOrderFilesData =
       purchaseOrderSecondaryFiles &&
       purchaseOrderSecondaryFiles.map((purchaseOrderSecondaryFile) => ({
+        purchase_order_id: purchaseOrder.id,
         file_id: purchaseOrderSecondaryFile.id,
       }));
     const purchaseOrderFilesData = [
@@ -147,6 +156,7 @@ function CreateUpdatePurchaseOrderModal({
             amount: purchaseOrder.amount || null,
             status: status,
           },
+          purchaseOrderFiles: purchaseOrderFilesData,
         },
         refetchQueries: [
           {
@@ -170,7 +180,7 @@ function CreateUpdatePurchaseOrderModal({
             purchase_order_files: {
               data: purchaseOrderFilesData,
             },
-          } as PurchaseOrdersInsertInput,
+          },
         },
         refetchQueries: [
           {
@@ -209,7 +219,11 @@ function CreateUpdatePurchaseOrderModal({
       <DialogContent>
         <PurchaseOrderForm
           purchaseOrder={purchaseOrder}
+          purchaseOrderPrimaryFile={purchaseOrderPrimaryFile}
+          purchaseOrderSecondaryFiles={purchaseOrderSecondaryFiles}
           setPurchaseOrder={setPurchaseOrder}
+          setPurchaseOrderPrimaryFile={setPurchaseOrderPrimaryFile}
+          setPurchaseOrderSecondaryFiles={setPurchaseOrderSecondaryFiles}
         ></PurchaseOrderForm>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>

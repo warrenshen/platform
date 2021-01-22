@@ -7580,7 +7580,12 @@ export type ListVendorsByCompanyQuery = { vendors: Array<(
 
 export type PurchaseOrderFragment = (
   Pick<PurchaseOrders, 'id' | 'company_id' | 'vendor_id' | 'order_date' | 'delivery_date' | 'order_number' | 'amount' | 'status' | 'created_at'>
-  & { vendor?: Maybe<Pick<Vendors, 'id' | 'name'>> }
+  & { company: Pick<Companies, 'id' | 'name'>, vendor?: Maybe<Pick<Vendors, 'id' | 'name'>> }
+);
+
+export type PurchaseOrderFileFragment = (
+  Pick<PurchaseOrderFiles, 'purchase_order_id' | 'file_id'>
+  & { file: Pick<Files, 'id' | 'name' | 'path'> }
 );
 
 export type ListPurchaseOrdersQueryVariables = Exact<{
@@ -7593,13 +7598,18 @@ export type ListPurchaseOrdersQuery = { purchase_orders: Array<(
     & PurchaseOrderFragment
   )> };
 
+export type ListPurchaseOrderVendorsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListPurchaseOrderVendorsQuery = { vendors: Array<Pick<Vendors, 'id' | 'name'>> };
+
 export type PurchaseOrderQueryVariables = Exact<{
   id: Scalars['uuid'];
 }>;
 
 
 export type PurchaseOrderQuery = { purchase_orders_by_pk?: Maybe<(
-    { company: Pick<Companies, 'id' | 'name'> }
+    { purchase_order_files: Array<PurchaseOrderFileFragment> }
     & PurchaseOrderFragment
   )> };
 
@@ -7608,20 +7618,22 @@ export type AddPurchaseOrderMutationVariables = Exact<{
 }>;
 
 
-export type AddPurchaseOrderMutation = { insert_purchase_orders_one?: Maybe<PurchaseOrderFragment> };
-
-export type ListPurchaseOrderVendorsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type ListPurchaseOrderVendorsQuery = { vendors: Array<Pick<Vendors, 'id' | 'name'>> };
+export type AddPurchaseOrderMutation = { insert_purchase_orders_one?: Maybe<(
+    { purchase_order_files: Array<PurchaseOrderFileFragment> }
+    & PurchaseOrderFragment
+  )> };
 
 export type UpdatePurchaseOrderMutationVariables = Exact<{
   id: Scalars['uuid'];
   purchaseOrder: PurchaseOrdersSetInput;
+  purchaseOrderFiles: Array<PurchaseOrderFilesInsertInput>;
 }>;
 
 
-export type UpdatePurchaseOrderMutation = { update_purchase_orders_by_pk?: Maybe<PurchaseOrderFragment> };
+export type UpdatePurchaseOrderMutation = { delete_purchase_order_files?: Maybe<Pick<PurchaseOrderFilesMutationResponse, 'affected_rows'>>, insert_purchase_order_files?: Maybe<{ returning: Array<Pick<PurchaseOrderFiles, 'purchase_order_id' | 'file_id'>> }>, update_purchase_orders_by_pk?: Maybe<(
+    { purchase_order_files: Array<PurchaseOrderFileFragment> }
+    & PurchaseOrderFragment
+  )> };
 
 export type ContactFragment = Pick<Users, 'id' | 'company_id' | 'full_name' | 'first_name' | 'last_name' | 'email' | 'phone_number' | 'created_at'>;
 
@@ -7940,9 +7952,24 @@ export const PurchaseOrderFragmentDoc = gql`
   amount
   status
   created_at
+  company {
+    id
+    name
+  }
   vendor {
     id
     name
+  }
+}
+    `;
+export const PurchaseOrderFileFragmentDoc = gql`
+    fragment PurchaseOrderFile on purchase_order_files {
+  purchase_order_id
+  file_id
+  file {
+    id
+    name
+    path
   }
 }
     `;
@@ -8734,75 +8761,6 @@ export function useListPurchaseOrdersLazyQuery(baseOptions?: Apollo.LazyQueryHoo
 export type ListPurchaseOrdersQueryHookResult = ReturnType<typeof useListPurchaseOrdersQuery>;
 export type ListPurchaseOrdersLazyQueryHookResult = ReturnType<typeof useListPurchaseOrdersLazyQuery>;
 export type ListPurchaseOrdersQueryResult = Apollo.QueryResult<ListPurchaseOrdersQuery, ListPurchaseOrdersQueryVariables>;
-export const PurchaseOrderDocument = gql`
-    query PurchaseOrder($id: uuid!) {
-  purchase_orders_by_pk(id: $id) {
-    ...PurchaseOrder
-    company {
-      id
-      name
-    }
-  }
-}
-    ${PurchaseOrderFragmentDoc}`;
-
-/**
- * __usePurchaseOrderQuery__
- *
- * To run a query within a React component, call `usePurchaseOrderQuery` and pass it any options that fit your needs.
- * When your component renders, `usePurchaseOrderQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = usePurchaseOrderQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function usePurchaseOrderQuery(baseOptions: Apollo.QueryHookOptions<PurchaseOrderQuery, PurchaseOrderQueryVariables>) {
-        return Apollo.useQuery<PurchaseOrderQuery, PurchaseOrderQueryVariables>(PurchaseOrderDocument, baseOptions);
-      }
-export function usePurchaseOrderLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PurchaseOrderQuery, PurchaseOrderQueryVariables>) {
-          return Apollo.useLazyQuery<PurchaseOrderQuery, PurchaseOrderQueryVariables>(PurchaseOrderDocument, baseOptions);
-        }
-export type PurchaseOrderQueryHookResult = ReturnType<typeof usePurchaseOrderQuery>;
-export type PurchaseOrderLazyQueryHookResult = ReturnType<typeof usePurchaseOrderLazyQuery>;
-export type PurchaseOrderQueryResult = Apollo.QueryResult<PurchaseOrderQuery, PurchaseOrderQueryVariables>;
-export const AddPurchaseOrderDocument = gql`
-    mutation AddPurchaseOrder($purchase_order: purchase_orders_insert_input!) {
-  insert_purchase_orders_one(object: $purchase_order) {
-    ...PurchaseOrder
-  }
-}
-    ${PurchaseOrderFragmentDoc}`;
-export type AddPurchaseOrderMutationFn = Apollo.MutationFunction<AddPurchaseOrderMutation, AddPurchaseOrderMutationVariables>;
-
-/**
- * __useAddPurchaseOrderMutation__
- *
- * To run a mutation, you first call `useAddPurchaseOrderMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddPurchaseOrderMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [addPurchaseOrderMutation, { data, loading, error }] = useAddPurchaseOrderMutation({
- *   variables: {
- *      purchase_order: // value for 'purchase_order'
- *   },
- * });
- */
-export function useAddPurchaseOrderMutation(baseOptions?: Apollo.MutationHookOptions<AddPurchaseOrderMutation, AddPurchaseOrderMutationVariables>) {
-        return Apollo.useMutation<AddPurchaseOrderMutation, AddPurchaseOrderMutationVariables>(AddPurchaseOrderDocument, baseOptions);
-      }
-export type AddPurchaseOrderMutationHookResult = ReturnType<typeof useAddPurchaseOrderMutation>;
-export type AddPurchaseOrderMutationResult = Apollo.MutationResult<AddPurchaseOrderMutation>;
-export type AddPurchaseOrderMutationOptions = Apollo.BaseMutationOptions<AddPurchaseOrderMutation, AddPurchaseOrderMutationVariables>;
 export const ListPurchaseOrderVendorsDocument = gql`
     query ListPurchaseOrderVendors {
   vendors {
@@ -8836,13 +8794,99 @@ export function useListPurchaseOrderVendorsLazyQuery(baseOptions?: Apollo.LazyQu
 export type ListPurchaseOrderVendorsQueryHookResult = ReturnType<typeof useListPurchaseOrderVendorsQuery>;
 export type ListPurchaseOrderVendorsLazyQueryHookResult = ReturnType<typeof useListPurchaseOrderVendorsLazyQuery>;
 export type ListPurchaseOrderVendorsQueryResult = Apollo.QueryResult<ListPurchaseOrderVendorsQuery, ListPurchaseOrderVendorsQueryVariables>;
-export const UpdatePurchaseOrderDocument = gql`
-    mutation UpdatePurchaseOrder($id: uuid!, $purchaseOrder: purchase_orders_set_input!) {
-  update_purchase_orders_by_pk(pk_columns: {id: $id}, _set: $purchaseOrder) {
+export const PurchaseOrderDocument = gql`
+    query PurchaseOrder($id: uuid!) {
+  purchase_orders_by_pk(id: $id) {
     ...PurchaseOrder
+    purchase_order_files {
+      ...PurchaseOrderFile
+    }
   }
 }
-    ${PurchaseOrderFragmentDoc}`;
+    ${PurchaseOrderFragmentDoc}
+${PurchaseOrderFileFragmentDoc}`;
+
+/**
+ * __usePurchaseOrderQuery__
+ *
+ * To run a query within a React component, call `usePurchaseOrderQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePurchaseOrderQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePurchaseOrderQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function usePurchaseOrderQuery(baseOptions: Apollo.QueryHookOptions<PurchaseOrderQuery, PurchaseOrderQueryVariables>) {
+        return Apollo.useQuery<PurchaseOrderQuery, PurchaseOrderQueryVariables>(PurchaseOrderDocument, baseOptions);
+      }
+export function usePurchaseOrderLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PurchaseOrderQuery, PurchaseOrderQueryVariables>) {
+          return Apollo.useLazyQuery<PurchaseOrderQuery, PurchaseOrderQueryVariables>(PurchaseOrderDocument, baseOptions);
+        }
+export type PurchaseOrderQueryHookResult = ReturnType<typeof usePurchaseOrderQuery>;
+export type PurchaseOrderLazyQueryHookResult = ReturnType<typeof usePurchaseOrderLazyQuery>;
+export type PurchaseOrderQueryResult = Apollo.QueryResult<PurchaseOrderQuery, PurchaseOrderQueryVariables>;
+export const AddPurchaseOrderDocument = gql`
+    mutation AddPurchaseOrder($purchase_order: purchase_orders_insert_input!) {
+  insert_purchase_orders_one(object: $purchase_order) {
+    ...PurchaseOrder
+    purchase_order_files {
+      ...PurchaseOrderFile
+    }
+  }
+}
+    ${PurchaseOrderFragmentDoc}
+${PurchaseOrderFileFragmentDoc}`;
+export type AddPurchaseOrderMutationFn = Apollo.MutationFunction<AddPurchaseOrderMutation, AddPurchaseOrderMutationVariables>;
+
+/**
+ * __useAddPurchaseOrderMutation__
+ *
+ * To run a mutation, you first call `useAddPurchaseOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddPurchaseOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addPurchaseOrderMutation, { data, loading, error }] = useAddPurchaseOrderMutation({
+ *   variables: {
+ *      purchase_order: // value for 'purchase_order'
+ *   },
+ * });
+ */
+export function useAddPurchaseOrderMutation(baseOptions?: Apollo.MutationHookOptions<AddPurchaseOrderMutation, AddPurchaseOrderMutationVariables>) {
+        return Apollo.useMutation<AddPurchaseOrderMutation, AddPurchaseOrderMutationVariables>(AddPurchaseOrderDocument, baseOptions);
+      }
+export type AddPurchaseOrderMutationHookResult = ReturnType<typeof useAddPurchaseOrderMutation>;
+export type AddPurchaseOrderMutationResult = Apollo.MutationResult<AddPurchaseOrderMutation>;
+export type AddPurchaseOrderMutationOptions = Apollo.BaseMutationOptions<AddPurchaseOrderMutation, AddPurchaseOrderMutationVariables>;
+export const UpdatePurchaseOrderDocument = gql`
+    mutation UpdatePurchaseOrder($id: uuid!, $purchaseOrder: purchase_orders_set_input!, $purchaseOrderFiles: [purchase_order_files_insert_input!]!) {
+  delete_purchase_order_files(where: {purchase_order_id: {_eq: $id}}) {
+    affected_rows
+  }
+  insert_purchase_order_files(objects: $purchaseOrderFiles) {
+    returning {
+      purchase_order_id
+      file_id
+    }
+  }
+  update_purchase_orders_by_pk(pk_columns: {id: $id}, _set: $purchaseOrder) {
+    ...PurchaseOrder
+    purchase_order_files {
+      ...PurchaseOrderFile
+    }
+  }
+}
+    ${PurchaseOrderFragmentDoc}
+${PurchaseOrderFileFragmentDoc}`;
 export type UpdatePurchaseOrderMutationFn = Apollo.MutationFunction<UpdatePurchaseOrderMutation, UpdatePurchaseOrderMutationVariables>;
 
 /**
@@ -8860,6 +8904,7 @@ export type UpdatePurchaseOrderMutationFn = Apollo.MutationFunction<UpdatePurcha
  *   variables: {
  *      id: // value for 'id'
  *      purchaseOrder: // value for 'purchaseOrder'
+ *      purchaseOrderFiles: // value for 'purchaseOrderFiles'
  *   },
  * });
  */
