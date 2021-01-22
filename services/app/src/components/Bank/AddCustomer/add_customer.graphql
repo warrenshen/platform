@@ -1,0 +1,24 @@
+fragment CompanySetting on company_settings {
+  id
+  company_id
+  product_type
+  product_config
+  vendor_agreement_docusign_template
+  collections_bespoke_bank_account {
+    ...BankAccount
+  }
+  advances_bespoke_bank_account {
+    ...BankAccount
+  }
+}
+
+mutation AddCustomer($customer: companies_insert_input!) {
+  insert_companies_one(object: $customer) {
+    id
+    name
+    setting {
+      id
+      product_type
+    }
+  }
+}

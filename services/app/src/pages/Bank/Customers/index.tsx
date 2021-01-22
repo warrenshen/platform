@@ -9,6 +9,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import AddButton from "components/Bank/AddCustomer/AddButton";
 import { useBankCustomersQuery } from "generated/graphql";
 import useAppBarTitle from "hooks/useAppBarTitle";
 import { bankRoutes } from "lib/routes";
@@ -41,6 +42,9 @@ function Customers() {
 
   return (
     <>
+      <Box display="flex" flexDirection="row-reverse">
+        <AddButton></AddButton>
+      </Box>
       <Box display="flex" flexWrap="wrap">
         {customers.map((customer) => {
           return (

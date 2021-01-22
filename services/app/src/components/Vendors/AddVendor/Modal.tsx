@@ -160,6 +160,9 @@ function RegisterVendorModal(props: Props) {
                         users: {
                           data: [{ ...contact }],
                         },
+                        setting: {
+                          data: {},
+                        },
                       },
                     },
                   },

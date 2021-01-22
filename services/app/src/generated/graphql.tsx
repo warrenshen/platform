@@ -389,6 +389,7 @@ export type Companies = {
   /** An object relationship */
   collections_bespoke_bank_account?: Maybe<BankAccounts>;
   collections_bespoke_bank_account_id?: Maybe<Scalars['uuid']>;
+  company_settings_id: Scalars['uuid'];
   /** An array relationship */
   company_vendor_partnerships: Array<CompanyVendorPartnerships>;
   /** An aggregated array relationship */
@@ -417,6 +418,8 @@ export type Companies = {
   purchase_orders_by_vendor: Array<PurchaseOrders>;
   /** An aggregated array relationship */
   purchase_orders_by_vendor_aggregate: PurchaseOrdersAggregate;
+  /** An object relationship */
+  setting: CompanySettings;
   state?: Maybe<Scalars['String']>;
   updated_at: Scalars['timestamptz'];
   /** An array relationship */
@@ -632,6 +635,7 @@ export type CompaniesBoolExp = {
   city?: Maybe<StringComparisonExp>;
   collections_bespoke_bank_account?: Maybe<BankAccountsBoolExp>;
   collections_bespoke_bank_account_id?: Maybe<UuidComparisonExp>;
+  company_settings_id?: Maybe<UuidComparisonExp>;
   company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsBoolExp>;
   company_vendor_partnerships_by_vendor?: Maybe<CompanyVendorPartnershipsBoolExp>;
   country?: Maybe<StringComparisonExp>;
@@ -645,6 +649,7 @@ export type CompaniesBoolExp = {
   phone_number?: Maybe<StringComparisonExp>;
   purchase_orders?: Maybe<PurchaseOrdersBoolExp>;
   purchase_orders_by_vendor?: Maybe<PurchaseOrdersBoolExp>;
+  setting?: Maybe<CompanySettingsBoolExp>;
   state?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
   users?: Maybe<UsersBoolExp>;
@@ -667,6 +672,7 @@ export type CompaniesInsertInput = {
   city?: Maybe<Scalars['String']>;
   collections_bespoke_bank_account?: Maybe<BankAccountsObjRelInsertInput>;
   collections_bespoke_bank_account_id?: Maybe<Scalars['uuid']>;
+  company_settings_id?: Maybe<Scalars['uuid']>;
   company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsArrRelInsertInput>;
   company_vendor_partnerships_by_vendor?: Maybe<CompanyVendorPartnershipsArrRelInsertInput>;
   country?: Maybe<Scalars['String']>;
@@ -680,6 +686,7 @@ export type CompaniesInsertInput = {
   phone_number?: Maybe<Scalars['String']>;
   purchase_orders?: Maybe<PurchaseOrdersArrRelInsertInput>;
   purchase_orders_by_vendor?: Maybe<PurchaseOrdersArrRelInsertInput>;
+  setting?: Maybe<CompanySettingsObjRelInsertInput>;
   state?: Maybe<Scalars['String']>;
   updated_at?: Maybe<Scalars['timestamptz']>;
   users?: Maybe<UsersArrRelInsertInput>;
@@ -692,6 +699,7 @@ export type CompaniesMaxFields = {
   advances_bespoke_bank_account_id?: Maybe<Scalars['uuid']>;
   city?: Maybe<Scalars['String']>;
   collections_bespoke_bank_account_id?: Maybe<Scalars['uuid']>;
+  company_settings_id?: Maybe<Scalars['uuid']>;
   country?: Maybe<Scalars['String']>;
   created_at?: Maybe<Scalars['timestamptz']>;
   dba_name?: Maybe<Scalars['String']>;
@@ -710,6 +718,7 @@ export type CompaniesMaxOrderBy = {
   advances_bespoke_bank_account_id?: Maybe<OrderBy>;
   city?: Maybe<OrderBy>;
   collections_bespoke_bank_account_id?: Maybe<OrderBy>;
+  company_settings_id?: Maybe<OrderBy>;
   country?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   dba_name?: Maybe<OrderBy>;
@@ -728,6 +737,7 @@ export type CompaniesMinFields = {
   advances_bespoke_bank_account_id?: Maybe<Scalars['uuid']>;
   city?: Maybe<Scalars['String']>;
   collections_bespoke_bank_account_id?: Maybe<Scalars['uuid']>;
+  company_settings_id?: Maybe<Scalars['uuid']>;
   country?: Maybe<Scalars['String']>;
   created_at?: Maybe<Scalars['timestamptz']>;
   dba_name?: Maybe<Scalars['String']>;
@@ -746,6 +756,7 @@ export type CompaniesMinOrderBy = {
   advances_bespoke_bank_account_id?: Maybe<OrderBy>;
   city?: Maybe<OrderBy>;
   collections_bespoke_bank_account_id?: Maybe<OrderBy>;
+  company_settings_id?: Maybe<OrderBy>;
   country?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   dba_name?: Maybe<OrderBy>;
@@ -789,6 +800,7 @@ export type CompaniesOrderBy = {
   city?: Maybe<OrderBy>;
   collections_bespoke_bank_account?: Maybe<BankAccountsOrderBy>;
   collections_bespoke_bank_account_id?: Maybe<OrderBy>;
+  company_settings_id?: Maybe<OrderBy>;
   company_vendor_partnerships_aggregate?: Maybe<CompanyVendorPartnershipsAggregateOrderBy>;
   company_vendor_partnerships_by_vendor_aggregate?: Maybe<CompanyVendorPartnershipsAggregateOrderBy>;
   country?: Maybe<OrderBy>;
@@ -802,6 +814,7 @@ export type CompaniesOrderBy = {
   phone_number?: Maybe<OrderBy>;
   purchase_orders_aggregate?: Maybe<PurchaseOrdersAggregateOrderBy>;
   purchase_orders_by_vendor_aggregate?: Maybe<PurchaseOrdersAggregateOrderBy>;
+  setting?: Maybe<CompanySettingsOrderBy>;
   state?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   users_aggregate?: Maybe<UsersAggregateOrderBy>;
@@ -823,6 +836,8 @@ export enum CompaniesSelectColumn {
   City = 'city',
   /** column name */
   CollectionsBespokeBankAccountId = 'collections_bespoke_bank_account_id',
+  /** column name */
+  CompanySettingsId = 'company_settings_id',
   /** column name */
   Country = 'country',
   /** column name */
@@ -853,6 +868,7 @@ export type CompaniesSetInput = {
   advances_bespoke_bank_account_id?: Maybe<Scalars['uuid']>;
   city?: Maybe<Scalars['String']>;
   collections_bespoke_bank_account_id?: Maybe<Scalars['uuid']>;
+  company_settings_id?: Maybe<Scalars['uuid']>;
   country?: Maybe<Scalars['String']>;
   created_at?: Maybe<Scalars['timestamptz']>;
   dba_name?: Maybe<Scalars['String']>;
@@ -876,6 +892,8 @@ export enum CompaniesUpdateColumn {
   City = 'city',
   /** column name */
   CollectionsBespokeBankAccountId = 'collections_bespoke_bank_account_id',
+  /** column name */
+  CompanySettingsId = 'company_settings_id',
   /** column name */
   Country = 'country',
   /** column name */
@@ -1273,8 +1291,8 @@ export type CompanySettings = {
   collections_bespoke_bank_account?: Maybe<BankAccounts>;
   collections_bespoke_bank_account_id?: Maybe<Scalars['uuid']>;
   /** An object relationship */
-  company: Companies;
-  company_id: Scalars['uuid'];
+  company?: Maybe<Companies>;
+  company_id?: Maybe<Scalars['uuid']>;
   id: Scalars['uuid'];
   product_config: Scalars['jsonb'];
   product_type: ProductTypeEnum;
@@ -3784,6 +3802,8 @@ export enum ProductTypeEnum {
   InvoiceFinancing = 'invoice_financing',
   /** Line of Credit */
   LineOfCredit = 'line_of_credit',
+  /** None */
+  None = 'none',
   /** Purchase Money Financing */
   PurchaseMoneyFinancing = 'purchase_money_financing'
 }
@@ -7414,6 +7434,21 @@ export type VendorsSetInput = {
   phone_number?: Maybe<Scalars['String']>;
 };
 
+export type CompanySettingFragment = (
+  Pick<CompanySettings, 'id' | 'company_id' | 'product_type' | 'product_config' | 'vendor_agreement_docusign_template'>
+  & { collections_bespoke_bank_account?: Maybe<BankAccountFragment>, advances_bespoke_bank_account?: Maybe<BankAccountFragment> }
+);
+
+export type AddCustomerMutationVariables = Exact<{
+  customer: CompaniesInsertInput;
+}>;
+
+
+export type AddCustomerMutation = { insert_companies_one?: Maybe<(
+    Pick<Companies, 'id' | 'name'>
+    & { setting: Pick<CompanySettings, 'id' | 'product_type'> }
+  )> };
+
 export type BankCustomerQueryVariables = Exact<{
   id: Scalars['uuid'];
 }>;
@@ -7902,6 +7937,21 @@ export const BankAccountFragmentDoc = gql`
   verified_at
 }
     `;
+export const CompanySettingFragmentDoc = gql`
+    fragment CompanySetting on company_settings {
+  id
+  company_id
+  product_type
+  product_config
+  vendor_agreement_docusign_template
+  collections_bespoke_bank_account {
+    ...BankAccount
+  }
+  advances_bespoke_bank_account {
+    ...BankAccount
+  }
+}
+    ${BankAccountFragmentDoc}`;
 export const CompanyFragmentDoc = gql`
     fragment Company on companies {
   id
@@ -8098,6 +8148,43 @@ export const UserFragmentDoc = gql`
   created_at
 }
     `;
+export const AddCustomerDocument = gql`
+    mutation AddCustomer($customer: companies_insert_input!) {
+  insert_companies_one(object: $customer) {
+    id
+    name
+    setting {
+      id
+      product_type
+    }
+  }
+}
+    `;
+export type AddCustomerMutationFn = Apollo.MutationFunction<AddCustomerMutation, AddCustomerMutationVariables>;
+
+/**
+ * __useAddCustomerMutation__
+ *
+ * To run a mutation, you first call `useAddCustomerMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddCustomerMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addCustomerMutation, { data, loading, error }] = useAddCustomerMutation({
+ *   variables: {
+ *      customer: // value for 'customer'
+ *   },
+ * });
+ */
+export function useAddCustomerMutation(baseOptions?: Apollo.MutationHookOptions<AddCustomerMutation, AddCustomerMutationVariables>) {
+        return Apollo.useMutation<AddCustomerMutation, AddCustomerMutationVariables>(AddCustomerDocument, baseOptions);
+      }
+export type AddCustomerMutationHookResult = ReturnType<typeof useAddCustomerMutation>;
+export type AddCustomerMutationResult = Apollo.MutationResult<AddCustomerMutation>;
+export type AddCustomerMutationOptions = Apollo.BaseMutationOptions<AddCustomerMutation, AddCustomerMutationVariables>;
 export const BankCustomerDocument = gql`
     query BankCustomer($id: uuid!) {
   companies_by_pk(id: $id) {
