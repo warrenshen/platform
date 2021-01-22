@@ -101,6 +101,8 @@ class PurchaseOrder(Base):
     if TYPE_CHECKING:
         def __init__(self, number: str, total_requested: float, confirmed: bool) -> None:
             self.__table__: Any = None
+            self.amount: float = None
+            self.status: str = None
     else:
         id = Column(UUID(as_uuid=True), primary_key=True)
         vendor_id = Column(Integer, ForeignKey('companies.id'))

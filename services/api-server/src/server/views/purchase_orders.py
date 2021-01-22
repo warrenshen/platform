@@ -9,6 +9,8 @@ from flask_jwt_extended import jwt_required
 
 handler = Blueprint('purchase_orders', __name__)
 
+def make_error_response(msg: str) -> Response:
+    return make_response(json.dumps({'status': 'ERROR', 'msg': msg}), 200)
 
 class RequestStatusEnum():
     ApprovalRequested = 'approval_requested'
