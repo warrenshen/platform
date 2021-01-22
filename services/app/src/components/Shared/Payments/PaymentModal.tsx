@@ -6,9 +6,6 @@ import {
   DialogContent,
   DialogTitle,
   FormControl,
-  Input,
-  InputAdornment,
-  InputLabel,
   MenuItem,
   Select,
 } from "@material-ui/core";
@@ -16,6 +13,7 @@ import BankToBankTransfer, {
   PaymentTransferDirection,
 } from "components/Shared/BankToBankTransfer";
 import CompanyBank from "components/Shared/BankToBankTransfer/CompanyBank";
+import InputCurrencyAutoFormatter from "components/Shared/InputCurrencyAutoFormatter";
 import {
   BankAccounts,
   Companies,
@@ -73,19 +71,14 @@ function PaymentModal(props: Props) {
       <DialogContent style={{ height: 500 }}>
         <Box display="flex" flexDirection="column">
           <FormControl style={{ width: 200 }}>
-            <InputLabel htmlFor="standard-adornment-amount">Amount</InputLabel>
-            <Input
-              id="standard-adornment-amount"
-              value={payment.amount}
-              type="number"
-              onChange={({ target: { value } }) => {
+            <InputCurrencyAutoFormatter
+              label="Amount"
+              defaultValue={payment.amount}
+              onChange={(value) => {
                 setPayment((payment) => {
-                  return { ...payment, amount: Number(value) };
+                  return { ...payment, amount: value };
                 });
               }}
-              startAdornment={
-                <InputAdornment position="start">$</InputAdornment>
-              }
             />
           </FormControl>
           <Box mt={3}>

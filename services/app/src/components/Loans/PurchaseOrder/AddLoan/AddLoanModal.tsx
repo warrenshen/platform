@@ -8,8 +8,6 @@ import {
   DialogContent,
   DialogTitle,
   FormControl,
-  Input,
-  InputAdornment,
   InputLabel,
   makeStyles,
   MenuItem,
@@ -22,6 +20,7 @@ import {
 } from "@material-ui/pickers";
 import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
 import InfoCard from "components/Shared/PurchaseOrder/InfoCard";
+import InputCurrencyAutoFormatter from "components/Shared/InputCurrencyAutoFormatter";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   ListPurchaseOrderLoansForCustomerDocument,
@@ -218,22 +217,15 @@ function AddLoanModal({ handleClose }: Props) {
           </Box>
           <Box mt={3}>
             <FormControl fullWidth className={classes.purchaseOrderInput}>
-              <InputLabel htmlFor="standard-adornment-amount">
-                Amount
-              </InputLabel>
-              <Input
-                id="standard-adornment-amount"
-                type="number"
-                value={loan.amount}
-                onChange={({ target: { value } }) => {
+              <InputCurrencyAutoFormatter
+                label="Amount"
+                defaultValue={loan.amount}
+                onChange={(value) => {
                   setLoan({
                     ...loan,
-                    amount: Number(value),
+                    amount: value,
                   });
                 }}
-                startAdornment={
-                  <InputAdornment position="start">$</InputAdornment>
-                }
               />
             </FormControl>
           </Box>

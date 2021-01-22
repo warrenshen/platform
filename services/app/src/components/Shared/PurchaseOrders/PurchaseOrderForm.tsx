@@ -19,6 +19,7 @@ import {
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
 import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
+import InputCurrencyAutoFormatter from "components/Shared/InputCurrencyAutoFormatter";
 import FileUploadDropzone from "components/Shared/File/UploadDropzone";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
@@ -178,18 +179,15 @@ function PurchaseOrderForm({
       </Box>
       <Box mt={3}>
         <FormControl fullWidth className={classes.purchaseOrderInput}>
-          <InputLabel htmlFor="standard-adornment-amount">Amount</InputLabel>
-          <Input
-            id="standard-adornment-amount"
-            value={purchaseOrder.amount}
-            type="number"
-            onChange={({ target: { value } }) => {
+          <InputCurrencyAutoFormatter
+            label="Amount"
+            defaultValue={purchaseOrder.amount}
+            onChange={(value) => {
               setPurchaseOrder({
                 ...purchaseOrder,
-                amount: Number(value),
+                amount: value,
               });
             }}
-            startAdornment={<InputAdornment position="start">$</InputAdornment>}
           />
         </FormControl>
       </Box>
