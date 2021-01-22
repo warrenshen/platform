@@ -2,6 +2,7 @@ import json
 import os
 
 from typing import Dict
+from bespoke.security import security_util
 
 def _string_to_bool(text: str) -> bool:
   return text.lower() == 'true'
@@ -35,6 +36,8 @@ class Config(object):
 		# is completely setup
 		self.NO_REPLY_EMAIL_ADDRESS = os.environ.get(
 			'NO_REPLY_EMAIL_ADDRESS', 'rachel@bespokefinancial.com')
+		self.SUPPORT_EMAIL_ADDRESS = os.environ.get(
+			'SUPPORT_EMAIL_ADDRESS', 'support@bespokefinancial.com')
 		self.SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
 		self.BESPOKE_DOMAIN = os.environ.get('BESPOKE_DOMAIN', 'http://localhost:3005')
 
@@ -45,11 +48,15 @@ class Config(object):
 		# Logging
 		self.SENTRY_DSN = os.environ.get('SENTRY_DSN')
 
+	def get_security_config(self) -> security_util.ConfigDict:
+		return security_util.ConfigDict(
+			URL_SECRET_KEY=self.URL_SECRET_KEY,
+			URL_SALT=self.URL_SALT,
+			BESPOKE_DOMAIN=self.BESPOKE_DOMAIN
+		)
+
 	def is_development_env(self) -> bool:
 		return is_development_env(self.FLASK_ENV)
-
-	def get_secure_link(self, two_factor_row_id: str) -> str:
-		return self.BESPOKE_DOMAIN + '/get_secure_link?val=' + two_factor_row_id 
 
 	def as_dict(self) -> Dict:
 	  attr_names = dir(self)

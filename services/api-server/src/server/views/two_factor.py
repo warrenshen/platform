@@ -11,7 +11,7 @@ from flask_jwt_extended import jwt_required
 from sqlalchemy.orm.attributes import flag_modified
 from typing import cast
 
-from server.views.common import security_util
+from bespoke.security import security_util
 from server.config import Config
 
 
@@ -40,7 +40,7 @@ class GenerateCodeView(MethodView):
 				return make_error_response(f'Missing {key} generate code request')
 
 		link_val = form['link_val']
-		link_info = security_util.get_link_info_from_url(link_val, cfg)
+		link_info = security_util.get_link_info_from_url(link_val, cfg.get_security_config())
 		email = link_info['email']
 
 		# TODO(dlluncor): Check if link is expired
@@ -76,7 +76,7 @@ class GetSecureLinkView(MethodView):
 		if not link_signed_val:
 			return make_error_response('Link provided does not exist')
 
-		link_info = security_util.get_link_info_from_url(link_signed_val, cfg)
+		link_info = security_util.get_link_info_from_url(link_signed_val, cfg.get_security_config())
 
 		with session_scope(current_app.session_maker) as session:
 			two_factor_link = cast(models.TwoFactorLink, session.query(models.TwoFactorLink).filter(
@@ -113,7 +113,7 @@ class GetSecureLinkView(MethodView):
 		if not provided_token_val:
 			return make_error_response('No token value provided')
 
-		link_info = security_util.get_link_info_from_url(link_val, cfg)
+		link_info = security_util.get_link_info_from_url(link_val, cfg.get_security_config())
 		email = link_info['email']
 
 		with session_scope(current_app.session_maker) as session:

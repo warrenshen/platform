@@ -11,7 +11,7 @@ import smtplib
 import logging
 import boto3
 
-from typing import Any, List, Text, Tuple, Union, Dict
+from typing import Any, List, Tuple, Union, Dict
 from mypy_extensions import TypedDict
 
 from email.mime.multipart import MIMEMultipart
@@ -67,32 +67,15 @@ SendGridConfigDict = TypedDict('SendGridConfigDict', {
 EmailConfigDict = TypedDict(
 	'EmailConfigDict', {
 		'email_provider': str,
-		'from_addr': Text,
+		'from_addr': str,
+		'support_email_addr': str,
 		'sendgrid_config': SendGridConfigDict
 	})
 
 EmailDestination = Union[str, List[str]]
 SendResponse = Union[int, Future]
 
-class EmailClient(object):
-
-	def send(
-		self,
-		*,
-		to_: EmailDestination,
-		subject: str,
-		async_: bool = False,
-		content: str,
-		content_type: str = "text/plain",
-	) -> Optional[Future]:
-		pass
-
-	def send_dynamic_email_template(
-	  self, to_: EmailDestination, template_id: str, 
-	  template_data: Dict, async_:bool=False) -> Optional[Future]:
-		pass
-
-class EmailSender(EmailClient):
+class EmailSender(object):
 	"""
 	EmailSender provides simple interface for sending emails via SendGrid.
 	Once class is instantiated, only single method is exposed: `send`.
@@ -105,7 +88,7 @@ class EmailSender(EmailClient):
 	threads that do the waiting.
 	"""
 
-	def __init__(self, api_key: str, from_: str, *, max_workers: int = 2):
+	def __init__(self, config: EmailConfigDict, max_workers: int = 2):
 		"""
 		:param api_key: SendGrid API key obtained from SendGrid account.
 		:param from_:
@@ -113,6 +96,10 @@ class EmailSender(EmailClient):
 			address of in fom "Example Name <example@example.com>".
 		:param max_workers: Max number of thread workers for async mode.
 		"""
+		api_key = config['sendgrid_config']['api_key']
+		from_ = config['from_addr']
+
+		self.config = config
 		self._from = Email(from_)
 		self._client = SendGridAPIClient(api_key=api_key)
 		self._thread_pool = ThreadPoolExecutor(
@@ -212,11 +199,5 @@ class EmailSendingException(Exception):
 	Indicates error while sending an email.
 	"""
 
-def new_client(config: EmailConfigDict) -> EmailClient:
-	email_provider = config['email_provider']
-	if email_provider == 'sendgrid':
-		api_key = config['sendgrid_config']['api_key']
-		from_addr = config['from_addr']
-		return EmailSender(api_key, from_addr)
-
-	raise Exception('Unsupported email provided {}'.format(email_provider))
+def new_client(config: EmailConfigDict) -> EmailSender:
+	return EmailSender(config)

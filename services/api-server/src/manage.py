@@ -14,6 +14,7 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.email import email_manager
+from bespoke.email import sendgrid_util
 from bespoke.email.email_manager import EmailConfigDict, SendGridConfigDict
 from server.config import get_config, is_development_env
 from server.views import auth, files, notify, purchase_orders, two_factor
@@ -44,16 +45,6 @@ manager = Manager(app)
 
 app.config.update(config.as_dict())
 
-email_config = EmailConfigDict(
-    email_provider=config.EMAIL_PROVIDER,
-    from_addr=config.NO_REPLY_EMAIL_ADDRESS,
-    sendgrid_config=SendGridConfigDict(
-        api_key=config.SENDGRID_API_KEY
-    )
-)
-email_client = email_manager.new_client(email_config)
-app.email_client = email_client
-
 app.register_blueprint(two_factor.handler, url_prefix='/two_factor')
 app.register_blueprint(notify.handler, url_prefix='/notify')
 app.register_blueprint(files.handler, url_prefix='/files')
@@ -65,6 +56,18 @@ app.engine = models.create_engine()
 app.session_maker = models.new_sessionmaker(app.engine)
 app.jwt_manager = JWTManager(app)
 
+email_config = EmailConfigDict(
+    email_provider=config.EMAIL_PROVIDER,
+    from_addr=config.NO_REPLY_EMAIL_ADDRESS,
+    support_email_addr=config.SUPPORT_EMAIL_ADDRESS,
+    sendgrid_config=SendGridConfigDict(
+        api_key=config.SENDGRID_API_KEY
+    )
+)
+email_client = email_manager.new_client(email_config)
+app.sendgrid_client = sendgrid_util.Client(
+    email_client, app.session_maker, 
+    config.get_security_config())
 
 @app.jwt_manager.token_in_blacklist_loader
 def check_if_token_in_blacklist(decrypted_token: Dict) -> bool:
