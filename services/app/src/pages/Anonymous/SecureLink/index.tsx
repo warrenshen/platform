@@ -46,7 +46,6 @@ function SecureLink() {
   const query = useQuery();
   const linkVal = query.get("val");
   const [errMsg, setErrMsg] = useState<string>("");
-  const [formInfo, setFormInfo] = useState<FormInfo | null>(null);
   let history = useHistory();
 
   useEffect(() => {
@@ -62,7 +61,6 @@ function SecureLink() {
         setErrMsg("No form information retrieved");
         return;
       }
-      setFormInfo(resp.form_info);
       setAccessToken(resp.access_token);
 
       if (!(resp.form_info.type in linkTypeToRoute)) {

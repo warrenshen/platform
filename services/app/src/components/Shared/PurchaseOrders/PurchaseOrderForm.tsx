@@ -22,11 +22,15 @@ import InputCurrencyAutoFormatter from "components/Shared/InputCurrencyAutoForma
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   PurchaseOrderFileFragment,
-  PurchaseOrderFileTypeEnum,
   PurchaseOrderFragment,
   useListVendorsByCompanyQuery,
 } from "generated/graphql";
 import { ChangeEvent, useContext } from "react";
+
+const PurchaseOrderFileTypeEnum = {
+  PurchaseOrder: "purchase_order",
+  Cannabis: "cannabis",
+};
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
