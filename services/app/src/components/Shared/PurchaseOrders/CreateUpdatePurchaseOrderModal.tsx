@@ -12,6 +12,7 @@ import PurchaseOrderForm from "components/Shared/PurchaseOrders/PurchaseOrderFor
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   PurchaseOrderFileFragment,
+  PurchaseOrderFileTypeEnum,
   PurchaseOrderFragment,
   RequestStatusEnum,
   useAddPurchaseOrderMutation,
@@ -22,11 +23,6 @@ import { ActionType } from "lib/ActionType";
 import { authenticatedApi, purchaseOrdersRoutes } from "lib/api";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
-
-const PurchaseOrderFileTypeEnum = {
-  PurchaseOrder: "purchase_order",
-  Cannabis: "cannabis",
-};
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
