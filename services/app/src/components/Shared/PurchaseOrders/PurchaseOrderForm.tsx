@@ -5,8 +5,6 @@ import {
   createStyles,
   FormControl,
   FormControlLabel,
-  Input,
-  InputAdornment,
   InputLabel,
   makeStyles,
   MenuItem,
@@ -19,10 +17,12 @@ import {
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
 import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
-import InputCurrencyAutoFormatter from "components/Shared/InputCurrencyAutoFormatter";
 import FileUploadDropzone from "components/Shared/File/UploadDropzone";
+import InputCurrencyAutoFormatter from "components/Shared/InputCurrencyAutoFormatter";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
+  PurchaseOrderFileFragment,
+  PurchaseOrderFileTypeEnum,
   PurchaseOrderFragment,
   useListVendorsByCompanyQuery,
 } from "generated/graphql";
@@ -51,27 +51,22 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-type FileInDB = {
-  id: string;
-  path: string;
-};
-
 interface Props {
   purchaseOrder: PurchaseOrderFragment;
-  purchaseOrderPrimaryFile: FileInDB | null;
-  purchaseOrderSecondaryFiles: FileInDB[];
+  purchaseOrderFile: PurchaseOrderFileFragment | undefined;
+  purchaseOrderCannabisFiles: PurchaseOrderFileFragment[];
   setPurchaseOrder: (purchaseOrder: PurchaseOrderFragment) => void;
-  setPurchaseOrderPrimaryFile: (file: FileInDB) => void;
-  setPurchaseOrderSecondaryFiles: (files: FileInDB[]) => void;
+  setPurchaseOrderFile: (file: PurchaseOrderFileFragment) => void;
+  setPurchaseOrderCannabisFiles: (files: PurchaseOrderFileFragment[]) => void;
 }
 
 function PurchaseOrderForm({
   purchaseOrder,
-  purchaseOrderPrimaryFile,
-  purchaseOrderSecondaryFiles,
+  purchaseOrderFile,
+  purchaseOrderCannabisFiles,
   setPurchaseOrder,
-  setPurchaseOrderPrimaryFile,
-  setPurchaseOrderSecondaryFiles,
+  setPurchaseOrderFile,
+  setPurchaseOrderCannabisFiles,
 }: Props) {
   const classes = useStyles();
   const {
@@ -200,12 +195,17 @@ function PurchaseOrderForm({
             if (!response.succeeded) {
               return;
             }
-            const primaryFile = response.files_in_db[0];
-            setPurchaseOrderPrimaryFile(primaryFile);
+            const file = response.files_in_db[0];
+            setPurchaseOrderFile({
+              purchase_order_id: purchaseOrder.id,
+              file_id: file.id,
+              file_type: PurchaseOrderFileTypeEnum.PurchaseOrder,
+              file: file,
+            });
           }}
         ></FileUploadDropzone>
         <Box>
-          {purchaseOrderPrimaryFile
+          {purchaseOrderFile
             ? "File is uploaded"
             : "Please upload a file (don't forget to press SAVE)"}
         </Box>
@@ -237,12 +237,19 @@ function PurchaseOrderForm({
                 return;
               }
               const { files_in_db: files } = response;
-              setPurchaseOrderSecondaryFiles(files);
+              setPurchaseOrderCannabisFiles(
+                files.map((file) => ({
+                  purchase_order_id: purchaseOrder.id,
+                  file_id: file.id,
+                  file_type: PurchaseOrderFileTypeEnum.Cannabis,
+                  file: file,
+                }))
+              );
             }}
           ></FileUploadDropzone>
           <Box>
-            {purchaseOrderPrimaryFile
-              ? `${purchaseOrderSecondaryFiles.length} file(s) uploaded`
+            {purchaseOrderFile
+              ? `${purchaseOrderCannabisFiles.length} file(s) uploaded`
               : "Please upload file(s) (don't forget to press SAVE)"}
           </Box>
         </Box>

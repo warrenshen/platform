@@ -11,6 +11,8 @@ import {
 import PurchaseOrderForm from "components/Shared/PurchaseOrders/PurchaseOrderForm";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
+  PurchaseOrderFileFragment,
+  PurchaseOrderFileTypeEnum,
   PurchaseOrderFragment,
   RequestStatusEnum,
   useAddPurchaseOrderMutation,
@@ -45,11 +47,6 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-type FileInDB = {
-  id: string;
-  path: string;
-};
-
 interface Props {
   actionType: ActionType;
   purchaseOrderId: string | null;
@@ -79,14 +76,18 @@ function CreateUpdatePurchaseOrderModal({
   } as PurchaseOrderFragment;
 
   const [purchaseOrder, setPurchaseOrder] = useState(newPurchaseOrder);
+  /*
+  There are different types of files related to a Purchase Order.
+  Purchase order file: exactly one file attachment that is required to be present to submit a PO for approval.
+  Purchase order cannabis file(s): one or more file attachments present if PO contains cannabis or other derivatives.
+  */
   const [
-    purchaseOrderPrimaryFile,
-    setPurchaseOrderPrimaryFile,
-  ] = useState<null | FileInDB>(null);
-  const [
-    purchaseOrderSecondaryFiles,
-    setPurchaseOrderSecondaryFiles,
-  ] = useState<FileInDB[]>([]);
+    purchaseOrderFile,
+    setPurchaseOrderFile,
+  ] = useState<PurchaseOrderFileFragment>();
+  const [purchaseOrderCannabisFiles, setPurchaseOrderCannabisFiles] = useState<
+    PurchaseOrderFileFragment[]
+  >([]);
 
   const { loading: isExistingPurchaseOrderLoading } = usePurchaseOrderQuery({
     variables: {
@@ -100,8 +101,18 @@ function CreateUpdatePurchaseOrderModal({
             isNull(b) ? a : b
           )
         );
-        setPurchaseOrderPrimaryFile(
-          existingPurchaseOrder.purchase_order_files[0]?.file
+        setPurchaseOrderFile(
+          existingPurchaseOrder.purchase_order_files.filter(
+            (purchaseOrderFile) =>
+              purchaseOrderFile.file_type ===
+              PurchaseOrderFileTypeEnum.PurchaseOrder
+          )[0]
+        );
+        setPurchaseOrderCannabisFiles(
+          existingPurchaseOrder.purchase_order_files.filter(
+            (purchaseOrderFile) =>
+              purchaseOrderFile.file_type === PurchaseOrderFileTypeEnum.Cannabis
+          )
         );
       }
     },
@@ -131,19 +142,21 @@ function CreateUpdatePurchaseOrderModal({
     !purchaseOrder.amount;
 
   const upsertPurchaseOrder = async () => {
-    const primaryPurchaseOrderFileData = purchaseOrderPrimaryFile && {
-      purchase_order_id: purchaseOrder.id,
-      file_id: purchaseOrderPrimaryFile.id,
+    const purchaseOrderFileData = purchaseOrderFile && {
+      purchase_order_id: purchaseOrderFile.purchase_order_id,
+      file_id: purchaseOrderFile.file_id,
+      file_type: purchaseOrderFile.file_type,
     };
-    const secondaryPurchaseOrderFilesData =
-      purchaseOrderSecondaryFiles &&
-      purchaseOrderSecondaryFiles.map((purchaseOrderSecondaryFile) => ({
-        purchase_order_id: purchaseOrder.id,
-        file_id: purchaseOrderSecondaryFile.id,
+    const cannabisPurchaseOrderFilesData =
+      purchaseOrderCannabisFiles &&
+      purchaseOrderCannabisFiles.map((purchaseOrderFile) => ({
+        purchase_order_id: purchaseOrderFile.purchase_order_id,
+        file_id: purchaseOrderFile.file_id,
+        file_type: purchaseOrderFile.file_type,
       }));
     const purchaseOrderFilesData = [
-      ...(primaryPurchaseOrderFileData ? [primaryPurchaseOrderFileData] : []),
-      ...(secondaryPurchaseOrderFilesData || []),
+      ...(purchaseOrderFileData ? [purchaseOrderFileData] : []),
+      ...(cannabisPurchaseOrderFilesData || []),
     ];
     if (actionType === ActionType.Update) {
       await updatePurchaseOrder({
@@ -210,11 +223,11 @@ function CreateUpdatePurchaseOrderModal({
       <DialogContent>
         <PurchaseOrderForm
           purchaseOrder={purchaseOrder}
-          purchaseOrderPrimaryFile={purchaseOrderPrimaryFile}
-          purchaseOrderSecondaryFiles={purchaseOrderSecondaryFiles}
+          purchaseOrderFile={purchaseOrderFile}
+          purchaseOrderCannabisFiles={purchaseOrderCannabisFiles}
           setPurchaseOrder={setPurchaseOrder}
-          setPurchaseOrderPrimaryFile={setPurchaseOrderPrimaryFile}
-          setPurchaseOrderSecondaryFiles={setPurchaseOrderSecondaryFiles}
+          setPurchaseOrderFile={setPurchaseOrderFile}
+          setPurchaseOrderCannabisFiles={setPurchaseOrderCannabisFiles}
         ></PurchaseOrderForm>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>

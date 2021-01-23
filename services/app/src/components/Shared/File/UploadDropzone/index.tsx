@@ -8,6 +8,7 @@ import {
 } from "@material-ui/core";
 import ClearIcon from "@material-ui/icons/Clear";
 import axios from "axios";
+import { FileFragment } from "generated/graphql";
 import { authenticatedApi, fileRoutes } from "lib/api";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
@@ -35,15 +36,10 @@ type GetSignedURLReq = {
   doc_type: string;
 };
 
-type FileInDB = {
-  id: string;
-  path: string;
-};
-
 type GetSignedURLResponse = {
   status: string;
   msg?: string;
-  file_in_db: FileInDB;
+  file_in_db: FileFragment;
   url?: string;
   upload_via_server?: boolean;
 };
@@ -51,7 +47,7 @@ type GetSignedURLResponse = {
 type UploadResponse = {
   status: string;
   msg?: string;
-  file_in_db: FileInDB | null;
+  file_in_db: FileFragment | null;
 };
 
 type OnUploadCompleteResp = {
@@ -59,7 +55,7 @@ type OnUploadCompleteResp = {
   numSucceeded: number;
   succeeded: boolean;
   msg: string;
-  files_in_db: FileInDB[];
+  files_in_db: FileFragment[];
 };
 
 async function getPutSignedUrl(

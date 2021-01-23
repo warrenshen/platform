@@ -2335,6 +2335,10 @@ export type MutationRoot = {
   delete_product_type?: Maybe<ProductTypeMutationResponse>;
   /** delete single row from the table: "product_type" */
   delete_product_type_by_pk?: Maybe<ProductType>;
+  /** delete data from the table: "purchase_order_file_type" */
+  delete_purchase_order_file_type?: Maybe<PurchaseOrderFileTypeMutationResponse>;
+  /** delete single row from the table: "purchase_order_file_type" */
+  delete_purchase_order_file_type_by_pk?: Maybe<PurchaseOrderFileType>;
   /** delete data from the table: "purchase_order_files" */
   delete_purchase_order_files?: Maybe<PurchaseOrderFilesMutationResponse>;
   /** delete single row from the table: "purchase_order_files" */
@@ -2409,6 +2413,10 @@ export type MutationRoot = {
   insert_product_type?: Maybe<ProductTypeMutationResponse>;
   /** insert a single row into the table: "product_type" */
   insert_product_type_one?: Maybe<ProductType>;
+  /** insert data into the table: "purchase_order_file_type" */
+  insert_purchase_order_file_type?: Maybe<PurchaseOrderFileTypeMutationResponse>;
+  /** insert a single row into the table: "purchase_order_file_type" */
+  insert_purchase_order_file_type_one?: Maybe<PurchaseOrderFileType>;
   /** insert data into the table: "purchase_order_files" */
   insert_purchase_order_files?: Maybe<PurchaseOrderFilesMutationResponse>;
   /** insert a single row into the table: "purchase_order_files" */
@@ -2485,6 +2493,10 @@ export type MutationRoot = {
   update_product_type?: Maybe<ProductTypeMutationResponse>;
   /** update single row of the table: "product_type" */
   update_product_type_by_pk?: Maybe<ProductType>;
+  /** update data of the table: "purchase_order_file_type" */
+  update_purchase_order_file_type?: Maybe<PurchaseOrderFileTypeMutationResponse>;
+  /** update single row of the table: "purchase_order_file_type" */
+  update_purchase_order_file_type_by_pk?: Maybe<PurchaseOrderFileType>;
   /** update data of the table: "purchase_order_files" */
   update_purchase_order_files?: Maybe<PurchaseOrderFilesMutationResponse>;
   /** update single row of the table: "purchase_order_files" */
@@ -2630,6 +2642,18 @@ export type MutationRootDeleteProductTypeArgs = {
 
 /** mutation root */
 export type MutationRootDeleteProductTypeByPkArgs = {
+  value: Scalars['String'];
+};
+
+
+/** mutation root */
+export type MutationRootDeletePurchaseOrderFileTypeArgs = {
+  where: PurchaseOrderFileTypeBoolExp;
+};
+
+
+/** mutation root */
+export type MutationRootDeletePurchaseOrderFileTypeByPkArgs = {
   value: Scalars['String'];
 };
 
@@ -2873,6 +2897,20 @@ export type MutationRootInsertProductTypeArgs = {
 export type MutationRootInsertProductTypeOneArgs = {
   object: ProductTypeInsertInput;
   on_conflict?: Maybe<ProductTypeOnConflict>;
+};
+
+
+/** mutation root */
+export type MutationRootInsertPurchaseOrderFileTypeArgs = {
+  objects: Array<PurchaseOrderFileTypeInsertInput>;
+  on_conflict?: Maybe<PurchaseOrderFileTypeOnConflict>;
+};
+
+
+/** mutation root */
+export type MutationRootInsertPurchaseOrderFileTypeOneArgs = {
+  object: PurchaseOrderFileTypeInsertInput;
+  on_conflict?: Maybe<PurchaseOrderFileTypeOnConflict>;
 };
 
 
@@ -3161,6 +3199,20 @@ export type MutationRootUpdateProductTypeArgs = {
 export type MutationRootUpdateProductTypeByPkArgs = {
   _set?: Maybe<ProductTypeSetInput>;
   pk_columns: ProductTypePkColumnsInput;
+};
+
+
+/** mutation root */
+export type MutationRootUpdatePurchaseOrderFileTypeArgs = {
+  _set?: Maybe<PurchaseOrderFileTypeSetInput>;
+  where: PurchaseOrderFileTypeBoolExp;
+};
+
+
+/** mutation root */
+export type MutationRootUpdatePurchaseOrderFileTypeByPkArgs = {
+  _set?: Maybe<PurchaseOrderFileTypeSetInput>;
+  pk_columns: PurchaseOrderFileTypePkColumnsInput;
 };
 
 
@@ -3902,6 +3954,165 @@ export enum ProductTypeUpdateColumn {
 }
 
 /**
+ * Enum for PurchaseOrderFile types
+ * 
+ * 
+ * columns and relationships of "purchase_order_file_type"
+ */
+export type PurchaseOrderFileType = {
+  display_name: Scalars['String'];
+  value: Scalars['String'];
+};
+
+/** aggregated selection of "purchase_order_file_type" */
+export type PurchaseOrderFileTypeAggregate = {
+  aggregate?: Maybe<PurchaseOrderFileTypeAggregateFields>;
+  nodes: Array<PurchaseOrderFileType>;
+};
+
+/** aggregate fields of "purchase_order_file_type" */
+export type PurchaseOrderFileTypeAggregateFields = {
+  count?: Maybe<Scalars['Int']>;
+  max?: Maybe<PurchaseOrderFileTypeMaxFields>;
+  min?: Maybe<PurchaseOrderFileTypeMinFields>;
+};
+
+
+/** aggregate fields of "purchase_order_file_type" */
+export type PurchaseOrderFileTypeAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<PurchaseOrderFileTypeSelectColumn>>;
+  distinct?: Maybe<Scalars['Boolean']>;
+};
+
+/** order by aggregate values of table "purchase_order_file_type" */
+export type PurchaseOrderFileTypeAggregateOrderBy = {
+  count?: Maybe<OrderBy>;
+  max?: Maybe<PurchaseOrderFileTypeMaxOrderBy>;
+  min?: Maybe<PurchaseOrderFileTypeMinOrderBy>;
+};
+
+/** input type for inserting array relation for remote table "purchase_order_file_type" */
+export type PurchaseOrderFileTypeArrRelInsertInput = {
+  data: Array<PurchaseOrderFileTypeInsertInput>;
+  on_conflict?: Maybe<PurchaseOrderFileTypeOnConflict>;
+};
+
+/** Boolean expression to filter rows from the table "purchase_order_file_type". All fields are combined with a logical 'AND'. */
+export type PurchaseOrderFileTypeBoolExp = {
+  _and?: Maybe<Array<Maybe<PurchaseOrderFileTypeBoolExp>>>;
+  _not?: Maybe<PurchaseOrderFileTypeBoolExp>;
+  _or?: Maybe<Array<Maybe<PurchaseOrderFileTypeBoolExp>>>;
+  display_name?: Maybe<StringComparisonExp>;
+  value?: Maybe<StringComparisonExp>;
+};
+
+/** unique or primary key constraints on table "purchase_order_file_type" */
+export enum PurchaseOrderFileTypeConstraint {
+  /** unique or primary key constraint */
+  PurchaseOrderFileTypePkey = 'purchase_order_file_type_pkey'
+}
+
+export enum PurchaseOrderFileTypeEnum {
+  /** Cannabis */
+  Cannabis = 'cannabis',
+  /** Purchase Order */
+  PurchaseOrder = 'purchase_order'
+}
+
+/** expression to compare columns of type purchase_order_file_type_enum. All fields are combined with logical 'AND'. */
+export type PurchaseOrderFileTypeEnumComparisonExp = {
+  _eq?: Maybe<PurchaseOrderFileTypeEnum>;
+  _in?: Maybe<Array<PurchaseOrderFileTypeEnum>>;
+  _is_null?: Maybe<Scalars['Boolean']>;
+  _neq?: Maybe<PurchaseOrderFileTypeEnum>;
+  _nin?: Maybe<Array<PurchaseOrderFileTypeEnum>>;
+};
+
+/** input type for inserting data into table "purchase_order_file_type" */
+export type PurchaseOrderFileTypeInsertInput = {
+  display_name?: Maybe<Scalars['String']>;
+  value?: Maybe<Scalars['String']>;
+};
+
+/** aggregate max on columns */
+export type PurchaseOrderFileTypeMaxFields = {
+  display_name?: Maybe<Scalars['String']>;
+  value?: Maybe<Scalars['String']>;
+};
+
+/** order by max() on columns of table "purchase_order_file_type" */
+export type PurchaseOrderFileTypeMaxOrderBy = {
+  display_name?: Maybe<OrderBy>;
+  value?: Maybe<OrderBy>;
+};
+
+/** aggregate min on columns */
+export type PurchaseOrderFileTypeMinFields = {
+  display_name?: Maybe<Scalars['String']>;
+  value?: Maybe<Scalars['String']>;
+};
+
+/** order by min() on columns of table "purchase_order_file_type" */
+export type PurchaseOrderFileTypeMinOrderBy = {
+  display_name?: Maybe<OrderBy>;
+  value?: Maybe<OrderBy>;
+};
+
+/** response of any mutation on the table "purchase_order_file_type" */
+export type PurchaseOrderFileTypeMutationResponse = {
+  /** number of affected rows by the mutation */
+  affected_rows: Scalars['Int'];
+  /** data of the affected rows by the mutation */
+  returning: Array<PurchaseOrderFileType>;
+};
+
+/** input type for inserting object relation for remote table "purchase_order_file_type" */
+export type PurchaseOrderFileTypeObjRelInsertInput = {
+  data: PurchaseOrderFileTypeInsertInput;
+  on_conflict?: Maybe<PurchaseOrderFileTypeOnConflict>;
+};
+
+/** on conflict condition type for table "purchase_order_file_type" */
+export type PurchaseOrderFileTypeOnConflict = {
+  constraint: PurchaseOrderFileTypeConstraint;
+  update_columns: Array<PurchaseOrderFileTypeUpdateColumn>;
+  where?: Maybe<PurchaseOrderFileTypeBoolExp>;
+};
+
+/** ordering options when selecting data from "purchase_order_file_type" */
+export type PurchaseOrderFileTypeOrderBy = {
+  display_name?: Maybe<OrderBy>;
+  value?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "purchase_order_file_type" */
+export type PurchaseOrderFileTypePkColumnsInput = {
+  value: Scalars['String'];
+};
+
+/** select columns of table "purchase_order_file_type" */
+export enum PurchaseOrderFileTypeSelectColumn {
+  /** column name */
+  DisplayName = 'display_name',
+  /** column name */
+  Value = 'value'
+}
+
+/** input type for updating data in table "purchase_order_file_type" */
+export type PurchaseOrderFileTypeSetInput = {
+  display_name?: Maybe<Scalars['String']>;
+  value?: Maybe<Scalars['String']>;
+};
+
+/** update columns of table "purchase_order_file_type" */
+export enum PurchaseOrderFileTypeUpdateColumn {
+  /** column name */
+  DisplayName = 'display_name',
+  /** column name */
+  Value = 'value'
+}
+
+/**
  * Files attached to purchase orders
  * 
  * 
@@ -3911,6 +4122,7 @@ export type PurchaseOrderFiles = {
   /** An object relationship */
   file: Files;
   file_id: Scalars['uuid'];
+  file_type: PurchaseOrderFileTypeEnum;
   /** An object relationship */
   purchase_order: PurchaseOrders;
   purchase_order_id: Scalars['uuid'];
@@ -3956,6 +4168,7 @@ export type PurchaseOrderFilesBoolExp = {
   _or?: Maybe<Array<Maybe<PurchaseOrderFilesBoolExp>>>;
   file?: Maybe<FilesBoolExp>;
   file_id?: Maybe<UuidComparisonExp>;
+  file_type?: Maybe<PurchaseOrderFileTypeEnumComparisonExp>;
   purchase_order?: Maybe<PurchaseOrdersBoolExp>;
   purchase_order_id?: Maybe<UuidComparisonExp>;
 };
@@ -3970,6 +4183,7 @@ export enum PurchaseOrderFilesConstraint {
 export type PurchaseOrderFilesInsertInput = {
   file?: Maybe<FilesObjRelInsertInput>;
   file_id?: Maybe<Scalars['uuid']>;
+  file_type?: Maybe<PurchaseOrderFileTypeEnum>;
   purchase_order?: Maybe<PurchaseOrdersObjRelInsertInput>;
   purchase_order_id?: Maybe<Scalars['uuid']>;
 };
@@ -4023,6 +4237,7 @@ export type PurchaseOrderFilesOnConflict = {
 export type PurchaseOrderFilesOrderBy = {
   file?: Maybe<FilesOrderBy>;
   file_id?: Maybe<OrderBy>;
+  file_type?: Maybe<OrderBy>;
   purchase_order?: Maybe<PurchaseOrdersOrderBy>;
   purchase_order_id?: Maybe<OrderBy>;
 };
@@ -4038,12 +4253,15 @@ export enum PurchaseOrderFilesSelectColumn {
   /** column name */
   FileId = 'file_id',
   /** column name */
+  FileType = 'file_type',
+  /** column name */
   PurchaseOrderId = 'purchase_order_id'
 }
 
 /** input type for updating data in table "purchase_order_files" */
 export type PurchaseOrderFilesSetInput = {
   file_id?: Maybe<Scalars['uuid']>;
+  file_type?: Maybe<PurchaseOrderFileTypeEnum>;
   purchase_order_id?: Maybe<Scalars['uuid']>;
 };
 
@@ -4051,6 +4269,8 @@ export type PurchaseOrderFilesSetInput = {
 export enum PurchaseOrderFilesUpdateColumn {
   /** column name */
   FileId = 'file_id',
+  /** column name */
+  FileType = 'file_type',
   /** column name */
   PurchaseOrderId = 'purchase_order_id'
 }
@@ -5178,6 +5398,12 @@ export type QueryRoot = {
   product_type_aggregate: ProductTypeAggregate;
   /** fetch data from the table: "product_type" using primary key columns */
   product_type_by_pk?: Maybe<ProductType>;
+  /** fetch data from the table: "purchase_order_file_type" */
+  purchase_order_file_type: Array<PurchaseOrderFileType>;
+  /** fetch aggregated fields from the table: "purchase_order_file_type" */
+  purchase_order_file_type_aggregate: PurchaseOrderFileTypeAggregate;
+  /** fetch data from the table: "purchase_order_file_type" using primary key columns */
+  purchase_order_file_type_by_pk?: Maybe<PurchaseOrderFileType>;
   /** fetch data from the table: "purchase_order_files" */
   purchase_order_files: Array<PurchaseOrderFiles>;
   /** fetch aggregated fields from the table: "purchase_order_files" */
@@ -5469,6 +5695,32 @@ export type QueryRootProductTypeAggregateArgs = {
 
 /** query root */
 export type QueryRootProductTypeByPkArgs = {
+  value: Scalars['String'];
+};
+
+
+/** query root */
+export type QueryRootPurchaseOrderFileTypeArgs = {
+  distinct_on?: Maybe<Array<PurchaseOrderFileTypeSelectColumn>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<PurchaseOrderFileTypeOrderBy>>;
+  where?: Maybe<PurchaseOrderFileTypeBoolExp>;
+};
+
+
+/** query root */
+export type QueryRootPurchaseOrderFileTypeAggregateArgs = {
+  distinct_on?: Maybe<Array<PurchaseOrderFileTypeSelectColumn>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<PurchaseOrderFileTypeOrderBy>>;
+  where?: Maybe<PurchaseOrderFileTypeBoolExp>;
+};
+
+
+/** query root */
+export type QueryRootPurchaseOrderFileTypeByPkArgs = {
   value: Scalars['String'];
 };
 
@@ -6106,6 +6358,12 @@ export type SubscriptionRoot = {
   product_type_aggregate: ProductTypeAggregate;
   /** fetch data from the table: "product_type" using primary key columns */
   product_type_by_pk?: Maybe<ProductType>;
+  /** fetch data from the table: "purchase_order_file_type" */
+  purchase_order_file_type: Array<PurchaseOrderFileType>;
+  /** fetch aggregated fields from the table: "purchase_order_file_type" */
+  purchase_order_file_type_aggregate: PurchaseOrderFileTypeAggregate;
+  /** fetch data from the table: "purchase_order_file_type" using primary key columns */
+  purchase_order_file_type_by_pk?: Maybe<PurchaseOrderFileType>;
   /** fetch data from the table: "purchase_order_files" */
   purchase_order_files: Array<PurchaseOrderFiles>;
   /** fetch aggregated fields from the table: "purchase_order_files" */
@@ -6397,6 +6655,32 @@ export type SubscriptionRootProductTypeAggregateArgs = {
 
 /** subscription root */
 export type SubscriptionRootProductTypeByPkArgs = {
+  value: Scalars['String'];
+};
+
+
+/** subscription root */
+export type SubscriptionRootPurchaseOrderFileTypeArgs = {
+  distinct_on?: Maybe<Array<PurchaseOrderFileTypeSelectColumn>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<PurchaseOrderFileTypeOrderBy>>;
+  where?: Maybe<PurchaseOrderFileTypeBoolExp>;
+};
+
+
+/** subscription root */
+export type SubscriptionRootPurchaseOrderFileTypeAggregateArgs = {
+  distinct_on?: Maybe<Array<PurchaseOrderFileTypeSelectColumn>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<PurchaseOrderFileTypeOrderBy>>;
+  where?: Maybe<PurchaseOrderFileTypeBoolExp>;
+};
+
+
+/** subscription root */
+export type SubscriptionRootPurchaseOrderFileTypeByPkArgs = {
   value: Scalars['String'];
 };
 
@@ -7627,9 +7911,14 @@ export type PurchaseOrderFragment = (
   & { company: Pick<Companies, 'id' | 'name'>, vendor?: Maybe<Pick<Vendors, 'id' | 'name'>> }
 );
 
+export type FileFragment = Pick<Files, 'id' | 'name' | 'path'>;
+
 export type PurchaseOrderFileFragment = (
-  Pick<PurchaseOrderFiles, 'purchase_order_id' | 'file_id'>
-  & { file: Pick<Files, 'id' | 'name' | 'path'> }
+  Pick<PurchaseOrderFiles, 'purchase_order_id' | 'file_id' | 'file_type'>
+  & { file: (
+    Pick<Files, 'id'>
+    & FileFragment
+  ) }
 );
 
 export type ListPurchaseOrdersQueryVariables = Exact<{
@@ -8030,17 +8319,24 @@ export const PurchaseOrderFragmentDoc = gql`
   }
 }
     `;
+export const FileFragmentDoc = gql`
+    fragment File on files {
+  id
+  name
+  path
+}
+    `;
 export const PurchaseOrderFileFragmentDoc = gql`
     fragment PurchaseOrderFile on purchase_order_files {
   purchase_order_id
   file_id
+  file_type
   file {
     id
-    name
-    path
+    ...File
   }
 }
-    `;
+    ${FileFragmentDoc}`;
 export const ContactFragmentDoc = gql`
     fragment Contact on users {
   id

@@ -19,13 +19,19 @@ fragment PurchaseOrder on purchase_orders {
   }
 }
 
+fragment File on files {
+  id
+  name
+  path
+}
+
 fragment PurchaseOrderFile on purchase_order_files {
   purchase_order_id
   file_id
+  file_type
   file {
     id
-    name
-    path
+    ...File
   }
 }
 

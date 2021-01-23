@@ -19,8 +19,8 @@ import {
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
 import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
-import InfoCard from "components/Shared/PurchaseOrder/InfoCard";
 import InputCurrencyAutoFormatter from "components/Shared/InputCurrencyAutoFormatter";
+import InfoCard from "components/Shared/PurchaseOrder/InfoCard";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   ListPurchaseOrderLoansForCustomerDocument,
