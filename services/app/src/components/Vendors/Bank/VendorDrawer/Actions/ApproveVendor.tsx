@@ -4,7 +4,6 @@ import {
   ContactFragment,
   useUpdateCompanyVendorPartnershipApprovedAtMutation,
 } from "generated/graphql";
-import { nowStr } from "lib/dates/dateUtil";
 import { InventoryNotifier } from "lib/notifications/inventory";
 import { useState } from "react";
 
@@ -45,11 +44,10 @@ function ApproveVendor(props: Props) {
           title={`Would you like to approve vendor ${props.vendorName} for customer ${customerName}?`}
           errMsg={errMsg}
           handleConfirm={async () => {
-            const value = new Date();
             updateApprovedAt({
               variables: {
                 companyVendorPartnershipId: props.vendorPartnershipId,
-                approvedAt: nowStr(),
+                approvedAt: "now()",
               },
             });
 

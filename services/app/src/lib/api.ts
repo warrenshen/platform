@@ -23,6 +23,10 @@ export const purchaseOrdersRoutes = {
   submitForApproval: "/purchase_orders/submit_for_approval",
 };
 
+export const twoFactorRoutes = {
+  getSecureLinkPayload: "/two_factor/get_secure_link_payload",
+};
+
 const api = axios.create({
   baseURL: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}`,
 });

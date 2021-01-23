@@ -10,6 +10,14 @@ export const routes = {
   users: "/users",
 };
 
+// Routes when you are neither a customer or bank, but you've been authenticated via the secure_link route
+export const anonymousRoutes = {
+  secureLink: "/get_secure_link",
+  confirmPurchaseOrder: "/confirm_purchase_order",
+};
+
+export const vendorRoutes = {};
+
 export const customerRoutes = {
   loans: "/loans",
   settings: "/settings",

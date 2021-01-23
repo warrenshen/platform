@@ -6,6 +6,7 @@ from flask.views import MethodView
 from flask_jwt_extended import jwt_required
 
 from bespoke.date import date_util
+from bespoke.db import db_constants
 from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
@@ -69,7 +70,7 @@ class SubmitForApprovalView(MethodView):
         # Get the vendor_id and find its users
         # 
         form_info = models.TwoFactorFormInfoDict(
-                type=sendgrid_util.TwoFactorLinkType.CONFIRM_PURCHASE_ORDER,
+                type=db_constants.TwoFactorLinkType.CONFIRM_PURCHASE_ORDER,
                 payload={
                     'purchase_order_id': purchase_order_id
                 }
@@ -80,7 +81,7 @@ class SubmitForApprovalView(MethodView):
             'customer_name': customer_name
         }
         recipients = vendor_emails
-        _, err = sendgrid_client.send(template_name, template_data, recipients)
+        _, err = sendgrid_client.send(template_name, template_data, recipients, form_info=form_info)
         if err:
             return make_error_response(err)
 

@@ -1,14 +1,21 @@
 import Layout from "components/Shared/Layout";
 import PrivateRoute from "components/Shared/PrivateRoute";
 import { UserRolesEnum } from "generated/graphql";
-import { bankRoutes, customerRoutes, routes } from "lib/routes";
+import {
+  anonymousRoutes,
+  bankRoutes,
+  customerRoutes,
+  routes,
+} from "lib/routes";
+import ApprovePurchaseOrderPage from "pages/Anonymous/ApprovePurchaseOrder";
+import SecureLinkPage from "pages/Anonymous/SecureLink";
 import BankAccounts from "pages/Bank/BankAccounts";
 import Customer from "pages/Bank/Customer";
 import Customers from "pages/Bank/Customers";
 import CompanyProfilePage from "pages/Customer/CompanyProfile";
 import LoansPage from "pages/Customer/Loans";
-import SettingsPage from "pages/Customer/Settings";
 import PurchaseOrdersPage from "pages/Customer/PurchaseOrders";
+import SettingsPage from "pages/Customer/Settings";
 import Home from "pages/Home";
 import SignIn from "pages/SignIn";
 import UserProfile from "pages/UserProfile";
@@ -26,6 +33,15 @@ function App() {
         <Route exact path={routes.signIn}>
           <SignIn></SignIn>
         </Route>
+        <Route exact path={anonymousRoutes.secureLink}>
+          <SecureLinkPage></SecureLinkPage>
+        </Route>
+        {/* Purchase Order reviewer routes */}
+        <Route
+          exact
+          path={anonymousRoutes.confirmPurchaseOrder}
+          component={ApprovePurchaseOrderPage}
+        ></Route>
         <Layout>
           <PrivateRoute exact path={routes.root}>
             <Home></Home>

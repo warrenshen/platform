@@ -61,6 +61,9 @@ export const getAccessToken = async (): Promise<string | null> => {
     }
   } else if (refreshToken && accessToken) {
     return accessToken;
+  } else if (accessToken) {
+    // TODO(dlluncor): Are there any downsides to allowing for an access token with no refresh token?
+    return accessToken;
   } else {
     return null;
   }

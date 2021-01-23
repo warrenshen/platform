@@ -11,9 +11,6 @@ from bespoke.db.models import session_scope
 from bespoke.email import email_manager
 from bespoke.security import security_util
 
-class TwoFactorLinkType(object):
-	CONFIRM_PURCHASE_ORDER = 'confirm_purchase_order'
-
 class TemplateNames(object):
 	VENDOR_TO_APPROVE_PURCHASE_ORDER = 'vendor_to_approve_purchase_order'
 
@@ -73,7 +70,7 @@ class Client(object):
 		self._session_maker = session_maker
 
 	def send(self, template_name: str, template_data: Dict, recipients: List[str],
-			 two_factor_form_info: models.TwoFactorFormInfoDict = None) -> Tuple[bool, Text]:
+			 form_info: models.TwoFactorFormInfoDict = None) -> Tuple[bool, Text]:
 
 		template_id = _get_template_id(template_name)
 		template_data['defaults'] = _get_template_defaults(template_name, self._cfg)
@@ -98,7 +95,7 @@ class Client(object):
 
 		with session_scope(self._session_maker) as session:
 			two_factor_link = models.TwoFactorLink(
-				token_states=token_states, form_info=two_factor_form_info, 
+				token_states=token_states, form_info=form_info, 
 				expires_at=_hours_from_today(24 * 7)
 			)
 			session.add(two_factor_link)

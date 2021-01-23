@@ -7,13 +7,15 @@ from datetime import timezone
 from flask import request, make_response, current_app
 from flask import Response, Blueprint
 from flask.views import MethodView
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, create_access_token
 from sqlalchemy.orm.attributes import flag_modified
 from typing import cast
 
+from bespoke.db import db_constants
 from bespoke.date import date_util
 from bespoke.security import security_util
 from server.config import Config
+from server.views.common import auth_util
 
 
 handler = Blueprint('two_factor', __name__)
@@ -23,6 +25,7 @@ def make_error_response(msg: str) -> Response:
 
 class GenerateCodeView(MethodView):
 
+	# NOTE: We aren't using this two-factor path yet
 	def post(self) -> Response:
 		cfg = cast(Config, current_app.app_config)
 		form = json.loads(request.data)
@@ -63,37 +66,9 @@ class GenerateCodeView(MethodView):
 			'status': 'OK'
 		}), 200)
 
-class GetSecureLinkView(MethodView):
+class ApproveCodeView(MethodView):
 
-	def get(self) -> Response:
-		cfg = cast(Config, current_app.app_config)
-		link_signed_val = request.args.get('val')
-		if not link_signed_val:
-			return make_error_response('Link provided does not exist')
-
-		link_info = security_util.get_link_info_from_url(link_signed_val, cfg.get_security_config())
-
-		with session_scope(current_app.session_maker) as session:
-			two_factor_link = cast(models.TwoFactorLink, session.query(models.TwoFactorLink).filter(
-				models.TwoFactorLink.id == link_info['link_id']).first())
-
-			if not two_factor_link:
-				return make_error_response('Link provided no longer exists')
-
-			expires_at = two_factor_link.expires_at
-			if date_util.has_expired(expires_at):
-				return make_error_response('Link has expired')
-
-			form_info = two_factor_link.form_info
-
-		# Generate two-factor code upon someone visiting this link
-
-		return make_response(json.dumps({
-			'status': 'OK',
-			'form_info': form_info,
-			'link_val': link_signed_val
-		}), 200)
-
+	# NOTE: We aren't using the two-factor path currently
 	def post(self) -> Response:
 		cfg = cast(Config, current_app.app_config)
 		form = json.loads(request.data)
@@ -128,6 +103,61 @@ class GetSecureLinkView(MethodView):
 		if provided_token_val != token_val:
 			return make_error_response('Provided token value is not correct')
 
+		return make_response(json.dumps({
+			'status': 'OK',
+			'form_info': form_info
+		}), 200)
+
+class GetSecureLinkPayloadView(MethodView):
+
+	# Decodes the secure link value and then returns the payload associated with it.
+	def post(self) -> Response:
+		cfg = cast(Config, current_app.app_config)
+		form = json.loads(request.data)
+		link_signed_val = form.get('val')
+		if not link_signed_val:
+			return make_error_response('Link provided is empty')
+
+		link_info = security_util.get_link_info_from_url(link_signed_val, cfg.get_security_config())
+		email = link_info['email']
+		company_id = None
+		form_info = None
+
+		with session_scope(current_app.session_maker) as session:
+			two_factor_link = cast(models.TwoFactorLink, session.query(models.TwoFactorLink).filter(
+				models.TwoFactorLink.id == link_info['link_id']).first())
+
+			if not two_factor_link:
+				return make_error_response('Link provided no longer exists')
+
+			expires_at = two_factor_link.expires_at
+			if date_util.has_expired(expires_at):
+				return make_error_response('Link has expired')
+
+			form_info = two_factor_link.form_info
+			if not form_info:
+				return make_error_response('No form information associated with this link')
+
+			user = cast(models.User, session.query(models.User).filter(
+			  models.User.email == email).first())
+			if not user:
+				return make_error_response('User opening this link does not exist in the system at all')
+
+			company_id = user.company_id
+
+		if form_info.get('type') == db_constants.TwoFactorLinkType.CONFIRM_PURCHASE_ORDER:
+			user = models.User(
+				email=email, 
+				password='', 
+				id=None, 
+				role=db_constants.UserRoles.PURCHASE_ORDER_REVIEWER, 
+				company_id=company_id
+			)
+			claims_payload = auth_util.get_claims_payload(user)
+			access_token = create_access_token(identity=claims_payload)
+		else:
+			return make_error_response('Could not handle unknown payload type {}'.format(form_info.get('type')))
+
 		# Here's where you fetch the form information upon successful response.
 		# TODO(dlluncor): Grant access token to a token here, give it a limited
 		# sign in role.
@@ -138,11 +168,13 @@ class GetSecureLinkView(MethodView):
 
 		return make_response(json.dumps({
 			'status': 'OK',
-			'form_info': form_info
+			'form_info': form_info,
+			'link_val': link_signed_val,
+			'access_token': access_token
 		}), 200)
 
 handler.add_url_rule(
-	'/get_secure_link', view_func=GetSecureLinkView.as_view(name='get_secure_link_view'))
+	'/get_secure_link_payload', view_func=GetSecureLinkPayloadView.as_view(name='get_secure_link_payload_view'))
 
 handler.add_url_rule(
 	'/generate_code', view_func=GenerateCodeView.as_view(name='generate_code_view'))
