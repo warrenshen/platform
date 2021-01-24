@@ -155,6 +155,7 @@ class GetSecureLinkPayloadView(MethodView):
 			)
 			claims_payload = auth_util.get_claims_payload(user)
 			access_token = create_access_token(identity=claims_payload)
+			# TODO: change the refresh token below to have a TTL of 15 minutes.
 			refresh_token = create_refresh_token(identity=claims_payload)
 		else:
 			return make_error_response('Could not handle unknown payload type {}'.format(form_info.get('type')))
