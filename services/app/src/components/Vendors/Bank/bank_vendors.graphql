@@ -77,6 +77,10 @@ query BankListVendorPartnerships {
         ...Contact
       }
     }
+    vendor_bank_account {
+      id
+      verified_at
+    }
   }
 }
 
@@ -97,13 +101,16 @@ query BankVendorPartnership($id: uuid!) {
         }
         advances_bespoke_bank_account {
           ...BankAccount
-        }      
+        }
       }
     }
     company {
       ...Company
       users {
         ...Contact
+      }
+      settings {
+        ...CompanySettings
       }
     }
     company_agreement {

@@ -8,7 +8,7 @@ interface Props {
   vendorContact: ContactFragment | null;
   customerName: string;
   vendorName: string;
-  docusignLink: string;
+  docusignLink: string | null;
   notifier: InventoryNotifier;
 }
 
@@ -21,6 +21,15 @@ function SendVendorAgreements(props: Props) {
       <div>
         Cannot send Notifications, because no primary user setup for this
         vendor.
+      </div>
+    );
+  }
+
+  if (!props.docusignLink) {
+    return (
+      <div>
+        Cannot send Notifications because no docusign template link is
+        configured for this customer.
       </div>
     );
   }
@@ -38,7 +47,7 @@ function SendVendorAgreements(props: Props) {
             const resp = await props.notifier.sendVendorAgreementWithCustomer(
               {
                 customer_name: customerName,
-                docusign_link: props.docusignLink,
+                docusign_link: props.docusignLink || "",
               },
               recipients
             );

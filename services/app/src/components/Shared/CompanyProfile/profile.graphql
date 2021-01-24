@@ -5,23 +5,23 @@ fragment Company on companies {
   employer_identification_number
   address
   phone_number
-  bank_accounts {
-    ...BankAccount
-  }
-  settings {
-    id
-    collections_bespoke_bank_account {
-      ...BankAccount
-    }
-    advances_bespoke_bank_account {
-      ...BankAccount
-    }
-  }
 }
 
 query Company($companyId: uuid!) {
   companies_by_pk(id: $companyId) {
     ...Company
+    bank_accounts {
+      ...BankAccount
+    }
+    settings {
+      ...CompanySettings
+      collections_bespoke_bank_account {
+        ...BankAccount
+      }
+      advances_bespoke_bank_account {
+        ...BankAccount
+      }
+    }
   }
 }
 

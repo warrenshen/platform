@@ -8,10 +8,6 @@ fragment VendorPartnership on company_vendor_partnerships {
   company_id
   vendor_id
   vendor_agreement_id
-  vendor_bank_account {
-    id
-    verified_at
-  }
   vendor_license_id
 }
 
@@ -31,6 +27,10 @@ query ListVendorPartnerships($companyId: uuid!) {
     ...VendorPartnership
     vendor_limited {
       ...VendorLimited
+    }
+    vendor_bank_account {
+      id
+      verified_at
     }
   }
 }

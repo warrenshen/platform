@@ -84,6 +84,8 @@ function VendorDrawer(props: {
 
   const vendor = data.company_vendor_partnerships_by_pk.vendor;
   const customer = data.company_vendor_partnerships_by_pk.company;
+  const customerSettings =
+    data.company_vendor_partnerships_by_pk.company?.settings;
 
   const agreementFileId =
     data.company_vendor_partnerships_by_pk.company_agreement?.file_id;
@@ -91,8 +93,8 @@ function VendorDrawer(props: {
   const licenseFileId =
     data.company_vendor_partnerships_by_pk.company_license?.file_id;
   const customerName = customer?.name;
-  // TODO(dlluncor): Fetch the actual docusign_link from the settings
-  const docusignLink = "http://docusign.com/thelink";
+
+  const docusignLink = customerSettings?.vendor_agreement_docusign_template;
 
   const primaryVendorContact = getPrimaryContact(vendor.users);
   const primaryCustomerContact = getPrimaryContact(customer?.users);
@@ -259,7 +261,7 @@ function VendorDrawer(props: {
             vendorContact={primaryVendorContact}
             vendorName={vendor.name}
             customerName={customerName}
-            docusignLink={docusignLink}
+            docusignLink={docusignLink || null}
             notifier={notifier}
           ></SendVendorAgreements>
         </Box>

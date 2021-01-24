@@ -13,5 +13,9 @@ query BankCustomerListVendorPartnerships($companyId: uuid!) {
         ...Contact
       }
     }
+    vendor_bank_account {
+      id
+      verified_at
+    }
   }
 }

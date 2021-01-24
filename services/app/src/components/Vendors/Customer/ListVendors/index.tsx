@@ -33,6 +33,9 @@ function ListVendors() {
               <VendorCard
                 vendorPartnership={vendorPartnership}
                 vendor={vendorPartnership.vendor_limited}
+                vendorBankAccountVerifiedAt={
+                  vendorPartnership.vendor_bank_account?.verified_at
+                }
               ></VendorCard>
             </Box>
           )

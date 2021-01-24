@@ -18,6 +18,7 @@ import {
 interface Props {
   vendorPartnership: VendorPartnershipFragment;
   vendor: VendorFragment | VendorLimitedFragment;
+  vendorBankAccountVerifiedAt: string;
   onClick?: () => void;
 }
 
@@ -86,11 +87,7 @@ function VendorCard(props: Props) {
           </Box>
           <Box display="flex">
             <CheckCircle
-              color={
-                props.vendorPartnership.vendor_bank_account?.verified_at
-                  ? "primary"
-                  : "disabled"
-              }
+              color={props.vendorBankAccountVerifiedAt ? "primary" : "disabled"}
             ></CheckCircle>
             <Box pl={1}>Verified bank account</Box>
           </Box>

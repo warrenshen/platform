@@ -7709,11 +7709,6 @@ export type VendorsSetInput = {
   phone_number?: Maybe<Scalars['String']>;
 };
 
-export type CompanySettingFragment = (
-  Pick<CompanySettings, 'id' | 'company_id' | 'product_type' | 'product_config' | 'vendor_agreement_docusign_template'>
-  & { collections_bespoke_bank_account?: Maybe<BankAccountFragment>, advances_bespoke_bank_account?: Maybe<BankAccountFragment> }
-);
-
 export type AddCustomerMutationVariables = Exact<{
   customer: CompaniesInsertInput;
 }>;
@@ -7740,7 +7735,7 @@ export type BankCustomerListVendorPartnershipsQuery = { company_vendor_partnersh
     { vendor: (
       { users: Array<ContactFragment> }
       & VendorFragment
-    ) }
+    ), vendor_bank_account?: Maybe<Pick<BankAccounts, 'id' | 'verified_at'>> }
     & BankVendorPartnershipFragment
   )> };
 
@@ -7809,20 +7804,20 @@ export type AssignAdvancesBespokeBankAccountMutation = { update_company_settings
     & { advances_bespoke_bank_account?: Maybe<BankAccountFragment> }
   )> };
 
-export type CompanyFragment = (
-  Pick<Companies, 'id' | 'name' | 'dba_name' | 'employer_identification_number' | 'address' | 'phone_number'>
-  & { bank_accounts: Array<BankAccountFragment>, settings: (
-    Pick<CompanySettings, 'id'>
-    & { collections_bespoke_bank_account?: Maybe<BankAccountFragment>, advances_bespoke_bank_account?: Maybe<BankAccountFragment> }
-  ) }
-);
+export type CompanyFragment = Pick<Companies, 'id' | 'name' | 'dba_name' | 'employer_identification_number' | 'address' | 'phone_number'>;
 
 export type CompanyQueryVariables = Exact<{
   companyId: Scalars['uuid'];
 }>;
 
 
-export type CompanyQuery = { companies_by_pk?: Maybe<CompanyFragment> };
+export type CompanyQuery = { companies_by_pk?: Maybe<(
+    { bank_accounts: Array<BankAccountFragment>, settings: (
+      { collections_bespoke_bank_account?: Maybe<BankAccountFragment>, advances_bespoke_bank_account?: Maybe<BankAccountFragment> }
+      & CompanySettingsFragment
+    ) }
+    & CompanyFragment
+  )> };
 
 export type UpdateCompanyProfileMutationVariables = Exact<{
   id: Scalars['uuid'];
@@ -8008,7 +8003,7 @@ export type BankListVendorPartnershipsQuery = { company_vendor_partnerships: Arr
     { vendor: (
       { settings: Pick<CompanySettings, 'id'>, users: Array<ContactFragment> }
       & VendorFragment
-    ) }
+    ), vendor_bank_account?: Maybe<Pick<BankAccounts, 'id' | 'verified_at'>> }
     & BankVendorPartnershipFragment
   )> };
 
@@ -8025,7 +8020,7 @@ export type BankVendorPartnershipQuery = { company_vendor_partnerships_by_pk?: M
       ), users: Array<ContactFragment> }
       & VendorFragment
     ), company: (
-      { users: Array<ContactFragment> }
+      { users: Array<ContactFragment>, settings: CompanySettingsFragment }
       & CompanyFragment
     ), company_agreement?: Maybe<CompanyAgreementFragment>, company_license?: Maybe<CompanyLicenseFragment> }
     & BankVendorPartnershipFragment
@@ -8118,10 +8113,7 @@ export type AddCompanyVendorLicenseMutation = { insert_company_licenses_one?: Ma
 
 export type VendorLimitedFragment = Pick<Vendors, 'id' | 'name'>;
 
-export type VendorPartnershipFragment = (
-  Pick<CompanyVendorPartnerships, 'id' | 'company_id' | 'vendor_id' | 'vendor_agreement_id' | 'vendor_license_id'>
-  & { vendor_bank_account?: Maybe<Pick<BankAccounts, 'id' | 'verified_at'>> }
-);
+export type VendorPartnershipFragment = Pick<CompanyVendorPartnerships, 'id' | 'company_id' | 'vendor_id' | 'vendor_agreement_id' | 'vendor_license_id'>;
 
 export type AddVendorPartnershipMutationVariables = Exact<{
   vendorPartnership: CompanyVendorPartnershipsInsertInput;
@@ -8139,7 +8131,7 @@ export type ListVendorPartnershipsQueryVariables = Exact<{
 
 
 export type ListVendorPartnershipsQuery = { company_vendor_partnerships: Array<(
-    { vendor_limited?: Maybe<VendorLimitedFragment> }
+    { vendor_limited?: Maybe<VendorLimitedFragment>, vendor_bank_account?: Maybe<Pick<BankAccounts, 'id' | 'verified_at'>> }
     & VendorPartnershipFragment
   )> };
 
@@ -8207,6 +8199,16 @@ export type AddUserMutationVariables = Exact<{
 
 export type AddUserMutation = { insert_users_one?: Maybe<UserFragment> };
 
+export const CompanyFragmentDoc = gql`
+    fragment Company on companies {
+  id
+  name
+  dba_name
+  employer_identification_number
+  address
+  phone_number
+}
+    `;
 export const BankAccountFragmentDoc = gql`
     fragment BankAccount on bank_accounts {
   id
@@ -8223,43 +8225,6 @@ export const BankAccountFragmentDoc = gql`
   verified_at
 }
     `;
-export const CompanySettingFragmentDoc = gql`
-    fragment CompanySetting on company_settings {
-  id
-  company_id
-  product_type
-  product_config
-  vendor_agreement_docusign_template
-  collections_bespoke_bank_account {
-    ...BankAccount
-  }
-  advances_bespoke_bank_account {
-    ...BankAccount
-  }
-}
-    ${BankAccountFragmentDoc}`;
-export const CompanyFragmentDoc = gql`
-    fragment Company on companies {
-  id
-  name
-  dba_name
-  employer_identification_number
-  address
-  phone_number
-  bank_accounts {
-    ...BankAccount
-  }
-  settings {
-    id
-    collections_bespoke_bank_account {
-      ...BankAccount
-    }
-    advances_bespoke_bank_account {
-      ...BankAccount
-    }
-  }
-}
-    ${BankAccountFragmentDoc}`;
 export const PaymentFragmentDoc = gql`
     fragment Payment on payments {
   id
@@ -8411,10 +8376,6 @@ export const VendorPartnershipFragmentDoc = gql`
   company_id
   vendor_id
   vendor_agreement_id
-  vendor_bank_account {
-    id
-    verified_at
-  }
   vendor_license_id
 }
     `;
@@ -8523,6 +8484,10 @@ export const BankCustomerListVendorPartnershipsDocument = gql`
       users {
         ...Contact
       }
+    }
+    vendor_bank_account {
+      id
+      verified_at
     }
   }
 }
@@ -8843,9 +8808,23 @@ export const CompanyDocument = gql`
     query Company($companyId: uuid!) {
   companies_by_pk(id: $companyId) {
     ...Company
+    bank_accounts {
+      ...BankAccount
+    }
+    settings {
+      ...CompanySettings
+      collections_bespoke_bank_account {
+        ...BankAccount
+      }
+      advances_bespoke_bank_account {
+        ...BankAccount
+      }
+    }
   }
 }
-    ${CompanyFragmentDoc}`;
+    ${CompanyFragmentDoc}
+${BankAccountFragmentDoc}
+${CompanySettingsFragmentDoc}`;
 
 /**
  * __useCompanyQuery__
@@ -9428,6 +9407,10 @@ export const BankListVendorPartnershipsDocument = gql`
         ...Contact
       }
     }
+    vendor_bank_account {
+      id
+      verified_at
+    }
   }
 }
     ${BankVendorPartnershipFragmentDoc}
@@ -9490,6 +9473,9 @@ export const BankVendorPartnershipDocument = gql`
       users {
         ...Contact
       }
+      settings {
+        ...CompanySettings
+      }
     }
     company_agreement {
       ...CompanyAgreement
@@ -9504,6 +9490,7 @@ ${VendorFragmentDoc}
 ${BankAccountFragmentDoc}
 ${ContactFragmentDoc}
 ${CompanyFragmentDoc}
+${CompanySettingsFragmentDoc}
 ${CompanyAgreementFragmentDoc}
 ${CompanyLicenseFragmentDoc}`;
 
@@ -9922,6 +9909,10 @@ export const ListVendorPartnershipsDocument = gql`
     ...VendorPartnership
     vendor_limited {
       ...VendorLimited
+    }
+    vendor_bank_account {
+      id
+      verified_at
     }
   }
 }

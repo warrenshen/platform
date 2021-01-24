@@ -42,6 +42,9 @@ function Settings() {
         companyId={company.id}
         bankAccounts={company.bank_accounts}
       ></BankAccounts>
+      <Box>
+        <h3>Account</h3>
+      </Box>
       <Can perform={Action.AssignBespokeBankAccountForCustomer}>
         <Box mt={2} display="flex">
           <AdvancesBank
