@@ -7,7 +7,7 @@ from datetime import timezone
 from flask import request, make_response, current_app
 from flask import Response, Blueprint
 from flask.views import MethodView
-from flask_jwt_extended import jwt_required, create_access_token
+from flask_jwt_extended import jwt_required, create_access_token, create_refresh_token
 from sqlalchemy.orm.attributes import flag_modified
 from typing import cast
 
@@ -155,22 +155,16 @@ class GetSecureLinkPayloadView(MethodView):
 			)
 			claims_payload = auth_util.get_claims_payload(user)
 			access_token = create_access_token(identity=claims_payload)
+			refresh_token = create_refresh_token(identity=claims_payload)
 		else:
 			return make_error_response('Could not handle unknown payload type {}'.format(form_info.get('type')))
-
-		# Here's where you fetch the form information upon successful response.
-		# TODO(dlluncor): Grant access token to a token here, give it a limited
-		# sign in role.
-		# 'X-Hasura-User-Id': str,
-		# 'X-Hasura-Default-Role': str,
-		# 'X-Hasura-Allowed-Roles': List[str],
-		# 'X-Hasura-Company-Id': str # vendor_id
 
 		return make_response(json.dumps({
 			'status': 'OK',
 			'form_info': form_info,
 			'link_val': link_signed_val,
-			'access_token': access_token
+			'access_token': access_token,
+			'refresh_token': refresh_token
 		}), 200)
 
 handler.add_url_rule(

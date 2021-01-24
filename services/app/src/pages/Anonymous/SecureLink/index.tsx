@@ -1,5 +1,5 @@
 import { twoFactorRoutes, unAuthenticatedApi } from "lib/api";
-import { setAccessToken } from "lib/auth/tokenStorage";
+import { setAccessToken, setRefreshToken } from "lib/auth/tokenStorage";
 import { anonymousRoutes } from "lib/routes";
 import { useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
@@ -13,6 +13,7 @@ type GetSecureLinkPayloadResp = {
   msg?: string;
   form_info: FormInfo;
   access_token: string;
+  refresh_token: string;
 };
 
 const linkTypeToRoute: { [type: string]: string } = {
@@ -62,6 +63,7 @@ function SecureLink() {
         return;
       }
       setAccessToken(resp.access_token);
+      setRefreshToken(resp.refresh_token);
 
       if (!(resp.form_info.type in linkTypeToRoute)) {
         setErrMsg(
