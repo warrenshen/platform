@@ -61,6 +61,25 @@ query PurchaseOrder($id: uuid!) {
   }
 }
 
+query PurchaseOrderForReview($id: uuid!) {
+  purchase_orders_by_pk(id: $id) {
+    id
+    company_id
+    vendor_id
+    order_number
+    order_date
+    delivery_date
+    amount
+    is_cannabis
+    status
+    created_at
+    company {
+      id
+      name
+    }
+  }
+}
+
 mutation AddPurchaseOrder($purchase_order: purchase_orders_insert_input!) {
   insert_purchase_orders_one(object: $purchase_order) {
     ...PurchaseOrder

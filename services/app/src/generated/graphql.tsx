@@ -7935,6 +7935,16 @@ export type PurchaseOrderQuery = { purchase_orders_by_pk?: Maybe<(
     & PurchaseOrderFragment
   )> };
 
+export type PurchaseOrderForReviewQueryVariables = Exact<{
+  id: Scalars['uuid'];
+}>;
+
+
+export type PurchaseOrderForReviewQuery = { purchase_orders_by_pk?: Maybe<(
+    Pick<PurchaseOrders, 'id' | 'company_id' | 'vendor_id' | 'order_number' | 'order_date' | 'delivery_date' | 'amount' | 'is_cannabis' | 'status' | 'created_at'>
+    & { company: Pick<Companies, 'id' | 'name'> }
+  )> };
+
 export type AddPurchaseOrderMutationVariables = Exact<{
   purchase_order: PurchaseOrdersInsertInput;
 }>;
@@ -9214,6 +9224,52 @@ export function usePurchaseOrderLazyQuery(baseOptions?: Apollo.LazyQueryHookOpti
 export type PurchaseOrderQueryHookResult = ReturnType<typeof usePurchaseOrderQuery>;
 export type PurchaseOrderLazyQueryHookResult = ReturnType<typeof usePurchaseOrderLazyQuery>;
 export type PurchaseOrderQueryResult = Apollo.QueryResult<PurchaseOrderQuery, PurchaseOrderQueryVariables>;
+export const PurchaseOrderForReviewDocument = gql`
+    query PurchaseOrderForReview($id: uuid!) {
+  purchase_orders_by_pk(id: $id) {
+    id
+    company_id
+    vendor_id
+    order_number
+    order_date
+    delivery_date
+    amount
+    is_cannabis
+    status
+    created_at
+    company {
+      id
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __usePurchaseOrderForReviewQuery__
+ *
+ * To run a query within a React component, call `usePurchaseOrderForReviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePurchaseOrderForReviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePurchaseOrderForReviewQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function usePurchaseOrderForReviewQuery(baseOptions: Apollo.QueryHookOptions<PurchaseOrderForReviewQuery, PurchaseOrderForReviewQueryVariables>) {
+        return Apollo.useQuery<PurchaseOrderForReviewQuery, PurchaseOrderForReviewQueryVariables>(PurchaseOrderForReviewDocument, baseOptions);
+      }
+export function usePurchaseOrderForReviewLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PurchaseOrderForReviewQuery, PurchaseOrderForReviewQueryVariables>) {
+          return Apollo.useLazyQuery<PurchaseOrderForReviewQuery, PurchaseOrderForReviewQueryVariables>(PurchaseOrderForReviewDocument, baseOptions);
+        }
+export type PurchaseOrderForReviewQueryHookResult = ReturnType<typeof usePurchaseOrderForReviewQuery>;
+export type PurchaseOrderForReviewLazyQueryHookResult = ReturnType<typeof usePurchaseOrderForReviewLazyQuery>;
+export type PurchaseOrderForReviewQueryResult = Apollo.QueryResult<PurchaseOrderForReviewQuery, PurchaseOrderForReviewQueryVariables>;
 export const AddPurchaseOrderDocument = gql`
     mutation AddPurchaseOrder($purchase_order: purchase_orders_insert_input!) {
   insert_purchase_orders_one(object: $purchase_order) {
