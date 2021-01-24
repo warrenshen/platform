@@ -159,7 +159,7 @@ function CreateUpdatePurchaseOrderModal({
       ...(cannabisPurchaseOrderFilesData || []),
     ];
     if (actionType === ActionType.Update) {
-      await updatePurchaseOrder({
+      const response = await updatePurchaseOrder({
         variables: {
           id: purchaseOrder.id,
           purchaseOrder: {
@@ -174,8 +174,9 @@ function CreateUpdatePurchaseOrderModal({
           purchaseOrderFiles: purchaseOrderFilesData,
         },
       });
+      return response.data?.update_purchase_orders_by_pk;
     } else {
-      await addPurchaseOrder({
+      const response = await addPurchaseOrder({
         variables: {
           purchase_order: {
             vendor_id: purchaseOrder.vendor_id,
@@ -191,6 +192,7 @@ function CreateUpdatePurchaseOrderModal({
           },
         },
       });
+      return response.data?.insert_purchase_orders_one;
     }
   };
 
@@ -200,11 +202,21 @@ function CreateUpdatePurchaseOrderModal({
   };
 
   const handleClickSaveSubmit = async () => {
-    await upsertPurchaseOrder();
-    // Since this is a SAVE AND SUBMIT action, hit the SubmitForApproval endpoint.
-    await authenticatedApi.post(purchaseOrdersRoutes.submitForApproval, {
-      purchase_order_id: purchaseOrder.id,
-    });
+    const submittedPurchaseOrder = await upsertPurchaseOrder();
+    if (!submittedPurchaseOrder) {
+      alert("Could not upsert purchase order");
+    } else {
+      // Since this is a SAVE AND SUBMIT action, hit the SubmitForApproval endpoint.
+      const response = await authenticatedApi.post(
+        purchaseOrdersRoutes.submitForApproval,
+        {
+          purchase_order_id: submittedPurchaseOrder.id,
+        }
+      );
+      if (response.data?.status === "ERROR") {
+        alert(response.data?.msg);
+      }
+    }
     handleClose();
   };
 

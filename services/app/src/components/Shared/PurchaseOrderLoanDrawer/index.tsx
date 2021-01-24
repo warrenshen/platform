@@ -2,7 +2,7 @@ import { Box, Drawer, makeStyles, Typography } from "@material-ui/core";
 import DisbursalButton from "components/Bank/PurchaseOrderLoanDisbursal/DisbursalButton";
 import Disbursements from "components/Bank/PurchaseOrderLoanDisbursal/Disbursements";
 import Can from "components/Shared/Can";
-import InfoCard from "components/Shared/PurchaseOrder/InfoCard";
+import PurchaseOrderInfoCard from "components/Shared/PurchaseOrder/PurchaseOrderInfoCard";
 import {
   PurchaseOrderLoans,
   usePurchaseOrderLoanQuery,
@@ -38,9 +38,9 @@ function PurchaseOrderLoanDrawer(props: Props) {
         <Typography variant="h6">Loan Details</Typography>
 
         <Typography variant="h6">Purchase Order</Typography>
-        <InfoCard
+        <PurchaseOrderInfoCard
           purchaseOrder={data.purchase_order_loans_by_pk.purchase_order}
-        ></InfoCard>
+        ></PurchaseOrderInfoCard>
         <Typography variant="h6">Payments</Typography>
         <Can perform={Action.DisbursePurchaseOrderLoans}>
           <DisbursalButton

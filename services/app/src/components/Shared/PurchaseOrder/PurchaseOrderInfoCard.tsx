@@ -17,7 +17,7 @@ interface Props {
   purchaseOrder: PurchaseOrderFragment;
 }
 
-function InfoCard(props: Props) {
+function PurchaseOrderInfoCard(props: Props) {
   const classes = useStyles();
 
   return (
@@ -62,4 +62,4 @@ function InfoCard(props: Props) {
   );
 }
 
-export default InfoCard;
+export default PurchaseOrderInfoCard;

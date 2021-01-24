@@ -20,7 +20,7 @@ import {
 } from "@material-ui/pickers";
 import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
 import InputCurrencyAutoFormatter from "components/Shared/InputCurrencyAutoFormatter";
-import InfoCard from "components/Shared/PurchaseOrder/InfoCard";
+import PurchaseOrderInfoCard from "components/Shared/PurchaseOrder/PurchaseOrderInfoCard";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   ListPurchaseOrderLoansForCustomerDocument,
@@ -187,7 +187,7 @@ function AddLoanModal({ handleClose }: Props) {
           </Box>
           <Box display="flex" mt={3}>
             {selectedPurchaseOrder ? (
-              <InfoCard purchaseOrder={selectedPurchaseOrder} />
+              <PurchaseOrderInfoCard purchaseOrder={selectedPurchaseOrder} />
             ) : (
               <Box>Purchase Order not selected yet</Box>
             )}
