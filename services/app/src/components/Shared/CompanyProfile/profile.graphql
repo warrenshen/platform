@@ -8,11 +8,14 @@ fragment Company on companies {
   bank_accounts {
     ...BankAccount
   }
-  collections_bespoke_bank_account {
-    ...BankAccount
-  }
-  advances_bespoke_bank_account {
-    ...BankAccount
+  settings {
+    id
+    collections_bespoke_bank_account {
+      ...BankAccount
+    }
+    advances_bespoke_bank_account {
+      ...BankAccount
+    }
   }
 }
 

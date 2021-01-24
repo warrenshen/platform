@@ -4,8 +4,10 @@ query BankAccountsForTransfer($companyId: uuid!) {
   }
   companies_by_pk(id: $companyId) {
     id
-    collections_bespoke_bank_account {
-      ...BankAccount
+    settings {
+      collections_bespoke_bank_account {
+        ...BankAccount
+      }
     }
   }
 }

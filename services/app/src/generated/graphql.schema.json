@@ -489,7 +489,7 @@
             "deprecationReason": null
           },
           {
-            "name": "assigned_companies_for_collection",
+            "name": "assigned_companies_for_advances_in_settings",
             "description": "An array relationship",
             "args": [
               {
@@ -503,7 +503,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "ENUM",
-                      "name": "companies_select_column",
+                      "name": "company_settings_select_column",
                       "ofType": null
                     }
                   }
@@ -541,7 +541,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "companies_order_by",
+                      "name": "company_settings_order_by",
                       "ofType": null
                     }
                   }
@@ -553,7 +553,7 @@
                 "description": "filter the rows returned",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "companies_bool_exp",
+                  "name": "company_settings_bool_exp",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -570,7 +570,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "OBJECT",
-                    "name": "companies",
+                    "name": "company_settings",
                     "ofType": null
                   }
                 }
@@ -580,7 +580,7 @@
             "deprecationReason": null
           },
           {
-            "name": "assigned_companies_for_collection_aggregate",
+            "name": "assigned_companies_for_advances_in_settings_aggregate",
             "description": "An aggregated array relationship",
             "args": [
               {
@@ -594,7 +594,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "ENUM",
-                      "name": "companies_select_column",
+                      "name": "company_settings_select_column",
                       "ofType": null
                     }
                   }
@@ -632,7 +632,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "companies_order_by",
+                      "name": "company_settings_order_by",
                       "ofType": null
                     }
                   }
@@ -644,7 +644,7 @@
                 "description": "filter the rows returned",
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "companies_bool_exp",
+                  "name": "company_settings_bool_exp",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -655,7 +655,181 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "companies_aggregate",
+                "name": "company_settings_aggregate",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assigned_companies_for_collection_in_settings",
+            "description": "An array relationship",
+            "args": [
+              {
+                "name": "distinct_on",
+                "description": "distinct select on columns",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "ENUM",
+                      "name": "company_settings_select_column",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "limit",
+                "description": "limit the number of rows returned",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "offset",
+                "description": "skip the first n rows. Use only with order_by",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "order_by",
+                "description": "sort the rows by one or more columns",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "company_settings_order_by",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "where",
+                "description": "filter the rows returned",
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "company_settings_bool_exp",
+                  "ofType": null
+                },
+                "defaultValue": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "company_settings",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assigned_companies_for_collection_in_settings_aggregate",
+            "description": "An aggregated array relationship",
+            "args": [
+              {
+                "name": "distinct_on",
+                "description": "distinct select on columns",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "ENUM",
+                      "name": "company_settings_select_column",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "limit",
+                "description": "limit the number of rows returned",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "offset",
+                "description": "skip the first n rows. Use only with order_by",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "order_by",
+                "description": "sort the rows by one or more columns",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "company_settings_order_by",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "where",
+                "description": "filter the rows returned",
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "company_settings_bool_exp",
+                  "ofType": null
+                },
+                "defaultValue": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "company_settings_aggregate",
                 "ofType": null
               }
             },
@@ -1092,11 +1266,21 @@
             "defaultValue": null
           },
           {
-            "name": "assigned_companies_for_collection",
+            "name": "assigned_companies_for_advances_in_settings",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "companies_bool_exp",
+              "name": "company_settings_bool_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "assigned_companies_for_collection_in_settings",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "company_settings_bool_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -1260,11 +1444,21 @@
             "defaultValue": null
           },
           {
-            "name": "assigned_companies_for_collection",
+            "name": "assigned_companies_for_advances_in_settings",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "companies_arr_rel_insert_input",
+              "name": "company_settings_arr_rel_insert_input",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "assigned_companies_for_collection_in_settings",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "company_settings_arr_rel_insert_input",
               "ofType": null
             },
             "defaultValue": null
@@ -2038,11 +2232,21 @@
             "defaultValue": null
           },
           {
-            "name": "assigned_companies_for_collection_aggregate",
+            "name": "assigned_companies_for_advances_in_settings_aggregate",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "companies_aggregate_order_by",
+              "name": "company_settings_aggregate_order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "assigned_companies_for_collection_in_settings_aggregate",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "company_settings_aggregate_order_by",
               "ofType": null
             },
             "defaultValue": null
@@ -2629,30 +2833,6 @@
             "deprecationReason": null
           },
           {
-            "name": "advances_bespoke_bank_account",
-            "description": "An object relationship",
-            "args": [],
-            "type": {
-              "kind": "OBJECT",
-              "name": "bank_accounts",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "advances_bespoke_bank_account_id",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "agreements",
             "description": "An array relationship",
             "args": [
@@ -3007,30 +3187,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "collections_bespoke_bank_account",
-            "description": "An object relationship",
-            "args": [],
-            "type": {
-              "kind": "OBJECT",
-              "name": "bank_accounts",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "collections_bespoke_bank_account_id",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
               "ofType": null
             },
             "isDeprecated": false,
@@ -4035,7 +4191,7 @@
             "deprecationReason": null
           },
           {
-            "name": "setting",
+            "name": "settings",
             "description": "An object relationship",
             "args": [],
             "type": {
@@ -4532,26 +4688,6 @@
             "defaultValue": null
           },
           {
-            "name": "advances_bespoke_bank_account",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "bank_accounts_bool_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "advances_bespoke_bank_account_id",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "uuid_comparison_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "agreements",
             "description": null,
             "type": {
@@ -4577,26 +4713,6 @@
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "String_comparison_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "collections_bespoke_bank_account",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "bank_accounts_bool_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "collections_bespoke_bank_account_id",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "uuid_comparison_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -4742,7 +4858,7 @@
             "defaultValue": null
           },
           {
-            "name": "setting",
+            "name": "settings",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
@@ -4830,26 +4946,6 @@
             "defaultValue": null
           },
           {
-            "name": "advances_bespoke_bank_account",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "bank_accounts_obj_rel_insert_input",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "advances_bespoke_bank_account_id",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "agreements",
             "description": null,
             "type": {
@@ -4875,26 +4971,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "collections_bespoke_bank_account",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "bank_accounts_obj_rel_insert_input",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "collections_bespoke_bank_account_id",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
               "ofType": null
             },
             "defaultValue": null
@@ -5040,7 +5116,7 @@
             "defaultValue": null
           },
           {
-            "name": "setting",
+            "name": "settings",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
@@ -5112,36 +5188,12 @@
             "deprecationReason": null
           },
           {
-            "name": "advances_bespoke_bank_account_id",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "city",
             "description": null,
             "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "String",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "collections_bespoke_bank_account_id",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
               "ofType": null
             },
             "isDeprecated": false,
@@ -5302,27 +5354,7 @@
             "defaultValue": null
           },
           {
-            "name": "advances_bespoke_bank_account_id",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "city",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "collections_bespoke_bank_account_id",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -5464,36 +5496,12 @@
             "deprecationReason": null
           },
           {
-            "name": "advances_bespoke_bank_account_id",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "city",
             "description": null,
             "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "String",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "collections_bespoke_bank_account_id",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
               "ofType": null
             },
             "isDeprecated": false,
@@ -5654,27 +5662,7 @@
             "defaultValue": null
           },
           {
-            "name": "advances_bespoke_bank_account_id",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "city",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "collections_bespoke_bank_account_id",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -5958,26 +5946,6 @@
             "defaultValue": null
           },
           {
-            "name": "advances_bespoke_bank_account",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "bank_accounts_order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "advances_bespoke_bank_account_id",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "agreements_aggregate",
             "description": null,
             "type": {
@@ -5999,26 +5967,6 @@
           },
           {
             "name": "city",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "collections_bespoke_bank_account",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "bank_accounts_order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "collections_bespoke_bank_account_id",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -6168,7 +6116,7 @@
             "defaultValue": null
           },
           {
-            "name": "setting",
+            "name": "settings",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
@@ -6262,19 +6210,7 @@
             "deprecationReason": null
           },
           {
-            "name": "advances_bespoke_bank_account_id",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "city",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "collections_bespoke_bank_account_id",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -6371,31 +6307,11 @@
             "defaultValue": null
           },
           {
-            "name": "advances_bespoke_bank_account_id",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "city",
             "description": null,
             "type": {
               "kind": "SCALAR",
               "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "collections_bespoke_bank_account_id",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
               "ofType": null
             },
             "defaultValue": null
@@ -6540,19 +6456,7 @@
             "deprecationReason": null
           },
           {
-            "name": "advances_bespoke_bank_account_id",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "city",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "collections_bespoke_bank_account_id",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

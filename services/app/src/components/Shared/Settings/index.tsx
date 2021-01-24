@@ -45,15 +45,17 @@ function Settings() {
       <Can perform={Action.AssignBespokeBankAccountForCustomer}>
         <Box mt={2} display="flex">
           <AdvancesBank
-            companyId={company.id}
+            companySettingsId={company.settings?.id}
             assignedBespokeBankAccount={
-              data.companies_by_pk.advances_bespoke_bank_account || undefined
+              data.companies_by_pk.settings?.advances_bespoke_bank_account ||
+              undefined
             }
           ></AdvancesBank>
           <CollectionsBank
-            companyId={company.id}
+            companySettingsId={company.settings?.id}
             assignedBespokeBankAccount={
-              data.companies_by_pk.collections_bespoke_bank_account || undefined
+              data.companies_by_pk.settings?.collections_bespoke_bank_account ||
+              undefined
             }
           ></CollectionsBank>
         </Box>

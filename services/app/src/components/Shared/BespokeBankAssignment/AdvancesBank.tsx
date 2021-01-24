@@ -1,14 +1,14 @@
 import BespokeBankAssignment from "components/Shared/BespokeBankAssignment";
 import {
   BankAccountFragment,
-  Companies,
-  CompanyFragment,
-  CompanyFragmentDoc,
+  CompanySettings,
+  CompanySettingsFragment,
+  CompanySettingsFragmentDoc,
   useAssignAdvancesBespokeBankAccountMutation,
 } from "generated/graphql";
 
 interface Props {
-  companyId: Companies["id"];
+  companySettingsId: CompanySettings["id"];
   assignedBespokeBankAccount?: BankAccountFragment;
 }
 
@@ -25,27 +25,29 @@ function AdvancesBank(props: Props) {
         assignAdvancesBankAccount({
           variables: {
             bankAccountId: bankAccount?.id,
-            companyId: props.companyId,
+            companySettingsId: props.companySettingsId,
           },
           optimisticResponse: {
-            update_companies_by_pk: {
-              id: props.companyId,
+            update_company_settings_by_pk: {
+              id: props.companySettingsId,
               advances_bespoke_bank_account: bankAccount,
             },
           },
           update: (proxy, { data: optimisticResponse }) => {
             const fragmentOptions = {
-              fragment: CompanyFragmentDoc,
-              fragmentName: "Company",
-              id: `companies:${props.companyId}`,
+              fragment: CompanySettingsFragmentDoc,
+              fragmentName: "CompanySettings",
+              id: `company_settings:${props.companySettingsId}`,
             };
-            const data = proxy.readFragment<CompanyFragment>(fragmentOptions);
+            const data = proxy.readFragment<CompanySettingsFragment>(
+              fragmentOptions
+            );
             proxy.writeFragment({
               ...fragmentOptions,
               data: {
                 ...data,
                 advances_bespoke_bank_account:
-                  optimisticResponse?.update_companies_by_pk
+                  optimisticResponse?.update_company_settings_by_pk
                     ?.advances_bespoke_bank_account,
               },
             });

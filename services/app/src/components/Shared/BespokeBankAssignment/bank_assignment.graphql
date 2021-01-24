@@ -1,9 +1,9 @@
 mutation AssignCollectionsBespokeBankAccount(
-  $companyId: uuid!
+  $companySettingsId: uuid!
   $bankAccountId: uuid
 ) {
-  update_companies_by_pk(
-    pk_columns: { id: $companyId }
+  update_company_settings_by_pk(
+    pk_columns: { id: $companySettingsId }
     _set: { collections_bespoke_bank_account_id: $bankAccountId }
   ) {
     id
@@ -14,11 +14,11 @@ mutation AssignCollectionsBespokeBankAccount(
 }
 
 mutation AssignAdvancesBespokeBankAccount(
-  $companyId: uuid!
+  $companySettingsId: uuid!
   $bankAccountId: uuid
 ) {
-  update_companies_by_pk(
-    pk_columns: { id: $companyId }
+  update_company_settings_by_pk(
+    pk_columns: { id: $companySettingsId }
     _set: { advances_bespoke_bank_account_id: $bankAccountId }
   ) {
     id

@@ -50,7 +50,7 @@ function AddModal(props: Props) {
           </Box>
           <Box mt={4}>
             <Select
-              value={customer.setting?.data.product_type}
+              value={customer.settings?.data.product_type}
               onChange={({ target: { value } }) => {
                 setCompanySetting({
                   product_type: value as ProductTypeEnum,
@@ -85,7 +85,7 @@ function AddModal(props: Props) {
               variables: {
                 customer: {
                   ...customer,
-                  setting: {
+                  settings: {
                     data: {
                       ...companySetting,
                     },

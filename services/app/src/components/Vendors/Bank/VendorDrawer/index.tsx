@@ -121,17 +121,21 @@ function VendorDrawer(props: {
         ></BankAccount>
         <Box display="flex" mt={1}>
           <AdvancesBank
-            companyId={data.company_vendor_partnerships_by_pk.vendor.id}
+            companySettingsId={
+              data.company_vendor_partnerships_by_pk.vendor.settings?.id
+            }
             assignedBespokeBankAccount={
-              data.company_vendor_partnerships_by_pk.vendor
-                .advances_bespoke_bank_account || undefined
+              data.company_vendor_partnerships_by_pk.vendor.settings
+                ?.advances_bespoke_bank_account || undefined
             }
           ></AdvancesBank>
           <CollectionsBank
-            companyId={data.company_vendor_partnerships_by_pk.vendor.id}
+            companySettingsId={
+              data.company_vendor_partnerships_by_pk.vendor.settings?.id
+            }
             assignedBespokeBankAccount={
-              data.company_vendor_partnerships_by_pk.vendor
-                .collections_bespoke_bank_account || undefined
+              data.company_vendor_partnerships_by_pk.vendor.settings
+                ?.collections_bespoke_bank_account || undefined
             }
           ></CollectionsBank>
         </Box>

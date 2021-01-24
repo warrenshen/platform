@@ -70,6 +70,9 @@ query BankListVendorPartnerships {
     ...BankVendorPartnership
     vendor {
       ...Vendor
+      settings {
+        id
+      }
       users {
         ...Contact
       }
@@ -82,14 +85,19 @@ query BankVendorPartnership($id: uuid!) {
     ...BankVendorPartnership
     vendor {
       ...Vendor
+      settings {
+        id
+      }
       users {
         ...Contact
       }
-      collections_bespoke_bank_account {
-        ...BankAccount
-      }
-      advances_bespoke_bank_account {
-        ...BankAccount
+      settings {
+        collections_bespoke_bank_account {
+          ...BankAccount
+        }
+        advances_bespoke_bank_account {
+          ...BankAccount
+        }      
       }
     }
     company {
