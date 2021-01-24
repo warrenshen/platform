@@ -43,7 +43,7 @@ virtualenv -p $(pyenv which python) ~/GitHub/venvs/bespoke
 source ~/GitHub/venvs/bespoke/bin/activate
 ```
 
-5. Run `make setup`. If you have Ubuntu, call `make setup-for-linux`.
+5. From `platform/`, run `make setup`. If you have Ubuntu, call `make setup-for-linux`.
 
 6. Once you have virtualenv, system libraries and pyenv setup, you can now install your requirements inside that environment:
 
