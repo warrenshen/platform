@@ -9,9 +9,9 @@ import BankAccount from "components/Vendors/Bank/VendorDrawer/BankAccount";
 import Contacts from "components/Vendors/Bank/VendorDrawer/Contacts";
 import VendorInfo from "components/Vendors/Bank/VendorDrawer/VendorInfo";
 import {
+  BankVendorPartnershipDocument,
   CompanyAgreementsInsertInput,
   CompanyLicensesInsertInput,
-  CompanyVendorPartnerships,
   ContactFragment,
   useAddCompanyVendorAgreementMutation,
   useAddCompanyVendorLicenseMutation,
@@ -21,7 +21,7 @@ import {
 } from "generated/graphql";
 import { InventoryNotifier } from "lib/notifications/inventory";
 import { omit } from "lodash";
-import React, { useState } from "react";
+import React from "react";
 import SendVendorAgreements from "./Notifications/SendVendorAgreements";
 
 const useStyles = makeStyles({
@@ -55,30 +55,36 @@ function getPrimaryContact(
   return contacts[0];
 }
 
-function VendorDrawer(props: {
-  vendorPartnershipId: CompanyVendorPartnerships["id"];
+interface Props {
+  vendorPartnershipId: string;
   onClose: () => void;
-}) {
+}
+
+function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
   const classes = useStyles();
 
-  const { data, error } = useBankVendorPartnershipQuery({
+  const {
+    data,
+    loading: isBankVendorPartnershipLoading,
+    error,
+  } = useBankVendorPartnershipQuery({
     variables: {
-      id: props.vendorPartnershipId,
+      id: vendorPartnershipId,
     },
   });
 
   const [updateVendorAgreementId] = useUpdateVendorAgreementIdMutation();
   const [addCompanyVendorAgreement] = useAddCompanyVendorAgreementMutation();
-  const [agreementFileUrls, setAgreementFileUrls] = useState<string[]>([]);
 
   const [updateVendorLicenseId] = useUpdateVendorLicenseIdMutation();
   const [addVendorLicense] = useAddCompanyVendorLicenseMutation();
-  const [licenseFileUrls, setLicenseFileUrls] = useState<string[]>([]);
 
   if (!data?.company_vendor_partnerships_by_pk) {
-    let msg = `Error querying for the bank vendor partner ${props.vendorPartnershipId}. Error: ${error}`;
-    window.console.log(msg);
-    Sentry.captureMessage(msg);
+    if (!isBankVendorPartnershipLoading) {
+      let msg = `Error querying for the bank vendor partner ${vendorPartnershipId}. Error: ${error}`;
+      window.console.log(msg);
+      Sentry.captureMessage(msg);
+    }
     return null;
   }
 
@@ -101,7 +107,7 @@ function VendorDrawer(props: {
   const notifier = new InventoryNotifier("email");
 
   return (
-    <Drawer open anchor="right" onClose={props.onClose}>
+    <Drawer open anchor="right" onClose={onClose}>
       <Box className={classes.drawerContent} p={4}>
         <Typography variant="h6">{vendor.name}</Typography>
         <Box py={3}>
@@ -141,8 +147,7 @@ function VendorDrawer(props: {
             }
           ></CollectionsBank>
         </Box>
-
-        <Grid container direction="row" alignItems="center">
+        <Grid container direction="column">
           <Grid item>
             <Typography variant="h6" display="inline">
               {" "}
@@ -151,11 +156,7 @@ function VendorDrawer(props: {
           </Grid>
           {licenseFileId && (
             <Grid item>
-              <DownloadThumbnail
-                fileIds={[licenseFileId]}
-                fileUrls={licenseFileUrls}
-                setFileUrls={setLicenseFileUrls}
-              ></DownloadThumbnail>
+              <DownloadThumbnail fileIds={[licenseFileId]}></DownloadThumbnail>
             </Grid>
           )}
         </Grid>
@@ -176,7 +177,6 @@ function VendorDrawer(props: {
                 if (!resp.succeeded) {
                   return;
                 }
-                setLicenseFileUrls([]); // clear any file urls which may be displayed related to this vendor license
                 const fileId = resp.files_in_db[0].id;
                 // This is an agreement that the vendor signs with Bespoke, therefore
                 // company_id is vendor.id
@@ -193,17 +193,23 @@ function VendorDrawer(props: {
                   vendorLicense.data?.insert_company_licenses_one?.id;
                 await updateVendorLicenseId({
                   variables: {
-                    companyVendorPartnershipId: props.vendorPartnershipId,
+                    companyVendorPartnershipId: vendorPartnershipId,
                     vendorLicenseId: vendorLicenseId,
                   },
+                  refetchQueries: [
+                    {
+                      query: BankVendorPartnershipDocument,
+                      variables: {
+                        id: vendorPartnershipId,
+                      },
+                    },
+                  ],
                 });
-                console.log(resp);
               }}
             ></FileUploadDropzone>
           </Box>
         </Box>
-
-        <Grid container direction="row" alignItems="center">
+        <Grid container direction="column">
           <Grid item>
             <Typography variant="h6" display="inline">
               {" "}
@@ -214,8 +220,6 @@ function VendorDrawer(props: {
             <Grid item>
               <DownloadThumbnail
                 fileIds={[agreementFileId]}
-                fileUrls={agreementFileUrls}
-                setFileUrls={setAgreementFileUrls}
               ></DownloadThumbnail>
             </Grid>
           )}
@@ -229,7 +233,6 @@ function VendorDrawer(props: {
               if (!resp.succeeded) {
                 return;
               }
-              setAgreementFileUrls([]); // clear any file urls which may be displayed related to this vendor agreement
               const fileId = resp.files_in_db[0].id;
               // This is an agreement that the vendor signs with Bespoke, therefore
               // company_id is vendor.id
@@ -246,11 +249,18 @@ function VendorDrawer(props: {
                 companyAgreement.data?.insert_company_agreements_one?.id;
               await updateVendorAgreementId({
                 variables: {
-                  companyVendorPartnershipId: props.vendorPartnershipId,
+                  companyVendorPartnershipId: vendorPartnershipId,
                   vendorAgreementId: vendorAgreementId,
                 },
+                refetchQueries: [
+                  {
+                    query: BankVendorPartnershipDocument,
+                    variables: {
+                      id: vendorPartnershipId,
+                    },
+                  },
+                ],
               });
-              console.log(resp);
             }}
           ></FileUploadDropzone>
         </Box>
@@ -271,7 +281,7 @@ function VendorDrawer(props: {
           <ApproveVendor
             vendorContact={primaryVendorContact}
             customerContact={primaryCustomerContact}
-            vendorPartnershipId={props.vendorPartnershipId}
+            vendorPartnershipId={vendorPartnershipId}
             customerName={customerName}
             vendorName={vendor.name}
             notifier={notifier}

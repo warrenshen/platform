@@ -1,12 +1,18 @@
 import {
   Box,
   Button,
+  Checkbox,
   createStyles,
+  FormControlLabel,
   makeStyles,
   Theme,
 } from "@material-ui/core";
+import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { usePurchaseOrderForReviewQuery } from "generated/graphql";
+import {
+  PurchaseOrderFileTypeEnum,
+  usePurchaseOrderForReviewQuery,
+} from "generated/graphql";
 import { useContext } from "react";
 
 interface Props {
@@ -50,6 +56,16 @@ function ApprovePurchaseOrder(props: Props) {
     },
   });
   const purchaseOrder = data?.purchase_orders_by_pk;
+  const purchaseOrderFile = purchaseOrder?.purchase_order_files.filter(
+    (purchaseOrderFile) =>
+      purchaseOrderFile.file_type === PurchaseOrderFileTypeEnum.PurchaseOrder
+  )[0];
+  const purchaseOrderCannabisFiles = purchaseOrder
+    ? purchaseOrder.purchase_order_files.filter(
+        (purchaseOrderFile) =>
+          purchaseOrderFile.file_type === PurchaseOrderFileTypeEnum.Cannabis
+      )
+    : [];
 
   return location.state ? (
     <Box
@@ -59,7 +75,7 @@ function ApprovePurchaseOrder(props: Props) {
       justifyContent="center"
       alignItems="center"
     >
-      <Box width="300px" display="flex" flexDirection="column">
+      <Box width="400px" display="flex" flexDirection="column">
         <Box display="flex" flexDirection="column">
           <Box>
             <h2>Purchase order confirmation</h2>
@@ -101,6 +117,31 @@ function ApprovePurchaseOrder(props: Props) {
             </p>
             <p>{purchaseOrder?.status}</p>
           </Box>
+          <Box>
+            <DownloadThumbnail
+              fileIds={purchaseOrderFile ? [purchaseOrderFile.file_id] : []}
+            ></DownloadThumbnail>
+          </Box>
+          <Box>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  disabled={true}
+                  checked={!!purchaseOrder?.is_cannabis}
+                ></Checkbox>
+              }
+              label={"Order includes cannabis or derivatives"}
+            ></FormControlLabel>
+          </Box>
+          {purchaseOrder?.is_cannabis && (
+            <Box>
+              <DownloadThumbnail
+                fileIds={purchaseOrderCannabisFiles?.map(
+                  (purchaseOrderFile) => purchaseOrderFile.file_id
+                )}
+              ></DownloadThumbnail>
+            </Box>
+          )}
         </Box>
         <Box display="flex" justifyContent="space-between">
           <Button

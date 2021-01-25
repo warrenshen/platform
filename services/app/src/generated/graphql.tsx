@@ -7955,7 +7955,10 @@ export type PurchaseOrderForReviewQueryVariables = Exact<{
 
 export type PurchaseOrderForReviewQuery = { purchase_orders_by_pk?: Maybe<(
     Pick<PurchaseOrders, 'id' | 'company_id' | 'vendor_id' | 'order_number' | 'order_date' | 'delivery_date' | 'amount' | 'is_cannabis' | 'status' | 'created_at'>
-    & { company: Pick<Companies, 'id' | 'name'> }
+    & { purchase_order_files: Array<(
+      Pick<PurchaseOrderFiles, 'purchase_order_id' | 'file_id'>
+      & PurchaseOrderFileFragment
+    )>, company: Pick<Companies, 'id' | 'name'> }
   )> };
 
 export type AddPurchaseOrderMutationVariables = Exact<{
@@ -9306,13 +9309,18 @@ export const PurchaseOrderForReviewDocument = gql`
     is_cannabis
     status
     created_at
+    purchase_order_files {
+      purchase_order_id
+      file_id
+      ...PurchaseOrderFile
+    }
     company {
       id
       name
     }
   }
 }
-    `;
+    ${PurchaseOrderFileFragmentDoc}`;
 
 /**
  * __usePurchaseOrderForReviewQuery__

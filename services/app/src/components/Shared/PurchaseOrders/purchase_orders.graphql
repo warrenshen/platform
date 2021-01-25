@@ -73,6 +73,11 @@ query PurchaseOrderForReview($id: uuid!) {
     is_cannabis
     status
     created_at
+    purchase_order_files {
+      purchase_order_id
+      file_id
+      ...PurchaseOrderFile
+    }
     company {
       id
       name

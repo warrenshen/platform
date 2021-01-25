@@ -5,6 +5,7 @@ import {
   createStyles,
   FormControl,
   FormControlLabel,
+  Grid,
   InputLabel,
   makeStyles,
   MenuItem,
@@ -17,6 +18,7 @@ import {
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
 import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
+import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileUploadDropzone from "components/Shared/File/UploadDropzone";
 import InputCurrencyAutoFormatter from "components/Shared/InputCurrencyAutoFormatter";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
@@ -187,6 +189,13 @@ function PurchaseOrderForm({
         </FormControl>
       </Box>
       <Box mt={3}>
+        {purchaseOrderFile && (
+          <Grid item>
+            <DownloadThumbnail
+              fileIds={[purchaseOrderFile.file_id]}
+            ></DownloadThumbnail>
+          </Grid>
+        )}
         <FileUploadDropzone
           companyId={companyId}
           docType="purchase_order"
@@ -229,6 +238,15 @@ function PurchaseOrderForm({
       </Box>
       {!!purchaseOrder.is_cannabis && (
         <Box mt={3}>
+          {purchaseOrderCannabisFiles.length > 0 && (
+            <Grid item>
+              <DownloadThumbnail
+                fileIds={purchaseOrderCannabisFiles.map(
+                  (purchaseOrderFile) => purchaseOrderFile.file_id
+                )}
+              ></DownloadThumbnail>
+            </Grid>
+          )}
           <FileUploadDropzone
             companyId={companyId}
             docType="purchase_order"

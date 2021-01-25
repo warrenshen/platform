@@ -40,6 +40,7 @@ function Contacts(props: Props) {
       {props.contacts.map((contact) => {
         return (
           <ContactCard
+            key={contact.id}
             contact={contact}
             companyVendorPartnershipId={props.companyVendorPartnershipId}
           ></ContactCard>

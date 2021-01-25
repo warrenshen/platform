@@ -1,23 +1,29 @@
-import { Grid, IconButton, Link } from "@material-ui/core";
+import { Box, Grid, IconButton, Link } from "@material-ui/core";
 import AttachFileIcon from "@material-ui/icons/AttachFile";
 import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
 import { authenticatedApi, fileRoutes } from "lib/api";
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface Props {
   fileIds: string[];
-  fileUrls: string[];
-  setFileUrls: (urls: string[]) => void;
 }
 
 type DownloadSignedURLReq = {
   file_ids: string[];
 };
 
+type FileWithSignedURL = {
+  id: string;
+  name: string;
+  path: string;
+  url: string;
+};
+
 type DownloadSignedURLResponse = {
   status: string;
   msg?: string;
   urls: string[];
+  files: FileWithSignedURL[];
 };
 
 async function getDownloadSignedUrl(
@@ -39,35 +45,45 @@ async function getDownloadSignedUrl(
     );
 }
 
-function DownloadThumbnail(props: Props) {
+function DownloadThumbnail({ fileIds }: Props) {
+  const [filesWithSignedUrls, setFilesWithSignedUrls] = useState<
+    FileWithSignedURL[]
+  >([]);
+
+  useEffect(() => {
+    setFilesWithSignedUrls([]);
+  }, [fileIds]);
+
   const downloadItems = useCallback(async () => {
-    const resp = await getDownloadSignedUrl({ file_ids: props.fileIds });
-    if (resp.status !== "OK") {
-      window.console.log(resp.msg);
+    const response = await getDownloadSignedUrl({ file_ids: fileIds });
+    if (response.status !== "OK") {
+      alert(response.msg);
+    } else {
+      setFilesWithSignedUrls(response.files);
     }
-    props.setFileUrls(resp.urls);
-  }, [props]);
+  }, [fileIds]);
 
   return (
-    <>
-      <Grid container direction="row" alignItems="center">
-        <Grid item>
-          <IconButton>
-            <AttachFileIcon onClick={downloadItems}></AttachFileIcon>
-          </IconButton>
-        </Grid>
-        {props.fileUrls &&
-          props.fileUrls.map((fileUrl) => {
-            return (
-              <Grid item>
-                <Link key={fileUrl} href={fileUrl}>
-                  <CloudDownloadIcon></CloudDownloadIcon>
-                </Link>
-              </Grid>
-            );
-          })}
+    <Box display="flex" flexDirection="column">
+      <Grid item>
+        <IconButton onClick={downloadItems}>
+          <span>{`View files (${fileIds.length})`}</span>
+          <AttachFileIcon></AttachFileIcon>
+        </IconButton>
       </Grid>
-    </>
+      <Box display="flex" flexDirection="column">
+        {filesWithSignedUrls.map((fileWithSignedUrl) => {
+          return (
+            <Box key={fileWithSignedUrl.id} display="flex">
+              <Link href={fileWithSignedUrl.url}>
+                <CloudDownloadIcon></CloudDownloadIcon>
+              </Link>
+              <span>{fileWithSignedUrl.name}</span>
+            </Box>
+          );
+        })}
+      </Box>
+    </Box>
   );
 }
 
