@@ -32,10 +32,8 @@ class Config(object):
 		self.EMAIL_PROVIDER = os.environ.get('EMAIL_PROVIDER', 'sendgrid')
 
 		# Email
-		# TODO(dlluncor): Change to donotreply@bespokefinancial.com once SendGrid
-		# is completely setup
 		self.NO_REPLY_EMAIL_ADDRESS = os.environ.get(
-			'NO_REPLY_EMAIL_ADDRESS', 'rachel@bespokefinancial.com')
+			'NO_REPLY_EMAIL_ADDRESS', 'do-not-reply@bespokefinancial.com')
 		self.SUPPORT_EMAIL_ADDRESS = os.environ.get(
 			'SUPPORT_EMAIL_ADDRESS', 'support@bespokefinancial.com')
 		self.SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')

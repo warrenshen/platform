@@ -38,10 +38,11 @@ class GenerateCodeView(MethodView):
 				return make_error_response(f'Missing {key} generate code request')
 
 		link_val = form['link_val']
-		link_info = security_util.get_link_info_from_url(link_val, cfg.get_security_config())
+		link_info = security_util.get_link_info_from_url(
+			link_val, cfg.get_security_config(), max_age_in_seconds=security_util.SECONDS_IN_HOUR * 8)
 		email = link_info['email']
 
-		# TODO(dlluncor): Check if link is expired
+		# NOTE: Check if link is expired
 
 		with session_scope(current_app.session_maker) as session:
 			two_factor_link = cast(models.TwoFactorLink, session.query(models.TwoFactorLink).filter(
@@ -53,14 +54,14 @@ class GenerateCodeView(MethodView):
 			if email not in two_factor_link.token_states:
 				return make_error_response('Invalid email for link provided')
 
-			# TODO(dlluncor): Handle expiration times for tokens
+			# NOTE: Handle expiration times for tokens
 			two_factor_link.token_states[email] = {
 				'token_val': security_util.mfa_code_generator(),
 				'expires_in': ''
 			}
 			flag_modified(two_factor_link, 'token_states')
 
-		# TODO: Send two-factor code to email
+		# NOTE: Send two-factor code to email
 
 		return make_response(json.dumps({
 			'status': 'OK'
@@ -83,7 +84,8 @@ class ApproveCodeView(MethodView):
 		if not provided_token_val:
 			return make_error_response('No token value provided')
 
-		link_info = security_util.get_link_info_from_url(link_val, cfg.get_security_config())
+		link_info = security_util.get_link_info_from_url(link_val, cfg.get_security_config(),
+			max_age_in_seconds=security_util.SECONDS_IN_HOUR * 8)
 		email = link_info['email']
 
 		with session_scope(current_app.session_maker) as session:
@@ -118,7 +120,8 @@ class GetSecureLinkPayloadView(MethodView):
 		if not link_signed_val:
 			return make_error_response('Link provided is empty')
 
-		link_info = security_util.get_link_info_from_url(link_signed_val, cfg.get_security_config())
+		link_info = security_util.get_link_info_from_url(
+			link_signed_val, cfg.get_security_config(), max_age_in_seconds=security_util.SECONDS_IN_DAY * 7)
 		email = link_info['email']
 		company_id = None
 		form_info = None
@@ -155,8 +158,8 @@ class GetSecureLinkPayloadView(MethodView):
 			)
 			claims_payload = auth_util.get_claims_payload(user)
 			access_token = create_access_token(identity=claims_payload)
-			# TODO: change the refresh token below to have a TTL of 15 minutes.
-			refresh_token = create_refresh_token(identity=claims_payload)
+			refresh_expires_delta = datetime.timedelta(minutes=15)
+			refresh_token = create_refresh_token(identity=claims_payload, expires_delta=refresh_expires_delta)
 		else:
 			return make_error_response('Could not handle unknown payload type {}'.format(form_info.get('type')))
 
