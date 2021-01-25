@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, Generator
 
 import sqlalchemy
 from mypy_extensions import TypedDict
-from sqlalchemy import (JSON, BigInteger, Boolean, Column, DateTime, Float,
-                        ForeignKey, Integer, Numeric, String, Text)
+from sqlalchemy import (JSON, BigInteger, Boolean, Column, Date, DateTime,
+                        Float, ForeignKey, Integer, Numeric, String, Text)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import OperationalError, StatementError, TimeoutError
 from sqlalchemy.ext.declarative import declarative_base
@@ -87,6 +87,44 @@ class Company(Base):
         name = Column(String)
 
 
+class CompanyVendorPartnership(Base):
+    __tablename__ = 'company_vendor_partnerships'
+
+    if TYPE_CHECKING:
+        def __init__(self) -> None:
+            self.__table__: Any = None
+            self.id: uuid.UUID = None
+            self.company_id: uuid.UUID = None
+            self.vendor_id: uuid.UUID = None
+            self.approved_at: datetime.datetime = None
+    else:
+        id = Column(UUID(as_uuid=True), primary_key=True,
+                    default=uuid.uuid4, unique=True)
+        company_id = Column(UUID(as_uuid=True), ForeignKey('companies.id'))
+        vendor_id = Column(UUID(as_uuid=True), ForeignKey('companies.id'))
+        approved_at = Column(DateTime)
+
+
+class PurchaseOrderFile(Base):
+    __tablename__ = 'purchase_order_files'
+
+    if TYPE_CHECKING:
+        def __init__(self, purchase_order_id: uuid.UUID, file_id: uuid.UUID, file_type: str):
+            self.__table__: Any = None
+            self.purchase_order_id: uuid.UUID = None
+            self.file_id: uuid.UUID = None
+            self.file_type: str = None
+
+            self.purchase_order: PurchaseOrder = None
+            self.file: File = None
+    else:
+        purchase_order_id = Column(UUID(as_uuid=True), ForeignKey(
+            'purchase_orders.id'), primary_key=True)
+        file_id = Column(UUID(as_uuid=True), ForeignKey(
+            'files.id'), primary_key=True)
+        file_type = Column(String)
+
+
 class PurchaseOrder(Base):
     """
             Purchase orders created by customers for financing
@@ -96,10 +134,14 @@ class PurchaseOrder(Base):
     if TYPE_CHECKING:
         def __init__(self, number: str, total_requested: float, confirmed: bool) -> None:
             self.__table__: Any = None
-            self.amount: float = None
-            self.status: str = None
+            self.id: uuid.UUID = None
             self.vendor_id: uuid.UUID = None
             self.company_id: uuid.UUID = None
+            self.order_number: str = None
+            self.order_date: datetime.date = None
+            self.delivery_date: datetime.date = None
+            self.amount: float = None
+            self.status: str = None
             self.requested_at: datetime.datetime = None
 
             self.vendor: Company = None
@@ -109,6 +151,8 @@ class PurchaseOrder(Base):
         company_id = Column(UUID(as_uuid=True), ForeignKey('companies.id'))
         vendor_id = Column(UUID(as_uuid=True), ForeignKey('companies.id'))
         order_number = Column(String)
+        order_date = Column(Date)
+        delivery_date = Column(Date)
         amount = Column(Numeric)
         status = Column(String)
         requested_at = Column(DateTime)
