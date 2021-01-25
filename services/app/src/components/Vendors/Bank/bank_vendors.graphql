@@ -34,6 +34,16 @@ fragment CompanySettings on company_settings {
   product_config
 }
 
+# Company settings that a customer can see
+fragment CompanySettingsForCustomer on company_settings {
+  id
+  company_id
+  vendor_agreement_docusign_template
+  collections_bespoke_bank_account_id
+  product_type
+  product_config
+}
+
 # A company agreement can also correspond to an agreement that a vendor signs with Bespoke as well
 fragment CompanyAgreement on company_agreements {
   id

@@ -7819,6 +7819,19 @@ export type CompanyQuery = { companies_by_pk?: Maybe<(
     & CompanyFragment
   )> };
 
+export type CompanyForCustomerQueryVariables = Exact<{
+  companyId: Scalars['uuid'];
+}>;
+
+
+export type CompanyForCustomerQuery = { companies_by_pk?: Maybe<(
+    { bank_accounts: Array<BankAccountFragment>, settings: (
+      { collections_bespoke_bank_account?: Maybe<BankAccountFragment> }
+      & CompanySettingsForCustomerFragment
+    ) }
+    & CompanyFragment
+  )> };
+
 export type UpdateCompanyProfileMutationVariables = Exact<{
   id: Scalars['uuid'];
   company: CompaniesSetInput;
@@ -7999,6 +8012,8 @@ export type BankVendorPartnershipFragment = (
 );
 
 export type CompanySettingsFragment = Pick<CompanySettings, 'id' | 'company_id' | 'vendor_agreement_docusign_template' | 'collections_bespoke_bank_account_id' | 'advances_bespoke_bank_account_id' | 'product_type' | 'product_config'>;
+
+export type CompanySettingsForCustomerFragment = Pick<CompanySettings, 'id' | 'company_id' | 'vendor_agreement_docusign_template' | 'collections_bespoke_bank_account_id' | 'product_type' | 'product_config'>;
 
 export type CompanyAgreementFragment = Pick<CompanyAgreements, 'id' | 'company_id' | 'file_id'>;
 
@@ -8356,6 +8371,16 @@ export const CompanySettingsFragmentDoc = gql`
   vendor_agreement_docusign_template
   collections_bespoke_bank_account_id
   advances_bespoke_bank_account_id
+  product_type
+  product_config
+}
+    `;
+export const CompanySettingsForCustomerFragmentDoc = gql`
+    fragment CompanySettingsForCustomer on company_settings {
+  id
+  company_id
+  vendor_agreement_docusign_template
+  collections_bespoke_bank_account_id
   product_type
   product_config
 }
@@ -8861,6 +8886,50 @@ export function useCompanyLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Co
 export type CompanyQueryHookResult = ReturnType<typeof useCompanyQuery>;
 export type CompanyLazyQueryHookResult = ReturnType<typeof useCompanyLazyQuery>;
 export type CompanyQueryResult = Apollo.QueryResult<CompanyQuery, CompanyQueryVariables>;
+export const CompanyForCustomerDocument = gql`
+    query CompanyForCustomer($companyId: uuid!) {
+  companies_by_pk(id: $companyId) {
+    ...Company
+    bank_accounts {
+      ...BankAccount
+    }
+    settings {
+      ...CompanySettingsForCustomer
+      collections_bespoke_bank_account {
+        ...BankAccount
+      }
+    }
+  }
+}
+    ${CompanyFragmentDoc}
+${BankAccountFragmentDoc}
+${CompanySettingsForCustomerFragmentDoc}`;
+
+/**
+ * __useCompanyForCustomerQuery__
+ *
+ * To run a query within a React component, call `useCompanyForCustomerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCompanyForCustomerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCompanyForCustomerQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useCompanyForCustomerQuery(baseOptions: Apollo.QueryHookOptions<CompanyForCustomerQuery, CompanyForCustomerQueryVariables>) {
+        return Apollo.useQuery<CompanyForCustomerQuery, CompanyForCustomerQueryVariables>(CompanyForCustomerDocument, baseOptions);
+      }
+export function useCompanyForCustomerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CompanyForCustomerQuery, CompanyForCustomerQueryVariables>) {
+          return Apollo.useLazyQuery<CompanyForCustomerQuery, CompanyForCustomerQueryVariables>(CompanyForCustomerDocument, baseOptions);
+        }
+export type CompanyForCustomerQueryHookResult = ReturnType<typeof useCompanyForCustomerQuery>;
+export type CompanyForCustomerLazyQueryHookResult = ReturnType<typeof useCompanyForCustomerLazyQuery>;
+export type CompanyForCustomerQueryResult = Apollo.QueryResult<CompanyForCustomerQuery, CompanyForCustomerQueryVariables>;
 export const UpdateCompanyProfileDocument = gql`
     mutation UpdateCompanyProfile($id: uuid!, $company: companies_set_input!) {
   update_companies_by_pk(pk_columns: {id: $id}, _set: $company) {

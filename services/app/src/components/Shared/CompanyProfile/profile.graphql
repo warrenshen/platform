@@ -25,6 +25,21 @@ query Company($companyId: uuid!) {
   }
 }
 
+query CompanyForCustomer($companyId: uuid!) {
+  companies_by_pk(id: $companyId) {
+    ...Company
+    bank_accounts {
+      ...BankAccount
+    }
+    settings {
+      ...CompanySettingsForCustomer
+      collections_bespoke_bank_account {
+        ...BankAccount
+      }
+    }
+  }
+}
+
 mutation UpdateCompanyProfile($id: uuid!, $company: companies_set_input!) {
   update_companies_by_pk(pk_columns: { id: $id }, _set: $company) {
     ...Company
