@@ -86,6 +86,7 @@ class Company(Base):
                     default=uuid.uuid4, unique=True)
         name = Column(String)
 
+
 class PurchaseOrder(Base):
     """
             Purchase orders created by customers for financing
@@ -176,6 +177,7 @@ class File(Base):
                      size: int, mime_type: str, created_by_user_id: str) -> None:
             self.__table__: Any = None
             self.id: UUID = None
+            self.name: str = None
             self.path: str = None
             self.mime_type: str = None
             #self.token_states = token_states
