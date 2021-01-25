@@ -18,6 +18,7 @@ import {
   useAddPurchaseOrderMutation,
   usePurchaseOrderQuery,
   useUpdatePurchaseOrderMutation,
+  useVendorsByPartnerCompanyQuery,
 } from "generated/graphql";
 import { ActionType } from "lib/ActionType";
 import { authenticatedApi, purchaseOrdersRoutes } from "lib/api";
@@ -118,6 +119,16 @@ function CreateUpdatePurchaseOrderModal({
     },
   });
 
+  const {
+    data,
+    loading: isSelectableVendorsLoading,
+  } = useVendorsByPartnerCompanyQuery({
+    variables: {
+      companyId,
+    },
+  });
+  const vendors = data?.vendors;
+
   const [
     addPurchaseOrder,
     { loading: isAddPurchaseOrderLoading },
@@ -128,18 +139,21 @@ function CreateUpdatePurchaseOrderModal({
     { loading: isUpdatePurchaseOrderLoading },
   ] = useUpdatePurchaseOrderMutation();
 
-  const isDialogReady = !isExistingPurchaseOrderLoading;
+  const isDialogReady =
+    !isExistingPurchaseOrderLoading || !isSelectableVendorsLoading;
   const isFormValid = !!purchaseOrder.vendor_id;
   const isFormLoading =
     isAddPurchaseOrderLoading || isUpdatePurchaseOrderLoading;
   const isSaveDraftDisabled = !isFormValid || isFormLoading;
   const isSaveSubmitDisabled =
-    !isFormValid ||
-    isFormLoading ||
+    isSaveDraftDisabled ||
+    !vendors?.find((vendor) => vendor.id === purchaseOrder.vendor_id)
+      ?.company_vendor_partnerships[0].approved_at ||
+    !purchaseOrder.order_number ||
     !purchaseOrder.delivery_date ||
     !purchaseOrder.order_date ||
-    !purchaseOrder.order_number ||
-    !purchaseOrder.amount;
+    !purchaseOrder.amount ||
+    !purchaseOrderFile;
 
   const upsertPurchaseOrder = async () => {
     const purchaseOrderFileData = purchaseOrderFile && {
@@ -234,9 +248,11 @@ function CreateUpdatePurchaseOrderModal({
       </DialogTitle>
       <DialogContent>
         <PurchaseOrderForm
+          companyId={companyId}
           purchaseOrder={purchaseOrder}
           purchaseOrderFile={purchaseOrderFile}
           purchaseOrderCannabisFiles={purchaseOrderCannabisFiles}
+          vendors={vendors || []}
           setPurchaseOrder={setPurchaseOrder}
           setPurchaseOrderFile={setPurchaseOrderFile}
           setPurchaseOrderCannabisFiles={setPurchaseOrderCannabisFiles}

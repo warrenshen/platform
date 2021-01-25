@@ -21,14 +21,13 @@ import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileUploadDropzone from "components/Shared/File/UploadDropzone";
 import InputCurrencyAutoFormatter from "components/Shared/InputCurrencyAutoFormatter";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   PurchaseOrderFileFragment,
   PurchaseOrderFileTypeEnum,
   PurchaseOrderFragment,
-  useListVendorsByCompanyQuery,
+  VendorByPartnerCompanyFragment,
 } from "generated/graphql";
-import { ChangeEvent, useContext } from "react";
+import { ChangeEvent } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -54,35 +53,27 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
+  companyId: string;
   purchaseOrder: PurchaseOrderFragment;
   purchaseOrderFile: PurchaseOrderFileFragment | undefined;
   purchaseOrderCannabisFiles: PurchaseOrderFileFragment[];
+  vendors: VendorByPartnerCompanyFragment[];
   setPurchaseOrder: (purchaseOrder: PurchaseOrderFragment) => void;
   setPurchaseOrderFile: (file: PurchaseOrderFileFragment) => void;
   setPurchaseOrderCannabisFiles: (files: PurchaseOrderFileFragment[]) => void;
 }
 
 function PurchaseOrderForm({
+  companyId,
   purchaseOrder,
   purchaseOrderFile,
   purchaseOrderCannabisFiles,
+  vendors,
   setPurchaseOrder,
   setPurchaseOrderFile,
   setPurchaseOrderCannabisFiles,
 }: Props) {
   const classes = useStyles();
-  const {
-    user: { companyId },
-  } = useContext(CurrentUserContext);
-  const {
-    data,
-    loading: isSelectableVendorsLoading,
-  } = useListVendorsByCompanyQuery({
-    variables: {
-      companyId,
-    },
-  });
-  const selectableVendors = data?.vendors;
 
   return (
     <Box display="flex" flexDirection="column">
@@ -90,10 +81,10 @@ function PurchaseOrderForm({
         <FormControl className={classes.purchaseOrderInput}>
           <InputLabel id="vendor-select-label">Vendor</InputLabel>
           <Select
-            disabled={isSelectableVendorsLoading}
+            disabled={vendors.length <= 0}
             labelId="vendor-select-label"
             id="vendor-select"
-            value={isSelectableVendorsLoading ? "" : purchaseOrder.vendor_id}
+            value={vendors.length <= 0 ? "" : purchaseOrder.vendor_id}
             onChange={({ target: { value } }) => {
               setPurchaseOrder({
                 ...purchaseOrder,
@@ -104,7 +95,7 @@ function PurchaseOrderForm({
             <MenuItem value="">
               <em>None</em>
             </MenuItem>
-            {selectableVendors?.map((vendor) => (
+            {vendors.map((vendor) => (
               <MenuItem key={vendor.id} value={vendor.id}>
                 {`${vendor.name} ${
                   vendor.company_vendor_partnerships[0]?.approved_at
