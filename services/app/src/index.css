@@ -17,6 +17,18 @@ code {
     monospace;
 }
 
+.dx-datagrid .dx-row:not(.dx-header-row) > td,
+.dx-datagrid .dx-row:not(.dx-header-row) > tr > td {
+  padding-top: 1px !important;
+  padding-bottom: 1px !important;
+}
+
+.dx-datagrid .dx-header-row > td,
+.dx-datagrid .dx-header-row > tr > td {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+
 #root {
   height: 100%;
 }

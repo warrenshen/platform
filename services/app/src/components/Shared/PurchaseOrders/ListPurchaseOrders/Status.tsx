@@ -1,45 +1,33 @@
-import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
-import Create from "@material-ui/icons/Create";
-import ThumbUp from "@material-ui/icons/ThumbUp";
+import { createStyles, makeStyles, Theme } from "@material-ui/core";
+import Chip from "@material-ui/core/Chip";
+import { CellValue } from "@material-ui/data-grid";
+interface IObjectKeys {
+  [key: string]: string | number;
+}
 
-const useStyles = makeStyles((theme: Theme) =>
+const purchaseOrderStatusColor: IObjectKeys = {
+  approval_requested: "#eeeeee",
+  approved: "#5cb85c",
+  drafted: "#f0ad4e",
+  rejected: "#df4646",
+};
+
+const useStyles = makeStyles(() =>
   createStyles({
     statusLabel: {
-      marginLeft: theme.spacing(1),
+      background: ({ color }: { color: string | number }) => color,
     },
   })
 );
 
-const PurchaseOrderStatus = {
-  Accepted: "Accepted",
-  Paid: "Paid",
-  Invoiced: "Invoiced",
-  New: "New",
-};
+const getColor = (status: any): string | number =>
+  purchaseOrderStatusColor[status];
 
-const PurchaseOrderStatusColor = {
-  Accepted: "#5cb85c",
-  Paid: "#5cb85c",
-  Invoiced: "#f0ad4e",
-  New: "#f0ad4e",
-};
-
-function Status({ statusValue }: { statusValue: string }) {
-  const classes = useStyles();
+function Status({ statusValue }: { statusValue: CellValue }) {
+  const color = getColor(statusValue);
+  const classes = useStyles({ color });
   return (
-    <>
-      {(statusValue === PurchaseOrderStatus.Paid ||
-        statusValue === PurchaseOrderStatus.Accepted) && (
-        <ThumbUp style={{ color: PurchaseOrderStatusColor.Accepted }} />
-      )}
-      {statusValue === PurchaseOrderStatus.Invoiced && (
-        <ThumbUp style={{ color: PurchaseOrderStatusColor.Invoiced }} />
-      )}
-      {statusValue === PurchaseOrderStatus.New && (
-        <Create style={{ color: PurchaseOrderStatusColor.New }} />
-      )}
-      <Box className={classes.statusLabel}>{statusValue}</Box>
-    </>
+    <Chip size="small" className={classes.statusLabel} label={statusValue} />
   );
 }
 

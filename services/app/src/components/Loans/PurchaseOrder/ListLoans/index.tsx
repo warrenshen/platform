@@ -1,9 +1,4 @@
-import {
-  ColDef,
-  DataGrid,
-  RowsProp,
-  ValueFormatterParams,
-} from "@material-ui/data-grid";
+import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import Launcher from "components/Shared/PurchaseOrderLoanDrawer/Launcher";
 import {
   Maybe,
@@ -12,6 +7,12 @@ import {
 } from "generated/graphql";
 import useCompanyContext from "hooks/useCompanyContext";
 import React from "react";
+import DataGrid, {
+  IColumnProps,
+  Pager,
+  Column,
+  Paging,
+} from "devextreme-react/data-grid";
 
 function getRows(poLoans: Maybe<PurchaseOrderLoanFragment[]>): RowsProp {
   return poLoans
@@ -31,35 +32,42 @@ function ListLoans() {
     },
   });
 
-  const columns: ColDef[] = [
+  const purchaseOrderRenderer = (params: ValueFormatterParams) => {
+    const purchaseOrderLoanId = params.row.id as string;
+    return <Launcher purchaseOrderLoanId={purchaseOrderLoanId}></Launcher>;
+  };
+
+  const columns: IColumnProps[] = [
     {
-      field: "id",
-      headerName: "ID",
+      dataField: "purchase_order_id",
+      caption: "Purchase Order",
+      cellRender: purchaseOrderRenderer,
       width: 150,
     },
     {
-      field: "status",
-      headerName: "Status",
+      dataField: "amount",
+      caption: "Amount",
       width: 150,
     },
     {
-      field: "origination_date",
-      headerName: "Origination Date",
+      dataField: "amount_owed",
+      caption: "Amount Owed",
       width: 150,
     },
     {
-      field: "amount",
-      headerName: "Amount",
-      width: 150,
+      dataField: "adjusted_maturity_date",
+      caption: "Maturity Date",
+      width: 200,
     },
     {
-      field: "see_more",
-      headerName: "See More",
+      dataField: "outstanding_principal_balance",
+      caption: "Outstanding Principal Balance",
+      width: 220,
+    },
+    {
+      dataField: "status",
+      caption: "Status",
       width: 150,
-      renderCell: (params: ValueFormatterParams) => {
-        const purchaseOrderLoanId = params.row.id as string;
-        return <Launcher purchaseOrderLoanId={purchaseOrderLoanId}></Launcher>;
-      },
     },
   ];
 
@@ -67,12 +75,24 @@ function ListLoans() {
 
   return (
     <div style={{ minHeight: "500px", width: "100%" }}>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        pageSize={10}
-        rowsPerPageOptions={[10, 20, 50]}
-      />
+      <DataGrid height={"100%"} width={"100%"} dataSource={rows}>
+        {columns.map(({ dataField, width, caption, cellRender }) => (
+          <Column
+            key={dataField}
+            caption={caption}
+            dataField={dataField}
+            width={width}
+            cellRender={cellRender}
+          />
+        ))}
+        <Paging defaultPageSize={50} />
+        <Pager
+          visible={true}
+          showPageSizeSelector={true}
+          allowedPageSizes={[10, 20, 50]}
+          showInfo={true}
+        />
+      </DataGrid>
     </div>
   );
 }

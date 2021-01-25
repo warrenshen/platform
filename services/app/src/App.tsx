@@ -24,6 +24,9 @@ import Vendors from "pages/Vendors";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 import { useLocation } from "react-use";
 
+import "devextreme/dist/css/dx.common.css";
+import "devextreme/dist/css/dx.material.blue.light.css";
+
 function App() {
   const { pathname } = useLocation();
   return (

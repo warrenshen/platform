@@ -1,9 +1,4 @@
-import {
-  ColDef,
-  DataGrid,
-  RowsProp,
-  ValueFormatterParams,
-} from "@material-ui/data-grid";
+import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { PurchaseOrderFragment } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
@@ -11,6 +6,12 @@ import { Action, check } from "lib/auth/rbac-rules";
 import { useContext } from "react";
 import ActionMenu from "./ActionMenu";
 import Status from "./Status";
+import DataGrid, {
+  IColumnProps,
+  Pager,
+  Column,
+  Paging,
+} from "devextreme-react/data-grid";
 
 function populateRows(
   purchaseOrders: Maybe<PurchaseOrderFragment[]>
@@ -25,7 +26,6 @@ function populateRows(
       })
     : [];
 }
-
 interface Props {
   purchaseOrders: PurchaseOrderFragment[];
   handleEditPurchaseOrder: (purchaseOrderId: string) => void;
@@ -39,72 +39,91 @@ function ListPurchaseOrders({
 
   const rows = populateRows(purchaseOrders);
 
-  const columns: ColDef[] = [
+  const statusCellRenderer = (params: ValueFormatterParams) => (
+    <Status statusValue={params.value} />
+  );
+
+  const actionCellRenderer = (params: ValueFormatterParams) => (
+    <ActionMenu
+      handleClickEdit={() => {
+        handleEditPurchaseOrder(params.row.id as string);
+      }}
+    ></ActionMenu>
+  );
+
+  const columns: IColumnProps[] = [
     {
-      field: "id",
-      headerName: "ID",
+      dataField: "order_number",
+      caption: "Order Number",
       width: 150,
     },
     {
-      field: "order_number",
-      headerName: "Order Number",
+      dataField: "vendor_name",
+      caption: "Vendor",
+      width: 200,
+    },
+    {
+      dataField: "amount",
+      caption: "Amount",
+      width: 120,
+    },
+    {
+      dataField: "order_date",
+      caption: "Order Date",
+      alignment: "center",
+      width: 130,
+    },
+    {
+      dataField: "delivery_date",
+      caption: "Delivery Date",
+      alignment: "center",
+      width: 130,
+    },
+    {
+      dataField: "loans",
+      caption: "Loans",
       width: 150,
     },
     {
-      field: "vendor_name",
-      headerName: "Vendor",
-      width: 150,
-    },
-    {
-      field: "status",
-      headerName: "Status",
-      width: 150,
-      renderCell: (params: ValueFormatterParams) => (
-        <Status statusValue={params.value as string} />
-      ),
-    },
-    {
-      field: "order_date",
-      headerName: "Order Date",
-      width: 150,
-    },
-    {
-      field: "delivery_date",
-      headerName: "Delivery Date",
-      width: 150,
-    },
-    {
-      field: "amount",
-      headerName: "Amount",
-      width: 150,
+      dataField: "status",
+      caption: "Status",
+      width: 175,
+      alignment: "center",
+      cellRender: statusCellRenderer,
     },
   ];
 
   if (check(user.role, Action.ViewPurchaseOrdersActionMenu)) {
     columns.push({
-      field: "action",
-      headerName: "Action",
+      dataField: "action",
+      caption: "Action",
+      alignment: "center",
       width: 100,
-      renderCell: (params: ValueFormatterParams) => {
-        return (
-          <ActionMenu
-            handleClickEdit={() =>
-              handleEditPurchaseOrder(params.row.id as string)
-            }
-          ></ActionMenu>
-        );
-      },
+      cellRender: actionCellRenderer,
     });
   }
 
   return (
-    <div style={{ height: "700px", width: "100%" }}>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        pageSize={10}
-        rowsPerPageOptions={[10, 20, 50]}
-      />
+    <div style={{ height: "80vh", width: "100%" }}>
+      <DataGrid height={"100%"} width={"100%"} dataSource={rows}>
+        {columns.map(({ dataField, width, caption, alignment, cellRender }) => (
+          <Column
+            key={dataField}
+            caption={caption}
+            dataField={dataField}
+            alignment={alignment}
+            width={width}
+            cellRender={cellRender}
+          />
+        ))}
+        <Paging defaultPageSize={50} />
+        <Pager
+          visible={true}
+          showPageSizeSelector={true}
+          allowedPageSizes={[10, 20, 50]}
+          showInfo={true}
+        />
+      </DataGrid>
     </div>
   );
 }
