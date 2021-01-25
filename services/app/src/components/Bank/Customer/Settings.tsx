@@ -37,6 +37,7 @@ function SettingsPage() {
         bankAccounts={data?.companies_by_pk?.bank_accounts || []}
       ></Settings>
       <Can perform={Action.AssignBespokeBankAccountForCustomer}>
+        <h3>Collection and Advances Accounts</h3>
         <Box mt={2} display="flex">
           <AdvancesBank
             companySettingsId={settings?.id}

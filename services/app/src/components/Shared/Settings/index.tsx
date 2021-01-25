@@ -1,12 +1,15 @@
 import { Box } from "@material-ui/core";
 import BankAccounts from "components/Shared/CompanyProfile/BankAccounts";
-import useAppBarTitle from "hooks/useAppBarTitle";
-import { useTitle } from "react-use";
+import AccountSettingsCard from "components/Shared/Settings/AccountSettingsCard";
+import EditAccountSettings from "components/Shared/Settings/EditAccountSettings";
 import {
   BankAccountFragment,
   CompanySettingsForCustomerFragment,
   CompanySettingsFragment,
-} from "../../../generated/graphql";
+} from "generated/graphql";
+import useAppBarTitle from "hooks/useAppBarTitle";
+import { useState } from "react";
+import { useTitle } from "react-use";
 
 interface Props {
   settings: CompanySettingsFragment | CompanySettingsForCustomerFragment;
@@ -18,7 +21,9 @@ function Settings(props: Props) {
   useAppBarTitle("Settings");
 
   const settings = props.settings;
+  const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
 
+  // TODO(dlluncor): Need to limit a customer from editing their account settings
   return (
     <div>
       <BankAccounts
@@ -26,7 +31,21 @@ function Settings(props: Props) {
         bankAccounts={props.bankAccounts}
       ></BankAccounts>
       <Box>
-        <h3>Account</h3>
+        <h3>Account Settings</h3>
+        {accountSettingsOpen && (
+          <EditAccountSettings
+            settings={settings}
+            onClose={() => {
+              setAccountSettingsOpen(false);
+            }}
+          ></EditAccountSettings>
+        )}
+        <AccountSettingsCard
+          settings={settings}
+          onClick={() => {
+            setAccountSettingsOpen(true);
+          }}
+        ></AccountSettingsCard>
       </Box>
     </div>
   );

@@ -7988,6 +7988,21 @@ export type UpdatePurchaseOrderMutation = { delete_purchase_order_files?: Maybe<
     & PurchaseOrderFragment
   )> };
 
+export type UpdateCompanyAccountSettingsMutationVariables = Exact<{
+  companySettingsId: Scalars['uuid'];
+  vendorAgreementTemplateLink?: Maybe<Scalars['String']>;
+}>;
+
+
+export type UpdateCompanyAccountSettingsMutation = { update_company_settings_by_pk?: Maybe<CompanySettingsFragment> };
+
+export type GetCompanySettingsQueryVariables = Exact<{
+  companySettingsId: Scalars['uuid'];
+}>;
+
+
+export type GetCompanySettingsQuery = { company_settings_by_pk?: Maybe<CompanySettingsFragment> };
+
 export type ContactFragment = Pick<Users, 'id' | 'company_id' | 'full_name' | 'first_name' | 'last_name' | 'email' | 'phone_number' | 'created_at'>;
 
 export type UpdateVendorContactMutationVariables = Exact<{
@@ -9441,6 +9456,75 @@ export function useUpdatePurchaseOrderMutation(baseOptions?: Apollo.MutationHook
 export type UpdatePurchaseOrderMutationHookResult = ReturnType<typeof useUpdatePurchaseOrderMutation>;
 export type UpdatePurchaseOrderMutationResult = Apollo.MutationResult<UpdatePurchaseOrderMutation>;
 export type UpdatePurchaseOrderMutationOptions = Apollo.BaseMutationOptions<UpdatePurchaseOrderMutation, UpdatePurchaseOrderMutationVariables>;
+export const UpdateCompanyAccountSettingsDocument = gql`
+    mutation UpdateCompanyAccountSettings($companySettingsId: uuid!, $vendorAgreementTemplateLink: String) {
+  update_company_settings_by_pk(
+    pk_columns: {id: $companySettingsId}
+    _set: {vendor_agreement_docusign_template: $vendorAgreementTemplateLink}
+  ) {
+    ...CompanySettings
+  }
+}
+    ${CompanySettingsFragmentDoc}`;
+export type UpdateCompanyAccountSettingsMutationFn = Apollo.MutationFunction<UpdateCompanyAccountSettingsMutation, UpdateCompanyAccountSettingsMutationVariables>;
+
+/**
+ * __useUpdateCompanyAccountSettingsMutation__
+ *
+ * To run a mutation, you first call `useUpdateCompanyAccountSettingsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCompanyAccountSettingsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCompanyAccountSettingsMutation, { data, loading, error }] = useUpdateCompanyAccountSettingsMutation({
+ *   variables: {
+ *      companySettingsId: // value for 'companySettingsId'
+ *      vendorAgreementTemplateLink: // value for 'vendorAgreementTemplateLink'
+ *   },
+ * });
+ */
+export function useUpdateCompanyAccountSettingsMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCompanyAccountSettingsMutation, UpdateCompanyAccountSettingsMutationVariables>) {
+        return Apollo.useMutation<UpdateCompanyAccountSettingsMutation, UpdateCompanyAccountSettingsMutationVariables>(UpdateCompanyAccountSettingsDocument, baseOptions);
+      }
+export type UpdateCompanyAccountSettingsMutationHookResult = ReturnType<typeof useUpdateCompanyAccountSettingsMutation>;
+export type UpdateCompanyAccountSettingsMutationResult = Apollo.MutationResult<UpdateCompanyAccountSettingsMutation>;
+export type UpdateCompanyAccountSettingsMutationOptions = Apollo.BaseMutationOptions<UpdateCompanyAccountSettingsMutation, UpdateCompanyAccountSettingsMutationVariables>;
+export const GetCompanySettingsDocument = gql`
+    query GetCompanySettings($companySettingsId: uuid!) {
+  company_settings_by_pk(id: $companySettingsId) {
+    ...CompanySettings
+  }
+}
+    ${CompanySettingsFragmentDoc}`;
+
+/**
+ * __useGetCompanySettingsQuery__
+ *
+ * To run a query within a React component, call `useGetCompanySettingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompanySettingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCompanySettingsQuery({
+ *   variables: {
+ *      companySettingsId: // value for 'companySettingsId'
+ *   },
+ * });
+ */
+export function useGetCompanySettingsQuery(baseOptions: Apollo.QueryHookOptions<GetCompanySettingsQuery, GetCompanySettingsQueryVariables>) {
+        return Apollo.useQuery<GetCompanySettingsQuery, GetCompanySettingsQueryVariables>(GetCompanySettingsDocument, baseOptions);
+      }
+export function useGetCompanySettingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCompanySettingsQuery, GetCompanySettingsQueryVariables>) {
+          return Apollo.useLazyQuery<GetCompanySettingsQuery, GetCompanySettingsQueryVariables>(GetCompanySettingsDocument, baseOptions);
+        }
+export type GetCompanySettingsQueryHookResult = ReturnType<typeof useGetCompanySettingsQuery>;
+export type GetCompanySettingsLazyQueryHookResult = ReturnType<typeof useGetCompanySettingsLazyQuery>;
+export type GetCompanySettingsQueryResult = Apollo.QueryResult<GetCompanySettingsQuery, GetCompanySettingsQueryVariables>;
 export const UpdateVendorContactDocument = gql`
     mutation UpdateVendorContact($userId: uuid!, $contact: users_set_input!) {
   update_users_by_pk(pk_columns: {id: $userId}, _set: $contact) {
