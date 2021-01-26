@@ -62,3 +62,11 @@ From this directory, to start up hot-reloading Python server on localhost:7000..
 ```
 make runlocal
 ```
+
+# Contributing
+
+Before you push new changes, run the following...
+
+```
+make mypy
+```
