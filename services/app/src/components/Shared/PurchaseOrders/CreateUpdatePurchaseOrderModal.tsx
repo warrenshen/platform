@@ -150,8 +150,8 @@ function CreateUpdatePurchaseOrderModal({
     !vendors?.find((vendor) => vendor.id === purchaseOrder.vendor_id)
       ?.company_vendor_partnerships[0].approved_at ||
     !purchaseOrder.order_number ||
-    !purchaseOrder.delivery_date ||
     !purchaseOrder.order_date ||
+    !purchaseOrder.delivery_date ||
     !purchaseOrder.amount ||
     !purchaseOrderFile;
 

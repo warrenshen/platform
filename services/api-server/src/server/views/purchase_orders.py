@@ -28,6 +28,59 @@ class PurchaseOrderFileTypeEnum():
     PurchaseOrder = 'purchase_order'
 
 
+class RespondToApprovalRequestView(MethodView):
+
+    @jwt_required
+    def post(self) -> Response:
+        data = json.loads(request.data)
+        if not data:
+            return make_error_response('No data provided')
+
+        required_keys = [
+            'purchase_order_id',
+            'new_request_status',
+            'rejection_note',
+        ]
+        for key in required_keys:
+            if key not in data:
+                return make_error_response(f'Missing {key} in signed url request')
+
+        purchase_order_id = data['purchase_order_id']
+        new_request_status = data['new_request_status']
+        rejection_note = data['rejection_note']
+
+        if not purchase_order_id:
+            return make_error_response('No Purchase Order ID provided')
+
+        if new_request_status not in [RequestStatusEnum.Approved, RequestStatusEnum.Rejected]:
+            return make_error_response('Invalid new request status provided')
+
+        if new_request_status == RequestStatusEnum.Rejected and not rejection_note:
+            return make_error_response('Rejection note is required if response is rejected')
+
+        with session_scope(current_app.session_maker) as session:
+            purchase_order = cast(
+                models.PurchaseOrder,
+                session.query(models.PurchaseOrder).filter_by(
+                    id=purchase_order_id).first()
+            )
+
+            if new_request_status == RequestStatusEnum.Approved:
+                purchase_order.status = RequestStatusEnum.Approved
+                purchase_order.approved_at = date_util.now()
+            else:
+                purchase_order.status = RequestStatusEnum.Rejected
+                purchase_order.rejected_at = date_util.now()
+                purchase_order.rejection_note = rejection_note
+
+            session.commit()
+
+        return make_response(json.dumps({
+            'status': 'OK',
+            'msg': 'Purchase Order {} approval request responded to'.format(purchase_order_id)
+        }), 200)
+
+
 class SubmitForApprovalView(MethodView):
 
     @jwt_required
@@ -49,8 +102,11 @@ class SubmitForApprovalView(MethodView):
         customer_name = None
 
         with session_scope(current_app.session_maker) as session:
-            purchase_order = cast(models.PurchaseOrder, session.query(
-                models.PurchaseOrder).filter_by(id=purchase_order_id).first())
+            purchase_order = cast(
+                models.PurchaseOrder,
+                session.query(models.PurchaseOrder).filter_by(
+                    id=purchase_order_id).first()
+            )
 
             vendor = purchase_order.vendor
             customer = purchase_order.company
@@ -123,6 +179,13 @@ class SubmitForApprovalView(MethodView):
 
 
 handler.add_url_rule(
+    '/respond_to_approval_request',
+    view_func=RespondToApprovalRequestView.as_view(
+        name='respond_to_approval_request')
+)
+
+handler.add_url_rule(
     '/submit_for_approval',
-    view_func=SubmitForApprovalView.as_view(name='submit_for_approval_view')
+    view_func=SubmitForApprovalView.as_view(
+        name='submit_for_approval_view')
 )

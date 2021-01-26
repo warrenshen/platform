@@ -143,6 +143,9 @@ class PurchaseOrder(Base):
             self.amount: float = None
             self.status: str = None
             self.requested_at: datetime.datetime = None
+            self.approved_at: datetime.datetime = None
+            self.rejected_at: datetime.datetime = None
+            self.rejection_note: str = None
 
             self.vendor: Company = None
             self.company: Company = None
@@ -156,6 +159,9 @@ class PurchaseOrder(Base):
         amount = Column(Numeric)
         status = Column(String)
         requested_at = Column(DateTime)
+        approved_at = Column(DateTime)
+        rejected_at = Column(DateTime)
+        rejection_note = Column(Text)
 
         vendor = relationship(
             'Company',
