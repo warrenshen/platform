@@ -174,6 +174,27 @@ class PurchaseOrder(Base):
         )
 
 
+class PurchaseOrderLoan(Base):
+    __tablename__ = 'purchase_order_loans'
+    if TYPE_CHECKING:
+        def __init__(self) -> None:
+            self.__table__: Any = None
+            self.id: uuid.UUID = None
+            self.purchase_order_id: uuid.UUID = None
+            self.origination_date: datetime.date = None
+            self.amount: float = None
+            self.status: str = None
+            self.requested_at: datetime.datetime = None
+    else:
+        id = Column(UUID(as_uuid=True), primary_key=True,
+                    default=uuid.uuid4, unique=True)
+        purchase_order_id = Column(UUID(as_uuid=True), nullable=False)
+        origination_date = Column(Date)
+        amount = Column(Numeric)
+        status = Column(String)
+        requested_at = Column(DateTime)
+
+
 class RevokedTokenModel(Base):
     __tablename__ = 'revoked_tokens'
     if TYPE_CHECKING:

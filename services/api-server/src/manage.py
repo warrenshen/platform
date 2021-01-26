@@ -13,11 +13,11 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 
 from bespoke.db import models
 from bespoke.db.models import session_scope
-from bespoke.email import email_manager
-from bespoke.email import sendgrid_util
+from bespoke.email import email_manager, sendgrid_util
 from bespoke.email.email_manager import EmailConfigDict, SendGridConfigDict
 from server.config import get_config, is_development_env
-from server.views import auth, files, notify, purchase_orders, two_factor
+from server.views import (auth, files, notify, purchase_order_loans,
+                          purchase_orders, two_factor)
 
 if is_development_env(os.environ.get('FLASK_ENV')):
     load_dotenv(os.path.join(os.environ.get('SERVER_ROOT_DIR'), '.env'))
@@ -50,6 +50,8 @@ app.register_blueprint(notify.handler, url_prefix='/notify')
 app.register_blueprint(files.handler, url_prefix='/files')
 app.register_blueprint(auth.handler, url_prefix='/auth')
 app.register_blueprint(purchase_orders.handler, url_prefix='/purchase_orders')
+app.register_blueprint(purchase_order_loans.handler,
+                       url_prefix='/purchase_order_loans')
 
 app.app_config = config
 app.engine = models.create_engine()
@@ -66,8 +68,9 @@ email_config = EmailConfigDict(
 )
 email_client = email_manager.new_client(email_config)
 app.sendgrid_client = sendgrid_util.Client(
-    email_client, app.session_maker, 
+    email_client, app.session_maker,
     config.get_security_config())
+
 
 @app.jwt_manager.token_in_blacklist_loader
 def check_if_token_in_blacklist(decrypted_token: Dict) -> bool:
