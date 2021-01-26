@@ -22,10 +22,11 @@ import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileUploadDropzone from "components/Shared/File/UploadDropzone";
 import InputCurrencyAutoFormatter from "components/Shared/InputCurrencyAutoFormatter";
 import {
+  CompanyVendorPartnerships,
   PurchaseOrderFileFragment,
   PurchaseOrderFileTypeEnum,
   PurchaseOrderFragment,
-  VendorByPartnerCompanyFragment,
+  Vendors,
 } from "generated/graphql";
 import { ChangeEvent } from "react";
 
@@ -52,12 +53,19 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+type VendorsByPartnerType = Pick<Vendors, "id"> & {
+  company_vendor_partnerships: Pick<
+    CompanyVendorPartnerships,
+    "id" | "approved_at"
+  >[];
+} & Pick<Vendors, "id" | "name">;
+
 interface Props {
   companyId: string;
   purchaseOrder: PurchaseOrderFragment;
   purchaseOrderFile: PurchaseOrderFileFragment | undefined;
   purchaseOrderCannabisFiles: PurchaseOrderFileFragment[];
-  vendors: VendorByPartnerCompanyFragment[];
+  vendors: VendorsByPartnerType[];
   setPurchaseOrder: (purchaseOrder: PurchaseOrderFragment) => void;
   setPurchaseOrderFile: (file: PurchaseOrderFileFragment) => void;
   setPurchaseOrderCannabisFiles: (files: PurchaseOrderFileFragment[]) => void;

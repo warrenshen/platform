@@ -1,39 +1,3 @@
-fragment PurchaseOrder on purchase_orders {
-  id
-  company_id
-  vendor_id
-  order_number
-  order_date
-  delivery_date
-  amount
-  is_cannabis
-  status
-  created_at
-  company {
-    id
-    name
-  }
-  vendor {
-    id
-    name
-  }
-}
-
-fragment File on files {
-  id
-  name
-  path
-}
-
-fragment PurchaseOrderFile on purchase_order_files {
-  purchase_order_id
-  file_id
-  file_type
-  file {
-    id
-    ...File
-  }
-}
 
 query ListPurchaseOrders($company_id: uuid!) {
   purchase_orders(where: { company_id: { _eq: $company_id } }) {

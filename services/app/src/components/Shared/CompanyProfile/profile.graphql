@@ -1,11 +1,3 @@
-fragment Company on companies {
-  id
-  name
-  dba_name
-  employer_identification_number
-  address
-  phone_number
-}
 
 query Company($companyId: uuid!) {
   companies_by_pk(id: $companyId) {

@@ -1,0 +1,18 @@
+#
+# This file is for fragments used by users on the Customer side
+#    - Generally speaking, the Customer can use / update a limited number of fields
+
+# Company settings that a customer can see
+fragment CompanySettingsForCustomer on company_settings {
+  id
+  company_id
+  vendor_agreement_docusign_template
+  collections_bespoke_bank_account_id
+  product_type
+  product_config
+}
+
+fragment VendorLimited on vendors {
+  id
+  name
+}

@@ -1,15 +1,3 @@
-fragment VendorLimited on vendors {
-  id
-  name
-}
-
-fragment VendorPartnership on company_vendor_partnerships {
-  id
-  company_id
-  vendor_id
-  vendor_agreement_id
-  vendor_license_id
-}
 
 mutation AddVendorPartnership(
   $vendorPartnership: company_vendor_partnerships_insert_input!

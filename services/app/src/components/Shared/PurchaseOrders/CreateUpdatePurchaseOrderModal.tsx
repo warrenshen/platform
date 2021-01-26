@@ -252,7 +252,7 @@ function CreateUpdatePurchaseOrderModal({
           purchaseOrder={purchaseOrder}
           purchaseOrderFile={purchaseOrderFile}
           purchaseOrderCannabisFiles={purchaseOrderCannabisFiles}
-          vendors={vendors || []}
+          vendors={data?.vendors || []}
           setPurchaseOrder={setPurchaseOrder}
           setPurchaseOrderFile={setPurchaseOrderFile}
           setPurchaseOrderCannabisFiles={setPurchaseOrderCannabisFiles}

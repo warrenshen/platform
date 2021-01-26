@@ -7739,6 +7739,28 @@ export type BankCustomerListVendorPartnershipsQuery = { company_vendor_partnersh
     & BankVendorPartnershipFragment
   )> };
 
+export type ContactFragment = Pick<Users, 'id' | 'company_id' | 'full_name' | 'first_name' | 'last_name' | 'email' | 'phone_number' | 'created_at'>;
+
+export type BankCustomerFragment = Pick<Companies, 'id' | 'name' | 'employer_identification_number' | 'dba_name' | 'address' | 'country' | 'state' | 'city' | 'zip_code' | 'phone_number'>;
+
+export type CompanySettingsFragment = Pick<CompanySettings, 'id' | 'company_id' | 'vendor_agreement_docusign_template' | 'collections_bespoke_bank_account_id' | 'advances_bespoke_bank_account_id' | 'product_type' | 'product_config'>;
+
+export type VendorFragment = Pick<Companies, 'id' | 'name' | 'address' | 'country' | 'state' | 'city' | 'zip_code' | 'phone_number'>;
+
+export type BankVendorPartnershipFragment = (
+  Pick<CompanyVendorPartnerships, 'id' | 'company_id' | 'vendor_id' | 'vendor_agreement_id' | 'vendor_license_id' | 'approved_at'>
+  & { vendor_bank_account?: Maybe<BankAccountFragment> }
+);
+
+export type PaymentFragment = (
+  Pick<Payments, 'id' | 'amount' | 'method' | 'direction' | 'company_id' | 'submitted_at' | 'settled_at'>
+  & { company: Pick<Companies, 'id' | 'name'>, company_bank_account?: Maybe<BankAccountFragment>, bespoke_bank_account?: Maybe<BankAccountFragment> }
+);
+
+export type CompanySettingsForCustomerFragment = Pick<CompanySettings, 'id' | 'company_id' | 'vendor_agreement_docusign_template' | 'collections_bespoke_bank_account_id' | 'product_type' | 'product_config'>;
+
+export type VendorLimitedFragment = Pick<Vendors, 'id' | 'name'>;
+
 export type ListApprovedPurchaseOrdersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -7804,8 +7826,6 @@ export type AssignAdvancesBespokeBankAccountMutation = { update_company_settings
     & { advances_bespoke_bank_account?: Maybe<BankAccountFragment> }
   )> };
 
-export type CompanyFragment = Pick<Companies, 'id' | 'name' | 'dba_name' | 'employer_identification_number' | 'address' | 'phone_number'>;
-
 export type CompanyQueryVariables = Exact<{
   companyId: Scalars['uuid'];
 }>;
@@ -7855,11 +7875,6 @@ export type UpdateCompanyBankAccountMutationVariables = Exact<{
 
 export type UpdateCompanyBankAccountMutation = { update_bank_accounts_by_pk?: Maybe<BankAccountFragment> };
 
-export type PaymentFragment = (
-  Pick<Payments, 'id' | 'amount' | 'method' | 'direction' | 'company_id' | 'submitted_at' | 'settled_at'>
-  & { company: Pick<Companies, 'id' | 'name'>, company_bank_account?: Maybe<BankAccountFragment>, bespoke_bank_account?: Maybe<BankAccountFragment> }
-);
-
 export type SubmitDisbursementMutationVariables = Exact<{
   purchaseOrderLoanId: Scalars['uuid'];
   payment: PaymentsInsertInput;
@@ -7870,10 +7885,6 @@ export type SubmitDisbursementMutation = { insert_purchase_order_loan_payments_o
     { payment: PaymentFragment }
     & PurchaseOrderLoanPaymentFragment
   )> };
-
-export type PurchaseOrderLoanPaymentFragment = Pick<PurchaseOrderLoanPayments, 'purchase_order_loan_id' | 'payment_id'>;
-
-export type PurchaseOrderLoanFragment = Pick<PurchaseOrderLoans, 'id' | 'status' | 'amount' | 'origination_date' | 'maturity_date' | 'adjusted_maturity_date'>;
 
 export type PurchaseOrderLoanQueryVariables = Exact<{
   id: Scalars['uuid'];
@@ -7898,11 +7909,6 @@ export type PurchaseOrderLoanDisbursementsQuery = { purchase_order_loans_by_pk?:
     )> }
   )> };
 
-export type VendorByPartnerCompanyFragment = (
-  Pick<Vendors, 'id' | 'name'>
-  & { company_vendor_partnerships: Array<Pick<CompanyVendorPartnerships, 'id' | 'approved_at'>> }
-);
-
 export type VendorsByPartnerCompanyQueryVariables = Exact<{
   companyId: Scalars['uuid'];
 }>;
@@ -7910,23 +7916,9 @@ export type VendorsByPartnerCompanyQueryVariables = Exact<{
 
 export type VendorsByPartnerCompanyQuery = { vendors: Array<(
     Pick<Vendors, 'id'>
-    & VendorByPartnerCompanyFragment
+    & { company_vendor_partnerships: Array<Pick<CompanyVendorPartnerships, 'id' | 'approved_at'>> }
+    & VendorLimitedFragment
   )> };
-
-export type PurchaseOrderFragment = (
-  Pick<PurchaseOrders, 'id' | 'company_id' | 'vendor_id' | 'order_number' | 'order_date' | 'delivery_date' | 'amount' | 'is_cannabis' | 'status' | 'created_at'>
-  & { company: Pick<Companies, 'id' | 'name'>, vendor?: Maybe<Pick<Vendors, 'id' | 'name'>> }
-);
-
-export type FileFragment = Pick<Files, 'id' | 'name' | 'path'>;
-
-export type PurchaseOrderFileFragment = (
-  Pick<PurchaseOrderFiles, 'purchase_order_id' | 'file_id' | 'file_type'>
-  & { file: (
-    Pick<Files, 'id'>
-    & FileFragment
-  ) }
-);
 
 export type ListPurchaseOrdersQueryVariables = Exact<{
   company_id: Scalars['uuid'];
@@ -8003,7 +7995,36 @@ export type GetCompanySettingsQueryVariables = Exact<{
 
 export type GetCompanySettingsQuery = { company_settings_by_pk?: Maybe<CompanySettingsFragment> };
 
-export type ContactFragment = Pick<Users, 'id' | 'company_id' | 'full_name' | 'first_name' | 'last_name' | 'email' | 'phone_number' | 'created_at'>;
+export type UserFragment = Pick<Users, 'id' | 'first_name' | 'last_name' | 'full_name' | 'email' | 'phone_number' | 'role' | 'created_at'>;
+
+export type CompanyAgreementFragment = Pick<CompanyAgreements, 'id' | 'company_id' | 'file_id'>;
+
+export type CompanyLicenseFragment = Pick<CompanyLicenses, 'id' | 'company_id' | 'file_id'>;
+
+export type CompanyFragment = Pick<Companies, 'id' | 'name' | 'dba_name' | 'employer_identification_number' | 'address' | 'phone_number'>;
+
+export type VendorPartnershipFragment = Pick<CompanyVendorPartnerships, 'id' | 'company_id' | 'vendor_id' | 'vendor_agreement_id' | 'vendor_license_id'>;
+
+export type PurchaseOrderFragment = (
+  Pick<PurchaseOrders, 'id' | 'company_id' | 'vendor_id' | 'order_number' | 'order_date' | 'delivery_date' | 'amount' | 'is_cannabis' | 'status' | 'created_at'>
+  & { company: Pick<Companies, 'id' | 'name'>, vendor?: Maybe<Pick<Vendors, 'id' | 'name'>> }
+);
+
+export type PurchaseOrderLoanFragment = Pick<PurchaseOrderLoans, 'id' | 'status' | 'amount' | 'origination_date' | 'maturity_date' | 'adjusted_maturity_date'>;
+
+export type PurchaseOrderLoanPaymentFragment = Pick<PurchaseOrderLoanPayments, 'purchase_order_loan_id' | 'payment_id'>;
+
+export type FileFragment = Pick<Files, 'id' | 'name' | 'path'>;
+
+export type PurchaseOrderFileFragment = (
+  Pick<PurchaseOrderFiles, 'purchase_order_id' | 'file_id' | 'file_type'>
+  & { file: (
+    Pick<Files, 'id'>
+    & FileFragment
+  ) }
+);
+
+export type BankAccountFragment = Pick<BankAccounts, 'id' | 'company_id' | 'bank_name' | 'bank_address' | 'account_type' | 'account_number' | 'routing_number' | 'can_ach' | 'can_wire' | 'recipient_name' | 'recipient_address' | 'verified_at'>;
 
 export type UpdateVendorContactMutationVariables = Exact<{
   userId: Scalars['uuid'];
@@ -8026,23 +8047,6 @@ export type AddVendorContactMutationVariables = Exact<{
 
 
 export type AddVendorContactMutation = { insert_users_one?: Maybe<ContactFragment> };
-
-export type VendorFragment = Pick<Companies, 'id' | 'name' | 'address' | 'country' | 'state' | 'city' | 'zip_code' | 'phone_number'>;
-
-export type BankVendorPartnershipFragment = (
-  Pick<CompanyVendorPartnerships, 'id' | 'company_id' | 'vendor_id' | 'vendor_agreement_id' | 'vendor_license_id' | 'approved_at'>
-  & { vendor_bank_account?: Maybe<BankAccountFragment> }
-);
-
-export type CompanySettingsFragment = Pick<CompanySettings, 'id' | 'company_id' | 'vendor_agreement_docusign_template' | 'collections_bespoke_bank_account_id' | 'advances_bespoke_bank_account_id' | 'product_type' | 'product_config'>;
-
-export type CompanySettingsForCustomerFragment = Pick<CompanySettings, 'id' | 'company_id' | 'vendor_agreement_docusign_template' | 'collections_bespoke_bank_account_id' | 'product_type' | 'product_config'>;
-
-export type CompanyAgreementFragment = Pick<CompanyAgreements, 'id' | 'company_id' | 'file_id'>;
-
-export type CompanyLicenseFragment = Pick<CompanyLicenses, 'id' | 'company_id' | 'file_id'>;
-
-export type BankAccountFragment = Pick<BankAccounts, 'id' | 'company_id' | 'bank_name' | 'bank_address' | 'account_type' | 'account_number' | 'routing_number' | 'can_ach' | 'can_wire' | 'recipient_name' | 'recipient_address' | 'verified_at'>;
 
 export type BankListVendorPartnershipsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -8159,10 +8163,6 @@ export type AddCompanyVendorLicenseMutationVariables = Exact<{
 
 export type AddCompanyVendorLicenseMutation = { insert_company_licenses_one?: Maybe<CompanyLicenseFragment> };
 
-export type VendorLimitedFragment = Pick<Vendors, 'id' | 'name'>;
-
-export type VendorPartnershipFragment = Pick<CompanyVendorPartnerships, 'id' | 'company_id' | 'vendor_id' | 'vendor_agreement_id' | 'vendor_license_id'>;
-
 export type AddVendorPartnershipMutationVariables = Exact<{
   vendorPartnership: CompanyVendorPartnershipsInsertInput;
 }>;
@@ -8188,8 +8188,6 @@ export type BankAccountsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type BankAccountsQuery = { bank_accounts: Array<BankAccountFragment> };
 
-export type BankCustomerFragment = Pick<Companies, 'id' | 'name' | 'employer_identification_number' | 'dba_name' | 'address' | 'country' | 'state' | 'city' | 'zip_code' | 'phone_number'>;
-
 export type BankCustomersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -8201,8 +8199,6 @@ export type CompanyVendorsQueryVariables = Exact<{
 
 
 export type CompanyVendorsQuery = { company_vendor_partnerships: Array<{ vendor: Pick<Companies, 'name'> }> };
-
-export type UserFragment = Pick<Users, 'id' | 'first_name' | 'last_name' | 'full_name' | 'email' | 'phone_number' | 'role' | 'created_at'>;
 
 export type UserByIdQueryVariables = Exact<{
   id: Scalars['uuid'];
@@ -8247,13 +8243,52 @@ export type AddUserMutationVariables = Exact<{
 
 export type AddUserMutation = { insert_users_one?: Maybe<UserFragment> };
 
-export const CompanyFragmentDoc = gql`
-    fragment Company on companies {
+export const ContactFragmentDoc = gql`
+    fragment Contact on users {
+  id
+  company_id
+  full_name
+  first_name
+  last_name
+  email
+  phone_number
+  created_at
+}
+    `;
+export const BankCustomerFragmentDoc = gql`
+    fragment BankCustomer on companies {
   id
   name
-  dba_name
   employer_identification_number
+  dba_name
   address
+  country
+  state
+  city
+  zip_code
+  phone_number
+}
+    `;
+export const CompanySettingsFragmentDoc = gql`
+    fragment CompanySettings on company_settings {
+  id
+  company_id
+  vendor_agreement_docusign_template
+  collections_bespoke_bank_account_id
+  advances_bespoke_bank_account_id
+  product_type
+  product_config
+}
+    `;
+export const VendorFragmentDoc = gql`
+    fragment Vendor on companies {
+  id
+  name
+  address
+  country
+  state
+  city
+  zip_code
   phone_number
 }
     `;
@@ -8273,6 +8308,19 @@ export const BankAccountFragmentDoc = gql`
   verified_at
 }
     `;
+export const BankVendorPartnershipFragmentDoc = gql`
+    fragment BankVendorPartnership on company_vendor_partnerships {
+  id
+  company_id
+  vendor_id
+  vendor_agreement_id
+  vendor_bank_account {
+    ...BankAccount
+  }
+  vendor_license_id
+  approved_at
+}
+    ${BankAccountFragmentDoc}`;
 export const PaymentFragmentDoc = gql`
     fragment Payment on payments {
   id
@@ -8294,30 +8342,65 @@ export const PaymentFragmentDoc = gql`
   }
 }
     ${BankAccountFragmentDoc}`;
-export const PurchaseOrderLoanPaymentFragmentDoc = gql`
-    fragment PurchaseOrderLoanPayment on purchase_order_loan_payments {
-  purchase_order_loan_id
-  payment_id
-}
-    `;
-export const PurchaseOrderLoanFragmentDoc = gql`
-    fragment PurchaseOrderLoan on purchase_order_loans {
+export const CompanySettingsForCustomerFragmentDoc = gql`
+    fragment CompanySettingsForCustomer on company_settings {
   id
-  status
-  amount
-  origination_date
-  maturity_date
-  adjusted_maturity_date
+  company_id
+  vendor_agreement_docusign_template
+  collections_bespoke_bank_account_id
+  product_type
+  product_config
 }
     `;
-export const VendorByPartnerCompanyFragmentDoc = gql`
-    fragment VendorByPartnerCompany on vendors {
+export const VendorLimitedFragmentDoc = gql`
+    fragment VendorLimited on vendors {
   id
   name
-  company_vendor_partnerships {
-    id
-    approved_at
-  }
+}
+    `;
+export const UserFragmentDoc = gql`
+    fragment User on users {
+  id
+  first_name
+  last_name
+  full_name
+  email
+  phone_number
+  role
+  created_at
+}
+    `;
+export const CompanyAgreementFragmentDoc = gql`
+    fragment CompanyAgreement on company_agreements {
+  id
+  company_id
+  file_id
+}
+    `;
+export const CompanyLicenseFragmentDoc = gql`
+    fragment CompanyLicense on company_licenses {
+  id
+  company_id
+  file_id
+}
+    `;
+export const CompanyFragmentDoc = gql`
+    fragment Company on companies {
+  id
+  name
+  dba_name
+  employer_identification_number
+  address
+  phone_number
+}
+    `;
+export const VendorPartnershipFragmentDoc = gql`
+    fragment VendorPartnership on company_vendor_partnerships {
+  id
+  company_id
+  vendor_id
+  vendor_agreement_id
+  vendor_license_id
 }
     `;
 export const PurchaseOrderFragmentDoc = gql`
@@ -8342,6 +8425,22 @@ export const PurchaseOrderFragmentDoc = gql`
   }
 }
     `;
+export const PurchaseOrderLoanFragmentDoc = gql`
+    fragment PurchaseOrderLoan on purchase_order_loans {
+  id
+  status
+  amount
+  origination_date
+  maturity_date
+  adjusted_maturity_date
+}
+    `;
+export const PurchaseOrderLoanPaymentFragmentDoc = gql`
+    fragment PurchaseOrderLoanPayment on purchase_order_loan_payments {
+  purchase_order_loan_id
+  payment_id
+}
+    `;
 export const FileFragmentDoc = gql`
     fragment File on files {
   id
@@ -8360,119 +8459,6 @@ export const PurchaseOrderFileFragmentDoc = gql`
   }
 }
     ${FileFragmentDoc}`;
-export const ContactFragmentDoc = gql`
-    fragment Contact on users {
-  id
-  company_id
-  full_name
-  first_name
-  last_name
-  email
-  phone_number
-  created_at
-}
-    `;
-export const VendorFragmentDoc = gql`
-    fragment Vendor on companies {
-  id
-  name
-  address
-  country
-  state
-  city
-  zip_code
-  phone_number
-}
-    `;
-export const BankVendorPartnershipFragmentDoc = gql`
-    fragment BankVendorPartnership on company_vendor_partnerships {
-  id
-  company_id
-  vendor_id
-  vendor_agreement_id
-  vendor_bank_account {
-    ...BankAccount
-  }
-  vendor_license_id
-  approved_at
-}
-    ${BankAccountFragmentDoc}`;
-export const CompanySettingsFragmentDoc = gql`
-    fragment CompanySettings on company_settings {
-  id
-  company_id
-  vendor_agreement_docusign_template
-  collections_bespoke_bank_account_id
-  advances_bespoke_bank_account_id
-  product_type
-  product_config
-}
-    `;
-export const CompanySettingsForCustomerFragmentDoc = gql`
-    fragment CompanySettingsForCustomer on company_settings {
-  id
-  company_id
-  vendor_agreement_docusign_template
-  collections_bespoke_bank_account_id
-  product_type
-  product_config
-}
-    `;
-export const CompanyAgreementFragmentDoc = gql`
-    fragment CompanyAgreement on company_agreements {
-  id
-  company_id
-  file_id
-}
-    `;
-export const CompanyLicenseFragmentDoc = gql`
-    fragment CompanyLicense on company_licenses {
-  id
-  company_id
-  file_id
-}
-    `;
-export const VendorLimitedFragmentDoc = gql`
-    fragment VendorLimited on vendors {
-  id
-  name
-}
-    `;
-export const VendorPartnershipFragmentDoc = gql`
-    fragment VendorPartnership on company_vendor_partnerships {
-  id
-  company_id
-  vendor_id
-  vendor_agreement_id
-  vendor_license_id
-}
-    `;
-export const BankCustomerFragmentDoc = gql`
-    fragment BankCustomer on companies {
-  id
-  name
-  employer_identification_number
-  dba_name
-  address
-  country
-  state
-  city
-  zip_code
-  phone_number
-}
-    `;
-export const UserFragmentDoc = gql`
-    fragment User on users {
-  id
-  first_name
-  last_name
-  full_name
-  email
-  phone_number
-  role
-  created_at
-}
-    `;
 export const AddCustomerDocument = gql`
     mutation AddCustomer($customer: companies_insert_input!) {
   insert_companies_one(object: $customer) {
@@ -9185,10 +9171,14 @@ export const VendorsByPartnerCompanyDocument = gql`
     query VendorsByPartnerCompany($companyId: uuid!) {
   vendors(where: {company_vendor_partnerships: {company_id: {_eq: $companyId}}}) {
     id
-    ...VendorByPartnerCompany
+    ...VendorLimited
+    company_vendor_partnerships {
+      id
+      approved_at
+    }
   }
 }
-    ${VendorByPartnerCompanyFragmentDoc}`;
+    ${VendorLimitedFragmentDoc}`;
 
 /**
  * __useVendorsByPartnerCompanyQuery__

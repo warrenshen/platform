@@ -1,0 +1,88 @@
+#
+# This file is for fragments used by users on the Bank side
+#   - Generally speaking, the bank can query nearly all fields
+
+## Users
+
+fragment Contact on users {
+  id
+  company_id
+  full_name
+  first_name
+  last_name
+  email
+  phone_number
+  created_at
+}
+
+## Companies
+
+fragment BankCustomer on companies {
+  id
+  name
+  employer_identification_number
+  dba_name
+  address
+  country
+  state
+  city
+  zip_code
+  phone_number
+}
+
+fragment CompanySettings on company_settings {
+  id
+  company_id
+  vendor_agreement_docusign_template
+  collections_bespoke_bank_account_id
+  advances_bespoke_bank_account_id
+  product_type
+  product_config
+}
+
+## Purchase Order Financing
+
+fragment Vendor on companies {
+  id
+  name
+  address
+  country
+  state
+  city
+  zip_code
+  phone_number
+}
+
+fragment BankVendorPartnership on company_vendor_partnerships {
+  id
+  company_id
+  vendor_id
+  vendor_agreement_id
+  vendor_bank_account {
+    ...BankAccount
+  }
+  vendor_license_id
+  approved_at
+}
+
+## Finance
+
+fragment Payment on payments {
+  id
+  amount
+  method
+  direction
+  company_id
+  submitted_at
+  settled_at
+  company {
+    id
+    name
+  }
+  company_bank_account {
+    ...BankAccount
+  }
+  bespoke_bank_account {
+    ...BankAccount
+  }
+}

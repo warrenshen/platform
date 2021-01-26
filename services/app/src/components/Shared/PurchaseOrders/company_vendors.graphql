@@ -1,17 +1,13 @@
-fragment VendorByPartnerCompany on vendors {
-  id
-  name
-  company_vendor_partnerships {
-    id
-    approved_at
-  }
-}
 
 query VendorsByPartnerCompany($companyId: uuid!) {
   vendors(
     where: { company_vendor_partnerships: { company_id: { _eq: $companyId } } }
   ) {
     id
-    ...VendorByPartnerCompany
+    ...VendorLimited
+    company_vendor_partnerships {
+      id
+      approved_at
+    }
   }
 }

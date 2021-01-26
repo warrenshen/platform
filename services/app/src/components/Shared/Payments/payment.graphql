@@ -1,22 +1,3 @@
-fragment Payment on payments {
-  id
-  amount
-  method
-  direction
-  company_id
-  submitted_at
-  settled_at
-  company {
-    id
-    name
-  }
-  company_bank_account {
-    ...BankAccount
-  }
-  bespoke_bank_account {
-    ...BankAccount
-  }
-}
 
 mutation SubmitDisbursement(
   $purchaseOrderLoanId: uuid!
