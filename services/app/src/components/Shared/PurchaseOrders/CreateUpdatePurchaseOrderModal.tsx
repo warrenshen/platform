@@ -140,7 +140,7 @@ function CreateUpdatePurchaseOrderModal({
   ] = useUpdatePurchaseOrderMutation();
 
   const isDialogReady =
-    !isExistingPurchaseOrderLoading || !isSelectableVendorsLoading;
+    !isExistingPurchaseOrderLoading && !isSelectableVendorsLoading;
   const isFormValid = !!purchaseOrder.vendor_id;
   const isFormLoading =
     isAddPurchaseOrderLoading || isUpdatePurchaseOrderLoading;
