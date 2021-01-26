@@ -1,5 +1,11 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import Launcher from "components/Shared/PurchaseOrderLoanDrawer/Launcher";
+import DataGrid, {
+  Column,
+  IColumnProps,
+  Pager,
+  Paging,
+} from "devextreme-react/data-grid";
 import {
   Maybe,
   PurchaseOrderLoanFragment,
@@ -7,12 +13,6 @@ import {
 } from "generated/graphql";
 import useCompanyContext from "hooks/useCompanyContext";
 import React from "react";
-import DataGrid, {
-  IColumnProps,
-  Pager,
-  Column,
-  Paging,
-} from "devextreme-react/data-grid";
 
 function getRows(poLoans: Maybe<PurchaseOrderLoanFragment[]>): RowsProp {
   return poLoans
@@ -33,7 +33,7 @@ function ListLoans() {
   });
 
   const purchaseOrderRenderer = (params: ValueFormatterParams) => {
-    const purchaseOrderLoanId = params.row.id as string;
+    const purchaseOrderLoanId = params.row.data.id as string;
     return <Launcher purchaseOrderLoanId={purchaseOrderLoanId}></Launcher>;
   };
 

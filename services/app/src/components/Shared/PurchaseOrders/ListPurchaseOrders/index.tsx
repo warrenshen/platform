@@ -1,17 +1,17 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
+import DataGrid, {
+  Column,
+  IColumnProps,
+  Pager,
+  Paging,
+} from "devextreme-react/data-grid";
 import { PurchaseOrderFragment } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
 import { Action, check } from "lib/auth/rbac-rules";
 import { useContext } from "react";
 import ActionMenu from "./ActionMenu";
 import Status from "./Status";
-import DataGrid, {
-  IColumnProps,
-  Pager,
-  Column,
-  Paging,
-} from "devextreme-react/data-grid";
 
 function populateRows(
   purchaseOrders: Maybe<PurchaseOrderFragment[]>
@@ -45,9 +45,9 @@ function ListPurchaseOrders({
 
   const actionCellRenderer = (params: ValueFormatterParams) => (
     <ActionMenu
-      handleClickEdit={() => {
-        handleEditPurchaseOrder(params.row.id as string);
-      }}
+      handleClickEdit={() =>
+        handleEditPurchaseOrder(params.row.data.id as string)
+      }
     ></ActionMenu>
   );
 
