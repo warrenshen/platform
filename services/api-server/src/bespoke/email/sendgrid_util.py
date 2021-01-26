@@ -13,6 +13,8 @@ from bespoke.security import security_util
 
 class TemplateNames(object):
 	VENDOR_TO_APPROVE_PURCHASE_ORDER = 'vendor_to_approve_purchase_order'
+	VENDOR_APPROVES_OR_REJECTS_PURCHASE_ORDER = 'vendor_approves_or_rejects_purchase_order'
+
 
 TemplateConfigDict = TypedDict('TemplateConfigDict', {
  'id': str,
@@ -35,8 +37,11 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 	TemplateNames.VENDOR_TO_APPROVE_PURCHASE_ORDER: {
 		'id': 'd-17349ff8699a44f18da7144452d3731a',
 		'requires_secure_link': True
+	},
+	TemplateNames.VENDOR_APPROVES_OR_REJECTS_PURCHASE_ORDER: {
+		'id': 'd-0cdbf4e6769640a7aa44a0dd9dbc92ce',
+		'requires_secure_link': False
 	}
-
 }
 
 def _hours_from_today(hours: int) -> datetime.datetime:

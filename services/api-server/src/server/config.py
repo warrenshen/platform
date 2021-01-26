@@ -14,6 +14,7 @@ def is_development_env(flask_env: str) -> bool:
 class Config(object):
 
 	def __init__(self) -> None:
+		# JWT / Auth
 		# https://flask-jwt-extended.readthedocs.io/en/stable/options/#configuration-options
 		jwt_config = json.loads(os.environ.get('HASURA_GRAPHQL_JWT_SECRET'))
 		self.JWT_SECRET_KEY = jwt_config['key']
@@ -23,6 +24,9 @@ class Config(object):
 		self.JWT_REFRESH_TOKEN_EXPIRES = 60 * 60 * 24 * 30 # 30 days in seconds (default)
 		self.JWT_BLACKLIST_ENABLED = True
 		self.JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
+
+		# General
+		self.FLASK_ENV = os.environ.get('FLASK_ENV')
 
 		# Security
 		self.PASSWORD_SALT = os.environ.get('PASSWORD_SALT')
@@ -34,6 +38,9 @@ class Config(object):
 		# Email
 		self.NO_REPLY_EMAIL_ADDRESS = os.environ.get(
 			'NO_REPLY_EMAIL_ADDRESS', 'do-not-reply@bespokefinancial.com')
+		if is_development_env(self.FLASK_ENV):
+			self.NO_REPLY_EMAIL_ADDRESS = 'do-not-reply-development@bespokefinancial.com'
+
 		self.SUPPORT_EMAIL_ADDRESS = os.environ.get(
 			'SUPPORT_EMAIL_ADDRESS', 'support@bespokefinancial.com')
 		self.SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
@@ -41,7 +48,6 @@ class Config(object):
 
 		# Files
 		self.S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
-		self.FLASK_ENV = os.environ.get('FLASK_ENV')
 
 		# Logging
 		self.SENTRY_DSN = os.environ.get('SENTRY_DSN')

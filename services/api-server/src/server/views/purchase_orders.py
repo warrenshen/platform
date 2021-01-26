@@ -1,13 +1,15 @@
 import json
 from typing import List, cast
 
+from flask import Blueprint, Response, current_app, make_response, request
+from flask.views import MethodView
+from flask_jwt_extended import jwt_required
+
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
-from flask import Blueprint, Response, current_app, make_response, request
-from flask.views import MethodView
-from flask_jwt_extended import jwt_required
+from bespoke.finance import number_util
 
 handler = Blueprint('purchase_orders', __name__)
 
@@ -32,6 +34,9 @@ class RespondToApprovalRequestView(MethodView):
 
     @jwt_required
     def post(self) -> Response:
+        sendgrid_client = cast(sendgrid_util.Client,
+                               current_app.sendgrid_client)
+
         data = json.loads(request.data)
         if not data:
             return make_error_response('No data provided')
@@ -58,6 +63,11 @@ class RespondToApprovalRequestView(MethodView):
         if new_request_status == RequestStatusEnum.Rejected and not rejection_note:
             return make_error_response('Rejection note is required if response is rejected')
 
+        purchase_order_dicts = []
+        vendor_name = ''
+        customer_name = ''
+        action_type = ''
+
         with session_scope(current_app.session_maker) as session:
             purchase_order = cast(
                 models.PurchaseOrder,
@@ -68,12 +78,43 @@ class RespondToApprovalRequestView(MethodView):
             if new_request_status == RequestStatusEnum.Approved:
                 purchase_order.status = RequestStatusEnum.Approved
                 purchase_order.approved_at = date_util.now()
+                action_type = 'Approved'
             else:
                 purchase_order.status = RequestStatusEnum.Rejected
                 purchase_order.rejected_at = date_util.now()
                 purchase_order.rejection_note = rejection_note
+                action_type = 'Rejected'
+
+            purchase_order_dicts = [{
+                'order_number': purchase_order.order_number,
+                'amount': number_util.to_dollar_format(purchase_order.amount),
+                'requested_at_date': date_util.human_readable_yearmonthday(purchase_order.requested_at)
+            }]
+
+            customer_users = cast(List[models.User], session.query(
+                models.User).filter_by(company_id=purchase_order.company_id).all())
+
+            if not customer_users:
+                return make_error_response('There are no users configured for this customer')
+
+            vendor_name = purchase_order.vendor.name
+            customer_name = purchase_order.company.name
+            customer_emails = [user.email for user in customer_users]
 
             session.commit()
+
+        template_name = sendgrid_util.TemplateNames.VENDOR_APPROVES_OR_REJECTS_PURCHASE_ORDER
+        template_data = {
+            'vendor_name': vendor_name,
+            'customer_name': customer_name,
+            'purchase_orders': purchase_order_dicts,
+            'action_type': action_type
+        }
+        recipients = customer_emails
+        _, err = sendgrid_client.send(
+            template_name, template_data, recipients)
+        if err:
+            return make_error_response(err)
 
         return make_response(json.dumps({
             'status': 'OK',
