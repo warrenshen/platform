@@ -6,6 +6,7 @@ export interface CustomerParams {
   companyId: string;
 }
 
+// Use this to get the companyID when a bank is browsing a company's information.
 function useCompanyContext() {
   const { companyId: companyIdFromParams } = useParams<CustomerParams>();
   const {

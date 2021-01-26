@@ -2,22 +2,24 @@ import { Box, Button } from "@material-ui/core";
 import Can from "components/Shared/Can";
 import CreateUpdatePurchaseOrderModal from "components/Shared/PurchaseOrders/CreateUpdatePurchaseOrderModal";
 import ListPurchaseOrders from "components/Shared/PurchaseOrders/ListPurchaseOrders";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useListPurchaseOrdersQuery } from "generated/graphql";
+import useCompanyContext from "hooks/useCompanyContext";
 import { ActionType } from "lib/ActionType";
 import { Action } from "lib/auth/rbac-rules";
-import { useContext, useState } from "react";
+import { useState } from "react";
 
 function PurchaseOrders() {
-  const {
-    user: { companyId },
-  } = useContext(CurrentUserContext);
+  const companyId = useCompanyContext();
 
-  const { data, refetch } = useListPurchaseOrdersQuery({
+  const { data, refetch, error } = useListPurchaseOrdersQuery({
     variables: {
       company_id: companyId,
     },
   });
+
+  if (error) {
+    window.console.log("Error querying purchase orders. Error: " + error);
+  }
 
   const purchaseOrders = data?.purchase_orders || [];
 

@@ -10,7 +10,11 @@ import {
 import { grey } from "@material-ui/core/colors";
 import EditUserProfile from "components/Shared/Users/EditUserProfile";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { UserFragment, useUserByIdQuery } from "generated/graphql";
+import {
+  useCompanyForCustomerQuery,
+  UserFragment,
+  useUserByIdQuery,
+} from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
 import useAppBarTitle from "hooks/useAppBarTitle";
 import { useContext, useState } from "react";
@@ -38,6 +42,13 @@ function UserProfile() {
       id: currentUser.id,
     },
   });
+
+  const companyRes = useCompanyForCustomerQuery({
+    variables: {
+      companyId: currentUser.companyId,
+    },
+  });
+  const companyData = companyRes.data;
 
   const user: Maybe<UserFragment> = data?.users_by_pk;
 
@@ -71,6 +82,10 @@ function UserProfile() {
               <Box display="flex" pb={0.25}>
                 <Box className={classes.label}>Phone Number</Box>
                 <Box>{user?.phone_number}</Box>
+              </Box>
+              <Box display="flex" pb={0.25}>
+                <Box className={classes.label}>Company</Box>
+                <Box>{companyData?.companies_by_pk?.name}</Box>
               </Box>
               <Box display="flex" pb={0.25}>
                 <Box className={classes.label}>Role</Box>
