@@ -1,3 +1,4 @@
+import { Box } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import Launcher from "components/Shared/PurchaseOrderLoanDrawer/Launcher";
 import DataGrid, {
@@ -33,8 +34,16 @@ function ListLoans() {
   });
 
   const purchaseOrderRenderer = (params: ValueFormatterParams) => {
-    const purchaseOrderLoanId = params.row.data.id as string;
-    return <Launcher purchaseOrderLoanId={purchaseOrderLoanId}></Launcher>;
+    const purchaseOrderLoan = params.row.data;
+    const purchaseOrderLoanId = purchaseOrderLoan.id as string;
+    const purchaseOrderNumber = purchaseOrderLoan.purchase_order
+      .order_number as string;
+    return (
+      <Box>
+        <span>{purchaseOrderNumber}</span>
+        <Launcher purchaseOrderLoanId={purchaseOrderLoanId}></Launcher>
+      </Box>
+    );
   };
 
   const columns: IColumnProps[] = [

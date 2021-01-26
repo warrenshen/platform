@@ -15,6 +15,10 @@ mutation AddPurchaseOrderLoan(
 query ListPurchaseOrderLoansForCustomer($companyId: uuid!) {
   purchase_order_loans(where: { company_id: { _eq: $companyId } }) {
     ...PurchaseOrderLoan
+    purchase_order {
+      id
+      order_number
+    }
   }
 }
 

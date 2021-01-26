@@ -7778,7 +7778,10 @@ export type ListPurchaseOrderLoansForCustomerQueryVariables = Exact<{
 }>;
 
 
-export type ListPurchaseOrderLoansForCustomerQuery = { purchase_order_loans: Array<PurchaseOrderLoanFragment> };
+export type ListPurchaseOrderLoansForCustomerQuery = { purchase_order_loans: Array<(
+    { purchase_order: Pick<PurchaseOrders, 'id' | 'order_number'> }
+    & PurchaseOrderLoanFragment
+  )> };
 
 export type ApprovedPurchaseOrderLoansQueryVariables = Exact<{
   companyId: Scalars['uuid'];
@@ -8642,6 +8645,10 @@ export const ListPurchaseOrderLoansForCustomerDocument = gql`
     query ListPurchaseOrderLoansForCustomer($companyId: uuid!) {
   purchase_order_loans(where: {company_id: {_eq: $companyId}}) {
     ...PurchaseOrderLoan
+    purchase_order {
+      id
+      order_number
+    }
   }
 }
     ${PurchaseOrderLoanFragmentDoc}`;
