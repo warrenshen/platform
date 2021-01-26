@@ -14,6 +14,7 @@ export const routes = {
 export const anonymousRoutes = {
   secureLink: "/get_secure_link",
   confirmPurchaseOrder: "/confirm_purchase_order",
+  confirmPurchaseOrderComplete: "/confirm_purchase_order_complete",
 };
 
 export const vendorRoutes = {};

@@ -1,5 +1,7 @@
 import Layout from "components/Shared/Layout";
 import PrivateRoute from "components/Shared/PrivateRoute";
+import "devextreme/dist/css/dx.common.css";
+import "devextreme/dist/css/dx.material.blue.light.css";
 import { UserRolesEnum } from "generated/graphql";
 import {
   anonymousRoutes,
@@ -8,6 +10,7 @@ import {
   routes,
 } from "lib/routes";
 import ApprovePurchaseOrderPage from "pages/Anonymous/ApprovePurchaseOrder";
+import ApprovePurchaseOrderCompletePage from "pages/Anonymous/ApprovePurchaseOrderComplete";
 import SecureLinkPage from "pages/Anonymous/SecureLink";
 import BankAccounts from "pages/Bank/BankAccounts";
 import Customer from "pages/Bank/Customer";
@@ -23,9 +26,6 @@ import Users from "pages/Users";
 import Vendors from "pages/Vendors";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 import { useLocation } from "react-use";
-
-import "devextreme/dist/css/dx.common.css";
-import "devextreme/dist/css/dx.material.blue.light.css";
 
 function App() {
   const { pathname } = useLocation();
@@ -44,6 +44,11 @@ function App() {
           exact
           path={anonymousRoutes.confirmPurchaseOrder}
           component={ApprovePurchaseOrderPage}
+        ></Route>
+        <Route
+          exact
+          path={anonymousRoutes.confirmPurchaseOrderComplete}
+          component={ApprovePurchaseOrderCompletePage}
         ></Route>
         <Layout>
           <PrivateRoute exact path={routes.root}>

@@ -8,12 +8,16 @@ import {
   Theme,
 } from "@material-ui/core";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   PurchaseOrderFileTypeEnum,
+  RequestStatusEnum,
   usePurchaseOrderForReviewQuery,
 } from "generated/graphql";
-import { useContext } from "react";
+import { authenticatedApi, purchaseOrdersRoutes } from "lib/api";
+import { anonymousRoutes } from "lib/routes";
+import { useState } from "react";
+import { useHistory } from "react-router-dom";
+import RejectApprovalRequestModal from "./RejectApprovalRequestModal";
 
 interface Props {
   location: any;
@@ -44,11 +48,12 @@ const useStyles = makeStyles((theme: Theme) =>
 function ApprovePurchaseOrder(props: Props) {
   const classes = useStyles();
   const location: any = props.location;
-  const { user } = useContext(CurrentUserContext);
-  console.log({ user });
 
   const payload = location.state?.payload;
   const purchaseOrderId = payload?.purchase_order_id;
+
+  const history = useHistory();
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
 
   const { data } = usePurchaseOrderForReviewQuery({
     variables: {
@@ -67,6 +72,28 @@ function ApprovePurchaseOrder(props: Props) {
       )
     : [];
 
+  const handleClickApprove = async () => {
+    const response = await authenticatedApi.post(
+      purchaseOrdersRoutes.respondToApprovalRequest,
+      {
+        purchase_order_id: purchaseOrder?.id,
+        new_request_status: RequestStatusEnum.Approved,
+        rejection_note: "",
+      }
+    );
+    if (response.data?.status === "ERROR") {
+      alert(response.data?.msg);
+    } else {
+      history.push({
+        pathname: anonymousRoutes.confirmPurchaseOrderComplete,
+      });
+    }
+  };
+
+  const handleClickReject = () => {
+    setIsRejectModalOpen(true);
+  };
+
   return location.state ? (
     <Box
       width="100vw"
@@ -78,11 +105,12 @@ function ApprovePurchaseOrder(props: Props) {
       <Box width="400px" display="flex" flexDirection="column">
         <Box display="flex" flexDirection="column">
           <Box>
-            <h2>Purchase order confirmation</h2>
+            <h2>Your approval is requested</h2>
             <p>
-              The purchase order listed below requires your confirmation before
-              we can process payment. Please review the information and press
-              approve or reject.
+              The purchase order listed below requires your approval before we
+              can process payment. Please review the information and press
+              either the approve or reject button. If you press reject, you will
+              be prompted to enter in a reason.
             </p>
           </Box>
           <Box display="flex" flexDirection="row" m={1}>
@@ -146,7 +174,7 @@ function ApprovePurchaseOrder(props: Props) {
         <Box display="flex" justifyContent="space-between">
           <Button
             disabled={false}
-            onClick={() => console.log("Reject button clicked")}
+            onClick={handleClickReject}
             variant={"contained"}
             color={"secondary"}
           >
@@ -154,12 +182,23 @@ function ApprovePurchaseOrder(props: Props) {
           </Button>
           <Button
             disabled={false}
-            onClick={() => console.log("Approve button clicked")}
+            onClick={handleClickApprove}
             variant={"contained"}
             color={"primary"}
           >
             Approve
           </Button>
+          {isRejectModalOpen && (
+            <RejectApprovalRequestModal
+              purchaseOrderId={purchaseOrder?.id}
+              handleClose={() => setIsRejectModalOpen(false)}
+              handleRejectSuccess={() =>
+                history.push({
+                  pathname: anonymousRoutes.confirmPurchaseOrderComplete,
+                })
+              }
+            ></RejectApprovalRequestModal>
+          )}
         </Box>
       </Box>
     </Box>
