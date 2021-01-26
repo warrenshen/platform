@@ -1,8 +1,10 @@
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { twoFactorRoutes, unAuthenticatedApi } from "lib/api";
 import { setAccessToken, setRefreshToken } from "lib/auth/tokenStorage";
 import { anonymousRoutes } from "lib/routes";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
+
 type FormInfo = {
   type: string;
   payload: any;
@@ -20,9 +22,9 @@ const linkTypeToRoute: { [type: string]: string } = {
   confirm_purchase_order: anonymousRoutes.confirmPurchaseOrder,
 };
 
-export async function getSecureLinkPayload(req: {
+const getSecureLinkPayload = async (req: {
   val: string;
-}): Promise<GetSecureLinkPayloadResp> {
+}): Promise<GetSecureLinkPayloadResp> => {
   return unAuthenticatedApi
     .post(twoFactorRoutes.getSecureLinkPayload, req)
     .then((res) => {
@@ -37,7 +39,7 @@ export async function getSecureLinkPayload(req: {
         return { status: "ERROR", msg: "Could not get upload url" };
       }
     );
-}
+};
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -47,7 +49,9 @@ function SecureLink() {
   const query = useQuery();
   const linkVal = query.get("val");
   const [errMsg, setErrMsg] = useState<string>("");
-  let history = useHistory();
+  const history = useHistory();
+
+  const { resetUser } = useContext(CurrentUserContext);
 
   useEffect(() => {
     if (!linkVal) {
@@ -62,8 +66,10 @@ function SecureLink() {
         setErrMsg("No form information retrieved");
         return;
       }
+
       setAccessToken(resp.access_token);
       setRefreshToken(resp.refresh_token);
+      resetUser();
 
       if (!(resp.form_info.type in linkTypeToRoute)) {
         setErrMsg(
@@ -76,7 +82,7 @@ function SecureLink() {
         state: { payload: resp.form_info.payload },
       });
     });
-  }, [linkVal, history]);
+  }, [linkVal, history, resetUser]);
 
   if (!linkVal) {
     return <div>No link value provided.</div>;

@@ -10,7 +10,8 @@ export type User = {
 
 export type CurrentUserContextType = {
   user: User;
-  signedIn: boolean;
+  isSignedIn: boolean;
+  resetUser: () => void; // A function that resets state of CurrentUserProvider component.
   signIn: (email: string, password: string) => void;
   signOut: (client: ApolloClient<NormalizedCacheObject>) => void;
 };
@@ -21,7 +22,8 @@ export const CurrentUserContext = createContext<CurrentUserContextType>({
     companyId: "",
     role: UserRolesEnum.CompanyAdmin,
   },
-  signedIn: false,
+  isSignedIn: false,
+  resetUser: () => {},
   signIn: () => {},
   signOut: () => {},
 });

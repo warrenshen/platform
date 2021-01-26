@@ -12,14 +12,14 @@ function PrivateRoute(props: Props & RouteProps) {
   const { children, component, ...rest } = props;
   const {
     user: { role },
-    signedIn,
+    isSignedIn,
   } = useContext(CurrentUserContext);
 
   const canVisitRoute = props.requiredRoles
     ? props.requiredRoles.includes(role)
     : true;
 
-  const shouldRender = signedIn && canVisitRoute;
+  const shouldRender = isSignedIn && canVisitRoute;
 
   return (
     <Route

@@ -9,9 +9,9 @@ interface Props {
 }
 
 function Can(props: Props) {
-  const { user, signedIn } = useContext(CurrentUserContext);
+  const { user, isSignedIn } = useContext(CurrentUserContext);
 
-  if (!signedIn) {
+  if (!isSignedIn) {
     return null;
   }
 

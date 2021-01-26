@@ -34,20 +34,24 @@ function userFrom(token: string) {
 
 function CurrentUserWrapper(props: { children: React.ReactNode }) {
   const [user, setUser] = useState<User>(blankUser);
-  const [loadedToken, setLoadedToken] = useState(false);
+  const [isTokenLoaded, setIsTokenLoaded] = useState(false);
 
-  const signedIn = !!(user.id && user.role);
+  const isSignedIn = !!(user.id && user.role);
 
   useEffect(() => {
-    async function updateUser() {
+    async function setUserFromAccessToken() {
       const accessToken = await getAccessToken();
       if (accessToken) {
         setUser(userFrom(accessToken));
       }
-      setLoadedToken(true);
+      setIsTokenLoaded(true);
     }
-    updateUser();
-  }, []);
+    if (isTokenLoaded === false) {
+      setUserFromAccessToken();
+    }
+  }, [isTokenLoaded]);
+
+  const resetUser = useCallback(() => setIsTokenLoaded(false), []);
 
   const signIn = useCallback(async (email: string, password: string) => {
     const response = await unAuthenticatedApi.post(authRoutes.signIn, {
@@ -72,7 +76,7 @@ function CurrentUserWrapper(props: { children: React.ReactNode }) {
   const signOut = useCallback(
     async (client: ApolloClient<NormalizedCacheObject>) => {
       try {
-        const refreshToken = await getRefreshToken();
+        const refreshToken = getRefreshToken();
         await axios.all([
           authenticatedApi.post(authRoutes.revokeAccessToken),
           unAuthenticatedApi.post(
@@ -97,11 +101,12 @@ function CurrentUserWrapper(props: { children: React.ReactNode }) {
     []
   );
 
-  return loadedToken ? (
+  return isTokenLoaded ? (
     <CurrentUserContext.Provider
       value={{
         user,
-        signedIn,
+        isSignedIn,
+        resetUser,
         signIn,
         signOut,
       }}
