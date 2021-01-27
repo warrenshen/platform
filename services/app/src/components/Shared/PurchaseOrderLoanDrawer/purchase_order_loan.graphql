@@ -15,10 +15,10 @@ query PurchaseOrderLoan($id: uuid!) {
 query PurchaseOrderLoanDisbursements($id: uuid!) {
   purchase_order_loans_by_pk(id: $id) {
     id
-    payments {
-      ...PurchaseOrderLoanPayment
-      payment {
-        ...Payment
+    transactions {
+      ...PurchaseOrderLoanTransaction
+      transaction {
+        ...Transaction
       }
     }
   }

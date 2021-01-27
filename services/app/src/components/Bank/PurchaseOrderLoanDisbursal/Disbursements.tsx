@@ -36,20 +36,22 @@ function Disbursements(props: { id: PurchaseOrderLoans["id"] }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.purchase_order_loans_by_pk.payments
-            .map((purchaseOrderLoanPayment) => purchaseOrderLoanPayment.payment)
-            .map((payment) => {
+          {data.purchase_order_loans_by_pk.transactions
+            .map(
+              (purchaseOrderLoanPayment) => purchaseOrderLoanPayment.transaction
+            )
+            .map((transaction) => {
               return (
                 <TableRow>
                   <TableCell>
-                    ${Intl.NumberFormat("en-US").format(payment.amount)}
+                    ${Intl.NumberFormat("en-US").format(transaction.amount)}
                   </TableCell>
-                  <TableCell>{payment.company?.name}</TableCell>
+                  <TableCell>{transaction.company?.name}</TableCell>
                   <TableCell>
-                    {calendarDateTimestamp(payment.submitted_at)}
+                    {calendarDateTimestamp(transaction.submitted_at)}
                   </TableCell>
                   <TableCell>
-                    {calendarDateTimestamp(payment.settled_at)}
+                    {calendarDateTimestamp(transaction.settled_at)}
                   </TableCell>
                 </TableRow>
               );

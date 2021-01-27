@@ -67,11 +67,11 @@ fragment BankVendorPartnership on company_vendor_partnerships {
 
 ## Finance
 
-fragment Payment on payments {
+fragment Transaction on transactions {
   id
   amount
   method
-  direction
+  type
   company_id
   submitted_at
   settled_at

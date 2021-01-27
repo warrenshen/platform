@@ -82,9 +82,9 @@ fragment PurchaseOrderLoan on purchase_order_loans {
   adjusted_maturity_date
 }
 
-fragment PurchaseOrderLoanPayment on purchase_order_loan_payments {
+fragment PurchaseOrderLoanTransaction on purchase_order_loan_transactions {
   purchase_order_loan_id
-  payment_id
+  transaction_id
 }
 
 ## Files

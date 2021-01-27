@@ -185,6 +185,7 @@ class PurchaseOrderLoan(Base):
             self.origination_date: datetime.date = None
             self.amount: float = None
             self.status: str = None
+            self.company_id: uuid.UUID = None
             self.requested_at: datetime.datetime = None
 
             self.purchase_order: PurchaseOrder = None
@@ -200,11 +201,28 @@ class PurchaseOrderLoan(Base):
         amount = Column(Numeric)
         status = Column(String)
         requested_at = Column(DateTime)
-
         purchase_order = relationship(
             'PurchaseOrder',
             foreign_keys=[purchase_order_id]
         )
+
+class Payment(Base):
+    __tablename__ = 'payments'
+    if TYPE_CHECKING:
+        def __init__(self) -> None:
+            self.__table__: Any = None
+            self.id: uuid.UUID = None
+            self.company_id: uuid.UUID = None
+            self.direction: str = None
+            self.amount: float = None
+            self.submitted_at: datetime.datetime = None
+    else:
+        id = Column(UUID(as_uuid=True), primary_key=True,
+                    default=uuid.uuid4, unique=True)
+        direction = Column(String)
+        company_id = Column(UUID(as_uuid=True), nullable=False)
+        amount = Column(Numeric)
+        submitted_at = Column(DateTime)
 
 
 class RevokedTokenModel(Base):

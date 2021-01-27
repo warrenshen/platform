@@ -16,6 +16,7 @@ from bespoke.db.models import session_scope
 from bespoke.email import email_manager, sendgrid_util
 from bespoke.email.email_manager import EmailConfigDict, SendGridConfigDict
 from server.config import get_config, is_development_env
+from server.views.finance.loans import purchase_order_loans as po_loans_finance 
 from server.views import (auth, files, notify, purchase_order_loans,
                           purchase_orders, two_factor)
 
@@ -52,6 +53,9 @@ app.register_blueprint(auth.handler, url_prefix='/auth')
 app.register_blueprint(purchase_orders.handler, url_prefix='/purchase_orders')
 app.register_blueprint(purchase_order_loans.handler,
                        url_prefix='/purchase_order_loans')
+
+# Finance
+app.register_blueprint(po_loans_finance.handler, url_prefix='/finance/loans/purchase_order')
 
 app.app_config = config
 app.engine = models.create_engine()

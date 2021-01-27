@@ -1,17 +1,16 @@
-
 mutation SubmitDisbursement(
   $purchaseOrderLoanId: uuid!
-  $payment: payments_insert_input!
+  $transaction: transactions_insert_input!
 ) {
-  insert_purchase_order_loan_payments_one(
+  insert_purchase_order_loan_transactions_one(
     object: {
       purchase_order_loan_id: $purchaseOrderLoanId
-      payment: { data: $payment }
+      transaction: { data: $transaction }
     }
   ) {
-    ...PurchaseOrderLoanPayment
-    payment {
-      ...Payment
+    ...PurchaseOrderLoanTransaction
+    transaction {
+      ...Transaction
     }
   }
 }

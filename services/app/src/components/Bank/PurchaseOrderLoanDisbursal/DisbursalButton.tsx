@@ -1,13 +1,13 @@
 import { Button } from "@material-ui/core";
 import DisbursalCoverage from "components/Bank/PurchaseOrderLoanDisbursal/DisbursalCoverage";
-import { PaymentTransferDirection } from "components/Shared/BankToBankTransfer";
+import { PaymentTransferType } from "components/Shared/BankToBankTransfer";
 import PaymentModal, {
   PaymentMethod,
 } from "components/Shared/Payments/PaymentModal";
 import {
   Companies,
-  PaymentsInsertInput,
   PurchaseOrderLoans,
+  TransactionsInsertInput,
   useSubmitDisbursementMutation,
 } from "generated/graphql";
 import { useState } from "react";
@@ -25,7 +25,7 @@ function DisbursalButton(props: {
       {open && (
         <PaymentModal
           companyId={props.vendorId}
-          direction={PaymentTransferDirection.FromBank}
+          type={PaymentTransferType.FromBank}
           initialAmount={props.initialAmount}
           allowablePaymentTypes={[
             PaymentMethod.None,
@@ -33,12 +33,12 @@ function DisbursalButton(props: {
             PaymentMethod.Wire,
           ]}
           handleClose={() => setOpen(false)}
-          onCreate={async (payment: PaymentsInsertInput) => {
+          onCreate={async (transaction: TransactionsInsertInput) => {
             await submitDisbursement({
               variables: {
                 purchaseOrderLoanId: props.purchaseOrderLoanId,
-                payment: {
-                  ...payment,
+                transaction: {
+                  ...transaction,
                   submitted_at: new Date(Date.now()),
                   settled_at: new Date(
                     new Date().getTime() + 3 * 24 * 60 * 60 * 1000

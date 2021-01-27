@@ -11,13 +11,13 @@ import {
 } from "@material-ui/core";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import BankToBankTransfer, {
-  PaymentTransferDirection,
+  PaymentTransferType,
 } from "components/Shared/BankToBankTransfer";
 import CompanyBank from "components/Shared/BankToBankTransfer/CompanyBank";
 import {
   BankAccounts,
   Companies,
-  PaymentsInsertInput,
+  TransactionsInsertInput,
 } from "generated/graphql";
 import { useCallback, useState } from "react";
 
@@ -31,18 +31,18 @@ export enum PaymentMethod {
 }
 interface Props {
   companyId: Companies["id"];
-  direction: PaymentTransferDirection;
+  type: PaymentTransferType;
   handleClose: () => void;
   initialAmount?: number;
   allowablePaymentTypes?: Array<PaymentMethod>;
-  onCreate?: (payment: PaymentsInsertInput) => void;
+  onCreate?: (payment: TransactionsInsertInput) => void;
   coverageComponent?: (amount: number) => React.ReactNode;
 }
 
 function PaymentModal(props: Props) {
-  const [payment, setPayment] = useState<PaymentsInsertInput>({
+  const [payment, setPayment] = useState<TransactionsInsertInput>({
     company_id: props.companyId,
-    direction: props.direction,
+    type: props.type,
     amount: props.initialAmount,
     method: PaymentMethod.None,
   });
@@ -112,7 +112,7 @@ function PaymentModal(props: Props) {
             ) && (
               <>
                 <BankToBankTransfer
-                  direction={props.direction}
+                  type={props.type}
                   companyId={props.companyId}
                   onBespokeBankAccountSelection={onBespokeBankAccountSelection}
                   onCompanyBankAccountSelection={onCompanyBankAccountSelection}

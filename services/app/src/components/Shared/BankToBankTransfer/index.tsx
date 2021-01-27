@@ -4,13 +4,13 @@ import BespokeBank from "components/Shared/BankToBankTransfer/BespokeBank";
 import CompanyBank from "components/Shared/BankToBankTransfer/CompanyBank";
 import { BankAccounts, Companies } from "generated/graphql";
 
-export enum PaymentTransferDirection {
-  ToBank = "to_bank",
-  FromBank = "from_bank",
+export enum PaymentTransferType {
+  ToBank = "repayment",
+  FromBank = "advance",
 }
 
 interface Props {
-  direction: PaymentTransferDirection;
+  type: PaymentTransferType;
   companyId: Companies["id"];
   onCompanyBankAccountSelection: (id: BankAccounts["id"]) => void;
   onBespokeBankAccountSelection: (id: BankAccounts["id"]) => void;
@@ -19,7 +19,7 @@ interface Props {
 function BankToBankTransfer(props: Props) {
   return (
     <Box display="flex">
-      {props.direction === PaymentTransferDirection.ToBank && (
+      {props.type === PaymentTransferType.ToBank && (
         <>
           <CompanyBank {...props}></CompanyBank>
           <IconButton size="small" disabled>
@@ -28,7 +28,7 @@ function BankToBankTransfer(props: Props) {
           <BespokeBank {...props}></BespokeBank>
         </>
       )}
-      {props.direction === PaymentTransferDirection.FromBank && (
+      {props.type === PaymentTransferType.FromBank && (
         <>
           <BespokeBank {...props}></BespokeBank>
           <IconButton size="small" disabled>
