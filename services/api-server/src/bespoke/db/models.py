@@ -4,7 +4,7 @@ import os
 import time
 import uuid
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Callable, Dict, Generator
+from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List
 
 import sqlalchemy
 from mypy_extensions import TypedDict
@@ -149,6 +149,7 @@ class PurchaseOrder(Base):
 
             self.vendor: Company = None
             self.company: Company = None
+            self.purchase_order_loans: List[PurchaseOrderLoan] = []
     else:
         id = Column(UUID(as_uuid=True), primary_key=True)
         company_id = Column(UUID(as_uuid=True), ForeignKey('companies.id'))
@@ -185,14 +186,25 @@ class PurchaseOrderLoan(Base):
             self.amount: float = None
             self.status: str = None
             self.requested_at: datetime.datetime = None
+
+            self.purchase_order: PurchaseOrder = None
     else:
         id = Column(UUID(as_uuid=True), primary_key=True,
                     default=uuid.uuid4, unique=True)
-        purchase_order_id = Column(UUID(as_uuid=True), nullable=False)
+        purchase_order_id = Column(
+            UUID(as_uuid=True),
+            ForeignKey('purchase_orders.id'),
+            nullable=False
+        )
         origination_date = Column(Date)
         amount = Column(Numeric)
         status = Column(String)
         requested_at = Column(DateTime)
+
+        purchase_order = relationship(
+            'PurchaseOrder',
+            foreign_keys=[purchase_order_id]
+        )
 
 
 class RevokedTokenModel(Base):
