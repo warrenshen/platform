@@ -7907,6 +7907,14 @@ export type PurchaseOrderLoanQuery = { purchase_order_loans_by_pk?: Maybe<(
     & PurchaseOrderLoanFragment
   )> };
 
+export type PurchaseOrderLoanSiblingsQueryVariables = Exact<{
+  id?: Maybe<Scalars['uuid']>;
+  purchase_order_id: Scalars['uuid'];
+}>;
+
+
+export type PurchaseOrderLoanSiblingsQuery = { purchase_order_loans: Array<Pick<PurchaseOrderLoans, 'id' | 'amount' | 'status'>> };
+
 export type PurchaseOrderLoanDisbursementsQueryVariables = Exact<{
   id: Scalars['uuid'];
 }>;
@@ -9179,6 +9187,44 @@ export function usePurchaseOrderLoanLazyQuery(baseOptions?: Apollo.LazyQueryHook
 export type PurchaseOrderLoanQueryHookResult = ReturnType<typeof usePurchaseOrderLoanQuery>;
 export type PurchaseOrderLoanLazyQueryHookResult = ReturnType<typeof usePurchaseOrderLoanLazyQuery>;
 export type PurchaseOrderLoanQueryResult = Apollo.QueryResult<PurchaseOrderLoanQuery, PurchaseOrderLoanQueryVariables>;
+export const PurchaseOrderLoanSiblingsDocument = gql`
+    query PurchaseOrderLoanSiblings($id: uuid, $purchase_order_id: uuid!) {
+  purchase_order_loans(
+    where: {_and: [{id: {_neq: $id}}, {purchase_order_id: {_eq: $purchase_order_id}}]}
+  ) {
+    id
+    amount
+    status
+  }
+}
+    `;
+
+/**
+ * __usePurchaseOrderLoanSiblingsQuery__
+ *
+ * To run a query within a React component, call `usePurchaseOrderLoanSiblingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePurchaseOrderLoanSiblingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePurchaseOrderLoanSiblingsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      purchase_order_id: // value for 'purchase_order_id'
+ *   },
+ * });
+ */
+export function usePurchaseOrderLoanSiblingsQuery(baseOptions: Apollo.QueryHookOptions<PurchaseOrderLoanSiblingsQuery, PurchaseOrderLoanSiblingsQueryVariables>) {
+        return Apollo.useQuery<PurchaseOrderLoanSiblingsQuery, PurchaseOrderLoanSiblingsQueryVariables>(PurchaseOrderLoanSiblingsDocument, baseOptions);
+      }
+export function usePurchaseOrderLoanSiblingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PurchaseOrderLoanSiblingsQuery, PurchaseOrderLoanSiblingsQueryVariables>) {
+          return Apollo.useLazyQuery<PurchaseOrderLoanSiblingsQuery, PurchaseOrderLoanSiblingsQueryVariables>(PurchaseOrderLoanSiblingsDocument, baseOptions);
+        }
+export type PurchaseOrderLoanSiblingsQueryHookResult = ReturnType<typeof usePurchaseOrderLoanSiblingsQuery>;
+export type PurchaseOrderLoanSiblingsLazyQueryHookResult = ReturnType<typeof usePurchaseOrderLoanSiblingsLazyQuery>;
+export type PurchaseOrderLoanSiblingsQueryResult = Apollo.QueryResult<PurchaseOrderLoanSiblingsQuery, PurchaseOrderLoanSiblingsQueryVariables>;
 export const PurchaseOrderLoanDisbursementsDocument = gql`
     query PurchaseOrderLoanDisbursements($id: uuid!) {
   purchase_order_loans_by_pk(id: $id) {

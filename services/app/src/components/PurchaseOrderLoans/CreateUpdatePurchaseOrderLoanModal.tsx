@@ -15,6 +15,7 @@ import {
   useAddPurchaseOrderLoanMutation,
   useListApprovedPurchaseOrdersQuery,
   usePurchaseOrderLoanQuery,
+  usePurchaseOrderLoanSiblingsQuery,
   useUpdatePurchaseOrderLoanMutation,
 } from "generated/graphql";
 import { ActionType } from "lib/ActionType";
@@ -90,6 +91,36 @@ function CreateUpdatePurchaseOrderLoanModal({
       }
     },
   });
+
+  const {
+    data: purchaseOrderLoanSiblingsData,
+    loading: isPurchaseOrderLoanSiblingsLoading,
+  } = usePurchaseOrderLoanSiblingsQuery({
+    variables: {
+      // The `|| null` below is necessary because "" is an invalid parameter to give to the query.
+      id: purchaseOrderLoanId || null,
+      purchase_order_id: purchaseOrderLoan.purchase_order_id,
+    },
+    fetchPolicy: "network-only",
+  });
+
+  const purchaseOrderLoanSiblings =
+    purchaseOrderLoanSiblingsData?.purchase_order_loans || [];
+  const siblingsTotalAmount = purchaseOrderLoanSiblings
+    .filter((purchaseOrderLoanSibling) =>
+      [
+        RequestStatusEnum.ApprovalRequested,
+        RequestStatusEnum.Approved,
+      ].includes(purchaseOrderLoanSibling.status)
+    )
+    .reduce(
+      (sum, purchaseOrderLoanSibling) =>
+        sum + purchaseOrderLoanSibling.amount || 0,
+      0
+    );
+  const proposedLoansTotalAmount =
+    siblingsTotalAmount + parseFloat(purchaseOrderLoan.amount) || 0;
+
   const [
     addPurchaseOrderLoan,
     { loading: isAddPurchaseOrderLoanLoading },
@@ -107,6 +138,10 @@ function CreateUpdatePurchaseOrderLoanModal({
     fetchPolicy: "network-only",
   });
   const approvedPurchaseOrders = data?.purchase_orders || [];
+
+  const selectedPurchaseOrder = approvedPurchaseOrders.find(
+    (purchaseOrder) => purchaseOrder.id === purchaseOrderLoan.purchase_order_id
+  );
 
   const upsertPurchaseOrderLoan = async () => {
     const dateInFifteenDays = new Date(
@@ -179,6 +214,9 @@ function CreateUpdatePurchaseOrderLoanModal({
   const isSaveSubmitDisabled =
     !isFormValid ||
     isFormLoading ||
+    isPurchaseOrderLoanSiblingsLoading ||
+    !selectedPurchaseOrder ||
+    proposedLoansTotalAmount > selectedPurchaseOrder.amount ||
     !purchaseOrderLoan.origination_date ||
     !purchaseOrderLoan.amount;
 
@@ -197,6 +235,7 @@ function CreateUpdatePurchaseOrderLoanModal({
           purchaseOrderLoan={purchaseOrderLoan}
           setPurchaseOrderLoan={setPurchaseOrderLoan}
           approvedPurchaseOrders={approvedPurchaseOrders}
+          selectedPurchaseOrder={selectedPurchaseOrder}
         ></PurchaseOrderLoanForm>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>

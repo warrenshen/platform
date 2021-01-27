@@ -50,18 +50,16 @@ interface Props {
     purchaseOrderLoan: PurchaseOrderLoansInsertInput
   ) => void;
   approvedPurchaseOrders: PurchaseOrderFragment[];
+  selectedPurchaseOrder: PurchaseOrderFragment | undefined;
 }
 
 function PurchaseOrderLoanForm({
   purchaseOrderLoan,
   setPurchaseOrderLoan,
   approvedPurchaseOrders,
+  selectedPurchaseOrder,
 }: Props) {
   const classes = useStyles();
-
-  const selectedPurchaseOrder = approvedPurchaseOrders.find(
-    (purchaseOrder) => purchaseOrder.id === purchaseOrderLoan.purchase_order_id
-  );
 
   return (
     <Box display="flex" flexDirection="column">

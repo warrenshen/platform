@@ -1,4 +1,3 @@
-
 query PurchaseOrderLoan($id: uuid!) {
   purchase_order_loans_by_pk(id: $id) {
     ...PurchaseOrderLoan
@@ -9,6 +8,21 @@ query PurchaseOrderLoan($id: uuid!) {
     purchase_order {
       ...PurchaseOrder
     }
+  }
+}
+
+query PurchaseOrderLoanSiblings($id: uuid, $purchase_order_id: uuid!) {
+  purchase_order_loans(
+    where: {
+      _and: [
+        { id: { _neq: $id } }
+        { purchase_order_id: { _eq: $purchase_order_id } }
+      ]
+    }
+  ) {
+    id
+    amount
+    status
   }
 }
 
