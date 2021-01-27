@@ -74,6 +74,7 @@ fragment PurchaseOrder on purchase_orders {
 
 fragment PurchaseOrderLoan on purchase_order_loans {
   id
+  purchase_order_id
   status
   amount
   origination_date

@@ -8,6 +8,7 @@ export enum Action {
   ManipulatePurchaseOrders = "purchase-orders:manipulate",
   ManipulateUser = "users:manipulate",
   AssignBespokeBankAccountForCustomer = "bank-accounts:assign-to-customer",
+  ViewPurchaseOrderLoansActionMenu = "purchase-order-loans:view-action-menu",
   RepayPurchaseOrderLoans = "purchase-order-loans:repay",
   DisbursePurchaseOrderLoans = "purchase-order-loans:disburse",
 }
@@ -69,6 +70,7 @@ const rules: Rules = {
       Action.ViewPurchaseOrdersActionMenu,
       Action.ManipulateUser,
       Action.RepayPurchaseOrderLoans,
+      Action.ViewPurchaseOrderLoansActionMenu,
     ],
     dynamic: [
       {

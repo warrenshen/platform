@@ -24,6 +24,10 @@ export const purchaseOrdersRoutes = {
   submitForApproval: "/purchase_orders/submit_for_approval",
 };
 
+export const purchaseOrderLoansRoutes = {
+  submitForApproval: "/purchase_order_loans/submit_for_approval",
+};
+
 export const twoFactorRoutes = {
   getSecureLinkPayload: "/two_factor/get_secure_link_payload",
 };

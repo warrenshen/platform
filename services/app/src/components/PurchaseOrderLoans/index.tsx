@@ -1,10 +1,10 @@
 import { Box } from "@material-ui/core";
-import PurchaseOrderLoansView from "components/Loans/PurchaseOrder/LoansView";
+import PurchaseOrderLoansView from "components/PurchaseOrderLoans/PurchaseOrderLoansView";
 
 // For now, loans will allow you to view 1 of the loan views, e.g., Purchase Order Loans,
 // Inventory Financing, etc.
 function Loans() {
-  /* 
+  /*
   const { companyId } = useParams<CustomerParams>();
    const {
     user: { role },
@@ -16,11 +16,9 @@ function Loans() {
   }
 
   return (
-    <>
-      <Box pb={2} display="flex" flexDirection="row-reverse">
-        Nothing to display
-      </Box>
-    </>
+    <Box pb={2} display="flex" flexDirection="row-reverse">
+      Nothing to display
+    </Box>
   );
 }
 

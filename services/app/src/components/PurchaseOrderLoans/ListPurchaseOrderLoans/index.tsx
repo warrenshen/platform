@@ -1,37 +1,41 @@
 import { Box } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import ActionMenu from "components/Shared/DataGrid/ActionMenu";
 import Launcher from "components/Shared/PurchaseOrderLoanDrawer/Launcher";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import DataGrid, {
   Column,
   IColumnProps,
   Pager,
   Paging,
 } from "devextreme-react/data-grid";
-import {
-  Maybe,
-  PurchaseOrderLoanFragment,
-  useListPurchaseOrderLoansForCustomerQuery,
-} from "generated/graphql";
-import useCompanyContext from "hooks/useCompanyContext";
-import React from "react";
+import { Maybe, PurchaseOrderLoanFragment } from "generated/graphql";
+import { Action, check } from "lib/auth/rbac-rules";
+import React, { useContext } from "react";
 
-function getRows(poLoans: Maybe<PurchaseOrderLoanFragment[]>): RowsProp {
-  return poLoans
-    ? poLoans.map((item) => {
+function getRows(
+  purchaseOrderLoans: Maybe<PurchaseOrderLoanFragment[]>
+): RowsProp {
+  return purchaseOrderLoans
+    ? purchaseOrderLoans.map((item) => {
         return {
           ...item,
         };
       })
     : [];
 }
+interface Props {
+  purchaseOrderLoans: PurchaseOrderLoanFragment[];
+  handleEditPurchaseOrderLoan: (purchaseOrderLoanId: string) => void;
+}
 
-function ListLoans() {
-  const companyId = useCompanyContext();
-  const { data: poLoansData } = useListPurchaseOrderLoansForCustomerQuery({
-    variables: {
-      companyId,
-    },
-  });
+function ListPurchaseOrderLoans({
+  purchaseOrderLoans,
+  handleEditPurchaseOrderLoan,
+}: Props) {
+  const { user } = useContext(CurrentUserContext);
+
+  const rows = getRows(purchaseOrderLoans);
 
   const purchaseOrderRenderer = (params: ValueFormatterParams) => {
     const purchaseOrderLoan = params.row.data;
@@ -45,6 +49,14 @@ function ListLoans() {
       </Box>
     );
   };
+
+  const actionCellRenderer = (params: ValueFormatterParams) => (
+    <ActionMenu
+      handleClickEdit={() =>
+        handleEditPurchaseOrderLoan(params.row.data.id as string)
+      }
+    ></ActionMenu>
+  );
 
   const columns: IColumnProps[] = [
     {
@@ -80,7 +92,15 @@ function ListLoans() {
     },
   ];
 
-  const rows = getRows(poLoansData ? poLoansData.purchase_order_loans : []);
+  if (check(user.role, Action.ViewPurchaseOrderLoansActionMenu)) {
+    columns.push({
+      dataField: "action",
+      caption: "Action",
+      alignment: "center",
+      width: 100,
+      cellRender: actionCellRenderer,
+    });
+  }
 
   return (
     <div style={{ minHeight: "500px", width: "100%" }}>
@@ -105,4 +125,4 @@ function ListLoans() {
     </div>
   );
 }
-export default ListLoans;
+export default ListPurchaseOrderLoans;

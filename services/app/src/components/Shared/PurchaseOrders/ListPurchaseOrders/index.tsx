@@ -1,4 +1,5 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import ActionMenu from "components/Shared/DataGrid/ActionMenu";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import DataGrid, {
   Column,
@@ -10,7 +11,6 @@ import { PurchaseOrderFragment } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
 import { Action, check } from "lib/auth/rbac-rules";
 import { useContext } from "react";
-import ActionMenu from "./ActionMenu";
 import Status from "./Status";
 
 function populateRows(

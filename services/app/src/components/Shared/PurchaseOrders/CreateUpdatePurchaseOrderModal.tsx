@@ -77,6 +77,7 @@ function CreateUpdatePurchaseOrderModal({
   } as PurchaseOrderFragment;
 
   const [purchaseOrder, setPurchaseOrder] = useState(newPurchaseOrder);
+
   /*
   There are different types of files related to a Purchase Order.
   Purchase order file: exactly one file attachment that is required to be present to submit a PO for approval.
@@ -126,8 +127,9 @@ function CreateUpdatePurchaseOrderModal({
     variables: {
       companyId,
     },
+    fetchPolicy: "network-only",
   });
-  const vendors = data?.vendors;
+  const vendors = data?.vendors || [];
 
   const [
     addPurchaseOrder,
@@ -211,20 +213,24 @@ function CreateUpdatePurchaseOrderModal({
   };
 
   const handleClickSaveDraft = async () => {
-    await upsertPurchaseOrder();
+    const savedPurchaseOrder = await upsertPurchaseOrder();
+    if (!savedPurchaseOrder) {
+      alert("Could not upsert purchase order");
+    }
     handleClose();
   };
 
   const handleClickSaveSubmit = async () => {
-    const submittedPurchaseOrder = await upsertPurchaseOrder();
-    if (!submittedPurchaseOrder) {
+    const savedPurchaseOrder = await upsertPurchaseOrder();
+    if (!savedPurchaseOrder) {
       alert("Could not upsert purchase order");
     } else {
-      // Since this is a SAVE AND SUBMIT action, hit the SubmitForApproval endpoint.
+      // Since this is a SAVE AND SUBMIT action,
+      // hit the PurchaseOrders.SubmitForApproval endpoint.
       const response = await authenticatedApi.post(
         purchaseOrdersRoutes.submitForApproval,
         {
-          purchase_order_id: submittedPurchaseOrder.id,
+          purchase_order_id: savedPurchaseOrder.id,
         }
       );
       if (response.data?.status === "ERROR") {

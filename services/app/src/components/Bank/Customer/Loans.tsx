@@ -1,7 +1,7 @@
-import LoansView from "components/Loans/PurchaseOrder/LoansView";
+import PurchaseOrderLoansView from "components/PurchaseOrderLoans/PurchaseOrderLoansView";
 
 function Loans() {
-  return <LoansView></LoansView>;
+  return <PurchaseOrderLoansView></PurchaseOrderLoansView>;
 }
 
 export default Loans;
