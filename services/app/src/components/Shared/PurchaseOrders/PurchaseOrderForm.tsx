@@ -25,7 +25,7 @@ import {
   CompanyVendorPartnerships,
   PurchaseOrderFileFragment,
   PurchaseOrderFileTypeEnum,
-  PurchaseOrderFragment,
+  PurchaseOrdersInsertInput,
   Vendors,
 } from "generated/graphql";
 import { ChangeEvent } from "react";
@@ -62,11 +62,11 @@ type VendorsByPartnerType = Pick<Vendors, "id"> & {
 
 interface Props {
   companyId: string;
-  purchaseOrder: PurchaseOrderFragment;
+  purchaseOrder: PurchaseOrdersInsertInput;
   purchaseOrderFile: PurchaseOrderFileFragment | undefined;
   purchaseOrderCannabisFiles: PurchaseOrderFileFragment[];
   vendors: VendorsByPartnerType[];
-  setPurchaseOrder: (purchaseOrder: PurchaseOrderFragment) => void;
+  setPurchaseOrder: (purchaseOrder: PurchaseOrdersInsertInput) => void;
   setPurchaseOrderFile: (file: PurchaseOrderFileFragment) => void;
   setPurchaseOrderCannabisFiles: (files: PurchaseOrderFileFragment[]) => void;
 }

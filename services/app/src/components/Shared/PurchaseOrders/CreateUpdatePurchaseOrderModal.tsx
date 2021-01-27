@@ -13,7 +13,7 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   PurchaseOrderFileFragment,
   PurchaseOrderFileTypeEnum,
-  PurchaseOrderFragment,
+  PurchaseOrdersInsertInput,
   RequestStatusEnum,
   useAddPurchaseOrderMutation,
   usePurchaseOrderQuery,
@@ -74,7 +74,7 @@ function CreateUpdatePurchaseOrderModal({
     amount: "",
     is_cannabis: false,
     status: RequestStatusEnum.Drafted,
-  } as PurchaseOrderFragment;
+  } as PurchaseOrdersInsertInput;
 
   const [purchaseOrder, setPurchaseOrder] = useState(newPurchaseOrder);
 
