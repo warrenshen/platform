@@ -23,7 +23,7 @@ interface Props {
   onClose: () => void;
 }
 
-function AddModal(props: Props) {
+function AddCustomerModal(props: Props) {
   const [customer, setCustomer] = useState<CompaniesInsertInput>({});
   const [
     companySetting,
@@ -42,7 +42,7 @@ function AddModal(props: Props) {
           <Box>
             <TextField
               label="Company Name"
-              value={customer.name}
+              value={customer.name || ""}
               onChange={({ target: { value } }) => {
                 setCustomer({ ...customer, name: value });
               }}
@@ -50,7 +50,7 @@ function AddModal(props: Props) {
           </Box>
           <Box mt={4}>
             <Select
-              value={customer.settings?.data.product_type}
+              value={companySetting.product_type || ""}
               onChange={({ target: { value } }) => {
                 setCompanySetting({
                   product_type: value as ProductTypeEnum,
@@ -65,7 +65,7 @@ function AddModal(props: Props) {
                 ProductTypeEnum.PurchaseMoneyFinancing,
               ].map((productType) => {
                 return (
-                  <MenuItem value={productType}>
+                  <MenuItem key={productType} value={productType}>
                     {ProductTypeLabel[productType]}
                   </MenuItem>
                 );
@@ -108,4 +108,4 @@ function AddModal(props: Props) {
   );
 }
 
-export default AddModal;
+export default AddCustomerModal;

@@ -79,7 +79,7 @@ function InviteUserModal({ companyId, handleClose }: Props) {
             <Select
               disabled={false}
               labelId="user-role-select-label"
-              value={user?.role}
+              value={user.role || ""}
               onChange={({ target: { value } }) => {
                 setUser({ ...user, role: value as UserRolesEnum });
               }}

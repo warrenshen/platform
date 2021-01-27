@@ -50,7 +50,7 @@ interface Props {
     purchaseOrderLoan: PurchaseOrderLoansInsertInput
   ) => void;
   approvedPurchaseOrders: PurchaseOrderFragment[];
-  selectedPurchaseOrder: PurchaseOrderFragment | undefined;
+  selectedPurchaseOrder?: PurchaseOrderFragment;
 }
 
 function PurchaseOrderLoanForm({

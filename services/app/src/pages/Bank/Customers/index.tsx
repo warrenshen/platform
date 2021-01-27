@@ -9,7 +9,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import AddButton from "components/Bank/AddCustomer/AddButton";
+import AddButton from "components/Bank/AddCustomer/AddCustomerButton";
 import { useBankCustomersQuery } from "generated/graphql";
 import useAppBarTitle from "hooks/useAppBarTitle";
 import { bankRoutes } from "lib/routes";

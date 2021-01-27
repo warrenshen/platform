@@ -11,7 +11,6 @@ import {
   TextField,
   Theme,
 } from "@material-ui/core";
-import FileUploadDropzone from "components/Shared/File/UploadDropzone";
 import {
   CompanyDocument,
   CompanyFragment,
@@ -114,24 +113,12 @@ function EditCompanyProfileModal({
             }}
           ></TextField>
         </Box>
-
-        <Box pb={3} pt={2}>
-          <FileUploadDropzone
-            companyId={company?.id}
-            docType="purchase_order"
-            maxFilesAllowed={1}
-            onUploadComplete={(resp) => {
-              console.log(resp);
-            }}
-          ></FileUploadDropzone>
-        </Box>
       </DialogContent>
       <DialogActions>
         <Box display="flex">
           <Box pr={1}>
             <Button onClick={handleClose}>Cancel</Button>
           </Box>
-
           <Button
             disabled={updateCompanyLoading}
             onClick={async () => {

@@ -63,7 +63,7 @@ type VendorsByPartnerType = Pick<Vendors, "id"> & {
 interface Props {
   companyId: string;
   purchaseOrder: PurchaseOrdersInsertInput;
-  purchaseOrderFile: PurchaseOrderFileFragment | undefined;
+  purchaseOrderFile?: PurchaseOrderFileFragment;
   purchaseOrderCannabisFiles: PurchaseOrderFileFragment[];
   vendors: VendorsByPartnerType[];
   setPurchaseOrder: (purchaseOrder: PurchaseOrdersInsertInput) => void;

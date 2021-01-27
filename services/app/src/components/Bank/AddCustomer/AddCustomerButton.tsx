@@ -1,8 +1,8 @@
 import { Button } from "@material-ui/core";
-import AddModal from "components/Bank/AddCustomer/AddModal";
+import AddModal from "components/Bank/AddCustomer/AddCustomerModal";
 import { useState } from "react";
 
-function AddButton() {
+function AddCustomerButton() {
   const [open, setOpen] = useState(false);
 
   return (
@@ -15,4 +15,4 @@ function AddButton() {
   );
 }
 
-export default AddButton;
+export default AddCustomerButton;
