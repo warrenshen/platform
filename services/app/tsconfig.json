@@ -20,5 +20,8 @@
     "jsx": "react-jsx",
     "baseUrl": "src"
   },
-  "include": ["src"]
+  "include": [
+    "src",
+    "typings-custom/**/*.ts"
+  ]
 }

@@ -9,11 +9,11 @@ import {
   MenuItem,
   Select,
 } from "@material-ui/core";
+import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import BankToBankTransfer, {
   PaymentTransferDirection,
 } from "components/Shared/BankToBankTransfer";
 import CompanyBank from "components/Shared/BankToBankTransfer/CompanyBank";
-import InputCurrencyAutoFormatter from "components/Shared/InputCurrencyAutoFormatter";
 import {
   BankAccounts,
   Companies,
@@ -71,15 +71,16 @@ function PaymentModal(props: Props) {
       <DialogContent style={{ height: 500 }}>
         <Box display="flex" flexDirection="column">
           <FormControl style={{ width: 200 }}>
-            <InputCurrencyAutoFormatter
+            <CurrencyTextField
               label="Amount"
-              defaultValue={payment.amount}
-              onChange={(value) => {
-                setPayment((payment) => {
-                  return { ...payment, amount: value };
-                });
+              currencySymbol="$"
+              outputFormat="string"
+              textAlign="left"
+              value={payment.amount}
+              onChange={(_event: any, value: string) => {
+                setPayment({ ...payment, amount: value });
               }}
-            />
+            ></CurrencyTextField>
           </FormControl>
           <Box mt={3}>
             <Select

@@ -14,7 +14,7 @@ import {
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
 import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
-import InputCurrencyAutoFormatter from "components/Shared/InputCurrencyAutoFormatter";
+import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import PurchaseOrderInfoCard from "components/Shared/PurchaseOrder/PurchaseOrderInfoCard";
 import {
   PurchaseOrderFragment,
@@ -133,16 +133,19 @@ function PurchaseOrderLoanForm({
       </Box>
       <Box mt={3}>
         <FormControl fullWidth className={classes.purchaseOrderInput}>
-          <InputCurrencyAutoFormatter
+          <CurrencyTextField
             label="Amount"
-            defaultValue={purchaseOrderLoan.amount}
-            onChange={(value) => {
+            currencySymbol="$"
+            outputFormat="string"
+            textAlign="left"
+            value={purchaseOrderLoan.amount}
+            onChange={(_event: any, value: string) => {
               setPurchaseOrderLoan({
                 ...purchaseOrderLoan,
                 amount: value,
               });
             }}
-          />
+          ></CurrencyTextField>
         </FormControl>
       </Box>
     </Box>
