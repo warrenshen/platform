@@ -13,7 +13,7 @@ import {
   BankAccountsInsertInput,
   Companies,
   CompanyBankAccountsDocument,
-  CompanyDocument,
+  CompanyForCustomerDocument,
   useAddBankAccountMutation,
   UserRolesEnum,
   useUpdateBankAccountMutation,
@@ -253,7 +253,7 @@ function AccountForm(props: {
                           },
                         },
                         {
-                          query: CompanyDocument,
+                          query: CompanyForCustomerDocument,
                           variables: {
                             companyId: props.companyId,
                           },
