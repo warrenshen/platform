@@ -29,6 +29,7 @@ import { useLocation } from "react-use";
 
 function App() {
   const { pathname } = useLocation();
+
   return (
     <BrowserRouter>
       <Switch>
@@ -51,22 +52,62 @@ function App() {
           component={ApprovePurchaseOrderCompletePage}
         ></Route>
         <Layout>
-          <PrivateRoute exact path={routes.root}>
+          <PrivateRoute
+            exact
+            path={routes.root}
+            requiredRoles={[
+              UserRolesEnum.BankAdmin,
+              UserRolesEnum.CompanyAdmin,
+            ]}
+          >
             <Home></Home>
           </PrivateRoute>
-          <PrivateRoute exact path={routes.overview}>
+          <PrivateRoute
+            exact
+            path={routes.overview}
+            requiredRoles={[
+              UserRolesEnum.BankAdmin,
+              UserRolesEnum.CompanyAdmin,
+            ]}
+          >
             <Home></Home>
           </PrivateRoute>
-          <PrivateRoute exact path={routes.vendors}>
+          <PrivateRoute
+            exact
+            path={routes.vendors}
+            requiredRoles={[
+              UserRolesEnum.BankAdmin,
+              UserRolesEnum.CompanyAdmin,
+            ]}
+          >
             <Vendors></Vendors>
           </PrivateRoute>
-          <PrivateRoute exact path={routes.profile}>
+          <PrivateRoute
+            exact
+            path={routes.profile}
+            requiredRoles={[
+              UserRolesEnum.BankAdmin,
+              UserRolesEnum.CompanyAdmin,
+            ]}
+          >
             <CompanyProfilePage></CompanyProfilePage>
           </PrivateRoute>
-          <PrivateRoute path={routes.userProfile}>
+          <PrivateRoute
+            path={routes.userProfile}
+            requiredRoles={[
+              UserRolesEnum.BankAdmin,
+              UserRolesEnum.CompanyAdmin,
+            ]}
+          >
             <UserProfile></UserProfile>
           </PrivateRoute>
-          <PrivateRoute path={routes.users}>
+          <PrivateRoute
+            path={routes.users}
+            requiredRoles={[
+              UserRolesEnum.BankAdmin,
+              UserRolesEnum.CompanyAdmin,
+            ]}
+          >
             <Users></Users>
           </PrivateRoute>
           {/* Customer Routes */}
@@ -84,7 +125,11 @@ function App() {
           >
             <PurchaseOrdersPage></PurchaseOrdersPage>
           </PrivateRoute>
-          <PrivateRoute exact path={customerRoutes.settings}>
+          <PrivateRoute
+            exact
+            path={customerRoutes.settings}
+            requiredRoles={[UserRolesEnum.CompanyAdmin]}
+          >
             <SettingsPage></SettingsPage>
           </PrivateRoute>
           {/* Bank Routes */}

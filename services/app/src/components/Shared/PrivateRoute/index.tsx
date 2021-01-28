@@ -5,7 +5,7 @@ import { useContext } from "react";
 import { Redirect, Route, RouteProps } from "react-router-dom";
 
 interface Props {
-  requiredRoles?: Array<UserRolesEnum>;
+  requiredRoles: Array<UserRolesEnum>;
 }
 
 function PrivateRoute(props: Props & RouteProps) {
@@ -17,29 +17,27 @@ function PrivateRoute(props: Props & RouteProps) {
 
   const canVisitRoute = props.requiredRoles
     ? props.requiredRoles.includes(role)
-    : true;
+    : false;
 
   const shouldRender = isSignedIn && canVisitRoute;
 
   return (
     <Route
       {...rest}
-      render={({ location }) => {
-        const fromLocation = canVisitRoute ? location : routes.root;
-
-        return shouldRender ? (
+      render={({ location }) =>
+        shouldRender ? (
           children
         ) : (
           <Redirect
             to={{
               pathname: routes.signIn,
               state: {
-                from: fromLocation,
+                from: canVisitRoute ? location : routes.root,
               },
             }}
           ></Redirect>
-        );
-      }}
+        )
+      }
     ></Route>
   );
 }
