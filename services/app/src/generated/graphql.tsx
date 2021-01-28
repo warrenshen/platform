@@ -4014,6 +4014,7 @@ export type PurchaseOrderLoans = {
   company: Companies;
   company_id: Scalars['uuid'];
   id: Scalars['uuid'];
+  internal_note?: Maybe<Scalars['String']>;
   maturity_date?: Maybe<Scalars['date']>;
   origination_date?: Maybe<Scalars['date']>;
   outstanding_principal_balance: Scalars['numeric'];
@@ -4126,6 +4127,7 @@ export type PurchaseOrderLoansBoolExp = {
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  internal_note?: Maybe<StringComparisonExp>;
   maturity_date?: Maybe<DateComparisonExp>;
   origination_date?: Maybe<DateComparisonExp>;
   outstanding_principal_balance?: Maybe<NumericComparisonExp>;
@@ -4160,6 +4162,7 @@ export type PurchaseOrderLoansInsertInput = {
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars['uuid']>;
   id?: Maybe<Scalars['uuid']>;
+  internal_note?: Maybe<Scalars['String']>;
   maturity_date?: Maybe<Scalars['date']>;
   origination_date?: Maybe<Scalars['date']>;
   outstanding_principal_balance?: Maybe<Scalars['numeric']>;
@@ -4180,6 +4183,7 @@ export type PurchaseOrderLoansMaxFields = {
   closed_at?: Maybe<Scalars['timestamptz']>;
   company_id?: Maybe<Scalars['uuid']>;
   id?: Maybe<Scalars['uuid']>;
+  internal_note?: Maybe<Scalars['String']>;
   maturity_date?: Maybe<Scalars['date']>;
   origination_date?: Maybe<Scalars['date']>;
   outstanding_principal_balance?: Maybe<Scalars['numeric']>;
@@ -4196,6 +4200,7 @@ export type PurchaseOrderLoansMaxOrderBy = {
   closed_at?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  internal_note?: Maybe<OrderBy>;
   maturity_date?: Maybe<OrderBy>;
   origination_date?: Maybe<OrderBy>;
   outstanding_principal_balance?: Maybe<OrderBy>;
@@ -4212,6 +4217,7 @@ export type PurchaseOrderLoansMinFields = {
   closed_at?: Maybe<Scalars['timestamptz']>;
   company_id?: Maybe<Scalars['uuid']>;
   id?: Maybe<Scalars['uuid']>;
+  internal_note?: Maybe<Scalars['String']>;
   maturity_date?: Maybe<Scalars['date']>;
   origination_date?: Maybe<Scalars['date']>;
   outstanding_principal_balance?: Maybe<Scalars['numeric']>;
@@ -4228,6 +4234,7 @@ export type PurchaseOrderLoansMinOrderBy = {
   closed_at?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  internal_note?: Maybe<OrderBy>;
   maturity_date?: Maybe<OrderBy>;
   origination_date?: Maybe<OrderBy>;
   outstanding_principal_balance?: Maybe<OrderBy>;
@@ -4266,6 +4273,7 @@ export type PurchaseOrderLoansOrderBy = {
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  internal_note?: Maybe<OrderBy>;
   maturity_date?: Maybe<OrderBy>;
   origination_date?: Maybe<OrderBy>;
   outstanding_principal_balance?: Maybe<OrderBy>;
@@ -4298,6 +4306,8 @@ export enum PurchaseOrderLoansSelectColumn {
   /** column name */
   Id = 'id',
   /** column name */
+  InternalNote = 'internal_note',
+  /** column name */
   MaturityDate = 'maturity_date',
   /** column name */
   OriginationDate = 'origination_date',
@@ -4321,6 +4331,7 @@ export type PurchaseOrderLoansSetInput = {
   closed_at?: Maybe<Scalars['timestamptz']>;
   company_id?: Maybe<Scalars['uuid']>;
   id?: Maybe<Scalars['uuid']>;
+  internal_note?: Maybe<Scalars['String']>;
   maturity_date?: Maybe<Scalars['date']>;
   origination_date?: Maybe<Scalars['date']>;
   outstanding_principal_balance?: Maybe<Scalars['numeric']>;
@@ -4400,6 +4411,8 @@ export enum PurchaseOrderLoansUpdateColumn {
   CompanyId = 'company_id',
   /** column name */
   Id = 'id',
+  /** column name */
+  InternalNote = 'internal_note',
   /** column name */
   MaturityDate = 'maturity_date',
   /** column name */
@@ -7766,12 +7779,22 @@ export type ListApprovedPurchaseOrdersQueryVariables = Exact<{ [key: string]: ne
 
 export type ListApprovedPurchaseOrdersQuery = { purchase_orders: Array<PurchaseOrderFragment> };
 
-export type ListPurchaseOrderLoansForCustomerQueryVariables = Exact<{
+export type PurchaseOrderLoansForBankQueryVariables = Exact<{
   companyId: Scalars['uuid'];
 }>;
 
 
-export type ListPurchaseOrderLoansForCustomerQuery = { purchase_order_loans: Array<(
+export type PurchaseOrderLoansForBankQuery = { purchase_order_loans: Array<(
+    { purchase_order: Pick<PurchaseOrders, 'id' | 'order_number'> }
+    & PurchaseOrderLoanForBankFragment
+  )> };
+
+export type PurchaseOrderLoansForCustomerQueryVariables = Exact<{
+  companyId: Scalars['uuid'];
+}>;
+
+
+export type PurchaseOrderLoansForCustomerQuery = { purchase_order_loans: Array<(
     { purchase_order: Pick<PurchaseOrders, 'id' | 'order_number'> }
     & PurchaseOrderLoanFragment
   )> };
@@ -8030,6 +8053,8 @@ export type PurchaseOrderFragment = (
 );
 
 export type PurchaseOrderLoanFragment = Pick<PurchaseOrderLoans, 'id' | 'purchase_order_id' | 'status' | 'amount' | 'origination_date' | 'maturity_date' | 'adjusted_maturity_date'>;
+
+export type PurchaseOrderLoanForBankFragment = Pick<PurchaseOrderLoans, 'id' | 'purchase_order_id' | 'status' | 'amount' | 'origination_date' | 'maturity_date' | 'adjusted_maturity_date' | 'internal_note'>;
 
 export type PurchaseOrderLoanTransactionFragment = Pick<PurchaseOrderLoanTransactions, 'purchase_order_loan_id' | 'transaction_id'>;
 
@@ -8455,6 +8480,18 @@ export const PurchaseOrderLoanFragmentDoc = gql`
   adjusted_maturity_date
 }
     `;
+export const PurchaseOrderLoanForBankFragmentDoc = gql`
+    fragment PurchaseOrderLoanForBank on purchase_order_loans {
+  id
+  purchase_order_id
+  status
+  amount
+  origination_date
+  maturity_date
+  adjusted_maturity_date
+  internal_note
+}
+    `;
 export const PurchaseOrderLoanTransactionFragmentDoc = gql`
     fragment PurchaseOrderLoanTransaction on purchase_order_loan_transactions {
   purchase_order_loan_id
@@ -8626,8 +8663,45 @@ export function useListApprovedPurchaseOrdersLazyQuery(baseOptions?: Apollo.Lazy
 export type ListApprovedPurchaseOrdersQueryHookResult = ReturnType<typeof useListApprovedPurchaseOrdersQuery>;
 export type ListApprovedPurchaseOrdersLazyQueryHookResult = ReturnType<typeof useListApprovedPurchaseOrdersLazyQuery>;
 export type ListApprovedPurchaseOrdersQueryResult = Apollo.QueryResult<ListApprovedPurchaseOrdersQuery, ListApprovedPurchaseOrdersQueryVariables>;
-export const ListPurchaseOrderLoansForCustomerDocument = gql`
-    query ListPurchaseOrderLoansForCustomer($companyId: uuid!) {
+export const PurchaseOrderLoansForBankDocument = gql`
+    query PurchaseOrderLoansForBank($companyId: uuid!) {
+  purchase_order_loans(where: {company_id: {_eq: $companyId}}) {
+    ...PurchaseOrderLoanForBank
+    purchase_order {
+      id
+      order_number
+    }
+  }
+}
+    ${PurchaseOrderLoanForBankFragmentDoc}`;
+
+/**
+ * __usePurchaseOrderLoansForBankQuery__
+ *
+ * To run a query within a React component, call `usePurchaseOrderLoansForBankQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePurchaseOrderLoansForBankQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePurchaseOrderLoansForBankQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function usePurchaseOrderLoansForBankQuery(baseOptions: Apollo.QueryHookOptions<PurchaseOrderLoansForBankQuery, PurchaseOrderLoansForBankQueryVariables>) {
+        return Apollo.useQuery<PurchaseOrderLoansForBankQuery, PurchaseOrderLoansForBankQueryVariables>(PurchaseOrderLoansForBankDocument, baseOptions);
+      }
+export function usePurchaseOrderLoansForBankLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PurchaseOrderLoansForBankQuery, PurchaseOrderLoansForBankQueryVariables>) {
+          return Apollo.useLazyQuery<PurchaseOrderLoansForBankQuery, PurchaseOrderLoansForBankQueryVariables>(PurchaseOrderLoansForBankDocument, baseOptions);
+        }
+export type PurchaseOrderLoansForBankQueryHookResult = ReturnType<typeof usePurchaseOrderLoansForBankQuery>;
+export type PurchaseOrderLoansForBankLazyQueryHookResult = ReturnType<typeof usePurchaseOrderLoansForBankLazyQuery>;
+export type PurchaseOrderLoansForBankQueryResult = Apollo.QueryResult<PurchaseOrderLoansForBankQuery, PurchaseOrderLoansForBankQueryVariables>;
+export const PurchaseOrderLoansForCustomerDocument = gql`
+    query PurchaseOrderLoansForCustomer($companyId: uuid!) {
   purchase_order_loans(where: {company_id: {_eq: $companyId}}) {
     ...PurchaseOrderLoan
     purchase_order {
@@ -8639,30 +8713,30 @@ export const ListPurchaseOrderLoansForCustomerDocument = gql`
     ${PurchaseOrderLoanFragmentDoc}`;
 
 /**
- * __useListPurchaseOrderLoansForCustomerQuery__
+ * __usePurchaseOrderLoansForCustomerQuery__
  *
- * To run a query within a React component, call `useListPurchaseOrderLoansForCustomerQuery` and pass it any options that fit your needs.
- * When your component renders, `useListPurchaseOrderLoansForCustomerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `usePurchaseOrderLoansForCustomerQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePurchaseOrderLoansForCustomerQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useListPurchaseOrderLoansForCustomerQuery({
+ * const { data, loading, error } = usePurchaseOrderLoansForCustomerQuery({
  *   variables: {
  *      companyId: // value for 'companyId'
  *   },
  * });
  */
-export function useListPurchaseOrderLoansForCustomerQuery(baseOptions: Apollo.QueryHookOptions<ListPurchaseOrderLoansForCustomerQuery, ListPurchaseOrderLoansForCustomerQueryVariables>) {
-        return Apollo.useQuery<ListPurchaseOrderLoansForCustomerQuery, ListPurchaseOrderLoansForCustomerQueryVariables>(ListPurchaseOrderLoansForCustomerDocument, baseOptions);
+export function usePurchaseOrderLoansForCustomerQuery(baseOptions: Apollo.QueryHookOptions<PurchaseOrderLoansForCustomerQuery, PurchaseOrderLoansForCustomerQueryVariables>) {
+        return Apollo.useQuery<PurchaseOrderLoansForCustomerQuery, PurchaseOrderLoansForCustomerQueryVariables>(PurchaseOrderLoansForCustomerDocument, baseOptions);
       }
-export function useListPurchaseOrderLoansForCustomerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListPurchaseOrderLoansForCustomerQuery, ListPurchaseOrderLoansForCustomerQueryVariables>) {
-          return Apollo.useLazyQuery<ListPurchaseOrderLoansForCustomerQuery, ListPurchaseOrderLoansForCustomerQueryVariables>(ListPurchaseOrderLoansForCustomerDocument, baseOptions);
+export function usePurchaseOrderLoansForCustomerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PurchaseOrderLoansForCustomerQuery, PurchaseOrderLoansForCustomerQueryVariables>) {
+          return Apollo.useLazyQuery<PurchaseOrderLoansForCustomerQuery, PurchaseOrderLoansForCustomerQueryVariables>(PurchaseOrderLoansForCustomerDocument, baseOptions);
         }
-export type ListPurchaseOrderLoansForCustomerQueryHookResult = ReturnType<typeof useListPurchaseOrderLoansForCustomerQuery>;
-export type ListPurchaseOrderLoansForCustomerLazyQueryHookResult = ReturnType<typeof useListPurchaseOrderLoansForCustomerLazyQuery>;
-export type ListPurchaseOrderLoansForCustomerQueryResult = Apollo.QueryResult<ListPurchaseOrderLoansForCustomerQuery, ListPurchaseOrderLoansForCustomerQueryVariables>;
+export type PurchaseOrderLoansForCustomerQueryHookResult = ReturnType<typeof usePurchaseOrderLoansForCustomerQuery>;
+export type PurchaseOrderLoansForCustomerLazyQueryHookResult = ReturnType<typeof usePurchaseOrderLoansForCustomerLazyQuery>;
+export type PurchaseOrderLoansForCustomerQueryResult = Apollo.QueryResult<PurchaseOrderLoansForCustomerQuery, PurchaseOrderLoansForCustomerQueryVariables>;
 export const ApprovedPurchaseOrderLoansDocument = gql`
     query ApprovedPurchaseOrderLoans($companyId: uuid!) {
   purchase_order_loans(

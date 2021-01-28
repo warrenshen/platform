@@ -2,28 +2,20 @@ import { Box, Button } from "@material-ui/core";
 import RepaymentButton from "components/Customer/PurchaseOrderLoanRepayment/RepaymentButton";
 import ListPurchaseOrderLoans from "components/PurchaseOrderLoans/ListPurchaseOrderLoans";
 import Can from "components/Shared/Can";
-import { useListPurchaseOrderLoansForCustomerQuery } from "generated/graphql";
-import useCompanyContext from "hooks/useCompanyContext";
+import { PurchaseOrderLoanFragment } from "generated/graphql";
 import { ActionType } from "lib/ActionType";
 import { Action } from "lib/auth/rbac-rules";
 import { useState } from "react";
 import CreateUpdatePurchaseOrderLoanModal from "./CreateUpdatePurchaseOrderLoanModal";
 
-function PurchaseOrderLoansView() {
-  const companyId = useCompanyContext();
-
-  const { data, refetch, error } = useListPurchaseOrderLoansForCustomerQuery({
-    variables: {
-      companyId,
-    },
-  });
-
-  if (error) {
-    window.console.log("Error querying purchase orders. Error: " + error);
-  }
-
-  const purchaseOrderLoans = data?.purchase_order_loans || [];
-
+interface Props {
+  purchaseOrderLoans: PurchaseOrderLoanFragment[];
+  refetch: () => {};
+}
+/**
+ * This component is shared between a bank user and a customer user use case.
+ */
+function PurchaseOrderLoansView({ purchaseOrderLoans, refetch }: Props) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [targetPurchaseOrderLoanId, setTargetPurchaseOrderLoanId] = useState(
     ""

@@ -82,6 +82,17 @@ fragment PurchaseOrderLoan on purchase_order_loans {
   adjusted_maturity_date
 }
 
+fragment PurchaseOrderLoanForBank on purchase_order_loans {
+  id
+  purchase_order_id
+  status
+  amount
+  origination_date
+  maturity_date
+  adjusted_maturity_date
+  internal_note
+}
+
 fragment PurchaseOrderLoanTransaction on purchase_order_loan_transactions {
   purchase_order_loan_id
   transaction_id

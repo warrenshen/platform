@@ -1,4 +1,4 @@
-import { createStyles, makeStyles, Theme } from "@material-ui/core";
+import { createStyles, makeStyles } from "@material-ui/core";
 import Chip from "@material-ui/core/Chip";
 import { CellValue } from "@material-ui/data-grid";
 interface IObjectKeys {

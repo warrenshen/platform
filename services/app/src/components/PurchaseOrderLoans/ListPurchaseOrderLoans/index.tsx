@@ -50,14 +50,6 @@ function ListPurchaseOrderLoans({
     );
   };
 
-  const actionCellRenderer = (params: ValueFormatterParams) => (
-    <ActionMenu
-      handleClickEdit={() =>
-        handleEditPurchaseOrderLoan(params.row.data.id as string)
-      }
-    ></ActionMenu>
-  );
-
   const columns: IColumnProps[] = [
     {
       dataField: "purchase_order_id",
@@ -91,6 +83,25 @@ function ListPurchaseOrderLoans({
       width: 150,
     },
   ];
+
+  if (check(user.role, Action.ViewPurchaseOrderLoansInternalNote)) {
+    columns.push({
+      dataField: "internal_note",
+      caption: "Internal Note",
+      width: 100,
+      cellRender: (params: ValueFormatterParams) => (
+        <Box>{params.row.data.internal_note as string}</Box>
+      ),
+    });
+  }
+
+  const actionCellRenderer = (params: ValueFormatterParams) => (
+    <ActionMenu
+      handleClickEdit={() =>
+        handleEditPurchaseOrderLoan(params.row.data.id as string)
+      }
+    ></ActionMenu>
+  );
 
   if (check(user.role, Action.ViewPurchaseOrderLoansActionMenu)) {
     columns.push({

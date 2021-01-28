@@ -4,7 +4,17 @@ query ListApprovedPurchaseOrders {
   }
 }
 
-query ListPurchaseOrderLoansForCustomer($companyId: uuid!) {
+query PurchaseOrderLoansForBank($companyId: uuid!) {
+  purchase_order_loans(where: { company_id: { _eq: $companyId } }) {
+    ...PurchaseOrderLoanForBank
+    purchase_order {
+      id
+      order_number
+    }
+  }
+}
+
+query PurchaseOrderLoansForCustomer($companyId: uuid!) {
   purchase_order_loans(where: { company_id: { _eq: $companyId } }) {
     ...PurchaseOrderLoan
     purchase_order {

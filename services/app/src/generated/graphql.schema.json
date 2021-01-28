@@ -23712,6 +23712,18 @@
             "deprecationReason": null
           },
           {
+            "name": "internal_note",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "maturity_date",
             "description": null,
             "args": [],
@@ -24601,6 +24613,16 @@
             "defaultValue": null
           },
           {
+            "name": "internal_note",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "String_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "maturity_date",
             "description": null,
             "type": {
@@ -24840,6 +24862,16 @@
             "defaultValue": null
           },
           {
+            "name": "internal_note",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "maturity_date",
             "description": null,
             "type": {
@@ -25022,6 +25054,18 @@
             "deprecationReason": null
           },
           {
+            "name": "internal_note",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "maturity_date",
             "description": null,
             "args": [],
@@ -25157,6 +25201,16 @@
           },
           {
             "name": "id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "internal_note",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -25308,6 +25362,18 @@
             "deprecationReason": null
           },
           {
+            "name": "internal_note",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "maturity_date",
             "description": null,
             "args": [],
@@ -25443,6 +25509,16 @@
           },
           {
             "name": "id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "internal_note",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -25736,6 +25812,16 @@
             "defaultValue": null
           },
           {
+            "name": "internal_note",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "maturity_date",
             "description": null,
             "type": {
@@ -25910,6 +25996,12 @@
             "deprecationReason": null
           },
           {
+            "name": "internal_note",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "maturity_date",
             "description": "column name",
             "isDeprecated": false,
@@ -26016,6 +26108,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "internal_note",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "defaultValue": null
@@ -26487,6 +26589,12 @@
           },
           {
             "name": "id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internal_note",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
