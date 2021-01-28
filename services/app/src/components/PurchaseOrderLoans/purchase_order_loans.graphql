@@ -5,7 +5,7 @@ query ListApprovedPurchaseOrders {
 }
 
 query PurchaseOrderLoansForBank($companyId: uuid!) {
-  purchase_order_loans(where: { company_id: { _eq: $companyId } }) {
+  purchase_order_loans(where: { loan: { company_id: { _eq: $companyId } } }) {
     ...PurchaseOrderLoanForBank
     purchase_order {
       id
@@ -15,7 +15,7 @@ query PurchaseOrderLoansForBank($companyId: uuid!) {
 }
 
 query PurchaseOrderLoansForCustomer($companyId: uuid!) {
-  purchase_order_loans(where: { company_id: { _eq: $companyId } }) {
+  purchase_order_loans(where: { loan: { company_id: { _eq: $companyId } } }) {
     ...PurchaseOrderLoan
     purchase_order {
       id
@@ -26,7 +26,7 @@ query PurchaseOrderLoansForCustomer($companyId: uuid!) {
 
 query ApprovedPurchaseOrderLoans($companyId: uuid!) {
   purchase_order_loans(
-    where: { company_id: { _eq: $companyId }, status: { _eq: approved } }
+    where: { loan: { company_id: { _eq: $companyId }, status: { _eq: approved } } }
   ) {
     ...PurchaseOrderLoan
   }
@@ -37,6 +37,18 @@ mutation AddPurchaseOrderLoan(
 ) {
   insert_purchase_order_loans_one(object: $purchaseOrderLoan) {
     ...PurchaseOrderLoan
+  }
+}
+
+mutation UpdateLoan(
+  $loanId: uuid!,
+  $loan: loans_set_input!
+) {
+  update_loans_by_pk(
+    pk_columns: { id: $loanId }
+    _set: $loan
+  ) {
+    ...LoanLimited
   }
 }
 

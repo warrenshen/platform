@@ -7,3 +7,7 @@ class UserRoles(object):
 
 class TwoFactorLinkType(object):
 	CONFIRM_PURCHASE_ORDER = 'confirm_purchase_order'
+
+class TransactionType(object):
+	REPAYMENT = 'repayment' 
+	ADVANCE = 'advance'

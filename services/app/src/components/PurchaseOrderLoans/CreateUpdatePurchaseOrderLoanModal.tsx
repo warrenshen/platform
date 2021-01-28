@@ -16,6 +16,7 @@ import {
   useListApprovedPurchaseOrdersQuery,
   usePurchaseOrderLoanQuery,
   usePurchaseOrderLoanSiblingsQuery,
+  useUpdateLoanMutation,
   useUpdatePurchaseOrderLoanMutation,
 } from "generated/graphql";
 import { ActionType } from "lib/ActionType";
@@ -61,14 +62,18 @@ function CreateUpdatePurchaseOrderLoanModal({
   const classes = useStyles();
 
   // Default PurchaseOrderLoan for CREATE case.
-  const newPurchaseOrderLoan = {
+  const newPurchaseOrderLoan: PurchaseOrderLoansInsertInput = {
     purchase_order_id: "",
-    origination_date: null,
-    maturity_date: null,
-    adjusted_maturity_date: null,
-    amount: "",
-    status: RequestStatusEnum.Drafted,
-  } as PurchaseOrderLoansInsertInput;
+    loan: {
+      data: {
+        origination_date: null,
+        maturity_date: null,
+        adjusted_maturity_date: null,
+        amount: "",
+        status: RequestStatusEnum.Drafted,
+      },
+    },
+  };
 
   const [purchaseOrderLoan, setPurchaseOrderLoan] = useState(
     newPurchaseOrderLoan
@@ -82,12 +87,17 @@ function CreateUpdatePurchaseOrderLoanModal({
     },
     onCompleted: (data) => {
       const existingPurchaseOrderLoan = data?.purchase_order_loans_by_pk;
+      // TODO(warren): A better way to merge so we dont have to hardcode the fields to merge here.
       if (actionType === ActionType.Update && existingPurchaseOrderLoan) {
-        setPurchaseOrderLoan(
-          mergeWith(newPurchaseOrderLoan, existingPurchaseOrderLoan, (a, b) =>
-            isNull(b) ? a : b
-          )
+        newPurchaseOrderLoan.id = existingPurchaseOrderLoan.id;
+        newPurchaseOrderLoan.purchase_order_id =
+          existingPurchaseOrderLoan.purchase_order_id;
+        mergeWith(
+          newPurchaseOrderLoan.loan?.data,
+          existingPurchaseOrderLoan.loan,
+          (a, b) => (isNull(b) ? a : b)
         );
+        setPurchaseOrderLoan(newPurchaseOrderLoan);
       }
     },
   });
@@ -111,15 +121,13 @@ function CreateUpdatePurchaseOrderLoanModal({
       [
         RequestStatusEnum.ApprovalRequested,
         RequestStatusEnum.Approved,
-      ].includes(purchaseOrderLoanSibling.status)
+      ].includes(purchaseOrderLoanSibling.loan?.status)
     )
     .reduce(
       (sum, purchaseOrderLoanSibling) =>
-        sum + purchaseOrderLoanSibling.amount || 0,
+        sum + purchaseOrderLoanSibling.loan?.amount || 0,
       0
     );
-  const proposedLoansTotalAmount =
-    siblingsTotalAmount + parseFloat(purchaseOrderLoan.amount) || 0;
 
   const [
     addPurchaseOrderLoan,
@@ -131,12 +139,23 @@ function CreateUpdatePurchaseOrderLoanModal({
     { loading: isUpdatePurchaseOrderLoanLoading },
   ] = useUpdatePurchaseOrderLoanMutation();
 
+  const [
+    updateLoan,
+    { loading: isUpdateLoanLoading },
+  ] = useUpdateLoanMutation();
+
   const {
     data,
     loading: isApprovedPurchaseOrdersLoading,
   } = useListApprovedPurchaseOrdersQuery({
     fetchPolicy: "network-only",
   });
+
+  const loan = purchaseOrderLoan.loan?.data;
+
+  const proposedLoansTotalAmount =
+    siblingsTotalAmount + parseFloat(loan?.amount) || 0;
+
   const approvedPurchaseOrders = data?.purchase_orders || [];
 
   const selectedPurchaseOrder = approvedPurchaseOrders.find(
@@ -148,14 +167,22 @@ function CreateUpdatePurchaseOrderLoanModal({
       new Date().getTime() + 15 * 24 * 60 * 60 * 1000
     );
     if (actionType === ActionType.Update) {
+      // TODO(warren): I didnt know how to do nested queries, so doing the wrong thing
+      // here and doing two queries in succession
+      await updateLoan({
+        variables: {
+          loanId: loan?.id,
+          loan: {
+            origination_date: loan?.origination_date || null,
+            amount: loan?.amount || null,
+          },
+        },
+      });
       const response = await updatePurchaseOrderLoan({
         variables: {
           id: purchaseOrderLoan.id,
           purchaseOrderLoan: {
             purchase_order_id: purchaseOrderLoan.purchase_order_id,
-            origination_date: purchaseOrderLoan.origination_date || null,
-            amount: purchaseOrderLoan.amount || null,
-            status: RequestStatusEnum.Drafted,
           },
         },
       });
@@ -165,11 +192,14 @@ function CreateUpdatePurchaseOrderLoanModal({
         variables: {
           purchaseOrderLoan: {
             purchase_order_id: purchaseOrderLoan.purchase_order_id,
-            origination_date: purchaseOrderLoan.origination_date || null,
-            maturity_date: dateInFifteenDays,
-            adjusted_maturity_date: dateInFifteenDays,
-            amount: purchaseOrderLoan.amount || null,
-            status: RequestStatusEnum.Drafted,
+            loan: {
+              data: {
+                origination_date: loan?.origination_date || null,
+                maturity_date: dateInFifteenDays,
+                adjusted_maturity_date: dateInFifteenDays,
+                amount: loan?.amount || null,
+              },
+            },
           },
         },
       });
@@ -209,16 +239,21 @@ function CreateUpdatePurchaseOrderLoanModal({
     !isExistingPurchaseOrderLoanLoading && !isApprovedPurchaseOrdersLoading;
   const isFormValid = !!purchaseOrderLoan.purchase_order_id;
   const isFormLoading =
-    isAddPurchaseOrderLoanLoading || isUpdatePurchaseOrderLoanLoading;
+    isAddPurchaseOrderLoanLoading ||
+    isUpdatePurchaseOrderLoanLoading ||
+    isUpdateLoanLoading;
   const isSaveDraftDisabled = !isFormValid || isFormLoading;
+
+  // TODO(warren): Make it apparent to the user the reason we are disabling submitting a purchase order
+  // for approval, e.g., if they are asking for more than the purchase order is worth.
   const isSaveSubmitDisabled =
     !isFormValid ||
     isFormLoading ||
     isPurchaseOrderLoanSiblingsLoading ||
     !selectedPurchaseOrder ||
     proposedLoansTotalAmount > selectedPurchaseOrder.amount ||
-    !purchaseOrderLoan.origination_date ||
-    !purchaseOrderLoan.amount;
+    !loan?.origination_date ||
+    !loan?.amount;
 
   return isDialogReady ? (
     <Dialog

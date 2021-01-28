@@ -46,7 +46,7 @@ function PurchaseOrderLoanDrawer(props: Props) {
           <DisbursalButton
             vendorId={data.purchase_order_loans_by_pk.purchase_order.vendor?.id}
             purchaseOrderLoanId={data.purchase_order_loans_by_pk.id}
-            initialAmount={data.purchase_order_loans_by_pk.amount}
+            initialAmount={data.purchase_order_loans_by_pk.loan?.amount}
           ></DisbursalButton>
           <Disbursements
             id={data.purchase_order_loans_by_pk.id}

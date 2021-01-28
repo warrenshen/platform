@@ -25,7 +25,7 @@ function RepaymentCoverage(props: Props) {
         {data.purchase_order_loans.map((pol) => {
           return (
             <Box>
-              {pol.amount} - {pol.maturity_date}
+              {pol.loan?.amount} - {pol.loan?.maturity_date}
             </Box>
           );
         })}

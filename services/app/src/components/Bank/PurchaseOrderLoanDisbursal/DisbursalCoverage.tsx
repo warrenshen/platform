@@ -24,8 +24,8 @@ function DisbursalCoverage(props: Props) {
     <Box display="flex" flexDirection="column">
       <Box>Number selected: {props.amount}</Box>
       <Box>
-        Covering {data.purchase_order_loans_by_pk.amount} for PO made towards{" "}
-        {data.purchase_order_loans_by_pk.purchase_order.vendor?.name}
+        Covering {data.purchase_order_loans_by_pk.loan?.amount} for PO made
+        towards {data.purchase_order_loans_by_pk.purchase_order.vendor?.name}
       </Box>
     </Box>
   );

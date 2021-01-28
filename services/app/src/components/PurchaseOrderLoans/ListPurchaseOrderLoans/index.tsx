@@ -58,27 +58,27 @@ function ListPurchaseOrderLoans({
       width: 150,
     },
     {
-      dataField: "amount",
+      dataField: "loan.amount",
       caption: "Amount",
       width: 150,
     },
     {
-      dataField: "amount_owed",
-      caption: "Amount Owed",
-      width: 150,
+      dataField: "loan.origination_date",
+      caption: "Origination Date",
+      width: 200,
     },
     {
-      dataField: "adjusted_maturity_date",
+      dataField: "loan.adjusted_maturity_date",
       caption: "Maturity Date",
       width: 200,
     },
     {
-      dataField: "outstanding_principal_balance",
+      dataField: "loan.outstanding_principal_balance",
       caption: "Outstanding Principal Balance",
       width: 220,
     },
     {
-      dataField: "status",
+      dataField: "loan.status",
       caption: "Status",
       width: 150,
     },
@@ -86,7 +86,7 @@ function ListPurchaseOrderLoans({
 
   if (check(user.role, Action.ViewPurchaseOrderLoansInternalNote)) {
     columns.push({
-      dataField: "internal_note",
+      dataField: "loan.notes",
       caption: "Internal Note",
       width: 100,
       cellRender: (params: ValueFormatterParams) => (

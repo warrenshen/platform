@@ -80,7 +80,12 @@ function PurchaseOrderLoanForm({
               setPurchaseOrderLoan({
                 ...purchaseOrderLoan,
                 purchase_order_id: selectedPurchaseOrder?.id,
-                amount: selectedPurchaseOrder?.amount,
+                loan: {
+                  data: {
+                    ...purchaseOrderLoan.loan?.data,
+                    amount: selectedPurchaseOrder?.amount,
+                  },
+                },
               });
             }}
           >
@@ -116,11 +121,16 @@ function PurchaseOrderLoanForm({
             margin="normal"
             id="origination-date-date-picker"
             label="Origination Date"
-            value={purchaseOrderLoan.origination_date}
+            value={purchaseOrderLoan.loan?.data?.origination_date}
             onChange={(value: MaterialUiPickersDate) => {
               setPurchaseOrderLoan({
                 ...purchaseOrderLoan,
-                origination_date: value ? value : new Date().getUTCDate(),
+                loan: {
+                  data: {
+                    ...purchaseOrderLoan.loan?.data,
+                    origination_date: value ? value : new Date().getUTCDate(),
+                  },
+                },
               });
             }}
             KeyboardButtonProps={{
@@ -136,11 +146,16 @@ function PurchaseOrderLoanForm({
             currencySymbol="$"
             outputFormat="string"
             textAlign="left"
-            value={purchaseOrderLoan.amount}
+            value={purchaseOrderLoan.loan?.data?.amount}
             onChange={(_event: any, value: string) => {
               setPurchaseOrderLoan({
                 ...purchaseOrderLoan,
-                amount: value,
+                loan: {
+                  data: {
+                    ...purchaseOrderLoan.loan?.data,
+                    amount: value,
+                  },
+                },
               });
             }}
           ></CurrencyTextField>
