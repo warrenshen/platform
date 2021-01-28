@@ -11,3 +11,6 @@ class TwoFactorLinkType(object):
 class TransactionType(object):
 	REPAYMENT = 'repayment' 
 	ADVANCE = 'advance'
+
+# Having any of these roles means you are a Bespoke bank user
+BANK_ROLES = ['bank_admin']

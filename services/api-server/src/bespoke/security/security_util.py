@@ -32,9 +32,9 @@ def get_link_info_from_url(val: str, cfg: ConfigDict, max_age_in_seconds: int) -
 	return cast(LinkInfoDict, url_serializer.loads(val, max_age=max_age_in_seconds))
 
 def mfa_code_generator() -> str:
-  size = 6
-  chars = string.digits
-  return ''.join(random.choice(chars) for _ in range(size))
+	size = 6
+	chars = string.digits
+	return ''.join(random.choice(chars) for _ in range(size))
 
 SECONDS_IN_HOUR = 3600
 SECONDS_IN_DAY = SECONDS_IN_HOUR * 24

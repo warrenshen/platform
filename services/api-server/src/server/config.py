@@ -5,8 +5,7 @@ from typing import Dict
 from bespoke.security import security_util
 
 def _string_to_bool(text: str) -> bool:
-  return text.lower() == 'true'
-
+	return text.lower() == 'true'
 
 def is_development_env(flask_env: str) -> bool:
 	return flask_env == 'development'
@@ -63,13 +62,13 @@ class Config(object):
 		return is_development_env(self.FLASK_ENV)
 
 	def as_dict(self) -> Dict:
-	  attr_names = dir(self)
-	  d = {}
-	  for attr_name in attr_names:
-	    if attr_name.startswith('__'):
-	      continue
-	    d[attr_name] = getattr(self, attr_name)
-	  return d
+		attr_names = dir(self)
+		d = {}
+		for attr_name in attr_names:
+			if attr_name.startswith('__'):
+				continue
+			d[attr_name] = getattr(self, attr_name)
+		return d
 
 def get_config() -> Config:
 	return Config()

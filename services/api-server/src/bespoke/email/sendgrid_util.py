@@ -17,8 +17,8 @@ class TemplateNames(object):
 
 
 TemplateConfigDict = TypedDict('TemplateConfigDict', {
- 'id': str,
- 'requires_secure_link': bool
+	'id': str,
+	'requires_secure_link': bool
 })
 
 _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
