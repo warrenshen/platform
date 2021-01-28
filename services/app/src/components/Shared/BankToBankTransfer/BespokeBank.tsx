@@ -19,8 +19,15 @@ function BespokeBank({ companyId, onBespokeBankAccountSelection }: Props) {
     },
   });
 
+  const [bespokeBankAccountId, setBespokeBankAccountId] = useState<
+    BankAccounts["id"] | "None"
+  >("None");
+
   useEffect(() => {
-    if (data?.companies_by_pk?.settings?.collections_bespoke_bank_account) {
+    if (
+      data?.companies_by_pk?.settings?.collections_bespoke_bank_account &&
+      bespokeBankAccountId === "None"
+    ) {
       const id =
         data?.companies_by_pk?.settings?.collections_bespoke_bank_account.id;
       setBespokeBankAccountId(id);
@@ -30,10 +37,6 @@ function BespokeBank({ companyId, onBespokeBankAccountSelection }: Props) {
     onBespokeBankAccountSelection,
     data?.companies_by_pk?.settings?.collections_bespoke_bank_account,
   ]);
-
-  const [bespokeBankAccountId, setBespokeBankAccountId] = useState<
-    BankAccounts["id"] | "None"
-  >("None");
 
   if (!data || !data.bank_accounts) {
     return null;

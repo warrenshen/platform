@@ -24,7 +24,7 @@ function CompanyBank({ companyId, onCompanyBankAccountSelection }: Props) {
   >("None");
 
   useEffect(() => {
-    if (data?.bank_accounts.length === 1) {
+    if (data?.bank_accounts.length === 1 && companyBankAccountId === "None") {
       const id = data?.bank_accounts[0].id;
       setCompanyBankAccountId(id);
       onCompanyBankAccountSelection(id);

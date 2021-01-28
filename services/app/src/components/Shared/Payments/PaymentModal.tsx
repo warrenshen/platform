@@ -125,8 +125,7 @@ function PaymentModal(props: Props) {
                 </Box>
               </>
             )}
-            {PaymentMethod.ReverseDraftACH ===
-              (payment.method as PaymentMethod) && (
+            {PaymentMethod.ReverseDraftACH === payment.method && (
               <>
                 <CompanyBank
                   companyId={props.companyId}
