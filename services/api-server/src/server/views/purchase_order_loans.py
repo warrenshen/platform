@@ -1,13 +1,16 @@
 import json
 from typing import List, cast
 
-from bespoke.date import date_util
-from bespoke.db import db_constants, models
-from bespoke.db.models import session_scope
-from bespoke.enums.request_status_enum import RequestStatusEnum
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from flask_jwt_extended import jwt_required
+
+from bespoke.date import date_util
+from bespoke.db import db_constants, models
+from bespoke.db.models import session_scope
+from bespoke.email import sendgrid_util
+from bespoke.enums.request_status_enum import RequestStatusEnum
+from server.config import Config
 
 handler = Blueprint('purchase_order_loans', __name__)
 
@@ -20,6 +23,9 @@ class SubmitForApprovalView(MethodView):
 
 	@jwt_required
 	def post(self) -> Response:
+		cfg = cast(Config, current_app.app_config)
+		sendgrid_client = cast(sendgrid_util.Client,
+							   current_app.sendgrid_client)
 
 		data = json.loads(request.data)
 		if not data:
@@ -29,6 +35,9 @@ class SubmitForApprovalView(MethodView):
 
 		if not purchase_order_loan_id:
 			return make_error_response('No Purchase Order Loan ID provided')
+
+		loan_html = ''
+		customer_name = ''
 
 		with session_scope(current_app.session_maker) as session:
 			purchase_order_loan = cast(
@@ -47,6 +56,9 @@ class SubmitForApprovalView(MethodView):
 
 			if loan.amount is None or loan.amount <= 0:
 				return make_error_response('Invalid amount')
+
+			purchase_order = purchase_order_loan.purchase_order
+			customer_name = purchase_order.company.name
 
 			# List of other Purchase Order Loans related to same Purchase Order.
 			sibling_purchase_order_loans = cast(
@@ -71,7 +83,26 @@ class SubmitForApprovalView(MethodView):
 			loan.status = RequestStatusEnum.ApprovalRequested
 			loan.requested_at = date_util.now()
 
+			loan_html = f"""<ul>
+<li>Company: {customer_name} </li>
+<li>Purchase order: {purchase_order.order_number}</li>
+<li>Origination date: {loan.origination_date}</li>
+<li>Amount: {loan.amount}</li>
+			</ul>
+			"""
+
 			session.commit()
+
+		template_name = sendgrid_util.TemplateNames.CUSTOMER_REQUESTS_LOAN
+		template_data = {
+			'customer_name': customer_name,
+			'loan_html': loan_html
+		}
+		recipients = cfg.BANK_NOTIFY_EMAIL_ADDRESSES
+		_, err = sendgrid_client.send(
+			template_name, template_data, recipients)
+		if err:
+			return make_error_response(err)
 
 		return make_response(json.dumps({
 			'status': 'OK',

@@ -40,6 +40,9 @@ class Config(object):
 		if is_development_env(self.FLASK_ENV):
 			self.NO_REPLY_EMAIL_ADDRESS = 'do-not-reply-development@bespokefinancial.com'
 
+		# TODO(dlluncor): Make env variables
+		self.BANK_NOTIFY_EMAIL_ADDRESSES = ['jira+bank@bespokefinancial.com']
+
 		self.SUPPORT_EMAIL_ADDRESS = os.environ.get(
 			'SUPPORT_EMAIL_ADDRESS', 'support@bespokefinancial.com')
 		self.SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')

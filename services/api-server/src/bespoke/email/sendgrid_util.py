@@ -18,6 +18,8 @@ class TemplateNames(object):
 	VENDOR_TO_APPROVE_PURCHASE_ORDER = 'vendor_to_approve_purchase_order'
 	VENDOR_APPROVES_OR_REJECTS_PURCHASE_ORDER = 'vendor_approves_or_rejects_purchase_order'
 
+	CUSTOMER_REQUESTS_LOAN = 'customer_requests_loan'
+
 
 TemplateConfigDict = TypedDict('TemplateConfigDict', {
 	'id': str,
@@ -43,6 +45,11 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 	},
 	TemplateNames.VENDOR_APPROVES_OR_REJECTS_PURCHASE_ORDER: {
 		'id': 'd-0cdbf4e6769640a7aa44a0dd9dbc92ce',
+		'requires_secure_link': False
+	},
+
+	TemplateNames.CUSTOMER_REQUESTS_LOAN: {
+		'id': 'd-899b285fc6184e8c8da8b9d2f92aa505',
 		'requires_secure_link': False
 	}
 }

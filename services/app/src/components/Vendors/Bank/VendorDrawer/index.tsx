@@ -12,7 +12,6 @@ import {
   BankVendorPartnershipDocument,
   CompanyAgreementsInsertInput,
   CompanyLicensesInsertInput,
-  ContactFragment,
   useAddCompanyVendorAgreementMutation,
   useAddCompanyVendorLicenseMutation,
   useBankVendorPartnershipQuery,
@@ -36,24 +35,6 @@ const useStyles = makeStyles({
   },
   fileDropbox: {},
 });
-
-// TODO(dlluncor): Check that time sorting works properly.
-// For now, the primary contact is the contact who was created first
-function getPrimaryContact(
-  contacts: ContactFragment[]
-): ContactFragment | null {
-  if (!contacts || contacts.length === 0) {
-    return null;
-  }
-  const contactsToSort = [...contacts];
-  contactsToSort.sort((c1, c2) => {
-    if (c1.created_at < c2.created_at) {
-      return 1;
-    }
-    return -1;
-  });
-  return contacts[0];
-}
 
 interface Props {
   vendorPartnershipId: string;
@@ -90,21 +71,15 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
 
   const vendor = data.company_vendor_partnerships_by_pk.vendor;
   const customer = data.company_vendor_partnerships_by_pk.company;
-  const customerSettings =
-    data.company_vendor_partnerships_by_pk.company?.settings;
 
   const agreementFileId =
     data.company_vendor_partnerships_by_pk.company_agreement?.file_id;
-
   const licenseFileId =
     data.company_vendor_partnerships_by_pk.company_license?.file_id;
   const customerName = customer?.name;
 
-  const primaryVendorContact = getPrimaryContact(vendor.users);
-  const primaryCustomerContact = getPrimaryContact(customer?.users);
   const notifier = new InventoryNotifier();
-
-  const hasNoContactsSetup = !primaryVendorContact || !primaryCustomerContact;
+  const hasNoContactsSetup = !vendor.users || !customer?.users;
 
   return (
     <Drawer open anchor="right" onClose={onClose}>
