@@ -9,7 +9,7 @@ import {
 
 interface Props {
   title: string;
-  errMsg: string;
+  errorMessage: string;
   handleConfirm: () => void;
   handleClose: () => void;
 }
@@ -19,9 +19,9 @@ function ConfirmModal(props: Props) {
     <Dialog open onClose={props.handleClose} maxWidth="sm">
       <DialogTitle>{props.title}</DialogTitle>
       <DialogContent>
-        {props.errMsg && (
+        {props.errorMessage && (
           <Typography color="error" gutterBottom={true}>
-            {props.errMsg}
+            {props.errorMessage}
           </Typography>
         )}
         <Grid container justify="flex-end">

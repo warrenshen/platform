@@ -3,6 +3,10 @@
 query BankListVendorPartnerships {
   company_vendor_partnerships {
     ...BankVendorPartnership
+    company {
+      id
+      name
+    }
     vendor {
       ...Vendor
       settings {

@@ -29,7 +29,7 @@ export async function sendNotification(
       },
       (error) => {
         console.log("error", error);
-        return { status: "ERROR", msg: "Could not get upload url" };
+        return { status: "ERROR", msg: "Could not send notification" };
       }
     );
 }

@@ -1,7 +1,7 @@
 import {
   NotifyTypeConfig,
   sendNotification,
-  SendNotificationResp
+  SendNotificationResp,
 } from "./sendUpdate";
 
 const notifyTypes: { [key: string]: NotifyTypeConfig } = {
@@ -16,7 +16,6 @@ const notifyTypes: { [key: string]: NotifyTypeConfig } = {
 };
 
 export class InventoryNotifier {
-
   sendVendorAgreementWithCustomer(input_data: {
     vendor_id: string;
     company_id: string;

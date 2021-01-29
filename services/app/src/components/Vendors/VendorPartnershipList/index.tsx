@@ -67,7 +67,7 @@ function VendorPartnershipList({
       ...(isBankAccount && { cellRender: vendorNameCellRenderer }),
     },
     {
-      dataField: "vendor.id",
+      dataField: "company.name",
       caption: "Company name",
       minWidth: 200,
     },

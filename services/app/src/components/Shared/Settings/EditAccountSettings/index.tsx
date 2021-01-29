@@ -59,7 +59,7 @@ function EditAccountSettings(props: Props) {
             <TextField
               label="Vendor Agreement"
               placeholder="http://docusign.com/link/to/template"
-              value={settings.vendor_agreement_docusign_template}
+              value={settings.vendor_agreement_docusign_template || ""}
               onChange={({ target: { value } }) => {
                 setSettings({
                   ...settings,
@@ -73,7 +73,6 @@ function EditAccountSettings(props: Props) {
             variant="contained"
             color="primary"
             onClick={async () => {
-              window.console.log("Update the account settings");
               await updateAccountSettings({
                 variables: {
                   companySettingsId: settings.id,

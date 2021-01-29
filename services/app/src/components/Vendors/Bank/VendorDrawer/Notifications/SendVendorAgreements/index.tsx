@@ -13,7 +13,7 @@ interface Props {
 
 function SendVendorAgreements(props: Props) {
   const [open, setOpen] = useState(false);
-  const [errMsg, setErrMsg] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const customerName = props.customerName;
 
@@ -22,18 +22,21 @@ function SendVendorAgreements(props: Props) {
       {open && (
         <ConfirmModal
           title={`Would you like to send the vendor agreement email to ${props.vendorName} for customer ${customerName}?`}
-          errMsg={errMsg}
+          errorMessage={errorMessage}
           handleConfirm={async () => {
-            const resp = await props.notifier.sendVendorAgreementWithCustomer({
-              company_id: props.customerId,
-              vendor_id: props.vendorId,
-            });
+            const response = await props.notifier.sendVendorAgreementWithCustomer(
+              {
+                company_id: props.customerId,
+                vendor_id: props.vendorId,
+              }
+            );
 
-            if (resp.status !== "OK") {
-              setErrMsg("Could not send email. Error: " + resp.msg);
-              return;
+            if (response.status !== "OK") {
+              setErrorMessage("Could not send email. Error: " + response.msg);
+            } else {
+              setErrorMessage("");
+              setOpen(false);
             }
-            setOpen(false);
           }}
           handleClose={() => setOpen(false)}
         ></ConfirmModal>
@@ -42,9 +45,7 @@ function SendVendorAgreements(props: Props) {
         size="small"
         variant="contained"
         color="primary"
-        onClick={() => {
-          setOpen(true);
-        }}
+        onClick={() => setOpen(true)}
       >
         Send Vendor agreement email
       </Button>

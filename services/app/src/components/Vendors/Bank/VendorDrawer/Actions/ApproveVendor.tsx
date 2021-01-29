@@ -38,7 +38,7 @@ function ApproveVendor(props: Props) {
       {open && (
         <ConfirmModal
           title={`Would you like to approve vendor ${props.vendorName} for customer ${customerName}?`}
-          errMsg={errMsg}
+          errorMessage={errMsg}
           handleConfirm={async () => {
             updateApprovedAt({
               variables: {

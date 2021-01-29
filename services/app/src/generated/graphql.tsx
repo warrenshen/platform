@@ -8492,7 +8492,7 @@ export type BankListVendorPartnershipsQueryVariables = Exact<{ [key: string]: ne
 
 
 export type BankListVendorPartnershipsQuery = { company_vendor_partnerships: Array<(
-    { vendor: (
+    { company: Pick<Companies, 'id' | 'name'>, vendor: (
       { settings: Pick<CompanySettings, 'id'>, users: Array<ContactFragment> }
       & VendorFragment
     ), vendor_bank_account?: Maybe<Pick<BankAccounts, 'id' | 'verified_at'>> }
@@ -10310,6 +10310,10 @@ export const BankListVendorPartnershipsDocument = gql`
     query BankListVendorPartnerships {
   company_vendor_partnerships {
     ...BankVendorPartnership
+    company {
+      id
+      name
+    }
     vendor {
       ...Vendor
       settings {
