@@ -54,7 +54,7 @@ class CreateLoginView(MethodView):
 		# TODO(dlluncor): Better create password mechanism
 		code = security_util.mfa_code_generator()
 		password = f'${code}!'
-		password = password[0:3] + 'a' + password[3:5] + 'z' + password[:]
+		password = password[0:3] + 'a' + password[3:5] + 'z'
 		user_email = ''
 
 		with session_scope(current_app.session_maker) as session:
