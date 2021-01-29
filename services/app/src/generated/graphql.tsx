@@ -8187,7 +8187,7 @@ export type UpdatePurchaseOrderLoanAndLoanMutationVariables = Exact<{
 }>;
 
 
-export type UpdatePurchaseOrderLoanAndLoanMutation = { update_loans_by_pk?: Maybe<LoanFragment>, update_purchase_order_loans_by_pk?: Maybe<PurchaseOrderLoanFragment> };
+export type UpdatePurchaseOrderLoanAndLoanMutation = { update_loans_by_pk?: Maybe<LoanLimitedFragment>, update_purchase_order_loans_by_pk?: Maybe<PurchaseOrderLoanFragment> };
 
 export type BankAccountsForTransferQueryVariables = Exact<{
   companyId: Scalars['uuid'];
@@ -9220,7 +9220,7 @@ export type AddPurchaseOrderLoanMutationOptions = Apollo.BaseMutationOptions<Add
 export const UpdatePurchaseOrderLoanAndLoanDocument = gql`
     mutation UpdatePurchaseOrderLoanAndLoan($loanId: uuid!, $loan: loans_set_input!, $purchaseOrderLoanId: uuid!, $purchaseOrderLoan: purchase_order_loans_set_input!) {
   update_loans_by_pk(pk_columns: {id: $loanId}, _set: $loan) {
-    ...Loan
+    ...LoanLimited
   }
   update_purchase_order_loans_by_pk(
     pk_columns: {id: $purchaseOrderLoanId}
@@ -9229,7 +9229,7 @@ export const UpdatePurchaseOrderLoanAndLoanDocument = gql`
     ...PurchaseOrderLoan
   }
 }
-    ${LoanFragmentDoc}
+    ${LoanLimitedFragmentDoc}
 ${PurchaseOrderLoanFragmentDoc}`;
 export type UpdatePurchaseOrderLoanAndLoanMutationFn = Apollo.MutationFunction<UpdatePurchaseOrderLoanAndLoanMutation, UpdatePurchaseOrderLoanAndLoanMutationVariables>;
 

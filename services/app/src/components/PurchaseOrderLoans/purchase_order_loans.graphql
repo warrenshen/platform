@@ -49,7 +49,7 @@ mutation UpdatePurchaseOrderLoanAndLoan(
   $purchaseOrderLoan: purchase_order_loans_set_input!
 ) {
   update_loans_by_pk(pk_columns: { id: $loanId }, _set: $loan) {
-    ...Loan
+    ...LoanLimited
   }
   update_purchase_order_loans_by_pk(
     pk_columns: { id: $purchaseOrderLoanId }
