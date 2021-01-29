@@ -37,5 +37,8 @@ class UserSession(object):
 			return user_role in db_constants.BANK_ROLES
 		return False
 
+	def is_company_admin(self) -> bool:
+		return 'company_admin' in self._user_roles()
+
 	def is_bank_admin(self) -> bool:
 		return 'bank_admin' in self._user_roles()

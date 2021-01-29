@@ -26,6 +26,7 @@ import {
   UserRolesEnum,
   UsersInsertInput,
 } from "generated/graphql";
+import { authenticatedApi, userRoutes } from "lib/api";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -48,6 +49,26 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+export async function createLogin(req: {
+  company_id: string;
+  user_id: string;
+}): Promise<{ status: string; msg?: string }> {
+  return authenticatedApi
+    .post(userRoutes.createLogin, req)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return { status: "ERROR", msg: "Could not create login for user" };
+      }
+    );
+}
+
 interface Props {
   companyId?: string;
   handleClose: () => void;
@@ -66,6 +87,7 @@ function InviteUserModal({ companyId, handleClose }: Props) {
     last_name: "",
     password: "",
   });
+  const [errMsg, setErrMsg] = useState("");
 
   const [addUser] = useAddUserMutation();
 
@@ -140,6 +162,7 @@ function InviteUserModal({ companyId, handleClose }: Props) {
               });
             }}
           ></TextField>
+          {errMsg && <div>Error: {errMsg}</div>}
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
@@ -149,7 +172,7 @@ function InviteUserModal({ companyId, handleClose }: Props) {
             className={classes.submitButton}
             disabled={false}
             onClick={async () => {
-              await addUser({
+              const resp = await addUser({
                 variables: {
                   user: {
                     company_id: companyId,
@@ -231,6 +254,24 @@ function InviteUserModal({ companyId, handleClose }: Props) {
                   });
                 },
               });
+
+              const userId = resp.data?.insert_users_one?.id;
+              if (!userId) {
+                setErrMsg("No user id was created");
+                return;
+              }
+              if (!companyId) {
+                setErrMsg("No company id is currently provided");
+                return;
+              }
+              const loginResp = await createLogin({
+                company_id: companyId,
+                user_id: userId,
+              });
+              if (loginResp.status !== "OK") {
+                setErrMsg(loginResp.msg || "Error creating login for user");
+                return;
+              }
               handleClose();
             }}
             variant="contained"

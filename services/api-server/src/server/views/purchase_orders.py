@@ -41,7 +41,7 @@ class RespondToApprovalRequestView(MethodView):
 		]
 		for key in required_keys:
 			if key not in data:
-				return make_error_response(f'Missing {key} in signed url request')
+				return make_error_response(f'Missing {key} in respond to approval request')
 
 		purchase_order_id = data['purchase_order_id']
 		new_request_status = data['new_request_status']

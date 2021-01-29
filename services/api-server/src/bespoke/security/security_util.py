@@ -5,6 +5,7 @@ import string
 from mypy_extensions import TypedDict
 from itsdangerous import URLSafeTimedSerializer
 from typing import cast
+from passlib.hash import pbkdf2_sha256 as sha256
 
 LinkInfoDict = TypedDict('LinkInfoDict', {
 	'link_id': str,
@@ -30,6 +31,12 @@ def get_url_serializer(cfg: ConfigDict) -> URLSafeTimedSerializer:
 def get_link_info_from_url(val: str, cfg: ConfigDict, max_age_in_seconds: int) -> LinkInfoDict:
 	url_serializer = get_url_serializer(cfg)
 	return cast(LinkInfoDict, url_serializer.loads(val, max_age=max_age_in_seconds))
+
+def hash_password(password_salt: str, password: str) -> str:
+	return sha256.hash(password_salt + password)
+
+def verify_password(password_salt: str, password_guess: str, hashed_password: str) -> bool:
+	return sha256.verify(password_salt + password_guess, hashed_password)
 
 def mfa_code_generator() -> str:
 	size = 6

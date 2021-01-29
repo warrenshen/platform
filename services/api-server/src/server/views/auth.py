@@ -3,12 +3,12 @@ import json
 
 from bespoke.db import models
 from bespoke.db.models import session_scope
+from bespoke.security import security_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from flask_jwt_extended import (create_access_token, create_refresh_token,
 								get_jwt_identity, get_raw_jwt,
 								jwt_refresh_token_required, jwt_required)
-from passlib.hash import pbkdf2_sha256 as sha256
 from typing import cast, List
 
 from server.config import Config
@@ -36,7 +36,7 @@ class SignUpView(MethodView):
 
 		user = models.User(
 			email=email,
-			password=sha256.hash(cfg.PASSWORD_SALT + password)
+			password=security_util.hash_password(cfg.PASSWORD_SALT, password)
 		)
 
 		try:
@@ -66,9 +66,9 @@ class SignInView(MethodView):
 		cfg = cast(Config, current_app.app_config)
 		data = json.loads(request.data)
 		email = data["email"]
-		password = data['password']
+		password_guess = data['password']
 
-		if not email or not password:
+		if not email or not password_guess:
 			return make_error_response('No email or password provided', 401)
 
 		with session_scope(current_app.session_maker) as session:
@@ -77,7 +77,7 @@ class SignInView(MethodView):
 			if not user:
 				return make_error_response('User {} does not exist'.format(email), 401)
 
-			if not sha256.verify(cfg.PASSWORD_SALT + password, user.password):
+			if not security_util.verify_password(cfg.PASSWORD_SALT, password_guess, user.password):
 				return make_error_response(f'Invalid password provided', 401)
 
 			claims_payload = auth_util.get_claims_payload(user)
@@ -110,7 +110,7 @@ class ResetPasswordView(MethodView):
 			if not user:
 				return make_error_response('User {} does not exist'.format(email), 401)
 
-			user.password = sha256.hash(cfg.PASSWORD_SALT + password)
+			user.password = security_util.hash_password(cfg.PASSWORD_SALT, password)
 			session.commit()
 
 			claims_payload = auth_util.get_claims_payload(user)

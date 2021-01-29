@@ -15,6 +15,10 @@ export const fileRoutes = {
   downloadSignedUrl: "/files/download_signed_url",
 };
 
+export const userRoutes = {
+  createLogin: "/users/create_login",
+};
+
 export const notifyRoutes = {
   sendNotification: "/notify/send_notification",
 };

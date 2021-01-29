@@ -20,6 +20,8 @@ class TemplateNames(object):
 
 	CUSTOMER_REQUESTS_LOAN = 'customer_requests_loan'
 
+	USER_INVITED_TO_PLATFORM = 'user_invited_to_platform'
+
 
 TemplateConfigDict = TypedDict('TemplateConfigDict', {
 	'id': str,
@@ -50,6 +52,11 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 
 	TemplateNames.CUSTOMER_REQUESTS_LOAN: {
 		'id': 'd-899b285fc6184e8c8da8b9d2f92aa505',
+		'requires_secure_link': False
+	},
+
+	TemplateNames.USER_INVITED_TO_PLATFORM: {
+		'id': 'd-27a58f6f855b430085747a79d2f562cf',
 		'requires_secure_link': False
 	}
 }

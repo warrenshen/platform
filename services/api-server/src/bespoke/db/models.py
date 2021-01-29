@@ -54,7 +54,7 @@ class User(Base):
 					default=uuid.uuid4, unique=True)
 		company_id = Column(UUID(as_uuid=True), nullable=True)
 		email = Column(String(120), unique=True, nullable=False)
-		password = Column(String(120), nullable=False)
+		password = Column(Text, nullable=False)
 		role = Column(String(120), nullable=False)
 
 

@@ -18,7 +18,7 @@ from bespoke.email.email_manager import EmailConfigDict, SendGridConfigDict
 from server.config import get_config, is_development_env
 from server.views.finance.loans import purchase_order_loans as po_loans_finance 
 from server.views import (auth, files, notify, purchase_order_loans,
-						  purchase_orders, two_factor)
+						  purchase_orders, two_factor, users)
 
 if is_development_env(os.environ.get('FLASK_ENV')):
 	load_dotenv(os.path.join(os.environ.get('SERVER_ROOT_DIR'), '.env'))
@@ -46,6 +46,7 @@ manager = Manager(app)
 
 app.config.update(config.as_dict())
 
+app.register_blueprint(users.handler, url_prefix='/users')
 app.register_blueprint(two_factor.handler, url_prefix='/two_factor')
 app.register_blueprint(files.handler, url_prefix='/files')
 app.register_blueprint(auth.handler, url_prefix='/auth')
