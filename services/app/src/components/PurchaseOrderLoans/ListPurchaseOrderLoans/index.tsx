@@ -26,14 +26,18 @@ function getRows(
 }
 interface Props {
   purchaseOrderLoans: PurchaseOrderLoanFragment[];
+  handleApproveLoan: (loanId: string) => void;
   handleEditLoanNotes: (loanId: string) => void;
   handleEditPurchaseOrderLoan: (purchaseOrderLoanId: string) => void;
+  handleRejectLoan: (loanId: string) => void;
 }
 
 function ListPurchaseOrderLoans({
   purchaseOrderLoans,
+  handleApproveLoan,
   handleEditLoanNotes,
   handleEditPurchaseOrderLoan,
+  handleRejectLoan,
 }: Props) {
   const { user } = useContext(CurrentUserContext);
 
@@ -72,6 +76,26 @@ function ListPurchaseOrderLoans({
                 label: "Edit Internal Note",
                 handleClick: () =>
                   handleEditLoanNotes(params.row.data.loan_id as string),
+              },
+            ]
+          : []),
+        ...(check(user.role, Action.ApproveLoan)
+          ? [
+              {
+                key: "approve-loan",
+                label: "Approve Loan",
+                handleClick: () =>
+                  handleApproveLoan(params.row.data.loan_id as string),
+              },
+            ]
+          : []),
+        ...(check(user.role, Action.RejectLoan)
+          ? [
+              {
+                key: "reject-loan",
+                label: "Reject Loan",
+                handleClick: () =>
+                  handleRejectLoan(params.row.data.loan_id as string),
               },
             ]
           : []),
@@ -120,7 +144,7 @@ function ListPurchaseOrderLoans({
     },
   ];
 
-  if (check(user.role, Action.ViewLoansInternalNote)) {
+  if (check(user.role, Action.ViewLoanInternalNote)) {
     columns.push({
       dataField: "loan.notes",
       caption: "Internal Note",

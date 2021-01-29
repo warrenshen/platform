@@ -8,7 +8,12 @@ import useCompanyContext from "hooks/useCompanyContext";
 function Loans() {
   const companyId = useCompanyContext();
 
-  const { data, refetch, error } = usePurchaseOrderLoansForCustomerQuery({
+  const {
+    data,
+    error,
+    loading: isPurchaseOrderLoansLoading,
+    refetch,
+  } = usePurchaseOrderLoansForCustomerQuery({
     variables: {
       companyId,
     },
@@ -23,6 +28,7 @@ function Loans() {
   if (loanType === "purchase_order") {
     return (
       <PurchaseOrderLoansView
+        isDataLoading={isPurchaseOrderLoansLoading}
         purchaseOrderLoans={purchaseOrderLoans}
         refetch={refetch}
       ></PurchaseOrderLoansView>

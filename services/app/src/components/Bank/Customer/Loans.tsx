@@ -5,7 +5,14 @@ import useCompanyContext from "hooks/useCompanyContext";
 function Loans() {
   const companyId = useCompanyContext();
 
-  const { data, refetch, error } = usePurchaseOrderLoansForBankQuery({
+  const {
+    data,
+    error,
+    loading: isPurchaseOrderLoansLoading,
+    refetch,
+  } = usePurchaseOrderLoansForBankQuery({
+    fetchPolicy: "network-only",
+    notifyOnNetworkStatusChange: true,
     variables: {
       companyId,
     },
@@ -18,6 +25,7 @@ function Loans() {
 
   return (
     <PurchaseOrderLoansView
+      isDataLoading={isPurchaseOrderLoansLoading}
       purchaseOrderLoans={purchaseOrderLoans}
       refetch={refetch}
     ></PurchaseOrderLoansView>

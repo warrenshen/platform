@@ -3,16 +3,27 @@ import { UserRolesEnum } from "generated/graphql";
 // inspired by https://auth0.com/blog/role-based-access-control-rbac-and-react-apps/
 
 export enum Action {
+  // Bank Accounts
+  AssignBespokeBankAccountForCustomer = "bank-accounts:assign-to-customer",
+
+  // Loans
+  ApproveLoan = "loans:approve",
+  EditLoanInternalNote = "loans:edit-internal-note",
+  RejectLoan = "loans:reject",
+  ViewLoanInternalNote = "loans:view-internal-note",
+
+  // Purchase Orders
   AddPurchaseOrders = "purchase-orders:add",
   ViewPurchaseOrdersActionMenu = "purchase-orders:view-action-menu",
   ManipulatePurchaseOrders = "purchase-orders:manipulate",
-  ManipulateUser = "users:manipulate",
-  AssignBespokeBankAccountForCustomer = "bank-accounts:assign-to-customer",
-  ViewLoansInternalNote = "loans:view-internal-note",
-  EditPurchaseOrderLoan = "purchase-order-loans:edit",
-  EditLoanInternalNote = "loans:edit-internal-note",
-  RepayPurchaseOrderLoans = "purchase-order-loans:repay",
+
+  // Purchase Order Loans
   DisbursePurchaseOrderLoans = "purchase-order-loans:disburse",
+  EditPurchaseOrderLoan = "purchase-order-loan:edit",
+  RepayPurchaseOrderLoans = "purchase-order-loans:repay",
+
+  // Users
+  ManipulateUser = "users:manipulate",
 }
 
 export interface ActionData {
@@ -85,9 +96,13 @@ const rules: Rules = {
   [UserRolesEnum.BankAdmin]: {
     static: [
       Action.AssignBespokeBankAccountForCustomer,
+
       Action.DisbursePurchaseOrderLoans,
+
+      Action.ApproveLoan,
+      Action.RejectLoan,
       Action.EditLoanInternalNote,
-      Action.ViewLoansInternalNote,
+      Action.ViewLoanInternalNote,
     ],
     dynamic: [
       {
