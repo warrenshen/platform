@@ -8179,13 +8179,15 @@ export type AddPurchaseOrderLoanMutationVariables = Exact<{
 
 export type AddPurchaseOrderLoanMutation = { insert_purchase_order_loans_one?: Maybe<PurchaseOrderLoanFragment> };
 
-export type UpdatePurchaseOrderLoanMutationVariables = Exact<{
-  id: Scalars['uuid'];
+export type UpdatePurchaseOrderLoanAndLoanMutationVariables = Exact<{
+  loanId: Scalars['uuid'];
+  loan: LoansSetInput;
+  purchaseOrderLoanId: Scalars['uuid'];
   purchaseOrderLoan: PurchaseOrderLoansSetInput;
 }>;
 
 
-export type UpdatePurchaseOrderLoanMutation = { update_purchase_order_loans_by_pk?: Maybe<PurchaseOrderLoanFragment> };
+export type UpdatePurchaseOrderLoanAndLoanMutation = { update_loans_by_pk?: Maybe<LoanFragment>, update_purchase_order_loans_by_pk?: Maybe<PurchaseOrderLoanFragment> };
 
 export type BankAccountsForTransferQueryVariables = Exact<{
   companyId: Scalars['uuid'];
@@ -9215,42 +9217,48 @@ export function useAddPurchaseOrderLoanMutation(baseOptions?: Apollo.MutationHoo
 export type AddPurchaseOrderLoanMutationHookResult = ReturnType<typeof useAddPurchaseOrderLoanMutation>;
 export type AddPurchaseOrderLoanMutationResult = Apollo.MutationResult<AddPurchaseOrderLoanMutation>;
 export type AddPurchaseOrderLoanMutationOptions = Apollo.BaseMutationOptions<AddPurchaseOrderLoanMutation, AddPurchaseOrderLoanMutationVariables>;
-export const UpdatePurchaseOrderLoanDocument = gql`
-    mutation UpdatePurchaseOrderLoan($id: uuid!, $purchaseOrderLoan: purchase_order_loans_set_input!) {
+export const UpdatePurchaseOrderLoanAndLoanDocument = gql`
+    mutation UpdatePurchaseOrderLoanAndLoan($loanId: uuid!, $loan: loans_set_input!, $purchaseOrderLoanId: uuid!, $purchaseOrderLoan: purchase_order_loans_set_input!) {
+  update_loans_by_pk(pk_columns: {id: $loanId}, _set: $loan) {
+    ...Loan
+  }
   update_purchase_order_loans_by_pk(
-    pk_columns: {id: $id}
+    pk_columns: {id: $purchaseOrderLoanId}
     _set: $purchaseOrderLoan
   ) {
     ...PurchaseOrderLoan
   }
 }
-    ${PurchaseOrderLoanFragmentDoc}`;
-export type UpdatePurchaseOrderLoanMutationFn = Apollo.MutationFunction<UpdatePurchaseOrderLoanMutation, UpdatePurchaseOrderLoanMutationVariables>;
+    ${LoanFragmentDoc}
+${PurchaseOrderLoanFragmentDoc}`;
+export type UpdatePurchaseOrderLoanAndLoanMutationFn = Apollo.MutationFunction<UpdatePurchaseOrderLoanAndLoanMutation, UpdatePurchaseOrderLoanAndLoanMutationVariables>;
 
 /**
- * __useUpdatePurchaseOrderLoanMutation__
+ * __useUpdatePurchaseOrderLoanAndLoanMutation__
  *
- * To run a mutation, you first call `useUpdatePurchaseOrderLoanMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdatePurchaseOrderLoanMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useUpdatePurchaseOrderLoanAndLoanMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePurchaseOrderLoanAndLoanMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [updatePurchaseOrderLoanMutation, { data, loading, error }] = useUpdatePurchaseOrderLoanMutation({
+ * const [updatePurchaseOrderLoanAndLoanMutation, { data, loading, error }] = useUpdatePurchaseOrderLoanAndLoanMutation({
  *   variables: {
- *      id: // value for 'id'
+ *      loanId: // value for 'loanId'
+ *      loan: // value for 'loan'
+ *      purchaseOrderLoanId: // value for 'purchaseOrderLoanId'
  *      purchaseOrderLoan: // value for 'purchaseOrderLoan'
  *   },
  * });
  */
-export function useUpdatePurchaseOrderLoanMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePurchaseOrderLoanMutation, UpdatePurchaseOrderLoanMutationVariables>) {
-        return Apollo.useMutation<UpdatePurchaseOrderLoanMutation, UpdatePurchaseOrderLoanMutationVariables>(UpdatePurchaseOrderLoanDocument, baseOptions);
+export function useUpdatePurchaseOrderLoanAndLoanMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePurchaseOrderLoanAndLoanMutation, UpdatePurchaseOrderLoanAndLoanMutationVariables>) {
+        return Apollo.useMutation<UpdatePurchaseOrderLoanAndLoanMutation, UpdatePurchaseOrderLoanAndLoanMutationVariables>(UpdatePurchaseOrderLoanAndLoanDocument, baseOptions);
       }
-export type UpdatePurchaseOrderLoanMutationHookResult = ReturnType<typeof useUpdatePurchaseOrderLoanMutation>;
-export type UpdatePurchaseOrderLoanMutationResult = Apollo.MutationResult<UpdatePurchaseOrderLoanMutation>;
-export type UpdatePurchaseOrderLoanMutationOptions = Apollo.BaseMutationOptions<UpdatePurchaseOrderLoanMutation, UpdatePurchaseOrderLoanMutationVariables>;
+export type UpdatePurchaseOrderLoanAndLoanMutationHookResult = ReturnType<typeof useUpdatePurchaseOrderLoanAndLoanMutation>;
+export type UpdatePurchaseOrderLoanAndLoanMutationResult = Apollo.MutationResult<UpdatePurchaseOrderLoanAndLoanMutation>;
+export type UpdatePurchaseOrderLoanAndLoanMutationOptions = Apollo.BaseMutationOptions<UpdatePurchaseOrderLoanAndLoanMutation, UpdatePurchaseOrderLoanAndLoanMutationVariables>;
 export const BankAccountsForTransferDocument = gql`
     query BankAccountsForTransfer($companyId: uuid!) {
   bank_accounts(where: {company_id: {_is_null: true}}) {

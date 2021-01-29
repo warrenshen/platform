@@ -42,12 +42,17 @@ mutation AddPurchaseOrderLoan(
   }
 }
 
-mutation UpdatePurchaseOrderLoan(
-  $id: uuid!
+mutation UpdatePurchaseOrderLoanAndLoan(
+  $loanId: uuid!
+  $loan: loans_set_input!
+  $purchaseOrderLoanId: uuid!
   $purchaseOrderLoan: purchase_order_loans_set_input!
 ) {
+  update_loans_by_pk(pk_columns: { id: $loanId }, _set: $loan) {
+    ...Loan
+  }
   update_purchase_order_loans_by_pk(
-    pk_columns: { id: $id }
+    pk_columns: { id: $purchaseOrderLoanId }
     _set: $purchaseOrderLoan
   ) {
     ...PurchaseOrderLoan

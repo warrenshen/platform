@@ -16,8 +16,7 @@ import {
   useListApprovedPurchaseOrdersQuery,
   usePurchaseOrderLoanQuery,
   usePurchaseOrderLoanSiblingsQuery,
-  useUpdateLoanMutation,
-  useUpdatePurchaseOrderLoanMutation,
+  useUpdatePurchaseOrderLoanAndLoanMutation,
 } from "generated/graphql";
 import { ActionType } from "lib/ActionType";
 import { authenticatedApi, purchaseOrderLoansRoutes } from "lib/api";
@@ -135,14 +134,9 @@ function CreateUpdatePurchaseOrderLoanModal({
   ] = useAddPurchaseOrderLoanMutation();
 
   const [
-    updatePurchaseOrderLoan,
-    { loading: isUpdatePurchaseOrderLoanLoading },
-  ] = useUpdatePurchaseOrderLoanMutation();
-
-  const [
-    updateLoan,
-    { loading: isUpdateLoanLoading },
-  ] = useUpdateLoanMutation();
+    updatePurchaseOrderLoanAndLoan,
+    { loading: isUpdatePurchaseOrderLoanAndLoanLoading },
+  ] = useUpdatePurchaseOrderLoanAndLoanMutation();
 
   const {
     data,
@@ -167,20 +161,14 @@ function CreateUpdatePurchaseOrderLoanModal({
       new Date().getTime() + 15 * 24 * 60 * 60 * 1000
     );
     if (actionType === ActionType.Update) {
-      // TODO(warren): I didnt know how to do nested queries, so doing the wrong thing
-      // here and doing two queries in succession
-      await updateLoan({
+      const response = await updatePurchaseOrderLoanAndLoan({
         variables: {
-          id: loan?.id,
+          loanId: loan?.id,
           loan: {
             origination_date: loan?.origination_date || null,
             amount: loan?.amount || null,
           },
-        },
-      });
-      const response = await updatePurchaseOrderLoan({
-        variables: {
-          id: purchaseOrderLoan.id,
+          purchaseOrderLoanId: purchaseOrderLoan.id,
           purchaseOrderLoan: {
             purchase_order_id: purchaseOrderLoan.purchase_order_id,
           },
@@ -239,9 +227,7 @@ function CreateUpdatePurchaseOrderLoanModal({
     !isExistingPurchaseOrderLoanLoading && !isApprovedPurchaseOrdersLoading;
   const isFormValid = !!purchaseOrderLoan.purchase_order_id;
   const isFormLoading =
-    isAddPurchaseOrderLoanLoading ||
-    isUpdatePurchaseOrderLoanLoading ||
-    isUpdateLoanLoading;
+    isAddPurchaseOrderLoanLoading || isUpdatePurchaseOrderLoanAndLoanLoading;
   const isSaveDraftDisabled = !isFormValid || isFormLoading;
 
   // TODO(warren): Make it apparent to the user the reason we are disabling submitting a purchase order
