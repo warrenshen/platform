@@ -1,12 +1,17 @@
-import { IconButton, Menu, MenuItem } from "@material-ui/core";
+import { Box, IconButton, Menu, MenuItem } from "@material-ui/core";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import { useState } from "react";
 
+type ActionItem = {
+  key: string;
+  label: string;
+  handleClick: () => void;
+};
 interface Props {
-  handleClickEdit: () => void;
+  actionItems: ActionItem[];
 }
 
-function ActionMenu({ handleClickEdit }: Props) {
+function ActionMenu({ actionItems }: Props) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -18,7 +23,7 @@ function ActionMenu({ handleClickEdit }: Props) {
   };
 
   return (
-    <>
+    <Box display="flex" flexDirection="column">
       <IconButton onClick={handleClick}>
         <ArrowDropDownIcon></ArrowDropDownIcon>
       </IconButton>
@@ -28,16 +33,19 @@ function ActionMenu({ handleClickEdit }: Props) {
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        <MenuItem
-          onClick={() => {
-            handleClickEdit();
-            handleClose();
-          }}
-        >
-          Edit
-        </MenuItem>
+        {actionItems.map((actionItem) => (
+          <MenuItem
+            key={actionItem.key}
+            onClick={() => {
+              actionItem.handleClick();
+              handleClose();
+            }}
+          >
+            {actionItem.label}
+          </MenuItem>
+        ))}
       </Menu>
-    </>
+    </Box>
   );
 }
 

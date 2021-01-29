@@ -13,6 +13,12 @@ query PurchaseOrderLoan($id: uuid!) {
   }
 }
 
+query PurchaseOrderLoanForBank($id: uuid!) {
+  purchase_order_loans_by_pk(id: $id) {
+    ...PurchaseOrderLoanForBank
+  }
+}
+
 query PurchaseOrderLoanSiblings($id: uuid, $purchase_order_id: uuid!) {
   purchase_order_loans(
     where: {

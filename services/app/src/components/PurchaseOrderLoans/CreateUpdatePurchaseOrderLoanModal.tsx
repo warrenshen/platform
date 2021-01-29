@@ -106,12 +106,12 @@ function CreateUpdatePurchaseOrderLoanModal({
     data: purchaseOrderLoanSiblingsData,
     loading: isPurchaseOrderLoanSiblingsLoading,
   } = usePurchaseOrderLoanSiblingsQuery({
+    fetchPolicy: "network-only",
     variables: {
       // The `|| null` below is necessary because "" is an invalid parameter to give to the query.
       id: purchaseOrderLoanId || null,
       purchase_order_id: purchaseOrderLoan.purchase_order_id,
     },
-    fetchPolicy: "network-only",
   });
 
   const purchaseOrderLoanSiblings =
@@ -171,7 +171,7 @@ function CreateUpdatePurchaseOrderLoanModal({
       // here and doing two queries in succession
       await updateLoan({
         variables: {
-          loanId: loan?.id,
+          id: loan?.id,
           loan: {
             origination_date: loan?.origination_date || null,
             amount: loan?.amount || null,
@@ -210,7 +210,7 @@ function CreateUpdatePurchaseOrderLoanModal({
   const handleClickSaveDraft = async () => {
     const savedPurchaseOrderLoan = await upsertPurchaseOrderLoan();
     if (!savedPurchaseOrderLoan) {
-      alert("Could not upsert purchase order");
+      alert("Could not upsert purchase order loan");
     }
     handleClose();
   };
@@ -218,7 +218,7 @@ function CreateUpdatePurchaseOrderLoanModal({
   const handleClickSaveSubmit = async () => {
     const savedPurchaseOrderLoan = await upsertPurchaseOrderLoan();
     if (!savedPurchaseOrderLoan) {
-      alert("Could not upsert purchase order");
+      alert("Could not upsert purchase order loan");
     } else {
       // Since this is a SAVE AND SUBMIT action,
       // hit the PurchaseOrderLoans.SubmitForApproval endpoint.
@@ -263,7 +263,9 @@ function CreateUpdatePurchaseOrderLoanModal({
       classes={{ paper: classes.dialog }}
     >
       <DialogTitle className={classes.dialogTitle}>
-        Create Purchase Order Loan
+        {`${
+          actionType === ActionType.Update ? "Edit" : "Create"
+        } Purchase Order Loan`}
       </DialogTitle>
       <DialogContent>
         <PurchaseOrderLoanForm

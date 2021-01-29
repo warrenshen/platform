@@ -7,6 +7,7 @@ import { ActionType } from "lib/ActionType";
 import { Action } from "lib/auth/rbac-rules";
 import { useState } from "react";
 import CreateUpdatePurchaseOrderLoanModal from "./CreateUpdatePurchaseOrderLoanModal";
+import UpdateLoanNotesModal from "./UpdateLoanNotesModal";
 
 interface Props {
   purchaseOrderLoans: PurchaseOrderLoanFragment[];
@@ -16,14 +17,26 @@ interface Props {
  * This component is shared between a bank user and a customer user use case.
  */
 function PurchaseOrderLoansView({ purchaseOrderLoans, refetch }: Props) {
+  // State for Purchase Order modal(s).
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [targetPurchaseOrderLoanId, setTargetPurchaseOrderLoanId] = useState(
     ""
   );
 
+  // State for Loan modal(s).
+  const [isUpdateLoanNotesModalOpen, setIsUpdateLoanNotesModalOpen] = useState(
+    false
+  );
+  const [targetLoanId, setTargetLoanId] = useState("");
+
   const handleEditPurchaseOrderLoan = (purchaseOrderLoanId: string) => {
     setTargetPurchaseOrderLoanId(purchaseOrderLoanId);
     setIsModalOpen(true);
+  };
+
+  const handleEditLoanNotes = (loanId: string) => {
+    setTargetLoanId(loanId);
+    setIsUpdateLoanNotesModalOpen(true);
   };
 
   return (
@@ -43,6 +56,16 @@ function PurchaseOrderLoansView({ purchaseOrderLoans, refetch }: Props) {
           }}
         ></CreateUpdatePurchaseOrderLoanModal>
       )}
+      {isUpdateLoanNotesModalOpen && (
+        <UpdateLoanNotesModal
+          loanId={targetLoanId}
+          handleClose={() => {
+            setTargetLoanId("");
+            refetch();
+            setIsUpdateLoanNotesModalOpen(false);
+          }}
+        ></UpdateLoanNotesModal>
+      )}
       <Box pb={2} display="flex" flexDirection="row-reverse">
         <Can perform={Action.AddPurchaseOrders}>
           <Button
@@ -61,6 +84,7 @@ function PurchaseOrderLoansView({ purchaseOrderLoans, refetch }: Props) {
       </Box>
       <ListPurchaseOrderLoans
         purchaseOrderLoans={purchaseOrderLoans}
+        handleEditLoanNotes={handleEditLoanNotes}
         handleEditPurchaseOrderLoan={handleEditPurchaseOrderLoan}
       ></ListPurchaseOrderLoans>
     </Box>

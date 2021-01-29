@@ -26,11 +26,13 @@ function getRows(
 }
 interface Props {
   purchaseOrderLoans: PurchaseOrderLoanFragment[];
+  handleEditLoanNotes: (loanId: string) => void;
   handleEditPurchaseOrderLoan: (purchaseOrderLoanId: string) => void;
 }
 
 function ListPurchaseOrderLoans({
   purchaseOrderLoans,
+  handleEditLoanNotes,
   handleEditPurchaseOrderLoan,
 }: Props) {
   const { user } = useContext(CurrentUserContext);
@@ -49,6 +51,33 @@ function ListPurchaseOrderLoans({
       </Box>
     );
   };
+
+  const actionCellRenderer = (params: ValueFormatterParams) => (
+    <ActionMenu
+      actionItems={[
+        ...(check(user.role, Action.EditPurchaseOrderLoan)
+          ? [
+              {
+                key: "edit-purchase-order-loan",
+                label: "Edit",
+                handleClick: () =>
+                  handleEditPurchaseOrderLoan(params.row.data.id as string),
+              },
+            ]
+          : []),
+        ...(check(user.role, Action.EditLoanInternalNote)
+          ? [
+              {
+                key: "edit-loan-notes",
+                label: "Edit Internal Note",
+                handleClick: () =>
+                  handleEditLoanNotes(params.row.data.loan_id as string),
+              },
+            ]
+          : []),
+      ]}
+    ></ActionMenu>
+  );
 
   const columns: IColumnProps[] = [
     {
@@ -82,40 +111,34 @@ function ListPurchaseOrderLoans({
       caption: "Status",
       width: 150,
     },
-  ];
-
-  if (check(user.role, Action.ViewPurchaseOrderLoansInternalNote)) {
-    columns.push({
-      dataField: "loan.notes",
-      caption: "Internal Note",
-      width: 100,
-      cellRender: (params: ValueFormatterParams) => (
-        <Box>{params.row.data.internal_note as string}</Box>
-      ),
-    });
-  }
-
-  const actionCellRenderer = (params: ValueFormatterParams) => (
-    <ActionMenu
-      handleClickEdit={() =>
-        handleEditPurchaseOrderLoan(params.row.data.id as string)
-      }
-    ></ActionMenu>
-  );
-
-  if (check(user.role, Action.ViewPurchaseOrderLoansActionMenu)) {
-    columns.push({
+    {
       dataField: "action",
       caption: "Action",
       alignment: "center",
       width: 100,
       cellRender: actionCellRenderer,
+    },
+  ];
+
+  if (check(user.role, Action.ViewLoansInternalNote)) {
+    columns.push({
+      dataField: "loan.notes",
+      caption: "Internal Note",
+      width: 300,
+      cellRender: (params: ValueFormatterParams) => (
+        <Box>{params.row.data.loan.notes as string}</Box>
+      ),
     });
   }
 
   return (
     <div style={{ minHeight: "500px", width: "100%" }}>
-      <DataGrid height={"100%"} width={"100%"} dataSource={rows}>
+      <DataGrid
+        height={"100%"}
+        width={"100%"}
+        dataSource={rows}
+        wordWrapEnabled={true}
+      >
         {columns.map(({ dataField, width, caption, cellRender }) => (
           <Column
             key={dataField}

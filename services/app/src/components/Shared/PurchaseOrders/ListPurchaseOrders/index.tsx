@@ -45,9 +45,14 @@ function ListPurchaseOrders({
 
   const actionCellRenderer = (params: ValueFormatterParams) => (
     <ActionMenu
-      handleClickEdit={() =>
-        handleEditPurchaseOrder(params.row.data.id as string)
-      }
+      actionItems={[
+        {
+          key: "edit-purchase-order",
+          label: "Edit",
+          handleClick: () =>
+            handleEditPurchaseOrder(params.row.data.id as string),
+        },
+      ]}
     ></ActionMenu>
   );
 

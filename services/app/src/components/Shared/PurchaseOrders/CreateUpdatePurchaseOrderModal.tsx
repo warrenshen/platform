@@ -124,10 +124,10 @@ function CreateUpdatePurchaseOrderModal({
     data,
     loading: isSelectableVendorsLoading,
   } = useVendorsByPartnerCompanyQuery({
+    fetchPolicy: "network-only",
     variables: {
       companyId,
     },
-    fetchPolicy: "network-only",
   });
   const vendors = data?.vendors || [];
 

@@ -1,0 +1,11 @@
+query Loan($id: uuid!) {
+  loans_by_pk(id: $id) {
+    ...Loan
+  }
+}
+
+mutation UpdateLoan($id: uuid!, $loan: loans_set_input!) {
+  update_loans_by_pk(pk_columns: { id: $id }, _set: $loan) {
+    ...LoanLimited
+  }
+}
