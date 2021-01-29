@@ -26,8 +26,6 @@ function VendorPartnershipList({
   data: any;
   isBankAccount?: boolean;
 }) {
-  console.log(data);
-
   const [open, setOpen] = useState(false);
   const [
     currentVendorPartnership,
@@ -66,11 +64,15 @@ function VendorPartnershipList({
       minWidth: 200,
       ...(isBankAccount && { cellRender: vendorNameCellRenderer }),
     },
-    {
-      dataField: "company.name",
-      caption: "Company name",
-      minWidth: 200,
-    },
+    ...(isBankAccount
+      ? [
+          {
+            dataField: "company.name",
+            caption: "Company name",
+            minWidth: 200,
+          },
+        ]
+      : []),
     {
       dataField: "vendor_agreement_id",
       caption: "Signed Vendor Agreement",
