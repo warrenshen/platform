@@ -1,10 +1,9 @@
-import { Box } from "@material-ui/core";
-import ClickableVendorCard from "components/Vendors/Bank/ClickableVendorCard";
 import { useBankListVendorPartnershipsQuery } from "generated/graphql";
+import VendorPartnershipList from "../../VendorPartnershipList";
 import { sortBy } from "lodash";
 
 function ListVendors() {
-  const { data } = useBankListVendorPartnershipsQuery();
+  const { data }: { data: any } = useBankListVendorPartnershipsQuery();
 
   if (!data || !data.company_vendor_partnerships) {
     return null;
@@ -15,21 +14,7 @@ function ListVendors() {
     (item) => item.vendor.name
   );
 
-  return (
-    <>
-      <Box display="flex" flexWrap="wrap">
-        {vendorPartnerships.map((vendorPartnership) => {
-          return (
-            <Box pt={2} pr={3} key={vendorPartnership.id}>
-              <ClickableVendorCard
-                vendorPartnership={vendorPartnership}
-              ></ClickableVendorCard>
-            </Box>
-          );
-        })}
-      </Box>
-    </>
-  );
+  return <VendorPartnershipList data={vendorPartnerships} isBankAccount />;
 }
 
 export default ListVendors;

@@ -8,6 +8,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
+  --table-accent-color: #03a9f4;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -21,6 +22,7 @@ code {
 .dx-datagrid .dx-row:not(.dx-header-row) > tr > td {
   padding-top: 1px !important;
   padding-bottom: 1px !important;
+  height: 50px !important;
 }
 
 .dx-datagrid .dx-header-row > td,

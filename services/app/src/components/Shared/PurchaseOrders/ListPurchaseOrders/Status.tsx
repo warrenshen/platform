@@ -1,34 +1,22 @@
-import { createStyles, makeStyles } from "@material-ui/core";
-import Chip from "@material-ui/core/Chip";
+import Chip from "components/Shared/Chip";
 import { CellValue } from "@material-ui/data-grid";
-interface IObjectKeys {
-  [key: string]: string | number;
+
+interface IColorKeys {
+  [key: string]: string;
 }
 
-const purchaseOrderStatusColor: IObjectKeys = {
-  approval_requested: "#eeeeee",
+const purchaseOrderStatusColors: IColorKeys = {
+  approval_requested: "#f0ad4e",
   approved: "#5cb85c",
-  drafted: "#f0ad4e",
+  drafted: "#eeeeee",
   rejected: "#df4646",
 };
 
-const useStyles = makeStyles(() =>
-  createStyles({
-    statusLabel: {
-      background: ({ color }: { color: string | number }) => color,
-    },
-  })
-);
-
-const getColor = (status: any): string | number =>
-  purchaseOrderStatusColor[status];
+const getColor = (status: any): string => purchaseOrderStatusColors[status];
 
 function Status({ statusValue }: { statusValue: CellValue }) {
-  const color = getColor(statusValue);
-  const classes = useStyles({ color });
-  return (
-    <Chip size="small" className={classes.statusLabel} label={statusValue} />
-  );
+  const background = getColor(statusValue);
+  return <Chip label={statusValue} background={background} />;
 }
 
 export default Status;
