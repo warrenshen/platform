@@ -12,6 +12,9 @@ from bespoke.email import email_manager
 from bespoke.security import security_util
 
 class TemplateNames(object):
+	VENDOR_AGREEMENT_WITH_CUSTOMER = 'vendor_agreement_with_customer'
+	VENDOR_APPROVED_NOTIFY_CUSTOMER = 'vendor_approved_notify_customer'
+	VENDOR_APPROVED_NOTIFY_VENDOR = 'vendor_approved_notify_vendor'
 	VENDOR_TO_APPROVE_PURCHASE_ORDER = 'vendor_to_approve_purchase_order'
 	VENDOR_APPROVES_OR_REJECTS_PURCHASE_ORDER = 'vendor_approves_or_rejects_purchase_order'
 
@@ -22,15 +25,15 @@ TemplateConfigDict = TypedDict('TemplateConfigDict', {
 })
 
 _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
-	"vendor_agreement_with_customer": {
+	TemplateNames.VENDOR_AGREEMENT_WITH_CUSTOMER: {
 		'id': 'd-58c45054a5254f64a81bd6695709aed0',
 		'requires_secure_link': False
 	},
-	"vendor_approved_notify_customer": {
+	TemplateNames.VENDOR_APPROVED_NOTIFY_CUSTOMER: {
 		'id': 'd-43f5183c08cc4248bda2d5ed5133a493',
 		'requires_secure_link': False
 	},
-	"vendor_approved_notify_vendor": {
+	TemplateNames.VENDOR_APPROVED_NOTIFY_VENDOR: {
 		'id': 'd-53270032807346188f50bf0dca763bd0',
 		'requires_secure_link': False
 	},

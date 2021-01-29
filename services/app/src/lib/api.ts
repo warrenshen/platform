@@ -16,7 +16,7 @@ export const fileRoutes = {
 };
 
 export const notifyRoutes = {
-  sendNotification: "/notify/send",
+  sendNotification: "/notify/send_notification",
 };
 
 export const purchaseOrdersRoutes = {

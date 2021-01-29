@@ -1,64 +1,41 @@
 import {
-  NotifyTemplate,
-  Recipient,
+  NotifyTypeConfig,
   sendNotification,
   SendNotificationResp,
 } from "./sendUpdate";
 
-const notifyTemplates: { [key: string]: NotifyTemplate } = {
+const notifyTypes: { [key: string]: NotifyTypeConfig } = {
   VENDOR_AGREEMENT_WITH_CUSTOMER: {
+    namespace: "purchase_order",
     name: "vendor_agreement_with_customer",
   },
-  VENDOR_APPROVED_NOTIFY_CUSTOMER: {
-    name: "vendor_approved_notify_customer",
-  },
-  VENDOR_APPROVED_NOTIFY_VENDOR: {
-    name: "vendor_approved_notify_vendor",
+  VENDOR_APPROVED: {
+    namespace: "purchase_order",
+    name: "vendor_approved",
   },
 };
 
 export class InventoryNotifier {
-  _msgType: string; // Whether to send via email, text etc
+  constructor() {}
 
-  constructor(msgType: string) {
-    this._msgType = msgType;
-  }
-
-  sendVendorAgreementWithCustomer(
-    template_data: { customer_name: string; docusign_link: string },
-    recipients: Recipient[]
-  ): Promise<SendNotificationResp> {
+  sendVendorAgreementWithCustomer(input_data: {
+    vendor_id: string;
+    company_id: string;
+  }): Promise<SendNotificationResp> {
     const reqData = {
-      type: this._msgType,
-      template_config: notifyTemplates.VENDOR_AGREEMENT_WITH_CUSTOMER,
-      template_data: template_data,
-      recipients: recipients,
+      type_config: notifyTypes.VENDOR_AGREEMENT_WITH_CUSTOMER,
+      input_data: input_data,
     };
     return sendNotification(reqData);
   }
 
-  sendVendorApprovedNotifyCustomer(
-    template_data: { vendor_name: string },
-    recipients: Recipient[]
-  ): Promise<SendNotificationResp> {
+  sendVendorApproved(input_data: {
+    vendor_id: string;
+    company_id: string;
+  }): Promise<SendNotificationResp> {
     const reqData = {
-      type: this._msgType,
-      template_config: notifyTemplates.VENDOR_APPROVED_NOTIFY_CUSTOMER,
-      template_data: template_data,
-      recipients: recipients,
-    };
-    return sendNotification(reqData);
-  }
-
-  sendVendorApprovedNotifyVendor(
-    template_data: { vendor_name: string; customer_name: string },
-    recipients: Recipient[]
-  ): Promise<SendNotificationResp> {
-    const reqData = {
-      type: this._msgType,
-      template_config: notifyTemplates.VENDOR_APPROVED_NOTIFY_VENDOR,
-      template_data: template_data,
-      recipients: recipients,
+      type_config: notifyTypes.VENDOR_APPROVED,
+      input_data: input_data,
     };
     return sendNotification(reqData);
   }

@@ -20,6 +20,7 @@ import {
   UserRolesEnum,
   UsersInsertInput,
 } from "generated/graphql";
+import { InventoryNotifier } from "lib/notifications/inventory";
 import { CustomerParams } from "pages/Bank/Customer";
 import { useContext, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -48,6 +49,7 @@ function RegisterVendorModal(props: Props) {
   } = useContext(CurrentUserContext);
 
   const { companyId: paramsCompanyId } = useParams<CustomerParams>();
+  const [errMsg, setErrMsg] = useState("");
 
   const companyId = paramsCompanyId || userCompanyId;
 
@@ -60,6 +62,7 @@ function RegisterVendorModal(props: Props) {
     phone_number: "",
   });
   const [addVendorPartnership, { loading }] = useAddVendorPartnershipMutation();
+  const notifier = new InventoryNotifier();
 
   return (
     <Dialog open onClose={props.handleClose} maxWidth="md">
@@ -131,6 +134,7 @@ function RegisterVendorModal(props: Props) {
           by the vendor via Docusign. Once signed, our team will then verify
           bank account information and licenses.
         </DialogContentText>
+        {errMsg && <Box>Error: {errMsg}</Box>}
       </DialogContent>
       <DialogActions>
         <Box display="flex">
@@ -147,7 +151,7 @@ function RegisterVendorModal(props: Props) {
               !contact.email
             }
             onClick={async () => {
-              await addVendorPartnership({
+              const resp = await addVendorPartnership({
                 variables: {
                   vendorPartnership: {
                     company_id:
@@ -176,6 +180,23 @@ function RegisterVendorModal(props: Props) {
                   },
                 ],
               });
+
+              const vendorId =
+                resp.data?.insert_company_vendor_partnerships_one?.vendor_id;
+              if (!vendorId) {
+                setErrMsg("Empty vendor id provided");
+                return;
+              }
+              const emailResp = await notifier.sendVendorAgreementWithCustomer({
+                company_id: companyId,
+                vendor_id: vendorId,
+              });
+
+              if (emailResp.status !== "OK") {
+                setErrMsg("Could not send email. Error: " + emailResp.msg);
+                return;
+              }
+
               props.handleClose();
             }}
             variant="contained"

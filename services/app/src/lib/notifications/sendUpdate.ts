@@ -1,18 +1,13 @@
 import { authenticatedApi, notifyRoutes } from "lib/api";
 
-export type Recipient = {
-  email: string;
-};
-
-export type NotifyTemplate = {
+export type NotifyTypeConfig = {
+  namespace: string;
   name: string;
 };
 
 export type SendNotificationReq = {
-  type: string;
-  template_config: NotifyTemplate;
-  template_data: { [key: string]: string };
-  recipients: Recipient[];
+  type_config: NotifyTypeConfig;
+  input_data: { [key: string]: string | undefined };
 };
 
 export type SendNotificationResp = {

@@ -1,14 +1,13 @@
 import { Button } from "@material-ui/core";
 import ConfirmModal from "components/Shared/Confirmations/ConfirmModal";
-import { ContactFragment } from "generated/graphql";
 import { InventoryNotifier } from "lib/notifications/inventory";
 import { useState } from "react";
 
 interface Props {
-  vendorContact: ContactFragment | null;
   customerName: string;
+  customerId: string;
   vendorName: string;
-  docusignLink: string | null;
+  vendorId: string;
   notifier: InventoryNotifier;
 }
 
@@ -16,26 +15,7 @@ function SendVendorAgreements(props: Props) {
   const [open, setOpen] = useState(false);
   const [errMsg, setErrMsg] = useState("");
 
-  if (!props.vendorContact) {
-    return (
-      <div>
-        Cannot send Notifications, because no primary user setup for this
-        vendor.
-      </div>
-    );
-  }
-
-  if (!props.docusignLink) {
-    return (
-      <div>
-        Cannot send Notifications because no docusign template link is
-        configured for this customer.
-      </div>
-    );
-  }
-
   const customerName = props.customerName;
-  const recipients = [{ email: props.vendorContact.email }];
 
   return (
     <>
@@ -44,13 +24,10 @@ function SendVendorAgreements(props: Props) {
           title={`Would you like to send the vendor agreement email to ${props.vendorName} for customer ${customerName}?`}
           errMsg={errMsg}
           handleConfirm={async () => {
-            const resp = await props.notifier.sendVendorAgreementWithCustomer(
-              {
-                customer_name: customerName,
-                docusign_link: props.docusignLink || "",
-              },
-              recipients
-            );
+            const resp = await props.notifier.sendVendorAgreementWithCustomer({
+              company_id: props.customerId,
+              vendor_id: props.vendorId,
+            });
 
             if (resp.status !== "OK") {
               setErrMsg("Could not send email. Error: " + resp.msg);

@@ -100,11 +100,11 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
     data.company_vendor_partnerships_by_pk.company_license?.file_id;
   const customerName = customer?.name;
 
-  const docusignLink = customerSettings?.vendor_agreement_docusign_template;
-
   const primaryVendorContact = getPrimaryContact(vendor.users);
   const primaryCustomerContact = getPrimaryContact(customer?.users);
-  const notifier = new InventoryNotifier("email");
+  const notifier = new InventoryNotifier();
+
+  const hasNoContactsSetup = !primaryVendorContact || !primaryCustomerContact;
 
   return (
     <Drawer open anchor="right" onClose={onClose}>
@@ -268,10 +268,10 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
         <Typography variant="h6"> Notifications </Typography>
         <Box mt={1} mb={2}>
           <SendVendorAgreements
-            vendorContact={primaryVendorContact}
+            vendorId={vendor.id}
             vendorName={vendor.name}
             customerName={customerName}
-            docusignLink={docusignLink || null}
+            customerId={customer.id}
             notifier={notifier}
           ></SendVendorAgreements>
         </Box>
@@ -279,8 +279,9 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
         <Typography variant="h6"> Actions </Typography>
         <Box mt={1} mb={2}>
           <ApproveVendor
-            vendorContact={primaryVendorContact}
-            customerContact={primaryCustomerContact}
+            hasNoContactsSetup={hasNoContactsSetup}
+            vendorId={vendor.id}
+            customerId={customer.id}
             vendorPartnershipId={vendorPartnershipId}
             customerName={customerName}
             vendorName={vendor.name}

@@ -1,17 +1,15 @@
 import { Button } from "@material-ui/core";
 import ConfirmModal from "components/Shared/Confirmations/ConfirmModal";
-import {
-  ContactFragment,
-  useUpdateCompanyVendorPartnershipApprovedAtMutation,
-} from "generated/graphql";
+import { useUpdateCompanyVendorPartnershipApprovedAtMutation } from "generated/graphql";
 import { InventoryNotifier } from "lib/notifications/inventory";
 import { useState } from "react";
 
 interface Props {
+  hasNoContactsSetup: boolean;
   vendorPartnershipId: string;
-  customerContact: ContactFragment | null;
-  vendorContact: ContactFragment | null;
+  vendorId: string;
   vendorName: string;
+  customerId: string;
   customerName: string;
   notifier: InventoryNotifier;
 }
@@ -24,7 +22,9 @@ function ApproveVendor(props: Props) {
     updateApprovedAt,
   ] = useUpdateCompanyVendorPartnershipApprovedAtMutation();
 
-  if (!props.vendorContact || !props.customerContact) {
+  const customerName = props.customerName;
+
+  if (props.hasNoContactsSetup) {
     return (
       <div>
         Cannot send Notifications, because no primary user setup for the vendor
@@ -32,10 +32,6 @@ function ApproveVendor(props: Props) {
       </div>
     );
   }
-
-  const customerName = props.customerName;
-  const customerRecipients = [{ email: props.customerContact.email }];
-  const vendorRecipients = [{ email: props.vendorContact.email }];
 
   return (
     <>
@@ -51,32 +47,14 @@ function ApproveVendor(props: Props) {
               },
             });
 
-            let resp = await props.notifier.sendVendorApprovedNotifyCustomer(
-              {
-                vendor_name: props.vendorName,
-              },
-              customerRecipients
-            );
+            let resp = await props.notifier.sendVendorApproved({
+              vendor_id: props.vendorId,
+              company_id: props.customerId,
+            });
 
             if (resp.status !== "OK") {
               setErrMsg(
                 "Could not send notify vendor approved, notify customer email. Error: " +
-                  resp.msg
-              );
-              return;
-            }
-
-            resp = await props.notifier.sendVendorApprovedNotifyVendor(
-              {
-                vendor_name: props.vendorName,
-                customer_name: props.customerName,
-              },
-              vendorRecipients
-            );
-
-            if (resp.status !== "OK") {
-              setErrMsg(
-                "Could not send notify vendor approved, notify vendor email. Error: " +
                   resp.msg
               );
               return;

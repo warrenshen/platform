@@ -47,12 +47,16 @@ manager = Manager(app)
 app.config.update(config.as_dict())
 
 app.register_blueprint(two_factor.handler, url_prefix='/two_factor')
-app.register_blueprint(notify.handler, url_prefix='/notify')
 app.register_blueprint(files.handler, url_prefix='/files')
 app.register_blueprint(auth.handler, url_prefix='/auth')
+
+# Purchase orders
 app.register_blueprint(purchase_orders.handler, url_prefix='/purchase_orders')
 app.register_blueprint(purchase_order_loans.handler,
 					   url_prefix='/purchase_order_loans')
+
+# Notifications
+app.register_blueprint(notify.handler, url_prefix='/notify')
 
 # Finance
 app.register_blueprint(po_loans_finance.handler, url_prefix='/finance/loans/purchase_order')

@@ -86,6 +86,20 @@ class Company(Base):
 					default=uuid.uuid4, unique=True)
 		name = Column(String)
 
+class CompanySettings(Base):
+	__tablename__ = 'company_settings'
+
+	if TYPE_CHECKING:
+		def __init__(self) -> None:
+			self.__table__: Any = None
+			self.id: uuid.UUID = None
+			self.company_id: uuid.UUID = None
+			self.vendor_agreement_docusign_template: str = None
+	else:
+		id = Column(UUID(as_uuid=True), primary_key=True,
+					default=uuid.uuid4, unique=True)
+		company_id = Column(UUID(as_uuid=True))
+		vendor_agreement_docusign_template = Column(Text)
 
 class CompanyVendorPartnership(Base):
 	__tablename__ = 'company_vendor_partnerships'
