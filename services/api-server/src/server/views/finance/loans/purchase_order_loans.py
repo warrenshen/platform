@@ -12,107 +12,111 @@ from bespoke.db.models import session_scope
 
 handler = Blueprint('finance_loans_purchase_order_loans', __name__)
 
+
 def make_error_response(msg: str) -> Response:
-	return make_response(json.dumps({'status': 'ERROR', 'msg': msg}), 200)	
+    return make_response(json.dumps({'status': 'ERROR', 'msg': msg}), 200)
+
 
 class HandlePaymentView(MethodView):
 
-	# TODO: add back
-	#@jwt_required
-	def post(self) -> Response:
-		form = json.loads(request.data)
-		if not form:
-			return make_error_response('No data provided')
+    # TODO: add back
+    # @jwt_required
+    def post(self) -> Response:
+        form = json.loads(request.data)
+        if not form:
+            return make_error_response('No data provided')
 
-		required_keys = ['loan_id', 'amount', 'payment_method']
-		for key in required_keys:
-			if key not in form:
-				return make_error_response(
-					'Missing key {} from handle payment request'.format(key))
+        required_keys = ['loan_id', 'amount', 'payment_method']
+        for key in required_keys:
+            if key not in form:
+                return make_error_response(
+                    'Missing key {} from handle payment request'.format(key))
 
-		purchase_order_loan_id = form['loan_id']
-		amount = form['amount']
-		payment_method = form['payment_method']
+        purchase_order_loan_id = form['loan_id']
+        amount = form['amount']
+        payment_method = form['payment_method']
 
-		with session_scope(current_app.session_maker) as session:
-			purchase_order_loan = cast(
-				models.PurchaseOrderLoan,
-				session.query(models.PurchaseOrderLoan).filter_by(
-					id=purchase_order_loan_id).first()
-			)
-			print(purchase_order_loan.purchase_order_id)
-			loan = purchase_order_loan.loan
-			company_id = loan.company_id
-			
-			# TODO(dlluncor): Lots of validations needed before being able to submit a payment
+        with session_scope(current_app.session_maker) as session:
+            purchase_order_loan = cast(
+                models.PurchaseOrderLoan,
+                session.query(models.PurchaseOrderLoan).filter_by(
+                    id=purchase_order_loan_id).first()
+            )
+            print(purchase_order_loan.purchase_order_id)
+            loan = purchase_order_loan.loan
+            company_id = loan.company_id
 
-			transaction = models.Transaction()
-			transaction.amount = amount
-			transaction.type = db_constants.TransactionType.REPAYMENT
-			transaction.company_id = company_id
-			transaction.method = payment_method
-			transaction.submitted_at = datetime.datetime.now()
+            # TODO(dlluncor): Lots of validations needed before being able to submit a payment
 
-			session.add(transaction)
+            transaction = models.Transaction()
+            transaction.amount = amount
+            transaction.type = db_constants.TransactionType.REPAYMENT
+            transaction.company_id = company_id
+            transaction.method = payment_method
+            transaction.submitted_at = datetime.datetime.now()
 
-		return make_response(json.dumps({
-			'status': 'OK'
-		}), 200)
+            session.add(transaction)
+
+        return make_response(json.dumps({
+            'status': 'OK'
+        }), 200)
+
 
 class HandleDisbursementView(MethodView):
 
-	# TODO(dlluncor): add back
-	# TODO(dlluncor): Bank-admin only
-	@jwt_required
-	def post(self) -> Response:
-		form = json.loads(request.data)
-		if not form:
-			return make_error_response('No data provided')
+    # TODO(dlluncor): add back
+    # TODO(dlluncor): Bank-admin only
+    @jwt_required
+    def post(self) -> Response:
+        form = json.loads(request.data)
+        if not form:
+            return make_error_response('No data provided')
 
-		required_keys = ['loan_id', 'amount', 'payment_method']
-		for key in required_keys:
-			if key not in form:
-				return make_error_response(
-					'Missing key {} from handle payment request'.format(key))
+        required_keys = ['loan_id', 'amount', 'payment_method']
+        for key in required_keys:
+            if key not in form:
+                return make_error_response(
+                    'Missing key {} from handle payment request'.format(key))
 
-		return make_error_response('Not implemented')
+        return make_error_response('Not implemented')
+
 
 class ApproveLoanView(MethodView):
 
-	# TODO(dlluncor): add back
-	# TODO(dlluncor): Bank-admin only
-	@jwt_required
-	def post(self) -> Response:
-		form = json.loads(request.data)
-		if not form:
-			return make_error_response('No data provided')
+    # TODO(dlluncor): add back
+    # TODO(dlluncor): Bank-admin only
+    @jwt_required
+    def post(self) -> Response:
+        form = json.loads(request.data)
+        if not form:
+            return make_error_response('No data provided')
 
-		required_keys = ['loan_id']
-		for key in required_keys:
-			if key not in form:
-				return make_error_response(
-					'Missing key {} from handle payment request'.format(key))
+        required_keys = ['loan_id']
+        for key in required_keys:
+            if key not in form:
+                return make_error_response(
+                    'Missing key {} from handle payment request'.format(key))
 
-		purchase_order_loan_id = form['loan_id']
+        purchase_order_loan_id = form['loan_id']
 
-		with session_scope(current_app.session_maker) as session:
-			purchase_order_loan = cast(
-				models.PurchaseOrderLoan,
-				session.query(models.PurchaseOrderLoan).filter_by(
-					id=purchase_order_loan_id).first()
-			)
-			loan = purchase_order_loan.loan
-			company_id = loan.company_id
-			# TODO(dlluncor): approved_at = datetime.datetime.now()
+        with session_scope(current_app.session_maker) as session:
+            purchase_order_loan = cast(
+                models.PurchaseOrderLoan,
+                session.query(models.PurchaseOrderLoan).filter_by(
+                    id=purchase_order_loan_id).first()
+            )
+            loan = purchase_order_loan.loan
+            company_id = loan.company_id
+            # TODO(dlluncor): approved_at = datetime.datetime.now()
 
-		return make_error_response('Not implemented')
+        return make_error_response('Not implemented')
 
-
-handler.add_url_rule(
-	'/handle_payment', view_func=HandlePaymentView.as_view(name='handle_payment_view'))
 
 handler.add_url_rule(
-	'/handle_disbursement', view_func=HandleDisbursementView.as_view(name='handle_disbursement_view'))
+    '/handle_payment', view_func=HandlePaymentView.as_view(name='handle_payment_view'))
 
 handler.add_url_rule(
-	'/approve_loan', view_func=ApproveLoanView.as_view(name='approve_loan_view'))
+    '/handle_disbursement', view_func=HandleDisbursementView.as_view(name='handle_disbursement_view'))
+
+handler.add_url_rule(
+    '/approve_loan', view_func=ApproveLoanView.as_view(name='approve_loan_view'))
