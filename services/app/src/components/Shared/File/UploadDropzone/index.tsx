@@ -2,12 +2,10 @@ import {
   Box,
   Button,
   createStyles,
-  IconButton,
   makeStyles,
   Theme,
   Typography,
 } from "@material-ui/core";
-import ClearIcon from "@material-ui/icons/Clear";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import axios from "axios";
 import { FileFragment } from "generated/graphql";
@@ -17,11 +15,15 @@ import { useDropzone } from "react-dropzone";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    dropzone: {
-      border: "1px dotted black",
-      textAlign: "center",
+    container: {
       width: "100%",
       minWidth: 450,
+      border: "1px dotted black",
+    },
+    dropzone: {
+      "&:hover": {
+        cursor: "pointer",
+      },
     },
   })
 );
@@ -104,14 +106,11 @@ function FileUploadDropzone({
   const onDrop = useCallback(
     (acceptedFiles) => {
       if (maxFilesAllowed !== null && acceptedFiles.length > maxFilesAllowed) {
-        setMessage(
-          `Too many files provided. Only ${maxFilesAllowed} may be uploaded`
-        );
-        return;
+        setMessage(`Only ${maxFilesAllowed} file(s) may be uploaded!`);
+      } else {
+        setMessage("");
+        setFiles(acceptedFiles);
       }
-      // Do something with the files
-      setMessage("");
-      setFiles(acceptedFiles);
     },
     [maxFilesAllowed]
   );
@@ -250,65 +249,80 @@ function FileUploadDropzone({
       mb={2}
       justifyContent="center"
       alignItems="center"
-      className={classes.dropzone}
+      className={classes.container}
     >
       {files.length === 0 ? (
-        <div {...getRootProps()}>
+        <Box
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          minHeight={150}
+          className={classes.dropzone}
+          {...getRootProps()}
+        >
           <input {...getInputProps()} />
           <Box
             display="flex"
+            flexDirection="column"
             justifyContent="center"
             alignItems="center"
-            height={100}
           >
-            <Box display="flex" alignItems="center" mr={1}>
-              <CloudUploadIcon></CloudUploadIcon>
-            </Box>
-            {isDragActive ? (
-              <Typography color="textPrimary">
-                Drop the files here ...
-              </Typography>
-            ) : (
-              <Typography color="textPrimary">
-                Drag-and-drop files here, or click here to select
-              </Typography>
-            )}
-          </Box>
-        </div>
-      ) : (
-        <>
-          {message ? message : ""}
-          {files.length > 0 && (
-            <Box textOverflow="clip">
-              {files.map((file) => file.name).join(", ")}
-            </Box>
-          )}
-          {files.length > 0 && (
-            <>
-              <Box
-                display="flex"
-                flexDirection="column"
-                justifyContent="center"
-                alignItems="center"
-                height={100}
-              >
-                <Box display="flex" alignItems="center">
-                  <span>{files.length} file(s) attached</span>
-                  <IconButton onClick={unattachFiles}>
-                    <ClearIcon></ClearIcon>
-                  </IconButton>
-                </Box>
-                <Button
-                  onClick={onFileSubmit}
-                  variant="contained"
-                  color="primary"
-                >
-                  Save Files
-                </Button>
+            <Typography color="secondary" align="center">
+              {message}
+            </Typography>
+            <Box display="flex" alignItems="center">
+              <Box display="flex" mr={1}>
+                <CloudUploadIcon></CloudUploadIcon>
               </Box>
-            </>
-          )}
-        </>
+              <Typography color="textPrimary">
+                {isDragActive
+                  ? "Drop the files here ..."
+                  : "Drag-and-drop files here, or click here to select"}
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+      ) : (
+        <Box
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+          minHeight={150}
+          py={2}
+        >
+          <Box display="flex" flexDirection="column" alignItems="center" mb={1}>
+            <Typography color="secondary" align="center">
+              {message}
+            </Typography>
+            <Typography align="center">
+              {files.map((file) => file.name).join(", ")}
+            </Typography>
+          </Box>
+          <Box
+            display="flex"
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <Box display="flex" justifyContent="space-between" width={260}>
+              <Button
+                onClick={unattachFiles}
+                variant="outlined"
+                color="secondary"
+              >
+                Clear Files
+              </Button>
+              <Button
+                onClick={onFileSubmit}
+                variant="contained"
+                color="primary"
+              >
+                {`Save Files (${files.length})`}
+              </Button>
+            </Box>
+          </Box>
+        </Box>
       )}
     </Box>
   );
