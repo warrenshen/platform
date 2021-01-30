@@ -1,6 +1,11 @@
+from flask import Response
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from mypy_extensions import TypedDict
+from typing import List, Callable, Any
+
+from bespoke import errors
 from bespoke.db import models, db_constants
-from typing import List
+from server.views.common import handler_util
 
 UserPayloadDict = TypedDict('UserPayloadDict', {
     'X-Hasura-User-Id': str,
@@ -18,6 +23,20 @@ def get_claims_payload(user: models.User) -> UserPayloadDict:
         'X-Hasura-Company-Id': str(user.company_id),
     }
     return claims_payload
+
+
+
+def bank_admin_required(f: Callable[..., Response]) -> Response:
+
+    @jwt_required
+    def inner_func(*args: Any, **kwargs: Any) -> Response:
+        user_session = UserSession(get_jwt_identity())
+        if not user_session.is_bank_admin():
+            return handler_util.bad_json_response(errors.Error('Access Denied'))
+
+        return f(*args, **kwargs)
+
+    return inner_func
 
 
 class UserSession(object):

@@ -43,7 +43,7 @@ class User(Base):
 
     if TYPE_CHECKING:
         def __init__(self, email: str, password: str, company_id: str = None, id: uuid.UUID = None, role: str = None) -> None:
-            self.id: uuid.UUID = None
+            self.id: UUID = None
             self.company_id: str = None
             self.password: str = None
             self.email: str = None
@@ -71,6 +71,10 @@ class Customer(Base):
         phone = Column(String)
         email = Column(String)
 
+CompanyDict = TypedDict('CompanyDict', {
+    'id': str,
+    'name': str
+})
 
 class Company(Base):
     """
@@ -79,13 +83,23 @@ class Company(Base):
 
     if TYPE_CHECKING:
         def __init__(self) -> None:
-            self.id: uuid.UUID = None
+            self.id: UUID = None
             self.name: str = None
     else:
         id = Column(UUID(as_uuid=True), primary_key=True,
                     default=uuid.uuid4, unique=True)
         name = Column(String)
 
+    def as_dict(self) -> CompanyDict:
+        return CompanyDict(
+            id=str(self.id),
+            name=self.name
+        )
+
+CompanySettingsDict = TypedDict('CompanySettingsDict', {
+    'id': str,
+    'product_type': str
+})
 
 class CompanySettings(Base):
     __tablename__ = 'company_settings'
@@ -93,14 +107,22 @@ class CompanySettings(Base):
     if TYPE_CHECKING:
         def __init__(self) -> None:
             self.__table__: Any = None
-            self.id: uuid.UUID = None
-            self.company_id: uuid.UUID = None
+            self.id: UUID = None
+            self.company_id: UUID = None
+            self.product_type: str = None
             self.vendor_agreement_docusign_template: str = None
     else:
         id = Column(UUID(as_uuid=True), primary_key=True,
                     default=uuid.uuid4, unique=True)
         company_id = Column(UUID(as_uuid=True))
+        product_type = Column(Text)
         vendor_agreement_docusign_template = Column(Text)
+
+    def as_dict(self) -> CompanySettingsDict:
+        return CompanySettingsDict(
+            id=str(self.id),
+            product_type=self.product_type
+        )
 
 
 class CompanyVendorPartnership(Base):
@@ -109,9 +131,9 @@ class CompanyVendorPartnership(Base):
     if TYPE_CHECKING:
         def __init__(self) -> None:
             self.__table__: Any = None
-            self.id: uuid.UUID = None
-            self.company_id: uuid.UUID = None
-            self.vendor_id: uuid.UUID = None
+            self.id: UUID = None
+            self.company_id: UUID = None
+            self.vendor_id: UUID = None
             self.approved_at: datetime.datetime = None
     else:
         id = Column(UUID(as_uuid=True), primary_key=True,
@@ -140,6 +162,11 @@ class PurchaseOrderFile(Base):
             'files.id'), primary_key=True)
         file_type = Column(String)
 
+PurchaseOrderDict = TypedDict('PurchaseOrderDict', {
+    'id': str,
+    'order_number': str,
+    'status': str
+})
 
 class PurchaseOrder(Base):
     """
@@ -180,6 +207,8 @@ class PurchaseOrder(Base):
         rejected_at = Column(DateTime)
         rejection_note = Column(Text)
 
+        # TODO(dlluncor): Im concerned about too many joins and relationships
+        # happening here, I think we want to cut these off.
         vendor = relationship(
             'Company',
             foreign_keys=[vendor_id]
@@ -190,6 +219,19 @@ class PurchaseOrder(Base):
             foreign_keys=[company_id]
         )
 
+    def as_dict(self) -> PurchaseOrderDict:
+        return PurchaseOrderDict(
+            id=str(self.id),
+            order_number=self.order_number,
+            status=self.status
+        )
+
+LoanDict = TypedDict('LoanDict', {
+    'id': str,
+    'origination_date': datetime.date,
+    'amount': float,
+    'status': str
+})
 
 class Loan(Base):
     __tablename__ = 'loans'
@@ -211,15 +253,30 @@ class Loan(Base):
         company_id = Column(UUID(as_uuid=True), nullable=False)
         requested_at = Column(DateTime)
 
+    def as_dict(self) -> LoanDict:
+        return LoanDict(
+            id=str(self.id),
+            origination_date=self.origination_date,
+            amount=self.amount,
+            status=self.status
+        )
+
+PurchaseOrderLoanDict = TypedDict('PurchaseOrderLoanDict',{
+    'id': str,
+    'purchase_order_id': str,
+    'purchase_order': PurchaseOrderDict,
+    'loan_id': str,
+    'loan': LoanDict
+})
 
 class PurchaseOrderLoan(Base):
     __tablename__ = 'purchase_order_loans'
     if TYPE_CHECKING:
         def __init__(self) -> None:
             self.__table__: Any = None
-            self.id: uuid.UUID = None
-            self.purchase_order_id: uuid.UUID = None
-            self.loan_id: uuid.UUID = None
+            self.id: UUID = None
+            self.purchase_order_id: UUID = None
+            self.loan_id: UUID = None
             self.loan: Loan = None
             self.purchase_order: PurchaseOrder = None
     else:
@@ -244,16 +301,31 @@ class PurchaseOrderLoan(Base):
             foreign_keys=[purchase_order_id]
         )
 
+    def as_dict(self) -> PurchaseOrderLoanDict:
+        return PurchaseOrderLoanDict(
+            id=str(self.id),
+            purchase_order_id=str(self.purchase_order_id),
+            purchase_order=self.purchase_order.as_dict(),
+            loan_id=str(self.loan_id),
+            loan=self.loan.as_dict()
+        )
+
+TransactionDict = TypedDict('TransactionDict', {
+    'id': str,
+    'type': str,
+    'amount': float,
+    'method': str
+})
 
 class Transaction(Base):
     __tablename__ = 'transactions'
     if TYPE_CHECKING:
         def __init__(self) -> None:
             self.__table__: Any = None
-            self.id: uuid.UUID = None
+            self.id: UUID = None
             self.type: str = None
             self.amount: float = None
-            self.company_id: uuid.UUID = None
+            self.company_id: UUID = None
             self.method: str = None
             self.submitted_at: datetime.datetime = None
     else:
@@ -264,6 +336,46 @@ class Transaction(Base):
         company_id = Column(UUID(as_uuid=True), nullable=False)
         method = Column(String)
         submitted_at = Column(DateTime)
+
+    def as_dict(self) -> TransactionDict:
+        return TransactionDict(
+            id=str(self.id),
+            type=self.type,
+            amount=self.amount,
+            method=self.method
+        )
+
+
+PurchaseOrderLoanTransactionDict = TypedDict('PurchaseOrderLoanTransactionDict', {
+    'purchase_order_loan_id': str,
+    'transaction_id': str,
+    'transaction': TransactionDict
+})
+
+class PurchaseOrderLoanTransaction(object):
+    __tablename__ = 'purchase_order_loan_transactions'
+
+    if TYPE_CHECKING:
+        def __init__(self) -> None:
+            self.__table__: Any = None
+            self.purchase_order_loan_id: UUID = None
+            self.transaction_id: UUID = None
+            self.transaction: Transaction = None
+    else:
+        purchase_order_loan_id = Column(UUID(as_uuid=True))
+        transaction_id = Column(UUID(as_uuid=True))
+        transaction = relationship(
+            'Transaction',
+            foreign_keys=[transaction_id]
+        )
+
+    def as_dict(self) -> PurchaseOrderLoanTransactionDict:
+        return PurchaseOrderLoanTransactionDict(
+            purchase_order_loan_id=str(self.purchase_order_loan_id),
+            transaction_id=str(self.transaction_id),
+            transaction=self.transaction.as_dict()
+        )
+
 
 
 class RevokedTokenModel(Base):

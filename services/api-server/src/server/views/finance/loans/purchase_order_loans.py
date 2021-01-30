@@ -9,6 +9,8 @@ from typing import cast
 
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
+from server.views.common import handler_util
+from server.views.common import auth_util
 
 handler = Blueprint('finance_loans_purchase_order_loans', __name__)
 
@@ -18,9 +20,9 @@ def make_error_response(msg: str) -> Response:
 
 
 class HandlePaymentView(MethodView):
+    decorators = [jwt_required]
 
-    # TODO: add back
-    # @jwt_required
+    @handler_util.catch_bad_json_request
     def post(self) -> Response:
         form = json.loads(request.data)
         if not form:
@@ -63,10 +65,9 @@ class HandlePaymentView(MethodView):
 
 
 class HandleDisbursementView(MethodView):
+    decorators = [auth_util.bank_admin_required]
 
-    # TODO(dlluncor): add back
-    # TODO(dlluncor): Bank-admin only
-    @jwt_required
+    @handler_util.catch_bad_json_request
     def post(self) -> Response:
         form = json.loads(request.data)
         if not form:
@@ -82,10 +83,9 @@ class HandleDisbursementView(MethodView):
 
 
 class ApproveLoanView(MethodView):
+    decorators = [auth_util.bank_admin_required]
 
-    # TODO(dlluncor): add back
-    # TODO(dlluncor): Bank-admin only
-    @jwt_required
+    @handler_util.catch_bad_json_request
     def post(self) -> Response:
         form = json.loads(request.data)
         if not form:
@@ -107,7 +107,8 @@ class ApproveLoanView(MethodView):
             )
             loan = purchase_order_loan.loan
             company_id = loan.company_id
-            # TODO(dlluncor): approved_at = datetime.datetime.now()
+            # TODO(dlluncor):
+            # purchase_order_loan.loan.approved_at = datetime.datetime.now()
 
         return make_error_response('Not implemented')
 

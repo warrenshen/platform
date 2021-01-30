@@ -2,6 +2,8 @@
   Constants for things that can get stored in the DB
 """
 
+class ProductType(object):
+    INVENTORY_FINANCING = 'inventory_financing'
 
 class UserRoles(object):
     PURCHASE_ORDER_REVIEWER = 'purchase_order_reviewer'
