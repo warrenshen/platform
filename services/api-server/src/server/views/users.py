@@ -21,70 +21,70 @@ handler = Blueprint('purchase_order', __name__)
 
 
 def make_error_response(msg: str) -> Response:
-    return make_response(json.dumps({'status': 'ERROR', 'msg': msg}), 200)
+	return make_response(json.dumps({'status': 'ERROR', 'msg': msg}), 200)
 
 
 class CreateLoginView(MethodView):
-    """
-            Create login should be created once a bank-admin adds a user to the system
-            or when a company admin adds their own users to the system
-    """
+	"""
+			Create login should be created once a bank-admin adds a user to the system
+			or when a company admin adds their own users to the system
+	"""
 
-    @jwt_required
-    def post(self) -> Response:
-        sendgrid_client = cast(sendgrid_util.Client,
-                               current_app.sendgrid_client)
-        cfg = cast(Config, current_app.app_config)
-        form = json.loads(request.data)
-        if not form:
-            return make_error_response('No data provided')
+	@jwt_required
+	def post(self) -> Response:
+		sendgrid_client = cast(sendgrid_util.Client,
+							   current_app.sendgrid_client)
+		cfg = cast(Config, current_app.app_config)
+		form = json.loads(request.data)
+		if not form:
+			return make_error_response('No data provided')
 
-        required_keys = ['company_id', 'user_id']
+		required_keys = ['company_id', 'user_id']
 
-        for key in required_keys:
-            if key not in form:
-                return make_error_response(f'Missing {key} in respond to create login')
+		for key in required_keys:
+			if key not in form:
+				return make_error_response(f'Missing {key} in respond to create login')
 
-        user_session = UserSession(get_jwt_identity())
-        is_company_admin_for_your_company = user_session.get_company_id(
-        ) == form['company_id'] and user_session.is_company_admin()
+		user_session = UserSession(get_jwt_identity())
+		is_company_admin_for_your_company = user_session.get_company_id(
+		) == form['company_id'] and user_session.is_company_admin()
 
-        has_permissions = user_session.is_bank_admin() or is_company_admin_for_your_company
+		has_permissions = user_session.is_bank_admin() or is_company_admin_for_your_company
 
-        if not has_permissions:
-            return make_error_response('Access Denied')
+		if not has_permissions:
+			return make_error_response('Access Denied')
 
-        # TODO(dlluncor): Better create password mechanism
-        code = security_util.mfa_code_generator()
-        password = f'${code}!'
-        password = password[0:3] + 'a' + password[3:5] + 'z'
-        user_email = ''
+		# TODO(dlluncor): Better create password mechanism
+		code = security_util.mfa_code_generator()
+		password = f'${code}!'
+		password = password[0:3] + 'a' + password[3:5] + 'z'
+		user_email = ''
 
-        with session_scope(current_app.session_maker) as session:
-            existing_user = session.query(models.User).filter(
-                models.User.id == form['user_id']).first()
-            if not existing_user:
-                return make_error_response('No user id found')
+		with session_scope(current_app.session_maker) as session:
+			existing_user = session.query(models.User).filter(
+				models.User.id == form['user_id']).first()
+			if not existing_user:
+				return make_error_response('No user id found')
 
-            existing_user.password = security_util.hash_password(
-                cfg.PASSWORD_SALT, password)
-            user_email = existing_user.email
+			existing_user.password = security_util.hash_password(
+				cfg.PASSWORD_SALT, password)
+			user_email = existing_user.email
 
-        template_name = sendgrid_util.TemplateNames.USER_INVITED_TO_PLATFORM
-        template_data = {
-            'email': user_email,
-            'password': password,
-        }
-        recipients = [user_email]
-        _, err = sendgrid_client.send(
-            template_name, template_data, recipients)
-        if err:
-            return make_error_response(err)
+		template_name = sendgrid_util.TemplateNames.USER_INVITED_TO_PLATFORM
+		template_data = {
+			'email': user_email,
+			'password': password,
+		}
+		recipients = [user_email]
+		_, err = sendgrid_client.send(
+			template_name, template_data, recipients)
+		if err:
+			return make_error_response(err)
 
-        return make_response(json.dumps({
-            'status': 'OK'
-        }), 200)
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
 
 
 handler.add_url_rule(
-    '/create_login', view_func=CreateLoginView.as_view(name='create_login_view'))
+	'/create_login', view_func=CreateLoginView.as_view(name='create_login_view'))

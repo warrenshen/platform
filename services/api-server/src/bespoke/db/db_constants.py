@@ -3,19 +3,19 @@
 """
 
 class ProductType(object):
-    INVENTORY_FINANCING = 'inventory_financing'
+	INVENTORY_FINANCING = 'inventory_financing'
 
 class UserRoles(object):
-    PURCHASE_ORDER_REVIEWER = 'purchase_order_reviewer'
+	PURCHASE_ORDER_REVIEWER = 'purchase_order_reviewer'
 
 
 class TwoFactorLinkType(object):
-    CONFIRM_PURCHASE_ORDER = 'confirm_purchase_order'
+	CONFIRM_PURCHASE_ORDER = 'confirm_purchase_order'
 
 
 class TransactionType(object):
-    REPAYMENT = 'repayment'
-    ADVANCE = 'advance'
+	REPAYMENT = 'repayment'
+	ADVANCE = 'advance'
 
 
 # Having any of these roles means you are a Bespoke bank user

@@ -5,12 +5,12 @@
 
 """
   Inputs:
-    Contract:
-    Repayments:
+	Contract:
+	Repayments:
 
-    Advances:
-    Late Fees:
+	Advances:
+	Late Fees:
 
-    Balances:
-    Billing reports:
+	Balances:
+	Billing reports:
 """
