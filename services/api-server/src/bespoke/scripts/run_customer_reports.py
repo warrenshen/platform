@@ -39,7 +39,7 @@ def main() -> None:
                 company_dict['name'], err
             ))
             continue
-        logging.info(fetcher.summary())
+        logging.info(fetcher.summary() + '\n')
 
     pass
 

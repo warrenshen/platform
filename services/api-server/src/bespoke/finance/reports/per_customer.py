@@ -29,7 +29,7 @@ class Fetcher(object):
         self._session_maker = session_maker
 
         self._purchase_order_loans: List[PurchaseOrderLoanDict] = []
-        self._purchase_order_loans_txs: List[PurchaseOrderLoanTransactionDict] = [] 
+        self._purchase_order_loan_txs: List[PurchaseOrderLoanTransactionDict] = [] 
 
     def _fetch_transactions(self) -> Tuple[bool, errors.Error]:
         product_type = self._settings_dict['product_type']
@@ -107,17 +107,21 @@ class Fetcher(object):
         if err:
             return None, err
 
+        _, err = self._fetch_transactions()
+        if err:
+            return None, err
+
         return True, None
 
     def summary(self) -> str:
         product_type = self._settings_dict['product_type']
         company_dict = self._company
-        loans_str = ''
-        transactions_str = ''
+        loans_str = 'None'
+        transactions_str = 'None'
 
         if product_type == db_constants.ProductType.INVENTORY_FINANCING:
             loans_str = '\n'.join([_loan_to_str(l['loan']) for l in self._purchase_order_loans])
-            transactions_str = '\n'.join([_transaction_to_str(t['transaction']) for t in self._purchase_order_loans_txs])
+            transactions_str = '\n'.join([_transaction_to_str(t['transaction']) for t in self._purchase_order_loan_txs])
 
         return 'The summary for company "{}" is\nLoans:\n{}\nTransactions:\n{}'.format(
             company_dict['name'], loans_str, transactions_str)

@@ -4,7 +4,7 @@ import os
 import time
 import uuid
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, List
 
 import sqlalchemy
 from mypy_extensions import TypedDict
@@ -15,6 +15,7 @@ from sqlalchemy.exc import OperationalError, StatementError, TimeoutError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.orm.query import Query as _Query
+from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import QueuePool
 
 if TYPE_CHECKING:
@@ -25,7 +26,7 @@ Base = declarative_base()  # type: ignore
 
 
 @contextmanager
-def session_scope(session_maker: Callable) -> Generator:
+def session_scope(session_maker: Callable[..., Session]) -> Iterator[Session]:
     """Provide a transactional scope around a series of operations."""
     session = session_maker()
     try:
@@ -352,7 +353,7 @@ PurchaseOrderLoanTransactionDict = TypedDict('PurchaseOrderLoanTransactionDict',
     'transaction': TransactionDict
 })
 
-class PurchaseOrderLoanTransaction(object):
+class PurchaseOrderLoanTransaction(Base):
     __tablename__ = 'purchase_order_loan_transactions'
 
     if TYPE_CHECKING:
@@ -362,8 +363,16 @@ class PurchaseOrderLoanTransaction(object):
             self.transaction_id: UUID = None
             self.transaction: Transaction = None
     else:
-        purchase_order_loan_id = Column(UUID(as_uuid=True))
-        transaction_id = Column(UUID(as_uuid=True))
+        purchase_order_loan_id = Column(
+            UUID(as_uuid=True), 
+            ForeignKey('purchase_order_loans.id'), 
+            primary_key=True
+        )
+        transaction_id = Column(
+            UUID(as_uuid=True), 
+            ForeignKey('transactions.id'),
+            primary_key=True
+        )
         transaction = relationship(
             'Transaction',
             foreign_keys=[transaction_id]

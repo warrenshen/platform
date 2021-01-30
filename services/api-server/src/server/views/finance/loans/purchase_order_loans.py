@@ -1,14 +1,16 @@
 import datetime
 import json
 
+from mypy_extensions import TypedDict
 from flask import request, make_response, current_app
 from flask import Response, Blueprint
 from flask.views import MethodView
 from flask_jwt_extended import jwt_required
-from typing import cast
+from typing import cast, Any
 
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
+from sqlalchemy.orm.session import Session
 from server.views.common import handler_util
 from server.views.common import auth_util
 
@@ -19,6 +21,38 @@ def make_error_response(msg: str) -> Response:
     return make_response(json.dumps({'status': 'ERROR', 'msg': msg}), 200)
 
 
+TransactionInputDict = TypedDict('TransactionInputDict', {
+    'type': str,
+    'amount': float,
+    'payment_method': str
+})
+
+def _add_transaction(
+    tx_input: TransactionInputDict, 
+    purchase_order_loan: models.PurchaseOrderLoan,
+    session: Session) -> None:
+
+    loan = purchase_order_loan.loan
+    company_id = loan.company_id
+
+    # TODO(dlluncor): Lots of validations needed before being able to submit a payment
+
+    transaction = models.Transaction()
+    transaction.amount = tx_input['amount']
+    transaction.type = tx_input['type']
+    transaction.company_id = company_id
+    transaction.method = tx_input['payment_method']
+    transaction.submitted_at = datetime.datetime.now()
+
+    session.add(transaction)
+    session.flush()
+
+    po_tx = models.PurchaseOrderLoanTransaction()
+    po_tx.purchase_order_loan_id = purchase_order_loan.id
+    po_tx.transaction_id = transaction.id
+
+    session.add(po_tx)
+
 class HandlePaymentView(MethodView):
     decorators = [jwt_required]
 
@@ -28,13 +62,13 @@ class HandlePaymentView(MethodView):
         if not form:
             return make_error_response('No data provided')
 
-        required_keys = ['loan_id', 'amount', 'payment_method']
+        required_keys = ['purchase_order_loan_id', 'amount', 'payment_method']
         for key in required_keys:
             if key not in form:
                 return make_error_response(
                     'Missing key {} from handle payment request'.format(key))
 
-        purchase_order_loan_id = form['loan_id']
+        purchase_order_loan_id = form['purchase_order_loan_id']
         amount = form['amount']
         payment_method = form['payment_method']
 
@@ -44,20 +78,15 @@ class HandlePaymentView(MethodView):
                 session.query(models.PurchaseOrderLoan).filter_by(
                     id=purchase_order_loan_id).first()
             )
-            print(purchase_order_loan.purchase_order_id)
-            loan = purchase_order_loan.loan
-            company_id = loan.company_id
-
-            # TODO(dlluncor): Lots of validations needed before being able to submit a payment
-
-            transaction = models.Transaction()
-            transaction.amount = amount
-            transaction.type = db_constants.TransactionType.REPAYMENT
-            transaction.company_id = company_id
-            transaction.method = payment_method
-            transaction.submitted_at = datetime.datetime.now()
-
-            session.add(transaction)
+            if not purchase_order_loan:
+                return make_error_response('Purchase order loan no longer exists')
+            
+            tx_input = TransactionInputDict(
+                type=db_constants.TransactionType.REPAYMENT,
+                amount=amount,
+                payment_method=payment_method
+            )
+            _add_transaction(tx_input, purchase_order_loan, session)
 
         return make_response(json.dumps({
             'status': 'OK'
@@ -73,13 +102,35 @@ class HandleDisbursementView(MethodView):
         if not form:
             return make_error_response('No data provided')
 
-        required_keys = ['loan_id', 'amount', 'payment_method']
+        required_keys = ['purchase_order_loan_id', 'amount', 'payment_method']
         for key in required_keys:
             if key not in form:
                 return make_error_response(
                     'Missing key {} from handle payment request'.format(key))
 
-        return make_error_response('Not implemented')
+        purchase_order_loan_id = form['purchase_order_loan_id']
+        amount = form['amount']
+        payment_method = form['payment_method']
+
+        with session_scope(current_app.session_maker) as session:
+            purchase_order_loan = cast(
+                models.PurchaseOrderLoan,
+                session.query(models.PurchaseOrderLoan).filter_by(
+                    id=purchase_order_loan_id).first()
+            )
+            if not purchase_order_loan:
+                return make_error_response('Purchase order loan no longer exists')
+            
+            tx_input = TransactionInputDict(
+                type=db_constants.TransactionType.ADVANCE,
+                amount=amount,
+                payment_method=payment_method
+            )
+            _add_transaction(tx_input, purchase_order_loan, session)
+
+        return make_response(json.dumps({
+            'status': 'OK'
+        }), 200)
 
 
 class ApproveLoanView(MethodView):

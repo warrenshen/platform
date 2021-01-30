@@ -12,7 +12,7 @@ def get_exception_message(e: Exception) -> Tuple[bool, str]:
 def bad_json_response(error: errors.Error) -> Response:
   return Response(
       response=json.dumps(
-        dict(status='ERROR', msg=error, err_details=error.details)),
+        dict(status='ERROR', msg=error.msg, err_details=error.details)),
       headers={'Content-Type': 'application/json; charset=utf-8'},
       mimetype='application/json')
 
