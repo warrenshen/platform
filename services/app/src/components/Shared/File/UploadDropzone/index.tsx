@@ -5,8 +5,10 @@ import {
   IconButton,
   makeStyles,
   Theme,
+  Typography,
 } from "@material-ui/core";
 import ClearIcon from "@material-ui/icons/Clear";
+import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import axios from "axios";
 import { FileFragment } from "generated/graphql";
 import { authenticatedApi, fileRoutes } from "lib/api";
@@ -18,8 +20,8 @@ const useStyles = makeStyles((theme: Theme) =>
     dropzone: {
       border: "1px dotted black",
       textAlign: "center",
-      height: 150,
-      width: 600,
+      width: "100%",
+      minWidth: 450,
     },
   })
 );
@@ -246,47 +248,67 @@ function FileUploadDropzone({
     <Box
       mt={1}
       mb={2}
-      pt={3}
-      alignItems="center"
       justifyContent="center"
+      alignItems="center"
       className={classes.dropzone}
     >
-      <div {...getRootProps()}>
-        <input {...getInputProps()} />
-
-        {files.length === 0 && (
-          <div>
+      {files.length === 0 ? (
+        <div {...getRootProps()}>
+          <input {...getInputProps()} />
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height={100}
+          >
+            <Box display="flex" alignItems="center" mr={1}>
+              <CloudUploadIcon></CloudUploadIcon>
+            </Box>
             {isDragActive ? (
-              <p>Drop the files here ...</p>
+              <Typography color="textPrimary">
+                Drop the files here ...
+              </Typography>
             ) : (
-              <p>Drag-and-drop files here, or click here to select</p>
+              <Typography color="textPrimary">
+                Drag-and-drop files here, or click here to select
+              </Typography>
             )}
-          </div>
-        )}
-      </div>
-
-      {message ? message : ""}
-      {files.length > 0 && (
-        <Box textOverflow="clip">
-          {files
-            .map((file) => {
-              return file.name;
-            })
-            .join(", ")}
-        </Box>
-      )}
-      {files.length > 0 && (
-        <Box>
-          <span>{files.length} file(s) attached</span>
-          <IconButton onClick={unattachFiles}>
-            <ClearIcon></ClearIcon>
-          </IconButton>
-        </Box>
-      )}
-      {files.length > 0 && (
-        <Button onClick={onFileSubmit} variant="contained" color="default">
-          Save Files
-        </Button>
+          </Box>
+        </div>
+      ) : (
+        <>
+          {message ? message : ""}
+          {files.length > 0 && (
+            <Box textOverflow="clip">
+              {files.map((file) => file.name).join(", ")}
+            </Box>
+          )}
+          {files.length > 0 && (
+            <>
+              <Box
+                display="flex"
+                flexDirection="column"
+                justifyContent="center"
+                alignItems="center"
+                height={100}
+              >
+                <Box display="flex" alignItems="center">
+                  <span>{files.length} file(s) attached</span>
+                  <IconButton onClick={unattachFiles}>
+                    <ClearIcon></ClearIcon>
+                  </IconButton>
+                </Box>
+                <Button
+                  onClick={onFileSubmit}
+                  variant="contained"
+                  color="primary"
+                >
+                  Save Files
+                </Button>
+              </Box>
+            </>
+          )}
+        </>
       )}
     </Box>
   );

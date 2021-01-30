@@ -8,6 +8,7 @@ import {
   MenuItem,
   Select,
   Theme,
+  Typography,
 } from "@material-ui/core";
 import {
   KeyboardDatePicker,
@@ -23,23 +24,8 @@ import {
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    dialog: {
-      minWidth: "500px",
-    },
-    dialogTitle: {
-      paddingLeft: theme.spacing(4),
-      borderBottom: "1px solid #c7c7c7",
-    },
     purchaseOrderInput: {
       width: "200px",
-    },
-    dialogActions: {
-      margin: theme.spacing(4),
-      marginTop: 0,
-      marginBottom: 15,
-    },
-    submitButton: {
-      marginLeft: theme.spacing(1),
     },
   })
 );
@@ -94,33 +80,35 @@ function PurchaseOrderLoanForm({
             </MenuItem>
             {approvedPurchaseOrders?.map((purchaseOrder) => (
               <MenuItem key={purchaseOrder.id} value={purchaseOrder.id}>
-                {`${purchaseOrder.vendor?.name} - $${Intl.NumberFormat(
-                  "en-US"
-                ).format(purchaseOrder.amount)} - ${
-                  purchaseOrder.delivery_date
-                }`}
+                {`${purchaseOrder.order_number} - ${
+                  purchaseOrder.vendor?.name
+                } - $${Intl.NumberFormat("en-US").format(
+                  purchaseOrder.amount
+                )} - ${purchaseOrder.delivery_date}`}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
       </Box>
-      <Box display="flex" mt={3}>
-        {selectedPurchaseOrder ? (
+      {selectedPurchaseOrder && (
+        <Box display="flex" mt={3}>
           <PurchaseOrderInfoCard purchaseOrder={selectedPurchaseOrder} />
-        ) : (
-          <Box>Purchase Order not selected yet</Box>
-        )}
-      </Box>
-      <Box>
+        </Box>
+      )}
+      <Box display="flex" flexDirection="column">
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
           <KeyboardDatePicker
             className={classes.purchaseOrderInput}
             disableToolbar
+            disablePast
+            shouldDisableDate={(date) =>
+              date?.getDay() === 0 || date?.getDay() === 6
+            }
             variant="inline"
             format="MM/dd/yyyy"
             margin="normal"
             id="origination-date-date-picker"
-            label="Origination Date"
+            label="Payment Date"
             value={purchaseOrderLoan.loan?.data?.origination_date}
             onChange={(value: MaterialUiPickersDate) => {
               setPurchaseOrderLoan({
@@ -138,6 +126,10 @@ function PurchaseOrderLoanForm({
             }}
           />
         </MuiPickersUtilsProvider>
+        <Typography variant="body2" color="textSecondary">
+          The Payment Date is the date when the payment will arrive to the
+          vendor and when interest charges begin.
+        </Typography>
       </Box>
       <Box mt={3}>
         <FormControl fullWidth className={classes.purchaseOrderInput}>

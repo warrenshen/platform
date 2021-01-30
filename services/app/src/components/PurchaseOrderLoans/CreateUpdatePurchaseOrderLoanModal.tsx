@@ -27,7 +27,7 @@ import PurchaseOrderLoanForm from "./PurchaseOrderLoanForm";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     dialog: {
-      minWidth: "500px",
+      width: 500,
     },
     dialogTitle: {
       paddingLeft: theme.spacing(4),

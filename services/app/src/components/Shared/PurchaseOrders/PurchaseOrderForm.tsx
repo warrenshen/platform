@@ -12,6 +12,7 @@ import {
   Select,
   TextField,
   Theme,
+  Typography,
 } from "@material-ui/core";
 import {
   KeyboardDatePicker,
@@ -32,23 +33,8 @@ import { ChangeEvent } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    dialog: {
-      minWidth: "500px",
-    },
-    dialogTitle: {
-      paddingLeft: theme.spacing(4),
-      borderBottom: "1px solid #c7c7c7",
-    },
     purchaseOrderInput: {
       width: "200px",
-    },
-    dialogActions: {
-      margin: theme.spacing(4),
-      marginTop: 0,
-      marginBottom: 15,
-    },
-    submitButton: {
-      marginLeft: theme.spacing(1),
     },
   })
 );
@@ -191,6 +177,9 @@ function PurchaseOrderForm({
         </FormControl>
       </Box>
       <Box mt={3}>
+        <Typography variant="subtitle1" color="textSecondary">
+          File Attachment (1 file required)
+        </Typography>
         {purchaseOrderFile && (
           <Grid item>
             <DownloadThumbnail
@@ -240,6 +229,9 @@ function PurchaseOrderForm({
       </Box>
       {!!purchaseOrder.is_cannabis && (
         <Box mt={3}>
+          <Typography variant="subtitle1" color="textSecondary">
+            Cannabis File Attachments
+          </Typography>
           {purchaseOrderCannabisFiles.length > 0 && (
             <Grid item>
               <DownloadThumbnail
