@@ -24,6 +24,9 @@ export enum Action {
 
   // Users
   ManipulateUser = "users:manipulate",
+
+  // Settings
+  EditUserAccountSettings = "account_settings:edit",
 }
 
 export interface ActionData {
@@ -103,6 +106,8 @@ const rules: Rules = {
       Action.RejectLoan,
       Action.EditLoanInternalNote,
       Action.ViewLoanInternalNote,
+
+      Action.EditUserAccountSettings,
     ],
     dynamic: [
       {

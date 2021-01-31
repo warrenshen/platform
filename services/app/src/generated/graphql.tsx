@@ -8418,6 +8418,7 @@ export type UpdatePurchaseOrderMutation = { delete_purchase_order_files?: Maybe<
 export type UpdateCompanyAccountSettingsMutationVariables = Exact<{
   companySettingsId: Scalars['uuid'];
   vendorAgreementTemplateLink?: Maybe<Scalars['String']>;
+  productConfig?: Maybe<Scalars['jsonb']>;
 }>;
 
 
@@ -10141,10 +10142,10 @@ export type UpdatePurchaseOrderMutationHookResult = ReturnType<typeof useUpdateP
 export type UpdatePurchaseOrderMutationResult = Apollo.MutationResult<UpdatePurchaseOrderMutation>;
 export type UpdatePurchaseOrderMutationOptions = Apollo.BaseMutationOptions<UpdatePurchaseOrderMutation, UpdatePurchaseOrderMutationVariables>;
 export const UpdateCompanyAccountSettingsDocument = gql`
-    mutation UpdateCompanyAccountSettings($companySettingsId: uuid!, $vendorAgreementTemplateLink: String) {
+    mutation UpdateCompanyAccountSettings($companySettingsId: uuid!, $vendorAgreementTemplateLink: String, $productConfig: jsonb) {
   update_company_settings_by_pk(
     pk_columns: {id: $companySettingsId}
-    _set: {vendor_agreement_docusign_template: $vendorAgreementTemplateLink}
+    _set: {vendor_agreement_docusign_template: $vendorAgreementTemplateLink, product_config: $productConfig}
   ) {
     ...CompanySettings
   }
@@ -10167,6 +10168,7 @@ export type UpdateCompanyAccountSettingsMutationFn = Apollo.MutationFunction<Upd
  *   variables: {
  *      companySettingsId: // value for 'companySettingsId'
  *      vendorAgreementTemplateLink: // value for 'vendorAgreementTemplateLink'
+ *      productConfig: // value for 'productConfig'
  *   },
  * });
  */

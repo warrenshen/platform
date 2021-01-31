@@ -23,7 +23,6 @@ function Settings(props: Props) {
   const settings = props.settings;
   const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
 
-  // TODO(dlluncor): Need to limit a customer from editing their account settings
   return (
     <div>
       <BankAccounts

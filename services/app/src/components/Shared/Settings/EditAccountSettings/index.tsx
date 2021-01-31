@@ -4,9 +4,12 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  InputLabel,
   makeStyles,
   TextField,
 } from "@material-ui/core";
+import ContractTermsLink from "components/Shared/Settings/ContractTermsLink";
+import { ContractConfig } from "components/Shared/Settings/ContractTermsModal";
 import {
   CompanySettingsForCustomerFragment,
   CompanySettingsFragment,
@@ -35,6 +38,12 @@ function EditAccountSettings(props: Props) {
   const [settings, setSettings] = useState<
     CompanySettingsFragment | CompanySettingsForCustomerFragment
   >(props.settings);
+
+  const contractConfig = {
+    product_type: settings.product_type,
+    product_config: settings.product_config,
+    isViewOnly: false,
+  };
 
   return (
     <Dialog open onClose={props.onClose} maxWidth="md">
@@ -68,6 +77,19 @@ function EditAccountSettings(props: Props) {
               }}
             ></TextField>
           </Box>
+          <Box mb={2}>
+            <InputLabel>Contract Terms</InputLabel>
+            <ContractTermsLink
+              linkText="Edit"
+              contractConfig={contractConfig}
+              onSave={(newContractConfig: ContractConfig) => {
+                setSettings({
+                  ...settings,
+                  product_config: newContractConfig.product_config,
+                });
+              }}
+            ></ContractTermsLink>
+          </Box>
           <Button
             size="small"
             variant="contained"
@@ -78,6 +100,7 @@ function EditAccountSettings(props: Props) {
                   companySettingsId: settings.id,
                   vendorAgreementTemplateLink:
                     settings.vendor_agreement_docusign_template,
+                  productConfig: settings.product_config,
                 },
                 refetchQueries: [
                   {

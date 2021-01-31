@@ -5,13 +5,17 @@ import {
   CardActions,
   CardContent,
   createStyles,
+  Link,
   makeStyles,
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
+import Can from "components/Shared/Can";
+import ContractTermsLink from "components/Shared/Settings/ContractTermsLink";
 import {
   CompanySettingsForCustomerFragment,
   CompanySettingsFragment,
 } from "generated/graphql";
+import { Action } from "lib/auth/rbac-rules";
 
 interface Props {
   settings: CompanySettingsFragment | CompanySettingsForCustomerFragment;
@@ -45,23 +49,46 @@ function AccountSettingsCard(props: Props) {
           </Box>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Vendor Agreement</Box>
-            <Box>{settings.vendor_agreement_docusign_template}</Box>
+            <Box>
+              <Link
+                href={settings.vendor_agreement_docusign_template || ""}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Link
+              </Link>
+            </Box>
+          </Box>
+          <Box display="flex" pb={0.25}>
+            <Box className={classes.label}>Contract Terms</Box>
+            <Box>
+              <ContractTermsLink
+                linkText="View"
+                contractConfig={{
+                  product_type: settings.product_type,
+                  product_config: settings.product_config,
+                  isViewOnly: true,
+                }}
+              ></ContractTermsLink>
+            </Box>
           </Box>
         </Box>
       </CardContent>
-      {props.onClick && (
-        <CardActions>
-          <Button
-            size="small"
-            variant="outlined"
-            onClick={() => {
-              props.onClick && props.onClick();
-            }}
-          >
-            Edit
-          </Button>
-        </CardActions>
-      )}
+      <Can perform={Action.EditUserAccountSettings}>
+        {props.onClick && (
+          <CardActions>
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={() => {
+                props.onClick && props.onClick();
+              }}
+            >
+              Edit
+            </Button>
+          </CardActions>
+        )}
+      </Can>
     </Card>
   );
 }
