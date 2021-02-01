@@ -30,3 +30,6 @@ boto3==1.16.50
 
 # Email
 sendgrid==6.4.8
+
+# Reports
+xlwt==1.3.0

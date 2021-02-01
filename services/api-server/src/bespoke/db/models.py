@@ -99,7 +99,8 @@ class Company(Base):
 
 CompanySettingsDict = TypedDict('CompanySettingsDict', {
 	'id': str,
-	'product_type': str
+	'product_type': str,
+	'product_config': Dict
 })
 
 class CompanySettings(Base):
@@ -111,18 +112,21 @@ class CompanySettings(Base):
 			self.id: UUID = None
 			self.company_id: UUID = None
 			self.product_type: str = None
+			self.product_config: Dict = None
 			self.vendor_agreement_docusign_template: str = None
 	else:
 		id = Column(UUID(as_uuid=True), primary_key=True,
 					default=uuid.uuid4, unique=True)
 		company_id = Column(UUID(as_uuid=True))
 		product_type = Column(Text)
+		product_config = Column(JSON)
 		vendor_agreement_docusign_template = Column(Text)
 
 	def as_dict(self) -> CompanySettingsDict:
 		return CompanySettingsDict(
 			id=str(self.id),
-			product_type=self.product_type
+			product_type=self.product_type,
+			product_config=self.product_config
 		)
 
 
@@ -315,7 +319,8 @@ TransactionDict = TypedDict('TransactionDict', {
 	'id': str,
 	'type': str,
 	'amount': float,
-	'method': str
+	'method': str,
+	'submitted_at': datetime.datetime
 })
 
 class Transaction(Base):
@@ -343,7 +348,8 @@ class Transaction(Base):
 			id=str(self.id),
 			type=self.type,
 			amount=self.amount,
-			method=self.method
+			method=self.method,
+			submitted_at=self.submitted_at
 		)
 
 
