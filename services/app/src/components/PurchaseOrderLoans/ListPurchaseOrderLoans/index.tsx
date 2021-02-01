@@ -5,6 +5,7 @@ import Launcher from "components/Shared/PurchaseOrderLoanDrawer/Launcher";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import DataGrid, {
   Column,
+  Selection,
   IColumnProps,
   Pager,
   Paging,
@@ -12,6 +13,7 @@ import DataGrid, {
 import { Maybe, PurchaseOrderLoanFragment } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import React, { useContext } from "react";
+import Status from "components/Shared/Chip/Status";
 
 function getRows(
   purchaseOrderLoans: Maybe<PurchaseOrderLoanFragment[]>
@@ -55,6 +57,14 @@ function ListPurchaseOrderLoans({
       </Box>
     );
   };
+
+  const statusCellRenderer = (params: ValueFormatterParams) => (
+    <Status statusValue={params.value} />
+  );
+
+  const loanNotesRenderer = (params: ValueFormatterParams) => (
+    <Box>{params.row.data.loan.notes as string}</Box>
+  );
 
   const actionCellRenderer = (params: ValueFormatterParams) => (
     <ActionMenu
@@ -108,70 +118,93 @@ function ListPurchaseOrderLoans({
       dataField: "purchase_order_id",
       caption: "Purchase Order",
       cellRender: purchaseOrderRenderer,
-      width: 150,
+      minWidth: 150,
     },
     {
       dataField: "loan.amount",
+      alignment: "left",
       caption: "Amount",
-      width: 150,
+      minWidth: 150,
     },
     {
       dataField: "loan.origination_date",
       caption: "Origination Date",
-      width: 200,
+      alignment: "center",
+      minWidth: 140,
     },
     {
-      dataField: "loan.adjusted_maturity_date",
+      dataField: "loan.maturity_date",
       caption: "Maturity Date",
-      width: 200,
+      alignment: "center",
+      minWidth: 140,
     },
     {
       dataField: "loan.outstanding_principal_balance",
       caption: "Outstanding Principal Balance",
-      width: 220,
+      minWidth: 220,
     },
     {
       dataField: "loan.status",
       caption: "Status",
-      width: 150,
+      alignment: "center",
+      minWidth: 175,
+      cellRender: statusCellRenderer,
     },
     {
       dataField: "action",
       caption: "Action",
       alignment: "center",
-      width: 100,
+      minWidth: 100,
       cellRender: actionCellRenderer,
+    },
+    {
+      dataField: "loan.notes",
+      caption: "Internal Note",
+      minWidth: 300,
+      visible: check(user.role, Action.ViewLoanInternalNote),
+      cellRender: loanNotesRenderer,
     },
   ];
 
-  if (check(user.role, Action.ViewLoanInternalNote)) {
-    columns.push({
-      dataField: "loan.notes",
-      caption: "Internal Note",
-      width: 300,
-      cellRender: (params: ValueFormatterParams) => (
-        <Box>{params.row.data.loan.notes as string}</Box>
-      ),
-    });
-  }
+  const onSelectionChanged = (params: any) => {
+    const { selectedRowsData } = params;
+    console.log(selectedRowsData);
+  };
 
   return (
-    <div style={{ minHeight: "500px", width: "100%" }}>
+    <div style={{ height: "80vh", width: "100%" }}>
       <DataGrid
         height={"100%"}
         width={"100%"}
-        dataSource={rows}
+        onSelectionChanged={onSelectionChanged}
         wordWrapEnabled={true}
+        dataSource={rows}
       >
-        {columns.map(({ dataField, width, caption, cellRender }) => (
-          <Column
-            key={dataField}
-            caption={caption}
-            dataField={dataField}
-            width={width}
-            cellRender={cellRender}
-          />
-        ))}
+        {columns.map(
+          ({
+            dataField,
+            minWidth,
+            alignment,
+            visible,
+            caption,
+            cellRender,
+          }) => (
+            <Column
+              key={dataField}
+              caption={caption}
+              visible={visible}
+              dataField={dataField}
+              minWidth={minWidth}
+              alignment={alignment}
+              cellRender={cellRender}
+            />
+          )
+        )}
+        <Selection
+          mode="multiple"
+          selectAllMode={"allPages"}
+          showCheckBoxesMode={"always"}
+        />
         <Paging defaultPageSize={50} />
         <Pager
           visible={true}

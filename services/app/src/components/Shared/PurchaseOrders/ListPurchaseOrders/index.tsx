@@ -11,7 +11,7 @@ import { PurchaseOrderFragment } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
 import { Action, check } from "lib/auth/rbac-rules";
 import { useContext } from "react";
-import Status from "./Status";
+import Status from "components/Shared/Chip/Status";
 
 function populateRows(
   purchaseOrders: Maybe<PurchaseOrderFragment[]>
@@ -60,67 +60,76 @@ function ListPurchaseOrders({
     {
       dataField: "order_number",
       caption: "Order Number",
-      width: 150,
+      minWidth: 150,
     },
     {
       dataField: "vendor_name",
       caption: "Vendor",
-      width: 200,
+      minWidth: 200,
     },
     {
       dataField: "amount",
+      alignment: "left",
       caption: "Amount",
-      width: 120,
+      minWidth: 120,
     },
     {
       dataField: "order_date",
       caption: "Order Date",
       alignment: "center",
-      width: 130,
+      minWidth: 130,
     },
     {
       dataField: "delivery_date",
       caption: "Delivery Date",
       alignment: "center",
-      width: 130,
+      minWidth: 130,
     },
     {
       dataField: "loans",
       caption: "Loans",
-      width: 150,
+      minWidth: 150,
     },
     {
       dataField: "status",
       caption: "Status",
-      width: 175,
+      minWidth: 175,
       alignment: "center",
       cellRender: statusCellRenderer,
     },
-  ];
-
-  if (check(user.role, Action.ViewPurchaseOrdersActionMenu)) {
-    columns.push({
+    {
       dataField: "action",
       caption: "Action",
       alignment: "center",
-      width: 100,
+      minWidth: 100,
+      visible: check(user.role, Action.ViewPurchaseOrdersActionMenu),
       cellRender: actionCellRenderer,
-    });
-  }
+    },
+  ];
 
   return (
     <div style={{ height: "80vh", width: "100%" }}>
       <DataGrid height={"100%"} width={"100%"} dataSource={rows}>
-        {columns.map(({ dataField, width, caption, alignment, cellRender }) => (
-          <Column
-            key={dataField}
-            caption={caption}
-            dataField={dataField}
-            alignment={alignment}
-            width={width}
-            cellRender={cellRender}
-          />
-        ))}
+        {columns.map(
+          ({
+            dataField,
+            minWidth,
+            caption,
+            visible,
+            alignment,
+            cellRender,
+          }) => (
+            <Column
+              key={dataField}
+              caption={caption}
+              dataField={dataField}
+              alignment={alignment}
+              minWidth={minWidth}
+              visible={visible}
+              cellRender={cellRender}
+            />
+          )
+        )}
         <Paging defaultPageSize={50} />
         <Pager
           visible={true}

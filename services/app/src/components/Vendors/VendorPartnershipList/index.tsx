@@ -55,41 +55,40 @@ function VendorPartnershipList({
     </div>
   );
 
-  const columnWidth = isBankAccount ? 200 : 225;
+  const columnWidth = isBankAccount ? 195 : 225;
 
   const columns: IColumnProps[] = [
     {
       dataField: isBankAccount ? "vendor.name" : "vendor_limited.name",
       caption: "Vendor name",
-      minWidth: 200,
+      minWidth: 190,
       ...(isBankAccount && { cellRender: vendorNameCellRenderer }),
     },
-    ...(isBankAccount
-      ? [
-          {
-            dataField: "company.name",
-            caption: "Company name",
-            minWidth: 200,
-          },
-        ]
-      : []),
+    {
+      dataField: "company.name",
+      caption: "Company name",
+      visible: !!isBankAccount,
+      minWidth: 190,
+    },
     {
       dataField: "vendor_agreement_id",
       caption: "Signed Vendor Agreement",
       alignment: "center",
+      minWidth: columnWidth,
       cellRender: verificationCellRenderer,
     },
     {
       dataField: "vendor_license_id",
       caption: "Verified license",
       alignment: "center",
+      minWidth: columnWidth,
       cellRender: verificationCellRenderer,
     },
     {
       dataField: "vendor_bank_account.verified_at",
       caption: "Verified Bank account",
-      width: isBankAccount ? columnWidth : 0,
-      visible: isBankAccount,
+      visible: !!isBankAccount,
+      minWidth: columnWidth,
       alignment: "center",
       cellRender: verificationCellRenderer,
     },
@@ -97,6 +96,7 @@ function VendorPartnershipList({
       dataField: "approved_at",
       caption: "Approved",
       alignment: "center",
+      minWidth: columnWidth,
       cellRender: verificationCellRenderer,
     },
   ];
@@ -112,13 +112,21 @@ function VendorPartnershipList({
       <div style={{ height: "80vh", width: "100%" }}>
         <DataGrid height={"100%"} width={"100%"} dataSource={data}>
           {columns.map(
-            ({ dataField, alignment, width, caption, cellRender }) => (
+            ({
+              dataField,
+              alignment,
+              visible,
+              minWidth,
+              caption,
+              cellRender,
+            }) => (
               <Column
                 key={dataField}
                 caption={caption}
                 dataField={dataField}
                 alignment={alignment}
-                width={width}
+                visible={visible}
+                minWidth={minWidth}
                 cellRender={cellRender}
               />
             )

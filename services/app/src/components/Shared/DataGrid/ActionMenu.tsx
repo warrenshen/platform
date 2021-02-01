@@ -23,7 +23,7 @@ function ActionMenu({ actionItems }: Props) {
   };
 
   return (
-    <Box display="flex" flexDirection="column">
+    <Box>
       <IconButton onClick={handleClick}>
         <ArrowDropDownIcon></ArrowDropDownIcon>
       </IconButton>
