@@ -27,14 +27,8 @@ import { useParams } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    nameInput: {
-      width: 400,
-    },
-    addressForm: {
-      width: 600,
-    },
-    addressSubForm: {
-      width: 140,
+    dialog: {
+      width: 500,
     },
   })
 );
@@ -65,34 +59,38 @@ function RegisterVendorModal(props: Props) {
   const notifier = new InventoryNotifier();
 
   return (
-    <Dialog open onClose={props.handleClose} maxWidth="md">
+    <Dialog
+      open
+      onClose={props.handleClose}
+      maxWidth="md"
+      classes={{ paper: classes.dialog }}
+    >
       <DialogTitle>Register Vendor</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Please provide details about the vendor you'll be working with.
+          {role !== UserRolesEnum.BankAdmin
+            ? "Please provide details about the vendor you are working with. After you register this vendor, Bespoke will email the vendor a Vendor Agreement via DocuSign. Once the vendor signs the agreement, Bespoke will verify the vendor's bank account information and licenses."
+            : "Please provide details about the vendor you want to create."}
         </DialogContentText>
-        <Box pb={3} pt={2}>
-          <TextField
-            label="Vendor Name"
-            required
-            className={classes.nameInput}
-            value={vendor.name}
-            onChange={({ target: { value } }) => {
-              setVendor({ ...vendor, name: value });
-            }}
-          ></TextField>
-          <Box
-            display="flex"
-            flexDirection="column"
-            my={3}
-            className={classes.addressForm}
-          >
-            <Typography variant="subtitle1">Primary Contact</Typography>
-            <Box ml={1}>
+        <Box my={2}>
+          <Box display="flex" flexDirection="column">
+            <TextField
+              label="Vendor Name"
+              required
+              value={vendor.name}
+              onChange={({ target: { value } }) => {
+                setVendor({ ...vendor, name: value });
+              }}
+            ></TextField>
+          </Box>
+          <Box display="flex" flexDirection="column" my={3}>
+            <Typography variant="subtitle1">
+              Vendor's Primary Contact
+            </Typography>
+            <Box display="flex" flexDirection="column" mx={2}>
               <TextField
                 label="First Name"
                 required
-                className={classes.nameInput}
                 value={contact.first_name}
                 onChange={({ target: { value } }) => {
                   setContact({ ...contact, first_name: value });
@@ -101,7 +99,6 @@ function RegisterVendorModal(props: Props) {
               <TextField
                 label="Last Name"
                 required
-                className={classes.nameInput}
                 value={contact.last_name}
                 onChange={({ target: { value } }) => {
                   setContact({ ...contact, last_name: value });
@@ -110,7 +107,6 @@ function RegisterVendorModal(props: Props) {
               <TextField
                 label="Email"
                 required
-                className={classes.nameInput}
                 value={contact.email}
                 onChange={({ target: { value } }) => {
                   setContact({ ...contact, email: value });
@@ -118,7 +114,6 @@ function RegisterVendorModal(props: Props) {
               ></TextField>
               <TextField
                 label="Phone Number"
-                className={classes.nameInput}
                 value={contact.phone_number}
                 onChange={({ target: { value } }) => {
                   setContact({ ...contact, phone_number: value });
@@ -127,13 +122,6 @@ function RegisterVendorModal(props: Props) {
             </Box>
           </Box>
         </Box>
-
-        <DialogContentText>
-          After registering this vendor, our team will send you an email with a
-          template Vendor Agreement between the vendor and Bespoke, to be signed
-          by the vendor via Docusign. Once signed, our team will then verify
-          bank account information and licenses.
-        </DialogContentText>
         {errMsg && <Box>Error: {errMsg}</Box>}
       </DialogContent>
       <DialogActions>
@@ -202,7 +190,7 @@ function RegisterVendorModal(props: Props) {
             variant="contained"
             color="primary"
           >
-            Add
+            Register
           </Button>
         </Box>
       </DialogActions>
