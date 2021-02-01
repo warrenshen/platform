@@ -1,0 +1,134 @@
+{
+	"version": "v1",
+	"product_type": "inventory_financing",
+	"v1": {
+		"fields": [
+			{
+				"section": "Dates",
+				"type": "date",
+				"internal_name": "contract_start_date",
+				"display_name": "Contract Start Date",
+				"description": "Start date of contract",
+				"value": null,
+				"nullable": false
+			},
+			{
+				"section": "Dates",
+				"type": "date",
+				"internal_name": "contract_amended_date",
+				"display_name": "Contract Amended Date",
+				"description": "Date of most recent amended contract",
+				"value": null,
+				"nullable": true
+			},
+			{
+				"section": "Dates",
+				"type": "date",
+				"internal_name": "contract_end_date",
+				"display_name": "Contract End Date",
+				"description": "End date of contract. Automatically renew every year",
+				"value": null,
+				"nullable": false
+			},
+			{
+				"section": "Dates",
+				"type": "date",
+				"internal_name": "contract_termination_date",
+				"display_name": "Contract Termination Date",
+				"description": "If Bespoke enters in termination date - this will override contract end date",
+				"value": null,
+				"nullable": true
+			},
+			{
+				"section": "Limits",
+				"type": "integer",
+				"internal_name": "contract_financing_terms",
+				"display_name": "Contract Financing Terms",
+				"description": "How long our client can keep a principal advance before mandatory repayment",
+				"value": null,
+				"nullable": false
+			},
+			{
+				"section": "Limits",
+				"type": "float",
+				"internal_name": "maximum_amount",
+				"display_name": "Maximum Amount",
+				"description": "Maximum principal outstanding the client can have at any point in time. Have ability to increase/decrease the amount over time",
+				"value": null,
+				"nullable": false
+			},
+			{
+				"section": "Fees",
+				"type": "float",
+				"internal_name": "advance_rate",
+				"display_name": "Advance Rate",
+				"description": "% advance on the amount we loan out",
+				"value": null,
+				"nullable": false
+			},
+			{
+				"section": "Fees",
+				"type": "float",
+				"internal_name": "factoring_fee_percentage",
+				"display_name": "Factoring Fee Percentage",
+				"description": "Daily interest rate",
+				"value": null,
+				"nullable": false
+			},
+			{
+				"section": "Fees",
+				"type": "float",
+				"internal_name": "factoring_fee_threshold",
+				"display_name": "Factoring Fee Threshold",
+				"description": "Some clients have the ability to have a reduced interest rate if they meet certain requirements/thresholds",
+				"value": null,
+				"nullable": false
+			},
+			{
+				"section": "Fees",
+				"type": "float",
+				"internal_name": "adjusted_factoring_fee_percentage",
+				"display_name": "Adjusted Factoring Fee Percentage",
+				"description": "If the client meets the new threshold (as defined above) then this interest rate will be used",
+				"value": null,
+				"nullable": true
+			},
+			{
+				"section": "Fees",
+				"type": "float",
+				"internal_name": "late_fee_structure",
+				"display_name": "Late Fee Structure",
+				"description": "If days past due 1-14: 25% of interest, 15-29: 50%, 30+: 100%. Would like to have the flexibility to update the maturity date and override fees/interest as there have been some exceptions for charging late fees",
+				"value": null,
+				"nullable": false
+			},
+			{
+				"section": "Fees",
+				"type": "float",
+				"internal_name": "wire_fee",
+				"display_name": "Wire Fee",
+				"description": "Manually input the dollar amount for wire fees as they can vary. We can define/add fee names and amounts. Can be multiple wire fee types for each client",
+				"value": null,
+				"nullable": false
+			},
+			{
+				"section": "Fees",
+				"type": "boolean",
+				"internal_name": "preceeding_business_day",
+				"display_name": "Preceeding Business Day",
+				"description": "versus Succeeding Business Day (for adjusted maturity date)",
+				"value": null,
+				"nullable": false
+			},
+			{
+				"section": "Limits",
+				"type": "float",
+				"internal_name": "minimum_monthly_amount",
+				"display_name": "Minimum Monthly Amount",
+				"description": "Across all products, a customer has a monthly minimum revenue generation requirement; this amount is specified in their contract. This can be thought of as an account level “minimum revenue” service fee that gets covered if the customer is actively generating revenue based on their product usage, past that minimum",
+				"value": null,
+				"nullable": false
+			}
+		]
+	}
+}	
