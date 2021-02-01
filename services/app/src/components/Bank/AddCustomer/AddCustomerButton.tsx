@@ -1,5 +1,5 @@
 import { Button } from "@material-ui/core";
-import AddModal from "components/Bank/AddCustomer/AddCustomerModal";
+import AddCustomerModal from "components/Bank/AddCustomer/AddCustomerModal";
 import { useState } from "react";
 
 function AddCustomerButton() {
@@ -7,7 +7,9 @@ function AddCustomerButton() {
 
   return (
     <>
-      {open && <AddModal onClose={() => setOpen(false)}></AddModal>}
+      {open && (
+        <AddCustomerModal handleClose={() => setOpen(false)}></AddCustomerModal>
+      )}
       <Button variant="contained" color="primary" onClick={() => setOpen(true)}>
         Add Customer
       </Button>

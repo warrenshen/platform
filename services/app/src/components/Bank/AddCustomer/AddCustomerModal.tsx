@@ -20,10 +20,10 @@ import { ProductTypeLabel } from "lib/enum";
 import { useState } from "react";
 
 interface Props {
-  onClose: () => void;
+  handleClose: () => void;
 }
 
-function AddCustomerModal(props: Props) {
+function AddCustomerModal({ handleClose }: Props) {
   const [customer, setCustomer] = useState<CompaniesInsertInput>({});
   const [
     companySetting,
@@ -35,7 +35,7 @@ function AddCustomerModal(props: Props) {
   ] = useAddCustomerMutation();
 
   return (
-    <Dialog open onClose={props.onClose}>
+    <Dialog open onClose={handleClose}>
       <DialogTitle>Add Customer</DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column" mb={6}>
@@ -75,7 +75,7 @@ function AddCustomerModal(props: Props) {
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button>Cancel</Button>
+        <Button onClick={handleClose}>Cancel</Button>
         <Button
           variant="contained"
           color="primary"
@@ -98,7 +98,7 @@ function AddCustomerModal(props: Props) {
                 },
               ],
             });
-            props.onClose();
+            handleClose();
           }}
         >
           Create
