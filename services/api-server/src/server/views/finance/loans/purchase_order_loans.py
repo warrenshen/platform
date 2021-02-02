@@ -53,6 +53,35 @@ def _add_transaction(
 
 	session.add(po_tx)
 
+TransactionInsertInputDict = TypedDict('TransactionInsertInputDict', {
+	'company_id': str,
+	'type': str,
+	'amount': float,
+	'method': str,
+	'deposit_date': str
+})
+
+class CalculateEffectOfPaymentView(MethodView):
+	decorators = [jwt_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return make_error_response('No data provided')
+
+		required_keys = ['payment']
+		for key in required_keys:
+			if key not in form:
+				return make_error_response(
+					'Missing key {} from calculate effect of payment request'.format(key))
+
+		tx = form['payment']
+		if type(tx['amount']) != float and type(tx['amount']) != int:
+			return make_error_response('Amount must be a number')
+
+		return make_error_response('Not implemented')
+
 class HandlePaymentView(MethodView):
 	decorators = [jwt_required]
 
@@ -62,15 +91,19 @@ class HandlePaymentView(MethodView):
 		if not form:
 			return make_error_response('No data provided')
 
-		required_keys = ['purchase_order_loan_id', 'amount', 'payment_method']
+		required_keys = ['payment']
 		for key in required_keys:
 			if key not in form:
 				return make_error_response(
 					'Missing key {} from handle payment request'.format(key))
 
-		purchase_order_loan_id = form['purchase_order_loan_id']
-		amount = form['amount']
-		payment_method = form['payment_method']
+		purchase_order_loan_id = None
+		if purchase_order_loan_id:
+			return make_error_response('Unknown purchase order id')
+
+		tx = form['payment']
+		amount = tx['amount']
+		payment_method = tx['method']
 
 		with session_scope(current_app.session_maker) as session:
 			purchase_order_loan = cast(
@@ -166,6 +199,9 @@ class ApproveLoanView(MethodView):
 
 handler.add_url_rule(
 	'/handle_payment', view_func=HandlePaymentView.as_view(name='handle_payment_view'))
+
+handler.add_url_rule(
+	'/calculate_effect_of_payment', view_func=CalculateEffectOfPaymentView.as_view(name='calculate_effect_of_payment_view'))
 
 handler.add_url_rule(
 	'/handle_disbursement', view_func=HandleDisbursementView.as_view(name='handle_disbursement_view'))

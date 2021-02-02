@@ -9,11 +9,13 @@ import {
   MenuItem,
   Select,
 } from "@material-ui/core";
+import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import BankToBankTransfer, {
   PaymentTransferType,
 } from "components/Shared/BankToBankTransfer";
 import CompanyBank from "components/Shared/BankToBankTransfer/CompanyBank";
+import DatePicker from "components/Shared/Dates/DatePicker";
 import {
   BankAccounts,
   Companies,
@@ -36,6 +38,7 @@ interface Props {
   initialAmount?: number;
   allowablePaymentTypes?: Array<PaymentMethod>;
   onCreate?: (payment: TransactionsInsertInput) => void;
+  onCalculateEffectOfPayment?: (payment: TransactionsInsertInput) => void;
   coverageComponent?: (amount: number) => React.ReactNode;
 }
 
@@ -45,6 +48,7 @@ function PaymentModal(props: Props) {
     type: props.type,
     amount: props.initialAmount,
     method: PaymentMethod.None,
+    deposit_date: null,
   });
 
   const onBespokeBankAccountSelection = useCallback(
@@ -67,7 +71,21 @@ function PaymentModal(props: Props) {
 
   return (
     <Dialog open onClose={props.handleClose} fullWidth>
-      <DialogTitle>Create a Payment</DialogTitle>
+      <DialogTitle>
+        Create a Payment
+        <span style={{ float: "right" }}>
+          <Button
+            onClick={() => {
+              props.onCalculateEffectOfPayment &&
+                props.onCalculateEffectOfPayment(payment);
+            }}
+            variant="contained"
+            color="default"
+          >
+            Calculate Effect
+          </Button>
+        </span>
+      </DialogTitle>
       <DialogContent style={{ height: 500 }}>
         <Box display="flex" flexDirection="column">
           <FormControl style={{ width: 200 }}>
@@ -78,10 +96,27 @@ function PaymentModal(props: Props) {
               textAlign="left"
               value={payment.amount}
               onChange={(_event: any, value: string) => {
-                setPayment({ ...payment, amount: value });
+                debugger;
+                setPayment({ ...payment, amount: parseFloat(value) });
               }}
             ></CurrencyTextField>
           </FormControl>
+          <Box>
+            <DatePicker
+              className=""
+              id="payment-modal-deposit-date-date-picker"
+              label="Desposit Date"
+              disablePast={true}
+              disableNonBankDays={true}
+              value={payment.deposit_date}
+              onChange={(value: MaterialUiPickersDate) => {
+                setPayment({
+                  ...payment,
+                  deposit_date: value ? value : new Date().getUTCDate(),
+                });
+              }}
+            />
+          </Box>
           <Box mt={3}>
             <Select
               value={payment.method}

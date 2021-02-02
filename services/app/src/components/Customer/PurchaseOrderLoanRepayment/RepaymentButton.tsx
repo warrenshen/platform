@@ -1,8 +1,12 @@
 import { Button } from "@material-ui/core";
-import RepaymentCoverage from "components/Customer/PurchaseOrderLoanRepayment/RepaymentCoverage";
 import { PaymentTransferType } from "components/Shared/BankToBankTransfer";
 import PaymentModal from "components/Shared/Payments/PaymentModal";
+import { TransactionsInsertInput } from "generated/graphql";
 import useCompanyContext from "hooks/useCompanyContext";
+import {
+  calculateEffectOfPayment,
+  makePayment,
+} from "lib/finance/transactions/purchaseOrderLoans";
 import { useState } from "react";
 
 function RepaymentButton() {
@@ -15,8 +19,21 @@ function RepaymentButton() {
           companyId={companyId}
           type={PaymentTransferType.ToBank}
           handleClose={() => setOpen(false)}
+          onCreate={async (payment: TransactionsInsertInput) => {
+            window.console.log(payment);
+            const resp = await makePayment({ payment: payment });
+            console.log(resp);
+          }}
+          onCalculateEffectOfPayment={async (
+            payment: TransactionsInsertInput
+          ) => {
+            window.console.log(payment);
+            const resp = await calculateEffectOfPayment({ payment: payment });
+            console.log(resp);
+          }}
           coverageComponent={(amount: number) => (
-            <RepaymentCoverage amount={amount}></RepaymentCoverage>
+            <div></div>
+            //<RepaymentCoverage amount={amount}></RepaymentCoverage>
           )}
         ></PaymentModal>
       )}

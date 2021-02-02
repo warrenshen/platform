@@ -30,6 +30,9 @@ export const purchaseOrdersRoutes = {
 
 export const purchaseOrderLoansRoutes = {
   submitForApproval: "/purchase_order_loans/submit_for_approval",
+  makePayment: "/finance/loans/purchase_order/handle_payment",
+  calculateEffectOfPayment:
+    "finance/loans/purchase_order/calculate_effect_of_payment",
 };
 
 export const twoFactorRoutes = {
