@@ -67,7 +67,7 @@ function PaymentModal(props: Props) {
 
   return (
     <Dialog open onClose={props.handleClose} fullWidth>
-      <DialogTitle>Make a Payment</DialogTitle>
+      <DialogTitle>Create a Payment</DialogTitle>
       <DialogContent style={{ height: 500 }}>
         <Box display="flex" flexDirection="column">
           <FormControl style={{ width: 200 }}>
@@ -169,7 +169,7 @@ function PaymentModal(props: Props) {
               variant="contained"
               color="primary"
             >
-              Save
+              Create
             </Button>
           </Box>
         </Box>

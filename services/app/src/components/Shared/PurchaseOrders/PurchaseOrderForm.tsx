@@ -1,4 +1,3 @@
-import DateFnsUtils from "@date-io/date-fns";
 import {
   Box,
   Checkbox,
@@ -14,12 +13,9 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import {
-  KeyboardDatePicker,
-  MuiPickersUtilsProvider,
-} from "@material-ui/pickers";
 import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
+import DatePicker from "components/Shared/Dates/DatePicker";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileUploadDropzone from "components/Shared/File/UploadDropzone";
 import {
@@ -114,50 +110,36 @@ function PurchaseOrderForm({
         ></TextField>
       </Box>
       <Box>
-        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-          <KeyboardDatePicker
-            className={classes.purchaseOrderInput}
-            disableToolbar
-            variant="inline"
-            format="MM/dd/yyyy"
-            margin="normal"
-            id="order-date-date-picker"
-            label="Order Date"
-            value={purchaseOrder.order_date}
-            onChange={(value: MaterialUiPickersDate) => {
-              setPurchaseOrder({
-                ...purchaseOrder,
-                order_date: value ? value : new Date().getUTCDate(),
-              });
-            }}
-            KeyboardButtonProps={{
-              "aria-label": "change date",
-            }}
-          />
-        </MuiPickersUtilsProvider>
+        <DatePicker
+          className={classes.purchaseOrderInput}
+          id="order-date-date-picker"
+          label="Order Date"
+          disablePast={true}
+          disableNonBankDays={true}
+          value={purchaseOrder.order_date}
+          onChange={(value: MaterialUiPickersDate) => {
+            setPurchaseOrder({
+              ...purchaseOrder,
+              order_date: value ? value : new Date().getUTCDate(),
+            });
+          }}
+        />
       </Box>
       <Box>
-        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-          <KeyboardDatePicker
-            className={classes.purchaseOrderInput}
-            disableToolbar
-            variant="inline"
-            format="MM/dd/yyyy"
-            margin="normal"
-            id="delivery-date-date-picker"
-            label="Delivery date"
-            value={purchaseOrder.delivery_date}
-            onChange={(value: MaterialUiPickersDate) => {
-              setPurchaseOrder({
-                ...purchaseOrder,
-                delivery_date: value ? value : new Date().getUTCDate(),
-              });
-            }}
-            KeyboardButtonProps={{
-              "aria-label": "change date",
-            }}
-          />
-        </MuiPickersUtilsProvider>
+        <DatePicker
+          className={classes.purchaseOrderInput}
+          id="delivery-date-date-picker"
+          label="Delivery date"
+          disablePast={true}
+          disableNonBankDays={true}
+          value={purchaseOrder.delivery_date}
+          onChange={(value: MaterialUiPickersDate) => {
+            setPurchaseOrder({
+              ...purchaseOrder,
+              delivery_date: value ? value : new Date().getUTCDate(),
+            });
+          }}
+        />
       </Box>
       <Box mt={3}>
         <FormControl fullWidth className={classes.purchaseOrderInput}>

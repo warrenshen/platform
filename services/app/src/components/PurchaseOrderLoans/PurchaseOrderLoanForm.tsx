@@ -1,4 +1,3 @@
-import DateFnsUtils from "@date-io/date-fns";
 import {
   Box,
   createStyles,
@@ -10,12 +9,9 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import {
-  KeyboardDatePicker,
-  MuiPickersUtilsProvider,
-} from "@material-ui/pickers";
 import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
+import DatePicker from "components/Shared/Dates/DatePicker";
 import PurchaseOrderInfoCard from "components/Shared/PurchaseOrder/PurchaseOrderInfoCard";
 import {
   PurchaseOrderFragment,
@@ -96,36 +92,25 @@ function PurchaseOrderLoanForm({
         </Box>
       )}
       <Box display="flex" flexDirection="column">
-        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-          <KeyboardDatePicker
-            className={classes.purchaseOrderInput}
-            disableToolbar
-            disablePast
-            shouldDisableDate={(date) =>
-              date?.getDay() === 0 || date?.getDay() === 6
-            }
-            variant="inline"
-            format="MM/dd/yyyy"
-            margin="normal"
-            id="origination-date-date-picker"
-            label="Payment Date"
-            value={purchaseOrderLoan.loan?.data?.origination_date}
-            onChange={(value: MaterialUiPickersDate) => {
-              setPurchaseOrderLoan({
-                ...purchaseOrderLoan,
-                loan: {
-                  data: {
-                    ...purchaseOrderLoan.loan?.data,
-                    origination_date: value ? value : new Date().getUTCDate(),
-                  },
+        <DatePicker
+          className={classes.purchaseOrderInput}
+          id="origination-date-date-picker"
+          label="Payment Date"
+          disablePast={true}
+          disableNonBankDays={true}
+          value={purchaseOrderLoan.loan?.data?.origination_date}
+          onChange={(value: MaterialUiPickersDate) => {
+            setPurchaseOrderLoan({
+              ...purchaseOrderLoan,
+              loan: {
+                data: {
+                  ...purchaseOrderLoan.loan?.data,
+                  origination_date: value ? value : new Date().getUTCDate(),
                 },
-              });
-            }}
-            KeyboardButtonProps={{
-              "aria-label": "change date",
-            }}
-          />
-        </MuiPickersUtilsProvider>
+              },
+            });
+          }}
+        />
         <Typography variant="body2" color="textSecondary">
           The Payment Date is the date when the payment will arrive to the
           vendor and when interest charges begin.
