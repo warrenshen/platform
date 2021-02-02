@@ -1,6 +1,6 @@
 import { Box, Button, makeStyles, MenuItem, Select } from "@material-ui/core";
-import AccountModal from "components/Shared/BankAccount/AccountModal";
 import BankAccountInfoCard from "components/Shared/BankAccount/BankAccountInfoCard";
+import CreateUpdateBankAccountModal from "components/Shared/BankAccount/CreateUpdateBankAccountModal";
 import {
   BankAccountFragment,
   Companies,
@@ -68,7 +68,7 @@ function BankAccount(props: {
               {data.bank_accounts.map((bank_account) => {
                 return (
                   <MenuItem key={bank_account.id} value={bank_account.id}>
-                    {`${bank_account.bank_name} (${bank_account.account_type})`}
+                    {`${bank_account.bank_name}: ${bank_account.account_title} (${bank_account.account_type})`}
                   </MenuItem>
                 );
               })}
@@ -88,10 +88,11 @@ function BankAccount(props: {
       </Box>
       <Box mb={3}>
         {addingNewAccount && (
-          <AccountModal
+          <CreateUpdateBankAccountModal
             companyId={props.companyId}
+            existingBankAccount={null}
             handleClose={() => setAddingNewAccount(false)}
-          ></AccountModal>
+          ></CreateUpdateBankAccountModal>
         )}
         {props.bankAccount && (
           <Box width="fit-content" mt={2}>

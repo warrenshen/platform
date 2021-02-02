@@ -68,6 +68,7 @@ export type StringComparisonExp = {
 /** columns and relationships of "bank_accounts" */
 export type BankAccounts = {
   account_number: Scalars['String'];
+  account_title?: Maybe<Scalars['String']>;
   account_type: Scalars['String'];
   /** An array relationship */
   assigned_companies_for_advances_in_settings: Array<CompanySettings>;
@@ -170,6 +171,7 @@ export type BankAccountsBoolExp = {
   _not?: Maybe<BankAccountsBoolExp>;
   _or?: Maybe<Array<Maybe<BankAccountsBoolExp>>>;
   account_number?: Maybe<StringComparisonExp>;
+  account_title?: Maybe<StringComparisonExp>;
   account_type?: Maybe<StringComparisonExp>;
   assigned_companies_for_advances_in_settings?: Maybe<CompanySettingsBoolExp>;
   assigned_companies_for_collection_in_settings?: Maybe<CompanySettingsBoolExp>;
@@ -195,6 +197,7 @@ export enum BankAccountsConstraint {
 /** input type for inserting data into table "bank_accounts" */
 export type BankAccountsInsertInput = {
   account_number?: Maybe<Scalars['String']>;
+  account_title?: Maybe<Scalars['String']>;
   account_type?: Maybe<Scalars['String']>;
   assigned_companies_for_advances_in_settings?: Maybe<CompanySettingsArrRelInsertInput>;
   assigned_companies_for_collection_in_settings?: Maybe<CompanySettingsArrRelInsertInput>;
@@ -214,6 +217,7 @@ export type BankAccountsInsertInput = {
 /** aggregate max on columns */
 export type BankAccountsMaxFields = {
   account_number?: Maybe<Scalars['String']>;
+  account_title?: Maybe<Scalars['String']>;
   account_type?: Maybe<Scalars['String']>;
   bank_address?: Maybe<Scalars['String']>;
   bank_name?: Maybe<Scalars['String']>;
@@ -228,6 +232,7 @@ export type BankAccountsMaxFields = {
 /** order by max() on columns of table "bank_accounts" */
 export type BankAccountsMaxOrderBy = {
   account_number?: Maybe<OrderBy>;
+  account_title?: Maybe<OrderBy>;
   account_type?: Maybe<OrderBy>;
   bank_address?: Maybe<OrderBy>;
   bank_name?: Maybe<OrderBy>;
@@ -242,6 +247,7 @@ export type BankAccountsMaxOrderBy = {
 /** aggregate min on columns */
 export type BankAccountsMinFields = {
   account_number?: Maybe<Scalars['String']>;
+  account_title?: Maybe<Scalars['String']>;
   account_type?: Maybe<Scalars['String']>;
   bank_address?: Maybe<Scalars['String']>;
   bank_name?: Maybe<Scalars['String']>;
@@ -256,6 +262,7 @@ export type BankAccountsMinFields = {
 /** order by min() on columns of table "bank_accounts" */
 export type BankAccountsMinOrderBy = {
   account_number?: Maybe<OrderBy>;
+  account_title?: Maybe<OrderBy>;
   account_type?: Maybe<OrderBy>;
   bank_address?: Maybe<OrderBy>;
   bank_name?: Maybe<OrderBy>;
@@ -291,6 +298,7 @@ export type BankAccountsOnConflict = {
 /** ordering options when selecting data from "bank_accounts" */
 export type BankAccountsOrderBy = {
   account_number?: Maybe<OrderBy>;
+  account_title?: Maybe<OrderBy>;
   account_type?: Maybe<OrderBy>;
   assigned_companies_for_advances_in_settings_aggregate?: Maybe<CompanySettingsAggregateOrderBy>;
   assigned_companies_for_collection_in_settings_aggregate?: Maybe<CompanySettingsAggregateOrderBy>;
@@ -316,6 +324,8 @@ export type BankAccountsPkColumnsInput = {
 export enum BankAccountsSelectColumn {
   /** column name */
   AccountNumber = 'account_number',
+  /** column name */
+  AccountTitle = 'account_title',
   /** column name */
   AccountType = 'account_type',
   /** column name */
@@ -343,6 +353,7 @@ export enum BankAccountsSelectColumn {
 /** input type for updating data in table "bank_accounts" */
 export type BankAccountsSetInput = {
   account_number?: Maybe<Scalars['String']>;
+  account_title?: Maybe<Scalars['String']>;
   account_type?: Maybe<Scalars['String']>;
   bank_address?: Maybe<Scalars['String']>;
   bank_name?: Maybe<Scalars['String']>;
@@ -360,6 +371,8 @@ export type BankAccountsSetInput = {
 export enum BankAccountsUpdateColumn {
   /** column name */
   AccountNumber = 'account_number',
+  /** column name */
+  AccountTitle = 'account_title',
   /** column name */
   AccountType = 'account_type',
   /** column name */
@@ -8478,9 +8491,9 @@ export type PurchaseOrderFileFragment = (
   ) }
 );
 
-export type BankAccountFragment = Pick<BankAccounts, 'id' | 'company_id' | 'bank_name' | 'bank_address' | 'account_type' | 'account_number' | 'routing_number' | 'can_ach' | 'can_wire' | 'recipient_name' | 'recipient_address' | 'verified_at'>;
+export type BankAccountFragment = Pick<BankAccounts, 'id' | 'company_id' | 'bank_name' | 'bank_address' | 'account_title' | 'account_type' | 'account_number' | 'routing_number' | 'can_ach' | 'can_wire' | 'recipient_name' | 'recipient_address' | 'verified_at'>;
 
-export type BankAccountForVendorFragment = Pick<BankAccounts, 'id' | 'company_id' | 'bank_name' | 'bank_address' | 'account_type' | 'account_number' | 'routing_number' | 'recipient_name' | 'recipient_address'>;
+export type BankAccountForVendorFragment = Pick<BankAccounts, 'id' | 'company_id' | 'bank_name' | 'bank_address' | 'account_title' | 'account_type' | 'account_number' | 'routing_number' | 'recipient_name' | 'recipient_address'>;
 
 export type UpdateVendorContactMutationVariables = Exact<{
   userId: Scalars['uuid'];
@@ -8754,6 +8767,7 @@ export const BankAccountFragmentDoc = gql`
   company_id
   bank_name
   bank_address
+  account_title
   account_type
   account_number
   routing_number
@@ -8951,6 +8965,7 @@ export const BankAccountForVendorFragmentDoc = gql`
   company_id
   bank_name
   bank_address
+  account_title
   account_type
   account_number
   routing_number

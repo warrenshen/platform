@@ -8,7 +8,7 @@ import {
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import { CheckCircle } from "@material-ui/icons";
-import AccountModal from "components/Shared/BankAccount/AccountModal";
+import CreateUpdateBankAccountModal from "components/Shared/BankAccount/CreateUpdateBankAccountModal";
 import { BankAccountFragment } from "generated/graphql";
 import { calendarDateTimestamp } from "lib/time";
 import { useState } from "react";
@@ -40,17 +40,21 @@ function BankAccountInfoCard({
   return (
     <>
       {editing && (
-        <AccountModal
-          bankAccount={bankAccount}
+        <CreateUpdateBankAccountModal
           companyId={bankAccount.company_id}
+          existingBankAccount={bankAccount}
           handleClose={() => setEditing(false)}
-        ></AccountModal>
+        ></CreateUpdateBankAccountModal>
       )}
       <Card>
         <CardContent>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Bank</Box>
             <Box>{bankAccount.bank_name}</Box>
+          </Box>
+          <Box display="flex" pb={0.25}>
+            <Box className={classes.label}>Account Title</Box>
+            <Box>{bankAccount.account_title}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Account Type</Box>

@@ -120,6 +120,7 @@ fragment BankAccount on bank_accounts {
   company_id
   bank_name
   bank_address
+  account_title
   account_type
   account_number
   routing_number
@@ -135,6 +136,7 @@ fragment BankAccountForVendor on bank_accounts {
   company_id
   bank_name
   bank_address
+  account_title
   account_type
   account_number
   routing_number

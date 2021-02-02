@@ -16,7 +16,7 @@ function BankAccounts() {
   return (
     <>
       <Box display="flex" flexDirection="row-reverse" mb={3}>
-        <AddAccountButton></AddAccountButton>
+        <AddAccountButton companyId={null}></AddAccountButton>
       </Box>
       <Box display="flex" flexWrap="wrap">
         {accounts.map((account, index) => (

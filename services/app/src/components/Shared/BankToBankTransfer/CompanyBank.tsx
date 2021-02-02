@@ -65,7 +65,7 @@ function CompanyBank({ companyId, onCompanyBankAccountSelection }: Props) {
           {data.bank_accounts.map((bank_account) => {
             return (
               <MenuItem key={bank_account.id} value={bank_account.id}>
-                {`${bank_account.bank_name} (${bank_account.account_type})`}
+                {`${bank_account.bank_name}: ${bank_account.account_title} (${bank_account.account_type})`}
               </MenuItem>
             );
           })}
