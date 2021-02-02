@@ -37,13 +37,13 @@ interface Props {
   handleClose: () => void;
 }
 
-function RegisterVendorModal(props: Props) {
+function RegisterVendorModal({ handleClose }: Props) {
   const {
     user: { companyId: userCompanyId, role },
   } = useContext(CurrentUserContext);
 
   const { companyId: paramsCompanyId } = useParams<CustomerParams>();
-  const [errMsg, setErrMsg] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const companyId = paramsCompanyId || userCompanyId;
 
@@ -58,10 +58,65 @@ function RegisterVendorModal(props: Props) {
   const [addVendorPartnership, { loading }] = useAddVendorPartnershipMutation();
   const notifier = new InventoryNotifier();
 
+  const handleRegisterClick = async () => {
+    try {
+      const response = await addVendorPartnership({
+        variables: {
+          vendorPartnership: {
+            company_id:
+              role === UserRolesEnum.BankAdmin ? companyId : undefined,
+            vendor: {
+              data: {
+                ...vendor,
+                is_vendor: role === UserRolesEnum.BankAdmin ? true : undefined,
+                users: {
+                  data: [{ ...contact }],
+                },
+                settings: {
+                  data: {},
+                },
+              },
+            },
+          },
+        },
+        refetchQueries: [
+          {
+            query: ListVendorPartnershipsDocument,
+            variables: {
+              companyId: companyId,
+            },
+          },
+        ],
+      });
+
+      const vendorId =
+        response.data?.insert_company_vendor_partnerships_one?.vendor_id;
+      if (!vendorId) {
+        setErrorMessage("Error! Empty vendor id provided");
+        return;
+      }
+      const emailResp = await notifier.sendVendorAgreementWithCustomer({
+        company_id: companyId,
+        vendor_id: vendorId,
+      });
+
+      if (emailResp.status !== "OK") {
+        setErrorMessage("Could not send email. Error: " + emailResp.msg);
+        return;
+      }
+
+      handleClose();
+    } catch (error) {
+      setErrorMessage(
+        "Could not create Vendor. Please fill out all required fields and ensure the email is not already taken."
+      );
+    }
+  };
+
   return (
     <Dialog
       open
-      onClose={props.handleClose}
+      onClose={handleClose}
       maxWidth="md"
       classes={{ paper: classes.dialog }}
     >
@@ -122,14 +177,17 @@ function RegisterVendorModal(props: Props) {
             </Box>
           </Box>
         </Box>
-        {errMsg && <Box>Error: {errMsg}</Box>}
+        {errorMessage && (
+          <Typography variant="body2" color="secondary">
+            {errorMessage}
+          </Typography>
+        )}
       </DialogContent>
       <DialogActions>
         <Box display="flex">
           <Box pr={1}>
-            <Button onClick={props.handleClose}>Cancel</Button>
+            <Button onClick={handleClose}>Cancel</Button>
           </Box>
-
           <Button
             disabled={
               loading ||
@@ -138,55 +196,7 @@ function RegisterVendorModal(props: Props) {
               !contact.last_name ||
               !contact.email
             }
-            onClick={async () => {
-              const resp = await addVendorPartnership({
-                variables: {
-                  vendorPartnership: {
-                    company_id:
-                      role === UserRolesEnum.BankAdmin ? companyId : undefined,
-                    vendor: {
-                      data: {
-                        ...vendor,
-                        is_vendor:
-                          role === UserRolesEnum.BankAdmin ? true : undefined,
-                        users: {
-                          data: [{ ...contact }],
-                        },
-                        settings: {
-                          data: {},
-                        },
-                      },
-                    },
-                  },
-                },
-                refetchQueries: [
-                  {
-                    query: ListVendorPartnershipsDocument,
-                    variables: {
-                      companyId: companyId,
-                    },
-                  },
-                ],
-              });
-
-              const vendorId =
-                resp.data?.insert_company_vendor_partnerships_one?.vendor_id;
-              if (!vendorId) {
-                setErrMsg("Empty vendor id provided");
-                return;
-              }
-              const emailResp = await notifier.sendVendorAgreementWithCustomer({
-                company_id: companyId,
-                vendor_id: vendorId,
-              });
-
-              if (emailResp.status !== "OK") {
-                setErrMsg("Could not send email. Error: " + emailResp.msg);
-                return;
-              }
-
-              props.handleClose();
-            }}
+            onClick={handleRegisterClick}
             variant="contained"
             color="primary"
           >

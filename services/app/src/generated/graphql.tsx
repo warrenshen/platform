@@ -7724,6 +7724,8 @@ export type UsersBoolExp = {
 /** unique or primary key constraints on table "users" */
 export enum UsersConstraint {
   /** unique or primary key constraint */
+  UsersEmailKey = 'users_email_key',
+  /** unique or primary key constraint */
   UsersPkey = 'users_pkey'
 }
 

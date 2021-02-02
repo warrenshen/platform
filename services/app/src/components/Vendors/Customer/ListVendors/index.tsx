@@ -1,8 +1,8 @@
-import VendorPartnershipList from "../../VendorPartnershipList";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useListVendorPartnershipsQuery } from "generated/graphql";
-import { useContext } from "react";
 import { sortBy } from "lodash";
+import { useContext } from "react";
+import VendorPartnershipList from "../../VendorPartnershipList";
 
 function ListVendors() {
   const {

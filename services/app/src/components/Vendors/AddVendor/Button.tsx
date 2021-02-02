@@ -1,5 +1,5 @@
 import { Button } from "@material-ui/core";
-import RegisterVendorModal from "components/Vendors/AddVendor/Modal";
+import RegisterVendorModal from "components/Vendors/AddVendor/RegisterVendorModal";
 import { useState } from "react";
 
 function AddButton() {

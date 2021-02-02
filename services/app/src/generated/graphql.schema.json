@@ -47380,6 +47380,12 @@
         "interfaces": null,
         "enumValues": [
           {
+            "name": "users_email_key",
+            "description": "unique or primary key constraint",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "users_pkey",
             "description": "unique or primary key constraint",
             "isDeprecated": false,
