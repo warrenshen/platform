@@ -17,15 +17,23 @@ export const anonymousRoutes = {
   reviewPurchaseOrderComplete: "/review-purchase-order-complete",
 };
 
+// Vendor user routes are prefixed with "/2".
 export const vendorRoutes = {};
 
+// Customer user routes are prefixed with "/1".
 export const customerRoutes = {
-  loans: "/loans",
-  settings: "/settings",
-  purchaseOrders: "/purchase-orders",
+  loans: "/1/loans",
+  settings: "/1/settings",
+  purchaseOrders: "/1/purchase-orders",
 };
 
+// Bank user routes are not prefixed.
 export const bankRoutes = {
+  loansMaturing: "/loans-maturing",
+  loansPastDue: "/loans-past-due",
+  loansAllProducts: "/loans-all-products",
+  loansPurchaseOrder: "/loans-purchase-order",
+  loansLineOfCredit: "/loans-line-of-credit",
   bankAccounts: "/bank-accounts",
   customers: "/customers",
   customer: {

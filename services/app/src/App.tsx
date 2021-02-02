@@ -12,9 +12,11 @@ import {
 import ReviewPurchaseOrderPage from "pages/Anonymous/ReviewPurchaseOrder";
 import ReviewPurchaseOrderCompletePage from "pages/Anonymous/ReviewPurchaseOrderComplete";
 import SecureLinkPage from "pages/Anonymous/SecureLink";
-import BankAccounts from "pages/Bank/BankAccounts";
-import Customer from "pages/Bank/Customer";
-import Customers from "pages/Bank/Customers";
+import LoansAllProductsPage from "pages/Bank/LoansAllProducts";
+import LoansLineOfCreditPage from "pages/Bank/LoansLineOfCredit";
+import LoansMaturingPage from "pages/Bank/LoansMaturing";
+import LoansPastDuePage from "pages/Bank/LoansPastDue";
+import LoansPurchaseOrderPage from "pages/Bank/LoansPurchaseOrder";
 import CompanyProfilePage from "pages/Customer/CompanyProfile";
 import LoansPage from "pages/Customer/Loans";
 import PurchaseOrdersPage from "pages/Customer/PurchaseOrders";
@@ -40,7 +42,7 @@ function App() {
         <Route exact path={anonymousRoutes.secureLink}>
           <SecureLinkPage></SecureLinkPage>
         </Route>
-        {/* Purchase Order reviewer routes */}
+        {/* Purchase Order Reviewer user routes */}
         <Route
           exact
           path={anonymousRoutes.reviewPurchaseOrder}
@@ -51,6 +53,7 @@ function App() {
           path={anonymousRoutes.reviewPurchaseOrderComplete}
           component={ReviewPurchaseOrderCompletePage}
         ></Route>
+        {/* Bank and Company user routes */}
         <Layout>
           <PrivateRoute
             exact
@@ -110,7 +113,7 @@ function App() {
           >
             <Users></Users>
           </PrivateRoute>
-          {/* Customer Routes */}
+          {/* Company user routes */}
           <PrivateRoute
             exact
             path={customerRoutes.loans}
@@ -132,26 +135,40 @@ function App() {
           >
             <SettingsPage></SettingsPage>
           </PrivateRoute>
-          {/* Bank Routes */}
+          {/* Bank user routes */}
           <PrivateRoute
             exact
-            path={bankRoutes.customers}
+            path={bankRoutes.loansMaturing}
             requiredRoles={[UserRolesEnum.BankAdmin]}
           >
-            <Customers></Customers>
-          </PrivateRoute>
-          <PrivateRoute
-            path={bankRoutes.customer.root}
-            requiredRoles={[UserRolesEnum.BankAdmin]}
-          >
-            <Customer></Customer>
+            <LoansMaturingPage></LoansMaturingPage>
           </PrivateRoute>
           <PrivateRoute
             exact
-            path={bankRoutes.bankAccounts}
+            path={bankRoutes.loansPastDue}
             requiredRoles={[UserRolesEnum.BankAdmin]}
           >
-            <BankAccounts></BankAccounts>
+            <LoansPastDuePage></LoansPastDuePage>
+          </PrivateRoute>
+          <PrivateRoute
+            path={bankRoutes.loansAllProducts}
+            requiredRoles={[UserRolesEnum.BankAdmin]}
+          >
+            <LoansAllProductsPage></LoansAllProductsPage>
+          </PrivateRoute>
+          <PrivateRoute
+            exact
+            path={bankRoutes.loansPurchaseOrder}
+            requiredRoles={[UserRolesEnum.BankAdmin]}
+          >
+            <LoansPurchaseOrderPage></LoansPurchaseOrderPage>
+          </PrivateRoute>
+          <PrivateRoute
+            exact
+            path={bankRoutes.loansLineOfCredit}
+            requiredRoles={[UserRolesEnum.BankAdmin]}
+          >
+            <LoansLineOfCreditPage></LoansLineOfCreditPage>
           </PrivateRoute>
         </Layout>
       </Switch>

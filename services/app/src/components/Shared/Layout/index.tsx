@@ -13,7 +13,7 @@ import { bankRoutes, customerRoutes, routes } from "lib/routes";
 import React, { useContext, useState } from "react";
 import { Link, matchPath, useLocation } from "react-router-dom";
 
-const DRAWER_WIDTH = 240;
+const DRAWER_WIDTH = 250;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -41,6 +41,9 @@ const useStyles = makeStyles((theme: Theme) =>
       flexGrow: 1,
       backgroundColor: theme.palette.background.default,
       padding: theme.spacing(3),
+    },
+    listItemText: {
+      fontWeight: 500,
     },
   })
 );
@@ -80,6 +83,26 @@ const BANK_LEFT_NAV_ITEMS = [
   {
     text: "Overview",
     link: routes.overview,
+  },
+  {
+    text: "Loans Maturing in X Days",
+    link: bankRoutes.loansMaturing,
+  },
+  {
+    text: "Loans Past Due (Collections)",
+    link: bankRoutes.loansPastDue,
+  },
+  {
+    text: "Loans All Products",
+    link: bankRoutes.loansAllProducts,
+  },
+  {
+    text: "Loans by Purchase Order",
+    link: bankRoutes.loansPurchaseOrder,
+  },
+  {
+    text: "Loans by Line of Credit",
+    link: bankRoutes.loansLineOfCredit,
   },
   {
     text: "Vendors",
@@ -151,7 +174,14 @@ function Layout(props: { children: React.ReactNode }) {
                   to={item.link}
                   selected={Boolean(matchPath(location.pathname, item.link))}
                 >
-                  <ListItemText>{item.text}</ListItemText>
+                  <ListItemText
+                    primaryTypographyProps={{
+                      className: classes.listItemText,
+                      variant: "subtitle1",
+                    }}
+                  >
+                    {item.text}
+                  </ListItemText>
                 </ListItem>
               );
             })}
