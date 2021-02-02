@@ -8355,6 +8355,17 @@ export type VendorsByPartnerCompanyQuery = { vendors: Array<(
     & VendorLimitedFragment
   )> };
 
+export type CompanyVendorPartnershipForVendorQueryVariables = Exact<{
+  companyId: Scalars['uuid'];
+  vendorId: Scalars['uuid'];
+}>;
+
+
+export type CompanyVendorPartnershipForVendorQuery = { company_vendor_partnerships: Array<(
+    Pick<CompanyVendorPartnerships, 'id'>
+    & { vendor_bank_account?: Maybe<BankAccountForVendorFragment> }
+  )> };
+
 export type ListPurchaseOrdersQueryVariables = Exact<{
   company_id: Scalars['uuid'];
 }>;
@@ -8390,7 +8401,7 @@ export type PurchaseOrderForReviewQuery = { purchase_orders_by_pk?: Maybe<(
     & { purchase_order_files: Array<(
       Pick<PurchaseOrderFiles, 'purchase_order_id' | 'file_id'>
       & PurchaseOrderFileFragment
-    )>, company: Pick<Companies, 'id' | 'name'> }
+    )>, company: Pick<Companies, 'id' | 'name'>, vendor?: Maybe<Pick<Vendors, 'id' | 'name'>> }
   )> };
 
 export type AddPurchaseOrderMutationVariables = Exact<{
@@ -8466,6 +8477,8 @@ export type PurchaseOrderFileFragment = (
 );
 
 export type BankAccountFragment = Pick<BankAccounts, 'id' | 'company_id' | 'bank_name' | 'bank_address' | 'account_type' | 'account_number' | 'routing_number' | 'can_ach' | 'can_wire' | 'recipient_name' | 'recipient_address' | 'verified_at'>;
+
+export type BankAccountForVendorFragment = Pick<BankAccounts, 'id' | 'company_id' | 'bank_name' | 'bank_address' | 'account_type' | 'account_number' | 'routing_number' | 'recipient_name' | 'recipient_address'>;
 
 export type UpdateVendorContactMutationVariables = Exact<{
   userId: Scalars['uuid'];
@@ -8930,6 +8943,19 @@ export const PurchaseOrderFileFragmentDoc = gql`
   }
 }
     ${FileFragmentDoc}`;
+export const BankAccountForVendorFragmentDoc = gql`
+    fragment BankAccountForVendor on bank_accounts {
+  id
+  company_id
+  bank_name
+  bank_address
+  account_type
+  account_number
+  routing_number
+  recipient_name
+  recipient_address
+}
+    `;
 export const AddCustomerDocument = gql`
     mutation AddCustomer($customer: companies_insert_input!) {
   insert_companies_one(object: $customer) {
@@ -9900,6 +9926,45 @@ export function useVendorsByPartnerCompanyLazyQuery(baseOptions?: Apollo.LazyQue
 export type VendorsByPartnerCompanyQueryHookResult = ReturnType<typeof useVendorsByPartnerCompanyQuery>;
 export type VendorsByPartnerCompanyLazyQueryHookResult = ReturnType<typeof useVendorsByPartnerCompanyLazyQuery>;
 export type VendorsByPartnerCompanyQueryResult = Apollo.QueryResult<VendorsByPartnerCompanyQuery, VendorsByPartnerCompanyQueryVariables>;
+export const CompanyVendorPartnershipForVendorDocument = gql`
+    query CompanyVendorPartnershipForVendor($companyId: uuid!, $vendorId: uuid!) {
+  company_vendor_partnerships(
+    where: {_and: [{company_id: {_eq: $companyId}}, {vendor_id: {_eq: $vendorId}}]}
+  ) {
+    id
+    vendor_bank_account {
+      ...BankAccountForVendor
+    }
+  }
+}
+    ${BankAccountForVendorFragmentDoc}`;
+
+/**
+ * __useCompanyVendorPartnershipForVendorQuery__
+ *
+ * To run a query within a React component, call `useCompanyVendorPartnershipForVendorQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCompanyVendorPartnershipForVendorQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCompanyVendorPartnershipForVendorQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *      vendorId: // value for 'vendorId'
+ *   },
+ * });
+ */
+export function useCompanyVendorPartnershipForVendorQuery(baseOptions: Apollo.QueryHookOptions<CompanyVendorPartnershipForVendorQuery, CompanyVendorPartnershipForVendorQueryVariables>) {
+        return Apollo.useQuery<CompanyVendorPartnershipForVendorQuery, CompanyVendorPartnershipForVendorQueryVariables>(CompanyVendorPartnershipForVendorDocument, baseOptions);
+      }
+export function useCompanyVendorPartnershipForVendorLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CompanyVendorPartnershipForVendorQuery, CompanyVendorPartnershipForVendorQueryVariables>) {
+          return Apollo.useLazyQuery<CompanyVendorPartnershipForVendorQuery, CompanyVendorPartnershipForVendorQueryVariables>(CompanyVendorPartnershipForVendorDocument, baseOptions);
+        }
+export type CompanyVendorPartnershipForVendorQueryHookResult = ReturnType<typeof useCompanyVendorPartnershipForVendorQuery>;
+export type CompanyVendorPartnershipForVendorLazyQueryHookResult = ReturnType<typeof useCompanyVendorPartnershipForVendorLazyQuery>;
+export type CompanyVendorPartnershipForVendorQueryResult = Apollo.QueryResult<CompanyVendorPartnershipForVendorQuery, CompanyVendorPartnershipForVendorQueryVariables>;
 export const ListPurchaseOrdersDocument = gql`
     query ListPurchaseOrders($company_id: uuid!) {
   purchase_orders(where: {company_id: {_eq: $company_id}}) {
@@ -10026,6 +10091,10 @@ export const PurchaseOrderForReviewDocument = gql`
       ...PurchaseOrderFile
     }
     company {
+      id
+      name
+    }
+    vendor {
       id
       name
     }

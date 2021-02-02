@@ -1,6 +1,6 @@
 import { Box, Button, makeStyles, MenuItem, Select } from "@material-ui/core";
-import AccountInfoCard from "components/Shared/BankAccount/AccountInfoCard";
 import AccountModal from "components/Shared/BankAccount/AccountModal";
+import BankAccountInfoCard from "components/Shared/BankAccount/BankAccountInfoCard";
 import {
   BankAccountFragment,
   Companies,
@@ -95,7 +95,9 @@ function BankAccount(props: {
         )}
         {props.bankAccount && (
           <Box width="fit-content" mt={2}>
-            <AccountInfoCard bankAccount={props.bankAccount}></AccountInfoCard>
+            <BankAccountInfoCard
+              bankAccount={props.bankAccount}
+            ></BankAccountInfoCard>
           </Box>
         )}
       </Box>

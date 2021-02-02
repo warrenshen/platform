@@ -24,11 +24,16 @@ const useStyles = makeStyles({
 });
 
 interface Props {
+  isEditAllowed?: boolean;
+  isVerificationVisible?: boolean;
   bankAccount: BankAccountFragment;
-  disableEditing?: boolean;
 }
 
-function AccountInfoCard(props: Props) {
+function BankAccountInfoCard({
+  isEditAllowed = true,
+  isVerificationVisible = true,
+  bankAccount,
+}: Props) {
   const classes = useStyles();
   const [editing, setEditing] = useState(false);
 
@@ -36,8 +41,8 @@ function AccountInfoCard(props: Props) {
     <>
       {editing && (
         <AccountModal
-          bankAccount={props.bankAccount}
-          companyId={props.bankAccount.company_id}
+          bankAccount={bankAccount}
+          companyId={bankAccount.company_id}
           handleClose={() => setEditing(false)}
         ></AccountModal>
       )}
@@ -45,34 +50,36 @@ function AccountInfoCard(props: Props) {
         <CardContent>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Bank</Box>
-            <Box>{props.bankAccount.bank_name}</Box>
+            <Box>{bankAccount.bank_name}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Account Type</Box>
-            <Box>{props.bankAccount.account_type}</Box>
+            <Box>{bankAccount.account_type}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Routing Number</Box>
-            <Box>{props.bankAccount.routing_number}</Box>
+            <Box>{bankAccount.routing_number}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Account Number</Box>
-            <Box>{props.bankAccount.account_number}</Box>
+            <Box>{bankAccount.account_number}</Box>
           </Box>
-          <Box display="flex" pt={0.5} pb={1}>
-            <CheckCircle
-              color={props.bankAccount.verified_at ? "primary" : "disabled"}
-            ></CheckCircle>
-            <Box pl={1}>
-              {props.bankAccount.verified_at
-                ? `Verified on ${calendarDateTimestamp(
-                    props.bankAccount.verified_at
-                  )}`
-                : "Not yet verified"}
+          {isVerificationVisible && (
+            <Box display="flex" pt={0.5} pb={1}>
+              <CheckCircle
+                color={bankAccount.verified_at ? "primary" : "disabled"}
+              ></CheckCircle>
+              <Box pl={1}>
+                {bankAccount.verified_at
+                  ? `Verified on ${calendarDateTimestamp(
+                      bankAccount.verified_at
+                    )}`
+                  : "Not yet verified"}
+              </Box>
             </Box>
-          </Box>
+          )}
         </CardContent>
-        {props.disableEditing ? null : (
+        {isEditAllowed && (
           <CardActions>
             <Button
               size="small"
@@ -90,4 +97,4 @@ function AccountInfoCard(props: Props) {
   );
 }
 
-export default AccountInfoCard;
+export default BankAccountInfoCard;

@@ -10,14 +10,13 @@ import {
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import {
   PurchaseOrderFileTypeEnum,
-  RequestStatusEnum,
   usePurchaseOrderForReviewQuery,
 } from "generated/graphql";
-import { authenticatedApi, purchaseOrdersRoutes } from "lib/api";
 import { anonymousRoutes } from "lib/routes";
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
-import RejectApprovalRequestModal from "./RejectApprovalRequestModal";
+import ReviewPurchaseOrderApproveModal from "./ReviewPurchaseOrderApproveModal";
+import ReviewPurchaseOrderRejectModal from "./ReviewPurchaseOrderRejectModal";
 
 interface Props {
   location: any;
@@ -53,9 +52,13 @@ function ApprovePurchaseOrder(props: Props) {
   const purchaseOrderId = payload?.purchase_order_id;
 
   const history = useHistory();
+  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
 
-  const { data } = usePurchaseOrderForReviewQuery({
+  const {
+    data,
+    loading: isPurchaseOrderLoading,
+  } = usePurchaseOrderForReviewQuery({
     variables: {
       id: purchaseOrderId,
     },
@@ -72,29 +75,9 @@ function ApprovePurchaseOrder(props: Props) {
       )
     : [];
 
-  const handleClickApprove = async () => {
-    const response = await authenticatedApi.post(
-      purchaseOrdersRoutes.respondToApprovalRequest,
-      {
-        purchase_order_id: purchaseOrder?.id,
-        new_request_status: RequestStatusEnum.Approved,
-        rejection_note: "",
-      }
-    );
-    if (response.data?.status === "ERROR") {
-      alert(response.data?.msg);
-    } else {
-      history.push({
-        pathname: anonymousRoutes.confirmPurchaseOrderComplete,
-      });
-    }
-  };
+  const isDataReady = !isPurchaseOrderLoading;
 
-  const handleClickReject = () => {
-    setIsRejectModalOpen(true);
-  };
-
-  return location.state ? (
+  return isDataReady && purchaseOrder ? (
     <Box
       width="100vw"
       height="100vh"
@@ -105,7 +88,7 @@ function ApprovePurchaseOrder(props: Props) {
       <Box width="400px" display="flex" flexDirection="column">
         <Box display="flex" flexDirection="column">
           <Box>
-            <h2>Your approval is requested</h2>
+            <h2>{`${purchaseOrder.vendor?.name}, your approval is requested`}</h2>
             <p>
               The purchase order listed below requires your approval before we
               can process payment. Please review the information and press
@@ -117,25 +100,25 @@ function ApprovePurchaseOrder(props: Props) {
             <p className={classes.propertyLabel}>
               <strong>Order Number:</strong>
             </p>
-            <p>{purchaseOrder?.order_number}</p>
+            <p>{purchaseOrder.order_number}</p>
           </Box>
           <Box display="flex" flexDirection="row" m={1}>
             <p className={classes.propertyLabel}>
               <strong>Amount:</strong>
             </p>
-            <p>{purchaseOrder?.amount}</p>
+            <p>{purchaseOrder.amount}</p>
           </Box>
           <Box display="flex" flexDirection="row" m={1}>
             <p className={classes.propertyLabel}>
               <strong>Order Date:</strong>
             </p>
-            <p>{purchaseOrder?.order_date}</p>
+            <p>{purchaseOrder.order_date}</p>
           </Box>
           <Box display="flex" flexDirection="row" m={1}>
             <p className={classes.propertyLabel}>
               <strong>Debtor:</strong>
             </p>
-            <p>{purchaseOrder?.company?.name}</p>
+            <p>{purchaseOrder.company?.name}</p>
           </Box>
         </Box>
         <Box flexDirection="column" flexGrow={1}>
@@ -143,7 +126,7 @@ function ApprovePurchaseOrder(props: Props) {
             <p className={classes.propertyLabel}>
               <strong>Status</strong>
             </p>
-            <p>{purchaseOrder?.status}</p>
+            <p>{purchaseOrder.status}</p>
           </Box>
           <Box>
             <DownloadThumbnail
@@ -174,7 +157,7 @@ function ApprovePurchaseOrder(props: Props) {
         <Box display="flex" justifyContent="space-between">
           <Button
             disabled={false}
-            onClick={handleClickReject}
+            onClick={() => setIsRejectModalOpen(true)}
             variant={"contained"}
             color={"secondary"}
           >
@@ -182,22 +165,33 @@ function ApprovePurchaseOrder(props: Props) {
           </Button>
           <Button
             disabled={false}
-            onClick={handleClickApprove}
+            onClick={() => setIsApproveModalOpen(true)}
             variant={"contained"}
             color={"primary"}
           >
             Approve
           </Button>
+          {isApproveModalOpen && (
+            <ReviewPurchaseOrderApproveModal
+              purchaseOrder={purchaseOrder}
+              handleClose={() => setIsApproveModalOpen(false)}
+              handleApproveSuccess={() =>
+                history.push({
+                  pathname: anonymousRoutes.reviewPurchaseOrderComplete,
+                })
+              }
+            ></ReviewPurchaseOrderApproveModal>
+          )}
           {isRejectModalOpen && (
-            <RejectApprovalRequestModal
+            <ReviewPurchaseOrderRejectModal
               purchaseOrderId={purchaseOrder?.id}
               handleClose={() => setIsRejectModalOpen(false)}
               handleRejectSuccess={() =>
                 history.push({
-                  pathname: anonymousRoutes.confirmPurchaseOrderComplete,
+                  pathname: anonymousRoutes.reviewPurchaseOrderComplete,
                 })
               }
-            ></RejectApprovalRequestModal>
+            ></ReviewPurchaseOrderRejectModal>
           )}
         </Box>
       </Box>

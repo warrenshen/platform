@@ -19,7 +19,7 @@ type GetSecureLinkPayloadResp = {
 };
 
 const linkTypeToRoute: { [type: string]: string } = {
-  confirm_purchase_order: anonymousRoutes.confirmPurchaseOrder,
+  confirm_purchase_order: anonymousRoutes.reviewPurchaseOrder,
 };
 
 const getSecureLinkPayload = async (req: {

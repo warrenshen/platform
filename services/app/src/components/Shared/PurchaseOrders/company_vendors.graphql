@@ -1,4 +1,3 @@
-
 query VendorsByPartnerCompany($companyId: uuid!) {
   vendors(
     where: { company_vendor_partnerships: { company_id: { _eq: $companyId } } }
@@ -8,6 +7,22 @@ query VendorsByPartnerCompany($companyId: uuid!) {
     company_vendor_partnerships {
       id
       approved_at
+    }
+  }
+}
+
+query CompanyVendorPartnershipForVendor($companyId: uuid!, $vendorId: uuid!) {
+  company_vendor_partnerships(
+    where: {
+      _and: [
+        { company_id: { _eq: $companyId } }
+        { vendor_id: { _eq: $vendorId } }
+      ]
+    }
+  ) {
+    id
+    vendor_bank_account {
+      ...BankAccountForVendor
     }
   }
 }

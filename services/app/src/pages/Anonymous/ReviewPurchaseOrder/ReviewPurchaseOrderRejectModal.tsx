@@ -5,6 +5,7 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
   makeStyles,
   TextField,
@@ -16,13 +17,12 @@ import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    dialog: {},
+    dialog: {
+      width: 400,
+    },
     dialogTitle: {
       paddingLeft: theme.spacing(3),
       borderBottom: "1px solid #c7c7c7",
-    },
-    purchaseOrderInput: {
-      width: "200px",
     },
     dialogActions: {
       margin: theme.spacing(4),
@@ -41,7 +41,7 @@ interface Props {
   handleRejectSuccess: () => void;
 }
 
-function RejectApprovalRequestModal({
+function ReviewPurchaseOrderRejectModal({
   purchaseOrderId,
   handleClose,
   handleRejectSuccess,
@@ -50,7 +50,6 @@ function RejectApprovalRequestModal({
   const [rejectionNote, setRejectionNote] = useState("");
 
   const handleClickReject = async () => {
-    // TODO: set up `reject_note` to come from user input.
     const response = await authenticatedApi.post(
       purchaseOrdersRoutes.respondToApprovalRequest,
       {
@@ -74,10 +73,14 @@ function RejectApprovalRequestModal({
       classes={{ paper: classes.dialog }}
     >
       <DialogTitle className={classes.dialogTitle}>
-        Reject Purchase Order
+        Record Rejection Reason
       </DialogTitle>
       <DialogContent>
-        <Box>
+        <DialogContentText>
+          Please enter in a reason for your rejection of the Purchase Order.
+          After you are finished, press the "Confirm" button below.
+        </DialogContentText>
+        <Box display="flex" flexDirection="column">
           <TextField
             multiline
             label={"Rejection Reason"}
@@ -97,11 +100,11 @@ function RejectApprovalRequestModal({
           color={"secondary"}
           onClick={handleClickReject}
         >
-          Submit
+          Confirm
         </Button>
       </DialogActions>
     </Dialog>
   );
 }
 
-export default RejectApprovalRequestModal;
+export default ReviewPurchaseOrderRejectModal;

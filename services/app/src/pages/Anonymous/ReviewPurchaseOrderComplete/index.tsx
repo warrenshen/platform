@@ -2,7 +2,7 @@ import { Box } from "@material-ui/core";
 
 interface Props {}
 
-function ApprovePurchaseOrderCompletePage(props: Props) {
+function ReviewPurchaseOrderCompletePage(props: Props) {
   return (
     <Box
       width="100vw"
@@ -23,4 +23,4 @@ function ApprovePurchaseOrderCompletePage(props: Props) {
   );
 }
 
-export default ApprovePurchaseOrderCompletePage;
+export default ReviewPurchaseOrderCompletePage;

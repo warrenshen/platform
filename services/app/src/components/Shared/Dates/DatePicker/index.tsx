@@ -17,12 +17,13 @@ interface Props {
 
 function DatePicker(props: Props) {
   const disablePast = props.disablePast;
+
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <KeyboardDatePicker
         className={props.className}
         disableToolbar
-        disablePast
+        disablePast={disablePast}
         shouldDisableDate={(date) => {
           if (props.disableNonBankDays) {
             if (date?.getDay() === 0 || date?.getDay() === 6) {

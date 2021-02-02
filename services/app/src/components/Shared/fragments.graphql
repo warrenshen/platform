@@ -1,7 +1,7 @@
 #
-# This file is for fragments used by by the Bank and Customer side
-#  - When updating Fragments in this section, be careful not to include fields
-#    that a company cannot see, as this will result in their queries returning null
+# This file is for shared fragments used by Bank, Customer, and Vendor roles.
+# When updating Fragments in this section, be careful not to include fields
+# that a user cannot see, as this will result in their queries returning null.
 
 ## Users
 
@@ -78,14 +78,14 @@ fragment LoanLimited on loans {
   amount
   origination_date
   maturity_date
-  adjusted_maturity_date	
+  adjusted_maturity_date
 }
 
 fragment PurchaseOrderLoan on purchase_order_loans {
   id
   purchase_order_id
   loan {
-  	...LoanLimited
+    ...LoanLimited
   }
 }
 
@@ -128,4 +128,16 @@ fragment BankAccount on bank_accounts {
   recipient_name
   recipient_address
   verified_at
+}
+
+fragment BankAccountForVendor on bank_accounts {
+  id
+  company_id
+  bank_name
+  bank_address
+  account_type
+  account_number
+  routing_number
+  recipient_name
+  recipient_address
 }

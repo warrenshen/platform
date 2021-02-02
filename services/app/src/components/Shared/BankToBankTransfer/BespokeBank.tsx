@@ -1,5 +1,5 @@
 import { Box, FormControl, MenuItem, Select } from "@material-ui/core";
-import AccountInfoCard from "components/Shared/BankAccount/AccountInfoCard";
+import BankAccountInfoCard from "components/Shared/BankAccount/BankAccountInfoCard";
 import {
   BankAccounts,
   Companies,
@@ -34,8 +34,9 @@ function BespokeBank({ companyId, onBespokeBankAccountSelection }: Props) {
       onBespokeBankAccountSelection(id);
     }
   }, [
-    onBespokeBankAccountSelection,
+    bespokeBankAccountId,
     data?.companies_by_pk?.settings?.collections_bespoke_bank_account,
+    onBespokeBankAccountSelection,
   ]);
 
   if (!data || !data.bank_accounts) {
@@ -75,10 +76,10 @@ function BespokeBank({ companyId, onBespokeBankAccountSelection }: Props) {
       </FormControl>
       {bespokeBankAccount && (
         <Box mt={1} width="fit-content">
-          <AccountInfoCard
+          <BankAccountInfoCard
+            isEditAllowed={false}
             bankAccount={bespokeBankAccount}
-            disableEditing
-          ></AccountInfoCard>
+          ></BankAccountInfoCard>
         </Box>
       )}
     </Box>

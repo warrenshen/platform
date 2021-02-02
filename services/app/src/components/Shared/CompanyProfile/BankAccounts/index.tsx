@@ -1,6 +1,6 @@
 import { Box } from "@material-ui/core";
-import AccountInfoCard from "components/Shared/BankAccount/AccountInfoCard";
 import AddAccountButton from "components/Shared/BankAccount/AddAccountButton";
+import BankAccountInfoCard from "components/Shared/BankAccount/BankAccountInfoCard";
 import { BankAccountFragment } from "generated/graphql";
 import { useEffect, useState } from "react";
 interface Props {
@@ -30,9 +30,9 @@ function BankAccounts({ companyId, bankAccounts }: Props) {
       <Box display="flex" mt={2}>
         {accounts.map((account, index) => (
           <Box mr={2} key={index}>
-            <AccountInfoCard
+            <BankAccountInfoCard
               bankAccount={account.bankAccount}
-            ></AccountInfoCard>
+            ></BankAccountInfoCard>
           </Box>
         ))}
       </Box>

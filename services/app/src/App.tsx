@@ -9,8 +9,8 @@ import {
   customerRoutes,
   routes,
 } from "lib/routes";
-import ApprovePurchaseOrderPage from "pages/Anonymous/ApprovePurchaseOrder";
-import ApprovePurchaseOrderCompletePage from "pages/Anonymous/ApprovePurchaseOrderComplete";
+import ReviewPurchaseOrderPage from "pages/Anonymous/ReviewPurchaseOrder";
+import ReviewPurchaseOrderCompletePage from "pages/Anonymous/ReviewPurchaseOrderComplete";
 import SecureLinkPage from "pages/Anonymous/SecureLink";
 import BankAccounts from "pages/Bank/BankAccounts";
 import Customer from "pages/Bank/Customer";
@@ -43,13 +43,13 @@ function App() {
         {/* Purchase Order reviewer routes */}
         <Route
           exact
-          path={anonymousRoutes.confirmPurchaseOrder}
-          component={ApprovePurchaseOrderPage}
+          path={anonymousRoutes.reviewPurchaseOrder}
+          component={ReviewPurchaseOrderPage}
         ></Route>
         <Route
           exact
-          path={anonymousRoutes.confirmPurchaseOrderComplete}
-          component={ApprovePurchaseOrderCompletePage}
+          path={anonymousRoutes.reviewPurchaseOrderComplete}
+          component={ReviewPurchaseOrderCompletePage}
         ></Route>
         <Layout>
           <PrivateRoute

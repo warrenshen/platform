@@ -1,6 +1,6 @@
 import { Box } from "@material-ui/core";
-import AccountInfoCard from "components/Shared/BankAccount/AccountInfoCard";
 import AddAccountButton from "components/Shared/BankAccount/AddAccountButton";
+import BankAccountInfoCard from "components/Shared/BankAccount/BankAccountInfoCard";
 import { useBankAccountsQuery } from "generated/graphql";
 import useAppBarTitle from "hooks/useAppBarTitle";
 import React from "react";
@@ -21,7 +21,7 @@ function BankAccounts() {
       <Box display="flex" flexWrap="wrap">
         {accounts.map((account, index) => (
           <Box key={index} mr={2} mb={2}>
-            <AccountInfoCard bankAccount={account}></AccountInfoCard>
+            <BankAccountInfoCard bankAccount={account}></BankAccountInfoCard>
           </Box>
         ))}
       </Box>

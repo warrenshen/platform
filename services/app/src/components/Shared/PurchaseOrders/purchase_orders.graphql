@@ -45,6 +45,10 @@ query PurchaseOrderForReview($id: uuid!) {
       id
       name
     }
+    vendor {
+      id
+      name
+    }
   }
 }
 
