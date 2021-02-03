@@ -12,11 +12,13 @@ import {
 import ReviewPurchaseOrderPage from "pages/Anonymous/ReviewPurchaseOrder";
 import ReviewPurchaseOrderCompletePage from "pages/Anonymous/ReviewPurchaseOrderComplete";
 import SecureLinkPage from "pages/Anonymous/SecureLink";
-import LoansAllProductsPage from "pages/Bank/LoansAllProducts";
-import LoansLineOfCreditPage from "pages/Bank/LoansLineOfCredit";
-import LoansMaturingPage from "pages/Bank/LoansMaturing";
-import LoansPastDuePage from "pages/Bank/LoansPastDue";
-import LoansPurchaseOrderPage from "pages/Bank/LoansPurchaseOrder";
+import BankBankAccountsPage from "pages/Bank/BankAccounts";
+import BankCustomersPage from "pages/Bank/Customers";
+import BankLoansAllProductsPage from "pages/Bank/LoansAllProducts";
+import BankLoansLineOfCreditPage from "pages/Bank/LoansLineOfCredit";
+import BankLoansMaturingPage from "pages/Bank/LoansMaturing";
+import BankLoansPastDuePage from "pages/Bank/LoansPastDue";
+import BankLoansPurchaseOrderPage from "pages/Bank/LoansPurchaseOrder";
 import CompanyProfilePage from "pages/Customer/CompanyProfile";
 import LoansPage from "pages/Customer/Loans";
 import PurchaseOrdersPage from "pages/Customer/PurchaseOrders";
@@ -138,37 +140,51 @@ function App() {
           {/* Bank user routes */}
           <PrivateRoute
             exact
+            path={bankRoutes.customers}
+            requiredRoles={[UserRolesEnum.BankAdmin]}
+          >
+            <BankCustomersPage></BankCustomersPage>
+          </PrivateRoute>
+          <PrivateRoute
+            exact
             path={bankRoutes.loansMaturing}
             requiredRoles={[UserRolesEnum.BankAdmin]}
           >
-            <LoansMaturingPage></LoansMaturingPage>
+            <BankLoansMaturingPage></BankLoansMaturingPage>
           </PrivateRoute>
           <PrivateRoute
             exact
             path={bankRoutes.loansPastDue}
             requiredRoles={[UserRolesEnum.BankAdmin]}
           >
-            <LoansPastDuePage></LoansPastDuePage>
+            <BankLoansPastDuePage></BankLoansPastDuePage>
           </PrivateRoute>
           <PrivateRoute
             path={bankRoutes.loansAllProducts}
             requiredRoles={[UserRolesEnum.BankAdmin]}
           >
-            <LoansAllProductsPage></LoansAllProductsPage>
+            <BankLoansAllProductsPage></BankLoansAllProductsPage>
           </PrivateRoute>
           <PrivateRoute
             exact
             path={bankRoutes.loansPurchaseOrder}
             requiredRoles={[UserRolesEnum.BankAdmin]}
           >
-            <LoansPurchaseOrderPage></LoansPurchaseOrderPage>
+            <BankLoansPurchaseOrderPage></BankLoansPurchaseOrderPage>
           </PrivateRoute>
           <PrivateRoute
             exact
             path={bankRoutes.loansLineOfCredit}
             requiredRoles={[UserRolesEnum.BankAdmin]}
           >
-            <LoansLineOfCreditPage></LoansLineOfCreditPage>
+            <BankLoansLineOfCreditPage></BankLoansLineOfCreditPage>
+          </PrivateRoute>
+          <PrivateRoute
+            exact
+            path={bankRoutes.bankAccounts}
+            requiredRoles={[UserRolesEnum.BankAdmin]}
+          >
+            <BankBankAccountsPage></BankBankAccountsPage>
           </PrivateRoute>
         </Layout>
       </Switch>

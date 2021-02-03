@@ -1,15 +1,15 @@
-import { useState, useEffect } from "react";
+import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import Status from "components/Shared/Chip/Status";
+import ActionMenu from "components/Shared/DataGrid/ActionMenu";
+import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import DataGrid, {
   Column,
   IColumnProps,
   Pager,
   Paging,
 } from "devextreme-react/data-grid";
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import { Maybe, PurchaseOrderLoanFragment } from "generated/graphql";
-import ActionMenu from "components/Shared/DataGrid/ActionMenu";
-import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
-import Status from "components/Shared/Chip/Status";
+import { useEffect, useState } from "react";
 import PurchaseOrderNumberCell from "./PurchaseOrderNumberCell";
 
 function getRows(
@@ -211,7 +211,6 @@ function LoansDataGrid({
       width: 150,
     });
     columns.push({
-      dataField: "loan.maturity_date",
       caption: "Days Past Due",
       width: 130,
       alignment: "center",
@@ -224,7 +223,6 @@ function LoansDataGrid({
     // });
   } else {
     columns.push({
-      dataField: "loan.maturity_date",
       caption: "Maturing in (Days)",
       width: 150,
       alignment: "center",
