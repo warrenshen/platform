@@ -2838,10 +2838,6 @@ export type MutationRoot = {
   delete_purchase_order_files?: Maybe<PurchaseOrderFilesMutationResponse>;
   /** delete single row from the table: "purchase_order_files" */
   delete_purchase_order_files_by_pk?: Maybe<PurchaseOrderFiles>;
-  /** delete data from the table: "purchase_order_loan_transactions" */
-  delete_purchase_order_loan_transactions?: Maybe<PurchaseOrderLoanTransactionsMutationResponse>;
-  /** delete single row from the table: "purchase_order_loan_transactions" */
-  delete_purchase_order_loan_transactions_by_pk?: Maybe<PurchaseOrderLoanTransactions>;
   /** delete data from the table: "purchase_order_loans" */
   delete_purchase_order_loans?: Maybe<PurchaseOrderLoansMutationResponse>;
   /** delete single row from the table: "purchase_order_loans" */
@@ -2920,10 +2916,6 @@ export type MutationRoot = {
   insert_purchase_order_files?: Maybe<PurchaseOrderFilesMutationResponse>;
   /** insert a single row into the table: "purchase_order_files" */
   insert_purchase_order_files_one?: Maybe<PurchaseOrderFiles>;
-  /** insert data into the table: "purchase_order_loan_transactions" */
-  insert_purchase_order_loan_transactions?: Maybe<PurchaseOrderLoanTransactionsMutationResponse>;
-  /** insert a single row into the table: "purchase_order_loan_transactions" */
-  insert_purchase_order_loan_transactions_one?: Maybe<PurchaseOrderLoanTransactions>;
   /** insert data into the table: "purchase_order_loans" */
   insert_purchase_order_loans?: Maybe<PurchaseOrderLoansMutationResponse>;
   /** insert a single row into the table: "purchase_order_loans" */
@@ -3004,10 +2996,6 @@ export type MutationRoot = {
   update_purchase_order_files?: Maybe<PurchaseOrderFilesMutationResponse>;
   /** update single row of the table: "purchase_order_files" */
   update_purchase_order_files_by_pk?: Maybe<PurchaseOrderFiles>;
-  /** update data of the table: "purchase_order_loan_transactions" */
-  update_purchase_order_loan_transactions?: Maybe<PurchaseOrderLoanTransactionsMutationResponse>;
-  /** update single row of the table: "purchase_order_loan_transactions" */
-  update_purchase_order_loan_transactions_by_pk?: Maybe<PurchaseOrderLoanTransactions>;
   /** update data of the table: "purchase_order_loans" */
   update_purchase_order_loans?: Maybe<PurchaseOrderLoansMutationResponse>;
   /** update single row of the table: "purchase_order_loans" */
@@ -3159,17 +3147,6 @@ export type MutationRootDeletePurchaseOrderFilesArgs = {
 export type MutationRootDeletePurchaseOrderFilesByPkArgs = {
   file_id: Scalars["uuid"];
   purchase_order_id: Scalars["uuid"];
-};
-
-/** mutation root */
-export type MutationRootDeletePurchaseOrderLoanTransactionsArgs = {
-  where: PurchaseOrderLoanTransactionsBoolExp;
-};
-
-/** mutation root */
-export type MutationRootDeletePurchaseOrderLoanTransactionsByPkArgs = {
-  purchase_order_loan_id: Scalars["uuid"];
-  transaction_id: Scalars["uuid"];
 };
 
 /** mutation root */
@@ -3389,18 +3366,6 @@ export type MutationRootInsertPurchaseOrderFilesArgs = {
 export type MutationRootInsertPurchaseOrderFilesOneArgs = {
   object: PurchaseOrderFilesInsertInput;
   on_conflict?: Maybe<PurchaseOrderFilesOnConflict>;
-};
-
-/** mutation root */
-export type MutationRootInsertPurchaseOrderLoanTransactionsArgs = {
-  objects: Array<PurchaseOrderLoanTransactionsInsertInput>;
-  on_conflict?: Maybe<PurchaseOrderLoanTransactionsOnConflict>;
-};
-
-/** mutation root */
-export type MutationRootInsertPurchaseOrderLoanTransactionsOneArgs = {
-  object: PurchaseOrderLoanTransactionsInsertInput;
-  on_conflict?: Maybe<PurchaseOrderLoanTransactionsOnConflict>;
 };
 
 /** mutation root */
@@ -3665,18 +3630,6 @@ export type MutationRootUpdatePurchaseOrderFilesArgs = {
 export type MutationRootUpdatePurchaseOrderFilesByPkArgs = {
   _set?: Maybe<PurchaseOrderFilesSetInput>;
   pk_columns: PurchaseOrderFilesPkColumnsInput;
-};
-
-/** mutation root */
-export type MutationRootUpdatePurchaseOrderLoanTransactionsArgs = {
-  _set?: Maybe<PurchaseOrderLoanTransactionsSetInput>;
-  where: PurchaseOrderLoanTransactionsBoolExp;
-};
-
-/** mutation root */
-export type MutationRootUpdatePurchaseOrderLoanTransactionsByPkArgs = {
-  _set?: Maybe<PurchaseOrderLoanTransactionsSetInput>;
-  pk_columns: PurchaseOrderLoanTransactionsPkColumnsInput;
 };
 
 /** mutation root */
@@ -4698,149 +4651,6 @@ export enum PurchaseOrderFilesUpdateColumn {
   PurchaseOrderId = "purchase_order_id",
 }
 
-/** columns and relationships of "purchase_order_loan_transactions" */
-export type PurchaseOrderLoanTransactions = {
-  /** An object relationship */
-  loan: PurchaseOrderLoans;
-  purchase_order_loan_id: Scalars["uuid"];
-  transaction_id: Scalars["uuid"];
-};
-
-/** aggregated selection of "purchase_order_loan_transactions" */
-export type PurchaseOrderLoanTransactionsAggregate = {
-  aggregate?: Maybe<PurchaseOrderLoanTransactionsAggregateFields>;
-  nodes: Array<PurchaseOrderLoanTransactions>;
-};
-
-/** aggregate fields of "purchase_order_loan_transactions" */
-export type PurchaseOrderLoanTransactionsAggregateFields = {
-  count?: Maybe<Scalars["Int"]>;
-  max?: Maybe<PurchaseOrderLoanTransactionsMaxFields>;
-  min?: Maybe<PurchaseOrderLoanTransactionsMinFields>;
-};
-
-/** aggregate fields of "purchase_order_loan_transactions" */
-export type PurchaseOrderLoanTransactionsAggregateFieldsCountArgs = {
-  columns?: Maybe<Array<PurchaseOrderLoanTransactionsSelectColumn>>;
-  distinct?: Maybe<Scalars["Boolean"]>;
-};
-
-/** order by aggregate values of table "purchase_order_loan_transactions" */
-export type PurchaseOrderLoanTransactionsAggregateOrderBy = {
-  count?: Maybe<OrderBy>;
-  max?: Maybe<PurchaseOrderLoanTransactionsMaxOrderBy>;
-  min?: Maybe<PurchaseOrderLoanTransactionsMinOrderBy>;
-};
-
-/** input type for inserting array relation for remote table "purchase_order_loan_transactions" */
-export type PurchaseOrderLoanTransactionsArrRelInsertInput = {
-  data: Array<PurchaseOrderLoanTransactionsInsertInput>;
-  on_conflict?: Maybe<PurchaseOrderLoanTransactionsOnConflict>;
-};
-
-/** Boolean expression to filter rows from the table "purchase_order_loan_transactions". All fields are combined with a logical 'AND'. */
-export type PurchaseOrderLoanTransactionsBoolExp = {
-  _and?: Maybe<Array<Maybe<PurchaseOrderLoanTransactionsBoolExp>>>;
-  _not?: Maybe<PurchaseOrderLoanTransactionsBoolExp>;
-  _or?: Maybe<Array<Maybe<PurchaseOrderLoanTransactionsBoolExp>>>;
-  loan?: Maybe<PurchaseOrderLoansBoolExp>;
-  purchase_order_loan_id?: Maybe<UuidComparisonExp>;
-  transaction_id?: Maybe<UuidComparisonExp>;
-};
-
-/** unique or primary key constraints on table "purchase_order_loan_transactions" */
-export enum PurchaseOrderLoanTransactionsConstraint {
-  /** unique or primary key constraint */
-  PurchaseOrderLoanPaymentsPkey = "purchase_order_loan_payments_pkey",
-}
-
-/** input type for inserting data into table "purchase_order_loan_transactions" */
-export type PurchaseOrderLoanTransactionsInsertInput = {
-  loan?: Maybe<PurchaseOrderLoansObjRelInsertInput>;
-  purchase_order_loan_id?: Maybe<Scalars["uuid"]>;
-  transaction_id?: Maybe<Scalars["uuid"]>;
-};
-
-/** aggregate max on columns */
-export type PurchaseOrderLoanTransactionsMaxFields = {
-  purchase_order_loan_id?: Maybe<Scalars["uuid"]>;
-  transaction_id?: Maybe<Scalars["uuid"]>;
-};
-
-/** order by max() on columns of table "purchase_order_loan_transactions" */
-export type PurchaseOrderLoanTransactionsMaxOrderBy = {
-  purchase_order_loan_id?: Maybe<OrderBy>;
-  transaction_id?: Maybe<OrderBy>;
-};
-
-/** aggregate min on columns */
-export type PurchaseOrderLoanTransactionsMinFields = {
-  purchase_order_loan_id?: Maybe<Scalars["uuid"]>;
-  transaction_id?: Maybe<Scalars["uuid"]>;
-};
-
-/** order by min() on columns of table "purchase_order_loan_transactions" */
-export type PurchaseOrderLoanTransactionsMinOrderBy = {
-  purchase_order_loan_id?: Maybe<OrderBy>;
-  transaction_id?: Maybe<OrderBy>;
-};
-
-/** response of any mutation on the table "purchase_order_loan_transactions" */
-export type PurchaseOrderLoanTransactionsMutationResponse = {
-  /** number of affected rows by the mutation */
-  affected_rows: Scalars["Int"];
-  /** data of the affected rows by the mutation */
-  returning: Array<PurchaseOrderLoanTransactions>;
-};
-
-/** input type for inserting object relation for remote table "purchase_order_loan_transactions" */
-export type PurchaseOrderLoanTransactionsObjRelInsertInput = {
-  data: PurchaseOrderLoanTransactionsInsertInput;
-  on_conflict?: Maybe<PurchaseOrderLoanTransactionsOnConflict>;
-};
-
-/** on conflict condition type for table "purchase_order_loan_transactions" */
-export type PurchaseOrderLoanTransactionsOnConflict = {
-  constraint: PurchaseOrderLoanTransactionsConstraint;
-  update_columns: Array<PurchaseOrderLoanTransactionsUpdateColumn>;
-  where?: Maybe<PurchaseOrderLoanTransactionsBoolExp>;
-};
-
-/** ordering options when selecting data from "purchase_order_loan_transactions" */
-export type PurchaseOrderLoanTransactionsOrderBy = {
-  loan?: Maybe<PurchaseOrderLoansOrderBy>;
-  purchase_order_loan_id?: Maybe<OrderBy>;
-  transaction_id?: Maybe<OrderBy>;
-};
-
-/** primary key columns input for table: "purchase_order_loan_transactions" */
-export type PurchaseOrderLoanTransactionsPkColumnsInput = {
-  purchase_order_loan_id: Scalars["uuid"];
-  transaction_id: Scalars["uuid"];
-};
-
-/** select columns of table "purchase_order_loan_transactions" */
-export enum PurchaseOrderLoanTransactionsSelectColumn {
-  /** column name */
-  PurchaseOrderLoanId = "purchase_order_loan_id",
-  /** column name */
-  TransactionId = "transaction_id",
-}
-
-/** input type for updating data in table "purchase_order_loan_transactions" */
-export type PurchaseOrderLoanTransactionsSetInput = {
-  purchase_order_loan_id?: Maybe<Scalars["uuid"]>;
-  transaction_id?: Maybe<Scalars["uuid"]>;
-};
-
-/** update columns of table "purchase_order_loan_transactions" */
-export enum PurchaseOrderLoanTransactionsUpdateColumn {
-  /** column name */
-  PurchaseOrderLoanId = "purchase_order_loan_id",
-  /** column name */
-  TransactionId = "transaction_id",
-}
-
 /** columns and relationships of "purchase_order_loans" */
 export type PurchaseOrderLoans = {
   id: Scalars["uuid"];
@@ -4850,28 +4660,6 @@ export type PurchaseOrderLoans = {
   /** An object relationship */
   purchase_order: PurchaseOrders;
   purchase_order_id: Scalars["uuid"];
-  /** An array relationship */
-  transactions: Array<PurchaseOrderLoanTransactions>;
-  /** An aggregated array relationship */
-  transactions_aggregate: PurchaseOrderLoanTransactionsAggregate;
-};
-
-/** columns and relationships of "purchase_order_loans" */
-export type PurchaseOrderLoansTransactionsArgs = {
-  distinct_on?: Maybe<Array<PurchaseOrderLoanTransactionsSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<PurchaseOrderLoanTransactionsOrderBy>>;
-  where?: Maybe<PurchaseOrderLoanTransactionsBoolExp>;
-};
-
-/** columns and relationships of "purchase_order_loans" */
-export type PurchaseOrderLoansTransactionsAggregateArgs = {
-  distinct_on?: Maybe<Array<PurchaseOrderLoanTransactionsSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<PurchaseOrderLoanTransactionsOrderBy>>;
-  where?: Maybe<PurchaseOrderLoanTransactionsBoolExp>;
 };
 
 /** aggregated selection of "purchase_order_loans" */
@@ -4916,7 +4704,6 @@ export type PurchaseOrderLoansBoolExp = {
   loan_id?: Maybe<UuidComparisonExp>;
   purchase_order?: Maybe<PurchaseOrdersBoolExp>;
   purchase_order_id?: Maybe<UuidComparisonExp>;
-  transactions?: Maybe<PurchaseOrderLoanTransactionsBoolExp>;
 };
 
 /** unique or primary key constraints on table "purchase_order_loans" */
@@ -4932,7 +4719,6 @@ export type PurchaseOrderLoansInsertInput = {
   loan_id?: Maybe<Scalars["uuid"]>;
   purchase_order?: Maybe<PurchaseOrdersObjRelInsertInput>;
   purchase_order_id?: Maybe<Scalars["uuid"]>;
-  transactions?: Maybe<PurchaseOrderLoanTransactionsArrRelInsertInput>;
 };
 
 /** aggregate max on columns */
@@ -4991,7 +4777,6 @@ export type PurchaseOrderLoansOrderBy = {
   loan_id?: Maybe<OrderBy>;
   purchase_order?: Maybe<PurchaseOrdersOrderBy>;
   purchase_order_id?: Maybe<OrderBy>;
-  transactions_aggregate?: Maybe<PurchaseOrderLoanTransactionsAggregateOrderBy>;
 };
 
 /** primary key columns input for table: "purchase_order_loans" */
@@ -5559,12 +5344,6 @@ export type QueryRoot = {
   purchase_order_files_aggregate: PurchaseOrderFilesAggregate;
   /** fetch data from the table: "purchase_order_files" using primary key columns */
   purchase_order_files_by_pk?: Maybe<PurchaseOrderFiles>;
-  /** fetch data from the table: "purchase_order_loan_transactions" */
-  purchase_order_loan_transactions: Array<PurchaseOrderLoanTransactions>;
-  /** fetch aggregated fields from the table: "purchase_order_loan_transactions" */
-  purchase_order_loan_transactions_aggregate: PurchaseOrderLoanTransactionsAggregate;
-  /** fetch data from the table: "purchase_order_loan_transactions" using primary key columns */
-  purchase_order_loan_transactions_by_pk?: Maybe<PurchaseOrderLoanTransactions>;
   /** fetch data from the table: "purchase_order_loans" */
   purchase_order_loans: Array<PurchaseOrderLoans>;
   /** fetch aggregated fields from the table: "purchase_order_loans" */
@@ -5888,30 +5667,6 @@ export type QueryRootPurchaseOrderFilesAggregateArgs = {
 export type QueryRootPurchaseOrderFilesByPkArgs = {
   file_id: Scalars["uuid"];
   purchase_order_id: Scalars["uuid"];
-};
-
-/** query root */
-export type QueryRootPurchaseOrderLoanTransactionsArgs = {
-  distinct_on?: Maybe<Array<PurchaseOrderLoanTransactionsSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<PurchaseOrderLoanTransactionsOrderBy>>;
-  where?: Maybe<PurchaseOrderLoanTransactionsBoolExp>;
-};
-
-/** query root */
-export type QueryRootPurchaseOrderLoanTransactionsAggregateArgs = {
-  distinct_on?: Maybe<Array<PurchaseOrderLoanTransactionsSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<PurchaseOrderLoanTransactionsOrderBy>>;
-  where?: Maybe<PurchaseOrderLoanTransactionsBoolExp>;
-};
-
-/** query root */
-export type QueryRootPurchaseOrderLoanTransactionsByPkArgs = {
-  purchase_order_loan_id: Scalars["uuid"];
-  transaction_id: Scalars["uuid"];
 };
 
 /** query root */
@@ -6487,12 +6242,6 @@ export type SubscriptionRoot = {
   purchase_order_files_aggregate: PurchaseOrderFilesAggregate;
   /** fetch data from the table: "purchase_order_files" using primary key columns */
   purchase_order_files_by_pk?: Maybe<PurchaseOrderFiles>;
-  /** fetch data from the table: "purchase_order_loan_transactions" */
-  purchase_order_loan_transactions: Array<PurchaseOrderLoanTransactions>;
-  /** fetch aggregated fields from the table: "purchase_order_loan_transactions" */
-  purchase_order_loan_transactions_aggregate: PurchaseOrderLoanTransactionsAggregate;
-  /** fetch data from the table: "purchase_order_loan_transactions" using primary key columns */
-  purchase_order_loan_transactions_by_pk?: Maybe<PurchaseOrderLoanTransactions>;
   /** fetch data from the table: "purchase_order_loans" */
   purchase_order_loans: Array<PurchaseOrderLoans>;
   /** fetch aggregated fields from the table: "purchase_order_loans" */
@@ -6816,30 +6565,6 @@ export type SubscriptionRootPurchaseOrderFilesAggregateArgs = {
 export type SubscriptionRootPurchaseOrderFilesByPkArgs = {
   file_id: Scalars["uuid"];
   purchase_order_id: Scalars["uuid"];
-};
-
-/** subscription root */
-export type SubscriptionRootPurchaseOrderLoanTransactionsArgs = {
-  distinct_on?: Maybe<Array<PurchaseOrderLoanTransactionsSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<PurchaseOrderLoanTransactionsOrderBy>>;
-  where?: Maybe<PurchaseOrderLoanTransactionsBoolExp>;
-};
-
-/** subscription root */
-export type SubscriptionRootPurchaseOrderLoanTransactionsAggregateArgs = {
-  distinct_on?: Maybe<Array<PurchaseOrderLoanTransactionsSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<PurchaseOrderLoanTransactionsOrderBy>>;
-  where?: Maybe<PurchaseOrderLoanTransactionsBoolExp>;
-};
-
-/** subscription root */
-export type SubscriptionRootPurchaseOrderLoanTransactionsByPkArgs = {
-  purchase_order_loan_id: Scalars["uuid"];
-  transaction_id: Scalars["uuid"];
 };
 
 /** subscription root */
@@ -8356,11 +8081,6 @@ export type PurchaseOrderLoanFragment = Pick<
   "id" | "purchase_order_id"
 > & { loan: LoanLimitedFragment };
 
-export type PurchaseOrderLoanTransactionFragment = Pick<
-  PurchaseOrderLoanTransactions,
-  "purchase_order_loan_id" | "transaction_id"
->;
-
 export type FileFragment = Pick<Files, "id" | "name" | "path">;
 
 export type PurchaseOrderFileFragment = Pick<
@@ -8891,12 +8611,6 @@ export const PurchaseOrderLoanFragmentDoc = gql`
     }
   }
   ${LoanLimitedFragmentDoc}
-`;
-export const PurchaseOrderLoanTransactionFragmentDoc = gql`
-  fragment PurchaseOrderLoanTransaction on purchase_order_loan_transactions {
-    purchase_order_loan_id
-    transaction_id
-  }
 `;
 export const FileFragmentDoc = gql`
   fragment File on files {

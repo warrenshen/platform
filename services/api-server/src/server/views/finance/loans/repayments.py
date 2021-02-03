@@ -10,6 +10,8 @@ from typing import cast, Any
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.finance import payment_util
+from bespoke.finance.types import per_customer_types
+from bespoke.finance.fetchers import per_customer_fetcher
 from server.views.common import handler_util
 from server.views.common import auth_util
 
@@ -24,17 +26,37 @@ class CalculateEffectOfPaymentView(MethodView):
 		if not form:
 			return handler_util.make_error_response('No data provided')
 
-		required_keys = ['payment']
+		required_keys = ['payment', 'company_id']
 		for key in required_keys:
 			if key not in form:
 				return handler_util.make_error_response(
 					'Missing key {} from calculate effect of payment request'.format(key))
 
-		tx = form['payment']
-		if type(tx['amount']) != float and type(tx['amount']) != int:
+		payment = form['payment']
+		if type(payment['amount']) != float and type(payment['amount']) != int:
 			return handler_util.make_error_response('Amount must be a number')
 
-		return handler_util.make_error_response('Not implemented')
+		# NOTE: Fetching information is likely a slow task, so we probably want to
+		# turn this into an async operation.
+		company_info_dict = per_customer_types.CompanyInfoDict(
+			id=form['company_id'],
+			name='unused'
+		)
+		fetcher = per_customer_fetcher.Fetcher(company_info_dict, current_app.session_maker)
+		_, err = fetcher.fetch()
+		if err:
+			return handler_util.make_error_response(err)
+		financial_info = fetcher.get_financials()
+
+		effect_resp, err = payment_util.calculate_effect(
+			payment, financial_info)
+		if err:
+			return handler_util.make_error_response(err)
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'effect': effect_resp
+		}))
 
 class HandlePaymentView(MethodView):
 	decorators = [auth_util.login_required]

@@ -89,11 +89,6 @@ fragment PurchaseOrderLoan on purchase_order_loans {
   }
 }
 
-fragment PurchaseOrderLoanTransaction on purchase_order_loan_transactions {
-  purchase_order_loan_id
-  transaction_id
-}
-
 ## Files
 
 fragment File on files {

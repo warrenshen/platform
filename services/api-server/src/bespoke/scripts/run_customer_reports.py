@@ -12,6 +12,7 @@ from typing import List, cast
 from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.finance.reports import per_customer
+from bespoke.finance.fetchers import per_customer_fetcher
 load_dotenv(os.path.join(os.environ.get('SERVER_ROOT_DIR'), '.env'))
 
 logging.basicConfig(format='%(asctime)s [%(levelname)s] - %(message)s',
@@ -36,7 +37,7 @@ def main() -> None:
 	# Run a report per customer
 	for company_dict in company_dicts:
 		company_name = company_dict['name']
-		fetcher = per_customer.Fetcher(company_dict, session_maker)
+		fetcher = per_customer_fetcher.Fetcher(company_dict, session_maker)
 		_, err = fetcher.fetch()
 		if err:
 			logging.error('Error fetching for company "{}". Error: {}'.format(
