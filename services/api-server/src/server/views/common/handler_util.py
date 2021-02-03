@@ -4,15 +4,22 @@ import traceback
 
 from bespoke import errors
 from flask import Response
-from typing import Callable, Tuple, Any
+from typing import Callable, Union, Tuple, Any, cast
 
 def get_exception_message(e: Exception) -> Tuple[bool, str]:
 	return True, '{}'.format(e)
 
-def bad_json_response(error: errors.Error) -> Response:
+def make_error_response(error: Union[str, errors.Error]) -> Response:
+	if type(error) == errors.Error:
+		error_obj = cast(errors.Error, error)
+	elif type(error) == str:
+		error_obj = errors.Error(msg=cast(str, error))
+	else:
+		error_obj = errors.Error(msg='Unexpected error message provided')
+
 	return Response(
 		response=json.dumps(
-		dict(status='ERROR', msg=error.msg, err_details=error.details)),
+		dict(status='ERROR', msg=error_obj.msg, err_details=error_obj.details)),
 		headers={'Content-Type': 'application/json; charset=utf-8'},
 		mimetype='application/json')
 
@@ -31,6 +38,6 @@ def catch_bad_json_request(f: Callable[..., Response]) -> Callable[..., Response
 			if not known:
 				msg = u'An unexpected error occurred.'
 
-		return bad_json_response(errors.Error(msg))
+		return make_error_response(errors.Error(msg))
 
 	return inner_func

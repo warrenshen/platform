@@ -28,11 +28,11 @@ export const purchaseOrdersRoutes = {
   submitForApproval: "/purchase_orders/submit_for_approval",
 };
 
-export const purchaseOrderLoansRoutes = {
-  submitForApproval: "/purchase_order_loans/submit_for_approval",
-  makePayment: "/finance/loans/purchase_order/handle_payment",
+export const loansRoutes = {
+  submitForApproval: "/finance/loans/approvals/submit_for_approval",
+  makePayment: "/finance/loans/repayments/handle_payment",
   calculateEffectOfPayment:
-    "finance/loans/purchase_order/calculate_effect_of_payment",
+    "finance/loans/repayments/calculate_effect_of_payment",
 };
 
 export const twoFactorRoutes = {

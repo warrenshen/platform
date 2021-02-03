@@ -40,7 +40,12 @@ function RepaymentButton() {
               payment: payment,
               company_id: companyId,
             });
-            console.log(resp);
+            if (resp.status !== "OK") {
+              setErrMsg(resp.msg);
+            } else {
+              console.log(resp);
+              setOpen(false);
+            }
           }}
           coverageComponent={(amount: number) => (
             <div></div>

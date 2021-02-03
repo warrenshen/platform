@@ -2,7 +2,7 @@
 // when it comes to creating payment transactions
 
 import { PaymentsInsertInput } from "generated/graphql";
-import { authenticatedApi, purchaseOrderLoansRoutes } from "lib/api";
+import { authenticatedApi, loansRoutes } from "lib/api";
 
 export type MakePaymentResp = {
   status: string;
@@ -19,7 +19,7 @@ export async function calculateEffectOfPayment(req: {
   company_id: string;
 }): Promise<CalculateEffectOfPaymentResp> {
   return authenticatedApi
-    .post(purchaseOrderLoansRoutes.calculateEffectOfPayment, req)
+    .post(loansRoutes.calculateEffectOfPayment, req)
     .then((res) => {
       return res.data;
     })
@@ -43,7 +43,7 @@ export async function makePayment(req: {
   company_id: string;
 }): Promise<MakePaymentResp> {
   return authenticatedApi
-    .post(purchaseOrderLoansRoutes.makePayment, req)
+    .post(loansRoutes.makePayment, req)
     .then((res) => {
       return res.data;
     })

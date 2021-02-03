@@ -19,7 +19,7 @@ import {
   useUpdatePurchaseOrderLoanAndLoanMutation,
 } from "generated/graphql";
 import { ActionType } from "lib/ActionType";
-import { authenticatedApi, purchaseOrderLoansRoutes } from "lib/api";
+import { authenticatedApi, loansRoutes } from "lib/api";
 import { isNull, mergeWith } from "lodash";
 import { useState } from "react";
 import PurchaseOrderLoanForm from "./PurchaseOrderLoanForm";
@@ -211,7 +211,7 @@ function CreateUpdatePurchaseOrderLoanModal({
       // Since this is a SAVE AND SUBMIT action,
       // hit the PurchaseOrderLoans.SubmitForApproval endpoint.
       const response = await authenticatedApi.post(
-        purchaseOrderLoansRoutes.submitForApproval,
+        loansRoutes.submitForApproval,
         {
           purchase_order_loan_id: savedPurchaseOrderLoan.id,
         }

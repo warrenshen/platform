@@ -32,7 +32,7 @@ def bank_admin_required(f: Callable[..., Response]) -> Response:
 	def inner_func(*args: Any, **kwargs: Any) -> Response:
 		user_session = UserSession.from_session()
 		if not user_session.is_bank_admin():
-			return handler_util.bad_json_response(errors.Error('Access Denied'))
+			return handler_util.make_error_response(errors.Error('Access Denied'))
 
 		return f(*args, **kwargs)
 
