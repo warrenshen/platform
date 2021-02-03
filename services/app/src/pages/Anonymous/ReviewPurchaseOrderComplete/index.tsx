@@ -1,21 +1,23 @@
 import { Box } from "@material-ui/core";
 
-interface Props {}
-
-function ReviewPurchaseOrderCompletePage(props: Props) {
+function ReviewPurchaseOrderCompletePage() {
   return (
     <Box
-      width="100vw"
-      height="100vh"
       display="flex"
       justifyContent="center"
       alignItems="center"
+      width="100vw"
+      height="100vh"
     >
-      <Box display="flex" flexDirection="column">
+      <Box display="flex" flexDirection="column" width="400px">
         <Box display="flex" flexDirection="column">
           <Box>
             <h2>Thank you!</h2>
-            <p>You may close this page.</p>
+            <p>
+              Your decision to approve or reject the purchase order was saved
+              successfully. If we need any further information from you, we will
+              contact you directly. You may now close this page.
+            </p>
           </Box>
         </Box>
       </Box>

@@ -10,6 +10,7 @@ import {
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import {
   PurchaseOrderFileTypeEnum,
+  RequestStatusEnum,
   usePurchaseOrderForReviewQuery,
 } from "generated/graphql";
 import { anonymousRoutes } from "lib/routes";
@@ -44,7 +45,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function ApprovePurchaseOrder(props: Props) {
+function ReviewPurchaseOrderPage(props: Props) {
   const classes = useStyles();
   const location: any = props.location;
 
@@ -75,17 +76,29 @@ function ApprovePurchaseOrder(props: Props) {
       )
     : [];
 
+  if (
+    purchaseOrder &&
+    [RequestStatusEnum.Approved, RequestStatusEnum.Rejected].includes(
+      purchaseOrder?.status
+    )
+  ) {
+    console.log({ hello: "hello" });
+    // If Purchase Order is already reviewed, redirect the user to the complete page.
+    // This is so the user cannot re-review an already reviewed Purchase Order.
+    history.replace(anonymousRoutes.reviewPurchaseOrderComplete);
+  }
+
   const isDataReady = !isPurchaseOrderLoading;
 
   return isDataReady && purchaseOrder ? (
     <Box
-      width="100vw"
-      height="100vh"
       display="flex"
       justifyContent="center"
       alignItems="center"
+      width="100vw"
+      height="100vh"
     >
-      <Box width="400px" display="flex" flexDirection="column">
+      <Box display="flex" flexDirection="column" width="400px">
         <Box display="flex" flexDirection="column">
           <Box>
             <h2>{`${purchaseOrder.vendor?.name}, your approval is requested`}</h2>
@@ -199,4 +212,4 @@ function ApprovePurchaseOrder(props: Props) {
   ) : null;
 }
 
-export default ApprovePurchaseOrder;
+export default ReviewPurchaseOrderPage;
