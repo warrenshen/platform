@@ -10,10 +10,10 @@ from bespoke.email import sendgrid_util
 from bespoke.email.sendgrid_util import TemplateNames
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
-from flask_jwt_extended import get_jwt_identity, jwt_required
 from mypy_extensions import TypedDict
 from server.config import Config
 from server.views.common.auth_util import UserSession
+from server.views.common import auth_util, handler_util
 
 handler = Blueprint('email', __name__)
 
@@ -182,8 +182,9 @@ class SendNotificationView(MethodView):
 	"""
 			Send a notification (likely an email) that the user needs to perform an action.
 	"""
+	decorators = [auth_util.login_required]
 
-	@jwt_required
+	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
 		cfg = cast(Config, current_app.app_config)
 		sendgrid_client = cast(
@@ -200,7 +201,7 @@ class SendNotificationView(MethodView):
 			if key not in form:
 				return make_error_response('Send email missing key {}'.format(key))
 
-		user_session = UserSession(get_jwt_identity())
+		user_session = UserSession.from_session()
 
 		# Company ID is whoever the the company this user belongs to.
 		# However in the bank case, they can trigger an email notification on behalf

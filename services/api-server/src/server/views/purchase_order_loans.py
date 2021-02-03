@@ -3,7 +3,6 @@ from typing import List, cast
 
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
-from flask_jwt_extended import jwt_required
 
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
@@ -11,6 +10,7 @@ from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.enums.request_status_enum import RequestStatusEnum
 from server.config import Config
+from server.views.common import auth_util, handler_util
 
 handler = Blueprint('purchase_order_loans', __name__)
 
@@ -20,8 +20,9 @@ def make_error_response(msg: str) -> Response:
 
 
 class SubmitForApprovalView(MethodView):
+	decorators = [auth_util.login_required]
 
-	@jwt_required
+	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
 		cfg = cast(Config, current_app.app_config)
 		sendgrid_client = cast(sendgrid_util.Client,

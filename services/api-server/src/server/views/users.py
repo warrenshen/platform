@@ -4,7 +4,6 @@ import json
 from flask import request, make_response, current_app
 from flask import Response, Blueprint
 from flask.views import MethodView
-from flask_jwt_extended import jwt_required, get_jwt_identity
 from mypy_extensions import TypedDict
 from typing import cast
 
@@ -16,6 +15,7 @@ from bespoke.email import sendgrid_util
 from bespoke.security import security_util
 from server.config import Config
 from server.views.common.auth_util import UserSession
+from server.views.common import auth_util, handler_util
 
 handler = Blueprint('purchase_order', __name__)
 
@@ -29,8 +29,9 @@ class CreateLoginView(MethodView):
 			Create login should be created once a bank-admin adds a user to the system
 			or when a company admin adds their own users to the system
 	"""
+	decorators = [auth_util.login_required]
 
-	@jwt_required
+	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
 		sendgrid_client = cast(sendgrid_util.Client,
 							   current_app.sendgrid_client)
@@ -45,7 +46,7 @@ class CreateLoginView(MethodView):
 			if key not in form:
 				return make_error_response(f'Missing {key} in respond to create login')
 
-		user_session = UserSession(get_jwt_identity())
+		user_session = UserSession.from_session()
 		
 		if not user_session.is_bank_or_this_company_admin(form['company_id']):
 			return make_error_response('Access Denied')

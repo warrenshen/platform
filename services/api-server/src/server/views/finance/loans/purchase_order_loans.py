@@ -5,7 +5,6 @@ from mypy_extensions import TypedDict
 from flask import request, make_response, current_app
 from flask import Response, Blueprint
 from flask.views import MethodView
-from flask_jwt_extended import jwt_required
 from typing import cast, Any
 
 from bespoke.db import db_constants, models
@@ -52,7 +51,7 @@ PaymentInsertInputDict = TypedDict('PaymentInsertInputDict', {
 })
 
 class CalculateEffectOfPaymentView(MethodView):
-	decorators = [jwt_required]
+	decorators = [auth_util.login_required]
 
 	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
@@ -73,7 +72,7 @@ class CalculateEffectOfPaymentView(MethodView):
 		return make_error_response('Not implemented')
 
 class HandlePaymentView(MethodView):
-	decorators = [jwt_required]
+	decorators = [auth_util.login_required]
 
 	@handler_util.catch_bad_json_request
 	def post(self) -> Response:

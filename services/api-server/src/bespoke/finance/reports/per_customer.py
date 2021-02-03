@@ -147,37 +147,35 @@ class ExcelCreator(object):
 	def _advances(self) -> None:
 		sheet = self.wb.add_sheet('Advances')
 		
-		if self._product_type == db_constants.ProductType.INVENTORY_FINANCING:
-			payments = self._financials['financials']['payments']
-			sheet.add_row(['Type', 'Amount', 'Method', 'Submitted'])
-			for payment in payments:
-				if payment['type'] != db_constants.PaymentType.ADVANCE:
-					continue
-				row: List[str] = [
-					payment['type'], 
-					number_util.to_dollar_format(payment['amount']),
-					payment['method'], 
-					date_util.human_readable_yearmonthday(payment['submitted_at'])
-				]
-				sheet.add_row(row)
+		payments = self._financials['financials']['payments']
+		sheet.add_row(['Type', 'Amount', 'Method', 'Submitted'])
+		for payment in payments:
+			if payment['type'] != db_constants.PaymentType.ADVANCE:
+				continue
+			row: List[str] = [
+				payment['type'], 
+				number_util.to_dollar_format(payment['amount']),
+				payment['method'], 
+				date_util.human_readable_yearmonthday(payment['submitted_at'])
+			]
+			sheet.add_row(row)
 
 
 	def _payments(self) -> None:
 		sheet = self.wb.add_sheet('Payments')
 
-		if self._product_type == db_constants.ProductType.INVENTORY_FINANCING:
-			payments = self._financials['financials']['payments']
-			sheet.add_row(['Type', 'Amount', 'Method', 'Submitted'])
-			for payment in payments:
-				if payment['type'] != db_constants.PaymentType.REPAYMENT:
-					continue
-				row: List[str] = [
-					payment['type'], 
-					number_util.to_dollar_format(payment['amount']),
-					payment['method'], 
-					date_util.human_readable_yearmonthday(payment['submitted_at'])
-				]
-				sheet.add_row(row)
+		payments = self._financials['financials']['payments']
+		sheet.add_row(['Type', 'Amount', 'Method', 'Submitted'])
+		for payment in payments:
+			if payment['type'] != db_constants.PaymentType.REPAYMENT:
+				continue
+			row: List[str] = [
+				payment['type'], 
+				number_util.to_dollar_format(payment['amount']),
+				payment['method'], 
+				date_util.human_readable_yearmonthday(payment['submitted_at'])
+			]
+			sheet.add_row(row)
 
 	def _contract(self) -> None:
 		sheet = self.wb.add_sheet('Contract')

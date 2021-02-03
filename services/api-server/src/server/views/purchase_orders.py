@@ -1,15 +1,16 @@
 import json
 from typing import List, cast
 
+from flask import Blueprint, Response, current_app, make_response, request
+from flask.views import MethodView
+
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.enums.request_status_enum import RequestStatusEnum
 from bespoke.finance import number_util
-from flask import Blueprint, Response, current_app, make_response, request
-from flask.views import MethodView
-from flask_jwt_extended import jwt_required
+from server.views.common import auth_util, handler_util
 
 handler = Blueprint('purchase_orders', __name__)
 
@@ -24,8 +25,9 @@ class PurchaseOrderFileTypeEnum():
 
 
 class RespondToApprovalRequestView(MethodView):
+	decorators = [auth_util.login_required]
 
-	@jwt_required
+	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
 		sendgrid_client = cast(sendgrid_util.Client,
 							   current_app.sendgrid_client)
@@ -116,8 +118,9 @@ class RespondToApprovalRequestView(MethodView):
 
 
 class SubmitForApprovalView(MethodView):
+	decorators = [auth_util.login_required]
 
-	@jwt_required
+	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
 		sendgrid_client = cast(sendgrid_util.Client,
 							   current_app.sendgrid_client)

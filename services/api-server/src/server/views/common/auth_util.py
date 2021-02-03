@@ -30,7 +30,7 @@ def bank_admin_required(f: Callable[..., Response]) -> Response:
 
 	@jwt_required
 	def inner_func(*args: Any, **kwargs: Any) -> Response:
-		user_session = UserSession(get_jwt_identity())
+		user_session = UserSession.from_session()
 		if not user_session.is_bank_admin():
 			return handler_util.bad_json_response(errors.Error('Access Denied'))
 
@@ -38,6 +38,13 @@ def bank_admin_required(f: Callable[..., Response]) -> Response:
 
 	return inner_func
 
+def login_required(f: Callable[..., Response]) -> Response:
+
+	@jwt_required
+	def inner_func(*args: Any, **kwargs: Any) -> Response:
+		return f(*args, **kwargs)
+
+	return inner_func
 
 class UserSession(object):
 

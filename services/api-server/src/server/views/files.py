@@ -12,10 +12,10 @@ from bespoke.db.models import session_scope
 from botocore.exceptions import ClientError
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
-from flask_jwt_extended import get_jwt_identity, jwt_required
 from mypy_extensions import TypedDict
 from server.config import Config
 from server.views.common.auth_util import UserPayloadDict, UserSession
+from server.views.common import auth_util, handler_util
 
 handler = Blueprint('files', __name__)
 
@@ -37,7 +37,7 @@ def make_error_response(msg: str) -> Response:
 
 def _save_file_to_db(
 		session_maker: Callable, file_info: FileInfoDict, company_id: str,
-		path: str, cur_user: UserPayloadDict) -> FileInDBDict:
+		path: str, user_session: UserSession) -> FileInDBDict:
 	_, ext = os.path.splitext(file_info['name'])
 	with session_scope(session_maker) as session:
 		file_orm = models.File(
@@ -47,7 +47,7 @@ def _save_file_to_db(
 			extension=ext.lstrip('.'),
 			size=file_info['size'],
 			mime_type=file_info['content_type'],
-			created_by_user_id=cur_user['X-Hasura-User-Id']
+			created_by_user_id=user_session.get_user_id()
 		)
 		session.add(file_orm)
 		session.flush()
@@ -58,8 +58,9 @@ def _save_file_to_db(
 
 
 class PutSignedUrlView(MethodView):
+	decorators = [auth_util.login_required]
 
-	@jwt_required
+	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
 		s3_client = boto3.client('s3')
 		cfg = cast(Config, current_app.app_config)
@@ -99,9 +100,9 @@ class PutSignedUrlView(MethodView):
 			upload_via_server = True
 
 		# Keep track of the file, we assume the upload to S3 will succeed.
-		cur_user = get_jwt_identity()
+		user_session = UserSession.from_session()
 		file_in_db_dict = _save_file_to_db(
-			current_app.session_maker, file_info, company_id, path, cur_user)
+			current_app.session_maker, file_info, company_id, path, user_session)
 
 		return make_response(json.dumps({
 			'status': 'OK',
@@ -112,8 +113,9 @@ class PutSignedUrlView(MethodView):
 
 
 class DownloadSignedUrlView(MethodView):
+	decorators = [auth_util.login_required]
 
-	@jwt_required
+	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
 		s3_client = boto3.client('s3')
 		cfg = cast(Config, current_app.app_config)
@@ -123,7 +125,7 @@ class DownloadSignedUrlView(MethodView):
 		if not form:
 			return make_error_response('No form provided in download signed url request')
 
-		user_session = UserSession(get_jwt_identity())
+		user_session = UserSession.from_session()
 
 		if 'file_ids' not in form:
 			return make_error_response('file ids must be provided to download signed urls')
@@ -173,8 +175,9 @@ class DownloadSignedUrlView(MethodView):
 
 
 class UploadSignedUrlView(MethodView):
+	decorators = [auth_util.login_required]
 
-	@ jwt_required
+	@handler_util.catch_bad_json_request
 	def put(self) -> Response:
 		s3_client = boto3.client('s3')
 		cfg = cast(Config, current_app.app_config)

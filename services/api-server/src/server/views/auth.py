@@ -8,11 +8,11 @@ from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from flask_jwt_extended import (create_access_token, create_refresh_token,
 								get_jwt_identity, get_raw_jwt,
-								jwt_refresh_token_required, jwt_required)
+								jwt_refresh_token_required)
 from typing import cast, List
 
 from server.config import Config
-from server.views.common import auth_util
+from server.views.common import auth_util, handler_util
 
 handler = Blueprint('auth', __name__)
 
@@ -130,8 +130,8 @@ class ResetPasswordView(MethodView):
 
 
 class SignOutAccessView(MethodView):
+	decorators = [auth_util.login_required]
 
-	@jwt_required
 	def post(self) -> Response:
 		jti = get_raw_jwt()['jti']
 		userId = get_raw_jwt()[
