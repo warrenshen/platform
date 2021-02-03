@@ -1,9 +1,9 @@
 import { Box, Paper, Tab, Tabs } from "@material-ui/core";
 import Loans from "components/Bank/Customer/Loans";
 import Overview from "components/Bank/Customer/Overview";
-import Settings from "components/Bank/Customer/Settings";
 import Profile from "components/Bank/Customer/Profile";
 import PurchaseOrders from "components/Bank/Customer/PurchaseOrders";
+import Settings from "components/Bank/Customer/Settings";
 import Users from "components/Bank/Customer/Users";
 import Vendors from "components/Bank/Customer/Vendors";
 import PrivateRoute from "components/Shared/PrivateRoute";
@@ -56,7 +56,7 @@ const customerPaths = [
   },
 ];
 
-function Customer() {
+function BankCustomerPage() {
   const { companyId } = useParams<CustomerParams>();
   const { url, path } = useRouteMatch();
   const location = useLocation();
@@ -129,4 +129,4 @@ function Customer() {
   );
 }
 
-export default Customer;
+export default BankCustomerPage;

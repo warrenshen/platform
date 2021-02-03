@@ -13,6 +13,7 @@ import ReviewPurchaseOrderPage from "pages/Anonymous/ReviewPurchaseOrder";
 import ReviewPurchaseOrderCompletePage from "pages/Anonymous/ReviewPurchaseOrderComplete";
 import SecureLinkPage from "pages/Anonymous/SecureLink";
 import BankBankAccountsPage from "pages/Bank/BankAccounts";
+import BankCustomerPage from "pages/Bank/Customer";
 import BankCustomersPage from "pages/Bank/Customers";
 import BankLoansAllProductsPage from "pages/Bank/LoansAllProducts";
 import BankLoansLineOfCreditPage from "pages/Bank/LoansLineOfCredit";
@@ -140,13 +141,6 @@ function App() {
           {/* Bank user routes */}
           <PrivateRoute
             exact
-            path={bankRoutes.customers}
-            requiredRoles={[UserRolesEnum.BankAdmin]}
-          >
-            <BankCustomersPage></BankCustomersPage>
-          </PrivateRoute>
-          <PrivateRoute
-            exact
             path={bankRoutes.loansMaturing}
             requiredRoles={[UserRolesEnum.BankAdmin]}
           >
@@ -178,6 +172,19 @@ function App() {
             requiredRoles={[UserRolesEnum.BankAdmin]}
           >
             <BankLoansLineOfCreditPage></BankLoansLineOfCreditPage>
+          </PrivateRoute>
+          <PrivateRoute
+            exact
+            path={bankRoutes.customers}
+            requiredRoles={[UserRolesEnum.BankAdmin]}
+          >
+            <BankCustomersPage></BankCustomersPage>
+          </PrivateRoute>
+          <PrivateRoute
+            path={bankRoutes.customer.root}
+            requiredRoles={[UserRolesEnum.BankAdmin]}
+          >
+            <BankCustomerPage></BankCustomerPage>
           </PrivateRoute>
           <PrivateRoute
             exact
