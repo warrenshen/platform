@@ -1,3 +1,4 @@
+import { Box } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import Status from "components/Shared/Chip/Status";
 import ActionMenu from "components/Shared/DataGrid/ActionMenu";
@@ -116,8 +117,8 @@ function ListPurchaseOrders({
   ];
 
   return (
-    <div style={{ height: "80vh", width: "100%" }}>
-      <DataGrid height={"100%"} width={"100%"} dataSource={rows}>
+    <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
+      <DataGrid height={"100%"} wordWrapEnabled={true} dataSource={rows}>
         {columns.map(
           ({
             dataField,
@@ -146,7 +147,7 @@ function ListPurchaseOrders({
           showInfo={true}
         />
       </DataGrid>
-    </div>
+    </Box>
   );
 }
 

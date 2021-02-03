@@ -74,6 +74,8 @@ fragment PurchaseOrder on purchase_orders {
 
 fragment LoanLimited on loans {
   id
+  loan_type
+  artifact_id
   status
   amount
   origination_date

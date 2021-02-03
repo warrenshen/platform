@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react";
 import {
-  Select,
-  MenuItem,
-  FormControl,
   Box,
   Button,
+  FormControl,
   InputLabel,
+  MenuItem,
+  Select,
   TextField,
 } from "@material-ui/core";
-import { PurchaseOrderLoanFragment } from "generated/graphql";
+import { LoanFragment } from "generated/graphql";
+import { useEffect, useState } from "react";
 import LoansDataGrid from "./LoansDataGrid";
 
 const loanTypes = {
@@ -35,7 +35,7 @@ const loanTypesList = [
 ];
 
 interface Props {
-  purchaseOrderLoans: PurchaseOrderLoanFragment[];
+  purchaseOrderLoans: LoanFragment[];
   fullView: boolean;
   onFullViewClick: () => void;
 }

@@ -67,21 +67,14 @@ fragment BankVendorPartnership on company_vendor_partnerships {
 
 fragment Loan on loans {
   id
+  loan_type
+  artifact_id
   status
   amount
   origination_date
   maturity_date
   adjusted_maturity_date
   notes
-}
-
-fragment PurchaseOrderLoanForBank on purchase_order_loans {
-  id
-  purchase_order_id
-  loan_id
-  loan {
-    ...Loan
-  }
 }
 
 ## Finance

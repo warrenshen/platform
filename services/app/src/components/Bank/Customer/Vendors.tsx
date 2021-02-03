@@ -1,4 +1,4 @@
-import { Box } from "@material-ui/core";
+import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
 import AddButton from "components/Vendors/AddVendor/Button";
 import ClickableVendorCard from "components/Vendors/Bank/ClickableVendorCard";
 import { useBankCustomerListVendorPartnershipsQuery } from "generated/graphql";
@@ -6,7 +6,20 @@ import { sortBy } from "lodash";
 import { CustomerParams } from "pages/Bank/Customer";
 import { useParams } from "react-router-dom";
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    container: {
+      flex: 1,
+      display: "flex",
+      flexDirection: "column",
+      padding: theme.spacing(3),
+      overflow: "scroll",
+    },
+  })
+);
+
 function Vendors() {
+  const classes = useStyles();
   const { companyId } = useParams<CustomerParams>();
   const { data } = useBankCustomerListVendorPartnershipsQuery({
     variables: {
@@ -24,7 +37,7 @@ function Vendors() {
   );
 
   return (
-    <>
+    <Box className={classes.container}>
       <Box display="flex" flexDirection="row-reverse">
         <AddButton></AddButton>
       </Box>
@@ -39,7 +52,7 @@ function Vendors() {
           );
         })}
       </Box>
-    </>
+    </Box>
   );
 }
 

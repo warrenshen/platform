@@ -8,13 +8,11 @@ import DataGrid, {
   Pager,
   Paging,
 } from "devextreme-react/data-grid";
-import { Maybe, PurchaseOrderLoanFragment } from "generated/graphql";
+import { LoanFragment, Maybe } from "generated/graphql";
 import { useEffect, useState } from "react";
 import PurchaseOrderNumberCell from "./PurchaseOrderNumberCell";
 
-function getRows(
-  purchaseOrderLoans: Maybe<PurchaseOrderLoanFragment[]>
-): RowsProp {
+function getRows(purchaseOrderLoans: Maybe<LoanFragment[]>): RowsProp {
   return purchaseOrderLoans
     ? purchaseOrderLoans.map((item) => {
         return {
@@ -25,13 +23,15 @@ function getRows(
 }
 
 interface Props {
-  purchaseOrderLoans: PurchaseOrderLoanFragment[];
+  purchaseOrderLoans: LoanFragment[];
   fullView: boolean;
   loansPastDue: boolean;
   matureDays: number | null;
   customerSearchQuery: string;
   onClickCustomerName: (value: string) => void;
 }
+
+const getMaturityDate = (rowData: any) => new Date(rowData.maturity_date);
 
 function LoansDataGrid({
   purchaseOrderLoans,
@@ -43,10 +43,6 @@ function LoansDataGrid({
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = getRows(purchaseOrderLoans);
-
-  const getMaturityDate = (rowData: any) => {
-    return new Date(rowData.loan.maturity_date);
-  };
 
   useEffect(() => {
     if (!dataGrid) return;
@@ -168,7 +164,7 @@ function LoansDataGrid({
       cellRender: vendorNameRenderer,
     },
     {
-      dataField: "loan.requested_at",
+      dataField: "requested_at",
       caption: "Requested At",
       width: 130,
     },
@@ -178,25 +174,25 @@ function LoansDataGrid({
       width: 120,
     },
     {
-      dataField: "loan.amount",
+      dataField: "amount",
       caption: "Loan Amount",
       width: 120,
     },
     {
-      dataField: "loan.status",
+      dataField: "status",
       caption: "Status",
       width: 120,
       alignment: "center",
       cellRender: statusCellRenderer,
     },
     {
-      dataField: "loan.outstanding_interest",
+      dataField: "outstanding_interest",
       caption: "Interest Accrued",
       alignment: "center",
       width: 140,
     },
     {
-      dataField: "loan.maturity_date",
+      dataField: "maturity_date",
       caption: "Maturity Date",
       alignment: "center",
       width: 120,
@@ -205,7 +201,7 @@ function LoansDataGrid({
 
   if (loansPastDue) {
     columns.push({
-      dataField: "loan.outstanding_fees",
+      dataField: "outstanding_fees",
       caption: "Late Fees Accrued",
       alignment: "center",
       width: 150,

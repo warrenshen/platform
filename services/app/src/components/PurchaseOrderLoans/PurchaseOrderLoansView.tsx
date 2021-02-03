@@ -1,21 +1,21 @@
 import { Box, Button } from "@material-ui/core";
 import RepaymentButton from "components/Customer/PurchaseOrderLoanRepayment/RepaymentButton";
-import ListPurchaseOrderLoans from "components/PurchaseOrderLoans/ListPurchaseOrderLoans";
 import Can from "components/Shared/Can";
 import {
-  PurchaseOrderLoanFragment,
-  useUpdateLoanMutation,
+  LoanFragment,
   RequestStatusEnum,
+  useUpdateLoanMutation,
 } from "generated/graphql";
 import { ActionType } from "lib/ActionType";
 import { Action } from "lib/auth/rbac-rules";
 import { useState } from "react";
 import CreateUpdatePurchaseOrderLoanModal from "./CreateUpdatePurchaseOrderLoanModal";
+import ListPurchaseOrderLoans from "./ListPurchaseOrderLoans";
 import UpdateLoanNotesModal from "./UpdateLoanNotesModal";
 
 interface Props {
   isDataLoading: boolean;
-  purchaseOrderLoans: PurchaseOrderLoanFragment[];
+  purchaseOrderLoans: LoanFragment[];
   refetch: () => {};
 }
 /**
@@ -92,7 +92,7 @@ function PurchaseOrderLoansView({
   console.log({ isDataReady });
 
   return (
-    <Box display="flex" flexDirection="column">
+    <Box flex={1} display="flex" flexDirection="column" width="100%">
       {isModalOpen && (
         <CreateUpdatePurchaseOrderLoanModal
           actionType={
@@ -100,7 +100,7 @@ function PurchaseOrderLoansView({
               ? ActionType.New
               : ActionType.Update
           }
-          purchaseOrderLoanId={targetPurchaseOrderLoanId}
+          loanId={targetPurchaseOrderLoanId}
           handleClose={() => {
             setTargetPurchaseOrderLoanId("");
             refetch();
@@ -134,13 +134,15 @@ function PurchaseOrderLoansView({
           </Box>
         </Can>
       </Box>
-      <ListPurchaseOrderLoans
-        purchaseOrderLoans={purchaseOrderLoans}
-        handleApproveLoan={handleApproveLoan}
-        handleEditLoanNotes={handleEditLoanNotes}
-        handleEditPurchaseOrderLoan={handleEditPurchaseOrderLoan}
-        handleRejectLoan={handleRejectLoan}
-      ></ListPurchaseOrderLoans>
+      <Box display="flex" flex={1}>
+        <ListPurchaseOrderLoans
+          purchaseOrderLoans={purchaseOrderLoans}
+          handleApproveLoan={handleApproveLoan}
+          handleEditLoanNotes={handleEditLoanNotes}
+          handleEditPurchaseOrderLoan={handleEditPurchaseOrderLoan}
+          handleRejectLoan={handleRejectLoan}
+        ></ListPurchaseOrderLoans>
+      </Box>
     </Box>
   );
 }

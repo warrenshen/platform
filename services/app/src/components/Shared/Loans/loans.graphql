@@ -1,11 +1,61 @@
-query Loan($id: uuid!) {
-  loans_by_pk(id: $id) {
-    ...Loan
+query LoanSiblings(
+  $loanId: uuid!
+  $loanType: loan_type_enum!
+  $artifactId: uuid!
+) {
+  loans(
+    where: {
+      _and: [
+        { id: { _neq: $loanId } }
+        { loan_type: { _eq: $loanType } }
+        { artifact_id: { _eq: $artifactId } }
+      ]
+    }
+  ) {
+    id
+    loan_type
+    artifact_id
+    amount
+    status
   }
 }
 
-mutation UpdateLoan($id: uuid!, $loan: loans_set_input!) {
-  update_loans_by_pk(pk_columns: { id: $id }, _set: $loan) {
+query LoansByCompanyAndLoanTypeForCustomer(
+  $companyId: uuid!
+  $loanType: loan_type_enum
+) {
+  loans(
+    where: {
+      _and: [
+        { company_id: { _eq: $companyId } }
+        { loan_type: { _eq: $loanType } }
+      ]
+    }
+  ) {
     ...LoanLimited
+    purchase_order {
+      id
+      order_number
+    }
+  }
+}
+
+query LoansByCompanyAndLoanTypeForBank(
+  $companyId: uuid!
+  $loanType: loan_type_enum!
+) {
+  loans(
+    where: {
+      _and: [
+        { company_id: { _eq: $companyId } }
+        { loan_type: { _eq: $loanType } }
+      ]
+    }
+  ) {
+    ...Loan
+    purchase_order {
+      id
+      order_number
+    }
   }
 }

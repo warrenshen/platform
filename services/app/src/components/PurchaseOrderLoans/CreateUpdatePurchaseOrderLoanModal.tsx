@@ -10,13 +10,15 @@ import {
   Theme,
 } from "@material-ui/core";
 import {
-  PurchaseOrderLoansInsertInput,
+  LoansInsertInput,
+  LoanTypeEnum,
   RequestStatusEnum,
-  useAddPurchaseOrderLoanMutation,
-  useListApprovedPurchaseOrdersQuery,
-  usePurchaseOrderLoanQuery,
-  usePurchaseOrderLoanSiblingsQuery,
-  useUpdatePurchaseOrderLoanAndLoanMutation,
+  Scalars,
+  useAddLoanMutation,
+  useApprovedPurchaseOrdersQuery,
+  useLoanQuery,
+  useLoanSiblingsQuery,
+  useUpdateLoanMutation,
 } from "generated/graphql";
 import { ActionType } from "lib/ActionType";
 import { authenticatedApi, loansRoutes } from "lib/api";
@@ -49,103 +51,81 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   actionType: ActionType;
-  purchaseOrderLoanId: string | null;
+  loanId: Scalars["uuid"] | null;
   handleClose: () => void;
 }
 
 function CreateUpdatePurchaseOrderLoanModal({
   actionType,
-  purchaseOrderLoanId = null,
+  loanId = null,
   handleClose,
 }: Props) {
   const classes = useStyles();
 
-  // Default PurchaseOrderLoan for CREATE case.
-  const newPurchaseOrderLoan: PurchaseOrderLoansInsertInput = {
-    purchase_order_id: "",
-    loan: {
-      data: {
-        origination_date: null,
-        maturity_date: null,
-        adjusted_maturity_date: null,
-        amount: "",
-        status: RequestStatusEnum.Drafted,
-      },
-    },
+  // Default Loan for CREATE case.
+  const newLoan: LoansInsertInput = {
+    artifact_id: "",
+    loan_type: LoanTypeEnum.PurchaseOrder,
+    origination_date: null,
+    maturity_date: null,
+    adjusted_maturity_date: null,
+    amount: "",
+    status: RequestStatusEnum.Drafted,
   };
 
-  const [purchaseOrderLoan, setPurchaseOrderLoan] = useState(
-    newPurchaseOrderLoan
-  );
+  const [loan, setLoan] = useState(newLoan);
 
-  const {
-    loading: isExistingPurchaseOrderLoanLoading,
-  } = usePurchaseOrderLoanQuery({
+  const { loading: isExistingLoanLoading } = useLoanQuery({
     variables: {
-      id: purchaseOrderLoanId,
+      id: loanId,
     },
     onCompleted: (data) => {
-      const existingPurchaseOrderLoan = data?.purchase_order_loans_by_pk;
-      // TODO(warren): A better way to merge so we dont have to hardcode the fields to merge here.
-      if (actionType === ActionType.Update && existingPurchaseOrderLoan) {
-        newPurchaseOrderLoan.id = existingPurchaseOrderLoan.id;
-        newPurchaseOrderLoan.purchase_order_id =
-          existingPurchaseOrderLoan.purchase_order_id;
-        mergeWith(
-          newPurchaseOrderLoan.loan?.data,
-          existingPurchaseOrderLoan.loan,
-          (a, b) => (isNull(b) ? a : b)
+      const existingLoan = data.loans_by_pk;
+      if (actionType === ActionType.Update && existingLoan) {
+        setLoan(
+          mergeWith(newLoan, existingLoan, (a, b) => (isNull(b) ? a : b))
         );
-        setPurchaseOrderLoan(newPurchaseOrderLoan);
       }
     },
   });
 
   const {
-    data: purchaseOrderLoanSiblingsData,
-    loading: isPurchaseOrderLoanSiblingsLoading,
-  } = usePurchaseOrderLoanSiblingsQuery({
+    data: loanSiblingsData,
+    loading: isLoanSiblingsLoading,
+  } = useLoanSiblingsQuery({
     fetchPolicy: "network-only",
     variables: {
       // The `|| null` below is necessary because "" is an invalid parameter to give to the query.
-      id: purchaseOrderLoanId || null,
-      purchase_order_id: purchaseOrderLoan.purchase_order_id,
+      // `null` is given in the case of a new loan.
+      loanId: loanId || null,
+      loanType: LoanTypeEnum.PurchaseOrder,
+      artifactId: loan.artifact_id,
     },
   });
 
-  const purchaseOrderLoanSiblings =
-    purchaseOrderLoanSiblingsData?.purchase_order_loans || [];
-  const siblingsTotalAmount = purchaseOrderLoanSiblings
-    .filter((purchaseOrderLoanSibling) =>
+  const loanSiblings = loanSiblingsData?.loans || [];
+  const siblingsTotalAmount = loanSiblings
+    .filter((loanSibling) =>
       [
         RequestStatusEnum.ApprovalRequested,
         RequestStatusEnum.Approved,
-      ].includes(purchaseOrderLoanSibling.loan?.status)
+      ].includes(loanSibling.status)
     )
-    .reduce(
-      (sum, purchaseOrderLoanSibling) =>
-        sum + purchaseOrderLoanSibling.loan?.amount || 0,
-      0
-    );
+    .reduce((sum, loanSibling) => sum + loanSibling.amount || 0, 0);
+
+  const [addLoan, { loading: isAddLoanLoading }] = useAddLoanMutation();
 
   const [
-    addPurchaseOrderLoan,
-    { loading: isAddPurchaseOrderLoanLoading },
-  ] = useAddPurchaseOrderLoanMutation();
-
-  const [
-    updatePurchaseOrderLoanAndLoan,
-    { loading: isUpdatePurchaseOrderLoanAndLoanLoading },
-  ] = useUpdatePurchaseOrderLoanAndLoanMutation();
+    updateLoan,
+    { loading: isUpdateLoanLoading },
+  ] = useUpdateLoanMutation();
 
   const {
     data,
     loading: isApprovedPurchaseOrdersLoading,
-  } = useListApprovedPurchaseOrdersQuery({
+  } = useApprovedPurchaseOrdersQuery({
     fetchPolicy: "network-only",
   });
-
-  const loan = purchaseOrderLoan.loan?.data;
 
   const proposedLoansTotalAmount =
     siblingsTotalAmount + parseFloat(loan?.amount) || 0;
@@ -153,7 +133,7 @@ function CreateUpdatePurchaseOrderLoanModal({
   const approvedPurchaseOrders = data?.purchase_orders || [];
 
   const selectedPurchaseOrder = approvedPurchaseOrders.find(
-    (purchaseOrder) => purchaseOrder.id === purchaseOrderLoan.purchase_order_id
+    (purchaseOrder) => purchaseOrder.id === loan.artifact_id
   );
 
   const upsertPurchaseOrderLoan = async () => {
@@ -161,59 +141,52 @@ function CreateUpdatePurchaseOrderLoanModal({
       new Date().getTime() + 15 * 24 * 60 * 60 * 1000
     );
     if (actionType === ActionType.Update) {
-      const response = await updatePurchaseOrderLoanAndLoan({
+      const response = await updateLoan({
         variables: {
-          loanId: loan?.id,
+          id: loan.id,
           loan: {
+            origination_date: loan.origination_date || null,
+            amount: loan.amount || null,
+          },
+        },
+      });
+      return response.data?.update_loans_by_pk;
+    } else {
+      const response = await addLoan({
+        variables: {
+          loan: {
+            artifact_id: loan.artifact_id,
+            loan_type: LoanTypeEnum.PurchaseOrder,
             origination_date: loan?.origination_date || null,
             amount: loan?.amount || null,
-          },
-          purchaseOrderLoanId: purchaseOrderLoan.id,
-          purchaseOrderLoan: {
-            purchase_order_id: purchaseOrderLoan.purchase_order_id,
+            maturity_date: dateInFifteenDays,
+            adjusted_maturity_date: dateInFifteenDays,
           },
         },
       });
-      return response.data?.update_purchase_order_loans_by_pk;
-    } else {
-      const response = await addPurchaseOrderLoan({
-        variables: {
-          purchaseOrderLoan: {
-            purchase_order_id: purchaseOrderLoan.purchase_order_id,
-            loan: {
-              data: {
-                origination_date: loan?.origination_date || null,
-                maturity_date: dateInFifteenDays,
-                adjusted_maturity_date: dateInFifteenDays,
-                amount: loan?.amount || null,
-              },
-            },
-          },
-        },
-      });
-      return response.data?.insert_purchase_order_loans_one;
+      return response.data?.insert_loans_one;
     }
   };
 
   const handleClickSaveDraft = async () => {
-    const savedPurchaseOrderLoan = await upsertPurchaseOrderLoan();
-    if (!savedPurchaseOrderLoan) {
-      alert("Could not upsert purchase order loan");
+    const savedLoan = await upsertPurchaseOrderLoan();
+    if (!savedLoan) {
+      alert("Could not upsert loan");
     }
     handleClose();
   };
 
   const handleClickSaveSubmit = async () => {
-    const savedPurchaseOrderLoan = await upsertPurchaseOrderLoan();
-    if (!savedPurchaseOrderLoan) {
-      alert("Could not upsert purchase order loan");
+    const savedLoan = await upsertPurchaseOrderLoan();
+    if (!savedLoan) {
+      alert("Could not upsert loan");
     } else {
       // Since this is a SAVE AND SUBMIT action,
       // hit the PurchaseOrderLoans.SubmitForApproval endpoint.
       const response = await authenticatedApi.post(
         loansRoutes.submitForApproval,
         {
-          purchase_order_loan_id: savedPurchaseOrderLoan.id,
+          loan_id: savedLoan.id,
         }
       );
       if (response.data?.status === "ERROR") {
@@ -224,10 +197,9 @@ function CreateUpdatePurchaseOrderLoanModal({
   };
 
   const isDialogReady =
-    !isExistingPurchaseOrderLoanLoading && !isApprovedPurchaseOrdersLoading;
-  const isFormValid = !!purchaseOrderLoan.purchase_order_id;
-  const isFormLoading =
-    isAddPurchaseOrderLoanLoading || isUpdatePurchaseOrderLoanAndLoanLoading;
+    !isExistingLoanLoading && !isApprovedPurchaseOrdersLoading;
+  const isFormValid = !!loan.artifact_id;
+  const isFormLoading = isAddLoanLoading || isUpdateLoanLoading;
   const isSaveDraftDisabled = !isFormValid || isFormLoading;
 
   // TODO(warren): Make it apparent to the user the reason we are disabling submitting a purchase order
@@ -235,7 +207,7 @@ function CreateUpdatePurchaseOrderLoanModal({
   const isSaveSubmitDisabled =
     !isFormValid ||
     isFormLoading ||
-    isPurchaseOrderLoanSiblingsLoading ||
+    isLoanSiblingsLoading ||
     !selectedPurchaseOrder ||
     proposedLoansTotalAmount > selectedPurchaseOrder.amount ||
     !loan?.origination_date ||
@@ -255,8 +227,9 @@ function CreateUpdatePurchaseOrderLoanModal({
       </DialogTitle>
       <DialogContent>
         <PurchaseOrderLoanForm
-          purchaseOrderLoan={purchaseOrderLoan}
-          setPurchaseOrderLoan={setPurchaseOrderLoan}
+          canEditPurchaseOrder={actionType === ActionType.New}
+          loan={loan}
+          setLoan={setLoan}
           approvedPurchaseOrders={approvedPurchaseOrders}
           selectedPurchaseOrder={selectedPurchaseOrder}
         ></PurchaseOrderLoanForm>

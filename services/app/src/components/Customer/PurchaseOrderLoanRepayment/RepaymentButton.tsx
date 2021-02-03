@@ -47,10 +47,7 @@ function RepaymentButton() {
               setOpen(false);
             }
           }}
-          coverageComponent={(amount: number) => (
-            <div></div>
-            //<RepaymentCoverage amount={amount}></RepaymentCoverage>
-          )}
+          coverageComponent={(amount: number) => <div></div>}
         ></PaymentModal>
       )}
       <Button variant="contained" color="primary" onClick={() => setOpen(true)}>

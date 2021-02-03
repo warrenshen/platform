@@ -19,6 +19,8 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       display: "flex",
+      width: "100vw",
+      height: "100vh",
     },
     appBar: {
       width: `calc(100% - ${DRAWER_WIDTH}px)`,
@@ -26,7 +28,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     drawer: {
       width: DRAWER_WIDTH,
-      flexShrink: 0,
     },
     drawerPaper: {
       width: DRAWER_WIDTH,
@@ -38,9 +39,12 @@ const useStyles = makeStyles((theme: Theme) =>
       justifyContent: "space-between",
     },
     content: {
-      flexGrow: 1,
+      flex: 1,
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "stretch",
       backgroundColor: theme.palette.background.default,
-      padding: theme.spacing(3),
+      overflow: "scroll",
     },
     listItemText: {
       fontWeight: 500,

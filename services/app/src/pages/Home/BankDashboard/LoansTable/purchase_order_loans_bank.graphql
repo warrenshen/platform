@@ -1,22 +1,25 @@
+fragment PurchaseOrderTypeLoan on purchase_order_type_loans {
+  id
+  amount
+  status
+  requested_at
+  outstanding_interest
+  outstanding_fees
+}
+
 query AllPurchaseOrderLoansForBank {
-  purchase_order_loans {
-    ...PurchaseOrderLoanForBank
+  loans: purchase_order_type_loans {
+    id
+    ...PurchaseOrderTypeLoan
     purchase_order {
       id
       order_number
-      amount
-      status
       company {
         name
       }
       vendor {
         name
       }
-    }
-    loan {
-      requested_at
-      outstanding_interest
-      outstanding_fees
     }
   }
 }

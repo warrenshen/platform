@@ -8,77 +8,8 @@ query ListPurchaseOrders($company_id: uuid!) {
   }
 }
 
-query ListPurchaseOrderVendors {
-  vendors {
-    id
-    name
-  }
-}
-
-query PurchaseOrder($id: uuid!) {
-  purchase_orders_by_pk(id: $id) {
+query ApprovedPurchaseOrders {
+  purchase_orders(where: { status: { _eq: approved } }) {
     ...PurchaseOrder
-    purchase_order_files {
-      ...PurchaseOrderFile
-    }
-  }
-}
-
-query PurchaseOrderForReview($id: uuid!) {
-  purchase_orders_by_pk(id: $id) {
-    id
-    company_id
-    vendor_id
-    order_number
-    order_date
-    delivery_date
-    amount
-    is_cannabis
-    status
-    created_at
-    purchase_order_files {
-      purchase_order_id
-      file_id
-      ...PurchaseOrderFile
-    }
-    company {
-      id
-      name
-    }
-    vendor {
-      id
-      name
-    }
-  }
-}
-
-mutation AddPurchaseOrder($purchase_order: purchase_orders_insert_input!) {
-  insert_purchase_orders_one(object: $purchase_order) {
-    ...PurchaseOrder
-    purchase_order_files {
-      ...PurchaseOrderFile
-    }
-  }
-}
-
-mutation UpdatePurchaseOrder(
-  $id: uuid!
-  $purchaseOrder: purchase_orders_set_input!
-  $purchaseOrderFiles: [purchase_order_files_insert_input!]!
-) {
-  delete_purchase_order_files(where: { purchase_order_id: { _eq: $id } }) {
-    affected_rows
-  }
-  insert_purchase_order_files(objects: $purchaseOrderFiles) {
-    returning {
-      purchase_order_id
-      file_id
-    }
-  }
-  update_purchase_orders_by_pk(pk_columns: { id: $id }, _set: $purchaseOrder) {
-    ...PurchaseOrder
-    purchase_order_files {
-      ...PurchaseOrderFile
-    }
   }
 }

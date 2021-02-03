@@ -1,13 +1,13 @@
 import { Box, Button } from "@material-ui/core";
 import Can from "components/Shared/Can";
 import CreateUpdatePurchaseOrderModal from "components/Shared/PurchaseOrders/CreateUpdatePurchaseOrderModal";
-import ListPurchaseOrders from "components/Shared/PurchaseOrders/ListPurchaseOrders";
 import ViewPurchaseOrderModal from "components/Shared/PurchaseOrders/ViewPurchaseOrder/ViewPurchaseOrderModal";
 import { useListPurchaseOrdersQuery } from "generated/graphql";
 import useCompanyContext from "hooks/useCompanyContext";
 import { ActionType } from "lib/ActionType";
 import { Action } from "lib/auth/rbac-rules";
 import { useState } from "react";
+import ListPurchaseOrders from "./ListPurchaseOrders";
 
 function PurchaseOrders() {
   const companyId = useCompanyContext();
@@ -39,7 +39,7 @@ function PurchaseOrders() {
   };
 
   return (
-    <Box display="flex" flexDirection="column">
+    <Box flex={1} display="flex" flexDirection="column" width="100%">
       {isEditModalOpen && (
         <CreateUpdatePurchaseOrderModal
           actionType={

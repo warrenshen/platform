@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, List
 import sqlalchemy
 from mypy_extensions import TypedDict
 from sqlalchemy import (JSON, BigInteger, Boolean, Column, Date, DateTime,
-						Float, ForeignKey, Integer, Numeric, String, Text)
+                        Float, ForeignKey, Integer, Numeric, String, Text)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import OperationalError, StatementError, TimeoutError
 from sqlalchemy.ext.declarative import declarative_base
@@ -197,7 +197,6 @@ class PurchaseOrder(Base):
 
 			self.vendor: Company = None
 			self.company: Company = None
-			self.purchase_order_loans: List[PurchaseOrderLoan] = []
 	else:
 		id = Column(UUID(as_uuid=True), primary_key=True)
 		company_id = Column(UUID(as_uuid=True), ForeignKey('companies.id'))
@@ -270,18 +269,22 @@ class Loan(Base):
 		def __init__(self) -> None:
 			self.__table__: Any = None
 			self.id: uuid.UUID = None
+			self.company_id: uuid.UUID = None
+			self.loan_type: str = None
+			self.artifact_id: uuid.UUID = None
 			self.origination_date: datetime.date = None
 			self.amount: float = None
 			self.status: str = None
-			self.company_id: uuid.UUID = None
 			self.requested_at: datetime.datetime = None
 	else:
 		id = Column(UUID(as_uuid=True), primary_key=True,
 					default=uuid.uuid4, unique=True)
+		company_id = Column(UUID(as_uuid=True), nullable=False)
+		loan_type = Column(Text)
+		artifact_id = Column(UUID(as_uuid=True))
 		origination_date = Column(Date)
 		amount = Column(Numeric)
 		status = Column(String)
-		company_id = Column(UUID(as_uuid=True), nullable=False)
 		requested_at = Column(DateTime)
 
 	def as_dict(self) -> LoanDict:
@@ -292,54 +295,6 @@ class Loan(Base):
 			status=self.status
 		)
 
-PurchaseOrderLoanDict = TypedDict('PurchaseOrderLoanDict',{
-	'id': str,
-	'purchase_order_id': str,
-	'purchase_order': PurchaseOrderDict,
-	'loan_id': str,
-	'loan': LoanDict
-})
-
-class PurchaseOrderLoan(Base):
-	__tablename__ = 'purchase_order_loans'
-	if TYPE_CHECKING:
-		def __init__(self) -> None:
-			self.__table__: Any = None
-			self.id: UUID = None
-			self.purchase_order_id: UUID = None
-			self.loan_id: UUID = None
-			self.loan: Loan = None
-			self.purchase_order: PurchaseOrder = None
-	else:
-		id = Column(UUID(as_uuid=True), primary_key=True,
-					default=uuid.uuid4, unique=True)
-		purchase_order_id = Column(
-			UUID(as_uuid=True),
-			ForeignKey('purchase_orders.id'),
-			nullable=False
-		)
-		loan_id = Column(
-			UUID(as_uuid=True),
-			ForeignKey('loans.id'),
-			nullable=False
-		)
-		loan = relationship(
-			'Loan',
-			foreign_keys=[loan_id]
-		)
-		purchase_order = relationship(
-			'PurchaseOrder',
-			foreign_keys=[purchase_order_id]
-		)
-
-	def as_dict(self) -> PurchaseOrderLoanDict:
-		return PurchaseOrderLoanDict(
-			id=str(self.id),
-			purchase_order_id=str(self.purchase_order_id),
-			purchase_order=self.purchase_order.as_dict(),
-			loan_id=str(self.loan_id),
-			loan=self.loan.as_dict()
-		)
 
 PaymentDict = TypedDict('PaymentDict', {
 	'id': str,

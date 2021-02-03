@@ -1,31 +1,34 @@
 import PurchaseOrderLoansView from "components/PurchaseOrderLoans/PurchaseOrderLoansView";
-import { usePurchaseOrderLoansForBankQuery } from "generated/graphql";
+import {
+  LoanTypeEnum,
+  useLoansByCompanyAndLoanTypeForBankQuery,
+} from "generated/graphql";
 import useCompanyContext from "hooks/useCompanyContext";
-
 function Loans() {
   const companyId = useCompanyContext();
 
   const {
     data,
     error,
-    loading: isPurchaseOrderLoansLoading,
+    loading: isLoansLoading,
     refetch,
-  } = usePurchaseOrderLoansForBankQuery({
+  } = useLoansByCompanyAndLoanTypeForBankQuery({
     fetchPolicy: "network-only",
     notifyOnNetworkStatusChange: true,
     variables: {
       companyId,
+      loanType: LoanTypeEnum.PurchaseOrder,
     },
   });
   if (error) {
     alert("Error querying purchase orders. " + error);
   }
 
-  const purchaseOrderLoans = data?.purchase_order_loans || [];
+  const purchaseOrderLoans = data?.loans || [];
 
   return (
     <PurchaseOrderLoansView
-      isDataLoading={isPurchaseOrderLoansLoading}
+      isDataLoading={isLoansLoading}
       purchaseOrderLoans={purchaseOrderLoans}
       refetch={refetch}
     ></PurchaseOrderLoansView>

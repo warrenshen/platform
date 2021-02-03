@@ -1,7 +1,10 @@
+import {
+  LoanFragment,
+  useAllPurchaseOrderLoansForBankQuery,
+} from "generated/graphql";
+import useAppBarTitle from "hooks/useAppBarTitle";
 import { useState } from "react";
 import { useTitle } from "react-use";
-import { useAllPurchaseOrderLoansForBankQuery } from "generated/graphql";
-import useAppBarTitle from "hooks/useAppBarTitle";
 import LoansTable from "./LoansTable";
 
 function BankDashboard() {
@@ -15,7 +18,7 @@ function BankDashboard() {
     alert("Error querying purchase order loans. " + error);
   }
 
-  const purchaseOrderLoans = data?.purchase_order_loans || [];
+  const purchaseOrderLoans = (data?.loans || []) as LoanFragment[];
 
   return (
     <>

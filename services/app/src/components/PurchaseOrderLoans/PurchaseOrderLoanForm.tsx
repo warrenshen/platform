@@ -13,10 +13,7 @@ import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import DatePicker from "components/Shared/Dates/DatePicker";
 import PurchaseOrderInfoCard from "components/Shared/PurchaseOrder/PurchaseOrderInfoCard";
-import {
-  PurchaseOrderFragment,
-  PurchaseOrderLoansInsertInput,
-} from "generated/graphql";
+import { LoansInsertInput, PurchaseOrderFragment } from "generated/graphql";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -27,17 +24,17 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  purchaseOrderLoan: PurchaseOrderLoansInsertInput;
-  setPurchaseOrderLoan: (
-    purchaseOrderLoan: PurchaseOrderLoansInsertInput
-  ) => void;
+  canEditPurchaseOrder: boolean;
+  loan: LoansInsertInput;
+  setLoan: (loan: LoansInsertInput) => void;
   approvedPurchaseOrders: PurchaseOrderFragment[];
   selectedPurchaseOrder?: PurchaseOrderFragment;
 }
 
 function PurchaseOrderLoanForm({
-  purchaseOrderLoan,
-  setPurchaseOrderLoan,
+  canEditPurchaseOrder,
+  loan,
+  setLoan,
   approvedPurchaseOrders,
   selectedPurchaseOrder,
 }: Props) {
@@ -51,23 +48,20 @@ function PurchaseOrderLoanForm({
             Purchase Order
           </InputLabel>
           <Select
-            disabled={approvedPurchaseOrders.length <= 0}
+            disabled={
+              !canEditPurchaseOrder || approvedPurchaseOrders.length <= 0
+            }
             labelId="purchase-order-select-label"
             id="purchase-order-select"
-            value={purchaseOrderLoan.purchase_order_id}
+            value={loan.artifact_id}
             onChange={({ target: { value } }) => {
               const selectedPurchaseOrder = approvedPurchaseOrders?.find(
                 (purchaseOrder) => purchaseOrder.id === value
               );
-              setPurchaseOrderLoan({
-                ...purchaseOrderLoan,
-                purchase_order_id: selectedPurchaseOrder?.id,
-                loan: {
-                  data: {
-                    ...purchaseOrderLoan.loan?.data,
-                    amount: selectedPurchaseOrder?.amount,
-                  },
-                },
+              setLoan({
+                ...loan,
+                artifact_id: selectedPurchaseOrder?.id,
+                amount: selectedPurchaseOrder?.amount,
               });
             }}
           >
@@ -98,16 +92,11 @@ function PurchaseOrderLoanForm({
           label="Payment Date"
           disablePast={true}
           disableNonBankDays={true}
-          value={purchaseOrderLoan.loan?.data?.origination_date}
+          value={loan.origination_date}
           onChange={(value: MaterialUiPickersDate) => {
-            setPurchaseOrderLoan({
-              ...purchaseOrderLoan,
-              loan: {
-                data: {
-                  ...purchaseOrderLoan.loan?.data,
-                  origination_date: value ? value : new Date().getUTCDate(),
-                },
-              },
+            setLoan({
+              ...loan,
+              origination_date: value || new Date().getUTCDate(),
             });
           }}
         />
@@ -123,16 +112,11 @@ function PurchaseOrderLoanForm({
             currencySymbol="$"
             outputFormat="string"
             textAlign="left"
-            value={purchaseOrderLoan.loan?.data?.amount}
+            value={loan.amount}
             onChange={(_event: any, value: string) => {
-              setPurchaseOrderLoan({
-                ...purchaseOrderLoan,
-                loan: {
-                  data: {
-                    ...purchaseOrderLoan.loan?.data,
-                    amount: value,
-                  },
-                },
+              setLoan({
+                ...loan,
+                amount: value,
               });
             }}
           ></CurrencyTextField>
