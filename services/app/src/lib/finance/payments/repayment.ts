@@ -16,6 +16,7 @@ export type CalculateEffectOfPaymentResp = {
 
 export async function calculateEffectOfPayment(req: {
   payment: PaymentsInsertInput;
+  company_id: string;
 }): Promise<CalculateEffectOfPaymentResp> {
   return authenticatedApi
     .post(purchaseOrderLoansRoutes.calculateEffectOfPayment, req)
@@ -39,6 +40,7 @@ export async function calculateEffectOfPayment(req: {
 
 export async function makePayment(req: {
   payment: PaymentsInsertInput;
+  company_id: string;
 }): Promise<MakePaymentResp> {
   return authenticatedApi
     .post(purchaseOrderLoansRoutes.makePayment, req)

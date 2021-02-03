@@ -25,6 +25,7 @@ function DisbursalButton(props: {
           companyId={props.vendorId}
           type={PaymentTransferType.FromBank}
           initialAmount={props.initialAmount}
+          errMsg=""
           allowablePaymentTypes={[
             PaymentMethod.None,
             PaymentMethod.ACH,

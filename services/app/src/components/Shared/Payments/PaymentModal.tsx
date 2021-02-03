@@ -34,6 +34,7 @@ export enum PaymentMethod {
 interface Props {
   companyId: Companies["id"];
   type: PaymentTransferType;
+  errMsg: string;
   handleClose: () => void;
   initialAmount?: number;
   allowablePaymentTypes?: Array<PaymentMethod>;
@@ -96,7 +97,6 @@ function PaymentModal(props: Props) {
               textAlign="left"
               value={payment.amount}
               onChange={(_event: any, value: string) => {
-                debugger;
                 setPayment({ ...payment, amount: parseFloat(value) });
               }}
             ></CurrencyTextField>
@@ -195,6 +195,9 @@ function PaymentModal(props: Props) {
       </DialogContent>
       <DialogActions>
         <Box display="flex">
+          {props.errMsg && (
+            <span style={{ float: "left" }}>{props.errMsg}</span>
+          )}
           <Box pr={1}>
             <Button onClick={props.handleClose}>Cancel</Button>
             <Button
@@ -204,7 +207,7 @@ function PaymentModal(props: Props) {
               variant="contained"
               color="primary"
             >
-              Create
+              Schedule
             </Button>
           </Box>
         </Box>

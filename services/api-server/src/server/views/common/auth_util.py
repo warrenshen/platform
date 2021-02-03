@@ -78,5 +78,5 @@ class UserSession(object):
 		)
 
 	@staticmethod
-	def from_session() -> UserSession:
+	def from_session() -> 'UserSession':
 		return UserSession(get_jwt_identity())
