@@ -63,3 +63,20 @@ class UserSession(object):
 
 	def is_bank_admin(self) -> bool:
 		return 'bank_admin' in self._user_roles()
+
+	def _is_company_admin_of_this_company(self, company_id: str) -> bool:
+		return self.get_company_id() == company_id
+
+	def is_bank_or_this_company_admin(self, company_id: str) -> bool:
+		"""
+			Returns true if you are a bank admin or if you are this company's company admin.
+			Many operations require this check, because most operations can only be done
+			by a company admin of their own company, or a bank admin.
+		"""
+		return self.is_bank_admin() or self._is_company_admin_of_this_company(
+			company_id
+		)
+
+	@staticmethod
+	def from_session() -> UserSession:
+		return UserSession(get_jwt_identity())

@@ -238,6 +238,32 @@ LoanDict = TypedDict('LoanDict', {
 	'status': str
 })
 
+TransactionDict = TypedDict('TransactionDict', {
+	'id': str,
+	'type': str,
+	'amount': float
+})
+
+class Transaction(Base):
+	__tablename__ = 'transactions'
+	if TYPE_CHECKING:
+		def __init__(self) -> None:
+			self.__table__: Any = None
+			self.id: uuid.UUID = None
+			self.type: str = None
+			self.amount: float = None
+	else:
+		id = Column(UUID(as_uuid=True), primary_key=True,
+					default=uuid.uuid4, unique=True)
+
+	def as_dict(self) -> TransactionDict:
+		return TransactionDict(
+			id=str(self.id),
+			type=self.type,
+			amount=self.amount
+		)
+
+
 class Loan(Base):
 	__tablename__ = 'loans'
 	if TYPE_CHECKING:

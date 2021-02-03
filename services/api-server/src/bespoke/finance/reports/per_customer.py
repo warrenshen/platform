@@ -9,9 +9,8 @@ from typing import Callable, Tuple, List, cast
 from bespoke.db import models, db_constants
 from bespoke.db.models import session_scope
 from bespoke.db.models import (
-	CompanyDict, CompanySettingsDict, 
-	PurchaseOrderLoanDict, PurchaseOrderLoanTransactionDict,
-	LoanDict, TransactionDict
+	CompanyDict, CompanySettingsDict,
+	LoanDict, TransactionDict, PaymentDict
 )
 from bespoke import errors
 from bespoke.excel import excel_writer
@@ -22,18 +21,18 @@ from bespoke.finance import contract_util
 def _loan_to_str(l: LoanDict) -> str:
 	return f"{l['id']},{l['origination_date']},{l['amount']},{l['status']}"
 
-def _transaction_to_str(t: TransactionDict) -> str:
-	return f"{t['id']},{t['type']},{t['amount']},{t['method']}"
+def _payment_to_str(t: PaymentDict) -> str:
+	return f"{t['id']},{t['type']},{t['amount']}"
 
-PurchaseOrderFinancials = TypedDict('PurchaseOrderFinancials', {
-	'loans': List[PurchaseOrderLoanDict],
-	'transactions': List[PurchaseOrderLoanTransactionDict]
+Financials = TypedDict('Financials', {
+	'loans': List[LoanDict],
+	'payments': List[PaymentDict]
 })
 
 CustomerFinancials = TypedDict('CustomerFinancials', {
 	'company': CompanyDict,
 	'company_settings': CompanySettingsDict,
-	'purchase_order': PurchaseOrderFinancials
+	'financials': Financials
 })
 
 class Fetcher(object):
@@ -44,26 +43,23 @@ class Fetcher(object):
 
 		self._company = company_dict
 		self._settings_dict: CompanySettingsDict = None
-		self._purchase_order_loans: List[PurchaseOrderLoanDict] = []
-		self._purchase_order_loan_txs: List[PurchaseOrderLoanTransactionDict] = [] 
+		self._loans: List[LoanDict] = []
+		self._payments: List[PaymentDict] = [] 
 
-	def _fetch_transactions(self) -> Tuple[bool, errors.Error]:
+	def _fetch_payments(self) -> Tuple[bool, errors.Error]:
 		product_type = self._settings_dict['product_type']
 
 		with session_scope(self._session_maker) as session:
 
-			if product_type == db_constants.ProductType.INVENTORY_FINANCING:
-				po_loan_ids = [l['id'] for l in self._purchase_order_loans]
-				purchase_order_loan_txs = cast(
-					List[models.PurchaseOrderLoanTransaction],
-					session.query(models.PurchaseOrderLoanTransaction).filter(
-						models.PurchaseOrderLoanTransaction.purchase_order_loan_id.in_(
-							po_loan_ids
-						)
-					).all())
-				if not purchase_order_loan_txs:
-					return True, None
-				self._purchase_order_loan_txs = [tx.as_dict() for tx in purchase_order_loan_txs]							
+			#if product_type == db_constants.ProductType.INVENTORY_FINANCING:
+			payments = cast(
+				List[models.Payment],
+				session.query(models.Payment).filter(
+					models.Payment.company_id == self._company_id
+				).all())
+			if not payments:
+				return True, None
+			self._payments = [p.as_dict() for p in payments]							
 
 		return True, None
 
@@ -80,21 +76,7 @@ class Fetcher(object):
 			if not loans:
 				return True, None
 
-			loan_ids = [l.id for l in loans]	  
-
-			if product_type == db_constants.ProductType.INVENTORY_FINANCING:
-				purchase_order_loans = cast(
-					List[models.PurchaseOrderLoan],
-					session.query(models.PurchaseOrderLoan).filter(
-						models.PurchaseOrderLoan.loan_id.in_(loan_ids)
-					).all())
-				if not purchase_order_loans:
-					return False, errors.Error('No purchase order loans found, but found loans that existed')
-
-				self._purchase_order_loans = [l.as_dict() for l in purchase_order_loans]
-
-			else:
-				return None, errors.Error('Not a valid product type: "{}"'.format(product_type))
+			self._loans = [l.as_dict() for l in loans]
 
 		return True, None
 
@@ -123,7 +105,7 @@ class Fetcher(object):
 		if err:
 			return None, err
 
-		_, err = self._fetch_transactions()
+		_, err = self._fetch_payments()
 		if err:
 			return None, err
 
@@ -133,22 +115,22 @@ class Fetcher(object):
 		product_type = self._settings_dict['product_type']
 		company_dict = self._company
 		loans_str = 'None'
-		transactions_str = 'None'
+		payments_str = 'None'
 
 		if product_type == db_constants.ProductType.INVENTORY_FINANCING:
-			loans_str = '\n'.join([_loan_to_str(l['loan']) for l in self._purchase_order_loans])
-			transactions_str = '\n'.join([_transaction_to_str(t['transaction']) for t in self._purchase_order_loan_txs])
+			loans_str = '\n'.join([_loan_to_str(l) for l in self._loans])
+			payments_str = '\n'.join([_payment_to_str(p) for p in self._payments])
 
-		return 'The summary for company "{}" is\nLoans:\n{}\nTransactions:\n{}'.format(
-			company_dict['name'], loans_str, transactions_str)
+		return 'The summary for company "{}" is\nLoans:\n{}\nPayments:\n{}'.format(
+			company_dict['name'], loans_str, payments_str)
 
 	def get_financials(self) -> CustomerFinancials:
 		return CustomerFinancials(
 		  company=self._company,
 		  company_settings=self._settings_dict,
-			purchase_order=PurchaseOrderFinancials(
-				loans=self._purchase_order_loans,
-				transactions=self._purchase_order_loan_txs
+			financials=Financials(
+				loans=self._loans,
+				payments=self._payments
 			)
 		)
 
@@ -166,17 +148,16 @@ class ExcelCreator(object):
 		sheet = self.wb.add_sheet('Advances')
 		
 		if self._product_type == db_constants.ProductType.INVENTORY_FINANCING:
-			transactions = self._financials['purchase_order']['transactions']
+			payments = self._financials['financials']['payments']
 			sheet.add_row(['Type', 'Amount', 'Method', 'Submitted'])
-			for po_tx in transactions:
-				tx = po_tx['transaction']
-				if tx['type'] != db_constants.TransactionType.ADVANCE:
+			for payment in payments:
+				if payment['type'] != db_constants.PaymentType.ADVANCE:
 					continue
 				row: List[str] = [
-					tx['type'], 
-					number_util.to_dollar_format(tx['amount']),
-					tx['method'], 
-					date_util.human_readable_yearmonthday(tx['submitted_at'])
+					payment['type'], 
+					number_util.to_dollar_format(payment['amount']),
+					payment['method'], 
+					date_util.human_readable_yearmonthday(payment['submitted_at'])
 				]
 				sheet.add_row(row)
 
@@ -185,17 +166,16 @@ class ExcelCreator(object):
 		sheet = self.wb.add_sheet('Payments')
 
 		if self._product_type == db_constants.ProductType.INVENTORY_FINANCING:
-			transactions = self._financials['purchase_order']['transactions']
+			payments = self._financials['financials']['payments']
 			sheet.add_row(['Type', 'Amount', 'Method', 'Submitted'])
-			for po_tx in transactions:
-				tx = po_tx['transaction']
-				if tx['type'] != db_constants.TransactionType.REPAYMENT:
+			for payment in payments:
+				if payment['type'] != db_constants.PaymentType.REPAYMENT:
 					continue
 				row: List[str] = [
-					tx['type'], 
-					number_util.to_dollar_format(tx['amount']),
-					tx['method'], 
-					date_util.human_readable_yearmonthday(tx['submitted_at'])
+					payment['type'], 
+					number_util.to_dollar_format(payment['amount']),
+					payment['method'], 
+					date_util.human_readable_yearmonthday(payment['submitted_at'])
 				]
 				sheet.add_row(row)
 

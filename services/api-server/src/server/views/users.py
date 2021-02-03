@@ -46,12 +46,8 @@ class CreateLoginView(MethodView):
 				return make_error_response(f'Missing {key} in respond to create login')
 
 		user_session = UserSession(get_jwt_identity())
-		is_company_admin_for_your_company = user_session.get_company_id(
-		) == form['company_id'] and user_session.is_company_admin()
-
-		has_permissions = user_session.is_bank_admin() or is_company_admin_for_your_company
-
-		if not has_permissions:
+		
+		if not user_session.is_bank_or_this_company_admin(form['company_id']):
 			return make_error_response('Access Denied')
 
 		# TODO(dlluncor): Better create password mechanism

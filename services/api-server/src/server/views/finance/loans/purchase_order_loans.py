@@ -81,14 +81,19 @@ class HandlePaymentView(MethodView):
 		if not form:
 			return make_error_response('No data provided')
 
-		required_keys = ['payment']
+		required_keys = ['payment', 'company_id']
 		for key in required_keys:
 			if key not in form:
 				return make_error_response(
 					'Missing key {} from handle payment request'.format(key))
 
+		user_session = auth_util.UserSession.from_session()
+
+		if not user_session.is_bank_or_this_company_admin(form['company_id']):
+			return make_error_response('Access Denied')
+
 		payment = form['payment']
-		company_id = 'TODO'
+		company_id = form['company_id']
 
 		with session_scope(current_app.session_maker) as session:			
 			payment_input = PaymentInputDict(
@@ -112,15 +117,20 @@ class HandleDisbursementView(MethodView):
 		if not form:
 			return make_error_response('No data provided')
 
-		required_keys = ['payment']
+		required_keys = ['payment', 'company_id']
 
 		for key in required_keys:
 			if key not in form:
 				return make_error_response(
 					'Missing key {} from handle payment request'.format(key))
 
+		user_session = auth_util.UserSession.from_session()
+
+		if not user_session.is_bank_or_this_company_admin(form['company_id']):
+			return make_error_response('Access Denied')
+
 		payment = form['payment']
-		company_id = 'TODO'
+		company_id = form['company_id']
 
 		with session_scope(current_app.session_maker) as session:
 			payment_input = PaymentInputDict(
