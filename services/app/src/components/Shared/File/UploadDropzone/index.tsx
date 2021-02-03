@@ -228,10 +228,10 @@ function FileUploadDropzone({
 
     if (numErrors > 0) {
       setMessage(errMsg);
-    } else {
-      setMessage(`Uploaded ${files.length} file(s) successfully`);
     }
+
     setFiles([]);
+
     if (onUploadComplete) {
       onUploadComplete({
         numSucceeded: numSucceeded,

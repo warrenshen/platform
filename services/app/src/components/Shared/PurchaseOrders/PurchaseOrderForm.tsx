@@ -4,7 +4,6 @@ import {
   createStyles,
   FormControl,
   FormControlLabel,
-  Grid,
   InputLabel,
   makeStyles,
   MenuItem,
@@ -166,11 +165,11 @@ function PurchaseOrderForm({
           Please upload a Purchase Order file.
         </Typography>
         {purchaseOrderFile && (
-          <Grid item>
+          <Box>
             <DownloadThumbnail
               fileIds={[purchaseOrderFile.file_id]}
             ></DownloadThumbnail>
-          </Grid>
+          </Box>
         )}
         <FileUploadDropzone
           companyId={companyId}
@@ -217,13 +216,13 @@ function PurchaseOrderForm({
             file.
           </Typography>
           {purchaseOrderCannabisFiles.length > 0 && (
-            <Grid item>
+            <Box>
               <DownloadThumbnail
                 fileIds={purchaseOrderCannabisFiles.map(
                   (purchaseOrderFile) => purchaseOrderFile.file_id
                 )}
               ></DownloadThumbnail>
-            </Grid>
+            </Box>
           )}
           <FileUploadDropzone
             companyId={companyId}

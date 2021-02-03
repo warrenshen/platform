@@ -2,6 +2,7 @@ import { Box, Button } from "@material-ui/core";
 import Can from "components/Shared/Can";
 import CreateUpdatePurchaseOrderModal from "components/Shared/PurchaseOrders/CreateUpdatePurchaseOrderModal";
 import ListPurchaseOrders from "components/Shared/PurchaseOrders/ListPurchaseOrders";
+import ViewPurchaseOrderModal from "components/Shared/PurchaseOrders/ViewPurchaseOrder/ViewPurchaseOrderModal";
 import { useListPurchaseOrdersQuery } from "generated/graphql";
 import useCompanyContext from "hooks/useCompanyContext";
 import { ActionType } from "lib/ActionType";
@@ -23,17 +24,23 @@ function PurchaseOrders() {
 
   const purchaseOrders = data?.purchase_orders || [];
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [targetPurchaseOrderId, setTargetPurchaseOrderId] = useState("");
 
   const handleEditPurchaseOrder = (purchaseOrderId: string) => {
     setTargetPurchaseOrderId(purchaseOrderId);
-    setIsModalOpen(true);
+    setIsEditModalOpen(true);
+  };
+
+  const handleViewPurchaseOrder = (purchaseOrderId: string) => {
+    setTargetPurchaseOrderId(purchaseOrderId);
+    setIsViewModalOpen(true);
   };
 
   return (
     <Box display="flex" flexDirection="column">
-      {isModalOpen && (
+      {isEditModalOpen && (
         <CreateUpdatePurchaseOrderModal
           actionType={
             targetPurchaseOrderId === "" ? ActionType.New : ActionType.Update
@@ -42,14 +49,23 @@ function PurchaseOrders() {
           handleClose={() => {
             setTargetPurchaseOrderId("");
             refetch();
-            setIsModalOpen(false);
+            setIsEditModalOpen(false);
           }}
         ></CreateUpdatePurchaseOrderModal>
+      )}
+      {isViewModalOpen && (
+        <ViewPurchaseOrderModal
+          purchaseOrderId={targetPurchaseOrderId}
+          handleClose={() => {
+            setTargetPurchaseOrderId("");
+            setIsViewModalOpen(false);
+          }}
+        ></ViewPurchaseOrderModal>
       )}
       <Box pb={2} display="flex" flexDirection="row-reverse">
         <Can perform={Action.AddPurchaseOrders}>
           <Button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => setIsEditModalOpen(true)}
             variant="contained"
             color="primary"
           >
@@ -60,6 +76,7 @@ function PurchaseOrders() {
       <ListPurchaseOrders
         purchaseOrders={purchaseOrders}
         handleEditPurchaseOrder={handleEditPurchaseOrder}
+        handleViewPurchaseOrder={handleViewPurchaseOrder}
       ></ListPurchaseOrders>
     </Box>
   );
