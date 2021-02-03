@@ -1,19 +1,8 @@
-import {
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from "@material-ui/core";
-import {
-  PurchaseOrderLoans,
-  usePurchaseOrderLoanDisbursementsQuery,
-} from "generated/graphql";
-import { calendarDateTimestamp } from "lib/time";
+import { PurchaseOrderLoans } from "generated/graphql";
 
 function Disbursements(props: { id: PurchaseOrderLoans["id"] }) {
+  return null;
+  /*
   const { data } = usePurchaseOrderLoanDisbursementsQuery({
     variables: {
       id: props.id,
@@ -24,6 +13,7 @@ function Disbursements(props: { id: PurchaseOrderLoans["id"] }) {
     return null;
   }
 
+  /*
   return (
     <TableContainer component={Paper}>
       <Table>
@@ -60,6 +50,7 @@ function Disbursements(props: { id: PurchaseOrderLoans["id"] }) {
       </Table>
     </TableContainer>
   );
+  */
 }
 
 export default Disbursements;

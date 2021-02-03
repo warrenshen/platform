@@ -19,7 +19,7 @@ import DatePicker from "components/Shared/Dates/DatePicker";
 import {
   BankAccounts,
   Companies,
-  TransactionsInsertInput,
+  PaymentsInsertInput,
 } from "generated/graphql";
 import { useCallback, useState } from "react";
 
@@ -37,13 +37,13 @@ interface Props {
   handleClose: () => void;
   initialAmount?: number;
   allowablePaymentTypes?: Array<PaymentMethod>;
-  onCreate?: (payment: TransactionsInsertInput) => void;
-  onCalculateEffectOfPayment?: (payment: TransactionsInsertInput) => void;
+  onCreate?: (payment: PaymentsInsertInput) => void;
+  onCalculateEffectOfPayment?: (payment: PaymentsInsertInput) => void;
   coverageComponent?: (amount: number) => React.ReactNode;
 }
 
 function PaymentModal(props: Props) {
-  const [payment, setPayment] = useState<TransactionsInsertInput>({
+  const [payment, setPayment] = useState<PaymentsInsertInput>({
     company_id: props.companyId,
     type: props.type,
     amount: props.initialAmount,

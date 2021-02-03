@@ -21,39 +21,29 @@ def make_error_response(msg: str) -> Response:
 	return make_response(json.dumps({'status': 'ERROR', 'msg': msg}), 200)
 
 
-TransactionInputDict = TypedDict('TransactionInputDict', {
+PaymentInputDict = TypedDict('PaymentInputDict', {
 	'type': str,
 	'amount': float,
 	'payment_method': str
 })
 
-def _add_transaction(
-	tx_input: TransactionInputDict, 
-	purchase_order_loan: models.PurchaseOrderLoan,
+def _add_payment(
+	company_id: str,
+	payment_input: PaymentInputDict,
 	session: Session) -> None:
-
-	loan = purchase_order_loan.loan
-	company_id = loan.company_id
 
 	# TODO(dlluncor): Lots of validations needed before being able to submit a payment
 
-	transaction = models.Transaction()
-	transaction.amount = tx_input['amount']
-	transaction.type = tx_input['type']
-	transaction.company_id = company_id
-	transaction.method = tx_input['payment_method']
-	transaction.submitted_at = datetime.datetime.now()
+	payment = models.Payment()
+	payment.amount = payment_input['amount']
+	payment.type = payment_input['type']
+	payment.company_id = company_id
+	payment.method = payment_input['payment_method']
+	payment.submitted_at = datetime.datetime.now()
 
-	session.add(transaction)
-	session.flush()
+	session.add(payment)
 
-	po_tx = models.PurchaseOrderLoanTransaction()
-	po_tx.purchase_order_loan_id = purchase_order_loan.id
-	po_tx.transaction_id = transaction.id
-
-	session.add(po_tx)
-
-TransactionInsertInputDict = TypedDict('TransactionInsertInputDict', {
+PaymentInsertInputDict = TypedDict('PaymentInsertInputDict', {
 	'company_id': str,
 	'type': str,
 	'amount': float,
@@ -97,29 +87,16 @@ class HandlePaymentView(MethodView):
 				return make_error_response(
 					'Missing key {} from handle payment request'.format(key))
 
-		purchase_order_loan_id = None
-		if purchase_order_loan_id:
-			return make_error_response('Unknown purchase order id')
+		payment = form['payment']
+		company_id = 'TODO'
 
-		tx = form['payment']
-		amount = tx['amount']
-		payment_method = tx['method']
-
-		with session_scope(current_app.session_maker) as session:
-			purchase_order_loan = cast(
-				models.PurchaseOrderLoan,
-				session.query(models.PurchaseOrderLoan).filter_by(
-					id=purchase_order_loan_id).first()
+		with session_scope(current_app.session_maker) as session:			
+			payment_input = PaymentInputDict(
+				type=db_constants.PaymentType.REPAYMENT,
+				amount=payment['amount'],
+				payment_method=payment['method']
 			)
-			if not purchase_order_loan:
-				return make_error_response('Purchase order loan no longer exists')
-			
-			tx_input = TransactionInputDict(
-				type=db_constants.TransactionType.REPAYMENT,
-				amount=amount,
-				payment_method=payment_method
-			)
-			_add_transaction(tx_input, purchase_order_loan, session)
+			_add_payment(company_id, payment_input, session)
 
 		return make_response(json.dumps({
 			'status': 'OK'
@@ -135,31 +112,23 @@ class HandleDisbursementView(MethodView):
 		if not form:
 			return make_error_response('No data provided')
 
-		required_keys = ['purchase_order_loan_id', 'amount', 'payment_method']
+		required_keys = ['payment']
+
 		for key in required_keys:
 			if key not in form:
 				return make_error_response(
 					'Missing key {} from handle payment request'.format(key))
 
-		purchase_order_loan_id = form['purchase_order_loan_id']
-		amount = form['amount']
-		payment_method = form['payment_method']
+		payment = form['payment']
+		company_id = 'TODO'
 
 		with session_scope(current_app.session_maker) as session:
-			purchase_order_loan = cast(
-				models.PurchaseOrderLoan,
-				session.query(models.PurchaseOrderLoan).filter_by(
-					id=purchase_order_loan_id).first()
+			payment_input = PaymentInputDict(
+				type=db_constants.PaymentType.ADVANCE,
+				amount=payment['amount'],
+				payment_method=payment['method']
 			)
-			if not purchase_order_loan:
-				return make_error_response('Purchase order loan no longer exists')
-			
-			tx_input = TransactionInputDict(
-				type=db_constants.TransactionType.ADVANCE,
-				amount=amount,
-				payment_method=payment_method
-			)
-			_add_transaction(tx_input, purchase_order_loan, session)
+			_add_payment(company_id, payment_input, session)
 
 		return make_response(json.dumps({
 			'status': 'OK'

@@ -86,7 +86,7 @@ fragment PurchaseOrderLoanForBank on purchase_order_loans {
 
 ## Finance
 
-fragment Transaction on transactions {
+fragment Payment on payments {
   id
   amount
   method

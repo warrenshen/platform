@@ -1,7 +1,7 @@
 import { Button } from "@material-ui/core";
 import { PaymentTransferType } from "components/Shared/BankToBankTransfer";
 import PaymentModal from "components/Shared/Payments/PaymentModal";
-import { TransactionsInsertInput } from "generated/graphql";
+import { PaymentsInsertInput } from "generated/graphql";
 import useCompanyContext from "hooks/useCompanyContext";
 import {
   calculateEffectOfPayment,
@@ -19,14 +19,12 @@ function RepaymentButton() {
           companyId={companyId}
           type={PaymentTransferType.ToBank}
           handleClose={() => setOpen(false)}
-          onCreate={async (payment: TransactionsInsertInput) => {
+          onCreate={async (payment: PaymentsInsertInput) => {
             window.console.log(payment);
             const resp = await makePayment({ payment: payment });
             console.log(resp);
           }}
-          onCalculateEffectOfPayment={async (
-            payment: TransactionsInsertInput
-          ) => {
+          onCalculateEffectOfPayment={async (payment: PaymentsInsertInput) => {
             window.console.log(payment);
             const resp = await calculateEffectOfPayment({ payment: payment });
             console.log(resp);

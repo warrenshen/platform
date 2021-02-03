@@ -6,9 +6,8 @@ import PaymentModal, {
 } from "components/Shared/Payments/PaymentModal";
 import {
   Companies,
+  PaymentsInsertInput,
   PurchaseOrderLoans,
-  TransactionsInsertInput,
-  useSubmitDisbursementMutation,
 } from "generated/graphql";
 import { useState } from "react";
 
@@ -18,7 +17,6 @@ function DisbursalButton(props: {
   initialAmount: number;
 }) {
   const [open, setOpen] = useState(false);
-  const [submitDisbursement] = useSubmitDisbursementMutation();
 
   return (
     <>
@@ -33,7 +31,9 @@ function DisbursalButton(props: {
             PaymentMethod.Wire,
           ]}
           handleClose={() => setOpen(false)}
-          onCreate={async (transaction: TransactionsInsertInput) => {
+          onCreate={async (payment: PaymentsInsertInput) => {
+            window.console.log("TODO: submit disbursement");
+            /*
             await submitDisbursement({
               variables: {
                 purchaseOrderLoanId: props.purchaseOrderLoanId,
@@ -46,6 +46,7 @@ function DisbursalButton(props: {
                 },
               },
             });
+            */
             setOpen(false);
           }}
           coverageComponent={(amount: number) => (

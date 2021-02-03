@@ -39,11 +39,5 @@ query PurchaseOrderLoanSiblings($id: uuid, $purchase_order_id: uuid!) {
 query PurchaseOrderLoanDisbursements($id: uuid!) {
   purchase_order_loans_by_pk(id: $id) {
     id
-    transactions {
-      ...PurchaseOrderLoanTransaction
-      transaction {
-        ...Transaction
-      }
-    }
   }
 }

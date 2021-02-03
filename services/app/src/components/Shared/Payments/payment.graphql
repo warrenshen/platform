@@ -1,16 +1,1 @@
-mutation SubmitDisbursement(
-  $purchaseOrderLoanId: uuid!
-  $transaction: transactions_insert_input!
-) {
-  insert_purchase_order_loan_transactions_one(
-    object: {
-      purchase_order_loan_id: $purchaseOrderLoanId
-      transaction: { data: $transaction }
-    }
-  ) {
-    ...PurchaseOrderLoanTransaction
-    transaction {
-      ...Transaction
-    }
-  }
-}
+

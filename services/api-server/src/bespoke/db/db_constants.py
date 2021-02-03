@@ -13,7 +13,7 @@ class TwoFactorLinkType(object):
 	CONFIRM_PURCHASE_ORDER = 'confirm_purchase_order'
 
 
-class TransactionType(object):
+class PaymentType(object):
 	REPAYMENT = 'repayment'
 	ADVANCE = 'advance'
 

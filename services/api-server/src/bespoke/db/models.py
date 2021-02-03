@@ -315,7 +315,7 @@ class PurchaseOrderLoan(Base):
 			loan=self.loan.as_dict()
 		)
 
-TransactionDict = TypedDict('TransactionDict', {
+PaymentDict = TypedDict('PaymentDict', {
 	'id': str,
 	'type': str,
 	'amount': float,
@@ -323,8 +323,8 @@ TransactionDict = TypedDict('TransactionDict', {
 	'submitted_at': datetime.datetime
 })
 
-class Transaction(Base):
-	__tablename__ = 'transactions'
+class Payment(Base):
+	__tablename__ = 'payments'
 	if TYPE_CHECKING:
 		def __init__(self) -> None:
 			self.__table__: Any = None
@@ -343,54 +343,14 @@ class Transaction(Base):
 		method = Column(String)
 		submitted_at = Column(DateTime)
 
-	def as_dict(self) -> TransactionDict:
-		return TransactionDict(
+	def as_dict(self) -> PaymentDict:
+		return PaymentDict(
 			id=str(self.id),
 			type=self.type,
 			amount=self.amount,
 			method=self.method,
 			submitted_at=self.submitted_at
 		)
-
-
-PurchaseOrderLoanTransactionDict = TypedDict('PurchaseOrderLoanTransactionDict', {
-	'purchase_order_loan_id': str,
-	'transaction_id': str,
-	'transaction': TransactionDict
-})
-
-class PurchaseOrderLoanTransaction(Base):
-	__tablename__ = 'purchase_order_loan_transactions'
-
-	if TYPE_CHECKING:
-		def __init__(self) -> None:
-			self.__table__: Any = None
-			self.purchase_order_loan_id: UUID = None
-			self.transaction_id: UUID = None
-			self.transaction: Transaction = None
-	else:
-		purchase_order_loan_id = Column(
-			UUID(as_uuid=True), 
-			ForeignKey('purchase_order_loans.id'), 
-			primary_key=True
-		)
-		transaction_id = Column(
-			UUID(as_uuid=True), 
-			ForeignKey('transactions.id'),
-			primary_key=True
-		)
-		transaction = relationship(
-			'Transaction',
-			foreign_keys=[transaction_id]
-		)
-
-	def as_dict(self) -> PurchaseOrderLoanTransactionDict:
-		return PurchaseOrderLoanTransactionDict(
-			purchase_order_loan_id=str(self.purchase_order_loan_id),
-			transaction_id=str(self.transaction_id),
-			transaction=self.transaction.as_dict()
-		)
-
 
 
 class RevokedTokenModel(Base):
