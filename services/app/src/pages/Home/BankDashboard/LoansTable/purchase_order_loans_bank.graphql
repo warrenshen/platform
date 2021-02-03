@@ -1,0 +1,22 @@
+query AllPurchaseOrderLoansForBank {
+  purchase_order_loans {
+    ...PurchaseOrderLoanForBank
+    purchase_order {
+      id
+      order_number
+      amount
+      status
+      company {
+        name
+      }
+      vendor {
+        name
+      }
+    }
+    loan {
+      requested_at
+      outstanding_interest
+      outstanding_fees
+    }
+  }
+}
