@@ -1,3 +1,4 @@
+import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { UserRolesEnum } from "generated/graphql";
 import useAppBarTitle from "hooks/useAppBarTitle";
@@ -12,13 +13,13 @@ function Home() {
   const { user } = useContext(CurrentUserContext);
 
   return (
-    <div>
+    <Page>
       {user.role === UserRolesEnum.BankAdmin ? (
         <BankDashboard />
       ) : (
         "Dashboard for CUSTOMER USER"
       )}
-    </div>
+    </Page>
   );
 }
 

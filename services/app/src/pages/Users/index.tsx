@@ -1,4 +1,5 @@
 import { Box, Button } from "@material-ui/core";
+import Page from "components/Shared/Page";
 import InviteUserModal from "components/Shared/Users/InviteUserModal";
 import ListUsers from "components/Shared/Users/ListUsers";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
@@ -37,7 +38,7 @@ function Users() {
       : customerUsers?.users;
 
   return (
-    <>
+    <Page>
       {open && (
         <InviteUserModal
           companyId={
@@ -57,12 +58,11 @@ function Users() {
           Invite User
         </Button>
       </Box>
-
       <ListUsers
         companyId={currentUserFromContext.user.companyId}
         users={users}
       ></ListUsers>
-    </>
+    </Page>
   );
 }
 

@@ -6,6 +6,7 @@ import PurchaseOrders from "components/Bank/Customer/PurchaseOrders";
 import Settings from "components/Bank/Customer/Settings";
 import Users from "components/Bank/Customer/Users";
 import Vendors from "components/Bank/Customer/Vendors";
+import Page from "components/Shared/Page";
 import PrivateRoute from "components/Shared/PrivateRoute";
 import { useBankCustomerQuery, UserRolesEnum } from "generated/graphql";
 import useAppBarTitle from "hooks/useAppBarTitle";
@@ -83,26 +84,25 @@ function BankCustomerPage() {
   }, [setAppBarTitle, customerName]);
 
   return (
-    <>
+    <Page>
       <Paper>
         <Tabs
+          indicatorColor="primary"
+          variant="scrollable"
+          scrollButtons="auto"
           value={tabIndex === null || tabIndex < 0 ? 0 : tabIndex}
           onChange={(event: ChangeEvent<{}>, newValue: number) => {
             setTabIndex(newValue);
           }}
-          indicatorColor="primary"
-          centered
         >
-          {customerPaths.map((customerPath, index) => {
-            return (
-              <Tab
-                key={index}
-                label={customerPath.label}
-                component={Link}
-                to={`${url}${customerPath.path}`}
-              ></Tab>
-            );
-          })}
+          {customerPaths.map((customerPath, index) => (
+            <Tab
+              key={index}
+              label={customerPath.label}
+              component={Link}
+              to={`${url}${customerPath.path}`}
+            ></Tab>
+          ))}
         </Tabs>
       </Paper>
       <Box pt={2}>
@@ -125,7 +125,7 @@ function BankCustomerPage() {
           );
         })}
       </Box>
-    </>
+    </Page>
   );
 }
 

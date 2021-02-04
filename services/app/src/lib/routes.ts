@@ -4,7 +4,6 @@ export const routes = {
   root: "/",
   signIn: "/sign-in",
   overview: "/overview",
-  vendors: "/vendors",
   profile: "/profile",
   userProfile: "/user-profile",
   users: "/users",
@@ -23,19 +22,14 @@ export const vendorRoutes = {};
 // Customer user routes are prefixed with "/1".
 export const customerRoutes = {
   loans: "/1/loans",
-  settings: "/1/settings",
   purchaseOrders: "/1/purchase-orders",
+  settings: "/1/settings",
+  vendors: "/1/vendors",
 };
 
 // Bank user routes are not prefixed.
 export const bankRoutes = {
-  loansMaturing: "/loans-maturing",
-  loansPastDue: "/loans-past-due",
-  loansAllProducts: "/loans-all-products",
-  loansPurchaseOrder: "/loans-purchase-order",
-  loansLineOfCredit: "/loans-line-of-credit",
   bankAccounts: "/bank-accounts",
-  customers: "/customers",
   customer: {
     root: "/customers/:companyId",
     overview: "/overview",
@@ -46,4 +40,11 @@ export const bankRoutes = {
     profile: "/profile",
     users: "/users",
   },
+  customers: "/customers",
+  loansAllProducts: "/loans-all-products",
+  loansLineOfCredit: "/loans-line-of-credit",
+  loansMaturing: "/loans-maturing",
+  loansPastDue: "/loans-past-due",
+  loansPurchaseOrder: "/loans-purchase-order",
+  vendors: "/vendors",
 };

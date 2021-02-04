@@ -1,3 +1,4 @@
+import Page from "components/Shared/Page";
 import Settings from "components/Shared/Settings";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
@@ -35,10 +36,12 @@ function SettingsPage() {
     ?.settings as CompanySettingsForCustomerFragment;
 
   return (
-    <Settings
-      settings={settings}
-      bankAccounts={data?.companies_by_pk?.bank_accounts || []}
-    ></Settings>
+    <Page>
+      <Settings
+        settings={settings}
+        bankAccounts={data?.companies_by_pk?.bank_accounts || []}
+      ></Settings>
+    </Page>
   );
 }
 

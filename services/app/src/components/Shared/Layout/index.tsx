@@ -67,7 +67,7 @@ const CUSTOMER_LEFT_NAV_ITEMS = [
   },
   {
     text: "Vendors",
-    link: routes.vendors,
+    link: customerRoutes.vendors,
   },
   {
     text: "Profile",
@@ -110,7 +110,7 @@ const BANK_LEFT_NAV_ITEMS = [
   },
   {
     text: "Vendors",
-    link: routes.vendors,
+    link: bankRoutes.vendors,
   },
   {
     text: "Customers",

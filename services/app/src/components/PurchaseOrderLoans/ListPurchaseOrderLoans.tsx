@@ -61,7 +61,7 @@ function ListPurchaseOrderLoans({
   );
 
   const loanNotesRenderer = (params: ValueFormatterParams) => (
-    <Box>{params.row.data.loan.notes as string}</Box>
+    <Box>{params.row.data.notes as string}</Box>
   );
 
   const actionCellRenderer = (params: ValueFormatterParams) => (

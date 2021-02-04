@@ -24,7 +24,7 @@ function BankAccounts({ companyId, bankAccounts }: Props) {
   }, [bankAccounts]);
 
   return (
-    <Box mt={4}>
+    <Box>
       <h3>Bank Accounts</h3>
       <AddAccountButton companyId={companyId}></AddAccountButton>
       <Box display="flex" mt={2}>

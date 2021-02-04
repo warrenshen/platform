@@ -20,15 +20,18 @@ import BankLoansLineOfCreditPage from "pages/Bank/LoansLineOfCredit";
 import BankLoansMaturingPage from "pages/Bank/LoansMaturing";
 import BankLoansPastDuePage from "pages/Bank/LoansPastDue";
 import BankLoansPurchaseOrderPage from "pages/Bank/LoansPurchaseOrder";
+import BankVendors from "pages/Bank/Vendors";
 import CompanyProfilePage from "pages/Customer/CompanyProfile";
-import LoansPage from "pages/Customer/Loans";
+import {
+  default as CustomerVendorsPage,
+  default as LoansPage,
+} from "pages/Customer/Loans";
 import PurchaseOrdersPage from "pages/Customer/PurchaseOrders";
 import SettingsPage from "pages/Customer/Settings";
 import Home from "pages/Home";
 import SignIn from "pages/SignIn";
 import UserProfile from "pages/UserProfile";
 import Users from "pages/Users";
-import Vendors from "pages/Vendors";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 import { useLocation } from "react-use";
 
@@ -80,16 +83,6 @@ function App() {
           </PrivateRoute>
           <PrivateRoute
             exact
-            path={routes.vendors}
-            requiredRoles={[
-              UserRolesEnum.BankAdmin,
-              UserRolesEnum.CompanyAdmin,
-            ]}
-          >
-            <Vendors></Vendors>
-          </PrivateRoute>
-          <PrivateRoute
-            exact
             path={routes.profile}
             requiredRoles={[
               UserRolesEnum.BankAdmin,
@@ -137,6 +130,13 @@ function App() {
             requiredRoles={[UserRolesEnum.CompanyAdmin]}
           >
             <SettingsPage></SettingsPage>
+          </PrivateRoute>
+          <PrivateRoute
+            exact
+            path={customerRoutes.vendors}
+            requiredRoles={[UserRolesEnum.CompanyAdmin]}
+          >
+            <CustomerVendorsPage></CustomerVendorsPage>
           </PrivateRoute>
           {/* Bank user routes */}
           <PrivateRoute
@@ -192,6 +192,13 @@ function App() {
             requiredRoles={[UserRolesEnum.BankAdmin]}
           >
             <BankBankAccountsPage></BankBankAccountsPage>
+          </PrivateRoute>
+          <PrivateRoute
+            exact
+            path={bankRoutes.vendors}
+            requiredRoles={[UserRolesEnum.BankAdmin]}
+          >
+            <BankVendors></BankVendors>
           </PrivateRoute>
         </Layout>
       </Switch>
