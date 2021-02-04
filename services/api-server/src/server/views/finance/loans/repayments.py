@@ -26,7 +26,7 @@ class CalculateEffectOfPaymentView(MethodView):
 		if not form:
 			return handler_util.make_error_response('No data provided')
 
-		required_keys = ['payment', 'company_id']
+		required_keys = ['payment', 'company_id', 'loan_ids']
 		for key in required_keys:
 			if key not in form:
 				return handler_util.make_error_response(
@@ -41,20 +41,15 @@ class CalculateEffectOfPaymentView(MethodView):
 		if type(payment['amount']) != float and type(payment['amount']) != int:
 			return handler_util.make_error_response('Amount must be a number')
 
+		if not payment.get('deposit_date'):
+			return handler_util.make_error_response('Deposit date must be specified')
+
+		loan_ids = form['loan_ids']
+
 		# NOTE: Fetching information is likely a slow task, so we probably want to
 		# turn this into an async operation.
-		company_info_dict = per_customer_types.CompanyInfoDict(
-			id=form['company_id'],
-			name='unused'
-		)
-		fetcher = per_customer_fetcher.Fetcher(company_info_dict, current_app.session_maker)
-		_, err = fetcher.fetch()
-		if err:
-			return handler_util.make_error_response(err)
-		financial_info = fetcher.get_financials()
-
-		effect_resp, err = payment_util.calculate_effect(
-			payment, financial_info)
+		effect_resp, err = payment_util.calculate_repayment_effect(
+			payment, form['company_id'], loan_ids, current_app.session_maker)
 		if err:
 			return handler_util.make_error_response(err)
 

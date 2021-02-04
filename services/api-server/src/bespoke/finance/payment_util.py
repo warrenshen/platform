@@ -59,10 +59,16 @@ def is_advance(p: models.PaymentDict) -> bool:
 # Payments represent someone submitting a dollar amount to their account 
 # Transactions represent how that payment is applied to their balances and fees
 
-def calculate_effect(
-	payment_input: PaymentInputDict, 
-	financial_info: per_customer_types.CustomerFinancials) -> Tuple[EffectRespDict, errors.Error]:
+def calculate_repayment_effect(
+	payment_input: PaymentInputDict,
+	company_id: str,
+	loan_ids: List[str],
+	session_maker: Callable) -> Tuple[EffectRespDict, errors.Error]:
 	# What loans and fees does would this payment pay off?
+	
+	# TODO(dlluncor): Handle the case where we change the loans a user tries to pay off
+	# because they haven't selected loans that have already come due.
+
 	return None, errors.Error('Not implemented')
 
 FundLoansRespDict = TypedDict('FundLoansRespDict', {
