@@ -10,7 +10,10 @@ interface Props {
   id: string;
   label: string;
   value: string;
+  error?: boolean;
   disablePast: boolean;
+  disabled?: boolean;
+  required?: boolean;
   disableNonBankDays: boolean; // disable days where the bank is not open
   onChange: (value: MaterialUiPickersDate) => void;
 }
@@ -23,6 +26,9 @@ function DatePicker(props: Props) {
         disableToolbar
         disablePast={props.disablePast}
         autoOk
+        error={props.error}
+        required={props.required}
+        disabled={props.disabled}
         shouldDisableDate={(date) => {
           if (props.disableNonBankDays) {
             if (date?.getDay() === 0 || date?.getDay() === 6) {
