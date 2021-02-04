@@ -133,7 +133,7 @@ function ListPurchaseOrderLoans({
     },
     {
       dataField: "origination_date",
-      caption: "Origination Date",
+      caption: "Payment Date",
       alignment: "center",
       minWidth: 140,
     },

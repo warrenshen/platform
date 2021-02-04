@@ -3,7 +3,6 @@
 export const routes = {
   root: "/",
   signIn: "/sign-in",
-  overview: "/overview",
   profile: "/profile",
   userProfile: "/user-profile",
   users: "/users",
@@ -22,6 +21,7 @@ export const vendorRoutes = {};
 // Customer user routes are prefixed with "/1".
 export const customerRoutes = {
   loans: "/1/loans",
+  overview: "/1/overview",
   purchaseOrders: "/1/purchase-orders",
   settings: "/1/settings",
   vendors: "/1/vendors",
@@ -29,6 +29,7 @@ export const customerRoutes = {
 
 // Bank user routes are not prefixed.
 export const bankRoutes = {
+  overview: "/overview",
   bankAccounts: "/bank-accounts",
   customer: {
     root: "/customers/:companyId",

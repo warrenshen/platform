@@ -81,6 +81,10 @@ fragment LoanLimited on loans {
   origination_date
   maturity_date
   adjusted_maturity_date
+  outstanding_principal_balance
+  outstanding_interest
+  outstanding_fees
+  funded_at
 }
 
 fragment PurchaseOrderLoan on purchase_order_loans {

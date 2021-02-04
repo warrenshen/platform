@@ -55,7 +55,7 @@ const useStyles = makeStyles((theme: Theme) =>
 const CUSTOMER_LEFT_NAV_ITEMS = [
   {
     text: "Overview",
-    link: routes.overview,
+    link: customerRoutes.overview,
   },
   {
     text: "Loans",
@@ -86,7 +86,7 @@ const CUSTOMER_LEFT_NAV_ITEMS = [
 const BANK_LEFT_NAV_ITEMS = [
   {
     text: "Overview",
-    link: routes.overview,
+    link: bankRoutes.overview,
   },
   {
     text: "Loans Maturing in X Days",

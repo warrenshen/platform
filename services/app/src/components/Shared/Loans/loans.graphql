@@ -59,3 +59,17 @@ query LoansByCompanyAndLoanTypeForBank(
     }
   }
 }
+
+query OpenLoansByCompany($companyId: uuid!) {
+  loans(
+    where: {
+      _and: [
+        { company_id: { _eq: $companyId } }
+        { funded_at: { _is_null: false } }
+        { closed_at: { _is_null: true } }
+      ]
+    }
+  ) {
+    ...LoanLimited
+  }
+}

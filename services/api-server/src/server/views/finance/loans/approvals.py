@@ -127,7 +127,7 @@ class SubmitForApprovalView(MethodView):
 			loan_html = f"""<ul>
 <li>Company: {customer_name} </li>
 <li>Purchase order: {purchase_order.order_number}</li>
-<li>Origination date: {loan.origination_date}</li>
+<li>Payment date: {loan.origination_date}</li>
 <li>Amount: {loan.amount}</li>
 			</ul>
 			"""

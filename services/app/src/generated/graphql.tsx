@@ -2421,7 +2421,7 @@ export enum LoanTypeUpdateColumn {
 }
 
 /**
- * All common fields amongst loans go here, and fields specific to that loan type go into their respective join tables.
+ * All common fields amongst loans go here, and fields specific to that loan type are joined in by the artifact_id
  *
  *
  * columns and relationships of "loans"
@@ -2434,6 +2434,8 @@ export type Loans = {
   /** An object relationship */
   company: Companies;
   company_id: Scalars["uuid"];
+  funded_at?: Maybe<Scalars["timestamptz"]>;
+  funded_by_user_id?: Maybe<Scalars["uuid"]>;
   id: Scalars["uuid"];
   loan_type?: Maybe<LoanTypeEnum>;
   maturity_date?: Maybe<Scalars["date"]>;
@@ -2531,6 +2533,8 @@ export type LoansBoolExp = {
   closed_at?: Maybe<TimestamptzComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
+  funded_at?: Maybe<TimestamptzComparisonExp>;
+  funded_by_user_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   loan_type?: Maybe<LoanTypeEnumComparisonExp>;
   maturity_date?: Maybe<DateComparisonExp>;
@@ -2573,6 +2577,8 @@ export type LoansInsertInput = {
   closed_at?: Maybe<Scalars["timestamptz"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
+  funded_at?: Maybe<Scalars["timestamptz"]>;
+  funded_by_user_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   loan_type?: Maybe<LoanTypeEnum>;
   maturity_date?: Maybe<Scalars["date"]>;
@@ -2600,6 +2606,8 @@ export type LoansMaxFields = {
   artifact_id?: Maybe<Scalars["uuid"]>;
   closed_at?: Maybe<Scalars["timestamptz"]>;
   company_id?: Maybe<Scalars["uuid"]>;
+  funded_at?: Maybe<Scalars["timestamptz"]>;
+  funded_by_user_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   maturity_date?: Maybe<Scalars["date"]>;
   modified_at?: Maybe<Scalars["timestamptz"]>;
@@ -2623,6 +2631,8 @@ export type LoansMaxOrderBy = {
   artifact_id?: Maybe<OrderBy>;
   closed_at?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
+  funded_at?: Maybe<OrderBy>;
+  funded_by_user_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   maturity_date?: Maybe<OrderBy>;
   modified_at?: Maybe<OrderBy>;
@@ -2646,6 +2656,8 @@ export type LoansMinFields = {
   artifact_id?: Maybe<Scalars["uuid"]>;
   closed_at?: Maybe<Scalars["timestamptz"]>;
   company_id?: Maybe<Scalars["uuid"]>;
+  funded_at?: Maybe<Scalars["timestamptz"]>;
+  funded_by_user_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   maturity_date?: Maybe<Scalars["date"]>;
   modified_at?: Maybe<Scalars["timestamptz"]>;
@@ -2669,6 +2681,8 @@ export type LoansMinOrderBy = {
   artifact_id?: Maybe<OrderBy>;
   closed_at?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
+  funded_at?: Maybe<OrderBy>;
+  funded_by_user_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   maturity_date?: Maybe<OrderBy>;
   modified_at?: Maybe<OrderBy>;
@@ -2714,6 +2728,8 @@ export type LoansOrderBy = {
   closed_at?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
+  funded_at?: Maybe<OrderBy>;
+  funded_by_user_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   loan_type?: Maybe<OrderBy>;
   maturity_date?: Maybe<OrderBy>;
@@ -2751,6 +2767,10 @@ export enum LoansSelectColumn {
   ClosedAt = "closed_at",
   /** column name */
   CompanyId = "company_id",
+  /** column name */
+  FundedAt = "funded_at",
+  /** column name */
+  FundedByUserId = "funded_by_user_id",
   /** column name */
   Id = "id",
   /** column name */
@@ -2792,6 +2812,8 @@ export type LoansSetInput = {
   artifact_id?: Maybe<Scalars["uuid"]>;
   closed_at?: Maybe<Scalars["timestamptz"]>;
   company_id?: Maybe<Scalars["uuid"]>;
+  funded_at?: Maybe<Scalars["timestamptz"]>;
+  funded_by_user_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   loan_type?: Maybe<LoanTypeEnum>;
   maturity_date?: Maybe<Scalars["date"]>;
@@ -2886,6 +2908,10 @@ export enum LoansUpdateColumn {
   ClosedAt = "closed_at",
   /** column name */
   CompanyId = "company_id",
+  /** column name */
+  FundedAt = "funded_at",
+  /** column name */
+  FundedByUserId = "funded_by_user_id",
   /** column name */
   Id = "id",
   /** column name */
@@ -3026,8 +3052,6 @@ export type MutationRoot = {
   delete_purchase_order_loans?: Maybe<PurchaseOrderLoansMutationResponse>;
   /** delete single row from the table: "purchase_order_loans" */
   delete_purchase_order_loans_by_pk?: Maybe<PurchaseOrderLoans>;
-  /** delete data from the table: "purchase_order_loans_view" */
-  delete_purchase_order_loans_view?: Maybe<PurchaseOrderLoansViewMutationResponse>;
   /** delete data from the table: "purchase_order_type_loans" */
   delete_purchase_order_type_loans?: Maybe<PurchaseOrderTypeLoansMutationResponse>;
   /** delete data from the table: "purchase_orders" */
@@ -3042,6 +3066,10 @@ export type MutationRoot = {
   delete_revoked_tokens?: Maybe<RevokedTokensMutationResponse>;
   /** delete single row from the table: "revoked_tokens" */
   delete_revoked_tokens_by_pk?: Maybe<RevokedTokens>;
+  /** delete data from the table: "transactions" */
+  delete_transactions?: Maybe<TransactionsMutationResponse>;
+  /** delete single row from the table: "transactions" */
+  delete_transactions_by_pk?: Maybe<Transactions>;
   /** delete data from the table: "two_factor_links" */
   delete_two_factor_links?: Maybe<TwoFactorLinksMutationResponse>;
   /** delete single row from the table: "two_factor_links" */
@@ -3112,10 +3140,6 @@ export type MutationRoot = {
   insert_purchase_order_loans?: Maybe<PurchaseOrderLoansMutationResponse>;
   /** insert a single row into the table: "purchase_order_loans" */
   insert_purchase_order_loans_one?: Maybe<PurchaseOrderLoans>;
-  /** insert data into the table: "purchase_order_loans_view" */
-  insert_purchase_order_loans_view?: Maybe<PurchaseOrderLoansViewMutationResponse>;
-  /** insert a single row into the table: "purchase_order_loans_view" */
-  insert_purchase_order_loans_view_one?: Maybe<PurchaseOrderLoansView>;
   /** insert data into the table: "purchase_order_type_loans" */
   insert_purchase_order_type_loans?: Maybe<PurchaseOrderTypeLoansMutationResponse>;
   /** insert a single row into the table: "purchase_order_type_loans" */
@@ -3132,6 +3156,10 @@ export type MutationRoot = {
   insert_revoked_tokens?: Maybe<RevokedTokensMutationResponse>;
   /** insert a single row into the table: "revoked_tokens" */
   insert_revoked_tokens_one?: Maybe<RevokedTokens>;
+  /** insert data into the table: "transactions" */
+  insert_transactions?: Maybe<TransactionsMutationResponse>;
+  /** insert a single row into the table: "transactions" */
+  insert_transactions_one?: Maybe<Transactions>;
   /** insert data into the table: "two_factor_links" */
   insert_two_factor_links?: Maybe<TwoFactorLinksMutationResponse>;
   /** insert a single row into the table: "two_factor_links" */
@@ -3204,8 +3232,6 @@ export type MutationRoot = {
   update_purchase_order_loans?: Maybe<PurchaseOrderLoansMutationResponse>;
   /** update single row of the table: "purchase_order_loans" */
   update_purchase_order_loans_by_pk?: Maybe<PurchaseOrderLoans>;
-  /** update data of the table: "purchase_order_loans_view" */
-  update_purchase_order_loans_view?: Maybe<PurchaseOrderLoansViewMutationResponse>;
   /** update data of the table: "purchase_order_type_loans" */
   update_purchase_order_type_loans?: Maybe<PurchaseOrderTypeLoansMutationResponse>;
   /** update data of the table: "purchase_orders" */
@@ -3220,6 +3246,10 @@ export type MutationRoot = {
   update_revoked_tokens?: Maybe<RevokedTokensMutationResponse>;
   /** update single row of the table: "revoked_tokens" */
   update_revoked_tokens_by_pk?: Maybe<RevokedTokens>;
+  /** update data of the table: "transactions" */
+  update_transactions?: Maybe<TransactionsMutationResponse>;
+  /** update single row of the table: "transactions" */
+  update_transactions_by_pk?: Maybe<Transactions>;
   /** update data of the table: "two_factor_links" */
   update_two_factor_links?: Maybe<TwoFactorLinksMutationResponse>;
   /** update single row of the table: "two_factor_links" */
@@ -3378,11 +3408,6 @@ export type MutationRootDeletePurchaseOrderLoansByPkArgs = {
 };
 
 /** mutation root */
-export type MutationRootDeletePurchaseOrderLoansViewArgs = {
-  where: PurchaseOrderLoansViewBoolExp;
-};
-
-/** mutation root */
 export type MutationRootDeletePurchaseOrderTypeLoansArgs = {
   where: PurchaseOrderTypeLoansBoolExp;
 };
@@ -3414,6 +3439,16 @@ export type MutationRootDeleteRevokedTokensArgs = {
 
 /** mutation root */
 export type MutationRootDeleteRevokedTokensByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** mutation root */
+export type MutationRootDeleteTransactionsArgs = {
+  where: TransactionsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteTransactionsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -3621,16 +3656,6 @@ export type MutationRootInsertPurchaseOrderLoansOneArgs = {
 };
 
 /** mutation root */
-export type MutationRootInsertPurchaseOrderLoansViewArgs = {
-  objects: Array<PurchaseOrderLoansViewInsertInput>;
-};
-
-/** mutation root */
-export type MutationRootInsertPurchaseOrderLoansViewOneArgs = {
-  object: PurchaseOrderLoansViewInsertInput;
-};
-
-/** mutation root */
 export type MutationRootInsertPurchaseOrderTypeLoansArgs = {
   objects: Array<PurchaseOrderTypeLoansInsertInput>;
 };
@@ -3674,6 +3699,18 @@ export type MutationRootInsertRevokedTokensArgs = {
 export type MutationRootInsertRevokedTokensOneArgs = {
   object: RevokedTokensInsertInput;
   on_conflict?: Maybe<RevokedTokensOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertTransactionsArgs = {
+  objects: Array<TransactionsInsertInput>;
+  on_conflict?: Maybe<TransactionsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertTransactionsOneArgs = {
+  object: TransactionsInsertInput;
+  on_conflict?: Maybe<TransactionsOnConflict>;
 };
 
 /** mutation root */
@@ -3917,13 +3954,6 @@ export type MutationRootUpdatePurchaseOrderLoansByPkArgs = {
 };
 
 /** mutation root */
-export type MutationRootUpdatePurchaseOrderLoansViewArgs = {
-  _inc?: Maybe<PurchaseOrderLoansViewIncInput>;
-  _set?: Maybe<PurchaseOrderLoansViewSetInput>;
-  where: PurchaseOrderLoansViewBoolExp;
-};
-
-/** mutation root */
 export type MutationRootUpdatePurchaseOrderTypeLoansArgs = {
   _inc?: Maybe<PurchaseOrderTypeLoansIncInput>;
   _set?: Maybe<PurchaseOrderTypeLoansSetInput>;
@@ -3966,6 +3996,20 @@ export type MutationRootUpdateRevokedTokensArgs = {
 export type MutationRootUpdateRevokedTokensByPkArgs = {
   _set?: Maybe<RevokedTokensSetInput>;
   pk_columns: RevokedTokensPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateTransactionsArgs = {
+  _inc?: Maybe<TransactionsIncInput>;
+  _set?: Maybe<TransactionsSetInput>;
+  where: TransactionsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateTransactionsByPkArgs = {
+  _inc?: Maybe<TransactionsIncInput>;
+  _set?: Maybe<TransactionsSetInput>;
+  pk_columns: TransactionsPkColumnsInput;
 };
 
 /** mutation root */
@@ -4047,6 +4091,8 @@ export enum OrderBy {
  */
 export type Payments = {
   amount: Scalars["numeric"];
+  /** When this payment has been applied to loans. This can only be done once. */
+  applied_at?: Maybe<Scalars["timestamptz"]>;
   /** An object relationship */
   bespoke_bank_account?: Maybe<BankAccounts>;
   bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
@@ -4145,6 +4191,7 @@ export type PaymentsBoolExp = {
   _not?: Maybe<PaymentsBoolExp>;
   _or?: Maybe<Array<Maybe<PaymentsBoolExp>>>;
   amount?: Maybe<NumericComparisonExp>;
+  applied_at?: Maybe<TimestamptzComparisonExp>;
   bespoke_bank_account?: Maybe<BankAccountsBoolExp>;
   bespoke_bank_account_id?: Maybe<UuidComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
@@ -4190,6 +4237,7 @@ export type PaymentsIncInput = {
 /** input type for inserting data into table "payments" */
 export type PaymentsInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
+  applied_at?: Maybe<Scalars["timestamptz"]>;
   bespoke_bank_account?: Maybe<BankAccountsObjRelInsertInput>;
   bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
@@ -4209,6 +4257,7 @@ export type PaymentsInsertInput = {
 /** aggregate max on columns */
 export type PaymentsMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
+  applied_at?: Maybe<Scalars["timestamptz"]>;
   bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
@@ -4224,6 +4273,7 @@ export type PaymentsMaxFields = {
 /** order by max() on columns of table "payments" */
 export type PaymentsMaxOrderBy = {
   amount?: Maybe<OrderBy>;
+  applied_at?: Maybe<OrderBy>;
   bespoke_bank_account_id?: Maybe<OrderBy>;
   company_bank_account_id?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
@@ -4239,6 +4289,7 @@ export type PaymentsMaxOrderBy = {
 /** aggregate min on columns */
 export type PaymentsMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
+  applied_at?: Maybe<Scalars["timestamptz"]>;
   bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
@@ -4254,6 +4305,7 @@ export type PaymentsMinFields = {
 /** order by min() on columns of table "payments" */
 export type PaymentsMinOrderBy = {
   amount?: Maybe<OrderBy>;
+  applied_at?: Maybe<OrderBy>;
   bespoke_bank_account_id?: Maybe<OrderBy>;
   company_bank_account_id?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
@@ -4290,6 +4342,7 @@ export type PaymentsOnConflict = {
 /** ordering options when selecting data from "payments" */
 export type PaymentsOrderBy = {
   amount?: Maybe<OrderBy>;
+  applied_at?: Maybe<OrderBy>;
   bespoke_bank_account?: Maybe<BankAccountsOrderBy>;
   bespoke_bank_account_id?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
@@ -4321,6 +4374,8 @@ export enum PaymentsSelectColumn {
   /** column name */
   Amount = "amount",
   /** column name */
+  AppliedAt = "applied_at",
+  /** column name */
   BespokeBankAccountId = "bespoke_bank_account_id",
   /** column name */
   CompanyBankAccountId = "company_bank_account_id",
@@ -4347,6 +4402,7 @@ export enum PaymentsSelectColumn {
 /** input type for updating data in table "payments" */
 export type PaymentsSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
+  applied_at?: Maybe<Scalars["timestamptz"]>;
   bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
@@ -4404,6 +4460,8 @@ export type PaymentsSumOrderBy = {
 export enum PaymentsUpdateColumn {
   /** column name */
   Amount = "amount",
+  /** column name */
+  AppliedAt = "applied_at",
   /** column name */
   BespokeBankAccountId = "bespoke_bank_account_id",
   /** column name */
@@ -5096,476 +5154,6 @@ export enum PurchaseOrderLoansUpdateColumn {
   /** column name */
   PurchaseOrderId = "purchase_order_id",
 }
-
-/** columns and relationships of "purchase_order_loans_view" */
-export type PurchaseOrderLoansView = {
-  adjusted_maturity_date?: Maybe<Scalars["date"]>;
-  amount?: Maybe<Scalars["numeric"]>;
-  artifact_id?: Maybe<Scalars["uuid"]>;
-  closed_at?: Maybe<Scalars["timestamptz"]>;
-  company_id?: Maybe<Scalars["uuid"]>;
-  id?: Maybe<Scalars["uuid"]>;
-  loan_type?: Maybe<Scalars["String"]>;
-  maturity_date?: Maybe<Scalars["date"]>;
-  modified_at?: Maybe<Scalars["timestamptz"]>;
-  modified_by_user_id?: Maybe<Scalars["uuid"]>;
-  notes?: Maybe<Scalars["String"]>;
-  origination_date?: Maybe<Scalars["date"]>;
-  outstanding_fees?: Maybe<Scalars["numeric"]>;
-  outstanding_interest?: Maybe<Scalars["numeric"]>;
-  outstanding_principal_balance?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
-  rejected_by_user_id?: Maybe<Scalars["uuid"]>;
-  rejection_notes?: Maybe<Scalars["String"]>;
-  requested_at?: Maybe<Scalars["timestamptz"]>;
-  requested_by_user_id?: Maybe<Scalars["uuid"]>;
-  status?: Maybe<Scalars["String"]>;
-};
-
-/** aggregated selection of "purchase_order_loans_view" */
-export type PurchaseOrderLoansViewAggregate = {
-  aggregate?: Maybe<PurchaseOrderLoansViewAggregateFields>;
-  nodes: Array<PurchaseOrderLoansView>;
-};
-
-/** aggregate fields of "purchase_order_loans_view" */
-export type PurchaseOrderLoansViewAggregateFields = {
-  avg?: Maybe<PurchaseOrderLoansViewAvgFields>;
-  count?: Maybe<Scalars["Int"]>;
-  max?: Maybe<PurchaseOrderLoansViewMaxFields>;
-  min?: Maybe<PurchaseOrderLoansViewMinFields>;
-  stddev?: Maybe<PurchaseOrderLoansViewStddevFields>;
-  stddev_pop?: Maybe<PurchaseOrderLoansViewStddevPopFields>;
-  stddev_samp?: Maybe<PurchaseOrderLoansViewStddevSampFields>;
-  sum?: Maybe<PurchaseOrderLoansViewSumFields>;
-  var_pop?: Maybe<PurchaseOrderLoansViewVarPopFields>;
-  var_samp?: Maybe<PurchaseOrderLoansViewVarSampFields>;
-  variance?: Maybe<PurchaseOrderLoansViewVarianceFields>;
-};
-
-/** aggregate fields of "purchase_order_loans_view" */
-export type PurchaseOrderLoansViewAggregateFieldsCountArgs = {
-  columns?: Maybe<Array<PurchaseOrderLoansViewSelectColumn>>;
-  distinct?: Maybe<Scalars["Boolean"]>;
-};
-
-/** order by aggregate values of table "purchase_order_loans_view" */
-export type PurchaseOrderLoansViewAggregateOrderBy = {
-  avg?: Maybe<PurchaseOrderLoansViewAvgOrderBy>;
-  count?: Maybe<OrderBy>;
-  max?: Maybe<PurchaseOrderLoansViewMaxOrderBy>;
-  min?: Maybe<PurchaseOrderLoansViewMinOrderBy>;
-  stddev?: Maybe<PurchaseOrderLoansViewStddevOrderBy>;
-  stddev_pop?: Maybe<PurchaseOrderLoansViewStddevPopOrderBy>;
-  stddev_samp?: Maybe<PurchaseOrderLoansViewStddevSampOrderBy>;
-  sum?: Maybe<PurchaseOrderLoansViewSumOrderBy>;
-  var_pop?: Maybe<PurchaseOrderLoansViewVarPopOrderBy>;
-  var_samp?: Maybe<PurchaseOrderLoansViewVarSampOrderBy>;
-  variance?: Maybe<PurchaseOrderLoansViewVarianceOrderBy>;
-};
-
-/** input type for inserting array relation for remote table "purchase_order_loans_view" */
-export type PurchaseOrderLoansViewArrRelInsertInput = {
-  data: Array<PurchaseOrderLoansViewInsertInput>;
-};
-
-/** aggregate avg on columns */
-export type PurchaseOrderLoansViewAvgFields = {
-  amount?: Maybe<Scalars["Float"]>;
-  outstanding_fees?: Maybe<Scalars["Float"]>;
-  outstanding_interest?: Maybe<Scalars["Float"]>;
-  outstanding_principal_balance?: Maybe<Scalars["Float"]>;
-};
-
-/** order by avg() on columns of table "purchase_order_loans_view" */
-export type PurchaseOrderLoansViewAvgOrderBy = {
-  amount?: Maybe<OrderBy>;
-  outstanding_fees?: Maybe<OrderBy>;
-  outstanding_interest?: Maybe<OrderBy>;
-  outstanding_principal_balance?: Maybe<OrderBy>;
-};
-
-/** Boolean expression to filter rows from the table "purchase_order_loans_view". All fields are combined with a logical 'AND'. */
-export type PurchaseOrderLoansViewBoolExp = {
-  _and?: Maybe<Array<Maybe<PurchaseOrderLoansViewBoolExp>>>;
-  _not?: Maybe<PurchaseOrderLoansViewBoolExp>;
-  _or?: Maybe<Array<Maybe<PurchaseOrderLoansViewBoolExp>>>;
-  adjusted_maturity_date?: Maybe<DateComparisonExp>;
-  amount?: Maybe<NumericComparisonExp>;
-  artifact_id?: Maybe<UuidComparisonExp>;
-  closed_at?: Maybe<TimestamptzComparisonExp>;
-  company_id?: Maybe<UuidComparisonExp>;
-  id?: Maybe<UuidComparisonExp>;
-  loan_type?: Maybe<StringComparisonExp>;
-  maturity_date?: Maybe<DateComparisonExp>;
-  modified_at?: Maybe<TimestamptzComparisonExp>;
-  modified_by_user_id?: Maybe<UuidComparisonExp>;
-  notes?: Maybe<StringComparisonExp>;
-  origination_date?: Maybe<DateComparisonExp>;
-  outstanding_fees?: Maybe<NumericComparisonExp>;
-  outstanding_interest?: Maybe<NumericComparisonExp>;
-  outstanding_principal_balance?: Maybe<NumericComparisonExp>;
-  rejected_at?: Maybe<TimestamptzComparisonExp>;
-  rejected_by_user_id?: Maybe<UuidComparisonExp>;
-  rejection_notes?: Maybe<StringComparisonExp>;
-  requested_at?: Maybe<TimestamptzComparisonExp>;
-  requested_by_user_id?: Maybe<UuidComparisonExp>;
-  status?: Maybe<StringComparisonExp>;
-};
-
-/** input type for incrementing integer column in table "purchase_order_loans_view" */
-export type PurchaseOrderLoansViewIncInput = {
-  amount?: Maybe<Scalars["numeric"]>;
-  outstanding_fees?: Maybe<Scalars["numeric"]>;
-  outstanding_interest?: Maybe<Scalars["numeric"]>;
-  outstanding_principal_balance?: Maybe<Scalars["numeric"]>;
-};
-
-/** input type for inserting data into table "purchase_order_loans_view" */
-export type PurchaseOrderLoansViewInsertInput = {
-  adjusted_maturity_date?: Maybe<Scalars["date"]>;
-  amount?: Maybe<Scalars["numeric"]>;
-  artifact_id?: Maybe<Scalars["uuid"]>;
-  closed_at?: Maybe<Scalars["timestamptz"]>;
-  company_id?: Maybe<Scalars["uuid"]>;
-  id?: Maybe<Scalars["uuid"]>;
-  loan_type?: Maybe<Scalars["String"]>;
-  maturity_date?: Maybe<Scalars["date"]>;
-  modified_at?: Maybe<Scalars["timestamptz"]>;
-  modified_by_user_id?: Maybe<Scalars["uuid"]>;
-  notes?: Maybe<Scalars["String"]>;
-  origination_date?: Maybe<Scalars["date"]>;
-  outstanding_fees?: Maybe<Scalars["numeric"]>;
-  outstanding_interest?: Maybe<Scalars["numeric"]>;
-  outstanding_principal_balance?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
-  rejected_by_user_id?: Maybe<Scalars["uuid"]>;
-  rejection_notes?: Maybe<Scalars["String"]>;
-  requested_at?: Maybe<Scalars["timestamptz"]>;
-  requested_by_user_id?: Maybe<Scalars["uuid"]>;
-  status?: Maybe<Scalars["String"]>;
-};
-
-/** aggregate max on columns */
-export type PurchaseOrderLoansViewMaxFields = {
-  adjusted_maturity_date?: Maybe<Scalars["date"]>;
-  amount?: Maybe<Scalars["numeric"]>;
-  artifact_id?: Maybe<Scalars["uuid"]>;
-  closed_at?: Maybe<Scalars["timestamptz"]>;
-  company_id?: Maybe<Scalars["uuid"]>;
-  id?: Maybe<Scalars["uuid"]>;
-  loan_type?: Maybe<Scalars["String"]>;
-  maturity_date?: Maybe<Scalars["date"]>;
-  modified_at?: Maybe<Scalars["timestamptz"]>;
-  modified_by_user_id?: Maybe<Scalars["uuid"]>;
-  notes?: Maybe<Scalars["String"]>;
-  origination_date?: Maybe<Scalars["date"]>;
-  outstanding_fees?: Maybe<Scalars["numeric"]>;
-  outstanding_interest?: Maybe<Scalars["numeric"]>;
-  outstanding_principal_balance?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
-  rejected_by_user_id?: Maybe<Scalars["uuid"]>;
-  rejection_notes?: Maybe<Scalars["String"]>;
-  requested_at?: Maybe<Scalars["timestamptz"]>;
-  requested_by_user_id?: Maybe<Scalars["uuid"]>;
-  status?: Maybe<Scalars["String"]>;
-};
-
-/** order by max() on columns of table "purchase_order_loans_view" */
-export type PurchaseOrderLoansViewMaxOrderBy = {
-  adjusted_maturity_date?: Maybe<OrderBy>;
-  amount?: Maybe<OrderBy>;
-  artifact_id?: Maybe<OrderBy>;
-  closed_at?: Maybe<OrderBy>;
-  company_id?: Maybe<OrderBy>;
-  id?: Maybe<OrderBy>;
-  loan_type?: Maybe<OrderBy>;
-  maturity_date?: Maybe<OrderBy>;
-  modified_at?: Maybe<OrderBy>;
-  modified_by_user_id?: Maybe<OrderBy>;
-  notes?: Maybe<OrderBy>;
-  origination_date?: Maybe<OrderBy>;
-  outstanding_fees?: Maybe<OrderBy>;
-  outstanding_interest?: Maybe<OrderBy>;
-  outstanding_principal_balance?: Maybe<OrderBy>;
-  rejected_at?: Maybe<OrderBy>;
-  rejected_by_user_id?: Maybe<OrderBy>;
-  rejection_notes?: Maybe<OrderBy>;
-  requested_at?: Maybe<OrderBy>;
-  requested_by_user_id?: Maybe<OrderBy>;
-  status?: Maybe<OrderBy>;
-};
-
-/** aggregate min on columns */
-export type PurchaseOrderLoansViewMinFields = {
-  adjusted_maturity_date?: Maybe<Scalars["date"]>;
-  amount?: Maybe<Scalars["numeric"]>;
-  artifact_id?: Maybe<Scalars["uuid"]>;
-  closed_at?: Maybe<Scalars["timestamptz"]>;
-  company_id?: Maybe<Scalars["uuid"]>;
-  id?: Maybe<Scalars["uuid"]>;
-  loan_type?: Maybe<Scalars["String"]>;
-  maturity_date?: Maybe<Scalars["date"]>;
-  modified_at?: Maybe<Scalars["timestamptz"]>;
-  modified_by_user_id?: Maybe<Scalars["uuid"]>;
-  notes?: Maybe<Scalars["String"]>;
-  origination_date?: Maybe<Scalars["date"]>;
-  outstanding_fees?: Maybe<Scalars["numeric"]>;
-  outstanding_interest?: Maybe<Scalars["numeric"]>;
-  outstanding_principal_balance?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
-  rejected_by_user_id?: Maybe<Scalars["uuid"]>;
-  rejection_notes?: Maybe<Scalars["String"]>;
-  requested_at?: Maybe<Scalars["timestamptz"]>;
-  requested_by_user_id?: Maybe<Scalars["uuid"]>;
-  status?: Maybe<Scalars["String"]>;
-};
-
-/** order by min() on columns of table "purchase_order_loans_view" */
-export type PurchaseOrderLoansViewMinOrderBy = {
-  adjusted_maturity_date?: Maybe<OrderBy>;
-  amount?: Maybe<OrderBy>;
-  artifact_id?: Maybe<OrderBy>;
-  closed_at?: Maybe<OrderBy>;
-  company_id?: Maybe<OrderBy>;
-  id?: Maybe<OrderBy>;
-  loan_type?: Maybe<OrderBy>;
-  maturity_date?: Maybe<OrderBy>;
-  modified_at?: Maybe<OrderBy>;
-  modified_by_user_id?: Maybe<OrderBy>;
-  notes?: Maybe<OrderBy>;
-  origination_date?: Maybe<OrderBy>;
-  outstanding_fees?: Maybe<OrderBy>;
-  outstanding_interest?: Maybe<OrderBy>;
-  outstanding_principal_balance?: Maybe<OrderBy>;
-  rejected_at?: Maybe<OrderBy>;
-  rejected_by_user_id?: Maybe<OrderBy>;
-  rejection_notes?: Maybe<OrderBy>;
-  requested_at?: Maybe<OrderBy>;
-  requested_by_user_id?: Maybe<OrderBy>;
-  status?: Maybe<OrderBy>;
-};
-
-/** response of any mutation on the table "purchase_order_loans_view" */
-export type PurchaseOrderLoansViewMutationResponse = {
-  /** number of affected rows by the mutation */
-  affected_rows: Scalars["Int"];
-  /** data of the affected rows by the mutation */
-  returning: Array<PurchaseOrderLoansView>;
-};
-
-/** input type for inserting object relation for remote table "purchase_order_loans_view" */
-export type PurchaseOrderLoansViewObjRelInsertInput = {
-  data: PurchaseOrderLoansViewInsertInput;
-};
-
-/** ordering options when selecting data from "purchase_order_loans_view" */
-export type PurchaseOrderLoansViewOrderBy = {
-  adjusted_maturity_date?: Maybe<OrderBy>;
-  amount?: Maybe<OrderBy>;
-  artifact_id?: Maybe<OrderBy>;
-  closed_at?: Maybe<OrderBy>;
-  company_id?: Maybe<OrderBy>;
-  id?: Maybe<OrderBy>;
-  loan_type?: Maybe<OrderBy>;
-  maturity_date?: Maybe<OrderBy>;
-  modified_at?: Maybe<OrderBy>;
-  modified_by_user_id?: Maybe<OrderBy>;
-  notes?: Maybe<OrderBy>;
-  origination_date?: Maybe<OrderBy>;
-  outstanding_fees?: Maybe<OrderBy>;
-  outstanding_interest?: Maybe<OrderBy>;
-  outstanding_principal_balance?: Maybe<OrderBy>;
-  rejected_at?: Maybe<OrderBy>;
-  rejected_by_user_id?: Maybe<OrderBy>;
-  rejection_notes?: Maybe<OrderBy>;
-  requested_at?: Maybe<OrderBy>;
-  requested_by_user_id?: Maybe<OrderBy>;
-  status?: Maybe<OrderBy>;
-};
-
-/** select columns of table "purchase_order_loans_view" */
-export enum PurchaseOrderLoansViewSelectColumn {
-  /** column name */
-  AdjustedMaturityDate = "adjusted_maturity_date",
-  /** column name */
-  Amount = "amount",
-  /** column name */
-  ArtifactId = "artifact_id",
-  /** column name */
-  ClosedAt = "closed_at",
-  /** column name */
-  CompanyId = "company_id",
-  /** column name */
-  Id = "id",
-  /** column name */
-  LoanType = "loan_type",
-  /** column name */
-  MaturityDate = "maturity_date",
-  /** column name */
-  ModifiedAt = "modified_at",
-  /** column name */
-  ModifiedByUserId = "modified_by_user_id",
-  /** column name */
-  Notes = "notes",
-  /** column name */
-  OriginationDate = "origination_date",
-  /** column name */
-  OutstandingFees = "outstanding_fees",
-  /** column name */
-  OutstandingInterest = "outstanding_interest",
-  /** column name */
-  OutstandingPrincipalBalance = "outstanding_principal_balance",
-  /** column name */
-  RejectedAt = "rejected_at",
-  /** column name */
-  RejectedByUserId = "rejected_by_user_id",
-  /** column name */
-  RejectionNotes = "rejection_notes",
-  /** column name */
-  RequestedAt = "requested_at",
-  /** column name */
-  RequestedByUserId = "requested_by_user_id",
-  /** column name */
-  Status = "status",
-}
-
-/** input type for updating data in table "purchase_order_loans_view" */
-export type PurchaseOrderLoansViewSetInput = {
-  adjusted_maturity_date?: Maybe<Scalars["date"]>;
-  amount?: Maybe<Scalars["numeric"]>;
-  artifact_id?: Maybe<Scalars["uuid"]>;
-  closed_at?: Maybe<Scalars["timestamptz"]>;
-  company_id?: Maybe<Scalars["uuid"]>;
-  id?: Maybe<Scalars["uuid"]>;
-  loan_type?: Maybe<Scalars["String"]>;
-  maturity_date?: Maybe<Scalars["date"]>;
-  modified_at?: Maybe<Scalars["timestamptz"]>;
-  modified_by_user_id?: Maybe<Scalars["uuid"]>;
-  notes?: Maybe<Scalars["String"]>;
-  origination_date?: Maybe<Scalars["date"]>;
-  outstanding_fees?: Maybe<Scalars["numeric"]>;
-  outstanding_interest?: Maybe<Scalars["numeric"]>;
-  outstanding_principal_balance?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
-  rejected_by_user_id?: Maybe<Scalars["uuid"]>;
-  rejection_notes?: Maybe<Scalars["String"]>;
-  requested_at?: Maybe<Scalars["timestamptz"]>;
-  requested_by_user_id?: Maybe<Scalars["uuid"]>;
-  status?: Maybe<Scalars["String"]>;
-};
-
-/** aggregate stddev on columns */
-export type PurchaseOrderLoansViewStddevFields = {
-  amount?: Maybe<Scalars["Float"]>;
-  outstanding_fees?: Maybe<Scalars["Float"]>;
-  outstanding_interest?: Maybe<Scalars["Float"]>;
-  outstanding_principal_balance?: Maybe<Scalars["Float"]>;
-};
-
-/** order by stddev() on columns of table "purchase_order_loans_view" */
-export type PurchaseOrderLoansViewStddevOrderBy = {
-  amount?: Maybe<OrderBy>;
-  outstanding_fees?: Maybe<OrderBy>;
-  outstanding_interest?: Maybe<OrderBy>;
-  outstanding_principal_balance?: Maybe<OrderBy>;
-};
-
-/** aggregate stddev_pop on columns */
-export type PurchaseOrderLoansViewStddevPopFields = {
-  amount?: Maybe<Scalars["Float"]>;
-  outstanding_fees?: Maybe<Scalars["Float"]>;
-  outstanding_interest?: Maybe<Scalars["Float"]>;
-  outstanding_principal_balance?: Maybe<Scalars["Float"]>;
-};
-
-/** order by stddev_pop() on columns of table "purchase_order_loans_view" */
-export type PurchaseOrderLoansViewStddevPopOrderBy = {
-  amount?: Maybe<OrderBy>;
-  outstanding_fees?: Maybe<OrderBy>;
-  outstanding_interest?: Maybe<OrderBy>;
-  outstanding_principal_balance?: Maybe<OrderBy>;
-};
-
-/** aggregate stddev_samp on columns */
-export type PurchaseOrderLoansViewStddevSampFields = {
-  amount?: Maybe<Scalars["Float"]>;
-  outstanding_fees?: Maybe<Scalars["Float"]>;
-  outstanding_interest?: Maybe<Scalars["Float"]>;
-  outstanding_principal_balance?: Maybe<Scalars["Float"]>;
-};
-
-/** order by stddev_samp() on columns of table "purchase_order_loans_view" */
-export type PurchaseOrderLoansViewStddevSampOrderBy = {
-  amount?: Maybe<OrderBy>;
-  outstanding_fees?: Maybe<OrderBy>;
-  outstanding_interest?: Maybe<OrderBy>;
-  outstanding_principal_balance?: Maybe<OrderBy>;
-};
-
-/** aggregate sum on columns */
-export type PurchaseOrderLoansViewSumFields = {
-  amount?: Maybe<Scalars["numeric"]>;
-  outstanding_fees?: Maybe<Scalars["numeric"]>;
-  outstanding_interest?: Maybe<Scalars["numeric"]>;
-  outstanding_principal_balance?: Maybe<Scalars["numeric"]>;
-};
-
-/** order by sum() on columns of table "purchase_order_loans_view" */
-export type PurchaseOrderLoansViewSumOrderBy = {
-  amount?: Maybe<OrderBy>;
-  outstanding_fees?: Maybe<OrderBy>;
-  outstanding_interest?: Maybe<OrderBy>;
-  outstanding_principal_balance?: Maybe<OrderBy>;
-};
-
-/** aggregate var_pop on columns */
-export type PurchaseOrderLoansViewVarPopFields = {
-  amount?: Maybe<Scalars["Float"]>;
-  outstanding_fees?: Maybe<Scalars["Float"]>;
-  outstanding_interest?: Maybe<Scalars["Float"]>;
-  outstanding_principal_balance?: Maybe<Scalars["Float"]>;
-};
-
-/** order by var_pop() on columns of table "purchase_order_loans_view" */
-export type PurchaseOrderLoansViewVarPopOrderBy = {
-  amount?: Maybe<OrderBy>;
-  outstanding_fees?: Maybe<OrderBy>;
-  outstanding_interest?: Maybe<OrderBy>;
-  outstanding_principal_balance?: Maybe<OrderBy>;
-};
-
-/** aggregate var_samp on columns */
-export type PurchaseOrderLoansViewVarSampFields = {
-  amount?: Maybe<Scalars["Float"]>;
-  outstanding_fees?: Maybe<Scalars["Float"]>;
-  outstanding_interest?: Maybe<Scalars["Float"]>;
-  outstanding_principal_balance?: Maybe<Scalars["Float"]>;
-};
-
-/** order by var_samp() on columns of table "purchase_order_loans_view" */
-export type PurchaseOrderLoansViewVarSampOrderBy = {
-  amount?: Maybe<OrderBy>;
-  outstanding_fees?: Maybe<OrderBy>;
-  outstanding_interest?: Maybe<OrderBy>;
-  outstanding_principal_balance?: Maybe<OrderBy>;
-};
-
-/** aggregate variance on columns */
-export type PurchaseOrderLoansViewVarianceFields = {
-  amount?: Maybe<Scalars["Float"]>;
-  outstanding_fees?: Maybe<Scalars["Float"]>;
-  outstanding_interest?: Maybe<Scalars["Float"]>;
-  outstanding_principal_balance?: Maybe<Scalars["Float"]>;
-};
-
-/** order by variance() on columns of table "purchase_order_loans_view" */
-export type PurchaseOrderLoansViewVarianceOrderBy = {
-  amount?: Maybe<OrderBy>;
-  outstanding_fees?: Maybe<OrderBy>;
-  outstanding_interest?: Maybe<OrderBy>;
-  outstanding_principal_balance?: Maybe<OrderBy>;
-};
 
 /** columns and relationships of "purchase_order_type_loans" */
 export type PurchaseOrderTypeLoans = {
@@ -6587,10 +6175,6 @@ export type QueryRoot = {
   purchase_order_loans_aggregate: PurchaseOrderLoansAggregate;
   /** fetch data from the table: "purchase_order_loans" using primary key columns */
   purchase_order_loans_by_pk?: Maybe<PurchaseOrderLoans>;
-  /** fetch data from the table: "purchase_order_loans_view" */
-  purchase_order_loans_view: Array<PurchaseOrderLoansView>;
-  /** fetch aggregated fields from the table: "purchase_order_loans_view" */
-  purchase_order_loans_view_aggregate: PurchaseOrderLoansViewAggregate;
   /** fetch data from the table: "purchase_order_type_loans" */
   purchase_order_type_loans: Array<PurchaseOrderTypeLoans>;
   /** fetch aggregated fields from the table: "purchase_order_type_loans" */
@@ -6613,6 +6197,12 @@ export type QueryRoot = {
   revoked_tokens_aggregate: RevokedTokensAggregate;
   /** fetch data from the table: "revoked_tokens" using primary key columns */
   revoked_tokens_by_pk?: Maybe<RevokedTokens>;
+  /** fetch data from the table: "transactions" */
+  transactions: Array<Transactions>;
+  /** fetch aggregated fields from the table: "transactions" */
+  transactions_aggregate: TransactionsAggregate;
+  /** fetch data from the table: "transactions" using primary key columns */
+  transactions_by_pk?: Maybe<Transactions>;
   /** fetch data from the table: "two_factor_links" */
   two_factor_links: Array<TwoFactorLinks>;
   /** fetch aggregated fields from the table: "two_factor_links" */
@@ -6961,24 +6551,6 @@ export type QueryRootPurchaseOrderLoansByPkArgs = {
 };
 
 /** query root */
-export type QueryRootPurchaseOrderLoansViewArgs = {
-  distinct_on?: Maybe<Array<PurchaseOrderLoansViewSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<PurchaseOrderLoansViewOrderBy>>;
-  where?: Maybe<PurchaseOrderLoansViewBoolExp>;
-};
-
-/** query root */
-export type QueryRootPurchaseOrderLoansViewAggregateArgs = {
-  distinct_on?: Maybe<Array<PurchaseOrderLoansViewSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<PurchaseOrderLoansViewOrderBy>>;
-  where?: Maybe<PurchaseOrderLoansViewBoolExp>;
-};
-
-/** query root */
 export type QueryRootPurchaseOrderTypeLoansArgs = {
   distinct_on?: Maybe<Array<PurchaseOrderTypeLoansSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -7062,6 +6634,29 @@ export type QueryRootRevokedTokensAggregateArgs = {
 
 /** query root */
 export type QueryRootRevokedTokensByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** query root */
+export type QueryRootTransactionsArgs = {
+  distinct_on?: Maybe<Array<TransactionsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<TransactionsOrderBy>>;
+  where?: Maybe<TransactionsBoolExp>;
+};
+
+/** query root */
+export type QueryRootTransactionsAggregateArgs = {
+  distinct_on?: Maybe<Array<TransactionsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<TransactionsOrderBy>>;
+  where?: Maybe<TransactionsBoolExp>;
+};
+
+/** query root */
+export type QueryRootTransactionsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -7558,10 +7153,6 @@ export type SubscriptionRoot = {
   purchase_order_loans_aggregate: PurchaseOrderLoansAggregate;
   /** fetch data from the table: "purchase_order_loans" using primary key columns */
   purchase_order_loans_by_pk?: Maybe<PurchaseOrderLoans>;
-  /** fetch data from the table: "purchase_order_loans_view" */
-  purchase_order_loans_view: Array<PurchaseOrderLoansView>;
-  /** fetch aggregated fields from the table: "purchase_order_loans_view" */
-  purchase_order_loans_view_aggregate: PurchaseOrderLoansViewAggregate;
   /** fetch data from the table: "purchase_order_type_loans" */
   purchase_order_type_loans: Array<PurchaseOrderTypeLoans>;
   /** fetch aggregated fields from the table: "purchase_order_type_loans" */
@@ -7584,6 +7175,12 @@ export type SubscriptionRoot = {
   revoked_tokens_aggregate: RevokedTokensAggregate;
   /** fetch data from the table: "revoked_tokens" using primary key columns */
   revoked_tokens_by_pk?: Maybe<RevokedTokens>;
+  /** fetch data from the table: "transactions" */
+  transactions: Array<Transactions>;
+  /** fetch aggregated fields from the table: "transactions" */
+  transactions_aggregate: TransactionsAggregate;
+  /** fetch data from the table: "transactions" using primary key columns */
+  transactions_by_pk?: Maybe<Transactions>;
   /** fetch data from the table: "two_factor_links" */
   two_factor_links: Array<TwoFactorLinks>;
   /** fetch aggregated fields from the table: "two_factor_links" */
@@ -7932,24 +7529,6 @@ export type SubscriptionRootPurchaseOrderLoansByPkArgs = {
 };
 
 /** subscription root */
-export type SubscriptionRootPurchaseOrderLoansViewArgs = {
-  distinct_on?: Maybe<Array<PurchaseOrderLoansViewSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<PurchaseOrderLoansViewOrderBy>>;
-  where?: Maybe<PurchaseOrderLoansViewBoolExp>;
-};
-
-/** subscription root */
-export type SubscriptionRootPurchaseOrderLoansViewAggregateArgs = {
-  distinct_on?: Maybe<Array<PurchaseOrderLoansViewSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<PurchaseOrderLoansViewOrderBy>>;
-  where?: Maybe<PurchaseOrderLoansViewBoolExp>;
-};
-
-/** subscription root */
 export type SubscriptionRootPurchaseOrderTypeLoansArgs = {
   distinct_on?: Maybe<Array<PurchaseOrderTypeLoansSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -8033,6 +7612,29 @@ export type SubscriptionRootRevokedTokensAggregateArgs = {
 
 /** subscription root */
 export type SubscriptionRootRevokedTokensByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** subscription root */
+export type SubscriptionRootTransactionsArgs = {
+  distinct_on?: Maybe<Array<TransactionsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<TransactionsOrderBy>>;
+  where?: Maybe<TransactionsBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootTransactionsAggregateArgs = {
+  distinct_on?: Maybe<Array<TransactionsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<TransactionsOrderBy>>;
+  where?: Maybe<TransactionsBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootTransactionsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -8134,6 +7736,430 @@ export type TimestamptzComparisonExp = {
   _lte?: Maybe<Scalars["timestamptz"]>;
   _neq?: Maybe<Scalars["timestamptz"]>;
   _nin?: Maybe<Array<Scalars["timestamptz"]>>;
+};
+
+/**
+ * Transactions correspond to debits and credits that take place on a loan
+ *
+ *
+ * columns and relationships of "transactions"
+ */
+export type Transactions = {
+  amount: Scalars["numeric"];
+  created_at: Scalars["timestamptz"];
+  created_by_user_id: Scalars["uuid"];
+  id: Scalars["uuid"];
+  loan_id: Scalars["uuid"];
+  modified_at: Scalars["timestamptz"];
+  modified_by_user_id?: Maybe<Scalars["uuid"]>;
+  payment_id: Scalars["uuid"];
+  to_fees: Scalars["numeric"];
+  to_interest: Scalars["numeric"];
+  to_principal: Scalars["numeric"];
+  type?: Maybe<Scalars["String"]>;
+};
+
+/** aggregated selection of "transactions" */
+export type TransactionsAggregate = {
+  aggregate?: Maybe<TransactionsAggregateFields>;
+  nodes: Array<Transactions>;
+};
+
+/** aggregate fields of "transactions" */
+export type TransactionsAggregateFields = {
+  avg?: Maybe<TransactionsAvgFields>;
+  count?: Maybe<Scalars["Int"]>;
+  max?: Maybe<TransactionsMaxFields>;
+  min?: Maybe<TransactionsMinFields>;
+  stddev?: Maybe<TransactionsStddevFields>;
+  stddev_pop?: Maybe<TransactionsStddevPopFields>;
+  stddev_samp?: Maybe<TransactionsStddevSampFields>;
+  sum?: Maybe<TransactionsSumFields>;
+  var_pop?: Maybe<TransactionsVarPopFields>;
+  var_samp?: Maybe<TransactionsVarSampFields>;
+  variance?: Maybe<TransactionsVarianceFields>;
+};
+
+/** aggregate fields of "transactions" */
+export type TransactionsAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<TransactionsSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** order by aggregate values of table "transactions" */
+export type TransactionsAggregateOrderBy = {
+  avg?: Maybe<TransactionsAvgOrderBy>;
+  count?: Maybe<OrderBy>;
+  max?: Maybe<TransactionsMaxOrderBy>;
+  min?: Maybe<TransactionsMinOrderBy>;
+  stddev?: Maybe<TransactionsStddevOrderBy>;
+  stddev_pop?: Maybe<TransactionsStddevPopOrderBy>;
+  stddev_samp?: Maybe<TransactionsStddevSampOrderBy>;
+  sum?: Maybe<TransactionsSumOrderBy>;
+  var_pop?: Maybe<TransactionsVarPopOrderBy>;
+  var_samp?: Maybe<TransactionsVarSampOrderBy>;
+  variance?: Maybe<TransactionsVarianceOrderBy>;
+};
+
+/** input type for inserting array relation for remote table "transactions" */
+export type TransactionsArrRelInsertInput = {
+  data: Array<TransactionsInsertInput>;
+  on_conflict?: Maybe<TransactionsOnConflict>;
+};
+
+/** aggregate avg on columns */
+export type TransactionsAvgFields = {
+  amount?: Maybe<Scalars["Float"]>;
+  to_fees?: Maybe<Scalars["Float"]>;
+  to_interest?: Maybe<Scalars["Float"]>;
+  to_principal?: Maybe<Scalars["Float"]>;
+};
+
+/** order by avg() on columns of table "transactions" */
+export type TransactionsAvgOrderBy = {
+  amount?: Maybe<OrderBy>;
+  to_fees?: Maybe<OrderBy>;
+  to_interest?: Maybe<OrderBy>;
+  to_principal?: Maybe<OrderBy>;
+};
+
+/** Boolean expression to filter rows from the table "transactions". All fields are combined with a logical 'AND'. */
+export type TransactionsBoolExp = {
+  _and?: Maybe<Array<Maybe<TransactionsBoolExp>>>;
+  _not?: Maybe<TransactionsBoolExp>;
+  _or?: Maybe<Array<Maybe<TransactionsBoolExp>>>;
+  amount?: Maybe<NumericComparisonExp>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
+  created_by_user_id?: Maybe<UuidComparisonExp>;
+  id?: Maybe<UuidComparisonExp>;
+  loan_id?: Maybe<UuidComparisonExp>;
+  modified_at?: Maybe<TimestamptzComparisonExp>;
+  modified_by_user_id?: Maybe<UuidComparisonExp>;
+  payment_id?: Maybe<UuidComparisonExp>;
+  to_fees?: Maybe<NumericComparisonExp>;
+  to_interest?: Maybe<NumericComparisonExp>;
+  to_principal?: Maybe<NumericComparisonExp>;
+  type?: Maybe<StringComparisonExp>;
+};
+
+/** unique or primary key constraints on table "transactions" */
+export enum TransactionsConstraint {
+  /** unique or primary key constraint */
+  TransactionsPkey = "transactions_pkey",
+}
+
+/** input type for incrementing integer column in table "transactions" */
+export type TransactionsIncInput = {
+  amount?: Maybe<Scalars["numeric"]>;
+  to_fees?: Maybe<Scalars["numeric"]>;
+  to_interest?: Maybe<Scalars["numeric"]>;
+  to_principal?: Maybe<Scalars["numeric"]>;
+};
+
+/** input type for inserting data into table "transactions" */
+export type TransactionsInsertInput = {
+  amount?: Maybe<Scalars["numeric"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  created_by_user_id?: Maybe<Scalars["uuid"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  loan_id?: Maybe<Scalars["uuid"]>;
+  modified_at?: Maybe<Scalars["timestamptz"]>;
+  modified_by_user_id?: Maybe<Scalars["uuid"]>;
+  payment_id?: Maybe<Scalars["uuid"]>;
+  to_fees?: Maybe<Scalars["numeric"]>;
+  to_interest?: Maybe<Scalars["numeric"]>;
+  to_principal?: Maybe<Scalars["numeric"]>;
+  type?: Maybe<Scalars["String"]>;
+};
+
+/** aggregate max on columns */
+export type TransactionsMaxFields = {
+  amount?: Maybe<Scalars["numeric"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  created_by_user_id?: Maybe<Scalars["uuid"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  loan_id?: Maybe<Scalars["uuid"]>;
+  modified_at?: Maybe<Scalars["timestamptz"]>;
+  modified_by_user_id?: Maybe<Scalars["uuid"]>;
+  payment_id?: Maybe<Scalars["uuid"]>;
+  to_fees?: Maybe<Scalars["numeric"]>;
+  to_interest?: Maybe<Scalars["numeric"]>;
+  to_principal?: Maybe<Scalars["numeric"]>;
+  type?: Maybe<Scalars["String"]>;
+};
+
+/** order by max() on columns of table "transactions" */
+export type TransactionsMaxOrderBy = {
+  amount?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  created_by_user_id?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  loan_id?: Maybe<OrderBy>;
+  modified_at?: Maybe<OrderBy>;
+  modified_by_user_id?: Maybe<OrderBy>;
+  payment_id?: Maybe<OrderBy>;
+  to_fees?: Maybe<OrderBy>;
+  to_interest?: Maybe<OrderBy>;
+  to_principal?: Maybe<OrderBy>;
+  type?: Maybe<OrderBy>;
+};
+
+/** aggregate min on columns */
+export type TransactionsMinFields = {
+  amount?: Maybe<Scalars["numeric"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  created_by_user_id?: Maybe<Scalars["uuid"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  loan_id?: Maybe<Scalars["uuid"]>;
+  modified_at?: Maybe<Scalars["timestamptz"]>;
+  modified_by_user_id?: Maybe<Scalars["uuid"]>;
+  payment_id?: Maybe<Scalars["uuid"]>;
+  to_fees?: Maybe<Scalars["numeric"]>;
+  to_interest?: Maybe<Scalars["numeric"]>;
+  to_principal?: Maybe<Scalars["numeric"]>;
+  type?: Maybe<Scalars["String"]>;
+};
+
+/** order by min() on columns of table "transactions" */
+export type TransactionsMinOrderBy = {
+  amount?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  created_by_user_id?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  loan_id?: Maybe<OrderBy>;
+  modified_at?: Maybe<OrderBy>;
+  modified_by_user_id?: Maybe<OrderBy>;
+  payment_id?: Maybe<OrderBy>;
+  to_fees?: Maybe<OrderBy>;
+  to_interest?: Maybe<OrderBy>;
+  to_principal?: Maybe<OrderBy>;
+  type?: Maybe<OrderBy>;
+};
+
+/** response of any mutation on the table "transactions" */
+export type TransactionsMutationResponse = {
+  /** number of affected rows by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data of the affected rows by the mutation */
+  returning: Array<Transactions>;
+};
+
+/** input type for inserting object relation for remote table "transactions" */
+export type TransactionsObjRelInsertInput = {
+  data: TransactionsInsertInput;
+  on_conflict?: Maybe<TransactionsOnConflict>;
+};
+
+/** on conflict condition type for table "transactions" */
+export type TransactionsOnConflict = {
+  constraint: TransactionsConstraint;
+  update_columns: Array<TransactionsUpdateColumn>;
+  where?: Maybe<TransactionsBoolExp>;
+};
+
+/** ordering options when selecting data from "transactions" */
+export type TransactionsOrderBy = {
+  amount?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  created_by_user_id?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  loan_id?: Maybe<OrderBy>;
+  modified_at?: Maybe<OrderBy>;
+  modified_by_user_id?: Maybe<OrderBy>;
+  payment_id?: Maybe<OrderBy>;
+  to_fees?: Maybe<OrderBy>;
+  to_interest?: Maybe<OrderBy>;
+  to_principal?: Maybe<OrderBy>;
+  type?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "transactions" */
+export type TransactionsPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "transactions" */
+export enum TransactionsSelectColumn {
+  /** column name */
+  Amount = "amount",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  CreatedByUserId = "created_by_user_id",
+  /** column name */
+  Id = "id",
+  /** column name */
+  LoanId = "loan_id",
+  /** column name */
+  ModifiedAt = "modified_at",
+  /** column name */
+  ModifiedByUserId = "modified_by_user_id",
+  /** column name */
+  PaymentId = "payment_id",
+  /** column name */
+  ToFees = "to_fees",
+  /** column name */
+  ToInterest = "to_interest",
+  /** column name */
+  ToPrincipal = "to_principal",
+  /** column name */
+  Type = "type",
+}
+
+/** input type for updating data in table "transactions" */
+export type TransactionsSetInput = {
+  amount?: Maybe<Scalars["numeric"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  created_by_user_id?: Maybe<Scalars["uuid"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  loan_id?: Maybe<Scalars["uuid"]>;
+  modified_at?: Maybe<Scalars["timestamptz"]>;
+  modified_by_user_id?: Maybe<Scalars["uuid"]>;
+  payment_id?: Maybe<Scalars["uuid"]>;
+  to_fees?: Maybe<Scalars["numeric"]>;
+  to_interest?: Maybe<Scalars["numeric"]>;
+  to_principal?: Maybe<Scalars["numeric"]>;
+  type?: Maybe<Scalars["String"]>;
+};
+
+/** aggregate stddev on columns */
+export type TransactionsStddevFields = {
+  amount?: Maybe<Scalars["Float"]>;
+  to_fees?: Maybe<Scalars["Float"]>;
+  to_interest?: Maybe<Scalars["Float"]>;
+  to_principal?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev() on columns of table "transactions" */
+export type TransactionsStddevOrderBy = {
+  amount?: Maybe<OrderBy>;
+  to_fees?: Maybe<OrderBy>;
+  to_interest?: Maybe<OrderBy>;
+  to_principal?: Maybe<OrderBy>;
+};
+
+/** aggregate stddev_pop on columns */
+export type TransactionsStddevPopFields = {
+  amount?: Maybe<Scalars["Float"]>;
+  to_fees?: Maybe<Scalars["Float"]>;
+  to_interest?: Maybe<Scalars["Float"]>;
+  to_principal?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev_pop() on columns of table "transactions" */
+export type TransactionsStddevPopOrderBy = {
+  amount?: Maybe<OrderBy>;
+  to_fees?: Maybe<OrderBy>;
+  to_interest?: Maybe<OrderBy>;
+  to_principal?: Maybe<OrderBy>;
+};
+
+/** aggregate stddev_samp on columns */
+export type TransactionsStddevSampFields = {
+  amount?: Maybe<Scalars["Float"]>;
+  to_fees?: Maybe<Scalars["Float"]>;
+  to_interest?: Maybe<Scalars["Float"]>;
+  to_principal?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev_samp() on columns of table "transactions" */
+export type TransactionsStddevSampOrderBy = {
+  amount?: Maybe<OrderBy>;
+  to_fees?: Maybe<OrderBy>;
+  to_interest?: Maybe<OrderBy>;
+  to_principal?: Maybe<OrderBy>;
+};
+
+/** aggregate sum on columns */
+export type TransactionsSumFields = {
+  amount?: Maybe<Scalars["numeric"]>;
+  to_fees?: Maybe<Scalars["numeric"]>;
+  to_interest?: Maybe<Scalars["numeric"]>;
+  to_principal?: Maybe<Scalars["numeric"]>;
+};
+
+/** order by sum() on columns of table "transactions" */
+export type TransactionsSumOrderBy = {
+  amount?: Maybe<OrderBy>;
+  to_fees?: Maybe<OrderBy>;
+  to_interest?: Maybe<OrderBy>;
+  to_principal?: Maybe<OrderBy>;
+};
+
+/** update columns of table "transactions" */
+export enum TransactionsUpdateColumn {
+  /** column name */
+  Amount = "amount",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  CreatedByUserId = "created_by_user_id",
+  /** column name */
+  Id = "id",
+  /** column name */
+  LoanId = "loan_id",
+  /** column name */
+  ModifiedAt = "modified_at",
+  /** column name */
+  ModifiedByUserId = "modified_by_user_id",
+  /** column name */
+  PaymentId = "payment_id",
+  /** column name */
+  ToFees = "to_fees",
+  /** column name */
+  ToInterest = "to_interest",
+  /** column name */
+  ToPrincipal = "to_principal",
+  /** column name */
+  Type = "type",
+}
+
+/** aggregate var_pop on columns */
+export type TransactionsVarPopFields = {
+  amount?: Maybe<Scalars["Float"]>;
+  to_fees?: Maybe<Scalars["Float"]>;
+  to_interest?: Maybe<Scalars["Float"]>;
+  to_principal?: Maybe<Scalars["Float"]>;
+};
+
+/** order by var_pop() on columns of table "transactions" */
+export type TransactionsVarPopOrderBy = {
+  amount?: Maybe<OrderBy>;
+  to_fees?: Maybe<OrderBy>;
+  to_interest?: Maybe<OrderBy>;
+  to_principal?: Maybe<OrderBy>;
+};
+
+/** aggregate var_samp on columns */
+export type TransactionsVarSampFields = {
+  amount?: Maybe<Scalars["Float"]>;
+  to_fees?: Maybe<Scalars["Float"]>;
+  to_interest?: Maybe<Scalars["Float"]>;
+  to_principal?: Maybe<Scalars["Float"]>;
+};
+
+/** order by var_samp() on columns of table "transactions" */
+export type TransactionsVarSampOrderBy = {
+  amount?: Maybe<OrderBy>;
+  to_fees?: Maybe<OrderBy>;
+  to_interest?: Maybe<OrderBy>;
+  to_principal?: Maybe<OrderBy>;
+};
+
+/** aggregate variance on columns */
+export type TransactionsVarianceFields = {
+  amount?: Maybe<Scalars["Float"]>;
+  to_fees?: Maybe<Scalars["Float"]>;
+  to_interest?: Maybe<Scalars["Float"]>;
+  to_principal?: Maybe<Scalars["Float"]>;
+};
+
+/** order by variance() on columns of table "transactions" */
+export type TransactionsVarianceOrderBy = {
+  amount?: Maybe<OrderBy>;
+  to_fees?: Maybe<OrderBy>;
+  to_interest?: Maybe<OrderBy>;
+  to_principal?: Maybe<OrderBy>;
 };
 
 /**
@@ -9190,6 +9216,12 @@ export type LoansByCompanyAndLoanTypeForBankQuery = {
   >;
 };
 
+export type OpenLoansByCompanyQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+}>;
+
+export type OpenLoansByCompanyQuery = { loans: Array<LoanLimitedFragment> };
+
 export type PurchaseOrderQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -9415,6 +9447,10 @@ export type LoanLimitedFragment = Pick<
   | "origination_date"
   | "maturity_date"
   | "adjusted_maturity_date"
+  | "outstanding_principal_balance"
+  | "outstanding_interest"
+  | "outstanding_fees"
+  | "funded_at"
 >;
 
 export type PurchaseOrderLoanFragment = Pick<
@@ -9939,6 +9975,10 @@ export const LoanLimitedFragmentDoc = gql`
     origination_date
     maturity_date
     adjusted_maturity_date
+    outstanding_principal_balance
+    outstanding_interest
+    outstanding_fees
+    funded_at
   }
 `;
 export const PurchaseOrderLoanFragmentDoc = gql`
@@ -11052,6 +11092,71 @@ export type LoansByCompanyAndLoanTypeForBankLazyQueryHookResult = ReturnType<
 export type LoansByCompanyAndLoanTypeForBankQueryResult = Apollo.QueryResult<
   LoansByCompanyAndLoanTypeForBankQuery,
   LoansByCompanyAndLoanTypeForBankQueryVariables
+>;
+export const OpenLoansByCompanyDocument = gql`
+  query OpenLoansByCompany($companyId: uuid!) {
+    loans(
+      where: {
+        _and: [
+          { company_id: { _eq: $companyId } }
+          { funded_at: { _is_null: false } }
+          { closed_at: { _is_null: true } }
+        ]
+      }
+    ) {
+      ...LoanLimited
+    }
+  }
+  ${LoanLimitedFragmentDoc}
+`;
+
+/**
+ * __useOpenLoansByCompanyQuery__
+ *
+ * To run a query within a React component, call `useOpenLoansByCompanyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useOpenLoansByCompanyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useOpenLoansByCompanyQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useOpenLoansByCompanyQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    OpenLoansByCompanyQuery,
+    OpenLoansByCompanyQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    OpenLoansByCompanyQuery,
+    OpenLoansByCompanyQueryVariables
+  >(OpenLoansByCompanyDocument, baseOptions);
+}
+export function useOpenLoansByCompanyLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    OpenLoansByCompanyQuery,
+    OpenLoansByCompanyQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    OpenLoansByCompanyQuery,
+    OpenLoansByCompanyQueryVariables
+  >(OpenLoansByCompanyDocument, baseOptions);
+}
+export type OpenLoansByCompanyQueryHookResult = ReturnType<
+  typeof useOpenLoansByCompanyQuery
+>;
+export type OpenLoansByCompanyLazyQueryHookResult = ReturnType<
+  typeof useOpenLoansByCompanyLazyQuery
+>;
+export type OpenLoansByCompanyQueryResult = Apollo.QueryResult<
+  OpenLoansByCompanyQuery,
+  OpenLoansByCompanyQueryVariables
 >;
 export const PurchaseOrderDocument = gql`
   query PurchaseOrder($id: uuid!) {
