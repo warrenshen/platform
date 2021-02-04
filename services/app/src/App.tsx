@@ -21,7 +21,8 @@ import BankLoansLineOfCreditPage from "pages/Bank/LoansLineOfCredit";
 import BankLoansMaturingPage from "pages/Bank/LoansMaturing";
 import BankLoansPastDuePage from "pages/Bank/LoansPastDue";
 import BankLoansPurchaseOrderPage from "pages/Bank/LoansPurchaseOrder";
-import BankVendors from "pages/Bank/Vendors";
+import BankPaymentsPage from "pages/Bank/Payments";
+import BankVendorsPage from "pages/Bank/Vendors";
 import CompanyProfilePage from "pages/Customer/CompanyProfile";
 import {
   default as CustomerVendorsPage,
@@ -222,10 +223,17 @@ function App() {
           </PrivateRoute>
           <PrivateRoute
             exact
+            path={bankRoutes.payments}
+            requiredRoles={[UserRolesEnum.BankAdmin]}
+          >
+            <BankPaymentsPage></BankPaymentsPage>
+          </PrivateRoute>
+          <PrivateRoute
+            exact
             path={bankRoutes.vendors}
             requiredRoles={[UserRolesEnum.BankAdmin]}
           >
-            <BankVendors></BankVendors>
+            <BankVendorsPage></BankVendorsPage>
           </PrivateRoute>
         </Layout>
       </Switch>

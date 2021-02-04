@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function Customers() {
+function BankCustomersPage() {
   const classes = useStyles();
 
   useTitle("Customers | Bespoke");
@@ -80,4 +80,4 @@ function Customers() {
   );
 }
 
-export default Customers;
+export default BankCustomersPage;

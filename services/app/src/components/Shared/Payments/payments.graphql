@@ -1,0 +1,10 @@
+query Payments {
+  payments {
+    id
+    ...Payment
+    company {
+      id
+      name
+    }
+  }
+}

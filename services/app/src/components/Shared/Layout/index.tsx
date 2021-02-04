@@ -109,12 +109,16 @@ const BANK_LEFT_NAV_ITEMS = [
     link: bankRoutes.loansLineOfCredit,
   },
   {
-    text: "Vendors",
-    link: bankRoutes.vendors,
+    text: "Payments",
+    link: bankRoutes.payments,
   },
   {
     text: "Customers",
     link: bankRoutes.customers,
+  },
+  {
+    text: "Vendors",
+    link: bankRoutes.vendors,
   },
   {
     text: "Users",

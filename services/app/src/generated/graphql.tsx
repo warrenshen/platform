@@ -9222,6 +9222,16 @@ export type OpenLoansByCompanyQueryVariables = Exact<{
 
 export type OpenLoansByCompanyQuery = { loans: Array<LoanLimitedFragment> };
 
+export type PaymentsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type PaymentsQuery = {
+  payments: Array<
+    Pick<Payments, "id"> & {
+      company: Pick<Companies, "id" | "name">;
+    } & PaymentFragment
+  >;
+};
+
 export type PurchaseOrderQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -11157,6 +11167,62 @@ export type OpenLoansByCompanyLazyQueryHookResult = ReturnType<
 export type OpenLoansByCompanyQueryResult = Apollo.QueryResult<
   OpenLoansByCompanyQuery,
   OpenLoansByCompanyQueryVariables
+>;
+export const PaymentsDocument = gql`
+  query Payments {
+    payments {
+      id
+      ...Payment
+      company {
+        id
+        name
+      }
+    }
+  }
+  ${PaymentFragmentDoc}
+`;
+
+/**
+ * __usePaymentsQuery__
+ *
+ * To run a query within a React component, call `usePaymentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePaymentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePaymentsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function usePaymentsQuery(
+  baseOptions?: Apollo.QueryHookOptions<PaymentsQuery, PaymentsQueryVariables>
+) {
+  return Apollo.useQuery<PaymentsQuery, PaymentsQueryVariables>(
+    PaymentsDocument,
+    baseOptions
+  );
+}
+export function usePaymentsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    PaymentsQuery,
+    PaymentsQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<PaymentsQuery, PaymentsQueryVariables>(
+    PaymentsDocument,
+    baseOptions
+  );
+}
+export type PaymentsQueryHookResult = ReturnType<typeof usePaymentsQuery>;
+export type PaymentsLazyQueryHookResult = ReturnType<
+  typeof usePaymentsLazyQuery
+>;
+export type PaymentsQueryResult = Apollo.QueryResult<
+  PaymentsQuery,
+  PaymentsQueryVariables
 >;
 export const PurchaseOrderDocument = gql`
   query PurchaseOrder($id: uuid!) {

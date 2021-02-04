@@ -47,5 +47,6 @@ export const bankRoutes = {
   loansMaturing: "/loans-maturing",
   loansPastDue: "/loans-past-due",
   loansPurchaseOrder: "/loans-purchase-order",
+  payments: "/payments",
   vendors: "/vendors",
 };
