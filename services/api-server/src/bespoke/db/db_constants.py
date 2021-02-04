@@ -17,6 +17,8 @@ class PaymentType(object):
 	REPAYMENT = 'repayment'
 	ADVANCE = 'advance'
 
+# There might be many payment types that represent an advance
+ADVANCE_TYPES = set([PaymentType.ADVANCE])
 
 # Having any of these roles means you are a Bespoke bank user
 BANK_ROLES = ['bank_admin']

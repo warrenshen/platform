@@ -33,11 +33,6 @@ class HandleAdvanceView(MethodView):
 				return handler_util.make_error_response(
 					'Missing key {} from handle payment request'.format(key))
 
-		user_session = auth_util.UserSession.from_session()
-
-		if not user_session.is_bank_or_this_company_admin(form['company_id']):
-			return handler_util.make_error_response('Access Denied')
-
 		payment = form['payment']
 		company_id = form['company_id']
 
@@ -53,5 +48,41 @@ class HandleAdvanceView(MethodView):
 			'status': 'OK'
 		}), 200)
 
+class CreateTransactionsFromAdvanceView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = ['loan_ids', 'payment_id', 'company_id']
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} from create transactions from advance request'.format(key))
+
+		user_session = auth_util.UserSession.from_session()
+		loan_ids = form['loan_ids']
+		payment_id = form['payment_id']
+		company_id = form['company_id']
+
+		resp, err = payment_util.fund_loans_with_advance(
+			bank_admin_user_id=user_session.get_user_id(),
+			company_id=company_id, loan_ids=loan_ids, payment_id=payment_id,
+			session_maker=current_app.session_maker)
+		
+		if err:
+			return handler_util.make_error_response(err)
+
+		resp['status'] = 'OK'
+		return make_response(json.dumps(resp), 200)
+
+
 handler.add_url_rule(
 	'/handle_advance', view_func=HandleAdvanceView.as_view(name='handle_advance_view'))
+
+handler.add_url_rule(
+	'/create_transactions_from_advance', view_func=CreateTransactionsFromAdvanceView.as_view(name='create_transactions_from_advance_view'))

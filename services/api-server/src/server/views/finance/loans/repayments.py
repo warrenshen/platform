@@ -32,6 +32,11 @@ class CalculateEffectOfPaymentView(MethodView):
 				return handler_util.make_error_response(
 					'Missing key {} from calculate effect of payment request'.format(key))
 
+		user_session = auth_util.UserSession.from_session()
+
+		if not user_session.is_bank_or_this_company_admin(form['company_id']):
+			return handler_util.make_error_response('Access Denied')
+
 		payment = form['payment']
 		if type(payment['amount']) != float and type(payment['amount']) != int:
 			return handler_util.make_error_response('Amount must be a number')
@@ -53,10 +58,8 @@ class CalculateEffectOfPaymentView(MethodView):
 		if err:
 			return handler_util.make_error_response(err)
 
-		return make_response(json.dumps({
-			'status': 'OK',
-			'effect': effect_resp
-		}))
+		effect_resp['status'] = 'OK'
+		return make_response(json.dumps(effect_resp))
 
 class HandlePaymentView(MethodView):
 	decorators = [auth_util.login_required]

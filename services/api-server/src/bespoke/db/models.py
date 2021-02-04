@@ -1,4 +1,5 @@
 import datetime
+import decimal
 import logging
 import os
 import time
@@ -230,17 +231,15 @@ class PurchaseOrder(Base):
 			status=self.status
 		)
 
-LoanDict = TypedDict('LoanDict', {
-	'id': str,
-	'origination_date': datetime.date,
-	'amount': float,
-	'status': str
-})
-
 TransactionDict = TypedDict('TransactionDict', {
 	'id': str,
 	'type': str,
-	'amount': float
+	'amount': float,
+	'loan_id': str,
+	'payment_id': str,
+	'to_principal': float,
+	'to_interest': float,
+	'to_fees': float
 })
 
 class Transaction(Base):
@@ -248,34 +247,62 @@ class Transaction(Base):
 	if TYPE_CHECKING:
 		def __init__(self) -> None:
 			self.__table__: Any = None
-			self.id: uuid.UUID = None
+			self.id: UUID = None
 			self.type: str = None
 			self.amount: float = None
+			self.loan_id: UUID = None
+			self.payment_id: UUID = None
+			self.to_principal: float = None
+			self.to_interest: float = None
+			self.to_fees: float = None
+			self.created_by_user_id: UUID = None
 	else:
 		id = Column(UUID(as_uuid=True), primary_key=True,
 					default=uuid.uuid4, unique=True)
+		type = Column(Text)
+		amount = Column(Numeric, nullable=False)
+		loan_id = Column(UUID(as_uuid=True), nullable=False)
+		payment_id = Column(UUID(as_uuid=True), nullable=False)
+		to_principal = Column(Numeric)
+		to_interest = Column(Numeric)
+		to_fees = Column(Numeric)
+		created_by_user_id = Column(UUID(as_uuid=True))
 
 	def as_dict(self) -> TransactionDict:
 		return TransactionDict(
 			id=str(self.id),
 			type=self.type,
-			amount=self.amount
+			amount=self.amount,
+			loan_id=str(self.loan_id),
+			payment_id=str(self.payment_id),
+			to_principal=self.to_principal,
+			to_interest=self.to_interest,
+			to_fees=self.to_fees
 		)
 
+
+LoanDict = TypedDict('LoanDict', {
+	'id': str,
+	'origination_date': datetime.date,
+	'amount': float,
+	'status': str
+})
 
 class Loan(Base):
 	__tablename__ = 'loans'
 	if TYPE_CHECKING:
 		def __init__(self) -> None:
 			self.__table__: Any = None
-			self.id: uuid.UUID = None
-			self.company_id: uuid.UUID = None
+			self.id: UUID = None
+			self.company_id: UUID = None
 			self.loan_type: str = None
-			self.artifact_id: uuid.UUID = None
+			self.artifact_id: UUID = None
 			self.origination_date: datetime.date = None
 			self.amount: float = None
 			self.status: str = None
 			self.requested_at: datetime.datetime = None
+			self.funded_at: datetime.datetime = None
+			self.funded_by_user_id: UUID = None
 	else:
 		id = Column(UUID(as_uuid=True), primary_key=True,
 					default=uuid.uuid4, unique=True)
@@ -286,6 +313,8 @@ class Loan(Base):
 		amount = Column(Numeric)
 		status = Column(String)
 		requested_at = Column(DateTime)
+		funded_at = Column(DateTime)
+		funded_by_user_id = Column(UUID(as_uuid=True))
 
 	def as_dict(self) -> LoanDict:
 		return LoanDict(
@@ -315,6 +344,7 @@ class Payment(Base):
 			self.company_id: UUID = None
 			self.method: str = None
 			self.submitted_at: datetime.datetime = None
+			self.applied_at: datetime.datetime = None
 	else:
 		id = Column(UUID(as_uuid=True), primary_key=True,
 					default=uuid.uuid4, unique=True)
@@ -323,12 +353,13 @@ class Payment(Base):
 		company_id = Column(UUID(as_uuid=True), nullable=False)
 		method = Column(String)
 		submitted_at = Column(DateTime)
+		applied_at = Column(DateTime)
 
 	def as_dict(self) -> PaymentDict:
 		return PaymentDict(
 			id=str(self.id),
 			type=self.type,
-			amount=self.amount,
+			amount=float(self.amount),
 			method=self.method,
 			submitted_at=self.submitted_at
 		)
