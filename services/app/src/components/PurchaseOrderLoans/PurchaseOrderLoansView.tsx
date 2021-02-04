@@ -1,6 +1,7 @@
 import { Box, Button } from "@material-ui/core";
 import RepaymentButton from "components/Customer/PurchaseOrderLoanRepayment/RepaymentButton";
 import Can from "components/Shared/Can";
+import ViewLoanModal from "components/Shared/Loans/ViewLoanModal";
 import {
   LoanFragment,
   RequestStatusEnum,
@@ -26,11 +27,14 @@ function PurchaseOrderLoansView({
   purchaseOrderLoans,
   refetch,
 }: Props) {
-  // State for Purchase Order modal(s).
+  // State for create / update Purchase Order modal(s).
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [targetPurchaseOrderLoanId, setTargetPurchaseOrderLoanId] = useState(
     ""
   );
+
+  // State for view Purchase Order modal.
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
   // State for Loan modal(s).
   const [isUpdateLoanNotesModalOpen, setIsUpdateLoanNotesModalOpen] = useState(
@@ -38,15 +42,20 @@ function PurchaseOrderLoansView({
   );
   const [targetLoanId, setTargetLoanId] = useState("");
 
-  const handleEditPurchaseOrderLoan = (purchaseOrderLoanId: string) => {
-    setTargetPurchaseOrderLoanId(purchaseOrderLoanId);
-    setIsModalOpen(true);
-  };
-
   const [
     updateLoan,
     { loading: isUpdateLoanLoading },
   ] = useUpdateLoanMutation();
+
+  const handleViewLoan = (loanId: string) => {
+    setTargetLoanId(loanId);
+    setIsViewModalOpen(true);
+  };
+
+  const handleEditPurchaseOrderLoan = (purchaseOrderLoanId: string) => {
+    setTargetPurchaseOrderLoanId(purchaseOrderLoanId);
+    setIsModalOpen(true);
+  };
 
   const handleApproveLoan = async (loanId: string) => {
     // TODO (Warren): do we need a Loans.approved_at?
@@ -93,6 +102,15 @@ function PurchaseOrderLoansView({
 
   return (
     <Box flex={1} display="flex" flexDirection="column" width="100%">
+      {isViewModalOpen && (
+        <ViewLoanModal
+          loanId={targetLoanId}
+          handleClose={() => {
+            setTargetLoanId("");
+            setIsViewModalOpen(false);
+          }}
+        ></ViewLoanModal>
+      )}
       {isModalOpen && (
         <CreateUpdatePurchaseOrderLoanModal
           actionType={
@@ -140,6 +158,7 @@ function PurchaseOrderLoansView({
           handleApproveLoan={handleApproveLoan}
           handleEditLoanNotes={handleEditLoanNotes}
           handleEditPurchaseOrderLoan={handleEditPurchaseOrderLoan}
+          handleViewLoan={handleViewLoan}
           handleRejectLoan={handleRejectLoan}
         ></ListPurchaseOrderLoans>
       </Box>

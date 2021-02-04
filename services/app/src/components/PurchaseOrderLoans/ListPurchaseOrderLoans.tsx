@@ -11,7 +11,7 @@ import DataGrid, {
   Paging,
   Selection,
 } from "devextreme-react/data-grid";
-import { LoanFragment, Maybe } from "generated/graphql";
+import { LoanFragment, Maybe, Scalars } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import React, { useContext } from "react";
 
@@ -26,10 +26,11 @@ function getRows(purchaseOrderLoans: Maybe<LoanFragment[]>): RowsProp {
 }
 interface Props {
   purchaseOrderLoans: LoanFragment[];
-  handleApproveLoan: (loanId: string) => void;
-  handleEditLoanNotes: (loanId: string) => void;
-  handleEditPurchaseOrderLoan: (purchaseOrderLoanId: string) => void;
-  handleRejectLoan: (loanId: string) => void;
+  handleApproveLoan: (loanId: Scalars["uuid"]) => void;
+  handleEditLoanNotes: (loanId: Scalars["uuid"]) => void;
+  handleEditPurchaseOrderLoan: (purchaseOrderLoanId: Scalars["uuid"]) => void;
+  handleViewLoan: (loanId: Scalars["uuid"]) => void;
+  handleRejectLoan: (loanId: Scalars["uuid"]) => void;
 }
 
 function ListPurchaseOrderLoans({
@@ -37,6 +38,7 @@ function ListPurchaseOrderLoans({
   handleApproveLoan,
   handleEditLoanNotes,
   handleEditPurchaseOrderLoan,
+  handleViewLoan,
   handleRejectLoan,
 }: Props) {
   const { user } = useContext(CurrentUserContext);
@@ -67,6 +69,11 @@ function ListPurchaseOrderLoans({
   const actionCellRenderer = (params: ValueFormatterParams) => (
     <ActionMenu
       actionItems={[
+        {
+          key: "view-loan",
+          label: "View",
+          handleClick: () => handleViewLoan(params.row.data.id as string),
+        },
         ...(check(user.role, Action.EditPurchaseOrderLoan)
           ? [
               {
