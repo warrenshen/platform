@@ -1,11 +1,19 @@
+import { Box, Button } from "@material-ui/core";
+import CreatePaymentAdvanceModal from "components/Bank/Payment/CreatePaymentAdvanceModal";
 import PurchaseOrderLoansView from "components/PurchaseOrderLoans/PurchaseOrderLoansView";
 import {
+  LoanFragment,
   LoanTypeEnum,
   useLoansByCompanyAndLoanTypeForBankQuery,
 } from "generated/graphql";
 import useCompanyContext from "hooks/useCompanyContext";
-function Loans() {
+import React, { useState } from "react";
+
+function BankCustomerLoansSubpage() {
   const companyId = useCompanyContext();
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
 
   const {
     data,
@@ -27,12 +35,33 @@ function Loans() {
   const purchaseOrderLoans = data?.loans || [];
 
   return (
-    <PurchaseOrderLoansView
-      isDataLoading={isLoansLoading}
-      purchaseOrderLoans={purchaseOrderLoans}
-      refetch={refetch}
-    ></PurchaseOrderLoansView>
+    <Box>
+      {isCreateModalOpen && (
+        <CreatePaymentAdvanceModal
+          selectedLoans={selectedLoans}
+          handleClose={() => {
+            setIsCreateModalOpen(false);
+          }}
+        ></CreatePaymentAdvanceModal>
+      )}
+      <Box mb={2} display="flex" flexDirection="row-reverse">
+        <Button
+          disabled={selectedLoans.length <= 0}
+          variant="contained"
+          color="primary"
+          onClick={() => setIsCreateModalOpen(true)}
+        >
+          Create Payment Advance
+        </Button>
+      </Box>
+      <PurchaseOrderLoansView
+        isDataLoading={isLoansLoading}
+        purchaseOrderLoans={purchaseOrderLoans}
+        refetch={refetch}
+        handleSelectLoans={(loans) => setSelectedLoans(loans)}
+      ></PurchaseOrderLoansView>
+    </Box>
   );
 }
 
-export default Loans;
+export default BankCustomerLoansSubpage;

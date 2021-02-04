@@ -17,7 +17,8 @@ import UpdateLoanNotesModal from "./UpdateLoanNotesModal";
 interface Props {
   isDataLoading: boolean;
   purchaseOrderLoans: LoanFragment[];
-  refetch: () => {};
+  refetch: () => void;
+  handleSelectLoans?: (loans: LoanFragment[]) => void;
 }
 /**
  * This component is shared between a bank user and a customer user use case.
@@ -26,6 +27,7 @@ function PurchaseOrderLoansView({
   isDataLoading,
   purchaseOrderLoans,
   refetch,
+  handleSelectLoans = () => {},
 }: Props) {
   // State for create / update Purchase Order modal(s).
   const [isCreateUpdateModalOpen, setIsCreateUpdateModalOpen] = useState(false);
@@ -153,6 +155,7 @@ function PurchaseOrderLoansView({
           handleEditPurchaseOrderLoan={handleEditPurchaseOrderLoan}
           handleViewLoan={handleViewLoan}
           handleRejectLoan={handleRejectLoan}
+          handleSelectLoans={handleSelectLoans}
         ></ListPurchaseOrderLoans>
       </Box>
     </Box>

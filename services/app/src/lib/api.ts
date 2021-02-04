@@ -29,6 +29,7 @@ export const purchaseOrdersRoutes = {
 };
 
 export const loansRoutes = {
+  createPaymentAdvance: "/finance/loans/advances/handle_advance",
   submitForApproval: "/finance/loans/approvals/submit_for_approval",
   makePayment: "/finance/loans/repayments/handle_payment",
   calculateEffectOfPayment:

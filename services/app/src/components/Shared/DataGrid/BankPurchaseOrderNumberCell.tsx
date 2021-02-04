@@ -1,5 +1,5 @@
-import PurchaseOrderLoanDrawer from "components/Shared/PurchaseOrderLoanDrawer";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
+import PurchaseOrderLoanDrawer from "components/Shared/PurchaseOrderLoanDrawer";
 import { PurchaseOrderLoans, PurchaseOrders } from "generated/graphql";
 import React, { useState } from "react";
 

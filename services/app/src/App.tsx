@@ -87,16 +87,6 @@ function App() {
           </PrivateRoute>
           <PrivateRoute
             exact
-            path={routes.root}
-            requiredRoles={[
-              UserRolesEnum.BankAdmin,
-              UserRolesEnum.CompanyAdmin,
-            ]}
-          >
-            <Home></Home>
-          </PrivateRoute>
-          <PrivateRoute
-            exact
             path={routes.profile}
             requiredRoles={[
               UserRolesEnum.BankAdmin,

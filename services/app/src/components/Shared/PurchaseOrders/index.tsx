@@ -62,7 +62,7 @@ function PurchaseOrders() {
           }}
         ></ViewPurchaseOrderModal>
       )}
-      <Box pb={2} display="flex" flexDirection="row-reverse">
+      <Box mb={2} display="flex" flexDirection="row-reverse">
         <Can perform={Action.AddPurchaseOrders}>
           <Button
             onClick={() => setIsEditModalOpen(true)}

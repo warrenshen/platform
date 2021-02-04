@@ -82,7 +82,6 @@ function ReviewPurchaseOrderPage(props: Props) {
       purchaseOrder?.status
     )
   ) {
-    console.log({ hello: "hello" });
     // If Purchase Order is already reviewed, redirect the user to the complete page.
     // This is so the user cannot re-review an already reviewed Purchase Order.
     history.replace(anonymousRoutes.reviewPurchaseOrderComplete);

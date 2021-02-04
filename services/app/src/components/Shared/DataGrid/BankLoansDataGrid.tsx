@@ -3,23 +3,18 @@ import Status from "components/Shared/Chip/Status";
 import ActionMenu from "components/Shared/DataGrid/ActionMenu";
 import DataGrid, {
   Column,
+  FilterRow,
   IColumnProps,
   Pager,
   Paging,
-  FilterRow,
 } from "devextreme-react/data-grid";
-import { LoanFragment, Maybe, RequestStatusEnum } from "generated/graphql";
+import { LoanFragment, RequestStatusEnum } from "generated/graphql";
 import { useEffect, useState } from "react";
-// import BankPurchaseOrderNumberCell from "./BankPurchaseOrderNumberCell";
 
-function getRows(purchaseOrderLoans: Maybe<LoanFragment[]>): RowsProp {
-  return purchaseOrderLoans
-    ? purchaseOrderLoans.map((item) => {
-        return {
-          ...item,
-        };
-      })
-    : [];
+function getRows(purchaseOrderLoans: LoanFragment[]): RowsProp {
+  return purchaseOrderLoans.map((item) => ({
+    ...item,
+  }));
 }
 
 interface Props {
@@ -63,14 +58,7 @@ function BankLoansDataGrid({
     if (filterByStatus) {
       dataGrid.instance.filter(["status", "=", filterByStatus]);
     }
-  }, [dataGrid, loansPastDue, matureDays]);
-
-  // const purchaseOrderNumberRenderer = (params: ValueFormatterParams) => (
-  //   <BankPurchaseOrderNumberCell
-  //     purchaseOrderLoanId={params.row.data.id}
-  //     purchaseOrderNumber={params.row.data.purchase_order.order_number}
-  //   />
-  // );
+  }, [dataGrid, filterByStatus, loansPastDue, matureDays]);
 
   const maturingInDaysRenderer = (value: any) => {
     const maturityTime = getMaturityDate(value.data).getTime();

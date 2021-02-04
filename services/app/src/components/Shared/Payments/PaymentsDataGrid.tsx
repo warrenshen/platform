@@ -30,7 +30,6 @@ function PaymentsDataGrid({
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = getRows(payments);
-  console.log({ customerSearchQuery });
 
   const companyNameRenderer = (params: ValueFormatterParams) => {
     return (

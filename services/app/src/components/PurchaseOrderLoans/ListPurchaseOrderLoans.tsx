@@ -31,6 +31,7 @@ interface Props {
   handleEditPurchaseOrderLoan: (purchaseOrderLoanId: Scalars["uuid"]) => void;
   handleViewLoan: (loanId: Scalars["uuid"]) => void;
   handleRejectLoan: (loanId: Scalars["uuid"]) => void;
+  handleSelectLoans?: (loans: LoanFragment[]) => void;
 }
 
 function ListPurchaseOrderLoans({
@@ -40,6 +41,7 @@ function ListPurchaseOrderLoans({
   handleEditPurchaseOrderLoan,
   handleViewLoan,
   handleRejectLoan,
+  handleSelectLoans = () => {},
 }: Props) {
   const { user } = useContext(CurrentUserContext);
 
@@ -173,7 +175,7 @@ function ListPurchaseOrderLoans({
 
   const onSelectionChanged = (params: any) => {
     const { selectedRowsData } = params;
-    console.log(selectedRowsData);
+    handleSelectLoans(selectedRowsData as LoanFragment[]);
   };
 
   return (

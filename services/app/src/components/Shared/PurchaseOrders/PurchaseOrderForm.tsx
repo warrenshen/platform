@@ -4,6 +4,7 @@ import {
   createStyles,
   FormControl,
   FormControlLabel,
+  Grid,
   InputLabel,
   makeStyles,
   MenuItem,
@@ -159,17 +160,14 @@ function PurchaseOrderForm({
       </Box>
       <Box mt={3}>
         <Typography variant="subtitle1" color="textSecondary">
-          Purchase Order File Attachment
-        </Typography>
-        <Typography variant="body2" color="textSecondary">
-          Please upload a Purchase Order file.
+          File Attachment (1 file required)
         </Typography>
         {purchaseOrderFile && (
-          <Box>
+          <Grid item>
             <DownloadThumbnail
               fileIds={[purchaseOrderFile.file_id]}
             ></DownloadThumbnail>
-          </Box>
+          </Grid>
         )}
         <FileUploadDropzone
           companyId={companyId}
@@ -188,6 +186,11 @@ function PurchaseOrderForm({
             });
           }}
         ></FileUploadDropzone>
+        <Box>
+          {purchaseOrderFile
+            ? "File is uploaded"
+            : "Please upload a file (don't forget to press SAVE)"}
+        </Box>
       </Box>
       <Box mt={3}>
         <FormControlLabel
@@ -211,18 +214,14 @@ function PurchaseOrderForm({
           <Typography variant="subtitle1" color="textSecondary">
             Cannabis File Attachments
           </Typography>
-          <Typography variant="body2" color="textSecondary">
-            Please upload a Shipping Manifest and a Certificate of Analysis
-            file.
-          </Typography>
           {purchaseOrderCannabisFiles.length > 0 && (
-            <Box>
+            <Grid item>
               <DownloadThumbnail
                 fileIds={purchaseOrderCannabisFiles.map(
                   (purchaseOrderFile) => purchaseOrderFile.file_id
                 )}
               ></DownloadThumbnail>
-            </Box>
+            </Grid>
           )}
           <FileUploadDropzone
             companyId={companyId}
@@ -242,6 +241,11 @@ function PurchaseOrderForm({
               );
             }}
           ></FileUploadDropzone>
+          <Box>
+            {purchaseOrderFile
+              ? `${purchaseOrderCannabisFiles.length} file(s) uploaded`
+              : "Please upload file(s) (don't forget to press SAVE)"}
+          </Box>
         </Box>
       )}
     </Box>

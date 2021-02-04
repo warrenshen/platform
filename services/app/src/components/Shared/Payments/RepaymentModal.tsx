@@ -22,23 +22,16 @@ import {
   Companies,
   PaymentsInsertInput,
 } from "generated/graphql";
+import { AllPaymentMethods, PaymentMethodEnum } from "lib/enum";
 import { useCallback, useState } from "react";
 
-export enum PaymentMethod {
-  ACH = "ach",
-  ReverseDraftACH = "reverse_draft_ach",
-  Wire = "wire",
-  Check = "check",
-  Cash = "cash",
-  None = "none",
-}
 interface Props {
   companyId: Companies["id"];
   type: PaymentTransferType;
   errMsg: string;
   handleClose: () => void;
   initialAmount?: number;
-  allowablePaymentTypes?: Array<PaymentMethod>;
+  allowablePaymentTypes?: Array<PaymentMethodEnum>;
   onCreate?: (payment: PaymentsInsertInput) => void;
   onCalculateEffectOfPayment?: (payment: PaymentsInsertInput) => void;
   effectComponent: () => React.ReactNode;
@@ -49,7 +42,7 @@ function PaymentModal(props: Props) {
     company_id: props.companyId,
     type: props.type,
     amount: props.initialAmount,
-    method: PaymentMethod.None,
+    method: PaymentMethodEnum.None,
     deposit_date: null,
   });
 
@@ -72,7 +65,7 @@ function PaymentModal(props: Props) {
   );
 
   const isScheduleButtonEnabled =
-    payment.method === PaymentMethod.ReverseDraftACH &&
+    payment.method === PaymentMethodEnum.ReverseDraftACH &&
     payment.amount > 0 &&
     payment.deposit_date;
 
@@ -132,28 +125,21 @@ function PaymentModal(props: Props) {
               value={payment.method}
               onChange={({ target: { value } }) => {
                 setPayment((payment) => {
-                  return { ...payment, method: value as PaymentMethod };
+                  return { ...payment, method: value as PaymentMethodEnum };
                 });
               }}
               style={{ width: 200 }}
             >
-              {(
-                props.allowablePaymentTypes || [
-                  PaymentMethod.None,
-                  PaymentMethod.ACH,
-                  PaymentMethod.ReverseDraftACH,
-                  PaymentMethod.Wire,
-                  PaymentMethod.Cash,
-                  PaymentMethod.Check,
-                ]
-              ).map((paymentType) => {
-                return <MenuItem value={paymentType}>{paymentType}</MenuItem>;
-              })}
+              {(props.allowablePaymentTypes || AllPaymentMethods).map(
+                (paymentType) => {
+                  return <MenuItem value={paymentType}>{paymentType}</MenuItem>;
+                }
+              )}
             </Select>
           </Box>
           <Box mt={3}>
-            {[PaymentMethod.ACH, PaymentMethod.Wire].includes(
-              payment.method as PaymentMethod
+            {[PaymentMethodEnum.ACH, PaymentMethodEnum.Wire].includes(
+              payment.method as PaymentMethodEnum
             ) && (
               <>
                 <BankToBankTransfer
@@ -170,7 +156,7 @@ function PaymentModal(props: Props) {
                 </Box>
               </>
             )}
-            {PaymentMethod.ReverseDraftACH === payment.method && (
+            {PaymentMethodEnum.ReverseDraftACH === payment.method && (
               <>
                 <CompanyBank
                   companyId={props.companyId}
@@ -190,7 +176,7 @@ function PaymentModal(props: Props) {
                 </Box>
               </>
             )}
-            {PaymentMethod.Cash === payment.method && (
+            {PaymentMethodEnum.Cash === payment.method && (
               <Box mt={2}>
                 <Alert severity="info">
                   A member of the Bespoke team will be in touch via email.
@@ -200,7 +186,7 @@ function PaymentModal(props: Props) {
                 payment will incur a $100 fee.
               </Box>
             )}
-            {PaymentMethod.Check === payment.method && (
+            {PaymentMethodEnum.Check === payment.method && (
               <Box mt={2}>
                 <Alert severity="info">
                   Please make the check payable to Bespoke Financial.
