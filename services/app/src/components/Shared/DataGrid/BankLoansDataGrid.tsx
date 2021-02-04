@@ -1,6 +1,7 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import Status from "components/Shared/Chip/Status";
 import ActionMenu from "components/Shared/DataGrid/ActionMenu";
+import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DataGrid, {
   Column,
   FilterRow,
@@ -72,6 +73,10 @@ function BankLoansDataGrid({
     return Math.floor((nowTime - maturityTime) / (24 * 60 * 60 * 1000));
   };
 
+  const renderAmount = (params: ValueFormatterParams) => (
+    <CurrencyDataGridCell value={params.row.data.amount}></CurrencyDataGridCell>
+  );
+
   const statusCellRenderer = (params: ValueFormatterParams) => (
     <Status statusValue={params.value} />
   );
@@ -127,9 +132,9 @@ function BankLoansDataGrid({
     });
   }
   columns.push({
-    dataField: "amount",
     caption: "Loan Amount",
     width: 120,
+    cellRender: renderAmount,
   });
 
   // {

@@ -2,6 +2,7 @@ import { Box } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import Status from "components/Shared/Chip/Status";
 import ActionMenu from "components/Shared/DataGrid/ActionMenu";
+import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import DataGrid, {
   Column,
@@ -42,6 +43,10 @@ function ListPurchaseOrders({
 
   const rows = populateRows(purchaseOrders);
 
+  const renderAmount = (params: ValueFormatterParams) => (
+    <CurrencyDataGridCell value={params.row.data.amount}></CurrencyDataGridCell>
+  );
+
   const statusCellRenderer = (params: ValueFormatterParams) => (
     <Status statusValue={params.value} />
   );
@@ -77,10 +82,10 @@ function ListPurchaseOrders({
       minWidth: 200,
     },
     {
-      dataField: "amount",
       alignment: "left",
       caption: "Amount",
       minWidth: 120,
+      cellRender: renderAmount,
     },
     {
       dataField: "order_date",

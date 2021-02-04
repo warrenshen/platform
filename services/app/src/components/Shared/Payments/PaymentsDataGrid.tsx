@@ -1,5 +1,6 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
+import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DataGrid, {
   Column,
   IColumnProps,
@@ -31,6 +32,10 @@ function PaymentsDataGrid({
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = getRows(payments);
 
+  const renderAmount = (params: ValueFormatterParams) => (
+    <CurrencyDataGridCell value={params.row.data.amount}></CurrencyDataGridCell>
+  );
+
   const companyNameRenderer = (params: ValueFormatterParams) => {
     return (
       <ClickableDataGridCell
@@ -54,9 +59,9 @@ function PaymentsDataGrid({
       width: 140,
     },
     {
-      dataField: "amount",
       caption: "Amount",
       width: 140,
+      cellRender: renderAmount,
     },
     {
       dataField: "type",
