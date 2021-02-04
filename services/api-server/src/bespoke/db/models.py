@@ -19,6 +19,8 @@ from sqlalchemy.orm.query import Query as _Query
 from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import QueuePool
 
+from bespoke.date import date_util
+
 if TYPE_CHECKING:
 	class Base(object):
 		metadata = None  # type: Any
@@ -39,6 +41,19 @@ def session_scope(session_maker: Callable[..., Session]) -> Iterator[Session]:
 	finally:
 		session.close()
 
+def safe_serialize(d: Any) -> Any:
+	if type(d) != dict:
+		raise Exception('Cannot safe_serialize a non dictionary type')
+
+	for k, v in d.items():
+		if type(v) == datetime.date:
+			d[k] = date_util.date_to_str(v)
+		elif type(v) == datetime.datetime:
+			d[k] = date_util.datetime_to_str(v)
+		elif type(v) == decimal.Decimal:
+			d[k] = float(v)
+
+	return d
 
 class User(Base):
 	__tablename__ = 'users'
@@ -284,8 +299,13 @@ class Transaction(Base):
 LoanDict = TypedDict('LoanDict', {
 	'id': str,
 	'origination_date': datetime.date,
+	'maturity_date': datetime.date,
+	'adjusted_maturity_date': datetime.date,
 	'amount': float,
-	'status': str
+	'status': str,
+	'outstanding_principal_balance': float,
+	'outstanding_interest': float,
+	'outstanding_fees': float
 })
 
 class Loan(Base):
@@ -300,6 +320,8 @@ class Loan(Base):
 			self.origination_date: datetime.date = None
 			self.amount: float = None
 			self.status: str = None
+			self.maturity_date: datetime.date = None
+			self.adjusted_maturity_date: datetime.date = None
 			self.requested_at: datetime.datetime = None
 			self.funded_at: datetime.datetime = None
 			self.funded_by_user_id: UUID = None
@@ -313,6 +335,8 @@ class Loan(Base):
 		loan_type = Column(Text)
 		artifact_id = Column(UUID(as_uuid=True))
 		origination_date = Column(Date)
+		maturity_date = Column(Date)
+		adjusted_maturity_date = Column(Date)
 		amount = Column(Numeric)
 		status = Column(String)
 		requested_at = Column(DateTime)
@@ -326,8 +350,13 @@ class Loan(Base):
 		return LoanDict(
 			id=str(self.id),
 			origination_date=self.origination_date,
+			maturity_date=self.maturity_date,
+			adjusted_maturity_date=self.adjusted_maturity_date,
 			amount=self.amount,
-			status=self.status
+			status=self.status,
+			outstanding_principal_balance=self.outstanding_principal_balance,
+			outstanding_interest=self.outstanding_interest,
+			outstanding_fees=self.outstanding_fees
 		)
 
 

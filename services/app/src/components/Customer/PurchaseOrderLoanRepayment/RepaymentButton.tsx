@@ -5,6 +5,7 @@ import { PaymentsInsertInput } from "generated/graphql";
 import useCompanyContext from "hooks/useCompanyContext";
 import {
   calculateEffectOfPayment,
+  CalculateEffectOfPaymentResp,
   makePayment,
 } from "lib/finance/payments/repayment";
 import { useState } from "react";
@@ -13,6 +14,10 @@ function RepaymentButton() {
   const companyId = useCompanyContext();
   const [open, setOpen] = useState(false);
   const [errMsg, setErrMsg] = useState("");
+  const [
+    effectResp,
+    setEffectResp,
+  ] = useState<CalculateEffectOfPaymentResp | null>(null);
 
   return (
     <>
@@ -23,7 +28,9 @@ function RepaymentButton() {
           handleClose={() => setOpen(false)}
           errMsg={errMsg}
           onCreate={async (payment: PaymentsInsertInput) => {
-            window.console.log(payment);
+            if (payment.amount && payment.amount.length > 0) {
+              payment.amount = parseFloat(payment.amount);
+            }
             const resp = await makePayment({
               payment: payment,
               company_id: companyId,
@@ -31,21 +38,43 @@ function RepaymentButton() {
             if (resp.status !== "OK") {
               setErrMsg(resp.msg);
             } else {
+              setErrMsg("");
               setOpen(false);
             }
           }}
           onCalculateEffectOfPayment={async (payment: PaymentsInsertInput) => {
-            payment.amount = parseFloat(payment.amount);
+            if (payment.amount && payment.amount.length > 0) {
+              payment.amount = parseFloat(payment.amount);
+            }
             const resp = await calculateEffectOfPayment({
               payment: payment,
               company_id: companyId,
+              loan_ids: [],
             });
             if (resp.status !== "OK") {
-              setErrMsg(resp.msg);
+              setErrMsg(resp.msg || "");
             } else {
-              console.log(resp);
-              setOpen(false);
+              setErrMsg("");
+              setEffectResp(resp);
             }
+          }}
+          effectComponent={() => {
+            if (!effectResp) {
+              return null;
+            }
+
+            let loanIds = [];
+            if (effectResp.loans_due) {
+              loanIds = effectResp.loans_due.map((l) => {
+                return l.id;
+              });
+            }
+            return (
+              <div>
+                The total due is {effectResp.total_due}. Loans incorporated:{" "}
+                {loanIds}
+              </div>
+            );
           }}
         ></PaymentModal>
       )}

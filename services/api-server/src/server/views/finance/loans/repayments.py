@@ -38,7 +38,7 @@ class CalculateEffectOfPaymentView(MethodView):
 			return handler_util.make_error_response('Access Denied')
 
 		payment = form['payment']
-		if type(payment['amount']) != float and type(payment['amount']) != int:
+		if payment.get('amount') and type(payment['amount']) != float and type(payment['amount']) != int:
 			return handler_util.make_error_response('Amount must be a number')
 
 		if not payment.get('deposit_date'):

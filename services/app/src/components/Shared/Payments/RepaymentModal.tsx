@@ -41,6 +41,7 @@ interface Props {
   allowablePaymentTypes?: Array<PaymentMethod>;
   onCreate?: (payment: PaymentsInsertInput) => void;
   onCalculateEffectOfPayment?: (payment: PaymentsInsertInput) => void;
+  effectComponent: () => React.ReactNode;
 }
 
 function PaymentModal(props: Props) {
@@ -75,12 +76,16 @@ function PaymentModal(props: Props) {
     payment.amount > 0 &&
     payment.deposit_date;
 
+  const isEffectOfPaymentButtonEnabled =
+    payment.deposit_date !== null || payment.deposit_date !== undefined;
+
   return (
     <Dialog open onClose={props.handleClose} fullWidth>
       <DialogTitle>
         Create a Payment
         <span style={{ float: "right" }}>
           <Button
+            disabled={!isEffectOfPaymentButtonEnabled}
             onClick={() => {
               props.onCalculateEffectOfPayment &&
                 props.onCalculateEffectOfPayment(payment);
@@ -204,6 +209,7 @@ function PaymentModal(props: Props) {
             )}
           </Box>
         </Box>
+        {props.effectComponent && props.effectComponent()}
       </DialogContent>
       <DialogActions>
         <Box display="flex">

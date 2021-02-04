@@ -1,7 +1,7 @@
 // This file is for library code to handle logic (mostly handled by the backend)
 // when it comes to creating payment transactions
 
-import { PaymentsInsertInput } from "generated/graphql";
+import { LoansInsertInput, PaymentsInsertInput } from "generated/graphql";
 import { authenticatedApi, loansRoutes } from "lib/api";
 
 export type MakePaymentResp = {
@@ -11,12 +11,16 @@ export type MakePaymentResp = {
 
 export type CalculateEffectOfPaymentResp = {
   status: string;
-  msg: string;
+  msg?: string;
+  loans_due?: LoansInsertInput[];
+  total_due?: number;
+  amount_leftover?: number;
 };
 
 export async function calculateEffectOfPayment(req: {
   payment: PaymentsInsertInput;
   company_id: string;
+  loan_ids: string[];
 }): Promise<CalculateEffectOfPaymentResp> {
   return authenticatedApi
     .post(loansRoutes.calculateEffectOfPayment, req)
