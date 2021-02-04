@@ -9,7 +9,8 @@ from typing import cast, Any
 
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
-from bespoke.finance import payment_util
+from bespoke.finance.payments import repayment_util
+from bespoke.finance.payments import payment_util
 from bespoke.finance.types import per_customer_types
 from bespoke.finance.fetchers import per_customer_fetcher
 from server.views.common import handler_util
@@ -48,7 +49,7 @@ class CalculateEffectOfPaymentView(MethodView):
 
 		# NOTE: Fetching information is likely a slow task, so we probably want to
 		# turn this into an async operation.
-		effect_resp, err = payment_util.calculate_repayment_effect(
+		effect_resp, err = repayment_util.calculate_repayment_effect(
 			payment, form['company_id'], loan_ids, current_app.session_maker)
 		if err:
 			return handler_util.make_error_response(err)
@@ -78,6 +79,7 @@ class HandlePaymentView(MethodView):
 
 		payment = form['payment']
 		company_id = form['company_id']
+		payment_id = None
 
 		with session_scope(current_app.session_maker) as session:			
 			payment_input = payment_util.PaymentInputDict(
@@ -85,10 +87,14 @@ class HandlePaymentView(MethodView):
 				amount=payment['amount'],
 				payment_method=payment['method']
 			)
-			payment_util.add_payment(company_id, payment_input, session)
+			payment = payment_util.create_payment(company_id, payment_input)
+			session.add(payment)
+			session.flush()
+			payment_id = payment.id
 
 		return make_response(json.dumps({
-			'status': 'OK'
+			'status': 'OK',
+			'payment_id': payment_id
 		}), 200)
 
 handler.add_url_rule(
