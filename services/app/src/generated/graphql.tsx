@@ -9719,6 +9719,8 @@ export type PurchaseOrderTypeLoanFragment = Pick<
   | "requested_at"
   | "outstanding_interest"
   | "outstanding_fees"
+  | "origination_date"
+  | "maturity_date"
 >;
 
 export type AllPurchaseOrderLoansForBankQueryVariables = Exact<{
@@ -10042,6 +10044,8 @@ export const PurchaseOrderTypeLoanFragmentDoc = gql`
     requested_at
     outstanding_interest
     outstanding_fees
+    origination_date
+    maturity_date
   }
 `;
 export const AddCustomerDocument = gql`

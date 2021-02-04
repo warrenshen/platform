@@ -19,3 +19,4 @@ azcopy
 !requirements.txt
 out
 alt-out
+.vscode/settings.json

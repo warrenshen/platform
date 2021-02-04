@@ -1,16 +1,16 @@
 import {
   LoanFragment,
   useAllPurchaseOrderLoansForBankQuery,
+  RequestStatusEnum,
 } from "generated/graphql";
 import useAppBarTitle from "hooks/useAppBarTitle";
-import { useState } from "react";
+import { bankRoutes } from "lib/routes";
 import { useTitle } from "react-use";
 import LoansTable from "./LoansTable";
 
 function BankDashboard() {
   useTitle("Dashboard | Bespoke");
   useAppBarTitle("Dashboard");
-  const [loansTableFullView, setLoansTableFullView] = useState(false);
 
   const { data, error } = useAllPurchaseOrderLoansForBankQuery();
 
@@ -24,10 +24,23 @@ function BankDashboard() {
     <>
       <LoansTable
         purchaseOrderLoans={purchaseOrderLoans}
-        fullView={loansTableFullView}
-        onFullViewClick={() => setLoansTableFullView(!loansTableFullView)}
+        tableName={"All Loans"}
+        loansPastDue={false}
+        filterByStatus={RequestStatusEnum.ApprovalRequested}
       ></LoansTable>
-      {!loansTableFullView && "Next table in dashboard"}
+      <LoansTable
+        purchaseOrderLoans={purchaseOrderLoans}
+        tableName={"Loans Maturing in 14 Days"}
+        routeToTablePage={bankRoutes.loansMaturing}
+        loansPastDue={false}
+        matureDays={14}
+      ></LoansTable>
+      <LoansTable
+        purchaseOrderLoans={purchaseOrderLoans}
+        tableName={"Loans Past Due"}
+        routeToTablePage={bankRoutes.loansPastDue}
+        loansPastDue={true}
+      ></LoansTable>
     </>
   );
 }

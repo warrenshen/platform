@@ -5,6 +5,8 @@ fragment PurchaseOrderTypeLoan on purchase_order_type_loans {
   requested_at
   outstanding_interest
   outstanding_fees
+  origination_date
+  maturity_date
 }
 
 query AllPurchaseOrderLoansForBank {

@@ -1,16 +1,16 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import Status from "components/Shared/Chip/Status";
 import ActionMenu from "components/Shared/DataGrid/ActionMenu";
-import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import DataGrid, {
   Column,
   IColumnProps,
   Pager,
   Paging,
+  FilterRow,
 } from "devextreme-react/data-grid";
-import { LoanFragment, Maybe } from "generated/graphql";
+import { LoanFragment, Maybe, RequestStatusEnum } from "generated/graphql";
 import { useEffect, useState } from "react";
-import PurchaseOrderNumberCell from "./PurchaseOrderNumberCell";
+// import BankPurchaseOrderNumberCell from "./BankPurchaseOrderNumberCell";
 
 function getRows(purchaseOrderLoans: Maybe<LoanFragment[]>): RowsProp {
   return purchaseOrderLoans
@@ -26,32 +26,30 @@ interface Props {
   purchaseOrderLoans: LoanFragment[];
   fullView: boolean;
   loansPastDue: boolean;
-  matureDays: number | null;
-  customerSearchQuery: string;
-  onClickCustomerName: (value: string) => void;
+  matureDays?: number | null;
+  filterByStatus?: RequestStatusEnum;
 }
 
 const getMaturityDate = (rowData: any) => new Date(rowData.maturity_date);
 
-function LoansDataGrid({
+function BankLoansDataGrid({
   purchaseOrderLoans,
   fullView,
   loansPastDue,
   matureDays,
-  customerSearchQuery,
-  onClickCustomerName,
+  filterByStatus,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = getRows(purchaseOrderLoans);
 
   useEffect(() => {
     if (!dataGrid) return;
-    dataGrid.instance.clearFilter();
+    dataGrid.instance.clearFilter(getMaturityDate);
     // TODO: add status check
     if (loansPastDue)
       dataGrid.instance.filter([getMaturityDate, "<", new Date(Date.now())]);
     if (matureDays && matureDays > 0)
-      dataGrid?.instance?.filter([
+      dataGrid.instance.filter([
         [getMaturityDate, ">", new Date(Date.now())],
         "and",
         [
@@ -62,58 +60,17 @@ function LoansDataGrid({
           ),
         ],
       ]);
+    if (filterByStatus) {
+      dataGrid.instance.filter(["status", "=", filterByStatus]);
+    }
   }, [dataGrid, loansPastDue, matureDays]);
 
-  useEffect(() => {
-    if (!dataGrid) return;
-    if (customerSearchQuery) {
-      dataGrid.instance.filter([
-        "purchase_order.company.name",
-        "contains",
-        customerSearchQuery,
-      ]);
-    } else {
-      dataGrid.instance.clearFilter();
-    }
-  }, [dataGrid, customerSearchQuery]);
-
-  const purchaseOrderNumberRenderer = (params: ValueFormatterParams) => (
-    <PurchaseOrderNumberCell
-      purchaseOrderLoanId={params.row.data.id}
-      purchaseOrderNumber={params.row.data.purchase_order.order_number}
-    />
-  );
-
-  const companyNameRenderer = (params: ValueFormatterParams) => {
-    return (
-      <ClickableDataGridCell
-        label={params.row.data.purchase_order.company.name}
-        onClick={() => {
-          onClickCustomerName(params.row.data.purchase_order.company.name);
-          dataGrid?.instance.filter([
-            "purchase_order.company.name",
-            "=",
-            params.row.data.purchase_order.company.name,
-          ]);
-        }}
-      />
-    );
-  };
-
-  const vendorNameRenderer = (params: ValueFormatterParams) => {
-    return (
-      <ClickableDataGridCell
-        label={params.row.data.purchase_order.vendor.name}
-        onClick={() => {
-          dataGrid?.instance.filter([
-            "purchase_order.vendor.name",
-            "=",
-            params.row.data.purchase_order.vendor.name,
-          ]);
-        }}
-      />
-    );
-  };
+  // const purchaseOrderNumberRenderer = (params: ValueFormatterParams) => (
+  //   <BankPurchaseOrderNumberCell
+  //     purchaseOrderLoanId={params.row.data.id}
+  //     purchaseOrderNumber={params.row.data.purchase_order.order_number}
+  //   />
+  // );
 
   const maturingInDaysRenderer = (value: any) => {
     const maturityTime = getMaturityDate(value.data).getTime();
@@ -145,67 +102,85 @@ function LoansDataGrid({
   );
 
   const columns: IColumnProps[] = [
-    {
-      dataField: "purchase_order.order_number",
-      caption: "Order Number",
-      width: 130,
-      cellRender: purchaseOrderNumberRenderer,
-    },
+    // {
+    //   dataField: "purchase_order.order_number",
+    //   caption: "Order Number",
+    //   width: 130,
+    //   cellRender: purchaseOrderNumberRenderer,
+    // },
     {
       dataField: "purchase_order.company.name",
       caption: "Customer Name",
       width: 190,
-      cellRender: companyNameRenderer,
     },
     {
       dataField: "purchase_order.vendor.name",
       caption: "Vendor Name",
       width: 190,
-      cellRender: vendorNameRenderer,
     },
+    // {
+    //   dataField: "requested_at",
+    //   caption: "Requested At",
+    //   width: 130,
+    // },
     {
-      dataField: "requested_at",
-      caption: "Requested At",
-      width: 130,
+      dataField: "id",
+      caption: "Loan ID",
+      width: 190,
     },
-    {
-      dataField: "purchase_order.amount",
-      caption: "Order Amount",
-      width: 120,
-    },
-    {
-      dataField: "amount",
-      caption: "Loan Amount",
-      width: 120,
-    },
-    {
-      dataField: "status",
-      caption: "Status",
-      width: 120,
+  ];
+
+  if (matureDays && matureDays > 0) {
+    columns.push({
+      dataField: "origination_date",
+      caption: "Loan Date",
       alignment: "center",
-      cellRender: statusCellRenderer,
-    },
-    {
+      width: 140,
+    });
+  }
+  columns.push({
+    dataField: "amount",
+    caption: "Loan Amount",
+    width: 120,
+  });
+
+  // {
+  //   dataField: "?",
+  //   caption: "Loan Balance",
+  //   width: 120,
+  // },
+
+  columns.push({
+    dataField: "status",
+    caption: "Status",
+    width: 120,
+    alignment: "center",
+    cellRender: statusCellRenderer,
+  });
+
+  if (loansPastDue) {
+    columns.push({
       dataField: "outstanding_interest",
       caption: "Interest Accrued",
       alignment: "center",
       width: 140,
-    },
-    {
-      dataField: "maturity_date",
-      caption: "Maturity Date",
-      alignment: "center",
-      width: 120,
-    },
-  ];
-
-  if (loansPastDue) {
+    });
     columns.push({
       dataField: "outstanding_fees",
       caption: "Late Fees Accrued",
       alignment: "center",
       width: 150,
     });
+  }
+
+  columns.push({
+    dataField: "maturity_date",
+    caption: "Maturity Date",
+    alignment: "center",
+    width: 120,
+  });
+
+  if (loansPastDue) {
     columns.push({
       caption: "Days Past Due",
       width: 130,
@@ -241,6 +216,7 @@ function LoansDataGrid({
       dataSource={rows}
       ref={(ref) => setDataGrid(ref)}
     >
+      <FilterRow visible={fullView} />
       {columns.map(
         ({ dataField, caption, width, alignment, cellRender }, i) => (
           <Column
@@ -253,10 +229,10 @@ function LoansDataGrid({
           />
         )
       )}
-      <Paging pageSize={fullView ? 30 : 5} />
-      <Pager visible={fullView} allowedPageSizes={[5, 30]} />
+      <Paging pageSize={fullView ? 50 : 5} />
+      <Pager visible={fullView} allowedPageSizes={[5, 50]} />
     </DataGrid>
   );
 }
 
-export default LoansDataGrid;
+export default BankLoansDataGrid;

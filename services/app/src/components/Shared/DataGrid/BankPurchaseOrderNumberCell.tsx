@@ -8,7 +8,7 @@ interface Props {
   purchaseOrderNumber: PurchaseOrders["order_number"];
 }
 
-function PurchaseOrderNumberCell({
+function BankPurchaseOrderNumberCell({
   purchaseOrderLoanId,
   purchaseOrderNumber,
 }: Props) {
@@ -30,4 +30,4 @@ function PurchaseOrderNumberCell({
   );
 }
 
-export default PurchaseOrderNumberCell;
+export default BankPurchaseOrderNumberCell;
