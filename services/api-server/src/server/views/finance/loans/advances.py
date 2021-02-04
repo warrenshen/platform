@@ -36,15 +36,18 @@ class HandleAdvanceView(MethodView):
 		payment = form['payment']
 		company_id = form['company_id']
 
+		payment_dict: models.PaymentDict = None
+
 		with session_scope(current_app.session_maker) as session:
 			payment_input = payment_util.PaymentInputDict(
 				type=db_constants.PaymentType.ADVANCE,
 				amount=payment['amount'],
 				payment_method=payment['method']
 			)
-			payment_util.add_payment(company_id, payment_input, session)
+			payment_dict = payment_util.add_payment(company_id, payment_input, session)
 
 		return make_response(json.dumps({
+			'payment_id': payment_dict['id'],
 			'status': 'OK'
 		}), 200)
 

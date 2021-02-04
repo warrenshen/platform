@@ -31,7 +31,7 @@ PaymentInsertInputDict = TypedDict('PaymentInsertInputDict', {
 def add_payment(
 	company_id: str,
 	payment_input: PaymentInputDict,
-	session: Session) -> None:
+	session: Session) -> models.PaymentDict:
 
 	# TODO(dlluncor): Lots of validations needed before being able to submit a payment
 
@@ -43,6 +43,8 @@ def add_payment(
 	payment.submitted_at = datetime.datetime.now()
 
 	session.add(payment)
+	session.flush()
+	return payment.as_dict()
 
 EffectRespDict = TypedDict('EffectRespDict', {
 	'status': str
@@ -87,8 +89,15 @@ def fund_loans_with_advance(
 		if not loans:
 			return None, errors.Error('No loans found', details=err_details)
 
+		already_funded_loan_ids: List[str] = []
 		for loan in loans:
+			if loan.funded_at:
+				already_funded_loan_ids.append(str(loan.id))
 			loan_dicts.append(loan.as_dict())
+
+		if already_funded_loan_ids:
+			return None, errors.Error('These loans have already been funded. Please remove them from the advances process: {}'.format(
+				already_funded_loan_ids), details=err_details)
 
 		if len(loans) != len(loan_ids):
 			return None, errors.Error('Not all loans were found to fund in database', details=err_details)
@@ -123,9 +132,11 @@ def fund_loans_with_advance(
 		payment.applied_at = date_util.now()
 
 		for loan_dict in loan_dicts:
+			amount = loan_dict['amount']
 			t = models.Transaction()
-			t.type= 'advance'
-			t.to_principal= loan_dict['amount']
+			t.type = 'advance'
+			t.amount = amount
+			t.to_principal = amount
 			t.to_interest = 0.0
 			t.to_fees = 0.0
 			t.loan_id = loan_dict['id']
@@ -136,8 +147,11 @@ def fund_loans_with_advance(
 		for loan in loans:
 			loan.funded_at = date_util.now()
 			loan.funded_by_user_id = bank_admin_user_id
+			loan.outstanding_principal_balance = loan.amount
+			loan.outstanding_interest = 0.0
+			loan.outstanding_fees = 0.0
 
-	return None, errors.Error('Not implemented')
+	return FundLoansRespDict(status='OK'), None
 
 
 

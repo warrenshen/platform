@@ -303,6 +303,9 @@ class Loan(Base):
 			self.requested_at: datetime.datetime = None
 			self.funded_at: datetime.datetime = None
 			self.funded_by_user_id: UUID = None
+			self.outstanding_principal_balance: float = None
+			self.outstanding_interest: float = None
+			self.outstanding_fees: float = None
 	else:
 		id = Column(UUID(as_uuid=True), primary_key=True,
 					default=uuid.uuid4, unique=True)
@@ -315,6 +318,9 @@ class Loan(Base):
 		requested_at = Column(DateTime)
 		funded_at = Column(DateTime)
 		funded_by_user_id = Column(UUID(as_uuid=True))
+		outstanding_principal_balance = Column(Numeric)
+		outstanding_interest = Column(Numeric)
+		outstanding_fees = Column(Numeric)
 
 	def as_dict(self) -> LoanDict:
 		return LoanDict(
