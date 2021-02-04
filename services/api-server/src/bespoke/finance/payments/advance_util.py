@@ -3,18 +3,18 @@
 """
 
 import datetime
-
-from mypy_extensions import TypedDict
-from sqlalchemy.orm.session import Session
-from typing import Dict, Tuple, List, Callable, cast
+from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import models, db_constants
+from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
-from bespoke.finance.types import per_customer_types
+from bespoke.enums.loan_status_enum import LoanStatusEnum
 from bespoke.finance import number_util
 from bespoke.finance.payments import payment_util
+from bespoke.finance.types import per_customer_types
+from mypy_extensions import TypedDict
+from sqlalchemy.orm.session import Session
 
 FundLoansRespDict = TypedDict('FundLoansRespDict', {
 	'status': str
@@ -104,6 +104,7 @@ def fund_loans_with_advance(
 				session.add(t)
 
 		for loan in loans:
+			loan.status = LoanStatusEnum.Funded
 			loan.funded_at = date_util.now()
 			loan.funded_by_user_id = bank_admin_user_id
 			loan.outstanding_principal_balance = loan.amount

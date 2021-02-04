@@ -2267,6 +2267,169 @@ export type JsonbComparisonExp = {
   _nin?: Maybe<Array<Scalars["jsonb"]>>;
 };
 
+/** columns and relationships of "loan_status" */
+export type LoanStatus = {
+  display_name: Scalars["String"];
+  value: Scalars["String"];
+};
+
+/** aggregated selection of "loan_status" */
+export type LoanStatusAggregate = {
+  aggregate?: Maybe<LoanStatusAggregateFields>;
+  nodes: Array<LoanStatus>;
+};
+
+/** aggregate fields of "loan_status" */
+export type LoanStatusAggregateFields = {
+  count?: Maybe<Scalars["Int"]>;
+  max?: Maybe<LoanStatusMaxFields>;
+  min?: Maybe<LoanStatusMinFields>;
+};
+
+/** aggregate fields of "loan_status" */
+export type LoanStatusAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<LoanStatusSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** order by aggregate values of table "loan_status" */
+export type LoanStatusAggregateOrderBy = {
+  count?: Maybe<OrderBy>;
+  max?: Maybe<LoanStatusMaxOrderBy>;
+  min?: Maybe<LoanStatusMinOrderBy>;
+};
+
+/** input type for inserting array relation for remote table "loan_status" */
+export type LoanStatusArrRelInsertInput = {
+  data: Array<LoanStatusInsertInput>;
+  on_conflict?: Maybe<LoanStatusOnConflict>;
+};
+
+/** Boolean expression to filter rows from the table "loan_status". All fields are combined with a logical 'AND'. */
+export type LoanStatusBoolExp = {
+  _and?: Maybe<Array<Maybe<LoanStatusBoolExp>>>;
+  _not?: Maybe<LoanStatusBoolExp>;
+  _or?: Maybe<Array<Maybe<LoanStatusBoolExp>>>;
+  display_name?: Maybe<StringComparisonExp>;
+  value?: Maybe<StringComparisonExp>;
+};
+
+/** unique or primary key constraints on table "loan_status" */
+export enum LoanStatusConstraint {
+  /** unique or primary key constraint */
+  LoanStatusPkey = "loan_status_pkey",
+}
+
+export enum LoanStatusEnum {
+  /** Approval Requested */
+  ApprovalRequested = "approval_requested",
+  /** Approved */
+  Approved = "approved",
+  /** Closed */
+  Closed = "closed",
+  /** Drafted */
+  Drafted = "drafted",
+  /** Funded */
+  Funded = "funded",
+  /** Past Due */
+  PastDue = "past_due",
+  /** Rejected */
+  Rejected = "rejected",
+}
+
+/** expression to compare columns of type loan_status_enum. All fields are combined with logical 'AND'. */
+export type LoanStatusEnumComparisonExp = {
+  _eq?: Maybe<LoanStatusEnum>;
+  _in?: Maybe<Array<LoanStatusEnum>>;
+  _is_null?: Maybe<Scalars["Boolean"]>;
+  _neq?: Maybe<LoanStatusEnum>;
+  _nin?: Maybe<Array<LoanStatusEnum>>;
+};
+
+/** input type for inserting data into table "loan_status" */
+export type LoanStatusInsertInput = {
+  display_name?: Maybe<Scalars["String"]>;
+  value?: Maybe<Scalars["String"]>;
+};
+
+/** aggregate max on columns */
+export type LoanStatusMaxFields = {
+  display_name?: Maybe<Scalars["String"]>;
+  value?: Maybe<Scalars["String"]>;
+};
+
+/** order by max() on columns of table "loan_status" */
+export type LoanStatusMaxOrderBy = {
+  display_name?: Maybe<OrderBy>;
+  value?: Maybe<OrderBy>;
+};
+
+/** aggregate min on columns */
+export type LoanStatusMinFields = {
+  display_name?: Maybe<Scalars["String"]>;
+  value?: Maybe<Scalars["String"]>;
+};
+
+/** order by min() on columns of table "loan_status" */
+export type LoanStatusMinOrderBy = {
+  display_name?: Maybe<OrderBy>;
+  value?: Maybe<OrderBy>;
+};
+
+/** response of any mutation on the table "loan_status" */
+export type LoanStatusMutationResponse = {
+  /** number of affected rows by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data of the affected rows by the mutation */
+  returning: Array<LoanStatus>;
+};
+
+/** input type for inserting object relation for remote table "loan_status" */
+export type LoanStatusObjRelInsertInput = {
+  data: LoanStatusInsertInput;
+  on_conflict?: Maybe<LoanStatusOnConflict>;
+};
+
+/** on conflict condition type for table "loan_status" */
+export type LoanStatusOnConflict = {
+  constraint: LoanStatusConstraint;
+  update_columns: Array<LoanStatusUpdateColumn>;
+  where?: Maybe<LoanStatusBoolExp>;
+};
+
+/** ordering options when selecting data from "loan_status" */
+export type LoanStatusOrderBy = {
+  display_name?: Maybe<OrderBy>;
+  value?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "loan_status" */
+export type LoanStatusPkColumnsInput = {
+  value: Scalars["String"];
+};
+
+/** select columns of table "loan_status" */
+export enum LoanStatusSelectColumn {
+  /** column name */
+  DisplayName = "display_name",
+  /** column name */
+  Value = "value",
+}
+
+/** input type for updating data in table "loan_status" */
+export type LoanStatusSetInput = {
+  display_name?: Maybe<Scalars["String"]>;
+  value?: Maybe<Scalars["String"]>;
+};
+
+/** update columns of table "loan_status" */
+export enum LoanStatusUpdateColumn {
+  /** column name */
+  DisplayName = "display_name",
+  /** column name */
+  Value = "value",
+}
+
 /** columns and relationships of "loan_type" */
 export type LoanType = {
   display_name: Scalars["String"];
@@ -2451,11 +2614,9 @@ export type Loans = {
   rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_notes?: Maybe<Scalars["String"]>;
-  /** An object relationship */
-  request_status: RequestStatus;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
-  status: RequestStatusEnum;
+  status: LoanStatusEnum;
 };
 
 /** aggregated selection of "loans" */
@@ -2549,10 +2710,9 @@ export type LoansBoolExp = {
   rejected_at?: Maybe<TimestamptzComparisonExp>;
   rejected_by_user_id?: Maybe<UuidComparisonExp>;
   rejection_notes?: Maybe<StringComparisonExp>;
-  request_status?: Maybe<RequestStatusBoolExp>;
   requested_at?: Maybe<TimestamptzComparisonExp>;
   requested_by_user_id?: Maybe<UuidComparisonExp>;
-  status?: Maybe<RequestStatusEnumComparisonExp>;
+  status?: Maybe<LoanStatusEnumComparisonExp>;
 };
 
 /** unique or primary key constraints on table "loans" */
@@ -2593,10 +2753,9 @@ export type LoansInsertInput = {
   rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_notes?: Maybe<Scalars["String"]>;
-  request_status?: Maybe<RequestStatusObjRelInsertInput>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
-  status?: Maybe<RequestStatusEnum>;
+  status?: Maybe<LoanStatusEnum>;
 };
 
 /** aggregate max on columns */
@@ -2744,7 +2903,6 @@ export type LoansOrderBy = {
   rejected_at?: Maybe<OrderBy>;
   rejected_by_user_id?: Maybe<OrderBy>;
   rejection_notes?: Maybe<OrderBy>;
-  request_status?: Maybe<RequestStatusOrderBy>;
   requested_at?: Maybe<OrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
   status?: Maybe<OrderBy>;
@@ -2829,7 +2987,7 @@ export type LoansSetInput = {
   rejection_notes?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
-  status?: Maybe<RequestStatusEnum>;
+  status?: Maybe<LoanStatusEnum>;
 };
 
 /** aggregate stddev on columns */
@@ -3024,6 +3182,10 @@ export type MutationRoot = {
   delete_files?: Maybe<FilesMutationResponse>;
   /** delete single row from the table: "files" */
   delete_files_by_pk?: Maybe<Files>;
+  /** delete data from the table: "loan_status" */
+  delete_loan_status?: Maybe<LoanStatusMutationResponse>;
+  /** delete single row from the table: "loan_status" */
+  delete_loan_status_by_pk?: Maybe<LoanStatus>;
   /** delete data from the table: "loan_type" */
   delete_loan_type?: Maybe<LoanTypeMutationResponse>;
   /** delete single row from the table: "loan_type" */
@@ -3112,6 +3274,10 @@ export type MutationRoot = {
   insert_files?: Maybe<FilesMutationResponse>;
   /** insert a single row into the table: "files" */
   insert_files_one?: Maybe<Files>;
+  /** insert data into the table: "loan_status" */
+  insert_loan_status?: Maybe<LoanStatusMutationResponse>;
+  /** insert a single row into the table: "loan_status" */
+  insert_loan_status_one?: Maybe<LoanStatus>;
   /** insert data into the table: "loan_type" */
   insert_loan_type?: Maybe<LoanTypeMutationResponse>;
   /** insert a single row into the table: "loan_type" */
@@ -3204,6 +3370,10 @@ export type MutationRoot = {
   update_files?: Maybe<FilesMutationResponse>;
   /** update single row of the table: "files" */
   update_files_by_pk?: Maybe<Files>;
+  /** update data of the table: "loan_status" */
+  update_loan_status?: Maybe<LoanStatusMutationResponse>;
+  /** update single row of the table: "loan_status" */
+  update_loan_status_by_pk?: Maybe<LoanStatus>;
   /** update data of the table: "loan_type" */
   update_loan_type?: Maybe<LoanTypeMutationResponse>;
   /** update single row of the table: "loan_type" */
@@ -3334,6 +3504,16 @@ export type MutationRootDeleteFilesArgs = {
 /** mutation root */
 export type MutationRootDeleteFilesByPkArgs = {
   id: Scalars["uuid"];
+};
+
+/** mutation root */
+export type MutationRootDeleteLoanStatusArgs = {
+  where: LoanStatusBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteLoanStatusByPkArgs = {
+  value: Scalars["String"];
 };
 
 /** mutation root */
@@ -3569,6 +3749,18 @@ export type MutationRootInsertFilesArgs = {
 export type MutationRootInsertFilesOneArgs = {
   object: FilesInsertInput;
   on_conflict?: Maybe<FilesOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertLoanStatusArgs = {
+  objects: Array<LoanStatusInsertInput>;
+  on_conflict?: Maybe<LoanStatusOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertLoanStatusOneArgs = {
+  object: LoanStatusInsertInput;
+  on_conflict?: Maybe<LoanStatusOnConflict>;
 };
 
 /** mutation root */
@@ -3853,6 +4045,18 @@ export type MutationRootUpdateFilesByPkArgs = {
   _inc?: Maybe<FilesIncInput>;
   _set?: Maybe<FilesSetInput>;
   pk_columns: FilesPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateLoanStatusArgs = {
+  _set?: Maybe<LoanStatusSetInput>;
+  where: LoanStatusBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateLoanStatusByPkArgs = {
+  _set?: Maybe<LoanStatusSetInput>;
+  pk_columns: LoanStatusPkColumnsInput;
 };
 
 /** mutation root */
@@ -6133,6 +6337,12 @@ export type QueryRoot = {
   files_aggregate: FilesAggregate;
   /** fetch data from the table: "files" using primary key columns */
   files_by_pk?: Maybe<Files>;
+  /** fetch data from the table: "loan_status" */
+  loan_status: Array<LoanStatus>;
+  /** fetch aggregated fields from the table: "loan_status" */
+  loan_status_aggregate: LoanStatusAggregate;
+  /** fetch data from the table: "loan_status" using primary key columns */
+  loan_status_by_pk?: Maybe<LoanStatus>;
   /** fetch data from the table: "loan_type" */
   loan_type: Array<LoanType>;
   /** fetch aggregated fields from the table: "loan_type" */
@@ -6386,6 +6596,29 @@ export type QueryRootFilesAggregateArgs = {
 /** query root */
 export type QueryRootFilesByPkArgs = {
   id: Scalars["uuid"];
+};
+
+/** query root */
+export type QueryRootLoanStatusArgs = {
+  distinct_on?: Maybe<Array<LoanStatusSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<LoanStatusOrderBy>>;
+  where?: Maybe<LoanStatusBoolExp>;
+};
+
+/** query root */
+export type QueryRootLoanStatusAggregateArgs = {
+  distinct_on?: Maybe<Array<LoanStatusSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<LoanStatusOrderBy>>;
+  where?: Maybe<LoanStatusBoolExp>;
+};
+
+/** query root */
+export type QueryRootLoanStatusByPkArgs = {
+  value: Scalars["String"];
 };
 
 /** query root */
@@ -7111,6 +7344,12 @@ export type SubscriptionRoot = {
   files_aggregate: FilesAggregate;
   /** fetch data from the table: "files" using primary key columns */
   files_by_pk?: Maybe<Files>;
+  /** fetch data from the table: "loan_status" */
+  loan_status: Array<LoanStatus>;
+  /** fetch aggregated fields from the table: "loan_status" */
+  loan_status_aggregate: LoanStatusAggregate;
+  /** fetch data from the table: "loan_status" using primary key columns */
+  loan_status_by_pk?: Maybe<LoanStatus>;
   /** fetch data from the table: "loan_type" */
   loan_type: Array<LoanType>;
   /** fetch aggregated fields from the table: "loan_type" */
@@ -7364,6 +7603,29 @@ export type SubscriptionRootFilesAggregateArgs = {
 /** subscription root */
 export type SubscriptionRootFilesByPkArgs = {
   id: Scalars["uuid"];
+};
+
+/** subscription root */
+export type SubscriptionRootLoanStatusArgs = {
+  distinct_on?: Maybe<Array<LoanStatusSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<LoanStatusOrderBy>>;
+  where?: Maybe<LoanStatusBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootLoanStatusAggregateArgs = {
+  distinct_on?: Maybe<Array<LoanStatusSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<LoanStatusOrderBy>>;
+  where?: Maybe<LoanStatusBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootLoanStatusByPkArgs = {
+  value: Scalars["String"];
 };
 
 /** subscription root */

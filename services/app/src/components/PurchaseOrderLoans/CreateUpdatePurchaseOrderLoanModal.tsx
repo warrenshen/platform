@@ -11,8 +11,8 @@ import {
 } from "@material-ui/core";
 import {
   LoansInsertInput,
+  LoanStatusEnum,
   LoanTypeEnum,
-  RequestStatusEnum,
   Scalars,
   useAddLoanMutation,
   useApprovedPurchaseOrdersQuery,
@@ -70,7 +70,7 @@ function CreateUpdatePurchaseOrderLoanModal({
     maturity_date: null,
     adjusted_maturity_date: null,
     amount: "",
-    status: RequestStatusEnum.Drafted,
+    status: LoanStatusEnum.Drafted,
   };
 
   const [loan, setLoan] = useState(newLoan);
@@ -106,10 +106,9 @@ function CreateUpdatePurchaseOrderLoanModal({
   const loanSiblings = loanSiblingsData?.loans || [];
   const siblingsTotalAmount = loanSiblings
     .filter((loanSibling) =>
-      [
-        RequestStatusEnum.ApprovalRequested,
-        RequestStatusEnum.Approved,
-      ].includes(loanSibling.status)
+      [LoanStatusEnum.ApprovalRequested, LoanStatusEnum.Approved].includes(
+        loanSibling.status
+      )
     )
     .reduce((sum, loanSibling) => sum + loanSibling.amount || 0, 0);
 

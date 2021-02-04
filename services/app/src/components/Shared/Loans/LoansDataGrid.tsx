@@ -1,14 +1,8 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { ValueFormatterParams } from "@material-ui/data-grid";
 import Status from "components/Shared/Chip/Status";
 import DataGrid, { Column, IColumnProps } from "devextreme-react/data-grid";
 import { LoanFragment } from "generated/graphql";
 import { useEffect, useState } from "react";
-
-function getRows(loans: LoanFragment[]): RowsProp {
-  return loans.map((item) => ({
-    ...item,
-  }));
-}
 
 interface Props {
   loans: LoanFragment[];
@@ -24,7 +18,7 @@ function LoansDataGrid({
   onClickCustomerName,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
-  const rows = getRows(loans);
+  const rows = loans;
 
   useEffect(() => {
     if (!dataGrid) return;

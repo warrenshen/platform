@@ -4,7 +4,7 @@ import Can from "components/Shared/Can";
 import ViewLoanModal from "components/Shared/Loans/ViewLoanModal";
 import {
   LoanFragment,
-  RequestStatusEnum,
+  LoanStatusEnum,
   useUpdateLoanMutation,
 } from "generated/graphql";
 import { ActionType } from "lib/ActionType";
@@ -62,7 +62,7 @@ function PurchaseOrderLoansView({
       variables: {
         id: loanId,
         loan: {
-          status: RequestStatusEnum.Approved,
+          status: LoanStatusEnum.Approved,
         },
       },
     });
@@ -79,7 +79,7 @@ function PurchaseOrderLoansView({
       variables: {
         id: loanId,
         loan: {
-          status: RequestStatusEnum.Rejected,
+          status: LoanStatusEnum.Rejected,
           rejected_at: "now()",
         },
       },
