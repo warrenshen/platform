@@ -28,10 +28,7 @@ function PurchaseOrderLoansView({
   refetch,
 }: Props) {
   // State for create / update Purchase Order modal(s).
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [targetPurchaseOrderLoanId, setTargetPurchaseOrderLoanId] = useState(
-    ""
-  );
+  const [isCreateUpdateModalOpen, setIsCreateUpdateModalOpen] = useState(false);
 
   // State for view Purchase Order modal.
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -52,9 +49,9 @@ function PurchaseOrderLoansView({
     setIsViewModalOpen(true);
   };
 
-  const handleEditPurchaseOrderLoan = (purchaseOrderLoanId: string) => {
-    setTargetPurchaseOrderLoanId(purchaseOrderLoanId);
-    setIsModalOpen(true);
+  const handleEditPurchaseOrderLoan = (loanId: string) => {
+    setTargetLoanId(loanId);
+    setIsCreateUpdateModalOpen(true);
   };
 
   const handleApproveLoan = async (loanId: string) => {
@@ -111,18 +108,14 @@ function PurchaseOrderLoansView({
           }}
         ></ViewLoanModal>
       )}
-      {isModalOpen && (
+      {isCreateUpdateModalOpen && (
         <CreateUpdatePurchaseOrderLoanModal
-          actionType={
-            targetPurchaseOrderLoanId === ""
-              ? ActionType.New
-              : ActionType.Update
-          }
-          loanId={targetPurchaseOrderLoanId}
+          actionType={targetLoanId === "" ? ActionType.New : ActionType.Update}
+          loanId={targetLoanId}
           handleClose={() => {
-            setTargetPurchaseOrderLoanId("");
+            setTargetLoanId("");
             refetch();
-            setIsModalOpen(false);
+            setIsCreateUpdateModalOpen(false);
           }}
         ></CreateUpdatePurchaseOrderLoanModal>
       )}
@@ -139,7 +132,7 @@ function PurchaseOrderLoansView({
       <Box pb={2} display="flex" flexDirection="row-reverse">
         <Can perform={Action.AddPurchaseOrders}>
           <Button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => setIsCreateUpdateModalOpen(true)}
             variant="contained"
             color="primary"
           >

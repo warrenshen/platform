@@ -90,7 +90,7 @@ function ListPurchaseOrderLoans({
                 key: "edit-loan-notes",
                 label: "Edit Internal Note",
                 handleClick: () =>
-                  handleEditLoanNotes(params.row.data.loan_id as string),
+                  handleEditLoanNotes(params.row.data.id as string),
               },
             ]
           : []),
@@ -100,7 +100,7 @@ function ListPurchaseOrderLoans({
                 key: "approve-loan",
                 label: "Approve Loan",
                 handleClick: () =>
-                  handleApproveLoan(params.row.data.loan_id as string),
+                  handleApproveLoan(params.row.data.id as string),
               },
             ]
           : []),
@@ -110,7 +110,7 @@ function ListPurchaseOrderLoans({
                 key: "reject-loan",
                 label: "Reject Loan",
                 handleClick: () =>
-                  handleRejectLoan(params.row.data.loan_id as string),
+                  handleRejectLoan(params.row.data.id as string),
               },
             ]
           : []),
