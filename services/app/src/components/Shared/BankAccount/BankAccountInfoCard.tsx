@@ -10,6 +10,7 @@ import { grey } from "@material-ui/core/colors";
 import { CheckCircle } from "@material-ui/icons";
 import CreateUpdateBankAccountModal from "components/Shared/BankAccount/CreateUpdateBankAccountModal";
 import { BankAccountFragment } from "generated/graphql";
+import { obfuscateBankNumbers } from "lib/privacy";
 import { calendarDateTimestamp } from "lib/time";
 import { useState } from "react";
 
@@ -62,11 +63,11 @@ function BankAccountInfoCard({
           </Box>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Routing Number</Box>
-            <Box>{bankAccount.routing_number}</Box>
+            <Box>{obfuscateBankNumbers(bankAccount.routing_number)}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Account Number</Box>
-            <Box>{bankAccount.account_number}</Box>
+            <Box>{obfuscateBankNumbers(bankAccount.account_number)}</Box>
           </Box>
           {isVerificationVisible && (
             <Box display="flex" pt={0.5} pb={1}>
