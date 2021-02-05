@@ -3,6 +3,7 @@ import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import Status from "components/Shared/Chip/Status";
 import ActionMenu from "components/Shared/DataGrid/ActionMenu";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
+import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import DataGrid, {
   Column,
@@ -82,22 +83,30 @@ function ListPurchaseOrders({
       minWidth: 200,
     },
     {
-      alignment: "left",
       caption: "Amount",
+      alignment: "right",
       minWidth: 120,
       cellRender: renderAmount,
     },
     {
-      dataField: "order_date",
       caption: "Order Date",
-      alignment: "center",
+      alignment: "right",
       minWidth: 130,
+      cellRender: (params: ValueFormatterParams) => (
+        <DateDataGridCell
+          dateString={params.row.data.order_date}
+        ></DateDataGridCell>
+      ),
     },
     {
-      dataField: "delivery_date",
       caption: "Delivery Date",
-      alignment: "center",
+      alignment: "right",
       minWidth: 130,
+      cellRender: (params: ValueFormatterParams) => (
+        <DateDataGridCell
+          dateString={params.row.data.delivery_date}
+        ></DateDataGridCell>
+      ),
     },
     {
       dataField: "loans",
@@ -134,7 +143,7 @@ function ListPurchaseOrders({
             cellRender,
           }) => (
             <Column
-              key={dataField}
+              key={caption}
               caption={caption}
               dataField={dataField}
               alignment={alignment}

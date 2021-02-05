@@ -60,6 +60,7 @@ function PaymentsDataGrid({
     },
     {
       caption: "Amount",
+      alignment: "right",
       width: 140,
       cellRender: renderAmount,
     },

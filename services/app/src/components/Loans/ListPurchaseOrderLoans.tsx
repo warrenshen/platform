@@ -3,6 +3,7 @@ import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import Status from "components/Shared/Chip/Status";
 import ActionMenu from "components/Shared/DataGrid/ActionMenu";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
+import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import Launcher from "components/Shared/PurchaseOrderLoanDrawer/Launcher";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import DataGrid, {
@@ -60,10 +61,6 @@ function ListPurchaseOrderLoans({
       </Box>
     );
   };
-
-  const renderAmount = (params: ValueFormatterParams) => (
-    <CurrencyDataGridCell value={params.row.data.amount}></CurrencyDataGridCell>
-  );
 
   const statusCellRenderer = (params: ValueFormatterParams) => (
     <Status statusValue={params.value} />
@@ -133,27 +130,44 @@ function ListPurchaseOrderLoans({
       minWidth: 150,
     },
     {
-      alignment: "left",
+      alignment: "right",
       caption: "Amount",
       minWidth: 150,
-      cellRender: renderAmount,
+      cellRender: (params: ValueFormatterParams) => (
+        <CurrencyDataGridCell
+          value={params.row.data.amount}
+        ></CurrencyDataGridCell>
+      ),
     },
     {
-      dataField: "origination_date",
       caption: "Payment Date",
-      alignment: "center",
+      alignment: "right",
       minWidth: 140,
+      cellRender: (params: ValueFormatterParams) => (
+        <DateDataGridCell
+          dateString={params.row.data.origination_date}
+        ></DateDataGridCell>
+      ),
     },
     {
-      dataField: "maturity_date",
       caption: "Maturity Date",
-      alignment: "center",
+      alignment: "right",
       minWidth: 140,
+      cellRender: (params: ValueFormatterParams) => (
+        <DateDataGridCell
+          dateString={params.row.data.maturity_date}
+        ></DateDataGridCell>
+      ),
     },
     {
-      dataField: "outstanding_principal_balance",
       caption: "Outstanding Principal Balance",
       minWidth: 220,
+      alignment: "right",
+      cellRender: (params: ValueFormatterParams) => (
+        <CurrencyDataGridCell
+          value={params.row.data.outstanding_principal_balance}
+        ></CurrencyDataGridCell>
+      ),
     },
     {
       dataField: "status",
@@ -201,7 +215,7 @@ function ListPurchaseOrderLoans({
             cellRender,
           }) => (
             <Column
-              key={dataField}
+              key={caption}
               caption={caption}
               visible={visible}
               dataField={dataField}

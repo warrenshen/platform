@@ -133,6 +133,7 @@ function BankLoansDataGrid({
   }
   columns.push({
     caption: "Loan Amount",
+    alignment: "right",
     width: 120,
     cellRender: renderAmount,
   });

@@ -1,6 +1,7 @@
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import Status from "components/Shared/Chip/Status";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
+import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import DataGrid, { Column, IColumnProps } from "devextreme-react/data-grid";
 import { LoanFragment } from "generated/graphql";
 import { useEffect, useState } from "react";
@@ -34,10 +35,6 @@ function LoansDataGrid({
     }
   }, [dataGrid, customerSearchQuery]);
 
-  const renderAmount = (params: ValueFormatterParams) => (
-    <CurrencyDataGridCell value={params.row.data.amount}></CurrencyDataGridCell>
-  );
-
   const statusCellRenderer = (params: ValueFormatterParams) => (
     <Status statusValue={params.value} />
   );
@@ -60,8 +57,13 @@ function LoansDataGrid({
     },
     {
       caption: "Loan Amount",
+      alignment: "right",
       width: 120,
-      cellRender: renderAmount,
+      cellRender: (params: ValueFormatterParams) => (
+        <CurrencyDataGridCell
+          value={params.row.data.amount}
+        ></CurrencyDataGridCell>
+      ),
     },
     {
       dataField: "status",
@@ -77,10 +79,14 @@ function LoansDataGrid({
       width: 120,
     },
     {
-      dataField: "maturity_date",
       caption: "Maturity Date",
-      alignment: "center",
+      alignment: "right",
       width: 120,
+      cellRender: (params: ValueFormatterParams) => (
+        <DateDataGridCell
+          dateString={params.row.data.maturity_date}
+        ></DateDataGridCell>
+      ),
     },
   ];
 
