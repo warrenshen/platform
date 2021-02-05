@@ -73,10 +73,6 @@ function BankLoansDataGrid({
     return Math.floor((nowTime - maturityTime) / (24 * 60 * 60 * 1000));
   };
 
-  const renderAmount = (params: ValueFormatterParams) => (
-    <CurrencyDataGridCell value={params.row.data.amount}></CurrencyDataGridCell>
-  );
-
   const statusCellRenderer = (params: ValueFormatterParams) => (
     <Status statusValue={params.value} />
   );
@@ -135,7 +131,11 @@ function BankLoansDataGrid({
     caption: "Loan Amount",
     alignment: "right",
     width: 120,
-    cellRender: renderAmount,
+    cellRender: (params: ValueFormatterParams) => (
+      <CurrencyDataGridCell
+        value={params.row.data.amount}
+      ></CurrencyDataGridCell>
+    ),
   });
 
   // {

@@ -75,6 +75,9 @@ fragment Loan on loans {
   maturity_date
   adjusted_maturity_date
   notes
+  outstanding_principal_balance
+  outstanding_interest
+  outstanding_fees
 }
 
 ## Finance
@@ -97,4 +100,15 @@ fragment Payment on payments {
   bespoke_bank_account {
     ...BankAccount
   }
+}
+
+fragment Transaction on transactions {
+  id
+  loan_id
+  payment_id
+  type
+  amount
+  to_principal
+  to_interest
+  to_fees
 }

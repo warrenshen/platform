@@ -1,0 +1,13 @@
+query Transactions {
+  transactions {
+    id
+    ...Transaction
+    payment {
+      id
+      company {
+        id
+        name
+      }
+    }
+  }
+}

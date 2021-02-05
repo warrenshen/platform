@@ -113,6 +113,10 @@ const BANK_LEFT_NAV_ITEMS = [
     link: bankRoutes.payments,
   },
   {
+    text: "Transactions",
+    link: bankRoutes.transactions,
+  },
+  {
     text: "Customers",
     link: bankRoutes.customers,
   },

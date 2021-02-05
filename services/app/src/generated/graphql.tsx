@@ -8014,6 +8014,8 @@ export type Transactions = {
   loan_id: Scalars["uuid"];
   modified_at: Scalars["timestamptz"];
   modified_by_user_id?: Maybe<Scalars["uuid"]>;
+  /** An object relationship */
+  payment: Payments;
   payment_id: Scalars["uuid"];
   to_fees: Scalars["numeric"];
   to_interest: Scalars["numeric"];
@@ -8097,6 +8099,7 @@ export type TransactionsBoolExp = {
   loan_id?: Maybe<UuidComparisonExp>;
   modified_at?: Maybe<TimestamptzComparisonExp>;
   modified_by_user_id?: Maybe<UuidComparisonExp>;
+  payment?: Maybe<PaymentsBoolExp>;
   payment_id?: Maybe<UuidComparisonExp>;
   to_fees?: Maybe<NumericComparisonExp>;
   to_interest?: Maybe<NumericComparisonExp>;
@@ -8127,6 +8130,7 @@ export type TransactionsInsertInput = {
   loan_id?: Maybe<Scalars["uuid"]>;
   modified_at?: Maybe<Scalars["timestamptz"]>;
   modified_by_user_id?: Maybe<Scalars["uuid"]>;
+  payment?: Maybe<PaymentsObjRelInsertInput>;
   payment_id?: Maybe<Scalars["uuid"]>;
   to_fees?: Maybe<Scalars["numeric"]>;
   to_interest?: Maybe<Scalars["numeric"]>;
@@ -8228,6 +8232,7 @@ export type TransactionsOrderBy = {
   loan_id?: Maybe<OrderBy>;
   modified_at?: Maybe<OrderBy>;
   modified_by_user_id?: Maybe<OrderBy>;
+  payment?: Maybe<PaymentsOrderBy>;
   payment_id?: Maybe<OrderBy>;
   to_fees?: Maybe<OrderBy>;
   to_interest?: Maybe<OrderBy>;
@@ -9284,6 +9289,9 @@ export type LoanFragment = Pick<
   | "maturity_date"
   | "adjusted_maturity_date"
   | "notes"
+  | "outstanding_principal_balance"
+  | "outstanding_interest"
+  | "outstanding_fees"
 >;
 
 export type PaymentFragment = Pick<
@@ -9300,6 +9308,18 @@ export type PaymentFragment = Pick<
   company_bank_account?: Maybe<BankAccountFragment>;
   bespoke_bank_account?: Maybe<BankAccountFragment>;
 };
+
+export type TransactionFragment = Pick<
+  Transactions,
+  | "id"
+  | "loan_id"
+  | "payment_id"
+  | "type"
+  | "amount"
+  | "to_principal"
+  | "to_interest"
+  | "to_fees"
+>;
 
 export type CompanySettingsForCustomerFragment = Pick<
   CompanySettings,
@@ -9649,6 +9669,18 @@ export type GetCompanySettingsQueryVariables = Exact<{
 
 export type GetCompanySettingsQuery = {
   company_settings_by_pk?: Maybe<CompanySettingsFragment>;
+};
+
+export type TransactionsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type TransactionsQuery = {
+  transactions: Array<
+    Pick<Transactions, "id"> & {
+      payment: Pick<Payments, "id"> & {
+        company: Pick<Companies, "id" | "name">;
+      };
+    } & TransactionFragment
+  >;
 };
 
 export type UserFragment = Pick<
@@ -10132,6 +10164,9 @@ export const LoanFragmentDoc = gql`
     maturity_date
     adjusted_maturity_date
     notes
+    outstanding_principal_balance
+    outstanding_interest
+    outstanding_fees
   }
 `;
 export const PaymentFragmentDoc = gql`
@@ -10155,6 +10190,18 @@ export const PaymentFragmentDoc = gql`
     }
   }
   ${BankAccountFragmentDoc}
+`;
+export const TransactionFragmentDoc = gql`
+  fragment Transaction on transactions {
+    id
+    loan_id
+    payment_id
+    type
+    amount
+    to_principal
+    to_interest
+    to_fees
+  }
 `;
 export const CompanySettingsForCustomerFragmentDoc = gql`
   fragment CompanySettingsForCustomer on company_settings {
@@ -12245,6 +12292,70 @@ export type GetCompanySettingsLazyQueryHookResult = ReturnType<
 export type GetCompanySettingsQueryResult = Apollo.QueryResult<
   GetCompanySettingsQuery,
   GetCompanySettingsQueryVariables
+>;
+export const TransactionsDocument = gql`
+  query Transactions {
+    transactions {
+      id
+      ...Transaction
+      payment {
+        id
+        company {
+          id
+          name
+        }
+      }
+    }
+  }
+  ${TransactionFragmentDoc}
+`;
+
+/**
+ * __useTransactionsQuery__
+ *
+ * To run a query within a React component, call `useTransactionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTransactionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTransactionsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useTransactionsQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    TransactionsQuery,
+    TransactionsQueryVariables
+  >
+) {
+  return Apollo.useQuery<TransactionsQuery, TransactionsQueryVariables>(
+    TransactionsDocument,
+    baseOptions
+  );
+}
+export function useTransactionsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    TransactionsQuery,
+    TransactionsQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<TransactionsQuery, TransactionsQueryVariables>(
+    TransactionsDocument,
+    baseOptions
+  );
+}
+export type TransactionsQueryHookResult = ReturnType<
+  typeof useTransactionsQuery
+>;
+export type TransactionsLazyQueryHookResult = ReturnType<
+  typeof useTransactionsLazyQuery
+>;
+export type TransactionsQueryResult = Apollo.QueryResult<
+  TransactionsQuery,
+  TransactionsQueryVariables
 >;
 export const UpdateVendorContactDocument = gql`
   mutation UpdateVendorContact($userId: uuid!, $contact: users_set_input!) {

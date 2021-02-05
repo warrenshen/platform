@@ -44,10 +44,6 @@ function ListPurchaseOrders({
 
   const rows = populateRows(purchaseOrders);
 
-  const renderAmount = (params: ValueFormatterParams) => (
-    <CurrencyDataGridCell value={params.row.data.amount}></CurrencyDataGridCell>
-  );
-
   const statusCellRenderer = (params: ValueFormatterParams) => (
     <Status statusValue={params.value} />
   );
@@ -86,7 +82,11 @@ function ListPurchaseOrders({
       caption: "Amount",
       alignment: "right",
       minWidth: 120,
-      cellRender: renderAmount,
+      cellRender: (params: ValueFormatterParams) => (
+        <CurrencyDataGridCell
+          value={params.row.data.amount}
+        ></CurrencyDataGridCell>
+      ),
     },
     {
       caption: "Order Date",

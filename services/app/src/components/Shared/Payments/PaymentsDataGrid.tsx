@@ -32,10 +32,6 @@ function PaymentsDataGrid({
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = getRows(payments);
 
-  const renderAmount = (params: ValueFormatterParams) => (
-    <CurrencyDataGridCell value={params.row.data.amount}></CurrencyDataGridCell>
-  );
-
   const companyNameRenderer = (params: ValueFormatterParams) => {
     return (
       <ClickableDataGridCell
@@ -62,7 +58,11 @@ function PaymentsDataGrid({
       caption: "Amount",
       alignment: "right",
       width: 140,
-      cellRender: renderAmount,
+      cellRender: (params: ValueFormatterParams) => (
+        <CurrencyDataGridCell
+          value={params.row.data.amount}
+        ></CurrencyDataGridCell>
+      ),
     },
     {
       dataField: "type",
