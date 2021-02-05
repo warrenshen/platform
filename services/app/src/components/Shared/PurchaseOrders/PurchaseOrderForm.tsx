@@ -186,11 +186,6 @@ function PurchaseOrderForm({
             });
           }}
         ></FileUploadDropzone>
-        <Box>
-          {purchaseOrderFile
-            ? "File is uploaded"
-            : "Please upload a file (don't forget to press SAVE)"}
-        </Box>
       </Box>
       <Box mt={3}>
         <FormControlLabel
@@ -241,11 +236,6 @@ function PurchaseOrderForm({
               );
             }}
           ></FileUploadDropzone>
-          <Box>
-            {purchaseOrderFile
-              ? `${purchaseOrderCannabisFiles.length} file(s) uploaded`
-              : "Please upload file(s) (don't forget to press SAVE)"}
-          </Box>
         </Box>
       )}
     </Box>

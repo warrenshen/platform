@@ -4,9 +4,15 @@ query Loan($id: uuid!) {
   }
 }
 
+query LoanForCustomer($id: uuid!) {
+  loans_by_pk(id: $id) {
+    ...LoanLimited
+  }
+}
+
 mutation AddLoan($loan: loans_insert_input!) {
   insert_loans_one(object: $loan) {
-    ...Loan
+    ...LoanLimited
   }
 }
 

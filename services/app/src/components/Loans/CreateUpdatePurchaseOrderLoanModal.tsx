@@ -16,7 +16,7 @@ import {
   Scalars,
   useAddLoanMutation,
   useApprovedPurchaseOrdersQuery,
-  useLoanQuery,
+  useLoanForCustomerQuery,
   useLoanSiblingsQuery,
   useUpdateLoanMutation,
 } from "generated/graphql";
@@ -75,7 +75,7 @@ function CreateUpdatePurchaseOrderLoanModal({
 
   const [loan, setLoan] = useState(newLoan);
 
-  const { loading: isExistingLoanLoading } = useLoanQuery({
+  const { loading: isExistingLoanLoading } = useLoanForCustomerQuery({
     variables: {
       id: loanId,
     },

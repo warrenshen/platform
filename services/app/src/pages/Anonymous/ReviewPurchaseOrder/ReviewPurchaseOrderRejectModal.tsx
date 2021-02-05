@@ -97,7 +97,7 @@ function ReviewPurchaseOrderRejectModal({
         <Button
           disabled={!rejectionNote}
           variant={"contained"}
-          color={"secondary"}
+          color={"primary"}
           onClick={handleClickReject}
         >
           Confirm

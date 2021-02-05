@@ -13,6 +13,7 @@ import {
   RequestStatusEnum,
   usePurchaseOrderForReviewQuery,
 } from "generated/graphql";
+import { formatCurrency } from "lib/currency";
 import { anonymousRoutes } from "lib/routes";
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
@@ -118,7 +119,7 @@ function ReviewPurchaseOrderPage(props: Props) {
             <p className={classes.propertyLabel}>
               <strong>Amount:</strong>
             </p>
-            <p>{purchaseOrder.amount}</p>
+            <p>{formatCurrency(purchaseOrder.amount)}</p>
           </Box>
           <Box display="flex" flexDirection="row" m={1}>
             <p className={classes.propertyLabel}>
@@ -187,11 +188,11 @@ function ReviewPurchaseOrderPage(props: Props) {
             <ReviewPurchaseOrderApproveModal
               purchaseOrder={purchaseOrder}
               handleClose={() => setIsApproveModalOpen(false)}
-              handleApproveSuccess={() =>
+              handleApproveSuccess={() => {
                 history.push({
                   pathname: anonymousRoutes.reviewPurchaseOrderComplete,
-                })
-              }
+                });
+              }}
             ></ReviewPurchaseOrderApproveModal>
           )}
           {isRejectModalOpen && (

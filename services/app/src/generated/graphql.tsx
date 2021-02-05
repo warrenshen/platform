@@ -1,5 +1,5 @@
-import * as Apollo from "@apollo/client";
 import { gql } from "@apollo/client";
+import * as Apollo from "@apollo/client";
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = {
   [K in keyof T]: T[K];
@@ -9177,11 +9177,17 @@ export type LoanQueryVariables = Exact<{
 
 export type LoanQuery = { loans_by_pk?: Maybe<LoanFragment> };
 
+export type LoanForCustomerQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type LoanForCustomerQuery = { loans_by_pk?: Maybe<LoanLimitedFragment> };
+
 export type AddLoanMutationVariables = Exact<{
   loan: LoansInsertInput;
 }>;
 
-export type AddLoanMutation = { insert_loans_one?: Maybe<LoanFragment> };
+export type AddLoanMutation = { insert_loans_one?: Maybe<LoanLimitedFragment> };
 
 export type UpdateLoanMutationVariables = Exact<{
   id: Scalars["uuid"];
@@ -10789,13 +10795,70 @@ export function useLoanLazyQuery(
 export type LoanQueryHookResult = ReturnType<typeof useLoanQuery>;
 export type LoanLazyQueryHookResult = ReturnType<typeof useLoanLazyQuery>;
 export type LoanQueryResult = Apollo.QueryResult<LoanQuery, LoanQueryVariables>;
+export const LoanForCustomerDocument = gql`
+  query LoanForCustomer($id: uuid!) {
+    loans_by_pk(id: $id) {
+      ...LoanLimited
+    }
+  }
+  ${LoanLimitedFragmentDoc}
+`;
+
+/**
+ * __useLoanForCustomerQuery__
+ *
+ * To run a query within a React component, call `useLoanForCustomerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useLoanForCustomerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useLoanForCustomerQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useLoanForCustomerQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    LoanForCustomerQuery,
+    LoanForCustomerQueryVariables
+  >
+) {
+  return Apollo.useQuery<LoanForCustomerQuery, LoanForCustomerQueryVariables>(
+    LoanForCustomerDocument,
+    baseOptions
+  );
+}
+export function useLoanForCustomerLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    LoanForCustomerQuery,
+    LoanForCustomerQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    LoanForCustomerQuery,
+    LoanForCustomerQueryVariables
+  >(LoanForCustomerDocument, baseOptions);
+}
+export type LoanForCustomerQueryHookResult = ReturnType<
+  typeof useLoanForCustomerQuery
+>;
+export type LoanForCustomerLazyQueryHookResult = ReturnType<
+  typeof useLoanForCustomerLazyQuery
+>;
+export type LoanForCustomerQueryResult = Apollo.QueryResult<
+  LoanForCustomerQuery,
+  LoanForCustomerQueryVariables
+>;
 export const AddLoanDocument = gql`
   mutation AddLoan($loan: loans_insert_input!) {
     insert_loans_one(object: $loan) {
-      ...Loan
+      ...LoanLimited
     }
   }
-  ${LoanFragmentDoc}
+  ${LoanLimitedFragmentDoc}
 `;
 export type AddLoanMutationFn = Apollo.MutationFunction<
   AddLoanMutation,
