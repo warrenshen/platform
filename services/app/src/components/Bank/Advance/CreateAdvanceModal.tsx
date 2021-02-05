@@ -92,9 +92,7 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
       maxWidth="xl"
       classes={{ paper: classes.dialog }}
     >
-      <DialogTitle className={classes.dialogTitle}>
-        Create Payment Advance
-      </DialogTitle>
+      <DialogTitle className={classes.dialogTitle}>Create Advance</DialogTitle>
       <DialogContent>
         <PaymentAdvanceForm
           selectedLoans={selectedLoans}

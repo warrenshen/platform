@@ -54,7 +54,7 @@ function BankCustomerLoansSubpage({ companyId }: Props) {
           color="primary"
           onClick={() => setIsCreateModalOpen(true)}
         >
-          Create Payment Advance
+          Create Advance
         </Button>
       </Box>
       <PurchaseOrderLoansView

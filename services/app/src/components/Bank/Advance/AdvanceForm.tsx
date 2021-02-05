@@ -22,8 +22,8 @@ function PaymentAdvanceForm({ payment, selectedLoans, setPayment }: Props) {
     <Box display="flex" flexDirection="column">
       <Box mt={3}>
         <Typography>
-          You are recording payment advances(s) for the following loans. Please
-          select the payment method which was used and then press "Submit".
+          You are recording advances(s) for the following loans. Please select
+          the payment method which was used and then press "Submit".
         </Typography>
       </Box>
       <Box mt={3}>
