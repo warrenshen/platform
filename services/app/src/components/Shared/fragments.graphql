@@ -88,14 +88,6 @@ fragment LoanLimited on loans {
   funded_at
 }
 
-fragment PurchaseOrderLoan on purchase_order_loans {
-  id
-  purchase_order_id
-  loan {
-    ...LoanLimited
-  }
-}
-
 ## Files
 
 fragment File on files {

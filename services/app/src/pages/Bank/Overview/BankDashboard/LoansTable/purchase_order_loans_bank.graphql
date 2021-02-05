@@ -1,18 +1,7 @@
-fragment PurchaseOrderTypeLoan on purchase_order_type_loans {
-  id
-  amount
-  status
-  requested_at
-  outstanding_interest
-  outstanding_fees
-  origination_date
-  maturity_date
-}
-
 query AllPurchaseOrderLoansForBank {
-  loans: purchase_order_type_loans {
+  loans(where: { loan_type: { _eq: purchase_order } }) {
     id
-    ...PurchaseOrderTypeLoan
+    ...Loan
     purchase_order {
       id
       order_number

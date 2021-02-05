@@ -16,7 +16,7 @@ const useStyles = makeStyles({
 });
 
 interface Props {
-  purchaseOrderLoanId: PurchaseOrderLoans["id"];
+  loanId: PurchaseOrderLoans["id"];
   onClose: () => void;
 }
 
@@ -24,33 +24,34 @@ function PurchaseOrderLoanDrawer(props: Props) {
   const classes = useStyles();
   const { data } = usePurchaseOrderLoanQuery({
     variables: {
-      id: props.purchaseOrderLoanId,
+      id: props.loanId,
     },
   });
 
-  if (!data || !data.purchase_order_loans_by_pk) {
+  if (!data?.loans_by_pk) {
     return null;
   }
+
+  const loan = data.loans_by_pk;
 
   return (
     <Drawer open anchor="right" onClose={props.onClose}>
       <Box className={classes.drawerContent} p={4}>
         <Typography variant="h6">Loan Details</Typography>
-
         <Typography variant="h6">Purchase Order</Typography>
-        <PurchaseOrderInfoCard
-          purchaseOrder={data.purchase_order_loans_by_pk.purchase_order}
-        ></PurchaseOrderInfoCard>
+        {loan.purchase_order && (
+          <PurchaseOrderInfoCard
+            purchaseOrder={loan.purchase_order}
+          ></PurchaseOrderInfoCard>
+        )}
         <Typography variant="h6">Payments</Typography>
         <Can perform={Action.DisbursePurchaseOrderLoans}>
           <DisbursalButton
-            vendorId={data.purchase_order_loans_by_pk.purchase_order.vendor?.id}
-            purchaseOrderLoanId={data.purchase_order_loans_by_pk.id}
-            initialAmount={data.purchase_order_loans_by_pk.loan?.amount}
+            vendorId={loan.purchase_order?.vendor?.id}
+            purchaseOrderLoanId={loan.id}
+            initialAmount={loan.amount}
           ></DisbursalButton>
-          <Disbursements
-            id={data.purchase_order_loans_by_pk.id}
-          ></Disbursements>
+          <Disbursements id={loan.id}></Disbursements>
         </Can>
       </Box>
     </Drawer>

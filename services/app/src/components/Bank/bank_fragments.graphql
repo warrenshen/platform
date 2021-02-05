@@ -78,6 +78,7 @@ fragment Loan on loans {
   outstanding_principal_balance
   outstanding_interest
   outstanding_fees
+  requested_at
 }
 
 ## Finance

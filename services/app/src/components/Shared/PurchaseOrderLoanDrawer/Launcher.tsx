@@ -7,12 +7,13 @@ import React, { useState } from "react";
 function Launcher(props: { purchaseOrderLoanId: PurchaseOrderLoans["id"] }) {
   const [open, setOpen] = useState(false);
 
+  // TODO (warrenshen): do not do the manual typecast below.
   return (
     <>
       {open && (
         <PurchaseOrderLoanDrawer
           onClose={() => setOpen(false)}
-          purchaseOrderLoanId={props.purchaseOrderLoanId}
+          loanId={props.purchaseOrderLoanId as string}
         ></PurchaseOrderLoanDrawer>
       )}
       <IconButton onClick={() => setOpen(true)}>
