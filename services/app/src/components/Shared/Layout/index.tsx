@@ -70,8 +70,8 @@ const CUSTOMER_LEFT_NAV_ITEMS = [
     link: customerRoutes.vendors,
   },
   {
-    text: "Profile",
-    link: routes.profile,
+    text: "Company Profile",
+    link: customerRoutes.companyProfile,
   },
   {
     text: "Users",

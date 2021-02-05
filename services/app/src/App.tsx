@@ -23,14 +23,12 @@ import BankLoansPastDuePage from "pages/Bank/LoansPastDue";
 import BankLoansPurchaseOrderPage from "pages/Bank/LoansPurchaseOrder";
 import BankPaymentsPage from "pages/Bank/Payments";
 import BankVendorsPage from "pages/Bank/Vendors";
-import CompanyProfilePage from "pages/Customer/CompanyProfile";
-import {
-  default as CustomerVendorsPage,
-  default as LoansPage,
-} from "pages/Customer/Loans";
+import CustomerCompanyProfilePage from "pages/Customer/CompanyProfile";
+import CustomerLoansPage from "pages/Customer/Loans";
 import CustomerOverviewPage from "pages/Customer/Overview";
-import PurchaseOrdersPage from "pages/Customer/PurchaseOrders";
-import SettingsPage from "pages/Customer/Settings";
+import CustomerPurchaseOrdersPage from "pages/Customer/PurchaseOrders";
+import CustomerSettingsPage from "pages/Customer/Settings";
+import CustomerVendorsPage from "pages/Customer/Vendors";
 import Home from "pages/Home";
 import SignIn from "pages/SignIn";
 import UserProfile from "pages/UserProfile";
@@ -86,16 +84,6 @@ function App() {
             )}
           </PrivateRoute>
           <PrivateRoute
-            exact
-            path={routes.profile}
-            requiredRoles={[
-              UserRolesEnum.BankAdmin,
-              UserRolesEnum.CompanyAdmin,
-            ]}
-          >
-            <CompanyProfilePage></CompanyProfilePage>
-          </PrivateRoute>
-          <PrivateRoute
             path={routes.userProfile}
             requiredRoles={[
               UserRolesEnum.BankAdmin,
@@ -123,24 +111,31 @@ function App() {
           </PrivateRoute>
           <PrivateRoute
             exact
+            path={customerRoutes.companyProfile}
+            requiredRoles={[UserRolesEnum.CompanyAdmin]}
+          >
+            <CustomerCompanyProfilePage></CustomerCompanyProfilePage>
+          </PrivateRoute>
+          <PrivateRoute
+            exact
             path={customerRoutes.loans}
             requiredRoles={[UserRolesEnum.CompanyAdmin]}
           >
-            <LoansPage></LoansPage>
+            <CustomerLoansPage></CustomerLoansPage>
           </PrivateRoute>
           <PrivateRoute
             exact
             path={customerRoutes.purchaseOrders}
             requiredRoles={[UserRolesEnum.CompanyAdmin]}
           >
-            <PurchaseOrdersPage></PurchaseOrdersPage>
+            <CustomerPurchaseOrdersPage></CustomerPurchaseOrdersPage>
           </PrivateRoute>
           <PrivateRoute
             exact
             path={customerRoutes.settings}
             requiredRoles={[UserRolesEnum.CompanyAdmin]}
           >
-            <SettingsPage></SettingsPage>
+            <CustomerSettingsPage></CustomerSettingsPage>
           </PrivateRoute>
           <PrivateRoute
             exact
@@ -199,7 +194,7 @@ function App() {
             <BankCustomersPage></BankCustomersPage>
           </PrivateRoute>
           <PrivateRoute
-            path={bankRoutes.customer.root}
+            path={bankRoutes.customerRoot}
             requiredRoles={[UserRolesEnum.BankAdmin]}
           >
             <BankCustomerPage></BankCustomerPage>

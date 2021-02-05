@@ -1,10 +1,13 @@
 import { Box, Button } from "@material-ui/core";
-import { CustomerParams } from "components/Shared/CompanyProfile";
 import InviteUserModal from "components/Shared/Users/InviteUserModal";
 import ListUsers from "components/Shared/Users/ListUsers";
 import { useListUsersByCompanyIdQuery } from "generated/graphql";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
+
+export interface CustomerParams {
+  companyId: string;
+}
 
 function Users() {
   const { companyId } = useParams<CustomerParams>();

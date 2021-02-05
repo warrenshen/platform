@@ -3,8 +3,6 @@ import AddButton from "components/Vendors/AddVendor/Button";
 import ClickableVendorCard from "components/Vendors/Bank/ClickableVendorCard";
 import { useBankCustomerListVendorPartnershipsQuery } from "generated/graphql";
 import { sortBy } from "lodash";
-import { CustomerParams } from "pages/Bank/Customer";
-import { useParams } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -18,9 +16,12 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function Vendors() {
+interface Props {
+  companyId: string;
+}
+
+function Vendors({ companyId }: Props) {
   const classes = useStyles();
-  const { companyId } = useParams<CustomerParams>();
   const { data } = useBankCustomerListVendorPartnershipsQuery({
     variables: {
       companyId: companyId,

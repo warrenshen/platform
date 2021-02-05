@@ -6,12 +6,13 @@ import {
   LoanTypeEnum,
   useLoansByCompanyAndLoanTypeForBankQuery,
 } from "generated/graphql";
-import useCompanyContext from "hooks/useCompanyContext";
 import React, { useState } from "react";
 
-function BankCustomerLoansSubpage() {
-  const companyId = useCompanyContext();
+interface Props {
+  companyId: string;
+}
 
+function BankCustomerLoansSubpage({ companyId }: Props) {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
 

@@ -3,7 +3,6 @@
 export const routes = {
   root: "/",
   signIn: "/sign-in",
-  profile: "/profile",
   userProfile: "/user-profile",
   users: "/users",
 };
@@ -20,6 +19,7 @@ export const vendorRoutes = {};
 
 // Customer user routes are prefixed with "/1".
 export const customerRoutes = {
+  companyProfile: "/1/company-profile",
   loans: "/1/loans",
   overview: "/1/overview",
   purchaseOrders: "/1/purchase-orders",
@@ -31,14 +31,14 @@ export const customerRoutes = {
 export const bankRoutes = {
   overview: "/overview",
   bankAccounts: "/bank-accounts",
+  customerRoot: "/customers/:companyId",
   customer: {
-    root: "/customers/:companyId",
+    companyProfile: "/company-profile",
     overview: "/overview",
     loans: "/loans",
     purchaseOrders: "/purchase-orders",
     vendors: "/vendors",
     settings: "/settings",
-    profile: "/profile",
     users: "/users",
   },
   customers: "/customers",

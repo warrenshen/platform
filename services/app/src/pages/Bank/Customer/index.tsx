@@ -1,7 +1,7 @@
 import { Box, Paper, Tab, Tabs } from "@material-ui/core";
+import Profile from "components/Bank/Customer/CompanyProfile";
 import Loans from "components/Bank/Customer/Loans";
 import Overview from "components/Bank/Customer/Overview";
-import Profile from "components/Bank/Customer/Profile";
 import PurchaseOrders from "components/Bank/Customer/PurchaseOrders";
 import Settings from "components/Bank/Customer/Settings";
 import Users from "components/Bank/Customer/Users";
@@ -46,9 +46,9 @@ const customerPaths = [
     label: "Users",
   },
   {
-    path: bankRoutes.customer.profile,
+    path: bankRoutes.customer.companyProfile,
     component: Profile,
-    label: "Profile",
+    label: "Company Profile",
   },
   {
     path: bankRoutes.customer.settings,
@@ -120,7 +120,7 @@ function BankCustomerPage() {
               path={`${path}${customerPath.path}`}
               requiredRoles={[UserRolesEnum.BankAdmin]}
             >
-              {customerPath.component()}
+              {customerPath.component({ companyId })}
             </PrivateRoute>
           );
         })}
