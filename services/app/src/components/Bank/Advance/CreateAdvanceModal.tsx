@@ -12,7 +12,7 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { LoanFragment, PaymentsInsertInput } from "generated/graphql";
 import { authenticatedApi, loansRoutes } from "lib/api";
 import { useContext, useState } from "react";
-import PaymentAdvanceForm from "./PaymentAdvanceForm";
+import PaymentAdvanceForm from "./AdvanceForm";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -42,7 +42,7 @@ interface Props {
   handleClose: () => void;
 }
 
-function CreatePaymentAdvanceModal({ selectedLoans, handleClose }: Props) {
+function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
   const classes = useStyles();
   const {
     user: { companyId },
@@ -118,4 +118,4 @@ function CreatePaymentAdvanceModal({ selectedLoans, handleClose }: Props) {
   ) : null;
 }
 
-export default CreatePaymentAdvanceModal;
+export default CreateAdvanceModal;

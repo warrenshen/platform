@@ -9,11 +9,7 @@ import {
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import LoansDataGrid from "components/Shared/Loans/LoansDataGrid";
 import { LoanFragment, PaymentsInsertInput } from "generated/graphql";
-import {
-  AllPaymentMethods,
-  PaymentMethodEnum,
-  PaymentMethodToLabel,
-} from "lib/enum";
+import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
 
 interface Props {
   payment: PaymentsInsertInput;
@@ -53,11 +49,13 @@ function PaymentAdvanceForm({ payment, selectedLoans, setPayment }: Props) {
           }}
           style={{ width: 200 }}
         >
-          {AllPaymentMethods.map((paymentMethod) => (
-            <MenuItem key={paymentMethod} value={paymentMethod}>
-              {PaymentMethodToLabel[paymentMethod]}
-            </MenuItem>
-          ))}
+          {[PaymentMethodEnum.ACH, PaymentMethodEnum.Wire].map(
+            (paymentMethod) => (
+              <MenuItem key={paymentMethod} value={paymentMethod}>
+                {PaymentMethodToLabel[paymentMethod]}
+              </MenuItem>
+            )
+          )}
         </Select>
       </Box>
       <Box mt={3}>
