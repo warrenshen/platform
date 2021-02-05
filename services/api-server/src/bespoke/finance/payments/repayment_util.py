@@ -15,18 +15,28 @@ from bespoke.finance.payments import payment_util
 
 RepaymentEffectRespDict = TypedDict('RepaymentEffectRespDict', {
 	'status': str,
-	'loans_due': List[models.LoanDict],
-	'total_due': float,
-	'amount_leftover': float
+	'loans_afterwards': List[models.LoanDict],
+	'amount_to_pay': float
 })
 
 def calculate_repayment_effect(
 	payment_input: payment_util.PaymentInsertInputDict,
+	payment_option: str,
 	company_id: str,
 	loan_ids: List[str],
 	session_maker: Callable) -> Tuple[RepaymentEffectRespDict, errors.Error]:
 	# What loans and fees does would this payment pay off?
+
+	if payment_option == 'custom_amount':
+		if not number_util.is_number(payment_input.get('amount')) and payment_input['amount'] <= 0:
+			return None, errors.Error('Amount must greater than 0 when the payment option is Custom Amount')
+
+	if not payment_input.get('deposit_date'):
+		return None, errors.Error('Deposit date must be specified')
 	
+	if not loan_ids:
+		return None, errors.Error('No loan ids are selected')
+
 	# TODO(dlluncor): Handle the case where we change the loans a user tries to pay off
 	# because they haven't selected loans that have already come due.
 
@@ -34,21 +44,13 @@ def calculate_repayment_effect(
 	loan_dicts = []
 	err_details = {'company_id': company_id, 'loan_ids': loan_ids, 'method': 'calculate_repayment_effect'}
 
-	with session_scope(session_maker) as session:
-		if loan_ids:			
-			loans = cast(
-				List[models.Loan],
-				session.query(models.Loan).filter(
-					models.Loan.company_id == company_id
-				).filter(
-					models.Loan.id.in_(loan_ids)
-				).all())
-		else:
-			# No loans selected so grab all from the user
-			loans = cast(
+	with session_scope(session_maker) as session:		
+		loans = cast(
 			List[models.Loan],
 			session.query(models.Loan).filter(
 				models.Loan.company_id == company_id
+			).filter(
+				models.Loan.id.in_(loan_ids)
 			).all())
 
 		if not loans:
@@ -59,30 +61,40 @@ def calculate_repayment_effect(
 			loan_dicts.append(loan.as_dict())
 
 	date_selected = date_util.load_date_str(payment_input['deposit_date'])
-	loans_due = []
-	total_due = 0.0
 
-	for loan_dict in loan_dicts:
-		# TODO(dlluncor): This can be done in the SQL query as well.
-		if loan_dict['adjusted_maturity_date'] > date_selected:
-			# You dont have to worry about paying off this loan yet.
-			continue
+	amount_to_pay = 0.0
+	if payment_option == 'custom_amount':
+		amount_to_pay = payment_input['amount']
 
-		loans_due.append(loan_dict)
-		total_due += payment_util.sum([
-			loan_dict['outstanding_principal_balance'],
-			loan_dict['outstanding_interest'],
-			loan_dict['outstanding_fees']
-		])
+	elif payment_option == 'pay_minimum_due':
+		for loan_dict in loan_dicts:
+			if loan_dict['adjusted_maturity_date'] > date_selected:
+				# You dont have to worry about paying off this loan yet.
+				continue
 
-	amount_leftover = 0.0
-	if payment_input.get('amount'):
-		# How much is remaining after this amount is provided?
-		amount_leftover = total_due - payment_input['amount']
+			# Pay loans that have come due.
+			amount_to_pay += payment_util.sum([
+				loan_dict['outstanding_principal_balance'],
+				loan_dict['outstanding_interest'],
+				loan_dict['outstanding_fees']
+			])
 
+	elif payment_option == 'pay_in_full':
+
+		for loan_dict in loan_dicts:
+			amount_to_pay += payment_util.sum([
+				loan_dict['outstanding_principal_balance'],
+				loan_dict['outstanding_interest'],
+				loan_dict['outstanding_fees']
+			])
+	else:
+		return None, errors.Error('Unrecognized payment option')
+
+
+	# TODO(dlluncor): Calculate what actually happens to the loans after you
+	# have applied this payment.
 	return RepaymentEffectRespDict(
 		status='OK',
-		loans_due=[models.safe_serialize(l) for l in loans_due],
-		total_due=total_due,
-		amount_leftover=amount_leftover
+		loans_afterwards=[models.safe_serialize(l) for l in loan_dicts],
+		amount_to_pay=amount_to_pay
 	), None

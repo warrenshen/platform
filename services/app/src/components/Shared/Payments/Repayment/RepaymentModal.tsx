@@ -21,7 +21,11 @@ import {
   LoanFragment,
   PaymentsInsertInput,
 } from "generated/graphql";
-import { AllPaymentMethods, PaymentMethodEnum } from "lib/enum";
+import {
+  AllPaymentMethods,
+  PaymentMethodEnum,
+  PaymentMethodToLabel,
+} from "lib/enum";
 import {
   calculateEffectOfPayment,
   CalculateEffectOfPaymentResp,
@@ -54,6 +58,10 @@ function RepaymentModal({
     effectResp,
     setEffectResp,
   ] = useState<CalculateEffectOfPaymentResp | null>(null);
+  // A payment option is the user's choice to payment the remaining balances on the loan, to
+  // pay the minimum amount required, or to pay a custom amount.
+  const [paymentOption, setPaymentOption] = useState("");
+
   // There are 2 states that we show, one when the user is selecting the payment method
   // date, and payment type, and the next is when they have to "confirm" what they
   // have selected.
@@ -66,7 +74,13 @@ function RepaymentModal({
     payment.amount > 0 &&
     isDepositDateSet;
   const isPaymentMethodSet = payment.method !== PaymentMethodEnum.None;
-  const isNextButtonEnabled = isDepositDateSet && isPaymentMethodSet;
+  const isNextButtonEnabled =
+    isDepositDateSet && isPaymentMethodSet && paymentOption !== "";
+  const paymentOptions = [
+    { value: "pay_in_full", displayValue: "Pay in full" },
+    { value: "pay_minimum_due", displayValue: "Pay minimum due" },
+    { value: "custom_amount", displayValue: "Custom amount" },
+  ];
 
   return (
     <Dialog open onClose={handleClose} fullWidth>
@@ -94,18 +108,6 @@ function RepaymentModal({
           ></LoansDataGrid>
           {!onConfirmationSection && (
             <>
-              <FormControl style={{ width: 200 }}>
-                <CurrencyTextField
-                  label="Amount"
-                  currencySymbol="$"
-                  outputFormat="string"
-                  textAlign="left"
-                  value={payment.amount}
-                  onChange={(_event: any, value: string) => {
-                    setPayment({ ...payment, amount: value });
-                  }}
-                ></CurrencyTextField>
-              </FormControl>
               <Box>
                 <DatePicker
                   className=""
@@ -123,7 +125,11 @@ function RepaymentModal({
                 />
               </Box>
               <Box mt={3}>
-                <FormLabel component="legend" style={{ fontSize: "12px" }}>
+                <FormLabel
+                  component="legend"
+                  style={{ fontSize: "12px" }}
+                  required
+                >
                   Payment Method
                 </FormLabel>
                 <Select
@@ -137,10 +143,52 @@ function RepaymentModal({
                 >
                   {AllPaymentMethods.map((paymentType) => {
                     return (
-                      <MenuItem value={paymentType}>{paymentType}</MenuItem>
+                      <MenuItem value={paymentType}>
+                        {PaymentMethodToLabel[paymentType]}
+                      </MenuItem>
                     );
                   })}
                 </Select>
+              </Box>
+              <Box mt={3}>
+                <FormLabel
+                  component="legend"
+                  style={{ fontSize: "12px" }}
+                  required
+                >
+                  Payment Option
+                </FormLabel>
+                <Select
+                  value={paymentOption}
+                  onChange={({ target: { value } }) => {
+                    setPaymentOption(value as string);
+                  }}
+                  style={{ width: 200 }}
+                >
+                  {paymentOptions.map((paymentOption) => {
+                    return (
+                      <MenuItem value={paymentOption.value}>
+                        {paymentOption.displayValue}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </Box>
+              <Box mt={2}>
+                {paymentOption === "custom_amount" && (
+                  <FormControl style={{ width: 200 }}>
+                    <CurrencyTextField
+                      label="Amount"
+                      currencySymbol="$"
+                      outputFormat="string"
+                      textAlign="left"
+                      value={payment.amount}
+                      onChange={(_event: any, value: string) => {
+                        setPayment({ ...payment, amount: value });
+                      }}
+                    ></CurrencyTextField>
+                  </FormControl>
+                )}
               </Box>
             </>
           )}
@@ -169,6 +217,7 @@ function RepaymentModal({
                   const resp = await calculateEffectOfPayment({
                     payment: payment,
                     company_id: companyId,
+                    payment_option: paymentOption,
                     loan_ids: selectedLoans.map((loan) => {
                       return loan.id;
                     }),
@@ -178,6 +227,7 @@ function RepaymentModal({
                   } else {
                     setErrMsg("");
                     setEffectResp(resp);
+                    setPayment({ ...payment, amount: resp.amount_to_pay || 0 });
                     setOnConfirmationSection(true);
                   }
                 }}

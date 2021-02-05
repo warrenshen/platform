@@ -27,7 +27,7 @@ class CalculateEffectOfPaymentView(MethodView):
 		if not form:
 			return handler_util.make_error_response('No data provided')
 
-		required_keys = ['payment', 'company_id', 'loan_ids']
+		required_keys = ['payment', 'company_id', 'loan_ids', 'payment_option']
 		for key in required_keys:
 			if key not in form:
 				return handler_util.make_error_response(
@@ -39,18 +39,13 @@ class CalculateEffectOfPaymentView(MethodView):
 			return handler_util.make_error_response('Access Denied')
 
 		payment = form['payment']
-		if payment.get('amount') and type(payment['amount']) != float and type(payment['amount']) != int:
-			return handler_util.make_error_response('Amount must be a number')
-
-		if not payment.get('deposit_date'):
-			return handler_util.make_error_response('Deposit date must be specified')
-
+		payment_option = form['payment_option']
 		loan_ids = form['loan_ids']
 
 		# NOTE: Fetching information is likely a slow task, so we probably want to
 		# turn this into an async operation.
 		effect_resp, err = repayment_util.calculate_repayment_effect(
-			payment, form['company_id'], loan_ids, current_app.session_maker)
+			payment, payment_option, form['company_id'], loan_ids, current_app.session_maker)
 		if err:
 			return handler_util.make_error_response(err)
 

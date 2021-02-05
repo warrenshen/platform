@@ -38,62 +38,68 @@ function ConfirmationSection({ payment, setPayment }: Props) {
   return (
     <>
       <Box>
-        {[PaymentMethodEnum.ACH, PaymentMethodEnum.Wire].includes(
-          payment.method as PaymentMethodEnum
-        ) && (
-          <>
-            <BankToBankTransfer
-              type={(payment.type || "") as PaymentTransferType}
-              companyId={payment.company_id}
-              onBespokeBankAccountSelection={onBespokeBankAccountSelection}
-              onCompanyBankAccountSelection={onCompanyBankAccountSelection}
-            ></BankToBankTransfer>
-            <Box mt={2}>
-              <Alert severity="warning">Action is required</Alert>You must
-              initiate this transfer from your bank account. Upon receipt
-              Bespoke will mark this payment as "settled," and apply towards
-              outstanding loans and fees accordingly.
-            </Box>
-          </>
-        )}
-        {PaymentMethodEnum.ReverseDraftACH === payment.method && (
-          <>
-            <CompanyBank
-              companyId={payment.company_id}
-              onCompanyBankAccountSelection={(id: BankAccounts["id"]) =>
-                setPayment({ ...payment, company_bank_account_id: id })
-              }
-            ></CompanyBank>
+        The amount you will transfer is <b>{payment.amount}</b>
+      </Box>
+      {payment.amount <= 0 && <Box>No further action is required</Box>}
+      {payment.amount > 0 && (
+        <Box>
+          {[PaymentMethodEnum.ACH, PaymentMethodEnum.Wire].includes(
+            payment.method as PaymentMethodEnum
+          ) && (
+            <>
+              <BankToBankTransfer
+                type={(payment.type || "") as PaymentTransferType}
+                companyId={payment.company_id}
+                onBespokeBankAccountSelection={onBespokeBankAccountSelection}
+                onCompanyBankAccountSelection={onCompanyBankAccountSelection}
+              ></BankToBankTransfer>
+              <Box mt={2}>
+                <Alert severity="warning">Action is required</Alert>You must
+                initiate this transfer from your bank account. Upon receipt
+                Bespoke will mark this payment as "settled," and apply towards
+                outstanding loans and fees accordingly.
+              </Box>
+            </>
+          )}
+          {PaymentMethodEnum.ReverseDraftACH === payment.method && (
+            <>
+              <CompanyBank
+                companyId={payment.company_id}
+                onCompanyBankAccountSelection={(id: BankAccounts["id"]) =>
+                  setPayment({ ...payment, company_bank_account_id: id })
+                }
+              ></CompanyBank>
+              <Box mt={2}>
+                <Alert severity="info">
+                  Click "Schedule" for Bespoke to initiate this transfer from
+                  your bank account.
+                  <br />
+                  <br />
+                  Upon receipt Bespoke will mark this payment as "settled," and
+                  apply towards outstanding loans and fees accordingly.{" "}
+                </Alert>{" "}
+              </Box>
+            </>
+          )}
+          {PaymentMethodEnum.Cash === payment.method && (
             <Box mt={2}>
               <Alert severity="info">
-                Click "Schedule" for Bespoke to initiate this transfer from your
-                bank account.
-                <br />
-                <br />
-                Upon receipt Bespoke will mark this payment as "settled," and
-                apply towards outstanding loans and fees accordingly.{" "}
+                A member of the Bespoke team will be in touch via email.
               </Alert>{" "}
+              We will coordinate the dispatch of an armored vehicle with your
+              team to pick up the amount specified, in cash. This method of
+              payment will incur a $100 fee.
             </Box>
-          </>
-        )}
-        {PaymentMethodEnum.Cash === payment.method && (
-          <Box mt={2}>
-            <Alert severity="info">
-              A member of the Bespoke team will be in touch via email.
-            </Alert>{" "}
-            We will coordinate the dispatch of an armored vehicle with your team
-            to pick up the amount specified, in cash. This method of payment
-            will incur a $100 fee.
-          </Box>
-        )}
-        {PaymentMethodEnum.Check === payment.method && (
-          <Box mt={2}>
-            <Alert severity="info">
-              Please make the check payable to Bespoke Financial.
-            </Alert>
-          </Box>
-        )}
-      </Box>
+          )}
+          {PaymentMethodEnum.Check === payment.method && (
+            <Box mt={2}>
+              <Alert severity="info">
+                Please make the check payable to Bespoke Financial.
+              </Alert>
+            </Box>
+          )}
+        </Box>
+      )}
     </>
   );
 }

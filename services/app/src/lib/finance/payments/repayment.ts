@@ -1,7 +1,7 @@
 // This file is for library code to handle logic (mostly handled by the backend)
 // when it comes to creating payment transactions
 
-import { LoansInsertInput, PaymentsInsertInput } from "generated/graphql";
+import { LoanFragment, PaymentsInsertInput } from "generated/graphql";
 import { authenticatedApi, loansRoutes } from "lib/api";
 
 export type MakePaymentResp = {
@@ -12,14 +12,14 @@ export type MakePaymentResp = {
 export type CalculateEffectOfPaymentResp = {
   status: string;
   msg?: string;
-  loans_due?: LoansInsertInput[];
-  total_due?: number;
-  amount_leftover?: number;
+  loans_afterwards?: LoanFragment[];
+  amount_to_pay?: number;
 };
 
 export async function calculateEffectOfPayment(req: {
   payment: PaymentsInsertInput;
   company_id: string;
+  payment_option: string;
   loan_ids: string[];
 }): Promise<CalculateEffectOfPaymentResp> {
   return authenticatedApi
@@ -35,8 +35,7 @@ export async function calculateEffectOfPayment(req: {
         console.log("error", error);
         return {
           status: "ERROR",
-          msg:
-            "Could not calculate effect of payment for a purchase order loan",
+          msg: "Could not calculate effect of payment for the loan(s)",
         };
       }
     );
@@ -59,7 +58,7 @@ export async function makePayment(req: {
         console.log("error", error);
         return {
           status: "ERROR",
-          msg: "Could not make a payment for a purchase order loan",
+          msg: "Could not make a payment for the loan(s)",
         };
       }
     );
