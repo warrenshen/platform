@@ -91,6 +91,9 @@ fragment Payment on payments {
   company_id
   submitted_at
   settled_at
+  effective_date
+  deposit_date
+  applied_at
   company {
     id
     name

@@ -1,23 +1,21 @@
 import {
   Box,
   Button,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  Checkbox,
-  makeStyles,
   FormControl,
   FormControlLabel,
   FormHelperText,
+  makeStyles,
   TextField,
 } from "@material-ui/core";
-import { useState, useMemo } from "react";
-import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
-import { ChangeEvent } from "react";
-import { groupBy } from "lodash";
-import DatePicker from "components/Shared/Dates/DatePicker";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
+import DatePicker from "components/Shared/Dates/DatePicker";
+import { groupBy } from "lodash";
+import { ChangeEvent, useMemo, useState } from "react";
 import contractTermsJSON from "./inventory_contract_terms.json";
 
 // Configuration which defines how to view and edit this contract

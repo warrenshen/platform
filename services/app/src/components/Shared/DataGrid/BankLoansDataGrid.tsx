@@ -2,6 +2,7 @@ import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import Status from "components/Shared/Chip/Status";
 import ActionMenu from "components/Shared/DataGrid/ActionMenu";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
+import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import DataGrid, {
   Column,
   FilterRow,
@@ -121,10 +122,14 @@ function BankLoansDataGrid({
 
   if (matureDays && matureDays > 0) {
     columns.push({
-      dataField: "origination_date",
       caption: "Loan Date",
       alignment: "center",
       width: 140,
+      cellRender: (params: ValueFormatterParams) => (
+        <DateDataGridCell
+          dateString={params.row.data.origination_date}
+        ></DateDataGridCell>
+      ),
     });
   }
   columns.push({
@@ -168,10 +173,14 @@ function BankLoansDataGrid({
   }
 
   columns.push({
-    dataField: "maturity_date",
     caption: "Maturity Date",
     alignment: "center",
     width: 120,
+    cellRender: (params: ValueFormatterParams) => (
+      <DateDataGridCell
+        dateString={params.row.data.maturity_date}
+      ></DateDataGridCell>
+    ),
   });
 
   if (loansPastDue) {

@@ -9035,6 +9035,9 @@ export type PaymentFragment = Pick<
   | "company_id"
   | "submitted_at"
   | "settled_at"
+  | "effective_date"
+  | "deposit_date"
+  | "applied_at"
 > & {
   company: Pick<Companies, "id" | "name">;
   company_bank_account?: Maybe<BankAccountFragment>;
@@ -9893,6 +9896,9 @@ export const PaymentFragmentDoc = gql`
     company_id
     submitted_at
     settled_at
+    effective_date
+    deposit_date
+    applied_at
     company {
       id
       name

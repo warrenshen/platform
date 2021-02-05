@@ -1,6 +1,7 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
+import { DatetimeDataGridCell } from "components/Shared/DataGrid/DateDataGridCell";
 import DataGrid, {
   Column,
   IColumnProps,
@@ -31,6 +32,8 @@ function PaymentsDataGrid({
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = getRows(payments);
+
+  window.console.log(rows);
 
   const companyNameRenderer = (params: ValueFormatterParams) => {
     return (
@@ -80,9 +83,13 @@ function PaymentsDataGrid({
       width: 140,
     },
     {
-      dataField: "submitted_at",
       caption: "Submitted At",
       width: 140,
+      cellRender: (params: ValueFormatterParams) => (
+        <DatetimeDataGridCell
+          datetimeString={params.row.data.submitted_at}
+        ></DatetimeDataGridCell>
+      ),
     },
     {
       dataField: "settled_at",
@@ -100,9 +107,13 @@ function PaymentsDataGrid({
       width: 140,
     },
     {
-      dataField: "applied_at",
       caption: "Applied At",
       width: 140,
+      cellRender: (params: ValueFormatterParams) => (
+        <DatetimeDataGridCell
+          datetimeString={params.row.data.applied_at}
+        ></DatetimeDataGridCell>
+      ),
     },
   ];
 
