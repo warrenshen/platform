@@ -1,4 +1,4 @@
-import Loans from "components/PurchaseOrderLoans";
+import Loans from "components/Loans";
 import Page from "components/Shared/Page";
 import useAppBarTitle from "hooks/useAppBarTitle";
 import React from "react";

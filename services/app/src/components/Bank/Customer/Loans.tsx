@@ -1,6 +1,6 @@
 import { Box, Button } from "@material-ui/core";
 import CreatePaymentAdvanceModal from "components/Bank/Payment/CreatePaymentAdvanceModal";
-import PurchaseOrderLoansView from "components/PurchaseOrderLoans/PurchaseOrderLoansView";
+import PurchaseOrderLoansView from "components/Loans/PurchaseOrderLoansView";
 import {
   LoanFragment,
   LoanTypeEnum,
