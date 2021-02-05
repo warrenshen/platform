@@ -7,7 +7,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import Can from "components/Shared/Can";
-import EditUserProfile from "components/Shared/Users/EditUserProfile";
+import EditUserProfileModal from "components/Shared/Users/EditUserProfileModal";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { UserFragment } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
@@ -27,12 +27,12 @@ function ListUsers({ companyId, users }: Props) {
   return (
     <>
       {open && (
-        <EditUserProfile
+        <EditUserProfileModal
           userId={currentUserFromContext.user.id}
           companyId={companyId}
           originalUserProfile={selectedUser}
           handleClose={() => setOpen(false)}
-        ></EditUserProfile>
+        ></EditUserProfileModal>
       )}
       <Box display="flex">
         {users?.map((user, index) => {

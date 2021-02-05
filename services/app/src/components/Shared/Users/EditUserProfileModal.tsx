@@ -44,7 +44,7 @@ interface Props {
   handleClose: () => void;
 }
 
-function EditUserProfile({
+function EditUserProfileModal({
   userId,
   companyId,
   originalUserProfile,
@@ -59,7 +59,7 @@ function EditUserProfile({
   return (
     <Dialog open onClose={handleClose} maxWidth="xl">
       <DialogTitle className={classes.dialogTitle}>
-        Edit user profile
+        Edit User Profile
       </DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column">
@@ -172,4 +172,4 @@ function EditUserProfile({
   );
 }
 
-export default EditUserProfile;
+export default EditUserProfileModal;

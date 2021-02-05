@@ -8,7 +8,8 @@ import {
   Typography,
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
-import EditUserProfile from "components/Shared/Users/EditUserProfile";
+import Page from "components/Shared/Page";
+import EditUserProfileModal from "components/Shared/Users/EditUserProfileModal";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   useCompanyForCustomerQuery,
@@ -53,14 +54,14 @@ function UserProfile() {
   const user: Maybe<UserFragment> = data?.users_by_pk;
 
   return (
-    <>
+    <Page>
       {user && open && (
-        <EditUserProfile
+        <EditUserProfileModal
           companyId={currentUser.companyId}
           userId={currentUser.id}
           originalUserProfile={user}
           handleClose={() => setOpen(false)}
-        ></EditUserProfile>
+        ></EditUserProfileModal>
       )}
       <Box display="flex">
         <Card>
@@ -106,7 +107,7 @@ function UserProfile() {
           </CardActions>
         </Card>
       </Box>
-    </>
+    </Page>
   );
 }
 
