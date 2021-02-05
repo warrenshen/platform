@@ -1,10 +1,10 @@
 import hashlib
 import random
 import string
-
-from mypy_extensions import TypedDict
-from itsdangerous import URLSafeTimedSerializer
 from typing import cast
+
+from itsdangerous import URLSafeTimedSerializer
+from mypy_extensions import TypedDict
 from passlib.hash import pbkdf2_sha256 as sha256
 
 LinkInfoDict = TypedDict('LinkInfoDict', {
@@ -20,7 +20,7 @@ ConfigDict = TypedDict('ConfigDict', {
 
 
 def get_secure_link(cfg: ConfigDict, two_factor_row_id: str) -> str:
-	return cfg['BESPOKE_DOMAIN'] + '/get_secure_link?val=' + two_factor_row_id
+	return cfg['BESPOKE_DOMAIN'] + '/get-secure-link?val=' + two_factor_row_id
 
 
 def get_url_serializer(cfg: ConfigDict) -> URLSafeTimedSerializer:

@@ -9,7 +9,7 @@ export const routes = {
 
 // Routes when you are neither a customer or bank, but you've been authenticated via the secure_link route
 export const anonymousRoutes = {
-  secureLink: "/get_secure_link",
+  secureLink: "/get-secure-link",
   reviewPurchaseOrder: "/review-purchase-order",
   reviewPurchaseOrderComplete: "/review-purchase-order-complete",
 };
