@@ -49,6 +49,12 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+function fifteenDaysAfterDate(date: Date) {
+  const resultDate = new Date(date);
+  resultDate.setDate(resultDate.getDate() + 15);
+  return resultDate;
+}
+
 interface Props {
   actionType: ActionType;
   loanId: Scalars["uuid"] | null;
@@ -136,9 +142,15 @@ function CreateUpdatePurchaseOrderLoanModal({
   );
 
   const upsertPurchaseOrderLoan = async () => {
-    const dateInFifteenDays = new Date(
+    // TODO (warrenshen): in the future, maturity date will
+    // be set server-side or by bank users, not by customer users.
+    const fifteenDaysFromNow = new Date(
       new Date().getTime() + 15 * 24 * 60 * 60 * 1000
     );
+    const maturityDate = loan.origination_date
+      ? fifteenDaysAfterDate(new Date(loan.origination_date))
+      : fifteenDaysFromNow;
+
     if (actionType === ActionType.Update) {
       const response = await updateLoan({
         variables: {
@@ -146,6 +158,8 @@ function CreateUpdatePurchaseOrderLoanModal({
           loan: {
             origination_date: loan.origination_date || null,
             amount: loan.amount || null,
+            maturity_date: maturityDate,
+            adjusted_maturity_date: maturityDate,
           },
         },
       });
@@ -158,8 +172,8 @@ function CreateUpdatePurchaseOrderLoanModal({
             loan_type: LoanTypeEnum.PurchaseOrder,
             origination_date: loan?.origination_date || null,
             amount: loan?.amount || null,
-            maturity_date: dateInFifteenDays,
-            adjusted_maturity_date: dateInFifteenDays,
+            maturity_date: maturityDate,
+            adjusted_maturity_date: maturityDate,
           },
         },
       });
