@@ -85,7 +85,7 @@ class HandlePaymentView(MethodView):
 			payment = payment_util.create_payment(company_id, payment_input)
 			session.add(payment)
 			session.flush()
-			payment_id = payment.id
+			payment_id = str(payment.id)
 
 		return make_response(json.dumps({
 			'status': 'OK',

@@ -8,6 +8,7 @@ import BankToBankTransfer, {
 } from "components/Shared/BankToBankTransfer";
 import CompanyBank from "components/Shared/BankToBankTransfer/CompanyBank";
 import { BankAccounts, PaymentsInsertInput } from "generated/graphql";
+import { formatCurrency } from "lib/currency";
 import { PaymentMethodEnum } from "lib/enum";
 import { useCallback } from "react";
 
@@ -37,10 +38,9 @@ function ConfirmationSection({ payment, setPayment }: Props) {
 
   return (
     <>
-      <Box>
-        The amount you will transfer is <b>{payment.amount}</b>
-      </Box>
-      {payment.amount <= 0 && <Box>No further action is required</Box>}
+      {payment.amount <= 0 && (
+        <Box>No amount is currently due. No further action is required</Box>
+      )}
       {payment.amount > 0 && (
         <Box>
           {[PaymentMethodEnum.ACH, PaymentMethodEnum.Wire].includes(
@@ -54,10 +54,13 @@ function ConfirmationSection({ payment, setPayment }: Props) {
                 onCompanyBankAccountSelection={onCompanyBankAccountSelection}
               ></BankToBankTransfer>
               <Box mt={2}>
-                <Alert severity="warning">Action is required</Alert>You must
-                initiate this transfer from your bank account. Upon receipt
-                Bespoke will mark this payment as "settled," and apply towards
-                outstanding loans and fees accordingly.
+                <Alert severity="warning">
+                  You must initiate this transfer for{" "}
+                  <b>{formatCurrency(payment.amount)}</b> from your bank
+                  account. Upon receipt Bespoke will mark this payment as
+                  "settled," and apply towards outstanding loans and fees
+                  accordingly.
+                </Alert>
               </Box>
             </>
           )}
@@ -71,8 +74,9 @@ function ConfirmationSection({ payment, setPayment }: Props) {
               ></CompanyBank>
               <Box mt={2}>
                 <Alert severity="info">
-                  Click "Schedule" for Bespoke to initiate this transfer from
-                  your bank account.
+                  Click "Schedule" for Bespoke to initiate this transfer for{" "}
+                  <b>{formatCurrency(payment.amount)}</b> from your bank
+                  account.
                   <br />
                   <br />
                   Upon receipt Bespoke will mark this payment as "settled," and
@@ -84,17 +88,17 @@ function ConfirmationSection({ payment, setPayment }: Props) {
           {PaymentMethodEnum.Cash === payment.method && (
             <Box mt={2}>
               <Alert severity="info">
-                A member of the Bespoke team will be in touch via email.
-              </Alert>{" "}
-              We will coordinate the dispatch of an armored vehicle with your
-              team to pick up the amount specified, in cash. This method of
-              payment will incur a $100 fee.
+                We will coordinate the collection of{" "}
+                <b>{formatCurrency(payment.amount)}</b>. Please reach out to
+                Bespoke support. This method of payment will incur a $100 fee.
+              </Alert>
             </Box>
           )}
           {PaymentMethodEnum.Check === payment.method && (
             <Box mt={2}>
               <Alert severity="info">
-                Please make the check payable to Bespoke Financial.
+                Please make the check payable to Bespoke Financial for{" "}
+                <b>{formatCurrency(payment.amount)}</b>
               </Alert>
             </Box>
           )}

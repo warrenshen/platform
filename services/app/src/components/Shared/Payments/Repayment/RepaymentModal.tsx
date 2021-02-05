@@ -28,7 +28,6 @@ import {
 } from "lib/enum";
 import {
   calculateEffectOfPayment,
-  CalculateEffectOfPaymentResp,
   makePayment,
 } from "lib/finance/payments/repayment";
 import { useState } from "react";
@@ -54,10 +53,10 @@ function RepaymentModal({
     method: PaymentMethodEnum.None,
     deposit_date: null,
   });
-  const [
+  /*const [
     effectResp,
     setEffectResp,
-  ] = useState<CalculateEffectOfPaymentResp | null>(null);
+  ] = useState<CalculateEffectOfPaymentResp | null>(null);*/
   // A payment option is the user's choice to payment the remaining balances on the loan, to
   // pay the minimum amount required, or to pay a custom amount.
   const [paymentOption, setPaymentOption] = useState("");
@@ -226,7 +225,7 @@ function RepaymentModal({
                     setErrMsg(resp.msg || "");
                   } else {
                     setErrMsg("");
-                    setEffectResp(resp);
+                    //setEffectResp(resp);
                     setPayment({ ...payment, amount: resp.amount_to_pay || 0 });
                     setOnConfirmationSection(true);
                   }
@@ -241,7 +240,7 @@ function RepaymentModal({
               <Button
                 disabled={!isScheduleButtonEnabled}
                 onClick={async () => {
-                  if (payment.amount && payment.amount.length > 0) {
+                  if (payment.amount !== null && payment.amount !== undefined) {
                     payment.amount = parseFloat(payment.amount);
                   } else {
                     setErrMsg("Payment amount must be larger than 0");
