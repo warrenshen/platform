@@ -15,10 +15,10 @@ import {
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   CompaniesInsertInput,
-  ListVendorPartnershipsDocument,
   useAddVendorPartnershipMutation,
   UserRolesEnum,
   UsersInsertInput,
+  VendorPartnershipsByCompanyIdDocument,
 } from "generated/graphql";
 import { InventoryNotifier } from "lib/notifications/inventory";
 import { CustomerParams } from "pages/Bank/Customer";
@@ -81,7 +81,7 @@ function RegisterVendorModal({ handleClose }: Props) {
         },
         refetchQueries: [
           {
-            query: ListVendorPartnershipsDocument,
+            query: VendorPartnershipsByCompanyIdDocument,
             variables: {
               companyId: companyId,
             },

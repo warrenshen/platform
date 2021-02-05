@@ -1,5 +1,5 @@
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { useListVendorPartnershipsQuery } from "generated/graphql";
+import { useVendorPartnershipsByCompanyIdQuery } from "generated/graphql";
 import { sortBy } from "lodash";
 import { useContext } from "react";
 import VendorPartnershipList from "../../VendorPartnershipList";
@@ -8,13 +8,13 @@ function ListVendors() {
   const {
     user: { companyId },
   } = useContext(CurrentUserContext);
-  const { data } = useListVendorPartnershipsQuery({
+  const { data } = useVendorPartnershipsByCompanyIdQuery({
     variables: {
       companyId,
     },
   });
 
-  if (!data || !data.company_vendor_partnerships) {
+  if (!data?.company_vendor_partnerships) {
     return null;
   }
 

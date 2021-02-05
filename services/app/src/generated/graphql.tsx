@@ -9722,6 +9722,7 @@ export type VendorPartnershipFragment = Pick<
   | "vendor_id"
   | "vendor_agreement_id"
   | "vendor_license_id"
+  | "approved_at"
 >;
 
 export type PurchaseOrderFragment = Pick<
@@ -9976,11 +9977,11 @@ export type AddVendorPartnershipMutation = {
   >;
 };
 
-export type ListVendorPartnershipsQueryVariables = Exact<{
+export type VendorPartnershipsByCompanyIdQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
 
-export type ListVendorPartnershipsQuery = {
+export type VendorPartnershipsByCompanyIdQuery = {
   company_vendor_partnerships: Array<
     {
       vendor_limited?: Maybe<VendorLimitedFragment>;
@@ -10262,6 +10263,7 @@ export const VendorPartnershipFragmentDoc = gql`
     vendor_id
     vendor_agreement_id
     vendor_license_id
+    approved_at
   }
 `;
 export const PurchaseOrderFragmentDoc = gql`
@@ -13280,8 +13282,8 @@ export type AddVendorPartnershipMutationOptions = Apollo.BaseMutationOptions<
   AddVendorPartnershipMutation,
   AddVendorPartnershipMutationVariables
 >;
-export const ListVendorPartnershipsDocument = gql`
-  query ListVendorPartnerships($companyId: uuid!) {
+export const VendorPartnershipsByCompanyIdDocument = gql`
+  query VendorPartnershipsByCompanyId($companyId: uuid!) {
     company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
       ...VendorPartnership
       vendor_limited {
@@ -13298,52 +13300,52 @@ export const ListVendorPartnershipsDocument = gql`
 `;
 
 /**
- * __useListVendorPartnershipsQuery__
+ * __useVendorPartnershipsByCompanyIdQuery__
  *
- * To run a query within a React component, call `useListVendorPartnershipsQuery` and pass it any options that fit your needs.
- * When your component renders, `useListVendorPartnershipsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useVendorPartnershipsByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useVendorPartnershipsByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useListVendorPartnershipsQuery({
+ * const { data, loading, error } = useVendorPartnershipsByCompanyIdQuery({
  *   variables: {
  *      companyId: // value for 'companyId'
  *   },
  * });
  */
-export function useListVendorPartnershipsQuery(
+export function useVendorPartnershipsByCompanyIdQuery(
   baseOptions: Apollo.QueryHookOptions<
-    ListVendorPartnershipsQuery,
-    ListVendorPartnershipsQueryVariables
+    VendorPartnershipsByCompanyIdQuery,
+    VendorPartnershipsByCompanyIdQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    ListVendorPartnershipsQuery,
-    ListVendorPartnershipsQueryVariables
-  >(ListVendorPartnershipsDocument, baseOptions);
+    VendorPartnershipsByCompanyIdQuery,
+    VendorPartnershipsByCompanyIdQueryVariables
+  >(VendorPartnershipsByCompanyIdDocument, baseOptions);
 }
-export function useListVendorPartnershipsLazyQuery(
+export function useVendorPartnershipsByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    ListVendorPartnershipsQuery,
-    ListVendorPartnershipsQueryVariables
+    VendorPartnershipsByCompanyIdQuery,
+    VendorPartnershipsByCompanyIdQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    ListVendorPartnershipsQuery,
-    ListVendorPartnershipsQueryVariables
-  >(ListVendorPartnershipsDocument, baseOptions);
+    VendorPartnershipsByCompanyIdQuery,
+    VendorPartnershipsByCompanyIdQueryVariables
+  >(VendorPartnershipsByCompanyIdDocument, baseOptions);
 }
-export type ListVendorPartnershipsQueryHookResult = ReturnType<
-  typeof useListVendorPartnershipsQuery
+export type VendorPartnershipsByCompanyIdQueryHookResult = ReturnType<
+  typeof useVendorPartnershipsByCompanyIdQuery
 >;
-export type ListVendorPartnershipsLazyQueryHookResult = ReturnType<
-  typeof useListVendorPartnershipsLazyQuery
+export type VendorPartnershipsByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useVendorPartnershipsByCompanyIdLazyQuery
 >;
-export type ListVendorPartnershipsQueryResult = Apollo.QueryResult<
-  ListVendorPartnershipsQuery,
-  ListVendorPartnershipsQueryVariables
+export type VendorPartnershipsByCompanyIdQueryResult = Apollo.QueryResult<
+  VendorPartnershipsByCompanyIdQuery,
+  VendorPartnershipsByCompanyIdQueryVariables
 >;
 export const BankAccountsDocument = gql`
   query BankAccounts {
