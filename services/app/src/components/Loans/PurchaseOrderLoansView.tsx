@@ -1,6 +1,4 @@
-import { Box, Button } from "@material-ui/core";
-import RepaymentButton from "components/Customer/PurchaseOrderLoanRepayment/RepaymentButton";
-import Can from "components/Shared/Can";
+import { Box } from "@material-ui/core";
 import ViewLoanModal from "components/Shared/Loans/ViewLoanModal";
 import {
   LoanFragment,
@@ -8,7 +6,6 @@ import {
   useUpdateLoanMutation,
 } from "generated/graphql";
 import { ActionType } from "lib/ActionType";
-import { Action } from "lib/auth/rbac-rules";
 import { useState } from "react";
 import CreateUpdatePurchaseOrderLoanModal from "./CreateUpdatePurchaseOrderLoanModal";
 import ListPurchaseOrderLoans from "./ListPurchaseOrderLoans";
@@ -19,6 +16,8 @@ interface Props {
   purchaseOrderLoans: LoanFragment[];
   refetch: () => void;
   handleSelectLoans?: (loans: LoanFragment[]) => void;
+  isCreateUpdateModalOpen: boolean;
+  setIsCreateUpdateModalOpen: (val: boolean) => void;
 }
 /**
  * This component is shared between a bank user and a customer user use case.
@@ -28,10 +27,9 @@ function PurchaseOrderLoansView({
   purchaseOrderLoans,
   refetch,
   handleSelectLoans = () => {},
+  isCreateUpdateModalOpen,
+  setIsCreateUpdateModalOpen,
 }: Props) {
-  // State for create / update Purchase Order modal(s).
-  const [isCreateUpdateModalOpen, setIsCreateUpdateModalOpen] = useState(false);
-
   // State for view Purchase Order modal.
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
@@ -131,22 +129,6 @@ function PurchaseOrderLoansView({
           }}
         ></UpdateLoanNotesModal>
       )}
-      <Box pb={2} display="flex" flexDirection="row-reverse">
-        <Can perform={Action.AddPurchaseOrders}>
-          <Button
-            onClick={() => setIsCreateUpdateModalOpen(true)}
-            variant="contained"
-            color="primary"
-          >
-            Create Loan
-          </Button>
-        </Can>
-        <Can perform={Action.RepayPurchaseOrderLoans}>
-          <Box mr={2}>
-            <RepaymentButton></RepaymentButton>
-          </Box>
-        </Can>
-      </Box>
       <Box display="flex" flex={1}>
         <ListPurchaseOrderLoans
           purchaseOrderLoans={purchaseOrderLoans}

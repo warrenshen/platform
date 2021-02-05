@@ -15,6 +15,8 @@ interface Props {
 function BankCustomerLoansSubpage({ companyId }: Props) {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
+  // State for create / update Purchase Order modal(s).
+  const [isCreateUpdateModalOpen, setIsCreateUpdateModalOpen] = useState(false);
 
   const {
     data,
@@ -60,6 +62,8 @@ function BankCustomerLoansSubpage({ companyId }: Props) {
         purchaseOrderLoans={purchaseOrderLoans}
         refetch={refetch}
         handleSelectLoans={(loans) => setSelectedLoans(loans)}
+        isCreateUpdateModalOpen={isCreateUpdateModalOpen}
+        setIsCreateUpdateModalOpen={setIsCreateUpdateModalOpen}
       ></PurchaseOrderLoansView>
     </Box>
   );
