@@ -3,7 +3,7 @@ import datetime
 import logging
 
 from datetime import timezone, timedelta
-from typing import List, Text, Dict, Callable, Tuple
+from typing import cast, List, Text, Dict, Callable, Tuple
 from mypy_extensions import TypedDict
 
 from bespoke.db import models
@@ -125,7 +125,7 @@ class Client(object):
 
 		with session_scope(self._session_maker) as session:
 			two_factor_link = models.TwoFactorLink(
-				token_states=token_states, form_info=form_info,
+				token_states=token_states, form_info=cast(Dict, form_info),
 				expires_at=_hours_from_today(24 * 7)
 			)
 			session.add(two_factor_link)

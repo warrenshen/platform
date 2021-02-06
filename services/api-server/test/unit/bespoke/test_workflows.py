@@ -1,3 +1,4 @@
+import datetime
 import sqlalchemy
 import unittest
 
@@ -31,6 +32,9 @@ def _delete_db(db_url: str) -> None:
 	print('Deleting all tables with engine url: {}'.format(db_url))
 	engine = sqlalchemy.create_engine(db_url)
 
+	models.Base.metadata.drop_all(engine)
+
+	"""
 	table_classes = [
 		('customers', models.Customer),
 		('purchase_orders', models.PurchaseOrder)
@@ -39,6 +43,7 @@ def _delete_db(db_url: str) -> None:
 		if not engine.dialect.has_table(engine, table_name):
 			continue
 		table_class.__table__.drop(engine)
+	"""
 
 
 class TestWorkflows(unittest.TestCase):
@@ -46,7 +51,6 @@ class TestWorkflows(unittest.TestCase):
 	def test_po_actions(self) -> None:
 		self.assertTrue(True)
 
-"""
 		db_url = get_db_url()
 		Path('tmp').mkdir(parents=True, exist_ok=True)
 		_delete_db(db_url)
@@ -64,9 +68,8 @@ class TestWorkflows(unittest.TestCase):
 		po_number = 'po_12345678'
 		with session_scope(session_maker) as session:
 			session.add(models.PurchaseOrder(
-				number=po_number,
-				total_requested=3000.02,
-				confirmed=False
+				order_number=po_number,
+				amount=3000.02
 			))
 
 		# Checks based on first couple DB queries
@@ -75,19 +78,18 @@ class TestWorkflows(unittest.TestCase):
 			self.assertEqual(customer_name, query_customer1.name)
 
 			po = session.query(models.PurchaseOrder).filter(
-				models.PurchaseOrder.number == po_number).first()
-			self.assertFalse(po.confirmed)
+				models.PurchaseOrder.order_number == po_number).first()
+			self.assertIsNone(po.approved_at)
 
 		# Anchor confirms the purchase order
 		with session_scope(session_maker) as session:
 			po = session.query(models.PurchaseOrder).filter(
-				models.PurchaseOrder.number == po_number).first()
-			po.confirmed = True
+				models.PurchaseOrder.order_number == po_number).first()
+			po.approved_at = datetime.datetime.now()
 
 		# Checks
 
 		with session_scope(session_maker) as session:
 			po = session.query(models.PurchaseOrder).filter(
-				models.PurchaseOrder.number == po_number).first()
-			self.assertTrue(po.confirmed)
-"""
+				models.PurchaseOrder.order_number == po_number).first()
+			self.assertIsNotNone(po.approved_at)

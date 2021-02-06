@@ -81,7 +81,7 @@ class RespondToApprovalRequestView(MethodView):
 
 			purchase_order_dicts = [{
 				'order_number': purchase_order.order_number,
-				'amount': number_util.to_dollar_format(purchase_order.amount),
+				'amount': number_util.to_dollar_format(float(purchase_order.amount)),
 				'requested_at_date': date_util.human_readable_yearmonthday(purchase_order.requested_at)
 			}]
 

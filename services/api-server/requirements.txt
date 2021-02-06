@@ -11,6 +11,8 @@ certifi==2020.12.5        # via requests, sentry-sdk
 chardet==4.0.0            # via requests
 click==7.1.2              # via flask, safety
 dparse==0.5.1             # via safety
+fastapi-utils==0.2.1      # via -r requirements.in
+fastapi==0.63.0           # via fastapi-utils
 flask-cors==3.0.9         # via -r requirements.in
 flask-jwt-extended==3.25.0  # via -r requirements.in
 flask-script==2.0.6       # via -r requirements.in
@@ -26,6 +28,7 @@ mypy==0.800               # via -r requirements.in, sqlalchemy-stubs
 packaging==20.8           # via dparse, safety
 passlib==1.7.4            # via -r requirements.in
 psycopg2-binary==2.8.5    # via -r requirements.in
+pydantic==1.7.3           # via fastapi, fastapi-utils
 pyjwt==1.7.1              # via -r requirements.in, flask-jwt-extended
 pyparsing==2.4.7          # via packaging
 python-dateutil==2.8.1    # via botocore
@@ -40,8 +43,9 @@ sentry-sdk[flask]==0.19.5  # via -r requirements.in
 six==1.15.0               # via flask-cors, flask-jwt-extended, python-dateutil, sqlalchemy-utils
 sqlalchemy-stubs==0.4     # via -r requirements.in
 sqlalchemy-utils==0.36.8  # via -r requirements.in
-sqlalchemy==1.3.17        # via -r requirements.in, sqlalchemy-utils
+sqlalchemy==1.3.17        # via -r requirements.in, fastapi-utils, sqlalchemy-utils
 starkbank-ecdsa==1.1.0    # via sendgrid
+starlette==0.13.6         # via fastapi
 toml==0.10.2              # via dparse
 typed-ast==1.4.1          # via mypy
 typing-extensions==3.7.4.3  # via mypy, sqlalchemy-stubs

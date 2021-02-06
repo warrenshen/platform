@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, List, cast
 
 import sqlalchemy
 from mypy_extensions import TypedDict
+from fastapi_utils.guid_type import GUID, GUID_DEFAULT_SQLITE
 from sqlalchemy import (JSON, BigInteger, Boolean, Column, Date, DateTime,
                         Float, ForeignKey, Integer, Numeric, String, Text)
 from sqlalchemy.dialects.postgresql import UUID
@@ -28,6 +29,7 @@ if TYPE_CHECKING:
 
 Base = declarative_base()  # type: ignore
 
+GUID_DEFAULT = GUID_DEFAULT_SQLITE
 
 @contextmanager
 def session_scope(session_maker: Callable[..., Session]) -> Iterator[Session]:
@@ -59,9 +61,8 @@ def safe_serialize(d: Any) -> Any:
 class User(Base):
 	__tablename__ = 'users'
 
-	id = Column(UUID(as_uuid=True), primary_key=True,
-				default=uuid.uuid4, unique=True)
-	company_id = Column(UUID(as_uuid=True), nullable=True)
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	company_id = Column(GUID, nullable=True)
 	email = Column(String(120), unique=True, nullable=False)
 	password = Column(Text, nullable=False)
 	role = Column(String(120), nullable=False)
@@ -70,8 +71,7 @@ class User(Base):
 class Customer(Base):
 	__tablename__ = 'customer'
 
-	id = Column(UUID(as_uuid=True), primary_key=True,
-				default=uuid.uuid4, unique=True)
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	name = Column(String)
 	phone = Column(String)
 	email = Column(String)
@@ -86,8 +86,7 @@ class Company(Base):
 	"""
 	__tablename__ = 'companies'
 
-	id = Column(UUID(as_uuid=True), primary_key=True,
-				default=uuid.uuid4, unique=True)
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	name = Column(String)
 
 	def as_dict(self) -> CompanyDict:
@@ -105,9 +104,8 @@ CompanySettingsDict = TypedDict('CompanySettingsDict', {
 class CompanySettings(Base):
 	__tablename__ = 'company_settings'
 
-	id = Column(UUID(as_uuid=True), primary_key=True,
-				default=uuid.uuid4, unique=True)
-	company_id = Column(UUID(as_uuid=True))
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	company_id = Column(GUID)
 	product_type = Column(Text)
 	product_config = Column(JSON)
 	vendor_agreement_docusign_template = Column(Text)
@@ -123,20 +121,17 @@ class CompanySettings(Base):
 class CompanyVendorPartnership(Base):
 	__tablename__ = 'company_vendor_partnerships'
 
-	id = Column(UUID(as_uuid=True), primary_key=True,
-				default=uuid.uuid4, unique=True)
-	company_id = Column(UUID(as_uuid=True), ForeignKey('companies.id'))
-	vendor_id = Column(UUID(as_uuid=True), ForeignKey('companies.id'))
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	vendor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	approved_at = Column(DateTime)
 
 
 class PurchaseOrderFile(Base):
 	__tablename__ = 'purchase_order_files'
 
-	purchase_order_id = Column(UUID(as_uuid=True), ForeignKey(
-		'purchase_orders.id'), primary_key=True)
-	file_id = Column(UUID(as_uuid=True), ForeignKey(
-		'files.id'), primary_key=True)
+	purchase_order_id = cast(GUID, Column(GUID, ForeignKey('purchase_orders.id'), primary_key=True))
+	file_id = cast(GUID, Column(GUID, ForeignKey('files.id'), primary_key=True))
 	file_type = Column(String)
 
 PurchaseOrderDict = TypedDict('PurchaseOrderDict', {
@@ -151,9 +146,9 @@ class PurchaseOrder(Base):
 	"""
 	__tablename__ = 'purchase_orders'
 
-	id = Column(UUID(as_uuid=True), primary_key=True)
-	company_id = Column(UUID(as_uuid=True), ForeignKey('companies.id'))
-	vendor_id = Column(UUID(as_uuid=True), ForeignKey('companies.id'))
+	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	vendor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	order_number = Column(String)
 	order_date = Column(Date)
 	delivery_date = Column(Date)
@@ -197,16 +192,15 @@ TransactionDict = TypedDict('TransactionDict', {
 class Transaction(Base):
 	__tablename__ = 'transactions'
 
-	id = Column(UUID(as_uuid=True), primary_key=True,
-				default=uuid.uuid4, unique=True)
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	type = Column(Text)
 	amount = Column(Numeric, nullable=False)
-	loan_id = Column(UUID(as_uuid=True), nullable=False)
-	payment_id = Column(UUID(as_uuid=True), nullable=False)
+	loan_id = Column(GUID, nullable=False)
+	payment_id = Column(GUID, nullable=False)
 	to_principal = Column(Numeric)
 	to_interest = Column(Numeric)
 	to_fees = Column(Numeric)
-	created_by_user_id = Column(UUID(as_uuid=True))
+	created_by_user_id = Column(GUID)
 
 	def as_dict(self) -> TransactionDict:
 		return TransactionDict(
@@ -237,11 +231,10 @@ LoanDict = TypedDict('LoanDict', {
 class Loan(Base):
 	__tablename__ = 'loans'
 
-	id = Column(UUID(as_uuid=True), primary_key=True,
-				default=uuid.uuid4, unique=True)
-	company_id = Column(UUID(as_uuid=True), nullable=False)
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	company_id = Column(GUID, nullable=False)
 	loan_type = Column(Text)
-	artifact_id = Column(UUID(as_uuid=True))
+	artifact_id = Column(GUID)
 	origination_date = Column(Date)
 	maturity_date = Column(Date)
 	adjusted_maturity_date = Column(Date)
@@ -249,7 +242,7 @@ class Loan(Base):
 	status = Column(String)
 	requested_at = Column(DateTime)
 	funded_at = Column(DateTime)
-	funded_by_user_id = Column(UUID(as_uuid=True))
+	funded_by_user_id = Column(GUID)
 	outstanding_principal_balance = Column(Numeric)
 	outstanding_interest = Column(Numeric)
 	outstanding_fees = Column(Numeric)
@@ -280,11 +273,10 @@ PaymentDict = TypedDict('PaymentDict', {
 class Payment(Base):
 	__tablename__ = 'payments'
 
-	id = Column(UUID(as_uuid=True), primary_key=True,
-				default=uuid.uuid4, unique=True)
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	type = Column(String)
 	amount = Column(Numeric)
-	company_id = Column(UUID(as_uuid=True), nullable=False)
+	company_id = Column(GUID, nullable=False)
 	method = Column(String)
 	submitted_at = Column(DateTime)
 	applied_at = Column(DateTime)
@@ -302,9 +294,8 @@ class Payment(Base):
 class RevokedTokenModel(Base):
 	__tablename__ = 'revoked_tokens'
 
-	id = Column(UUID(as_uuid=True), primary_key=True,
-				default=uuid.uuid4, unique=True)
-	user_id = Column(UUID(as_uuid=True), nullable=False)
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	user_id = Column(GUID, nullable=False)
 	jti = Column(String(120), nullable=False)
 
 
@@ -320,8 +311,7 @@ class TwoFactorLink(Base):
 	"""
 	__tablename__ = 'two_factor_links'
 
-	id = Column(UUID(as_uuid=True), primary_key=True,
-				default=uuid.uuid4, unique=True)
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	token_states = Column(JSON)
 	form_info = Column(JSON)
 	expires_at = Column(DateTime, default=datetime.datetime.utcnow)
@@ -333,16 +323,15 @@ class File(Base):
 	"""
 	__tablename__ = 'files'
 
-	id = Column(UUID(as_uuid=True), primary_key=True,
-				default=uuid.uuid4, unique=True)
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	sequential_id = Column(Integer)
-	company_id = Column(UUID)
+	company_id = Column(GUID)
 	name = Column(Text)
 	path = Column(Text)
 	extension = Column(Text)
 	size = Column(BigInteger)
 	mime_type = Column(Text)
-	created_by_user_id = Column(UUID)
+	created_by_user_id = Column(GUID)
 	created_at = Column(DateTime, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime, default=datetime.datetime.utcnow)
 
