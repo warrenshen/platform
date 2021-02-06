@@ -3,6 +3,7 @@
 """
 
 import datetime
+import decimal
 from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
@@ -94,10 +95,10 @@ def fund_loans_with_advance(
 				amount = loan_dict['amount']
 				t = models.Transaction()
 				t.type = 'advance'
-				t.amount = amount
-				t.to_principal = amount
-				t.to_interest = 0.0
-				t.to_fees = 0.0
+				t.amount = decimal.Decimal(amount)
+				t.to_principal = decimal.Decimal(amount)
+				t.to_interest = decimal.Decimal(0.0)
+				t.to_fees = decimal.Decimal(0.0)
 				t.loan_id = loan_dict['id']
 				t.payment_id = payment_id
 				t.created_by_user_id = bank_admin_user_id
@@ -108,8 +109,8 @@ def fund_loans_with_advance(
 			loan.funded_at = date_util.now()
 			loan.funded_by_user_id = bank_admin_user_id
 			loan.outstanding_principal_balance = loan.amount
-			loan.outstanding_interest = 0.0
-			loan.outstanding_fees = 0.0
+			loan.outstanding_interest = decimal.Decimal(0.0)
+			loan.outstanding_fees = decimal.Decimal(0.0)
 
 	return FundLoansRespDict(status='OK'), None
 

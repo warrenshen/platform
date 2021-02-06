@@ -9,7 +9,7 @@ from flask import Response, Blueprint
 from flask.views import MethodView
 from flask_jwt_extended import create_access_token, create_refresh_token
 from sqlalchemy.orm.attributes import flag_modified
-from typing import cast
+from typing import cast, Callable, Dict
 
 from bespoke.db import db_constants
 from bespoke.date import date_util
@@ -53,15 +53,16 @@ class GenerateCodeView(MethodView):
 			if not two_factor_link:
 				return make_error_response('Token id provided no longer exists')
 
-			if email not in two_factor_link.token_states:
+			token_states_dict = cast(Dict, two_factor_link.token_states)
+			if email not in token_states_dict:
 				return make_error_response('Invalid email for link provided')
 
 			# NOTE: Handle expiration times for tokens
-			two_factor_link.token_states[email] = {
+			token_states_dict[email] = {
 				'token_val': security_util.mfa_code_generator(),
 				'expires_in': ''
 			}
-			flag_modified(two_factor_link, 'token_states')
+			cast(Callable, flag_modified)(two_factor_link, 'token_states')
 
 		# NOTE: Send two-factor code to email
 
@@ -98,10 +99,12 @@ class ApproveCodeView(MethodView):
 			if not two_factor_link:
 				return make_error_response('Link provided no longer exists')
 
-			if email not in two_factor_link.token_states:
+			token_states_dict = cast(Dict, two_factor_link.token_states)
+
+			if email not in token_states_dict:
 				return make_error_response('Not a valid email for this secure link')
 
-			token_dict = two_factor_link.token_states[email]
+			token_dict = token_states_dict[email]
 			token_val = token_dict['token_val']
 			form_info = two_factor_link.form_info
 
@@ -141,7 +144,7 @@ class GetSecureLinkPayloadView(MethodView):
 			if date_util.has_expired(expires_at):
 				return make_error_response('Link has expired')
 
-			form_info = two_factor_link.form_info
+			form_info = cast(Dict, two_factor_link.form_info)
 			if not form_info:
 				return make_error_response('No form information associated with this link')
 

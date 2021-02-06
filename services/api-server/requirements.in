@@ -14,7 +14,8 @@ SQLAlchemy-Utils==0.36.8
 psycopg2-binary==2.8.5
 
 # Typing
-mypy==0.770
+mypy==0.800
+sqlalchemy-stubs==0.4
 
 # Security
 safety==1.9.0

@@ -5,7 +5,7 @@ import os
 import time
 import uuid
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, List
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, List, cast
 
 import sqlalchemy
 from mypy_extensions import TypedDict
@@ -18,6 +18,7 @@ from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.orm.query import Query as _Query
 from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import QueuePool
+from sqlalchemy.engine import Engine
 
 from bespoke.date import date_util
 
@@ -58,35 +59,22 @@ def safe_serialize(d: Any) -> Any:
 class User(Base):
 	__tablename__ = 'users'
 
-	if TYPE_CHECKING:
-		def __init__(self, email: str, password: str, company_id: str = None, id: uuid.UUID = None, role: str = None) -> None:
-			self.id: UUID = None
-			self.company_id: str = None
-			self.password: str = None
-			self.email: str = None
-			self.role: str = None
-			self.__table__: Any = None
-	else:
-		id = Column(UUID(as_uuid=True), primary_key=True,
-					default=uuid.uuid4, unique=True)
-		company_id = Column(UUID(as_uuid=True), nullable=True)
-		email = Column(String(120), unique=True, nullable=False)
-		password = Column(Text, nullable=False)
-		role = Column(String(120), nullable=False)
+	id = Column(UUID(as_uuid=True), primary_key=True,
+				default=uuid.uuid4, unique=True)
+	company_id = Column(UUID(as_uuid=True), nullable=True)
+	email = Column(String(120), unique=True, nullable=False)
+	password = Column(Text, nullable=False)
+	role = Column(String(120), nullable=False)
 
 
 class Customer(Base):
 	__tablename__ = 'customer'
 
-	if TYPE_CHECKING:
-		def __init__(self, name: str, phone: str, email: str) -> None:
-			self.__table__: Any = None
-	else:
-		id = Column(UUID(as_uuid=True), primary_key=True,
-					default=uuid.uuid4, unique=True)
-		name = Column(String)
-		phone = Column(String)
-		email = Column(String)
+	id = Column(UUID(as_uuid=True), primary_key=True,
+				default=uuid.uuid4, unique=True)
+	name = Column(String)
+	phone = Column(String)
+	email = Column(String)
 
 CompanyDict = TypedDict('CompanyDict', {
 	'id': str,
@@ -98,14 +86,9 @@ class Company(Base):
 	"""
 	__tablename__ = 'companies'
 
-	if TYPE_CHECKING:
-		def __init__(self) -> None:
-			self.id: UUID = None
-			self.name: str = None
-	else:
-		id = Column(UUID(as_uuid=True), primary_key=True,
-					default=uuid.uuid4, unique=True)
-		name = Column(String)
+	id = Column(UUID(as_uuid=True), primary_key=True,
+				default=uuid.uuid4, unique=True)
+	name = Column(String)
 
 	def as_dict(self) -> CompanyDict:
 		return CompanyDict(
@@ -122,66 +105,39 @@ CompanySettingsDict = TypedDict('CompanySettingsDict', {
 class CompanySettings(Base):
 	__tablename__ = 'company_settings'
 
-	if TYPE_CHECKING:
-		def __init__(self) -> None:
-			self.__table__: Any = None
-			self.id: UUID = None
-			self.company_id: UUID = None
-			self.product_type: str = None
-			self.product_config: Dict = None
-			self.vendor_agreement_docusign_template: str = None
-	else:
-		id = Column(UUID(as_uuid=True), primary_key=True,
-					default=uuid.uuid4, unique=True)
-		company_id = Column(UUID(as_uuid=True))
-		product_type = Column(Text)
-		product_config = Column(JSON)
-		vendor_agreement_docusign_template = Column(Text)
+	id = Column(UUID(as_uuid=True), primary_key=True,
+				default=uuid.uuid4, unique=True)
+	company_id = Column(UUID(as_uuid=True))
+	product_type = Column(Text)
+	product_config = Column(JSON)
+	vendor_agreement_docusign_template = Column(Text)
 
 	def as_dict(self) -> CompanySettingsDict:
 		return CompanySettingsDict(
 			id=str(self.id),
 			product_type=self.product_type,
-			product_config=self.product_config
+			product_config=cast(Dict, self.product_config)
 		)
 
 
 class CompanyVendorPartnership(Base):
 	__tablename__ = 'company_vendor_partnerships'
 
-	if TYPE_CHECKING:
-		def __init__(self) -> None:
-			self.__table__: Any = None
-			self.id: UUID = None
-			self.company_id: UUID = None
-			self.vendor_id: UUID = None
-			self.approved_at: datetime.datetime = None
-	else:
-		id = Column(UUID(as_uuid=True), primary_key=True,
-					default=uuid.uuid4, unique=True)
-		company_id = Column(UUID(as_uuid=True), ForeignKey('companies.id'))
-		vendor_id = Column(UUID(as_uuid=True), ForeignKey('companies.id'))
-		approved_at = Column(DateTime)
+	id = Column(UUID(as_uuid=True), primary_key=True,
+				default=uuid.uuid4, unique=True)
+	company_id = Column(UUID(as_uuid=True), ForeignKey('companies.id'))
+	vendor_id = Column(UUID(as_uuid=True), ForeignKey('companies.id'))
+	approved_at = Column(DateTime)
 
 
 class PurchaseOrderFile(Base):
 	__tablename__ = 'purchase_order_files'
 
-	if TYPE_CHECKING:
-		def __init__(self, purchase_order_id: uuid.UUID, file_id: uuid.UUID, file_type: str):
-			self.__table__: Any = None
-			self.purchase_order_id: uuid.UUID = None
-			self.file_id: uuid.UUID = None
-			self.file_type: str = None
-
-			self.purchase_order: PurchaseOrder = None
-			self.file: File = None
-	else:
-		purchase_order_id = Column(UUID(as_uuid=True), ForeignKey(
-			'purchase_orders.id'), primary_key=True)
-		file_id = Column(UUID(as_uuid=True), ForeignKey(
-			'files.id'), primary_key=True)
-		file_type = Column(String)
+	purchase_order_id = Column(UUID(as_uuid=True), ForeignKey(
+		'purchase_orders.id'), primary_key=True)
+	file_id = Column(UUID(as_uuid=True), ForeignKey(
+		'files.id'), primary_key=True)
+	file_type = Column(String)
 
 PurchaseOrderDict = TypedDict('PurchaseOrderDict', {
 	'id': str,
@@ -195,49 +151,30 @@ class PurchaseOrder(Base):
 	"""
 	__tablename__ = 'purchase_orders'
 
-	if TYPE_CHECKING:
-		def __init__(self, number: str, total_requested: float, confirmed: bool) -> None:
-			self.__table__: Any = None
-			self.id: uuid.UUID = None
-			self.vendor_id: uuid.UUID = None
-			self.company_id: uuid.UUID = None
-			self.order_number: str = None
-			self.order_date: datetime.date = None
-			self.delivery_date: datetime.date = None
-			self.amount: float = None
-			self.status: str = None
-			self.requested_at: datetime.datetime = None
-			self.approved_at: datetime.datetime = None
-			self.rejected_at: datetime.datetime = None
-			self.rejection_note: str = None
+	id = Column(UUID(as_uuid=True), primary_key=True)
+	company_id = Column(UUID(as_uuid=True), ForeignKey('companies.id'))
+	vendor_id = Column(UUID(as_uuid=True), ForeignKey('companies.id'))
+	order_number = Column(String)
+	order_date = Column(Date)
+	delivery_date = Column(Date)
+	amount = Column(Numeric)
+	status = Column(String)
+	requested_at = Column(DateTime)
+	approved_at = Column(DateTime)
+	rejected_at = Column(DateTime)
+	rejection_note = Column(Text)
 
-			self.vendor: Company = None
-			self.company: Company = None
-	else:
-		id = Column(UUID(as_uuid=True), primary_key=True)
-		company_id = Column(UUID(as_uuid=True), ForeignKey('companies.id'))
-		vendor_id = Column(UUID(as_uuid=True), ForeignKey('companies.id'))
-		order_number = Column(String)
-		order_date = Column(Date)
-		delivery_date = Column(Date)
-		amount = Column(Numeric)
-		status = Column(String)
-		requested_at = Column(DateTime)
-		approved_at = Column(DateTime)
-		rejected_at = Column(DateTime)
-		rejection_note = Column(Text)
+	# TODO(dlluncor): Im concerned about too many joins and relationships
+	# happening here, I think we want to cut these off.
+	vendor = relationship(
+		'Company',
+		foreign_keys=[vendor_id]
+	)
 
-		# TODO(dlluncor): Im concerned about too many joins and relationships
-		# happening here, I think we want to cut these off.
-		vendor = relationship(
-			'Company',
-			foreign_keys=[vendor_id]
-		)
-
-		company = relationship(
-			'Company',
-			foreign_keys=[company_id]
-		)
+	company = relationship(
+		'Company',
+		foreign_keys=[company_id]
+	)
 
 	def as_dict(self) -> PurchaseOrderDict:
 		return PurchaseOrderDict(
@@ -259,40 +196,28 @@ TransactionDict = TypedDict('TransactionDict', {
 
 class Transaction(Base):
 	__tablename__ = 'transactions'
-	if TYPE_CHECKING:
-		def __init__(self) -> None:
-			self.__table__: Any = None
-			self.id: UUID = None
-			self.type: str = None
-			self.amount: float = None
-			self.loan_id: UUID = None
-			self.payment_id: UUID = None
-			self.to_principal: float = None
-			self.to_interest: float = None
-			self.to_fees: float = None
-			self.created_by_user_id: UUID = None
-	else:
-		id = Column(UUID(as_uuid=True), primary_key=True,
-					default=uuid.uuid4, unique=True)
-		type = Column(Text)
-		amount = Column(Numeric, nullable=False)
-		loan_id = Column(UUID(as_uuid=True), nullable=False)
-		payment_id = Column(UUID(as_uuid=True), nullable=False)
-		to_principal = Column(Numeric)
-		to_interest = Column(Numeric)
-		to_fees = Column(Numeric)
-		created_by_user_id = Column(UUID(as_uuid=True))
+
+	id = Column(UUID(as_uuid=True), primary_key=True,
+				default=uuid.uuid4, unique=True)
+	type = Column(Text)
+	amount = Column(Numeric, nullable=False)
+	loan_id = Column(UUID(as_uuid=True), nullable=False)
+	payment_id = Column(UUID(as_uuid=True), nullable=False)
+	to_principal = Column(Numeric)
+	to_interest = Column(Numeric)
+	to_fees = Column(Numeric)
+	created_by_user_id = Column(UUID(as_uuid=True))
 
 	def as_dict(self) -> TransactionDict:
 		return TransactionDict(
 			id=str(self.id),
 			type=self.type,
-			amount=self.amount,
+			amount=float(self.amount),
 			loan_id=str(self.loan_id),
 			payment_id=str(self.payment_id),
-			to_principal=self.to_principal,
-			to_interest=self.to_interest,
-			to_fees=self.to_fees
+			to_principal=float(self.to_principal),
+			to_interest=float(self.to_interest),
+			to_fees=float(self.to_fees)
 		)
 
 
@@ -311,41 +236,23 @@ LoanDict = TypedDict('LoanDict', {
 
 class Loan(Base):
 	__tablename__ = 'loans'
-	if TYPE_CHECKING:
-		def __init__(self) -> None:
-			self.__table__: Any = None
-			self.id: UUID = None
-			self.company_id: UUID = None
-			self.loan_type: str = None
-			self.artifact_id: UUID = None
-			self.origination_date: datetime.date = None
-			self.amount: float = None
-			self.status: str = None
-			self.maturity_date: datetime.date = None
-			self.adjusted_maturity_date: datetime.date = None
-			self.requested_at: datetime.datetime = None
-			self.funded_at: datetime.datetime = None
-			self.funded_by_user_id: UUID = None
-			self.outstanding_principal_balance: float = None
-			self.outstanding_interest: float = None
-			self.outstanding_fees: float = None
-	else:
-		id = Column(UUID(as_uuid=True), primary_key=True,
-					default=uuid.uuid4, unique=True)
-		company_id = Column(UUID(as_uuid=True), nullable=False)
-		loan_type = Column(Text)
-		artifact_id = Column(UUID(as_uuid=True))
-		origination_date = Column(Date)
-		maturity_date = Column(Date)
-		adjusted_maturity_date = Column(Date)
-		amount = Column(Numeric)
-		status = Column(String)
-		requested_at = Column(DateTime)
-		funded_at = Column(DateTime)
-		funded_by_user_id = Column(UUID(as_uuid=True))
-		outstanding_principal_balance = Column(Numeric)
-		outstanding_interest = Column(Numeric)
-		outstanding_fees = Column(Numeric)
+
+	id = Column(UUID(as_uuid=True), primary_key=True,
+				default=uuid.uuid4, unique=True)
+	company_id = Column(UUID(as_uuid=True), nullable=False)
+	loan_type = Column(Text)
+	artifact_id = Column(UUID(as_uuid=True))
+	origination_date = Column(Date)
+	maturity_date = Column(Date)
+	adjusted_maturity_date = Column(Date)
+	amount = Column(Numeric)
+	status = Column(String)
+	requested_at = Column(DateTime)
+	funded_at = Column(DateTime)
+	funded_by_user_id = Column(UUID(as_uuid=True))
+	outstanding_principal_balance = Column(Numeric)
+	outstanding_interest = Column(Numeric)
+	outstanding_fees = Column(Numeric)
 
 	def as_dict(self) -> LoanDict:
 		return LoanDict(
@@ -354,11 +261,11 @@ class Loan(Base):
 			origination_date=self.origination_date,
 			maturity_date=self.maturity_date,
 			adjusted_maturity_date=self.adjusted_maturity_date,
-			amount=self.amount,
+			amount=float(self.amount),
 			status=self.status,
-			outstanding_principal_balance=self.outstanding_principal_balance,
-			outstanding_interest=self.outstanding_interest,
-			outstanding_fees=self.outstanding_fees
+			outstanding_principal_balance=float(self.outstanding_principal_balance),
+			outstanding_interest=float(self.outstanding_interest),
+			outstanding_fees=float(self.outstanding_fees)
 		)
 
 
@@ -372,25 +279,15 @@ PaymentDict = TypedDict('PaymentDict', {
 
 class Payment(Base):
 	__tablename__ = 'payments'
-	if TYPE_CHECKING:
-		def __init__(self) -> None:
-			self.__table__: Any = None
-			self.id: UUID = None
-			self.type: str = None
-			self.amount: float = None
-			self.company_id: UUID = None
-			self.method: str = None
-			self.submitted_at: datetime.datetime = None
-			self.applied_at: datetime.datetime = None
-	else:
-		id = Column(UUID(as_uuid=True), primary_key=True,
-					default=uuid.uuid4, unique=True)
-		type = Column(String)
-		amount = Column(Numeric)
-		company_id = Column(UUID(as_uuid=True), nullable=False)
-		method = Column(String)
-		submitted_at = Column(DateTime)
-		applied_at = Column(DateTime)
+
+	id = Column(UUID(as_uuid=True), primary_key=True,
+				default=uuid.uuid4, unique=True)
+	type = Column(String)
+	amount = Column(Numeric)
+	company_id = Column(UUID(as_uuid=True), nullable=False)
+	method = Column(String)
+	submitted_at = Column(DateTime)
+	applied_at = Column(DateTime)
 
 	def as_dict(self) -> PaymentDict:
 		return PaymentDict(
@@ -404,16 +301,11 @@ class Payment(Base):
 
 class RevokedTokenModel(Base):
 	__tablename__ = 'revoked_tokens'
-	if TYPE_CHECKING:
-		def __init__(self, jti: str, user_id: str) -> None:
-			self.jti: str = None
-			self.user_id: str = None
-			self.__table__: Any = None
-	else:
-		id = Column(UUID(as_uuid=True), primary_key=True,
-					default=uuid.uuid4, unique=True)
-		user_id = Column(UUID(as_uuid=True), nullable=False)
-		jti = Column(String(120), nullable=False)
+
+	id = Column(UUID(as_uuid=True), primary_key=True,
+				default=uuid.uuid4, unique=True)
+	user_id = Column(UUID(as_uuid=True), nullable=False)
+	jti = Column(String(120), nullable=False)
 
 
 TwoFactorFormInfoDict = TypedDict('TwoFactorFormInfoDict', {
@@ -428,19 +320,11 @@ class TwoFactorLink(Base):
 	"""
 	__tablename__ = 'two_factor_links'
 
-	if TYPE_CHECKING:
-		def __init__(self, token_states: Dict, form_info: TwoFactorFormInfoDict, expires_at: datetime.datetime) -> None:
-			self.__table__: Any = None
-			self.id: UUID = None
-			self.token_states = token_states
-			self.form_info = form_info
-			self.expires_at = expires_at
-	else:
-		id = Column(UUID(as_uuid=True), primary_key=True,
-					default=uuid.uuid4, unique=True)
-		token_states = Column(JSON)
-		form_info = Column(JSON)
-		expires_at = Column(DateTime, default=datetime.datetime.utcnow)
+	id = Column(UUID(as_uuid=True), primary_key=True,
+				default=uuid.uuid4, unique=True)
+	token_states = Column(JSON)
+	form_info = Column(JSON)
+	expires_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 
 class File(Base):
@@ -449,38 +333,25 @@ class File(Base):
 	"""
 	__tablename__ = 'files'
 
-	if TYPE_CHECKING:
-		def __init__(self,
-					 company_id: str, name: str, path: str, extension: str,
-					 size: int, mime_type: str, created_by_user_id: str) -> None:
-			self.__table__: Any = None
-			self.id: UUID = None
-			self.name: str = None
-			self.path: str = None
-			self.mime_type: str = None
-			#self.token_states = token_states
-			#self.form_info = form_info
-			#self.expires_at = expires_at
-	else:
-		id = Column(UUID(as_uuid=True), primary_key=True,
-					default=uuid.uuid4, unique=True)
-		sequential_id = Column(Integer)
-		company_id = Column(UUID)
-		name = Column(Text)
-		path = Column(Text)
-		extension = Column(Text)
-		size = Column(BigInteger)
-		mime_type = Column(Text)
-		created_by_user_id = Column(UUID)
-		created_at = Column(DateTime, default=datetime.datetime.utcnow)
-		updated_at = Column(DateTime, default=datetime.datetime.utcnow)
+	id = Column(UUID(as_uuid=True), primary_key=True,
+				default=uuid.uuid4, unique=True)
+	sequential_id = Column(Integer)
+	company_id = Column(UUID)
+	name = Column(Text)
+	path = Column(Text)
+	extension = Column(Text)
+	size = Column(BigInteger)
+	mime_type = Column(Text)
+	created_by_user_id = Column(UUID)
+	created_at = Column(DateTime, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 
 def get_db_url() -> str:
 	return os.environ.get('DATABASE_URL')
 
 
-def create_engine() -> object:
+def create_engine() -> Engine:
 	return sqlalchemy.create_engine(
 		get_db_url(),
 		connect_args={'connect_timeout': 100,

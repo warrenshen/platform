@@ -3,6 +3,7 @@
   Essentially common code between repayment_util.py and advance_util.py
 """
 import datetime
+import decimal
 
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
@@ -33,7 +34,7 @@ def create_payment(
 	company_id: str,
 	payment_input: PaymentInputDict) -> models.Payment:
 	payment = models.Payment()
-	payment.amount = payment_input['amount']
+	payment.amount = decimal.Decimal(payment_input['amount'])
 	payment.type = payment_input['type']
 	payment.company_id = company_id
 	payment.method = payment_input['payment_method']
