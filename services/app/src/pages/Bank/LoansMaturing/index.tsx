@@ -1,19 +1,16 @@
-import { useState } from "react";
 import {
   Box,
   FormControl,
   InputLabel,
-  Select,
   MenuItem,
+  Select,
 } from "@material-ui/core";
-import useAppBarTitle from "hooks/useAppBarTitle";
-import { useTitle } from "react-use";
-import {
-  useAllPurchaseOrderLoansForBankQuery,
-  LoanFragment,
-} from "generated/graphql";
-import Page from "components/Shared/Page";
 import BankLoansDataGrid from "components/Shared/DataGrid/BankLoansDataGrid";
+import Page from "components/Shared/Page";
+import { LoanFragment, useLoansForBankQuery } from "generated/graphql";
+import useAppBarTitle from "hooks/useAppBarTitle";
+import { useState } from "react";
+import { useTitle } from "react-use";
 
 const matureDaysList = [7, 14, 30, 90];
 
@@ -23,13 +20,13 @@ function LoansMaturingPage() {
 
   const [matureDays, setMatureDays] = useState(matureDaysList[1]);
 
-  const { data, error } = useAllPurchaseOrderLoansForBankQuery();
+  const { data, error } = useLoansForBankQuery();
 
   if (error) {
     alert("Error querying purchase order loans. " + error);
   }
 
-  const purchaseOrderLoans = (data?.loans || []) as LoanFragment[];
+  const loans = (data?.loans || []) as LoanFragment[];
 
   return (
     <Page>
@@ -57,7 +54,7 @@ function LoansMaturingPage() {
       </Box>
       <Box style={{ height: "80vh", width: "100%" }}>
         <BankLoansDataGrid
-          purchaseOrderLoans={purchaseOrderLoans}
+          loans={loans}
           fullView={true}
           loansPastDue={false}
           matureDays={matureDays}

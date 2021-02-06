@@ -1,7 +1,7 @@
 import {
   LoanFragment,
-  useAllPurchaseOrderLoansForBankQuery,
   RequestStatusEnum,
+  useLoansForBankQuery,
 } from "generated/graphql";
 import useAppBarTitle from "hooks/useAppBarTitle";
 import { bankRoutes } from "lib/routes";
@@ -12,7 +12,7 @@ function BankDashboard() {
   useTitle("Dashboard | Bespoke");
   useAppBarTitle("Dashboard");
 
-  const { data, error } = useAllPurchaseOrderLoansForBankQuery();
+  const { data, error } = useLoansForBankQuery();
 
   if (error) {
     alert("Error querying purchase order loans. " + error);

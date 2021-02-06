@@ -1,7 +1,7 @@
 import { Box, Button, Typography } from "@material-ui/core";
-import { Link } from "react-router-dom";
-import { LoanFragment, RequestStatusEnum } from "generated/graphql";
 import BankLoansDataGrid from "components/Shared/DataGrid/BankLoansDataGrid";
+import { LoanFragment, RequestStatusEnum } from "generated/graphql";
+import { Link } from "react-router-dom";
 
 interface Props {
   purchaseOrderLoans: LoanFragment[];
@@ -43,7 +43,7 @@ function LoansTable({
         )}
         <Box style={{ height: "auto", width: "100%" }}>
           <BankLoansDataGrid
-            purchaseOrderLoans={purchaseOrderLoans}
+            loans={purchaseOrderLoans}
             fullView={false}
             loansPastDue={loansPastDue}
             matureDays={matureDays}

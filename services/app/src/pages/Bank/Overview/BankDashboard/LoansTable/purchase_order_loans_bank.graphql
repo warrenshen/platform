@@ -1,13 +1,13 @@
-query AllPurchaseOrderLoansForBank {
+query PurchaseOrderLoansForBank {
   loans(where: { loan_type: { _eq: purchase_order } }) {
     id
     ...Loan
+    company {
+      name
+    }
     purchase_order {
       id
       order_number
-      company {
-        name
-      }
       vendor {
         name
       }

@@ -1,18 +1,15 @@
 import { Box } from "@material-ui/core";
+import BankLoansDataGrid from "components/Shared/DataGrid/BankLoansDataGrid";
+import Page from "components/Shared/Page";
+import { LoanFragment, useLoansForBankQuery } from "generated/graphql";
 import useAppBarTitle from "hooks/useAppBarTitle";
 import { useTitle } from "react-use";
-import {
-  useAllPurchaseOrderLoansForBankQuery,
-  LoanFragment,
-} from "generated/graphql";
-import Page from "components/Shared/Page";
-import BankLoansDataGrid from "components/Shared/DataGrid/BankLoansDataGrid";
 
 function LoansPastDuePage() {
   useTitle("Loans Past Due | Bespoke");
   useAppBarTitle("Loans Past Due");
 
-  const { data, error } = useAllPurchaseOrderLoansForBankQuery();
+  const { data, error } = useLoansForBankQuery();
 
   if (error) {
     alert("Error querying purchase order loans. " + error);
@@ -24,7 +21,7 @@ function LoansPastDuePage() {
     <Page>
       <Box style={{ height: "80vh", width: "100%" }}>
         <BankLoansDataGrid
-          purchaseOrderLoans={purchaseOrderLoans}
+          loans={purchaseOrderLoans}
           fullView={true}
           loansPastDue={true}
         ></BankLoansDataGrid>

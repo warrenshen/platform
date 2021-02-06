@@ -1,4 +1,8 @@
-import { LoanStatusEnum, ProductTypeEnum } from "generated/graphql";
+import {
+  LoanStatusEnum,
+  LoanTypeEnum,
+  ProductTypeEnum,
+} from "generated/graphql";
 
 // Loan Status enum related.
 export const AllLoanStatuses = [
@@ -10,6 +14,12 @@ export const AllLoanStatuses = [
   LoanStatusEnum.PastDue,
   LoanStatusEnum.Rejected,
 ];
+
+// Loan Type enum related.
+export const LoanTypeToLabel = {
+  [LoanTypeEnum.LineOfCredit]: "Line of Credit",
+  [LoanTypeEnum.PurchaseOrder]: "Purchase Order",
+};
 
 // Payment Method enum related.
 export enum PaymentMethodEnum {

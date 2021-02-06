@@ -60,6 +60,24 @@ query LoansByCompanyAndLoanTypeForBank(
   }
 }
 
+query LoansForBank {
+  loans {
+    id
+    ...Loan
+    company {
+      id
+      name
+    }
+    purchase_order {
+      id
+      order_number
+      vendor {
+        name
+      }
+    }
+  }
+}
+
 query OpenLoansByCompany($companyId: uuid!) {
   loans(
     where: {

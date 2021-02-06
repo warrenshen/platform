@@ -1,4 +1,5 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { Box } from "@material-ui/core";
+import { ValueFormatterParams } from "@material-ui/data-grid";
 import Status from "components/Shared/Chip/Status";
 import ActionMenu from "components/Shared/DataGrid/ActionMenu";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
@@ -10,17 +11,16 @@ import DataGrid, {
   Pager,
   Paging,
 } from "devextreme-react/data-grid";
-import { LoanFragment, RequestStatusEnum } from "generated/graphql";
+import {
+  LoanFragment,
+  LoanTypeEnum,
+  RequestStatusEnum,
+} from "generated/graphql";
+import { LoanTypeToLabel } from "lib/enum";
 import { useEffect, useState } from "react";
 
-function getRows(purchaseOrderLoans: LoanFragment[]): RowsProp {
-  return purchaseOrderLoans.map((item) => ({
-    ...item,
-  }));
-}
-
 interface Props {
-  purchaseOrderLoans: LoanFragment[];
+  loans: LoanFragment[];
   fullView: boolean;
   loansPastDue: boolean;
   matureDays?: number | null;
@@ -30,14 +30,14 @@ interface Props {
 const getMaturityDate = (rowData: any) => new Date(rowData.maturity_date);
 
 function BankLoansDataGrid({
-  purchaseOrderLoans,
+  loans,
   fullView,
   loansPastDue,
   matureDays,
   filterByStatus,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
-  const rows = getRows(purchaseOrderLoans);
+  const rows = loans;
 
   useEffect(() => {
     if (!dataGrid) return;
@@ -99,9 +99,16 @@ function BankLoansDataGrid({
     //   cellRender: purchaseOrderNumberRenderer,
     // },
     {
-      dataField: "purchase_order.company.name",
+      dataField: "company.name",
       caption: "Customer Name",
       width: 190,
+    },
+    {
+      caption: "Loan Type",
+      width: 190,
+      cellRender: (params: ValueFormatterParams) => (
+        <Box>{LoanTypeToLabel[params.row.data.loan_type as LoanTypeEnum]}</Box>
+      ),
     },
     {
       dataField: "purchase_order.vendor.name",

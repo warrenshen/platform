@@ -9239,6 +9239,21 @@ export type LoansByCompanyAndLoanTypeForBankQuery = {
   >;
 };
 
+export type LoansForBankQueryVariables = Exact<{ [key: string]: never }>;
+
+export type LoansForBankQuery = {
+  loans: Array<
+    Pick<Loans, "id"> & {
+      company: Pick<Companies, "id" | "name">;
+      purchase_order?: Maybe<
+        Pick<PurchaseOrders, "id" | "order_number"> & {
+          vendor?: Maybe<Pick<Vendors, "name">>;
+        }
+      >;
+    } & LoanFragment
+  >;
+};
+
 export type OpenLoansByCompanyQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
@@ -9734,16 +9749,16 @@ export type CompanyVendorsQuery = {
   company_vendor_partnerships: Array<{ vendor: Pick<Companies, "name"> }>;
 };
 
-export type AllPurchaseOrderLoansForBankQueryVariables = Exact<{
+export type PurchaseOrderLoansForBankQueryVariables = Exact<{
   [key: string]: never;
 }>;
 
-export type AllPurchaseOrderLoansForBankQuery = {
+export type PurchaseOrderLoansForBankQuery = {
   loans: Array<
     Pick<Loans, "id"> & {
+      company: Pick<Companies, "name">;
       purchase_order?: Maybe<
         Pick<PurchaseOrders, "id" | "order_number"> & {
-          company: Pick<Companies, "name">;
           vendor?: Maybe<Pick<Vendors, "name">>;
         }
       >;
@@ -11172,6 +11187,74 @@ export type LoansByCompanyAndLoanTypeForBankLazyQueryHookResult = ReturnType<
 export type LoansByCompanyAndLoanTypeForBankQueryResult = Apollo.QueryResult<
   LoansByCompanyAndLoanTypeForBankQuery,
   LoansByCompanyAndLoanTypeForBankQueryVariables
+>;
+export const LoansForBankDocument = gql`
+  query LoansForBank {
+    loans {
+      id
+      ...Loan
+      company {
+        id
+        name
+      }
+      purchase_order {
+        id
+        order_number
+        vendor {
+          name
+        }
+      }
+    }
+  }
+  ${LoanFragmentDoc}
+`;
+
+/**
+ * __useLoansForBankQuery__
+ *
+ * To run a query within a React component, call `useLoansForBankQuery` and pass it any options that fit your needs.
+ * When your component renders, `useLoansForBankQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useLoansForBankQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useLoansForBankQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    LoansForBankQuery,
+    LoansForBankQueryVariables
+  >
+) {
+  return Apollo.useQuery<LoansForBankQuery, LoansForBankQueryVariables>(
+    LoansForBankDocument,
+    baseOptions
+  );
+}
+export function useLoansForBankLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    LoansForBankQuery,
+    LoansForBankQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<LoansForBankQuery, LoansForBankQueryVariables>(
+    LoansForBankDocument,
+    baseOptions
+  );
+}
+export type LoansForBankQueryHookResult = ReturnType<
+  typeof useLoansForBankQuery
+>;
+export type LoansForBankLazyQueryHookResult = ReturnType<
+  typeof useLoansForBankLazyQuery
+>;
+export type LoansForBankQueryResult = Apollo.QueryResult<
+  LoansForBankQuery,
+  LoansForBankQueryVariables
 >;
 export const OpenLoansByCompanyDocument = gql`
   query OpenLoansByCompany($companyId: uuid!) {
@@ -13214,17 +13297,17 @@ export type CompanyVendorsQueryResult = Apollo.QueryResult<
   CompanyVendorsQuery,
   CompanyVendorsQueryVariables
 >;
-export const AllPurchaseOrderLoansForBankDocument = gql`
-  query AllPurchaseOrderLoansForBank {
+export const PurchaseOrderLoansForBankDocument = gql`
+  query PurchaseOrderLoansForBank {
     loans(where: { loan_type: { _eq: purchase_order } }) {
       id
       ...Loan
+      company {
+        name
+      }
       purchase_order {
         id
         order_number
-        company {
-          name
-        }
         vendor {
           name
         }
@@ -13235,51 +13318,51 @@ export const AllPurchaseOrderLoansForBankDocument = gql`
 `;
 
 /**
- * __useAllPurchaseOrderLoansForBankQuery__
+ * __usePurchaseOrderLoansForBankQuery__
  *
- * To run a query within a React component, call `useAllPurchaseOrderLoansForBankQuery` and pass it any options that fit your needs.
- * When your component renders, `useAllPurchaseOrderLoansForBankQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `usePurchaseOrderLoansForBankQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePurchaseOrderLoansForBankQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useAllPurchaseOrderLoansForBankQuery({
+ * const { data, loading, error } = usePurchaseOrderLoansForBankQuery({
  *   variables: {
  *   },
  * });
  */
-export function useAllPurchaseOrderLoansForBankQuery(
+export function usePurchaseOrderLoansForBankQuery(
   baseOptions?: Apollo.QueryHookOptions<
-    AllPurchaseOrderLoansForBankQuery,
-    AllPurchaseOrderLoansForBankQueryVariables
+    PurchaseOrderLoansForBankQuery,
+    PurchaseOrderLoansForBankQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    AllPurchaseOrderLoansForBankQuery,
-    AllPurchaseOrderLoansForBankQueryVariables
-  >(AllPurchaseOrderLoansForBankDocument, baseOptions);
+    PurchaseOrderLoansForBankQuery,
+    PurchaseOrderLoansForBankQueryVariables
+  >(PurchaseOrderLoansForBankDocument, baseOptions);
 }
-export function useAllPurchaseOrderLoansForBankLazyQuery(
+export function usePurchaseOrderLoansForBankLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    AllPurchaseOrderLoansForBankQuery,
-    AllPurchaseOrderLoansForBankQueryVariables
+    PurchaseOrderLoansForBankQuery,
+    PurchaseOrderLoansForBankQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    AllPurchaseOrderLoansForBankQuery,
-    AllPurchaseOrderLoansForBankQueryVariables
-  >(AllPurchaseOrderLoansForBankDocument, baseOptions);
+    PurchaseOrderLoansForBankQuery,
+    PurchaseOrderLoansForBankQueryVariables
+  >(PurchaseOrderLoansForBankDocument, baseOptions);
 }
-export type AllPurchaseOrderLoansForBankQueryHookResult = ReturnType<
-  typeof useAllPurchaseOrderLoansForBankQuery
+export type PurchaseOrderLoansForBankQueryHookResult = ReturnType<
+  typeof usePurchaseOrderLoansForBankQuery
 >;
-export type AllPurchaseOrderLoansForBankLazyQueryHookResult = ReturnType<
-  typeof useAllPurchaseOrderLoansForBankLazyQuery
+export type PurchaseOrderLoansForBankLazyQueryHookResult = ReturnType<
+  typeof usePurchaseOrderLoansForBankLazyQuery
 >;
-export type AllPurchaseOrderLoansForBankQueryResult = Apollo.QueryResult<
-  AllPurchaseOrderLoansForBankQuery,
-  AllPurchaseOrderLoansForBankQueryVariables
+export type PurchaseOrderLoansForBankQueryResult = Apollo.QueryResult<
+  PurchaseOrderLoansForBankQuery,
+  PurchaseOrderLoansForBankQueryVariables
 >;
 export const UserByIdDocument = gql`
   query UserById($id: uuid!) {
