@@ -11,7 +11,7 @@ import smtplib
 import logging
 import boto3
 
-from typing import Any, List, Tuple, Union, Dict
+from typing import cast, Any, List, Tuple, Union, Dict
 from mypy_extensions import TypedDict
 
 from email.mime.multipart import MIMEMultipart
@@ -19,10 +19,8 @@ from email.mime.text import MIMEText
 from typing import Union, List, Optional
 from concurrent.futures import ThreadPoolExecutor, Future
 
-# sendgrid does not have type stubs as of now, hence type: ignore
-# (see https://github.com/sendgrid/sendgrid-python/issues/956)
-from sendgrid.sendgrid import SendGridAPIClient  # type: ignore
-from sendgrid.helpers.mail import Email, Content, Mail, To  # type: ignore
+from sendgrid.sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Email, Content, Mail, To
 
 SendGridConfigDict = TypedDict('SendGridConfigDict', {
 	'api_key': str
@@ -105,14 +103,15 @@ class EmailSender(object):
 		:param content_type: Content type of `content` parameter.
 		:return:
 		"""
+		_to: Union[To, List[To]] = None
 		if isinstance(to_, str):
-			to_ = To(to_)
+			_to = To(cast(str, to_))
 		else:
-			to_ = [To(t) for t in to_]
+			_to = [To(t) for t in to_]
 
-		content = Content(content_type, content)
+		content_ = Content(content_type, content)
 
-		mail = Mail(self._from, to_, subject, content)
+		mail = Mail(self._from, _to, subject, content_)
 		if async_:
 			return self._thread_pool.submit(self._send_email, mail)
 
@@ -123,13 +122,13 @@ class EmailSender(object):
 	def send_dynamic_email_template(
 			self, to_: EmailDestination, template_id: str,
 			template_data: Dict, async_: bool = False) -> Optional[Future]:
-		# template_data: Dict, async: bool = False) -> None:
+		_to: Union[To, List[To]] = None
 		if isinstance(to_, str):
-			to_ = [To(to_)]
+			_to = [To(cast(str, to_))]
 		else:
-			to_ = [To(t) for t in to_]
+			_to = [To(t) for t in to_]
 
-		mail = Mail(from_email=self._from, to_emails=to_)
+		mail = Mail(from_email=self._from, to_emails=_to)
 		mail.dynamic_template_data = template_data
 		mail.template_id = template_id
 

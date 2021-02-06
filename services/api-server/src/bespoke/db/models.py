@@ -23,11 +23,7 @@ from sqlalchemy.engine import Engine
 
 from bespoke.date import date_util
 
-if TYPE_CHECKING:
-	class Base(object):
-		metadata = None  # type: Any
-
-Base = declarative_base()  # type: ignore
+Base = declarative_base()
 
 GUID_DEFAULT = GUID_DEFAULT_SQLITE
 

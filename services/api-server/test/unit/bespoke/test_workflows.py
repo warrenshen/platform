@@ -34,18 +34,6 @@ def _delete_db(db_url: str) -> None:
 
 	models.Base.metadata.drop_all(engine)
 
-	"""
-	table_classes = [
-		('customers', models.Customer),
-		('purchase_orders', models.PurchaseOrder)
-	]
-	for (table_name, table_class) in table_classes:
-		if not engine.dialect.has_table(engine, table_name):
-			continue
-		table_class.__table__.drop(engine)
-	"""
-
-
 class TestWorkflows(unittest.TestCase):
 
 	def test_po_actions(self) -> None:

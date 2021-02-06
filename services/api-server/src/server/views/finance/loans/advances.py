@@ -16,20 +16,6 @@ from server.views.common import auth_util
 
 handler = Blueprint('finance_loans_advances', __name__)
 
-"""
-		with session_scope(current_app.session_maker) as session:
-			payment_input = payment_util.PaymentInputDict(
-				type=db_constants.PaymentType.ADVANCE,
-				amount=payment['amount'],
-				payment_method=payment['method']
-			)
-			payment_dict = payment_util.add_payment(company_id, payment_input, session)
-
-		user_session = auth_util.UserSession.from_session()
-		loan_ids = form['loan_ids']
-		payment_id = form['payment_id']
-"""
-
 class HandleAdvanceView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
