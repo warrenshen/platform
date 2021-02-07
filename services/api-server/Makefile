@@ -33,3 +33,6 @@ mypy:
 	MYPYPATH=stubs mypy src/bespoke/db/main.py --config-file=mypy.ini
 	MYPYPATH=stubs mypy src/manage.py --config-file=mypy.ini
 	MYPYPATH=stubs mypy src/$(CUSTOMER_REPORTS_SCRIPT) --config-file=mypy.ini
+
+mypy-tests:
+	MYPYPATH=stubs:$(PYTHONPATH) mypy test/unit --config-file=mypy.ini

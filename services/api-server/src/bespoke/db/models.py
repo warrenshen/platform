@@ -5,7 +5,7 @@ import os
 import time
 import uuid
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, List, cast
+from typing import TYPE_CHECKING, Any, Callable, Optional, Dict, Iterator, List, cast
 
 import sqlalchemy
 from mypy_extensions import TypedDict
@@ -136,6 +136,12 @@ PurchaseOrderDict = TypedDict('PurchaseOrderDict', {
 	'status': str
 })
 
+def float_or_null(val: Optional[decimal.Decimal]) -> float:
+	if val is None:
+		return None
+
+	return float(val)
+
 class PurchaseOrder(Base):
 	"""
 					Purchase orders created by customers for financing
@@ -234,7 +240,7 @@ class Loan(Base):
 	origination_date = Column(Date)
 	maturity_date = Column(Date)
 	adjusted_maturity_date = Column(Date)
-	amount = Column(Numeric)
+	amount = Column(Numeric, nullable=False)
 	status = Column(String)
 	requested_at = Column(DateTime)
 	funded_at = Column(DateTime)
@@ -252,9 +258,9 @@ class Loan(Base):
 			adjusted_maturity_date=self.adjusted_maturity_date,
 			amount=float(self.amount),
 			status=self.status,
-			outstanding_principal_balance=float(self.outstanding_principal_balance),
-			outstanding_interest=float(self.outstanding_interest),
-			outstanding_fees=float(self.outstanding_fees)
+			outstanding_principal_balance=float_or_null(self.outstanding_principal_balance),
+			outstanding_interest=float_or_null(self.outstanding_interest),
+			outstanding_fees=float_or_null(self.outstanding_fees)
 		)
 
 

@@ -1,0 +1,19 @@
+import datetime
+import decimal
+
+from bespoke.db import models
+from bespoke.db.models import session_scope
+
+from bespoke_test.db import db_unittest
+from bespoke_test.db import test_helper
+
+class TestWorkflows(db_unittest.TestCase):
+
+	def test_po_actions(self) -> None:
+		session_maker = self.session_maker
+
+		# Create the customer
+		customer1 = make_customer('customer1')
+		customer_name = customer1.name
+		with session_scope(session_maker) as session:
+			session.add(customer1)

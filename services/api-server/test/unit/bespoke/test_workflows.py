@@ -1,14 +1,10 @@
 import datetime
-import sqlalchemy
-import unittest
-
-from pathlib import Path
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy_utils.functions import database_exists
+import decimal
 
 from bespoke.db import models
 from bespoke.db.models import session_scope
 
+from bespoke_test.db import db_unittest
 
 def make_customer(prefix: str) -> models.Customer:
 	return models.Customer(
@@ -17,34 +13,10 @@ def make_customer(prefix: str) -> models.Customer:
 		email=prefix + '@gmail.com'
 	)
 
-
-def get_db_url() -> str:
-	return 'sqlite:///tmp/test.db'
-
-
-def _delete_db(db_url: str) -> None:
-	if not db_url.startswith('sqlite'):
-		raise Exception('Cannot delete not sqlite databases')
-
-	if not database_exists(db_url):
-		return
-
-	print('Deleting all tables with engine url: {}'.format(db_url))
-	engine = sqlalchemy.create_engine(db_url)
-
-	models.Base.metadata.drop_all(engine)
-
-class TestWorkflows(unittest.TestCase):
+class TestWorkflows(db_unittest.TestCase):
 
 	def test_po_actions(self) -> None:
-		self.assertTrue(True)
-
-		db_url = get_db_url()
-		Path('tmp').mkdir(parents=True, exist_ok=True)
-		_delete_db(db_url)
-		engine = sqlalchemy.create_engine(db_url)
-		models.Base.metadata.create_all(engine)
-		session_maker = sessionmaker(engine)
+		session_maker = self.session_maker
 
 		# Create the customer
 		customer1 = make_customer('customer1')
@@ -57,7 +29,7 @@ class TestWorkflows(unittest.TestCase):
 		with session_scope(session_maker) as session:
 			session.add(models.PurchaseOrder(
 				order_number=po_number,
-				amount=3000.02
+				amount=decimal.Decimal(3000.02)
 			))
 
 		# Checks based on first couple DB queries
