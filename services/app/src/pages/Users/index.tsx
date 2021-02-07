@@ -19,21 +19,21 @@ function Users() {
   useAppBarTitle("Users");
 
   const [open, setOpen] = useState(false);
-  const currentUserFromContext = useContext(CurrentUserContext);
+  const { user } = useContext(CurrentUserContext);
   const { data: customerUsers } = useListUsersByCompanyIdQuery({
     variables: {
-      companyId: currentUserFromContext.user.companyId,
+      companyId: user.companyId,
     },
   });
 
   const { data: bankUsers } = useListUsersByRoleQuery({
     variables: {
-      role: currentUserFromContext.user.role,
+      role: user.role,
     },
   });
 
   const users: Maybe<UserFragment[]> =
-    currentUserFromContext.user.role === UserRolesEnum.BankAdmin
+    user.role === UserRolesEnum.BankAdmin
       ? bankUsers?.users
       : customerUsers?.users;
 
@@ -42,9 +42,12 @@ function Users() {
       {open && (
         <InviteUserModal
           companyId={
-            currentUserFromContext.user.role === UserRolesEnum.BankAdmin
-              ? undefined
-              : currentUserFromContext.user.companyId
+            user.role === UserRolesEnum.BankAdmin ? undefined : user.companyId
+          }
+          userRole={
+            user.role === UserRolesEnum.BankAdmin
+              ? UserRolesEnum.BankAdmin
+              : UserRolesEnum.CompanyAdmin
           }
           handleClose={() => setOpen(false)}
         ></InviteUserModal>
@@ -58,10 +61,7 @@ function Users() {
           Invite User
         </Button>
       </Box>
-      <ListUsers
-        companyId={currentUserFromContext.user.companyId}
-        users={users}
-      ></ListUsers>
+      <ListUsers companyId={user.companyId} users={users}></ListUsers>
     </Page>
   );
 }

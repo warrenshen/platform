@@ -16,7 +16,7 @@ import {
   CompanySettingsFragment,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
-
+import { ProductTypeToLabel } from "lib/enum";
 interface Props {
   settings: CompanySettingsFragment | CompanySettingsForCustomerFragment;
   onClick: () => void;
@@ -45,7 +45,7 @@ function AccountSettingsCard(props: Props) {
         <Box display="flex" flexDirection="column" pt={2}>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Product Type</Box>
-            <Box>{settings.product_type}</Box>
+            <Box>{ProductTypeToLabel[settings.product_type]}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Vendor Agreement</Box>

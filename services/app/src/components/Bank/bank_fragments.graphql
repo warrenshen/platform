@@ -17,7 +17,7 @@ fragment Contact on users {
 
 ## Companies
 
-fragment BankCustomer on companies {
+fragment CustomerForBank on companies {
   id
   name
   employer_identification_number

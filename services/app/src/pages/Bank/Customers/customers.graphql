@@ -1,7 +1,11 @@
-
-query BankCustomers {
+query CustomersForBank {
   companies(where: { is_vendor: { _eq: false } }) {
-    ...BankCustomer
+    id
+    ...CustomerForBank
+    settings {
+      id
+      ...CompanySettings
+    }
   }
 }
 

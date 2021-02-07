@@ -11,8 +11,9 @@ import {
 } from "@material-ui/core";
 import AddButton from "components/Bank/AddCustomer/AddCustomerButton";
 import Page from "components/Shared/Page";
-import { useBankCustomersQuery } from "generated/graphql";
+import { useCustomersForBankQuery } from "generated/graphql";
 import useAppBarTitle from "hooks/useAppBarTitle";
+import { ProductTypeToLabel } from "lib/enum";
 import { bankRoutes } from "lib/routes";
 import { sortBy } from "lodash";
 import { Link, useRouteMatch } from "react-router-dom";
@@ -33,7 +34,7 @@ function BankCustomersPage() {
   useAppBarTitle("Customers");
 
   const { url } = useRouteMatch();
-  const { data } = useBankCustomersQuery();
+  const { data } = useCustomersForBankQuery();
 
   if (!data || !data.companies) {
     return null;
@@ -54,6 +55,11 @@ function BankCustomersPage() {
                 <Typography variant="h6">{customer.name}</Typography>
                 <Box py={1}>
                   <Box>
+                    <Box>
+                      {customer.settings
+                        ? ProductTypeToLabel[customer.settings.product_type]
+                        : ""}
+                    </Box>
                     <Box>{customer.address}</Box>
                     <Box>
                       {customer.city}, {customer.state} {customer.country}{" "}

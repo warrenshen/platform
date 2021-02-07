@@ -2,6 +2,7 @@ import {
   LoanStatusEnum,
   LoanTypeEnum,
   ProductTypeEnum,
+  UserRolesEnum,
 } from "generated/graphql";
 
 // Loan Status enum related.
@@ -50,10 +51,16 @@ export const AllPaymentMethods = [
 ];
 
 // Product Type enum related.
-export const ProductTypeLabel = {
+export const ProductTypeToLabel = {
   [ProductTypeEnum.InventoryFinancing]: "Inventory Financing",
   [ProductTypeEnum.InvoiceFinancing]: "Invoice Financing",
   [ProductTypeEnum.LineOfCredit]: "Line of Credit",
   [ProductTypeEnum.PurchaseMoneyFinancing]: "Purchase Money Financing",
   [ProductTypeEnum.None]: "None",
+};
+
+// User Role enum related.
+export const UserRoleToLabel = {
+  [UserRolesEnum.BankAdmin]: "Bank Admin",
+  [UserRolesEnum.CompanyAdmin]: "Company Admin",
 };

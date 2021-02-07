@@ -1,7 +1,7 @@
 import { Box, Button } from "@material-ui/core";
 import InviteUserModal from "components/Shared/Users/InviteUserModal";
 import ListUsers from "components/Shared/Users/ListUsers";
-import { useListUsersByCompanyIdQuery } from "generated/graphql";
+import { useListUsersByCompanyIdQuery, UserRolesEnum } from "generated/graphql";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 
@@ -22,6 +22,7 @@ function Users() {
       {open && (
         <InviteUserModal
           companyId={companyId}
+          userRole={UserRolesEnum.CompanyAdmin}
           handleClose={() => setOpen(false)}
         ></InviteUserModal>
       )}

@@ -27,10 +27,14 @@ import {
   UsersInsertInput,
 } from "generated/graphql";
 import { authenticatedApi, userRoutes } from "lib/api";
+import { UserRoleToLabel } from "lib/enum";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    dialog: {
+      width: 400,
+    },
     dialogTitle: {
       paddingLeft: theme.spacing(4),
       borderBottom: "1px solid #c7c7c7",
@@ -71,16 +75,17 @@ export async function createLogin(req: {
 
 interface Props {
   companyId?: string;
+  userRole: UserRolesEnum;
   handleClose: () => void;
 }
 
-function InviteUserModal({ companyId, handleClose }: Props) {
+function InviteUserModal({ companyId, userRole, handleClose }: Props) {
   const classes = useStyles();
 
   const [user, setUser] = useState<UsersInsertInput>({
     company_id: companyId,
     phone_number: "",
-    role: null,
+    role: userRole,
     email: "",
     first_name: "",
     full_name: "",
@@ -92,28 +97,33 @@ function InviteUserModal({ companyId, handleClose }: Props) {
   const [addUser] = useAddUserMutation();
 
   return (
-    <Dialog open onClose={handleClose} maxWidth="xl">
+    <Dialog
+      open
+      onClose={handleClose}
+      maxWidth="xl"
+      classes={{ paper: classes.dialog }}
+    >
       <DialogTitle className={classes.dialogTitle}>Invite User</DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column">
           <FormControl className={classes.usersInput}>
             <InputLabel id="user-role-select-label">User Role</InputLabel>
             <Select
-              disabled={false}
+              disabled
               labelId="user-role-select-label"
-              value={user.role || ""}
+              value={user.role}
               onChange={({ target: { value } }) => {
                 setUser({ ...user, role: value as UserRolesEnum });
               }}
             >
               {!companyId && (
                 <MenuItem value={UserRolesEnum.BankAdmin}>
-                  {UserRolesEnum.BankAdmin}
+                  {UserRoleToLabel[UserRolesEnum.BankAdmin]}
                 </MenuItem>
               )}
               {companyId && (
                 <MenuItem value={UserRolesEnum.CompanyAdmin}>
-                  {UserRolesEnum.CompanyAdmin}
+                  {UserRoleToLabel[UserRolesEnum.CompanyAdmin]}
                 </MenuItem>
               )}
             </Select>

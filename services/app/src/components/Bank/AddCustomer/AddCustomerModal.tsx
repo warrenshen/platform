@@ -10,13 +10,13 @@ import {
   TextField,
 } from "@material-ui/core";
 import {
-  BankCustomersDocument,
   CompaniesInsertInput,
   CompanySettingsInsertInput,
+  CustomersForBankDocument,
   ProductTypeEnum,
   useAddCustomerMutation,
 } from "generated/graphql";
-import { ProductTypeLabel } from "lib/enum";
+import { ProductTypeToLabel } from "lib/enum";
 import { useState } from "react";
 
 interface Props {
@@ -66,7 +66,7 @@ function AddCustomerModal({ handleClose }: Props) {
               ].map((productType) => {
                 return (
                   <MenuItem key={productType} value={productType}>
-                    {ProductTypeLabel[productType]}
+                    {ProductTypeToLabel[productType]}
                   </MenuItem>
                 );
               })}
@@ -94,7 +94,7 @@ function AddCustomerModal({ handleClose }: Props) {
               },
               refetchQueries: [
                 {
-                  query: BankCustomersDocument,
+                  query: CustomersForBankDocument,
                 },
               ],
             });

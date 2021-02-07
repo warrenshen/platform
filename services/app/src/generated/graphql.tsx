@@ -2267,6 +2267,165 @@ export type JsonbComparisonExp = {
   _nin?: Maybe<Array<Scalars["jsonb"]>>;
 };
 
+/** columns and relationships of "line_of_credits" */
+export type LineOfCredits = {
+  company_id: Scalars["uuid"];
+  id: Scalars["uuid"];
+  is_credit_for_vendor: Scalars["Boolean"];
+  recipient_vendor_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** aggregated selection of "line_of_credits" */
+export type LineOfCreditsAggregate = {
+  aggregate?: Maybe<LineOfCreditsAggregateFields>;
+  nodes: Array<LineOfCredits>;
+};
+
+/** aggregate fields of "line_of_credits" */
+export type LineOfCreditsAggregateFields = {
+  count?: Maybe<Scalars["Int"]>;
+  max?: Maybe<LineOfCreditsMaxFields>;
+  min?: Maybe<LineOfCreditsMinFields>;
+};
+
+/** aggregate fields of "line_of_credits" */
+export type LineOfCreditsAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<LineOfCreditsSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** order by aggregate values of table "line_of_credits" */
+export type LineOfCreditsAggregateOrderBy = {
+  count?: Maybe<OrderBy>;
+  max?: Maybe<LineOfCreditsMaxOrderBy>;
+  min?: Maybe<LineOfCreditsMinOrderBy>;
+};
+
+/** input type for inserting array relation for remote table "line_of_credits" */
+export type LineOfCreditsArrRelInsertInput = {
+  data: Array<LineOfCreditsInsertInput>;
+  on_conflict?: Maybe<LineOfCreditsOnConflict>;
+};
+
+/** Boolean expression to filter rows from the table "line_of_credits". All fields are combined with a logical 'AND'. */
+export type LineOfCreditsBoolExp = {
+  _and?: Maybe<Array<Maybe<LineOfCreditsBoolExp>>>;
+  _not?: Maybe<LineOfCreditsBoolExp>;
+  _or?: Maybe<Array<Maybe<LineOfCreditsBoolExp>>>;
+  company_id?: Maybe<UuidComparisonExp>;
+  id?: Maybe<UuidComparisonExp>;
+  is_credit_for_vendor?: Maybe<BooleanComparisonExp>;
+  recipient_vendor_id?: Maybe<UuidComparisonExp>;
+};
+
+/** unique or primary key constraints on table "line_of_credits" */
+export enum LineOfCreditsConstraint {
+  /** unique or primary key constraint */
+  LineOfCreditsPkey = "line_of_credits_pkey",
+}
+
+/** input type for inserting data into table "line_of_credits" */
+export type LineOfCreditsInsertInput = {
+  company_id?: Maybe<Scalars["uuid"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  is_credit_for_vendor?: Maybe<Scalars["Boolean"]>;
+  recipient_vendor_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** aggregate max on columns */
+export type LineOfCreditsMaxFields = {
+  company_id?: Maybe<Scalars["uuid"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  recipient_vendor_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** order by max() on columns of table "line_of_credits" */
+export type LineOfCreditsMaxOrderBy = {
+  company_id?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  recipient_vendor_id?: Maybe<OrderBy>;
+};
+
+/** aggregate min on columns */
+export type LineOfCreditsMinFields = {
+  company_id?: Maybe<Scalars["uuid"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  recipient_vendor_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** order by min() on columns of table "line_of_credits" */
+export type LineOfCreditsMinOrderBy = {
+  company_id?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  recipient_vendor_id?: Maybe<OrderBy>;
+};
+
+/** response of any mutation on the table "line_of_credits" */
+export type LineOfCreditsMutationResponse = {
+  /** number of affected rows by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data of the affected rows by the mutation */
+  returning: Array<LineOfCredits>;
+};
+
+/** input type for inserting object relation for remote table "line_of_credits" */
+export type LineOfCreditsObjRelInsertInput = {
+  data: LineOfCreditsInsertInput;
+  on_conflict?: Maybe<LineOfCreditsOnConflict>;
+};
+
+/** on conflict condition type for table "line_of_credits" */
+export type LineOfCreditsOnConflict = {
+  constraint: LineOfCreditsConstraint;
+  update_columns: Array<LineOfCreditsUpdateColumn>;
+  where?: Maybe<LineOfCreditsBoolExp>;
+};
+
+/** ordering options when selecting data from "line_of_credits" */
+export type LineOfCreditsOrderBy = {
+  company_id?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  is_credit_for_vendor?: Maybe<OrderBy>;
+  recipient_vendor_id?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "line_of_credits" */
+export type LineOfCreditsPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "line_of_credits" */
+export enum LineOfCreditsSelectColumn {
+  /** column name */
+  CompanyId = "company_id",
+  /** column name */
+  Id = "id",
+  /** column name */
+  IsCreditForVendor = "is_credit_for_vendor",
+  /** column name */
+  RecipientVendorId = "recipient_vendor_id",
+}
+
+/** input type for updating data in table "line_of_credits" */
+export type LineOfCreditsSetInput = {
+  company_id?: Maybe<Scalars["uuid"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  is_credit_for_vendor?: Maybe<Scalars["Boolean"]>;
+  recipient_vendor_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** update columns of table "line_of_credits" */
+export enum LineOfCreditsUpdateColumn {
+  /** column name */
+  CompanyId = "company_id",
+  /** column name */
+  Id = "id",
+  /** column name */
+  IsCreditForVendor = "is_credit_for_vendor",
+  /** column name */
+  RecipientVendorId = "recipient_vendor_id",
+}
+
 /** columns and relationships of "loan_status" */
 export type LoanStatus = {
   display_name: Scalars["String"];
@@ -2600,6 +2759,8 @@ export type Loans = {
   funded_at?: Maybe<Scalars["timestamptz"]>;
   funded_by_user_id?: Maybe<Scalars["uuid"]>;
   id: Scalars["uuid"];
+  /** An object relationship */
+  line_of_credit?: Maybe<LineOfCredits>;
   loan_type?: Maybe<LoanTypeEnum>;
   maturity_date?: Maybe<Scalars["date"]>;
   modified_at?: Maybe<Scalars["timestamptz"]>;
@@ -2697,6 +2858,7 @@ export type LoansBoolExp = {
   funded_at?: Maybe<TimestamptzComparisonExp>;
   funded_by_user_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  line_of_credit?: Maybe<LineOfCreditsBoolExp>;
   loan_type?: Maybe<LoanTypeEnumComparisonExp>;
   maturity_date?: Maybe<DateComparisonExp>;
   modified_at?: Maybe<TimestamptzComparisonExp>;
@@ -2740,6 +2902,7 @@ export type LoansInsertInput = {
   funded_at?: Maybe<Scalars["timestamptz"]>;
   funded_by_user_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
+  line_of_credit?: Maybe<LineOfCreditsObjRelInsertInput>;
   loan_type?: Maybe<LoanTypeEnum>;
   maturity_date?: Maybe<Scalars["date"]>;
   modified_at?: Maybe<Scalars["timestamptz"]>;
@@ -2890,6 +3053,7 @@ export type LoansOrderBy = {
   funded_at?: Maybe<OrderBy>;
   funded_by_user_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  line_of_credit?: Maybe<LineOfCreditsOrderBy>;
   loan_type?: Maybe<OrderBy>;
   maturity_date?: Maybe<OrderBy>;
   modified_at?: Maybe<OrderBy>;
@@ -3182,6 +3346,10 @@ export type MutationRoot = {
   delete_files?: Maybe<FilesMutationResponse>;
   /** delete single row from the table: "files" */
   delete_files_by_pk?: Maybe<Files>;
+  /** delete data from the table: "line_of_credits" */
+  delete_line_of_credits?: Maybe<LineOfCreditsMutationResponse>;
+  /** delete single row from the table: "line_of_credits" */
+  delete_line_of_credits_by_pk?: Maybe<LineOfCredits>;
   /** delete data from the table: "loan_status" */
   delete_loan_status?: Maybe<LoanStatusMutationResponse>;
   /** delete single row from the table: "loan_status" */
@@ -3270,6 +3438,10 @@ export type MutationRoot = {
   insert_files?: Maybe<FilesMutationResponse>;
   /** insert a single row into the table: "files" */
   insert_files_one?: Maybe<Files>;
+  /** insert data into the table: "line_of_credits" */
+  insert_line_of_credits?: Maybe<LineOfCreditsMutationResponse>;
+  /** insert a single row into the table: "line_of_credits" */
+  insert_line_of_credits_one?: Maybe<LineOfCredits>;
   /** insert data into the table: "loan_status" */
   insert_loan_status?: Maybe<LoanStatusMutationResponse>;
   /** insert a single row into the table: "loan_status" */
@@ -3362,6 +3534,10 @@ export type MutationRoot = {
   update_files?: Maybe<FilesMutationResponse>;
   /** update single row of the table: "files" */
   update_files_by_pk?: Maybe<Files>;
+  /** update data of the table: "line_of_credits" */
+  update_line_of_credits?: Maybe<LineOfCreditsMutationResponse>;
+  /** update single row of the table: "line_of_credits" */
+  update_line_of_credits_by_pk?: Maybe<LineOfCredits>;
   /** update data of the table: "loan_status" */
   update_loan_status?: Maybe<LoanStatusMutationResponse>;
   /** update single row of the table: "loan_status" */
@@ -3491,6 +3667,16 @@ export type MutationRootDeleteFilesArgs = {
 
 /** mutation root */
 export type MutationRootDeleteFilesByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** mutation root */
+export type MutationRootDeleteLineOfCreditsArgs = {
+  where: LineOfCreditsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteLineOfCreditsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -3727,6 +3913,18 @@ export type MutationRootInsertFilesArgs = {
 export type MutationRootInsertFilesOneArgs = {
   object: FilesInsertInput;
   on_conflict?: Maybe<FilesOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertLineOfCreditsArgs = {
+  objects: Array<LineOfCreditsInsertInput>;
+  on_conflict?: Maybe<LineOfCreditsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertLineOfCreditsOneArgs = {
+  object: LineOfCreditsInsertInput;
+  on_conflict?: Maybe<LineOfCreditsOnConflict>;
 };
 
 /** mutation root */
@@ -4011,6 +4209,18 @@ export type MutationRootUpdateFilesByPkArgs = {
   _inc?: Maybe<FilesIncInput>;
   _set?: Maybe<FilesSetInput>;
   pk_columns: FilesPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateLineOfCreditsArgs = {
+  _set?: Maybe<LineOfCreditsSetInput>;
+  where: LineOfCreditsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateLineOfCreditsByPkArgs = {
+  _set?: Maybe<LineOfCreditsSetInput>;
+  pk_columns: LineOfCreditsPkColumnsInput;
 };
 
 /** mutation root */
@@ -6126,6 +6336,12 @@ export type QueryRoot = {
   files_aggregate: FilesAggregate;
   /** fetch data from the table: "files" using primary key columns */
   files_by_pk?: Maybe<Files>;
+  /** fetch data from the table: "line_of_credits" */
+  line_of_credits: Array<LineOfCredits>;
+  /** fetch aggregated fields from the table: "line_of_credits" */
+  line_of_credits_aggregate: LineOfCreditsAggregate;
+  /** fetch data from the table: "line_of_credits" using primary key columns */
+  line_of_credits_by_pk?: Maybe<LineOfCredits>;
   /** fetch data from the table: "loan_status" */
   loan_status: Array<LoanStatus>;
   /** fetch aggregated fields from the table: "loan_status" */
@@ -6378,6 +6594,29 @@ export type QueryRootFilesAggregateArgs = {
 
 /** query root */
 export type QueryRootFilesByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** query root */
+export type QueryRootLineOfCreditsArgs = {
+  distinct_on?: Maybe<Array<LineOfCreditsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<LineOfCreditsOrderBy>>;
+  where?: Maybe<LineOfCreditsBoolExp>;
+};
+
+/** query root */
+export type QueryRootLineOfCreditsAggregateArgs = {
+  distinct_on?: Maybe<Array<LineOfCreditsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<LineOfCreditsOrderBy>>;
+  where?: Maybe<LineOfCreditsBoolExp>;
+};
+
+/** query root */
+export type QueryRootLineOfCreditsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -7104,6 +7343,12 @@ export type SubscriptionRoot = {
   files_aggregate: FilesAggregate;
   /** fetch data from the table: "files" using primary key columns */
   files_by_pk?: Maybe<Files>;
+  /** fetch data from the table: "line_of_credits" */
+  line_of_credits: Array<LineOfCredits>;
+  /** fetch aggregated fields from the table: "line_of_credits" */
+  line_of_credits_aggregate: LineOfCreditsAggregate;
+  /** fetch data from the table: "line_of_credits" using primary key columns */
+  line_of_credits_by_pk?: Maybe<LineOfCredits>;
   /** fetch data from the table: "loan_status" */
   loan_status: Array<LoanStatus>;
   /** fetch aggregated fields from the table: "loan_status" */
@@ -7356,6 +7601,29 @@ export type SubscriptionRootFilesAggregateArgs = {
 
 /** subscription root */
 export type SubscriptionRootFilesByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** subscription root */
+export type SubscriptionRootLineOfCreditsArgs = {
+  distinct_on?: Maybe<Array<LineOfCreditsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<LineOfCreditsOrderBy>>;
+  where?: Maybe<LineOfCreditsBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootLineOfCreditsAggregateArgs = {
+  distinct_on?: Maybe<Array<LineOfCreditsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<LineOfCreditsOrderBy>>;
+  where?: Maybe<LineOfCreditsBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootLineOfCreditsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -8934,7 +9202,7 @@ export type BankCustomerQueryVariables = Exact<{
 }>;
 
 export type BankCustomerQuery = {
-  companies_by_pk?: Maybe<BankCustomerFragment>;
+  companies_by_pk?: Maybe<CustomerForBankFragment>;
 };
 
 export type BankCustomerListVendorPartnershipsQueryVariables = Exact<{
@@ -8962,7 +9230,7 @@ export type ContactFragment = Pick<
   | "created_at"
 >;
 
-export type BankCustomerFragment = Pick<
+export type CustomerForBankFragment = Pick<
   Companies,
   | "id"
   | "name"
@@ -9737,9 +10005,15 @@ export type BankAccountsQueryVariables = Exact<{ [key: string]: never }>;
 
 export type BankAccountsQuery = { bank_accounts: Array<BankAccountFragment> };
 
-export type BankCustomersQueryVariables = Exact<{ [key: string]: never }>;
+export type CustomersForBankQueryVariables = Exact<{ [key: string]: never }>;
 
-export type BankCustomersQuery = { companies: Array<BankCustomerFragment> };
+export type CustomersForBankQuery = {
+  companies: Array<
+    Pick<Companies, "id"> & {
+      settings: Pick<CompanySettings, "id"> & CompanySettingsFragment;
+    } & CustomerForBankFragment
+  >;
+};
 
 export type CompanyVendorsQueryVariables = Exact<{
   companyId: Scalars["uuid"];
@@ -9817,8 +10091,8 @@ export const ContactFragmentDoc = gql`
     created_at
   }
 `;
-export const BankCustomerFragmentDoc = gql`
-  fragment BankCustomer on companies {
+export const CustomerForBankFragmentDoc = gql`
+  fragment CustomerForBank on companies {
     id
     name
     employer_identification_number
@@ -10128,10 +10402,10 @@ export type AddCustomerMutationOptions = Apollo.BaseMutationOptions<
 export const BankCustomerDocument = gql`
   query BankCustomer($id: uuid!) {
     companies_by_pk(id: $id) {
-      ...BankCustomer
+      ...CustomerForBank
     }
   }
-  ${BankCustomerFragmentDoc}
+  ${CustomerForBankFragmentDoc}
 `;
 
 /**
@@ -13183,61 +13457,67 @@ export type BankAccountsQueryResult = Apollo.QueryResult<
   BankAccountsQuery,
   BankAccountsQueryVariables
 >;
-export const BankCustomersDocument = gql`
-  query BankCustomers {
+export const CustomersForBankDocument = gql`
+  query CustomersForBank {
     companies(where: { is_vendor: { _eq: false } }) {
-      ...BankCustomer
+      id
+      ...CustomerForBank
+      settings {
+        id
+        ...CompanySettings
+      }
     }
   }
-  ${BankCustomerFragmentDoc}
+  ${CustomerForBankFragmentDoc}
+  ${CompanySettingsFragmentDoc}
 `;
 
 /**
- * __useBankCustomersQuery__
+ * __useCustomersForBankQuery__
  *
- * To run a query within a React component, call `useBankCustomersQuery` and pass it any options that fit your needs.
- * When your component renders, `useBankCustomersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useCustomersForBankQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCustomersForBankQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useBankCustomersQuery({
+ * const { data, loading, error } = useCustomersForBankQuery({
  *   variables: {
  *   },
  * });
  */
-export function useBankCustomersQuery(
+export function useCustomersForBankQuery(
   baseOptions?: Apollo.QueryHookOptions<
-    BankCustomersQuery,
-    BankCustomersQueryVariables
+    CustomersForBankQuery,
+    CustomersForBankQueryVariables
   >
 ) {
-  return Apollo.useQuery<BankCustomersQuery, BankCustomersQueryVariables>(
-    BankCustomersDocument,
+  return Apollo.useQuery<CustomersForBankQuery, CustomersForBankQueryVariables>(
+    CustomersForBankDocument,
     baseOptions
   );
 }
-export function useBankCustomersLazyQuery(
+export function useCustomersForBankLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    BankCustomersQuery,
-    BankCustomersQueryVariables
+    CustomersForBankQuery,
+    CustomersForBankQueryVariables
   >
 ) {
-  return Apollo.useLazyQuery<BankCustomersQuery, BankCustomersQueryVariables>(
-    BankCustomersDocument,
-    baseOptions
-  );
+  return Apollo.useLazyQuery<
+    CustomersForBankQuery,
+    CustomersForBankQueryVariables
+  >(CustomersForBankDocument, baseOptions);
 }
-export type BankCustomersQueryHookResult = ReturnType<
-  typeof useBankCustomersQuery
+export type CustomersForBankQueryHookResult = ReturnType<
+  typeof useCustomersForBankQuery
 >;
-export type BankCustomersLazyQueryHookResult = ReturnType<
-  typeof useBankCustomersLazyQuery
+export type CustomersForBankLazyQueryHookResult = ReturnType<
+  typeof useCustomersForBankLazyQuery
 >;
-export type BankCustomersQueryResult = Apollo.QueryResult<
-  BankCustomersQuery,
-  BankCustomersQueryVariables
+export type CustomersForBankQueryResult = Apollo.QueryResult<
+  CustomersForBankQuery,
+  CustomersForBankQueryVariables
 >;
 export const CompanyVendorsDocument = gql`
   query CompanyVendors($companyId: uuid!) {
