@@ -9,7 +9,7 @@ import {
 } from "@material-ui/core";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { routes } from "lib/routes";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { useTitle } from "react-use";
 
@@ -57,7 +57,7 @@ function SignIn() {
   const classes = useStyles();
   useTitle("Sign In | Bespoke");
 
-  const { signIn } = useContext(CurrentUserContext);
+  const { isSignedIn, signIn } = useContext(CurrentUserContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -67,15 +67,25 @@ function SignIn() {
   const onFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
+
     try {
+      // If sign in is successful, isSignedIn will flip to true and cause a history.push below.
+      // `await` is necessary here (even though the IDE says it is not)
+      // to catch any errors thrown by `signIn`.
       await signIn(email, password);
-      history.push(state?.from || routes.root);
     } catch (err) {
       setError(
-        "We encountered an error while attempting to sign in. Please try again!"
+        "Error encountered while attempting to sign in. Please try again!"
       );
+      setPassword("");
     }
   };
+
+  useEffect(() => {
+    if (isSignedIn) {
+      history.push(state?.from || routes.root);
+    }
+  }, [isSignedIn, history, state?.from]);
 
   return (
     <Box className={classes.container}>

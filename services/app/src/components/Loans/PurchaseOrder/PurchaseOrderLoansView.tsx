@@ -7,9 +7,9 @@ import {
 } from "generated/graphql";
 import { ActionType } from "lib/ActionType";
 import { useState } from "react";
+import UpdateLoanNotesModal from "../UpdateLoanNotesModal";
 import CreateUpdatePurchaseOrderLoanModal from "./CreateUpdatePurchaseOrderLoanModal";
 import ListPurchaseOrderLoans from "./ListPurchaseOrderLoans";
-import UpdateLoanNotesModal from "./UpdateLoanNotesModal";
 
 interface Props {
   isDataLoading: boolean;

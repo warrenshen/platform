@@ -1,6 +1,6 @@
 import { Box, Button } from "@material-ui/core";
 import RepaymentButton from "components/Customer/PurchaseOrderLoanRepayment/RepaymentButton";
-import PurchaseOrderLoansView from "components/Loans/PurchaseOrderLoansView";
+import PurchaseOrderLoansView from "components/Loans/PurchaseOrder/PurchaseOrderLoansView";
 import Can from "components/Shared/Can";
 import {
   LoanFragment,
@@ -36,41 +36,32 @@ function Loans() {
   const [isCreateUpdateModalOpen, setIsCreateUpdateModalOpen] = useState(false);
   const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
 
-  const loanType = "purchase_order";
-  if (loanType === "purchase_order") {
-    return (
-      <Box>
-        <Box pb={2} display="flex" flexDirection="row-reverse">
-          <Can perform={Action.AddPurchaseOrders}>
-            <Button
-              onClick={() => setIsCreateUpdateModalOpen(true)}
-              variant="contained"
-              color="primary"
-            >
-              Create Loan
-            </Button>
-          </Can>
-          <Can perform={Action.RepayPurchaseOrderLoans}>
-            <Box mr={2}>
-              <RepaymentButton selectedLoans={selectedLoans}></RepaymentButton>
-            </Box>
-          </Can>
-        </Box>
-        <PurchaseOrderLoansView
-          isDataLoading={isLoansLoading}
-          purchaseOrderLoans={purchaseOrderLoans}
-          refetch={refetch}
-          handleSelectLoans={(loans) => setSelectedLoans(loans)}
-          isCreateUpdateModalOpen={isCreateUpdateModalOpen}
-          setIsCreateUpdateModalOpen={setIsCreateUpdateModalOpen}
-        ></PurchaseOrderLoansView>
-      </Box>
-    );
-  }
-
   return (
-    <Box pb={2} display="flex" flexDirection="row-reverse">
-      Nothing to display
+    <Box>
+      <Box pb={2} display="flex" flexDirection="row-reverse">
+        <Can perform={Action.AddPurchaseOrders}>
+          <Button
+            onClick={() => setIsCreateUpdateModalOpen(true)}
+            variant="contained"
+            color="primary"
+          >
+            Create Loan
+          </Button>
+        </Can>
+        <Can perform={Action.RepayPurchaseOrderLoans}>
+          <Box mr={2}>
+            <RepaymentButton selectedLoans={selectedLoans}></RepaymentButton>
+          </Box>
+        </Can>
+      </Box>
+      <PurchaseOrderLoansView
+        isDataLoading={isLoansLoading}
+        purchaseOrderLoans={purchaseOrderLoans}
+        refetch={refetch}
+        handleSelectLoans={(loans) => setSelectedLoans(loans)}
+        isCreateUpdateModalOpen={isCreateUpdateModalOpen}
+        setIsCreateUpdateModalOpen={setIsCreateUpdateModalOpen}
+      ></PurchaseOrderLoansView>
     </Box>
   );
 }

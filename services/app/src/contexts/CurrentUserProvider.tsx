@@ -1,8 +1,12 @@
 import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
 import * as Sentry from "@sentry/react";
 import axios from "axios";
-import { CurrentUserContext, User } from "contexts/CurrentUserContext";
-import { UserRolesEnum } from "generated/graphql";
+import {
+  BlankUser,
+  CurrentUserContext,
+  User,
+} from "contexts/CurrentUserContext";
+import { ProductTypeEnum } from "generated/graphql";
 import JwtDecode from "jwt-decode";
 import { authenticatedApi, authRoutes, unAuthenticatedApi } from "lib/api";
 import {
@@ -15,14 +19,8 @@ import {
 } from "lib/auth/tokenStorage";
 import { useCallback, useEffect, useState } from "react";
 
-const blankUser = {
-  id: "",
-  companyId: "",
-  role: UserRolesEnum.CompanyAdmin,
-};
-
 const JWT_CLAIMS_KEY = "https://hasura.io/jwt/claims";
-function userFrom(token: string) {
+function userFieldsFromToken(token: string) {
   const decodedToken: any = JwtDecode(token);
   const claims = decodedToken[JWT_CLAIMS_KEY];
   return {
@@ -33,7 +31,7 @@ function userFrom(token: string) {
 }
 
 function CurrentUserWrapper(props: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User>(blankUser);
+  const [user, setUser] = useState<User>(BlankUser);
   const [isTokenLoaded, setIsTokenLoaded] = useState(false);
 
   const isSignedIn = !!(user.id && user.role);
@@ -42,7 +40,10 @@ function CurrentUserWrapper(props: { children: React.ReactNode }) {
     async function setUserFromAccessToken() {
       const accessToken = await getAccessToken();
       if (accessToken) {
-        setUser(userFrom(accessToken));
+        setUser((user) => ({
+          ...user,
+          ...userFieldsFromToken(accessToken),
+        }));
       }
       setIsTokenLoaded(true);
     }
@@ -52,6 +53,14 @@ function CurrentUserWrapper(props: { children: React.ReactNode }) {
   }, [isTokenLoaded]);
 
   const resetUser = useCallback(() => setIsTokenLoaded(false), []);
+  const setUserProductType = useCallback(
+    (productType: ProductTypeEnum) => {
+      if (user.productType !== productType) {
+        setUser((user) => ({ ...user, productType }));
+      }
+    },
+    [user.productType]
+  );
 
   const signIn = useCallback(async (email: string, password: string) => {
     const response = await unAuthenticatedApi.post(authRoutes.signIn, {
@@ -59,17 +68,21 @@ function CurrentUserWrapper(props: { children: React.ReactNode }) {
       password,
     });
 
+    // Try catch block to catch errors related to `userFieldsFromToken`.
     try {
       const data = response.data;
       if (data.status === "OK" && data.access_token) {
         setAccessToken(data.access_token);
         setRefreshToken(data.refresh_token);
-        setUser(userFrom(data.access_token));
+        setUser((user) => ({
+          ...user,
+          ...userFieldsFromToken(data.access_token),
+        }));
       } else {
-        setUser(blankUser);
+        alert(data.msg);
       }
     } catch (err) {
-      setUser(blankUser);
+      alert(err);
     }
   }, []);
 
@@ -95,7 +108,7 @@ function CurrentUserWrapper(props: { children: React.ReactNode }) {
         removeAccessToken();
         removeRefreshToken();
         client.clearStore();
-        setUser(blankUser);
+        setUser(BlankUser);
       }
     },
     []
@@ -107,6 +120,7 @@ function CurrentUserWrapper(props: { children: React.ReactNode }) {
         user,
         isSignedIn,
         resetUser,
+        setUserProductType,
         signIn,
         signOut,
       }}

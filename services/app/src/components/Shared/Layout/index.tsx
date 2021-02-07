@@ -8,13 +8,9 @@ import Typography from "@material-ui/core/Typography";
 import UserMenu from "components/Shared/User/UserMenu";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { PageContext } from "contexts/PageContext";
-import {
-  ProductTypeEnum,
-  useCompanyWithSettingsByCompanyIdQuery,
-  UserRolesEnum,
-} from "generated/graphql";
+import { ProductTypeEnum, UserRolesEnum } from "generated/graphql";
 import { bankRoutes, customerRoutes, routes } from "lib/routes";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { Link, matchPath, useLocation } from "react-router-dom";
 
 const DRAWER_WIDTH = 250;
@@ -144,33 +140,20 @@ const BANK_LEFT_NAV_ITEMS = [
   },
 ];
 
-interface NavOption {
-  text: string;
-  link: string;
-}
-
 function Layout(props: { children: React.ReactNode }) {
   const classes = useStyles();
   const location = useLocation();
-  const { user } = useContext(CurrentUserContext);
+  const {
+    user: { role, productType },
+  } = useContext(CurrentUserContext);
   const [appBarTitle, setAppBarTitle] = useState<React.ReactNode | string>("");
-  const [leftNavOptions, setLeftNavOptions] = useState<NavOption[]>([]);
 
-  const { data } = useCompanyWithSettingsByCompanyIdQuery({
-    variables: {
-      companyId: user.companyId,
-    },
-  });
-
-  const company = data?.companies_by_pk;
-
-  useEffect(() => {
-    if (user.role === UserRolesEnum.BankAdmin) {
-      setLeftNavOptions(BANK_LEFT_NAV_ITEMS);
-    } else if (company) {
-      setLeftNavOptions(getCustomerLeftNavItems(company.settings.product_type));
-    }
-  }, [user.role, company]);
+  const leftNavOptions =
+    role === UserRolesEnum.BankAdmin
+      ? BANK_LEFT_NAV_ITEMS
+      : productType
+      ? getCustomerLeftNavItems(productType)
+      : [];
 
   return (
     <PageContext.Provider

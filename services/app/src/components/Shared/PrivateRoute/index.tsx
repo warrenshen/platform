@@ -1,7 +1,10 @@
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { UserRolesEnum } from "generated/graphql";
+import {
+  useCompanyWithSettingsByCompanyIdQuery,
+  UserRolesEnum,
+} from "generated/graphql";
 import { routes } from "lib/routes";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { Redirect, Route, RouteProps } from "react-router-dom";
 
 interface Props {
@@ -11,7 +14,8 @@ interface Props {
 function PrivateRoute(props: Props & RouteProps) {
   const { children, component, ...rest } = props;
   const {
-    user: { role },
+    user: { companyId, role },
+    setUserProductType,
     isSignedIn,
   } = useContext(CurrentUserContext);
 
@@ -20,6 +24,20 @@ function PrivateRoute(props: Props & RouteProps) {
     : false;
 
   const shouldRender = isSignedIn && canVisitRoute;
+
+  const { data } = useCompanyWithSettingsByCompanyIdQuery({
+    variables: {
+      companyId,
+    },
+  });
+
+  const company = data?.companies_by_pk;
+
+  useEffect(() => {
+    if (role !== UserRolesEnum.BankAdmin && company?.settings.product_type) {
+      setUserProductType(company?.settings.product_type);
+    }
+  }, [role, company?.settings.product_type, setUserProductType]);
 
   return (
     <Route
