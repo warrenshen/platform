@@ -9385,6 +9385,19 @@ export type AssignAdvancesBespokeBankAccountMutation = {
   >;
 };
 
+export type CompanyWithSettingsByCompanyIdQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+}>;
+
+export type CompanyWithSettingsByCompanyIdQuery = {
+  companies_by_pk?: Maybe<
+    Pick<Companies, "id"> & {
+      settings: Pick<CompanySettings, "id"> &
+        CompanySettingsForCustomerFragment;
+    }
+  >;
+};
+
 export type CompanyQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
@@ -10764,6 +10777,67 @@ export type AssignAdvancesBespokeBankAccountMutationResult = Apollo.MutationResu
 export type AssignAdvancesBespokeBankAccountMutationOptions = Apollo.BaseMutationOptions<
   AssignAdvancesBespokeBankAccountMutation,
   AssignAdvancesBespokeBankAccountMutationVariables
+>;
+export const CompanyWithSettingsByCompanyIdDocument = gql`
+  query CompanyWithSettingsByCompanyId($companyId: uuid!) {
+    companies_by_pk(id: $companyId) {
+      id
+      settings {
+        id
+        ...CompanySettingsForCustomer
+      }
+    }
+  }
+  ${CompanySettingsForCustomerFragmentDoc}
+`;
+
+/**
+ * __useCompanyWithSettingsByCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useCompanyWithSettingsByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCompanyWithSettingsByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCompanyWithSettingsByCompanyIdQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useCompanyWithSettingsByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    CompanyWithSettingsByCompanyIdQuery,
+    CompanyWithSettingsByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    CompanyWithSettingsByCompanyIdQuery,
+    CompanyWithSettingsByCompanyIdQueryVariables
+  >(CompanyWithSettingsByCompanyIdDocument, baseOptions);
+}
+export function useCompanyWithSettingsByCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    CompanyWithSettingsByCompanyIdQuery,
+    CompanyWithSettingsByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    CompanyWithSettingsByCompanyIdQuery,
+    CompanyWithSettingsByCompanyIdQueryVariables
+  >(CompanyWithSettingsByCompanyIdDocument, baseOptions);
+}
+export type CompanyWithSettingsByCompanyIdQueryHookResult = ReturnType<
+  typeof useCompanyWithSettingsByCompanyIdQuery
+>;
+export type CompanyWithSettingsByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useCompanyWithSettingsByCompanyIdLazyQuery
+>;
+export type CompanyWithSettingsByCompanyIdQueryResult = Apollo.QueryResult<
+  CompanyWithSettingsByCompanyIdQuery,
+  CompanyWithSettingsByCompanyIdQueryVariables
 >;
 export const CompanyDocument = gql`
   query Company($companyId: uuid!) {
