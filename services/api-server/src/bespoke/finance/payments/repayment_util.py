@@ -90,7 +90,6 @@ def calculate_repayment_effect(
 	else:
 		return None, errors.Error('Unrecognized payment option')
 
-
 	# TODO(dlluncor): Calculate what actually happens to the loans after you
 	# have applied this payment.
 	return RepaymentEffectRespDict(

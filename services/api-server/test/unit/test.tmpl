@@ -1,5 +1,6 @@
 import datetime
 import decimal
+from typing import List, Dict
 
 from bespoke.db import models
 from bespoke.db.models import session_scope
@@ -12,8 +13,6 @@ class TestWorkflows(db_unittest.TestCase):
 	def test_po_actions(self) -> None:
 		session_maker = self.session_maker
 
-		# Create the customer
-		customer1 = make_customer('customer1')
-		customer_name = customer1.name
-		with session_scope(session_maker) as session:
-			session.add(customer1)
+		session_maker = self.session_maker
+		seed = test_helper.BasicSeed.create(self.session_maker, self)
+		seed.initialize()

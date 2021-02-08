@@ -53,6 +53,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 			), 
 			session_maker=session_maker
 		)
+		self.assertIsNone(err)
 		self.assertEqual('OK', resp.get('status'), msg=err)
 
 		# Run validations
