@@ -3,7 +3,7 @@
 """
 import logging
 from mypy_extensions import TypedDict
-from typing import Callable, Any
+from typing import Callable, Any, List
 
 from bespoke.db import models
 from bespoke.db.models import session_scope
@@ -32,90 +32,122 @@ TestAccountInfo = TypedDict('TestAccountInfo', {
 })
 
 BasicSeedData = TypedDict('BasicSeedData', {
-	'bank_admin': TestAccountInfo, # this is the bank admin
-	'company_admin': TestAccountInfo # this is the distributor
+	'bank_admins': List[TestAccountInfo], # this is the bank admin
+	'company_admins': List[TestAccountInfo] # this is the distributor
 })
 
 class BasicSeed(object):
 	"""
-	  A basic seed setup that includes a bank admin at a company
+	  A basic seed setup that includes bank admins and company_admins at different companies
 	"""
 
 	def __init__(self, session_maker: Callable, test_self: Any, private: bool) -> None:
 		self.session_maker = session_maker
 		self.data = BasicSeedData(
-			bank_admin=TestAccountInfo(
-				user=TestUser(
-				  user_id=None,
-				  company_id=None
-			  )
-			),
-			company_admin=TestAccountInfo(
-				user=TestUser(
-					user_id=None,
-					company_id=None
-			  )
-			)
+			bank_admins=[],
+			company_admins=[]
 		)
 		self.test_self = test_self
 
-	def initialize(self) -> None:
-		with session_scope(self.session_maker) as session:
-			# Setup the bank
-			bank_company = models.Company(
+	def _setup_bank_users(self, session: Any) -> None:
+		num_bank_admins = 2
+
+		bank_company = models.Company(
 				name='Bespoke Financial'
 			)
-			session.add(bank_company)
-			session.flush()
+		session.add(bank_company)
+		session.flush()
+
+		for i in range(num_bank_admins):
 
 			bank_user = models.User(
 				company_id=str(bank_company.id),
-				email='bankadmin+user1@gmail.com',
-				password='somepass',
+				email='bankadmin+user{}@gmail.com'.format(i),
+				password='somepass{}'.format(i),
 				role='bank_admin'
 			)
 			session.add(bank_user)
 			session.flush()
-			self.data['bank_admin']['user']['user_id'] = bank_user.id
-			self.data['bank_admin']['user']['company_id'] = bank_company.id
+			bank_admin = TestAccountInfo(
+				user=TestUser(
+			  	user_id=bank_user.id,
+			  	company_id=bank_company.id
+		  	)
+			)
+			self.data['bank_admins'].append(bank_admin)
 
+		test_self = self.test_self
+		for i in range(num_bank_admins):
+			test_self.assertIsNotNone(self.data['bank_admins'][i]['user']['user_id'])
+			test_self.assertIsNotNone(self.data['bank_admins'][i]['user']['company_id'])
+
+	def _setup_company_users(self, session: Any) -> None:
 			# Setup the company admin (for the distributor account)
+
+		num_companies = 3
+		for i in range(num_companies):
 			customer_company = models.Company(
-				name='Distributor_1'
+				name='Distributor_{}'.format(i)
 			)
 			session.add(customer_company)
 			session.flush()
-			customer_user = models.User(
+
+			company_user = models.User(
 				company_id=str(customer_company.id),
-				email='companyadmin+user1@gmail.com',
-				password='somepass2',
+				email='companyadmin+user{}@gmail.com'.format(i),
+				password='somepass_c{}'.format(i),
 				role='company_admin'
 			)
-			session.add(customer_user)
+			session.add(company_user)
 			session.flush()
-			self.data['company_admin']['user']['user_id'] = customer_user.id
-			self.data['company_admin']['user']['company_id'] = customer_company.id
+			company_admin = TestAccountInfo(
+				user=TestUser(
+			  	user_id=company_user.id,
+			  	company_id=customer_company.id
+		  	)
+			)
+			self.data['company_admins'].append(company_admin)
+
 
 		# Assert things got setup properly
 		test_self = self.test_self
-		test_self.assertIsNotNone(self.data['bank_admin']['user']['user_id'])
-		test_self.assertIsNotNone(self.data['bank_admin']['user']['company_id'])
-		test_self.assertIsNotNone(self.data['company_admin']['user']['user_id'])
-		test_self.assertIsNotNone(self.data['company_admin']['user']['company_id'])
+		for i in range(num_companies):
+			test_self.assertIsNotNone(self.data['company_admins'][i]['user']['user_id'])
+			test_self.assertIsNotNone(self.data['company_admins'][i]['user']['company_id'])
 
-	def get_company_id(self, account_role: str) -> str:
+		company0 = self.data['company_admins'][0]
+		company1 = self.data['company_admins'][1]
+		company2 = self.data['company_admins'][2]
+		test_self.assertNotEqual(company0['user']['company_id'], company1['user']['company_id'])
+		test_self.assertNotEqual(company1['user']['company_id'], company2['user']['company_id'])
+
+	def initialize(self) -> None:
+
+		with session_scope(self.session_maker) as session:
+			self._setup_bank_users(session)
+			self._setup_company_users(session)
+
+	def get_company_id(self, account_role: str, index: int = 0) -> str:
+		"""
+			When account_role='bank_admin' and index = 0, this will get the company ID for 
+			first bank_admin setup in the system, and so on and so forth.
+		"""
 		if account_role == 'bank_admin':
-			return self.data['bank_admin']['user']['company_id']
+			return self.data['bank_admins'][index]['user']['company_id']
 		elif account_role == 'company_admin':
-			return self.data['company_admin']['user']['company_id']
+			return self.data['company_admins'][index]['user']['company_id']
 
 		raise Exception('Unsupported account_role for get_company_id')
 
-	def get_user_id(self, account_role: str) -> str:
+	def get_user_id(self, account_role: str, index: int = 0) -> str:
+		"""
+			When account_role='company_admin' and index = 1, this will get the company ID for 
+			second bank_admin setup in the system, and so on and so forth.
+		"""
 		if account_role == 'bank_admin':
-			return self.data['bank_admin']['user']['user_id']
+			return self.data['bank_admins'][index]['user']['user_id']
 		elif account_role == 'company_admin':
-			return self.data['company_admin']['user']['user_id']
+			return self.data['company_admins'][index]['user']['user_id']
 
 		raise Exception('Unsupported account_role for get_user_id')
 

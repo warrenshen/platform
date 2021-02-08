@@ -30,15 +30,17 @@ def _delete_db(db_url: str) -> None:
 
 class TestCase(unittest.TestCase):
 
-	#session_maker: Callable = None
-
-	def setUp(self) -> None:
+	def reset(self) -> None:
 		db_url = get_db_url()
 		Path('tmp').mkdir(parents=True, exist_ok=True)
 		_delete_db(db_url)
 		engine = sqlalchemy.create_engine(db_url)
 		models.Base.metadata.create_all(engine)
-		self.session_maker = sessionmaker(engine)
+		self.session_maker = sessionmaker(engine)		
+
+	def setUp(self) -> None:
+		self.reset()
+
 
 
 

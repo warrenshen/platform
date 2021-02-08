@@ -43,6 +43,9 @@ def fund_loans_with_advance(
 		if not loans:
 			return None, errors.Error('No loans found', details=err_details)
 
+		if len(loans) != len(loan_ids):
+			return None, errors.Error('Not all loans were found to fund in database', details=err_details)
+
 		already_funded_loan_ids: List[str] = []
 		for loan in loans:
 			if loan.funded_at:
@@ -52,9 +55,6 @@ def fund_loans_with_advance(
 		if already_funded_loan_ids:
 			return None, errors.Error('These loans have already been funded. Please remove them from the advances process: {}'.format(
 				already_funded_loan_ids), details=err_details)
-
-		if len(loans) != len(loan_ids):
-			return None, errors.Error('Not all loans were found to fund in database', details=err_details)
 
 		loans_sum = 0.0
 		for loan_dict in loan_dicts:
@@ -72,12 +72,11 @@ def fund_loans_with_advance(
 		# Group loans by company_id and create an advance per company_id
 		company_id_to_loans: Dict[str, List[models.LoanDict]] = {}
 		for loan_dict in loan_dicts:
-			company_id = loan.company_id
+			company_id = loan_dict['company_id']
 			if company_id not in company_id_to_loans:
 				company_id_to_loans[company_id] = []
 
 			company_id_to_loans[company_id].append(loan_dict)
-
 
 		for company_id, loans_for_company in company_id_to_loans.items():
 			amount_to_company = sum([cur_loan_dict['amount'] for cur_loan_dict in loans_for_company])
