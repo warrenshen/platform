@@ -5,23 +5,23 @@ import os
 import time
 import uuid
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Callable, Optional, Dict, Iterator, List, cast
+from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterator, List,
+                    Optional, cast)
 
 import sqlalchemy
-from mypy_extensions import TypedDict
+from bespoke.date import date_util
 from fastapi_utils.guid_type import GUID, GUID_DEFAULT_SQLITE
+from mypy_extensions import TypedDict
 from sqlalchemy import (JSON, BigInteger, Boolean, Column, Date, DateTime,
                         Float, ForeignKey, Integer, Numeric, String, Text)
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError, StatementError, TimeoutError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.orm.query import Query as _Query
 from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import QueuePool
-from sqlalchemy.engine import Engine
-
-from bespoke.date import date_util
 
 Base = declarative_base()
 
@@ -179,6 +179,27 @@ class PurchaseOrder(Base):
 			order_number=self.order_number,
 			status=self.status
 		)
+
+class LineOfCredit(Base):
+	"""
+	Line of credits created by customers for financing
+	"""
+	__tablename__ = 'line_of_credits'
+
+	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	recipient_vendor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	is_credit_for_vendor = Column(Boolean)
+
+	company = relationship(
+		'Company',
+		foreign_keys=[company_id]
+	)
+
+	recipient_vendor = relationship(
+		'Company',
+		foreign_keys=[recipient_vendor_id]
+	)
 
 TransactionDict = TypedDict('TransactionDict', {
 	'id': str,

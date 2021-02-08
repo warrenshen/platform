@@ -1,8 +1,10 @@
 import { Box } from "@material-ui/core";
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { CellParams, ValueFormatterParams } from "@material-ui/data-grid";
 import Status from "components/Shared/Chip/Status";
+import ActionMenu from "components/Shared/DataGrid/ActionMenu";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import DataGrid, {
   Column,
   IColumnProps,
@@ -11,22 +13,32 @@ import DataGrid, {
   Selection,
 } from "devextreme-react/data-grid";
 import { LineOfCreditFragment, LoanFragment } from "generated/graphql";
-import React from "react";
+import { Action, check } from "lib/auth/rbac-rules";
+import React, { useContext } from "react";
+
+interface DataGridActionItem {
+  key: string;
+  label: string;
+  handleClick: (params: ValueFormatterParams) => void;
+}
 
 interface Props {
   loans: LoanFragment[];
+  actionItems: DataGridActionItem[];
 }
 
-function LineOfCreditLoansDataGrid({ loans }: Props) {
+function LineOfCreditLoansDataGrid({ loans, actionItems }: Props) {
+  const { user } = useContext(CurrentUserContext);
+
   const rows = loans;
 
-  const renderLineOfCredit = (params: ValueFormatterParams) => {
+  const renderLineOfCredit = (params: CellParams) => {
     const loan = params.row.data;
     // const loanId = loan.id as string;
     const lineOfCredit = loan.line_of_credit as LineOfCreditFragment;
     return (
       <Box>
-        <span>{lineOfCredit?.is_credit_for_vendor}</span>
+        <span>{lineOfCredit?.is_credit_for_vendor ? "Yes" : "No"}</span>
         {/* <Launcher purchaseOrderLoanId={purchaseOrderLoanId}></Launcher> */}
       </Box>
     );
@@ -34,6 +46,15 @@ function LineOfCreditLoansDataGrid({ loans }: Props) {
 
   const renderStatusCell = (params: ValueFormatterParams) => (
     <Status statusValue={params.value} />
+  );
+
+  const renderActionCell = (params: ValueFormatterParams) => (
+    <ActionMenu
+      actionItems={actionItems.map((actionItem) => ({
+        ...actionItem,
+        handleClick: () => actionItem.handleClick(params),
+      }))}
+    ></ActionMenu>
   );
 
   const columns: IColumnProps[] = [
@@ -88,6 +109,14 @@ function LineOfCreditLoansDataGrid({ loans }: Props) {
       alignment: "center",
       minWidth: 175,
       cellRender: renderStatusCell,
+    },
+    {
+      dataField: "action",
+      caption: "Action",
+      alignment: "center",
+      minWidth: 100,
+      visible: check(user.role, Action.ViewPurchaseOrdersActionMenu),
+      cellRender: renderActionCell,
     },
   ];
 

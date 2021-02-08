@@ -1,4 +1,5 @@
 import { Box, Button } from "@material-ui/core";
+import { ValueFormatterParams } from "@material-ui/data-grid";
 import Can from "components/Shared/Can";
 import {
   LoanTypeEnum,
@@ -10,7 +11,6 @@ import { Action } from "lib/auth/rbac-rules";
 import { useState } from "react";
 import CreateUpdateLineOfCreditLoanModal from "./CreateUpdateLineOfCreditLoanModal";
 import LineOfCreditLoansDataGrid from "./LineOfCreditLoansDataGrid";
-
 function Loans() {
   const companyId = useCompanyContext();
 
@@ -61,7 +61,19 @@ function Loans() {
         )}
       </Box>
       <Box flex={1} display="flex">
-        <LineOfCreditLoansDataGrid loans={loans}></LineOfCreditLoansDataGrid>
+        <LineOfCreditLoansDataGrid
+          loans={loans}
+          actionItems={[
+            {
+              key: "edit-line-of-credit",
+              label: "Edit",
+              handleClick: (params: ValueFormatterParams) => {
+                setTargetLoanId(params.row.data.id as string);
+                setIsCreateUpdateModalOpen(true);
+              },
+            },
+          ]}
+        ></LineOfCreditLoansDataGrid>
       </Box>
     </Box>
   );

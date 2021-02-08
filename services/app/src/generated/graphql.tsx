@@ -9506,6 +9506,21 @@ export type LoanForCustomerQueryVariables = Exact<{
 
 export type LoanForCustomerQuery = { loans_by_pk?: Maybe<LoanLimitedFragment> };
 
+export type LoanWithArtifactForCustomerQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type LoanWithArtifactForCustomerQuery = {
+  loans_by_pk?: Maybe<
+    {
+      line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
+      purchase_order?: Maybe<
+        Pick<PurchaseOrders, "id"> & PurchaseOrderFragment
+      >;
+    } & LoanLimitedFragment
+  >;
+};
+
 export type AddLoanMutationVariables = Exact<{
   loan: LoansInsertInput;
 }>;
@@ -11403,6 +11418,73 @@ export type LoanForCustomerLazyQueryHookResult = ReturnType<
 export type LoanForCustomerQueryResult = Apollo.QueryResult<
   LoanForCustomerQuery,
   LoanForCustomerQueryVariables
+>;
+export const LoanWithArtifactForCustomerDocument = gql`
+  query LoanWithArtifactForCustomer($id: uuid!) {
+    loans_by_pk(id: $id) {
+      ...LoanLimited
+      line_of_credit {
+        id
+        ...LineOfCredit
+      }
+      purchase_order {
+        id
+        ...PurchaseOrder
+      }
+    }
+  }
+  ${LoanLimitedFragmentDoc}
+  ${LineOfCreditFragmentDoc}
+  ${PurchaseOrderFragmentDoc}
+`;
+
+/**
+ * __useLoanWithArtifactForCustomerQuery__
+ *
+ * To run a query within a React component, call `useLoanWithArtifactForCustomerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useLoanWithArtifactForCustomerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useLoanWithArtifactForCustomerQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useLoanWithArtifactForCustomerQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    LoanWithArtifactForCustomerQuery,
+    LoanWithArtifactForCustomerQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    LoanWithArtifactForCustomerQuery,
+    LoanWithArtifactForCustomerQueryVariables
+  >(LoanWithArtifactForCustomerDocument, baseOptions);
+}
+export function useLoanWithArtifactForCustomerLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    LoanWithArtifactForCustomerQuery,
+    LoanWithArtifactForCustomerQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    LoanWithArtifactForCustomerQuery,
+    LoanWithArtifactForCustomerQueryVariables
+  >(LoanWithArtifactForCustomerDocument, baseOptions);
+}
+export type LoanWithArtifactForCustomerQueryHookResult = ReturnType<
+  typeof useLoanWithArtifactForCustomerQuery
+>;
+export type LoanWithArtifactForCustomerLazyQueryHookResult = ReturnType<
+  typeof useLoanWithArtifactForCustomerLazyQuery
+>;
+export type LoanWithArtifactForCustomerQueryResult = Apollo.QueryResult<
+  LoanWithArtifactForCustomerQuery,
+  LoanWithArtifactForCustomerQueryVariables
 >;
 export const AddLoanDocument = gql`
   mutation AddLoan($loan: loans_insert_input!) {

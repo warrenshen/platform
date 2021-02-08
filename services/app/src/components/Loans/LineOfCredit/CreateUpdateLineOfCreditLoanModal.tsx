@@ -19,8 +19,8 @@ import {
   useAddLineOfCreditMutation,
   useAddLoanMutation,
   useApprovedVendorsByPartnerCompanyIdQuery,
-  useLoanForCustomerQuery,
   useLoanSiblingsQuery,
+  useLoanWithArtifactForCustomerQuery,
   useUpdateLineOfCreditAndLoanMutation,
 } from "generated/graphql";
 import { ActionType } from "lib/ActionType";
@@ -94,7 +94,9 @@ function CreateUpdateLineOfCreditLoanModal({
   const [lineOfCredit, setLineOfCredit] = useState(newLineOfCredit);
   const [loan, setLoan] = useState(newLoan);
 
-  const { loading: isExistingLoanLoading } = useLoanForCustomerQuery({
+  const {
+    loading: isExistingLoanLoading,
+  } = useLoanWithArtifactForCustomerQuery({
     variables: {
       id: loanId,
     },
@@ -104,6 +106,14 @@ function CreateUpdateLineOfCreditLoanModal({
         setLoan(
           mergeWith(newLoan, existingLoan, (a, b) => (isNull(b) ? a : b))
         );
+        const existingLineOfCredit = existingLoan.line_of_credit;
+        if (existingLineOfCredit) {
+          setLineOfCredit(
+            mergeWith(lineOfCredit, existingLineOfCredit, (a, b) =>
+              isNull(b) ? a : b
+            )
+          );
+        }
       }
     },
   });
@@ -166,8 +176,6 @@ function CreateUpdateLineOfCreditLoanModal({
     isUpdateLineOfCreditAndLoanLoading;
   const isSaveDraftDisabled = !isFormValid || isFormLoading;
 
-  // TODO(warren): Make it apparent to the user the reason we are disabling submitting a purchase order
-  // for approval, e.g., if they are asking for more than the purchase order is worth.
   const isSaveSubmitDisabled =
     !isFormValid ||
     isFormLoading ||
@@ -203,7 +211,7 @@ function CreateUpdateLineOfCreditLoanModal({
           },
         },
       });
-      return response.data?.update_line_of_credits_by_pk;
+      return response.data?.update_loans_by_pk;
     } else {
       const responseLineOfCredit = await addLineOfCredit({
         variables: {
@@ -245,8 +253,8 @@ function CreateUpdateLineOfCreditLoanModal({
   };
 
   const handleClickSaveSubmit = async () => {
-    const savedLineOfCredit = await upsertLineOfCreditLoan();
-    if (!savedLineOfCredit) {
+    const savedLoan = await upsertLineOfCreditLoan();
+    if (!savedLoan) {
       alert("Could not upsert loan");
     } else {
       // Since this is a SAVE AND SUBMIT action,
@@ -254,7 +262,7 @@ function CreateUpdateLineOfCreditLoanModal({
       const response = await authenticatedApi.post(
         loansRoutes.submitForApproval,
         {
-          loan_id: savedLineOfCredit.id,
+          loan_id: savedLoan.id,
         }
       );
       if (response.data?.status === "ERROR") {
