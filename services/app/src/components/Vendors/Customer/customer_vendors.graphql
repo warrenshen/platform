@@ -1,16 +1,6 @@
-mutation AddVendorPartnership(
-  $vendorPartnership: company_vendor_partnerships_insert_input!
-) {
-  insert_company_vendor_partnerships_one(object: $vendorPartnership) {
-    ...VendorPartnership
-    vendor_limited {
-      ...VendorLimited
-    }
-  }
-}
-
 query VendorPartnershipsByCompanyId($companyId: uuid!) {
   company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
+    id
     ...VendorPartnership
     vendor_limited {
       ...VendorLimited
@@ -18,6 +8,17 @@ query VendorPartnershipsByCompanyId($companyId: uuid!) {
     vendor_bank_account {
       id
       verified_at
+    }
+  }
+}
+
+mutation AddVendorPartnership(
+  $vendorPartnership: company_vendor_partnerships_insert_input!
+) {
+  insert_company_vendor_partnerships_one(object: $vendorPartnership) {
+    ...VendorPartnership
+    vendor_limited {
+      ...VendorLimited
     }
   }
 }

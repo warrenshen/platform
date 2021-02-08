@@ -1,0 +1,39 @@
+fragment LineOfCredit on line_of_credits {
+  id
+  company_id
+  is_credit_for_vendor
+  recipient_vendor_id
+}
+
+mutation AddLineOfCreditAndLoan(
+  $lineOfCredit: line_of_credits_insert_input!
+  $loan: loans_insert_input!
+) {
+  insert_line_of_credits_one(object: $lineOfCredit) {
+    id
+    ...LineOfCredit
+  }
+  insert_loans_one(object: $loan) {
+    id
+    ...LoanLimited
+  }
+}
+
+mutation UpdateLineOfCreditAndLoan(
+  $lineOfCreditId: uuid!
+  $lineOfCredit: line_of_credits_set_input!
+  $loanId: uuid!
+  $loan: loans_set_input!
+) {
+  update_line_of_credits_by_pk(
+    pk_columns: { id: $lineOfCreditId }
+    _set: $lineOfCredit
+  ) {
+    id
+    ...LineOfCredit
+  }
+  update_loans_by_pk(pk_columns: { id: $loanId }, _set: $loan) {
+    id
+    ...LoanLimited
+  }
+}

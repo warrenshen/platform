@@ -19,6 +19,7 @@ interface Props {
   isCreateUpdateModalOpen: boolean;
   setIsCreateUpdateModalOpen: (val: boolean) => void;
 }
+
 /**
  * This component is shared between a bank user and a customer user use case.
  */

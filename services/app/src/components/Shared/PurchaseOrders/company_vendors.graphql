@@ -11,6 +11,26 @@ query VendorsByPartnerCompany($companyId: uuid!) {
   }
 }
 
+query ApprovedVendorsByPartnerCompanyId($companyId: uuid!) {
+  vendors(
+    where: {
+      company_vendor_partnerships: {
+        _and: [
+          { company_id: { _eq: $companyId } }
+          { approved_at: { _is_null: false } }
+        ]
+      }
+    }
+  ) {
+    id
+    ...VendorLimited
+    company_vendor_partnerships {
+      id
+      approved_at
+    }
+  }
+}
+
 query CompanyVendorPartnershipForVendor($companyId: uuid!, $vendorId: uuid!) {
   company_vendor_partnerships(
     where: {

@@ -11,8 +11,6 @@ import useCompanyContext from "hooks/useCompanyContext";
 import { Action } from "lib/auth/rbac-rules";
 import { useState } from "react";
 
-// For now, loans will allow you to view 1 of the loan views,
-// e.g., Purchase Order Loans, Inventory Financing, etc.
 function Loans() {
   const companyId = useCompanyContext();
 

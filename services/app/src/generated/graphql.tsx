@@ -2269,9 +2269,13 @@ export type JsonbComparisonExp = {
 
 /** columns and relationships of "line_of_credits" */
 export type LineOfCredits = {
+  /** An object relationship */
+  company: Companies;
   company_id: Scalars["uuid"];
   id: Scalars["uuid"];
   is_credit_for_vendor: Scalars["Boolean"];
+  /** An object relationship */
+  recipient_vendor?: Maybe<Companies>;
   recipient_vendor_id?: Maybe<Scalars["uuid"]>;
 };
 
@@ -2312,9 +2316,11 @@ export type LineOfCreditsBoolExp = {
   _and?: Maybe<Array<Maybe<LineOfCreditsBoolExp>>>;
   _not?: Maybe<LineOfCreditsBoolExp>;
   _or?: Maybe<Array<Maybe<LineOfCreditsBoolExp>>>;
+  company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   is_credit_for_vendor?: Maybe<BooleanComparisonExp>;
+  recipient_vendor?: Maybe<CompaniesBoolExp>;
   recipient_vendor_id?: Maybe<UuidComparisonExp>;
 };
 
@@ -2326,9 +2332,11 @@ export enum LineOfCreditsConstraint {
 
 /** input type for inserting data into table "line_of_credits" */
 export type LineOfCreditsInsertInput = {
+  company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_credit_for_vendor?: Maybe<Scalars["Boolean"]>;
+  recipient_vendor?: Maybe<CompaniesObjRelInsertInput>;
   recipient_vendor_id?: Maybe<Scalars["uuid"]>;
 };
 
@@ -2383,9 +2391,11 @@ export type LineOfCreditsOnConflict = {
 
 /** ordering options when selecting data from "line_of_credits" */
 export type LineOfCreditsOrderBy = {
+  company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   is_credit_for_vendor?: Maybe<OrderBy>;
+  recipient_vendor?: Maybe<CompaniesOrderBy>;
   recipient_vendor_id?: Maybe<OrderBy>;
 };
 
@@ -9336,6 +9346,37 @@ export type CompanySettingsForCustomerFragment = Pick<
 
 export type VendorLimitedFragment = Pick<Vendors, "id" | "name">;
 
+export type LineOfCreditFragment = Pick<
+  LineOfCredits,
+  "id" | "company_id" | "is_credit_for_vendor" | "recipient_vendor_id"
+>;
+
+export type AddLineOfCreditAndLoanMutationVariables = Exact<{
+  lineOfCredit: LineOfCreditsInsertInput;
+  loan: LoansInsertInput;
+}>;
+
+export type AddLineOfCreditAndLoanMutation = {
+  insert_line_of_credits_one?: Maybe<
+    Pick<LineOfCredits, "id"> & LineOfCreditFragment
+  >;
+  insert_loans_one?: Maybe<Pick<Loans, "id"> & LoanLimitedFragment>;
+};
+
+export type UpdateLineOfCreditAndLoanMutationVariables = Exact<{
+  lineOfCreditId: Scalars["uuid"];
+  lineOfCredit: LineOfCreditsSetInput;
+  loanId: Scalars["uuid"];
+  loan: LoansSetInput;
+}>;
+
+export type UpdateLineOfCreditAndLoanMutation = {
+  update_line_of_credits_by_pk?: Maybe<
+    Pick<LineOfCredits, "id"> & LineOfCreditFragment
+  >;
+  update_loans_by_pk?: Maybe<Pick<Loans, "id"> & LoanLimitedFragment>;
+};
+
 export type BankAccountsForTransferQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
@@ -9642,6 +9683,20 @@ export type VendorsByPartnerCompanyQueryVariables = Exact<{
 }>;
 
 export type VendorsByPartnerCompanyQuery = {
+  vendors: Array<
+    Pick<Vendors, "id"> & {
+      company_vendor_partnerships: Array<
+        Pick<CompanyVendorPartnerships, "id" | "approved_at">
+      >;
+    } & VendorLimitedFragment
+  >;
+};
+
+export type ApprovedVendorsByPartnerCompanyIdQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+}>;
+
+export type ApprovedVendorsByPartnerCompanyIdQuery = {
   vendors: Array<
     Pick<Vendors, "id"> & {
       company_vendor_partnerships: Array<
@@ -9989,6 +10044,19 @@ export type AddCompanyVendorLicenseMutation = {
   insert_company_licenses_one?: Maybe<CompanyLicenseFragment>;
 };
 
+export type VendorPartnershipsByCompanyIdQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+}>;
+
+export type VendorPartnershipsByCompanyIdQuery = {
+  company_vendor_partnerships: Array<
+    Pick<CompanyVendorPartnerships, "id"> & {
+      vendor_limited?: Maybe<VendorLimitedFragment>;
+      vendor_bank_account?: Maybe<Pick<BankAccounts, "id" | "verified_at">>;
+    } & VendorPartnershipFragment
+  >;
+};
+
 export type AddVendorPartnershipMutationVariables = Exact<{
   vendorPartnership: CompanyVendorPartnershipsInsertInput;
 }>;
@@ -9997,19 +10065,6 @@ export type AddVendorPartnershipMutation = {
   insert_company_vendor_partnerships_one?: Maybe<
     {
       vendor_limited?: Maybe<VendorLimitedFragment>;
-    } & VendorPartnershipFragment
-  >;
-};
-
-export type VendorPartnershipsByCompanyIdQueryVariables = Exact<{
-  companyId: Scalars["uuid"];
-}>;
-
-export type VendorPartnershipsByCompanyIdQuery = {
-  company_vendor_partnerships: Array<
-    {
-      vendor_limited?: Maybe<VendorLimitedFragment>;
-      vendor_bank_account?: Maybe<Pick<BankAccounts, "id" | "verified_at">>;
     } & VendorPartnershipFragment
   >;
 };
@@ -10240,6 +10295,14 @@ export const VendorLimitedFragmentDoc = gql`
   fragment VendorLimited on vendors {
     id
     name
+  }
+`;
+export const LineOfCreditFragmentDoc = gql`
+  fragment LineOfCredit on line_of_credits {
+    id
+    company_id
+    is_credit_for_vendor
+    recipient_vendor_id
   }
 `;
 export const UserFragmentDoc = gql`
@@ -10537,6 +10600,131 @@ export type BankCustomerListVendorPartnershipsLazyQueryHookResult = ReturnType<
 export type BankCustomerListVendorPartnershipsQueryResult = Apollo.QueryResult<
   BankCustomerListVendorPartnershipsQuery,
   BankCustomerListVendorPartnershipsQueryVariables
+>;
+export const AddLineOfCreditAndLoanDocument = gql`
+  mutation AddLineOfCreditAndLoan(
+    $lineOfCredit: line_of_credits_insert_input!
+    $loan: loans_insert_input!
+  ) {
+    insert_line_of_credits_one(object: $lineOfCredit) {
+      id
+      ...LineOfCredit
+    }
+    insert_loans_one(object: $loan) {
+      id
+      ...LoanLimited
+    }
+  }
+  ${LineOfCreditFragmentDoc}
+  ${LoanLimitedFragmentDoc}
+`;
+export type AddLineOfCreditAndLoanMutationFn = Apollo.MutationFunction<
+  AddLineOfCreditAndLoanMutation,
+  AddLineOfCreditAndLoanMutationVariables
+>;
+
+/**
+ * __useAddLineOfCreditAndLoanMutation__
+ *
+ * To run a mutation, you first call `useAddLineOfCreditAndLoanMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddLineOfCreditAndLoanMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addLineOfCreditAndLoanMutation, { data, loading, error }] = useAddLineOfCreditAndLoanMutation({
+ *   variables: {
+ *      lineOfCredit: // value for 'lineOfCredit'
+ *      loan: // value for 'loan'
+ *   },
+ * });
+ */
+export function useAddLineOfCreditAndLoanMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    AddLineOfCreditAndLoanMutation,
+    AddLineOfCreditAndLoanMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    AddLineOfCreditAndLoanMutation,
+    AddLineOfCreditAndLoanMutationVariables
+  >(AddLineOfCreditAndLoanDocument, baseOptions);
+}
+export type AddLineOfCreditAndLoanMutationHookResult = ReturnType<
+  typeof useAddLineOfCreditAndLoanMutation
+>;
+export type AddLineOfCreditAndLoanMutationResult = Apollo.MutationResult<AddLineOfCreditAndLoanMutation>;
+export type AddLineOfCreditAndLoanMutationOptions = Apollo.BaseMutationOptions<
+  AddLineOfCreditAndLoanMutation,
+  AddLineOfCreditAndLoanMutationVariables
+>;
+export const UpdateLineOfCreditAndLoanDocument = gql`
+  mutation UpdateLineOfCreditAndLoan(
+    $lineOfCreditId: uuid!
+    $lineOfCredit: line_of_credits_set_input!
+    $loanId: uuid!
+    $loan: loans_set_input!
+  ) {
+    update_line_of_credits_by_pk(
+      pk_columns: { id: $lineOfCreditId }
+      _set: $lineOfCredit
+    ) {
+      id
+      ...LineOfCredit
+    }
+    update_loans_by_pk(pk_columns: { id: $loanId }, _set: $loan) {
+      id
+      ...LoanLimited
+    }
+  }
+  ${LineOfCreditFragmentDoc}
+  ${LoanLimitedFragmentDoc}
+`;
+export type UpdateLineOfCreditAndLoanMutationFn = Apollo.MutationFunction<
+  UpdateLineOfCreditAndLoanMutation,
+  UpdateLineOfCreditAndLoanMutationVariables
+>;
+
+/**
+ * __useUpdateLineOfCreditAndLoanMutation__
+ *
+ * To run a mutation, you first call `useUpdateLineOfCreditAndLoanMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateLineOfCreditAndLoanMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateLineOfCreditAndLoanMutation, { data, loading, error }] = useUpdateLineOfCreditAndLoanMutation({
+ *   variables: {
+ *      lineOfCreditId: // value for 'lineOfCreditId'
+ *      lineOfCredit: // value for 'lineOfCredit'
+ *      loanId: // value for 'loanId'
+ *      loan: // value for 'loan'
+ *   },
+ * });
+ */
+export function useUpdateLineOfCreditAndLoanMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateLineOfCreditAndLoanMutation,
+    UpdateLineOfCreditAndLoanMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    UpdateLineOfCreditAndLoanMutation,
+    UpdateLineOfCreditAndLoanMutationVariables
+  >(UpdateLineOfCreditAndLoanDocument, baseOptions);
+}
+export type UpdateLineOfCreditAndLoanMutationHookResult = ReturnType<
+  typeof useUpdateLineOfCreditAndLoanMutation
+>;
+export type UpdateLineOfCreditAndLoanMutationResult = Apollo.MutationResult<UpdateLineOfCreditAndLoanMutation>;
+export type UpdateLineOfCreditAndLoanMutationOptions = Apollo.BaseMutationOptions<
+  UpdateLineOfCreditAndLoanMutation,
+  UpdateLineOfCreditAndLoanMutationVariables
 >;
 export const BankAccountsForTransferDocument = gql`
   query BankAccountsForTransfer($companyId: uuid!) {
@@ -12120,6 +12308,77 @@ export type VendorsByPartnerCompanyQueryResult = Apollo.QueryResult<
   VendorsByPartnerCompanyQuery,
   VendorsByPartnerCompanyQueryVariables
 >;
+export const ApprovedVendorsByPartnerCompanyIdDocument = gql`
+  query ApprovedVendorsByPartnerCompanyId($companyId: uuid!) {
+    vendors(
+      where: {
+        company_vendor_partnerships: {
+          _and: [
+            { company_id: { _eq: $companyId } }
+            { approved_at: { _is_null: false } }
+          ]
+        }
+      }
+    ) {
+      id
+      ...VendorLimited
+      company_vendor_partnerships {
+        id
+        approved_at
+      }
+    }
+  }
+  ${VendorLimitedFragmentDoc}
+`;
+
+/**
+ * __useApprovedVendorsByPartnerCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useApprovedVendorsByPartnerCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useApprovedVendorsByPartnerCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useApprovedVendorsByPartnerCompanyIdQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useApprovedVendorsByPartnerCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    ApprovedVendorsByPartnerCompanyIdQuery,
+    ApprovedVendorsByPartnerCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    ApprovedVendorsByPartnerCompanyIdQuery,
+    ApprovedVendorsByPartnerCompanyIdQueryVariables
+  >(ApprovedVendorsByPartnerCompanyIdDocument, baseOptions);
+}
+export function useApprovedVendorsByPartnerCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    ApprovedVendorsByPartnerCompanyIdQuery,
+    ApprovedVendorsByPartnerCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    ApprovedVendorsByPartnerCompanyIdQuery,
+    ApprovedVendorsByPartnerCompanyIdQueryVariables
+  >(ApprovedVendorsByPartnerCompanyIdDocument, baseOptions);
+}
+export type ApprovedVendorsByPartnerCompanyIdQueryHookResult = ReturnType<
+  typeof useApprovedVendorsByPartnerCompanyIdQuery
+>;
+export type ApprovedVendorsByPartnerCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useApprovedVendorsByPartnerCompanyIdLazyQuery
+>;
+export type ApprovedVendorsByPartnerCompanyIdQueryResult = Apollo.QueryResult<
+  ApprovedVendorsByPartnerCompanyIdQuery,
+  ApprovedVendorsByPartnerCompanyIdQueryVariables
+>;
 export const CompanyVendorPartnershipForVendorDocument = gql`
   query CompanyVendorPartnershipForVendor($companyId: uuid!, $vendorId: uuid!) {
     company_vendor_partnerships(
@@ -13355,64 +13614,10 @@ export type AddCompanyVendorLicenseMutationOptions = Apollo.BaseMutationOptions<
   AddCompanyVendorLicenseMutation,
   AddCompanyVendorLicenseMutationVariables
 >;
-export const AddVendorPartnershipDocument = gql`
-  mutation AddVendorPartnership(
-    $vendorPartnership: company_vendor_partnerships_insert_input!
-  ) {
-    insert_company_vendor_partnerships_one(object: $vendorPartnership) {
-      ...VendorPartnership
-      vendor_limited {
-        ...VendorLimited
-      }
-    }
-  }
-  ${VendorPartnershipFragmentDoc}
-  ${VendorLimitedFragmentDoc}
-`;
-export type AddVendorPartnershipMutationFn = Apollo.MutationFunction<
-  AddVendorPartnershipMutation,
-  AddVendorPartnershipMutationVariables
->;
-
-/**
- * __useAddVendorPartnershipMutation__
- *
- * To run a mutation, you first call `useAddVendorPartnershipMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddVendorPartnershipMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [addVendorPartnershipMutation, { data, loading, error }] = useAddVendorPartnershipMutation({
- *   variables: {
- *      vendorPartnership: // value for 'vendorPartnership'
- *   },
- * });
- */
-export function useAddVendorPartnershipMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    AddVendorPartnershipMutation,
-    AddVendorPartnershipMutationVariables
-  >
-) {
-  return Apollo.useMutation<
-    AddVendorPartnershipMutation,
-    AddVendorPartnershipMutationVariables
-  >(AddVendorPartnershipDocument, baseOptions);
-}
-export type AddVendorPartnershipMutationHookResult = ReturnType<
-  typeof useAddVendorPartnershipMutation
->;
-export type AddVendorPartnershipMutationResult = Apollo.MutationResult<AddVendorPartnershipMutation>;
-export type AddVendorPartnershipMutationOptions = Apollo.BaseMutationOptions<
-  AddVendorPartnershipMutation,
-  AddVendorPartnershipMutationVariables
->;
 export const VendorPartnershipsByCompanyIdDocument = gql`
   query VendorPartnershipsByCompanyId($companyId: uuid!) {
     company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
+      id
       ...VendorPartnership
       vendor_limited {
         ...VendorLimited
@@ -13474,6 +13679,61 @@ export type VendorPartnershipsByCompanyIdLazyQueryHookResult = ReturnType<
 export type VendorPartnershipsByCompanyIdQueryResult = Apollo.QueryResult<
   VendorPartnershipsByCompanyIdQuery,
   VendorPartnershipsByCompanyIdQueryVariables
+>;
+export const AddVendorPartnershipDocument = gql`
+  mutation AddVendorPartnership(
+    $vendorPartnership: company_vendor_partnerships_insert_input!
+  ) {
+    insert_company_vendor_partnerships_one(object: $vendorPartnership) {
+      ...VendorPartnership
+      vendor_limited {
+        ...VendorLimited
+      }
+    }
+  }
+  ${VendorPartnershipFragmentDoc}
+  ${VendorLimitedFragmentDoc}
+`;
+export type AddVendorPartnershipMutationFn = Apollo.MutationFunction<
+  AddVendorPartnershipMutation,
+  AddVendorPartnershipMutationVariables
+>;
+
+/**
+ * __useAddVendorPartnershipMutation__
+ *
+ * To run a mutation, you first call `useAddVendorPartnershipMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddVendorPartnershipMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addVendorPartnershipMutation, { data, loading, error }] = useAddVendorPartnershipMutation({
+ *   variables: {
+ *      vendorPartnership: // value for 'vendorPartnership'
+ *   },
+ * });
+ */
+export function useAddVendorPartnershipMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    AddVendorPartnershipMutation,
+    AddVendorPartnershipMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    AddVendorPartnershipMutation,
+    AddVendorPartnershipMutationVariables
+  >(AddVendorPartnershipDocument, baseOptions);
+}
+export type AddVendorPartnershipMutationHookResult = ReturnType<
+  typeof useAddVendorPartnershipMutation
+>;
+export type AddVendorPartnershipMutationResult = Apollo.MutationResult<AddVendorPartnershipMutation>;
+export type AddVendorPartnershipMutationOptions = Apollo.BaseMutationOptions<
+  AddVendorPartnershipMutation,
+  AddVendorPartnershipMutationVariables
 >;
 export const BankAccountsDocument = gql`
   query BankAccounts {
