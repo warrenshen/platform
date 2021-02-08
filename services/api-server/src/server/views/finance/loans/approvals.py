@@ -123,7 +123,8 @@ class SubmitForApprovalView(MethodView):
 					return handler_util.make_error_response('Too many loans for same Purchase Order')
 
 				loan_html = f"""<ul>
-<li>Company: {customer_name} </li>
+<li>Loan type: Inventory Financing</li>
+<li>Company: {customer_name}</li>
 <li>Purchase order: {purchase_order.order_number}</li>
 <li>Payment date: {loan.origination_date}</li>
 <li>Amount: {loan.amount}</li>
@@ -141,7 +142,8 @@ class SubmitForApprovalView(MethodView):
 				receipient_vendor_name = line_of_credit.recipient_vendor.name if line_of_credit.is_credit_for_vendor else "N/A"
 
 				loan_html = f"""<ul>
-<li>Company: {customer_name} </li>
+<li>Loan type: Line of Credit</li>
+<li>Company: {customer_name}</li>
 <li>Is credit for vendor?: {"Yes" if line_of_credit.is_credit_for_vendor else "No"} </li>
 <li>Vendor (if appropriate): {receipient_vendor_name}</li>
 <li>Payment date: {loan.origination_date}</li>
