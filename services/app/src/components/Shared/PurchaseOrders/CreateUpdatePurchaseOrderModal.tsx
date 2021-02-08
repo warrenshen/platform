@@ -66,7 +66,6 @@ function CreateUpdatePurchaseOrderModal({
 
   // Default PurchaseOrder for CREATE case.
   const newPurchaseOrder = {
-    company_id: companyId,
     vendor_id: "",
     order_number: "",
     order_date: null,

@@ -1,0 +1,15 @@
+fragment EbbaApplication on ebba_applications {
+  id
+  company_id
+  application_month
+  monthly_accounts_receivable
+  monthly_inventory
+  monthly_cash
+}
+
+mutation AddEbbaApplication($ebbaApplication: ebba_applications_insert_input!) {
+  insert_ebba_applications_one(object: $ebbaApplication) {
+    id
+    ...EbbaApplication
+  }
+}

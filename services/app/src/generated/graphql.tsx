@@ -1774,6 +1774,549 @@ export type DateComparisonExp = {
   _nin?: Maybe<Array<Scalars["date"]>>;
 };
 
+/** columns and relationships of "ebba_application_files" */
+export type EbbaApplicationFiles = {
+  /** An object relationship */
+  ebba_application: EbbaApplications;
+  ebba_application_id: Scalars["uuid"];
+  /** An object relationship */
+  file: Files;
+  file_id: Scalars["uuid"];
+};
+
+/** aggregated selection of "ebba_application_files" */
+export type EbbaApplicationFilesAggregate = {
+  aggregate?: Maybe<EbbaApplicationFilesAggregateFields>;
+  nodes: Array<EbbaApplicationFiles>;
+};
+
+/** aggregate fields of "ebba_application_files" */
+export type EbbaApplicationFilesAggregateFields = {
+  count?: Maybe<Scalars["Int"]>;
+  max?: Maybe<EbbaApplicationFilesMaxFields>;
+  min?: Maybe<EbbaApplicationFilesMinFields>;
+};
+
+/** aggregate fields of "ebba_application_files" */
+export type EbbaApplicationFilesAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<EbbaApplicationFilesSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** order by aggregate values of table "ebba_application_files" */
+export type EbbaApplicationFilesAggregateOrderBy = {
+  count?: Maybe<OrderBy>;
+  max?: Maybe<EbbaApplicationFilesMaxOrderBy>;
+  min?: Maybe<EbbaApplicationFilesMinOrderBy>;
+};
+
+/** input type for inserting array relation for remote table "ebba_application_files" */
+export type EbbaApplicationFilesArrRelInsertInput = {
+  data: Array<EbbaApplicationFilesInsertInput>;
+  on_conflict?: Maybe<EbbaApplicationFilesOnConflict>;
+};
+
+/** Boolean expression to filter rows from the table "ebba_application_files". All fields are combined with a logical 'AND'. */
+export type EbbaApplicationFilesBoolExp = {
+  _and?: Maybe<Array<Maybe<EbbaApplicationFilesBoolExp>>>;
+  _not?: Maybe<EbbaApplicationFilesBoolExp>;
+  _or?: Maybe<Array<Maybe<EbbaApplicationFilesBoolExp>>>;
+  ebba_application?: Maybe<EbbaApplicationsBoolExp>;
+  ebba_application_id?: Maybe<UuidComparisonExp>;
+  file?: Maybe<FilesBoolExp>;
+  file_id?: Maybe<UuidComparisonExp>;
+};
+
+/** unique or primary key constraints on table "ebba_application_files" */
+export enum EbbaApplicationFilesConstraint {
+  /** unique or primary key constraint */
+  EbbaApplicationFilesPkey = "ebba_application_files_pkey",
+}
+
+/** input type for inserting data into table "ebba_application_files" */
+export type EbbaApplicationFilesInsertInput = {
+  ebba_application?: Maybe<EbbaApplicationsObjRelInsertInput>;
+  ebba_application_id?: Maybe<Scalars["uuid"]>;
+  file?: Maybe<FilesObjRelInsertInput>;
+  file_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** aggregate max on columns */
+export type EbbaApplicationFilesMaxFields = {
+  ebba_application_id?: Maybe<Scalars["uuid"]>;
+  file_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** order by max() on columns of table "ebba_application_files" */
+export type EbbaApplicationFilesMaxOrderBy = {
+  ebba_application_id?: Maybe<OrderBy>;
+  file_id?: Maybe<OrderBy>;
+};
+
+/** aggregate min on columns */
+export type EbbaApplicationFilesMinFields = {
+  ebba_application_id?: Maybe<Scalars["uuid"]>;
+  file_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** order by min() on columns of table "ebba_application_files" */
+export type EbbaApplicationFilesMinOrderBy = {
+  ebba_application_id?: Maybe<OrderBy>;
+  file_id?: Maybe<OrderBy>;
+};
+
+/** response of any mutation on the table "ebba_application_files" */
+export type EbbaApplicationFilesMutationResponse = {
+  /** number of affected rows by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data of the affected rows by the mutation */
+  returning: Array<EbbaApplicationFiles>;
+};
+
+/** input type for inserting object relation for remote table "ebba_application_files" */
+export type EbbaApplicationFilesObjRelInsertInput = {
+  data: EbbaApplicationFilesInsertInput;
+  on_conflict?: Maybe<EbbaApplicationFilesOnConflict>;
+};
+
+/** on conflict condition type for table "ebba_application_files" */
+export type EbbaApplicationFilesOnConflict = {
+  constraint: EbbaApplicationFilesConstraint;
+  update_columns: Array<EbbaApplicationFilesUpdateColumn>;
+  where?: Maybe<EbbaApplicationFilesBoolExp>;
+};
+
+/** ordering options when selecting data from "ebba_application_files" */
+export type EbbaApplicationFilesOrderBy = {
+  ebba_application?: Maybe<EbbaApplicationsOrderBy>;
+  ebba_application_id?: Maybe<OrderBy>;
+  file?: Maybe<FilesOrderBy>;
+  file_id?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "ebba_application_files" */
+export type EbbaApplicationFilesPkColumnsInput = {
+  ebba_application_id: Scalars["uuid"];
+  file_id: Scalars["uuid"];
+};
+
+/** select columns of table "ebba_application_files" */
+export enum EbbaApplicationFilesSelectColumn {
+  /** column name */
+  EbbaApplicationId = "ebba_application_id",
+  /** column name */
+  FileId = "file_id",
+}
+
+/** input type for updating data in table "ebba_application_files" */
+export type EbbaApplicationFilesSetInput = {
+  ebba_application_id?: Maybe<Scalars["uuid"]>;
+  file_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** update columns of table "ebba_application_files" */
+export enum EbbaApplicationFilesUpdateColumn {
+  /** column name */
+  EbbaApplicationId = "ebba_application_id",
+  /** column name */
+  FileId = "file_id",
+}
+
+/**
+ * EBBA stands for Eligible Borrowing Base Amount: this is a table of applications to borrow via a line of credit with information required to determine EBBA
+ *
+ *
+ * columns and relationships of "ebba_applications"
+ */
+export type EbbaApplications = {
+  application_month: Scalars["date"];
+  /** An object relationship */
+  company: Companies;
+  company_id: Scalars["uuid"];
+  created_at: Scalars["timestamptz"];
+  /** An array relationship */
+  ebba_application_files: Array<EbbaApplicationFiles>;
+  /** An aggregated array relationship */
+  ebba_application_files_aggregate: EbbaApplicationFilesAggregate;
+  id: Scalars["uuid"];
+  monthly_accounts_receivable: Scalars["numeric"];
+  monthly_cash: Scalars["numeric"];
+  monthly_inventory: Scalars["numeric"];
+  updated_at: Scalars["timestamptz"];
+};
+
+/**
+ * EBBA stands for Eligible Borrowing Base Amount: this is a table of applications to borrow via a line of credit with information required to determine EBBA
+ *
+ *
+ * columns and relationships of "ebba_applications"
+ */
+export type EbbaApplicationsEbbaApplicationFilesArgs = {
+  distinct_on?: Maybe<Array<EbbaApplicationFilesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<EbbaApplicationFilesOrderBy>>;
+  where?: Maybe<EbbaApplicationFilesBoolExp>;
+};
+
+/**
+ * EBBA stands for Eligible Borrowing Base Amount: this is a table of applications to borrow via a line of credit with information required to determine EBBA
+ *
+ *
+ * columns and relationships of "ebba_applications"
+ */
+export type EbbaApplicationsEbbaApplicationFilesAggregateArgs = {
+  distinct_on?: Maybe<Array<EbbaApplicationFilesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<EbbaApplicationFilesOrderBy>>;
+  where?: Maybe<EbbaApplicationFilesBoolExp>;
+};
+
+/** aggregated selection of "ebba_applications" */
+export type EbbaApplicationsAggregate = {
+  aggregate?: Maybe<EbbaApplicationsAggregateFields>;
+  nodes: Array<EbbaApplications>;
+};
+
+/** aggregate fields of "ebba_applications" */
+export type EbbaApplicationsAggregateFields = {
+  avg?: Maybe<EbbaApplicationsAvgFields>;
+  count?: Maybe<Scalars["Int"]>;
+  max?: Maybe<EbbaApplicationsMaxFields>;
+  min?: Maybe<EbbaApplicationsMinFields>;
+  stddev?: Maybe<EbbaApplicationsStddevFields>;
+  stddev_pop?: Maybe<EbbaApplicationsStddevPopFields>;
+  stddev_samp?: Maybe<EbbaApplicationsStddevSampFields>;
+  sum?: Maybe<EbbaApplicationsSumFields>;
+  var_pop?: Maybe<EbbaApplicationsVarPopFields>;
+  var_samp?: Maybe<EbbaApplicationsVarSampFields>;
+  variance?: Maybe<EbbaApplicationsVarianceFields>;
+};
+
+/** aggregate fields of "ebba_applications" */
+export type EbbaApplicationsAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<EbbaApplicationsSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** order by aggregate values of table "ebba_applications" */
+export type EbbaApplicationsAggregateOrderBy = {
+  avg?: Maybe<EbbaApplicationsAvgOrderBy>;
+  count?: Maybe<OrderBy>;
+  max?: Maybe<EbbaApplicationsMaxOrderBy>;
+  min?: Maybe<EbbaApplicationsMinOrderBy>;
+  stddev?: Maybe<EbbaApplicationsStddevOrderBy>;
+  stddev_pop?: Maybe<EbbaApplicationsStddevPopOrderBy>;
+  stddev_samp?: Maybe<EbbaApplicationsStddevSampOrderBy>;
+  sum?: Maybe<EbbaApplicationsSumOrderBy>;
+  var_pop?: Maybe<EbbaApplicationsVarPopOrderBy>;
+  var_samp?: Maybe<EbbaApplicationsVarSampOrderBy>;
+  variance?: Maybe<EbbaApplicationsVarianceOrderBy>;
+};
+
+/** input type for inserting array relation for remote table "ebba_applications" */
+export type EbbaApplicationsArrRelInsertInput = {
+  data: Array<EbbaApplicationsInsertInput>;
+  on_conflict?: Maybe<EbbaApplicationsOnConflict>;
+};
+
+/** aggregate avg on columns */
+export type EbbaApplicationsAvgFields = {
+  monthly_accounts_receivable?: Maybe<Scalars["Float"]>;
+  monthly_cash?: Maybe<Scalars["Float"]>;
+  monthly_inventory?: Maybe<Scalars["Float"]>;
+};
+
+/** order by avg() on columns of table "ebba_applications" */
+export type EbbaApplicationsAvgOrderBy = {
+  monthly_accounts_receivable?: Maybe<OrderBy>;
+  monthly_cash?: Maybe<OrderBy>;
+  monthly_inventory?: Maybe<OrderBy>;
+};
+
+/** Boolean expression to filter rows from the table "ebba_applications". All fields are combined with a logical 'AND'. */
+export type EbbaApplicationsBoolExp = {
+  _and?: Maybe<Array<Maybe<EbbaApplicationsBoolExp>>>;
+  _not?: Maybe<EbbaApplicationsBoolExp>;
+  _or?: Maybe<Array<Maybe<EbbaApplicationsBoolExp>>>;
+  application_month?: Maybe<DateComparisonExp>;
+  company?: Maybe<CompaniesBoolExp>;
+  company_id?: Maybe<UuidComparisonExp>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
+  ebba_application_files?: Maybe<EbbaApplicationFilesBoolExp>;
+  id?: Maybe<UuidComparisonExp>;
+  monthly_accounts_receivable?: Maybe<NumericComparisonExp>;
+  monthly_cash?: Maybe<NumericComparisonExp>;
+  monthly_inventory?: Maybe<NumericComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
+};
+
+/** unique or primary key constraints on table "ebba_applications" */
+export enum EbbaApplicationsConstraint {
+  /** unique or primary key constraint */
+  EbbaApplicationsPkey = "ebba_applications_pkey",
+}
+
+/** input type for incrementing integer column in table "ebba_applications" */
+export type EbbaApplicationsIncInput = {
+  monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
+  monthly_cash?: Maybe<Scalars["numeric"]>;
+  monthly_inventory?: Maybe<Scalars["numeric"]>;
+};
+
+/** input type for inserting data into table "ebba_applications" */
+export type EbbaApplicationsInsertInput = {
+  application_month?: Maybe<Scalars["date"]>;
+  company?: Maybe<CompaniesObjRelInsertInput>;
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  ebba_application_files?: Maybe<EbbaApplicationFilesArrRelInsertInput>;
+  id?: Maybe<Scalars["uuid"]>;
+  monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
+  monthly_cash?: Maybe<Scalars["numeric"]>;
+  monthly_inventory?: Maybe<Scalars["numeric"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate max on columns */
+export type EbbaApplicationsMaxFields = {
+  application_month?: Maybe<Scalars["date"]>;
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
+  monthly_cash?: Maybe<Scalars["numeric"]>;
+  monthly_inventory?: Maybe<Scalars["numeric"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** order by max() on columns of table "ebba_applications" */
+export type EbbaApplicationsMaxOrderBy = {
+  application_month?: Maybe<OrderBy>;
+  company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  monthly_accounts_receivable?: Maybe<OrderBy>;
+  monthly_cash?: Maybe<OrderBy>;
+  monthly_inventory?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** aggregate min on columns */
+export type EbbaApplicationsMinFields = {
+  application_month?: Maybe<Scalars["date"]>;
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
+  monthly_cash?: Maybe<Scalars["numeric"]>;
+  monthly_inventory?: Maybe<Scalars["numeric"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** order by min() on columns of table "ebba_applications" */
+export type EbbaApplicationsMinOrderBy = {
+  application_month?: Maybe<OrderBy>;
+  company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  monthly_accounts_receivable?: Maybe<OrderBy>;
+  monthly_cash?: Maybe<OrderBy>;
+  monthly_inventory?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** response of any mutation on the table "ebba_applications" */
+export type EbbaApplicationsMutationResponse = {
+  /** number of affected rows by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data of the affected rows by the mutation */
+  returning: Array<EbbaApplications>;
+};
+
+/** input type for inserting object relation for remote table "ebba_applications" */
+export type EbbaApplicationsObjRelInsertInput = {
+  data: EbbaApplicationsInsertInput;
+  on_conflict?: Maybe<EbbaApplicationsOnConflict>;
+};
+
+/** on conflict condition type for table "ebba_applications" */
+export type EbbaApplicationsOnConflict = {
+  constraint: EbbaApplicationsConstraint;
+  update_columns: Array<EbbaApplicationsUpdateColumn>;
+  where?: Maybe<EbbaApplicationsBoolExp>;
+};
+
+/** ordering options when selecting data from "ebba_applications" */
+export type EbbaApplicationsOrderBy = {
+  application_month?: Maybe<OrderBy>;
+  company?: Maybe<CompaniesOrderBy>;
+  company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  ebba_application_files_aggregate?: Maybe<EbbaApplicationFilesAggregateOrderBy>;
+  id?: Maybe<OrderBy>;
+  monthly_accounts_receivable?: Maybe<OrderBy>;
+  monthly_cash?: Maybe<OrderBy>;
+  monthly_inventory?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "ebba_applications" */
+export type EbbaApplicationsPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "ebba_applications" */
+export enum EbbaApplicationsSelectColumn {
+  /** column name */
+  ApplicationMonth = "application_month",
+  /** column name */
+  CompanyId = "company_id",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  MonthlyAccountsReceivable = "monthly_accounts_receivable",
+  /** column name */
+  MonthlyCash = "monthly_cash",
+  /** column name */
+  MonthlyInventory = "monthly_inventory",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
+/** input type for updating data in table "ebba_applications" */
+export type EbbaApplicationsSetInput = {
+  application_month?: Maybe<Scalars["date"]>;
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
+  monthly_cash?: Maybe<Scalars["numeric"]>;
+  monthly_inventory?: Maybe<Scalars["numeric"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate stddev on columns */
+export type EbbaApplicationsStddevFields = {
+  monthly_accounts_receivable?: Maybe<Scalars["Float"]>;
+  monthly_cash?: Maybe<Scalars["Float"]>;
+  monthly_inventory?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev() on columns of table "ebba_applications" */
+export type EbbaApplicationsStddevOrderBy = {
+  monthly_accounts_receivable?: Maybe<OrderBy>;
+  monthly_cash?: Maybe<OrderBy>;
+  monthly_inventory?: Maybe<OrderBy>;
+};
+
+/** aggregate stddev_pop on columns */
+export type EbbaApplicationsStddevPopFields = {
+  monthly_accounts_receivable?: Maybe<Scalars["Float"]>;
+  monthly_cash?: Maybe<Scalars["Float"]>;
+  monthly_inventory?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev_pop() on columns of table "ebba_applications" */
+export type EbbaApplicationsStddevPopOrderBy = {
+  monthly_accounts_receivable?: Maybe<OrderBy>;
+  monthly_cash?: Maybe<OrderBy>;
+  monthly_inventory?: Maybe<OrderBy>;
+};
+
+/** aggregate stddev_samp on columns */
+export type EbbaApplicationsStddevSampFields = {
+  monthly_accounts_receivable?: Maybe<Scalars["Float"]>;
+  monthly_cash?: Maybe<Scalars["Float"]>;
+  monthly_inventory?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev_samp() on columns of table "ebba_applications" */
+export type EbbaApplicationsStddevSampOrderBy = {
+  monthly_accounts_receivable?: Maybe<OrderBy>;
+  monthly_cash?: Maybe<OrderBy>;
+  monthly_inventory?: Maybe<OrderBy>;
+};
+
+/** aggregate sum on columns */
+export type EbbaApplicationsSumFields = {
+  monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
+  monthly_cash?: Maybe<Scalars["numeric"]>;
+  monthly_inventory?: Maybe<Scalars["numeric"]>;
+};
+
+/** order by sum() on columns of table "ebba_applications" */
+export type EbbaApplicationsSumOrderBy = {
+  monthly_accounts_receivable?: Maybe<OrderBy>;
+  monthly_cash?: Maybe<OrderBy>;
+  monthly_inventory?: Maybe<OrderBy>;
+};
+
+/** update columns of table "ebba_applications" */
+export enum EbbaApplicationsUpdateColumn {
+  /** column name */
+  ApplicationMonth = "application_month",
+  /** column name */
+  CompanyId = "company_id",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  MonthlyAccountsReceivable = "monthly_accounts_receivable",
+  /** column name */
+  MonthlyCash = "monthly_cash",
+  /** column name */
+  MonthlyInventory = "monthly_inventory",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
+/** aggregate var_pop on columns */
+export type EbbaApplicationsVarPopFields = {
+  monthly_accounts_receivable?: Maybe<Scalars["Float"]>;
+  monthly_cash?: Maybe<Scalars["Float"]>;
+  monthly_inventory?: Maybe<Scalars["Float"]>;
+};
+
+/** order by var_pop() on columns of table "ebba_applications" */
+export type EbbaApplicationsVarPopOrderBy = {
+  monthly_accounts_receivable?: Maybe<OrderBy>;
+  monthly_cash?: Maybe<OrderBy>;
+  monthly_inventory?: Maybe<OrderBy>;
+};
+
+/** aggregate var_samp on columns */
+export type EbbaApplicationsVarSampFields = {
+  monthly_accounts_receivable?: Maybe<Scalars["Float"]>;
+  monthly_cash?: Maybe<Scalars["Float"]>;
+  monthly_inventory?: Maybe<Scalars["Float"]>;
+};
+
+/** order by var_samp() on columns of table "ebba_applications" */
+export type EbbaApplicationsVarSampOrderBy = {
+  monthly_accounts_receivable?: Maybe<OrderBy>;
+  monthly_cash?: Maybe<OrderBy>;
+  monthly_inventory?: Maybe<OrderBy>;
+};
+
+/** aggregate variance on columns */
+export type EbbaApplicationsVarianceFields = {
+  monthly_accounts_receivable?: Maybe<Scalars["Float"]>;
+  monthly_cash?: Maybe<Scalars["Float"]>;
+  monthly_inventory?: Maybe<Scalars["Float"]>;
+};
+
+/** order by variance() on columns of table "ebba_applications" */
+export type EbbaApplicationsVarianceOrderBy = {
+  monthly_accounts_receivable?: Maybe<OrderBy>;
+  monthly_cash?: Maybe<OrderBy>;
+  monthly_inventory?: Maybe<OrderBy>;
+};
+
 /**
  * Table to keep track of files stored on the platform
  *
@@ -3352,6 +3895,14 @@ export type MutationRoot = {
   delete_company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsMutationResponse>;
   /** delete single row from the table: "company_vendor_partnerships" */
   delete_company_vendor_partnerships_by_pk?: Maybe<CompanyVendorPartnerships>;
+  /** delete data from the table: "ebba_application_files" */
+  delete_ebba_application_files?: Maybe<EbbaApplicationFilesMutationResponse>;
+  /** delete single row from the table: "ebba_application_files" */
+  delete_ebba_application_files_by_pk?: Maybe<EbbaApplicationFiles>;
+  /** delete data from the table: "ebba_applications" */
+  delete_ebba_applications?: Maybe<EbbaApplicationsMutationResponse>;
+  /** delete single row from the table: "ebba_applications" */
+  delete_ebba_applications_by_pk?: Maybe<EbbaApplications>;
   /** delete data from the table: "files" */
   delete_files?: Maybe<FilesMutationResponse>;
   /** delete single row from the table: "files" */
@@ -3444,6 +3995,14 @@ export type MutationRoot = {
   insert_company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsMutationResponse>;
   /** insert a single row into the table: "company_vendor_partnerships" */
   insert_company_vendor_partnerships_one?: Maybe<CompanyVendorPartnerships>;
+  /** insert data into the table: "ebba_application_files" */
+  insert_ebba_application_files?: Maybe<EbbaApplicationFilesMutationResponse>;
+  /** insert a single row into the table: "ebba_application_files" */
+  insert_ebba_application_files_one?: Maybe<EbbaApplicationFiles>;
+  /** insert data into the table: "ebba_applications" */
+  insert_ebba_applications?: Maybe<EbbaApplicationsMutationResponse>;
+  /** insert a single row into the table: "ebba_applications" */
+  insert_ebba_applications_one?: Maybe<EbbaApplications>;
   /** insert data into the table: "files" */
   insert_files?: Maybe<FilesMutationResponse>;
   /** insert a single row into the table: "files" */
@@ -3540,6 +4099,14 @@ export type MutationRoot = {
   update_company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsMutationResponse>;
   /** update single row of the table: "company_vendor_partnerships" */
   update_company_vendor_partnerships_by_pk?: Maybe<CompanyVendorPartnerships>;
+  /** update data of the table: "ebba_application_files" */
+  update_ebba_application_files?: Maybe<EbbaApplicationFilesMutationResponse>;
+  /** update single row of the table: "ebba_application_files" */
+  update_ebba_application_files_by_pk?: Maybe<EbbaApplicationFiles>;
+  /** update data of the table: "ebba_applications" */
+  update_ebba_applications?: Maybe<EbbaApplicationsMutationResponse>;
+  /** update single row of the table: "ebba_applications" */
+  update_ebba_applications_by_pk?: Maybe<EbbaApplications>;
   /** update data of the table: "files" */
   update_files?: Maybe<FilesMutationResponse>;
   /** update single row of the table: "files" */
@@ -3667,6 +4234,27 @@ export type MutationRootDeleteCompanyVendorPartnershipsArgs = {
 
 /** mutation root */
 export type MutationRootDeleteCompanyVendorPartnershipsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** mutation root */
+export type MutationRootDeleteEbbaApplicationFilesArgs = {
+  where: EbbaApplicationFilesBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteEbbaApplicationFilesByPkArgs = {
+  ebba_application_id: Scalars["uuid"];
+  file_id: Scalars["uuid"];
+};
+
+/** mutation root */
+export type MutationRootDeleteEbbaApplicationsArgs = {
+  where: EbbaApplicationsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteEbbaApplicationsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -3911,6 +4499,30 @@ export type MutationRootInsertCompanyVendorPartnershipsArgs = {
 export type MutationRootInsertCompanyVendorPartnershipsOneArgs = {
   object: CompanyVendorPartnershipsInsertInput;
   on_conflict?: Maybe<CompanyVendorPartnershipsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertEbbaApplicationFilesArgs = {
+  objects: Array<EbbaApplicationFilesInsertInput>;
+  on_conflict?: Maybe<EbbaApplicationFilesOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertEbbaApplicationFilesOneArgs = {
+  object: EbbaApplicationFilesInsertInput;
+  on_conflict?: Maybe<EbbaApplicationFilesOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertEbbaApplicationsArgs = {
+  objects: Array<EbbaApplicationsInsertInput>;
+  on_conflict?: Maybe<EbbaApplicationsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertEbbaApplicationsOneArgs = {
+  object: EbbaApplicationsInsertInput;
+  on_conflict?: Maybe<EbbaApplicationsOnConflict>;
 };
 
 /** mutation root */
@@ -4205,6 +4817,32 @@ export type MutationRootUpdateCompanyVendorPartnershipsArgs = {
 export type MutationRootUpdateCompanyVendorPartnershipsByPkArgs = {
   _set?: Maybe<CompanyVendorPartnershipsSetInput>;
   pk_columns: CompanyVendorPartnershipsPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateEbbaApplicationFilesArgs = {
+  _set?: Maybe<EbbaApplicationFilesSetInput>;
+  where: EbbaApplicationFilesBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateEbbaApplicationFilesByPkArgs = {
+  _set?: Maybe<EbbaApplicationFilesSetInput>;
+  pk_columns: EbbaApplicationFilesPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateEbbaApplicationsArgs = {
+  _inc?: Maybe<EbbaApplicationsIncInput>;
+  _set?: Maybe<EbbaApplicationsSetInput>;
+  where: EbbaApplicationsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateEbbaApplicationsByPkArgs = {
+  _inc?: Maybe<EbbaApplicationsIncInput>;
+  _set?: Maybe<EbbaApplicationsSetInput>;
+  pk_columns: EbbaApplicationsPkColumnsInput;
 };
 
 /** mutation root */
@@ -6340,6 +6978,18 @@ export type QueryRoot = {
   company_vendor_partnerships_aggregate: CompanyVendorPartnershipsAggregate;
   /** fetch data from the table: "company_vendor_partnerships" using primary key columns */
   company_vendor_partnerships_by_pk?: Maybe<CompanyVendorPartnerships>;
+  /** fetch data from the table: "ebba_application_files" */
+  ebba_application_files: Array<EbbaApplicationFiles>;
+  /** fetch aggregated fields from the table: "ebba_application_files" */
+  ebba_application_files_aggregate: EbbaApplicationFilesAggregate;
+  /** fetch data from the table: "ebba_application_files" using primary key columns */
+  ebba_application_files_by_pk?: Maybe<EbbaApplicationFiles>;
+  /** fetch data from the table: "ebba_applications" */
+  ebba_applications: Array<EbbaApplications>;
+  /** fetch aggregated fields from the table: "ebba_applications" */
+  ebba_applications_aggregate: EbbaApplicationsAggregate;
+  /** fetch data from the table: "ebba_applications" using primary key columns */
+  ebba_applications_by_pk?: Maybe<EbbaApplications>;
   /** fetch data from the table: "files" */
   files: Array<Files>;
   /** fetch aggregated fields from the table: "files" */
@@ -6581,6 +7231,53 @@ export type QueryRootCompanyVendorPartnershipsAggregateArgs = {
 
 /** query root */
 export type QueryRootCompanyVendorPartnershipsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** query root */
+export type QueryRootEbbaApplicationFilesArgs = {
+  distinct_on?: Maybe<Array<EbbaApplicationFilesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<EbbaApplicationFilesOrderBy>>;
+  where?: Maybe<EbbaApplicationFilesBoolExp>;
+};
+
+/** query root */
+export type QueryRootEbbaApplicationFilesAggregateArgs = {
+  distinct_on?: Maybe<Array<EbbaApplicationFilesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<EbbaApplicationFilesOrderBy>>;
+  where?: Maybe<EbbaApplicationFilesBoolExp>;
+};
+
+/** query root */
+export type QueryRootEbbaApplicationFilesByPkArgs = {
+  ebba_application_id: Scalars["uuid"];
+  file_id: Scalars["uuid"];
+};
+
+/** query root */
+export type QueryRootEbbaApplicationsArgs = {
+  distinct_on?: Maybe<Array<EbbaApplicationsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<EbbaApplicationsOrderBy>>;
+  where?: Maybe<EbbaApplicationsBoolExp>;
+};
+
+/** query root */
+export type QueryRootEbbaApplicationsAggregateArgs = {
+  distinct_on?: Maybe<Array<EbbaApplicationsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<EbbaApplicationsOrderBy>>;
+  where?: Maybe<EbbaApplicationsBoolExp>;
+};
+
+/** query root */
+export type QueryRootEbbaApplicationsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -7347,6 +8044,18 @@ export type SubscriptionRoot = {
   company_vendor_partnerships_aggregate: CompanyVendorPartnershipsAggregate;
   /** fetch data from the table: "company_vendor_partnerships" using primary key columns */
   company_vendor_partnerships_by_pk?: Maybe<CompanyVendorPartnerships>;
+  /** fetch data from the table: "ebba_application_files" */
+  ebba_application_files: Array<EbbaApplicationFiles>;
+  /** fetch aggregated fields from the table: "ebba_application_files" */
+  ebba_application_files_aggregate: EbbaApplicationFilesAggregate;
+  /** fetch data from the table: "ebba_application_files" using primary key columns */
+  ebba_application_files_by_pk?: Maybe<EbbaApplicationFiles>;
+  /** fetch data from the table: "ebba_applications" */
+  ebba_applications: Array<EbbaApplications>;
+  /** fetch aggregated fields from the table: "ebba_applications" */
+  ebba_applications_aggregate: EbbaApplicationsAggregate;
+  /** fetch data from the table: "ebba_applications" using primary key columns */
+  ebba_applications_by_pk?: Maybe<EbbaApplications>;
   /** fetch data from the table: "files" */
   files: Array<Files>;
   /** fetch aggregated fields from the table: "files" */
@@ -7588,6 +8297,53 @@ export type SubscriptionRootCompanyVendorPartnershipsAggregateArgs = {
 
 /** subscription root */
 export type SubscriptionRootCompanyVendorPartnershipsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** subscription root */
+export type SubscriptionRootEbbaApplicationFilesArgs = {
+  distinct_on?: Maybe<Array<EbbaApplicationFilesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<EbbaApplicationFilesOrderBy>>;
+  where?: Maybe<EbbaApplicationFilesBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootEbbaApplicationFilesAggregateArgs = {
+  distinct_on?: Maybe<Array<EbbaApplicationFilesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<EbbaApplicationFilesOrderBy>>;
+  where?: Maybe<EbbaApplicationFilesBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootEbbaApplicationFilesByPkArgs = {
+  ebba_application_id: Scalars["uuid"];
+  file_id: Scalars["uuid"];
+};
+
+/** subscription root */
+export type SubscriptionRootEbbaApplicationsArgs = {
+  distinct_on?: Maybe<Array<EbbaApplicationsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<EbbaApplicationsOrderBy>>;
+  where?: Maybe<EbbaApplicationsBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootEbbaApplicationsAggregateArgs = {
+  distinct_on?: Maybe<Array<EbbaApplicationsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<EbbaApplicationsOrderBy>>;
+  where?: Maybe<EbbaApplicationsBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootEbbaApplicationsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -9494,6 +10250,26 @@ export type UpdateCompanyBankAccountMutation = {
   update_bank_accounts_by_pk?: Maybe<BankAccountFragment>;
 };
 
+export type EbbaApplicationFragment = Pick<
+  EbbaApplications,
+  | "id"
+  | "company_id"
+  | "application_month"
+  | "monthly_accounts_receivable"
+  | "monthly_inventory"
+  | "monthly_cash"
+>;
+
+export type AddEbbaApplicationMutationVariables = Exact<{
+  ebbaApplication: EbbaApplicationsInsertInput;
+}>;
+
+export type AddEbbaApplicationMutation = {
+  insert_ebba_applications_one?: Maybe<
+    Pick<EbbaApplications, "id"> & EbbaApplicationFragment
+  >;
+};
+
 export type LoanQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -10328,6 +11104,16 @@ export const LineOfCreditFragmentDoc = gql`
     company_id
     is_credit_for_vendor
     recipient_vendor_id
+  }
+`;
+export const EbbaApplicationFragmentDoc = gql`
+  fragment EbbaApplication on ebba_applications {
+    id
+    company_id
+    application_month
+    monthly_accounts_receivable
+    monthly_inventory
+    monthly_cash
   }
 `;
 export const UserFragmentDoc = gql`
@@ -11323,6 +12109,58 @@ export type UpdateCompanyBankAccountMutationResult = Apollo.MutationResult<Updat
 export type UpdateCompanyBankAccountMutationOptions = Apollo.BaseMutationOptions<
   UpdateCompanyBankAccountMutation,
   UpdateCompanyBankAccountMutationVariables
+>;
+export const AddEbbaApplicationDocument = gql`
+  mutation AddEbbaApplication(
+    $ebbaApplication: ebba_applications_insert_input!
+  ) {
+    insert_ebba_applications_one(object: $ebbaApplication) {
+      id
+      ...EbbaApplication
+    }
+  }
+  ${EbbaApplicationFragmentDoc}
+`;
+export type AddEbbaApplicationMutationFn = Apollo.MutationFunction<
+  AddEbbaApplicationMutation,
+  AddEbbaApplicationMutationVariables
+>;
+
+/**
+ * __useAddEbbaApplicationMutation__
+ *
+ * To run a mutation, you first call `useAddEbbaApplicationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddEbbaApplicationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addEbbaApplicationMutation, { data, loading, error }] = useAddEbbaApplicationMutation({
+ *   variables: {
+ *      ebbaApplication: // value for 'ebbaApplication'
+ *   },
+ * });
+ */
+export function useAddEbbaApplicationMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    AddEbbaApplicationMutation,
+    AddEbbaApplicationMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    AddEbbaApplicationMutation,
+    AddEbbaApplicationMutationVariables
+  >(AddEbbaApplicationDocument, baseOptions);
+}
+export type AddEbbaApplicationMutationHookResult = ReturnType<
+  typeof useAddEbbaApplicationMutation
+>;
+export type AddEbbaApplicationMutationResult = Apollo.MutationResult<AddEbbaApplicationMutation>;
+export type AddEbbaApplicationMutationOptions = Apollo.BaseMutationOptions<
+  AddEbbaApplicationMutation,
+  AddEbbaApplicationMutationVariables
 >;
 export const LoanDocument = gql`
   query Loan($id: uuid!) {
