@@ -1,7 +1,11 @@
-
 query UserById($id: uuid!) {
   users_by_pk(id: $id) {
+    id
     ...User
+    company {
+      id
+      name
+    }
   }
 }
 

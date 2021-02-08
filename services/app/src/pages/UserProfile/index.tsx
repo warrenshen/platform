@@ -11,12 +11,7 @@ import { grey } from "@material-ui/core/colors";
 import Page from "components/Shared/Page";
 import EditUserProfileModal from "components/Shared/Users/EditUserProfileModal";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import {
-  useCompanyForCustomerQuery,
-  UserFragment,
-  useUserByIdQuery,
-} from "generated/graphql";
-import { Maybe } from "graphql/jsutils/Maybe";
+import { UserRolesEnum, useUserByIdQuery } from "generated/graphql";
 import useAppBarTitle from "hooks/useAppBarTitle";
 import { useContext, useState } from "react";
 import { useTitle } from "react-use";
@@ -44,14 +39,7 @@ function UserProfile() {
     },
   });
 
-  const companyRes = useCompanyForCustomerQuery({
-    variables: {
-      companyId: currentUser.companyId,
-    },
-  });
-  const companyData = companyRes.data;
-
-  const user: Maybe<UserFragment> = data?.users_by_pk;
+  const user = data?.users_by_pk;
 
   return (
     <Page>
@@ -86,7 +74,11 @@ function UserProfile() {
               </Box>
               <Box display="flex" pb={0.25}>
                 <Box className={classes.label}>Company</Box>
-                <Box>{companyData?.companies_by_pk?.name}</Box>
+                <Box>
+                  {user?.role === UserRolesEnum.BankAdmin
+                    ? "Bespoke (Bank)"
+                    : user?.company?.name}
+                </Box>
               </Box>
               <Box display="flex" pb={0.25}>
                 <Box className={classes.label}>Role</Box>

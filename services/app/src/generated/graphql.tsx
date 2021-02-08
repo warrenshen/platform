@@ -10131,7 +10131,13 @@ export type UserByIdQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
 
-export type UserByIdQuery = { users_by_pk?: Maybe<UserFragment> };
+export type UserByIdQuery = {
+  users_by_pk?: Maybe<
+    Pick<Users, "id"> & {
+      company?: Maybe<Pick<Companies, "id" | "name">>;
+    } & UserFragment
+  >;
+};
 
 export type UpdateUserMutationVariables = Exact<{
   id: Scalars["uuid"];
@@ -14063,7 +14069,12 @@ export type PurchaseOrderLoansForBankQueryResult = Apollo.QueryResult<
 export const UserByIdDocument = gql`
   query UserById($id: uuid!) {
     users_by_pk(id: $id) {
+      id
       ...User
+      company {
+        id
+        name
+      }
     }
   }
   ${UserFragmentDoc}
