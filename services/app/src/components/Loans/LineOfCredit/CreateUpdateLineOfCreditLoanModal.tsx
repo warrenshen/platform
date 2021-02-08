@@ -16,7 +16,8 @@ import {
   LoanStatusEnum,
   LoanTypeEnum,
   Scalars,
-  useAddLineOfCreditAndLoanMutation,
+  useAddLineOfCreditMutation,
+  useAddLoanMutation,
   useApprovedVendorsByPartnerCompanyIdQuery,
   useLoanForCustomerQuery,
   useLoanSiblingsQuery,
@@ -143,9 +144,11 @@ function CreateUpdateLineOfCreditLoanModal({
   const selectableVendors = data?.vendors || [];
 
   const [
-    addLineOfCreditAndLoan,
-    { loading: isAddLineOfCreditAndLoanLoading },
-  ] = useAddLineOfCreditAndLoanMutation();
+    addLineOfCredit,
+    { loading: isAddLineOfCreditLoading },
+  ] = useAddLineOfCreditMutation();
+
+  const [addLoan, { loading: isAddLoanLoading }] = useAddLoanMutation();
 
   const [
     updateLineOfCreditAndLoan,
@@ -158,7 +161,9 @@ function CreateUpdateLineOfCreditLoanModal({
   const isDialogReady = !isExistingLoanLoading && !isApprovedVendorsLoading;
   const isFormValid = !!loan.amount;
   const isFormLoading =
-    isAddLineOfCreditAndLoanLoading || isUpdateLineOfCreditAndLoanLoading;
+    isAddLineOfCreditLoading ||
+    isAddLoanLoading ||
+    isUpdateLineOfCreditAndLoanLoading;
   const isSaveDraftDisabled = !isFormValid || isFormLoading;
 
   // TODO(warren): Make it apparent to the user the reason we are disabling submitting a purchase order
@@ -200,22 +205,34 @@ function CreateUpdateLineOfCreditLoanModal({
       });
       return response.data?.update_line_of_credits_by_pk;
     } else {
-      const response = await addLineOfCreditAndLoan({
+      const responseLineOfCredit = await addLineOfCredit({
         variables: {
           lineOfCredit: {
             is_credit_for_vendor: lineOfCredit.is_credit_for_vendor,
             recipient_vendor_id: lineOfCredit.recipient_vendor_id,
           },
-          loan: {
-            loan_type: loan.loan_type,
-            origination_date: loan.origination_date,
-            maturity_date: loan.maturity_date,
-            adjusted_maturity_date: loan.adjusted_maturity_date,
-            amount: loan.amount,
-          },
         },
       });
-      return response.data?.insert_line_of_credits_one;
+      const artifactId =
+        responseLineOfCredit.data?.insert_line_of_credits_one?.id;
+      if (!artifactId) {
+        alert("Could not add line of credit");
+        return null;
+      } else {
+        const responseLoan = await addLoan({
+          variables: {
+            loan: {
+              artifact_id: artifactId,
+              loan_type: loan.loan_type,
+              origination_date: loan.origination_date,
+              maturity_date: loan.maturity_date,
+              adjusted_maturity_date: loan.adjusted_maturity_date,
+              amount: loan.amount,
+            },
+          },
+        });
+        return responseLoan.data?.insert_loans_one;
+      }
     }
   };
 

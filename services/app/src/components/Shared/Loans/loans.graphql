@@ -33,6 +33,11 @@ query LoansByCompanyAndLoanTypeForCustomer(
     }
   ) {
     ...LoanLimited
+    line_of_credit {
+      id
+      is_credit_for_vendor
+      recipient_vendor_id
+    }
     purchase_order {
       id
       order_number

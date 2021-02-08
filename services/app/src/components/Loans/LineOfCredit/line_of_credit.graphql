@@ -5,17 +5,10 @@ fragment LineOfCredit on line_of_credits {
   recipient_vendor_id
 }
 
-mutation AddLineOfCreditAndLoan(
-  $lineOfCredit: line_of_credits_insert_input!
-  $loan: loans_insert_input!
-) {
+mutation AddLineOfCredit($lineOfCredit: line_of_credits_insert_input!) {
   insert_line_of_credits_one(object: $lineOfCredit) {
     id
     ...LineOfCredit
-  }
-  insert_loans_one(object: $loan) {
-    id
-    ...LoanLimited
   }
 }
 

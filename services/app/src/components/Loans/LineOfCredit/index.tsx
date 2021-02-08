@@ -23,7 +23,7 @@ function Loans() {
     }
   );
   if (error) {
-    alert("Error querying purchase orders. " + error);
+    alert("Error querying line of credit loans. " + error);
   }
 
   const loans = data?.loans || [];
@@ -36,7 +36,6 @@ function Loans() {
 
   return (
     <Box>
-      <Box>Line of Credit</Box>
       <Box pb={2} display="flex" flexDirection="row-reverse">
         <Can perform={Action.AddPurchaseOrders}>
           <Button

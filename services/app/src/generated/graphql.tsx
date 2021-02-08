@@ -9351,16 +9351,14 @@ export type LineOfCreditFragment = Pick<
   "id" | "company_id" | "is_credit_for_vendor" | "recipient_vendor_id"
 >;
 
-export type AddLineOfCreditAndLoanMutationVariables = Exact<{
+export type AddLineOfCreditMutationVariables = Exact<{
   lineOfCredit: LineOfCreditsInsertInput;
-  loan: LoansInsertInput;
 }>;
 
-export type AddLineOfCreditAndLoanMutation = {
+export type AddLineOfCreditMutation = {
   insert_line_of_credits_one?: Maybe<
     Pick<LineOfCredits, "id"> & LineOfCreditFragment
   >;
-  insert_loans_one?: Maybe<Pick<Loans, "id"> & LoanLimitedFragment>;
 };
 
 export type UpdateLineOfCreditAndLoanMutationVariables = Exact<{
@@ -9543,6 +9541,12 @@ export type LoansByCompanyAndLoanTypeForCustomerQueryVariables = Exact<{
 export type LoansByCompanyAndLoanTypeForCustomerQuery = {
   loans: Array<
     {
+      line_of_credit?: Maybe<
+        Pick<
+          LineOfCredits,
+          "id" | "is_credit_for_vendor" | "recipient_vendor_id"
+        >
+      >;
       purchase_order?: Maybe<Pick<PurchaseOrders, "id" | "order_number">>;
     } & LoanLimitedFragment
   >;
@@ -10601,64 +10605,55 @@ export type BankCustomerListVendorPartnershipsQueryResult = Apollo.QueryResult<
   BankCustomerListVendorPartnershipsQuery,
   BankCustomerListVendorPartnershipsQueryVariables
 >;
-export const AddLineOfCreditAndLoanDocument = gql`
-  mutation AddLineOfCreditAndLoan(
-    $lineOfCredit: line_of_credits_insert_input!
-    $loan: loans_insert_input!
-  ) {
+export const AddLineOfCreditDocument = gql`
+  mutation AddLineOfCredit($lineOfCredit: line_of_credits_insert_input!) {
     insert_line_of_credits_one(object: $lineOfCredit) {
       id
       ...LineOfCredit
     }
-    insert_loans_one(object: $loan) {
-      id
-      ...LoanLimited
-    }
   }
   ${LineOfCreditFragmentDoc}
-  ${LoanLimitedFragmentDoc}
 `;
-export type AddLineOfCreditAndLoanMutationFn = Apollo.MutationFunction<
-  AddLineOfCreditAndLoanMutation,
-  AddLineOfCreditAndLoanMutationVariables
+export type AddLineOfCreditMutationFn = Apollo.MutationFunction<
+  AddLineOfCreditMutation,
+  AddLineOfCreditMutationVariables
 >;
 
 /**
- * __useAddLineOfCreditAndLoanMutation__
+ * __useAddLineOfCreditMutation__
  *
- * To run a mutation, you first call `useAddLineOfCreditAndLoanMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddLineOfCreditAndLoanMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useAddLineOfCreditMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddLineOfCreditMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [addLineOfCreditAndLoanMutation, { data, loading, error }] = useAddLineOfCreditAndLoanMutation({
+ * const [addLineOfCreditMutation, { data, loading, error }] = useAddLineOfCreditMutation({
  *   variables: {
  *      lineOfCredit: // value for 'lineOfCredit'
- *      loan: // value for 'loan'
  *   },
  * });
  */
-export function useAddLineOfCreditAndLoanMutation(
+export function useAddLineOfCreditMutation(
   baseOptions?: Apollo.MutationHookOptions<
-    AddLineOfCreditAndLoanMutation,
-    AddLineOfCreditAndLoanMutationVariables
+    AddLineOfCreditMutation,
+    AddLineOfCreditMutationVariables
   >
 ) {
   return Apollo.useMutation<
-    AddLineOfCreditAndLoanMutation,
-    AddLineOfCreditAndLoanMutationVariables
-  >(AddLineOfCreditAndLoanDocument, baseOptions);
+    AddLineOfCreditMutation,
+    AddLineOfCreditMutationVariables
+  >(AddLineOfCreditDocument, baseOptions);
 }
-export type AddLineOfCreditAndLoanMutationHookResult = ReturnType<
-  typeof useAddLineOfCreditAndLoanMutation
+export type AddLineOfCreditMutationHookResult = ReturnType<
+  typeof useAddLineOfCreditMutation
 >;
-export type AddLineOfCreditAndLoanMutationResult = Apollo.MutationResult<AddLineOfCreditAndLoanMutation>;
-export type AddLineOfCreditAndLoanMutationOptions = Apollo.BaseMutationOptions<
-  AddLineOfCreditAndLoanMutation,
-  AddLineOfCreditAndLoanMutationVariables
+export type AddLineOfCreditMutationResult = Apollo.MutationResult<AddLineOfCreditMutation>;
+export type AddLineOfCreditMutationOptions = Apollo.BaseMutationOptions<
+  AddLineOfCreditMutation,
+  AddLineOfCreditMutationVariables
 >;
 export const UpdateLineOfCreditAndLoanDocument = gql`
   mutation UpdateLineOfCreditAndLoan(
@@ -11594,6 +11589,11 @@ export const LoansByCompanyAndLoanTypeForCustomerDocument = gql`
       }
     ) {
       ...LoanLimited
+      line_of_credit {
+        id
+        is_credit_for_vendor
+        recipient_vendor_id
+      }
       purchase_order {
         id
         order_number
