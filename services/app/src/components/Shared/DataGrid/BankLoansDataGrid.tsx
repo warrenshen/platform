@@ -16,7 +16,7 @@ import {
   LoanTypeEnum,
   RequestStatusEnum,
 } from "generated/graphql";
-import { LoanTypeToLabel } from "lib/enum";
+import { LoanTypeToLabel, AllLoanStatuses } from "lib/enum";
 import { useEffect, useState } from "react";
 
 interface Props {
@@ -42,7 +42,6 @@ function BankLoansDataGrid({
   useEffect(() => {
     if (!dataGrid) return;
     dataGrid.instance.clearFilter(getMaturityDate);
-    // TODO: add status check
     if (loansPastDue)
       dataGrid.instance.filter([getMaturityDate, "<", new Date(Date.now())]);
     if (matureDays && matureDays > 0)
@@ -84,7 +83,6 @@ function BankLoansDataGrid({
         {
           key: "edit-purchase-order-loan",
           label: "Edit",
-          // TODO: add handleEditPurchaseOrderLoan function as a prop
           handleClick: () => {},
         },
       ]}
@@ -92,12 +90,6 @@ function BankLoansDataGrid({
   );
 
   const columns: IColumnProps[] = [
-    // {
-    //   dataField: "purchase_order.order_number",
-    //   caption: "Order Number",
-    //   width: 130,
-    //   cellRender: purchaseOrderNumberRenderer,
-    // },
     {
       dataField: "company.name",
       caption: "Customer Name",
@@ -115,11 +107,6 @@ function BankLoansDataGrid({
       caption: "Vendor Name",
       width: 190,
     },
-    // {
-    //   dataField: "requested_at",
-    //   caption: "Requested At",
-    //   width: 130,
-    // },
     {
       dataField: "id",
       caption: "Loan ID",
@@ -150,18 +137,25 @@ function BankLoansDataGrid({
     ),
   });
 
-  // {
-  //   dataField: "?",
-  //   caption: "Loan Balance",
-  //   width: 120,
-  // },
-
   columns.push({
     dataField: "status",
     caption: "Status",
-    width: 120,
+    width: 150,
     alignment: "center",
     cellRender: statusCellRenderer,
+    lookup: {
+      dataSource: {
+        store: {
+          type: "array",
+          data: AllLoanStatuses.map((d) => ({
+            status: d,
+          })),
+          key: "status",
+        },
+      },
+      valueExpr: "status",
+      displayExpr: "status",
+    },
   });
 
   if (loansPastDue) {
@@ -197,11 +191,6 @@ function BankLoansDataGrid({
       alignment: "center",
       cellRender: daysPastDueRenderer,
     });
-    // columns.push({
-    //   dataField: "?",
-    //   caption: "Restricted Date",
-    //   width: 120,
-    // });
   } else {
     columns.push({
       caption: "Maturing in (Days)",
@@ -228,7 +217,7 @@ function BankLoansDataGrid({
     >
       <FilterRow visible={fullView} />
       {columns.map(
-        ({ dataField, caption, width, alignment, cellRender }, i) => (
+        ({ dataField, caption, width, alignment, cellRender, lookup }, i) => (
           <Column
             key={`${dataField}-${i}`}
             caption={caption}
@@ -236,6 +225,7 @@ function BankLoansDataGrid({
             width={width}
             alignment={alignment}
             cellRender={cellRender}
+            lookup={lookup}
           />
         )
       )}
