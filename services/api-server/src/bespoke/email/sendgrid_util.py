@@ -58,7 +58,7 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 		'requires_secure_link': False
 	},
 	TemplateNames.CUSTOMER_SUBMITTED_EBBA_APPLICATION: {
-		'id': 'd-',
+		'id': 'd-2b91637879454c438de1b6fd42dd44e7',
 		'requires_secure_link': False
 	},
 
@@ -107,7 +107,7 @@ class Client(object):
 		self._security_cfg = security_config
 		self._session_maker = session_maker
 
-	def send(self, 
+	def send(self,
 			 template_name: str, template_data: Dict, recipients: List[str],
 			 two_factor_payload: TwoFactorPayloadDict = None) -> Tuple[bool, Text]:
 
@@ -139,7 +139,7 @@ class Client(object):
 			# A two-factor link sends an email with encoded information in the URL
 			# The link has an expiration.
 			two_factor_link = models.TwoFactorLink(
-				token_states=token_states, 
+				token_states=token_states,
 				form_info=cast(Dict, two_factor_payload['form_info']),
 				expires_at=two_factor_payload['expires_at']
 			)
