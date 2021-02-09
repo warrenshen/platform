@@ -89,11 +89,14 @@ export type BankAccounts = {
   /** An object relationship */
   company?: Maybe<Companies>;
   company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id: Scalars["uuid"];
   recipient_address?: Maybe<Scalars["String"]>;
   recipient_name?: Maybe<Scalars["String"]>;
   routing_number: Scalars["String"];
+  updated_at?: Maybe<Scalars["timestamptz"]>;
   verified_at?: Maybe<Scalars["timestamptz"]>;
+  verified_date?: Maybe<Scalars["date"]>;
 };
 
 /** columns and relationships of "bank_accounts" */
@@ -180,11 +183,14 @@ export type BankAccountsBoolExp = {
   can_wire?: Maybe<BooleanComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   recipient_address?: Maybe<StringComparisonExp>;
   recipient_name?: Maybe<StringComparisonExp>;
   routing_number?: Maybe<StringComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
   verified_at?: Maybe<TimestamptzComparisonExp>;
+  verified_date?: Maybe<DateComparisonExp>;
 };
 
 /** unique or primary key constraints on table "bank_accounts" */
@@ -206,11 +212,14 @@ export type BankAccountsInsertInput = {
   can_wire?: Maybe<Scalars["Boolean"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   recipient_address?: Maybe<Scalars["String"]>;
   recipient_name?: Maybe<Scalars["String"]>;
   routing_number?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
   verified_at?: Maybe<Scalars["timestamptz"]>;
+  verified_date?: Maybe<Scalars["date"]>;
 };
 
 /** aggregate max on columns */
@@ -221,11 +230,14 @@ export type BankAccountsMaxFields = {
   bank_address?: Maybe<Scalars["String"]>;
   bank_name?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   recipient_address?: Maybe<Scalars["String"]>;
   recipient_name?: Maybe<Scalars["String"]>;
   routing_number?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
   verified_at?: Maybe<Scalars["timestamptz"]>;
+  verified_date?: Maybe<Scalars["date"]>;
 };
 
 /** order by max() on columns of table "bank_accounts" */
@@ -236,11 +248,14 @@ export type BankAccountsMaxOrderBy = {
   bank_address?: Maybe<OrderBy>;
   bank_name?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   recipient_address?: Maybe<OrderBy>;
   recipient_name?: Maybe<OrderBy>;
   routing_number?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
   verified_at?: Maybe<OrderBy>;
+  verified_date?: Maybe<OrderBy>;
 };
 
 /** aggregate min on columns */
@@ -251,11 +266,14 @@ export type BankAccountsMinFields = {
   bank_address?: Maybe<Scalars["String"]>;
   bank_name?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   recipient_address?: Maybe<Scalars["String"]>;
   recipient_name?: Maybe<Scalars["String"]>;
   routing_number?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
   verified_at?: Maybe<Scalars["timestamptz"]>;
+  verified_date?: Maybe<Scalars["date"]>;
 };
 
 /** order by min() on columns of table "bank_accounts" */
@@ -266,11 +284,14 @@ export type BankAccountsMinOrderBy = {
   bank_address?: Maybe<OrderBy>;
   bank_name?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   recipient_address?: Maybe<OrderBy>;
   recipient_name?: Maybe<OrderBy>;
   routing_number?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
   verified_at?: Maybe<OrderBy>;
+  verified_date?: Maybe<OrderBy>;
 };
 
 /** response of any mutation on the table "bank_accounts" */
@@ -307,11 +328,14 @@ export type BankAccountsOrderBy = {
   can_wire?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   recipient_address?: Maybe<OrderBy>;
   recipient_name?: Maybe<OrderBy>;
   routing_number?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
   verified_at?: Maybe<OrderBy>;
+  verified_date?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: "bank_accounts" */
@@ -338,6 +362,8 @@ export enum BankAccountsSelectColumn {
   /** column name */
   CompanyId = "company_id",
   /** column name */
+  CreatedAt = "created_at",
+  /** column name */
   Id = "id",
   /** column name */
   RecipientAddress = "recipient_address",
@@ -346,7 +372,11 @@ export enum BankAccountsSelectColumn {
   /** column name */
   RoutingNumber = "routing_number",
   /** column name */
+  UpdatedAt = "updated_at",
+  /** column name */
   VerifiedAt = "verified_at",
+  /** column name */
+  VerifiedDate = "verified_date",
 }
 
 /** input type for updating data in table "bank_accounts" */
@@ -359,11 +389,14 @@ export type BankAccountsSetInput = {
   can_ach?: Maybe<Scalars["Boolean"]>;
   can_wire?: Maybe<Scalars["Boolean"]>;
   company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   recipient_address?: Maybe<Scalars["String"]>;
   recipient_name?: Maybe<Scalars["String"]>;
   routing_number?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
   verified_at?: Maybe<Scalars["timestamptz"]>;
+  verified_date?: Maybe<Scalars["date"]>;
 };
 
 /** update columns of table "bank_accounts" */
@@ -385,6 +418,8 @@ export enum BankAccountsUpdateColumn {
   /** column name */
   CompanyId = "company_id",
   /** column name */
+  CreatedAt = "created_at",
+  /** column name */
   Id = "id",
   /** column name */
   RecipientAddress = "recipient_address",
@@ -393,7 +428,11 @@ export enum BankAccountsUpdateColumn {
   /** column name */
   RoutingNumber = "routing_number",
   /** column name */
+  UpdatedAt = "updated_at",
+  /** column name */
   VerifiedAt = "verified_at",
+  /** column name */
+  VerifiedDate = "verified_date",
 }
 
 /** expression to compare columns of type bigint. All fields are combined with logical 'AND'. */
@@ -10708,6 +10747,7 @@ export type BankAccountFragment = Pick<
   | "recipient_name"
   | "recipient_address"
   | "verified_at"
+  | "verified_date"
 >;
 
 export type BankAccountForVendorFragment = Pick<
@@ -11056,6 +11096,7 @@ export const BankAccountFragmentDoc = gql`
     recipient_name
     recipient_address
     verified_at
+    verified_date
   }
 `;
 export const BankVendorPartnershipFragmentDoc = gql`

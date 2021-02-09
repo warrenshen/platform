@@ -10,8 +10,8 @@ import { grey } from "@material-ui/core/colors";
 import { CheckCircle } from "@material-ui/icons";
 import CreateUpdateBankAccountModal from "components/Shared/BankAccount/CreateUpdateBankAccountModal";
 import { BankAccountFragment } from "generated/graphql";
+import { formatDateString } from "lib/date";
 import { obfuscateBankNumbers } from "lib/privacy";
-import { calendarDateTimestamp } from "lib/time";
 import { useState } from "react";
 
 const useStyles = makeStyles({
@@ -70,15 +70,17 @@ function BankAccountInfoCard({
             <Box>{obfuscateBankNumbers(bankAccount.account_number)}</Box>
           </Box>
           {isVerificationVisible && (
-            <Box display="flex" pt={0.5} pb={1}>
+            <Box display="flex" alignItems="center" pt={0.5} pb={1}>
               <CheckCircle
-                color={bankAccount.verified_at ? "primary" : "disabled"}
+                color={
+                  bankAccount.verified_at && bankAccount.verified_date
+                    ? "primary"
+                    : "disabled"
+                }
               ></CheckCircle>
               <Box pl={1}>
-                {bankAccount.verified_at
-                  ? `Verified on ${calendarDateTimestamp(
-                      bankAccount.verified_at
-                    )}`
+                {bankAccount.verified_at && bankAccount.verified_date
+                  ? `Verified on ${formatDateString(bankAccount.verified_date)}`
                   : "Not yet verified"}
               </Box>
             </Box>

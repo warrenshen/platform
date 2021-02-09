@@ -6,15 +6,15 @@ import {
 import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
 
 interface Props {
-  className: string;
+  className?: string;
   id: string;
   label: string;
   value: string;
   error?: boolean;
-  disablePast: boolean;
+  disablePast?: boolean;
   disabled?: boolean;
   required?: boolean;
-  disableNonBankDays: boolean; // disable days where the bank is not open
+  disableNonBankDays?: boolean; // disable days where the bank is not open
   onChange: (value: MaterialUiPickersDate) => void;
 }
 
@@ -22,7 +22,7 @@ function DatePicker(props: Props) {
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <KeyboardDatePicker
-        className={props.className}
+        className={props.className || ""}
         disableToolbar
         disablePast={props.disablePast}
         autoOk

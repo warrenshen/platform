@@ -123,6 +123,7 @@ fragment BankAccount on bank_accounts {
   recipient_name
   recipient_address
   verified_at
+  verified_date
 }
 
 fragment BankAccountForVendor on bank_accounts {

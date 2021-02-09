@@ -6,6 +6,8 @@ import {
   makeStyles,
   TextField,
 } from "@material-ui/core";
+import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
+import DatePicker from "components/Shared/Dates/DatePicker";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   BankAccountFragment,
@@ -55,6 +57,7 @@ function BankAccountForm({ companyId, existingBankAccount, onCancel }: Props) {
         recipient_name: "",
         recipient_address: "",
         verified_at: null,
+        verified_date: null,
       } as BankAccountsInsertInput),
     [companyId]
   );
@@ -83,7 +86,8 @@ function BankAccountForm({ companyId, existingBankAccount, onCancel }: Props) {
     !bankAccount.account_title ||
     !bankAccount.account_type ||
     !bankAccount.routing_number ||
-    !bankAccount.account_number;
+    !bankAccount.account_number ||
+    (bankAccount.verified_at && !bankAccount.verified_date);
 
   return (
     <Box
@@ -204,13 +208,29 @@ function BankAccountForm({ companyId, existingBankAccount, onCancel }: Props) {
                 onChange={(event: ChangeEvent<HTMLInputElement>) => {
                   setBankAccount({
                     ...bankAccount,
-                    verified_at: "now()",
+                    verified_at: !bankAccount.verified_at ? "now()" : null,
+                    verified_date: null,
                   });
                 }}
                 color="primary"
               />
             }
             label={"Verified bank account transfer"}
+          />
+        </Box>
+      )}
+      {role === UserRolesEnum.BankAdmin && !!bankAccount.verified_at && (
+        <Box>
+          <DatePicker
+            id="date-picker-verified-date"
+            label="Verified Date"
+            value={bankAccount.verified_date}
+            onChange={(value: MaterialUiPickersDate) => {
+              setBankAccount({
+                ...bankAccount,
+                verified_date: value ? value : new Date().getUTCDate(),
+              });
+            }}
           />
         </Box>
       )}
@@ -237,14 +257,13 @@ function BankAccountForm({ companyId, existingBankAccount, onCancel }: Props) {
                     recipient_name: bankAccount.recipient_name,
                     recipient_address: bankAccount.recipient_address,
                     verified_at:
-                      role === UserRolesEnum.CompanyAdmin
-                        ? undefined
-                        : bankAccount.verified_at,
-                  },
-                },
-                optimisticResponse: {
-                  update_bank_accounts_by_pk: {
-                    ...(bankAccount as BankAccountFragment),
+                      role === UserRolesEnum.BankAdmin
+                        ? bankAccount.verified_at
+                        : undefined,
+                    verified_date:
+                      role === UserRolesEnum.BankAdmin
+                        ? bankAccount.verified_date
+                        : undefined,
                   },
                 },
               });
@@ -263,9 +282,13 @@ function BankAccountForm({ companyId, existingBankAccount, onCancel }: Props) {
                     recipient_name: bankAccount.recipient_name,
                     recipient_address: bankAccount.recipient_address,
                     verified_at:
-                      role === UserRolesEnum.CompanyAdmin
-                        ? undefined
-                        : bankAccount.verified_at,
+                      role === UserRolesEnum.BankAdmin
+                        ? bankAccount.verified_at
+                        : undefined,
+                    verified_date:
+                      role === UserRolesEnum.BankAdmin
+                        ? bankAccount.verified_date
+                        : undefined,
                     company_id:
                       role === UserRolesEnum.BankAdmin ? companyId : undefined,
                   },
