@@ -20,6 +20,7 @@ type GetSecureLinkPayloadResp = {
 
 const linkTypeToRoute: { [type: string]: string } = {
   confirm_purchase_order: anonymousRoutes.reviewPurchaseOrder,
+  forgot_password: anonymousRoutes.resetPassword,
 };
 
 const getSecureLinkPayload = async (req: {
@@ -67,9 +68,12 @@ function SecureLink() {
         return;
       }
 
-      setAccessToken(resp.access_token);
-      setRefreshToken(resp.refresh_token);
-      resetUser();
+      if (resp.access_token && resp.access_token.length > 0) {
+        // Some links do not set the access token or temporary "sign-in" state of the user.
+        setAccessToken(resp.access_token);
+        setRefreshToken(resp.refresh_token);
+        resetUser();
+      }
 
       if (!(resp.form_info.type in linkTypeToRoute)) {
         setErrMsg(
@@ -79,7 +83,10 @@ function SecureLink() {
       }
       history.push({
         pathname: linkTypeToRoute[resp.form_info.type],
-        state: { payload: resp.form_info.payload },
+        state: {
+          payload: resp.form_info.payload,
+          link_val: linkVal,
+        },
       });
     });
   }, [linkVal, history, resetUser]);

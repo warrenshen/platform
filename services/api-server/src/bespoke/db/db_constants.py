@@ -11,6 +11,7 @@ class UserRoles(object):
 
 class TwoFactorLinkType(object):
 	CONFIRM_PURCHASE_ORDER = 'confirm_purchase_order'
+	FORGOT_PASSWORD = 'forgot_password'
 
 
 class PaymentType(object):

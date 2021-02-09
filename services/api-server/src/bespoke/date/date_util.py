@@ -1,10 +1,17 @@
 import datetime
 from dateutil import parser
-from datetime import timezone
+from datetime import timezone, timedelta
 
 def human_readable_yearmonthday(dt: datetime.datetime) -> str:
 	return dt.strftime('%m/%d/%Y')
 
+def hours_from_today(hours: int) -> datetime.datetime:
+	"""
+		Returns a datetime N hours ahead of right now, e.g.,
+		hours = 10 means this time is 10 hours into the future.
+		Useful for generation expiration datetimes.
+	"""
+	return datetime.datetime.now(timezone.utc) + timedelta(hours=hours)
 
 def now() -> datetime.datetime:
 	return datetime.datetime.now(timezone.utc)

@@ -1,66 +1,28 @@
 import datetime
 import json
 
-from bespoke.db import models
+from bespoke.date import date_util
+from bespoke.db import models, db_constants
 from bespoke.db.models import session_scope
-from bespoke.security import security_util
+from bespoke.email import sendgrid_util
+from bespoke.security import security_util, two_factor_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from flask_jwt_extended import (create_access_token, create_refresh_token,
 								get_jwt_identity, get_raw_jwt,
 								jwt_refresh_token_required)
-from typing import cast, List
+from typing import cast, List, Dict, Callable
 
 from server.config import Config
 from server.views.common import auth_util, handler_util
 
 handler = Blueprint('auth', __name__)
 
-
-def make_error_response(msg: str, statusCode: int) -> Response:
-	return make_response(json.dumps({'status': 'ERROR', 'msg': msg}), statusCode)
-
-
-class SignUpView(MethodView):
-
-	def post(self) -> Response:
-		# TODO(dlluncor): Sign-up is not correct at all
-
-		cfg = cast(Config, current_app.app_config)
-		data = json.loads(request.data)
-		# TODO: demand minimum requirements for password strength
-		# and on email requirements
-		email = data['email']
-		password = data['password']
-
-		if not email or not password:
-			return make_error_response('No email or password provided', 200)
-
-		user = models.User(
-			email=email,
-			password=security_util.hash_password(cfg.PASSWORD_SALT, password)
-		)
-
-		try:
-			with session_scope(current_app.session_maker) as session:
-				existing_user = session.query(models.User).filter(
-					models.User.email == email).first()
-				if existing_user:
-					return make_error_response('User {} already exists. Please choose another'.format(email), 200)
-				session.add(user)
-
-			access_token = create_access_token(identity=None)
-			refresh_token = create_refresh_token(identity=None)
-		except Exception as e:
-			return make_error_response('{}'.format(e), 200)
-
-		return make_response(json.dumps({
-			'status': 'OK',
-			'msg': 'User {} created'.format(email),
-			'access_token': access_token,
-			'refresh_token': refresh_token
-		}), 200)
-
+# NOTE: There is no SignUpView because users will always respond to an invite
+# request to join the platform.
+#
+# Currently, the user has to use the temporary password, and then manually
+# change it themselves using ResetPassword.
 
 class SignInView(MethodView):
 
@@ -71,16 +33,16 @@ class SignInView(MethodView):
 		password_guess = data['password']
 
 		if not email or not password_guess:
-			return make_error_response('No email or password provided', 401)
+			return handler_util.make_error_response('No email or password provided', 401)
 
 		with session_scope(current_app.session_maker) as session:
 			user = cast(models.User, session.query(models.User).filter(
 				models.User.email == email).first())
 			if not user:
-				return make_error_response('User {} does not exist'.format(email), 401)
+				return handler_util.make_error_response('User {} does not exist'.format(email), 401)
 
 			if not security_util.verify_password(cfg.PASSWORD_SALT, password_guess, user.password):
-				return make_error_response(f'Invalid password provided', 401)
+				return handler_util.make_error_response(f'Invalid password provided', 401)
 
 			claims_payload = auth_util.get_claims_payload(user)
 			access_token = create_access_token(identity=claims_payload)
@@ -93,40 +55,95 @@ class SignInView(MethodView):
 				'refresh_token': refresh_token
 			}), 200)
 
-
-class ResetPasswordView(MethodView):
+class ForgotPasswordView(MethodView):
+	"""
+		POST request that handles sending a link to the user's email to reset
+		their password.
+	"""
 
 	def post(self) -> Response:
-		# TODO(dlluncor): Move this code over to use two-factor like in two_factor.py
-		# This needs to use a real flow.
 		cfg = cast(Config, current_app.app_config)
-		data = json.loads(request.data)
-		email = "admin@bespoke.com"  # TODO(dlluncor) get it from HMAC token
-		password = data['password']
+		security_cfg = cfg.get_security_config()
+		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
-		if not email or not password:
-			return make_error_response('No email or password provided', 401)
+		data = json.loads(request.data)
+		email = data.get('email')
+
+		if not email:
+			return handler_util.make_error_response('No email provided', 401)
 
 		with session_scope(current_app.session_maker) as session:
 			user = session.query(models.User).filter(
 				models.User.email == email).first()
 			if not user:
-				return make_error_response('User {} does not exist'.format(email), 401)
+				return handler_util.make_error_response('No user associated with email "{}" exists'.format(email), 401)
 
+		sendgrid_client.send(
+			template_name=sendgrid_util.TemplateNames.USER_FORGOT_PASSWORD,
+			template_data={},
+			recipients=[email],
+			two_factor_payload=sendgrid_util.TwoFactorPayloadDict(
+			  form_info=models.TwoFactorFormInfoDict(
+			  	type=db_constants.TwoFactorLinkType.FORGOT_PASSWORD,
+			  	payload={}
+			  ),
+			  expires_at=date_util.hours_from_today(24 * 3) # 3 days
+		  )
+		)
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
+class ResetPasswordView(MethodView):
+	"""
+		POST request that handles when a user has clicked on the "Forgot Password"
+		link and enters the new password they want to use.
+	"""
+
+	def post(self) -> Response:
+		cfg = cast(Config, current_app.app_config)
+		form = json.loads(request.data)
+		password = form.get('password')
+		link_val = form.get('link_val')
+
+		if not password or not link_val:
+			return handler_util.make_error_response('No link value or password provided', 401)
+
+		with session_scope(current_app.session_maker) as session:
+			two_factor_info, err = two_factor_util.get_two_factor_link(link_val, cfg.get_security_config(), session)
+			if err:
+				return handler_util.make_error_response(err)
+
+			two_factor_link = two_factor_info['link']
+			form_info = cast(Dict, two_factor_link.form_info)
+			if not form_info:
+				return handler_util.make_error_response('No information associated with this form info to reset the password')
+
+			if form_info['type'] != db_constants.TwoFactorLinkType.FORGOT_PASSWORD:
+				return handler_util.make_error_response('Invalid link type provided to reset the password')
+
+			email = two_factor_info['email']
+
+			user = session.query(models.User).filter(
+				models.User.email == email).first()
+			if not user:
+				return handler_util.make_error_response('User {} does not exist'.format(email), 401)
+
+			# The user has sent back their password and a valid signed link value associated
+			# with this reset password sign-in request, so now we can reset their password.
+
+			# TODO(dlluncor): Create password security requirements everywhere.
 			user.password = security_util.hash_password(
 				cfg.PASSWORD_SALT, password)
 			session.commit()
 
-			claims_payload = auth_util.get_claims_payload(user)
-			access_token = create_access_token(identity=claims_payload)
-			refresh_token = create_refresh_token(identity=claims_payload)
+			# Retire the two-factor link now it's been used.
+			cast(Callable, session.delete)(two_factor_link)
 
-			return make_response(json.dumps({
-				'status': 'OK',
-				'msg': 'Logged in as {}'.format(email),
-				'access_token': access_token,
-				'refresh_token': refresh_token
-			}), 200)
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
 
 
 class SignOutAccessView(MethodView):
@@ -140,14 +157,14 @@ class SignOutAccessView(MethodView):
 		try:
 			with session_scope(current_app.session_maker) as session:
 				if not userId:
-					return make_error_response('Token without userId.', 500)
+					return handler_util.make_error_response('Token without userId.', 500)
 				session.add(revoked_token)
 				return make_response(json.dumps({
 					'status': 'OK',
 					'msg': 'Access token revoked',
 				}), 200)
 		except Exception as e:
-			return make_error_response('{}'.format(e), 500)
+			return handler_util.make_error_response('{}'.format(e), 500)
 
 
 class SignOutRefreshView(MethodView):
@@ -161,14 +178,14 @@ class SignOutRefreshView(MethodView):
 		try:
 			with session_scope(current_app.session_maker) as session:
 				if not userId:
-					return make_error_response('Token without userId.', 500)
+					return handler_util.make_error_response('Token without userId.', 500)
 				session.add(revoked_token)
 				return make_response(json.dumps({
 					'status': 'OK',
 					'msg': 'Refresh token revoked',
 				}), 200)
 		except Exception as e:
-			return make_error_response('{}'.format(e), 500)
+			return handler_util.make_error_response('{}'.format(e), 500)
 
 
 class TokenRefreshView(MethodView):
@@ -184,10 +201,10 @@ class TokenRefreshView(MethodView):
 
 
 handler.add_url_rule(
-	'/sign-up', view_func=SignUpView.as_view(name='sign_up_view'))
+	'/sign-in', view_func=SignInView.as_view(name='sign_in_view'))
 
 handler.add_url_rule(
-	'/sign-in', view_func=SignInView.as_view(name='sign_in_view'))
+	'/forgot-password', view_func=ForgotPasswordView.as_view(name='forgot_password_view'))
 
 handler.add_url_rule(
 	'/reset-password', view_func=ResetPasswordView.as_view(name='reset_password_view'))

@@ -5,7 +5,10 @@ import { authRoutes, unAuthenticatedApi } from "lib/api";
 const LOCAL_STORAGE_ACCESS_TOKEN_KEY = "access_token";
 const LOCAL_STORAGE_REFRESH_TOKEN_KEY = "refresh_token";
 
-function isTokenExpired(token: string) {
+function isTokenExpired(token: string | null) {
+  if (!token) {
+    return true;
+  }
   const decodedToken: any = jwtDecode(token);
   return decodedToken["exp"] * 1000 < Date.now();
 }
@@ -34,10 +37,18 @@ export const getAccessToken = async (): Promise<string | null> => {
   const accessToken = localStorage.getItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY);
   const refreshToken = getRefreshToken();
 
+  const isRefreshTokenSet =
+    refreshToken && refreshToken.length > 0 && refreshToken !== "null";
+  const isAccessTokenSet =
+    accessToken && accessToken.length > 0 && accessToken !== "null";
+
   if (
-    refreshToken &&
-    (!accessToken || (accessToken && isTokenExpired(accessToken)))
+    isRefreshTokenSet &&
+    (!isAccessTokenSet || (isAccessTokenSet && isTokenExpired(accessToken)))
   ) {
+    // Get the refresh token if:
+    //  (a) The refresh token is set AND
+    //  (b) The access token is not set or the access token has expired
     try {
       const response = await unAuthenticatedApi.post(
         authRoutes.refreshToken,
@@ -59,9 +70,9 @@ export const getAccessToken = async (): Promise<string | null> => {
       Sentry.captureException(e);
       return null;
     }
-  } else if (refreshToken && accessToken) {
+  } else if (isRefreshTokenSet && isAccessTokenSet) {
     return accessToken;
-  } else if (accessToken) {
+  } else if (isAccessTokenSet) {
     // TODO(dlluncor): Are there any downsides to allowing for an access token with no refresh token?
     return accessToken;
   } else {

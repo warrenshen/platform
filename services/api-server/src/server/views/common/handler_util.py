@@ -9,7 +9,7 @@ from typing import Callable, Union, Tuple, Any, cast
 def get_exception_message(e: Exception) -> Tuple[bool, str]:
 	return True, '{}'.format(e)
 
-def make_error_response(error: Union[str, errors.Error]) -> Response:
+def make_error_response(error: Union[str, errors.Error], status_code: int = None) -> Response:
 	if type(error) == errors.Error:
 		error_obj = cast(errors.Error, error)
 	elif type(error) == str:
@@ -17,11 +17,15 @@ def make_error_response(error: Union[str, errors.Error]) -> Response:
 	else:
 		error_obj = errors.Error(msg='Unexpected error message provided')
 
+	if not status_code:
+		status_code = 200
+
 	return Response(
 		response=json.dumps(
 		dict(status='ERROR', msg=error_obj.msg, err_details=error_obj.details)),
 		headers={'Content-Type': 'application/json; charset=utf-8'},
-		mimetype='application/json')
+		mimetype='application/json',
+		status=status_code)
 
 def catch_bad_json_request(f: Callable[..., Response]) -> Callable[..., Response]:
 

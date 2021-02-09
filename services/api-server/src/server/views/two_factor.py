@@ -13,17 +13,11 @@ from typing import cast, Callable, Dict
 
 from bespoke.db import db_constants
 from bespoke.date import date_util
-from bespoke.security import security_util
+from bespoke.security import security_util, two_factor_util
 from server.config import Config
-from server.views.common import auth_util
-
+from server.views.common import auth_util, handler_util
 
 handler = Blueprint('two_factor', __name__)
-
-
-def make_error_response(msg: str) -> Response:
-	return make_response(json.dumps({'status': 'ERROR', 'msg': msg}), 200)
-
 
 class GenerateCodeView(MethodView):
 
@@ -32,12 +26,12 @@ class GenerateCodeView(MethodView):
 		cfg = cast(Config, current_app.app_config)
 		form = json.loads(request.data)
 		if not form:
-			return make_error_response('No data provided')
+			return handler_util.make_error_response('No data provided')
 
 		required_keys = ['link_val']
 		for key in required_keys:
 			if key not in form:
-				return make_error_response(f'Missing {key} generate code request')
+				return handler_util.make_error_response(f'Missing {key} generate code request')
 
 		link_val = form['link_val']
 		link_info = security_util.get_link_info_from_url(
@@ -51,11 +45,11 @@ class GenerateCodeView(MethodView):
 				models.TwoFactorLink.id == link_info['link_id']).first())
 
 			if not two_factor_link:
-				return make_error_response('Token id provided no longer exists')
+				return handler_util.make_error_response('Token id provided no longer exists')
 
 			token_states_dict = cast(Dict, two_factor_link.token_states)
 			if email not in token_states_dict:
-				return make_error_response('Invalid email for link provided')
+				return handler_util.make_error_response('Invalid email for link provided')
 
 			# NOTE: Handle expiration times for tokens
 			token_states_dict[email] = {
@@ -78,15 +72,15 @@ class ApproveCodeView(MethodView):
 		cfg = cast(Config, current_app.app_config)
 		form = json.loads(request.data)
 		if not form:
-			return make_error_response('No data provided')
+			return handler_util.make_error_response('No data provided')
 
 		link_val = form.get('link_val')
 		if not link_val:
-			return make_error_response('Link value not provided')
+			return handler_util.make_error_response('Link value not provided')
 
 		provided_token_val = form.get('provided_token_val')
 		if not provided_token_val:
-			return make_error_response('No token value provided')
+			return handler_util.make_error_response('No token value provided')
 
 		link_info = security_util.get_link_info_from_url(link_val, cfg.get_security_config(),
 														 max_age_in_seconds=security_util.SECONDS_IN_HOUR * 8)
@@ -97,19 +91,19 @@ class ApproveCodeView(MethodView):
 				models.TwoFactorLink.id == link_info['link_id']).first())
 
 			if not two_factor_link:
-				return make_error_response('Link provided no longer exists')
+				return handler_util.make_error_response('Link provided no longer exists')
 
 			token_states_dict = cast(Dict, two_factor_link.token_states)
 
 			if email not in token_states_dict:
-				return make_error_response('Not a valid email for this secure link')
+				return handler_util.make_error_response('Not a valid email for this secure link')
 
 			token_dict = token_states_dict[email]
 			token_val = token_dict['token_val']
 			form_info = two_factor_link.form_info
 
 		if provided_token_val != token_val:
-			return make_error_response('Provided token value is not correct')
+			return handler_util.make_error_response('Provided token value is not correct')
 
 		return make_response(json.dumps({
 			'status': 'OK',
@@ -125,37 +119,34 @@ class GetSecureLinkPayloadView(MethodView):
 		form = json.loads(request.data)
 		link_signed_val = form.get('val')
 		if not link_signed_val:
-			return make_error_response('Link provided is empty')
+			return handler_util.make_error_response('Link provided is empty')
 
-		link_info = security_util.get_link_info_from_url(
-			link_signed_val, cfg.get_security_config(), max_age_in_seconds=security_util.SECONDS_IN_DAY * 7)
-		email = link_info['email']
 		company_id = None
 		form_info = None
 
 		with session_scope(current_app.session_maker) as session:
-			two_factor_link = cast(models.TwoFactorLink, session.query(models.TwoFactorLink).filter(
-				models.TwoFactorLink.id == link_info['link_id']).first())
+			two_factor_info, err = two_factor_util.get_two_factor_link(
+				link_signed_val, cfg.get_security_config(), session)
+			if err:
+				return handler_util.make_error_response(err)
 
-			if not two_factor_link:
-				return make_error_response('Link provided no longer exists')
-
-			expires_at = two_factor_link.expires_at
-			if date_util.has_expired(expires_at):
-				return make_error_response('Link has expired')
-
+			two_factor_link = two_factor_info['link']
 			form_info = cast(Dict, two_factor_link.form_info)
 			if not form_info:
-				return make_error_response('No form information associated with this link')
+				return handler_util.make_error_response('No form information associated with this link')
 
+			email = two_factor_info['email']
 			user = cast(models.User, session.query(models.User).filter(
 				models.User.email == email).first())
 			if not user:
-				return make_error_response('User opening this link does not exist in the system at all')
+				return handler_util.make_error_response('User opening this link does not exist in the system at all')
 
 			company_id = user.company_id
 
-		if form_info.get('type') == db_constants.TwoFactorLinkType.CONFIRM_PURCHASE_ORDER:
+		link_type = form_info.get('type')
+		access_token = None
+		refresh_token = None
+		if link_type == db_constants.TwoFactorLinkType.CONFIRM_PURCHASE_ORDER:
 			user = models.User(
 				email=email,
 				password='',
@@ -168,8 +159,10 @@ class GetSecureLinkPayloadView(MethodView):
 			refresh_expires_delta = datetime.timedelta(minutes=15)
 			refresh_token = create_refresh_token(
 				identity=claims_payload, expires_delta=refresh_expires_delta)
+		elif link_type == db_constants.TwoFactorLinkType.FORGOT_PASSWORD:
+			pass
 		else:
-			return make_error_response('Could not handle unknown payload type {}'.format(form_info.get('type')))
+			return handler_util.make_error_response('Could not handle unknown payload type {}'.format(form_info.get('type')))
 
 		return make_response(json.dumps({
 			'status': 'OK',

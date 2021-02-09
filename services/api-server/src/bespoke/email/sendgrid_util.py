@@ -6,6 +6,7 @@ from datetime import timezone, timedelta
 from typing import cast, List, Text, Dict, Callable, Tuple
 from mypy_extensions import TypedDict
 
+from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.email import email_manager
@@ -22,6 +23,7 @@ class TemplateNames(object):
 	CUSTOMER_REQUESTS_LOAN = 'customer_requests_loan'
 
 	USER_INVITED_TO_PLATFORM = 'user_invited_to_platform'
+	USER_FORGOT_PASSWORD = 'user_forgot_password'
 
 
 TemplateConfigDict = TypedDict('TemplateConfigDict', {
@@ -59,13 +61,12 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 	TemplateNames.USER_INVITED_TO_PLATFORM: {
 		'id': 'd-27a58f6f855b430085747a79d2f562cf',
 		'requires_secure_link': False
+	},
+	TemplateNames.USER_FORGOT_PASSWORD: {
+		'id': 'd-7a8a3b36662a45d5bdaa03441b6715b0',
+		'requires_secure_link': True
 	}
 }
-
-
-def _hours_from_today(hours: int) -> datetime.datetime:
-	return datetime.datetime.now(timezone.utc) + timedelta(hours=hours)
-
 
 def _get_template_id(template_name: str) -> str:
 	if template_name not in _TEMPLATE_NAME_TO_SENDGRID_CONFIG:
@@ -88,6 +89,10 @@ def _get_template_defaults(template_name: str, config: email_manager.EmailConfig
 		'bespoke_contact_email': config['support_email_addr']
 	}
 
+TwoFactorPayloadDict = TypedDict('TwoFactorPayloadDict', {
+	'form_info': models.TwoFactorFormInfoDict,
+	'expires_at': datetime.datetime
+})
 
 class Client(object):
 
@@ -98,8 +103,9 @@ class Client(object):
 		self._security_cfg = security_config
 		self._session_maker = session_maker
 
-	def send(self, template_name: str, template_data: Dict, recipients: List[str],
-			 form_info: models.TwoFactorFormInfoDict = None) -> Tuple[bool, Text]:
+	def send(self, 
+			 template_name: str, template_data: Dict, recipients: List[str],
+			 two_factor_payload: TwoFactorPayloadDict = None) -> Tuple[bool, Text]:
 
 		template_id = _get_template_id(template_name)
 		template_data['defaults'] = _get_template_defaults(
@@ -119,14 +125,19 @@ class Client(object):
 			return True, None
 
 		# This path does require two factor authentication
+
+		# Keep track of the two-factor code entered per email.
 		token_states: Dict[str, Dict] = {}
 		for email in recipients:
 			token_states[email] = {}
 
 		with session_scope(self._session_maker) as session:
+			# A two-factor link sends an email with encoded information in the URL
+			# The link has an expiration.
 			two_factor_link = models.TwoFactorLink(
-				token_states=token_states, form_info=cast(Dict, form_info),
-				expires_at=_hours_from_today(24 * 7)
+				token_states=token_states, 
+				form_info=cast(Dict, two_factor_payload['form_info']),
+				expires_at=two_factor_payload['expires_at']
 			)
 			session.add(two_factor_link)
 			session.flush()

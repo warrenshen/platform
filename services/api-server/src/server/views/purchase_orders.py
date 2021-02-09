@@ -24,6 +24,9 @@ class PurchaseOrderFileTypeEnum():
 
 
 class RespondToApprovalRequestView(MethodView):
+	"""
+		POST request that handles when a vendor approves a loan.
+	"""
 	decorators = [auth_util.login_required]
 
 	@handler_util.catch_bad_json_request
@@ -197,6 +200,11 @@ class SubmitForApprovalView(MethodView):
 				'purchase_order_id': purchase_order_id
 			}
 		)
+		two_factor_payload = sendgrid_util.TwoFactorPayloadDict(
+			form_info=form_info,
+			expires_at=date_util.hours_from_today(24 * 7)
+		)
+
 		template_name = sendgrid_util.TemplateNames.VENDOR_TO_APPROVE_PURCHASE_ORDER
 		template_data = {
 			'vendor_name': vendor_name,
@@ -204,7 +212,7 @@ class SubmitForApprovalView(MethodView):
 		}
 		recipients = vendor_emails
 		_, err = sendgrid_client.send(
-			template_name, template_data, recipients, form_info=form_info)
+			template_name, template_data, recipients, two_factor_payload=two_factor_payload)
 		if err:
 			return make_error_response(err)
 

@@ -12,6 +12,7 @@ export const anonymousRoutes = {
   secureLink: "/get-secure-link",
   reviewPurchaseOrder: "/review-purchase-order",
   reviewPurchaseOrderComplete: "/review-purchase-order-complete",
+  resetPassword: "/reset-password",
 };
 
 // Vendor user routes are prefixed with "/2".
