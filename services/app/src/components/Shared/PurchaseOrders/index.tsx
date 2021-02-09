@@ -1,7 +1,6 @@
 import { Box, Button } from "@material-ui/core";
 import Can from "components/Shared/Can";
 import CreateUpdatePurchaseOrderModal from "components/Shared/PurchaseOrders/CreateUpdatePurchaseOrderModal";
-import ViewPurchaseOrderModal from "components/Shared/PurchaseOrders/ViewPurchaseOrder/ViewPurchaseOrderModal";
 import { usePurchaseOrdersByCompanyIdQuery } from "generated/graphql";
 import useCompanyContext from "hooks/useCompanyContext";
 import { ActionType } from "lib/ActionType";
@@ -25,17 +24,11 @@ function PurchaseOrders() {
   const purchaseOrders = data?.purchase_orders || [];
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [targetPurchaseOrderId, setTargetPurchaseOrderId] = useState("");
 
   const handleEditPurchaseOrder = (purchaseOrderId: string) => {
     setTargetPurchaseOrderId(purchaseOrderId);
     setIsEditModalOpen(true);
-  };
-
-  const handleViewPurchaseOrder = (purchaseOrderId: string) => {
-    setTargetPurchaseOrderId(purchaseOrderId);
-    setIsViewModalOpen(true);
   };
 
   return (
@@ -53,15 +46,6 @@ function PurchaseOrders() {
           }}
         ></CreateUpdatePurchaseOrderModal>
       )}
-      {isViewModalOpen && (
-        <ViewPurchaseOrderModal
-          purchaseOrderId={targetPurchaseOrderId}
-          handleClose={() => {
-            setTargetPurchaseOrderId("");
-            setIsViewModalOpen(false);
-          }}
-        ></ViewPurchaseOrderModal>
-      )}
       <Box mb={2} display="flex" flexDirection="row-reverse">
         <Can perform={Action.AddPurchaseOrders}>
           <Button
@@ -76,12 +60,6 @@ function PurchaseOrders() {
       <PurchaseOrdersDataGrid
         purchaseOrders={purchaseOrders}
         actionItems={[
-          {
-            key: "view-purchase-order",
-            label: "View",
-            handleClick: (params) =>
-              handleViewPurchaseOrder(params.row.data.id as string),
-          },
           {
             key: "edit-purchase-order",
             label: "Edit",

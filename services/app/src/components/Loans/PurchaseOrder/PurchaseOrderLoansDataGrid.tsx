@@ -6,7 +6,7 @@ import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import Launcher from "components/Shared/PurchaseOrderLoanDrawer/Launcher";
+import PurchaseOrderDrawerLauncher from "components/Shared/PurchaseOrder/PurchaseOrderDrawerLauncher";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import DataGrid, {
   Column,
@@ -34,25 +34,17 @@ function PurchaseOrderLoansDataGrid({
 
   const rows = purchaseOrderLoans;
 
-  const purchaseOrderRenderer = (params: ValueFormatterParams) => {
-    const purchaseOrderLoan = params.row.data;
-    const purchaseOrderLoanId = purchaseOrderLoan.id as string;
-    const purchaseOrderNumber = purchaseOrderLoan.purchase_order
-      .order_number as string;
-    return (
-      <Box>
-        <span>{purchaseOrderNumber}</span>
-        <Launcher purchaseOrderLoanId={purchaseOrderLoanId}></Launcher>
-      </Box>
-    );
-  };
-
   const columns: IColumnProps[] = [
     {
       dataField: "artifact_id",
       caption: "Purchase Order",
-      cellRender: purchaseOrderRenderer,
-      minWidth: 150,
+      minWidth: 180,
+      cellRender: (params: ValueFormatterParams) => (
+        <PurchaseOrderDrawerLauncher
+          label={params.row.data.purchase_order.order_number as string}
+          purchaseOrderId={params.row.data.purchase_order.id as string}
+        ></PurchaseOrderDrawerLauncher>
+      ),
     },
     {
       alignment: "right",

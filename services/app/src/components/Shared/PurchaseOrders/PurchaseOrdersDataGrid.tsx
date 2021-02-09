@@ -6,6 +6,7 @@ import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
+import PurchaseOrderDrawerLauncher from "components/Shared/PurchaseOrder/PurchaseOrderDrawerLauncher";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import DataGrid, {
   Column,
@@ -46,6 +47,12 @@ function PurchaseOrdersDataGrid({ purchaseOrders, actionItems }: Props) {
       dataField: "order_number",
       caption: "Order Number",
       minWidth: 150,
+      cellRender: (params: ValueFormatterParams) => (
+        <PurchaseOrderDrawerLauncher
+          label={params.row.data.order_number as string}
+          purchaseOrderId={params.row.data.id as string}
+        ></PurchaseOrderDrawerLauncher>
+      ),
     },
     {
       dataField: "vendor_name",

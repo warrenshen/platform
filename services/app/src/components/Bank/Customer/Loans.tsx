@@ -2,7 +2,6 @@ import { Box, Button } from "@material-ui/core";
 import CreateAdvanceModal from "components/Bank/Advance/CreateAdvanceModal";
 import PurchaseOrderLoansDataGrid from "components/Loans/PurchaseOrder/PurchaseOrderLoansDataGrid";
 import UpdateLoanNotesModal from "components/Loans/UpdateLoanNotesModal";
-import ViewLoanModal from "components/Shared/Loans/ViewLoanModal";
 import {
   LoanFragment,
   LoanStatusEnum,
@@ -40,7 +39,6 @@ function BankCustomerLoansSubpage({ companyId }: Props) {
   const [isCreateAdvanceModalOpen, setIsCreateAdvanceModalOpen] = useState(
     false
   );
-  const [isViewLoanModalOpen, setIsViewLoanModalOpen] = useState(false);
   const [isUpdateLoanNotesModalOpen, setIsUpdateLoanNotesModalOpen] = useState(
     false
   );
@@ -51,11 +49,6 @@ function BankCustomerLoansSubpage({ companyId }: Props) {
     updateLoan,
     { loading: isUpdateLoanLoading },
   ] = useUpdateLoanMutation();
-
-  const handleViewLoan = (loanId: string) => {
-    setTargetLoanId(loanId);
-    setIsViewLoanModalOpen(true);
-  };
 
   const handleEditLoanNotes = (loanId: string) => {
     setTargetLoanId(loanId);
@@ -110,15 +103,6 @@ function BankCustomerLoansSubpage({ companyId }: Props) {
           }}
         ></CreateAdvanceModal>
       )}
-      {isViewLoanModalOpen && (
-        <ViewLoanModal
-          loanId={targetLoanId}
-          handleClose={() => {
-            setTargetLoanId("");
-            setIsViewLoanModalOpen(false);
-          }}
-        ></ViewLoanModal>
-      )}
       {isUpdateLoanNotesModalOpen && (
         <UpdateLoanNotesModal
           loanId={targetLoanId}
@@ -143,12 +127,6 @@ function BankCustomerLoansSubpage({ companyId }: Props) {
         <PurchaseOrderLoansDataGrid
           purchaseOrderLoans={purchaseOrderLoans}
           actionItems={[
-            {
-              key: "view-loan",
-              label: "View",
-              handleClick: (params) =>
-                handleViewLoan(params.row.data.id as string),
-            },
             {
               key: "edit-loan-notes",
               label: "Edit Internal Note",

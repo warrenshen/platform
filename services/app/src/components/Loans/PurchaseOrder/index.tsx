@@ -1,7 +1,6 @@
 import { Box, Button } from "@material-ui/core";
 import RepaymentButton from "components/Customer/PurchaseOrderLoanRepayment/RepaymentButton";
 import Can from "components/Shared/Can";
-import ViewLoanModal from "components/Shared/Loans/ViewLoanModal";
 import {
   LoanFragment,
   LoanTypeEnum,
@@ -32,7 +31,6 @@ function Loans() {
   const purchaseOrderLoans = data?.loans || [];
   // State for modal(s).
   const [isCreateUpdateModalOpen, setIsCreateUpdateModalOpen] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [targetLoanId, setTargetLoanId] = useState("");
   const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
 
@@ -41,22 +39,8 @@ function Loans() {
     setIsCreateUpdateModalOpen(true);
   };
 
-  const handleViewLoan = (loanId: string) => {
-    setTargetLoanId(loanId);
-    setIsViewModalOpen(true);
-  };
-
   return (
     <Box>
-      {isViewModalOpen && (
-        <ViewLoanModal
-          loanId={targetLoanId}
-          handleClose={() => {
-            setTargetLoanId("");
-            setIsViewModalOpen(false);
-          }}
-        ></ViewLoanModal>
-      )}
       {isCreateUpdateModalOpen && (
         <CreateUpdatePurchaseOrderLoanModal
           actionType={targetLoanId === "" ? ActionType.New : ActionType.Update}
@@ -88,12 +72,6 @@ function Loans() {
         <PurchaseOrderLoansDataGrid
           purchaseOrderLoans={purchaseOrderLoans}
           actionItems={[
-            {
-              key: "view-loan",
-              label: "View",
-              handleClick: (params) =>
-                handleViewLoan(params.row.data.id as string),
-            },
             {
               key: "edit-purchase-order-loan",
               label: "Edit",

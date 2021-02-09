@@ -1,13 +1,9 @@
 import { Box, Drawer, makeStyles, Typography } from "@material-ui/core";
-import DisbursalButton from "components/Bank/PurchaseOrderLoanDisbursal/DisbursalButton";
-import Disbursements from "components/Bank/PurchaseOrderLoanDisbursal/Disbursements";
-import Can from "components/Shared/Can";
 import PurchaseOrderInfoCard from "components/Shared/PurchaseOrder/PurchaseOrderInfoCard";
 import {
   PurchaseOrderLoans,
   usePurchaseOrderLoanQuery,
 } from "generated/graphql";
-import { Action } from "lib/auth/rbac-rules";
 
 const useStyles = makeStyles({
   drawerContent: {
@@ -45,14 +41,6 @@ function PurchaseOrderLoanDrawer(props: Props) {
           ></PurchaseOrderInfoCard>
         )}
         <Typography variant="h6">Payments</Typography>
-        <Can perform={Action.DisbursePurchaseOrderLoans}>
-          <DisbursalButton
-            vendorId={loan.purchase_order?.vendor?.id}
-            purchaseOrderLoanId={loan.id}
-            initialAmount={loan.amount}
-          ></DisbursalButton>
-          <Disbursements id={loan.id}></Disbursements>
-        </Can>
       </Box>
     </Drawer>
   );

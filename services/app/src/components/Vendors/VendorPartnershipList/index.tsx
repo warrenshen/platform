@@ -1,12 +1,12 @@
-import { useState } from "react";
 import { makeStyles } from "@material-ui/core";
+import VendorDrawer from "components/Vendors/Bank/VendorDrawer";
 import DataGrid, {
   Column,
   IColumnProps,
   Pager,
   Paging,
 } from "devextreme-react/data-grid";
-import VendorDrawer from "components/Vendors/Bank/VendorDrawer";
+import { useState } from "react";
 import VerificationChip from "./VerificationChip";
 
 const useStyles = makeStyles({
