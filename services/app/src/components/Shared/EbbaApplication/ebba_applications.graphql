@@ -1,5 +1,8 @@
 query EbbaApplicationsByCompanyId($companyId: uuid!) {
-  ebba_applications(where: { company_id: { _eq: $companyId } }) {
+  ebba_applications(
+    where: { company_id: { _eq: $companyId } }
+    order_by: [{ application_month: desc }, { created_at: desc }]
+  ) {
     id
     ...EbbaApplication
   }

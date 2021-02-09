@@ -1942,6 +1942,8 @@ export type EbbaApplications = {
   monthly_accounts_receivable: Scalars["numeric"];
   monthly_cash: Scalars["numeric"];
   monthly_inventory: Scalars["numeric"];
+  requested_at?: Maybe<Scalars["timestamptz"]>;
+  status: RequestStatusEnum;
   updated_at: Scalars["timestamptz"];
 };
 
@@ -2049,6 +2051,8 @@ export type EbbaApplicationsBoolExp = {
   monthly_accounts_receivable?: Maybe<NumericComparisonExp>;
   monthly_cash?: Maybe<NumericComparisonExp>;
   monthly_inventory?: Maybe<NumericComparisonExp>;
+  requested_at?: Maybe<TimestamptzComparisonExp>;
+  status?: Maybe<RequestStatusEnumComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
 };
 
@@ -2076,6 +2080,8 @@ export type EbbaApplicationsInsertInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
+  requested_at?: Maybe<Scalars["timestamptz"]>;
+  status?: Maybe<RequestStatusEnum>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -2088,6 +2094,7 @@ export type EbbaApplicationsMaxFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
+  requested_at?: Maybe<Scalars["timestamptz"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -2100,6 +2107,7 @@ export type EbbaApplicationsMaxOrderBy = {
   monthly_accounts_receivable?: Maybe<OrderBy>;
   monthly_cash?: Maybe<OrderBy>;
   monthly_inventory?: Maybe<OrderBy>;
+  requested_at?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
 };
 
@@ -2112,6 +2120,7 @@ export type EbbaApplicationsMinFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
+  requested_at?: Maybe<Scalars["timestamptz"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -2124,6 +2133,7 @@ export type EbbaApplicationsMinOrderBy = {
   monthly_accounts_receivable?: Maybe<OrderBy>;
   monthly_cash?: Maybe<OrderBy>;
   monthly_inventory?: Maybe<OrderBy>;
+  requested_at?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
 };
 
@@ -2159,6 +2169,8 @@ export type EbbaApplicationsOrderBy = {
   monthly_accounts_receivable?: Maybe<OrderBy>;
   monthly_cash?: Maybe<OrderBy>;
   monthly_inventory?: Maybe<OrderBy>;
+  requested_at?: Maybe<OrderBy>;
+  status?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
 };
 
@@ -2184,6 +2196,10 @@ export enum EbbaApplicationsSelectColumn {
   /** column name */
   MonthlyInventory = "monthly_inventory",
   /** column name */
+  RequestedAt = "requested_at",
+  /** column name */
+  Status = "status",
+  /** column name */
   UpdatedAt = "updated_at",
 }
 
@@ -2196,6 +2212,8 @@ export type EbbaApplicationsSetInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
+  requested_at?: Maybe<Scalars["timestamptz"]>;
+  status?: Maybe<RequestStatusEnum>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -2271,6 +2289,10 @@ export enum EbbaApplicationsUpdateColumn {
   MonthlyCash = "monthly_cash",
   /** column name */
   MonthlyInventory = "monthly_inventory",
+  /** column name */
+  RequestedAt = "requested_at",
+  /** column name */
+  Status = "status",
   /** column name */
   UpdatedAt = "updated_at",
 }
@@ -12174,7 +12196,10 @@ export type AddEbbaApplicationMutationOptions = Apollo.BaseMutationOptions<
 >;
 export const EbbaApplicationsByCompanyIdDocument = gql`
   query EbbaApplicationsByCompanyId($companyId: uuid!) {
-    ebba_applications(where: { company_id: { _eq: $companyId } }) {
+    ebba_applications(
+      where: { company_id: { _eq: $companyId } }
+      order_by: [{ application_month: desc }, { created_at: desc }]
+    ) {
       id
       ...EbbaApplication
     }

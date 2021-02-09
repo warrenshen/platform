@@ -204,9 +204,10 @@ function CreateUpdatePurchaseOrderLoanModal({
       );
       if (response.data?.status === "ERROR") {
         alert(response.data?.msg);
+      } else {
+        handleClose();
       }
     }
-    handleClose();
   };
 
   const isDialogReady =

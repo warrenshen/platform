@@ -14,6 +14,7 @@ import {
   EbbaApplicationsInsertInput,
   useAddEbbaApplicationMutation,
 } from "generated/graphql";
+import { authenticatedApi, ebbaApplicationsRoutes } from "lib/api";
 import { useContext, useState } from "react";
 import EbbaApplicationForm from "./EbbaApplicationForm";
 
@@ -96,7 +97,17 @@ function CreateEbbaApplicationModal({ handleClose }: Props) {
     if (!savedEbbaApplication) {
       alert("Could not create EBBA application");
     } else {
-      handleClose();
+      const response = await authenticatedApi.post(
+        ebbaApplicationsRoutes.submitForApproval,
+        {
+          ebba_application_id: savedEbbaApplication.id,
+        }
+      );
+      if (response.data?.status === "ERROR") {
+        alert(response.data?.msg);
+      } else {
+        handleClose();
+      }
     }
   };
 

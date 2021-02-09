@@ -18,11 +18,11 @@ interface Props {
 const useStyles = makeStyles(() =>
   createStyles({
     card: {
-      width: 300,
+      width: 320,
       minHeight: 100,
     },
     label: {
-      width: 160,
+      width: 230,
       color: grey[600],
     },
   })

@@ -234,9 +234,10 @@ function CreateUpdatePurchaseOrderModal({
       );
       if (response.data?.status === "ERROR") {
         alert(response.data?.msg);
+      } else {
+        handleClose();
       }
     }
-    handleClose();
   };
 
   return isDialogReady ? (
