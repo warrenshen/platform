@@ -137,3 +137,12 @@ fragment BankAccountForVendor on bank_accounts {
   recipient_name
   recipient_address
 }
+
+fragment EbbaApplication on ebba_applications {
+  id
+  company_id
+  application_month
+  monthly_accounts_receivable
+  monthly_inventory
+  monthly_cash
+}

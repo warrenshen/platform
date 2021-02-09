@@ -10250,22 +10250,22 @@ export type UpdateCompanyBankAccountMutation = {
   update_bank_accounts_by_pk?: Maybe<BankAccountFragment>;
 };
 
-export type EbbaApplicationFragment = Pick<
-  EbbaApplications,
-  | "id"
-  | "company_id"
-  | "application_month"
-  | "monthly_accounts_receivable"
-  | "monthly_inventory"
-  | "monthly_cash"
->;
-
 export type AddEbbaApplicationMutationVariables = Exact<{
   ebbaApplication: EbbaApplicationsInsertInput;
 }>;
 
 export type AddEbbaApplicationMutation = {
   insert_ebba_applications_one?: Maybe<
+    Pick<EbbaApplications, "id"> & EbbaApplicationFragment
+  >;
+};
+
+export type EbbaApplicationsByCompanyIdQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+}>;
+
+export type EbbaApplicationsByCompanyIdQuery = {
+  ebba_applications: Array<
     Pick<EbbaApplications, "id"> & EbbaApplicationFragment
   >;
 };
@@ -10673,6 +10673,16 @@ export type BankAccountForVendorFragment = Pick<
   | "routing_number"
   | "recipient_name"
   | "recipient_address"
+>;
+
+export type EbbaApplicationFragment = Pick<
+  EbbaApplications,
+  | "id"
+  | "company_id"
+  | "application_month"
+  | "monthly_accounts_receivable"
+  | "monthly_inventory"
+  | "monthly_cash"
 >;
 
 export type UpdateVendorContactMutationVariables = Exact<{
@@ -11106,16 +11116,6 @@ export const LineOfCreditFragmentDoc = gql`
     recipient_vendor_id
   }
 `;
-export const EbbaApplicationFragmentDoc = gql`
-  fragment EbbaApplication on ebba_applications {
-    id
-    company_id
-    application_month
-    monthly_accounts_receivable
-    monthly_inventory
-    monthly_cash
-  }
-`;
 export const UserFragmentDoc = gql`
   fragment User on users {
     id
@@ -11231,6 +11231,16 @@ export const BankAccountForVendorFragmentDoc = gql`
     routing_number
     recipient_name
     recipient_address
+  }
+`;
+export const EbbaApplicationFragmentDoc = gql`
+  fragment EbbaApplication on ebba_applications {
+    id
+    company_id
+    application_month
+    monthly_accounts_receivable
+    monthly_inventory
+    monthly_cash
   }
 `;
 export const AddCustomerDocument = gql`
@@ -12161,6 +12171,64 @@ export type AddEbbaApplicationMutationResult = Apollo.MutationResult<AddEbbaAppl
 export type AddEbbaApplicationMutationOptions = Apollo.BaseMutationOptions<
   AddEbbaApplicationMutation,
   AddEbbaApplicationMutationVariables
+>;
+export const EbbaApplicationsByCompanyIdDocument = gql`
+  query EbbaApplicationsByCompanyId($companyId: uuid!) {
+    ebba_applications(where: { company_id: { _eq: $companyId } }) {
+      id
+      ...EbbaApplication
+    }
+  }
+  ${EbbaApplicationFragmentDoc}
+`;
+
+/**
+ * __useEbbaApplicationsByCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useEbbaApplicationsByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useEbbaApplicationsByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useEbbaApplicationsByCompanyIdQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useEbbaApplicationsByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    EbbaApplicationsByCompanyIdQuery,
+    EbbaApplicationsByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    EbbaApplicationsByCompanyIdQuery,
+    EbbaApplicationsByCompanyIdQueryVariables
+  >(EbbaApplicationsByCompanyIdDocument, baseOptions);
+}
+export function useEbbaApplicationsByCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    EbbaApplicationsByCompanyIdQuery,
+    EbbaApplicationsByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    EbbaApplicationsByCompanyIdQuery,
+    EbbaApplicationsByCompanyIdQueryVariables
+  >(EbbaApplicationsByCompanyIdDocument, baseOptions);
+}
+export type EbbaApplicationsByCompanyIdQueryHookResult = ReturnType<
+  typeof useEbbaApplicationsByCompanyIdQuery
+>;
+export type EbbaApplicationsByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useEbbaApplicationsByCompanyIdLazyQuery
+>;
+export type EbbaApplicationsByCompanyIdQueryResult = Apollo.QueryResult<
+  EbbaApplicationsByCompanyIdQuery,
+  EbbaApplicationsByCompanyIdQueryVariables
 >;
 export const LoanDocument = gql`
   query Loan($id: uuid!) {
