@@ -18,6 +18,8 @@ from bespoke.email.email_manager import EmailConfigDict, SendGridConfigDict
 from server.config import get_config, is_development_env
 from server.views import (auth, files, notify, purchase_orders, two_factor,
                           users)
+from server.views.finance.ebba_applications import \
+    approvals as ebba_application_approvals
 from server.views.finance.loans import advances, approvals, repayments
 
 if is_development_env(os.environ.get('FLASK_ENV')):
@@ -58,6 +60,7 @@ app.register_blueprint(purchase_orders.handler, url_prefix='/purchase_orders')
 app.register_blueprint(notify.handler, url_prefix='/notify')
 
 # Finance
+app.register_blueprint(ebba_application_approvals.handler, url_prefix='/finance/ebba_applications/approvals')
 app.register_blueprint(repayments.handler, url_prefix='/finance/loans/repayments')
 app.register_blueprint(advances.handler, url_prefix='/finance/loans/advances')
 app.register_blueprint(approvals.handler, url_prefix='/finance/loans/approvals')

@@ -1,16 +1,15 @@
 import copy
 import datetime
 import logging
-
-from datetime import timezone, timedelta
-from typing import cast, List, Text, Dict, Callable, Tuple
-from mypy_extensions import TypedDict
+from datetime import timedelta, timezone
+from typing import Callable, Dict, List, Text, Tuple, cast
 
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.email import email_manager
 from bespoke.security import security_util
+from mypy_extensions import TypedDict
 
 
 class TemplateNames(object):
@@ -21,6 +20,7 @@ class TemplateNames(object):
 	VENDOR_APPROVES_OR_REJECTS_PURCHASE_ORDER = 'vendor_approves_or_rejects_purchase_order'
 
 	CUSTOMER_REQUESTS_LOAN = 'customer_requests_loan'
+	CUSTOMER_SUBMITTED_EBBA_APPLICATION = 'customer_submitted_ebba_application'
 
 	USER_INVITED_TO_PLATFORM = 'user_invited_to_platform'
 	USER_FORGOT_PASSWORD = 'user_forgot_password'
@@ -55,6 +55,10 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 
 	TemplateNames.CUSTOMER_REQUESTS_LOAN: {
 		'id': 'd-899b285fc6184e8c8da8b9d2f92aa505',
+		'requires_secure_link': False
+	},
+	TemplateNames.CUSTOMER_SUBMITTED_EBBA_APPLICATION: {
+		'id': 'd-',
 		'requires_secure_link': False
 	},
 

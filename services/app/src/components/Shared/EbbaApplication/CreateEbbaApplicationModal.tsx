@@ -74,7 +74,8 @@ function CreateEbbaApplicationModal({ handleClose }: Props) {
     isFormLoading ||
     !ebbaApplication.monthly_accounts_receivable ||
     !ebbaApplication.monthly_inventory ||
-    !ebbaApplication.monthly_cash;
+    !ebbaApplication.monthly_cash ||
+    ebbaApplicationFiles.length <= 0;
 
   const handleClickSubmit = async () => {
     const response = await addEbbaApplication({

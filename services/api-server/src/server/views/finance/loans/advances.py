@@ -1,18 +1,14 @@
 import datetime
 import json
-
-from mypy_extensions import TypedDict
-from flask import request, make_response, current_app
-from flask import Response, Blueprint
-from flask.views import MethodView
-from typing import cast, Any
+from typing import Any, cast
 
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.finance.payments import advance_util
-from server.views.common import handler_util
-from server.views.common import auth_util
-
+from flask import Blueprint, Response, current_app, make_response, request
+from flask.views import MethodView
+from mypy_extensions import TypedDict
+from server.views.common import auth_util, handler_util
 
 handler = Blueprint('finance_loans_advances', __name__)
 
@@ -40,7 +36,7 @@ class HandleAdvanceView(MethodView):
 			bank_admin_user_id=user_session.get_user_id(),
 			loan_ids=loan_ids, payment_input=payment_input,
 			session_maker=current_app.session_maker)
-		
+
 		if err:
 			return handler_util.make_error_response(err)
 

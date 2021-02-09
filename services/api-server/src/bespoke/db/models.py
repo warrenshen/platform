@@ -359,6 +359,24 @@ class File(Base):
 	updated_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 
+class EbbaApplication(Base):
+	__tablename__ = 'ebba_applications'
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id'), nullable=False))
+	application_month = Column(Date)
+	monthly_accounts_receivable = Column(Numeric)
+	monthly_inventory = Column(Numeric)
+	monthly_cash = Column(Numeric)
+	status = Column(String, nullable=False)
+	requested_at = Column(DateTime)
+
+	company = relationship(
+		'Company',
+		foreign_keys=[company_id]
+	)
+
+
 def get_db_url() -> str:
 	return os.environ.get('DATABASE_URL')
 
