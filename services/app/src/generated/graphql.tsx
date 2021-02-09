@@ -10398,11 +10398,11 @@ export type LoansForBankQuery = {
   >;
 };
 
-export type LoansByStatusForBankQueryVariables = Exact<{
-  status?: Maybe<LoanStatusEnum>;
+export type LoansByStatusesForBankQueryVariables = Exact<{
+  statuses?: Maybe<Array<LoanStatusEnum>>;
 }>;
 
-export type LoansByStatusForBankQuery = {
+export type LoansByStatusesForBankQuery = {
   loans: Array<
     Pick<Loans, "id"> & {
       company: Pick<Companies, "id" | "name">;
@@ -12834,9 +12834,9 @@ export type LoansForBankQueryResult = Apollo.QueryResult<
   LoansForBankQuery,
   LoansForBankQueryVariables
 >;
-export const LoansByStatusForBankDocument = gql`
-  query LoansByStatusForBank($status: loan_status_enum) {
-    loans(where: { status: { _eq: $status } }) {
+export const LoansByStatusesForBankDocument = gql`
+  query LoansByStatusesForBank($statuses: [loan_status_enum!]) {
+    loans(where: { status: { _in: $statuses } }) {
       id
       ...Loan
       company {
@@ -12864,52 +12864,52 @@ export const LoansByStatusForBankDocument = gql`
 `;
 
 /**
- * __useLoansByStatusForBankQuery__
+ * __useLoansByStatusesForBankQuery__
  *
- * To run a query within a React component, call `useLoansByStatusForBankQuery` and pass it any options that fit your needs.
- * When your component renders, `useLoansByStatusForBankQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useLoansByStatusesForBankQuery` and pass it any options that fit your needs.
+ * When your component renders, `useLoansByStatusesForBankQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useLoansByStatusForBankQuery({
+ * const { data, loading, error } = useLoansByStatusesForBankQuery({
  *   variables: {
- *      status: // value for 'status'
+ *      statuses: // value for 'statuses'
  *   },
  * });
  */
-export function useLoansByStatusForBankQuery(
+export function useLoansByStatusesForBankQuery(
   baseOptions?: Apollo.QueryHookOptions<
-    LoansByStatusForBankQuery,
-    LoansByStatusForBankQueryVariables
+    LoansByStatusesForBankQuery,
+    LoansByStatusesForBankQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    LoansByStatusForBankQuery,
-    LoansByStatusForBankQueryVariables
-  >(LoansByStatusForBankDocument, baseOptions);
+    LoansByStatusesForBankQuery,
+    LoansByStatusesForBankQueryVariables
+  >(LoansByStatusesForBankDocument, baseOptions);
 }
-export function useLoansByStatusForBankLazyQuery(
+export function useLoansByStatusesForBankLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    LoansByStatusForBankQuery,
-    LoansByStatusForBankQueryVariables
+    LoansByStatusesForBankQuery,
+    LoansByStatusesForBankQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    LoansByStatusForBankQuery,
-    LoansByStatusForBankQueryVariables
-  >(LoansByStatusForBankDocument, baseOptions);
+    LoansByStatusesForBankQuery,
+    LoansByStatusesForBankQueryVariables
+  >(LoansByStatusesForBankDocument, baseOptions);
 }
-export type LoansByStatusForBankQueryHookResult = ReturnType<
-  typeof useLoansByStatusForBankQuery
+export type LoansByStatusesForBankQueryHookResult = ReturnType<
+  typeof useLoansByStatusesForBankQuery
 >;
-export type LoansByStatusForBankLazyQueryHookResult = ReturnType<
-  typeof useLoansByStatusForBankLazyQuery
+export type LoansByStatusesForBankLazyQueryHookResult = ReturnType<
+  typeof useLoansByStatusesForBankLazyQuery
 >;
-export type LoansByStatusForBankQueryResult = Apollo.QueryResult<
-  LoansByStatusForBankQuery,
-  LoansByStatusForBankQueryVariables
+export type LoansByStatusesForBankQueryResult = Apollo.QueryResult<
+  LoansByStatusesForBankQuery,
+  LoansByStatusesForBankQueryVariables
 >;
 export const OpenLoansByCompanyDocument = gql`
   query OpenLoansByCompany($companyId: uuid!) {

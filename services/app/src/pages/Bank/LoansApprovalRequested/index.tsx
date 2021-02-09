@@ -3,7 +3,7 @@ import BankLoansDataGrid from "components/Shared/DataGrid/BankLoansDataGrid";
 import Page from "components/Shared/Page";
 import {
   LoanStatusEnum,
-  useLoansByStatusForBankQuery,
+  useLoansByStatusesForBankQuery,
   useUpdateLoanMutation,
 } from "generated/graphql";
 import useAppBarTitle from "hooks/useAppBarTitle";
@@ -17,9 +17,9 @@ function LoansAllProductsPage() {
     error,
     loading: isLoansLoading,
     refetch,
-  } = useLoansByStatusForBankQuery({
+  } = useLoansByStatusesForBankQuery({
     variables: {
-      status: LoanStatusEnum.ApprovalRequested,
+      statuses: [LoanStatusEnum.ApprovalRequested],
     },
   });
 

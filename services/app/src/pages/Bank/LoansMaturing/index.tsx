@@ -7,7 +7,11 @@ import {
 } from "@material-ui/core";
 import BankLoansDataGrid from "components/Shared/DataGrid/BankLoansDataGrid";
 import Page from "components/Shared/Page";
-import { LoanFragment, useLoansForBankQuery } from "generated/graphql";
+import {
+  LoanFragment,
+  LoanStatusEnum,
+  useLoansByStatusesForBankQuery,
+} from "generated/graphql";
 import useAppBarTitle from "hooks/useAppBarTitle";
 import { useState } from "react";
 import { useTitle } from "react-use";
@@ -20,7 +24,11 @@ function LoansMaturingPage() {
 
   const [matureDays, setMatureDays] = useState(matureDaysList[1]);
 
-  const { data, error } = useLoansForBankQuery();
+  const { data, error } = useLoansByStatusesForBankQuery({
+    variables: {
+      statuses: [LoanStatusEnum.Approved, LoanStatusEnum.Funded],
+    },
+  });
 
   if (error) {
     alert("Error querying loans. " + error);

@@ -1,10 +1,8 @@
 import Page from "components/Shared/Page";
 import {
-  LoanFragment,
   LoanStatusEnum,
   RequestStatusEnum,
-  useLoansByStatusForBankQuery,
-  useLoansForBankQuery,
+  useLoansByStatusesForBankQuery,
 } from "generated/graphql";
 import useAppBarTitle from "hooks/useAppBarTitle";
 import { bankRoutes } from "lib/routes";
@@ -15,27 +13,50 @@ function BankOverviewPage() {
   useTitle("Overview | Bespoke");
   useAppBarTitle("Overview");
 
-  const { data, error } = useLoansForBankQuery();
-
   const {
     data: approvalRequestedLoansData,
     error: approvalRequestedLoansError,
-  } = useLoansByStatusForBankQuery({
+  } = useLoansByStatusesForBankQuery({
     variables: {
-      status: LoanStatusEnum.ApprovalRequested,
+      statuses: [LoanStatusEnum.ApprovalRequested],
     },
   });
 
-  if (error) {
-    alert("Error querying loans. " + error);
-  }
+  const {
+    data: maturingLoansData,
+    error: maturingLoansError,
+  } = useLoansByStatusesForBankQuery({
+    variables: {
+      statuses: [LoanStatusEnum.Approved, LoanStatusEnum.Funded],
+    },
+  });
+
+  const {
+    data: pastDueLoansData,
+    error: pastDueLoansError,
+  } = useLoansByStatusesForBankQuery({
+    variables: {
+      statuses: [LoanStatusEnum.PastDue],
+    },
+  });
 
   if (approvalRequestedLoansError) {
-    alert("Error querying approval requested loan. " + error);
+    alert(
+      "Error querying approval requested loans. " + approvalRequestedLoansError
+    );
   }
 
-  const loans = (data?.loans || []) as LoanFragment[];
+  if (maturingLoansError) {
+    alert("Error querying maturing loans. " + maturingLoansError);
+  }
+
+  if (pastDueLoansError) {
+    alert("Error querying past due loans. " + pastDueLoansError);
+  }
+
   const approvalRequestedLoans = approvalRequestedLoansData?.loans || [];
+  const maturingLoans = maturingLoansData?.loans || [];
+  const pastDueLoans = pastDueLoansData?.loans || [];
 
   return (
     <Page>
@@ -47,14 +68,14 @@ function BankOverviewPage() {
         filterByStatus={RequestStatusEnum.ApprovalRequested}
       ></LoansTable>
       <LoansTable
-        loans={loans}
+        loans={maturingLoans}
         tableName={"Loans Maturing in 14 Days"}
         routeToTablePage={bankRoutes.loansMaturing}
         loansPastDue={false}
         matureDays={14}
       ></LoansTable>
       <LoansTable
-        loans={loans}
+        loans={pastDueLoans}
         tableName={"Loans Past Due"}
         routeToTablePage={bankRoutes.loansPastDue}
         loansPastDue={true}

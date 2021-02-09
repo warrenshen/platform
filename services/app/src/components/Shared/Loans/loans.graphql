@@ -92,8 +92,8 @@ query LoansForBank {
   }
 }
 
-query LoansByStatusForBank($status: loan_status_enum) {
-  loans(where: { status: { _eq: $status } }) {
+query LoansByStatusesForBank($statuses: [loan_status_enum!]) {
+  loans(where: { status: { _in: $statuses } }) {
     id
     ...Loan
     company {
