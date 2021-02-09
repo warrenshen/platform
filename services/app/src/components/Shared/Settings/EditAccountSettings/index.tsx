@@ -6,6 +6,8 @@ import {
   DialogTitle,
   InputLabel,
   makeStyles,
+  MenuItem,
+  Select,
   TextField,
 } from "@material-ui/core";
 import ContractTermsLink from "components/Shared/Settings/ContractTermsLink";
@@ -13,9 +15,15 @@ import { ContractConfig } from "components/Shared/Settings/ContractTermsModal";
 import {
   CompanySettingsForCustomerFragment,
   CompanySettingsFragment,
+  ContractFragment,
   GetCompanySettingsDocument,
+  GetContractDocument,
+  ProductTypeEnum,
+  useAddContractMutation,
   useUpdateCompanyAccountSettingsMutation,
+  useUpdateContractMutation,
 } from "generated/graphql";
+import { ProductTypeKeys, ProductTypeToLabel } from "lib/enum";
 import { useState } from "react";
 
 const useStyles = makeStyles({
@@ -28,20 +36,26 @@ const useStyles = makeStyles({
 
 interface Props {
   onClose: () => void;
+  companyId: string;
   settings: CompanySettingsFragment | CompanySettingsForCustomerFragment;
+  contract: ContractFragment;
 }
 
 function EditAccountSettings(props: Props) {
   const classes = useStyles();
 
   const [updateAccountSettings] = useUpdateCompanyAccountSettingsMutation();
+  const [updateContract] = useUpdateContractMutation();
+  const [addContract] = useAddContractMutation();
+
   const [settings, setSettings] = useState<
     CompanySettingsFragment | CompanySettingsForCustomerFragment
   >(props.settings);
+  const [contract, setContract] = useState<ContractFragment>(props.contract);
 
   const contractConfig = {
-    product_type: settings.product_type,
-    product_config: settings.product_config,
+    product_type: contract?.product_type,
+    product_config: contract?.product_config || {},
     isViewOnly: false,
   };
 
@@ -57,12 +71,32 @@ function EditAccountSettings(props: Props) {
           className={classes.form}
         >
           <Box mb={2}>
-            <TextField
-              label="Product Type"
-              disabled={true}
-              required
-              value={settings.product_type}
-            ></TextField>
+            <InputLabel>Product Type</InputLabel>
+            <Select
+              value={contract?.product_type || ""}
+              onChange={({ target: { value } }) => {
+                let newProductConfig = contract?.product_config;
+                if (value !== contract?.product_type) {
+                  // NOTE: If the product type changes, the product_config gets wiped out
+                  newProductConfig = {};
+                }
+
+                setContract({
+                  ...contract,
+                  product_type: value as ProductTypeEnum,
+                  product_config: newProductConfig,
+                });
+              }}
+              style={{ width: 200 }}
+            >
+              {ProductTypeKeys.map((productType) => {
+                return (
+                  <MenuItem key={productType} value={productType}>
+                    {ProductTypeToLabel[productType as ProductTypeEnum]}
+                  </MenuItem>
+                );
+              })}
+            </Select>
           </Box>
           <Box mb={2}>
             <TextField
@@ -83,8 +117,8 @@ function EditAccountSettings(props: Props) {
               linkText="Edit"
               contractConfig={contractConfig}
               onSave={(newContractConfig: ContractConfig) => {
-                setSettings({
-                  ...settings,
+                setContract({
+                  ...contract,
                   product_config: newContractConfig.product_config,
                 });
               }}
@@ -95,12 +129,38 @@ function EditAccountSettings(props: Props) {
             variant="contained"
             color="primary"
             onClick={async () => {
+              let contractId = contract?.id;
+              if (!contractId) {
+                window.console.log("No contract is setup yet, so creating one");
+                contract.start_date = new Date();
+                const addContractResp = await addContract({
+                  variables: {
+                    contract: {
+                      ...contract,
+                      company_id: props.companyId,
+                    },
+                  },
+                });
+                contractId = addContractResp.data?.insert_contracts_one?.id;
+              } else {
+                await updateContract({
+                  variables: {
+                    contractId: contractId,
+                    contract: {
+                      ...contract,
+                      company_id: props.companyId,
+                    },
+                  },
+                });
+              }
+
               await updateAccountSettings({
                 variables: {
+                  companyId: props.companyId,
+                  contractId: contractId,
                   companySettingsId: settings.id,
                   vendorAgreementTemplateLink:
                     settings.vendor_agreement_docusign_template,
-                  productConfig: settings.product_config,
                 },
                 refetchQueries: [
                   {
@@ -109,8 +169,15 @@ function EditAccountSettings(props: Props) {
                       companySettingsId: settings.id,
                     },
                   },
+                  {
+                    query: GetContractDocument,
+                    variables: {
+                      contractId: contractId,
+                    },
+                  },
                 ],
               });
+
               props.onClose();
             }}
           >

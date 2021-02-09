@@ -68,7 +68,7 @@ const validateField = (item: any) => {
   }
   if (item.type !== "boolean") {
     if (!item.nullable) {
-      return !item.value.toString().length;
+      return !item.value || !item.value.toString().length;
     }
   }
   return false;
@@ -102,7 +102,7 @@ function ContractTermsModal(props: Props) {
 
   const getInitConfig = () => {
     const full = JSON.parse(JSON.stringify(contractTermsJSON.v1.fields));
-    if (Object.keys(config.product_config).length) {
+    if (config.product_config && Object.keys(config.product_config).length) {
       const passed = config.product_config.v1.fields;
       passed.forEach((item: any, i: any) => {
         if (item.value !== null || full[i].nullable) {

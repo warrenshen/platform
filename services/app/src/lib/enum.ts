@@ -60,6 +60,9 @@ export const ProductTypeToLabel = {
   [ProductTypeEnum.None]: "None",
 };
 
+// List of Product types, as keys to the ProducTypeToLabel map
+export const ProductTypeKeys = Object.keys(ProductTypeToLabel);
+
 // Request status enum related.
 export const RequestStatusToLabel = {
   [RequestStatusEnum.Drafted]: "Drafted",

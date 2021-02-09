@@ -56,8 +56,8 @@ function BankCustomersPage() {
                 <Box py={1}>
                   <Box>
                     <Box>
-                      {customer.settings
-                        ? ProductTypeToLabel[customer.settings.product_type]
+                      {customer.contract
+                        ? ProductTypeToLabel[customer.contract.product_type]
                         : ""}
                     </Box>
                     <Box>{customer.address}</Box>

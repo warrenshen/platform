@@ -3,6 +3,7 @@ import Settings from "components/Shared/Settings";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   CompanySettingsForCustomerFragment,
+  ContractFragment,
   useCompanyForCustomerQuery,
 } from "generated/graphql";
 import useAppBarTitle from "hooks/useAppBarTitle";
@@ -34,11 +35,14 @@ function SettingsPage() {
 
   const settings = data?.companies_by_pk
     ?.settings as CompanySettingsForCustomerFragment;
+  const contract = data?.companies_by_pk?.contract as ContractFragment;
 
   return (
     <Page>
       <Settings
+        companyId={companyId}
         settings={settings}
+        contract={contract}
         bankAccounts={data?.companies_by_pk?.bank_accounts || []}
       ></Settings>
     </Page>

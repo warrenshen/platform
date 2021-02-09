@@ -36,8 +36,6 @@ fragment CompanySettings on company_settings {
   vendor_agreement_docusign_template
   collections_bespoke_bank_account_id
   advances_bespoke_bank_account_id
-  product_type
-  product_config
 }
 
 ## Purchase Order Financing

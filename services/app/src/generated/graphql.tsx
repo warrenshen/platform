@@ -469,6 +469,9 @@ export type Companies = {
   company_vendor_partnerships_by_vendor: Array<CompanyVendorPartnerships>;
   /** An aggregated array relationship */
   company_vendor_partnerships_by_vendor_aggregate: CompanyVendorPartnershipsAggregate;
+  /** An object relationship */
+  contract?: Maybe<Contracts>;
+  contract_id?: Maybe<Scalars["uuid"]>;
   country?: Maybe<Scalars["String"]>;
   created_at: Scalars["timestamptz"];
   dba_name?: Maybe<Scalars["String"]>;
@@ -688,6 +691,8 @@ export type CompaniesBoolExp = {
   company_settings_id?: Maybe<UuidComparisonExp>;
   company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsBoolExp>;
   company_vendor_partnerships_by_vendor?: Maybe<CompanyVendorPartnershipsBoolExp>;
+  contract?: Maybe<ContractsBoolExp>;
+  contract_id?: Maybe<UuidComparisonExp>;
   country?: Maybe<StringComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   dba_name?: Maybe<StringComparisonExp>;
@@ -721,6 +726,8 @@ export type CompaniesInsertInput = {
   company_settings_id?: Maybe<Scalars["uuid"]>;
   company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsArrRelInsertInput>;
   company_vendor_partnerships_by_vendor?: Maybe<CompanyVendorPartnershipsArrRelInsertInput>;
+  contract?: Maybe<ContractsObjRelInsertInput>;
+  contract_id?: Maybe<Scalars["uuid"]>;
   country?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   dba_name?: Maybe<Scalars["String"]>;
@@ -744,6 +751,7 @@ export type CompaniesMaxFields = {
   address?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
+  contract_id?: Maybe<Scalars["uuid"]>;
   country?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   dba_name?: Maybe<Scalars["String"]>;
@@ -761,6 +769,7 @@ export type CompaniesMaxOrderBy = {
   address?: Maybe<OrderBy>;
   city?: Maybe<OrderBy>;
   company_settings_id?: Maybe<OrderBy>;
+  contract_id?: Maybe<OrderBy>;
   country?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   dba_name?: Maybe<OrderBy>;
@@ -778,6 +787,7 @@ export type CompaniesMinFields = {
   address?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
+  contract_id?: Maybe<Scalars["uuid"]>;
   country?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   dba_name?: Maybe<Scalars["String"]>;
@@ -795,6 +805,7 @@ export type CompaniesMinOrderBy = {
   address?: Maybe<OrderBy>;
   city?: Maybe<OrderBy>;
   company_settings_id?: Maybe<OrderBy>;
+  contract_id?: Maybe<OrderBy>;
   country?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   dba_name?: Maybe<OrderBy>;
@@ -837,6 +848,8 @@ export type CompaniesOrderBy = {
   company_settings_id?: Maybe<OrderBy>;
   company_vendor_partnerships_aggregate?: Maybe<CompanyVendorPartnershipsAggregateOrderBy>;
   company_vendor_partnerships_by_vendor_aggregate?: Maybe<CompanyVendorPartnershipsAggregateOrderBy>;
+  contract?: Maybe<ContractsOrderBy>;
+  contract_id?: Maybe<OrderBy>;
   country?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   dba_name?: Maybe<OrderBy>;
@@ -869,6 +882,8 @@ export enum CompaniesSelectColumn {
   /** column name */
   CompanySettingsId = "company_settings_id",
   /** column name */
+  ContractId = "contract_id",
+  /** column name */
   Country = "country",
   /** column name */
   CreatedAt = "created_at",
@@ -897,6 +912,7 @@ export type CompaniesSetInput = {
   address?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
+  contract_id?: Maybe<Scalars["uuid"]>;
   country?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   dba_name?: Maybe<Scalars["String"]>;
@@ -918,6 +934,8 @@ export enum CompaniesUpdateColumn {
   City = "city",
   /** column name */
   CompanySettingsId = "company_settings_id",
+  /** column name */
+  ContractId = "contract_id",
   /** column name */
   Country = "country",
   /** column name */
@@ -1302,7 +1320,12 @@ export enum CompanyLicensesUpdateColumn {
   Id = "id",
 }
 
-/** columns and relationships of "company_settings" */
+/**
+ * Settings are configuration details associated with a company, but are not within a time range like contracts are
+ *
+ *
+ * columns and relationships of "company_settings"
+ */
 export type CompanySettings = {
   /** An object relationship */
   advances_bespoke_bank_account?: Maybe<BankAccounts>;
@@ -1319,7 +1342,12 @@ export type CompanySettings = {
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
 };
 
-/** columns and relationships of "company_settings" */
+/**
+ * Settings are configuration details associated with a company, but are not within a time range like contracts are
+ *
+ *
+ * columns and relationships of "company_settings"
+ */
 export type CompanySettingsProductConfigArgs = {
   path?: Maybe<Scalars["String"]>;
 };
@@ -1798,6 +1826,293 @@ export enum CompanyVendorPartnershipsUpdateColumn {
   VendorId = "vendor_id",
   /** column name */
   VendorLicenseId = "vendor_license_id",
+}
+
+/**
+ * Contracts are stored for a date range and associated with a company_id
+ *
+ *
+ * columns and relationships of "contracts"
+ */
+export type Contracts = {
+  /** An array relationship */
+  companies: Array<Companies>;
+  /** An aggregated array relationship */
+  companies_aggregate: CompaniesAggregate;
+  /** An object relationship */
+  company?: Maybe<Companies>;
+  company_id?: Maybe<Scalars["uuid"]>;
+  end_date?: Maybe<Scalars["date"]>;
+  id: Scalars["uuid"];
+  modified_at: Scalars["timestamptz"];
+  modified_by_user_id?: Maybe<Scalars["uuid"]>;
+  product_config: Scalars["jsonb"];
+  product_type: ProductTypeEnum;
+  start_date: Scalars["date"];
+};
+
+/**
+ * Contracts are stored for a date range and associated with a company_id
+ *
+ *
+ * columns and relationships of "contracts"
+ */
+export type ContractsCompaniesArgs = {
+  distinct_on?: Maybe<Array<CompaniesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompaniesOrderBy>>;
+  where?: Maybe<CompaniesBoolExp>;
+};
+
+/**
+ * Contracts are stored for a date range and associated with a company_id
+ *
+ *
+ * columns and relationships of "contracts"
+ */
+export type ContractsCompaniesAggregateArgs = {
+  distinct_on?: Maybe<Array<CompaniesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompaniesOrderBy>>;
+  where?: Maybe<CompaniesBoolExp>;
+};
+
+/**
+ * Contracts are stored for a date range and associated with a company_id
+ *
+ *
+ * columns and relationships of "contracts"
+ */
+export type ContractsProductConfigArgs = {
+  path?: Maybe<Scalars["String"]>;
+};
+
+/** aggregated selection of "contracts" */
+export type ContractsAggregate = {
+  aggregate?: Maybe<ContractsAggregateFields>;
+  nodes: Array<Contracts>;
+};
+
+/** aggregate fields of "contracts" */
+export type ContractsAggregateFields = {
+  count?: Maybe<Scalars["Int"]>;
+  max?: Maybe<ContractsMaxFields>;
+  min?: Maybe<ContractsMinFields>;
+};
+
+/** aggregate fields of "contracts" */
+export type ContractsAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<ContractsSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** order by aggregate values of table "contracts" */
+export type ContractsAggregateOrderBy = {
+  count?: Maybe<OrderBy>;
+  max?: Maybe<ContractsMaxOrderBy>;
+  min?: Maybe<ContractsMinOrderBy>;
+};
+
+/** append existing jsonb value of filtered columns with new jsonb value */
+export type ContractsAppendInput = {
+  product_config?: Maybe<Scalars["jsonb"]>;
+};
+
+/** input type for inserting array relation for remote table "contracts" */
+export type ContractsArrRelInsertInput = {
+  data: Array<ContractsInsertInput>;
+  on_conflict?: Maybe<ContractsOnConflict>;
+};
+
+/** Boolean expression to filter rows from the table "contracts". All fields are combined with a logical 'AND'. */
+export type ContractsBoolExp = {
+  _and?: Maybe<Array<Maybe<ContractsBoolExp>>>;
+  _not?: Maybe<ContractsBoolExp>;
+  _or?: Maybe<Array<Maybe<ContractsBoolExp>>>;
+  companies?: Maybe<CompaniesBoolExp>;
+  company?: Maybe<CompaniesBoolExp>;
+  company_id?: Maybe<UuidComparisonExp>;
+  end_date?: Maybe<DateComparisonExp>;
+  id?: Maybe<UuidComparisonExp>;
+  modified_at?: Maybe<TimestamptzComparisonExp>;
+  modified_by_user_id?: Maybe<UuidComparisonExp>;
+  product_config?: Maybe<JsonbComparisonExp>;
+  product_type?: Maybe<ProductTypeEnumComparisonExp>;
+  start_date?: Maybe<DateComparisonExp>;
+};
+
+/** unique or primary key constraints on table "contracts" */
+export enum ContractsConstraint {
+  /** unique or primary key constraint */
+  ContractsPkey = "contracts_pkey",
+}
+
+/** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+export type ContractsDeleteAtPathInput = {
+  product_config?: Maybe<Array<Maybe<Scalars["String"]>>>;
+};
+
+/** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+export type ContractsDeleteElemInput = {
+  product_config?: Maybe<Scalars["Int"]>;
+};
+
+/** delete key/value pair or string element. key/value pairs are matched based on their key value */
+export type ContractsDeleteKeyInput = {
+  product_config?: Maybe<Scalars["String"]>;
+};
+
+/** input type for inserting data into table "contracts" */
+export type ContractsInsertInput = {
+  companies?: Maybe<CompaniesArrRelInsertInput>;
+  company?: Maybe<CompaniesObjRelInsertInput>;
+  company_id?: Maybe<Scalars["uuid"]>;
+  end_date?: Maybe<Scalars["date"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  modified_at?: Maybe<Scalars["timestamptz"]>;
+  modified_by_user_id?: Maybe<Scalars["uuid"]>;
+  product_config?: Maybe<Scalars["jsonb"]>;
+  product_type?: Maybe<ProductTypeEnum>;
+  start_date?: Maybe<Scalars["date"]>;
+};
+
+/** aggregate max on columns */
+export type ContractsMaxFields = {
+  company_id?: Maybe<Scalars["uuid"]>;
+  end_date?: Maybe<Scalars["date"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  modified_at?: Maybe<Scalars["timestamptz"]>;
+  modified_by_user_id?: Maybe<Scalars["uuid"]>;
+  start_date?: Maybe<Scalars["date"]>;
+};
+
+/** order by max() on columns of table "contracts" */
+export type ContractsMaxOrderBy = {
+  company_id?: Maybe<OrderBy>;
+  end_date?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  modified_at?: Maybe<OrderBy>;
+  modified_by_user_id?: Maybe<OrderBy>;
+  start_date?: Maybe<OrderBy>;
+};
+
+/** aggregate min on columns */
+export type ContractsMinFields = {
+  company_id?: Maybe<Scalars["uuid"]>;
+  end_date?: Maybe<Scalars["date"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  modified_at?: Maybe<Scalars["timestamptz"]>;
+  modified_by_user_id?: Maybe<Scalars["uuid"]>;
+  start_date?: Maybe<Scalars["date"]>;
+};
+
+/** order by min() on columns of table "contracts" */
+export type ContractsMinOrderBy = {
+  company_id?: Maybe<OrderBy>;
+  end_date?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  modified_at?: Maybe<OrderBy>;
+  modified_by_user_id?: Maybe<OrderBy>;
+  start_date?: Maybe<OrderBy>;
+};
+
+/** response of any mutation on the table "contracts" */
+export type ContractsMutationResponse = {
+  /** number of affected rows by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data of the affected rows by the mutation */
+  returning: Array<Contracts>;
+};
+
+/** input type for inserting object relation for remote table "contracts" */
+export type ContractsObjRelInsertInput = {
+  data: ContractsInsertInput;
+  on_conflict?: Maybe<ContractsOnConflict>;
+};
+
+/** on conflict condition type for table "contracts" */
+export type ContractsOnConflict = {
+  constraint: ContractsConstraint;
+  update_columns: Array<ContractsUpdateColumn>;
+  where?: Maybe<ContractsBoolExp>;
+};
+
+/** ordering options when selecting data from "contracts" */
+export type ContractsOrderBy = {
+  companies_aggregate?: Maybe<CompaniesAggregateOrderBy>;
+  company?: Maybe<CompaniesOrderBy>;
+  company_id?: Maybe<OrderBy>;
+  end_date?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  modified_at?: Maybe<OrderBy>;
+  modified_by_user_id?: Maybe<OrderBy>;
+  product_config?: Maybe<OrderBy>;
+  product_type?: Maybe<OrderBy>;
+  start_date?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "contracts" */
+export type ContractsPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** prepend existing jsonb value of filtered columns with new jsonb value */
+export type ContractsPrependInput = {
+  product_config?: Maybe<Scalars["jsonb"]>;
+};
+
+/** select columns of table "contracts" */
+export enum ContractsSelectColumn {
+  /** column name */
+  CompanyId = "company_id",
+  /** column name */
+  EndDate = "end_date",
+  /** column name */
+  Id = "id",
+  /** column name */
+  ModifiedAt = "modified_at",
+  /** column name */
+  ModifiedByUserId = "modified_by_user_id",
+  /** column name */
+  ProductConfig = "product_config",
+  /** column name */
+  ProductType = "product_type",
+  /** column name */
+  StartDate = "start_date",
+}
+
+/** input type for updating data in table "contracts" */
+export type ContractsSetInput = {
+  company_id?: Maybe<Scalars["uuid"]>;
+  end_date?: Maybe<Scalars["date"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  modified_at?: Maybe<Scalars["timestamptz"]>;
+  modified_by_user_id?: Maybe<Scalars["uuid"]>;
+  product_config?: Maybe<Scalars["jsonb"]>;
+  product_type?: Maybe<ProductTypeEnum>;
+  start_date?: Maybe<Scalars["date"]>;
+};
+
+/** update columns of table "contracts" */
+export enum ContractsUpdateColumn {
+  /** column name */
+  CompanyId = "company_id",
+  /** column name */
+  EndDate = "end_date",
+  /** column name */
+  Id = "id",
+  /** column name */
+  ModifiedAt = "modified_at",
+  /** column name */
+  ModifiedByUserId = "modified_by_user_id",
+  /** column name */
+  ProductConfig = "product_config",
+  /** column name */
+  ProductType = "product_type",
+  /** column name */
+  StartDate = "start_date",
 }
 
 /** expression to compare columns of type date. All fields are combined with logical 'AND'. */
@@ -3956,6 +4271,10 @@ export type MutationRoot = {
   delete_company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsMutationResponse>;
   /** delete single row from the table: "company_vendor_partnerships" */
   delete_company_vendor_partnerships_by_pk?: Maybe<CompanyVendorPartnerships>;
+  /** delete data from the table: "contracts" */
+  delete_contracts?: Maybe<ContractsMutationResponse>;
+  /** delete single row from the table: "contracts" */
+  delete_contracts_by_pk?: Maybe<Contracts>;
   /** delete data from the table: "ebba_application_files" */
   delete_ebba_application_files?: Maybe<EbbaApplicationFilesMutationResponse>;
   /** delete single row from the table: "ebba_application_files" */
@@ -4056,6 +4375,10 @@ export type MutationRoot = {
   insert_company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsMutationResponse>;
   /** insert a single row into the table: "company_vendor_partnerships" */
   insert_company_vendor_partnerships_one?: Maybe<CompanyVendorPartnerships>;
+  /** insert data into the table: "contracts" */
+  insert_contracts?: Maybe<ContractsMutationResponse>;
+  /** insert a single row into the table: "contracts" */
+  insert_contracts_one?: Maybe<Contracts>;
   /** insert data into the table: "ebba_application_files" */
   insert_ebba_application_files?: Maybe<EbbaApplicationFilesMutationResponse>;
   /** insert a single row into the table: "ebba_application_files" */
@@ -4160,6 +4483,10 @@ export type MutationRoot = {
   update_company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsMutationResponse>;
   /** update single row of the table: "company_vendor_partnerships" */
   update_company_vendor_partnerships_by_pk?: Maybe<CompanyVendorPartnerships>;
+  /** update data of the table: "contracts" */
+  update_contracts?: Maybe<ContractsMutationResponse>;
+  /** update single row of the table: "contracts" */
+  update_contracts_by_pk?: Maybe<Contracts>;
   /** update data of the table: "ebba_application_files" */
   update_ebba_application_files?: Maybe<EbbaApplicationFilesMutationResponse>;
   /** update single row of the table: "ebba_application_files" */
@@ -4295,6 +4622,16 @@ export type MutationRootDeleteCompanyVendorPartnershipsArgs = {
 
 /** mutation root */
 export type MutationRootDeleteCompanyVendorPartnershipsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** mutation root */
+export type MutationRootDeleteContractsArgs = {
+  where: ContractsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteContractsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -4560,6 +4897,18 @@ export type MutationRootInsertCompanyVendorPartnershipsArgs = {
 export type MutationRootInsertCompanyVendorPartnershipsOneArgs = {
   object: CompanyVendorPartnershipsInsertInput;
   on_conflict?: Maybe<CompanyVendorPartnershipsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertContractsArgs = {
+  objects: Array<ContractsInsertInput>;
+  on_conflict?: Maybe<ContractsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertContractsOneArgs = {
+  object: ContractsInsertInput;
+  on_conflict?: Maybe<ContractsOnConflict>;
 };
 
 /** mutation root */
@@ -4878,6 +5227,28 @@ export type MutationRootUpdateCompanyVendorPartnershipsArgs = {
 export type MutationRootUpdateCompanyVendorPartnershipsByPkArgs = {
   _set?: Maybe<CompanyVendorPartnershipsSetInput>;
   pk_columns: CompanyVendorPartnershipsPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateContractsArgs = {
+  _append?: Maybe<ContractsAppendInput>;
+  _delete_at_path?: Maybe<ContractsDeleteAtPathInput>;
+  _delete_elem?: Maybe<ContractsDeleteElemInput>;
+  _delete_key?: Maybe<ContractsDeleteKeyInput>;
+  _prepend?: Maybe<ContractsPrependInput>;
+  _set?: Maybe<ContractsSetInput>;
+  where: ContractsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateContractsByPkArgs = {
+  _append?: Maybe<ContractsAppendInput>;
+  _delete_at_path?: Maybe<ContractsDeleteAtPathInput>;
+  _delete_elem?: Maybe<ContractsDeleteElemInput>;
+  _delete_key?: Maybe<ContractsDeleteKeyInput>;
+  _prepend?: Maybe<ContractsPrependInput>;
+  _set?: Maybe<ContractsSetInput>;
+  pk_columns: ContractsPkColumnsInput;
 };
 
 /** mutation root */
@@ -7039,6 +7410,12 @@ export type QueryRoot = {
   company_vendor_partnerships_aggregate: CompanyVendorPartnershipsAggregate;
   /** fetch data from the table: "company_vendor_partnerships" using primary key columns */
   company_vendor_partnerships_by_pk?: Maybe<CompanyVendorPartnerships>;
+  /** fetch data from the table: "contracts" */
+  contracts: Array<Contracts>;
+  /** fetch aggregated fields from the table: "contracts" */
+  contracts_aggregate: ContractsAggregate;
+  /** fetch data from the table: "contracts" using primary key columns */
+  contracts_by_pk?: Maybe<Contracts>;
   /** fetch data from the table: "ebba_application_files" */
   ebba_application_files: Array<EbbaApplicationFiles>;
   /** fetch aggregated fields from the table: "ebba_application_files" */
@@ -7292,6 +7669,29 @@ export type QueryRootCompanyVendorPartnershipsAggregateArgs = {
 
 /** query root */
 export type QueryRootCompanyVendorPartnershipsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** query root */
+export type QueryRootContractsArgs = {
+  distinct_on?: Maybe<Array<ContractsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<ContractsOrderBy>>;
+  where?: Maybe<ContractsBoolExp>;
+};
+
+/** query root */
+export type QueryRootContractsAggregateArgs = {
+  distinct_on?: Maybe<Array<ContractsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<ContractsOrderBy>>;
+  where?: Maybe<ContractsBoolExp>;
+};
+
+/** query root */
+export type QueryRootContractsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -8105,6 +8505,12 @@ export type SubscriptionRoot = {
   company_vendor_partnerships_aggregate: CompanyVendorPartnershipsAggregate;
   /** fetch data from the table: "company_vendor_partnerships" using primary key columns */
   company_vendor_partnerships_by_pk?: Maybe<CompanyVendorPartnerships>;
+  /** fetch data from the table: "contracts" */
+  contracts: Array<Contracts>;
+  /** fetch aggregated fields from the table: "contracts" */
+  contracts_aggregate: ContractsAggregate;
+  /** fetch data from the table: "contracts" using primary key columns */
+  contracts_by_pk?: Maybe<Contracts>;
   /** fetch data from the table: "ebba_application_files" */
   ebba_application_files: Array<EbbaApplicationFiles>;
   /** fetch aggregated fields from the table: "ebba_application_files" */
@@ -8358,6 +8764,29 @@ export type SubscriptionRootCompanyVendorPartnershipsAggregateArgs = {
 
 /** subscription root */
 export type SubscriptionRootCompanyVendorPartnershipsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** subscription root */
+export type SubscriptionRootContractsArgs = {
+  distinct_on?: Maybe<Array<ContractsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<ContractsOrderBy>>;
+  where?: Maybe<ContractsBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootContractsAggregateArgs = {
+  distinct_on?: Maybe<Array<ContractsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<ContractsOrderBy>>;
+  where?: Maybe<ContractsBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootContractsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -9265,6 +9694,7 @@ export type TwoFactorLinks = {
   expires_at: Scalars["timestamptz"];
   form_info: Scalars["json"];
   id: Scalars["uuid"];
+  /** One link_id may have been sent to many emails. So we want to keep track of each email and what two-factor code they may need to enter separately as a key in this dictionary. */
   token_states?: Maybe<Scalars["json"]>;
 };
 
@@ -10019,7 +10449,8 @@ export type AddCustomerMutationVariables = Exact<{
 export type AddCustomerMutation = {
   insert_companies_one?: Maybe<
     Pick<Companies, "id" | "name"> & {
-      settings: Pick<CompanySettings, "id" | "product_type">;
+      settings: Pick<CompanySettings, "id">;
+      contract?: Maybe<Pick<Contracts, "id" | "product_type">>;
     }
   >;
 };
@@ -10078,8 +10509,6 @@ export type CompanySettingsFragment = Pick<
   | "vendor_agreement_docusign_template"
   | "collections_bespoke_bank_account_id"
   | "advances_bespoke_bank_account_id"
-  | "product_type"
-  | "product_config"
 >;
 
 export type VendorFragment = Pick<
@@ -10157,8 +10586,6 @@ export type CompanySettingsForCustomerFragment = Pick<
   | "company_id"
   | "vendor_agreement_docusign_template"
   | "collections_bespoke_bank_account_id"
-  | "product_type"
-  | "product_config"
 >;
 
 export type VendorLimitedFragment = Pick<Vendors, "id" | "name">;
@@ -10241,15 +10668,14 @@ export type AssignAdvancesBespokeBankAccountMutation = {
   >;
 };
 
-export type CompanyWithSettingsByCompanyIdQueryVariables = Exact<{
+export type CompanyWithDetailsByCompanyIdQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
 
-export type CompanyWithSettingsByCompanyIdQuery = {
+export type CompanyWithDetailsByCompanyIdQuery = {
   companies_by_pk?: Maybe<
     Pick<Companies, "id"> & {
-      settings: Pick<CompanySettings, "id"> &
-        CompanySettingsForCustomerFragment;
+      contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
     }
   >;
 };
@@ -10266,6 +10692,7 @@ export type CompanyQuery = {
         collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
         advances_bespoke_bank_account?: Maybe<BankAccountFragment>;
       } & CompanySettingsFragment;
+      contract?: Maybe<ContractFragment>;
     } & CompanyFragment
   >;
 };
@@ -10281,6 +10708,7 @@ export type CompanyForCustomerQuery = {
       settings: {
         collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
       } & CompanySettingsForCustomerFragment;
+      contract?: Maybe<ContractFragment>;
     } & CompanyFragment
   >;
 };
@@ -10620,15 +11048,40 @@ export type ApprovedPurchaseOrdersQuery = {
   purchase_orders: Array<PurchaseOrderFragment>;
 };
 
+export type UpdateContractMutationVariables = Exact<{
+  contractId: Scalars["uuid"];
+  contract: ContractsSetInput;
+}>;
+
+export type UpdateContractMutation = {
+  update_contracts_by_pk?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
+};
+
+export type AddContractMutationVariables = Exact<{
+  contract: ContractsInsertInput;
+}>;
+
+export type AddContractMutation = {
+  insert_contracts_one?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
+};
+
 export type UpdateCompanyAccountSettingsMutationVariables = Exact<{
+  companyId: Scalars["uuid"];
   companySettingsId: Scalars["uuid"];
   vendorAgreementTemplateLink?: Maybe<Scalars["String"]>;
-  productConfig?: Maybe<Scalars["jsonb"]>;
+  contractId: Scalars["uuid"];
 }>;
 
 export type UpdateCompanyAccountSettingsMutation = {
   update_company_settings_by_pk?: Maybe<CompanySettingsFragment>;
+  update_companies_by_pk?: Maybe<CompanyFragment>;
 };
+
+export type GetContractQueryVariables = Exact<{
+  contractId: Scalars["uuid"];
+}>;
+
+export type GetContractQuery = { contracts_by_pk?: Maybe<ContractFragment> };
 
 export type GetCompanySettingsQueryVariables = Exact<{
   companySettingsId: Scalars["uuid"];
@@ -10680,6 +11133,16 @@ export type CompanyFragment = Pick<
   | "employer_identification_number"
   | "address"
   | "phone_number"
+>;
+
+export type ContractFragment = Pick<
+  Contracts,
+  | "id"
+  | "company_id"
+  | "product_type"
+  | "product_config"
+  | "start_date"
+  | "end_date"
 >;
 
 export type VendorPartnershipFragment = Pick<
@@ -10975,6 +11438,7 @@ export type CustomersForBankQuery = {
   companies: Array<
     Pick<Companies, "id"> & {
       settings: Pick<CompanySettings, "id"> & CompanySettingsFragment;
+      contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
     } & CustomerForBankFragment
   >;
 };
@@ -11065,8 +11529,6 @@ export const CompanySettingsFragmentDoc = gql`
     vendor_agreement_docusign_template
     collections_bespoke_bank_account_id
     advances_bespoke_bank_account_id
-    product_type
-    product_config
   }
 `;
 export const VendorFragmentDoc = gql`
@@ -11173,8 +11635,6 @@ export const CompanySettingsForCustomerFragmentDoc = gql`
     company_id
     vendor_agreement_docusign_template
     collections_bespoke_bank_account_id
-    product_type
-    product_config
   }
 `;
 export const VendorLimitedFragmentDoc = gql`
@@ -11225,6 +11685,16 @@ export const CompanyFragmentDoc = gql`
     employer_identification_number
     address
     phone_number
+  }
+`;
+export const ContractFragmentDoc = gql`
+  fragment Contract on contracts {
+    id
+    company_id
+    product_type
+    product_config
+    start_date
+    end_date
   }
 `;
 export const VendorPartnershipFragmentDoc = gql`
@@ -11326,6 +11796,9 @@ export const AddCustomerDocument = gql`
       id
       name
       settings {
+        id
+      }
+      contract {
         id
         product_type
       }
@@ -11855,66 +12328,66 @@ export type AssignAdvancesBespokeBankAccountMutationOptions = Apollo.BaseMutatio
   AssignAdvancesBespokeBankAccountMutation,
   AssignAdvancesBespokeBankAccountMutationVariables
 >;
-export const CompanyWithSettingsByCompanyIdDocument = gql`
-  query CompanyWithSettingsByCompanyId($companyId: uuid!) {
+export const CompanyWithDetailsByCompanyIdDocument = gql`
+  query CompanyWithDetailsByCompanyId($companyId: uuid!) {
     companies_by_pk(id: $companyId) {
       id
-      settings {
+      contract {
         id
-        ...CompanySettingsForCustomer
+        ...Contract
       }
     }
   }
-  ${CompanySettingsForCustomerFragmentDoc}
+  ${ContractFragmentDoc}
 `;
 
 /**
- * __useCompanyWithSettingsByCompanyIdQuery__
+ * __useCompanyWithDetailsByCompanyIdQuery__
  *
- * To run a query within a React component, call `useCompanyWithSettingsByCompanyIdQuery` and pass it any options that fit your needs.
- * When your component renders, `useCompanyWithSettingsByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useCompanyWithDetailsByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCompanyWithDetailsByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useCompanyWithSettingsByCompanyIdQuery({
+ * const { data, loading, error } = useCompanyWithDetailsByCompanyIdQuery({
  *   variables: {
  *      companyId: // value for 'companyId'
  *   },
  * });
  */
-export function useCompanyWithSettingsByCompanyIdQuery(
+export function useCompanyWithDetailsByCompanyIdQuery(
   baseOptions: Apollo.QueryHookOptions<
-    CompanyWithSettingsByCompanyIdQuery,
-    CompanyWithSettingsByCompanyIdQueryVariables
+    CompanyWithDetailsByCompanyIdQuery,
+    CompanyWithDetailsByCompanyIdQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    CompanyWithSettingsByCompanyIdQuery,
-    CompanyWithSettingsByCompanyIdQueryVariables
-  >(CompanyWithSettingsByCompanyIdDocument, baseOptions);
+    CompanyWithDetailsByCompanyIdQuery,
+    CompanyWithDetailsByCompanyIdQueryVariables
+  >(CompanyWithDetailsByCompanyIdDocument, baseOptions);
 }
-export function useCompanyWithSettingsByCompanyIdLazyQuery(
+export function useCompanyWithDetailsByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    CompanyWithSettingsByCompanyIdQuery,
-    CompanyWithSettingsByCompanyIdQueryVariables
+    CompanyWithDetailsByCompanyIdQuery,
+    CompanyWithDetailsByCompanyIdQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    CompanyWithSettingsByCompanyIdQuery,
-    CompanyWithSettingsByCompanyIdQueryVariables
-  >(CompanyWithSettingsByCompanyIdDocument, baseOptions);
+    CompanyWithDetailsByCompanyIdQuery,
+    CompanyWithDetailsByCompanyIdQueryVariables
+  >(CompanyWithDetailsByCompanyIdDocument, baseOptions);
 }
-export type CompanyWithSettingsByCompanyIdQueryHookResult = ReturnType<
-  typeof useCompanyWithSettingsByCompanyIdQuery
+export type CompanyWithDetailsByCompanyIdQueryHookResult = ReturnType<
+  typeof useCompanyWithDetailsByCompanyIdQuery
 >;
-export type CompanyWithSettingsByCompanyIdLazyQueryHookResult = ReturnType<
-  typeof useCompanyWithSettingsByCompanyIdLazyQuery
+export type CompanyWithDetailsByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useCompanyWithDetailsByCompanyIdLazyQuery
 >;
-export type CompanyWithSettingsByCompanyIdQueryResult = Apollo.QueryResult<
-  CompanyWithSettingsByCompanyIdQuery,
-  CompanyWithSettingsByCompanyIdQueryVariables
+export type CompanyWithDetailsByCompanyIdQueryResult = Apollo.QueryResult<
+  CompanyWithDetailsByCompanyIdQuery,
+  CompanyWithDetailsByCompanyIdQueryVariables
 >;
 export const CompanyDocument = gql`
   query Company($companyId: uuid!) {
@@ -11932,11 +12405,15 @@ export const CompanyDocument = gql`
           ...BankAccount
         }
       }
+      contract {
+        ...Contract
+      }
     }
   }
   ${CompanyFragmentDoc}
   ${BankAccountFragmentDoc}
   ${CompanySettingsFragmentDoc}
+  ${ContractFragmentDoc}
 `;
 
 /**
@@ -11990,11 +12467,15 @@ export const CompanyForCustomerDocument = gql`
           ...BankAccount
         }
       }
+      contract {
+        ...Contract
+      }
     }
   }
   ${CompanyFragmentDoc}
   ${BankAccountFragmentDoc}
   ${CompanySettingsForCustomerFragmentDoc}
+  ${ContractFragmentDoc}
 `;
 
 /**
@@ -13724,23 +14205,129 @@ export type ApprovedPurchaseOrdersQueryResult = Apollo.QueryResult<
   ApprovedPurchaseOrdersQuery,
   ApprovedPurchaseOrdersQueryVariables
 >;
+export const UpdateContractDocument = gql`
+  mutation UpdateContract($contractId: uuid!, $contract: contracts_set_input!) {
+    update_contracts_by_pk(pk_columns: { id: $contractId }, _set: $contract) {
+      id
+      ...Contract
+    }
+  }
+  ${ContractFragmentDoc}
+`;
+export type UpdateContractMutationFn = Apollo.MutationFunction<
+  UpdateContractMutation,
+  UpdateContractMutationVariables
+>;
+
+/**
+ * __useUpdateContractMutation__
+ *
+ * To run a mutation, you first call `useUpdateContractMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateContractMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateContractMutation, { data, loading, error }] = useUpdateContractMutation({
+ *   variables: {
+ *      contractId: // value for 'contractId'
+ *      contract: // value for 'contract'
+ *   },
+ * });
+ */
+export function useUpdateContractMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateContractMutation,
+    UpdateContractMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    UpdateContractMutation,
+    UpdateContractMutationVariables
+  >(UpdateContractDocument, baseOptions);
+}
+export type UpdateContractMutationHookResult = ReturnType<
+  typeof useUpdateContractMutation
+>;
+export type UpdateContractMutationResult = Apollo.MutationResult<UpdateContractMutation>;
+export type UpdateContractMutationOptions = Apollo.BaseMutationOptions<
+  UpdateContractMutation,
+  UpdateContractMutationVariables
+>;
+export const AddContractDocument = gql`
+  mutation AddContract($contract: contracts_insert_input!) {
+    insert_contracts_one(object: $contract) {
+      id
+      ...Contract
+    }
+  }
+  ${ContractFragmentDoc}
+`;
+export type AddContractMutationFn = Apollo.MutationFunction<
+  AddContractMutation,
+  AddContractMutationVariables
+>;
+
+/**
+ * __useAddContractMutation__
+ *
+ * To run a mutation, you first call `useAddContractMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddContractMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addContractMutation, { data, loading, error }] = useAddContractMutation({
+ *   variables: {
+ *      contract: // value for 'contract'
+ *   },
+ * });
+ */
+export function useAddContractMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    AddContractMutation,
+    AddContractMutationVariables
+  >
+) {
+  return Apollo.useMutation<AddContractMutation, AddContractMutationVariables>(
+    AddContractDocument,
+    baseOptions
+  );
+}
+export type AddContractMutationHookResult = ReturnType<
+  typeof useAddContractMutation
+>;
+export type AddContractMutationResult = Apollo.MutationResult<AddContractMutation>;
+export type AddContractMutationOptions = Apollo.BaseMutationOptions<
+  AddContractMutation,
+  AddContractMutationVariables
+>;
 export const UpdateCompanyAccountSettingsDocument = gql`
   mutation UpdateCompanyAccountSettings(
+    $companyId: uuid!
     $companySettingsId: uuid!
     $vendorAgreementTemplateLink: String
-    $productConfig: jsonb
+    $contractId: uuid!
   ) {
     update_company_settings_by_pk(
       pk_columns: { id: $companySettingsId }
-      _set: {
-        vendor_agreement_docusign_template: $vendorAgreementTemplateLink
-        product_config: $productConfig
-      }
+      _set: { vendor_agreement_docusign_template: $vendorAgreementTemplateLink }
     ) {
       ...CompanySettings
     }
+    update_companies_by_pk(
+      pk_columns: { id: $companyId }
+      _set: { contract_id: $contractId }
+    ) {
+      ...Company
+    }
   }
   ${CompanySettingsFragmentDoc}
+  ${CompanyFragmentDoc}
 `;
 export type UpdateCompanyAccountSettingsMutationFn = Apollo.MutationFunction<
   UpdateCompanyAccountSettingsMutation,
@@ -13760,9 +14347,10 @@ export type UpdateCompanyAccountSettingsMutationFn = Apollo.MutationFunction<
  * @example
  * const [updateCompanyAccountSettingsMutation, { data, loading, error }] = useUpdateCompanyAccountSettingsMutation({
  *   variables: {
+ *      companyId: // value for 'companyId'
  *      companySettingsId: // value for 'companySettingsId'
  *      vendorAgreementTemplateLink: // value for 'vendorAgreementTemplateLink'
- *      productConfig: // value for 'productConfig'
+ *      contractId: // value for 'contractId'
  *   },
  * });
  */
@@ -13784,6 +14372,61 @@ export type UpdateCompanyAccountSettingsMutationResult = Apollo.MutationResult<U
 export type UpdateCompanyAccountSettingsMutationOptions = Apollo.BaseMutationOptions<
   UpdateCompanyAccountSettingsMutation,
   UpdateCompanyAccountSettingsMutationVariables
+>;
+export const GetContractDocument = gql`
+  query GetContract($contractId: uuid!) {
+    contracts_by_pk(id: $contractId) {
+      ...Contract
+    }
+  }
+  ${ContractFragmentDoc}
+`;
+
+/**
+ * __useGetContractQuery__
+ *
+ * To run a query within a React component, call `useGetContractQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContractQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetContractQuery({
+ *   variables: {
+ *      contractId: // value for 'contractId'
+ *   },
+ * });
+ */
+export function useGetContractQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetContractQuery,
+    GetContractQueryVariables
+  >
+) {
+  return Apollo.useQuery<GetContractQuery, GetContractQueryVariables>(
+    GetContractDocument,
+    baseOptions
+  );
+}
+export function useGetContractLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetContractQuery,
+    GetContractQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<GetContractQuery, GetContractQueryVariables>(
+    GetContractDocument,
+    baseOptions
+  );
+}
+export type GetContractQueryHookResult = ReturnType<typeof useGetContractQuery>;
+export type GetContractLazyQueryHookResult = ReturnType<
+  typeof useGetContractLazyQuery
+>;
+export type GetContractQueryResult = Apollo.QueryResult<
+  GetContractQuery,
+  GetContractQueryVariables
 >;
 export const GetCompanySettingsDocument = gql`
   query GetCompanySettings($companySettingsId: uuid!) {
@@ -14960,10 +15603,15 @@ export const CustomersForBankDocument = gql`
         id
         ...CompanySettings
       }
+      contract {
+        id
+        ...Contract
+      }
     }
   }
   ${CustomerForBankFragmentDoc}
   ${CompanySettingsFragmentDoc}
+  ${ContractFragmentDoc}
 `;
 
 /**

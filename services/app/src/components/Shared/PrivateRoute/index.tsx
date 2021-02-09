@@ -1,6 +1,6 @@
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
-  useCompanyWithSettingsByCompanyIdQuery,
+  useCompanyWithDetailsByCompanyIdQuery,
   UserRolesEnum,
 } from "generated/graphql";
 import { routes } from "lib/routes";
@@ -25,7 +25,7 @@ function PrivateRoute(props: Props & RouteProps) {
 
   const shouldRender = isSignedIn && canVisitRoute;
 
-  const { data } = useCompanyWithSettingsByCompanyIdQuery({
+  const { data } = useCompanyWithDetailsByCompanyIdQuery({
     variables: {
       companyId,
     },
@@ -34,10 +34,10 @@ function PrivateRoute(props: Props & RouteProps) {
   const company = data?.companies_by_pk;
 
   useEffect(() => {
-    if (role !== UserRolesEnum.BankAdmin && company?.settings.product_type) {
-      setUserProductType(company?.settings.product_type);
+    if (role !== UserRolesEnum.BankAdmin && company?.contract?.product_type) {
+      setUserProductType(company?.contract?.product_type);
     }
-  }, [role, company?.settings.product_type, setUserProductType]);
+  }, [role, company?.contract?.product_type, setUserProductType]);
 
   return (
     <Route

@@ -12,11 +12,12 @@ import {
 import {
   CompaniesInsertInput,
   CompanySettingsInsertInput,
+  ContractsInsertInput,
   CustomersForBankDocument,
   ProductTypeEnum,
   useAddCustomerMutation,
 } from "generated/graphql";
-import { ProductTypeToLabel } from "lib/enum";
+import { ProductTypeKeys, ProductTypeToLabel } from "lib/enum";
 import { useState } from "react";
 
 interface Props {
@@ -25,10 +26,11 @@ interface Props {
 
 function AddCustomerModal({ handleClose }: Props) {
   const [customer, setCustomer] = useState<CompaniesInsertInput>({});
-  const [
-    companySetting,
-    setCompanySetting,
-  ] = useState<CompanySettingsInsertInput>({});
+  const [contract, setContract] = useState<ContractsInsertInput>({
+    start_date: new Date(),
+  });
+  const [companySetting] = useState<CompanySettingsInsertInput>({});
+
   const [
     addCustomer,
     { loading: addCustomerLoading },
@@ -50,23 +52,20 @@ function AddCustomerModal({ handleClose }: Props) {
           </Box>
           <Box mt={4}>
             <Select
-              value={companySetting.product_type || ""}
+              value={contract.product_type || ""}
               onChange={({ target: { value } }) => {
-                setCompanySetting({
+                setContract({
+                  ...contract,
                   product_type: value as ProductTypeEnum,
+                  product_config: {},
                 });
               }}
               style={{ width: 200 }}
             >
-              {[
-                ProductTypeEnum.InventoryFinancing,
-                ProductTypeEnum.InvoiceFinancing,
-                ProductTypeEnum.LineOfCredit,
-                ProductTypeEnum.PurchaseMoneyFinancing,
-              ].map((productType) => {
+              {ProductTypeKeys.map((productType) => {
                 return (
                   <MenuItem key={productType} value={productType}>
-                    {ProductTypeToLabel[productType]}
+                    {ProductTypeToLabel[productType as ProductTypeEnum]}
                   </MenuItem>
                 );
               })}
@@ -88,6 +87,11 @@ function AddCustomerModal({ handleClose }: Props) {
                   settings: {
                     data: {
                       ...companySetting,
+                    },
+                  },
+                  contract: {
+                    data: {
+                      ...contract,
                     },
                   },
                 },

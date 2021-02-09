@@ -4,20 +4,22 @@ import CreateEbbaApplicationModal from "components/Shared/EbbaApplication/Create
 import EbbaApplicationCard from "components/Shared/EbbaApplication/EbbaApplicationCard";
 import AccountSettingsCard from "components/Shared/Settings/AccountSettingsCard";
 import EditAccountSettings from "components/Shared/Settings/EditAccountSettings";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   BankAccountFragment,
   CompanySettingsForCustomerFragment,
   CompanySettingsFragment,
+  ContractFragment,
   ProductTypeEnum,
   useEbbaApplicationsByCompanyIdQuery,
 } from "generated/graphql";
 import useAppBarTitle from "hooks/useAppBarTitle";
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { useTitle } from "react-use";
 
 interface Props {
+  companyId: string;
   settings: CompanySettingsFragment | CompanySettingsForCustomerFragment;
+  contract: ContractFragment;
   bankAccounts: BankAccountFragment[];
 }
 
@@ -25,11 +27,8 @@ function Settings(props: Props) {
   useTitle("Settings | Bespoke");
   useAppBarTitle("Settings");
 
-  const {
-    user: { companyId, productType },
-  } = useContext(CurrentUserContext);
-
   const settings = props.settings;
+  const contract = props.contract;
   const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
 
   const [
@@ -39,7 +38,7 @@ function Settings(props: Props) {
 
   const { data } = useEbbaApplicationsByCompanyIdQuery({
     variables: {
-      companyId,
+      companyId: props.companyId,
     },
   });
 
@@ -52,7 +51,9 @@ function Settings(props: Props) {
         <Box>
           {accountSettingsOpen && (
             <EditAccountSettings
+              companyId={props.companyId}
               settings={settings}
+              contract={contract}
               onClose={() => {
                 setAccountSettingsOpen(false);
               }}
@@ -60,6 +61,7 @@ function Settings(props: Props) {
           )}
           <AccountSettingsCard
             settings={settings}
+            contract={contract}
             onClick={() => {
               setAccountSettingsOpen(true);
             }}
@@ -70,7 +72,7 @@ function Settings(props: Props) {
           bankAccounts={props.bankAccounts}
         ></BankAccounts>
       </Box>
-      {productType === ProductTypeEnum.LineOfCredit && (
+      {contract?.product_type === ProductTypeEnum.LineOfCredit && (
         <Box mt={3}>
           <h2>Line of Credit Settings</h2>
           <h3>Eligible Borrowing Base Amount Applications</h3>

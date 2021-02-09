@@ -14,11 +14,14 @@ import ContractTermsLink from "components/Shared/Settings/ContractTermsLink";
 import {
   CompanySettingsForCustomerFragment,
   CompanySettingsFragment,
+  ContractFragment,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { ProductTypeToLabel } from "lib/enum";
+
 interface Props {
   settings: CompanySettingsFragment | CompanySettingsForCustomerFragment;
+  contract: ContractFragment;
   onClick: () => void;
 }
 
@@ -38,6 +41,7 @@ const useStyles = makeStyles(() =>
 function AccountSettingsCard(props: Props) {
   const classes = useStyles();
   const settings = props.settings;
+  const contract = props.contract;
 
   return (
     <Card className={classes.card}>
@@ -45,7 +49,7 @@ function AccountSettingsCard(props: Props) {
         <Box display="flex" flexDirection="column" pt={2}>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Product Type</Box>
-            <Box>{ProductTypeToLabel[settings.product_type]}</Box>
+            <Box>{ProductTypeToLabel[contract?.product_type]}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Vendor Agreement</Box>
@@ -65,8 +69,8 @@ function AccountSettingsCard(props: Props) {
               <ContractTermsLink
                 linkText="View"
                 contractConfig={{
-                  product_type: settings.product_type,
-                  product_config: settings.product_config,
+                  product_type: contract?.product_type,
+                  product_config: contract?.product_config,
                   isViewOnly: true,
                 }}
               ></ContractTermsLink>

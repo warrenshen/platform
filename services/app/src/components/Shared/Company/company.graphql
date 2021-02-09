@@ -1,10 +1,10 @@
 # Query is used to determine what navigation options to show in sidebar.
-query CompanyWithSettingsByCompanyId($companyId: uuid!) {
+query CompanyWithDetailsByCompanyId($companyId: uuid!) {
   companies_by_pk(id: $companyId) {
     id
-    settings {
+    contract {
       id
-      ...CompanySettingsForCustomer
+      ...Contract
     }
   }
 }

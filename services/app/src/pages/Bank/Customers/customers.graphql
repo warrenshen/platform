@@ -6,6 +6,10 @@ query CustomersForBank {
       id
       ...CompanySettings
     }
+    contract {
+      id
+      ...Contract
+    }
   }
 }
 

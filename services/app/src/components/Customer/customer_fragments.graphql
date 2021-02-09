@@ -8,8 +8,6 @@ fragment CompanySettingsForCustomer on company_settings {
   company_id
   vendor_agreement_docusign_template
   collections_bespoke_bank_account_id
-  product_type
-  product_config
 }
 
 fragment VendorLimited on vendors {

@@ -1,4 +1,3 @@
-
 query Company($companyId: uuid!) {
   companies_by_pk(id: $companyId) {
     ...Company
@@ -14,6 +13,9 @@ query Company($companyId: uuid!) {
         ...BankAccount
       }
     }
+    contract {
+      ...Contract
+    }
   }
 }
 
@@ -28,6 +30,9 @@ query CompanyForCustomer($companyId: uuid!) {
       collections_bespoke_bank_account {
         ...BankAccount
       }
+    }
+    contract {
+      ...Contract
     }
   }
 }

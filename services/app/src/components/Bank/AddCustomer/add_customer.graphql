@@ -1,9 +1,11 @@
-
 mutation AddCustomer($customer: companies_insert_input!) {
   insert_companies_one(object: $customer) {
     id
     name
     settings {
+      id
+    }
+    contract {
       id
       product_type
     }

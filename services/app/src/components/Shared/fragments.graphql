@@ -41,6 +41,15 @@ fragment Company on companies {
   phone_number
 }
 
+fragment Contract on contracts {
+  id
+  company_id
+  product_type
+  product_config
+  start_date
+  end_date
+}
+
 ## Purchase Order Financing
 
 fragment VendorPartnership on company_vendor_partnerships {

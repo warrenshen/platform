@@ -4,7 +4,11 @@ import CollectionsBank from "components/Shared/BespokeBankAssignment/Collections
 import Can from "components/Shared/Can";
 import Settings from "components/Shared/Settings";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { CompanySettingsFragment, useCompanyQuery } from "generated/graphql";
+import {
+  CompanySettingsFragment,
+  ContractFragment,
+  useCompanyQuery,
+} from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { useContext } from "react";
 import { useParams } from "react-router-dom";
@@ -29,11 +33,14 @@ function SettingsPage() {
   }
 
   const settings = data?.companies_by_pk?.settings as CompanySettingsFragment;
+  const contract = data?.companies_by_pk?.contract as ContractFragment;
 
   return (
     <>
       <Settings
+        companyId={companyId}
         settings={settings}
+        contract={contract}
         bankAccounts={data?.companies_by_pk?.bank_accounts || []}
       ></Settings>
       <Can perform={Action.AssignBespokeBankAccountForCustomer}>
