@@ -34,19 +34,16 @@ class GenerateCodeView(MethodView):
 				return handler_util.make_error_response(f'Missing {key} generate code request')
 
 		link_val = form['link_val']
-		link_info = security_util.get_link_info_from_url(
-			link_val, cfg.get_security_config(), max_age_in_seconds=security_util.SECONDS_IN_HOUR * 8)
-		email = link_info['email']
-
-		# NOTE: Check if link is expired
 
 		with session_scope(current_app.session_maker) as session:
-			two_factor_link = cast(models.TwoFactorLink, session.query(models.TwoFactorLink).filter(
-				models.TwoFactorLink.id == link_info['link_id']).first())
+			two_factor_info, err = two_factor_util.get_two_factor_link(
+				link_val, cfg.get_security_config(), 
+				max_age_in_seconds=security_util.SECONDS_IN_HOUR * 8, session=session)
+			if err:
+				return handler_util.make_error_response(err)
 
-			if not two_factor_link:
-				return handler_util.make_error_response('Token id provided no longer exists')
-
+			two_factor_link = two_factor_info['link']
+			email = two_factor_info['email']
 			token_states_dict = cast(Dict, two_factor_link.token_states)
 			if email not in token_states_dict:
 				return handler_util.make_error_response('Invalid email for link provided')
@@ -82,17 +79,15 @@ class ApproveCodeView(MethodView):
 		if not provided_token_val:
 			return handler_util.make_error_response('No token value provided')
 
-		link_info = security_util.get_link_info_from_url(link_val, cfg.get_security_config(),
-														 max_age_in_seconds=security_util.SECONDS_IN_HOUR * 8)
-		email = link_info['email']
-
 		with session_scope(current_app.session_maker) as session:
-			two_factor_link = cast(models.TwoFactorLink, session.query(models.TwoFactorLink).filter(
-				models.TwoFactorLink.id == link_info['link_id']).first())
+			two_factor_info, err = two_factor_util.get_two_factor_link(
+				link_val, cfg.get_security_config(), 
+				max_age_in_seconds=security_util.SECONDS_IN_HOUR * 8, session=session)
+			if err:
+				return handler_util.make_error_response(err)
 
-			if not two_factor_link:
-				return handler_util.make_error_response('Link provided no longer exists')
-
+			two_factor_link = two_factor_info['link']
+			email = two_factor_info['email']
 			token_states_dict = cast(Dict, two_factor_link.token_states)
 
 			if email not in token_states_dict:
@@ -126,7 +121,8 @@ class GetSecureLinkPayloadView(MethodView):
 
 		with session_scope(current_app.session_maker) as session:
 			two_factor_info, err = two_factor_util.get_two_factor_link(
-				link_signed_val, cfg.get_security_config(), session)
+				link_signed_val, cfg.get_security_config(), 
+				max_age_in_seconds=security_util.SECONDS_IN_DAY * 7, session=session)
 			if err:
 				return handler_util.make_error_response(err)
 

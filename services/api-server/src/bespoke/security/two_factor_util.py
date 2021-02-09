@@ -17,10 +17,11 @@ TwoFactorInfoDict = TypedDict('TwoFactorInfoDict', {
 })
 
 def get_two_factor_link(
-	link_signed_val: str, security_config: security_util.ConfigDict, 
+	link_signed_val: str, security_config: security_util.ConfigDict,
+	max_age_in_seconds: int, 
 	session: Session) -> Tuple[TwoFactorInfoDict, errors.Error]:
 	link_info = security_util.get_link_info_from_url(
-		link_signed_val, security_config, max_age_in_seconds=security_util.SECONDS_IN_DAY * 7)
+		link_signed_val, security_config, max_age_in_seconds=max_age_in_seconds)
 	email = link_info['email']
 
 	two_factor_link = cast(models.TwoFactorLink, session.query(models.TwoFactorLink).filter(

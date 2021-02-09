@@ -51,6 +51,7 @@ function ReviewPurchaseOrderPage(props: Props) {
   const location: any = props.location;
 
   const payload = location.state?.payload;
+  const linkVal = location.state?.link_val;
   const purchaseOrderId = payload?.purchase_order_id;
 
   const history = useHistory();
@@ -187,6 +188,7 @@ function ReviewPurchaseOrderPage(props: Props) {
           {isApproveModalOpen && (
             <ReviewPurchaseOrderApproveModal
               purchaseOrder={purchaseOrder}
+              linkVal={linkVal}
               handleClose={() => setIsApproveModalOpen(false)}
               handleApproveSuccess={() => {
                 history.push({
@@ -198,6 +200,7 @@ function ReviewPurchaseOrderPage(props: Props) {
           {isRejectModalOpen && (
             <ReviewPurchaseOrderRejectModal
               purchaseOrderId={purchaseOrder?.id}
+              linkVal={linkVal}
               handleClose={() => setIsRejectModalOpen(false)}
               handleRejectSuccess={() =>
                 history.push({

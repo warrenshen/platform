@@ -43,12 +43,14 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   purchaseOrder: PurchaseOrderFragment;
+  linkVal: string; // // the link value used to generate this one-time reject ability
   handleClose: () => void;
   handleApproveSuccess: () => void;
 }
 
 function ReviewPurchaseOrderApproveModal({
   purchaseOrder,
+  linkVal,
   handleClose,
   handleApproveSuccess,
 }: Props) {
@@ -76,6 +78,7 @@ function ReviewPurchaseOrderApproveModal({
         purchase_order_id: purchaseOrder.id,
         new_request_status: RequestStatusEnum.Approved,
         rejection_note: "",
+        link_val: linkVal,
       }
     );
     if (response.data?.status === "ERROR") {

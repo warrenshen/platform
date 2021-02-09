@@ -1,5 +1,7 @@
 import json
-from typing import List, cast
+from flask import Blueprint, Response, current_app, make_response, request
+from flask.views import MethodView
+from typing import Callable, List, cast
 
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
@@ -7,16 +9,11 @@ from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.enums.request_status_enum import RequestStatusEnum
 from bespoke.finance import number_util
-from flask import Blueprint, Response, current_app, make_response, request
-from flask.views import MethodView
+from bespoke.security import two_factor_util, security_util
+from server.config import Config
 from server.views.common import auth_util, handler_util
 
 handler = Blueprint('purchase_orders', __name__)
-
-
-def make_error_response(msg: str) -> Response:
-	return make_response(json.dumps({'status': 'ERROR', 'msg': msg}), 200)
-
 
 class PurchaseOrderFileTypeEnum():
 	Cannabis = 'cannabis'
@@ -31,34 +28,37 @@ class RespondToApprovalRequestView(MethodView):
 
 	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
+		cfg = cast(Config, current_app.app_config)
 		sendgrid_client = cast(sendgrid_util.Client,
 							   current_app.sendgrid_client)
 
 		data = json.loads(request.data)
 		if not data:
-			return make_error_response('No data provided')
+			return handler_util.make_error_response('No data provided')
 
 		required_keys = [
 			'purchase_order_id',
 			'new_request_status',
 			'rejection_note',
+			'link_val'
 		]
 		for key in required_keys:
 			if key not in data:
-				return make_error_response(f'Missing {key} in respond to approval request')
+				return handler_util.make_error_response(f'Missing {key} in respond to approval request')
 
 		purchase_order_id = data['purchase_order_id']
 		new_request_status = data['new_request_status']
 		rejection_note = data['rejection_note']
+		link_val = data['link_val']
 
 		if not purchase_order_id:
-			return make_error_response('No Purchase Order ID provided')
+			return handler_util.make_error_response('No Purchase Order ID provided')
 
 		if new_request_status not in [RequestStatusEnum.Approved, RequestStatusEnum.Rejected]:
-			return make_error_response('Invalid new request status provided')
+			return handler_util.make_error_response('Invalid new request status provided')
 
 		if new_request_status == RequestStatusEnum.Rejected and not rejection_note:
-			return make_error_response('Rejection note is required if response is rejected')
+			return handler_util.make_error_response('Rejection note is required if response is rejected')
 
 		purchase_order_dicts = []
 		vendor_name = ''
@@ -66,6 +66,13 @@ class RespondToApprovalRequestView(MethodView):
 		action_type = ''
 
 		with session_scope(current_app.session_maker) as session:
+			two_factor_info, bespoke_err = two_factor_util.get_two_factor_link(
+				link_val, cfg.get_security_config(), 
+				max_age_in_seconds=security_util.SECONDS_IN_DAY * 7, session=session)
+			if bespoke_err:
+				return handler_util.make_error_response(bespoke_err)
+			two_factor_link = two_factor_info['link']
+
 			purchase_order = cast(
 				models.PurchaseOrder,
 				session.query(models.PurchaseOrder).filter_by(
@@ -92,12 +99,13 @@ class RespondToApprovalRequestView(MethodView):
 				models.User).filter_by(company_id=purchase_order.company_id).all())
 
 			if not customer_users:
-				return make_error_response('There are no users configured for this customer')
+				return handler_util.make_error_response('There are no users configured for this customer')
 
 			vendor_name = purchase_order.vendor.name
 			customer_name = purchase_order.company.name
 			customer_emails = [user.email for user in customer_users]
 
+			cast(Callable, session.delete)(two_factor_link) # retire the link now that it has been used
 			session.commit()
 
 		template_name = sendgrid_util.TemplateNames.VENDOR_APPROVES_OR_REJECTS_PURCHASE_ORDER
@@ -111,7 +119,7 @@ class RespondToApprovalRequestView(MethodView):
 		_, err = sendgrid_client.send(
 			template_name, template_data, recipients)
 		if err:
-			return make_error_response(err)
+			return handler_util.make_error_response(err)
 
 		return make_response(json.dumps({
 			'status': 'OK',
@@ -129,12 +137,12 @@ class SubmitForApprovalView(MethodView):
 
 		data = json.loads(request.data)
 		if not data:
-			return make_error_response('No data provided')
+			return handler_util.make_error_response('No data provided')
 
 		purchase_order_id = data['purchase_order_id']
 
 		if not purchase_order_id:
-			return make_error_response('No Purchase Order ID provided')
+			return handler_util.make_error_response('No Purchase Order ID provided')
 
 		vendor_emails = []
 		vendor_name = None
@@ -151,28 +159,28 @@ class SubmitForApprovalView(MethodView):
 			customer = purchase_order.company
 
 			if not purchase_order.order_number:
-				return make_error_response('Invalid order number')
+				return handler_util.make_error_response('Invalid order number')
 
 			if not purchase_order.order_date:
-				return make_error_response('Invalid order date')
+				return handler_util.make_error_response('Invalid order date')
 
 			if not purchase_order.delivery_date:
-				return make_error_response('Invalid delivery date')
+				return handler_util.make_error_response('Invalid delivery date')
 
 			if purchase_order.amount is None or purchase_order.amount <= 0:
-				return make_error_response('Invalid amount')
+				return handler_util.make_error_response('Invalid amount')
 
 			company_vendor_relationship = cast(models.CompanyVendorPartnership, session.query(
 				models.CompanyVendorPartnership
 			).filter_by(company_id=customer.id, vendor_id=vendor.id).first())
 			if not company_vendor_relationship or company_vendor_relationship.approved_at is None:
-				return make_error_response('Vendor is not approved')
+				return handler_util.make_error_response('Vendor is not approved')
 
 			purchase_order_file = cast(models.PurchaseOrderFile, session.query(
 				models.PurchaseOrderFile
 			).filter_by(purchase_order_id=purchase_order.id, file_type=PurchaseOrderFileTypeEnum.PurchaseOrder).first())
 			if not purchase_order_file:
-				return make_error_response('File attachment is required')
+				return handler_util.make_error_response('File attachment is required')
 
 			vendor_name = vendor.name
 			customer_name = customer.name
@@ -181,7 +189,7 @@ class SubmitForApprovalView(MethodView):
 				models.User).filter_by(company_id=purchase_order.vendor_id).all())
 
 			if not vendor_users:
-				return make_error_response('There are no users configured for this vendor')
+				return handler_util.make_error_response('There are no users configured for this vendor')
 
 			vendor_emails = [user.email for user in vendor_users]
 
@@ -214,7 +222,7 @@ class SubmitForApprovalView(MethodView):
 		_, err = sendgrid_client.send(
 			template_name, template_data, recipients, two_factor_payload=two_factor_payload)
 		if err:
-			return make_error_response(err)
+			return handler_util.make_error_response(err)
 
 		return make_response(json.dumps({
 			'status': 'OK',

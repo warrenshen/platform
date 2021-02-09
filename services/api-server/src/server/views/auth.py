@@ -111,7 +111,9 @@ class ResetPasswordView(MethodView):
 			return handler_util.make_error_response('No link value or password provided', 401)
 
 		with session_scope(current_app.session_maker) as session:
-			two_factor_info, err = two_factor_util.get_two_factor_link(link_val, cfg.get_security_config(), session)
+			two_factor_info, err = two_factor_util.get_two_factor_link(
+				link_val, cfg.get_security_config(), 
+				max_age_in_seconds=security_util.SECONDS_IN_DAY * 3, session=session)
 			if err:
 				return handler_util.make_error_response(err)
 
