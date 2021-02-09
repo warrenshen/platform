@@ -57,6 +57,7 @@ query LoansByCompanyAndLoanTypeForBank(
       ]
     }
   ) {
+    id
     ...Loan
     purchase_order {
       id
@@ -73,10 +74,44 @@ query LoansForBank {
       id
       name
     }
+    line_of_credit {
+      id
+      recipient_vendor {
+        id
+        name
+      }
+    }
     purchase_order {
       id
       order_number
       vendor {
+        id
+        name
+      }
+    }
+  }
+}
+
+query LoansByStatusForBank($status: loan_status_enum) {
+  loans(where: { status: { _eq: $status } }) {
+    id
+    ...Loan
+    company {
+      id
+      name
+    }
+    line_of_credit {
+      id
+      recipient_vendor {
+        id
+        name
+      }
+    }
+    purchase_order {
+      id
+      order_number
+      vendor {
+        id
         name
       }
     }

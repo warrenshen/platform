@@ -108,13 +108,17 @@ const BANK_LEFT_NAV_ITEMS = [
     link: bankRoutes.loansAllProducts,
   },
   {
-    text: "Loans by Purchase Order",
-    link: bankRoutes.loansPurchaseOrder,
+    text: "Loans Approval Requested",
+    link: bankRoutes.loansApprovalRequested,
   },
-  {
-    text: "Loans by Line of Credit",
-    link: bankRoutes.loansLineOfCredit,
-  },
+  // {
+  //   text: "Loans by Purchase Order",
+  //   link: bankRoutes.loansPurchaseOrder,
+  // },
+  // {
+  //   text: "Loans by Line of Credit",
+  //   link: bankRoutes.loansLineOfCredit,
+  // },
   {
     text: "Payments",
     link: bankRoutes.payments,

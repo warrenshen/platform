@@ -44,6 +44,7 @@ export const bankRoutes = {
   },
   customers: "/customers",
   loansAllProducts: "/loans-all-products",
+  loansApprovalRequested: "/loans-approval-requested",
   loansLineOfCredit: "/loans-line-of-credit",
   loansMaturing: "/loans-maturing",
   loansPastDue: "/loans-past-due",

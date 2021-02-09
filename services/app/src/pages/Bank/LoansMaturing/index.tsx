@@ -23,7 +23,7 @@ function LoansMaturingPage() {
   const { data, error } = useLoansForBankQuery();
 
   if (error) {
-    alert("Error querying purchase order loans. " + error);
+    alert("Error querying loans. " + error);
   }
 
   const loans = (data?.loans || []) as LoanFragment[];

@@ -145,12 +145,12 @@ function CreateUpdatePurchaseOrderModal({
   const isFormValid = !!purchaseOrder.vendor_id;
   const isFormLoading =
     isAddPurchaseOrderLoading || isUpdatePurchaseOrderLoading;
-  const isSaveDraftDisabled = !isFormValid || isFormLoading;
+  const isSaveDraftDisabled =
+    !isFormValid || isFormLoading || !purchaseOrder.order_number;
   const isSaveSubmitDisabled =
     isSaveDraftDisabled ||
     !vendors?.find((vendor) => vendor.id === purchaseOrder.vendor_id)
       ?.company_vendor_partnerships[0].approved_at ||
-    !purchaseOrder.order_number ||
     !purchaseOrder.order_date ||
     !purchaseOrder.delivery_date ||
     !purchaseOrder.amount ||
@@ -179,7 +179,7 @@ function CreateUpdatePurchaseOrderModal({
           id: purchaseOrder.id,
           purchaseOrder: {
             vendor_id: purchaseOrder.vendor_id,
-            order_number: purchaseOrder.order_number,
+            order_number: purchaseOrder.order_number || null,
             order_date: purchaseOrder.order_date || null,
             delivery_date: purchaseOrder.delivery_date || null,
             amount: purchaseOrder.amount || null,
@@ -195,7 +195,7 @@ function CreateUpdatePurchaseOrderModal({
         variables: {
           purchase_order: {
             vendor_id: purchaseOrder.vendor_id,
-            order_number: purchaseOrder.order_number,
+            order_number: purchaseOrder.order_number || null,
             order_date: purchaseOrder.order_date || null,
             delivery_date: purchaseOrder.delivery_date || null,
             amount: purchaseOrder.amount || null,

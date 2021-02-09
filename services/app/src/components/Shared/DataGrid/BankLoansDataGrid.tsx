@@ -2,7 +2,9 @@ import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import Status from "components/Shared/Chip/Status";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
-import DataGridActionMenu from "components/Shared/DataGrid/DataGridActionMenu";
+import DataGridActionMenu, {
+  DataGridActionItem,
+} from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import DataGrid, {
   Column,
@@ -20,21 +22,23 @@ import { AllLoanStatuses, LoanTypeToLabel } from "lib/enum";
 import { useEffect, useState } from "react";
 
 interface Props {
-  loans: LoanFragment[];
   fullView: boolean;
   loansPastDue: boolean;
   matureDays?: number | null;
   filterByStatus?: RequestStatusEnum;
+  loans: LoanFragment[];
+  actionItems?: DataGridActionItem[];
 }
 
 const getMaturityDate = (rowData: any) => new Date(rowData.maturity_date);
 
 function BankLoansDataGrid({
-  loans,
   fullView,
   loansPastDue,
   matureDays,
   filterByStatus,
+  loans,
+  actionItems = [],
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = loans;
@@ -75,20 +79,6 @@ function BankLoansDataGrid({
 
   const statusCellRenderer = (params: ValueFormatterParams) => (
     <Status statusValue={params.value} />
-  );
-
-  const actionCellRenderer = (params: ValueFormatterParams) => (
-    <DataGridActionMenu
-      params={params}
-      actionItems={[
-        {
-          key: "edit-purchase-order-loan",
-          label: "Edit",
-          // TODO: add handleEditPurchaseOrderLoan function as a prop
-          handleClick: (params) => {},
-        },
-      ]}
-    ></DataGridActionMenu>
   );
 
   const columns: IColumnProps[] = [
@@ -202,13 +192,20 @@ function BankLoansDataGrid({
     });
   }
 
-  columns.push({
-    dataField: "action",
-    caption: "Action",
-    alignment: "center",
-    width: 100,
-    cellRender: actionCellRenderer,
-  });
+  if (actionItems.length > 0) {
+    columns.push({
+      dataField: "action",
+      caption: "Action",
+      alignment: "center",
+      width: 100,
+      cellRender: (params: ValueFormatterParams) => (
+        <DataGridActionMenu
+          params={params}
+          actionItems={actionItems}
+        ></DataGridActionMenu>
+      ),
+    });
+  }
 
   return (
     <DataGrid

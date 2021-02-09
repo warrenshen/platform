@@ -51,6 +51,11 @@ function LineOfCreditLoansDataGrid({ loans, actionItems }: Props) {
       cellRender: renderLineOfCredit,
     },
     {
+      caption: "Recipient Vendor",
+      minWidth: 150,
+      cellRender: () => "",
+    },
+    {
       alignment: "right",
       caption: "Amount",
       minWidth: 150,

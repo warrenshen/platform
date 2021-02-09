@@ -18,6 +18,7 @@ import BankBankAccountsPage from "pages/Bank/BankAccounts";
 import BankCustomerPage from "pages/Bank/Customer";
 import BankCustomersPage from "pages/Bank/Customers";
 import BankLoansAllProductsPage from "pages/Bank/LoansAllProducts";
+import BankLoansApprovalRequestedPage from "pages/Bank/LoansApprovalRequested";
 import BankLoansLineOfCreditPage from "pages/Bank/LoansLineOfCredit";
 import BankLoansMaturingPage from "pages/Bank/LoansMaturing";
 import BankLoansPastDuePage from "pages/Bank/LoansPastDue";
@@ -158,6 +159,13 @@ function App() {
             requiredRoles={[UserRolesEnum.BankAdmin]}
           >
             <BankOverviewPage></BankOverviewPage>
+          </PrivateRoute>
+          <PrivateRoute
+            exact
+            path={bankRoutes.loansApprovalRequested}
+            requiredRoles={[UserRolesEnum.BankAdmin]}
+          >
+            <BankLoansApprovalRequestedPage></BankLoansApprovalRequestedPage>
           </PrivateRoute>
           <PrivateRoute
             exact

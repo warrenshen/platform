@@ -4,7 +4,7 @@ import { LoanFragment, RequestStatusEnum } from "generated/graphql";
 import { Link } from "react-router-dom";
 
 interface Props {
-  purchaseOrderLoans: LoanFragment[];
+  loans: LoanFragment[];
   tableName: string;
   routeToTablePage?: string;
   loansPastDue: boolean;
@@ -13,7 +13,7 @@ interface Props {
 }
 
 function LoansTable({
-  purchaseOrderLoans,
+  loans,
   tableName,
   routeToTablePage,
   loansPastDue,
@@ -43,11 +43,12 @@ function LoansTable({
         )}
         <Box style={{ height: "auto", width: "100%" }}>
           <BankLoansDataGrid
-            loans={purchaseOrderLoans}
             fullView={false}
             loansPastDue={loansPastDue}
             matureDays={matureDays}
             filterByStatus={filterByStatus}
+            loans={loans}
+            actionItems={[]}
           ></BankLoansDataGrid>
         </Box>
       </Box>
