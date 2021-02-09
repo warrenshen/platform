@@ -1,8 +1,8 @@
 import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import Status from "components/Shared/Chip/Status";
-import ActionMenu from "components/Shared/DataGrid/ActionMenu";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
+import DataGridActionMenu from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import DataGrid, {
   Column,
@@ -16,7 +16,7 @@ import {
   LoanTypeEnum,
   RequestStatusEnum,
 } from "generated/graphql";
-import { LoanTypeToLabel, AllLoanStatuses } from "lib/enum";
+import { AllLoanStatuses, LoanTypeToLabel } from "lib/enum";
 import { useEffect, useState } from "react";
 
 interface Props {
@@ -78,15 +78,17 @@ function BankLoansDataGrid({
   );
 
   const actionCellRenderer = (params: ValueFormatterParams) => (
-    <ActionMenu
+    <DataGridActionMenu
+      params={params}
       actionItems={[
         {
           key: "edit-purchase-order-loan",
           label: "Edit",
-          handleClick: () => {},
+          // TODO: add handleEditPurchaseOrderLoan function as a prop
+          handleClick: (params) => {},
         },
       ]}
-    ></ActionMenu>
+    ></DataGridActionMenu>
   );
 
   const columns: IColumnProps[] = [

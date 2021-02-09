@@ -1,17 +1,20 @@
 import { Box, IconButton, Menu, MenuItem } from "@material-ui/core";
+import { ValueFormatterParams } from "@material-ui/data-grid";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import { useState } from "react";
 
-type ActionItem = {
+export type DataGridActionItem = {
   key: string;
   label: string;
-  handleClick: () => void;
+  handleClick: (params: ValueFormatterParams) => void;
 };
+
 interface Props {
-  actionItems: ActionItem[];
+  params: ValueFormatterParams;
+  actionItems: DataGridActionItem[];
 }
 
-function ActionMenu({ actionItems }: Props) {
+function DataGridActionMenu({ params, actionItems }: Props) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -37,7 +40,7 @@ function ActionMenu({ actionItems }: Props) {
           <MenuItem
             key={actionItem.key}
             onClick={() => {
-              actionItem.handleClick();
+              actionItem.handleClick(params);
               handleClose();
             }}
           >
@@ -49,4 +52,4 @@ function ActionMenu({ actionItems }: Props) {
   );
 }
 
-export default ActionMenu;
+export default DataGridActionMenu;

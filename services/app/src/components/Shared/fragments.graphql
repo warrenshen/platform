@@ -145,4 +145,6 @@ fragment EbbaApplication on ebba_applications {
   monthly_accounts_receivable
   monthly_inventory
   monthly_cash
+  status
+  created_at
 }

@@ -1,8 +1,10 @@
 import { Box } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
-import Status from "components/Shared/Chip/Status";
-import ActionMenu from "components/Shared/DataGrid/ActionMenu";
+import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
+import DataGridActionMenu, {
+  DataGridActionItem,
+} from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import DataGrid, {
@@ -11,7 +13,7 @@ import DataGrid, {
   Pager,
   Paging,
 } from "devextreme-react/data-grid";
-import { PurchaseOrderFragment } from "generated/graphql";
+import { PurchaseOrderFragment, RequestStatusEnum } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
 import { Action, check } from "lib/auth/rbac-rules";
 import { useContext } from "react";
@@ -23,49 +25,21 @@ function populateRows(
     ? purchaseOrders.map((item) => {
         return {
           ...item,
-          action: 1,
           vendor_name: item.vendor?.name,
         };
       })
     : [];
 }
+
 interface Props {
   purchaseOrders: PurchaseOrderFragment[];
-  handleEditPurchaseOrder: (purchaseOrderId: string) => void;
-  handleViewPurchaseOrder: (purchaseOrderId: string) => void;
+  actionItems: DataGridActionItem[];
 }
 
-function ListPurchaseOrders({
-  purchaseOrders,
-  handleEditPurchaseOrder,
-  handleViewPurchaseOrder,
-}: Props) {
+function PurchaseOrdersDataGrid({ purchaseOrders, actionItems }: Props) {
   const { user } = useContext(CurrentUserContext);
 
   const rows = populateRows(purchaseOrders);
-
-  const statusCellRenderer = (params: ValueFormatterParams) => (
-    <Status statusValue={params.value} />
-  );
-
-  const actionCellRenderer = (params: ValueFormatterParams) => (
-    <ActionMenu
-      actionItems={[
-        {
-          key: "view-purchase-order",
-          label: "View",
-          handleClick: () =>
-            handleViewPurchaseOrder(params.row.data.id as string),
-        },
-        {
-          key: "edit-purchase-order",
-          label: "Edit",
-          handleClick: () =>
-            handleEditPurchaseOrder(params.row.data.id as string),
-        },
-      ]}
-    ></ActionMenu>
-  );
 
   const columns: IColumnProps[] = [
     {
@@ -118,7 +92,9 @@ function ListPurchaseOrders({
       caption: "Status",
       minWidth: 175,
       alignment: "center",
-      cellRender: statusCellRenderer,
+      cellRender: (params: ValueFormatterParams) => (
+        <RequestStatusChip requestStatus={params.value as RequestStatusEnum} />
+      ),
     },
     {
       dataField: "action",
@@ -126,7 +102,12 @@ function ListPurchaseOrders({
       alignment: "center",
       minWidth: 100,
       visible: check(user.role, Action.ViewPurchaseOrdersActionMenu),
-      cellRender: actionCellRenderer,
+      cellRender: (params: ValueFormatterParams) => (
+        <DataGridActionMenu
+          params={params}
+          actionItems={actionItems}
+        ></DataGridActionMenu>
+      ),
     },
   ];
 
@@ -165,4 +146,4 @@ function ListPurchaseOrders({
   );
 }
 
-export default ListPurchaseOrders;
+export default PurchaseOrdersDataGrid;

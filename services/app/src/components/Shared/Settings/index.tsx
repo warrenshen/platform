@@ -47,29 +47,32 @@ function Settings(props: Props) {
 
   return (
     <div>
-      <BankAccounts
-        companyId={settings.company_id}
-        bankAccounts={props.bankAccounts}
-      ></BankAccounts>
       <Box>
-        <h3>Account Settings</h3>
-        {accountSettingsOpen && (
-          <EditAccountSettings
+        <h2>Account Settings</h2>
+        <Box>
+          {accountSettingsOpen && (
+            <EditAccountSettings
+              settings={settings}
+              onClose={() => {
+                setAccountSettingsOpen(false);
+              }}
+            ></EditAccountSettings>
+          )}
+          <AccountSettingsCard
             settings={settings}
-            onClose={() => {
-              setAccountSettingsOpen(false);
+            onClick={() => {
+              setAccountSettingsOpen(true);
             }}
-          ></EditAccountSettings>
-        )}
-        <AccountSettingsCard
-          settings={settings}
-          onClick={() => {
-            setAccountSettingsOpen(true);
-          }}
-        ></AccountSettingsCard>
+          ></AccountSettingsCard>
+        </Box>
+        <BankAccounts
+          companyId={settings.company_id}
+          bankAccounts={props.bankAccounts}
+        ></BankAccounts>
       </Box>
       {productType === ProductTypeEnum.LineOfCredit && (
         <Box mt={3}>
+          <h2>Line of Credit Settings</h2>
           <h3>Eligible Borrowing Base Amount Applications</h3>
           <Box>
             {isCreateEbbaApplicationModalOpen && (

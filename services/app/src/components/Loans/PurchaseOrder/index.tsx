@@ -1,41 +1,73 @@
 import { Box, Button } from "@material-ui/core";
 import RepaymentButton from "components/Customer/PurchaseOrderLoanRepayment/RepaymentButton";
-import PurchaseOrderLoansView from "components/Loans/PurchaseOrder/PurchaseOrderLoansView";
 import Can from "components/Shared/Can";
+import ViewLoanModal from "components/Shared/Loans/ViewLoanModal";
 import {
   LoanFragment,
   LoanTypeEnum,
   useLoansByCompanyAndLoanTypeForCustomerQuery,
 } from "generated/graphql";
 import useCompanyContext from "hooks/useCompanyContext";
+import { ActionType } from "lib/ActionType";
 import { Action } from "lib/auth/rbac-rules";
 import { useState } from "react";
+import CreateUpdatePurchaseOrderLoanModal from "./CreateUpdatePurchaseOrderLoanModal";
+import PurchaseOrderLoansDataGrid from "./PurchaseOrderLoansDataGrid";
 
 function Loans() {
   const companyId = useCompanyContext();
 
-  const {
-    data,
-    error,
-    loading: isLoansLoading,
-    refetch,
-  } = useLoansByCompanyAndLoanTypeForCustomerQuery({
-    variables: {
-      companyId,
-      loanType: LoanTypeEnum.PurchaseOrder,
-    },
-  });
+  const { data, error, refetch } = useLoansByCompanyAndLoanTypeForCustomerQuery(
+    {
+      variables: {
+        companyId,
+        loanType: LoanTypeEnum.PurchaseOrder,
+      },
+    }
+  );
   if (error) {
     alert("Error querying purchase orders. " + error);
   }
 
   const purchaseOrderLoans = data?.loans || [];
-  // State for create / update Purchase Order modal(s).
+  // State for modal(s).
   const [isCreateUpdateModalOpen, setIsCreateUpdateModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [targetLoanId, setTargetLoanId] = useState("");
   const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
+
+  const handleEditPurchaseOrderLoan = (loanId: string) => {
+    setTargetLoanId(loanId);
+    setIsCreateUpdateModalOpen(true);
+  };
+
+  const handleViewLoan = (loanId: string) => {
+    setTargetLoanId(loanId);
+    setIsViewModalOpen(true);
+  };
 
   return (
     <Box>
+      {isViewModalOpen && (
+        <ViewLoanModal
+          loanId={targetLoanId}
+          handleClose={() => {
+            setTargetLoanId("");
+            setIsViewModalOpen(false);
+          }}
+        ></ViewLoanModal>
+      )}
+      {isCreateUpdateModalOpen && (
+        <CreateUpdatePurchaseOrderLoanModal
+          actionType={targetLoanId === "" ? ActionType.New : ActionType.Update}
+          loanId={targetLoanId}
+          handleClose={() => {
+            setTargetLoanId("");
+            refetch();
+            setIsCreateUpdateModalOpen(false);
+          }}
+        ></CreateUpdatePurchaseOrderLoanModal>
+      )}
       <Box pb={2} display="flex" flexDirection="row-reverse">
         <Can perform={Action.AddPurchaseOrders}>
           <Button
@@ -52,14 +84,26 @@ function Loans() {
           </Box>
         </Can>
       </Box>
-      <PurchaseOrderLoansView
-        isDataLoading={isLoansLoading}
-        purchaseOrderLoans={purchaseOrderLoans}
-        refetch={refetch}
-        handleSelectLoans={(loans) => setSelectedLoans(loans)}
-        isCreateUpdateModalOpen={isCreateUpdateModalOpen}
-        setIsCreateUpdateModalOpen={setIsCreateUpdateModalOpen}
-      ></PurchaseOrderLoansView>
+      <Box display="flex" flex={1}>
+        <PurchaseOrderLoansDataGrid
+          purchaseOrderLoans={purchaseOrderLoans}
+          actionItems={[
+            {
+              key: "view-loan",
+              label: "View",
+              handleClick: (params) =>
+                handleViewLoan(params.row.data.id as string),
+            },
+            {
+              key: "edit-purchase-order-loan",
+              label: "Edit",
+              handleClick: (params) =>
+                handleEditPurchaseOrderLoan(params.row.data.id as string),
+            },
+          ]}
+          handleSelectLoans={(loans) => setSelectedLoans(loans)}
+        ></PurchaseOrderLoansDataGrid>
+      </Box>
     </Box>
   );
 }

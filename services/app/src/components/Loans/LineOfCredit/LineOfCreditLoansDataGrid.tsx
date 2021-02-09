@@ -1,8 +1,10 @@
 import { Box } from "@material-ui/core";
 import { CellParams, ValueFormatterParams } from "@material-ui/data-grid";
-import Status from "components/Shared/Chip/Status";
-import ActionMenu from "components/Shared/DataGrid/ActionMenu";
+import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
+import DataGridActionMenu, {
+  DataGridActionItem,
+} from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import DataGrid, {
@@ -12,15 +14,13 @@ import DataGrid, {
   Paging,
   Selection,
 } from "devextreme-react/data-grid";
-import { LineOfCreditFragment, LoanFragment } from "generated/graphql";
+import {
+  LineOfCreditFragment,
+  LoanFragment,
+  RequestStatusEnum,
+} from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import React, { useContext } from "react";
-
-interface DataGridActionItem {
-  key: string;
-  label: string;
-  handleClick: (params: ValueFormatterParams) => void;
-}
 
 interface Props {
   loans: LoanFragment[];
@@ -44,22 +44,9 @@ function LineOfCreditLoansDataGrid({ loans, actionItems }: Props) {
     );
   };
 
-  const renderStatusCell = (params: ValueFormatterParams) => (
-    <Status statusValue={params.value} />
-  );
-
-  const renderActionCell = (params: ValueFormatterParams) => (
-    <ActionMenu
-      actionItems={actionItems.map((actionItem) => ({
-        ...actionItem,
-        handleClick: () => actionItem.handleClick(params),
-      }))}
-    ></ActionMenu>
-  );
-
   const columns: IColumnProps[] = [
     {
-      caption: "Is For Vendor?",
+      caption: "Credit For Vendor?",
       minWidth: 150,
       cellRender: renderLineOfCredit,
     },
@@ -108,7 +95,11 @@ function LineOfCreditLoansDataGrid({ loans, actionItems }: Props) {
       caption: "Status",
       alignment: "center",
       minWidth: 175,
-      cellRender: renderStatusCell,
+      cellRender: (params: ValueFormatterParams) => (
+        <RequestStatusChip
+          requestStatus={params.value as RequestStatusEnum}
+        ></RequestStatusChip>
+      ),
     },
     {
       dataField: "action",
@@ -116,7 +107,12 @@ function LineOfCreditLoansDataGrid({ loans, actionItems }: Props) {
       alignment: "center",
       minWidth: 100,
       visible: check(user.role, Action.ViewPurchaseOrdersActionMenu),
-      cellRender: renderActionCell,
+      cellRender: (params: ValueFormatterParams) => (
+        <DataGridActionMenu
+          params={params}
+          actionItems={actionItems}
+        ></DataGridActionMenu>
+      ),
     },
   ];
 

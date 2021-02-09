@@ -7,6 +7,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
+import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import { format, parse } from "date-fns";
 import { EbbaApplicationFragment } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
@@ -34,6 +35,10 @@ function EbbaApplicationCard({ ebbaApplication }: Props) {
   return (
     <Card className={classes.card}>
       <CardContent>
+        <Box display="flex" mb={0.25}>
+          <Typography className={classes.label}>Status</Typography>
+          <RequestStatusChip requestStatus={ebbaApplication.status} />
+        </Box>
         <Box display="flex" mb={0.25}>
           <Typography className={classes.label}>Application Month</Typography>
           <Typography>

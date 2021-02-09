@@ -125,6 +125,7 @@ function CreateUpdatePurchaseOrderLoanModal({
     { loading: isUpdateLoanLoading },
   ] = useUpdateLoanMutation();
 
+  // TODO (warrenshen): should this query have a companyId variable?
   const {
     data,
     loading: isApprovedPurchaseOrdersLoading,
@@ -216,7 +217,7 @@ function CreateUpdatePurchaseOrderLoanModal({
   const isFormLoading = isAddLoanLoading || isUpdateLoanLoading;
   const isSaveDraftDisabled = !isFormValid || isFormLoading;
 
-  // TODO(warren): Make it apparent to the user the reason we are disabling submitting a purchase order
+  // TODO (warrenshen): Make it apparent to the user the reason we are disabling submitting a purchase order
   // for approval, e.g., if they are asking for more than the purchase order is worth.
   const isSaveSubmitDisabled =
     !isFormValid ||

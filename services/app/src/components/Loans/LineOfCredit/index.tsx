@@ -27,9 +27,9 @@ function Loans() {
   }
 
   const loans = data?.loans || [];
-  // State for create / update Purchase Order modal(s).
-  const [isCreateUpdateModalOpen, setIsCreateUpdateModalOpen] = useState(false);
 
+  // State for modal(s).
+  const [isCreateUpdateModalOpen, setIsCreateUpdateModalOpen] = useState(false);
   const [targetLoanId, setTargetLoanId] = useState("");
 
   // const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);

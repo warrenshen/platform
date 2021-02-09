@@ -35,7 +35,7 @@ function UserMenu() {
   return (
     <>
       <Box display="flex" flexDirection="row" alignItems="center">
-        <Box display="flex" flexDirection="column" alignItems="flex-end">
+        <Box display="flex" flexDirection="column" alignItems="flex-end" mr={1}>
           <Typography variant="button">
             {user?.role === UserRolesEnum.BankAdmin
               ? "Bespoke (Bank)"

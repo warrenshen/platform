@@ -2,17 +2,17 @@ import { Box, Button } from "@material-ui/core";
 import Can from "components/Shared/Can";
 import CreateUpdatePurchaseOrderModal from "components/Shared/PurchaseOrders/CreateUpdatePurchaseOrderModal";
 import ViewPurchaseOrderModal from "components/Shared/PurchaseOrders/ViewPurchaseOrder/ViewPurchaseOrderModal";
-import { useListPurchaseOrdersQuery } from "generated/graphql";
+import { usePurchaseOrdersByCompanyIdQuery } from "generated/graphql";
 import useCompanyContext from "hooks/useCompanyContext";
 import { ActionType } from "lib/ActionType";
 import { Action } from "lib/auth/rbac-rules";
 import { useState } from "react";
-import ListPurchaseOrders from "./ListPurchaseOrders";
+import PurchaseOrdersDataGrid from "./PurchaseOrdersDataGrid";
 
 function PurchaseOrders() {
   const companyId = useCompanyContext();
 
-  const { data, refetch, error } = useListPurchaseOrdersQuery({
+  const { data, refetch, error } = usePurchaseOrdersByCompanyIdQuery({
     variables: {
       company_id: companyId,
     },
@@ -73,11 +73,23 @@ function PurchaseOrders() {
           </Button>
         </Can>
       </Box>
-      <ListPurchaseOrders
+      <PurchaseOrdersDataGrid
         purchaseOrders={purchaseOrders}
-        handleEditPurchaseOrder={handleEditPurchaseOrder}
-        handleViewPurchaseOrder={handleViewPurchaseOrder}
-      ></ListPurchaseOrders>
+        actionItems={[
+          {
+            key: "view-purchase-order",
+            label: "View",
+            handleClick: (params) =>
+              handleViewPurchaseOrder(params.row.data.id as string),
+          },
+          {
+            key: "edit-purchase-order",
+            label: "Edit",
+            handleClick: (params) =>
+              handleEditPurchaseOrder(params.row.data.id as string),
+          },
+        ]}
+      ></PurchaseOrdersDataGrid>
     </Box>
   );
 }

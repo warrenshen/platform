@@ -1,8 +1,10 @@
 import { Box } from "@material-ui/core";
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { ValueFormatterParams } from "@material-ui/data-grid";
 import Status from "components/Shared/Chip/Status";
-import ActionMenu from "components/Shared/DataGrid/ActionMenu";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
+import DataGridActionMenu, {
+  DataGridActionItem,
+} from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import Launcher from "components/Shared/PurchaseOrderLoanDrawer/Launcher";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
@@ -13,41 +15,24 @@ import DataGrid, {
   Paging,
   Selection,
 } from "devextreme-react/data-grid";
-import { LoanFragment, Maybe, Scalars } from "generated/graphql";
+import { LoanFragment } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import React, { useContext } from "react";
 
-function getRows(purchaseOrderLoans: Maybe<LoanFragment[]>): RowsProp {
-  return purchaseOrderLoans
-    ? purchaseOrderLoans.map((item) => {
-        return {
-          ...item,
-        };
-      })
-    : [];
-}
 interface Props {
   purchaseOrderLoans: LoanFragment[];
-  handleApproveLoan: (loanId: Scalars["uuid"]) => void;
-  handleEditLoanNotes: (loanId: Scalars["uuid"]) => void;
-  handleEditPurchaseOrderLoan: (purchaseOrderLoanId: Scalars["uuid"]) => void;
-  handleViewLoan: (loanId: Scalars["uuid"]) => void;
-  handleRejectLoan: (loanId: Scalars["uuid"]) => void;
+  actionItems: DataGridActionItem[];
   handleSelectLoans?: (loans: LoanFragment[]) => void;
 }
 
-function ListPurchaseOrderLoans({
+function PurchaseOrderLoansDataGrid({
   purchaseOrderLoans,
-  handleApproveLoan,
-  handleEditLoanNotes,
-  handleEditPurchaseOrderLoan,
-  handleViewLoan,
-  handleRejectLoan,
+  actionItems,
   handleSelectLoans = () => {},
 }: Props) {
   const { user } = useContext(CurrentUserContext);
 
-  const rows = getRows(purchaseOrderLoans);
+  const rows = purchaseOrderLoans;
 
   const purchaseOrderRenderer = (params: ValueFormatterParams) => {
     const purchaseOrderLoan = params.row.data;
@@ -61,66 +46,6 @@ function ListPurchaseOrderLoans({
       </Box>
     );
   };
-
-  const statusCellRenderer = (params: ValueFormatterParams) => (
-    <Status statusValue={params.value} />
-  );
-
-  const loanNotesRenderer = (params: ValueFormatterParams) => (
-    <Box>{params.row.data.notes as string}</Box>
-  );
-
-  const actionCellRenderer = (params: ValueFormatterParams) => (
-    <ActionMenu
-      actionItems={[
-        {
-          key: "view-loan",
-          label: "View",
-          handleClick: () => handleViewLoan(params.row.data.id as string),
-        },
-        ...(check(user.role, Action.EditPurchaseOrderLoan)
-          ? [
-              {
-                key: "edit-purchase-order-loan",
-                label: "Edit",
-                handleClick: () =>
-                  handleEditPurchaseOrderLoan(params.row.data.id as string),
-              },
-            ]
-          : []),
-        ...(check(user.role, Action.EditLoanInternalNote)
-          ? [
-              {
-                key: "edit-loan-notes",
-                label: "Edit Internal Note",
-                handleClick: () =>
-                  handleEditLoanNotes(params.row.data.id as string),
-              },
-            ]
-          : []),
-        ...(check(user.role, Action.ApproveLoan)
-          ? [
-              {
-                key: "approve-loan",
-                label: "Approve Loan",
-                handleClick: () =>
-                  handleApproveLoan(params.row.data.id as string),
-              },
-            ]
-          : []),
-        ...(check(user.role, Action.RejectLoan)
-          ? [
-              {
-                key: "reject-loan",
-                label: "Reject Loan",
-                handleClick: () =>
-                  handleRejectLoan(params.row.data.id as string),
-              },
-            ]
-          : []),
-      ]}
-    ></ActionMenu>
-  );
 
   const columns: IColumnProps[] = [
     {
@@ -174,21 +99,27 @@ function ListPurchaseOrderLoans({
       caption: "Status",
       alignment: "center",
       minWidth: 175,
-      cellRender: statusCellRenderer,
+      cellRender: (params: ValueFormatterParams) => (
+        <Status statusValue={params.value} />
+      ),
     },
     {
       dataField: "action",
       caption: "Action",
       alignment: "center",
       minWidth: 100,
-      cellRender: actionCellRenderer,
+      cellRender: (params: ValueFormatterParams) => (
+        <DataGridActionMenu
+          params={params}
+          actionItems={actionItems}
+        ></DataGridActionMenu>
+      ),
     },
     {
       dataField: "notes",
       caption: "Internal Note",
       minWidth: 300,
       visible: check(user.role, Action.ViewLoanInternalNote),
-      cellRender: loanNotesRenderer,
     },
   ];
 
@@ -241,4 +172,5 @@ function ListPurchaseOrderLoans({
     </Box>
   );
 }
-export default ListPurchaseOrderLoans;
+
+export default PurchaseOrderLoansDataGrid;

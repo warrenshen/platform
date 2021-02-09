@@ -37,6 +37,7 @@ const useStyles = makeStyles((theme: Theme) =>
       ...theme.mixins.toolbar,
       display: "flex",
       justifyContent: "space-between",
+      paddingRight: "12px",
     },
     content: {
       flex: 1,

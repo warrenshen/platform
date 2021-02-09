@@ -10536,11 +10536,11 @@ export type CompanyVendorPartnershipForVendorQuery = {
   >;
 };
 
-export type ListPurchaseOrdersQueryVariables = Exact<{
+export type PurchaseOrdersByCompanyIdQueryVariables = Exact<{
   company_id: Scalars["uuid"];
 }>;
 
-export type ListPurchaseOrdersQuery = {
+export type PurchaseOrdersByCompanyIdQuery = {
   purchase_orders: Array<
     { company: Pick<Companies, "id" | "name"> } & PurchaseOrderFragment
   >;
@@ -10705,6 +10705,8 @@ export type EbbaApplicationFragment = Pick<
   | "monthly_accounts_receivable"
   | "monthly_inventory"
   | "monthly_cash"
+  | "status"
+  | "created_at"
 >;
 
 export type UpdateVendorContactMutationVariables = Exact<{
@@ -11263,6 +11265,8 @@ export const EbbaApplicationFragmentDoc = gql`
     monthly_accounts_receivable
     monthly_inventory
     monthly_cash
+    status
+    created_at
   }
 `;
 export const AddCustomerDocument = gql`
@@ -13466,8 +13470,8 @@ export type CompanyVendorPartnershipForVendorQueryResult = Apollo.QueryResult<
   CompanyVendorPartnershipForVendorQuery,
   CompanyVendorPartnershipForVendorQueryVariables
 >;
-export const ListPurchaseOrdersDocument = gql`
-  query ListPurchaseOrders($company_id: uuid!) {
+export const PurchaseOrdersByCompanyIdDocument = gql`
+  query PurchaseOrdersByCompanyId($company_id: uuid!) {
     purchase_orders(where: { company_id: { _eq: $company_id } }) {
       ...PurchaseOrder
       company {
@@ -13480,52 +13484,52 @@ export const ListPurchaseOrdersDocument = gql`
 `;
 
 /**
- * __useListPurchaseOrdersQuery__
+ * __usePurchaseOrdersByCompanyIdQuery__
  *
- * To run a query within a React component, call `useListPurchaseOrdersQuery` and pass it any options that fit your needs.
- * When your component renders, `useListPurchaseOrdersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `usePurchaseOrdersByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePurchaseOrdersByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useListPurchaseOrdersQuery({
+ * const { data, loading, error } = usePurchaseOrdersByCompanyIdQuery({
  *   variables: {
  *      company_id: // value for 'company_id'
  *   },
  * });
  */
-export function useListPurchaseOrdersQuery(
+export function usePurchaseOrdersByCompanyIdQuery(
   baseOptions: Apollo.QueryHookOptions<
-    ListPurchaseOrdersQuery,
-    ListPurchaseOrdersQueryVariables
+    PurchaseOrdersByCompanyIdQuery,
+    PurchaseOrdersByCompanyIdQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    ListPurchaseOrdersQuery,
-    ListPurchaseOrdersQueryVariables
-  >(ListPurchaseOrdersDocument, baseOptions);
+    PurchaseOrdersByCompanyIdQuery,
+    PurchaseOrdersByCompanyIdQueryVariables
+  >(PurchaseOrdersByCompanyIdDocument, baseOptions);
 }
-export function useListPurchaseOrdersLazyQuery(
+export function usePurchaseOrdersByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    ListPurchaseOrdersQuery,
-    ListPurchaseOrdersQueryVariables
+    PurchaseOrdersByCompanyIdQuery,
+    PurchaseOrdersByCompanyIdQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    ListPurchaseOrdersQuery,
-    ListPurchaseOrdersQueryVariables
-  >(ListPurchaseOrdersDocument, baseOptions);
+    PurchaseOrdersByCompanyIdQuery,
+    PurchaseOrdersByCompanyIdQueryVariables
+  >(PurchaseOrdersByCompanyIdDocument, baseOptions);
 }
-export type ListPurchaseOrdersQueryHookResult = ReturnType<
-  typeof useListPurchaseOrdersQuery
+export type PurchaseOrdersByCompanyIdQueryHookResult = ReturnType<
+  typeof usePurchaseOrdersByCompanyIdQuery
 >;
-export type ListPurchaseOrdersLazyQueryHookResult = ReturnType<
-  typeof useListPurchaseOrdersLazyQuery
+export type PurchaseOrdersByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof usePurchaseOrdersByCompanyIdLazyQuery
 >;
-export type ListPurchaseOrdersQueryResult = Apollo.QueryResult<
-  ListPurchaseOrdersQuery,
-  ListPurchaseOrdersQueryVariables
+export type PurchaseOrdersByCompanyIdQueryResult = Apollo.QueryResult<
+  PurchaseOrdersByCompanyIdQuery,
+  PurchaseOrdersByCompanyIdQueryVariables
 >;
 export const ApprovedPurchaseOrdersDocument = gql`
   query ApprovedPurchaseOrders {
