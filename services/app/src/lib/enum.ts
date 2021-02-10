@@ -60,8 +60,13 @@ export const ProductTypeToLabel = {
   [ProductTypeEnum.None]: "None",
 };
 
-// List of Product types, as keys to the ProducTypeToLabel map
-export const ProductTypeKeys = Object.keys(ProductTypeToLabel);
+// List of all supported product types, note that we do NOT include "None".
+export const AllProductTypes = [
+  ProductTypeEnum.InventoryFinancing,
+  ProductTypeEnum.LineOfCredit,
+  ProductTypeEnum.InvoiceFinancing,
+  ProductTypeEnum.PurchaseMoneyFinancing,
+];
 
 // Request status enum related.
 export const RequestStatusToLabel = {

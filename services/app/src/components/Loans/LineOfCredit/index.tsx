@@ -1,18 +1,21 @@
 import { Box, Button } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import Can from "components/Shared/Can";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoanTypeEnum,
   useLoansByCompanyAndLoanTypeForCustomerQuery,
 } from "generated/graphql";
-import useCompanyContext from "hooks/useCompanyContext";
 import { ActionType } from "lib/ActionType";
 import { Action } from "lib/auth/rbac-rules";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import CreateUpdateLineOfCreditLoanModal from "./CreateUpdateLineOfCreditLoanModal";
 import LineOfCreditLoansDataGrid from "./LineOfCreditLoansDataGrid";
+
 function Loans() {
-  const companyId = useCompanyContext();
+  const {
+    user: { companyId },
+  } = useContext(CurrentUserContext);
 
   const { data, error, refetch } = useLoansByCompanyAndLoanTypeForCustomerQuery(
     {

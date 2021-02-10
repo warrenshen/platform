@@ -23,7 +23,7 @@ import {
   useUpdateCompanyAccountSettingsMutation,
   useUpdateContractMutation,
 } from "generated/graphql";
-import { ProductTypeKeys, ProductTypeToLabel } from "lib/enum";
+import { AllProductTypes, ProductTypeToLabel } from "lib/enum";
 import { useState } from "react";
 
 const useStyles = makeStyles({
@@ -71,8 +71,10 @@ function EditAccountSettings(props: Props) {
           className={classes.form}
         >
           <Box mb={2}>
-            <InputLabel>Product Type</InputLabel>
+            <InputLabel id="select-label-product-type">Product Type</InputLabel>
             <Select
+              id="select-product-type"
+              labelId="select-label-product-type"
               value={contract?.product_type || ""}
               onChange={({ target: { value } }) => {
                 let newProductConfig = contract?.product_config;
@@ -89,7 +91,7 @@ function EditAccountSettings(props: Props) {
               }}
               style={{ width: 200 }}
             >
-              {ProductTypeKeys.map((productType) => {
+              {AllProductTypes.map((productType) => {
                 return (
                   <MenuItem key={productType} value={productType}>
                     {ProductTypeToLabel[productType as ProductTypeEnum]}

@@ -170,7 +170,7 @@ class SubmitForApprovalView(MethodView):
 
 		return make_response(json.dumps({
 			'status': 'OK',
-			'msg': 'Purchase Order Loan {} approval request responded to'.format(loan_id)
+			'msg': 'Inventory Loan {} approval request responded to'.format(loan_id)
 		}), 200)
 
 

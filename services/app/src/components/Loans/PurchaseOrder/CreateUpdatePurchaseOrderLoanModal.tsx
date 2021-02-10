@@ -238,7 +238,7 @@ function CreateUpdatePurchaseOrderLoanModal({
       <DialogTitle className={classes.dialogTitle}>
         {`${
           actionType === ActionType.Update ? "Edit" : "Create"
-        } Purchase Order Loan`}
+        } Inventory Loan`}
       </DialogTitle>
       <DialogContent>
         <PurchaseOrderLoanForm

@@ -14,6 +14,7 @@ import ResetPasswordPage from "pages/Anonymous/ResetPassword";
 import ReviewPurchaseOrderPage from "pages/Anonymous/ReviewPurchaseOrder";
 import ReviewPurchaseOrderCompletePage from "pages/Anonymous/ReviewPurchaseOrderComplete";
 import SecureLinkPage from "pages/Anonymous/SecureLink";
+import BankEbbaApplicationsPage from "pages/Bank/EbbaApplications";
 import BankBankAccountsPage from "pages/Bank/BankAccounts";
 import BankCustomerPage from "pages/Bank/Customer";
 import BankCustomersPage from "pages/Bank/Customers";
@@ -213,6 +214,13 @@ function App() {
             requiredRoles={[UserRolesEnum.BankAdmin]}
           >
             <BankCustomerPage></BankCustomerPage>
+          </PrivateRoute>
+          <PrivateRoute
+            exact
+            path={bankRoutes.ebbaApplications}
+            requiredRoles={[UserRolesEnum.BankAdmin]}
+          >
+            <BankEbbaApplicationsPage></BankEbbaApplicationsPage>
           </PrivateRoute>
           <PrivateRoute
             exact

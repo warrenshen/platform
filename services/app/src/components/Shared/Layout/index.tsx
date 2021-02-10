@@ -132,6 +132,10 @@ const BANK_LEFT_NAV_ITEMS = [
     link: bankRoutes.customers,
   },
   {
+    text: "EBBA Applications",
+    link: bankRoutes.ebbaApplications,
+  },
+  {
     text: "Vendors",
     link: bankRoutes.vendors,
   },

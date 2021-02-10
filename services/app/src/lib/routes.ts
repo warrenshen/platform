@@ -43,6 +43,7 @@ export const bankRoutes = {
     users: "/users",
   },
   customers: "/customers",
+  ebbaApplications: "/ebba-applications",
   loansAllProducts: "/loans-all-products",
   loansApprovalRequested: "/loans-approval-requested",
   loansLineOfCredit: "/loans-line-of-credit",

@@ -17,7 +17,7 @@ import {
   ProductTypeEnum,
   useAddCustomerMutation,
 } from "generated/graphql";
-import { ProductTypeKeys, ProductTypeToLabel } from "lib/enum";
+import { AllProductTypes, ProductTypeToLabel } from "lib/enum";
 import { useState } from "react";
 
 interface Props {
@@ -62,7 +62,7 @@ function AddCustomerModal({ handleClose }: Props) {
               }}
               style={{ width: 200 }}
             >
-              {ProductTypeKeys.map((productType) => {
+              {AllProductTypes.map((productType) => {
                 return (
                   <MenuItem key={productType} value={productType}>
                     {ProductTypeToLabel[productType as ProductTypeEnum]}
