@@ -11,6 +11,7 @@ import {
   routes,
 } from "lib/routes";
 import ResetPasswordPage from "pages/Anonymous/ResetPassword";
+import ForgotPasswordPage from "pages/Anonymous/ForgotPassword";
 import ReviewPurchaseOrderPage from "pages/Anonymous/ReviewPurchaseOrder";
 import ReviewPurchaseOrderCompletePage from "pages/Anonymous/ReviewPurchaseOrderComplete";
 import SecureLinkPage from "pages/Anonymous/SecureLink";
@@ -75,6 +76,11 @@ function App() {
           exact
           path={anonymousRoutes.resetPassword}
           component={ResetPasswordPage}
+        ></Route>
+        <Route
+          exact
+          path={anonymousRoutes.forgotPassword}
+          component={ForgotPasswordPage}
         ></Route>
         {/* Bank and Company user routes */}
         <Layout>

@@ -3,6 +3,7 @@ import { getAccessToken } from "lib/auth/tokenStorage";
 
 export const authRoutes = {
   signIn: "/auth/sign-in",
+  forgotPassword: "/auth/forgot-password",
   resetPassword: "/auth/reset-password",
   refreshToken: "/auth/token/refresh",
   revokeAccessToken: "/auth/sign-out/access",

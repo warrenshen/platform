@@ -5,10 +5,12 @@ import {
   FormHelperText,
   makeStyles,
   TextField,
+  Link,
   Theme,
 } from "@material-ui/core";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { routes } from "lib/routes";
+import { routes, anonymousRoutes } from "lib/routes";
+import { relative } from "path";
 import { useContext, useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { useTitle } from "react-use";
@@ -33,6 +35,7 @@ const useStyles = makeStyles((theme: Theme) =>
       display: "flex",
       flexDirection: "column",
       justifyContent: "center",
+      position: "relative",
       width: 400,
       padding: theme.spacing(4),
       paddingTop: theme.spacing(2),
@@ -44,8 +47,13 @@ const useStyles = makeStyles((theme: Theme) =>
     formInput: {
       margin: theme.spacing(1),
     },
+    forgotLink: {
+      position: "relative",
+      margin: "auto",
+    },
     signInButton: {
-      marginTop: theme.spacing(2),
+      marginTop: theme.spacing(1),
+      marginBottom: theme.spacing(3),
       width: 120,
       marginLeft: "auto",
       marginRight: "auto",
@@ -125,6 +133,14 @@ function SignIn() {
         >
           Sign in
         </Button>
+        <div className={classes.forgotLink}>
+          <Link
+            key={anonymousRoutes.forgotPassword}
+            href={anonymousRoutes.forgotPassword}
+          >
+            Forgot password?
+          </Link>
+        </div>
       </form>
     </Box>
   );

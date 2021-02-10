@@ -13,6 +13,7 @@ export const anonymousRoutes = {
   reviewPurchaseOrder: "/review-purchase-order",
   reviewPurchaseOrderComplete: "/review-purchase-order-complete",
   resetPassword: "/reset-password",
+  forgotPassword: "/forgot-password",
 };
 
 // Vendor user routes are prefixed with "/2".
