@@ -15,10 +15,10 @@ import ForgotPasswordPage from "pages/Anonymous/ForgotPassword";
 import ReviewPurchaseOrderPage from "pages/Anonymous/ReviewPurchaseOrder";
 import ReviewPurchaseOrderCompletePage from "pages/Anonymous/ReviewPurchaseOrderComplete";
 import SecureLinkPage from "pages/Anonymous/SecureLink";
-import BankEbbaApplicationsPage from "pages/Bank/EbbaApplications";
 import BankBankAccountsPage from "pages/Bank/BankAccounts";
 import BankCustomerPage from "pages/Bank/Customer";
 import BankCustomersPage from "pages/Bank/Customers";
+import BankEbbaApplicationsPage from "pages/Bank/EbbaApplications";
 import BankLoansAllProductsPage from "pages/Bank/LoansAllProducts";
 import BankLoansApprovalRequestedPage from "pages/Bank/LoansApprovalRequested";
 import BankLoansLineOfCreditPage from "pages/Bank/LoansLineOfCredit";
@@ -256,6 +256,9 @@ function App() {
           >
             <BankVendorsPage></BankVendorsPage>
           </PrivateRoute>
+          <Route>
+            <Redirect to={routes.root}></Redirect>
+          </Route>
         </Layout>
       </Switch>
     </BrowserRouter>
