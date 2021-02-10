@@ -4,6 +4,10 @@ query EbbaApplications {
   ) {
     id
     ...EbbaApplication
+    company {
+      id
+      name
+    }
   }
 }
 

@@ -158,3 +158,12 @@ fragment EbbaApplication on ebba_applications {
   status
   created_at
 }
+
+fragment EbbaApplicationFile on ebba_application_files {
+  ebba_application_id
+  file_id
+  file {
+    id
+    ...File
+  }
+}

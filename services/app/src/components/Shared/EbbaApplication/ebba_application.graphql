@@ -1,3 +1,16 @@
+query EbbaApplication($id: uuid!) {
+  ebba_applications_by_pk(id: $id) {
+    ...EbbaApplication
+    company {
+      id
+      name
+    }
+    ebba_application_files {
+      ...EbbaApplicationFile
+    }
+  }
+}
+
 mutation AddEbbaApplication($ebbaApplication: ebba_applications_insert_input!) {
   insert_ebba_applications_one(object: $ebbaApplication) {
     id

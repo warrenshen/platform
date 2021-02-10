@@ -10739,6 +10739,19 @@ export type UpdateCompanyBankAccountMutation = {
   update_bank_accounts_by_pk?: Maybe<BankAccountFragment>;
 };
 
+export type EbbaApplicationQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type EbbaApplicationQuery = {
+  ebba_applications_by_pk?: Maybe<
+    {
+      company: Pick<Companies, "id" | "name">;
+      ebba_application_files: Array<EbbaApplicationFileFragment>;
+    } & EbbaApplicationFragment
+  >;
+};
+
 export type AddEbbaApplicationMutationVariables = Exact<{
   ebbaApplication: EbbaApplicationsInsertInput;
 }>;
@@ -10753,7 +10766,9 @@ export type EbbaApplicationsQueryVariables = Exact<{ [key: string]: never }>;
 
 export type EbbaApplicationsQuery = {
   ebba_applications: Array<
-    Pick<EbbaApplications, "id"> & EbbaApplicationFragment
+    Pick<EbbaApplications, "id"> & {
+      company: Pick<Companies, "id" | "name">;
+    } & EbbaApplicationFragment
   >;
 };
 
@@ -11246,6 +11261,11 @@ export type EbbaApplicationFragment = Pick<
   | "status"
   | "created_at"
 >;
+
+export type EbbaApplicationFileFragment = Pick<
+  EbbaApplicationFiles,
+  "ebba_application_id" | "file_id"
+> & { file: Pick<Files, "id"> & FileFragment };
 
 export type UpdateVendorContactMutationVariables = Exact<{
   userId: Scalars["uuid"];
@@ -11797,6 +11817,17 @@ export const EbbaApplicationFragmentDoc = gql`
     status
     created_at
   }
+`;
+export const EbbaApplicationFileFragmentDoc = gql`
+  fragment EbbaApplicationFile on ebba_application_files {
+    ebba_application_id
+    file_id
+    file {
+      id
+      ...File
+    }
+  }
+  ${FileFragmentDoc}
 `;
 export const AddCustomerDocument = gql`
   mutation AddCustomer($customer: companies_insert_input!) {
@@ -12686,6 +12717,71 @@ export type UpdateCompanyBankAccountMutationOptions = Apollo.BaseMutationOptions
   UpdateCompanyBankAccountMutation,
   UpdateCompanyBankAccountMutationVariables
 >;
+export const EbbaApplicationDocument = gql`
+  query EbbaApplication($id: uuid!) {
+    ebba_applications_by_pk(id: $id) {
+      ...EbbaApplication
+      company {
+        id
+        name
+      }
+      ebba_application_files {
+        ...EbbaApplicationFile
+      }
+    }
+  }
+  ${EbbaApplicationFragmentDoc}
+  ${EbbaApplicationFileFragmentDoc}
+`;
+
+/**
+ * __useEbbaApplicationQuery__
+ *
+ * To run a query within a React component, call `useEbbaApplicationQuery` and pass it any options that fit your needs.
+ * When your component renders, `useEbbaApplicationQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useEbbaApplicationQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useEbbaApplicationQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    EbbaApplicationQuery,
+    EbbaApplicationQueryVariables
+  >
+) {
+  return Apollo.useQuery<EbbaApplicationQuery, EbbaApplicationQueryVariables>(
+    EbbaApplicationDocument,
+    baseOptions
+  );
+}
+export function useEbbaApplicationLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    EbbaApplicationQuery,
+    EbbaApplicationQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    EbbaApplicationQuery,
+    EbbaApplicationQueryVariables
+  >(EbbaApplicationDocument, baseOptions);
+}
+export type EbbaApplicationQueryHookResult = ReturnType<
+  typeof useEbbaApplicationQuery
+>;
+export type EbbaApplicationLazyQueryHookResult = ReturnType<
+  typeof useEbbaApplicationLazyQuery
+>;
+export type EbbaApplicationQueryResult = Apollo.QueryResult<
+  EbbaApplicationQuery,
+  EbbaApplicationQueryVariables
+>;
 export const AddEbbaApplicationDocument = gql`
   mutation AddEbbaApplication(
     $ebbaApplication: ebba_applications_insert_input!
@@ -12745,6 +12841,10 @@ export const EbbaApplicationsDocument = gql`
     ) {
       id
       ...EbbaApplication
+      company {
+        id
+        name
+      }
     }
   }
   ${EbbaApplicationFragmentDoc}

@@ -4,23 +4,27 @@ import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
+import EbbaApplicationDrawerLauncher from "components/Shared/EbbaApplication/EbbaApplicationDrawerLauncher";
 import DataGrid, {
   Column,
   IColumnProps,
   Pager,
   Paging,
 } from "devextreme-react/data-grid";
-import { EbbaApplicationFragment, RequestStatusEnum } from "generated/graphql";
+import { EbbaApplicationsQuery, RequestStatusEnum } from "generated/graphql";
+import { truncateUuid } from "lib/uuid";
 
-function populateRows(ebbaApplications: EbbaApplicationFragment[]): RowsProp {
+function populateRows(
+  ebbaApplications: EbbaApplicationsQuery["ebba_applications"]
+): RowsProp {
   return ebbaApplications.map((ebbaApplication) => ({
     ...ebbaApplication,
-    // company_name: ebbaApplication.company?.name,
+    company_name: ebbaApplication.company?.name,
   }));
 }
 
 interface Props {
-  ebbaApplications: EbbaApplicationFragment[];
+  ebbaApplications: EbbaApplicationsQuery["ebba_applications"];
   actionItems: DataGridActionItem[];
 }
 
@@ -28,6 +32,20 @@ function EbbaApplicationsDataGrid({ ebbaApplications, actionItems }: Props) {
   const rows = populateRows(ebbaApplications);
 
   const columns: IColumnProps[] = [
+    {
+      dataField: "id",
+      caption: "Platform ID",
+      cellRender: (params: ValueFormatterParams) => (
+        <EbbaApplicationDrawerLauncher
+          label={truncateUuid(params.row.data.id as string)}
+          ebbaApplicationId={params.row.data.id}
+        ></EbbaApplicationDrawerLauncher>
+      ),
+    },
+    {
+      dataField: "company_name",
+      caption: "Company",
+    },
     {
       dataField: "application_month",
       caption: "Application Month",
