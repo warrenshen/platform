@@ -3,16 +3,16 @@ import {
   Button,
   createStyles,
   FormHelperText,
+  Link,
   makeStyles,
   TextField,
-  Typography,
   Theme,
-  Link,
+  Typography,
 } from "@material-ui/core";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { routes } from "lib/routes";
 import { authenticatedApi, authRoutes } from "lib/api";
-import { useContext, useEffect, useState, useMemo } from "react";
+import { routes } from "lib/routes";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { useTitle } from "react-use";
 
@@ -93,7 +93,7 @@ function ForgotPassword(props: Props) {
   const correctEmail = useMemo(
     () =>
       email.length &&
-      !!email.match(/^[\w.-]+@(?=[a-z\d][^.]*\.)[a-z\d.-]*[a-z\d]$/gi),
+      !!email.match(/^[\w\+.-]+@(?=[a-z\d][^.]*\.)[a-z\d.-]*[a-z\d]$/gi),
     [email]
   );
 
@@ -138,7 +138,7 @@ function ForgotPassword(props: Props) {
                 Forgot your password?
               </Typography>
               <div className={classes.text}>
-                Enter your email below to reset your password
+                Enter your email below to reset your password.
               </div>
               <div className={classes.form}>
                 <TextField
