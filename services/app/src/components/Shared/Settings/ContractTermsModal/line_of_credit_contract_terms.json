@@ -1,6 +1,6 @@
 {
   "version": "v1",
-  "product_type": "line_of_credit",
+  "product_type": "inventory_financing",
   "v1": {
     "fields": [
       {
@@ -73,6 +73,36 @@
         "section": "Fees",
         "type": "float",
         "format": "percentage",
+        "internal_name": "borrowing_base_accounts_receivable_percentage",
+        "display_name": "Borrowing Base Inventory Percentage",
+        "description": "% of AR amount used in determining borrowing base",
+        "value": null,
+        "nullable": false
+      },
+      {
+        "section": "Fees",
+        "type": "float",
+        "format": "percentage",
+        "internal_name": "borrowing_base_inventory_percentage",
+        "display_name": "Borrowing Base Inventory Percentage",
+        "description": "% of inventory amount used in determining borrowing base",
+        "value": null,
+        "nullable": false
+      },
+      {
+        "section": "Fees",
+        "type": "float",
+        "format": "percentage",
+        "internal_name": "borrowing_base_cash_percentage",
+        "display_name": "Borrowing Base Cash Percentage",
+        "description": "% of cash amount used in determining borrowing base",
+        "value": null,
+        "nullable": false
+      },
+      {
+        "section": "Fees",
+        "type": "float",
+        "format": "percentage",
         "internal_name": "factoring_fee_percentage",
         "display_name": "Factoring Fee Percentage",
         "description": "Daily interest rate",
@@ -102,29 +132,10 @@
       {
         "section": "Fees",
         "type": "float",
-        "format": "number",
-        "internal_name": "late_fee_structure",
-        "display_name": "Late Fee Structure",
-        "description": "If days past due 1-14: 25% of interest, 15-29: 50%, 30+: 100%. Would like to have the flexibility to update the maturity date and override fees/interest as there have been some exceptions for charging late fees",
-        "value": null,
-        "nullable": false
-      },
-      {
-        "section": "Fees",
-        "type": "float",
         "format": "currency",
         "internal_name": "wire_fee",
         "display_name": "Wire Fee",
         "description": "Manually input the dollar amount for wire fees as they can vary. We can define/add fee names and amounts. Can be multiple wire fee types for each client",
-        "value": null,
-        "nullable": false
-      },
-      {
-        "section": "Fees",
-        "type": "boolean",
-        "internal_name": "preceeding_business_day",
-        "display_name": "Preceeding Business Day",
-        "description": "versus Succeeding Business Day (for adjusted maturity date)",
         "value": null,
         "nullable": false
       },
@@ -135,6 +146,16 @@
         "internal_name": "minimum_monthly_amount",
         "display_name": "Minimum Monthly Amount",
         "description": "Across all products, a customer has a monthly minimum revenue generation requirement; this amount is specified in their contract. This can be thought of as an account level “minimum revenue” service fee that gets covered if the customer is actively generating revenue based on their product usage, past that minimum",
+        "value": null,
+        "nullable": false
+      },
+      {
+        "section": "Limits",
+        "type": "float",
+        "format": "currency",
+        "internal_name": "borrowing_base",
+        "display_name": "Borrowing Base",
+        "description": "",
         "value": null,
         "nullable": false
       }

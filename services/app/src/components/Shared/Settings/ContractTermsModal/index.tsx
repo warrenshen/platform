@@ -14,15 +14,28 @@ import {
 } from "@material-ui/core";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import DatePicker from "components/Shared/Dates/DatePicker";
+import { ProductTypeEnum } from "generated/graphql";
+import { ProductTypeToLabel } from "lib/enum";
 import { groupBy } from "lodash";
 import { ChangeEvent, useMemo, useState } from "react";
-import contractTermsJSON from "./inventory_contract_terms.json";
+import InventoryContractTermsJson from "./inventory_contract_terms.json";
+import LineOfCreditContractTermsJson from "./line_of_credit_contract_terms.json";
 
 // Configuration which defines how to view and edit this contract
 export type ContractConfig = {
-  product_type: string;
+  product_type: ProductTypeEnum;
   product_config: any;
   isViewOnly: boolean;
+};
+
+const ProductTypeToContractTermsJson = {
+  [ProductTypeEnum.InventoryFinancing]: JSON.stringify(
+    InventoryContractTermsJson
+  ),
+  [ProductTypeEnum.InvoiceFinancing]: JSON.stringify({}),
+  [ProductTypeEnum.LineOfCredit]: JSON.stringify(LineOfCreditContractTermsJson),
+  [ProductTypeEnum.PurchaseMoneyFinancing]: JSON.stringify({}),
+  [ProductTypeEnum.None]: JSON.stringify({}),
 };
 
 const fieldsFilteringKeys = ["internal_name", "value"];
@@ -89,9 +102,9 @@ const formatValue = (type: any, value: any) => {
   }
 };
 interface Props {
+  contractConfig: ContractConfig;
   onClose: () => void;
   onSave: (newContractConfig: ContractConfig) => void | null;
-  contractConfig: ContractConfig;
 }
 
 function ContractTermsModal(props: Props) {
@@ -101,7 +114,8 @@ function ContractTermsModal(props: Props) {
   const [errMsg, setErrMsg] = useState<string>("");
 
   const getInitConfig = () => {
-    const full = JSON.parse(JSON.stringify(contractTermsJSON.v1.fields));
+    const full = JSON.parse(ProductTypeToContractTermsJson[config.product_type])
+      .v1.fields;
     if (config.product_config && Object.keys(config.product_config).length) {
       const passed = config.product_config.v1.fields;
       passed.forEach((item: any, i: any) => {
@@ -121,6 +135,7 @@ function ContractTermsModal(props: Props) {
   const sections = useMemo(() => groupBy(currentJSONConfig, (d) => d.section), [
     currentJSONConfig,
   ]);
+  console.log({ sections });
   const viewOnly = config.isViewOnly;
 
   const findAndReplaceInJSON = (item: any, value: any) => {
@@ -150,7 +165,9 @@ function ContractTermsModal(props: Props) {
           }))
         )
       );
-      const currentJSON = JSON.parse(JSON.stringify(contractTermsJSON));
+      const currentJSON = JSON.parse(
+        ProductTypeToContractTermsJson[config.product_type as ProductTypeEnum]
+      );
       currentJSON.v1.fields = shortenedJSONConfig;
       props.onSave({
         product_type: config.product_type,
@@ -249,7 +266,7 @@ function ContractTermsModal(props: Props) {
   return (
     <Dialog open onClose={props.onClose} fullWidth>
       <DialogTitle className={classes.dialogTitle}>
-        Purchase Order Financing Contract
+        {`${ProductTypeToLabel[props.contractConfig.product_type]} Contract`}
       </DialogTitle>
       <DialogContent style={{ height: 500 }}>
         <Box display="flex" flexDirection="column">
