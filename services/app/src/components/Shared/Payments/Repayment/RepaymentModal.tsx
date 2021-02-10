@@ -112,8 +112,8 @@ function RepaymentModal({
                   className=""
                   id="payment-modal-deposit-date-date-picker"
                   label="Desposit Date"
-                  disablePast={true}
-                  disableNonBankDays={true}
+                  disablePast
+                  disableNonBankDays
                   value={payment.deposit_date}
                   onChange={(value: MaterialUiPickersDate) => {
                     setPayment({

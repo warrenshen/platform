@@ -111,8 +111,8 @@ function LineOfCreditLoanForm({
           className={classes.purchaseOrderInput}
           id="origination-date-date-picker"
           label="Payment Date"
-          disablePast={true}
-          disableNonBankDays={true}
+          disablePast
+          disableNonBankDays
           value={loan.origination_date}
           onChange={(value: MaterialUiPickersDate) => {
             setLoan({

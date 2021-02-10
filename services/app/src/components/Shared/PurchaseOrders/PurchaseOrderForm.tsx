@@ -114,8 +114,7 @@ function PurchaseOrderForm({
           className={classes.purchaseOrderInput}
           id="order-date-date-picker"
           label="Order Date"
-          disablePast={true}
-          disableNonBankDays={true}
+          disablePast
           value={purchaseOrder.order_date}
           onChange={(value: MaterialUiPickersDate) => {
             setPurchaseOrder({
@@ -130,8 +129,7 @@ function PurchaseOrderForm({
           className={classes.purchaseOrderInput}
           id="delivery-date-date-picker"
           label="Delivery date"
-          disablePast={true}
-          disableNonBankDays={true}
+          disablePast
           value={purchaseOrder.delivery_date}
           onChange={(value: MaterialUiPickersDate) => {
             setPurchaseOrder({
