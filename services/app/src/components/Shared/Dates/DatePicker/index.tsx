@@ -1,9 +1,11 @@
 import DateFnsUtils from "@date-io/date-fns";
+import { format } from "date-fns";
 import {
   KeyboardDatePicker,
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
 import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
+import { bankHolidays, addYearToBankHolidays } from "lib/holidays";
 
 interface Props {
   className?: string;
@@ -15,6 +17,7 @@ interface Props {
   disabled?: boolean;
   required?: boolean;
   disableNonBankDays?: boolean; // disable days where the bank is not open
+  disableBankHolidays?: boolean;
   onChange: (value: MaterialUiPickersDate) => void;
 }
 
@@ -35,10 +38,15 @@ function DatePicker(props: Props) {
               // disable weekends that are non-bank days
               return true;
             }
-            // TODO: we need to disable bank holidays as well
-            // if (date is in bankHoliday) {
-            //   return true;
-            // }
+            if (date && props.disableBankHolidays) {
+              // disable bank holidays
+              const year = date.getFullYear();
+              if (!bankHolidays.has(year)) {
+                addYearToBankHolidays(year, bankHolidays);
+              }
+              const holidays = bankHolidays.get(year);
+              return holidays.has(format(date, "MM/dd/yyyy"));
+            }
           }
           return false;
         }}
