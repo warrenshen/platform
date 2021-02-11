@@ -1,11 +1,15 @@
 import { Box, Drawer, makeStyles, Typography } from "@material-ui/core";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Loans,
   useGetLoanWithArtifactForCustomerQuery,
+  UserRolesEnum,
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
+import { LoanTypeToLabel } from "lib/enum";
+import { useContext } from "react";
 
 const useStyles = makeStyles({
   drawerContent: {
@@ -23,6 +27,11 @@ interface Props {
 
 function LoanDrawer({ loanId, handleClose }: Props) {
   const classes = useStyles();
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+
+  const isBankUser = role === UserRolesEnum.BankAdmin;
 
   const { data } = useGetLoanWithArtifactForCustomerQuery({
     variables: {
@@ -59,12 +68,31 @@ function LoanDrawer({ loanId, handleClose }: Props) {
             </Typography>
             <LoanStatusChip loanStatus={loan.status}></LoanStatusChip>
           </Box>
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Company
-            </Typography>
-            <Typography variant={"body1"}>{loan.company?.name}</Typography>
-          </Box>
+          {isBankUser && (
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="flex-start"
+              mt={2}
+            >
+              <Typography variant="subtitle2" color="textSecondary">
+                Loan Type
+              </Typography>
+              <Typography variant={"body1"}>
+                {loan.loan_type
+                  ? LoanTypeToLabel[loan.loan_type]
+                  : "Invalid Loan Type"}
+              </Typography>
+            </Box>
+          )}
+          {isBankUser && (
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Company
+              </Typography>
+              <Typography variant={"body1"}>{loan.company?.name}</Typography>
+            </Box>
+          )}
           {/* <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
               Vendor
