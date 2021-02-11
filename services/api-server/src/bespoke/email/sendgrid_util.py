@@ -19,6 +19,8 @@ class TemplateNames(object):
 	VENDOR_TO_APPROVE_PURCHASE_ORDER = 'vendor_to_approve_purchase_order'
 	VENDOR_APPROVES_OR_REJECTS_PURCHASE_ORDER = 'vendor_approves_or_rejects_purchase_order'
 
+	BANK_USER_APPROVES_OR_REJECTS_EBBA_APPLICATION = 'bank_user_approves_or_rejects_ebba_application'
+
 	CUSTOMER_REQUESTS_LOAN = 'customer_requests_loan'
 	CUSTOMER_SUBMITTED_EBBA_APPLICATION = 'customer_submitted_ebba_application'
 
@@ -50,6 +52,11 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 	},
 	TemplateNames.VENDOR_APPROVES_OR_REJECTS_PURCHASE_ORDER: {
 		'id': 'd-0cdbf4e6769640a7aa44a0dd9dbc92ce',
+		'requires_secure_link': False
+	},
+
+	TemplateNames.BANK_USER_APPROVES_OR_REJECTS_EBBA_APPLICATION: {
+		'id': '',
 		'requires_secure_link': False
 	},
 

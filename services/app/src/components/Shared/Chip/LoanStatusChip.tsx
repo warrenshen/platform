@@ -1,3 +1,4 @@
+import { Box } from "@material-ui/core";
 import Chip from "components/Shared/Chip";
 import { LoanStatusEnum } from "generated/graphql";
 import { LoanStatusToLabel } from "lib/enum";
@@ -18,11 +19,13 @@ const StatusToColor = {
 
 function LoanStatusChip({ loanStatus }: Props) {
   return (
-    <Chip
-      color={"white"}
-      background={StatusToColor[loanStatus]}
-      label={LoanStatusToLabel[loanStatus].toLowerCase()}
-    ></Chip>
+    <Box>
+      <Chip
+        color={"white"}
+        background={StatusToColor[loanStatus]}
+        label={LoanStatusToLabel[loanStatus]}
+      ></Chip>
+    </Box>
   );
 }
 

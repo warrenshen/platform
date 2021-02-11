@@ -388,6 +388,9 @@ class EbbaApplication(Base):
 	monthly_cash = Column(Numeric)
 	status = Column(String, nullable=False)
 	requested_at = Column(DateTime)
+	approved_at = Column(DateTime)
+	rejected_at = Column(DateTime)
+	rejection_note = Column(Text)
 
 	company = relationship(
 		'Company',

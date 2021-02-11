@@ -15001,6 +15001,18 @@
             "deprecationReason": null
           },
           {
+            "name": "approved_at",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "company",
             "description": "An object relationship",
             "args": [],
@@ -15282,6 +15294,30 @@
                 "name": "numeric",
                 "ofType": null
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "rejected_at",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamp",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "rejection_note",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -15872,6 +15908,16 @@
             "defaultValue": null
           },
           {
+            "name": "approved_at",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "timestamptz_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "company",
             "description": null,
             "type": {
@@ -15947,6 +15993,26 @@
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "numeric_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "rejected_at",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "timestamp_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "rejection_note",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "String_comparison_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -16061,6 +16127,16 @@
             "defaultValue": null
           },
           {
+            "name": "approved_at",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "company",
             "description": null,
             "type": {
@@ -16141,6 +16217,26 @@
             "defaultValue": null
           },
           {
+            "name": "rejected_at",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "rejection_note",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "requested_at",
             "description": null,
             "type": {
@@ -16193,6 +16289,18 @@
             "deprecationReason": null
           },
           {
+            "name": "approved_at",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "company_id",
             "description": null,
             "args": [],
@@ -16259,6 +16367,30 @@
             "type": {
               "kind": "SCALAR",
               "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "rejected_at",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamp",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "rejection_note",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "isDeprecated": false,
@@ -16311,6 +16443,16 @@
             "defaultValue": null
           },
           {
+            "name": "approved_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "company_id",
             "description": null,
             "type": {
@@ -16371,6 +16513,26 @@
             "defaultValue": null
           },
           {
+            "name": "rejected_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "rejection_note",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "requested_at",
             "description": null,
             "type": {
@@ -16407,6 +16569,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "date",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "approved_at",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
               "ofType": null
             },
             "isDeprecated": false,
@@ -16479,6 +16653,30 @@
             "type": {
               "kind": "SCALAR",
               "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "rejected_at",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamp",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "rejection_note",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "isDeprecated": false,
@@ -16531,6 +16729,16 @@
             "defaultValue": null
           },
           {
+            "name": "approved_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "company_id",
             "description": null,
             "type": {
@@ -16582,6 +16790,26 @@
           },
           {
             "name": "monthly_inventory",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "rejected_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "rejection_note",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -16775,6 +17003,16 @@
             "defaultValue": null
           },
           {
+            "name": "approved_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "company",
             "description": null,
             "type": {
@@ -16846,6 +17084,26 @@
           },
           {
             "name": "monthly_inventory",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "rejected_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "rejection_note",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -16929,6 +17187,12 @@
             "deprecationReason": null
           },
           {
+            "name": "approved_at",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "company_id",
             "description": "column name",
             "isDeprecated": false,
@@ -16960,6 +17224,18 @@
           },
           {
             "name": "monthly_inventory",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "rejected_at",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "rejection_note",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -16997,6 +17273,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "date",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "approved_at",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
               "ofType": null
             },
             "defaultValue": null
@@ -17057,6 +17343,26 @@
             "type": {
               "kind": "SCALAR",
               "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "rejected_at",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "rejection_note",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "defaultValue": null
@@ -17463,6 +17769,12 @@
             "deprecationReason": null
           },
           {
+            "name": "approved_at",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "company_id",
             "description": "column name",
             "isDeprecated": false,
@@ -17494,6 +17806,18 @@
           },
           {
             "name": "monthly_inventory",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "rejected_at",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "rejection_note",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -23966,30 +24290,6 @@
             "deprecationReason": null
           },
           {
-            "name": "approved_at",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "timestamptz",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "approved_by_user_id",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "artifact_id",
             "description": null,
             "args": [],
@@ -24242,7 +24542,7 @@
             "deprecationReason": null
           },
           {
-            "name": "rejection_note",
+            "name": "rejection_notes",
             "description": null,
             "args": [],
             "type": {
@@ -24857,26 +25157,6 @@
             "defaultValue": null
           },
           {
-            "name": "approved_at",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "timestamptz_comparison_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "approved_by_user_id",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "uuid_comparison_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "artifact_id",
             "description": null,
             "type": {
@@ -25077,7 +25357,7 @@
             "defaultValue": null
           },
           {
-            "name": "rejection_note",
+            "name": "rejection_notes",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
@@ -25211,26 +25491,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "numeric",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "approved_at",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "timestamptz",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "approved_by_user_id",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
               "ofType": null
             },
             "defaultValue": null
@@ -25436,7 +25696,7 @@
             "defaultValue": null
           },
           {
-            "name": "rejection_note",
+            "name": "rejection_notes",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -25510,30 +25770,6 @@
             "deprecationReason": null
           },
           {
-            "name": "approved_at",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "timestamptz",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "approved_by_user_id",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "artifact_id",
             "description": null,
             "args": [],
@@ -25726,7 +25962,7 @@
             "deprecationReason": null
           },
           {
-            "name": "rejection_note",
+            "name": "rejection_notes",
             "description": null,
             "args": [],
             "type": {
@@ -25794,26 +26030,6 @@
             "defaultValue": null
           },
           {
-            "name": "approved_at",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "approved_by_user_id",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "artifact_id",
             "description": null,
             "type": {
@@ -25974,7 +26190,7 @@
             "defaultValue": null
           },
           {
-            "name": "rejection_note",
+            "name": "rejection_notes",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -26032,30 +26248,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "numeric",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "approved_at",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "timestamptz",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "approved_by_user_id",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
               "ofType": null
             },
             "isDeprecated": false,
@@ -26254,7 +26446,7 @@
             "deprecationReason": null
           },
           {
-            "name": "rejection_note",
+            "name": "rejection_notes",
             "description": null,
             "args": [],
             "type": {
@@ -26322,26 +26514,6 @@
             "defaultValue": null
           },
           {
-            "name": "approved_at",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "approved_by_user_id",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "artifact_id",
             "description": null,
             "type": {
@@ -26502,7 +26674,7 @@
             "defaultValue": null
           },
           {
-            "name": "rejection_note",
+            "name": "rejection_notes",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -26697,26 +26869,6 @@
           },
           {
             "name": "amount",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "approved_at",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "approved_by_user_id",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -26926,7 +27078,7 @@
             "defaultValue": null
           },
           {
-            "name": "rejection_note",
+            "name": "rejection_notes",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -27011,18 +27163,6 @@
           },
           {
             "name": "amount",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "approved_at",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "approved_by_user_id",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -27130,7 +27270,7 @@
             "deprecationReason": null
           },
           {
-            "name": "rejection_note",
+            "name": "rejection_notes",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -27178,26 +27318,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "numeric",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "approved_at",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "timestamptz",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "approved_by_user_id",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
               "ofType": null
             },
             "defaultValue": null
@@ -27373,7 +27493,7 @@
             "defaultValue": null
           },
           {
-            "name": "rejection_note",
+            "name": "rejection_notes",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -27878,18 +27998,6 @@
             "deprecationReason": null
           },
           {
-            "name": "approved_at",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "approved_by_user_id",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "artifact_id",
             "description": "column name",
             "isDeprecated": false,
@@ -27992,7 +28100,7 @@
             "deprecationReason": null
           },
           {
-            "name": "rejection_note",
+            "name": "rejection_notes",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -34508,7 +34616,7 @@
           },
           {
             "name": "deposit_date",
-            "description": "What day this payment or advance was deposited into a bank",
+            "description": null,
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -34603,7 +34711,7 @@
           },
           {
             "name": "submitted_at",
-            "description": "When this payment record was originally added to the Postgres DB",
+            "description": null,
             "args": [],
             "type": {
               "kind": "NON_NULL",
@@ -59386,6 +59494,133 @@
       },
       {
         "kind": "SCALAR",
+        "name": "timestamp",
+        "description": null,
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
+        "name": "timestamp_comparison_exp",
+        "description": "expression to compare columns of type timestamp. All fields are combined with logical 'AND'.",
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "_eq",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "_gt",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "_gte",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "_in",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "timestamp",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "_is_null",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "_lt",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "_lte",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "_neq",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "_nin",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "timestamp",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "SCALAR",
         "name": "timestamptz",
         "description": null,
         "fields": null,
@@ -59558,22 +59793,6 @@
               "ofType": {
                 "kind": "SCALAR",
                 "name": "uuid",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "effective_date",
-            "description": "For financial purposes, this is the date this transaction is considered in effect.",
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "date",
                 "ofType": null
               }
             },
@@ -60306,16 +60525,6 @@
             "defaultValue": null
           },
           {
-            "name": "effective_date",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "date_comparison_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "id",
             "description": null,
             "type": {
@@ -60525,16 +60734,6 @@
             "defaultValue": null
           },
           {
-            "name": "effective_date",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "date",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "id",
             "description": null,
             "type": {
@@ -60675,18 +60874,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "effective_date",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "date",
               "ofType": null
             },
             "isDeprecated": false,
@@ -60843,16 +61030,6 @@
             "defaultValue": null
           },
           {
-            "name": "effective_date",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "id",
             "description": null,
             "type": {
@@ -60983,18 +61160,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "effective_date",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "date",
               "ofType": null
             },
             "isDeprecated": false,
@@ -61142,16 +61307,6 @@
           },
           {
             "name": "created_by_user_id",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "effective_date",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -61435,16 +61590,6 @@
             "defaultValue": null
           },
           {
-            "name": "effective_date",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "id",
             "description": null,
             "type": {
@@ -61601,12 +61746,6 @@
             "deprecationReason": null
           },
           {
-            "name": "effective_date",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "id",
             "description": "column name",
             "isDeprecated": false,
@@ -61695,16 +61834,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "effective_date",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "date",
               "ofType": null
             },
             "defaultValue": null
@@ -62266,12 +62395,6 @@
           },
           {
             "name": "created_by_user_id",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "effective_date",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

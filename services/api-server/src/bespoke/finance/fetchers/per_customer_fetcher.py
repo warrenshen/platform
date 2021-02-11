@@ -1,17 +1,15 @@
 """
   Per customer fetching of financial information.
 """
-from mypy_extensions import TypedDict
-from typing import Callable, Tuple, List, cast
+from typing import Callable, List, Tuple, cast
 
-from bespoke.db import models, db_constants
-from bespoke.db.models import session_scope
-from bespoke.db.models import (
-	CompanyDict, CompanySettingsDict,
-	LoanDict, TransactionDict, PaymentDict
-)
 from bespoke import errors
+from bespoke.db import db_constants, models
+from bespoke.db.models import (CompanyDict, CompanySettingsDict, LoanDict,
+                               PaymentDict, TransactionDict, session_scope)
 from bespoke.finance.types import per_customer_types
+from mypy_extensions import TypedDict
+
 
 def _loan_to_str(l: LoanDict) -> str:
 	return f"{l['id']},{l['origination_date']},{l['amount']},{l['status']}"
@@ -46,12 +44,12 @@ class Fetcher(object):
 				).all())
 			if not transactions:
 				return True, None
-			self._transactions = [t.as_dict() for t in transactions]							
+			self._transactions = [t.as_dict() for t in transactions]
 
 		return True, None
 
 	def _fetch_payments(self) -> Tuple[bool, errors.Error]:
-		
+
 		with session_scope(self._session_maker) as session:
 			payments = cast(
 				List[models.Payment],
@@ -60,12 +58,12 @@ class Fetcher(object):
 				).all())
 			if not payments:
 				return True, None
-			self._payments = [p.as_dict() for p in payments]							
+			self._payments = [p.as_dict() for p in payments]
 
 		return True, None
 
 	def _fetch_loans(self) -> Tuple[bool, errors.Error]:
-		
+
 		with session_scope(self._session_maker) as session:
 
 			loans = cast(
@@ -94,7 +92,7 @@ class Fetcher(object):
 			self._settings_dict = settings.as_dict()
 
 		return True, None
-		
+
 
 	def fetch(self) -> Tuple[bool, errors.Error]:
 		_, err = self._fetch_company_details()

@@ -1,6 +1,4 @@
 import json
-from flask import Blueprint, Response, current_app, make_response, request
-from flask.views import MethodView
 from typing import Callable, List, cast
 
 from bespoke.date import date_util
@@ -9,7 +7,9 @@ from bespoke.db.db_constants import RequestStatusEnum
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance import number_util
-from bespoke.security import two_factor_util, security_util
+from bespoke.security import security_util, two_factor_util
+from flask import Blueprint, Response, current_app, make_response, request
+from flask.views import MethodView
 from server.config import Config
 from server.views.common import auth_util, handler_util
 
@@ -67,7 +67,7 @@ class RespondToApprovalRequestView(MethodView):
 
 		with session_scope(current_app.session_maker) as session:
 			two_factor_info, bespoke_err = two_factor_util.get_two_factor_link(
-				link_val, cfg.get_security_config(), 
+				link_val, cfg.get_security_config(),
 				max_age_in_seconds=security_util.SECONDS_IN_DAY * 7, session=session)
 			if bespoke_err:
 				return handler_util.make_error_response(bespoke_err)

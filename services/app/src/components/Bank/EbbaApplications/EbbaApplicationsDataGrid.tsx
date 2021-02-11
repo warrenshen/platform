@@ -2,9 +2,8 @@ import { Box } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import DataGridActionMenu, {
-  DataGridActionItem,
-} from "components/Shared/DataGrid/DataGridActionMenu";
+import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
+import { DataGridActionItem } from "components/Shared/DataGrid/DataGridActionMenu";
 import EbbaApplicationDrawerLauncher from "components/Shared/EbbaApplication/EbbaApplicationDrawerLauncher";
 import { EbbaApplicationsQuery, RequestStatusEnum } from "generated/graphql";
 import { truncateUuid } from "lib/uuid";
@@ -39,6 +38,17 @@ function EbbaApplicationsDataGrid({ ebbaApplications, actionItems }: Props) {
       ),
     },
     {
+      dataField: "status",
+      caption: "Status",
+      minWidth: 165,
+      alignment: "center",
+      cellRender: (params: ValueFormatterParams) => (
+        <RequestStatusChip
+          requestStatus={params.row.data.status as RequestStatusEnum}
+        />
+      ),
+    },
+    {
       dataField: "company_name",
       caption: "Company",
     },
@@ -51,36 +61,30 @@ function EbbaApplicationsDataGrid({ ebbaApplications, actionItems }: Props) {
       dataField: "monthly_accounts_receivable",
       caption: "Monthly AR",
       alignment: "right",
+      cellRender: (params: ValueFormatterParams) => (
+        <CurrencyDataGridCell
+          value={params.row.data.monthly_accounts_receivable}
+        ></CurrencyDataGridCell>
+      ),
     },
     {
       dataField: "monthly_inventory",
       caption: "Monthly Inventory",
       alignment: "right",
+      cellRender: (params: ValueFormatterParams) => (
+        <CurrencyDataGridCell
+          value={params.row.data.monthly_inventory}
+        ></CurrencyDataGridCell>
+      ),
     },
     {
       dataField: "monthly_cash",
       caption: "Monthly Cash",
       alignment: "right",
-    },
-    {
-      dataField: "status",
-      caption: "Status",
-      minWidth: 165,
-      alignment: "center",
       cellRender: (params: ValueFormatterParams) => (
-        <RequestStatusChip requestStatus={params.value as RequestStatusEnum} />
-      ),
-    },
-    {
-      dataField: "action",
-      caption: "Action",
-      alignment: "center",
-      width: 90,
-      cellRender: (params: ValueFormatterParams) => (
-        <DataGridActionMenu
-          params={params}
-          actionItems={actionItems}
-        ></DataGridActionMenu>
+        <CurrencyDataGridCell
+          value={params.row.data.monthly_cash}
+        ></CurrencyDataGridCell>
       ),
     },
   ];

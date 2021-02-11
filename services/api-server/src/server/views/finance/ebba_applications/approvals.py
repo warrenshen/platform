@@ -13,6 +13,92 @@ from server.views.common import auth_util, handler_util
 
 handler = Blueprint('finance_ebba_applications_approvals', __name__)
 
+class RespondToEbbaApplicationApprovalRequest(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self) -> Response:
+		cfg = cast(Config, current_app.app_config)
+		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
+
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'ebba_application_id',
+			'new_request_status',
+			'rejection_note'
+		]
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in request')
+
+		ebba_application_id = form['ebba_application_id']
+		new_request_status = form['new_request_status']
+		rejection_note = form['rejection_note']
+
+		if not ebba_application_id:
+			return handler_util.make_error_response('No EBBA Application ID provided')
+
+		if new_request_status not in [RequestStatusEnum.Approved, RequestStatusEnum.Rejected]:
+			return handler_util.make_error_response('Invalid new request status provided')
+
+		if new_request_status == RequestStatusEnum.Rejected and not rejection_note:
+			return handler_util.make_error_response('Rejection note is required if response is rejected')
+
+		with session_scope(current_app.session_maker) as session:
+			ebba_application = cast(
+				models.EbbaApplication,
+				session.query(models.EbbaApplication).filter_by(
+					id=ebba_application_id
+				).first()
+			)
+
+			if new_request_status == RequestStatusEnum.Approved:
+				ebba_application.status = RequestStatusEnum.Approved
+				ebba_application.approved_at = date_util.now()
+				action_type = 'Approved'
+			else:
+				ebba_application.status = RequestStatusEnum.Rejected
+				ebba_application.rejected_at = date_util.now()
+				ebba_application.rejection_note = rejection_note
+				action_type = 'Rejected'
+
+			ebba_application_dicts = [{
+				'application_month': ebba_application.application_month,
+				'requested_at_date': date_util.human_readable_yearmonthday(ebba_application.requested_at)
+			}]
+
+			customer_users = cast(List[models.User], session.query(
+				models.User).filter_by(company_id=ebba_application.company_id).all())
+
+			if not customer_users:
+				return handler_util.make_error_response('There are no users configured for this customer')
+
+			customer_name = ebba_application.company.name
+			customer_emails = [user.email for user in customer_users]
+
+			session.commit()
+
+		template_name = sendgrid_util.TemplateNames.BANK_USER_APPROVES_OR_REJECTS_EBBA_APPLICATION
+		template_data = {
+			'customer_name': customer_name,
+			'ebba_applications': ebba_application_dicts,
+			'action_type': action_type
+		}
+		# recipients = customer_emails
+		# _, err = sendgrid_client.send(
+		# 	template_name, template_data, recipients)
+		# if err:
+		# 	return handler_util.make_error_response(err)
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Borrower Base {} approval request responded to'.format(ebba_application_id)
+		}), 200)
+
+
 class SubmitEbbaApplicationForApproval(MethodView):
 	decorators = [auth_util.login_required]
 
@@ -85,6 +171,10 @@ class SubmitEbbaApplicationForApproval(MethodView):
 			'msg': ''
 		}), 200)
 
+handler.add_url_rule(
+	'/respond_to_approval_request',
+	view_func=RespondToEbbaApplicationApprovalRequest.as_view(name='respond_to_ebba_application_approval_request')
+)
 handler.add_url_rule(
 	'/submit_for_approval',
 	view_func=SubmitEbbaApplicationForApproval.as_view(name='submit_ebba_application_for_approval')

@@ -25,6 +25,8 @@ export const notifyRoutes = {
 };
 
 export const ebbaApplicationsRoutes = {
+  respondToApprovalRequest:
+    "finance/ebba_applications/approvals/respond_to_approval_request",
   submitForApproval: "/finance/ebba_applications/approvals/submit_for_approval",
 };
 
