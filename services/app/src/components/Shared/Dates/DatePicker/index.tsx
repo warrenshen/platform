@@ -58,7 +58,9 @@ function DatePicker(props: Props) {
         }
         onChange={(value: MaterialUiPickersDate) =>
           props.onChange(
-            value !== null ? format(value, DateFormatServer) : null
+            value !== null && String(value) !== "Invalid Date"
+              ? format(value, DateFormatServer)
+              : null
           )
         }
         KeyboardButtonProps={{
