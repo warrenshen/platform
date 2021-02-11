@@ -1,20 +1,20 @@
-import {
-  useEffect,
-  useState,
-  useMemo,
-  forwardRef,
-  useRef,
-  useImperativeHandle,
-} from "react";
 import DataGrid, {
   Column,
   FilterRow,
   IColumnProps,
-  Selection,
   Pager,
   Paging,
+  Selection,
 } from "devextreme-react/data-grid";
 import DataSource from "devextreme/data/data_source";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 interface DataGridProps {
   dataSource: any[];
   columns: IColumnProps[];
@@ -74,7 +74,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
     }, [_ref]);
 
     useEffect(() => {
-      _dataGridInstance && _dataGridInstance.selectRows(selectedRowKeys, true);
+      _dataGridInstance && _dataGridInstance.selectRows(selectedRowKeys, false);
     }, [_dataGridInstance, selectedRowKeys]);
 
     useEffect(() => {

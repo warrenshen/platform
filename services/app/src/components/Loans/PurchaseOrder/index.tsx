@@ -73,6 +73,7 @@ function Loans() {
       <Box display="flex" flex={1}>
         <PurchaseOrderLoansDataGrid
           purchaseOrderLoans={purchaseOrderLoans}
+          selectedLoanIds={[]}
           actionItems={[
             {
               key: "edit-purchase-order-loan",

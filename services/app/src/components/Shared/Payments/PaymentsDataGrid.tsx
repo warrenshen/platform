@@ -1,8 +1,8 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
+import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import { DatetimeDataGridCell } from "components/Shared/DataGrid/DateDataGridCell";
-import ControlledDataGrid from "components/Shared/DataGrid";
 import { PaymentFragment } from "generated/graphql";
 import { useState } from "react";
 

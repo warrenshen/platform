@@ -1,7 +1,7 @@
 import { Box } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
-import ControlledDataGrid from "components/Shared/DataGrid";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
+import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DataGridActionMenu, {
   DataGridActionItem,

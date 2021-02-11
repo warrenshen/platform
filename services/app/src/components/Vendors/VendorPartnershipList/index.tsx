@@ -1,8 +1,8 @@
+import { Box } from "@material-ui/core";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
-import ControlledDataGrid from "components/Shared/DataGrid";
+import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import VendorDrawer from "components/Vendors/Bank/VendorDrawer";
 import { useState } from "react";
-import { Box } from "@material-ui/core";
 import VerificationChip from "./VerificationChip";
 
 function VendorPartnershipList({

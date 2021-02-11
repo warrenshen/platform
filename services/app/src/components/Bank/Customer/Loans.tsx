@@ -4,6 +4,7 @@ import PurchaseOrderLoansDataGrid from "components/Loans/PurchaseOrder/PurchaseO
 import UpdateLoanNotesModal from "components/Loans/UpdateLoanNotesModal";
 import {
   LoanFragment,
+  Loans,
   LoanStatusEnum,
   LoanTypeEnum,
   useLoansByCompanyAndLoanTypeForBankQuery,
@@ -44,6 +45,7 @@ function BankCustomerLoansSubpage({ companyId }: Props) {
   );
   const [targetLoanId, setTargetLoanId] = useState("");
   const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
+  const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"]>([]);
 
   const [
     updateLoan,
@@ -99,7 +101,10 @@ function BankCustomerLoansSubpage({ companyId }: Props) {
         <CreateAdvanceModal
           selectedLoans={selectedLoans}
           handleClose={() => {
+            refetch();
             setIsCreateAdvanceModalOpen(false);
+            setSelectedLoans([]);
+            setSelectedLoanIds([]);
           }}
         ></CreateAdvanceModal>
       )}
@@ -126,6 +131,7 @@ function BankCustomerLoansSubpage({ companyId }: Props) {
       <Box display="flex" flex={1}>
         <PurchaseOrderLoansDataGrid
           purchaseOrderLoans={purchaseOrderLoans}
+          selectedLoanIds={selectedLoanIds}
           actionItems={[
             {
               key: "edit-loan-notes",
@@ -146,7 +152,10 @@ function BankCustomerLoansSubpage({ companyId }: Props) {
                 handleRejectLoan(params.row.data.id as string),
             },
           ]}
-          handleSelectLoans={(loans) => setSelectedLoans(loans)}
+          handleSelectLoans={(loans) => {
+            setSelectedLoans(loans);
+            setSelectedLoanIds(loans.map((loan) => loan.id));
+          }}
         ></PurchaseOrderLoansDataGrid>
       </Box>
     </Box>

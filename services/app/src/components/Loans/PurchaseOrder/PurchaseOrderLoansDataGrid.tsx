@@ -1,7 +1,7 @@
 import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
-import ControlledDataGrid from "components/Shared/DataGrid";
 import Status from "components/Shared/Chip/Status";
+import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DataGridActionMenu, {
   DataGridActionItem,
@@ -9,18 +9,20 @@ import DataGridActionMenu, {
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import PurchaseOrderDrawerLauncher from "components/Shared/PurchaseOrder/PurchaseOrderDrawerLauncher";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { LoanFragment } from "generated/graphql";
+import { LoanFragment, Loans } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import React, { useContext } from "react";
 
 interface Props {
   purchaseOrderLoans: LoanFragment[];
+  selectedLoanIds: Loans["id"][];
   actionItems: DataGridActionItem[];
   handleSelectLoans?: (loans: LoanFragment[]) => void;
 }
 
 function PurchaseOrderLoansDataGrid({
   purchaseOrderLoans,
+  selectedLoanIds,
   actionItems,
   handleSelectLoans = () => {},
 }: Props) {
@@ -117,12 +119,12 @@ function PurchaseOrderLoansDataGrid({
   return (
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
       <ControlledDataGrid
+        pager
+        select
         dataSource={rows}
         columns={columns}
         onSelectionChanged={onSelectionChanged}
-        selectedRowKeys={[]}
-        pager
-        select
+        selectedRowKeys={selectedLoanIds}
       ></ControlledDataGrid>
     </Box>
   );

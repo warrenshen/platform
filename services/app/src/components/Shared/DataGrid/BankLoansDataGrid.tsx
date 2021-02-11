@@ -1,19 +1,13 @@
 import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
-import ControlledDataGrid from "components/Shared/DataGrid";
 import Status from "components/Shared/Chip/Status";
+import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import DataGrid, {
-  Column,
-  FilterRow,
-  IColumnProps,
-  Pager,
-  Paging,
-} from "devextreme-react/data-grid";
+import { IColumnProps } from "devextreme-react/data-grid";
 import {
   LoanFragment,
   LoanTypeEnum,
