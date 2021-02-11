@@ -61,7 +61,7 @@ function Settings({
       <Box>
         <h2>Account Settings</h2>
         <Box>
-          <h3>Product, Agreement, and Contract</h3>
+          <h3>Customer Settings</h3>
           <Box mt={3}>
             {accountSettingsOpen && (
               <EditAccountSettingsModal
@@ -82,6 +82,7 @@ function Settings({
               }}
             ></CompanySettingsCard>
           </Box>
+          <h3>Contract</h3>
           {contract && (
             <Box mt={3}>
               {isEditContractTermsModalOpen && (

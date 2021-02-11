@@ -4,8 +4,8 @@ from typing import Any, List, cast
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
+from bespoke.db.db_constants import RequestStatusEnum
 from bespoke.email import sendgrid_util
-from bespoke.enums.request_status_enum import RequestStatusEnum
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from server.config import Config
@@ -61,7 +61,7 @@ class SubmitEbbaApplicationForApproval(MethodView):
 
 			customer_name = ebba_application.company.name
 
-			ebba_application.status = RequestStatusEnum.ApprovalRequested
+			ebba_application.status = RequestStatusEnum.APPROVAL_REQUESTED
 			ebba_application.requested_at = date_util.now()
 
 			session.commit()

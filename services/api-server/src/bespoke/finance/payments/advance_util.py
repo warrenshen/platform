@@ -10,7 +10,6 @@ from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
-from bespoke.enums.loan_status_enum import LoanStatusEnum
 from bespoke.finance import number_util
 from bespoke.finance.payments import payment_util
 from bespoke.finance.types import per_customer_types
@@ -47,10 +46,19 @@ def fund_loans_with_advance(
 			return None, errors.Error('Not all loans were found to fund in database', details=err_details)
 
 		already_funded_loan_ids: List[str] = []
+		not_approved_loan_ids: List[str] = []
 		for loan in loans:
+			loan_id = str(loan.id)
 			if loan.funded_at:
-				already_funded_loan_ids.append(str(loan.id))
+				already_funded_loan_ids.append(loan_id)
+			if not loan.approved_at:
+				not_approved_loan_ids.append(loan_id)
+
 			loan_dicts.append(loan.as_dict())
+
+		if not_approved_loan_ids:
+			return None, errors.Error('These loans are not approved yet. Please remove them from the advances process: {}'.format(
+				not_approved_loan_ids), details=err_details)
 
 		if already_funded_loan_ids:
 			return None, errors.Error('These loans have already been funded. Please remove them from the advances process: {}'.format(
@@ -86,6 +94,7 @@ def fund_loans_with_advance(
 				payment_method=payment_input['method']
 			))
 			payment.applied_at = date_util.now()
+			payment.deposit_date = date_util.today_as_date()
 			session.add(payment)
 			session.flush()
 			payment_id = payment.id
@@ -104,7 +113,7 @@ def fund_loans_with_advance(
 				session.add(t)
 
 		for loan in loans:
-			loan.status = LoanStatusEnum.Funded
+			loan.status = db_constants.LoanStatusEnum.FUNDED
 			loan.funded_at = date_util.now()
 			loan.funded_by_user_id = bank_admin_user_id
 			loan.outstanding_principal_balance = loan.amount

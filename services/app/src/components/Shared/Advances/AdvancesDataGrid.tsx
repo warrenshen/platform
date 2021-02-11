@@ -49,8 +49,13 @@ function AdvancesDataGrid({
   const columns = [
     {
       dataField: "id",
-      caption: "Payment ID",
+      caption: "Advance ID",
       width: 140,
+    },
+    {
+      caption: "Company",
+      width: 140,
+      cellRender: companyNameRenderer,
     },
     {
       caption: "Amount",
@@ -63,14 +68,9 @@ function AdvancesDataGrid({
       ),
     },
     {
-      caption: "Company",
-      width: 140,
-      cellRender: companyNameRenderer,
-    },
-    {
       dataField: "method",
       caption: "Method",
-      width: 140,
+      width: 90,
     },
     {
       caption: "Submitted At",
@@ -82,28 +82,9 @@ function AdvancesDataGrid({
       ),
     },
     {
-      dataField: "settled_at",
-      caption: "Settled At",
-      width: 140,
-    },
-    {
-      dataField: "effective_date",
-      caption: "Effective Date",
-      width: 140,
-    },
-    {
       dataField: "deposit_date",
       caption: "Deposit Date",
       width: 140,
-    },
-    {
-      caption: "Applied At",
-      width: 140,
-      cellRender: (params: ValueFormatterParams) => (
-        <DatetimeDataGridCell
-          datetimeString={params.row.data.applied_at}
-        ></DatetimeDataGridCell>
-      ),
     },
   ];
 

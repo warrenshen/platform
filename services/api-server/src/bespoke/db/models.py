@@ -268,9 +268,19 @@ class Loan(Base):
 	adjusted_maturity_date = Column(Date)
 	amount = Column(Numeric, nullable=False)
 	status = Column(String)
+	
 	requested_at = Column(DateTime)
+	
+	rejected_at = Column(DateTime)
+	rejected_by_user_id = Column(GUID)
+	rejection_note = Column(Text)
+
+	approved_at = Column(DateTime)
+	approved_by_user_id = Column(GUID)
+	
 	funded_at = Column(DateTime)
 	funded_by_user_id = Column(GUID)
+
 	outstanding_principal_balance = Column(Numeric)
 	outstanding_interest = Column(Numeric)
 	outstanding_fees = Column(Numeric)
@@ -295,7 +305,8 @@ PaymentDict = TypedDict('PaymentDict', {
 	'type': str,
 	'amount': float,
 	'method': str,
-	'submitted_at': datetime.datetime
+	'submitted_at': datetime.datetime,
+	'deposit_date': datetime.date
 })
 
 class Payment(Base):
@@ -308,6 +319,7 @@ class Payment(Base):
 	method = Column(String)
 	submitted_at = Column(DateTime)
 	applied_at = Column(DateTime)
+	deposit_date = Column(Date)
 
 	def as_dict(self) -> PaymentDict:
 		return PaymentDict(
@@ -315,7 +327,8 @@ class Payment(Base):
 			type=self.type,
 			amount=float(self.amount),
 			method=self.method,
-			submitted_at=self.submitted_at
+			submitted_at=self.submitted_at,
+			deposit_date=self.deposit_date
 		)
 
 

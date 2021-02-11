@@ -3627,6 +3627,8 @@ export enum LoanTypeUpdateColumn {
 export type Loans = {
   adjusted_maturity_date?: Maybe<Scalars["date"]>;
   amount: Scalars["numeric"];
+  approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by_user_id?: Maybe<Scalars["uuid"]>;
   artifact_id?: Maybe<Scalars["uuid"]>;
   closed_at?: Maybe<Scalars["timestamptz"]>;
   /** An object relationship */
@@ -3650,7 +3652,7 @@ export type Loans = {
   purchase_order?: Maybe<PurchaseOrders>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
-  rejection_notes?: Maybe<Scalars["String"]>;
+  rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   status: LoanStatusEnum;
@@ -3727,6 +3729,8 @@ export type LoansBoolExp = {
   _or?: Maybe<Array<Maybe<LoansBoolExp>>>;
   adjusted_maturity_date?: Maybe<DateComparisonExp>;
   amount?: Maybe<NumericComparisonExp>;
+  approved_at?: Maybe<TimestamptzComparisonExp>;
+  approved_by_user_id?: Maybe<UuidComparisonExp>;
   artifact_id?: Maybe<UuidComparisonExp>;
   closed_at?: Maybe<TimestamptzComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
@@ -3747,7 +3751,7 @@ export type LoansBoolExp = {
   purchase_order?: Maybe<PurchaseOrdersBoolExp>;
   rejected_at?: Maybe<TimestamptzComparisonExp>;
   rejected_by_user_id?: Maybe<UuidComparisonExp>;
-  rejection_notes?: Maybe<StringComparisonExp>;
+  rejection_note?: Maybe<StringComparisonExp>;
   requested_at?: Maybe<TimestamptzComparisonExp>;
   requested_by_user_id?: Maybe<UuidComparisonExp>;
   status?: Maybe<LoanStatusEnumComparisonExp>;
@@ -3771,6 +3775,8 @@ export type LoansIncInput = {
 export type LoansInsertInput = {
   adjusted_maturity_date?: Maybe<Scalars["date"]>;
   amount?: Maybe<Scalars["numeric"]>;
+  approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by_user_id?: Maybe<Scalars["uuid"]>;
   artifact_id?: Maybe<Scalars["uuid"]>;
   closed_at?: Maybe<Scalars["timestamptz"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
@@ -3791,7 +3797,7 @@ export type LoansInsertInput = {
   purchase_order?: Maybe<PurchaseOrdersObjRelInsertInput>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
-  rejection_notes?: Maybe<Scalars["String"]>;
+  rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   status?: Maybe<LoanStatusEnum>;
@@ -3801,6 +3807,8 @@ export type LoansInsertInput = {
 export type LoansMaxFields = {
   adjusted_maturity_date?: Maybe<Scalars["date"]>;
   amount?: Maybe<Scalars["numeric"]>;
+  approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by_user_id?: Maybe<Scalars["uuid"]>;
   artifact_id?: Maybe<Scalars["uuid"]>;
   closed_at?: Maybe<Scalars["timestamptz"]>;
   company_id?: Maybe<Scalars["uuid"]>;
@@ -3817,7 +3825,7 @@ export type LoansMaxFields = {
   outstanding_principal_balance?: Maybe<Scalars["numeric"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
-  rejection_notes?: Maybe<Scalars["String"]>;
+  rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
 };
@@ -3826,6 +3834,8 @@ export type LoansMaxFields = {
 export type LoansMaxOrderBy = {
   adjusted_maturity_date?: Maybe<OrderBy>;
   amount?: Maybe<OrderBy>;
+  approved_at?: Maybe<OrderBy>;
+  approved_by_user_id?: Maybe<OrderBy>;
   artifact_id?: Maybe<OrderBy>;
   closed_at?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
@@ -3842,7 +3852,7 @@ export type LoansMaxOrderBy = {
   outstanding_principal_balance?: Maybe<OrderBy>;
   rejected_at?: Maybe<OrderBy>;
   rejected_by_user_id?: Maybe<OrderBy>;
-  rejection_notes?: Maybe<OrderBy>;
+  rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
 };
@@ -3851,6 +3861,8 @@ export type LoansMaxOrderBy = {
 export type LoansMinFields = {
   adjusted_maturity_date?: Maybe<Scalars["date"]>;
   amount?: Maybe<Scalars["numeric"]>;
+  approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by_user_id?: Maybe<Scalars["uuid"]>;
   artifact_id?: Maybe<Scalars["uuid"]>;
   closed_at?: Maybe<Scalars["timestamptz"]>;
   company_id?: Maybe<Scalars["uuid"]>;
@@ -3867,7 +3879,7 @@ export type LoansMinFields = {
   outstanding_principal_balance?: Maybe<Scalars["numeric"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
-  rejection_notes?: Maybe<Scalars["String"]>;
+  rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
 };
@@ -3876,6 +3888,8 @@ export type LoansMinFields = {
 export type LoansMinOrderBy = {
   adjusted_maturity_date?: Maybe<OrderBy>;
   amount?: Maybe<OrderBy>;
+  approved_at?: Maybe<OrderBy>;
+  approved_by_user_id?: Maybe<OrderBy>;
   artifact_id?: Maybe<OrderBy>;
   closed_at?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
@@ -3892,7 +3906,7 @@ export type LoansMinOrderBy = {
   outstanding_principal_balance?: Maybe<OrderBy>;
   rejected_at?: Maybe<OrderBy>;
   rejected_by_user_id?: Maybe<OrderBy>;
-  rejection_notes?: Maybe<OrderBy>;
+  rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
 };
@@ -3922,6 +3936,8 @@ export type LoansOnConflict = {
 export type LoansOrderBy = {
   adjusted_maturity_date?: Maybe<OrderBy>;
   amount?: Maybe<OrderBy>;
+  approved_at?: Maybe<OrderBy>;
+  approved_by_user_id?: Maybe<OrderBy>;
   artifact_id?: Maybe<OrderBy>;
   closed_at?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
@@ -3942,7 +3958,7 @@ export type LoansOrderBy = {
   purchase_order?: Maybe<PurchaseOrdersOrderBy>;
   rejected_at?: Maybe<OrderBy>;
   rejected_by_user_id?: Maybe<OrderBy>;
-  rejection_notes?: Maybe<OrderBy>;
+  rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
   status?: Maybe<OrderBy>;
@@ -3959,6 +3975,10 @@ export enum LoansSelectColumn {
   AdjustedMaturityDate = "adjusted_maturity_date",
   /** column name */
   Amount = "amount",
+  /** column name */
+  ApprovedAt = "approved_at",
+  /** column name */
+  ApprovedByUserId = "approved_by_user_id",
   /** column name */
   ArtifactId = "artifact_id",
   /** column name */
@@ -3994,7 +4014,7 @@ export enum LoansSelectColumn {
   /** column name */
   RejectedByUserId = "rejected_by_user_id",
   /** column name */
-  RejectionNotes = "rejection_notes",
+  RejectionNote = "rejection_note",
   /** column name */
   RequestedAt = "requested_at",
   /** column name */
@@ -4007,6 +4027,8 @@ export enum LoansSelectColumn {
 export type LoansSetInput = {
   adjusted_maturity_date?: Maybe<Scalars["date"]>;
   amount?: Maybe<Scalars["numeric"]>;
+  approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by_user_id?: Maybe<Scalars["uuid"]>;
   artifact_id?: Maybe<Scalars["uuid"]>;
   closed_at?: Maybe<Scalars["timestamptz"]>;
   company_id?: Maybe<Scalars["uuid"]>;
@@ -4024,7 +4046,7 @@ export type LoansSetInput = {
   outstanding_principal_balance?: Maybe<Scalars["numeric"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
-  rejection_notes?: Maybe<Scalars["String"]>;
+  rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   status?: Maybe<LoanStatusEnum>;
@@ -4101,6 +4123,10 @@ export enum LoansUpdateColumn {
   /** column name */
   Amount = "amount",
   /** column name */
+  ApprovedAt = "approved_at",
+  /** column name */
+  ApprovedByUserId = "approved_by_user_id",
+  /** column name */
   ArtifactId = "artifact_id",
   /** column name */
   ClosedAt = "closed_at",
@@ -4135,7 +4161,7 @@ export enum LoansUpdateColumn {
   /** column name */
   RejectedByUserId = "rejected_by_user_id",
   /** column name */
-  RejectionNotes = "rejection_notes",
+  RejectionNote = "rejection_note",
   /** column name */
   RequestedAt = "requested_at",
   /** column name */
@@ -5487,12 +5513,14 @@ export type Payments = {
   company_bank_account?: Maybe<BankAccounts>;
   company_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id: Scalars["uuid"];
+  /** What day this payment or advance was deposited into a bank */
   deposit_date?: Maybe<Scalars["date"]>;
   effective_date?: Maybe<Scalars["date"]>;
   id: Scalars["uuid"];
   items_covered: Scalars["jsonb"];
   method: Scalars["String"];
   settled_at?: Maybe<Scalars["timestamptz"]>;
+  /** When this payment record was originally added to the Postgres DB */
   submitted_at: Scalars["timestamptz"];
   type: Scalars["String"];
 };

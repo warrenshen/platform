@@ -35,7 +35,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				company_id = seed.get_company_id('company_admin', index=index)
 				loan = models.Loan(
 					company_id=company_id,
-					amount=decimal.Decimal(amount)
+					amount=decimal.Decimal(amount),
+					approved_at=date_util.now()
 				)
 				session.add(loan)
 				session.flush()
@@ -99,6 +100,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				self.assertEqual('ach', payment.method)
 				self.assertIsNotNone(payment.applied_at)
 				self.assertIsNotNone(payment.submitted_at)
+				self.assertIsNotNone(payment.deposit_date)
 
 			# Validate transactions
 			transactions = cast(
@@ -222,7 +224,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 			company_id = seed.get_company_id('company_admin', index=0)
 			loan = models.Loan(
 				company_id=company_id,
-				amount=decimal.Decimal(24.0)
+				amount=decimal.Decimal(24.0),
+				approved_at=date_util.now()
 			)
 			session.add(loan)
 			session.flush()
@@ -246,7 +249,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 			loan = models.Loan(
 				company_id=company_id,
 				amount=decimal.Decimal(24.0),
-				funded_at=date_util.now()
+				funded_at=date_util.now(),
+				approved_at=date_util.now()
 			)
 			session.add(loan)
 			session.flush()
@@ -260,6 +264,29 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		)
 		self.assertIn('already been funded', err.msg)
 
+	def test_failure_advance_some_not_approved(self) -> None:
+		seed = test_helper.BasicSeed.create(self.session_maker, self)
+		seed.initialize()
+
+		loan_ids = []
+		with session_scope(self.session_maker) as session:
+			company_id = seed.get_company_id('company_admin', index=0)
+			loan = models.Loan(
+				company_id=company_id,
+				amount=decimal.Decimal(24.0)
+			)
+			session.add(loan)
+			session.flush()
+			loan_ids.append(str(loan.id))
+
+		resp, err = advance_util.fund_loans_with_advance(
+			bank_admin_user_id='', 
+			loan_ids=loan_ids, 
+			payment_input=None, 
+			session_maker=self.session_maker
+		)
+		self.assertIn('not approved', err.msg)
+
 	def test_failure_advance_amount_not_equal(self) -> None:
 		seed = test_helper.BasicSeed.create(self.session_maker, self)
 		seed.initialize()
@@ -271,7 +298,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 			for amount in amounts:
 				loan = models.Loan(
 					company_id=company_id,
-					amount=decimal.Decimal(amount)
+					amount=decimal.Decimal(amount),
+					approved_at=date_util.now()
 				)
 				session.add(loan)
 				session.flush()

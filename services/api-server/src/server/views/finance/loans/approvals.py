@@ -6,8 +6,7 @@ from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
-from bespoke.enums.loan_type_enum import AllLoanTypes, LoanTypeEnum
-from bespoke.enums.request_status_enum import RequestStatusEnum
+from bespoke.db.db_constants import AllLoanTypes, LoanTypeEnum, RequestStatusEnum
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from mypy_extensions import TypedDict
@@ -33,6 +32,7 @@ class ApproveLoanView(MethodView):
 					'Missing key {} from handle payment request'.format(key))
 
 		loan_id = form['loan_id']
+		user_session = auth_util.UserSession.from_session()
 
 		with session_scope(current_app.session_maker) as session:
 			loan = cast(
@@ -45,11 +45,60 @@ class ApproveLoanView(MethodView):
 				return handler_util.make_error_response('Could not find loan for given Loan ID')
 
 			company_id = loan.company_id
-			# TODO(dlluncor):
-			# loan.approved_at = datetime.datetime.now()
+			# When a loan gets approved, you also have to clear out the rejected at
+			# status.
+			loan.status = db_constants.LoanStatusEnum.APPROVED
+			loan.approved_at = date_util.now()
+			loan.approved_by_user_id = user_session.get_user_id()
+			loan.rejected_at = None
+			loan.rejected_by_user_id = None
 
-		return handler_util.make_error_response('Not implemented')
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
 
+class RejectLoanView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = ['loan_id', 'rejection_note']
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} from handle payment request'.format(key))
+
+		loan_id = form['loan_id']
+		rejection_note = form['rejection_note']
+		user_session = auth_util.UserSession.from_session()
+
+		with session_scope(current_app.session_maker) as session:
+			loan = cast(
+				models.Loan,
+				session.query(models.Loan).filter_by(
+					id=loan_id).first()
+			)
+
+			if not loan:
+				return handler_util.make_error_response('Could not find loan for given Loan ID')
+
+			company_id = loan.company_id
+			# When a loan gets rejected, you also have to clear out any state about
+			# whether it was approved.
+			loan.status = db_constants.LoanStatusEnum.REJECTED
+			loan.rejection_note = rejection_note
+			loan.rejected_at = date_util.now()
+			loan.rejected_by_user_id = user_session.get_user_id()
+			loan.approved_at = None
+			loan.approved_by_user_id = None
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
 
 class SubmitForApprovalView(MethodView):
 	decorators = [auth_util.login_required]
@@ -113,7 +162,7 @@ class SubmitForApprovalView(MethodView):
 
 				proposed_loans_total_amount = 0.0
 				for sibling_loan in sibling_loans:
-					if sibling_loan.status in [RequestStatusEnum.ApprovalRequested, RequestStatusEnum.Approved]:
+					if sibling_loan.status in [RequestStatusEnum.APPROVAL_REQUESTED, RequestStatusEnum.APPROVED]:
 						proposed_loans_total_amount += float(
 							sibling_loan.amount) if sibling_loan.amount else 0
 
@@ -152,7 +201,7 @@ class SubmitForApprovalView(MethodView):
 				"""
 
 
-			loan.status = RequestStatusEnum.ApprovalRequested
+			loan.status = RequestStatusEnum.APPROVAL_REQUESTED
 			loan.requested_at = date_util.now()
 
 			session.commit()
@@ -176,6 +225,9 @@ class SubmitForApprovalView(MethodView):
 
 handler.add_url_rule(
 	'/approve_loan', view_func=ApproveLoanView.as_view(name='approve_loan_view'))
+
+handler.add_url_rule(
+	'/reject_loan', view_func=RejectLoanView.as_view(name='reject_loan_view'))
 
 handler.add_url_rule(
 	'/submit_for_approval',

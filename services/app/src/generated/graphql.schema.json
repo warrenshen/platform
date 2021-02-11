@@ -23966,6 +23966,30 @@
             "deprecationReason": null
           },
           {
+            "name": "approved_at",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "approved_by_user_id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "artifact_id",
             "description": null,
             "args": [],
@@ -24218,7 +24242,7 @@
             "deprecationReason": null
           },
           {
-            "name": "rejection_notes",
+            "name": "rejection_note",
             "description": null,
             "args": [],
             "type": {
@@ -24833,6 +24857,26 @@
             "defaultValue": null
           },
           {
+            "name": "approved_at",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "timestamptz_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "approved_by_user_id",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "uuid_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "artifact_id",
             "description": null,
             "type": {
@@ -25033,7 +25077,7 @@
             "defaultValue": null
           },
           {
-            "name": "rejection_notes",
+            "name": "rejection_note",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
@@ -25167,6 +25211,26 @@
             "type": {
               "kind": "SCALAR",
               "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "approved_at",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "approved_by_user_id",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
               "ofType": null
             },
             "defaultValue": null
@@ -25372,7 +25436,7 @@
             "defaultValue": null
           },
           {
-            "name": "rejection_notes",
+            "name": "rejection_note",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -25446,6 +25510,30 @@
             "deprecationReason": null
           },
           {
+            "name": "approved_at",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "approved_by_user_id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "artifact_id",
             "description": null,
             "args": [],
@@ -25638,7 +25726,7 @@
             "deprecationReason": null
           },
           {
-            "name": "rejection_notes",
+            "name": "rejection_note",
             "description": null,
             "args": [],
             "type": {
@@ -25706,6 +25794,26 @@
             "defaultValue": null
           },
           {
+            "name": "approved_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "approved_by_user_id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "artifact_id",
             "description": null,
             "type": {
@@ -25866,7 +25974,7 @@
             "defaultValue": null
           },
           {
-            "name": "rejection_notes",
+            "name": "rejection_note",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -25924,6 +26032,30 @@
             "type": {
               "kind": "SCALAR",
               "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "approved_at",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "approved_by_user_id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
               "ofType": null
             },
             "isDeprecated": false,
@@ -26122,7 +26254,7 @@
             "deprecationReason": null
           },
           {
-            "name": "rejection_notes",
+            "name": "rejection_note",
             "description": null,
             "args": [],
             "type": {
@@ -26190,6 +26322,26 @@
             "defaultValue": null
           },
           {
+            "name": "approved_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "approved_by_user_id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "artifact_id",
             "description": null,
             "type": {
@@ -26350,7 +26502,7 @@
             "defaultValue": null
           },
           {
-            "name": "rejection_notes",
+            "name": "rejection_note",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -26545,6 +26697,26 @@
           },
           {
             "name": "amount",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "approved_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "approved_by_user_id",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -26754,7 +26926,7 @@
             "defaultValue": null
           },
           {
-            "name": "rejection_notes",
+            "name": "rejection_note",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -26839,6 +27011,18 @@
           },
           {
             "name": "amount",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "approved_at",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "approved_by_user_id",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -26946,7 +27130,7 @@
             "deprecationReason": null
           },
           {
-            "name": "rejection_notes",
+            "name": "rejection_note",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -26994,6 +27178,26 @@
             "type": {
               "kind": "SCALAR",
               "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "approved_at",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "approved_by_user_id",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
               "ofType": null
             },
             "defaultValue": null
@@ -27169,7 +27373,7 @@
             "defaultValue": null
           },
           {
-            "name": "rejection_notes",
+            "name": "rejection_note",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -27674,6 +27878,18 @@
             "deprecationReason": null
           },
           {
+            "name": "approved_at",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "approved_by_user_id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "artifact_id",
             "description": "column name",
             "isDeprecated": false,
@@ -27776,7 +27992,7 @@
             "deprecationReason": null
           },
           {
-            "name": "rejection_notes",
+            "name": "rejection_note",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -34292,7 +34508,7 @@
           },
           {
             "name": "deposit_date",
-            "description": null,
+            "description": "What day this payment or advance was deposited into a bank",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -34387,7 +34603,7 @@
           },
           {
             "name": "submitted_at",
-            "description": null,
+            "description": "When this payment record was originally added to the Postgres DB",
             "args": [],
             "type": {
               "kind": "NON_NULL",

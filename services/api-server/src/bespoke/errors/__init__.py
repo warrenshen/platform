@@ -12,3 +12,6 @@ class Error(object):
 			return '{}; Details: {}'.format(self.msg, self.details)
 
 		return '{}'.format(self.msg)
+
+	def __repr__(self) -> str:
+		return str(self)

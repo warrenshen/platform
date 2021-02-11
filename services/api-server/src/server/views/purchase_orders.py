@@ -5,9 +5,9 @@ from typing import Callable, List, cast
 
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
+from bespoke.db.db_constants import RequestStatusEnum
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
-from bespoke.enums.request_status_enum import RequestStatusEnum
 from bespoke.finance import number_util
 from bespoke.security import two_factor_util, security_util
 from server.config import Config
@@ -54,10 +54,10 @@ class RespondToApprovalRequestView(MethodView):
 		if not purchase_order_id:
 			return handler_util.make_error_response('No Purchase Order ID provided')
 
-		if new_request_status not in [RequestStatusEnum.Approved, RequestStatusEnum.Rejected]:
+		if new_request_status not in [RequestStatusEnum.APPROVED, RequestStatusEnum.REJECTED]:
 			return handler_util.make_error_response('Invalid new request status provided')
 
-		if new_request_status == RequestStatusEnum.Rejected and not rejection_note:
+		if new_request_status == RequestStatusEnum.REJECTED and not rejection_note:
 			return handler_util.make_error_response('Rejection note is required if response is rejected')
 
 		purchase_order_dicts = []
@@ -79,12 +79,12 @@ class RespondToApprovalRequestView(MethodView):
 					id=purchase_order_id).first()
 			)
 
-			if new_request_status == RequestStatusEnum.Approved:
-				purchase_order.status = RequestStatusEnum.Approved
+			if new_request_status == RequestStatusEnum.APPROVED:
+				purchase_order.status = RequestStatusEnum.APPROVED
 				purchase_order.approved_at = date_util.now()
 				action_type = 'Approved'
 			else:
-				purchase_order.status = RequestStatusEnum.Rejected
+				purchase_order.status = RequestStatusEnum.REJECTED
 				purchase_order.rejected_at = date_util.now()
 				purchase_order.rejection_note = rejection_note
 				action_type = 'Rejected'
@@ -193,7 +193,7 @@ class SubmitForApprovalView(MethodView):
 
 			vendor_emails = [user.email for user in vendor_users]
 
-			purchase_order.status = RequestStatusEnum.ApprovalRequested
+			purchase_order.status = RequestStatusEnum.APPROVAL_REQUESTED
 			purchase_order.requested_at = date_util.now()
 
 			session.commit()

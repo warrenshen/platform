@@ -25,7 +25,7 @@ class ExcelCreator(object):
 	def __init__(self, financials: per_customer_types.CustomerFinancials) -> None:
 		self.wb = excel_writer.WorkbookWriter(xlwt.Workbook())
 		self._financials = financials
-		self._product_type = self._financials['company_settings']['product_type']
+		#self._product_type = self._financials['company_settings']['product_type']
 
 	def _summary(self) -> None:
 		sheet = self.wb.add_sheet('Summary')
@@ -65,7 +65,8 @@ class ExcelCreator(object):
 
 	def _contract(self) -> None:
 		sheet = self.wb.add_sheet('Contract')
-		product_config = self._financials['company_settings']['product_config']
+		product_config = None # TODO: fix
+		#product_config = self._financials['company_settings']['product_config']
 		contract = contract_util.Contract(product_config)
 		fields = contract.get_fields()
 		sheet.add_row(['Name', 'Value'])

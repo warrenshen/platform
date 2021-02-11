@@ -117,7 +117,6 @@ class Fetcher(object):
 		return True, None
 
 	def summary(self) -> str:
-		product_type = self._settings_dict['product_type']
 		company_dict = self._company_info
 
 		loans_str = '\n'.join([_loan_to_str(l) for l in self._loans])

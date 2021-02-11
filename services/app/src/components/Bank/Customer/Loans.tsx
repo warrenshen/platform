@@ -5,11 +5,11 @@ import UpdateLoanNotesModal from "components/Loans/UpdateLoanNotesModal";
 import {
   LoanFragment,
   Loans,
-  LoanStatusEnum,
   LoanTypeEnum,
   useLoansByCompanyAndLoanTypeForBankQuery,
   useUpdateLoanMutation,
 } from "generated/graphql";
+import { approveLoan, rejectLoan } from "lib/finance/loans/approval";
 import React, { useState } from "react";
 
 interface Props {
@@ -58,36 +58,21 @@ function BankCustomerLoansSubpage({ companyId }: Props) {
   };
 
   const handleApproveLoan = async (loanId: string) => {
-    // TODO (warrenshen): do we need a Loans.approved_at?
-    const response = await updateLoan({
-      variables: {
-        id: loanId,
-        loan: {
-          status: LoanStatusEnum.Approved,
-        },
-      },
-    });
-    const savedLoan = response.data?.update_loans_by_pk;
-    if (!savedLoan) {
-      alert("Could not approve loan");
+    const resp = await approveLoan({ loan_id: loanId });
+    if (resp.status !== "OK") {
+      alert("Could not approve loan. Reason: " + resp.msg);
     }
     refetch();
   };
 
   const handleRejectLoan = async (loanId: string) => {
-    // TODO (Warren): what to do about Loans.reject_by_user_id and Loans.rejection_notes?
-    const response = await updateLoan({
-      variables: {
-        id: loanId,
-        loan: {
-          status: LoanStatusEnum.Rejected,
-          rejected_at: "now()",
-        },
-      },
+    // TODO(warren): Handle entering a real rejection reason
+    const resp = await rejectLoan({
+      loan_id: loanId,
+      rejection_note: "Default rejection reason",
     });
-    const savedLoan = response.data?.update_loans_by_pk;
-    if (!savedLoan) {
-      alert("Could not reject loan");
+    if (resp.status !== "OK") {
+      alert("Could not reject loan. Reason: " + resp.msg);
     }
     refetch();
   };
