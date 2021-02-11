@@ -12,7 +12,7 @@ import {
 } from "@material-ui/core";
 import {
   LoansInsertInput,
-  useLoanQuery,
+  useGetLoanQuery,
   useUpdateLoanMutation,
 } from "generated/graphql";
 import { isNull, mergeWith } from "lodash";
@@ -56,7 +56,7 @@ function UpdateLoanNotesModal({ loanId, handleClose }: Props) {
 
   const [loan, setLoan] = useState(newLoan);
 
-  const { loading: isExistingLoanLoading } = useLoanQuery({
+  const { loading: isExistingLoanLoading } = useGetLoanQuery({
     fetchPolicy: "network-only",
     variables: {
       id: loanId,

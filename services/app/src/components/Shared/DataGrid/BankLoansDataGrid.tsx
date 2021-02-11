@@ -7,6 +7,7 @@ import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
+import LoanDrawerLauncher from "components/Shared/Loan/LoanDrawerLauncher";
 import { IColumnProps } from "devextreme-react/data-grid";
 import {
   LoanFragment,
@@ -14,6 +15,7 @@ import {
   RequestStatusEnum,
 } from "generated/graphql";
 import { AllLoanStatuses, LoanTypeToLabel } from "lib/enum";
+import { truncateUuid } from "lib/uuid";
 import { useEffect, useState } from "react";
 
 interface Props {
@@ -78,6 +80,17 @@ function BankLoansDataGrid({
 
   const columns: IColumnProps[] = [
     {
+      dataField: "id",
+      caption: "Platform ID",
+      width: 120,
+      cellRender: (params: ValueFormatterParams) => (
+        <LoanDrawerLauncher
+          label={truncateUuid(params.row.data.id as string)}
+          loanId={params.row.data.id as string}
+        ></LoanDrawerLauncher>
+      ),
+    },
+    {
       dataField: "company.name",
       caption: "Customer Name",
       width: 190,
@@ -92,11 +105,6 @@ function BankLoansDataGrid({
     {
       dataField: "purchase_order.vendor.name",
       caption: "Vendor Name",
-      width: 190,
-    },
-    {
-      dataField: "id",
-      caption: "Loan ID",
       width: 190,
     },
   ];

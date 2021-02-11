@@ -7,6 +7,7 @@ import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
+import LoanDrawerLauncher from "components/Shared/Loan/LoanDrawerLauncher";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LineOfCreditFragment,
@@ -14,6 +15,7 @@ import {
   RequestStatusEnum,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
+import { truncateUuid } from "lib/uuid";
 import React, { useContext } from "react";
 
 interface Props {
@@ -39,6 +41,17 @@ function LineOfCreditLoansDataGrid({ loans, actionItems }: Props) {
   };
 
   const columns = [
+    {
+      dataField: "id",
+      caption: "Platform ID",
+      width: 120,
+      cellRender: (params: ValueFormatterParams) => (
+        <LoanDrawerLauncher
+          label={truncateUuid(params.row.data.id as string)}
+          loanId={params.row.data.id as string}
+        ></LoanDrawerLauncher>
+      ),
+    },
     {
       caption: "Credit For Vendor?",
       minWidth: 150,

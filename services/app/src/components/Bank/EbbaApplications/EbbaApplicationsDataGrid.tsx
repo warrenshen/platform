@@ -30,6 +30,7 @@ function EbbaApplicationsDataGrid({ ebbaApplications, actionItems }: Props) {
     {
       dataField: "id",
       caption: "Platform ID",
+      width: 120,
       cellRender: (params: ValueFormatterParams) => (
         <EbbaApplicationDrawerLauncher
           label={truncateUuid(params.row.data.id as string)}

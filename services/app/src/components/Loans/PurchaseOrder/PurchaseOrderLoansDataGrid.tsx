@@ -7,10 +7,12 @@ import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
+import LoanDrawerLauncher from "components/Shared/Loan/LoanDrawerLauncher";
 import PurchaseOrderDrawerLauncher from "components/Shared/PurchaseOrder/PurchaseOrderDrawerLauncher";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { LoanFragment, Loans } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
+import { truncateUuid } from "lib/uuid";
 import React, { useContext } from "react";
 
 interface Props {
@@ -31,6 +33,17 @@ function PurchaseOrderLoansDataGrid({
   const rows = purchaseOrderLoans;
 
   const columns = [
+    {
+      dataField: "id",
+      caption: "Platform ID",
+      width: 120,
+      cellRender: (params: ValueFormatterParams) => (
+        <LoanDrawerLauncher
+          label={truncateUuid(params.row.data.id as string)}
+          loanId={params.row.data.id as string}
+        ></LoanDrawerLauncher>
+      ),
+    },
     {
       dataField: "artifact_id",
       caption: "Purchase Order",

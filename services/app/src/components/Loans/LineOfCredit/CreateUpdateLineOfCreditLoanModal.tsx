@@ -19,8 +19,8 @@ import {
   useAddLineOfCreditMutation,
   useAddLoanMutation,
   useApprovedVendorsByPartnerCompanyIdQuery,
+  useGetLoanWithArtifactForCustomerQuery,
   useLoanSiblingsQuery,
-  useLoanWithArtifactForCustomerQuery,
   useUpdateLineOfCreditAndLoanMutation,
 } from "generated/graphql";
 import { ActionType } from "lib/ActionType";
@@ -96,7 +96,7 @@ function CreateUpdateLineOfCreditLoanModal({
 
   const {
     loading: isExistingLoanLoading,
-  } = useLoanWithArtifactForCustomerQuery({
+  } = useGetLoanWithArtifactForCustomerQuery({
     variables: {
       id: loanId,
     },

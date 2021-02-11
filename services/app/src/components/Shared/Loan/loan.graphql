@@ -1,18 +1,22 @@
-query Loan($id: uuid!) {
+query GetLoan($id: uuid!) {
   loans_by_pk(id: $id) {
     ...Loan
   }
 }
 
-query LoanForCustomer($id: uuid!) {
+query GetLoanForCustomer($id: uuid!) {
   loans_by_pk(id: $id) {
     ...LoanLimited
   }
 }
 
-query LoanWithArtifactForCustomer($id: uuid!) {
+query GetLoanWithArtifactForCustomer($id: uuid!) {
   loans_by_pk(id: $id) {
     ...LoanLimited
+    company {
+      id
+      name
+    }
     line_of_credit {
       id
       ...LineOfCredit

@@ -7,6 +7,16 @@ import {
 } from "generated/graphql";
 
 // Loan Status enum related.
+export const LoanStatusToLabel = {
+  [LoanStatusEnum.Drafted]: "Drafted",
+  [LoanStatusEnum.ApprovalRequested]: "Approval Requested",
+  [LoanStatusEnum.Approved]: "Approved",
+  [LoanStatusEnum.Rejected]: "Rejected",
+  [LoanStatusEnum.PastDue]: "Past Due",
+  [LoanStatusEnum.Funded]: "Funded",
+  [LoanStatusEnum.Closed]: "Closed",
+};
+
 export const AllLoanStatuses = [
   LoanStatusEnum.ApprovalRequested,
   LoanStatusEnum.Approved,

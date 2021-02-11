@@ -55,7 +55,31 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
     <Drawer open anchor="right" onClose={handleClose}>
       <Box className={classes.drawerContent} p={4}>
         <Typography variant="h5">Purchase Order</Typography>
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="flex-start"
+          mt={2}
+        >
+          <Typography variant="subtitle2" color="textSecondary">
+            Platform ID
+          </Typography>
+          <Typography variant={"body1"}>{purchaseOrder.id}</Typography>
+        </Box>
         <Box display="flex" flexDirection="column">
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="flex-start"
+            mt={2}
+          >
+            <Typography variant="subtitle2" color="textSecondary">
+              Status
+            </Typography>
+            <RequestStatusChip
+              requestStatus={purchaseOrder.status}
+            ></RequestStatusChip>
+          </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
               Company
@@ -103,19 +127,6 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
             <Typography variant={"body1"}>
               {formatCurrency(purchaseOrder.amount)}
             </Typography>
-          </Box>
-          <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="flex-start"
-            mt={2}
-          >
-            <Typography variant="subtitle2" color="textSecondary">
-              Status
-            </Typography>
-            <RequestStatusChip
-              requestStatus={purchaseOrder.status}
-            ></RequestStatusChip>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
