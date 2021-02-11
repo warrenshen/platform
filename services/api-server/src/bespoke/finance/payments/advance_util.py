@@ -102,7 +102,7 @@ def fund_loans_with_advance(
 			for loan_dict in loans_for_company:
 				amount = loan_dict['amount']
 				t = models.Transaction()
-				t.type = 'advance'
+				t.type = db_constants.PaymentType.ADVANCE
 				t.amount = decimal.Decimal(amount)
 				t.to_principal = decimal.Decimal(amount)
 				t.to_interest = decimal.Decimal(0.0)
@@ -110,6 +110,7 @@ def fund_loans_with_advance(
 				t.loan_id = loan_dict['id']
 				t.payment_id = payment_id
 				t.created_by_user_id = bank_admin_user_id
+				t.effective_date = date_util.today_as_date()
 				session.add(t)
 
 		for loan in loans:

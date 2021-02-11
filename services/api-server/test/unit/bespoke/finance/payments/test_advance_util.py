@@ -3,8 +3,8 @@ import decimal
 import uuid
 from typing import cast, List, Dict
 
-from bespoke.enums.loan_status_enum import LoanStatusEnum
 from bespoke.db import models
+from bespoke.db.db_constants import LoanStatusEnum
 from bespoke.db.models import session_scope
 from bespoke.finance.payments import advance_util
 from bespoke.finance.payments import payment_util
@@ -77,7 +77,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				self.assertAlmostEqual(amount, float(loan.outstanding_principal_balance))
 				self.assertAlmostEqual(0.0, float(loan.outstanding_interest))
 				self.assertAlmostEqual(0.0, float(loan.outstanding_fees))
-				self.assertEqual(LoanStatusEnum.Funded, loan.status)
+				self.assertEqual(LoanStatusEnum.FUNDED, loan.status)
 
 				self.assertIsNotNone(loan.funded_at)
 				self.assertEqual(bank_admin_user_id, loan.funded_by_user_id)
@@ -123,6 +123,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				self.assertAlmostEqual(exp_transaction['amount'], float(transaction.to_principal))
 				self.assertAlmostEqual(0.0, float(transaction.to_interest))
 				self.assertAlmostEqual(0.0, float(transaction.to_fees))
+				self.assertIsNotNone(transaction.effective_date)
 				self.assertEqual(matching_loan.id, transaction.loan_id)
 				self.assertEqual(matching_payment.id, transaction.payment_id)
 				self.assertEqual(bank_admin_user_id, transaction.created_by_user_id)

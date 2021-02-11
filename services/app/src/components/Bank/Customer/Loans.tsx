@@ -7,7 +7,6 @@ import {
   Loans,
   LoanTypeEnum,
   useLoansByCompanyAndLoanTypeForBankQuery,
-  useUpdateLoanMutation,
 } from "generated/graphql";
 import { approveLoan, rejectLoan } from "lib/finance/loans/approval";
 import React, { useState } from "react";
@@ -47,11 +46,6 @@ function BankCustomerLoansSubpage({ companyId }: Props) {
   const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
   const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"]>([]);
 
-  const [
-    updateLoan,
-    { loading: isUpdateLoanLoading },
-  ] = useUpdateLoanMutation();
-
   const handleEditLoanNotes = (loanId: string) => {
     setTargetLoanId(loanId);
     setIsUpdateLoanNotesModalOpen(true);
@@ -77,7 +71,7 @@ function BankCustomerLoansSubpage({ companyId }: Props) {
     refetch();
   };
 
-  const isDataReady = isLoansLoading || isUpdateLoanLoading;
+  const isDataReady = isLoansLoading; // || isUpdateLoanLoading
   console.log({ isDataReady });
 
   return (

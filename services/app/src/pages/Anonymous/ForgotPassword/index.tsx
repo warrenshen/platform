@@ -93,7 +93,7 @@ function ForgotPassword(props: Props) {
   const correctEmail = useMemo(
     () =>
       email.length &&
-      !!email.match(/^[\w+.-]+@(?=[a-z\d][^.]*\.)[a-z\d.-]*[a-z\d]$/gi),
+      !!email.match(/^[\w+.-]+@(?=[a-z\d][^.]*.)[a-z\d.-]*[a-z\d]$/gi),
     [email]
   );
 

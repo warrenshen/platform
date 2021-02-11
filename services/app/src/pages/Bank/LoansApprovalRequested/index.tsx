@@ -4,7 +4,6 @@ import Page from "components/Shared/Page";
 import {
   LoanStatusEnum,
   useLoansByStatusesForBankQuery,
-  useUpdateLoanMutation,
 } from "generated/graphql";
 import { approveLoan, rejectLoan } from "lib/finance/loans/approval";
 
@@ -23,11 +22,6 @@ function LoansAllProductsPage() {
   if (error) {
     alert("Error querying loans. " + error);
   }
-
-  const [
-    updateLoan,
-    { loading: isUpdateLoanLoading },
-  ] = useUpdateLoanMutation();
 
   const handleApproveLoan = async (loanId: string) => {
     const resp = await approveLoan({ loan_id: loanId });
@@ -51,7 +45,7 @@ function LoansAllProductsPage() {
 
   const loans = data?.loans || [];
 
-  const isDataReady = isLoansLoading || isUpdateLoanLoading;
+  const isDataReady = isLoansLoading; // || isUpdateLoanLoading
   console.log({ isDataReady });
 
   return (
