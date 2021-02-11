@@ -119,7 +119,7 @@ function Settings({
         <>
           <h2>Line of Credit Settings</h2>
           <Box>
-            <h3>Eligible Borrowing Base Amount Applications</h3>
+            <h3>Borrowing Base</h3>
             <Box mt={3}>
               {isCreateEbbaApplicationModalOpen && (
                 <CreateEbbaApplicationModal
@@ -131,11 +131,11 @@ function Settings({
                 variant="contained"
                 color="primary"
               >
-                Create Ebba Application
+                Create Borrowing Base
               </Button>
             </Box>
             <Box mt={3}>
-              <Box mb={1}>Existing EBBA Application</Box>
+              <Box mb={1}>Existing Borrowing Base</Box>
               {ebbaApplications.length > 0 && (
                 <EbbaApplicationCard
                   ebbaApplication={ebbaApplications[0]}

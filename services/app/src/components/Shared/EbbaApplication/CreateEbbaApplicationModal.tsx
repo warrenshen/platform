@@ -95,7 +95,7 @@ function CreateEbbaApplicationModal({ handleClose }: Props) {
     });
     const savedEbbaApplication = response.data?.insert_ebba_applications_one;
     if (!savedEbbaApplication) {
-      alert("Could not create EBBA application");
+      alert("Could not create borrowing base");
     } else {
       const response = await authenticatedApi.post(
         ebbaApplicationsRoutes.submitForApproval,

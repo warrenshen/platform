@@ -132,7 +132,7 @@ const BANK_LEFT_NAV_ITEMS = [
     link: bankRoutes.customers,
   },
   {
-    text: "EBBA Applications",
+    text: "Borrowing Bases",
     link: bankRoutes.ebbaApplications,
   },
   {

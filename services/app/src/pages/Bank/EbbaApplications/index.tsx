@@ -5,13 +5,13 @@ import useAppBarTitle from "hooks/useAppBarTitle";
 import { useTitle } from "react-use";
 
 function EbbaApplicationsPage() {
-  useTitle("EBBA Applications | Bespoke");
-  useAppBarTitle("EBBA Applications");
+  useTitle("Borrowing Bases | Bespoke");
+  useAppBarTitle("Borrowing Bases");
 
   const { data, error } = useEbbaApplicationsQuery({});
 
   if (error) {
-    alert("Error querying EBBA applications. " + error);
+    alert("Error querying borrowing bases. " + error);
   }
 
   const ebbaApplications = data?.ebba_applications || [];

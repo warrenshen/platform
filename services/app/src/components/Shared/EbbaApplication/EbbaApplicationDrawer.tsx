@@ -33,7 +33,7 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
   return ebbaApplication ? (
     <Drawer open anchor="right" onClose={handleClose}>
       <Box className={classes.drawerContent} p={4}>
-        <Typography variant="h5">EBBA Application</Typography>
+        <Typography variant="h5">Borrowing Base</Typography>
         <Box display="flex" flexDirection="column">
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
