@@ -29,13 +29,6 @@ import { ChangeEvent, useMemo, useState } from "react";
 import InventoryContractTermsJson from "./inventory_contract_terms.json";
 import LineOfCreditContractTermsJson from "./line_of_credit_contract_terms.json";
 
-// Configuration which defines how to view and edit this contract
-export type ContractConfig = {
-  product_type: ProductTypeEnum;
-  product_config: any;
-  isViewOnly: boolean;
-};
-
 const ProductTypeToContractTermsJson = {
   [ProductTypeEnum.InventoryFinancing]: JSON.stringify(
     InventoryContractTermsJson
