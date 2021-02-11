@@ -4,9 +4,9 @@ import {
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
 import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
+import { DateFormatServer } from "lib/date";
 import { addYearToBankHolidays, bankHolidays } from "lib/holidays";
-
 interface Props {
   className?: string;
   id: string;
@@ -17,7 +17,7 @@ interface Props {
   disabled?: boolean;
   required?: boolean;
   disableNonBankDays?: boolean; // disable days where the bank is not open
-  onChange: (value: MaterialUiPickersDate) => void;
+  onChange: (value: string | null) => void;
 }
 
 function DatePicker(props: Props) {
@@ -53,10 +53,14 @@ function DatePicker(props: Props) {
         margin="normal"
         id={props.id}
         label={props.label}
-        value={props.value}
-        onChange={(value: MaterialUiPickersDate) => {
-          props.onChange(value);
-        }}
+        value={
+          props.value ? parse(props.value, DateFormatServer, new Date()) : null
+        }
+        onChange={(value: MaterialUiPickersDate) =>
+          props.onChange(
+            value !== null ? format(value, DateFormatServer) : null
+          )
+        }
         KeyboardButtonProps={{
           "aria-label": "change date",
         }}

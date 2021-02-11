@@ -13,7 +13,6 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import DatePicker from "components/Shared/Dates/DatePicker";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
@@ -75,12 +74,12 @@ function PurchaseOrderForm({
             labelId="vendor-select-label"
             id="vendor-select"
             value={vendors.length <= 0 ? "" : purchaseOrder.vendor_id}
-            onChange={({ target: { value } }) => {
+            onChange={({ target: { value } }) =>
               setPurchaseOrder({
                 ...purchaseOrder,
                 vendor_id: value as string,
-              });
-            }}
+              })
+            }
           >
             <MenuItem value="">
               <em>None</em>
@@ -101,12 +100,12 @@ function PurchaseOrderForm({
         <TextField
           label="Order Number"
           value={purchaseOrder.order_number}
-          onChange={({ target: { value } }) => {
+          onChange={({ target: { value } }) =>
             setPurchaseOrder({
               ...purchaseOrder,
               order_number: value,
-            });
-          }}
+            })
+          }
         ></TextField>
       </Box>
       <Box>
@@ -116,12 +115,12 @@ function PurchaseOrderForm({
           label="Order Date"
           disablePast
           value={purchaseOrder.order_date}
-          onChange={(value: MaterialUiPickersDate) => {
+          onChange={(value) =>
             setPurchaseOrder({
               ...purchaseOrder,
-              order_date: value ? value : new Date().getUTCDate(),
-            });
-          }}
+              order_date: value,
+            })
+          }
         />
       </Box>
       <Box>
@@ -131,12 +130,12 @@ function PurchaseOrderForm({
           label="Delivery date"
           disablePast
           value={purchaseOrder.delivery_date}
-          onChange={(value: MaterialUiPickersDate) => {
+          onChange={(value) =>
             setPurchaseOrder({
               ...purchaseOrder,
-              delivery_date: value ? value : new Date().getUTCDate(),
-            });
-          }}
+              delivery_date: value,
+            })
+          }
         />
       </Box>
       <Box mt={3}>
@@ -147,12 +146,12 @@ function PurchaseOrderForm({
             outputFormat="string"
             textAlign="left"
             value={purchaseOrder.amount}
-            onChange={(_event: any, value: string) => {
+            onChange={(_event: any, value: string) =>
               setPurchaseOrder({
                 ...purchaseOrder,
                 amount: value,
-              });
-            }}
+              })
+            }
           ></CurrencyTextField>
         </FormControl>
       </Box>
@@ -190,12 +189,12 @@ function PurchaseOrderForm({
           control={
             <Checkbox
               checked={!!purchaseOrder.is_cannabis}
-              onChange={(event: ChangeEvent<HTMLInputElement>) => {
+              onChange={(event: ChangeEvent<HTMLInputElement>) =>
                 setPurchaseOrder({
                   ...purchaseOrder,
                   is_cannabis: event.target.checked,
-                });
-              }}
+                })
+              }
               color="primary"
             />
           }

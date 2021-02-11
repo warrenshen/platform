@@ -96,15 +96,13 @@ const validateField = (item: any) => {
 };
 
 const formatValue = (type: any, value: any) => {
-  switch (true) {
-    case type === "float":
+  switch (type) {
+    case "float":
       return parseFloat(value);
-    case type === "integer":
+    case "integer":
       return parseInt(value);
-    case type === "date":
-      return value && value !== null && value.length
-        ? new Date(value).toLocaleDateString("en-US")
-        : value;
+    case "date":
+      return value;
     default:
       return value;
   }
@@ -212,7 +210,7 @@ function ContractTermsModal({ isViewOnly, contractId, onClose }: Props) {
         fields: shortenedJSONConfig,
       },
     };
-    console.log({ productConfig });
+
     const response = await updateContract({
       variables: {
         contractId,
@@ -222,12 +220,18 @@ function ContractTermsModal({ isViewOnly, contractId, onClose }: Props) {
         },
       },
     });
-    console.log({ response });
+
+    const savedContract = response.data?.update_contracts_by_pk;
+    if (!savedContract) {
+      alert("Could not update contract");
+    } else {
+      onClose();
+    }
   };
 
   const renderSwitch = (item: any) => {
-    switch (true) {
-      case item.type === "date":
+    switch (item.type) {
+      case "date":
         return (
           <DatePicker
             className={classes.datePicker}
@@ -237,12 +241,10 @@ function ContractTermsModal({ isViewOnly, contractId, onClose }: Props) {
             label={item.display_name}
             required={!isViewOnly && !item.nullable}
             value={item.value || null}
-            onChange={(value: any) => {
-              findAndReplaceInJSON(item, value);
-            }}
+            onChange={(value: any) => findAndReplaceInJSON(item, value)}
           />
         );
-      case item.type === "float":
+      case "float":
         const getSymbol = (format: string) => {
           switch (true) {
             case format === "percentage":
@@ -267,12 +269,12 @@ function ContractTermsModal({ isViewOnly, contractId, onClose }: Props) {
             required={!isViewOnly && !item.nullable}
             value={item.value || ""}
             modifyValueOnWheel={false}
-            onChange={(_event: any, value: string) => {
-              findAndReplaceInJSON(item, value);
-            }}
+            onChange={(_event: any, value: string) =>
+              findAndReplaceInJSON(item, value)
+            }
           ></CurrencyTextField>
         );
-      case item.type === "boolean":
+      case "boolean":
         return (
           <FormControlLabel
             control={
@@ -298,12 +300,12 @@ function ContractTermsModal({ isViewOnly, contractId, onClose }: Props) {
             placeholder=""
             required={!isViewOnly && !item.nullable}
             value={item.value || ""}
-            onChange={({ target: { value } }) => {
+            onChange={({ target: { value } }) =>
               findAndReplaceInJSON(
                 item,
                 item.type === "integer" ? value.replace(/[^0-9]/g, "") : value
-              );
-            }}
+              )
+            }
           ></TextField>
         );
     }

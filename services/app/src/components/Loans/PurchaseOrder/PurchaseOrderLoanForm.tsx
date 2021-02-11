@@ -9,7 +9,6 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import DatePicker from "components/Shared/Dates/DatePicker";
 import PurchaseOrderInfoCard from "components/Shared/PurchaseOrder/PurchaseOrderInfoCard";
@@ -93,12 +92,12 @@ function PurchaseOrderLoanForm({
           disablePast
           disableNonBankDays
           value={loan.origination_date}
-          onChange={(value: MaterialUiPickersDate) => {
+          onChange={(value) =>
             setLoan({
               ...loan,
-              origination_date: value || new Date().getUTCDate(),
-            });
-          }}
+              origination_date: value,
+            })
+          }
         />
         <Typography variant="body2" color="textSecondary">
           The Payment Date is the date when the payment will arrive to the
@@ -113,12 +112,12 @@ function PurchaseOrderLoanForm({
             outputFormat="string"
             textAlign="left"
             value={loan.amount}
-            onChange={(_event: any, value: string) => {
+            onChange={(_event: any, value: string) =>
               setLoan({
                 ...loan,
                 amount: value,
-              });
-            }}
+              })
+            }
           ></CurrencyTextField>
         </FormControl>
       </Box>

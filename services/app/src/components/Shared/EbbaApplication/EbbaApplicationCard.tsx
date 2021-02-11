@@ -11,6 +11,7 @@ import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import { format, parse } from "date-fns";
 import { EbbaApplicationFragment } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
+import { DateFormatServer } from "lib/date";
 
 interface Props {
   ebbaApplication: EbbaApplicationFragment;
@@ -45,7 +46,7 @@ function EbbaApplicationCard({ ebbaApplication }: Props) {
             {format(
               parse(
                 ebbaApplication.application_month,
-                "yyyy-MM-dd",
+                DateFormatServer,
                 new Date()
               ),
               "MM/yyyy"

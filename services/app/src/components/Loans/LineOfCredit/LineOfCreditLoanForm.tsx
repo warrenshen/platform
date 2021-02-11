@@ -11,7 +11,6 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import DatePicker from "components/Shared/Dates/DatePicker";
 import {
@@ -114,10 +113,10 @@ function LineOfCreditLoanForm({
           disablePast
           disableNonBankDays
           value={loan.origination_date}
-          onChange={(value: MaterialUiPickersDate) => {
+          onChange={(value) => {
             setLoan({
               ...loan,
-              origination_date: value || new Date().getUTCDate(),
+              origination_date: value,
             });
           }}
         />

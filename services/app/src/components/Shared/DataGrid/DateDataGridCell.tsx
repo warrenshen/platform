@@ -1,5 +1,6 @@
 import { Box } from "@material-ui/core";
 import { format, parse, parseISO } from "date-fns";
+import { DateFormatClient, DateFormatServer } from "lib/date";
 
 interface Props {
   dateString?: string;
@@ -21,7 +22,10 @@ function DateDataGridCell({ dateString }: Props) {
   return (
     <Box>
       {dateString
-        ? format(parse(dateString, "yyyy-MM-dd", new Date()), "MM/dd/yyyy")
+        ? format(
+            parse(dateString, DateFormatServer, new Date()),
+            DateFormatClient
+          )
         : ""}
     </Box>
   );

@@ -215,8 +215,9 @@ function CreateUpdatePurchaseOrderModal({
     const savedPurchaseOrder = await upsertPurchaseOrder();
     if (!savedPurchaseOrder) {
       alert("Could not upsert purchase order");
+    } else {
+      handleClose();
     }
-    handleClose();
   };
 
   const handleClickSaveSubmit = async () => {

@@ -14,6 +14,7 @@ import {
   usePurchaseOrderQuery,
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
+import { formatDateString } from "lib/date";
 
 const useStyles = makeStyles({
   drawerContent: {
@@ -84,7 +85,7 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
               Order Date
             </Typography>
             <Typography variant={"body1"}>
-              {purchaseOrder.order_date}
+              {formatDateString(purchaseOrder.order_date)}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
@@ -92,7 +93,7 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
               Delivery Date
             </Typography>
             <Typography variant={"body1"}>
-              {purchaseOrder.delivery_date}
+              {formatDateString(purchaseOrder.delivery_date)}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>

@@ -6,7 +6,6 @@ import {
   makeStyles,
   TextField,
 } from "@material-ui/core";
-import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
 import DatePicker from "components/Shared/Dates/DatePicker";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
@@ -225,10 +224,10 @@ function BankAccountForm({ companyId, existingBankAccount, onCancel }: Props) {
             id="date-picker-verified-date"
             label="Verified Date"
             value={bankAccount.verified_date}
-            onChange={(value: MaterialUiPickersDate) => {
+            onChange={(value) => {
               setBankAccount({
                 ...bankAccount,
-                verified_date: value ? value : new Date().getUTCDate(),
+                verified_date: value,
               });
             }}
           />

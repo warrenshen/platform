@@ -10,7 +10,6 @@ import {
   MenuItem,
   Select,
 } from "@material-ui/core";
-import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import { PaymentTransferType } from "components/Shared/BankToBankTransfer";
 import DatePicker from "components/Shared/Dates/DatePicker";
@@ -115,10 +114,10 @@ function RepaymentModal({
                   disablePast
                   disableNonBankDays
                   value={payment.deposit_date}
-                  onChange={(value: MaterialUiPickersDate) => {
+                  onChange={(value) => {
                     setPayment({
                       ...payment,
-                      deposit_date: value ? value : new Date().getUTCDate(),
+                      deposit_date: value,
                     });
                   }}
                 />
