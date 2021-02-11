@@ -11071,13 +11071,12 @@ export type ApprovedPurchaseOrdersQuery = {
   purchase_orders: Array<PurchaseOrderFragment>;
 };
 
-export type UpdateContractMutationVariables = Exact<{
-  contractId: Scalars["uuid"];
-  contract: ContractsSetInput;
+export type ContractQueryVariables = Exact<{
+  id: Scalars["uuid"];
 }>;
 
-export type UpdateContractMutation = {
-  update_contracts_by_pk?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
+export type ContractQuery = {
+  contracts_by_pk?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
 };
 
 export type AddContractMutationVariables = Exact<{
@@ -11088,23 +11087,26 @@ export type AddContractMutation = {
   insert_contracts_one?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
 };
 
-export type UpdateCompanyAccountSettingsMutationVariables = Exact<{
+export type UpdateContractMutationVariables = Exact<{
+  contractId: Scalars["uuid"];
+  contract: ContractsSetInput;
+}>;
+
+export type UpdateContractMutation = {
+  update_contracts_by_pk?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
+};
+
+export type UpdateCompanySettingsMutationVariables = Exact<{
   companyId: Scalars["uuid"];
   companySettingsId: Scalars["uuid"];
   vendorAgreementTemplateLink?: Maybe<Scalars["String"]>;
   contractId: Scalars["uuid"];
 }>;
 
-export type UpdateCompanyAccountSettingsMutation = {
+export type UpdateCompanySettingsMutation = {
   update_company_settings_by_pk?: Maybe<CompanySettingsFragment>;
   update_companies_by_pk?: Maybe<CompanyFragment>;
 };
-
-export type GetContractQueryVariables = Exact<{
-  contractId: Scalars["uuid"];
-}>;
-
-export type GetContractQuery = { contracts_by_pk?: Maybe<ContractFragment> };
 
 export type GetCompanySettingsQueryVariables = Exact<{
   companySettingsId: Scalars["uuid"];
@@ -14372,56 +14374,58 @@ export type ApprovedPurchaseOrdersQueryResult = Apollo.QueryResult<
   ApprovedPurchaseOrdersQuery,
   ApprovedPurchaseOrdersQueryVariables
 >;
-export const UpdateContractDocument = gql`
-  mutation UpdateContract($contractId: uuid!, $contract: contracts_set_input!) {
-    update_contracts_by_pk(pk_columns: { id: $contractId }, _set: $contract) {
+export const ContractDocument = gql`
+  query Contract($id: uuid!) {
+    contracts_by_pk(id: $id) {
       id
       ...Contract
     }
   }
   ${ContractFragmentDoc}
 `;
-export type UpdateContractMutationFn = Apollo.MutationFunction<
-  UpdateContractMutation,
-  UpdateContractMutationVariables
->;
 
 /**
- * __useUpdateContractMutation__
+ * __useContractQuery__
  *
- * To run a mutation, you first call `useUpdateContractMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateContractMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
+ * To run a query within a React component, call `useContractQuery` and pass it any options that fit your needs.
+ * When your component renders, `useContractQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
  *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const [updateContractMutation, { data, loading, error }] = useUpdateContractMutation({
+ * const { data, loading, error } = useContractQuery({
  *   variables: {
- *      contractId: // value for 'contractId'
- *      contract: // value for 'contract'
+ *      id: // value for 'id'
  *   },
  * });
  */
-export function useUpdateContractMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdateContractMutation,
-    UpdateContractMutationVariables
+export function useContractQuery(
+  baseOptions: Apollo.QueryHookOptions<ContractQuery, ContractQueryVariables>
+) {
+  return Apollo.useQuery<ContractQuery, ContractQueryVariables>(
+    ContractDocument,
+    baseOptions
+  );
+}
+export function useContractLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    ContractQuery,
+    ContractQueryVariables
   >
 ) {
-  return Apollo.useMutation<
-    UpdateContractMutation,
-    UpdateContractMutationVariables
-  >(UpdateContractDocument, baseOptions);
+  return Apollo.useLazyQuery<ContractQuery, ContractQueryVariables>(
+    ContractDocument,
+    baseOptions
+  );
 }
-export type UpdateContractMutationHookResult = ReturnType<
-  typeof useUpdateContractMutation
+export type ContractQueryHookResult = ReturnType<typeof useContractQuery>;
+export type ContractLazyQueryHookResult = ReturnType<
+  typeof useContractLazyQuery
 >;
-export type UpdateContractMutationResult = Apollo.MutationResult<UpdateContractMutation>;
-export type UpdateContractMutationOptions = Apollo.BaseMutationOptions<
-  UpdateContractMutation,
-  UpdateContractMutationVariables
+export type ContractQueryResult = Apollo.QueryResult<
+  ContractQuery,
+  ContractQueryVariables
 >;
 export const AddContractDocument = gql`
   mutation AddContract($contract: contracts_insert_input!) {
@@ -14473,8 +14477,59 @@ export type AddContractMutationOptions = Apollo.BaseMutationOptions<
   AddContractMutation,
   AddContractMutationVariables
 >;
-export const UpdateCompanyAccountSettingsDocument = gql`
-  mutation UpdateCompanyAccountSettings(
+export const UpdateContractDocument = gql`
+  mutation UpdateContract($contractId: uuid!, $contract: contracts_set_input!) {
+    update_contracts_by_pk(pk_columns: { id: $contractId }, _set: $contract) {
+      id
+      ...Contract
+    }
+  }
+  ${ContractFragmentDoc}
+`;
+export type UpdateContractMutationFn = Apollo.MutationFunction<
+  UpdateContractMutation,
+  UpdateContractMutationVariables
+>;
+
+/**
+ * __useUpdateContractMutation__
+ *
+ * To run a mutation, you first call `useUpdateContractMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateContractMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateContractMutation, { data, loading, error }] = useUpdateContractMutation({
+ *   variables: {
+ *      contractId: // value for 'contractId'
+ *      contract: // value for 'contract'
+ *   },
+ * });
+ */
+export function useUpdateContractMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateContractMutation,
+    UpdateContractMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    UpdateContractMutation,
+    UpdateContractMutationVariables
+  >(UpdateContractDocument, baseOptions);
+}
+export type UpdateContractMutationHookResult = ReturnType<
+  typeof useUpdateContractMutation
+>;
+export type UpdateContractMutationResult = Apollo.MutationResult<UpdateContractMutation>;
+export type UpdateContractMutationOptions = Apollo.BaseMutationOptions<
+  UpdateContractMutation,
+  UpdateContractMutationVariables
+>;
+export const UpdateCompanySettingsDocument = gql`
+  mutation UpdateCompanySettings(
     $companyId: uuid!
     $companySettingsId: uuid!
     $vendorAgreementTemplateLink: String
@@ -14496,23 +14551,23 @@ export const UpdateCompanyAccountSettingsDocument = gql`
   ${CompanySettingsFragmentDoc}
   ${CompanyFragmentDoc}
 `;
-export type UpdateCompanyAccountSettingsMutationFn = Apollo.MutationFunction<
-  UpdateCompanyAccountSettingsMutation,
-  UpdateCompanyAccountSettingsMutationVariables
+export type UpdateCompanySettingsMutationFn = Apollo.MutationFunction<
+  UpdateCompanySettingsMutation,
+  UpdateCompanySettingsMutationVariables
 >;
 
 /**
- * __useUpdateCompanyAccountSettingsMutation__
+ * __useUpdateCompanySettingsMutation__
  *
- * To run a mutation, you first call `useUpdateCompanyAccountSettingsMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateCompanyAccountSettingsMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useUpdateCompanySettingsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCompanySettingsMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [updateCompanyAccountSettingsMutation, { data, loading, error }] = useUpdateCompanyAccountSettingsMutation({
+ * const [updateCompanySettingsMutation, { data, loading, error }] = useUpdateCompanySettingsMutation({
  *   variables: {
  *      companyId: // value for 'companyId'
  *      companySettingsId: // value for 'companySettingsId'
@@ -14521,79 +14576,24 @@ export type UpdateCompanyAccountSettingsMutationFn = Apollo.MutationFunction<
  *   },
  * });
  */
-export function useUpdateCompanyAccountSettingsMutation(
+export function useUpdateCompanySettingsMutation(
   baseOptions?: Apollo.MutationHookOptions<
-    UpdateCompanyAccountSettingsMutation,
-    UpdateCompanyAccountSettingsMutationVariables
+    UpdateCompanySettingsMutation,
+    UpdateCompanySettingsMutationVariables
   >
 ) {
   return Apollo.useMutation<
-    UpdateCompanyAccountSettingsMutation,
-    UpdateCompanyAccountSettingsMutationVariables
-  >(UpdateCompanyAccountSettingsDocument, baseOptions);
+    UpdateCompanySettingsMutation,
+    UpdateCompanySettingsMutationVariables
+  >(UpdateCompanySettingsDocument, baseOptions);
 }
-export type UpdateCompanyAccountSettingsMutationHookResult = ReturnType<
-  typeof useUpdateCompanyAccountSettingsMutation
+export type UpdateCompanySettingsMutationHookResult = ReturnType<
+  typeof useUpdateCompanySettingsMutation
 >;
-export type UpdateCompanyAccountSettingsMutationResult = Apollo.MutationResult<UpdateCompanyAccountSettingsMutation>;
-export type UpdateCompanyAccountSettingsMutationOptions = Apollo.BaseMutationOptions<
-  UpdateCompanyAccountSettingsMutation,
-  UpdateCompanyAccountSettingsMutationVariables
->;
-export const GetContractDocument = gql`
-  query GetContract($contractId: uuid!) {
-    contracts_by_pk(id: $contractId) {
-      ...Contract
-    }
-  }
-  ${ContractFragmentDoc}
-`;
-
-/**
- * __useGetContractQuery__
- *
- * To run a query within a React component, call `useGetContractQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetContractQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetContractQuery({
- *   variables: {
- *      contractId: // value for 'contractId'
- *   },
- * });
- */
-export function useGetContractQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    GetContractQuery,
-    GetContractQueryVariables
-  >
-) {
-  return Apollo.useQuery<GetContractQuery, GetContractQueryVariables>(
-    GetContractDocument,
-    baseOptions
-  );
-}
-export function useGetContractLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetContractQuery,
-    GetContractQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<GetContractQuery, GetContractQueryVariables>(
-    GetContractDocument,
-    baseOptions
-  );
-}
-export type GetContractQueryHookResult = ReturnType<typeof useGetContractQuery>;
-export type GetContractLazyQueryHookResult = ReturnType<
-  typeof useGetContractLazyQuery
->;
-export type GetContractQueryResult = Apollo.QueryResult<
-  GetContractQuery,
-  GetContractQueryVariables
+export type UpdateCompanySettingsMutationResult = Apollo.MutationResult<UpdateCompanySettingsMutation>;
+export type UpdateCompanySettingsMutationOptions = Apollo.BaseMutationOptions<
+  UpdateCompanySettingsMutation,
+  UpdateCompanySettingsMutationVariables
 >;
 export const GetCompanySettingsDocument = gql`
   query GetCompanySettings($companySettingsId: uuid!) {

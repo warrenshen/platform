@@ -22,26 +22,25 @@ function SettingsPage() {
   const { user } = useContext(CurrentUserContext);
   const companyId = companyIdFromParams || user.companyId;
 
-  const { data } = useCompanyQuery({
+  const { data, refetch } = useCompanyQuery({
     variables: {
       companyId,
     },
   });
 
-  if (!data || !data?.companies_by_pk) {
-    return null;
-  }
+  const company = data?.companies_by_pk;
 
   const settings = data?.companies_by_pk?.settings as CompanySettingsFragment;
   const contract = data?.companies_by_pk?.contract as ContractFragment;
 
-  return (
+  return company ? (
     <>
       <Settings
         companyId={companyId}
         settings={settings}
         contract={contract}
         bankAccounts={data?.companies_by_pk?.bank_accounts || []}
+        handleDataChange={() => refetch()}
       ></Settings>
       <Can perform={Action.AssignBespokeBankAccountForCustomer}>
         <h3>Collection and Advances Accounts</h3>
@@ -49,21 +48,19 @@ function SettingsPage() {
           <AdvancesBank
             companySettingsId={settings?.id}
             assignedBespokeBankAccount={
-              data.companies_by_pk?.settings?.advances_bespoke_bank_account ||
-              undefined
+              company.settings?.advances_bespoke_bank_account || undefined
             }
           ></AdvancesBank>
           <CollectionsBank
             companySettingsId={settings?.id}
             assignedBespokeBankAccount={
-              data.companies_by_pk?.settings
-                ?.collections_bespoke_bank_account || undefined
+              company.settings?.collections_bespoke_bank_account || undefined
             }
           ></CollectionsBank>
         </Box>
       </Can>
     </>
-  );
+  ) : null;
 }
 
 export default SettingsPage;

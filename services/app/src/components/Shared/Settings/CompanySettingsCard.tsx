@@ -10,7 +10,6 @@ import {
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import Can from "components/Shared/Can";
-import ContractTermsLink from "components/Shared/Settings/ContractTermsLink";
 import {
   CompanySettingsForCustomerFragment,
   CompanySettingsFragment,
@@ -20,9 +19,9 @@ import { Action } from "lib/auth/rbac-rules";
 import { ProductTypeToLabel } from "lib/enum";
 
 interface Props {
+  contract: ContractFragment | null;
   settings: CompanySettingsFragment | CompanySettingsForCustomerFragment;
-  contract: ContractFragment;
-  onClick: () => void;
+  handleClick: () => void;
 }
 
 const useStyles = makeStyles(() =>
@@ -38,18 +37,18 @@ const useStyles = makeStyles(() =>
   })
 );
 
-function AccountSettingsCard(props: Props) {
+function CompanySettingsCard({ contract, settings, handleClick }: Props) {
   const classes = useStyles();
-  const settings = props.settings;
-  const contract = props.contract;
 
   return (
     <Card className={classes.card}>
       <CardContent>
-        <Box display="flex" flexDirection="column" pt={2}>
+        <Box display="flex" flexDirection="column">
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Product Type</Box>
-            <Box>{ProductTypeToLabel[contract?.product_type]}</Box>
+            <Box>
+              {contract ? ProductTypeToLabel[contract.product_type] : "TBD"}
+            </Box>
           </Box>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Vendor Agreement</Box>
@@ -63,31 +62,12 @@ function AccountSettingsCard(props: Props) {
               </Link>
             </Box>
           </Box>
-          <Box display="flex" pb={0.25}>
-            <Box className={classes.label}>Contract Terms</Box>
-            <Box>
-              <ContractTermsLink
-                linkText="View"
-                contractConfig={{
-                  product_type: contract?.product_type,
-                  product_config: contract?.product_config,
-                  isViewOnly: true,
-                }}
-              ></ContractTermsLink>
-            </Box>
-          </Box>
         </Box>
       </CardContent>
       <Can perform={Action.EditUserAccountSettings}>
-        {props.onClick && (
+        {handleClick && (
           <CardActions>
-            <Button
-              size="small"
-              variant="outlined"
-              onClick={() => {
-                props.onClick && props.onClick();
-              }}
-            >
+            <Button size="small" variant="outlined" onClick={handleClick}>
               Edit
             </Button>
           </CardActions>
@@ -97,4 +77,4 @@ function AccountSettingsCard(props: Props) {
   );
 }
 
-export default AccountSettingsCard;
+export default CompanySettingsCard;

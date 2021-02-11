@@ -3,14 +3,13 @@ import {
   Button,
   createStyles,
   FormHelperText,
+  Link,
   makeStyles,
   TextField,
-  Link,
   Theme,
 } from "@material-ui/core";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { routes, anonymousRoutes } from "lib/routes";
-import { relative } from "path";
+import { anonymousRoutes, routes } from "lib/routes";
 import { useContext, useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { useTitle } from "react-use";

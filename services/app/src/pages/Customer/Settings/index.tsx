@@ -23,7 +23,7 @@ function SettingsPage() {
   const { user } = useContext(CurrentUserContext);
   const companyId = companyIdFromParams || user.companyId;
 
-  const { data } = useCompanyForCustomerQuery({
+  const { data, refetch } = useCompanyForCustomerQuery({
     variables: {
       companyId,
     },
@@ -44,6 +44,7 @@ function SettingsPage() {
         settings={settings}
         contract={contract}
         bankAccounts={data?.companies_by_pk?.bank_accounts || []}
+        handleDataChange={() => refetch()}
       ></Settings>
     </Page>
   );

@@ -1,34 +1,25 @@
 import { Link } from "@material-ui/core";
-import ContractTermsModal, {
-  ContractConfig,
-} from "components/Shared/Settings/ContractTermsModal";
+import ContractTermsModal from "components/Shared/Settings/ContractTermsModal";
+import { Contracts } from "generated/graphql";
 import { useState } from "react";
 
 // Shows a link to open the contract terms and view it.
 
 interface Props {
   linkText: string;
-  contractConfig: ContractConfig;
-  onSave?: (newContractConfig: ContractConfig) => void;
+  contractId: Contracts["id"];
 }
 
-function ContractTermsLink(props: Props) {
+function ContractTermsLink({ linkText, contractId }: Props) {
   const [isModalOpen, setModalOpen] = useState(false);
 
   return (
     <>
       {isModalOpen && (
         <ContractTermsModal
-          onClose={() => {
-            setModalOpen(false);
-          }}
-          onSave={(newContractConfig: ContractConfig) => {
-            setModalOpen(false);
-            if (props.onSave) {
-              props.onSave(newContractConfig);
-            }
-          }}
-          contractConfig={props.contractConfig}
+          isViewOnly
+          contractId={contractId}
+          onClose={() => setModalOpen(false)}
         ></ContractTermsModal>
       )}
       <Link
@@ -37,7 +28,7 @@ function ContractTermsLink(props: Props) {
           setModalOpen(true);
         }}
       >
-        {props.linkText}
+        {linkText}
       </Link>
     </>
   );

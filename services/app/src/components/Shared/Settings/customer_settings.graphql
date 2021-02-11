@@ -1,22 +1,5 @@
-# TODO(dlluncor): These mutations should move to Python because we need to calculate
-# start_date, end_date, and move around other details anytime we make modifications
-# to contracts
-mutation UpdateContract($contractId: uuid!, $contract: contracts_set_input!) {
-  update_contracts_by_pk(pk_columns: { id: $contractId }, _set: $contract) {
-    id
-    ...Contract
-  }
-}
-
-mutation AddContract($contract: contracts_insert_input!) {
-  insert_contracts_one(object: $contract) {
-    id
-    ...Contract
-  }
-}
-
 # Account-level settings which can be modified in the EditAccountSettings component
-mutation UpdateCompanyAccountSettings(
+mutation UpdateCompanySettings(
   $companyId: uuid!
   $companySettingsId: uuid!
   $vendorAgreementTemplateLink: String
@@ -33,12 +16,6 @@ mutation UpdateCompanyAccountSettings(
     _set: { contract_id: $contractId }
   ) {
     ...Company
-  }
-}
-
-query GetContract($contractId: uuid!) {
-  contracts_by_pk(id: $contractId) {
-    ...Contract
   }
 }
 

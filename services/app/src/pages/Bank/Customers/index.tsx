@@ -58,7 +58,7 @@ function BankCustomersPage() {
                     <Box>
                       {customer.contract
                         ? ProductTypeToLabel[customer.contract.product_type]
-                        : ""}
+                        : "Product Type TBD"}
                     </Box>
                     <Box>{customer.address}</Box>
                     <Box>
