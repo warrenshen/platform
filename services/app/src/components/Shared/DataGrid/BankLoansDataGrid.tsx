@@ -1,5 +1,6 @@
 import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
+import ControlledDataGrid from "components/Shared/DataGrid";
 import Status from "components/Shared/Chip/Status";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DataGridActionMenu, {
@@ -208,29 +209,15 @@ function BankLoansDataGrid({
   }
 
   return (
-    <DataGrid
-      height={"100%"}
-      width={"100%"}
+    <ControlledDataGrid
       dataSource={rows}
+      columns={columns}
+      filtering={fullView}
+      pager={fullView}
+      pageSize={fullView ? 50 : 5}
+      allowedPageSizes={[5, 50]}
       ref={(ref) => setDataGrid(ref)}
-    >
-      <FilterRow visible={fullView} />
-      {columns.map(
-        ({ dataField, caption, width, alignment, cellRender, lookup }, i) => (
-          <Column
-            key={`${dataField}-${i}`}
-            caption={caption}
-            dataField={dataField}
-            width={width}
-            alignment={alignment}
-            cellRender={cellRender}
-            lookup={lookup}
-          />
-        )
-      )}
-      <Paging pageSize={fullView ? 50 : 5} />
-      <Pager visible={fullView} allowedPageSizes={[5, 50]} />
-    </DataGrid>
+    ></ControlledDataGrid>
   );
 }
 

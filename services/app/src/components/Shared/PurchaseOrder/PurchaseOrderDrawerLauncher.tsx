@@ -1,4 +1,4 @@
-import { Button } from "@material-ui/core";
+import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import PurchaseOrderDrawer from "components/Shared/PurchaseOrder/PurchaseOrderDrawer";
 import { PurchaseOrders } from "generated/graphql";
 import React, { useState } from "react";
@@ -19,9 +19,7 @@ function Launcher({ label, purchaseOrderId }: Props) {
           handleClose={() => setIsOpen(false)}
         ></PurchaseOrderDrawer>
       )}
-      <Button color="primary" onClick={() => setIsOpen(true)}>
-        {label}
-      </Button>
+      <ClickableDataGridCell onClick={() => setIsOpen(true)} label={label} />
     </>
   );
 }

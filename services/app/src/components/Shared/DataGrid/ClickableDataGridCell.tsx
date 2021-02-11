@@ -1,11 +1,13 @@
-import { Box, makeStyles } from "@material-ui/core";
+import { Button, makeStyles } from "@material-ui/core";
 
 const useStyles = makeStyles({
   clickableCell: {
-    cursor: "pointer",
-    transition: "color 0.2s linear",
+    color: "var(--table-accent-color)",
+    minWidth: 0,
+    textTransform: "initial",
+    padding: "4px",
     "&:hover": {
-      color: "var(--table-accent-color)",
+      background: "var(--table-accent-color-opacity)",
     },
   },
 });
@@ -19,9 +21,9 @@ function ClickableDataGridCell({ onClick, label }: Props) {
   const classes = useStyles();
 
   return (
-    <Box onClick={onClick} className={classes.clickableCell}>
+    <Button className={classes.clickableCell} onClick={onClick}>
       {label}
-    </Box>
+    </Button>
   );
 }
 

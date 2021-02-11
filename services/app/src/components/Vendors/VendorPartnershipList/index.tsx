@@ -1,23 +1,9 @@
-import { makeStyles } from "@material-ui/core";
+import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
+import ControlledDataGrid from "components/Shared/DataGrid";
 import VendorDrawer from "components/Vendors/Bank/VendorDrawer";
-import DataGrid, {
-  Column,
-  IColumnProps,
-  Pager,
-  Paging,
-} from "devextreme-react/data-grid";
 import { useState } from "react";
+import { Box } from "@material-ui/core";
 import VerificationChip from "./VerificationChip";
-
-const useStyles = makeStyles({
-  vendorNameCell: {
-    cursor: "pointer",
-    transition: "color 0.2s linear",
-    "&:hover": {
-      color: "var(--table-accent-color)",
-    },
-  },
-});
 
 function VendorPartnershipList({
   data,
@@ -31,8 +17,6 @@ function VendorPartnershipList({
     currentVendorPartnership,
     setCurrentVendorPartnership,
   ] = useState<string>();
-
-  const classes = useStyles();
 
   const onCellClick = ({ id }: { id: string }) => {
     !open && setOpen(true);
@@ -50,45 +34,44 @@ function VendorPartnershipList({
     value: string;
     data: any;
   }) => (
-    <div onClick={() => onCellClick(data)} className={classes.vendorNameCell}>
-      {value}
-    </div>
+    <ClickableDataGridCell
+      onClick={() => {
+        onCellClick(data);
+      }}
+      label={value}
+    />
   );
 
   const columnWidth = isBankAccount ? 195 : 225;
 
-  const columns: IColumnProps[] = [
+  const columns = [
     {
       dataField: isBankAccount ? "vendor.name" : "vendor_limited.name",
       caption: "Vendor name",
-      minWidth: 190,
       ...(isBankAccount && { cellRender: vendorNameCellRenderer }),
     },
     {
       dataField: "company.name",
       caption: "Company name",
       visible: !!isBankAccount,
-      minWidth: 190,
     },
     {
       dataField: "vendor_agreement_id",
       caption: "Signed Vendor Agreement",
       alignment: "center",
-      minWidth: columnWidth,
+      width: columnWidth,
       cellRender: verificationCellRenderer,
     },
     {
       dataField: "vendor_license_id",
       caption: "Verified license",
       alignment: "center",
-      minWidth: columnWidth,
       cellRender: verificationCellRenderer,
     },
     {
       dataField: "vendor_bank_account.verified_at",
       caption: "Verified Bank account",
       visible: !!isBankAccount,
-      minWidth: columnWidth,
       alignment: "center",
       cellRender: verificationCellRenderer,
     },
@@ -96,7 +79,6 @@ function VendorPartnershipList({
       dataField: "approved_at",
       caption: "Approved",
       alignment: "center",
-      minWidth: columnWidth,
       cellRender: verificationCellRenderer,
     },
   ];
@@ -109,37 +91,9 @@ function VendorPartnershipList({
           onClose={() => setOpen(false)}
         ></VendorDrawer>
       )}
-      <div style={{ height: "80vh", width: "100%" }}>
-        <DataGrid height={"100%"} width={"100%"} dataSource={data}>
-          {columns.map(
-            ({
-              dataField,
-              alignment,
-              visible,
-              minWidth,
-              caption,
-              cellRender,
-            }) => (
-              <Column
-                key={dataField}
-                caption={caption}
-                dataField={dataField}
-                alignment={alignment}
-                visible={visible}
-                minWidth={minWidth}
-                cellRender={cellRender}
-              />
-            )
-          )}
-          <Paging defaultPageSize={50} />
-          <Pager
-            visible={true}
-            showPageSizeSelector={true}
-            allowedPageSizes={[10, 20, 50]}
-            showInfo={true}
-          />
-        </DataGrid>
-      </div>
+      <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
+        <ControlledDataGrid dataSource={data} columns={columns} pager />
+      </Box>
     </>
   );
 }

@@ -74,7 +74,7 @@ function LoansAllProductsPage() {
 
   return (
     <Page>
-      <Box style={{ height: "80vh", width: "100%" }}>
+      <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <BankLoansDataGrid
           fullView
           loansPastDue={false}

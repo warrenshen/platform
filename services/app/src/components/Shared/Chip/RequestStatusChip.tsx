@@ -18,7 +18,7 @@ function RequestStatusChip({ requestStatus }: Props) {
     <Chip
       color={"white"}
       background={StatusToColor[requestStatus]}
-      label={RequestStatusToLabel[requestStatus]}
+      label={RequestStatusToLabel[requestStatus].toLowerCase()}
     ></Chip>
   );
 }

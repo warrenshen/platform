@@ -1,8 +1,8 @@
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import Status from "components/Shared/Chip/Status";
+import ControlledDataGrid from "components/Shared/DataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import DataGrid, { Column, IColumnProps } from "devextreme-react/data-grid";
 import { LoanFragment } from "generated/graphql";
 import { useEffect, useState } from "react";
 
@@ -39,7 +39,7 @@ function LoansDataGrid({
     <Status statusValue={params.value} />
   );
 
-  const columns: IColumnProps[] = [
+  const columns = [
     {
       dataField: "id",
       caption: "ID",
@@ -91,27 +91,11 @@ function LoansDataGrid({
   ];
 
   return (
-    <DataGrid
-      height={"100%"}
-      width={"100%"}
+    <ControlledDataGrid
       dataSource={rows}
+      columns={columns}
       ref={(ref) => setDataGrid(ref)}
-    >
-      {columns.map(
-        ({ dataField, caption, width, alignment, cellRender }, i) => (
-          <Column
-            key={`${dataField}-${i}`}
-            caption={caption}
-            dataField={dataField}
-            width={width}
-            alignment={alignment}
-            cellRender={cellRender}
-          />
-        )
-      )}
-      {/* <Paging pageSize={fullView ? 30 : 5} />
-      <Pager visible={fullView} allowedPageSizes={[5, 30]} /> */}
-    </DataGrid>
+    ></ControlledDataGrid>
   );
 }
 

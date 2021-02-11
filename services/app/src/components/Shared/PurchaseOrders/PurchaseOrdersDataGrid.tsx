@@ -1,5 +1,6 @@
 import { Box } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import ControlledDataGrid from "components/Shared/DataGrid";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DataGridActionMenu, {
@@ -8,12 +9,6 @@ import DataGridActionMenu, {
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import PurchaseOrderDrawerLauncher from "components/Shared/PurchaseOrder/PurchaseOrderDrawerLauncher";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import DataGrid, {
-  Column,
-  IColumnProps,
-  Pager,
-  Paging,
-} from "devextreme-react/data-grid";
 import { PurchaseOrderFragment, RequestStatusEnum } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
 import { Action, check } from "lib/auth/rbac-rules";
@@ -39,14 +34,13 @@ interface Props {
 
 function PurchaseOrdersDataGrid({ purchaseOrders, actionItems }: Props) {
   const { user } = useContext(CurrentUserContext);
-
   const rows = populateRows(purchaseOrders);
 
-  const columns: IColumnProps[] = [
+  const columns = [
     {
       dataField: "order_number",
+      width: 140,
       caption: "Order Number",
-      minWidth: 150,
       cellRender: (params: ValueFormatterParams) => (
         <PurchaseOrderDrawerLauncher
           label={params.row.data.order_number as string}
@@ -57,12 +51,9 @@ function PurchaseOrdersDataGrid({ purchaseOrders, actionItems }: Props) {
     {
       dataField: "vendor_name",
       caption: "Vendor",
-      minWidth: 200,
     },
     {
       caption: "Amount",
-      alignment: "right",
-      minWidth: 120,
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell
           value={params.row.data.amount}
@@ -71,8 +62,8 @@ function PurchaseOrdersDataGrid({ purchaseOrders, actionItems }: Props) {
     },
     {
       caption: "Order Date",
-      alignment: "right",
-      minWidth: 130,
+      alignment: "center",
+      width: 115,
       cellRender: (params: ValueFormatterParams) => (
         <DateDataGridCell
           dateString={params.row.data.order_date}
@@ -81,8 +72,8 @@ function PurchaseOrdersDataGrid({ purchaseOrders, actionItems }: Props) {
     },
     {
       caption: "Delivery Date",
-      alignment: "right",
-      minWidth: 130,
+      alignment: "center",
+      width: 115,
       cellRender: (params: ValueFormatterParams) => (
         <DateDataGridCell
           dateString={params.row.data.delivery_date}
@@ -92,12 +83,11 @@ function PurchaseOrdersDataGrid({ purchaseOrders, actionItems }: Props) {
     {
       dataField: "loans",
       caption: "Loans",
-      minWidth: 150,
     },
     {
       dataField: "status",
       caption: "Status",
-      minWidth: 175,
+      width: 165,
       alignment: "center",
       cellRender: (params: ValueFormatterParams) => (
         <RequestStatusChip requestStatus={params.value as RequestStatusEnum} />
@@ -107,7 +97,7 @@ function PurchaseOrdersDataGrid({ purchaseOrders, actionItems }: Props) {
       dataField: "action",
       caption: "Action",
       alignment: "center",
-      minWidth: 100,
+      width: 75,
       visible: check(user.role, Action.ViewPurchaseOrdersActionMenu),
       cellRender: (params: ValueFormatterParams) => (
         <DataGridActionMenu
@@ -120,37 +110,12 @@ function PurchaseOrdersDataGrid({ purchaseOrders, actionItems }: Props) {
 
   return (
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      <DataGrid height={"100%"} wordWrapEnabled={true} dataSource={rows}>
-        {columns.map(
-          ({
-            dataField,
-            minWidth,
-            caption,
-            visible,
-            alignment,
-            cellRender,
-          }) => (
-            <Column
-              key={caption}
-              caption={caption}
-              dataField={dataField}
-              alignment={alignment}
-              minWidth={minWidth}
-              visible={visible}
-              cellRender={cellRender}
-            />
-          )
-        )}
-        <Paging defaultPageSize={50} />
-        <Pager
-          visible={true}
-          showPageSizeSelector={true}
-          allowedPageSizes={[10, 20, 50]}
-          showInfo={true}
-        />
-      </DataGrid>
+      <ControlledDataGrid
+        dataSource={rows}
+        columns={columns}
+        pager
+      ></ControlledDataGrid>
     </Box>
   );
 }
-
 export default PurchaseOrdersDataGrid;

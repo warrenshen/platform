@@ -1,16 +1,11 @@
 import { Box } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import ControlledDataGrid from "components/Shared/DataGrid";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import EbbaApplicationDrawerLauncher from "components/Shared/EbbaApplication/EbbaApplicationDrawerLauncher";
-import DataGrid, {
-  Column,
-  IColumnProps,
-  Pager,
-  Paging,
-} from "devextreme-react/data-grid";
 import { EbbaApplicationsQuery, RequestStatusEnum } from "generated/graphql";
 import { truncateUuid } from "lib/uuid";
 
@@ -31,7 +26,7 @@ interface Props {
 function EbbaApplicationsDataGrid({ ebbaApplications, actionItems }: Props) {
   const rows = populateRows(ebbaApplications);
 
-  const columns: IColumnProps[] = [
+  const columns = [
     {
       dataField: "id",
       caption: "Platform ID",
@@ -69,7 +64,7 @@ function EbbaApplicationsDataGrid({ ebbaApplications, actionItems }: Props) {
     {
       dataField: "status",
       caption: "Status",
-      minWidth: 175,
+      minWidth: 165,
       alignment: "center",
       cellRender: (params: ValueFormatterParams) => (
         <RequestStatusChip requestStatus={params.value as RequestStatusEnum} />
@@ -79,7 +74,7 @@ function EbbaApplicationsDataGrid({ ebbaApplications, actionItems }: Props) {
       dataField: "action",
       caption: "Action",
       alignment: "center",
-      minWidth: 100,
+      width: 90,
       cellRender: (params: ValueFormatterParams) => (
         <DataGridActionMenu
           params={params}
@@ -91,35 +86,7 @@ function EbbaApplicationsDataGrid({ ebbaApplications, actionItems }: Props) {
 
   return (
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      <DataGrid height={"100%"} wordWrapEnabled={true} dataSource={rows}>
-        {columns.map(
-          ({
-            dataField,
-            minWidth,
-            caption,
-            visible,
-            alignment,
-            cellRender,
-          }) => (
-            <Column
-              key={caption}
-              caption={caption}
-              dataField={dataField}
-              alignment={alignment}
-              minWidth={minWidth}
-              visible={visible}
-              cellRender={cellRender}
-            />
-          )
-        )}
-        <Paging defaultPageSize={50} />
-        <Pager
-          visible={true}
-          showPageSizeSelector={true}
-          allowedPageSizes={[10, 20, 50]}
-          showInfo={true}
-        />
-      </DataGrid>
+      <ControlledDataGrid dataSource={rows} columns={columns} pager />
     </Box>
   );
 }

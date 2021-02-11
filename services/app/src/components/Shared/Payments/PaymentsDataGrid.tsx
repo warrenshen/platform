@@ -2,12 +2,7 @@ import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import { DatetimeDataGridCell } from "components/Shared/DataGrid/DateDataGridCell";
-import DataGrid, {
-  Column,
-  IColumnProps,
-  Pager,
-  Paging,
-} from "devextreme-react/data-grid";
+import ControlledDataGrid from "components/Shared/DataGrid";
 import { PaymentFragment } from "generated/graphql";
 import { useState } from "react";
 
@@ -51,7 +46,7 @@ function PaymentsDataGrid({
     );
   };
 
-  const columns: IColumnProps[] = [
+  const columns = [
     {
       dataField: "id",
       caption: "Payment ID",
@@ -118,27 +113,14 @@ function PaymentsDataGrid({
   ];
 
   return (
-    <DataGrid
-      height={"100%"}
-      width={"100%"}
+    <ControlledDataGrid
       dataSource={rows}
+      columns={columns}
+      pager
+      pageSize={30}
+      allowedPageSizes={[30]}
       ref={(ref) => setDataGrid(ref)}
-    >
-      {columns.map(
-        ({ dataField, caption, width, alignment, cellRender }, i) => (
-          <Column
-            key={`${dataField}-${i}`}
-            caption={caption}
-            dataField={dataField}
-            width={width}
-            alignment={alignment}
-            cellRender={cellRender}
-          />
-        )
-      )}
-      <Paging pageSize={30} />
-      <Pager visible allowedPageSizes={[30]} />
-    </DataGrid>
+    ></ControlledDataGrid>
   );
 }
 

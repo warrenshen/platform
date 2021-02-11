@@ -1,5 +1,6 @@
 import { Box } from "@material-ui/core";
 import { CellParams, ValueFormatterParams } from "@material-ui/data-grid";
+import ControlledDataGrid from "components/Shared/DataGrid";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DataGridActionMenu, {
@@ -7,13 +8,6 @@ import DataGridActionMenu, {
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import DataGrid, {
-  Column,
-  IColumnProps,
-  Pager,
-  Paging,
-  Selection,
-} from "devextreme-react/data-grid";
 import {
   LineOfCreditFragment,
   LoanFragment,
@@ -44,7 +38,7 @@ function LineOfCreditLoansDataGrid({ loans, actionItems }: Props) {
     );
   };
 
-  const columns: IColumnProps[] = [
+  const columns = [
     {
       caption: "Credit For Vendor?",
       minWidth: 150,
@@ -123,40 +117,7 @@ function LineOfCreditLoansDataGrid({ loans, actionItems }: Props) {
 
   return (
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      <DataGrid height={"100%"} wordWrapEnabled={true} dataSource={rows}>
-        {columns.map(
-          ({
-            dataField,
-            minWidth,
-            alignment,
-            visible,
-            caption,
-            cellRender,
-          }) => (
-            <Column
-              key={caption}
-              caption={caption}
-              visible={visible}
-              dataField={dataField}
-              minWidth={minWidth}
-              alignment={alignment}
-              cellRender={cellRender}
-            />
-          )
-        )}
-        <Selection
-          mode="multiple"
-          selectAllMode={"allPages"}
-          showCheckBoxesMode={"always"}
-        />
-        <Paging defaultPageSize={50} />
-        <Pager
-          visible={true}
-          showPageSizeSelector={true}
-          allowedPageSizes={[10, 20, 50]}
-          showInfo={true}
-        />
-      </DataGrid>
+      <ControlledDataGrid dataSource={rows} columns={columns} select pager />
     </Box>
   );
 }
