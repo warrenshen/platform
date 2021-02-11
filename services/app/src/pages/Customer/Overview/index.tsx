@@ -2,14 +2,9 @@ import { Box, Card, Typography } from "@material-ui/core";
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useOpenLoansByCompanyQuery } from "generated/graphql";
-import useAppBarTitle from "hooks/useAppBarTitle";
 import React, { useContext } from "react";
-import { useTitle } from "react-use";
 
 function LoansPage() {
-  useTitle("Overview | Bespoke");
-  useAppBarTitle("Overview");
-
   const {
     user: { companyId },
   } = useContext(CurrentUserContext);
@@ -36,7 +31,7 @@ function LoansPage() {
   );
 
   return (
-    <Page>
+    <Page appBarTitle={"Overview"}>
       <Box display="flex" flexDirection="column">
         <Box display="flex" justifyContent="space-between" width="100%">
           <Box width="32%">

@@ -6,13 +6,8 @@ import {
   LoanStatusEnum,
   useLoansByStatusesForBankQuery,
 } from "generated/graphql";
-import useAppBarTitle from "hooks/useAppBarTitle";
-import { useTitle } from "react-use";
 
 function LoansPastDuePage() {
-  useTitle("Loans Past Due | Bespoke");
-  useAppBarTitle("Loans Past Due");
-
   const { data, error } = useLoansByStatusesForBankQuery({
     variables: {
       statuses: [LoanStatusEnum.PastDue],
@@ -26,7 +21,7 @@ function LoansPastDuePage() {
   const purchaseOrderLoans = (data?.loans || []) as LoanFragment[];
 
   return (
-    <Page>
+    <Page appBarTitle={"Loans Past Due"}>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <BankLoansDataGrid
           loans={purchaseOrderLoans}

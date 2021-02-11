@@ -22,10 +22,8 @@ import BankCustomersPage from "pages/Bank/Customers";
 import BankEbbaApplicationsPage from "pages/Bank/EbbaApplications";
 import BankLoansAllProductsPage from "pages/Bank/LoansAllProducts";
 import BankLoansApprovalRequestedPage from "pages/Bank/LoansApprovalRequested";
-import BankLoansLineOfCreditPage from "pages/Bank/LoansLineOfCredit";
 import BankLoansMaturingPage from "pages/Bank/LoansMaturing";
 import BankLoansPastDuePage from "pages/Bank/LoansPastDue";
-import BankLoansPurchaseOrderPage from "pages/Bank/LoansPurchaseOrder";
 import BankOverviewPage from "pages/Bank/Overview";
 import BankPaymentsPage from "pages/Bank/Payments";
 import BankTransactionsPage from "pages/Bank/Transactions";
@@ -183,20 +181,6 @@ function App() {
           requiredRoles={[UserRolesEnum.BankAdmin]}
         >
           <BankLoansAllProductsPage></BankLoansAllProductsPage>
-        </PrivateRoute>
-        <PrivateRoute
-          exact
-          path={bankRoutes.loansPurchaseOrder}
-          requiredRoles={[UserRolesEnum.BankAdmin]}
-        >
-          <BankLoansPurchaseOrderPage></BankLoansPurchaseOrderPage>
-        </PrivateRoute>
-        <PrivateRoute
-          exact
-          path={bankRoutes.loansLineOfCredit}
-          requiredRoles={[UserRolesEnum.BankAdmin]}
-        >
-          <BankLoansLineOfCreditPage></BankLoansLineOfCreditPage>
         </PrivateRoute>
         <PrivateRoute
           exact

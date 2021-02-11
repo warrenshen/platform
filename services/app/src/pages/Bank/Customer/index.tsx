@@ -9,7 +9,6 @@ import Vendors from "components/Bank/Customer/Vendors";
 import Page from "components/Shared/Page";
 import PrivateRoute from "components/Shared/PrivateRoute";
 import { useBankCustomerQuery, UserRolesEnum } from "generated/graphql";
-import useAppBarTitle from "hooks/useAppBarTitle";
 import { bankRoutes } from "lib/routes";
 import { findIndex } from "lodash";
 import { ChangeEvent, useEffect, useState } from "react";
@@ -76,15 +75,10 @@ function BankCustomerPage() {
     },
   });
 
-  const setAppBarTitle = useAppBarTitle();
   const customerName = data?.companies_by_pk?.name;
 
-  useEffect(() => {
-    setAppBarTitle(customerName);
-  }, [setAppBarTitle, customerName]);
-
   return (
-    <Page>
+    <Page appBarTitle={customerName || ""}>
       <Paper>
         <Tabs
           indicatorColor="primary"

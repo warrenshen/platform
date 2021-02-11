@@ -15,9 +15,7 @@ import {
   ProductTypeEnum,
   useEbbaApplicationsByCompanyIdQuery,
 } from "generated/graphql";
-import useAppBarTitle from "hooks/useAppBarTitle";
 import React, { useState } from "react";
-import { useTitle } from "react-use";
 
 interface Props {
   companyId: string;
@@ -34,9 +32,6 @@ function Settings({
   bankAccounts,
   handleDataChange,
 }: Props) {
-  useTitle("Settings | Bespoke");
-  useAppBarTitle("Settings");
-
   const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
   const [
     isEditContractTermsModalOpen,

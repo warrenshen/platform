@@ -1,13 +1,8 @@
 import EbbaApplicationsDataGrid from "components/Bank/EbbaApplications/EbbaApplicationsDataGrid";
 import Page from "components/Shared/Page";
 import { useEbbaApplicationsQuery } from "generated/graphql";
-import useAppBarTitle from "hooks/useAppBarTitle";
-import { useTitle } from "react-use";
 
 function EbbaApplicationsPage() {
-  useTitle("Borrowing Bases | Bespoke");
-  useAppBarTitle("Borrowing Bases");
-
   const { data, error } = useEbbaApplicationsQuery({});
 
   if (error) {
@@ -17,7 +12,7 @@ function EbbaApplicationsPage() {
   const ebbaApplications = data?.ebba_applications || [];
 
   return (
-    <Page>
+    <Page appBarTitle={"Borrowing Bases"}>
       <EbbaApplicationsDataGrid
         ebbaApplications={ebbaApplications}
         actionItems={[]}

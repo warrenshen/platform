@@ -7,11 +7,11 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import UserMenu from "components/Shared/User/UserMenu";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { PageContext } from "contexts/PageContext";
 import { ProductTypeEnum, UserRolesEnum } from "generated/graphql";
 import { bankRoutes, customerRoutes, routes } from "lib/routes";
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { Link, matchPath, useLocation } from "react-router-dom";
+import { useTitle } from "react-use";
 
 const DRAWER_WIDTH = 250;
 
@@ -153,13 +153,19 @@ const BANK_LEFT_NAV_ITEMS = [
   },
 ];
 
-function Layout(props: { children: React.ReactNode }) {
+interface Props {
+  appBarTitle: string;
+  children: React.ReactNode;
+}
+
+function Layout({ appBarTitle, children }: Props) {
+  useTitle(`${appBarTitle} | Bespoke`);
+
   const classes = useStyles();
   const location = useLocation();
   const {
     user: { role, productType },
   } = useContext(CurrentUserContext);
-  const [appBarTitle, setAppBarTitle] = useState<React.ReactNode | string>("");
 
   const leftNavOptions =
     role === UserRolesEnum.BankAdmin
@@ -169,65 +175,59 @@ function Layout(props: { children: React.ReactNode }) {
       : [];
 
   return (
-    <PageContext.Provider
-      value={{
-        setAppBarTitle,
-      }}
-    >
-      <div className={classes.root}>
-        <AppBar position="fixed" className={classes.appBar} color="inherit">
-          <Toolbar className={classes.toolbar}>
-            <Box>
-              <Typography variant="h6" noWrap>
-                {appBarTitle}
-              </Typography>
-            </Box>
-            <Box>
-              <UserMenu></UserMenu>
-            </Box>
-          </Toolbar>
-        </AppBar>
-        <Drawer
-          className={classes.drawer}
-          variant="permanent"
-          classes={{
-            paper: classes.drawerPaper,
-          }}
-          anchor="left"
-        >
-          <div className={classes.toolbar}>
-            <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="Logo" />
-          </div>
-          <Divider></Divider>
-          <List>
-            {leftNavOptions.map((item) => {
-              return (
-                <ListItem
-                  key={item.link}
-                  button
-                  component={Link}
-                  to={item.link}
-                  selected={Boolean(matchPath(location.pathname, item.link))}
+    <div className={classes.root}>
+      <AppBar position="fixed" className={classes.appBar} color="inherit">
+        <Toolbar className={classes.toolbar}>
+          <Box>
+            <Typography variant="h6" noWrap>
+              {appBarTitle}
+            </Typography>
+          </Box>
+          <Box>
+            <UserMenu></UserMenu>
+          </Box>
+        </Toolbar>
+      </AppBar>
+      <Drawer
+        className={classes.drawer}
+        variant="permanent"
+        classes={{
+          paper: classes.drawerPaper,
+        }}
+        anchor="left"
+      >
+        <div className={classes.toolbar}>
+          <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="Logo" />
+        </div>
+        <Divider></Divider>
+        <List>
+          {leftNavOptions.map((item) => {
+            return (
+              <ListItem
+                key={item.link}
+                button
+                component={Link}
+                to={item.link}
+                selected={Boolean(matchPath(location.pathname, item.link))}
+              >
+                <ListItemText
+                  primaryTypographyProps={{
+                    className: classes.listItemText,
+                    variant: "subtitle1",
+                  }}
                 >
-                  <ListItemText
-                    primaryTypographyProps={{
-                      className: classes.listItemText,
-                      variant: "subtitle1",
-                    }}
-                  >
-                    {item.text}
-                  </ListItemText>
-                </ListItem>
-              );
-            })}
-          </List>
-        </Drawer>
-        <main className={classes.content}>
-          <div className={classes.toolbar} />
-          {props.children}
-        </main>
-      </div>
-    </PageContext.Provider>
+                  {item.text}
+                </ListItemText>
+              </ListItem>
+            );
+          })}
+        </List>
+      </Drawer>
+      <main className={classes.content}>
+        <div className={classes.toolbar} />
+        {children}
+      </main>
+    </div>
   );
 }
 

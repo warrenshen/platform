@@ -12,9 +12,7 @@ import Page from "components/Shared/Page";
 import EditUserProfileModal from "components/Shared/Users/EditUserProfileModal";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { UserRolesEnum, useUserByIdQuery } from "generated/graphql";
-import useAppBarTitle from "hooks/useAppBarTitle";
 import { useContext, useState } from "react";
-import { useTitle } from "react-use";
 
 const useStyles = makeStyles({
   label: {
@@ -24,9 +22,6 @@ const useStyles = makeStyles({
 });
 
 function UserProfile() {
-  useTitle("Users | Profile");
-  useAppBarTitle("User Profile");
-
   const classes = useStyles();
 
   const { user: currentUser } = useContext(CurrentUserContext);
@@ -42,7 +37,7 @@ function UserProfile() {
   const user = data?.users_by_pk;
 
   return (
-    <Page>
+    <Page appBarTitle={"Users"}>
       {user && open && (
         <EditUserProfileModal
           companyId={currentUser.companyId}

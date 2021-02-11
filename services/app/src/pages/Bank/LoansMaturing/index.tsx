@@ -12,16 +12,11 @@ import {
   LoanStatusEnum,
   useLoansByStatusesForBankQuery,
 } from "generated/graphql";
-import useAppBarTitle from "hooks/useAppBarTitle";
 import { useState } from "react";
-import { useTitle } from "react-use";
 
 const matureDaysList = [7, 14, 30, 90];
 
 function LoansMaturingPage() {
-  useTitle("Loans Maturing | Bespoke");
-  useAppBarTitle("Loans Maturing in X Days");
-
   const [matureDays, setMatureDays] = useState(matureDaysList[1]);
 
   const { data, error } = useLoansByStatusesForBankQuery({
@@ -37,7 +32,7 @@ function LoansMaturingPage() {
   const loans = (data?.loans || []) as LoanFragment[];
 
   return (
-    <Page>
+    <Page appBarTitle={"Loans Maturing in X Days"}>
       <Box mb={2}>
         <FormControl>
           <InputLabel id="select-loan-type">Loan type</InputLabel>

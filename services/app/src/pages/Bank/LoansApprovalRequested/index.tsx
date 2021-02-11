@@ -6,14 +6,9 @@ import {
   useLoansByStatusesForBankQuery,
   useUpdateLoanMutation,
 } from "generated/graphql";
-import useAppBarTitle from "hooks/useAppBarTitle";
 import { approveLoan, rejectLoan } from "lib/finance/loans/approval";
-import { useTitle } from "react-use";
 
 function LoansAllProductsPage() {
-  useTitle("Loans Approval Requested | Bespoke");
-  useAppBarTitle("Loans Approval Requested");
-
   const {
     data,
     error,
@@ -60,7 +55,7 @@ function LoansAllProductsPage() {
   console.log({ isDataReady });
 
   return (
-    <Page>
+    <Page appBarTitle={"Loans Approval Requested"}>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <BankLoansDataGrid
           fullView

@@ -5,7 +5,7 @@ import ListVendors from "components/Vendors/Customer/ListVendors";
 
 function CustomerVendorsPage() {
   return (
-    <Page>
+    <Page appBarTitle={"Vendors"}>
       <Box display="flex" flexDirection="row-reverse">
         <AddButton></AddButton>
       </Box>

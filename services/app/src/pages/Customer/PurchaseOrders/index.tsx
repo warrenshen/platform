@@ -5,16 +5,11 @@ import CreateUpdatePurchaseOrderModal from "components/Shared/PurchaseOrders/Cre
 import PurchaseOrdersDataGrid from "components/Shared/PurchaseOrders/PurchaseOrdersDataGrid";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { usePurchaseOrdersByCompanyIdQuery } from "generated/graphql";
-import useAppBarTitle from "hooks/useAppBarTitle";
 import { ActionType } from "lib/ActionType";
 import { Action } from "lib/auth/rbac-rules";
 import React, { useContext, useState } from "react";
-import { useTitle } from "react-use";
 
 function PurchaseOrdersPage() {
-  useTitle("Purchase Orders | Bespoke");
-  useAppBarTitle("Purchase Orders");
-
   const {
     user: { companyId },
   } = useContext(CurrentUserContext);
@@ -40,7 +35,7 @@ function PurchaseOrdersPage() {
   };
 
   return (
-    <Page>
+    <Page appBarTitle={"Purchase Orders"}>
       <Box flex={1} display="flex" flexDirection="column" width="100%">
         {isEditModalOpen && (
           <CreateUpdatePurchaseOrderModal

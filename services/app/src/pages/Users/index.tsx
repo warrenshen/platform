@@ -10,14 +10,9 @@ import {
   UserRolesEnum,
 } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
-import useAppBarTitle from "hooks/useAppBarTitle";
 import { useContext, useState } from "react";
-import { useTitle } from "react-use";
 
 function Users() {
-  useTitle("Users | Bespoke");
-  useAppBarTitle("Users");
-
   const [open, setOpen] = useState(false);
   const { user } = useContext(CurrentUserContext);
   const { data: customerUsers } = useListUsersByCompanyIdQuery({
@@ -38,7 +33,7 @@ function Users() {
       : customerUsers?.users;
 
   return (
-    <Page>
+    <Page appBarTitle={"Users"}>
       {open && (
         <InviteUserModal
           companyId={

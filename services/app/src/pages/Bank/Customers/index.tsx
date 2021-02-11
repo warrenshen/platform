@@ -12,12 +12,10 @@ import {
 import AddButton from "components/Bank/AddCustomer/AddCustomerButton";
 import Page from "components/Shared/Page";
 import { useCustomersForBankQuery } from "generated/graphql";
-import useAppBarTitle from "hooks/useAppBarTitle";
 import { ProductTypeToLabel } from "lib/enum";
 import { bankRoutes } from "lib/routes";
 import { sortBy } from "lodash";
 import { Link, useRouteMatch } from "react-router-dom";
-import { useTitle } from "react-use";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -30,9 +28,6 @@ const useStyles = makeStyles((theme: Theme) =>
 function BankCustomersPage() {
   const classes = useStyles();
 
-  useTitle("Customers | Bespoke");
-  useAppBarTitle("Customers");
-
   const { url } = useRouteMatch();
   const { data } = useCustomersForBankQuery();
 
@@ -43,7 +38,7 @@ function BankCustomersPage() {
   const customers = sortBy(data.companies, (company) => company.name);
 
   return (
-    <Page>
+    <Page appBarTitle={"Customers"}>
       <Box display="flex" flexDirection="row-reverse">
         <AddButton></AddButton>
       </Box>

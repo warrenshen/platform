@@ -6,19 +6,14 @@ import {
   ContractFragment,
   useCompanyForCustomerQuery,
 } from "generated/graphql";
-import useAppBarTitle from "hooks/useAppBarTitle";
 import React, { useContext } from "react";
 import { useParams } from "react-router-dom";
-import { useTitle } from "react-use";
 
 export interface CustomerParams {
   companyId: string;
 }
 
 function SettingsPage() {
-  useTitle("Settings | Bespoke");
-  useAppBarTitle("Settings");
-
   const { companyId: companyIdFromParams } = useParams<CustomerParams>();
   const { user } = useContext(CurrentUserContext);
   const companyId = companyIdFromParams || user.companyId;
@@ -38,7 +33,7 @@ function SettingsPage() {
   const contract = data?.companies_by_pk?.contract as ContractFragment;
 
   return (
-    <Page>
+    <Page appBarTitle={"Settings"}>
       <Settings
         companyId={companyId}
         settings={settings}

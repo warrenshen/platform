@@ -4,15 +4,10 @@ import {
   RequestStatusEnum,
   useLoansByStatusesForBankQuery,
 } from "generated/graphql";
-import useAppBarTitle from "hooks/useAppBarTitle";
 import { bankRoutes } from "lib/routes";
 import LoansTable from "pages/Bank/Overview/BankDashboard/LoansTable";
-import { useTitle } from "react-use";
 
 function BankOverviewPage() {
-  useTitle("Overview | Bespoke");
-  useAppBarTitle("Overview");
-
   const {
     data: approvalRequestedLoansData,
     error: approvalRequestedLoansError,
@@ -59,7 +54,7 @@ function BankOverviewPage() {
   const pastDueLoans = pastDueLoansData?.loans || [];
 
   return (
-    <Page>
+    <Page appBarTitle={"Overview"}>
       <LoansTable
         loans={approvalRequestedLoans}
         tableName={"Loans Approval Requested"}

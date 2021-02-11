@@ -1,6 +1,6 @@
 import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
 import Layout from "components/Shared/Layout";
-import React, { FunctionComponent } from "react";
+import React from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -14,14 +14,19 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const Page: FunctionComponent = ({ children }) => {
+interface Props {
+  appBarTitle: string;
+  children: React.ReactNode;
+}
+
+function Page({ appBarTitle, children }: Props) {
   const classes = useStyles();
 
   return (
-    <Layout>
+    <Layout appBarTitle={appBarTitle}>
       <Box className={classes.container}>{children}</Box>
     </Layout>
   );
-};
+}
 
 export default Page;
