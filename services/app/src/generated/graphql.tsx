@@ -1337,19 +1337,7 @@ export type CompanySettings = {
   company?: Maybe<Companies>;
   company_id?: Maybe<Scalars["uuid"]>;
   id: Scalars["uuid"];
-  product_config: Scalars["jsonb"];
-  product_type: ProductTypeEnum;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
-};
-
-/**
- * Settings are configuration details associated with a company, but are not within a time range like contracts are
- *
- *
- * columns and relationships of "company_settings"
- */
-export type CompanySettingsProductConfigArgs = {
-  path?: Maybe<Scalars["String"]>;
 };
 
 /** aggregated selection of "company_settings" */
@@ -1378,11 +1366,6 @@ export type CompanySettingsAggregateOrderBy = {
   min?: Maybe<CompanySettingsMinOrderBy>;
 };
 
-/** append existing jsonb value of filtered columns with new jsonb value */
-export type CompanySettingsAppendInput = {
-  product_config?: Maybe<Scalars["jsonb"]>;
-};
-
 /** input type for inserting array relation for remote table "company_settings" */
 export type CompanySettingsArrRelInsertInput = {
   data: Array<CompanySettingsInsertInput>;
@@ -1401,8 +1384,6 @@ export type CompanySettingsBoolExp = {
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
-  product_config?: Maybe<JsonbComparisonExp>;
-  product_type?: Maybe<ProductTypeEnumComparisonExp>;
   vendor_agreement_docusign_template?: Maybe<StringComparisonExp>;
 };
 
@@ -1411,21 +1392,6 @@ export enum CompanySettingsConstraint {
   /** unique or primary key constraint */
   CompanySettingsPkey = "company_settings_pkey",
 }
-
-/** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
-export type CompanySettingsDeleteAtPathInput = {
-  product_config?: Maybe<Array<Maybe<Scalars["String"]>>>;
-};
-
-/** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
-export type CompanySettingsDeleteElemInput = {
-  product_config?: Maybe<Scalars["Int"]>;
-};
-
-/** delete key/value pair or string element. key/value pairs are matched based on their key value */
-export type CompanySettingsDeleteKeyInput = {
-  product_config?: Maybe<Scalars["String"]>;
-};
 
 /** input type for inserting data into table "company_settings" */
 export type CompanySettingsInsertInput = {
@@ -1436,8 +1402,6 @@ export type CompanySettingsInsertInput = {
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
-  product_config?: Maybe<Scalars["jsonb"]>;
-  product_type?: Maybe<ProductTypeEnum>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
 };
 
@@ -1507,19 +1471,12 @@ export type CompanySettingsOrderBy = {
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
-  product_config?: Maybe<OrderBy>;
-  product_type?: Maybe<OrderBy>;
   vendor_agreement_docusign_template?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: "company_settings" */
 export type CompanySettingsPkColumnsInput = {
   id: Scalars["uuid"];
-};
-
-/** prepend existing jsonb value of filtered columns with new jsonb value */
-export type CompanySettingsPrependInput = {
-  product_config?: Maybe<Scalars["jsonb"]>;
 };
 
 /** select columns of table "company_settings" */
@@ -1533,10 +1490,6 @@ export enum CompanySettingsSelectColumn {
   /** column name */
   Id = "id",
   /** column name */
-  ProductConfig = "product_config",
-  /** column name */
-  ProductType = "product_type",
-  /** column name */
   VendorAgreementDocusignTemplate = "vendor_agreement_docusign_template",
 }
 
@@ -1546,8 +1499,6 @@ export type CompanySettingsSetInput = {
   collections_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
-  product_config?: Maybe<Scalars["jsonb"]>;
-  product_type?: Maybe<ProductTypeEnum>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
 };
 
@@ -1561,10 +1512,6 @@ export enum CompanySettingsUpdateColumn {
   CompanyId = "company_id",
   /** column name */
   Id = "id",
-  /** column name */
-  ProductConfig = "product_config",
-  /** column name */
-  ProductType = "product_type",
   /** column name */
   VendorAgreementDocusignTemplate = "vendor_agreement_docusign_template",
 }
@@ -5197,22 +5144,12 @@ export type MutationRootUpdateCompanyLicensesByPkArgs = {
 
 /** mutation root */
 export type MutationRootUpdateCompanySettingsArgs = {
-  _append?: Maybe<CompanySettingsAppendInput>;
-  _delete_at_path?: Maybe<CompanySettingsDeleteAtPathInput>;
-  _delete_elem?: Maybe<CompanySettingsDeleteElemInput>;
-  _delete_key?: Maybe<CompanySettingsDeleteKeyInput>;
-  _prepend?: Maybe<CompanySettingsPrependInput>;
   _set?: Maybe<CompanySettingsSetInput>;
   where: CompanySettingsBoolExp;
 };
 
 /** mutation root */
 export type MutationRootUpdateCompanySettingsByPkArgs = {
-  _append?: Maybe<CompanySettingsAppendInput>;
-  _delete_at_path?: Maybe<CompanySettingsDeleteAtPathInput>;
-  _delete_elem?: Maybe<CompanySettingsDeleteElemInput>;
-  _delete_key?: Maybe<CompanySettingsDeleteKeyInput>;
-  _prepend?: Maybe<CompanySettingsPrependInput>;
   _set?: Maybe<CompanySettingsSetInput>;
   pk_columns: CompanySettingsPkColumnsInput;
 };

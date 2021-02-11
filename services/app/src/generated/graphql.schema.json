@@ -9328,49 +9328,6 @@
             "deprecationReason": null
           },
           {
-            "name": "product_config",
-            "description": null,
-            "args": [
-              {
-                "name": "path",
-                "description": "JSON select path",
-                "type": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                },
-                "defaultValue": null
-              }
-            ],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "jsonb",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "product_type",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "ENUM",
-                "name": "product_type_enum",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "vendor_agreement_docusign_template",
             "description": null,
             "args": [],
@@ -9554,27 +9511,6 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "company_settings_append_input",
-        "description": "append existing jsonb value of filtered columns with new jsonb value",
-        "fields": null,
-        "inputFields": [
-          {
-            "name": "product_config",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "jsonb",
-              "ofType": null
-            },
-            "defaultValue": null
-          }
-        ],
-        "interfaces": null,
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "INPUT_OBJECT",
         "name": "company_settings_arr_rel_insert_input",
         "description": "input type for inserting array relation for remote table \"company_settings\"",
         "fields": null,
@@ -9731,26 +9667,6 @@
             "defaultValue": null
           },
           {
-            "name": "product_config",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "jsonb_comparison_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "product_type",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "product_type_enum_comparison_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "vendor_agreement_docusign_template",
             "description": null,
             "type": {
@@ -9780,73 +9696,6 @@
             "deprecationReason": null
           }
         ],
-        "possibleTypes": null
-      },
-      {
-        "kind": "INPUT_OBJECT",
-        "name": "company_settings_delete_at_path_input",
-        "description": "delete the field or element with specified path (for JSON arrays, negative integers count from the end)",
-        "fields": null,
-        "inputFields": [
-          {
-            "name": "product_config",
-            "description": null,
-            "type": {
-              "kind": "LIST",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
-            },
-            "defaultValue": null
-          }
-        ],
-        "interfaces": null,
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "INPUT_OBJECT",
-        "name": "company_settings_delete_elem_input",
-        "description": "delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array",
-        "fields": null,
-        "inputFields": [
-          {
-            "name": "product_config",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "Int",
-              "ofType": null
-            },
-            "defaultValue": null
-          }
-        ],
-        "interfaces": null,
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "INPUT_OBJECT",
-        "name": "company_settings_delete_key_input",
-        "description": "delete key/value pair or string element. key/value pairs are matched based on their key value",
-        "fields": null,
-        "inputFields": [
-          {
-            "name": "product_config",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null
-          }
-        ],
-        "interfaces": null,
-        "enumValues": null,
         "possibleTypes": null
       },
       {
@@ -9921,26 +9770,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "product_config",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "jsonb",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "product_type",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "product_type_enum",
               "ofType": null
             },
             "defaultValue": null
@@ -10444,26 +10273,6 @@
             "defaultValue": null
           },
           {
-            "name": "product_config",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "product_type",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "vendor_agreement_docusign_template",
             "description": null,
             "type": {
@@ -10504,27 +10313,6 @@
         "possibleTypes": null
       },
       {
-        "kind": "INPUT_OBJECT",
-        "name": "company_settings_prepend_input",
-        "description": "prepend existing jsonb value of filtered columns with new jsonb value",
-        "fields": null,
-        "inputFields": [
-          {
-            "name": "product_config",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "jsonb",
-              "ofType": null
-            },
-            "defaultValue": null
-          }
-        ],
-        "interfaces": null,
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
         "kind": "ENUM",
         "name": "company_settings_select_column",
         "description": "select columns of table \"company_settings\"",
@@ -10552,18 +10340,6 @@
           },
           {
             "name": "id",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "product_config",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "product_type",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -10624,26 +10400,6 @@
             "defaultValue": null
           },
           {
-            "name": "product_config",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "jsonb",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "product_type",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "product_type_enum",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "vendor_agreement_docusign_template",
             "description": null,
             "type": {
@@ -10686,18 +10442,6 @@
           },
           {
             "name": "id",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "product_config",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "product_type",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -32300,56 +32044,6 @@
             "description": "update data of the table: \"company_settings\"",
             "args": [
               {
-                "name": "_append",
-                "description": "append existing jsonb value of filtered columns with new jsonb value",
-                "type": {
-                  "kind": "INPUT_OBJECT",
-                  "name": "company_settings_append_input",
-                  "ofType": null
-                },
-                "defaultValue": null
-              },
-              {
-                "name": "_delete_at_path",
-                "description": "delete the field or element with specified path (for JSON arrays, negative integers count from the end)",
-                "type": {
-                  "kind": "INPUT_OBJECT",
-                  "name": "company_settings_delete_at_path_input",
-                  "ofType": null
-                },
-                "defaultValue": null
-              },
-              {
-                "name": "_delete_elem",
-                "description": "delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array",
-                "type": {
-                  "kind": "INPUT_OBJECT",
-                  "name": "company_settings_delete_elem_input",
-                  "ofType": null
-                },
-                "defaultValue": null
-              },
-              {
-                "name": "_delete_key",
-                "description": "delete key/value pair or string element. key/value pairs are matched based on their key value",
-                "type": {
-                  "kind": "INPUT_OBJECT",
-                  "name": "company_settings_delete_key_input",
-                  "ofType": null
-                },
-                "defaultValue": null
-              },
-              {
-                "name": "_prepend",
-                "description": "prepend existing jsonb value of filtered columns with new jsonb value",
-                "type": {
-                  "kind": "INPUT_OBJECT",
-                  "name": "company_settings_prepend_input",
-                  "ofType": null
-                },
-                "defaultValue": null
-              },
-              {
                 "name": "_set",
                 "description": "sets the columns of the filtered rows to the given values",
                 "type": {
@@ -32386,56 +32080,6 @@
             "name": "update_company_settings_by_pk",
             "description": "update single row of the table: \"company_settings\"",
             "args": [
-              {
-                "name": "_append",
-                "description": "append existing jsonb value of filtered columns with new jsonb value",
-                "type": {
-                  "kind": "INPUT_OBJECT",
-                  "name": "company_settings_append_input",
-                  "ofType": null
-                },
-                "defaultValue": null
-              },
-              {
-                "name": "_delete_at_path",
-                "description": "delete the field or element with specified path (for JSON arrays, negative integers count from the end)",
-                "type": {
-                  "kind": "INPUT_OBJECT",
-                  "name": "company_settings_delete_at_path_input",
-                  "ofType": null
-                },
-                "defaultValue": null
-              },
-              {
-                "name": "_delete_elem",
-                "description": "delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array",
-                "type": {
-                  "kind": "INPUT_OBJECT",
-                  "name": "company_settings_delete_elem_input",
-                  "ofType": null
-                },
-                "defaultValue": null
-              },
-              {
-                "name": "_delete_key",
-                "description": "delete key/value pair or string element. key/value pairs are matched based on their key value",
-                "type": {
-                  "kind": "INPUT_OBJECT",
-                  "name": "company_settings_delete_key_input",
-                  "ofType": null
-                },
-                "defaultValue": null
-              },
-              {
-                "name": "_prepend",
-                "description": "prepend existing jsonb value of filtered columns with new jsonb value",
-                "type": {
-                  "kind": "INPUT_OBJECT",
-                  "name": "company_settings_prepend_input",
-                  "ofType": null
-                },
-                "defaultValue": null
-              },
               {
                 "name": "_set",
                 "description": "sets the columns of the filtered rows to the given values",
