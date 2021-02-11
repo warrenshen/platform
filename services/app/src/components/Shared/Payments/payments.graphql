@@ -1,5 +1,5 @@
-query Payments {
-  payments {
+query GetPayments {
+  payments(where: { type: { _eq: "repayment" } }) {
     id
     ...Payment
     company {

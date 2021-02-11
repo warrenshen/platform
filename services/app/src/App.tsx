@@ -15,6 +15,7 @@ import ReviewPurchaseOrderPage from "pages/Anonymous/ReviewPurchaseOrder";
 import ReviewPurchaseOrderCompletePage from "pages/Anonymous/ReviewPurchaseOrderComplete";
 import SecureLinkPage from "pages/Anonymous/SecureLink";
 import SignIn from "pages/Anonymous/SignIn";
+import BankAdvancesPage from "pages/Bank/Advances";
 import BankBankAccountsPage from "pages/Bank/BankAccounts";
 import BankCustomerPage from "pages/Bank/Customer";
 import BankCustomersPage from "pages/Bank/Customers";
@@ -230,6 +231,13 @@ function App() {
           requiredRoles={[UserRolesEnum.BankAdmin]}
         >
           <BankPaymentsPage></BankPaymentsPage>
+        </PrivateRoute>
+        <PrivateRoute
+          exact
+          path={bankRoutes.advances}
+          requiredRoles={[UserRolesEnum.BankAdmin]}
+        >
+          <BankAdvancesPage></BankAdvancesPage>
         </PrivateRoute>
         <PrivateRoute
           exact

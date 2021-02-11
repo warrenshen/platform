@@ -9202,6 +9202,8 @@ export type Transactions = {
   amount: Scalars["numeric"];
   created_at: Scalars["timestamptz"];
   created_by_user_id: Scalars["uuid"];
+  /** For financial purposes, this is the date this transaction is considered in effect. */
+  effective_date: Scalars["date"];
   id: Scalars["uuid"];
   loan_id: Scalars["uuid"];
   modified_at: Scalars["timestamptz"];
@@ -9287,6 +9289,7 @@ export type TransactionsBoolExp = {
   amount?: Maybe<NumericComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   created_by_user_id?: Maybe<UuidComparisonExp>;
+  effective_date?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   loan_id?: Maybe<UuidComparisonExp>;
   modified_at?: Maybe<TimestamptzComparisonExp>;
@@ -9318,6 +9321,7 @@ export type TransactionsInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   created_by_user_id?: Maybe<Scalars["uuid"]>;
+  effective_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   loan_id?: Maybe<Scalars["uuid"]>;
   modified_at?: Maybe<Scalars["timestamptz"]>;
@@ -9335,6 +9339,7 @@ export type TransactionsMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   created_by_user_id?: Maybe<Scalars["uuid"]>;
+  effective_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   loan_id?: Maybe<Scalars["uuid"]>;
   modified_at?: Maybe<Scalars["timestamptz"]>;
@@ -9351,6 +9356,7 @@ export type TransactionsMaxOrderBy = {
   amount?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   created_by_user_id?: Maybe<OrderBy>;
+  effective_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   loan_id?: Maybe<OrderBy>;
   modified_at?: Maybe<OrderBy>;
@@ -9367,6 +9373,7 @@ export type TransactionsMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   created_by_user_id?: Maybe<Scalars["uuid"]>;
+  effective_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   loan_id?: Maybe<Scalars["uuid"]>;
   modified_at?: Maybe<Scalars["timestamptz"]>;
@@ -9383,6 +9390,7 @@ export type TransactionsMinOrderBy = {
   amount?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   created_by_user_id?: Maybe<OrderBy>;
+  effective_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   loan_id?: Maybe<OrderBy>;
   modified_at?: Maybe<OrderBy>;
@@ -9420,6 +9428,7 @@ export type TransactionsOrderBy = {
   amount?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   created_by_user_id?: Maybe<OrderBy>;
+  effective_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   loan_id?: Maybe<OrderBy>;
   modified_at?: Maybe<OrderBy>;
@@ -9446,6 +9455,8 @@ export enum TransactionsSelectColumn {
   /** column name */
   CreatedByUserId = "created_by_user_id",
   /** column name */
+  EffectiveDate = "effective_date",
+  /** column name */
   Id = "id",
   /** column name */
   LoanId = "loan_id",
@@ -9470,6 +9481,7 @@ export type TransactionsSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   created_by_user_id?: Maybe<Scalars["uuid"]>;
+  effective_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   loan_id?: Maybe<Scalars["uuid"]>;
   modified_at?: Maybe<Scalars["timestamptz"]>;
@@ -9553,6 +9565,8 @@ export enum TransactionsUpdateColumn {
   CreatedAt = "created_at",
   /** column name */
   CreatedByUserId = "created_by_user_id",
+  /** column name */
+  EffectiveDate = "effective_date",
   /** column name */
   Id = "id",
   /** column name */
@@ -10556,6 +10570,16 @@ export type UpdateLineOfCreditAndLoanMutation = {
   update_loans_by_pk?: Maybe<Pick<Loans, "id"> & LoanLimitedFragment>;
 };
 
+export type GetAdvancesQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetAdvancesQuery = {
+  payments: Array<
+    Pick<Payments, "id"> & {
+      company: Pick<Companies, "id" | "name">;
+    } & PaymentFragment
+  >;
+};
+
 export type BankAccountsForTransferQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
@@ -10853,9 +10877,9 @@ export type OpenLoansByCompanyQueryVariables = Exact<{
 
 export type OpenLoansByCompanyQuery = { loans: Array<LoanLimitedFragment> };
 
-export type PaymentsQueryVariables = Exact<{ [key: string]: never }>;
+export type GetPaymentsQueryVariables = Exact<{ [key: string]: never }>;
 
-export type PaymentsQuery = {
+export type GetPaymentsQuery = {
   payments: Array<
     Pick<Payments, "id"> & {
       company: Pick<Companies, "id" | "name">;
@@ -12065,6 +12089,65 @@ export type UpdateLineOfCreditAndLoanMutationResult = Apollo.MutationResult<Upda
 export type UpdateLineOfCreditAndLoanMutationOptions = Apollo.BaseMutationOptions<
   UpdateLineOfCreditAndLoanMutation,
   UpdateLineOfCreditAndLoanMutationVariables
+>;
+export const GetAdvancesDocument = gql`
+  query GetAdvances {
+    payments(where: { type: { _eq: "advance" } }) {
+      id
+      ...Payment
+      company {
+        id
+        name
+      }
+    }
+  }
+  ${PaymentFragmentDoc}
+`;
+
+/**
+ * __useGetAdvancesQuery__
+ *
+ * To run a query within a React component, call `useGetAdvancesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAdvancesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAdvancesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAdvancesQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetAdvancesQuery,
+    GetAdvancesQueryVariables
+  >
+) {
+  return Apollo.useQuery<GetAdvancesQuery, GetAdvancesQueryVariables>(
+    GetAdvancesDocument,
+    baseOptions
+  );
+}
+export function useGetAdvancesLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetAdvancesQuery,
+    GetAdvancesQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<GetAdvancesQuery, GetAdvancesQueryVariables>(
+    GetAdvancesDocument,
+    baseOptions
+  );
+}
+export type GetAdvancesQueryHookResult = ReturnType<typeof useGetAdvancesQuery>;
+export type GetAdvancesLazyQueryHookResult = ReturnType<
+  typeof useGetAdvancesLazyQuery
+>;
+export type GetAdvancesQueryResult = Apollo.QueryResult<
+  GetAdvancesQuery,
+  GetAdvancesQueryVariables
 >;
 export const BankAccountsForTransferDocument = gql`
   query BankAccountsForTransfer($companyId: uuid!) {
@@ -13604,9 +13687,9 @@ export type OpenLoansByCompanyQueryResult = Apollo.QueryResult<
   OpenLoansByCompanyQuery,
   OpenLoansByCompanyQueryVariables
 >;
-export const PaymentsDocument = gql`
-  query Payments {
-    payments {
+export const GetPaymentsDocument = gql`
+  query GetPayments {
+    payments(where: { type: { _eq: "repayment" } }) {
       id
       ...Payment
       company {
@@ -13619,46 +13702,49 @@ export const PaymentsDocument = gql`
 `;
 
 /**
- * __usePaymentsQuery__
+ * __useGetPaymentsQuery__
  *
- * To run a query within a React component, call `usePaymentsQuery` and pass it any options that fit your needs.
- * When your component renders, `usePaymentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetPaymentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPaymentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = usePaymentsQuery({
+ * const { data, loading, error } = useGetPaymentsQuery({
  *   variables: {
  *   },
  * });
  */
-export function usePaymentsQuery(
-  baseOptions?: Apollo.QueryHookOptions<PaymentsQuery, PaymentsQueryVariables>
-) {
-  return Apollo.useQuery<PaymentsQuery, PaymentsQueryVariables>(
-    PaymentsDocument,
-    baseOptions
-  );
-}
-export function usePaymentsLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    PaymentsQuery,
-    PaymentsQueryVariables
+export function useGetPaymentsQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetPaymentsQuery,
+    GetPaymentsQueryVariables
   >
 ) {
-  return Apollo.useLazyQuery<PaymentsQuery, PaymentsQueryVariables>(
-    PaymentsDocument,
+  return Apollo.useQuery<GetPaymentsQuery, GetPaymentsQueryVariables>(
+    GetPaymentsDocument,
     baseOptions
   );
 }
-export type PaymentsQueryHookResult = ReturnType<typeof usePaymentsQuery>;
-export type PaymentsLazyQueryHookResult = ReturnType<
-  typeof usePaymentsLazyQuery
+export function useGetPaymentsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetPaymentsQuery,
+    GetPaymentsQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<GetPaymentsQuery, GetPaymentsQueryVariables>(
+    GetPaymentsDocument,
+    baseOptions
+  );
+}
+export type GetPaymentsQueryHookResult = ReturnType<typeof useGetPaymentsQuery>;
+export type GetPaymentsLazyQueryHookResult = ReturnType<
+  typeof useGetPaymentsLazyQuery
 >;
-export type PaymentsQueryResult = Apollo.QueryResult<
-  PaymentsQuery,
-  PaymentsQueryVariables
+export type GetPaymentsQueryResult = Apollo.QueryResult<
+  GetPaymentsQuery,
+  GetPaymentsQueryVariables
 >;
 export const PurchaseOrderDocument = gql`
   query PurchaseOrder($id: uuid!) {

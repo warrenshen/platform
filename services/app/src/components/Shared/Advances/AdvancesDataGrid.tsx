@@ -20,7 +20,7 @@ interface Props {
   onClickCustomerName: (value: string) => void;
 }
 
-function PaymentsDataGrid({
+function AdvancesDataGrid({
   payments,
   customerSearchQuery,
   onClickCustomerName,
@@ -119,4 +119,4 @@ function PaymentsDataGrid({
   );
 }
 
-export default PaymentsDataGrid;
+export default AdvancesDataGrid;

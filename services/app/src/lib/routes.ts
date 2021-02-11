@@ -32,6 +32,7 @@ export const customerRoutes = {
 // Bank user routes are not prefixed.
 export const bankRoutes = {
   overview: "/overview",
+  advances: "/advances",
   bankAccounts: "/bank-accounts",
   customerRoot: "/customers/:companyId",
   customer: {

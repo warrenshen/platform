@@ -124,6 +124,10 @@ const BANK_LEFT_NAV_ITEMS = [
     link: bankRoutes.payments,
   },
   {
+    text: "Advances",
+    link: bankRoutes.advances,
+  },
+  {
     text: "Transactions",
     link: bankRoutes.transactions,
   },

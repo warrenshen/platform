@@ -1,0 +1,10 @@
+query GetAdvances {
+  payments(where: { type: { _eq: "advance" } }) {
+    id
+    ...Payment
+    company {
+      id
+      name
+    }
+  }
+}
