@@ -7,7 +7,7 @@ import decimal
 
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
-from typing import Tuple, List, Callable, cast
+from typing import Tuple, List, Callable, Union, cast
 
 from bespoke import errors
 from bespoke.date import date_util
@@ -41,7 +41,7 @@ def create_payment(
 	payment.submitted_at = datetime.datetime.now()
 	return payment
 
-def is_advance(p: models.PaymentDict) -> bool:
+def is_advance(p: Union[models.PaymentDict, models.TransactionDict]) -> bool:
 	return p['type'] in db_constants.ADVANCE_TYPES
 
 # Loans represent balances

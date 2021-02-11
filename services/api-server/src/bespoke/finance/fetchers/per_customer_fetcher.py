@@ -16,8 +16,11 @@ from bespoke.finance.types import per_customer_types
 def _loan_to_str(l: LoanDict) -> str:
 	return f"{l['id']},{l['origination_date']},{l['amount']},{l['status']}"
 
-def _payment_to_str(t: PaymentDict) -> str:
-	return f"{t['id']},{t['type']},{t['amount']}"
+def _payment_to_str(p: PaymentDict) -> str:
+	return f"{p['id']},{p['type']},{p['amount']}"
+
+def _transaction_to_str(t: TransactionDict) -> str:
+	return f"{t['id']},{t['type']},{t['amount']},{t['loan_id']},{t['to_principal']},{t['to_interest']},{t['to_fees']}"
 
 class Fetcher(object):
 
@@ -28,14 +31,28 @@ class Fetcher(object):
 		self._company_info = company_info_dict
 		self._settings_dict: CompanySettingsDict = None
 		self._loans: List[LoanDict] = []
-		self._payments: List[PaymentDict] = [] 
+		self._payments: List[PaymentDict] = []
+		self._transactions: List[TransactionDict] = []
 
-	def _fetch_payments(self) -> Tuple[bool, errors.Error]:
-		product_type = self._settings_dict['product_type']
+	def _fetch_transactions(self, loan_ids: List[str]) -> Tuple[bool, errors.Error]:
+		if not loan_ids:
+			return True, None
 
 		with session_scope(self._session_maker) as session:
+			transactions = cast(
+				List[models.Transaction],
+				session.query(models.Transaction).filter(
+					models.Transaction.loan_id.in_(loan_ids)
+				).all())
+			if not transactions:
+				return True, None
+			self._transactions = [t.as_dict() for t in transactions]							
 
-			#if product_type == db_constants.ProductType.INVENTORY_FINANCING:
+		return True, None
+
+	def _fetch_payments(self) -> Tuple[bool, errors.Error]:
+		
+		with session_scope(self._session_maker) as session:
 			payments = cast(
 				List[models.Payment],
 				session.query(models.Payment).filter(
@@ -48,8 +65,7 @@ class Fetcher(object):
 		return True, None
 
 	def _fetch_loans(self) -> Tuple[bool, errors.Error]:
-		product_type = self._settings_dict['product_type']
-
+		
 		with session_scope(self._session_maker) as session:
 
 			loans = cast(
@@ -93,20 +109,23 @@ class Fetcher(object):
 		if err:
 			return None, err
 
+		loan_ids = [l['id'] for l in self._loans]
+		_, err = self._fetch_transactions(loan_ids)
+		if err:
+			return None, err
+
 		return True, None
 
 	def summary(self) -> str:
 		product_type = self._settings_dict['product_type']
 		company_dict = self._company_info
-		loans_str = 'None'
-		payments_str = 'None'
 
-		if product_type == db_constants.ProductType.INVENTORY_FINANCING:
-			loans_str = '\n'.join([_loan_to_str(l) for l in self._loans])
-			payments_str = '\n'.join([_payment_to_str(p) for p in self._payments])
+		loans_str = '\n'.join([_loan_to_str(l) for l in self._loans])
+		payments_str = '\n'.join([_payment_to_str(p) for p in self._payments])
+		transactions_str = '\n'.join([_transaction_to_str(t) for t in self._transactions])
 
-		return 'The summary for company "{}" is\nLoans:\n{}\nPayments:\n{}'.format(
-			company_dict['name'], loans_str, payments_str)
+		return 'The summary for company "{}" is\nLoans:\n{}\nPayments:\n{}\nTransactions{}\n'.format(
+			company_dict['name'], loans_str, payments_str, transactions_str)
 
 	def get_financials(self) -> per_customer_types.CustomerFinancials:
 		return per_customer_types.CustomerFinancials(
@@ -114,6 +133,7 @@ class Fetcher(object):
 		  company_settings=self._settings_dict,
 			financials=per_customer_types.Financials(
 				loans=self._loans,
-				payments=self._payments
+				payments=self._payments,
+				transactions=self._transactions
 			)
 		)

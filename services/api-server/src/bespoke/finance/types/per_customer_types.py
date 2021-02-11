@@ -12,7 +12,8 @@ from bespoke.db.models import (
 
 Financials = TypedDict('Financials', {
 	'loans': List[LoanDict],
-	'payments': List[PaymentDict]
+	'payments': List[PaymentDict],
+	'transactions': List[TransactionDict]
 })
 
 CompanyInfoDict = TypedDict('CompanyInfoDict', {

@@ -93,8 +93,7 @@ class Company(Base):
 
 CompanySettingsDict = TypedDict('CompanySettingsDict', {
 	'id': str,
-	'product_type': str,
-	'product_config': Dict
+	'vendor_agreement_docusign_template': str
 })
 
 class CompanySettings(Base):
@@ -102,17 +101,20 @@ class CompanySettings(Base):
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	company_id = Column(GUID)
-	product_type = Column(Text)
-	product_config = Column(JSON)
 	vendor_agreement_docusign_template = Column(Text)
 
 	def as_dict(self) -> CompanySettingsDict:
 		return CompanySettingsDict(
 			id=str(self.id),
-			product_type=self.product_type,
-			product_config=cast(Dict, self.product_config)
+			vendor_agreement_docusign_template=self.vendor_agreement_docusign_template
 		)
 
+
+#product_type=self.product_type,
+#product_config=cast(Dict, self.product_config)
+
+#product_type = Column(Text)
+#product_config = Column(JSON)
 
 class CompanyVendorPartnership(Base):
 	__tablename__ = 'company_vendor_partnerships'
@@ -209,7 +211,8 @@ TransactionDict = TypedDict('TransactionDict', {
 	'payment_id': str,
 	'to_principal': float,
 	'to_interest': float,
-	'to_fees': float
+	'to_fees': float,
+	'effective_date': datetime.date
 })
 
 class Transaction(Base):
@@ -223,6 +226,7 @@ class Transaction(Base):
 	to_principal = Column(Numeric)
 	to_interest = Column(Numeric)
 	to_fees = Column(Numeric)
+	effective_date = Column(Date)
 	created_by_user_id = Column(GUID)
 
 	def as_dict(self) -> TransactionDict:
@@ -234,7 +238,8 @@ class Transaction(Base):
 			payment_id=str(self.payment_id),
 			to_principal=float(self.to_principal),
 			to_interest=float(self.to_interest),
-			to_fees=float(self.to_fees)
+			to_fees=float(self.to_fees),
+			effective_date=self.effective_date
 		)
 
 

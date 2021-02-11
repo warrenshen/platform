@@ -29,5 +29,12 @@ def load_date_str(date_str: str) -> datetime.date:
 	"""
 	return parser.parse(date_str).replace(tzinfo=datetime.timezone.utc).date()
 
+def today_as_date() -> datetime.date:
+	return load_date_str(date_to_str(now()))
+
 def has_expired(expires_at: datetime.datetime) -> bool:
 	return now() >= expires_at
+
+def calendar_days_apart(d1: datetime.date, d2: datetime.date) -> int:
+	delta = d1 - d2
+	return int(abs(delta.days))
