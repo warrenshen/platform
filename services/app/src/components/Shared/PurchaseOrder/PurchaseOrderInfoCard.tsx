@@ -3,6 +3,7 @@ import { grey } from "@material-ui/core/colors";
 import { CheckCircle } from "@material-ui/icons";
 import { PurchaseOrderFragment } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
+import { formatDateString } from "lib/date";
 
 const useStyles = makeStyles({
   baseInput: {
@@ -34,12 +35,12 @@ function PurchaseOrderInfoCard(props: Props) {
             <Box>{props.purchaseOrder.order_number}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
-            <Box className={classes.label}>PO Date</Box>
-            <Box>{props.purchaseOrder.order_date}</Box>
+            <Box className={classes.label}>Order Date</Box>
+            <Box>{formatDateString(props.purchaseOrder.order_date)}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Delivery Date</Box>
-            <Box>{props.purchaseOrder.delivery_date}</Box>
+            <Box>{formatDateString(props.purchaseOrder.delivery_date)}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Amount</Box>

@@ -1,3 +1,4 @@
+import { Box } from "@material-ui/core";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { twoFactorRoutes, unAuthenticatedApi } from "lib/api";
 import { setAccessToken, setRefreshToken } from "lib/auth/tokenStorage";
@@ -81,6 +82,7 @@ function SecureLink() {
         );
         return;
       }
+
       history.push({
         pathname: linkTypeToRoute[resp.form_info.type],
         state: {
@@ -91,15 +93,27 @@ function SecureLink() {
     });
   }, [linkVal, history, resetUser]);
 
-  if (!linkVal) {
-    return <div>No link value provided.</div>;
-  }
-
-  if (errMsg) {
-    return <div>Error loading link: {errMsg}</div>;
-  }
-
-  return <div>Loading...</div>;
+  return (
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      width="100vw"
+      height="100vh"
+    >
+      <Box display="flex" flexDirection="column">
+        <Box>
+          <p>
+            {!linkVal
+              ? "No link value provided."
+              : errMsg
+              ? `Error loading link: ${errMsg}.`
+              : "Loading..."}
+          </p>
+        </Box>
+      </Box>
+    </Box>
+  );
 }
 
 export default SecureLink;
