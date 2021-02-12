@@ -94,7 +94,9 @@ def fund_loans_with_advance(
 				payment_method=payment_input['method']
 			))
 			payment.applied_at = date_util.now()
+			payment.applied_by_user_id = bank_admin_user_id
 			payment.deposit_date = date_util.today_as_date()
+			payment.submitted_by_user_id = bank_admin_user_id
 			session.add(payment)
 			session.flush()
 			payment_id = payment.id

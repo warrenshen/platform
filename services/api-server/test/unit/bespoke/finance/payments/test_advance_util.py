@@ -101,6 +101,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				self.assertIsNotNone(payment.applied_at)
 				self.assertIsNotNone(payment.submitted_at)
 				self.assertIsNotNone(payment.deposit_date)
+				self.assertEqual(bank_admin_user_id, payment.applied_by_user_id)
+				self.assertEqual(bank_admin_user_id, payment.submitted_by_user_id)
 
 			# Validate transactions
 			transactions = cast(

@@ -317,9 +317,13 @@ class Payment(Base):
 	amount = Column(Numeric)
 	company_id = Column(GUID, nullable=False)
 	method = Column(String)
-	submitted_at = Column(DateTime)
-	applied_at = Column(DateTime)
 	deposit_date = Column(Date)
+
+	submitted_at = Column(DateTime)
+	submitted_by_user_id = Column(GUID)
+	applied_at = Column(DateTime)
+	applied_by_user_id = Column(GUID)
+	
 
 	def as_dict(self) -> PaymentDict:
 		return PaymentDict(

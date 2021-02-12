@@ -41,10 +41,10 @@ class RespondToEbbaApplicationApprovalRequest(MethodView):
 		if not ebba_application_id:
 			return handler_util.make_error_response('No EBBA Application ID provided')
 
-		if new_request_status not in [RequestStatusEnum.Approved, RequestStatusEnum.Rejected]:
+		if new_request_status not in [RequestStatusEnum.APPROVED, RequestStatusEnum.REJECTED]:
 			return handler_util.make_error_response('Invalid new request status provided')
 
-		if new_request_status == RequestStatusEnum.Rejected and not rejection_note:
+		if new_request_status == RequestStatusEnum.REJECTED and not rejection_note:
 			return handler_util.make_error_response('Rejection note is required if response is rejected')
 
 		with session_scope(current_app.session_maker) as session:
@@ -55,12 +55,12 @@ class RespondToEbbaApplicationApprovalRequest(MethodView):
 				).first()
 			)
 
-			if new_request_status == RequestStatusEnum.Approved:
-				ebba_application.status = RequestStatusEnum.Approved
+			if new_request_status == RequestStatusEnum.APPROVED:
+				ebba_application.status = RequestStatusEnum.APPROVED
 				ebba_application.approved_at = date_util.now()
 				action_type = 'Approved'
 			else:
-				ebba_application.status = RequestStatusEnum.Rejected
+				ebba_application.status = RequestStatusEnum.REJECTED
 				ebba_application.rejected_at = date_util.now()
 				ebba_application.rejection_note = rejection_note
 				action_type = 'Rejected'

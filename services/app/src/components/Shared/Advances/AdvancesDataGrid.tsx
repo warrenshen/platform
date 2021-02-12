@@ -2,7 +2,7 @@ import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
-import { DatetimeDataGridCell } from "components/Shared/DataGrid/DateDataGridCell";
+import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { PaymentFragment } from "generated/graphql";
 import { useState } from "react";
 
@@ -73,18 +73,18 @@ function AdvancesDataGrid({
       width: 90,
     },
     {
-      caption: "Submitted At",
+      caption: "Deposit Date",
       width: 140,
       cellRender: (params: ValueFormatterParams) => (
-        <DatetimeDataGridCell
-          datetimeString={params.row.data.submitted_at}
-        ></DatetimeDataGridCell>
+        <DateDataGridCell
+          dateString={params.row.data.deposit_date}
+        ></DateDataGridCell>
       ),
     },
     {
-      dataField: "deposit_date",
-      caption: "Deposit Date",
-      width: 140,
+      dataField: "submitted_by_user.full_name",
+      caption: "Submitted By",
+      width: 90,
     },
   ];
 

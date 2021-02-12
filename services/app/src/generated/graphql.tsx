@@ -5570,6 +5570,9 @@ export type Payments = {
   /** When this payment has been applied to loans. This can only be done once. */
   applied_at?: Maybe<Scalars["timestamptz"]>;
   /** An object relationship */
+  applied_by_user?: Maybe<Users>;
+  applied_by_user_id?: Maybe<Scalars["uuid"]>;
+  /** An object relationship */
   bespoke_bank_account?: Maybe<BankAccounts>;
   bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
@@ -5580,13 +5583,18 @@ export type Payments = {
   company_id: Scalars["uuid"];
   /** What day this payment or advance was deposited into a bank */
   deposit_date?: Maybe<Scalars["date"]>;
+  /** The date that this payment or advance is settled or effective for financial calculations */
   effective_date?: Maybe<Scalars["date"]>;
   id: Scalars["uuid"];
   items_covered: Scalars["jsonb"];
   method: Scalars["String"];
+  /** TODO: we likely can get rid of this column and use the applied_at column */
   settled_at?: Maybe<Scalars["timestamptz"]>;
   /** When this payment record was originally added to the Postgres DB */
   submitted_at: Scalars["timestamptz"];
+  /** An object relationship */
+  submitted_by_user?: Maybe<Users>;
+  submitted_by_user_id?: Maybe<Scalars["uuid"]>;
   type: Scalars["String"];
 };
 
@@ -5670,6 +5678,8 @@ export type PaymentsBoolExp = {
   _or?: Maybe<Array<Maybe<PaymentsBoolExp>>>;
   amount?: Maybe<NumericComparisonExp>;
   applied_at?: Maybe<TimestamptzComparisonExp>;
+  applied_by_user?: Maybe<UsersBoolExp>;
+  applied_by_user_id?: Maybe<UuidComparisonExp>;
   bespoke_bank_account?: Maybe<BankAccountsBoolExp>;
   bespoke_bank_account_id?: Maybe<UuidComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
@@ -5683,6 +5693,8 @@ export type PaymentsBoolExp = {
   method?: Maybe<StringComparisonExp>;
   settled_at?: Maybe<TimestamptzComparisonExp>;
   submitted_at?: Maybe<TimestamptzComparisonExp>;
+  submitted_by_user?: Maybe<UsersBoolExp>;
+  submitted_by_user_id?: Maybe<UuidComparisonExp>;
   type?: Maybe<StringComparisonExp>;
 };
 
@@ -5716,6 +5728,8 @@ export type PaymentsIncInput = {
 export type PaymentsInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
   applied_at?: Maybe<Scalars["timestamptz"]>;
+  applied_by_user?: Maybe<UsersObjRelInsertInput>;
+  applied_by_user_id?: Maybe<Scalars["uuid"]>;
   bespoke_bank_account?: Maybe<BankAccountsObjRelInsertInput>;
   bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
@@ -5729,6 +5743,8 @@ export type PaymentsInsertInput = {
   method?: Maybe<Scalars["String"]>;
   settled_at?: Maybe<Scalars["timestamptz"]>;
   submitted_at?: Maybe<Scalars["timestamptz"]>;
+  submitted_by_user?: Maybe<UsersObjRelInsertInput>;
+  submitted_by_user_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
 };
 
@@ -5736,6 +5752,7 @@ export type PaymentsInsertInput = {
 export type PaymentsMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
   applied_at?: Maybe<Scalars["timestamptz"]>;
+  applied_by_user_id?: Maybe<Scalars["uuid"]>;
   bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
@@ -5745,6 +5762,7 @@ export type PaymentsMaxFields = {
   method?: Maybe<Scalars["String"]>;
   settled_at?: Maybe<Scalars["timestamptz"]>;
   submitted_at?: Maybe<Scalars["timestamptz"]>;
+  submitted_by_user_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
 };
 
@@ -5752,6 +5770,7 @@ export type PaymentsMaxFields = {
 export type PaymentsMaxOrderBy = {
   amount?: Maybe<OrderBy>;
   applied_at?: Maybe<OrderBy>;
+  applied_by_user_id?: Maybe<OrderBy>;
   bespoke_bank_account_id?: Maybe<OrderBy>;
   company_bank_account_id?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
@@ -5761,6 +5780,7 @@ export type PaymentsMaxOrderBy = {
   method?: Maybe<OrderBy>;
   settled_at?: Maybe<OrderBy>;
   submitted_at?: Maybe<OrderBy>;
+  submitted_by_user_id?: Maybe<OrderBy>;
   type?: Maybe<OrderBy>;
 };
 
@@ -5768,6 +5788,7 @@ export type PaymentsMaxOrderBy = {
 export type PaymentsMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
   applied_at?: Maybe<Scalars["timestamptz"]>;
+  applied_by_user_id?: Maybe<Scalars["uuid"]>;
   bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
@@ -5777,6 +5798,7 @@ export type PaymentsMinFields = {
   method?: Maybe<Scalars["String"]>;
   settled_at?: Maybe<Scalars["timestamptz"]>;
   submitted_at?: Maybe<Scalars["timestamptz"]>;
+  submitted_by_user_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
 };
 
@@ -5784,6 +5806,7 @@ export type PaymentsMinFields = {
 export type PaymentsMinOrderBy = {
   amount?: Maybe<OrderBy>;
   applied_at?: Maybe<OrderBy>;
+  applied_by_user_id?: Maybe<OrderBy>;
   bespoke_bank_account_id?: Maybe<OrderBy>;
   company_bank_account_id?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
@@ -5793,6 +5816,7 @@ export type PaymentsMinOrderBy = {
   method?: Maybe<OrderBy>;
   settled_at?: Maybe<OrderBy>;
   submitted_at?: Maybe<OrderBy>;
+  submitted_by_user_id?: Maybe<OrderBy>;
   type?: Maybe<OrderBy>;
 };
 
@@ -5821,6 +5845,8 @@ export type PaymentsOnConflict = {
 export type PaymentsOrderBy = {
   amount?: Maybe<OrderBy>;
   applied_at?: Maybe<OrderBy>;
+  applied_by_user?: Maybe<UsersOrderBy>;
+  applied_by_user_id?: Maybe<OrderBy>;
   bespoke_bank_account?: Maybe<BankAccountsOrderBy>;
   bespoke_bank_account_id?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
@@ -5834,6 +5860,8 @@ export type PaymentsOrderBy = {
   method?: Maybe<OrderBy>;
   settled_at?: Maybe<OrderBy>;
   submitted_at?: Maybe<OrderBy>;
+  submitted_by_user?: Maybe<UsersOrderBy>;
+  submitted_by_user_id?: Maybe<OrderBy>;
   type?: Maybe<OrderBy>;
 };
 
@@ -5853,6 +5881,8 @@ export enum PaymentsSelectColumn {
   Amount = "amount",
   /** column name */
   AppliedAt = "applied_at",
+  /** column name */
+  AppliedByUserId = "applied_by_user_id",
   /** column name */
   BespokeBankAccountId = "bespoke_bank_account_id",
   /** column name */
@@ -5874,6 +5904,8 @@ export enum PaymentsSelectColumn {
   /** column name */
   SubmittedAt = "submitted_at",
   /** column name */
+  SubmittedByUserId = "submitted_by_user_id",
+  /** column name */
   Type = "type",
 }
 
@@ -5881,6 +5913,7 @@ export enum PaymentsSelectColumn {
 export type PaymentsSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
   applied_at?: Maybe<Scalars["timestamptz"]>;
+  applied_by_user_id?: Maybe<Scalars["uuid"]>;
   bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
@@ -5891,6 +5924,7 @@ export type PaymentsSetInput = {
   method?: Maybe<Scalars["String"]>;
   settled_at?: Maybe<Scalars["timestamptz"]>;
   submitted_at?: Maybe<Scalars["timestamptz"]>;
+  submitted_by_user_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
 };
 
@@ -5941,6 +5975,8 @@ export enum PaymentsUpdateColumn {
   /** column name */
   AppliedAt = "applied_at",
   /** column name */
+  AppliedByUserId = "applied_by_user_id",
+  /** column name */
   BespokeBankAccountId = "bespoke_bank_account_id",
   /** column name */
   CompanyBankAccountId = "company_bank_account_id",
@@ -5960,6 +5996,8 @@ export enum PaymentsUpdateColumn {
   SettledAt = "settled_at",
   /** column name */
   SubmittedAt = "submitted_at",
+  /** column name */
+  SubmittedByUserId = "submitted_by_user_id",
   /** column name */
   Type = "type",
 }
@@ -10682,6 +10720,7 @@ export type GetAdvancesQuery = {
   payments: Array<
     Pick<Payments, "id"> & {
       company: Pick<Companies, "id" | "name">;
+      submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
     } & PaymentFragment
   >;
 };
@@ -12209,6 +12248,10 @@ export const GetAdvancesDocument = gql`
       company {
         id
         name
+      }
+      submitted_by_user {
+        id
+        full_name
       }
     }
   }
