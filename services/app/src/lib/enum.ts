@@ -5,6 +5,8 @@ import {
   RequestStatusEnum,
   UserRolesEnum,
 } from "generated/graphql";
+import InventoryContractTermsJson from "./inventory_contract_terms.json";
+import LineOfCreditContractTermsJson from "./line_of_credit_contract_terms.json";
 
 // Loan Status enum related.
 export const LoanStatusToLabel = {
@@ -62,6 +64,16 @@ export const AllPaymentMethods = [
 ];
 
 // Product Type enum related.
+export const ProductTypeToContractTermsJson = {
+  [ProductTypeEnum.InventoryFinancing]: JSON.stringify(
+    InventoryContractTermsJson
+  ),
+  [ProductTypeEnum.InvoiceFinancing]: JSON.stringify({}),
+  [ProductTypeEnum.LineOfCredit]: JSON.stringify(LineOfCreditContractTermsJson),
+  [ProductTypeEnum.PurchaseMoneyFinancing]: JSON.stringify({}),
+  [ProductTypeEnum.None]: JSON.stringify({}),
+};
+
 export const ProductTypeToLabel = {
   [ProductTypeEnum.InventoryFinancing]: "Inventory Financing",
   [ProductTypeEnum.InvoiceFinancing]: "Invoice Financing",

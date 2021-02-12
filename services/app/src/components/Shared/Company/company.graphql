@@ -1,3 +1,24 @@
+query GetCompanyForCustomerOverview($companyId: uuid!) {
+  companies_by_pk(id: $companyId) {
+    id
+    contract {
+      id
+      product_type
+      product_config
+    }
+    loans(
+      where: {
+        _and: [
+          { funded_at: { _is_null: false } }
+          { closed_at: { _is_null: true } }
+        ]
+      }
+    ) {
+      ...LoanLimited
+    }
+  }
+}
+
 # Query is used to determine what navigation options to show in sidebar.
 query CompanyWithDetailsByCompanyId($companyId: uuid!) {
   companies_by_pk(id: $companyId) {

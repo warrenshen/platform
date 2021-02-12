@@ -2,6 +2,7 @@ import { Box, Card, CardContent, makeStyles } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import { CheckCircle } from "@material-ui/icons";
 import { PurchaseOrderFragment } from "generated/graphql";
+import { formatCurrency } from "lib/currency";
 
 const useStyles = makeStyles({
   baseInput: {
@@ -42,9 +43,7 @@ function PurchaseOrderInfoCard(props: Props) {
           </Box>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Amount</Box>
-            <Box>{`$${Intl.NumberFormat("en-US").format(
-              props.purchaseOrder.amount
-            )}`}</Box>
+            <Box>{formatCurrency(props.purchaseOrder.amount)}</Box>
           </Box>
           <Box display="flex" pt={0.5} pb={1}>
             <CheckCircle

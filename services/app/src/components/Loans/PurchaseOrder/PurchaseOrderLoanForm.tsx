@@ -13,6 +13,7 @@ import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import DatePicker from "components/Shared/Dates/DatePicker";
 import PurchaseOrderInfoCard from "components/Shared/PurchaseOrder/PurchaseOrderInfoCard";
 import { LoansInsertInput, PurchaseOrderFragment } from "generated/graphql";
+import { formatCurrency } from "lib/currency";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -71,9 +72,9 @@ function PurchaseOrderLoanForm({
               <MenuItem key={purchaseOrder.id} value={purchaseOrder.id}>
                 {`${purchaseOrder.order_number} - ${
                   purchaseOrder.vendor?.name
-                } - $${Intl.NumberFormat("en-US").format(
-                  purchaseOrder.amount
-                )} - ${purchaseOrder.delivery_date}`}
+                } - ${formatCurrency(purchaseOrder.amount)} - ${
+                  purchaseOrder.delivery_date
+                }`}
               </MenuItem>
             ))}
           </Select>

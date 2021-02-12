@@ -23,21 +23,9 @@ import {
   useContractQuery,
   useUpdateContractMutation,
 } from "generated/graphql";
-import { ProductTypeToLabel } from "lib/enum";
+import { ProductTypeToContractTermsJson, ProductTypeToLabel } from "lib/enum";
 import { groupBy, isNull, mergeWith } from "lodash";
 import { ChangeEvent, useMemo, useState } from "react";
-import InventoryContractTermsJson from "./inventory_contract_terms.json";
-import LineOfCreditContractTermsJson from "./line_of_credit_contract_terms.json";
-
-const ProductTypeToContractTermsJson = {
-  [ProductTypeEnum.InventoryFinancing]: JSON.stringify(
-    InventoryContractTermsJson
-  ),
-  [ProductTypeEnum.InvoiceFinancing]: JSON.stringify({}),
-  [ProductTypeEnum.LineOfCredit]: JSON.stringify(LineOfCreditContractTermsJson),
-  [ProductTypeEnum.PurchaseMoneyFinancing]: JSON.stringify({}),
-  [ProductTypeEnum.None]: JSON.stringify({}),
-};
 
 const fieldsFilteringKeys = ["internal_name", "value"];
 

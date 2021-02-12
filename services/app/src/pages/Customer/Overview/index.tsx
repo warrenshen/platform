@@ -1,21 +1,23 @@
 import { Box, Card, Typography } from "@material-ui/core";
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { useOpenLoansByCompanyQuery } from "generated/graphql";
-import React, { useContext } from "react";
+import { useGetCompanyForCustomerOverviewQuery } from "generated/graphql";
+import { formatCurrency } from "lib/currency";
+import React, { useContext, useEffect, useState } from "react";
 
 function LoansPage() {
   const {
     user: { companyId },
   } = useContext(CurrentUserContext);
 
-  const { data } = useOpenLoansByCompanyQuery({
+  const { data } = useGetCompanyForCustomerOverviewQuery({
     variables: {
       companyId,
     },
   });
 
-  const openLoans = data?.loans || [];
+  const company = data?.companies_by_pk;
+  const openLoans = company?.loans || [];
 
   const totalOutstandingPrincipalBalance = openLoans.reduce(
     (sum, openLoan) => sum + openLoan.outstanding_principal_balance || 0,
@@ -30,17 +32,33 @@ function LoansPage() {
     0
   );
 
+  const contract = company?.contract;
+  const productConfig = contract?.product_config;
+
+  const [maximumLimit, setMaximumLimit] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (contract?.product_type && productConfig) {
+      console.log({ productConfig });
+      if (productConfig && Object.keys(productConfig).length) {
+        const fields = productConfig.v1.fields;
+        const maximumAmountField = fields.find(
+          (field: any) => field.internal_name === "maximum_amount"
+        );
+        setMaximumLimit(maximumAmountField.value);
+      }
+    }
+  }, [contract, productConfig]);
+
   return (
     <Page appBarTitle={"Overview"}>
       <Box display="flex" flexDirection="column">
         <Box display="flex" justifyContent="space-between" width="100%">
-          <Box width="32%">
+          <Box width="24%">
             <Card>
               <Box display="flex" flexDirection="column" p={2}>
                 <Typography variant="h3">
-                  {`$${Intl.NumberFormat("en-US").format(
-                    totalOutstandingPrincipalBalance
-                  )}`}
+                  {formatCurrency(totalOutstandingPrincipalBalance)}
                 </Typography>
                 <Typography variant="subtitle1" color="textSecondary">
                   total outstanding principal balance
@@ -48,13 +66,11 @@ function LoansPage() {
               </Box>
             </Card>
           </Box>
-          <Box width="32%">
+          <Box width="24%">
             <Card>
               <Box display="flex" flexDirection="column" p={2}>
                 <Typography variant="h3">
-                  {`$${Intl.NumberFormat("en-US").format(
-                    totalOutstandingInterest
-                  )}`}
+                  {formatCurrency(totalOutstandingInterest)}
                 </Typography>
                 <Typography variant="subtitle1" color="textSecondary">
                   total outstanding interest
@@ -62,16 +78,26 @@ function LoansPage() {
               </Box>
             </Card>
           </Box>
-          <Box width="32%">
+          <Box width="24%">
             <Card>
               <Box display="flex" flexDirection="column" p={2}>
                 <Typography variant="h3">
-                  {`$${Intl.NumberFormat("en-US").format(
-                    totalOutstandingFees
-                  )}`}
+                  {formatCurrency(totalOutstandingFees)}
                 </Typography>
                 <Typography variant="subtitle1" color="textSecondary">
                   total outstanding fees
+                </Typography>
+              </Box>
+            </Card>
+          </Box>
+          <Box width="24%">
+            <Card>
+              <Box display="flex" flexDirection="column" p={2}>
+                <Typography variant="h3">
+                  {maximumLimit ? formatCurrency(maximumLimit) : "TBD"}
+                </Typography>
+                <Typography variant="subtitle1" color="textSecondary">
+                  maximum limit
                 </Typography>
               </Box>
             </Card>
