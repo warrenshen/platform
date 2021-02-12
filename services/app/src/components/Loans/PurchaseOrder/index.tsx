@@ -4,6 +4,7 @@ import Can from "components/Shared/Can";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoanFragment,
+  Loans,
   LoanTypeEnum,
   useLoansByCompanyAndLoanTypeForCustomerQuery,
 } from "generated/graphql";
@@ -13,7 +14,7 @@ import { useContext, useState } from "react";
 import CreateUpdatePurchaseOrderLoanModal from "./CreateUpdatePurchaseOrderLoanModal";
 import PurchaseOrderLoansDataGrid from "./PurchaseOrderLoansDataGrid";
 
-function Loans() {
+function LoansGrid() {
   const {
     user: { companyId },
   } = useContext(CurrentUserContext);
@@ -35,6 +36,7 @@ function Loans() {
   const [isCreateUpdateModalOpen, setIsCreateUpdateModalOpen] = useState(false);
   const [targetLoanId, setTargetLoanId] = useState("");
   const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
+  const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"][]>([]);
 
   const handleEditPurchaseOrderLoan = (loanId: string) => {
     setTargetLoanId(loanId);
@@ -73,7 +75,7 @@ function Loans() {
       <Box display="flex" flex={1}>
         <PurchaseOrderLoansDataGrid
           purchaseOrderLoans={purchaseOrderLoans}
-          selectedLoanIds={[]}
+          selectedLoanIds={selectedLoanIds}
           actionItems={[
             {
               key: "edit-purchase-order-loan",
@@ -82,11 +84,18 @@ function Loans() {
                 handleEditPurchaseOrderLoan(params.row.data.id as string),
             },
           ]}
-          handleSelectLoans={(loans) => setSelectedLoans(loans)}
+          handleSelectLoans={(loans) => {
+            setSelectedLoans(loans);
+            setSelectedLoanIds(
+              loans.map((loan) => {
+                return loan.id;
+              })
+            );
+          }}
         ></PurchaseOrderLoansDataGrid>
       </Box>
     </Box>
   );
 }
 
-export default Loans;
+export default LoansGrid;
