@@ -93,6 +93,9 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
       }
     };
 
+    // Note: it is ok that we use `index` as the key for the <Column>
+    // element below because we do not support re-ordering columns or
+    // other operations that require a stronger key than `index`.
     return (
       <DataGrid
         ref={_ref}
@@ -116,10 +119,10 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
               cellRender,
               lookup,
             },
-            i
+            index
           ) => (
             <Column
-              key={`${dataField}-${i}`}
+              key={index}
               caption={caption}
               visible={visible}
               dataField={dataField}

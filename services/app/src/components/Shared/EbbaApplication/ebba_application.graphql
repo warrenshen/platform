@@ -1,5 +1,6 @@
 query EbbaApplication($id: uuid!) {
   ebba_applications_by_pk(id: $id) {
+    id
     ...EbbaApplication
     company {
       id

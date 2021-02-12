@@ -10866,7 +10866,7 @@ export type EbbaApplicationQueryVariables = Exact<{
 
 export type EbbaApplicationQuery = {
   ebba_applications_by_pk?: Maybe<
-    {
+    Pick<EbbaApplications, "id"> & {
       company: Pick<Companies, "id" | "name">;
       ebba_application_files: Array<EbbaApplicationFileFragment>;
     } & EbbaApplicationFragment
@@ -11372,6 +11372,7 @@ export type EbbaApplicationFragment = Pick<
   | "monthly_inventory"
   | "monthly_cash"
   | "status"
+  | "rejection_note"
   | "created_at"
 >;
 
@@ -11928,6 +11929,7 @@ export const EbbaApplicationFragmentDoc = gql`
     monthly_inventory
     monthly_cash
     status
+    rejection_note
     created_at
   }
 `;
@@ -12968,6 +12970,7 @@ export type UpdateCompanyBankAccountMutationOptions = Apollo.BaseMutationOptions
 export const EbbaApplicationDocument = gql`
   query EbbaApplication($id: uuid!) {
     ebba_applications_by_pk(id: $id) {
+      id
       ...EbbaApplication
       company {
         id
