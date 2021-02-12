@@ -49,6 +49,15 @@ function PurchaseOrdersDataGrid({ purchaseOrders, actionItems }: Props) {
       ),
     },
     {
+      dataField: "status",
+      caption: "Status",
+      width: 165,
+      alignment: "center",
+      cellRender: (params: ValueFormatterParams) => (
+        <RequestStatusChip requestStatus={params.value as RequestStatusEnum} />
+      ),
+    },
+    {
       dataField: "vendor_name",
       caption: "Vendor",
     },
@@ -83,15 +92,6 @@ function PurchaseOrdersDataGrid({ purchaseOrders, actionItems }: Props) {
     {
       dataField: "loans",
       caption: "Loans",
-    },
-    {
-      dataField: "status",
-      caption: "Status",
-      width: 165,
-      alignment: "center",
-      cellRender: (params: ValueFormatterParams) => (
-        <RequestStatusChip requestStatus={params.value as RequestStatusEnum} />
-      ),
     },
     {
       dataField: "action",

@@ -1,6 +1,6 @@
 import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
-import Status from "components/Shared/Chip/Status";
+import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DataGridActionMenu, {
@@ -10,7 +10,7 @@ import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import LoanDrawerLauncher from "components/Shared/Loan/LoanDrawerLauncher";
 import PurchaseOrderDrawerLauncher from "components/Shared/PurchaseOrder/PurchaseOrderDrawerLauncher";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { LoanFragment, Loans } from "generated/graphql";
+import { LoanFragment, Loans, LoanStatusEnum } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { truncateUuid } from "lib/uuid";
 import React, { useContext } from "react";
@@ -42,6 +42,17 @@ function PurchaseOrderLoansDataGrid({
           label={truncateUuid(params.row.data.id as string)}
           loanId={params.row.data.id as string}
         ></LoanDrawerLauncher>
+      ),
+    },
+    {
+      dataField: "status",
+      caption: "Status",
+      alignment: "center",
+      minWidth: 175,
+      cellRender: (params: ValueFormatterParams) => (
+        <LoanStatusChip
+          loanStatus={params.value as LoanStatusEnum}
+        ></LoanStatusChip>
       ),
     },
     {
@@ -93,15 +104,6 @@ function PurchaseOrderLoansDataGrid({
         <CurrencyDataGridCell
           value={params.row.data.outstanding_principal_balance}
         ></CurrencyDataGridCell>
-      ),
-    },
-    {
-      dataField: "status",
-      caption: "Status",
-      alignment: "center",
-      minWidth: 175,
-      cellRender: (params: ValueFormatterParams) => (
-        <Status statusValue={params.value} />
       ),
     },
     {

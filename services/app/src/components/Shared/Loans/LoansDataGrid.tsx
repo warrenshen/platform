@@ -1,9 +1,9 @@
 import { ValueFormatterParams } from "@material-ui/data-grid";
-import Status from "components/Shared/Chip/Status";
+import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import { LoanFragment } from "generated/graphql";
+import { LoanFragment, LoanStatusEnum } from "generated/graphql";
 import { useEffect, useState } from "react";
 
 interface Props {
@@ -35,15 +35,22 @@ function LoansDataGrid({
     }
   }, [dataGrid, customerSearchQuery]);
 
-  const statusCellRenderer = (params: ValueFormatterParams) => (
-    <Status statusValue={params.value} />
-  );
-
   const columns = [
     {
       dataField: "id",
       caption: "ID",
       width: 120,
+    },
+    {
+      dataField: "status",
+      caption: "Status",
+      width: 120,
+      alignment: "center",
+      cellRender: (params: ValueFormatterParams) => (
+        <LoanStatusChip
+          loanStatus={params.value as LoanStatusEnum}
+        ></LoanStatusChip>
+      ),
     },
     {
       dataField: "purchase_order.order_number",
@@ -64,13 +71,6 @@ function LoansDataGrid({
           value={params.row.data.amount}
         ></CurrencyDataGridCell>
       ),
-    },
-    {
-      dataField: "status",
-      caption: "Status",
-      width: 120,
-      alignment: "center",
-      cellRender: statusCellRenderer,
     },
     {
       dataField: "outstanding_interest",

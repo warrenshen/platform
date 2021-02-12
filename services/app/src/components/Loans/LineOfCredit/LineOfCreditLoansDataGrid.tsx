@@ -1,6 +1,6 @@
 import { Box } from "@material-ui/core";
 import { CellParams, ValueFormatterParams } from "@material-ui/data-grid";
-import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
+import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DataGridActionMenu, {
@@ -12,7 +12,7 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LineOfCreditFragment,
   LoanFragment,
-  RequestStatusEnum,
+  LoanStatusEnum,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { truncateUuid } from "lib/uuid";
@@ -50,6 +50,17 @@ function LineOfCreditLoansDataGrid({ loans, actionItems }: Props) {
           label={truncateUuid(params.row.data.id as string)}
           loanId={params.row.data.id as string}
         ></LoanDrawerLauncher>
+      ),
+    },
+    {
+      dataField: "status",
+      caption: "Status",
+      alignment: "center",
+      minWidth: 175,
+      cellRender: (params: ValueFormatterParams) => (
+        <LoanStatusChip
+          loanStatus={params.value as LoanStatusEnum}
+        ></LoanStatusChip>
       ),
     },
     {
@@ -100,17 +111,6 @@ function LineOfCreditLoansDataGrid({ loans, actionItems }: Props) {
         <CurrencyDataGridCell
           value={params.row.data.outstanding_principal_balance}
         ></CurrencyDataGridCell>
-      ),
-    },
-    {
-      dataField: "status",
-      caption: "Status",
-      alignment: "center",
-      minWidth: 175,
-      cellRender: (params: ValueFormatterParams) => (
-        <RequestStatusChip
-          requestStatus={params.value as RequestStatusEnum}
-        ></RequestStatusChip>
       ),
     },
     {

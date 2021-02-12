@@ -8,13 +8,16 @@ import {
 } from "@material-ui/core";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   PurchaseOrderFileTypeEnum,
   PurchaseOrders,
   usePurchaseOrderQuery,
+  UserRolesEnum,
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
+import { useContext } from "react";
 
 const useStyles = makeStyles({
   drawerContent: {
@@ -32,6 +35,11 @@ interface Props {
 
 function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
   const classes = useStyles();
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+
+  const isBankUser = role === UserRolesEnum.BankAdmin;
 
   const { data } = usePurchaseOrderQuery({
     variables: {
@@ -80,14 +88,16 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
               requestStatus={purchaseOrder.status}
             ></RequestStatusChip>
           </Box>
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Company
-            </Typography>
-            <Typography variant={"body1"}>
-              {purchaseOrder.company?.name}
-            </Typography>
-          </Box>
+          {isBankUser && (
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Company
+              </Typography>
+              <Typography variant={"body1"}>
+                {purchaseOrder.company?.name}
+              </Typography>
+            </Box>
+          )}
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
               Order Number

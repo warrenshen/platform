@@ -120,12 +120,12 @@ const BANK_LEFT_NAV_ITEMS = [
   //   link: bankRoutes.loansLineOfCredit,
   // },
   {
-    text: "Payments",
-    link: bankRoutes.payments,
-  },
-  {
     text: "Advances",
     link: bankRoutes.advances,
+  },
+  {
+    text: "Payments",
+    link: bankRoutes.payments,
   },
   {
     text: "Transactions",

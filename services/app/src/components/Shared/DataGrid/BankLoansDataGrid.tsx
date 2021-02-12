@@ -1,6 +1,6 @@
 import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
-import Status from "components/Shared/Chip/Status";
+import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DataGridActionMenu, {
@@ -11,6 +11,7 @@ import LoanDrawerLauncher from "components/Shared/Loan/LoanDrawerLauncher";
 import { IColumnProps } from "devextreme-react/data-grid";
 import {
   LoanFragment,
+  LoanStatusEnum,
   LoanTypeEnum,
   RequestStatusEnum,
 } from "generated/graphql";
@@ -74,10 +75,6 @@ function BankLoansDataGrid({
     return Math.floor((nowTime - maturityTime) / (24 * 60 * 60 * 1000));
   };
 
-  const statusCellRenderer = (params: ValueFormatterParams) => (
-    <Status statusValue={params.value} />
-  );
-
   const columns: IColumnProps[] = [
     {
       dataField: "id",
@@ -89,6 +86,30 @@ function BankLoansDataGrid({
           loanId={params.row.data.id as string}
         ></LoanDrawerLauncher>
       ),
+    },
+    {
+      dataField: "status",
+      caption: "Status",
+      width: 150,
+      alignment: "center",
+      cellRender: (params: ValueFormatterParams) => (
+        <LoanStatusChip
+          loanStatus={params.value as LoanStatusEnum}
+        ></LoanStatusChip>
+      ),
+      lookup: {
+        dataSource: {
+          store: {
+            type: "array",
+            data: AllLoanStatuses.map((d) => ({
+              status: d,
+            })),
+            key: "status",
+          },
+        },
+        valueExpr: "status",
+        displayExpr: "status",
+      },
     },
     {
       dataField: "company.name",
@@ -130,27 +151,6 @@ function BankLoansDataGrid({
         value={params.row.data.amount}
       ></CurrencyDataGridCell>
     ),
-  });
-
-  columns.push({
-    dataField: "status",
-    caption: "Status",
-    width: 150,
-    alignment: "center",
-    cellRender: statusCellRenderer,
-    lookup: {
-      dataSource: {
-        store: {
-          type: "array",
-          data: AllLoanStatuses.map((d) => ({
-            status: d,
-          })),
-          key: "status",
-        },
-      },
-      valueExpr: "status",
-      displayExpr: "status",
-    },
   });
 
   if (loansPastDue) {
