@@ -52,7 +52,7 @@ class CalculateEffectOfPaymentView(MethodView):
 		effect_resp['status'] = 'OK'
 		return make_response(json.dumps(effect_resp))
 
-class HandlePaymentView(MethodView):
+class CreatePaymentView(MethodView):
 	decorators = [auth_util.login_required]
 
 	@handler_util.catch_bad_json_request
@@ -61,7 +61,7 @@ class HandlePaymentView(MethodView):
 		if not form:
 			return handler_util.make_error_response('No data provided')
 
-		required_keys = ['payment', 'company_id']
+		required_keys = ['payment', 'company_id', 'loan_ids']
 		for key in required_keys:
 			if key not in form:
 				return handler_util.make_error_response(
@@ -74,18 +74,11 @@ class HandlePaymentView(MethodView):
 
 		payment = form['payment']
 		company_id = form['company_id']
-		payment_id = None
-
-		with session_scope(current_app.session_maker) as session:			
-			payment_input = payment_util.PaymentInputDict(
-				type=db_constants.PaymentType.REPAYMENT,
-				amount=payment['amount'],
-				payment_method=payment['method']
-			)
-			payment = payment_util.create_payment(company_id, payment_input)
-			session.add(payment)
-			session.flush()
-			payment_id = str(payment.id)
+		loan_ids = form['loan_ids']
+		payment_id, err = repayment_util.create_payment(
+			company_id, payment, loan_ids, 
+			user_session.get_user_id(), current_app.session_maker
+		)
 
 		return make_response(json.dumps({
 			'status': 'OK',
@@ -93,7 +86,7 @@ class HandlePaymentView(MethodView):
 		}), 200)
 
 handler.add_url_rule(
-	'/handle_payment', view_func=HandlePaymentView.as_view(name='handle_repayment_view'))
+	'/create_payment', view_func=CreatePaymentView.as_view(name='create_payment_view'))
 
 handler.add_url_rule(
 	'/calculate_effect_of_payment', view_func=CalculateEffectOfPaymentView.as_view(name='calculate_effect_of_repayment_view'))

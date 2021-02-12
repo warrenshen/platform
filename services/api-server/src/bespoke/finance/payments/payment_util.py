@@ -32,13 +32,15 @@ PaymentInsertInputDict = TypedDict('PaymentInsertInputDict', {
 
 def create_payment(
 	company_id: str,
-	payment_input: PaymentInputDict) -> models.Payment:
+	payment_input: PaymentInputDict,
+	user_id: str) -> models.Payment:
 	payment = models.Payment()
 	payment.amount = decimal.Decimal(payment_input['amount'])
 	payment.type = payment_input['type']
 	payment.company_id = company_id
 	payment.method = payment_input['payment_method']
 	payment.submitted_at = datetime.datetime.now()
+	payment.submitted_by_user_id = user_id
 	return payment
 
 def is_advance(p: Union[models.PaymentDict, models.TransactionDict]) -> bool:

@@ -5586,6 +5586,7 @@ export type Payments = {
   /** The date that this payment or advance is settled or effective for financial calculations */
   effective_date?: Maybe<Scalars["date"]>;
   id: Scalars["uuid"];
+  /** When a user submits a repayment, describes what loans this payment is intended for */
   items_covered: Scalars["jsonb"];
   method: Scalars["String"];
   /** TODO: we likely can get rid of this column and use the applied_at column */
@@ -11046,6 +11047,7 @@ export type GetPaymentsQuery = {
   payments: Array<
     Pick<Payments, "id"> & {
       company: Pick<Companies, "id" | "name">;
+      submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
     } & PaymentFragment
   >;
 };
@@ -13931,6 +13933,10 @@ export const GetPaymentsDocument = gql`
       company {
         id
         name
+      }
+      submitted_by_user {
+        id
+        full_name
       }
     }
   }

@@ -40,7 +40,7 @@ export const loansRoutes = {
   submitForApproval: "/finance/loans/approvals/submit_for_approval",
   approveLoan: "/finance/loans/approvals/approve_loan",
   rejectLoan: "/finance/loans/approvals/reject_loan",
-  makePayment: "/finance/loans/repayments/handle_payment",
+  createPayment: "/finance/loans/repayments/create_payment",
   calculateEffectOfPayment:
     "finance/loans/repayments/calculate_effect_of_payment",
 };

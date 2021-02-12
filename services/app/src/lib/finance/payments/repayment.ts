@@ -4,7 +4,7 @@
 import { LoanFragment, PaymentsInsertInput } from "generated/graphql";
 import { authenticatedApi, loansRoutes } from "lib/api";
 
-export type MakePaymentResp = {
+export type CreatePaymentResp = {
   status: string;
   msg: string;
 };
@@ -41,12 +41,13 @@ export async function calculateEffectOfPayment(req: {
     );
 }
 
-export async function makePayment(req: {
+export async function createPayment(req: {
   payment: PaymentsInsertInput;
   company_id: string;
-}): Promise<MakePaymentResp> {
+  loan_ids: string[];
+}): Promise<CreatePaymentResp> {
   return authenticatedApi
-    .post(loansRoutes.makePayment, req)
+    .post(loansRoutes.createPayment, req)
     .then((res) => {
       return res.data;
     })

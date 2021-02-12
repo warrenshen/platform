@@ -1,9 +1,9 @@
 import datetime
 import decimal
-from typing import List, Dict
+from typing import List, Dict, cast
 
 from bespoke.date import date_util
-from bespoke.db import models
+from bespoke.db import models, db_constants
 from bespoke.db.models import session_scope
 from bespoke.finance.payments import payment_util
 from bespoke.finance.payments import repayment_util
@@ -146,3 +146,67 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
+class TestCreatePayment(db_unittest.TestCase):
+
+	def _run_test(self, test: Dict) -> None:
+		self.reset()
+		session_maker = self.session_maker
+		seed = test_helper.BasicSeed.create(self.session_maker, self)
+		seed.initialize()
+
+		company_id = seed.get_company_id('company_admin', index=0)
+		user_id = seed.get_user_id('company_admin', index=0)
+		payment_input_amount = test['payment_amount']
+		payment_id, err = repayment_util.create_payment(
+			company_id=company_id, 
+			payment_insert_input=payment_util.PaymentInsertInputDict(
+				company_id='unused',
+				type='unused',
+				amount=payment_input_amount,
+				method=test['payment_method'],
+				deposit_date='unused'
+		),
+			loan_ids=test['loan_ids'],
+			user_id=user_id,
+			session_maker=self.session_maker)
+		self.assertIsNone(err)
+
+		with session_scope(session_maker) as session:
+			payment = cast(
+				models.Payment,
+				session.query(models.Payment).filter(
+					models.Payment.id == payment_id
+				).first())
+
+			# Assertions on the payment
+			self.assertEqual(payment_input_amount, payment.amount)
+			self.assertEqual(db_constants.PaymentType.REPAYMENT, payment.type)
+			self.assertEqual(company_id, payment.company_id)
+			self.assertEqual(test['payment_method'], payment.method)
+			self.assertIsNotNone(payment.submitted_at)
+			self.assertEqual(user_id, payment.submitted_by_user_id)
+			self.assertEqual(test['loan_ids'], cast(Dict, payment.items_covered)['loan_ids'])
+
+	def test_schedule_payment_reverse_draft_ach(self) -> None:
+		tests: List[Dict] = [
+			{
+				'payment_amount': 30.0,
+				'payment_method': 'reverse_draft_ach',
+				'loan_ids': ['a1', 'a2']
+			}
+		]
+		for test in tests:
+			self._run_test(test)
+
+	def test_notify_payment(self) -> None:
+		tests: List[Dict] = [
+			{
+				'payment_amount': 40.0,
+				'payment_method': 'ach',
+				'loan_ids': ['b1', 'b2']
+			}
+		]
+		for test in tests:
+			self._run_test(test)
+
+	# TODO(dlluncor): Test incorrect variables that can be passed in as payments.

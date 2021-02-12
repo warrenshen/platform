@@ -27,7 +27,7 @@ import {
 } from "lib/enum";
 import {
   calculateEffectOfPayment,
-  makePayment,
+  createPayment,
 } from "lib/finance/payments/repayment";
 import { useState } from "react";
 
@@ -67,11 +67,16 @@ function RepaymentModal({
 
   const isDepositDateSet =
     payment.deposit_date !== null || payment.deposit_date !== undefined;
-  const isScheduleButtonEnabled =
-    payment.method === PaymentMethodEnum.ReverseDraftACH &&
-    payment.amount > 0 &&
-    isDepositDateSet;
-  const isPaymentMethodSet = payment.method !== PaymentMethodEnum.None;
+
+  const isPaymentMethodSet =
+    payment.method && payment.method !== PaymentMethodEnum.None;
+
+  const isActionButtonEnabled =
+    isPaymentMethodSet && payment.amount > 0 && isDepositDateSet;
+  const actionBtnText =
+    payment.method === PaymentMethodEnum.ReverseDraftACH
+      ? "Schedule"
+      : "Notify";
   const isNextButtonEnabled =
     isDepositDateSet && isPaymentMethodSet && paymentOption !== "";
   const paymentOptions = [
@@ -79,6 +84,9 @@ function RepaymentModal({
     { value: "pay_minimum_due", displayValue: "Pay minimum due" },
     { value: "custom_amount", displayValue: "Custom amount" },
   ];
+  const selectedLoanIds = selectedLoans.map((l) => {
+    return l.id;
+  });
 
   return (
     <Dialog open onClose={handleClose} fullWidth>
@@ -216,15 +224,12 @@ function RepaymentModal({
                     payment: payment,
                     company_id: companyId,
                     payment_option: paymentOption,
-                    loan_ids: selectedLoans.map((loan) => {
-                      return loan.id;
-                    }),
+                    loan_ids: selectedLoanIds,
                   });
                   if (resp.status !== "OK") {
                     setErrMsg(resp.msg || "");
                   } else {
                     setErrMsg("");
-                    //setEffectResp(resp);
                     setPayment({ ...payment, amount: resp.amount_to_pay || 0 });
                     setOnConfirmationSection(true);
                   }
@@ -237,7 +242,7 @@ function RepaymentModal({
             )}
             {onConfirmationSection && (
               <Button
-                disabled={!isScheduleButtonEnabled}
+                disabled={!isActionButtonEnabled}
                 onClick={async () => {
                   if (payment.amount !== null && payment.amount !== undefined) {
                     payment.amount = parseFloat(payment.amount);
@@ -245,9 +250,10 @@ function RepaymentModal({
                     setErrMsg("Payment amount must be larger than 0");
                     return;
                   }
-                  const resp = await makePayment({
+                  const resp = await createPayment({
                     payment: payment,
                     company_id: companyId,
+                    loan_ids: selectedLoanIds,
                   });
                   if (resp.status !== "OK") {
                     setErrMsg(resp.msg);
@@ -259,7 +265,7 @@ function RepaymentModal({
                 variant="contained"
                 color="primary"
               >
-                Schedule
+                {actionBtnText}
               </Button>
             )}
           </Box>

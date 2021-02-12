@@ -318,6 +318,7 @@ class Payment(Base):
 	company_id = Column(GUID, nullable=False)
 	method = Column(String)
 	deposit_date = Column(Date)
+	items_covered = Column(JSON)
 
 	submitted_at = Column(DateTime)
 	submitted_by_user_id = Column(GUID)

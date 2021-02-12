@@ -82,6 +82,11 @@ function PaymentsDataGrid({
       ),
     },
     {
+      dataField: "submitted_by_user.full_name",
+      caption: "Submitted By",
+      width: 140,
+    },
+    {
       dataField: "settled_at",
       caption: "Settled At",
       width: 140,

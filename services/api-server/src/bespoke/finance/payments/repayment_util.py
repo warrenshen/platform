@@ -97,3 +97,27 @@ def calculate_repayment_effect(
 		loans_afterwards=[models.safe_serialize(l) for l in loan_dicts],
 		amount_to_pay=amount_to_pay
 	), None
+
+def create_payment(
+	company_id: str, payment_insert_input: payment_util.PaymentInsertInputDict,
+	loan_ids: List[str], user_id: str, session_maker: Callable) -> Tuple[str, errors.Error]:
+	payment_id = None
+
+	# TODO(dlluncor): perform validation to make sure these are valid loans.
+
+	with session_scope(session_maker) as session:			
+		payment_input = payment_util.PaymentInputDict(
+			type=db_constants.PaymentType.REPAYMENT,
+			amount=payment_insert_input['amount'],
+			payment_method=payment_insert_input['method']
+		)
+		payment = payment_util.create_payment(
+			company_id, payment_input, user_id)
+		payment.items_covered = {
+			'loan_ids': loan_ids
+		}
+		session.add(payment)
+		session.flush()
+		payment_id = str(payment.id)
+
+	return payment_id, None

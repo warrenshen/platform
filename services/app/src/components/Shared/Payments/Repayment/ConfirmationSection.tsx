@@ -55,7 +55,7 @@ function ConfirmationSection({ payment, setPayment }: Props) {
               ></BankToBankTransfer>
               <Box mt={2}>
                 <Alert severity="warning">
-                  You must initiate this transfer for{" "}
+                  After clicking "Notify", you must initiate this transfer for{" "}
                   <b>{formatCurrency(payment.amount)}</b> from your bank
                   account. Upon receipt Bespoke will mark this payment as
                   "settled," and apply towards outstanding loans and fees
@@ -88,7 +88,7 @@ function ConfirmationSection({ payment, setPayment }: Props) {
           {PaymentMethodEnum.Cash === payment.method && (
             <Box mt={2}>
               <Alert severity="info">
-                We will coordinate the collection of{" "}
+                After clicking "Notify", We will coordinate the collection of{" "}
                 <b>{formatCurrency(payment.amount)}</b>. Please reach out to
                 Bespoke support. This method of payment will incur a $100 fee.
               </Alert>
@@ -97,8 +97,8 @@ function ConfirmationSection({ payment, setPayment }: Props) {
           {PaymentMethodEnum.Check === payment.method && (
             <Box mt={2}>
               <Alert severity="info">
-                Please make the check payable to Bespoke Financial for{" "}
-                <b>{formatCurrency(payment.amount)}</b>
+                After clicking "Notify", please make the check payable to
+                Bespoke Financial for <b>{formatCurrency(payment.amount)}</b>
               </Alert>
             </Box>
           )}

@@ -35100,7 +35100,7 @@
           },
           {
             "name": "items_covered",
-            "description": null,
+            "description": "When a user submits a repayment, describes what loans this payment is intended for",
             "args": [
               {
                 "name": "path",
