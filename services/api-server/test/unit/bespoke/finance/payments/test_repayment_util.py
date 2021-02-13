@@ -1,5 +1,6 @@
 import datetime
 import decimal
+import uuid
 from typing import List, Dict, cast
 
 from bespoke.date import date_util
@@ -155,6 +156,21 @@ class TestCreatePayment(db_unittest.TestCase):
 		seed.initialize()
 
 		company_id = seed.get_company_id('company_admin', index=0)
+		loan_ids = []
+		amounts = test['loan_amounts']
+		with session_scope(session_maker) as session:
+			for i in range(len(amounts)):
+				amount = amounts[i]
+				loan = models.Loan(
+					company_id=company_id,
+					amount=decimal.Decimal(amount),
+					approved_at=date_util.now(),
+					funded_at=date_util.now()
+				)
+				session.add(loan)
+				session.flush()
+				loan_ids.append(str(loan.id))
+
 		user_id = seed.get_user_id('company_admin', index=0)
 		payment_input_amount = test['payment_amount']
 		payment_id, err = repayment_util.create_payment(
@@ -166,7 +182,7 @@ class TestCreatePayment(db_unittest.TestCase):
 				method=test['payment_method'],
 				deposit_date='unused'
 		),
-			loan_ids=test['loan_ids'],
+			loan_ids=loan_ids,
 			user_id=user_id,
 			session_maker=self.session_maker)
 		self.assertIsNone(err)
@@ -185,14 +201,14 @@ class TestCreatePayment(db_unittest.TestCase):
 			self.assertEqual(test['payment_method'], payment.method)
 			self.assertIsNotNone(payment.submitted_at)
 			self.assertEqual(user_id, payment.submitted_by_user_id)
-			self.assertEqual(test['loan_ids'], cast(Dict, payment.items_covered)['loan_ids'])
+			self.assertEqual(loan_ids, cast(Dict, payment.items_covered)['loan_ids'])
 
 	def test_schedule_payment_reverse_draft_ach(self) -> None:
 		tests: List[Dict] = [
 			{
 				'payment_amount': 30.0,
 				'payment_method': 'reverse_draft_ach',
-				'loan_ids': ['a1', 'a2']
+				'loan_amounts': [20.0, 30.0]
 			}
 		]
 		for test in tests:
@@ -203,10 +219,45 @@ class TestCreatePayment(db_unittest.TestCase):
 			{
 				'payment_amount': 40.0,
 				'payment_method': 'ach',
-				'loan_ids': ['b1', 'b2']
+				'loan_amounts': [30.0, 40.0]
 			}
 		]
 		for test in tests:
 			self._run_test(test)
 
-	# TODO(dlluncor): Test incorrect variables that can be passed in as payments.
+	def test_missing_loans(self) -> None:
+		seed = test_helper.BasicSeed.create(self.session_maker, self)
+		seed.initialize()
+		user_id = seed.get_user_id('company_admin', index=0)
+		payment_id, err = repayment_util.create_payment(
+			company_id=None, 
+			payment_insert_input=None,
+			loan_ids=[str(uuid.uuid4())],
+			user_id=user_id,
+			session_maker=self.session_maker)
+		self.assertIn('No loans', err.msg)
+
+	def test_not_funded_loan(self) -> None:
+		seed = test_helper.BasicSeed.create(self.session_maker, self)
+		seed.initialize()
+		user_id = seed.get_user_id('company_admin', index=0)
+		company_id = seed.get_company_id('company_admin', index=0)
+		loan_id = None
+
+		with session_scope(self.session_maker) as session:
+			loan = models.Loan(
+				company_id=company_id,
+				amount=decimal.Decimal(2.0),
+				approved_at=date_util.now()
+			)
+			session.add(loan)
+			session.flush()
+			loan_id = str(loan.id)
+
+		payment_id, err = repayment_util.create_payment(
+			company_id=company_id, 
+			payment_insert_input=None,
+			loan_ids=[loan_id],
+			user_id=user_id,
+			session_maker=self.session_maker)
+		self.assertIn('are funded', err.msg)

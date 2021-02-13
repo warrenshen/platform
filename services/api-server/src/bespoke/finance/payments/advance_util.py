@@ -39,6 +39,7 @@ def fund_loans_with_advance(
 			session.query(models.Loan).filter(
 				models.Loan.id.in_(loan_ids)
 			).all())
+
 		if not loans:
 			return None, errors.Error('No loans found', details=err_details)
 

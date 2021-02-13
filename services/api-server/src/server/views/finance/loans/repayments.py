@@ -5,7 +5,7 @@ from mypy_extensions import TypedDict
 from flask import request, make_response, current_app
 from flask import Response, Blueprint
 from flask.views import MethodView
-from typing import cast, Any
+from typing import cast, Any, Dict
 
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
@@ -85,8 +85,38 @@ class CreatePaymentView(MethodView):
 			'payment_id': payment_id
 		}), 200)
 
+class SettlePaymentView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self) -> Response:
+		form = cast(Dict, json.loads(request.data))
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = ['payment_id', 'company_id', 'loan_ids', 'transaction_inputs']
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} from handle payment request'.format(key))
+
+		user_session = auth_util.UserSession.from_session()
+
+		payment_id, err = repayment_util.settle_payment(
+			cast(repayment_util.SettlePaymentReqDict, form), 
+			user_session.get_user_id(), 
+			current_app.session_maker
+		)
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
 handler.add_url_rule(
 	'/create_payment', view_func=CreatePaymentView.as_view(name='create_payment_view'))
 
 handler.add_url_rule(
 	'/calculate_effect_of_payment', view_func=CalculateEffectOfPaymentView.as_view(name='calculate_effect_of_repayment_view'))
+
+handler.add_url_rule(
+	'/settle_payment', view_func=SettlePaymentView.as_view(name='settle_payment_view'))
