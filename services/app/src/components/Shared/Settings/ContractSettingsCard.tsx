@@ -12,6 +12,7 @@ import Can from "components/Shared/Can";
 import ContractTermsLink from "components/Shared/Settings/ContractTermsLink";
 import { ContractFragment } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
+import { formatDateString } from "lib/date";
 import { ProductTypeToLabel } from "lib/enum";
 
 interface Props {
@@ -44,12 +45,23 @@ function ContractSettingsCard({ contract, handleClick }: Props) {
             <Box>{ProductTypeToLabel[contract.product_type]}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
+            <Box className={classes.label}>Start Date</Box>
+            <Box>
+              {contract.start_date
+                ? formatDateString(contract.start_date)
+                : null}
+            </Box>
+          </Box>
+          <Box display="flex" pb={0.25}>
+            <Box className={classes.label}>End Date</Box>
+            <Box>
+              {contract.end_date ? formatDateString(contract.end_date) : null}
+            </Box>
+          </Box>
+          <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Contract Terms</Box>
             <Box>
-              <ContractTermsLink
-                linkText="View"
-                contractId={contract.id}
-              ></ContractTermsLink>
+              <ContractTermsLink linkText="View" contractId={contract.id} />
             </Box>
           </Box>
         </Box>
