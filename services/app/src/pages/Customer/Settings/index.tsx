@@ -40,7 +40,7 @@ function SettingsPage() {
         contract={contract}
         bankAccounts={data?.companies_by_pk?.bank_accounts || []}
         handleDataChange={() => refetch()}
-      ></Settings>
+      />
     </Page>
   );
 }

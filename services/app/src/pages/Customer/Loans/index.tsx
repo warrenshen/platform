@@ -13,13 +13,13 @@ function CustomerLoansPage() {
   if (productType === ProductTypeEnum.InventoryFinancing) {
     return (
       <Page appBarTitle={"Loans"}>
-        <PurchaseOrderLoans></PurchaseOrderLoans>
+        <PurchaseOrderLoans />
       </Page>
     );
   } else if (productType === ProductTypeEnum.LineOfCredit) {
     return (
       <Page appBarTitle={"Loans"}>
-        <LineOfCreditLoans></LineOfCreditLoans>
+        <LineOfCreditLoans />
       </Page>
     );
   } else {

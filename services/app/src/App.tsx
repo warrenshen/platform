@@ -30,6 +30,7 @@ import BankPurchaseOrdersPage from "pages/Bank/PurchaseOrders";
 import BankTransactionsPage from "pages/Bank/Transactions";
 import BankVendorsPage from "pages/Bank/Vendors";
 import CustomerCompanyProfilePage from "pages/Customer/CompanyProfile";
+import CustomerEbbaApplicationsPage from "pages/Customer/EbbaApplications";
 import CustomerLoansPage from "pages/Customer/Loans";
 import CustomerOverviewPage from "pages/Customer/Overview";
 import CustomerPurchaseOrdersPage from "pages/Customer/PurchaseOrders";
@@ -50,37 +51,34 @@ function App() {
   return (
     <BrowserRouter>
       <Switch>
-        <Redirect
-          from="/:url*(/+)"
-          to={pathname?.slice(0, -1) || "/"}
-        ></Redirect>
+        <Redirect from="/:url*(/+)" to={pathname?.slice(0, -1) || "/"} />
         <Route exact path={routes.signIn}>
-          <SignIn></SignIn>
+          <SignIn />
         </Route>
         <Route exact path={anonymousRoutes.secureLink}>
-          <SecureLinkPage></SecureLinkPage>
+          <SecureLinkPage />
         </Route>
         {/* Purchase Order Reviewer user routes */}
         <Route
           exact
           path={anonymousRoutes.reviewPurchaseOrder}
           component={ReviewPurchaseOrderPage}
-        ></Route>
+        />
         <Route
           exact
           path={anonymousRoutes.reviewPurchaseOrderComplete}
           component={ReviewPurchaseOrderCompletePage}
-        ></Route>
+        />
         <Route
           exact
           path={anonymousRoutes.resetPassword}
           component={ResetPasswordPage}
-        ></Route>
+        />
         <Route
           exact
           path={anonymousRoutes.forgotPassword}
           component={ForgotPasswordPage}
-        ></Route>
+        />
         {/* Bank and Company user routes */}
         <PrivateRoute
           exact
@@ -88,22 +86,22 @@ function App() {
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.CompanyAdmin]}
         >
           {role === UserRolesEnum.BankAdmin ? (
-            <Redirect to={bankRoutes.overview}></Redirect>
+            <Redirect to={bankRoutes.overview} />
           ) : (
-            <Redirect to={customerRoutes.overview}></Redirect>
+            <Redirect to={customerRoutes.overview} />
           )}
         </PrivateRoute>
         <PrivateRoute
           path={routes.userProfile}
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.CompanyAdmin]}
         >
-          <UserProfile></UserProfile>
+          <UserProfile />
         </PrivateRoute>
         <PrivateRoute
           path={routes.users}
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.CompanyAdmin]}
         >
-          <Users></Users>
+          <Users />
         </PrivateRoute>
         {/* Customer user routes */}
         <PrivateRoute
@@ -111,42 +109,49 @@ function App() {
           path={customerRoutes.overview}
           requiredRoles={[UserRolesEnum.CompanyAdmin]}
         >
-          <CustomerOverviewPage></CustomerOverviewPage>
+          <CustomerOverviewPage />
         </PrivateRoute>
         <PrivateRoute
           exact
           path={customerRoutes.companyProfile}
           requiredRoles={[UserRolesEnum.CompanyAdmin]}
         >
-          <CustomerCompanyProfilePage></CustomerCompanyProfilePage>
+          <CustomerCompanyProfilePage />
+        </PrivateRoute>
+        <PrivateRoute
+          exact
+          path={customerRoutes.ebbaApplications}
+          requiredRoles={[UserRolesEnum.CompanyAdmin]}
+        >
+          <CustomerEbbaApplicationsPage />
         </PrivateRoute>
         <PrivateRoute
           exact
           path={customerRoutes.loans}
           requiredRoles={[UserRolesEnum.CompanyAdmin]}
         >
-          <CustomerLoansPage></CustomerLoansPage>
+          <CustomerLoansPage />
         </PrivateRoute>
         <PrivateRoute
           exact
           path={customerRoutes.purchaseOrders}
           requiredRoles={[UserRolesEnum.CompanyAdmin]}
         >
-          <CustomerPurchaseOrdersPage></CustomerPurchaseOrdersPage>
+          <CustomerPurchaseOrdersPage />
         </PrivateRoute>
         <PrivateRoute
           exact
           path={customerRoutes.settings}
           requiredRoles={[UserRolesEnum.CompanyAdmin]}
         >
-          <CustomerSettingsPage></CustomerSettingsPage>
+          <CustomerSettingsPage />
         </PrivateRoute>
         <PrivateRoute
           exact
           path={customerRoutes.vendors}
           requiredRoles={[UserRolesEnum.CompanyAdmin]}
         >
-          <CustomerVendorsPage></CustomerVendorsPage>
+          <CustomerVendorsPage />
         </PrivateRoute>
         {/* Bank user routes */}
         <PrivateRoute
@@ -154,98 +159,98 @@ function App() {
           path={bankRoutes.overview}
           requiredRoles={[UserRolesEnum.BankAdmin]}
         >
-          <BankOverviewPage></BankOverviewPage>
+          <BankOverviewPage />
         </PrivateRoute>
         <PrivateRoute
           exact
           path={bankRoutes.loansApprovalRequested}
           requiredRoles={[UserRolesEnum.BankAdmin]}
         >
-          <BankLoansApprovalRequestedPage></BankLoansApprovalRequestedPage>
+          <BankLoansApprovalRequestedPage />
         </PrivateRoute>
         <PrivateRoute
           exact
           path={bankRoutes.loansMaturing}
           requiredRoles={[UserRolesEnum.BankAdmin]}
         >
-          <BankLoansMaturingPage></BankLoansMaturingPage>
+          <BankLoansMaturingPage />
         </PrivateRoute>
         <PrivateRoute
           exact
           path={bankRoutes.loansPastDue}
           requiredRoles={[UserRolesEnum.BankAdmin]}
         >
-          <BankLoansPastDuePage></BankLoansPastDuePage>
+          <BankLoansPastDuePage />
         </PrivateRoute>
         <PrivateRoute
           path={bankRoutes.loansAllProducts}
           requiredRoles={[UserRolesEnum.BankAdmin]}
         >
-          <BankLoansAllProductsPage></BankLoansAllProductsPage>
+          <BankLoansAllProductsPage />
         </PrivateRoute>
         <PrivateRoute
           path={bankRoutes.purchaseOrders}
           requiredRoles={[UserRolesEnum.BankAdmin]}
         >
-          <BankPurchaseOrdersPage></BankPurchaseOrdersPage>
+          <BankPurchaseOrdersPage />
         </PrivateRoute>
         <PrivateRoute
           exact
           path={bankRoutes.customers}
           requiredRoles={[UserRolesEnum.BankAdmin]}
         >
-          <BankCustomersPage></BankCustomersPage>
+          <BankCustomersPage />
         </PrivateRoute>
         <PrivateRoute
           path={bankRoutes.customerRoot}
           requiredRoles={[UserRolesEnum.BankAdmin]}
         >
-          <BankCustomerPage></BankCustomerPage>
+          <BankCustomerPage />
         </PrivateRoute>
         <PrivateRoute
           exact
           path={bankRoutes.ebbaApplications}
           requiredRoles={[UserRolesEnum.BankAdmin]}
         >
-          <BankEbbaApplicationsPage></BankEbbaApplicationsPage>
+          <BankEbbaApplicationsPage />
         </PrivateRoute>
         <PrivateRoute
           exact
           path={bankRoutes.bankAccounts}
           requiredRoles={[UserRolesEnum.BankAdmin]}
         >
-          <BankBankAccountsPage></BankBankAccountsPage>
+          <BankBankAccountsPage />
         </PrivateRoute>
         <PrivateRoute
           exact
           path={bankRoutes.payments}
           requiredRoles={[UserRolesEnum.BankAdmin]}
         >
-          <BankPaymentsPage></BankPaymentsPage>
+          <BankPaymentsPage />
         </PrivateRoute>
         <PrivateRoute
           exact
           path={bankRoutes.advances}
           requiredRoles={[UserRolesEnum.BankAdmin]}
         >
-          <BankAdvancesPage></BankAdvancesPage>
+          <BankAdvancesPage />
         </PrivateRoute>
         <PrivateRoute
           exact
           path={bankRoutes.transactions}
           requiredRoles={[UserRolesEnum.BankAdmin]}
         >
-          <BankTransactionsPage></BankTransactionsPage>
+          <BankTransactionsPage />
         </PrivateRoute>
         <PrivateRoute
           exact
           path={bankRoutes.vendors}
           requiredRoles={[UserRolesEnum.BankAdmin]}
         >
-          <BankVendorsPage></BankVendorsPage>
+          <BankVendorsPage />
         </PrivateRoute>
         <Route>
-          <Redirect to={routes.root}></Redirect>
+          <Redirect to={routes.root} />
         </Route>
       </Switch>
     </BrowserRouter>

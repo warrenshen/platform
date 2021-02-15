@@ -16,7 +16,7 @@ function EbbaApplicationsPage() {
       <EbbaApplicationsDataGrid
         ebbaApplications={ebbaApplications}
         actionItems={[]}
-      ></EbbaApplicationsDataGrid>
+      />
     </Page>
   );
 }

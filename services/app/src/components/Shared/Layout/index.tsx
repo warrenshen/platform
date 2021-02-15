@@ -71,6 +71,14 @@ const getCustomerLeftNavItems = (productType: ProductTypeEnum) => {
           },
         ]
       : []),
+    ...(productType === ProductTypeEnum.LineOfCredit
+      ? [
+          {
+            text: "Borrowing Base",
+            link: customerRoutes.ebbaApplications,
+          },
+        ]
+      : []),
     {
       text: "Vendors",
       link: customerRoutes.vendors,
@@ -188,7 +196,7 @@ function Layout({ appBarTitle, children }: Props) {
             </Typography>
           </Box>
           <Box>
-            <UserMenu></UserMenu>
+            <UserMenu />
           </Box>
         </Toolbar>
       </AppBar>
@@ -203,7 +211,7 @@ function Layout({ appBarTitle, children }: Props) {
         <div className={classes.toolbar}>
           <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="Logo" />
         </div>
-        <Divider></Divider>
+        <Divider />
         <List>
           {leftNavOptions.map((item) => {
             return (
