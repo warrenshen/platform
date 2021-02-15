@@ -1,4 +1,10 @@
-import { Box, FormControl, MenuItem, Select } from "@material-ui/core";
+import {
+  Box,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+} from "@material-ui/core";
 import BankAccountInfoCard from "components/Shared/BankAccount/BankAccountInfoCard";
 import {
   BankAccounts,
@@ -15,7 +21,7 @@ interface Props {
 function CompanyBank({ companyId, onCompanyBankAccountSelection }: Props) {
   const { data } = useListBankAccountsQuery({
     variables: {
-      companyId: companyId,
+      companyId,
     },
   });
 
@@ -46,13 +52,10 @@ function CompanyBank({ companyId, onCompanyBankAccountSelection }: Props) {
   return (
     <Box>
       <FormControl fullWidth style={{ width: 200 }}>
-        {/* <InputLabel id="bank-account-assignment-label">
-          Bespoke Bank Assignment
-        </InputLabel> */}
+        <InputLabel id="select-bank-account-label">Bank Account</InputLabel>
         <Select
-          // label="Bespoke Bank Assignment"
-          // id="bank-account-assignment"
-          // labelId="bank-account-assignment-label"
+          id="select-bank-account"
+          labelId="select-bank-account-label"
           value={companyBankAccountId}
           onChange={({ target: { value } }) => {
             setCompanyBankAccountId(value);
@@ -76,7 +79,7 @@ function CompanyBank({ companyId, onCompanyBankAccountSelection }: Props) {
           <BankAccountInfoCard
             isEditAllowed={false}
             bankAccount={companyBankAccount}
-          ></BankAccountInfoCard>
+          />
         </Box>
       )}
     </Box>

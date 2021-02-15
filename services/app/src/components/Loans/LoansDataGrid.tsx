@@ -77,22 +77,30 @@ function LoansDataGrid({ isStatusVisible, loans, customerSearchQuery }: Props) {
       ),
     },
     {
-      dataField: "outstanding_principal",
+      dataField: "outstanding_principal_balance",
       caption: "Outstanding Principal",
       alignment: "right",
-      width: 120,
+      cellRender: (params: ValueFormatterParams) => (
+        <CurrencyDataGridCell
+          value={params.row.data.outstanding_principal_balance}
+        />
+      ),
     },
     {
       dataField: "outstanding_interest",
       caption: "Outstanding Interest",
       alignment: "right",
-      width: 120,
+      cellRender: (params: ValueFormatterParams) => (
+        <CurrencyDataGridCell value={params.row.data.outstanding_interest} />
+      ),
     },
     {
       dataField: "outstanding_fees",
       caption: "Outstanding Fees",
       alignment: "right",
-      width: 120,
+      cellRender: (params: ValueFormatterParams) => (
+        <CurrencyDataGridCell value={params.row.data.outstanding_fees} />
+      ),
     },
   ];
 

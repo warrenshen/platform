@@ -1,5 +1,5 @@
 import { Button } from "@material-ui/core";
-import RepaymentModal from "components/Shared/Payments/Repayment/RepaymentModal";
+import CreateRepaymentModal from "components/Shared/Payments/Repayment/CreateRepaymentModal";
 import { LoanFragment } from "generated/graphql";
 import useCompanyContext from "hooks/useCompanyContext";
 import { useState } from "react";
@@ -15,11 +15,10 @@ function RepaymentButton({ selectedLoans }: Props) {
   return (
     <>
       {open && (
-        <RepaymentModal
+        <CreateRepaymentModal
           companyId={companyId}
-          handleClose={() => setOpen(false)}
           selectedLoans={selectedLoans}
-          setOpen={setOpen}
+          handleClose={() => setOpen(false)}
         />
       )}
       <Button

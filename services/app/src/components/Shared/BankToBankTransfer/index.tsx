@@ -21,20 +21,20 @@ function BankToBankTransfer(props: Props) {
     <Box display="flex">
       {props.type === PaymentTransferType.ToBank && (
         <>
-          <CompanyBank {...props}></CompanyBank>
+          <CompanyBank {...props} />
           <IconButton size="small" disabled>
-            <SwapHoriz></SwapHoriz>
+            <SwapHoriz />
           </IconButton>
-          <BespokeBank {...props}></BespokeBank>
+          <BespokeBank {...props} />
         </>
       )}
       {props.type === PaymentTransferType.FromBank && (
         <>
-          <BespokeBank {...props}></BespokeBank>
+          <BespokeBank {...props} />
           <IconButton size="small" disabled>
-            <SwapHoriz></SwapHoriz>
+            <SwapHoriz />
           </IconButton>
-          <CompanyBank {...props}></CompanyBank>
+          <CompanyBank {...props} />
         </>
       )}
     </Box>
