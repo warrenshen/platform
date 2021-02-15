@@ -40,7 +40,7 @@ function BankCustomersPage() {
   return (
     <Page appBarTitle={"Customers"}>
       <Box display="flex" flexDirection="row-reverse">
-        <AddButton></AddButton>
+        <AddButton />
       </Box>
       <Box display="flex" flexWrap="wrap">
         {customers.map((customer) => (

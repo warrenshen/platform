@@ -88,7 +88,7 @@ function BankLoansDataGrid({
         <LoanDrawerLauncher
           label={truncateUuid(params.row.data.id as string)}
           loanId={params.row.data.id as string}
-        ></LoanDrawerLauncher>
+        />
       ),
     },
     {
@@ -97,9 +97,7 @@ function BankLoansDataGrid({
       width: 150,
       alignment: "center",
       cellRender: (params: ValueFormatterParams) => (
-        <LoanStatusChip
-          loanStatus={params.value as LoanStatusEnum}
-        ></LoanStatusChip>
+        <LoanStatusChip loanStatus={params.value as LoanStatusEnum} />
       ),
       lookup: {
         dataSource: {
@@ -124,7 +122,7 @@ function BankLoansDataGrid({
           <Box>{params.row.data.company.name as string}</Box>
           <Box ml={0.5}>
             <Link to={`/customers/${params.row.data.company.id}/loans`}>
-              <FilterList></FilterList>
+              <FilterList />
             </Link>
           </Box>
         </Box>
@@ -147,9 +145,7 @@ function BankLoansDataGrid({
       alignment: "right",
       width: 120,
       cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell
-          value={params.row.data.amount}
-        ></CurrencyDataGridCell>
+        <CurrencyDataGridCell value={params.row.data.amount} />
       ),
     },
     {
@@ -157,9 +153,7 @@ function BankLoansDataGrid({
       alignment: "center",
       width: 140,
       cellRender: (params: ValueFormatterParams) => (
-        <DateDataGridCell
-          dateString={params.row.data.origination_date}
-        ></DateDataGridCell>
+        <DateDataGridCell dateString={params.row.data.origination_date} />
       ),
     },
     ...(isMaturityVisible
@@ -169,9 +163,7 @@ function BankLoansDataGrid({
             alignment: "center",
             width: 120,
             cellRender: (params: ValueFormatterParams) => (
-              <DateDataGridCell
-                dateString={params.row.data.maturity_date}
-              ></DateDataGridCell>
+              <DateDataGridCell dateString={params.row.data.maturity_date} />
             ),
           },
           {
@@ -212,10 +204,7 @@ function BankLoansDataGrid({
       alignment: "center",
       width: 100,
       cellRender: (params: ValueFormatterParams) => (
-        <DataGridActionMenu
-          params={params}
-          actionItems={actionItems}
-        ></DataGridActionMenu>
+        <DataGridActionMenu params={params} actionItems={actionItems} />
       ),
     });
   }
@@ -229,7 +218,7 @@ function BankLoansDataGrid({
       pageSize={fullView ? 50 : 5}
       allowedPageSizes={[5, 50]}
       ref={(ref) => setDataGrid(ref)}
-    ></ControlledDataGrid>
+    />
   );
 }
 
