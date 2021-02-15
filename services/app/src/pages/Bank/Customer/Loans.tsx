@@ -1,21 +1,25 @@
 import { Box, Button } from "@material-ui/core";
+import { ValueFormatterParams } from "@material-ui/data-grid";
 import CreateAdvanceModal from "components/Advance/CreateAdvanceModal";
+import LineOfCreditLoansDataGrid from "components/Loans/LineOfCredit/LineOfCreditLoansDataGrid";
 import PurchaseOrderLoansDataGrid from "components/Loans/PurchaseOrder/PurchaseOrderLoansDataGrid";
 import UpdateLoanNotesModal from "components/Loans/UpdateLoanNotesModal";
 import {
   LoanFragment,
   Loans,
   LoanTypeEnum,
+  ProductTypeEnum,
   useLoansByCompanyAndLoanTypeForBankQuery,
 } from "generated/graphql";
 import { approveLoan, rejectLoan } from "lib/finance/loans/approval";
-import React, { useState } from "react";
+import { useState } from "react";
 
 interface Props {
   companyId: string;
+  productType: ProductTypeEnum;
 }
 
-function BankCustomerLoansSubpage({ companyId }: Props) {
+function BankCustomerLoansSubpage({ companyId, productType }: Props) {
   const {
     data,
     error,
@@ -26,14 +30,17 @@ function BankCustomerLoansSubpage({ companyId }: Props) {
     notifyOnNetworkStatusChange: true,
     variables: {
       companyId,
-      loanType: LoanTypeEnum.PurchaseOrder,
+      loanType:
+        productType === ProductTypeEnum.LineOfCredit
+          ? LoanTypeEnum.LineOfCredit
+          : LoanTypeEnum.PurchaseOrder,
     },
   });
   if (error) {
     alert("Error querying purchase orders. " + error);
   }
 
-  const purchaseOrderLoans = data?.loans || [];
+  const loans = data?.loans || [];
 
   // State for modal(s).
   const [isCreateAdvanceModalOpen, setIsCreateAdvanceModalOpen] = useState(
@@ -74,6 +81,27 @@ function BankCustomerLoansSubpage({ companyId }: Props) {
   const isDataReady = isLoansLoading; // || isUpdateLoanLoading
   console.log({ isDataReady });
 
+  const actionItems = [
+    {
+      key: "edit-loan-notes",
+      label: "Edit Internal Note",
+      handleClick: (params: ValueFormatterParams) =>
+        handleEditLoanNotes(params.row.data.id as string),
+    },
+    {
+      key: "approve-loan",
+      label: "Approve Loan",
+      handleClick: (params: ValueFormatterParams) =>
+        handleApproveLoan(params.row.data.id as string),
+    },
+    {
+      key: "reject-loan",
+      label: "Reject Loan",
+      handleClick: (params: ValueFormatterParams) =>
+        handleRejectLoan(params.row.data.id as string),
+    },
+  ];
+
   return (
     <Box>
       {isCreateAdvanceModalOpen && (
@@ -81,11 +109,11 @@ function BankCustomerLoansSubpage({ companyId }: Props) {
           selectedLoans={selectedLoans}
           handleClose={() => {
             refetch();
-            setIsCreateAdvanceModalOpen(false);
             setSelectedLoans([]);
             setSelectedLoanIds([]);
+            setIsCreateAdvanceModalOpen(false);
           }}
-        ></CreateAdvanceModal>
+        />
       )}
       {isUpdateLoanNotesModalOpen && (
         <UpdateLoanNotesModal
@@ -95,7 +123,7 @@ function BankCustomerLoansSubpage({ companyId }: Props) {
             refetch();
             setIsUpdateLoanNotesModalOpen(false);
           }}
-        ></UpdateLoanNotesModal>
+        />
       )}
       <Box mb={2} display="flex" flexDirection="row-reverse">
         <Button
@@ -108,34 +136,27 @@ function BankCustomerLoansSubpage({ companyId }: Props) {
         </Button>
       </Box>
       <Box display="flex" flex={1}>
-        <PurchaseOrderLoansDataGrid
-          purchaseOrderLoans={purchaseOrderLoans}
-          selectedLoanIds={selectedLoanIds}
-          actionItems={[
-            {
-              key: "edit-loan-notes",
-              label: "Edit Internal Note",
-              handleClick: (params) =>
-                handleEditLoanNotes(params.row.data.id as string),
-            },
-            {
-              key: "approve-loan",
-              label: "Approve Loan",
-              handleClick: (params) =>
-                handleApproveLoan(params.row.data.id as string),
-            },
-            {
-              key: "reject-loan",
-              label: "Reject Loan",
-              handleClick: (params) =>
-                handleRejectLoan(params.row.data.id as string),
-            },
-          ]}
-          handleSelectLoans={(loans) => {
-            setSelectedLoans(loans);
-            setSelectedLoanIds(loans.map((loan) => loan.id));
-          }}
-        ></PurchaseOrderLoansDataGrid>
+        {productType === ProductTypeEnum.LineOfCredit ? (
+          <LineOfCreditLoansDataGrid
+            loans={loans}
+            selectedLoanIds={selectedLoanIds}
+            actionItems={actionItems}
+            handleSelectLoans={(loans) => {
+              setSelectedLoans(loans);
+              setSelectedLoanIds(loans.map((loan) => loan.id));
+            }}
+          />
+        ) : (
+          <PurchaseOrderLoansDataGrid
+            loans={loans}
+            selectedLoanIds={selectedLoanIds}
+            actionItems={actionItems}
+            handleSelectLoans={(loans) => {
+              setSelectedLoans(loans);
+              setSelectedLoanIds(loans.map((loan) => loan.id));
+            }}
+          />
+        )}
       </Box>
     </Box>
   );

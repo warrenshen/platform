@@ -75,7 +75,7 @@ function PurchaseOrderLoansForCustomer() {
       </Box>
       <Box display="flex" flex={1}>
         <PurchaseOrderLoansDataGrid
-          purchaseOrderLoans={purchaseOrderLoans}
+          loans={purchaseOrderLoans}
           selectedLoanIds={selectedLoanIds}
           actionItems={[
             {

@@ -1,7 +1,11 @@
 import { Box, Paper, Tab, Tabs } from "@material-ui/core";
 import Page from "components/Shared/Page";
 import PrivateRoute from "components/Shared/PrivateRoute";
-import { useBankCustomerQuery, UserRolesEnum } from "generated/graphql";
+import {
+  ProductTypeEnum,
+  useGetCustomerForBankQuery,
+  UserRolesEnum,
+} from "generated/graphql";
 import { bankRoutes } from "lib/routes";
 import { findIndex } from "lodash";
 import { ChangeEvent, useEffect, useState } from "react";
@@ -18,7 +22,7 @@ export interface CustomerParams {
   companyId: string;
 }
 
-const customerPaths = [
+const getCustomerPaths = (productType: ProductTypeEnum) => [
   {
     path: bankRoutes.customer.overview,
     component: BankCustomerOverviewSubpage,
@@ -27,13 +31,17 @@ const customerPaths = [
   {
     path: bankRoutes.customer.loans,
     component: BankCustomerLoansSubpage,
-    label: "Loans",
+    label: productType === ProductTypeEnum.LineOfCredit ? "Drawdowns" : "Loans",
   },
-  {
-    path: bankRoutes.customer.purchaseOrders,
-    component: BankCustomerPurchaseOrdersSubpage,
-    label: "Purchase Orders",
-  },
+  ...(productType === ProductTypeEnum.InventoryFinancing
+    ? [
+        {
+          path: bankRoutes.customer.purchaseOrders,
+          component: BankCustomerPurchaseOrdersSubpage,
+          label: "Purchase Orders",
+        },
+      ]
+    : []),
   {
     path: bankRoutes.customer.vendors,
     component: BankCustomerVendorsSubpage,
@@ -62,20 +70,22 @@ function BankCustomerPage() {
   const location = useLocation();
   const [tabIndex, setTabIndex] = useState<number | null>(null);
 
-  useEffect(() => {
-    const index = findIndex(customerPaths, ({ path }) => {
-      return location.pathname.replace(url, "") === path;
-    });
-    setTabIndex(index);
-  }, [location.pathname, url]);
-
-  const { data } = useBankCustomerQuery({
+  const { data } = useGetCustomerForBankQuery({
     variables: {
       id: companyId,
     },
   });
 
-  const customerName = data?.companies_by_pk?.name;
+  const customer = data?.companies_by_pk;
+  const customerName = customer?.name;
+  const productType = customer?.contract?.product_type || ProductTypeEnum.None;
+
+  useEffect(() => {
+    const index = findIndex(getCustomerPaths(productType), ({ path }) => {
+      return location.pathname.replace(url, "") === path;
+    });
+    setTabIndex(index);
+  }, [productType, location.pathname, url]);
 
   return (
     <Page appBarTitle={customerName || ""}>
@@ -89,13 +99,13 @@ function BankCustomerPage() {
             setTabIndex(newValue);
           }}
         >
-          {customerPaths.map((customerPath, index) => (
+          {getCustomerPaths(productType).map((customerPath, index) => (
             <Tab
               key={index}
               label={customerPath.label}
               component={Link}
               to={`${url}${customerPath.path}`}
-            ></Tab>
+            />
           ))}
         </Tabs>
       </Paper>
@@ -105,16 +115,16 @@ function BankCustomerPage() {
           path={path}
           requiredRoles={[UserRolesEnum.BankAdmin]}
         >
-          <BankCustomerOverviewSubpage></BankCustomerOverviewSubpage>
+          <BankCustomerOverviewSubpage />
         </PrivateRoute>
-        {customerPaths.map((customerPath, index) => {
+        {getCustomerPaths(productType).map((customerPath, index) => {
           return (
             <PrivateRoute
               key={index}
               path={`${path}${customerPath.path}`}
               requiredRoles={[UserRolesEnum.BankAdmin]}
             >
-              {customerPath.component({ companyId })}
+              {customerPath.component({ companyId, productType })}
             </PrivateRoute>
           );
         })}

@@ -1,6 +1,11 @@
-query BankCustomer($id: uuid!) {
+query GetCustomerForBank($id: uuid!) {
   companies_by_pk(id: $id) {
+    id
     ...CustomerForBank
+    contract {
+      id
+      product_type
+    }
   }
 }
 

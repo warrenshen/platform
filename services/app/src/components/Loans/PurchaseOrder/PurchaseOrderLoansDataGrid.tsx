@@ -16,21 +16,21 @@ import { truncateUuid } from "lib/uuid";
 import React, { useContext } from "react";
 
 interface Props {
-  purchaseOrderLoans: LoanFragment[];
+  loans: LoanFragment[];
   selectedLoanIds?: Loans["id"][];
   actionItems?: DataGridActionItem[];
   handleSelectLoans?: (loans: LoanFragment[]) => void;
 }
 
 function PurchaseOrderLoansDataGrid({
-  purchaseOrderLoans,
+  loans,
   selectedLoanIds = [],
   actionItems = [],
   handleSelectLoans = () => {},
 }: Props) {
   const { user } = useContext(CurrentUserContext);
 
-  const rows = purchaseOrderLoans;
+  const rows = loans;
 
   const columns = [
     {
@@ -115,11 +115,6 @@ function PurchaseOrderLoansDataGrid({
     },
   ];
 
-  const onSelectionChanged = (params: any) => {
-    const { selectedRowsData } = params;
-    handleSelectLoans(selectedRowsData as LoanFragment[]);
-  };
-
   return (
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
       <ControlledDataGrid
@@ -127,8 +122,10 @@ function PurchaseOrderLoansDataGrid({
         select
         dataSource={rows}
         columns={columns}
-        onSelectionChanged={onSelectionChanged}
         selectedRowKeys={selectedLoanIds}
+        onSelectionChanged={({ selectedRowsData }: any) =>
+          handleSelectLoans(selectedRowsData as LoanFragment[])
+        }
       />
     </Box>
   );

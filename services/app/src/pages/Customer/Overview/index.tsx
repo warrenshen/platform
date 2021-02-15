@@ -11,7 +11,7 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useGetCompanyForCustomerOverviewQuery } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import React, { useContext, useEffect, useState } from "react";
-import OutstandingPurchaseOrderLoans from "./OutstandingPurchaseOrderLoans";
+import OutstandingLoansForCustomer from "./OutstandingLoansForCustomer";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -137,7 +137,7 @@ function CustomerOverviewPage() {
         <Box className={classes.section}>
           <Typography>Outstanding Loans</Typography>
           <Box display="flex" flex={1}>
-            <OutstandingPurchaseOrderLoans />
+            <OutstandingLoansForCustomer />
           </Box>
         </Box>
       </Box>

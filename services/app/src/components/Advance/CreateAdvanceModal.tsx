@@ -13,7 +13,7 @@ import { LoanFragment, PaymentsInsertInput } from "generated/graphql";
 import { authenticatedApi, loansRoutes } from "lib/api";
 import { todayAsDateStr } from "lib/date";
 import { useContext, useState } from "react";
-import PaymentAdvanceForm from "./AdvanceForm";
+import AdvanceForm from "./AdvanceForm";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -96,11 +96,11 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
     >
       <DialogTitle className={classes.dialogTitle}>Create Advance</DialogTitle>
       <DialogContent>
-        <PaymentAdvanceForm
+        <AdvanceForm
           selectedLoans={selectedLoans}
           payment={payment}
           setPayment={setPayment}
-        ></PaymentAdvanceForm>
+        />
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
         <Button onClick={handleClose}>Cancel</Button>

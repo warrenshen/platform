@@ -12,6 +12,7 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LineOfCreditFragment,
   LoanFragment,
+  Loans,
   LoanStatusEnum,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
@@ -20,10 +21,17 @@ import React, { useContext } from "react";
 
 interface Props {
   loans: LoanFragment[];
-  actionItems: DataGridActionItem[];
+  selectedLoanIds?: Loans["id"][];
+  actionItems?: DataGridActionItem[];
+  handleSelectLoans?: (loans: LoanFragment[]) => void;
 }
 
-function LineOfCreditLoansDataGrid({ loans, actionItems }: Props) {
+function LineOfCreditLoansDataGrid({
+  loans,
+  selectedLoanIds = [],
+  actionItems = [],
+  handleSelectLoans = () => {},
+}: Props) {
   const { user } = useContext(CurrentUserContext);
 
   const rows = loans;
@@ -110,16 +118,30 @@ function LineOfCreditLoansDataGrid({ loans, actionItems }: Props) {
       caption: "Action",
       alignment: "center",
       minWidth: 100,
-      visible: check(user.role, Action.ViewPurchaseOrdersActionMenu),
       cellRender: (params: ValueFormatterParams) => (
         <DataGridActionMenu params={params} actionItems={actionItems} />
       ),
+    },
+    {
+      dataField: "notes",
+      caption: "Internal Note",
+      minWidth: 300,
+      visible: check(user.role, Action.ViewLoanInternalNote),
     },
   ];
 
   return (
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      <ControlledDataGrid dataSource={rows} columns={columns} select pager />
+      <ControlledDataGrid
+        pager
+        select
+        dataSource={rows}
+        columns={columns}
+        selectedRowKeys={selectedLoanIds}
+        onSelectionChanged={({ selectedRowsData }: any) =>
+          handleSelectLoans(selectedRowsData as LoanFragment[])
+        }
+      />
     </Box>
   );
 }
