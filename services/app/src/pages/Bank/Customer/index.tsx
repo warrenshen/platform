@@ -1,11 +1,4 @@
 import { Box, Paper, Tab, Tabs } from "@material-ui/core";
-import Profile from "components/Bank/Customer/CompanyProfile";
-import Loans from "components/Bank/Customer/Loans";
-import Overview from "components/Bank/Customer/Overview";
-import PurchaseOrders from "components/Bank/Customer/PurchaseOrders";
-import Settings from "components/Bank/Customer/Settings";
-import Users from "components/Bank/Customer/Users";
-import Vendors from "components/Bank/Customer/Vendors";
 import Page from "components/Shared/Page";
 import PrivateRoute from "components/Shared/PrivateRoute";
 import { useBankCustomerQuery, UserRolesEnum } from "generated/graphql";
@@ -13,6 +6,13 @@ import { bankRoutes } from "lib/routes";
 import { findIndex } from "lodash";
 import { ChangeEvent, useEffect, useState } from "react";
 import { Link, useLocation, useParams, useRouteMatch } from "react-router-dom";
+import BankCustomerCompanyProfileSubpage from "./CompanyProfile";
+import BankCustomerLoansSubpage from "./Loans";
+import BankCustomerOverviewSubpage from "./Overview";
+import BankCustomerPurchaseOrdersSubpage from "./PurchaseOrders";
+import BankCustomerSettingsSubpage from "./Settings";
+import BankCustomerUsersSubpage from "./Users";
+import BankCustomerVendorsSubpage from "./Vendors";
 
 export interface CustomerParams {
   companyId: string;
@@ -21,37 +21,37 @@ export interface CustomerParams {
 const customerPaths = [
   {
     path: bankRoutes.customer.overview,
-    component: Overview,
+    component: BankCustomerOverviewSubpage,
     label: "Overview",
   },
   {
     path: bankRoutes.customer.loans,
-    component: Loans,
+    component: BankCustomerLoansSubpage,
     label: "Loans",
   },
   {
     path: bankRoutes.customer.purchaseOrders,
-    component: PurchaseOrders,
+    component: BankCustomerPurchaseOrdersSubpage,
     label: "Purchase Orders",
   },
   {
     path: bankRoutes.customer.vendors,
-    component: Vendors,
+    component: BankCustomerVendorsSubpage,
     label: "Vendors",
   },
   {
     path: bankRoutes.customer.users,
-    component: Users,
+    component: BankCustomerUsersSubpage,
     label: "Users",
   },
   {
     path: bankRoutes.customer.companyProfile,
-    component: Profile,
+    component: BankCustomerCompanyProfileSubpage,
     label: "Company Profile",
   },
   {
     path: bankRoutes.customer.settings,
-    component: Settings,
+    component: BankCustomerSettingsSubpage,
     label: "Settings",
   },
 ];
@@ -105,7 +105,7 @@ function BankCustomerPage() {
           path={path}
           requiredRoles={[UserRolesEnum.BankAdmin]}
         >
-          <Overview></Overview>
+          <BankCustomerOverviewSubpage></BankCustomerOverviewSubpage>
         </PrivateRoute>
         {customerPaths.map((customerPath, index) => {
           return (

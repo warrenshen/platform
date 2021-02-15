@@ -1,6 +1,6 @@
 import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
 import AddButton from "components/Vendors/AddVendor/Button";
-import ClickableVendorCard from "components/Vendors/Bank/ClickableVendorCard";
+import ClickableVendorCard from "components/Vendors/ClickableVendorCard";
 import { useBankCustomerListVendorPartnershipsQuery } from "generated/graphql";
 import { sortBy } from "lodash";
 

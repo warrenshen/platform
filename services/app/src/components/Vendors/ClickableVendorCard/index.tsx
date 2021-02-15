@@ -1,5 +1,5 @@
-import VendorDrawer from "components/Vendors/Bank/VendorDrawer";
 import VendorCard from "components/Vendors/VendorCard";
+import VendorDrawer from "components/Vendors/VendorDrawer";
 import {
   BankVendorPartnershipFragment,
   VendorFragment,

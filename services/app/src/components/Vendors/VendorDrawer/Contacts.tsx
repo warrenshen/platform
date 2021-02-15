@@ -1,5 +1,5 @@
 import { Box, Button } from "@material-ui/core";
-import ContactCard from "components/Vendors/Bank/VendorDrawer/ContactCard";
+import ContactCard from "components/Vendors/VendorDrawer/ContactCard";
 import {
   Companies,
   CompanyVendorPartnerships,

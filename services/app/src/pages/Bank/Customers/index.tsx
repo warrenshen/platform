@@ -9,7 +9,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import AddButton from "components/Bank/AddCustomer/AddCustomerButton";
+import AddButton from "components/Customer/AddCustomer/AddCustomerButton";
 import Page from "components/Shared/Page";
 import { useCustomersForBankQuery } from "generated/graphql";
 import { ProductTypeToLabel } from "lib/enum";

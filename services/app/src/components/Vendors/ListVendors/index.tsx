@@ -1,6 +1,6 @@
 import { useBankListVendorPartnershipsQuery } from "generated/graphql";
 import { sortBy } from "lodash";
-import VendorPartnershipList from "../../VendorPartnershipList";
+import VendorPartnershipList from "../VendorPartnershipList";
 
 function ListVendors() {
   const { data }: { data: any } = useBankListVendorPartnershipsQuery();

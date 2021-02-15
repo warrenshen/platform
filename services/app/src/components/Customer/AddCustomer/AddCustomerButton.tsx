@@ -1,5 +1,5 @@
 import { Button } from "@material-ui/core";
-import AddCustomerModal from "components/Bank/AddCustomer/AddCustomerModal";
+import AddCustomerModal from "components/Customer/AddCustomer/AddCustomerModal";
 import { useState } from "react";
 
 function AddCustomerButton() {

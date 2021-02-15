@@ -1,7 +1,7 @@
 import { Box } from "@material-ui/core";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import VendorDrawer from "components/Vendors/Bank/VendorDrawer";
+import VendorDrawer from "components/Vendors/VendorDrawer";
 import { useState } from "react";
 import VerificationChip from "./VerificationChip";
 

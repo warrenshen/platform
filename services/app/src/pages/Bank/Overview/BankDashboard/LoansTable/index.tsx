@@ -1,5 +1,5 @@
 import { Box, Button, Typography } from "@material-ui/core";
-import BankLoansDataGrid from "components/Shared/DataGrid/BankLoansDataGrid";
+import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
 import { LoanFragment, RequestStatusEnum } from "generated/graphql";
 import { Link } from "react-router-dom";
 

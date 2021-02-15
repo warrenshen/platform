@@ -1,5 +1,5 @@
 import Page from "components/Shared/Page";
-import ListVendors from "components/Vendors/Bank/ListVendors";
+import ListVendors from "components/Vendors/ListVendors";
 
 function BankVendorsPage() {
   return (

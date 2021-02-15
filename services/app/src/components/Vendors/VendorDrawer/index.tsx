@@ -12,10 +12,10 @@ import AdvancesBank from "components/Shared/BespokeBankAssignment/AdvancesBank";
 import CollectionsBank from "components/Shared/BespokeBankAssignment/CollectionsBank";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileUploadDropzone from "components/Shared/File/UploadDropzone";
-import ApproveVendor from "components/Vendors/Bank/VendorDrawer/Actions/ApproveVendor";
-import BankAccount from "components/Vendors/Bank/VendorDrawer/BankAccount";
-import Contacts from "components/Vendors/Bank/VendorDrawer/Contacts";
-import VendorInfo from "components/Vendors/Bank/VendorDrawer/VendorInfo";
+import ApproveVendor from "components/Vendors/VendorDrawer/Actions/ApproveVendor";
+import BankAccount from "components/Vendors/VendorDrawer/BankAccount";
+import Contacts from "components/Vendors/VendorDrawer/Contacts";
+import VendorInfo from "components/Vendors/VendorDrawer/VendorInfo";
 import {
   BankVendorPartnershipDocument,
   CompanyAgreementsInsertInput,

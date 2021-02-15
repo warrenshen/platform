@@ -1,4 +1,4 @@
-import EbbaApplicationsDataGrid from "components/Bank/EbbaApplications/EbbaApplicationsDataGrid";
+import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
 import Page from "components/Shared/Page";
 import { useEbbaApplicationsQuery } from "generated/graphql";
 

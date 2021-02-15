@@ -1,5 +1,5 @@
 import { Box } from "@material-ui/core";
-import BankLoansDataGrid from "components/Shared/DataGrid/BankLoansDataGrid";
+import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
 import Page from "components/Shared/Page";
 import {
   LoanStatusEnum,
