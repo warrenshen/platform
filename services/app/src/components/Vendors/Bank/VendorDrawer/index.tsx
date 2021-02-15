@@ -1,4 +1,12 @@
-import { Box, Drawer, Grid, makeStyles, Typography } from "@material-ui/core";
+import {
+  Box,
+  createStyles,
+  Drawer,
+  Grid,
+  makeStyles,
+  Theme,
+  Typography,
+} from "@material-ui/core";
 import * as Sentry from "@sentry/react";
 import AdvancesBank from "components/Shared/BespokeBankAssignment/AdvancesBank";
 import CollectionsBank from "components/Shared/BespokeBankAssignment/CollectionsBank";
@@ -23,18 +31,17 @@ import { omit } from "lodash";
 import React from "react";
 import SendVendorAgreements from "./Notifications/SendVendorAgreements";
 
-const useStyles = makeStyles({
-  drawerContent: {
-    width: 700,
-  },
-  baseInput: {
-    width: 300,
-  },
-  addressForm: {
-    width: 600,
-  },
-  fileDropbox: {},
-});
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    drawerContent: {
+      width: 700,
+      paddingBottom: theme.spacing(16),
+    },
+    propertyLabel: {
+      flexGrow: 1,
+    },
+  })
+);
 
 interface Props {
   vendorPartnershipId: string;
@@ -138,7 +145,6 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
         <Box
           mt={1}
           mb={2}
-          className={classes.fileDropbox}
           display="flex"
           alignItems="center"
           justifyContent="center"

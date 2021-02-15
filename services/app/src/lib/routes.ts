@@ -53,6 +53,7 @@ export const bankRoutes = {
   loansPastDue: "/loans-past-due",
   loansPurchaseOrder: "/loans-purchase-order",
   payments: "/payments",
+  purchaseOrders: "/purchase-orders",
   transactions: "/transactions",
   vendors: "/vendors",
 };

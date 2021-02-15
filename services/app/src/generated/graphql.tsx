@@ -11166,6 +11166,12 @@ export type CompanyVendorPartnershipForVendorQuery = {
   >;
 };
 
+export type GetPurchaseOrdersQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetPurchaseOrdersQuery = {
+  purchase_orders: Array<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
+};
+
 export type PurchaseOrdersByCompanyIdQueryVariables = Exact<{
   company_id: Scalars["uuid"];
 }>;
@@ -14456,6 +14462,63 @@ export type CompanyVendorPartnershipForVendorLazyQueryHookResult = ReturnType<
 export type CompanyVendorPartnershipForVendorQueryResult = Apollo.QueryResult<
   CompanyVendorPartnershipForVendorQuery,
   CompanyVendorPartnershipForVendorQueryVariables
+>;
+export const GetPurchaseOrdersDocument = gql`
+  query GetPurchaseOrders {
+    purchase_orders {
+      id
+      ...PurchaseOrder
+    }
+  }
+  ${PurchaseOrderFragmentDoc}
+`;
+
+/**
+ * __useGetPurchaseOrdersQuery__
+ *
+ * To run a query within a React component, call `useGetPurchaseOrdersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPurchaseOrdersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPurchaseOrdersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetPurchaseOrdersQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetPurchaseOrdersQuery,
+    GetPurchaseOrdersQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetPurchaseOrdersQuery,
+    GetPurchaseOrdersQueryVariables
+  >(GetPurchaseOrdersDocument, baseOptions);
+}
+export function useGetPurchaseOrdersLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetPurchaseOrdersQuery,
+    GetPurchaseOrdersQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetPurchaseOrdersQuery,
+    GetPurchaseOrdersQueryVariables
+  >(GetPurchaseOrdersDocument, baseOptions);
+}
+export type GetPurchaseOrdersQueryHookResult = ReturnType<
+  typeof useGetPurchaseOrdersQuery
+>;
+export type GetPurchaseOrdersLazyQueryHookResult = ReturnType<
+  typeof useGetPurchaseOrdersLazyQuery
+>;
+export type GetPurchaseOrdersQueryResult = Apollo.QueryResult<
+  GetPurchaseOrdersQuery,
+  GetPurchaseOrdersQueryVariables
 >;
 export const PurchaseOrdersByCompanyIdDocument = gql`
   query PurchaseOrdersByCompanyId($company_id: uuid!) {

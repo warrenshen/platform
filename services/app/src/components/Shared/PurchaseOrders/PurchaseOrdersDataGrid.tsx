@@ -18,21 +18,27 @@ function populateRows(
   purchaseOrders: Maybe<PurchaseOrderFragment[]>
 ): RowsProp {
   return purchaseOrders
-    ? purchaseOrders.map((item) => {
+    ? purchaseOrders.map((purchaseOrder) => {
         return {
-          ...item,
-          vendor_name: item.vendor?.name,
+          ...purchaseOrder,
+          company_name: purchaseOrder.company?.name,
+          vendor_name: purchaseOrder.vendor?.name,
         };
       })
     : [];
 }
 
 interface Props {
+  isCompanyVisible: boolean;
   purchaseOrders: PurchaseOrderFragment[];
   actionItems: DataGridActionItem[];
 }
 
-function PurchaseOrdersDataGrid({ purchaseOrders, actionItems }: Props) {
+function PurchaseOrdersDataGrid({
+  isCompanyVisible,
+  purchaseOrders,
+  actionItems,
+}: Props) {
   const { user } = useContext(CurrentUserContext);
   const rows = populateRows(purchaseOrders);
 
@@ -57,6 +63,14 @@ function PurchaseOrdersDataGrid({ purchaseOrders, actionItems }: Props) {
         <RequestStatusChip requestStatus={params.value as RequestStatusEnum} />
       ),
     },
+    ...(isCompanyVisible
+      ? [
+          {
+            dataField: "company_name",
+            caption: "Customer",
+          },
+        ]
+      : []),
     {
       dataField: "vendor_name",
       caption: "Vendor",

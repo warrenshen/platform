@@ -1,3 +1,10 @@
+query GetPurchaseOrders {
+  purchase_orders {
+    id
+    ...PurchaseOrder
+  }
+}
+
 query PurchaseOrdersByCompanyId($company_id: uuid!) {
   purchase_orders(where: { company_id: { _eq: $company_id } }) {
     ...PurchaseOrder

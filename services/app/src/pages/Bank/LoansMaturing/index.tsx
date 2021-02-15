@@ -16,7 +16,7 @@ import { useState } from "react";
 
 const matureDaysList = [7, 14, 30, 90];
 
-function LoansMaturingPage() {
+function BankLoansMaturingPage() {
   const [matureDays, setMatureDays] = useState(matureDaysList[1]);
 
   const { data, error } = useLoansByStatusesForBankQuery({
@@ -67,4 +67,4 @@ function LoansMaturingPage() {
   );
 }
 
-export default LoansMaturingPage;
+export default BankLoansMaturingPage;

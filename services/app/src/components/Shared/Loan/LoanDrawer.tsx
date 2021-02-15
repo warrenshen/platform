@@ -1,4 +1,11 @@
-import { Box, Drawer, makeStyles, Typography } from "@material-ui/core";
+import {
+  Box,
+  createStyles,
+  Drawer,
+  makeStyles,
+  Theme,
+  Typography,
+} from "@material-ui/core";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
@@ -11,14 +18,14 @@ import { formatDateString } from "lib/date";
 import { LoanTypeToLabel } from "lib/enum";
 import { useContext } from "react";
 
-const useStyles = makeStyles({
-  drawerContent: {
-    width: 400,
-  },
-  propertyLabel: {
-    flexGrow: 1,
-  },
-});
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    drawerContent: {
+      width: 400,
+      paddingBottom: theme.spacing(16),
+    },
+  })
+);
 
 interface Props {
   loanId: Loans["id"];

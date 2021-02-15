@@ -120,6 +120,14 @@ const BANK_LEFT_NAV_ITEMS = [
   //   link: bankRoutes.loansLineOfCredit,
   // },
   {
+    text: "Purchase Orders",
+    link: bankRoutes.purchaseOrders,
+  },
+  {
+    text: "Borrowing Bases",
+    link: bankRoutes.ebbaApplications,
+  },
+  {
     text: "Advances",
     link: bankRoutes.advances,
   },
@@ -134,10 +142,6 @@ const BANK_LEFT_NAV_ITEMS = [
   {
     text: "Customers",
     link: bankRoutes.customers,
-  },
-  {
-    text: "Borrowing Bases",
-    link: bankRoutes.ebbaApplications,
   },
   {
     text: "Vendors",

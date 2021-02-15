@@ -62,6 +62,7 @@ function PurchaseOrdersPage() {
           </Can>
         </Box>
         <PurchaseOrdersDataGrid
+          isCompanyVisible={false}
           purchaseOrders={purchaseOrders}
           actionItems={[
             {

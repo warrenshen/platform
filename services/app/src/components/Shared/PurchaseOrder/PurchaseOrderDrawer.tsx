@@ -1,9 +1,11 @@
 import {
   Box,
   Checkbox,
+  createStyles,
   Drawer,
   FormControlLabel,
   makeStyles,
+  Theme,
   Typography,
 } from "@material-ui/core";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
@@ -19,14 +21,17 @@ import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 import { useContext } from "react";
 
-const useStyles = makeStyles({
-  drawerContent: {
-    width: 400,
-  },
-  propertyLabel: {
-    flexGrow: 1,
-  },
-});
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    drawerContent: {
+      width: 400,
+      paddingBottom: theme.spacing(16),
+    },
+    propertyLabel: {
+      flexGrow: 1,
+    },
+  })
+);
 
 interface Props {
   purchaseOrderId: PurchaseOrders["id"];
@@ -91,7 +96,7 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
           {isBankUser && (
             <Box display="flex" flexDirection="column" mt={2}>
               <Typography variant="subtitle2" color="textSecondary">
-                Company
+                Customer
               </Typography>
               <Typography variant={"body1"}>
                 {purchaseOrder.company?.name}

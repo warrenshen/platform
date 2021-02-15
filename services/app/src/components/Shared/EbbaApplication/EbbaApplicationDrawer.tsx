@@ -1,4 +1,12 @@
-import { Box, Button, Drawer, makeStyles, Typography } from "@material-ui/core";
+import {
+  Box,
+  Button,
+  createStyles,
+  Drawer,
+  makeStyles,
+  Theme,
+  Typography,
+} from "@material-ui/core";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import {
@@ -11,14 +19,14 @@ import { formatCurrency } from "lib/currency";
 import { useState } from "react";
 import ReviewEbbaApplicationRejectModal from "./ReviewEbbaApplicationRejectModal";
 
-const useStyles = makeStyles({
-  drawerContent: {
-    width: 400,
-  },
-  propertyLabel: {
-    flexGrow: 1,
-  },
-});
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    drawerContent: {
+      width: 400,
+      paddingBottom: theme.spacing(16),
+    },
+  })
+);
 
 interface Props {
   ebbaApplicationId: EbbaApplications["id"];
