@@ -4,19 +4,21 @@ import { LoanFragment, RequestStatusEnum } from "generated/graphql";
 import { Link } from "react-router-dom";
 
 interface Props {
+  isMaturityVisible: boolean;
+  loansPastDue: boolean;
   loans: LoanFragment[];
   tableName: string;
   routeToTablePage?: string;
-  loansPastDue: boolean;
   matureDays?: number;
   filterByStatus?: RequestStatusEnum;
 }
 
-function LoansTable({
+function BankOverviewLoansTable({
+  isMaturityVisible,
+  loansPastDue,
   loans,
   tableName,
   routeToTablePage,
-  loansPastDue,
   matureDays,
   filterByStatus,
 }: Props) {
@@ -43,6 +45,7 @@ function LoansTable({
         )}
         <Box style={{ height: "auto", width: "100%" }}>
           <BankLoansDataGrid
+            isMaturityVisible={isMaturityVisible}
             fullView={false}
             loansPastDue={loansPastDue}
             matureDays={matureDays}
@@ -56,4 +59,4 @@ function LoansTable({
   );
 }
 
-export default LoansTable;
+export default BankOverviewLoansTable;

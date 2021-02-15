@@ -52,6 +52,7 @@ function LoansAllProductsPage() {
     <Page appBarTitle={"Loans Approval Requested"}>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <BankLoansDataGrid
+          isMaturityVisible={false}
           fullView
           loansPastDue={false}
           loans={loans}

@@ -1,5 +1,6 @@
 import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
+import { FilterList } from "@material-ui/icons";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
@@ -18,11 +19,13 @@ import {
 import { AllLoanStatuses, LoanTypeToLabel } from "lib/enum";
 import { truncateUuid } from "lib/uuid";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 interface Props {
+  isMaturityVisible: boolean;
   fullView: boolean;
   loansPastDue: boolean;
-  matureDays?: number | null;
+  matureDays?: number;
   filterByStatus?: RequestStatusEnum;
   loans: LoanFragment[];
   actionItems?: DataGridActionItem[];
@@ -31,9 +34,10 @@ interface Props {
 const getMaturityDate = (rowData: any) => new Date(rowData.maturity_date);
 
 function BankLoansDataGrid({
+  isMaturityVisible,
   fullView,
   loansPastDue,
-  matureDays,
+  matureDays = 0,
   filterByStatus,
   loans,
   actionItems = [],
@@ -46,7 +50,7 @@ function BankLoansDataGrid({
     dataGrid.instance.clearFilter(getMaturityDate);
     if (loansPastDue)
       dataGrid.instance.filter([getMaturityDate, "<", new Date(Date.now())]);
-    if (matureDays && matureDays > 0)
+    if (matureDays > 0)
       dataGrid.instance.filter([
         [getMaturityDate, ">", new Date(Date.now())],
         "and",
@@ -115,6 +119,16 @@ function BankLoansDataGrid({
       dataField: "company.name",
       caption: "Customer Name",
       width: 190,
+      cellRender: (params: ValueFormatterParams) => (
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Box>{params.row.data.company.name as string}</Box>
+          <Box ml={0.5}>
+            <Link to={`/customers/${params.row.data.company.id}/loans`}>
+              <FilterList></FilterList>
+            </Link>
+          </Box>
+        </Box>
+      ),
     },
     {
       caption: "Loan Type",
@@ -128,11 +142,18 @@ function BankLoansDataGrid({
       caption: "Vendor Name",
       width: 190,
     },
-  ];
-
-  if (matureDays && matureDays > 0) {
-    columns.push({
-      caption: "Loan Date",
+    {
+      caption: "Loan Amount",
+      alignment: "right",
+      width: 120,
+      cellRender: (params: ValueFormatterParams) => (
+        <CurrencyDataGridCell
+          value={params.row.data.amount}
+        ></CurrencyDataGridCell>
+      ),
+    },
+    {
+      caption: "Payment Date",
       alignment: "center",
       width: 140,
       cellRender: (params: ValueFormatterParams) => (
@@ -140,18 +161,28 @@ function BankLoansDataGrid({
           dateString={params.row.data.origination_date}
         ></DateDataGridCell>
       ),
-    });
-  }
-  columns.push({
-    caption: "Loan Amount",
-    alignment: "right",
-    width: 120,
-    cellRender: (params: ValueFormatterParams) => (
-      <CurrencyDataGridCell
-        value={params.row.data.amount}
-      ></CurrencyDataGridCell>
-    ),
-  });
+    },
+    ...(isMaturityVisible
+      ? [
+          {
+            caption: "Maturity Date",
+            alignment: "center",
+            width: 120,
+            cellRender: (params: ValueFormatterParams) => (
+              <DateDataGridCell
+                dateString={params.row.data.maturity_date}
+              ></DateDataGridCell>
+            ),
+          },
+          {
+            caption: "Maturing in (Days)",
+            width: 150,
+            alignment: "center",
+            cellRender: maturingInDaysRenderer,
+          },
+        ]
+      : []),
+  ];
 
   if (loansPastDue) {
     columns.push({
@@ -166,32 +197,11 @@ function BankLoansDataGrid({
       alignment: "center",
       width: 150,
     });
-  }
-
-  columns.push({
-    caption: "Maturity Date",
-    alignment: "center",
-    width: 120,
-    cellRender: (params: ValueFormatterParams) => (
-      <DateDataGridCell
-        dateString={params.row.data.maturity_date}
-      ></DateDataGridCell>
-    ),
-  });
-
-  if (loansPastDue) {
     columns.push({
       caption: "Days Past Due",
       width: 130,
       alignment: "center",
       cellRender: daysPastDueRenderer,
-    });
-  } else {
-    columns.push({
-      caption: "Maturing in (Days)",
-      width: 150,
-      alignment: "center",
-      cellRender: maturingInDaysRenderer,
     });
   }
 

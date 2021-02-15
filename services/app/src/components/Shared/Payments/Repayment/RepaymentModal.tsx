@@ -110,7 +110,6 @@ function RepaymentModal({
           <LoansDataGrid
             loans={selectedLoans}
             customerSearchQuery={""}
-            onClickCustomerName={() => {}}
           ></LoansDataGrid>
           {!onConfirmationSection && (
             <>

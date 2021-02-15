@@ -30,7 +30,6 @@ function PaymentAdvanceForm({ payment, selectedLoans, setPayment }: Props) {
         <LoansDataGrid
           loans={selectedLoans}
           customerSearchQuery={""}
-          onClickCustomerName={() => {}}
         ></LoansDataGrid>
       </Box>
       <Box mt={3}>

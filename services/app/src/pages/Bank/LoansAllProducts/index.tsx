@@ -16,6 +16,7 @@ function LoansAllProductsPage() {
     <Page appBarTitle={"Loans All Products"}>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <BankLoansDataGrid
+          isMaturityVisible
           fullView
           loansPastDue={false}
           loans={loans}

@@ -5,7 +5,7 @@ import {
   useLoansByStatusesForBankQuery,
 } from "generated/graphql";
 import { bankRoutes } from "lib/routes";
-import LoansTable from "pages/Bank/Overview/BankDashboard/LoansTable";
+import BankOverviewLoansTable from "pages/Bank/Overview/BankOverviewLoansTable";
 
 function BankOverviewPage() {
   const {
@@ -55,26 +55,29 @@ function BankOverviewPage() {
 
   return (
     <Page appBarTitle={"Overview"}>
-      <LoansTable
+      <BankOverviewLoansTable
+        isMaturityVisible={false}
         loans={approvalRequestedLoans}
         tableName={"Loans Approval Requested"}
         routeToTablePage={bankRoutes.loansApprovalRequested}
         loansPastDue={false}
         filterByStatus={RequestStatusEnum.ApprovalRequested}
-      ></LoansTable>
-      <LoansTable
+      ></BankOverviewLoansTable>
+      <BankOverviewLoansTable
+        isMaturityVisible
         loans={maturingLoans}
         tableName={"Loans Maturing in 14 Days"}
         routeToTablePage={bankRoutes.loansMaturing}
         loansPastDue={false}
         matureDays={14}
-      ></LoansTable>
-      <LoansTable
+      ></BankOverviewLoansTable>
+      <BankOverviewLoansTable
+        isMaturityVisible
         loans={pastDueLoans}
         tableName={"Loans Past Due"}
         routeToTablePage={bankRoutes.loansPastDue}
         loansPastDue={true}
-      ></LoansTable>
+      ></BankOverviewLoansTable>
     </Page>
   );
 }

@@ -24,6 +24,7 @@ function LoansPastDuePage() {
     <Page appBarTitle={"Loans Past Due"}>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <BankLoansDataGrid
+          isMaturityVisible
           loans={purchaseOrderLoans}
           fullView={true}
           loansPastDue={true}

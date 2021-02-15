@@ -57,6 +57,7 @@ function BankLoansMaturingPage() {
       </Box>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <BankLoansDataGrid
+          isMaturityVisible
           loans={loans}
           fullView={true}
           loansPastDue={false}
