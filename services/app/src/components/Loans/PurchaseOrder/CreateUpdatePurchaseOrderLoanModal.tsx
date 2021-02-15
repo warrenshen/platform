@@ -20,8 +20,8 @@ import {
   useLoanSiblingsQuery,
   useUpdateLoanMutation,
 } from "generated/graphql";
-import { ActionType } from "lib/ActionType";
 import { authenticatedApi, loansRoutes } from "lib/api";
+import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useState } from "react";
 import PurchaseOrderLoanForm from "./PurchaseOrderLoanForm";
@@ -247,7 +247,7 @@ function CreateUpdatePurchaseOrderLoanModal({
           setLoan={setLoan}
           approvedPurchaseOrders={approvedPurchaseOrders}
           selectedPurchaseOrder={selectedPurchaseOrder}
-        ></PurchaseOrderLoanForm>
+        />
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
         <Box>

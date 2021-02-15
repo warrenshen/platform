@@ -1,13 +1,6 @@
 .env
 .idea
-*.pyc
-__pycache__/
-.ipynb_checkpoints/
-.mypy_cache/
-*.log
-*.xlsx
-*.log
-out*
+
 # Text files
 log*/
 .DS_Store

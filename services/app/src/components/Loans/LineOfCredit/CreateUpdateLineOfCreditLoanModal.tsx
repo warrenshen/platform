@@ -23,8 +23,8 @@ import {
   useLoanSiblingsQuery,
   useUpdateLineOfCreditAndLoanMutation,
 } from "generated/graphql";
-import { ActionType } from "lib/ActionType";
 import { authenticatedApi, loansRoutes } from "lib/api";
+import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
 import LineOfCreditLoanForm from "./LineOfCreditLoanForm";
@@ -289,7 +289,7 @@ function CreateUpdateLineOfCreditLoanModal({
           selectableVendors={selectableVendors}
           setLineOfCredit={setLineOfCredit}
           setLoan={setLoan}
-        ></LineOfCreditLoanForm>
+        />
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
         <Box>

@@ -3,8 +3,8 @@ import Can from "components/Shared/Can";
 import CreateUpdatePurchaseOrderModal from "components/Shared/PurchaseOrders/CreateUpdatePurchaseOrderModal";
 import PurchaseOrdersDataGrid from "components/Shared/PurchaseOrders/PurchaseOrdersDataGrid";
 import { usePurchaseOrdersByCompanyIdQuery } from "generated/graphql";
-import { ActionType } from "lib/ActionType";
 import { Action } from "lib/auth/rbac-rules";
+import { ActionType } from "lib/enum";
 import { useState } from "react";
 
 interface Props {
@@ -45,7 +45,7 @@ function BankCustomerPurchaseOrdersSubpage({ companyId }: Props) {
             refetch();
             setIsEditModalOpen(false);
           }}
-        ></CreateUpdatePurchaseOrderModal>
+        />
       )}
       <Box mb={2} display="flex" flexDirection="row-reverse">
         <Can perform={Action.AddPurchaseOrders}>
@@ -69,7 +69,7 @@ function BankCustomerPurchaseOrdersSubpage({ companyId }: Props) {
               handleEditPurchaseOrder(params.row.data.id as string),
           },
         ]}
-      ></PurchaseOrdersDataGrid>
+      />
     </Box>
   );
 }

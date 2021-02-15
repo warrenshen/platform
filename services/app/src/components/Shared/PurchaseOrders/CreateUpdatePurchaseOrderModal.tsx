@@ -20,8 +20,8 @@ import {
   useUpdatePurchaseOrderMutation,
   useVendorsByPartnerCompanyQuery,
 } from "generated/graphql";
-import { ActionType } from "lib/ActionType";
 import { authenticatedApi, purchaseOrdersRoutes } from "lib/api";
+import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
 

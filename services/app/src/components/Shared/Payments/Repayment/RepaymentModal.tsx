@@ -11,9 +11,9 @@ import {
   Select,
 } from "@material-ui/core";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
+import LoansDataGrid from "components/Loans/LoansDataGrid";
 import { PaymentTransferType } from "components/Shared/BankToBankTransfer";
 import DatePicker from "components/Shared/Dates/DatePicker";
-import LoansDataGrid from "components/Shared/Loans/LoansDataGrid";
 import ConfirmationSection from "components/Shared/Payments/Repayment/ConfirmationSection";
 import {
   Companies,
@@ -28,7 +28,9 @@ import {
 import {
   calculateEffectOfPayment,
   createPayment,
+  LoanBalance,
 } from "lib/finance/payments/repayment";
+import { BeforeAfterPaymentLoan } from "lib/types";
 import { useState } from "react";
 
 interface Props {
@@ -65,6 +67,10 @@ function RepaymentModal({
   // have selected.
   const [onConfirmationSection, setOnConfirmationSection] = useState(false);
 
+  const [beforeAfterPaymentLoans, setBeforeAfterPaymentLoans] = useState<
+    BeforeAfterPaymentLoan[]
+  >([]);
+
   const isDepositDateSet =
     payment.deposit_date !== null || payment.deposit_date !== undefined;
 
@@ -88,8 +94,72 @@ function RepaymentModal({
     return l.id;
   });
 
+  const handleClickNext = async () => {
+    if (payment.amount && payment.amount.length > 0) {
+      payment.amount = parseFloat(payment.amount);
+    }
+    const resp = await calculateEffectOfPayment({
+      payment: payment,
+      company_id: companyId,
+      payment_option: paymentOption,
+      loan_ids: selectedLoanIds,
+    });
+    if (resp.status !== "OK") {
+      setErrMsg(resp.msg || "");
+    } else {
+      setErrMsg("");
+      setPayment({ ...payment, amount: resp.amount_to_pay || 0 });
+      if (resp.loans_afterwards) {
+        setBeforeAfterPaymentLoans(
+          resp.loans_afterwards.map((loan_afterwards) => {
+            const beforeLoan = selectedLoans.find(
+              (selectedLoan) => selectedLoan.id === loan_afterwards.loan_id
+            );
+            return {
+              loan_id: beforeLoan?.id,
+              loan_balance_before: {
+                outstanding_principal_balance:
+                  beforeLoan?.outstanding_principal_balance,
+                outstanding_interest: beforeLoan?.outstanding_interest,
+                outstanding_fees: beforeLoan?.outstanding_fees,
+              } as LoanBalance,
+              loan_balance_after: {
+                outstanding_principal_balance:
+                  loan_afterwards.loan_balance.outstanding_principal_balance,
+                outstanding_interest:
+                  loan_afterwards.loan_balance.outstanding_interest,
+                outstanding_fees: loan_afterwards.loan_balance.outstanding_fees,
+              } as LoanBalance,
+            } as BeforeAfterPaymentLoan;
+          })
+        );
+      }
+      setOnConfirmationSection(true);
+    }
+  };
+
+  const handleClickConfirm = async () => {
+    if (payment.amount !== null && payment.amount !== undefined) {
+      payment.amount = parseFloat(payment.amount);
+    } else {
+      setErrMsg("Payment amount must be larger than 0");
+      return;
+    }
+    const resp = await createPayment({
+      payment: payment,
+      company_id: companyId,
+      loan_ids: selectedLoanIds,
+    });
+    if (resp.status !== "OK") {
+      setErrMsg(resp.msg);
+    } else {
+      setErrMsg("");
+      setOpen(false);
+    }
+  };
+
   return (
-    <Dialog open onClose={handleClose} fullWidth>
+    <Dialog open fullWidth maxWidth="md" onClose={handleClose}>
       <DialogTitle>
         Create a Payment
         <span style={{ float: "right" }}>
@@ -107,12 +177,13 @@ function RepaymentModal({
       </DialogTitle>
       <DialogContent style={{ minHeight: 400 }}>
         <Box display="flex" flexDirection="column">
-          <LoansDataGrid
-            loans={selectedLoans}
-            customerSearchQuery={""}
-          ></LoansDataGrid>
-          {!onConfirmationSection && (
-            <>
+          {!onConfirmationSection ? (
+            <Box>
+              <LoansDataGrid
+                isStatusVisible={false}
+                loans={selectedLoans}
+                customerSearchQuery={""}
+              />
               <Box>
                 <DatePicker
                   className=""
@@ -148,7 +219,7 @@ function RepaymentModal({
                 >
                   {AllPaymentMethods.map((paymentType) => {
                     return (
-                      <MenuItem value={paymentType}>
+                      <MenuItem key={paymentType} value={paymentType}>
                         {PaymentMethodToLabel[paymentType]}
                       </MenuItem>
                     );
@@ -172,7 +243,10 @@ function RepaymentModal({
                 >
                   {paymentOptions.map((paymentOption) => {
                     return (
-                      <MenuItem value={paymentOption.value}>
+                      <MenuItem
+                        key={paymentOption.value}
+                        value={paymentOption.value}
+                      >
                         {paymentOption.displayValue}
                       </MenuItem>
                     );
@@ -191,20 +265,20 @@ function RepaymentModal({
                       onChange={(_event: any, value: string) => {
                         setPayment({ ...payment, amount: value });
                       }}
-                    ></CurrencyTextField>
+                    />
                   </FormControl>
                 )}
               </Box>
-            </>
-          )}
-          <Box mt={3}>
-            {onConfirmationSection && (
+            </Box>
+          ) : (
+            <Box>
               <ConfirmationSection
+                beforeAfterPaymentLoans={beforeAfterPaymentLoans}
                 payment={payment}
                 setPayment={setPayment}
-              ></ConfirmationSection>
-            )}
-          </Box>
+              />
+            </Box>
+          )}
         </Box>
       </DialogContent>
       <DialogActions>
@@ -215,26 +289,9 @@ function RepaymentModal({
             {!onConfirmationSection && (
               <Button
                 disabled={!isNextButtonEnabled}
-                onClick={async () => {
-                  if (payment.amount && payment.amount.length > 0) {
-                    payment.amount = parseFloat(payment.amount);
-                  }
-                  const resp = await calculateEffectOfPayment({
-                    payment: payment,
-                    company_id: companyId,
-                    payment_option: paymentOption,
-                    loan_ids: selectedLoanIds,
-                  });
-                  if (resp.status !== "OK") {
-                    setErrMsg(resp.msg || "");
-                  } else {
-                    setErrMsg("");
-                    setPayment({ ...payment, amount: resp.amount_to_pay || 0 });
-                    setOnConfirmationSection(true);
-                  }
-                }}
                 variant="contained"
                 color="primary"
+                onClick={handleClickNext}
               >
                 Next
               </Button>
@@ -242,27 +299,9 @@ function RepaymentModal({
             {onConfirmationSection && (
               <Button
                 disabled={!isActionButtonEnabled}
-                onClick={async () => {
-                  if (payment.amount !== null && payment.amount !== undefined) {
-                    payment.amount = parseFloat(payment.amount);
-                  } else {
-                    setErrMsg("Payment amount must be larger than 0");
-                    return;
-                  }
-                  const resp = await createPayment({
-                    payment: payment,
-                    company_id: companyId,
-                    loan_ids: selectedLoanIds,
-                  });
-                  if (resp.status !== "OK") {
-                    setErrMsg(resp.msg);
-                  } else {
-                    setErrMsg("");
-                    setOpen(false);
-                  }
-                }}
                 variant="contained"
                 color="primary"
+                onClick={handleClickConfirm}
               >
                 {actionBtnText}
               </Button>

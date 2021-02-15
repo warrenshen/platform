@@ -20,7 +20,7 @@ function RepaymentButton({ selectedLoans }: Props) {
           handleClose={() => setOpen(false)}
           selectedLoans={selectedLoans}
           setOpen={setOpen}
-        ></RepaymentModal>
+        />
       )}
       <Button
         disabled={selectedLoans.length <= 0}

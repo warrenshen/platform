@@ -17,7 +17,7 @@ function BankCustomerCompanyProfileSubpage({ companyId }: Props) {
 
   const company = data?.companies_by_pk;
 
-  return company ? <CompanyInfo company={company}></CompanyInfo> : null;
+  return company ? <CompanyInfo company={company} /> : null;
 }
 
 export default BankCustomerCompanyProfileSubpage;

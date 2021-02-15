@@ -5,8 +5,8 @@ import CreateUpdatePurchaseOrderModal from "components/Shared/PurchaseOrders/Cre
 import PurchaseOrdersDataGrid from "components/Shared/PurchaseOrders/PurchaseOrdersDataGrid";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { usePurchaseOrdersByCompanyIdQuery } from "generated/graphql";
-import { ActionType } from "lib/ActionType";
 import { Action } from "lib/auth/rbac-rules";
+import { ActionType } from "lib/enum";
 import React, { useContext, useState } from "react";
 
 function PurchaseOrdersPage() {
@@ -48,7 +48,7 @@ function PurchaseOrdersPage() {
               refetch();
               setIsEditModalOpen(false);
             }}
-          ></CreateUpdatePurchaseOrderModal>
+          />
         )}
         <Box mb={2} display="flex" flexDirection="row-reverse">
           <Can perform={Action.AddPurchaseOrders}>
@@ -72,7 +72,7 @@ function PurchaseOrdersPage() {
                 handleEditPurchaseOrder(params.row.data.id as string),
             },
           ]}
-        ></PurchaseOrdersDataGrid>
+        />
       </Box>
     </Page>
   );

@@ -8,13 +8,13 @@ import {
   LoanTypeEnum,
   useLoansByCompanyAndLoanTypeForCustomerQuery,
 } from "generated/graphql";
-import { ActionType } from "lib/ActionType";
 import { Action } from "lib/auth/rbac-rules";
+import { ActionType } from "lib/enum";
 import { useContext, useState } from "react";
 import CreateUpdatePurchaseOrderLoanModal from "./CreateUpdatePurchaseOrderLoanModal";
 import PurchaseOrderLoansDataGrid from "./PurchaseOrderLoansDataGrid";
 
-function LoansGrid() {
+function PurchaseOrderLoansForCustomer() {
   const {
     user: { companyId },
   } = useContext(CurrentUserContext);
@@ -27,6 +27,7 @@ function LoansGrid() {
       },
     }
   );
+
   if (error) {
     alert("Error querying purchase orders. " + error);
   }
@@ -54,21 +55,21 @@ function LoansGrid() {
             refetch();
             setIsCreateUpdateModalOpen(false);
           }}
-        ></CreateUpdatePurchaseOrderLoanModal>
+        />
       )}
-      <Box pb={2} display="flex" flexDirection="row-reverse">
+      <Box display="flex" flexDirection="row-reverse" mb={2}>
         <Can perform={Action.AddPurchaseOrders}>
           <Button
-            onClick={() => setIsCreateUpdateModalOpen(true)}
             variant="contained"
             color="primary"
+            onClick={() => setIsCreateUpdateModalOpen(true)}
           >
             Create Loan
           </Button>
         </Can>
         <Can perform={Action.RepayPurchaseOrderLoans}>
           <Box mr={2}>
-            <RepaymentButton selectedLoans={selectedLoans}></RepaymentButton>
+            <RepaymentButton selectedLoans={selectedLoans} />
           </Box>
         </Can>
       </Box>
@@ -86,16 +87,12 @@ function LoansGrid() {
           ]}
           handleSelectLoans={(loans) => {
             setSelectedLoans(loans);
-            setSelectedLoanIds(
-              loans.map((loan) => {
-                return loan.id;
-              })
-            );
+            setSelectedLoanIds(loans.map((loan) => loan.id));
           }}
-        ></PurchaseOrderLoansDataGrid>
+        />
       </Box>
     </Box>
   );
 }
 
-export default LoansGrid;
+export default PurchaseOrderLoansForCustomer;

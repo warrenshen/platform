@@ -49,7 +49,7 @@ function LineOfCreditLoansDataGrid({ loans, actionItems }: Props) {
         <LoanDrawerLauncher
           label={truncateUuid(params.row.data.id as string)}
           loanId={params.row.data.id as string}
-        ></LoanDrawerLauncher>
+        />
       ),
     },
     {
@@ -58,9 +58,7 @@ function LineOfCreditLoansDataGrid({ loans, actionItems }: Props) {
       alignment: "center",
       minWidth: 175,
       cellRender: (params: ValueFormatterParams) => (
-        <LoanStatusChip
-          loanStatus={params.value as LoanStatusEnum}
-        ></LoanStatusChip>
+        <LoanStatusChip loanStatus={params.value as LoanStatusEnum} />
       ),
     },
     {
@@ -78,9 +76,7 @@ function LineOfCreditLoansDataGrid({ loans, actionItems }: Props) {
       caption: "Amount",
       minWidth: 150,
       cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell
-          value={params.row.data.amount}
-        ></CurrencyDataGridCell>
+        <CurrencyDataGridCell value={params.row.data.amount} />
       ),
     },
     {
@@ -88,9 +84,7 @@ function LineOfCreditLoansDataGrid({ loans, actionItems }: Props) {
       alignment: "right",
       minWidth: 140,
       cellRender: (params: ValueFormatterParams) => (
-        <DateDataGridCell
-          dateString={params.row.data.origination_date}
-        ></DateDataGridCell>
+        <DateDataGridCell dateString={params.row.data.origination_date} />
       ),
     },
     {
@@ -98,9 +92,7 @@ function LineOfCreditLoansDataGrid({ loans, actionItems }: Props) {
       alignment: "right",
       minWidth: 140,
       cellRender: (params: ValueFormatterParams) => (
-        <DateDataGridCell
-          dateString={params.row.data.maturity_date}
-        ></DateDataGridCell>
+        <DateDataGridCell dateString={params.row.data.maturity_date} />
       ),
     },
     {
@@ -110,7 +102,7 @@ function LineOfCreditLoansDataGrid({ loans, actionItems }: Props) {
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell
           value={params.row.data.outstanding_principal_balance}
-        ></CurrencyDataGridCell>
+        />
       ),
     },
     {
@@ -120,10 +112,7 @@ function LineOfCreditLoansDataGrid({ loans, actionItems }: Props) {
       minWidth: 100,
       visible: check(user.role, Action.ViewPurchaseOrdersActionMenu),
       cellRender: (params: ValueFormatterParams) => (
-        <DataGridActionMenu
-          params={params}
-          actionItems={actionItems}
-        ></DataGridActionMenu>
+        <DataGridActionMenu params={params} actionItems={actionItems} />
       ),
     },
   ];

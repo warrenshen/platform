@@ -7,7 +7,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
-import LoansDataGrid from "components/Shared/Loans/LoansDataGrid";
+import LoansDataGrid from "components/Loans/LoansDataGrid";
 import { LoanFragment, PaymentsInsertInput } from "generated/graphql";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
 
@@ -28,9 +28,10 @@ function PaymentAdvanceForm({ payment, selectedLoans, setPayment }: Props) {
       </Box>
       <Box mt={3}>
         <LoansDataGrid
+          isStatusVisible={false}
           loans={selectedLoans}
           customerSearchQuery={""}
-        ></LoansDataGrid>
+        />
       </Box>
       <Box mt={3}>
         <InputLabel id="select-payment-method-label" required>
@@ -66,7 +67,7 @@ function PaymentAdvanceForm({ payment, selectedLoans, setPayment }: Props) {
             outputFormat="string"
             textAlign="left"
             value={payment.amount}
-          ></CurrencyTextField>
+          />
         </FormControl>
       </Box>
     </Box>

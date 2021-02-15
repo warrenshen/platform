@@ -34,7 +34,7 @@ function EbbaApplicationsDataGrid({ ebbaApplications, actionItems }: Props) {
         <EbbaApplicationDrawerLauncher
           label={truncateUuid(params.row.data.id as string)}
           ebbaApplicationId={params.row.data.id}
-        ></EbbaApplicationDrawerLauncher>
+        />
       ),
     },
     {
@@ -64,7 +64,7 @@ function EbbaApplicationsDataGrid({ ebbaApplications, actionItems }: Props) {
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell
           value={params.row.data.monthly_accounts_receivable}
-        ></CurrencyDataGridCell>
+        />
       ),
     },
     {
@@ -72,9 +72,7 @@ function EbbaApplicationsDataGrid({ ebbaApplications, actionItems }: Props) {
       caption: "Monthly Inventory",
       alignment: "right",
       cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell
-          value={params.row.data.monthly_inventory}
-        ></CurrencyDataGridCell>
+        <CurrencyDataGridCell value={params.row.data.monthly_inventory} />
       ),
     },
     {
@@ -82,9 +80,7 @@ function EbbaApplicationsDataGrid({ ebbaApplications, actionItems }: Props) {
       caption: "Monthly Cash",
       alignment: "right",
       cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell
-          value={params.row.data.monthly_cash}
-        ></CurrencyDataGridCell>
+        <CurrencyDataGridCell value={params.row.data.monthly_cash} />
       ),
     },
   ];

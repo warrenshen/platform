@@ -1,7 +1,14 @@
 // This component shows all the details about their repayment
 // before the user either clicks "Schedule" in the case of reverse_ach
 // or "Close" in the case of all other payment types.
-import { Box } from "@material-ui/core";
+import {
+  Box,
+  createStyles,
+  makeStyles,
+  Theme,
+  Typography,
+} from "@material-ui/core";
+import { ArrowRightAlt } from "@material-ui/icons";
 import { Alert } from "@material-ui/lab";
 import BankToBankTransfer, {
   PaymentTransferType,
@@ -10,14 +17,57 @@ import CompanyBank from "components/Shared/BankToBankTransfer/CompanyBank";
 import { BankAccounts, PaymentsInsertInput } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { PaymentMethodEnum } from "lib/enum";
+import { BeforeAfterPaymentLoan } from "lib/types";
 import { useCallback } from "react";
+import LoanBalancesDataGrid from "./LoanBalancesDataGrid";
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    container: {
+      display: "flex",
+      flexDirection: "column",
+    },
+    section: {
+      display: "flex",
+      flexDirection: "column",
+    },
+    sectionSpace: {
+      height: theme.spacing(4),
+    },
+    beforeAfterPaymentLoan: {
+      display: "flex",
+      alignItems: "center",
+
+      width: "100%",
+    },
+    middle: {
+      display: "flex",
+      justifyContent: "center",
+      width: 40,
+    },
+    beforePaymentLoan: {
+      flex: 1,
+    },
+    afterPaymentLoan: {
+      flex: 1,
+    },
+  })
+);
 
 interface Props {
+  beforeAfterPaymentLoans: BeforeAfterPaymentLoan[];
   payment: PaymentsInsertInput;
   setPayment: React.Dispatch<React.SetStateAction<PaymentsInsertInput>>;
 }
 
-function ConfirmationSection({ payment, setPayment }: Props) {
+function ConfirmationSection({
+  beforeAfterPaymentLoans,
+  payment,
+  setPayment,
+}: Props) {
+  const classes = useStyles();
+
+  console.log({ beforeAfterPaymentLoans });
   const onBespokeBankAccountSelection = useCallback(
     (id: BankAccounts["id"]) => {
       setPayment((payment) => {
@@ -37,7 +87,43 @@ function ConfirmationSection({ payment, setPayment }: Props) {
   );
 
   return (
-    <>
+    <Box>
+      <Box>
+        <Box className={classes.beforeAfterPaymentLoan}>
+          <Box className={classes.beforePaymentLoan}>
+            <Typography variant="h5">Before</Typography>
+          </Box>
+          <Box className={classes.middle} />
+          <Box className={classes.afterPaymentLoan}>
+            <Typography variant="h5">After</Typography>
+          </Box>
+        </Box>
+        <Box className={classes.beforeAfterPaymentLoan}>
+          <Box className={classes.beforePaymentLoan}>
+            <LoanBalancesDataGrid
+              loanBalances={beforeAfterPaymentLoans.map(
+                (beforeAfterPaymentLoan) => ({
+                  ...beforeAfterPaymentLoan.loan_balance_before,
+                  id: beforeAfterPaymentLoan.loan_id,
+                })
+              )}
+            />
+          </Box>
+          <Box className={classes.middle}>
+            <ArrowRightAlt />
+          </Box>
+          <Box className={classes.afterPaymentLoan}>
+            <LoanBalancesDataGrid
+              loanBalances={beforeAfterPaymentLoans.map(
+                (beforeAfterPaymentLoan) => ({
+                  ...beforeAfterPaymentLoan.loan_balance_after,
+                  id: beforeAfterPaymentLoan.loan_id,
+                })
+              )}
+            />
+          </Box>
+        </Box>
+      </Box>
       {payment.amount <= 0 && (
         <Box>No amount is currently due. No further action is required</Box>
       )}
@@ -52,7 +138,7 @@ function ConfirmationSection({ payment, setPayment }: Props) {
                 companyId={payment.company_id}
                 onBespokeBankAccountSelection={onBespokeBankAccountSelection}
                 onCompanyBankAccountSelection={onCompanyBankAccountSelection}
-              ></BankToBankTransfer>
+              />
               <Box mt={2}>
                 <Alert severity="warning">
                   After clicking "Notify", you must initiate this transfer for{" "}
@@ -71,7 +157,7 @@ function ConfirmationSection({ payment, setPayment }: Props) {
                 onCompanyBankAccountSelection={(id: BankAccounts["id"]) =>
                   setPayment({ ...payment, company_bank_account_id: id })
                 }
-              ></CompanyBank>
+              />
               <Box mt={2}>
                 <Alert severity="info">
                   Click "Schedule" for Bespoke to initiate this transfer for{" "}
@@ -104,7 +190,7 @@ function ConfirmationSection({ payment, setPayment }: Props) {
           )}
         </Box>
       )}
-    </>
+    </Box>
   );
 }
 

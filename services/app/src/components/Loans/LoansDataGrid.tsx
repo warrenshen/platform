@@ -1,19 +1,22 @@
+import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { LoanFragment, LoanStatusEnum } from "generated/graphql";
+import { truncateUuid } from "lib/uuid";
 import { useEffect, useState } from "react";
 
 interface Props {
+  isStatusVisible: boolean;
   loans: LoanFragment[];
   customerSearchQuery: string;
 }
 
 // TODO (warrenshen): merge this component with the other LoansDataGrid
 // component to create a reusable component?
-function LoansDataGrid({ loans, customerSearchQuery }: Props) {
+function LoansDataGrid({ isStatusVisible, loans, customerSearchQuery }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = loans;
 
@@ -35,53 +38,61 @@ function LoansDataGrid({ loans, customerSearchQuery }: Props) {
       dataField: "id",
       caption: "ID",
       width: 120,
-    },
-    {
-      dataField: "status",
-      caption: "Status",
-      width: 120,
-      alignment: "center",
       cellRender: (params: ValueFormatterParams) => (
-        <LoanStatusChip
-          loanStatus={params.value as LoanStatusEnum}
-        ></LoanStatusChip>
+        <Box>{truncateUuid(params.value as string)}</Box>
       ),
     },
+    ...(isStatusVisible
+      ? [
+          {
+            dataField: "status",
+            caption: "Status",
+            width: 120,
+            alignment: "center",
+            cellRender: (params: ValueFormatterParams) => (
+              <LoanStatusChip loanStatus={params.value as LoanStatusEnum} />
+            ),
+          },
+        ]
+      : []),
+    // {
+    //   dataField: "purchase_order.order_number",
+    //   caption: "Order Number",
+    //   width: 120,
+    // },
     {
-      dataField: "purchase_order.order_number",
-      caption: "Order Number",
+      caption: "Maturity Date",
+      alignment: "right",
       width: 120,
-    },
-    {
-      dataField: "requested_at",
-      caption: "Requested At",
-      width: 120,
+      cellRender: (params: ValueFormatterParams) => (
+        <DateDataGridCell dateString={params.row.data.maturity_date} />
+      ),
     },
     {
       caption: "Loan Amount",
       alignment: "right",
       width: 120,
       cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell
-          value={params.row.data.amount}
-        ></CurrencyDataGridCell>
+        <CurrencyDataGridCell value={params.row.data.amount} />
       ),
+    },
+    {
+      dataField: "outstanding_principal",
+      caption: "Outstanding Principal",
+      alignment: "right",
+      width: 120,
     },
     {
       dataField: "outstanding_interest",
-      caption: "Interest Accrued",
-      alignment: "center",
+      caption: "Outstanding Interest",
+      alignment: "right",
       width: 120,
     },
     {
-      caption: "Maturity Date",
+      dataField: "outstanding_fees",
+      caption: "Outstanding Fees",
       alignment: "right",
       width: 120,
-      cellRender: (params: ValueFormatterParams) => (
-        <DateDataGridCell
-          dateString={params.row.data.maturity_date}
-        ></DateDataGridCell>
-      ),
     },
   ];
 
@@ -90,7 +101,7 @@ function LoansDataGrid({ loans, customerSearchQuery }: Props) {
       dataSource={rows}
       columns={columns}
       ref={(ref) => setDataGrid(ref)}
-    ></ControlledDataGrid>
+    />
   );
 }
 

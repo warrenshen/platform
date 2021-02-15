@@ -17,15 +17,15 @@ import React, { useContext } from "react";
 
 interface Props {
   purchaseOrderLoans: LoanFragment[];
-  selectedLoanIds: Loans["id"][];
-  actionItems: DataGridActionItem[];
+  selectedLoanIds?: Loans["id"][];
+  actionItems?: DataGridActionItem[];
   handleSelectLoans?: (loans: LoanFragment[]) => void;
 }
 
 function PurchaseOrderLoansDataGrid({
   purchaseOrderLoans,
-  selectedLoanIds,
-  actionItems,
+  selectedLoanIds = [],
+  actionItems = [],
   handleSelectLoans = () => {},
 }: Props) {
   const { user } = useContext(CurrentUserContext);
@@ -41,7 +41,7 @@ function PurchaseOrderLoansDataGrid({
         <LoanDrawerLauncher
           label={truncateUuid(params.row.data.id as string)}
           loanId={params.row.data.id as string}
-        ></LoanDrawerLauncher>
+        />
       ),
     },
     {
@@ -50,9 +50,7 @@ function PurchaseOrderLoansDataGrid({
       alignment: "center",
       minWidth: 175,
       cellRender: (params: ValueFormatterParams) => (
-        <LoanStatusChip
-          loanStatus={params.value as LoanStatusEnum}
-        ></LoanStatusChip>
+        <LoanStatusChip loanStatus={params.value as LoanStatusEnum} />
       ),
     },
     {
@@ -63,7 +61,7 @@ function PurchaseOrderLoansDataGrid({
         <PurchaseOrderDrawerLauncher
           label={params.row.data.purchase_order.order_number as string}
           purchaseOrderId={params.row.data.purchase_order.id as string}
-        ></PurchaseOrderDrawerLauncher>
+        />
       ),
     },
     {
@@ -71,9 +69,7 @@ function PurchaseOrderLoansDataGrid({
       caption: "Amount",
       minWidth: 150,
       cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell
-          value={params.row.data.amount}
-        ></CurrencyDataGridCell>
+        <CurrencyDataGridCell value={params.row.data.amount} />
       ),
     },
     {
@@ -81,9 +77,7 @@ function PurchaseOrderLoansDataGrid({
       alignment: "right",
       minWidth: 140,
       cellRender: (params: ValueFormatterParams) => (
-        <DateDataGridCell
-          dateString={params.row.data.origination_date}
-        ></DateDataGridCell>
+        <DateDataGridCell dateString={params.row.data.origination_date} />
       ),
     },
     {
@@ -91,9 +85,7 @@ function PurchaseOrderLoansDataGrid({
       alignment: "right",
       minWidth: 140,
       cellRender: (params: ValueFormatterParams) => (
-        <DateDataGridCell
-          dateString={params.row.data.maturity_date}
-        ></DateDataGridCell>
+        <DateDataGridCell dateString={params.row.data.maturity_date} />
       ),
     },
     {
@@ -103,7 +95,7 @@ function PurchaseOrderLoansDataGrid({
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell
           value={params.row.data.outstanding_principal_balance}
-        ></CurrencyDataGridCell>
+        />
       ),
     },
     {
@@ -112,10 +104,7 @@ function PurchaseOrderLoansDataGrid({
       alignment: "center",
       minWidth: 100,
       cellRender: (params: ValueFormatterParams) => (
-        <DataGridActionMenu
-          params={params}
-          actionItems={actionItems}
-        ></DataGridActionMenu>
+        <DataGridActionMenu params={params} actionItems={actionItems} />
       ),
     },
     {
@@ -140,7 +129,7 @@ function PurchaseOrderLoansDataGrid({
         columns={columns}
         onSelectionChanged={onSelectionChanged}
         selectedRowKeys={selectedLoanIds}
-      ></ControlledDataGrid>
+      />
     </Box>
   );
 }

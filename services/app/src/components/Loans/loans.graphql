@@ -22,12 +22,38 @@ query LoanSiblings(
 
 query LoansByCompanyAndLoanTypeForCustomer(
   $companyId: uuid!
-  $loanType: loan_type_enum
+  $loanType: loan_type_enum!
 ) {
   loans(
     where: {
       _and: [
         { company_id: { _eq: $companyId } }
+        { loan_type: { _eq: $loanType } }
+      ]
+    }
+  ) {
+    ...LoanLimited
+    line_of_credit {
+      id
+      is_credit_for_vendor
+      recipient_vendor_id
+    }
+    purchase_order {
+      id
+      order_number
+    }
+  }
+}
+
+query GetOutstandingLoansForCustomer(
+  $companyId: uuid!
+  $loanType: loan_type_enum!
+) {
+  loans(
+    where: {
+      _and: [
+        { company_id: { _eq: $companyId } }
+        { status: { _in: [funded, past_due] } }
         { loan_type: { _eq: $loanType } }
       ]
     }
@@ -115,19 +141,5 @@ query LoansByStatusesForBank($statuses: [loan_status_enum!]) {
         name
       }
     }
-  }
-}
-
-query OpenLoansByCompany($companyId: uuid!) {
-  loans(
-    where: {
-      _and: [
-        { company_id: { _eq: $companyId } }
-        { funded_at: { _is_null: false } }
-        { closed_at: { _is_null: true } }
-      ]
-    }
-  ) {
-    ...LoanLimited
   }
 }

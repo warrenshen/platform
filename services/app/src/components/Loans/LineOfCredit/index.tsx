@@ -1,18 +1,16 @@
 import { Box, Button } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
-import Can from "components/Shared/Can";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoanTypeEnum,
   useLoansByCompanyAndLoanTypeForCustomerQuery,
 } from "generated/graphql";
-import { ActionType } from "lib/ActionType";
-import { Action } from "lib/auth/rbac-rules";
+import { ActionType } from "lib/enum";
 import { useContext, useState } from "react";
 import CreateUpdateLineOfCreditLoanModal from "./CreateUpdateLineOfCreditLoanModal";
 import LineOfCreditLoansDataGrid from "./LineOfCreditLoansDataGrid";
 
-function Loans() {
+function LineOfCreditLoansForCustomer() {
   const {
     user: { companyId },
   } = useContext(CurrentUserContext);
@@ -40,15 +38,13 @@ function Loans() {
   return (
     <Box>
       <Box pb={2} display="flex" flexDirection="row-reverse">
-        <Can perform={Action.AddPurchaseOrders}>
-          <Button
-            onClick={() => setIsCreateUpdateModalOpen(true)}
-            variant="contained"
-            color="primary"
-          >
-            Create Drawdown
-          </Button>
-        </Can>
+        <Button
+          onClick={() => setIsCreateUpdateModalOpen(true)}
+          variant="contained"
+          color="primary"
+        >
+          Create Drawdown
+        </Button>
         {isCreateUpdateModalOpen && (
           <CreateUpdateLineOfCreditLoanModal
             actionType={
@@ -60,7 +56,7 @@ function Loans() {
               refetch();
               setIsCreateUpdateModalOpen(false);
             }}
-          ></CreateUpdateLineOfCreditLoanModal>
+          />
         )}
       </Box>
       <Box flex={1} display="flex">
@@ -76,10 +72,10 @@ function Loans() {
               },
             },
           ]}
-        ></LineOfCreditLoansDataGrid>
+        />
       </Box>
     </Box>
   );
 }
 
-export default Loans;
+export default LineOfCreditLoansForCustomer;

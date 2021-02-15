@@ -60,7 +60,8 @@ const getCustomerLeftNavItems = (productType: ProductTypeEnum) => {
       link: customerRoutes.overview,
     },
     {
-      text: "Loans",
+      text:
+        productType === ProductTypeEnum.LineOfCredit ? "Drawdowns" : "Loans",
       link: customerRoutes.loans,
     },
     ...(productType === ProductTypeEnum.InventoryFinancing

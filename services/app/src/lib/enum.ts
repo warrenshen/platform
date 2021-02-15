@@ -8,6 +8,13 @@ import {
 import InventoryContractTermsJson from "./inventory_contract_terms.json";
 import LineOfCreditContractTermsJson from "./line_of_credit_contract_terms.json";
 
+// Action Type enum related.
+export enum ActionType {
+  New,
+  Update,
+  Copy,
+}
+
 // Loan Status enum related.
 export const LoanStatusToLabel = {
   [LoanStatusEnum.Drafted]: "Drafted",

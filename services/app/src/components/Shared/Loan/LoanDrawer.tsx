@@ -10,6 +10,7 @@ import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Loans,
+  ProductTypeEnum,
   useGetLoanWithArtifactForCustomerQuery,
   UserRolesEnum,
 } from "generated/graphql";
@@ -35,7 +36,7 @@ interface Props {
 function LoanDrawer({ loanId, handleClose }: Props) {
   const classes = useStyles();
   const {
-    user: { role },
+    user: { role, productType },
   } = useContext(CurrentUserContext);
 
   const isBankUser = role === UserRolesEnum.BankAdmin;
@@ -51,7 +52,9 @@ function LoanDrawer({ loanId, handleClose }: Props) {
   return loan ? (
     <Drawer open anchor="right" onClose={handleClose}>
       <Box className={classes.drawerContent} p={4}>
-        <Typography variant="h5">Loan</Typography>
+        <Typography variant="h5">
+          {productType === ProductTypeEnum.LineOfCredit ? "Drawdown" : "Loan"}
+        </Typography>
         <Box display="flex" flexDirection="column" mt={2}>
           <Box
             display="flex"
@@ -73,7 +76,7 @@ function LoanDrawer({ loanId, handleClose }: Props) {
             <Typography variant="subtitle2" color="textSecondary">
               Status
             </Typography>
-            <LoanStatusChip loanStatus={loan.status}></LoanStatusChip>
+            <LoanStatusChip loanStatus={loan.status} />
           </Box>
           {isBankUser && (
             <Box
