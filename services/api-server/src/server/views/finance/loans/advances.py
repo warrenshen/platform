@@ -28,14 +28,13 @@ class HandleAdvanceView(MethodView):
 				return handler_util.make_error_response(
 					'Missing key {} from handle payment request'.format(key))
 
-		payment_input = form['payment']
-		loan_ids = form['loan_ids']
 		user_session = auth_util.UserSession.from_session()
 
 		resp, err = advance_util.fund_loans_with_advance(
+			req=form,
 			bank_admin_user_id=user_session.get_user_id(),
-			loan_ids=loan_ids, payment_input=payment_input,
-			session_maker=current_app.session_maker)
+			session_maker=current_app.session_maker
+		)
 
 		if err:
 			return handler_util.make_error_response(err)

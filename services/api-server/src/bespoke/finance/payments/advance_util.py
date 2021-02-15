@@ -16,14 +16,21 @@ from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 
+FundLoansReqDict = TypedDict('FundLoansReqDict', {
+	'loan_ids': List[str],
+	'payment': payment_util.PaymentInsertInputDict
+})
+
 FundLoansRespDict = TypedDict('FundLoansRespDict', {
 	'status': str
 })
 
 def fund_loans_with_advance(
-	bank_admin_user_id: str,
-	loan_ids: List[str], payment_input: payment_util.PaymentInsertInputDict,
+	req: FundLoansReqDict, bank_admin_user_id: str, 
 	session_maker: Callable) -> Tuple[FundLoansRespDict, errors.Error]:
+
+	payment_input = req['payment']
+	loan_ids = req['loan_ids']
 
 	err_details = {
 		'payment_input': payment_input,
@@ -87,6 +94,9 @@ def fund_loans_with_advance(
 
 			company_id_to_loans[company_id].append(loan_dict)
 
+		deposit_date = date_util.load_date_str(payment_input['deposit_date'])
+		effective_date = date_util.load_date_str(payment_input['effective_date'])
+
 		for company_id, loans_for_company in company_id_to_loans.items():
 			amount_to_company = sum([cur_loan_dict['amount'] for cur_loan_dict in loans_for_company])
 			payment = payment_util.create_payment(company_id, payment_util.PaymentInputDict(
@@ -95,9 +105,10 @@ def fund_loans_with_advance(
 				payment_method=payment_input['method']
 			), 
 			user_id=bank_admin_user_id)
-			payment.applied_at = date_util.now()
-			payment.applied_by_user_id = bank_admin_user_id
-			payment.deposit_date = date_util.today_as_date()
+			payment_util.make_payment_applied(
+				payment, applied_by_user_id=bank_admin_user_id, 
+				deposit_date=deposit_date,
+				effective_date=effective_date)
 			session.add(payment)
 			session.flush()
 			payment_id = payment.id
@@ -113,7 +124,7 @@ def fund_loans_with_advance(
 				t.loan_id = loan_dict['id']
 				t.payment_id = payment_id
 				t.created_by_user_id = bank_admin_user_id
-				t.effective_date = date_util.today_as_date()
+				t.effective_date = effective_date
 				session.add(t)
 
 		for loan in loans:

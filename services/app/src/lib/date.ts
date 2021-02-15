@@ -3,6 +3,10 @@ import { format, parse } from "date-fns";
 export const DateFormatClient = "MM/dd/yyyy";
 export const DateFormatServer = "yyyy-MM-dd";
 
+export function todayAsDateStr(): string {
+  return format(new Date(), "MM/dd/yyyy");
+}
+
 export function formatDateString(dateString: string) {
   if (!dateString) {
     return "Invalid Date";

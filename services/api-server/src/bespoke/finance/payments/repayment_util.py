@@ -4,7 +4,7 @@ import decimal
 
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
-from typing import Tuple, List, Callable, cast
+from typing import Tuple, List, Optional, Callable, cast
 
 from bespoke import errors
 from bespoke.date import date_util
@@ -29,6 +29,7 @@ TransactionInputDict = TypedDict('TransactionInputDict', {
 })
 
 LoanBalanceDict = TypedDict('LoanBalanceDict', {
+	'amount': float,
 	'outstanding_principal_balance': float,
 	'outstanding_interest': float,
 	'outstanding_fees': float
@@ -51,8 +52,16 @@ SettlePaymentReqDict = TypedDict('SettlePaymentReqDict', {
 	'company_id': str, 
 	'payment_id': str,
 	'loan_ids': List[str],
-	'transaction_inputs': List[TransactionInputDict]
+	'transaction_inputs': List[TransactionInputDict],
+	'effective_date': str, # Effective date of all the transactions
+	'deposit_date': str # When the payment was deposited into the bank
 })
+
+def _zero_if_null(val: Optional[float]) -> float:
+	if val is None:
+		return 0.0
+	return val
+
 
 def calculate_repayment_effect(
 	payment_input: payment_util.PaymentInsertInputDict,
@@ -110,11 +119,12 @@ def calculate_repayment_effect(
 			loan_id=loan_dict['id'],
 			transaction=TransactionInputDict(
 				amount=current_payment_amount,
-				to_principal=loan_dict['outstanding_principal_balance'],
-				to_interest=loan_dict['outstanding_interest'],
-				to_fees=loan_dict['outstanding_fees']
+				to_principal=_zero_if_null(loan_dict['outstanding_principal_balance']),
+				to_interest=_zero_if_null(loan_dict['outstanding_interest']),
+				to_fees=_zero_if_null(loan_dict['outstanding_fees'])
 			),
 			loan_balance=LoanBalanceDict(
+				amount=loan_dict['amount'],
 				outstanding_principal_balance=0.0,
 				outstanding_interest=0.0,
 				outstanding_fees=0.0
@@ -139,9 +149,11 @@ def calculate_repayment_effect(
 						amount=0.0, to_principal=0.0, to_interest=0.0, to_fees=0.0
 					),
 					loan_balance=LoanBalanceDict(
-						outstanding_principal_balance=loan_dict['outstanding_principal_balance'],
-						outstanding_interest=loan_dict['outstanding_interest'],
-						outstanding_fees=loan_dict['outstanding_fees']
+						amount=loan_dict['amount'],
+						outstanding_principal_balance=_zero_if_null(
+							loan_dict['outstanding_principal_balance']),
+						outstanding_interest=_zero_if_null(loan_dict['outstanding_interest']),
+						outstanding_fees=_zero_if_null(loan_dict['outstanding_fees'])
 					)
 				))
 			else:
@@ -229,19 +241,55 @@ def settle_payment(
 		if not loans:
 			return None, errors.Error('No loans associated with settlement request', details=err_details)
 
-		if len(loans) != req['loan_ids']:
+		if len(loans) != len(req['loan_ids']):
 			return None, errors.Error('Not all loans found in database to settle', details=err_details)
 
 		if len(req['transaction_inputs']) != len(loans):
 			return None, errors.Error('Unequal amount of transaction inputs provided relative to loans provided', details=err_details)
 
-		# TODO: cant apply a payment again
+		loan_id_to_loan = {}
+		for loan in loans:
+			loan_id_to_loan[str(loan.id)] = loan
 
-		# TODO: all transactions have to balance with payment amount
+		payment = cast(
+			models.Payment,
+			session.query(models.Payment).filter(
+				models.Payment.id == req['payment_id']
+			).first())
+		if not payment:
+			return None, errors.Error('No payment found to settle transaction', details=err_details)
+
+		if payment.applied_at:
+			return None, errors.Error('Cannot use this payment because it has already been applied to certain loans', details=err_details)
+
+		if payment.type != db_constants.PaymentType.REPAYMENT:
+			return None, errors.Error('Can only apply repayments against loans', details=err_details)
+
+		transactions_sum = 0.0
 
 		for i in range(len(req['transaction_inputs'])):
 			tx_input = req['transaction_inputs'][i]
-			loan = loans[i]
+
+			if tx_input['to_principal'] < 0 or tx_input['to_interest'] < 0 or tx_input['to_fees'] < 0:
+				return None, errors.Error('No negative values can be applied using transactions', details=err_details)
+
+			cur_sum = tx_input['to_principal'] + tx_input['to_interest'] + tx_input['to_fees']
+			if not number_util.float_eq(cur_sum, tx_input['amount']):
+				return None, errors.Error('Transaction at index {} does not balance with itself'.format(i), details=err_details)
+
+			transactions_sum += cur_sum
+
+		if not number_util.float_eq(transactions_sum, float(payment.amount)):
+			return None, errors.Error('Transaction inputs provided does not balance with the payment amount included', details=err_details)
+
+		payment_effective_date = date_util.load_date_str(req['effective_date'])
+		payment_deposit_date = date_util.load_date_str(req['deposit_date'])
+
+		for i in range(len(req['transaction_inputs'])):
+			cur_loan_id = req['loan_ids'][i]
+			cur_loan = loan_id_to_loan[cur_loan_id]
+
+			tx_input = req['transaction_inputs'][i]
 			to_principal = decimal.Decimal(tx_input['to_principal'])
 			to_interest = decimal.Decimal(tx_input['to_interest'])
 			to_fees = decimal.Decimal(tx_input['to_fees'])
@@ -252,17 +300,23 @@ def settle_payment(
 			t.to_principal = to_principal
 			t.to_interest = to_interest
 			t.to_fees = to_fees
-			t.loan_id = loan.id
+			t.loan_id = cur_loan_id
 			t.payment_id = req['payment_id']
 			t.created_by_user_id = user_id
-			t.effective_date = date_util.today_as_date()
+			t.effective_date = payment_effective_date
 			session.add(t)
+			session.flush()
 			transaction_ids.append(str(t.id))
 
-			loan.outstanding_principal_balance = loan.outstanding_principal_balance - to_principal
-			loan.outstanding_interest = loan.outstanding_interest - to_interest
-			loan.outstanding_fees = loan.outstanding_fees - to_fees
+			cur_loan.outstanding_principal_balance = cur_loan.outstanding_principal_balance - to_principal
+			cur_loan.outstanding_interest = cur_loan.outstanding_interest - to_interest
+			cur_loan.outstanding_fees = cur_loan.outstanding_fees - to_fees
 
-		# TODO: update the payment as applied, and let it know by which bank user
+		payment_util.make_payment_applied(
+			payment, 
+			applied_by_user_id=user_id, 
+			deposit_date=payment_deposit_date,
+			effective_date=payment_effective_date
+		)
 
 	return transaction_ids, None

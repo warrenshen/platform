@@ -11,6 +11,7 @@ import {
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { LoanFragment, PaymentsInsertInput } from "generated/graphql";
 import { authenticatedApi, loansRoutes } from "lib/api";
+import { todayAsDateStr } from "lib/date";
 import { useContext, useState } from "react";
 import PaymentAdvanceForm from "./AdvanceForm";
 
@@ -58,7 +59,11 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
     company_id: companyId,
     amount: loansTotal,
     method: "",
+    deposit_date: todayAsDateStr(),
+    effective_date: todayAsDateStr(),
   } as PaymentsInsertInput;
+  // TODO(dlluncor): Provide deposit_date and effective_date as Date Pickers which can be modified,
+  // but are defaulted to today.
 
   const [payment, setPayment] = useState(newPayment);
 
@@ -69,10 +74,7 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
 
   const handleClickSubmit = async () => {
     const params = {
-      payment: {
-        amount: payment.amount,
-        method: payment.method,
-      },
+      payment: payment,
       loan_ids: selectedLoans.map((loan) => loan.id),
     };
     const response = await authenticatedApi.post(

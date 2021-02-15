@@ -94,7 +94,10 @@ class SettlePaymentView(MethodView):
 		if not form:
 			return handler_util.make_error_response('No data provided')
 
-		required_keys = ['payment_id', 'company_id', 'loan_ids', 'transaction_inputs']
+		required_keys = [
+			'payment_id', 'company_id', 'loan_ids', 
+			'transaction_inputs', 'effective_date', 'deposit_date'
+		]
 		for key in required_keys:
 			if key not in form:
 				return handler_util.make_error_response(

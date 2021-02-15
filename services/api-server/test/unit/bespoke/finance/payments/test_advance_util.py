@@ -42,16 +42,24 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				session.flush()
 				loan_ids.append(str(loan.id))
 
-		resp, err = advance_util.fund_loans_with_advance(
-			bank_admin_user_id=bank_admin_user_id, 
+		deposit_date = '10/18/2020'
+		effective_date = '10/20/2020'
+
+		req = advance_util.FundLoansReqDict(
 			loan_ids=loan_ids, 
-			payment_input=payment_util.PaymentInsertInputDict(
+			payment=payment_util.PaymentInsertInputDict(
 				company_id='unused',
 				type='unused',
 				amount=payment_amount,
 				method='ach',
-				deposit_date='unused'
-			), 
+				deposit_date=deposit_date,
+				effective_date=effective_date
+			)
+		)
+
+		resp, err = advance_util.fund_loans_with_advance(
+			req=req, 
+			bank_admin_user_id=bank_admin_user_id, 
 			session_maker=session_maker
 		)
 		self.assertIsNone(err)
@@ -100,7 +108,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				self.assertEqual('ach', payment.method)
 				self.assertIsNotNone(payment.applied_at)
 				self.assertIsNotNone(payment.submitted_at)
-				self.assertIsNotNone(payment.deposit_date)
+				self.assertEqual(deposit_date, date_util.date_to_str(payment.deposit_date))
+				self.assertEqual(effective_date, date_util.date_to_str(payment.effective_date))
 				self.assertEqual(bank_admin_user_id, payment.applied_by_user_id)
 				self.assertEqual(bank_admin_user_id, payment.submitted_by_user_id)
 
@@ -125,7 +134,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				self.assertAlmostEqual(exp_transaction['amount'], float(transaction.to_principal))
 				self.assertAlmostEqual(0.0, float(transaction.to_interest))
 				self.assertAlmostEqual(0.0, float(transaction.to_fees))
-				self.assertIsNotNone(transaction.effective_date)
+				self.assertEqual(matching_payment.effective_date, transaction.effective_date)
 				self.assertEqual(matching_loan.id, transaction.loan_id)
 				self.assertEqual(matching_payment.id, transaction.payment_id)
 				self.assertEqual(bank_admin_user_id, transaction.created_by_user_id)
@@ -210,9 +219,11 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 
 	def test_failure_advance_no_loans(self) -> None:
 		resp, err = advance_util.fund_loans_with_advance(
+			req=advance_util.FundLoansReqDict(
+				loan_ids=[], 
+				payment=None
+			),
 			bank_admin_user_id='', 
-			loan_ids=[], 
-			payment_input=None, 
 			session_maker=self.session_maker
 		)
 		self.assertIn('No loans', err.msg)
@@ -235,9 +246,11 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 			loan_ids.append(str(loan.id))
 
 		resp, err = advance_util.fund_loans_with_advance(
-			bank_admin_user_id='', 
-			loan_ids=loan_ids, 
-			payment_input=None, 
+			req=advance_util.FundLoansReqDict(
+				payment=None,
+				loan_ids=loan_ids
+			),
+			bank_admin_user_id='',
 			session_maker=self.session_maker
 		)
 		self.assertIn('Not all loans', err.msg)
@@ -260,9 +273,11 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 			loan_ids.append(str(loan.id))
 
 		resp, err = advance_util.fund_loans_with_advance(
-			bank_admin_user_id='', 
-			loan_ids=loan_ids, 
-			payment_input=None, 
+			req=advance_util.FundLoansReqDict(
+				payment=None,
+				loan_ids=loan_ids
+			),
+			bank_admin_user_id='',
 			session_maker=self.session_maker
 		)
 		self.assertIn('already been funded', err.msg)
@@ -283,9 +298,11 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 			loan_ids.append(str(loan.id))
 
 		resp, err = advance_util.fund_loans_with_advance(
-			bank_admin_user_id='', 
-			loan_ids=loan_ids, 
-			payment_input=None, 
+			req=advance_util.FundLoansReqDict(
+				payment=None,
+				loan_ids=loan_ids
+			),
+			bank_admin_user_id='',
 			session_maker=self.session_maker
 		)
 		self.assertIn('not approved', err.msg)
@@ -309,15 +326,18 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				loan_ids.append(str(loan.id))
 
 		resp, err = advance_util.fund_loans_with_advance(
-			bank_admin_user_id='', 
-			loan_ids=loan_ids,
-			payment_input=payment_util.PaymentInsertInputDict(
-				company_id='unused',
-				type='unused',
-				amount=0.2,
-				method='ach',
-				deposit_date='unused'
-			), 
+			req=advance_util.FundLoansReqDict(
+				payment=payment_util.PaymentInsertInputDict(
+					company_id='unused',
+					type='unused',
+					amount=0.2,
+					method='ach',
+					deposit_date='10/28/2020',
+					effective_date='10/30/2020'
+			  ),
+				loan_ids=loan_ids
+			),
+			bank_admin_user_id='',
 			session_maker=self.session_maker
 		)
 		self.assertIn('exactly', err.msg)
