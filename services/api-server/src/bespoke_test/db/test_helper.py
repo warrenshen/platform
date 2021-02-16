@@ -2,25 +2,52 @@
 	A file for functions to creating objects that are helpful when using the database.
 """
 import logging
+import unittest
+import traceback
 from mypy_extensions import TypedDict
-from typing import Callable, Any, List
+from typing import Callable, Any, List, Dict
 
 from bespoke.db import models
 from bespoke.db.models import session_scope
 
-"""
-def create_user(prefix: str) -> models.User:
-	return models.User(
-		name=prefix + '-name',
-		phone='310-888-8888',
-		email=prefix + '@gmail.com'
-	)
+def assertDeepAlmostEqual(
+	test_case: unittest.TestCase, expected: Dict, actual: Dict, *args: Any, **kwargs: Any) -> None:
+	"""
+	Assert that two complex structures have almost equal contents.
 
-def create_company(name: str) -> models.Company:
-	return models.Company(
-		name=name
-	)
-"""
+	Compares lists, dicts and tuples recursively. Checks numeric values
+	using test_case's :py:meth:`unittest.TestCase.assertAlmostEqual` and
+	checks all other values with :py:meth:`unittest.TestCase.assertEqual`.
+	Accepts additional positional and keyword arguments and pass those
+	intact to assertAlmostEqual() (that's how you specify comparison
+	precision).
+
+	:param test_case: TestCase object on which we can call all of the basic
+	'assert' methods.
+	:type test_case: :py:class:`unittest.TestCase` object
+	"""
+	is_root = not '__trace' in kwargs
+	trace = kwargs.pop('__trace', 'ROOT')
+	try:
+		if isinstance(expected, (int, float)):
+			test_case.assertAlmostEqual(expected, actual, *args, **kwargs)
+		elif isinstance(expected, (list, tuple)):
+			test_case.assertEqual(len(expected), len(actual))
+			for index in range(len(expected)):
+				v1, v2 = expected[index], actual[index]
+				assertDeepAlmostEqual(test_case, v1, v2, __trace=repr(index), *args, **kwargs)
+		elif isinstance(expected, dict):
+			test_case.assertEqual(set(expected), set(actual))
+			for key in expected:
+				assertDeepAlmostEqual(test_case, expected[key], actual[key], __trace=repr(key), *args, **kwargs)
+		else:
+				test_case.assertEqual(expected, actual)
+	except AssertionError as exc:
+		exc.__dict__.setdefault('traces', []).append(trace)
+		if is_root:
+			trace = ' -> '.join(traceback.format_stack())
+			exc = AssertionError("%s\nTRACE: %s" % (exc, trace))
+		raise exc
 
 TestUser = TypedDict('TestUser', {
 	'user_id': str,

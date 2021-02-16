@@ -45,7 +45,9 @@ LoanAfterwardsDict = TypedDict('LoanAfterwardsDict', {
 RepaymentEffectRespDict = TypedDict('RepaymentEffectRespDict', {
 	'status': str,
 	'loans_afterwards': List[LoanAfterwardsDict],
-	'amount_to_pay': float
+	'amount_to_pay': float,
+	'amount_reduced': float, # If the user overpaid more than what they could possibly owe, we tell them we reduced their amount by this much.
+	'loans_past_due_but_not_selected': List[LoanAfterwardsDict]
 })
 
 SettlePaymentReqDict = TypedDict('SettlePaymentReqDict', {
@@ -62,6 +64,37 @@ def _zero_if_null(val: Optional[float]) -> float:
 		return 0.0
 	return val
 
+def _loan_dict_to_loan_balance(loan_dict: models.LoanDict) -> LoanBalanceDict:
+	return LoanBalanceDict(
+		amount=loan_dict['amount'],
+		outstanding_principal_balance=_zero_if_null(
+			loan_dict['outstanding_principal_balance']),
+		outstanding_interest=_zero_if_null(loan_dict['outstanding_interest']),
+		outstanding_fees=_zero_if_null(loan_dict['outstanding_fees'])
+	)
+
+def _apply_to(loan_dict: models.LoanDict, category: str, amount_left: float) -> Tuple[float, float]:
+	if category == 'principal':
+		outstanding_amount = loan_dict['outstanding_principal_balance']
+	elif category == 'interest':
+		outstanding_amount = loan_dict['outstanding_interest']
+	elif category == 'fees':
+		outstanding_amount = loan_dict['outstanding_fees']
+	else:
+		raise Exception('Unexpected category to apply to {}'.format(category))
+
+	if outstanding_amount is None:
+		amount_left_to_use = amount_left
+		amount_applied = 0.0
+		return amount_left_to_use, amount_applied
+	elif amount_left <= outstanding_amount:
+		amount_left_to_use = 0.0
+		amount_applied = amount_left
+		return amount_left_to_use, amount_applied
+	else:
+		amount_applied = outstanding_amount
+		amount_left_to_use = amount_left - amount_applied
+		return amount_left_to_use, amount_applied
 
 def calculate_repayment_effect(
 	payment_input: payment_util.PaymentInsertInputDict,
@@ -81,12 +114,11 @@ def calculate_repayment_effect(
 	if not loan_ids:
 		return None, errors.Error('No loan ids are selected')
 
-	# TODO(dlluncor): Handle the case where we change the loans a user tries to pay off
-	# because they haven't selected loans that have already come due.
-
 	# Figure out how much is due by a particular date
 	loan_dicts = []
 	err_details = {'company_id': company_id, 'loan_ids': loan_ids, 'method': 'calculate_repayment_effect'}
+	date_selected = date_util.load_date_str(payment_input['deposit_date'])
+	loans_past_due_but_not_selected = []
 
 	with session_scope(session_maker) as session:		
 		loans = cast(
@@ -100,11 +132,27 @@ def calculate_repayment_effect(
 		if not loans:
 			return None, errors.Error('No loans found', details=err_details)
 
-		# Do I use the adjusted_maturity date or maturity_date?
+		loans_selected = set([])
 		for loan in loans:
+			loans_selected.add(str(loan.id))
 			loan_dicts.append(loan.as_dict())
 
-	date_selected = date_util.load_date_str(payment_input['deposit_date'])
+		loans_past_due = cast(
+			List[models.Loan],
+			session.query(models.Loan).filter(
+				models.Loan.company_id == company_id
+			).filter(
+				models.Loan.adjusted_maturity_date <= date_selected.isoformat()
+			))
+
+		for loan_past_due in loans_past_due:
+			past_due_loan_id = str(loan_past_due.id)
+			if past_due_loan_id not in loans_selected:
+				loans_past_due_but_not_selected.append(LoanAfterwardsDict(
+					loan_id=past_due_loan_id,
+					transaction=None,
+					loan_balance=_loan_dict_to_loan_balance(loan_past_due.as_dict())
+				))
 
 	amount_to_pay = 0.0
 	loans_afterwards = []
@@ -134,12 +182,37 @@ def calculate_repayment_effect(
 
 	if payment_option == 'custom_amount':
 		amount_to_pay = payment_input['amount']
-		# TODO(dlluncor): Generate the correct transactions for a custom amount.
+		amount_left = amount_to_pay
+
+		# Apply in the order of earliest maturity date to latest maturity date
+		# while trying to cover as much of the loan coming due earliest
+		# Also paying off loans and fees takes preference over principal.
+		loan_dicts.sort(key=lambda l: l['adjusted_maturity_date'])
+		for loan_dict in loan_dicts:
+			amount_left, amount_used_fees = _apply_to(loan_dict, 'fees', amount_left)
+			amount_left, amount_used_interest = _apply_to(loan_dict, 'interest', amount_left)
+			amount_left, amount_used_principal = _apply_to(loan_dict, 'principal', amount_left)
+			loans_afterwards.append(LoanAfterwardsDict(
+				loan_id=loan_dict['id'],
+				transaction=TransactionInputDict(
+					amount=amount_used_fees + amount_used_interest + amount_used_principal,
+					to_principal=amount_used_principal,
+					to_interest=amount_used_interest,
+					to_fees=amount_used_fees
+				),
+				loan_balance=LoanBalanceDict(
+					amount=loan_dict['amount'],
+					outstanding_principal_balance=_zero_if_null(
+						loan_dict['outstanding_principal_balance']) - amount_used_principal,
+					outstanding_interest=_zero_if_null(loan_dict['outstanding_interest']) - amount_used_interest,
+					outstanding_fees=_zero_if_null(loan_dict['outstanding_fees']) - amount_used_fees
+				)
+			))
+		amount_reduced = amount_left
 
 	elif payment_option == 'pay_minimum_due':
 
 		for loan_dict in loan_dicts:
-
 			if loan_dict['adjusted_maturity_date'] > date_selected:
 				# You dont have to worry about paying off this loan yet.
 				# So the transaction has zero dollars and no effect to it.
@@ -148,29 +221,28 @@ def calculate_repayment_effect(
 					transaction=TransactionInputDict(
 						amount=0.0, to_principal=0.0, to_interest=0.0, to_fees=0.0
 					),
-					loan_balance=LoanBalanceDict(
-						amount=loan_dict['amount'],
-						outstanding_principal_balance=_zero_if_null(
-							loan_dict['outstanding_principal_balance']),
-						outstanding_interest=_zero_if_null(loan_dict['outstanding_interest']),
-						outstanding_fees=_zero_if_null(loan_dict['outstanding_fees'])
-					)
+					loan_balance=_loan_dict_to_loan_balance(loan_dict)
 				))
 			else:
 				# Pay loans that have come due.
 				amount_to_pay += _pay_off_loan_in_full(loan_dict)
 
+		amount_reduced = 0.0
 	elif payment_option == 'pay_in_full':
 
 		for loan_dict in loan_dicts:
 			amount_to_pay += _pay_off_loan_in_full(loan_dict)
+
+		amount_reduced = 0.0
 	else:
 		return None, errors.Error('Unrecognized payment option')
 
 	return RepaymentEffectRespDict(
 		status='OK',
 		loans_afterwards=loans_afterwards,
-		amount_to_pay=amount_to_pay
+		amount_to_pay=amount_to_pay,
+		amount_reduced=amount_reduced,
+		loans_past_due_but_not_selected=loans_past_due_but_not_selected
 	), None
 
 def create_payment(
