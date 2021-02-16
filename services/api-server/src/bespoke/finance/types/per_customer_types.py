@@ -6,11 +6,12 @@ from mypy_extensions import TypedDict
 from typing import List
 
 from bespoke.db.models import (
-	CompanyDict, CompanySettingsDict,
+	ContractDict, CompanyDict, CompanySettingsDict,
 	LoanDict, TransactionDict, PaymentDict
 )
 
 Financials = TypedDict('Financials', {
+	'contracts': List[ContractDict],
 	'loans': List[LoanDict],
 	'payments': List[PaymentDict],
 	'transactions': List[TransactionDict]

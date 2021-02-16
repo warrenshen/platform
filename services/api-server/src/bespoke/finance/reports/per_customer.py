@@ -65,16 +65,26 @@ class ExcelCreator(object):
 
 	def _contract(self) -> None:
 		sheet = self.wb.add_sheet('Contract')
-		product_config = None # TODO: fix
-		#product_config = self._financials['company_settings']['product_config']
-		contract = contract_util.Contract(product_config)
-		fields = contract.get_fields()
-		sheet.add_row(['Name', 'Value'])
-		for field in fields:
-			val_to_show = ''
-			if field['value']:
-				val_to_show = '{}'.format(field['value'])
-			sheet.add_row([field['name'], val_to_show])
+		contract_dicts = self._financials['financials']['contracts']
+
+		for contract_dict in contract_dicts:
+			contract = contract_util.Contract(contract_dict)
+
+			sheet.add_row(['Start Date', 'End Date'])
+			sheet.add_row([
+				date_util.date_to_str(contract_dict['start_date']), 
+				date_util.date_to_str(contract_dict['end_date'])
+			])
+
+			fields = contract.get_fields()
+			sheet.add_row(['Name', 'Value'])
+			for field in fields:
+				val_to_show = ''
+				if field['value']:
+					val_to_show = '{}'.format(field['value'])
+				sheet.add_row([field['name'], val_to_show])
+
+			sheet.add_row([])
 
 
 	def populate(self) -> None:

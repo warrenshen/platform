@@ -5,7 +5,7 @@ from typing import Callable, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.db import db_constants, models
-from bespoke.db.models import (CompanyDict, CompanySettingsDict, LoanDict,
+from bespoke.db.models import (ContractDict, CompanyDict, CompanySettingsDict, LoanDict,
                                PaymentDict, TransactionDict, session_scope)
 from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
@@ -28,9 +28,24 @@ class Fetcher(object):
 
 		self._company_info = company_info_dict
 		self._settings_dict: CompanySettingsDict = None
+		self._contracts: List[ContractDict] = []
 		self._loans: List[LoanDict] = []
 		self._payments: List[PaymentDict] = []
 		self._transactions: List[TransactionDict] = []
+
+	def _fetch_contracts(self) -> Tuple[bool, errors.Error]:
+
+		with session_scope(self._session_maker) as session:
+			contracts = cast(
+				List[models.Contract],
+				session.query(models.Contract).filter(
+					models.Contract.company_id == self._company_id
+				).all())
+			if not contracts:
+				return True, None
+			self._contracts = [c.as_dict() for c in contracts]
+
+		return True, None
 
 	def _fetch_transactions(self, loan_ids: List[str]) -> Tuple[bool, errors.Error]:
 		if not loan_ids:
@@ -95,6 +110,10 @@ class Fetcher(object):
 
 
 	def fetch(self) -> Tuple[bool, errors.Error]:
+		_, err = self._fetch_contracts()
+		if err:
+			return None, err
+
 		_, err = self._fetch_company_details()
 		if err:
 			return None, err
@@ -129,6 +148,7 @@ class Fetcher(object):
 		  company_info=self._company_info,
 		  company_settings=self._settings_dict,
 			financials=per_customer_types.Financials(
+				contracts=self._contracts,
 				loans=self._loans,
 				payments=self._payments,
 				transactions=self._transactions

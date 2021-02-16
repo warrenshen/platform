@@ -109,12 +109,34 @@ class CompanySettings(Base):
 			vendor_agreement_docusign_template=self.vendor_agreement_docusign_template
 		)
 
+ContractDict = TypedDict('ContractDict', {
+	'id': str,
+	'product_type': str,
+	'product_config': Dict,
+	'start_date': datetime.date,
+	'end_date': datetime.date
+})
 
-#product_type=self.product_type,
-#product_config=cast(Dict, self.product_config)
+class Contract(Base):
+	__tablename__ = 'contracts'
 
-#product_type = Column(Text)
-#product_config = Column(JSON)
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	company_id = Column(GUID)
+	product_type = Column(Text)
+	product_config = Column(JSON)
+	start_date = Column(Date)
+	end_date = Column(Date)
+	modified_by_user_id = Column(GUID)
+
+	def as_dict(self) -> ContractDict:
+		return ContractDict(
+			id=str(self.id),
+			product_type=self.product_type,
+			product_config=cast(Dict, self.product_config),
+			start_date=self.start_date,
+			end_date=self.end_date
+		)
+
 
 class CompanyVendorPartnership(Base):
 	__tablename__ = 'company_vendor_partnerships'

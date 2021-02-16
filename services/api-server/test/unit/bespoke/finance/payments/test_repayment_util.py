@@ -60,10 +60,10 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 		self.assertIsNone(err)
 		self.assertEqual('OK', resp.get('status'), msg=err)
 		self.assertEqual(test['expected_amount_to_pay'], resp['amount_to_pay'])
-		if test.get('expected_amount_reduced'):
-			self.assertAlmostEqual(test['expected_amount_reduced'], resp['amount_reduced'])
+		if test.get('expected_amount_as_credit_to_user'):
+			self.assertAlmostEqual(test['expected_amount_as_credit_to_user'], resp['amount_as_credit_to_user'])
 		else:
-			self.assertAlmostEqual(0.0, resp['amount_reduced'])
+			self.assertAlmostEqual(0.0, resp['amount_as_credit_to_user'])
 
 		# Assert on the expected loans afterwards
 		self.assertEqual(len(test['expected_loans_afterwards']), len(resp['loans_afterwards']))
@@ -92,9 +92,9 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 			self.assertEqual(expected_loan_id_past_due, cur_loan_id_past_due)
 
 
-	def test_custom_amount_single_loan_only_principal(self) -> None:
+	def test_custom_amount_single_loan_only_principal_credit_remaining(self) -> None:
 		test: Dict = {
-			'comment': 'The user pays exactly what they specified',
+			'comment': 'The user pays a single loan for a custom amount, and there is credit remaining on their balance',
 			'loans': [
 				models.Loan(
 					amount=decimal.Decimal(20.02),
@@ -107,15 +107,61 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 			'payment_option': 'custom_amount',
 			'payment_input_amount': 10.01,
 			'expected_amount_to_pay': 10.01,
-			'expected_amount_reduced': 0.02,
+			'expected_amount_as_credit_to_user': 0.02,
 			'expected_loans_afterwards': [
 				LoanAfterwardsDict(
 					loan_id='filled in by test',
 					transaction=TransactionInputDict(
-						amount=9.99,
-						to_principal=9.99,
+						amount=10.01,
+						to_principal=10.01,
 						to_interest=0.0,
 						to_fees=0.0
+					),
+					loan_balance=LoanBalanceDict(
+						amount=20.02,
+						outstanding_principal_balance=-0.02,
+						outstanding_interest=0.0,
+						outstanding_fees=0.0
+					)
+				),
+			],
+			'expected_past_due_but_not_selected_indices': []
+		}
+
+		self._run_test(test)
+
+	def test_custom_amount_multiple_loans_credit_remaining(self) -> None:
+		credit_amount = 15.01 - 9.99 - 1.03 - 1.88 - 0.73
+		test: Dict = {
+			'comment': 'The user pays off multiple loans and have a credit remaining on their principal',
+			'loans': [
+				models.Loan(
+					amount=decimal.Decimal(20.02),
+					adjusted_maturity_date=date_util.load_date_str('9/1/2020'),
+					outstanding_principal_balance=decimal.Decimal(9.99),
+					outstanding_fees=decimal.Decimal(1.03)
+				),
+				models.Loan(
+					amount=decimal.Decimal(30.02),
+					adjusted_maturity_date=date_util.load_date_str('9/1/2020'),
+					outstanding_principal_balance=decimal.Decimal(1.88),
+					outstanding_interest=decimal.Decimal(0.73)
+				)
+			],
+			'deposit_date': '10/12/2020',
+			'effective_date': '10/14/2020',
+			'payment_option': 'custom_amount',
+			'payment_input_amount': 15.01,
+			'expected_amount_to_pay': 15.01,
+			'expected_amount_as_credit_to_user': credit_amount,
+			'expected_loans_afterwards': [
+				LoanAfterwardsDict(
+					loan_id='filled in by test',
+					transaction=TransactionInputDict(
+						amount=9.99 + 1.03,
+						to_principal=9.99,
+						to_interest=0.0,
+						to_fees=1.03
 					),
 					loan_balance=LoanBalanceDict(
 						amount=20.02,
@@ -124,6 +170,21 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 						outstanding_fees=0.0
 					)
 				),
+				LoanAfterwardsDict(
+					loan_id='filled in by test',
+					transaction=TransactionInputDict(
+						amount=1.88 + 0.73 + credit_amount,
+						to_principal=1.88 + credit_amount,
+						to_interest=0.73,
+						to_fees=0.0
+					),
+					loan_balance=LoanBalanceDict(
+						amount=30.02,
+						outstanding_principal_balance=-1 * credit_amount,
+						outstanding_interest=0.0,
+						outstanding_fees=0.0
+					)
+				)
 			],
 			'expected_past_due_but_not_selected_indices': []
 		}

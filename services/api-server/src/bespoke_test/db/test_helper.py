@@ -28,6 +28,7 @@ def assertDeepAlmostEqual(
 	"""
 	is_root = not '__trace' in kwargs
 	trace = kwargs.pop('__trace', 'ROOT')
+	key = None
 	try:
 		if isinstance(expected, (int, float)):
 			test_case.assertAlmostEqual(expected, actual, *args, **kwargs)
@@ -45,8 +46,8 @@ def assertDeepAlmostEqual(
 	except AssertionError as exc:
 		exc.__dict__.setdefault('traces', []).append(trace)
 		if is_root:
-			trace = ' -> '.join(traceback.format_stack())
-			exc = AssertionError("%s\nTRACE: %s" % (exc, trace))
+			#trace = ' -> '.join(traceback.format_stack())
+			exc = AssertionError("%s. Key=%s" % (exc, key))
 		raise exc
 
 TestUser = TypedDict('TestUser', {

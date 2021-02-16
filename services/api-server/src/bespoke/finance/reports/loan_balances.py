@@ -34,6 +34,15 @@ UpdateDict = TypedDict('UpdateDict', {
 	'outstanding_fees': float
 })
 
+class ContractHelper(object):
+	# TODO(dlluncor): Implement
+
+	def __init__(self, contract_dicts: List[models.ContractDict]) -> None:
+		pass
+
+	def get_contract(self, cur_date: datetime.date) -> models.ContractDict:
+		return None
+
 def _get_transactions_on_date(
 	cur_date: datetime.date, transactions: List[models.TransactionDict]) -> List[models.TransactionDict]:
 	txs_on_date = []
@@ -49,6 +58,7 @@ def _get_interest_on_date(
 	return 0.01
 
 def _calculate_loan_balance(
+	contract_helper: ContractHelper,
 	loan: models.LoanDict, transactions: List[models.TransactionDict], 
 	today: datetime.date) -> UpdateDict:
 	# Replay the history of the loan and all the expenses that are due as a result.
@@ -128,9 +138,10 @@ class CustomerBalance(object):
 			return [], None
 
 		update_dicts = []
+		contract_helper = ContractHelper(financials['contracts'])
 		for loan in financials['loans']:
 			transactions_for_loan = _get_transactions_for_loan(loan['id'], financials['transactions'])
-			update_dict = _calculate_loan_balance(loan, transactions_for_loan, today)
+			update_dict = _calculate_loan_balance(contract_helper, loan, transactions_for_loan, today)
 			update_dicts.append(update_dict)
 
 		return update_dicts, None

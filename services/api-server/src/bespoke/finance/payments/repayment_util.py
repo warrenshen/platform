@@ -46,7 +46,7 @@ RepaymentEffectRespDict = TypedDict('RepaymentEffectRespDict', {
 	'status': str,
 	'loans_afterwards': List[LoanAfterwardsDict],
 	'amount_to_pay': float,
-	'amount_reduced': float, # If the user overpaid more than what they could possibly owe, we tell them we reduced their amount by this much.
+	'amount_as_credit_to_user': float, # If the user overpaid more than what they could possibly owe, we keep this amount as a credit to them.
 	'loans_past_due_but_not_selected': List[LoanAfterwardsDict]
 })
 
@@ -189,8 +189,8 @@ def calculate_repayment_effect(
 		# Also paying off loans and fees takes preference over principal.
 		loan_dicts.sort(key=lambda l: l['adjusted_maturity_date'])
 		for loan_dict in loan_dicts:
-			amount_left, amount_used_fees = _apply_to(loan_dict, 'fees', amount_left)
 			amount_left, amount_used_interest = _apply_to(loan_dict, 'interest', amount_left)
+			amount_left, amount_used_fees = _apply_to(loan_dict, 'fees', amount_left)
 			amount_left, amount_used_principal = _apply_to(loan_dict, 'principal', amount_left)
 			loans_afterwards.append(LoanAfterwardsDict(
 				loan_id=loan_dict['id'],
@@ -208,7 +208,15 @@ def calculate_repayment_effect(
 					outstanding_fees=_zero_if_null(loan_dict['outstanding_fees']) - amount_used_fees
 				)
 			))
-		amount_reduced = amount_left
+		amount_as_credit_to_user = amount_left
+		# Any amount remaining is stored as a negative principal balance on one of the loans
+		# (we choose the last loan here for convenience)
+		cur_transaction = loans_afterwards[-1]['transaction']
+		cur_loan_balance_after = loans_afterwards[-1]['loan_balance']
+
+		cur_transaction['amount'] += amount_as_credit_to_user
+		cur_transaction['to_principal'] += amount_as_credit_to_user
+		cur_loan_balance_after['outstanding_principal_balance'] -= amount_as_credit_to_user 
 
 	elif payment_option == 'pay_minimum_due':
 
@@ -227,13 +235,13 @@ def calculate_repayment_effect(
 				# Pay loans that have come due.
 				amount_to_pay += _pay_off_loan_in_full(loan_dict)
 
-		amount_reduced = 0.0
+		amount_as_credit_to_user = 0.0
 	elif payment_option == 'pay_in_full':
 
 		for loan_dict in loan_dicts:
 			amount_to_pay += _pay_off_loan_in_full(loan_dict)
 
-		amount_reduced = 0.0
+		amount_as_credit_to_user = 0.0
 	else:
 		return None, errors.Error('Unrecognized payment option')
 
@@ -241,7 +249,7 @@ def calculate_repayment_effect(
 		status='OK',
 		loans_afterwards=loans_afterwards,
 		amount_to_pay=amount_to_pay,
-		amount_reduced=amount_reduced,
+		amount_as_credit_to_user=amount_as_credit_to_user,
 		loans_past_due_but_not_selected=loans_past_due_but_not_selected
 	), None
 
