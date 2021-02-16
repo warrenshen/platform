@@ -4,6 +4,7 @@ import DataGrid, {
   IColumnProps,
   Pager,
   Paging,
+  Sorting,
   Selection,
 } from "devextreme-react/data-grid";
 import DataSource from "devextreme/data/data_source";
@@ -16,7 +17,7 @@ import {
   useState,
 } from "react";
 interface DataGridProps {
-  dataSource: any[];
+  dataSource?: any[];
   columns: IColumnProps[];
   pager?: boolean;
   selectedRowKeys?: any[]; // can be controlled
@@ -26,6 +27,7 @@ interface DataGridProps {
   allowedPageSizes?: number[];
   filtering?: boolean;
   select?: boolean;
+  isSortingDisabled?: boolean;
   onSelectionChanged?: (params: {}) => void; // callback
   onPageChanged?: (page: number) => void; // callback
 }
@@ -43,6 +45,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
       filtering,
       select,
       selectedRowKeys = [],
+      isSortingDisabled = false,
       onSelectionChanged,
       onPageChanged,
     }: DataGridProps,
@@ -143,6 +146,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
             showPageSizeSelector={pagerSizeSelector}
           />
         )}
+        <Sorting mode={isSortingDisabled ? "none" : "single"} />
         {select && (
           <Selection
             mode="multiple"
