@@ -12,3 +12,26 @@ query GetPayments {
     }
   }
 }
+
+query GetSubmittedPayments {
+  payments(
+    where: {
+      _and: [
+        { type: { _eq: "repayment" } }
+        { submitted_at: { _is_null: false } }
+        { settled_at: { _is_null: true } }
+      ]
+    }
+  ) {
+    id
+    ...Payment
+    company {
+      id
+      name
+    }
+    submitted_by_user {
+      id
+      full_name
+    }
+  }
+}

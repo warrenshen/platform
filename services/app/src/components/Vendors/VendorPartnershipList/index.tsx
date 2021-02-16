@@ -101,7 +101,7 @@ function VendorPartnershipList({
         <VendorDrawer
           vendorPartnershipId={currentVendorPartnership}
           onClose={() => setOpen(false)}
-        ></VendorDrawer>
+        />
       )}
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <ControlledDataGrid dataSource={data} columns={columns} pager />

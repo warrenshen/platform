@@ -1,35 +1,15 @@
-import {
-  Box,
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  createStyles,
-  makeStyles,
-  Theme,
-  Typography,
-} from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import AddButton from "components/Customer/AddCustomer/AddCustomerButton";
-import Page from "components/Shared/Page";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import { useCustomersForBankQuery, ProductTypeEnum } from "generated/graphql";
+import Page from "components/Shared/Page";
+import { ProductTypeEnum, useCustomersForBankQuery } from "generated/graphql";
 import { ProductTypeToLabel } from "lib/enum";
 import { bankRoutes } from "lib/routes";
 import { sortBy } from "lodash";
-import { Link, useRouteMatch } from "react-router-dom";
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    card: {
-      width: 300,
-    },
-  })
-);
+import { useRouteMatch } from "react-router-dom";
 
 function BankCustomersPage() {
-  const classes = useStyles();
-
   const { url } = useRouteMatch();
   const { data } = useCustomersForBankQuery();
 

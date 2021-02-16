@@ -10981,6 +10981,19 @@ export type GetPaymentsQuery = {
   >;
 };
 
+export type GetSubmittedPaymentsQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetSubmittedPaymentsQuery = {
+  payments: Array<
+    Pick<Payments, "id"> & {
+      company: Pick<Companies, "id" | "name">;
+      submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
+    } & PaymentFragment
+  >;
+};
+
 export type PurchaseOrderQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -14058,6 +14071,79 @@ export type GetPaymentsLazyQueryHookResult = ReturnType<
 export type GetPaymentsQueryResult = Apollo.QueryResult<
   GetPaymentsQuery,
   GetPaymentsQueryVariables
+>;
+export const GetSubmittedPaymentsDocument = gql`
+  query GetSubmittedPayments {
+    payments(
+      where: {
+        _and: [
+          { type: { _eq: "repayment" } }
+          { submitted_at: { _is_null: false } }
+          { settled_at: { _is_null: true } }
+        ]
+      }
+    ) {
+      id
+      ...Payment
+      company {
+        id
+        name
+      }
+      submitted_by_user {
+        id
+        full_name
+      }
+    }
+  }
+  ${PaymentFragmentDoc}
+`;
+
+/**
+ * __useGetSubmittedPaymentsQuery__
+ *
+ * To run a query within a React component, call `useGetSubmittedPaymentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSubmittedPaymentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSubmittedPaymentsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetSubmittedPaymentsQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetSubmittedPaymentsQuery,
+    GetSubmittedPaymentsQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetSubmittedPaymentsQuery,
+    GetSubmittedPaymentsQueryVariables
+  >(GetSubmittedPaymentsDocument, baseOptions);
+}
+export function useGetSubmittedPaymentsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetSubmittedPaymentsQuery,
+    GetSubmittedPaymentsQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetSubmittedPaymentsQuery,
+    GetSubmittedPaymentsQueryVariables
+  >(GetSubmittedPaymentsDocument, baseOptions);
+}
+export type GetSubmittedPaymentsQueryHookResult = ReturnType<
+  typeof useGetSubmittedPaymentsQuery
+>;
+export type GetSubmittedPaymentsLazyQueryHookResult = ReturnType<
+  typeof useGetSubmittedPaymentsLazyQuery
+>;
+export type GetSubmittedPaymentsQueryResult = Apollo.QueryResult<
+  GetSubmittedPaymentsQuery,
+  GetSubmittedPaymentsQueryVariables
 >;
 export const PurchaseOrderDocument = gql`
   query PurchaseOrder($id: uuid!) {

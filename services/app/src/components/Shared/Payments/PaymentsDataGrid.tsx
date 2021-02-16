@@ -1,18 +1,13 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { Box } from "@material-ui/core";
+import { ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import { DatetimeDataGridCell } from "components/Shared/DataGrid/DateDataGridCell";
 import { PaymentFragment } from "generated/graphql";
+import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
+import { truncateUuid } from "lib/uuid";
 import { useState } from "react";
-
-function getRows(payments: PaymentFragment[]): RowsProp {
-  return payments.map((item) => {
-    return {
-      ...item,
-    };
-  });
-}
 
 interface Props {
   payments: PaymentFragment[];
@@ -26,9 +21,7 @@ function PaymentsDataGrid({
   onClickCustomerName,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
-  const rows = getRows(payments);
-
-  window.console.log(rows);
+  const rows = payments;
 
   const companyNameRenderer = (params: ValueFormatterParams) => {
     return (
@@ -51,34 +44,38 @@ function PaymentsDataGrid({
       dataField: "id",
       caption: "Payment ID",
       width: 140,
+      cellRender: (params: ValueFormatterParams) => (
+        <Box>{truncateUuid(params.row.data.id as string)}</Box>
+      ),
     },
     {
       caption: "Amount",
       alignment: "right",
       width: 140,
       cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell
-          value={params.row.data.amount}
-        ></CurrencyDataGridCell>
+        <CurrencyDataGridCell value={params.row.data.amount} />
       ),
     },
     {
       caption: "Company",
-      width: 140,
+      width: 200,
       cellRender: companyNameRenderer,
     },
     {
       dataField: "method",
       caption: "Method",
-      width: 140,
+      width: 150,
+      cellRender: (params: ValueFormatterParams) => (
+        <Box>
+          {PaymentMethodToLabel[params.row.data.method as PaymentMethodEnum]}
+        </Box>
+      ),
     },
     {
       caption: "Submitted At",
       width: 140,
       cellRender: (params: ValueFormatterParams) => (
-        <DatetimeDataGridCell
-          datetimeString={params.row.data.submitted_at}
-        ></DatetimeDataGridCell>
+        <DatetimeDataGridCell datetimeString={params.row.data.submitted_at} />
       ),
     },
     {
@@ -105,22 +102,22 @@ function PaymentsDataGrid({
       caption: "Applied At",
       width: 140,
       cellRender: (params: ValueFormatterParams) => (
-        <DatetimeDataGridCell
-          datetimeString={params.row.data.applied_at}
-        ></DatetimeDataGridCell>
+        <DatetimeDataGridCell datetimeString={params.row.data.applied_at} />
       ),
     },
   ];
 
   return (
-    <ControlledDataGrid
-      dataSource={rows}
-      columns={columns}
-      pager
-      pageSize={30}
-      allowedPageSizes={[30]}
-      ref={(ref) => setDataGrid(ref)}
-    ></ControlledDataGrid>
+    <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
+      <ControlledDataGrid
+        pager
+        dataSource={rows}
+        columns={columns}
+        pageSize={30}
+        allowedPageSizes={[30]}
+        ref={(ref) => setDataGrid(ref)}
+      />
+    </Box>
   );
 }
 
