@@ -3203,11 +3203,13 @@ export type LineOfCredits = {
   /** An object relationship */
   company: Companies;
   company_id: Scalars["uuid"];
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id: Scalars["uuid"];
   is_credit_for_vendor: Scalars["Boolean"];
   /** An object relationship */
-  recipient_vendor?: Maybe<Companies>;
+  recipient_vendor?: Maybe<Vendors>;
   recipient_vendor_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** aggregated selection of "line_of_credits" */
@@ -3249,10 +3251,12 @@ export type LineOfCreditsBoolExp = {
   _or?: Maybe<Array<Maybe<LineOfCreditsBoolExp>>>;
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   is_credit_for_vendor?: Maybe<BooleanComparisonExp>;
-  recipient_vendor?: Maybe<CompaniesBoolExp>;
+  recipient_vendor?: Maybe<VendorsBoolExp>;
   recipient_vendor_id?: Maybe<UuidComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
 };
 
 /** unique or primary key constraints on table "line_of_credits" */
@@ -3265,38 +3269,48 @@ export enum LineOfCreditsConstraint {
 export type LineOfCreditsInsertInput = {
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_credit_for_vendor?: Maybe<Scalars["Boolean"]>;
-  recipient_vendor?: Maybe<CompaniesObjRelInsertInput>;
+  recipient_vendor?: Maybe<VendorsObjRelInsertInput>;
   recipient_vendor_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** aggregate max on columns */
 export type LineOfCreditsMaxFields = {
   company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   recipient_vendor_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** order by max() on columns of table "line_of_credits" */
 export type LineOfCreditsMaxOrderBy = {
   company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   recipient_vendor_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
 };
 
 /** aggregate min on columns */
 export type LineOfCreditsMinFields = {
   company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   recipient_vendor_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** order by min() on columns of table "line_of_credits" */
 export type LineOfCreditsMinOrderBy = {
   company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   recipient_vendor_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
 };
 
 /** response of any mutation on the table "line_of_credits" */
@@ -3324,10 +3338,12 @@ export type LineOfCreditsOnConflict = {
 export type LineOfCreditsOrderBy = {
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   is_credit_for_vendor?: Maybe<OrderBy>;
-  recipient_vendor?: Maybe<CompaniesOrderBy>;
+  recipient_vendor?: Maybe<VendorsOrderBy>;
   recipient_vendor_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: "line_of_credits" */
@@ -3340,19 +3356,25 @@ export enum LineOfCreditsSelectColumn {
   /** column name */
   CompanyId = "company_id",
   /** column name */
+  CreatedAt = "created_at",
+  /** column name */
   Id = "id",
   /** column name */
   IsCreditForVendor = "is_credit_for_vendor",
   /** column name */
   RecipientVendorId = "recipient_vendor_id",
+  /** column name */
+  UpdatedAt = "updated_at",
 }
 
 /** input type for updating data in table "line_of_credits" */
 export type LineOfCreditsSetInput = {
   company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_credit_for_vendor?: Maybe<Scalars["Boolean"]>;
   recipient_vendor_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** update columns of table "line_of_credits" */
@@ -3360,11 +3382,15 @@ export enum LineOfCreditsUpdateColumn {
   /** column name */
   CompanyId = "company_id",
   /** column name */
+  CreatedAt = "created_at",
+  /** column name */
   Id = "id",
   /** column name */
   IsCreditForVendor = "is_credit_for_vendor",
   /** column name */
   RecipientVendorId = "recipient_vendor_id",
+  /** column name */
+  UpdatedAt = "updated_at",
 }
 
 /** columns and relationships of "loan_status" */
@@ -10629,7 +10655,7 @@ export type LoansByCompanyAndLoanTypeForCustomerQuery = {
         Pick<
           LineOfCredits,
           "id" | "is_credit_for_vendor" | "recipient_vendor_id"
-        >
+        > & { recipient_vendor?: Maybe<Pick<Vendors, "id" | "name">> }
       >;
       purchase_order?: Maybe<Pick<PurchaseOrders, "id" | "order_number">>;
     } & LoanLimitedFragment
@@ -10676,7 +10702,7 @@ export type LoansForBankQuery = {
       company: Pick<Companies, "id" | "name">;
       line_of_credit?: Maybe<
         Pick<LineOfCredits, "id"> & {
-          recipient_vendor?: Maybe<Pick<Companies, "id" | "name">>;
+          recipient_vendor?: Maybe<Pick<Vendors, "id" | "name">>;
         }
       >;
       purchase_order?: Maybe<
@@ -10698,7 +10724,7 @@ export type LoansByStatusesForBankQuery = {
       company: Pick<Companies, "id" | "name">;
       line_of_credit?: Maybe<
         Pick<LineOfCredits, "id"> & {
-          recipient_vendor?: Maybe<Pick<Companies, "id" | "name">>;
+          recipient_vendor?: Maybe<Pick<Vendors, "id" | "name">>;
         }
       >;
       purchase_order?: Maybe<
@@ -12364,6 +12390,10 @@ export const LoansByCompanyAndLoanTypeForCustomerDocument = gql`
         id
         is_credit_for_vendor
         recipient_vendor_id
+        recipient_vendor {
+          id
+          name
+        }
       }
       purchase_order {
         id

@@ -18,7 +18,7 @@ function CustomerLoansPage() {
     );
   } else if (productType === ProductTypeEnum.LineOfCredit) {
     return (
-      <Page appBarTitle={"Loans"}>
+      <Page appBarTitle={"Drawdowns"}>
         <LineOfCreditLoans />
       </Page>
     );

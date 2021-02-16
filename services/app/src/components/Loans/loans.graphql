@@ -37,6 +37,10 @@ query LoansByCompanyAndLoanTypeForCustomer(
       id
       is_credit_for_vendor
       recipient_vendor_id
+      recipient_vendor {
+        id
+        name
+      }
     }
     purchase_order {
       id

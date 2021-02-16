@@ -21679,6 +21679,18 @@
             "deprecationReason": null
           },
           {
+            "name": "created_at",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "id",
             "description": null,
             "args": [],
@@ -21716,7 +21728,7 @@
             "args": [],
             "type": {
               "kind": "OBJECT",
-              "name": "companies",
+              "name": "vendors",
               "ofType": null
             },
             "isDeprecated": false,
@@ -21729,6 +21741,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "updated_at",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
               "ofType": null
             },
             "isDeprecated": false,
@@ -22012,6 +22036,16 @@
             "defaultValue": null
           },
           {
+            "name": "created_at",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "timestamptz_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "id",
             "description": null,
             "type": {
@@ -22036,7 +22070,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "companies_bool_exp",
+              "name": "vendors_bool_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -22047,6 +22081,16 @@
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "uuid_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "updated_at",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "timestamptz_comparison_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -22100,6 +22144,16 @@
             "defaultValue": null
           },
           {
+            "name": "created_at",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "id",
             "description": null,
             "type": {
@@ -22124,7 +22178,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "companies_obj_rel_insert_input",
+              "name": "vendors_obj_rel_insert_input",
               "ofType": null
             },
             "defaultValue": null
@@ -22135,6 +22189,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "updated_at",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
               "ofType": null
             },
             "defaultValue": null
@@ -22162,6 +22226,18 @@
             "deprecationReason": null
           },
           {
+            "name": "created_at",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "id",
             "description": null,
             "args": [],
@@ -22180,6 +22256,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "updated_at",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
               "ofType": null
             },
             "isDeprecated": false,
@@ -22208,6 +22296,16 @@
             "defaultValue": null
           },
           {
+            "name": "created_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "id",
             "description": null,
             "type": {
@@ -22219,6 +22317,16 @@
           },
           {
             "name": "recipient_vendor_id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "updated_at",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -22250,6 +22358,18 @@
             "deprecationReason": null
           },
           {
+            "name": "created_at",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "id",
             "description": null,
             "args": [],
@@ -22268,6 +22388,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "updated_at",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
               "ofType": null
             },
             "isDeprecated": false,
@@ -22296,6 +22428,16 @@
             "defaultValue": null
           },
           {
+            "name": "created_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "id",
             "description": null,
             "type": {
@@ -22307,6 +22449,16 @@
           },
           {
             "name": "recipient_vendor_id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "updated_at",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -22490,6 +22642,16 @@
             "defaultValue": null
           },
           {
+            "name": "created_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "id",
             "description": null,
             "type": {
@@ -22514,13 +22676,23 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "companies_order_by",
+              "name": "vendors_order_by",
               "ofType": null
             },
             "defaultValue": null
           },
           {
             "name": "recipient_vendor_id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "updated_at",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -22574,6 +22746,12 @@
             "deprecationReason": null
           },
           {
+            "name": "created_at",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "id",
             "description": "column name",
             "isDeprecated": false,
@@ -22587,6 +22765,12 @@
           },
           {
             "name": "recipient_vendor_id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "updated_at",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -22606,6 +22790,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "created_at",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
               "ofType": null
             },
             "defaultValue": null
@@ -22639,6 +22833,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "updated_at",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "timestamptz",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -22660,6 +22864,12 @@
             "deprecationReason": null
           },
           {
+            "name": "created_at",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "id",
             "description": "column name",
             "isDeprecated": false,
@@ -22673,6 +22883,12 @@
           },
           {
             "name": "recipient_vendor_id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "updated_at",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

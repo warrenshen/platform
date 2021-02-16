@@ -1,5 +1,5 @@
 import { Box } from "@material-ui/core";
-import { CellParams, ValueFormatterParams } from "@material-ui/data-grid";
+import { ValueFormatterParams } from "@material-ui/data-grid";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
@@ -9,12 +9,7 @@ import DataGridActionMenu, {
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import LoanDrawerLauncher from "components/Shared/Loan/LoanDrawerLauncher";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import {
-  LineOfCreditFragment,
-  LoanFragment,
-  Loans,
-  LoanStatusEnum,
-} from "generated/graphql";
+import { LoanFragment, Loans, LoanStatusEnum } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { truncateUuid } from "lib/uuid";
 import React, { useContext } from "react";
@@ -33,20 +28,7 @@ function LineOfCreditLoansDataGrid({
   handleSelectLoans = () => {},
 }: Props) {
   const { user } = useContext(CurrentUserContext);
-
   const rows = loans;
-
-  const renderLineOfCredit = (params: CellParams) => {
-    const loan = params.row.data;
-    // const loanId = loan.id as string;
-    const lineOfCredit = loan.line_of_credit as LineOfCreditFragment;
-    return (
-      <Box>
-        <span>{lineOfCredit?.is_credit_for_vendor ? "Yes" : "No"}</span>
-        {/* <Launcher purchaseOrderLoanId={purchaseOrderLoanId}></Launcher> */}
-      </Box>
-    );
-  };
 
   const columns = [
     {
@@ -72,12 +54,22 @@ function LineOfCreditLoansDataGrid({
     {
       caption: "Credit For Vendor?",
       minWidth: 150,
-      cellRender: renderLineOfCredit,
+      cellRender: (params: ValueFormatterParams) => (
+        <Box>
+          {params.row.data?.line_of_credit?.is_credit_for_vendor ? "Yes" : "No"}
+        </Box>
+      ),
     },
     {
       caption: "Recipient Vendor",
       minWidth: 150,
-      cellRender: () => "",
+      cellRender: (params: ValueFormatterParams) => (
+        <Box>
+          {params.row.data?.line_of_credit?.is_credit_for_vendor
+            ? params.row.data?.line_of_credit?.recipient_vendor.name
+            : "N/A"}
+        </Box>
+      ),
     },
     {
       alignment: "right",
