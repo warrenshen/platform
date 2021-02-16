@@ -8,9 +8,11 @@ import VerificationChip from "./VerificationChip";
 function VendorPartnershipList({
   data,
   isBankAccount,
+  isDrilldownByCustomer,
 }: {
   data: any;
   isBankAccount?: boolean;
+  isDrilldownByCustomer?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [
@@ -53,7 +55,17 @@ function VendorPartnershipList({
     {
       dataField: "company.name",
       caption: "Company name",
-      visible: !!isBankAccount,
+      visible: !!isDrilldownByCustomer ? false : !!isBankAccount,
+    },
+    {
+      dataField: "address",
+      caption: "Address",
+      visible: !!isDrilldownByCustomer,
+    },
+    {
+      dataField: "phone_number",
+      caption: "Phone Number",
+      visible: !!isDrilldownByCustomer,
     },
     {
       dataField: "vendor_agreement_id",

@@ -2,7 +2,7 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useVendorPartnershipsByCompanyIdQuery } from "generated/graphql";
 import { sortBy } from "lodash";
 import { useContext } from "react";
-import VendorPartnershipList from "../../VendorPartnershipList";
+import VendorPartnershipList from "components/Vendors/VendorPartnershipList";
 
 function ListVendors() {
   const {
