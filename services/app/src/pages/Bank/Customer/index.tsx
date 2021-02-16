@@ -33,15 +33,12 @@ const getCustomerPaths = (productType: ProductTypeEnum) => [
     component: BankCustomerLoansSubpage,
     label: productType === ProductTypeEnum.LineOfCredit ? "Drawdowns" : "Loans",
   },
-  ...(productType === ProductTypeEnum.InventoryFinancing
-    ? [
-        {
-          path: bankRoutes.customer.purchaseOrders,
-          component: BankCustomerPurchaseOrdersSubpage,
-          label: "Purchase Orders",
-        },
-      ]
-    : []),
+  {
+    visible: productType === ProductTypeEnum.InventoryFinancing,
+    path: bankRoutes.customer.purchaseOrders,
+    component: BankCustomerPurchaseOrdersSubpage,
+    label: "Purchase Orders",
+  },
   {
     path: bankRoutes.customer.vendors,
     component: BankCustomerVendorsSubpage,
@@ -99,14 +96,16 @@ function BankCustomerPage() {
             setTabIndex(newValue);
           }}
         >
-          {getCustomerPaths(productType).map((customerPath, index) => (
-            <Tab
-              key={index}
-              label={customerPath.label}
-              component={Link}
-              to={`${url}${customerPath.path}`}
-            />
-          ))}
+          {getCustomerPaths(productType)
+            .filter((customerPath) => customerPath.visible !== false)
+            .map((customerPath) => (
+              <Tab
+                key={customerPath.path}
+                label={customerPath.label}
+                component={Link}
+                to={`${url}${customerPath.path}`}
+              />
+            ))}
         </Tabs>
       </Paper>
       <Box pt={2}>
@@ -117,17 +116,15 @@ function BankCustomerPage() {
         >
           <BankCustomerOverviewSubpage />
         </PrivateRoute>
-        {getCustomerPaths(productType).map((customerPath, index) => {
-          return (
-            <PrivateRoute
-              key={index}
-              path={`${path}${customerPath.path}`}
-              requiredRoles={[UserRolesEnum.BankAdmin]}
-            >
-              {customerPath.component({ companyId, productType })}
-            </PrivateRoute>
-          );
-        })}
+        {getCustomerPaths(productType).map((customerPath) => (
+          <PrivateRoute
+            key={customerPath.path}
+            path={`${path}${customerPath.path}`}
+            requiredRoles={[UserRolesEnum.BankAdmin]}
+          >
+            {customerPath.component({ companyId, productType })}
+          </PrivateRoute>
+        ))}
       </Box>
     </Page>
   );

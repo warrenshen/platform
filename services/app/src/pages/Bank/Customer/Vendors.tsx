@@ -1,7 +1,7 @@
 import { Box } from "@material-ui/core";
 import AddButton from "components/Vendors/AddVendor/Button";
-import { useBankCustomerListVendorPartnershipsQuery } from "generated/graphql";
 import VendorPartnershipList from "components/Vendors/VendorPartnershipList";
+import { useBankCustomerListVendorPartnershipsQuery } from "generated/graphql";
 import { sortBy } from "lodash";
 
 interface Props {
@@ -11,7 +11,7 @@ interface Props {
 function Vendors({ companyId }: Props) {
   const { data } = useBankCustomerListVendorPartnershipsQuery({
     variables: {
-      companyId: companyId,
+      companyId,
     },
   });
 
@@ -23,6 +23,7 @@ function Vendors({ companyId }: Props) {
     data.company_vendor_partnerships,
     (item) => item.vendor.name
   );
+
   return (
     <Box>
       <Box
@@ -30,7 +31,7 @@ function Vendors({ companyId }: Props) {
         style={{ marginBottom: "1rem" }}
         flexDirection="row-reverse"
       >
-        <AddButton></AddButton>
+        <AddButton />
       </Box>
       <Box display="flex" flexWrap="wrap">
         <VendorPartnershipList
