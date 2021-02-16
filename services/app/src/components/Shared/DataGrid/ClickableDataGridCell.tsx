@@ -1,4 +1,5 @@
 import { Button, makeStyles } from "@material-ui/core";
+import { Link } from "react-router-dom";
 
 const useStyles = makeStyles({
   clickableCell: {
@@ -13,15 +14,20 @@ const useStyles = makeStyles({
 });
 
 interface Props {
-  onClick: () => void;
+  onClick?: () => void;
   label: string;
+  url?: string;
 }
 
-function ClickableDataGridCell({ onClick, label }: Props) {
+function ClickableDataGridCell({ onClick, label, url }: Props) {
   const classes = useStyles();
 
   return (
-    <Button className={classes.clickableCell} onClick={onClick}>
+    <Button
+      className={classes.clickableCell}
+      {...(url ? { component: Link, to: url } : {})}
+      onClick={onClick}
+    >
       {label}
     </Button>
   );
