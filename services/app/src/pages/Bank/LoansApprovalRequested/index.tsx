@@ -8,12 +8,7 @@ import {
 import { approveLoan, rejectLoan } from "lib/finance/loans/approval";
 
 function LoansAllProductsPage() {
-  const {
-    data,
-    error,
-    loading: isLoansLoading,
-    refetch,
-  } = useLoansByStatusesForBankQuery({
+  const { data, error, refetch } = useLoansByStatusesForBankQuery({
     variables: {
       statuses: [LoanStatusEnum.ApprovalRequested],
     },
@@ -45,9 +40,6 @@ function LoansAllProductsPage() {
 
   const loans = data?.loans || [];
 
-  const isDataReady = isLoansLoading; // || isUpdateLoanLoading
-  console.log({ isDataReady });
-
   return (
     <Page appBarTitle={"Loans Approval Requested"}>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
@@ -57,18 +49,6 @@ function LoansAllProductsPage() {
           loansPastDue={false}
           loans={loans}
           actionItems={[
-            // {
-            //   key: "view-loan",
-            //   label: "View",
-            //   handleClick: (params) =>
-            //     handleViewLoan(params.row.data.id as string),
-            // },
-            // {
-            //   key: "edit-loan-notes",
-            //   label: "Edit Internal Note",
-            //   handleClick: (params) =>
-            //     handleEditLoanNotes(params.row.data.id as string),
-            // },
             {
               key: "approve-loan",
               label: "Approve Loan",
@@ -82,7 +62,7 @@ function LoansAllProductsPage() {
                 handleRejectLoan(params.row.data.id as string),
             },
           ]}
-        ></BankLoansDataGrid>
+        />
       </Box>
     </Page>
   );

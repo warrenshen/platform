@@ -20,12 +20,7 @@ interface Props {
 }
 
 function BankCustomerLoansSubpage({ companyId, productType }: Props) {
-  const {
-    data,
-    error,
-    loading: isLoansLoading,
-    refetch,
-  } = useLoansByCompanyAndLoanTypeForBankQuery({
+  const { data, error, refetch } = useLoansByCompanyAndLoanTypeForBankQuery({
     fetchPolicy: "network-only",
     notifyOnNetworkStatusChange: true,
     variables: {
@@ -77,9 +72,6 @@ function BankCustomerLoansSubpage({ companyId, productType }: Props) {
     }
     refetch();
   };
-
-  const isDataReady = isLoansLoading; // || isUpdateLoanLoading
-  console.log({ isDataReady });
 
   const actionItems = [
     {

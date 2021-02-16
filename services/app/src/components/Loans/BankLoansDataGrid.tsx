@@ -136,11 +136,6 @@ function BankLoansDataGrid({
       ),
     },
     {
-      dataField: "purchase_order.vendor.name",
-      caption: "Vendor Name",
-      width: 190,
-    },
-    {
       caption: "Loan Amount",
       alignment: "right",
       width: 120,

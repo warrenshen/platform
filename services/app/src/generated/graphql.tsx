@@ -10602,11 +10602,6 @@ export type BankCustomerListVendorPartnershipsQuery = {
   >;
 };
 
-export type LineOfCreditFragment = Pick<
-  LineOfCredits,
-  "id" | "company_id" | "is_credit_for_vendor" | "recipient_vendor_id"
->;
-
 export type AddLineOfCreditMutationVariables = Exact<{
   lineOfCredit: LineOfCreditsInsertInput;
 }>;
@@ -10651,12 +10646,7 @@ export type LoansByCompanyAndLoanTypeForCustomerQueryVariables = Exact<{
 export type LoansByCompanyAndLoanTypeForCustomerQuery = {
   loans: Array<
     {
-      line_of_credit?: Maybe<
-        Pick<
-          LineOfCredits,
-          "id" | "is_credit_for_vendor" | "recipient_vendor_id"
-        > & { recipient_vendor?: Maybe<Pick<Vendors, "id" | "name">> }
-      >;
+      line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
       purchase_order?: Maybe<Pick<PurchaseOrders, "id" | "order_number">>;
     } & LoanLimitedFragment
   >;
@@ -10670,12 +10660,7 @@ export type GetOutstandingLoansForCustomerQueryVariables = Exact<{
 export type GetOutstandingLoansForCustomerQuery = {
   loans: Array<
     {
-      line_of_credit?: Maybe<
-        Pick<
-          LineOfCredits,
-          "id" | "is_credit_for_vendor" | "recipient_vendor_id"
-        >
-      >;
+      line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
       purchase_order?: Maybe<Pick<PurchaseOrders, "id" | "order_number">>;
     } & LoanLimitedFragment
   >;
@@ -10689,6 +10674,7 @@ export type LoansByCompanyAndLoanTypeForBankQueryVariables = Exact<{
 export type LoansByCompanyAndLoanTypeForBankQuery = {
   loans: Array<
     Pick<Loans, "id"> & {
+      line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
       purchase_order?: Maybe<Pick<PurchaseOrders, "id" | "order_number">>;
     } & LoanFragment
   >;
@@ -10700,11 +10686,7 @@ export type LoansForBankQuery = {
   loans: Array<
     Pick<Loans, "id"> & {
       company: Pick<Companies, "id" | "name">;
-      line_of_credit?: Maybe<
-        Pick<LineOfCredits, "id"> & {
-          recipient_vendor?: Maybe<Pick<Vendors, "id" | "name">>;
-        }
-      >;
+      line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
       purchase_order?: Maybe<
         Pick<PurchaseOrders, "id" | "order_number"> & {
           vendor?: Maybe<Pick<Vendors, "id" | "name">>;
@@ -10722,11 +10704,7 @@ export type LoansByStatusesForBankQuery = {
   loans: Array<
     Pick<Loans, "id"> & {
       company: Pick<Companies, "id" | "name">;
-      line_of_credit?: Maybe<
-        Pick<LineOfCredits, "id"> & {
-          recipient_vendor?: Maybe<Pick<Vendors, "id" | "name">>;
-        }
-      >;
+      line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
       purchase_order?: Maybe<
         Pick<PurchaseOrders, "id" | "order_number"> & {
           vendor?: Maybe<Pick<Vendors, "id" | "name">>;
@@ -11331,6 +11309,11 @@ export type EbbaApplicationFileFragment = Pick<
   "ebba_application_id" | "file_id"
 > & { file: Pick<Files, "id"> & FileFragment };
 
+export type LineOfCreditFragment = Pick<
+  LineOfCredits,
+  "id" | "company_id" | "is_credit_for_vendor" | "recipient_vendor_id"
+> & { recipient_vendor?: Maybe<Pick<Vendors, "id" | "name">> };
+
 export type VendorPartnershipsByCompanyIdQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
@@ -11702,14 +11685,6 @@ export type AddUserMutationVariables = Exact<{
 
 export type AddUserMutation = { insert_users_one?: Maybe<UserFragment> };
 
-export const LineOfCreditFragmentDoc = gql`
-  fragment LineOfCredit on line_of_credits {
-    id
-    company_id
-    is_credit_for_vendor
-    recipient_vendor_id
-  }
-`;
 export const UserFragmentDoc = gql`
   fragment User on users {
     id
@@ -11860,6 +11835,18 @@ export const EbbaApplicationFileFragmentDoc = gql`
     }
   }
   ${FileFragmentDoc}
+`;
+export const LineOfCreditFragmentDoc = gql`
+  fragment LineOfCredit on line_of_credits {
+    id
+    company_id
+    is_credit_for_vendor
+    recipient_vendor_id
+    recipient_vendor {
+      id
+      name
+    }
+  }
 `;
 export const ContactFragmentDoc = gql`
   fragment Contact on users {
@@ -12401,12 +12388,7 @@ export const LoansByCompanyAndLoanTypeForCustomerDocument = gql`
       ...LoanLimited
       line_of_credit {
         id
-        is_credit_for_vendor
-        recipient_vendor_id
-        recipient_vendor {
-          id
-          name
-        }
+        ...LineOfCredit
       }
       purchase_order {
         id
@@ -12415,6 +12397,7 @@ export const LoansByCompanyAndLoanTypeForCustomerDocument = gql`
     }
   }
   ${LoanLimitedFragmentDoc}
+  ${LineOfCreditFragmentDoc}
 `;
 
 /**
@@ -12483,8 +12466,7 @@ export const GetOutstandingLoansForCustomerDocument = gql`
       ...LoanLimited
       line_of_credit {
         id
-        is_credit_for_vendor
-        recipient_vendor_id
+        ...LineOfCredit
       }
       purchase_order {
         id
@@ -12493,6 +12475,7 @@ export const GetOutstandingLoansForCustomerDocument = gql`
     }
   }
   ${LoanLimitedFragmentDoc}
+  ${LineOfCreditFragmentDoc}
 `;
 
 /**
@@ -12559,6 +12542,10 @@ export const LoansByCompanyAndLoanTypeForBankDocument = gql`
     ) {
       id
       ...Loan
+      line_of_credit {
+        id
+        ...LineOfCredit
+      }
       purchase_order {
         id
         order_number
@@ -12566,6 +12553,7 @@ export const LoansByCompanyAndLoanTypeForBankDocument = gql`
     }
   }
   ${LoanFragmentDoc}
+  ${LineOfCreditFragmentDoc}
 `;
 
 /**
@@ -12628,10 +12616,7 @@ export const LoansForBankDocument = gql`
       }
       line_of_credit {
         id
-        recipient_vendor {
-          id
-          name
-        }
+        ...LineOfCredit
       }
       purchase_order {
         id
@@ -12644,6 +12629,7 @@ export const LoansForBankDocument = gql`
     }
   }
   ${LoanFragmentDoc}
+  ${LineOfCreditFragmentDoc}
 `;
 
 /**
@@ -12704,10 +12690,7 @@ export const LoansByStatusesForBankDocument = gql`
       }
       line_of_credit {
         id
-        recipient_vendor {
-          id
-          name
-        }
+        ...LineOfCredit
       }
       purchase_order {
         id
@@ -12720,6 +12703,7 @@ export const LoansByStatusesForBankDocument = gql`
     }
   }
   ${LoanFragmentDoc}
+  ${LineOfCreditFragmentDoc}
 `;
 
 /**

@@ -168,3 +168,14 @@ fragment EbbaApplicationFile on ebba_application_files {
     ...File
   }
 }
+
+fragment LineOfCredit on line_of_credits {
+  id
+  company_id
+  is_credit_for_vendor
+  recipient_vendor_id
+  recipient_vendor {
+    id
+    name
+  }
+}
