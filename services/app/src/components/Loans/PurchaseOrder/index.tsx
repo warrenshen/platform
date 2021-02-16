@@ -1,5 +1,5 @@
 import { Box, Button } from "@material-ui/core";
-import RepaymentButton from "components/PurchaseOrderLoan/PurchaseOrderLoanRepayment/RepaymentButton";
+import RepaymentButton from "components/Repayment/RepaymentButton";
 import Can from "components/Shared/Can";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {

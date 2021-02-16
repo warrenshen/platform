@@ -1,4 +1,4 @@
-import AdvancesDataGrid from "components/Shared/Advances/AdvancesDataGrid";
+import AdvancesDataGrid from "components/Advances/AdvancesDataGrid";
 import Page from "components/Shared/Page";
 import { useGetAdvancesQuery } from "generated/graphql";
 
@@ -13,7 +13,7 @@ function BankAdvancesPage() {
         payments={payments}
         customerSearchQuery={""}
         onClickCustomerName={() => {}}
-      ></AdvancesDataGrid>
+      />
     </Page>
   );
 }

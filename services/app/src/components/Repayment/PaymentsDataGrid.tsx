@@ -3,6 +3,9 @@ import { ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
+import DataGridActionMenu, {
+  DataGridActionItem,
+} from "components/Shared/DataGrid/DataGridActionMenu";
 import { DatetimeDataGridCell } from "components/Shared/DataGrid/DateDataGridCell";
 import { PaymentFragment } from "generated/graphql";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
@@ -13,12 +16,14 @@ interface Props {
   payments: PaymentFragment[];
   customerSearchQuery: string;
   onClickCustomerName: (value: string) => void;
+  actionItems?: DataGridActionItem[];
 }
 
 function PaymentsDataGrid({
   payments,
   customerSearchQuery,
   onClickCustomerName,
+  actionItems = [],
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = payments;
@@ -46,6 +51,16 @@ function PaymentsDataGrid({
       width: 140,
       cellRender: (params: ValueFormatterParams) => (
         <Box>{truncateUuid(params.row.data.id as string)}</Box>
+      ),
+    },
+    {
+      visible: actionItems.length > 0,
+      dataField: "action",
+      caption: "Action",
+      alignment: "center",
+      minWidth: 100,
+      cellRender: (params: ValueFormatterParams) => (
+        <DataGridActionMenu params={params} actionItems={actionItems} />
       ),
     },
     {

@@ -1,5 +1,5 @@
 import { Button } from "@material-ui/core";
-import CreateRepaymentModal from "components/Shared/Payments/Repayment/CreateRepaymentModal";
+import CreateRepaymentModal from "components/Repayment/CreateRepaymentModal";
 import { LoanFragment } from "generated/graphql";
 import useCompanyContext from "hooks/useCompanyContext";
 import { useState } from "react";

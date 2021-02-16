@@ -7,9 +7,9 @@ import {
   DialogTitle,
   Typography,
 } from "@material-ui/core";
+import CreateRepaymentConfirmEffect from "components/Repayment/CreateRepaymentConfirmEffect";
+import CreateRepaymentSelectLoans from "components/Repayment/CreateRepaymentSelectLoans";
 import { PaymentTransferType } from "components/Shared/BankToBankTransfer";
-import CreateRepaymentConfirmEffect from "components/Shared/Payments/Repayment/CreateRepaymentConfirmEffect";
-import CreateRepaymentSelectLoans from "components/Shared/Payments/Repayment/CreateRepaymentSelectLoans";
 import {
   Companies,
   LoanFragment,

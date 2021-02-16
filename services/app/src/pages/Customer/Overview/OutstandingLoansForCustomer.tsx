@@ -1,7 +1,7 @@
 import { Box, Button } from "@material-ui/core";
 import LineOfCreditLoansDataGrid from "components/Loans/LineOfCredit/LineOfCreditLoansDataGrid";
 import PurchaseOrderLoansDataGrid from "components/Loans/PurchaseOrder/PurchaseOrderLoansDataGrid";
-import CreateRepaymentModal from "components/Shared/Payments/Repayment/CreateRepaymentModal";
+import CreateRepaymentModal from "components/Repayment/CreateRepaymentModal";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoanFragment,

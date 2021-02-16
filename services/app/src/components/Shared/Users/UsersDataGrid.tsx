@@ -1,17 +1,17 @@
 import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import { UserFragment } from "generated/graphql";
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
+import { UserFragment } from "generated/graphql";
 interface Props {
   hideCompany?: boolean;
   actionItems: DataGridActionItem[];
   users?: UserFragment[];
 }
 
-function ListUsers({ actionItems, hideCompany, users }: Props) {
+function UsersDataGrid({ actionItems, hideCompany, users }: Props) {
   const columns = [
     ...(!hideCompany
       ? [
@@ -63,10 +63,10 @@ function ListUsers({ actionItems, hideCompany, users }: Props) {
           pager
           pageSize={30}
           allowedPageSizes={[30]}
-        ></ControlledDataGrid>
+        />
       )}
     </Box>
   );
 }
 
-export default ListUsers;
+export default UsersDataGrid;

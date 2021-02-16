@@ -1,8 +1,8 @@
 import { Box, Button } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
-import InviteUserModal from "components/Shared/Users/InviteUserModal";
 import EditUserProfileModal from "components/Shared/Users/EditUserProfileModal";
-import ListUsers from "components/Shared/Users/ListUsers";
+import InviteUserModal from "components/Shared/Users/InviteUserModal";
+import UsersDataGrid from "components/Shared/Users/UsersDataGrid";
 import {
   useListUsersByCompanyIdQuery,
   UserFragment,
@@ -33,7 +33,7 @@ function Users() {
           companyId={companyId}
           userRole={UserRolesEnum.CompanyAdmin}
           handleClose={() => setOpen(false)}
-        ></InviteUserModal>
+        />
       )}
       {isEditUserModalOpen && (
         <EditUserProfileModal
@@ -41,7 +41,7 @@ function Users() {
           companyId={companyId}
           originalUserProfile={selectedUser}
           handleClose={() => setIsEditUserModalOpen(false)}
-        ></EditUserProfileModal>
+        />
       )}
       <Box display="flex" flexDirection="row-reverse">
         <Button
@@ -53,7 +53,7 @@ function Users() {
           Invite User
         </Button>
       </Box>
-      <ListUsers
+      <UsersDataGrid
         actionItems={[
           {
             key: "edit-user-profile-modal",
@@ -66,7 +66,7 @@ function Users() {
         ]}
         hideCompany
         users={customerUsers?.users}
-      ></ListUsers>
+      />
     </>
   );
 }

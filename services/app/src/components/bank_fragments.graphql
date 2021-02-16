@@ -92,10 +92,7 @@ fragment Payment on payments {
   effective_date
   deposit_date
   applied_at
-  company {
-    id
-    name
-  }
+  items_covered
   company_bank_account {
     ...BankAccount
   }
