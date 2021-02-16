@@ -1,77 +1,71 @@
-import {
-  Box,
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  Typography,
-} from "@material-ui/core";
-import Can from "components/Shared/Can";
-import EditUserProfileModal from "components/Shared/Users/EditUserProfileModal";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import { Box } from "@material-ui/core";
+import { ValueFormatterParams } from "@material-ui/data-grid";
+import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import { UserFragment } from "generated/graphql";
-import { Action } from "lib/auth/rbac-rules";
-import { useContext, useState } from "react";
-
+import DataGridActionMenu, {
+  DataGridActionItem,
+} from "components/Shared/DataGrid/DataGridActionMenu";
 interface Props {
-  companyId: string;
+  hideCompany?: boolean;
+  actionItems: DataGridActionItem[];
   users?: UserFragment[];
 }
 
-function ListUsers({ companyId, users }: Props) {
-  const currentUserFromContext = useContext(CurrentUserContext);
-
-  const [open, setOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState({} as UserFragment);
+function ListUsers({ actionItems, hideCompany, users }: Props) {
+  const columns = [
+    ...(!hideCompany
+      ? [
+          {
+            dataField: "company_name",
+            caption: "Company",
+            width: 200,
+          },
+        ]
+      : []),
+    {
+      caption: "Role",
+      dataField: "role",
+      width: 150,
+    },
+    {
+      dataField: "first_name",
+      caption: "First Name",
+    },
+    {
+      dataField: "last_name",
+      caption: "Last Name",
+    },
+    {
+      dataField: "email",
+      caption: "Email",
+      width: 270,
+    },
+    {
+      dataField: "phone_number",
+      caption: "Phone Number",
+      width: 150,
+    },
+    {
+      caption: "Action",
+      width: 90,
+      cellRender: (params: ValueFormatterParams) => (
+        <DataGridActionMenu params={params} actionItems={actionItems} />
+      ),
+    },
+  ];
 
   return (
-    <>
-      {open && (
-        <EditUserProfileModal
-          userId={currentUserFromContext.user.id}
-          companyId={companyId}
-          originalUserProfile={selectedUser}
-          handleClose={() => setOpen(false)}
-        ></EditUserProfileModal>
+    <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
+      {users && (
+        <ControlledDataGrid
+          dataSource={users}
+          columns={columns}
+          pager
+          pageSize={30}
+          allowedPageSizes={[30]}
+        ></ControlledDataGrid>
       )}
-      <Box display="flex">
-        {users?.map((user, index) => {
-          return (
-            <Box key={index} display="flex" mr={2} mt={2}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6">{`${user?.first_name} ${user?.last_name}`}</Typography>
-                  <Box py={3}>
-                    <Box display="flex" pb={0.25}>
-                      <Box>{user?.email}</Box>
-                    </Box>
-                    <Box display="flex" pb={0.25}>
-                      <Box>{user?.phone_number}</Box>
-                    </Box>
-                    <Box display="flex" pb={0.25}>
-                      <Box>{user?.role}</Box>
-                    </Box>
-                  </Box>
-                </CardContent>
-                <CardActions>
-                  <Can perform={Action.ManipulateUser} userIdForCheck={user.id}>
-                    <Button
-                      onClick={() => {
-                        setSelectedUser(user);
-                        setOpen(true);
-                      }}
-                      size="small"
-                    >
-                      See more
-                    </Button>
-                  </Can>
-                </CardActions>
-              </Card>
-            </Box>
-          );
-        })}
-      </Box>
-    </>
+    </Box>
   );
 }
 
