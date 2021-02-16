@@ -12,3 +12,22 @@ query GetPayment($id: uuid!) {
     }
   }
 }
+
+query GetPaymentForSettlement($id: uuid!) {
+  payments_by_pk(id: $id) {
+    id
+    ...Payment
+    company {
+      id
+      name
+      contract {
+        id
+        product_type
+      }
+    }
+    submitted_by_user {
+      id
+      full_name
+    }
+  }
+}

@@ -139,3 +139,10 @@ query LoansByStatusesForBank($statuses: [loan_status_enum!]) {
     }
   }
 }
+
+query GetLoansByLoanIds($loanIds: [uuid!]) {
+  loans(where: { id: { _in: $loanIds } }) {
+    id
+    ...Loan
+  }
+}

@@ -11,12 +11,16 @@ import { useEffect, useState } from "react";
 interface Props {
   isStatusVisible: boolean;
   loans: LoanFragment[];
-  customerSearchQuery: string;
+  customerSearchQuery?: string;
 }
 
 // TODO (warrenshen): merge this component with the other LoansDataGrid
 // component to create a reusable component?
-function LoansDataGrid({ isStatusVisible, loans, customerSearchQuery }: Props) {
+function LoansDataGrid({
+  isStatusVisible,
+  loans,
+  customerSearchQuery = "",
+}: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = loans;
 
