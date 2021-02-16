@@ -135,7 +135,7 @@ function CustomerOverviewPage() {
         </Box>
         <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
-          <Typography>Outstanding Loans</Typography>
+          <Typography variant="h6">Outstanding Loans</Typography>
           <Box display="flex" flex={1}>
             <OutstandingLoansForCustomer />
           </Box>

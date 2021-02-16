@@ -21,7 +21,7 @@ function BankLoansMaturingPage() {
 
   const { data, error } = useLoansByStatusesForBankQuery({
     variables: {
-      statuses: [LoanStatusEnum.Approved, LoanStatusEnum.Funded],
+      statuses: [LoanStatusEnum.Funded],
     },
   });
 

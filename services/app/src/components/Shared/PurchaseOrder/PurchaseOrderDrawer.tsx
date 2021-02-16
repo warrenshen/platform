@@ -144,9 +144,11 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Purchase Order File Attachment
-            </Typography>
+            <Box mb={1}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Purchase Order File Attachment
+              </Typography>
+            </Box>
             {purchaseOrderFile && (
               <DownloadThumbnail
                 fileIds={[purchaseOrderFile.file_id]}
@@ -166,9 +168,14 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
           </Box>
           {!!purchaseOrder.is_cannabis && (
             <Box display="flex" flexDirection="column" mt={2}>
-              <Typography variant="subtitle2" color="textSecondary">
-                Cannabis File Attachments
-              </Typography>
+              <Box mb={1}>
+                <Typography variant="subtitle2" color="textSecondary">
+                  Cannabis File Attachments
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  Shipping Manifest, Certificate of Analysis
+                </Typography>
+              </Box>
               {purchaseOrderCannabisFiles.length > 0 && (
                 <DownloadThumbnail
                   fileIds={purchaseOrderCannabisFiles.map(

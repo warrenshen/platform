@@ -256,7 +256,7 @@ function FileUploadDropzone({
           display="flex"
           flexDirection="column"
           justifyContent="center"
-          minHeight={150}
+          minHeight={100}
           className={classes.dropzone}
           {...getRootProps()}
         >
@@ -288,7 +288,7 @@ function FileUploadDropzone({
           flexDirection="column"
           justifyContent="center"
           alignItems="center"
-          minHeight={150}
+          minHeight={100}
           py={2}
         >
           <Box display="flex" flexDirection="column" alignItems="center" mb={1}>

@@ -156,15 +156,15 @@ function PurchaseOrderForm({
         </FormControl>
       </Box>
       <Box mt={3}>
-        <Typography variant="subtitle1" color="textSecondary">
-          File Attachment (1 file required)
-        </Typography>
+        <Box mb={1}>
+          <Typography variant="subtitle1" color="textSecondary">
+            Purchase Order File Attachment
+          </Typography>
+        </Box>
         {purchaseOrderFile && (
-          <Grid item>
-            <DownloadThumbnail
-              fileIds={[purchaseOrderFile.file_id]}
-            ></DownloadThumbnail>
-          </Grid>
+          <DownloadThumbnail
+            fileIds={[purchaseOrderFile.file_id]}
+          ></DownloadThumbnail>
         )}
         <FileUploadDropzone
           companyId={companyId}
@@ -184,7 +184,7 @@ function PurchaseOrderForm({
           }}
         ></FileUploadDropzone>
       </Box>
-      <Box mt={3}>
+      <Box mt={2}>
         <FormControlLabel
           control={
             <Checkbox
@@ -202,18 +202,22 @@ function PurchaseOrderForm({
         />
       </Box>
       {!!purchaseOrder.is_cannabis && (
-        <Box mt={3}>
-          <Typography variant="subtitle1" color="textSecondary">
-            Cannabis File Attachments
-          </Typography>
+        <Box mt={2}>
+          <Box mb={1}>
+            <Typography variant="subtitle1" color="textSecondary">
+              Cannabis File Attachments
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              Please upload the following: Shipping Manifest, Certificate of
+              Analysis.
+            </Typography>
+          </Box>
           {purchaseOrderCannabisFiles.length > 0 && (
-            <Grid item>
-              <DownloadThumbnail
-                fileIds={purchaseOrderCannabisFiles.map(
-                  (purchaseOrderFile) => purchaseOrderFile.file_id
-                )}
-              ></DownloadThumbnail>
-            </Grid>
+            <DownloadThumbnail
+              fileIds={purchaseOrderCannabisFiles.map(
+                (purchaseOrderFile) => purchaseOrderFile.file_id
+              )}
+            ></DownloadThumbnail>
           )}
           <FileUploadDropzone
             companyId={companyId}

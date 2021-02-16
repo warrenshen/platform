@@ -22,7 +22,7 @@ function BankOverviewPage() {
     error: maturingLoansError,
   } = useLoansByStatusesForBankQuery({
     variables: {
-      statuses: [LoanStatusEnum.Approved, LoanStatusEnum.Funded],
+      statuses: [LoanStatusEnum.Funded],
     },
   });
 
