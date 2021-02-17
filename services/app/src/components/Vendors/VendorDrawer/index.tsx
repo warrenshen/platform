@@ -93,14 +93,14 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
       <Box className={classes.drawerContent} p={4}>
         <Typography variant="h6">{vendor.name}</Typography>
         <Box py={3}>
-          <VendorInfo vendor={omit(vendor, ["users"])}></VendorInfo>
+          <VendorInfo vendor={omit(vendor, ["users"])} />
         </Box>
         <Typography variant="h6"> Contacts </Typography>
         <Contacts
           contacts={vendor.users}
           companyId={vendor.id}
           companyVendorPartnershipId={data.company_vendor_partnerships_by_pk.id}
-        ></Contacts>
+        />
         <Typography variant="h6"> Bank Information </Typography>
         <BankAccount
           companyId={vendor.id}
@@ -108,7 +108,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
           bankAccount={
             data.company_vendor_partnerships_by_pk.vendor_bank_account
           }
-        ></BankAccount>
+        />
         <Box display="flex" mt={1}>
           <AdvancesBank
             companySettingsId={
@@ -118,7 +118,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
               data.company_vendor_partnerships_by_pk.vendor.settings
                 ?.advances_bespoke_bank_account || undefined
             }
-          ></AdvancesBank>
+          />
           <CollectionsBank
             companySettingsId={
               data.company_vendor_partnerships_by_pk.vendor.settings?.id
@@ -127,7 +127,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
               data.company_vendor_partnerships_by_pk.vendor.settings
                 ?.collections_bespoke_bank_account || undefined
             }
-          ></CollectionsBank>
+          />
         </Box>
         <Grid container direction="column">
           <Grid item>
@@ -138,7 +138,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
           </Grid>
           {licenseFileId && (
             <Grid item>
-              <DownloadThumbnail fileIds={[licenseFileId]}></DownloadThumbnail>
+              <DownloadThumbnail fileIds={[licenseFileId]} />
             </Grid>
           )}
         </Grid>
@@ -187,7 +187,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
                   ],
                 });
               }}
-            ></FileUploadDropzone>
+            />
           </Box>
         </Box>
         <Grid container direction="column">
@@ -199,9 +199,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
           </Grid>
           {agreementFileId && (
             <Grid item>
-              <DownloadThumbnail
-                fileIds={[agreementFileId]}
-              ></DownloadThumbnail>
+              <DownloadThumbnail fileIds={[agreementFileId]} />
             </Grid>
           )}
         </Grid>
@@ -243,7 +241,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
                 ],
               });
             }}
-          ></FileUploadDropzone>
+          />
         </Box>
 
         <Typography variant="h6"> Notifications </Typography>
@@ -254,7 +252,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
             customerName={customerName}
             customerId={customer.id}
             notifier={notifier}
-          ></SendVendorAgreements>
+          />
         </Box>
 
         <Typography variant="h6"> Actions </Typography>
@@ -267,7 +265,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
             customerName={customerName}
             vendorName={vendor.name}
             notifier={notifier}
-          ></ApproveVendor>
+          />
         </Box>
 
         <Typography variant="h6"> Customers </Typography>

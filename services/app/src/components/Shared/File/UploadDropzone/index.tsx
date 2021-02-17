@@ -10,7 +10,7 @@ import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import axios from "axios";
 import { FileFragment } from "generated/graphql";
 import { authenticatedApi, fileRoutes } from "lib/api";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -81,93 +81,30 @@ async function getPutSignedUrl(
     );
 }
 
-interface Props {
-  companyId: string; // which companyID does this document correspond to
-  docType: string; // what type of document is this? e.g., purchase_order, etc. This is used for the S3 path, not tied to a DB table
-  maxFilesAllowed?: number; // maximum number of files a user may upload, 10 is the default
-  onUploadComplete: (resp: OnUploadCompleteResp) => void;
-}
+const uploadFile = async (
+  file: any,
+  getSignedURLResp: GetSignedURLResponse
+): Promise<UploadResponse> => {
+  const contentType = file.type;
 
-function FileUploadDropzone({
-  companyId,
-  docType,
-  maxFilesAllowed = 10,
-  onUploadComplete,
-}: Props) {
-  const classes = useStyles();
-  const [message, setMessage] = useState("");
-  const [files, setFiles] = useState<any[]>([]);
+  const url = getSignedURLResp.url || "";
+  const path = getSignedURLResp.file_in_db?.path || "";
+  const uploadViaServer = getSignedURLResp.upload_via_server || false;
+  const fileInDB = getSignedURLResp.file_in_db;
 
-  const unattachFiles = useCallback(() => {
-    setFiles([]);
-    setMessage("");
-  }, []);
-
-  const onDrop = useCallback(
-    (acceptedFiles) => {
-      if (maxFilesAllowed !== null && acceptedFiles.length > maxFilesAllowed) {
-        setMessage(`Only ${maxFilesAllowed} file(s) may be uploaded!`);
-      } else {
-        setMessage("");
-        setFiles(acceptedFiles);
-      }
-    },
-    [maxFilesAllowed]
-  );
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
-
-  const uploadFile = async (
-    file: any,
-    getSignedURLResp: GetSignedURLResponse
-  ): Promise<UploadResponse> => {
-    const contentType = file.type;
-
-    const url = getSignedURLResp.url || "";
-    const path = getSignedURLResp.file_in_db?.path || "";
-    const uploadViaServer = getSignedURLResp.upload_via_server || false;
-    const fileInDB = getSignedURLResp.file_in_db;
-
-    if (uploadViaServer) {
-      let options = {
-        headers: {
-          "X-Bespoke-Content-Type": contentType,
-          "X-Bespoke-FilePath": path,
-          "X-Bespoke-Url": url,
-          "Content-Type": "multipart/form-data",
-        },
-      };
-      var formData = new FormData();
-      formData.append("file", file);
-      return authenticatedApi
-        .put(fileRoutes.uploadSignedUrl, formData, options)
-        .then((res) => {
-          return { status: "OK", file_in_db: fileInDB };
-        })
-        .catch((err) => {
-          console.log(err);
-          return {
-            status: "ERROR",
-            msg: "Something went wrong uploading the file",
-            file_in_db: null,
-          };
-        });
-    }
-
-    // This method is needed in prod because we upload directly to the S3 URL. In local
-    // we can't do this directly because of CORS.
-    const putURL = url;
-    const options = {
-      params: {
-        Key: path,
-        ContentType: contentType,
-      },
+  if (uploadViaServer) {
+    let options = {
       headers: {
-        "Content-Type": contentType,
+        "X-Bespoke-Content-Type": contentType,
+        "X-Bespoke-FilePath": path,
+        "X-Bespoke-Url": url,
+        "Content-Type": "multipart/form-data",
       },
     };
-
-    return axios
-      .put(putURL, file, options)
+    var formData = new FormData();
+    formData.append("file", file);
+    return authenticatedApi
+      .put(fileRoutes.uploadSignedUrl, formData, options)
       .then((res) => {
         return { status: "OK", file_in_db: fileInDB };
       })
@@ -179,9 +116,57 @@ function FileUploadDropzone({
           file_in_db: null,
         };
       });
+  }
+
+  // This method is needed in prod because we upload directly to the S3 URL. In local
+  // we can't do this directly because of CORS.
+  const putURL = url;
+  const options = {
+    params: {
+      Key: path,
+      ContentType: contentType,
+    },
+    headers: {
+      "Content-Type": contentType,
+    },
   };
 
-  const onFileSubmit = useCallback(async () => {
+  return axios
+    .put(putURL, file, options)
+    .then((res) => {
+      return { status: "OK", file_in_db: fileInDB };
+    })
+    .catch((err) => {
+      console.log(err);
+      return {
+        status: "ERROR",
+        msg: "Something went wrong uploading the file",
+        file_in_db: null,
+      };
+    });
+};
+
+interface Props {
+  isSaveAutomatic?: boolean;
+  companyId: string; // which companyID does this document correspond to
+  docType: string; // what type of document is this? e.g., purchase_order, etc. This is used for the S3 path, not tied to a DB table
+  maxFilesAllowed?: number; // maximum number of files a user may upload, 10 is the default
+  onUploadComplete: (resp: OnUploadCompleteResp) => void;
+}
+
+function FileUploadDropzone({
+  isSaveAutomatic = true,
+  companyId,
+  docType,
+  maxFilesAllowed = 10,
+  onUploadComplete,
+}: Props) {
+  const classes = useStyles();
+  const [message, setMessage] = useState("");
+  const [files, setFiles] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSaveFiles = useCallback(async () => {
     const processFile = async (file: any): Promise<UploadResponse> => {
       return getPutSignedUrl({
         file_info: {
@@ -201,7 +186,10 @@ function FileUploadDropzone({
       });
     };
 
+    setIsLoading(true);
+
     const uploadPromises = [];
+
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       if (!file) {
@@ -231,6 +219,7 @@ function FileUploadDropzone({
     }
 
     setFiles([]);
+    setIsLoading(false);
 
     if (onUploadComplete) {
       onUploadComplete({
@@ -243,15 +232,50 @@ function FileUploadDropzone({
     }
   }, [companyId, docType, files, onUploadComplete]);
 
+  const handleClearFiles = useCallback(() => {
+    setFiles([]);
+    setMessage("");
+  }, []);
+
+  const handleDropFiles = useCallback(
+    (acceptedFiles) => {
+      if (maxFilesAllowed !== null && acceptedFiles.length > maxFilesAllowed) {
+        setMessage(`Only ${maxFilesAllowed} file(s) may be uploaded!`);
+      } else {
+        setMessage("");
+        if (isSaveAutomatic && acceptedFiles.length > 0) {
+          setIsLoading(true);
+        }
+        setFiles(acceptedFiles);
+      }
+    },
+    [isSaveAutomatic, maxFilesAllowed]
+  );
+
+  useEffect(() => {
+    if (isSaveAutomatic && files.length > 0) {
+      handleSaveFiles();
+    }
+  }, [isSaveAutomatic, files, handleSaveFiles]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: handleDropFiles,
+  });
+
   return (
-    <Box
-      mt={1}
-      mb={2}
-      justifyContent="center"
-      alignItems="center"
-      className={classes.container}
-    >
-      {files.length === 0 ? (
+    <Box className={classes.container}>
+      {isLoading ? (
+        <Box
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+          minHeight={100}
+          py={2}
+        >
+          Loading...
+        </Box>
+      ) : files.length === 0 ? (
         <Box
           display="flex"
           flexDirection="column"
@@ -272,7 +296,7 @@ function FileUploadDropzone({
             </Typography>
             <Box display="flex" alignItems="center">
               <Box display="flex" mr={1}>
-                <CloudUploadIcon></CloudUploadIcon>
+                <CloudUploadIcon />
               </Box>
               <Typography color="textPrimary">
                 {isDragActive
@@ -307,14 +331,14 @@ function FileUploadDropzone({
           >
             <Box display="flex" justifyContent="space-between" width={260}>
               <Button
-                onClick={unattachFiles}
+                onClick={handleClearFiles}
                 variant="outlined"
                 color="secondary"
               >
                 Clear Files
               </Button>
               <Button
-                onClick={onFileSubmit}
+                onClick={handleSaveFiles}
                 variant="contained"
                 color="primary"
               >

@@ -41,7 +41,7 @@ function EbbaApplicationForm({
                 monthly_accounts_receivable: value,
               });
             }}
-          ></CurrencyTextField>
+          />
         </FormControl>
       </Box>
       <Box display="flex" flexDirection="row" mt={2}>
@@ -58,7 +58,7 @@ function EbbaApplicationForm({
                 monthly_inventory: value,
               });
             }}
-          ></CurrencyTextField>
+          />
         </FormControl>
       </Box>
       <Box display="flex" flexDirection="row" mt={2}>
@@ -75,7 +75,7 @@ function EbbaApplicationForm({
                 monthly_cash: value,
               });
             }}
-          ></CurrencyTextField>
+          />
         </FormControl>
       </Box>
       <Box mt={3}>
@@ -87,24 +87,26 @@ function EbbaApplicationForm({
             fileIds={ebbaApplicationFiles.map(
               (ebbaApplicationFile) => ebbaApplicationFile.file_id
             )}
-          ></DownloadThumbnail>
+          />
         )}
-        <FileUploadDropzone
-          companyId={companyId}
-          docType={"ebba_application"}
-          onUploadComplete={async (response) => {
-            if (!response.succeeded) {
-              return;
-            }
-            const { files_in_db: files } = response;
-            setEbbaApplicationFiles(
-              files.map((file) => ({
-                ebba_application: ebbaApplication.id,
-                file_id: file.id,
-              }))
-            );
-          }}
-        ></FileUploadDropzone>
+        <Box mt={1}>
+          <FileUploadDropzone
+            companyId={companyId}
+            docType={"ebba_application"}
+            onUploadComplete={async (response) => {
+              if (!response.succeeded) {
+                return;
+              }
+              const { files_in_db: files } = response;
+              setEbbaApplicationFiles(
+                files.map((file) => ({
+                  ebba_application: ebbaApplication.id,
+                  file_id: file.id,
+                }))
+              );
+            }}
+          />
+        </Box>
       </Box>
     </Box>
   );

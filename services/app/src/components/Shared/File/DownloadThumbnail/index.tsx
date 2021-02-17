@@ -84,9 +84,9 @@ function DownloadThumbnail({ fileIds }: Props) {
             {filesWithSignedUrls.map((fileWithSignedUrl) => (
               <Link key={fileWithSignedUrl.id} href={fileWithSignedUrl.url}>
                 <Box display="flex" alignItems="center">
-                  <InsertDriveFileIcon></InsertDriveFileIcon>
+                  <InsertDriveFileIcon />
                   <Box ml={1}>
-                    <Typography variant={"body2"} color={"primary"}>
+                    <Typography variant={"subtitle2"} color={"primary"}>
                       {fileWithSignedUrl.name}
                     </Typography>
                   </Box>

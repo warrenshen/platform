@@ -105,7 +105,7 @@ function PurchaseOrderForm({
               order_number: value,
             })
           }
-        ></TextField>
+        />
       </Box>
       <Box>
         <DatePicker
@@ -151,7 +151,7 @@ function PurchaseOrderForm({
                 amount: value,
               })
             }
-          ></CurrencyTextField>
+          />
         </FormControl>
       </Box>
       <Box mt={3}>
@@ -161,27 +161,27 @@ function PurchaseOrderForm({
           </Typography>
         </Box>
         {purchaseOrderFile && (
-          <DownloadThumbnail
-            fileIds={[purchaseOrderFile.file_id]}
-          ></DownloadThumbnail>
+          <DownloadThumbnail fileIds={[purchaseOrderFile.file_id]} />
         )}
-        <FileUploadDropzone
-          companyId={companyId}
-          docType="purchase_order"
-          maxFilesAllowed={1}
-          onUploadComplete={async (response) => {
-            if (!response.succeeded) {
-              return;
-            }
-            const file = response.files_in_db[0];
-            setPurchaseOrderFile({
-              purchase_order_id: purchaseOrder.id,
-              file_id: file.id,
-              file_type: PurchaseOrderFileTypeEnum.PurchaseOrder,
-              file: file,
-            });
-          }}
-        ></FileUploadDropzone>
+        <Box mt={1}>
+          <FileUploadDropzone
+            companyId={companyId}
+            docType="purchase_order"
+            maxFilesAllowed={1}
+            onUploadComplete={async (response) => {
+              if (!response.succeeded) {
+                return;
+              }
+              const file = response.files_in_db[0];
+              setPurchaseOrderFile({
+                purchase_order_id: purchaseOrder.id,
+                file_id: file.id,
+                file_type: PurchaseOrderFileTypeEnum.PurchaseOrder,
+                file: file,
+              });
+            }}
+          />
+        </Box>
       </Box>
       <Box mt={2}>
         <FormControlLabel
@@ -216,26 +216,28 @@ function PurchaseOrderForm({
               fileIds={purchaseOrderCannabisFiles.map(
                 (purchaseOrderFile) => purchaseOrderFile.file_id
               )}
-            ></DownloadThumbnail>
+            />
           )}
-          <FileUploadDropzone
-            companyId={companyId}
-            docType="purchase_order"
-            onUploadComplete={async (response) => {
-              if (!response.succeeded) {
-                return;
-              }
-              const { files_in_db: files } = response;
-              setPurchaseOrderCannabisFiles(
-                files.map((file) => ({
-                  purchase_order_id: purchaseOrder.id,
-                  file_id: file.id,
-                  file_type: PurchaseOrderFileTypeEnum.Cannabis,
-                  file: file,
-                }))
-              );
-            }}
-          ></FileUploadDropzone>
+          <Box mt={1}>
+            <FileUploadDropzone
+              companyId={companyId}
+              docType="purchase_order"
+              onUploadComplete={async (response) => {
+                if (!response.succeeded) {
+                  return;
+                }
+                const { files_in_db: files } = response;
+                setPurchaseOrderCannabisFiles(
+                  files.map((file) => ({
+                    purchase_order_id: purchaseOrder.id,
+                    file_id: file.id,
+                    file_type: PurchaseOrderFileTypeEnum.Cannabis,
+                    file: file,
+                  }))
+                );
+              }}
+            />
+          </Box>
         </Box>
       )}
     </Box>
