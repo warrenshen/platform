@@ -11,8 +11,10 @@ import DatePicker from "components/Shared/Dates/DatePicker";
 import { LoanFragment, PaymentsInsertInput } from "generated/graphql";
 import {
   AllPaymentMethods,
+  AllPaymentOptions,
   PaymentMethodEnum,
   PaymentMethodToLabel,
+  PaymentOptionToLabel,
 } from "lib/enum";
 
 interface Props {
@@ -30,12 +32,6 @@ function CreateRepaymentSelectLoans({
   setPayment,
   setPaymentOption,
 }: Props) {
-  const paymentOptions = [
-    { value: "pay_in_full", displayValue: "Pay in full" },
-    { value: "pay_minimum_due", displayValue: "Pay minimum due" },
-    { value: "custom_amount", displayValue: "Custom amount" },
-  ];
-
   return (
     <Box>
       <LoansDataGrid
@@ -93,10 +89,10 @@ function CreateRepaymentSelectLoans({
           }}
           style={{ width: 200 }}
         >
-          {paymentOptions.map((paymentOption) => {
+          {AllPaymentOptions.map((paymentOption) => {
             return (
-              <MenuItem key={paymentOption.value} value={paymentOption.value}>
-                {paymentOption.displayValue}
+              <MenuItem key={paymentOption} value={paymentOption}>
+                {PaymentOptionToLabel[paymentOption]}
               </MenuItem>
             );
           })}

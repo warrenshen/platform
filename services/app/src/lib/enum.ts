@@ -70,6 +70,25 @@ export const AllPaymentMethods = [
   PaymentMethodEnum.Check,
 ];
 
+// Payment Option enum related.
+export enum PaymentOptionEnum {
+  InFull = "pay_in_full",
+  MinimumDue = "pay_minimum_due",
+  CustomAmount = "custom_amount",
+}
+
+export const AllPaymentOptions = [
+  PaymentOptionEnum.InFull,
+  PaymentOptionEnum.MinimumDue,
+  PaymentOptionEnum.CustomAmount,
+];
+
+export const PaymentOptionToLabel = {
+  [PaymentOptionEnum.InFull]: "Pay in full",
+  [PaymentOptionEnum.MinimumDue]: "Pay minimum due",
+  [PaymentOptionEnum.CustomAmount]: "Pay custom amount",
+};
+
 // Product Type enum related.
 export const ProductTypeToContractTermsJson = {
   [ProductTypeEnum.InventoryFinancing]: JSON.stringify(

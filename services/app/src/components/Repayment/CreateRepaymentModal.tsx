@@ -31,7 +31,16 @@ interface Props {
 }
 
 function RepaymentModal({ companyId, selectedLoans, handleClose }: Props) {
+  // There are 2 states that we show, one when the user is selecting
+  // the payment method date, and payment type, and the next is when
+  // they have to "confirm" what they have selected.
+  const [isOnSelectLoans, setIsOnSelectLoans] = useState(true);
   const [errMsg, setErrMsg] = useState("");
+
+  const [beforeAfterPaymentLoans, setBeforeAfterPaymentLoans] = useState<
+    BeforeAfterPaymentLoan[]
+  >([]);
+
   const [payment, setPayment] = useState<PaymentsInsertInput>({
     company_id: companyId,
     type: PaymentTransferType.ToBank,
@@ -40,18 +49,9 @@ function RepaymentModal({ companyId, selectedLoans, handleClose }: Props) {
     deposit_date: null,
   });
 
-  // There are 2 states that we show, one when the user is selecting the payment method
-  // date, and payment type, and the next is when they have to "confirm" what they
-  // have selected.
-  const [isOnConfirmEffect, setIsOnConfirmEffect] = useState(false);
-
   // A payment option is the user's choice to payment the remaining balances on the loan, to
   // pay the minimum amount required, or to pay a custom amount.
   const [paymentOption, setPaymentOption] = useState("");
-
-  const [beforeAfterPaymentLoans, setBeforeAfterPaymentLoans] = useState<
-    BeforeAfterPaymentLoan[]
-  >([]);
 
   const isPaymentMethodSet =
     payment.method && payment.method !== PaymentMethodEnum.None;
@@ -81,32 +81,37 @@ function RepaymentModal({ companyId, selectedLoans, handleClose }: Props) {
     } else {
       setErrMsg("");
       setPayment({ ...payment, amount: resp.amount_to_pay || 0 });
-      if (resp.loans_afterwards) {
-        setBeforeAfterPaymentLoans(
-          resp.loans_afterwards.map((loan_afterwards) => {
-            const beforeLoan = selectedLoans.find(
-              (selectedLoan) => selectedLoan.id === loan_afterwards.loan_id
-            );
-            return {
-              loan_id: beforeLoan?.id,
-              loan_balance_before: {
-                outstanding_principal_balance:
-                  beforeLoan?.outstanding_principal_balance,
-                outstanding_interest: beforeLoan?.outstanding_interest,
-                outstanding_fees: beforeLoan?.outstanding_fees,
-              } as LoanBalance,
-              loan_balance_after: {
-                outstanding_principal_balance:
-                  loan_afterwards.loan_balance.outstanding_principal_balance,
-                outstanding_interest:
-                  loan_afterwards.loan_balance.outstanding_interest,
-                outstanding_fees: loan_afterwards.loan_balance.outstanding_fees,
-              } as LoanBalance,
-            } as BeforeAfterPaymentLoan;
-          })
-        );
+
+      if (!resp.loans_afterwards) {
+        alert("Developer error: response does not include loans_afterwards.");
+        return;
       }
-      setIsOnConfirmEffect(true);
+
+      setBeforeAfterPaymentLoans(
+        resp.loans_afterwards.map((loan_afterwards) => {
+          const beforeLoan = selectedLoans.find(
+            (selectedLoan) => selectedLoan.id === loan_afterwards.loan_id
+          );
+          return {
+            loan_id: beforeLoan?.id,
+            loan_balance_before: {
+              outstanding_principal_balance:
+                beforeLoan?.outstanding_principal_balance,
+              outstanding_interest: beforeLoan?.outstanding_interest,
+              outstanding_fees: beforeLoan?.outstanding_fees,
+            } as LoanBalance,
+            loan_balance_after: {
+              outstanding_principal_balance:
+                loan_afterwards.loan_balance.outstanding_principal_balance,
+              outstanding_interest:
+                loan_afterwards.loan_balance.outstanding_interest,
+              outstanding_fees: loan_afterwards.loan_balance.outstanding_fees,
+            } as LoanBalance,
+          } as BeforeAfterPaymentLoan;
+        })
+      );
+
+      setIsOnSelectLoans(false);
     }
   };
 
@@ -135,7 +140,7 @@ function RepaymentModal({ companyId, selectedLoans, handleClose }: Props) {
       <DialogTitle>Pay Off Loan(s)</DialogTitle>
       <DialogContent style={{ minHeight: 400 }}>
         <Box display="flex" flexDirection="column">
-          {!isOnConfirmEffect ? (
+          {isOnSelectLoans ? (
             <Box>
               <Box mb={3}>
                 <Typography variant={"subtitle1"}>
@@ -154,11 +159,11 @@ function RepaymentModal({ companyId, selectedLoans, handleClose }: Props) {
           ) : (
             <Box>
               <Box mb={3}>
-                {isOnConfirmEffect && (
+                {!isOnSelectLoans && (
                   <Button
                     variant="contained"
                     color="default"
-                    onClick={() => setIsOnConfirmEffect(false)}
+                    onClick={() => setIsOnSelectLoans(true)}
                   >
                     Back to Step 1
                   </Button>
@@ -185,7 +190,7 @@ function RepaymentModal({ companyId, selectedLoans, handleClose }: Props) {
           {errMsg && <span style={{ float: "left" }}>{errMsg}</span>}
           <Box pr={1}>
             <Button onClick={handleClose}>Cancel</Button>
-            {!isOnConfirmEffect ? (
+            {isOnSelectLoans ? (
               <Button
                 disabled={!isNextButtonEnabled}
                 variant="contained"

@@ -51,7 +51,7 @@ function PurchaseOrdersDataGrid({
         <PurchaseOrderDrawerLauncher
           label={params.row.data.order_number as string}
           purchaseOrderId={params.row.data.id as string}
-        ></PurchaseOrderDrawerLauncher>
+        />
       ),
     },
     {
@@ -78,9 +78,7 @@ function PurchaseOrdersDataGrid({
     {
       caption: "Amount",
       cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell
-          value={params.row.data.amount}
-        ></CurrencyDataGridCell>
+        <CurrencyDataGridCell value={params.row.data.amount} />
       ),
     },
     {
@@ -88,9 +86,7 @@ function PurchaseOrdersDataGrid({
       alignment: "center",
       width: 115,
       cellRender: (params: ValueFormatterParams) => (
-        <DateDataGridCell
-          dateString={params.row.data.order_date}
-        ></DateDataGridCell>
+        <DateDataGridCell dateString={params.row.data.order_date} />
       ),
     },
     {
@@ -98,9 +94,7 @@ function PurchaseOrdersDataGrid({
       alignment: "center",
       width: 115,
       cellRender: (params: ValueFormatterParams) => (
-        <DateDataGridCell
-          dateString={params.row.data.delivery_date}
-        ></DateDataGridCell>
+        <DateDataGridCell dateString={params.row.data.delivery_date} />
       ),
     },
     {
@@ -114,21 +108,14 @@ function PurchaseOrdersDataGrid({
       width: 75,
       visible: check(user.role, Action.ViewPurchaseOrdersActionMenu),
       cellRender: (params: ValueFormatterParams) => (
-        <DataGridActionMenu
-          params={params}
-          actionItems={actionItems}
-        ></DataGridActionMenu>
+        <DataGridActionMenu params={params} actionItems={actionItems} />
       ),
     },
   ];
 
   return (
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      <ControlledDataGrid
-        dataSource={rows}
-        columns={columns}
-        pager
-      ></ControlledDataGrid>
+      <ControlledDataGrid dataSource={rows} columns={columns} pager />
     </Box>
   );
 }

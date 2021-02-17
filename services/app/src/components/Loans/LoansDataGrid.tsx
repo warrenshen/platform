@@ -3,6 +3,9 @@ import { ValueFormatterParams } from "@material-ui/data-grid";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
+import DataGridActionMenu, {
+  DataGridActionItem,
+} from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { LoanFragment, LoanStatusEnum } from "generated/graphql";
 import { truncateUuid } from "lib/uuid";
@@ -10,16 +13,18 @@ import { useEffect, useState } from "react";
 
 interface Props {
   isStatusVisible: boolean;
-  loans: LoanFragment[];
   customerSearchQuery?: string;
+  loans: LoanFragment[];
+  actionItems?: DataGridActionItem[];
 }
 
 // TODO (warrenshen): merge this component with the other LoansDataGrid
 // component to create a reusable component?
 function LoansDataGrid({
   isStatusVisible,
-  loans,
   customerSearchQuery = "",
+  loans,
+  actionItems = [],
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = loans;
@@ -46,24 +51,26 @@ function LoansDataGrid({
         <Box>{truncateUuid(params.value as string)}</Box>
       ),
     },
-    ...(isStatusVisible
-      ? [
-          {
-            dataField: "status",
-            caption: "Status",
-            width: 120,
-            alignment: "center",
-            cellRender: (params: ValueFormatterParams) => (
-              <LoanStatusChip loanStatus={params.value as LoanStatusEnum} />
-            ),
-          },
-        ]
-      : []),
-    // {
-    //   dataField: "purchase_order.order_number",
-    //   caption: "Order Number",
-    //   width: 120,
-    // },
+    {
+      visible: actionItems.length > 0,
+      dataField: "action",
+      caption: "Action",
+      alignment: "center",
+      width: 75,
+      cellRender: (params: ValueFormatterParams) => (
+        <DataGridActionMenu params={params} actionItems={actionItems} />
+      ),
+    },
+    {
+      visible: isStatusVisible,
+      dataField: "status",
+      caption: "Status",
+      width: 120,
+      alignment: "center",
+      cellRender: (params: ValueFormatterParams) => (
+        <LoanStatusChip loanStatus={params.value as LoanStatusEnum} />
+      ),
+    },
     {
       caption: "Maturity Date",
       alignment: "right",
