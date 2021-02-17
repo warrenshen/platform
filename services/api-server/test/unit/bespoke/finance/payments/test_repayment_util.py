@@ -544,6 +544,7 @@ class TestCreatePayment(db_unittest.TestCase):
 				session.flush()
 				loan_ids.append(str(loan.id))
 
+		payment_date = '10/05/2019'
 		user_id = seed.get_user_id('company_admin', index=0)
 		payment_input_amount = test['payment_amount']
 		payment_id, err = repayment_util.create_payment(
@@ -553,7 +554,7 @@ class TestCreatePayment(db_unittest.TestCase):
 				type='unused',
 				amount=payment_input_amount,
 				method=test['payment_method'],
-				payment_date='unused',
+				payment_date=payment_date,
 				settlement_date='unused'
 		),
 			loan_ids=loan_ids,
@@ -575,6 +576,8 @@ class TestCreatePayment(db_unittest.TestCase):
 			self.assertEqual(test['payment_method'], payment.method)
 			self.assertIsNotNone(payment.submitted_at)
 			self.assertEqual(user_id, payment.submitted_by_user_id)
+			self.assertEqual(user_id, payment.requested_by_user_id)
+			self.assertEqual(payment_date, date_util.date_to_str(payment.requested_payment_date))
 			self.assertEqual(loan_ids, cast(Dict, payment.items_covered)['loan_ids'])
 
 	def test_schedule_payment_reverse_draft_ach(self) -> None:
@@ -673,7 +676,7 @@ class TestSettlePayment(db_unittest.TestCase):
 				type='unused',
 				amount=test['payment']['amount'],
 				method=test['payment']['payment_method'],
-				payment_date='unused',
+				payment_date='10/19/2020',
 				settlement_date='unused'
 		),
 			loan_ids=loan_ids,

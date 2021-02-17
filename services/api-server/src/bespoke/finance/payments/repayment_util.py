@@ -292,6 +292,8 @@ def create_payment(
 		payment.items_covered = {
 			'loan_ids': loan_ids
 		}
+		payment.requested_by_user_id = user_id
+		payment.requested_payment_date = date_util.load_date_str(payment_insert_input['payment_date'])
 		session.add(payment)
 		session.flush()
 		payment_id = str(payment.id)
