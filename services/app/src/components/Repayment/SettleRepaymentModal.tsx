@@ -40,7 +40,6 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
   const [beforeAfterPaymentLoans, setBeforeAfterPaymentLoans] = useState<
     BeforeAfterPaymentLoan[]
   >([]);
-  console.log({ beforeAfterPaymentLoans });
 
   const [selectedLoans, setSelectedLoans] = useState<
     GetLoansByLoanIdsQuery["loans"]
@@ -79,8 +78,10 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
       return;
     }
 
+    // TODO (warrenshen): set `amount` below correctly.
     const response = await calculateEffectOfPayment({
       payment: {
+        amount: 0,
         payment_date: payment.payment_date,
       } as PaymentsInsertInput,
       company_id: customer.id,
@@ -138,7 +139,9 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
             setSelectedLoanIds={setSelectedLoanIds}
           />
         ) : (
-          <SettleRepaymentConfirmEffect />
+          <SettleRepaymentConfirmEffect
+            beforeAfterPaymentLoans={beforeAfterPaymentLoans}
+          />
         )}
       </DialogContent>
       <DialogActions>

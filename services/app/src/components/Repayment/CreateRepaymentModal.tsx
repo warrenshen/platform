@@ -70,12 +70,14 @@ function RepaymentModal({ companyId, selectedLoans, handleClose }: Props) {
     if (payment.amount && payment.amount.length > 0) {
       payment.amount = parseFloat(payment.amount);
     }
+
     const resp = await calculateEffectOfPayment({
       payment: payment,
       company_id: companyId,
       payment_option: paymentOption,
       loan_ids: selectedLoanIds,
     });
+
     if (resp.status !== "OK") {
       setErrMsg(resp.msg || "");
     } else {
@@ -122,11 +124,13 @@ function RepaymentModal({ companyId, selectedLoans, handleClose }: Props) {
       setErrMsg("Payment amount must be larger than 0");
       return;
     }
+
     const resp = await createPayment({
       payment: payment,
       company_id: companyId,
       loan_ids: selectedLoanIds,
     });
+
     if (resp.status !== "OK") {
       setErrMsg(resp.msg);
     } else {
