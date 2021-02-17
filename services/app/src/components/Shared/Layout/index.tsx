@@ -1,11 +1,20 @@
-import { Box, Divider, ListItem, ListItemText } from "@material-ui/core";
-import AppBar from "@material-ui/core/AppBar";
-import Drawer from "@material-ui/core/Drawer";
+import {
+  Box,
+  Divider,
+  ListItem,
+  ListItemText,
+  Drawer,
+  AppBar,
+} from "@material-ui/core";
+import AccountBalanceIcon from "@material-ui/icons/AccountBalance";
+import PaymentIcon from "@material-ui/icons/Payment";
 import List from "@material-ui/core/List";
+import TuneIcon from "@material-ui/icons/Tune";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import UserMenu from "components/Shared/User/UserMenu";
+import NestedListItem from "components/Shared/Layout/NestedListItem";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { ProductTypeEnum, UserRolesEnum } from "generated/graphql";
 import { bankRoutes, customerRoutes, routes } from "lib/routes";
@@ -105,29 +114,40 @@ const BANK_LEFT_NAV_ITEMS = [
     link: bankRoutes.overview,
   },
   {
-    text: "Loans Maturing in X Days",
-    link: bankRoutes.loansMaturing,
+    text: "Loans",
+    counter: 4,
+    items: [
+      {
+        text: "All",
+        link: bankRoutes.loansAllProducts,
+        icon: <AccountBalanceIcon />,
+      },
+      {
+        text: "Approval Requested",
+        counter: 4,
+        link: bankRoutes.loansApprovalRequested,
+        icon: <AccountBalanceIcon />,
+      },
+      {
+        text: "Maturing in X Days",
+        link: bankRoutes.loansMaturing,
+        icon: <AccountBalanceIcon />,
+      },
+      {
+        text: "Past Due (Collections)",
+        link: bankRoutes.loansPastDue,
+        icon: <AccountBalanceIcon />,
+      },
+      // {
+      //   text: "Loans by Purchase Order",
+      //   link: bankRoutes.loansPurchaseOrder,
+      // },
+      // {
+      //   text: "Loans by Line of Credit",
+      //   link: bankRoutes.loansLineOfCredit,
+      // },
+    ],
   },
-  {
-    text: "Loans Past Due (Collections)",
-    link: bankRoutes.loansPastDue,
-  },
-  {
-    text: "Loans All Products",
-    link: bankRoutes.loansAllProducts,
-  },
-  {
-    text: "Loans Approval Requested",
-    link: bankRoutes.loansApprovalRequested,
-  },
-  // {
-  //   text: "Loans by Purchase Order",
-  //   link: bankRoutes.loansPurchaseOrder,
-  // },
-  // {
-  //   text: "Loans by Line of Credit",
-  //   link: bankRoutes.loansLineOfCredit,
-  // },
   {
     text: "Purchase Orders",
     link: bankRoutes.purchaseOrders,
@@ -142,7 +162,23 @@ const BANK_LEFT_NAV_ITEMS = [
   },
   {
     text: "Payments",
-    link: bankRoutes.payments,
+    items: [
+      {
+        text: "All",
+        link: bankRoutes.payments,
+        icon: <PaymentIcon />,
+      },
+      {
+        text: "Reverse Draft ACH",
+        link: bankRoutes.paymentsReverseDraftAch,
+        icon: <PaymentIcon />,
+      },
+      {
+        text: "Ready for Settlement",
+        link: bankRoutes.paymentsReadyForSettlement,
+        icon: <PaymentIcon />,
+      },
+    ],
   },
   {
     text: "Transactions",
@@ -157,12 +193,19 @@ const BANK_LEFT_NAV_ITEMS = [
     link: bankRoutes.vendors,
   },
   {
-    text: "Users",
-    link: routes.users,
-  },
-  {
-    text: "Bank Accounts",
-    link: bankRoutes.bankAccounts,
+    text: "Settings",
+    items: [
+      {
+        text: "Users",
+        link: routes.users,
+        icon: <TuneIcon />,
+      },
+      {
+        text: "Bank Accounts",
+        link: bankRoutes.bankAccounts,
+        icon: <TuneIcon />,
+      },
+    ],
   },
 ];
 
@@ -180,7 +223,7 @@ function Layout({ appBarTitle, children }: Props) {
     user: { role, productType },
   } = useContext(CurrentUserContext);
 
-  const leftNavOptions =
+  const leftNavOptions: any =
     role === UserRolesEnum.BankAdmin
       ? BANK_LEFT_NAV_ITEMS
       : productType
@@ -214,10 +257,12 @@ function Layout({ appBarTitle, children }: Props) {
         </div>
         <Divider />
         <List>
-          {leftNavOptions.map((item) => {
-            return (
+          {leftNavOptions.map((item: any, index: number) => {
+            return item.items ? (
+              <NestedListItem key={item.text + index} item={item} />
+            ) : (
               <ListItem
-                key={item.link}
+                key={item.text + index}
                 button
                 component={Link}
                 to={item.link}
