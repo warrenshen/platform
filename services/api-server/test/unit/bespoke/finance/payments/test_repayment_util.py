@@ -49,8 +49,8 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				type='unused',
 				amount=test['payment_input_amount'],
 				method='ach',
-				deposit_date=test['deposit_date'],
-				effective_date=test['effective_date']
+				payment_date=test['payment_date'],
+				settlement_date=test['settlement_date']
 			), 
 			payment_option=test['payment_option'], 
 			company_id=company_id, 
@@ -102,8 +102,8 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 					outstanding_principal_balance=decimal.Decimal(9.99)
 				)
 			],
-			'deposit_date': '10/12/2020',
-			'effective_date': '10/14/2020',
+			'payment_date': '10/12/2020',
+			'settlement_date': '10/14/2020',
 			'payment_option': 'custom_amount',
 			'payment_input_amount': 10.01,
 			'expected_amount_to_pay': 10.01,
@@ -143,13 +143,13 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				),
 				models.Loan(
 					amount=decimal.Decimal(30.02),
-					adjusted_maturity_date=date_util.load_date_str('9/1/2020'),
+					adjusted_maturity_date=date_util.load_date_str('9/3/2020'),
 					outstanding_principal_balance=decimal.Decimal(1.88),
 					outstanding_interest=decimal.Decimal(0.73)
 				)
 			],
-			'deposit_date': '10/12/2020',
-			'effective_date': '10/14/2020',
+			'payment_date': '10/12/2020',
+			'settlement_date': '10/14/2020',
 			'payment_option': 'custom_amount',
 			'payment_input_amount': 15.01,
 			'expected_amount_to_pay': 15.01,
@@ -217,8 +217,8 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 					outstanding_fees=decimal.Decimal(0.51)
 				)
 			],
-			'deposit_date': '10/12/2020',
-			'effective_date': '10/14/2020',
+			'payment_date': '10/12/2020',
+			'settlement_date': '10/14/2020',
 			'payment_option': 'custom_amount',
 			'payment_input_amount': 15.05,
 			'expected_amount_to_pay': 15.05,
@@ -301,8 +301,8 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 						outstanding_principal_balance=decimal.Decimal(10.1)
 					) # this loan doesnt need to get paid yet
 				],
-				'deposit_date': '10/12/2020',
-				'effective_date': '10/20/2020',
+				'payment_date': '10/12/2020',
+				'settlement_date': '10/20/2020',
 				'payment_option': 'pay_minimum_due',
 				'payment_input_amount': None,
 
@@ -357,8 +357,8 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 						outstanding_principal_balance=decimal.Decimal(8.0)
 					)
 				],
-				'deposit_date': '10/12/2020',
-				'effective_date': '10/14/2020',
+				'payment_date': '10/12/2020',
+				'settlement_date': '10/14/2020',
 				'payment_option': 'pay_minimum_due',
 				'payment_input_amount': None,
 
@@ -420,8 +420,8 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 						outstanding_principal_balance=decimal.Decimal(8.1)
 					)
 				],
-				'deposit_date': '10/12/2020',
-				'effective_date': '10/14/2020',
+				'payment_date': '10/12/2020',
+				'settlement_date': '10/14/2020',
 				'payment_option': 'pay_in_full',
 				'payment_input_amount': None,
 
@@ -490,8 +490,8 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 						outstanding_principal_balance=decimal.Decimal(9.1)
 					)
 				],
-				'deposit_date': '10/12/2020',
-				'effective_date': '10/14/2020',
+				'payment_date': '10/12/2020',
+				'settlement_date': '10/14/2020',
 				'payment_option': 'pay_in_full',
 				'payment_input_amount': None,
 
@@ -553,8 +553,8 @@ class TestCreatePayment(db_unittest.TestCase):
 				type='unused',
 				amount=payment_input_amount,
 				method=test['payment_method'],
-				deposit_date='unused',
-				effective_date='unused'
+				payment_date='unused',
+				settlement_date='unused'
 		),
 			loan_ids=loan_ids,
 			user_id=user_id,
@@ -673,8 +673,8 @@ class TestSettlePayment(db_unittest.TestCase):
 				type='unused',
 				amount=test['payment']['amount'],
 				method=test['payment']['payment_method'],
-				deposit_date='unused',
-				effective_date='unused'
+				payment_date='unused',
+				settlement_date='unused'
 		),
 			loan_ids=loan_ids,
 			user_id=user_id,
@@ -688,8 +688,8 @@ class TestSettlePayment(db_unittest.TestCase):
 				session.query(models.Payment).filter(
 					models.Payment.id == payment_id
 				).first())
-			if payment and test['payment'].get('applied_at'):
-				payment.applied_at = test['payment']['applied_at']
+			if payment and test['payment'].get('settled_at'):
+				payment.settled_at = test['payment']['settled_at']
 
 			if payment and test['payment'].get('type'):
 				payment.type = test['payment']['type']
@@ -699,8 +699,8 @@ class TestSettlePayment(db_unittest.TestCase):
 			payment_id=payment_id,
 			loan_ids=loan_ids,
 			transaction_inputs=test['transaction_inputs'],
-			deposit_date=test['payment']['deposit_date'],
-			effective_date=test['payment']['effective_date']
+			payment_date=test['payment']['payment_date'],
+			settlement_date=test['payment']['settlement_date']
 		)
 
 		bank_admin_user_id = seed.get_user_id('bank_admin', index=0)
@@ -729,10 +729,10 @@ class TestSettlePayment(db_unittest.TestCase):
 			self.assertEqual(test['payment']['payment_method'], payment.method)
 			self.assertIsNotNone(payment.submitted_at)
 			self.assertEqual(user_id, payment.submitted_by_user_id)
-			self.assertEqual(test['payment']['deposit_date'], date_util.date_to_str(payment.deposit_date))
-			self.assertEqual(test['payment']['effective_date'], date_util.date_to_str(payment.effective_date))
-			self.assertIsNotNone(payment.applied_at)
-			self.assertEqual(bank_admin_user_id, payment.applied_by_user_id)
+			self.assertEqual(test['payment']['payment_date'], date_util.date_to_str(payment.payment_date))
+			self.assertEqual(test['payment']['settlement_date'], date_util.date_to_str(payment.settlement_date))
+			self.assertIsNotNone(payment.settled_at)
+			self.assertEqual(bank_admin_user_id, payment.settled_by_user_id)
 
 			# Assertions on transactions
 			transactions = cast(
@@ -755,7 +755,7 @@ class TestSettlePayment(db_unittest.TestCase):
 				self.assertEqual(loan_ids[i], str(tx.loan_id))
 				self.assertEqual(payment_id, str(tx.payment_id))
 				self.assertEqual(bank_admin_user_id, tx.created_by_user_id)
-				self.assertEqual(test['payment']['effective_date'], date_util.date_to_str(tx.effective_date))
+				self.assertEqual(test['payment']['settlement_date'], date_util.date_to_str(tx.effective_date))
 
 			# Assert on loans
 			loans = cast(
@@ -781,8 +781,8 @@ class TestSettlePayment(db_unittest.TestCase):
 				'payment': {
 					'amount': 60.06,
 					'payment_method': 'ach',
-					'deposit_date': '10/10/2020',
-					'effective_date': '10/12/2020'
+					'payment_date': '10/10/2020',
+					'settlement_date': '10/12/2020'
 				},
 				'loans': [
 					{
@@ -842,8 +842,8 @@ class TestSettlePayment(db_unittest.TestCase):
 			payment_id=None,
 			loan_ids=[str(uuid.uuid4())],
 			transaction_inputs=None,
-			deposit_date=None,
-			effective_date=None
+			payment_date=None,
+			settlement_date=None
 		)
 
 		transaction_ids, err = repayment_util.settle_payment(
@@ -857,8 +857,8 @@ class TestSettlePayment(db_unittest.TestCase):
 			'payment': {
 				'amount': 60.06,
 				'payment_method': 'unused',
-				'effective_date': 'unused',
-				'deposit_date': 'unused'
+				'payment_date': 'unused',
+				'settlement_date': 'unused'
 			},
 			'loans': [
 				{
@@ -891,9 +891,9 @@ class TestSettlePayment(db_unittest.TestCase):
 			'payment': {
 				'amount': 60.06,
 				'payment_method': 'unused',
-				'applied_at': date_util.today_as_date(),
-				'deposit_date': 'unused',
-				'effective_date': 'unused'
+				'settled_at': date_util.today_as_date(),
+				'payment_date': 'unused',
+				'settlement_date': 'unused'
 			},
 			'loans': [
 				{
@@ -910,7 +910,7 @@ class TestSettlePayment(db_unittest.TestCase):
 				}
 			],
 			'transaction_inputs': [{}, {}],
-			'in_err_msg': 'already been applied'
+			'in_err_msg': 'already been settled'
 		}
 		self._run_test(test)
 
@@ -920,8 +920,8 @@ class TestSettlePayment(db_unittest.TestCase):
 				'amount': 60.06,
 				'payment_method': 'unused',
 				'type': db_constants.PaymentType.ADVANCE,
-				'effective_date': 'unused',
-				'deposit_date': 'unused'
+				'payment_date': 'unused',
+				'settlement_date': 'unused'
 			},
 			'loans': [
 				{
@@ -948,8 +948,8 @@ class TestSettlePayment(db_unittest.TestCase):
 			'payment': {
 				'amount': 60.06,
 				'payment_method': 'ach',
-				'deposit_date': '10/10/2020',
-				'effective_date': '10/12/2020'
+				'payment_date': '10/10/2020',
+				'settlement_date': '10/12/2020'
 			},
 			'loans': [
 				{
@@ -1003,8 +1003,8 @@ class TestSettlePayment(db_unittest.TestCase):
 			'payment': {
 				'amount': 60.06,
 				'payment_method': 'ach',
-				'deposit_date': '10/10/2020',
-				'effective_date': '10/12/2020'
+				'payment_date': '10/10/2020',
+				'settlement_date': '10/12/2020'
 			},
 			'loans': [
 				{

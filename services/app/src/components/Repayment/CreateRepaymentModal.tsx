@@ -46,7 +46,7 @@ function RepaymentModal({ companyId, selectedLoans, handleClose }: Props) {
     type: PaymentTransferType.ToBank,
     amount: 0.0,
     method: PaymentMethodEnum.None,
-    deposit_date: null,
+    payment_date: null,
   });
 
   // A payment option is the user's choice to payment the remaining balances on the loan, to
@@ -57,7 +57,7 @@ function RepaymentModal({ companyId, selectedLoans, handleClose }: Props) {
     payment.method && payment.method !== PaymentMethodEnum.None;
 
   const isNextButtonEnabled =
-    payment.deposit_date && isPaymentMethodSet && paymentOption !== "";
+    payment.payment_date && isPaymentMethodSet && paymentOption !== "";
   const isActionButtonEnabled = isPaymentMethodSet && payment.amount > 0;
   const actionBtnText =
     payment.method === PaymentMethodEnum.ReverseDraftACH

@@ -94,8 +94,8 @@ def fund_loans_with_advance(
 
 			company_id_to_loans[company_id].append(loan_dict)
 
-		deposit_date = date_util.load_date_str(payment_input['deposit_date'])
-		effective_date = date_util.load_date_str(payment_input['effective_date'])
+		payment_date = date_util.load_date_str(payment_input['payment_date'])
+		settlement_date = date_util.load_date_str(payment_input['settlement_date'])
 
 		for company_id, loans_for_company in company_id_to_loans.items():
 			amount_to_company = sum([cur_loan_dict['amount'] for cur_loan_dict in loans_for_company])
@@ -106,9 +106,9 @@ def fund_loans_with_advance(
 			), 
 			user_id=bank_admin_user_id)
 			payment_util.make_payment_applied(
-				payment, applied_by_user_id=bank_admin_user_id, 
-				deposit_date=deposit_date,
-				effective_date=effective_date)
+				payment, settled_by_user_id=bank_admin_user_id, 
+				payment_date=payment_date,
+				settlement_date=settlement_date)
 			session.add(payment)
 			session.flush()
 			payment_id = payment.id
@@ -124,7 +124,7 @@ def fund_loans_with_advance(
 				t.loan_id = loan_dict['id']
 				t.payment_id = payment_id
 				t.created_by_user_id = bank_admin_user_id
-				t.effective_date = effective_date
+				t.effective_date = settlement_date
 				session.add(t)
 
 		for loan in loans:

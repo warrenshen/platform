@@ -43,14 +43,14 @@ function CreateRepaymentSelectLoans({
         <DatePicker
           className=""
           id="payment-modal-deposit-date-date-picker"
-          label="Desposit Date"
+          label="Payment Date"
           disablePast
           disableNonBankDays
-          value={payment.deposit_date}
+          value={payment.payment_date}
           onChange={(value) => {
             setPayment({
               ...payment,
-              deposit_date: value,
+              payment_date: value,
             });
           }}
         />

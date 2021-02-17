@@ -27,8 +27,8 @@ PaymentInsertInputDict = TypedDict('PaymentInsertInputDict', {
 	'type': str,
 	'amount': float,
 	'method': str,
-	'deposit_date': str,
-	'effective_date': str
+	'payment_date': str,
+	'settlement_date': str
 })
 
 def create_payment(
@@ -45,15 +45,19 @@ def create_payment(
 	return payment
 
 def make_payment_applied(
-	payment: models.Payment, applied_by_user_id: str, 
-	deposit_date: datetime.date, effective_date: datetime.date) -> None:
+	payment: models.Payment, settled_by_user_id: str, 
+	payment_date: datetime.date, settlement_date: datetime.date) -> None:
 	"""
 		Call this method when you are ready to apply a payment
+
+		payment_date:    When the payment was deposited to the bank
+		settlement_date: When the funds are available to withdraw, and when fees / interest
+		                 start to accrue
 	"""
-	payment.applied_at = date_util.now()
-	payment.applied_by_user_id = applied_by_user_id
-	payment.deposit_date = deposit_date
-	payment.effective_date = effective_date
+	payment.settled_at = date_util.now()
+	payment.settled_by_user_id = settled_by_user_id
+	payment.payment_date = payment_date
+	payment.settlement_date = settlement_date
 
 def is_advance(p: Union[models.PaymentDict, models.TransactionDict]) -> bool:
 	return p['type'] in db_constants.ADVANCE_TYPES

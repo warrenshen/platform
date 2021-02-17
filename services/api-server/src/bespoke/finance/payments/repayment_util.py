@@ -55,8 +55,8 @@ SettlePaymentReqDict = TypedDict('SettlePaymentReqDict', {
 	'payment_id': str,
 	'loan_ids': List[str],
 	'transaction_inputs': List[TransactionInputDict],
-	'effective_date': str, # Effective date of all the transactions
-	'deposit_date': str # When the payment was deposited into the bank
+	'settlement_date': str, # Effective date of all the transactions as well
+	'payment_date': str # When the payment was deposited into the bank
 })
 
 def _zero_if_null(val: Optional[float]) -> float:
@@ -108,8 +108,8 @@ def calculate_repayment_effect(
 		if not number_util.is_number(payment_input.get('amount')) and payment_input['amount'] <= 0:
 			return None, errors.Error('Amount must greater than 0 when the payment option is Custom Amount')
 
-	if not payment_input.get('deposit_date'):
-		return None, errors.Error('Deposit date must be specified')
+	if not payment_input.get('payment_date'):
+		return None, errors.Error('Payment date must be specified')
 	
 	if not loan_ids:
 		return None, errors.Error('No loan ids are selected')
@@ -117,7 +117,7 @@ def calculate_repayment_effect(
 	# Figure out how much is due by a particular date
 	loan_dicts = []
 	err_details = {'company_id': company_id, 'loan_ids': loan_ids, 'method': 'calculate_repayment_effect'}
-	date_selected = date_util.load_date_str(payment_input['deposit_date'])
+	date_selected = date_util.load_date_str(payment_input['payment_date'])
 	loans_past_due_but_not_selected = []
 
 	with session_scope(session_maker) as session:		
@@ -339,8 +339,8 @@ def settle_payment(
 		if not payment:
 			return None, errors.Error('No payment found to settle transaction', details=err_details)
 
-		if payment.applied_at:
-			return None, errors.Error('Cannot use this payment because it has already been applied to certain loans', details=err_details)
+		if payment.settled_at:
+			return None, errors.Error('Cannot use this payment because it has already been settled and applied to certain loans', details=err_details)
 
 		if payment.type != db_constants.PaymentType.REPAYMENT:
 			return None, errors.Error('Can only apply repayments against loans', details=err_details)
@@ -362,8 +362,8 @@ def settle_payment(
 		if not number_util.float_eq(transactions_sum, float(payment.amount)):
 			return None, errors.Error('Transaction inputs provided does not balance with the payment amount included', details=err_details)
 
-		payment_effective_date = date_util.load_date_str(req['effective_date'])
-		payment_deposit_date = date_util.load_date_str(req['deposit_date'])
+		payment_settlement_date = date_util.load_date_str(req['settlement_date'])
+		payment_date = date_util.load_date_str(req['payment_date'])
 
 		for i in range(len(req['transaction_inputs'])):
 			cur_loan_id = req['loan_ids'][i]
@@ -383,7 +383,7 @@ def settle_payment(
 			t.loan_id = cur_loan_id
 			t.payment_id = req['payment_id']
 			t.created_by_user_id = user_id
-			t.effective_date = payment_effective_date
+			t.effective_date = payment_settlement_date
 			session.add(t)
 			session.flush()
 			transaction_ids.append(str(t.id))
@@ -394,9 +394,9 @@ def settle_payment(
 
 		payment_util.make_payment_applied(
 			payment, 
-			applied_by_user_id=user_id, 
-			deposit_date=payment_deposit_date,
-			effective_date=payment_effective_date
+			settled_by_user_id=user_id, 
+			payment_date=payment_date,
+			settlement_date=payment_settlement_date
 		)
 
 	return transaction_ids, None

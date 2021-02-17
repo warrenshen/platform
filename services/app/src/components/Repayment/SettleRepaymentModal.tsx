@@ -81,7 +81,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
 
     const response = await calculateEffectOfPayment({
       payment: {
-        deposit_date: payment.deposit_date,
+        payment_date: payment.payment_date,
       } as PaymentsInsertInput,
       company_id: customer.id,
       payment_option: PaymentOptionEnum.CustomAmount,

@@ -96,7 +96,7 @@ class SettlePaymentView(MethodView):
 
 		required_keys = [
 			'payment_id', 'company_id', 'loan_ids', 
-			'transaction_inputs', 'effective_date', 'deposit_date'
+			'transaction_inputs', 'settlement_date', 'payment_date'
 		]
 		for key in required_keys:
 			if key not in form:

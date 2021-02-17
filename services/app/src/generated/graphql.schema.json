@@ -35160,7 +35160,7 @@
           },
           {
             "name": "applied_at",
-            "description": "When this payment has been applied to loans. This can only be done once.",
+            "description": "TODO: remove in favor of settled_at naming convention",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -35177,18 +35177,6 @@
             "type": {
               "kind": "OBJECT",
               "name": "users",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "applied_by_user_id",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
               "ofType": null
             },
             "isDeprecated": false,
@@ -35275,30 +35263,6 @@
             "deprecationReason": null
           },
           {
-            "name": "deposit_date",
-            "description": "What day this payment or advance was deposited into a bank",
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "date",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "effective_date",
-            "description": "The date that this payment or advance is settled or effective for financial calculations",
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "date",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "id",
             "description": null,
             "args": [],
@@ -35358,12 +35322,48 @@
             "deprecationReason": null
           },
           {
+            "name": "payment_date",
+            "description": "What day this payment or advance was deposited into a bank",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "settled_at",
-            "description": "TODO: we likely can get rid of this column and use the applied_at column",
+            "description": "When this payment has been settled and applied to loans. This can only be done once.",
             "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "timestamptz",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "settled_by_user_id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "settlement_date",
+            "description": "The date that this payment or advance is settled and is effective for financial calculations",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
               "ofType": null
             },
             "isDeprecated": false,
@@ -35954,16 +35954,6 @@
             "defaultValue": null
           },
           {
-            "name": "applied_by_user_id",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "uuid_comparison_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "bespoke_bank_account",
             "description": null,
             "type": {
@@ -36024,26 +36014,6 @@
             "defaultValue": null
           },
           {
-            "name": "deposit_date",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "date_comparison_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "effective_date",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "date_comparison_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "id",
             "description": null,
             "type": {
@@ -36074,11 +36044,41 @@
             "defaultValue": null
           },
           {
+            "name": "payment_date",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "date_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "settled_at",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "timestamptz_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "settled_by_user_id",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "uuid_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "settlement_date",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "date_comparison_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -36270,16 +36270,6 @@
             "defaultValue": null
           },
           {
-            "name": "applied_by_user_id",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "bespoke_bank_account",
             "description": null,
             "type": {
@@ -36340,26 +36330,6 @@
             "defaultValue": null
           },
           {
-            "name": "deposit_date",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "date",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "effective_date",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "date",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "id",
             "description": null,
             "type": {
@@ -36390,11 +36360,41 @@
             "defaultValue": null
           },
           {
+            "name": "payment_date",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "settled_at",
             "description": null,
             "type": {
               "kind": "SCALAR",
               "name": "timestamptz",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "settled_by_user_id",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "settlement_date",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
               "ofType": null
             },
             "defaultValue": null
@@ -36474,18 +36474,6 @@
             "deprecationReason": null
           },
           {
-            "name": "applied_by_user_id",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "bespoke_bank_account_id",
             "description": null,
             "args": [],
@@ -36522,30 +36510,6 @@
             "deprecationReason": null
           },
           {
-            "name": "deposit_date",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "date",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "effective_date",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "date",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "id",
             "description": null,
             "args": [],
@@ -36570,12 +36534,48 @@
             "deprecationReason": null
           },
           {
+            "name": "payment_date",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "settled_at",
             "description": null,
             "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "timestamptz",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "settled_by_user_id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "settlement_date",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
               "ofType": null
             },
             "isDeprecated": false,
@@ -36650,16 +36650,6 @@
             "defaultValue": null
           },
           {
-            "name": "applied_by_user_id",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "bespoke_bank_account_id",
             "description": null,
             "type": {
@@ -36690,26 +36680,6 @@
             "defaultValue": null
           },
           {
-            "name": "deposit_date",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "effective_date",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "id",
             "description": null,
             "type": {
@@ -36730,7 +36700,37 @@
             "defaultValue": null
           },
           {
+            "name": "payment_date",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "settled_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "settled_by_user_id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "settlement_date",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -36804,18 +36804,6 @@
             "deprecationReason": null
           },
           {
-            "name": "applied_by_user_id",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "bespoke_bank_account_id",
             "description": null,
             "args": [],
@@ -36852,30 +36840,6 @@
             "deprecationReason": null
           },
           {
-            "name": "deposit_date",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "date",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "effective_date",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "date",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "id",
             "description": null,
             "args": [],
@@ -36900,12 +36864,48 @@
             "deprecationReason": null
           },
           {
+            "name": "payment_date",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "settled_at",
             "description": null,
             "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "timestamptz",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "settled_by_user_id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "settlement_date",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
               "ofType": null
             },
             "isDeprecated": false,
@@ -36980,16 +36980,6 @@
             "defaultValue": null
           },
           {
-            "name": "applied_by_user_id",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "bespoke_bank_account_id",
             "description": null,
             "type": {
@@ -37020,26 +37010,6 @@
             "defaultValue": null
           },
           {
-            "name": "deposit_date",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "effective_date",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "id",
             "description": null,
             "type": {
@@ -37060,7 +37030,37 @@
             "defaultValue": null
           },
           {
+            "name": "payment_date",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "settled_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "settled_by_user_id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "settlement_date",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -37284,16 +37284,6 @@
             "defaultValue": null
           },
           {
-            "name": "applied_by_user_id",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "bespoke_bank_account",
             "description": null,
             "type": {
@@ -37354,26 +37344,6 @@
             "defaultValue": null
           },
           {
-            "name": "deposit_date",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "effective_date",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "id",
             "description": null,
             "type": {
@@ -37404,7 +37374,37 @@
             "defaultValue": null
           },
           {
+            "name": "payment_date",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "settled_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "settled_by_user_id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "settlement_date",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -37525,12 +37525,6 @@
             "deprecationReason": null
           },
           {
-            "name": "applied_by_user_id",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "bespoke_bank_account_id",
             "description": "column name",
             "isDeprecated": false,
@@ -37544,18 +37538,6 @@
           },
           {
             "name": "company_id",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "deposit_date",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "effective_date",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -37579,7 +37561,25 @@
             "deprecationReason": null
           },
           {
+            "name": "payment_date",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "settled_at",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "settled_by_user_id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "settlement_date",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -37632,16 +37632,6 @@
             "defaultValue": null
           },
           {
-            "name": "applied_by_user_id",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "bespoke_bank_account_id",
             "description": null,
             "type": {
@@ -37667,26 +37657,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "deposit_date",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "date",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "effective_date",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "date",
               "ofType": null
             },
             "defaultValue": null
@@ -37722,11 +37692,41 @@
             "defaultValue": null
           },
           {
+            "name": "payment_date",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "settled_at",
             "description": null,
             "type": {
               "kind": "SCALAR",
               "name": "timestamptz",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "settled_by_user_id",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "settlement_date",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
               "ofType": null
             },
             "defaultValue": null
@@ -37963,12 +37963,6 @@
             "deprecationReason": null
           },
           {
-            "name": "applied_by_user_id",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "bespoke_bank_account_id",
             "description": "column name",
             "isDeprecated": false,
@@ -37982,18 +37976,6 @@
           },
           {
             "name": "company_id",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "deposit_date",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "effective_date",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -38017,7 +37999,25 @@
             "deprecationReason": null
           },
           {
+            "name": "payment_date",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "settled_at",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "settled_by_user_id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "settlement_date",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

@@ -42,8 +42,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				session.flush()
 				loan_ids.append(str(loan.id))
 
-		deposit_date = '10/18/2020'
-		effective_date = '10/20/2020'
+		payment_date = '10/18/2020'
+		settlement_date = '10/20/2020'
 
 		req = advance_util.FundLoansReqDict(
 			loan_ids=loan_ids, 
@@ -52,8 +52,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				type='unused',
 				amount=payment_amount,
 				method='ach',
-				deposit_date=deposit_date,
-				effective_date=effective_date
+				payment_date=payment_date,
+				settlement_date=settlement_date
 			)
 		)
 
@@ -106,11 +106,11 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				self.assertEqual('advance', payment.type)
 				self.assertEqual(exp_company_id, payment.company_id)
 				self.assertEqual('ach', payment.method)
-				self.assertIsNotNone(payment.applied_at)
+				self.assertIsNotNone(payment.settled_at)
 				self.assertIsNotNone(payment.submitted_at)
-				self.assertEqual(deposit_date, date_util.date_to_str(payment.deposit_date))
-				self.assertEqual(effective_date, date_util.date_to_str(payment.effective_date))
-				self.assertEqual(bank_admin_user_id, payment.applied_by_user_id)
+				self.assertEqual(payment_date, date_util.date_to_str(payment.payment_date))
+				self.assertEqual(settlement_date, date_util.date_to_str(payment.settlement_date))
+				self.assertEqual(bank_admin_user_id, payment.settled_by_user_id)
 				self.assertEqual(bank_admin_user_id, payment.submitted_by_user_id)
 
 			# Validate transactions
@@ -134,7 +134,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				self.assertAlmostEqual(exp_transaction['amount'], float(transaction.to_principal))
 				self.assertAlmostEqual(0.0, float(transaction.to_interest))
 				self.assertAlmostEqual(0.0, float(transaction.to_fees))
-				self.assertEqual(matching_payment.effective_date, transaction.effective_date)
+				self.assertEqual(matching_payment.settlement_date, transaction.effective_date)
 				self.assertEqual(matching_loan.id, transaction.loan_id)
 				self.assertEqual(matching_payment.id, transaction.payment_id)
 				self.assertEqual(bank_admin_user_id, transaction.created_by_user_id)
@@ -332,8 +332,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					type='unused',
 					amount=0.2,
 					method='ach',
-					deposit_date='10/28/2020',
-					effective_date='10/30/2020'
+					payment_date='10/28/2020',
+					settlement_date='10/30/2020'
 			  ),
 				loan_ids=loan_ids
 			),

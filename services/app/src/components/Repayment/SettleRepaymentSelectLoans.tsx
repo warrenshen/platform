@@ -49,7 +49,7 @@ function SettleRepaymentSelectLoans({
             PaymentMethodToLabel[payment.method as PaymentMethodEnum]
           } payment of ${formatCurrency(
             payment.amount
-          )} with a payment date of ${formatDateString(payment.deposit_date)}.`}
+          )} with a payment date of ${formatDateString(payment.payment_date)}.`}
         </Typography>
         <Typography>
           {`Please select which loans this payment should apply towards below.

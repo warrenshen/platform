@@ -59,8 +59,8 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
     company_id: companyId,
     amount: loansTotal,
     method: "",
-    deposit_date: todayAsDateStr(),
-    effective_date: todayAsDateStr(),
+    payment_date: todayAsDateStr(),
+    settlement_date: todayAsDateStr(),
   } as PaymentsInsertInput;
   // TODO(dlluncor): Provide deposit_date and effective_date as Date Pickers which can be modified,
   // but are defaulted to today.

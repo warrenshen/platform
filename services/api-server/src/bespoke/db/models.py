@@ -328,7 +328,7 @@ PaymentDict = TypedDict('PaymentDict', {
 	'amount': float,
 	'method': str,
 	'submitted_at': datetime.datetime,
-	'deposit_date': datetime.date
+	'payment_date': datetime.date
 })
 
 class Payment(Base):
@@ -339,14 +339,14 @@ class Payment(Base):
 	amount = Column(Numeric)
 	company_id = Column(GUID, nullable=False)
 	method = Column(String)
-	deposit_date = Column(Date)
-	effective_date = Column(Date)
+	payment_date = Column(Date)
+	settlement_date = Column(Date)
 	items_covered = Column(JSON)
 
 	submitted_at = Column(DateTime)
 	submitted_by_user_id = Column(GUID)
-	applied_at = Column(DateTime)
-	applied_by_user_id = Column(GUID)
+	settled_at = Column(DateTime)
+	settled_by_user_id = Column(GUID)
 	
 
 	def as_dict(self) -> PaymentDict:
@@ -356,7 +356,7 @@ class Payment(Base):
 			amount=float(self.amount),
 			method=self.method,
 			submitted_at=self.submitted_at,
-			deposit_date=self.deposit_date
+			payment_date=self.payment_date
 		)
 
 

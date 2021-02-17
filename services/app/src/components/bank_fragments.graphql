@@ -89,9 +89,8 @@ fragment Payment on payments {
   company_id
   submitted_at
   settled_at
-  effective_date
-  deposit_date
-  applied_at
+  settlement_date
+  payment_date
   items_covered
   company_bank_account {
     ...BankAccount
