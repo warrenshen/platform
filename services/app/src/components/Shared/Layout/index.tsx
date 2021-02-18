@@ -1,24 +1,24 @@
 import {
+  AppBar,
   Box,
   Divider,
+  Drawer,
   ListItem,
   ListItemText,
-  Drawer,
-  AppBar,
 } from "@material-ui/core";
-import AccountBalanceIcon from "@material-ui/icons/AccountBalance";
-import PaymentIcon from "@material-ui/icons/Payment";
 import List from "@material-ui/core/List";
-import TuneIcon from "@material-ui/icons/Tune";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import UserMenu from "components/Shared/User/UserMenu";
+import AccountBalanceIcon from "@material-ui/icons/AccountBalance";
+import PaymentIcon from "@material-ui/icons/Payment";
+import TuneIcon from "@material-ui/icons/Tune";
 import NestedListItem from "components/Shared/Layout/NestedListItem";
+import UserMenu from "components/Shared/User/UserMenu";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { ProductTypeEnum, UserRolesEnum } from "generated/graphql";
 import { bankRoutes, customerRoutes, routes } from "lib/routes";
-import React, { useContext } from "react";
+import { ReactNode, useContext } from "react";
 import { Link, matchPath, useLocation } from "react-router-dom";
 import { useTitle } from "react-use";
 
@@ -62,7 +62,17 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const getCustomerLeftNavItems = (productType: ProductTypeEnum) => {
+// If NavItem contains a link, we assume it to not be nested (items will not exist).
+// If NavItem does not contain a link, we assume it to be nested (items will exist).
+type NavItem = {
+  text: string;
+  link?: string;
+  icon?: ReactNode;
+  counter?: number;
+  items?: NavItem[];
+};
+
+const getCustomerNavItems = (productType: ProductTypeEnum): NavItem[] => {
   return [
     {
       text: "Overview",
@@ -108,110 +118,111 @@ const getCustomerLeftNavItems = (productType: ProductTypeEnum) => {
   ];
 };
 
-const BANK_LEFT_NAV_ITEMS = [
-  {
-    text: "Overview",
-    link: bankRoutes.overview,
-  },
-  {
-    text: "Loans",
-    counter: 4,
-    items: [
-      {
-        text: "All",
-        link: bankRoutes.loansAllProducts,
-        icon: <AccountBalanceIcon />,
-      },
-      {
-        text: "Approval Requested",
-        counter: 4,
-        link: bankRoutes.loansApprovalRequested,
-        icon: <AccountBalanceIcon />,
-      },
-      {
-        text: "Maturing in X Days",
-        link: bankRoutes.loansMaturing,
-        icon: <AccountBalanceIcon />,
-      },
-      {
-        text: "Past Due (Collections)",
-        link: bankRoutes.loansPastDue,
-        icon: <AccountBalanceIcon />,
-      },
-      // {
-      //   text: "Loans by Purchase Order",
-      //   link: bankRoutes.loansPurchaseOrder,
-      // },
-      // {
-      //   text: "Loans by Line of Credit",
-      //   link: bankRoutes.loansLineOfCredit,
-      // },
-    ],
-  },
-  {
-    text: "Purchase Orders",
-    link: bankRoutes.purchaseOrders,
-  },
-  {
-    text: "Borrowing Bases",
-    link: bankRoutes.ebbaApplications,
-  },
-  {
-    text: "Advances",
-    link: bankRoutes.advances,
-  },
-  {
-    text: "Payments",
-    items: [
-      {
-        text: "All",
-        link: bankRoutes.payments,
-        icon: <PaymentIcon />,
-      },
-      {
-        text: "Reverse Draft ACH",
-        link: bankRoutes.paymentsReverseDraftAch,
-        icon: <PaymentIcon />,
-      },
-      {
-        text: "Ready for Settlement",
-        link: bankRoutes.paymentsReadyForSettlement,
-        icon: <PaymentIcon />,
-      },
-    ],
-  },
-  {
-    text: "Transactions",
-    link: bankRoutes.transactions,
-  },
-  {
-    text: "Customers",
-    link: bankRoutes.customers,
-  },
-  {
-    text: "Vendors",
-    link: bankRoutes.vendors,
-  },
-  {
-    text: "Settings",
-    items: [
-      {
-        text: "Users",
-        link: routes.users,
-        icon: <TuneIcon />,
-      },
-      {
-        text: "Bank Accounts",
-        link: bankRoutes.bankAccounts,
-        icon: <TuneIcon />,
-      },
-    ],
-  },
-];
+const getBankNavItems = (): NavItem[] => {
+  return [
+    {
+      text: "Overview",
+      link: bankRoutes.overview,
+    },
+    {
+      text: "Loans",
+      counter: 0,
+      items: [
+        {
+          text: "All",
+          link: bankRoutes.loansAllProducts,
+          icon: <AccountBalanceIcon />,
+        },
+        {
+          text: "Approval Requested",
+          link: bankRoutes.loansApprovalRequested,
+          icon: <AccountBalanceIcon />,
+        },
+        {
+          text: "Maturing in X Days",
+          link: bankRoutes.loansMaturing,
+          icon: <AccountBalanceIcon />,
+        },
+        {
+          text: "Past Due (Collections)",
+          link: bankRoutes.loansPastDue,
+          icon: <AccountBalanceIcon />,
+        },
+        // {
+        //   text: "Loans by Purchase Order",
+        //   link: bankRoutes.loansPurchaseOrder,
+        // },
+        // {
+        //   text: "Loans by Line of Credit",
+        //   link: bankRoutes.loansLineOfCredit,
+        // },
+      ],
+    },
+    {
+      text: "Purchase Orders",
+      link: bankRoutes.purchaseOrders,
+    },
+    {
+      text: "Borrowing Bases",
+      link: bankRoutes.ebbaApplications,
+    },
+    {
+      text: "Advances",
+      link: bankRoutes.advances,
+    },
+    {
+      text: "Payments",
+      items: [
+        {
+          text: "All",
+          link: bankRoutes.payments,
+          icon: <PaymentIcon />,
+        },
+        {
+          text: "Reverse Draft ACH",
+          link: bankRoutes.paymentsReverseDraftAch,
+          icon: <PaymentIcon />,
+        },
+        {
+          text: "Ready for Settlement",
+          link: bankRoutes.paymentsReadyForSettlement,
+          icon: <PaymentIcon />,
+        },
+      ],
+    },
+    {
+      text: "Transactions",
+      link: bankRoutes.transactions,
+    },
+    {
+      text: "Customers",
+      link: bankRoutes.customers,
+    },
+    {
+      text: "Vendors",
+      link: bankRoutes.vendors,
+    },
+    {
+      text: "Settings",
+      items: [
+        {
+          text: "Users",
+          link: routes.users,
+          icon: <TuneIcon />,
+        },
+        {
+          text: "Bank Accounts",
+          link: bankRoutes.bankAccounts,
+          icon: <TuneIcon />,
+        },
+      ],
+    },
+  ];
+};
 
 interface Props {
   appBarTitle: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 function Layout({ appBarTitle, children }: Props) {
@@ -223,11 +234,11 @@ function Layout({ appBarTitle, children }: Props) {
     user: { role, productType },
   } = useContext(CurrentUserContext);
 
-  const leftNavOptions: any =
+  const navItems =
     role === UserRolesEnum.BankAdmin
-      ? BANK_LEFT_NAV_ITEMS
+      ? getBankNavItems()
       : productType
-      ? getCustomerLeftNavItems(productType)
+      ? getCustomerNavItems(productType)
       : [];
 
   return (
@@ -257,10 +268,8 @@ function Layout({ appBarTitle, children }: Props) {
         </div>
         <Divider />
         <List>
-          {leftNavOptions.map((item: any, index: number) => {
-            return item.items ? (
-              <NestedListItem key={item.text + index} item={item} />
-            ) : (
+          {navItems.map((item, index) =>
+            item.link ? (
               <ListItem
                 key={item.text + index}
                 button
@@ -277,8 +286,10 @@ function Layout({ appBarTitle, children }: Props) {
                   {item.text}
                 </ListItemText>
               </ListItem>
-            );
-          })}
+            ) : (
+              <NestedListItem key={item.text + index} item={item} />
+            )
+          )}
         </List>
       </Drawer>
       <main className={classes.content}>

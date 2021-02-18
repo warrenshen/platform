@@ -1,10 +1,10 @@
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { Action, check } from "lib/auth/rbac-rules";
-import { useContext } from "react";
+import { ReactNode, useContext } from "react";
 
 interface Props {
   perform: Action;
-  children: React.ReactNode;
+  children: ReactNode;
   userIdForCheck?: string;
 }
 

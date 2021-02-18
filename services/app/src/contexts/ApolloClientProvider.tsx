@@ -11,7 +11,7 @@ import { WebSocketLink } from "@apollo/client/link/ws";
 import { getMainDefinition } from "@apollo/client/utilities";
 import { CurrentUserContext, User } from "contexts/CurrentUserContext";
 import { getAccessToken } from "lib/auth/tokenStorage";
-import { useContext } from "react";
+import { ReactNode, useContext } from "react";
 
 const createApolloClient = (user: User) => {
   const authLink = setContext(async (_, { headers }) => {
@@ -92,7 +92,7 @@ const createApolloClient = (user: User) => {
   return client;
 };
 
-function ApolloClientProvider(props: { children: React.ReactNode }) {
+function ApolloClientProvider(props: { children: ReactNode }) {
   const { user } = useContext(CurrentUserContext);
   const client = createApolloClient(user);
   return <ApolloProvider client={client}>{props.children}</ApolloProvider>;

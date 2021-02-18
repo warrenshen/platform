@@ -1,6 +1,6 @@
 import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
 import Layout from "components/Shared/Layout";
-import React from "react";
+import { ReactNode } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   appBarTitle: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 function Page({ appBarTitle, children }: Props) {

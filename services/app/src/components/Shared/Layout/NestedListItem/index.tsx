@@ -10,7 +10,7 @@ import List from "@material-ui/core/List";
 import { makeStyles } from "@material-ui/core/styles";
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
-import React from "react";
+import { useState } from "react";
 import { Link, matchPath, useLocation } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
@@ -46,7 +46,7 @@ interface Props {
 const NestedListItem = ({ item }: Props) => {
   const classes = useStyles();
   const location = useLocation();
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = useState(true);
 
   const headerTypographyProps: any = {
     className: classes.headerItemText,
@@ -58,16 +58,12 @@ const NestedListItem = ({ item }: Props) => {
     variant: "subtitle1",
   };
 
-  const handleClick = () => {
-    setOpen(!open);
-  };
-
   return (
     <>
-      <ListItem button onClick={handleClick}>
+      <ListItem button onClick={() => setOpen(!open)}>
         <ListItemText primaryTypographyProps={headerTypographyProps}>
           {item.text}
-          {item.counter && (
+          {!!item.counter && (
             <Chip
               size="small"
               color="secondary"
@@ -91,11 +87,12 @@ const NestedListItem = ({ item }: Props) => {
               selected={Boolean(matchPath(location.pathname, nestedItem.link))}
               className={classes.nested}
             >
-              {nestedItem.icon && (
+              {!!nestedItem.icon && (
                 <ListItemIcon className={classes.listItemIcon}>
                   <Badge
+                    invisible={!nestedItem.count}
                     color="secondary"
-                    badgeContent={nestedItem.counter || 0}
+                    badgeContent={nestedItem.counter}
                   >
                     {nestedItem.icon}
                   </Badge>

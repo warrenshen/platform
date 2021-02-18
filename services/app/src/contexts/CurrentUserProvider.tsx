@@ -17,7 +17,7 @@ import {
   setAccessToken,
   setRefreshToken,
 } from "lib/auth/tokenStorage";
-import { useCallback, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 
 const JWT_CLAIMS_KEY = "https://hasura.io/jwt/claims";
 function userFieldsFromToken(token: string) {
@@ -30,7 +30,7 @@ function userFieldsFromToken(token: string) {
   };
 }
 
-function CurrentUserWrapper(props: { children: React.ReactNode }) {
+function CurrentUserWrapper(props: { children: ReactNode }) {
   const [user, setUser] = useState<User>(BlankUser);
   const [isTokenLoaded, setIsTokenLoaded] = useState(false);
 
