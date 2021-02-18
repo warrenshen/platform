@@ -61,8 +61,8 @@ export const PaymentMethodToLabel = {
   [PaymentMethodEnum.None]: "None",
 };
 
+// List of all supported product types, note that we do NOT include "None".
 export const AllPaymentMethods = [
-  PaymentMethodEnum.None,
   PaymentMethodEnum.ACH,
   PaymentMethodEnum.ReverseDraftACH,
   PaymentMethodEnum.Wire,

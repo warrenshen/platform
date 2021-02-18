@@ -7,7 +7,7 @@ import {
   LoanTypeEnum,
   PaymentsInsertInput,
   ProductTypeEnum,
-  useLoansByCompanyAndLoanTypeForBankQuery,
+  useGetOutstandingLoansForCustomerQuery,
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
@@ -30,18 +30,16 @@ function SettleRepaymentSelectLoans({
   const productType = customer.contract?.product_type;
 
   // Only loans maturing in 14 days or past due are the ones that may want to be shuffled in.
-  const { data: dataLoansByCompany } = useLoansByCompanyAndLoanTypeForBankQuery(
-    {
-      variables: {
-        companyId: customer ? customer.id : null,
-        loanType:
-          productType === ProductTypeEnum.LineOfCredit
-            ? LoanTypeEnum.LineOfCredit
-            : LoanTypeEnum.PurchaseOrder,
-      },
-    }
-  );
-  const loansByCompany = dataLoansByCompany?.loans || [];
+  const { data } = useGetOutstandingLoansForCustomerQuery({
+    variables: {
+      companyId: customer.id,
+      loanType:
+        productType === ProductTypeEnum.LineOfCredit
+          ? LoanTypeEnum.LineOfCredit
+          : LoanTypeEnum.PurchaseOrder,
+    },
+  });
+  const outstandingLoans = data?.loans || [];
 
   return payment && customer ? (
     <Box>
@@ -69,6 +67,7 @@ function SettleRepaymentSelectLoans({
       <Box mt={2}>
         <Typography>Selected loans this payment will apply towards:</Typography>
         <LoansDataGrid
+          isSortingDisabled
           isStatusVisible={false}
           customerSearchQuery={""}
           loans={selectedLoans}
@@ -89,9 +88,9 @@ function SettleRepaymentSelectLoans({
       <Box mt={2}>
         <Typography>Loans not included in the above selection:</Typography>
         <LoansDataGrid
-          isStatusVisible={false}
+          isSortingDisabled
           customerSearchQuery={""}
-          loans={loansByCompany.filter(
+          loans={outstandingLoans.filter(
             (loan) => !selectedLoanIds.includes(loan.id)
           )}
           actionItems={[

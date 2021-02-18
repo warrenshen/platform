@@ -12,7 +12,8 @@ import { truncateUuid } from "lib/uuid";
 import { useEffect, useState } from "react";
 
 interface Props {
-  isStatusVisible: boolean;
+  isSortingDisabled?: boolean;
+  isStatusVisible?: boolean;
   customerSearchQuery?: string;
   loans: LoanFragment[];
   actionItems?: DataGridActionItem[];
@@ -21,7 +22,8 @@ interface Props {
 // TODO (warrenshen): merge this component with the other LoansDataGrid
 // component to create a reusable component?
 function LoansDataGrid({
-  isStatusVisible,
+  isSortingDisabled = false,
+  isStatusVisible = true,
   customerSearchQuery = "",
   loans,
   actionItems = [],

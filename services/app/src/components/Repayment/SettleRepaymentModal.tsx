@@ -184,13 +184,15 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
         ) : (
           <>
             {!isOnSelectLoans && (
-              <Button
-                variant="contained"
-                color="default"
-                onClick={() => setIsOnSelectLoans(true)}
-              >
-                Back to Step 1
-              </Button>
+              <Box mb={2}>
+                <Button
+                  variant="contained"
+                  color="default"
+                  onClick={() => setIsOnSelectLoans(true)}
+                >
+                  Back to Step 1
+                </Button>
+              </Box>
             )}
             <SettleRepaymentConfirmEffect
               loansBeforeAfterPayment={loansBeforeAfterPayment}

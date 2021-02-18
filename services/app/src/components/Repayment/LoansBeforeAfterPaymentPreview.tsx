@@ -14,11 +14,17 @@ import LoanBalancesDataGrid from "./LoanBalancesDataGrid";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    container: {
+      padding: theme.spacing(2),
+      backgroundColor: "#fafafa",
+      borderRadius: 3,
+    },
     loanBeforeAfterPayment: {
       display: "flex",
       alignItems: "center",
 
       width: "100%",
+      marginBottom: theme.spacing(2),
     },
     middle: {
       display: "flex",
@@ -45,7 +51,7 @@ function LoansBeforeAfterPaymentPreview({ loansBeforeAfterPayment }: Props) {
   const classes = useStyles();
 
   return (
-    <Box>
+    <Box className={classes.container}>
       <Box className={classes.loanBeforeAfterPayment}>
         <Box className={classes.loanBeforePayment}>
           <Typography variant="h6">Loans before payment</Typography>

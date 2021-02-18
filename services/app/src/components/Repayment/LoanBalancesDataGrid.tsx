@@ -47,7 +47,9 @@ function LoanBalancesDataGrid({ loanBalances }: Props) {
     },
   ];
 
-  return <ControlledDataGrid dataSource={rows} columns={columns} />;
+  return (
+    <ControlledDataGrid isSortingDisabled dataSource={rows} columns={columns} />
+  );
 }
 
 export default LoanBalancesDataGrid;

@@ -5,7 +5,6 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Typography,
 } from "@material-ui/core";
 import CreateRepaymentConfirmEffect from "components/Repayment/CreateRepaymentConfirmEffect";
 import CreateRepaymentSelectLoans from "components/Repayment/CreateRepaymentSelectLoans";
@@ -20,6 +19,7 @@ import {
   calculateEffectOfPayment,
   createPayment,
   LoanBalance,
+  LoanTransaction,
 } from "lib/finance/payments/repayment";
 import { LoanBeforeAfterPayment } from "lib/types";
 import { useState } from "react";
@@ -108,6 +108,7 @@ function RepaymentModal({ companyId, selectedLoans, handleClose }: Props) {
               outstanding_interest:
                 loan_afterwards.loan_balance.outstanding_interest,
               outstanding_fees: loan_afterwards.loan_balance.outstanding_fees,
+              transaction: loan_afterwards.transaction as LoanTransaction,
             } as LoanBalance,
           } as LoanBeforeAfterPayment;
         })
@@ -143,51 +144,34 @@ function RepaymentModal({ companyId, selectedLoans, handleClose }: Props) {
     <Dialog open fullWidth maxWidth="md" onClose={handleClose}>
       <DialogTitle>Pay Off Loan(s)</DialogTitle>
       <DialogContent style={{ minHeight: 400 }}>
-        <Box display="flex" flexDirection="column">
-          {isOnSelectLoans ? (
-            <Box>
-              <Box mb={3}>
-                <Typography variant={"subtitle1"}>
-                  Step 1 of 2: Select loans to pay off and specify deposit date,
-                  payment method, and payment option.
-                </Typography>
+        {isOnSelectLoans ? (
+          <CreateRepaymentSelectLoans
+            selectedLoans={selectedLoans}
+            payment={payment}
+            paymentOption={paymentOption}
+            setPayment={setPayment}
+            setPaymentOption={setPaymentOption}
+          />
+        ) : (
+          <>
+            {!isOnSelectLoans && (
+              <Box mb={2}>
+                <Button
+                  variant="contained"
+                  color="default"
+                  onClick={() => setIsOnSelectLoans(true)}
+                >
+                  Back to Step 1
+                </Button>
               </Box>
-              <CreateRepaymentSelectLoans
-                selectedLoans={selectedLoans}
-                payment={payment}
-                paymentOption={paymentOption}
-                setPayment={setPayment}
-                setPaymentOption={setPaymentOption}
-              />
-            </Box>
-          ) : (
-            <Box>
-              <Box mb={3}>
-                {!isOnSelectLoans && (
-                  <Button
-                    variant="contained"
-                    color="default"
-                    onClick={() => setIsOnSelectLoans(true)}
-                  >
-                    Back to Step 1
-                  </Button>
-                )}
-                <Box mt={2}>
-                  <Typography variant={"subtitle1"}>
-                    Step 2 of 2: Review expected effect of payment, in the form
-                    of balances of loans before vs balances of loans after
-                    payment, specify payment information, and submit payment.
-                  </Typography>
-                </Box>
-              </Box>
-              <CreateRepaymentConfirmEffect
-                loansBeforeAfterPayment={loansBeforeAfterPayment}
-                payment={payment}
-                setPayment={setPayment}
-              />
-            </Box>
-          )}
-        </Box>
+            )}
+            <CreateRepaymentConfirmEffect
+              loansBeforeAfterPayment={loansBeforeAfterPayment}
+              payment={payment}
+              setPayment={setPayment}
+            />
+          </>
+        )}
       </DialogContent>
       <DialogActions>
         <Box display="flex">

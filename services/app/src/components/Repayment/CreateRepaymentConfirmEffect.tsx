@@ -48,11 +48,18 @@ function CreateRepaymentConfirmEffect({
   return (
     <Box>
       <Box>
+        <Typography>
+          Step 2 of 2: Review expected effect of payment, in the form of
+          balances of loans before vs balances of loans after payment, specify
+          payment information, and submit payment.
+        </Typography>
+      </Box>
+      <Box mt={2}>
         <LoansBeforeAfterPaymentPreview
           loansBeforeAfterPayment={loansBeforeAfterPayment}
         />
       </Box>
-      <Box mt={4}>
+      <Box mt={2}>
         {payment.amount <= 0 && (
           <Box>No amount is currently due. No further action is required</Box>
         )}
