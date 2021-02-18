@@ -10,6 +10,7 @@ import {
 import SettleRepaymentConfirmEffect from "components/Repayment/SettleRepaymentConfirmEffect";
 import SettleRepaymentSelectLoans from "components/Repayment/SettleRepaymentSelectLoans";
 import {
+  Companies,
   GetLoansByLoanIdsQuery,
   Loans,
   Payments,
@@ -21,8 +22,10 @@ import { PaymentOptionEnum } from "lib/enum";
 import {
   calculateEffectOfPayment,
   LoanBalance,
+  LoanTransaction,
+  settlePayment,
 } from "lib/finance/payments/repayment";
-import { BeforeAfterPaymentLoan } from "lib/types";
+import { LoanBeforeAfterPayment } from "lib/types";
 import { useEffect, useState } from "react";
 
 interface Props {
@@ -37,8 +40,8 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
   const [isOnSelectLoans, setIsOnSelectLoans] = useState(true);
   const [errMsg, setErrMsg] = useState("");
 
-  const [beforeAfterPaymentLoans, setBeforeAfterPaymentLoans] = useState<
-    BeforeAfterPaymentLoan[]
+  const [loansBeforeAfterPayment, setLoansBeforeAfterPayment] = useState<
+    LoanBeforeAfterPayment[]
   >([]);
 
   const [selectedLoans, setSelectedLoans] = useState<
@@ -46,18 +49,32 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
   >([]);
   const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"][]>([]);
 
-  const { data: dataPayment } = useGetPaymentForSettlementQuery({
+  const [customer, setCustomer] = useState<Companies | null>(null);
+  const [payment, setPayment] = useState<PaymentsInsertInput | null>(null);
+
+  useGetPaymentForSettlementQuery({
     variables: {
       id: paymentId,
     },
     onCompleted: (data) => {
-      const payment = data?.payments_by_pk;
-      setSelectedLoanIds(payment?.items_covered?.loan_ids || []);
+      const existingPayment = data?.payments_by_pk;
+      if (existingPayment) {
+        setSelectedLoanIds(existingPayment.items_covered?.loan_ids || []);
+        setCustomer(existingPayment.company as Companies);
+        setPayment({
+          id: existingPayment.id,
+          company_id: existingPayment.company_id,
+          type: existingPayment.type,
+          amount: existingPayment.amount,
+          method: existingPayment.method,
+          requested_payment_date: existingPayment.requested_payment_date,
+          payment_date: existingPayment.requested_payment_date,
+        } as PaymentsInsertInput);
+      } else {
+        alert("Existing payment not found");
+      }
     },
   });
-
-  const payment = dataPayment?.payments_by_pk;
-  const customer = payment?.company;
 
   const { data: dataSelectedLoans } = useGetLoansByLoanIdsQuery({
     variables: {
@@ -78,10 +95,9 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
       return;
     }
 
-    // TODO (warrenshen): set `amount` below correctly.
     const response = await calculateEffectOfPayment({
       payment: {
-        amount: 0,
+        amount: payment.amount,
         payment_date: payment.payment_date,
       } as PaymentsInsertInput,
       company_id: customer.id,
@@ -99,7 +115,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
         return;
       }
 
-      setBeforeAfterPaymentLoans(
+      setLoansBeforeAfterPayment(
         response.loans_afterwards.map((loan_afterwards) => {
           const beforeLoan = selectedLoans.find(
             (selectedLoan) => selectedLoan.id === loan_afterwards.loan_id
@@ -119,11 +135,37 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
                 loan_afterwards.loan_balance.outstanding_interest,
               outstanding_fees: loan_afterwards.loan_balance.outstanding_fees,
             } as LoanBalance,
-          } as BeforeAfterPaymentLoan;
+            transaction: loan_afterwards.transaction as LoanTransaction,
+          } as LoanBeforeAfterPayment;
         })
       );
 
       setIsOnSelectLoans(false);
+    }
+  };
+
+  const handleClickConfirm = async () => {
+    if (!payment || !customer) {
+      alert("Developer error: payment or customer does not exist.");
+      return;
+    }
+
+    const response = await settlePayment({
+      payment_id: payment.id,
+      company_id: customer.id,
+      loan_ids: selectedLoanIds,
+      transaction_inputs: loansBeforeAfterPayment.map(
+        (beforeAfterPaymentLoan) => beforeAfterPaymentLoan.transaction
+      ),
+      payment_date: payment.payment_date,
+      settlement_date: payment.payment_date,
+    });
+
+    if (response.status !== "OK") {
+      setErrMsg(response.msg || "Error!");
+    } else {
+      setErrMsg("");
+      handleClose();
     }
   };
 
@@ -134,14 +176,26 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
         {isOnSelectLoans ? (
           <SettleRepaymentSelectLoans
             payment={payment}
+            customer={customer}
             selectedLoanIds={selectedLoanIds}
             selectedLoans={selectedLoans}
             setSelectedLoanIds={setSelectedLoanIds}
           />
         ) : (
-          <SettleRepaymentConfirmEffect
-            beforeAfterPaymentLoans={beforeAfterPaymentLoans}
-          />
+          <>
+            {!isOnSelectLoans && (
+              <Button
+                variant="contained"
+                color="default"
+                onClick={() => setIsOnSelectLoans(true)}
+              >
+                Back to Step 1
+              </Button>
+            )}
+            <SettleRepaymentConfirmEffect
+              loansBeforeAfterPayment={loansBeforeAfterPayment}
+            />
+          </>
         )}
       </DialogContent>
       <DialogActions>
@@ -155,14 +209,23 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
           )}
           <Box display="flex" justifyContent="flex-end" width="100%">
             <Button onClick={handleClose}>Cancel</Button>
-            <Button
-              disabled={false}
-              variant="contained"
-              color="primary"
-              onClick={handleClickNext}
-            >
-              Next
-            </Button>
+            {isOnSelectLoans ? (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleClickNext}
+              >
+                Next
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleClickConfirm}
+              >
+                Confirm
+              </Button>
+            )}
           </Box>
         </Box>
       </DialogActions>

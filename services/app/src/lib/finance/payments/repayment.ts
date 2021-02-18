@@ -16,9 +16,17 @@ export type LoanBalance = {
   outstanding_fees: number;
 };
 
+export type LoanTransaction = {
+  amount: number;
+  to_fees: number;
+  to_interest: number;
+  to_principal: number;
+};
+
 type LoanAfterwards = {
   loan_id: Loans["id"];
   loan_balance: LoanBalance;
+  transaction: LoanTransaction;
 };
 
 export type CalculateEffectOfPaymentResp = {
@@ -26,6 +34,11 @@ export type CalculateEffectOfPaymentResp = {
   msg?: string;
   loans_afterwards?: LoanAfterwards[];
   amount_to_pay?: number;
+};
+
+export type SettlePaymentResp = {
+  status: string;
+  msg?: string;
 };
 
 export async function calculateEffectOfPayment(req: {
@@ -71,7 +84,25 @@ export async function createPayment(req: {
         console.log("error", error);
         return {
           status: "ERROR",
-          msg: "Could not make a payment for the loan(s)",
+          msg: "Could not make payment for the loan(s)",
+        };
+      }
+    );
+}
+
+export async function settlePayment(req: {}): Promise<SettlePaymentResp> {
+  return authenticatedApi
+    .post(loansRoutes.settlePayment, req)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => response,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not settle payment for the loan(s)",
         };
       }
     );

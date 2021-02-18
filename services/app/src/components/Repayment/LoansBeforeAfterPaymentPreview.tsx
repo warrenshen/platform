@@ -9,12 +9,12 @@ import {
   Typography,
 } from "@material-ui/core";
 import { ArrowRightAlt } from "@material-ui/icons";
-import { BeforeAfterPaymentLoan } from "lib/types";
+import { LoanBeforeAfterPayment } from "lib/types";
 import LoanBalancesDataGrid from "./LoanBalancesDataGrid";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    beforeAfterPaymentLoan: {
+    loanBeforeAfterPayment: {
       display: "flex",
       alignItems: "center",
 
@@ -25,45 +25,45 @@ const useStyles = makeStyles((theme: Theme) =>
       justifyContent: "center",
       width: 40,
     },
-    beforePaymentLoan: {
+    loanBeforePayment: {
       display: "flex",
       justifyContent: "flex-end",
 
       flex: 1,
     },
-    afterPaymentLoan: {
+    loanAfterPayment: {
       flex: 1,
     },
   })
 );
 
 interface Props {
-  beforeAfterPaymentLoans: BeforeAfterPaymentLoan[];
+  loansBeforeAfterPayment: LoanBeforeAfterPayment[];
 }
 
-function LoansBeforeAfterPaymentPreview({ beforeAfterPaymentLoans }: Props) {
+function LoansBeforeAfterPaymentPreview({ loansBeforeAfterPayment }: Props) {
   const classes = useStyles();
 
   return (
     <Box>
-      <Box className={classes.beforeAfterPaymentLoan}>
-        <Box className={classes.beforePaymentLoan}>
+      <Box className={classes.loanBeforeAfterPayment}>
+        <Box className={classes.loanBeforePayment}>
           <Typography variant="h6">Loans before payment</Typography>
         </Box>
         <Box className={classes.middle}>
           <ArrowRightAlt />
         </Box>
-        <Box className={classes.afterPaymentLoan}>
+        <Box className={classes.loanAfterPayment}>
           <Typography variant="h6">Loans after payment</Typography>
         </Box>
       </Box>
-      <Box className={classes.beforeAfterPaymentLoan}>
-        <Box className={classes.beforePaymentLoan}>
+      <Box className={classes.loanBeforeAfterPayment}>
+        <Box className={classes.loanBeforePayment}>
           <LoanBalancesDataGrid
-            loanBalances={beforeAfterPaymentLoans.map(
-              (beforeAfterPaymentLoan) => ({
-                ...beforeAfterPaymentLoan.loan_balance_before,
-                id: beforeAfterPaymentLoan.loan_id,
+            loanBalances={loansBeforeAfterPayment.map(
+              (loanBeforeAfterPayment) => ({
+                ...loanBeforeAfterPayment.loan_balance_before,
+                id: loanBeforeAfterPayment.loan_id,
               })
             )}
           />
@@ -71,12 +71,12 @@ function LoansBeforeAfterPaymentPreview({ beforeAfterPaymentLoans }: Props) {
         <Box className={classes.middle}>
           <ArrowRightAlt />
         </Box>
-        <Box className={classes.afterPaymentLoan}>
+        <Box className={classes.loanAfterPayment}>
           <LoanBalancesDataGrid
-            loanBalances={beforeAfterPaymentLoans.map(
-              (beforeAfterPaymentLoan) => ({
-                ...beforeAfterPaymentLoan.loan_balance_after,
-                id: beforeAfterPaymentLoan.loan_id,
+            loanBalances={loansBeforeAfterPayment.map(
+              (loanBeforeAfterPayment) => ({
+                ...loanBeforeAfterPayment.loan_balance_after,
+                id: loanBeforeAfterPayment.loan_id,
               })
             )}
           />

@@ -5612,6 +5612,10 @@ export type Payments = {
   method: Scalars["String"];
   /** What day this payment or advance was deposited into a bank */
   payment_date?: Maybe<Scalars["date"]>;
+  /** When a customer requests or notifies us a payment should take place, their user id is captured here */
+  requested_by_user_id?: Maybe<Scalars["uuid"]>;
+  /** When a customer requests or notifies us a payment should take place, the date they set is captured here */
+  requested_payment_date?: Maybe<Scalars["date"]>;
   /** When this payment has been settled and applied to loans. This can only be done once. */
   settled_at?: Maybe<Scalars["timestamptz"]>;
   settled_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -5716,6 +5720,8 @@ export type PaymentsBoolExp = {
   items_covered?: Maybe<JsonbComparisonExp>;
   method?: Maybe<StringComparisonExp>;
   payment_date?: Maybe<DateComparisonExp>;
+  requested_by_user_id?: Maybe<UuidComparisonExp>;
+  requested_payment_date?: Maybe<DateComparisonExp>;
   settled_at?: Maybe<TimestamptzComparisonExp>;
   settled_by_user_id?: Maybe<UuidComparisonExp>;
   settlement_date?: Maybe<DateComparisonExp>;
@@ -5766,6 +5772,8 @@ export type PaymentsInsertInput = {
   items_covered?: Maybe<Scalars["jsonb"]>;
   method?: Maybe<Scalars["String"]>;
   payment_date?: Maybe<Scalars["date"]>;
+  requested_by_user_id?: Maybe<Scalars["uuid"]>;
+  requested_payment_date?: Maybe<Scalars["date"]>;
   settled_at?: Maybe<Scalars["timestamptz"]>;
   settled_by_user_id?: Maybe<Scalars["uuid"]>;
   settlement_date?: Maybe<Scalars["date"]>;
@@ -5785,6 +5793,8 @@ export type PaymentsMaxFields = {
   id?: Maybe<Scalars["uuid"]>;
   method?: Maybe<Scalars["String"]>;
   payment_date?: Maybe<Scalars["date"]>;
+  requested_by_user_id?: Maybe<Scalars["uuid"]>;
+  requested_payment_date?: Maybe<Scalars["date"]>;
   settled_at?: Maybe<Scalars["timestamptz"]>;
   settled_by_user_id?: Maybe<Scalars["uuid"]>;
   settlement_date?: Maybe<Scalars["date"]>;
@@ -5803,6 +5813,8 @@ export type PaymentsMaxOrderBy = {
   id?: Maybe<OrderBy>;
   method?: Maybe<OrderBy>;
   payment_date?: Maybe<OrderBy>;
+  requested_by_user_id?: Maybe<OrderBy>;
+  requested_payment_date?: Maybe<OrderBy>;
   settled_at?: Maybe<OrderBy>;
   settled_by_user_id?: Maybe<OrderBy>;
   settlement_date?: Maybe<OrderBy>;
@@ -5821,6 +5833,8 @@ export type PaymentsMinFields = {
   id?: Maybe<Scalars["uuid"]>;
   method?: Maybe<Scalars["String"]>;
   payment_date?: Maybe<Scalars["date"]>;
+  requested_by_user_id?: Maybe<Scalars["uuid"]>;
+  requested_payment_date?: Maybe<Scalars["date"]>;
   settled_at?: Maybe<Scalars["timestamptz"]>;
   settled_by_user_id?: Maybe<Scalars["uuid"]>;
   settlement_date?: Maybe<Scalars["date"]>;
@@ -5839,6 +5853,8 @@ export type PaymentsMinOrderBy = {
   id?: Maybe<OrderBy>;
   method?: Maybe<OrderBy>;
   payment_date?: Maybe<OrderBy>;
+  requested_by_user_id?: Maybe<OrderBy>;
+  requested_payment_date?: Maybe<OrderBy>;
   settled_at?: Maybe<OrderBy>;
   settled_by_user_id?: Maybe<OrderBy>;
   settlement_date?: Maybe<OrderBy>;
@@ -5883,6 +5899,8 @@ export type PaymentsOrderBy = {
   items_covered?: Maybe<OrderBy>;
   method?: Maybe<OrderBy>;
   payment_date?: Maybe<OrderBy>;
+  requested_by_user_id?: Maybe<OrderBy>;
+  requested_payment_date?: Maybe<OrderBy>;
   settled_at?: Maybe<OrderBy>;
   settled_by_user_id?: Maybe<OrderBy>;
   settlement_date?: Maybe<OrderBy>;
@@ -5923,6 +5941,10 @@ export enum PaymentsSelectColumn {
   /** column name */
   PaymentDate = "payment_date",
   /** column name */
+  RequestedByUserId = "requested_by_user_id",
+  /** column name */
+  RequestedPaymentDate = "requested_payment_date",
+  /** column name */
   SettledAt = "settled_at",
   /** column name */
   SettledByUserId = "settled_by_user_id",
@@ -5947,6 +5969,8 @@ export type PaymentsSetInput = {
   items_covered?: Maybe<Scalars["jsonb"]>;
   method?: Maybe<Scalars["String"]>;
   payment_date?: Maybe<Scalars["date"]>;
+  requested_by_user_id?: Maybe<Scalars["uuid"]>;
+  requested_payment_date?: Maybe<Scalars["date"]>;
   settled_at?: Maybe<Scalars["timestamptz"]>;
   settled_by_user_id?: Maybe<Scalars["uuid"]>;
   settlement_date?: Maybe<Scalars["date"]>;
@@ -6015,6 +6039,10 @@ export enum PaymentsUpdateColumn {
   Method = "method",
   /** column name */
   PaymentDate = "payment_date",
+  /** column name */
+  RequestedByUserId = "requested_by_user_id",
+  /** column name */
+  RequestedPaymentDate = "requested_payment_date",
   /** column name */
   SettledAt = "settled_at",
   /** column name */
@@ -11623,6 +11651,7 @@ export type PaymentFragment = Pick<
   | "submitted_at"
   | "settled_at"
   | "settlement_date"
+  | "requested_payment_date"
   | "payment_date"
   | "items_covered"
 > & {
@@ -11989,6 +12018,7 @@ export const PaymentFragmentDoc = gql`
     submitted_at
     settled_at
     settlement_date
+    requested_payment_date
     payment_date
     items_covered
     company_bank_account {

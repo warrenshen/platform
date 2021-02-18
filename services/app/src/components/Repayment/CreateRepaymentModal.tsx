@@ -21,7 +21,7 @@ import {
   createPayment,
   LoanBalance,
 } from "lib/finance/payments/repayment";
-import { BeforeAfterPaymentLoan } from "lib/types";
+import { LoanBeforeAfterPayment } from "lib/types";
 import { useState } from "react";
 
 interface Props {
@@ -37,8 +37,8 @@ function RepaymentModal({ companyId, selectedLoans, handleClose }: Props) {
   const [isOnSelectLoans, setIsOnSelectLoans] = useState(true);
   const [errMsg, setErrMsg] = useState("");
 
-  const [beforeAfterPaymentLoans, setBeforeAfterPaymentLoans] = useState<
-    BeforeAfterPaymentLoan[]
+  const [loansBeforeAfterPayment, setLoansBeforeAfterPayment] = useState<
+    LoanBeforeAfterPayment[]
   >([]);
 
   const [payment, setPayment] = useState<PaymentsInsertInput>({
@@ -89,7 +89,7 @@ function RepaymentModal({ companyId, selectedLoans, handleClose }: Props) {
         return;
       }
 
-      setBeforeAfterPaymentLoans(
+      setLoansBeforeAfterPayment(
         resp.loans_afterwards.map((loan_afterwards) => {
           const beforeLoan = selectedLoans.find(
             (selectedLoan) => selectedLoan.id === loan_afterwards.loan_id
@@ -109,7 +109,7 @@ function RepaymentModal({ companyId, selectedLoans, handleClose }: Props) {
                 loan_afterwards.loan_balance.outstanding_interest,
               outstanding_fees: loan_afterwards.loan_balance.outstanding_fees,
             } as LoanBalance,
-          } as BeforeAfterPaymentLoan;
+          } as LoanBeforeAfterPayment;
         })
       );
 
@@ -181,7 +181,7 @@ function RepaymentModal({ companyId, selectedLoans, handleClose }: Props) {
                 </Box>
               </Box>
               <CreateRepaymentConfirmEffect
-                beforeAfterPaymentLoans={beforeAfterPaymentLoans}
+                loansBeforeAfterPayment={loansBeforeAfterPayment}
                 payment={payment}
                 setPayment={setPayment}
               />

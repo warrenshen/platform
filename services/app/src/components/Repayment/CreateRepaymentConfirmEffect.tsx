@@ -11,17 +11,17 @@ import CompanyBank from "components/Shared/BankToBankTransfer/CompanyBank";
 import { BankAccounts, PaymentsInsertInput } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { PaymentMethodEnum } from "lib/enum";
-import { BeforeAfterPaymentLoan } from "lib/types";
+import { LoanBeforeAfterPayment } from "lib/types";
 import { useCallback } from "react";
 
 interface Props {
-  beforeAfterPaymentLoans: BeforeAfterPaymentLoan[];
+  loansBeforeAfterPayment: LoanBeforeAfterPayment[];
   payment: PaymentsInsertInput;
   setPayment: (payment: PaymentsInsertInput) => void;
 }
 
 function CreateRepaymentConfirmEffect({
-  beforeAfterPaymentLoans,
+  loansBeforeAfterPayment,
   payment,
   setPayment,
 }: Props) {
@@ -49,7 +49,7 @@ function CreateRepaymentConfirmEffect({
     <Box>
       <Box>
         <LoansBeforeAfterPaymentPreview
-          beforeAfterPaymentLoans={beforeAfterPaymentLoans}
+          loansBeforeAfterPayment={loansBeforeAfterPayment}
         />
       </Box>
       <Box mt={4}>

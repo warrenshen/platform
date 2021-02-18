@@ -1,17 +1,17 @@
 import { Box } from "@material-ui/core";
 import LoansBeforeAfterPaymentPreview from "components/Repayment/LoansBeforeAfterPaymentPreview";
-import { BeforeAfterPaymentLoan } from "lib/types";
+import { LoanBeforeAfterPayment } from "lib/types";
 
 interface Props {
-  beforeAfterPaymentLoans: BeforeAfterPaymentLoan[];
+  loansBeforeAfterPayment: LoanBeforeAfterPayment[];
 }
 
-function SettleRepaymentConfirmEffect({ beforeAfterPaymentLoans }: Props) {
+function SettleRepaymentConfirmEffect({ loansBeforeAfterPayment }: Props) {
   return (
     <Box>
       <Box>
         <LoansBeforeAfterPaymentPreview
-          beforeAfterPaymentLoans={beforeAfterPaymentLoans}
+          loansBeforeAfterPayment={loansBeforeAfterPayment}
         />
       </Box>
     </Box>

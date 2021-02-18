@@ -1,10 +1,11 @@
 import { Box, Typography } from "@material-ui/core";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import {
+  Companies,
   GetLoansByLoanIdsQuery,
-  GetPaymentForSettlementQuery,
   Loans,
   LoanTypeEnum,
+  PaymentsInsertInput,
   ProductTypeEnum,
   useLoansByCompanyAndLoanTypeForBankQuery,
 } from "generated/graphql";
@@ -13,19 +14,20 @@ import { formatDateString } from "lib/date";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
 
 interface Props {
-  payment: GetPaymentForSettlementQuery["payments_by_pk"];
+  payment: PaymentsInsertInput;
+  customer: Companies;
   selectedLoanIds: Loans["id"][];
   selectedLoans: GetLoansByLoanIdsQuery["loans"];
   setSelectedLoanIds: (selectedLoanIds: Loans["id"][]) => void;
 }
 function SettleRepaymentSelectLoans({
   payment,
+  customer,
   selectedLoanIds,
   selectedLoans,
   setSelectedLoanIds,
 }: Props) {
-  const customer = payment?.company;
-  const productType = customer?.contract?.product_type;
+  const productType = customer.contract?.product_type;
 
   // Only loans maturing in 14 days or past due are the ones that may want to be shuffled in.
   const { data: dataLoansByCompany } = useLoansByCompanyAndLoanTypeForBankQuery(
@@ -49,7 +51,9 @@ function SettleRepaymentSelectLoans({
             PaymentMethodToLabel[payment.method as PaymentMethodEnum]
           } payment of ${formatCurrency(
             payment.amount
-          )} with a payment date of ${formatDateString(payment.payment_date)}.`}
+          )} with a requested payment date of ${formatDateString(
+            payment.requested_payment_date
+          )}.`}
         </Typography>
         <Typography>
           {`Please select which loans this payment should apply towards below.

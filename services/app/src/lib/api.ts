@@ -43,6 +43,7 @@ export const loansRoutes = {
   createPayment: "/finance/loans/repayments/create_payment",
   calculateEffectOfPayment:
     "finance/loans/repayments/calculate_effect_of_payment",
+  settlePayment: "/finance/loans/repayments/settle_payment",
 };
 
 export const twoFactorRoutes = {

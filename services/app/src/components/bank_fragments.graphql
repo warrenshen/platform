@@ -90,6 +90,7 @@ fragment Payment on payments {
   submitted_at
   settled_at
   settlement_date
+  requested_payment_date
   payment_date
   items_covered
   company_bank_account {

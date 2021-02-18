@@ -1,16 +1,16 @@
 import {
-  ListItem,
-  ListItemText,
-  Collapse,
   Badge,
   Chip,
+  Collapse,
+  ListItem,
   ListItemIcon,
+  ListItemText,
 } from "@material-ui/core";
 import List from "@material-ui/core/List";
 import { makeStyles } from "@material-ui/core/styles";
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
-import React, { useContext } from "react";
+import React from "react";
 import { Link, matchPath, useLocation } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({

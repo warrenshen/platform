@@ -35334,6 +35334,30 @@
             "deprecationReason": null
           },
           {
+            "name": "requested_by_user_id",
+            "description": "When a customer requests or notifies us a payment should take place, their user id is captured here",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "requested_payment_date",
+            "description": "When a customer requests or notifies us a payment should take place, the date they set is captured here",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "settled_at",
             "description": "When this payment has been settled and applied to loans. This can only be done once.",
             "args": [],
@@ -36054,6 +36078,26 @@
             "defaultValue": null
           },
           {
+            "name": "requested_by_user_id",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "uuid_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "requested_payment_date",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "date_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "settled_at",
             "description": null,
             "type": {
@@ -36370,6 +36414,26 @@
             "defaultValue": null
           },
           {
+            "name": "requested_by_user_id",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "requested_payment_date",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "settled_at",
             "description": null,
             "type": {
@@ -36546,6 +36610,30 @@
             "deprecationReason": null
           },
           {
+            "name": "requested_by_user_id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "requested_payment_date",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "settled_at",
             "description": null,
             "args": [],
@@ -36701,6 +36789,26 @@
           },
           {
             "name": "payment_date",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "requested_by_user_id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "requested_payment_date",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -36876,6 +36984,30 @@
             "deprecationReason": null
           },
           {
+            "name": "requested_by_user_id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "requested_payment_date",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "settled_at",
             "description": null,
             "args": [],
@@ -37031,6 +37163,26 @@
           },
           {
             "name": "payment_date",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "requested_by_user_id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "requested_payment_date",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -37384,6 +37536,26 @@
             "defaultValue": null
           },
           {
+            "name": "requested_by_user_id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "requested_payment_date",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "settled_at",
             "description": null,
             "type": {
@@ -37567,6 +37739,18 @@
             "deprecationReason": null
           },
           {
+            "name": "requested_by_user_id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "requested_payment_date",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "settled_at",
             "description": "column name",
             "isDeprecated": false,
@@ -37693,6 +37877,26 @@
           },
           {
             "name": "payment_date",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "requested_by_user_id",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "requested_payment_date",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -38000,6 +38204,18 @@
           },
           {
             "name": "payment_date",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "requested_by_user_id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "requested_payment_date",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
