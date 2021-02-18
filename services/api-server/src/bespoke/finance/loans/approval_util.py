@@ -5,7 +5,7 @@ from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
-from bespoke.db.db_constants import (ALL_LOAN_TYPES, LoanTypeEnum,
+from bespoke.db.db_constants import (ALL_LOAN_TYPES, LoanTypeEnum, LoanStatusEnum,
                                      RequestStatusEnum)
 ApproveLoansReqDict = TypedDict('ApproveLoansReqDict', {
 	'loan_ids': List[str],
@@ -114,7 +114,7 @@ def submit_for_approval(loan_id: str, session_maker: Callable) -> Tuple[SubmitFo
 
 			proposed_loans_total_amount = 0.0
 			for sibling_loan in sibling_loans:
-				if sibling_loan.status not in [RequestStatusEnum.DRAFTED, RequestStatusEnum.REJECTED]:
+				if sibling_loan.status not in [LoanStatusEnum.DRAFTED, LoanStatusEnum.REJECTED]:
 					proposed_loans_total_amount += float(
 						sibling_loan.amount) if sibling_loan.amount else 0
 
