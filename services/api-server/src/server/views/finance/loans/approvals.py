@@ -4,9 +4,11 @@ from typing import Any, List, cast
 
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
+from bespoke.db.db_constants import (AllLoanTypes, LoanTypeEnum,
+                                     RequestStatusEnum)
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
-from bespoke.db.db_constants import AllLoanTypes, LoanTypeEnum, RequestStatusEnum
+from bespoke.finance.loans import approval_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from mypy_extensions import TypedDict
@@ -56,6 +58,35 @@ class ApproveLoanView(MethodView):
 		return make_response(json.dumps({
 			'status': 'OK'
 		}), 200)
+
+class ApproveLoansView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = ['loan_ids']
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} in request'.format(key))
+
+		user_session = auth_util.UserSession.from_session()
+
+		resp, err = approval_util.approve_loans(
+			req=form,
+			bank_admin_user_id=user_session.get_user_id(),
+			session_maker=current_app.session_maker
+		)
+
+		if err:
+			return handler_util.make_error_response(err)
+
+		resp['status'] = 'OK'
+		return make_response(json.dumps(resp), 200)
 
 class RejectLoanView(MethodView):
 	decorators = [auth_util.bank_admin_required]
@@ -228,6 +259,9 @@ class SubmitForApprovalView(MethodView):
 
 handler.add_url_rule(
 	'/approve_loan', view_func=ApproveLoanView.as_view(name='approve_loan_view'))
+
+handler.add_url_rule(
+	'/approve_loans', view_func=ApproveLoansView.as_view(name='approve_loans_view'))
 
 handler.add_url_rule(
 	'/reject_loan', view_func=RejectLoanView.as_view(name='reject_loan_view'))

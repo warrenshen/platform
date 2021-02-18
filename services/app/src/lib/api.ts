@@ -36,10 +36,14 @@ export const purchaseOrdersRoutes = {
 };
 
 export const loansRoutes = {
-  createPaymentAdvance: "/finance/loans/advances/handle_advance",
+  // Loans related.
   submitForApproval: "/finance/loans/approvals/submit_for_approval",
   approveLoan: "/finance/loans/approvals/approve_loan",
+  approveLoans: "/finance/loans/approvals/approve_loans",
   rejectLoan: "/finance/loans/approvals/reject_loan",
+
+  // Payments related.
+  createAdvance: "/finance/loans/advances/handle_advance",
   createPayment: "/finance/loans/repayments/create_payment",
   calculateEffectOfPayment:
     "finance/loans/repayments/calculate_effect_of_payment",

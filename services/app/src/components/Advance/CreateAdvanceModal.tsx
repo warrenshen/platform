@@ -78,7 +78,7 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
       loan_ids: selectedLoans.map((loan) => loan.id),
     };
     const response = await authenticatedApi.post(
-      loansRoutes.createPaymentAdvance,
+      loansRoutes.createAdvance,
       params
     );
     if (response.data?.status === "ERROR") {

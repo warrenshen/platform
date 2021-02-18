@@ -12,6 +12,7 @@ import LoanDrawerLauncher from "components/Shared/Loan/LoanDrawerLauncher";
 import { IColumnProps } from "devextreme-react/data-grid";
 import {
   LoanFragment,
+  Loans,
   LoanStatusEnum,
   LoanTypeEnum,
   RequestStatusEnum,
@@ -28,7 +29,9 @@ interface Props {
   matureDays?: number;
   filterByStatus?: RequestStatusEnum;
   loans: LoanFragment[];
+  selectedLoanIds?: Loans["id"][];
   actionItems?: DataGridActionItem[];
+  handleSelectLoans?: (loans: LoanFragment[]) => void;
 }
 
 const getMaturityDate = (rowData: any) => new Date(rowData.maturity_date);
@@ -40,7 +43,9 @@ function BankLoansDataGrid({
   matureDays = 0,
   filterByStatus,
   loans,
+  selectedLoanIds = [],
   actionItems = [],
+  handleSelectLoans = () => {},
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = loans;
@@ -206,13 +211,18 @@ function BankLoansDataGrid({
 
   return (
     <ControlledDataGrid
-      dataSource={rows}
-      columns={columns}
+      ref={(ref) => setDataGrid(ref)}
       filtering={fullView}
       pager={fullView}
+      select
       pageSize={fullView ? 50 : 5}
       allowedPageSizes={[5, 50]}
-      ref={(ref) => setDataGrid(ref)}
+      dataSource={rows}
+      columns={columns}
+      selectedRowKeys={selectedLoanIds}
+      onSelectionChanged={({ selectedRowsData }: any) =>
+        handleSelectLoans(selectedRowsData as LoanFragment[])
+      }
     />
   );
 }

@@ -4,17 +4,16 @@
 """
 import datetime
 import decimal
-
-from mypy_extensions import TypedDict
-from sqlalchemy.orm.session import Session
-from typing import Tuple, List, Callable, Union, cast
+from typing import Callable, List, Tuple, Union, cast
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import models, db_constants
+from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
-from bespoke.finance.types import per_customer_types
 from bespoke.finance import number_util
+from bespoke.finance.types import per_customer_types
+from mypy_extensions import TypedDict
+from sqlalchemy.orm.session import Session
 
 PaymentInputDict = TypedDict('PaymentInputDict', {
 	'type': str,
@@ -45,7 +44,7 @@ def create_payment(
 	return payment
 
 def make_payment_applied(
-	payment: models.Payment, settled_by_user_id: str, 
+	payment: models.Payment, settled_by_user_id: str,
 	payment_date: datetime.date, settlement_date: datetime.date) -> None:
 	"""
 		Call this method when you are ready to apply a payment
@@ -65,7 +64,7 @@ def is_advance(p: Union[models.PaymentDict, models.TransactionDict]) -> bool:
 # Loans represent balances
 # Fees represent account level fees (not tied to a loan)
 
-# Payments represent someone submitting a dollar amount to their account 
+# Payments represent someone submitting a dollar amount to their account
 # Transactions represent how that payment is applied to their balances and fees
 
 def sum(vals: List[float]) -> float:
