@@ -23,6 +23,7 @@ import {
 import { authenticatedApi, loansRoutes } from "lib/api";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
+import { useSnackbar } from "material-ui-snackbar-provider";
 import { useState } from "react";
 import PurchaseOrderLoanForm from "./PurchaseOrderLoanForm";
 
@@ -67,6 +68,7 @@ function CreateUpdatePurchaseOrderLoanModal({
   handleClose,
 }: Props) {
   const classes = useStyles();
+  const snackbar = useSnackbar();
 
   // Default Loan for CREATE case.
   const newLoan: LoansInsertInput = {
@@ -186,6 +188,8 @@ function CreateUpdatePurchaseOrderLoanModal({
     const savedLoan = await upsertPurchaseOrderLoan();
     if (!savedLoan) {
       alert("Could not upsert loan");
+    } else {
+      snackbar.showMessage("Success! Loan saved as draft.");
     }
     handleClose();
   };
@@ -206,6 +210,7 @@ function CreateUpdatePurchaseOrderLoanModal({
       if (response.data?.status === "ERROR") {
         alert(response.data?.msg);
       } else {
+        snackbar.showMessage("Success! Loan saved and submitted to Bespoke.");
         handleClose();
       }
     }

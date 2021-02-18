@@ -5,6 +5,7 @@ import ReactDOM from "react-dom";
 import App from "./App";
 import ApolloWrapper from "./contexts/ApolloClientProvider";
 import CurrentUserWrapper from "./contexts/CurrentUserProvider";
+import { SnackbarProvider } from "material-ui-snackbar-provider";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 
@@ -16,9 +17,11 @@ Sentry.init({
 ReactDOM.render(
   <CurrentUserWrapper>
     <ApolloWrapper>
-      <CssBaseline>
-        <App />
-      </CssBaseline>
+      <SnackbarProvider SnackbarProps={{ autoHideDuration: 3000 }}>
+        <CssBaseline>
+          <App />
+        </CssBaseline>
+      </SnackbarProvider>
     </ApolloWrapper>
   </CurrentUserWrapper>,
   document.getElementById("root")

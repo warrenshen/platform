@@ -24,6 +24,7 @@ import { authenticatedApi, purchaseOrdersRoutes } from "lib/api";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
+import { useSnackbar } from "material-ui-snackbar-provider";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -60,6 +61,7 @@ function CreateUpdatePurchaseOrderModal({
   handleClose,
 }: Props) {
   const classes = useStyles();
+  const snackbar = useSnackbar();
   const {
     user: { companyId },
   } = useContext(CurrentUserContext);
@@ -216,6 +218,7 @@ function CreateUpdatePurchaseOrderModal({
     if (!savedPurchaseOrder) {
       alert("Could not upsert purchase order");
     } else {
+      snackbar.showMessage("Success! Purchase order saved as draft.");
       handleClose();
     }
   };
@@ -237,6 +240,9 @@ function CreateUpdatePurchaseOrderModal({
         alert(response.data?.msg);
       } else {
         handleClose();
+        snackbar.showMessage(
+          "Success! Purchase order saved and submitted to vendor."
+        );
       }
     }
   };

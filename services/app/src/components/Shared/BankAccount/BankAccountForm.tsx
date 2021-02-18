@@ -21,6 +21,7 @@ import {
 } from "generated/graphql";
 import { isNull, mergeWith } from "lodash";
 import { ChangeEvent, useContext, useMemo, useState } from "react";
+import { useSnackbar } from "material-ui-snackbar-provider";
 
 const useStyles = makeStyles({
   form: {
@@ -35,6 +36,7 @@ interface Props {
 }
 
 function BankAccountForm({ companyId, existingBankAccount, onCancel }: Props) {
+  const snackbar = useSnackbar();
   const classes = useStyles();
   const {
     user: { role },
@@ -241,80 +243,95 @@ function BankAccountForm({ companyId, existingBankAccount, onCancel }: Props) {
           disabled={isSubmitDisabled}
           onClick={async () => {
             if (existingBankAccount) {
-              await updateBankAccount({
-                variables: {
-                  id: bankAccount.id,
-                  bankAccount: {
-                    bank_name: bankAccount.bank_name,
-                    account_title: bankAccount.account_title,
-                    account_type: bankAccount.account_type,
-                    account_number: bankAccount.account_number,
-                    routing_number: bankAccount.routing_number,
-                    can_ach: bankAccount.can_ach,
-                    can_wire: bankAccount.can_wire,
-                    bank_address: bankAccount.bank_address,
-                    recipient_name: bankAccount.recipient_name,
-                    recipient_address: bankAccount.recipient_address,
-                    verified_at:
-                      role === UserRolesEnum.BankAdmin
-                        ? bankAccount.verified_at
-                        : undefined,
-                    verified_date:
-                      role === UserRolesEnum.BankAdmin
-                        ? bankAccount.verified_date
-                        : undefined,
+              try {
+                await updateBankAccount({
+                  variables: {
+                    id: bankAccount.id,
+                    bankAccount: {
+                      bank_name: bankAccount.bank_name,
+                      account_title: bankAccount.account_title,
+                      account_type: bankAccount.account_type,
+                      account_number: bankAccount.account_number,
+                      routing_number: bankAccount.routing_number,
+                      can_ach: bankAccount.can_ach,
+                      can_wire: bankAccount.can_wire,
+                      bank_address: bankAccount.bank_address,
+                      recipient_name: bankAccount.recipient_name,
+                      recipient_address: bankAccount.recipient_address,
+                      verified_at:
+                        role === UserRolesEnum.BankAdmin
+                          ? bankAccount.verified_at
+                          : undefined,
+                      verified_date:
+                        role === UserRolesEnum.BankAdmin
+                          ? bankAccount.verified_date
+                          : undefined,
+                    },
                   },
-                },
-              });
+                });
+                onCancel();
+                snackbar.showMessage("Success! Bank account updated.");
+              } catch (err) {
+                snackbar.showMessage("Error! Something went wrong.");
+                console.log(err);
+              }
             } else {
-              await addBankAccount({
-                variables: {
-                  bankAccount: {
-                    bank_name: bankAccount.bank_name,
-                    account_title: bankAccount.account_title,
-                    account_type: bankAccount.account_type,
-                    account_number: bankAccount.account_number,
-                    routing_number: bankAccount.routing_number,
-                    can_ach: bankAccount.can_ach,
-                    can_wire: bankAccount.can_wire,
-                    bank_address: bankAccount.bank_address,
-                    recipient_name: bankAccount.recipient_name,
-                    recipient_address: bankAccount.recipient_address,
-                    verified_at:
-                      role === UserRolesEnum.BankAdmin
-                        ? bankAccount.verified_at
-                        : undefined,
-                    verified_date:
-                      role === UserRolesEnum.BankAdmin
-                        ? bankAccount.verified_date
-                        : undefined,
-                    company_id:
-                      role === UserRolesEnum.BankAdmin ? companyId : undefined,
+              try {
+                await addBankAccount({
+                  variables: {
+                    bankAccount: {
+                      bank_name: bankAccount.bank_name,
+                      account_title: bankAccount.account_title,
+                      account_type: bankAccount.account_type,
+                      account_number: bankAccount.account_number,
+                      routing_number: bankAccount.routing_number,
+                      can_ach: bankAccount.can_ach,
+                      can_wire: bankAccount.can_wire,
+                      bank_address: bankAccount.bank_address,
+                      recipient_name: bankAccount.recipient_name,
+                      recipient_address: bankAccount.recipient_address,
+                      verified_at:
+                        role === UserRolesEnum.BankAdmin
+                          ? bankAccount.verified_at
+                          : undefined,
+                      verified_date:
+                        role === UserRolesEnum.BankAdmin
+                          ? bankAccount.verified_date
+                          : undefined,
+                      company_id:
+                        role === UserRolesEnum.BankAdmin
+                          ? companyId
+                          : undefined,
+                    },
                   },
-                },
-                refetchQueries: companyId
-                  ? [
-                      {
-                        query: CompanyBankAccountsDocument,
-                        variables: {
-                          companyId,
+                  refetchQueries: companyId
+                    ? [
+                        {
+                          query: CompanyBankAccountsDocument,
+                          variables: {
+                            companyId,
+                          },
                         },
-                      },
-                      {
-                        query: CompanyForCustomerDocument,
-                        variables: {
-                          companyId,
+                        {
+                          query: CompanyForCustomerDocument,
+                          variables: {
+                            companyId,
+                          },
                         },
-                      },
-                    ]
-                  : [
-                      {
-                        query: BankAccountsDocument,
-                      },
-                    ],
-              });
+                      ]
+                    : [
+                        {
+                          query: BankAccountsDocument,
+                        },
+                      ],
+                });
+                onCancel();
+                snackbar.showMessage("Success! Bank account created.");
+              } catch (err) {
+                snackbar.showMessage("Error! Something went wrong.");
+                console.log(err);
+              }
             }
-            onCancel();
           }}
         >
           {existingBankAccount ? "Update" : "Add"}
