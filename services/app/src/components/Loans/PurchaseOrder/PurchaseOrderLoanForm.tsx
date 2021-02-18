@@ -85,7 +85,7 @@ function PurchaseOrderLoanForm({
           <PurchaseOrderInfoCard purchaseOrder={selectedPurchaseOrder} />
         </Box>
       )}
-      <Box display="flex" flexDirection="column">
+      <Box display="flex" flexDirection="column" mt={2}>
         <DatePicker
           className={classes.purchaseOrderInput}
           id="origination-date-date-picker"
@@ -100,10 +100,12 @@ function PurchaseOrderLoanForm({
             })
           }
         />
-        <Typography variant="body2" color="textSecondary">
-          The Payment Date is the date when the payment will arrive to the
-          vendor and when interest charges begin.
-        </Typography>
+        <Box mt={1}>
+          <Typography variant="body2" color="textSecondary">
+            The Payment Date is the date when the payment will arrive to the
+            vendor and when interest charges begin.
+          </Typography>
+        </Box>
       </Box>
       <Box mt={3}>
         <FormControl fullWidth className={classes.purchaseOrderInput}>
@@ -119,7 +121,7 @@ function PurchaseOrderLoanForm({
                 amount: value,
               })
             }
-          ></CurrencyTextField>
+          />
         </FormControl>
       </Box>
     </Box>

@@ -103,7 +103,7 @@ function BankAccountForm({ companyId, existingBankAccount, onCancel }: Props) {
         onChange={({ target: { value } }) => {
           setBankAccount({ ...bankAccount, bank_name: value });
         }}
-      ></TextField>
+      />
       <TextField
         label="Account Title"
         placeholder="Title on the account"
@@ -112,7 +112,7 @@ function BankAccountForm({ companyId, existingBankAccount, onCancel }: Props) {
         onChange={({ target: { value } }) => {
           setBankAccount({ ...bankAccount, account_title: value });
         }}
-      ></TextField>
+      />
       <TextField
         label="Account Type"
         placeholder="Checking, Savings, etc"
@@ -121,7 +121,7 @@ function BankAccountForm({ companyId, existingBankAccount, onCancel }: Props) {
         onChange={({ target: { value } }) => {
           setBankAccount({ ...bankAccount, account_type: value });
         }}
-      ></TextField>
+      />
       <TextField
         label="Routing Number"
         required
@@ -129,7 +129,7 @@ function BankAccountForm({ companyId, existingBankAccount, onCancel }: Props) {
         onChange={({ target: { value } }) => {
           setBankAccount({ ...bankAccount, routing_number: value });
         }}
-      ></TextField>
+      />
       <TextField
         label="Account Number"
         required
@@ -137,7 +137,7 @@ function BankAccountForm({ companyId, existingBankAccount, onCancel }: Props) {
         onChange={({ target: { value } }) => {
           setBankAccount({ ...bankAccount, account_number: value });
         }}
-      ></TextField>
+      />
       <Box mt={2}>
         <FormControlLabel
           control={
@@ -179,7 +179,7 @@ function BankAccountForm({ companyId, existingBankAccount, onCancel }: Props) {
             onChange={({ target: { value } }) => {
               setBankAccount({ ...bankAccount, bank_address: value });
             }}
-          ></TextField>
+          />
           <TextField
             label="Recipient Name"
             className={classes.form}
@@ -187,7 +187,7 @@ function BankAccountForm({ companyId, existingBankAccount, onCancel }: Props) {
             onChange={({ target: { value } }) => {
               setBankAccount({ ...bankAccount, recipient_name: value });
             }}
-          ></TextField>
+          />
           <TextField
             label="Recipient Address"
             className={classes.form}
@@ -195,7 +195,7 @@ function BankAccountForm({ companyId, existingBankAccount, onCancel }: Props) {
             onChange={({ target: { value } }) => {
               setBankAccount({ ...bankAccount, recipient_address: value });
             }}
-          ></TextField>
+          />
         </Box>
       )}
       {role === UserRolesEnum.BankAdmin && (
@@ -219,7 +219,7 @@ function BankAccountForm({ companyId, existingBankAccount, onCancel }: Props) {
         </Box>
       )}
       {role === UserRolesEnum.BankAdmin && !!bankAccount.verified_at && (
-        <Box>
+        <Box mt={2}>
           <DatePicker
             id="date-picker-verified-date"
             label="Verified Date"

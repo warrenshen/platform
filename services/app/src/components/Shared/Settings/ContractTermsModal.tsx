@@ -253,7 +253,7 @@ function ContractTermsModal({ isViewOnly, contractId, onClose }: Props) {
             onChange={(_event: any, value: string) =>
               findAndReplaceInJSON(item, value)
             }
-          ></CurrencyTextField>
+          />
         );
       case "boolean":
         return (
@@ -287,7 +287,7 @@ function ContractTermsModal({ isViewOnly, contractId, onClose }: Props) {
                 item.type === "integer" ? value.replace(/[^0-9]/g, "") : value
               )
             }
-          ></TextField>
+          />
         );
     }
   };

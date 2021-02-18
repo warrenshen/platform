@@ -105,7 +105,7 @@ function LineOfCreditLoanForm({
           </FormControl>
         </Box>
       )}
-      <Box display="flex" flexDirection="column">
+      <Box display="flex" flexDirection="column" mt={2}>
         <DatePicker
           className={classes.purchaseOrderInput}
           id="origination-date-date-picker"
@@ -139,7 +139,7 @@ function LineOfCreditLoanForm({
                 amount: value,
               });
             }}
-          ></CurrencyTextField>
+          />
         </FormControl>
       </Box>
     </Box>

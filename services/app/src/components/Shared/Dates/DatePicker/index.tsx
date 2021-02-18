@@ -50,7 +50,7 @@ function DatePicker(props: Props) {
         }}
         variant="inline"
         format="MM/dd/yyyy"
-        margin="normal"
+        margin="none"
         id={props.id}
         label={props.label}
         value={

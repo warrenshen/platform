@@ -107,7 +107,7 @@ function PurchaseOrderForm({
           }
         />
       </Box>
-      <Box>
+      <Box mt={2}>
         <DatePicker
           className={classes.purchaseOrderInput}
           id="order-date-date-picker"
@@ -122,7 +122,7 @@ function PurchaseOrderForm({
           }
         />
       </Box>
-      <Box>
+      <Box mt={2}>
         <DatePicker
           className={classes.purchaseOrderInput}
           id="delivery-date-date-picker"
