@@ -88,6 +88,7 @@ fragment LoanLimited on loans {
   artifact_id
   status
   amount
+  requested_payment_date
   origination_date
   maturity_date
   adjusted_maturity_date

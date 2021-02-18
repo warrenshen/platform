@@ -4,6 +4,7 @@
 
 import datetime
 import decimal
+from datetime import timedelta
 from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
@@ -94,6 +95,9 @@ def fund_loans_with_advance(
 
 			company_id_to_loans[company_id].append(loan_dict)
 
+		#unique_company_ids = []
+		# TODO(dlluncor): Set the maturity date and adjusted maturity_date appropriately
+
 		payment_date = date_util.load_date_str(payment_input['payment_date'])
 		settlement_date = date_util.load_date_str(payment_input['settlement_date'])
 
@@ -134,8 +138,9 @@ def fund_loans_with_advance(
 			loan.outstanding_principal_balance = loan.amount
 			loan.outstanding_interest = decimal.Decimal(0.0)
 			loan.outstanding_fees = decimal.Decimal(0.0)
-
-			# TODO(dlluncor): The origination_date on the loan should be set here.
+			loan.origination_date = settlement_date
+			loan.maturity_date = settlement_date + timedelta(days=15)
+			loan.adjusted_maturity_date = settlement_date + timedelta(days=15)
 
 	return FundLoansRespDict(status='OK'), None
 

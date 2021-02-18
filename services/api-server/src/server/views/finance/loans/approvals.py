@@ -98,9 +98,6 @@ class SubmitForApprovalView(MethodView):
 		cfg = cast(Config, current_app.app_config)
 		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
-		# TODO(dlluncor): The value a customer sets as "origination_date" is actually
-		# the requested_origination_date
-
 		data = json.loads(request.data)
 		if not data:
 			return handler_util.make_error_response('No data provided')
@@ -130,8 +127,8 @@ class SubmitForApprovalView(MethodView):
 			if not loan.artifact_id:
 				return handler_util.make_error_response('Artifact is required')
 
-			if not loan.origination_date:
-				return handler_util.make_error_response('Invalid origination date')
+			if not loan.requested_payment_date:
+				return handler_util.make_error_response('Invalid requested payment date')
 
 			if loan.amount is None or loan.amount <= 0:
 				return handler_util.make_error_response('Invalid amount')

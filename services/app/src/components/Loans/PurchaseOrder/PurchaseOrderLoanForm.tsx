@@ -92,11 +92,11 @@ function PurchaseOrderLoanForm({
           label="Payment Date"
           disablePast
           disableNonBankDays
-          value={loan.origination_date}
+          value={loan.requested_payment_date}
           onChange={(value) =>
             setLoan({
               ...loan,
-              origination_date: value,
+              requested_payment_date: value,
             })
           }
         />

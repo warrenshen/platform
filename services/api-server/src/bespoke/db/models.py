@@ -285,6 +285,7 @@ class Loan(Base):
 	company_id = Column(GUID, nullable=False)
 	loan_type = Column(Text)
 	artifact_id = Column(GUID)
+	requested_payment_date = Column(Date)
 	origination_date = Column(Date)
 	maturity_date = Column(Date)
 	adjusted_maturity_date = Column(Date)

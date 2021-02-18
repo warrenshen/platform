@@ -74,9 +74,7 @@ function CreateUpdatePurchaseOrderLoanModal({
   const newLoan: LoansInsertInput = {
     artifact_id: "",
     loan_type: LoanTypeEnum.PurchaseOrder,
-    origination_date: null,
-    maturity_date: null,
-    adjusted_maturity_date: null,
+    requested_payment_date: null,
     amount: "",
     status: LoanStatusEnum.Drafted,
   };
@@ -145,24 +143,15 @@ function CreateUpdatePurchaseOrderLoanModal({
   );
 
   const upsertPurchaseOrderLoan = async () => {
-    // TODO (warrenshen): in the future, maturity date will
-    // be set server-side or by bank users, not by customer users.
-    const fifteenDaysFromNow = new Date(
-      new Date().getTime() + 15 * 24 * 60 * 60 * 1000
-    );
-    const maturityDate = loan.origination_date
-      ? fifteenDaysAfterDate(new Date(loan.origination_date))
-      : fifteenDaysFromNow;
+    // There is no maturity date before the loan gets approved.
 
     if (actionType === ActionType.Update) {
       const response = await updateLoan({
         variables: {
           id: loan.id,
           loan: {
-            origination_date: loan.origination_date || null,
+            requested_payment_date: loan.requested_payment_date || null,
             amount: loan.amount || null,
-            maturity_date: maturityDate,
-            adjusted_maturity_date: maturityDate,
           },
         },
       });
@@ -173,10 +162,8 @@ function CreateUpdatePurchaseOrderLoanModal({
           loan: {
             artifact_id: loan.artifact_id,
             loan_type: LoanTypeEnum.PurchaseOrder,
-            origination_date: loan?.origination_date || null,
+            requested_payment_date: loan?.requested_payment_date || null,
             amount: loan?.amount || null,
-            maturity_date: maturityDate,
-            adjusted_maturity_date: maturityDate,
           },
         },
       });
@@ -230,7 +217,7 @@ function CreateUpdatePurchaseOrderLoanModal({
     isLoanSiblingsLoading ||
     !selectedPurchaseOrder ||
     proposedLoansTotalAmount > selectedPurchaseOrder.amount ||
-    !loan?.origination_date ||
+    !loan?.requested_payment_date ||
     !loan?.amount;
 
   return isDialogReady ? (

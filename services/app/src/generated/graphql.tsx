@@ -436,6 +436,395 @@ export enum BankAccountsUpdateColumn {
   VerifiedDate = "verified_date",
 }
 
+/**
+ * This is the financial summary for the bank, where each row represents one day for a particular product type
+ *
+ *
+ * columns and relationships of "bank_financial_summaries"
+ */
+export type BankFinancialSummaries = {
+  available_limit: Scalars["numeric"];
+  date: Scalars["date"];
+  id: Scalars["uuid"];
+  product_type: Scalars["String"];
+  total_limit: Scalars["numeric"];
+  total_outstanding_interest: Scalars["numeric"];
+  total_outstanding_principal: Scalars["numeric"];
+  total_principal_in_requested_state: Scalars["numeric"];
+};
+
+/** aggregated selection of "bank_financial_summaries" */
+export type BankFinancialSummariesAggregate = {
+  aggregate?: Maybe<BankFinancialSummariesAggregateFields>;
+  nodes: Array<BankFinancialSummaries>;
+};
+
+/** aggregate fields of "bank_financial_summaries" */
+export type BankFinancialSummariesAggregateFields = {
+  avg?: Maybe<BankFinancialSummariesAvgFields>;
+  count?: Maybe<Scalars["Int"]>;
+  max?: Maybe<BankFinancialSummariesMaxFields>;
+  min?: Maybe<BankFinancialSummariesMinFields>;
+  stddev?: Maybe<BankFinancialSummariesStddevFields>;
+  stddev_pop?: Maybe<BankFinancialSummariesStddevPopFields>;
+  stddev_samp?: Maybe<BankFinancialSummariesStddevSampFields>;
+  sum?: Maybe<BankFinancialSummariesSumFields>;
+  var_pop?: Maybe<BankFinancialSummariesVarPopFields>;
+  var_samp?: Maybe<BankFinancialSummariesVarSampFields>;
+  variance?: Maybe<BankFinancialSummariesVarianceFields>;
+};
+
+/** aggregate fields of "bank_financial_summaries" */
+export type BankFinancialSummariesAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<BankFinancialSummariesSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** order by aggregate values of table "bank_financial_summaries" */
+export type BankFinancialSummariesAggregateOrderBy = {
+  avg?: Maybe<BankFinancialSummariesAvgOrderBy>;
+  count?: Maybe<OrderBy>;
+  max?: Maybe<BankFinancialSummariesMaxOrderBy>;
+  min?: Maybe<BankFinancialSummariesMinOrderBy>;
+  stddev?: Maybe<BankFinancialSummariesStddevOrderBy>;
+  stddev_pop?: Maybe<BankFinancialSummariesStddevPopOrderBy>;
+  stddev_samp?: Maybe<BankFinancialSummariesStddevSampOrderBy>;
+  sum?: Maybe<BankFinancialSummariesSumOrderBy>;
+  var_pop?: Maybe<BankFinancialSummariesVarPopOrderBy>;
+  var_samp?: Maybe<BankFinancialSummariesVarSampOrderBy>;
+  variance?: Maybe<BankFinancialSummariesVarianceOrderBy>;
+};
+
+/** input type for inserting array relation for remote table "bank_financial_summaries" */
+export type BankFinancialSummariesArrRelInsertInput = {
+  data: Array<BankFinancialSummariesInsertInput>;
+  on_conflict?: Maybe<BankFinancialSummariesOnConflict>;
+};
+
+/** aggregate avg on columns */
+export type BankFinancialSummariesAvgFields = {
+  available_limit?: Maybe<Scalars["Float"]>;
+  total_limit?: Maybe<Scalars["Float"]>;
+  total_outstanding_interest?: Maybe<Scalars["Float"]>;
+  total_outstanding_principal?: Maybe<Scalars["Float"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["Float"]>;
+};
+
+/** order by avg() on columns of table "bank_financial_summaries" */
+export type BankFinancialSummariesAvgOrderBy = {
+  available_limit?: Maybe<OrderBy>;
+  total_limit?: Maybe<OrderBy>;
+  total_outstanding_interest?: Maybe<OrderBy>;
+  total_outstanding_principal?: Maybe<OrderBy>;
+  total_principal_in_requested_state?: Maybe<OrderBy>;
+};
+
+/** Boolean expression to filter rows from the table "bank_financial_summaries". All fields are combined with a logical 'AND'. */
+export type BankFinancialSummariesBoolExp = {
+  _and?: Maybe<Array<Maybe<BankFinancialSummariesBoolExp>>>;
+  _not?: Maybe<BankFinancialSummariesBoolExp>;
+  _or?: Maybe<Array<Maybe<BankFinancialSummariesBoolExp>>>;
+  available_limit?: Maybe<NumericComparisonExp>;
+  date?: Maybe<DateComparisonExp>;
+  id?: Maybe<UuidComparisonExp>;
+  product_type?: Maybe<StringComparisonExp>;
+  total_limit?: Maybe<NumericComparisonExp>;
+  total_outstanding_interest?: Maybe<NumericComparisonExp>;
+  total_outstanding_principal?: Maybe<NumericComparisonExp>;
+  total_principal_in_requested_state?: Maybe<NumericComparisonExp>;
+};
+
+/** unique or primary key constraints on table "bank_financial_summaries" */
+export enum BankFinancialSummariesConstraint {
+  /** unique or primary key constraint */
+  BankFinancialSummariesPkey = "bank_financial_summaries_pkey",
+}
+
+/** input type for incrementing integer column in table "bank_financial_summaries" */
+export type BankFinancialSummariesIncInput = {
+  available_limit?: Maybe<Scalars["numeric"]>;
+  total_limit?: Maybe<Scalars["numeric"]>;
+  total_outstanding_interest?: Maybe<Scalars["numeric"]>;
+  total_outstanding_principal?: Maybe<Scalars["numeric"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["numeric"]>;
+};
+
+/** input type for inserting data into table "bank_financial_summaries" */
+export type BankFinancialSummariesInsertInput = {
+  available_limit?: Maybe<Scalars["numeric"]>;
+  date?: Maybe<Scalars["date"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  product_type?: Maybe<Scalars["String"]>;
+  total_limit?: Maybe<Scalars["numeric"]>;
+  total_outstanding_interest?: Maybe<Scalars["numeric"]>;
+  total_outstanding_principal?: Maybe<Scalars["numeric"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["numeric"]>;
+};
+
+/** aggregate max on columns */
+export type BankFinancialSummariesMaxFields = {
+  available_limit?: Maybe<Scalars["numeric"]>;
+  date?: Maybe<Scalars["date"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  product_type?: Maybe<Scalars["String"]>;
+  total_limit?: Maybe<Scalars["numeric"]>;
+  total_outstanding_interest?: Maybe<Scalars["numeric"]>;
+  total_outstanding_principal?: Maybe<Scalars["numeric"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["numeric"]>;
+};
+
+/** order by max() on columns of table "bank_financial_summaries" */
+export type BankFinancialSummariesMaxOrderBy = {
+  available_limit?: Maybe<OrderBy>;
+  date?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  product_type?: Maybe<OrderBy>;
+  total_limit?: Maybe<OrderBy>;
+  total_outstanding_interest?: Maybe<OrderBy>;
+  total_outstanding_principal?: Maybe<OrderBy>;
+  total_principal_in_requested_state?: Maybe<OrderBy>;
+};
+
+/** aggregate min on columns */
+export type BankFinancialSummariesMinFields = {
+  available_limit?: Maybe<Scalars["numeric"]>;
+  date?: Maybe<Scalars["date"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  product_type?: Maybe<Scalars["String"]>;
+  total_limit?: Maybe<Scalars["numeric"]>;
+  total_outstanding_interest?: Maybe<Scalars["numeric"]>;
+  total_outstanding_principal?: Maybe<Scalars["numeric"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["numeric"]>;
+};
+
+/** order by min() on columns of table "bank_financial_summaries" */
+export type BankFinancialSummariesMinOrderBy = {
+  available_limit?: Maybe<OrderBy>;
+  date?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  product_type?: Maybe<OrderBy>;
+  total_limit?: Maybe<OrderBy>;
+  total_outstanding_interest?: Maybe<OrderBy>;
+  total_outstanding_principal?: Maybe<OrderBy>;
+  total_principal_in_requested_state?: Maybe<OrderBy>;
+};
+
+/** response of any mutation on the table "bank_financial_summaries" */
+export type BankFinancialSummariesMutationResponse = {
+  /** number of affected rows by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data of the affected rows by the mutation */
+  returning: Array<BankFinancialSummaries>;
+};
+
+/** input type for inserting object relation for remote table "bank_financial_summaries" */
+export type BankFinancialSummariesObjRelInsertInput = {
+  data: BankFinancialSummariesInsertInput;
+  on_conflict?: Maybe<BankFinancialSummariesOnConflict>;
+};
+
+/** on conflict condition type for table "bank_financial_summaries" */
+export type BankFinancialSummariesOnConflict = {
+  constraint: BankFinancialSummariesConstraint;
+  update_columns: Array<BankFinancialSummariesUpdateColumn>;
+  where?: Maybe<BankFinancialSummariesBoolExp>;
+};
+
+/** ordering options when selecting data from "bank_financial_summaries" */
+export type BankFinancialSummariesOrderBy = {
+  available_limit?: Maybe<OrderBy>;
+  date?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  product_type?: Maybe<OrderBy>;
+  total_limit?: Maybe<OrderBy>;
+  total_outstanding_interest?: Maybe<OrderBy>;
+  total_outstanding_principal?: Maybe<OrderBy>;
+  total_principal_in_requested_state?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "bank_financial_summaries" */
+export type BankFinancialSummariesPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "bank_financial_summaries" */
+export enum BankFinancialSummariesSelectColumn {
+  /** column name */
+  AvailableLimit = "available_limit",
+  /** column name */
+  Date = "date",
+  /** column name */
+  Id = "id",
+  /** column name */
+  ProductType = "product_type",
+  /** column name */
+  TotalLimit = "total_limit",
+  /** column name */
+  TotalOutstandingInterest = "total_outstanding_interest",
+  /** column name */
+  TotalOutstandingPrincipal = "total_outstanding_principal",
+  /** column name */
+  TotalPrincipalInRequestedState = "total_principal_in_requested_state",
+}
+
+/** input type for updating data in table "bank_financial_summaries" */
+export type BankFinancialSummariesSetInput = {
+  available_limit?: Maybe<Scalars["numeric"]>;
+  date?: Maybe<Scalars["date"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  product_type?: Maybe<Scalars["String"]>;
+  total_limit?: Maybe<Scalars["numeric"]>;
+  total_outstanding_interest?: Maybe<Scalars["numeric"]>;
+  total_outstanding_principal?: Maybe<Scalars["numeric"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["numeric"]>;
+};
+
+/** aggregate stddev on columns */
+export type BankFinancialSummariesStddevFields = {
+  available_limit?: Maybe<Scalars["Float"]>;
+  total_limit?: Maybe<Scalars["Float"]>;
+  total_outstanding_interest?: Maybe<Scalars["Float"]>;
+  total_outstanding_principal?: Maybe<Scalars["Float"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev() on columns of table "bank_financial_summaries" */
+export type BankFinancialSummariesStddevOrderBy = {
+  available_limit?: Maybe<OrderBy>;
+  total_limit?: Maybe<OrderBy>;
+  total_outstanding_interest?: Maybe<OrderBy>;
+  total_outstanding_principal?: Maybe<OrderBy>;
+  total_principal_in_requested_state?: Maybe<OrderBy>;
+};
+
+/** aggregate stddev_pop on columns */
+export type BankFinancialSummariesStddevPopFields = {
+  available_limit?: Maybe<Scalars["Float"]>;
+  total_limit?: Maybe<Scalars["Float"]>;
+  total_outstanding_interest?: Maybe<Scalars["Float"]>;
+  total_outstanding_principal?: Maybe<Scalars["Float"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev_pop() on columns of table "bank_financial_summaries" */
+export type BankFinancialSummariesStddevPopOrderBy = {
+  available_limit?: Maybe<OrderBy>;
+  total_limit?: Maybe<OrderBy>;
+  total_outstanding_interest?: Maybe<OrderBy>;
+  total_outstanding_principal?: Maybe<OrderBy>;
+  total_principal_in_requested_state?: Maybe<OrderBy>;
+};
+
+/** aggregate stddev_samp on columns */
+export type BankFinancialSummariesStddevSampFields = {
+  available_limit?: Maybe<Scalars["Float"]>;
+  total_limit?: Maybe<Scalars["Float"]>;
+  total_outstanding_interest?: Maybe<Scalars["Float"]>;
+  total_outstanding_principal?: Maybe<Scalars["Float"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev_samp() on columns of table "bank_financial_summaries" */
+export type BankFinancialSummariesStddevSampOrderBy = {
+  available_limit?: Maybe<OrderBy>;
+  total_limit?: Maybe<OrderBy>;
+  total_outstanding_interest?: Maybe<OrderBy>;
+  total_outstanding_principal?: Maybe<OrderBy>;
+  total_principal_in_requested_state?: Maybe<OrderBy>;
+};
+
+/** aggregate sum on columns */
+export type BankFinancialSummariesSumFields = {
+  available_limit?: Maybe<Scalars["numeric"]>;
+  total_limit?: Maybe<Scalars["numeric"]>;
+  total_outstanding_interest?: Maybe<Scalars["numeric"]>;
+  total_outstanding_principal?: Maybe<Scalars["numeric"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["numeric"]>;
+};
+
+/** order by sum() on columns of table "bank_financial_summaries" */
+export type BankFinancialSummariesSumOrderBy = {
+  available_limit?: Maybe<OrderBy>;
+  total_limit?: Maybe<OrderBy>;
+  total_outstanding_interest?: Maybe<OrderBy>;
+  total_outstanding_principal?: Maybe<OrderBy>;
+  total_principal_in_requested_state?: Maybe<OrderBy>;
+};
+
+/** update columns of table "bank_financial_summaries" */
+export enum BankFinancialSummariesUpdateColumn {
+  /** column name */
+  AvailableLimit = "available_limit",
+  /** column name */
+  Date = "date",
+  /** column name */
+  Id = "id",
+  /** column name */
+  ProductType = "product_type",
+  /** column name */
+  TotalLimit = "total_limit",
+  /** column name */
+  TotalOutstandingInterest = "total_outstanding_interest",
+  /** column name */
+  TotalOutstandingPrincipal = "total_outstanding_principal",
+  /** column name */
+  TotalPrincipalInRequestedState = "total_principal_in_requested_state",
+}
+
+/** aggregate var_pop on columns */
+export type BankFinancialSummariesVarPopFields = {
+  available_limit?: Maybe<Scalars["Float"]>;
+  total_limit?: Maybe<Scalars["Float"]>;
+  total_outstanding_interest?: Maybe<Scalars["Float"]>;
+  total_outstanding_principal?: Maybe<Scalars["Float"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["Float"]>;
+};
+
+/** order by var_pop() on columns of table "bank_financial_summaries" */
+export type BankFinancialSummariesVarPopOrderBy = {
+  available_limit?: Maybe<OrderBy>;
+  total_limit?: Maybe<OrderBy>;
+  total_outstanding_interest?: Maybe<OrderBy>;
+  total_outstanding_principal?: Maybe<OrderBy>;
+  total_principal_in_requested_state?: Maybe<OrderBy>;
+};
+
+/** aggregate var_samp on columns */
+export type BankFinancialSummariesVarSampFields = {
+  available_limit?: Maybe<Scalars["Float"]>;
+  total_limit?: Maybe<Scalars["Float"]>;
+  total_outstanding_interest?: Maybe<Scalars["Float"]>;
+  total_outstanding_principal?: Maybe<Scalars["Float"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["Float"]>;
+};
+
+/** order by var_samp() on columns of table "bank_financial_summaries" */
+export type BankFinancialSummariesVarSampOrderBy = {
+  available_limit?: Maybe<OrderBy>;
+  total_limit?: Maybe<OrderBy>;
+  total_outstanding_interest?: Maybe<OrderBy>;
+  total_outstanding_principal?: Maybe<OrderBy>;
+  total_principal_in_requested_state?: Maybe<OrderBy>;
+};
+
+/** aggregate variance on columns */
+export type BankFinancialSummariesVarianceFields = {
+  available_limit?: Maybe<Scalars["Float"]>;
+  total_limit?: Maybe<Scalars["Float"]>;
+  total_outstanding_interest?: Maybe<Scalars["Float"]>;
+  total_outstanding_principal?: Maybe<Scalars["Float"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["Float"]>;
+};
+
+/** order by variance() on columns of table "bank_financial_summaries" */
+export type BankFinancialSummariesVarianceOrderBy = {
+  available_limit?: Maybe<OrderBy>;
+  total_limit?: Maybe<OrderBy>;
+  total_outstanding_interest?: Maybe<OrderBy>;
+  total_outstanding_principal?: Maybe<OrderBy>;
+  total_principal_in_requested_state?: Maybe<OrderBy>;
+};
+
 /** expression to compare columns of type bigint. All fields are combined with logical 'AND'. */
 export type BigintComparisonExp = {
   _eq?: Maybe<Scalars["bigint"]>;
@@ -477,6 +866,8 @@ export type Companies = {
   created_at: Scalars["timestamptz"];
   dba_name?: Maybe<Scalars["String"]>;
   employer_identification_number?: Maybe<Scalars["String"]>;
+  /** An object relationship */
+  financial_summary?: Maybe<FinancialSummaries>;
   id: Scalars["uuid"];
   is_vendor: Scalars["Boolean"];
   /** An array relationship */
@@ -720,6 +1111,7 @@ export type CompaniesBoolExp = {
   created_at?: Maybe<TimestamptzComparisonExp>;
   dba_name?: Maybe<StringComparisonExp>;
   employer_identification_number?: Maybe<StringComparisonExp>;
+  financial_summary?: Maybe<FinancialSummariesBoolExp>;
   id?: Maybe<UuidComparisonExp>;
   is_vendor?: Maybe<BooleanComparisonExp>;
   licenses?: Maybe<CompanyLicensesBoolExp>;
@@ -756,6 +1148,7 @@ export type CompaniesInsertInput = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   dba_name?: Maybe<Scalars["String"]>;
   employer_identification_number?: Maybe<Scalars["String"]>;
+  financial_summary?: Maybe<FinancialSummariesObjRelInsertInput>;
   id?: Maybe<Scalars["uuid"]>;
   is_vendor?: Maybe<Scalars["Boolean"]>;
   licenses?: Maybe<CompanyLicensesArrRelInsertInput>;
@@ -879,6 +1272,7 @@ export type CompaniesOrderBy = {
   created_at?: Maybe<OrderBy>;
   dba_name?: Maybe<OrderBy>;
   employer_identification_number?: Maybe<OrderBy>;
+  financial_summary?: Maybe<FinancialSummariesOrderBy>;
   id?: Maybe<OrderBy>;
   is_vendor?: Maybe<OrderBy>;
   licenses_aggregate?: Maybe<CompanyLicensesAggregateOrderBy>;
@@ -3162,6 +3556,384 @@ export type FilesVarianceOrderBy = {
   size?: Maybe<OrderBy>;
 };
 
+/** columns and relationships of "financial_summaries" */
+export type FinancialSummaries = {
+  available_limit: Scalars["numeric"];
+  /** An object relationship */
+  company: Companies;
+  company_id: Scalars["uuid"];
+  id: Scalars["uuid"];
+  total_limit: Scalars["numeric"];
+  total_outstanding_interest: Scalars["numeric"];
+  total_outstanding_principal: Scalars["numeric"];
+  total_principal_in_requested_state: Scalars["numeric"];
+};
+
+/** aggregated selection of "financial_summaries" */
+export type FinancialSummariesAggregate = {
+  aggregate?: Maybe<FinancialSummariesAggregateFields>;
+  nodes: Array<FinancialSummaries>;
+};
+
+/** aggregate fields of "financial_summaries" */
+export type FinancialSummariesAggregateFields = {
+  avg?: Maybe<FinancialSummariesAvgFields>;
+  count?: Maybe<Scalars["Int"]>;
+  max?: Maybe<FinancialSummariesMaxFields>;
+  min?: Maybe<FinancialSummariesMinFields>;
+  stddev?: Maybe<FinancialSummariesStddevFields>;
+  stddev_pop?: Maybe<FinancialSummariesStddevPopFields>;
+  stddev_samp?: Maybe<FinancialSummariesStddevSampFields>;
+  sum?: Maybe<FinancialSummariesSumFields>;
+  var_pop?: Maybe<FinancialSummariesVarPopFields>;
+  var_samp?: Maybe<FinancialSummariesVarSampFields>;
+  variance?: Maybe<FinancialSummariesVarianceFields>;
+};
+
+/** aggregate fields of "financial_summaries" */
+export type FinancialSummariesAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<FinancialSummariesSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** order by aggregate values of table "financial_summaries" */
+export type FinancialSummariesAggregateOrderBy = {
+  avg?: Maybe<FinancialSummariesAvgOrderBy>;
+  count?: Maybe<OrderBy>;
+  max?: Maybe<FinancialSummariesMaxOrderBy>;
+  min?: Maybe<FinancialSummariesMinOrderBy>;
+  stddev?: Maybe<FinancialSummariesStddevOrderBy>;
+  stddev_pop?: Maybe<FinancialSummariesStddevPopOrderBy>;
+  stddev_samp?: Maybe<FinancialSummariesStddevSampOrderBy>;
+  sum?: Maybe<FinancialSummariesSumOrderBy>;
+  var_pop?: Maybe<FinancialSummariesVarPopOrderBy>;
+  var_samp?: Maybe<FinancialSummariesVarSampOrderBy>;
+  variance?: Maybe<FinancialSummariesVarianceOrderBy>;
+};
+
+/** input type for inserting array relation for remote table "financial_summaries" */
+export type FinancialSummariesArrRelInsertInput = {
+  data: Array<FinancialSummariesInsertInput>;
+  on_conflict?: Maybe<FinancialSummariesOnConflict>;
+};
+
+/** aggregate avg on columns */
+export type FinancialSummariesAvgFields = {
+  available_limit?: Maybe<Scalars["Float"]>;
+  total_limit?: Maybe<Scalars["Float"]>;
+  total_outstanding_interest?: Maybe<Scalars["Float"]>;
+  total_outstanding_principal?: Maybe<Scalars["Float"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["Float"]>;
+};
+
+/** order by avg() on columns of table "financial_summaries" */
+export type FinancialSummariesAvgOrderBy = {
+  available_limit?: Maybe<OrderBy>;
+  total_limit?: Maybe<OrderBy>;
+  total_outstanding_interest?: Maybe<OrderBy>;
+  total_outstanding_principal?: Maybe<OrderBy>;
+  total_principal_in_requested_state?: Maybe<OrderBy>;
+};
+
+/** Boolean expression to filter rows from the table "financial_summaries". All fields are combined with a logical 'AND'. */
+export type FinancialSummariesBoolExp = {
+  _and?: Maybe<Array<Maybe<FinancialSummariesBoolExp>>>;
+  _not?: Maybe<FinancialSummariesBoolExp>;
+  _or?: Maybe<Array<Maybe<FinancialSummariesBoolExp>>>;
+  available_limit?: Maybe<NumericComparisonExp>;
+  company?: Maybe<CompaniesBoolExp>;
+  company_id?: Maybe<UuidComparisonExp>;
+  id?: Maybe<UuidComparisonExp>;
+  total_limit?: Maybe<NumericComparisonExp>;
+  total_outstanding_interest?: Maybe<NumericComparisonExp>;
+  total_outstanding_principal?: Maybe<NumericComparisonExp>;
+  total_principal_in_requested_state?: Maybe<NumericComparisonExp>;
+};
+
+/** unique or primary key constraints on table "financial_summaries" */
+export enum FinancialSummariesConstraint {
+  /** unique or primary key constraint */
+  FinancialSummariesCompanyIdKey = "financial_summaries_company_id_key",
+  /** unique or primary key constraint */
+  FinancialSummariesPkey = "financial_summaries_pkey",
+}
+
+/** input type for incrementing integer column in table "financial_summaries" */
+export type FinancialSummariesIncInput = {
+  available_limit?: Maybe<Scalars["numeric"]>;
+  total_limit?: Maybe<Scalars["numeric"]>;
+  total_outstanding_interest?: Maybe<Scalars["numeric"]>;
+  total_outstanding_principal?: Maybe<Scalars["numeric"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["numeric"]>;
+};
+
+/** input type for inserting data into table "financial_summaries" */
+export type FinancialSummariesInsertInput = {
+  available_limit?: Maybe<Scalars["numeric"]>;
+  company?: Maybe<CompaniesObjRelInsertInput>;
+  company_id?: Maybe<Scalars["uuid"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  total_limit?: Maybe<Scalars["numeric"]>;
+  total_outstanding_interest?: Maybe<Scalars["numeric"]>;
+  total_outstanding_principal?: Maybe<Scalars["numeric"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["numeric"]>;
+};
+
+/** aggregate max on columns */
+export type FinancialSummariesMaxFields = {
+  available_limit?: Maybe<Scalars["numeric"]>;
+  company_id?: Maybe<Scalars["uuid"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  total_limit?: Maybe<Scalars["numeric"]>;
+  total_outstanding_interest?: Maybe<Scalars["numeric"]>;
+  total_outstanding_principal?: Maybe<Scalars["numeric"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["numeric"]>;
+};
+
+/** order by max() on columns of table "financial_summaries" */
+export type FinancialSummariesMaxOrderBy = {
+  available_limit?: Maybe<OrderBy>;
+  company_id?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  total_limit?: Maybe<OrderBy>;
+  total_outstanding_interest?: Maybe<OrderBy>;
+  total_outstanding_principal?: Maybe<OrderBy>;
+  total_principal_in_requested_state?: Maybe<OrderBy>;
+};
+
+/** aggregate min on columns */
+export type FinancialSummariesMinFields = {
+  available_limit?: Maybe<Scalars["numeric"]>;
+  company_id?: Maybe<Scalars["uuid"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  total_limit?: Maybe<Scalars["numeric"]>;
+  total_outstanding_interest?: Maybe<Scalars["numeric"]>;
+  total_outstanding_principal?: Maybe<Scalars["numeric"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["numeric"]>;
+};
+
+/** order by min() on columns of table "financial_summaries" */
+export type FinancialSummariesMinOrderBy = {
+  available_limit?: Maybe<OrderBy>;
+  company_id?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  total_limit?: Maybe<OrderBy>;
+  total_outstanding_interest?: Maybe<OrderBy>;
+  total_outstanding_principal?: Maybe<OrderBy>;
+  total_principal_in_requested_state?: Maybe<OrderBy>;
+};
+
+/** response of any mutation on the table "financial_summaries" */
+export type FinancialSummariesMutationResponse = {
+  /** number of affected rows by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data of the affected rows by the mutation */
+  returning: Array<FinancialSummaries>;
+};
+
+/** input type for inserting object relation for remote table "financial_summaries" */
+export type FinancialSummariesObjRelInsertInput = {
+  data: FinancialSummariesInsertInput;
+  on_conflict?: Maybe<FinancialSummariesOnConflict>;
+};
+
+/** on conflict condition type for table "financial_summaries" */
+export type FinancialSummariesOnConflict = {
+  constraint: FinancialSummariesConstraint;
+  update_columns: Array<FinancialSummariesUpdateColumn>;
+  where?: Maybe<FinancialSummariesBoolExp>;
+};
+
+/** ordering options when selecting data from "financial_summaries" */
+export type FinancialSummariesOrderBy = {
+  available_limit?: Maybe<OrderBy>;
+  company?: Maybe<CompaniesOrderBy>;
+  company_id?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  total_limit?: Maybe<OrderBy>;
+  total_outstanding_interest?: Maybe<OrderBy>;
+  total_outstanding_principal?: Maybe<OrderBy>;
+  total_principal_in_requested_state?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "financial_summaries" */
+export type FinancialSummariesPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "financial_summaries" */
+export enum FinancialSummariesSelectColumn {
+  /** column name */
+  AvailableLimit = "available_limit",
+  /** column name */
+  CompanyId = "company_id",
+  /** column name */
+  Id = "id",
+  /** column name */
+  TotalLimit = "total_limit",
+  /** column name */
+  TotalOutstandingInterest = "total_outstanding_interest",
+  /** column name */
+  TotalOutstandingPrincipal = "total_outstanding_principal",
+  /** column name */
+  TotalPrincipalInRequestedState = "total_principal_in_requested_state",
+}
+
+/** input type for updating data in table "financial_summaries" */
+export type FinancialSummariesSetInput = {
+  available_limit?: Maybe<Scalars["numeric"]>;
+  company_id?: Maybe<Scalars["uuid"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  total_limit?: Maybe<Scalars["numeric"]>;
+  total_outstanding_interest?: Maybe<Scalars["numeric"]>;
+  total_outstanding_principal?: Maybe<Scalars["numeric"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["numeric"]>;
+};
+
+/** aggregate stddev on columns */
+export type FinancialSummariesStddevFields = {
+  available_limit?: Maybe<Scalars["Float"]>;
+  total_limit?: Maybe<Scalars["Float"]>;
+  total_outstanding_interest?: Maybe<Scalars["Float"]>;
+  total_outstanding_principal?: Maybe<Scalars["Float"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev() on columns of table "financial_summaries" */
+export type FinancialSummariesStddevOrderBy = {
+  available_limit?: Maybe<OrderBy>;
+  total_limit?: Maybe<OrderBy>;
+  total_outstanding_interest?: Maybe<OrderBy>;
+  total_outstanding_principal?: Maybe<OrderBy>;
+  total_principal_in_requested_state?: Maybe<OrderBy>;
+};
+
+/** aggregate stddev_pop on columns */
+export type FinancialSummariesStddevPopFields = {
+  available_limit?: Maybe<Scalars["Float"]>;
+  total_limit?: Maybe<Scalars["Float"]>;
+  total_outstanding_interest?: Maybe<Scalars["Float"]>;
+  total_outstanding_principal?: Maybe<Scalars["Float"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev_pop() on columns of table "financial_summaries" */
+export type FinancialSummariesStddevPopOrderBy = {
+  available_limit?: Maybe<OrderBy>;
+  total_limit?: Maybe<OrderBy>;
+  total_outstanding_interest?: Maybe<OrderBy>;
+  total_outstanding_principal?: Maybe<OrderBy>;
+  total_principal_in_requested_state?: Maybe<OrderBy>;
+};
+
+/** aggregate stddev_samp on columns */
+export type FinancialSummariesStddevSampFields = {
+  available_limit?: Maybe<Scalars["Float"]>;
+  total_limit?: Maybe<Scalars["Float"]>;
+  total_outstanding_interest?: Maybe<Scalars["Float"]>;
+  total_outstanding_principal?: Maybe<Scalars["Float"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev_samp() on columns of table "financial_summaries" */
+export type FinancialSummariesStddevSampOrderBy = {
+  available_limit?: Maybe<OrderBy>;
+  total_limit?: Maybe<OrderBy>;
+  total_outstanding_interest?: Maybe<OrderBy>;
+  total_outstanding_principal?: Maybe<OrderBy>;
+  total_principal_in_requested_state?: Maybe<OrderBy>;
+};
+
+/** aggregate sum on columns */
+export type FinancialSummariesSumFields = {
+  available_limit?: Maybe<Scalars["numeric"]>;
+  total_limit?: Maybe<Scalars["numeric"]>;
+  total_outstanding_interest?: Maybe<Scalars["numeric"]>;
+  total_outstanding_principal?: Maybe<Scalars["numeric"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["numeric"]>;
+};
+
+/** order by sum() on columns of table "financial_summaries" */
+export type FinancialSummariesSumOrderBy = {
+  available_limit?: Maybe<OrderBy>;
+  total_limit?: Maybe<OrderBy>;
+  total_outstanding_interest?: Maybe<OrderBy>;
+  total_outstanding_principal?: Maybe<OrderBy>;
+  total_principal_in_requested_state?: Maybe<OrderBy>;
+};
+
+/** update columns of table "financial_summaries" */
+export enum FinancialSummariesUpdateColumn {
+  /** column name */
+  AvailableLimit = "available_limit",
+  /** column name */
+  CompanyId = "company_id",
+  /** column name */
+  Id = "id",
+  /** column name */
+  TotalLimit = "total_limit",
+  /** column name */
+  TotalOutstandingInterest = "total_outstanding_interest",
+  /** column name */
+  TotalOutstandingPrincipal = "total_outstanding_principal",
+  /** column name */
+  TotalPrincipalInRequestedState = "total_principal_in_requested_state",
+}
+
+/** aggregate var_pop on columns */
+export type FinancialSummariesVarPopFields = {
+  available_limit?: Maybe<Scalars["Float"]>;
+  total_limit?: Maybe<Scalars["Float"]>;
+  total_outstanding_interest?: Maybe<Scalars["Float"]>;
+  total_outstanding_principal?: Maybe<Scalars["Float"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["Float"]>;
+};
+
+/** order by var_pop() on columns of table "financial_summaries" */
+export type FinancialSummariesVarPopOrderBy = {
+  available_limit?: Maybe<OrderBy>;
+  total_limit?: Maybe<OrderBy>;
+  total_outstanding_interest?: Maybe<OrderBy>;
+  total_outstanding_principal?: Maybe<OrderBy>;
+  total_principal_in_requested_state?: Maybe<OrderBy>;
+};
+
+/** aggregate var_samp on columns */
+export type FinancialSummariesVarSampFields = {
+  available_limit?: Maybe<Scalars["Float"]>;
+  total_limit?: Maybe<Scalars["Float"]>;
+  total_outstanding_interest?: Maybe<Scalars["Float"]>;
+  total_outstanding_principal?: Maybe<Scalars["Float"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["Float"]>;
+};
+
+/** order by var_samp() on columns of table "financial_summaries" */
+export type FinancialSummariesVarSampOrderBy = {
+  available_limit?: Maybe<OrderBy>;
+  total_limit?: Maybe<OrderBy>;
+  total_outstanding_interest?: Maybe<OrderBy>;
+  total_outstanding_principal?: Maybe<OrderBy>;
+  total_principal_in_requested_state?: Maybe<OrderBy>;
+};
+
+/** aggregate variance on columns */
+export type FinancialSummariesVarianceFields = {
+  available_limit?: Maybe<Scalars["Float"]>;
+  total_limit?: Maybe<Scalars["Float"]>;
+  total_outstanding_interest?: Maybe<Scalars["Float"]>;
+  total_outstanding_principal?: Maybe<Scalars["Float"]>;
+  total_principal_in_requested_state?: Maybe<Scalars["Float"]>;
+};
+
+/** order by variance() on columns of table "financial_summaries" */
+export type FinancialSummariesVarianceOrderBy = {
+  available_limit?: Maybe<OrderBy>;
+  total_limit?: Maybe<OrderBy>;
+  total_outstanding_interest?: Maybe<OrderBy>;
+  total_outstanding_principal?: Maybe<OrderBy>;
+  total_principal_in_requested_state?: Maybe<OrderBy>;
+};
+
 /** expression to compare columns of type json. All fields are combined with logical 'AND'. */
 export type JsonComparisonExp = {
   _eq?: Maybe<Scalars["json"]>;
@@ -3735,6 +4507,7 @@ export type Loans = {
   modified_at?: Maybe<Scalars["timestamptz"]>;
   modified_by_user_id?: Maybe<Scalars["uuid"]>;
   notes?: Maybe<Scalars["String"]>;
+  /** This is the settlement date of the advance that is used to pay out this loan */
   origination_date?: Maybe<Scalars["date"]>;
   outstanding_fees?: Maybe<Scalars["numeric"]>;
   outstanding_interest?: Maybe<Scalars["numeric"]>;
@@ -3746,6 +4519,8 @@ export type Loans = {
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
+  /** When the user first requests a loan, they request what day they want the payment to be made to them */
+  requested_payment_date?: Maybe<Scalars["date"]>;
   status: LoanStatusEnum;
 };
 
@@ -3845,6 +4620,7 @@ export type LoansBoolExp = {
   rejection_note?: Maybe<StringComparisonExp>;
   requested_at?: Maybe<TimestamptzComparisonExp>;
   requested_by_user_id?: Maybe<UuidComparisonExp>;
+  requested_payment_date?: Maybe<DateComparisonExp>;
   status?: Maybe<LoanStatusEnumComparisonExp>;
 };
 
@@ -3891,6 +4667,7 @@ export type LoansInsertInput = {
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
+  requested_payment_date?: Maybe<Scalars["date"]>;
   status?: Maybe<LoanStatusEnum>;
 };
 
@@ -3919,6 +4696,7 @@ export type LoansMaxFields = {
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
+  requested_payment_date?: Maybe<Scalars["date"]>;
 };
 
 /** order by max() on columns of table "loans" */
@@ -3946,6 +4724,7 @@ export type LoansMaxOrderBy = {
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
+  requested_payment_date?: Maybe<OrderBy>;
 };
 
 /** aggregate min on columns */
@@ -3973,6 +4752,7 @@ export type LoansMinFields = {
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
+  requested_payment_date?: Maybe<Scalars["date"]>;
 };
 
 /** order by min() on columns of table "loans" */
@@ -4000,6 +4780,7 @@ export type LoansMinOrderBy = {
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
+  requested_payment_date?: Maybe<OrderBy>;
 };
 
 /** response of any mutation on the table "loans" */
@@ -4052,6 +4833,7 @@ export type LoansOrderBy = {
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
+  requested_payment_date?: Maybe<OrderBy>;
   status?: Maybe<OrderBy>;
 };
 
@@ -4111,6 +4893,8 @@ export enum LoansSelectColumn {
   /** column name */
   RequestedByUserId = "requested_by_user_id",
   /** column name */
+  RequestedPaymentDate = "requested_payment_date",
+  /** column name */
   Status = "status",
 }
 
@@ -4140,6 +4924,7 @@ export type LoansSetInput = {
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
+  requested_payment_date?: Maybe<Scalars["date"]>;
   status?: Maybe<LoanStatusEnum>;
 };
 
@@ -4258,6 +5043,8 @@ export enum LoansUpdateColumn {
   /** column name */
   RequestedByUserId = "requested_by_user_id",
   /** column name */
+  RequestedPaymentDate = "requested_payment_date",
+  /** column name */
   Status = "status",
 }
 
@@ -4315,6 +5102,10 @@ export type MutationRoot = {
   delete_bank_accounts?: Maybe<BankAccountsMutationResponse>;
   /** delete single row from the table: "bank_accounts" */
   delete_bank_accounts_by_pk?: Maybe<BankAccounts>;
+  /** delete data from the table: "bank_financial_summaries" */
+  delete_bank_financial_summaries?: Maybe<BankFinancialSummariesMutationResponse>;
+  /** delete single row from the table: "bank_financial_summaries" */
+  delete_bank_financial_summaries_by_pk?: Maybe<BankFinancialSummaries>;
   /** delete data from the table: "companies" */
   delete_companies?: Maybe<CompaniesMutationResponse>;
   /** delete single row from the table: "companies" */
@@ -4351,6 +5142,10 @@ export type MutationRoot = {
   delete_files?: Maybe<FilesMutationResponse>;
   /** delete single row from the table: "files" */
   delete_files_by_pk?: Maybe<Files>;
+  /** delete data from the table: "financial_summaries" */
+  delete_financial_summaries?: Maybe<FinancialSummariesMutationResponse>;
+  /** delete single row from the table: "financial_summaries" */
+  delete_financial_summaries_by_pk?: Maybe<FinancialSummaries>;
   /** delete data from the table: "line_of_credits" */
   delete_line_of_credits?: Maybe<LineOfCreditsMutationResponse>;
   /** delete single row from the table: "line_of_credits" */
@@ -4419,6 +5214,10 @@ export type MutationRoot = {
   insert_bank_accounts?: Maybe<BankAccountsMutationResponse>;
   /** insert a single row into the table: "bank_accounts" */
   insert_bank_accounts_one?: Maybe<BankAccounts>;
+  /** insert data into the table: "bank_financial_summaries" */
+  insert_bank_financial_summaries?: Maybe<BankFinancialSummariesMutationResponse>;
+  /** insert a single row into the table: "bank_financial_summaries" */
+  insert_bank_financial_summaries_one?: Maybe<BankFinancialSummaries>;
   /** insert data into the table: "companies" */
   insert_companies?: Maybe<CompaniesMutationResponse>;
   /** insert a single row into the table: "companies" */
@@ -4455,6 +5254,10 @@ export type MutationRoot = {
   insert_files?: Maybe<FilesMutationResponse>;
   /** insert a single row into the table: "files" */
   insert_files_one?: Maybe<Files>;
+  /** insert data into the table: "financial_summaries" */
+  insert_financial_summaries?: Maybe<FinancialSummariesMutationResponse>;
+  /** insert a single row into the table: "financial_summaries" */
+  insert_financial_summaries_one?: Maybe<FinancialSummaries>;
   /** insert data into the table: "line_of_credits" */
   insert_line_of_credits?: Maybe<LineOfCreditsMutationResponse>;
   /** insert a single row into the table: "line_of_credits" */
@@ -4527,6 +5330,10 @@ export type MutationRoot = {
   update_bank_accounts?: Maybe<BankAccountsMutationResponse>;
   /** update single row of the table: "bank_accounts" */
   update_bank_accounts_by_pk?: Maybe<BankAccounts>;
+  /** update data of the table: "bank_financial_summaries" */
+  update_bank_financial_summaries?: Maybe<BankFinancialSummariesMutationResponse>;
+  /** update single row of the table: "bank_financial_summaries" */
+  update_bank_financial_summaries_by_pk?: Maybe<BankFinancialSummaries>;
   /** update data of the table: "companies" */
   update_companies?: Maybe<CompaniesMutationResponse>;
   /** update single row of the table: "companies" */
@@ -4563,6 +5370,10 @@ export type MutationRoot = {
   update_files?: Maybe<FilesMutationResponse>;
   /** update single row of the table: "files" */
   update_files_by_pk?: Maybe<Files>;
+  /** update data of the table: "financial_summaries" */
+  update_financial_summaries?: Maybe<FinancialSummariesMutationResponse>;
+  /** update single row of the table: "financial_summaries" */
+  update_financial_summaries_by_pk?: Maybe<FinancialSummaries>;
   /** update data of the table: "line_of_credits" */
   update_line_of_credits?: Maybe<LineOfCreditsMutationResponse>;
   /** update single row of the table: "line_of_credits" */
@@ -4636,6 +5447,16 @@ export type MutationRootDeleteBankAccountsArgs = {
 
 /** mutation root */
 export type MutationRootDeleteBankAccountsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** mutation root */
+export type MutationRootDeleteBankFinancialSummariesArgs = {
+  where: BankFinancialSummariesBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteBankFinancialSummariesByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -4727,6 +5548,16 @@ export type MutationRootDeleteFilesArgs = {
 
 /** mutation root */
 export type MutationRootDeleteFilesByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** mutation root */
+export type MutationRootDeleteFinancialSummariesArgs = {
+  where: FinancialSummariesBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteFinancialSummariesByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -4904,6 +5735,18 @@ export type MutationRootInsertBankAccountsOneArgs = {
 };
 
 /** mutation root */
+export type MutationRootInsertBankFinancialSummariesArgs = {
+  objects: Array<BankFinancialSummariesInsertInput>;
+  on_conflict?: Maybe<BankFinancialSummariesOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertBankFinancialSummariesOneArgs = {
+  object: BankFinancialSummariesInsertInput;
+  on_conflict?: Maybe<BankFinancialSummariesOnConflict>;
+};
+
+/** mutation root */
 export type MutationRootInsertCompaniesArgs = {
   objects: Array<CompaniesInsertInput>;
   on_conflict?: Maybe<CompaniesOnConflict>;
@@ -5009,6 +5852,18 @@ export type MutationRootInsertFilesArgs = {
 export type MutationRootInsertFilesOneArgs = {
   object: FilesInsertInput;
   on_conflict?: Maybe<FilesOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertFinancialSummariesArgs = {
+  objects: Array<FinancialSummariesInsertInput>;
+  on_conflict?: Maybe<FinancialSummariesOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertFinancialSummariesOneArgs = {
+  object: FinancialSummariesInsertInput;
+  on_conflict?: Maybe<FinancialSummariesOnConflict>;
 };
 
 /** mutation root */
@@ -5224,6 +6079,20 @@ export type MutationRootUpdateBankAccountsByPkArgs = {
 };
 
 /** mutation root */
+export type MutationRootUpdateBankFinancialSummariesArgs = {
+  _inc?: Maybe<BankFinancialSummariesIncInput>;
+  _set?: Maybe<BankFinancialSummariesSetInput>;
+  where: BankFinancialSummariesBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateBankFinancialSummariesByPkArgs = {
+  _inc?: Maybe<BankFinancialSummariesIncInput>;
+  _set?: Maybe<BankFinancialSummariesSetInput>;
+  pk_columns: BankFinancialSummariesPkColumnsInput;
+};
+
+/** mutation root */
 export type MutationRootUpdateCompaniesArgs = {
   _set?: Maybe<CompaniesSetInput>;
   where: CompaniesBoolExp;
@@ -5343,6 +6212,20 @@ export type MutationRootUpdateFilesByPkArgs = {
   _inc?: Maybe<FilesIncInput>;
   _set?: Maybe<FilesSetInput>;
   pk_columns: FilesPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateFinancialSummariesArgs = {
+  _inc?: Maybe<FinancialSummariesIncInput>;
+  _set?: Maybe<FinancialSummariesSetInput>;
+  where: FinancialSummariesBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateFinancialSummariesByPkArgs = {
+  _inc?: Maybe<FinancialSummariesIncInput>;
+  _set?: Maybe<FinancialSummariesSetInput>;
+  pk_columns: FinancialSummariesPkColumnsInput;
 };
 
 /** mutation root */
@@ -7503,6 +8386,12 @@ export type QueryRoot = {
   bank_accounts_aggregate: BankAccountsAggregate;
   /** fetch data from the table: "bank_accounts" using primary key columns */
   bank_accounts_by_pk?: Maybe<BankAccounts>;
+  /** fetch data from the table: "bank_financial_summaries" */
+  bank_financial_summaries: Array<BankFinancialSummaries>;
+  /** fetch aggregated fields from the table: "bank_financial_summaries" */
+  bank_financial_summaries_aggregate: BankFinancialSummariesAggregate;
+  /** fetch data from the table: "bank_financial_summaries" using primary key columns */
+  bank_financial_summaries_by_pk?: Maybe<BankFinancialSummaries>;
   /** fetch data from the table: "companies" */
   companies: Array<Companies>;
   /** fetch aggregated fields from the table: "companies" */
@@ -7557,6 +8446,12 @@ export type QueryRoot = {
   files_aggregate: FilesAggregate;
   /** fetch data from the table: "files" using primary key columns */
   files_by_pk?: Maybe<Files>;
+  /** fetch data from the table: "financial_summaries" */
+  financial_summaries: Array<FinancialSummaries>;
+  /** fetch aggregated fields from the table: "financial_summaries" */
+  financial_summaries_aggregate: FinancialSummariesAggregate;
+  /** fetch data from the table: "financial_summaries" using primary key columns */
+  financial_summaries_by_pk?: Maybe<FinancialSummaries>;
   /** fetch data from the table: "line_of_credits" */
   line_of_credits: Array<LineOfCredits>;
   /** fetch aggregated fields from the table: "line_of_credits" */
@@ -7677,6 +8572,29 @@ export type QueryRootBankAccountsAggregateArgs = {
 
 /** query root */
 export type QueryRootBankAccountsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** query root */
+export type QueryRootBankFinancialSummariesArgs = {
+  distinct_on?: Maybe<Array<BankFinancialSummariesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BankFinancialSummariesOrderBy>>;
+  where?: Maybe<BankFinancialSummariesBoolExp>;
+};
+
+/** query root */
+export type QueryRootBankFinancialSummariesAggregateArgs = {
+  distinct_on?: Maybe<Array<BankFinancialSummariesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BankFinancialSummariesOrderBy>>;
+  where?: Maybe<BankFinancialSummariesBoolExp>;
+};
+
+/** query root */
+export type QueryRootBankFinancialSummariesByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -7885,6 +8803,29 @@ export type QueryRootFilesAggregateArgs = {
 
 /** query root */
 export type QueryRootFilesByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** query root */
+export type QueryRootFinancialSummariesArgs = {
+  distinct_on?: Maybe<Array<FinancialSummariesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<FinancialSummariesOrderBy>>;
+  where?: Maybe<FinancialSummariesBoolExp>;
+};
+
+/** query root */
+export type QueryRootFinancialSummariesAggregateArgs = {
+  distinct_on?: Maybe<Array<FinancialSummariesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<FinancialSummariesOrderBy>>;
+  where?: Maybe<FinancialSummariesBoolExp>;
+};
+
+/** query root */
+export type QueryRootFinancialSummariesByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -8598,6 +9539,12 @@ export type SubscriptionRoot = {
   bank_accounts_aggregate: BankAccountsAggregate;
   /** fetch data from the table: "bank_accounts" using primary key columns */
   bank_accounts_by_pk?: Maybe<BankAccounts>;
+  /** fetch data from the table: "bank_financial_summaries" */
+  bank_financial_summaries: Array<BankFinancialSummaries>;
+  /** fetch aggregated fields from the table: "bank_financial_summaries" */
+  bank_financial_summaries_aggregate: BankFinancialSummariesAggregate;
+  /** fetch data from the table: "bank_financial_summaries" using primary key columns */
+  bank_financial_summaries_by_pk?: Maybe<BankFinancialSummaries>;
   /** fetch data from the table: "companies" */
   companies: Array<Companies>;
   /** fetch aggregated fields from the table: "companies" */
@@ -8652,6 +9599,12 @@ export type SubscriptionRoot = {
   files_aggregate: FilesAggregate;
   /** fetch data from the table: "files" using primary key columns */
   files_by_pk?: Maybe<Files>;
+  /** fetch data from the table: "financial_summaries" */
+  financial_summaries: Array<FinancialSummaries>;
+  /** fetch aggregated fields from the table: "financial_summaries" */
+  financial_summaries_aggregate: FinancialSummariesAggregate;
+  /** fetch data from the table: "financial_summaries" using primary key columns */
+  financial_summaries_by_pk?: Maybe<FinancialSummaries>;
   /** fetch data from the table: "line_of_credits" */
   line_of_credits: Array<LineOfCredits>;
   /** fetch aggregated fields from the table: "line_of_credits" */
@@ -8772,6 +9725,29 @@ export type SubscriptionRootBankAccountsAggregateArgs = {
 
 /** subscription root */
 export type SubscriptionRootBankAccountsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** subscription root */
+export type SubscriptionRootBankFinancialSummariesArgs = {
+  distinct_on?: Maybe<Array<BankFinancialSummariesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BankFinancialSummariesOrderBy>>;
+  where?: Maybe<BankFinancialSummariesBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootBankFinancialSummariesAggregateArgs = {
+  distinct_on?: Maybe<Array<BankFinancialSummariesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BankFinancialSummariesOrderBy>>;
+  where?: Maybe<BankFinancialSummariesBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootBankFinancialSummariesByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -8980,6 +9956,29 @@ export type SubscriptionRootFilesAggregateArgs = {
 
 /** subscription root */
 export type SubscriptionRootFilesByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** subscription root */
+export type SubscriptionRootFinancialSummariesArgs = {
+  distinct_on?: Maybe<Array<FinancialSummariesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<FinancialSummariesOrderBy>>;
+  where?: Maybe<FinancialSummariesBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootFinancialSummariesAggregateArgs = {
+  distinct_on?: Maybe<Array<FinancialSummariesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<FinancialSummariesOrderBy>>;
+  where?: Maybe<FinancialSummariesBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootFinancialSummariesByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -9413,7 +10412,7 @@ export type Transactions = {
   to_fees: Scalars["numeric"];
   to_interest: Scalars["numeric"];
   to_principal: Scalars["numeric"];
-  type?: Maybe<Scalars["String"]>;
+  type: Scalars["String"];
 };
 
 /** aggregated selection of "transactions" */
@@ -11307,6 +12306,7 @@ export type LoanLimitedFragment = Pick<
   | "artifact_id"
   | "status"
   | "amount"
+  | "requested_payment_date"
   | "origination_date"
   | "maturity_date"
   | "adjusted_maturity_date"
@@ -11631,6 +12631,7 @@ export type LoanFragment = Pick<
   | "artifact_id"
   | "status"
   | "amount"
+  | "requested_payment_date"
   | "origination_date"
   | "maturity_date"
   | "adjusted_maturity_date"
@@ -11834,6 +12835,7 @@ export const LoanLimitedFragmentDoc = gql`
     artifact_id
     status
     amount
+    requested_payment_date
     origination_date
     maturity_date
     adjusted_maturity_date
@@ -11998,6 +13000,7 @@ export const LoanFragmentDoc = gql`
     artifact_id
     status
     amount
+    requested_payment_date
     origination_date
     maturity_date
     adjusted_maturity_date
