@@ -96,13 +96,21 @@ def _get_summary_update(
 	if err:
 		return None, err
 
+	total_outstanding_principal = 0.0
+	total_outstanding_interest = 0.0
+	total_principal_in_requested_state = 0.0 # TODO(dlluncor): Calculate
+
+	for l in loan_updates:
+		total_outstanding_principal += l['outstanding_principal']
+		total_outstanding_interest += l['outstanding_interest']
+
 	return SummaryUpdateDict(
 		product_type=product_type,
 		total_limit=maximum_principal_limit,
-		total_outstanding_principal=0.0,
-		total_outstanding_interest=0.0,
-		total_principal_in_requested_state=0.0,
-		available_limit=0.0
+		total_outstanding_principal=total_outstanding_principal,
+		total_outstanding_interest=total_outstanding_interest,
+		total_principal_in_requested_state=total_principal_in_requested_state,
+		available_limit=maximum_principal_limit-total_outstanding_principal
 	), None
 
 def _calculate_loan_balance(

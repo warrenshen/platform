@@ -14,6 +14,26 @@ from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest
 from bespoke_test.db import test_helper
 
+def _make_advance(session: Any, loan: models.Loan, amount: float, effective_date: str) -> None:
+	# Advance is made
+	payment = models.Payment(
+		type=PaymentType.ADVANCE,
+		amount=decimal.Decimal(amount),
+		company_id=loan.company_id
+	)
+	session.add(payment)
+	session.flush()
+	session.add(models.Transaction(
+		type=PaymentType.ADVANCE,
+		amount=decimal.Decimal(amount),
+		loan_id=loan.id,
+		payment_id=payment.id,
+		to_principal=decimal.Decimal(amount),
+		to_interest=decimal.Decimal(0.0),
+		to_fees=decimal.Decimal(0.0),
+		effective_date=date_util.load_date_str(effective_date)
+	))
+
 class TestCalculateLoanBalance(db_unittest.TestCase):
 
 	def _run_test(self, test: Dict) -> None:
@@ -72,7 +92,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
-	def test_success_no_payments_one_loan_not_due_yet(self) -> None:
+	def test_success_no_payments_two_loans_not_due_yet(self) -> None:
 
 		def populate_fn(session: Any, company_id: str) -> None:
 			session.add(models.Contract(
@@ -93,24 +113,16 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				amount=decimal.Decimal(500.03)
 			)
 			session.add(loan)
-			# Advance is made
-			payment = models.Payment(
-				type=PaymentType.ADVANCE,
-				amount=decimal.Decimal(500.03),
-				company_id=company_id
+			_make_advance(session, loan, amount=500.03, effective_date='10/01/2020')
+
+			loan2 = models.Loan(
+				company_id=company_id,
+				origination_date=date_util.load_date_str('10/02/2020'),
+				adjusted_maturity_date=date_util.load_date_str('10/06/2020'),
+				amount=decimal.Decimal(100.03)
 			)
-			session.add(payment)
-			session.flush()
-			session.add(models.Transaction(
-				type=PaymentType.ADVANCE,
-				amount=decimal.Decimal(500.03),
-				loan_id=loan.id,
-				payment_id=payment.id,
-				to_principal=decimal.Decimal(500.03),
-				to_interest=decimal.Decimal(0.0),
-				to_fees=decimal.Decimal(0.0),
-				effective_date=date_util.load_date_str('10/01/2020')
-			))
+			session.add(loan2)
+			_make_advance(session, loan2, amount=100.03, effective_date='10/02/2020')
 
 		tests: List[Dict] = [
 			{
@@ -122,15 +134,21 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal': 500.03,
 						'outstanding_interest': 3 * 0.05 * 500.03, # 10/03 - 10/01 is 2 days apart, +1 day, is 3 days of interest.
 						'outstanding_fees': 0.0
+					},
+					{
+						'adjusted_maturity_date': date_util.load_date_str('10/06/2020'),
+						'outstanding_principal': 100.03,
+						'outstanding_interest': 2 * 0.05 * 100.03, # 10/03 - 10/02 is 1 days apart, +1 day, is 2 days of interest.
+						'outstanding_fees': 0.0
 					}
 				],
 				'expected_summary_update': {
 					'product_type': 'inventory_financing',
 					'total_limit': 120000.01,
-					'total_outstanding_principal': 0.0,
-					'total_outstanding_interest': 0.0,
+					'total_outstanding_principal': 500.03 + 100.03,
+					'total_outstanding_interest': (3 * 0.05 * 500.03) + (2 * 0.05 * 100.03),
 					'total_principal_in_requested_state': 0.0,
-					'available_limit': 0.0
+					'available_limit': 120000.01 - (500.03 + 100.03)
 				}
 			}
 		]

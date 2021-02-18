@@ -245,6 +245,11 @@ def calculate_repayment_effect(
 	else:
 		return None, errors.Error('Unrecognized payment option')
 
+	# TODO(dlluncor): Go ahead and calculate interest and fees on that future date 
+	# (for minimum, maximum and custom) and then also tell the frontend
+	# the before and after considering the additional fees and interest that have
+	# accrued.
+
 	return RepaymentEffectRespDict(
 		status='OK',
 		loans_afterwards=loans_afterwards,
