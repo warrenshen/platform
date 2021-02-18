@@ -1,4 +1,5 @@
 import { Box, Button } from "@material-ui/core";
+import CreateAdvanceModal from "components/Advance/CreateAdvanceModal";
 import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
 import Page from "components/Shared/Page";
 import {
@@ -17,6 +18,10 @@ function LoansAllProductsPage() {
     },
   });
 
+  // State for modal(s).
+  const [isCreateAdvanceModalOpen, setIsCreateAdvanceModalOpen] = useState(
+    false
+  );
   const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
   const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"]>([]);
 
@@ -54,17 +59,47 @@ function LoansAllProductsPage() {
 
   const loans = data?.loans || [];
 
+  const approvalRequestedSelectedLoans = selectedLoans.filter(
+    (loan) => loan.status === LoanStatusEnum.ApprovalRequested
+  );
+  const approvedSelectedLoans = selectedLoans.filter(
+    (loan) => loan.status === LoanStatusEnum.Approved
+  );
+
   return (
     <Page appBarTitle={"Loans - Action Required"}>
       <Box mb={2} display="flex" flexDirection="row-reverse">
-        <Button
-          disabled={selectedLoans.length <= 0}
-          variant="contained"
-          color="primary"
-          onClick={handleApproveLoans}
-        >
-          Approve Loan(s)
-        </Button>
+        {isCreateAdvanceModalOpen && (
+          <CreateAdvanceModal
+            selectedLoans={selectedLoans}
+            handleClose={() => {
+              refetch();
+              setSelectedLoans([]);
+              setSelectedLoanIds([]);
+              setIsCreateAdvanceModalOpen(false);
+            }}
+          />
+        )}
+        <Box>
+          <Button
+            disabled={approvedSelectedLoans.length <= 0}
+            variant="contained"
+            color="primary"
+            onClick={() => setIsCreateAdvanceModalOpen(true)}
+          >
+            Create Advance
+          </Button>
+        </Box>
+        <Box mr={2}>
+          <Button
+            disabled={approvalRequestedSelectedLoans.length <= 0}
+            variant="contained"
+            color="primary"
+            onClick={handleApproveLoans}
+          >
+            Approve Loan(s)
+          </Button>
+        </Box>
       </Box>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <BankLoansDataGrid
