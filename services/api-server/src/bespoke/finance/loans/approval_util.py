@@ -5,7 +5,7 @@ from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
-from bespoke.db.db_constants import (AllLoanTypes, LoanTypeEnum,
+from bespoke.db.db_constants import (ALL_LOAN_TYPES, LoanTypeEnum,
                                      RequestStatusEnum)
 ApproveLoansReqDict = TypedDict('ApproveLoansReqDict', {
 	'loan_ids': List[str],
@@ -80,7 +80,7 @@ def submit_for_approval(loan_id: str, session_maker: Callable) -> Tuple[SubmitFo
 		if not loan:
 			return None, errors.Error('Could not find loan for given Loan ID', details=err_details)
 
-		if loan.loan_type not in AllLoanTypes:
+		if loan.loan_type not in ALL_LOAN_TYPES:
 			return None, errors.Error('Loan type is not valid', details=err_details)
 
 		if not loan.artifact_id:
@@ -92,13 +92,16 @@ def submit_for_approval(loan_id: str, session_maker: Callable) -> Tuple[SubmitFo
 		if loan.amount is None or loan.amount <= 0:
 			return None, errors.Error('Invalid amount', details=err_details)
 
-		if loan.loan_type == LoanTypeEnum.PurchaseOrder:
+		if loan.loan_type == LoanTypeEnum.INVENTORY:
 			purchase_order = cast(
 				models.PurchaseOrder,
 				session.query(models.PurchaseOrder).filter_by(
 					id=loan.artifact_id
 				).first()
 			)
+			if not purchase_order:
+				return None, errors.Error('No purchase order associated with this loan', details=err_details)
+			
 			customer_name = purchase_order.company.name
 
 			# List of other Purchase Order Loans related to same Purchase Order.
@@ -111,25 +114,25 @@ def submit_for_approval(loan_id: str, session_maker: Callable) -> Tuple[SubmitFo
 
 			proposed_loans_total_amount = 0.0
 			for sibling_loan in sibling_loans:
-				if sibling_loan.status in [RequestStatusEnum.APPROVAL_REQUESTED, RequestStatusEnum.APPROVED]:
+				if sibling_loan.status not in [RequestStatusEnum.DRAFTED, RequestStatusEnum.REJECTED]:
 					proposed_loans_total_amount += float(
 						sibling_loan.amount) if sibling_loan.amount else 0
 
 			proposed_loans_total_amount += float(loan.amount)
 
 			if proposed_loans_total_amount > float(purchase_order.amount):
-				return None, errors.Error('Too many loans for same Purchase Order', details=err_details)
+				return None, errors.Error('Requesting this loan puts you over the amount granted for this same Purchase Order', details=err_details)
 
 			loan_html = f"""<ul>
 <li>Loan type: Inventory Financing</li>
 <li>Company: {customer_name}</li>
 <li>Purchase order: {purchase_order.order_number}</li>
-<li>Payment date: {loan.origination_date}</li>
+<li>Request payment date: {loan.requested_payment_date}</li>
 <li>Amount: {loan.amount}</li>
 </ul>
 			"""
 
-		elif loan.loan_type == LoanTypeEnum.LineOfCredit:
+		elif loan.loan_type == LoanTypeEnum.LINE_OF_CREDIT:
 			line_of_credit = cast(
 				models.LineOfCredit,
 				session.query(models.LineOfCredit).filter_by(
@@ -144,7 +147,7 @@ def submit_for_approval(loan_id: str, session_maker: Callable) -> Tuple[SubmitFo
 <li>Company: {customer_name}</li>
 <li>Is credit for vendor?: {"Yes" if line_of_credit.is_credit_for_vendor else "No"} </li>
 <li>Vendor (if appropriate): {receipient_vendor_name}</li>
-<li>Payment date: {loan.origination_date}</li>
+<li>Requested payment date: {loan.requested_payment_date}</li>
 <li>Amount: {loan.amount}</li>
 </ul>
 			"""

@@ -22,7 +22,7 @@ PRODUCT_TYPES = [ProductType.INVENTORY_FINANCING]
 
 # Artifacts
 
-class RequestStatusEnum():
+class RequestStatusEnum(object):
 	APPROVAL_REQUESTED = 'approval_requested'
 	APPROVED = 'approved'
 	DRAFTED = 'drafted'
@@ -39,13 +39,13 @@ class LoanStatusEnum(object):
 	PAST_DUE = 'past_due'
 	REJECTED = 'rejected'
 
-class LoanTypeEnum():
-	LineOfCredit = 'line_of_credit'
-	PurchaseOrder = 'purchase_order'
+class LoanTypeEnum(object):
+	LINE_OF_CREDIT = 'line_of_credit'
+	INVENTORY = 'purchase_order'
 
-AllLoanTypes = [
-	LoanTypeEnum.LineOfCredit,
-	LoanTypeEnum.PurchaseOrder,
+ALL_LOAN_TYPES = [
+	LoanTypeEnum.LINE_OF_CREDIT,
+	LoanTypeEnum.INVENTORY,
 ]
 
 # Payments
