@@ -26,6 +26,7 @@ function PrivateRoute(props: Props & RouteProps) {
   const shouldRender = isSignedIn && canVisitRoute;
 
   const { data } = useCompanyWithDetailsByCompanyIdQuery({
+    skip: !companyId,
     variables: {
       companyId,
     },
@@ -53,10 +54,10 @@ function PrivateRoute(props: Props & RouteProps) {
                 from: canVisitRoute ? location : routes.root,
               },
             }}
-          ></Redirect>
+          />
         )
       }
-    ></Route>
+    />
   );
 }
 
