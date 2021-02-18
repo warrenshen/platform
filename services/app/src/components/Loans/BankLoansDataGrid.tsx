@@ -212,7 +212,7 @@ function BankLoansDataGrid({
   return (
     <ControlledDataGrid
       ref={(ref) => setDataGrid(ref)}
-      filtering={fullView}
+      filtering={{ enable: fullView }}
       pager={fullView}
       select
       pageSize={fullView ? 50 : 5}

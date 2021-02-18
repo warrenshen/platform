@@ -23,13 +23,19 @@ interface DataGridProps {
   selectedRowKeys?: any[]; // can be controlled
   pageIndex?: number; // can be controlled
   pageSize?: number; // can be controlled
+  filtering?: {
+    enable: boolean;
+    filterBy?: { index: number; value: string | number };
+  }; // can be controlled
+  sortBy?: { index: number; order: "asc" | "desc" }; // can be controlled
   pagerSizeSelector?: boolean;
   allowedPageSizes?: number[];
-  filtering?: boolean;
   select?: boolean;
   isSortingDisabled?: boolean;
   onSelectionChanged?: (params: {}) => void; // callback
   onPageChanged?: (page: number) => void; // callback
+  onSortingChanged?: (index: number, order: "asc" | "desc") => void; // callback
+  onFilteringChanged?: (index: number, value: string) => void;
 }
 
 const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
@@ -46,8 +52,11 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
       select,
       selectedRowKeys = [],
       isSortingDisabled = false,
+      sortBy,
       onSelectionChanged,
       onPageChanged,
+      onSortingChanged,
+      onFilteringChanged,
     }: DataGridProps,
     ref
   ) => {
@@ -94,6 +103,14 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
       if (fullName === "paging.pageIndex") {
         setPageIndex(value);
       }
+      if (fullName.endsWith("sortOrder")) {
+        const index = fullName.match(/(?<=\[).+?(?=\])/g)[0];
+        if (onSortingChanged) onSortingChanged(index, value);
+      }
+      if (fullName.endsWith("filterValue")) {
+        const index = fullName.match(/(?<=\[).+?(?=\])/g)[0];
+        if (onFilteringChanged) onFilteringChanged(index, value);
+      }
     };
 
     // Note: it is ok that we use `index` as the key for the <Column>
@@ -109,7 +126,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
         onSelectionChanged={onSelectionChanged}
         onOptionChanged={onOptionChanged}
       >
-        <FilterRow visible={filtering} />
+        <FilterRow visible={filtering?.enable} showOperationChooser={false} />
         {columns.map(
           (
             {
@@ -134,6 +151,15 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
               alignment={alignment}
               cellRender={cellRender}
               lookup={lookup}
+              {...(sortBy &&
+                Object.keys(sortBy).length > 0 &&
+                sortBy?.index === index && { sortOrder: sortBy?.order })}
+              {...(filtering?.enable &&
+                filtering?.filterBy &&
+                Object.keys(filtering?.filterBy).length > 0 &&
+                filtering?.filterBy.index === index && {
+                  filterValue: filtering?.filterBy.value,
+                })}
             />
           )
         )}

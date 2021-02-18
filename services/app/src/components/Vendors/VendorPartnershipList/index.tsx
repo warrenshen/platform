@@ -95,6 +95,16 @@ function VendorPartnershipList({
     },
   ];
 
+  // Example of columns sorting callback
+  const onSortingChanged = (index: number, order: string) => {
+    console.log(index, order);
+  };
+
+  // Example of columns filtering callback
+  const onFilteringChanged = (index: number, value: string) => {
+    console.log(index, value);
+  };
+
   return (
     <>
       {open && currentVendorPartnership && (
@@ -104,7 +114,15 @@ function VendorPartnershipList({
         />
       )}
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-        <ControlledDataGrid dataSource={data} columns={columns} pager />
+        <ControlledDataGrid
+          dataSource={data}
+          onSortingChanged={onSortingChanged}
+          onFilteringChanged={onFilteringChanged}
+          sortBy={{ index: 0, order: "desc" }}
+          filtering={{ enable: true, filterBy: { index: 0, value: "Canna" } }}
+          columns={columns}
+          pager
+        />
       </Box>
     </>
   );
