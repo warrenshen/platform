@@ -3,7 +3,7 @@ project_dir=$(current_dir)/../..
 server_root_dir=$(current_dir)
 
 CUSTOMER_REPORTS_SCRIPT=bespoke/scripts/run_customer_reports.py
-UPDATE_BALANCES_SCRIPT=bespoke/scripts/update_balances.py
+RUN_BALANCES_SCRIPT=bespoke/scripts/run_customer_balances.py
 PYTHONPATH=$(server_root_dir)/src
 
 update-requirements:
@@ -20,8 +20,8 @@ runlocal:
 run-customer-reports:
 	cd src && PYTHONPATH=$(PYTHONPATH) SERVER_ROOT_DIR=$(server_root_dir) python3 $(CUSTOMER_REPORTS_SCRIPT)
 
-update-loan-balances:
-	cd src && PYTHONPATH=$(PYTHONPATH) SERVER_ROOT_DIR=$(server_root_dir) python3 $(UPDATE_BALANCES_SCRIPT)
+run-customer-balances:
+	cd src && PYTHONPATH=$(PYTHONPATH) SERVER_ROOT_DIR=$(server_root_dir) python3 $(RUN_BALANCES_SCRIPT)
 
 # For testing
 
@@ -37,7 +37,7 @@ mypy:
 	MYPYPATH=stubs mypy src/bespoke/db/main.py --config-file=mypy.ini
 	MYPYPATH=stubs mypy src/manage.py --config-file=mypy.ini
 	MYPYPATH=stubs mypy src/$(CUSTOMER_REPORTS_SCRIPT) --config-file=mypy.ini
-	MYPYPATH=stubs mypy src/$(UPDATE_BALANCES_SCRIPT) --config-file=mypy.ini
+	MYPYPATH=stubs mypy src/$(RUN_BALANCES_SCRIPT) --config-file=mypy.ini
 
 mypy-tests:
 	MYPYPATH=stubs:$(PYTHONPATH) mypy test/unit --config-file=mypy.ini

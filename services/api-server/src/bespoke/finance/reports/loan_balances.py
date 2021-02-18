@@ -29,12 +29,26 @@ from bespoke.finance.payments import payment_util
 from bespoke.finance.types import per_customer_types
 from bespoke.finance.fetchers import per_customer_fetcher
 
-UpdateDict = TypedDict('UpdateDict', {
+LoanUpdateDict = TypedDict('LoanUpdateDict', {
 	'loan_id': str,
 	'adjusted_maturity_date': datetime.date,
 	'outstanding_principal': float,
 	'outstanding_interest': float,
 	'outstanding_fees': float
+})
+
+SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
+	'product_type': str,
+	'total_limit': float,
+	'total_outstanding_principal': float,
+	'total_outstanding_interest': float,
+	'total_principal_in_requested_state': float,
+	'available_limit': float                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+})
+
+CustomerUpdateDict = TypedDict('CustomerUpdateDict', {
+	'loan_updates': List[LoanUpdateDict],
+	'summary_update': SummaryUpdateDict
 })
 
 class ContractHelper(object):
@@ -65,10 +79,36 @@ def _get_transactions_on_date(
 
 	return txs_on_date
 
+def _get_summary_update(
+	contract_helper: ContractHelper, 
+	loan_updates: List[LoanUpdateDict], 
+	today: datetime.date
+	) -> Tuple[SummaryUpdateDict, errors.Error]:
+	cur_contract, err = contract_helper.get_contract(today)
+	if err:
+		return None, err
+
+	product_type, err = cur_contract.get_product_type()
+	if err:
+		return None, err
+
+	maximum_principal_limit, err = cur_contract.get_maximum_principal_limit()
+	if err:
+		return None, err
+
+	return SummaryUpdateDict(
+		product_type=product_type,
+		total_limit=maximum_principal_limit,
+		total_outstanding_principal=0.0,
+		total_outstanding_interest=0.0,
+		total_principal_in_requested_state=0.0,
+		available_limit=0.0
+	), None
+
 def _calculate_loan_balance(
 	contract_helper: ContractHelper,
 	loan: models.LoanDict, transactions: List[models.TransactionDict], 
-	today: datetime.date) -> Tuple[UpdateDict, List[errors.Error]]:
+	today: datetime.date) -> Tuple[LoanUpdateDict, List[errors.Error]]:
 	# Replay the history of the loan and all the expenses that are due as a result.
 
 	# Heres what you owe based on the transaction history applied to your loan
@@ -116,7 +156,7 @@ def _calculate_loan_balance(
 	if errors:
 		return None, errors
 
-	return UpdateDict(
+	return LoanUpdateDict(
 		loan_id=loan['id'],
 		adjusted_maturity_date=loan['adjusted_maturity_date'],
 		outstanding_principal=outstanding_principal,
@@ -143,7 +183,7 @@ class CustomerBalance(object):
 		self._company_name = company_dict['name']
 		self._company_id = company_dict['id']
 
-	def update(self, today: datetime.date) -> Tuple[List[UpdateDict], errors.Error]:
+	def update(self, today: datetime.date) -> Tuple[CustomerUpdateDict, errors.Error]:
 		# Get your contracts and loans
 		fetcher = per_customer_fetcher.Fetcher(per_customer_types.CompanyInfoDict(
 			id=self._company_id,
@@ -158,18 +198,18 @@ class CustomerBalance(object):
 		num_loans = len(financials['loans'])
 		if num_loans == 0:
 			print('TODO(dlluncor): Handle account-level people with no loans, for now ignore')
-			return [], None
+			return CustomerUpdateDict(loan_updates=[], summary_update=None), None
 
-		update_dicts = []
 		contract_helper, err = ContractHelper.build(financials['contracts'])
 		if err:
 			return None, err
 
 		all_errors = []
+		loan_update_dicts = []
 
 		for loan in financials['loans']:
 			transactions_for_loan = _get_transactions_for_loan(loan['id'], financials['transactions'])
-			update_dict, errors = _calculate_loan_balance(contract_helper, loan, transactions_for_loan, today)
+			loan_update_dict, errors = _calculate_loan_balance(contract_helper, loan, transactions_for_loan, today)
 			if errors:
 				logging.error('Got these errors associated with loan {}'.format(loan['id']))
 				for err in errors:
@@ -177,16 +217,19 @@ class CustomerBalance(object):
 
 				all_errors.extend(errors)
 			else:
-				update_dicts.append(update_dict)
+				loan_update_dicts.append(loan_update_dict)
 
 		if all_errors:
 			raise Exception('Will not proceed with updates because there was more than 1 error during loan balance updating')
 
-		return update_dicts, None
+		summary_update, err = _get_summary_update(contract_helper, loan_update_dicts, today)
+		if err:
+			return None, err
 
-	def write(self, updates: List[UpdateDict]) -> None:
-		if not updates:
-			return
-		print('Loan updates')
-		for update in updates:
-			print(update)
+		return CustomerUpdateDict(
+			loan_updates=loan_update_dicts,
+			summary_update=summary_update
+		), None
+
+	def write(self, customer_update: CustomerUpdateDict) -> None:
+		pass

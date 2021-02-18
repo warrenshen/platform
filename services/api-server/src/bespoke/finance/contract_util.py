@@ -55,19 +55,35 @@ class Contract(object):
 	def _get_field(self, internal_name: str) -> Tuple[FullFieldDict, errors.Error]:
 		self._populate()
 		if internal_name not in self._internal_name_to_field:
-			return None, errors.Error('Non-existent field "{}" provided to get contract field', details={'contract_config': self._config})
+			return None, errors.Error(
+				'Non-existent field "{}" provided to get contract field'.format(internal_name), 
+				details={'contract_config': self._config})
 
 		return self._internal_name_to_field[internal_name], None
 
-	def get_interest_rate(self) -> Tuple[float, errors.Error]:
-		field, err = self._get_field('factoring_fee_percentage')
+	def _get_float_value(self, internal_name: str) -> Tuple[float, errors.Error]:
+		field, err = self._get_field(internal_name)
 		if err:
 			return None, err
 
 		if type(field['value']) != float and type(field['value']) != int:
-			return None, errors.Error('Got an interest rate which is not stored as a number', details={'contract_config': self._config})
+			return None, errors.Error(
+				'Got an "{}" which is not stored as a number'.format(internal_name), 
+				details={'contract_config': self._config})
 
 		return field['value'], None
+
+	def get_product_type(self) -> Tuple[str, errors.Error]:
+		if 'product_type' not in self._config:
+			return None, errors.Error('Product type missing from contract config')
+
+		return self._config['product_type'], None
+
+	def get_maximum_principal_limit(self) -> Tuple[float, errors.Error]:
+		return self._get_float_value('maximum_amount')
+
+	def get_interest_rate(self) -> Tuple[float, errors.Error]:
+		return self._get_float_value('factoring_fee_percentage')
 
 	def get_fields(self) -> List[FieldDict]:
 		self._populate()
