@@ -4,8 +4,6 @@ from typing import Any, List, cast
 
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
-from bespoke.db.db_constants import (AllLoanTypes, LoanTypeEnum,
-                                     RequestStatusEnum)
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance.loans import approval_util
@@ -14,7 +12,6 @@ from flask.views import MethodView
 from mypy_extensions import TypedDict
 from server.config import Config
 from server.views.common import auth_util, handler_util
-from sqlalchemy.orm.session import Session
 
 handler = Blueprint('finance_loans_approvals', __name__)
 
@@ -107,99 +104,14 @@ class SubmitForApprovalView(MethodView):
 		if not loan_id:
 			return handler_util.make_error_response('No Loan ID provided')
 
-		loan_html = ''
-		customer_name = ''
-
-		with session_scope(current_app.session_maker) as session:
-			loan = cast(
-				models.Loan,
-				session.query(models.Loan).filter_by(
-					id=loan_id
-				).first()
-			)
-
-			if not loan:
-				return handler_util.make_error_response('Could not find loan for given Loan ID')
-
-			if loan.loan_type not in AllLoanTypes:
-				return handler_util.make_error_response('Loan type is not valid')
-
-			if not loan.artifact_id:
-				return handler_util.make_error_response('Artifact is required')
-
-			if not loan.requested_payment_date:
-				return handler_util.make_error_response('Invalid requested payment date')
-
-			if loan.amount is None or loan.amount <= 0:
-				return handler_util.make_error_response('Invalid amount')
-
-			if loan.loan_type == LoanTypeEnum.PurchaseOrder:
-				purchase_order = cast(
-					models.PurchaseOrder,
-					session.query(models.PurchaseOrder).filter_by(
-						id=loan.artifact_id
-					).first()
-				)
-				customer_name = purchase_order.company.name
-
-				# List of other Purchase Order Loans related to same Purchase Order.
-				sibling_loans = cast(
-					List[models.Loan],
-					session.query(models.Loan)
-					.filter(models.Loan.id != loan.id)
-					.filter_by(artifact_id=loan.artifact_id)
-				)
-
-				proposed_loans_total_amount = 0.0
-				for sibling_loan in sibling_loans:
-					if sibling_loan.status in [RequestStatusEnum.APPROVAL_REQUESTED, RequestStatusEnum.APPROVED]:
-						proposed_loans_total_amount += float(
-							sibling_loan.amount) if sibling_loan.amount else 0
-
-				proposed_loans_total_amount += float(loan.amount)
-
-				if proposed_loans_total_amount > float(purchase_order.amount):
-					return handler_util.make_error_response('Too many loans for same Purchase Order')
-
-				loan_html = f"""<ul>
-<li>Loan type: Inventory Financing</li>
-<li>Company: {customer_name}</li>
-<li>Purchase order: {purchase_order.order_number}</li>
-<li>Payment date: {loan.origination_date}</li>
-<li>Amount: {loan.amount}</li>
-</ul>
-				"""
-
-			elif loan.loan_type == LoanTypeEnum.LineOfCredit:
-				line_of_credit = cast(
-					models.LineOfCredit,
-					session.query(models.LineOfCredit).filter_by(
-						id=loan.artifact_id
-					).first()
-				)
-				customer_name = line_of_credit.company.name
-				receipient_vendor_name = line_of_credit.recipient_vendor.name if line_of_credit.is_credit_for_vendor else "N/A"
-
-				loan_html = f"""<ul>
-<li>Loan type: Line of Credit</li>
-<li>Company: {customer_name}</li>
-<li>Is credit for vendor?: {"Yes" if line_of_credit.is_credit_for_vendor else "No"} </li>
-<li>Vendor (if appropriate): {receipient_vendor_name}</li>
-<li>Payment date: {loan.origination_date}</li>
-<li>Amount: {loan.amount}</li>
-</ul>
-				"""
-
-
-			loan.status = RequestStatusEnum.APPROVAL_REQUESTED
-			loan.requested_at = date_util.now()
-
-			session.commit()
+		resp, err = approval_util.submit_for_approval(loan_id, current_app.session_maker)
+		if err:
+			return handler_util.make_error_response(err)
 
 		template_name = sendgrid_util.TemplateNames.CUSTOMER_REQUESTS_LOAN
 		template_data = {
-			'customer_name': customer_name,
-			'loan_html': loan_html
+			'customer_name': resp['customer_name'],
+			'loan_html': resp['loan_html']
 		}
 		recipients = cfg.BANK_NOTIFY_EMAIL_ADDRESSES
 		_, err = sendgrid_client.send(

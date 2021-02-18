@@ -7,6 +7,7 @@ from typing import Callable, Dict, List, Text, Tuple, cast
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
+from bespoke import errors
 from bespoke.email import email_manager
 from bespoke.security import security_util
 from mypy_extensions import TypedDict
@@ -116,7 +117,11 @@ class Client(object):
 
 	def send(self,
 			 template_name: str, template_data: Dict, recipients: List[str],
-			 two_factor_payload: TwoFactorPayloadDict = None) -> Tuple[bool, Text]:
+			 two_factor_payload: TwoFactorPayloadDict = None) -> Tuple[bool, errors.Error]:
+
+		err_details = {
+			'template_name': template_name
+		}
 
 		template_id = _get_template_id(template_name)
 		template_data['defaults'] = _get_template_defaults(
@@ -131,7 +136,8 @@ class Client(object):
 				)
 			except Exception as e:
 				logging.error('Could not send email: {}'.format(e))
-				return None, 'Could not successfully send email'
+				err_details['error'] = '{}'.format(e)
+				return None, errors.Error('Could not successfully send email', details=err_details)
 
 			return True, None
 
@@ -175,6 +181,7 @@ class Client(object):
 				)
 			except Exception as e:
 				logging.error('Could not send email: {}'.format(e))
-				return None, 'Could not successfully send email'
+				err_details['error'] = '{}'.format(e)
+				return None, errors.Error('Could not successfully send email', details=err_details)
 
 		return True, None

@@ -4,6 +4,7 @@ import json
 import logging
 from typing import Callable, Dict, List, Tuple, cast
 
+from bespoke import errors
 from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
@@ -16,11 +17,6 @@ from server.views.common.auth_util import UserSession
 from server.views.common import auth_util, handler_util
 
 handler = Blueprint('email', __name__)
-
-
-def make_error_response(msg: str) -> Response:
-	return make_response(json.dumps({'status': 'ERROR', 'msg': msg}), 200)
-
 
 RecipientDict = TypedDict('RecipientDict', {
 	'email': str
@@ -126,9 +122,12 @@ class NotifyHelper(object):
 				recipients=recipients
 			)
 
-	def fetch(self) -> Tuple[List[SendPayload], str]:
+	def fetch(self) -> Tuple[List[SendPayload], errors.Error]:
 
 		notification_name = self._type_config['name']
+		err_details = {
+			'notification_name': notification_name
+		}
 
 		vendor_info = None
 		if 'vendor_id' in self._input_data:
@@ -139,10 +138,10 @@ class NotifyHelper(object):
 				self._input_data['company_id'])
 
 		if company_info and len(company_info['recipients']) == 0:
-			return None, 'No users are setup for the company receiving this message'
+			return None, errors.Error('No users are setup for the company receiving this message', details=err_details)
 
 		if vendor_info and len(vendor_info['recipients']) == 0:
-			return None, 'No users are setup for this vendor receiving the message'
+			return None, errors.Error('No users are setup for this vendor receiving the message', details=err_details)
 
 		if notification_name == 'vendor_approved':
 			template_data = {
@@ -174,7 +173,7 @@ class NotifyHelper(object):
 			)
 			return [to_vendor_payload], None
 
-		return None, 'Unrecognized notification name provided {}'.format(notification_name)
+		return None, errors.Error('Unrecognized notification name provided {}'.format(notification_name), details=err_details)
 
 
 class SendNotificationView(MethodView):
@@ -194,12 +193,12 @@ class SendNotificationView(MethodView):
 
 		form = json.loads(request.data)
 		if not form:
-			return make_error_response('No data provided')
+			return handler_util.make_error_response('No data provided')
 
 		required_keys = ['type_config', 'input_data']
 		for key in required_keys:
 			if key not in form:
-				return make_error_response('Send email missing key {}'.format(key))
+				return handler_util.make_error_response('Send email missing key {}'.format(key))
 
 		user_session = UserSession.from_session()
 
@@ -209,7 +208,7 @@ class SendNotificationView(MethodView):
 		company_id = user_session.get_company_id()
 		if user_session.is_bank_user():
 			if 'company_id' not in form['input_data']:
-				return make_error_response('"company_id" must be specified in the input_data if you are a bank user')
+				return handler_util.make_error_response('"company_id" must be specified in the input_data if you are a bank user')
 			company_id = form['input_data']['company_id']
 
 		form['input_data']['company_id'] = company_id
@@ -220,7 +219,7 @@ class SendNotificationView(MethodView):
 		)
 		send_payloads, err = helper.fetch()
 		if err:
-			return make_error_response(err)
+			return handler_util.make_error_response(err)
 
 		for send_payload in send_payloads:
 
@@ -233,7 +232,7 @@ class SendNotificationView(MethodView):
 			_, err = sendgrid_client.send(
 				template_name, template_data, recipient_emails)
 			if err:
-				return make_error_response(err)
+				return handler_util.make_error_response(err)
 
 		return make_response(json.dumps({'status': 'OK'}), 200)
 

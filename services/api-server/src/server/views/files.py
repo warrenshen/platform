@@ -30,11 +30,6 @@ FileInDBDict = TypedDict('FileInDBDict', {
 	'path': str
 })
 
-
-def make_error_response(msg: str) -> Response:
-	return make_response(json.dumps({'status': 'ERROR', 'msg': msg}), 200)
-
-
 def _save_file_to_db(
 		session_maker: Callable, file_info: FileInfoDict, company_id: str,
 		path: str, user_session: UserSession) -> FileInDBDict:
@@ -68,12 +63,12 @@ class PutSignedUrlView(MethodView):
 
 		form = json.loads(request.data)
 		if not form:
-			return make_error_response('No form provided in get the signed url')
+			return handler_util.make_error_response('No form provided in get the signed url')
 
 		required_keys = ['file_info', 'doc_type', 'company_id']
 		for key in required_keys:
 			if key not in form:
-				return make_error_response(f'Missing {key} in signed url request')
+				return handler_util.make_error_response(f'Missing {key} in signed url request')
 
 		file_info = cast(FileInfoDict, form['file_info'])
 		company_id = form['company_id']
@@ -93,7 +88,7 @@ class PutSignedUrlView(MethodView):
 			)
 		except ClientError as e:
 			logging.error('Exception generating presigned_url: {}'.format(e))
-			return make_error_response('Failed to create upload url')
+			return handler_util.make_error_response('Failed to create upload url')
 
 		upload_via_server = False
 		if cfg.is_development_env():
@@ -123,12 +118,12 @@ class DownloadSignedUrlView(MethodView):
 
 		form = json.loads(request.data)
 		if not form:
-			return make_error_response('No form provided in download signed url request')
+			return handler_util.make_error_response('No form provided in download signed url request')
 
 		user_session = UserSession.from_session()
 
 		if 'file_ids' not in form:
-			return make_error_response('file ids must be provided to download signed urls')
+			return handler_util.make_error_response('file ids must be provided to download signed urls')
 
 		file_ids = form['file_ids']
 
@@ -136,10 +131,10 @@ class DownloadSignedUrlView(MethodView):
 			file_orms = cast(
 				List[models.File], session.query(models.File).filter(models.File.id.in_(file_ids)).all())
 			if not file_orms:
-				return make_error_response('No file ids found that match these file ids')
+				return handler_util.make_error_response('No file ids found that match these file ids')
 
 			if len(file_orms) != len(file_ids):
-				return make_error_response('Some file ids requested are not available in the database')
+				return handler_util.make_error_response('Some file ids requested are not available in the database')
 
 			paths = [file_orm.path for file_orm in file_orms]
 
@@ -159,7 +154,7 @@ class DownloadSignedUrlView(MethodView):
 				except ClientError as e:
 					logging.error(
 						'Exception generating presigned_url: {}'.format(e))
-					return make_error_response('Failed to create download url')
+					return handler_util.make_error_response('Failed to create download url')
 
 			# Create file objects (with signed URL) for response.
 			files_data = []

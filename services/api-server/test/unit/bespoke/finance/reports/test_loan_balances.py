@@ -80,7 +80,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			test_helper.assertDeepAlmostEqual(self, expected_update, actual_update)
 
 		if test.get('expected_summary_update'):
-			test_helper.assertDeepAlmostEqual(self, test['expected_summary_update'], customer_update['summary_update'])
+			test_helper.assertDeepAlmostEqual(self, test['expected_summary_update'], 
+				cast(Dict, customer_update['summary_update']))
 
 	def test_success_no_payments_no_loans(self) -> None:
 		tests: List[Dict] = [
