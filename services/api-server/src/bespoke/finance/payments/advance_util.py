@@ -135,5 +135,7 @@ def fund_loans_with_advance(
 			loan.outstanding_interest = decimal.Decimal(0.0)
 			loan.outstanding_fees = decimal.Decimal(0.0)
 
+			# TODO(dlluncor): The origination_date on the loan should be set here.
+
 	return FundLoansRespDict(status='OK'), None
 

@@ -108,6 +108,9 @@ class SubmitForApprovalView(MethodView):
 		cfg = cast(Config, current_app.app_config)
 		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
+		# TODO(dlluncor): The value a customer sets as "origination_date" is actually
+		# the requested_origination_date
+
 		data = json.loads(request.data)
 		if not data:
 			return handler_util.make_error_response('No data provided')

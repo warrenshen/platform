@@ -241,14 +241,14 @@ class Transaction(Base):
 	__tablename__ = 'transactions'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
-	type = Column(Text)
+	type = Column(Text, nullable=False)
 	amount = Column(Numeric, nullable=False)
 	loan_id = Column(GUID, nullable=False)
 	payment_id = Column(GUID, nullable=False)
-	to_principal = Column(Numeric)
-	to_interest = Column(Numeric)
-	to_fees = Column(Numeric)
-	effective_date = Column(Date)
+	to_principal = Column(Numeric, nullable=False)
+	to_interest = Column(Numeric, nullable=False)
+	to_fees = Column(Numeric, nullable=False)
+	effective_date = Column(Date, nullable=False)
 	created_by_user_id = Column(GUID)
 
 	def as_dict(self) -> TransactionDict:

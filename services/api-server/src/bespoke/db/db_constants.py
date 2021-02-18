@@ -18,6 +18,8 @@ class TwoFactorLinkType(object):
 class ProductType(object):
 	INVENTORY_FINANCING = 'inventory_financing'
 
+PRODUCT_TYPES = [ProductType.INVENTORY_FINANCING]
+
 # Artifacts
 
 class RequestStatusEnum():

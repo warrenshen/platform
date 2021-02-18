@@ -15,6 +15,7 @@
 	Billing reports:
 """
 import datetime
+import logging
 from datetime import timedelta
 
 from mypy_extensions import TypedDict
@@ -23,25 +24,37 @@ from typing import Callable, Tuple, List
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
+from bespoke.finance import contract_util
 from bespoke.finance.payments import payment_util
 from bespoke.finance.types import per_customer_types
 from bespoke.finance.fetchers import per_customer_fetcher
 
 UpdateDict = TypedDict('UpdateDict', {
 	'loan_id': str,
+	'adjusted_maturity_date': datetime.date,
 	'outstanding_principal': float,
 	'outstanding_interest': float,
 	'outstanding_fees': float
 })
 
 class ContractHelper(object):
-	# TODO(dlluncor): Implement
 
-	def __init__(self, contract_dicts: List[models.ContractDict]) -> None:
-		pass
+	def __init__(self, contract_dicts: List[models.ContractDict], private: bool) -> None:
+		self._contract_dicts = contract_dicts
 
-	def get_contract(self, cur_date: datetime.date) -> models.ContractDict:
-		return None
+	def get_contract(self, cur_date: datetime.date) -> Tuple[contract_util.Contract, errors.Error]:
+		# TODO(dlluncor): Handle when we have a range of contracts between date ranges
+		return contract_util.Contract(self._contract_dicts[0]), None
+
+	def get_interest_on_date(self, cur_date: datetime.date) -> Tuple[float, errors.Error]:
+		contract, err = self.get_contract(cur_date)
+		if err:
+			return None, err
+		return contract.get_interest_rate()
+
+	@staticmethod
+	def build(contract_dicts: List[models.ContractDict]) -> Tuple['ContractHelper', errors.Error]:
+		return ContractHelper(contract_dicts, private=True), None
 
 def _get_transactions_on_date(
 	cur_date: datetime.date, transactions: List[models.TransactionDict]) -> List[models.TransactionDict]:
@@ -52,31 +65,33 @@ def _get_transactions_on_date(
 
 	return txs_on_date
 
-def _get_interest_on_date(
-	cur_date: datetime.date) -> float:
-	# TODO(dlluncor): Consider contract which is effective at this current date.
-	return 0.01
-
 def _calculate_loan_balance(
 	contract_helper: ContractHelper,
 	loan: models.LoanDict, transactions: List[models.TransactionDict], 
-	today: datetime.date) -> UpdateDict:
+	today: datetime.date) -> Tuple[UpdateDict, List[errors.Error]]:
 	# Replay the history of the loan and all the expenses that are due as a result.
 
 	# Heres what you owe based on the transaction history applied to your loan
 
 	# Once we've considered how these transactions were applied, here is the remaining amount
 	# which hasn't been factored in yet based on how much you owe up to this particular day.
-	days_out = date_util.calendar_days_apart(today, loan['origination_date'])
-	days_overdue = date_util.calendar_days_apart(today, loan['adjusted_maturity_date'])
+	days_out = date_util.num_calendar_days_passed(today, loan['origination_date'])
+	days_overdue = date_util.num_calendar_days_passed(today, loan['adjusted_maturity_date'])
 	
 	# For each day between today and the origination date, you need to calculate interest and fees
 	# and consider transactions along the way.
 	outstanding_principal = 0.0
 	outstanding_interest = 0.0
 	outstanding_fees = 0.0
+	errors = []
 
-	for i in range(days_out): # is it days_out + 1?
+	# TODO(dlluncor): Error condition, the loan's origination_date is set, but there is no corresponding
+	# advance associated with this loan.
+
+	# Data consistency check. The origination_date on the loan should match the effective_date on the
+	# first advance transaction that funds this loan.
+
+	for i in range(days_out):
 		cur_date = loan['origination_date'] + timedelta(days=i)
 		# Check each transaction and the effect it had on this loan
 		cur_transactions = _get_transactions_on_date(cur_date, transactions)
@@ -90,16 +105,24 @@ def _calculate_loan_balance(
 			outstanding_interest += sign * tx['to_interest']
 			outstanding_fees += sign * tx['to_fees']
 
-		cur_interest_rate = _get_interest_on_date(cur_date)
+		cur_interest_rate, err = contract_helper.get_interest_on_date(cur_date)
+		if err:
+			errors.append(err)
+			continue
+
 		outstanding_interest += cur_interest_rate * max(0.0, outstanding_principal)
 		outstanding_fees += 0.0 # obvi need to calculate fees today
 
+	if errors:
+		return None, errors
+
 	return UpdateDict(
 		loan_id=loan['id'],
+		adjusted_maturity_date=loan['adjusted_maturity_date'],
 		outstanding_principal=outstanding_principal,
 		outstanding_interest=outstanding_interest,
 		outstanding_fees=outstanding_fees
-	)
+	), None
 
 
 def _get_transactions_for_loan(loan_id: str, transactions: List[models.TransactionDict]) -> List[models.TransactionDict]:
@@ -138,11 +161,26 @@ class CustomerBalance(object):
 			return [], None
 
 		update_dicts = []
-		contract_helper = ContractHelper(financials['contracts'])
+		contract_helper, err = ContractHelper.build(financials['contracts'])
+		if err:
+			return None, err
+
+		all_errors = []
+
 		for loan in financials['loans']:
 			transactions_for_loan = _get_transactions_for_loan(loan['id'], financials['transactions'])
-			update_dict = _calculate_loan_balance(contract_helper, loan, transactions_for_loan, today)
-			update_dicts.append(update_dict)
+			update_dict, errors = _calculate_loan_balance(contract_helper, loan, transactions_for_loan, today)
+			if errors:
+				logging.error('Got these errors associated with loan {}'.format(loan['id']))
+				for err in errors:
+					logging.error(err.msg)
+
+				all_errors.extend(errors)
+			else:
+				update_dicts.append(update_dict)
+
+		if all_errors:
+			raise Exception('Will not proceed with updates because there was more than 1 error during loan balance updating')
 
 		return update_dicts, None
 

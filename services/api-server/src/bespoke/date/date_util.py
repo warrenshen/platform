@@ -35,6 +35,13 @@ def today_as_date() -> datetime.date:
 def has_expired(expires_at: datetime.datetime) -> bool:
 	return now() >= expires_at
 
-def calendar_days_apart(d1: datetime.date, d2: datetime.date) -> int:
+def num_calendar_days_passed(d1: datetime.date, d2: datetime.date) -> int:
+	"""
+		The number of calendar days that have passed between these 2 dates. This number
+		is inclusive, so we have to add 1 between the delta.
+
+		For example there are 3 days that have passed from 10/01/2020 to 10/03/2020,
+		but the delta is 2 days, so we have to add that extra 1.
+	"""
 	delta = d1 - d2
-	return int(abs(delta.days))
+	return int(abs(delta.days)) + 1
