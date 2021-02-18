@@ -11,7 +11,7 @@ import {
   ProductTypeEnum,
   useLoansByCompanyAndLoanTypeForBankQuery,
 } from "generated/graphql";
-import { approveLoan, rejectLoan } from "lib/finance/loans/approval";
+import { approveLoans, rejectLoan } from "lib/finance/loans/approval";
 import { useState } from "react";
 
 interface Props {
@@ -54,9 +54,9 @@ function BankCustomerLoansSubpage({ companyId, productType }: Props) {
   };
 
   const handleApproveLoan = async (loanId: string) => {
-    const resp = await approveLoan({ loan_id: loanId });
-    if (resp.status !== "OK") {
-      alert("Could not approve loan. Reason: " + resp.msg);
+    const response = await approveLoans([loanId]);
+    if (response.status !== "OK") {
+      alert("Could not approve loan. Reason: " + response.msg);
     }
     refetch();
   };

@@ -18,47 +18,6 @@ from sqlalchemy.orm.session import Session
 
 handler = Blueprint('finance_loans_approvals', __name__)
 
-class ApproveLoanView(MethodView):
-	decorators = [auth_util.bank_admin_required]
-
-	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
-		form = json.loads(request.data)
-		if not form:
-			return handler_util.make_error_response('No data provided')
-
-		required_keys = ['loan_id']
-		for key in required_keys:
-			if key not in form:
-				return handler_util.make_error_response(
-					'Missing key {} from handle payment request'.format(key))
-
-		loan_id = form['loan_id']
-		user_session = auth_util.UserSession.from_session()
-
-		with session_scope(current_app.session_maker) as session:
-			loan = cast(
-				models.Loan,
-				session.query(models.Loan).filter_by(
-					id=loan_id).first()
-			)
-
-			if not loan:
-				return handler_util.make_error_response('Could not find loan for given Loan ID')
-
-			company_id = loan.company_id
-			# When a loan gets approved, you also have to clear out the rejected at
-			# status.
-			loan.status = db_constants.LoanStatusEnum.APPROVED
-			loan.approved_at = date_util.now()
-			loan.approved_by_user_id = user_session.get_user_id()
-			loan.rejected_at = None
-			loan.rejected_by_user_id = None
-
-		return make_response(json.dumps({
-			'status': 'OK'
-		}), 200)
-
 class ApproveLoansView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
@@ -256,9 +215,6 @@ class SubmitForApprovalView(MethodView):
 			'msg': 'Inventory Loan {} approval request responded to'.format(loan_id)
 		}), 200)
 
-
-handler.add_url_rule(
-	'/approve_loan', view_func=ApproveLoanView.as_view(name='approve_loan_view'))
 
 handler.add_url_rule(
 	'/approve_loans', view_func=ApproveLoansView.as_view(name='approve_loans_view'))

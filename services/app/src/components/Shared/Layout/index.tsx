@@ -134,7 +134,7 @@ const getBankNavItems = (): NavItem[] => {
           icon: <AccountBalanceIcon />,
         },
         {
-          text: "Approval Requested",
+          text: "Action Required",
           link: bankRoutes.loansApprovalRequested,
           icon: <AccountBalanceIcon />,
         },

@@ -38,7 +38,6 @@ export const purchaseOrdersRoutes = {
 export const loansRoutes = {
   // Loans related.
   submitForApproval: "/finance/loans/approvals/submit_for_approval",
-  approveLoan: "/finance/loans/approvals/approve_loan",
   approveLoans: "/finance/loans/approvals/approve_loans",
   rejectLoan: "/finance/loans/approvals/reject_loan",
 

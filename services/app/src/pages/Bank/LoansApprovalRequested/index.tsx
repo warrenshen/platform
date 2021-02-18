@@ -7,17 +7,13 @@ import {
   LoanStatusEnum,
   useLoansByStatusesForBankQuery,
 } from "generated/graphql";
-import {
-  approveLoan,
-  approveLoans,
-  rejectLoan,
-} from "lib/finance/loans/approval";
+import { approveLoans, rejectLoan } from "lib/finance/loans/approval";
 import { useState } from "react";
 
 function LoansAllProductsPage() {
   const { data, error, refetch } = useLoansByStatusesForBankQuery({
     variables: {
-      statuses: [LoanStatusEnum.ApprovalRequested],
+      statuses: [LoanStatusEnum.ApprovalRequested, LoanStatusEnum.Approved],
     },
   });
 
@@ -37,21 +33,21 @@ function LoansAllProductsPage() {
   };
 
   const handleApproveLoan = async (loanId: string) => {
-    const resp = await approveLoan({ loan_id: loanId });
-    if (resp.status !== "OK") {
-      alert("Could not approve loan. Reason: " + resp.msg);
+    const response = await approveLoans([loanId]);
+    if (response.status !== "OK") {
+      alert("Could not approve loan. Reason: " + response.msg);
     }
     refetch();
   };
 
   const handleRejectLoan = async (loanId: string) => {
     // TODO(warren): Handle entering a real rejection reason
-    const resp = await rejectLoan({
+    const response = await rejectLoan({
       loan_id: loanId,
       rejection_note: "Default rejection reason",
     });
-    if (resp.status !== "OK") {
-      alert("Could not reject loan. Reason: " + resp.msg);
+    if (response.status !== "OK") {
+      alert("Could not reject loan. Reason: " + response.msg);
     }
     refetch();
   };
@@ -59,7 +55,7 @@ function LoansAllProductsPage() {
   const loans = data?.loans || [];
 
   return (
-    <Page appBarTitle={"Loans Approval Requested"}>
+    <Page appBarTitle={"Loans - Action Required"}>
       <Box mb={2} display="flex" flexDirection="row-reverse">
         <Button
           disabled={selectedLoans.length <= 0}
