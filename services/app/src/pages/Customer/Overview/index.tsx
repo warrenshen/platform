@@ -10,7 +10,7 @@ import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useGetCompanyForCustomerOverviewQuery } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import OutstandingLoansForCustomer from "./OutstandingLoansForCustomer";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -28,6 +28,9 @@ const useStyles = makeStyles((theme: Theme) =>
     sectionSpace: {
       height: theme.spacing(4),
     },
+    box: {
+      width: "33%",
+    },
   })
 );
 
@@ -44,37 +47,7 @@ function CustomerOverviewPage() {
   });
 
   const company = data?.companies_by_pk;
-  const openLoans = company?.loans || [];
-
-  const totalOutstandingPrincipalBalance = openLoans.reduce(
-    (sum, openLoan) => sum + openLoan.outstanding_principal_balance || 0,
-    0
-  );
-  const totalOutstandingInterest = openLoans.reduce(
-    (sum, openLoan) => sum + openLoan.outstanding_interest || 0,
-    0
-  );
-  const totalOutstandingFees = openLoans.reduce(
-    (sum, openLoan) => sum + openLoan.outstanding_fees || 0,
-    0
-  );
-
-  const contract = company?.contract;
-  const productConfig = contract?.product_config;
-
-  const [maximumLimit, setMaximumLimit] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (contract?.product_type && productConfig) {
-      if (productConfig && Object.keys(productConfig).length) {
-        const fields = productConfig.v1.fields;
-        const maximumAmountField = fields.find(
-          (field: any) => field.internal_name === "maximum_amount"
-        );
-        setMaximumLimit(maximumAmountField.value);
-      }
-    }
-  }, [contract, productConfig]);
+  const financialSummary = company?.financial_summary;
 
   return (
     <Page appBarTitle={"Overview"}>
@@ -82,11 +55,15 @@ function CustomerOverviewPage() {
         <Box className={classes.section}>
           <Box display="flex" flexDirection="column">
             <Box display="flex" justifyContent="space-between" width="100%">
-              <Box width="24%">
+              <Box className={classes.box}>
                 <Card>
                   <Box display="flex" flexDirection="column" p={2}>
                     <Typography variant="h4">
-                      {formatCurrency(totalOutstandingPrincipalBalance)}
+                      {financialSummary
+                        ? formatCurrency(
+                            financialSummary?.total_outstanding_principal
+                          )
+                        : "TBD"}
                     </Typography>
                     <Typography variant="subtitle1" color="textSecondary">
                       total outstanding principal balance
@@ -94,11 +71,15 @@ function CustomerOverviewPage() {
                   </Box>
                 </Card>
               </Box>
-              <Box width="24%">
+              <Box className={classes.box}>
                 <Card>
                   <Box display="flex" flexDirection="column" p={2}>
                     <Typography variant="h4">
-                      {formatCurrency(totalOutstandingInterest)}
+                      {financialSummary
+                        ? formatCurrency(
+                            financialSummary?.total_outstanding_interest
+                          )
+                        : "TBD"}
                     </Typography>
                     <Typography variant="subtitle1" color="textSecondary">
                       total outstanding interest
@@ -106,11 +87,15 @@ function CustomerOverviewPage() {
                   </Box>
                 </Card>
               </Box>
-              <Box width="24%">
+              <Box className={classes.box}>
                 <Card>
                   <Box display="flex" flexDirection="column" p={2}>
                     <Typography variant="h4">
-                      {formatCurrency(totalOutstandingFees)}
+                      {financialSummary
+                        ? formatCurrency(
+                            financialSummary?.total_outstanding_fees
+                          )
+                        : "TBD"}
                     </Typography>
                     <Typography variant="subtitle1" color="textSecondary">
                       total outstanding fees
@@ -118,18 +103,38 @@ function CustomerOverviewPage() {
                   </Box>
                 </Card>
               </Box>
-              <Box width="24%">
+            </Box>
+            <Box mt={1} />
+            <Box display="flex" justifyContent="space-between" width="100%">
+              <Box className={classes.box}>
                 <Card>
                   <Box display="flex" flexDirection="column" p={2}>
                     <Typography variant="h4">
-                      {maximumLimit ? formatCurrency(maximumLimit) : "TBD"}
+                      {financialSummary
+                        ? formatCurrency(financialSummary.available_limit)
+                        : "TBD"}
                     </Typography>
                     <Typography variant="subtitle1" color="textSecondary">
-                      maximum limit
+                      remaining limit
                     </Typography>
                   </Box>
                 </Card>
               </Box>
+              <Box className={classes.box}>
+                <Card>
+                  <Box display="flex" flexDirection="column" p={2}>
+                    <Typography variant="h4">
+                      {financialSummary
+                        ? formatCurrency(financialSummary.total_limit)
+                        : "TBD"}
+                    </Typography>
+                    <Typography variant="subtitle1" color="textSecondary">
+                      total limit
+                    </Typography>
+                  </Box>
+                </Card>
+              </Box>
+              <Box className={classes.box} />
             </Box>
           </Box>
         </Box>

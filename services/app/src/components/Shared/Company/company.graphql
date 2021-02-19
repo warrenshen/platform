@@ -6,15 +6,14 @@ query GetCompanyForCustomerOverview($companyId: uuid!) {
       product_type
       product_config
     }
-    loans(
-      where: {
-        _and: [
-          { funded_at: { _is_null: false } }
-          { closed_at: { _is_null: true } }
-        ]
-      }
-    ) {
-      ...LoanLimited
+    financial_summary {
+      id
+      total_limit
+      total_outstanding_principal
+      total_outstanding_interest
+      total_outstanding_fees
+      total_principal_in_requested_state
+      available_limit
     }
   }
 }
