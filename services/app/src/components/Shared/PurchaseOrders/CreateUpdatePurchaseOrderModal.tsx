@@ -23,8 +23,8 @@ import {
 import { authenticatedApi, purchaseOrdersRoutes } from "lib/api";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
-import { useContext, useState } from "react";
 import { useSnackbar } from "material-ui-snackbar-provider";
+import { useContext, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -269,7 +269,7 @@ function CreateUpdatePurchaseOrderModal({
           setPurchaseOrder={setPurchaseOrder}
           setPurchaseOrderFile={setPurchaseOrderFile}
           setPurchaseOrderCannabisFiles={setPurchaseOrderCannabisFiles}
-        ></PurchaseOrderForm>
+        />
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
         <Button onClick={handleClose}>Cancel</Button>

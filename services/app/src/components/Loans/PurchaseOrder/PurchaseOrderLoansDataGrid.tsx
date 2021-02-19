@@ -12,7 +12,7 @@ import PurchaseOrderDrawerLauncher from "components/Shared/PurchaseOrder/Purchas
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { LoanFragment, Loans, LoanStatusEnum } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
-import { truncateUuid } from "lib/uuid";
+import { createLoanPublicIdentifier } from "lib/loans";
 import React, { useContext } from "react";
 
 interface Props {
@@ -32,14 +32,15 @@ function PurchaseOrderLoansDataGrid({
 
   const rows = loans;
 
+  console.log(rows);
   const columns = [
     {
       dataField: "id",
-      caption: "Platform ID",
+      caption: "Identifier",
       width: 120,
       cellRender: (params: ValueFormatterParams) => (
         <LoanDrawerLauncher
-          label={truncateUuid(params.row.data.id as string)}
+          label={createLoanPublicIdentifier(params.row.data as LoanFragment)}
           loanId={params.row.data.id as string}
         />
       ),
@@ -77,7 +78,7 @@ function PurchaseOrderLoansDataGrid({
       alignment: "right",
       minWidth: 140,
       cellRender: (params: ValueFormatterParams) => (
-        <DateDataGridCell dateString={params.row.data.origination_date} />
+        <DateDataGridCell dateString={params.row.data.requested_payment_date} />
       ),
     },
     {

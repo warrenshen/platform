@@ -63,9 +63,9 @@ function LoanDrawer({ loanId, handleClose }: Props) {
             mt={2}
           >
             <Typography variant="subtitle2" color="textSecondary">
-              Platform ID
+              Identifier
             </Typography>
-            <Typography variant={"body1"}>{loan.id}</Typography>
+            <Typography variant={"body1"}>{loan.identifier}</Typography>
           </Box>
           <Box
             display="flex"
@@ -128,7 +128,7 @@ function LoanDrawer({ loanId, handleClose }: Props) {
               Payment Date
             </Typography>
             <Typography variant={"body1"}>
-              {formatDateString(loan.origination_date)}
+              {formatDateString(loan.requested_payment_date)}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
@@ -163,6 +163,17 @@ function LoanDrawer({ loanId, handleClose }: Props) {
               {formatCurrency(loan.outstanding_fees)}
             </Typography>
           </Box>
+        </Box>
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="flex-start"
+          mt={2}
+        >
+          <Typography variant="subtitle2" color="textSecondary">
+            Platform ID
+          </Typography>
+          <Typography variant={"body1"}>{loan.id}</Typography>
         </Box>
       </Box>
     </Drawer>

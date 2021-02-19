@@ -18,7 +18,7 @@ export enum ActionType {
 // Loan Status enum related.
 export const LoanStatusToLabel = {
   [LoanStatusEnum.Drafted]: "Drafted",
-  [LoanStatusEnum.ApprovalRequested]: "Approval Requested",
+  [LoanStatusEnum.ApprovalRequested]: "Requested",
   [LoanStatusEnum.Approved]: "Approved",
   [LoanStatusEnum.Rejected]: "Rejected",
   [LoanStatusEnum.PastDue]: "Past Due",
@@ -119,7 +119,7 @@ export const AllProductTypes = [
 // Request status enum related.
 export const RequestStatusToLabel = {
   [RequestStatusEnum.Drafted]: "Drafted",
-  [RequestStatusEnum.ApprovalRequested]: "Approval Requested",
+  [RequestStatusEnum.ApprovalRequested]: "Requested",
   [RequestStatusEnum.Approved]: "Approved",
   [RequestStatusEnum.Rejected]: "Rejected",
 };

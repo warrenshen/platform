@@ -19,7 +19,7 @@ function CustomerCompanyProfilePage() {
 
   return company ? (
     <Page appBarTitle={"Company Profile"}>
-      <CompanyInfo company={company}></CompanyInfo>
+      <CompanyInfo company={company} />
     </Page>
   ) : null;
 }

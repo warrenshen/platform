@@ -21,6 +21,7 @@ query Company($companyId: uuid!) {
 
 query CompanyForCustomer($companyId: uuid!) {
   companies_by_pk(id: $companyId) {
+    id
     ...Company
     bank_accounts {
       ...BankAccount

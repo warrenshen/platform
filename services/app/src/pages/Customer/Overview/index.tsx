@@ -85,7 +85,7 @@ function CustomerOverviewPage() {
               <Box width="24%">
                 <Card>
                   <Box display="flex" flexDirection="column" p={2}>
-                    <Typography variant="h3">
+                    <Typography variant="h4">
                       {formatCurrency(totalOutstandingPrincipalBalance)}
                     </Typography>
                     <Typography variant="subtitle1" color="textSecondary">
@@ -97,7 +97,7 @@ function CustomerOverviewPage() {
               <Box width="24%">
                 <Card>
                   <Box display="flex" flexDirection="column" p={2}>
-                    <Typography variant="h3">
+                    <Typography variant="h4">
                       {formatCurrency(totalOutstandingInterest)}
                     </Typography>
                     <Typography variant="subtitle1" color="textSecondary">
@@ -109,7 +109,7 @@ function CustomerOverviewPage() {
               <Box width="24%">
                 <Card>
                   <Box display="flex" flexDirection="column" p={2}>
-                    <Typography variant="h3">
+                    <Typography variant="h4">
                       {formatCurrency(totalOutstandingFees)}
                     </Typography>
                     <Typography variant="subtitle1" color="textSecondary">
@@ -121,7 +121,7 @@ function CustomerOverviewPage() {
               <Box width="24%">
                 <Card>
                   <Box display="flex" flexDirection="column" p={2}>
-                    <Typography variant="h3">
+                    <Typography variant="h4">
                       {maximumLimit ? formatCurrency(maximumLimit) : "TBD"}
                     </Typography>
                     <Typography variant="subtitle1" color="textSecondary">

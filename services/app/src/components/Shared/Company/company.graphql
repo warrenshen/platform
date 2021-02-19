@@ -29,3 +29,13 @@ query CompanyWithDetailsByCompanyId($companyId: uuid!) {
     }
   }
 }
+
+mutation GetCompanyNextLoanIdentifier(
+  $companyId: uuid!
+  $increment: companies_inc_input!
+) {
+  update_companies_by_pk(pk_columns: { id: $companyId }, _inc: $increment) {
+    id
+    latest_loan_identifier
+  }
+}

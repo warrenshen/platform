@@ -9,6 +9,7 @@ import {
   makeStyles,
   Theme,
 } from "@material-ui/core";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoansInsertInput,
   LoanStatusEnum,
@@ -16,6 +17,7 @@ import {
   Scalars,
   useAddLoanMutation,
   useApprovedPurchaseOrdersQuery,
+  useGetCompanyNextLoanIdentifierMutation,
   useGetLoanForCustomerQuery,
   useLoanSiblingsQuery,
   useUpdateLoanMutation,
@@ -24,7 +26,7 @@ import { authenticatedApi, loansRoutes } from "lib/api";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useSnackbar } from "material-ui-snackbar-provider";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import PurchaseOrderLoanForm from "./PurchaseOrderLoanForm";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -50,12 +52,6 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function fifteenDaysAfterDate(date: Date) {
-  const resultDate = new Date(date);
-  resultDate.setDate(resultDate.getDate() + 15);
-  return resultDate;
-}
-
 interface Props {
   actionType: ActionType;
   loanId: Scalars["uuid"] | null;
@@ -69,6 +65,10 @@ function CreateUpdatePurchaseOrderLoanModal({
 }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
+
+  const {
+    user: { companyId },
+  } = useContext(CurrentUserContext);
 
   // Default Loan for CREATE case.
   const newLoan: LoansInsertInput = {
@@ -142,9 +142,21 @@ function CreateUpdatePurchaseOrderLoanModal({
     (purchaseOrder) => purchaseOrder.id === loan.artifact_id
   );
 
-  const upsertPurchaseOrderLoan = async () => {
-    // There is no maturity date before the loan gets approved.
+  const [
+    getCompanyNextLoanIdentifier,
+  ] = useGetCompanyNextLoanIdentifierMutation();
 
+  const getNextLoanIdentifierByCompanyId = async () => {
+    const response = await getCompanyNextLoanIdentifier({
+      variables: {
+        companyId,
+        increment: { latest_loan_identifier: 1 },
+      },
+    });
+    return response.data?.update_companies_by_pk?.latest_loan_identifier;
+  };
+
+  const upsertPurchaseOrderLoan = async () => {
     if (actionType === ActionType.Update) {
       const response = await updateLoan({
         variables: {
@@ -157,17 +169,23 @@ function CreateUpdatePurchaseOrderLoanModal({
       });
       return response.data?.update_loans_by_pk;
     } else {
-      const response = await addLoan({
-        variables: {
-          loan: {
-            artifact_id: loan.artifact_id,
-            loan_type: LoanTypeEnum.PurchaseOrder,
-            requested_payment_date: loan?.requested_payment_date || null,
-            amount: loan?.amount || null,
+      const nextLoanIdentifier = await getNextLoanIdentifierByCompanyId();
+      if (!nextLoanIdentifier) {
+        snackbar.showMessage("Error! Something went wrong.");
+      } else {
+        const response = await addLoan({
+          variables: {
+            loan: {
+              identifier: nextLoanIdentifier.toString(),
+              loan_type: LoanTypeEnum.PurchaseOrder,
+              artifact_id: loan.artifact_id,
+              requested_payment_date: loan?.requested_payment_date || null,
+              amount: loan?.amount || null,
+            },
           },
-        },
-      });
-      return response.data?.insert_loans_one;
+        });
+        return response.data?.insert_loans_one;
+      }
     }
   };
 

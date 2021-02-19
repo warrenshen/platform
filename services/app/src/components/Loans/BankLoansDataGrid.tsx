@@ -153,7 +153,7 @@ function BankLoansDataGrid({
       alignment: "center",
       width: 140,
       cellRender: (params: ValueFormatterParams) => (
-        <DateDataGridCell dateString={params.row.data.origination_date} />
+        <DateDataGridCell dateString={params.row.data.requested_payment_date} />
       ),
     },
     ...(isMaturityVisible

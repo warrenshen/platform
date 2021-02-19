@@ -34,6 +34,7 @@ fragment CompanyLicense on company_licenses {
 
 fragment Company on companies {
   id
+  identifier
   name
   dba_name
   employer_identification_number
@@ -86,6 +87,7 @@ fragment LoanLimited on loans {
   id
   loan_type
   artifact_id
+  identifier
   status
   amount
   requested_payment_date
@@ -96,6 +98,10 @@ fragment LoanLimited on loans {
   outstanding_interest
   outstanding_fees
   funded_at
+  company {
+    id
+    identifier
+  }
 }
 
 ## Files

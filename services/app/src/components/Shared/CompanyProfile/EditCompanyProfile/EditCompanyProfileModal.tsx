@@ -58,60 +58,74 @@ function EditCompanyProfileModal({
         </DialogContentText>
         <Box pb={3} pt={2}>
           <TextField
-            label="Company Name"
+            label="Name"
             required
             className={classes.nameInput}
-            value={company?.name}
+            value={company?.name || ""}
             onChange={({ target: { value } }) => {
               setCompany({ ...company, name: value } as CompanyFragment);
             }}
-          ></TextField>
+          />
+        </Box>
+        <Box pb={3} pt={2}>
+          <TextField
+            label="Identifier (Unique Short Code)"
+            required
+            className={classes.nameInput}
+            value={company?.identifier || ""}
+            onChange={({ target: { value } }) => {
+              setCompany({
+                ...company,
+                identifier: value,
+              } as CompanyFragment);
+            }}
+          />
         </Box>
         <Box pb={3} pt={2}>
           <TextField
             label="Address"
             className={classes.nameInput}
-            value={company?.address}
+            value={company?.address || ""}
             onChange={({ target: { value } }) => {
               setCompany({ ...company, address: value } as CompanyFragment);
             }}
-          ></TextField>
+          />
         </Box>
         <Box pb={3} pt={2}>
           <TextField
             label="Phone number"
             className={classes.nameInput}
-            value={company?.phone_number}
+            value={company?.phone_number || ""}
             onChange={({ target: { value } }) => {
               setCompany({
                 ...company,
                 phone_number: value,
               } as CompanyFragment);
             }}
-          ></TextField>
+          />
         </Box>
         <Box pb={3} pt={2}>
           <TextField
             label="DBA"
             className={classes.nameInput}
-            value={company?.dba_name}
+            value={company?.dba_name || ""}
             onChange={({ target: { value } }) => {
               setCompany({ ...company, dba_name: value } as CompanyFragment);
             }}
-          ></TextField>
+          />
         </Box>
         <Box pb={3} pt={2}>
           <TextField
             label="EIN"
             className={classes.nameInput}
-            value={company?.employer_identification_number}
+            value={company?.employer_identification_number || ""}
             onChange={({ target: { value } }) => {
               setCompany({
                 ...company,
                 employer_identification_number: value,
               } as CompanyFragment);
             }}
-          ></TextField>
+          />
         </Box>
       </DialogContent>
       <DialogActions>
@@ -126,6 +140,7 @@ function EditCompanyProfileModal({
                 variables: {
                   id: company?.id,
                   company: {
+                    identifier: company?.identifier,
                     address: company?.address,
                     phone_number: company?.phone_number,
                     employer_identification_number:

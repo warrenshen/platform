@@ -67,6 +67,7 @@ fragment Loan on loans {
   id
   loan_type
   artifact_id
+  identifier
   status
   amount
   requested_payment_date
@@ -78,6 +79,10 @@ fragment Loan on loans {
   outstanding_interest
   outstanding_fees
   requested_at
+  company {
+    id
+    identifier
+  }
 }
 
 ## Finance

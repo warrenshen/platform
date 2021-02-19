@@ -108,15 +108,15 @@ function LineOfCreditLoanForm({
       <Box display="flex" flexDirection="column" mt={2}>
         <DatePicker
           className={classes.purchaseOrderInput}
-          id="origination-date-date-picker"
+          id="requested-payment-date-date-picker"
           label="Payment Date"
           disablePast
           disableNonBankDays
-          value={loan.origination_date}
+          value={loan.requested_payment_date}
           onChange={(value) => {
             setLoan({
               ...loan,
-              origination_date: value,
+              requested_payment_date: value,
             });
           }}
         />

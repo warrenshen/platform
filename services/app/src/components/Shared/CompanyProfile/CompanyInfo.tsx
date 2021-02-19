@@ -49,7 +49,7 @@ function CompanyInfo({ company }: Props) {
           </Box>
         </CardContent>
         <CardActions>
-          <EditButton company={company}></EditButton>
+          <EditButton company={company} />
         </CardActions>
       </Card>
     </Box>

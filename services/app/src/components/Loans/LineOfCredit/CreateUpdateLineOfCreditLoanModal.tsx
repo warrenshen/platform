@@ -19,13 +19,14 @@ import {
   useAddLineOfCreditMutation,
   useAddLoanMutation,
   useApprovedVendorsByPartnerCompanyIdQuery,
+  useGetCompanyNextLoanIdentifierMutation,
   useGetLoanWithArtifactForCustomerQuery,
-  useLoanSiblingsQuery,
   useUpdateLineOfCreditAndLoanMutation,
 } from "generated/graphql";
 import { authenticatedApi, loansRoutes } from "lib/api";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
+import { useSnackbar } from "material-ui-snackbar-provider";
 import { useContext, useState } from "react";
 import LineOfCreditLoanForm from "./LineOfCreditLoanForm";
 
@@ -52,12 +53,6 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function fifteenDaysAfterDate(date: Date) {
-  const resultDate = new Date(date);
-  resultDate.setDate(resultDate.getDate() + 15);
-  return resultDate;
-}
-
 interface Props {
   actionType: ActionType;
   loanId: Scalars["uuid"] | null;
@@ -70,6 +65,8 @@ function CreateUpdateLineOfCreditLoanModal({
   handleClose,
 }: Props) {
   const classes = useStyles();
+  const snackbar = useSnackbar();
+
   const {
     user: { companyId },
   } = useContext(CurrentUserContext);
@@ -84,7 +81,7 @@ function CreateUpdateLineOfCreditLoanModal({
   const newLoan: LoansInsertInput = {
     company_id: companyId,
     loan_type: LoanTypeEnum.LineOfCredit,
-    origination_date: null,
+    requested_payment_date: null,
     maturity_date: null,
     adjusted_maturity_date: null,
     amount: "",
@@ -119,30 +116,6 @@ function CreateUpdateLineOfCreditLoanModal({
   });
 
   const {
-    data: loanSiblingsData,
-    loading: isLoanSiblingsLoading,
-  } = useLoanSiblingsQuery({
-    fetchPolicy: "network-only",
-    variables: {
-      // The `|| null` below is necessary because "" is an invalid parameter to give to the query.
-      // `null` is given in the case of a new loan.
-      loanId: loanId || null,
-      loanType: LoanTypeEnum.LineOfCredit,
-      artifactId: loan.artifact_id,
-    },
-  });
-
-  console.log({ loanSiblingsData });
-  // const loanSiblings = loanSiblingsData?.loans || [];
-  // const siblingsTotalAmount = loanSiblings
-  //   .filter((loanSibling) =>
-  //     [LoanStatusEnum.ApprovalRequested, LoanStatusEnum.Approved].includes(
-  //       loanSibling.status
-  //     )
-  //   )
-  //   .reduce((sum, loanSibling) => sum + loanSibling.amount || 0, 0);
-
-  const {
     data,
     loading: isApprovedVendorsLoading,
   } = useApprovedVendorsByPartnerCompanyIdQuery({
@@ -165,35 +138,21 @@ function CreateUpdateLineOfCreditLoanModal({
     { loading: isUpdateLineOfCreditAndLoanLoading },
   ] = useUpdateLineOfCreditAndLoanMutation();
 
-  // const proposedLoansTotalAmount =
-  //   siblingsTotalAmount + parseFloat(loan?.amount) || 0;
+  const [
+    getCompanyNextLoanIdentifier,
+  ] = useGetCompanyNextLoanIdentifierMutation();
 
-  const isDialogReady = !isExistingLoanLoading && !isApprovedVendorsLoading;
-  const isFormValid = !!loan.amount;
-  const isFormLoading =
-    isAddLineOfCreditLoading ||
-    isAddLoanLoading ||
-    isUpdateLineOfCreditAndLoanLoading;
-  const isSaveDraftDisabled = !isFormValid || isFormLoading;
-
-  const isSaveSubmitDisabled =
-    !isFormValid ||
-    isFormLoading ||
-    isLoanSiblingsLoading ||
-    // proposedLoansTotalAmount > selectedPurchaseOrder.amount ||
-    !loan?.origination_date ||
-    !loan?.amount;
+  const getNextLoanIdentifierByCompanyId = async () => {
+    const response = await getCompanyNextLoanIdentifier({
+      variables: {
+        companyId,
+        increment: { latest_loan_identifier: 1 },
+      },
+    });
+    return response.data?.update_companies_by_pk?.latest_loan_identifier;
+  };
 
   const upsertLineOfCreditLoan = async () => {
-    // TODO (warrenshen): in the future, maturity date will
-    // be set server-side or by bank users, not by customer users.
-    const fifteenDaysFromNow = new Date(
-      new Date().getTime() + 15 * 24 * 60 * 60 * 1000
-    );
-    const maturityDate = loan.origination_date
-      ? fifteenDaysAfterDate(new Date(loan.origination_date))
-      : fifteenDaysFromNow;
-
     if (actionType === ActionType.Update) {
       const response = await updateLineOfCreditAndLoan({
         variables: {
@@ -204,42 +163,44 @@ function CreateUpdateLineOfCreditLoanModal({
           },
           loanId: loan.id,
           loan: {
-            origination_date: loan.origination_date || null,
+            requested_payment_date: loan.requested_payment_date || null,
             amount: loan.amount || null,
-            maturity_date: maturityDate,
-            adjusted_maturity_date: maturityDate,
           },
         },
       });
       return response.data?.update_loans_by_pk;
     } else {
-      const responseLineOfCredit = await addLineOfCredit({
-        variables: {
-          lineOfCredit: {
-            is_credit_for_vendor: lineOfCredit.is_credit_for_vendor,
-            recipient_vendor_id: lineOfCredit.recipient_vendor_id,
-          },
-        },
-      });
-      const artifactId =
-        responseLineOfCredit.data?.insert_line_of_credits_one?.id;
-      if (!artifactId) {
-        alert("Could not add line of credit");
-        return null;
+      const nextLoanIdentifier = await getNextLoanIdentifierByCompanyId();
+      if (!nextLoanIdentifier) {
+        snackbar.showMessage("Error! Something went wrong.");
       } else {
-        const responseLoan = await addLoan({
+        const responseLineOfCredit = await addLineOfCredit({
           variables: {
-            loan: {
-              artifact_id: artifactId,
-              loan_type: loan.loan_type,
-              origination_date: loan.origination_date,
-              maturity_date: loan.maturity_date,
-              adjusted_maturity_date: loan.adjusted_maturity_date,
-              amount: loan.amount,
+            lineOfCredit: {
+              is_credit_for_vendor: lineOfCredit.is_credit_for_vendor,
+              recipient_vendor_id: lineOfCredit.recipient_vendor_id,
             },
           },
         });
-        return responseLoan.data?.insert_loans_one;
+        const artifactId =
+          responseLineOfCredit.data?.insert_line_of_credits_one?.id;
+        if (!artifactId) {
+          alert("Could not add line of credit");
+          snackbar.showMessage("Error! Something went wrong.");
+        } else {
+          const responseLoan = await addLoan({
+            variables: {
+              loan: {
+                identifier: nextLoanIdentifier.toString(),
+                artifact_id: artifactId,
+                loan_type: loan.loan_type,
+                requested_payment_date: loan.requested_payment_date,
+                amount: loan.amount,
+              },
+            },
+          });
+          return responseLoan.data?.insert_loans_one;
+        }
       }
     }
   };
@@ -271,6 +232,20 @@ function CreateUpdateLineOfCreditLoanModal({
     }
     handleClose();
   };
+
+  const isDialogReady = !isExistingLoanLoading && !isApprovedVendorsLoading;
+  const isFormValid = !!loan.amount;
+  const isFormLoading =
+    isAddLineOfCreditLoading ||
+    isAddLoanLoading ||
+    isUpdateLineOfCreditAndLoanLoading;
+  const isSaveDraftDisabled = !isFormValid || isFormLoading;
+
+  const isSaveSubmitDisabled =
+    !isFormValid ||
+    isFormLoading ||
+    !loan?.requested_payment_date ||
+    !loan?.amount;
 
   return isDialogReady ? (
     <Dialog

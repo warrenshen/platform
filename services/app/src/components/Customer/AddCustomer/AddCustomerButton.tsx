@@ -7,11 +7,9 @@ function AddCustomerButton() {
 
   return (
     <>
-      {open && (
-        <AddCustomerModal handleClose={() => setOpen(false)}></AddCustomerModal>
-      )}
+      {open && <AddCustomerModal handleClose={() => setOpen(false)} />}
       <Button variant="contained" color="primary" onClick={() => setOpen(true)}>
-        Add Customer
+        Create Customer
       </Button>
     </>
   );

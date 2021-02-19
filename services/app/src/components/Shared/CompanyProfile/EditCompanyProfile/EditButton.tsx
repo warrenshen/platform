@@ -26,7 +26,7 @@ function EditButton({ company }: Props) {
         <EditCompanyProfileModal
           company={company}
           handleClose={() => setOpen(false)}
-        ></EditCompanyProfileModal>
+        />
       )}
       <Button
         className={classes.editButton}
