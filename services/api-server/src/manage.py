@@ -20,7 +20,7 @@ from server.views import (auth, files, notify, purchase_orders, two_factor,
                           users)
 from server.views.finance.ebba_applications import \
     approvals as ebba_application_approvals
-from server.views.finance.loans import advances, approvals, repayments
+from server.views.finance.loans import advances, approvals, repayments, reports
 
 if is_development_env(os.environ.get('FLASK_ENV')):
 	load_dotenv(os.path.join(os.environ.get('SERVER_ROOT_DIR'), '.env'))
@@ -64,6 +64,7 @@ app.register_blueprint(ebba_application_approvals.handler, url_prefix='/finance/
 app.register_blueprint(repayments.handler, url_prefix='/finance/loans/repayments')
 app.register_blueprint(advances.handler, url_prefix='/finance/loans/advances')
 app.register_blueprint(approvals.handler, url_prefix='/finance/loans/approvals')
+app.register_blueprint(reports.handler, url_prefix='/finance/loans/reports')
 
 app.app_config = config
 app.engine = models.create_engine()
