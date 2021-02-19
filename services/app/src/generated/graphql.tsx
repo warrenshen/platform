@@ -12104,6 +12104,7 @@ export type GetLatestBankFinancialSummariesQuery = {
       | "total_limit"
       | "total_outstanding_principal"
       | "total_outstanding_interest"
+      | "total_outstanding_fees"
       | "total_principal_in_requested_state"
       | "available_limit"
     >
@@ -14787,6 +14788,7 @@ export const GetLatestBankFinancialSummariesDocument = gql`
       total_limit
       total_outstanding_principal
       total_outstanding_interest
+      total_outstanding_fees
       total_principal_in_requested_state
       available_limit
     }

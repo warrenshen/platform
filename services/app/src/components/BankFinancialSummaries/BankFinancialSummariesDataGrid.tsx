@@ -4,7 +4,11 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import { DataGridActionItem } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import { GetLatestBankFinancialSummariesQuery } from "generated/graphql";
+import {
+  GetLatestBankFinancialSummariesQuery,
+  ProductTypeEnum,
+} from "generated/graphql";
+import { ProductTypeToLabel } from "lib/enum";
 
 interface Props {
   bankFinancialSummaries: GetLatestBankFinancialSummariesQuery["bank_financial_summaries"];
@@ -28,6 +32,11 @@ function BankFinancialSummariesDataGrid({
     {
       dataField: "product_type",
       caption: "Product Type",
+      cellRender: (params: ValueFormatterParams) => (
+        <Box>
+          {ProductTypeToLabel[params.row.data.product_type as ProductTypeEnum]}
+        </Box>
+      ),
     },
     {
       dataField: "total_outstanding_principal",
