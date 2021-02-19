@@ -16,6 +16,8 @@ import { createLoanPublicIdentifier } from "lib/loans";
 import React, { useContext } from "react";
 
 interface Props {
+  pager?: boolean;
+  isMiniTable?: boolean;
   loans: LoanFragment[];
   selectedLoanIds?: Loans["id"][];
   actionItems?: DataGridActionItem[];
@@ -23,6 +25,8 @@ interface Props {
 }
 
 function PurchaseOrderLoansDataGrid({
+  pager = true,
+  isMiniTable = false,
   loans,
   selectedLoanIds = [],
   actionItems = [],
@@ -54,13 +58,14 @@ function PurchaseOrderLoansDataGrid({
       ),
     },
     {
+      visible: !isMiniTable,
       dataField: "artifact_id",
       caption: "Purchase Order",
       minWidth: 180,
       cellRender: (params: ValueFormatterParams) => (
         <PurchaseOrderDrawerLauncher
-          label={params.row.data.purchase_order.order_number as string}
-          purchaseOrderId={params.row.data.purchase_order.id as string}
+          label={params.row.data.purchase_order?.order_number as string}
+          purchaseOrderId={params.row.data.purchase_order?.id as string}
         />
       ),
     },
@@ -73,6 +78,7 @@ function PurchaseOrderLoansDataGrid({
       ),
     },
     {
+      visible: !isMiniTable,
       caption: "Requested Payment Date",
       alignment: "right",
       minWidth: 140,
@@ -89,6 +95,7 @@ function PurchaseOrderLoansDataGrid({
       ),
     },
     {
+      visible: !isMiniTable,
       caption: "Outstanding Principal Balance",
       minWidth: 220,
       alignment: "right",
@@ -99,6 +106,7 @@ function PurchaseOrderLoansDataGrid({
       ),
     },
     {
+      visible: !isMiniTable,
       dataField: "action",
       caption: "Action",
       alignment: "center",
@@ -108,18 +116,19 @@ function PurchaseOrderLoansDataGrid({
       ),
     },
     {
+      visible: !isMiniTable && check(user.role, Action.ViewLoanInternalNote),
       dataField: "notes",
       caption: "Internal Note",
       minWidth: 300,
-      visible: check(user.role, Action.ViewLoanInternalNote),
     },
   ];
 
   return (
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
       <ControlledDataGrid
-        pager
-        select
+        pager={pager}
+        pageSize={isMiniTable ? 10 : undefined}
+        select={!isMiniTable}
         dataSource={rows}
         columns={columns}
         selectedRowKeys={selectedLoanIds}

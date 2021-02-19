@@ -1,6 +1,10 @@
 query PurchaseOrder($id: uuid!) {
   purchase_orders_by_pk(id: $id) {
     ...PurchaseOrder
+    loans(where: { loan_type: { _eq: purchase_order } }) {
+      id
+      ...LoanLimited
+    }
     purchase_order_files {
       ...PurchaseOrderFile
     }

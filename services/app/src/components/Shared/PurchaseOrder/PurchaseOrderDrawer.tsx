@@ -8,6 +8,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import PurchaseOrderLoansDataGrid from "components/Loans/PurchaseOrder/PurchaseOrderLoansDataGrid";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
@@ -24,7 +25,7 @@ import { useContext } from "react";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     drawerContent: {
-      width: 400,
+      width: 500,
       paddingBottom: theme.spacing(16),
     },
     propertyLabel: {
@@ -53,6 +54,7 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
   });
 
   const purchaseOrder = data?.purchase_orders_by_pk;
+  const loans = purchaseOrder?.loans;
   const purchaseOrderFile = purchaseOrder?.purchase_order_files.filter(
     (purchaseOrderFile) =>
       purchaseOrderFile.file_type === PurchaseOrderFileTypeEnum.PurchaseOrder
@@ -64,7 +66,7 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
       )
     : [];
 
-  return purchaseOrder ? (
+  return purchaseOrder && loans ? (
     <Drawer open anchor="right" onClose={handleClose}>
       <Box className={classes.drawerContent} p={4}>
         <Typography variant="h5">Purchase Order</Typography>
@@ -181,6 +183,12 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
               )}
             </Box>
           )}
+        </Box>
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2" color="textSecondary">
+            Loans
+          </Typography>
+          <PurchaseOrderLoansDataGrid pager={false} isMiniTable loans={loans} />
         </Box>
       </Box>
     </Drawer>

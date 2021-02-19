@@ -98,10 +98,6 @@ function PurchaseOrdersDataGrid({
       ),
     },
     {
-      dataField: "loans",
-      caption: "Loans",
-    },
-    {
       dataField: "action",
       caption: "Action",
       alignment: "center",
