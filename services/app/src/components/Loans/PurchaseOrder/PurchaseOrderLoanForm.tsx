@@ -10,8 +10,8 @@ import {
   Typography,
 } from "@material-ui/core";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
+import PurchaseOrderInfoCard from "components/PurchaseOrder/PurchaseOrderInfoCard";
 import DatePicker from "components/Shared/Dates/DatePicker";
-import PurchaseOrderInfoCard from "components/Shared/PurchaseOrder/PurchaseOrderInfoCard";
 import { LoansInsertInput, PurchaseOrderFragment } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 

@@ -1,8 +1,8 @@
 import { Box, Button } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
-import EditUserProfileModal from "components/Shared/Users/EditUserProfileModal";
-import InviteUserModal from "components/Shared/Users/InviteUserModal";
-import UsersDataGrid from "components/Shared/Users/UsersDataGrid";
+import EditUserProfileModal from "components/Users/EditUserProfileModal";
+import InviteUserModal from "components/Users/InviteUserModal";
+import UsersDataGrid from "components/Users/UsersDataGrid";
 import {
   useListUsersByCompanyIdQuery,
   UserFragment,

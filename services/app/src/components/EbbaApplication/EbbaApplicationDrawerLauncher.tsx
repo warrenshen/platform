@@ -1,5 +1,5 @@
 import { Button } from "@material-ui/core";
-import EbbaApplicationDrawer from "components/Shared/EbbaApplication/EbbaApplicationDrawer";
+import EbbaApplicationDrawer from "components/EbbaApplication/EbbaApplicationDrawer";
 import { EbbaApplications } from "generated/graphql";
 import React, { useState } from "react";
 
@@ -17,7 +17,7 @@ function Launcher({ label, ebbaApplicationId }: Props) {
         <EbbaApplicationDrawer
           ebbaApplicationId={ebbaApplicationId}
           handleClose={() => setIsOpen(false)}
-        ></EbbaApplicationDrawer>
+        />
       )}
       <Button color="primary" onClick={() => setIsOpen(true)}>
         {label}

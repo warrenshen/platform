@@ -1,5 +1,5 @@
 import { Button } from "@material-ui/core";
-import CreateUpdateBankAccountModal from "components/Shared/BankAccount/CreateUpdateBankAccountModal";
+import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBankAccountModal";
 import { Companies } from "generated/graphql";
 import { useState } from "react";
 
@@ -17,7 +17,7 @@ function AddAccountButton(props: Props) {
           companyId={props.companyId}
           existingBankAccount={null}
           handleClose={() => setOpen(false)}
-        ></CreateUpdateBankAccountModal>
+        />
       )}
       <Button
         disabled={open}

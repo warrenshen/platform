@@ -1,5 +1,5 @@
+import LoanDrawer from "components/Loan/LoanDrawer";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
-import LoanDrawer from "components/Shared/Loan/LoanDrawer";
 import { Loans } from "generated/graphql";
 import React, { useState } from "react";
 
@@ -14,10 +14,7 @@ function Launcher({ label, loanId }: Props) {
   return (
     <>
       {isOpen && (
-        <LoanDrawer
-          loanId={loanId}
-          handleClose={() => setIsOpen(false)}
-        ></LoanDrawer>
+        <LoanDrawer loanId={loanId} handleClose={() => setIsOpen(false)} />
       )}
       <ClickableDataGridCell onClick={() => setIsOpen(true)} label={label} />
     </>

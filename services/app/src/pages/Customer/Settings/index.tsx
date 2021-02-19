@@ -1,5 +1,5 @@
+import Settings from "components/Settings";
 import Page from "components/Shared/Page";
-import Settings from "components/Shared/Settings";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   CompanySettingsForCustomerFragment,

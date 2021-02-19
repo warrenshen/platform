@@ -8,8 +8,8 @@ import {
   makeStyles,
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
+import ContractTermsLink from "components/Settings/ContractTermsLink";
 import Can from "components/Shared/Can";
-import ContractTermsLink from "components/Shared/Settings/ContractTermsLink";
 import { ContractFragment } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { formatDateString } from "lib/date";

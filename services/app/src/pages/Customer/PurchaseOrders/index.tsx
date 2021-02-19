@@ -1,8 +1,8 @@
 import { Box, Button } from "@material-ui/core";
+import CreateUpdatePurchaseOrderModal from "components/PurchaseOrders/CreateUpdatePurchaseOrderModal";
+import PurchaseOrdersDataGrid from "components/PurchaseOrders/PurchaseOrdersDataGrid";
 import Can from "components/Shared/Can";
 import Page from "components/Shared/Page";
-import CreateUpdatePurchaseOrderModal from "components/Shared/PurchaseOrders/CreateUpdatePurchaseOrderModal";
-import PurchaseOrdersDataGrid from "components/Shared/PurchaseOrders/PurchaseOrdersDataGrid";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { usePurchaseOrdersByCompanyIdQuery } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";

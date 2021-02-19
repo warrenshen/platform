@@ -8,7 +8,7 @@ import {
   makeStyles,
   Theme,
 } from "@material-ui/core";
-import PurchaseOrderForm from "components/Shared/PurchaseOrders/PurchaseOrderForm";
+import PurchaseOrderForm from "components/PurchaseOrders/PurchaseOrderForm";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   PurchaseOrderFileFragment,

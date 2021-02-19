@@ -8,7 +8,7 @@ import {
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import { CheckCircle } from "@material-ui/icons";
-import CreateUpdateBankAccountModal from "components/Shared/BankAccount/CreateUpdateBankAccountModal";
+import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBankAccountModal";
 import { BankAccountFragment } from "generated/graphql";
 import { formatDateString } from "lib/date";
 import { obfuscateBankNumbers } from "lib/privacy";
@@ -45,7 +45,7 @@ function BankAccountInfoCard({
           companyId={bankAccount.company_id}
           existingBankAccount={bankAccount}
           handleClose={() => setEditing(false)}
-        ></CreateUpdateBankAccountModal>
+        />
       )}
       <Card>
         <CardContent>
@@ -77,7 +77,7 @@ function BankAccountInfoCard({
                     ? "primary"
                     : "disabled"
                 }
-              ></CheckCircle>
+              />
               <Box pl={1}>
                 {bankAccount.verified_at && bankAccount.verified_date
                   ? `Verified on ${formatDateString(bankAccount.verified_date)}`

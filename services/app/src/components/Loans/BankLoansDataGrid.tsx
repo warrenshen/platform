@@ -1,6 +1,7 @@
 import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import { FilterList } from "@material-ui/icons";
+import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
@@ -8,7 +9,6 @@ import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import LoanDrawerLauncher from "components/Shared/Loan/LoanDrawerLauncher";
 import { IColumnProps } from "devextreme-react/data-grid";
 import {
   LoanFragment,

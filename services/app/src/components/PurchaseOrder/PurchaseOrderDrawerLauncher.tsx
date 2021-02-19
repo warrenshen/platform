@@ -1,5 +1,5 @@
+import PurchaseOrderDrawer from "components/PurchaseOrder/PurchaseOrderDrawer";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
-import PurchaseOrderDrawer from "components/Shared/PurchaseOrder/PurchaseOrderDrawer";
 import { PurchaseOrders } from "generated/graphql";
 import React, { useState } from "react";
 
@@ -17,7 +17,7 @@ function Launcher({ label, purchaseOrderId }: Props) {
         <PurchaseOrderDrawer
           purchaseOrderId={purchaseOrderId}
           handleClose={() => setIsOpen(false)}
-        ></PurchaseOrderDrawer>
+        />
       )}
       <ClickableDataGridCell onClick={() => setIsOpen(true)} label={label} />
     </>

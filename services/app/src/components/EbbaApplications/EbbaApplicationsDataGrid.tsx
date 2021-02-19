@@ -1,10 +1,10 @@
 import { Box } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import EbbaApplicationDrawerLauncher from "components/EbbaApplication/EbbaApplicationDrawerLauncher";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import { DataGridActionItem } from "components/Shared/DataGrid/DataGridActionMenu";
-import EbbaApplicationDrawerLauncher from "components/Shared/EbbaApplication/EbbaApplicationDrawerLauncher";
 import { EbbaApplicationsQuery, RequestStatusEnum } from "generated/graphql";
 import { truncateUuid } from "lib/uuid";
 

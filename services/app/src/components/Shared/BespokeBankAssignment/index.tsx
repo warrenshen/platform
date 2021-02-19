@@ -7,7 +7,7 @@ import {
   Select,
   Theme,
 } from "@material-ui/core";
-import BankAccountInfoCard from "components/Shared/BankAccount/BankAccountInfoCard";
+import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import { BankAccountFragment, useBankAccountsQuery } from "generated/graphql";
 
 interface Props {
@@ -66,7 +66,7 @@ function BespokeBankAssignment(props: Props) {
           {props.assignedBespokeBankAccount && (
             <BankAccountInfoCard
               bankAccount={props.assignedBespokeBankAccount}
-            ></BankAccountInfoCard>
+            />
           )}
         </Box>
       </Box>

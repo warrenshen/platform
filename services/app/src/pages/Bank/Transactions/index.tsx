@@ -1,5 +1,5 @@
 import Page from "components/Shared/Page";
-import TransactionsDataGrid from "components/Shared/Transactions/TransactionsDataGrid";
+import TransactionsDataGrid from "components/Transactions/TransactionsDataGrid";
 import { useTransactionsQuery } from "generated/graphql";
 
 function BankTransactionsPage() {
@@ -13,7 +13,7 @@ function BankTransactionsPage() {
         transactions={transactions}
         customerSearchQuery={""}
         onClickCustomerName={() => {}}
-      ></TransactionsDataGrid>
+      />
     </Page>
   );
 }

@@ -9,7 +9,7 @@ import {
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import Page from "components/Shared/Page";
-import EditUserProfileModal from "components/Shared/Users/EditUserProfileModal";
+import EditUserProfileModal from "components/Users/EditUserProfileModal";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { UserRolesEnum, useUserByIdQuery } from "generated/graphql";
 import { useContext, useState } from "react";
@@ -44,7 +44,7 @@ function UserProfile() {
           userId={currentUser.id}
           originalUserProfile={user}
           handleClose={() => setOpen(false)}
-        ></EditUserProfileModal>
+        />
       )}
       <Box display="flex">
         <Card>

@@ -1,6 +1,6 @@
 import { Box, Button } from "@material-ui/core";
-import CreateEbbaApplicationModal from "components/Shared/EbbaApplication/CreateEbbaApplicationModal";
-import EbbaApplicationCard from "components/Shared/EbbaApplication/EbbaApplicationCard";
+import CreateEbbaApplicationModal from "components/EbbaApplication/CreateEbbaApplicationModal";
+import EbbaApplicationCard from "components/EbbaApplication/EbbaApplicationCard";
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useEbbaApplicationsByCompanyIdQuery } from "generated/graphql";

@@ -10,7 +10,7 @@ import {
   makeStyles,
   Theme,
 } from "@material-ui/core";
-import BankAccountInfoCard from "components/Shared/BankAccount/BankAccountInfoCard";
+import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   BankAccountFragment,
@@ -110,7 +110,7 @@ function ReviewPurchaseOrderApproveModal({
             isEditAllowed={false}
             isVerificationVisible={false}
             bankAccount={vendorBankAccount}
-          ></BankAccountInfoCard>
+          />
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>

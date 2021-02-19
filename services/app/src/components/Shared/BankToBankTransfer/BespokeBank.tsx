@@ -1,5 +1,5 @@
 import { Box, FormControl, MenuItem, Select } from "@material-ui/core";
-import BankAccountInfoCard from "components/Shared/BankAccount/BankAccountInfoCard";
+import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import {
   BankAccounts,
   Companies,
@@ -79,7 +79,7 @@ function BespokeBank({ companyId, onBespokeBankAccountSelection }: Props) {
           <BankAccountInfoCard
             isEditAllowed={false}
             bankAccount={bespokeBankAccount}
-          ></BankAccountInfoCard>
+          />
         </Box>
       )}
     </Box>

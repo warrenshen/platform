@@ -1,6 +1,6 @@
 import { Box } from "@material-ui/core";
+import PurchaseOrdersDataGrid from "components/PurchaseOrders/PurchaseOrdersDataGrid";
 import Page from "components/Shared/Page";
-import PurchaseOrdersDataGrid from "components/Shared/PurchaseOrders/PurchaseOrdersDataGrid";
 import { useGetPurchaseOrdersQuery } from "generated/graphql";
 
 function BankPurchaseOrdersPage() {
