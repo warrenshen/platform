@@ -2,11 +2,11 @@ import datetime
 import decimal
 import json
 import logging
-from typing import Any, List, Callable, cast
+from typing import Any, Callable, List, cast
 
+from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
-from bespoke.date import date_util
 from bespoke.finance.reports import loan_balances
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
@@ -39,7 +39,7 @@ class RunCustomerBalancesView(MethodView):
 				# Find customers to run reports for
 				companies = cast(
 					List[models.Company],
-					session.query(models.Company).first())
+					session.query(models.Company))
 				company_dicts = [company.as_dict() for company in companies]
 		else:
 			with session_scope(session_maker) as session:
@@ -87,7 +87,7 @@ class RunCustomerBalancesView(MethodView):
 				session.query(models.FinancialSummary).all())
 			if not financial_summaries:
 				return handler_util.make_error_response('No financial summaries registered in the DB')
-			
+
 			company_ids = [str(summary.company_id) for summary in financial_summaries]
 
 			companies = cast(
@@ -100,7 +100,7 @@ class RunCustomerBalancesView(MethodView):
 				return handler_util.make_error_response('No companies registered in the DB')
 
 			if len(companies) != len(company_ids):
-				return handler_util.make_error_response('Not all companies found that have a financial summary')				
+				return handler_util.make_error_response('Not all companies found that have a financial summary')
 
 			contract_ids = [str(company.contract_id) for company in companies]
 
@@ -114,7 +114,7 @@ class RunCustomerBalancesView(MethodView):
 				return handler_util.make_error_response('No contracts registered in the DB')
 
 			if len(contracts) != len(contract_ids):
-				return handler_util.make_error_response('Not all contracts found that have a financial summary')				
+				return handler_util.make_error_response('Not all contracts found that have a financial summary')
 
 			company_id_to_product_type = {}
 			for contract in contracts:
