@@ -3206,6 +3206,22 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_fees",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "numeric",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_outstanding_interest",
             "description": null,
             "args": [],
@@ -3672,6 +3688,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_fees",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_outstanding_interest",
             "description": null,
             "args": [],
@@ -3741,6 +3769,16 @@
           },
           {
             "name": "total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_fees",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -3879,6 +3917,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_outstanding_fees",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "numeric_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_outstanding_interest",
             "description": null,
             "type": {
@@ -3948,6 +3996,16 @@
           },
           {
             "name": "total_limit",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_fees",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -4039,6 +4097,16 @@
           },
           {
             "name": "total_limit",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_fees",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -4148,6 +4216,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_fees",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_outstanding_interest",
             "description": null,
             "args": [],
@@ -4237,6 +4317,16 @@
           },
           {
             "name": "total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_fees",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -4346,6 +4436,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_fees",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_outstanding_interest",
             "description": null,
             "args": [],
@@ -4435,6 +4537,16 @@
           },
           {
             "name": "total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_fees",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -4678,6 +4790,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_outstanding_fees",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_outstanding_interest",
             "description": null,
             "type": {
@@ -4776,6 +4898,12 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_fees",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_outstanding_interest",
             "description": "column name",
             "isDeprecated": false,
@@ -4853,6 +4981,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_outstanding_fees",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_outstanding_interest",
             "description": null,
             "type": {
@@ -4906,6 +5044,18 @@
           },
           {
             "name": "total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "total_outstanding_fees",
             "description": null,
             "args": [],
             "type": {
@@ -4985,6 +5135,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_outstanding_fees",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_outstanding_interest",
             "description": null,
             "type": {
@@ -5038,6 +5198,18 @@
           },
           {
             "name": "total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "total_outstanding_fees",
             "description": null,
             "args": [],
             "type": {
@@ -5117,6 +5289,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_outstanding_fees",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_outstanding_interest",
             "description": null,
             "type": {
@@ -5170,6 +5352,18 @@
           },
           {
             "name": "total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "total_outstanding_fees",
             "description": null,
             "args": [],
             "type": {
@@ -5249,6 +5443,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_outstanding_fees",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_outstanding_interest",
             "description": null,
             "type": {
@@ -5302,6 +5506,18 @@
           },
           {
             "name": "total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "total_outstanding_fees",
             "description": null,
             "args": [],
             "type": {
@@ -5372,6 +5588,16 @@
           },
           {
             "name": "total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_fees",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -5454,6 +5680,12 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_fees",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_outstanding_interest",
             "description": "column name",
             "isDeprecated": false,
@@ -5493,6 +5725,18 @@
           },
           {
             "name": "total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "total_outstanding_fees",
             "description": null,
             "args": [],
             "type": {
@@ -5572,6 +5816,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_outstanding_fees",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_outstanding_interest",
             "description": null,
             "type": {
@@ -5625,6 +5879,18 @@
           },
           {
             "name": "total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "total_outstanding_fees",
             "description": null,
             "args": [],
             "type": {
@@ -5704,6 +5970,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_outstanding_fees",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_outstanding_interest",
             "description": null,
             "type": {
@@ -5757,6 +6033,18 @@
           },
           {
             "name": "total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "total_outstanding_fees",
             "description": null,
             "args": [],
             "type": {
@@ -5827,6 +6115,16 @@
           },
           {
             "name": "total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_fees",
             "description": null,
             "type": {
               "kind": "ENUM",

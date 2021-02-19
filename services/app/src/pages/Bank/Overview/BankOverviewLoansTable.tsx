@@ -52,7 +52,7 @@ function BankOverviewLoansTable({
             filterByStatus={filterByStatus}
             loans={loans}
             actionItems={[]}
-          ></BankLoansDataGrid>
+          />
         </Box>
       </Box>
     </Box>

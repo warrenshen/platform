@@ -18,6 +18,20 @@ query GetCompanyForCustomerOverview($companyId: uuid!) {
   }
 }
 
+query GetLatestBankFinancialSummaries {
+  bank_financial_summaries(limit: 4, order_by: { date: desc }) {
+    id
+    date
+    product_type
+    total_limit
+    total_outstanding_principal
+    total_outstanding_interest
+    total_outstanding_fees
+    total_principal_in_requested_state
+    available_limit
+  }
+}
+
 # Query is used to determine what navigation options to show in sidebar.
 query CompanyWithDetailsByCompanyId($companyId: uuid!) {
   companies_by_pk(id: $companyId) {

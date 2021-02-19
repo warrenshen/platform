@@ -448,6 +448,7 @@ export type BankFinancialSummaries = {
   id: Scalars["uuid"];
   product_type: Scalars["String"];
   total_limit: Scalars["numeric"];
+  total_outstanding_fees: Scalars["numeric"];
   total_outstanding_interest: Scalars["numeric"];
   total_outstanding_principal: Scalars["numeric"];
   total_principal_in_requested_state: Scalars["numeric"];
@@ -505,6 +506,7 @@ export type BankFinancialSummariesArrRelInsertInput = {
 export type BankFinancialSummariesAvgFields = {
   available_limit?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
+  total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
   total_outstanding_principal?: Maybe<Scalars["Float"]>;
   total_principal_in_requested_state?: Maybe<Scalars["Float"]>;
@@ -514,6 +516,7 @@ export type BankFinancialSummariesAvgFields = {
 export type BankFinancialSummariesAvgOrderBy = {
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
+  total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
   total_outstanding_principal?: Maybe<OrderBy>;
   total_principal_in_requested_state?: Maybe<OrderBy>;
@@ -529,6 +532,7 @@ export type BankFinancialSummariesBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   product_type?: Maybe<StringComparisonExp>;
   total_limit?: Maybe<NumericComparisonExp>;
+  total_outstanding_fees?: Maybe<NumericComparisonExp>;
   total_outstanding_interest?: Maybe<NumericComparisonExp>;
   total_outstanding_principal?: Maybe<NumericComparisonExp>;
   total_principal_in_requested_state?: Maybe<NumericComparisonExp>;
@@ -544,6 +548,7 @@ export enum BankFinancialSummariesConstraint {
 export type BankFinancialSummariesIncInput = {
   available_limit?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
+  total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
   total_outstanding_principal?: Maybe<Scalars["numeric"]>;
   total_principal_in_requested_state?: Maybe<Scalars["numeric"]>;
@@ -556,6 +561,7 @@ export type BankFinancialSummariesInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   product_type?: Maybe<Scalars["String"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
+  total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
   total_outstanding_principal?: Maybe<Scalars["numeric"]>;
   total_principal_in_requested_state?: Maybe<Scalars["numeric"]>;
@@ -568,6 +574,7 @@ export type BankFinancialSummariesMaxFields = {
   id?: Maybe<Scalars["uuid"]>;
   product_type?: Maybe<Scalars["String"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
+  total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
   total_outstanding_principal?: Maybe<Scalars["numeric"]>;
   total_principal_in_requested_state?: Maybe<Scalars["numeric"]>;
@@ -580,6 +587,7 @@ export type BankFinancialSummariesMaxOrderBy = {
   id?: Maybe<OrderBy>;
   product_type?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
+  total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
   total_outstanding_principal?: Maybe<OrderBy>;
   total_principal_in_requested_state?: Maybe<OrderBy>;
@@ -592,6 +600,7 @@ export type BankFinancialSummariesMinFields = {
   id?: Maybe<Scalars["uuid"]>;
   product_type?: Maybe<Scalars["String"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
+  total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
   total_outstanding_principal?: Maybe<Scalars["numeric"]>;
   total_principal_in_requested_state?: Maybe<Scalars["numeric"]>;
@@ -604,6 +613,7 @@ export type BankFinancialSummariesMinOrderBy = {
   id?: Maybe<OrderBy>;
   product_type?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
+  total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
   total_outstanding_principal?: Maybe<OrderBy>;
   total_principal_in_requested_state?: Maybe<OrderBy>;
@@ -637,6 +647,7 @@ export type BankFinancialSummariesOrderBy = {
   id?: Maybe<OrderBy>;
   product_type?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
+  total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
   total_outstanding_principal?: Maybe<OrderBy>;
   total_principal_in_requested_state?: Maybe<OrderBy>;
@@ -660,6 +671,8 @@ export enum BankFinancialSummariesSelectColumn {
   /** column name */
   TotalLimit = "total_limit",
   /** column name */
+  TotalOutstandingFees = "total_outstanding_fees",
+  /** column name */
   TotalOutstandingInterest = "total_outstanding_interest",
   /** column name */
   TotalOutstandingPrincipal = "total_outstanding_principal",
@@ -674,6 +687,7 @@ export type BankFinancialSummariesSetInput = {
   id?: Maybe<Scalars["uuid"]>;
   product_type?: Maybe<Scalars["String"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
+  total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
   total_outstanding_principal?: Maybe<Scalars["numeric"]>;
   total_principal_in_requested_state?: Maybe<Scalars["numeric"]>;
@@ -683,6 +697,7 @@ export type BankFinancialSummariesSetInput = {
 export type BankFinancialSummariesStddevFields = {
   available_limit?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
+  total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
   total_outstanding_principal?: Maybe<Scalars["Float"]>;
   total_principal_in_requested_state?: Maybe<Scalars["Float"]>;
@@ -692,6 +707,7 @@ export type BankFinancialSummariesStddevFields = {
 export type BankFinancialSummariesStddevOrderBy = {
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
+  total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
   total_outstanding_principal?: Maybe<OrderBy>;
   total_principal_in_requested_state?: Maybe<OrderBy>;
@@ -701,6 +717,7 @@ export type BankFinancialSummariesStddevOrderBy = {
 export type BankFinancialSummariesStddevPopFields = {
   available_limit?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
+  total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
   total_outstanding_principal?: Maybe<Scalars["Float"]>;
   total_principal_in_requested_state?: Maybe<Scalars["Float"]>;
@@ -710,6 +727,7 @@ export type BankFinancialSummariesStddevPopFields = {
 export type BankFinancialSummariesStddevPopOrderBy = {
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
+  total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
   total_outstanding_principal?: Maybe<OrderBy>;
   total_principal_in_requested_state?: Maybe<OrderBy>;
@@ -719,6 +737,7 @@ export type BankFinancialSummariesStddevPopOrderBy = {
 export type BankFinancialSummariesStddevSampFields = {
   available_limit?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
+  total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
   total_outstanding_principal?: Maybe<Scalars["Float"]>;
   total_principal_in_requested_state?: Maybe<Scalars["Float"]>;
@@ -728,6 +747,7 @@ export type BankFinancialSummariesStddevSampFields = {
 export type BankFinancialSummariesStddevSampOrderBy = {
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
+  total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
   total_outstanding_principal?: Maybe<OrderBy>;
   total_principal_in_requested_state?: Maybe<OrderBy>;
@@ -737,6 +757,7 @@ export type BankFinancialSummariesStddevSampOrderBy = {
 export type BankFinancialSummariesSumFields = {
   available_limit?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
+  total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
   total_outstanding_principal?: Maybe<Scalars["numeric"]>;
   total_principal_in_requested_state?: Maybe<Scalars["numeric"]>;
@@ -746,6 +767,7 @@ export type BankFinancialSummariesSumFields = {
 export type BankFinancialSummariesSumOrderBy = {
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
+  total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
   total_outstanding_principal?: Maybe<OrderBy>;
   total_principal_in_requested_state?: Maybe<OrderBy>;
@@ -764,6 +786,8 @@ export enum BankFinancialSummariesUpdateColumn {
   /** column name */
   TotalLimit = "total_limit",
   /** column name */
+  TotalOutstandingFees = "total_outstanding_fees",
+  /** column name */
   TotalOutstandingInterest = "total_outstanding_interest",
   /** column name */
   TotalOutstandingPrincipal = "total_outstanding_principal",
@@ -775,6 +799,7 @@ export enum BankFinancialSummariesUpdateColumn {
 export type BankFinancialSummariesVarPopFields = {
   available_limit?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
+  total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
   total_outstanding_principal?: Maybe<Scalars["Float"]>;
   total_principal_in_requested_state?: Maybe<Scalars["Float"]>;
@@ -784,6 +809,7 @@ export type BankFinancialSummariesVarPopFields = {
 export type BankFinancialSummariesVarPopOrderBy = {
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
+  total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
   total_outstanding_principal?: Maybe<OrderBy>;
   total_principal_in_requested_state?: Maybe<OrderBy>;
@@ -793,6 +819,7 @@ export type BankFinancialSummariesVarPopOrderBy = {
 export type BankFinancialSummariesVarSampFields = {
   available_limit?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
+  total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
   total_outstanding_principal?: Maybe<Scalars["Float"]>;
   total_principal_in_requested_state?: Maybe<Scalars["Float"]>;
@@ -802,6 +829,7 @@ export type BankFinancialSummariesVarSampFields = {
 export type BankFinancialSummariesVarSampOrderBy = {
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
+  total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
   total_outstanding_principal?: Maybe<OrderBy>;
   total_principal_in_requested_state?: Maybe<OrderBy>;
@@ -811,6 +839,7 @@ export type BankFinancialSummariesVarSampOrderBy = {
 export type BankFinancialSummariesVarianceFields = {
   available_limit?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
+  total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
   total_outstanding_principal?: Maybe<Scalars["Float"]>;
   total_principal_in_requested_state?: Maybe<Scalars["Float"]>;
@@ -820,6 +849,7 @@ export type BankFinancialSummariesVarianceFields = {
 export type BankFinancialSummariesVarianceOrderBy = {
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
+  total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
   total_outstanding_principal?: Maybe<OrderBy>;
   total_principal_in_requested_state?: Maybe<OrderBy>;
@@ -12060,6 +12090,26 @@ export type GetCompanyForCustomerOverviewQuery = {
   >;
 };
 
+export type GetLatestBankFinancialSummariesQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetLatestBankFinancialSummariesQuery = {
+  bank_financial_summaries: Array<
+    Pick<
+      BankFinancialSummaries,
+      | "id"
+      | "date"
+      | "product_type"
+      | "total_limit"
+      | "total_outstanding_principal"
+      | "total_outstanding_interest"
+      | "total_principal_in_requested_state"
+      | "available_limit"
+    >
+  >;
+};
+
 export type CompanyWithDetailsByCompanyIdQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
@@ -14727,6 +14777,68 @@ export type GetCompanyForCustomerOverviewLazyQueryHookResult = ReturnType<
 export type GetCompanyForCustomerOverviewQueryResult = Apollo.QueryResult<
   GetCompanyForCustomerOverviewQuery,
   GetCompanyForCustomerOverviewQueryVariables
+>;
+export const GetLatestBankFinancialSummariesDocument = gql`
+  query GetLatestBankFinancialSummaries {
+    bank_financial_summaries(limit: 4, order_by: { date: desc }) {
+      id
+      date
+      product_type
+      total_limit
+      total_outstanding_principal
+      total_outstanding_interest
+      total_principal_in_requested_state
+      available_limit
+    }
+  }
+`;
+
+/**
+ * __useGetLatestBankFinancialSummariesQuery__
+ *
+ * To run a query within a React component, call `useGetLatestBankFinancialSummariesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetLatestBankFinancialSummariesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetLatestBankFinancialSummariesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetLatestBankFinancialSummariesQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetLatestBankFinancialSummariesQuery,
+    GetLatestBankFinancialSummariesQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetLatestBankFinancialSummariesQuery,
+    GetLatestBankFinancialSummariesQueryVariables
+  >(GetLatestBankFinancialSummariesDocument, baseOptions);
+}
+export function useGetLatestBankFinancialSummariesLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetLatestBankFinancialSummariesQuery,
+    GetLatestBankFinancialSummariesQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetLatestBankFinancialSummariesQuery,
+    GetLatestBankFinancialSummariesQueryVariables
+  >(GetLatestBankFinancialSummariesDocument, baseOptions);
+}
+export type GetLatestBankFinancialSummariesQueryHookResult = ReturnType<
+  typeof useGetLatestBankFinancialSummariesQuery
+>;
+export type GetLatestBankFinancialSummariesLazyQueryHookResult = ReturnType<
+  typeof useGetLatestBankFinancialSummariesLazyQuery
+>;
+export type GetLatestBankFinancialSummariesQueryResult = Apollo.QueryResult<
+  GetLatestBankFinancialSummariesQuery,
+  GetLatestBankFinancialSummariesQueryVariables
 >;
 export const CompanyWithDetailsByCompanyIdDocument = gql`
   query CompanyWithDetailsByCompanyId($companyId: uuid!) {
