@@ -149,56 +149,52 @@ function BankLoansDataGrid({
       ),
     },
     {
-      caption: "Payment Date",
-      alignment: "center",
+      caption: "Requested Payment Date",
+      alignment: "right",
       width: 140,
       cellRender: (params: ValueFormatterParams) => (
         <DateDataGridCell dateString={params.row.data.requested_payment_date} />
       ),
     },
-    ...(isMaturityVisible
-      ? [
-          {
-            caption: "Maturity Date",
-            alignment: "center",
-            width: 120,
-            cellRender: (params: ValueFormatterParams) => (
-              <DateDataGridCell dateString={params.row.data.maturity_date} />
-            ),
-          },
-          {
-            caption: "Maturing in (Days)",
-            width: 150,
-            alignment: "center",
-            cellRender: maturingInDaysRenderer,
-          },
-        ]
-      : []),
-  ];
-
-  if (loansPastDue) {
-    columns.push({
+    {
+      visible: isMaturityVisible,
+      caption: "Maturity Date",
+      alignment: "center",
+      width: 120,
+      cellRender: (params: ValueFormatterParams) => (
+        <DateDataGridCell dateString={params.row.data.maturity_date} />
+      ),
+    },
+    {
+      visible: isMaturityVisible,
+      caption: "Maturing in (Days)",
+      width: 150,
+      alignment: "center",
+      cellRender: maturingInDaysRenderer,
+    },
+    {
+      visible: loansPastDue,
       dataField: "outstanding_interest",
       caption: "Interest Accrued",
       alignment: "center",
       width: 140,
-    });
-    columns.push({
+    },
+    {
+      visible: loansPastDue,
       dataField: "outstanding_fees",
       caption: "Late Fees Accrued",
       alignment: "center",
       width: 150,
-    });
-    columns.push({
+    },
+    {
+      visible: loansPastDue,
       caption: "Days Past Due",
       width: 130,
       alignment: "center",
       cellRender: daysPastDueRenderer,
-    });
-  }
-
-  if (actionItems.length > 0) {
-    columns.push({
+    },
+    {
+      visible: actionItems.length > 0,
       dataField: "action",
       caption: "Action",
       alignment: "center",
@@ -206,8 +202,8 @@ function BankLoansDataGrid({
       cellRender: (params: ValueFormatterParams) => (
         <DataGridActionMenu params={params} actionItems={actionItems} />
       ),
-    });
-  }
+    },
+  ];
 
   return (
     <ControlledDataGrid

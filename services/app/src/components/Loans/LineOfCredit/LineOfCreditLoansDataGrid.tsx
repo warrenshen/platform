@@ -57,7 +57,7 @@ function LineOfCreditLoansDataGrid({
       minWidth: 150,
       cellRender: (params: ValueFormatterParams) => (
         <Box>
-          {params.row.data.line_of_credit.is_credit_for_vendor ? "Yes" : "No"}
+          {params.row.data.line_of_credit?.is_credit_for_vendor ? "Yes" : "No"}
         </Box>
       ),
     },
@@ -81,7 +81,7 @@ function LineOfCreditLoansDataGrid({
       ),
     },
     {
-      caption: "Payment Date",
+      caption: "Requested Payment Date",
       alignment: "right",
       minWidth: 140,
       cellRender: (params: ValueFormatterParams) => (

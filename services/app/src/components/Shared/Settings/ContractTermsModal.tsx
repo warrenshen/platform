@@ -83,6 +83,7 @@ const formatValue = (type: any, value: any) => {
     case "integer":
       return parseInt(value);
     case "date":
+    case "string":
       return value;
     default:
       return value;

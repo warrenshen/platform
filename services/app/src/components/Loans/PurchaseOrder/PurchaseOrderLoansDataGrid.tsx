@@ -73,7 +73,7 @@ function PurchaseOrderLoansDataGrid({
       ),
     },
     {
-      caption: "Payment Date",
+      caption: "Requested Payment Date",
       alignment: "right",
       minWidth: 140,
       cellRender: (params: ValueFormatterParams) => (
