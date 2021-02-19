@@ -54,6 +54,9 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
         company_id: companyId,
         report_date: reportDate,
       });
+
+      console.log({ type: "runCustomerBalances", response });
+
       if (response.status !== "OK") {
         snackbar.showMessage(
           "Error! Could not re-calculate customer balances."

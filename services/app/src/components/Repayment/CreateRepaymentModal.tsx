@@ -78,6 +78,8 @@ function RepaymentModal({ companyId, selectedLoans, handleClose }: Props) {
       loan_ids: selectedLoanIds,
     });
 
+    console.log({ type: "calculateEffectOfPayment", resp });
+
     if (resp.status !== "OK") {
       setErrMsg(resp.msg || "");
     } else {

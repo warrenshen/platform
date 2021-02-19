@@ -105,6 +105,8 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
       loan_ids: selectedLoanIds,
     });
 
+    console.log({ type: "calculateEffectOfPayment", response });
+
     if (response.status !== "OK") {
       setErrMsg(response.msg || "");
     } else {
