@@ -107,25 +107,31 @@ function ContractTermsModal({ isViewOnly, contractId, onClose }: Props) {
   const [contract, setContract] = useState(newContract);
 
   const getExistingConfig = (existingContract: ContractFragment) => {
-    const full = JSON.parse(
+    const templateContractFields = JSON.parse(
       ProductTypeToContractTermsJson[
         existingContract.product_type as ProductTypeEnum
       ]
     ).v1.fields;
+
     if (
       existingContract.product_config &&
       Object.keys(existingContract.product_config).length
     ) {
-      const passed = existingContract.product_config.v1.fields;
-      passed.forEach((item: any, i: any) => {
-        if (item.value !== null || full[i].nullable) {
-          full[i].value = item.value;
+      const existingContractFields = existingContract.product_config.v1.fields;
+      existingContractFields.forEach(
+        (existingContractField: any, index: any) => {
+          if (
+            templateContractFields[index] &&
+            (existingContractField.value !== null ||
+              templateContractFields[index].nullable)
+          ) {
+            templateContractFields[index].value = existingContractField.value;
+          }
         }
-      });
-      return full;
-    } else {
-      return full;
+      );
     }
+
+    return templateContractFields;
   };
 
   const [currentJSONConfig, setCurrentJSONConfig] = useState<any>({});
