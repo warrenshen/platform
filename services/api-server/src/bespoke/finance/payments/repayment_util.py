@@ -9,6 +9,7 @@ from typing import Tuple, List, Optional, Callable, cast
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models, db_constants
+from bespoke.db.db_constants import LoanStatusEnum
 from bespoke.db.models import session_scope
 from bespoke.finance.types import per_customer_types
 from bespoke.finance import number_util
@@ -398,6 +399,9 @@ def settle_payment(
 			cur_loan.outstanding_principal_balance = cur_loan.outstanding_principal_balance - to_principal
 			cur_loan.outstanding_interest = cur_loan.outstanding_interest - to_interest
 			cur_loan.outstanding_fees = cur_loan.outstanding_fees - to_fees
+
+			if cur_loan.outstanding_principal_balance <= 0.0 and cur_loan.outstanding_interest <= 0.0 and cur_loan.outstanding_fees <= 0.0:
+				cur_loan.status = LoanStatusEnum.CLOSED
 
 		payment_util.make_payment_applied(
 			payment, 
