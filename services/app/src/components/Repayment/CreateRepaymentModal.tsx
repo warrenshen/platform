@@ -71,28 +71,28 @@ function RepaymentModal({ companyId, selectedLoans, handleClose }: Props) {
       payment.amount = parseFloat(payment.amount);
     }
 
-    const resp = await calculateEffectOfPayment({
+    const response = await calculateEffectOfPayment({
       payment: payment,
       company_id: companyId,
       payment_option: paymentOption,
       loan_ids: selectedLoanIds,
     });
 
-    console.log({ type: "calculateEffectOfPayment", resp });
+    console.log({ type: "calculateEffectOfPayment", response });
 
-    if (resp.status !== "OK") {
-      setErrMsg(resp.msg || "");
+    if (response.status !== "OK") {
+      setErrMsg(response.msg || "");
     } else {
       setErrMsg("");
-      setPayment({ ...payment, amount: resp.amount_to_pay || 0 });
+      setPayment({ ...payment, amount: response.amount_to_pay || 0 });
 
-      if (!resp.loans_afterwards) {
+      if (!response.loans_afterwards) {
         alert("Developer error: response does not include loans_afterwards.");
         return;
       }
 
       setLoansBeforeAfterPayment(
-        resp.loans_afterwards.map((loan_afterwards) => {
+        response.loans_afterwards.map((loan_afterwards) => {
           const beforeLoan = selectedLoans.find(
             (selectedLoan) => selectedLoan.id === loan_afterwards.loan_id
           );
@@ -128,14 +128,14 @@ function RepaymentModal({ companyId, selectedLoans, handleClose }: Props) {
       return;
     }
 
-    const resp = await createPayment({
+    const response = await createPayment({
       payment: payment,
       company_id: companyId,
       loan_ids: selectedLoanIds,
     });
 
-    if (resp.status !== "OK") {
-      setErrMsg(resp.msg);
+    if (response.status !== "OK") {
+      setErrMsg(response.msg);
     } else {
       setErrMsg("");
       handleClose();

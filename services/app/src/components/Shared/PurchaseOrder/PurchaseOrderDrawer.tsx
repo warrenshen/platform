@@ -89,9 +89,7 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
             <Typography variant="subtitle2" color="textSecondary">
               Status
             </Typography>
-            <RequestStatusChip
-              requestStatus={purchaseOrder.status}
-            ></RequestStatusChip>
+            <RequestStatusChip requestStatus={purchaseOrder.status} />
           </Box>
           {isBankUser && (
             <Box display="flex" flexDirection="column" mt={2}>
@@ -150,9 +148,7 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
               </Typography>
             </Box>
             {purchaseOrderFile && (
-              <DownloadThumbnail
-                fileIds={[purchaseOrderFile.file_id]}
-              ></DownloadThumbnail>
+              <DownloadThumbnail fileIds={[purchaseOrderFile.file_id]} />
             )}
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
@@ -161,10 +157,10 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
                 <Checkbox
                   disabled={true}
                   checked={!!purchaseOrder.is_cannabis}
-                ></Checkbox>
+                />
               }
               label={"Order includes cannabis or derivatives"}
-            ></FormControlLabel>
+            />
           </Box>
           {!!purchaseOrder.is_cannabis && (
             <Box display="flex" flexDirection="column" mt={2}>
@@ -181,7 +177,7 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
                   fileIds={purchaseOrderCannabisFiles.map(
                     (purchaseOrderFile) => purchaseOrderFile.file_id
                   )}
-                ></DownloadThumbnail>
+                />
               )}
             </Box>
           )}

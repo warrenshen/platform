@@ -32,6 +32,10 @@ function CompanyInfo({ company }: Props) {
         <CardContent>
           <Typography variant="h6">{company?.name}</Typography>
           <Box display="flex" pb={0.25}>
+            <Box className={classes.label}>Identifier</Box>
+            <Box>{company?.identifier}</Box>
+          </Box>
+          <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Address</Box>
             <Box>{company?.address}</Box>
           </Box>

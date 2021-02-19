@@ -18,7 +18,7 @@ import {
   RequestStatusEnum,
 } from "generated/graphql";
 import { AllLoanStatuses, LoanTypeToLabel } from "lib/enum";
-import { truncateUuid } from "lib/uuid";
+import { createLoanPublicIdentifier } from "lib/loans";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -87,11 +87,11 @@ function BankLoansDataGrid({
   const columns: IColumnProps[] = [
     {
       dataField: "id",
-      caption: "Platform ID",
+      caption: "Identifier",
       width: 120,
       cellRender: (params: ValueFormatterParams) => (
         <LoanDrawerLauncher
-          label={truncateUuid(params.row.data.id as string)}
+          label={createLoanPublicIdentifier(params.row.data as LoanFragment)}
           loanId={params.row.data.id as string}
         />
       ),

@@ -1,4 +1,3 @@
-import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -7,8 +6,9 @@ import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
+import LoanDrawerLauncher from "components/Shared/Loan/LoanDrawerLauncher";
 import { LoanFragment, LoanStatusEnum } from "generated/graphql";
-import { truncateUuid } from "lib/uuid";
+import { createLoanPublicIdentifier } from "lib/loans";
 import { useEffect, useState } from "react";
 
 interface Props {
@@ -50,7 +50,10 @@ function LoansDataGrid({
       caption: "ID",
       width: 120,
       cellRender: (params: ValueFormatterParams) => (
-        <Box>{truncateUuid(params.value as string)}</Box>
+        <LoanDrawerLauncher
+          label={createLoanPublicIdentifier(params.row.data as LoanFragment)}
+          loanId={params.row.data.id as string}
+        />
       ),
     },
     {

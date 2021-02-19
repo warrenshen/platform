@@ -20,7 +20,7 @@ function LoansAllProductsPage() {
           fullView
           loansPastDue={false}
           loans={loans}
-        ></BankLoansDataGrid>
+        />
       </Box>
     </Page>
   );
