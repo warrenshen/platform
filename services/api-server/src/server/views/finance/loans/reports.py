@@ -1,7 +1,8 @@
 import datetime
+import decimal
 import json
 import logging
-from typing import Any, List, cast
+from typing import Any, List, Callable, cast
 
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
@@ -54,13 +55,14 @@ class RunCustomerBalancesView(MethodView):
 		logging.info('There are {} companies for whom we are updating balances'.format(len(company_dicts)))
 
 		errors = []
+		report_date = date_util.load_date_str(form['report_date'])
 
 		# Update balances per customer
 		for company_dict in company_dicts:
 			company_name = company_dict['name']
 			customer_balance = loan_balances.CustomerBalance(company_dict, session_maker)
 			customer_update_dict, err = customer_balance.update(
-				today=date_util.load_date_str(form['report_date']))
+				today=report_date)
 			if err:
 				msg = 'Error updating customer balance for company "{}". Error: {}'.format(
 					company_name, err
@@ -75,6 +77,86 @@ class RunCustomerBalancesView(MethodView):
 				logging.error(msg)
 				errors.append(msg)
 				continue
+
+		# TODO(dlluncor): Remove this logic here, it should really happen somewhere else
+		# Update the overall financial summary for the bank
+		with session_scope(session_maker) as session:
+			# Find the single customer to run reports for
+			financial_summaries = cast(
+				List[models.FinancialSummary],
+				session.query(models.FinancialSummary).all())
+			if not financial_summaries:
+				return handler_util.make_error_response('No financial summaries registered in the DB')
+			
+			company_ids = [str(summary.company_id) for summary in financial_summaries]
+
+			companies = cast(
+				List[models.Company],
+				session.query(models.Company).filter(
+					models.Company.id.in_(company_ids)
+				).all())
+
+			if not companies:
+				return handler_util.make_error_response('No companies registered in the DB')
+
+			if len(companies) != len(company_ids):
+				return handler_util.make_error_response('Not all companies found that have a financial summary')				
+
+			contract_ids = [str(company.contract_id) for company in companies]
+
+			contracts = cast(
+				List[models.Contract],
+				session.query(models.Contract).filter(
+					models.Contract.id.in_(contract_ids)
+				).all())
+
+			if not contracts:
+				return handler_util.make_error_response('No contracts registered in the DB')
+
+			if len(contracts) != len(contract_ids):
+				return handler_util.make_error_response('Not all contracts found that have a financial summary')				
+
+			company_id_to_product_type = {}
+			for contract in contracts:
+				company_id_to_product_type[str(contract.company_id)] = contract.product_type
+
+			product_type_to_bank_summary = {}
+
+			for summary in financial_summaries:
+				product_type = company_id_to_product_type[str(summary.company_id)]
+				if product_type not in product_type_to_bank_summary:
+					product_type_to_bank_summary[product_type] = models.BankFinancialSummary(
+						date=report_date,
+						product_type=product_type,
+						total_limit=decimal.Decimal(0.0),
+						total_outstanding_principal=decimal.Decimal(0.0),
+						total_outstanding_interest=decimal.Decimal(0.0),
+						total_outstanding_fees=decimal.Decimal(0.0),
+						total_principal_in_requested_state=decimal.Decimal(0.0),
+						available_limit=decimal.Decimal(0.0)
+					)
+
+				cur_bank_summary = product_type_to_bank_summary[product_type]
+				cur_bank_summary.total_limit += decimal.Decimal(summary.total_limit)
+				cur_bank_summary.total_outstanding_principal += decimal.Decimal(summary.total_outstanding_principal)
+				cur_bank_summary.total_outstanding_interest += decimal.Decimal(summary.total_outstanding_interest)
+				cur_bank_summary.total_outstanding_fees += decimal.Decimal(summary.total_outstanding_fees)
+				cur_bank_summary.total_principal_in_requested_state += decimal.Decimal(summary.total_principal_in_requested_state)
+				cur_bank_summary.available_limit += decimal.Decimal(summary.available_limit)
+
+			# Delete the old bank summaries and replace them with the new ones
+			bank_summaries = cast(
+				List[models.BankFinancialSummary],
+				session.query(models.BankFinancialSummary).filter(
+					models.BankFinancialSummary.date == report_date.isoformat()
+				).all()
+			)
+			if bank_summaries:
+				for bank_summary in bank_summaries:
+					cast(Callable, session.delete)(bank_summary)
+
+			for new_bank_summary in product_type_to_bank_summary.values():
+				session.add(new_bank_summary)
 
 		resp = {
 			'status': 'OK',

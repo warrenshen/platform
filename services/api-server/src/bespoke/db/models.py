@@ -363,6 +363,19 @@ class Payment(Base):
 			payment_date=self.payment_date
 		)
 
+class BankFinancialSummary(Base):
+	__tablename__ = 'bank_financial_summaries'
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	date = Column(Date, nullable=False)
+	product_type = Column(Text, nullable=False)
+	total_limit = Column(Numeric, nullable=False)
+	total_outstanding_principal = Column(Numeric, nullable=False)
+	total_outstanding_interest = Column(Numeric, nullable=False)
+	total_outstanding_fees = Column(Numeric, nullable=False)
+	total_principal_in_requested_state = Column(Numeric, nullable=False)
+	available_limit = Column(Numeric, nullable=False)
+
 class FinancialSummary(Base):
 	__tablename__ = 'financial_summaries'
 
