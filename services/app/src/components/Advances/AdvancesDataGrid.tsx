@@ -28,8 +28,6 @@ function AdvancesDataGrid({
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = getRows(payments);
 
-  window.console.log(rows);
-
   const companyNameRenderer = (params: ValueFormatterParams) => {
     return (
       <ClickableDataGridCell
@@ -62,9 +60,7 @@ function AdvancesDataGrid({
       alignment: "right",
       width: 140,
       cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell
-          value={params.row.data.amount}
-        ></CurrencyDataGridCell>
+        <CurrencyDataGridCell value={params.row.data.amount} />
       ),
     },
     {
@@ -76,9 +72,7 @@ function AdvancesDataGrid({
       caption: "Deposit Date",
       width: 140,
       cellRender: (params: ValueFormatterParams) => (
-        <DateDataGridCell
-          dateString={params.row.data.deposit_date}
-        ></DateDataGridCell>
+        <DateDataGridCell dateString={params.row.data.deposit_date} />
       ),
     },
     {
@@ -96,7 +90,7 @@ function AdvancesDataGrid({
       pageSize={30}
       allowedPageSizes={[30]}
       ref={(ref) => setDataGrid(ref)}
-    ></ControlledDataGrid>
+    />
   );
 }
 

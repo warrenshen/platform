@@ -37,6 +37,17 @@ function LineOfCreditLoansForCustomer() {
 
   return (
     <Box>
+      {isCreateUpdateModalOpen && (
+        <CreateUpdateLineOfCreditLoanModal
+          actionType={targetLoanId === "" ? ActionType.New : ActionType.Update}
+          loanId={targetLoanId}
+          handleClose={() => {
+            setTargetLoanId("");
+            refetch();
+            setIsCreateUpdateModalOpen(false);
+          }}
+        />
+      )}
       <Box pb={2} display="flex" flexDirection="row-reverse">
         <Button
           onClick={() => setIsCreateUpdateModalOpen(true)}
@@ -45,19 +56,6 @@ function LineOfCreditLoansForCustomer() {
         >
           Create Drawdown
         </Button>
-        {isCreateUpdateModalOpen && (
-          <CreateUpdateLineOfCreditLoanModal
-            actionType={
-              targetLoanId === "" ? ActionType.New : ActionType.Update
-            }
-            loanId={targetLoanId}
-            handleClose={() => {
-              setTargetLoanId("");
-              refetch();
-              setIsCreateUpdateModalOpen(false);
-            }}
-          />
-        )}
       </Box>
       <Box flex={1} display="flex">
         <LineOfCreditLoansDataGrid

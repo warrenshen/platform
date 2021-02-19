@@ -11,7 +11,7 @@ interface Props {
   className?: string;
   id: string;
   label: string;
-  value: string;
+  value: string | null;
   error?: boolean;
   disablePast?: boolean;
   disabled?: boolean;

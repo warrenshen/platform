@@ -3,6 +3,7 @@ import { ValueFormatterParams } from "@material-ui/data-grid";
 import CreateAdvanceModal from "components/Advance/CreateAdvanceModal";
 import LineOfCreditLoansDataGrid from "components/Loans/LineOfCredit/LineOfCreditLoansDataGrid";
 import PurchaseOrderLoansDataGrid from "components/Loans/PurchaseOrder/PurchaseOrderLoansDataGrid";
+import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
 import UpdateLoanNotesModal from "components/Loans/UpdateLoanNotesModal";
 import {
   LoanFragment,
@@ -44,6 +45,10 @@ function BankCustomerLoansSubpage({ companyId, productType }: Props) {
   const [isUpdateLoanNotesModalOpen, setIsUpdateLoanNotesModalOpen] = useState(
     false
   );
+  const [
+    isRunCustomerBalancesModalOpen,
+    setIsRunCustomerBalancesModalOpen,
+  ] = useState(false);
   const [targetLoanId, setTargetLoanId] = useState("");
   const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
   const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"]>([]);
@@ -96,6 +101,15 @@ function BankCustomerLoansSubpage({ companyId, productType }: Props) {
 
   return (
     <Box>
+      {isRunCustomerBalancesModalOpen && (
+        <RunCustomerBalancesModal
+          companyId={companyId}
+          handleClose={() => {
+            refetch();
+            setIsRunCustomerBalancesModalOpen(false);
+          }}
+        />
+      )}
       {isCreateAdvanceModalOpen && (
         <CreateAdvanceModal
           selectedLoans={selectedLoans}
@@ -118,14 +132,25 @@ function BankCustomerLoansSubpage({ companyId, productType }: Props) {
         />
       )}
       <Box mb={2} display="flex" flexDirection="row-reverse">
-        <Button
-          disabled={selectedLoans.length <= 0}
-          variant="contained"
-          color="primary"
-          onClick={() => setIsCreateAdvanceModalOpen(true)}
-        >
-          Create Advance
-        </Button>
+        <Box>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => setIsRunCustomerBalancesModalOpen(true)}
+          >
+            Run Balances
+          </Button>
+        </Box>
+        <Box mr={2}>
+          <Button
+            disabled={selectedLoans.length <= 0}
+            variant="contained"
+            color="primary"
+            onClick={() => setIsCreateAdvanceModalOpen(true)}
+          >
+            Create Advance
+          </Button>
+        </Box>
       </Box>
       <Box display="flex" flex={1}>
         {productType === ProductTypeEnum.LineOfCredit ? (

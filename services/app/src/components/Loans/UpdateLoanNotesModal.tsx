@@ -119,7 +119,7 @@ function UpdateLoanNotesModal({ loanId, handleClose }: Props) {
                 notes: value,
               })
             }
-          ></TextField>
+          />
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>

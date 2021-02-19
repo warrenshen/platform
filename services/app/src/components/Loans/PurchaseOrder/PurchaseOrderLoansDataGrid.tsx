@@ -32,7 +32,6 @@ function PurchaseOrderLoansDataGrid({
 
   const rows = loans;
 
-  console.log(rows);
   const columns = [
     {
       dataField: "id",
