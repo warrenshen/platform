@@ -228,6 +228,10 @@ class CustomerBalance(object):
 				# If the loan hasn't been originated yet, nothing to calculate
 				continue
 
+			if not loan['adjusted_maturity_date']:
+				logging.error('Data issue, adjusted_maturity_date missing for loan {}'.format(loan['id']))
+				continue
+
 			loan_update_dict, errors = _calculate_loan_balance(contract_helper, loan, transactions_for_loan, today)
 			if errors:
 				logging.error('Got these errors associated with loan {}'.format(loan['id']))
