@@ -103,7 +103,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					product_type=ProductType.INVENTORY_FINANCING,
 					input_dict=ContractInputDict(
 						interest_rate=0.05,
-						maximum_principal_amount=120000.01
+						maximum_principal_amount=120000.01,
+						max_days_until_repayment=0, # unused
 					)
 				)
 			))

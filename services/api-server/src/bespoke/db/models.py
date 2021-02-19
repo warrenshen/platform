@@ -84,6 +84,7 @@ class Company(Base):
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	name = Column(String)
+	contract_id = Column(GUID)
 
 	def as_dict(self) -> CompanyDict:
 		return CompanyDict(
@@ -362,6 +363,18 @@ class Payment(Base):
 			payment_date=self.payment_date
 		)
 
+class FinancialSummary(Base):
+	__tablename__ = 'financial_summaries'
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	company_id = Column(GUID, nullable=False)
+	total_limit = Column(Numeric, nullable=False)
+	total_outstanding_principal = Column(Numeric, nullable=False)
+	total_outstanding_interest = Column(Numeric, nullable=False)
+	total_principal_in_requested_state = Column(Numeric, nullable=False)
+	available_limit = Column(Numeric, nullable=False)
+
+### End of financial tables
 
 class RevokedTokenModel(Base):
 	__tablename__ = 'revoked_tokens'

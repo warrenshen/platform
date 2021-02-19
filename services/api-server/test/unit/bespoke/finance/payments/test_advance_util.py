@@ -4,6 +4,7 @@ import uuid
 from typing import cast, List, Dict
 
 from bespoke.db import models
+from bespoke.db.db_constants import ProductType
 from bespoke.db.db_constants import LoanStatusEnum
 from bespoke.db.models import session_scope
 from bespoke.finance.payments import advance_util
@@ -11,8 +12,23 @@ from bespoke.finance.payments import payment_util
 from bespoke.finance import number_util
 from bespoke.date import date_util
 
+from bespoke_test.contract import contract_test_helper
+from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest
 from bespoke_test.db import test_helper
+
+def _get_default_contract() -> models.Contract:
+	return models.Contract(
+	product_type=ProductType.INVENTORY_FINANCING,
+	product_config=contract_test_helper.create_contract_config(
+		product_type=ProductType.INVENTORY_FINANCING,
+		input_dict=ContractInputDict(
+			interest_rate=0.05,
+			maximum_principal_amount=120000.01,
+			max_days_until_repayment=30
+		)
+	)
+)
 
 class TestFundLoansWithAdvance(db_unittest.TestCase):
 
@@ -22,6 +38,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		seed = test_helper.BasicSeed.create(self.session_maker, self)
 		seed.initialize()
 
+		contracts_by_company_index = test['contracts_by_company_index']
 		amounts = test['loan_amounts']
 		company_indices = test['company_indices']
 		payment_amount = test['payment_input_amount']
@@ -29,6 +46,23 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 
 		loan_ids = []
 		with session_scope(session_maker) as session:
+			# NOTE: Assume the last contract is the most up-to-date contract
+			for company_index, contracts in contracts_by_company_index.items():
+				company_id = seed.get_company_id('company_admin', index=company_index)
+				cur_contract_ids = []
+				for contract in contracts:
+					contract.company_id = company_id
+					session.add(contract)
+					session.flush()
+					cur_contract_ids.append(str(contract.id))
+
+				# Assign this company their contract
+				cur_company = cast(
+					models.Company,
+					session.query(models.Company).filter(models.Company.id==company_id).first())
+				cur_company.contract_id = cur_contract_ids[-1]
+				session.flush()
+
 			for i in range(len(amounts)):
 				amount = amounts[i]
 				index = company_indices[i]
@@ -90,6 +124,10 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				self.assertIsNotNone(loan.funded_at)
 				self.assertEqual(bank_admin_user_id, loan.funded_by_user_id)
 
+				# TODO(dlluncor): Rearrange test so that we can assert multipole items
+				# on a loan, and check that the maturity_date and adjusted_maturity_date
+				# are correct.
+
 			# Validate payments
 			payments = cast(
 				List[models.Payment],
@@ -143,6 +181,10 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		tests: List[Dict] = [
 			{
 				'comment': 'Test multiple loans approved from one customer',
+				'contracts_by_company_index': {
+					0: [_get_default_contract()],
+					1: [_get_default_contract()]
+				},
 				'loan_amounts': [10.01, 20.02],
 				'company_indices': [0, 0],
 				'payment_input_amount': 30.03,
@@ -174,6 +216,10 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		tests: List[Dict] = [
 			{
 				'comment': 'Test multiple loans approved from many customers',
+				'contracts_by_company_index': {
+					0: [_get_default_contract()],
+					1: [_get_default_contract()]
+				},
 				'loan_amounts': [10.01, 20.02, 30.03, 40.04],
 				'company_indices': [0, 1, 0, 1],
 				'payment_input_amount': 10.01 + 20.02 + 30.03 + 40.04,

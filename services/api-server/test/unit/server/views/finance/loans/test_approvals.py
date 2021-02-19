@@ -10,6 +10,8 @@ from bespoke.finance.loans import approval_util
 from bespoke.finance import number_util
 from bespoke.date import date_util
 
+from bespoke_test.contract import contract_test_helper
+from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest
 from bespoke_test.db import test_helper
 
@@ -23,6 +25,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 		seed = test_helper.BasicSeed.create(self.session_maker, self)
 		seed.initialize()
 
+		financial_summary = test['financial_summary'] # Financial summary registered in the system
 		loans = test['loans'] # Loans registered in the system
 		artifacts = test['artifacts'] # Artifacts registered in the system
 		artifact_indices = test['loan_artifact_indices'] # Parallel array to test['loans'], describes which artifact index in test['artifacts'] this loan is associated with
@@ -32,6 +35,10 @@ class TestSubmitForApproval(db_unittest.TestCase):
 		company_id = seed.get_company_id('company_admin', index=0)
 
 		with session_scope(session_maker) as session:
+
+			financial_summary.company_id = company_id
+			session.add(financial_summary)
+
 			for i in range(len(artifacts)):
 				artifact = artifacts[i]
 				artifact.company_id = company_id
@@ -56,26 +63,51 @@ class TestSubmitForApproval(db_unittest.TestCase):
 			loan_id=loan_id,
 			session_maker=session_maker
 		)
-		if test.get('err_in_msg'):
-			self.assertIn(test['err_in_msg'], err.msg)
+		if test.get('in_err_msg'):
+			self.assertIn(test['in_err_msg'], err.msg if err else '')
 			return
 
 		self.assertIsNone(err)
 		self.assertIsNotNone(resp['customer_name'])
 		self.assertIsNotNone(resp['loan_html'])
 
+		with session_scope(session_maker) as session:
+			loan = cast(
+				models.Loan,
+				session.query(models.Loan).filter_by(
+					id=loan_id
+				).first()
+			)
+			self.assertIsNotNone(loan)
+			self.assertIsNotNone(loan.requested_at)
+			self.assertEqual(LoanStatusEnum.APPROVAL_REQUESTED, loan.status)
+
 	def test_failure_no_loan(self) -> None:
 		test: Dict = {
+			'financial_summary': models.FinancialSummary(
+				total_limit=decimal.Decimal(200.0),
+				total_outstanding_principal=decimal.Decimal(0.0),
+				total_outstanding_interest=decimal.Decimal(0.0), # unused
+				total_principal_in_requested_state=decimal.Decimal(0.0), # unused
+				available_limit=decimal.Decimal(200.0),
+			),
 			'loans': [],
 			'loan_index': None,
 			'artifacts': [],
 			'loan_artifact_indices': [],
-			'err_in_msg': 'not find loan'
+			'in_err_msg': 'not find loan'
 		}
 		self._run_test(test)
 
 	def test_too_many_loans_from_one_purchase_order(self) -> None:
 		test: Dict = {
+			'financial_summary': models.FinancialSummary(
+				total_limit=decimal.Decimal(200.0),
+				total_outstanding_principal=decimal.Decimal(0.0),
+				total_outstanding_interest=decimal.Decimal(0.0), # unused
+				total_principal_in_requested_state=decimal.Decimal(0.0), # unused
+				available_limit=decimal.Decimal(200.0),
+			),
 			'loans': [
 				models.Loan(
 					loan_type=db_constants.LoanTypeEnum.INVENTORY,
@@ -114,12 +146,45 @@ class TestSubmitForApproval(db_unittest.TestCase):
 				amount=decimal.Decimal(100.0)
 			)],
 			'loan_artifact_indices': [0, 0, 0, 0, 0],
-			'err_in_msg': 'over the amount'
+			'in_err_msg': 'over the amount'
+		}
+		self._run_test(test)
+
+	def test_failure_hit_max_limit_allowed(self) -> None:
+
+		test: Dict = {
+			'financial_summary': models.FinancialSummary(
+				total_limit=decimal.Decimal(1000.0),
+				total_outstanding_principal=decimal.Decimal(0.0),
+				total_outstanding_interest=decimal.Decimal(0.0), # unused
+				total_principal_in_requested_state=decimal.Decimal(0.0), # unused
+				available_limit=decimal.Decimal(200.0),
+			),
+			'loans': [
+				models.Loan(
+					loan_type=db_constants.LoanTypeEnum.INVENTORY,
+					requested_payment_date=date_util.load_date_str('10/01/2020'),
+					amount=decimal.Decimal(300.02)
+				)
+			],
+			'loan_index': 0,
+			'artifacts': [models.PurchaseOrder(
+				amount=decimal.Decimal(900.0)
+			)],
+			'loan_artifact_indices': [0],
+			'in_err_msg': 'exceeds the maximum limit'
 		}
 		self._run_test(test)
 
 	def test_sucess_many_loans_from_one_purchase_order_draft_doesnt_count(self) -> None:
 		test: Dict = {
+			'financial_summary': models.FinancialSummary(
+				total_limit=decimal.Decimal(200.0),
+				total_outstanding_principal=decimal.Decimal(0.0),
+				total_outstanding_interest=decimal.Decimal(0.0), # unused
+				total_principal_in_requested_state=decimal.Decimal(0.0), # unused
+				available_limit=decimal.Decimal(200.0),
+			),
 			'loans': [
 				models.Loan(
 					loan_type=db_constants.LoanTypeEnum.INVENTORY,
@@ -150,7 +215,15 @@ class TestSubmitForApproval(db_unittest.TestCase):
 		self._run_test(test)
 
 	def test_success_inventory_loan(self) -> None:
+
 		test: Dict = {
+			'financial_summary': models.FinancialSummary(
+				total_limit=decimal.Decimal(200.0),
+				total_outstanding_principal=decimal.Decimal(0.0),
+				total_outstanding_interest=decimal.Decimal(0.0), # unused
+				total_principal_in_requested_state=decimal.Decimal(0.0), # unused
+				available_limit=decimal.Decimal(200.0),
+			),
 			'loans': [
 				models.Loan(
 					loan_type=db_constants.LoanTypeEnum.INVENTORY,

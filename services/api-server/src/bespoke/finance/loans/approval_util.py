@@ -50,6 +50,9 @@ def approve_loans(
 
 		approved_at = date_util.now()
 
+		# TODO(dlluncor): When approving loans, also check whether a customer has
+		# gone over their allotted amount of principal.
+
 		for loan in loans:
 			loan.status = db_constants.LoanStatusEnum.APPROVED
 			loan.approved_at = approved_at
@@ -91,6 +94,18 @@ def submit_for_approval(loan_id: str, session_maker: Callable) -> Tuple[SubmitFo
 
 		if loan.amount is None or loan.amount <= 0:
 			return None, errors.Error('Invalid amount', details=err_details)
+
+		financial_summary = cast(
+			models.FinancialSummary,
+			session.query(models.FinancialSummary).filter_by(
+				company_id=loan.company_id
+			).first()
+		)
+		if not financial_summary:
+			return None, errors.Error('No financial summary associated with this customer, so we could not determine the max limit allowed', details=err_details)
+
+		if loan.amount > financial_summary.available_limit:
+			return None, errors.Error('Loan amount requested exceeds the maximum limit for this account', details=err_details)
 
 		if loan.loan_type == LoanTypeEnum.INVENTORY:
 			purchase_order = cast(

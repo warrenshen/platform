@@ -11,6 +11,7 @@ from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
+from bespoke.finance import contract_util
 from bespoke.finance import number_util
 from bespoke.finance.payments import payment_util
 from bespoke.finance.types import per_customer_types
@@ -26,6 +27,43 @@ FundLoansRespDict = TypedDict('FundLoansRespDict', {
 	'status': str
 })
 
+def _get_contracts_by_company_id(
+	company_ids: List[str], session: Session,
+	err_details: Dict) -> Tuple[Dict[str, contract_util.Contract], errors.Error]:
+	companies = cast(
+		List[models.Company],
+		session.query(models.Company).filter(
+			models.Company.id.in_(company_ids)
+		).all())
+	if not companies or len(companies) != len(company_ids):
+		return None, errors.Error('Could not find all the companies associated with all the loans provided', details=err_details)
+
+	contract_ids = []
+	companies_with_missing_contracts = []
+	for company in companies:
+		if not company.contract_id:
+			companies_with_missing_contracts.append(str(company.name))
+		else:
+			contract_ids.append(str(company.contract_id))
+
+	if companies_with_missing_contracts:
+		return None, errors.Error('{} have missing contracts, cannot proceed with the advances process'.format(companies_with_missing_contracts), details=err_details)		
+
+	contracts = cast(
+		List[models.Contract],
+		session.query(models.Contract).filter(
+			models.Contract.id.in_(contract_ids)
+		).all())
+	if not contracts or len(contracts) != len(contract_ids):
+		return None, errors.Error('Could not find all the contracts associated with all companies associated with the loans provided', details=err_details)
+
+	company_id_to_contract = {}
+	for contract in contracts:
+		company_id = str(contract.company_id)
+		contract_obj = contract_util.Contract(contract.as_dict())
+		company_id_to_contract[company_id] = contract_obj
+
+	return company_id_to_contract, None
 def fund_loans_with_advance(
 	req: FundLoansReqDict, bank_admin_user_id: str, 
 	session_maker: Callable) -> Tuple[FundLoansRespDict, errors.Error]:
@@ -95,8 +133,13 @@ def fund_loans_with_advance(
 
 			company_id_to_loans[company_id].append(loan_dict)
 
-		#unique_company_ids = []
-		# TODO(dlluncor): Set the maturity date and adjusted maturity_date appropriately
+		# Load up the contracts for all the companies listed here
+
+		unique_company_ids = list(company_id_to_loans.keys())
+		contracts_by_company_id, err = _get_contracts_by_company_id(
+			unique_company_ids, session, err_details)
+		if err:
+			return None, err
 
 		payment_date = date_util.load_date_str(payment_input['payment_date'])
 		settlement_date = date_util.load_date_str(payment_input['settlement_date'])
@@ -132,6 +175,11 @@ def fund_loans_with_advance(
 				session.add(t)
 
 		for loan in loans:
+			cur_contract = contracts_by_company_id[str(loan.company_id)]
+			maturity_date, err = cur_contract.get_maturity_date(settlement_date)
+			if err:
+				return None, err
+
 			loan.status = db_constants.LoanStatusEnum.FUNDED
 			loan.funded_at = date_util.now()
 			loan.funded_by_user_id = bank_admin_user_id
@@ -139,8 +187,8 @@ def fund_loans_with_advance(
 			loan.outstanding_interest = decimal.Decimal(0.0)
 			loan.outstanding_fees = decimal.Decimal(0.0)
 			loan.origination_date = settlement_date
-			loan.maturity_date = settlement_date + timedelta(days=15)
-			loan.adjusted_maturity_date = settlement_date + timedelta(days=15)
+			loan.maturity_date = maturity_date
+			loan.adjusted_maturity_date = maturity_date
 
 	return FundLoansRespDict(status='OK'), None
 

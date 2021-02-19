@@ -1,3 +1,5 @@
+import datetime
+from datetime import timedelta
 from mypy_extensions import TypedDict
 from typing import cast, Tuple, Dict, List, Any
 
@@ -73,6 +75,18 @@ class Contract(object):
 
 		return field['value'], None
 
+	def _get_int_value(self, internal_name: str) -> Tuple[float, errors.Error]:
+		field, err = self._get_field(internal_name)
+		if err:
+			return None, err
+
+		if type(field['value']) != int:
+			return None, errors.Error(
+				'Got a field "{}" which is not stored as an integer'.format(internal_name), 
+				details={'contract_config': self._config})
+
+		return field['value'], None
+
 	def get_product_type(self) -> Tuple[str, errors.Error]:
 		if 'product_type' not in self._config:
 			return None, errors.Error('Product type missing from contract config')
@@ -84,6 +98,18 @@ class Contract(object):
 
 	def get_interest_rate(self) -> Tuple[float, errors.Error]:
 		return self._get_float_value('factoring_fee_percentage')
+
+	def get_maturity_date(self, advance_settlement_date: datetime.date) -> Tuple[datetime.date, errors.Error]:
+		"""
+			Get the maturity date of a loan that starts with it's advance on this
+			particular settlement date
+		"""
+		num_days_after_repayment, err = self._get_int_value('contract_financing_terms')
+		if err:
+			return None, err
+
+		maturity_date = advance_settlement_date + timedelta(days=num_days_after_repayment)
+		return maturity_date, None
 
 	def get_fields(self) -> List[FieldDict]:
 		self._populate()

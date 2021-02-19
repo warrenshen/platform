@@ -8,7 +8,8 @@ from bespoke.db import db_constants
 
 ContractInputDict = TypedDict('ContractInputDict', {
 	'interest_rate': float,
-	'maximum_principal_amount': float
+	'maximum_principal_amount': float,
+	'max_days_until_repayment': int
 })
 
 def create_contract_config(
@@ -25,6 +26,10 @@ def create_contract_config(
 		{
 			'internal_name': 'maximum_amount',
 			'value': input_dict['maximum_principal_amount']
+		},
+		{
+			'internal_name': 'contract_financing_terms',
+			'value': input_dict['max_days_until_repayment']
 		}
 	]
 
