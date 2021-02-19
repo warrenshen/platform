@@ -116,7 +116,7 @@ def _get_summary_update(
 		total_outstanding_interest=total_outstanding_interest,
 		total_outstanding_fees=total_outstanding_fees,
 		total_principal_in_requested_state=total_principal_in_requested_state,
-		available_limit=maximum_principal_limit-total_outstanding_principal
+		available_limit=max(0.0, maximum_principal_limit-total_outstanding_principal)
 	), None
 
 def _calculate_loan_balance(
@@ -164,7 +164,7 @@ def _calculate_loan_balance(
 			errors.append(err)
 			continue
 
-		outstanding_interest += cur_interest_rate * max(0.0, outstanding_principal)
+		outstanding_interest += cur_interest_rate / 100.0 * max(0.0, outstanding_principal)
 		outstanding_fees += 0.0 # obvi need to calculate fees today
 
 	if errors:

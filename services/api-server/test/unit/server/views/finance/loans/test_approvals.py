@@ -88,6 +88,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 				total_limit=decimal.Decimal(200.0),
 				total_outstanding_principal=decimal.Decimal(0.0),
 				total_outstanding_interest=decimal.Decimal(0.0), # unused
+				total_outstanding_fees=decimal.Decimal(0.0), # unused
 				total_principal_in_requested_state=decimal.Decimal(0.0), # unused
 				available_limit=decimal.Decimal(200.0),
 			),
@@ -105,6 +106,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 				total_limit=decimal.Decimal(200.0),
 				total_outstanding_principal=decimal.Decimal(0.0),
 				total_outstanding_interest=decimal.Decimal(0.0), # unused
+				total_outstanding_fees=decimal.Decimal(0.0), # unused
 				total_principal_in_requested_state=decimal.Decimal(0.0), # unused
 				available_limit=decimal.Decimal(200.0),
 			),
@@ -157,6 +159,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 				total_limit=decimal.Decimal(1000.0),
 				total_outstanding_principal=decimal.Decimal(0.0),
 				total_outstanding_interest=decimal.Decimal(0.0), # unused
+				total_outstanding_fees=decimal.Decimal(0.0), # unused
 				total_principal_in_requested_state=decimal.Decimal(0.0), # unused
 				available_limit=decimal.Decimal(200.0),
 			),
@@ -182,6 +185,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 				total_limit=decimal.Decimal(200.0),
 				total_outstanding_principal=decimal.Decimal(0.0),
 				total_outstanding_interest=decimal.Decimal(0.0), # unused
+				total_outstanding_fees=decimal.Decimal(0.0), # unused
 				total_principal_in_requested_state=decimal.Decimal(0.0), # unused
 				available_limit=decimal.Decimal(200.0),
 			),
@@ -221,6 +225,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 				total_limit=decimal.Decimal(200.0),
 				total_outstanding_principal=decimal.Decimal(0.0),
 				total_outstanding_interest=decimal.Decimal(0.0), # unused
+				total_outstanding_fees=decimal.Decimal(0.0), # unused
 				total_principal_in_requested_state=decimal.Decimal(0.0), # unused
 				available_limit=decimal.Decimal(200.0),
 			),

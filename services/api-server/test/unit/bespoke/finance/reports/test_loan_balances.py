@@ -102,7 +102,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				product_config=contract_test_helper.create_contract_config(
 					product_type=ProductType.INVENTORY_FINANCING,
 					input_dict=ContractInputDict(
-						interest_rate=0.05,
+						interest_rate=5.00,
 						maximum_principal_amount=120000.01,
 						max_days_until_repayment=0, # unused
 					)
@@ -149,6 +149,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_limit': 120000.01,
 					'total_outstanding_principal': 500.03 + 100.03,
 					'total_outstanding_interest': (3 * 0.05 * 500.03) + (2 * 0.05 * 100.03),
+					'total_outstanding_fees': 0.0,
 					'total_principal_in_requested_state': 0.0,
 					'available_limit': 120000.01 - (500.03 + 100.03)
 				}
