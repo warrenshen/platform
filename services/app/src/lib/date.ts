@@ -4,7 +4,7 @@ export const DateFormatClient = "MM/dd/yyyy";
 export const DateFormatServer = "yyyy-MM-dd";
 
 export function todayAsDateStr(): string {
-  return format(new Date(), "MM/dd/yyyy");
+  return format(new Date(), DateFormatServer);
 }
 
 export function formatDateString(dateString: string) {

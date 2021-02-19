@@ -6,7 +6,9 @@ import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCel
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
-import { DatetimeDataGridCell } from "components/Shared/DataGrid/DateDataGridCell";
+import DateDataGridCell, {
+  DatetimeDataGridCell,
+} from "components/Shared/DataGrid/DateDataGridCell";
 import { PaymentFragment } from "generated/graphql";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
 import { truncateUuid } from "lib/uuid";
@@ -84,6 +86,27 @@ function PaymentsDataGrid({
         <Box>
           {PaymentMethodToLabel[params.row.data.method as PaymentMethodEnum]}
         </Box>
+      ),
+    },
+    {
+      caption: "Requested Payment Date",
+      width: 140,
+      cellRender: (params: ValueFormatterParams) => (
+        <DateDataGridCell dateString={params.row.data.requested_payment_date} />
+      ),
+    },
+    {
+      caption: "Payment Date",
+      width: 140,
+      cellRender: (params: ValueFormatterParams) => (
+        <DateDataGridCell dateString={params.row.data.payment_date} />
+      ),
+    },
+    {
+      caption: "Settlement Date",
+      width: 140,
+      cellRender: (params: ValueFormatterParams) => (
+        <DateDataGridCell dateString={params.row.data.settlement_date} />
       ),
     },
     {

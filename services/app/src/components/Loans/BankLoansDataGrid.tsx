@@ -97,6 +97,16 @@ function BankLoansDataGrid({
       ),
     },
     {
+      visible: actionItems.length > 0,
+      dataField: "action",
+      caption: "Action",
+      alignment: "center",
+      width: 100,
+      cellRender: (params: ValueFormatterParams) => (
+        <DataGridActionMenu params={params} actionItems={actionItems} />
+      ),
+    },
+    {
       dataField: "status",
       caption: "Status",
       width: 150,
@@ -192,16 +202,6 @@ function BankLoansDataGrid({
       width: 130,
       alignment: "center",
       cellRender: daysPastDueRenderer,
-    },
-    {
-      visible: actionItems.length > 0,
-      dataField: "action",
-      caption: "Action",
-      alignment: "center",
-      width: 100,
-      cellRender: (params: ValueFormatterParams) => (
-        <DataGridActionMenu params={params} actionItems={actionItems} />
-      ),
     },
   ];
 

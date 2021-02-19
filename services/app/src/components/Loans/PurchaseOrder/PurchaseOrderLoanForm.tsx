@@ -51,8 +51,8 @@ function PurchaseOrderLoanForm({
             disabled={
               !canEditPurchaseOrder || approvedPurchaseOrders.length <= 0
             }
-            labelId="purchase-order-select-label"
             id="purchase-order-select"
+            labelId="purchase-order-select-label"
             value={loan.artifact_id}
             onChange={({ target: { value } }) => {
               const selectedPurchaseOrder = approvedPurchaseOrders?.find(
@@ -110,7 +110,7 @@ function PurchaseOrderLoanForm({
         </Box>
       </Box>
       <Box mt={3}>
-        <FormControl fullWidth className={classes.inputField}>
+        <FormControl className={classes.inputField}>
           <CurrencyTextField
             label="Amount"
             currencySymbol="$"

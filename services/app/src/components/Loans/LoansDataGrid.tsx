@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 
 interface Props {
   isSortingDisabled?: boolean;
+  isMaturityVisible?: boolean; // Whether maturity date, principal balance, interest, and fees are visible.
   isStatusVisible?: boolean;
   customerSearchQuery?: string;
   loans: LoanFragment[];
@@ -23,6 +24,7 @@ interface Props {
 // component to create a reusable component?
 function LoansDataGrid({
   isSortingDisabled = false,
+  isMaturityVisible = true,
   isStatusVisible = true,
   customerSearchQuery = "",
   loans,
@@ -77,6 +79,7 @@ function LoansDataGrid({
       ),
     },
     {
+      visible: isMaturityVisible,
       caption: "Maturity Date",
       alignment: "right",
       width: 120,
@@ -93,6 +96,7 @@ function LoansDataGrid({
       ),
     },
     {
+      visible: isMaturityVisible,
       dataField: "outstanding_principal_balance",
       caption: "Outstanding Principal",
       alignment: "right",
@@ -103,6 +107,7 @@ function LoansDataGrid({
       ),
     },
     {
+      visible: isMaturityVisible,
       dataField: "outstanding_interest",
       caption: "Outstanding Interest",
       alignment: "right",
@@ -111,6 +116,7 @@ function LoansDataGrid({
       ),
     },
     {
+      visible: isMaturityVisible,
       dataField: "outstanding_fees",
       caption: "Outstanding Fees",
       alignment: "right",

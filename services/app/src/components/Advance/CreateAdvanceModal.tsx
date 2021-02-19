@@ -23,9 +23,6 @@ const useStyles = makeStyles((theme: Theme) =>
     dialogTitle: {
       borderBottom: "1px solid #c7c7c7",
     },
-    purchaseOrderInput: {
-      width: "200px",
-    },
     dialogActions: {
       margin: theme.spacing(2),
     },
@@ -57,10 +54,8 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
     amount: loansTotal,
     method: "",
     payment_date: todayAsDateStr(),
-    settlement_date: todayAsDateStr(),
+    settlement_date: null,
   } as PaymentsInsertInput;
-  // TODO(dlluncor): Provide deposit_date and effective_date as Date Pickers which can be modified,
-  // but are defaulted to today.
 
   const [payment, setPayment] = useState(newPayment);
 
