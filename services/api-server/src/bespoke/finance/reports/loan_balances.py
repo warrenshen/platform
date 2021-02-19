@@ -26,6 +26,7 @@ from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
+from bespoke.db.db_constants import LoanStatusEnum
 from bespoke.finance import contract_util
 from bespoke.finance.payments import payment_util
 from bespoke.finance.types import per_customer_types
@@ -83,7 +84,7 @@ def _get_transactions_on_date(
 	return txs_on_date
 
 def _get_summary_update(
-	contract_helper: ContractHelper, 
+	contract_helper: ContractHelper,
 	loan_updates: List[LoanUpdateDict], 
 	today: datetime.date
 	) -> Tuple[SummaryUpdateDict, errors.Error]:
@@ -102,7 +103,6 @@ def _get_summary_update(
 	total_outstanding_principal = 0.0
 	total_outstanding_interest = 0.0
 	total_outstanding_fees = 0.0
-	total_principal_in_requested_state = 0.0 # TODO(dlluncor): Calculate
 
 	for l in loan_updates:
 		total_outstanding_principal += l['outstanding_principal']
@@ -115,7 +115,7 @@ def _get_summary_update(
 		total_outstanding_principal=total_outstanding_principal,
 		total_outstanding_interest=total_outstanding_interest,
 		total_outstanding_fees=total_outstanding_fees,
-		total_principal_in_requested_state=total_principal_in_requested_state,
+		total_principal_in_requested_state=0.0,
 		available_limit=max(0.0, maximum_principal_limit-total_outstanding_principal)
 	), None
 
@@ -220,10 +220,14 @@ class CustomerBalance(object):
 
 		all_errors = []
 		loan_update_dicts = []
+		total_principal_in_requested_state = 0.0
 
 		for loan in financials['loans']:
 			transactions_for_loan = _get_transactions_for_loan(loan['id'], financials['transactions'])
 			
+			if loan['status'] == LoanStatusEnum.APPROVAL_REQUESTED:
+				total_principal_in_requested_state += loan['amount']
+
 			if not loan['origination_date']:
 				# If the loan hasn't been originated yet, nothing to calculate
 				continue
@@ -248,6 +252,8 @@ class CustomerBalance(object):
 		summary_update, err = _get_summary_update(contract_helper, loan_update_dicts, today)
 		if err:
 			return None, err
+
+		summary_update['total_principal_in_requested_state'] = total_principal_in_requested_state
 
 		return CustomerUpdateDict(
 			loan_updates=loan_update_dicts,
