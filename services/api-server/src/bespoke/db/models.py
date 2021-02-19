@@ -371,6 +371,7 @@ class FinancialSummary(Base):
 	total_limit = Column(Numeric, nullable=False)
 	total_outstanding_principal = Column(Numeric, nullable=False)
 	total_outstanding_interest = Column(Numeric, nullable=False)
+	total_outstanding_fees = Column(Numeric, nullable=False)
 	total_principal_in_requested_state = Column(Numeric, nullable=False)
 	available_limit = Column(Numeric, nullable=False)
 

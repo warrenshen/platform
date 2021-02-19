@@ -15,15 +15,17 @@
 	Billing reports:
 """
 import datetime
+import decimal
 import logging
 from datetime import timedelta
 
 from mypy_extensions import TypedDict
-from typing import Callable, Tuple, List
+from typing import Callable, Tuple, List, cast
 
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
+from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
 from bespoke.finance.payments import payment_util
 from bespoke.finance.types import per_customer_types
@@ -42,6 +44,7 @@ SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 	'total_limit': float,
 	'total_outstanding_principal': float,
 	'total_outstanding_interest': float,
+	'total_outstanding_fees': float,
 	'total_principal_in_requested_state': float,
 	'available_limit': float                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
 })
@@ -98,17 +101,20 @@ def _get_summary_update(
 
 	total_outstanding_principal = 0.0
 	total_outstanding_interest = 0.0
+	total_outstanding_fees = 0.0
 	total_principal_in_requested_state = 0.0 # TODO(dlluncor): Calculate
 
 	for l in loan_updates:
 		total_outstanding_principal += l['outstanding_principal']
 		total_outstanding_interest += l['outstanding_interest']
+		total_outstanding_fees += l['outstanding_fees']
 
 	return SummaryUpdateDict(
 		product_type=product_type,
 		total_limit=maximum_principal_limit,
 		total_outstanding_principal=total_outstanding_principal,
 		total_outstanding_interest=total_outstanding_interest,
+		total_outstanding_fees=total_outstanding_fees,
 		total_principal_in_requested_state=total_principal_in_requested_state,
 		available_limit=maximum_principal_limit-total_outstanding_principal
 	), None
@@ -217,6 +223,11 @@ class CustomerBalance(object):
 
 		for loan in financials['loans']:
 			transactions_for_loan = _get_transactions_for_loan(loan['id'], financials['transactions'])
+			
+			if not loan['origination_date']:
+				# If the loan hasn't been originated yet, nothing to calculate
+				continue
+
 			loan_update_dict, errors = _calculate_loan_balance(contract_helper, loan, transactions_for_loan, today)
 			if errors:
 				logging.error('Got these errors associated with loan {}'.format(loan['id']))
@@ -239,5 +250,57 @@ class CustomerBalance(object):
 			summary_update=summary_update
 		), None
 
-	def write(self, customer_update: CustomerUpdateDict) -> None:
-		pass
+	def write(self, customer_update: CustomerUpdateDict) -> Tuple[bool, errors.Error]:
+		loan_ids = []
+		loan_id_to_update = {}
+		for loan_update in customer_update['loan_updates']:
+			loan_id = loan_update['loan_id']
+			loan_id_to_update[loan_id] = loan_update
+			loan_ids.append(loan_id)
+
+		err_details = {
+			'customer_name': self._company_name,
+			'method': 'CustomerBalance.write'
+		}
+
+		with session_scope(self._session_maker) as session:
+			loans = cast(
+				List[models.Loan],
+				session.query(models.Loan).filter(
+					models.Loan.id.in_(loan_ids)
+				).all())
+
+			if not loans:
+				return None, errors.Error('No loans found', details=err_details)
+
+			for loan in loans:
+				cur_loan_update = loan_id_to_update[str(loan.id)]
+				loan.outstanding_principal_balance = decimal.Decimal(cur_loan_update['outstanding_principal'])
+				loan.outstanding_interest = decimal.Decimal(cur_loan_update['outstanding_interest'])
+				loan.outstanding_fees = decimal.Decimal(cur_loan_update['outstanding_fees'])
+
+			financial_summary = cast(
+				models.FinancialSummary,
+				session.query(models.FinancialSummary).filter(
+					models.FinancialSummary.company_id == self._company_id).first())
+
+			should_add_summary = not financial_summary
+			if should_add_summary:
+				financial_summary = models.FinancialSummary(
+					company_id=self._company_id
+				)
+
+			summary_update = customer_update['summary_update']
+
+			financial_summary.total_limit = decimal.Decimal(summary_update['total_limit']) 
+			financial_summary.total_outstanding_principal = decimal.Decimal(summary_update['total_outstanding_principal']) 
+			financial_summary.total_outstanding_interest = decimal.Decimal(summary_update['total_outstanding_interest']) 
+			financial_summary.total_outstanding_fees = decimal.Decimal(summary_update['total_outstanding_fees'])
+			financial_summary.total_principal_in_requested_state = decimal.Decimal(summary_update['total_principal_in_requested_state']) 
+			financial_summary.available_limit = decimal.Decimal(summary_update['available_limit']) 
+
+			if should_add_summary:
+				session.add(financial_summary)
+
+			return True, None
+

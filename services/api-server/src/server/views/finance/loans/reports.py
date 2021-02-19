@@ -33,7 +33,7 @@ class RunCustomerBalancesView(MethodView):
 
 		company_dicts = []
 
-		if form.get('company_id'):
+		if not form.get('company_id'):
 			with session_scope(session_maker) as session:
 				# Find customers to run reports for
 				companies = cast(
@@ -69,10 +69,12 @@ class RunCustomerBalancesView(MethodView):
 				errors.append(msg)
 				continue
 
-			customer_balance.write(customer_update_dict)
-
-		if err:
-			return handler_util.make_error_response(err)
+			success, err = customer_balance.write(customer_update_dict)
+			if err:
+				msg = 'Error writing results to update customer balance. Error: {}'.format(err)
+				logging.error(msg)
+				errors.append(msg)
+				continue
 
 		resp = {
 			'status': 'OK',
