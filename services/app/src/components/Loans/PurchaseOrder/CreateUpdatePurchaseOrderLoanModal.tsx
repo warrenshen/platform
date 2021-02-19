@@ -111,10 +111,11 @@ function CreateUpdatePurchaseOrderLoanModal({
 
   const loanSiblings = loanSiblingsData?.loans || [];
   const siblingsTotalAmount = loanSiblings
-    .filter((loanSibling) =>
-      [LoanStatusEnum.ApprovalRequested, LoanStatusEnum.Approved].includes(
-        loanSibling.status
-      )
+    .filter(
+      (loanSibling) =>
+        ![LoanStatusEnum.Drafted, LoanStatusEnum.Rejected].includes(
+          loanSibling.status
+        )
     )
     .reduce((sum, loanSibling) => sum + loanSibling.amount || 0, 0);
 
