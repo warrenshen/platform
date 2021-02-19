@@ -72,7 +72,7 @@ function BankFinancialSummariesDataGrid({
       caption: "Available Limit",
       alignment: "right",
       cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell value={params.row.data.monthly_inventory} />
+        <CurrencyDataGridCell value={params.row.data.available_limit} />
       ),
     },
     {
@@ -80,7 +80,7 @@ function BankFinancialSummariesDataGrid({
       caption: "Total Limit",
       alignment: "right",
       cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell value={params.row.data.monthly_inventory} />
+        <CurrencyDataGridCell value={params.row.data.total_limit} />
       ),
     },
   ];
