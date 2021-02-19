@@ -32,12 +32,24 @@ class RunCustomerBalancesView(MethodView):
 					'Missing key {} from run customer balances request'.format(key))
 
 		company_dicts = []
-		with session_scope(session_maker) as session:
-			# Find customers to run reports for
-			companies = cast(
-				List[models.Company],
-				session.query(models.Company).all())
-			company_dicts = [company.as_dict() for company in companies]
+
+		if form.get('company_id'):
+			with session_scope(session_maker) as session:
+				# Find customers to run reports for
+				companies = cast(
+					List[models.Company],
+					session.query(models.Company).first())
+				company_dicts = [company.as_dict() for company in companies]
+		else:
+			with session_scope(session_maker) as session:
+				# Find the single customer to run reports for
+				company = cast(
+					models.Company,
+					session.query(models.Company).filter(
+						models.Company.id == form['company_id']).first())
+				if not company:
+					return handler_util.make_error_response('No company found associated with this ID')
+				company_dicts = [company.as_dict()]
 
 		logging.info('There are {} companies for whom we are updating balances'.format(len(company_dicts)))
 
