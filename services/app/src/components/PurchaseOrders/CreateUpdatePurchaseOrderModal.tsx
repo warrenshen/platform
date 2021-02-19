@@ -32,16 +32,13 @@ const useStyles = makeStyles((theme: Theme) =>
       width: 500,
     },
     dialogTitle: {
-      paddingLeft: theme.spacing(3),
       borderBottom: "1px solid #c7c7c7",
     },
     purchaseOrderInput: {
       width: "200px",
     },
     dialogActions: {
-      margin: theme.spacing(4),
-      marginTop: 0,
-      marginBottom: 15,
+      margin: theme.spacing(2),
     },
     submitButton: {
       marginLeft: theme.spacing(1),

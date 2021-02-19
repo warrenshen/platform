@@ -122,6 +122,7 @@ function LoansDataGrid({
 
   return (
     <ControlledDataGrid
+      isSortingDisabled={isSortingDisabled}
       dataSource={rows}
       columns={columns}
       ref={(ref) => setDataGrid(ref)}

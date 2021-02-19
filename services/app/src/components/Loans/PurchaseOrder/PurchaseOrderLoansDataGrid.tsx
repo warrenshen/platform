@@ -49,6 +49,16 @@ function PurchaseOrderLoansDataGrid({
       ),
     },
     {
+      visible: !isMiniTable && actionItems.length > 0,
+      dataField: "action",
+      caption: "Action",
+      alignment: "center",
+      minWidth: 100,
+      cellRender: (params: ValueFormatterParams) => (
+        <DataGridActionMenu params={params} actionItems={actionItems} />
+      ),
+    },
+    {
       dataField: "status",
       caption: "Status",
       alignment: "center",
@@ -103,16 +113,6 @@ function PurchaseOrderLoansDataGrid({
         <CurrencyDataGridCell
           value={params.row.data.outstanding_principal_balance}
         />
-      ),
-    },
-    {
-      visible: !isMiniTable,
-      dataField: "action",
-      caption: "Action",
-      alignment: "center",
-      minWidth: 100,
-      cellRender: (params: ValueFormatterParams) => (
-        <DataGridActionMenu params={params} actionItems={actionItems} />
       ),
     },
     {

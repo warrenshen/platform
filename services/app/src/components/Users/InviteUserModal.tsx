@@ -36,16 +36,13 @@ const useStyles = makeStyles((theme: Theme) =>
       width: 400,
     },
     dialogTitle: {
-      paddingLeft: theme.spacing(4),
       borderBottom: "1px solid #c7c7c7",
     },
     usersInput: {
       margin: theme.spacing(1),
     },
     dialogActions: {
-      margin: theme.spacing(4),
-      marginTop: 0,
-      marginBottom: 15,
+      margin: theme.spacing(2),
     },
     submitButton: {
       marginLeft: theme.spacing(1),
@@ -138,7 +135,7 @@ function InviteUserModal({ companyId, userRole, handleClose }: Props) {
                 first_name: value,
               });
             }}
-          ></TextField>
+          />
           <TextField
             label="Last Name"
             className={classes.usersInput}
@@ -149,7 +146,7 @@ function InviteUserModal({ companyId, userRole, handleClose }: Props) {
                 last_name: value,
               });
             }}
-          ></TextField>
+          />
           <TextField
             label="Email"
             className={classes.usersInput}
@@ -160,7 +157,7 @@ function InviteUserModal({ companyId, userRole, handleClose }: Props) {
                 email: value,
               });
             }}
-          ></TextField>
+          />
           <TextField
             label="Phone Number"
             className={classes.usersInput}
@@ -171,7 +168,7 @@ function InviteUserModal({ companyId, userRole, handleClose }: Props) {
                 phone_number: value,
               });
             }}
-          ></TextField>
+          />
           {errMsg && <div>Error: {errMsg}</div>}
         </Box>
       </DialogContent>

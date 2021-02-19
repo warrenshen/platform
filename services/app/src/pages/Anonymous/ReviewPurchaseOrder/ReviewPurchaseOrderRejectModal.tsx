@@ -21,13 +21,10 @@ const useStyles = makeStyles((theme: Theme) =>
       width: 400,
     },
     dialogTitle: {
-      paddingLeft: theme.spacing(3),
       borderBottom: "1px solid #c7c7c7",
     },
     dialogActions: {
-      margin: theme.spacing(4),
-      padding: 0,
-      marginBottom: 16,
+      margin: theme.spacing(2),
     },
     submitButton: {
       marginLeft: theme.spacing(1),
@@ -90,7 +87,7 @@ function ReviewPurchaseOrderRejectModal({
             placeholder={"Enter in the reason for rejection"}
             value={rejectionNote}
             onChange={({ target: { value } }) => setRejectionNote(value)}
-          ></TextField>
+          />
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>

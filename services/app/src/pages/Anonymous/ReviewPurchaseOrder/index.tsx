@@ -40,8 +40,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     dialogActions: {
       margin: theme.spacing(2),
-      marginTop: 0,
-      marginBottom: theme.spacing(2),
     },
   })
 );
@@ -145,7 +143,7 @@ function ReviewPurchaseOrderPage(props: Props) {
           <Box>
             <DownloadThumbnail
               fileIds={purchaseOrderFile ? [purchaseOrderFile.file_id] : []}
-            ></DownloadThumbnail>
+            />
           </Box>
           <Box>
             <FormControlLabel
@@ -153,10 +151,10 @@ function ReviewPurchaseOrderPage(props: Props) {
                 <Checkbox
                   disabled={true}
                   checked={!!purchaseOrder?.is_cannabis}
-                ></Checkbox>
+                />
               }
               label={"Order includes cannabis or derivatives"}
-            ></FormControlLabel>
+            />
           </Box>
           {purchaseOrder?.is_cannabis && (
             <Box>
@@ -164,7 +162,7 @@ function ReviewPurchaseOrderPage(props: Props) {
                 fileIds={purchaseOrderCannabisFiles?.map(
                   (purchaseOrderFile) => purchaseOrderFile.file_id
                 )}
-              ></DownloadThumbnail>
+              />
             </Box>
           )}
         </Box>
@@ -195,7 +193,7 @@ function ReviewPurchaseOrderPage(props: Props) {
                   pathname: anonymousRoutes.reviewPurchaseOrderComplete,
                 });
               }}
-            ></ReviewPurchaseOrderApproveModal>
+            />
           )}
           {isRejectModalOpen && (
             <ReviewPurchaseOrderRejectModal
@@ -207,7 +205,7 @@ function ReviewPurchaseOrderPage(props: Props) {
                   pathname: anonymousRoutes.reviewPurchaseOrderComplete,
                 })
               }
-            ></ReviewPurchaseOrderRejectModal>
+            />
           )}
         </Box>
       </Box>

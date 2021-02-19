@@ -20,16 +20,13 @@ import { useState } from "react";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     dialogTitle: {
-      paddingLeft: theme.spacing(4),
       borderBottom: "1px solid #c7c7c7",
     },
     usersInput: {
       margin: theme.spacing(1),
     },
     dialogActions: {
-      margin: theme.spacing(4),
-      marginTop: 0,
-      marginBottom: 15,
+      margin: theme.spacing(2),
     },
     submitButton: {
       marginLeft: theme.spacing(1),
@@ -73,7 +70,7 @@ function EditUserProfileModal({
                 first_name: value,
               });
             }}
-          ></TextField>
+          />
           <TextField
             label="Last Name"
             className={classes.usersInput}
@@ -84,7 +81,7 @@ function EditUserProfileModal({
                 last_name: value,
               });
             }}
-          ></TextField>
+          />
           <TextField
             disabled={true}
             label="Email"
@@ -96,7 +93,7 @@ function EditUserProfileModal({
                 email: value,
               });
             }}
-          ></TextField>
+          />
           <TextField
             label="Phone Number"
             className={classes.usersInput}
@@ -107,7 +104,7 @@ function EditUserProfileModal({
                 phone_number: value,
               });
             }}
-          ></TextField>
+          />
           <TextField
             disabled={true}
             label="Role"
@@ -130,7 +127,7 @@ function EditUserProfileModal({
                 role: roleEnum,
               });
             }}
-          ></TextField>
+          />
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>

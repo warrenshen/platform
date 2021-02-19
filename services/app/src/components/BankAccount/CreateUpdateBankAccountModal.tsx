@@ -15,7 +15,6 @@ const useStyles = makeStyles((theme: Theme) =>
       width: 400,
     },
     dialogTitle: {
-      paddingLeft: theme.spacing(3),
       borderBottom: "1px solid #c7c7c7",
     },
   })
@@ -49,7 +48,7 @@ function CreateUpdateBankAccountModal({
           companyId={companyId}
           existingBankAccount={existingBankAccount}
           onCancel={handleClose}
-        ></BankAccountForm>
+        />
       </DialogContent>
     </Dialog>
   );

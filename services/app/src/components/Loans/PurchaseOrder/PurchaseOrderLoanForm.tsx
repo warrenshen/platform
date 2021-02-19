@@ -17,8 +17,8 @@ import { formatCurrency } from "lib/currency";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    purchaseOrderInput: {
-      width: "200px",
+    inputField: {
+      width: 300,
     },
   })
 );
@@ -43,7 +43,7 @@ function PurchaseOrderLoanForm({
   return (
     <Box display="flex" flexDirection="column">
       <Box display="flex" flexDirection="row">
-        <FormControl className={classes.purchaseOrderInput}>
+        <FormControl className={classes.inputField}>
           <InputLabel id="purchase-order-select-label">
             Purchase Order
           </InputLabel>
@@ -87,9 +87,9 @@ function PurchaseOrderLoanForm({
       )}
       <Box display="flex" flexDirection="column" mt={2}>
         <DatePicker
-          className={classes.purchaseOrderInput}
-          id="origination-date-date-picker"
-          label="Payment Date"
+          className={classes.inputField}
+          id="requested-payment-date-date-picker"
+          label="Requested Payment Date"
           disablePast
           disableNonBankDays
           value={loan.requested_payment_date}
@@ -102,13 +102,15 @@ function PurchaseOrderLoanForm({
         />
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
-            The Payment Date is the date when the payment will arrive to the
-            vendor and when interest charges begin.
+            Requested Payment Date is the date you want the advance from Bespoke
+            to arrive to the vendor (the date when interest charges begin).
+            Bespoke will try to adhere to this request, but the actual payment
+            date may be different.
           </Typography>
         </Box>
       </Box>
       <Box mt={3}>
-        <FormControl fullWidth className={classes.purchaseOrderInput}>
+        <FormControl fullWidth className={classes.inputField}>
           <CurrencyTextField
             label="Amount"
             currencySymbol="$"

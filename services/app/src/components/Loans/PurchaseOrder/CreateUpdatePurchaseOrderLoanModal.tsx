@@ -35,16 +35,10 @@ const useStyles = makeStyles((theme: Theme) =>
       width: 500,
     },
     dialogTitle: {
-      paddingLeft: theme.spacing(4),
       borderBottom: "1px solid #c7c7c7",
     },
-    purchaseOrderInput: {
-      width: 400,
-    },
     dialogActions: {
-      margin: theme.spacing(4),
-      marginTop: 0,
-      marginBottom: 15,
+      margin: theme.spacing(2),
     },
     submitButton: {
       marginLeft: theme.spacing(1),
@@ -180,8 +174,8 @@ function CreateUpdatePurchaseOrderLoanModal({
               identifier: nextLoanIdentifier.toString(),
               loan_type: LoanTypeEnum.PurchaseOrder,
               artifact_id: loan.artifact_id,
-              requested_payment_date: loan?.requested_payment_date || null,
-              amount: loan?.amount || null,
+              requested_payment_date: loan.requested_payment_date || null,
+              amount: loan.amount || null,
             },
           },
         });

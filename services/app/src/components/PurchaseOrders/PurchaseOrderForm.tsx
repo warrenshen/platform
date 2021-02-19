@@ -27,8 +27,8 @@ import { ChangeEvent } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    purchaseOrderInput: {
-      width: "200px",
+    inputField: {
+      width: 300,
     },
   })
 );
@@ -66,7 +66,7 @@ function PurchaseOrderForm({
   return (
     <Box display="flex" flexDirection="column">
       <Box display="flex" flexDirection="row">
-        <FormControl className={classes.purchaseOrderInput}>
+        <FormControl className={classes.inputField}>
           <InputLabel id="vendor-select-label">Vendor</InputLabel>
           <Select
             disabled={vendors.length <= 0}
@@ -109,7 +109,7 @@ function PurchaseOrderForm({
       </Box>
       <Box mt={2}>
         <DatePicker
-          className={classes.purchaseOrderInput}
+          className={classes.inputField}
           id="order-date-date-picker"
           label="Order Date"
           disablePast
@@ -124,7 +124,7 @@ function PurchaseOrderForm({
       </Box>
       <Box mt={2}>
         <DatePicker
-          className={classes.purchaseOrderInput}
+          className={classes.inputField}
           id="delivery-date-date-picker"
           label="Delivery date"
           disablePast
@@ -138,7 +138,7 @@ function PurchaseOrderForm({
         />
       </Box>
       <Box mt={3}>
-        <FormControl fullWidth className={classes.purchaseOrderInput}>
+        <FormControl fullWidth className={classes.inputField}>
           <CurrencyTextField
             label="Amount"
             currencySymbol="$"

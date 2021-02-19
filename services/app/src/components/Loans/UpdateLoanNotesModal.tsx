@@ -24,16 +24,13 @@ const useStyles = makeStyles((theme: Theme) =>
       minWidth: "500px",
     },
     dialogTitle: {
-      paddingLeft: theme.spacing(4),
       borderBottom: "1px solid #c7c7c7",
     },
     purchaseOrderInput: {
       width: 400,
     },
     dialogActions: {
-      margin: theme.spacing(4),
-      marginTop: 0,
-      marginBottom: 15,
+      margin: theme.spacing(2),
     },
     submitButton: {
       marginLeft: theme.spacing(1),
