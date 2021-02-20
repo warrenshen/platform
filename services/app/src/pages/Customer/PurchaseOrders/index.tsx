@@ -1,4 +1,5 @@
 import { Box, Button } from "@material-ui/core";
+import CreateUpdatePurchaseOrderLoanModal from "components/Loans/PurchaseOrder/CreateUpdatePurchaseOrderLoanModal";
 import CreateUpdatePurchaseOrderModal from "components/PurchaseOrders/CreateUpdatePurchaseOrderModal";
 import PurchaseOrdersDataGrid from "components/PurchaseOrders/PurchaseOrdersDataGrid";
 import Can from "components/Shared/Can";
@@ -27,6 +28,7 @@ function PurchaseOrdersPage() {
   const purchaseOrders = data?.purchase_orders || [];
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isCreateLoanModalOpen, setIsCreateLoanModalOpen] = useState(false);
   const [targetPurchaseOrderId, setTargetPurchaseOrderId] = useState("");
 
   const handleEditPurchaseOrder = (purchaseOrderId: string) => {
@@ -34,9 +36,26 @@ function PurchaseOrdersPage() {
     setIsEditModalOpen(true);
   };
 
+  const handleFundPurchaseOrder = (purchaseOrderId: string) => {
+    setTargetPurchaseOrderId(purchaseOrderId);
+    setIsCreateLoanModalOpen(true);
+  };
+
   return (
     <Page appBarTitle={"Purchase Orders"}>
       <Box flex={1} display="flex" flexDirection="column" width="100%">
+        {isCreateLoanModalOpen && (
+          <CreateUpdatePurchaseOrderLoanModal
+            actionType={ActionType.New}
+            loanId=""
+            artifactId={targetPurchaseOrderId}
+            handleClose={() => {
+              setTargetPurchaseOrderId("");
+              refetch();
+              setIsCreateLoanModalOpen(false);
+            }}
+          />
+        )}
         {isEditModalOpen && (
           <CreateUpdatePurchaseOrderModal
             actionType={
@@ -70,6 +89,12 @@ function PurchaseOrdersPage() {
               label: "Edit",
               handleClick: (params) =>
                 handleEditPurchaseOrder(params.row.data.id as string),
+            },
+            {
+              key: "fund-purchase-order",
+              label: "Fund",
+              handleClick: (params) =>
+                handleFundPurchaseOrder(params.row.data.id as string),
             },
           ]}
         />

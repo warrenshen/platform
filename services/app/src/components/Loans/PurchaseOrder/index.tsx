@@ -50,6 +50,7 @@ function PurchaseOrderLoansForCustomer() {
         <CreateUpdatePurchaseOrderLoanModal
           actionType={targetLoanId === "" ? ActionType.New : ActionType.Update}
           loanId={targetLoanId}
+          artifactId={null}
           handleClose={() => {
             setTargetLoanId("");
             refetch();

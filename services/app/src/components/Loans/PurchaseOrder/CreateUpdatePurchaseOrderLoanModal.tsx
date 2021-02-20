@@ -9,6 +9,7 @@ import {
   makeStyles,
   Theme,
 } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoansInsertInput,
@@ -23,6 +24,7 @@ import {
   useUpdateLoanMutation,
 } from "generated/graphql";
 import { authenticatedApi, loansRoutes } from "lib/api";
+import { formatCurrency } from "lib/currency";
 import { ActionType } from "lib/enum";
 import {
   Artifact,
@@ -52,12 +54,14 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   actionType: ActionType;
+  artifactId: Scalars["uuid"] | null;
   loanId: Scalars["uuid"] | null;
   handleClose: () => void;
 }
 
 function CreateUpdatePurchaseOrderLoanModal({
   actionType,
+  artifactId = null, // this is passed in when a user clicks "Fund" from the Purchase Orders grid
   loanId = null,
   handleClose,
 }: Props) {
@@ -70,7 +74,7 @@ function CreateUpdatePurchaseOrderLoanModal({
 
   // Default Loan for CREATE case.
   const newLoan: LoansInsertInput = {
-    artifact_id: "",
+    artifact_id: artifactId || "",
     loan_type: LoanTypeEnum.PurchaseOrder,
     requested_payment_date: null,
     amount: "",
@@ -94,14 +98,18 @@ function CreateUpdatePurchaseOrderLoanModal({
     },
   });
 
-  let siblingsTotalAmount = 0.0;
+  let amountUsedOnArtifact = 0.0;
+  let totalAmountForArtifact = 0.0;
   const idToArtifact: { [artifact_id: string]: Artifact } = {};
   for (let i = 0; i < artifacts.length; i++) {
     const artifact = artifacts[i];
     idToArtifact[artifact.artifact_id] = artifact;
   }
   if (artifacts && loan.artifact_id in idToArtifact) {
-    siblingsTotalAmount = idToArtifact[loan.artifact_id].amount_remaining;
+    const curArtifact = idToArtifact[loan.artifact_id];
+    amountUsedOnArtifact =
+      curArtifact.total_amount - curArtifact.amount_remaining;
+    totalAmountForArtifact = curArtifact.total_amount;
   }
 
   const [addLoan, { loading: isAddLoanLoading }] = useAddLoanMutation();
@@ -120,7 +128,7 @@ function CreateUpdatePurchaseOrderLoanModal({
   });
 
   const proposedLoansTotalAmount =
-    siblingsTotalAmount + parseFloat(loan?.amount) || 0;
+    amountUsedOnArtifact + parseFloat(loan?.amount) || 0;
 
   const approvedPurchaseOrders = data?.purchase_orders || [];
 
@@ -187,9 +195,23 @@ function CreateUpdatePurchaseOrderLoanModal({
         return;
       }
       setArtifacts(resp.artifacts);
+
+      if (artifactId) {
+        const selectedArtifact = resp.artifacts.find((artifact) => {
+          return artifact.artifact_id === artifactId;
+        });
+        if (selectedArtifact) {
+          setLoan((loan) => {
+            return {
+              ...loan,
+              amount: selectedArtifact.amount_remaining,
+            };
+          });
+        }
+      }
     }
     loadArtifacts();
-  }, [snackbar, companyId, loanId]);
+  }, [snackbar, companyId, loanId, artifactId]);
 
   const handleClickSaveDraft = async () => {
     const savedLoan = await upsertPurchaseOrderLoan();
@@ -217,7 +239,9 @@ function CreateUpdatePurchaseOrderLoanModal({
       if (response.data?.status === "ERROR") {
         snackbar.showMessage(response.data?.msg);
       } else {
-        snackbar.showMessage("Success! Loan saved and submitted to Bespoke.");
+        snackbar.showMessage(
+          "Success! Loan saved and submitted to Bespoke. You may view this advance request in the Loans section"
+        );
         handleClose();
       }
     }
@@ -229,17 +253,35 @@ function CreateUpdatePurchaseOrderLoanModal({
   const isFormLoading = isAddLoanLoading || isUpdateLoanLoading;
   const isSaveDraftDisabled = !isFormValid || isFormLoading;
 
-  // TODO (warrenshen): Make it apparent to the user the reason we are disabling submitting a purchase order
-  // for approval, e.g., if they are asking for more than the purchase order is worth.
-
   // isLoanSiblingsLoading
-  const isSaveSubmitDisabled =
-    !isFormValid ||
-    isFormLoading ||
-    !selectedPurchaseOrder ||
-    proposedLoansTotalAmount > selectedPurchaseOrder.amount ||
-    !loan?.requested_payment_date ||
-    !loan?.amount;
+
+  const disabledSubmitReasons = [];
+  if (!isFormValid || !selectedPurchaseOrder) {
+    disabledSubmitReasons.push("Purchase order has not been selected");
+  }
+  if (isFormLoading) {
+    disabledSubmitReasons.push("Data is loading");
+  }
+  if (proposedLoansTotalAmount > totalAmountForArtifact) {
+    disabledSubmitReasons.push(
+      "Requested total exceeds amount available on this purchase order. The total principal against this purchase order would be " +
+        formatCurrency(proposedLoansTotalAmount) +
+        " versus the " +
+        formatCurrency(totalAmountForArtifact) +
+        " allowed"
+    );
+  }
+  if (!loan?.requested_payment_date) {
+    disabledSubmitReasons.push("Requested payment date is not set");
+  }
+  if (!loan?.amount) {
+    disabledSubmitReasons.push("Amount is not specified");
+  }
+
+  const isSaveSubmitDisabled = disabledSubmitReasons.length > 0;
+  // If the purchase order ID is being passed in through the props, this means that the
+  // user cannot select a purchase order themselves.
+  const disablePurchaseOrderEditing = artifactId !== null;
 
   return isDialogReady ? (
     <Dialog
@@ -255,13 +297,32 @@ function CreateUpdatePurchaseOrderLoanModal({
       </DialogTitle>
       <DialogContent>
         <PurchaseOrderLoanForm
-          canEditPurchaseOrder={actionType === ActionType.New}
+          canEditPurchaseOrder={
+            actionType === ActionType.New && !disablePurchaseOrderEditing
+          }
           loan={loan}
           setLoan={setLoan}
           approvedPurchaseOrders={approvedPurchaseOrders}
           selectedPurchaseOrder={selectedPurchaseOrder}
           idToArtifact={idToArtifact}
         />
+        {disabledSubmitReasons.length > 0 && (
+          <Box mt={1}>
+            <Alert severity="warning">
+              <span>
+                Reasons you cannot submit, but can only save this as a draft
+              </span>
+              <br></br>
+              <div>
+                <ul>
+                  {disabledSubmitReasons.map((reason, index) => {
+                    return <li key={"disabled-reason-" + index}>{reason}</li>;
+                  })}
+                </ul>
+              </div>
+            </Alert>
+          </Box>
+        )}
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
         <Box>

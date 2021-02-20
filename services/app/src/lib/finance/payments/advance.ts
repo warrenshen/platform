@@ -6,10 +6,10 @@ export function computeSettlementDateForPayment(
   if (!paymentDate || !paymentMethod) {
     return null;
   } else {
-    const now = new Date();
-    const hour = now.getHours();
-    const minutes = now.getMinutes();
-    console.log({ hour, minutes });
+    //const now = new Date();
+    // const hour = now.getHours();
+    //const minutes = now.getMinutes();
+    //console.log({ hour, minutes });
     // TODO (davidlluncor): use paymentMethod and time to return computed settlement date.
     return paymentDate;
   }
