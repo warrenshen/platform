@@ -190,22 +190,9 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
             setSelectedLoanIds={setSelectedLoanIds}
           />
         ) : (
-          <>
-            {!isOnSelectLoans && (
-              <Box mb={2}>
-                <Button
-                  variant="contained"
-                  color="default"
-                  onClick={() => setIsOnSelectLoans(true)}
-                >
-                  Back to Step 1
-                </Button>
-              </Box>
-            )}
-            <SettleRepaymentConfirmEffect
-              loansBeforeAfterPayment={loansBeforeAfterPayment}
-            />
-          </>
+          <SettleRepaymentConfirmEffect
+            loansBeforeAfterPayment={loansBeforeAfterPayment}
+          />
         )}
       </DialogContent>
       <DialogActions>
@@ -217,25 +204,38 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
               </Typography>
             </Box>
           )}
-          <Box display="flex" justifyContent="flex-end" width="100%">
-            <Button onClick={handleClose}>Cancel</Button>
-            {isOnSelectLoans ? (
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleClickNext}
-              >
-                Next
-              </Button>
-            ) : (
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleClickConfirm}
-              >
-                Confirm
-              </Button>
+          <Box display="flex" justifyContent="space-between">
+            {!isOnSelectLoans && (
+              <Box mb={2}>
+                <Button
+                  variant="contained"
+                  color="default"
+                  onClick={() => setIsOnSelectLoans(true)}
+                >
+                  Back to Step 1
+                </Button>
+              </Box>
             )}
+            <Box>
+              <Button onClick={handleClose}>Cancel</Button>
+              {isOnSelectLoans ? (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleClickNext}
+                >
+                  Next
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleClickConfirm}
+                >
+                  Confirm
+                </Button>
+              )}
+            </Box>
           </Box>
         </Box>
       </DialogActions>

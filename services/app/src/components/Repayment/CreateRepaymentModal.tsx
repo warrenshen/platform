@@ -5,6 +5,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Typography,
 } from "@material-ui/core";
 import CreateRepaymentConfirmEffect from "components/Repayment/CreateRepaymentConfirmEffect";
 import CreateRepaymentSelectLoans from "components/Repayment/CreateRepaymentSelectLoans";
@@ -155,7 +156,23 @@ function RepaymentModal({ companyId, selectedLoans, handleClose }: Props) {
             setPaymentOption={setPaymentOption}
           />
         ) : (
-          <>
+          <CreateRepaymentConfirmEffect
+            loansBeforeAfterPayment={loansBeforeAfterPayment}
+            payment={payment}
+            setPayment={setPayment}
+          />
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Box display="flex" flexDirection="column" width="100%">
+          {errMsg && (
+            <Box display="flex" justifyContent="flex-end" width="100%">
+              <Typography variant="body1" color="secondary">
+                {errMsg}
+              </Typography>
+            </Box>
+          )}
+          <Box display="flex" justifyContent="space-between">
             {!isOnSelectLoans && (
               <Box mb={2}>
                 <Button
@@ -167,38 +184,28 @@ function RepaymentModal({ companyId, selectedLoans, handleClose }: Props) {
                 </Button>
               </Box>
             )}
-            <CreateRepaymentConfirmEffect
-              loansBeforeAfterPayment={loansBeforeAfterPayment}
-              payment={payment}
-              setPayment={setPayment}
-            />
-          </>
-        )}
-      </DialogContent>
-      <DialogActions>
-        <Box display="flex">
-          {errMsg && <span style={{ float: "left" }}>{errMsg}</span>}
-          <Box pr={1}>
-            <Button onClick={handleClose}>Cancel</Button>
-            {isOnSelectLoans ? (
-              <Button
-                disabled={!isNextButtonEnabled}
-                variant="contained"
-                color="primary"
-                onClick={handleClickNext}
-              >
-                Next
-              </Button>
-            ) : (
-              <Button
-                disabled={!isActionButtonEnabled}
-                variant="contained"
-                color="primary"
-                onClick={handleClickConfirm}
-              >
-                {actionBtnText}
-              </Button>
-            )}
+            <Box>
+              <Button onClick={handleClose}>Cancel</Button>
+              {isOnSelectLoans ? (
+                <Button
+                  disabled={!isNextButtonEnabled}
+                  variant="contained"
+                  color="primary"
+                  onClick={handleClickNext}
+                >
+                  Next
+                </Button>
+              ) : (
+                <Button
+                  disabled={!isActionButtonEnabled}
+                  variant="contained"
+                  color="primary"
+                  onClick={handleClickConfirm}
+                >
+                  {actionBtnText}
+                </Button>
+              )}
+            </Box>
           </Box>
         </Box>
       </DialogActions>
