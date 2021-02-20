@@ -1,5 +1,6 @@
-import { Box } from "@material-ui/core";
+import { Box, Button } from "@material-ui/core";
 import AddButton from "components/Customer/AddCustomer/AddCustomerButton";
+import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import Page from "components/Shared/Page";
@@ -7,15 +8,23 @@ import { ProductTypeEnum, useCustomersForBankQuery } from "generated/graphql";
 import { ProductTypeToLabel } from "lib/enum";
 import { bankRoutes } from "lib/routes";
 import { sortBy } from "lodash";
+import { useState } from "react";
 import { useRouteMatch } from "react-router-dom";
 
 function BankCustomersPage() {
   const { url } = useRouteMatch();
   const { data } = useCustomersForBankQuery();
 
-  if (!data || !data.companies) {
+  const [
+    isRunCustomerBalancesModalOpen,
+    setIsRunCustomerBalancesModalOpen,
+  ] = useState(false);
+
+  if (!data?.companies) {
     return null;
   }
+
+  const companies = data.companies;
 
   const customerNameCellRenderer = ({
     value,
@@ -69,7 +78,7 @@ function BankCustomersPage() {
     },
   ];
 
-  const customers = sortBy(data.companies, (company) => company.name);
+  const customers = sortBy(companies, (company) => company.name);
 
   return (
     <Page appBarTitle={"Customers"}>
@@ -78,7 +87,23 @@ function BankCustomersPage() {
         style={{ marginBottom: "1rem" }}
         flexDirection="row-reverse"
       >
-        <AddButton />
+        {isRunCustomerBalancesModalOpen && (
+          <RunCustomerBalancesModal
+            handleClose={() => setIsRunCustomerBalancesModalOpen(false)}
+          />
+        )}
+        <Box>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => setIsRunCustomerBalancesModalOpen(true)}
+          >
+            Run Balances
+          </Button>
+        </Box>
+        <Box mr={2}>
+          <AddButton />
+        </Box>
       </Box>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <ControlledDataGrid dataSource={customers} columns={columns} pager />

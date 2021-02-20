@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  companyId: Companies["id"];
+  companyId?: Companies["id"];
   handleClose: () => void;
 }
 
@@ -47,6 +47,8 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
   const handleClickSubmit = async () => {
     if (!reportDate) {
     } else {
+      // Note: companyId below may be undefined. This is valid in the case
+      // that we want to run balances for all customers.
       const response = await runCustomerBalances({
         company_id: companyId,
         report_date: reportDate,
@@ -75,14 +77,18 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
       classes={{ paper: classes.dialog }}
     >
       <DialogTitle className={classes.dialogTitle}>
-        Run Customer Balances
+        {companyId
+          ? "Run Balances for Customer"
+          : "Run Balances for All Customers"}
       </DialogTitle>
       <DialogContent>
         <Typography variant="body2" color="textSecondary">
-          Select a Report Date below. This report date will be used as "today"
-          to re-calculate balances for all loans of this customer. For example,
+          {`Select a Report Date below. This report date will be used as "today"
+          to re-calculate balances for all loans of ${
+            companyId ? "this customer" : "all customers"
+          }. For example,
           a report date of "02/18/20" will result in the balances of all loans
-          of this customer being calculated as if today is "02/18/20".
+          of this customer being calculated as if today is "02/18/20".`}
         </Typography>
         <Box display="flex" flexDirection="column" mt={2}>
           <DatePicker

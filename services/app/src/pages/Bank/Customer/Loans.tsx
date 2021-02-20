@@ -135,7 +135,7 @@ function BankCustomerLoansSubpage({ companyId, productType }: Props) {
         <Box>
           <Button
             variant="contained"
-            color="primary"
+            color="secondary"
             onClick={() => setIsRunCustomerBalancesModalOpen(true)}
           >
             Run Balances
