@@ -7,6 +7,8 @@ from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.db.db_constants import (ALL_LOAN_TYPES, LoanTypeEnum, LoanStatusEnum,
                                      RequestStatusEnum)
+from bespoke.finance.loans import sibling_util
+
 ApproveLoansReqDict = TypedDict('ApproveLoansReqDict', {
 	'loan_ids': List[str],
 })
@@ -31,6 +33,9 @@ def approve_loans(
 		'loan_ids': loan_ids,
 		'method': 'approve_loans'
 	}
+
+	# TODO(dlluncor): Check that this loan doesnt exceed the limit associated with
+	# the artifact.
 
 	with session_scope(session_maker) as session:
 		loans = cast(
@@ -119,20 +124,11 @@ def submit_for_approval(loan_id: str, session_maker: Callable) -> Tuple[SubmitFo
 			
 			customer_name = purchase_order.company.name
 
-			# List of other Purchase Order Loans related to same Purchase Order.
-			sibling_loans = cast(
-				List[models.Loan],
-				session.query(models.Loan)
-				.filter(models.Loan.id != loan.id)
-				.filter_by(artifact_id=loan.artifact_id)
+			proposed_loans_total_amount = sibling_util.get_loan_sum_on_artifact(
+				session, 
+				artifact_id=loan.artifact_id,
+				excluding_loan_id=loan.id
 			)
-
-			proposed_loans_total_amount = 0.0
-			for sibling_loan in sibling_loans:
-				if sibling_loan.status not in [LoanStatusEnum.DRAFTED, LoanStatusEnum.REJECTED]:
-					proposed_loans_total_amount += float(
-						sibling_loan.amount) if sibling_loan.amount else 0
-
 			proposed_loans_total_amount += float(loan.amount)
 
 			if proposed_loans_total_amount > float(purchase_order.amount):

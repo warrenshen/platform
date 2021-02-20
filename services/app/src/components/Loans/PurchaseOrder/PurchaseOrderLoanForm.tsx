@@ -65,9 +65,6 @@ function PurchaseOrderLoanForm({
               });
             }}
           >
-            <MenuItem value="">
-              <em>None</em>
-            </MenuItem>
             {approvedPurchaseOrders?.map((purchaseOrder) => (
               <MenuItem key={purchaseOrder.id} value={purchaseOrder.id}>
                 {`${purchaseOrder.order_number} - ${

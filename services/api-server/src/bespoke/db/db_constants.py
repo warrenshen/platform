@@ -17,8 +17,12 @@ class TwoFactorLinkType(object):
 
 class ProductType(object):
 	INVENTORY_FINANCING = 'inventory_financing'
+	LINE_OF_CREDIT = 'line_of_credit'
 
-PRODUCT_TYPES = [ProductType.INVENTORY_FINANCING]
+PRODUCT_TYPES = [
+	ProductType.INVENTORY_FINANCING,
+	ProductType.LINE_OF_CREDIT
+]
 
 # Artifacts
 

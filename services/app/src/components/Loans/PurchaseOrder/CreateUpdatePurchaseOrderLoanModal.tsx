@@ -26,7 +26,7 @@ import { authenticatedApi, loansRoutes } from "lib/api";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useSnackbar } from "material-ui-snackbar-provider";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import PurchaseOrderLoanForm from "./PurchaseOrderLoanForm";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -184,6 +184,13 @@ function CreateUpdatePurchaseOrderLoanModal({
     }
   };
 
+  useEffect(() => {
+    async function loadArtifacts() {
+      // TODO(dlluncor): I'll make the API call here.
+    }
+    loadArtifacts();
+  }, []);
+
   const handleClickSaveDraft = async () => {
     const savedLoan = await upsertPurchaseOrderLoan();
     if (!savedLoan) {
@@ -208,7 +215,7 @@ function CreateUpdatePurchaseOrderLoanModal({
         }
       );
       if (response.data?.status === "ERROR") {
-        alert(response.data?.msg);
+        snackbar.showMessage(response.data?.msg);
       } else {
         snackbar.showMessage("Success! Loan saved and submitted to Bespoke.");
         handleClose();

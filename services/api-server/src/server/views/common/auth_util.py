@@ -71,7 +71,7 @@ class UserSession(object):
 	def is_bank_admin(self) -> bool:
 		return 'bank_admin' in self._user_roles()
 
-	def _is_company_admin_of_this_company(self, company_id: str) -> bool:
+	def is_company_admin_of_this_company(self, company_id: str) -> bool:
 		return self.get_company_id() == company_id
 
 	def is_bank_or_this_company_admin(self, company_id: str) -> bool:
@@ -80,7 +80,7 @@ class UserSession(object):
 			Many operations require this check, because most operations can only be done
 			by a company admin of their own company, or a bank admin.
 		"""
-		return self.is_bank_admin() or self._is_company_admin_of_this_company(
+		return self.is_bank_admin() or self.is_company_admin_of_this_company(
 			company_id
 		)
 

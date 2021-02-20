@@ -1,0 +1,144 @@
+import datetime
+import decimal
+import uuid
+from typing import cast, List, Dict
+
+from bespoke.db import models, db_constants
+from bespoke.db.db_constants import LoanStatusEnum
+from bespoke.db.models import session_scope
+from bespoke.finance.loans import artifacts_util
+from bespoke.finance import number_util
+from bespoke.date import date_util
+
+from bespoke_test.db import db_unittest
+from bespoke_test.db import test_helper
+
+class TestListArtifactsForCreateLoan(db_unittest.TestCase):
+
+	def _run_test(self, test: Dict) -> None:
+		self.reset()
+		session_maker = self.session_maker
+		seed = test_helper.BasicSeed.create(self.session_maker, self)
+		seed.initialize()
+
+		loans = test['loans'] # Loans registered in the system
+		artifacts = test['artifacts'] # Artifacts registered in the system
+		artifact_indices = test['loan_artifact_indices'] # Parallel array to test['loans'], describes which artifact index in test['artifacts'] this loan is associated with
+
+		product_type = test['product_type']
+		company_id = seed.get_company_id('company_admin', index=0)
+
+		loan_ids = []
+		artifact_ids = []
+		with session_scope(session_maker) as session:
+
+			for i in range(len(artifacts)):
+				artifact = artifacts[i]
+				artifact.company_id = company_id
+				session.add(artifact)
+				session.flush()
+				artifact_ids.append(str(artifact.id))
+
+			for i in range(len(loans)):
+				loan = loans[i]
+				loan.company_id = company_id
+				loan.artifact_id = artifact_ids[artifact_indices[i]]
+				session.add(loan)
+				session.flush()
+				loan_ids.append(str(loan.id))
+
+		resp, err = artifacts_util.list_artifacts_for_create_loan(
+			company_id=company_id,
+			product_type=product_type,
+			session_maker=session_maker
+		)
+		if test.get('in_err_msg'):
+			self.assertIn(test['in_err_msg'], err.msg if err else '')
+			return
+
+		self.assertIsNone(err)
+		self.assertEqual(len(test['expected_artifacts']), len(resp['artifacts']))
+		resp['artifacts'].sort(key=lambda a: a['total_amount'])
+
+		for i in range(len(resp['artifacts'])):
+			test['expected_artifacts'][i]['artifact_id'] = artifact_ids[i]
+			test_helper.assertDeepAlmostEqual(
+				self, test['expected_artifacts'][i], cast(Dict, resp['artifacts'][i]))
+
+	def test_success_no_artifacts(self) -> None:
+		test: Dict = {
+			'product_type': db_constants.ProductType.INVENTORY_FINANCING,
+			'loans': [],
+			'artifacts': [],
+			'loan_artifact_indices': [],
+			'expected_artifacts': []
+		}
+		self._run_test(test)
+
+	def test_inventory_financing_many_loans_from_two_purchase_orders(self) -> None:
+		test: Dict = {
+			'product_type': db_constants.ProductType.INVENTORY_FINANCING,
+			'loans': [
+				models.Loan(
+					loan_type=db_constants.LoanTypeEnum.INVENTORY,
+					requested_payment_date=date_util.load_date_str('10/01/2020'),
+					amount=decimal.Decimal(90.02),
+					status=db_constants.LoanStatusEnum.APPROVAL_REQUESTED
+				),
+				models.Loan(
+					loan_type=db_constants.LoanTypeEnum.INVENTORY,
+					requested_payment_date=date_util.load_date_str('10/01/2020'),
+					amount=decimal.Decimal(30.02),
+					status=db_constants.LoanStatusEnum.APPROVED
+				),
+				models.Loan(
+					loan_type=db_constants.LoanTypeEnum.INVENTORY,
+					requested_payment_date=date_util.load_date_str('10/01/2020'),
+					amount=decimal.Decimal(20.02),
+					status=db_constants.LoanStatusEnum.FUNDED
+				),
+				models.Loan(
+					loan_type=db_constants.LoanTypeEnum.INVENTORY,
+					requested_payment_date=date_util.load_date_str('10/01/2020'),
+					amount=decimal.Decimal(50.02),
+					status=db_constants.LoanStatusEnum.CLOSED
+				),
+				models.Loan(
+					loan_type=db_constants.LoanTypeEnum.INVENTORY,
+					requested_payment_date=date_util.load_date_str('10/02/2020'),
+					amount=decimal.Decimal(10.01)
+				)
+				# Many loans in several states add up to more than the $100 allotted for that
+				# one purchase order when summed up.
+			],
+			'artifacts': [
+				models.PurchaseOrder(
+					amount=decimal.Decimal(100.0)
+				),
+				models.PurchaseOrder(
+					amount=decimal.Decimal(200.0)
+				),
+				models.PurchaseOrder(
+					amount=decimal.Decimal(300.0)
+				)
+			],
+			'loan_artifact_indices': [0, 0, 0, 1, 1],
+			'expected_artifacts': [
+				{
+					'artifact_id': None, # filled in by test
+					'total_amount': 100.0,
+					'amount_remaining': 0 # would normally send the amount remaining negative
+				},
+				{
+					'artifact_id': None, # filled in by test
+					'total_amount': 200.0,
+					'amount_remaining': 200.0 - (50.02 + 10.01)
+				},
+				{
+					'artifact_id': None, # filled in by test
+					'total_amount': 300.0,
+					'amount_remaining': 300.0 # no loans associated with this artifact
+				}
+			]
+		}
+		self._run_test(test)
