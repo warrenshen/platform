@@ -48,6 +48,10 @@ export const loansRoutes = {
   calculateEffectOfPayment:
     "finance/loans/repayments/calculate_effect_of_payment",
   settlePayment: "/finance/loans/repayments/settle_payment",
+
+  // Artifacts related.
+  listArtifactsForCreateLoan:
+    "/finance/loans/artifacts/list_artifacts_for_create_loan",
 };
 
 export const twoFactorRoutes = {

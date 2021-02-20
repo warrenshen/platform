@@ -47,9 +47,14 @@ class TestListArtifactsForCreateLoan(db_unittest.TestCase):
 				session.flush()
 				loan_ids.append(str(loan.id))
 
+		loan_id = None
+		if test.get('loan_id_index') is not None:
+			loan_id = loan_ids[test['loan_id_index']]
+
 		resp, err = artifacts_util.list_artifacts_for_create_loan(
 			company_id=company_id,
 			product_type=product_type,
+			loan_id=loan_id,
 			session_maker=session_maker
 		)
 		if test.get('in_err_msg'):
@@ -69,6 +74,7 @@ class TestListArtifactsForCreateLoan(db_unittest.TestCase):
 		test: Dict = {
 			'product_type': db_constants.ProductType.INVENTORY_FINANCING,
 			'loans': [],
+			'loan_id_index': None,
 			'artifacts': [],
 			'loan_artifact_indices': [],
 			'expected_artifacts': []
@@ -123,6 +129,7 @@ class TestListArtifactsForCreateLoan(db_unittest.TestCase):
 				)
 			],
 			'loan_artifact_indices': [0, 0, 0, 1, 1],
+			'loan_id_index': None,
 			'expected_artifacts': [
 				{
 					'artifact_id': None, # filled in by test
@@ -138,6 +145,40 @@ class TestListArtifactsForCreateLoan(db_unittest.TestCase):
 					'artifact_id': None, # filled in by test
 					'total_amount': 300.0,
 					'amount_remaining': 300.0 # no loans associated with this artifact
+				}
+			]
+		}
+		self._run_test(test)
+
+	def test_inventory_financing_exclude_loan_id(self) -> None:
+		test: Dict = {
+			'product_type': db_constants.ProductType.INVENTORY_FINANCING,
+			'loans': [
+				models.Loan(
+					loan_type=db_constants.LoanTypeEnum.INVENTORY,
+					requested_payment_date=date_util.load_date_str('10/01/2020'),
+					amount=decimal.Decimal(200.02),
+					status=db_constants.LoanStatusEnum.APPROVAL_REQUESTED
+				),
+				models.Loan(
+					loan_type=db_constants.LoanTypeEnum.INVENTORY,
+					requested_payment_date=date_util.load_date_str('10/01/2020'),
+					amount=decimal.Decimal(130.02),
+					status=db_constants.LoanStatusEnum.APPROVED
+				)
+			],
+			'artifacts': [
+				models.PurchaseOrder(
+					amount=decimal.Decimal(700.0)
+				),
+			],
+			'loan_artifact_indices': [0, 0],
+			'loan_id_index': 0,
+			'expected_artifacts': [
+				{
+					'artifact_id': None, # filled in by test
+					'total_amount': 700.0,
+					'amount_remaining': 700.0 - 130.02 # check that your loan (200.02 amount) is not included
 				}
 			]
 		}

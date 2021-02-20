@@ -22,6 +22,7 @@ handler = Blueprint('two_factor', __name__)
 class GenerateCodeView(MethodView):
 
 	# NOTE: We aren't using this two-factor path yet
+	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
 		cfg = cast(Config, current_app.app_config)
 		form = json.loads(request.data)
@@ -65,6 +66,7 @@ class GenerateCodeView(MethodView):
 class ApproveCodeView(MethodView):
 
 	# NOTE: We aren't using the two-factor path currently
+	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
 		cfg = cast(Config, current_app.app_config)
 		form = json.loads(request.data)
@@ -108,6 +110,7 @@ class ApproveCodeView(MethodView):
 
 class GetSecureLinkPayloadView(MethodView):
 
+	@handler_util.catch_bad_json_request
 	# Decodes the secure link value and then returns the payload associated with it.
 	def post(self) -> Response:
 		cfg = cast(Config, current_app.app_config)

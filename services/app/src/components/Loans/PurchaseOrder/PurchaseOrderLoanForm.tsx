@@ -14,6 +14,7 @@ import PurchaseOrderInfoCard from "components/PurchaseOrder/PurchaseOrderInfoCar
 import DatePicker from "components/Shared/Dates/DatePicker";
 import { LoansInsertInput, PurchaseOrderFragment } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
+import { Artifact } from "lib/finance/loans/artifacts";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -29,6 +30,7 @@ interface Props {
   setLoan: (loan: LoansInsertInput) => void;
   approvedPurchaseOrders: PurchaseOrderFragment[];
   selectedPurchaseOrder?: PurchaseOrderFragment;
+  idToArtifact: { [artifact_id: string]: Artifact };
 }
 
 function PurchaseOrderLoanForm({
@@ -37,8 +39,20 @@ function PurchaseOrderLoanForm({
   setLoan,
   approvedPurchaseOrders,
   selectedPurchaseOrder,
+  idToArtifact,
 }: Props) {
   const classes = useStyles();
+
+  const purchaseOrderList: PurchaseOrderFragment[] = [];
+  for (let i = 0; i < approvedPurchaseOrders.length; i++) {
+    const approvedPurchaseOrder = approvedPurchaseOrders[i];
+    const artifact = idToArtifact[approvedPurchaseOrder.id];
+    if (artifact.amount_remaining <= 0) {
+      // Dont show purchase orders which have already been used up.
+      continue;
+    }
+    purchaseOrderList.push(approvedPurchaseOrder);
+  }
 
   return (
     <Box display="flex" flexDirection="column">
@@ -48,24 +62,24 @@ function PurchaseOrderLoanForm({
             Purchase Order
           </InputLabel>
           <Select
-            disabled={
-              !canEditPurchaseOrder || approvedPurchaseOrders.length <= 0
-            }
+            disabled={!canEditPurchaseOrder || purchaseOrderList.length <= 0}
             id="purchase-order-select"
             labelId="purchase-order-select-label"
             value={loan.artifact_id}
             onChange={({ target: { value } }) => {
-              const selectedPurchaseOrder = approvedPurchaseOrders?.find(
+              const selectedPurchaseOrder = purchaseOrderList?.find(
                 (purchaseOrder) => purchaseOrder.id === value
               );
+              const maxAmountAvailable =
+                idToArtifact[selectedPurchaseOrder?.id].amount_remaining;
               setLoan({
                 ...loan,
                 artifact_id: selectedPurchaseOrder?.id,
-                amount: selectedPurchaseOrder?.amount,
+                amount: maxAmountAvailable,
               });
             }}
           >
-            {approvedPurchaseOrders?.map((purchaseOrder) => (
+            {purchaseOrderList?.map((purchaseOrder) => (
               <MenuItem key={purchaseOrder.id} value={purchaseOrder.id}>
                 {`${purchaseOrder.order_number} - ${
                   purchaseOrder.vendor?.name

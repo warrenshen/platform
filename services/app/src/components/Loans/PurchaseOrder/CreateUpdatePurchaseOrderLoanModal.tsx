@@ -14,16 +14,20 @@ import {
   LoansInsertInput,
   LoanStatusEnum,
   LoanTypeEnum,
+  ProductTypeEnum,
   Scalars,
   useAddLoanMutation,
   useApprovedPurchaseOrdersQuery,
   useGetCompanyNextLoanIdentifierMutation,
   useGetLoanForCustomerQuery,
-  useLoanSiblingsQuery,
   useUpdateLoanMutation,
 } from "generated/graphql";
 import { authenticatedApi, loansRoutes } from "lib/api";
 import { ActionType } from "lib/enum";
+import {
+  Artifact,
+  listArtifactsForCreateLoan,
+} from "lib/finance/loans/artifacts";
 import { isNull, mergeWith } from "lodash";
 import { useSnackbar } from "material-ui-snackbar-provider";
 import { useContext, useEffect, useState } from "react";
@@ -74,6 +78,7 @@ function CreateUpdatePurchaseOrderLoanModal({
   };
 
   const [loan, setLoan] = useState(newLoan);
+  const [artifacts, setArtifacts] = useState<Artifact[]>([]);
 
   const { loading: isExistingLoanLoading } = useGetLoanForCustomerQuery({
     variables: {
@@ -89,29 +94,15 @@ function CreateUpdatePurchaseOrderLoanModal({
     },
   });
 
-  const {
-    data: loanSiblingsData,
-    loading: isLoanSiblingsLoading,
-  } = useLoanSiblingsQuery({
-    fetchPolicy: "network-only",
-    variables: {
-      // The `|| null` below is necessary because "" is an invalid parameter to give to the query.
-      // `null` is given in the case of a new loan.
-      loanId: loanId || null,
-      loanType: LoanTypeEnum.PurchaseOrder,
-      artifactId: loan.artifact_id,
-    },
-  });
-
-  const loanSiblings = loanSiblingsData?.loans || [];
-  const siblingsTotalAmount = loanSiblings
-    .filter(
-      (loanSibling) =>
-        ![LoanStatusEnum.Drafted, LoanStatusEnum.Rejected].includes(
-          loanSibling.status
-        )
-    )
-    .reduce((sum, loanSibling) => sum + loanSibling.amount || 0, 0);
+  let siblingsTotalAmount = 0.0;
+  const idToArtifact: { [artifact_id: string]: Artifact } = {};
+  for (let i = 0; i < artifacts.length; i++) {
+    const artifact = artifacts[i];
+    idToArtifact[artifact.artifact_id] = artifact;
+  }
+  if (artifacts && loan.artifact_id in idToArtifact) {
+    siblingsTotalAmount = idToArtifact[loan.artifact_id].amount_remaining;
+  }
 
   const [addLoan, { loading: isAddLoanLoading }] = useAddLoanMutation();
 
@@ -120,7 +111,7 @@ function CreateUpdatePurchaseOrderLoanModal({
     { loading: isUpdateLoanLoading },
   ] = useUpdateLoanMutation();
 
-  // TODO (warrenshen): should this query have a companyId variable?
+  // NOTE: This query implicitly has the companyId specified due to the table presets in Hasura
   const {
     data,
     loading: isApprovedPurchaseOrdersLoading,
@@ -186,10 +177,19 @@ function CreateUpdatePurchaseOrderLoanModal({
 
   useEffect(() => {
     async function loadArtifacts() {
-      // TODO(dlluncor): I'll make the API call here.
+      const resp = await listArtifactsForCreateLoan({
+        product_type: ProductTypeEnum.InventoryFinancing,
+        company_id: companyId,
+        loan_id: loanId,
+      });
+      if (resp.status !== "OK") {
+        snackbar.showMessage(resp.msg);
+        return;
+      }
+      setArtifacts(resp.artifacts);
     }
     loadArtifacts();
-  }, []);
+  }, [snackbar, companyId, loanId]);
 
   const handleClickSaveDraft = async () => {
     const savedLoan = await upsertPurchaseOrderLoan();
@@ -231,10 +231,11 @@ function CreateUpdatePurchaseOrderLoanModal({
 
   // TODO (warrenshen): Make it apparent to the user the reason we are disabling submitting a purchase order
   // for approval, e.g., if they are asking for more than the purchase order is worth.
+
+  // isLoanSiblingsLoading
   const isSaveSubmitDisabled =
     !isFormValid ||
     isFormLoading ||
-    isLoanSiblingsLoading ||
     !selectedPurchaseOrder ||
     proposedLoansTotalAmount > selectedPurchaseOrder.amount ||
     !loan?.requested_payment_date ||
@@ -259,6 +260,7 @@ function CreateUpdatePurchaseOrderLoanModal({
           setLoan={setLoan}
           approvedPurchaseOrders={approvedPurchaseOrders}
           selectedPurchaseOrder={selectedPurchaseOrder}
+          idToArtifact={idToArtifact}
         />
       </DialogContent>
       <DialogActions className={classes.dialogActions}>

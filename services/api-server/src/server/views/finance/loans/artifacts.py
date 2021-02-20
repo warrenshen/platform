@@ -25,7 +25,7 @@ class ListArtifactsForCreateLoan(MethodView):
 		if not form:
 			return handler_util.make_error_response('No data provided')
 
-		required_keys = ['company_id', 'product_type']
+		required_keys = ['company_id', 'product_type', 'loan_id']
 
 		for key in required_keys:
 			if key not in form:
@@ -34,6 +34,7 @@ class ListArtifactsForCreateLoan(MethodView):
 
 		company_id = form['company_id']
 		product_type = form['product_type']
+		loan_id = form['loan_id']
 
 		user_session = auth_util.UserSession.from_session()
 		if not user_session.is_company_admin_of_this_company(company_id):
@@ -42,6 +43,7 @@ class ListArtifactsForCreateLoan(MethodView):
 		resp, err = artifacts_util.list_artifacts_for_create_loan(
 			company_id=company_id,
 			product_type=product_type,
+			loan_id=loan_id,
 			session_maker=current_app.session_maker
 		)
 
