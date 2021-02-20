@@ -19,6 +19,7 @@ import {
   useGetPaymentForSettlementQuery,
 } from "generated/graphql";
 import { PaymentOptionEnum } from "lib/enum";
+import { computeSettlementDateForPayment } from "lib/finance/payments/advance";
 import {
   calculateEffectOfPayment,
   LoanBalance,
@@ -69,6 +70,10 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
           method: existingPayment.method,
           requested_payment_date: existingPayment.requested_payment_date,
           payment_date: existingPayment.requested_payment_date,
+          settlement_date: computeSettlementDateForPayment(
+            existingPayment.requested_payment_date,
+            existingPayment.method
+          ),
         } as PaymentsInsertInput);
       } else {
         alert("Existing payment not found");
@@ -160,7 +165,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
         (beforeAfterPaymentLoan) => beforeAfterPaymentLoan.transaction
       ),
       payment_date: payment.payment_date,
-      settlement_date: payment.payment_date,
+      settlement_date: payment.settlement_date,
     });
 
     if (response.status !== "OK") {
@@ -181,6 +186,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
             customer={customer}
             selectedLoanIds={selectedLoanIds}
             selectedLoans={selectedLoans}
+            setPayment={setPayment}
             setSelectedLoanIds={setSelectedLoanIds}
           />
         ) : (

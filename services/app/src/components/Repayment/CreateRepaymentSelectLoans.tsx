@@ -1,9 +1,12 @@
 import {
   Box,
+  createStyles,
   FormControl,
-  FormLabel,
+  InputLabel,
+  makeStyles,
   MenuItem,
   Select,
+  Theme,
   Typography,
 } from "@material-ui/core";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
@@ -17,6 +20,14 @@ import {
   PaymentMethodToLabel,
   PaymentOptionToLabel,
 } from "lib/enum";
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    inputField: {
+      width: 300,
+    },
+  })
+);
 
 interface Props {
   selectedLoans: LoanFragment[];
@@ -33,6 +44,8 @@ function CreateRepaymentSelectLoans({
   setPayment,
   setPaymentOption,
 }: Props) {
+  const classes = useStyles();
+
   return (
     <Box>
       <Box>
@@ -53,7 +66,7 @@ function CreateRepaymentSelectLoans({
         </Typography>
         <Box mt={1}>
           <DatePicker
-            className=""
+            className={classes.inputField}
             id="payment-modal-payment-date-date-picker"
             label="Payment Date"
             disablePast
@@ -73,27 +86,30 @@ function CreateRepaymentSelectLoans({
           Which payment method do you plan to pay with?
         </Typography>
         <Box mt={1}>
-          <FormLabel component="legend" style={{ fontSize: "12px" }} required>
-            Payment Method
-          </FormLabel>
-          <Select
-            value={payment.method}
-            onChange={({ target: { value } }) =>
-              setPayment({
-                ...payment,
-                method: value as PaymentMethodEnum,
-              })
-            }
-            style={{ width: 200 }}
-          >
-            {AllPaymentMethods.map((paymentType) => {
-              return (
-                <MenuItem key={paymentType} value={paymentType}>
-                  {PaymentMethodToLabel[paymentType]}
-                </MenuItem>
-              );
-            })}
-          </Select>
+          <FormControl className={classes.inputField}>
+            <InputLabel id="select-payment-method-label">
+              Payment Method
+            </InputLabel>
+            <Select
+              id="select-payment-method"
+              labelId="select-payment-method-label"
+              value={payment.method}
+              onChange={({ target: { value } }) =>
+                setPayment({
+                  ...payment,
+                  method: value as PaymentMethodEnum,
+                })
+              }
+            >
+              {AllPaymentMethods.map((paymentType) => {
+                return (
+                  <MenuItem key={paymentType} value={paymentType}>
+                    {PaymentMethodToLabel[paymentType]}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
         </Box>
       </Box>
       <Box mt={3}>
@@ -101,29 +117,32 @@ function CreateRepaymentSelectLoans({
           How much would you like to pay?
         </Typography>
         <Box mt={1}>
-          <FormLabel component="legend" style={{ fontSize: "12px" }} required>
-            Payment Option
-          </FormLabel>
-          <Select
-            value={paymentOption}
-            onChange={({ target: { value } }) => {
-              setPaymentOption(value as string);
-            }}
-            style={{ width: 200 }}
-          >
-            {AllPaymentOptions.map((paymentOption) => {
-              return (
-                <MenuItem key={paymentOption} value={paymentOption}>
-                  {PaymentOptionToLabel[paymentOption]}
-                </MenuItem>
-              );
-            })}
-          </Select>
+          <FormControl className={classes.inputField}>
+            <InputLabel id="select-payment-option-label">
+              Payment Option
+            </InputLabel>
+            <Select
+              id="select-payment-option"
+              labelId="select-payment-option-label"
+              value={paymentOption}
+              onChange={({ target: { value } }) =>
+                setPaymentOption(value as string)
+              }
+            >
+              {AllPaymentOptions.map((paymentOption) => {
+                return (
+                  <MenuItem key={paymentOption} value={paymentOption}>
+                    {PaymentOptionToLabel[paymentOption]}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
         </Box>
       </Box>
       {paymentOption === "custom_amount" && (
         <Box mt={2}>
-          <FormControl style={{ width: 200 }}>
+          <FormControl className={classes.inputField}>
             <CurrencyTextField
               label="Amount"
               currencySymbol="$"
