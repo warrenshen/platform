@@ -17,6 +17,7 @@ import React, { useContext } from "react";
 
 interface Props {
   pager?: boolean;
+  isMaturityVisible?: boolean; // Whether maturity date, principal balance, interest, and fees are visible.
   isMiniTable?: boolean;
   loans: LoanFragment[];
   selectedLoanIds?: Loans["id"][];
@@ -26,6 +27,7 @@ interface Props {
 
 function PurchaseOrderLoansDataGrid({
   pager = true,
+  isMaturityVisible = true,
   isMiniTable = false,
   loans,
   selectedLoanIds = [],
@@ -71,7 +73,7 @@ function PurchaseOrderLoansDataGrid({
       visible: !isMiniTable,
       dataField: "artifact_id",
       caption: "Purchase Order",
-      minWidth: 180,
+      width: 160,
       cellRender: (params: ValueFormatterParams) => (
         <PurchaseOrderDrawerLauncher
           label={params.row.data.purchase_order?.order_number as string}
@@ -88,7 +90,7 @@ function PurchaseOrderLoansDataGrid({
       ),
     },
     {
-      visible: !isMiniTable,
+      visible: !isMiniTable && !isMaturityVisible,
       caption: "Requested Payment Date",
       alignment: "right",
       minWidth: 140,
@@ -97,6 +99,22 @@ function PurchaseOrderLoansDataGrid({
       ),
     },
     {
+      visible: !isMiniTable && check(user.role, Action.ViewLoanInternalNote),
+      dataField: "notes",
+      caption: "Internal Note",
+      minWidth: 300,
+    },
+    {
+      visible: isMaturityVisible,
+      caption: "Origination Date",
+      alignment: "right",
+      minWidth: 140,
+      cellRender: (params: ValueFormatterParams) => (
+        <DateDataGridCell dateString={params.row.data.origination_date} />
+      ),
+    },
+    {
+      visible: isMaturityVisible,
       caption: "Maturity Date",
       alignment: "right",
       minWidth: 140,
@@ -105,10 +123,11 @@ function PurchaseOrderLoansDataGrid({
       ),
     },
     {
-      visible: !isMiniTable,
+      visible: isMaturityVisible,
+      dataField: "outstanding_principal_balance",
       caption: "Outstanding Principal Balance",
-      minWidth: 220,
       alignment: "right",
+      width: 160,
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell
           value={params.row.data.outstanding_principal_balance}
@@ -116,10 +135,24 @@ function PurchaseOrderLoansDataGrid({
       ),
     },
     {
-      visible: !isMiniTable && check(user.role, Action.ViewLoanInternalNote),
-      dataField: "notes",
-      caption: "Internal Note",
-      minWidth: 300,
+      visible: isMaturityVisible,
+      dataField: "outstanding_interest",
+      caption: "Outstanding Interest",
+      alignment: "right",
+      width: 160,
+      cellRender: (params: ValueFormatterParams) => (
+        <CurrencyDataGridCell value={params.row.data.outstanding_interest} />
+      ),
+    },
+    {
+      visible: isMaturityVisible,
+      dataField: "outstanding_fees",
+      caption: "Outstanding Fees",
+      alignment: "right",
+      width: 160,
+      cellRender: (params: ValueFormatterParams) => (
+        <CurrencyDataGridCell value={params.row.data.outstanding_fees} />
+      ),
     },
   ];
 

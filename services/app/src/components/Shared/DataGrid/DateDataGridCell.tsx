@@ -13,7 +13,7 @@ interface DatetimeProps {
 export function DatetimeDataGridCell({ datetimeString }: DatetimeProps) {
   return (
     <Box>
-      {datetimeString ? format(parseISO(datetimeString), "MM/dd/yyyy") : ""}
+      {datetimeString ? format(parseISO(datetimeString), "MM/dd/yyyy") : "-"}
     </Box>
   );
 }
@@ -26,7 +26,7 @@ function DateDataGridCell({ dateString }: Props) {
             parse(dateString, DateFormatServer, new Date()),
             DateFormatClient
           )
-        : ""}
+        : "-"}
     </Box>
   );
 }

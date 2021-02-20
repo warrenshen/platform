@@ -15,6 +15,7 @@ import { createLoanPublicIdentifier } from "lib/loans";
 import React, { useContext } from "react";
 
 interface Props {
+  isMaturityVisible?: boolean; // Whether maturity date, principal balance, interest, and fees are visible.
   loans: LoanFragment[];
   selectedLoanIds?: Loans["id"][];
   actionItems?: DataGridActionItem[];
@@ -22,6 +23,7 @@ interface Props {
 }
 
 function LineOfCreditLoansDataGrid({
+  isMaturityVisible = true,
   loans,
   selectedLoanIds = [],
   actionItems = [],
@@ -41,6 +43,15 @@ function LineOfCreditLoansDataGrid({
           label={createLoanPublicIdentifier(params.row.data as LoanFragment)}
           loanId={params.row.data.id as string}
         />
+      ),
+    },
+    {
+      dataField: "action",
+      caption: "Action",
+      alignment: "center",
+      minWidth: 100,
+      cellRender: (params: ValueFormatterParams) => (
+        <DataGridActionMenu params={params} actionItems={actionItems} />
       ),
     },
     {
@@ -81,6 +92,7 @@ function LineOfCreditLoansDataGrid({
       ),
     },
     {
+      visible: !isMaturityVisible,
       caption: "Requested Payment Date",
       alignment: "right",
       minWidth: 140,
@@ -89,6 +101,22 @@ function LineOfCreditLoansDataGrid({
       ),
     },
     {
+      visible: check(user.role, Action.ViewLoanInternalNote),
+      dataField: "notes",
+      caption: "Internal Note",
+      minWidth: 300,
+    },
+    {
+      visible: isMaturityVisible,
+      caption: "Origination Date",
+      alignment: "right",
+      minWidth: 140,
+      cellRender: (params: ValueFormatterParams) => (
+        <DateDataGridCell dateString={params.row.data.origination_date} />
+      ),
+    },
+    {
+      visible: isMaturityVisible,
       caption: "Maturity Date",
       alignment: "right",
       minWidth: 140,
@@ -97,9 +125,11 @@ function LineOfCreditLoansDataGrid({
       ),
     },
     {
+      visible: isMaturityVisible,
+      dataField: "outstanding_principal_balance",
       caption: "Outstanding Principal Balance",
-      minWidth: 220,
       alignment: "right",
+      width: 160,
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell
           value={params.row.data.outstanding_principal_balance}
@@ -107,19 +137,24 @@ function LineOfCreditLoansDataGrid({
       ),
     },
     {
-      dataField: "action",
-      caption: "Action",
-      alignment: "center",
-      minWidth: 100,
+      visible: isMaturityVisible,
+      dataField: "outstanding_interest",
+      caption: "Outstanding Interest",
+      alignment: "right",
+      width: 160,
       cellRender: (params: ValueFormatterParams) => (
-        <DataGridActionMenu params={params} actionItems={actionItems} />
+        <CurrencyDataGridCell value={params.row.data.outstanding_interest} />
       ),
     },
     {
-      dataField: "notes",
-      caption: "Internal Note",
-      minWidth: 300,
-      visible: check(user.role, Action.ViewLoanInternalNote),
+      visible: isMaturityVisible,
+      dataField: "outstanding_fees",
+      caption: "Outstanding Fees",
+      alignment: "right",
+      width: 160,
+      cellRender: (params: ValueFormatterParams) => (
+        <CurrencyDataGridCell value={params.row.data.outstanding_fees} />
+      ),
     },
   ];
 
