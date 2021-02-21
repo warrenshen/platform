@@ -127,5 +127,7 @@ export const RequestStatusToLabel = {
 // User Role enum related.
 export const UserRoleToLabel = {
   [UserRolesEnum.BankAdmin]: "Bank Admin",
+  [UserRolesEnum.BankReadOnly]: "Bank User (View Only)",
   [UserRolesEnum.CompanyAdmin]: "Company Admin",
+  [UserRolesEnum.CompanyReadOnly]: "Company User (View Only)",
 };

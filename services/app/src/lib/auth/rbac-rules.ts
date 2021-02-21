@@ -45,7 +45,9 @@ export interface Rule {
 }
 export interface Rules {
   [UserRolesEnum.BankAdmin]: Rule;
+  [UserRolesEnum.BankReadOnly]: Rule;
   [UserRolesEnum.CompanyAdmin]: Rule;
+  [UserRolesEnum.CompanyReadOnly]: Rule;
 }
 
 export const check = (
@@ -79,23 +81,6 @@ export const check = (
 };
 
 const rules: Rules = {
-  [UserRolesEnum.CompanyAdmin]: {
-    static: [
-      Action.AddPurchaseOrders,
-      Action.EditPurchaseOrderLoan,
-      Action.ManipulatePurchaseOrders,
-      Action.ManipulateUser,
-      Action.RepayPurchaseOrderLoans,
-      Action.ViewPurchaseOrdersActionMenu,
-    ],
-    dynamic: [
-      {
-        action: Action.ManipulateUser,
-        condition: ({ currentUserId, userIdForCheck }: ActionData) =>
-          currentUserId === userIdForCheck,
-      },
-    ],
-  },
   [UserRolesEnum.BankAdmin]: {
     static: [
       Action.AssignBespokeBankAccountForCustomer,
@@ -116,6 +101,31 @@ const rules: Rules = {
           currentUserId === userIdForCheck,
       },
     ],
+  },
+  [UserRolesEnum.BankReadOnly]: {
+    static: [Action.ViewLoanInternalNote],
+    dynamic: [],
+  },
+  [UserRolesEnum.CompanyAdmin]: {
+    static: [
+      Action.AddPurchaseOrders,
+      Action.EditPurchaseOrderLoan,
+      Action.ManipulatePurchaseOrders,
+      Action.ManipulateUser,
+      Action.RepayPurchaseOrderLoans,
+      Action.ViewPurchaseOrdersActionMenu,
+    ],
+    dynamic: [
+      {
+        action: Action.ManipulateUser,
+        condition: ({ currentUserId, userIdForCheck }: ActionData) =>
+          currentUserId === userIdForCheck,
+      },
+    ],
+  },
+  [UserRolesEnum.CompanyReadOnly]: {
+    static: [],
+    dynamic: [],
   },
 };
 

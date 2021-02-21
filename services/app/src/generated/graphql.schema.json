@@ -69731,8 +69731,20 @@
             "deprecationReason": null
           },
           {
+            "name": "bank_read_only",
+            "description": "Bank Read Only",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "company_admin",
             "description": "Company Admin",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "company_read_only",
+            "description": "Company Read Only",
             "isDeprecated": false,
             "deprecationReason": null
           }

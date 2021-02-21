@@ -10755,8 +10755,12 @@ export enum UserRolesConstraint {
 export enum UserRolesEnum {
   /** Bank Admin */
   BankAdmin = "bank_admin",
+  /** Bank Read Only */
+  BankReadOnly = "bank_read_only",
   /** Company Admin */
   CompanyAdmin = "company_admin",
+  /** Company Read Only */
+  CompanyReadOnly = "company_read_only",
 }
 
 /** expression to compare columns of type user_roles_enum. All fields are combined with logical 'AND'. */
