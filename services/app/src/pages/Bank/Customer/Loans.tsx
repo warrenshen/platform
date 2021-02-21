@@ -125,9 +125,9 @@ function BankCustomerLoansSubpage({ companyId, productType }: Props) {
         <UpdateLoanNotesModal
           loanId={targetLoanId}
           handleClose={() => {
-            setTargetLoanId("");
             refetch();
             setIsUpdateLoanNotesModalOpen(false);
+            setTargetLoanId("");
           }}
         />
       )}

@@ -41,9 +41,9 @@ function BankCustomerPurchaseOrdersSubpage({ companyId }: Props) {
           }
           purchaseOrderId={targetPurchaseOrderId}
           handleClose={() => {
-            setTargetPurchaseOrderId("");
             refetch();
             setIsEditModalOpen(false);
+            setTargetPurchaseOrderId("");
           }}
         />
       )}

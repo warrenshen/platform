@@ -50,9 +50,9 @@ function PurchaseOrdersPage() {
             loanId=""
             artifactId={targetPurchaseOrderId}
             handleClose={() => {
-              setTargetPurchaseOrderId("");
               refetch();
               setIsCreateLoanModalOpen(false);
+              setTargetPurchaseOrderId("");
             }}
           />
         )}
@@ -63,9 +63,9 @@ function PurchaseOrdersPage() {
             }
             purchaseOrderId={targetPurchaseOrderId}
             handleClose={() => {
-              setTargetPurchaseOrderId("");
               refetch();
               setIsEditModalOpen(false);
+              setTargetPurchaseOrderId("");
             }}
           />
         )}

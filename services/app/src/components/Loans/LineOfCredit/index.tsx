@@ -42,9 +42,9 @@ function LineOfCreditLoansForCustomer() {
           actionType={targetLoanId === "" ? ActionType.New : ActionType.Update}
           loanId={targetLoanId}
           handleClose={() => {
-            setTargetLoanId("");
             refetch();
             setIsCreateUpdateModalOpen(false);
+            setTargetLoanId("");
           }}
         />
       )}

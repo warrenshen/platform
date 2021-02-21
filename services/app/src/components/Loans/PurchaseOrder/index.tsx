@@ -52,9 +52,9 @@ function PurchaseOrderLoansForCustomer() {
           loanId={targetLoanId}
           artifactId={null}
           handleClose={() => {
-            setTargetLoanId("");
             refetch();
             setIsCreateUpdateModalOpen(false);
+            setTargetLoanId("");
           }}
         />
       )}
