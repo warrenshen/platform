@@ -895,6 +895,10 @@ export type Companies = {
   country?: Maybe<Scalars["String"]>;
   created_at: Scalars["timestamptz"];
   dba_name?: Maybe<Scalars["String"]>;
+  /** An array relationship */
+  ebba_applications: Array<EbbaApplications>;
+  /** An aggregated array relationship */
+  ebba_applications_aggregate: EbbaApplicationsAggregate;
   employer_identification_number?: Maybe<Scalars["String"]>;
   /** An object relationship */
   financial_summary?: Maybe<FinancialSummaries>;
@@ -1002,6 +1006,24 @@ export type CompaniesCompanyVendorPartnershipsByVendorAggregateArgs = {
   offset?: Maybe<Scalars["Int"]>;
   order_by?: Maybe<Array<CompanyVendorPartnershipsOrderBy>>;
   where?: Maybe<CompanyVendorPartnershipsBoolExp>;
+};
+
+/** columns and relationships of "companies" */
+export type CompaniesEbbaApplicationsArgs = {
+  distinct_on?: Maybe<Array<EbbaApplicationsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<EbbaApplicationsOrderBy>>;
+  where?: Maybe<EbbaApplicationsBoolExp>;
+};
+
+/** columns and relationships of "companies" */
+export type CompaniesEbbaApplicationsAggregateArgs = {
+  distinct_on?: Maybe<Array<EbbaApplicationsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<EbbaApplicationsOrderBy>>;
+  where?: Maybe<EbbaApplicationsBoolExp>;
 };
 
 /** columns and relationships of "companies" */
@@ -1169,6 +1191,7 @@ export type CompaniesBoolExp = {
   country?: Maybe<StringComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   dba_name?: Maybe<StringComparisonExp>;
+  ebba_applications?: Maybe<EbbaApplicationsBoolExp>;
   employer_identification_number?: Maybe<StringComparisonExp>;
   financial_summary?: Maybe<FinancialSummariesBoolExp>;
   id?: Maybe<UuidComparisonExp>;
@@ -1213,6 +1236,7 @@ export type CompaniesInsertInput = {
   country?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   dba_name?: Maybe<Scalars["String"]>;
+  ebba_applications?: Maybe<EbbaApplicationsArrRelInsertInput>;
   employer_identification_number?: Maybe<Scalars["String"]>;
   financial_summary?: Maybe<FinancialSummariesObjRelInsertInput>;
   id?: Maybe<Scalars["uuid"]>;
@@ -1347,6 +1371,7 @@ export type CompaniesOrderBy = {
   country?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   dba_name?: Maybe<OrderBy>;
+  ebba_applications_aggregate?: Maybe<EbbaApplicationsAggregateOrderBy>;
   employer_identification_number?: Maybe<OrderBy>;
   financial_summary?: Maybe<FinancialSummariesOrderBy>;
   id?: Maybe<OrderBy>;
@@ -1906,6 +1931,10 @@ export enum CompanyLicensesUpdateColumn {
  */
 export type CompanySettings = {
   /** An object relationship */
+  active_ebba_application?: Maybe<EbbaApplications>;
+  /** If relevant, this foreign key points to the current active ebba_application for this company */
+  active_ebba_application_id?: Maybe<Scalars["uuid"]>;
+  /** An object relationship */
   advances_bespoke_bank_account?: Maybe<BankAccounts>;
   advances_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
@@ -1955,6 +1984,8 @@ export type CompanySettingsBoolExp = {
   _and?: Maybe<Array<Maybe<CompanySettingsBoolExp>>>;
   _not?: Maybe<CompanySettingsBoolExp>;
   _or?: Maybe<Array<Maybe<CompanySettingsBoolExp>>>;
+  active_ebba_application?: Maybe<EbbaApplicationsBoolExp>;
+  active_ebba_application_id?: Maybe<UuidComparisonExp>;
   advances_bespoke_bank_account?: Maybe<BankAccountsBoolExp>;
   advances_bespoke_bank_account_id?: Maybe<UuidComparisonExp>;
   collections_bespoke_bank_account?: Maybe<BankAccountsBoolExp>;
@@ -1973,6 +2004,8 @@ export enum CompanySettingsConstraint {
 
 /** input type for inserting data into table "company_settings" */
 export type CompanySettingsInsertInput = {
+  active_ebba_application?: Maybe<EbbaApplicationsObjRelInsertInput>;
+  active_ebba_application_id?: Maybe<Scalars["uuid"]>;
   advances_bespoke_bank_account?: Maybe<BankAccountsObjRelInsertInput>;
   advances_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   collections_bespoke_bank_account?: Maybe<BankAccountsObjRelInsertInput>;
@@ -1985,6 +2018,7 @@ export type CompanySettingsInsertInput = {
 
 /** aggregate max on columns */
 export type CompanySettingsMaxFields = {
+  active_ebba_application_id?: Maybe<Scalars["uuid"]>;
   advances_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   collections_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
@@ -1994,6 +2028,7 @@ export type CompanySettingsMaxFields = {
 
 /** order by max() on columns of table "company_settings" */
 export type CompanySettingsMaxOrderBy = {
+  active_ebba_application_id?: Maybe<OrderBy>;
   advances_bespoke_bank_account_id?: Maybe<OrderBy>;
   collections_bespoke_bank_account_id?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
@@ -2003,6 +2038,7 @@ export type CompanySettingsMaxOrderBy = {
 
 /** aggregate min on columns */
 export type CompanySettingsMinFields = {
+  active_ebba_application_id?: Maybe<Scalars["uuid"]>;
   advances_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   collections_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
@@ -2012,6 +2048,7 @@ export type CompanySettingsMinFields = {
 
 /** order by min() on columns of table "company_settings" */
 export type CompanySettingsMinOrderBy = {
+  active_ebba_application_id?: Maybe<OrderBy>;
   advances_bespoke_bank_account_id?: Maybe<OrderBy>;
   collections_bespoke_bank_account_id?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
@@ -2042,6 +2079,8 @@ export type CompanySettingsOnConflict = {
 
 /** ordering options when selecting data from "company_settings" */
 export type CompanySettingsOrderBy = {
+  active_ebba_application?: Maybe<EbbaApplicationsOrderBy>;
+  active_ebba_application_id?: Maybe<OrderBy>;
   advances_bespoke_bank_account?: Maybe<BankAccountsOrderBy>;
   advances_bespoke_bank_account_id?: Maybe<OrderBy>;
   collections_bespoke_bank_account?: Maybe<BankAccountsOrderBy>;
@@ -2060,6 +2099,8 @@ export type CompanySettingsPkColumnsInput = {
 /** select columns of table "company_settings" */
 export enum CompanySettingsSelectColumn {
   /** column name */
+  ActiveEbbaApplicationId = "active_ebba_application_id",
+  /** column name */
   AdvancesBespokeBankAccountId = "advances_bespoke_bank_account_id",
   /** column name */
   CollectionsBespokeBankAccountId = "collections_bespoke_bank_account_id",
@@ -2073,6 +2114,7 @@ export enum CompanySettingsSelectColumn {
 
 /** input type for updating data in table "company_settings" */
 export type CompanySettingsSetInput = {
+  active_ebba_application_id?: Maybe<Scalars["uuid"]>;
   advances_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   collections_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
@@ -2082,6 +2124,8 @@ export type CompanySettingsSetInput = {
 
 /** update columns of table "company_settings" */
 export enum CompanySettingsUpdateColumn {
+  /** column name */
+  ActiveEbbaApplicationId = "active_ebba_application_id",
   /** column name */
   AdvancesBespokeBankAccountId = "advances_bespoke_bank_account_id",
   /** column name */
@@ -11362,18 +11406,6 @@ export type EbbaApplicationsQuery = {
   >;
 };
 
-export type EbbaApplicationsByCompanyIdQueryVariables = Exact<{
-  companyId: Scalars["uuid"];
-}>;
-
-export type EbbaApplicationsByCompanyIdQuery = {
-  ebba_applications: Array<
-    Pick<EbbaApplications, "id"> & {
-      company: Pick<Companies, "id" | "name">;
-    } & EbbaApplicationFragment
-  >;
-};
-
 export type GetLoanQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -11846,6 +11878,40 @@ export type GetCompanyForCustomerOverviewQuery = {
           | "available_limit"
         >
       >;
+    }
+  >;
+};
+
+export type GetCompanyForCustomerBorrowingBaseQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+}>;
+
+export type GetCompanyForCustomerBorrowingBaseQuery = {
+  companies_by_pk?: Maybe<
+    Pick<Companies, "id"> & {
+      contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
+      ebba_applications: Array<
+        Pick<EbbaApplications, "id"> & {
+          company: Pick<Companies, "id" | "name">;
+        } & EbbaApplicationFragment
+      >;
+      financial_summary?: Maybe<
+        Pick<
+          FinancialSummaries,
+          | "id"
+          | "total_limit"
+          | "total_outstanding_principal"
+          | "total_outstanding_interest"
+          | "total_outstanding_fees"
+          | "total_principal_in_requested_state"
+          | "available_limit"
+        >
+      >;
+      settings: Pick<CompanySettings, "id"> & {
+        active_ebba_application?: Maybe<
+          Pick<EbbaApplications, "id"> & EbbaApplicationFragment
+        >;
+      };
     }
   >;
 };
@@ -13238,71 +13304,6 @@ export type EbbaApplicationsLazyQueryHookResult = ReturnType<
 export type EbbaApplicationsQueryResult = Apollo.QueryResult<
   EbbaApplicationsQuery,
   EbbaApplicationsQueryVariables
->;
-export const EbbaApplicationsByCompanyIdDocument = gql`
-  query EbbaApplicationsByCompanyId($companyId: uuid!) {
-    ebba_applications(
-      where: { company_id: { _eq: $companyId } }
-      order_by: [{ application_month: desc }, { created_at: desc }]
-    ) {
-      id
-      ...EbbaApplication
-      company {
-        id
-        name
-      }
-    }
-  }
-  ${EbbaApplicationFragmentDoc}
-`;
-
-/**
- * __useEbbaApplicationsByCompanyIdQuery__
- *
- * To run a query within a React component, call `useEbbaApplicationsByCompanyIdQuery` and pass it any options that fit your needs.
- * When your component renders, `useEbbaApplicationsByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useEbbaApplicationsByCompanyIdQuery({
- *   variables: {
- *      companyId: // value for 'companyId'
- *   },
- * });
- */
-export function useEbbaApplicationsByCompanyIdQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    EbbaApplicationsByCompanyIdQuery,
-    EbbaApplicationsByCompanyIdQueryVariables
-  >
-) {
-  return Apollo.useQuery<
-    EbbaApplicationsByCompanyIdQuery,
-    EbbaApplicationsByCompanyIdQueryVariables
-  >(EbbaApplicationsByCompanyIdDocument, baseOptions);
-}
-export function useEbbaApplicationsByCompanyIdLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    EbbaApplicationsByCompanyIdQuery,
-    EbbaApplicationsByCompanyIdQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    EbbaApplicationsByCompanyIdQuery,
-    EbbaApplicationsByCompanyIdQueryVariables
-  >(EbbaApplicationsByCompanyIdDocument, baseOptions);
-}
-export type EbbaApplicationsByCompanyIdQueryHookResult = ReturnType<
-  typeof useEbbaApplicationsByCompanyIdQuery
->;
-export type EbbaApplicationsByCompanyIdLazyQueryHookResult = ReturnType<
-  typeof useEbbaApplicationsByCompanyIdLazyQuery
->;
-export type EbbaApplicationsByCompanyIdQueryResult = Apollo.QueryResult<
-  EbbaApplicationsByCompanyIdQuery,
-  EbbaApplicationsByCompanyIdQueryVariables
 >;
 export const GetLoanDocument = gql`
   query GetLoan($id: uuid!) {
@@ -15711,6 +15712,94 @@ export type GetCompanyForCustomerOverviewLazyQueryHookResult = ReturnType<
 export type GetCompanyForCustomerOverviewQueryResult = Apollo.QueryResult<
   GetCompanyForCustomerOverviewQuery,
   GetCompanyForCustomerOverviewQueryVariables
+>;
+export const GetCompanyForCustomerBorrowingBaseDocument = gql`
+  query GetCompanyForCustomerBorrowingBase($companyId: uuid!) {
+    companies_by_pk(id: $companyId) {
+      id
+      contract {
+        id
+        ...Contract
+      }
+      ebba_applications(
+        order_by: [{ application_month: desc }, { created_at: desc }]
+      ) {
+        id
+        ...EbbaApplication
+        company {
+          id
+          name
+        }
+      }
+      financial_summary {
+        id
+        total_limit
+        total_outstanding_principal
+        total_outstanding_interest
+        total_outstanding_fees
+        total_principal_in_requested_state
+        available_limit
+      }
+      settings {
+        id
+        active_ebba_application {
+          id
+          ...EbbaApplication
+        }
+      }
+    }
+  }
+  ${ContractFragmentDoc}
+  ${EbbaApplicationFragmentDoc}
+`;
+
+/**
+ * __useGetCompanyForCustomerBorrowingBaseQuery__
+ *
+ * To run a query within a React component, call `useGetCompanyForCustomerBorrowingBaseQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompanyForCustomerBorrowingBaseQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCompanyForCustomerBorrowingBaseQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useGetCompanyForCustomerBorrowingBaseQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetCompanyForCustomerBorrowingBaseQuery,
+    GetCompanyForCustomerBorrowingBaseQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetCompanyForCustomerBorrowingBaseQuery,
+    GetCompanyForCustomerBorrowingBaseQueryVariables
+  >(GetCompanyForCustomerBorrowingBaseDocument, baseOptions);
+}
+export function useGetCompanyForCustomerBorrowingBaseLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCompanyForCustomerBorrowingBaseQuery,
+    GetCompanyForCustomerBorrowingBaseQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetCompanyForCustomerBorrowingBaseQuery,
+    GetCompanyForCustomerBorrowingBaseQueryVariables
+  >(GetCompanyForCustomerBorrowingBaseDocument, baseOptions);
+}
+export type GetCompanyForCustomerBorrowingBaseQueryHookResult = ReturnType<
+  typeof useGetCompanyForCustomerBorrowingBaseQuery
+>;
+export type GetCompanyForCustomerBorrowingBaseLazyQueryHookResult = ReturnType<
+  typeof useGetCompanyForCustomerBorrowingBaseLazyQuery
+>;
+export type GetCompanyForCustomerBorrowingBaseQueryResult = Apollo.QueryResult<
+  GetCompanyForCustomerBorrowingBaseQuery,
+  GetCompanyForCustomerBorrowingBaseQueryVariables
 >;
 export const GetLatestBankFinancialSummariesDocument = gql`
   query GetLatestBankFinancialSummaries {

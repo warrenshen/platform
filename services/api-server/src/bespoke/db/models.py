@@ -103,6 +103,7 @@ class CompanySettings(Base):
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	company_id = Column(GUID)
 	vendor_agreement_docusign_template = Column(Text)
+	active_ebba_application_id = cast(GUID, Column(GUID, ForeignKey('ebba_applications.id')))
 
 	def as_dict(self) -> CompanySettingsDict:
 		return CompanySettingsDict(
@@ -292,16 +293,16 @@ class Loan(Base):
 	adjusted_maturity_date = Column(Date)
 	amount = Column(Numeric, nullable=False)
 	status = Column(String)
-	
+
 	requested_at = Column(DateTime)
-	
+
 	rejected_at = Column(DateTime)
 	rejected_by_user_id = Column(GUID)
 	rejection_note = Column(Text)
 
 	approved_at = Column(DateTime)
 	approved_by_user_id = Column(GUID)
-	
+
 	funded_at = Column(DateTime)
 	funded_by_user_id = Column(GUID)
 
@@ -351,7 +352,7 @@ class Payment(Base):
 	submitted_by_user_id = Column(GUID)
 	settled_at = Column(DateTime)
 	settled_by_user_id = Column(GUID)
-	
+
 
 	def as_dict(self) -> PaymentDict:
 		return PaymentDict(

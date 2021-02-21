@@ -4,7 +4,7 @@ import EbbaApplicationCard from "components/EbbaApplication/EbbaApplicationCard"
 import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { useEbbaApplicationsByCompanyIdQuery } from "generated/graphql";
+import { useGetCompanyForCustomerBorrowingBaseQuery } from "generated/graphql";
 import React, { useContext, useState } from "react";
 
 function CustomerEbbaApplicationsPage() {
@@ -17,13 +17,16 @@ function CustomerEbbaApplicationsPage() {
     setIsCreateEbbaApplicationModalOpen,
   ] = useState(false);
 
-  const { data, refetch } = useEbbaApplicationsByCompanyIdQuery({
+  const { data, refetch } = useGetCompanyForCustomerBorrowingBaseQuery({
     variables: {
       companyId,
     },
   });
 
-  const ebbaApplications = data?.ebba_applications || [];
+  const contract = data?.companies_by_pk?.contract || null;
+  const activeEbbaApplication =
+    data?.companies_by_pk?.settings?.active_ebba_application;
+  const ebbaApplications = data?.companies_by_pk?.ebba_applications || [];
 
   return (
     <Page appBarTitle={"Borrowing Base"}>
@@ -49,8 +52,11 @@ function CustomerEbbaApplicationsPage() {
           <Box mb={1}>
             <Typography variant="h6">Active Borrowing Base</Typography>
           </Box>
-          {ebbaApplications.length > 0 ? (
-            <EbbaApplicationCard ebbaApplication={ebbaApplications[0]} />
+          {activeEbbaApplication ? (
+            <EbbaApplicationCard
+              ebbaApplication={activeEbbaApplication}
+              contract={contract}
+            />
           ) : (
             <Box>
               <Typography variant="body2">No active borrowing base</Typography>

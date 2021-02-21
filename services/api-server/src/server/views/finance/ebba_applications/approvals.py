@@ -3,8 +3,8 @@ from typing import Any, List, cast
 
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.models import session_scope
 from bespoke.db.db_constants import RequestStatusEnum
+from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
@@ -55,11 +55,27 @@ class RespondToEbbaApplicationApprovalRequest(MethodView):
 				).first()
 			)
 
+			company_settings = cast(
+				models.CompanySettings,
+				session.query(models.CompanySettings).filter_by(
+					company_id=ebba_application.company_id
+				).first()
+			)
+
 			if new_request_status == RequestStatusEnum.APPROVED:
 				ebba_application.status = RequestStatusEnum.APPROVED
 				ebba_application.approved_at = date_util.now()
 				action_type = 'Approved'
+
+				# Set company's active ebba_application to this one,
+				# since it was just approved.
+				company_settings.active_ebba_application_id = ebba_application.id
 			else:
+				if company_settings.active_ebba_application_id == ebba_application.id:
+					# Reset company's active ebba_application to None,
+					# since this one was formerly approved but now is rejected.
+					company_settings.active_ebba_application_id = None
+
 				ebba_application.status = RequestStatusEnum.REJECTED
 				ebba_application.rejected_at = date_util.now()
 				ebba_application.rejection_note = rejection_note

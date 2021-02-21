@@ -7101,6 +7101,180 @@
             "deprecationReason": null
           },
           {
+            "name": "ebba_applications",
+            "description": "An array relationship",
+            "args": [
+              {
+                "name": "distinct_on",
+                "description": "distinct select on columns",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "ENUM",
+                      "name": "ebba_applications_select_column",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "limit",
+                "description": "limit the number of rows returned",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "offset",
+                "description": "skip the first n rows. Use only with order_by",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "order_by",
+                "description": "sort the rows by one or more columns",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "ebba_applications_order_by",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "where",
+                "description": "filter the rows returned",
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "ebba_applications_bool_exp",
+                  "ofType": null
+                },
+                "defaultValue": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "ebba_applications",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "ebba_applications_aggregate",
+            "description": "An aggregated array relationship",
+            "args": [
+              {
+                "name": "distinct_on",
+                "description": "distinct select on columns",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "ENUM",
+                      "name": "ebba_applications_select_column",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "limit",
+                "description": "limit the number of rows returned",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "offset",
+                "description": "skip the first n rows. Use only with order_by",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "order_by",
+                "description": "sort the rows by one or more columns",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "ebba_applications_order_by",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "where",
+                "description": "filter the rows returned",
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "ebba_applications_bool_exp",
+                  "ofType": null
+                },
+                "defaultValue": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "ebba_applications_aggregate",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "employer_identification_number",
             "description": null,
             "args": [],
@@ -8736,6 +8910,16 @@
             "defaultValue": null
           },
           {
+            "name": "ebba_applications",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "ebba_applications_bool_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "employer_identification_number",
             "description": null,
             "type": {
@@ -9070,6 +9254,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "ebba_applications",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "ebba_applications_arr_rel_insert_input",
               "ofType": null
             },
             "defaultValue": null
@@ -10262,6 +10456,16 @@
             "type": {
               "kind": "ENUM",
               "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "ebba_applications_aggregate",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "ebba_applications_aggregate_order_by",
               "ofType": null
             },
             "defaultValue": null
@@ -13303,6 +13507,30 @@
         "description": "Settings are configuration details associated with a company, but are not within a time range like contracts are\n\n\ncolumns and relationships of \"company_settings\"",
         "fields": [
           {
+            "name": "active_ebba_application",
+            "description": "An object relationship",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "ebba_applications",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "active_ebba_application_id",
+            "description": "If relevant, this foreign key points to the current active ebba_application for this company",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "advances_bespoke_bank_account",
             "description": "An object relationship",
             "args": [],
@@ -13660,6 +13888,26 @@
             "defaultValue": null
           },
           {
+            "name": "active_ebba_application",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "ebba_applications_bool_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "active_ebba_application_id",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "uuid_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "advances_bespoke_bank_account",
             "description": null,
             "type": {
@@ -13768,6 +14016,26 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "active_ebba_application",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "ebba_applications_obj_rel_insert_input",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "active_ebba_application_id",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "advances_bespoke_bank_account",
             "description": null,
             "type": {
@@ -13858,6 +14126,18 @@
         "description": "aggregate max on columns",
         "fields": [
           {
+            "name": "active_ebba_application_id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "advances_bespoke_bank_account_id",
             "description": null,
             "args": [],
@@ -13930,6 +14210,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "active_ebba_application_id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "advances_bespoke_bank_account_id",
             "description": null,
             "type": {
@@ -13989,6 +14279,18 @@
         "name": "company_settings_min_fields",
         "description": "aggregate min on columns",
         "fields": [
+          {
+            "name": "active_ebba_application_id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "advances_bespoke_bank_account_id",
             "description": null,
@@ -14061,6 +14363,16 @@
         "description": "order by min() on columns of table \"company_settings\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "active_ebba_application_id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "advances_bespoke_bank_account_id",
             "description": null,
@@ -14266,6 +14578,26 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "active_ebba_application",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "ebba_applications_order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "active_ebba_application_id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "advances_bespoke_bank_account",
             "description": null,
             "type": {
@@ -14384,6 +14716,12 @@
         "interfaces": null,
         "enumValues": [
           {
+            "name": "active_ebba_application_id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "advances_bespoke_bank_account_id",
             "description": "column name",
             "isDeprecated": false,
@@ -14422,6 +14760,16 @@
         "description": "input type for updating data in table \"company_settings\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "active_ebba_application_id",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "advances_bespoke_bank_account_id",
             "description": null,
@@ -14485,6 +14833,12 @@
         "inputFields": null,
         "interfaces": null,
         "enumValues": [
+          {
+            "name": "active_ebba_application_id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "advances_bespoke_bank_account_id",
             "description": "column name",
