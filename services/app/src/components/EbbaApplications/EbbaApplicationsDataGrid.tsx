@@ -18,11 +18,16 @@ function populateRows(
 }
 
 interface Props {
+  isCompanyVisible?: boolean;
   ebbaApplications: EbbaApplicationsQuery["ebba_applications"];
   actionItems: DataGridActionItem[];
 }
 
-function EbbaApplicationsDataGrid({ ebbaApplications, actionItems }: Props) {
+function EbbaApplicationsDataGrid({
+  isCompanyVisible = true,
+  ebbaApplications,
+  actionItems,
+}: Props) {
   const rows = populateRows(ebbaApplications);
 
   const columns = [
@@ -49,6 +54,7 @@ function EbbaApplicationsDataGrid({ ebbaApplications, actionItems }: Props) {
       ),
     },
     {
+      visible: isCompanyVisible,
       dataField: "company_name",
       caption: "Company",
     },

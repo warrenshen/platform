@@ -18,5 +18,9 @@ query EbbaApplicationsByCompanyId($companyId: uuid!) {
   ) {
     id
     ...EbbaApplication
+    company {
+      id
+      name
+    }
   }
 }

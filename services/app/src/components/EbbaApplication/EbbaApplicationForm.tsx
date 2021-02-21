@@ -1,5 +1,13 @@
-import { Box, FormControl, Typography } from "@material-ui/core";
+import {
+  Box,
+  createStyles,
+  FormControl,
+  makeStyles,
+  Theme,
+  Typography,
+} from "@material-ui/core";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
+import DatePicker from "components/Shared/Dates/DatePicker";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileUploadDropzone from "components/Shared/File/UploadDropzone";
 import {
@@ -7,6 +15,14 @@ import {
   EbbaApplicationsInsertInput,
   Scalars,
 } from "generated/graphql";
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    inputField: {
+      width: 300,
+    },
+  })
+);
 
 interface Props {
   companyId: Scalars["uuid"];
@@ -25,12 +41,29 @@ function EbbaApplicationForm({
   setEbbaApplication,
   setEbbaApplicationFiles,
 }: Props) {
+  const classes = useStyles();
+
   return (
     <Box display="flex" flexDirection="column">
       <Box display="flex" flexDirection="row" mt={2}>
-        <FormControl fullWidth>
+        <DatePicker
+          className={classes.inputField}
+          id="application-month-date-picker"
+          label="Application Month"
+          disablePast={false}
+          value={ebbaApplication.application_month}
+          onChange={(value) =>
+            setEbbaApplication({
+              ...ebbaApplication,
+              application_month: value,
+            })
+          }
+        />
+      </Box>
+      <Box display="flex" flexDirection="row" mt={2}>
+        <FormControl className={classes.inputField}>
           <CurrencyTextField
-            label="Monthly Accounts Receivable"
+            label="Accounts Receivable This Month ($)"
             currencySymbol="$"
             outputFormat="string"
             textAlign="left"
@@ -45,9 +78,9 @@ function EbbaApplicationForm({
         </FormControl>
       </Box>
       <Box display="flex" flexDirection="row" mt={2}>
-        <FormControl fullWidth>
+        <FormControl className={classes.inputField}>
           <CurrencyTextField
-            label="Monthly Inventory"
+            label="Inventory This Month ($)"
             currencySymbol="$"
             outputFormat="string"
             textAlign="left"
@@ -62,9 +95,9 @@ function EbbaApplicationForm({
         </FormControl>
       </Box>
       <Box display="flex" flexDirection="row" mt={2}>
-        <FormControl fullWidth>
+        <FormControl className={classes.inputField}>
           <CurrencyTextField
-            label="Monthly Cash"
+            label="Cash This Month ($)"
             currencySymbol="$"
             outputFormat="string"
             textAlign="left"
@@ -79,9 +112,15 @@ function EbbaApplicationForm({
         </FormControl>
       </Box>
       <Box mt={3}>
-        <Typography variant="subtitle1" color="textSecondary">
-          File Attachment(s)
-        </Typography>
+        <Box mb={1}>
+          <Typography variant="subtitle1" color="textSecondary">
+            File Attachment(s)
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            Please upload file attachment(s) that serve as proof of the above
+            numbers. One file attachment for each number is preferred.
+          </Typography>
+        </Box>
         {ebbaApplicationFiles.length > 0 && (
           <DownloadThumbnail
             fileIds={ebbaApplicationFiles.map(

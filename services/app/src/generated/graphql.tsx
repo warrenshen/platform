@@ -11364,7 +11364,9 @@ export type EbbaApplicationsByCompanyIdQueryVariables = Exact<{
 
 export type EbbaApplicationsByCompanyIdQuery = {
   ebba_applications: Array<
-    Pick<EbbaApplications, "id"> & EbbaApplicationFragment
+    Pick<EbbaApplications, "id"> & {
+      company: Pick<Companies, "id" | "name">;
+    } & EbbaApplicationFragment
   >;
 };
 
@@ -13241,6 +13243,10 @@ export const EbbaApplicationsByCompanyIdDocument = gql`
     ) {
       id
       ...EbbaApplication
+      company {
+        id
+        name
+      }
     }
   }
   ${EbbaApplicationFragmentDoc}

@@ -1,6 +1,7 @@
-import { Box, Button } from "@material-ui/core";
+import { Box, Button, Typography } from "@material-ui/core";
 import CreateEbbaApplicationModal from "components/EbbaApplication/CreateEbbaApplicationModal";
 import EbbaApplicationCard from "components/EbbaApplication/EbbaApplicationCard";
+import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useEbbaApplicationsByCompanyIdQuery } from "generated/graphql";
@@ -16,7 +17,7 @@ function CustomerEbbaApplicationsPage() {
     setIsCreateEbbaApplicationModalOpen,
   ] = useState(false);
 
-  const { data } = useEbbaApplicationsByCompanyIdQuery({
+  const { data, refetch } = useEbbaApplicationsByCompanyIdQuery({
     variables: {
       companyId,
     },
@@ -26,10 +27,13 @@ function CustomerEbbaApplicationsPage() {
 
   return (
     <Page appBarTitle={"Borrowing Base"}>
-      <Box mt={3}>
+      <Box mt={2}>
         {isCreateEbbaApplicationModalOpen && (
           <CreateEbbaApplicationModal
-            handleClose={() => setIsCreateEbbaApplicationModalOpen(false)}
+            handleClose={() => {
+              refetch();
+              setIsCreateEbbaApplicationModalOpen(false);
+            }}
           />
         )}
         <Button
@@ -41,10 +45,28 @@ function CustomerEbbaApplicationsPage() {
         </Button>
       </Box>
       <Box mt={3}>
-        <Box mb={1}>Existing Borrowing Base</Box>
-        {ebbaApplications.length > 0 && (
-          <EbbaApplicationCard ebbaApplication={ebbaApplications[0]} />
-        )}
+        <Box>
+          <Box mb={1}>
+            <Typography variant="h6">Active Borrowing Base</Typography>
+          </Box>
+          {ebbaApplications.length > 0 ? (
+            <EbbaApplicationCard ebbaApplication={ebbaApplications[0]} />
+          ) : (
+            <Box>
+              <Typography variant="body2">No active borrowing base</Typography>
+            </Box>
+          )}
+        </Box>
+        <Box mt={3}>
+          <Box mb={1}>
+            <Typography variant="h6">Historical Borrowing Base</Typography>
+          </Box>
+          <EbbaApplicationsDataGrid
+            isCompanyVisible={false}
+            ebbaApplications={ebbaApplications}
+            actionItems={[]}
+          />
+        </Box>
       </Box>
     </Page>
   );
