@@ -109,13 +109,6 @@ function BankCustomerPage() {
         </Tabs>
       </Paper>
       <Box pt={2}>
-        <PrivateRoute
-          exact
-          path={path}
-          requiredRoles={[UserRolesEnum.BankAdmin]}
-        >
-          <BankCustomerOverviewSubpage />
-        </PrivateRoute>
         {getCustomerPaths(productType).map((customerPath) => (
           <PrivateRoute
             key={customerPath.path}

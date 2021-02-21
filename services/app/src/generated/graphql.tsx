@@ -11856,8 +11856,20 @@ export type AssignAdvancesBespokeBankAccountMutation = {
   >;
 };
 
+export type FinancialSummaryFragment = Pick<
+  FinancialSummaries,
+  | "id"
+  | "total_limit"
+  | "total_outstanding_principal"
+  | "total_outstanding_interest"
+  | "total_outstanding_fees"
+  | "total_principal_in_requested_state"
+  | "available_limit"
+>;
+
 export type GetCompanyForCustomerOverviewQueryVariables = Exact<{
   companyId: Scalars["uuid"];
+  loanType?: Maybe<LoanTypeEnum>;
 }>;
 
 export type GetCompanyForCustomerOverviewQuery = {
@@ -11867,16 +11879,15 @@ export type GetCompanyForCustomerOverviewQuery = {
         Pick<Contracts, "id" | "product_type" | "product_config">
       >;
       financial_summary?: Maybe<
-        Pick<
-          FinancialSummaries,
-          | "id"
-          | "total_limit"
-          | "total_outstanding_principal"
-          | "total_outstanding_interest"
-          | "total_outstanding_fees"
-          | "total_principal_in_requested_state"
-          | "available_limit"
-        >
+        Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
+      >;
+      outstanding_loans: Array<
+        {
+          line_of_credit?: Maybe<
+            Pick<LineOfCredits, "id"> & LineOfCreditFragment
+          >;
+          purchase_order?: Maybe<Pick<PurchaseOrders, "id" | "order_number">>;
+        } & LoanLimitedFragment
       >;
     }
   >;
@@ -12554,6 +12565,17 @@ export type AddUserMutationVariables = Exact<{
 
 export type AddUserMutation = { insert_users_one?: Maybe<UserFragment> };
 
+export const FinancialSummaryFragmentDoc = gql`
+  fragment FinancialSummary on financial_summaries {
+    id
+    total_limit
+    total_outstanding_principal
+    total_outstanding_interest
+    total_outstanding_fees
+    total_principal_in_requested_state
+    available_limit
+  }
+`;
 export const UserFragmentDoc = gql`
   fragment User on users {
     id
@@ -15644,7 +15666,10 @@ export type AssignAdvancesBespokeBankAccountMutationOptions = Apollo.BaseMutatio
   AssignAdvancesBespokeBankAccountMutationVariables
 >;
 export const GetCompanyForCustomerOverviewDocument = gql`
-  query GetCompanyForCustomerOverview($companyId: uuid!) {
+  query GetCompanyForCustomerOverview(
+    $companyId: uuid!
+    $loanType: loan_type_enum
+  ) {
     companies_by_pk(id: $companyId) {
       id
       contract {
@@ -15654,15 +15679,31 @@ export const GetCompanyForCustomerOverviewDocument = gql`
       }
       financial_summary {
         id
-        total_limit
-        total_outstanding_principal
-        total_outstanding_interest
-        total_outstanding_fees
-        total_principal_in_requested_state
-        available_limit
+        ...FinancialSummary
+      }
+      outstanding_loans: loans(
+        where: {
+          _and: [
+            { status: { _in: [funded, past_due] } }
+            { loan_type: { _eq: $loanType } }
+          ]
+        }
+      ) {
+        ...LoanLimited
+        line_of_credit {
+          id
+          ...LineOfCredit
+        }
+        purchase_order {
+          id
+          order_number
+        }
       }
     }
   }
+  ${FinancialSummaryFragmentDoc}
+  ${LoanLimitedFragmentDoc}
+  ${LineOfCreditFragmentDoc}
 `;
 
 /**
@@ -15678,6 +15719,7 @@ export const GetCompanyForCustomerOverviewDocument = gql`
  * const { data, loading, error } = useGetCompanyForCustomerOverviewQuery({
  *   variables: {
  *      companyId: // value for 'companyId'
+ *      loanType: // value for 'loanType'
  *   },
  * });
  */

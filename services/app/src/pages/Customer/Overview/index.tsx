@@ -1,17 +1,25 @@
 import {
   Box,
-  Card,
+  Button,
   createStyles,
   makeStyles,
   Theme,
   Typography,
 } from "@material-ui/core";
+import CustomerFinancialSummaryOverview from "components/CustomerFinancialSummary/CustomerFinancialSummaryOverview";
+import LineOfCreditLoansDataGrid from "components/Loans/LineOfCredit/LineOfCreditLoansDataGrid";
+import PurchaseOrderLoansDataGrid from "components/Loans/PurchaseOrder/PurchaseOrderLoansDataGrid";
+import CreateRepaymentModal from "components/Repayment/CreateRepaymentModal";
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { useGetCompanyForCustomerOverviewQuery } from "generated/graphql";
-import { formatCurrency } from "lib/currency";
-import React, { useContext } from "react";
-import OutstandingLoansForCustomer from "./OutstandingLoansForCustomer";
+import {
+  LoanFragment,
+  Loans,
+  LoanTypeEnum,
+  ProductTypeEnum,
+  useGetCompanyForCustomerOverviewQuery,
+} from "generated/graphql";
+import React, { useContext, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -37,112 +45,86 @@ const useStyles = makeStyles((theme: Theme) =>
 function CustomerOverviewPage() {
   const classes = useStyles();
   const {
-    user: { companyId },
+    user: { companyId, productType },
   } = useContext(CurrentUserContext);
 
-  const { data } = useGetCompanyForCustomerOverviewQuery({
+  const { data, refetch } = useGetCompanyForCustomerOverviewQuery({
     variables: {
       companyId,
+      loanType:
+        productType === ProductTypeEnum.LineOfCredit
+          ? LoanTypeEnum.LineOfCredit
+          : LoanTypeEnum.PurchaseOrder,
     },
   });
 
   const company = data?.companies_by_pk;
-  const financialSummary = company?.financial_summary;
+  const financialSummary = company?.financial_summary || null;
+  const loans = company?.outstanding_loans || [];
+
+  const [isCreateRepaymentModalOpen, setIsCreateRepaymentModalOpen] = useState(
+    false
+  );
+  const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
+  const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"]>([]);
 
   return (
     <Page appBarTitle={"Overview"}>
       <Box className={classes.container}>
         <Box className={classes.section}>
-          <Box display="flex" flexDirection="column">
-            <Box display="flex" justifyContent="space-between" width="100%">
-              <Box className={classes.box}>
-                <Card>
-                  <Box display="flex" flexDirection="column" p={2}>
-                    <Typography variant="h4">
-                      {financialSummary
-                        ? formatCurrency(
-                            financialSummary?.total_outstanding_principal
-                          )
-                        : "TBD"}
-                    </Typography>
-                    <Typography variant="subtitle1" color="textSecondary">
-                      total outstanding principal balance
-                    </Typography>
-                  </Box>
-                </Card>
-              </Box>
-              <Box className={classes.box}>
-                <Card>
-                  <Box display="flex" flexDirection="column" p={2}>
-                    <Typography variant="h4">
-                      {financialSummary
-                        ? formatCurrency(
-                            financialSummary?.total_outstanding_interest
-                          )
-                        : "TBD"}
-                    </Typography>
-                    <Typography variant="subtitle1" color="textSecondary">
-                      total outstanding interest
-                    </Typography>
-                  </Box>
-                </Card>
-              </Box>
-              <Box className={classes.box}>
-                <Card>
-                  <Box display="flex" flexDirection="column" p={2}>
-                    <Typography variant="h4">
-                      {financialSummary
-                        ? formatCurrency(
-                            financialSummary?.total_outstanding_fees
-                          )
-                        : "TBD"}
-                    </Typography>
-                    <Typography variant="subtitle1" color="textSecondary">
-                      total outstanding fees
-                    </Typography>
-                  </Box>
-                </Card>
-              </Box>
-            </Box>
-            <Box mt={1} />
-            <Box display="flex" justifyContent="space-between" width="100%">
-              <Box className={classes.box}>
-                <Card>
-                  <Box display="flex" flexDirection="column" p={2}>
-                    <Typography variant="h4">
-                      {financialSummary
-                        ? formatCurrency(financialSummary.available_limit)
-                        : "TBD"}
-                    </Typography>
-                    <Typography variant="subtitle1" color="textSecondary">
-                      remaining limit
-                    </Typography>
-                  </Box>
-                </Card>
-              </Box>
-              <Box className={classes.box}>
-                <Card>
-                  <Box display="flex" flexDirection="column" p={2}>
-                    <Typography variant="h4">
-                      {financialSummary
-                        ? formatCurrency(financialSummary.total_limit)
-                        : "TBD"}
-                    </Typography>
-                    <Typography variant="subtitle1" color="textSecondary">
-                      total limit
-                    </Typography>
-                  </Box>
-                </Card>
-              </Box>
-              <Box className={classes.box} />
-            </Box>
-          </Box>
+          <CustomerFinancialSummaryOverview
+            financialSummary={financialSummary}
+          />
         </Box>
         <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
           <Typography variant="h6">Outstanding Loans</Typography>
           <Box display="flex" flex={1}>
-            <OutstandingLoansForCustomer />
+            <Box display="flex" flexDirection="column" width="100%">
+              {isCreateRepaymentModalOpen && (
+                <CreateRepaymentModal
+                  companyId={companyId}
+                  selectedLoans={selectedLoans}
+                  handleClose={() => {
+                    refetch();
+                    setSelectedLoans([]);
+                    setSelectedLoanIds([]);
+                    setIsCreateRepaymentModalOpen(false);
+                  }}
+                />
+              )}
+              <Box display="flex" flexDirection="row-reverse" mb={2}>
+                <Button
+                  disabled={selectedLoanIds.length <= 0}
+                  variant="contained"
+                  color="primary"
+                  onClick={() => setIsCreateRepaymentModalOpen(true)}
+                >
+                  Pay Off Loan(s)
+                </Button>
+              </Box>
+              <Box display="flex" flex={1}>
+                {productType === ProductTypeEnum.InventoryFinancing ? (
+                  <PurchaseOrderLoansDataGrid
+                    loans={loans}
+                    selectedLoanIds={selectedLoanIds}
+                    handleSelectLoans={(loans) => {
+                      setSelectedLoans(loans);
+                      setSelectedLoanIds(loans.map((loan) => loan.id));
+                    }}
+                  />
+                ) : (
+                  <LineOfCreditLoansDataGrid
+                    loans={loans}
+                    selectedLoanIds={selectedLoanIds}
+                    handleSelectLoans={(loans) => {
+                      setSelectedLoans(loans);
+                      setSelectedLoanIds(loans.map((loan) => loan.id));
+                    }}
+                  />
+                )}
+              </Box>
+            </Box>
           </Box>
         </Box>
       </Box>

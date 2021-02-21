@@ -1,4 +1,17 @@
-query GetCompanyForCustomerOverview($companyId: uuid!) {
+fragment FinancialSummary on financial_summaries {
+  id
+  total_limit
+  total_outstanding_principal
+  total_outstanding_interest
+  total_outstanding_fees
+  total_principal_in_requested_state
+  available_limit
+}
+
+query GetCompanyForCustomerOverview(
+  $companyId: uuid!
+  $loanType: loan_type_enum
+) {
   companies_by_pk(id: $companyId) {
     id
     contract {
@@ -8,12 +21,25 @@ query GetCompanyForCustomerOverview($companyId: uuid!) {
     }
     financial_summary {
       id
-      total_limit
-      total_outstanding_principal
-      total_outstanding_interest
-      total_outstanding_fees
-      total_principal_in_requested_state
-      available_limit
+      ...FinancialSummary
+    }
+    outstanding_loans: loans(
+      where: {
+        _and: [
+          { status: { _in: [funded, past_due] } }
+          { loan_type: { _eq: $loanType } }
+        ]
+      }
+    ) {
+      ...LoanLimited
+      line_of_credit {
+        id
+        ...LineOfCredit
+      }
+      purchase_order {
+        id
+        order_number
+      }
     }
   }
 }
