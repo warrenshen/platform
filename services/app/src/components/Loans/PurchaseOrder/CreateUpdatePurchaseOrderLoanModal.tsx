@@ -100,6 +100,7 @@ function CreateUpdatePurchaseOrderLoanModal({
 
   let amountUsedOnArtifact = 0.0;
   let totalAmountForArtifact = 0.0;
+  let totalAmountAvailableOnArtifact = 0.0;
   const idToArtifact: { [artifact_id: string]: Artifact } = {};
   for (let i = 0; i < artifacts.length; i++) {
     const artifact = artifacts[i];
@@ -110,6 +111,8 @@ function CreateUpdatePurchaseOrderLoanModal({
     amountUsedOnArtifact =
       curArtifact.total_amount - curArtifact.amount_remaining;
     totalAmountForArtifact = curArtifact.total_amount;
+    totalAmountAvailableOnArtifact =
+      totalAmountForArtifact - amountUsedOnArtifact;
   }
 
   const [addLoan, { loading: isAddLoanLoading }] = useAddLoanMutation();
@@ -282,71 +285,106 @@ function CreateUpdatePurchaseOrderLoanModal({
   // If the purchase order ID is being passed in through the props, this means that the
   // user cannot select a purchase order themselves.
   const disablePurchaseOrderEditing = artifactId !== null;
+  const canCreateLoanFromPurchaseOrdrer = totalAmountAvailableOnArtifact > 0;
 
   return isDialogReady ? (
-    <Dialog
-      open
-      onClose={handleClose}
-      maxWidth="xl"
-      classes={{ paper: classes.dialog }}
-    >
-      <DialogTitle className={classes.dialogTitle}>
-        {`${
-          actionType === ActionType.Update ? "Edit" : "Create"
-        } Inventory Loan`}
-      </DialogTitle>
-      <DialogContent>
-        <PurchaseOrderLoanForm
-          canEditPurchaseOrder={
-            actionType === ActionType.New && !disablePurchaseOrderEditing
-          }
-          loan={loan}
-          setLoan={setLoan}
-          approvedPurchaseOrders={approvedPurchaseOrders}
-          selectedPurchaseOrder={selectedPurchaseOrder}
-          idToArtifact={idToArtifact}
-        />
-        {disabledSubmitReasons.length > 0 && (
-          <Box mt={1}>
-            <Alert severity="warning">
-              <span>
-                Reasons you cannot submit, but can only save this as a draft
-              </span>
-              <br></br>
-              <div>
-                <ul>
-                  {disabledSubmitReasons.map((reason, index) => {
-                    return <li key={"disabled-reason-" + index}>{reason}</li>;
-                  })}
-                </ul>
-              </div>
-            </Alert>
-          </Box>
-        )}
-      </DialogContent>
-      <DialogActions className={classes.dialogActions}>
-        <Box>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button
-            disabled={isSaveDraftDisabled}
-            onClick={handleClickSaveDraft}
-            variant={"contained"}
-            color={"secondary"}
-          >
-            Save as Draft
-          </Button>
-          <Button
-            className={classes.submitButton}
-            disabled={isSaveSubmitDisabled}
-            onClick={handleClickSaveSubmit}
-            variant="contained"
-            color="primary"
-          >
-            Save and Submit
-          </Button>
-        </Box>
-      </DialogActions>
-    </Dialog>
+    <>
+      {!canCreateLoanFromPurchaseOrdrer && (
+        <Dialog
+          open
+          onClose={handleClose}
+          maxWidth="xl"
+          classes={{ paper: classes.dialog }}
+        >
+          <DialogTitle className={classes.dialogTitle}>
+            Cannot create loan
+          </DialogTitle>
+          <DialogContent>
+            <Box mt={1}>
+              <Alert severity="warning">
+                <span>
+                  The maximum amount has been requested for this purchase order.
+                  You may close this dialog and create a different purchase
+                  order to create advances off of.
+                </span>
+              </Alert>
+            </Box>
+          </DialogContent>
+          <DialogActions className={classes.dialogActions}>
+            <Box>
+              <Button onClick={handleClose}>Cancel</Button>
+            </Box>
+          </DialogActions>
+        </Dialog>
+      )}
+      {canCreateLoanFromPurchaseOrdrer && (
+        <Dialog
+          open
+          onClose={handleClose}
+          maxWidth="xl"
+          classes={{ paper: classes.dialog }}
+        >
+          <DialogTitle className={classes.dialogTitle}>
+            {`${
+              actionType === ActionType.Update ? "Edit" : "Create"
+            } Inventory Loan`}
+          </DialogTitle>
+          <DialogContent>
+            <PurchaseOrderLoanForm
+              canEditPurchaseOrder={
+                actionType === ActionType.New && !disablePurchaseOrderEditing
+              }
+              loan={loan}
+              setLoan={setLoan}
+              approvedPurchaseOrders={approvedPurchaseOrders}
+              selectedPurchaseOrder={selectedPurchaseOrder}
+              idToArtifact={idToArtifact}
+            />
+            {disabledSubmitReasons.length > 0 && (
+              <Box mt={1}>
+                <Alert severity="warning">
+                  <span>
+                    Reasons you cannot submit, but can only save this as a draft
+                  </span>
+                  <br></br>
+                  <div>
+                    <ul>
+                      {disabledSubmitReasons.map((reason, index) => {
+                        return (
+                          <li key={"disabled-reason-" + index}>{reason}</li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                </Alert>
+              </Box>
+            )}
+          </DialogContent>
+          <DialogActions className={classes.dialogActions}>
+            <Box>
+              <Button onClick={handleClose}>Cancel</Button>
+              <Button
+                disabled={isSaveDraftDisabled}
+                onClick={handleClickSaveDraft}
+                variant={"contained"}
+                color={"secondary"}
+              >
+                Save as Draft
+              </Button>
+              <Button
+                className={classes.submitButton}
+                disabled={isSaveSubmitDisabled}
+                onClick={handleClickSaveSubmit}
+                variant="contained"
+                color="primary"
+              >
+                Save and Submit
+              </Button>
+            </Box>
+          </DialogActions>
+        </Dialog>
+      )}
+    </>
   ) : null;
 }
 
