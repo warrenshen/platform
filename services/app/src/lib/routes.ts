@@ -22,7 +22,7 @@ export const vendorRoutes = {};
 // Customer user routes are prefixed with "/1".
 export const customerRoutes = {
   companyProfile: "/1/company-profile",
-  ebbaApplications: "/1/borrowing-bases",
+  ebbaApplications: "/1/borrowing-base",
   loans: "/1/loans",
   overview: "/1/overview",
   purchaseOrders: "/1/purchase-orders",
@@ -38,6 +38,7 @@ export const bankRoutes = {
   customerRoot: "/customers/:companyId",
   customer: {
     companyProfile: "/company-profile",
+    ebbaApplications: "/borrowing-base",
     overview: "/overview",
     loans: "/loans",
     purchaseOrders: "/purchase-orders",

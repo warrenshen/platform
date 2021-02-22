@@ -6,11 +6,13 @@ import {
   useGetCustomerForBankQuery,
   UserRolesEnum,
 } from "generated/graphql";
+import { getLoanNameByProductType } from "lib/finance/loans/loans";
 import { bankRoutes } from "lib/routes";
 import { findIndex } from "lodash";
 import { ChangeEvent, useEffect, useState } from "react";
 import { Link, useLocation, useParams, useRouteMatch } from "react-router-dom";
 import BankCustomerCompanyProfileSubpage from "./CompanyProfile";
+import BankCustomerEbbaApplicationsSubpage from "./EbbaApplications";
 import BankCustomerLoansSubpage from "./Loans";
 import BankCustomerOverviewSubpage from "./Overview";
 import BankCustomerPurchaseOrdersSubpage from "./PurchaseOrders";
@@ -31,13 +33,19 @@ const getCustomerPaths = (productType: ProductTypeEnum) => [
   {
     path: bankRoutes.customer.loans,
     component: BankCustomerLoansSubpage,
-    label: productType === ProductTypeEnum.LineOfCredit ? "Drawdowns" : "Loans",
+    label: `${getLoanNameByProductType(productType)}s`,
   },
   {
     visible: productType === ProductTypeEnum.InventoryFinancing,
     path: bankRoutes.customer.purchaseOrders,
     component: BankCustomerPurchaseOrdersSubpage,
     label: "Purchase Orders",
+  },
+  {
+    visible: productType === ProductTypeEnum.LineOfCredit,
+    path: bankRoutes.customer.ebbaApplications,
+    component: BankCustomerEbbaApplicationsSubpage,
+    label: "Borrowing Base",
   },
   {
     path: bankRoutes.customer.vendors,
@@ -78,9 +86,14 @@ function BankCustomerPage() {
   const productType = customer?.contract?.product_type || ProductTypeEnum.None;
 
   useEffect(() => {
-    const index = findIndex(getCustomerPaths(productType), ({ path }) => {
-      return location.pathname.replace(url, "") === path;
-    });
+    const index = findIndex(
+      getCustomerPaths(productType).filter(
+        (customerPath) => customerPath.visible !== false
+      ),
+      ({ path }) => {
+        return location.pathname.replace(url, "") === path;
+      }
+    );
     setTabIndex(index);
   }, [productType, location.pathname, url]);
 

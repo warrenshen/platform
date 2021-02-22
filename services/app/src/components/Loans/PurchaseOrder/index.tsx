@@ -1,5 +1,5 @@
 import { Box, Button } from "@material-ui/core";
-import RepaymentButton from "components/Repayment/RepaymentButton";
+import CreateRepaymentModal from "components/Repayment/CreateRepaymentModal";
 import Can from "components/Shared/Can";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
@@ -10,13 +10,14 @@ import {
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { ActionType } from "lib/enum";
+import { getLoanNameByProductType } from "lib/finance/loans/loans";
 import { useContext, useState } from "react";
 import CreateUpdatePurchaseOrderLoanModal from "./CreateUpdatePurchaseOrderLoanModal";
 import PurchaseOrderLoansDataGrid from "./PurchaseOrderLoansDataGrid";
 
 function PurchaseOrderLoansForCustomer() {
   const {
-    user: { companyId },
+    user: { companyId, productType },
   } = useContext(CurrentUserContext);
 
   const { data, error, refetch } = useLoansByCompanyAndLoanTypeForCustomerQuery(
@@ -35,6 +36,7 @@ function PurchaseOrderLoansForCustomer() {
   const purchaseOrderLoans = data?.loans || [];
   // State for modal(s).
   const [isCreateUpdateModalOpen, setIsCreateUpdateModalOpen] = useState(false);
+  const [isPayOffLoansModalOpen, setIsPayOffLoansModalOpen] = useState(false);
   const [targetLoanId, setTargetLoanId] = useState("");
   const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
   const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"][]>([]);
@@ -58,6 +60,14 @@ function PurchaseOrderLoansForCustomer() {
           }}
         />
       )}
+      {isPayOffLoansModalOpen && (
+        <CreateRepaymentModal
+          companyId={companyId}
+          productType={productType}
+          selectedLoans={selectedLoans}
+          handleClose={() => setIsPayOffLoansModalOpen(false)}
+        />
+      )}
       <Box display="flex" flexDirection="row-reverse" mb={2}>
         <Can perform={Action.AddPurchaseOrders}>
           <Button
@@ -70,7 +80,14 @@ function PurchaseOrderLoansForCustomer() {
         </Can>
         <Can perform={Action.RepayPurchaseOrderLoans}>
           <Box mr={2}>
-            <RepaymentButton selectedLoans={selectedLoans} />
+            <Button
+              disabled={selectedLoans.length <= 0}
+              variant="contained"
+              color="primary"
+              onClick={() => setIsPayOffLoansModalOpen(true)}
+            >
+              {`Pay Off ${getLoanNameByProductType(productType)}(s)`}
+            </Button>
           </Box>
         </Can>
       </Box>

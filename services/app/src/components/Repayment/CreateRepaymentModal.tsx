@@ -14,8 +14,10 @@ import {
   Companies,
   LoanFragment,
   PaymentsInsertInput,
+  ProductTypeEnum,
 } from "generated/graphql";
 import { PaymentMethodEnum } from "lib/enum";
+import { getLoanNameByProductType } from "lib/finance/loans/loans";
 import {
   calculateEffectOfPayment,
   createPayment,
@@ -27,11 +29,17 @@ import { useState } from "react";
 
 interface Props {
   companyId: Companies["id"];
+  productType: ProductTypeEnum | null;
   selectedLoans: LoanFragment[];
   handleClose: () => void;
 }
 
-function RepaymentModal({ companyId, selectedLoans, handleClose }: Props) {
+function RepaymentModal({
+  companyId,
+  productType,
+  selectedLoans,
+  handleClose,
+}: Props) {
   // There are 2 states that we show, one when the user is selecting
   // the payment method date, and payment type, and the next is when
   // they have to "confirm" what they have selected.
@@ -145,7 +153,9 @@ function RepaymentModal({ companyId, selectedLoans, handleClose }: Props) {
 
   return (
     <Dialog open fullWidth maxWidth="md" onClose={handleClose}>
-      <DialogTitle>Pay Off Loan(s)</DialogTitle>
+      <DialogTitle>{`Pay Off ${getLoanNameByProductType(
+        productType
+      )}(s)`}</DialogTitle>
       <DialogContent style={{ minHeight: 400 }}>
         {isOnSelectLoans ? (
           <CreateRepaymentSelectLoans

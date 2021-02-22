@@ -111,7 +111,7 @@ class RespondToEbbaApplicationApprovalRequest(MethodView):
 
 		return make_response(json.dumps({
 			'status': 'OK',
-			'msg': 'Borrower Base {} approval request responded to'.format(ebba_application_id)
+			'msg': 'Borrowing Base {} approval request responded to'.format(ebba_application_id)
 		}), 200)
 
 

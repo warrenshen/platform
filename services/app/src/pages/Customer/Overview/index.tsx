@@ -19,6 +19,7 @@ import {
   ProductTypeEnum,
   useGetCompanyForCustomerOverviewQuery,
 } from "generated/graphql";
+import { getLoanNameByProductType } from "lib/finance/loans/loans";
 import React, { useContext, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -78,12 +79,15 @@ function CustomerOverviewPage() {
         </Box>
         <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
-          <Typography variant="h6">Outstanding Loans</Typography>
+          <Typography variant="h6">{`Outstanding ${getLoanNameByProductType(
+            productType
+          )}s`}</Typography>
           <Box display="flex" flex={1}>
             <Box display="flex" flexDirection="column" width="100%">
               {isCreateRepaymentModalOpen && (
                 <CreateRepaymentModal
                   companyId={companyId}
+                  productType={productType}
                   selectedLoans={selectedLoans}
                   handleClose={() => {
                     refetch();
@@ -100,7 +104,7 @@ function CustomerOverviewPage() {
                   color="primary"
                   onClick={() => setIsCreateRepaymentModalOpen(true)}
                 >
-                  Pay Off Loan(s)
+                  {`Pay Off ${getLoanNameByProductType(productType)}(s)`}
                 </Button>
               </Box>
               <Box display="flex" flex={1}>

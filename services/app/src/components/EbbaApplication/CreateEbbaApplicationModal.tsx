@@ -116,7 +116,7 @@ function CreateEbbaApplicationModal({ handleClose }: Props) {
       classes={{ paper: classes.dialog }}
     >
       <DialogTitle className={classes.dialogTitle}>
-        Submit Borrower Base Certification
+        Submit Borrowing Base Certification
       </DialogTitle>
       <DialogContent>
         <EbbaApplicationForm
