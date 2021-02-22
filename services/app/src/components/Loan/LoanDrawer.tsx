@@ -6,16 +6,19 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import PurchaseOrderInfoCard from "components/PurchaseOrder/PurchaseOrderInfoCard";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Loans,
+  LoanTypeEnum,
   useGetLoanWithArtifactForCustomerQuery,
   UserRolesEnum,
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 import { LoanTypeToLabel } from "lib/enum";
+import { createLoanPublicIdentifier } from "lib/loans";
 import { useContext } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -62,7 +65,9 @@ function LoanDrawer({ loanId, handleClose }: Props) {
             <Typography variant="subtitle2" color="textSecondary">
               Identifier
             </Typography>
-            <Typography variant={"body1"}>{loan.identifier}</Typography>
+            <Typography variant={"body1"}>
+              {createLoanPublicIdentifier(loan)}
+            </Typography>
           </Box>
           <Box
             display="flex"
@@ -100,18 +105,44 @@ function LoanDrawer({ loanId, handleClose }: Props) {
               <Typography variant={"body1"}>{loan.company?.name}</Typography>
             </Box>
           )}
-          {/* <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Vendor
-            </Typography>
-            <Typography variant={"body1"}>{loan.vendor?.name}</Typography>
-          </Box> */}
-          {/* <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Order Number
-            </Typography>
-            <Typography variant={"body1"}>{loan.order_number}</Typography>
-          </Box> */}
+          {loan.loan_type === LoanTypeEnum.LineOfCredit && (
+            <>
+              <Box display="flex" flexDirection="column" mt={2}>
+                <Typography variant="subtitle2" color="textSecondary">
+                  Is Credit For Vendor?
+                </Typography>
+                <Typography variant={"body1"}>
+                  {loan.line_of_credit?.is_credit_for_vendor ? "Yes" : "No"}
+                </Typography>
+              </Box>
+              <Box display="flex" flexDirection="column" mt={2}>
+                <Typography variant="subtitle2" color="textSecondary">
+                  Recipient Vendor
+                </Typography>
+                <Typography variant={"body1"}>
+                  {loan.line_of_credit?.recipient_vendor?.name}
+                </Typography>
+              </Box>
+            </>
+          )}
+          {loan.loan_type === LoanTypeEnum.PurchaseOrder && (
+            <>
+              <Box display="flex" flexDirection="column" mt={2}>
+                <Typography variant="subtitle2" color="textSecondary">
+                  Purchase Order
+                </Typography>
+                {loan.purchase_order ? (
+                  <Box mt={1}>
+                    <PurchaseOrderInfoCard
+                      purchaseOrder={loan.purchase_order}
+                    />
+                  </Box>
+                ) : (
+                  <Typography variant="body1">Not found</Typography>
+                )}
+              </Box>
+            </>
+          )}
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
               Amount
@@ -122,10 +153,18 @@ function LoanDrawer({ loanId, handleClose }: Props) {
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
-              Payment Date
+              Requested Payment Date
             </Typography>
             <Typography variant={"body1"}>
               {formatDateString(loan.requested_payment_date)}
+            </Typography>
+          </Box>
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
+              Payment Date
+            </Typography>
+            <Typography variant={"body1"}>
+              {formatDateString(loan.origination_date)}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>

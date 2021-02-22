@@ -1,4 +1,10 @@
-import { Box, Card, CardContent, makeStyles } from "@material-ui/core";
+import {
+  Box,
+  Card,
+  CardContent,
+  makeStyles,
+  Typography,
+} from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import { CheckCircle } from "@material-ui/icons";
 import { PurchaseOrderFragment } from "generated/graphql";
@@ -46,15 +52,17 @@ function PurchaseOrderInfoCard(props: Props) {
             <Box className={classes.label}>Amount</Box>
             <Box>{formatCurrency(props.purchaseOrder.amount)}</Box>
           </Box>
-          <Box display="flex" pt={0.5} pb={1}>
+          <Box display="flex" alignItems="center" pt={0.5} pb={1}>
             <CheckCircle
               color={
                 props.purchaseOrder.status === "approved"
                   ? "primary"
                   : "disabled"
               }
-            ></CheckCircle>
-            Approved
+            />
+            <Box ml={0.5}>
+              <Typography variant="body1">Approved</Typography>
+            </Box>
           </Box>
         </CardContent>
       </Card>
