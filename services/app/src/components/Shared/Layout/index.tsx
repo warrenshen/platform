@@ -10,7 +10,6 @@ import NestedListItem from "components/Shared/Layout/NestedListItem";
 import UserMenu from "components/Shared/User/UserMenu";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { ProductTypeEnum, UserRolesEnum } from "generated/graphql";
-import { getLoanNameByProductType } from "lib/finance/loans/loans";
 import { bankRoutes, customerRoutes, routes } from "lib/routes";
 import { ReactNode, useContext } from "react";
 import { Link, matchPath, useLocation } from "react-router-dom";
@@ -76,7 +75,7 @@ const getCustomerNavItems = (productType: ProductTypeEnum): NavItem[] => {
       link: customerRoutes.overview,
     },
     {
-      text: `${getLoanNameByProductType(productType)}s`,
+      text: "Loans",
       link: customerRoutes.loans,
     },
     ...(productType === ProductTypeEnum.InventoryFinancing

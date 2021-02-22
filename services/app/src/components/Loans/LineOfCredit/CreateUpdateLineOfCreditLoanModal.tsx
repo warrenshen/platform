@@ -252,7 +252,7 @@ function CreateUpdateLineOfCreditLoanModal({
       classes={{ paper: classes.dialog }}
     >
       <DialogTitle className={classes.dialogTitle}>
-        {`${actionType === ActionType.Update ? "Edit" : "Create"} Drawdown`}
+        {`${actionType === ActionType.Update ? "Edit" : "Create"} Loan`}
       </DialogTitle>
       <DialogContent>
         <LineOfCreditLoanForm

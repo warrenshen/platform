@@ -69,7 +69,7 @@ function LineOfCreditLoanForm({
               color="primary"
             />
           }
-          label={"Drawdown is for a vendor"}
+          label={"Loan is for a vendor"}
         />
       </Box>
       {lineOfCredit.is_credit_for_vendor && (

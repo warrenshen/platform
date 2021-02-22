@@ -10,7 +10,6 @@ import {
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { ActionType } from "lib/enum";
-import { getLoanNameByProductType } from "lib/finance/loans/loans";
 import { useContext, useState } from "react";
 import CreateUpdatePurchaseOrderLoanModal from "./CreateUpdatePurchaseOrderLoanModal";
 import PurchaseOrderLoansDataGrid from "./PurchaseOrderLoansDataGrid";
@@ -86,7 +85,7 @@ function PurchaseOrderLoansForCustomer() {
               color="primary"
               onClick={() => setIsPayOffLoansModalOpen(true)}
             >
-              {`Pay Off ${getLoanNameByProductType(productType)}(s)`}
+              Pay Off Loans
             </Button>
           </Box>
         </Can>

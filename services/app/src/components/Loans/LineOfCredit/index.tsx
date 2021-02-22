@@ -54,7 +54,7 @@ function LineOfCreditLoansForCustomer() {
           variant="contained"
           color="primary"
         >
-          Create Drawdown
+          Create Loan
         </Button>
       </Box>
       <Box flex={1} display="flex">

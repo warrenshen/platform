@@ -8,7 +8,6 @@ import {
   useGetCustomerForBankQuery,
   UserRolesEnum,
 } from "generated/graphql";
-import { getLoanNameByProductType } from "lib/finance/loans/loans";
 import { bankRoutes } from "lib/routes";
 import {
   Link,
@@ -64,7 +63,7 @@ const getCustomerPaths = (productType: ProductTypeEnum) => [
   {
     path: bankRoutes.customer.loans,
     component: BankCustomerLoansSubpage,
-    label: `${getLoanNameByProductType(productType)}s`,
+    label: "Loans",
   },
   {
     visible: productType === ProductTypeEnum.InventoryFinancing,

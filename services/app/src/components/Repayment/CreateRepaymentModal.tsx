@@ -17,7 +17,6 @@ import {
   ProductTypeEnum,
 } from "generated/graphql";
 import { PaymentMethodEnum } from "lib/enum";
-import { getLoanNameByProductType } from "lib/finance/loans/loans";
 import {
   calculateEffectOfPayment,
   createPayment,
@@ -153,9 +152,7 @@ function RepaymentModal({
 
   return (
     <Dialog open fullWidth maxWidth="md" onClose={handleClose}>
-      <DialogTitle>{`Pay Off ${getLoanNameByProductType(
-        productType
-      )}(s)`}</DialogTitle>
+      <DialogTitle>Pay Off Loans</DialogTitle>
       <DialogContent style={{ minHeight: 400 }}>
         {isOnSelectLoans ? (
           <CreateRepaymentSelectLoans
