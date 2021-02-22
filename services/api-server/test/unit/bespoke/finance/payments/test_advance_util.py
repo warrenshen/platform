@@ -25,7 +25,8 @@ def _get_default_contract() -> models.Contract:
 		input_dict=ContractInputDict(
 			interest_rate=0.05,
 			maximum_principal_amount=120000.01,
-			max_days_until_repayment=30
+			max_days_until_repayment=30,
+			late_fee_structure='' # unused
 		)
 	)
 )

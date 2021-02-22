@@ -1,5 +1,6 @@
 import datetime
 import decimal
+import json
 import uuid
 from typing import Any, List, Dict, cast
 
@@ -33,6 +34,37 @@ def _make_advance(session: Any, loan: models.Loan, amount: float, effective_date
 		to_fees=decimal.Decimal(0.0),
 		effective_date=date_util.load_date_str(effective_date)
 	))
+
+def _make_repayment(
+	session: Any, loan: models.Loan, 
+	to_principal: float, to_interest: float, to_fees: float, 
+	effective_date: str) -> None:
+	# Advance is made
+	amount = to_principal + to_interest + to_fees
+	payment = models.Payment(
+		type=PaymentType.REPAYMENT,
+		amount=decimal.Decimal(amount),
+		company_id=loan.company_id
+	)
+	session.add(payment)
+	session.flush()
+	session.add(models.Transaction(
+		type=PaymentType.REPAYMENT,
+		amount=decimal.Decimal(amount),
+		loan_id=loan.id,
+		payment_id=payment.id,
+		to_principal=decimal.Decimal(to_principal),
+		to_interest=decimal.Decimal(to_interest),
+		to_fees=decimal.Decimal(to_fees),
+		effective_date=date_util.load_date_str(effective_date)
+	))
+
+def _get_late_fee_structure() -> str:
+	return json.dumps({
+		'1-14': 0.25,
+		'15-29': 0.50,
+		'30+': 1.0
+	})
 
 class TestCalculateLoanBalance(db_unittest.TestCase):
 
@@ -105,6 +137,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						interest_rate=5.00,
 						maximum_principal_amount=120000.01,
 						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure() # unused
 					)
 				)
 			))
@@ -128,7 +161,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 		tests: List[Dict] = [
 			{
-				'today': '10/3/2020', # It's been 3 days since the loan was due, but no late fees have accrued.
+				'today': '10/3/2020', # It's been 3 days since the loan starte, and no late fees have accrued.
 				'populate_fn': populate_fn,
 				'expected_loan_updates': [
 					{
@@ -153,6 +186,69 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_principal_in_requested_state': 0.0,
 					'available_limit': 120000.01 - (500.03 + 100.03)
 				}
+			}
+		]
+		for test in tests:
+			self._run_test(test)
+
+	def test_success_one_payment_one_loan_past_due(self) -> None:
+
+		def populate_fn(session: Any, company_id: str) -> None:
+			session.add(models.Contract(
+				company_id=company_id,
+				product_type=ProductType.INVENTORY_FINANCING,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.INVENTORY_FINANCING,
+					input_dict=ContractInputDict(
+						interest_rate=0.2,
+						maximum_principal_amount=120000.01,
+						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure()
+					)
+				)
+			))
+			loan = models.Loan(
+				company_id=company_id,
+				origination_date=date_util.load_date_str('10/01/2020'),
+				adjusted_maturity_date=date_util.load_date_str('10/05/2020'),
+				amount=decimal.Decimal(500.03)
+			)
+			session.add(loan)
+			_make_advance(session, loan, amount=500.03, effective_date='10/01/2020')
+
+			_make_repayment(
+				session, loan,
+				to_principal=50.0,
+				to_interest=3 * 0.002 * 500.03, # they are paying off 3 days worth of interest accrued here. 
+				to_fees=0.0, 
+				effective_date='10/03/2020')
+
+		daily_interest = 0.002 * 450.03
+
+		tests: List[Dict] = [
+			{
+				'today': '10/03/2020', # On the repayment date, you paid off interest and some principal
+				'populate_fn': populate_fn,
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('10/05/2020'),
+						'outstanding_principal': 450.03,
+						'outstanding_interest': 0.0, # partial payment paid off interest
+						'outstanding_fees': 0.0
+					}
+				]
+			},
+			{
+				'today': '10/26/2020', # It's been 21 days that the loan is late.
+				'populate_fn': populate_fn,
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('10/05/2020'),
+						'outstanding_principal': 450.03,
+						'outstanding_interest': 23 * daily_interest, # 23 days of interest accrued on 450.03 after the first partial repayment
+						'outstanding_fees': (14 * daily_interest * 0.25) + (7 * daily_interest * 0.5)
+					}
+				]
 			}
 		]
 		for test in tests:

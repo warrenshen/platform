@@ -61,6 +61,9 @@ def make_payment_applied(
 def is_advance(p: Union[models.PaymentDict, models.TransactionDict]) -> bool:
 	return p['type'] in db_constants.ADVANCE_TYPES
 
+def is_repayment(p: Union[models.PaymentDict, models.TransactionDict]) -> bool:
+	return p['type'] in db_constants.REPAYMENT_TYPES
+
 # Loans represent balances
 # Fees represent account level fees (not tied to a loan)
 

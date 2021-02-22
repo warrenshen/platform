@@ -9,8 +9,16 @@ PYTHONPATH=$(server_root_dir)/src
 update-requirements:
 	pip-compile requirements.in --output-file=requirements.txt
 
+# Example of running one test:
+# make run-test-local NAME=bespoke.finance.test_contract_util
+
+ifdef NAME
+run-test-local:
+	cd test && PYTHONPATH=$(current_dir)/src python3 -m unittest unit.$(NAME)
+else
 run-test-local:
 	cd test && PYTHONPATH=$(current_dir)/src python3 -m unittest discover .
+endif
 
 runlocal:
 	cd src && FLASK_ENV=development PYTHONPATH=$(PYTHONPATH) SERVER_ROOT_DIR=$(server_root_dir) gunicorn --reload --bind 0.0.0.0:7000 --timeout 300 --threads 4 manage:app

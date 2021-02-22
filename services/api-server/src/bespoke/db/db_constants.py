@@ -61,3 +61,5 @@ class PaymentType(object):
 # There might be many payment types that represent an advance
 ADVANCE_TYPES = set([PaymentType.ADVANCE])
 
+REPAYMENT_TYPES = set([PaymentType.REPAYMENT])
+
