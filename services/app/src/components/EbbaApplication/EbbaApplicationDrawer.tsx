@@ -9,14 +9,16 @@ import {
 } from "@material-ui/core";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   EbbaApplications,
   RequestStatusEnum,
-  useEbbaApplicationQuery,
+  useGetEbbaApplicationQuery,
+  UserRolesEnum,
 } from "generated/graphql";
 import { authenticatedApi, ebbaApplicationsRoutes } from "lib/api";
 import { formatCurrency } from "lib/currency";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import ReviewEbbaApplicationRejectModal from "./ReviewEbbaApplicationRejectModal";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -35,10 +37,15 @@ interface Props {
 
 function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
   const classes = useStyles();
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+
+  const isBankUser = role === UserRolesEnum.BankAdmin;
 
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
 
-  const { data, refetch } = useEbbaApplicationQuery({
+  const { data, refetch } = useGetEbbaApplicationQuery({
     variables: {
       id: ebbaApplicationId,
     },
@@ -77,7 +84,7 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
             refetch();
             setIsRejectModalOpen(false);
           }}
-        ></ReviewEbbaApplicationRejectModal>
+        />
       )}
       <Box className={classes.drawerContent} p={4}>
         <Typography variant="h5">Borrowing Base</Typography>
@@ -102,9 +109,7 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
             <Typography variant="subtitle2" color="textSecondary">
               Status
             </Typography>
-            <RequestStatusChip
-              requestStatus={ebbaApplication.status}
-            ></RequestStatusChip>
+            <RequestStatusChip requestStatus={ebbaApplication.status} />
           </Box>
           {ebbaApplication.status === RequestStatusEnum.Rejected && (
             <Box display="flex" flexDirection="column" mt={2}>
@@ -116,14 +121,16 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
               </Typography>
             </Box>
           )}
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Company
-            </Typography>
-            <Typography variant={"body1"}>
-              {ebbaApplication.company?.name}
-            </Typography>
-          </Box>
+          {isBankUser && (
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Customer
+              </Typography>
+              <Typography variant={"body1"}>
+                {ebbaApplication.company?.name}
+              </Typography>
+            </Box>
+          )}
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
               Application Month
@@ -158,6 +165,16 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
+              Calculated Borrowing Base
+            </Typography>
+            <Typography variant={"body1"}>
+              {ebbaApplication.calculated_borrowing_base
+                ? formatCurrency(ebbaApplication.calculated_borrowing_base)
+                : "TBD"}
+            </Typography>
+          </Box>
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
               File Attachments
             </Typography>
             {ebbaApplicationFiles.length > 0 && (
@@ -165,7 +182,7 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
                 fileIds={ebbaApplicationFiles.map(
                   (ebbaApplicationFile) => ebbaApplicationFile.file_id
                 )}
-              ></DownloadThumbnail>
+              />
             )}
           </Box>
           <Box

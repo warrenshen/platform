@@ -122,7 +122,7 @@ function EbbaApplicationForm({
         }`}</Typography>
         <Typography variant="body2" color="textSecondary">
           This borrowing base is calculated based on the numbers you entered
-          above and your contract with Bespoke.
+          above and your current active contract with Bespoke.
         </Typography>
       </Box>
       <Box mt={3}>
