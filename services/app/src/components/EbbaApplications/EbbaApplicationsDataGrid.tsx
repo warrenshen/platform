@@ -65,7 +65,7 @@ function EbbaApplicationsDataGrid({
     },
     {
       dataField: "monthly_accounts_receivable",
-      caption: "Monthly AR",
+      caption: "Accounts Receivable",
       alignment: "right",
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell
@@ -75,7 +75,7 @@ function EbbaApplicationsDataGrid({
     },
     {
       dataField: "monthly_inventory",
-      caption: "Monthly Inventory",
+      caption: "Inventory",
       alignment: "right",
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell value={params.row.data.monthly_inventory} />
@@ -83,10 +83,20 @@ function EbbaApplicationsDataGrid({
     },
     {
       dataField: "monthly_cash",
-      caption: "Monthly Cash",
+      caption: "Cash",
       alignment: "right",
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell value={params.row.data.monthly_cash} />
+      ),
+    },
+    {
+      dataField: "calculated_borrowing_base",
+      caption: "Calculated Borrowing Base",
+      alignment: "right",
+      cellRender: (params: ValueFormatterParams) => (
+        <CurrencyDataGridCell
+          value={params.row.data.calculated_borrowing_base}
+        />
       ),
     },
   ];

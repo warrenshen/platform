@@ -44,6 +44,16 @@ query GetCompanyForCustomerOverview(
   }
 }
 
+query GetCompanyWithActiveContract($companyId: uuid!) {
+  companies_by_pk(id: $companyId) {
+    id
+    contract {
+      id
+      ...Contract
+    }
+  }
+}
+
 query GetCompanyForCustomerBorrowingBase($companyId: uuid!) {
   companies_by_pk(id: $companyId) {
     id

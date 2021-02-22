@@ -10,9 +10,12 @@ import {
 } from "@material-ui/core";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
+  ContractFragment,
   EbbaApplicationFilesInsertInput,
   EbbaApplicationsInsertInput,
+  ProductTypeEnum,
   useAddEbbaApplicationMutation,
+  useGetCompanyWithActiveContractQuery,
 } from "generated/graphql";
 import { authenticatedApi, ebbaApplicationsRoutes } from "lib/api";
 import { useContext, useState } from "react";
@@ -38,6 +41,40 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+function computeBorrowingBase(
+  contract: ContractFragment | null,
+  ebbaApplication: EbbaApplicationsInsertInput
+): number | null {
+  if (!contract || contract.product_type !== ProductTypeEnum.LineOfCredit) {
+    return null;
+  }
+
+  const existingContractFields = contract.product_config.v1.fields;
+
+  const accountsReceivablePercentage =
+    existingContractFields.find(
+      (field: any) =>
+        field.internal_name === "borrowing_base_accounts_receivable_percentage"
+    )?.value || 0;
+  const inventoryPercentage =
+    existingContractFields.find(
+      (field: any) =>
+        field.internal_name === "borrowing_base_inventory_percentage"
+    )?.value || 0;
+  const cashPercentage =
+    existingContractFields.find(
+      (field: any) => field.internal_name === "borrowing_base_cash_percentage"
+    )?.value || 0;
+
+  return (
+    (ebbaApplication.monthly_accounts_receivable *
+      accountsReceivablePercentage) /
+      100 +
+    (ebbaApplication.monthly_inventory * inventoryPercentage) / 100 +
+    (ebbaApplication.monthly_cash * cashPercentage) / 100
+  );
+}
+
 interface Props {
   handleClose: () => void;
 }
@@ -48,12 +85,22 @@ function CreateEbbaApplicationModal({ handleClose }: Props) {
     user: { companyId },
   } = useContext(CurrentUserContext);
 
+  const { data } = useGetCompanyWithActiveContractQuery({
+    variables: {
+      companyId,
+    },
+  });
+
+  const company = data?.companies_by_pk;
+  const contract = company?.contract || null;
+
   // Default EbbaApplication for CREATE case.
   const newEbbaApplication = {
     application_month: "2021-02-01",
     monthly_accounts_receivable: "",
     monthly_inventory: "",
     monthly_cash: "",
+    calculated_borrowing_base: "",
   } as EbbaApplicationsInsertInput;
 
   const [ebbaApplication, setEbbaApplication] = useState(newEbbaApplication);
@@ -67,6 +114,10 @@ function CreateEbbaApplicationModal({ handleClose }: Props) {
     { loading: isAddEbbaApplicationLoading },
   ] = useAddEbbaApplicationMutation();
 
+  const calculatedBorrowingBase = computeBorrowingBase(
+    contract,
+    ebbaApplication
+  );
   const isFormLoading = isAddEbbaApplicationLoading;
   const isSubmitDisabled =
     isFormLoading ||
@@ -84,6 +135,7 @@ function CreateEbbaApplicationModal({ handleClose }: Props) {
             ebbaApplication.monthly_accounts_receivable,
           monthly_inventory: ebbaApplication.monthly_inventory,
           monthly_cash: ebbaApplication.monthly_cash,
+          calculated_borrowing_base: calculatedBorrowingBase,
           ebba_application_files: {
             data: ebbaApplicationFiles,
           },
@@ -121,6 +173,7 @@ function CreateEbbaApplicationModal({ handleClose }: Props) {
       <DialogContent>
         <EbbaApplicationForm
           companyId={companyId}
+          calculatedBorrowingBase={calculatedBorrowingBase}
           ebbaApplication={ebbaApplication}
           ebbaApplicationFiles={ebbaApplicationFiles}
           setEbbaApplication={setEbbaApplication}

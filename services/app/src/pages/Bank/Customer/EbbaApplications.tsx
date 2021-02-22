@@ -1,21 +1,14 @@
 import { Box, Typography } from "@material-ui/core";
 import EbbaApplicationCard from "components/EbbaApplication/EbbaApplicationCard";
 import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
-import {
-  ProductTypeEnum,
-  useGetCompanyForCustomerBorrowingBaseQuery,
-} from "generated/graphql";
+import { useGetCompanyForCustomerBorrowingBaseQuery } from "generated/graphql";
 import React from "react";
 
 interface Props {
   companyId: string;
-  productType: ProductTypeEnum;
 }
 
-function BankCustomerEbbaApplicationsSubpage({
-  companyId,
-  productType,
-}: Props) {
+function BankCustomerEbbaApplicationsSubpage({ companyId }: Props) {
   const { data } = useGetCompanyForCustomerBorrowingBaseQuery({
     variables: {
       companyId,

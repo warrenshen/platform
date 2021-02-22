@@ -2846,7 +2846,7 @@ export enum EbbaApplicationFilesUpdateColumn {
 }
 
 /**
- * EBBA stands for Eligible Borrowing Base Amount: this is a table of applications to borrow via a line of credit with information required to determine EBBA
+ * EBBA stands for Eligible Borrowing Base Amount: this is a table of applications to borrow via a line of credit with information required to determine a Borrowing Base
  *
  *
  * columns and relationships of "ebba_applications"
@@ -2854,6 +2854,7 @@ export enum EbbaApplicationFilesUpdateColumn {
 export type EbbaApplications = {
   application_month: Scalars["date"];
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
   /** An object relationship */
   company: Companies;
   company_id: Scalars["uuid"];
@@ -2874,7 +2875,7 @@ export type EbbaApplications = {
 };
 
 /**
- * EBBA stands for Eligible Borrowing Base Amount: this is a table of applications to borrow via a line of credit with information required to determine EBBA
+ * EBBA stands for Eligible Borrowing Base Amount: this is a table of applications to borrow via a line of credit with information required to determine a Borrowing Base
  *
  *
  * columns and relationships of "ebba_applications"
@@ -2888,7 +2889,7 @@ export type EbbaApplicationsEbbaApplicationFilesArgs = {
 };
 
 /**
- * EBBA stands for Eligible Borrowing Base Amount: this is a table of applications to borrow via a line of credit with information required to determine EBBA
+ * EBBA stands for Eligible Borrowing Base Amount: this is a table of applications to borrow via a line of credit with information required to determine a Borrowing Base
  *
  *
  * columns and relationships of "ebba_applications"
@@ -2951,6 +2952,7 @@ export type EbbaApplicationsArrRelInsertInput = {
 
 /** aggregate avg on columns */
 export type EbbaApplicationsAvgFields = {
+  calculated_borrowing_base?: Maybe<Scalars["Float"]>;
   monthly_accounts_receivable?: Maybe<Scalars["Float"]>;
   monthly_cash?: Maybe<Scalars["Float"]>;
   monthly_inventory?: Maybe<Scalars["Float"]>;
@@ -2958,6 +2960,7 @@ export type EbbaApplicationsAvgFields = {
 
 /** order by avg() on columns of table "ebba_applications" */
 export type EbbaApplicationsAvgOrderBy = {
+  calculated_borrowing_base?: Maybe<OrderBy>;
   monthly_accounts_receivable?: Maybe<OrderBy>;
   monthly_cash?: Maybe<OrderBy>;
   monthly_inventory?: Maybe<OrderBy>;
@@ -2970,6 +2973,7 @@ export type EbbaApplicationsBoolExp = {
   _or?: Maybe<Array<Maybe<EbbaApplicationsBoolExp>>>;
   application_month?: Maybe<DateComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
+  calculated_borrowing_base?: Maybe<NumericComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
@@ -2993,6 +2997,7 @@ export enum EbbaApplicationsConstraint {
 
 /** input type for incrementing integer column in table "ebba_applications" */
 export type EbbaApplicationsIncInput = {
+  calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
@@ -3002,6 +3007,7 @@ export type EbbaApplicationsIncInput = {
 export type EbbaApplicationsInsertInput = {
   application_month?: Maybe<Scalars["date"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -3021,6 +3027,7 @@ export type EbbaApplicationsInsertInput = {
 export type EbbaApplicationsMaxFields = {
   application_month?: Maybe<Scalars["date"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -3037,6 +3044,7 @@ export type EbbaApplicationsMaxFields = {
 export type EbbaApplicationsMaxOrderBy = {
   application_month?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
+  calculated_borrowing_base?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
@@ -3053,6 +3061,7 @@ export type EbbaApplicationsMaxOrderBy = {
 export type EbbaApplicationsMinFields = {
   application_month?: Maybe<Scalars["date"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -3069,6 +3078,7 @@ export type EbbaApplicationsMinFields = {
 export type EbbaApplicationsMinOrderBy = {
   application_month?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
+  calculated_borrowing_base?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
@@ -3106,6 +3116,7 @@ export type EbbaApplicationsOnConflict = {
 export type EbbaApplicationsOrderBy = {
   application_month?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
+  calculated_borrowing_base?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
@@ -3132,6 +3143,8 @@ export enum EbbaApplicationsSelectColumn {
   ApplicationMonth = "application_month",
   /** column name */
   ApprovedAt = "approved_at",
+  /** column name */
+  CalculatedBorrowingBase = "calculated_borrowing_base",
   /** column name */
   CompanyId = "company_id",
   /** column name */
@@ -3160,6 +3173,7 @@ export enum EbbaApplicationsSelectColumn {
 export type EbbaApplicationsSetInput = {
   application_month?: Maybe<Scalars["date"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -3175,6 +3189,7 @@ export type EbbaApplicationsSetInput = {
 
 /** aggregate stddev on columns */
 export type EbbaApplicationsStddevFields = {
+  calculated_borrowing_base?: Maybe<Scalars["Float"]>;
   monthly_accounts_receivable?: Maybe<Scalars["Float"]>;
   monthly_cash?: Maybe<Scalars["Float"]>;
   monthly_inventory?: Maybe<Scalars["Float"]>;
@@ -3182,6 +3197,7 @@ export type EbbaApplicationsStddevFields = {
 
 /** order by stddev() on columns of table "ebba_applications" */
 export type EbbaApplicationsStddevOrderBy = {
+  calculated_borrowing_base?: Maybe<OrderBy>;
   monthly_accounts_receivable?: Maybe<OrderBy>;
   monthly_cash?: Maybe<OrderBy>;
   monthly_inventory?: Maybe<OrderBy>;
@@ -3189,6 +3205,7 @@ export type EbbaApplicationsStddevOrderBy = {
 
 /** aggregate stddev_pop on columns */
 export type EbbaApplicationsStddevPopFields = {
+  calculated_borrowing_base?: Maybe<Scalars["Float"]>;
   monthly_accounts_receivable?: Maybe<Scalars["Float"]>;
   monthly_cash?: Maybe<Scalars["Float"]>;
   monthly_inventory?: Maybe<Scalars["Float"]>;
@@ -3196,6 +3213,7 @@ export type EbbaApplicationsStddevPopFields = {
 
 /** order by stddev_pop() on columns of table "ebba_applications" */
 export type EbbaApplicationsStddevPopOrderBy = {
+  calculated_borrowing_base?: Maybe<OrderBy>;
   monthly_accounts_receivable?: Maybe<OrderBy>;
   monthly_cash?: Maybe<OrderBy>;
   monthly_inventory?: Maybe<OrderBy>;
@@ -3203,6 +3221,7 @@ export type EbbaApplicationsStddevPopOrderBy = {
 
 /** aggregate stddev_samp on columns */
 export type EbbaApplicationsStddevSampFields = {
+  calculated_borrowing_base?: Maybe<Scalars["Float"]>;
   monthly_accounts_receivable?: Maybe<Scalars["Float"]>;
   monthly_cash?: Maybe<Scalars["Float"]>;
   monthly_inventory?: Maybe<Scalars["Float"]>;
@@ -3210,6 +3229,7 @@ export type EbbaApplicationsStddevSampFields = {
 
 /** order by stddev_samp() on columns of table "ebba_applications" */
 export type EbbaApplicationsStddevSampOrderBy = {
+  calculated_borrowing_base?: Maybe<OrderBy>;
   monthly_accounts_receivable?: Maybe<OrderBy>;
   monthly_cash?: Maybe<OrderBy>;
   monthly_inventory?: Maybe<OrderBy>;
@@ -3217,6 +3237,7 @@ export type EbbaApplicationsStddevSampOrderBy = {
 
 /** aggregate sum on columns */
 export type EbbaApplicationsSumFields = {
+  calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
@@ -3224,6 +3245,7 @@ export type EbbaApplicationsSumFields = {
 
 /** order by sum() on columns of table "ebba_applications" */
 export type EbbaApplicationsSumOrderBy = {
+  calculated_borrowing_base?: Maybe<OrderBy>;
   monthly_accounts_receivable?: Maybe<OrderBy>;
   monthly_cash?: Maybe<OrderBy>;
   monthly_inventory?: Maybe<OrderBy>;
@@ -3235,6 +3257,8 @@ export enum EbbaApplicationsUpdateColumn {
   ApplicationMonth = "application_month",
   /** column name */
   ApprovedAt = "approved_at",
+  /** column name */
+  CalculatedBorrowingBase = "calculated_borrowing_base",
   /** column name */
   CompanyId = "company_id",
   /** column name */
@@ -3261,6 +3285,7 @@ export enum EbbaApplicationsUpdateColumn {
 
 /** aggregate var_pop on columns */
 export type EbbaApplicationsVarPopFields = {
+  calculated_borrowing_base?: Maybe<Scalars["Float"]>;
   monthly_accounts_receivable?: Maybe<Scalars["Float"]>;
   monthly_cash?: Maybe<Scalars["Float"]>;
   monthly_inventory?: Maybe<Scalars["Float"]>;
@@ -3268,6 +3293,7 @@ export type EbbaApplicationsVarPopFields = {
 
 /** order by var_pop() on columns of table "ebba_applications" */
 export type EbbaApplicationsVarPopOrderBy = {
+  calculated_borrowing_base?: Maybe<OrderBy>;
   monthly_accounts_receivable?: Maybe<OrderBy>;
   monthly_cash?: Maybe<OrderBy>;
   monthly_inventory?: Maybe<OrderBy>;
@@ -3275,6 +3301,7 @@ export type EbbaApplicationsVarPopOrderBy = {
 
 /** aggregate var_samp on columns */
 export type EbbaApplicationsVarSampFields = {
+  calculated_borrowing_base?: Maybe<Scalars["Float"]>;
   monthly_accounts_receivable?: Maybe<Scalars["Float"]>;
   monthly_cash?: Maybe<Scalars["Float"]>;
   monthly_inventory?: Maybe<Scalars["Float"]>;
@@ -3282,6 +3309,7 @@ export type EbbaApplicationsVarSampFields = {
 
 /** order by var_samp() on columns of table "ebba_applications" */
 export type EbbaApplicationsVarSampOrderBy = {
+  calculated_borrowing_base?: Maybe<OrderBy>;
   monthly_accounts_receivable?: Maybe<OrderBy>;
   monthly_cash?: Maybe<OrderBy>;
   monthly_inventory?: Maybe<OrderBy>;
@@ -3289,6 +3317,7 @@ export type EbbaApplicationsVarSampOrderBy = {
 
 /** aggregate variance on columns */
 export type EbbaApplicationsVarianceFields = {
+  calculated_borrowing_base?: Maybe<Scalars["Float"]>;
   monthly_accounts_receivable?: Maybe<Scalars["Float"]>;
   monthly_cash?: Maybe<Scalars["Float"]>;
   monthly_inventory?: Maybe<Scalars["Float"]>;
@@ -3296,6 +3325,7 @@ export type EbbaApplicationsVarianceFields = {
 
 /** order by variance() on columns of table "ebba_applications" */
 export type EbbaApplicationsVarianceOrderBy = {
+  calculated_borrowing_base?: Maybe<OrderBy>;
   monthly_accounts_receivable?: Maybe<OrderBy>;
   monthly_cash?: Maybe<OrderBy>;
   monthly_inventory?: Maybe<OrderBy>;
@@ -3760,6 +3790,7 @@ export type FilesVarianceOrderBy = {
 
 /** columns and relationships of "financial_summaries" */
 export type FinancialSummaries = {
+  adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit: Scalars["numeric"];
   /** An object relationship */
   company: Companies;
@@ -3822,6 +3853,7 @@ export type FinancialSummariesArrRelInsertInput = {
 
 /** aggregate avg on columns */
 export type FinancialSummariesAvgFields = {
+  adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
@@ -3832,6 +3864,7 @@ export type FinancialSummariesAvgFields = {
 
 /** order by avg() on columns of table "financial_summaries" */
 export type FinancialSummariesAvgOrderBy = {
+  adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -3845,6 +3878,7 @@ export type FinancialSummariesBoolExp = {
   _and?: Maybe<Array<Maybe<FinancialSummariesBoolExp>>>;
   _not?: Maybe<FinancialSummariesBoolExp>;
   _or?: Maybe<Array<Maybe<FinancialSummariesBoolExp>>>;
+  adjusted_total_limit?: Maybe<NumericComparisonExp>;
   available_limit?: Maybe<NumericComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
@@ -3866,6 +3900,7 @@ export enum FinancialSummariesConstraint {
 
 /** input type for incrementing integer column in table "financial_summaries" */
 export type FinancialSummariesIncInput = {
+  adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
@@ -3876,6 +3911,7 @@ export type FinancialSummariesIncInput = {
 
 /** input type for inserting data into table "financial_summaries" */
 export type FinancialSummariesInsertInput = {
+  adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
@@ -3889,6 +3925,7 @@ export type FinancialSummariesInsertInput = {
 
 /** aggregate max on columns */
 export type FinancialSummariesMaxFields = {
+  adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -3901,6 +3938,7 @@ export type FinancialSummariesMaxFields = {
 
 /** order by max() on columns of table "financial_summaries" */
 export type FinancialSummariesMaxOrderBy = {
+  adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
@@ -3913,6 +3951,7 @@ export type FinancialSummariesMaxOrderBy = {
 
 /** aggregate min on columns */
 export type FinancialSummariesMinFields = {
+  adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -3925,6 +3964,7 @@ export type FinancialSummariesMinFields = {
 
 /** order by min() on columns of table "financial_summaries" */
 export type FinancialSummariesMinOrderBy = {
+  adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
@@ -3958,6 +3998,7 @@ export type FinancialSummariesOnConflict = {
 
 /** ordering options when selecting data from "financial_summaries" */
 export type FinancialSummariesOrderBy = {
+  adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
@@ -3976,6 +4017,8 @@ export type FinancialSummariesPkColumnsInput = {
 
 /** select columns of table "financial_summaries" */
 export enum FinancialSummariesSelectColumn {
+  /** column name */
+  AdjustedTotalLimit = "adjusted_total_limit",
   /** column name */
   AvailableLimit = "available_limit",
   /** column name */
@@ -3996,6 +4039,7 @@ export enum FinancialSummariesSelectColumn {
 
 /** input type for updating data in table "financial_summaries" */
 export type FinancialSummariesSetInput = {
+  adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -4008,6 +4052,7 @@ export type FinancialSummariesSetInput = {
 
 /** aggregate stddev on columns */
 export type FinancialSummariesStddevFields = {
+  adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
@@ -4018,6 +4063,7 @@ export type FinancialSummariesStddevFields = {
 
 /** order by stddev() on columns of table "financial_summaries" */
 export type FinancialSummariesStddevOrderBy = {
+  adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -4028,6 +4074,7 @@ export type FinancialSummariesStddevOrderBy = {
 
 /** aggregate stddev_pop on columns */
 export type FinancialSummariesStddevPopFields = {
+  adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
@@ -4038,6 +4085,7 @@ export type FinancialSummariesStddevPopFields = {
 
 /** order by stddev_pop() on columns of table "financial_summaries" */
 export type FinancialSummariesStddevPopOrderBy = {
+  adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -4048,6 +4096,7 @@ export type FinancialSummariesStddevPopOrderBy = {
 
 /** aggregate stddev_samp on columns */
 export type FinancialSummariesStddevSampFields = {
+  adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
@@ -4058,6 +4107,7 @@ export type FinancialSummariesStddevSampFields = {
 
 /** order by stddev_samp() on columns of table "financial_summaries" */
 export type FinancialSummariesStddevSampOrderBy = {
+  adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -4068,6 +4118,7 @@ export type FinancialSummariesStddevSampOrderBy = {
 
 /** aggregate sum on columns */
 export type FinancialSummariesSumFields = {
+  adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
@@ -4078,6 +4129,7 @@ export type FinancialSummariesSumFields = {
 
 /** order by sum() on columns of table "financial_summaries" */
 export type FinancialSummariesSumOrderBy = {
+  adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -4088,6 +4140,8 @@ export type FinancialSummariesSumOrderBy = {
 
 /** update columns of table "financial_summaries" */
 export enum FinancialSummariesUpdateColumn {
+  /** column name */
+  AdjustedTotalLimit = "adjusted_total_limit",
   /** column name */
   AvailableLimit = "available_limit",
   /** column name */
@@ -4108,6 +4162,7 @@ export enum FinancialSummariesUpdateColumn {
 
 /** aggregate var_pop on columns */
 export type FinancialSummariesVarPopFields = {
+  adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
@@ -4118,6 +4173,7 @@ export type FinancialSummariesVarPopFields = {
 
 /** order by var_pop() on columns of table "financial_summaries" */
 export type FinancialSummariesVarPopOrderBy = {
+  adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -4128,6 +4184,7 @@ export type FinancialSummariesVarPopOrderBy = {
 
 /** aggregate var_samp on columns */
 export type FinancialSummariesVarSampFields = {
+  adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
@@ -4138,6 +4195,7 @@ export type FinancialSummariesVarSampFields = {
 
 /** order by var_samp() on columns of table "financial_summaries" */
 export type FinancialSummariesVarSampOrderBy = {
+  adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -4148,6 +4206,7 @@ export type FinancialSummariesVarSampOrderBy = {
 
 /** aggregate variance on columns */
 export type FinancialSummariesVarianceFields = {
+  adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
@@ -4158,6 +4217,7 @@ export type FinancialSummariesVarianceFields = {
 
 /** order by variance() on columns of table "financial_summaries" */
 export type FinancialSummariesVarianceOrderBy = {
+  adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -11893,6 +11953,18 @@ export type GetCompanyForCustomerOverviewQuery = {
   >;
 };
 
+export type GetCompanyWithActiveContractQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+}>;
+
+export type GetCompanyWithActiveContractQuery = {
+  companies_by_pk?: Maybe<
+    Pick<Companies, "id"> & {
+      contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
+    }
+  >;
+};
+
 export type GetCompanyForCustomerBorrowingBaseQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
@@ -12165,6 +12237,7 @@ export type EbbaApplicationFragment = Pick<
   | "monthly_accounts_receivable"
   | "monthly_inventory"
   | "monthly_cash"
+  | "calculated_borrowing_base"
   | "status"
   | "rejection_note"
   | "created_at"
@@ -12718,6 +12791,7 @@ export const EbbaApplicationFragmentDoc = gql`
     monthly_accounts_receivable
     monthly_inventory
     monthly_cash
+    calculated_borrowing_base
     status
     rejection_note
     created_at
@@ -15754,6 +15828,67 @@ export type GetCompanyForCustomerOverviewLazyQueryHookResult = ReturnType<
 export type GetCompanyForCustomerOverviewQueryResult = Apollo.QueryResult<
   GetCompanyForCustomerOverviewQuery,
   GetCompanyForCustomerOverviewQueryVariables
+>;
+export const GetCompanyWithActiveContractDocument = gql`
+  query GetCompanyWithActiveContract($companyId: uuid!) {
+    companies_by_pk(id: $companyId) {
+      id
+      contract {
+        id
+        ...Contract
+      }
+    }
+  }
+  ${ContractFragmentDoc}
+`;
+
+/**
+ * __useGetCompanyWithActiveContractQuery__
+ *
+ * To run a query within a React component, call `useGetCompanyWithActiveContractQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompanyWithActiveContractQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCompanyWithActiveContractQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useGetCompanyWithActiveContractQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetCompanyWithActiveContractQuery,
+    GetCompanyWithActiveContractQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetCompanyWithActiveContractQuery,
+    GetCompanyWithActiveContractQueryVariables
+  >(GetCompanyWithActiveContractDocument, baseOptions);
+}
+export function useGetCompanyWithActiveContractLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCompanyWithActiveContractQuery,
+    GetCompanyWithActiveContractQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetCompanyWithActiveContractQuery,
+    GetCompanyWithActiveContractQueryVariables
+  >(GetCompanyWithActiveContractDocument, baseOptions);
+}
+export type GetCompanyWithActiveContractQueryHookResult = ReturnType<
+  typeof useGetCompanyWithActiveContractQuery
+>;
+export type GetCompanyWithActiveContractLazyQueryHookResult = ReturnType<
+  typeof useGetCompanyWithActiveContractLazyQuery
+>;
+export type GetCompanyWithActiveContractQueryResult = Apollo.QueryResult<
+  GetCompanyWithActiveContractQuery,
+  GetCompanyWithActiveContractQueryVariables
 >;
 export const GetCompanyForCustomerBorrowingBaseDocument = gql`
   query GetCompanyForCustomerBorrowingBase($companyId: uuid!) {

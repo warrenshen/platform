@@ -15,6 +15,7 @@ import {
   EbbaApplicationsInsertInput,
   Scalars,
 } from "generated/graphql";
+import { formatCurrency } from "lib/currency";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -26,6 +27,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   companyId: Scalars["uuid"];
+  calculatedBorrowingBase: number | null;
   ebbaApplication: EbbaApplicationsInsertInput;
   ebbaApplicationFiles: EbbaApplicationFilesInsertInput[];
   setEbbaApplication: (ebbaApplication: EbbaApplicationsInsertInput) => void;
@@ -36,6 +38,7 @@ interface Props {
 
 function EbbaApplicationForm({
   companyId,
+  calculatedBorrowingBase,
   ebbaApplication,
   ebbaApplicationFiles,
   setEbbaApplication,
@@ -110,6 +113,17 @@ function EbbaApplicationForm({
             }}
           />
         </FormControl>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="body1">{`Calculated Borrowing Base: ${
+          calculatedBorrowingBase
+            ? formatCurrency(calculatedBorrowingBase)
+            : "TBD"
+        }`}</Typography>
+        <Typography variant="body2" color="textSecondary">
+          This borrowing base is calculated based on the numbers you entered
+          above and your contract with Bespoke.
+        </Typography>
       </Box>
       <Box mt={3}>
         <Box mb={1}>

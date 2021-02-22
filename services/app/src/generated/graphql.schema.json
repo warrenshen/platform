@@ -19399,7 +19399,7 @@
       {
         "kind": "OBJECT",
         "name": "ebba_applications",
-        "description": "EBBA stands for Eligible Borrowing Base Amount: this is a table of applications to borrow via a line of credit with information required to determine EBBA\n\n\ncolumns and relationships of \"ebba_applications\"",
+        "description": "EBBA stands for Eligible Borrowing Base Amount: this is a table of applications to borrow via a line of credit with information required to determine a Borrowing Base\n\n\ncolumns and relationships of \"ebba_applications\"",
         "fields": [
           {
             "name": "application_month",
@@ -19424,6 +19424,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "timestamptz",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
               "ofType": null
             },
             "isDeprecated": false,
@@ -20178,6 +20190,18 @@
         "description": "aggregate avg on columns",
         "fields": [
           {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "monthly_accounts_receivable",
             "description": null,
             "args": [],
@@ -20225,6 +20249,16 @@
         "description": "order by avg() on columns of table \"ebba_applications\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "monthly_accounts_receivable",
             "description": null,
@@ -20320,6 +20354,16 @@
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "timestamptz_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "numeric_comparison_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -20483,6 +20527,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "monthly_accounts_receivable",
             "description": null,
             "type": {
@@ -20539,6 +20593,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "timestamptz",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
               "ofType": null
             },
             "defaultValue": null
@@ -20708,6 +20772,18 @@
             "deprecationReason": null
           },
           {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "company_id",
             "description": null,
             "args": [],
@@ -20860,6 +20936,16 @@
             "defaultValue": null
           },
           {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "company_id",
             "description": null,
             "type": {
@@ -20988,6 +21074,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "timestamptz",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
               "ofType": null
             },
             "isDeprecated": false,
@@ -21137,6 +21235,16 @@
           },
           {
             "name": "approved_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "calculated_borrowing_base",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -21420,6 +21528,16 @@
             "defaultValue": null
           },
           {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "company",
             "description": null,
             "type": {
@@ -21600,6 +21718,12 @@
             "deprecationReason": null
           },
           {
+            "name": "calculated_borrowing_base",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "company_id",
             "description": "column name",
             "isDeprecated": false,
@@ -21690,6 +21814,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "timestamptz",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
               "ofType": null
             },
             "defaultValue": null
@@ -21815,6 +21949,18 @@
         "description": "aggregate stddev on columns",
         "fields": [
           {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "monthly_accounts_receivable",
             "description": null,
             "args": [],
@@ -21863,6 +22009,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "monthly_accounts_receivable",
             "description": null,
             "type": {
@@ -21902,6 +22058,18 @@
         "name": "ebba_applications_stddev_pop_fields",
         "description": "aggregate stddev_pop on columns",
         "fields": [
+          {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "monthly_accounts_receivable",
             "description": null,
@@ -21951,6 +22119,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "monthly_accounts_receivable",
             "description": null,
             "type": {
@@ -21990,6 +22168,18 @@
         "name": "ebba_applications_stddev_samp_fields",
         "description": "aggregate stddev_samp on columns",
         "fields": [
+          {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "monthly_accounts_receivable",
             "description": null,
@@ -22039,6 +22229,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "monthly_accounts_receivable",
             "description": null,
             "type": {
@@ -22078,6 +22278,18 @@
         "name": "ebba_applications_sum_fields",
         "description": "aggregate sum on columns",
         "fields": [
+          {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "monthly_accounts_receivable",
             "description": null,
@@ -22126,6 +22338,16 @@
         "description": "order by sum() on columns of table \"ebba_applications\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "monthly_accounts_receivable",
             "description": null,
@@ -22177,6 +22399,12 @@
           },
           {
             "name": "approved_at",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "calculated_borrowing_base",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -22256,6 +22484,18 @@
         "description": "aggregate var_pop on columns",
         "fields": [
           {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "monthly_accounts_receivable",
             "description": null,
             "args": [],
@@ -22304,6 +22544,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "monthly_accounts_receivable",
             "description": null,
             "type": {
@@ -22343,6 +22593,18 @@
         "name": "ebba_applications_var_samp_fields",
         "description": "aggregate var_samp on columns",
         "fields": [
+          {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "monthly_accounts_receivable",
             "description": null,
@@ -22392,6 +22654,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "monthly_accounts_receivable",
             "description": null,
             "type": {
@@ -22431,6 +22703,18 @@
         "name": "ebba_applications_variance_fields",
         "description": "aggregate variance on columns",
         "fields": [
+          {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "monthly_accounts_receivable",
             "description": null,
@@ -22479,6 +22763,16 @@
         "description": "order by variance() on columns of table \"ebba_applications\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "calculated_borrowing_base",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "monthly_accounts_receivable",
             "description": null,
@@ -25530,6 +25824,18 @@
         "description": "columns and relationships of \"financial_summaries\"",
         "fields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "args": [],
@@ -26068,6 +26374,18 @@
         "description": "aggregate avg on columns",
         "fields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "args": [],
@@ -26151,6 +26469,16 @@
         "description": "order by avg() on columns of table \"financial_summaries\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -26257,6 +26585,16 @@
                 "name": "financial_summaries_bool_exp",
                 "ofType": null
               }
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "numeric_comparison_exp",
+              "ofType": null
             },
             "defaultValue": null
           },
@@ -26385,6 +26723,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "type": {
@@ -26455,6 +26803,16 @@
         "description": "input type for inserting data into table \"financial_summaries\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -26555,6 +26913,18 @@
         "name": "financial_summaries_max_fields",
         "description": "aggregate max on columns",
         "fields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -26664,6 +27034,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "type": {
@@ -26753,6 +27133,18 @@
         "name": "financial_summaries_min_fields",
         "description": "aggregate min on columns",
         "fields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -26861,6 +27253,16 @@
         "description": "order by min() on columns of table \"financial_summaries\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -27096,6 +27498,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "type": {
@@ -27224,6 +27636,12 @@
         "interfaces": null,
         "enumValues": [
           {
+            "name": "adjusted_total_limit",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "available_limit",
             "description": "column name",
             "isDeprecated": false,
@@ -27280,6 +27698,16 @@
         "description": "input type for updating data in table \"financial_summaries\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -27371,6 +27799,18 @@
         "description": "aggregate stddev on columns",
         "fields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "args": [],
@@ -27455,6 +27895,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "type": {
@@ -27524,6 +27974,18 @@
         "name": "financial_summaries_stddev_pop_fields",
         "description": "aggregate stddev_pop on columns",
         "fields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -27609,6 +28071,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "type": {
@@ -27678,6 +28150,18 @@
         "name": "financial_summaries_stddev_samp_fields",
         "description": "aggregate stddev_samp on columns",
         "fields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -27763,6 +28247,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "type": {
@@ -27832,6 +28326,18 @@
         "name": "financial_summaries_sum_fields",
         "description": "aggregate sum on columns",
         "fields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -27917,6 +28423,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "type": {
@@ -27990,6 +28506,12 @@
         "interfaces": null,
         "enumValues": [
           {
+            "name": "adjusted_total_limit",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "available_limit",
             "description": "column name",
             "isDeprecated": false,
@@ -28045,6 +28567,18 @@
         "name": "financial_summaries_var_pop_fields",
         "description": "aggregate var_pop on columns",
         "fields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -28130,6 +28664,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "type": {
@@ -28199,6 +28743,18 @@
         "name": "financial_summaries_var_samp_fields",
         "description": "aggregate var_samp on columns",
         "fields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -28284,6 +28840,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "type": {
@@ -28353,6 +28919,18 @@
         "name": "financial_summaries_variance_fields",
         "description": "aggregate variance on columns",
         "fields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -28437,6 +29015,16 @@
         "description": "order by variance() on columns of table \"financial_summaries\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "available_limit",
             "description": null,

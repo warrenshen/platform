@@ -35,7 +35,7 @@ interface Props {
 function LoanDrawer({ loanId, handleClose }: Props) {
   const classes = useStyles();
   const {
-    user: { role, productType },
+    user: { role },
   } = useContext(CurrentUserContext);
 
   const isBankUser = role === UserRolesEnum.BankAdmin;
