@@ -1,4 +1,6 @@
-import { Box, Paper, Tab, Tabs } from "@material-ui/core";
+import { Box, ListItem, ListItemText } from "@material-ui/core";
+import List from "@material-ui/core/List";
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Page from "components/Shared/Page";
 import PrivateRoute from "components/Shared/PrivateRoute";
 import {
@@ -8,9 +10,13 @@ import {
 } from "generated/graphql";
 import { getLoanNameByProductType } from "lib/finance/loans/loans";
 import { bankRoutes } from "lib/routes";
-import { findIndex } from "lodash";
-import { ChangeEvent, useEffect, useState } from "react";
-import { Link, useLocation, useParams, useRouteMatch } from "react-router-dom";
+import {
+  Link,
+  matchPath,
+  useLocation,
+  useParams,
+  useRouteMatch,
+} from "react-router-dom";
 import BankCustomerCompanyProfileSubpage from "./CompanyProfile";
 import BankCustomerEbbaApplicationsSubpage from "./EbbaApplications";
 import BankCustomerLoansSubpage from "./Loans";
@@ -19,6 +25,31 @@ import BankCustomerPurchaseOrdersSubpage from "./PurchaseOrders";
 import BankCustomerSettingsSubpage from "./Settings";
 import BankCustomerUsersSubpage from "./Users";
 import BankCustomerVendorsSubpage from "./Vendors";
+
+const DRAWER_WIDTH = 175;
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    drawer: {
+      display: "flex",
+      flexDirection: "column",
+      width: DRAWER_WIDTH,
+    },
+    content: {
+      display: "flex",
+      flexDirection: "column",
+      backgroundColor: theme.palette.background.default,
+      width: `calc(100% - ${DRAWER_WIDTH}px)`,
+      paddingLeft: theme.spacing(3),
+    },
+    list: {
+      padding: 0,
+    },
+    listItemText: {
+      fontWeight: 500,
+    },
+  })
+);
 
 export interface CustomerParams {
   companyId: string;
@@ -73,7 +104,7 @@ function BankCustomerPage() {
   const { companyId } = useParams<CustomerParams>();
   const { url, path } = useRouteMatch();
   const location = useLocation();
-  const [tabIndex, setTabIndex] = useState<number | null>(null);
+  const classes = useStyles();
 
   const { data } = useGetCustomerForBankQuery({
     variables: {
@@ -85,52 +116,49 @@ function BankCustomerPage() {
   const customerName = customer?.name;
   const productType = customer?.contract?.product_type || ProductTypeEnum.None;
 
-  useEffect(() => {
-    const index = findIndex(
-      getCustomerPaths(productType).filter(
-        (customerPath) => customerPath.visible !== false
-      ),
-      ({ path }) => {
-        return location.pathname.replace(url, "") === path;
-      }
-    );
-    setTabIndex(index);
-  }, [productType, location.pathname, url]);
-
   return (
     <Page appBarTitle={customerName || ""}>
-      <Paper>
-        <Tabs
-          indicatorColor="primary"
-          variant="scrollable"
-          scrollButtons="auto"
-          value={tabIndex === null || tabIndex < 0 ? 0 : tabIndex}
-          onChange={(event: ChangeEvent<{}>, newValue: number) => {
-            setTabIndex(newValue);
-          }}
-        >
-          {getCustomerPaths(productType)
-            .filter((customerPath) => customerPath.visible !== false)
-            .map((customerPath) => (
-              <Tab
-                key={customerPath.path}
-                label={customerPath.label}
-                component={Link}
-                to={`${url}${customerPath.path}`}
-              />
-            ))}
-        </Tabs>
-      </Paper>
-      <Box pt={2}>
-        {getCustomerPaths(productType).map((customerPath) => (
-          <PrivateRoute
-            key={customerPath.path}
-            path={`${path}${customerPath.path}`}
-            requiredRoles={[UserRolesEnum.BankAdmin]}
-          >
-            {customerPath.component({ companyId, productType })}
-          </PrivateRoute>
-        ))}
+      <Box display="flex" width="100%">
+        <Box className={classes.drawer}>
+          <List className={classes.list}>
+            {getCustomerPaths(productType)
+              .filter((customerPath) => customerPath.visible !== false)
+              .map((customerPath) => (
+                <ListItem
+                  key={customerPath.path}
+                  button
+                  component={Link}
+                  to={`${url}${customerPath.path}`}
+                  selected={Boolean(
+                    matchPath(
+                      location.pathname,
+                      `/customers/:companyId${customerPath.path}`
+                    )
+                  )}
+                >
+                  <ListItemText
+                    primaryTypographyProps={{
+                      className: classes.listItemText,
+                      variant: "subtitle1",
+                    }}
+                  >
+                    {customerPath.label}
+                  </ListItemText>
+                </ListItem>
+              ))}
+          </List>
+        </Box>
+        <Box className={classes.content}>
+          {getCustomerPaths(productType).map((customerPath) => (
+            <PrivateRoute
+              key={customerPath.path}
+              path={`${path}${customerPath.path}`}
+              requiredRoles={[UserRolesEnum.BankAdmin]}
+            >
+              {customerPath.component({ companyId, productType })}
+            </PrivateRoute>
+          ))}
+        </Box>
       </Box>
     </Page>
   );

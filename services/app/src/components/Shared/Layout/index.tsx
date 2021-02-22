@@ -1,11 +1,4 @@
-import {
-  AppBar,
-  Box,
-  Divider,
-  Drawer,
-  ListItem,
-  ListItemText,
-} from "@material-ui/core";
+import { AppBar, Box, Drawer, ListItem, ListItemText } from "@material-ui/core";
 import List from "@material-ui/core/List";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -56,6 +49,9 @@ const useStyles = makeStyles((theme: Theme) =>
       alignItems: "stretch",
       backgroundColor: theme.palette.background.default,
       overflow: "scroll",
+    },
+    list: {
+      padding: 0,
     },
     listItemText: {
       fontWeight: 500,
@@ -263,11 +259,10 @@ function Layout({ appBarTitle, children }: Props) {
         }}
         anchor="left"
       >
-        <div className={classes.toolbar}>
+        <Box className={classes.toolbar}>
           <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="Logo" />
-        </div>
-        <Divider />
-        <List>
+        </Box>
+        <List className={classes.list}>
           {navItems.map((item, index) =>
             item.link ? (
               <ListItem

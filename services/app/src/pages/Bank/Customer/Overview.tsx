@@ -65,13 +65,11 @@ function CustomerOverviewSubpage({ companyId, productType }: Props) {
         <Typography variant="h6">Outstanding Loans</Typography>
         <Box display="flex" flex={1}>
           <Box display="flex" flexDirection="column" width="100%">
-            <Box display="flex" flex={1}>
-              {productType === ProductTypeEnum.InventoryFinancing ? (
-                <PurchaseOrderLoansDataGrid loans={loans} />
-              ) : (
-                <LineOfCreditLoansDataGrid loans={loans} />
-              )}
-            </Box>
+            {productType === ProductTypeEnum.InventoryFinancing ? (
+              <PurchaseOrderLoansDataGrid loans={loans} />
+            ) : (
+              <LineOfCreditLoansDataGrid loans={loans} />
+            )}
           </Box>
         </Box>
       </Box>
