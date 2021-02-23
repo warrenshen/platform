@@ -88,14 +88,16 @@ function CustomerPurchaseOrderLoansPage() {
         <Box display="flex" flexDirection="column" mt={1} mb={2}>
           {canCreateUpdateNewLoan ? (
             <Alert severity="info" style={{ alignSelf: "flex-start" }}>
-              <span>You have available limit and can request new loans.</span>
+              <Box maxWidth={600}>
+                You have available limit and can request new loans.
+              </Box>
             </Alert>
           ) : (
             <Alert severity="warning">
-              <span>
+              <Box maxWidth={600}>
                 You have reached your limit and cannot request anymore new
                 loans. Please contact Bespoke if you believe this is a mistake.
-              </span>
+              </Box>
             </Alert>
           )}
         </Box>

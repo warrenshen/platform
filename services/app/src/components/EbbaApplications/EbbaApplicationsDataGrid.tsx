@@ -6,7 +6,6 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import { DataGridActionItem } from "components/Shared/DataGrid/DataGridActionMenu";
 import { EbbaApplicationsQuery, RequestStatusEnum } from "generated/graphql";
-import { truncateUuid } from "lib/uuid";
 
 function populateRows(
   ebbaApplications: EbbaApplicationsQuery["ebba_applications"]
@@ -36,10 +35,7 @@ function EbbaApplicationsDataGrid({
       caption: "Platform ID",
       width: 120,
       cellRender: (params: ValueFormatterParams) => (
-        <EbbaApplicationDrawerLauncher
-          label={truncateUuid(params.row.data.id as string)}
-          ebbaApplicationId={params.row.data.id}
-        />
+        <EbbaApplicationDrawerLauncher ebbaApplicationId={params.row.data.id} />
       ),
     },
     {
@@ -60,7 +56,7 @@ function EbbaApplicationsDataGrid({
     },
     {
       dataField: "application_month",
-      caption: "Application Month",
+      caption: "Application Date",
       alignment: "right",
     },
     {

@@ -133,7 +133,7 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
           )}
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
-              Application Month
+              Application Date
             </Typography>
             <Typography variant={"body1"}>
               {ebbaApplication.application_month}
@@ -185,40 +185,42 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
               />
             )}
           </Box>
-          <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="flex-start"
-            mt={2}
-          >
-            <Typography variant="subtitle2" color="textSecondary">
-              Actions
-            </Typography>
-            {ebbaApplication.status !== RequestStatusEnum.Approved && (
-              <Box mt={1}>
-                <Button
-                  disabled={isApproveDisabled}
-                  onClick={handleClickApprove}
-                  variant={"contained"}
-                  color={"primary"}
-                >
-                  Approve
-                </Button>
-              </Box>
-            )}
-            {ebbaApplication.status !== RequestStatusEnum.Rejected && (
-              <Box mt={1}>
-                <Button
-                  disabled={isRejectDisabled}
-                  onClick={() => setIsRejectModalOpen(true)}
-                  variant={"contained"}
-                  color={"secondary"}
-                >
-                  Reject
-                </Button>
-              </Box>
-            )}
-          </Box>
+          {isBankUser && (
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="flex-start"
+              mt={2}
+            >
+              <Typography variant="subtitle2" color="textSecondary">
+                Actions
+              </Typography>
+              {ebbaApplication.status !== RequestStatusEnum.Approved && (
+                <Box mt={1}>
+                  <Button
+                    disabled={isApproveDisabled}
+                    onClick={handleClickApprove}
+                    variant={"contained"}
+                    color={"primary"}
+                  >
+                    Approve
+                  </Button>
+                </Box>
+              )}
+              {ebbaApplication.status !== RequestStatusEnum.Rejected && (
+                <Box mt={1}>
+                  <Button
+                    disabled={isRejectDisabled}
+                    onClick={() => setIsRejectModalOpen(true)}
+                    variant={"contained"}
+                    color={"secondary"}
+                  >
+                    Reject
+                  </Button>
+                </Box>
+              )}
+            </Box>
+          )}
         </Box>
       </Box>
     </Drawer>

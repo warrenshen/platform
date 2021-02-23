@@ -7,11 +7,11 @@ import {
   Typography,
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
+import EbbaApplicationDrawerLauncher from "components/EbbaApplication/EbbaApplicationDrawerLauncher";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
-import { format, parse } from "date-fns";
 import { EbbaApplicationFragment } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
-import { DateFormatServer } from "lib/date";
+import { formatDateString } from "lib/date";
 
 interface Props {
   ebbaApplication: EbbaApplicationFragment;
@@ -20,8 +20,7 @@ interface Props {
 const useStyles = makeStyles(() =>
   createStyles({
     card: {
-      width: 320,
-      minHeight: 100,
+      width: 360,
     },
     label: {
       width: 230,
@@ -36,24 +35,31 @@ function EbbaApplicationCard({ ebbaApplication }: Props) {
   return (
     <Card className={classes.card}>
       <CardContent>
-        <Box display="flex" mb={0.25}>
+        <Box display="flex" alignItems="center" mb={0.5}>
+          <Typography className={classes.label}>Platform ID</Typography>
+          <EbbaApplicationDrawerLauncher
+            ebbaApplicationId={ebbaApplication.id}
+          />
+        </Box>
+        <Box display="flex" mb={0.5}>
           <Typography className={classes.label}>Status</Typography>
           <RequestStatusChip requestStatus={ebbaApplication.status} />
         </Box>
-        <Box display="flex" mb={0.25}>
-          <Typography className={classes.label}>Application Month</Typography>
+        <Box display="flex" mb={0.5}>
+          <Typography className={classes.label}>Application Date</Typography>
           <Typography>
-            {format(
-              parse(
-                ebbaApplication.application_month,
-                DateFormatServer,
-                new Date()
-              ),
-              "MM/yyyy"
-            )}
+            {formatDateString(ebbaApplication.application_month)}
           </Typography>
         </Box>
-        <Box display="flex" mb={0.25}>
+        <Box display="flex" mb={2.5}>
+          <Typography className={classes.label}>
+            Calculated Borrowing Base
+          </Typography>
+          <Typography>
+            {formatCurrency(ebbaApplication.calculated_borrowing_base)}
+          </Typography>
+        </Box>
+        <Box display="flex" mb={0.5}>
           <Typography className={classes.label}>
             Monthly Accounts Receivable
           </Typography>
@@ -61,24 +67,16 @@ function EbbaApplicationCard({ ebbaApplication }: Props) {
             {formatCurrency(ebbaApplication.monthly_accounts_receivable)}
           </Typography>
         </Box>
-        <Box display="flex" mb={0.25}>
+        <Box display="flex" mb={0.5}>
           <Typography className={classes.label}>Monthly Inventory</Typography>
           <Typography>
             {formatCurrency(ebbaApplication.monthly_inventory)}
           </Typography>
         </Box>
-        <Box display="flex" mb={0.25}>
+        <Box display="flex" mb={0.5}>
           <Typography className={classes.label}>Monthly Cash</Typography>
           <Typography>
             {formatCurrency(ebbaApplication.monthly_cash)}
-          </Typography>
-        </Box>
-        <Box display="flex" mb={0.25}>
-          <Typography className={classes.label}>
-            Calculated Borrowing Base
-          </Typography>
-          <Typography>
-            {formatCurrency(ebbaApplication.calculated_borrowing_base)}
           </Typography>
         </Box>
       </CardContent>

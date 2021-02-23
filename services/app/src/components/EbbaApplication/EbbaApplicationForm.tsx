@@ -52,7 +52,7 @@ function EbbaApplicationForm({
         <DatePicker
           className={classes.inputField}
           id="application-month-date-picker"
-          label="Application Month"
+          label="Application Date"
           disablePast={false}
           value={ebbaApplication.application_month}
           onChange={(value) =>

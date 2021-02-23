@@ -1,4 +1,5 @@
 import { Box, Button, Typography } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import CreateEbbaApplicationModal from "components/EbbaApplication/CreateEbbaApplicationModal";
 import EbbaApplicationCard from "components/EbbaApplication/EbbaApplicationCard";
 import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
@@ -27,6 +28,8 @@ function CustomerEbbaApplicationsPage() {
     data?.companies_by_pk?.settings?.active_ebba_application;
   const ebbaApplications = data?.companies_by_pk?.ebba_applications || [];
 
+  const isActiveApplicationValid = activeEbbaApplication;
+
   return (
     <Page appBarTitle={"Borrowing Base"}>
       <Box>
@@ -38,7 +41,7 @@ function CustomerEbbaApplicationsPage() {
           Your borrowing base determines the total amount in loans you may
           request from Bespoke. Bespoke calculates your borrowing base based on
           financial information you provide (ex. AR, inventory, cash) on a
-          monthly basis.
+          regular basis.
         </Typography>
       </Box>
       <Box mt={2}>
@@ -61,19 +64,38 @@ function CustomerEbbaApplicationsPage() {
       <Box mt={3}>
         <Box>
           <Box mb={1}>
-            <Typography variant="h6">Active Borrowing Base</Typography>
+            <Typography variant="h6">
+              Active Borrowing Base Certification
+            </Typography>
           </Box>
-          {activeEbbaApplication ? (
+          <Box display="flex" flexDirection="column" mt={1} mb={2}>
+            {isActiveApplicationValid ? (
+              <Alert severity="info" style={{ alignSelf: "flex-start" }}>
+                <Box maxWidth={600}>
+                  Your current borrowing base certification is up-to-date. You
+                  can review its details below.
+                </Box>
+              </Alert>
+            ) : (
+              <Alert severity="warning" style={{ alignSelf: "flex-start" }}>
+                <Box maxWidth={600}>
+                  You do not have an up-to-date borrowing base certification.
+                  Please submit a new borrowing base certification for approval
+                  to establish your borrowing base. Otherwise, you will not be
+                  able to request new loans.
+                </Box>
+              </Alert>
+            )}
+          </Box>
+          {isActiveApplicationValid && activeEbbaApplication && (
             <EbbaApplicationCard ebbaApplication={activeEbbaApplication} />
-          ) : (
-            <Box>
-              <Typography variant="body2">No active borrowing base</Typography>
-            </Box>
           )}
         </Box>
         <Box mt={3}>
           <Box mb={1}>
-            <Typography variant="h6">Historical Borrowing Base</Typography>
+            <Typography variant="h6">
+              Historical Borrowing Base Certifications
+            </Typography>
           </Box>
           <EbbaApplicationsDataGrid
             isCompanyVisible={false}

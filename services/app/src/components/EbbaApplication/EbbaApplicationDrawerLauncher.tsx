@@ -1,14 +1,14 @@
 import { Button } from "@material-ui/core";
 import EbbaApplicationDrawer from "components/EbbaApplication/EbbaApplicationDrawer";
 import { EbbaApplications } from "generated/graphql";
+import { truncateUuid } from "lib/uuid";
 import React, { useState } from "react";
 
 interface Props {
-  label: string;
   ebbaApplicationId: EbbaApplications["id"];
 }
 
-function Launcher({ label, ebbaApplicationId }: Props) {
+function EbbaApplicationDrawerLauncher({ ebbaApplicationId }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -20,10 +20,10 @@ function Launcher({ label, ebbaApplicationId }: Props) {
         />
       )}
       <Button color="primary" onClick={() => setIsOpen(true)}>
-        {label}
+        {truncateUuid(ebbaApplicationId)}
       </Button>
     </>
   );
 }
 
-export default Launcher;
+export default EbbaApplicationDrawerLauncher;
