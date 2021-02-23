@@ -31,7 +31,10 @@ function Users() {
       {open && (
         <InviteUserModal
           companyId={companyId}
-          userRole={UserRolesEnum.CompanyAdmin}
+          userRoles={[
+            UserRolesEnum.CompanyAdmin,
+            UserRolesEnum.CompanyReadOnly,
+          ]}
           handleClose={() => setOpen(false)}
         />
       )}

@@ -229,12 +229,14 @@ function Layout({ appBarTitle, children }: Props) {
     user: { role, productType },
   } = useContext(CurrentUserContext);
 
-  const navItems =
-    role === UserRolesEnum.BankAdmin
-      ? getBankNavItems()
-      : productType
-      ? getCustomerNavItems(productType)
-      : [];
+  const navItems = [
+    UserRolesEnum.BankAdmin,
+    UserRolesEnum.BankReadOnly,
+  ].includes(role)
+    ? getBankNavItems()
+    : productType
+    ? getCustomerNavItems(productType)
+    : [];
 
   return (
     <div className={classes.root}>

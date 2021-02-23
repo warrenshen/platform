@@ -44,10 +44,10 @@ function Users() {
           companyId={
             user.role === UserRolesEnum.BankAdmin ? undefined : user.companyId
           }
-          userRole={
+          userRoles={
             user.role === UserRolesEnum.BankAdmin
-              ? UserRolesEnum.BankAdmin
-              : UserRolesEnum.CompanyAdmin
+              ? [UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]
+              : [UserRolesEnum.CompanyAdmin, UserRolesEnum.CompanyReadOnly]
           }
           handleClose={() => setOpen(false)}
         />

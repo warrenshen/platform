@@ -72,17 +72,17 @@ export async function createLogin(req: {
 
 interface Props {
   companyId?: string;
-  userRole: UserRolesEnum;
+  userRoles: UserRolesEnum[];
   handleClose: () => void;
 }
 
-function InviteUserModal({ companyId, userRole, handleClose }: Props) {
+function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
   const classes = useStyles();
 
   const [user, setUser] = useState<UsersInsertInput>({
     company_id: companyId,
     phone_number: "",
-    role: userRole,
+    role: null,
     email: "",
     first_name: "",
     full_name: "",
@@ -100,29 +100,23 @@ function InviteUserModal({ companyId, userRole, handleClose }: Props) {
       maxWidth="xl"
       classes={{ paper: classes.dialog }}
     >
-      <DialogTitle className={classes.dialogTitle}>Invite User</DialogTitle>
+      <DialogTitle className={classes.dialogTitle}>Invite New User</DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column">
           <FormControl className={classes.usersInput}>
             <InputLabel id="user-role-select-label">User Role</InputLabel>
             <Select
-              disabled
               labelId="user-role-select-label"
               value={user.role}
               onChange={({ target: { value } }) => {
                 setUser({ ...user, role: value as UserRolesEnum });
               }}
             >
-              {!companyId && (
-                <MenuItem value={UserRolesEnum.BankAdmin}>
-                  {UserRoleToLabel[UserRolesEnum.BankAdmin]}
+              {userRoles.map((userRole) => (
+                <MenuItem key={userRole} value={userRole}>
+                  {UserRoleToLabel[userRole]}
                 </MenuItem>
-              )}
-              {companyId && (
-                <MenuItem value={UserRolesEnum.CompanyAdmin}>
-                  {UserRoleToLabel[UserRolesEnum.CompanyAdmin]}
-                </MenuItem>
-              )}
+              ))}
             </Select>
           </FormControl>
           <TextField
