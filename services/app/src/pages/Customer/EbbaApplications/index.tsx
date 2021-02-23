@@ -23,13 +23,24 @@ function CustomerEbbaApplicationsPage() {
     },
   });
 
-  const contract = data?.companies_by_pk?.contract || null;
   const activeEbbaApplication =
     data?.companies_by_pk?.settings?.active_ebba_application;
   const ebbaApplications = data?.companies_by_pk?.ebba_applications || [];
 
   return (
     <Page appBarTitle={"Borrowing Base"}>
+      <Box>
+        <Typography variant="h6">
+          Review your current borrowing base, submit a new financial
+          certification, and view historical certifications.
+        </Typography>
+        <Typography variant="subtitle1">
+          Your borrowing base determines the total amount in loans you may
+          request from Bespoke. Bespoke calculates your borrowing base based on
+          financial information you provide (ex. AR, inventory, cash) on a
+          monthly basis.
+        </Typography>
+      </Box>
       <Box mt={2}>
         {isCreateEbbaApplicationModalOpen && (
           <CreateEbbaApplicationModal
@@ -53,10 +64,7 @@ function CustomerEbbaApplicationsPage() {
             <Typography variant="h6">Active Borrowing Base</Typography>
           </Box>
           {activeEbbaApplication ? (
-            <EbbaApplicationCard
-              ebbaApplication={activeEbbaApplication}
-              contract={contract}
-            />
+            <EbbaApplicationCard ebbaApplication={activeEbbaApplication} />
           ) : (
             <Box>
               <Typography variant="body2">No active borrowing base</Typography>

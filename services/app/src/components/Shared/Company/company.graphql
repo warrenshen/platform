@@ -1,24 +1,9 @@
-fragment FinancialSummary on financial_summaries {
-  id
-  total_limit
-  total_outstanding_principal
-  total_outstanding_interest
-  total_outstanding_fees
-  total_principal_in_requested_state
-  available_limit
-}
-
 query GetCompanyForCustomerOverview(
   $companyId: uuid!
   $loanType: loan_type_enum
 ) {
   companies_by_pk(id: $companyId) {
     id
-    contract {
-      id
-      product_type
-      product_config
-    }
     financial_summary {
       id
       ...FinancialSummary
@@ -31,6 +16,31 @@ query GetCompanyForCustomerOverview(
         ]
       }
     ) {
+      ...LoanLimited
+      line_of_credit {
+        id
+        ...LineOfCredit
+      }
+      purchase_order {
+        id
+        order_number
+      }
+    }
+  }
+}
+
+query GetCompanyForCustomerLoans(
+  $companyId: uuid!
+  $loanType: loan_type_enum!
+) {
+  companies_by_pk(id: $companyId) {
+    id
+    financial_summary {
+      id
+      ...FinancialSummary
+    }
+    loans(where: { loan_type: { _eq: $loanType } }) {
+      id
       ...LoanLimited
       line_of_credit {
         id
@@ -57,10 +67,6 @@ query GetCompanyWithActiveContract($companyId: uuid!) {
 query GetCompanyForCustomerBorrowingBase($companyId: uuid!) {
   companies_by_pk(id: $companyId) {
     id
-    contract {
-      id
-      ...Contract
-    }
     ebba_applications(
       order_by: [{ application_month: desc }, { created_at: desc }]
     ) {
@@ -73,12 +79,7 @@ query GetCompanyForCustomerBorrowingBase($companyId: uuid!) {
     }
     financial_summary {
       id
-      total_limit
-      total_outstanding_principal
-      total_outstanding_interest
-      total_outstanding_fees
-      total_principal_in_requested_state
-      available_limit
+      ...FinancialSummary
     }
     settings {
       id

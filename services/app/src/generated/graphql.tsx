@@ -11916,17 +11916,6 @@ export type AssignAdvancesBespokeBankAccountMutation = {
   >;
 };
 
-export type FinancialSummaryFragment = Pick<
-  FinancialSummaries,
-  | "id"
-  | "total_limit"
-  | "total_outstanding_principal"
-  | "total_outstanding_interest"
-  | "total_outstanding_fees"
-  | "total_principal_in_requested_state"
-  | "available_limit"
->;
-
 export type GetCompanyForCustomerOverviewQueryVariables = Exact<{
   companyId: Scalars["uuid"];
   loanType?: Maybe<LoanTypeEnum>;
@@ -11935,14 +11924,34 @@ export type GetCompanyForCustomerOverviewQueryVariables = Exact<{
 export type GetCompanyForCustomerOverviewQuery = {
   companies_by_pk?: Maybe<
     Pick<Companies, "id"> & {
-      contract?: Maybe<
-        Pick<Contracts, "id" | "product_type" | "product_config">
-      >;
       financial_summary?: Maybe<
         Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
       >;
       outstanding_loans: Array<
         {
+          line_of_credit?: Maybe<
+            Pick<LineOfCredits, "id"> & LineOfCreditFragment
+          >;
+          purchase_order?: Maybe<Pick<PurchaseOrders, "id" | "order_number">>;
+        } & LoanLimitedFragment
+      >;
+    }
+  >;
+};
+
+export type GetCompanyForCustomerLoansQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+  loanType: LoanTypeEnum;
+}>;
+
+export type GetCompanyForCustomerLoansQuery = {
+  companies_by_pk?: Maybe<
+    Pick<Companies, "id"> & {
+      financial_summary?: Maybe<
+        Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
+      >;
+      loans: Array<
+        Pick<Loans, "id"> & {
           line_of_credit?: Maybe<
             Pick<LineOfCredits, "id"> & LineOfCreditFragment
           >;
@@ -11972,23 +11981,13 @@ export type GetCompanyForCustomerBorrowingBaseQueryVariables = Exact<{
 export type GetCompanyForCustomerBorrowingBaseQuery = {
   companies_by_pk?: Maybe<
     Pick<Companies, "id"> & {
-      contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
       ebba_applications: Array<
         Pick<EbbaApplications, "id"> & {
           company: Pick<Companies, "id" | "name">;
         } & EbbaApplicationFragment
       >;
       financial_summary?: Maybe<
-        Pick<
-          FinancialSummaries,
-          | "id"
-          | "total_limit"
-          | "total_outstanding_principal"
-          | "total_outstanding_interest"
-          | "total_outstanding_fees"
-          | "total_principal_in_requested_state"
-          | "available_limit"
-        >
+        Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
       >;
       settings: Pick<CompanySettings, "id"> & {
         active_ebba_application?: Maybe<
@@ -12252,6 +12251,18 @@ export type LineOfCreditFragment = Pick<
   LineOfCredits,
   "id" | "company_id" | "is_credit_for_vendor" | "recipient_vendor_id"
 > & { recipient_vendor?: Maybe<Pick<Vendors, "id" | "name">> };
+
+export type FinancialSummaryFragment = Pick<
+  FinancialSummaries,
+  | "id"
+  | "total_limit"
+  | "adjusted_total_limit"
+  | "total_outstanding_principal"
+  | "total_outstanding_interest"
+  | "total_outstanding_fees"
+  | "total_principal_in_requested_state"
+  | "available_limit"
+>;
 
 export type TransactionsQueryVariables = Exact<{ [key: string]: never }>;
 
@@ -12638,17 +12649,6 @@ export type AddUserMutationVariables = Exact<{
 
 export type AddUserMutation = { insert_users_one?: Maybe<UserFragment> };
 
-export const FinancialSummaryFragmentDoc = gql`
-  fragment FinancialSummary on financial_summaries {
-    id
-    total_limit
-    total_outstanding_principal
-    total_outstanding_interest
-    total_outstanding_fees
-    total_principal_in_requested_state
-    available_limit
-  }
-`;
 export const UserFragmentDoc = gql`
   fragment User on users {
     id
@@ -12818,6 +12818,18 @@ export const LineOfCreditFragmentDoc = gql`
       id
       name
     }
+  }
+`;
+export const FinancialSummaryFragmentDoc = gql`
+  fragment FinancialSummary on financial_summaries {
+    id
+    total_limit
+    adjusted_total_limit
+    total_outstanding_principal
+    total_outstanding_interest
+    total_outstanding_fees
+    total_principal_in_requested_state
+    available_limit
   }
 `;
 export const ContactFragmentDoc = gql`
@@ -15746,11 +15758,6 @@ export const GetCompanyForCustomerOverviewDocument = gql`
   ) {
     companies_by_pk(id: $companyId) {
       id
-      contract {
-        id
-        product_type
-        product_config
-      }
       financial_summary {
         id
         ...FinancialSummary
@@ -15829,6 +15836,85 @@ export type GetCompanyForCustomerOverviewQueryResult = Apollo.QueryResult<
   GetCompanyForCustomerOverviewQuery,
   GetCompanyForCustomerOverviewQueryVariables
 >;
+export const GetCompanyForCustomerLoansDocument = gql`
+  query GetCompanyForCustomerLoans(
+    $companyId: uuid!
+    $loanType: loan_type_enum!
+  ) {
+    companies_by_pk(id: $companyId) {
+      id
+      financial_summary {
+        id
+        ...FinancialSummary
+      }
+      loans(where: { loan_type: { _eq: $loanType } }) {
+        id
+        ...LoanLimited
+        line_of_credit {
+          id
+          ...LineOfCredit
+        }
+        purchase_order {
+          id
+          order_number
+        }
+      }
+    }
+  }
+  ${FinancialSummaryFragmentDoc}
+  ${LoanLimitedFragmentDoc}
+  ${LineOfCreditFragmentDoc}
+`;
+
+/**
+ * __useGetCompanyForCustomerLoansQuery__
+ *
+ * To run a query within a React component, call `useGetCompanyForCustomerLoansQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompanyForCustomerLoansQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCompanyForCustomerLoansQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *      loanType: // value for 'loanType'
+ *   },
+ * });
+ */
+export function useGetCompanyForCustomerLoansQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetCompanyForCustomerLoansQuery,
+    GetCompanyForCustomerLoansQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetCompanyForCustomerLoansQuery,
+    GetCompanyForCustomerLoansQueryVariables
+  >(GetCompanyForCustomerLoansDocument, baseOptions);
+}
+export function useGetCompanyForCustomerLoansLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCompanyForCustomerLoansQuery,
+    GetCompanyForCustomerLoansQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetCompanyForCustomerLoansQuery,
+    GetCompanyForCustomerLoansQueryVariables
+  >(GetCompanyForCustomerLoansDocument, baseOptions);
+}
+export type GetCompanyForCustomerLoansQueryHookResult = ReturnType<
+  typeof useGetCompanyForCustomerLoansQuery
+>;
+export type GetCompanyForCustomerLoansLazyQueryHookResult = ReturnType<
+  typeof useGetCompanyForCustomerLoansLazyQuery
+>;
+export type GetCompanyForCustomerLoansQueryResult = Apollo.QueryResult<
+  GetCompanyForCustomerLoansQuery,
+  GetCompanyForCustomerLoansQueryVariables
+>;
 export const GetCompanyWithActiveContractDocument = gql`
   query GetCompanyWithActiveContract($companyId: uuid!) {
     companies_by_pk(id: $companyId) {
@@ -15894,10 +15980,6 @@ export const GetCompanyForCustomerBorrowingBaseDocument = gql`
   query GetCompanyForCustomerBorrowingBase($companyId: uuid!) {
     companies_by_pk(id: $companyId) {
       id
-      contract {
-        id
-        ...Contract
-      }
       ebba_applications(
         order_by: [{ application_month: desc }, { created_at: desc }]
       ) {
@@ -15910,12 +15992,7 @@ export const GetCompanyForCustomerBorrowingBaseDocument = gql`
       }
       financial_summary {
         id
-        total_limit
-        total_outstanding_principal
-        total_outstanding_interest
-        total_outstanding_fees
-        total_principal_in_requested_state
-        available_limit
+        ...FinancialSummary
       }
       settings {
         id
@@ -15926,8 +16003,8 @@ export const GetCompanyForCustomerBorrowingBaseDocument = gql`
       }
     }
   }
-  ${ContractFragmentDoc}
   ${EbbaApplicationFragmentDoc}
+  ${FinancialSummaryFragmentDoc}
 `;
 
 /**

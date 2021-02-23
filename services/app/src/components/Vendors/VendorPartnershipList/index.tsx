@@ -119,7 +119,7 @@ function VendorPartnershipList({
           onSortingChanged={onSortingChanged}
           onFilteringChanged={onFilteringChanged}
           sortBy={{ index: 0, order: "desc" }}
-          filtering={{ enable: true, filterBy: { index: 0, value: "Canna" } }}
+          filtering={{ enable: true, filterBy: { index: 0, value: "" } }}
           columns={columns}
           pager
         />

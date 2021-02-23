@@ -9,12 +9,11 @@ import {
 import { grey } from "@material-ui/core/colors";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import { format, parse } from "date-fns";
-import { ContractFragment, EbbaApplicationFragment } from "generated/graphql";
+import { EbbaApplicationFragment } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { DateFormatServer } from "lib/date";
 
 interface Props {
-  contract: ContractFragment | null;
   ebbaApplication: EbbaApplicationFragment;
 }
 
@@ -31,7 +30,7 @@ const useStyles = makeStyles(() =>
   })
 );
 
-function EbbaApplicationCard({ contract, ebbaApplication }: Props) {
+function EbbaApplicationCard({ ebbaApplication }: Props) {
   const classes = useStyles();
 
   return (
