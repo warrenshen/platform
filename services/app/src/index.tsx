@@ -1,11 +1,12 @@
 import { CssBaseline } from "@material-ui/core";
 import * as Sentry from "@sentry/react";
+import { SnackbarProvider } from "material-ui-snackbar-provider";
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
+import CustomSnackbar from "./components/Shared/Snackbar/CustomSnackbar";
 import ApolloWrapper from "./contexts/ApolloClientProvider";
 import CurrentUserWrapper from "./contexts/CurrentUserProvider";
-import { SnackbarProvider } from "material-ui-snackbar-provider";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 
@@ -17,7 +18,7 @@ Sentry.init({
 ReactDOM.render(
   <CurrentUserWrapper>
     <ApolloWrapper>
-      <SnackbarProvider SnackbarProps={{ autoHideDuration: 3000 }}>
+      <SnackbarProvider SnackbarComponent={CustomSnackbar}>
         <CssBaseline>
           <App />
         </CssBaseline>

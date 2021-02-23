@@ -19,9 +19,9 @@ import {
   UserRolesEnum,
   useUpdateBankAccountMutation,
 } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import { isNull, mergeWith } from "lodash";
 import { ChangeEvent, useContext, useMemo, useState } from "react";
-import { useSnackbar } from "material-ui-snackbar-provider";
 
 const useStyles = makeStyles({
   form: {
@@ -270,10 +270,9 @@ function BankAccountForm({ companyId, existingBankAccount, onCancel }: Props) {
                   },
                 });
                 onCancel();
-                snackbar.showMessage("Success! Bank account updated.");
+                snackbar.showSuccess("Success! Bank account updated.");
               } catch (err) {
-                snackbar.showMessage("Error! Something went wrong.");
-                console.log(err);
+                snackbar.showError(`Error! Message: ${err}.`);
               }
             } else {
               try {
@@ -326,9 +325,9 @@ function BankAccountForm({ companyId, existingBankAccount, onCancel }: Props) {
                       ],
                 });
                 onCancel();
-                snackbar.showMessage("Success! Bank account created.");
+                snackbar.showSuccess("Success! Bank account created.");
               } catch (err) {
-                snackbar.showMessage("Error! Something went wrong.");
+                snackbar.showError("Error! Something went wrong.");
                 console.log(err);
               }
             }

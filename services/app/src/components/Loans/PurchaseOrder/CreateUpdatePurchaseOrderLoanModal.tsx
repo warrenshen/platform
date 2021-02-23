@@ -23,6 +23,7 @@ import {
   useGetLoanForCustomerQuery,
   useUpdateLoanMutation,
 } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, loansRoutes } from "lib/api";
 import { formatCurrency } from "lib/currency";
 import { ActionType } from "lib/enum";
@@ -31,7 +32,6 @@ import {
   listArtifactsForCreateLoan,
 } from "lib/finance/loans/artifacts";
 import { isNull, mergeWith } from "lodash";
-import { useSnackbar } from "material-ui-snackbar-provider";
 import { useContext, useEffect, useState } from "react";
 import PurchaseOrderLoanForm from "./PurchaseOrderLoanForm";
 
@@ -168,7 +168,7 @@ function CreateUpdatePurchaseOrderLoanModal({
     } else {
       const nextLoanIdentifier = await getNextLoanIdentifierByCompanyId();
       if (!nextLoanIdentifier) {
-        snackbar.showMessage("Error! Something went wrong.");
+        snackbar.showError("Error! Something went wrong.");
       } else {
         const response = await addLoan({
           variables: {
@@ -221,7 +221,7 @@ function CreateUpdatePurchaseOrderLoanModal({
     if (!savedLoan) {
       alert("Could not upsert loan");
     } else {
-      snackbar.showMessage("Success! Loan saved as draft.");
+      snackbar.showSuccess("Success! Loan saved as draft.");
     }
     handleClose();
   };

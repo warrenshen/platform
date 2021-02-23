@@ -12,8 +12,8 @@ import {
 } from "@material-ui/core";
 import DatePicker from "components/Shared/Dates/DatePicker";
 import { Companies } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import { runCustomerBalances } from "lib/finance/loans/reports";
-import { useSnackbar } from "material-ui-snackbar-provider";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -61,7 +61,7 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
           "Error! Could not re-calculate customer balances."
         );
       } else {
-        snackbar.showMessage("Success! Customer balances recalculated.");
+        snackbar.showSuccess("Success! Customer balances recalculated.");
         handleClose();
       }
     }

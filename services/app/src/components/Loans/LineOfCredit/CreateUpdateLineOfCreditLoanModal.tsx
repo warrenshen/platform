@@ -23,10 +23,10 @@ import {
   useGetLoanWithArtifactForCustomerQuery,
   useUpdateLineOfCreditAndLoanMutation,
 } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, loansRoutes } from "lib/api";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
-import { useSnackbar } from "material-ui-snackbar-provider";
 import { useContext, useState } from "react";
 import LineOfCreditLoanForm from "./LineOfCreditLoanForm";
 
@@ -169,7 +169,7 @@ function CreateUpdateLineOfCreditLoanModal({
     } else {
       const nextLoanIdentifier = await getNextLoanIdentifierByCompanyId();
       if (!nextLoanIdentifier) {
-        snackbar.showMessage("Error! Something went wrong.");
+        snackbar.showError("Error! Something went wrong.");
       } else {
         const responseLineOfCredit = await addLineOfCredit({
           variables: {
@@ -183,7 +183,7 @@ function CreateUpdateLineOfCreditLoanModal({
           responseLineOfCredit.data?.insert_line_of_credits_one?.id;
         if (!artifactId) {
           alert("Could not add line of credit");
-          snackbar.showMessage("Error! Something went wrong.");
+          snackbar.showError("Error! Something went wrong.");
         } else {
           const responseLoan = await addLoan({
             variables: {

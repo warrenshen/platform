@@ -20,10 +20,10 @@ import {
   useUpdatePurchaseOrderMutation,
   useVendorsByPartnerCompanyQuery,
 } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, purchaseOrdersRoutes } from "lib/api";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
-import { useSnackbar } from "material-ui-snackbar-provider";
 import { useContext, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -33,9 +33,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     dialogTitle: {
       borderBottom: "1px solid #c7c7c7",
-    },
-    purchaseOrderInput: {
-      width: "200px",
     },
     dialogActions: {
       margin: theme.spacing(2),
@@ -213,9 +210,9 @@ function CreateUpdatePurchaseOrderModal({
   const handleClickSaveDraft = async () => {
     const savedPurchaseOrder = await upsertPurchaseOrder();
     if (!savedPurchaseOrder) {
-      alert("Could not upsert purchase order");
+      snackbar.showError("Error! Could not upsert purchase order.");
     } else {
-      snackbar.showMessage("Success! Purchase order saved as draft.");
+      snackbar.showSuccess("Success! Purchase order saved as draft.");
       handleClose();
     }
   };
@@ -223,7 +220,7 @@ function CreateUpdatePurchaseOrderModal({
   const handleClickSaveSubmit = async () => {
     const savedPurchaseOrder = await upsertPurchaseOrder();
     if (!savedPurchaseOrder) {
-      alert("Could not upsert purchase order");
+      snackbar.showError("Error! Could not upsert purchase order.");
     } else {
       // Since this is a SAVE AND SUBMIT action,
       // hit the PurchaseOrders.SubmitForApproval endpoint.
@@ -234,12 +231,12 @@ function CreateUpdatePurchaseOrderModal({
         }
       );
       if (response.data?.status === "ERROR") {
-        alert(response.data?.msg);
+        snackbar.showError(`Error! Message: ${response.data?.msg}`);
       } else {
-        handleClose();
-        snackbar.showMessage(
+        snackbar.showSuccess(
           "Success! Purchase order saved and submitted to vendor."
         );
+        handleClose();
       }
     }
   };

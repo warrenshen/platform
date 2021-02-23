@@ -97,6 +97,7 @@ function PurchaseOrderForm({
       </Box>
       <Box mt={2}>
         <TextField
+          className={classes.inputField}
           label="Order Number"
           value={purchaseOrder.order_number}
           onChange={({ target: { value } }) =>
