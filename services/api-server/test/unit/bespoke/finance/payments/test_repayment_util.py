@@ -1,7 +1,8 @@
 import datetime
 import decimal
+import json
 import uuid
-from typing import List, Dict, cast
+from typing import Any, List, Dict, cast
 
 from bespoke.date import date_util
 from bespoke.db import models, db_constants
@@ -9,10 +10,50 @@ from bespoke.db.models import session_scope
 from bespoke.finance.payments import payment_util
 from bespoke.finance.payments import repayment_util
 from bespoke.finance.payments.repayment_util import (
-	TransactionInputDict, LoanAfterwardsDict, LoanBalanceDict)
+	TransactionInputDict, LoanBalanceDict, LoanToShowDict)
+from bespoke.db.db_constants import ProductType
 
+from bespoke_test.contract import contract_test_helper
+from bespoke_test.contract.contract_test_helper import ContractInputDict
+from bespoke_test.payments import payment_test_helper
 from bespoke_test.db import db_unittest
 from bespoke_test.db import test_helper
+
+def _get_late_fee_structure() -> str:
+	return json.dumps({
+		'1-14': 0.25,
+		'15-29': 0.50,
+		'30+': 1.0
+	})
+
+def _get_contract(company_id: str) -> models.Contract:
+	return models.Contract(
+		company_id=company_id,
+		product_type=ProductType.INVENTORY_FINANCING,
+		product_config=contract_test_helper.create_contract_config(
+			product_type=ProductType.INVENTORY_FINANCING,
+			input_dict=ContractInputDict(
+				interest_rate=0.2,
+				maximum_principal_amount=120000.01,
+				max_days_until_repayment=0, # unused
+				late_fee_structure=_get_late_fee_structure()
+			)
+		)
+	)
+
+def _apply_transaction(tx: Dict, session: Any, loan: models.Loan) -> None:
+	if tx['type'] == 'advance':
+		payment_test_helper.make_advance(session, loan, tx['amount'], tx['effective_date'])
+	elif tx['type'] == 'repayment':
+		payment_test_helper.make_repayment(
+			session, loan, 
+			to_principal=tx['to_principal'], 
+			to_interest=tx['to_interest'],
+			to_fees=tx['to_fees'],
+			effective_date=tx['effective_date']
+		)
+	else:
+		raise Exception('Unexpected transaction type {}'.format(tx['type']))
 
 class TestCalculateRepaymentEffect(db_unittest.TestCase):
 
@@ -28,6 +69,9 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 		company_id = seed.get_company_id('company_admin', index=0)
 
 		with session_scope(session_maker) as session:
+			contract = _get_contract(company_id)
+			session.add(contract)
+
 			for i in range(len(loans)):
 				loan = loans[i]
 				loan.company_id = company_id
@@ -35,13 +79,27 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				session.flush()
 				loan_ids.append(str(loan.id))
 
+			for i in range(len(test['transaction_lists'])):
+				transaction_list = test['transaction_lists'][i]
+				loan = loans[i]
+				for tx in transaction_list:
+					_apply_transaction(tx, session, loan)
+
 			if test.get('loans_not_selected'):
+				loans_not_selected_list = []
 				for j in range(len(test['loans_not_selected'])):
 					loan_not_selected = test['loans_not_selected'][j]
 					loan_not_selected.company_id = company_id
 					session.add(loan_not_selected)
 					session.flush()
 					loan_ids_not_selected.append(str(loan_not_selected.id))
+					loans_not_selected_list.append(loan_not_selected)
+
+				for j in range(len(test['transaction_lists_for_not_selected'])):
+					transaction_list = test['transaction_lists_for_not_selected'][j]
+					loan_not_selected = loans_not_selected_list[j]
+					for tx in transaction_list:
+						_apply_transaction(tx, session, loan_not_selected)
 
 		resp, err = repayment_util.calculate_repayment_effect(
 			payment_input=payment_util.PaymentInsertInputDict(
@@ -55,75 +113,99 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 			payment_option=test['payment_option'], 
 			company_id=company_id, 
 			loan_ids=loan_ids, 
-			session_maker=session_maker
+			session_maker=session_maker,
+			test_only_skip_interest_and_fees_calculation=test.get('test_only_skip_interest_and_fees_calculation')
 		)
 		self.assertIsNone(err)
 		self.assertEqual('OK', resp.get('status'), msg=err)
 		self.assertEqual(test['expected_amount_to_pay'], resp['amount_to_pay'])
-		if test.get('expected_amount_as_credit_to_user'):
-			self.assertAlmostEqual(test['expected_amount_as_credit_to_user'], resp['amount_as_credit_to_user'])
-		else:
-			self.assertAlmostEqual(0.0, resp['amount_as_credit_to_user'])
-
+		self.assertAlmostEqual(test['expected_amount_as_credit_to_user'], resp['amount_as_credit_to_user'])
+		
 		# Assert on the expected loans afterwards
-		self.assertEqual(len(test['expected_loans_afterwards']), len(resp['loans_afterwards']))
+		self.assertEqual(len(test['expected_loans_to_show']), len(resp['loans_to_show']))
 
 		# Sort by increasing amount of loan balance owed to keep things in
 		# order with the test.
-		resp['loans_afterwards'].sort(key=lambda l: l['loan_balance']['amount'])
+		resp['loans_to_show'].sort(key=lambda l: l['before_loan_balance']['amount'])
 
-		for i in range(len(resp['loans_afterwards'])):
-			loan_after = resp['loans_afterwards'][i]
-			expected_loan_after = test['expected_loans_afterwards'][i]
-			expected = expected_loan_after
-			actual = cast(Dict, loan_after)
+		for i in range(len(resp['loans_to_show'])):
+			loan_to_show = resp['loans_to_show'][i]
+			expected_loan_to_show = test['expected_loans_to_show'][i]
+			expected = expected_loan_to_show
+			actual = cast(Dict, loan_to_show)
 			self.assertEqual(loan_ids[i], actual['loan_id']) # assert same loan order, but use loan_ids because the loans get created in the test
 			test_helper.assertDeepAlmostEqual(self, expected['transaction'], actual['transaction'])
-			test_helper.assertDeepAlmostEqual(self, expected['loan_balance'], actual['loan_balance'])
+			test_helper.assertDeepAlmostEqual(self, expected['before_loan_balance'], actual['before_loan_balance'])
+			test_helper.assertDeepAlmostEqual(self, expected['after_loan_balance'], actual['after_loan_balance'])
 
 		# Assert on which loans ended up in the past due but not selected
 		# category
 		self.assertEqual(len(test['expected_past_due_but_not_selected_indices']), len(resp['loans_past_due_but_not_selected']))
-		resp['loans_past_due_but_not_selected'].sort(key = lambda l: l['loan_balance']['amount'])
+		resp['loans_past_due_but_not_selected'].sort(key = lambda l: l['before_loan_balance']['amount'])
 
 		for i in range(len(resp['loans_past_due_but_not_selected'])):
+			actual = cast(Dict, resp['loans_past_due_but_not_selected'][i])
 			cur_loan_id_past_due = resp['loans_past_due_but_not_selected'][i]['loan_id']
 			expected_loan_id_past_due = loan_ids_not_selected[test['expected_past_due_but_not_selected_indices'][i]]
 			self.assertEqual(expected_loan_id_past_due, cur_loan_id_past_due)
 
+			# NOTE: getting lazy, but assuming that we are testing with no interest and fees
+			# calculations, and are only asserting on the amounts, e.g., the principal
+			amount = test['expected_past_due_but_not_selected_amounts'][i]
+			outstanding_principal = test['expected_past_due_but_not_selected_principal'][i]
+			self.assertAlmostEqual(amount, actual['before_loan_balance']['amount'])
+			self.assertAlmostEqual(outstanding_principal, actual['before_loan_balance']['outstanding_principal_balance'])
+			self.assertAlmostEqual(amount, actual['after_loan_balance']['amount'])
+			self.assertAlmostEqual(outstanding_principal, actual['after_loan_balance']['outstanding_principal_balance'])
 
-	def test_custom_amount_single_loan_only_principal_credit_remaining(self) -> None:
+
+	def test_custom_amount_single_loan_before_maturity_no_transactions(self) -> None:
+		daily_interest = 0.2 / 100 * 20.02 # ~0.04 = daily_interest_rate_pct / 100 * principal_owed
+		# Amount as credit is equal to the outstanding principal balance since
+		# they overpaid on this one.
+
 		test: Dict = {
 			'comment': 'The user pays a single loan for a custom amount, and there is credit remaining on their balance',
 			'loans': [
 				models.Loan(
 					amount=decimal.Decimal(20.02),
-					adjusted_maturity_date=date_util.load_date_str('9/1/2020'),
-					outstanding_principal_balance=decimal.Decimal(9.99)
+					origination_date=date_util.load_date_str('9/1/2020'),
+					adjusted_maturity_date=date_util.load_date_str('9/20/2020')
 				)
 			],
-			'payment_date': '10/12/2020',
-			'settlement_date': '10/14/2020',
+			'transaction_lists': [
+				# Transactions are parallel to the loans defined in the test.
+				# These will be advances or repayments made against their respective loans.
+				[{'type': 'advance', 'amount': 20.02, 'effective_date': '9/1/2020'}]
+			],
+			'payment_date': '9/12/2020',
+			'settlement_date': '9/14/2020',
 			'payment_option': 'custom_amount',
-			'payment_input_amount': 10.01,
-			'expected_amount_to_pay': 10.01,
-			'expected_amount_as_credit_to_user': 0.02,
-			'expected_loans_afterwards': [
-				LoanAfterwardsDict(
+			'payment_input_amount': 30.01,
+			'expected_amount_to_pay': 30.01,
+			'expected_amount_as_credit_to_user': -1 * (20.02 + (14 * daily_interest) - 30.01),
+			'expected_loans_to_show': [
+				LoanToShowDict(
 					loan_id='filled in by test',
 					transaction=TransactionInputDict(
-						amount=10.01,
-						to_principal=10.01,
-						to_interest=0.0,
+						amount=30.01,
+						to_principal=30.01 - (14 * daily_interest),
+						to_interest=14 * daily_interest,
 						to_fees=0.0
 					),
-					loan_balance=LoanBalanceDict(
+					before_loan_balance=LoanBalanceDict(
 						amount=20.02,
-						outstanding_principal_balance=-0.02,
+						outstanding_principal_balance=20.02,
+						outstanding_interest=14 * daily_interest,
+						outstanding_fees=0.0
+					),
+					after_loan_balance=LoanBalanceDict(
+						amount=20.02,
+						outstanding_principal_balance=20.02 + (14 * daily_interest) - 30.01,
 						outstanding_interest=0.0,
 						outstanding_fees=0.0
 					)
-				),
+				)
 			],
 			'expected_past_due_but_not_selected_indices': []
 		}
@@ -131,56 +213,75 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 		self._run_test(test)
 
 	def test_custom_amount_multiple_loans_credit_remaining(self) -> None:
-		credit_amount = 15.01 - 9.99 - 1.03 - 1.88 - 0.73
+		#credit_amount = 15.01 - 9.99 - 1.03 - 1.88 - 0.73
+		daily_interest1 = 0.04 # 0.2 / 100 * 20.00 == daily_interest_rate_pct / 100 * principal_owed
+		daily_interest2 = 0.06 # 0.2 / 100 * 30.00 == daily_interest_rate_pct / 100 * principal_owed
+		
 		test: Dict = {
 			'comment': 'The user pays off multiple loans and have a credit remaining on their principal',
 			'loans': [
 				models.Loan(
-					amount=decimal.Decimal(20.02),
-					adjusted_maturity_date=date_util.load_date_str('9/1/2020'),
-					outstanding_principal_balance=decimal.Decimal(9.99),
-					outstanding_fees=decimal.Decimal(1.03)
+					amount=decimal.Decimal(20.00),
+					origination_date=date_util.load_date_str('8/20/2020'),
+					adjusted_maturity_date=date_util.load_date_str('8/27/2020')
 				),
 				models.Loan(
-					amount=decimal.Decimal(30.02),
-					adjusted_maturity_date=date_util.load_date_str('9/3/2020'),
-					outstanding_principal_balance=decimal.Decimal(1.88),
-					outstanding_interest=decimal.Decimal(0.73)
+					amount=decimal.Decimal(30.00),
+					origination_date=date_util.load_date_str('8/22/2020'),
+					adjusted_maturity_date=date_util.load_date_str('8/29/2020')
 				)
 			],
-			'payment_date': '10/12/2020',
-			'settlement_date': '10/14/2020',
+			'transaction_lists': [
+				# Transactions are parallel to the loans defined in the test.
+				# These will be advances or repayments made against their respective loans.
+				[{'type': 'advance', 'amount': 20.00, 'effective_date': '8/20/2020'}],
+				[{'type': 'advance', 'amount': 30.00, 'effective_date': '8/22/2020'}]
+			],
+			'payment_date': '8/24/2020',
+			'settlement_date': '8/28/2020', # late fees accrued on the 1st loan
 			'payment_option': 'custom_amount',
-			'payment_input_amount': 15.01,
-			'expected_amount_to_pay': 15.01,
-			'expected_amount_as_credit_to_user': credit_amount,
-			'expected_loans_afterwards': [
-				LoanAfterwardsDict(
+			'payment_input_amount': 105.00,
+			'expected_amount_to_pay': 105.00,
+			'expected_amount_as_credit_to_user': -1 * (30.0-84.21),
+			'expected_loans_to_show': [
+				LoanToShowDict(
 					loan_id='filled in by test',
 					transaction=TransactionInputDict(
-						amount=9.99 + 1.03,
-						to_principal=9.99,
-						to_interest=0.0,
-						to_fees=1.03
+						amount=20.37,
+						to_principal=20.00,
+						to_interest=9 * daily_interest1,
+						to_fees=1 * daily_interest1 * 0.25
 					),
-					loan_balance=LoanBalanceDict(
-						amount=20.02,
+					before_loan_balance=LoanBalanceDict(
+						amount=20.00,
+						outstanding_principal_balance=20.00,
+						outstanding_interest=9 * daily_interest1, # 9 days of interest accrued
+						outstanding_fees=1 * daily_interest1 * 0.25 # 1 day of late fees
+					),
+					after_loan_balance=LoanBalanceDict(
+						amount=20.00,
 						outstanding_principal_balance=0.0,
 						outstanding_interest=0.0,
 						outstanding_fees=0.0
 					)
 				),
-				LoanAfterwardsDict(
+				LoanToShowDict(
 					loan_id='filled in by test',
 					transaction=TransactionInputDict(
-						amount=1.88 + 0.73 + credit_amount,
-						to_principal=1.88 + credit_amount,
-						to_interest=0.73,
+						amount=105.00 - 20.37, # remainder after the first transaction
+						to_principal=105.00 - 20.37 - (7 * daily_interest2), # 84.21
+						to_interest=7 * daily_interest2,
 						to_fees=0.0
 					),
-					loan_balance=LoanBalanceDict(
-						amount=30.02,
-						outstanding_principal_balance=-1 * credit_amount,
+					before_loan_balance=LoanBalanceDict(
+						amount=30.00,
+						outstanding_principal_balance=30.00,
+						outstanding_interest=7 * daily_interest2, # 0.42
+						outstanding_fees=0.0
+					),
+					after_loan_balance=LoanBalanceDict(
+						amount=30.00,
+						outstanding_principal_balance=30.0-84.21,
 						outstanding_interest=0.0,
 						outstanding_fees=0.0
 					)
@@ -192,39 +293,44 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 		self._run_test(test)
 
 	def test_custom_amount_multiple_loans_cant_pay_off_everything(self) -> None:
+		daily_interest1 = 0.2 / 100 * 10.00 # == 0.02 
+		daily_interest2 = 0.2 / 100 * 30.00
+		daily_interest3 = 0.2 / 100 * 50.00
 		test: Dict = {
 			'comment': 'The user pays exactly what they specified',
 			'loans': [
 				models.Loan(
-					amount=decimal.Decimal(10.01),
-					adjusted_maturity_date=date_util.load_date_str('3/1/2020'),
-					outstanding_principal_balance=decimal.Decimal(9.99),
-					outstanding_interest=decimal.Decimal(1.02),
-					outstanding_fees=decimal.Decimal(0.56)
+					amount=decimal.Decimal(10.00),
+					origination_date=date_util.load_date_str('2/01/2020'),
+					adjusted_maturity_date=date_util.load_date_str('10/10/2020')
 				),
 				models.Loan(
-					amount=decimal.Decimal(30.03),
-					adjusted_maturity_date=date_util.load_date_str('2/1/2020'),
-					outstanding_principal_balance=decimal.Decimal(8.99),
-					outstanding_interest=decimal.Decimal(1.01),
-					outstanding_fees=decimal.Decimal(0.55)
+					amount=decimal.Decimal(30.00),
+					origination_date=date_util.load_date_str('02/05/2020'),
+					adjusted_maturity_date=date_util.load_date_str('10/12/2020')
 				),
 				models.Loan(
-					amount=decimal.Decimal(50.05),
-					adjusted_maturity_date=date_util.load_date_str('1/1/2020'),
-					outstanding_principal_balance=decimal.Decimal(7.99),
-					outstanding_interest=decimal.Decimal(1.03),
-					outstanding_fees=decimal.Decimal(0.51)
+					amount=decimal.Decimal(50.00),
+					origination_date=date_util.load_date_str('02/10/2020'),
+					adjusted_maturity_date=date_util.load_date_str('10/14/2020')
 				)
 			],
-			'payment_date': '10/12/2020',
-			'settlement_date': '10/14/2020',
+			'transaction_lists': [
+				# Transactions are parallel to the loans defined in the test.
+				# These will be advances or repayments made against their respective loans.
+				[{'type': 'advance', 'amount': 10.00, 'effective_date': '02/01/2020'}],
+				[{'type': 'advance', 'amount': 30.00, 'effective_date': '02/05/2020'}],
+				[{'type': 'advance', 'amount': 50.00, 'effective_date': '02/10/2020'}]
+			],
+			'payment_date': '02/15/2020',
+			'settlement_date': '02/20/2020',
 			'payment_option': 'custom_amount',
 			'payment_input_amount': 15.05,
 			'expected_amount_to_pay': 15.05,
-			'expected_amount_reduced': 0.0,
-			'expected_loans_afterwards': [
-				# We don't have enough money to pay off the newest maturing loan
+			'expected_amount_as_credit_to_user': 0.0,
+			'expected_loans_to_show': [
+				# We don't have enough money to pay off the second two loans,
+				# and we have a partial repayment to the 2nd loan.
 				#
 				# The payment looks like:
 				#   0.51 + 1.03 + 7.99 = 9.53 to the loan maturing 1/1/2020
@@ -232,48 +338,67 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				#    where "rem" is the remaining amount of the 15.05 we can pay
 				#    so 3.96 gets paid to principal on the 2/1/2020 loan
 				#
-				LoanAfterwardsDict(
+				LoanToShowDict(
 					loan_id='filled in by test',
+					transaction=TransactionInputDict(
+						amount=10.4,
+						to_principal=10.0,
+						to_interest=0.4,
+						to_fees=0.0
+					),
+					before_loan_balance=LoanBalanceDict(
+						amount=10.00,
+						outstanding_principal_balance=10.0,
+						outstanding_interest=0.4,
+						outstanding_fees=0.0
+					),
+					after_loan_balance=LoanBalanceDict(
+						amount=10.00,
+						outstanding_principal_balance=0.0,
+						outstanding_interest=0.0,
+						outstanding_fees=0.0
+					)
+				),
+				LoanToShowDict(
+					loan_id='filled in by test',
+					transaction=TransactionInputDict(
+						amount=4.65, # 15.05 - 10.4
+						to_principal=3.69,
+						to_interest=daily_interest2 * 16, # 0.96
+						to_fees=0.0
+					),
+					before_loan_balance=LoanBalanceDict(
+						amount=30.00,
+						outstanding_principal_balance=30.0,
+						outstanding_interest=daily_interest2 * 16,
+						outstanding_fees=0.0
+					),
+					after_loan_balance=LoanBalanceDict(
+						amount=30.00,
+						outstanding_principal_balance=30.0 - 3.69,
+						outstanding_interest=0.0,
+						outstanding_fees=0.0
+					)
+				),
+				LoanToShowDict(
+					loan_id='filled in by test',
+					# You didnt have money to pay off any of this loan.
 					transaction=TransactionInputDict(
 						amount=0.0,
 						to_principal=0.0,
 						to_interest=0.0,
 						to_fees=0.0
 					),
-					loan_balance=LoanBalanceDict(
-						amount=10.01,
-						outstanding_principal_balance=9.99,
-						outstanding_interest=1.02,
-						outstanding_fees=0.56
-					)
-				),
-				LoanAfterwardsDict(
-					loan_id='filled in by test',
-					transaction=TransactionInputDict(
-						amount=3.96 + 1.01 + 0.55,
-						to_principal=3.96,
-						to_interest=1.01,
-						to_fees=0.55
-					),
-					loan_balance=LoanBalanceDict(
-						amount=30.03,
-						outstanding_principal_balance=8.99 - 3.96,
-						outstanding_interest=0.0,
+					before_loan_balance=LoanBalanceDict(
+						amount=50.00,
+						outstanding_principal_balance=50.0,
+						outstanding_interest=daily_interest3 * 11,
 						outstanding_fees=0.0
-					)
-				),
-				LoanAfterwardsDict(
-					loan_id='filled in by test',
-					transaction=TransactionInputDict(
-						amount=9.53,
-						to_principal=7.99,
-						to_interest=1.03,
-						to_fees=0.51
 					),
-					loan_balance=LoanBalanceDict(
-						amount=50.05,
-						outstanding_principal_balance=0.0,
-						outstanding_interest=0.0,
+					after_loan_balance=LoanBalanceDict(
+						amount=50.00,
+						outstanding_principal_balance=50.0,
+						outstanding_interest=daily_interest3 * 11,
 						outstanding_fees=0.0
 					)
 				)
@@ -284,46 +409,63 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 		self._run_test(test)
 
 	def test_pay_minimum_due(self) -> None:
+		daily_interest1 = 0.2 / 100 * 20.00
+		daily_interest2 = 0.2 / 100 * 30.00
+
+		first_loan_payment_amount = 20.00 + (daily_interest1 * 9) + (daily_interest1 * 3 * 0.25)
+		second_loan_payment_amount = 30.00 + (daily_interest2 * 4) + (daily_interest2 * 1 * 0.25)
+
 		tests: List[Dict] = [
 			{
 				'comment': 'The user owes everything on the one loan that has matured',
 				'loans': [
 					models.Loan(
-						amount=decimal.Decimal(20.02),
-						adjusted_maturity_date=date_util.load_date_str('10/1/2020'),
-						outstanding_principal_balance=decimal.Decimal(20.02),
-						outstanding_interest=decimal.Decimal(10.0),
-						outstanding_fees=decimal.Decimal(2.4),
+						amount=decimal.Decimal(20.00),
+						origination_date=date_util.load_date_str('9/20/2020'),
+						adjusted_maturity_date=date_util.load_date_str('09/25/2020')
 					),
 					models.Loan(
-						amount=decimal.Decimal(30.02),
-						adjusted_maturity_date=date_util.load_date_str('12/1/2020'),
-						outstanding_principal_balance=decimal.Decimal(10.1)
+						amount=decimal.Decimal(30.00),
+						origination_date=date_util.load_date_str('09/25/2020'),
+						adjusted_maturity_date=date_util.load_date_str('12/1/2020')
 					) # this loan doesnt need to get paid yet
 				],
-				'payment_date': '10/12/2020',
-				'settlement_date': '10/20/2020',
+				'transaction_lists': [
+					# Transactions are parallel to the loans defined in the test.
+					# These will be advances or repayments made against their respective loans.
+					[{'type': 'advance', 'amount': 20.00, 'effective_date': '09/20/2020'}],
+					[{'type': 'advance', 'amount': 30.00, 'effective_date': '09/25/2020'}],
+				],
+				'payment_date': '09/25/2020',
+				'settlement_date': '09/28/2020',
 				'payment_option': 'pay_minimum_due',
 				'payment_input_amount': None,
-
-				'expected_amount_to_pay': 20.02 + 10.0 + 2.4,
-				'expected_loans_afterwards': [
-					LoanAfterwardsDict(
+				# principal + interest + fees on the first loan
+				'expected_amount_to_pay': 20.00 + (daily_interest1 * 9) + (daily_interest1 * 3 * 0.25),
+				'expected_amount_as_credit_to_user': 0.0,
+				'expected_loans_to_show': [
+					LoanToShowDict(
 						loan_id='filled in by test',
 						transaction=TransactionInputDict(
-							amount=20.02 + 10.0 + 2.4,
-							to_principal=20.02,
-							to_interest=10.0,
-							to_fees=2.4
+							amount=20.00 + (daily_interest1 * 9) + (daily_interest1 * 3 * 0.25),
+							to_principal=20.00,
+							to_interest=(daily_interest1 * 9),
+							to_fees=(daily_interest1 * 3 * 0.25)
 						),
-						loan_balance=LoanBalanceDict(
-							amount=20.02,
+						before_loan_balance=LoanBalanceDict(
+							amount=20.00,
+							outstanding_principal_balance=20.00,
+							outstanding_interest=(daily_interest1 * 9),
+							outstanding_fees=(daily_interest1 * 3 * 0.25)
+						),
+						after_loan_balance=LoanBalanceDict(
+							amount=20.00,
 							outstanding_principal_balance=0.0,
 							outstanding_interest=0.0,
 							outstanding_fees=0.0
 						)
 					),
-					LoanAfterwardsDict(
+					LoanToShowDict(
 						loan_id='filled in by test',
 						transaction=TransactionInputDict(
 							amount=0.0,
@@ -331,10 +473,16 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 							to_interest=0.0,
 							to_fees=0.0
 						),
-						loan_balance=LoanBalanceDict(
-							amount=30.02,
-							outstanding_principal_balance=10.1,
-							outstanding_interest=0.0,
+						before_loan_balance=LoanBalanceDict(
+							amount=30.00,
+							outstanding_principal_balance=30.0,
+							outstanding_interest=4 * daily_interest2,
+							outstanding_fees=0.0
+						),
+						after_loan_balance=LoanBalanceDict(
+							amount=30.00,
+							outstanding_principal_balance=30.0,
+							outstanding_interest=4 * daily_interest2,
 							outstanding_fees=0.0
 						)
 					)
@@ -342,53 +490,70 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				'expected_past_due_but_not_selected_indices': []
 			},
 			{
-				'comment': 'The user owes everything on the several loans that have matured',
+				'comment': 'The user owes everything on all the loans that have matured',
 				'loans': [
 					models.Loan(
-						amount=decimal.Decimal(20.02),
-						adjusted_maturity_date=date_util.load_date_str('10/1/2020'),
-						outstanding_principal_balance=decimal.Decimal(20.02),
-						outstanding_interest=decimal.Decimal(10.0),
-						outstanding_fees=decimal.Decimal(2.4),
+						amount=decimal.Decimal(20.00),
+						origination_date=date_util.load_date_str('9/20/2020'),
+						adjusted_maturity_date=date_util.load_date_str('09/25/2020')
 					),
 					models.Loan(
-						amount=decimal.Decimal(30.02),
-						adjusted_maturity_date=date_util.load_date_str('10/2/2020'),
-						outstanding_principal_balance=decimal.Decimal(8.0)
-					)
+						amount=decimal.Decimal(30.00),
+						origination_date=date_util.load_date_str('09/25/2020'),
+						adjusted_maturity_date=date_util.load_date_str('09/27/2020')
+					) # this loan doesnt need to get paid yet
 				],
-				'payment_date': '10/12/2020',
-				'settlement_date': '10/14/2020',
+				'transaction_lists': [
+					# Transactions are parallel to the loans defined in the test.
+					# These will be advances or repayments made against their respective loans.
+					[{'type': 'advance', 'amount': 20.00, 'effective_date': '09/20/2020'}],
+					[{'type': 'advance', 'amount': 30.00, 'effective_date': '09/25/2020'}],
+				],
+				'payment_date': '09/25/2020',
+				'settlement_date': '09/28/2020',
 				'payment_option': 'pay_minimum_due',
 				'payment_input_amount': None,
-
-				'expected_amount_to_pay': 20.02 + 10.0 + 2.4 + 8.0,
-				'expected_loans_afterwards': [
-					LoanAfterwardsDict(
+				# principal + interest + fees on the first loan
+				'expected_amount_to_pay': first_loan_payment_amount + second_loan_payment_amount,
+				'expected_amount_as_credit_to_user': 0.0,
+				'expected_loans_to_show': [
+					LoanToShowDict(
 						loan_id='filled in by test',
 						transaction=TransactionInputDict(
-							amount=20.02 + 10.0 + 2.4,
-							to_principal=20.02,
-							to_interest=10.0,
-							to_fees=2.4
+							amount=20.00 + (daily_interest1 * 9) + (daily_interest1 * 3 * 0.25),
+							to_principal=20.00,
+							to_interest=(daily_interest1 * 9),
+							to_fees=(daily_interest1 * 3 * 0.25)
 						),
-						loan_balance=LoanBalanceDict(
-							amount=20.02,
+						before_loan_balance=LoanBalanceDict(
+							amount=20.00,
+							outstanding_principal_balance=20.00,
+							outstanding_interest=(daily_interest1 * 9),
+							outstanding_fees=(daily_interest1 * 3 * 0.25)
+						),
+						after_loan_balance=LoanBalanceDict(
+							amount=20.00,
 							outstanding_principal_balance=0.0,
 							outstanding_interest=0.0,
 							outstanding_fees=0.0
 						)
 					),
-					LoanAfterwardsDict(
+					LoanToShowDict(
 						loan_id='filled in by test',
 						transaction=TransactionInputDict(
-							amount=8.0,
-							to_principal=8.0,
-							to_interest=0.0,
-							to_fees=0.0
+							amount=30.00 + (daily_interest2 * 4) + (daily_interest2 * 1 * 0.25),
+							to_principal=30.0,
+							to_interest=(daily_interest2 * 4),
+							to_fees=(daily_interest2 * 1 * 0.25)
 						),
-						loan_balance=LoanBalanceDict(
-							amount=30.02,
+						before_loan_balance=LoanBalanceDict(
+							amount=30.00,
+							outstanding_principal_balance=30.0,
+							outstanding_interest=4 * daily_interest2,
+							outstanding_fees=(daily_interest2 * 1 * 0.25)
+						),
+						after_loan_balance=LoanBalanceDict(
+							amount=30.00,
 							outstanding_principal_balance=0.0,
 							outstanding_interest=0.0,
 							outstanding_fees=0.0
@@ -403,55 +568,76 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 			self._run_test(test)
 
 	def test_pay_in_full(self) -> None:
+
 		tests: List[Dict] = [
 			{
-				'comment': 'The user owes everything regardless of maturity date',
+				'comment': 'The user owes everything on all the loans',
 				'loans': [
 					models.Loan(
-						amount=decimal.Decimal(20.02),
-						adjusted_maturity_date=date_util.load_date_str('10/1/2020'),
-						outstanding_principal_balance=decimal.Decimal(20.02),
-						outstanding_interest=decimal.Decimal(10.1),
-						outstanding_fees=decimal.Decimal(2.4),
-					),
+						amount=decimal.Decimal(20.00),
+						origination_date=date_util.load_date_str('9/20/2020'),
+						adjusted_maturity_date=date_util.load_date_str('09/25/2020')
+					), # this loan didnt mature yet
 					models.Loan(
-						amount=decimal.Decimal(30.02),
-						adjusted_maturity_date=date_util.load_date_str('12/1/2020'),
-						outstanding_principal_balance=decimal.Decimal(8.1)
-					)
+						amount=decimal.Decimal(30.00),
+						origination_date=date_util.load_date_str('09/25/2020'),
+						adjusted_maturity_date=date_util.load_date_str('09/26/2020')
+					) # this loan didnt mature yet
 				],
-				'payment_date': '10/12/2020',
-				'settlement_date': '10/14/2020',
+				'transaction_lists': [
+					# Transactions are parallel to the loans defined in the test.
+					# These will be advances or repayments made against their respective loans.
+					[{'type': 'advance', 'amount': 20.00, 'effective_date': '09/20/2020'}],
+					[{'type': 'advance', 'amount': 30.00, 'effective_date': '09/25/2020'}],
+				],
+				'payment_date': '09/25/2020',
+				'settlement_date': '09/30/2020',
 				'payment_option': 'pay_in_full',
 				'payment_input_amount': None,
-
-				'expected_amount_to_pay': 20.02 + 10.1 + 2.4 + 8.1,
-				'expected_loans_afterwards': [
-					LoanAfterwardsDict(
+				# principal + interest + fees on the first loan
+				'expected_amount_to_pay': 20.0 + 30.0,
+				'expected_amount_as_credit_to_user': 0.0,
+				# this makes it easier to test the functionality without re-testing the
+				# interest and fees calculations constantly.
+				'test_only_skip_interest_and_fees_calculation': True,
+				'expected_loans_to_show': [
+					LoanToShowDict(
 						loan_id='filled in by test',
 						transaction=TransactionInputDict(
-							amount=20.02 + 10.1 + 2.4,
-							to_principal=20.02,
-							to_interest=10.1,
-							to_fees=2.4
+							amount=20.00,
+							to_principal=20.00,
+							to_interest=0.0,
+							to_fees=0.0
 						),
-						loan_balance=LoanBalanceDict(
-							amount=20.02,
+						before_loan_balance=LoanBalanceDict(
+							amount=20.00,
+							outstanding_principal_balance=20.00,
+							outstanding_interest=0.0,
+							outstanding_fees=0.0
+						),
+						after_loan_balance=LoanBalanceDict(
+							amount=20.00,
 							outstanding_principal_balance=0.0,
 							outstanding_interest=0.0,
 							outstanding_fees=0.0
 						)
 					),
-					LoanAfterwardsDict(
+					LoanToShowDict(
 						loan_id='filled in by test',
 						transaction=TransactionInputDict(
-							amount=8.1,
-							to_principal=8.1,
+							amount=30.00,
+							to_principal=30.0,
 							to_interest=0.0,
 							to_fees=0.0
 						),
-						loan_balance=LoanBalanceDict(
-							amount=30.02,
+						before_loan_balance=LoanBalanceDict(
+							amount=30.00,
+							outstanding_principal_balance=30.0,
+							outstanding_interest=0.0,
+							outstanding_fees=0.0
+						),
+						after_loan_balance=LoanBalanceDict(
+							amount=30.00,
 							outstanding_principal_balance=0.0,
 							outstanding_interest=0.0,
 							outstanding_fees=0.0
@@ -472,40 +658,63 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				'loans': [
 					models.Loan(
 						amount=decimal.Decimal(20.02),
-						adjusted_maturity_date=date_util.load_date_str('10/1/2020'),
-						outstanding_principal_balance=decimal.Decimal(20.02),
-						outstanding_interest=decimal.Decimal(10.1),
-						outstanding_fees=decimal.Decimal(2.4),
+						origination_date=date_util.load_date_str('11/05/2020'),
+						adjusted_maturity_date=date_util.load_date_str('11/09/2020')
 					)
+				],
+				'transaction_lists': [
+					# Transactions are parallel to the loans defined in the test.
+					# These will be advances or repayments made against their respective loans.
+					[{'type': 'advance', 'amount': 20.02, 'effective_date': '11/05/2020'}]
+				],
+				'transaction_lists_for_not_selected': [
+					# Transactions are parallel to the loans defined in the test.
+					# These will be advances or repayments made against their respective loans.
+					[
+						{'type': 'advance', 'amount': 30.02, 'effective_date': '11/10/2020'},
+						{'type': 'repayment', 'to_principal': 10.02, 'to_interest': 0.0, 'to_fees': 0.0, 'effective_date': '11/12/2020'}
+					],
+					[{'type': 'advance', 'amount': 50.02, 'effective_date': '11/22/2020'}]
 				],
 				'loans_not_selected': [
 					models.Loan(
 						amount=decimal.Decimal(30.02),
-						adjusted_maturity_date=date_util.load_date_str('12/1/2020'),
+						origination_date=date_util.load_date_str('11/10/2020'),
+						adjusted_maturity_date=date_util.load_date_str('11/12/2020'),
 						outstanding_principal_balance=decimal.Decimal(8.1)
 					),
 					models.Loan(
 						amount=decimal.Decimal(50.02),
-						adjusted_maturity_date=date_util.load_date_str('1/1/2020'),
+						origination_date=date_util.load_date_str('11/22/2020'),
+						adjusted_maturity_date=date_util.load_date_str('11/30/2020'),
 						outstanding_principal_balance=decimal.Decimal(9.1)
 					)
 				],
-				'payment_date': '10/12/2020',
-				'settlement_date': '10/14/2020',
+				'payment_date': '11/12/2020',
+				'settlement_date': '11/14/2020',
 				'payment_option': 'pay_in_full',
 				'payment_input_amount': None,
-
-				'expected_amount_to_pay': 20.02 + 10.1 + 2.4,
-				'expected_loans_afterwards': [
-					LoanAfterwardsDict(
+				# this makes it easier to test the functionality without re-testing the
+				# interest and fees calculations constantly.
+				'test_only_skip_interest_and_fees_calculation': True,
+				'expected_amount_to_pay': 20.02,
+				'expected_amount_as_credit_to_user': 0.0,
+				'expected_loans_to_show': [
+					LoanToShowDict(
 						loan_id='filled in by test',
 						transaction=TransactionInputDict(
-							amount=20.02 + 10.1 + 2.4,
+							amount=20.02,
 							to_principal=20.02,
-							to_interest=10.1,
-							to_fees=2.4
+							to_interest=0.0,
+							to_fees=0.0
 						),
-						loan_balance=LoanBalanceDict(
+						before_loan_balance=LoanBalanceDict(
+							amount=20.02,
+							outstanding_principal_balance=20.02,
+							outstanding_interest=0.0,
+							outstanding_fees=0.0
+						),
+						after_loan_balance=LoanBalanceDict(
 							amount=20.02,
 							outstanding_principal_balance=0.0,
 							outstanding_interest=0.0,
@@ -513,7 +722,9 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 						)
 					)
 				],
-				'expected_past_due_but_not_selected_indices': [1]
+				'expected_past_due_but_not_selected_indices': [0],
+				'expected_past_due_but_not_selected_amounts': [30.02],
+				'expected_past_due_but_not_selected_principal': [20.00] # shows we handle repayment that happened on that overdue loan
 			}
 		]
 

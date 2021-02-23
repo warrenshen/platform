@@ -89,6 +89,13 @@ function PaymentsDataGrid({
       ),
     },
     {
+      caption: "Submitted Date",
+      width: 140,
+      cellRender: (params: ValueFormatterParams) => (
+        <DatetimeDataGridCell datetimeString={params.row.data.submitted_at} />
+      ),
+    },
+    {
       caption: "Requested Payment Date",
       width: 140,
       cellRender: (params: ValueFormatterParams) => (
@@ -110,38 +117,14 @@ function PaymentsDataGrid({
       ),
     },
     {
-      caption: "Submitted At",
-      width: 140,
-      cellRender: (params: ValueFormatterParams) => (
-        <DatetimeDataGridCell datetimeString={params.row.data.submitted_at} />
-      ),
-    },
-    {
       dataField: "submitted_by_user.full_name",
       caption: "Submitted By",
       width: 140,
     },
     {
-      dataField: "settled_at",
-      caption: "Settled At",
+      dataField: "settled_by_user.full_name",
+      caption: "Settled By",
       width: 140,
-    },
-    {
-      dataField: "effective_date",
-      caption: "Effective Date",
-      width: 140,
-    },
-    {
-      dataField: "deposit_date",
-      caption: "Deposit Date",
-      width: 140,
-    },
-    {
-      caption: "Applied At",
-      width: 140,
-      cellRender: (params: ValueFormatterParams) => (
-        <DatetimeDataGridCell datetimeString={params.row.data.applied_at} />
-      ),
     },
   ];
 

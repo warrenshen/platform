@@ -6,58 +6,15 @@ from typing import Any, List, Dict, cast
 
 from bespoke.date import date_util
 from bespoke.db import models, db_constants
-from bespoke.db.db_constants import ProductType, PaymentType
+from bespoke.db.db_constants import ProductType
 from bespoke.db.models import session_scope
 from bespoke.finance.reports import loan_balances
 
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
+from bespoke_test.payments import payment_test_helper
 from bespoke_test.db import db_unittest
 from bespoke_test.db import test_helper
-
-def _make_advance(session: Any, loan: models.Loan, amount: float, effective_date: str) -> None:
-	# Advance is made
-	payment = models.Payment(
-		type=PaymentType.ADVANCE,
-		amount=decimal.Decimal(amount),
-		company_id=loan.company_id
-	)
-	session.add(payment)
-	session.flush()
-	session.add(models.Transaction(
-		type=PaymentType.ADVANCE,
-		amount=decimal.Decimal(amount),
-		loan_id=loan.id,
-		payment_id=payment.id,
-		to_principal=decimal.Decimal(amount),
-		to_interest=decimal.Decimal(0.0),
-		to_fees=decimal.Decimal(0.0),
-		effective_date=date_util.load_date_str(effective_date)
-	))
-
-def _make_repayment(
-	session: Any, loan: models.Loan, 
-	to_principal: float, to_interest: float, to_fees: float, 
-	effective_date: str) -> None:
-	# Advance is made
-	amount = to_principal + to_interest + to_fees
-	payment = models.Payment(
-		type=PaymentType.REPAYMENT,
-		amount=decimal.Decimal(amount),
-		company_id=loan.company_id
-	)
-	session.add(payment)
-	session.flush()
-	session.add(models.Transaction(
-		type=PaymentType.REPAYMENT,
-		amount=decimal.Decimal(amount),
-		loan_id=loan.id,
-		payment_id=payment.id,
-		to_principal=decimal.Decimal(to_principal),
-		to_interest=decimal.Decimal(to_interest),
-		to_fees=decimal.Decimal(to_fees),
-		effective_date=date_util.load_date_str(effective_date)
-	))
 
 def _get_late_fee_structure() -> str:
 	return json.dumps({
@@ -116,10 +73,36 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				cast(Dict, customer_update['summary_update']))
 
 	def test_success_no_payments_no_loans(self) -> None:
+
+		def populate_fn(session: Any, company_id: str) -> None:
+			session.add(models.Contract(
+				company_id=company_id,
+				product_type=ProductType.INVENTORY_FINANCING,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.INVENTORY_FINANCING,
+					input_dict=ContractInputDict(
+						interest_rate=5.00,
+						maximum_principal_amount=120000.01,
+						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure() # unused
+					)
+				)
+			))
+
 		tests: List[Dict] = [
 			{
 				'today': '10/1/2020',
-				'expected_loan_updates': []
+				'expected_loan_updates': [],
+				'populate_fn': populate_fn,
+				'expected_summary_update': {
+					'product_type': 'inventory_financing',
+					'total_limit': 120000.01,
+					'total_outstanding_principal': 0.0,
+					'total_outstanding_interest': 0.0,
+					'total_outstanding_fees': 0.0,
+					'total_principal_in_requested_state': 0.0,
+					'available_limit': 120000.01
+				}
 			}
 		]
 		for test in tests:
@@ -148,7 +131,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				amount=decimal.Decimal(500.03)
 			)
 			session.add(loan)
-			_make_advance(session, loan, amount=500.03, effective_date='10/01/2020')
+			payment_test_helper.make_advance(session, loan, amount=500.03, effective_date='10/01/2020')
 
 			loan2 = models.Loan(
 				company_id=company_id,
@@ -157,7 +140,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				amount=decimal.Decimal(100.03)
 			)
 			session.add(loan2)
-			_make_advance(session, loan2, amount=100.03, effective_date='10/02/2020')
+			payment_test_helper.make_advance(session, loan2, amount=100.03, effective_date='10/02/2020')
 
 		tests: List[Dict] = [
 			{
@@ -214,9 +197,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				amount=decimal.Decimal(500.03)
 			)
 			session.add(loan)
-			_make_advance(session, loan, amount=500.03, effective_date='10/01/2020')
+			payment_test_helper.make_advance(session, loan, amount=500.03, effective_date='10/01/2020')
 
-			_make_repayment(
+			payment_test_helper.make_repayment(
 				session, loan,
 				to_principal=50.0,
 				to_interest=3 * 0.002 * 500.03, # they are paying off 3 days worth of interest accrued here. 

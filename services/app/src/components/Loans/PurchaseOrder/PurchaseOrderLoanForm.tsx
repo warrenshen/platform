@@ -44,14 +44,26 @@ function PurchaseOrderLoanForm({
   const classes = useStyles();
 
   const purchaseOrderList: PurchaseOrderFragment[] = [];
-  for (let i = 0; i < approvedPurchaseOrders.length; i++) {
-    const approvedPurchaseOrder = approvedPurchaseOrders[i];
-    const artifact = idToArtifact[approvedPurchaseOrder.id];
-    if (artifact.amount_remaining <= 0) {
-      // Dont show purchase orders which have already been used up.
-      continue;
+  if (idToArtifact && Object.keys(idToArtifact).length > 0) {
+    // Wait until idToArtifact has been populated.
+    for (let i = 0; i < approvedPurchaseOrders.length; i++) {
+      const approvedPurchaseOrder = approvedPurchaseOrders[i];
+      if (!(approvedPurchaseOrder.id in idToArtifact)) {
+        console.log(
+          "Warning: " +
+            approvedPurchaseOrder.id +
+            " was not returned by the artifact response, and indicates a bug"
+        );
+        continue;
+      }
+
+      const artifact = idToArtifact[approvedPurchaseOrder.id];
+      if (artifact.amount_remaining <= 0) {
+        // Dont show purchase orders which have already been used up.
+        continue;
+      }
+      purchaseOrderList.push(approvedPurchaseOrder);
     }
-    purchaseOrderList.push(approvedPurchaseOrder);
   }
 
   return (

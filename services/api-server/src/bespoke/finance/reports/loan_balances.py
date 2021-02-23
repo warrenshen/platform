@@ -30,16 +30,10 @@ from bespoke.db.db_constants import LoanStatusEnum
 from bespoke.finance import contract_util
 from bespoke.finance import number_util
 from bespoke.finance.payments import payment_util
+from bespoke.finance.loans import loan_calculator
+from bespoke.finance.loans.loan_calculator import LoanUpdateDict
 from bespoke.finance.types import per_customer_types
 from bespoke.finance.fetchers import per_customer_fetcher
-
-LoanUpdateDict = TypedDict('LoanUpdateDict', {
-	'loan_id': str,
-	'adjusted_maturity_date': datetime.date,
-	'outstanding_principal': float,
-	'outstanding_interest': float,
-	'outstanding_fees': float
-})
 
 SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 	'product_type': str,
@@ -56,30 +50,8 @@ CustomerUpdateDict = TypedDict('CustomerUpdateDict', {
 	'summary_update': SummaryUpdateDict
 })
 
-class ContractHelper(object):
-
-	def __init__(self, contract_dicts: List[models.ContractDict], private: bool) -> None:
-		self._contract_dicts = contract_dicts
-
-	def get_contract(self, cur_date: datetime.date) -> Tuple[contract_util.Contract, errors.Error]:
-		# TODO(dlluncor): Handle when we have a range of contracts between date ranges
-		return contract_util.Contract(self._contract_dicts[0]), None
-
-	@staticmethod
-	def build(contract_dicts: List[models.ContractDict]) -> Tuple['ContractHelper', errors.Error]:
-		return ContractHelper(contract_dicts, private=True), None
-
-def _get_transactions_on_date(
-	cur_date: datetime.date, transactions: List[models.TransactionDict]) -> List[models.TransactionDict]:
-	txs_on_date = []
-	for tx in transactions:
-		if tx['effective_date'] == cur_date:
-			txs_on_date.append(tx)
-
-	return txs_on_date
-
 def _get_summary_update(
-	contract_helper: ContractHelper,
+	contract_helper: contract_util.ContractHelper,
 	loan_updates: List[LoanUpdateDict], 
 	today: datetime.date
 	) -> Tuple[SummaryUpdateDict, errors.Error]:
@@ -114,184 +86,6 @@ def _get_summary_update(
 		available_limit=max(0.0, maximum_principal_limit-total_outstanding_principal)
 	), None
 
-class BalanceRange(object):
-	"""
-		For summarization purposes, the time a certain balance was in effect and
-		the interest and fees associated with that.
-	"""
-	def __init__(self, start_date: datetime.date, outstanding_principal: float) -> None:
-		self.start_date = start_date
-		self.outstanding_principal = outstanding_principal
-		self.end_date: datetime.date = None
-		self.interest_rates: List[float] = []
-		self.fee_multipliers: List[float] = []
-
-	def add_end_date(self, end_date: datetime.date) -> None:
-		self.end_date = end_date
-
-	def add_fee_info(self, interest_rate: float, fee_multiplier: float) -> None:
-		self.interest_rates.append(interest_rate)
-		self.fee_multipliers.append(fee_multiplier)
-
-class LoanCalculator(object):
-	"""
-		Helps calculate and summarize the history of the loan with respect to
-		how the interest and fees are accumulated.
-	"""
-	def __init__(self, contract_helper: ContractHelper) -> None:
-		self._contract_helper = contract_helper
-		# For summarization
-		self._balance_ranges: List[BalanceRange] = []
-
-	def _note_today(
-		self, cur_date: datetime.date, outstanding_principal: float, interest_rate: float, fee_multiplier: float) -> None:
-		"""
-		Give date ranges that a certain principal was in play, and the interest accrued on it being daily interest * num_days
-		For that date range, also give what fees were accrued bucketed by when the accelerated payment kicked in.
-		"""
-		if not self._balance_ranges:
-			# Initialize everything as this is the first call
-			self._balance_ranges.append(BalanceRange(
-				start_date=cur_date,
-				outstanding_principal=outstanding_principal
-			))
-
-		cur_balance_range = self._balance_ranges[-1]
-		prev_outstanding_balance = cur_balance_range.outstanding_principal
-		balance_changed = not number_util.float_eq(outstanding_principal, prev_outstanding_balance)
-
-		if balance_changed:
-			# Create a date range for how long the previous balance lasted.
-			cur_balance_range.add_end_date(cur_date - timedelta(days=1))
-			self._balance_ranges.append(BalanceRange(
-				start_date=cur_date,
-				outstanding_principal=outstanding_principal
-			))
-
-		# Always add the current interest and fees to the latest range.
-		self._balance_ranges[-1].add_fee_info(interest_rate, fee_multiplier)
-
-	def get_summary(self) -> str:
-		lines = []
-		for balance_range in self._balance_ranges:
-			cur_lines = [
-				'From {} to {}'.format(balance_range.start_date, balance_range.end_date),
-				'Principal: {}'.format(balance_range.outstanding_principal),
-				'Interest_rates ({}): {}'.format(len(balance_range.interest_rates), balance_range.interest_rates),
-				'Fees ({}): {}'.format(len(balance_range.fee_multipliers), balance_range.fee_multipliers),
-				''
-			]
-			lines.extend(cur_lines)
-
-		return '\n'.join(lines)
-	
-	def calculate_loan_balance(self,
-		loan: models.LoanDict, transactions: List[models.TransactionDict], 
-		today: datetime.date) -> Tuple[LoanUpdateDict, List[errors.Error]]:
-		# Replay the history of the loan and all the expenses that are due as a result.
-
-		# Heres what you owe based on the transaction history applied to your loan
-
-		# Once we've considered how these transactions were applied, here is the remaining amount
-		# which hasn't been factored in yet based on how much you owe up to this particular day.
-		days_out = date_util.num_calendar_days_passed(today, loan['origination_date'])
-
-		# For each day between today and the origination date, you need to calculate interest and fees
-		# and consider transactions along the way.
-		outstanding_principal = 0.0
-		outstanding_interest = 0.0
-		outstanding_fees = 0.0
-		errors = []
-
-		# TODO(dlluncor): Error condition, the loan's origination_date is set, but there is no corresponding
-		# advance associated with this loan.
-		# Data consistency check. The origination_date on the loan should match the effective_date on the
-		# first advance transaction that funds this loan.
-
-		for i in range(days_out):
-			cur_date = loan['origination_date'] + timedelta(days=i)
-			# Check each transaction and the effect it had on this loan
-			cur_transactions = _get_transactions_on_date(cur_date, transactions)
-
-			for tx in cur_transactions:
-				# TODO(dlluncor): what happens when fees, interest or principal go negative?
-				if payment_util.is_advance(tx):
-					outstanding_principal += tx['to_principal']
-					outstanding_interest += tx['to_interest']
-					outstanding_fees += tx['to_fees']
-
-			cur_contract, err = self._contract_helper.get_contract(cur_date)
-			if err:
-				errors.append(err)
-				continue
-
-			# Interest
-			cur_interest_rate, err = cur_contract.get_interest_rate()
-			if err:
-				errors.append(err)
-				continue
-			
-			# Fees
-			fees_due_today = 0.0
-			fee_multiplier = 0.0
-			if cur_date > loan['adjusted_maturity_date']:
-				days_past_due = (cur_date - loan['adjusted_maturity_date']).days
-
-				fee_multiplier, err = cur_contract.get_fee_multiplier(days_past_due=days_past_due)
-				if err:
-					errors.append(err)
-					continue
-			else:
-				# TODO(dlluncor): Do fees accrue on the day of the maturity date? I dont think
-				# so but check
-				pass
-
-			# Add it to the outstanding interest and fees
-			interest_due_on_day = cur_interest_rate / 100.0 * max(0.0, outstanding_principal)
-			outstanding_interest += interest_due_on_day
-			outstanding_fees += fee_multiplier * interest_due_on_day
-
-			# Apply repayment transactions at the "end of the day"
-			self._note_today(
-				cur_date=cur_date,
-				outstanding_principal=outstanding_principal, 
-				interest_rate=cur_interest_rate,
-				fee_multiplier=fee_multiplier
-			)
-
-			for tx in cur_transactions:
-				if payment_util.is_repayment(tx):
-					outstanding_principal -= tx['to_principal']
-					outstanding_interest -= tx['to_interest']
-					outstanding_fees -= tx['to_fees']
-
-		if errors:
-			return None, errors
-
-		# Note the final date that this report was run.
-		self._balance_ranges[-1].add_end_date(cur_date)
-
-		# NOTE: This will be handy later when we want to show to the user how
-		# we calculated all the interest and fees.
-		#print(self.get_summary())
-
-		return LoanUpdateDict(
-			loan_id=loan['id'],
-			adjusted_maturity_date=loan['adjusted_maturity_date'],
-			outstanding_principal=outstanding_principal,
-			outstanding_interest=outstanding_interest,
-			outstanding_fees=outstanding_fees
-		), None
-
-
-def _get_transactions_for_loan(loan_id: str, transactions: List[models.TransactionDict]) -> List[models.TransactionDict]:
-	loan_txs = []
-	for t in transactions:
-		if t['loan_id'] == loan_id:
-			loan_txs.append(t)
-	return loan_txs
-
-
 class CustomerBalance(object):
 	"""
 		Object to help us calculate what the customer's balance should be.
@@ -315,11 +109,9 @@ class CustomerBalance(object):
 		customer_info = fetcher.get_financials()
 		financials = customer_info['financials']
 		num_loans = len(financials['loans'])
-		if num_loans == 0:
-			print('TODO(dlluncor): Handle account-level people with no loans, for now ignore')
-			return CustomerUpdateDict(loan_updates=[], summary_update=None), None
 
-		contract_helper, err = ContractHelper.build(financials['contracts'])
+		# TODO(dlluncor): Handle account-level fees
+		contract_helper, err = contract_util.ContractHelper.build(financials['contracts'])
 		if err:
 			return None, err
 
@@ -328,7 +120,7 @@ class CustomerBalance(object):
 		total_principal_in_requested_state = 0.0
 
 		for loan in financials['loans']:
-			transactions_for_loan = _get_transactions_for_loan(loan['id'], financials['transactions'])
+			transactions_for_loan = loan_calculator.get_transactions_for_loan(loan['id'], financials['transactions'])
 			
 			if loan['status'] == LoanStatusEnum.APPROVAL_REQUESTED:
 				total_principal_in_requested_state += loan['amount']
@@ -341,7 +133,7 @@ class CustomerBalance(object):
 				logging.error('Data issue, adjusted_maturity_date missing for loan {}'.format(loan['id']))
 				continue
 
-			calculator = LoanCalculator(contract_helper)
+			calculator = loan_calculator.LoanCalculator(contract_helper)
 			loan_update_dict, errors = calculator.calculate_loan_balance(loan, transactions_for_loan, today)
 			if errors:
 				logging.error('Got these errors associated with loan {}'.format(loan['id']))
@@ -387,7 +179,7 @@ class CustomerBalance(object):
 				).all())
 
 			if not loans:
-				return None, errors.Error('No loans found', details=err_details)
+				loans = []
 
 			for loan in loans:
 				cur_loan_update = loan_id_to_update[str(loan.id)]

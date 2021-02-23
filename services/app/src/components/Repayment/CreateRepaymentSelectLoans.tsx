@@ -46,6 +46,8 @@ function CreateRepaymentSelectLoans({
 }: Props) {
   const classes = useStyles();
 
+  /* TODO(dlluncor): Determine the settlement date in the backend and disable it for the user */
+
   return (
     <Box>
       <Box>
@@ -110,6 +112,27 @@ function CreateRepaymentSelectLoans({
               })}
             </Select>
           </FormControl>
+        </Box>
+      </Box>
+      <Box mt={3}>
+        <Typography variant="subtitle2">
+          Settlement Date (when fees arrive and Bespoke can use the payment)
+        </Typography>
+        <Box mt={1}>
+          <DatePicker
+            className={classes.inputField}
+            id="payment-modal-settlement-date-date-picker"
+            label="Settlement Date"
+            disablePast
+            disableNonBankDays
+            value={payment.settlement_date}
+            onChange={(value) => {
+              setPayment({
+                ...payment,
+                settlement_date: value,
+              });
+            }}
+          />
         </Box>
       </Box>
       <Box mt={3}>

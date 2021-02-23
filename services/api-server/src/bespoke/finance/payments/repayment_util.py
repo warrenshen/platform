@@ -12,8 +12,10 @@ from bespoke.db import models, db_constants
 from bespoke.db.db_constants import LoanStatusEnum
 from bespoke.db.models import session_scope
 from bespoke.finance.types import per_customer_types
+from bespoke.finance import contract_util
 from bespoke.finance import number_util
 from bespoke.finance.payments import payment_util
+from bespoke.finance.loans import loan_calculator
 
 # These inputs are seen by the Bank admin before sending them to the /settle_payment
 # handler.
@@ -36,19 +38,27 @@ LoanBalanceDict = TypedDict('LoanBalanceDict', {
 	'outstanding_fees': float
 })
 
+# Internal data structure to keep track of the LoanDict and the balance information together.
+LoanDictAndBalance = TypedDict('LoanDictAndBalance', {
+	'loan': models.LoanDict,
+	'before_balance': LoanBalanceDict
+})
+
 # Information about a loan after a payment has been applied to it.
-LoanAfterwardsDict = TypedDict('LoanAfterwardsDict', {
-  'loan_id': str,
-  'transaction': TransactionInputDict,
-  'loan_balance': LoanBalanceDict  
+# We also show the before balance in terms of when the payment settles.
+LoanToShowDict = TypedDict('LoanToShowDict', {
+	'loan_id': str,
+	'transaction': TransactionInputDict,
+	'before_loan_balance': LoanBalanceDict,
+	'after_loan_balance': LoanBalanceDict
 })
 
 RepaymentEffectRespDict = TypedDict('RepaymentEffectRespDict', {
 	'status': str,
-	'loans_afterwards': List[LoanAfterwardsDict],
+	'loans_to_show': List[LoanToShowDict],
 	'amount_to_pay': float,
 	'amount_as_credit_to_user': float, # If the user overpaid more than what they could possibly owe, we keep this amount as a credit to them.
-	'loans_past_due_but_not_selected': List[LoanAfterwardsDict]
+	'loans_past_due_but_not_selected': List[LoanToShowDict]
 })
 
 SettlePaymentReqDict = TypedDict('SettlePaymentReqDict', {
@@ -74,13 +84,13 @@ def _loan_dict_to_loan_balance(loan_dict: models.LoanDict) -> LoanBalanceDict:
 		outstanding_fees=_zero_if_null(loan_dict['outstanding_fees'])
 	)
 
-def _apply_to(loan_dict: models.LoanDict, category: str, amount_left: float) -> Tuple[float, float]:
+def _apply_to(balance: LoanBalanceDict, category: str, amount_left: float) -> Tuple[float, float]:
 	if category == 'principal':
-		outstanding_amount = loan_dict['outstanding_principal_balance']
+		outstanding_amount = balance['outstanding_principal_balance']
 	elif category == 'interest':
-		outstanding_amount = loan_dict['outstanding_interest']
+		outstanding_amount = balance['outstanding_interest']
 	elif category == 'fees':
-		outstanding_amount = loan_dict['outstanding_fees']
+		outstanding_amount = balance['outstanding_fees']
 	else:
 		raise Exception('Unexpected category to apply to {}'.format(category))
 
@@ -102,7 +112,9 @@ def calculate_repayment_effect(
 	payment_option: str,
 	company_id: str,
 	loan_ids: List[str],
-	session_maker: Callable) -> Tuple[RepaymentEffectRespDict, errors.Error]:
+	session_maker: Callable,
+	test_only_skip_interest_and_fees_calculation: bool = False
+	) -> Tuple[RepaymentEffectRespDict, errors.Error]:
 	# What loans and fees does would this payment pay off?
 
 	if payment_option == 'custom_amount':
@@ -112,14 +124,16 @@ def calculate_repayment_effect(
 	if not payment_input.get('payment_date'):
 		return None, errors.Error('Payment date must be specified')
 	
+	if not payment_input.get('settlement_date'):
+		return None, errors.Error('Settlement date must be specified')
+
 	if not loan_ids:
 		return None, errors.Error('No loan ids are selected')
 
 	# Figure out how much is due by a particular date
 	loan_dicts = []
 	err_details = {'company_id': company_id, 'loan_ids': loan_ids, 'method': 'calculate_repayment_effect'}
-	date_selected = date_util.load_date_str(payment_input['payment_date'])
-	loans_past_due_but_not_selected = []
+	payment_settlement_date = date_util.load_date_str(payment_input['settlement_date'])
 
 	with session_scope(session_maker) as session:		
 		loans = cast(
@@ -133,9 +147,9 @@ def calculate_repayment_effect(
 		if not loans:
 			return None, errors.Error('No loans found', details=err_details)
 
-		loans_selected = set([])
+		selected_loan_ids = set([])
 		for loan in loans:
-			loans_selected.add(str(loan.id))
+			selected_loan_ids.add(str(loan.id))
 			loan_dicts.append(loan.as_dict())
 
 		loans_past_due = cast(
@@ -143,37 +157,127 @@ def calculate_repayment_effect(
 			session.query(models.Loan).filter(
 				models.Loan.company_id == company_id
 			).filter(
-				models.Loan.adjusted_maturity_date <= date_selected.isoformat()
+				models.Loan.adjusted_maturity_date <= payment_settlement_date.isoformat()
 			))
 
+		loans_past_due_ids = set([])
+		loans_past_due_dicts = []
 		for loan_past_due in loans_past_due:
 			past_due_loan_id = str(loan_past_due.id)
-			if past_due_loan_id not in loans_selected:
-				loans_past_due_but_not_selected.append(LoanAfterwardsDict(
-					loan_id=past_due_loan_id,
-					transaction=None,
-					loan_balance=_loan_dict_to_loan_balance(loan_past_due.as_dict())
-				))
+			loans_past_due_ids.add(past_due_loan_id)
+			loans_past_due_dicts.append(loan_past_due.as_dict())
+
+		# Get all contracts associated with company.
+		contracts = cast(
+			List[models.Contract],
+			session.query(models.Contract).filter(
+				models.Contract.company_id == company_id
+			).all())
+		if not contracts:
+			return None, errors.Error('Cannot calculate repayment effect, because no contracts are setup for this company')
+
+		contract_dicts = [c.as_dict() for c in contracts]
+
+		# Get transactions associated with all the loans selected.
+		all_loan_ids = selected_loan_ids.union(loans_past_due_ids)
+		transactions = cast(
+			List[models.Transaction],
+			session.query(models.Transaction).filter(
+				models.Transaction.loan_id.in_(all_loan_ids)
+			).all())
+
+		all_transaction_dicts = []
+		if transactions:
+			all_transaction_dicts = [t.as_dict() for t in transactions]
+
+	# Calculate the loans "before" by running the loan calculator to determine
+	# the balance at that particular time.
+	contract_helper, err = contract_util.ContractHelper.build(contract_dicts)
+	if err:
+		return None, err
+
+	report_date = payment_settlement_date
+	loan_dict_and_balance_list: List[LoanDictAndBalance] = []
+
+	# Find the before balances for the loans
+	for loan_dict in loan_dicts:
+		calculator = loan_calculator.LoanCalculator(contract_helper)
+		transactions_for_loan = loan_calculator.get_transactions_for_loan(
+			loan_dict['id'], all_transaction_dicts)
+		loan_update, errs = calculator.calculate_loan_balance(
+			loan_dict, transactions_for_loan, report_date)
+		if errs:
+			return None, errors.Error('\n'.join([err.msg for err in errs]))
+
+		if test_only_skip_interest_and_fees_calculation:
+			loan_update['outstanding_interest'] = 0.0
+			loan_update['outstanding_fees'] = 0.0
+
+		# Keep track of what this loan balance is as of the date that this repayment
+		# will settle (so we have to calculate the additional interest and fees that will accrue)
+		loan_dict_and_balance_list.append(LoanDictAndBalance(
+			loan=loan_dict,
+			before_balance=LoanBalanceDict(
+				amount=loan_dict['amount'],
+				outstanding_principal_balance=loan_update['outstanding_principal'],
+				outstanding_interest=loan_update['outstanding_interest'],
+				outstanding_fees=loan_update['outstanding_fees']
+			)
+		))
+
+	loans_past_due_but_not_selected = []
+	# List out the before balances for unselected, but overdue loans to show to the user.
+	for loan_past_due_dict in loans_past_due_dicts:
+		past_due_loan_id = loan_past_due_dict['id']
+		if past_due_loan_id in selected_loan_ids:
+			continue
+
+		calculator = loan_calculator.LoanCalculator(contract_helper)
+		transactions_for_loan = loan_calculator.get_transactions_for_loan(
+			past_due_loan_id, all_transaction_dicts)
+		loan_update, errs = calculator.calculate_loan_balance(
+			loan_past_due_dict, transactions_for_loan, report_date)
+		if errs:
+			return None, errors.Error('\n'.join([err.msg for err in errs]))
+
+		if test_only_skip_interest_and_fees_calculation:
+			loan_update['outstanding_interest'] = 0.0
+			loan_update['outstanding_fees'] = 0.0
+
+		loan_balance = LoanBalanceDict(
+			amount=loan_past_due_dict['amount'],
+			outstanding_principal_balance=loan_update['outstanding_principal'],
+			outstanding_interest=loan_update['outstanding_interest'],
+			outstanding_fees=loan_update['outstanding_fees']
+		)
+		# List out the unselected, but overdue loans, and what their balances will be.
+		loans_past_due_but_not_selected.append(LoanToShowDict(
+			loan_id=past_due_loan_id,
+			transaction=None,
+			before_loan_balance=loan_balance,
+			after_loan_balance=loan_balance,
+		))
 
 	amount_to_pay = 0.0
-	loans_afterwards = []
+	loans_to_show = []
 
-	def _pay_off_loan_in_full(loan_dict: models.LoanDict) -> float:
+	def _pay_off_balance_in_full(loan_id: str, before_balance: LoanBalanceDict) -> float:
 		current_payment_amount = payment_util.sum([
-			loan_dict['outstanding_principal_balance'],
-			loan_dict['outstanding_interest'],
-			loan_dict['outstanding_fees']
+			before_balance['outstanding_principal_balance'],
+			before_balance['outstanding_interest'],
+			before_balance['outstanding_fees']
 		])
-		loans_afterwards.append(LoanAfterwardsDict(
-			loan_id=loan_dict['id'],
+		loans_to_show.append(LoanToShowDict(
+			loan_id=loan_id,
 			transaction=TransactionInputDict(
 				amount=current_payment_amount,
-				to_principal=_zero_if_null(loan_dict['outstanding_principal_balance']),
-				to_interest=_zero_if_null(loan_dict['outstanding_interest']),
-				to_fees=_zero_if_null(loan_dict['outstanding_fees'])
+				to_principal=_zero_if_null(before_balance['outstanding_principal_balance']),
+				to_interest=_zero_if_null(before_balance['outstanding_interest']),
+				to_fees=_zero_if_null(before_balance['outstanding_fees'])
 			),
-			loan_balance=LoanBalanceDict(
-				amount=loan_dict['amount'],
+			before_loan_balance=before_balance,
+			after_loan_balance=LoanBalanceDict(
+				amount=before_balance['amount'],
 				outstanding_principal_balance=0.0,
 				outstanding_interest=0.0,
 				outstanding_fees=0.0
@@ -188,12 +292,15 @@ def calculate_repayment_effect(
 		# Apply in the order of earliest maturity date to latest maturity date
 		# while trying to cover as much of the loan coming due earliest
 		# Also paying off loans and fees takes preference over principal.
-		loan_dicts.sort(key=lambda l: l['adjusted_maturity_date'])
-		for loan_dict in loan_dicts:
-			amount_left, amount_used_interest = _apply_to(loan_dict, 'interest', amount_left)
-			amount_left, amount_used_fees = _apply_to(loan_dict, 'fees', amount_left)
-			amount_left, amount_used_principal = _apply_to(loan_dict, 'principal', amount_left)
-			loans_afterwards.append(LoanAfterwardsDict(
+		loan_dict_and_balance_list.sort(key=lambda l: l['loan']['adjusted_maturity_date'])
+		for loan_and_before_balance in loan_dict_and_balance_list:
+			balance_before = loan_and_before_balance['before_balance']
+			loan_dict = loan_and_before_balance['loan']
+
+			amount_left, amount_used_interest = _apply_to(balance_before, 'interest', amount_left)
+			amount_left, amount_used_fees = _apply_to(balance_before, 'fees', amount_left)
+			amount_left, amount_used_principal = _apply_to(balance_before, 'principal', amount_left)
+			loans_to_show.append(LoanToShowDict(
 				loan_id=loan_dict['id'],
 				transaction=TransactionInputDict(
 					amount=amount_used_fees + amount_used_interest + amount_used_principal,
@@ -201,19 +308,20 @@ def calculate_repayment_effect(
 					to_interest=amount_used_interest,
 					to_fees=amount_used_fees
 				),
-				loan_balance=LoanBalanceDict(
+				before_loan_balance=balance_before,
+				after_loan_balance=LoanBalanceDict(
 					amount=loan_dict['amount'],
 					outstanding_principal_balance=_zero_if_null(
-						loan_dict['outstanding_principal_balance']) - amount_used_principal,
-					outstanding_interest=_zero_if_null(loan_dict['outstanding_interest']) - amount_used_interest,
-					outstanding_fees=_zero_if_null(loan_dict['outstanding_fees']) - amount_used_fees
+						balance_before['outstanding_principal_balance']) - amount_used_principal,
+					outstanding_interest=_zero_if_null(balance_before['outstanding_interest']) - amount_used_interest,
+					outstanding_fees=_zero_if_null(balance_before['outstanding_fees']) - amount_used_fees
 				)
 			))
 		amount_as_credit_to_user = amount_left
 		# Any amount remaining is stored as a negative principal balance on one of the loans
 		# (we choose the last loan here for convenience)
-		cur_transaction = loans_afterwards[-1]['transaction']
-		cur_loan_balance_after = loans_afterwards[-1]['loan_balance']
+		cur_transaction = loans_to_show[-1]['transaction']
+		cur_loan_balance_after = loans_to_show[-1]['after_loan_balance']
 
 		cur_transaction['amount'] += amount_as_credit_to_user
 		cur_transaction['to_principal'] += amount_as_credit_to_user
@@ -221,39 +329,41 @@ def calculate_repayment_effect(
 
 	elif payment_option == 'pay_minimum_due':
 
-		for loan_dict in loan_dicts:
-			if loan_dict['adjusted_maturity_date'] > date_selected:
+		for loan_and_before_balance in loan_dict_and_balance_list:
+			balance_before = loan_and_before_balance['before_balance']
+			loan_dict = loan_and_before_balance['loan']
+			loan_id = loan_dict['id']
+			if loan_dict['adjusted_maturity_date'] > payment_settlement_date:
 				# You dont have to worry about paying off this loan yet.
 				# So the transaction has zero dollars and no effect to it.
-				loans_afterwards.append(LoanAfterwardsDict(
+				loans_to_show.append(LoanToShowDict(
 					loan_id=loan_dict['id'],
 					transaction=TransactionInputDict(
 						amount=0.0, to_principal=0.0, to_interest=0.0, to_fees=0.0
 					),
-					loan_balance=_loan_dict_to_loan_balance(loan_dict)
+					before_loan_balance=balance_before,
+					after_loan_balance=balance_before
 				))
 			else:
 				# Pay loans that have come due.
-				amount_to_pay += _pay_off_loan_in_full(loan_dict)
+				amount_to_pay += _pay_off_balance_in_full(loan_id, balance_before)
 
 		amount_as_credit_to_user = 0.0
 	elif payment_option == 'pay_in_full':
 
-		for loan_dict in loan_dicts:
-			amount_to_pay += _pay_off_loan_in_full(loan_dict)
+		for loan_and_before_balance in loan_dict_and_balance_list:
+			balance_before = loan_and_before_balance['before_balance']
+			loan_dict = loan_and_before_balance['loan']
+			loan_id = loan_dict['id']
+			amount_to_pay += _pay_off_balance_in_full(loan_id, balance_before)
 
 		amount_as_credit_to_user = 0.0
 	else:
 		return None, errors.Error('Unrecognized payment option')
 
-	# TODO(dlluncor): Go ahead and calculate interest and fees on that future date 
-	# (for minimum, maximum and custom) and then also tell the frontend
-	# the before and after considering the additional fees and interest that have
-	# accrued.
-
 	return RepaymentEffectRespDict(
 		status='OK',
-		loans_afterwards=loans_afterwards,
+		loans_to_show=loans_to_show,
 		amount_to_pay=amount_to_pay,
 		amount_as_credit_to_user=amount_as_credit_to_user,
 		loans_past_due_but_not_selected=loans_past_due_but_not_selected

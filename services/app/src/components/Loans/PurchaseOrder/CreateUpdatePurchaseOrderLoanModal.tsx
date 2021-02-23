@@ -102,6 +102,7 @@ function CreateUpdatePurchaseOrderLoanModal({
   let totalAmountForArtifact = 0.0;
   let totalAmountAvailableOnArtifact = 0.0;
   const idToArtifact: { [artifact_id: string]: Artifact } = {};
+
   for (let i = 0; i < artifacts.length; i++) {
     const artifact = artifacts[i];
     idToArtifact[artifact.artifact_id] = artifact;
@@ -286,10 +287,13 @@ function CreateUpdatePurchaseOrderLoanModal({
   // user cannot select a purchase order themselves.
   const disablePurchaseOrderEditing = artifactId !== null;
   const canCreateLoanFromPurchaseOrdrer = totalAmountAvailableOnArtifact > 0;
+  const noPurchaseOrderSelected = artifactId === null;
+  const canCreateLoan =
+    canCreateLoanFromPurchaseOrdrer || noPurchaseOrderSelected;
 
   return isDialogReady ? (
     <>
-      {!canCreateLoanFromPurchaseOrdrer && (
+      {!canCreateLoan && (
         <Dialog
           open
           onClose={handleClose}
@@ -317,7 +321,7 @@ function CreateUpdatePurchaseOrderLoanModal({
           </DialogActions>
         </Dialog>
       )}
-      {canCreateLoanFromPurchaseOrdrer && (
+      {canCreateLoan && (
         <Dialog
           open
           onClose={handleClose}

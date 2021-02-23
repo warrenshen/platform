@@ -94,18 +94,17 @@ function RepaymentModal({
       setErrMsg("");
       setPayment({ ...payment, amount: response.amount_to_pay || 0 });
 
-      if (!response.loans_afterwards) {
-        alert("Developer error: response does not include loans_afterwards.");
+      if (!response.loans_to_show) {
+        alert("Developer error: response does not include loans_to_show.");
         return;
       }
 
       setLoansBeforeAfterPayment(
-        response.loans_afterwards.map((loan_afterwards) => {
-          const beforeLoan = selectedLoans.find(
-            (selectedLoan) => selectedLoan.id === loan_afterwards.loan_id
-          );
+        response.loans_to_show.map((loanToShow) => {
+          const beforeLoan = loanToShow.before_loan_balance;
+          const afterLoan = loanToShow.after_loan_balance;
           return {
-            loan_id: beforeLoan?.id,
+            loan_id: loanToShow.loan_id,
             loan_balance_before: {
               outstanding_principal_balance:
                 beforeLoan?.outstanding_principal_balance,
@@ -114,11 +113,10 @@ function RepaymentModal({
             } as LoanBalance,
             loan_balance_after: {
               outstanding_principal_balance:
-                loan_afterwards.loan_balance.outstanding_principal_balance,
-              outstanding_interest:
-                loan_afterwards.loan_balance.outstanding_interest,
-              outstanding_fees: loan_afterwards.loan_balance.outstanding_fees,
-              transaction: loan_afterwards.transaction as LoanTransaction,
+                afterLoan.outstanding_principal_balance,
+              outstanding_interest: afterLoan.outstanding_interest,
+              outstanding_fees: afterLoan.outstanding_fees,
+              transaction: loanToShow.transaction as LoanTransaction,
             } as LoanBalance,
           } as LoanBeforeAfterPayment;
         })

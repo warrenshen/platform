@@ -10,6 +10,10 @@ query GetPayments {
       id
       full_name
     }
+    settled_by_user {
+      id
+      full_name
+    }
   }
 }
 

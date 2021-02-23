@@ -6756,8 +6756,6 @@ export type Payments = {
   /** TODO: remove in favor of settled_at naming convention */
   applied_at?: Maybe<Scalars["timestamptz"]>;
   /** An object relationship */
-  applied_by_user?: Maybe<Users>;
-  /** An object relationship */
   bespoke_bank_account?: Maybe<BankAccounts>;
   bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
@@ -6779,6 +6777,8 @@ export type Payments = {
   requested_payment_date?: Maybe<Scalars["date"]>;
   /** When this payment has been settled and applied to loans. This can only be done once. */
   settled_at?: Maybe<Scalars["timestamptz"]>;
+  /** An object relationship */
+  settled_by_user?: Maybe<Users>;
   settled_by_user_id?: Maybe<Scalars["uuid"]>;
   /** The date that this payment or advance is settled and is effective for financial calculations */
   settlement_date?: Maybe<Scalars["date"]>;
@@ -6871,7 +6871,6 @@ export type PaymentsBoolExp = {
   _or?: Maybe<Array<Maybe<PaymentsBoolExp>>>;
   amount?: Maybe<NumericComparisonExp>;
   applied_at?: Maybe<TimestamptzComparisonExp>;
-  applied_by_user?: Maybe<UsersBoolExp>;
   bespoke_bank_account?: Maybe<BankAccountsBoolExp>;
   bespoke_bank_account_id?: Maybe<UuidComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
@@ -6886,6 +6885,7 @@ export type PaymentsBoolExp = {
   requested_by_user_id?: Maybe<UuidComparisonExp>;
   requested_payment_date?: Maybe<DateComparisonExp>;
   settled_at?: Maybe<TimestamptzComparisonExp>;
+  settled_by_user?: Maybe<UsersBoolExp>;
   settled_by_user_id?: Maybe<UuidComparisonExp>;
   settlement_date?: Maybe<DateComparisonExp>;
   submitted_at?: Maybe<TimestamptzComparisonExp>;
@@ -6925,7 +6925,6 @@ export type PaymentsIncInput = {
 export type PaymentsInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
   applied_at?: Maybe<Scalars["timestamptz"]>;
-  applied_by_user?: Maybe<UsersObjRelInsertInput>;
   bespoke_bank_account?: Maybe<BankAccountsObjRelInsertInput>;
   bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
@@ -6940,6 +6939,7 @@ export type PaymentsInsertInput = {
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requested_payment_date?: Maybe<Scalars["date"]>;
   settled_at?: Maybe<Scalars["timestamptz"]>;
+  settled_by_user?: Maybe<UsersObjRelInsertInput>;
   settled_by_user_id?: Maybe<Scalars["uuid"]>;
   settlement_date?: Maybe<Scalars["date"]>;
   submitted_at?: Maybe<Scalars["timestamptz"]>;
@@ -7062,7 +7062,6 @@ export type PaymentsOnConflict = {
 export type PaymentsOrderBy = {
   amount?: Maybe<OrderBy>;
   applied_at?: Maybe<OrderBy>;
-  applied_by_user?: Maybe<UsersOrderBy>;
   bespoke_bank_account?: Maybe<BankAccountsOrderBy>;
   bespoke_bank_account_id?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
@@ -7077,6 +7076,7 @@ export type PaymentsOrderBy = {
   requested_by_user_id?: Maybe<OrderBy>;
   requested_payment_date?: Maybe<OrderBy>;
   settled_at?: Maybe<OrderBy>;
+  settled_by_user?: Maybe<UsersOrderBy>;
   settled_by_user_id?: Maybe<OrderBy>;
   settlement_date?: Maybe<OrderBy>;
   submitted_at?: Maybe<OrderBy>;
@@ -11805,6 +11805,7 @@ export type GetPaymentsQuery = {
     Pick<Payments, "id"> & {
       company: Pick<Companies, "id" | "name">;
       submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
+      settled_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
     } & PaymentFragment
   >;
 };
@@ -15107,6 +15108,10 @@ export const GetPaymentsDocument = gql`
         name
       }
       submitted_by_user {
+        id
+        full_name
+      }
+      settled_by_user {
         id
         full_name
       }

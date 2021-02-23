@@ -14,7 +14,7 @@ update-requirements:
 
 ifdef NAME
 run-test-local:
-	cd test && PYTHONPATH=$(current_dir)/src python3 -m unittest unit.$(NAME)
+	cd test && PYTHONPATH=$(current_dir)/src python3 -m unittest $(NAME)
 else
 run-test-local:
 	cd test && PYTHONPATH=$(current_dir)/src python3 -m unittest discover .

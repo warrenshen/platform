@@ -23,16 +23,17 @@ export type LoanTransaction = {
   to_principal: number;
 };
 
-type LoanAfterwards = {
+type LoanToShow = {
   loan_id: Loans["id"];
-  loan_balance: LoanBalance;
+  before_loan_balance: LoanBalance;
+  after_loan_balance: LoanBalance;
   transaction: LoanTransaction;
 };
 
 export type CalculateEffectOfPaymentResp = {
   status: string;
   msg?: string;
-  loans_afterwards?: LoanAfterwards[];
+  loans_to_show?: LoanToShow[];
   amount_to_pay?: number;
 };
 

@@ -258,3 +258,16 @@ class Contract(object):
 
 		return self._field_dicts
 
+class ContractHelper(object):
+
+	def __init__(self, contract_dicts: List[models.ContractDict], private: bool) -> None:
+		self._contract_dicts = contract_dicts
+
+	def get_contract(self, cur_date: datetime.date) -> Tuple[Contract, errors.Error]:
+		# TODO(dlluncor): Handle when we have a range of contracts between date ranges
+		return Contract(self._contract_dicts[0]), None
+
+	@staticmethod
+	def build(contract_dicts: List[models.ContractDict]) -> Tuple['ContractHelper', errors.Error]:
+		return ContractHelper(contract_dicts, private=True), None
+
