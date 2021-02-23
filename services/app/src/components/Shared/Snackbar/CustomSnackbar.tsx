@@ -16,8 +16,10 @@ export default function CustomSnackbar({
   SnackbarProps,
   customParameters,
 }: Props) {
+  // Note: set `autoHideDuration` to `null` during development
+  // if you want the snackbar to be sticky (not hide automatically).
   return (
-    <Snackbar autoHideDuration={4000} {...SnackbarProps}>
+    <Snackbar autoHideDuration={5000} {...SnackbarProps}>
       <Alert
         variant="filled"
         severity={customParameters?.type}

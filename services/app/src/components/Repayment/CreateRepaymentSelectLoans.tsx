@@ -64,27 +64,6 @@ function CreateRepaymentSelectLoans({
       />
       <Box mt={3}>
         <Typography variant="subtitle2">
-          What date will the payment leave your bank account?
-        </Typography>
-        <Box mt={1}>
-          <DatePicker
-            className={classes.inputField}
-            id="payment-modal-payment-date-date-picker"
-            label="Payment Date"
-            disablePast
-            disableNonBankDays
-            value={payment.payment_date}
-            onChange={(value) => {
-              setPayment({
-                ...payment,
-                payment_date: value,
-              });
-            }}
-          />
-        </Box>
-      </Box>
-      <Box mt={3}>
-        <Typography variant="subtitle2">
           Which payment method do you plan to pay with?
         </Typography>
         <Box mt={1}>
@@ -112,6 +91,27 @@ function CreateRepaymentSelectLoans({
               })}
             </Select>
           </FormControl>
+        </Box>
+      </Box>
+      <Box mt={3}>
+        <Typography variant="subtitle2">
+          What date will the payment leave your bank account?
+        </Typography>
+        <Box mt={1}>
+          <DatePicker
+            className={classes.inputField}
+            id="payment-modal-payment-date-date-picker"
+            label="Payment Date"
+            disablePast
+            disableNonBankDays
+            value={payment.payment_date}
+            onChange={(value) => {
+              setPayment({
+                ...payment,
+                payment_date: value,
+              });
+            }}
+          />
         </Box>
       </Box>
       <Box mt={3}>
