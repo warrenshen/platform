@@ -11670,7 +11670,7 @@ export type LoansForBankQuery = {
 };
 
 export type LoansByStatusesForBankQueryVariables = Exact<{
-  statuses?: Maybe<Array<LoanStatusEnum>>;
+  statuses: Array<LoanStatusEnum>;
 }>;
 
 export type LoansByStatusesForBankQuery = {
@@ -12010,6 +12010,7 @@ export type GetCompanyForCustomerOverviewQuery = {
 
 export type GetCompanyForCustomerLoansQueryVariables = Exact<{
   companyId: Scalars["uuid"];
+  loanStatuses?: Maybe<Array<LoanStatusEnum>>;
   loanType: LoanTypeEnum;
 }>;
 
@@ -12718,7 +12719,7 @@ export type UsersByEmailQuery = {
 };
 
 export type GetUsersByRolesQueryVariables = Exact<{
-  roles?: Maybe<Array<UserRolesEnum>>;
+  roles: Array<UserRolesEnum>;
 }>;
 
 export type GetUsersByRolesQuery = {
@@ -14218,7 +14219,7 @@ export type LoansForBankQueryResult = Apollo.QueryResult<
   LoansForBankQueryVariables
 >;
 export const LoansByStatusesForBankDocument = gql`
-  query LoansByStatusesForBank($statuses: [loan_status_enum!]) {
+  query LoansByStatusesForBank($statuses: [loan_status_enum!]!) {
     loans(where: { status: { _in: $statuses } }) {
       id
       ...Loan
@@ -14261,7 +14262,7 @@ export const LoansByStatusesForBankDocument = gql`
  * });
  */
 export function useLoansByStatusesForBankQuery(
-  baseOptions?: Apollo.QueryHookOptions<
+  baseOptions: Apollo.QueryHookOptions<
     LoansByStatusesForBankQuery,
     LoansByStatusesForBankQueryVariables
   >
@@ -15885,6 +15886,7 @@ export type GetCompanyForCustomerOverviewQueryResult = Apollo.QueryResult<
 export const GetCompanyForCustomerLoansDocument = gql`
   query GetCompanyForCustomerLoans(
     $companyId: uuid!
+    $loanStatuses: [loan_status_enum!]
     $loanType: loan_type_enum!
   ) {
     companies_by_pk(id: $companyId) {
@@ -15893,7 +15895,14 @@ export const GetCompanyForCustomerLoansDocument = gql`
         id
         ...FinancialSummary
       }
-      loans(where: { loan_type: { _eq: $loanType } }) {
+      loans(
+        where: {
+          _and: [
+            { status: { _in: $loanStatuses } }
+            { loan_type: { _eq: $loanType } }
+          ]
+        }
+      ) {
         id
         ...LoanLimited
         line_of_credit {
@@ -15925,6 +15934,7 @@ export const GetCompanyForCustomerLoansDocument = gql`
  * const { data, loading, error } = useGetCompanyForCustomerLoansQuery({
  *   variables: {
  *      companyId: // value for 'companyId'
+ *      loanStatuses: // value for 'loanStatuses'
  *      loanType: // value for 'loanType'
  *   },
  * });
@@ -18038,7 +18048,7 @@ export type UsersByEmailQueryResult = Apollo.QueryResult<
   UsersByEmailQueryVariables
 >;
 export const GetUsersByRolesDocument = gql`
-  query GetUsersByRoles($roles: [user_roles_enum!]) {
+  query GetUsersByRoles($roles: [user_roles_enum!]!) {
     users(where: { role: { _in: $roles } }) {
       id
       ...User
@@ -18064,7 +18074,7 @@ export const GetUsersByRolesDocument = gql`
  * });
  */
 export function useGetUsersByRolesQuery(
-  baseOptions?: Apollo.QueryHookOptions<
+  baseOptions: Apollo.QueryHookOptions<
     GetUsersByRolesQuery,
     GetUsersByRolesQueryVariables
   >

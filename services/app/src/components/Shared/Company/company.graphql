@@ -31,6 +31,7 @@ query GetCompanyForCustomerOverview(
 
 query GetCompanyForCustomerLoans(
   $companyId: uuid!
+  $loanStatuses: [loan_status_enum!]
   $loanType: loan_type_enum!
 ) {
   companies_by_pk(id: $companyId) {
@@ -39,7 +40,14 @@ query GetCompanyForCustomerLoans(
       id
       ...FinancialSummary
     }
-    loans(where: { loan_type: { _eq: $loanType } }) {
+    loans(
+      where: {
+        _and: [
+          { status: { _in: $loanStatuses } }
+          { loan_type: { _eq: $loanType } }
+        ]
+      }
+    ) {
       id
       ...LoanLimited
       line_of_credit {

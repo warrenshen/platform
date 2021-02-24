@@ -61,6 +61,7 @@ const useStyles = makeStyles((theme: Theme) =>
 // If NavItem contains a link, we assume it to not be nested (items will not exist).
 // If NavItem does not contain a link, we assume it to be nested (items will exist).
 type NavItem = {
+  visible?: boolean;
   text: string;
   link?: string;
   icon?: ReactNode;
@@ -76,24 +77,34 @@ const getCustomerNavItems = (productType: ProductTypeEnum): NavItem[] => {
     },
     {
       text: "Loans",
-      link: customerRoutes.loans,
+      items: [
+        {
+          text: "Loans - All",
+          link: customerRoutes.loans,
+          icon: <PaymentIcon />,
+        },
+        {
+          text: "Loans - Active",
+          link: customerRoutes.loansActive,
+          icon: <PaymentIcon />,
+        },
+        {
+          text: "Loans - Closed",
+          link: customerRoutes.loansClosed,
+          icon: <PaymentIcon />,
+        },
+      ],
     },
-    ...(productType === ProductTypeEnum.InventoryFinancing
-      ? [
-          {
-            text: "Purchase Orders",
-            link: customerRoutes.purchaseOrders,
-          },
-        ]
-      : []),
-    ...(productType === ProductTypeEnum.LineOfCredit
-      ? [
-          {
-            text: "Borrowing Base",
-            link: customerRoutes.ebbaApplications,
-          },
-        ]
-      : []),
+    {
+      visible: productType === ProductTypeEnum.InventoryFinancing,
+      text: "Purchase Orders",
+      link: customerRoutes.purchaseOrders,
+    },
+    {
+      visible: productType === ProductTypeEnum.LineOfCredit,
+      text: "Borrowing Base",
+      link: customerRoutes.ebbaApplications,
+    },
     {
       text: "Vendors",
       link: customerRoutes.vendors,
@@ -143,14 +154,6 @@ const getBankNavItems = (): NavItem[] => {
           link: bankRoutes.loansPastDue,
           icon: <AccountBalanceIcon />,
         },
-        // {
-        //   text: "Loans by Purchase Order",
-        //   link: bankRoutes.loansPurchaseOrder,
-        // },
-        // {
-        //   text: "Loans by Line of Credit",
-        //   link: bankRoutes.loansLineOfCredit,
-        // },
       ],
     },
     {
@@ -264,28 +267,30 @@ function Layout({ appBarTitle, children }: Props) {
           <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="Logo" />
         </Box>
         <List className={classes.list}>
-          {navItems.map((item, index) =>
-            item.link ? (
-              <ListItem
-                key={item.text + index}
-                button
-                component={Link}
-                to={item.link}
-                selected={Boolean(matchPath(location.pathname, item.link))}
-              >
-                <ListItemText
-                  primaryTypographyProps={{
-                    className: classes.listItemText,
-                    variant: "subtitle1",
-                  }}
+          {navItems
+            .filter((customerPath) => customerPath.visible !== false)
+            .map((item, index) =>
+              item.link ? (
+                <ListItem
+                  key={item.text + index}
+                  button
+                  component={Link}
+                  to={item.link}
+                  selected={Boolean(matchPath(location.pathname, item.link))}
                 >
-                  {item.text}
-                </ListItemText>
-              </ListItem>
-            ) : (
-              <NestedListItem key={item.text + index} item={item} />
-            )
-          )}
+                  <ListItemText
+                    primaryTypographyProps={{
+                      className: classes.listItemText,
+                      variant: "subtitle1",
+                    }}
+                  >
+                    {item.text}
+                  </ListItemText>
+                </ListItem>
+              ) : (
+                <NestedListItem key={item.text + index} item={item} />
+              )
+            )}
         </List>
       </Drawer>
       <main className={classes.content}>
