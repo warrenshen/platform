@@ -15,14 +15,7 @@ import {
   Theme,
 } from "@material-ui/core";
 import {
-  ListUsersByCompanyIdDocument,
-  ListUsersByCompanyIdQuery,
-  ListUsersByCompanyIdQueryVariables,
-  ListUsersByRoleDocument,
-  ListUsersByRoleQuery,
-  ListUsersByRoleQueryVariables,
   useAddUserMutation,
-  UserFragment,
   UserRolesEnum,
   UsersInsertInput,
 } from "generated/graphql";
@@ -104,73 +97,6 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
           phone_number: user.phone_number,
           role: user.role,
         },
-      },
-      optimisticResponse: {
-        insert_users_one: {
-          email: user.email ? user.email : "",
-          first_name: user.first_name ? user.first_name : "",
-          last_name: user.last_name ? user.last_name : "",
-          phone_number: user.phone_number,
-          role: user.role,
-        } as UserFragment,
-      },
-      update: (proxy, { data: optimisticResponse }) => {
-        const dataUsersByRole = proxy.readQuery<
-          ListUsersByRoleQuery,
-          ListUsersByRoleQueryVariables
-        >({
-          query: ListUsersByRoleDocument,
-          variables: { role: user.role || null },
-        });
-
-        if (
-          !dataUsersByRole ||
-          !dataUsersByRole?.users ||
-          !optimisticResponse?.insert_users_one
-        ) {
-          return;
-        }
-
-        proxy.writeQuery<ListUsersByRoleQuery, ListUsersByRoleQueryVariables>({
-          query: ListUsersByRoleDocument,
-          variables: { role: user.role || null },
-          data: {
-            users: [
-              ...dataUsersByRole?.users,
-              optimisticResponse?.insert_users_one,
-            ],
-          },
-        });
-
-        const dataUsersByCompanyId = proxy.readQuery<
-          ListUsersByCompanyIdQuery,
-          ListUsersByCompanyIdQueryVariables
-        >({
-          query: ListUsersByCompanyIdDocument,
-          variables: { companyId: companyId },
-        });
-
-        if (
-          !dataUsersByCompanyId ||
-          !dataUsersByCompanyId?.users ||
-          !optimisticResponse?.insert_users_one
-        ) {
-          return;
-        }
-
-        proxy.writeQuery<
-          ListUsersByCompanyIdQuery,
-          ListUsersByCompanyIdQueryVariables
-        >({
-          query: ListUsersByCompanyIdDocument,
-          variables: { companyId: companyId },
-          data: {
-            users: [
-              ...dataUsersByCompanyId?.users,
-              optimisticResponse?.insert_users_one,
-            ],
-          },
-        });
       },
     });
 

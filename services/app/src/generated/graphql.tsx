@@ -12714,11 +12714,13 @@ export type UsersByEmailQuery = {
   users: Array<Pick<Users, "id" | "company_id" | "role">>;
 };
 
-export type ListUsersByRoleQueryVariables = Exact<{
-  role?: Maybe<UserRolesEnum>;
+export type GetUsersByRolesQueryVariables = Exact<{
+  roles?: Maybe<Array<UserRolesEnum>>;
 }>;
 
-export type ListUsersByRoleQuery = { users: Array<UserFragment> };
+export type GetUsersByRolesQuery = {
+  users: Array<Pick<Users, "id"> & UserFragment>;
+};
 
 export type ListUsersByCompanyIdQueryVariables = Exact<{
   companyId: Scalars["uuid"];
@@ -18029,9 +18031,10 @@ export type UsersByEmailQueryResult = Apollo.QueryResult<
   UsersByEmailQuery,
   UsersByEmailQueryVariables
 >;
-export const ListUsersByRoleDocument = gql`
-  query ListUsersByRole($role: user_roles_enum) {
-    users(where: { role: { _eq: $role } }) {
+export const GetUsersByRolesDocument = gql`
+  query GetUsersByRoles($roles: [user_roles_enum!]) {
+    users(where: { role: { _in: $roles } }) {
+      id
       ...User
     }
   }
@@ -18039,52 +18042,52 @@ export const ListUsersByRoleDocument = gql`
 `;
 
 /**
- * __useListUsersByRoleQuery__
+ * __useGetUsersByRolesQuery__
  *
- * To run a query within a React component, call `useListUsersByRoleQuery` and pass it any options that fit your needs.
- * When your component renders, `useListUsersByRoleQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetUsersByRolesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUsersByRolesQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useListUsersByRoleQuery({
+ * const { data, loading, error } = useGetUsersByRolesQuery({
  *   variables: {
- *      role: // value for 'role'
+ *      roles: // value for 'roles'
  *   },
  * });
  */
-export function useListUsersByRoleQuery(
+export function useGetUsersByRolesQuery(
   baseOptions?: Apollo.QueryHookOptions<
-    ListUsersByRoleQuery,
-    ListUsersByRoleQueryVariables
+    GetUsersByRolesQuery,
+    GetUsersByRolesQueryVariables
   >
 ) {
-  return Apollo.useQuery<ListUsersByRoleQuery, ListUsersByRoleQueryVariables>(
-    ListUsersByRoleDocument,
+  return Apollo.useQuery<GetUsersByRolesQuery, GetUsersByRolesQueryVariables>(
+    GetUsersByRolesDocument,
     baseOptions
   );
 }
-export function useListUsersByRoleLazyQuery(
+export function useGetUsersByRolesLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    ListUsersByRoleQuery,
-    ListUsersByRoleQueryVariables
+    GetUsersByRolesQuery,
+    GetUsersByRolesQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    ListUsersByRoleQuery,
-    ListUsersByRoleQueryVariables
-  >(ListUsersByRoleDocument, baseOptions);
+    GetUsersByRolesQuery,
+    GetUsersByRolesQueryVariables
+  >(GetUsersByRolesDocument, baseOptions);
 }
-export type ListUsersByRoleQueryHookResult = ReturnType<
-  typeof useListUsersByRoleQuery
+export type GetUsersByRolesQueryHookResult = ReturnType<
+  typeof useGetUsersByRolesQuery
 >;
-export type ListUsersByRoleLazyQueryHookResult = ReturnType<
-  typeof useListUsersByRoleLazyQuery
+export type GetUsersByRolesLazyQueryHookResult = ReturnType<
+  typeof useGetUsersByRolesLazyQuery
 >;
-export type ListUsersByRoleQueryResult = Apollo.QueryResult<
-  ListUsersByRoleQuery,
-  ListUsersByRoleQueryVariables
+export type GetUsersByRolesQueryResult = Apollo.QueryResult<
+  GetUsersByRolesQuery,
+  GetUsersByRolesQueryVariables
 >;
 export const ListUsersByCompanyIdDocument = gql`
   query ListUsersByCompanyId($companyId: uuid!) {

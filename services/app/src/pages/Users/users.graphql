@@ -1,5 +1,6 @@
-query ListUsersByRole($role: user_roles_enum) {
-  users(where: { role: { _eq: $role } }) {
+query GetUsersByRoles($roles: [user_roles_enum!]) {
+  users(where: { role: { _in: $roles } }) {
+    id
     ...User
   }
 }

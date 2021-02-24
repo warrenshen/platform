@@ -6,8 +6,8 @@ import InviteUserModal from "components/Users/InviteUserModal";
 import UsersDataGrid from "components/Users/UsersDataGrid";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
+  useGetUsersByRolesQuery,
   useListUsersByCompanyIdQuery,
-  useListUsersByRoleQuery,
   UserFragment,
   UserRolesEnum,
 } from "generated/graphql";
@@ -20,15 +20,25 @@ function Users() {
   const [selectedUser, setSelectedUser] = useState({} as UserFragment);
   const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
 
-  const { data: customerUsers } = useListUsersByCompanyIdQuery({
+  // TODO (warrenshen): Restructure this component to
+  // render a separate bank vs customer component such that
+  // this component does not invoke two queries when it only
+  // needs to invoke one.
+  const {
+    data: customerUsers,
+    refetch: refetchCustomerUsers,
+  } = useListUsersByCompanyIdQuery({
     variables: {
       companyId: user.companyId,
     },
   });
 
-  const { data: bankUsers } = useListUsersByRoleQuery({
+  const {
+    data: bankUsers,
+    refetch: refetchBankUsers,
+  } = useGetUsersByRolesQuery({
     variables: {
-      role: user.role,
+      roles: [UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly],
     },
   });
 
@@ -49,7 +59,11 @@ function Users() {
               ? [UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]
               : [UserRolesEnum.CompanyAdmin, UserRolesEnum.CompanyReadOnly]
           }
-          handleClose={() => setOpen(false)}
+          handleClose={() => {
+            refetchCustomerUsers();
+            refetchBankUsers();
+            setOpen(false);
+          }}
         />
       )}
       {isEditUserModalOpen && (
@@ -57,7 +71,11 @@ function Users() {
           userId={user.id}
           companyId={user.companyId}
           originalUserProfile={selectedUser}
-          handleClose={() => setIsEditUserModalOpen(false)}
+          handleClose={() => {
+            refetchCustomerUsers();
+            refetchBankUsers();
+            setIsEditUserModalOpen(false);
+          }}
         />
       )}
       <Box

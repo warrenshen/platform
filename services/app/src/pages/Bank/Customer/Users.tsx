@@ -20,7 +20,7 @@ function Users() {
   const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState({} as UserFragment);
   const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
-  const { data: customerUsers } = useListUsersByCompanyIdQuery({
+  const { data: customerUsers, refetch } = useListUsersByCompanyIdQuery({
     variables: {
       companyId: companyId,
     },
@@ -35,7 +35,10 @@ function Users() {
             UserRolesEnum.CompanyAdmin,
             UserRolesEnum.CompanyReadOnly,
           ]}
-          handleClose={() => setOpen(false)}
+          handleClose={() => {
+            refetch();
+            setOpen(false);
+          }}
         />
       )}
       {isEditUserModalOpen && (
