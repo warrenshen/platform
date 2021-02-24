@@ -1,19 +1,15 @@
 import json
-
-from flask import request, make_response, current_app
-from flask import Response, Blueprint
-from flask.views import MethodView
-from mypy_extensions import TypedDict
 from typing import cast
 
-from bespoke.finance.contracts import manage_contract_util
-from bespoke.db import models
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
+from bespoke.finance.contracts import manage_contract_util
+from flask import Blueprint, Response, current_app, make_response, request
+from flask.views import MethodView
+from mypy_extensions import TypedDict
 from server.config import Config
+from server.views.common import auth_util, handler_util
 from server.views.common.auth_util import UserSession
-from server.views.common import handler_util
-from server.views.common import auth_util
 
 handler = Blueprint('contracts', __name__)
 
@@ -64,7 +60,7 @@ class TerminateContractView(MethodView):
 
 		user_session = auth_util.UserSession.from_session()
 		bank_admin_user_id = user_session.get_user_id()
-		_, err = manage_contract_util.end_contract(
+		_, err = manage_contract_util.terminate_contract(
 			req=form, bank_admin_user_id=bank_admin_user_id,
 			session_maker=current_app.session_maker)
 		if err:

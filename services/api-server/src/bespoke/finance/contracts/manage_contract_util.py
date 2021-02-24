@@ -4,15 +4,13 @@
 import datetime
 import json
 import logging
-
-from mypy_extensions import TypedDict
-from typing import cast, Union, Tuple, Callable, Dict, List, Any
+from typing import Any, Callable, Dict, List, Tuple, Union, cast
 
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
-
+from mypy_extensions import TypedDict
 
 ContractFieldsDict = TypedDict('ContractFieldsDict', {
 	'product_type': str,
@@ -69,8 +67,8 @@ def update_contract(req: UpdateContractReqDict, bank_admin_user_id: str, session
 
 	return True, None
 
-def end_contract(req: EndContractReqDict, bank_admin_user_id: str, session_maker: Callable) -> Tuple[bool, errors.Error]:
-	err_details = {'req': req, 'method': 'end_contract'}
+def terminate_contract(req: EndContractReqDict, bank_admin_user_id: str, session_maker: Callable) -> Tuple[bool, errors.Error]:
+	err_details = {'req': req, 'method': 'terminate_contract'}
 
 	with session_scope(session_maker) as session:
 		contract = cast(
@@ -80,6 +78,11 @@ def end_contract(req: EndContractReqDict, bank_admin_user_id: str, session_maker
 			).first())
 		if not contract:
 			return False, errors.Error('Contract could not be found', details=err_details)
+
+		termination_date = date_util.load_date_str(req['termination_date'])
+
+		if termination_date > contract.end_date:
+			return False, errors.Error('Cannot set contract termination date to a date after contract end date', details=err_details)
 
 		contract.adjusted_end_date = date_util.load_date_str(req['termination_date'])
 		contract.terminated_at = date_util.now()
