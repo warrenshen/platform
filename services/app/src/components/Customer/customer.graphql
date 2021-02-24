@@ -13,8 +13,10 @@ query BankCustomerListVendorPartnerships($companyId: uuid!) {
   company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
     ...BankVendorPartnership
     vendor {
+      id
       ...Vendor
       users {
+        id
         ...Contact
       }
     }

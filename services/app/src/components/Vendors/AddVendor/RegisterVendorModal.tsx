@@ -67,8 +67,8 @@ function RegisterVendorModal({ handleClose }: Props) {
               role === UserRolesEnum.BankAdmin ? companyId : undefined,
             vendor: {
               data: {
-                ...vendor,
-                is_vendor: role === UserRolesEnum.BankAdmin ? true : undefined,
+                name: vendor.name,
+                is_vendor: true,
                 users: {
                   data: [{ ...contact }],
                 },
@@ -136,7 +136,7 @@ function RegisterVendorModal({ handleClose }: Props) {
               onChange={({ target: { value } }) => {
                 setVendor({ ...vendor, name: value });
               }}
-            ></TextField>
+            />
           </Box>
           <Box display="flex" flexDirection="column" my={3}>
             <Typography variant="subtitle1">
@@ -150,7 +150,7 @@ function RegisterVendorModal({ handleClose }: Props) {
                 onChange={({ target: { value } }) => {
                   setContact({ ...contact, first_name: value });
                 }}
-              ></TextField>
+              />
               <TextField
                 label="Last Name"
                 required
@@ -158,7 +158,7 @@ function RegisterVendorModal({ handleClose }: Props) {
                 onChange={({ target: { value } }) => {
                   setContact({ ...contact, last_name: value });
                 }}
-              ></TextField>
+              />
               <TextField
                 label="Email"
                 required
@@ -166,14 +166,14 @@ function RegisterVendorModal({ handleClose }: Props) {
                 onChange={({ target: { value } }) => {
                   setContact({ ...contact, email: value });
                 }}
-              ></TextField>
+              />
               <TextField
                 label="Phone Number"
                 value={contact.phone_number}
                 onChange={({ target: { value } }) => {
                   setContact({ ...contact, phone_number: value });
                 }}
-              ></TextField>
+              />
             </Box>
           </Box>
         </Box>

@@ -7,9 +7,9 @@ function CustomerVendorsPage() {
   return (
     <Page appBarTitle={"Vendors"}>
       <Box display="flex" flexDirection="row-reverse">
-        <AddButton></AddButton>
+        <AddButton />
       </Box>
-      <ListVendors></ListVendors>
+      <ListVendors />
     </Page>
   );
 }
