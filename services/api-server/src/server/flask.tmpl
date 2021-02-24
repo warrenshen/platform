@@ -3,7 +3,6 @@ import json
 from flask import request, make_response, current_app
 from flask import Response, Blueprint
 from flask.views import MethodView
-from flask_jwt_extended import jwt_required, get_jwt_identity
 from mypy_extensions import TypedDict
 from typing import cast
 
@@ -17,16 +16,13 @@ from server.views.common import auth_util
 
 handler = Blueprint('purchase_order', __name__)
 
-def make_error_response(msg: str) -> Response:
-	return make_response(json.dumps({'status': 'ERROR', 'msg': msg}), 200)	
-
 class ModifiedView(MethodView):
+	decorators = [auth_util.login_required]
 
-	@jwt_required
 	def post(self) -> Response:
 		form = json.loads(request.data)
 		if not form:
-			return make_error_response('No data provided')
+			return handler_util.make_error_response('No data provided')
 
 		return make_response(json.dumps({
 			'status': 'OK'

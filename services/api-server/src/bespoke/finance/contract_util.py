@@ -5,7 +5,7 @@ import sys
 
 from datetime import timedelta
 from mypy_extensions import TypedDict
-from typing import cast, Tuple, Dict, List, Any
+from typing import cast, Tuple, Callable, Dict, List, Any
 
 from bespoke import errors
 from bespoke.db import models
@@ -270,4 +270,3 @@ class ContractHelper(object):
 	@staticmethod
 	def build(contract_dicts: List[models.ContractDict]) -> Tuple['ContractHelper', errors.Error]:
 		return ContractHelper(contract_dicts, private=True), None
-

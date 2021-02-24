@@ -116,7 +116,8 @@ ContractDict = TypedDict('ContractDict', {
 	'product_type': str,
 	'product_config': Dict,
 	'start_date': datetime.date,
-	'end_date': datetime.date
+	'end_date': datetime.date,
+	'adjusted_end_date': datetime.date
 })
 
 class Contract(Base):
@@ -128,7 +129,10 @@ class Contract(Base):
 	product_config = Column(JSON)
 	start_date = Column(Date)
 	end_date = Column(Date)
+	adjusted_end_date = Column(Date) # either the end date, or the termination_date if set
 	modified_by_user_id = Column(GUID)
+	terminated_at = Column(DateTime)
+	terminated_by_user_id = Column(GUID)
 
 	def as_dict(self) -> ContractDict:
 		return ContractDict(
@@ -136,7 +140,8 @@ class Contract(Base):
 			product_type=self.product_type,
 			product_config=cast(Dict, self.product_config),
 			start_date=self.start_date,
-			end_date=self.end_date
+			end_date=self.end_date,
+			adjusted_end_date=self.adjusted_end_date
 		)
 
 
