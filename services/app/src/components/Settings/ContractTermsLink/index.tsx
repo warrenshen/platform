@@ -19,7 +19,7 @@ function ContractTermsLink({ linkText, contractId }: Props) {
         <ContractTermsModal
           isViewOnly
           contractId={contractId}
-          onClose={() => setModalOpen(false)}
+          handleClose={() => setModalOpen(false)}
         />
       )}
       <Link

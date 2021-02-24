@@ -1,8 +1,6 @@
 import { Box } from "@material-ui/core";
 import AddAccountButton from "components/BankAccount/AddAccountButton";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
-import ContractSettingsCard from "components/Contract/ContractCard";
-import ContractTermsModal from "components/Contract/ContractTermsModal";
 import CompanySettingsCard from "components/Settings/CompanySettingsCard";
 import EditAccountSettingsModal from "components/Settings/EditCompanySettingsModal";
 import {
@@ -29,10 +27,6 @@ function Settings({
   handleDataChange,
 }: Props) {
   const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
-  const [
-    isEditContractTermsModalOpen,
-    setIsEditContractTermsModalOpen,
-  ] = useState(false);
 
   return (
     <div>
@@ -60,25 +54,6 @@ function Settings({
               }}
             />
           </Box>
-          <h3>Contract</h3>
-          {contract && (
-            <Box mt={3}>
-              {isEditContractTermsModalOpen && (
-                <ContractTermsModal
-                  isViewOnly={false}
-                  onClose={() => {
-                    handleDataChange();
-                    setIsEditContractTermsModalOpen(false);
-                  }}
-                  contractId={contract.id}
-                />
-              )}
-              <ContractSettingsCard
-                contract={contract}
-                handleClick={() => setIsEditContractTermsModalOpen(true)}
-              />
-            </Box>
-          )}
         </Box>
         <Box>
           <h3>Bank Accounts</h3>

@@ -9,6 +9,7 @@ import {
   UserRolesEnum,
 } from "generated/graphql";
 import { bankRoutes } from "lib/routes";
+import BankCustomerContractPage from "pages/Bank/Customer/Contract";
 import {
   Link,
   matchPath,
@@ -76,6 +77,11 @@ const getCustomerPaths = (productType: ProductTypeEnum) => [
     path: bankRoutes.customer.ebbaApplications,
     component: BankCustomerEbbaApplicationsSubpage,
     label: "Borrowing Base",
+  },
+  {
+    path: bankRoutes.customer.contract,
+    component: BankCustomerContractPage,
+    label: "Contract",
   },
   {
     path: bankRoutes.customer.vendors,

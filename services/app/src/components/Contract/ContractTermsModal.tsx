@@ -92,10 +92,10 @@ const formatValue = (type: any, value: any) => {
 interface Props {
   isViewOnly: boolean;
   contractId: Contracts["id"];
-  onClose: () => void;
+  handleClose: () => void;
 }
 
-function ContractTermsModal({ isViewOnly, contractId, onClose }: Props) {
+function ContractTermsModal({ isViewOnly, contractId, handleClose }: Props) {
   const classes = useStyles();
 
   // Default Contract while existing one is loading.
@@ -213,7 +213,7 @@ function ContractTermsModal({ isViewOnly, contractId, onClose }: Props) {
     if (!savedContract) {
       alert("Could not update contract");
     } else {
-      onClose();
+      handleClose();
     }
   };
 
@@ -302,7 +302,7 @@ function ContractTermsModal({ isViewOnly, contractId, onClose }: Props) {
   const isDialogReady = !isExistingContractLoading;
 
   return isDialogReady ? (
-    <Dialog open onClose={onClose} fullWidth>
+    <Dialog open onClose={handleClose} fullWidth>
       <DialogTitle className={classes.dialogTitle}>
         {`${
           ProductTypeToLabel[contract.product_type as ProductTypeEnum]
@@ -337,7 +337,7 @@ function ContractTermsModal({ isViewOnly, contractId, onClose }: Props) {
       <DialogActions>
         <Box display="flex">
           <Box pr={1}>
-            <Button onClick={onClose}>Cancel</Button>
+            <Button onClick={handleClose}>Cancel</Button>
             {!isViewOnly && (
               <Button
                 onClick={handleSubmit}
