@@ -1,6 +1,6 @@
 import { Box, Typography } from "@material-ui/core";
 import ContractCard from "components/Contract/ContractCard";
-import ContractTermsModal from "components/Contract/ContractTermsModal";
+import ContractTermsModal from "components/Contract/UpdateContractTermsModal";
 import ContractsDataGrid from "components/Contracts/ContractsDataGrid";
 import { useGetCompanyForCustomerContractPageQuery } from "generated/graphql";
 import { useState } from "react";
@@ -35,7 +35,6 @@ function BankCustomerContractSubpage({ companyId }: Props) {
           <>
             {isEditContractTermsModalOpen && (
               <ContractTermsModal
-                isViewOnly={false}
                 handleClose={() => {
                   refetch();
                   setIsEditContractTermsModalOpen(false);
@@ -45,7 +44,7 @@ function BankCustomerContractSubpage({ companyId }: Props) {
             )}
             <ContractCard
               contract={activeContract}
-              handleClick={() => setIsEditContractTermsModalOpen(true)}
+              handleDataChange={refetch}
             />
           </>
         )}

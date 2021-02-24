@@ -1,5 +1,5 @@
 import { Link } from "@material-ui/core";
-import ContractTermsModal from "components/Contract/ContractTermsModal";
+import ContractTermsModal from "components/Contract/UpdateContractTermsModal";
 import { Contracts } from "generated/graphql";
 import { useState } from "react";
 
@@ -17,7 +17,6 @@ function ContractTermsLink({ linkText, contractId }: Props) {
     <>
       {isModalOpen && (
         <ContractTermsModal
-          isViewOnly
           contractId={contractId}
           handleClose={() => setModalOpen(false)}
         />

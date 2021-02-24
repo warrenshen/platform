@@ -2,13 +2,14 @@ import ContractDrawer from "components/Contract/ContractDrawer";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import { Contracts } from "generated/graphql";
 import { truncateUuid } from "lib/uuid";
-import React, { useState } from "react";
+import { ReactNode, useState } from "react";
 
 interface Props {
   contractId: Contracts["id"];
+  children?: (handleClick: () => void) => ReactNode;
 }
 
-function Launcher({ contractId }: Props) {
+function Launcher({ contractId, children }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -19,10 +20,14 @@ function Launcher({ contractId }: Props) {
           handleClose={() => setIsOpen(false)}
         />
       )}
-      <ClickableDataGridCell
-        onClick={() => setIsOpen(true)}
-        label={truncateUuid(contractId)}
-      />
+      {children ? (
+        children(() => setIsOpen(true))
+      ) : (
+        <ClickableDataGridCell
+          onClick={() => setIsOpen(true)}
+          label={truncateUuid(contractId)}
+        />
+      )}
     </>
   );
 }

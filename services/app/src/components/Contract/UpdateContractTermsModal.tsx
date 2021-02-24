@@ -90,12 +90,11 @@ const formatValue = (type: any, value: any) => {
   }
 };
 interface Props {
-  isViewOnly: boolean;
   contractId: Contracts["id"];
   handleClose: () => void;
 }
 
-function ContractTermsModal({ isViewOnly, contractId, handleClose }: Props) {
+function UpdateContractTermsModal({ contractId, handleClose }: Props) {
   const classes = useStyles();
 
   // Default Contract while existing one is loading.
@@ -224,10 +223,9 @@ function ContractTermsModal({ isViewOnly, contractId, handleClose }: Props) {
           <DatePicker
             className={classes.datePicker}
             id={item.internal_name}
-            disabled={isViewOnly}
             error={errMsg.length > 0 && validateField(item)}
             label={item.display_name}
-            required={!isViewOnly && !item.nullable}
+            required={!item.nullable}
             value={item.value || null}
             onChange={(value: any) => findAndReplaceInJSON(item, value)}
           />
@@ -247,14 +245,13 @@ function ContractTermsModal({ isViewOnly, contractId, handleClose }: Props) {
           <CurrencyTextField
             style={{ width: 300 }}
             label={item.display_name}
-            disabled={isViewOnly}
             error={errMsg.length > 0 && validateField(item)}
             currencySymbol={getSymbol(item.format)}
             outputFormat="string"
             minimumValue="0"
             maximumValue={item.format === "percentage" ? "100" : undefined}
             textAlign="left"
-            required={!isViewOnly && !item.nullable}
+            required={!item.nullable}
             value={item.value || ""}
             modifyValueOnWheel={false}
             onChange={(_event: any, value: string) =>
@@ -267,7 +264,6 @@ function ContractTermsModal({ isViewOnly, contractId, handleClose }: Props) {
           <FormControlLabel
             control={
               <Checkbox
-                disabled={isViewOnly}
                 checked={!!item.value}
                 onChange={(event: ChangeEvent<HTMLInputElement>) => {
                   findAndReplaceInJSON(item, event.target.checked);
@@ -282,11 +278,10 @@ function ContractTermsModal({ isViewOnly, contractId, handleClose }: Props) {
         return (
           <TextField
             className={classes.textField}
-            disabled={isViewOnly}
             error={errMsg.length > 0 && validateField(item)}
             label={item.display_name}
             placeholder=""
-            required={!isViewOnly && !item.nullable}
+            required={!item.nullable}
             value={item.value || ""}
             onChange={({ target: { value } }) =>
               findAndReplaceInJSON(
@@ -338,16 +333,14 @@ function ContractTermsModal({ isViewOnly, contractId, handleClose }: Props) {
         <Box display="flex">
           <Box pr={1}>
             <Button onClick={handleClose}>Cancel</Button>
-            {!isViewOnly && (
-              <Button
-                onClick={handleSubmit}
-                variant="contained"
-                color="primary"
-                type="submit"
-              >
-                Save
-              </Button>
-            )}
+            <Button
+              onClick={handleSubmit}
+              variant="contained"
+              color="primary"
+              type="submit"
+            >
+              Save
+            </Button>
           </Box>
         </Box>
       </DialogActions>
@@ -355,4 +348,4 @@ function ContractTermsModal({ isViewOnly, contractId, handleClose }: Props) {
   ) : null;
 }
 
-export default ContractTermsModal;
+export default UpdateContractTermsModal;

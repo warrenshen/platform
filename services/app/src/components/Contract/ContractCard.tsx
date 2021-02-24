@@ -2,22 +2,23 @@ import {
   Box,
   Button,
   Card,
-  CardActions,
   CardContent,
   createStyles,
   makeStyles,
+  Typography,
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
-import ContractTermsLink from "components/Settings/ContractTermsLink";
-import Can from "components/Shared/Can";
-import { ContractFragment } from "generated/graphql";
-import { Action } from "lib/auth/rbac-rules";
+import ContractDrawerLauncher from "components/Contract/ContractDrawerLauncher";
+import UpdateContractTermsModal from "components/Contract/UpdateContractTermsModal";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
+import { ContractFragment, UserRolesEnum } from "generated/graphql";
 import { formatDateString } from "lib/date";
 import { ProductTypeToLabel } from "lib/enum";
+import { useContext, useState } from "react";
 
 interface Props {
   contract: ContractFragment;
-  handleClick?: () => void;
+  handleDataChange?: () => void;
 }
 
 const useStyles = makeStyles(() =>
@@ -33,11 +34,32 @@ const useStyles = makeStyles(() =>
   })
 );
 
-function ContractCard({ contract, handleClick }: Props) {
+function ContractCard({ contract, handleDataChange }: Props) {
   const classes = useStyles();
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+
+  const isBankUser = role === UserRolesEnum.BankAdmin;
+
+  const [
+    isEditContractTermsModalOpen,
+    setIsEditContractTermsModalOpen,
+  ] = useState(false);
 
   return (
     <Card className={classes.card}>
+      {isEditContractTermsModalOpen && (
+        <UpdateContractTermsModal
+          contractId={contract.id}
+          handleClose={() => {
+            if (handleDataChange) {
+              handleDataChange();
+            }
+            setIsEditContractTermsModalOpen(false);
+          }}
+        />
+      )}
       <CardContent>
         <Box display="flex" flexDirection="column">
           <Box display="flex" pb={0.25}>
@@ -55,26 +77,36 @@ function ContractCard({ contract, handleClick }: Props) {
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>End Date</Box>
             <Box>
-              {contract.end_date ? formatDateString(contract.end_date) : null}
+              {contract.end_date ? formatDateString(contract.end_date) : "-"}
             </Box>
           </Box>
-          <Box display="flex" pb={0.25}>
-            <Box className={classes.label}>Contract Terms</Box>
-            <Box>
-              <ContractTermsLink linkText="View" contractId={contract.id} />
+          <Box display="flex" flexDirection="column" pb={0.25}>
+            <Box className={classes.label}>
+              <Typography variant="body2">Contract Terms</Typography>
+            </Box>
+            <Box display="flex" mt={1}>
+              <ContractDrawerLauncher contractId={contract.id}>
+                {(handleClick) => (
+                  <Button size="small" variant="outlined" onClick={handleClick}>
+                    View Terms
+                  </Button>
+                )}
+              </ContractDrawerLauncher>
+              {isBankUser && (
+                <Box ml={1}>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    onClick={() => setIsEditContractTermsModalOpen(true)}
+                  >
+                    Edit Terms
+                  </Button>
+                </Box>
+              )}
             </Box>
           </Box>
         </Box>
       </CardContent>
-      <Can perform={Action.EditUserAccountSettings}>
-        {handleClick && (
-          <CardActions>
-            <Button size="small" variant="outlined" onClick={handleClick}>
-              Edit
-            </Button>
-          </CardActions>
-        )}
-      </Can>
     </Card>
   );
 }

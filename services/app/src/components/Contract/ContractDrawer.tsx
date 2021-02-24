@@ -102,7 +102,7 @@ function ContractDrawer({ contractId, handleClose }: Props) {
   const contract = data?.contracts_by_pk;
   const currentJSONConfig = contract ? getExistingConfig(contract) : {};
   const sections = groupBy(currentJSONConfig, (d) => d.section);
-  console.log(sections);
+
   return contract ? (
     <Drawer open anchor="right" onClose={handleClose}>
       <Box className={classes.drawerContent} p={4}>
