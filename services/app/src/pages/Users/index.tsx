@@ -74,6 +74,11 @@ function Users() {
         </Button>
       </Box>
       <UsersDataGrid
+        hideCompany={
+          ![UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly].includes(
+            user.role
+          )
+        }
         actionItems={[
           {
             key: "edit-user-profile-modal",
@@ -84,7 +89,6 @@ function Users() {
             },
           },
         ]}
-        hideCompany={user.role !== UserRolesEnum.BankAdmin}
         users={users}
       />
     </Page>

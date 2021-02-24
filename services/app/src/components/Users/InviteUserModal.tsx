@@ -51,7 +51,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export async function createLogin(req: {
-  company_id: string;
+  company_id: string | null;
   user_id: string;
 }): Promise<{ status: string; msg?: string }> {
   return authenticatedApi
@@ -93,6 +93,104 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
 
   const [addUser] = useAddUserMutation();
 
+  const handleClickSubmit = async () => {
+    const resp = await addUser({
+      variables: {
+        user: {
+          company_id: companyId,
+          email: user.email,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          phone_number: user.phone_number,
+          role: user.role,
+        },
+      },
+      optimisticResponse: {
+        insert_users_one: {
+          email: user.email ? user.email : "",
+          first_name: user.first_name ? user.first_name : "",
+          last_name: user.last_name ? user.last_name : "",
+          phone_number: user.phone_number,
+          role: user.role,
+        } as UserFragment,
+      },
+      update: (proxy, { data: optimisticResponse }) => {
+        const dataUsersByRole = proxy.readQuery<
+          ListUsersByRoleQuery,
+          ListUsersByRoleQueryVariables
+        >({
+          query: ListUsersByRoleDocument,
+          variables: { role: user.role || null },
+        });
+
+        if (
+          !dataUsersByRole ||
+          !dataUsersByRole?.users ||
+          !optimisticResponse?.insert_users_one
+        ) {
+          return;
+        }
+
+        proxy.writeQuery<ListUsersByRoleQuery, ListUsersByRoleQueryVariables>({
+          query: ListUsersByRoleDocument,
+          variables: { role: user.role || null },
+          data: {
+            users: [
+              ...dataUsersByRole?.users,
+              optimisticResponse?.insert_users_one,
+            ],
+          },
+        });
+
+        const dataUsersByCompanyId = proxy.readQuery<
+          ListUsersByCompanyIdQuery,
+          ListUsersByCompanyIdQueryVariables
+        >({
+          query: ListUsersByCompanyIdDocument,
+          variables: { companyId: companyId },
+        });
+
+        if (
+          !dataUsersByCompanyId ||
+          !dataUsersByCompanyId?.users ||
+          !optimisticResponse?.insert_users_one
+        ) {
+          return;
+        }
+
+        proxy.writeQuery<
+          ListUsersByCompanyIdQuery,
+          ListUsersByCompanyIdQueryVariables
+        >({
+          query: ListUsersByCompanyIdDocument,
+          variables: { companyId: companyId },
+          data: {
+            users: [
+              ...dataUsersByCompanyId?.users,
+              optimisticResponse?.insert_users_one,
+            ],
+          },
+        });
+      },
+    });
+
+    const userId = resp.data?.insert_users_one?.id;
+    if (!userId) {
+      setErrMsg("No user id was created");
+      return;
+    }
+
+    const loginResp = await createLogin({
+      company_id: companyId || null,
+      user_id: userId,
+    });
+    if (loginResp.status !== "OK") {
+      setErrMsg(loginResp.msg || "Error creating login for user");
+      return;
+    }
+    handleClose();
+  };
+
   return (
     <Dialog
       open
@@ -107,7 +205,7 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
             <InputLabel id="user-role-select-label">User Role</InputLabel>
             <Select
               labelId="user-role-select-label"
-              value={user.role}
+              value={user.role || ""}
               onChange={({ target: { value } }) => {
                 setUser({ ...user, role: value as UserRolesEnum });
               }}
@@ -122,7 +220,7 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
           <TextField
             label="First Name"
             className={classes.usersInput}
-            value={user?.first_name}
+            value={user.first_name}
             onChange={({ target: { value } }) => {
               setUser({
                 ...user,
@@ -133,7 +231,7 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
           <TextField
             label="Last Name"
             className={classes.usersInput}
-            value={user?.last_name}
+            value={user.last_name}
             onChange={({ target: { value } }) => {
               setUser({
                 ...user,
@@ -144,7 +242,7 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
           <TextField
             label="Email"
             className={classes.usersInput}
-            value={user?.email}
+            value={user.email}
             onChange={({ target: { value } }) => {
               setUser({
                 ...user,
@@ -155,7 +253,7 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
           <TextField
             label="Phone Number"
             className={classes.usersInput}
-            value={user?.phone_number}
+            value={user.phone_number}
             onChange={({ target: { value } }) => {
               setUser({
                 ...user,
@@ -172,109 +270,7 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
           <Button
             className={classes.submitButton}
             disabled={false}
-            onClick={async () => {
-              const resp = await addUser({
-                variables: {
-                  user: {
-                    company_id: companyId,
-                    email: user.email,
-                    first_name: user.first_name,
-                    last_name: user.last_name,
-                    phone_number: user.phone_number,
-                    role: user.role,
-                  },
-                },
-                optimisticResponse: {
-                  insert_users_one: {
-                    email: user.email ? user.email : "",
-                    first_name: user.first_name ? user.first_name : "",
-                    last_name: user.last_name ? user.last_name : "",
-                    phone_number: user.phone_number,
-                    role: user.role,
-                  } as UserFragment,
-                },
-                update: (proxy, { data: optimisticResponse }) => {
-                  const dataUsersByRole = proxy.readQuery<
-                    ListUsersByRoleQuery,
-                    ListUsersByRoleQueryVariables
-                  >({
-                    query: ListUsersByRoleDocument,
-                    variables: { role: user?.role ? user?.role : null },
-                  });
-
-                  if (
-                    !dataUsersByRole ||
-                    !dataUsersByRole?.users ||
-                    !optimisticResponse?.insert_users_one
-                  ) {
-                    return;
-                  }
-
-                  proxy.writeQuery<
-                    ListUsersByRoleQuery,
-                    ListUsersByRoleQueryVariables
-                  >({
-                    query: ListUsersByRoleDocument,
-                    variables: { role: user?.role ? user?.role : null },
-                    data: {
-                      users: [
-                        ...dataUsersByRole?.users,
-                        optimisticResponse?.insert_users_one,
-                      ],
-                    },
-                  });
-
-                  const dataUsersByCompanyId = proxy.readQuery<
-                    ListUsersByCompanyIdQuery,
-                    ListUsersByCompanyIdQueryVariables
-                  >({
-                    query: ListUsersByCompanyIdDocument,
-                    variables: { companyId: companyId },
-                  });
-
-                  if (
-                    !dataUsersByCompanyId ||
-                    !dataUsersByCompanyId?.users ||
-                    !optimisticResponse?.insert_users_one
-                  ) {
-                    return;
-                  }
-
-                  proxy.writeQuery<
-                    ListUsersByCompanyIdQuery,
-                    ListUsersByCompanyIdQueryVariables
-                  >({
-                    query: ListUsersByCompanyIdDocument,
-                    variables: { companyId: companyId },
-                    data: {
-                      users: [
-                        ...dataUsersByCompanyId?.users,
-                        optimisticResponse?.insert_users_one,
-                      ],
-                    },
-                  });
-                },
-              });
-
-              const userId = resp.data?.insert_users_one?.id;
-              if (!userId) {
-                setErrMsg("No user id was created");
-                return;
-              }
-              if (!companyId) {
-                setErrMsg("No company id is currently provided");
-                return;
-              }
-              const loginResp = await createLogin({
-                company_id: companyId,
-                user_id: userId,
-              });
-              if (loginResp.status !== "OK") {
-                setErrMsg(loginResp.msg || "Error creating login for user");
-                return;
-              }
-              handleClose();
-            }}
+            onClick={handleClickSubmit}
             variant="contained"
             color="primary"
           >
