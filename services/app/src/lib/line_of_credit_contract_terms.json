@@ -4,42 +4,6 @@
   "v1": {
     "fields": [
       {
-        "section": "Dates",
-        "type": "date",
-        "internal_name": "contract_start_date",
-        "display_name": "Contract Start Date",
-        "description": "Start date of contract",
-        "value": "",
-        "nullable": false
-      },
-      {
-        "section": "Dates",
-        "type": "date",
-        "internal_name": "contract_amended_date",
-        "display_name": "Contract Amended Date",
-        "description": "Date of most recent amended contract",
-        "value": "",
-        "nullable": true
-      },
-      {
-        "section": "Dates",
-        "type": "date",
-        "internal_name": "contract_end_date",
-        "display_name": "Contract End Date",
-        "description": "End date of contract. Automatically renew every year",
-        "value": "",
-        "nullable": false
-      },
-      {
-        "section": "Dates",
-        "type": "date",
-        "internal_name": "contract_termination_date",
-        "display_name": "Contract Termination Date",
-        "description": "If Bespoke enters in termination date - this will override contract end date",
-        "value": "",
-        "nullable": true
-      },
-      {
         "section": "Limits",
         "type": "float",
         "format": "currency",

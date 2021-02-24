@@ -9,7 +9,10 @@ import {
   FormControl,
   FormControlLabel,
   FormHelperText,
+  InputLabel,
   makeStyles,
+  MenuItem,
+  Select,
   TextField,
   Typography,
 } from "@material-ui/core";
@@ -23,7 +26,11 @@ import {
   useGetContractQuery,
   useUpdateContractMutation,
 } from "generated/graphql";
-import { ProductTypeToContractTermsJson, ProductTypeToLabel } from "lib/enum";
+import {
+  AllProductTypes,
+  ProductTypeToContractTermsJson,
+  ProductTypeToLabel,
+} from "lib/enum";
 import { groupBy, isNull, mergeWith } from "lodash";
 import { ChangeEvent, useMemo, useState } from "react";
 
@@ -38,11 +45,11 @@ const useStyles = makeStyles({
       marginTop: 0,
     },
   },
-  textField: {
-    width: 300,
-  },
   sectionName: {
     marginBottom: "1.5rem",
+  },
+  inputField: {
+    width: 300,
   },
   datePicker: {
     width: 300,
@@ -89,6 +96,7 @@ const formatValue = (type: any, value: any) => {
       return value;
   }
 };
+
 interface Props {
   contractId: Contracts["id"];
   handleClose: () => void;
@@ -106,28 +114,33 @@ function UpdateContractTermsModal({ contractId, handleClose }: Props) {
   const [contract, setContract] = useState(newContract);
 
   const getExistingConfig = (existingContract: ContractFragment) => {
+    // Template contract fields based on the JSON template (values are all empty).
     const templateContractFields = JSON.parse(
       ProductTypeToContractTermsJson[
         existingContract.product_type as ProductTypeEnum
       ]
     ).v1.fields;
 
+    // Fill out the template contract fields based on the existing contract.
     if (
       existingContract.product_config &&
       Object.keys(existingContract.product_config).length
     ) {
       const existingContractFields = existingContract.product_config.v1.fields;
-      existingContractFields.forEach(
-        (existingContractField: any, index: any) => {
-          if (
-            templateContractFields[index] &&
-            (existingContractField.value !== null ||
-              templateContractFields[index].nullable)
-          ) {
-            templateContractFields[index].value = existingContractField.value;
-          }
+      existingContractFields.forEach((existingContractField: any) => {
+        const fieldName = existingContractField.internal_name;
+        const templateContractField = templateContractFields.find(
+          (templateContractField: any) =>
+            templateContractField.internal_name === fieldName
+        );
+        if (
+          templateContractField &&
+          (existingContractField.value !== null ||
+            templateContractField.nullable)
+        ) {
+          templateContractField.value = existingContractField.value;
         }
-      );
+      });
     }
 
     return templateContractFields;
@@ -202,6 +215,7 @@ function UpdateContractTermsModal({ contractId, handleClose }: Props) {
       variables: {
         contractId,
         contract: {
+          end_date: contract.end_date,
           product_config: productConfig,
         },
       },
@@ -276,7 +290,7 @@ function UpdateContractTermsModal({ contractId, handleClose }: Props) {
       default:
         return (
           <TextField
-            className={classes.textField}
+            className={classes.inputField}
             error={errMsg.length > 0 && validateField(item)}
             label={item.display_name}
             placeholder=""
@@ -297,15 +311,70 @@ function UpdateContractTermsModal({ contractId, handleClose }: Props) {
 
   return isDialogReady ? (
     <Dialog open onClose={handleClose} fullWidth>
-      <DialogTitle className={classes.dialogTitle}>
-        {`${
-          ProductTypeToLabel[contract.product_type as ProductTypeEnum]
-        } Contract`}
-      </DialogTitle>
-      <DialogContent style={{ height: 500 }}>
+      <DialogTitle className={classes.dialogTitle}>Edit Contract</DialogTitle>
+      <DialogContent>
+        <Box className={classes.section} mb={3}>
+          <FormControl className={classes.inputField}>
+            <InputLabel id="select-product-type-label">Product Type</InputLabel>
+            <Select
+              disabled
+              id="select-product-type"
+              labelId="select-product-type-label"
+              value={contract?.product_type || ""}
+              onChange={({ target: { value } }) => {
+                setContract({
+                  ...contract,
+                  product_type: value as ProductTypeEnum,
+                  product_config:
+                    value === contract.product_type
+                      ? contract.product_config
+                      : {},
+                });
+              }}
+              style={{ width: 200 }}
+            >
+              {AllProductTypes.map((productType) => {
+                return (
+                  <MenuItem key={productType} value={productType}>
+                    {ProductTypeToLabel[productType as ProductTypeEnum]}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+        </Box>
+        <Box className={classes.section} mb={3}>
+          <DatePicker
+            disabled
+            className={classes.inputField}
+            id="start-date-date-picker"
+            label="Start Date"
+            value={contract.start_date}
+            onChange={(value) =>
+              setContract({
+                ...contract,
+                start_date: value,
+              })
+            }
+          />
+        </Box>
+        <Box className={classes.section} mb={3}>
+          <DatePicker
+            className={classes.inputField}
+            id="end-date-date-picker"
+            label="Expected End Date"
+            value={contract.end_date}
+            onChange={(value) =>
+              setContract({
+                ...contract,
+                end_date: value,
+              })
+            }
+          />
+        </Box>
         <Box display="flex" flexDirection="column">
           {Object.entries(sections).map(([sectionName, content]) => (
-            <div key={sectionName} className={classes.section}>
+            <Box key={sectionName} className={classes.section}>
               <Typography variant="h6" className={classes.sectionName}>
                 {sectionName}
               </Typography>
@@ -319,7 +388,7 @@ function UpdateContractTermsModal({ contractId, handleClose }: Props) {
                   </FormControl>
                 </Box>
               ))}
-            </div>
+            </Box>
           ))}
           {errMsg && (
             <Box className={classes.errorBox} mt={3}>
