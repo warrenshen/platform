@@ -80,8 +80,13 @@ class BasicSeed(object):
 	def _setup_bank_users(self, session: Any) -> None:
 		num_bank_admins = 2
 
+		company_settings = models.CompanySettings()
+		session.add(company_settings)
+		session.flush()
+
 		bank_company = models.Company(
-				name='Bespoke Financial'
+				name='Bespoke Financial',
+				company_settings_id=str(company_settings.id)
 			)
 		session.add(bank_company)
 		session.flush()
@@ -114,14 +119,22 @@ class BasicSeed(object):
 
 		num_companies = 3
 		for i in range(num_companies):
+			company_settings = models.CompanySettings()
+			session.add(company_settings)
+			session.flush()
+			company_settings_id = str(company_settings.id)
+
 			customer_company = models.Company(
-				name='Distributor_{}'.format(i)
+				name='Distributor_{}'.format(i),
+				company_settings_id=company_settings_id
 			)
 			session.add(customer_company)
 			session.flush()
+			company_id = customer_company.id
+			company_settings.company_id = company_id
 
 			company_user = models.User(
-				company_id=str(customer_company.id),
+				company_id=company_id,
 				email='companyadmin+user{}@gmail.com'.format(i),
 				password='somepass_c{}'.format(i),
 				role='company_admin'
@@ -131,7 +144,7 @@ class BasicSeed(object):
 			company_admin = TestAccountInfo(
 				user=TestUser(
 			  	user_id=company_user.id,
-			  	company_id=customer_company.id
+			  	company_id=company_id
 		  	)
 			)
 			self.data['company_admins'].append(company_admin)

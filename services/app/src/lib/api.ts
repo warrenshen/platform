@@ -16,6 +16,10 @@ export const fileRoutes = {
   downloadSignedUrl: "/files/download_signed_url",
 };
 
+export const companyRoutes = {
+  createCompany: "/companies/create_company",
+};
+
 export const userRoutes = {
   createLogin: "/users/create_login",
 };

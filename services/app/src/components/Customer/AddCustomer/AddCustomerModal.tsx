@@ -17,10 +17,9 @@ import {
   CompaniesInsertInput,
   CompanySettingsInsertInput,
   ContractsInsertInput,
-  CustomersForBankDocument,
   ProductTypeEnum,
-  useAddCustomerMutation,
 } from "generated/graphql";
+import { createCompany } from "lib/customer/createCustomer";
 import { AllProductTypes, ProductTypeToLabel } from "lib/enum";
 import { useState } from "react";
 
@@ -54,37 +53,24 @@ function AddCustomerModal({ handleClose }: Props) {
   });
   const [companySetting] = useState<CompanySettingsInsertInput>({});
 
-  const [
-    addCustomer,
-    { loading: addCustomerLoading },
-  ] = useAddCustomerMutation();
-
   const handleClickCreate = async () => {
-    const response = await addCustomer({
-      variables: {
-        customer: {
-          ...customer,
-          settings: {
-            data: {
-              ...companySetting,
-            },
-          },
-          contract: {
-            data: {
-              ...contract,
-            },
-          },
-        },
-      },
+    const response = await createCompany({
+      company: customer,
+      settings: companySetting,
+      contract: contract,
+    });
+
+    /*
       refetchQueries: [
         {
           query: CustomersForBankDocument,
         },
       ],
     });
+    */
 
-    if (!response.data) {
-      alert("Error: could not create customer!");
+    if (response.status !== "OK") {
+      alert("Error: could not create customer! Reason: " + response.msg);
     } else {
       handleClose();
     }
@@ -147,7 +133,7 @@ function AddCustomerModal({ handleClose }: Props) {
       <DialogActions className={classes.dialogActions}>
         <Button onClick={handleClose}>Cancel</Button>
         <Button
-          disabled={addCustomerLoading}
+          disabled={false}
           variant="contained"
           color="primary"
           onClick={handleClickCreate}

@@ -16,8 +16,9 @@ from bespoke.db.models import session_scope
 from bespoke.email import email_manager, sendgrid_util
 from bespoke.email.email_manager import EmailConfigDict, SendGridConfigDict
 from server.config import get_config, is_development_env
-from server.views import (auth, contracts, files, notify, purchase_orders, two_factor,
-                          users)
+from server.views import (
+	auth, companies, contracts, files, notify, purchase_orders, 
+	two_factor, users)
 from server.views.finance.ebba_applications import \
     approvals as ebba_application_approvals
 from server.views.finance.loans import (
@@ -49,11 +50,12 @@ manager = Manager(app)
 
 app.config.update(config.as_dict())
 
-app.register_blueprint(users.handler, url_prefix='/users')
-app.register_blueprint(two_factor.handler, url_prefix='/two_factor')
-app.register_blueprint(files.handler, url_prefix='/files')
-app.register_blueprint(contracts.handler, url_prefix='/contracts')
 app.register_blueprint(auth.handler, url_prefix='/auth')
+app.register_blueprint(companies.handler, url_prefix='/companies')
+app.register_blueprint(contracts.handler, url_prefix='/contracts')
+app.register_blueprint(files.handler, url_prefix='/files')
+app.register_blueprint(two_factor.handler, url_prefix='/two_factor')
+app.register_blueprint(users.handler, url_prefix='/users')
 
 # Purchase orders
 app.register_blueprint(purchase_orders.handler, url_prefix='/purchase_orders')

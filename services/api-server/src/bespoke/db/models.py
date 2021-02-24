@@ -83,7 +83,9 @@ class Company(Base):
 	__tablename__ = 'companies'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	company_settings_id = Column(GUID, nullable=False)
 	name = Column(String)
+	identifier = Column(String)
 	contract_id = Column(GUID)
 
 	def as_dict(self) -> CompanyDict:

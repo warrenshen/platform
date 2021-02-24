@@ -2429,6 +2429,8 @@ export enum CompanyVendorPartnershipsUpdateColumn {
  * columns and relationships of "contracts"
  */
 export type Contracts = {
+  /** either the end date, or the termination_date if set */
+  adjusted_end_date?: Maybe<Scalars["date"]>;
   /** An array relationship */
   companies: Array<Companies>;
   /** An aggregated array relationship */
@@ -2439,10 +2441,16 @@ export type Contracts = {
   end_date?: Maybe<Scalars["date"]>;
   id: Scalars["uuid"];
   modified_at: Scalars["timestamptz"];
+  /** An object relationship */
+  modified_by_user?: Maybe<Users>;
   modified_by_user_id?: Maybe<Scalars["uuid"]>;
   product_config: Scalars["jsonb"];
   product_type: ProductTypeEnum;
   start_date: Scalars["date"];
+  terminated_at?: Maybe<Scalars["timestamptz"]>;
+  /** An object relationship */
+  terminated_by_user?: Maybe<Users>;
+  terminated_by_user_id?: Maybe<Scalars["uuid"]>;
 };
 
 /**
@@ -2525,16 +2533,21 @@ export type ContractsBoolExp = {
   _and?: Maybe<Array<Maybe<ContractsBoolExp>>>;
   _not?: Maybe<ContractsBoolExp>;
   _or?: Maybe<Array<Maybe<ContractsBoolExp>>>;
+  adjusted_end_date?: Maybe<DateComparisonExp>;
   companies?: Maybe<CompaniesBoolExp>;
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   end_date?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   modified_at?: Maybe<TimestamptzComparisonExp>;
+  modified_by_user?: Maybe<UsersBoolExp>;
   modified_by_user_id?: Maybe<UuidComparisonExp>;
   product_config?: Maybe<JsonbComparisonExp>;
   product_type?: Maybe<ProductTypeEnumComparisonExp>;
   start_date?: Maybe<DateComparisonExp>;
+  terminated_at?: Maybe<TimestamptzComparisonExp>;
+  terminated_by_user?: Maybe<UsersBoolExp>;
+  terminated_by_user_id?: Maybe<UuidComparisonExp>;
 };
 
 /** unique or primary key constraints on table "contracts" */
@@ -2560,56 +2573,73 @@ export type ContractsDeleteKeyInput = {
 
 /** input type for inserting data into table "contracts" */
 export type ContractsInsertInput = {
+  adjusted_end_date?: Maybe<Scalars["date"]>;
   companies?: Maybe<CompaniesArrRelInsertInput>;
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
   end_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   modified_at?: Maybe<Scalars["timestamptz"]>;
+  modified_by_user?: Maybe<UsersObjRelInsertInput>;
   modified_by_user_id?: Maybe<Scalars["uuid"]>;
   product_config?: Maybe<Scalars["jsonb"]>;
   product_type?: Maybe<ProductTypeEnum>;
   start_date?: Maybe<Scalars["date"]>;
+  terminated_at?: Maybe<Scalars["timestamptz"]>;
+  terminated_by_user?: Maybe<UsersObjRelInsertInput>;
+  terminated_by_user_id?: Maybe<Scalars["uuid"]>;
 };
 
 /** aggregate max on columns */
 export type ContractsMaxFields = {
+  adjusted_end_date?: Maybe<Scalars["date"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   end_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   modified_at?: Maybe<Scalars["timestamptz"]>;
   modified_by_user_id?: Maybe<Scalars["uuid"]>;
   start_date?: Maybe<Scalars["date"]>;
+  terminated_at?: Maybe<Scalars["timestamptz"]>;
+  terminated_by_user_id?: Maybe<Scalars["uuid"]>;
 };
 
 /** order by max() on columns of table "contracts" */
 export type ContractsMaxOrderBy = {
+  adjusted_end_date?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   end_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   modified_at?: Maybe<OrderBy>;
   modified_by_user_id?: Maybe<OrderBy>;
   start_date?: Maybe<OrderBy>;
+  terminated_at?: Maybe<OrderBy>;
+  terminated_by_user_id?: Maybe<OrderBy>;
 };
 
 /** aggregate min on columns */
 export type ContractsMinFields = {
+  adjusted_end_date?: Maybe<Scalars["date"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   end_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   modified_at?: Maybe<Scalars["timestamptz"]>;
   modified_by_user_id?: Maybe<Scalars["uuid"]>;
   start_date?: Maybe<Scalars["date"]>;
+  terminated_at?: Maybe<Scalars["timestamptz"]>;
+  terminated_by_user_id?: Maybe<Scalars["uuid"]>;
 };
 
 /** order by min() on columns of table "contracts" */
 export type ContractsMinOrderBy = {
+  adjusted_end_date?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   end_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   modified_at?: Maybe<OrderBy>;
   modified_by_user_id?: Maybe<OrderBy>;
   start_date?: Maybe<OrderBy>;
+  terminated_at?: Maybe<OrderBy>;
+  terminated_by_user_id?: Maybe<OrderBy>;
 };
 
 /** response of any mutation on the table "contracts" */
@@ -2635,16 +2665,21 @@ export type ContractsOnConflict = {
 
 /** ordering options when selecting data from "contracts" */
 export type ContractsOrderBy = {
+  adjusted_end_date?: Maybe<OrderBy>;
   companies_aggregate?: Maybe<CompaniesAggregateOrderBy>;
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
   end_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   modified_at?: Maybe<OrderBy>;
+  modified_by_user?: Maybe<UsersOrderBy>;
   modified_by_user_id?: Maybe<OrderBy>;
   product_config?: Maybe<OrderBy>;
   product_type?: Maybe<OrderBy>;
   start_date?: Maybe<OrderBy>;
+  terminated_at?: Maybe<OrderBy>;
+  terminated_by_user?: Maybe<UsersOrderBy>;
+  terminated_by_user_id?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: "contracts" */
@@ -2660,6 +2695,8 @@ export type ContractsPrependInput = {
 /** select columns of table "contracts" */
 export enum ContractsSelectColumn {
   /** column name */
+  AdjustedEndDate = "adjusted_end_date",
+  /** column name */
   CompanyId = "company_id",
   /** column name */
   EndDate = "end_date",
@@ -2675,10 +2712,15 @@ export enum ContractsSelectColumn {
   ProductType = "product_type",
   /** column name */
   StartDate = "start_date",
+  /** column name */
+  TerminatedAt = "terminated_at",
+  /** column name */
+  TerminatedByUserId = "terminated_by_user_id",
 }
 
 /** input type for updating data in table "contracts" */
 export type ContractsSetInput = {
+  adjusted_end_date?: Maybe<Scalars["date"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   end_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -2687,10 +2729,14 @@ export type ContractsSetInput = {
   product_config?: Maybe<Scalars["jsonb"]>;
   product_type?: Maybe<ProductTypeEnum>;
   start_date?: Maybe<Scalars["date"]>;
+  terminated_at?: Maybe<Scalars["timestamptz"]>;
+  terminated_by_user_id?: Maybe<Scalars["uuid"]>;
 };
 
 /** update columns of table "contracts" */
 export enum ContractsUpdateColumn {
+  /** column name */
+  AdjustedEndDate = "adjusted_end_date",
   /** column name */
   CompanyId = "company_id",
   /** column name */
@@ -2707,6 +2753,10 @@ export enum ContractsUpdateColumn {
   ProductType = "product_type",
   /** column name */
   StartDate = "start_date",
+  /** column name */
+  TerminatedAt = "terminated_at",
+  /** column name */
+  TerminatedByUserId = "terminated_by_user_id",
 }
 
 /** expression to compare columns of type date. All fields are combined with logical 'AND'. */
@@ -11420,19 +11470,6 @@ export type GetAdvancesQuery = {
   >;
 };
 
-export type AddCustomerMutationVariables = Exact<{
-  customer: CompaniesInsertInput;
-}>;
-
-export type AddCustomerMutation = {
-  insert_companies_one?: Maybe<
-    Pick<Companies, "id" | "name"> & {
-      settings: Pick<CompanySettings, "id">;
-      contract?: Maybe<Pick<Contracts, "id" | "product_type">>;
-    }
-  >;
-};
-
 export type GetCustomerForBankQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -13090,62 +13127,6 @@ export type GetAdvancesLazyQueryHookResult = ReturnType<
 export type GetAdvancesQueryResult = Apollo.QueryResult<
   GetAdvancesQuery,
   GetAdvancesQueryVariables
->;
-export const AddCustomerDocument = gql`
-  mutation AddCustomer($customer: companies_insert_input!) {
-    insert_companies_one(object: $customer) {
-      id
-      name
-      settings {
-        id
-      }
-      contract {
-        id
-        product_type
-      }
-    }
-  }
-`;
-export type AddCustomerMutationFn = Apollo.MutationFunction<
-  AddCustomerMutation,
-  AddCustomerMutationVariables
->;
-
-/**
- * __useAddCustomerMutation__
- *
- * To run a mutation, you first call `useAddCustomerMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddCustomerMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [addCustomerMutation, { data, loading, error }] = useAddCustomerMutation({
- *   variables: {
- *      customer: // value for 'customer'
- *   },
- * });
- */
-export function useAddCustomerMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    AddCustomerMutation,
-    AddCustomerMutationVariables
-  >
-) {
-  return Apollo.useMutation<AddCustomerMutation, AddCustomerMutationVariables>(
-    AddCustomerDocument,
-    baseOptions
-  );
-}
-export type AddCustomerMutationHookResult = ReturnType<
-  typeof useAddCustomerMutation
->;
-export type AddCustomerMutationResult = Apollo.MutationResult<AddCustomerMutation>;
-export type AddCustomerMutationOptions = Apollo.BaseMutationOptions<
-  AddCustomerMutation,
-  AddCustomerMutationVariables
 >;
 export const GetCustomerForBankDocument = gql`
   query GetCustomerForBank($id: uuid!) {
