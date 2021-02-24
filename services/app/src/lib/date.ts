@@ -11,9 +11,16 @@ export function formatDateString(dateString: string) {
   if (!dateString) {
     return "Invalid Date";
   } else {
-    return format(
-      parse(dateString, DateFormatServer, new Date()),
-      "MM/dd/yyyy"
-    );
+    try {
+      return format(
+        parse(dateString, DateFormatServer, new Date()),
+        "MM/dd/yyyy"
+      );
+    } catch (error) {
+      console.error(
+        `Could not format the date string "${dateString}", returning null. Error message: "${error}".`
+      );
+      return null;
+    }
   }
 }
