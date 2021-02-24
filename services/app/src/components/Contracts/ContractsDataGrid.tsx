@@ -3,6 +3,7 @@ import { ValueFormatterParams } from "@material-ui/data-grid";
 import ContractDrawerLauncher from "components/Contract/ContractDrawerLauncher";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import { DataGridActionItem } from "components/Shared/DataGrid/DataGridActionMenu";
+import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { ContractFragment } from "generated/graphql";
 
 interface Props {
@@ -36,11 +37,25 @@ function ContractsDataGrid({
       dataField: "start_date",
       caption: "Start Date",
       alignment: "right",
+      cellRender: (params: ValueFormatterParams) => (
+        <DateDataGridCell dateString={params.row.data.start_date} />
+      ),
     },
     {
       dataField: "end_date",
       caption: "End Date",
       alignment: "right",
+      cellRender: (params: ValueFormatterParams) => (
+        <DateDataGridCell dateString={params.row.data.end_date} />
+      ),
+    },
+    {
+      dataField: "adjusted_end_date",
+      caption: "Termination Date",
+      alignment: "right",
+      cellRender: (params: ValueFormatterParams) => (
+        <DateDataGridCell dateString={params.row.data.adjusted_end_date} />
+      ),
     },
   ];
 

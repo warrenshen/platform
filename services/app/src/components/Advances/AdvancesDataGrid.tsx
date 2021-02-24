@@ -71,6 +71,7 @@ function AdvancesDataGrid({
     {
       caption: "Payment Date",
       width: 140,
+      alignment: "right",
       cellRender: (params: ValueFormatterParams) => (
         <DateDataGridCell dateString={params.row.data.payment_date} />
       ),
@@ -78,6 +79,7 @@ function AdvancesDataGrid({
     {
       caption: "Settlement Date",
       width: 140,
+      alignment: "right",
       cellRender: (params: ValueFormatterParams) => (
         <DateDataGridCell dateString={params.row.data.settlement_date} />
       ),
