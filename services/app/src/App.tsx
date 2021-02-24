@@ -32,6 +32,7 @@ import BankPurchaseOrdersPage from "pages/Bank/PurchaseOrders";
 import BankTransactionsPage from "pages/Bank/Transactions";
 import BankVendorsPage from "pages/Bank/Vendors";
 import CustomerCompanyProfilePage from "pages/Customer/CompanyProfile";
+import CustomerContractPage from "pages/Customer/Contract";
 import CustomerEbbaApplicationsPage from "pages/Customer/EbbaApplications";
 import CustomerLoansPage from "pages/Customer/Loans";
 import CustomerOverviewPage from "pages/Customer/Overview";
@@ -140,6 +141,16 @@ function App() {
           ]}
         >
           <CustomerCompanyProfilePage />
+        </PrivateRoute>
+        <PrivateRoute
+          exact
+          path={customerRoutes.contract}
+          requiredRoles={[
+            UserRolesEnum.CompanyAdmin,
+            UserRolesEnum.CompanyReadOnly,
+          ]}
+        >
+          <CustomerContractPage />
         </PrivateRoute>
         <PrivateRoute
           exact

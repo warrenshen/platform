@@ -20,7 +20,7 @@ import {
   Contracts,
   ContractsInsertInput,
   ProductTypeEnum,
-  useContractQuery,
+  useGetContractQuery,
   useUpdateContractMutation,
 } from "generated/graphql";
 import { ProductTypeToContractTermsJson, ProductTypeToLabel } from "lib/enum";
@@ -136,7 +136,7 @@ function ContractTermsModal({ isViewOnly, contractId, onClose }: Props) {
 
   const [currentJSONConfig, setCurrentJSONConfig] = useState<any>({});
 
-  const { loading: isExistingContractLoading } = useContractQuery({
+  const { loading: isExistingContractLoading } = useGetContractQuery({
     variables: { id: contractId },
     onCompleted: (data) => {
       const existingContract = data?.contracts_by_pk;

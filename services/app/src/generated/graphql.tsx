@@ -892,6 +892,10 @@ export type Companies = {
   /** An object relationship */
   contract?: Maybe<Contracts>;
   contract_id?: Maybe<Scalars["uuid"]>;
+  /** An array relationship */
+  contracts: Array<Contracts>;
+  /** An aggregated array relationship */
+  contracts_aggregate: ContractsAggregate;
   country?: Maybe<Scalars["String"]>;
   created_at: Scalars["timestamptz"];
   dba_name?: Maybe<Scalars["String"]>;
@@ -1006,6 +1010,24 @@ export type CompaniesCompanyVendorPartnershipsByVendorAggregateArgs = {
   offset?: Maybe<Scalars["Int"]>;
   order_by?: Maybe<Array<CompanyVendorPartnershipsOrderBy>>;
   where?: Maybe<CompanyVendorPartnershipsBoolExp>;
+};
+
+/** columns and relationships of "companies" */
+export type CompaniesContractsArgs = {
+  distinct_on?: Maybe<Array<ContractsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<ContractsOrderBy>>;
+  where?: Maybe<ContractsBoolExp>;
+};
+
+/** columns and relationships of "companies" */
+export type CompaniesContractsAggregateArgs = {
+  distinct_on?: Maybe<Array<ContractsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<ContractsOrderBy>>;
+  where?: Maybe<ContractsBoolExp>;
 };
 
 /** columns and relationships of "companies" */
@@ -1188,6 +1210,7 @@ export type CompaniesBoolExp = {
   company_vendor_partnerships_by_vendor?: Maybe<CompanyVendorPartnershipsBoolExp>;
   contract?: Maybe<ContractsBoolExp>;
   contract_id?: Maybe<UuidComparisonExp>;
+  contracts?: Maybe<ContractsBoolExp>;
   country?: Maybe<StringComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   dba_name?: Maybe<StringComparisonExp>;
@@ -1233,6 +1256,7 @@ export type CompaniesInsertInput = {
   company_vendor_partnerships_by_vendor?: Maybe<CompanyVendorPartnershipsArrRelInsertInput>;
   contract?: Maybe<ContractsObjRelInsertInput>;
   contract_id?: Maybe<Scalars["uuid"]>;
+  contracts?: Maybe<ContractsArrRelInsertInput>;
   country?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   dba_name?: Maybe<Scalars["String"]>;
@@ -1368,6 +1392,7 @@ export type CompaniesOrderBy = {
   company_vendor_partnerships_by_vendor_aggregate?: Maybe<CompanyVendorPartnershipsAggregateOrderBy>;
   contract?: Maybe<ContractsOrderBy>;
   contract_id?: Maybe<OrderBy>;
+  contracts_aggregate?: Maybe<ContractsAggregateOrderBy>;
   country?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   dba_name?: Maybe<OrderBy>;
@@ -11823,12 +11848,16 @@ export type GetSubmittedPaymentsQuery = {
   >;
 };
 
-export type ContractQueryVariables = Exact<{
+export type GetContractQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
 
-export type ContractQuery = {
-  contracts_by_pk?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
+export type GetContractQuery = {
+  contracts_by_pk?: Maybe<
+    Pick<Contracts, "id"> & {
+      company?: Maybe<Pick<Companies, "id" | "name">>;
+    } & ContractFragment
+  >;
 };
 
 export type AddContractMutationVariables = Exact<{
@@ -11995,6 +12024,22 @@ export type GetCompanyForCustomerBorrowingBaseQuery = {
           Pick<EbbaApplications, "id"> & EbbaApplicationFragment
         >;
       };
+    }
+  >;
+};
+
+export type GetCompanyForCustomerContractPageQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+}>;
+
+export type GetCompanyForCustomerContractPageQuery = {
+  companies_by_pk?: Maybe<
+    Pick<Companies, "id"> & {
+      contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
+      contracts: Array<Pick<Contracts, "id"> & ContractFragment>;
+      financial_summary?: Maybe<
+        Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
+      >;
     }
   >;
 };
@@ -15238,58 +15283,65 @@ export type GetSubmittedPaymentsQueryResult = Apollo.QueryResult<
   GetSubmittedPaymentsQuery,
   GetSubmittedPaymentsQueryVariables
 >;
-export const ContractDocument = gql`
-  query Contract($id: uuid!) {
+export const GetContractDocument = gql`
+  query GetContract($id: uuid!) {
     contracts_by_pk(id: $id) {
       id
       ...Contract
+      company {
+        id
+        name
+      }
     }
   }
   ${ContractFragmentDoc}
 `;
 
 /**
- * __useContractQuery__
+ * __useGetContractQuery__
  *
- * To run a query within a React component, call `useContractQuery` and pass it any options that fit your needs.
- * When your component renders, `useContractQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetContractQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContractQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useContractQuery({
+ * const { data, loading, error } = useGetContractQuery({
  *   variables: {
  *      id: // value for 'id'
  *   },
  * });
  */
-export function useContractQuery(
-  baseOptions: Apollo.QueryHookOptions<ContractQuery, ContractQueryVariables>
-) {
-  return Apollo.useQuery<ContractQuery, ContractQueryVariables>(
-    ContractDocument,
-    baseOptions
-  );
-}
-export function useContractLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    ContractQuery,
-    ContractQueryVariables
+export function useGetContractQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetContractQuery,
+    GetContractQueryVariables
   >
 ) {
-  return Apollo.useLazyQuery<ContractQuery, ContractQueryVariables>(
-    ContractDocument,
+  return Apollo.useQuery<GetContractQuery, GetContractQueryVariables>(
+    GetContractDocument,
     baseOptions
   );
 }
-export type ContractQueryHookResult = ReturnType<typeof useContractQuery>;
-export type ContractLazyQueryHookResult = ReturnType<
-  typeof useContractLazyQuery
+export function useGetContractLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetContractQuery,
+    GetContractQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<GetContractQuery, GetContractQueryVariables>(
+    GetContractDocument,
+    baseOptions
+  );
+}
+export type GetContractQueryHookResult = ReturnType<typeof useGetContractQuery>;
+export type GetContractLazyQueryHookResult = ReturnType<
+  typeof useGetContractLazyQuery
 >;
-export type ContractQueryResult = Apollo.QueryResult<
-  ContractQuery,
-  ContractQueryVariables
+export type GetContractQueryResult = Apollo.QueryResult<
+  GetContractQuery,
+  GetContractQueryVariables
 >;
 export const AddContractDocument = gql`
   mutation AddContract($contract: contracts_insert_input!) {
@@ -16059,6 +16111,76 @@ export type GetCompanyForCustomerBorrowingBaseLazyQueryHookResult = ReturnType<
 export type GetCompanyForCustomerBorrowingBaseQueryResult = Apollo.QueryResult<
   GetCompanyForCustomerBorrowingBaseQuery,
   GetCompanyForCustomerBorrowingBaseQueryVariables
+>;
+export const GetCompanyForCustomerContractPageDocument = gql`
+  query GetCompanyForCustomerContractPage($companyId: uuid!) {
+    companies_by_pk(id: $companyId) {
+      id
+      contract {
+        id
+        ...Contract
+      }
+      contracts(order_by: [{ end_date: desc }]) {
+        id
+        ...Contract
+      }
+      financial_summary {
+        id
+        ...FinancialSummary
+      }
+    }
+  }
+  ${ContractFragmentDoc}
+  ${FinancialSummaryFragmentDoc}
+`;
+
+/**
+ * __useGetCompanyForCustomerContractPageQuery__
+ *
+ * To run a query within a React component, call `useGetCompanyForCustomerContractPageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompanyForCustomerContractPageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCompanyForCustomerContractPageQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useGetCompanyForCustomerContractPageQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetCompanyForCustomerContractPageQuery,
+    GetCompanyForCustomerContractPageQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetCompanyForCustomerContractPageQuery,
+    GetCompanyForCustomerContractPageQueryVariables
+  >(GetCompanyForCustomerContractPageDocument, baseOptions);
+}
+export function useGetCompanyForCustomerContractPageLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCompanyForCustomerContractPageQuery,
+    GetCompanyForCustomerContractPageQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetCompanyForCustomerContractPageQuery,
+    GetCompanyForCustomerContractPageQueryVariables
+  >(GetCompanyForCustomerContractPageDocument, baseOptions);
+}
+export type GetCompanyForCustomerContractPageQueryHookResult = ReturnType<
+  typeof useGetCompanyForCustomerContractPageQuery
+>;
+export type GetCompanyForCustomerContractPageLazyQueryHookResult = ReturnType<
+  typeof useGetCompanyForCustomerContractPageLazyQuery
+>;
+export type GetCompanyForCustomerContractPageQueryResult = Apollo.QueryResult<
+  GetCompanyForCustomerContractPageQuery,
+  GetCompanyForCustomerContractPageQueryVariables
 >;
 export const GetLatestBankFinancialSummariesDocument = gql`
   query GetLatestBankFinancialSummaries {

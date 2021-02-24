@@ -1,9 +1,9 @@
 import { Box } from "@material-ui/core";
 import AddAccountButton from "components/BankAccount/AddAccountButton";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
+import ContractSettingsCard from "components/Contract/ContractCard";
+import ContractTermsModal from "components/Contract/ContractTermsModal";
 import CompanySettingsCard from "components/Settings/CompanySettingsCard";
-import ContractSettingsCard from "components/Settings/ContractSettingsCard";
-import ContractTermsModal from "components/Settings/ContractTermsModal";
 import EditAccountSettingsModal from "components/Settings/EditCompanySettingsModal";
 import {
   BankAccountFragment,

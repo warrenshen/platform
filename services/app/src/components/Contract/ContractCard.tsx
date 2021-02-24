@@ -17,7 +17,7 @@ import { ProductTypeToLabel } from "lib/enum";
 
 interface Props {
   contract: ContractFragment;
-  handleClick: () => void;
+  handleClick?: () => void;
 }
 
 const useStyles = makeStyles(() =>
@@ -33,7 +33,7 @@ const useStyles = makeStyles(() =>
   })
 );
 
-function ContractSettingsCard({ contract, handleClick }: Props) {
+function ContractCard({ contract, handleClick }: Props) {
   const classes = useStyles();
 
   return (
@@ -41,7 +41,7 @@ function ContractSettingsCard({ contract, handleClick }: Props) {
       <CardContent>
         <Box display="flex" flexDirection="column">
           <Box display="flex" pb={0.25}>
-            <Box className={classes.label}>Contract Type</Box>
+            <Box className={classes.label}>Product Type</Box>
             <Box>{ProductTypeToLabel[contract.product_type]}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
@@ -79,4 +79,4 @@ function ContractSettingsCard({ contract, handleClick }: Props) {
   );
 }
 
-export default ContractSettingsCard;
+export default ContractCard;

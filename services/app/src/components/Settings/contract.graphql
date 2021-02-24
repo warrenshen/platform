@@ -1,7 +1,11 @@
-query Contract($id: uuid!) {
+query GetContract($id: uuid!) {
   contracts_by_pk(id: $id) {
     id
     ...Contract
+    company {
+      id
+      name
+    }
   }
 }
 

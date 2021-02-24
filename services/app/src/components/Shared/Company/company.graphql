@@ -91,6 +91,24 @@ query GetCompanyForCustomerBorrowingBase($companyId: uuid!) {
   }
 }
 
+query GetCompanyForCustomerContractPage($companyId: uuid!) {
+  companies_by_pk(id: $companyId) {
+    id
+    contract {
+      id
+      ...Contract
+    }
+    contracts(order_by: [{ end_date: desc }]) {
+      id
+      ...Contract
+    }
+    financial_summary {
+      id
+      ...FinancialSummary
+    }
+  }
+}
+
 query GetLatestBankFinancialSummaries {
   bank_financial_summaries(limit: 4, order_by: { date: desc }) {
     id

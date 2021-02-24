@@ -99,6 +99,10 @@ const getCustomerNavItems = (productType: ProductTypeEnum): NavItem[] => {
       link: customerRoutes.vendors,
     },
     {
+      text: "Contract",
+      link: customerRoutes.contract,
+    },
+    {
       text: "Company Profile",
       link: customerRoutes.companyProfile,
     },
