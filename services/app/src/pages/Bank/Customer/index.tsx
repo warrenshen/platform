@@ -17,7 +17,6 @@ import {
   useParams,
   useRouteMatch,
 } from "react-router-dom";
-import BankCustomerCompanyProfileSubpage from "./CompanyProfile";
 import BankCustomerEbbaApplicationsSubpage from "./EbbaApplications";
 import BankCustomerLoansSubpage from "./Loans";
 import BankCustomerOverviewSubpage from "./Overview";
@@ -92,11 +91,6 @@ const getCustomerPaths = (productType: ProductTypeEnum) => [
     path: bankRoutes.customer.users,
     component: BankCustomerUsersSubpage,
     label: "Users",
-  },
-  {
-    path: bankRoutes.customer.companyProfile,
-    component: BankCustomerCompanyProfileSubpage,
-    label: "Company Profile",
   },
   {
     path: bankRoutes.customer.settings,

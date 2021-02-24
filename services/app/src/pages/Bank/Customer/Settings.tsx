@@ -29,7 +29,6 @@ function SettingsPage() {
   });
 
   const company = data?.companies_by_pk;
-
   const settings = data?.companies_by_pk?.settings as CompanySettingsFragment;
   const contract = data?.companies_by_pk?.contract as ContractFragment;
 
@@ -37,6 +36,7 @@ function SettingsPage() {
     <>
       <Settings
         companyId={companyId}
+        company={company}
         settings={settings}
         contract={contract}
         bankAccounts={data?.companies_by_pk?.bank_accounts || []}

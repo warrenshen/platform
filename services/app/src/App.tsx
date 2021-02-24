@@ -31,7 +31,6 @@ import BankPaymentsReverseDraftAchPage from "pages/Bank/PaymentsReverseDraftAchP
 import BankPurchaseOrdersPage from "pages/Bank/PurchaseOrders";
 import BankTransactionsPage from "pages/Bank/Transactions";
 import BankVendorsPage from "pages/Bank/Vendors";
-import CustomerCompanyProfilePage from "pages/Customer/CompanyProfile";
 import CustomerContractPage from "pages/Customer/Contract";
 import CustomerEbbaApplicationsPage from "pages/Customer/EbbaApplications";
 import CustomerLoansPage from "pages/Customer/Loans";
@@ -131,16 +130,6 @@ function App() {
           ]}
         >
           <CustomerOverviewPage />
-        </PrivateRoute>
-        <PrivateRoute
-          exact
-          path={customerRoutes.companyProfile}
-          requiredRoles={[
-            UserRolesEnum.CompanyAdmin,
-            UserRolesEnum.CompanyReadOnly,
-          ]}
-        >
-          <CustomerCompanyProfilePage />
         </PrivateRoute>
         <PrivateRoute
           exact

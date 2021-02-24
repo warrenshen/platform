@@ -3,8 +3,10 @@ import AddAccountButton from "components/BankAccount/AddAccountButton";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import CompanySettingsCard from "components/Settings/CompanySettingsCard";
 import EditAccountSettingsModal from "components/Settings/EditCompanySettingsModal";
+import CompanyInfo from "components/Shared/CompanyProfile/CompanyInfo";
 import {
   BankAccountFragment,
+  CompanyFragment,
   CompanySettingsForCustomerFragment,
   CompanySettingsFragment,
   ContractFragment,
@@ -13,6 +15,7 @@ import React, { useState } from "react";
 
 interface Props {
   companyId: string;
+  company: CompanyFragment;
   settings: CompanySettingsFragment | CompanySettingsForCustomerFragment;
   contract: ContractFragment | null;
   bankAccounts: BankAccountFragment[];
@@ -21,6 +24,7 @@ interface Props {
 
 function Settings({
   companyId,
+  company,
   settings,
   contract,
   bankAccounts,
@@ -34,6 +38,9 @@ function Settings({
         <h2>Account Settings</h2>
         <Box>
           <h3>Customer Settings</h3>
+          <Box mt={3}>
+            <CompanyInfo company={company} />
+          </Box>
           <Box mt={3}>
             {accountSettingsOpen && (
               <EditAccountSettingsModal

@@ -28,19 +28,23 @@ function SettingsPage() {
     return null;
   }
 
+  const company = data?.companies_by_pk;
   const settings = data?.companies_by_pk
     ?.settings as CompanySettingsForCustomerFragment;
   const contract = data?.companies_by_pk?.contract as ContractFragment;
 
   return (
     <Page appBarTitle={"Settings"}>
-      <Settings
-        companyId={companyId}
-        settings={settings}
-        contract={contract}
-        bankAccounts={data?.companies_by_pk?.bank_accounts || []}
-        handleDataChange={() => refetch()}
-      />
+      {company && (
+        <Settings
+          companyId={companyId}
+          company={company}
+          settings={settings}
+          contract={contract}
+          bankAccounts={data?.companies_by_pk?.bank_accounts || []}
+          handleDataChange={() => refetch()}
+        />
+      )}
     </Page>
   );
 }
