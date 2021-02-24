@@ -49,7 +49,7 @@ fragment Contract on contracts {
   product_config
   start_date
   end_date
-  adjusted_start_date
+  adjusted_end_date
 }
 
 ## Purchase Order Financing
