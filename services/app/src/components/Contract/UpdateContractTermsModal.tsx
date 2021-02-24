@@ -202,7 +202,6 @@ function UpdateContractTermsModal({ contractId, handleClose }: Props) {
       variables: {
         contractId,
         contract: {
-          ...contract,
           product_config: productConfig,
         },
       },
