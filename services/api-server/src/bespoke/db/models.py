@@ -87,7 +87,7 @@ class Company(Base):
 	name = Column(String)
 	identifier = Column(String)
 	contract_id = Column(GUID)
-	needs_balance_recomputed = Column(Boolean)
+	needs_balance_recomputed = Column(Boolean, nullable=False, default=False)
 
 	def as_dict(self) -> CompanyDict:
 		return CompanyDict(
