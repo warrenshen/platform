@@ -55,6 +55,16 @@ function PurchaseOrdersDataGrid({
       ),
     },
     {
+      dataField: "action",
+      caption: "Action",
+      alignment: "center",
+      width: 75,
+      visible: check(user.role, Action.ViewPurchaseOrdersActionMenu),
+      cellRender: (params: ValueFormatterParams) => (
+        <DataGridActionMenu params={params} actionItems={actionItems} />
+      ),
+    },
+    {
       dataField: "status",
       caption: "Status",
       width: 165,
@@ -63,14 +73,11 @@ function PurchaseOrdersDataGrid({
         <RequestStatusChip requestStatus={params.value as RequestStatusEnum} />
       ),
     },
-    ...(isCompanyVisible
-      ? [
-          {
-            dataField: "company_name",
-            caption: "Customer",
-          },
-        ]
-      : []),
+    {
+      visible: isCompanyVisible,
+      dataField: "company_name",
+      caption: "Customer",
+    },
     {
       dataField: "vendor_name",
       caption: "Vendor",
@@ -95,16 +102,6 @@ function PurchaseOrdersDataGrid({
       width: 115,
       cellRender: (params: ValueFormatterParams) => (
         <DateDataGridCell dateString={params.row.data.delivery_date} />
-      ),
-    },
-    {
-      dataField: "action",
-      caption: "Action",
-      alignment: "center",
-      width: 75,
-      visible: check(user.role, Action.ViewPurchaseOrdersActionMenu),
-      cellRender: (params: ValueFormatterParams) => (
-        <DataGridActionMenu params={params} actionItems={actionItems} />
       ),
     },
   ];
