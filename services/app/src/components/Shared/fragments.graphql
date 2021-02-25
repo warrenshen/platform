@@ -90,6 +90,7 @@ fragment LoanLimited on loans {
   artifact_id
   identifier
   status
+  payment_status
   amount
   requested_payment_date
   origination_date

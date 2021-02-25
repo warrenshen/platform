@@ -33343,6 +33343,18 @@
             "deprecationReason": null
           },
           {
+            "name": "payment_status",
+            "description": "The state of a payment which may be relevant to this loan",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "purchase_order",
             "description": "An object relationship",
             "args": [],
@@ -33428,7 +33440,7 @@
           },
           {
             "name": "status",
-            "description": null,
+            "description": "This is the loan request status, e.g., drafted, approved, more_details_required, rejected",
             "args": [],
             "type": {
               "kind": "NON_NULL",
@@ -34206,6 +34218,16 @@
             "defaultValue": null
           },
           {
+            "name": "payment_status",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "String_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "purchase_order",
             "description": null,
             "type": {
@@ -34585,6 +34607,16 @@
             "defaultValue": null
           },
           {
+            "name": "payment_status",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "purchase_order",
             "description": null,
             "type": {
@@ -34903,6 +34935,18 @@
             "deprecationReason": null
           },
           {
+            "name": "payment_status",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "rejected_at",
             "description": null,
             "args": [],
@@ -35168,6 +35212,16 @@
           },
           {
             "name": "outstanding_principal_balance",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "payment_status",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -35475,6 +35529,18 @@
             "deprecationReason": null
           },
           {
+            "name": "payment_status",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "rejected_at",
             "description": null,
             "args": [],
@@ -35740,6 +35806,16 @@
           },
           {
             "name": "outstanding_principal_balance",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "payment_status",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -36183,6 +36259,16 @@
             "defaultValue": null
           },
           {
+            "name": "payment_status",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "purchase_order",
             "description": null,
             "type": {
@@ -36416,6 +36502,12 @@
           },
           {
             "name": "outstanding_principal_balance",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "payment_status",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -36667,6 +36759,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "payment_status",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "defaultValue": null
@@ -37310,6 +37412,12 @@
           },
           {
             "name": "outstanding_principal_balance",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "payment_status",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

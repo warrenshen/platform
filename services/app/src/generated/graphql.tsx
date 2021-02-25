@@ -4880,6 +4880,8 @@ export type Loans = {
   outstanding_fees?: Maybe<Scalars["numeric"]>;
   outstanding_interest?: Maybe<Scalars["numeric"]>;
   outstanding_principal_balance?: Maybe<Scalars["numeric"]>;
+  /** The state of a payment which may be relevant to this loan */
+  payment_status?: Maybe<Scalars["String"]>;
   /** An object relationship */
   purchase_order?: Maybe<PurchaseOrders>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
@@ -4889,6 +4891,7 @@ export type Loans = {
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   /** When the user first requests a loan, they request what day they want the payment to be made to them */
   requested_payment_date?: Maybe<Scalars["date"]>;
+  /** This is the loan request status, e.g., drafted, approved, more_details_required, rejected */
   status: LoanStatusEnum;
 };
 
@@ -4983,6 +4986,7 @@ export type LoansBoolExp = {
   outstanding_fees?: Maybe<NumericComparisonExp>;
   outstanding_interest?: Maybe<NumericComparisonExp>;
   outstanding_principal_balance?: Maybe<NumericComparisonExp>;
+  payment_status?: Maybe<StringComparisonExp>;
   purchase_order?: Maybe<PurchaseOrdersBoolExp>;
   rejected_at?: Maybe<TimestamptzComparisonExp>;
   rejected_by_user_id?: Maybe<UuidComparisonExp>;
@@ -5031,6 +5035,7 @@ export type LoansInsertInput = {
   outstanding_fees?: Maybe<Scalars["numeric"]>;
   outstanding_interest?: Maybe<Scalars["numeric"]>;
   outstanding_principal_balance?: Maybe<Scalars["numeric"]>;
+  payment_status?: Maybe<Scalars["String"]>;
   purchase_order?: Maybe<PurchaseOrdersObjRelInsertInput>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -5062,6 +5067,7 @@ export type LoansMaxFields = {
   outstanding_fees?: Maybe<Scalars["numeric"]>;
   outstanding_interest?: Maybe<Scalars["numeric"]>;
   outstanding_principal_balance?: Maybe<Scalars["numeric"]>;
+  payment_status?: Maybe<Scalars["String"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
@@ -5091,6 +5097,7 @@ export type LoansMaxOrderBy = {
   outstanding_fees?: Maybe<OrderBy>;
   outstanding_interest?: Maybe<OrderBy>;
   outstanding_principal_balance?: Maybe<OrderBy>;
+  payment_status?: Maybe<OrderBy>;
   rejected_at?: Maybe<OrderBy>;
   rejected_by_user_id?: Maybe<OrderBy>;
   rejection_note?: Maybe<OrderBy>;
@@ -5120,6 +5127,7 @@ export type LoansMinFields = {
   outstanding_fees?: Maybe<Scalars["numeric"]>;
   outstanding_interest?: Maybe<Scalars["numeric"]>;
   outstanding_principal_balance?: Maybe<Scalars["numeric"]>;
+  payment_status?: Maybe<Scalars["String"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
@@ -5149,6 +5157,7 @@ export type LoansMinOrderBy = {
   outstanding_fees?: Maybe<OrderBy>;
   outstanding_interest?: Maybe<OrderBy>;
   outstanding_principal_balance?: Maybe<OrderBy>;
+  payment_status?: Maybe<OrderBy>;
   rejected_at?: Maybe<OrderBy>;
   rejected_by_user_id?: Maybe<OrderBy>;
   rejection_note?: Maybe<OrderBy>;
@@ -5202,6 +5211,7 @@ export type LoansOrderBy = {
   outstanding_fees?: Maybe<OrderBy>;
   outstanding_interest?: Maybe<OrderBy>;
   outstanding_principal_balance?: Maybe<OrderBy>;
+  payment_status?: Maybe<OrderBy>;
   purchase_order?: Maybe<PurchaseOrdersOrderBy>;
   rejected_at?: Maybe<OrderBy>;
   rejected_by_user_id?: Maybe<OrderBy>;
@@ -5260,6 +5270,8 @@ export enum LoansSelectColumn {
   /** column name */
   OutstandingPrincipalBalance = "outstanding_principal_balance",
   /** column name */
+  PaymentStatus = "payment_status",
+  /** column name */
   RejectedAt = "rejected_at",
   /** column name */
   RejectedByUserId = "rejected_by_user_id",
@@ -5297,6 +5309,7 @@ export type LoansSetInput = {
   outstanding_fees?: Maybe<Scalars["numeric"]>;
   outstanding_interest?: Maybe<Scalars["numeric"]>;
   outstanding_principal_balance?: Maybe<Scalars["numeric"]>;
+  payment_status?: Maybe<Scalars["String"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
@@ -5412,6 +5425,8 @@ export enum LoansUpdateColumn {
   OutstandingInterest = "outstanding_interest",
   /** column name */
   OutstandingPrincipalBalance = "outstanding_principal_balance",
+  /** column name */
+  PaymentStatus = "payment_status",
   /** column name */
   RejectedAt = "rejected_at",
   /** column name */
@@ -12265,6 +12280,7 @@ export type LoanLimitedFragment = Pick<
   | "artifact_id"
   | "identifier"
   | "status"
+  | "payment_status"
   | "amount"
   | "requested_payment_date"
   | "origination_date"
@@ -12625,6 +12641,8 @@ export type LoanFragment = Pick<
   | "outstanding_principal_balance"
   | "outstanding_interest"
   | "outstanding_fees"
+  | "rejected_at"
+  | "funded_at"
   | "requested_at"
 > & { company: Pick<Companies, "id" | "identifier"> };
 
@@ -12825,6 +12843,7 @@ export const LoanLimitedFragmentDoc = gql`
     artifact_id
     identifier
     status
+    payment_status
     amount
     requested_payment_date
     origination_date
@@ -13017,6 +13036,8 @@ export const LoanFragmentDoc = gql`
     outstanding_principal_balance
     outstanding_interest
     outstanding_fees
+    rejected_at
+    funded_at
     requested_at
     company {
       id

@@ -180,7 +180,6 @@ def fund_loans_with_advance(
 			if err:
 				return None, err
 
-			loan.status = db_constants.LoanStatusEnum.FUNDED
 			loan.funded_at = date_util.now()
 			loan.funded_by_user_id = bank_admin_user_id
 			loan.outstanding_principal_balance = loan.amount

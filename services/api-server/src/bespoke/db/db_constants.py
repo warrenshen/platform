@@ -34,13 +34,17 @@ class RequestStatusEnum(object):
 
 # Loans
 
+class PaymentStatusEnum(object):
+	PARTIALLY_PAID = 'partially_paid'
+	PENDING = 'pending'
+	SCHEDULED = 'scheduled'
+	CLOSED = 'closed'
+
 class LoanStatusEnum(object):
 	APPROVAL_REQUESTED = 'approval_requested'
 	APPROVED = 'approved'
 	CLOSED = 'closed'
 	DRAFTED = 'drafted'
-	FUNDED = 'funded'
-	PAST_DUE = 'past_due'
 	REJECTED = 'rejected'
 
 class LoanTypeEnum(object):

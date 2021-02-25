@@ -2,7 +2,8 @@ import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
-import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
+import IsFundedChip from "components/Shared/Chip/IsFundedChip";
+import PaymentStatusChip from "components/Shared/Chip/PaymentStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DataGridActionMenu, {
@@ -10,8 +11,9 @@ import DataGridActionMenu, {
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { LoanFragment, Loans, LoanStatusEnum } from "generated/graphql";
+import { LoanFragment, Loans } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
+import { PaymentStatusEnum } from "lib/enum";
 import { createLoanPublicIdentifier } from "lib/loans";
 import React, { useContext } from "react";
 
@@ -61,12 +63,22 @@ function PurchaseOrderLoansDataGrid({
       ),
     },
     {
-      dataField: "status",
+      dataField: "funded_at",
       caption: "Status",
       alignment: "center",
-      minWidth: 175,
+      minWidth: 100,
       cellRender: (params: ValueFormatterParams) => (
-        <LoanStatusChip loanStatus={params.value as LoanStatusEnum} />
+        <IsFundedChip fundedAt={params.value as string} />
+      ),
+    },
+    {
+      visible: isMaturityVisible,
+      dataField: "payment_status",
+      caption: "Payment Status",
+      alignment: "right",
+      width: 140,
+      cellRender: (params: ValueFormatterParams) => (
+        <PaymentStatusChip paymentStatus={params.value as PaymentStatusEnum} />
       ),
     },
     {

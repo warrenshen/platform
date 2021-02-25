@@ -15,6 +15,23 @@ export enum ActionType {
   Copy,
 }
 
+export enum PaymentStatusEnum {
+  PARTIALLY_PAID = "partially_paid",
+  PENDING = "pending",
+  SCHEDULED = "scheduled",
+  CLOSED = "closed",
+}
+
+// PaymentStatus internal name to label
+export const PaymentStatusToLabel = {
+  [PaymentStatusEnum.PARTIALLY_PAID]: "Partially Paid",
+  [PaymentStatusEnum.PENDING]: "Pending",
+  [PaymentStatusEnum.SCHEDULED]: "Scheduled",
+  [PaymentStatusEnum.CLOSED]: "Closed",
+};
+
+// TODO(dlluncor): Remove references to PastDue, Funded, Closed as these are not valid statuses
+// on the loan "request status"
 // Loan Status enum related.
 export const LoanStatusToLabel = {
   [LoanStatusEnum.Drafted]: "Drafted",

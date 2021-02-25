@@ -120,7 +120,6 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				self.assertAlmostEqual(amount, float(loan.outstanding_principal_balance))
 				self.assertAlmostEqual(0.0, float(loan.outstanding_interest))
 				self.assertAlmostEqual(0.0, float(loan.outstanding_fees))
-				self.assertEqual(LoanStatusEnum.FUNDED, loan.status)
 
 				self.assertIsNotNone(loan.funded_at)
 				self.assertEqual(bank_admin_user_id, loan.funded_by_user_id)

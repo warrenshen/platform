@@ -57,7 +57,7 @@ function CustomerLoansClosedPage() {
     financialSummary && financialSummary?.available_limit > 0;
 
   return (
-    <Page appBarTitle={"Loans - Closed"}>
+    <Page appBarTitle={"Loans - Active"}>
       <Box className={classes.container}>
         <Box className={classes.section}>
           <Typography variant="h6">
@@ -88,7 +88,7 @@ function CustomerLoansClosedPage() {
         </Box>
         <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
-          <Typography variant="h6">Loans - Not Approved</Typography>
+          <Typography variant="h6">Loans - Pending</Typography>
           <LoansActiveNotApproved />
         </Box>
         <Box className={classes.sectionSpace} />

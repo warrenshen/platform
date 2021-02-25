@@ -101,7 +101,7 @@ class TestListArtifactsForCreateLoan(db_unittest.TestCase):
 					loan_type=db_constants.LoanTypeEnum.INVENTORY,
 					requested_payment_date=date_util.load_date_str('10/01/2020'),
 					amount=decimal.Decimal(20.02),
-					status=db_constants.LoanStatusEnum.FUNDED
+					status=db_constants.LoanStatusEnum.APPROVED
 				),
 				models.Loan(
 					loan_type=db_constants.LoanTypeEnum.INVENTORY,
