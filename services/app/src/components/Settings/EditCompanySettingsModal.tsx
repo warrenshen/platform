@@ -167,13 +167,11 @@ function EditAccountSettingsModal({
               }}
               style={{ width: 200 }}
             >
-              {AllProductTypes.map((productType) => {
-                return (
-                  <MenuItem key={productType} value={productType}>
-                    {ProductTypeToLabel[productType as ProductTypeEnum]}
-                  </MenuItem>
-                );
-              })}
+              {AllProductTypes.map((productType) => (
+                <MenuItem key={productType} value={productType}>
+                  {ProductTypeToLabel[productType as ProductTypeEnum]}
+                </MenuItem>
+              ))}
             </Select>
           </Box>
           <Box mb={2}>

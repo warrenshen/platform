@@ -1,6 +1,6 @@
 import { Box, Typography } from "@material-ui/core";
 import ContractCard from "components/Contract/ContractCard";
-import ContractTermsModal from "components/Contract/UpdateContractTermsModal";
+import ContractTermsModal from "components/Contract/UpdateContractModal";
 import ContractsDataGrid from "components/Contracts/ContractsDataGrid";
 import { useGetCompanyForCustomerContractPageQuery } from "generated/graphql";
 import { useState } from "react";

@@ -1,5 +1,5 @@
 import { Box, Button } from "@material-ui/core";
-import AddButton from "components/Customer/AddCustomer/AddCustomerButton";
+import CreateCustomerModal from "components/Customer/CreateCustomerModal";
 import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -13,18 +13,17 @@ import { useRouteMatch } from "react-router-dom";
 
 function BankCustomersPage() {
   const { url } = useRouteMatch();
-  const { data } = useCustomersForBankQuery();
+  const { data, refetch } = useCustomersForBankQuery();
 
+  const [isCreateCustomerModalOpen, setIsCreateCustomerModalOpen] = useState(
+    false
+  );
   const [
     isRunCustomerBalancesModalOpen,
     setIsRunCustomerBalancesModalOpen,
   ] = useState(false);
 
-  if (!data?.companies) {
-    return null;
-  }
-
-  const companies = data.companies;
+  const companies = data?.companies || [];
 
   const customerNameCellRenderer = ({
     value,
@@ -89,7 +88,18 @@ function BankCustomersPage() {
       >
         {isRunCustomerBalancesModalOpen && (
           <RunCustomerBalancesModal
-            handleClose={() => setIsRunCustomerBalancesModalOpen(false)}
+            handleClose={() => {
+              refetch();
+              setIsRunCustomerBalancesModalOpen(false);
+            }}
+          />
+        )}
+        {isCreateCustomerModalOpen && (
+          <CreateCustomerModal
+            handleClose={() => {
+              refetch();
+              setIsCreateCustomerModalOpen(false);
+            }}
           />
         )}
         <Box>
@@ -102,7 +112,13 @@ function BankCustomersPage() {
           </Button>
         </Box>
         <Box mr={2}>
-          <AddButton />
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => setIsCreateCustomerModalOpen(true)}
+          >
+            Create Customer
+          </Button>
         </Box>
       </Box>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">

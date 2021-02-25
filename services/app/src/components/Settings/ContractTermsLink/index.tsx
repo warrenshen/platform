@@ -1,5 +1,5 @@
 import { Link } from "@material-ui/core";
-import ContractTermsModal from "components/Contract/UpdateContractTermsModal";
+import ContractTermsModal from "components/Contract/UpdateContractModal";
 import { Contracts } from "generated/graphql";
 import { useState } from "react";
 

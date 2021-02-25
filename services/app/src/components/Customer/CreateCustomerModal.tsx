@@ -12,21 +12,28 @@ import {
   Select,
   TextField,
   Theme,
+  Typography,
 } from "@material-ui/core";
+import ContractTermsForm from "components/Contract/ContractTermsForm";
 import {
   CompaniesInsertInput,
   CompanySettingsInsertInput,
+  ContractFragment,
   ContractsInsertInput,
   ProductTypeEnum,
 } from "generated/graphql";
-import { createCompany } from "lib/customer/createCustomer";
-import { AllProductTypes, ProductTypeToLabel } from "lib/enum";
-import { useState } from "react";
+import { createCompany } from "lib/customer/create";
+import {
+  AllProductTypes,
+  ProductTypeToContractTermsJson,
+  ProductTypeToLabel,
+} from "lib/enum";
+import { useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     dialog: {
-      width: 400,
+      width: 500,
     },
     dialogTitle: {
       borderBottom: "1px solid #c7c7c7",
@@ -48,10 +55,53 @@ function AddCustomerModal({ handleClose }: Props) {
   const classes = useStyles();
 
   const [customer, setCustomer] = useState<CompaniesInsertInput>({});
-  const [contract, setContract] = useState<ContractsInsertInput>({
-    start_date: new Date(),
-  });
   const [companySetting] = useState<CompanySettingsInsertInput>({});
+
+  const [contract, setContract] = useState<ContractsInsertInput>({
+    product_type: null,
+    start_date: null,
+  });
+  const [currentJSONConfig, setCurrentJSONConfig] = useState<any>({});
+
+  useEffect(() => {
+    if (!contract.product_type) {
+      return;
+    }
+
+    const getExistingConfig = (existingContract: ContractFragment | null) => {
+      // Template contract fields based on the JSON template (values are all empty).
+      const templateContractFields = JSON.parse(
+        ProductTypeToContractTermsJson[contract.product_type as ProductTypeEnum]
+      ).v1.fields;
+
+      // Fill out the template contract fields based on the existing contract.
+      if (
+        existingContract?.product_config &&
+        Object.keys(existingContract.product_config).length
+      ) {
+        const existingContractFields =
+          existingContract.product_config.v1.fields;
+        existingContractFields.forEach((existingContractField: any) => {
+          const fieldName = existingContractField.internal_name;
+          const templateContractField = templateContractFields.find(
+            (templateContractField: any) =>
+              templateContractField.internal_name === fieldName
+          );
+          if (
+            templateContractField &&
+            (existingContractField.value !== null ||
+              templateContractField.nullable)
+          ) {
+            templateContractField.value = existingContractField.value;
+          }
+        });
+      }
+
+      return templateContractFields;
+    };
+
+    setCurrentJSONConfig(getExistingConfig(null));
+  }, [contract.product_type]);
 
   const handleClickCreate = async () => {
     const response = await createCompany({
@@ -60,15 +110,6 @@ function AddCustomerModal({ handleClose }: Props) {
       contract: contract,
     });
 
-    /*
-      refetchQueries: [
-        {
-          query: CustomersForBankDocument,
-        },
-      ],
-    });
-    */
-
     if (response.status !== "OK") {
       alert("Error: could not create customer! Reason: " + response.msg);
     } else {
@@ -76,11 +117,18 @@ function AddCustomerModal({ handleClose }: Props) {
     }
   };
 
+  const isCreateDisabled =
+    !customer.name ||
+    !customer.identifier ||
+    !contract.product_type ||
+    !contract.start_date;
+
   return (
     <Dialog open onClose={handleClose} classes={{ paper: classes.dialog }}>
       <DialogTitle className={classes.dialogTitle}>Create Customer</DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column" mb={2}>
+          <Typography variant="h6">Company Information</Typography>
           <Box>
             <TextField
               className={classes.input}
@@ -103,7 +151,10 @@ function AddCustomerModal({ handleClose }: Props) {
               }}
             />
           </Box>
-          <Box mt={4}>
+        </Box>
+        <Box mt={4}>
+          <Typography variant="h6">Contract Information</Typography>
+          <Box>
             <InputLabel id="select-product-type-label" required>
               Product Type
             </InputLabel>
@@ -119,21 +170,31 @@ function AddCustomerModal({ handleClose }: Props) {
               }}
               style={{ width: 200 }}
             >
-              {AllProductTypes.map((productType) => {
-                return (
-                  <MenuItem key={productType} value={productType}>
-                    {ProductTypeToLabel[productType as ProductTypeEnum]}
-                  </MenuItem>
-                );
-              })}
+              {AllProductTypes.map((productType) => (
+                <MenuItem key={productType} value={productType}>
+                  {ProductTypeToLabel[productType as ProductTypeEnum]}
+                </MenuItem>
+              ))}
             </Select>
           </Box>
+          {contract.product_type && (
+            <Box display="flex" flexDirection="column">
+              <ContractTermsForm
+                isProductTypeVisible={false}
+                isStartDateEditable
+                contract={contract}
+                currentJSONConfig={currentJSONConfig}
+                setContract={setContract}
+                setCurrentJSONConfig={setCurrentJSONConfig}
+              />
+            </Box>
+          )}
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
         <Button onClick={handleClose}>Cancel</Button>
         <Button
-          disabled={false}
+          disabled={isCreateDisabled}
           variant="contained"
           color="primary"
           onClick={handleClickCreate}

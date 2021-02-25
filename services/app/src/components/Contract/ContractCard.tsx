@@ -9,7 +9,7 @@ import {
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import ContractDrawerLauncher from "components/Contract/ContractDrawerLauncher";
-import UpdateContractTermsModal from "components/Contract/UpdateContractTermsModal";
+import UpdateContractTermsModal from "components/Contract/UpdateContractModal";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { ContractFragment, UserRolesEnum } from "generated/graphql";
 import { formatDateString } from "lib/date";

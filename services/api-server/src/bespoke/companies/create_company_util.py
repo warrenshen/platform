@@ -2,13 +2,13 @@
 	Logic to help create a company.
 """
 
-from typing import cast, Callable, Tuple, Dict
-from mypy_extensions import TypedDict
+from typing import Callable, Dict, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
+from mypy_extensions import TypedDict
 
 # Should match with the graphql types for inserting objects into the DB.
 CompanyInsertInputDict = TypedDict('CompanyInsertInputDict', {
@@ -54,14 +54,14 @@ def create_company(
 		session.add(company_settings)
 
 		# TODO(dlluncor): Once we have the contract being built on the frontend
-		# we can do real validation here.		
+		# we can do real validation here.
 		contract = models.Contract(
 			product_type=req['contract']['product_type'],
 			product_config=req['contract']['product_config'],
 			start_date=date_util.load_date_str(req['contract']['start_date'])
 		)
 		session.add(contract)
-		
+
 		session.flush()
 		company_settings_id = str(company_settings.id)
 		contract_id = str(contract.id)
