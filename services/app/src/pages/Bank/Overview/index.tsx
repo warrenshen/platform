@@ -79,8 +79,27 @@ function BankOverviewPage() {
 
   const bankFinancialSummaries =
     latestBankFinancialSummariesData?.bank_financial_summaries || [];
+  let filteredBankFinancialSummaries = bankFinancialSummaries;
+
   const maturingLoans = maturingLoansData?.loans || [];
   const pastDueLoans = pastDueLoansData?.loans || [];
+
+  // Find the latest timestamp in the bank financial summaries and filter the list
+  // based on that timestamp. There will be at most 4 items in this list (per the
+  // query) so the cost of performing the filtering here is next to nothing. In
+  // the fullness of time, we can remove this filtering step, but we only have
+  // 2 product types available today (soon there will be 4).
+  if (bankFinancialSummaries.length > 0) {
+    const latestBankFinancialSummaryDate = bankFinancialSummaries
+      .slice(0)
+      .sort((a, b) => {
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      })[0].date;
+
+    filteredBankFinancialSummaries = bankFinancialSummaries.filter(
+      (summary) => summary.date === latestBankFinancialSummaryDate
+    );
+  }
 
   return (
     <Page appBarTitle={"Overview"}>
@@ -90,7 +109,7 @@ function BankOverviewPage() {
             Financial Summaries by Product Type
           </Typography>
           <BankFinancialSummariesDataGrid
-            bankFinancialSummaries={bankFinancialSummaries}
+            bankFinancialSummaries={filteredBankFinancialSummaries}
           />
         </Box>
       </Box>

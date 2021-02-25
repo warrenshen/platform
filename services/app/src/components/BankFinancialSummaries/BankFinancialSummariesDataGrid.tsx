@@ -3,7 +3,6 @@ import { ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import { DataGridActionItem } from "components/Shared/DataGrid/DataGridActionMenu";
-import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
   GetLatestBankFinancialSummariesQuery,
   ProductTypeEnum,
@@ -22,13 +21,6 @@ function BankFinancialSummariesDataGrid({
   const rows = bankFinancialSummaries;
 
   const columns = [
-    {
-      dataField: "date",
-      caption: "Date",
-      cellRender: (params: ValueFormatterParams) => (
-        <DateDataGridCell dateString={params.row.data.date} />
-      ),
-    },
     {
       dataField: "product_type",
       caption: "Product Type",
