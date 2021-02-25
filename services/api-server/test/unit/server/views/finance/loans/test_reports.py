@@ -110,7 +110,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			company_id = seed.get_company_id('company_admin', index=0)
 			self._add_summary_for_company(session, company_id, ProductType.INVENTORY_FINANCING)
 
-		self._run_compute_test(populate, [
+		self._run_compute_test(populate, expected_summaries=[
 			models.BankFinancialSummary(
 				date=datetime.date.today(),
 				product_type=ProductType.INVENTORY_FINANCING,
@@ -131,14 +131,14 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_principal_in_requested_state=decimal.Decimal(0),
 				available_limit=decimal.Decimal(0),
 			),
-		], None)
+		], expected_error=None)
 
 	def test_compute_success_with_two_financial_summaries_same_type(self) -> None:
 		def populate(session: Session, seed: test_helper.BasicSeed) -> None:
 			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=0), ProductType.INVENTORY_FINANCING)
 			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=2), ProductType.INVENTORY_FINANCING)
 
-		self._run_compute_test(populate, [
+		self._run_compute_test(populate, expected_summaries=[
 			models.BankFinancialSummary(
 				date=datetime.date.today(),
 				product_type=ProductType.INVENTORY_FINANCING,
@@ -159,14 +159,14 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_principal_in_requested_state=decimal.Decimal(0),
 				available_limit=decimal.Decimal(0),
 			),
-		], None)
+		], expected_error=None)
 
 	def test_compute_success_with_two_financial_summaries_different_types(self) -> None:
 		def populate(session: Session, seed: test_helper.BasicSeed) -> None:
 			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=0), ProductType.INVENTORY_FINANCING)
 			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=2), ProductType.LINE_OF_CREDIT)
 
-		self._run_compute_test(populate, [
+		self._run_compute_test(populate, expected_summaries=[
 			models.BankFinancialSummary(
 				date=datetime.date.today(),
 				product_type=ProductType.INVENTORY_FINANCING,
@@ -187,7 +187,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_principal_in_requested_state=decimal.Decimal(0.0),
 				available_limit=decimal.Decimal(25.00),
 			),
-		], None)
+		], expected_error=None)
 
 	def test_compute_and_update_maintains_the_count_once(self) -> None:
 		def populate(session: Session, seed: test_helper.BasicSeed) -> None:

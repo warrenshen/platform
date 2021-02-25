@@ -106,7 +106,7 @@ def compute_bank_financial_summaries(session: Session, report_date: datetime.dat
 
 def compute_and_update_bank_financial_summaries(session: Session, report_date: datetime.date) -> errors.Error:
 	bank_financial_summaries, err = compute_bank_financial_summaries(session, report_date)
-	if err is not None:
+	if err:
 		return err
 
 	delete_old_bank_financial_summaries(session, report_date)
@@ -181,7 +181,7 @@ class RunCustomerBalancesView(MethodView):
 
 		with session_scope(session_maker) as session:
 			err = compute_and_update_bank_financial_summaries(session, report_date)
-			if err is not None:
+			if err:
 				return handler_util.make_error_response(err)
 
 		resp = {
