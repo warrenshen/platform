@@ -1,6 +1,6 @@
 {
   "version": "v1",
-  "product_type": "line_of_credit",
+  "product_type": "inventory_financing",
   "v1": {
     "fields": [
       {

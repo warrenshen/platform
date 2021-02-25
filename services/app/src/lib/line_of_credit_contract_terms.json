@@ -1,6 +1,6 @@
 {
   "version": "v1",
-  "product_type": "inventory_financing",
+  "product_type": "line_of_credit",
   "v1": {
     "fields": [
       {
@@ -10,6 +10,16 @@
         "internal_name": "maximum_amount",
         "display_name": "Maximum Amount",
         "description": "Maximum principal outstanding the client can have at any point in time. Have ability to increase/decrease the amount over time",
+        "value": null,
+        "nullable": false
+      },
+      {
+        "section": "Limits",
+        "type": "float",
+        "format": "currency",
+        "internal_name": "minimum_monthly_amount",
+        "display_name": "Minimum Monthly Amount",
+        "description": "Across all products, a customer has a monthly minimum revenue generation requirement; this amount is specified in their contract. This can be thought of as an account level “minimum revenue” service fee that gets covered if the customer is actively generating revenue based on their product usage, past that minimum",
         "value": null,
         "nullable": false
       },
@@ -28,7 +38,7 @@
         "type": "float",
         "format": "percentage",
         "internal_name": "borrowing_base_accounts_receivable_percentage",
-        "display_name": "Borrowing Base Inventory Percentage",
+        "display_name": "Borrowing Base AR Percentage",
         "description": "% of AR amount used in determining borrowing base",
         "value": null,
         "nullable": false
@@ -90,26 +100,6 @@
         "internal_name": "wire_fee",
         "display_name": "Wire Fee",
         "description": "Manually input the dollar amount for wire fees as they can vary. We can define/add fee names and amounts. Can be multiple wire fee types for each client",
-        "value": null,
-        "nullable": false
-      },
-      {
-        "section": "Limits",
-        "type": "float",
-        "format": "currency",
-        "internal_name": "minimum_monthly_amount",
-        "display_name": "Minimum Monthly Amount",
-        "description": "Across all products, a customer has a monthly minimum revenue generation requirement; this amount is specified in their contract. This can be thought of as an account level “minimum revenue” service fee that gets covered if the customer is actively generating revenue based on their product usage, past that minimum",
-        "value": null,
-        "nullable": false
-      },
-      {
-        "section": "Limits",
-        "type": "float",
-        "format": "currency",
-        "internal_name": "borrowing_base",
-        "display_name": "Borrowing Base",
-        "description": "",
         "value": null,
         "nullable": false
       }
