@@ -4,6 +4,7 @@ import { DataGridActionItem } from "components/Shared/DataGrid/DataGridActionMen
 import { LoanFragment, Loans, ProductTypeEnum } from "generated/graphql";
 
 interface Props {
+  isMaturityVisible?: boolean;
   productType: ProductTypeEnum | null;
   loans: LoanFragment[];
   selectedLoanIds?: Loans["id"][];
@@ -12,6 +13,7 @@ interface Props {
 }
 
 function PolymorphicLoansDataGrid({
+  isMaturityVisible = true,
   productType,
   loans,
   selectedLoanIds = [],
@@ -21,6 +23,7 @@ function PolymorphicLoansDataGrid({
   if (productType === ProductTypeEnum.InventoryFinancing) {
     return (
       <PurchaseOrderLoansDataGrid
+        isMaturityVisible={isMaturityVisible}
         loans={loans}
         selectedLoanIds={selectedLoanIds}
         actionItems={actionItems}
@@ -29,7 +32,11 @@ function PolymorphicLoansDataGrid({
     );
   } else if (productType === ProductTypeEnum.LineOfCredit) {
     return (
-      <LineOfCreditLoansDataGrid loans={loans} actionItems={actionItems} />
+      <LineOfCreditLoansDataGrid
+        isMaturityVisible={isMaturityVisible}
+        loans={loans}
+        actionItems={actionItems}
+      />
     );
   } else {
     return null;

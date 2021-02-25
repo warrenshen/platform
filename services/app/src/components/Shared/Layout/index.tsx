@@ -79,11 +79,6 @@ const getCustomerNavItems = (productType: ProductTypeEnum): NavItem[] => {
       text: "Loans",
       items: [
         {
-          text: "Loans - All",
-          link: customerRoutes.loans,
-          icon: <PaymentIcon />,
-        },
-        {
           text: "Loans - Active",
           link: customerRoutes.loansActive,
           icon: <PaymentIcon />,

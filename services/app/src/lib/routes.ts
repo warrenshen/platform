@@ -23,8 +23,6 @@ export const vendorRoutes = {};
 export const customerRoutes = {
   contract: "/1/contract",
   ebbaApplications: "/1/borrowing-base",
-  loans: "/1/loans",
-  loansAll: "/1/loans-all",
   loansActive: "/1/loans-active",
   loansClosed: "/1/loans-closed",
   overview: "/1/overview",

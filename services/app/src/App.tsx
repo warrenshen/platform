@@ -33,7 +33,6 @@ import BankTransactionsPage from "pages/Bank/Transactions";
 import BankVendorsPage from "pages/Bank/Vendors";
 import CustomerContractPage from "pages/Customer/Contract";
 import CustomerEbbaApplicationsPage from "pages/Customer/EbbaApplications";
-import CustomerLoansPage from "pages/Customer/Loans";
 import CustomerLoansActivePage from "pages/Customer/LoansActive";
 import CustomerLoansClosedPage from "pages/Customer/LoansClosed";
 import CustomerOverviewPage from "pages/Customer/Overview";
@@ -152,16 +151,6 @@ function App() {
           ]}
         >
           <CustomerEbbaApplicationsPage />
-        </PrivateRoute>
-        <PrivateRoute
-          exact
-          path={customerRoutes.loans}
-          requiredRoles={[
-            UserRolesEnum.CompanyAdmin,
-            UserRolesEnum.CompanyReadOnly,
-          ]}
-        >
-          <CustomerLoansPage />
         </PrivateRoute>
         <PrivateRoute
           exact

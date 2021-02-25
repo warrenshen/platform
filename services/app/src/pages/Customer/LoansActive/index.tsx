@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   createStyles,
   makeStyles,
   Theme,
@@ -8,22 +7,15 @@ import {
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import CustomerFinancialSummaryOverview from "components/CustomerFinancialSummary/CustomerFinancialSummaryOverview";
-import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
-import CreateUpdatePurchaseOrderLoanModal from "components/Loans/PurchaseOrder/CreateUpdatePurchaseOrderLoanModal";
-import CreateRepaymentModal from "components/Repayment/CreateRepaymentModal";
-import Can from "components/Shared/Can";
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
-  LoanFragment,
-  Loans,
-  LoanStatusEnum,
   LoanTypeEnum,
   useGetCompanyForCustomerLoansQuery,
 } from "generated/graphql";
-import { Action } from "lib/auth/rbac-rules";
-import { ActionType } from "lib/enum";
-import { useContext, useState } from "react";
+import LoansActiveApproved from "pages/Customer/LoansActive/LoansActiveApproved";
+import LoansActiveNotApproved from "pages/Customer/LoansActive/LoansActiveNotApproved";
+import { useContext } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -47,52 +39,29 @@ function CustomerLoansClosedPage() {
   const classes = useStyles();
 
   const {
-    user: { companyId, productType },
+    user: { companyId },
   } = useContext(CurrentUserContext);
 
-  const { data, error, refetch } = useGetCompanyForCustomerLoansQuery({
+  const { data } = useGetCompanyForCustomerLoansQuery({
     variables: {
       companyId,
-      loanStatuses: [
-        LoanStatusEnum.Drafted,
-        LoanStatusEnum.ApprovalRequested,
-        LoanStatusEnum.Approved,
-        LoanStatusEnum.Funded,
-        LoanStatusEnum.PastDue,
-      ],
+      loanStatuses: [],
       loanType: LoanTypeEnum.PurchaseOrder,
     },
   });
 
-  if (error) {
-    alert("Error querying purchase orders. " + error);
-  }
-
   const company = data?.companies_by_pk;
-  const loans = company?.loans || [];
   const financialSummary = company?.financial_summary || null;
 
   const canCreateUpdateNewLoan =
-    financialSummary?.available_limit && financialSummary?.available_limit > 0;
-
-  // State for modal(s).
-  const [isCreateUpdateModalOpen, setIsCreateUpdateModalOpen] = useState(false);
-  const [isPayOffLoansModalOpen, setIsPayOffLoansModalOpen] = useState(false);
-  const [targetLoanId, setTargetLoanId] = useState("");
-  const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
-  const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"][]>([]);
-
-  const handleEditPurchaseOrderLoan = (loanId: string) => {
-    setTargetLoanId(loanId);
-    setIsCreateUpdateModalOpen(true);
-  };
+    financialSummary && financialSummary?.available_limit > 0;
 
   return (
     <Page appBarTitle={"Loans - Closed"}>
       <Box className={classes.container}>
         <Box className={classes.section}>
           <Typography variant="h6">
-            Request a new loan, edit an existing loan, and view all loans
+            Request a new loan, edit an existing loan, and view active loans
             associated with your account.
           </Typography>
           <Box display="flex" flexDirection="column" mt={1} mb={2}>
@@ -119,74 +88,13 @@ function CustomerLoansClosedPage() {
         </Box>
         <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
-          <Box display="flex" flexDirection="row-reverse" mb={2}>
-            {isCreateUpdateModalOpen && (
-              <CreateUpdatePurchaseOrderLoanModal
-                actionType={
-                  targetLoanId === "" ? ActionType.New : ActionType.Update
-                }
-                loanId={targetLoanId}
-                artifactId={null}
-                handleClose={() => {
-                  refetch();
-                  setIsCreateUpdateModalOpen(false);
-                  setTargetLoanId("");
-                }}
-              />
-            )}
-            {isPayOffLoansModalOpen && (
-              <CreateRepaymentModal
-                companyId={companyId}
-                productType={productType}
-                selectedLoans={selectedLoans}
-                handleClose={() => setIsPayOffLoansModalOpen(false)}
-              />
-            )}
-            <Can perform={Action.AddPurchaseOrders}>
-              <Button
-                disabled={!canCreateUpdateNewLoan}
-                variant="contained"
-                color="primary"
-                onClick={() => setIsCreateUpdateModalOpen(true)}
-              >
-                Request New Loan
-              </Button>
-            </Can>
-            <Can perform={Action.RepayPurchaseOrderLoans}>
-              <Box mr={2}>
-                <Button
-                  disabled={selectedLoans.length <= 0}
-                  variant="contained"
-                  color="primary"
-                  onClick={() => setIsPayOffLoansModalOpen(true)}
-                >
-                  Pay Off Loans
-                </Button>
-              </Box>
-            </Can>
-          </Box>
+          <Typography variant="h6">Loans - Not Approved</Typography>
+          <LoansActiveNotApproved />
         </Box>
         <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
-          <Box display="flex" flex={1}>
-            <PolymorphicLoansDataGrid
-              productType={productType}
-              loans={loans}
-              actionItems={[
-                {
-                  key: "edit-purchase-order-loan",
-                  label: "Edit",
-                  handleClick: (params) =>
-                    handleEditPurchaseOrderLoan(params.row.data.id as string),
-                },
-              ]}
-              selectedLoanIds={selectedLoanIds}
-              handleSelectLoans={(loans) => {
-                setSelectedLoans(loans);
-                setSelectedLoanIds(loans.map((loan) => loan.id));
-              }}
-            />
-          </Box>
+          <Typography variant="h6">Loans - Approved</Typography>
+          <LoansActiveApproved />
         </Box>
       </Box>
     </Page>
