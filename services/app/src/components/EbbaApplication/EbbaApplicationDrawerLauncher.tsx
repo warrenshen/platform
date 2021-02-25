@@ -12,7 +12,7 @@ function EbbaApplicationDrawerLauncher({ ebbaApplicationId }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <>
+    <div>
       {isOpen && (
         <EbbaApplicationDrawer
           ebbaApplicationId={ebbaApplicationId}
@@ -22,7 +22,7 @@ function EbbaApplicationDrawerLauncher({ ebbaApplicationId }: Props) {
       <Button color="primary" onClick={() => setIsOpen(true)}>
         {truncateUuid(ebbaApplicationId)}
       </Button>
-    </>
+    </div>
   );
 }
 
