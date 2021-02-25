@@ -14,7 +14,7 @@ import {
 } from "generated/graphql";
 import { useState } from "react";
 
-const matureDaysList = [7, 14, 30, 90];
+const matureDaysList = [7, 14, 30];
 
 function BankLoansMaturingPage() {
   const [matureDays, setMatureDays] = useState(matureDaysList[1]);
@@ -62,7 +62,7 @@ function BankLoansMaturingPage() {
           fullView={true}
           loansPastDue={false}
           matureDays={matureDays}
-        ></BankLoansDataGrid>
+        />
       </Box>
     </Page>
   );
