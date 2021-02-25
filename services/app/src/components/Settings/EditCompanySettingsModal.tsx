@@ -96,7 +96,11 @@ function EditAccountSettingsModal({
 
       const addContractResp = await addContract({
         variables: {
-          contract,
+          contract: {
+            start_date: contract.start_date,
+            product_type: contract.product_type,
+            product_config: contract.product_config,
+          },
         },
       });
       contractId = addContractResp.data?.insert_contracts_one?.id;
@@ -104,7 +108,10 @@ function EditAccountSettingsModal({
       await updateContract({
         variables: {
           contractId,
-          contract,
+          contract: {
+            product_type: contract.product_type,
+            product_config: contract.product_config,
+          },
         },
       });
     }
