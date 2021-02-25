@@ -44,9 +44,12 @@ interface Props {
 }
 
 const NestedListItem = ({ item }: Props) => {
+  const isOpenLocalStorage = localStorage.getItem(`nav-${item.text}`);
   const classes = useStyles();
   const location = useLocation();
-  const [open, setOpen] = useState(true);
+  const [isOpen, isSetOpen] = useState<boolean>(
+    isOpenLocalStorage ? JSON.parse(isOpenLocalStorage) : false
+  );
 
   const headerTypographyProps: any = {
     className: classes.headerItemText,
@@ -58,9 +61,14 @@ const NestedListItem = ({ item }: Props) => {
     variant: "subtitle1",
   };
 
+  const handleNestedListItemClick = (id: string): void => {
+    localStorage.setItem(`nav-${id}`, JSON.stringify(!isOpen));
+    isSetOpen(!isOpen);
+  };
+
   return (
     <>
-      <ListItem button onClick={() => setOpen(!open)}>
+      <ListItem button onClick={() => handleNestedListItemClick(item.text)}>
         <ListItemText primaryTypographyProps={headerTypographyProps}>
           {item.text}
           {!!item.counter && (
@@ -73,10 +81,10 @@ const NestedListItem = ({ item }: Props) => {
           )}
         </ListItemText>
         <div className={classes.collapseIcon}>
-          {open ? <ExpandLess /> : <ExpandMore />}
+          {isOpen ? <ExpandLess /> : <ExpandMore />}
         </div>
       </ListItem>
-      <Collapse in={open} timeout="auto" unmountOnExit>
+      <Collapse in={isOpen} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
           {item.items.map((nestedItem: any, index: number) => (
             <ListItem
