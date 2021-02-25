@@ -160,7 +160,7 @@ function PurchaseOrderLoansDataGrid({
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
       <ControlledDataGrid
         pager={pager}
-        pageSize={isMiniTable ? 10 : undefined}
+        pageSize={isMiniTable ? 10 : 10}
         select={!isMiniTable}
         dataSource={rows}
         columns={columns}

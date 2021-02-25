@@ -23,7 +23,7 @@ import {
   PurchaseOrdersInsertInput,
   Vendors,
 } from "generated/graphql";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useMemo } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -62,6 +62,18 @@ function PurchaseOrderForm({
   setPurchaseOrderCannabisFiles,
 }: Props) {
   const classes = useStyles();
+
+  const purchaseOrderFileIds = useMemo(
+    () => (purchaseOrderFile ? [purchaseOrderFile.file_id] : []),
+    [purchaseOrderFile]
+  );
+  const purchaseOrderCannabisFileIds = useMemo(
+    () =>
+      purchaseOrderCannabisFiles.map(
+        (purchaseOrderFile) => purchaseOrderFile.file_id
+      ),
+    [purchaseOrderCannabisFiles]
+  );
 
   return (
     <Box display="flex" flexDirection="column">
@@ -162,7 +174,7 @@ function PurchaseOrderForm({
           </Typography>
         </Box>
         {purchaseOrderFile && (
-          <DownloadThumbnail fileIds={[purchaseOrderFile.file_id]} />
+          <DownloadThumbnail fileIds={purchaseOrderFileIds} />
         )}
         <Box mt={1}>
           <FileUploadDropzone
@@ -213,11 +225,7 @@ function PurchaseOrderForm({
             </Typography>
           </Box>
           {purchaseOrderCannabisFiles.length > 0 && (
-            <DownloadThumbnail
-              fileIds={purchaseOrderCannabisFiles.map(
-                (purchaseOrderFile) => purchaseOrderFile.file_id
-              )}
-            />
+            <DownloadThumbnail fileIds={purchaseOrderCannabisFileIds} />
           )}
           <Box mt={1}>
             <FileUploadDropzone

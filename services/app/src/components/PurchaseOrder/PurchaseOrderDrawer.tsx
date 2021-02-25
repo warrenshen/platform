@@ -20,7 +20,7 @@ import {
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -55,16 +55,23 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
 
   const purchaseOrder = data?.purchase_orders_by_pk;
   const loans = purchaseOrder?.loans;
-  const purchaseOrderFile = purchaseOrder?.purchase_order_files.filter(
-    (purchaseOrderFile) =>
-      purchaseOrderFile.file_type === PurchaseOrderFileTypeEnum.PurchaseOrder
-  )[0];
-  const purchaseOrderCannabisFiles = purchaseOrder
-    ? purchaseOrder.purchase_order_files.filter(
-        (purchaseOrderFile) =>
-          purchaseOrderFile.file_type === PurchaseOrderFileTypeEnum.Cannabis
-      )
-    : [];
+  const purchaseOrderFileIds = useMemo(() => {
+    const purchaseOrderFile = purchaseOrder?.purchase_order_files.filter(
+      (purchaseOrderFile) =>
+        purchaseOrderFile.file_type === PurchaseOrderFileTypeEnum.PurchaseOrder
+    )[0];
+    return purchaseOrderFile ? [purchaseOrderFile.file_id] : [];
+  }, [purchaseOrder]);
+  const purchaseOrderCannabisFileIds = useMemo(() => {
+    return (
+      purchaseOrder?.purchase_order_files
+        .filter(
+          (purchaseOrderFile) =>
+            purchaseOrderFile.file_type === PurchaseOrderFileTypeEnum.Cannabis
+        )
+        .map((purchaseOrderFile) => purchaseOrderFile.file_id) || []
+    );
+  }, [purchaseOrder]);
 
   return purchaseOrder && loans ? (
     <Drawer open anchor="right" onClose={handleClose}>
@@ -149,9 +156,7 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
                 Purchase Order File Attachment
               </Typography>
             </Box>
-            {purchaseOrderFile && (
-              <DownloadThumbnail fileIds={[purchaseOrderFile.file_id]} />
-            )}
+            <DownloadThumbnail fileIds={purchaseOrderFileIds} />
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <FormControlLabel
@@ -174,13 +179,7 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
                   Shipping Manifest, Certificate of Analysis
                 </Typography>
               </Box>
-              {purchaseOrderCannabisFiles.length > 0 && (
-                <DownloadThumbnail
-                  fileIds={purchaseOrderCannabisFiles.map(
-                    (purchaseOrderFile) => purchaseOrderFile.file_id
-                  )}
-                />
-              )}
+              <DownloadThumbnail fileIds={purchaseOrderCannabisFileIds} />
             </Box>
           )}
         </Box>

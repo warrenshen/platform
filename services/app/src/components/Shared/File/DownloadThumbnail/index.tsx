@@ -1,8 +1,7 @@
 import { Box, Link, Typography } from "@material-ui/core";
 import InsertDriveFileIcon from "@material-ui/icons/InsertDriveFile";
 import { authenticatedApi, fileRoutes } from "lib/api";
-import { useState } from "react";
-import { useDeepCompareEffect } from "react-use";
+import { useEffect, useState } from "react";
 
 type DownloadSignedURLReq = {
   file_ids: string[];
@@ -50,11 +49,7 @@ function DownloadThumbnail({ fileIds }: Props) {
     FileWithSignedURL[]
   >([]);
 
-  useDeepCompareEffect(() => {
-    setFilesWithSignedUrls([]);
-  }, [fileIds]);
-
-  useDeepCompareEffect(() => {
+  useEffect(() => {
     const getFilesWithSignedUrls = async () => {
       if (fileIds.length > 0) {
         const response = await downloadFilesWithSignedUrls({
@@ -67,6 +62,7 @@ function DownloadThumbnail({ fileIds }: Props) {
         }
       }
     };
+    setFilesWithSignedUrls([]);
     getFilesWithSignedUrls();
   }, [fileIds, setFilesWithSignedUrls]);
 
@@ -77,7 +73,7 @@ function DownloadThumbnail({ fileIds }: Props) {
           <Typography
             variant={"body2"}
             color={"textSecondary"}
-          >{`${filesWithSignedUrls.length} file(s) attached`}</Typography>
+          >{`${fileIds.length} file(s) attached`}</Typography>
         </Box>
         {filesWithSignedUrls.length > 0 && (
           <Box display="flex" flexDirection="column" mt={1}>

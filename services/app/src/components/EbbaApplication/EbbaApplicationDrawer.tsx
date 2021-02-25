@@ -18,7 +18,7 @@ import {
 } from "generated/graphql";
 import { authenticatedApi, ebbaApplicationsRoutes } from "lib/api";
 import { formatCurrency } from "lib/currency";
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import ReviewEbbaApplicationRejectModal from "./ReviewEbbaApplicationRejectModal";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -52,7 +52,13 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
   });
 
   const ebbaApplication = data?.ebba_applications_by_pk;
-  const ebbaApplicationFiles = ebbaApplication?.ebba_application_files || [];
+  const ebbaApplicationFileIds = useMemo(() => {
+    return (
+      ebbaApplication?.ebba_application_files.map(
+        (ebbaApplicationFile) => ebbaApplicationFile.file_id
+      ) || []
+    );
+  }, [ebbaApplication]);
 
   const isApproveDisabled = false;
   const isRejectDisabled = false;
@@ -177,13 +183,7 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
             <Typography variant="subtitle2" color="textSecondary">
               File Attachments
             </Typography>
-            {ebbaApplicationFiles.length > 0 && (
-              <DownloadThumbnail
-                fileIds={ebbaApplicationFiles.map(
-                  (ebbaApplicationFile) => ebbaApplicationFile.file_id
-                )}
-              />
-            )}
+            <DownloadThumbnail fileIds={ebbaApplicationFileIds} />
           </Box>
           {isBankUser && (
             <Box

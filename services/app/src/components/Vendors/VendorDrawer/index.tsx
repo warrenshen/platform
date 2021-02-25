@@ -28,7 +28,7 @@ import {
 } from "generated/graphql";
 import { InventoryNotifier } from "lib/notifications/inventory";
 import { omit } from "lodash";
-import React from "react";
+import { useMemo } from "react";
 import SendVendorAgreements from "./Notifications/SendVendorAgreements";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -67,6 +67,18 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
   const [updateVendorLicenseId] = useUpdateVendorLicenseIdMutation();
   const [addVendorLicense] = useAddCompanyVendorLicenseMutation();
 
+  const agreementFileId =
+    data?.company_vendor_partnerships_by_pk?.company_agreement?.file_id;
+  const licenseFileId =
+    data?.company_vendor_partnerships_by_pk?.company_license?.file_id;
+
+  const agreementFileIds = useMemo(() => {
+    return agreementFileId ? [agreementFileId] : [];
+  }, [agreementFileId]);
+  const licenseFileIds = useMemo(() => {
+    return licenseFileId ? [licenseFileId] : [];
+  }, [licenseFileId]);
+
   if (!data?.company_vendor_partnerships_by_pk) {
     if (!isBankVendorPartnershipLoading) {
       let msg = `Error querying for the bank vendor partner ${vendorPartnershipId}. Error: ${error}`;
@@ -79,10 +91,6 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
   const vendor = data.company_vendor_partnerships_by_pk.vendor;
   const customer = data.company_vendor_partnerships_by_pk.company;
 
-  const agreementFileId =
-    data.company_vendor_partnerships_by_pk.company_agreement?.file_id;
-  const licenseFileId =
-    data.company_vendor_partnerships_by_pk.company_license?.file_id;
   const customerName = customer?.name;
 
   const notifier = new InventoryNotifier();
@@ -138,7 +146,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
           </Grid>
           {licenseFileId && (
             <Grid item>
-              <DownloadThumbnail fileIds={[licenseFileId]} />
+              <DownloadThumbnail fileIds={licenseFileIds} />
             </Grid>
           )}
         </Grid>
@@ -199,7 +207,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
           </Grid>
           {agreementFileId && (
             <Grid item>
-              <DownloadThumbnail fileIds={[agreementFileId]} />
+              <DownloadThumbnail fileIds={agreementFileIds} />
             </Grid>
           )}
         </Grid>

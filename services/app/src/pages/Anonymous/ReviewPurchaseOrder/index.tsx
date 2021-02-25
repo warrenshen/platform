@@ -15,7 +15,7 @@ import {
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { anonymousRoutes } from "lib/routes";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import ReviewPurchaseOrderApproveModal from "./ReviewPurchaseOrderApproveModal";
 import ReviewPurchaseOrderRejectModal from "./ReviewPurchaseOrderRejectModal";
@@ -64,17 +64,25 @@ function ReviewPurchaseOrderPage(props: Props) {
       id: purchaseOrderId,
     },
   });
+
   const purchaseOrder = data?.purchase_orders_by_pk;
-  const purchaseOrderFile = purchaseOrder?.purchase_order_files.filter(
-    (purchaseOrderFile) =>
-      purchaseOrderFile.file_type === PurchaseOrderFileTypeEnum.PurchaseOrder
-  )[0];
-  const purchaseOrderCannabisFiles = purchaseOrder
-    ? purchaseOrder.purchase_order_files.filter(
-        (purchaseOrderFile) =>
-          purchaseOrderFile.file_type === PurchaseOrderFileTypeEnum.Cannabis
-      )
-    : [];
+  const purchaseOrderFileIds = useMemo(() => {
+    const purchaseOrderFile = purchaseOrder?.purchase_order_files.filter(
+      (purchaseOrderFile) =>
+        purchaseOrderFile.file_type === PurchaseOrderFileTypeEnum.PurchaseOrder
+    )[0];
+    return purchaseOrderFile ? [purchaseOrderFile.file_id] : [];
+  }, [purchaseOrder]);
+  const purchaseOrderCannabisFileIds = useMemo(() => {
+    return (
+      purchaseOrder?.purchase_order_files
+        .filter(
+          (purchaseOrderFile) =>
+            purchaseOrderFile.file_type === PurchaseOrderFileTypeEnum.Cannabis
+        )
+        .map((purchaseOrderFile) => purchaseOrderFile.file_id) || []
+    );
+  }, [purchaseOrder]);
 
   if (
     purchaseOrder &&
@@ -141,9 +149,7 @@ function ReviewPurchaseOrderPage(props: Props) {
             <p>{purchaseOrder.status}</p>
           </Box>
           <Box>
-            <DownloadThumbnail
-              fileIds={purchaseOrderFile ? [purchaseOrderFile.file_id] : []}
-            />
+            <DownloadThumbnail fileIds={purchaseOrderFileIds} />
           </Box>
           <Box>
             <FormControlLabel
@@ -158,11 +164,7 @@ function ReviewPurchaseOrderPage(props: Props) {
           </Box>
           {purchaseOrder?.is_cannabis && (
             <Box>
-              <DownloadThumbnail
-                fileIds={purchaseOrderCannabisFiles?.map(
-                  (purchaseOrderFile) => purchaseOrderFile.file_id
-                )}
-              />
+              <DownloadThumbnail fileIds={purchaseOrderCannabisFileIds} />
             </Box>
           )}
         </Box>

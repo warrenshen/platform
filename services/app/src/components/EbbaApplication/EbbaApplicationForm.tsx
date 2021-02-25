@@ -16,6 +16,7 @@ import {
   Scalars,
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
+import { useMemo } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -45,6 +46,14 @@ function EbbaApplicationForm({
   setEbbaApplicationFiles,
 }: Props) {
   const classes = useStyles();
+
+  const ebbaApplicationFileIds = useMemo(
+    () =>
+      ebbaApplicationFiles.map(
+        (ebbaApplicationFile) => ebbaApplicationFile.file_id
+      ),
+    [ebbaApplicationFiles]
+  );
 
   return (
     <Box display="flex" flexDirection="column">
@@ -136,11 +145,7 @@ function EbbaApplicationForm({
           </Typography>
         </Box>
         {ebbaApplicationFiles.length > 0 && (
-          <DownloadThumbnail
-            fileIds={ebbaApplicationFiles.map(
-              (ebbaApplicationFile) => ebbaApplicationFile.file_id
-            )}
-          />
+          <DownloadThumbnail fileIds={ebbaApplicationFileIds} />
         )}
         <Box mt={1}>
           <FileUploadDropzone
