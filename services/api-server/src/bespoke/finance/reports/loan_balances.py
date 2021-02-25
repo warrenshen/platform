@@ -111,7 +111,8 @@ class CustomerBalance(object):
 		num_loans = len(financials['loans'])
 
 		# TODO(dlluncor): Handle account-level fees
-		contract_helper, err = contract_util.ContractHelper.build(financials['contracts'])
+		contract_helper, err = contract_util.ContractHelper.build(
+			self._company_id, financials['contracts'])
 		if err:
 			return None, err
 

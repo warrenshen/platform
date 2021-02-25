@@ -268,5 +268,8 @@ class ContractHelper(object):
 		return Contract(self._contract_dicts[0]), None
 
 	@staticmethod
-	def build(contract_dicts: List[models.ContractDict]) -> Tuple['ContractHelper', errors.Error]:
+	def build(company_id: str, contract_dicts: List[models.ContractDict]) -> Tuple['ContractHelper', errors.Error]:
+		if not contract_dicts:
+			return None, errors.Error('No contracts have been setup for company: {}'.format(company_id))
+
 		return ContractHelper(contract_dicts, private=True), None

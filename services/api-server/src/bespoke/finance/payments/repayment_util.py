@@ -192,7 +192,7 @@ def calculate_repayment_effect(
 
 	# Calculate the loans "before" by running the loan calculator to determine
 	# the balance at that particular time.
-	contract_helper, err = contract_util.ContractHelper.build(contract_dicts)
+	contract_helper, err = contract_util.ContractHelper.build(company_id, contract_dicts)
 	if err:
 		return None, err
 
