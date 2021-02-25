@@ -9,6 +9,7 @@ import {
 import { FinancialSummaryFragment } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import React from "react";
+import StatBox from "./StatBox";
 
 interface Props {
   isBalanceVisible?: boolean;
@@ -84,37 +85,7 @@ function CustomerFinancialSummaryOverview({
           <Box mt={1} />
         </>
       )}
-      <Box display="flex" justifyContent="space-between" width="100%">
-        <Box className={classes.box}>
-          <Card>
-            <Box display="flex" flexDirection="column" p={2}>
-              <Typography variant="h4">
-                {financialSummary
-                  ? formatCurrency(financialSummary.available_limit)
-                  : "TBD"}
-              </Typography>
-              <Typography variant="subtitle1" color="textSecondary">
-                remaining limit
-              </Typography>
-            </Box>
-          </Card>
-        </Box>
-        <Box className={classes.box}>
-          <Card>
-            <Box display="flex" flexDirection="column" p={2}>
-              <Typography variant="h4">
-                {financialSummary
-                  ? formatCurrency(financialSummary.total_limit)
-                  : "TBD"}
-              </Typography>
-              <Typography variant="subtitle1" color="textSecondary">
-                total limit
-              </Typography>
-            </Box>
-          </Card>
-        </Box>
-        <Box className={classes.box} />
-      </Box>
+      <StatBox financialSummary={financialSummary} />
     </Box>
   );
 }
