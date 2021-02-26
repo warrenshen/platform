@@ -69,13 +69,16 @@ type NavItem = {
   items?: NavItem[];
 };
 
-const getCustomerNavItems = (productType: ProductTypeEnum): NavItem[] => {
+const getCustomerNavItems = (
+  productType: ProductTypeEnum | null
+): NavItem[] => {
   return [
     {
       text: "Overview",
       link: customerRoutes.overview,
     },
     {
+      visible: productType !== null,
       text: "Loans",
       items: [
         {
@@ -232,9 +235,7 @@ function Layout({ appBarTitle, children }: Props) {
     UserRolesEnum.BankReadOnly,
   ].includes(role)
     ? getBankNavItems()
-    : productType
-    ? getCustomerNavItems(productType)
-    : [];
+    : getCustomerNavItems(productType);
 
   return (
     <div className={classes.root}>

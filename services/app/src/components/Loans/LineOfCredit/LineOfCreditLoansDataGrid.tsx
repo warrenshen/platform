@@ -77,7 +77,7 @@ function LineOfCreditLoansDataGrid({
       minWidth: 150,
       cellRender: (params: ValueFormatterParams) => (
         <Box>
-          {params.row.data.line_of_credit.is_credit_for_vendor
+          {params.row.data?.line_of_credit?.is_credit_for_vendor
             ? params.row.data.line_of_credit.recipient_vendor.name
             : "N/A"}
         </Box>

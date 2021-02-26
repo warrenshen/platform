@@ -91,7 +91,7 @@ function TerminateContractModal({ contractId, handleClose }: Props) {
 
     if (response.status !== "OK") {
       snackbar.showError(
-        `Error: could not create customer! Reason: ${response.msg}`
+        `Error: could not terminate contract! Reason: ${response.msg}`
       );
     } else {
       snackbar.showSuccess("Success! Contract terminated successfully.");

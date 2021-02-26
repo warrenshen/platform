@@ -11,15 +11,14 @@ import {
 } from "@material-ui/core";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
-  ContractFragment,
   Contracts,
-  ProductTypeEnum,
   useGetContractQuery,
   UserRolesEnum,
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
+import { createProductConfigFromContract } from "lib/customer/contracts";
 import { formatDateString } from "lib/date";
-import { ProductTypeToContractTermsJson, ProductTypeToLabel } from "lib/enum";
+import { ProductTypeToLabel } from "lib/enum";
 import { groupBy } from "lodash";
 import { useContext } from "react";
 
@@ -39,32 +38,6 @@ interface Props {
   contractId: Contracts["id"];
   handleClose: () => void;
 }
-
-const getExistingConfig = (existingContract: ContractFragment) => {
-  const templateContractFields = JSON.parse(
-    ProductTypeToContractTermsJson[
-      existingContract.product_type as ProductTypeEnum
-    ]
-  ).v1.fields;
-
-  if (
-    existingContract.product_config &&
-    Object.keys(existingContract.product_config).length
-  ) {
-    const existingContractFields = existingContract.product_config.v1.fields;
-    existingContractFields.forEach((existingContractField: any, index: any) => {
-      if (
-        templateContractFields[index] &&
-        (existingContractField.value !== null ||
-          templateContractFields[index].nullable)
-      ) {
-        templateContractFields[index].value = existingContractField.value;
-      }
-    });
-  }
-
-  return templateContractFields;
-};
 
 // TODO: Refactor this contract render logic with ContractModal?
 const renderSwitch = (item: any) => {
@@ -100,7 +73,9 @@ function ContractDrawer({ contractId, handleClose }: Props) {
   });
 
   const contract = data?.contracts_by_pk;
-  const currentJSONConfig = contract ? getExistingConfig(contract) : {};
+  const currentJSONConfig = contract
+    ? createProductConfigFromContract(contract)
+    : [];
   const sections = groupBy(currentJSONConfig, (d) => d.section);
 
   return contract ? (

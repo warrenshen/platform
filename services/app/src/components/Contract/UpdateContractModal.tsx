@@ -9,13 +9,17 @@ import {
 } from "@material-ui/core";
 import ContractTermsForm from "components/Contract/ContractTermsForm";
 import {
-  ContractFragment,
   Contracts,
   ContractsInsertInput,
   ProductTypeEnum,
   useGetContractQuery,
-  useUpdateContractMutation,
 } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
+import {
+  createProductConfigFromContract,
+  ProductConfigField,
+  updateContract,
+} from "lib/customer/contracts";
 import { ProductTypeToContractTermsJson } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useState } from "react";
@@ -89,6 +93,7 @@ interface Props {
 }
 
 function UpdateContractModal({ contractId, handleClose }: Props) {
+  const snackbar = useSnackbar();
   const classes = useStyles();
 
   // Default Contract while existing one is loading.
@@ -99,40 +104,9 @@ function UpdateContractModal({ contractId, handleClose }: Props) {
 
   const [contract, setContract] = useState(newContract);
 
-  const getExistingConfig = (existingContract: ContractFragment) => {
-    // Template contract fields based on the JSON template (values are all empty).
-    const templateContractFields = JSON.parse(
-      ProductTypeToContractTermsJson[
-        existingContract.product_type as ProductTypeEnum
-      ]
-    ).v1.fields;
-
-    // Fill out the template contract fields based on the existing contract.
-    if (
-      existingContract.product_config &&
-      Object.keys(existingContract.product_config).length
-    ) {
-      const existingContractFields = existingContract.product_config.v1.fields;
-      existingContractFields.forEach((existingContractField: any) => {
-        const fieldName = existingContractField.internal_name;
-        const templateContractField = templateContractFields.find(
-          (templateContractField: any) =>
-            templateContractField.internal_name === fieldName
-        );
-        if (
-          templateContractField &&
-          (existingContractField.value !== null ||
-            templateContractField.nullable)
-        ) {
-          templateContractField.value = existingContractField.value;
-        }
-      });
-    }
-
-    return templateContractFields;
-  };
-
-  const [currentJSONConfig, setCurrentJSONConfig] = useState<any>({});
+  const [currentJSONConfig, setCurrentJSONConfig] = useState<
+    ProductConfigField[]
+  >([]);
 
   const { loading: isExistingContractLoading } = useGetContractQuery({
     variables: { id: contractId },
@@ -146,14 +120,12 @@ function UpdateContractModal({ contractId, handleClose }: Props) {
             isNull(b) ? a : b
           )
         );
-        setCurrentJSONConfig(getExistingConfig(existingContract));
+        setCurrentJSONConfig(createProductConfigFromContract(existingContract));
       }
     },
   });
 
   const [errMsg, setErrMsg] = useState("");
-
-  const [updateContract] = useUpdateContractMutation();
 
   const handleSubmit = async () => {
     const error = Object.values(currentJSONConfig)
@@ -186,19 +158,21 @@ function UpdateContractModal({ contractId, handleClose }: Props) {
     };
 
     const response = await updateContract({
-      variables: {
-        contractId,
-        contract: {
-          end_date: contract.end_date,
-          product_config: productConfig,
-        },
+      contract_id: contractId,
+      contract_fields: {
+        product_type: contract.product_type,
+        start_date: contract.start_date,
+        end_date: contract.end_date,
+        product_config: productConfig,
       },
     });
 
-    const savedContract = response.data?.update_contracts_by_pk;
-    if (!savedContract) {
-      alert("Could not update contract");
+    if (response.status !== "OK") {
+      snackbar.showError(
+        `Error: could not update contract! Reason: ${response.msg}`
+      );
     } else {
+      snackbar.showSuccess("Success! Contract updated successfully.");
       handleClose();
     }
   };

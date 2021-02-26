@@ -1,5 +1,11 @@
-import { Contracts } from "generated/graphql";
+import {
+  ContractFragment,
+  Contracts,
+  ContractsInsertInput,
+  ProductTypeEnum,
+} from "generated/graphql";
 import { authenticatedApi, contractRoutes } from "lib/api";
+import { ProductTypeToContractTermsJson } from "lib/enum";
 
 export type TerminateContractReq = {
   contract_id: Contracts["id"];
@@ -27,8 +33,90 @@ export async function terminateContract(
         console.log("error", error);
         return {
           status: "ERROR",
-          msg: "Could not create company",
+          msg: "Could not terminate contract",
         };
       }
     );
+}
+
+export type UpdateContractReq = {
+  contract_id: Contracts["id"];
+  contract_fields: ContractsInsertInput;
+};
+
+export type UpdateContractResp = {
+  status: string;
+  msg: string;
+};
+
+export async function updateContract(
+  req: UpdateContractReq
+): Promise<UpdateContractResp> {
+  return authenticatedApi
+    .post(contractRoutes.updateContract, req)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not update contract",
+        };
+      }
+    );
+}
+
+export type ProductConfigField = {
+  section: string;
+  type: string;
+  format?: string;
+  internal_name: string;
+  display_name: string;
+  value: any;
+  description?: string;
+  nullable?: boolean;
+};
+
+export function createProductConfigFromProductType(
+  productType: ProductTypeEnum
+): ProductConfigField[] {
+  const templateFields = JSON.parse(ProductTypeToContractTermsJson[productType])
+    .v1.fields as ProductConfigField[];
+  return templateFields;
+}
+
+/**
+ *
+ */
+export function createProductConfigFromContract(
+  contract: ContractFragment
+): ProductConfigField[] {
+  // Template contract fields based on the JSON template (values are all empty).
+  const templateFields = JSON.parse(
+    ProductTypeToContractTermsJson[contract.product_type as ProductTypeEnum]
+  ).v1.fields as ProductConfigField[];
+
+  // Fill out the template contract fields based on the existing contract.
+  if (contract.product_config && Object.keys(contract.product_config).length) {
+    const existingFields = contract.product_config.v1.fields;
+    existingFields.forEach((existingField: any) => {
+      const fieldName = existingField.internal_name;
+      const templateField = templateFields.find(
+        (templateField: any) => templateField.internal_name === fieldName
+      );
+      if (
+        templateField &&
+        (existingField.value !== null || templateField.nullable)
+      ) {
+        templateField.value = existingField.value;
+      }
+    });
+  }
+
+  return templateFields;
 }
