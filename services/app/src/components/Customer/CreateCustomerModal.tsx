@@ -22,6 +22,7 @@ import {
   ContractsInsertInput,
   ProductTypeEnum,
 } from "generated/graphql";
+import { createProductConfigForServer } from "lib/customer/contracts";
 import { createCompany } from "lib/customer/create";
 import {
   AllProductTypes,
@@ -104,10 +105,23 @@ function AddCustomerModal({ handleClose }: Props) {
   }, [contract.product_type]);
 
   const handleClickCreate = async () => {
+    if (!contract || !contract.product_type) {
+      console.log("Developer error");
+      return;
+    }
+
     const response = await createCompany({
       company: customer,
       settings: companySetting,
-      contract: contract,
+      contract: {
+        product_type: contract.product_type,
+        start_date: contract.start_date,
+        end_date: contract.end_date,
+        product_config: createProductConfigForServer(
+          contract.product_type,
+          currentJSONConfig
+        ),
+      },
     });
 
     if (response.status !== "OK") {
@@ -140,7 +154,7 @@ function AddCustomerModal({ handleClose }: Props) {
               }}
             />
           </Box>
-          <Box mt={3}>
+          <Box mt={2}>
             <TextField
               className={classes.input}
               label="Company Identifier (Unique Short Name)"
@@ -154,7 +168,7 @@ function AddCustomerModal({ handleClose }: Props) {
         </Box>
         <Box mt={4}>
           <Typography variant="h6">Contract Information</Typography>
-          <Box>
+          <Box mt={2}>
             <InputLabel id="select-product-type-label" required>
               Product Type
             </InputLabel>
@@ -178,7 +192,7 @@ function AddCustomerModal({ handleClose }: Props) {
             </Select>
           </Box>
           {contract.product_type && (
-            <Box display="flex" flexDirection="column">
+            <Box display="flex" flexDirection="column" mt={2}>
               <ContractTermsForm
                 isProductTypeVisible={false}
                 isStartDateEditable

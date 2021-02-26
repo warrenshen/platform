@@ -16,15 +16,13 @@ import {
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import {
-  createProductConfigFromContract,
+  createProductConfigFieldsFromContract,
+  createProductConfigForServer,
   ProductConfigField,
   updateContract,
 } from "lib/customer/contracts";
-import { ProductTypeToContractTermsJson } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useState } from "react";
-
-const fieldsFilteringKeys = ["internal_name", "value"];
 
 const useStyles = makeStyles({
   section: {
@@ -73,20 +71,6 @@ const validateField = (item: any) => {
   return false;
 };
 
-const formatValue = (type: any, value: any) => {
-  switch (type) {
-    case "float":
-      return parseFloat(value);
-    case "integer":
-      return parseInt(value);
-    case "date":
-    case "string":
-      return value;
-    default:
-      return value;
-  }
-};
-
 interface Props {
   contractId: Contracts["id"];
   handleClose: () => void;
@@ -120,7 +104,9 @@ function UpdateContractModal({ contractId, handleClose }: Props) {
             isNull(b) ? a : b
           )
         );
-        setCurrentJSONConfig(createProductConfigFromContract(existingContract));
+        setCurrentJSONConfig(
+          createProductConfigFieldsFromContract(existingContract)
+        );
       }
     },
   });
@@ -136,26 +122,16 @@ function UpdateContractModal({ contractId, handleClose }: Props) {
       return;
     }
 
+    if (!contract || !contract.product_type) {
+      console.log("Developer error");
+      return;
+    }
     setErrMsg("");
-    const shortenedJSONConfig = currentJSONConfig.map((field: any) =>
-      Object.assign(
-        {},
-        ...fieldsFilteringKeys.map((key) => ({
-          [key]:
-            key === "value" ? formatValue(field.type, field[key]) : field[key],
-        }))
-      )
+
+    const productConfig = createProductConfigForServer(
+      contract.product_type,
+      currentJSONConfig
     );
-    const currentJSON = JSON.parse(
-      ProductTypeToContractTermsJson[contract.product_type as ProductTypeEnum]
-    );
-    const productConfig = {
-      ...currentJSON,
-      v1: {
-        ...currentJSON.v1,
-        fields: shortenedJSONConfig,
-      },
-    };
 
     const response = await updateContract({
       contract_id: contractId,

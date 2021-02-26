@@ -16,7 +16,7 @@ import {
   UserRolesEnum,
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
-import { createProductConfigFromContract } from "lib/customer/contracts";
+import { createProductConfigFieldsFromContract } from "lib/customer/contracts";
 import { formatDateString } from "lib/date";
 import { ProductTypeToLabel } from "lib/enum";
 import { groupBy } from "lodash";
@@ -74,7 +74,7 @@ function ContractDrawer({ contractId, handleClose }: Props) {
 
   const contract = data?.contracts_by_pk;
   const currentJSONConfig = contract
-    ? createProductConfigFromContract(contract)
+    ? createProductConfigFieldsFromContract(contract)
     : [];
   const sections = groupBy(currentJSONConfig, (d) => d.section);
 

@@ -82,7 +82,7 @@ export type ProductConfigField = {
   nullable?: boolean;
 };
 
-export function createProductConfigFromProductType(
+export function createProductConfigFieldsFromProductType(
   productType: ProductTypeEnum
 ): ProductConfigField[] {
   const templateFields = JSON.parse(ProductTypeToContractTermsJson[productType])
@@ -93,7 +93,7 @@ export function createProductConfigFromProductType(
 /**
  *
  */
-export function createProductConfigFromContract(
+export function createProductConfigFieldsFromContract(
   contract: ContractFragment
 ): ProductConfigField[] {
   // Template contract fields based on the JSON template (values are all empty).
@@ -119,4 +119,38 @@ export function createProductConfigFromContract(
   }
 
   return templateFields;
+}
+
+const formatValue = (type: any, value: any) => {
+  switch (type) {
+    case "float":
+      return parseFloat(value);
+    case "integer":
+      return parseInt(value);
+    case "date":
+    case "string":
+      return value;
+    default:
+      return value;
+  }
+};
+
+export function createProductConfigForServer(
+  productType: ProductTypeEnum,
+  productConfigFields: ProductConfigField[]
+): ProductConfigField[] {
+  const shortenedJSONConfig = productConfigFields.map(
+    (field: ProductConfigField) => ({
+      internal_name: field.internal_name,
+      value: formatValue(field.type, field.value),
+    })
+  );
+  const currentJSON = JSON.parse(ProductTypeToContractTermsJson[productType]);
+  return {
+    ...currentJSON,
+    v1: {
+      ...currentJSON.v1,
+      fields: shortenedJSONConfig,
+    },
+  };
 }
