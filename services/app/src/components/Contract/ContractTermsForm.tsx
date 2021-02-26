@@ -66,7 +66,7 @@ const validateField = (item: any) => {
 };
 
 interface Props {
-  isProductTypeVisible?: boolean;
+  isProductTypeEditable?: boolean;
   isStartDateEditable?: boolean;
   errMsg?: string;
   contract: ContractsInsertInput;
@@ -76,7 +76,7 @@ interface Props {
 }
 
 function ContractTermsForm({
-  isProductTypeVisible = true,
+  isProductTypeEditable = false,
   isStartDateEditable = false,
   errMsg = "",
   contract,
@@ -178,36 +178,34 @@ function ContractTermsForm({
 
   return (
     <Box display="flex" flexDirection="column">
-      {isProductTypeVisible && (
-        <Box className={classes.section} mb={3}>
-          <FormControl className={classes.inputField}>
-            <InputLabel id="select-product-type-label">Product Type</InputLabel>
-            <Select
-              disabled
-              id="select-product-type"
-              labelId="select-product-type-label"
-              value={contract?.product_type || ""}
-              onChange={({ target: { value } }) => {
-                setContract({
-                  ...contract,
-                  product_type: value as ProductTypeEnum,
-                  product_config:
-                    value === contract.product_type
-                      ? contract.product_config
-                      : {},
-                });
-              }}
-              style={{ width: 200 }}
-            >
-              {AllProductTypes.map((productType) => (
-                <MenuItem key={productType} value={productType}>
-                  {ProductTypeToLabel[productType as ProductTypeEnum]}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
-      )}
+      <Box className={classes.section} mb={3}>
+        <FormControl className={classes.inputField}>
+          <InputLabel id="select-product-type-label">Product Type</InputLabel>
+          <Select
+            disabled={!isProductTypeEditable}
+            id="select-product-type"
+            labelId="select-product-type-label"
+            value={contract?.product_type || ""}
+            onChange={({ target: { value } }) => {
+              setContract({
+                ...contract,
+                product_type: value as ProductTypeEnum,
+                product_config:
+                  value === contract.product_type
+                    ? contract.product_config
+                    : {},
+              });
+            }}
+            style={{ width: 200 }}
+          >
+            {AllProductTypes.map((productType) => (
+              <MenuItem key={productType} value={productType}>
+                {ProductTypeToLabel[productType as ProductTypeEnum]}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
       <Box mb={3}>
         <DatePicker
           disabled={!isStartDateEditable}

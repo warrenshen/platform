@@ -21,6 +21,7 @@ export const companyRoutes = {
 };
 
 export const contractRoutes = {
+  addContract: "/contracts/add_new_contract",
   terminateContract: "/contracts/terminate_contract",
   updateContract: "/contracts/update_contract",
 };

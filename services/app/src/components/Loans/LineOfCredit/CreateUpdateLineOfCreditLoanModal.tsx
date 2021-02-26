@@ -91,7 +91,7 @@ function CreateUpdateLineOfCreditLoanModal({
   const {
     loading: isExistingLoanLoading,
   } = useGetLoanWithArtifactForCustomerQuery({
-    skip: actionType === ActionType.Update,
+    skip: actionType === ActionType.New,
     variables: {
       id: loanId,
     },

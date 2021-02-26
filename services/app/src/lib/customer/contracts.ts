@@ -1,4 +1,5 @@
 import {
+  Companies,
   ContractFragment,
   Contracts,
   ContractsInsertInput,
@@ -66,6 +67,38 @@ export async function updateContract(
         return {
           status: "ERROR",
           msg: "Could not update contract",
+        };
+      }
+    );
+}
+
+export type AddContractReq = {
+  company_id: Companies["id"];
+  contract_fields: ContractsInsertInput;
+};
+
+export type AddContractResp = {
+  status: string;
+  msg: string;
+};
+
+export async function addContract(
+  req: AddContractReq
+): Promise<AddContractResp> {
+  return authenticatedApi
+    .post(contractRoutes.addContract, req)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not add contract",
         };
       }
     );

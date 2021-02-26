@@ -9,20 +9,23 @@ import {
 } from "@material-ui/core";
 import ContractTermsForm from "components/Contract/ContractTermsForm";
 import {
+  Companies,
   Contracts,
   ContractsInsertInput,
-  ProductTypeEnum,
   useGetContractQuery,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import {
+  addContract,
   createProductConfigFieldsFromContract,
+  createProductConfigFieldsFromProductType,
   createProductConfigForServer,
   ProductConfigField,
   updateContract,
 } from "lib/customer/contracts";
+import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const useStyles = makeStyles({
   section: {
@@ -72,17 +75,26 @@ const validateField = (item: any) => {
 };
 
 interface Props {
-  contractId: Contracts["id"];
+  actionType: ActionType;
+  companyId: Companies["id"];
+  contractId: Contracts["id"] | null;
   handleClose: () => void;
 }
 
-function UpdateContractModal({ contractId, handleClose }: Props) {
+function CreateUpdateContractModal({
+  actionType,
+  companyId,
+  contractId,
+  handleClose,
+}: Props) {
   const snackbar = useSnackbar();
   const classes = useStyles();
 
   // Default Contract while existing one is loading.
   const newContract = {
-    product_type: ProductTypeEnum.None,
+    product_type: null,
+    start_date: null,
+    end_date: null,
     product_config: {},
   } as ContractsInsertInput;
 
@@ -93,11 +105,14 @@ function UpdateContractModal({ contractId, handleClose }: Props) {
   >([]);
 
   const { loading: isExistingContractLoading } = useGetContractQuery({
-    variables: { id: contractId },
+    skip: actionType === ActionType.New,
+    variables: {
+      id: contractId,
+    },
     onCompleted: (data) => {
       const existingContract = data?.contracts_by_pk;
       if (!existingContract) {
-        alert("Error quertying contract");
+        alert("Error querying contract");
       } else {
         setContract(
           mergeWith(newContract, existingContract, (a, b) =>
@@ -110,6 +125,14 @@ function UpdateContractModal({ contractId, handleClose }: Props) {
       }
     },
   });
+
+  useEffect(() => {
+    if (contract.product_type) {
+      setCurrentJSONConfig(
+        createProductConfigFieldsFromProductType(contract.product_type)
+      );
+    }
+  }, [contract.product_type]);
 
   const [errMsg, setErrMsg] = useState("");
 
@@ -133,15 +156,22 @@ function UpdateContractModal({ contractId, handleClose }: Props) {
       currentJSONConfig
     );
 
-    const response = await updateContract({
-      contract_id: contractId,
-      contract_fields: {
-        product_type: contract.product_type,
-        start_date: contract.start_date,
-        end_date: contract.end_date,
-        product_config: productConfig,
-      },
-    });
+    const contractFields = {
+      product_type: contract.product_type,
+      start_date: contract.start_date,
+      end_date: contract.end_date,
+      product_config: productConfig,
+    };
+    const response =
+      actionType === ActionType.Update
+        ? await updateContract({
+            contract_id: contractId,
+            contract_fields: contractFields,
+          })
+        : await addContract({
+            company_id: companyId,
+            contract_fields: contractFields,
+          });
 
     if (response.status !== "OK") {
       snackbar.showError(
@@ -157,10 +187,14 @@ function UpdateContractModal({ contractId, handleClose }: Props) {
 
   return isDialogReady ? (
     <Dialog open onClose={handleClose} fullWidth>
-      <DialogTitle className={classes.dialogTitle}>Edit Contract</DialogTitle>
+      <DialogTitle className={classes.dialogTitle}>
+        {`${actionType === ActionType.Update ? "Edit" : "Create"} Contract`}
+      </DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column">
           <ContractTermsForm
+            isProductTypeEditable
+            isStartDateEditable
             errMsg={errMsg}
             contract={contract}
             currentJSONConfig={currentJSONConfig}
@@ -193,4 +227,4 @@ function UpdateContractModal({ contractId, handleClose }: Props) {
   ) : null;
 }
 
-export default UpdateContractModal;
+export default CreateUpdateContractModal;

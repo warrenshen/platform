@@ -2,13 +2,12 @@ import datetime
 import json
 import logging
 import sys
-
 from datetime import timedelta
-from mypy_extensions import TypedDict
-from typing import cast, Tuple, Callable, Dict, List, Any
+from typing import Any, Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.db import models
+from mypy_extensions import TypedDict
 
 FieldDict = TypedDict('FieldDict', {
 		'name': str,
@@ -33,7 +32,7 @@ def _parse_late_fee_structure(late_fee_field: FullFieldDict) -> Tuple[List[Tuple
 	if not late_fee_field:
 		logging.error('Warning no late fee structure specified in contract')
 		return [], None
-	
+
 	late_fee_structure_str = late_fee_field['value']
 	if not late_fee_structure_str:
 		# TODO(dlluncor): This should actually throw an error once we have
@@ -65,14 +64,14 @@ def _parse_late_fee_structure(late_fee_field: FullFieldDict) -> Tuple[List[Tuple
 		if k.endswith('+'):
 			if has_infinity_case:
 				return None, errors.Error('A contract cannot specify two infinity cases, e.g., cases with a "+" in it')
-			
+
 			has_infinity_case = True
 			try:
 				start_range = int(k.strip('+'))
 				end_range = INTERNAL_LATE_FEE_INFINITY
 				ranges.append((start_range, end_range, float(v)))
 			except Exception as e:
-				return None, errors.Error('A late fee key that ends with a "+" must be a number followed by a +') 
+				return None, errors.Error('A late fee key that ends with a "+" must be a number followed by a +')
 		else:
 			parts = k.split('-')
 			if len(parts) != 2:
@@ -158,7 +157,7 @@ class Contract(object):
 				return None, errors.Error(msg)
 
 		orig_fields = cast(List[FullFieldDict], self._config[self._config['version']]['fields'])
-		
+
 		self._field_dicts = []
 		for field in orig_fields:
 			self._field_dicts.append(FieldDict(
@@ -173,7 +172,7 @@ class Contract(object):
 		self._populate()
 		if internal_name not in self._internal_name_to_field:
 			return None, errors.Error(
-				'Non-existent field "{}" provided to get contract field'.format(internal_name), 
+				'Non-existent field "{}" provided to get contract field'.format(internal_name),
 				details={'contract_config': self._config})
 
 		return self._internal_name_to_field[internal_name], None
@@ -185,7 +184,7 @@ class Contract(object):
 
 		if type(field['value']) != float and type(field['value']) != int:
 			return None, errors.Error(
-				'Got an "{}" which is not stored as a number'.format(internal_name), 
+				'Got an "{}" which is not stored as a number'.format(internal_name),
 				details={'contract_config': self._config})
 
 		return field['value'], None
@@ -197,7 +196,7 @@ class Contract(object):
 
 		if type(field['value']) != int:
 			return None, errors.Error(
-				'Got a field "{}" which is not stored as an integer'.format(internal_name), 
+				'Got a field "{}" which is not stored as an integer'.format(internal_name),
 				details={'contract_config': self._config})
 
 		return field['value'], None
@@ -209,7 +208,7 @@ class Contract(object):
 
 		if field['value'] and type(field['value']) != str:
 			return None, errors.Error(
-				'Got a field "{}" which is not stored as an string'.format(internal_name), 
+				'Got a field "{}" which is not stored as an string'.format(internal_name),
 				details={'contract_config': self._config})
 
 		return field['value'], None
@@ -281,7 +280,7 @@ class Contract(object):
 
 			Optionally, it will validate the structure and validity of how the contract
 			was setup.
-			
+
 			This function may update fields
 			that may not have existed on this contract due to schema changes or additional
 			fields added to the contract.

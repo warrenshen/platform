@@ -85,7 +85,7 @@ function CreateUpdatePurchaseOrderLoanModal({
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);
 
   const { loading: isExistingLoanLoading } = useGetLoanForCustomerQuery({
-    skip: actionType === ActionType.Update,
+    skip: actionType === ActionType.New,
     variables: {
       id: loanId,
     },

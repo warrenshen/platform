@@ -1,8 +1,9 @@
-import { Box, Typography } from "@material-ui/core";
+import { Box, Button, Typography } from "@material-ui/core";
 import ContractCard from "components/Contract/ContractCard";
-import ContractTermsModal from "components/Contract/UpdateContractModal";
+import CreateUpdateContractModal from "components/Contract/CreateUpdateContractModal";
 import ContractsDataGrid from "components/Contracts/ContractsDataGrid";
 import { useGetCompanyForCustomerContractPageQuery } from "generated/graphql";
+import { ActionType } from "lib/enum";
 import { useState } from "react";
 
 interface Props {
@@ -24,29 +25,49 @@ function BankCustomerContractSubpage({ companyId }: Props) {
     isEditContractTermsModalOpen,
     setIsEditContractTermsModalOpen,
   ] = useState(false);
+  const [isCreateContractModalOpen, setIsCreateContractModalOpen] = useState(
+    false
+  );
 
   return (
     <Box>
+      {isEditContractTermsModalOpen && (
+        <CreateUpdateContractModal
+          actionType={ActionType.Update}
+          contractId={activeContract?.id || null}
+          companyId={companyId}
+          handleClose={() => {
+            refetch();
+            setIsEditContractTermsModalOpen(false);
+          }}
+        />
+      )}
+      {isCreateContractModalOpen && (
+        <CreateUpdateContractModal
+          actionType={ActionType.New}
+          contractId={null}
+          companyId={companyId}
+          handleClose={() => {
+            refetch();
+            setIsCreateContractModalOpen(false);
+          }}
+        />
+      )}
       <Box>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setIsCreateContractModalOpen(true)}
+        >
+          Create New Contract
+        </Button>
+      </Box>
+      <Box mt={3}>
         <Box mb={1}>
           <Typography variant="h6">Active Contract</Typography>
         </Box>
         {isActiveContract && activeContract && (
-          <>
-            {isEditContractTermsModalOpen && (
-              <ContractTermsModal
-                handleClose={() => {
-                  refetch();
-                  setIsEditContractTermsModalOpen(false);
-                }}
-                contractId={activeContract.id}
-              />
-            )}
-            <ContractCard
-              contract={activeContract}
-              handleDataChange={refetch}
-            />
-          </>
+          <ContractCard contract={activeContract} handleDataChange={refetch} />
         )}
       </Box>
       <Box mt={3}>

@@ -9,12 +9,12 @@ import {
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import ContractDrawerLauncher from "components/Contract/ContractDrawerLauncher";
+import CreateUpdateContractModal from "components/Contract/CreateUpdateContractModal";
 import TerminateContractModal from "components/Contract/TerminateContractModal";
-import UpdateContractTermsModal from "components/Contract/UpdateContractModal";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { ContractFragment, UserRolesEnum } from "generated/graphql";
 import { formatDateString } from "lib/date";
-import { ProductTypeToLabel } from "lib/enum";
+import { ActionType, ProductTypeToLabel } from "lib/enum";
 import { useContext, useState } from "react";
 
 interface Props {
@@ -55,8 +55,10 @@ function ContractCard({ contract, handleDataChange }: Props) {
   return (
     <Card className={classes.card}>
       {isEditContractTermsModalOpen && (
-        <UpdateContractTermsModal
+        <CreateUpdateContractModal
+          actionType={ActionType.Update}
           contractId={contract.id}
+          companyId={contract.company_id}
           handleClose={() => {
             if (handleDataChange) {
               handleDataChange();
