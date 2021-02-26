@@ -87,6 +87,7 @@ function CreateUpdatePurchaseOrderModal({
   >([]);
 
   const { loading: isExistingPurchaseOrderLoading } = usePurchaseOrderQuery({
+    skip: actionType === ActionType.Update,
     variables: {
       id: purchaseOrderId,
     },

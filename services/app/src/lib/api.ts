@@ -20,6 +20,10 @@ export const companyRoutes = {
   createCompany: "/companies/create_company",
 };
 
+export const contractRoutes = {
+  terminateContract: "/contracts/terminate_contract",
+};
+
 export const userRoutes = {
   createLogin: "/users/create_login",
 };

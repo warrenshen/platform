@@ -9,6 +9,7 @@ import {
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import ContractDrawerLauncher from "components/Contract/ContractDrawerLauncher";
+import TerminateContractModal from "components/Contract/TerminateContractModal";
 import UpdateContractTermsModal from "components/Contract/UpdateContractModal";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { ContractFragment, UserRolesEnum } from "generated/graphql";
@@ -46,6 +47,10 @@ function ContractCard({ contract, handleDataChange }: Props) {
     isEditContractTermsModalOpen,
     setIsEditContractTermsModalOpen,
   ] = useState(false);
+  const [
+    isTerminateContractModalOpen,
+    setIsTerminateContractModalOpen,
+  ] = useState(false);
 
   return (
     <Card className={classes.card}>
@@ -57,6 +62,17 @@ function ContractCard({ contract, handleDataChange }: Props) {
               handleDataChange();
             }
             setIsEditContractTermsModalOpen(false);
+          }}
+        />
+      )}
+      {isTerminateContractModalOpen && (
+        <TerminateContractModal
+          contractId={contract.id}
+          handleClose={() => {
+            if (handleDataChange) {
+              handleDataChange();
+            }
+            setIsTerminateContractModalOpen(false);
           }}
         />
       )}
@@ -88,7 +104,7 @@ function ContractCard({ contract, handleDataChange }: Props) {
               <ContractDrawerLauncher contractId={contract.id}>
                 {(handleClick) => (
                   <Button size="small" variant="outlined" onClick={handleClick}>
-                    View Terms
+                    View
                   </Button>
                 )}
               </ContractDrawerLauncher>
@@ -99,7 +115,18 @@ function ContractCard({ contract, handleDataChange }: Props) {
                     variant="outlined"
                     onClick={() => setIsEditContractTermsModalOpen(true)}
                   >
-                    Edit Terms
+                    Edit
+                  </Button>
+                </Box>
+              )}
+              {isBankUser && (
+                <Box ml={1}>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    onClick={() => setIsTerminateContractModalOpen(true)}
+                  >
+                    Terminate
                   </Button>
                 </Box>
               )}

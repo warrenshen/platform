@@ -85,6 +85,7 @@ function CreateUpdatePurchaseOrderLoanModal({
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);
 
   const { loading: isExistingLoanLoading } = useGetLoanForCustomerQuery({
+    skip: actionType === ActionType.Update,
     variables: {
       id: loanId,
     },
@@ -350,7 +351,7 @@ function CreateUpdatePurchaseOrderLoanModal({
                   <span>
                     Reasons you cannot submit, but can only save this as a draft
                   </span>
-                  <br></br>
+                  <br />
                   <div>
                     <ul>
                       {disabledSubmitReasons.map((reason, index) => {

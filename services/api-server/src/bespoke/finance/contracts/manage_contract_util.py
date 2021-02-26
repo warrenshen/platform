@@ -25,7 +25,7 @@ UpdateContractReqDict = TypedDict('UpdateContractReqDict', {
 	'contract_fields': ContractFieldsDict
 })
 
-EndContractReqDict = TypedDict('EndContractReqDict', {
+TerminateContractReqDict = TypedDict('TerminateContractReqDict', {
 	'contract_id': str,
 	'termination_date': str
 })
@@ -67,7 +67,7 @@ def update_contract(req: UpdateContractReqDict, bank_admin_user_id: str, session
 
 	return True, None
 
-def terminate_contract(req: EndContractReqDict, bank_admin_user_id: str, session_maker: Callable) -> Tuple[bool, errors.Error]:
+def terminate_contract(req: TerminateContractReqDict, bank_admin_user_id: str, session_maker: Callable) -> Tuple[bool, errors.Error]:
 	err_details = {'req': req, 'method': 'terminate_contract'}
 
 	with session_scope(session_maker) as session:
@@ -79,14 +79,27 @@ def terminate_contract(req: EndContractReqDict, bank_admin_user_id: str, session
 		if not contract:
 			return False, errors.Error('Contract could not be found', details=err_details)
 
+		company = cast(
+			models.Company,
+			session.query(models.Company).filter(
+				models.Company.id == contract.company_id
+			).first())
+		if not company:
+			return False, errors.Error('Contract does not have a Company', details=err_details)
+
 		termination_date = date_util.load_date_str(req['termination_date'])
 
 		if termination_date > contract.end_date:
 			return False, errors.Error('Cannot set contract termination date to a date after contract end date', details=err_details)
 
+		if termination_date > date_util.today_as_date():
+			return False, errors.Error('Cannot set contract termination date to a date in the future', details=err_details)
+
 		contract.adjusted_end_date = date_util.load_date_str(req['termination_date'])
 		contract.terminated_at = date_util.now()
 		contract.terminated_by_user_id = bank_admin_user_id
+
+		company.contract_id = None
 
 	return True, None
 

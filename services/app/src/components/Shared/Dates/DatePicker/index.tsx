@@ -13,6 +13,7 @@ interface Props {
   label: string;
   value: string | null;
   error?: boolean;
+  disableFuture?: boolean;
   disablePast?: boolean;
   disabled?: boolean;
   required?: boolean;
@@ -26,6 +27,7 @@ function DatePicker(props: Props) {
       <KeyboardDatePicker
         className={props.className || ""}
         disableToolbar
+        disableFuture={props.disableFuture}
         disablePast={props.disablePast || props.disableNonBankDays}
         autoOk
         error={props.error}
