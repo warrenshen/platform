@@ -38,6 +38,19 @@ class UpdateContractView(MethodView):
 		if err:
 			return handler_util.make_error_response(err)
 
+		with session_scope(current_app.session_maker) as session:
+			contract = session.query(models.Contract).filter(models.Contract.id == form["contract_id"]).first()
+			if not contract:
+				return handler_util.make_error_response(
+					f"Failed to find contract specified in the request (id: {form['contract_id']})")
+
+			company = session.query(models.Company).filter(models.Company.id == contract.company_id).first()
+			if not company:
+				return handler_util.make_error_response(
+					f"Failed to find company associated with the contract specified in the request (id: {form['contract_id']})")
+
+			company.needs_balance_recomputed = True
+
 		return make_response(json.dumps({
 			'status': 'OK'
 		}), 200)

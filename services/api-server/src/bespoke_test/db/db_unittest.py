@@ -11,6 +11,7 @@ from sqlalchemy_utils.functions import database_exists
 from typing import Callable
 
 from bespoke.db import models
+from manage import app
 
 def get_db_url() -> str:
 	return 'sqlite:///tmp/test.db'
@@ -36,7 +37,8 @@ class TestCase(unittest.TestCase):
 		_delete_db(db_url)
 		engine = sqlalchemy.create_engine(db_url)
 		models.Base.metadata.create_all(engine)
-		self.session_maker = sessionmaker(engine)		
+		self.session_maker = sessionmaker(engine)
+		app.session_maker = self.session_maker
 
 	def setUp(self) -> None:
 		self.reset()

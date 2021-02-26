@@ -14,10 +14,10 @@ update-requirements:
 
 ifdef NAME
 run-test-local:
-	cd test && PYTHONPATH=$(current_dir)/src python3 -m unittest $(NAME)
+	cd test && FLASK_ENV=development SERVER_ROOT_DIR=$(server_root_dir) PYTHONPATH=$(current_dir)/src python3 -m unittest $(NAME)
 else
 run-test-local:
-	cd test && PYTHONPATH=$(current_dir)/src python3 -m unittest discover .
+	cd test && FLASK_ENV=development SERVER_ROOT_DIR=$(server_root_dir) PYTHONPATH=$(current_dir)/src python3 -m unittest discover .
 endif
 
 runlocal:
