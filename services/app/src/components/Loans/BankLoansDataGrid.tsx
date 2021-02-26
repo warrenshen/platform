@@ -32,6 +32,7 @@ interface Props {
   selectedLoanIds?: Loans["id"][];
   actionItems?: DataGridActionItem[];
   handleSelectLoans?: (loans: LoanFragment[]) => void;
+  isMultiSelectEnabled?: boolean;
 }
 
 const getMaturityDate = (rowData: any) => new Date(rowData.maturity_date);
@@ -46,6 +47,7 @@ function BankLoansDataGrid({
   selectedLoanIds = [],
   actionItems = [],
   handleSelectLoans = () => {},
+  isMultiSelectEnabled,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = loans;
@@ -210,7 +212,7 @@ function BankLoansDataGrid({
       ref={(ref) => setDataGrid(ref)}
       filtering={{ enable: fullView }}
       pager={fullView}
-      select
+      select={isMultiSelectEnabled}
       pageSize={fullView ? 50 : 5}
       allowedPageSizes={[5, 50]}
       dataSource={rows}

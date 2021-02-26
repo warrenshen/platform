@@ -3,13 +3,19 @@ import { ValueFormatterParams } from "@material-ui/data-grid";
 import PaymentsDataGrid from "components/Repayment/PaymentsDataGrid";
 import SettleRepaymentModal from "components/Repayment/SettleRepaymentModal";
 import Page from "components/Shared/Page";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   useGetPaymentsQuery,
   useGetSubmittedPaymentsQuery,
 } from "generated/graphql";
-import { useState } from "react";
+import { Action, check } from "lib/auth/rbac-rules";
+import { useState, useContext } from "react";
 
 function BankPaymentsPage() {
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+
   const { data, refetch: refetchPayments } = useGetPaymentsQuery();
   const {
     data: submittedPaymentsData,
@@ -42,16 +48,20 @@ function BankPaymentsPage() {
           payments={submittedPayments}
           customerSearchQuery={""}
           onClickCustomerName={() => {}}
-          actionItems={[
-            {
-              key: "settle-repayment",
-              label: "Settle Payment",
-              handleClick: (params: ValueFormatterParams) => {
-                setTargetPaymentId(params.row.data.id as string);
-                setIsSettleRepaymentModalOpen(true);
-              },
-            },
-          ]}
+          actionItems={
+            check(role, Action.SettleRepayment)
+              ? [
+                  {
+                    key: "settle-repayment",
+                    label: "Settle Payment",
+                    handleClick: (params: ValueFormatterParams) => {
+                      setTargetPaymentId(params.row.data.id as string);
+                      setIsSettleRepaymentModalOpen(true);
+                    },
+                  },
+                ]
+              : []
+          }
         />
       </Box>
       <Box>

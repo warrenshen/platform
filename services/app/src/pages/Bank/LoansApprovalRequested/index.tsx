@@ -1,7 +1,10 @@
 import { Box, Button } from "@material-ui/core";
+import { ValueFormatterParams } from "@material-ui/data-grid";
 import CreateAdvanceModal from "components/Advance/CreateAdvanceModal";
 import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
 import Page from "components/Shared/Page";
+import Can from "components/Shared/Can";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoanFragment,
   Loans,
@@ -9,9 +12,14 @@ import {
   useLoansByStatusesForBankQuery,
 } from "generated/graphql";
 import { approveLoans, rejectLoan } from "lib/finance/loans/approval";
-import { useState } from "react";
+import { Action, check } from "lib/auth/rbac-rules";
+import { useState, useContext } from "react";
 
 function LoansAllProductsPage() {
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+
   const { data, error, refetch } = useLoansByStatusesForBankQuery({
     variables: {
       statuses: [LoanStatusEnum.ApprovalRequested, LoanStatusEnum.Approved],
@@ -80,26 +88,30 @@ function LoansAllProductsPage() {
             }}
           />
         )}
-        <Box>
-          <Button
-            disabled={approvedSelectedLoans.length <= 0}
-            variant="contained"
-            color="primary"
-            onClick={() => setIsCreateAdvanceModalOpen(true)}
-          >
-            Create Advance
-          </Button>
-        </Box>
-        <Box mr={2}>
-          <Button
-            disabled={approvalRequestedSelectedLoans.length <= 0}
-            variant="contained"
-            color="primary"
-            onClick={handleApproveLoans}
-          >
-            Approve Loan(s)
-          </Button>
-        </Box>
+        <Can perform={Action.CreateAdvance}>
+          <Box>
+            <Button
+              disabled={approvedSelectedLoans.length <= 0}
+              variant="contained"
+              color="primary"
+              onClick={() => setIsCreateAdvanceModalOpen(true)}
+            >
+              Create Advance
+            </Button>
+          </Box>
+        </Can>
+        <Can perform={Action.ApproveLoan}>
+          <Box mr={2}>
+            <Button
+              disabled={approvalRequestedSelectedLoans.length <= 0}
+              variant="contained"
+              color="primary"
+              onClick={handleApproveLoans}
+            >
+              Approve Loan(s)
+            </Button>
+          </Box>
+        </Can>
       </Box>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <BankLoansDataGrid
@@ -109,23 +121,32 @@ function LoansAllProductsPage() {
           loans={loans}
           selectedLoanIds={selectedLoanIds}
           actionItems={[
-            {
-              key: "approve-loan",
-              label: "Approve Loan",
-              handleClick: (params) =>
-                handleApproveLoan(params.row.data.id as string),
-            },
-            {
-              key: "reject-loan",
-              label: "Reject Loan",
-              handleClick: (params) =>
-                handleRejectLoan(params.row.data.id as string),
-            },
+            ...(check(role, Action.ApproveLoan)
+              ? [
+                  {
+                    key: "approve-loan",
+                    label: "Approve Loan",
+                    handleClick: (params: ValueFormatterParams) =>
+                      handleApproveLoan(params.row.data.id as string),
+                  },
+                ]
+              : []),
+            ...(check(role, Action.RejectLoan)
+              ? [
+                  {
+                    key: "reject-loan",
+                    label: "Reject Loan",
+                    handleClick: (params: ValueFormatterParams) =>
+                      handleRejectLoan(params.row.data.id as string),
+                  },
+                ]
+              : []),
           ]}
           handleSelectLoans={(loans) => {
             setSelectedLoans(loans);
             setSelectedLoanIds(loans.map((loan) => loan.id));
           }}
+          isMultiSelectEnabled={check(role, Action.SelectLoan)}
         />
       </Box>
     </Page>

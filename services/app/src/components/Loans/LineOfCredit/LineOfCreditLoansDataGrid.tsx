@@ -8,11 +8,9 @@ import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { LoanFragment, Loans, LoanStatusEnum } from "generated/graphql";
-import { Action, check } from "lib/auth/rbac-rules";
 import { createLoanPublicIdentifier } from "lib/loans";
-import React, { useContext } from "react";
+import React from "react";
 
 interface Props {
   isMaturityVisible?: boolean; // Whether maturity date, principal balance, interest, and fees are visible.
@@ -20,6 +18,8 @@ interface Props {
   selectedLoanIds?: Loans["id"][];
   actionItems?: DataGridActionItem[];
   handleSelectLoans?: (loans: LoanFragment[]) => void;
+  isMultiSelectEnabled?: boolean;
+  isViewNotesEnabled?: boolean;
 }
 
 function LineOfCreditLoansDataGrid({
@@ -28,9 +28,9 @@ function LineOfCreditLoansDataGrid({
   selectedLoanIds = [],
   actionItems = [],
   handleSelectLoans = () => {},
+  isMultiSelectEnabled,
+  isViewNotesEnabled,
 }: Props) {
-  const { user } = useContext(CurrentUserContext);
-
   const rows = loans;
 
   const columns = [
@@ -46,6 +46,7 @@ function LineOfCreditLoansDataGrid({
       ),
     },
     {
+      visible: actionItems.length > 0,
       dataField: "action",
       caption: "Action",
       alignment: "center",
@@ -101,7 +102,7 @@ function LineOfCreditLoansDataGrid({
       ),
     },
     {
-      visible: check(user.role, Action.ViewLoanInternalNote),
+      visible: isViewNotesEnabled,
       dataField: "notes",
       caption: "Internal Note",
       minWidth: 300,
@@ -162,7 +163,7 @@ function LineOfCreditLoansDataGrid({
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
       <ControlledDataGrid
         pager
-        select
+        select={isMultiSelectEnabled}
         dataSource={rows}
         columns={columns}
         selectedRowKeys={selectedLoanIds}

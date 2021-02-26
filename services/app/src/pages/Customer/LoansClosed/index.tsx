@@ -12,6 +12,7 @@ import {
   LoanTypeEnum,
   useGetClosedLoansForCompanyQuery,
 } from "generated/graphql";
+import { Action, check } from "lib/auth/rbac-rules";
 import { useContext } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -36,7 +37,7 @@ function CustomerLoansClosedPage() {
   const classes = useStyles();
 
   const {
-    user: { companyId, productType },
+    user: { companyId, productType, role },
   } = useContext(CurrentUserContext);
 
   const { data, error } = useGetClosedLoansForCompanyQuery({
@@ -66,6 +67,8 @@ function CustomerLoansClosedPage() {
               productType={productType}
               loans={loans}
               actionItems={[]}
+              isMultiSelectEnabled={check(role, Action.SelectLoan)}
+              isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
             />
           </Box>
         </Box>

@@ -10,12 +10,10 @@ import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { LoanFragment, Loans } from "generated/graphql";
-import { Action, check } from "lib/auth/rbac-rules";
 import { PaymentStatusEnum } from "lib/enum";
 import { createLoanPublicIdentifier } from "lib/loans";
-import React, { useContext } from "react";
+import React from "react";
 
 interface Props {
   pager?: boolean;
@@ -25,6 +23,8 @@ interface Props {
   selectedLoanIds?: Loans["id"][];
   actionItems?: DataGridActionItem[];
   handleSelectLoans?: (loans: LoanFragment[]) => void;
+  isMultiSelectEnabled?: boolean;
+  isViewNotesEnabled?: boolean;
 }
 
 function PurchaseOrderLoansDataGrid({
@@ -35,9 +35,9 @@ function PurchaseOrderLoansDataGrid({
   selectedLoanIds = [],
   actionItems = [],
   handleSelectLoans = () => {},
+  isMultiSelectEnabled,
+  isViewNotesEnabled,
 }: Props) {
-  const { user } = useContext(CurrentUserContext);
-
   const rows = loans;
 
   const columns = [
@@ -111,7 +111,7 @@ function PurchaseOrderLoansDataGrid({
       ),
     },
     {
-      visible: !isMiniTable && check(user.role, Action.ViewLoanInternalNote),
+      visible: !isMiniTable && isViewNotesEnabled,
       dataField: "notes",
       caption: "Internal Note",
       minWidth: 300,
@@ -173,7 +173,7 @@ function PurchaseOrderLoansDataGrid({
       <ControlledDataGrid
         pager={pager}
         pageSize={isMiniTable ? 10 : 10}
-        select={!isMiniTable}
+        select={isMultiSelectEnabled && !isMiniTable}
         dataSource={rows}
         columns={columns}
         selectedRowKeys={selectedLoanIds}

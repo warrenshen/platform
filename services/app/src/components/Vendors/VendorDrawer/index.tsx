@@ -16,6 +16,7 @@ import ApproveVendor from "components/Vendors/VendorDrawer/Actions/ApproveVendor
 import BankAccount from "components/Vendors/VendorDrawer/BankAccount";
 import Contacts from "components/Vendors/VendorDrawer/Contacts";
 import VendorInfo from "components/Vendors/VendorDrawer/VendorInfo";
+import Can from "components/Shared/Can";
 import {
   BankVendorPartnershipDocument,
   CompanyAgreementsInsertInput,
@@ -26,6 +27,7 @@ import {
   useUpdateVendorAgreementIdMutation,
   useUpdateVendorLicenseIdMutation,
 } from "generated/graphql";
+import { Action } from "lib/auth/rbac-rules";
 import { InventoryNotifier } from "lib/notifications/inventory";
 import { omit } from "lodash";
 import { useMemo } from "react";
@@ -253,28 +255,32 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
         </Box>
 
         <Typography variant="h6"> Notifications </Typography>
-        <Box mt={1} mb={2}>
-          <SendVendorAgreements
-            vendorId={vendor.id}
-            vendorName={vendor.name}
-            customerName={customerName}
-            customerId={customer.id}
-            notifier={notifier}
-          />
-        </Box>
+        <Can perform={Action.SendVendorAgreements}>
+          <Box mt={1} mb={2}>
+            <SendVendorAgreements
+              vendorId={vendor.id}
+              vendorName={vendor.name}
+              customerName={customerName}
+              customerId={customer.id}
+              notifier={notifier}
+            />
+          </Box>
+        </Can>
 
         <Typography variant="h6"> Actions </Typography>
-        <Box mt={1} mb={2}>
-          <ApproveVendor
-            hasNoContactsSetup={hasNoContactsSetup}
-            vendorId={vendor.id}
-            customerId={customer.id}
-            vendorPartnershipId={vendorPartnershipId}
-            customerName={customerName}
-            vendorName={vendor.name}
-            notifier={notifier}
-          />
-        </Box>
+        <Can perform={Action.ApproveVendor}>
+          <Box mt={1} mb={2}>
+            <ApproveVendor
+              hasNoContactsSetup={hasNoContactsSetup}
+              vendorId={vendor.id}
+              customerId={customer.id}
+              vendorPartnershipId={vendorPartnershipId}
+              customerName={customerName}
+              vendorName={vendor.name}
+              notifier={notifier}
+            />
+          </Box>
+        </Can>
 
         <Typography variant="h6"> Customers </Typography>
       </Box>

@@ -11,11 +11,13 @@ import { Alert } from "@material-ui/lab";
 import CustomerFinancialSummaryOverview from "components/CustomerFinancialSummary/CustomerFinancialSummaryOverview";
 import CreateUpdateLineOfCreditLoanModal from "components/Loans/LineOfCredit/CreateUpdateLineOfCreditLoanModal";
 import LineOfCreditLoansDataGrid from "components/Loans/LineOfCredit/LineOfCreditLoansDataGrid";
+import Can from "components/Shared/Can";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoanTypeEnum,
   useGetCompanyForCustomerLoansQuery,
 } from "generated/graphql";
+import { Action, check } from "lib/auth/rbac-rules";
 import { ActionType } from "lib/enum";
 import { useContext, useState } from "react";
 
@@ -41,12 +43,12 @@ function CustomerLineOfCreditLoansPage() {
   const classes = useStyles();
 
   const {
-    user: { companyId },
+    user: { role, companyId },
   } = useContext(CurrentUserContext);
 
   const { data, error, refetch } = useGetCompanyForCustomerLoansQuery({
     variables: {
-      companyId,
+      companyId: companyId,
       loanType: LoanTypeEnum.LineOfCredit,
     },
   });
@@ -97,42 +99,50 @@ function CustomerLineOfCreditLoansPage() {
       </Box>
       <Box className={classes.sectionSpace} />
       <Box className={classes.section}>
-        <Box pb={2} display="flex" flexDirection="row-reverse">
-          {isCreateUpdateModalOpen && (
-            <CreateUpdateLineOfCreditLoanModal
-              actionType={
-                targetLoanId === "" ? ActionType.New : ActionType.Update
-              }
-              loanId={targetLoanId}
-              handleClose={() => {
-                refetch();
-                setIsCreateUpdateModalOpen(false);
-                setTargetLoanId("");
-              }}
-            />
-          )}
-          <Button
-            disabled={!canCreateUpdateNewLoan}
-            variant="contained"
-            color="primary"
-            onClick={() => setIsCreateUpdateModalOpen(true)}
-          >
-            Request New Loan
-          </Button>
-        </Box>
+        <Can perform={Action.AddPurchaseOrderLoan}>
+          <Box pb={2} display="flex" flexDirection="row-reverse">
+            {isCreateUpdateModalOpen && (
+              <CreateUpdateLineOfCreditLoanModal
+                actionType={
+                  targetLoanId === "" ? ActionType.New : ActionType.Update
+                }
+                loanId={targetLoanId}
+                handleClose={() => {
+                  refetch();
+                  setIsCreateUpdateModalOpen(false);
+                  setTargetLoanId("");
+                }}
+              />
+            )}
+            <Button
+              disabled={!canCreateUpdateNewLoan}
+              variant="contained"
+              color="primary"
+              onClick={() => setIsCreateUpdateModalOpen(true)}
+            >
+              Request New Loan
+            </Button>
+          </Box>
+        </Can>
         <Box flex={1} display="flex">
           <LineOfCreditLoansDataGrid
             loans={loans}
-            actionItems={[
-              {
-                key: "edit-line-of-credit",
-                label: "Edit",
-                handleClick: (params: ValueFormatterParams) => {
-                  setTargetLoanId(params.row.data.id as string);
-                  setIsCreateUpdateModalOpen(true);
-                },
-              },
-            ]}
+            actionItems={
+              check(role, Action.EditLineOfCredit)
+                ? [
+                    {
+                      key: "edit-line-of-credit",
+                      label: "Edit",
+                      handleClick: (params: ValueFormatterParams) => {
+                        setTargetLoanId(params.row.data.id as string);
+                        setIsCreateUpdateModalOpen(true);
+                      },
+                    },
+                  ]
+                : []
+            }
+            isMultiSelectEnabled={check(role, Action.SelectLoan)}
+            isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
           />
         </Box>
       </Box>

@@ -7,16 +7,21 @@ import {
 } from "@material-ui/core";
 import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
 import Page from "components/Shared/Page";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoanFragment,
   LoanStatusEnum,
   useLoansByStatusesForBankQuery,
 } from "generated/graphql";
-import { useState } from "react";
+import { Action, check } from "lib/auth/rbac-rules";
+import { useState, useContext } from "react";
 
 const matureDaysList = [7, 14, 30];
 
 function BankLoansMaturingPage() {
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
   const [matureDays, setMatureDays] = useState(matureDaysList[1]);
 
   const { data, error } = useLoansByStatusesForBankQuery({
@@ -62,6 +67,7 @@ function BankLoansMaturingPage() {
           fullView={true}
           loansPastDue={false}
           matureDays={matureDays}
+          isMultiSelectEnabled={check(role, Action.SelectLoan)}
         />
       </Box>
     </Page>

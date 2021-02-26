@@ -7,6 +7,7 @@ import {
 } from "@material-ui/core";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import DatePicker from "components/Shared/Dates/DatePicker";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   GetLoansByLoanIdsQuery,
@@ -19,6 +20,8 @@ import {
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
+import { Action, check } from "lib/auth/rbac-rules";
+import { useContext } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -44,6 +47,10 @@ function SettleRepaymentSelectLoans({
   setPayment,
   setSelectedLoanIds,
 }: Props) {
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+
   const classes = useStyles();
   const productType = customer.contract?.product_type;
 
@@ -134,18 +141,22 @@ function SettleRepaymentSelectLoans({
           isStatusVisible={false}
           customerSearchQuery={""}
           loans={selectedLoans}
-          actionItems={[
-            {
-              key: "deselect-loan",
-              label: "Remove",
-              handleClick: (params) =>
-                setSelectedLoanIds(
-                  selectedLoanIds.filter(
-                    (loanId) => loanId !== params.row.data.id
-                  )
-                ),
-            },
-          ]}
+          actionItems={
+            check(role, Action.DeselectLoan)
+              ? [
+                  {
+                    key: "deselect-loan",
+                    label: "Remove",
+                    handleClick: (params) =>
+                      setSelectedLoanIds(
+                        selectedLoanIds.filter(
+                          (loanId) => loanId !== params.row.data.id
+                        )
+                      ),
+                  },
+                ]
+              : []
+          }
         />
       </Box>
       <Box mt={2}>
@@ -156,17 +167,21 @@ function SettleRepaymentSelectLoans({
           loans={outstandingLoans.filter(
             (loan) => !selectedLoanIds.includes(loan.id)
           )}
-          actionItems={[
-            {
-              key: "select-loan",
-              label: "Add",
-              handleClick: (params) =>
-                setSelectedLoanIds([
-                  ...selectedLoanIds,
-                  params.row.data.id as Loans["id"],
-                ]),
-            },
-          ]}
+          actionItems={
+            check(role, Action.SelectLoan)
+              ? [
+                  {
+                    key: "select-loan",
+                    label: "Add",
+                    handleClick: (params) =>
+                      setSelectedLoanIds([
+                        ...selectedLoanIds,
+                        params.row.data.id as Loans["id"],
+                      ]),
+                  },
+                ]
+              : []
+          }
         />
       </Box>
     </Box>

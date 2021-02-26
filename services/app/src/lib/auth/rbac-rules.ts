@@ -5,12 +5,21 @@ import { UserRolesEnum } from "generated/graphql";
 export enum Action {
   // Bank Accounts
   AssignBespokeBankAccountForCustomer = "bank-accounts:assign-to-customer",
+  AddBankAccount = "bank-accounts:add",
+  EditBankAccount = "bank-accounts:edit",
+  EditCustomerSettings = "bank-accounts:edit-customer-settings",
+  EditTerms = "bank-accounts:edit-terms",
+  TerminateContract = "bank-accounts:terminate-contract",
 
   // Loans
   ApproveLoan = "loans:approve",
   EditLoanInternalNote = "loans:edit-internal-note",
   RejectLoan = "loans:reject",
   ViewLoanInternalNote = "loans:view-internal-note",
+  SelectLoan = "loans:select",
+  DeselectLoan = "loans:deselect",
+  CreateAdvance = "loans:create-advance",
+  RunBalances = "loans:run-balances",
 
   // Purchase Orders
   AddPurchaseOrders = "purchase-orders:add",
@@ -18,9 +27,25 @@ export enum Action {
   ManipulatePurchaseOrders = "purchase-orders:manipulate",
 
   // Purchase Order Loans
+  AddPurchaseOrderLoan = "purchase-order-loan:add",
   DisbursePurchaseOrderLoans = "purchase-order-loans:disburse",
   EditPurchaseOrderLoan = "purchase-order-loan:edit",
+  FundPurchaseOrderLoan = "purchase-order-loan:fund",
   RepayPurchaseOrderLoans = "purchase-order-loans:repay",
+
+  // Payments
+  SettleRepayment = "payments:settle-repayments",
+
+  // Line of credit
+  EditLineOfCredit = "line-of-credit:edit",
+
+  // Vendor
+  AddVendor = "vendor:add",
+  EditVendor = "vendor:edit",
+  ApproveVendor = "vendor:approve",
+  AddVendorContact = "vendor:add-contact",
+  EditVendorContact = "vendor:edit-contact",
+  SendVendorAgreements = "vendor:send-agreements",
 
   // Users
   ManipulateUser = "users:manipulate",
@@ -84,6 +109,11 @@ const rules: Rules = {
   [UserRolesEnum.BankAdmin]: {
     static: [
       Action.AssignBespokeBankAccountForCustomer,
+      Action.AddBankAccount,
+      Action.EditBankAccount,
+      Action.EditCustomerSettings,
+      Action.EditTerms,
+      Action.TerminateContract,
 
       Action.DisbursePurchaseOrderLoans,
 
@@ -91,8 +121,23 @@ const rules: Rules = {
       Action.RejectLoan,
       Action.EditLoanInternalNote,
       Action.ViewLoanInternalNote,
+      Action.SelectLoan,
+      Action.DeselectLoan,
+      Action.CreateAdvance,
+      Action.RunBalances,
+
+      Action.SettleRepayment,
 
       Action.EditUserAccountSettings,
+
+      Action.AddVendor,
+      Action.EditVendor,
+      Action.ApproveVendor,
+      Action.AddVendorContact,
+      Action.EditVendorContact,
+      Action.SendVendorAgreements,
+
+      Action.ManipulateUser,
     ],
     dynamic: [
       {
@@ -109,11 +154,18 @@ const rules: Rules = {
   [UserRolesEnum.CompanyAdmin]: {
     static: [
       Action.AddPurchaseOrders,
-      Action.EditPurchaseOrderLoan,
       Action.ManipulatePurchaseOrders,
-      Action.ManipulateUser,
+
+      Action.AddPurchaseOrderLoan,
+      Action.EditPurchaseOrderLoan,
       Action.RepayPurchaseOrderLoans,
+
+      Action.SelectLoan,
+      Action.DeselectLoan,
+
+      Action.ManipulateUser,
       Action.ViewPurchaseOrdersActionMenu,
+      Action.EditLineOfCredit,
     ],
     dynamic: [
       {

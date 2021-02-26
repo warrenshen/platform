@@ -22,9 +22,10 @@ const useStyles = makeStyles({
 
 interface Props {
   company: CompanyFragment;
+  isEditAllowed?: boolean;
 }
 
-function CompanyInfo({ company }: Props) {
+function CompanyInfo({ company, isEditAllowed = true }: Props) {
   const classes = useStyles();
   return (
     <Box display="flex">
@@ -52,9 +53,11 @@ function CompanyInfo({ company }: Props) {
             <Box>{company?.employer_identification_number}</Box>
           </Box>
         </CardContent>
-        <CardActions>
-          <EditButton company={company} />
-        </CardActions>
+        {isEditAllowed && (
+          <CardActions>
+            <EditButton company={company} />
+          </CardActions>
+        )}
       </Card>
     </Box>
   );

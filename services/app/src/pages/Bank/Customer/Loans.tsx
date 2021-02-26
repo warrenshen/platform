@@ -5,6 +5,8 @@ import LineOfCreditLoansDataGrid from "components/Loans/LineOfCredit/LineOfCredi
 import PurchaseOrderLoansDataGrid from "components/Loans/PurchaseOrder/PurchaseOrderLoansDataGrid";
 import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
 import UpdateLoanNotesModal from "components/Loans/UpdateLoanNotesModal";
+import Can from "components/Shared/Can";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoanFragment,
   Loans,
@@ -13,7 +15,8 @@ import {
   useLoansByCompanyAndLoanTypeForBankQuery,
 } from "generated/graphql";
 import { approveLoans, rejectLoan } from "lib/finance/loans/approval";
-import { useState } from "react";
+import { Action, check } from "lib/auth/rbac-rules";
+import { useState, useContext } from "react";
 
 interface Props {
   companyId: string;
@@ -21,6 +24,10 @@ interface Props {
 }
 
 function BankCustomerLoansSubpage({ companyId, productType }: Props) {
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+
   const { data, error, refetch } = useLoansByCompanyAndLoanTypeForBankQuery({
     fetchPolicy: "network-only",
     notifyOnNetworkStatusChange: true,
@@ -79,24 +86,36 @@ function BankCustomerLoansSubpage({ companyId, productType }: Props) {
   };
 
   const actionItems = [
-    {
-      key: "edit-loan-notes",
-      label: "Edit Internal Note",
-      handleClick: (params: ValueFormatterParams) =>
-        handleEditLoanNotes(params.row.data.id as string),
-    },
-    {
-      key: "approve-loan",
-      label: "Approve Loan",
-      handleClick: (params: ValueFormatterParams) =>
-        handleApproveLoan(params.row.data.id as string),
-    },
-    {
-      key: "reject-loan",
-      label: "Reject Loan",
-      handleClick: (params: ValueFormatterParams) =>
-        handleRejectLoan(params.row.data.id as string),
-    },
+    ...(check(role, Action.EditLoanInternalNote)
+      ? [
+          {
+            key: "edit-loan-notes",
+            label: "Edit Internal Note",
+            handleClick: (params: ValueFormatterParams) =>
+              handleEditLoanNotes(params.row.data.id as string),
+          },
+        ]
+      : []),
+    ...(check(role, Action.ApproveLoan)
+      ? [
+          {
+            key: "approve-loan",
+            label: "Approve Loan",
+            handleClick: (params: ValueFormatterParams) =>
+              handleApproveLoan(params.row.data.id as string),
+          },
+        ]
+      : []),
+    ...(check(role, Action.RejectLoan)
+      ? [
+          {
+            key: "reject-loan",
+            label: "Reject Loan",
+            handleClick: (params: ValueFormatterParams) =>
+              handleRejectLoan(params.row.data.id as string),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -132,25 +151,30 @@ function BankCustomerLoansSubpage({ companyId, productType }: Props) {
         />
       )}
       <Box mb={2} display="flex" flexDirection="row-reverse">
-        <Box>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={() => setIsRunCustomerBalancesModalOpen(true)}
-          >
-            Run Balances
-          </Button>
-        </Box>
-        <Box mr={2}>
-          <Button
-            disabled={selectedLoans.length <= 0}
-            variant="contained"
-            color="primary"
-            onClick={() => setIsCreateAdvanceModalOpen(true)}
-          >
-            Create Advance
-          </Button>
-        </Box>
+        <Can perform={Action.RunBalances}>
+          <Box>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={() => setIsRunCustomerBalancesModalOpen(true)}
+            >
+              Run Balances
+            </Button>
+          </Box>
+        </Can>
+
+        <Can perform={Action.CreateAdvance}>
+          <Box mr={2}>
+            <Button
+              disabled={selectedLoans.length <= 0}
+              variant="contained"
+              color="primary"
+              onClick={() => setIsCreateAdvanceModalOpen(true)}
+            >
+              Create Advance
+            </Button>
+          </Box>
+        </Can>
       </Box>
       <Box display="flex" flex={1}>
         {productType === ProductTypeEnum.LineOfCredit ? (
@@ -162,6 +186,8 @@ function BankCustomerLoansSubpage({ companyId, productType }: Props) {
               setSelectedLoans(loans);
               setSelectedLoanIds(loans.map((loan) => loan.id));
             }}
+            isMultiSelectEnabled={check(role, Action.SelectLoan)}
+            isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
           />
         ) : (
           <PurchaseOrderLoansDataGrid
@@ -172,6 +198,8 @@ function BankCustomerLoansSubpage({ companyId, productType }: Props) {
               setSelectedLoans(loans);
               setSelectedLoanIds(loans.map((loan) => loan.id));
             }}
+            isMultiSelectEnabled={check(role, Action.SelectLoan)}
+            isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
           />
         )}
       </Box>

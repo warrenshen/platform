@@ -19,7 +19,7 @@ import {
   LoanTypeEnum,
   useGetCompanyForCustomerLoansQuery,
 } from "generated/graphql";
-import { Action } from "lib/auth/rbac-rules";
+import { Action, check } from "lib/auth/rbac-rules";
 import { ActionType } from "lib/enum";
 import { useContext, useState } from "react";
 
@@ -45,12 +45,12 @@ function CustomerPurchaseOrderLoansPage() {
   const classes = useStyles();
 
   const {
-    user: { companyId, productType },
+    user: { companyId, productType, role },
   } = useContext(CurrentUserContext);
 
   const { data, error, refetch } = useGetCompanyForCustomerLoansQuery({
     variables: {
-      companyId,
+      companyId: companyId,
       loanType: LoanTypeEnum.PurchaseOrder,
     },
   });
@@ -158,18 +158,26 @@ function CustomerPurchaseOrderLoansPage() {
           <PurchaseOrderLoansDataGrid
             loans={loans}
             selectedLoanIds={selectedLoanIds}
-            actionItems={[
-              {
-                key: "edit-purchase-order-loan",
-                label: "Edit",
-                handleClick: (params) =>
-                  handleEditPurchaseOrderLoan(params.row.data.id as string),
-              },
-            ]}
+            actionItems={
+              check(role, Action.EditPurchaseOrderLoan)
+                ? [
+                    {
+                      key: "edit-purchase-order-loan",
+                      label: "Edit",
+                      handleClick: (params) =>
+                        handleEditPurchaseOrderLoan(
+                          params.row.data.id as string
+                        ),
+                    },
+                  ]
+                : []
+            }
             handleSelectLoans={(loans) => {
               setSelectedLoans(loans);
               setSelectedLoanIds(loans.map((loan) => loan.id));
             }}
+            isMultiSelectEnabled={check(role, Action.SelectLoan)}
+            isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
           />
         </Box>
       </Box>

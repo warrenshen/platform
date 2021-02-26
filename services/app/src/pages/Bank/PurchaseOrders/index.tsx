@@ -1,9 +1,15 @@
 import { Box } from "@material-ui/core";
 import PurchaseOrdersDataGrid from "components/PurchaseOrders/PurchaseOrdersDataGrid";
 import Page from "components/Shared/Page";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useGetPurchaseOrdersQuery } from "generated/graphql";
+import { Action, check } from "lib/auth/rbac-rules";
+import { useContext } from "react";
 
 function BankPurchaseOrdersPage() {
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
   const { data, error } = useGetPurchaseOrdersQuery();
 
   if (error) {
@@ -18,7 +24,9 @@ function BankPurchaseOrdersPage() {
         <PurchaseOrdersDataGrid
           isCompanyVisible
           purchaseOrders={purchaseOrders}
-          actionItems={[]}
+          actionItems={
+            check(role, Action.ViewPurchaseOrdersActionMenu) ? [] : []
+          }
         ></PurchaseOrdersDataGrid>
       </Box>
     </Page>

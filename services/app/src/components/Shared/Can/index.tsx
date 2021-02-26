@@ -9,17 +9,20 @@ interface Props {
 }
 
 function Can(props: Props) {
-  const { user, isSignedIn } = useContext(CurrentUserContext);
+  const {
+    user: { id, role },
+    isSignedIn,
+  } = useContext(CurrentUserContext);
 
   if (!isSignedIn) {
     return null;
   }
 
   const data = props.userIdForCheck
-    ? { currentUserId: user.id, userIdForCheck: props.userIdForCheck }
+    ? { currentUserId: id, userIdForCheck: props.userIdForCheck }
     : undefined;
 
-  if (check(user.role, props.perform, data)) {
+  if (check(role, props.perform, data)) {
     return <>{props.children}</>;
   }
 

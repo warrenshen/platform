@@ -4,14 +4,20 @@ import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal"
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import Page from "components/Shared/Page";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { ProductTypeEnum, useCustomersForBankQuery } from "generated/graphql";
 import { ProductTypeToLabel } from "lib/enum";
 import { bankRoutes } from "lib/routes";
 import { sortBy } from "lodash";
-import { useState } from "react";
+import { Action, check } from "lib/auth/rbac-rules";
+import { useState, useContext } from "react";
 import { useRouteMatch } from "react-router-dom";
 
 function BankCustomersPage() {
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+
   const { url } = useRouteMatch();
   const { data, refetch } = useCustomersForBankQuery();
 
@@ -102,24 +108,28 @@ function BankCustomersPage() {
             }}
           />
         )}
-        <Box>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={() => setIsRunCustomerBalancesModalOpen(true)}
-          >
-            Run Balances
-          </Button>
-        </Box>
-        <Box mr={2}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => setIsCreateCustomerModalOpen(true)}
-          >
-            Create Customer
-          </Button>
-        </Box>
+        {check(role, Action.RunBalances) && (
+          <Box>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={() => setIsRunCustomerBalancesModalOpen(true)}
+            >
+              Run Balances
+            </Button>
+          </Box>
+        )}
+        {check(role, Action.ManipulateUser) && (
+          <Box mr={2}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setIsCreateCustomerModalOpen(true)}
+            >
+              Create Customer
+            </Button>
+          </Box>
+        )}
       </Box>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <ControlledDataGrid dataSource={customers} columns={columns} pager />

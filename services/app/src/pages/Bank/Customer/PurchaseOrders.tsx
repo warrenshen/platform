@@ -2,16 +2,21 @@ import { Box, Button } from "@material-ui/core";
 import CreateUpdatePurchaseOrderModal from "components/PurchaseOrders/CreateUpdatePurchaseOrderModal";
 import PurchaseOrdersDataGrid from "components/PurchaseOrders/PurchaseOrdersDataGrid";
 import Can from "components/Shared/Can";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { usePurchaseOrdersByCompanyIdQuery } from "generated/graphql";
-import { Action } from "lib/auth/rbac-rules";
+import { Action, check } from "lib/auth/rbac-rules";
 import { ActionType } from "lib/enum";
-import { useState } from "react";
+import { useState, useContext } from "react";
 
 interface Props {
   companyId: string;
 }
 
 function BankCustomerPurchaseOrdersSubpage({ companyId }: Props) {
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+
   const { data, refetch, error } = usePurchaseOrdersByCompanyIdQuery({
     variables: {
       company_id: companyId,
@@ -61,14 +66,19 @@ function BankCustomerPurchaseOrdersSubpage({ companyId }: Props) {
       <PurchaseOrdersDataGrid
         isCompanyVisible={false}
         purchaseOrders={purchaseOrders}
-        actionItems={[
-          {
-            key: "edit-purchase-order",
-            label: "Edit",
-            handleClick: (params) =>
-              handleEditPurchaseOrder(params.row.data.id as string),
-          },
-        ]}
+        actionItems={
+          check(role, Action.EditPurchaseOrderLoan) &&
+          check(role, Action.ViewPurchaseOrdersActionMenu)
+            ? [
+                {
+                  key: "edit-purchase-order",
+                  label: "Edit",
+                  handleClick: (params) =>
+                    handleEditPurchaseOrder(params.row.data.id as string),
+                },
+              ]
+            : []
+        }
       />
     </Box>
   );

@@ -1,7 +1,10 @@
 import { Box, Button, Typography } from "@material-ui/core";
 import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { LoanFragment, RequestStatusEnum } from "generated/graphql";
+import { Action, check } from "lib/auth/rbac-rules";
 import { Link } from "react-router-dom";
+import { useContext } from "react";
 
 interface Props {
   isMaturityVisible: boolean;
@@ -22,6 +25,10 @@ function BankOverviewLoansTable({
   matureDays,
   filterByStatus,
 }: Props) {
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+
   return (
     <Box mt={2}>
       <Typography variant="h6" gutterBottom={true}>
@@ -52,6 +59,7 @@ function BankOverviewLoansTable({
             filterByStatus={filterByStatus}
             loans={loans}
             actionItems={[]}
+            isMultiSelectEnabled={check(role, Action.SelectLoan)}
           />
         </Box>
       </Box>

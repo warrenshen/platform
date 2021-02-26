@@ -8,7 +8,10 @@ import {
   Theme,
 } from "@material-ui/core";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { BankAccountFragment, useBankAccountsQuery } from "generated/graphql";
+import { Action, check } from "lib/auth/rbac-rules";
+import { useContext } from "react";
 
 interface Props {
   label: string;
@@ -25,6 +28,9 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 function BespokeBankAssignment(props: Props) {
   const classes = useStyles();
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
   const { data } = useBankAccountsQuery();
   const labelId = props.label.split(" ").join("-");
 
@@ -66,6 +72,7 @@ function BespokeBankAssignment(props: Props) {
           {props.assignedBespokeBankAccount && (
             <BankAccountInfoCard
               bankAccount={props.assignedBespokeBankAccount}
+              isEditAllowed={check(role, Action.EditBankAccount)}
             />
           )}
         </Box>

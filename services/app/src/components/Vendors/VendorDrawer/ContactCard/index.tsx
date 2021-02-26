@@ -45,9 +45,11 @@ interface Props {
   onCreateComplete?: () => void;
   companyId?: Companies["id"];
   companyVendorPartnershipId: CompanyVendorPartnerships["id"];
+  isEditAllowed?: boolean;
 }
 
 function ContactCard(props: Props) {
+  const { isEditAllowed = true } = props;
   const classes = useStyles();
   const [contact, setContact] = useState<UsersInsertInput>(
     props.contact || { company_id: props.companyId }
@@ -116,113 +118,115 @@ function ContactCard(props: Props) {
         )}
       </CardContent>
 
-      <CardActions>
-        {cardState === CardState.Viewing ? (
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => setCardState(CardState.Editing)}
-          >
-            Edit
-          </Button>
-        ) : (
-          <>
+      {isEditAllowed && (
+        <CardActions>
+          {cardState === CardState.Viewing ? (
             <Button
               variant="outlined"
               size="small"
-              onClick={() => {
-                setCardState(CardState.Viewing);
-                props.onCreateComplete && props.onCreateComplete();
-              }}
+              onClick={() => setCardState(CardState.Editing)}
             >
-              Cancel
+              Edit
             </Button>
-            <Button
-              disabled={
-                !contact.first_name || !contact.last_name || !contact.email
-              }
-              variant="contained"
-              size="small"
-              color="primary"
-              onClick={async () => {
-                if (cardState === CardState.Editing) {
-                  await updateContact({
-                    variables: {
-                      userId: contact.id,
-                      contact: {
-                        first_name: contact.first_name,
-                        last_name: contact.last_name,
-                        email: contact.email,
-                        phone_number: contact.phone_number,
+          ) : (
+            <>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => {
+                  setCardState(CardState.Viewing);
+                  props.onCreateComplete && props.onCreateComplete();
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                disabled={
+                  !contact.first_name || !contact.last_name || !contact.email
+                }
+                variant="contained"
+                size="small"
+                color="primary"
+                onClick={async () => {
+                  if (cardState === CardState.Editing) {
+                    await updateContact({
+                      variables: {
+                        userId: contact.id,
+                        contact: {
+                          first_name: contact.first_name,
+                          last_name: contact.last_name,
+                          email: contact.email,
+                          phone_number: contact.phone_number,
+                        },
                       },
-                    },
-                    optimisticResponse: {
-                      update_users_by_pk: {
-                        ...(contact as ContactFragment),
+                      optimisticResponse: {
+                        update_users_by_pk: {
+                          ...(contact as ContactFragment),
+                        },
                       },
-                    },
-                  });
-                } else if (cardState === CardState.Creating) {
-                  await addContact({
-                    variables: {
-                      contact,
-                    },
-                    optimisticResponse: {
-                      insert_users_one: {
-                        ...(contact as ContactFragment),
+                    });
+                  } else if (cardState === CardState.Creating) {
+                    await addContact({
+                      variables: {
+                        contact,
                       },
-                    },
-                    update: (proxy, { data: optimisticResponse }) => {
-                      if (props.companyId) {
-                        const data = proxy.readQuery<
-                          BankVendorPartnershipQuery,
-                          BankVendorPartnershipQueryVariables
-                        >({
-                          query: BankVendorPartnershipDocument,
-                          variables: { id: props.companyVendorPartnershipId },
-                        });
+                      optimisticResponse: {
+                        insert_users_one: {
+                          ...(contact as ContactFragment),
+                        },
+                      },
+                      update: (proxy, { data: optimisticResponse }) => {
+                        if (props.companyId) {
+                          const data = proxy.readQuery<
+                            BankVendorPartnershipQuery,
+                            BankVendorPartnershipQueryVariables
+                          >({
+                            query: BankVendorPartnershipDocument,
+                            variables: { id: props.companyVendorPartnershipId },
+                          });
 
-                        if (
-                          !data?.company_vendor_partnerships_by_pk?.vendor ||
-                          !optimisticResponse?.insert_users_one
-                        ) {
-                          return;
-                        }
+                          if (
+                            !data?.company_vendor_partnerships_by_pk?.vendor ||
+                            !optimisticResponse?.insert_users_one
+                          ) {
+                            return;
+                          }
 
-                        proxy.writeQuery<
-                          BankVendorPartnershipQuery,
-                          BankVendorPartnershipQueryVariables
-                        >({
-                          query: BankVendorPartnershipDocument,
-                          variables: { id: props.companyVendorPartnershipId },
-                          data: {
-                            company_vendor_partnerships_by_pk: {
-                              ...data.company_vendor_partnerships_by_pk,
-                              vendor: {
-                                ...data.company_vendor_partnerships_by_pk
-                                  .vendor,
-                                users: [
+                          proxy.writeQuery<
+                            BankVendorPartnershipQuery,
+                            BankVendorPartnershipQueryVariables
+                          >({
+                            query: BankVendorPartnershipDocument,
+                            variables: { id: props.companyVendorPartnershipId },
+                            data: {
+                              company_vendor_partnerships_by_pk: {
+                                ...data.company_vendor_partnerships_by_pk,
+                                vendor: {
                                   ...data.company_vendor_partnerships_by_pk
-                                    .vendor.users,
-                                  optimisticResponse.insert_users_one,
-                                ],
+                                    .vendor,
+                                  users: [
+                                    ...data.company_vendor_partnerships_by_pk
+                                      .vendor.users,
+                                    optimisticResponse.insert_users_one,
+                                  ],
+                                },
                               },
                             },
-                          },
-                        });
-                      }
-                    },
-                  });
-                  props.onCreateComplete && props.onCreateComplete();
-                }
-                setCardState(CardState.Viewing);
-              }}
-            >
-              Submit
-            </Button>
-          </>
-        )}
-      </CardActions>
+                          });
+                        }
+                      },
+                    });
+                    props.onCreateComplete && props.onCreateComplete();
+                  }
+                  setCardState(CardState.Viewing);
+                }}
+              >
+                Submit
+              </Button>
+            </>
+          )}
+        </CardActions>
+      )}
     </Card>
   );
 }

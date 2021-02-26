@@ -14,7 +14,7 @@ import {
   LoanFragment,
   Loans,
 } from "generated/graphql";
-import { Action } from "lib/auth/rbac-rules";
+import { Action, check } from "lib/auth/rbac-rules";
 import { useContext, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -43,7 +43,7 @@ function LoansActiveApproved({ data }: Props) {
   const classes = useStyles();
 
   const {
-    user: { companyId, productType },
+    user: { companyId, productType, role },
   } = useContext(CurrentUserContext);
 
   const company = data?.companies_by_pk;
@@ -94,6 +94,8 @@ function LoansActiveApproved({ data }: Props) {
               setSelectedLoans(loans);
               setSelectedLoanIds(loans.map((loan) => loan.id));
             }}
+            isMultiSelectEnabled={check(role, Action.SelectLoan)}
+            isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
           />
         </Box>
       </Box>

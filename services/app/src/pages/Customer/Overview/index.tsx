@@ -11,6 +11,7 @@ import LineOfCreditLoansDataGrid from "components/Loans/LineOfCredit/LineOfCredi
 import PurchaseOrderLoansDataGrid from "components/Loans/PurchaseOrder/PurchaseOrderLoansDataGrid";
 import CreateRepaymentModal from "components/Repayment/CreateRepaymentModal";
 import Page from "components/Shared/Page";
+import Can from "components/Shared/Can";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoanFragment,
@@ -19,6 +20,7 @@ import {
   ProductTypeEnum,
   useGetCompanyForCustomerOverviewQuery,
 } from "generated/graphql";
+import { Action, check } from "lib/auth/rbac-rules";
 import React, { useContext, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -45,7 +47,7 @@ const useStyles = makeStyles((theme: Theme) =>
 function CustomerOverviewPage() {
   const classes = useStyles();
   const {
-    user: { companyId, productType },
+    user: { companyId, productType, role },
   } = useContext(CurrentUserContext);
 
   const { data, refetch } = useGetCompanyForCustomerOverviewQuery({
@@ -94,16 +96,18 @@ function CustomerOverviewPage() {
                   }}
                 />
               )}
-              <Box display="flex" flexDirection="row-reverse" mb={2}>
-                <Button
-                  disabled={selectedLoanIds.length <= 0}
-                  variant="contained"
-                  color="primary"
-                  onClick={() => setIsCreateRepaymentModalOpen(true)}
-                >
-                  Pay Off Loans
-                </Button>
-              </Box>
+              <Can perform={Action.RepayPurchaseOrderLoans}>
+                <Box display="flex" flexDirection="row-reverse" mb={2}>
+                  <Button
+                    disabled={selectedLoanIds.length <= 0}
+                    variant="contained"
+                    color="primary"
+                    onClick={() => setIsCreateRepaymentModalOpen(true)}
+                  >
+                    Pay Off Loans
+                  </Button>
+                </Box>
+              </Can>
               <Box display="flex" flex={1}>
                 {productType === ProductTypeEnum.InventoryFinancing ? (
                   <PurchaseOrderLoansDataGrid
@@ -113,6 +117,11 @@ function CustomerOverviewPage() {
                       setSelectedLoans(loans);
                       setSelectedLoanIds(loans.map((loan) => loan.id));
                     }}
+                    isMultiSelectEnabled={check(role, Action.SelectLoan)}
+                    isViewNotesEnabled={check(
+                      role,
+                      Action.ViewLoanInternalNote
+                    )}
                   />
                 ) : (
                   <LineOfCreditLoansDataGrid
@@ -122,6 +131,11 @@ function CustomerOverviewPage() {
                       setSelectedLoans(loans);
                       setSelectedLoanIds(loans.map((loan) => loan.id));
                     }}
+                    isMultiSelectEnabled={check(role, Action.SelectLoan)}
+                    isViewNotesEnabled={check(
+                      role,
+                      Action.ViewLoanInternalNote
+                    )}
                   />
                 )}
               </Box>

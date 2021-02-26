@@ -46,6 +46,7 @@ function UsersDataGrid({ actionItems, hideCompany, users }: Props) {
       width: 150,
     },
     {
+      visible: actionItems.length > 0,
       caption: "Action",
       width: 90,
       cellRender: (params: ValueFormatterParams) => (

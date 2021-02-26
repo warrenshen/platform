@@ -8,11 +8,8 @@ import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { PurchaseOrderFragment, RequestStatusEnum } from "generated/graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
-import { Action, check } from "lib/auth/rbac-rules";
-import { useContext } from "react";
 
 function populateRows(
   purchaseOrders: Maybe<PurchaseOrderFragment[]>
@@ -39,7 +36,6 @@ function PurchaseOrdersDataGrid({
   purchaseOrders,
   actionItems,
 }: Props) {
-  const { user } = useContext(CurrentUserContext);
   const rows = populateRows(purchaseOrders);
 
   const columns = [
@@ -59,7 +55,7 @@ function PurchaseOrdersDataGrid({
       caption: "Action",
       alignment: "center",
       width: 75,
-      visible: check(user.role, Action.ViewPurchaseOrdersActionMenu),
+      visible: actionItems.length > 0,
       cellRender: (params: ValueFormatterParams) => (
         <DataGridActionMenu params={params} actionItems={actionItems} />
       ),

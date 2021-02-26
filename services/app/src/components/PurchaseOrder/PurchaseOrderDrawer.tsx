@@ -18,6 +18,7 @@ import {
   usePurchaseOrderQuery,
   UserRolesEnum,
 } from "generated/graphql";
+import { Action, check } from "lib/auth/rbac-rules";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 import { useContext, useMemo } from "react";
@@ -187,7 +188,13 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
           <Typography variant="subtitle2" color="textSecondary">
             Loans
           </Typography>
-          <PurchaseOrderLoansDataGrid pager={false} isMiniTable loans={loans} />
+          <PurchaseOrderLoansDataGrid
+            pager={false}
+            isMiniTable
+            loans={loans}
+            isMultiSelectEnabled={check(role, Action.SelectLoan)}
+            isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
+          />
         </Box>
       </Box>
     </Drawer>

@@ -4,6 +4,7 @@ import Page from "components/Shared/Page";
 import EditUserProfileModal from "components/Users/EditUserProfileModal";
 import InviteUserModal from "components/Users/InviteUserModal";
 import UsersDataGrid from "components/Users/UsersDataGrid";
+import Can from "components/Shared/Can";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   useGetUsersByRolesQuery,
@@ -11,12 +12,15 @@ import {
   UserFragment,
   UserRolesEnum,
 } from "generated/graphql";
+import { Action, check } from "lib/auth/rbac-rules";
 import { Maybe } from "graphql/jsutils/Maybe";
 import { useContext, useState } from "react";
 
 function Users() {
   const [open, setOpen] = useState(false);
-  const { user } = useContext(CurrentUserContext);
+  const {
+    user: { companyId, role, id },
+  } = useContext(CurrentUserContext);
   const [selectedUser, setSelectedUser] = useState({} as UserFragment);
   const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
 
@@ -29,7 +33,7 @@ function Users() {
     refetch: refetchCustomerUsers,
   } = useListUsersByCompanyIdQuery({
     variables: {
-      companyId: user.companyId,
+      companyId,
     },
   });
 
@@ -43,19 +47,15 @@ function Users() {
   });
 
   const users: Maybe<UserFragment[]> =
-    user.role === UserRolesEnum.BankAdmin
-      ? bankUsers?.users
-      : customerUsers?.users;
+    role === UserRolesEnum.BankAdmin ? bankUsers?.users : customerUsers?.users;
 
   return (
     <Page appBarTitle={"Users"}>
       {open && (
         <InviteUserModal
-          companyId={
-            user.role === UserRolesEnum.BankAdmin ? undefined : user.companyId
-          }
+          companyId={role === UserRolesEnum.BankAdmin ? undefined : companyId}
           userRoles={
-            user.role === UserRolesEnum.BankAdmin
+            role === UserRolesEnum.BankAdmin
               ? [UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]
               : [UserRolesEnum.CompanyAdmin, UserRolesEnum.CompanyReadOnly]
           }
@@ -68,8 +68,8 @@ function Users() {
       )}
       {isEditUserModalOpen && (
         <EditUserProfileModal
-          userId={user.id}
-          companyId={user.companyId}
+          userId={id}
+          companyId={companyId}
           originalUserProfile={selectedUser}
           handleClose={() => {
             refetchCustomerUsers();
@@ -78,35 +78,39 @@ function Users() {
           }}
         />
       )}
-      <Box
-        display="flex"
-        style={{ marginBottom: "1rem" }}
-        flexDirection="row-reverse"
-      >
-        <Button
-          onClick={() => setOpen(true)}
-          variant="contained"
-          color="primary"
+      <Can perform={Action.ManipulateUser}>
+        <Box
+          display="flex"
+          style={{ marginBottom: "1rem" }}
+          flexDirection="row-reverse"
         >
-          Invite User
-        </Button>
-      </Box>
+          <Button
+            onClick={() => setOpen(true)}
+            variant="contained"
+            color="primary"
+          >
+            Invite User
+          </Button>
+        </Box>
+      </Can>
       <UsersDataGrid
         hideCompany={
-          ![UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly].includes(
-            user.role
-          )
+          ![UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly].includes(role)
         }
-        actionItems={[
-          {
-            key: "edit-user-profile-modal",
-            label: "Edit",
-            handleClick: (params: ValueFormatterParams) => {
-              setIsEditUserModalOpen(true);
-              setSelectedUser(params.row.data);
-            },
-          },
-        ]}
+        actionItems={
+          check(role, Action.ManipulateUser)
+            ? [
+                {
+                  key: "edit-user-profile-modal",
+                  label: "Edit",
+                  handleClick: (params: ValueFormatterParams) => {
+                    setIsEditUserModalOpen(true);
+                    setSelectedUser(params.row.data);
+                  },
+                },
+              ]
+            : []
+        }
         users={users}
       />
     </Page>

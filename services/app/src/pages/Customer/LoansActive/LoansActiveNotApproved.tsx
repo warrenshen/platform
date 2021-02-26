@@ -10,7 +10,7 @@ import CreateUpdatePurchaseOrderLoanModal from "components/Loans/PurchaseOrder/C
 import Can from "components/Shared/Can";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { GetActiveLoansForCompanyQuery } from "generated/graphql";
-import { Action } from "lib/auth/rbac-rules";
+import { Action, check } from "lib/auth/rbac-rules";
 import { ActionType } from "lib/enum";
 import { useContext, useState } from "react";
 
@@ -40,7 +40,7 @@ function LoansActiveNotApproved({ data }: Props) {
   const classes = useStyles();
 
   const {
-    user: { productType },
+    user: { productType, role },
   } = useContext(CurrentUserContext);
 
   const company = data?.companies_by_pk;
@@ -94,14 +94,20 @@ function LoansActiveNotApproved({ data }: Props) {
           isMaturityVisible={false}
           productType={productType}
           loans={loans}
-          actionItems={[
-            {
-              key: "edit-purchase-order-loan",
-              label: "Edit",
-              handleClick: (params) =>
-                handleEditPurchaseOrderLoan(params.row.data.id as string),
-            },
-          ]}
+          actionItems={
+            check(role, Action.EditPurchaseOrderLoan)
+              ? [
+                  {
+                    key: "edit-purchase-order-loan",
+                    label: "Edit",
+                    handleClick: (params) =>
+                      handleEditPurchaseOrderLoan(params.row.data.id as string),
+                  },
+                ]
+              : []
+          }
+          isMultiSelectEnabled={check(role, Action.SelectLoan)}
+          isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
         />
       </Box>
     </Box>

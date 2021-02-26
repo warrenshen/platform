@@ -4,6 +4,9 @@ import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import CompanySettingsCard from "components/Settings/CompanySettingsCard";
 import EditAccountSettingsModal from "components/Settings/EditCompanySettingsModal";
 import CompanyInfo from "components/Shared/CompanyProfile/CompanyInfo";
+import Can from "components/Shared/Can";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
+
 import {
   BankAccountFragment,
   CompanyFragment,
@@ -11,7 +14,8 @@ import {
   CompanySettingsFragment,
   ContractFragment,
 } from "generated/graphql";
-import React, { useState } from "react";
+import { Action, check } from "lib/auth/rbac-rules";
+import React, { useState, useContext } from "react";
 
 interface Props {
   companyId: string;
@@ -30,6 +34,9 @@ function Settings({
   bankAccounts,
   handleDataChange,
 }: Props) {
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
   const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
 
   return (
@@ -39,7 +46,10 @@ function Settings({
         <Box>
           <h3>Customer Settings</h3>
           <Box mt={3}>
-            <CompanyInfo company={company} />
+            <CompanyInfo
+              company={company}
+              isEditAllowed={check(role, Action.EditBankAccount)}
+            />
           </Box>
           <Box mt={3}>
             {accountSettingsOpen && (
@@ -64,11 +74,16 @@ function Settings({
         </Box>
         <Box>
           <h3>Bank Accounts</h3>
-          <AddAccountButton companyId={settings.company_id} />
+          <Can perform={Action.AddBankAccount}>
+            <AddAccountButton companyId={settings.company_id} />
+          </Can>
           <Box display="flex" mt={3}>
             {bankAccounts.map((bankAccount, index) => (
               <Box mr={2} key={index}>
-                <BankAccountInfoCard bankAccount={bankAccount} />
+                <BankAccountInfoCard
+                  bankAccount={bankAccount}
+                  isEditAllowed={check(role, Action.EditBankAccount)}
+                />
               </Box>
             ))}
           </Box>

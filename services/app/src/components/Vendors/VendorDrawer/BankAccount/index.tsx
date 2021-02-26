@@ -1,6 +1,8 @@
 import { Box, Button, makeStyles, MenuItem, Select } from "@material-ui/core";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBankAccountModal";
+import Can from "components/Shared/Can";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   BankAccountFragment,
   Companies,
@@ -8,7 +10,8 @@ import {
   useChangeBankAccountMutation,
   useCompanyBankAccountsQuery,
 } from "generated/graphql";
-import { useState } from "react";
+import { Action, check } from "lib/auth/rbac-rules";
+import { useState, useContext } from "react";
 
 const useStyles = makeStyles({
   baseInput: {
@@ -25,7 +28,9 @@ function BankAccount(props: {
   bankAccount?: BankAccountFragment | null;
 }) {
   const classes = useStyles();
-
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
   const [changeBankAccount] = useChangeBankAccountMutation();
   const { data } = useCompanyBankAccountsQuery({
     variables: {
@@ -75,16 +80,18 @@ function BankAccount(props: {
             </Select>
           </Box>
         ) : null}
-        <Button
-          size="small"
-          disabled={addingNewAccount}
-          variant="outlined"
-          onClick={() => {
-            setAddingNewAccount(true);
-          }}
-        >
-          New
-        </Button>
+        <Can perform={Action.AddBankAccount}>
+          <Button
+            size="small"
+            disabled={addingNewAccount}
+            variant="outlined"
+            onClick={() => {
+              setAddingNewAccount(true);
+            }}
+          >
+            New
+          </Button>
+        </Can>
       </Box>
       <Box mb={3}>
         {addingNewAccount && (
@@ -96,7 +103,10 @@ function BankAccount(props: {
         )}
         {props.bankAccount && (
           <Box width="fit-content" mt={2}>
-            <BankAccountInfoCard bankAccount={props.bankAccount} />
+            <BankAccountInfoCard
+              bankAccount={props.bankAccount}
+              isEditAllowed={check(role, Action.EditBankAccount)}
+            />
           </Box>
         )}
       </Box>

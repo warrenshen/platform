@@ -1,4 +1,6 @@
 import { Box, Button, makeStyles, TextField } from "@material-ui/core";
+import Can from "components/Shared/Can";
+import { Action } from "lib/auth/rbac-rules";
 import { useUpdateVendorInfoMutation, VendorFragment } from "generated/graphql";
 import { useState } from "react";
 
@@ -149,9 +151,15 @@ function VendorInfo(props: Props) {
           </Box>
         </Box>
       )}
-      <Button variant="outlined" size="small" onClick={() => setEditing(true)}>
-        Edit
-      </Button>
+      <Can perform={Action.EditVendor}>
+        <Button
+          variant="outlined"
+          size="small"
+          onClick={() => setEditing(true)}
+        >
+          Edit
+        </Button>
+      </Can>
     </Box>
   );
 }

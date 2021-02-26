@@ -8,12 +8,14 @@ import {
 import CustomerFinancialSummaryOverview from "components/CustomerFinancialSummary/CustomerFinancialSummaryOverview";
 import LineOfCreditLoansDataGrid from "components/Loans/LineOfCredit/LineOfCreditLoansDataGrid";
 import PurchaseOrderLoansDataGrid from "components/Loans/PurchaseOrder/PurchaseOrderLoansDataGrid";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoanTypeEnum,
   ProductTypeEnum,
   useGetCompanyForCustomerOverviewQuery,
 } from "generated/graphql";
-import React from "react";
+import { Action, check } from "lib/auth/rbac-rules";
+import React, { useContext } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -40,6 +42,9 @@ interface Props {
 
 function CustomerOverviewSubpage({ companyId, productType }: Props) {
   const classes = useStyles();
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
 
   const { data } = useGetCompanyForCustomerOverviewQuery({
     variables: {
@@ -66,9 +71,17 @@ function CustomerOverviewSubpage({ companyId, productType }: Props) {
         <Box display="flex" flex={1}>
           <Box display="flex" flexDirection="column" width="100%">
             {productType === ProductTypeEnum.InventoryFinancing ? (
-              <PurchaseOrderLoansDataGrid loans={loans} />
+              <PurchaseOrderLoansDataGrid
+                loans={loans}
+                isMultiSelectEnabled={check(role, Action.SelectLoan)}
+                isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
+              />
             ) : (
-              <LineOfCreditLoansDataGrid loans={loans} />
+              <LineOfCreditLoansDataGrid
+                loans={loans}
+                isMultiSelectEnabled={check(role, Action.SelectLoan)}
+                isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
+              />
             )}
           </Box>
         </Box>

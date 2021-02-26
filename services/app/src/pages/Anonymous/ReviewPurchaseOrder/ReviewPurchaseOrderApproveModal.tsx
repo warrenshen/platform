@@ -52,12 +52,14 @@ function ReviewPurchaseOrderApproveModal({
   handleApproveSuccess,
 }: Props) {
   const classes = useStyles();
-  const { user } = useContext(CurrentUserContext);
+  const {
+    user: { companyId },
+  } = useContext(CurrentUserContext);
 
   const { data } = useCompanyVendorPartnershipForVendorQuery({
     variables: {
       companyId: purchaseOrder.company_id,
-      vendorId: user.companyId,
+      vendorId: companyId,
     },
   });
 
