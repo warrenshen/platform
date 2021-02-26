@@ -1,3 +1,61 @@
+query GetActiveLoansForCompany($companyId: uuid!, $loanType: loan_type_enum!) {
+  companies_by_pk(id: $companyId) {
+    id
+    financial_summary {
+      id
+      ...FinancialSummary
+    }
+    loans(
+      where: {
+        _and: [
+          { closed_at: { _is_null: true } }
+          { loan_type: { _eq: $loanType } }
+        ]
+      }
+    ) {
+      id
+      ...LoanLimited
+      line_of_credit {
+        id
+        ...LineOfCredit
+      }
+      purchase_order {
+        id
+        order_number
+      }
+    }
+  }
+}
+
+query GetClosedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum!) {
+  companies_by_pk(id: $companyId) {
+    id
+    financial_summary {
+      id
+      ...FinancialSummary
+    }
+    loans(
+      where: {
+        _and: [
+          { closed_at: { _is_null: false } }
+          { loan_type: { _eq: $loanType } }
+        ]
+      }
+    ) {
+      id
+      ...LoanLimited
+      line_of_credit {
+        id
+        ...LineOfCredit
+      }
+      purchase_order {
+        id
+        order_number
+      }
+    }
+  }
+}
+
 query LoanSiblings(
   $loanId: uuid!
   $loanType: loan_type_enum!

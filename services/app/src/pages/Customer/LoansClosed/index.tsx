@@ -9,9 +9,8 @@ import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid"
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
-  LoanStatusEnum,
   LoanTypeEnum,
-  useGetCompanyForCustomerLoansQuery,
+  useGetClosedLoansForCompanyQuery,
 } from "generated/graphql";
 import { useContext } from "react";
 
@@ -40,10 +39,9 @@ function CustomerLoansClosedPage() {
     user: { companyId, productType },
   } = useContext(CurrentUserContext);
 
-  const { data, error } = useGetCompanyForCustomerLoansQuery({
+  const { data, error } = useGetClosedLoansForCompanyQuery({
     variables: {
       companyId,
-      loanStatuses: [LoanStatusEnum.Closed, LoanStatusEnum.Rejected],
       loanType: LoanTypeEnum.PurchaseOrder,
     },
   });

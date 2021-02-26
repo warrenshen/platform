@@ -9,11 +9,7 @@ import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid"
 import CreateUpdatePurchaseOrderLoanModal from "components/Loans/PurchaseOrder/CreateUpdatePurchaseOrderLoanModal";
 import Can from "components/Shared/Can";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import {
-  LoanStatusEnum,
-  LoanTypeEnum,
-  useGetCompanyForCustomerLoansQuery,
-} from "generated/graphql";
+import { GetActiveLoansForCompanyQuery } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { ActionType } from "lib/enum";
 import { useContext, useState } from "react";
@@ -36,27 +32,21 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function LoansActiveNotApproved() {
+interface Props {
+  data: GetActiveLoansForCompanyQuery | undefined;
+}
+
+function LoansActiveNotApproved({ data }: Props) {
   const classes = useStyles();
 
   const {
-    user: { companyId, productType },
+    user: { productType },
   } = useContext(CurrentUserContext);
 
-  const { data, error, refetch } = useGetCompanyForCustomerLoansQuery({
-    variables: {
-      companyId,
-      loanStatuses: [LoanStatusEnum.Drafted, LoanStatusEnum.ApprovalRequested],
-      loanType: LoanTypeEnum.PurchaseOrder,
-    },
-  });
-
-  if (error) {
-    alert("Error querying loans. " + error);
-  }
-
   const company = data?.companies_by_pk;
-  const loans = company?.loans || [];
+  const loans = (company?.loans || []).filter((loan) => {
+    return loan.approved_at ? false : true;
+  });
   const financialSummary = company?.financial_summary || null;
 
   const canCreateUpdateNewLoan =
@@ -82,7 +72,6 @@ function LoansActiveNotApproved() {
             loanId={targetLoanId}
             artifactId={null}
             handleClose={() => {
-              refetch();
               setIsCreateUpdateModalOpen(false);
               setTargetLoanId("");
             }}

@@ -11,7 +11,7 @@ import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoanTypeEnum,
-  useGetCompanyForCustomerLoansQuery,
+  useGetActiveLoansForCompanyQuery,
 } from "generated/graphql";
 import LoansActiveApproved from "pages/Customer/LoansActive/LoansActiveApproved";
 import LoansActiveNotApproved from "pages/Customer/LoansActive/LoansActiveNotApproved";
@@ -35,17 +35,16 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function CustomerLoansClosedPage() {
+function CustomerLoansActivePage() {
   const classes = useStyles();
 
   const {
     user: { companyId },
   } = useContext(CurrentUserContext);
 
-  const { data } = useGetCompanyForCustomerLoansQuery({
+  const { data } = useGetActiveLoansForCompanyQuery({
     variables: {
       companyId,
-      loanStatuses: [],
       loanType: LoanTypeEnum.PurchaseOrder,
     },
   });
@@ -89,16 +88,16 @@ function CustomerLoansClosedPage() {
         <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
           <Typography variant="h6">Loans - Pending</Typography>
-          <LoansActiveNotApproved />
+          <LoansActiveNotApproved data={data} />
         </Box>
         <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
           <Typography variant="h6">Loans - Approved</Typography>
-          <LoansActiveApproved />
+          <LoansActiveApproved data={data} />
         </Box>
       </Box>
     </Page>
   );
 }
 
-export default CustomerLoansClosedPage;
+export default CustomerLoansActivePage;

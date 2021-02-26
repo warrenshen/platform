@@ -10,11 +10,9 @@ import CreateRepaymentModal from "components/Repayment/CreateRepaymentModal";
 import Can from "components/Shared/Can";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
+  GetActiveLoansForCompanyQuery,
   LoanFragment,
   Loans,
-  LoanStatusEnum,
-  LoanTypeEnum,
-  useGetCompanyForCustomerLoansQuery,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { useContext, useState } from "react";
@@ -37,31 +35,21 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function LoansActiveApproved() {
+interface Props {
+  data: GetActiveLoansForCompanyQuery | undefined;
+}
+
+function LoansActiveApproved({ data }: Props) {
   const classes = useStyles();
 
   const {
     user: { companyId, productType },
   } = useContext(CurrentUserContext);
 
-  const { data, error } = useGetCompanyForCustomerLoansQuery({
-    variables: {
-      companyId,
-      loanStatuses: [
-        LoanStatusEnum.Approved,
-        LoanStatusEnum.Funded,
-        LoanStatusEnum.PastDue,
-      ],
-      loanType: LoanTypeEnum.PurchaseOrder,
-    },
-  });
-
-  if (error) {
-    alert("Error querying loans. " + error);
-  }
-
   const company = data?.companies_by_pk;
-  const loans = company?.loans || [];
+  const loans = (company?.loans || []).filter((loan) => {
+    return loan.approved_at ? true : false;
+  });
 
   // State for modal(s).
   const [isPayOffLoansModalOpen, setIsPayOffLoansModalOpen] = useState(false);

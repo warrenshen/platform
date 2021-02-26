@@ -99,6 +99,7 @@ fragment LoanLimited on loans {
   outstanding_principal_balance
   outstanding_interest
   outstanding_fees
+  approved_at
   funded_at
   company {
     id

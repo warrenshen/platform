@@ -3126,6 +3126,18 @@
         "description": "This is the financial summary for the bank, where each row represents one day for a particular product type\n\n\ncolumns and relationships of \"bank_financial_summaries\"",
         "fields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "args": [],
@@ -3664,6 +3676,18 @@
         "description": "aggregate avg on columns",
         "fields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "args": [],
@@ -3757,6 +3781,16 @@
         "description": "order by avg() on columns of table \"bank_financial_summaries\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -3863,6 +3897,16 @@
                 "name": "bank_financial_summaries_bool_exp",
                 "ofType": null
               }
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "numeric_comparison_exp",
+              "ofType": null
             },
             "defaultValue": null
           },
@@ -3985,6 +4029,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "type": {
@@ -4055,6 +4109,16 @@
         "description": "input type for inserting data into table \"bank_financial_summaries\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -4155,6 +4219,18 @@
         "name": "bank_financial_summaries_max_fields",
         "description": "aggregate max on columns",
         "fields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -4276,6 +4352,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "type": {
@@ -4375,6 +4461,18 @@
         "name": "bank_financial_summaries_min_fields",
         "description": "aggregate min on columns",
         "fields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -4495,6 +4593,16 @@
         "description": "order by min() on columns of table \"bank_financial_summaries\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -4740,6 +4848,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "type": {
@@ -4868,6 +4986,12 @@
         "interfaces": null,
         "enumValues": [
           {
+            "name": "adjusted_total_limit",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "available_limit",
             "description": "column name",
             "isDeprecated": false,
@@ -4930,6 +5054,16 @@
         "description": "input type for updating data in table \"bank_financial_summaries\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -5031,6 +5165,18 @@
         "description": "aggregate stddev on columns",
         "fields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "args": [],
@@ -5115,6 +5261,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "type": {
@@ -5184,6 +5340,18 @@
         "name": "bank_financial_summaries_stddev_pop_fields",
         "description": "aggregate stddev_pop on columns",
         "fields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -5269,6 +5437,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "type": {
@@ -5338,6 +5516,18 @@
         "name": "bank_financial_summaries_stddev_samp_fields",
         "description": "aggregate stddev_samp on columns",
         "fields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -5423,6 +5613,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "type": {
@@ -5492,6 +5692,18 @@
         "name": "bank_financial_summaries_sum_fields",
         "description": "aggregate sum on columns",
         "fields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -5577,6 +5789,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "type": {
@@ -5650,6 +5872,12 @@
         "interfaces": null,
         "enumValues": [
           {
+            "name": "adjusted_total_limit",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "available_limit",
             "description": "column name",
             "isDeprecated": false,
@@ -5711,6 +5939,18 @@
         "name": "bank_financial_summaries_var_pop_fields",
         "description": "aggregate var_pop on columns",
         "fields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -5796,6 +6036,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "type": {
@@ -5865,6 +6115,18 @@
         "name": "bank_financial_summaries_var_samp_fields",
         "description": "aggregate var_samp on columns",
         "fields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -5950,6 +6212,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "available_limit",
             "description": null,
             "type": {
@@ -6019,6 +6291,18 @@
         "name": "bank_financial_summaries_variance_fields",
         "description": "aggregate variance on columns",
         "fields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -6103,6 +6387,16 @@
         "description": "order by variance() on columns of table \"bank_financial_summaries\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "adjusted_total_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "available_limit",
             "description": null,
@@ -7897,6 +8191,22 @@
             "deprecationReason": null
           },
           {
+            "name": "needs_balance_recomputed",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "phone_number",
             "description": null,
             "args": [],
@@ -9194,6 +9504,16 @@
             "defaultValue": null
           },
           {
+            "name": "needs_balance_recomputed",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "Boolean_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "phone_number",
             "description": null,
             "type": {
@@ -9548,6 +9868,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "needs_balance_recomputed",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null
@@ -10765,6 +11095,16 @@
             "defaultValue": null
           },
           {
+            "name": "needs_balance_recomputed",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "phone_number",
             "description": null,
             "type": {
@@ -10961,6 +11301,12 @@
             "deprecationReason": null
           },
           {
+            "name": "needs_balance_recomputed",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "phone_number",
             "description": "column name",
             "isDeprecated": false,
@@ -11119,6 +11465,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "needs_balance_recomputed",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null
@@ -11426,6 +11782,12 @@
           },
           {
             "name": "name",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "needs_balance_recomputed",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

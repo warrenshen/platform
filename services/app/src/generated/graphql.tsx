@@ -443,6 +443,7 @@ export enum BankAccountsUpdateColumn {
  * columns and relationships of "bank_financial_summaries"
  */
 export type BankFinancialSummaries = {
+  adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit: Scalars["numeric"];
   date: Scalars["date"];
   id: Scalars["uuid"];
@@ -504,6 +505,7 @@ export type BankFinancialSummariesArrRelInsertInput = {
 
 /** aggregate avg on columns */
 export type BankFinancialSummariesAvgFields = {
+  adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
@@ -514,6 +516,7 @@ export type BankFinancialSummariesAvgFields = {
 
 /** order by avg() on columns of table "bank_financial_summaries" */
 export type BankFinancialSummariesAvgOrderBy = {
+  adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -527,6 +530,7 @@ export type BankFinancialSummariesBoolExp = {
   _and?: Maybe<Array<Maybe<BankFinancialSummariesBoolExp>>>;
   _not?: Maybe<BankFinancialSummariesBoolExp>;
   _or?: Maybe<Array<Maybe<BankFinancialSummariesBoolExp>>>;
+  adjusted_total_limit?: Maybe<NumericComparisonExp>;
   available_limit?: Maybe<NumericComparisonExp>;
   date?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
@@ -546,6 +550,7 @@ export enum BankFinancialSummariesConstraint {
 
 /** input type for incrementing integer column in table "bank_financial_summaries" */
 export type BankFinancialSummariesIncInput = {
+  adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
@@ -556,6 +561,7 @@ export type BankFinancialSummariesIncInput = {
 
 /** input type for inserting data into table "bank_financial_summaries" */
 export type BankFinancialSummariesInsertInput = {
+  adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
   date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -569,6 +575,7 @@ export type BankFinancialSummariesInsertInput = {
 
 /** aggregate max on columns */
 export type BankFinancialSummariesMaxFields = {
+  adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
   date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -582,6 +589,7 @@ export type BankFinancialSummariesMaxFields = {
 
 /** order by max() on columns of table "bank_financial_summaries" */
 export type BankFinancialSummariesMaxOrderBy = {
+  adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
@@ -595,6 +603,7 @@ export type BankFinancialSummariesMaxOrderBy = {
 
 /** aggregate min on columns */
 export type BankFinancialSummariesMinFields = {
+  adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
   date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -608,6 +617,7 @@ export type BankFinancialSummariesMinFields = {
 
 /** order by min() on columns of table "bank_financial_summaries" */
 export type BankFinancialSummariesMinOrderBy = {
+  adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
@@ -642,6 +652,7 @@ export type BankFinancialSummariesOnConflict = {
 
 /** ordering options when selecting data from "bank_financial_summaries" */
 export type BankFinancialSummariesOrderBy = {
+  adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
@@ -660,6 +671,8 @@ export type BankFinancialSummariesPkColumnsInput = {
 
 /** select columns of table "bank_financial_summaries" */
 export enum BankFinancialSummariesSelectColumn {
+  /** column name */
+  AdjustedTotalLimit = "adjusted_total_limit",
   /** column name */
   AvailableLimit = "available_limit",
   /** column name */
@@ -682,6 +695,7 @@ export enum BankFinancialSummariesSelectColumn {
 
 /** input type for updating data in table "bank_financial_summaries" */
 export type BankFinancialSummariesSetInput = {
+  adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
   date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -695,6 +709,7 @@ export type BankFinancialSummariesSetInput = {
 
 /** aggregate stddev on columns */
 export type BankFinancialSummariesStddevFields = {
+  adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
@@ -705,6 +720,7 @@ export type BankFinancialSummariesStddevFields = {
 
 /** order by stddev() on columns of table "bank_financial_summaries" */
 export type BankFinancialSummariesStddevOrderBy = {
+  adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -715,6 +731,7 @@ export type BankFinancialSummariesStddevOrderBy = {
 
 /** aggregate stddev_pop on columns */
 export type BankFinancialSummariesStddevPopFields = {
+  adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
@@ -725,6 +742,7 @@ export type BankFinancialSummariesStddevPopFields = {
 
 /** order by stddev_pop() on columns of table "bank_financial_summaries" */
 export type BankFinancialSummariesStddevPopOrderBy = {
+  adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -735,6 +753,7 @@ export type BankFinancialSummariesStddevPopOrderBy = {
 
 /** aggregate stddev_samp on columns */
 export type BankFinancialSummariesStddevSampFields = {
+  adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
@@ -745,6 +764,7 @@ export type BankFinancialSummariesStddevSampFields = {
 
 /** order by stddev_samp() on columns of table "bank_financial_summaries" */
 export type BankFinancialSummariesStddevSampOrderBy = {
+  adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -755,6 +775,7 @@ export type BankFinancialSummariesStddevSampOrderBy = {
 
 /** aggregate sum on columns */
 export type BankFinancialSummariesSumFields = {
+  adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
@@ -765,6 +786,7 @@ export type BankFinancialSummariesSumFields = {
 
 /** order by sum() on columns of table "bank_financial_summaries" */
 export type BankFinancialSummariesSumOrderBy = {
+  adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -775,6 +797,8 @@ export type BankFinancialSummariesSumOrderBy = {
 
 /** update columns of table "bank_financial_summaries" */
 export enum BankFinancialSummariesUpdateColumn {
+  /** column name */
+  AdjustedTotalLimit = "adjusted_total_limit",
   /** column name */
   AvailableLimit = "available_limit",
   /** column name */
@@ -797,6 +821,7 @@ export enum BankFinancialSummariesUpdateColumn {
 
 /** aggregate var_pop on columns */
 export type BankFinancialSummariesVarPopFields = {
+  adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
@@ -807,6 +832,7 @@ export type BankFinancialSummariesVarPopFields = {
 
 /** order by var_pop() on columns of table "bank_financial_summaries" */
 export type BankFinancialSummariesVarPopOrderBy = {
+  adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -817,6 +843,7 @@ export type BankFinancialSummariesVarPopOrderBy = {
 
 /** aggregate var_samp on columns */
 export type BankFinancialSummariesVarSampFields = {
+  adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
@@ -827,6 +854,7 @@ export type BankFinancialSummariesVarSampFields = {
 
 /** order by var_samp() on columns of table "bank_financial_summaries" */
 export type BankFinancialSummariesVarSampOrderBy = {
+  adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -837,6 +865,7 @@ export type BankFinancialSummariesVarSampOrderBy = {
 
 /** aggregate variance on columns */
 export type BankFinancialSummariesVarianceFields = {
+  adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
@@ -847,6 +876,7 @@ export type BankFinancialSummariesVarianceFields = {
 
 /** order by variance() on columns of table "bank_financial_summaries" */
 export type BankFinancialSummariesVarianceOrderBy = {
+  adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -920,6 +950,7 @@ export type Companies = {
   /** An aggregated array relationship */
   loans_aggregate: LoansAggregate;
   name: Scalars["String"];
+  needs_balance_recomputed: Scalars["Boolean"];
   phone_number?: Maybe<Scalars["String"]>;
   /** An array relationship */
   purchase_orders: Array<PurchaseOrders>;
@@ -1224,6 +1255,7 @@ export type CompaniesBoolExp = {
   licenses?: Maybe<CompanyLicensesBoolExp>;
   loans?: Maybe<LoansBoolExp>;
   name?: Maybe<StringComparisonExp>;
+  needs_balance_recomputed?: Maybe<BooleanComparisonExp>;
   phone_number?: Maybe<StringComparisonExp>;
   purchase_orders?: Maybe<PurchaseOrdersBoolExp>;
   purchase_orders_by_vendor?: Maybe<PurchaseOrdersBoolExp>;
@@ -1270,6 +1302,7 @@ export type CompaniesInsertInput = {
   licenses?: Maybe<CompanyLicensesArrRelInsertInput>;
   loans?: Maybe<LoansArrRelInsertInput>;
   name?: Maybe<Scalars["String"]>;
+  needs_balance_recomputed?: Maybe<Scalars["Boolean"]>;
   phone_number?: Maybe<Scalars["String"]>;
   purchase_orders?: Maybe<PurchaseOrdersArrRelInsertInput>;
   purchase_orders_by_vendor?: Maybe<PurchaseOrdersArrRelInsertInput>;
@@ -1406,6 +1439,7 @@ export type CompaniesOrderBy = {
   licenses_aggregate?: Maybe<CompanyLicensesAggregateOrderBy>;
   loans_aggregate?: Maybe<LoansAggregateOrderBy>;
   name?: Maybe<OrderBy>;
+  needs_balance_recomputed?: Maybe<OrderBy>;
   phone_number?: Maybe<OrderBy>;
   purchase_orders_aggregate?: Maybe<PurchaseOrdersAggregateOrderBy>;
   purchase_orders_by_vendor_aggregate?: Maybe<PurchaseOrdersAggregateOrderBy>;
@@ -1450,6 +1484,8 @@ export enum CompaniesSelectColumn {
   /** column name */
   Name = "name",
   /** column name */
+  NeedsBalanceRecomputed = "needs_balance_recomputed",
+  /** column name */
   PhoneNumber = "phone_number",
   /** column name */
   State = "state",
@@ -1474,6 +1510,7 @@ export type CompaniesSetInput = {
   is_vendor?: Maybe<Scalars["Boolean"]>;
   latest_loan_identifier?: Maybe<Scalars["Int"]>;
   name?: Maybe<Scalars["String"]>;
+  needs_balance_recomputed?: Maybe<Scalars["Boolean"]>;
   phone_number?: Maybe<Scalars["String"]>;
   state?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
@@ -1548,6 +1585,8 @@ export enum CompaniesUpdateColumn {
   LatestLoanIdentifier = "latest_loan_identifier",
   /** column name */
   Name = "name",
+  /** column name */
+  NeedsBalanceRecomputed = "needs_balance_recomputed",
   /** column name */
   PhoneNumber = "phone_number",
   /** column name */
@@ -11614,6 +11653,52 @@ export type UpdateLineOfCreditAndLoanMutation = {
   update_loans_by_pk?: Maybe<Pick<Loans, "id"> & LoanLimitedFragment>;
 };
 
+export type GetActiveLoansForCompanyQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+  loanType: LoanTypeEnum;
+}>;
+
+export type GetActiveLoansForCompanyQuery = {
+  companies_by_pk?: Maybe<
+    Pick<Companies, "id"> & {
+      financial_summary?: Maybe<
+        Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
+      >;
+      loans: Array<
+        Pick<Loans, "id"> & {
+          line_of_credit?: Maybe<
+            Pick<LineOfCredits, "id"> & LineOfCreditFragment
+          >;
+          purchase_order?: Maybe<Pick<PurchaseOrders, "id" | "order_number">>;
+        } & LoanLimitedFragment
+      >;
+    }
+  >;
+};
+
+export type GetClosedLoansForCompanyQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+  loanType: LoanTypeEnum;
+}>;
+
+export type GetClosedLoansForCompanyQuery = {
+  companies_by_pk?: Maybe<
+    Pick<Companies, "id"> & {
+      financial_summary?: Maybe<
+        Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
+      >;
+      loans: Array<
+        Pick<Loans, "id"> & {
+          line_of_credit?: Maybe<
+            Pick<LineOfCredits, "id"> & LineOfCreditFragment
+          >;
+          purchase_order?: Maybe<Pick<PurchaseOrders, "id" | "order_number">>;
+        } & LoanLimitedFragment
+      >;
+    }
+  >;
+};
+
 export type LoanSiblingsQueryVariables = Exact<{
   loanId: Scalars["uuid"];
   loanType: LoanTypeEnum;
@@ -12289,6 +12374,7 @@ export type LoanLimitedFragment = Pick<
   | "outstanding_principal_balance"
   | "outstanding_interest"
   | "outstanding_fees"
+  | "approved_at"
   | "funded_at"
 > & { company: Pick<Companies, "id" | "identifier"> };
 
@@ -12852,6 +12938,7 @@ export const LoanLimitedFragmentDoc = gql`
     outstanding_principal_balance
     outstanding_interest
     outstanding_fees
+    approved_at
     funded_at
     company {
       id
@@ -13857,6 +13944,178 @@ export type UpdateLineOfCreditAndLoanMutationResult = Apollo.MutationResult<Upda
 export type UpdateLineOfCreditAndLoanMutationOptions = Apollo.BaseMutationOptions<
   UpdateLineOfCreditAndLoanMutation,
   UpdateLineOfCreditAndLoanMutationVariables
+>;
+export const GetActiveLoansForCompanyDocument = gql`
+  query GetActiveLoansForCompany(
+    $companyId: uuid!
+    $loanType: loan_type_enum!
+  ) {
+    companies_by_pk(id: $companyId) {
+      id
+      financial_summary {
+        id
+        ...FinancialSummary
+      }
+      loans(
+        where: {
+          _and: [
+            { closed_at: { _is_null: true } }
+            { loan_type: { _eq: $loanType } }
+          ]
+        }
+      ) {
+        id
+        ...LoanLimited
+        line_of_credit {
+          id
+          ...LineOfCredit
+        }
+        purchase_order {
+          id
+          order_number
+        }
+      }
+    }
+  }
+  ${FinancialSummaryFragmentDoc}
+  ${LoanLimitedFragmentDoc}
+  ${LineOfCreditFragmentDoc}
+`;
+
+/**
+ * __useGetActiveLoansForCompanyQuery__
+ *
+ * To run a query within a React component, call `useGetActiveLoansForCompanyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetActiveLoansForCompanyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetActiveLoansForCompanyQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *      loanType: // value for 'loanType'
+ *   },
+ * });
+ */
+export function useGetActiveLoansForCompanyQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetActiveLoansForCompanyQuery,
+    GetActiveLoansForCompanyQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetActiveLoansForCompanyQuery,
+    GetActiveLoansForCompanyQueryVariables
+  >(GetActiveLoansForCompanyDocument, baseOptions);
+}
+export function useGetActiveLoansForCompanyLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetActiveLoansForCompanyQuery,
+    GetActiveLoansForCompanyQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetActiveLoansForCompanyQuery,
+    GetActiveLoansForCompanyQueryVariables
+  >(GetActiveLoansForCompanyDocument, baseOptions);
+}
+export type GetActiveLoansForCompanyQueryHookResult = ReturnType<
+  typeof useGetActiveLoansForCompanyQuery
+>;
+export type GetActiveLoansForCompanyLazyQueryHookResult = ReturnType<
+  typeof useGetActiveLoansForCompanyLazyQuery
+>;
+export type GetActiveLoansForCompanyQueryResult = Apollo.QueryResult<
+  GetActiveLoansForCompanyQuery,
+  GetActiveLoansForCompanyQueryVariables
+>;
+export const GetClosedLoansForCompanyDocument = gql`
+  query GetClosedLoansForCompany(
+    $companyId: uuid!
+    $loanType: loan_type_enum!
+  ) {
+    companies_by_pk(id: $companyId) {
+      id
+      financial_summary {
+        id
+        ...FinancialSummary
+      }
+      loans(
+        where: {
+          _and: [
+            { closed_at: { _is_null: false } }
+            { loan_type: { _eq: $loanType } }
+          ]
+        }
+      ) {
+        id
+        ...LoanLimited
+        line_of_credit {
+          id
+          ...LineOfCredit
+        }
+        purchase_order {
+          id
+          order_number
+        }
+      }
+    }
+  }
+  ${FinancialSummaryFragmentDoc}
+  ${LoanLimitedFragmentDoc}
+  ${LineOfCreditFragmentDoc}
+`;
+
+/**
+ * __useGetClosedLoansForCompanyQuery__
+ *
+ * To run a query within a React component, call `useGetClosedLoansForCompanyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetClosedLoansForCompanyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetClosedLoansForCompanyQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *      loanType: // value for 'loanType'
+ *   },
+ * });
+ */
+export function useGetClosedLoansForCompanyQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetClosedLoansForCompanyQuery,
+    GetClosedLoansForCompanyQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetClosedLoansForCompanyQuery,
+    GetClosedLoansForCompanyQueryVariables
+  >(GetClosedLoansForCompanyDocument, baseOptions);
+}
+export function useGetClosedLoansForCompanyLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetClosedLoansForCompanyQuery,
+    GetClosedLoansForCompanyQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetClosedLoansForCompanyQuery,
+    GetClosedLoansForCompanyQueryVariables
+  >(GetClosedLoansForCompanyDocument, baseOptions);
+}
+export type GetClosedLoansForCompanyQueryHookResult = ReturnType<
+  typeof useGetClosedLoansForCompanyQuery
+>;
+export type GetClosedLoansForCompanyLazyQueryHookResult = ReturnType<
+  typeof useGetClosedLoansForCompanyLazyQuery
+>;
+export type GetClosedLoansForCompanyQueryResult = Apollo.QueryResult<
+  GetClosedLoansForCompanyQuery,
+  GetClosedLoansForCompanyQueryVariables
 >;
 export const LoanSiblingsDocument = gql`
   query LoanSiblings(
