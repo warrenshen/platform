@@ -34,10 +34,11 @@ class TestLateFeeStructure(unittest.TestCase):
 			'late_fee_structure': json.dumps(
 				{'1-3': 0.5, '4-9': 0.4, '10+': 0.3})
 		})
-		contract = contract_util.Contract(models.Contract(
+		contract, err = contract_util.Contract.build(models.Contract(
 					product_type=ProductType.INVENTORY_FINANCING,
 					product_config=config
-		).as_dict())
+		).as_dict(), validate=True)
+		self.assertIsNone(err)
 
 		tests: List[Dict] = [
 			{
@@ -103,20 +104,29 @@ class TestLateFeeStructure(unittest.TestCase):
 			}
 		]
 
+		# Test it fails because of validate=True
 		for i in range(len(tests)):
 			test = tests[i]
 			config = _get_default_contract_config({
 				'late_fee_structure': json.dumps(test['late_fee_structure'])
 			})
-			contract = contract_util.Contract(models.Contract(
+			contract, err = contract_util.Contract.build(models.Contract(
 						product_type=ProductType.INVENTORY_FINANCING,
 						product_config=config
-			).as_dict())
-			got_exception = False
-			try:
-				contract.get_fee_multiplier(days_past_due=2)
-			except Exception as e:
-				got_exception = True
-				self.assertIn(test['in_err_msg'], '{}'.format(e))
+			).as_dict(), validate=True)
+			self.assertIn(test['in_err_msg'], err.msg)
 
-			self.assertTrue(got_exception, msg='We should receive exceptions in all of these tests. Test index: {}'.format(i))
+		for i in range(len(tests)):
+			test = tests[i]
+			config = _get_default_contract_config({
+				'late_fee_structure': json.dumps(test['late_fee_structure'])
+			})
+			contract, err = contract_util.Contract.build(models.Contract(
+						product_type=ProductType.INVENTORY_FINANCING,
+						product_config=config
+			).as_dict(), validate=False)
+			self.assertIsNone(err)
+
+				# Test it fails because you didnt validate in the build, but your try to grab it here.
+			_, err = contract.get_fee_multiplier(days_past_due=2)
+			self.assertIn(test['in_err_msg'], err.msg)

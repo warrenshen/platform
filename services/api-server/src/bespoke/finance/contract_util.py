@@ -28,43 +28,43 @@ FullFieldDict = TypedDict('FullFieldDict', {
 
 INTERNAL_LATE_FEE_INFINITY = sys.maxsize
 
-def _parse_late_fee_structure(late_fee_field: FullFieldDict) -> List[Tuple[int, int, float]]:
+def _parse_late_fee_structure(late_fee_field: FullFieldDict) -> Tuple[List[Tuple[int, int, float]], errors.Error]:
 
 	if not late_fee_field:
 		logging.error('Warning no late fee structure specified in contract')
-		return []
+		return [], None
 	
 	late_fee_structure_str = late_fee_field['value']
 	if not late_fee_structure_str:
 		# TODO(dlluncor): This should actually throw an error once we have
 		# contracts with late fee structures specified.
 		logging.error('Warning no late fee structure specified in contract')
-		return []
+		return [], None
 
 	try:
 		late_fee_structure = json.loads(late_fee_structure_str)
 	except Exception as e:
-		raise Exception('Late fee structure is not stored as a valid JSON')
+		return None, errors.Error('Late fee structure is not stored as a valid JSON')
 
 	if type(late_fee_structure) != dict:
-		raise Exception('Late fee structure is not a dict')
+		return None, errors.Error('Late fee structure is not a dict')
 
 	if not late_fee_structure:
-		raise Exception('no ranges provided in this late fee structure')
+		return None, errors.Error('no ranges provided in this late fee structure')
 
 	ranges = []
 
 	for k, v in late_fee_structure.items():
 		is_number = type(v) == float or type(v) == int
 		if type(k) != str or not is_number:
-			raise Exception('Invalid late fee structure. The key must be a string and the value must be a float')
+			return None, errors.Error('Invalid late fee structure. The key must be a string and the value must be a float')
 
 		# the key can either be an integer range 1-5, or it can be the tail-end
 		# of a range, e.g., 7+
 		has_infinity_case = False
 		if k.endswith('+'):
 			if has_infinity_case:
-				raise Exception('A contract cannot specify two infinity cases, e.g., cases with a "+" in it')
+				return None, errors.Error('A contract cannot specify two infinity cases, e.g., cases with a "+" in it')
 			
 			has_infinity_case = True
 			try:
@@ -72,24 +72,24 @@ def _parse_late_fee_structure(late_fee_field: FullFieldDict) -> List[Tuple[int, 
 				end_range = INTERNAL_LATE_FEE_INFINITY
 				ranges.append((start_range, end_range, float(v)))
 			except Exception as e:
-				raise Exception('A late fee key that ends with a "+" must be a number followed by a +') 
+				return None, errors.Error('A late fee key that ends with a "+" must be a number followed by a +') 
 		else:
 			parts = k.split('-')
 			if len(parts) != 2:
-				raise Exception('Each key to the late fee structure must be number-number, or number+. This key is missing a dash: "{}"'.format(k))
+				return None, errors.Error('Each key to the late fee structure must be number-number, or number+. This key is missing a dash: "{}"'.format(k))
 
 			try:
 				start_range = int(parts[0])
 				end_range = int(parts[1])
 				ranges.append((start_range, end_range, float(v)))
 			except Exception as e:
-				raise Exception('Each range in the late fee structure must be number-number. "{}" does not contain all integers'.format(k))
+				return None, errors.Error('Each range in the late fee structure must be number-number. "{}" does not contain all integers'.format(k))
 
 			if start_range >= end_range:
-				raise Exception('Start of the range may not be bigger or equal to the end of the range')
+				return None, errors.Error('Start of the range may not be bigger or equal to the end of the range')
 
 	if not has_infinity_case:
-		raise Exception('No infinity, end of range case supplied, e.g., one with a "+" in it')
+		return None, errors.Error('No infinity, end of range case supplied, e.g., one with a "+" in it')
 
 	ranges.sort(key=lambda r: r[0]) # sort increasing by the smallest range
 
@@ -103,22 +103,21 @@ def _parse_late_fee_structure(late_fee_field: FullFieldDict) -> List[Tuple[int, 
 		(compare_start_range, compare_end_range, _) = compare_range
 
 		if end_range + 1 != compare_start_range:
-			raise Exception('Range {} overlaps or is not consecutive with {}'.format(cur_range, compare_range))
+			return None, errors.Error('Range {} overlaps or is not consecutive with {}'.format(cur_range, compare_range))
 
 	initial_start_range = ranges[0][0]
 	if initial_start_range != 1:
-		raise Exception('The first range must start with day 1')
+		return None, errors.Error('The first range must start with day 1')
 
-	return ranges
+	return ranges, None
 
 class Contract(object):
 	"""
 		Represents a contract stored as JSON
 	"""
 
-	def __init__(self, contract: models.ContractDict) -> None:
-		self._c = contract
-		self._config = contract['product_config']
+	def __init__(self, c: models.ContractDict, private: bool) -> None:
+		self._config = c['product_config']
 		self._is_populated = False
 		self._field_dicts: List[FieldDict] = []
 		self._internal_name_to_field: Dict[str, FullFieldDict] = {}
@@ -135,15 +134,28 @@ class Contract(object):
 		"""
 		self._late_fee_ranges: List[Tuple[int, int, float]] = []
 
-	def _populate(self) -> None:
+	def get_product_config(self) -> Dict:
+		# NOTE: This may be modified in the "build" function to add additional fields
+		# if this was an older config
+		return self._config
+
+	def _populate(self, throw_error: bool = True) -> Tuple[bool, errors.Error]:
 		if self._is_populated:
-			return
+			return True, None
 
 		if 'version' not in self._config:
-			raise Exception('Version does not exist in the contract config provided')
+			msg = 'Version does not exist in the contract config provided'
+			if throw_error:
+				raise Exception(msg)
+			else:
+				return None, errors.Error(msg)
 
 		if self._config['version'] not in self._config:
-			raise Exception('Current version doesnt exist in the contract config. Got version {}'.format(self._config['version']))
+			msg = 'Current version doesnt exist in the contract config. Got version {}'.format(self._config['version'])
+			if throw_error:
+				raise Exception(msg)
+			else:
+				return None, errors.Error(msg)
 
 		orig_fields = cast(List[FullFieldDict], self._config[self._config['version']]['fields'])
 		
@@ -154,6 +166,8 @@ class Contract(object):
 				value=field['value']
 			))
 			self._internal_name_to_field[field['internal_name']] = field
+
+		return True, None
 
 	def _get_field(self, internal_name: str) -> Tuple[FullFieldDict, errors.Error]:
 		self._populate()
@@ -224,7 +238,9 @@ class Contract(object):
 
 		if not self._late_fee_ranges:
 			# Cache and parse the late fee structure once.
-			self._late_fee_ranges = _parse_late_fee_structure(self._internal_name_to_field.get('late_fee_structure'))
+			self._late_fee_ranges, err = _parse_late_fee_structure(self._internal_name_to_field.get('late_fee_structure'))
+			if err:
+				return None, err
 
 		n = days_past_due
 
@@ -258,6 +274,32 @@ class Contract(object):
 
 		return self._field_dicts
 
+	@staticmethod
+	def build(contract_dict: models.ContractDict, validate: bool) -> Tuple['Contract', errors.Error]:
+		"""
+			Method that constructs a helper to read a Contract.
+
+			Optionally, it will validate the structure and validity of how the contract
+			was setup.
+			
+			This function may update fields
+			that may not have existed on this contract due to schema changes or additional
+			fields added to the contract.
+		"""
+		contract = Contract(contract_dict, private=True)
+
+		if validate:
+			success, err = contract._populate(throw_error=False)
+			if err:
+				return None, err
+			# Test that the fee structure was populated correctly.
+			_, err = contract.get_fee_multiplier(days_past_due=1)
+			if err:
+				return None, err
+
+		return contract, None
+
+
 class ContractHelper(object):
 
 	def __init__(self, contract_dicts: List[models.ContractDict], private: bool) -> None:
@@ -265,7 +307,7 @@ class ContractHelper(object):
 
 	def get_contract(self, cur_date: datetime.date) -> Tuple[Contract, errors.Error]:
 		# TODO(dlluncor): Handle when we have a range of contracts between date ranges
-		return Contract(self._contract_dicts[0]), None
+		return Contract.build(self._contract_dicts[0], validate=False)
 
 	@staticmethod
 	def build(company_id: str, contract_dicts: List[models.ContractDict]) -> Tuple['ContractHelper', errors.Error]:

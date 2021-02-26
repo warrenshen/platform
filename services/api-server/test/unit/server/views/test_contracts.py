@@ -80,7 +80,34 @@ class TestUpdateContractView(db_unittest.TestCase):
 				data=json.dumps(request_data),
 				headers=headers)
 			response_data = json.loads(response.data)
-			self.assertEqual(response_data["status"], "OK")
+			# When the product config is empty, or invalid we produce an error due to a
+			# validation check
+			self.assertEqual(response_data["status"], "ERROR", msg=response_data.get('msg'))
+
+		request_data = {
+			"contract_id": str(contract_id),
+			"contract_fields": {
+				"product_type": ProductType.LINE_OF_CREDIT,
+				"start_date": datetime.date.today().isoformat(),
+				"end_date": datetime.date.today().isoformat(),
+				"product_config": contract_test_helper.create_contract_config(
+					product_type=ProductType.INVENTORY_FINANCING,
+					input_dict=ContractInputDict(
+						interest_rate=5.00,
+						maximum_principal_amount=120000.01,
+						max_days_until_repayment=0,
+						late_fee_structure=_get_late_fee_structure()
+					)
+				)
+			}
+		}
+
+		with app.test_client() as client:
+			response = client.post("/contracts/update_contract",
+				data=json.dumps(request_data),
+				headers=headers)
+			response_data = json.loads(response.data)
+			self.assertEqual(response_data["status"], "OK", msg=response_data.get('msg'))
 
 		with session_scope(self.session_maker) as session:
 			company = session.query(models.Company).get(company_id)

@@ -1,6 +1,7 @@
 """
   Per customer fetching of financial information.
 """
+import logging
 import xlwt
 
 from mypy_extensions import TypedDict
@@ -68,7 +69,10 @@ class ExcelCreator(object):
 		contract_dicts = self._financials['financials']['contracts']
 
 		for contract_dict in contract_dicts:
-			contract = contract_util.Contract(contract_dict)
+			contract, err = contract_util.Contract.build(contract_dict, validate=False)
+			if err:
+				logging.error('Error reading contract for {}'.format(self._financials['company_info']['id']))
+				continue
 
 			sheet.add_row(['Start Date', 'End Date'])
 			sheet.add_row([

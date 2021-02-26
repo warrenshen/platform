@@ -60,10 +60,13 @@ def _get_contracts_by_company_id(
 	company_id_to_contract = {}
 	for contract in contracts:
 		company_id = str(contract.company_id)
-		contract_obj = contract_util.Contract(contract.as_dict())
+		contract_obj, err = contract_util.Contract.build(contract.as_dict(), validate=False)
+		if err:
+			return None, err
 		company_id_to_contract[company_id] = contract_obj
 
 	return company_id_to_contract, None
+
 def fund_loans_with_advance(
 	req: FundLoansReqDict, bank_admin_user_id: str, 
 	session_maker: Callable) -> Tuple[FundLoansRespDict, errors.Error]:

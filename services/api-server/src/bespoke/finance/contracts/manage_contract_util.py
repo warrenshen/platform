@@ -4,13 +4,14 @@
 import datetime
 import json
 import logging
+from mypy_extensions import TypedDict
 from typing import Any, Callable, Dict, List, Tuple, Union, cast
 
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
-from mypy_extensions import TypedDict
+from bespoke.finance import contract_util
 
 ContractFieldsDict = TypedDict('ContractFieldsDict', {
 	'product_type': str,
@@ -38,15 +39,25 @@ AddNewContractReqDict = TypedDict('AddNewContractReqDict', {
 
 def _update_contract(
 	contract: models.Contract, fields_dict: ContractFieldsDict,
-	bank_admin_user_id: str) -> None:
+	bank_admin_user_id: str) -> Tuple[bool, errors.Error]:
+
+	start_date = date_util.load_date_str(fields_dict['start_date'])
 	end_date = date_util.load_date_str(fields_dict['end_date'])
 
 	contract.product_type = fields_dict['product_type']
 	contract.product_config = fields_dict['product_config']
-	contract.start_date = date_util.load_date_str(fields_dict['start_date'])
+	contract.start_date = start_date
 	contract.end_date = end_date
 	contract.adjusted_end_date = end_date
 	contract.modified_by_user_id = bank_admin_user_id
+
+	contract_obj, err = contract_util.Contract.build(contract.as_dict(), validate=True)
+	if err:
+		return None, err
+
+	contract.product_config = contract_obj.get_product_config()
+
+	return True, None
 
 def update_contract(req: UpdateContractReqDict, bank_admin_user_id: str, session_maker: Callable) -> Tuple[bool, errors.Error]:
 	err_details = {'req': req, 'method': 'update_contract'}
@@ -63,7 +74,9 @@ def update_contract(req: UpdateContractReqDict, bank_admin_user_id: str, session
 		if contract.terminated_at:
 			return False, errors.Error('Cannot modify a contract which already has been terminated or "frozen"', details=err_details)
 
-		_update_contract(contract, req['contract_fields'], bank_admin_user_id)
+		_, err = _update_contract(contract, req['contract_fields'], bank_admin_user_id)
+		if err:
+			return None, err
 
 	return True, None
 
@@ -124,7 +137,9 @@ def add_new_contract(req: AddNewContractReqDict, bank_admin_user_id: str, sessio
 			return False, errors.Error('Company could not be found', details=err_details)
 
 		new_contract = models.Contract()
-		_update_contract(new_contract, req['contract_fields'], bank_admin_user_id)
+		success, err = _update_contract(new_contract, req['contract_fields'], bank_admin_user_id)
+		if err:
+			return None, err
 
 		# Check no overlap in dates.
 		start_date = new_contract.start_date
