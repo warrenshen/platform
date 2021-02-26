@@ -11,9 +11,7 @@ from bespoke_test.db import db_unittest
 from bespoke_test.db import test_helper
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
-from server.views.finance.loans.reports import (
-	compute_bank_financial_summaries,
-	compute_and_update_bank_financial_summaries)
+from bespoke.finance.loans import reports_util
 from sqlalchemy.orm.session import Session
 
 def _get_late_fee_structure() -> str:
@@ -35,7 +33,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 		with session_scope(self.session_maker) as session:
 			populate(session, seed)
 
-			statements, err = compute_bank_financial_summaries(session, report_date)
+			statements, err = reports_util.compute_bank_financial_summaries(session, report_date)
 			self.assertEqual(str(err), str(expected_error))
 
 			if statements is not None:
@@ -52,6 +50,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 					self.assertEqual(expected.available_limit, received.available_limit)
 			else:
 				self.assertEqual(statements, expected_summaries)
+
 
 	def _run_compute_and_update_test(self, populate: Callable, count: int) -> None:
 		self.reset()
@@ -100,10 +99,12 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			available_limit=decimal.Decimal(25.00),
 		))
 
+
 	def test_failure_on_unpopulated(self) -> None:
 		def populate(session: Session, seed: test_helper.BasicSeed) -> None:
 			return
 		self._run_compute_test(populate, None, errors.Error("No financial summaries registered in the DB"))
+
 
 	def test_compute_success_with_one_financial_summary(self) -> None:
 		def populate(session: Session, seed: test_helper.BasicSeed) -> None:
@@ -133,6 +134,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			),
 		], expected_error=None)
 
+
 	def test_compute_success_with_two_financial_summaries_same_type(self) -> None:
 		def populate(session: Session, seed: test_helper.BasicSeed) -> None:
 			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=0), ProductType.INVENTORY_FINANCING)
@@ -160,6 +162,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				available_limit=decimal.Decimal(0),
 			),
 		], expected_error=None)
+
 
 	def test_compute_success_with_two_financial_summaries_different_types(self) -> None:
 		def populate(session: Session, seed: test_helper.BasicSeed) -> None:
@@ -189,24 +192,49 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			),
 		], expected_error=None)
 
+
 	def test_compute_and_update_maintains_the_count_once(self) -> None:
 		def populate(session: Session, seed: test_helper.BasicSeed) -> None:
 			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=0), ProductType.INVENTORY_FINANCING)
 			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=2), ProductType.LINE_OF_CREDIT)
 
-			compute_and_update_bank_financial_summaries(session, datetime.date.today())
+			reports_util.compute_and_update_bank_financial_summaries(session, datetime.date.today())
 
 		self._run_compute_and_update_test(populate, len(PRODUCT_TYPES))
+
 
 	def test_compute_and_update_maintains_the_count_twice(self) -> None:
 		def populate(session: Session, seed: test_helper.BasicSeed) -> None:
 			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=0), ProductType.INVENTORY_FINANCING)
 			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=2), ProductType.LINE_OF_CREDIT)
 
-			compute_and_update_bank_financial_summaries(session, datetime.date.today())
+			reports_util.compute_and_update_bank_financial_summaries(session, datetime.date.today())
 			session.commit()
 
-			compute_and_update_bank_financial_summaries(session, datetime.date.today())
+			reports_util.compute_and_update_bank_financial_summaries(session, datetime.date.today())
 			session.commit()
 
 		self._run_compute_and_update_test(populate, len(PRODUCT_TYPES))
+
+
+	def test_gets_companies_that_need_recompute(self) -> None:
+		self.reset()
+		seed = test_helper.BasicSeed.create(self.session_maker, self)
+		seed.initialize()
+
+		company_id = seed.get_company_id('company_admin', index=0)
+
+		with session_scope(self.session_maker) as session:
+			count = session.query(models.Company).count()
+			self.assertEqual(count, 4)
+
+			count = session.query(models.Company).filter(models.Company.needs_balance_recomputed == True).count()
+			self.assertEqual(count, 0)
+
+		with session_scope(self.session_maker) as session:
+			company = session.query(models.Company).get(company_id)
+			company.needs_balance_recomputed = True
+
+		company_dicts = reports_util.list_companies_that_need_balances_recomputed(self.session_maker)
+		self.assertEqual(len(company_dicts), 1)
+		self.assertEqual(company_dicts[0]["id"], str(company_id))
