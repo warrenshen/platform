@@ -11,7 +11,7 @@ from bespoke.finance.payments import payment_util
 from bespoke.finance.payments import repayment_util
 from bespoke.finance.payments.repayment_util import (
 	TransactionInputDict, LoanBalanceDict, LoanToShowDict)
-from bespoke.db.db_constants import ProductType
+from bespoke.db.db_constants import ProductType, PaymentStatusEnum
 
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
@@ -791,12 +791,37 @@ class TestCreatePayment(db_unittest.TestCase):
 			self.assertEqual(payment_date, date_util.date_to_str(payment.requested_payment_date))
 			self.assertEqual(loan_ids, cast(Dict, payment.items_covered)['loan_ids'])
 
+			loans = cast(
+				List[models.Loan],
+				session.query(models.Loan).filter(
+					models.Loan.id.in_(loan_ids)
+				).all())
+
+			loans = [loan for loan in loans]
+			loans.sort(key=lambda l: l.amount)
+			self.assertEqual(len(test['expected_loans']), len(loans))
+			for i in range(len(loans)):
+				actual = loans[i]
+				expected = test['expected_loans'][i]
+				self.assertAlmostEqual(float(expected.amount), float(actual.amount))
+				self.assertEqual(expected.payment_status, actual.payment_status)
+
 	def test_schedule_payment_reverse_draft_ach(self) -> None:
 		tests: List[Dict] = [
 			{
 				'payment_amount': 30.1,
 				'payment_method': 'reverse_draft_ach',
-				'loan_amounts': [20.1, 30.1]
+				'loan_amounts': [20.1, 30.1],
+				'expected_loans': [
+					models.Loan(
+						amount=decimal.Decimal(20.1),
+						payment_status=PaymentStatusEnum.SCHEDULED
+					),
+					models.Loan(
+						amount=decimal.Decimal(30.1),
+						payment_status=PaymentStatusEnum.SCHEDULED
+					)
+				]
 			}
 		]
 		for test in tests:
@@ -807,7 +832,17 @@ class TestCreatePayment(db_unittest.TestCase):
 			{
 				'payment_amount': 40.1,
 				'payment_method': 'ach',
-				'loan_amounts': [30.1, 40.1]
+				'loan_amounts': [30.1, 40.1],
+				'expected_loans': [
+					models.Loan(
+						amount=decimal.Decimal(30.1),
+						payment_status=PaymentStatusEnum.PENDING
+					),
+					models.Loan(
+						amount=decimal.Decimal(40.1),
+						payment_status=PaymentStatusEnum.PENDING
+					)
+				]
 			}
 		]
 		for test in tests:
@@ -988,8 +1023,13 @@ class TestSettlePayment(db_unittest.TestCase):
 					loan_after['outstanding_interest'], float(cur_loan.outstanding_interest))
 				self.assertAlmostEqual(
 					loan_after['outstanding_fees'], float(cur_loan.outstanding_fees))
+				self.assertEqual(loan_after['payment_status'], cur_loan.payment_status)
+				if cur_loan.payment_status == PaymentStatusEnum.CLOSED:
+					self.assertIsNotNone(cur_loan.closed_at) # flag indicating we are closed
+				else:
+					self.assertIsNone(cur_loan.closed_at) # we are not closed yet
 
-	def test_settle_payment_success(self) -> None:
+	def test_settle_payment_partially_paid(self) -> None:
 		tests: List[Dict] = [
 			{
 				'payment': {
@@ -1031,13 +1071,92 @@ class TestSettlePayment(db_unittest.TestCase):
 						'amount': 50.0,
 						'outstanding_principal_balance': 40.4 - 30.02,
 						'outstanding_interest': 30.03 - 5.02,
-						'outstanding_fees': 20.01 - 5.00
+						'outstanding_fees': 20.01 - 5.00,
+						'payment_status': PaymentStatusEnum.PARTIALLY_PAID
 					},
 					{
 						'amount': 40.0,
 						'outstanding_principal_balance': 30.01 - 18.02,
 						'outstanding_interest': 20.02 - 1.65,
-						'outstanding_fees': 10.03 - 0.35
+						'outstanding_fees': 10.03 - 0.35,
+						'payment_status': PaymentStatusEnum.PARTIALLY_PAID
+					}
+				]
+			}
+		]
+		for test in tests:
+			self._run_test(test)
+
+	def test_settle_payment_partially_paid_and_closed_and_negative_balance(self) -> None:
+		tests: List[Dict] = [
+			{
+				'payment': {
+					'amount': (80.0 + 60.0 + 30.0) + 10.0, # 10.0 is the overpayment
+					'payment_method': 'ach',
+					'payment_date': '10/10/2020',
+					'settlement_date': '10/12/2020'
+				},
+				'loans': [
+					{
+						'amount': 50.0,
+						'outstanding_principal_balance': 40.0,
+						'outstanding_interest': 30.0,
+						'outstanding_fees': 20.0
+					}, # Partially paid
+					{
+						'amount': 40.0,
+						'outstanding_principal_balance': 30.0,
+						'outstanding_interest': 20.0,
+						'outstanding_fees': 10.0
+					}, # Paid and closed
+					{
+						'amount': 30.0,
+						'outstanding_principal_balance': 20.0,
+						'outstanding_interest': 10.0,
+						'outstanding_fees': 0.0
+					} # Overpaid with negative balance
+				],
+				'transaction_inputs': [
+					{
+						'amount': 80.0,
+						'to_principal': 30.0,
+						'to_interest': 30.0,
+						'to_fees': 20.0
+					},
+					{
+						'amount': 60.0,
+						'to_principal': 30.0,
+						'to_interest': 20.0,
+						'to_fees': 10.0
+					},
+					{
+						'amount': 40.0,
+						'to_principal': 30.0,
+						'to_interest': 10.0,
+						'to_fees': 0.0
+					}
+				],
+				'loans_after_payment': [
+					{
+						'amount': 50.0,
+						'outstanding_principal_balance': 10.0,
+						'outstanding_interest': 0.0,
+						'outstanding_fees': 0.0,
+						'payment_status': PaymentStatusEnum.PARTIALLY_PAID
+					},
+					{
+						'amount': 40.0,
+						'outstanding_principal_balance': 0.0,
+						'outstanding_interest': 0.0,
+						'outstanding_fees': 0.0,
+						'payment_status': PaymentStatusEnum.CLOSED
+					},
+					{
+						'amount': 30.0,
+						'outstanding_principal_balance': -10.0,
+						'outstanding_interest': 0.0,
+						'outstanding_fees': 0.0,
+						'payment_status': PaymentStatusEnum.CLOSED
 					}
 				]
 			}

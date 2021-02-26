@@ -9,7 +9,7 @@ from typing import Tuple, List, Optional, Callable, cast
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models, db_constants
-from bespoke.db.db_constants import LoanStatusEnum
+from bespoke.db.db_constants import LoanStatusEnum, PaymentMethod, PaymentStatusEnum
 from bespoke.db.models import session_scope
 from bespoke.finance.types import per_customer_types
 from bespoke.finance import contract_util
@@ -414,6 +414,12 @@ def create_payment(
 		session.flush()
 		payment_id = str(payment.id)
 
+		is_scheduled = payment_insert_input['method'] == PaymentMethod.REVERSE_DRAFT_ACH
+		payment_status = PaymentStatusEnum.SCHEDULED if is_scheduled else PaymentStatusEnum.PENDING 
+		for loan in loans:
+			loan.payment_status = payment_status
+
+
 	return payment_id, None
 
 def settle_payment(
@@ -510,8 +516,15 @@ def settle_payment(
 			cur_loan.outstanding_interest = cur_loan.outstanding_interest - to_interest
 			cur_loan.outstanding_fees = cur_loan.outstanding_fees - to_fees
 
-			if cur_loan.outstanding_principal_balance <= 0.0 and cur_loan.outstanding_interest <= 0.0 and cur_loan.outstanding_fees <= 0.0:
-				cur_loan.status = LoanStatusEnum.CLOSED
+			no_outstanding_balance = cur_loan.outstanding_principal_balance <= 0.0 \
+				and cur_loan.outstanding_interest <= 0.0 \
+				and cur_loan.outstanding_fees <= 0.0
+
+			if no_outstanding_balance:
+				cur_loan.closed_at = date_util.now()
+				cur_loan.payment_status = PaymentStatusEnum.CLOSED
+			else:
+				cur_loan.payment_status = PaymentStatusEnum.PARTIALLY_PAID
 
 		payment_util.make_payment_applied(
 			payment, 

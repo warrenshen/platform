@@ -58,6 +58,9 @@ ALL_LOAN_TYPES = [
 
 # Payments
 
+class PaymentMethod(object):
+	REVERSE_DRAFT_ACH = 'reverse_draft_ach'
+
 class PaymentType(object):
 	REPAYMENT = 'repayment'
 	ADVANCE = 'advance'

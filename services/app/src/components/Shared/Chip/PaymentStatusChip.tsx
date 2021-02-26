@@ -7,10 +7,10 @@ interface Props {
 }
 
 const StatusToColor = {
-  [PaymentStatusEnum.PARTIALLY_PAID]: "#f1c40f", // Yellow
-  [PaymentStatusEnum.PENDING]: "#3498db", // Blue
-  [PaymentStatusEnum.SCHEDULED]: "#3498db", // Blue
-  [PaymentStatusEnum.CLOSED]: "#2ecc71", // Purple
+  [PaymentStatusEnum.PARTIALLY_PAID]: "#e67e22", // Orange
+  [PaymentStatusEnum.PENDING]: "#f1c40f", // Yellow
+  [PaymentStatusEnum.SCHEDULED]: "#f1c40f", // Yellow
+  [PaymentStatusEnum.CLOSED]: "#9b59b6", // Purple
 };
 
 function PaymentStatusChip({ paymentStatus }: Props) {
