@@ -1,8 +1,7 @@
 import { Box, Button } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import CreateAdvanceModal from "components/Advance/CreateAdvanceModal";
-import LineOfCreditLoansDataGrid from "components/Loans/LineOfCredit/LineOfCreditLoansDataGrid";
-import PurchaseOrderLoansDataGrid from "components/Loans/PurchaseOrder/PurchaseOrderLoansDataGrid";
+import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
 import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
 import UpdateLoanNotesModal from "components/Loans/UpdateLoanNotesModal";
 import Can from "components/Shared/Can";
@@ -14,9 +13,9 @@ import {
   ProductTypeEnum,
   useLoansByCompanyAndLoanTypeForBankQuery,
 } from "generated/graphql";
-import { approveLoans, rejectLoan } from "lib/finance/loans/approval";
 import { Action, check } from "lib/auth/rbac-rules";
-import { useState, useContext } from "react";
+import { approveLoans, rejectLoan } from "lib/finance/loans/approval";
+import { useContext, useState } from "react";
 
 interface Props {
   companyId: string;
@@ -177,31 +176,18 @@ function BankCustomerLoansSubpage({ companyId, productType }: Props) {
         </Can>
       </Box>
       <Box display="flex" flex={1}>
-        {productType === ProductTypeEnum.LineOfCredit ? (
-          <LineOfCreditLoansDataGrid
-            loans={loans}
-            selectedLoanIds={selectedLoanIds}
-            actionItems={actionItems}
-            handleSelectLoans={(loans) => {
-              setSelectedLoans(loans);
-              setSelectedLoanIds(loans.map((loan) => loan.id));
-            }}
-            isMultiSelectEnabled={check(role, Action.SelectLoan)}
-            isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
-          />
-        ) : (
-          <PurchaseOrderLoansDataGrid
-            loans={loans}
-            selectedLoanIds={selectedLoanIds}
-            actionItems={actionItems}
-            handleSelectLoans={(loans) => {
-              setSelectedLoans(loans);
-              setSelectedLoanIds(loans.map((loan) => loan.id));
-            }}
-            isMultiSelectEnabled={check(role, Action.SelectLoan)}
-            isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
-          />
-        )}
+        <PolymorphicLoansDataGrid
+          isMultiSelectEnabled={check(role, Action.SelectLoan)}
+          isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
+          productType={productType}
+          loans={loans}
+          selectedLoanIds={selectedLoanIds}
+          actionItems={actionItems}
+          handleSelectLoans={(loans) => {
+            setSelectedLoans(loans);
+            setSelectedLoanIds(loans.map((loan) => loan.id));
+          }}
+        />
       </Box>
     </Box>
   );

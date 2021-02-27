@@ -6,8 +6,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import CustomerFinancialSummaryOverview from "components/CustomerFinancialSummary/CustomerFinancialSummaryOverview";
-import LineOfCreditLoansDataGrid from "components/Loans/LineOfCredit/LineOfCreditLoansDataGrid";
-import PurchaseOrderLoansDataGrid from "components/Loans/PurchaseOrder/PurchaseOrderLoansDataGrid";
+import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoanTypeEnum,
@@ -70,19 +69,12 @@ function CustomerOverviewSubpage({ companyId, productType }: Props) {
         <Typography variant="h6">Outstanding Loans</Typography>
         <Box display="flex" flex={1}>
           <Box display="flex" flexDirection="column" width="100%">
-            {productType === ProductTypeEnum.InventoryFinancing ? (
-              <PurchaseOrderLoansDataGrid
-                loans={loans}
-                isMultiSelectEnabled={check(role, Action.SelectLoan)}
-                isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
-              />
-            ) : (
-              <LineOfCreditLoansDataGrid
-                loans={loans}
-                isMultiSelectEnabled={check(role, Action.SelectLoan)}
-                isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
-              />
-            )}
+            <PolymorphicLoansDataGrid
+              isMultiSelectEnabled={check(role, Action.SelectLoan)}
+              isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
+              productType={productType}
+              loans={loans}
+            />
           </Box>
         </Box>
       </Box>

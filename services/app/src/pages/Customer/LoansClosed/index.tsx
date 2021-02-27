@@ -64,11 +64,11 @@ function CustomerLoansClosedPage() {
         <Box className={classes.section}>
           <Box display="flex" flex={1}>
             <PolymorphicLoansDataGrid
+              isMultiSelectEnabled={check(role, Action.SelectLoan)}
+              isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
               productType={productType}
               loans={loans}
               actionItems={[]}
-              isMultiSelectEnabled={check(role, Action.SelectLoan)}
-              isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
             />
           </Box>
         </Box>

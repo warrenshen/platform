@@ -87,6 +87,8 @@ function LoansActiveApproved({ data }: Props) {
       <Box className={classes.section}>
         <Box display="flex" flex={1}>
           <PolymorphicLoansDataGrid
+            isMultiSelectEnabled={check(role, Action.SelectLoan)}
+            isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
             productType={productType}
             loans={loans}
             selectedLoanIds={selectedLoanIds}
@@ -94,8 +96,6 @@ function LoansActiveApproved({ data }: Props) {
               setSelectedLoans(loans);
               setSelectedLoanIds(loans.map((loan) => loan.id));
             }}
-            isMultiSelectEnabled={check(role, Action.SelectLoan)}
-            isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
           />
         </Box>
       </Box>

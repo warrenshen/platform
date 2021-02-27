@@ -92,6 +92,8 @@ function LoansActiveNotApproved({ data }: Props) {
       <Box display="flex" flex={1}>
         <PolymorphicLoansDataGrid
           isMaturityVisible={false}
+          isMultiSelectEnabled={check(role, Action.SelectLoan)}
+          isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
           productType={productType}
           loans={loans}
           actionItems={
@@ -106,8 +108,6 @@ function LoansActiveNotApproved({ data }: Props) {
                 ]
               : []
           }
-          isMultiSelectEnabled={check(role, Action.SelectLoan)}
-          isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
         />
       </Box>
     </Box>
