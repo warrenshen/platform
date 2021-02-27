@@ -59,7 +59,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		for i in range(len(loan_updates)):
 			expected_update = test['expected_loan_updates'][i]
 			actual_update = cast(Dict, loan_updates[i])
-			
+
 			keys_to_delete = ['loan_id']
 			for key in keys_to_delete:
 				del actual_update[key]
@@ -69,7 +69,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			test_helper.assertDeepAlmostEqual(self, expected_update, actual_update)
 
 		if test.get('expected_summary_update'):
-			test_helper.assertDeepAlmostEqual(self, test['expected_summary_update'], 
+			test_helper.assertDeepAlmostEqual(self, test['expected_summary_update'],
 				cast(Dict, customer_update['summary_update']))
 
 	def test_success_no_payments_no_loans(self) -> None:
@@ -97,6 +97,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				'expected_summary_update': {
 					'product_type': 'inventory_financing',
 					'total_limit': 120000.01,
+					'adjusted_total_limit': 120000.01,
 					'total_outstanding_principal': 0.0,
 					'total_outstanding_interest': 0.0,
 					'total_outstanding_fees': 0.0,
@@ -163,6 +164,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				'expected_summary_update': {
 					'product_type': 'inventory_financing',
 					'total_limit': 120000.01,
+					'adjusted_total_limit': 120000.01,
 					'total_outstanding_principal': 500.03 + 100.03,
 					'total_outstanding_interest': (3 * 0.05 * 500.03) + (2 * 0.05 * 100.03),
 					'total_outstanding_fees': 0.0,
@@ -202,8 +204,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			payment_test_helper.make_repayment(
 				session, loan,
 				to_principal=50.0,
-				to_interest=3 * 0.002 * 500.03, # they are paying off 3 days worth of interest accrued here. 
-				to_fees=0.0, 
+				to_interest=3 * 0.002 * 500.03, # they are paying off 3 days worth of interest accrued here.
+				to_fees=0.0,
 				effective_date='10/03/2020')
 
 		daily_interest = 0.002 * 450.03
@@ -236,3 +238,108 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		]
 		for test in tests:
 			self._run_test(test)
+
+
+	def test_success_compute_borrowing_base(self) -> None:
+		def populate_fn(session: Any, company_id: str) -> None:
+			session.add(models.Contract(
+				company_id=company_id,
+				product_type=ProductType.LINE_OF_CREDIT,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.LINE_OF_CREDIT,
+					input_dict=ContractInputDict(
+						interest_rate=5.00,
+						maximum_principal_amount=120000.01,
+						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure(), # unused
+						borrowing_base_accounts_receivable_percentage=0.5,
+						borrowing_base_inventory_percentage=0.25,
+						borrowing_base_cash_percentage=0.75,
+					)
+				)
+			))
+
+			ebba = models.EbbaApplication(
+				company_id=company_id,
+				# application_month=10,
+				monthly_accounts_receivable=100000.0, # 100k
+				monthly_inventory=100000.0, #100k
+				monthly_cash=1000000.0, # 1M
+				status="approved",
+			)
+			session.add(ebba)
+			session.commit()
+			session.refresh(ebba)
+
+			company_settings = session \
+				.query(models.CompanySettings) \
+				.filter(models.CompanySettings.company_id == company_id) \
+				.first()
+
+			company_settings.active_ebba_application_id = ebba.id
+
+		# Expected Value:
+		#  ((100k * 0.5) / 100.0)
+		#  + ((100k * 0.25) / 100.0)
+		#  + ((1M * 0.75) / 100.0)
+		# = $8,250
+		tests: List[Dict] = [
+			{
+				'today': '10/1/2020',
+				'expected_loan_updates': [],
+				'populate_fn': populate_fn,
+				'expected_summary_update': {
+					'product_type': 'line_of_credit',
+					'total_limit': 120000.01,
+					'adjusted_total_limit': 8250,
+					'total_outstanding_principal': 0.0,
+					'total_outstanding_interest': 0.0,
+					'total_outstanding_fees': 0.0,
+					'total_principal_in_requested_state': 0.0,
+					'available_limit': 120000.01
+				}
+			}
+		]
+		for test in tests:
+			self._run_test(test)
+
+
+	def test_success_line_of_credit_without_borrowing_base(self) -> None:
+		def populate_fn(session: Any, company_id: str) -> None:
+			session.add(models.Contract(
+				company_id=company_id,
+				product_type=ProductType.LINE_OF_CREDIT,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.LINE_OF_CREDIT,
+					input_dict=ContractInputDict(
+						interest_rate=5.00,
+						maximum_principal_amount=120000.01,
+						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure(), # unused
+						borrowing_base_accounts_receivable_percentage=0.5,
+						borrowing_base_inventory_percentage=0.25,
+						borrowing_base_cash_percentage=0.75,
+					)
+				)
+			))
+
+		tests: List[Dict] = [
+			{
+				'today': '10/1/2020',
+				'expected_loan_updates': [],
+				'populate_fn': populate_fn,
+				'expected_summary_update': {
+					'product_type': 'line_of_credit',
+					'total_limit': 120000.01,
+					'adjusted_total_limit': 0.0,
+					'total_outstanding_principal': 0.0,
+					'total_outstanding_interest': 0.0,
+					'total_outstanding_fees': 0.0,
+					'total_principal_in_requested_state': 0.0,
+					'available_limit': 120000.01
+				}
+			}
+		]
+		for test in tests:
+			self._run_test(test)
+

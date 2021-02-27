@@ -6,7 +6,7 @@ from typing import Callable, List, Tuple, cast
 from bespoke import errors
 from bespoke.db import db_constants, models
 from bespoke.db.models import (ContractDict, CompanyDict, CompanySettingsDict, LoanDict,
-                               PaymentDict, TransactionDict, session_scope)
+							   PaymentDict, TransactionDict, EbbaApplicationDict, session_scope)
 from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
 
@@ -32,6 +32,8 @@ class Fetcher(object):
 		self._loans: List[LoanDict] = []
 		self._payments: List[PaymentDict] = []
 		self._transactions: List[TransactionDict] = []
+		self._ebba_applications: List[EbbaApplicationDict] = []
+		self._active_ebba_application: EbbaApplicationDict = None
 
 	def _fetch_contracts(self) -> Tuple[bool, errors.Error]:
 
@@ -109,6 +111,22 @@ class Fetcher(object):
 		return True, None
 
 
+	def _fetch_ebba_applications(self) -> Tuple[bool, errors.Error]:
+		with session_scope(self._session_maker) as session:
+			ebba_applications = cast(
+				List[models.EbbaApplication],
+				session.query(models.EbbaApplication).filter(
+					models.EbbaApplication.company_id == self._company_id
+				).all()
+			)
+			if not ebba_applications:
+				return True, None
+
+			self._ebba_applications = [e.as_dict() for e in ebba_applications]
+
+		return True, None
+
+
 	def fetch(self) -> Tuple[bool, errors.Error]:
 		_, err = self._fetch_contracts()
 		if err:
@@ -131,6 +149,23 @@ class Fetcher(object):
 		if err:
 			return None, err
 
+		_, err = self._fetch_ebba_applications()
+		if err:
+			return None, err
+
+		# Use the 'active_ebba_application' in CompanySettings to find the
+		# EbbaApplicationDict associated with that application. If this becomes
+		# problematically slow, we can author a new function that takes and
+		# application and just fetches that one from the database. This "find"
+		# operation is O(n) where n is the number of EbbaApplications
+		if self._ebba_applications and self._settings_dict:
+			active_id = self._settings_dict.get('active_ebba_application_id')
+			if active_id:
+				matching = [app for app in self._ebba_applications if app["id"] == active_id]
+				if len(matching) != 1:
+					return False, errors.Error(f"Failed to find ebba application with id '{active_id}'")
+				self._active_ebba_application = matching[0]
+
 		return True, None
 
 	def summary(self) -> str:
@@ -145,12 +180,14 @@ class Fetcher(object):
 
 	def get_financials(self) -> per_customer_types.CustomerFinancials:
 		return per_customer_types.CustomerFinancials(
-		  company_info=self._company_info,
-		  company_settings=self._settings_dict,
+			company_info=self._company_info,
+			company_settings=self._settings_dict,
 			financials=per_customer_types.Financials(
 				contracts=self._contracts,
 				loans=self._loans,
 				payments=self._payments,
-				transactions=self._transactions
+				transactions=self._transactions,
+				ebba_applications=self._ebba_applications,
+				active_ebba_application=self._active_ebba_application
 			)
 		)

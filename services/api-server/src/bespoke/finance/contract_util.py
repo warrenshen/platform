@@ -116,6 +116,9 @@ class Contract(object):
 	"""
 
 	def __init__(self, c: models.ContractDict, private: bool) -> None:
+		self.contract_id = c['id']
+		self._contract_dict = c
+		self._private = private
 		self._config = c['product_config']
 		self._is_populated = False
 		self._field_dicts: List[FieldDict] = []
@@ -273,6 +276,11 @@ class Contract(object):
 
 		return self._field_dicts
 
+
+	def as_loc_contract(self) -> 'LOCContract':
+		return LOCContract(self._contract_dict, self._private)
+
+
 	@staticmethod
 	def build(contract_dict: models.ContractDict, validate: bool) -> Tuple['Contract', errors.Error]:
 		"""
@@ -298,6 +306,46 @@ class Contract(object):
 
 		return contract, None
 
+
+class LOCContract(Contract):
+
+
+	def __init__(self, c: models.ContractDict, private: bool) -> None:
+		super(LOCContract, self).__init__(c, private)
+
+
+	def get_borrowing_base_accounts_receivable(self) -> Tuple[float, errors.Error]:
+		return self._get_float_value('borrowing_base_accounts_receivable_percentage')
+
+
+	def get_borrowing_base_inventory_percentage(self) -> Tuple[float, errors.Error]:
+		return self._get_float_value('borrowing_base_inventory_percentage')
+
+
+	def get_borrowing_base_cash_percentage(self) -> Tuple[float, errors.Error]:
+		return self._get_float_value('borrowing_base_cash_percentage')
+
+
+	# Based on https://github.com/bespoke-capital/platform/blob/3d0574e2d1198137ff089f02ddafe383708c0d0e/services/app/src/components/EbbaApplication/CreateEbbaApplicationModal.tsx#L44-L76
+	def compute_borrowing_base(self, ebba: models.EbbaApplicationDict) -> Tuple[float, errors.Error]:
+		accounts_receivable_percentage, err = self.get_borrowing_base_accounts_receivable()
+		if err:
+			return None, err
+
+		inventory_percentage, err = self.get_borrowing_base_inventory_percentage()
+		if err:
+			return None, err
+
+		cash_percentage, err = self.get_borrowing_base_cash_percentage()
+		if err:
+			return None, err
+
+		borrowing_base = \
+			((ebba['monthly_accounts_receivable'] * accounts_receivable_percentage) / 100.0) \
+			+ ((ebba['monthly_inventory'] * inventory_percentage) / 100.0) \
+			+ ((ebba['monthly_cash'] * cash_percentage) / 100.0)
+
+		return borrowing_base, None
 
 class ContractHelper(object):
 

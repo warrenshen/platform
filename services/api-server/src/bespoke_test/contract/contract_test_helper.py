@@ -10,7 +10,10 @@ ContractInputDict = TypedDict('ContractInputDict', {
 	'interest_rate': float,
 	'maximum_principal_amount': float,
 	'max_days_until_repayment': int,
-	'late_fee_structure': str
+	'late_fee_structure': str,
+	'borrowing_base_accounts_receivable_percentage': float,
+	'borrowing_base_inventory_percentage': float,
+	'borrowing_base_cash_percentage': float,
 })
 
 def create_contract_config(
@@ -35,8 +38,19 @@ def create_contract_config(
 		{
 			'internal_name': 'late_fee_structure',
 			'value': input_dict['late_fee_structure']
-		}
+		},
 	]
+
+	borrowing_base_fields = (
+		'borrowing_base_accounts_receivable_percentage',
+		'borrowing_base_inventory_percentage',
+		'borrowing_base_cash_percentage'
+	)
+
+	for field in borrowing_base_fields:
+		value = input_dict.get(field)
+		if value:
+			fields.append({'internal_name': field, 'value': value})
 
 	return {
 		'version': version_key,

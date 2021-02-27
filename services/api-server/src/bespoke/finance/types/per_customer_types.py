@@ -7,14 +7,16 @@ from typing import List
 
 from bespoke.db.models import (
 	ContractDict, CompanyDict, CompanySettingsDict,
-	LoanDict, TransactionDict, PaymentDict
+	LoanDict, TransactionDict, PaymentDict, EbbaApplicationDict
 )
 
 Financials = TypedDict('Financials', {
 	'contracts': List[ContractDict],
 	'loans': List[LoanDict],
 	'payments': List[PaymentDict],
-	'transactions': List[TransactionDict]
+	'transactions': List[TransactionDict],
+	'ebba_applications': List[EbbaApplicationDict],
+	'active_ebba_application': EbbaApplicationDict,
 })
 
 CompanyInfoDict = TypedDict('CompanyInfoDict', {

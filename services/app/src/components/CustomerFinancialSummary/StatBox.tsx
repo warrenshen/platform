@@ -7,8 +7,8 @@ import {
   Typography,
 } from "@material-ui/core";
 import ProgressBar from "components/Shared/ProgressBar";
-import { formatCurrency } from "lib/currency";
 import { FinancialSummaryFragment } from "generated/graphql";
+import { formatCurrency } from "lib/currency";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -39,8 +39,9 @@ function StatBox({ financialSummary }: Props) {
 
   if (financialSummary) {
     outstandingAmount =
-      financialSummary.total_limit - financialSummary.available_limit;
-    limitPercent = (100 * outstandingAmount) / financialSummary.total_limit;
+      financialSummary.adjusted_total_limit - financialSummary.available_limit;
+    limitPercent =
+      (100 * outstandingAmount) / financialSummary.adjusted_total_limit;
   }
 
   return (
@@ -49,7 +50,7 @@ function StatBox({ financialSummary }: Props) {
         <Box display="flex" flexDirection="column" p={2}>
           <Typography variant="h4">
             {financialSummary
-              ? formatCurrency(financialSummary.total_limit)
+              ? formatCurrency(financialSummary.adjusted_total_limit)
               : "TBD"}
           </Typography>
           <Typography variant="body1" color="textSecondary">

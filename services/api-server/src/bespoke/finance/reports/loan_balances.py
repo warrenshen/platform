@@ -26,7 +26,7 @@ from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
-from bespoke.db.db_constants import LoanStatusEnum
+from bespoke.db.db_constants import LoanStatusEnum, ProductType
 from bespoke.finance import contract_util
 from bespoke.finance import number_util
 from bespoke.finance.payments import payment_util
@@ -38,6 +38,7 @@ from bespoke.finance.fetchers import per_customer_fetcher
 SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 	'product_type': str,
 	'total_limit': float,
+	'adjusted_total_limit': float,
 	'total_outstanding_principal': float,
 	'total_outstanding_interest': float,
 	'total_outstanding_fees': float,
@@ -50,9 +51,11 @@ CustomerUpdateDict = TypedDict('CustomerUpdateDict', {
 	'summary_update': SummaryUpdateDict
 })
 
+
 def _get_summary_update(
 	contract_helper: contract_util.ContractHelper,
 	loan_updates: List[LoanUpdateDict],
+	active_ebba_application: models.EbbaApplicationDict,
 	today: datetime.date
 	) -> Tuple[SummaryUpdateDict, errors.Error]:
 	cur_contract, err = contract_helper.get_contract(today)
@@ -67,6 +70,23 @@ def _get_summary_update(
 	if err:
 		return None, err
 
+	adjusted_total_limit = maximum_principal_limit
+
+	# The adjusted_total_limit for line of credit contracts uses the borrowing
+	# base as its adjusted_total_limit
+	if product_type == ProductType.LINE_OF_CREDIT:
+		if active_ebba_application:
+			borrowing_base, err = cur_contract.as_loc_contract().compute_borrowing_base(active_ebba_application)
+			if err:
+				logging.error(
+					f"Failed computing borrowing base for contract '{cur_contract.contract_id}' and ebba application '{active_ebba_application['id']}'")
+				return None, err
+			adjusted_total_limit = borrowing_base
+		else:
+			adjusted_total_limit = 0.0
+			logging.warning(
+				f"Company does not have an active borrowing base for contract '{cur_contract.contract_id}'")
+
 	total_outstanding_principal = 0.0
 	total_outstanding_interest = 0.0
 	total_outstanding_fees = 0.0
@@ -79,6 +99,7 @@ def _get_summary_update(
 	return SummaryUpdateDict(
 		product_type=product_type,
 		total_limit=maximum_principal_limit,
+		adjusted_total_limit=adjusted_total_limit,
 		total_outstanding_principal=total_outstanding_principal,
 		total_outstanding_interest=total_outstanding_interest,
 		total_outstanding_fees=total_outstanding_fees,
@@ -148,7 +169,10 @@ class CustomerBalance(object):
 		if all_errors:
 			raise Exception('Will not proceed with updates because there was more than 1 error during loan balance updating')
 
-		summary_update, err = _get_summary_update(contract_helper, loan_update_dicts, today)
+		summary_update, err = _get_summary_update(contract_helper,
+			loan_update_dicts,
+			financials.get('active_ebba_application'),
+			today)
 		if err:
 			return None, err
 
@@ -202,6 +226,7 @@ class CustomerBalance(object):
 			summary_update = customer_update['summary_update']
 
 			financial_summary.total_limit = decimal.Decimal(summary_update['total_limit'])
+			financial_summary.adjusted_total_limit = decimal.Decimal(summary_update['adjusted_total_limit'])
 			financial_summary.total_outstanding_principal = decimal.Decimal(summary_update['total_outstanding_principal'])
 			financial_summary.total_outstanding_interest = decimal.Decimal(summary_update['total_outstanding_interest'])
 			financial_summary.total_outstanding_fees = decimal.Decimal(summary_update['total_outstanding_fees'])

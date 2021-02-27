@@ -86,6 +86,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 		test: Dict = {
 			'financial_summary': models.FinancialSummary(
 				total_limit=decimal.Decimal(200.0),
+				adjusted_total_limit=decimal.Decimal(200.0),
 				total_outstanding_principal=decimal.Decimal(0.0),
 				total_outstanding_interest=decimal.Decimal(0.0), # unused
 				total_outstanding_fees=decimal.Decimal(0.0), # unused
@@ -104,6 +105,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 		test: Dict = {
 			'financial_summary': models.FinancialSummary(
 				total_limit=decimal.Decimal(200.0),
+				adjusted_total_limit=decimal.Decimal(200.0),
 				total_outstanding_principal=decimal.Decimal(0.0),
 				total_outstanding_interest=decimal.Decimal(0.0), # unused
 				total_outstanding_fees=decimal.Decimal(0.0), # unused
@@ -157,6 +159,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 		test: Dict = {
 			'financial_summary': models.FinancialSummary(
 				total_limit=decimal.Decimal(1000.0),
+				adjusted_total_limit=decimal.Decimal(1000.0),
 				total_outstanding_principal=decimal.Decimal(0.0),
 				total_outstanding_interest=decimal.Decimal(0.0), # unused
 				total_outstanding_fees=decimal.Decimal(0.0), # unused
@@ -183,6 +186,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 		test: Dict = {
 			'financial_summary': models.FinancialSummary(
 				total_limit=decimal.Decimal(200.0),
+				adjusted_total_limit=decimal.Decimal(200.0),
 				total_outstanding_principal=decimal.Decimal(0.0),
 				total_outstanding_interest=decimal.Decimal(0.0), # unused
 				total_outstanding_fees=decimal.Decimal(0.0), # unused
@@ -223,6 +227,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 		test: Dict = {
 			'financial_summary': models.FinancialSummary(
 				total_limit=decimal.Decimal(200.0),
+				adjusted_total_limit=decimal.Decimal(200.0),
 				total_outstanding_principal=decimal.Decimal(0.0),
 				total_outstanding_interest=decimal.Decimal(0.0), # unused
 				total_outstanding_fees=decimal.Decimal(0.0), # unused

@@ -97,7 +97,8 @@ class Company(Base):
 
 CompanySettingsDict = TypedDict('CompanySettingsDict', {
 	'id': str,
-	'vendor_agreement_docusign_template': str
+	'vendor_agreement_docusign_template': str,
+	'active_ebba_application_id': str,
 })
 
 class CompanySettings(Base):
@@ -111,7 +112,8 @@ class CompanySettings(Base):
 	def as_dict(self) -> CompanySettingsDict:
 		return CompanySettingsDict(
 			id=str(self.id),
-			vendor_agreement_docusign_template=self.vendor_agreement_docusign_template
+			vendor_agreement_docusign_template=self.vendor_agreement_docusign_template,
+			active_ebba_application_id=str(self.active_ebba_application_id),
 		)
 
 ContractDict = TypedDict('ContractDict', {
@@ -386,6 +388,7 @@ class BankFinancialSummary(Base):
 	total_outstanding_fees = Column(Numeric, nullable=False)
 	total_principal_in_requested_state = Column(Numeric, nullable=False)
 	available_limit = Column(Numeric, nullable=False)
+	adjusted_total_limit = Column(Numeric, nullable=False)
 
 class FinancialSummary(Base):
 	__tablename__ = 'financial_summaries'
@@ -398,6 +401,7 @@ class FinancialSummary(Base):
 	total_outstanding_fees = Column(Numeric, nullable=False)
 	total_principal_in_requested_state = Column(Numeric, nullable=False)
 	available_limit = Column(Numeric, nullable=False)
+	adjusted_total_limit = Column(Numeric, nullable=False)
 
 ### End of financial tables
 
@@ -446,6 +450,19 @@ class File(Base):
 	updated_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 
+EbbaApplicationDict = TypedDict('EbbaApplicationDict', {
+	'id': str,
+	'company_id': str,
+	'application_month': datetime.date,
+	'monthly_accounts_receivable': float,
+	'monthly_inventory': float,
+	'monthly_cash': float,
+	'status': str,
+	'requested_at': datetime.datetime,
+	'approved_at': datetime.datetime,
+	'rejected_at': datetime.datetime,
+	'rejection_note': str
+})
 class EbbaApplication(Base):
 	__tablename__ = 'ebba_applications'
 
@@ -465,6 +482,21 @@ class EbbaApplication(Base):
 		'Company',
 		foreign_keys=[company_id]
 	)
+
+	def as_dict(self) -> EbbaApplicationDict:
+		return EbbaApplicationDict(
+			id=str(self.id),
+			company_id=str(self.id),
+			application_month=self.application_month,
+			monthly_accounts_receivable=float(self.monthly_accounts_receivable),
+			monthly_inventory=float(self.monthly_inventory),
+			monthly_cash=float(self.monthly_cash),
+			status=self.status,
+			requested_at=self.requested_at,
+			approved_at=self.approved_at,
+			rejected_at=self.rejected_at,
+			rejection_note=self.rejection_note,
+		)
 
 
 def get_db_url() -> str:
