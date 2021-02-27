@@ -225,6 +225,8 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 		company_id = seed.get_company_id('company_admin', index=0)
 
 		with session_scope(self.session_maker) as session:
+			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=0), ProductType.INVENTORY_FINANCING)
+
 			count = session.query(models.Company).count()
 			self.assertEqual(count, 4)
 
@@ -238,3 +240,13 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 		company_dicts = reports_util.list_companies_that_need_balances_recomputed(self.session_maker)
 		self.assertEqual(len(company_dicts), 1)
 		self.assertEqual(company_dicts[0]["id"], str(company_id))
+
+		descriptive_errors, fatal_error = reports_util.run_customer_balances_for_companies_that_need_recompute(
+			self.session_maker, datetime.date.today())
+
+		self.assertIsNone(fatal_error)
+		self.assertEqual(len(descriptive_errors), 0)
+
+		company_dicts = reports_util.list_companies_that_need_balances_recomputed(self.session_maker)
+		self.assertEqual(len(company_dicts), 0)
+

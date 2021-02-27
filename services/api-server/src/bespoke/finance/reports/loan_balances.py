@@ -42,7 +42,7 @@ SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 	'total_outstanding_interest': float,
 	'total_outstanding_fees': float,
 	'total_principal_in_requested_state': float,
-	'available_limit': float                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+	'available_limit': float
 })
 
 CustomerUpdateDict = TypedDict('CustomerUpdateDict', {
@@ -52,7 +52,7 @@ CustomerUpdateDict = TypedDict('CustomerUpdateDict', {
 
 def _get_summary_update(
 	contract_helper: contract_util.ContractHelper,
-	loan_updates: List[LoanUpdateDict], 
+	loan_updates: List[LoanUpdateDict],
 	today: datetime.date
 	) -> Tuple[SummaryUpdateDict, errors.Error]:
 	cur_contract, err = contract_helper.get_contract(today)
@@ -122,7 +122,7 @@ class CustomerBalance(object):
 
 		for loan in financials['loans']:
 			transactions_for_loan = loan_calculator.get_transactions_for_loan(loan['id'], financials['transactions'])
-			
+
 			if loan['status'] == LoanStatusEnum.APPROVAL_REQUESTED:
 				total_principal_in_requested_state += loan['amount']
 
@@ -201,15 +201,19 @@ class CustomerBalance(object):
 
 			summary_update = customer_update['summary_update']
 
-			financial_summary.total_limit = decimal.Decimal(summary_update['total_limit']) 
-			financial_summary.total_outstanding_principal = decimal.Decimal(summary_update['total_outstanding_principal']) 
-			financial_summary.total_outstanding_interest = decimal.Decimal(summary_update['total_outstanding_interest']) 
+			financial_summary.total_limit = decimal.Decimal(summary_update['total_limit'])
+			financial_summary.total_outstanding_principal = decimal.Decimal(summary_update['total_outstanding_principal'])
+			financial_summary.total_outstanding_interest = decimal.Decimal(summary_update['total_outstanding_interest'])
 			financial_summary.total_outstanding_fees = decimal.Decimal(summary_update['total_outstanding_fees'])
-			financial_summary.total_principal_in_requested_state = decimal.Decimal(summary_update['total_principal_in_requested_state']) 
-			financial_summary.available_limit = decimal.Decimal(summary_update['available_limit']) 
+			financial_summary.total_principal_in_requested_state = decimal.Decimal(summary_update['total_principal_in_requested_state'])
+			financial_summary.available_limit = decimal.Decimal(summary_update['available_limit'])
 
 			if should_add_summary:
 				session.add(financial_summary)
+
+			# The balance was updated so we no longer need to "recompute" it
+			company = session.query(models.Company).get(self._company_id)
+			company.needs_balance_recomputed = False
 
 			return True, None
 
