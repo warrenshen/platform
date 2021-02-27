@@ -12097,7 +12097,7 @@ export type GetCompanyForCustomerOverviewQuery = {
         Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
       >;
       outstanding_loans: Array<
-        {
+        Pick<Loans, "id"> & {
           line_of_credit?: Maybe<
             Pick<LineOfCredits, "id"> & LineOfCreditFragment
           >;
@@ -12670,6 +12670,7 @@ export type ContactFragment = Pick<
 export type CustomerForBankFragment = Pick<
   Companies,
   | "id"
+  | "identifier"
   | "name"
   | "employer_identification_number"
   | "dba_name"
@@ -13044,6 +13045,7 @@ export const ContactFragmentDoc = gql`
 export const CustomerForBankFragmentDoc = gql`
   fragment CustomerForBank on companies {
     id
+    identifier
     name
     employer_identification_number
     dba_name
@@ -16098,6 +16100,7 @@ export const GetCompanyForCustomerOverviewDocument = gql`
           ]
         }
       ) {
+        id
         ...LoanLimited
         line_of_credit {
           id

@@ -19,24 +19,24 @@ interface Props {
   pager?: boolean;
   isMaturityVisible?: boolean; // Whether maturity date, principal balance, interest, and fees are visible.
   isMiniTable?: boolean;
+  isMultiSelectEnabled?: boolean;
+  isViewNotesEnabled?: boolean;
   loans: LoanFragment[];
   selectedLoanIds?: Loans["id"][];
   actionItems?: DataGridActionItem[];
   handleSelectLoans?: (loans: LoanFragment[]) => void;
-  isMultiSelectEnabled?: boolean;
-  isViewNotesEnabled?: boolean;
 }
 
 function PurchaseOrderLoansDataGrid({
   pager = true,
   isMaturityVisible = true,
   isMiniTable = false,
+  isMultiSelectEnabled = false,
+  isViewNotesEnabled = false,
   loans,
   selectedLoanIds = [],
   actionItems = [],
   handleSelectLoans = () => {},
-  isMultiSelectEnabled,
-  isViewNotesEnabled,
 }: Props) {
   const rows = loans;
 

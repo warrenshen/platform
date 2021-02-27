@@ -16,6 +16,7 @@ query GetCompanyForCustomerOverview(
         ]
       }
     ) {
+      id
       ...LoanLimited
       line_of_credit {
         id

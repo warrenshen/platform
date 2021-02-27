@@ -6,11 +6,11 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { ProductTypeEnum, useCustomersForBankQuery } from "generated/graphql";
+import { Action, check } from "lib/auth/rbac-rules";
 import { ProductTypeToLabel } from "lib/enum";
 import { bankRoutes } from "lib/routes";
 import { sortBy } from "lodash";
-import { Action, check } from "lib/auth/rbac-rules";
-import { useState, useContext } from "react";
+import { useContext, useState } from "react";
 import { useRouteMatch } from "react-router-dom";
 
 function BankCustomersPage() {
@@ -49,7 +49,7 @@ function BankCustomersPage() {
       ? ProductTypeToLabel[data.contract.product_type as ProductTypeEnum]
       : "Product Type TBD";
 
-  const adressCellRenderer = ({ data }: { data: any }) =>
+  const addressCellRenderer = ({ data }: { data: any }) =>
     `${data.address}${data.city ? `, ${data.city}, ` : ""}${
       data.state ? `, ${data.state}` : ""
     }`;
@@ -61,13 +61,17 @@ function BankCustomersPage() {
       cellRender: customerNameCellRenderer,
     },
     {
+      dataField: "identifier",
+      caption: "Identifier",
+    },
+    {
       dataField: "contract.product_type",
       caption: "Product Type",
       cellRender: productTypeCellRenderer,
     },
     {
       caption: "Address",
-      cellRender: adressCellRenderer,
+      cellRender: addressCellRenderer,
     },
     {
       dataField: "phone_number",

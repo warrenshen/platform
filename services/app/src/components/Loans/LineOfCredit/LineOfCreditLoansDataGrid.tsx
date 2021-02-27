@@ -14,22 +14,22 @@ import React from "react";
 
 interface Props {
   isMaturityVisible?: boolean; // Whether maturity date, principal balance, interest, and fees are visible.
+  isMultiSelectEnabled?: boolean;
+  isViewNotesEnabled?: boolean;
   loans: LoanFragment[];
   selectedLoanIds?: Loans["id"][];
   actionItems?: DataGridActionItem[];
   handleSelectLoans?: (loans: LoanFragment[]) => void;
-  isMultiSelectEnabled?: boolean;
-  isViewNotesEnabled?: boolean;
 }
 
 function LineOfCreditLoansDataGrid({
   isMaturityVisible = true,
+  isMultiSelectEnabled,
+  isViewNotesEnabled,
   loans,
   selectedLoanIds = [],
   actionItems = [],
   handleSelectLoans = () => {},
-  isMultiSelectEnabled,
-  isViewNotesEnabled,
 }: Props) {
   const rows = loans;
 

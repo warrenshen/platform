@@ -19,6 +19,7 @@ fragment Contact on users {
 
 fragment CustomerForBank on companies {
   id
+  identifier
   name
   employer_identification_number
   dba_name

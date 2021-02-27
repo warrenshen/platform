@@ -28,22 +28,22 @@ function PolymorphicLoansDataGrid({
     return (
       <PurchaseOrderLoansDataGrid
         isMaturityVisible={isMaturityVisible}
+        isMultiSelectEnabled={isMultiSelectEnabled}
+        isViewNotesEnabled={isViewNotesEnabled}
         loans={loans}
         selectedLoanIds={selectedLoanIds}
         actionItems={actionItems}
         handleSelectLoans={handleSelectLoans}
-        isMultiSelectEnabled={isMultiSelectEnabled}
-        isViewNotesEnabled={isViewNotesEnabled}
       />
     );
   } else if (productType === ProductTypeEnum.LineOfCredit) {
     return (
       <LineOfCreditLoansDataGrid
         isMaturityVisible={isMaturityVisible}
-        loans={loans}
-        actionItems={actionItems}
         isMultiSelectEnabled={isMultiSelectEnabled}
         isViewNotesEnabled={isViewNotesEnabled}
+        loans={loans}
+        actionItems={actionItems}
       />
     );
   } else {
