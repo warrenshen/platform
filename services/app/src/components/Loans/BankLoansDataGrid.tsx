@@ -19,35 +19,35 @@ import {
 } from "generated/graphql";
 import { AllLoanStatuses, LoanTypeToLabel } from "lib/enum";
 import { createLoanPublicIdentifier } from "lib/loans";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 interface Props {
   isMaturityVisible: boolean;
+  isMultiSelectEnabled?: boolean;
   fullView: boolean;
   loansPastDue: boolean;
   matureDays?: number;
   filterByStatus?: RequestStatusEnum;
   loans: LoanFragment[];
-  selectedLoanIds?: Loans["id"][];
   actionItems?: DataGridActionItem[];
+  selectedLoanIds?: Loans["id"][];
   handleSelectLoans?: (loans: LoanFragment[]) => void;
-  isMultiSelectEnabled?: boolean;
 }
 
 const getMaturityDate = (rowData: any) => new Date(rowData.maturity_date);
 
 function BankLoansDataGrid({
   isMaturityVisible,
+  isMultiSelectEnabled,
   fullView,
   loansPastDue,
   matureDays = 0,
   filterByStatus,
   loans,
-  selectedLoanIds = [],
-  actionItems = [],
-  handleSelectLoans = () => {},
-  isMultiSelectEnabled,
+  actionItems,
+  selectedLoanIds,
+  handleSelectLoans,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = loans;
@@ -99,7 +99,7 @@ function BankLoansDataGrid({
       ),
     },
     {
-      visible: actionItems.length > 0,
+      visible: !!actionItems && actionItems.length > 0,
       dataField: "action",
       caption: "Action",
       alignment: "center",
@@ -207,6 +207,13 @@ function BankLoansDataGrid({
     },
   ];
 
+  const handleSelectionChanged = useMemo(
+    () => ({ selectedRowsData }: any) =>
+      handleSelectLoans &&
+      handleSelectLoans(selectedRowsData as LoanFragment[]),
+    [handleSelectLoans]
+  );
+
   return (
     <ControlledDataGrid
       ref={(ref) => setDataGrid(ref)}
@@ -218,9 +225,7 @@ function BankLoansDataGrid({
       dataSource={rows}
       columns={columns}
       selectedRowKeys={selectedLoanIds}
-      onSelectionChanged={({ selectedRowsData }: any) =>
-        handleSelectLoans(selectedRowsData as LoanFragment[])
-      }
+      onSelectionChanged={handleSelectionChanged}
     />
   );
 }

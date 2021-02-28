@@ -2,7 +2,6 @@ import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
-import { DataGridActionItem } from "components/Shared/DataGrid/DataGridActionMenu";
 import {
   GetLatestBankFinancialSummariesQuery,
   ProductTypeEnum,
@@ -11,13 +10,9 @@ import { ProductTypeToLabel } from "lib/enum";
 
 interface Props {
   bankFinancialSummaries: GetLatestBankFinancialSummariesQuery["bank_financial_summaries"];
-  actionItems?: DataGridActionItem[];
 }
 
-function BankFinancialSummariesDataGrid({
-  bankFinancialSummaries,
-  actionItems = [],
-}: Props) {
+function BankFinancialSummariesDataGrid({ bankFinancialSummaries }: Props) {
   const rows = bankFinancialSummaries;
 
   const columns = [

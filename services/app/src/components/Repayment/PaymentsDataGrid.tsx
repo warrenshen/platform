@@ -25,7 +25,7 @@ function PaymentsDataGrid({
   payments,
   customerSearchQuery,
   onClickCustomerName,
-  actionItems = [],
+  actionItems,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = payments;
@@ -56,7 +56,7 @@ function PaymentsDataGrid({
       ),
     },
     {
-      visible: actionItems.length > 0,
+      visible: !!actionItems && actionItems.length > 0,
       dataField: "action",
       caption: "Action",
       alignment: "center",

@@ -28,7 +28,7 @@ function LoansDataGrid({
   isStatusVisible = true,
   customerSearchQuery = "",
   loans,
-  actionItems = [],
+  actionItems,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = loans;
@@ -59,7 +59,7 @@ function LoansDataGrid({
       ),
     },
     {
-      visible: actionItems.length > 0,
+      visible: !!actionItems && actionItems.length > 0,
       dataField: "action",
       caption: "Action",
       alignment: "center",

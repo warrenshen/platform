@@ -22,7 +22,6 @@ interface DataGridProps {
   dataSource?: any[];
   columns: IColumnProps[];
   pager?: boolean;
-  selectedRowKeys?: any[]; // can be controlled
   pageIndex?: number; // can be controlled
   pageSize?: number; // can be controlled
   filtering?: {
@@ -34,6 +33,7 @@ interface DataGridProps {
   allowedPageSizes?: number[];
   select?: boolean;
   isSortingDisabled?: boolean;
+  selectedRowKeys?: any[]; // can be controlled
   onSelectionChanged?: (params: {}) => void; // callback
   onPageChanged?: (page: number) => void; // callback
   onSortingChanged?: (index: number, order: "asc" | "desc") => void; // callback
@@ -52,9 +52,9 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
       pagerSizeSelector = true,
       filtering,
       select,
-      selectedRowKeys = [],
       isSortingDisabled = false,
       sortBy,
+      selectedRowKeys,
       onSelectionChanged,
       onPageChanged,
       onSortingChanged,
@@ -88,7 +88,8 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
     }, [_ref]);
 
     useEffect(() => {
-      _dataGridInstance && _dataGridInstance.selectRows(selectedRowKeys, false);
+      _dataGridInstance &&
+        _dataGridInstance.selectRows(selectedRowKeys || [], false);
     }, [_dataGridInstance, selectedRowKeys]);
 
     useEffect(() => {

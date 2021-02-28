@@ -21,8 +21,8 @@ function PolymorphicLoansDataGrid({
   productType,
   loans,
   actionItems,
-  selectedLoanIds = [],
-  handleSelectLoans = () => {},
+  selectedLoanIds,
+  handleSelectLoans,
 }: Props) {
   if (productType === ProductTypeEnum.InventoryFinancing) {
     return (

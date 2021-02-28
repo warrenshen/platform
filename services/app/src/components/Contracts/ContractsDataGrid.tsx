@@ -2,21 +2,15 @@ import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import ContractDrawerLauncher from "components/Contract/ContractDrawerLauncher";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import { DataGridActionItem } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { ContractFragment } from "generated/graphql";
 
 interface Props {
   isCompanyVisible?: boolean;
   contracts: ContractFragment[];
-  actionItems?: DataGridActionItem[];
 }
 
-function ContractsDataGrid({
-  isCompanyVisible = true,
-  contracts,
-  actionItems = [],
-}: Props) {
+function ContractsDataGrid({ isCompanyVisible = true, contracts }: Props) {
   const rows = contracts;
 
   const columns = [
