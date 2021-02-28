@@ -4,18 +4,20 @@ import DataGrid, {
   IColumnProps,
   Pager,
   Paging,
-  Sorting,
   Selection,
+  Sorting,
 } from "devextreme-react/data-grid";
 import DataSource from "devextreme/data/data_source";
 import {
   forwardRef,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useMemo,
   useRef,
   useState,
 } from "react";
+
 interface DataGridProps {
   dataSource?: any[];
   columns: IColumnProps[];
@@ -93,25 +95,28 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
       setPageIndex(pageIndex);
     }, [pageIndex]);
 
-    const onOptionChanged = (e: any): void => {
-      const { fullName, value } = e;
-      if (fullName === "paging.pageSize") {
-        setPageSize(value);
-        setPageIndex(0);
-        if (onPageChanged) onPageChanged(value);
-      }
-      if (fullName === "paging.pageIndex") {
-        setPageIndex(value);
-      }
-      if (fullName.endsWith("sortOrder")) {
-        const index = fullName.match(/(?<=\[).+?(?=\])/g)[0];
-        if (onSortingChanged) onSortingChanged(index, value);
-      }
-      if (fullName.endsWith("filterValue")) {
-        const index = fullName.match(/(?<=\[).+?(?=\])/g)[0];
-        if (onFilteringChanged) onFilteringChanged(index, value);
-      }
-    };
+    const onOptionChanged = useCallback(
+      () => (e: any): void => {
+        const { fullName, value } = e;
+        if (fullName === "paging.pageSize") {
+          setPageSize(value);
+          setPageIndex(0);
+          if (onPageChanged) onPageChanged(value);
+        }
+        if (fullName === "paging.pageIndex") {
+          setPageIndex(value);
+        }
+        if (fullName.endsWith("sortOrder")) {
+          const index = fullName.match(/(?<=\[).+?(?=\])/g)[0];
+          if (onSortingChanged) onSortingChanged(index, value);
+        }
+        if (fullName.endsWith("filterValue")) {
+          const index = fullName.match(/(?<=\[).+?(?=\])/g)[0];
+          if (onFilteringChanged) onFilteringChanged(index, value);
+        }
+      },
+      [onFilteringChanged, onPageChanged, onSortingChanged]
+    );
 
     // Note: it is ok that we use `index` as the key for the <Column>
     // element below because we do not support re-ordering columns or

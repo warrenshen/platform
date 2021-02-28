@@ -9,20 +9,20 @@ interface Props {
   isViewNotesEnabled?: boolean;
   productType: ProductTypeEnum | null;
   loans: LoanFragment[];
-  selectedLoanIds?: Loans["id"][];
   actionItems?: DataGridActionItem[];
+  selectedLoanIds?: Loans["id"][];
   handleSelectLoans?: (loans: LoanFragment[]) => void;
 }
 
 function PolymorphicLoansDataGrid({
   isMaturityVisible = true,
-  productType,
-  loans,
-  selectedLoanIds = [],
-  actionItems = [],
-  handleSelectLoans = () => {},
   isMultiSelectEnabled,
   isViewNotesEnabled,
+  productType,
+  loans,
+  actionItems,
+  selectedLoanIds = [],
+  handleSelectLoans = () => {},
 }: Props) {
   if (productType === ProductTypeEnum.InventoryFinancing) {
     return (
@@ -31,8 +31,8 @@ function PolymorphicLoansDataGrid({
         isMultiSelectEnabled={isMultiSelectEnabled}
         isViewNotesEnabled={isViewNotesEnabled}
         loans={loans}
-        selectedLoanIds={selectedLoanIds}
         actionItems={actionItems}
+        selectedLoanIds={selectedLoanIds}
         handleSelectLoans={handleSelectLoans}
       />
     );
@@ -44,6 +44,8 @@ function PolymorphicLoansDataGrid({
         isViewNotesEnabled={isViewNotesEnabled}
         loans={loans}
         actionItems={actionItems}
+        selectedLoanIds={selectedLoanIds}
+        handleSelectLoans={handleSelectLoans}
       />
     );
   } else {

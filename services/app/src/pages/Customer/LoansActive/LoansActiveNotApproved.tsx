@@ -1,18 +1,17 @@
-import {
-  Box,
-  Button,
-  createStyles,
-  makeStyles,
-  Theme,
-} from "@material-ui/core";
+import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
 import CreateUpdatePolymorphicLoanModal from "components/Loan/CreateUpdatePolymorphicLoanModal";
 import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
 import Can from "components/Shared/Can";
+import ModalButton from "components/Shared/Modal/ModalButton";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { GetActiveLoansForCompanyQuery } from "generated/graphql";
+import {
+  GetActiveLoansForCompanyQuery,
+  LoanFragment,
+  Loans,
+} from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { ActionType } from "lib/enum";
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -44,49 +43,68 @@ function LoansActiveNotApproved({ data }: Props) {
   } = useContext(CurrentUserContext);
 
   const company = data?.companies_by_pk;
-  const loans = (company?.loans || []).filter((loan) => {
-    return loan.approved_at ? false : true;
-  });
+  const loans = useMemo(
+    () =>
+      (company?.loans || []).filter((loan) => {
+        return loan.approved_at ? false : true;
+      }),
+    [company]
+  );
   const financialSummary = company?.financial_summary || null;
 
   const canCreateUpdateNewLoan =
     financialSummary?.available_limit && financialSummary?.available_limit > 0;
 
   // State for modal(s).
-  const [isCreateUpdateModalOpen, setIsCreateUpdateModalOpen] = useState(false);
-  const [targetLoanId, setTargetLoanId] = useState("");
+  const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"][]>([]);
 
-  const handleEditPurchaseOrderLoan = (loanId: string) => {
-    setTargetLoanId(loanId);
-    setIsCreateUpdateModalOpen(true);
-  };
+  const handleSelectLoans = useMemo(
+    () => (loans: LoanFragment[]) =>
+      setSelectedLoanIds(loans.map((loan) => loan.id)),
+    [setSelectedLoanIds]
+  );
 
   return (
     <Box className={classes.container}>
       <Box display="flex" flexDirection="row-reverse">
-        {isCreateUpdateModalOpen && (
-          <CreateUpdatePolymorphicLoanModal
-            productType={productType}
-            actionType={
-              targetLoanId === "" ? ActionType.New : ActionType.Update
-            }
-            artifactId={null}
-            loanId={targetLoanId}
-            handleClose={() => {
-              setIsCreateUpdateModalOpen(false);
-              setTargetLoanId("");
-            }}
-          />
-        )}
         <Can perform={Action.AddPurchaseOrders}>
-          <Button
-            disabled={!canCreateUpdateNewLoan}
-            variant="contained"
-            color="primary"
-            onClick={() => setIsCreateUpdateModalOpen(true)}
-          >
-            Request New Loan
-          </Button>
+          <ModalButton
+            isDisabled={!canCreateUpdateNewLoan || selectedLoanIds.length !== 0}
+            label={"Request New Loan"}
+            modal={({ handleClose }) => (
+              <CreateUpdatePolymorphicLoanModal
+                productType={productType}
+                actionType={ActionType.New}
+                artifactId={null}
+                loanId={null}
+                handleClose={() => {
+                  // TODO: refetch.
+                  handleClose();
+                }}
+              />
+            )}
+          />
+        </Can>
+        <Can perform={Action.EditPurchaseOrderLoan}>
+          <Box mr={2}>
+            <ModalButton
+              isDisabled={selectedLoanIds.length !== 1}
+              label={"Edit Loan"}
+              modal={({ handleClose }) => (
+                <CreateUpdatePolymorphicLoanModal
+                  productType={productType}
+                  actionType={ActionType.Update}
+                  artifactId={null}
+                  loanId={selectedLoanIds[0]}
+                  handleClose={() => {
+                    // TODO: refetch.
+                    handleClose();
+                    setSelectedLoanIds([]);
+                  }}
+                />
+              )}
+            />
+          </Box>
         </Can>
       </Box>
       <Box className={classes.sectionSpace} />
@@ -97,18 +115,8 @@ function LoansActiveNotApproved({ data }: Props) {
           isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
           productType={productType}
           loans={loans}
-          actionItems={
-            check(role, Action.EditPurchaseOrderLoan)
-              ? [
-                  {
-                    key: "edit-purchase-order-loan",
-                    label: "Edit",
-                    handleClick: (params) =>
-                      handleEditPurchaseOrderLoan(params.row.data.id as string),
-                  },
-                ]
-              : []
-          }
+          selectedLoanIds={selectedLoanIds}
+          handleSelectLoans={handleSelectLoans}
         />
       </Box>
     </Box>

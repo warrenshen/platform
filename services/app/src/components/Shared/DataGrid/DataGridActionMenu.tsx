@@ -11,7 +11,7 @@ export type DataGridActionItem = {
 
 interface Props {
   params: ValueFormatterParams;
-  actionItems: DataGridActionItem[];
+  actionItems?: DataGridActionItem[];
 }
 
 function DataGridActionMenu({ params, actionItems }: Props) {
@@ -28,7 +28,7 @@ function DataGridActionMenu({ params, actionItems }: Props) {
   return (
     <Box>
       <IconButton onClick={handleClick}>
-        <ArrowDropDownIcon></ArrowDropDownIcon>
+        <ArrowDropDownIcon />
       </IconButton>
       <Menu
         anchorEl={anchorEl}
@@ -36,17 +36,18 @@ function DataGridActionMenu({ params, actionItems }: Props) {
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        {actionItems.map((actionItem) => (
-          <MenuItem
-            key={actionItem.key}
-            onClick={() => {
-              actionItem.handleClick(params);
-              handleClose();
-            }}
-          >
-            {actionItem.label}
-          </MenuItem>
-        ))}
+        {!!actionItems &&
+          actionItems.map((actionItem) => (
+            <MenuItem
+              key={actionItem.key}
+              onClick={() => {
+                actionItem.handleClick(params);
+                handleClose();
+              }}
+            >
+              {actionItem.label}
+            </MenuItem>
+          ))}
       </Menu>
     </Box>
   );

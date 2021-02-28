@@ -13,7 +13,7 @@ import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { LoanFragment, Loans } from "generated/graphql";
 import { PaymentStatusEnum } from "lib/enum";
 import { createLoanPublicIdentifier } from "lib/loans";
-import React from "react";
+import { useMemo } from "react";
 
 interface Props {
   pager?: boolean;
@@ -22,8 +22,8 @@ interface Props {
   isMultiSelectEnabled?: boolean;
   isViewNotesEnabled?: boolean;
   loans: LoanFragment[];
-  selectedLoanIds?: Loans["id"][];
   actionItems?: DataGridActionItem[];
+  selectedLoanIds?: Loans["id"][];
   handleSelectLoans?: (loans: LoanFragment[]) => void;
 }
 
@@ -34,12 +34,11 @@ function PurchaseOrderLoansDataGrid({
   isMultiSelectEnabled = false,
   isViewNotesEnabled = false,
   loans,
-  selectedLoanIds = [],
-  actionItems = [],
-  handleSelectLoans = () => {},
+  actionItems,
+  selectedLoanIds,
+  handleSelectLoans,
 }: Props) {
   const rows = loans;
-
   const columns = [
     {
       dataField: "id",
@@ -53,7 +52,7 @@ function PurchaseOrderLoansDataGrid({
       ),
     },
     {
-      visible: !isMiniTable && actionItems.length > 0,
+      visible: !isMiniTable && !!actionItems && actionItems.length > 0,
       dataField: "action",
       caption: "Action",
       alignment: "center",
@@ -168,6 +167,13 @@ function PurchaseOrderLoansDataGrid({
     },
   ];
 
+  const handleSelectionChanged = useMemo(
+    () => ({ selectedRowsData }: any) =>
+      handleSelectLoans &&
+      handleSelectLoans(selectedRowsData as LoanFragment[]),
+    [handleSelectLoans]
+  );
+
   return (
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
       <ControlledDataGrid
@@ -177,9 +183,7 @@ function PurchaseOrderLoansDataGrid({
         dataSource={rows}
         columns={columns}
         selectedRowKeys={selectedLoanIds}
-        onSelectionChanged={({ selectedRowsData }: any) =>
-          handleSelectLoans(selectedRowsData as LoanFragment[])
-        }
+        onSelectionChanged={handleSelectionChanged}
       />
     </Box>
   );
