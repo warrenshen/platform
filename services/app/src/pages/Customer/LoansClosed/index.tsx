@@ -10,6 +10,7 @@ import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoanTypeEnum,
+  ProductTypeEnum,
   useGetClosedLoansForCompanyQuery,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
@@ -43,12 +44,15 @@ function CustomerLoansClosedPage() {
   const { data, error } = useGetClosedLoansForCompanyQuery({
     variables: {
       companyId,
-      loanType: LoanTypeEnum.PurchaseOrder,
+      loanType:
+        productType === ProductTypeEnum.LineOfCredit
+          ? LoanTypeEnum.LineOfCredit
+          : LoanTypeEnum.PurchaseOrder,
     },
   });
 
   if (error) {
-    alert("Error querying purchase orders. " + error);
+    alert("Error querying loans. " + error);
   }
 
   const company = data?.companies_by_pk;

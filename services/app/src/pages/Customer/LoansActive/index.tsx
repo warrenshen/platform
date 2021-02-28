@@ -11,6 +11,7 @@ import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoanTypeEnum,
+  ProductTypeEnum,
   useGetActiveLoansForCompanyQuery,
 } from "generated/graphql";
 import LoansActiveApproved from "pages/Customer/LoansActive/LoansActiveApproved";
@@ -39,15 +40,22 @@ function CustomerLoansActivePage() {
   const classes = useStyles();
 
   const {
-    user: { companyId },
+    user: { companyId, productType },
   } = useContext(CurrentUserContext);
 
-  const { data } = useGetActiveLoansForCompanyQuery({
+  const { data, error } = useGetActiveLoansForCompanyQuery({
     variables: {
       companyId,
-      loanType: LoanTypeEnum.PurchaseOrder,
+      loanType:
+        productType === ProductTypeEnum.LineOfCredit
+          ? LoanTypeEnum.LineOfCredit
+          : LoanTypeEnum.PurchaseOrder,
     },
   });
+
+  if (error) {
+    alert("Error querying loans. " + error);
+  }
 
   const company = data?.companies_by_pk;
   const financialSummary = company?.financial_summary || null;

@@ -70,8 +70,8 @@ function LoansActiveNotApproved({ data }: Props) {
             actionType={
               targetLoanId === "" ? ActionType.New : ActionType.Update
             }
-            loanId={targetLoanId}
             artifactId={null}
+            loanId={targetLoanId}
             handleClose={() => {
               setIsCreateUpdateModalOpen(false);
               setTargetLoanId("");

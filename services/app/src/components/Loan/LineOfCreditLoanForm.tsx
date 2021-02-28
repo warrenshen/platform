@@ -23,8 +23,8 @@ import { ChangeEvent } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    purchaseOrderInput: {
-      width: "200px",
+    inputField: {
+      width: 300,
     },
   })
 );
@@ -74,7 +74,7 @@ function LineOfCreditLoanForm({
       </Box>
       {lineOfCredit.is_credit_for_vendor && (
         <Box display="flex" flexDirection="row" mt={3}>
-          <FormControl className={classes.purchaseOrderInput}>
+          <FormControl className={classes.inputField}>
             <InputLabel id="recipient-vendor-select-label">
               Recipient Vendor
             </InputLabel>
@@ -107,7 +107,7 @@ function LineOfCreditLoanForm({
       )}
       <Box display="flex" flexDirection="column" mt={2}>
         <DatePicker
-          className={classes.purchaseOrderInput}
+          className={classes.inputField}
           id="requested-payment-date-date-picker"
           label="Requested Payment Date"
           disablePast
@@ -130,7 +130,7 @@ function LineOfCreditLoanForm({
         </Box>
       </Box>
       <Box mt={3}>
-        <FormControl fullWidth className={classes.purchaseOrderInput}>
+        <FormControl className={classes.inputField}>
           <CurrencyTextField
             label="Amount"
             currencySymbol="$"
