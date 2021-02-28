@@ -1,6 +1,6 @@
 import { Box, Button } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
-import CreateUpdatePurchaseOrderLoanModal from "components/Loans/PurchaseOrder/CreateUpdatePurchaseOrderLoanModal";
+import CreateUpdatePurchaseOrderLoanModal from "components/Loan/CreateUpdatePurchaseOrderLoanModal";
 import CreateUpdatePurchaseOrderModal from "components/PurchaseOrders/CreateUpdatePurchaseOrderModal";
 import PurchaseOrdersDataGrid from "components/PurchaseOrders/PurchaseOrdersDataGrid";
 import Can from "components/Shared/Can";

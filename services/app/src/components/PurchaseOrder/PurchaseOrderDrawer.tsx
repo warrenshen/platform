@@ -8,7 +8,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import PurchaseOrderLoansDataGrid from "components/Loans/PurchaseOrder/PurchaseOrderLoansDataGrid";
+import PurchaseOrderLoansDataGrid from "components/Loans/PurchaseOrderLoansDataGrid";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import { CurrentUserContext } from "contexts/CurrentUserContext";

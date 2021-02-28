@@ -5,8 +5,8 @@ import {
   makeStyles,
   Theme,
 } from "@material-ui/core";
+import CreateUpdatePolymorphicLoanModal from "components/Loan/CreateUpdatePolymorphicLoanModal";
 import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
-import CreateUpdatePurchaseOrderLoanModal from "components/Loans/PurchaseOrder/CreateUpdatePurchaseOrderLoanModal";
 import Can from "components/Shared/Can";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { GetActiveLoansForCompanyQuery } from "generated/graphql";
@@ -65,7 +65,8 @@ function LoansActiveNotApproved({ data }: Props) {
     <Box className={classes.container}>
       <Box display="flex" flexDirection="row-reverse">
         {isCreateUpdateModalOpen && (
-          <CreateUpdatePurchaseOrderLoanModal
+          <CreateUpdatePolymorphicLoanModal
+            productType={productType}
             actionType={
               targetLoanId === "" ? ActionType.New : ActionType.Update
             }

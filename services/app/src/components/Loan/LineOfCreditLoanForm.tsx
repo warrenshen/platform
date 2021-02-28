@@ -109,7 +109,7 @@ function LineOfCreditLoanForm({
         <DatePicker
           className={classes.purchaseOrderInput}
           id="requested-payment-date-date-picker"
-          label="Payment Date"
+          label="Requested Payment Date"
           disablePast
           disableNonBankDays
           value={loan.requested_payment_date}
@@ -120,10 +120,14 @@ function LineOfCreditLoanForm({
             });
           }}
         />
-        <Typography variant="body2" color="textSecondary">
-          The Payment Date is the date when the payment will arrive to the
-          vendor and when interest charges begin.
-        </Typography>
+        <Box mt={1}>
+          <Typography variant="body2" color="textSecondary">
+            Requested Payment Date is the date you want the advance from Bespoke
+            to arrive to the recipient (the date when interest charges begin).
+            Bespoke will try to adhere to this request, but the actual payment
+            date may be different.
+          </Typography>
+        </Box>
       </Box>
       <Box mt={3}>
         <FormControl fullWidth className={classes.purchaseOrderInput}>

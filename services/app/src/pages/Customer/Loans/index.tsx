@@ -9,7 +9,7 @@ import {
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import { Alert } from "@material-ui/lab";
 import CustomerFinancialSummaryOverview from "components/CustomerFinancialSummary/CustomerFinancialSummaryOverview";
-import CreateUpdateLineOfCreditLoanModal from "components/Loans/LineOfCredit/CreateUpdateLineOfCreditLoanModal";
+import CreateUpdateLineOfCreditLoanModal from "components/Loan/CreateUpdateLineOfCreditLoanModal";
 import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
 import Can from "components/Shared/Can";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
