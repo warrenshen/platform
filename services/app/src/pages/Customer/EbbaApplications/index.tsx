@@ -1,22 +1,19 @@
-import { Box, Button, Typography } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
-import CreateEbbaApplicationModal from "components/EbbaApplication/CreateEbbaApplicationModal";
+import CreateUpdateEbbaApplicationModal from "components/EbbaApplication/CreateUpdateEbbaApplicationModal";
 import EbbaApplicationCard from "components/EbbaApplication/EbbaApplicationCard";
 import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
+import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useGetCompanyForCustomerBorrowingBaseQuery } from "generated/graphql";
-import React, { useContext, useState } from "react";
+import { ActionType } from "lib/enum";
+import { useContext } from "react";
 
 function CustomerEbbaApplicationsPage() {
   const {
     user: { companyId },
   } = useContext(CurrentUserContext);
-
-  const [
-    isCreateEbbaApplicationModalOpen,
-    setIsCreateEbbaApplicationModalOpen,
-  ] = useState(false);
 
   const { data, refetch } = useGetCompanyForCustomerBorrowingBaseQuery({
     variables: {
@@ -45,21 +42,19 @@ function CustomerEbbaApplicationsPage() {
         </Typography>
       </Box>
       <Box mt={2}>
-        {isCreateEbbaApplicationModalOpen && (
-          <CreateEbbaApplicationModal
-            handleClose={() => {
-              refetch();
-              setIsCreateEbbaApplicationModalOpen(false);
-            }}
-          />
-        )}
-        <Button
-          onClick={() => setIsCreateEbbaApplicationModalOpen(true)}
-          variant="contained"
-          color="primary"
-        >
-          Create Borrowing Base Certification
-        </Button>
+        <ModalButton
+          label={"Create Borrowing Base Certification"}
+          modal={({ handleClose }) => (
+            <CreateUpdateEbbaApplicationModal
+              actionType={ActionType.New}
+              ebbaApplicationId={null}
+              handleClose={() => {
+                refetch();
+                handleClose();
+              }}
+            />
+          )}
+        />
       </Box>
       <Box mt={3}>
         <Box>

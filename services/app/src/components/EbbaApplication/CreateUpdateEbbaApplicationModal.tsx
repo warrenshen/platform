@@ -8,6 +8,7 @@ import {
   makeStyles,
   Theme,
 } from "@material-ui/core";
+import EbbaApplicationForm from "components/EbbaApplication/EbbaApplicationForm";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   ContractFragment,
@@ -16,10 +17,14 @@ import {
   ProductTypeEnum,
   useAddEbbaApplicationMutation,
   useGetCompanyWithActiveContractQuery,
+  useGetEbbaApplicationQuery,
+  useUpdateEbbaApplicationMutation,
 } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, ebbaApplicationsRoutes } from "lib/api";
+import { ActionType } from "lib/enum";
+import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
-import EbbaApplicationForm from "./EbbaApplicationForm";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -76,10 +81,17 @@ function computeBorrowingBase(
 }
 
 interface Props {
+  actionType: ActionType;
+  ebbaApplicationId: string | null;
   handleClose: () => void;
 }
 
-function CreateEbbaApplicationModal({ handleClose }: Props) {
+function CreateEbbaApplicationModal({
+  actionType,
+  ebbaApplicationId = null,
+  handleClose,
+}: Props) {
+  const snackbar = useSnackbar();
   const classes = useStyles();
   const {
     user: { companyId },
@@ -109,16 +121,52 @@ function CreateEbbaApplicationModal({ handleClose }: Props) {
     EbbaApplicationFilesInsertInput[]
   >([]);
 
+  const {
+    loading: isExistingEbbaApplicationLoading,
+  } = useGetEbbaApplicationQuery({
+    skip: actionType === ActionType.New,
+    variables: {
+      id: ebbaApplicationId,
+    },
+    onCompleted: (data) => {
+      const existingEbbaApplication = data?.ebba_applications_by_pk;
+      if (existingEbbaApplication) {
+        setEbbaApplication(
+          mergeWith(newEbbaApplication, existingEbbaApplication, (a, b) =>
+            isNull(b) ? a : b
+          )
+        );
+        setEbbaApplicationFiles(
+          existingEbbaApplication.ebba_application_files.map(
+            (ebbaApplicationFile) => ({
+              ebba_application_id: ebbaApplicationFile.ebba_application_id,
+              file_id: ebbaApplicationFile.file_id,
+            })
+          )
+        );
+      } else {
+        snackbar.showError("Error! Could not get expected borrowing base.");
+      }
+    },
+  });
+
   const [
     addEbbaApplication,
     { loading: isAddEbbaApplicationLoading },
   ] = useAddEbbaApplicationMutation();
 
+  const [
+    updateEbbaApplication,
+    { loading: isUpdateEbbaApplicationLoading },
+  ] = useUpdateEbbaApplicationMutation();
+
   const calculatedBorrowingBase = computeBorrowingBase(
     contract,
     ebbaApplication
   );
-  const isFormLoading = isAddEbbaApplicationLoading;
+  const isDialogReady = !isExistingEbbaApplicationLoading;
+  const isFormLoading =
+    isAddEbbaApplicationLoading || isUpdateEbbaApplicationLoading;
   const isSubmitDisabled =
     isFormLoading ||
     !ebbaApplication.monthly_accounts_receivable ||
@@ -126,25 +174,49 @@ function CreateEbbaApplicationModal({ handleClose }: Props) {
     !ebbaApplication.monthly_cash ||
     ebbaApplicationFiles.length <= 0;
 
-  const handleClickSubmit = async () => {
-    const response = await addEbbaApplication({
-      variables: {
-        ebbaApplication: {
-          application_month: ebbaApplication.application_month,
-          monthly_accounts_receivable:
-            ebbaApplication.monthly_accounts_receivable,
-          monthly_inventory: ebbaApplication.monthly_inventory,
-          monthly_cash: ebbaApplication.monthly_cash,
-          calculated_borrowing_base: calculatedBorrowingBase,
-          ebba_application_files: {
-            data: ebbaApplicationFiles,
+  const upsertEbbaApplication = async () => {
+    if (actionType === ActionType.Update) {
+      const response = await updateEbbaApplication({
+        variables: {
+          id: ebbaApplication.id,
+          ebbaApplication: {
+            application_month: ebbaApplication.application_month,
+            monthly_accounts_receivable:
+              ebbaApplication.monthly_accounts_receivable,
+            monthly_inventory: ebbaApplication.monthly_inventory,
+            monthly_cash: ebbaApplication.monthly_cash,
+            calculated_borrowing_base: calculatedBorrowingBase,
+          },
+          ebbaApplicationFiles,
+        },
+      });
+      return response.data?.update_ebba_applications_by_pk;
+    } else {
+      const response = await addEbbaApplication({
+        variables: {
+          ebbaApplication: {
+            application_month: ebbaApplication.application_month,
+            monthly_accounts_receivable:
+              ebbaApplication.monthly_accounts_receivable,
+            monthly_inventory: ebbaApplication.monthly_inventory,
+            monthly_cash: ebbaApplication.monthly_cash,
+            calculated_borrowing_base: calculatedBorrowingBase,
+            ebba_application_files: {
+              data: ebbaApplicationFiles,
+            },
           },
         },
-      },
-    });
-    const savedEbbaApplication = response.data?.insert_ebba_applications_one;
+      });
+      return response.data?.insert_ebba_applications_one;
+    }
+  };
+
+  const handleClickSubmit = async () => {
+    const savedEbbaApplication = await upsertEbbaApplication();
     if (!savedEbbaApplication) {
-      alert("Could not create borrowing base");
+      snackbar.showError(
+        "Error! Could not upsert borrowing base certification."
+      );
     } else {
       const response = await authenticatedApi.post(
         ebbaApplicationsRoutes.submitForApproval,
@@ -153,14 +225,17 @@ function CreateEbbaApplicationModal({ handleClose }: Props) {
         }
       );
       if (response.data?.status === "ERROR") {
-        alert(response.data?.msg);
+        snackbar.showError(`Error! Message: ${response.data?.msg}`);
       } else {
+        snackbar.showSuccess(
+          "Success! Borrowing base certification saved and submitted to Bespoke."
+        );
         handleClose();
       }
     }
   };
 
-  return (
+  return isDialogReady ? (
     <Dialog
       open
       onClose={handleClose}
@@ -168,7 +243,9 @@ function CreateEbbaApplicationModal({ handleClose }: Props) {
       classes={{ paper: classes.dialog }}
     >
       <DialogTitle className={classes.dialogTitle}>
-        Submit Borrowing Base Certification
+        {`${
+          actionType === ActionType.Update ? "Edit" : "Create"
+        } Borrowing Base Certification`}
       </DialogTitle>
       <DialogContent>
         <EbbaApplicationForm
@@ -193,7 +270,7 @@ function CreateEbbaApplicationModal({ handleClose }: Props) {
         </Button>
       </DialogActions>
     </Dialog>
-  );
+  ) : null;
 }
 
 export default CreateEbbaApplicationModal;

@@ -4941,38 +4941,6 @@ export type Loans = {
   requested_payment_date?: Maybe<Scalars["date"]>;
   /** This is the loan request status, e.g., drafted, approved, more_details_required, rejected */
   status: LoanStatusEnum;
-  /** An array relationship */
-  transactions: Array<Transactions>;
-  /** An aggregated array relationship */
-  transactions_aggregate: TransactionsAggregate;
-};
-
-/**
- * All common fields amongst loans go here, and fields specific to that loan type are joined in by the artifact_id
- *
- *
- * columns and relationships of "loans"
- */
-export type LoansTransactionsArgs = {
-  distinct_on?: Maybe<Array<TransactionsSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<TransactionsOrderBy>>;
-  where?: Maybe<TransactionsBoolExp>;
-};
-
-/**
- * All common fields amongst loans go here, and fields specific to that loan type are joined in by the artifact_id
- *
- *
- * columns and relationships of "loans"
- */
-export type LoansTransactionsAggregateArgs = {
-  distinct_on?: Maybe<Array<TransactionsSelectColumn>>;
-  limit?: Maybe<Scalars["Int"]>;
-  offset?: Maybe<Scalars["Int"]>;
-  order_by?: Maybe<Array<TransactionsOrderBy>>;
-  where?: Maybe<TransactionsBoolExp>;
 };
 
 /** aggregated selection of "loans" */
@@ -5075,7 +5043,6 @@ export type LoansBoolExp = {
   requested_by_user_id?: Maybe<UuidComparisonExp>;
   requested_payment_date?: Maybe<DateComparisonExp>;
   status?: Maybe<LoanStatusEnumComparisonExp>;
-  transactions?: Maybe<TransactionsBoolExp>;
 };
 
 /** unique or primary key constraints on table "loans" */
@@ -5125,7 +5092,6 @@ export type LoansInsertInput = {
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requested_payment_date?: Maybe<Scalars["date"]>;
   status?: Maybe<LoanStatusEnum>;
-  transactions?: Maybe<TransactionsArrRelInsertInput>;
 };
 
 /** aggregate max on columns */
@@ -5302,7 +5268,6 @@ export type LoansOrderBy = {
   requested_by_user_id?: Maybe<OrderBy>;
   requested_payment_date?: Maybe<OrderBy>;
   status?: Maybe<OrderBy>;
-  transactions_aggregate?: Maybe<TransactionsAggregateOrderBy>;
 };
 
 /** primary key columns input for table: "loans" */
@@ -11618,6 +11583,28 @@ export type AddEbbaApplicationMutation = {
   >;
 };
 
+export type UpdateEbbaApplicationMutationVariables = Exact<{
+  id: Scalars["uuid"];
+  ebbaApplication: EbbaApplicationsSetInput;
+  ebbaApplicationFiles: Array<EbbaApplicationFilesInsertInput>;
+}>;
+
+export type UpdateEbbaApplicationMutation = {
+  delete_ebba_application_files?: Maybe<
+    Pick<EbbaApplicationFilesMutationResponse, "affected_rows">
+  >;
+  insert_ebba_application_files?: Maybe<{
+    returning: Array<
+      Pick<EbbaApplicationFiles, "ebba_application_id" | "file_id">
+    >;
+  }>;
+  update_ebba_applications_by_pk?: Maybe<
+    Pick<EbbaApplications, "id"> & {
+      ebba_application_files: Array<EbbaApplicationFileFragment>;
+    } & EbbaApplicationFragment
+  >;
+};
+
 export type EbbaApplicationsQueryVariables = Exact<{ [key: string]: never }>;
 
 export type EbbaApplicationsQuery = {
@@ -13558,6 +13545,80 @@ export type AddEbbaApplicationMutationResult = Apollo.MutationResult<AddEbbaAppl
 export type AddEbbaApplicationMutationOptions = Apollo.BaseMutationOptions<
   AddEbbaApplicationMutation,
   AddEbbaApplicationMutationVariables
+>;
+export const UpdateEbbaApplicationDocument = gql`
+  mutation UpdateEbbaApplication(
+    $id: uuid!
+    $ebbaApplication: ebba_applications_set_input!
+    $ebbaApplicationFiles: [ebba_application_files_insert_input!]!
+  ) {
+    delete_ebba_application_files(
+      where: { ebba_application_id: { _eq: $id } }
+    ) {
+      affected_rows
+    }
+    insert_ebba_application_files(objects: $ebbaApplicationFiles) {
+      returning {
+        ebba_application_id
+        file_id
+      }
+    }
+    update_ebba_applications_by_pk(
+      pk_columns: { id: $id }
+      _set: $ebbaApplication
+    ) {
+      id
+      ...EbbaApplication
+      ebba_application_files {
+        ...EbbaApplicationFile
+      }
+    }
+  }
+  ${EbbaApplicationFragmentDoc}
+  ${EbbaApplicationFileFragmentDoc}
+`;
+export type UpdateEbbaApplicationMutationFn = Apollo.MutationFunction<
+  UpdateEbbaApplicationMutation,
+  UpdateEbbaApplicationMutationVariables
+>;
+
+/**
+ * __useUpdateEbbaApplicationMutation__
+ *
+ * To run a mutation, you first call `useUpdateEbbaApplicationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateEbbaApplicationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateEbbaApplicationMutation, { data, loading, error }] = useUpdateEbbaApplicationMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      ebbaApplication: // value for 'ebbaApplication'
+ *      ebbaApplicationFiles: // value for 'ebbaApplicationFiles'
+ *   },
+ * });
+ */
+export function useUpdateEbbaApplicationMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateEbbaApplicationMutation,
+    UpdateEbbaApplicationMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    UpdateEbbaApplicationMutation,
+    UpdateEbbaApplicationMutationVariables
+  >(UpdateEbbaApplicationDocument, baseOptions);
+}
+export type UpdateEbbaApplicationMutationHookResult = ReturnType<
+  typeof useUpdateEbbaApplicationMutation
+>;
+export type UpdateEbbaApplicationMutationResult = Apollo.MutationResult<UpdateEbbaApplicationMutation>;
+export type UpdateEbbaApplicationMutationOptions = Apollo.BaseMutationOptions<
+  UpdateEbbaApplicationMutation,
+  UpdateEbbaApplicationMutationVariables
 >;
 export const EbbaApplicationsDocument = gql`
   query EbbaApplications {

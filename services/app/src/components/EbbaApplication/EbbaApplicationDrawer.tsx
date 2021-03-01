@@ -7,8 +7,11 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import CreateUpdateEbbaApplicationModal from "components/EbbaApplication/CreateUpdateEbbaApplicationModal";
+import ReviewEbbaApplicationRejectModal from "components/EbbaApplication/ReviewEbbaApplicationRejectModal";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
+import ModalButton from "components/Shared/Modal/ModalButton";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   EbbaApplications,
@@ -18,8 +21,8 @@ import {
 } from "generated/graphql";
 import { authenticatedApi, ebbaApplicationsRoutes } from "lib/api";
 import { formatCurrency } from "lib/currency";
-import { useContext, useMemo, useState } from "react";
-import ReviewEbbaApplicationRejectModal from "./ReviewEbbaApplicationRejectModal";
+import { ActionType } from "lib/enum";
+import { useContext, useMemo } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -42,8 +45,6 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
   } = useContext(CurrentUserContext);
 
   const isBankUser = role === UserRolesEnum.BankAdmin;
-
-  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
 
   const { data, refetch } = useGetEbbaApplicationQuery({
     variables: {
@@ -82,16 +83,6 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
 
   return ebbaApplication ? (
     <Drawer open anchor="right" onClose={handleClose}>
-      {isRejectModalOpen && (
-        <ReviewEbbaApplicationRejectModal
-          ebbaApplicationId={ebbaApplication.id}
-          handleClose={() => setIsRejectModalOpen(false)}
-          handleRejectSuccess={() => {
-            refetch();
-            setIsRejectModalOpen(false);
-          }}
-        />
-      )}
       <Box className={classes.drawerContent} p={4}>
         <Typography variant="h5">Borrowing Base</Typography>
         <Box display="flex" flexDirection="column">
@@ -195,6 +186,22 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
               <Typography variant="subtitle2" color="textSecondary">
                 Actions
               </Typography>
+              <Box mt={1}>
+                <ModalButton
+                  label={"Edit"}
+                  color={"default"}
+                  modal={({ handleClose }) => (
+                    <CreateUpdateEbbaApplicationModal
+                      actionType={ActionType.Update}
+                      ebbaApplicationId={ebbaApplication.id}
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                      }}
+                    />
+                  )}
+                />
+              </Box>
               {ebbaApplication.status !== RequestStatusEnum.Approved && (
                 <Box mt={1}>
                   <Button
@@ -209,14 +216,21 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
               )}
               {ebbaApplication.status !== RequestStatusEnum.Rejected && (
                 <Box mt={1}>
-                  <Button
-                    disabled={isRejectDisabled}
-                    onClick={() => setIsRejectModalOpen(true)}
-                    variant={"contained"}
-                    color={"secondary"}
-                  >
-                    Reject
-                  </Button>
+                  <ModalButton
+                    isDisabled={isRejectDisabled}
+                    label={"Reject"}
+                    color={"default"}
+                    modal={({ handleClose }) => (
+                      <ReviewEbbaApplicationRejectModal
+                        ebbaApplicationId={ebbaApplication.id}
+                        handleClose={handleClose}
+                        handleRejectSuccess={() => {
+                          refetch();
+                          handleClose();
+                        }}
+                      />
+                    )}
+                  />
                 </Box>
               )}
             </Box>
