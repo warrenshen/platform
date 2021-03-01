@@ -1,14 +1,13 @@
 import datetime
-import logging
 import decimal
-from typing import Callable, List, Iterable, Optional, Tuple, cast
+import logging
+from typing import Callable, Iterable, List, Optional, Tuple, cast
 
 from bespoke import errors
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.finance.reports import loan_balances
 from sqlalchemy.orm.session import Session
-
 
 CompanyBalanceComputeResult = Tuple[List[str], errors.Error]
 
@@ -115,13 +114,13 @@ def compute_bank_financial_summaries(session: Session,
 	for summary in financial_summaries:
 		product_type = company_id_to_product_type[str(summary.company_id)]
 		cur_bank_summary = product_type_to_bank_summary[product_type]
-		cur_bank_summary.total_limit += decimal.Decimal(summary.total_limit)
-		cur_bank_summary.adjusted_total_limit += decimal.Decimal(summary.adjusted_total_limit)
-		cur_bank_summary.total_outstanding_principal += decimal.Decimal(summary.total_outstanding_principal)
-		cur_bank_summary.total_outstanding_interest += decimal.Decimal(summary.total_outstanding_interest)
-		cur_bank_summary.total_outstanding_fees += decimal.Decimal(summary.total_outstanding_fees)
-		cur_bank_summary.total_principal_in_requested_state += decimal.Decimal(summary.total_principal_in_requested_state)
-		cur_bank_summary.available_limit += decimal.Decimal(summary.available_limit)
+		cur_bank_summary.total_limit += decimal.Decimal(summary.total_limit or 0)
+		cur_bank_summary.adjusted_total_limit += decimal.Decimal(summary.adjusted_total_limit or 0)
+		cur_bank_summary.total_outstanding_principal += decimal.Decimal(summary.total_outstanding_principal or 0)
+		cur_bank_summary.total_outstanding_interest += decimal.Decimal(summary.total_outstanding_interest or 0)
+		cur_bank_summary.total_outstanding_fees += decimal.Decimal(summary.total_outstanding_fees or 0)
+		cur_bank_summary.total_principal_in_requested_state += decimal.Decimal(summary.total_principal_in_requested_state or 0)
+		cur_bank_summary.available_limit += decimal.Decimal(summary.available_limit or 0)
 
 	return product_type_to_bank_summary.values(), None
 
