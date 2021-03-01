@@ -4,7 +4,6 @@
 import datetime
 import json
 import logging
-from mypy_extensions import TypedDict
 from typing import Any, Callable, Dict, List, Tuple, Union, cast
 
 from bespoke import errors
@@ -12,6 +11,7 @@ from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
+from mypy_extensions import TypedDict
 
 ContractFieldsDict = TypedDict('ContractFieldsDict', {
 	'product_type': str,
@@ -33,7 +33,6 @@ TerminateContractReqDict = TypedDict('TerminateContractReqDict', {
 
 AddNewContractReqDict = TypedDict('AddNewContractReqDict', {
 	'company_id': str,
-	'cur_contract_id': str,
 	'contract_fields': ContractFieldsDict
 })
 
@@ -120,14 +119,6 @@ def add_new_contract(req: AddNewContractReqDict, bank_admin_user_id: str, sessio
 	err_details = {'req': req, 'method': 'add_new_contract'}
 
 	with session_scope(session_maker) as session:
-		cur_contract = cast(
-			models.Contract,
-			session.query(models.Contract).filter(
-				models.Contract.id == req['cur_contract_id']
-			).first())
-		if not cur_contract:
-			return False, errors.Error('Contract could not be found', details=err_details)
-
 		company = cast(
 			models.Company,
 			session.query(models.Company).filter(
@@ -136,7 +127,16 @@ def add_new_contract(req: AddNewContractReqDict, bank_admin_user_id: str, sessio
 		if not company:
 			return False, errors.Error('Company could not be found', details=err_details)
 
-		new_contract = models.Contract()
+		cur_contract = None
+
+		if company.contract_id:
+			cur_contract = cast(
+				models.Contract,
+				session.query(models.Contract).filter(
+					models.Contract.id == company.contract_id
+				).first())
+
+		new_contract = models.Contract(company_id=company.id)
 		success, err = _update_contract(new_contract, req['contract_fields'], bank_admin_user_id)
 		if err:
 			return None, err
@@ -145,19 +145,21 @@ def add_new_contract(req: AddNewContractReqDict, bank_admin_user_id: str, sessio
 		start_date = new_contract.start_date
 		end_date = new_contract.adjusted_end_date
 
-		if not cur_contract.adjusted_end_date:
-			return False, errors.Error('Adjusted end date must be set on the current contract', details=err_details)
+		if cur_contract:
+			if not cur_contract.adjusted_end_date:
+				return False, errors.Error('Adjusted end date must be set on the current contract', details=err_details)
 
-		if start_date > cur_contract.start_date and start_date < cur_contract.adjusted_end_date:
-			return False, errors.Error('New contract start_date intersects with the current contract start and end date', details=err_details)
+			if start_date > cur_contract.start_date and start_date < cur_contract.adjusted_end_date:
+				return False, errors.Error('New contract start_date intersects with the current contract start and end date', details=err_details)
 
-		if end_date > cur_contract.start_date and end_date < cur_contract.adjusted_end_date:
-			return False, errors.Error('New contract end_date intersects with the current contract start and end date', details=err_details)
+			if end_date > cur_contract.start_date and end_date < cur_contract.adjusted_end_date:
+				return False, errors.Error('New contract end_date intersects with the current contract start and end date', details=err_details)
 
 		session.add(new_contract)
 		session.flush()
-		new_contract_id = str(new_contract.id)
 
+		new_contract_id = str(new_contract.id)
 		company.contract_id = new_contract_id
+		session.flush()
 
 	return True, None

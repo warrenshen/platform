@@ -92,7 +92,7 @@ class AddNewContractView(MethodView):
 			return handler_util.make_error_response('No data provided')
 
 		required_keys = [
-			'company_id', 'cur_contract_id', 'contract_fields'
+			'company_id', 'contract_fields'
 		]
 		for key in required_keys:
 			if key not in form:
