@@ -41,8 +41,10 @@ export async function terminateContract(
 }
 
 export type UpdateContractReq = {
-  contract_id: Contracts["id"];
-  contract_fields: ContractsInsertInput;
+  variables: {
+    contract_id: Contracts["id"];
+    contract_fields: ContractsInsertInput;
+  };
 };
 
 export type UpdateContractResp = {
@@ -50,11 +52,11 @@ export type UpdateContractResp = {
   msg: string;
 };
 
-export async function updateContract(
+export async function updateContractMutation(
   req: UpdateContractReq
 ): Promise<UpdateContractResp> {
   return authenticatedApi
-    .post(contractRoutes.updateContract, req)
+    .post(contractRoutes.updateContract, req.variables)
     .then((res) => {
       return res.data;
     })

@@ -14,6 +14,7 @@ import {
   ContractsInsertInput,
   useGetContractQuery,
 } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import {
   addContract,
@@ -21,7 +22,7 @@ import {
   createProductConfigFieldsFromProductType,
   createProductConfigForServer,
   ProductConfigField,
-  updateContract,
+  updateContractMutation,
 } from "lib/customer/contracts";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
@@ -127,14 +128,19 @@ function CreateUpdateContractModal({
   });
 
   useEffect(() => {
-    if (contract.product_type) {
+    if (actionType === ActionType.New && contract.product_type) {
       setCurrentJSONConfig(
         createProductConfigFieldsFromProductType(contract.product_type)
       );
     }
-  }, [contract.product_type]);
+  }, [actionType, contract.product_type]);
 
   const [errMsg, setErrMsg] = useState("");
+
+  const [
+    updateContract,
+    { loading: isUpdateContractLoading },
+  ] = useCustomMutation(updateContractMutation);
 
   const handleSubmit = async () => {
     const error = Object.values(currentJSONConfig)
@@ -165,8 +171,10 @@ function CreateUpdateContractModal({
     const response =
       actionType === ActionType.Update
         ? await updateContract({
-            contract_id: contractId,
-            contract_fields: contractFields,
+            variables: {
+              contract_id: contractId,
+              contract_fields: contractFields,
+            },
           })
         : await addContract({
             company_id: companyId,
@@ -184,6 +192,7 @@ function CreateUpdateContractModal({
   };
 
   const isDialogReady = !isExistingContractLoading;
+  const isSubmitDisabled = !isDialogReady || isUpdateContractLoading;
 
   return isDialogReady ? (
     <Dialog open onClose={handleClose} fullWidth>
@@ -193,7 +202,7 @@ function CreateUpdateContractModal({
       <DialogContent>
         <Box display="flex" flexDirection="column">
           <ContractTermsForm
-            isProductTypeEditable
+            isProductTypeEditable={actionType === ActionType.New}
             isStartDateEditable
             errMsg={errMsg}
             contract={contract}
@@ -213,6 +222,7 @@ function CreateUpdateContractModal({
           <Box pr={1}>
             <Button onClick={handleClose}>Cancel</Button>
             <Button
+              disabled={isSubmitDisabled}
               variant="contained"
               color="primary"
               type="submit"
