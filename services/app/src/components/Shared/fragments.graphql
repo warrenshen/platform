@@ -143,6 +143,7 @@ fragment BankAccount on bank_accounts {
   recipient_address
   verified_at
   verified_date
+  is_cannabis_compliant
 }
 
 fragment BankAccountForVendor on bank_accounts {

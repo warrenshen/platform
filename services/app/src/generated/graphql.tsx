@@ -92,6 +92,7 @@ export type BankAccounts = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id: Scalars["uuid"];
+  is_cannabis_compliant: Scalars["Boolean"];
   recipient_address?: Maybe<Scalars["String"]>;
   recipient_name?: Maybe<Scalars["String"]>;
   routing_number: Scalars["String"];
@@ -186,6 +187,7 @@ export type BankAccountsBoolExp = {
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  is_cannabis_compliant?: Maybe<BooleanComparisonExp>;
   recipient_address?: Maybe<StringComparisonExp>;
   recipient_name?: Maybe<StringComparisonExp>;
   routing_number?: Maybe<StringComparisonExp>;
@@ -215,6 +217,7 @@ export type BankAccountsInsertInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_cannabis_compliant?: Maybe<Scalars["Boolean"]>;
   recipient_address?: Maybe<Scalars["String"]>;
   recipient_name?: Maybe<Scalars["String"]>;
   routing_number?: Maybe<Scalars["String"]>;
@@ -331,6 +334,7 @@ export type BankAccountsOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  is_cannabis_compliant?: Maybe<OrderBy>;
   recipient_address?: Maybe<OrderBy>;
   recipient_name?: Maybe<OrderBy>;
   routing_number?: Maybe<OrderBy>;
@@ -367,6 +371,8 @@ export enum BankAccountsSelectColumn {
   /** column name */
   Id = "id",
   /** column name */
+  IsCannabisCompliant = "is_cannabis_compliant",
+  /** column name */
   RecipientAddress = "recipient_address",
   /** column name */
   RecipientName = "recipient_name",
@@ -392,6 +398,7 @@ export type BankAccountsSetInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_cannabis_compliant?: Maybe<Scalars["Boolean"]>;
   recipient_address?: Maybe<Scalars["String"]>;
   recipient_name?: Maybe<Scalars["String"]>;
   routing_number?: Maybe<Scalars["String"]>;
@@ -422,6 +429,8 @@ export enum BankAccountsUpdateColumn {
   CreatedAt = "created_at",
   /** column name */
   Id = "id",
+  /** column name */
+  IsCannabisCompliant = "is_cannabis_compliant",
   /** column name */
   RecipientAddress = "recipient_address",
   /** column name */
@@ -11584,6 +11593,30 @@ export type EbbaApplicationsQuery = {
   >;
 };
 
+export type AddLineOfCreditMutationVariables = Exact<{
+  lineOfCredit: LineOfCreditsInsertInput;
+}>;
+
+export type AddLineOfCreditMutation = {
+  insert_line_of_credits_one?: Maybe<
+    Pick<LineOfCredits, "id"> & LineOfCreditFragment
+  >;
+};
+
+export type UpdateLineOfCreditAndLoanMutationVariables = Exact<{
+  lineOfCreditId: Scalars["uuid"];
+  lineOfCredit: LineOfCreditsSetInput;
+  loanId: Scalars["uuid"];
+  loan: LoansSetInput;
+}>;
+
+export type UpdateLineOfCreditAndLoanMutation = {
+  update_line_of_credits_by_pk?: Maybe<
+    Pick<LineOfCredits, "id"> & LineOfCreditFragment
+  >;
+  update_loans_by_pk?: Maybe<Pick<Loans, "id"> & LoanLimitedFragment>;
+};
+
 export type GetLoanQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -11627,30 +11660,6 @@ export type UpdateLoanMutationVariables = Exact<{
 
 export type UpdateLoanMutation = {
   update_loans_by_pk?: Maybe<LoanLimitedFragment>;
-};
-
-export type AddLineOfCreditMutationVariables = Exact<{
-  lineOfCredit: LineOfCreditsInsertInput;
-}>;
-
-export type AddLineOfCreditMutation = {
-  insert_line_of_credits_one?: Maybe<
-    Pick<LineOfCredits, "id"> & LineOfCreditFragment
-  >;
-};
-
-export type UpdateLineOfCreditAndLoanMutationVariables = Exact<{
-  lineOfCreditId: Scalars["uuid"];
-  lineOfCredit: LineOfCreditsSetInput;
-  loanId: Scalars["uuid"];
-  loan: LoansSetInput;
-}>;
-
-export type UpdateLineOfCreditAndLoanMutation = {
-  update_line_of_credits_by_pk?: Maybe<
-    Pick<LineOfCredits, "id"> & LineOfCreditFragment
-  >;
-  update_loans_by_pk?: Maybe<Pick<Loans, "id"> & LoanLimitedFragment>;
 };
 
 export type GetActiveLoansForCompanyQueryVariables = Exact<{
@@ -12402,6 +12411,7 @@ export type BankAccountFragment = Pick<
   | "recipient_address"
   | "verified_at"
   | "verified_date"
+  | "is_cannabis_compliant"
 >;
 
 export type BankAccountForVendorFragment = Pick<
@@ -13094,6 +13104,7 @@ export const BankAccountFragmentDoc = gql`
     recipient_address
     verified_at
     verified_date
+    is_cannabis_compliant
   }
 `;
 export const BankVendorPartnershipFragmentDoc = gql`
@@ -13560,6 +13571,122 @@ export type EbbaApplicationsQueryResult = Apollo.QueryResult<
   EbbaApplicationsQuery,
   EbbaApplicationsQueryVariables
 >;
+export const AddLineOfCreditDocument = gql`
+  mutation AddLineOfCredit($lineOfCredit: line_of_credits_insert_input!) {
+    insert_line_of_credits_one(object: $lineOfCredit) {
+      id
+      ...LineOfCredit
+    }
+  }
+  ${LineOfCreditFragmentDoc}
+`;
+export type AddLineOfCreditMutationFn = Apollo.MutationFunction<
+  AddLineOfCreditMutation,
+  AddLineOfCreditMutationVariables
+>;
+
+/**
+ * __useAddLineOfCreditMutation__
+ *
+ * To run a mutation, you first call `useAddLineOfCreditMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddLineOfCreditMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addLineOfCreditMutation, { data, loading, error }] = useAddLineOfCreditMutation({
+ *   variables: {
+ *      lineOfCredit: // value for 'lineOfCredit'
+ *   },
+ * });
+ */
+export function useAddLineOfCreditMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    AddLineOfCreditMutation,
+    AddLineOfCreditMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    AddLineOfCreditMutation,
+    AddLineOfCreditMutationVariables
+  >(AddLineOfCreditDocument, baseOptions);
+}
+export type AddLineOfCreditMutationHookResult = ReturnType<
+  typeof useAddLineOfCreditMutation
+>;
+export type AddLineOfCreditMutationResult = Apollo.MutationResult<AddLineOfCreditMutation>;
+export type AddLineOfCreditMutationOptions = Apollo.BaseMutationOptions<
+  AddLineOfCreditMutation,
+  AddLineOfCreditMutationVariables
+>;
+export const UpdateLineOfCreditAndLoanDocument = gql`
+  mutation UpdateLineOfCreditAndLoan(
+    $lineOfCreditId: uuid!
+    $lineOfCredit: line_of_credits_set_input!
+    $loanId: uuid!
+    $loan: loans_set_input!
+  ) {
+    update_line_of_credits_by_pk(
+      pk_columns: { id: $lineOfCreditId }
+      _set: $lineOfCredit
+    ) {
+      id
+      ...LineOfCredit
+    }
+    update_loans_by_pk(pk_columns: { id: $loanId }, _set: $loan) {
+      id
+      ...LoanLimited
+    }
+  }
+  ${LineOfCreditFragmentDoc}
+  ${LoanLimitedFragmentDoc}
+`;
+export type UpdateLineOfCreditAndLoanMutationFn = Apollo.MutationFunction<
+  UpdateLineOfCreditAndLoanMutation,
+  UpdateLineOfCreditAndLoanMutationVariables
+>;
+
+/**
+ * __useUpdateLineOfCreditAndLoanMutation__
+ *
+ * To run a mutation, you first call `useUpdateLineOfCreditAndLoanMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateLineOfCreditAndLoanMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateLineOfCreditAndLoanMutation, { data, loading, error }] = useUpdateLineOfCreditAndLoanMutation({
+ *   variables: {
+ *      lineOfCreditId: // value for 'lineOfCreditId'
+ *      lineOfCredit: // value for 'lineOfCredit'
+ *      loanId: // value for 'loanId'
+ *      loan: // value for 'loan'
+ *   },
+ * });
+ */
+export function useUpdateLineOfCreditAndLoanMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateLineOfCreditAndLoanMutation,
+    UpdateLineOfCreditAndLoanMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    UpdateLineOfCreditAndLoanMutation,
+    UpdateLineOfCreditAndLoanMutationVariables
+  >(UpdateLineOfCreditAndLoanDocument, baseOptions);
+}
+export type UpdateLineOfCreditAndLoanMutationHookResult = ReturnType<
+  typeof useUpdateLineOfCreditAndLoanMutation
+>;
+export type UpdateLineOfCreditAndLoanMutationResult = Apollo.MutationResult<UpdateLineOfCreditAndLoanMutation>;
+export type UpdateLineOfCreditAndLoanMutationOptions = Apollo.BaseMutationOptions<
+  UpdateLineOfCreditAndLoanMutation,
+  UpdateLineOfCreditAndLoanMutationVariables
+>;
 export const GetLoanDocument = gql`
   query GetLoan($id: uuid!) {
     loans_by_pk(id: $id) {
@@ -13831,122 +13958,6 @@ export type UpdateLoanMutationResult = Apollo.MutationResult<UpdateLoanMutation>
 export type UpdateLoanMutationOptions = Apollo.BaseMutationOptions<
   UpdateLoanMutation,
   UpdateLoanMutationVariables
->;
-export const AddLineOfCreditDocument = gql`
-  mutation AddLineOfCredit($lineOfCredit: line_of_credits_insert_input!) {
-    insert_line_of_credits_one(object: $lineOfCredit) {
-      id
-      ...LineOfCredit
-    }
-  }
-  ${LineOfCreditFragmentDoc}
-`;
-export type AddLineOfCreditMutationFn = Apollo.MutationFunction<
-  AddLineOfCreditMutation,
-  AddLineOfCreditMutationVariables
->;
-
-/**
- * __useAddLineOfCreditMutation__
- *
- * To run a mutation, you first call `useAddLineOfCreditMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddLineOfCreditMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [addLineOfCreditMutation, { data, loading, error }] = useAddLineOfCreditMutation({
- *   variables: {
- *      lineOfCredit: // value for 'lineOfCredit'
- *   },
- * });
- */
-export function useAddLineOfCreditMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    AddLineOfCreditMutation,
-    AddLineOfCreditMutationVariables
-  >
-) {
-  return Apollo.useMutation<
-    AddLineOfCreditMutation,
-    AddLineOfCreditMutationVariables
-  >(AddLineOfCreditDocument, baseOptions);
-}
-export type AddLineOfCreditMutationHookResult = ReturnType<
-  typeof useAddLineOfCreditMutation
->;
-export type AddLineOfCreditMutationResult = Apollo.MutationResult<AddLineOfCreditMutation>;
-export type AddLineOfCreditMutationOptions = Apollo.BaseMutationOptions<
-  AddLineOfCreditMutation,
-  AddLineOfCreditMutationVariables
->;
-export const UpdateLineOfCreditAndLoanDocument = gql`
-  mutation UpdateLineOfCreditAndLoan(
-    $lineOfCreditId: uuid!
-    $lineOfCredit: line_of_credits_set_input!
-    $loanId: uuid!
-    $loan: loans_set_input!
-  ) {
-    update_line_of_credits_by_pk(
-      pk_columns: { id: $lineOfCreditId }
-      _set: $lineOfCredit
-    ) {
-      id
-      ...LineOfCredit
-    }
-    update_loans_by_pk(pk_columns: { id: $loanId }, _set: $loan) {
-      id
-      ...LoanLimited
-    }
-  }
-  ${LineOfCreditFragmentDoc}
-  ${LoanLimitedFragmentDoc}
-`;
-export type UpdateLineOfCreditAndLoanMutationFn = Apollo.MutationFunction<
-  UpdateLineOfCreditAndLoanMutation,
-  UpdateLineOfCreditAndLoanMutationVariables
->;
-
-/**
- * __useUpdateLineOfCreditAndLoanMutation__
- *
- * To run a mutation, you first call `useUpdateLineOfCreditAndLoanMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateLineOfCreditAndLoanMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateLineOfCreditAndLoanMutation, { data, loading, error }] = useUpdateLineOfCreditAndLoanMutation({
- *   variables: {
- *      lineOfCreditId: // value for 'lineOfCreditId'
- *      lineOfCredit: // value for 'lineOfCredit'
- *      loanId: // value for 'loanId'
- *      loan: // value for 'loan'
- *   },
- * });
- */
-export function useUpdateLineOfCreditAndLoanMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdateLineOfCreditAndLoanMutation,
-    UpdateLineOfCreditAndLoanMutationVariables
-  >
-) {
-  return Apollo.useMutation<
-    UpdateLineOfCreditAndLoanMutation,
-    UpdateLineOfCreditAndLoanMutationVariables
-  >(UpdateLineOfCreditAndLoanDocument, baseOptions);
-}
-export type UpdateLineOfCreditAndLoanMutationHookResult = ReturnType<
-  typeof useUpdateLineOfCreditAndLoanMutation
->;
-export type UpdateLineOfCreditAndLoanMutationResult = Apollo.MutationResult<UpdateLineOfCreditAndLoanMutation>;
-export type UpdateLineOfCreditAndLoanMutationOptions = Apollo.BaseMutationOptions<
-  UpdateLineOfCreditAndLoanMutation,
-  UpdateLineOfCreditAndLoanMutationVariables
 >;
 export const GetActiveLoansForCompanyDocument = gql`
   query GetActiveLoansForCompany(
