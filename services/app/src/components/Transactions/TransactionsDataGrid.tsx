@@ -11,11 +11,10 @@ import { TransactionFragment } from "generated/graphql";
 
 interface Props {
   transactions: TransactionFragment[];
-  customerSearchQuery: string;
-  onClickCustomerName: (value: string) => void;
+  isMiniTable: Boolean;
 }
 
-function TransactionsDataGrid({ transactions, onClickCustomerName }: Props) {
+function TransactionsDataGrid({ transactions, isMiniTable }: Props) {
   const rows = transactions;
 
   const companyNameRenderer = (params: ValueFormatterParams) => {
@@ -36,11 +35,13 @@ function TransactionsDataGrid({ transactions, onClickCustomerName }: Props) {
     },
     {
       caption: "Company Name",
+      visible: !isMiniTable,
       width: 140,
       cellRender: companyNameRenderer,
     },
     {
       dataField: "type",
+      visible: !isMiniTable,
       caption: "Type",
       width: 140,
     },
@@ -49,55 +50,53 @@ function TransactionsDataGrid({ transactions, onClickCustomerName }: Props) {
       alignment: "right",
       width: 140,
       cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell
-          value={params.row.data.amount}
-        ></CurrencyDataGridCell>
+        <CurrencyDataGridCell value={params.row.data.amount} />
       ),
     },
     {
       caption: "To Principal",
       alignment: "right",
+      visible: !isMiniTable,
       width: 140,
       cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell
-          value={params.row.data.to_principal}
-        ></CurrencyDataGridCell>
+        <CurrencyDataGridCell value={params.row.data.to_principal} />
       ),
     },
     {
       caption: "To Interest",
       alignment: "right",
+      visible: !isMiniTable,
       width: 140,
       cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell
-          value={params.row.data.to_interest}
-        ></CurrencyDataGridCell>
+        <CurrencyDataGridCell value={params.row.data.to_interest} />
       ),
     },
     {
       caption: "To Fees",
       alignment: "right",
+      visible: !isMiniTable,
       width: 140,
       cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell
-          value={params.row.data.to_fees}
-        ></CurrencyDataGridCell>
+        <CurrencyDataGridCell value={params.row.data.to_fees} />
       ),
     },
   ];
 
   return (
     <DataGrid height={"100%"} width={"100%"} dataSource={rows}>
-      {columns.map(({ dataField, caption, width, alignment, cellRender }) => (
-        <Column
-          key={caption}
-          caption={caption}
-          dataField={dataField}
-          width={width}
-          alignment={alignment}
-          cellRender={cellRender}
-        />
-      ))}
+      {columns.map(
+        ({ dataField, caption, width, alignment, visible, cellRender }) => (
+          <Column
+            key={caption}
+            caption={caption}
+            dataField={dataField}
+            width={width}
+            alignment={alignment}
+            cellRender={cellRender}
+            visible={visible}
+          />
+        )
+      )}
       <Paging pageSize={30} />
       <Pager visible allowedPageSizes={[30]} />
     </DataGrid>

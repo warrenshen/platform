@@ -8,11 +8,13 @@ import {
 } from "@material-ui/core";
 import PurchaseOrderInfoCard from "components/PurchaseOrder/PurchaseOrderInfoCard";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
+import TransactionsDataGrid from "components/Transactions/TransactionsDataGrid";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Loans,
   LoanTypeEnum,
   useGetLoanWithArtifactForCustomerQuery,
+  useGetTransactionsForLoanQuery,
   UserRolesEnum,
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
@@ -50,6 +52,14 @@ function LoanDrawer({ loanId, handleClose }: Props) {
   });
 
   const loan = data?.loans_by_pk;
+
+  const response = useGetTransactionsForLoanQuery({
+    variables: {
+      loan_id: loanId,
+    },
+  });
+
+  const transactions = response.data?.transactions;
 
   return loan ? (
     <Drawer open anchor="right" onClose={handleClose}>
@@ -211,6 +221,24 @@ function LoanDrawer({ loanId, handleClose }: Props) {
           </Typography>
           <Typography variant={"body1"}>{loan.id}</Typography>
         </Box>
+        {transactions && isBankUser && (
+          <Box mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
+              Transactions
+            </Typography>
+            <Box
+              flex={1}
+              display="flex"
+              flexDirection="column"
+              overflow="scroll"
+            >
+              <TransactionsDataGrid
+                transactions={transactions}
+                isMiniTable={true}
+              />
+            </Box>
+          </Box>
+        )}
       </Box>
     </Drawer>
   ) : null;

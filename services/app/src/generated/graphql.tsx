@@ -4941,6 +4941,38 @@ export type Loans = {
   requested_payment_date?: Maybe<Scalars["date"]>;
   /** This is the loan request status, e.g., drafted, approved, more_details_required, rejected */
   status: LoanStatusEnum;
+  /** An array relationship */
+  transactions: Array<Transactions>;
+  /** An aggregated array relationship */
+  transactions_aggregate: TransactionsAggregate;
+};
+
+/**
+ * All common fields amongst loans go here, and fields specific to that loan type are joined in by the artifact_id
+ *
+ *
+ * columns and relationships of "loans"
+ */
+export type LoansTransactionsArgs = {
+  distinct_on?: Maybe<Array<TransactionsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<TransactionsOrderBy>>;
+  where?: Maybe<TransactionsBoolExp>;
+};
+
+/**
+ * All common fields amongst loans go here, and fields specific to that loan type are joined in by the artifact_id
+ *
+ *
+ * columns and relationships of "loans"
+ */
+export type LoansTransactionsAggregateArgs = {
+  distinct_on?: Maybe<Array<TransactionsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<TransactionsOrderBy>>;
+  where?: Maybe<TransactionsBoolExp>;
 };
 
 /** aggregated selection of "loans" */
@@ -5043,6 +5075,7 @@ export type LoansBoolExp = {
   requested_by_user_id?: Maybe<UuidComparisonExp>;
   requested_payment_date?: Maybe<DateComparisonExp>;
   status?: Maybe<LoanStatusEnumComparisonExp>;
+  transactions?: Maybe<TransactionsBoolExp>;
 };
 
 /** unique or primary key constraints on table "loans" */
@@ -5092,6 +5125,7 @@ export type LoansInsertInput = {
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requested_payment_date?: Maybe<Scalars["date"]>;
   status?: Maybe<LoanStatusEnum>;
+  transactions?: Maybe<TransactionsArrRelInsertInput>;
 };
 
 /** aggregate max on columns */
@@ -5268,6 +5302,7 @@ export type LoansOrderBy = {
   requested_by_user_id?: Maybe<OrderBy>;
   requested_payment_date?: Maybe<OrderBy>;
   status?: Maybe<OrderBy>;
+  transactions_aggregate?: Maybe<TransactionsAggregateOrderBy>;
 };
 
 /** primary key columns input for table: "loans" */
@@ -11647,6 +11682,22 @@ export type GetLoanWithArtifactForCustomerQuery = {
   >;
 };
 
+export type GetTransactionsForLoanQueryVariables = Exact<{
+  loan_id: Scalars["uuid"];
+}>;
+
+export type GetTransactionsForLoanQuery = {
+  transactions: Array<
+    {
+      payment: Pick<Payments, "id"> & {
+        company: Pick<Companies, "id" | "name"> & {
+          contract?: Maybe<Pick<Contracts, "id" | "product_type">>;
+        };
+      } & PaymentFragment;
+    } & TransactionFragment
+  >;
+};
+
 export type AddLoanMutationVariables = Exact<{
   loan: LoansInsertInput;
 }>;
@@ -13861,6 +13912,76 @@ export type GetLoanWithArtifactForCustomerLazyQueryHookResult = ReturnType<
 export type GetLoanWithArtifactForCustomerQueryResult = Apollo.QueryResult<
   GetLoanWithArtifactForCustomerQuery,
   GetLoanWithArtifactForCustomerQueryVariables
+>;
+export const GetTransactionsForLoanDocument = gql`
+  query GetTransactionsForLoan($loan_id: uuid!) {
+    transactions(where: { loan_id: { _eq: $loan_id } }) {
+      ...Transaction
+      payment {
+        id
+        ...Payment
+        company {
+          id
+          name
+          contract {
+            id
+            product_type
+          }
+        }
+      }
+    }
+  }
+  ${TransactionFragmentDoc}
+  ${PaymentFragmentDoc}
+`;
+
+/**
+ * __useGetTransactionsForLoanQuery__
+ *
+ * To run a query within a React component, call `useGetTransactionsForLoanQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTransactionsForLoanQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTransactionsForLoanQuery({
+ *   variables: {
+ *      loan_id: // value for 'loan_id'
+ *   },
+ * });
+ */
+export function useGetTransactionsForLoanQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetTransactionsForLoanQuery,
+    GetTransactionsForLoanQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetTransactionsForLoanQuery,
+    GetTransactionsForLoanQueryVariables
+  >(GetTransactionsForLoanDocument, baseOptions);
+}
+export function useGetTransactionsForLoanLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetTransactionsForLoanQuery,
+    GetTransactionsForLoanQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetTransactionsForLoanQuery,
+    GetTransactionsForLoanQueryVariables
+  >(GetTransactionsForLoanDocument, baseOptions);
+}
+export type GetTransactionsForLoanQueryHookResult = ReturnType<
+  typeof useGetTransactionsForLoanQuery
+>;
+export type GetTransactionsForLoanLazyQueryHookResult = ReturnType<
+  typeof useGetTransactionsForLoanLazyQuery
+>;
+export type GetTransactionsForLoanQueryResult = Apollo.QueryResult<
+  GetTransactionsForLoanQuery,
+  GetTransactionsForLoanQueryVariables
 >;
 export const AddLoanDocument = gql`
   mutation AddLoan($loan: loans_insert_input!) {

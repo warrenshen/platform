@@ -9,11 +9,7 @@ function BankTransactionsPage() {
 
   return (
     <Page appBarTitle={"Payments"}>
-      <TransactionsDataGrid
-        transactions={transactions}
-        customerSearchQuery={""}
-        onClickCustomerName={() => {}}
-      />
+      <TransactionsDataGrid transactions={transactions} isMiniTable={false} />
     </Page>
   );
 }
