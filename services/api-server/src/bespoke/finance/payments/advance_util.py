@@ -183,6 +183,10 @@ def fund_loans_with_advance(
 			if err:
 				return None, err
 
+			adjusted_maturity_date, err = cur_contract.get_adjusted_maturity_date(settlement_date)
+			if err:
+				return None, err
+
 			loan.funded_at = date_util.now()
 			loan.funded_by_user_id = bank_admin_user_id
 			loan.outstanding_principal_balance = loan.amount
@@ -190,7 +194,7 @@ def fund_loans_with_advance(
 			loan.outstanding_fees = decimal.Decimal(0.0)
 			loan.origination_date = settlement_date
 			loan.maturity_date = maturity_date
-			loan.adjusted_maturity_date = maturity_date
+			loan.adjusted_maturity_date = adjusted_maturity_date
 
 	return FundLoansRespDict(status='OK'), None
 

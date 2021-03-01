@@ -463,6 +463,7 @@ EbbaApplicationDict = TypedDict('EbbaApplicationDict', {
 	'rejected_at': datetime.datetime,
 	'rejection_note': str
 })
+
 class EbbaApplication(Base):
 	__tablename__ = 'ebba_applications'
 

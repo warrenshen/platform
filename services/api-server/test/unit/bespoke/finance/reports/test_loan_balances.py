@@ -259,7 +259,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				)
 			))
 
-			ebba = models.EbbaApplication(
+			# Due to an open issue with sqlalchemy-stubs written by Dropbox
+			# https://github.com/dropbox/sqlalchemy-stubs/issues/97
+			ebba = models.EbbaApplication( # type: ignore
 				company_id=company_id,
 				monthly_accounts_receivable=decimal.Decimal(100000.0), # 100k
 				monthly_inventory=decimal.Decimal(100000.0), #100k

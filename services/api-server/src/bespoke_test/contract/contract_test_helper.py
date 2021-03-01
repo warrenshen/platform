@@ -11,6 +11,8 @@ ContractInputDict = TypedDict('ContractInputDict', {
 	'maximum_principal_amount': float,
 	'max_days_until_repayment': int,
 	'late_fee_structure': str,
+	'preceeding_business_day': bool,
+	# LOC contracts
 	'borrowing_base_accounts_receivable_percentage': float,
 	'borrowing_base_inventory_percentage': float,
 	'borrowing_base_cash_percentage': float,
@@ -39,6 +41,10 @@ def create_contract_config(
 			'internal_name': 'late_fee_structure',
 			'value': input_dict['late_fee_structure']
 		},
+		{
+			'internal_name': 'preceeding_business_day',
+			'value': input_dict.get('preceeding_business_day')
+		}
 	]
 
 	borrowing_base_fields = (

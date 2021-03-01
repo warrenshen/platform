@@ -17,7 +17,10 @@ from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest
 from bespoke_test.db import test_helper
 
-def _get_default_contract() -> models.Contract:
+def _get_default_contract(
+	use_preceeding_business_day: bool,
+	days_until_repayment: int
+) -> models.Contract:
 	return models.Contract(
 	product_type=ProductType.INVENTORY_FINANCING,
 	product_config=contract_test_helper.create_contract_config(
@@ -25,8 +28,9 @@ def _get_default_contract() -> models.Contract:
 		input_dict=ContractInputDict(
 			interest_rate=0.05,
 			maximum_principal_amount=120000.01,
-			max_days_until_repayment=30,
+			max_days_until_repayment=days_until_repayment,
 			late_fee_structure='', # unused
+			preceeding_business_day=use_preceeding_business_day
 		)
 	)
 )
@@ -40,7 +44,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		seed.initialize()
 
 		contracts_by_company_index = test['contracts_by_company_index']
-		amounts = test['loan_amounts']
+		input_loans = test['loans']
 		company_indices = test['company_indices']
 		payment_amount = test['payment_input_amount']
 		bank_admin_user_id = seed.get_user_id('bank_admin')
@@ -64,8 +68,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				cur_company.contract_id = cur_contract_ids[-1]
 				session.flush()
 
-			for i in range(len(amounts)):
-				amount = amounts[i]
+			for i in range(len(input_loans)):
+				amount = input_loans[i]['amount']
 				index = company_indices[i]
 				company_id = seed.get_company_id('company_admin', index=index)
 				loan = models.Loan(
@@ -77,8 +81,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				session.flush()
 				loan_ids.append(str(loan.id))
 
-		payment_date = '10/18/2020'
-		settlement_date = '10/20/2020'
+		payment_date = test['payment_date']
+		settlement_date = test['settlement_date']
 
 		req = advance_util.FundLoansReqDict(
 			loan_ids=loan_ids,
@@ -111,22 +115,22 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 			loans = [loan for loan in loans]
 			loans.sort(key=lambda l: l.amount) # sort in increasing amounts to match order of amounts array
 
-			for i in range(len(amounts)):
-				amount = amounts[i]
+			for i in range(len(test['expected_loans'])):
+				expected_loan = test['expected_loans'][i]
 				loan = loans[i]
 				company_id = seed.get_company_id('company_admin', index=company_indices[i])
 				self.assertEqual(company_id, loan.company_id)
-				self.assertAlmostEqual(amount, float(loan.amount))
-				self.assertAlmostEqual(amount, float(loan.outstanding_principal_balance))
+				self.assertAlmostEqual(expected_loan['amount'], float(loan.amount))
+				self.assertAlmostEqual(expected_loan['amount'], float(loan.outstanding_principal_balance))
+				self.assertEqual(expected_loan['maturity_date'], 
+												 date_util.date_to_str(loan.maturity_date))
+				self.assertEqual(expected_loan['adjusted_maturity_date'],
+												 date_util.date_to_str(loan.adjusted_maturity_date))
 				self.assertAlmostEqual(0.0, float(loan.outstanding_interest))
 				self.assertAlmostEqual(0.0, float(loan.outstanding_fees))
 
 				self.assertIsNotNone(loan.funded_at)
 				self.assertEqual(bank_admin_user_id, loan.funded_by_user_id)
-
-				# TODO(dlluncor): Rearrange test so that we can assert multipole items
-				# on a loan, and check that the maturity_date and adjusted_maturity_date
-				# are correct.
 
 			# Validate payments
 			payments = cast(
@@ -135,10 +139,10 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 			payments = [payment for payment in payments]
 			payments.sort(key=lambda p: p.amount)
 
-			self.assertEqual(len(test['payments']), len(payments))
-			for i in range(len(test['payments'])):
+			self.assertEqual(len(test['expected_payments']), len(payments))
+			for i in range(len(test['expected_payments'])):
 				payment = payments[i]
-				exp_payment = test['payments'][i]
+				exp_payment = test['expected_payments'][i]
 				exp_company_id = seed.get_company_id('company_admin', index=exp_payment['company_index'])
 				self.assertAlmostEqual(exp_payment['amount'], float(payment.amount))
 				self.assertEqual('advance', payment.type)
@@ -156,13 +160,13 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				List[models.Transaction],
 				session.query(models.Transaction).all())
 			transactions = [t for t in transactions]
-			self.assertEqual(len(test['transactions']), len(transactions))
+			self.assertEqual(len(test['expected_transactions']), len(transactions))
 
 			transactions.sort(key=lambda t: t.amount) # sort in increasing amounts to match order of transactions array
 
-			for i in range(len(test['transactions'])):
+			for i in range(len(test['expected_transactions'])):
 				transaction = transactions[i]
-				exp_transaction = test['transactions'][i]
+				exp_transaction = test['expected_transactions'][i]
 				exp_company_id = seed.get_company_id('company_admin', index=exp_payment['company_index'])
 				matching_loan = loans[exp_transaction['loan_index']]
 				matching_payment = payments[exp_transaction['payment_index']]
@@ -182,19 +186,50 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 			{
 				'comment': 'Test multiple loans approved from one customer',
 				'contracts_by_company_index': {
-					0: [_get_default_contract()],
-					1: [_get_default_contract()]
+					0: [
+						_get_default_contract(
+							use_preceeding_business_day=False,
+							days_until_repayment=10
+						)
+					],
+					1: [
+						_get_default_contract(
+							use_preceeding_business_day=False,
+							days_until_repayment=20
+						)
+					]
 				},
-				'loan_amounts': [10.01, 20.02],
+				'loans': [
+					{
+						'amount': 10.01, 
+					},
+					{
+						'amount': 20.02
+					}
+				],
+				'payment_date': '10/18/2020',
+				'settlement_date':  '10/20/2020',
 				'company_indices': [0, 0],
 				'payment_input_amount': 30.03,
-				'payments': [
+				'expected_loans': [
+					{
+						'amount': 10.01,
+						'maturity_date': '10/30/2020',
+						'adjusted_maturity_date': '10/30/2020'
+					},
+					{
+						'amount': 20.02,
+						'maturity_date': '10/30/2020',
+						'adjusted_maturity_date': '10/30/2020'
+					}
+				],
+				'expected_payments': [
 					{
 						'amount': 30.03,
 						'company_index': 0
 					}
 				],
-				'transactions': [
+				'expected_transactions': [
 					{
 						'amount': 10.01,
 						'loan_index': 0,
@@ -217,13 +252,60 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 			{
 				'comment': 'Test multiple loans approved from many customers',
 				'contracts_by_company_index': {
-					0: [_get_default_contract()],
-					1: [_get_default_contract()]
+					0: [
+						_get_default_contract(
+							use_preceeding_business_day=False,
+							days_until_repayment=4
+						)
+					],
+					1: [
+						_get_default_contract(
+							use_preceeding_business_day=True,
+							days_until_repayment=11
+						)
+					]
 				},
-				'loan_amounts': [10.01, 20.02, 30.03, 40.04],
+				'loans': [
+					{
+						'amount': 10.01,
+					},
+					{
+						'amount': 20.02,
+					},
+					{
+						'amount': 30.03, 
+					},
+					{
+						'amount': 40.04,
+					}
+				],
+				'payment_date': '10/18/2020',
+				'settlement_date':  '10/20/2020',
 				'company_indices': [0, 1, 0, 1],
 				'payment_input_amount': 10.01 + 20.02 + 30.03 + 40.04,
-				'payments': [
+				'expected_loans': [
+					{
+						'amount': 10.01,
+						'maturity_date': '10/24/2020', # Saturday
+						'adjusted_maturity_date': '10/26/2020' # skip from Saturday to Monday
+					},
+					{
+						'amount': 20.02,
+						'maturity_date': '10/31/2020', # Saturday
+						'adjusted_maturity_date': '10/30/2020' # because use_preceeding_business_day=True
+					},
+					{
+						'amount': 30.03, 
+						'maturity_date': '10/24/2020', # Saturday
+						'adjusted_maturity_date': '10/26/2020' # skip from Saturday to Monday
+					},
+					{
+						'amount': 40.04,
+						'maturity_date': '10/31/2020', # Saturday
+						'adjusted_maturity_date': '10/30/2020' # because use_preceeding_business_day=True
+					}
+				],
+				'expected_payments': [
 				  # We create two payments, one for each customer
 					{
 						'amount': 10.01 + 30.03,
@@ -234,7 +316,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'company_index': 1
 					}
 				],
-				'transactions': [
+				'expected_transactions': [
 				  # There is one transaction for each loan, but two transactions associated with each payment
 					{
 						'amount': 10.01,

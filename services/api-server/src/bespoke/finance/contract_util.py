@@ -6,6 +6,7 @@ from datetime import timedelta
 from typing import Any, Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
+from bespoke.date import date_util
 from bespoke.db import models
 from mypy_extensions import TypedDict
 
@@ -240,8 +241,8 @@ class Contract(object):
 	def get_interest_rate(self) -> Tuple[float, errors.Error]:
 		return self._get_float_value('factoring_fee_percentage')
 
-	def use_preceeding_business_day(self) -> Tuple[bool, errors.Error]:
-		return self._get_bool_value('prceeding_business_day')
+	def _use_preceeding_business_day(self) -> Tuple[bool, errors.Error]:
+		return self._get_bool_value('preceeding_business_day')
 
 	def get_fee_multiplier(self, days_past_due: int) -> Tuple[float, errors.Error]:
 		"""
@@ -284,6 +285,21 @@ class Contract(object):
 
 		maturity_date = advance_settlement_date + timedelta(days=num_days_after_repayment)
 		return maturity_date, None
+
+	def get_adjusted_maturity_date(self, advance_settlement_date: datetime.date) -> Tuple[datetime.date, errors.Error]:
+		"""
+			Get the maturity date of a loan that starts with it's advance on this
+			particular settlement date
+		"""
+		maturity_date, err = self.get_maturity_date(advance_settlement_date)
+		if err:
+			return None, err
+
+		use_preceeding, err = self._use_preceeding_business_day()
+		if err:
+			return None, err
+
+		return date_util.get_nearest_business_day(maturity_date, preceeding=use_preceeding), None
 
 	def get_fields(self) -> List[FieldDict]:
 		self._populate()
