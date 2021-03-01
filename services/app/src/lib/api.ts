@@ -88,3 +88,8 @@ export const authenticatedApi = api;
 export const unAuthenticatedApi = axios.create({
   baseURL: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}`,
 });
+
+export type CustomMutationResponse = {
+  status: string;
+  msg: string;
+};

@@ -13,8 +13,9 @@ import {
   ContractsInsertInput,
   useGetContractQuery,
 } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { terminateContract } from "lib/customer/contracts";
+import { terminateContractMutation } from "lib/customer/contracts";
 import { isNull, mergeWith } from "lodash";
 import { useState } from "react";
 
@@ -83,10 +84,17 @@ function TerminateContractModal({ contractId, handleClose }: Props) {
 
   const [terminationDate, setTerminationDate] = useState<string | null>(null);
 
+  const [
+    terminateContract,
+    { loading: isTerminateContractLoading },
+  ] = useCustomMutation(terminateContractMutation);
+
   const handleClickSave = async () => {
     const response = await terminateContract({
-      contract_id: contractId,
-      termination_date: terminationDate,
+      variables: {
+        contract_id: contractId,
+        termination_date: terminationDate,
+      },
     });
 
     if (response.status !== "OK") {
@@ -98,6 +106,8 @@ function TerminateContractModal({ contractId, handleClose }: Props) {
       handleClose();
     }
   };
+
+  const isTerminateDisabled = isTerminateContractLoading || !terminationDate;
 
   return (
     <Dialog open onClose={handleClose} fullWidth>
@@ -133,7 +143,7 @@ function TerminateContractModal({ contractId, handleClose }: Props) {
           <Box pr={1}>
             <Button onClick={handleClose}>Cancel</Button>
             <Button
-              disabled={!terminationDate}
+              disabled={isTerminateDisabled}
               variant="contained"
               color="primary"
               type="submit"

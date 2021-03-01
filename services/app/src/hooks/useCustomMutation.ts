@@ -1,9 +1,5 @@
+import { CustomMutationResponse } from "lib/api";
 import { useState } from "react";
-
-type CustomMutationResponse = {
-  status: string;
-  msg: string;
-};
 
 type CustomMutationResult = {
   data: any;

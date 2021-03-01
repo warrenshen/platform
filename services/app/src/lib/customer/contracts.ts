@@ -5,24 +5,25 @@ import {
   ContractsInsertInput,
   ProductTypeEnum,
 } from "generated/graphql";
-import { authenticatedApi, contractRoutes } from "lib/api";
+import {
+  authenticatedApi,
+  contractRoutes,
+  CustomMutationResponse,
+} from "lib/api";
 import { ProductTypeToContractTermsJson } from "lib/enum";
 
-export type TerminateContractReq = {
-  contract_id: Contracts["id"];
-  termination_date: Contracts["adjusted_end_date"];
+export type AddContractReq = {
+  variables: {
+    company_id: Companies["id"];
+    contract_fields: ContractsInsertInput;
+  };
 };
 
-export type TerminateContractResp = {
-  status: string;
-  msg: string;
-};
-
-export async function terminateContract(
-  req: TerminateContractReq
-): Promise<TerminateContractResp> {
+export async function addContractMutation(
+  req: AddContractReq
+): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(contractRoutes.terminateContract, req)
+    .post(contractRoutes.addContract, req.variables)
     .then((res) => {
       return res.data;
     })
@@ -34,7 +35,7 @@ export async function terminateContract(
         console.log("error", error);
         return {
           status: "ERROR",
-          msg: "Could not terminate contract",
+          msg: "Could not add contract",
         };
       }
     );
@@ -47,14 +48,9 @@ export type UpdateContractReq = {
   };
 };
 
-export type UpdateContractResp = {
-  status: string;
-  msg: string;
-};
-
 export async function updateContractMutation(
   req: UpdateContractReq
-): Promise<UpdateContractResp> {
+): Promise<CustomMutationResponse> {
   return authenticatedApi
     .post(contractRoutes.updateContract, req.variables)
     .then((res) => {
@@ -74,21 +70,18 @@ export async function updateContractMutation(
     );
 }
 
-export type AddContractReq = {
-  company_id: Companies["id"];
-  contract_fields: ContractsInsertInput;
+export type TerminateContractReq = {
+  variables: {
+    contract_id: Contracts["id"];
+    termination_date: Contracts["adjusted_end_date"];
+  };
 };
 
-export type AddContractResp = {
-  status: string;
-  msg: string;
-};
-
-export async function addContract(
-  req: AddContractReq
-): Promise<AddContractResp> {
+export async function terminateContractMutation(
+  req: TerminateContractReq
+): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(contractRoutes.addContract, req)
+    .post(contractRoutes.terminateContract, req.variables)
     .then((res) => {
       return res.data;
     })
@@ -100,7 +93,7 @@ export async function addContract(
         console.log("error", error);
         return {
           status: "ERROR",
-          msg: "Could not add contract",
+          msg: "Could not terminate contract",
         };
       }
     );

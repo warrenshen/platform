@@ -17,7 +17,7 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import {
-  addContract,
+  addContractMutation,
   createProductConfigFieldsFromContract,
   createProductConfigFieldsFromProductType,
   createProductConfigForServer,
@@ -137,6 +137,10 @@ function CreateUpdateContractModal({
 
   const [errMsg, setErrMsg] = useState("");
 
+  const [addContract, { loading: isAddContractLoading }] = useCustomMutation(
+    addContractMutation
+  );
+
   const [
     updateContract,
     { loading: isUpdateContractLoading },
@@ -169,16 +173,18 @@ function CreateUpdateContractModal({
       product_config: productConfig,
     };
     const response =
-      actionType === ActionType.Update
-        ? await updateContract({
+      actionType === ActionType.New
+        ? await addContract({
+            variables: {
+              company_id: companyId,
+              contract_fields: contractFields,
+            },
+          })
+        : await updateContract({
             variables: {
               contract_id: contractId,
               contract_fields: contractFields,
             },
-          })
-        : await addContract({
-            company_id: companyId,
-            contract_fields: contractFields,
           });
 
     if (response.status !== "OK") {
@@ -192,7 +198,8 @@ function CreateUpdateContractModal({
   };
 
   const isDialogReady = !isExistingContractLoading;
-  const isSubmitDisabled = !isDialogReady || isUpdateContractLoading;
+  const isSubmitDisabled =
+    !isDialogReady || isAddContractLoading || isUpdateContractLoading;
 
   return isDialogReady ? (
     <Dialog open onClose={handleClose} fullWidth>
