@@ -3,6 +3,7 @@ import unittest
 
 from typing import List, Dict, cast
 
+from bespoke.date import date_util
 from bespoke.db.db_constants import ProductType
 from bespoke.db import models
 from bespoke.finance import contract_util
@@ -27,6 +28,154 @@ def _get_default_contract_config(overrides: Dict) -> Dict:
 				input_dict=cast(ContractInputDict, d)
 		)
 
+class TestContractHelper(unittest.TestCase):
+
+	def test_missing_start_date(self) -> None:
+		config = _get_default_contract_config({
+			'late_fee_structure': json.dumps(
+				{'1-3': 0.5, '4-9': 0.4, '10+': 0.3})
+		})
+		company_id = 'unused_for_debug_msg'
+		contract_dicts = [
+			models.ContractDict(
+				id='unused',
+				product_type=ProductType.INVENTORY_FINANCING,
+				product_config=config,
+				start_date=None,
+				end_date=None,
+				adjusted_end_date=date_util.load_date_str('2/11/2020'),
+			)
+		]
+
+		contract_helper, err = contract_util.ContractHelper.build(company_id, contract_dicts)
+		self.assertIn('missing a start_date', err.msg)
+
+	def test_missing_end_date(self) -> None:
+		config = _get_default_contract_config({
+			'late_fee_structure': json.dumps(
+				{'1-3': 0.5, '4-9': 0.4, '10+': 0.3})
+		})
+		company_id = 'unused_for_debug_msg'
+		contract_dicts = [
+			models.ContractDict(
+				id='unused',
+				product_type=ProductType.INVENTORY_FINANCING,
+				product_config=config,
+				start_date=date_util.load_date_str('2/11/2020'),
+				end_date=None,
+				adjusted_end_date=None,
+			)
+		]
+
+		contract_helper, err = contract_util.ContractHelper.build(company_id, contract_dicts)
+		self.assertIn('missing a adjusted end_date', err.msg)
+
+	def test_overlapping_date_ranges(self) -> None:
+		config = _get_default_contract_config({
+			'late_fee_structure': json.dumps(
+				{'1-3': 0.5, '4-9': 0.4, '10+': 0.3})
+		})
+		company_id = 'unused_for_debug_msg'
+		contract_dicts = [
+			models.ContractDict(
+				id='unused',
+				product_type=ProductType.INVENTORY_FINANCING,
+				product_config=config,
+				start_date=date_util.load_date_str('2/11/2020'),
+				end_date=None,
+				adjusted_end_date=date_util.load_date_str('2/20/2020'),
+			),
+			models.ContractDict(
+				id='unused2',
+				product_type=ProductType.INVENTORY_FINANCING,
+				product_config=config,
+				start_date=date_util.load_date_str('2/12/2020'),
+				end_date=None,
+				adjusted_end_date=date_util.load_date_str('2/28/2020'),
+			)
+		]
+
+		contract_helper, err = contract_util.ContractHelper.build(company_id, contract_dicts)
+		self.assertIn('overlaps in time', err.msg)
+
+	def test_single_contract(self) -> None:
+		tests: List[Dict] = [
+			{
+				'cur_date': '1/1/2020',
+				'expected_contract_index': 0
+			},
+			{
+				'cur_date': '2/11/2020',
+				'expected_contract_index': 0
+			}
+		]
+
+		config = _get_default_contract_config({
+			'late_fee_structure': json.dumps(
+				{'1-3': 0.5, '4-9': 0.4, '10+': 0.3})
+		})
+		company_id = 'unused_for_debug_msg'
+		contract_dicts = [
+			models.ContractDict(
+				id='unused',
+				product_type=ProductType.INVENTORY_FINANCING,
+				product_config=config,
+				start_date=date_util.load_date_str('1/1/2020'),
+				end_date=date_util.load_date_str('2/10/2020'),
+				adjusted_end_date=date_util.load_date_str('2/11/2020'),
+			)
+		]
+
+		for test in tests:
+			contract_helper, err = contract_util.ContractHelper.build(company_id, contract_dicts)
+			self.assertIsNone(err)
+			contract, err = contract_helper.get_contract(date_util.load_date_str(test['cur_date']))
+			self.assertIsNone(err)
+			expected_contract_dict = contract_dicts[test['expected_contract_index']]
+			self.assertIsNone(err)
+			self.assertDictEqual(cast(Dict, contract._contract_dict), expected_contract_dict)
+
+	def test_multiple_contracts_in_different_date_ranges(self) -> None:
+		company_id = 'unused_for_debug_msg'
+		
+		contract_dicts = [
+			models.ContractDict(
+				id='unused',
+				product_type=ProductType.INVENTORY_FINANCING,
+				product_config=_get_default_contract_config({
+					'late_fee_structure': json.dumps({'1-3': 0.5, '4-9': 0.4, '10+': 0.3})
+				}),
+				start_date=date_util.load_date_str('2/11/2020'),
+				end_date=None,
+				adjusted_end_date=date_util.load_date_str('2/15/2020'),
+			),
+			models.ContractDict(
+				id='unused2',
+				product_type=ProductType.INVENTORY_FINANCING,
+				product_config=_get_default_contract_config({
+					'late_fee_structure': json.dumps({'1-3': 0.1, '4-9': 0.2, '10+': 0.5})
+				}),
+				start_date=date_util.load_date_str('2/16/2020'),
+				end_date=None,
+				adjusted_end_date=date_util.load_date_str('2/28/2020'),
+			)
+		]
+
+		contract_helper, err = contract_util.ContractHelper.build(company_id, contract_dicts)
+		self.assertIsNone(err)
+
+		contract, err = contract_helper.get_contract(date_util.load_date_str('2/11/2020'))
+		self.assertIsNone(err)
+		self.assertDictEqual(cast(Dict, contract_dicts[0]), cast(Dict, contract._contract_dict))
+
+		contract, err = contract_helper.get_contract(date_util.load_date_str('2/25/2020'))
+		self.assertIsNone(err)
+		self.assertDictEqual(cast(Dict, contract_dicts[1]), cast(Dict, contract._contract_dict))
+
+		# Not contract specified for this time range
+		contract, err = contract_helper.get_contract(date_util.load_date_str('1/1/2020'))
+		self.assertIsNotNone(err)
+		
 class TestLateFeeStructure(unittest.TestCase):
 
 	def test_success_get_fee_multiplier(self) -> None:

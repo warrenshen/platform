@@ -38,7 +38,9 @@ def _get_contract(company_id: str) -> models.Contract:
 				max_days_until_repayment=0, # unused
 				late_fee_structure=_get_late_fee_structure(),
 			)
-		)
+		),
+		start_date=date_util.load_date_str('1/1/2020'),
+		adjusted_end_date=date_util.load_date_str('12/1/2020')
 	)
 
 def _apply_transaction(tx: Dict, session: Any, loan: models.Loan) -> None:

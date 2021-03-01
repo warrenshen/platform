@@ -377,12 +377,40 @@ class ContractHelper(object):
 		self._contract_dicts = contract_dicts
 
 	def get_contract(self, cur_date: datetime.date) -> Tuple[Contract, errors.Error]:
-		# TODO(dlluncor): Handle when we have a range of contracts between date ranges
-		return Contract.build(self._contract_dicts[0], validate=False)
+		# Find the contract that fits in between the time range
+		
+		for cur_contract in self._contract_dicts:
+			if cur_date >= cur_contract['start_date'] and cur_date <= cur_contract['adjusted_end_date']:
+				return Contract.build(cur_contract, validate=False)
+
+		return None, errors.Error('No contract found in effect for date {}'.format(cur_date))
 
 	@staticmethod
 	def build(company_id: str, contract_dicts: List[models.ContractDict]) -> Tuple['ContractHelper', errors.Error]:
 		if not contract_dicts:
 			return None, errors.Error('No contracts have been setup for company: {}'.format(company_id))
 
-		return ContractHelper(contract_dicts, private=True), None
+		sorted_contract_dicts = []
+		for i in range(len(contract_dicts)):
+			c = contract_dicts[i]
+			if not c.get('start_date'):
+				return None, errors.Error('Contract #{} for company {} is missing a start_date'.format(i + 1, company_id))
+
+			if not c.get('adjusted_end_date'):
+				return None, errors.Error('Contract #{} for company {} is missing a adjusted end_date'.format(i + 1, company_id))
+
+			sorted_contract_dicts.append(c)
+
+		sorted_contract_dicts.sort(key=lambda c: c['start_date'])
+
+		for i in range(len(sorted_contract_dicts)):
+			if i == 0:
+				continue
+
+			prev_contract = sorted_contract_dicts[i - 1] 
+			cur_contract = sorted_contract_dicts[i]
+			if cur_contract['start_date'] < prev_contract['adjusted_end_date']:
+				return None, errors.Error('Contract #{} has a start and end range which overlaps in time with Contract #{}'.format(
+					(i-1) + 1, i + 1))
+
+		return ContractHelper(sorted_contract_dicts, private=True), None

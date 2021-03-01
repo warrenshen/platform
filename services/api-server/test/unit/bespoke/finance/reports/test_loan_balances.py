@@ -86,7 +86,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						max_days_until_repayment=0, # unused
 						late_fee_structure=_get_late_fee_structure(), # unused
 					)
-				)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('12/1/2020')
 			))
 
 		tests: List[Dict] = [
@@ -123,7 +125,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						max_days_until_repayment=0, # unused
 						late_fee_structure=_get_late_fee_structure(), # unused
 					)
-				)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('12/1/2020')
 			))
 			loan = models.Loan(
 				company_id=company_id,
@@ -190,7 +194,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						max_days_until_repayment=0, # unused
 						late_fee_structure=_get_late_fee_structure(),
 					)
-				)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('12/1/2020')
 			))
 			loan = models.Loan(
 				company_id=company_id,
@@ -256,7 +262,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						borrowing_base_inventory_percentage=0.25,
 						borrowing_base_cash_percentage=0.75,
 					)
-				)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('12/1/2020')
 			))
 
 			# Due to an open issue with sqlalchemy-stubs written by Dropbox
@@ -321,7 +329,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						borrowing_base_inventory_percentage=0.25,
 						borrowing_base_cash_percentage=0.75,
 					)
-				)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('12/1/2020')
 			))
 
 		tests: List[Dict] = [

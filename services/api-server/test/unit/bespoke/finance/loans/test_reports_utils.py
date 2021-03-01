@@ -4,6 +4,7 @@ import json
 from typing import Any, Callable, Dict, List
 
 from bespoke import errors
+from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.db.db_constants import ProductType, PRODUCT_TYPES
@@ -79,7 +80,9 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 					max_days_until_repayment=0, # unused
 					late_fee_structure=_get_late_fee_structure(), # unused
 				)
-			)
+			),
+			start_date=date_util.load_date_str('1/1/2020'),
+			adjusted_end_date=date_util.load_date_str('12/1/2020')
 		)
 		session.add(contract)
 		session.commit()
