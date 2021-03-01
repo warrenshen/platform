@@ -12,12 +12,11 @@ import ContractDrawerLauncher from "components/Contract/ContractDrawerLauncher";
 import CreateUpdateContractModal from "components/Contract/CreateUpdateContractModal";
 import TerminateContractModal from "components/Contract/TerminateContractModal";
 import Can from "components/Shared/Can";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { ContractFragment, UserRolesEnum } from "generated/graphql";
+import ModalButton from "components/Shared/Modal/ModalButton";
+import { ContractFragment } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { formatDateString } from "lib/date";
 import { ActionType, ProductTypeToLabel } from "lib/enum";
-import { useContext, useState } from "react";
 
 interface Props {
   contract: ContractFragment;
@@ -39,47 +38,9 @@ const useStyles = makeStyles(() =>
 
 function ContractCard({ contract, handleDataChange }: Props) {
   const classes = useStyles();
-  const {
-    user: { role },
-  } = useContext(CurrentUserContext);
-
-  const isBankUser = role === UserRolesEnum.BankAdmin;
-
-  const [
-    isEditContractTermsModalOpen,
-    setIsEditContractTermsModalOpen,
-  ] = useState(false);
-  const [
-    isTerminateContractModalOpen,
-    setIsTerminateContractModalOpen,
-  ] = useState(false);
 
   return (
     <Card className={classes.card}>
-      {isEditContractTermsModalOpen && (
-        <CreateUpdateContractModal
-          actionType={ActionType.Update}
-          contractId={contract.id}
-          companyId={contract.company_id}
-          handleClose={() => {
-            if (handleDataChange) {
-              handleDataChange();
-            }
-            setIsEditContractTermsModalOpen(false);
-          }}
-        />
-      )}
-      {isTerminateContractModalOpen && (
-        <TerminateContractModal
-          contractId={contract.id}
-          handleClose={() => {
-            if (handleDataChange) {
-              handleDataChange();
-            }
-            setIsTerminateContractModalOpen(false);
-          }}
-        />
-      )}
       <CardContent>
         <Box display="flex" flexDirection="column">
           <Box display="flex" pb={0.25}>
@@ -112,32 +73,42 @@ function ContractCard({ contract, handleDataChange }: Props) {
                   </Button>
                 )}
               </ContractDrawerLauncher>
-              {isBankUser && (
-                <Can perform={Action.EditTerms}>
-                  <Box ml={1}>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => setIsEditContractTermsModalOpen(true)}
-                    >
-                      Edit
-                    </Button>
-                  </Box>
-                </Can>
-              )}
-              {isBankUser && (
-                <Can perform={Action.TerminateContract}>
-                  <Box ml={1}>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => setIsTerminateContractModalOpen(true)}
-                    >
-                      Terminate
-                    </Button>
-                  </Box>
-                </Can>
-              )}
+              <Can perform={Action.EditTerms}>
+                <ModalButton
+                  label={"Edit"}
+                  modal={({ handleClose }) => (
+                    <CreateUpdateContractModal
+                      actionType={ActionType.Update}
+                      contractId={contract.id}
+                      companyId={contract.company_id}
+                      handleClose={() => {
+                        if (handleDataChange) {
+                          handleDataChange();
+                        }
+                        handleClose();
+                      }}
+                    />
+                  )}
+                />
+              </Can>
+              <Can perform={Action.TerminateContract}>
+                <Box ml={1}>
+                  <ModalButton
+                    label={"Terminate"}
+                    modal={({ handleClose }) => (
+                      <TerminateContractModal
+                        contractId={contract.id}
+                        handleClose={() => {
+                          if (handleDataChange) {
+                            handleDataChange();
+                          }
+                          handleClose();
+                        }}
+                      />
+                    )}
+                  />
+                </Box>
+              </Can>
             </Box>
           </Box>
         </Box>

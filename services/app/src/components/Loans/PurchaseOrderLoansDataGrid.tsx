@@ -39,133 +39,140 @@ function PurchaseOrderLoansDataGrid({
   handleSelectLoans,
 }: Props) {
   const rows = loans;
-  const columns = [
-    {
-      dataField: "id",
-      caption: "Identifier",
-      width: 120,
-      cellRender: (params: ValueFormatterParams) => (
-        <LoanDrawerLauncher
-          label={createLoanPublicIdentifier(params.row.data as LoanFragment)}
-          loanId={params.row.data.id as string}
-        />
-      ),
-    },
-    {
-      visible: !isMiniTable && !!actionItems && actionItems.length > 0,
-      dataField: "action",
-      caption: "Action",
-      alignment: "center",
-      minWidth: 100,
-      cellRender: (params: ValueFormatterParams) => (
-        <DataGridActionMenu params={params} actionItems={actionItems} />
-      ),
-    },
-    {
-      dataField: "funded_at",
-      caption: "Status",
-      alignment: "center",
-      minWidth: 100,
-      cellRender: (params: ValueFormatterParams) => (
-        <IsFundedChip fundedAt={params.value as string} />
-      ),
-    },
-    {
-      visible: isMaturityVisible,
-      dataField: "payment_status",
-      caption: "Payment Status",
-      alignment: "right",
-      width: 140,
-      cellRender: (params: ValueFormatterParams) => (
-        <PaymentStatusChip paymentStatus={params.value as PaymentStatusEnum} />
-      ),
-    },
-    {
-      visible: !isMiniTable,
-      dataField: "artifact_id",
-      caption: "Purchase Order",
-      width: 160,
-      cellRender: (params: ValueFormatterParams) => (
-        <PurchaseOrderDrawerLauncher
-          label={params.row.data.purchase_order?.order_number as string}
-          purchaseOrderId={params.row.data.purchase_order?.id as string}
-        />
-      ),
-    },
-    {
-      alignment: "right",
-      caption: "Amount",
-      minWidth: 150,
-      cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell value={params.row.data.amount} />
-      ),
-    },
-    {
-      visible: !isMiniTable && !isMaturityVisible,
-      caption: "Requested Payment Date",
-      alignment: "right",
-      minWidth: 140,
-      cellRender: (params: ValueFormatterParams) => (
-        <DateDataGridCell dateString={params.row.data.requested_payment_date} />
-      ),
-    },
-    {
-      visible: !isMiniTable && isViewNotesEnabled,
-      dataField: "notes",
-      caption: "Internal Note",
-      minWidth: 300,
-    },
-    {
-      visible: isMaturityVisible,
-      caption: "Origination Date",
-      alignment: "right",
-      minWidth: 140,
-      cellRender: (params: ValueFormatterParams) => (
-        <DateDataGridCell dateString={params.row.data.origination_date} />
-      ),
-    },
-    {
-      visible: isMaturityVisible,
-      caption: "Maturity Date",
-      alignment: "right",
-      minWidth: 140,
-      cellRender: (params: ValueFormatterParams) => (
-        <DateDataGridCell dateString={params.row.data.maturity_date} />
-      ),
-    },
-    {
-      visible: isMaturityVisible,
-      dataField: "outstanding_principal_balance",
-      caption: "Outstanding Principal Balance",
-      alignment: "right",
-      width: 160,
-      cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell
-          value={params.row.data.outstanding_principal_balance}
-        />
-      ),
-    },
-    {
-      visible: isMaturityVisible,
-      dataField: "outstanding_interest",
-      caption: "Outstanding Interest",
-      alignment: "right",
-      width: 160,
-      cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell value={params.row.data.outstanding_interest} />
-      ),
-    },
-    {
-      visible: isMaturityVisible,
-      dataField: "outstanding_fees",
-      caption: "Outstanding Fees",
-      alignment: "right",
-      width: 160,
-      cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell value={params.row.data.outstanding_fees} />
-      ),
-    },
-  ];
+  const columns = useMemo(
+    () => [
+      {
+        dataField: "id",
+        caption: "Identifier",
+        width: 120,
+        cellRender: (params: ValueFormatterParams) => (
+          <LoanDrawerLauncher
+            label={createLoanPublicIdentifier(params.row.data as LoanFragment)}
+            loanId={params.row.data.id as string}
+          />
+        ),
+      },
+      {
+        visible: !isMiniTable && !!actionItems && actionItems.length > 0,
+        dataField: "action",
+        caption: "Action",
+        alignment: "center",
+        minWidth: 100,
+        cellRender: (params: ValueFormatterParams) => (
+          <DataGridActionMenu params={params} actionItems={actionItems} />
+        ),
+      },
+      {
+        dataField: "funded_at",
+        caption: "Status",
+        alignment: "center",
+        minWidth: 100,
+        cellRender: (params: ValueFormatterParams) => (
+          <IsFundedChip fundedAt={params.value as string} />
+        ),
+      },
+      {
+        visible: isMaturityVisible,
+        dataField: "payment_status",
+        caption: "Payment Status",
+        alignment: "right",
+        width: 140,
+        cellRender: (params: ValueFormatterParams) => (
+          <PaymentStatusChip
+            paymentStatus={params.value as PaymentStatusEnum}
+          />
+        ),
+      },
+      {
+        visible: !isMiniTable,
+        dataField: "artifact_id",
+        caption: "Purchase Order",
+        width: 160,
+        cellRender: (params: ValueFormatterParams) => (
+          <PurchaseOrderDrawerLauncher
+            label={params.row.data.purchase_order?.order_number as string}
+            purchaseOrderId={params.row.data.purchase_order?.id as string}
+          />
+        ),
+      },
+      {
+        alignment: "right",
+        caption: "Amount",
+        minWidth: 150,
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.amount} />
+        ),
+      },
+      {
+        visible: !isMiniTable && !isMaturityVisible,
+        caption: "Requested Payment Date",
+        alignment: "right",
+        minWidth: 140,
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell
+            dateString={params.row.data.requested_payment_date}
+          />
+        ),
+      },
+      {
+        visible: !isMiniTable && isViewNotesEnabled,
+        dataField: "notes",
+        caption: "Internal Note",
+        minWidth: 300,
+      },
+      {
+        visible: isMaturityVisible,
+        caption: "Origination Date",
+        alignment: "right",
+        minWidth: 140,
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell dateString={params.row.data.origination_date} />
+        ),
+      },
+      {
+        visible: isMaturityVisible,
+        caption: "Maturity Date",
+        alignment: "right",
+        minWidth: 140,
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell dateString={params.row.data.maturity_date} />
+        ),
+      },
+      {
+        visible: isMaturityVisible,
+        dataField: "outstanding_principal_balance",
+        caption: "Outstanding Principal Balance",
+        alignment: "right",
+        width: 160,
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell
+            value={params.row.data.outstanding_principal_balance}
+          />
+        ),
+      },
+      {
+        visible: isMaturityVisible,
+        dataField: "outstanding_interest",
+        caption: "Outstanding Interest",
+        alignment: "right",
+        width: 160,
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.outstanding_interest} />
+        ),
+      },
+      {
+        visible: isMaturityVisible,
+        dataField: "outstanding_fees",
+        caption: "Outstanding Fees",
+        alignment: "right",
+        width: 160,
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.outstanding_fees} />
+        ),
+      },
+    ],
+    [isMaturityVisible, isMiniTable, isViewNotesEnabled, actionItems]
+  );
 
   const handleSelectionChanged = useMemo(
     () => ({ selectedRowsData }: any) =>

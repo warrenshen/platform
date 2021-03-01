@@ -1,19 +1,23 @@
-import { Box, Button } from "@material-ui/core";
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { Box } from "@material-ui/core";
 import CreateUpdatePurchaseOrderLoanModal from "components/Loan/CreateUpdatePurchaseOrderLoanModal";
 import CreateUpdatePurchaseOrderModal from "components/PurchaseOrders/CreateUpdatePurchaseOrderModal";
 import PurchaseOrdersDataGrid from "components/PurchaseOrders/PurchaseOrdersDataGrid";
 import Can from "components/Shared/Can";
+import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { usePurchaseOrdersByCompanyIdQuery } from "generated/graphql";
-import { Action, check } from "lib/auth/rbac-rules";
+import {
+  PurchaseOrderFragment,
+  PurchaseOrders,
+  usePurchaseOrdersByCompanyIdQuery,
+} from "generated/graphql";
+import { Action } from "lib/auth/rbac-rules";
 import { ActionType } from "lib/enum";
-import React, { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 
 function PurchaseOrdersPage() {
   const {
-    user: { companyId, role },
+    user: { companyId },
   } = useContext(CurrentUserContext);
 
   const { data, refetch, error } = usePurchaseOrdersByCompanyIdQuery({
@@ -28,92 +32,83 @@ function PurchaseOrdersPage() {
 
   const purchaseOrders = data?.purchase_orders || [];
 
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isCreateLoanModalOpen, setIsCreateLoanModalOpen] = useState(false);
-  const [targetPurchaseOrderId, setTargetPurchaseOrderId] = useState("");
+  const [selectedPurchaseOrderIds, setSelectedPurchaseOrderIds] = useState<
+    PurchaseOrders["id"][]
+  >([]);
 
-  const handleEditPurchaseOrder = (purchaseOrderId: string) => {
-    setTargetPurchaseOrderId(purchaseOrderId);
-    setIsEditModalOpen(true);
-  };
-
-  const handleFundPurchaseOrder = (purchaseOrderId: string) => {
-    setTargetPurchaseOrderId(purchaseOrderId);
-    setIsCreateLoanModalOpen(true);
-  };
+  const handleSelectPurchaseOrders = useMemo(
+    () => (purchaseOrders: PurchaseOrderFragment[]) =>
+      setSelectedPurchaseOrderIds(
+        purchaseOrders.map((purchaseOrder) => purchaseOrder.id)
+      ),
+    [setSelectedPurchaseOrderIds]
+  );
 
   return (
     <Page appBarTitle={"Purchase Orders"}>
       <Box flex={1} display="flex" flexDirection="column" width="100%">
-        {isCreateLoanModalOpen && (
-          <CreateUpdatePurchaseOrderLoanModal
-            actionType={ActionType.New}
-            loanId=""
-            artifactId={targetPurchaseOrderId}
-            handleClose={() => {
-              refetch();
-              setIsCreateLoanModalOpen(false);
-              setTargetPurchaseOrderId("");
-            }}
-          />
-        )}
-        {isEditModalOpen && (
-          <CreateUpdatePurchaseOrderModal
-            actionType={
-              targetPurchaseOrderId === "" ? ActionType.New : ActionType.Update
-            }
-            purchaseOrderId={targetPurchaseOrderId}
-            handleClose={() => {
-              refetch();
-              setIsEditModalOpen(false);
-              setTargetPurchaseOrderId("");
-            }}
-          />
-        )}
         <Box mb={2} display="flex" flexDirection="row-reverse">
           <Can perform={Action.AddPurchaseOrders}>
-            <Button
-              onClick={() => setIsEditModalOpen(true)}
-              variant="contained"
-              color="primary"
-            >
-              Create Purchase Order
-            </Button>
+            <ModalButton
+              isDisabled={selectedPurchaseOrderIds.length !== 0}
+              label={"Create PO"}
+              modal={({ handleClose }) => (
+                <CreateUpdatePurchaseOrderModal
+                  actionType={ActionType.New}
+                  purchaseOrderId={null}
+                  handleClose={() => {
+                    refetch();
+                    handleClose();
+                  }}
+                />
+              )}
+            />
+          </Can>
+          <Can perform={Action.EditPurchaseOrders}>
+            <Box mr={1}>
+              <ModalButton
+                isDisabled={selectedPurchaseOrderIds.length !== 1}
+                label={"Edit PO"}
+                modal={({ handleClose }) => (
+                  <CreateUpdatePurchaseOrderModal
+                    actionType={ActionType.Update}
+                    purchaseOrderId={selectedPurchaseOrderIds[0]}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                      setSelectedPurchaseOrderIds([]);
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          </Can>
+          <Can perform={Action.FundPurchaseOrders}>
+            <Box mr={1}>
+              <ModalButton
+                isDisabled={selectedPurchaseOrderIds.length !== 1}
+                label={"Fund PO"}
+                modal={({ handleClose }) => (
+                  <CreateUpdatePurchaseOrderLoanModal
+                    actionType={ActionType.New}
+                    loanId=""
+                    artifactId={selectedPurchaseOrderIds[0]}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                      setSelectedPurchaseOrderIds([]);
+                    }}
+                  />
+                )}
+              />
+            </Box>
           </Can>
         </Box>
         <PurchaseOrdersDataGrid
           isCompanyVisible={false}
           purchaseOrders={purchaseOrders}
-          actionItems={
-            check(role, Action.ViewPurchaseOrdersActionMenu)
-              ? [
-                  ...(check(role, Action.EditPurchaseOrderLoan)
-                    ? [
-                        {
-                          key: "edit-purchase-order",
-                          label: "Edit",
-                          handleClick: (params: ValueFormatterParams) =>
-                            handleEditPurchaseOrder(
-                              params.row.data.id as string
-                            ),
-                        },
-                      ]
-                    : []),
-                  ...(check(role, Action.FundPurchaseOrderLoan)
-                    ? [
-                        {
-                          key: "fund-purchase-order",
-                          label: "Fund",
-                          handleClick: (params: ValueFormatterParams) =>
-                            handleFundPurchaseOrder(
-                              params.row.data.id as string
-                            ),
-                        },
-                      ]
-                    : []),
-                ]
-              : []
-          }
+          selectedPurchaseOrderIds={selectedPurchaseOrderIds}
+          handleSelectPurchaseOrders={handleSelectPurchaseOrders}
         />
       </Box>
     </Page>

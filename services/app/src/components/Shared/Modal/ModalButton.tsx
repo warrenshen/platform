@@ -4,10 +4,18 @@ import { ReactNode, useState } from "react";
 interface Props {
   isDisabled?: boolean;
   label: string;
+  size?: "small" | "medium" | "large" | undefined;
+  variant?: "text" | "outlined" | "contained" | undefined;
   modal: ({ handleClose }: { handleClose: () => void }) => ReactNode;
 }
 
-function ModalButton({ isDisabled = false, label, modal }: Props) {
+function ModalButton({
+  isDisabled = false,
+  label,
+  size,
+  variant,
+  modal,
+}: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -16,7 +24,8 @@ function ModalButton({ isDisabled = false, label, modal }: Props) {
       <Button
         disabled={isOpen || isDisabled}
         color="primary"
-        variant="contained"
+        size={size || "medium"}
+        variant={variant || "contained"}
         onClick={() => setIsOpen(true)}
       >
         {label}

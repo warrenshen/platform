@@ -23,14 +23,14 @@ export enum Action {
 
   // Purchase Orders
   AddPurchaseOrders = "purchase-orders:add",
+  EditPurchaseOrders = "purchase-orders:manipulate",
+  FundPurchaseOrders = "purchase-orders:fund",
   ViewPurchaseOrdersActionMenu = "purchase-orders:view-action-menu",
-  ManipulatePurchaseOrders = "purchase-orders:manipulate",
 
   // Purchase Order Loans
   AddPurchaseOrderLoan = "purchase-order-loan:add",
   DisbursePurchaseOrderLoans = "purchase-order-loans:disburse",
   EditPurchaseOrderLoan = "purchase-order-loan:edit",
-  FundPurchaseOrderLoan = "purchase-order-loan:fund",
   RepayPurchaseOrderLoans = "purchase-order-loans:repay",
 
   // Payments
@@ -154,7 +154,8 @@ const rules: Rules = {
   [UserRolesEnum.CompanyAdmin]: {
     static: [
       Action.AddPurchaseOrders,
-      Action.ManipulatePurchaseOrders,
+      Action.EditPurchaseOrders,
+      Action.FundPurchaseOrders,
 
       Action.AddPurchaseOrderLoan,
       Action.EditPurchaseOrderLoan,
