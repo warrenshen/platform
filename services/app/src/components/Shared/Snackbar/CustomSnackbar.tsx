@@ -24,11 +24,11 @@ export default function CustomSnackbar({
         variant="filled"
         severity={customParameters?.type}
         action={
-          action != null && (
+          action ? (
             <Button color="inherit" size="small" {...ButtonProps}>
               {action}
             </Button>
-          )
+          ) : null
         }
       >
         {message}
