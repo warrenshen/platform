@@ -28,7 +28,7 @@ korean-lunar-calendar==0.2.1  # via holidays
 markupsafe==1.1.1         # via jinja2
 mypy-extensions==0.4.3    # via mypy
 mypy==0.800               # via -r requirements.in, sqlalchemy-stubs
-numpy==1.20               # via -r requirements.in
+numpy==1.20.0             # via -r requirements.in
 packaging==20.8           # via dparse, safety
 passlib==1.7.4            # via -r requirements.in
 psycopg2-binary==2.8.5    # via -r requirements.in
