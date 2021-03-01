@@ -180,6 +180,18 @@ class Contract(object):
 
 		return self._internal_name_to_field[internal_name], None
 
+	def _get_bool_value(self, internal_name: str) -> Tuple[bool, errors.Error]:
+		field, err = self._get_field(internal_name)
+		if err:
+			return None, err
+
+		if type(field['value']) != bool:
+			return None, errors.Error(
+				'Got an "{}" which is not stored as a boolean'.format(internal_name),
+				details={'contract_config': self._config})
+
+		return field['value'], None
+
 	def _get_float_value(self, internal_name: str) -> Tuple[float, errors.Error]:
 		field, err = self._get_field(internal_name)
 		if err:
@@ -228,6 +240,9 @@ class Contract(object):
 	def get_interest_rate(self) -> Tuple[float, errors.Error]:
 		return self._get_float_value('factoring_fee_percentage')
 
+	def use_preceeding_business_day(self) -> Tuple[bool, errors.Error]:
+		return self._get_bool_value('prceeding_business_day')
+
 	def get_fee_multiplier(self, days_past_due: int) -> Tuple[float, errors.Error]:
 		"""
 			Past on how many days past due this loan is, we have a multiplier of how
@@ -258,7 +273,6 @@ class Contract(object):
 			'Could not find a matching fee multiplier for days_past_due={}'.format(
 				days_past_due))
 
-
 	def get_maturity_date(self, advance_settlement_date: datetime.date) -> Tuple[datetime.date, errors.Error]:
 		"""
 			Get the maturity date of a loan that starts with it's advance on this
@@ -276,10 +290,8 @@ class Contract(object):
 
 		return self._field_dicts
 
-
 	def as_loc_contract(self) -> 'LOCContract':
 		return LOCContract(self._contract_dict, self._private)
-
 
 	@staticmethod
 	def build(contract_dict: models.ContractDict, validate: bool) -> Tuple['Contract', errors.Error]:
@@ -313,18 +325,14 @@ class LOCContract(Contract):
 	def __init__(self, c: models.ContractDict, private: bool) -> None:
 		super(LOCContract, self).__init__(c, private)
 
-
 	def get_borrowing_base_accounts_receivable(self) -> Tuple[float, errors.Error]:
 		return self._get_float_value('borrowing_base_accounts_receivable_percentage')
-
 
 	def get_borrowing_base_inventory_percentage(self) -> Tuple[float, errors.Error]:
 		return self._get_float_value('borrowing_base_inventory_percentage')
 
-
 	def get_borrowing_base_cash_percentage(self) -> Tuple[float, errors.Error]:
 		return self._get_float_value('borrowing_base_cash_percentage')
-
 
 	# Based on https://github.com/bespoke-capital/platform/blob/3d0574e2d1198137ff089f02ddafe383708c0d0e/services/app/src/components/EbbaApplication/CreateEbbaApplicationModal.tsx#L44-L76
 	def compute_borrowing_base(self, ebba: models.EbbaApplicationDict) -> Tuple[float, errors.Error]:

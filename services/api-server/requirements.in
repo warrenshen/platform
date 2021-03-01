@@ -1,4 +1,6 @@
 python-dotenv==0.13.0
+numpy==1.20
+holidays==0.10.3
 
 # webapp
 jinja2==2.11.2
