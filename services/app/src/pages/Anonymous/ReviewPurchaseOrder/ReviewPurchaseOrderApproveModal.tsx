@@ -18,6 +18,7 @@ import {
   RequestStatusEnum,
   useCompanyVendorPartnershipForVendorQuery,
 } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, purchaseOrdersRoutes } from "lib/api";
 import { useContext } from "react";
 
@@ -51,12 +52,16 @@ function ReviewPurchaseOrderApproveModal({
   handleClose,
   handleApproveSuccess,
 }: Props) {
+  const snackbar = useSnackbar();
   const classes = useStyles();
   const {
     user: { companyId },
   } = useContext(CurrentUserContext);
 
-  const { data } = useCompanyVendorPartnershipForVendorQuery({
+  const {
+    data,
+    loading: isCompanyVendorPartnershipLoading,
+  } = useCompanyVendorPartnershipForVendorQuery({
     variables: {
       companyId: purchaseOrder.company_id,
       vendorId: companyId,
@@ -64,6 +69,11 @@ function ReviewPurchaseOrderApproveModal({
   });
 
   if (!data?.company_vendor_partnerships[0]?.vendor_bank_account) {
+    if (!isCompanyVendorPartnershipLoading) {
+      snackbar.showError(
+        "Error! Bespoke does not have your bank account information. Please contact Bespoke to resolve this."
+      );
+    }
     return null;
   }
 
@@ -81,8 +91,11 @@ function ReviewPurchaseOrderApproveModal({
       }
     );
     if (response.data?.status === "ERROR") {
-      alert(response.data?.msg);
+      snackbar.showError(
+        `Error! Something went wrong. Reason: ${response.data?.msg}`
+      );
     } else {
+      snackbar.showSuccess("Success! Purchase order approved.");
       handleApproveSuccess();
     }
   };

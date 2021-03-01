@@ -226,7 +226,7 @@ function ReviewPurchaseOrderPage(props: Props) {
               disabled={false}
               onClick={() => setIsRejectModalOpen(true)}
               variant={"contained"}
-              color={"secondary"}
+              color={"default"}
             >
               Reject
             </Button>

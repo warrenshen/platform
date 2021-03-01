@@ -12,6 +12,7 @@ import {
   Theme,
 } from "@material-ui/core";
 import { RequestStatusEnum } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, purchaseOrdersRoutes } from "lib/api";
 import { useState } from "react";
 
@@ -45,6 +46,7 @@ function ReviewPurchaseOrderRejectModal({
   handleClose,
   handleRejectSuccess,
 }: Props) {
+  const snackbar = useSnackbar();
   const classes = useStyles();
   const [rejectionNote, setRejectionNote] = useState("");
 
@@ -59,8 +61,11 @@ function ReviewPurchaseOrderRejectModal({
       }
     );
     if (response.data?.status === "ERROR") {
-      alert(response.data?.msg);
+      snackbar.showError(
+        `Error! Something went wrong. Reason: ${response.data?.msg}`
+      );
     } else {
+      snackbar.showSuccess("Success! Purchase order rejected.");
       handleRejectSuccess();
     }
   };
