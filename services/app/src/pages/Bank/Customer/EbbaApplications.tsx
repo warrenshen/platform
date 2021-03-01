@@ -40,7 +40,6 @@ function BankCustomerEbbaApplicationsSubpage({ companyId }: Props) {
         <EbbaApplicationsDataGrid
           isCompanyVisible={false}
           ebbaApplications={ebbaApplications}
-          actionItems={[]}
         />
       </Box>
     </Box>

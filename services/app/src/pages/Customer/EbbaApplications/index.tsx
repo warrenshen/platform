@@ -100,7 +100,6 @@ function CustomerEbbaApplicationsPage() {
           <EbbaApplicationsDataGrid
             isCompanyVisible={false}
             ebbaApplications={ebbaApplications}
-            actionItems={[]}
           />
         </Box>
       </Box>

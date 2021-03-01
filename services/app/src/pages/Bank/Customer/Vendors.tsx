@@ -1,6 +1,6 @@
 import { Box } from "@material-ui/core";
 import AddButton from "components/Vendors/AddVendor/Button";
-import VendorPartnershipList from "components/Vendors/VendorPartnershipList";
+import VendorPartnershipList from "components/Vendors/VendorPartnershipsDataGrid";
 import { useBankCustomerListVendorPartnershipsQuery } from "generated/graphql";
 import { sortBy } from "lodash";
 

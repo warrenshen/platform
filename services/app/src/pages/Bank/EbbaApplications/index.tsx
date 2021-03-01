@@ -13,10 +13,7 @@ function EbbaApplicationsPage() {
 
   return (
     <Page appBarTitle={"Borrowing Bases"}>
-      <EbbaApplicationsDataGrid
-        ebbaApplications={ebbaApplications}
-        actionItems={[]}
-      />
+      <EbbaApplicationsDataGrid ebbaApplications={ebbaApplications} />
     </Page>
   );
 }

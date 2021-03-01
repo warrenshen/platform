@@ -4,7 +4,7 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { PaymentFragment } from "generated/graphql";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 function getRows(payments: PaymentFragment[]): RowsProp {
   return payments.map((item) => {
@@ -27,69 +27,67 @@ function AdvancesDataGrid({
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = getRows(payments);
-
-  const companyNameRenderer = (params: ValueFormatterParams) => {
-    return (
-      <ClickableDataGridCell
-        label={params.row.data.company.name}
-        onClick={() => {
-          onClickCustomerName(params.row.data.company.name);
-          dataGrid?.instance.filter([
-            "company.name",
-            "=",
-            params.row.data.company.name,
-          ]);
-        }}
-      />
-    );
-  };
-
-  const columns = [
-    {
-      dataField: "id",
-      caption: "Advance ID",
-      width: 140,
-    },
-    {
-      caption: "Company",
-      width: 140,
-      cellRender: companyNameRenderer,
-    },
-    {
-      caption: "Amount",
-      alignment: "right",
-      width: 140,
-      cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell value={params.row.data.amount} />
-      ),
-    },
-    {
-      dataField: "method",
-      caption: "Method",
-      width: 90,
-    },
-    {
-      caption: "Payment Date",
-      width: 140,
-      alignment: "right",
-      cellRender: (params: ValueFormatterParams) => (
-        <DateDataGridCell dateString={params.row.data.payment_date} />
-      ),
-    },
-    {
-      caption: "Settlement Date",
-      width: 140,
-      alignment: "right",
-      cellRender: (params: ValueFormatterParams) => (
-        <DateDataGridCell dateString={params.row.data.settlement_date} />
-      ),
-    },
-    {
-      dataField: "submitted_by_user.full_name",
-      caption: "Submitted By",
-      width: 90,
-    },
-  ];
+  const columns = useMemo(
+    () => [
+      {
+        dataField: "id",
+        caption: "Advance ID",
+        width: 140,
+      },
+      {
+        caption: "Company",
+        width: 140,
+        cellRender: (params: ValueFormatterParams) => (
+          <ClickableDataGridCell
+            label={params.row.data.company.name}
+            onClick={() => {
+              onClickCustomerName(params.row.data.company.name);
+              dataGrid?.instance.filter([
+                "company.name",
+                "=",
+                params.row.data.company.name,
+              ]);
+            }}
+          />
+        ),
+      },
+      {
+        caption: "Amount",
+        alignment: "right",
+        width: 140,
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.amount} />
+        ),
+      },
+      {
+        dataField: "method",
+        caption: "Method",
+        width: 90,
+      },
+      {
+        caption: "Payment Date",
+        width: 140,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell dateString={params.row.data.payment_date} />
+        ),
+      },
+      {
+        caption: "Settlement Date",
+        width: 140,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell dateString={params.row.data.settlement_date} />
+        ),
+      },
+      {
+        dataField: "submitted_by_user.full_name",
+        caption: "Submitted By",
+        width: 90,
+      },
+    ],
+    [dataGrid?.instance, onClickCustomerName]
+  );
 
   return (
     <ControlledDataGrid

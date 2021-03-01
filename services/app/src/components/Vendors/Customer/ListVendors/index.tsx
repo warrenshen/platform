@@ -1,8 +1,8 @@
+import VendorPartnershipList from "components/Vendors/VendorPartnershipsDataGrid";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useVendorPartnershipsByCompanyIdQuery } from "generated/graphql";
 import { sortBy } from "lodash";
 import { useContext } from "react";
-import VendorPartnershipList from "components/Vendors/VendorPartnershipList";
 
 function ListVendors() {
   const {

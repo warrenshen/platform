@@ -1,6 +1,6 @@
+import VendorPartnershipList from "components/Vendors/VendorPartnershipsDataGrid";
 import { useBankListVendorPartnershipsQuery } from "generated/graphql";
 import { sortBy } from "lodash";
-import VendorPartnershipList from "components/Vendors/VendorPartnershipList";
 
 function ListVendors() {
   const { data }: { data: any } = useBankListVendorPartnershipsQuery();

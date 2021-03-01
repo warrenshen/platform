@@ -7,6 +7,7 @@ import {
   ProductTypeEnum,
 } from "generated/graphql";
 import { ProductTypeToLabel } from "lib/enum";
+import { useMemo } from "react";
 
 interface Props {
   bankFinancialSummaries: GetLatestBankFinancialSummariesQuery["bank_financial_summaries"];
@@ -14,72 +15,80 @@ interface Props {
 
 function BankFinancialSummariesDataGrid({ bankFinancialSummaries }: Props) {
   const rows = bankFinancialSummaries;
-
-  const columns = [
-    {
-      dataField: "product_type",
-      caption: "Product Type",
-      cellRender: (params: ValueFormatterParams) => (
-        <Box>
-          {ProductTypeToLabel[params.row.data.product_type as ProductTypeEnum]}
-        </Box>
-      ),
-    },
-    {
-      dataField: "total_outstanding_principal",
-      caption: "Total Outstanding Principal",
-      alignment: "right",
-      cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell
-          value={params.row.data.total_outstanding_principal}
-        />
-      ),
-    },
-    {
-      dataField: "total_outstanding_interest",
-      caption: "Total Outstanding Interest",
-      alignment: "right",
-      cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell
-          value={params.row.data.total_outstanding_interest}
-        />
-      ),
-    },
-    {
-      dataField: "total_outstanding_fees",
-      caption: "Total Outstanding Fees",
-      alignment: "right",
-      cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell value={params.row.data.total_outstanding_fees} />
-      ),
-    },
-    {
-      dataField: "total_principal_in_requested_state",
-      caption: "Total Principal in Requested State",
-      alignment: "right",
-      cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell
-          value={params.row.data.total_principal_in_requested_state}
-        />
-      ),
-    },
-    {
-      dataField: "available_limit",
-      caption: "Available Limit",
-      alignment: "right",
-      cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell value={params.row.data.available_limit} />
-      ),
-    },
-    {
-      dataField: "total_limit",
-      caption: "Total Limit",
-      alignment: "right",
-      cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell value={params.row.data.adjusted_total_limit} />
-      ),
-    },
-  ];
+  const columns = useMemo(
+    () => [
+      {
+        dataField: "product_type",
+        caption: "Product Type",
+        cellRender: (params: ValueFormatterParams) => (
+          <Box>
+            {
+              ProductTypeToLabel[
+                params.row.data.product_type as ProductTypeEnum
+              ]
+            }
+          </Box>
+        ),
+      },
+      {
+        dataField: "total_outstanding_principal",
+        caption: "Total Outstanding Principal",
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell
+            value={params.row.data.total_outstanding_principal}
+          />
+        ),
+      },
+      {
+        dataField: "total_outstanding_interest",
+        caption: "Total Outstanding Interest",
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell
+            value={params.row.data.total_outstanding_interest}
+          />
+        ),
+      },
+      {
+        dataField: "total_outstanding_fees",
+        caption: "Total Outstanding Fees",
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell
+            value={params.row.data.total_outstanding_fees}
+          />
+        ),
+      },
+      {
+        dataField: "total_principal_in_requested_state",
+        caption: "Total Principal in Requested State",
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell
+            value={params.row.data.total_principal_in_requested_state}
+          />
+        ),
+      },
+      {
+        dataField: "available_limit",
+        caption: "Available Limit",
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.available_limit} />
+        ),
+      },
+      {
+        dataField: "total_limit",
+        caption: "Total Limit",
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.adjusted_total_limit} />
+        ),
+      },
+    ],
+    []
+  );
 
   return (
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">

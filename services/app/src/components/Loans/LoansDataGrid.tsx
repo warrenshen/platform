@@ -9,7 +9,7 @@ import DataGridActionMenu, {
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { LoanFragment, LoanStatusEnum } from "generated/graphql";
 import { createLoanPublicIdentifier } from "lib/loans";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface Props {
   isSortingDisabled?: boolean;
@@ -46,85 +46,88 @@ function LoansDataGrid({
     }
   }, [dataGrid, customerSearchQuery]);
 
-  const columns = [
-    {
-      dataField: "id",
-      caption: "ID",
-      width: 120,
-      cellRender: (params: ValueFormatterParams) => (
-        <LoanDrawerLauncher
-          label={createLoanPublicIdentifier(params.row.data as LoanFragment)}
-          loanId={params.row.data.id as string}
-        />
-      ),
-    },
-    {
-      visible: !!actionItems && actionItems.length > 0,
-      dataField: "action",
-      caption: "Action",
-      alignment: "center",
-      width: 75,
-      cellRender: (params: ValueFormatterParams) => (
-        <DataGridActionMenu params={params} actionItems={actionItems} />
-      ),
-    },
-    {
-      visible: isStatusVisible,
-      dataField: "status",
-      caption: "Status",
-      width: 120,
-      alignment: "center",
-      cellRender: (params: ValueFormatterParams) => (
-        <LoanStatusChip loanStatus={params.value as LoanStatusEnum} />
-      ),
-    },
-    {
-      visible: isMaturityVisible,
-      caption: "Maturity Date",
-      alignment: "right",
-      width: 120,
-      cellRender: (params: ValueFormatterParams) => (
-        <DateDataGridCell dateString={params.row.data.maturity_date} />
-      ),
-    },
-    {
-      caption: "Loan Amount",
-      alignment: "right",
-      width: 120,
-      cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell value={params.row.data.amount} />
-      ),
-    },
-    {
-      visible: isMaturityVisible,
-      dataField: "outstanding_principal_balance",
-      caption: "Outstanding Principal",
-      alignment: "right",
-      cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell
-          value={params.row.data.outstanding_principal_balance}
-        />
-      ),
-    },
-    {
-      visible: isMaturityVisible,
-      dataField: "outstanding_interest",
-      caption: "Outstanding Interest",
-      alignment: "right",
-      cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell value={params.row.data.outstanding_interest} />
-      ),
-    },
-    {
-      visible: isMaturityVisible,
-      dataField: "outstanding_fees",
-      caption: "Outstanding Fees",
-      alignment: "right",
-      cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell value={params.row.data.outstanding_fees} />
-      ),
-    },
-  ];
+  const columns = useMemo(
+    () => [
+      {
+        dataField: "id",
+        caption: "ID",
+        width: 120,
+        cellRender: (params: ValueFormatterParams) => (
+          <LoanDrawerLauncher
+            label={createLoanPublicIdentifier(params.row.data as LoanFragment)}
+            loanId={params.row.data.id as string}
+          />
+        ),
+      },
+      {
+        visible: !!actionItems && actionItems.length > 0,
+        dataField: "action",
+        caption: "Action",
+        alignment: "center",
+        width: 75,
+        cellRender: (params: ValueFormatterParams) => (
+          <DataGridActionMenu params={params} actionItems={actionItems} />
+        ),
+      },
+      {
+        visible: isStatusVisible,
+        dataField: "status",
+        caption: "Status",
+        width: 120,
+        alignment: "center",
+        cellRender: (params: ValueFormatterParams) => (
+          <LoanStatusChip loanStatus={params.value as LoanStatusEnum} />
+        ),
+      },
+      {
+        visible: isMaturityVisible,
+        caption: "Maturity Date",
+        alignment: "right",
+        width: 120,
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell dateString={params.row.data.maturity_date} />
+        ),
+      },
+      {
+        caption: "Loan Amount",
+        alignment: "right",
+        width: 120,
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.amount} />
+        ),
+      },
+      {
+        visible: isMaturityVisible,
+        dataField: "outstanding_principal_balance",
+        caption: "Outstanding Principal",
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell
+            value={params.row.data.outstanding_principal_balance}
+          />
+        ),
+      },
+      {
+        visible: isMaturityVisible,
+        dataField: "outstanding_interest",
+        caption: "Outstanding Interest",
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.outstanding_interest} />
+        ),
+      },
+      {
+        visible: isMaturityVisible,
+        dataField: "outstanding_fees",
+        caption: "Outstanding Fees",
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.outstanding_fees} />
+        ),
+      },
+    ],
+    [isMaturityVisible, isStatusVisible, actionItems]
+  );
 
   return (
     <ControlledDataGrid
