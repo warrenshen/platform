@@ -134,7 +134,7 @@ function ContractTermsForm({
             maximumValue={item.format === "percentage" ? "100" : undefined}
             textAlign="left"
             required={!item.nullable}
-            value={item.value || ""}
+            value={item.value === null ? "" : item.value}
             modifyValueOnWheel={false}
             onChange={(_event: any, value: string) =>
               findAndReplaceInJSON(item, value)

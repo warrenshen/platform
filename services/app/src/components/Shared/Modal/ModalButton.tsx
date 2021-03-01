@@ -4,6 +4,7 @@ import { ReactNode, useState } from "react";
 interface Props {
   isDisabled?: boolean;
   label: string;
+  color?: "inherit" | "primary" | "secondary" | "default" | undefined;
   size?: "small" | "medium" | "large" | undefined;
   variant?: "text" | "outlined" | "contained" | undefined;
   modal: ({ handleClose }: { handleClose: () => void }) => ReactNode;
@@ -12,6 +13,7 @@ interface Props {
 function ModalButton({
   isDisabled = false,
   label,
+  color,
   size,
   variant,
   modal,
@@ -23,7 +25,7 @@ function ModalButton({
       {isOpen && modal({ handleClose: () => setIsOpen(false) })}
       <Button
         disabled={isOpen || isDisabled}
-        color="primary"
+        color={color || "primary"}
         size={size || "medium"}
         variant={variant || "contained"}
         onClick={() => setIsOpen(true)}

@@ -74,27 +74,35 @@ function ContractCard({ contract, handleDataChange }: Props) {
                 )}
               </ContractDrawerLauncher>
               <Can perform={Action.EditTerms}>
-                <ModalButton
-                  label={"Edit"}
-                  modal={({ handleClose }) => (
-                    <CreateUpdateContractModal
-                      actionType={ActionType.Update}
-                      contractId={contract.id}
-                      companyId={contract.company_id}
-                      handleClose={() => {
-                        if (handleDataChange) {
-                          handleDataChange();
-                        }
-                        handleClose();
-                      }}
-                    />
-                  )}
-                />
+                <Box ml={1}>
+                  <ModalButton
+                    label={"Edit"}
+                    color="default"
+                    size="small"
+                    variant="outlined"
+                    modal={({ handleClose }) => (
+                      <CreateUpdateContractModal
+                        actionType={ActionType.Update}
+                        contractId={contract.id}
+                        companyId={contract.company_id}
+                        handleClose={() => {
+                          if (handleDataChange) {
+                            handleDataChange();
+                          }
+                          handleClose();
+                        }}
+                      />
+                    )}
+                  />
+                </Box>
               </Can>
               <Can perform={Action.TerminateContract}>
                 <Box ml={1}>
                   <ModalButton
                     label={"Terminate"}
+                    color="default"
+                    size="small"
+                    variant="outlined"
                     modal={({ handleClose }) => (
                       <TerminateContractModal
                         contractId={contract.id}
