@@ -1,9 +1,9 @@
 import { Box, Button } from "@material-ui/core";
-import { ValueFormatterParams } from "@material-ui/data-grid";
 import CreateAdvanceModal from "components/Advance/CreateAdvanceModal";
 import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
-import Page from "components/Shared/Page";
 import Can from "components/Shared/Can";
+import ModalButton from "components/Shared/Modal/ModalButton";
+import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoanFragment,
@@ -11,11 +11,13 @@ import {
   LoanStatusEnum,
   useLoansByStatusesForBankQuery,
 } from "generated/graphql";
-import { approveLoans, rejectLoan } from "lib/finance/loans/approval";
+import useSnackbar from "hooks/useSnackbar";
 import { Action, check } from "lib/auth/rbac-rules";
-import { useState, useContext } from "react";
+import { approveLoans, rejectLoan } from "lib/finance/loans/approval";
+import { useContext, useMemo, useState } from "react";
 
-function LoansAllProductsPage() {
+function LoansActionRequiredPage() {
+  const snackbar = useSnackbar();
   const {
     user: { role },
   } = useContext(CurrentUserContext);
@@ -26,16 +28,21 @@ function LoansAllProductsPage() {
     },
   });
 
-  // State for modal(s).
-  const [isCreateAdvanceModalOpen, setIsCreateAdvanceModalOpen] = useState(
-    false
-  );
-  const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
-  const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"]>([]);
-
   if (error) {
     alert("Error querying loans. " + error);
   }
+
+  // State for modal(s).
+  const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
+  const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"]>([]);
+
+  const handleSelectLoans = useMemo(
+    () => (loans: LoanFragment[]) => {
+      setSelectedLoans(loans);
+      setSelectedLoanIds(loans.map((loan) => loan.id));
+    },
+    [setSelectedLoanIds]
+  );
 
   const handleApproveLoans = async () => {
     const response = await approveLoans(selectedLoanIds);
@@ -45,18 +52,14 @@ function LoansAllProductsPage() {
     refetch();
   };
 
-  const handleApproveLoan = async (loanId: string) => {
-    const response = await approveLoans([loanId]);
-    if (response.status !== "OK") {
-      alert("Could not approve loan. Reason: " + response.msg);
-    }
-    refetch();
-  };
-
-  const handleRejectLoan = async (loanId: string) => {
+  const handleRejectLoan = async () => {
     // TODO(warren): Handle entering a real rejection reason
+    if (selectedLoanIds.length !== 1) {
+      snackbar.showError("Error! Developer error with handleRejectLoan.");
+      return;
+    }
     const response = await rejectLoan({
-      loan_id: loanId,
+      loan_id: selectedLoanIds[0],
       rejection_note: "Default rejection reason",
     });
     if (response.status !== "OK") {
@@ -77,38 +80,55 @@ function LoansAllProductsPage() {
   return (
     <Page appBarTitle={"Loans - Action Required"}>
       <Box mb={2} display="flex" flexDirection="row-reverse">
-        {isCreateAdvanceModalOpen && (
-          <CreateAdvanceModal
-            selectedLoans={selectedLoans}
-            handleClose={() => {
-              refetch();
-              setSelectedLoans([]);
-              setSelectedLoanIds([]);
-              setIsCreateAdvanceModalOpen(false);
-            }}
-          />
-        )}
         <Can perform={Action.CreateAdvance}>
           <Box>
-            <Button
-              disabled={approvedSelectedLoans.length <= 0}
-              variant="contained"
-              color="primary"
-              onClick={() => setIsCreateAdvanceModalOpen(true)}
-            >
-              Create Advance
-            </Button>
+            <ModalButton
+              isDisabled={
+                approvalRequestedSelectedLoans.length > 0 ||
+                approvedSelectedLoans.length <= 0
+              }
+              label={"Create Advance"}
+              modal={({ handleClose }) => (
+                <CreateAdvanceModal
+                  selectedLoans={selectedLoans}
+                  handleClose={() => {
+                    refetch();
+                    setSelectedLoans([]);
+                    setSelectedLoanIds([]);
+                    handleClose();
+                  }}
+                />
+              )}
+            />
           </Box>
         </Can>
         <Can perform={Action.ApproveLoan}>
           <Box mr={2}>
             <Button
-              disabled={approvalRequestedSelectedLoans.length <= 0}
+              disabled={
+                approvalRequestedSelectedLoans.length <= 0 ||
+                approvedSelectedLoans.length > 0
+              }
               variant="contained"
               color="primary"
               onClick={handleApproveLoans}
             >
               Approve Loan(s)
+            </Button>
+          </Box>
+        </Can>
+        <Can perform={Action.RejectLoan}>
+          <Box mr={2}>
+            <Button
+              disabled={
+                approvalRequestedSelectedLoans.length !== 1 ||
+                approvedSelectedLoans.length > 0
+              }
+              variant="contained"
+              color="primary"
+              onClick={handleRejectLoan}
+            >
+              Reject Loan
             </Button>
           </Box>
         </Can>
@@ -120,32 +140,7 @@ function LoansAllProductsPage() {
           loansPastDue={false}
           loans={loans}
           selectedLoanIds={selectedLoanIds}
-          actionItems={[
-            ...(check(role, Action.ApproveLoan)
-              ? [
-                  {
-                    key: "approve-loan",
-                    label: "Approve Loan",
-                    handleClick: (params: ValueFormatterParams) =>
-                      handleApproveLoan(params.row.data.id as string),
-                  },
-                ]
-              : []),
-            ...(check(role, Action.RejectLoan)
-              ? [
-                  {
-                    key: "reject-loan",
-                    label: "Reject Loan",
-                    handleClick: (params: ValueFormatterParams) =>
-                      handleRejectLoan(params.row.data.id as string),
-                  },
-                ]
-              : []),
-          ]}
-          handleSelectLoans={(loans) => {
-            setSelectedLoans(loans);
-            setSelectedLoanIds(loans.map((loan) => loan.id));
-          }}
+          handleSelectLoans={handleSelectLoans}
           isMultiSelectEnabled={check(role, Action.SelectLoan)}
         />
       </Box>
@@ -153,4 +148,4 @@ function LoansAllProductsPage() {
   );
 }
 
-export default LoansAllProductsPage;
+export default LoansActionRequiredPage;

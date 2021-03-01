@@ -139,7 +139,7 @@ const getBankNavItems = (): NavItem[] => {
         },
         {
           text: "Action Required",
-          link: bankRoutes.loansApprovalRequested,
+          link: bankRoutes.loansActionRequired,
           icon: <AccountBalanceIcon />,
         },
         {

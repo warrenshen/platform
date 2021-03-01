@@ -20,8 +20,8 @@ import BankBankAccountsPage from "pages/Bank/BankAccounts";
 import BankCustomerPage from "pages/Bank/Customer";
 import BankCustomersPage from "pages/Bank/Customers";
 import BankEbbaApplicationsPage from "pages/Bank/EbbaApplications";
+import BankLoansActionRequiredPage from "pages/Bank/LoansActionRequired";
 import BankLoansAllProductsPage from "pages/Bank/LoansAllProducts";
-import BankLoansApprovalRequestedPage from "pages/Bank/LoansApprovalRequested";
 import BankLoansMaturingPage from "pages/Bank/LoansMaturing";
 import BankLoansPastDuePage from "pages/Bank/LoansPastDue";
 import BankOverviewPage from "pages/Bank/Overview";
@@ -212,10 +212,10 @@ function App() {
         </PrivateRoute>
         <PrivateRoute
           exact
-          path={bankRoutes.loansApprovalRequested}
+          path={bankRoutes.loansActionRequired}
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
         >
-          <BankLoansApprovalRequestedPage />
+          <BankLoansActionRequiredPage />
         </PrivateRoute>
         <PrivateRoute
           exact

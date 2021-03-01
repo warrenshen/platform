@@ -9,7 +9,6 @@ import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import { IColumnProps } from "devextreme-react/data-grid";
 import {
   LoanFragment,
   Loans,
@@ -86,126 +85,137 @@ function BankLoansDataGrid({
     return Math.floor((nowTime - maturityTime) / (24 * 60 * 60 * 1000));
   };
 
-  const columns: IColumnProps[] = [
-    {
-      dataField: "id",
-      caption: "Identifier",
-      width: 120,
-      cellRender: (params: ValueFormatterParams) => (
-        <LoanDrawerLauncher
-          label={createLoanPublicIdentifier(params.row.data as LoanFragment)}
-          loanId={params.row.data.id as string}
-        />
-      ),
-    },
-    {
-      visible: !!actionItems && actionItems.length > 0,
-      dataField: "action",
-      caption: "Action",
-      alignment: "center",
-      width: 100,
-      cellRender: (params: ValueFormatterParams) => (
-        <DataGridActionMenu params={params} actionItems={actionItems} />
-      ),
-    },
-    {
-      dataField: "status",
-      caption: "Status",
-      width: 150,
-      alignment: "center",
-      cellRender: (params: ValueFormatterParams) => (
-        <LoanStatusChip loanStatus={params.value as LoanStatusEnum} />
-      ),
-      lookup: {
-        dataSource: {
-          store: {
-            type: "array",
-            data: AllLoanStatuses.map((d) => ({
-              status: d,
-            })),
-            key: "status",
-          },
-        },
-        valueExpr: "status",
-        displayExpr: "status",
+  const columns = useMemo(
+    () => [
+      {
+        dataField: "id",
+        caption: "Identifier",
+        width: 120,
+        cellRender: (params: ValueFormatterParams) => (
+          <LoanDrawerLauncher
+            label={createLoanPublicIdentifier(params.row.data as LoanFragment)}
+            loanId={params.row.data.id as string}
+          />
+        ),
       },
-    },
-    {
-      dataField: "company.name",
-      caption: "Customer Name",
-      width: 190,
-      cellRender: (params: ValueFormatterParams) => (
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Box>{params.row.data.company.name as string}</Box>
-          <Box ml={0.5}>
-            <Link to={`/customers/${params.row.data.company.id}/loans`}>
-              <FilterList />
-            </Link>
+      {
+        visible: !!actionItems && actionItems.length > 0,
+        dataField: "action",
+        caption: "Action",
+        alignment: "center",
+        width: 100,
+        cellRender: (params: ValueFormatterParams) => (
+          <DataGridActionMenu params={params} actionItems={actionItems} />
+        ),
+      },
+      {
+        dataField: "status",
+        caption: "Status",
+        width: 150,
+        alignment: "center",
+        cellRender: (params: ValueFormatterParams) => (
+          <LoanStatusChip loanStatus={params.value as LoanStatusEnum} />
+        ),
+        lookup: {
+          dataSource: {
+            store: {
+              type: "array",
+              data: AllLoanStatuses.map((d) => ({
+                status: d,
+              })),
+              key: "status",
+            },
+          },
+          valueExpr: "status",
+          displayExpr: "status",
+        },
+      },
+      {
+        dataField: "company.name",
+        caption: "Customer Name",
+        width: 190,
+        cellRender: (params: ValueFormatterParams) => (
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Box>{params.row.data.company.name as string}</Box>
+            <Box ml={0.5}>
+              <Link to={`/customers/${params.row.data.company.id}/loans`}>
+                <FilterList />
+              </Link>
+            </Box>
           </Box>
-        </Box>
-      ),
-    },
-    {
-      caption: "Loan Type",
-      width: 190,
-      cellRender: (params: ValueFormatterParams) => (
-        <Box>{LoanTypeToLabel[params.row.data.loan_type as LoanTypeEnum]}</Box>
-      ),
-    },
-    {
-      caption: "Loan Amount",
-      alignment: "right",
-      width: 120,
-      cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell value={params.row.data.amount} />
-      ),
-    },
-    {
-      caption: "Requested Payment Date",
-      alignment: "right",
-      width: 140,
-      cellRender: (params: ValueFormatterParams) => (
-        <DateDataGridCell dateString={params.row.data.requested_payment_date} />
-      ),
-    },
-    {
-      visible: isMaturityVisible,
-      caption: "Maturity Date",
-      alignment: "center",
-      width: 120,
-      cellRender: (params: ValueFormatterParams) => (
-        <DateDataGridCell dateString={params.row.data.maturity_date} />
-      ),
-    },
-    {
-      visible: isMaturityVisible,
-      caption: "Maturing in (Days)",
-      width: 150,
-      alignment: "center",
-      cellRender: maturingInDaysRenderer,
-    },
-    {
-      visible: loansPastDue,
-      dataField: "outstanding_interest",
-      caption: "Interest Accrued",
-      alignment: "center",
-      width: 140,
-    },
-    {
-      visible: loansPastDue,
-      dataField: "outstanding_fees",
-      caption: "Late Fees Accrued",
-      alignment: "center",
-      width: 150,
-    },
-    {
-      visible: loansPastDue,
-      caption: "Days Past Due",
-      width: 130,
-      alignment: "center",
-      cellRender: daysPastDueRenderer,
-    },
-  ];
+        ),
+      },
+      {
+        caption: "Loan Type",
+        width: 190,
+        cellRender: (params: ValueFormatterParams) => (
+          <Box>
+            {LoanTypeToLabel[params.row.data.loan_type as LoanTypeEnum]}
+          </Box>
+        ),
+      },
+      {
+        caption: "Loan Amount",
+        alignment: "right",
+        width: 120,
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.amount} />
+        ),
+      },
+      {
+        caption: "Requested Payment Date",
+        alignment: "right",
+        width: 140,
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell
+            dateString={params.row.data.requested_payment_date}
+          />
+        ),
+      },
+      {
+        visible: isMaturityVisible,
+        caption: "Maturity Date",
+        alignment: "center",
+        width: 120,
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell dateString={params.row.data.maturity_date} />
+        ),
+      },
+      {
+        visible: isMaturityVisible,
+        caption: "Maturing in (Days)",
+        width: 150,
+        alignment: "center",
+        cellRender: maturingInDaysRenderer,
+      },
+      {
+        visible: loansPastDue,
+        dataField: "outstanding_interest",
+        caption: "Interest Accrued",
+        alignment: "center",
+        width: 140,
+      },
+      {
+        visible: loansPastDue,
+        dataField: "outstanding_fees",
+        caption: "Late Fees Accrued",
+        alignment: "center",
+        width: 150,
+      },
+      {
+        visible: loansPastDue,
+        caption: "Days Past Due",
+        width: 130,
+        alignment: "center",
+        cellRender: daysPastDueRenderer,
+      },
+    ],
+    [isMaturityVisible, loansPastDue, actionItems]
+  );
 
   const handleSelectionChanged = useMemo(
     () => ({ selectedRowsData }: any) =>
@@ -214,14 +224,17 @@ function BankLoansDataGrid({
     [handleSelectLoans]
   );
 
+  const allowedPageSizes = useMemo(() => [5, 50], []);
+  const filtering = useMemo(() => ({ enable: fullView }), [fullView]);
+
   return (
     <ControlledDataGrid
       ref={(ref) => setDataGrid(ref)}
-      filtering={{ enable: fullView }}
+      filtering={filtering}
       pager={fullView}
       select={isMultiSelectEnabled}
       pageSize={fullView ? 50 : 5}
-      allowedPageSizes={[5, 50]}
+      allowedPageSizes={allowedPageSizes}
       dataSource={rows}
       columns={columns}
       selectedRowKeys={selectedLoanIds}

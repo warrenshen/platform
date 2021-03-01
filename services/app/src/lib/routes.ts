@@ -50,7 +50,7 @@ export const bankRoutes = {
   customers: "/customers",
   ebbaApplications: "/borrowing-bases",
   loansAllProducts: "/loans-all-products",
-  loansApprovalRequested: "/loans-approval-requested",
+  loansActionRequired: "/loans-action-required",
   loansLineOfCredit: "/loans-line-of-credit",
   loansMaturing: "/loans-maturing",
   loansPastDue: "/loans-past-due",
