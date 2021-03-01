@@ -82,7 +82,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				)
 			),
 			start_date=date_util.load_date_str('1/1/2020'),
-			adjusted_end_date=date_util.load_date_str('12/1/2020')
+			adjusted_end_date=date_util.load_date_str('12/1/2024')
 		)
 		session.add(contract)
 		session.commit()
