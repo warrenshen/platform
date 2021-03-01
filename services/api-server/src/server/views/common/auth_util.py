@@ -1,11 +1,13 @@
-from flask import Response
-from flask_jwt_extended import get_jwt_identity, jwt_required
-from mypy_extensions import TypedDict
+from functools import wraps
 from typing import List, Callable, Any
+from mypy_extensions import TypedDict
 
 from bespoke import errors
 from bespoke.db import models, db_constants
 from server.views.common import handler_util
+
+from flask import Response, abort, current_app, request
+from flask_jwt_extended import get_jwt_identity, jwt_required
 
 UserPayloadDict = TypedDict('UserPayloadDict', {
 	'X-Hasura-User-Id': str,
@@ -87,3 +89,14 @@ class UserSession(object):
 	@staticmethod
 	def from_session() -> 'UserSession':
 		return UserSession(get_jwt_identity())
+
+
+def requires_async_magic_header(f: Callable) -> Callable:
+	@wraps(f)
+	def wrapped(*args: Any, **kwargs: Any) -> Response:
+		value = request.headers.get('x-api-key', '').strip()
+		desired_key = current_app.config.get('ASYNC_SERVER_API_KEY')
+		if not value or not desired_key or value != desired_key:
+			abort(401)
+		return f(*args, **kwargs)
+	return wrapped
