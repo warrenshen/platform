@@ -1,10 +1,10 @@
 import { Box, Button } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
+import Can from "components/Shared/Can";
 import Page from "components/Shared/Page";
 import EditUserProfileModal from "components/Users/EditUserProfileModal";
 import InviteUserModal from "components/Users/InviteUserModal";
 import UsersDataGrid from "components/Users/UsersDataGrid";
-import Can from "components/Shared/Can";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   useGetUsersByRolesQuery,
@@ -12,8 +12,8 @@ import {
   UserFragment,
   UserRolesEnum,
 } from "generated/graphql";
-import { Action, check } from "lib/auth/rbac-rules";
 import { Maybe } from "graphql/jsutils/Maybe";
+import { Action, check } from "lib/auth/rbac-rules";
 import { useContext, useState } from "react";
 
 function Users() {

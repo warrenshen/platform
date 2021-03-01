@@ -66,12 +66,15 @@ function TerminateContractModal({ contractId, handleClose }: Props) {
 
   const [contract, setContract] = useState(newContract);
 
-  useGetContractQuery({
-    variables: { id: contractId },
+  const { loading: isExistingContractLoading } = useGetContractQuery({
+    fetchPolicy: "network-only",
+    variables: {
+      id: contractId,
+    },
     onCompleted: (data) => {
       const existingContract = data?.contracts_by_pk;
       if (!existingContract) {
-        alert("Error quertying contract");
+        alert("Error querying contract");
       } else {
         setContract(
           mergeWith(newContract, existingContract, (a, b) =>
@@ -107,7 +110,8 @@ function TerminateContractModal({ contractId, handleClose }: Props) {
     }
   };
 
-  const isTerminateDisabled = isTerminateContractLoading || !terminationDate;
+  const isTerminateDisabled =
+    isExistingContractLoading || isTerminateContractLoading || !terminationDate;
 
   return (
     <Dialog open onClose={handleClose} fullWidth>
@@ -123,7 +127,6 @@ function TerminateContractModal({ contractId, handleClose }: Props) {
               id="end-date-date-picker"
               label="Expected End Date"
               value={contract.end_date}
-              onChange={() => {}}
             />
           </Box>
           <Box mb={3}>

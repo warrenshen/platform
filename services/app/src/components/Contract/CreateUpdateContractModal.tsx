@@ -141,8 +141,11 @@ function CreateUpdateContractModal({
       } else {
         return isNaN(Date.parse(item.value));
       }
-    }
-    if (item.type !== "boolean") {
+    } else if (item.type === "float") {
+      if (!item.nullable) {
+        return !item.value.toString().length;
+      }
+    } else if (item.type !== "boolean") {
       if (item.internal_name === "late_fee_structure") {
         return !isLateFeeDynamicFormValid;
       } else if (!item.nullable) {

@@ -20,15 +20,8 @@ function BankFinancialSummariesDataGrid({ bankFinancialSummaries }: Props) {
       {
         dataField: "product_type",
         caption: "Product Type",
-        cellRender: (params: ValueFormatterParams) => (
-          <Box>
-            {
-              ProductTypeToLabel[
-                params.row.data.product_type as ProductTypeEnum
-              ]
-            }
-          </Box>
-        ),
+        cellRender: (params: ValueFormatterParams) =>
+          ProductTypeToLabel[params.row.data.product_type as ProductTypeEnum],
       },
       {
         dataField: "total_outstanding_principal",

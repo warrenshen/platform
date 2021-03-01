@@ -18,7 +18,7 @@ interface Props {
   disabled?: boolean;
   required?: boolean;
   disableNonBankDays?: boolean; // disable days where the bank is not open
-  onChange: (value: string | null) => void;
+  onChange?: (value: string | null) => void;
 }
 
 function DatePicker(props: Props) {
@@ -59,6 +59,7 @@ function DatePicker(props: Props) {
           props.value ? parse(props.value, DateFormatServer, new Date()) : null
         }
         onChange={(value: MaterialUiPickersDate) =>
+          props.onChange &&
           props.onChange(
             value !== null && String(value) !== "Invalid Date"
               ? format(value, DateFormatServer)
