@@ -13,6 +13,7 @@ import {
 } from "@material-ui/core";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import DatePicker from "components/Shared/Dates/DatePicker";
+import DynamicFormInput from "components/Shared/DynamicFormInput";
 import { ContractsInsertInput, ProductTypeEnum } from "generated/graphql";
 import { AllProductTypes, ProductTypeToLabel } from "lib/enum";
 import { groupBy } from "lodash";
@@ -49,29 +50,15 @@ const useStyles = makeStyles({
   },
 });
 
-const validateField = (item: any) => {
-  if (item.type === "date") {
-    if (!item.value || !item.value.toString().length) {
-      return !item.nullable;
-    } else {
-      return isNaN(Date.parse(item.value));
-    }
-  }
-  if (item.type !== "boolean") {
-    if (!item.nullable) {
-      return !item.value || !item.value.toString().length;
-    }
-  }
-  return false;
-};
-
 interface Props {
   isProductTypeEditable?: boolean;
   isStartDateEditable?: boolean;
   errMsg?: string;
   contract: ContractsInsertInput;
   currentJSONConfig: any;
+  validateField: (item: any) => boolean;
   setContract: (contract: ContractsInsertInput) => void;
+  setIsLateFeeDynamicFormValid: (isValid: boolean) => void;
   setCurrentJSONConfig: (jsonConfig: any) => void;
 }
 
@@ -81,8 +68,10 @@ function ContractTermsForm({
   errMsg = "",
   contract,
   currentJSONConfig,
+  validateField,
   setContract,
   setCurrentJSONConfig,
+  setIsLateFeeDynamicFormValid,
 }: Props) {
   const classes = useStyles();
 
@@ -98,9 +87,38 @@ function ContractTermsForm({
     setCurrentJSONConfig([...currentJSONConfig]);
   };
 
+  const parseLateFeeDynamicFormValue = (item: any, value: any): void => {
+    const mappedValue = value.map((v: any) => {
+      const [days_past_due, interest] = Object.keys(v);
+      return { [v[days_past_due].toString()]: parseFloat(v[interest]) };
+    });
+    const lateFeeDynamicFormValue = Object.assign({}, ...mappedValue);
+    findAndReplaceInJSON(item, JSON.stringify(lateFeeDynamicFormValue));
+  };
+
+  const getLateFeeDynamicForminitialValues = (
+    item: any
+  ): any[][] | undefined => {
+    const { fields, value } = item;
+    let result;
+    if (value) {
+      result = [];
+      const parsedValue = JSON.parse(value);
+      const [days_past_due, interest] = fields.map((f: any) => f.display_name);
+      const keys = Object.keys(parsedValue);
+      keys.forEach((key) => {
+        result.push({
+          [days_past_due]: key ? key.toString() : "",
+          [interest]: parsedValue[key] ? parsedValue[key].toString() : "",
+        });
+      });
+    }
+    return result;
+  };
+
   const renderSwitch = (item: any) => {
-    switch (item.type) {
-      case "date":
+    switch (true) {
+      case item.type === "date":
         return (
           <DatePicker
             className={classes.datePicker}
@@ -112,7 +130,7 @@ function ContractTermsForm({
             onChange={(value: any) => findAndReplaceInJSON(item, value)}
           />
         );
-      case "float":
+      case item.type === "float":
         const getSymbol = (format: string) => {
           switch (true) {
             case format === "percentage":
@@ -141,7 +159,7 @@ function ContractTermsForm({
             }
           />
         );
-      case "boolean":
+      case item.type === "boolean":
         return (
           <FormControlLabel
             control={
@@ -154,6 +172,19 @@ function ContractTermsForm({
               />
             }
             label={item.display_name}
+          />
+        );
+      case item.internal_name === "late_fee_structure":
+        return (
+          <DynamicFormInput
+            fields={item.fields}
+            name={item.display_name}
+            initialValues={getLateFeeDynamicForminitialValues(item)}
+            showValidationResult={errMsg.length > 0}
+            handleChange={(value: any, error) => {
+              setIsLateFeeDynamicFormValid(error);
+              parseLateFeeDynamicFormValue(item, value);
+            }}
           />
         );
       default:

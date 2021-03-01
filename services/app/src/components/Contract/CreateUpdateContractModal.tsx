@@ -59,22 +59,6 @@ const useStyles = makeStyles({
   },
 });
 
-const validateField = (item: any) => {
-  if (item.type === "date") {
-    if (!item.value || !item.value.toString().length) {
-      return !item.nullable;
-    } else {
-      return isNaN(Date.parse(item.value));
-    }
-  }
-  if (item.type !== "boolean") {
-    if (!item.nullable) {
-      return !item.value || !item.value.toString().length;
-    }
-  }
-  return false;
-};
-
 interface Props {
   actionType: ActionType;
   companyId: Companies["id"];
@@ -104,6 +88,10 @@ function CreateUpdateContractModal({
   const [currentJSONConfig, setCurrentJSONConfig] = useState<
     ProductConfigField[]
   >([]);
+  const [
+    isLateFeeDynamicFormValid,
+    setIsLateFeeDynamicFormValid,
+  ] = useState<boolean>(false);
 
   const { loading: isExistingContractLoading } = useGetContractQuery({
     skip: actionType === ActionType.New,
@@ -145,6 +133,24 @@ function CreateUpdateContractModal({
     updateContract,
     { loading: isUpdateContractLoading },
   ] = useCustomMutation(updateContractMutation);
+
+  const validateField = (item: any) => {
+    if (item.type === "date") {
+      if (!item.value || !item.value.toString().length) {
+        return !item.nullable;
+      } else {
+        return isNaN(Date.parse(item.value));
+      }
+    }
+    if (item.type !== "boolean") {
+      if (item.internal_name === "late_fee_structure") {
+        return !isLateFeeDynamicFormValid;
+      } else if (!item.nullable) {
+        return !item.value || !item.value.toString().length;
+      }
+    }
+    return false;
+  };
 
   const handleSubmit = async () => {
     const error = Object.values(currentJSONConfig)
@@ -214,8 +220,10 @@ function CreateUpdateContractModal({
             errMsg={errMsg}
             contract={contract}
             currentJSONConfig={currentJSONConfig}
+            validateField={validateField}
             setContract={setContract}
             setCurrentJSONConfig={setCurrentJSONConfig}
+            setIsLateFeeDynamicFormValid={setIsLateFeeDynamicFormValid}
           />
           {errMsg && (
             <Box className={classes.errorBox} mt={3}>

@@ -65,12 +65,22 @@
       },
       {
         "section": "Fees",
-        "type": "string",
+        "type": "json",
+        "fields": [
+          {
+            "display_name": "Days Past Due",
+            "nullable": false
+          },
+          {
+            "display_name": "% of Interest",
+            "nullable": false,
+            "type": "float"
+          }
+        ],
         "internal_name": "late_fee_structure",
         "display_name": "Late Fee Structure",
         "description": "If days past due 1-14: 25% of interest, 15-29: 50%, 30+: 100%. Would like to have the flexibility to update the maturity date and override fees/interest as there have been some exceptions for charging late fees",
-        "value": null,
-        "nullable": false
+        "value": null
       },
       {
         "section": "Fees",

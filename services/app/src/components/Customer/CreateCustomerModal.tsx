@@ -98,6 +98,29 @@ function AddCustomerModal({ handleClose }: Props) {
     !contract.product_type ||
     !contract.start_date;
 
+  const [
+    isLateFeeDynamicFormValid,
+    setIsLateFeeDynamicFormValid,
+  ] = useState<boolean>(false);
+
+  const validateField = (item: any) => {
+    if (item.type === "date") {
+      if (!item.value || !item.value.toString().length) {
+        return !item.nullable;
+      } else {
+        return isNaN(Date.parse(item.value));
+      }
+    }
+    if (item.type !== "boolean") {
+      if (item.internal_name === "late_fee_structure") {
+        return !isLateFeeDynamicFormValid;
+      } else if (!item.nullable) {
+        return !item.value || !item.value.toString().length;
+      }
+    }
+    return false;
+  };
+
   return (
     <Dialog open onClose={handleClose} classes={{ paper: classes.dialog }}>
       <DialogTitle className={classes.dialogTitle}>Create Customer</DialogTitle>
@@ -134,9 +157,11 @@ function AddCustomerModal({ handleClose }: Props) {
               isProductTypeEditable
               isStartDateEditable
               contract={contract}
+              validateField={validateField}
               currentJSONConfig={currentJSONConfig}
               setContract={setContract}
               setCurrentJSONConfig={setCurrentJSONConfig}
+              setIsLateFeeDynamicFormValid={setIsLateFeeDynamicFormValid}
             />
           </Box>
         </Box>
