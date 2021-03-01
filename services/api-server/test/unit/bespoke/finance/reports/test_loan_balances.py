@@ -84,7 +84,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						interest_rate=5.00,
 						maximum_principal_amount=120000.01,
 						max_days_until_repayment=0, # unused
-						late_fee_structure=_get_late_fee_structure() # unused
+						late_fee_structure=_get_late_fee_structure(), # unused
 					)
 				)
 			))
@@ -121,7 +121,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						interest_rate=5.00,
 						maximum_principal_amount=120000.01,
 						max_days_until_repayment=0, # unused
-						late_fee_structure=_get_late_fee_structure() # unused
+						late_fee_structure=_get_late_fee_structure(), # unused
 					)
 				)
 			))
@@ -188,7 +188,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						interest_rate=0.2,
 						maximum_principal_amount=120000.01,
 						max_days_until_repayment=0, # unused
-						late_fee_structure=_get_late_fee_structure()
+						late_fee_structure=_get_late_fee_structure(),
 					)
 				)
 			))
@@ -261,10 +261,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 			ebba = models.EbbaApplication(
 				company_id=company_id,
-				# application_month=10,
-				monthly_accounts_receivable=100000.0, # 100k
-				monthly_inventory=100000.0, #100k
-				monthly_cash=1000000.0, # 1M
+				monthly_accounts_receivable=decimal.Decimal(100000.0), # 100k
+				monthly_inventory=decimal.Decimal(100000.0), #100k
+				monthly_cash=decimal.Decimal(1000000.0), # 1M
 				status="approved",
 			)
 			session.add(ebba)

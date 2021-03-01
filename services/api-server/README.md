@@ -76,6 +76,8 @@ Run mypy...
 
 ```
 make mypy
+
+make mypy-tests
 ```
 
 Run tests...

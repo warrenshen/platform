@@ -14,7 +14,7 @@ ContractInputDict = TypedDict('ContractInputDict', {
 	'borrowing_base_accounts_receivable_percentage': float,
 	'borrowing_base_inventory_percentage': float,
 	'borrowing_base_cash_percentage': float,
-})
+}, total=False)
 
 def create_contract_config(
 	product_type: str, input_dict: ContractInputDict, version: int = 1) -> Dict:

@@ -77,7 +77,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 					interest_rate=5.00,
 					maximum_principal_amount=120000.01,
 					max_days_until_repayment=0, # unused
-					late_fee_structure=_get_late_fee_structure() # unused
+					late_fee_structure=_get_late_fee_structure(), # unused
 				)
 			)
 		)

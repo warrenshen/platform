@@ -36,7 +36,7 @@ def _get_contract(company_id: str) -> models.Contract:
 				interest_rate=0.2,
 				maximum_principal_amount=120000.01,
 				max_days_until_repayment=0, # unused
-				late_fee_structure=_get_late_fee_structure()
+				late_fee_structure=_get_late_fee_structure(),
 			)
 		)
 	)
@@ -46,8 +46,8 @@ def _apply_transaction(tx: Dict, session: Any, loan: models.Loan) -> None:
 		payment_test_helper.make_advance(session, loan, tx['amount'], tx['effective_date'])
 	elif tx['type'] == 'repayment':
 		payment_test_helper.make_repayment(
-			session, loan, 
-			to_principal=tx['to_principal'], 
+			session, loan,
+			to_principal=tx['to_principal'],
 			to_interest=tx['to_interest'],
 			to_fees=tx['to_fees'],
 			effective_date=tx['effective_date']
@@ -109,10 +109,10 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				method='ach',
 				payment_date=test['payment_date'],
 				settlement_date=test['settlement_date']
-			), 
-			payment_option=test['payment_option'], 
-			company_id=company_id, 
-			loan_ids=loan_ids, 
+			),
+			payment_option=test['payment_option'],
+			company_id=company_id,
+			loan_ids=loan_ids,
 			session_maker=session_maker,
 			test_only_skip_interest_and_fees_calculation=test.get('test_only_skip_interest_and_fees_calculation')
 		)
@@ -120,7 +120,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 		self.assertEqual('OK', resp.get('status'), msg=err)
 		self.assertEqual(test['expected_amount_to_pay'], resp['amount_to_pay'])
 		self.assertAlmostEqual(test['expected_amount_as_credit_to_user'], resp['amount_as_credit_to_user'])
-		
+
 		# Assert on the expected loans afterwards
 		self.assertEqual(len(test['expected_loans_to_show']), len(resp['loans_to_show']))
 
@@ -216,7 +216,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 		#credit_amount = 15.01 - 9.99 - 1.03 - 1.88 - 0.73
 		daily_interest1 = 0.04 # 0.2 / 100 * 20.00 == daily_interest_rate_pct / 100 * principal_owed
 		daily_interest2 = 0.06 # 0.2 / 100 * 30.00 == daily_interest_rate_pct / 100 * principal_owed
-		
+
 		test: Dict = {
 			'comment': 'The user pays off multiple loans and have a credit remaining on their principal',
 			'loans': [
@@ -293,7 +293,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 		self._run_test(test)
 
 	def test_custom_amount_multiple_loans_cant_pay_off_everything(self) -> None:
-		daily_interest1 = 0.2 / 100 * 10.00 # == 0.02 
+		daily_interest1 = 0.2 / 100 * 10.00 # == 0.02
 		daily_interest2 = 0.2 / 100 * 30.00
 		daily_interest3 = 0.2 / 100 * 50.00
 		test: Dict = {
@@ -759,7 +759,7 @@ class TestCreatePayment(db_unittest.TestCase):
 		user_id = seed.get_user_id('company_admin', index=0)
 		payment_input_amount = test['payment_amount']
 		payment_id, err = repayment_util.create_payment(
-			company_id=company_id, 
+			company_id=company_id,
 			payment_insert_input=payment_util.PaymentInsertInputDict(
 				company_id='unused',
 				type='unused',
@@ -853,7 +853,7 @@ class TestCreatePayment(db_unittest.TestCase):
 		seed.initialize()
 		user_id = seed.get_user_id('company_admin', index=0)
 		payment_id, err = repayment_util.create_payment(
-			company_id=None, 
+			company_id=None,
 			payment_insert_input=None,
 			loan_ids=[str(uuid.uuid4())],
 			user_id=user_id,
@@ -878,7 +878,7 @@ class TestCreatePayment(db_unittest.TestCase):
 			loan_id = str(loan.id)
 
 		payment_id, err = repayment_util.create_payment(
-			company_id=company_id, 
+			company_id=company_id,
 			payment_insert_input=None,
 			loan_ids=[loan_id],
 			user_id=user_id,
@@ -916,7 +916,7 @@ class TestSettlePayment(db_unittest.TestCase):
 
 		# Make sure we have a payment already registered in the system that we are settling.
 		payment_id, err = repayment_util.create_payment(
-			company_id=company_id, 
+			company_id=company_id,
 			payment_insert_input=payment_util.PaymentInsertInputDict(
 				company_id='unused',
 				type='unused',
@@ -942,7 +942,7 @@ class TestSettlePayment(db_unittest.TestCase):
 
 			if payment and test['payment'].get('type'):
 				payment.type = test['payment']['type']
-		
+
 		req = repayment_util.SettlePaymentReqDict(
 			company_id=company_id,
 			payment_id=payment_id,

@@ -26,7 +26,7 @@ def _get_default_contract() -> models.Contract:
 			interest_rate=0.05,
 			maximum_principal_amount=120000.01,
 			max_days_until_repayment=30,
-			late_fee_structure='' # unused
+			late_fee_structure='', # unused
 		)
 	)
 )
@@ -81,7 +81,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		settlement_date = '10/20/2020'
 
 		req = advance_util.FundLoansReqDict(
-			loan_ids=loan_ids, 
+			loan_ids=loan_ids,
 			payment=payment_util.PaymentInsertInputDict(
 				company_id='unused',
 				type='unused',
@@ -93,8 +93,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		)
 
 		resp, err = advance_util.fund_loans_with_advance(
-			req=req, 
-			bank_admin_user_id=bank_admin_user_id, 
+			req=req,
+			bank_admin_user_id=bank_admin_user_id,
 			session_maker=session_maker
 		)
 		self.assertIsNone(err)
@@ -137,7 +137,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 
 			self.assertEqual(len(test['payments']), len(payments))
 			for i in range(len(test['payments'])):
-				payment = payments[i] 
+				payment = payments[i]
 				exp_payment = test['payments'][i]
 				exp_company_id = seed.get_company_id('company_admin', index=exp_payment['company_index'])
 				self.assertAlmostEqual(exp_payment['amount'], float(payment.amount))
@@ -266,10 +266,10 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 	def test_failure_advance_no_loans(self) -> None:
 		resp, err = advance_util.fund_loans_with_advance(
 			req=advance_util.FundLoansReqDict(
-				loan_ids=[], 
+				loan_ids=[],
 				payment=None
 			),
-			bank_admin_user_id='', 
+			bank_admin_user_id='',
 			session_maker=self.session_maker
 		)
 		self.assertIn('No loans', err.msg)
