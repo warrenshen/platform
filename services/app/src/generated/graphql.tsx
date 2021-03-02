@@ -12807,6 +12807,7 @@ export type TransactionFragment = Pick<
   | "payment_id"
   | "type"
   | "amount"
+  | "effective_date"
   | "to_principal"
   | "to_interest"
   | "to_fees"
@@ -13213,6 +13214,7 @@ export const TransactionFragmentDoc = gql`
     payment_id
     type
     amount
+    effective_date
     to_principal
     to_interest
     to_fees

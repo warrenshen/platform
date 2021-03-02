@@ -1,6 +1,7 @@
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
+import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import DataGrid, {
   Column,
   IColumnProps,
@@ -24,13 +25,22 @@ function TransactionsDataGrid({ transactions, isMiniTable }: Props) {
 
   const columns: IColumnProps[] = [
     {
+      caption: "Date",
+      width: 140,
+      cellRender: (params: ValueFormatterParams) => (
+        <DateDataGridCell dateString={params.row.data.effective_date} />
+      ),
+    },
+    {
       dataField: "id",
       caption: "Transaction ID",
+      visible: !isMiniTable,
       width: 140,
     },
     {
       dataField: "payment.id",
       caption: "Payment ID",
+      visible: !isMiniTable,
       width: 140,
     },
     {
@@ -47,7 +57,6 @@ function TransactionsDataGrid({ transactions, isMiniTable }: Props) {
     },
     {
       caption: "Amount",
-      alignment: "right",
       width: 140,
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell value={params.row.data.amount} />
@@ -55,8 +64,6 @@ function TransactionsDataGrid({ transactions, isMiniTable }: Props) {
     },
     {
       caption: "To Principal",
-      alignment: "right",
-      visible: !isMiniTable,
       width: 140,
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell value={params.row.data.to_principal} />
@@ -64,8 +71,6 @@ function TransactionsDataGrid({ transactions, isMiniTable }: Props) {
     },
     {
       caption: "To Interest",
-      alignment: "right",
-      visible: !isMiniTable,
       width: 140,
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell value={params.row.data.to_interest} />
@@ -73,9 +78,7 @@ function TransactionsDataGrid({ transactions, isMiniTable }: Props) {
     },
     {
       caption: "To Fees",
-      alignment: "right",
-      visible: !isMiniTable,
-      width: 140,
+      width: 100,
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell value={params.row.data.to_fees} />
       ),

@@ -8,7 +8,7 @@ function BankTransactionsPage() {
   const transactions = data?.transactions || [];
 
   return (
-    <Page appBarTitle={"Payments"}>
+    <Page appBarTitle={"Transactions"}>
       <TransactionsDataGrid transactions={transactions} isMiniTable={false} />
     </Page>
   );

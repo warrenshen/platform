@@ -116,6 +116,7 @@ fragment Transaction on transactions {
   payment_id
   type
   amount
+  effective_date
   to_principal
   to_interest
   to_fees

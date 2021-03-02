@@ -26,7 +26,7 @@ import { useContext } from "react";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     drawerContent: {
-      width: 400,
+      width: 800,
       paddingBottom: theme.spacing(16),
     },
   })
