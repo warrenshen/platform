@@ -192,17 +192,17 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
         )}
       </DialogContent>
       <DialogActions>
-        <Box display="flex" flexDirection="column" width="100%">
-          {errMsg && (
-            <Box display="flex" justifyContent="flex-end" width="100%">
+        <Box display="flex" flexDirection="column" width="100%" mt={2}>
+          <Box display="flex" justifyContent="flex-end" width="100%">
+            {errMsg && (
               <Typography variant="body1" color="secondary">
                 {errMsg}
               </Typography>
-            </Box>
-          )}
+            )}
+          </Box>
           <Box display="flex" justifyContent="space-between">
-            {!isOnSelectLoans && (
-              <Box mb={2}>
+            <Box mb={2}>
+              {!isOnSelectLoans && (
                 <Button
                   variant="contained"
                   color="default"
@@ -210,9 +210,9 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
                 >
                   Back to Step 1
                 </Button>
-              </Box>
-            )}
-            <Box display="flex" justifyContent="flex-end">
+              )}
+            </Box>
+            <Box>
               <Button onClick={handleClose}>Cancel</Button>
               {isOnSelectLoans ? (
                 <Button

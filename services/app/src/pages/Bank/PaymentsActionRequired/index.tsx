@@ -12,7 +12,6 @@ import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
 import {
   PaymentFragment,
-  Payments,
   useGetSubmittedPaymentsQuery,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
@@ -47,20 +46,50 @@ function BankPaymentsActionRequiredPage() {
   const submittedPayments = submittedPaymentsData?.payments || [];
 
   // State for modal(s).
-  const [selectedPayments, setSelectedPayments] = useState<PaymentFragment[]>(
-    []
-  );
-  const [selectedPaymentIds, setSelectedPaymentIds] = useState<
-    Payments["id"][]
+  const [selectedNotifyPayments, setSelectedNotifyPayments] = useState<
+    PaymentFragment[]
+  >([]);
+  const [selectedScheduledPayments, setSelectedScheduledPayments] = useState<
+    PaymentFragment[]
   >([]);
 
-  const handleSelectPayments = useMemo(
+  const handleSelectSchedulePayments = useMemo(
     () => (payments: PaymentFragment[]) => {
-      setSelectedPayments(payments);
-      setSelectedPaymentIds(payments.map((payment) => payment.id));
+      setSelectedScheduledPayments(payments);
     },
-    [setSelectedPayments]
+    [setSelectedScheduledPayments]
   );
+
+  const handleSelectNotifyPayments = useMemo(
+    () => (payments: PaymentFragment[]) => {
+      setSelectedNotifyPayments(payments);
+    },
+    [setSelectedNotifyPayments]
+  );
+
+  const seletedSchedulePaymentIds = selectedScheduledPayments.map((p) => {
+    return p.id;
+  });
+
+  const seletedNotifyPaymentIds = selectedNotifyPayments.map((p) => {
+    return p.id;
+  });
+
+  const scheduledPayments = submittedPayments.filter((p) => {
+    return p.method === "reverse_draft_ach";
+  });
+  const notifyPayments = submittedPayments.filter((p) => {
+    return p.method !== "reverse_draft_ach";
+  });
+
+  let scheduledPaymentId = "";
+  if (seletedSchedulePaymentIds.length > 0) {
+    scheduledPaymentId = selectedScheduledPayments[0].id;
+  }
+  let notifyPaymentId = "";
+  if (seletedNotifyPaymentIds.length > 0) {
+    notifyPaymentId = seletedNotifyPaymentIds[0].id;
+  }
 
   return (
     <Page appBarTitle={"Payments - Action Required"}>
@@ -70,14 +99,14 @@ function BankPaymentsActionRequiredPage() {
           <Can perform={Action.SettleRepayment}>
             <Box>
               <ModalButton
-                isDisabled={selectedPayments.length !== 1}
+                isDisabled={seletedSchedulePaymentIds.length !== 1}
                 label={"Settle Payment"}
                 modal={({ handleClose }) => (
                   <SettleRepaymentModal
-                    paymentId={selectedPaymentIds[0]}
+                    paymentId={scheduledPaymentId}
                     handleClose={() => {
                       refetchSubmittedPayments();
-                      setSelectedPayments([]);
+                      setSelectedScheduledPayments([]);
                       handleClose();
                     }}
                   />
@@ -87,17 +116,45 @@ function BankPaymentsActionRequiredPage() {
           </Can>
         </Box>
         <PaymentsDataGrid
-          payments={submittedPayments}
+          payments={scheduledPayments}
           customerSearchQuery={""}
           onClickCustomerName={() => {}}
           enableSelect={true}
-          selectedPaymentIds={selectedPayments.map((p) => p.id)}
-          handleSelectPayments={handleSelectPayments}
+          selectedPaymentIds={seletedSchedulePaymentIds}
+          handleSelectPayments={handleSelectSchedulePayments}
         />
       </Box>
       <Box className={classes.sectionSpace} />
       <Box className={classes.container}>
         <Typography variant="h6">Payments - Notified</Typography>
+        <Box mb={2} display="flex" flexDirection="row-reverse">
+          <Can perform={Action.SettleRepayment}>
+            <Box>
+              <ModalButton
+                isDisabled={seletedNotifyPaymentIds.length !== 1}
+                label={"Settle Payment"}
+                modal={({ handleClose }) => (
+                  <SettleRepaymentModal
+                    paymentId={notifyPaymentId}
+                    handleClose={() => {
+                      refetchSubmittedPayments();
+                      setSelectedNotifyPayments([]);
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          </Can>
+        </Box>
+        <PaymentsDataGrid
+          payments={notifyPayments}
+          customerSearchQuery={""}
+          onClickCustomerName={() => {}}
+          enableSelect={true}
+          selectedPaymentIds={seletedNotifyPaymentIds}
+          handleSelectPayments={handleSelectNotifyPayments}
+        />
       </Box>
     </Page>
   );

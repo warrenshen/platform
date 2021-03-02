@@ -205,8 +205,8 @@ function RepaymentModal({
             </Box>
           )}
           <Box display="flex" justifyContent="space-between">
-            {!isOnSelectLoans && (
-              <Box mb={2}>
+            <Box mb={2}>
+              {!isOnSelectLoans && (
                 <Button
                   variant="contained"
                   color="default"
@@ -214,8 +214,9 @@ function RepaymentModal({
                 >
                   Back to Step 1
                 </Button>
-              </Box>
-            )}
+              )}
+            </Box>
+
             <Box>
               <Button onClick={handleClose}>Cancel</Button>
               {isOnSelectLoans ? (
