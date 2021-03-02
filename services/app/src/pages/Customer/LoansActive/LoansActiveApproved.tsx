@@ -15,7 +15,7 @@ import {
   Loans,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -47,14 +47,26 @@ function LoansActiveApproved({ data }: Props) {
   } = useContext(CurrentUserContext);
 
   const company = data?.companies_by_pk;
-  const loans = (company?.loans || []).filter((loan) => {
-    return loan.approved_at ? true : false;
-  });
+  const loans = useMemo(
+    () =>
+      (company?.loans || []).filter((loan) =>
+        loan.approved_at ? true : false
+      ),
+    [company?.loans]
+  );
 
   // State for modal(s).
   const [isPayOffLoansModalOpen, setIsPayOffLoansModalOpen] = useState(false);
   const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
   const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"][]>([]);
+
+  const handleSelectLoans = useMemo(
+    () => (loans: LoanFragment[]) => {
+      setSelectedLoans(loans);
+      setSelectedLoanIds(loans.map((loan) => loan.id));
+    },
+    [setSelectedLoans, setSelectedLoanIds]
+  );
 
   return (
     <Box className={classes.container}>
@@ -92,10 +104,7 @@ function LoansActiveApproved({ data }: Props) {
             productType={productType}
             loans={loans}
             selectedLoanIds={selectedLoanIds}
-            handleSelectLoans={(loans) => {
-              setSelectedLoans(loans);
-              setSelectedLoanIds(loans.map((loan) => loan.id));
-            }}
+            handleSelectLoans={handleSelectLoans}
           />
         </Box>
       </Box>

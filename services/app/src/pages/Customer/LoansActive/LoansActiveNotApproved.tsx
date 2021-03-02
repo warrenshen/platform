@@ -48,7 +48,7 @@ function LoansActiveNotApproved({ data }: Props) {
       (company?.loans || []).filter((loan) => {
         return loan.approved_at ? false : true;
       }),
-    [company]
+    [company?.loans]
   );
   const financialSummary = company?.financial_summary || null;
 
