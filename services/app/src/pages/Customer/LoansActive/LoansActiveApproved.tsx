@@ -1,13 +1,8 @@
-import {
-  Box,
-  Button,
-  createStyles,
-  makeStyles,
-  Theme,
-} from "@material-ui/core";
+import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
 import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
 import CreateRepaymentModal from "components/Repayment/CreateRepaymentModal";
 import Can from "components/Shared/Can";
+import ModalButton from "components/Shared/Modal/ModalButton";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   GetActiveLoansForCompanyQuery,
@@ -58,7 +53,6 @@ function LoansActiveApproved({ data }: Props) {
   );
 
   // State for modal(s).
-  const [isPayOffLoansModalOpen, setIsPayOffLoansModalOpen] = useState(false);
   const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
   const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"][]>([]);
 
@@ -75,35 +69,36 @@ function LoansActiveApproved({ data }: Props) {
       <Box className={classes.sectionSpace} />
       <Box className={classes.section}>
         <Box display="flex" flexDirection="row-reverse">
-          {isPayOffLoansModalOpen && (
-            <CreateRepaymentModal
-              companyId={companyId}
-              productType={productType}
-              selectedLoans={selectedLoans}
-              handleClose={() => setIsPayOffLoansModalOpen(false)}
-            />
-          )}
           <Can perform={Action.RepayPurchaseOrderLoans}>
             <Box>
-              <Button
-                disabled={selectedLoans.length <= 0}
-                variant="contained"
-                color="primary"
-                onClick={() => {
-                  const fundedLoans = selectedLoans.filter((l) => {
-                    return l.funded_at;
-                  });
+              <ModalButton
+                isDisabled={selectedLoans.length <= 0}
+                label={"Pay Off Loans"}
+                handleClick={({ handleOpen }) => {
+                  const fundedLoans = selectedLoans.filter(
+                    (loan) => loan.funded_at
+                  );
                   if (fundedLoans.length !== selectedLoans.length) {
                     snackbar.showError(
                       "Please unselect any loans which are not funded yet. These may not be paid off yet."
                     );
                     return;
                   }
-                  setIsPayOffLoansModalOpen(true);
+                  handleOpen();
                 }}
-              >
-                Pay Off Loans
-              </Button>
+                modal={({ handleClose }) => (
+                  <CreateRepaymentModal
+                    companyId={companyId}
+                    productType={productType}
+                    selectedLoans={selectedLoans}
+                    handleClose={() => {
+                      handleClose();
+                      setSelectedLoans([]);
+                      setSelectedLoanIds([]);
+                    }}
+                  />
+                )}
+              />
             </Box>
           </Can>
         </Box>

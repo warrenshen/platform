@@ -244,8 +244,8 @@ function CreateUpdatePurchaseOrderLoanModal({
       if (response.data?.status === "ERROR") {
         snackbar.showMessage(response.data?.msg);
       } else {
-        snackbar.showMessage(
-          "Success! Loan saved and submitted to Bespoke. You may view this advance request in the Loans section"
+        snackbar.showSuccess(
+          "Success! Loan saved and submitted to Bespoke. You may view this advance request in the Loans section."
         );
         handleClose();
       }

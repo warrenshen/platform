@@ -7,6 +7,7 @@ interface Props {
   color?: "inherit" | "primary" | "secondary" | "default" | undefined;
   size?: "small" | "medium" | "large" | undefined;
   variant?: "text" | "outlined" | "contained" | undefined;
+  handleClick?: ({ handleOpen }: { handleOpen: () => void }) => void;
   modal: ({ handleClose }: { handleClose: () => void }) => ReactNode;
 }
 
@@ -16,6 +17,7 @@ function ModalButton({
   color,
   size,
   variant,
+  handleClick,
   modal,
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,7 +30,13 @@ function ModalButton({
         color={color || "primary"}
         size={size || "medium"}
         variant={variant || "contained"}
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          if (handleClick) {
+            handleClick({ handleOpen: () => setIsOpen(true) });
+          } else {
+            setIsOpen(true);
+          }
+        }}
       >
         {label}
       </Button>
