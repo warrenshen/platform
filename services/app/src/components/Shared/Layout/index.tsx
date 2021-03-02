@@ -175,8 +175,8 @@ const getBankNavItems = (): NavItem[] => {
           icon: <PaymentIcon />,
         },
         {
-          text: "Ready for Settlement",
-          link: bankRoutes.paymentsReadyForSettlement,
+          text: "Action Required",
+          link: bankRoutes.paymentsActionRequired,
           icon: <PaymentIcon />,
         },
       ],

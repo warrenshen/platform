@@ -26,7 +26,7 @@ import BankLoansMaturingPage from "pages/Bank/LoansMaturing";
 import BankLoansPastDuePage from "pages/Bank/LoansPastDue";
 import BankOverviewPage from "pages/Bank/Overview";
 import BankPaymentsPage from "pages/Bank/Payments";
-import BankPaymentsReadyForSettlementPage from "pages/Bank/PaymentsReadyForSettlementPage";
+import BankPaymentsReadyForSettlementPage from "pages/Bank/PaymentsActionRequired";
 import BankPurchaseOrdersPage from "pages/Bank/PurchaseOrders";
 import BankTransactionsPage from "pages/Bank/Transactions";
 import BankVendorsPage from "pages/Bank/Vendors";
@@ -278,7 +278,7 @@ function App() {
         </PrivateRoute>
         <PrivateRoute
           exact
-          path={bankRoutes.paymentsReadyForSettlement}
+          path={bankRoutes.paymentsActionRequired}
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
         >
           <BankPaymentsReadyForSettlementPage />
