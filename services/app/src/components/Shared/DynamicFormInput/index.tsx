@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { TextField, makeStyles, Typography } from "@material-ui/core";
+import { makeStyles, TextField, Typography } from "@material-ui/core";
+import { useEffect, useState } from "react";
 
 const useStyles = makeStyles({
   row: {
@@ -51,7 +51,7 @@ function DynamicFormInput({
       initialRows = [rowTemplate];
     }
     setRows(initialRows);
-    const initValidationResult = validateFields(initialRows);
+    const initValidationResult = isFieldInvalids(initialRows);
     handleChange(initialRows, initValidationResult);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -60,7 +60,7 @@ function DynamicFormInput({
     const currentRows = [...rows];
     currentRows[i][key] = value;
     setRows(currentRows);
-    const validationResult = validateFields();
+    const validationResult = isFieldInvalids();
     handleChange(currentRows, validationResult);
   }
 
@@ -75,12 +75,12 @@ function DynamicFormInput({
       const currentRows = [...rows];
       currentRows.splice(i, 1);
       setRows(currentRows);
-      const validationResult = validateFields();
+      const validationResult = isFieldInvalids();
       handleChange(currentRows, validationResult);
     }
   }
 
-  function validateField(value: string, field: any): boolean {
+  function isFieldInvalid(value: string, field: any): boolean {
     let error = false;
     if (!field.nullable) {
       error = !value || !value.length;
@@ -88,7 +88,7 @@ function DynamicFormInput({
     return error;
   }
 
-  function validateFields(currentRows: any[] = rows): boolean {
+  function isFieldInvalids(currentRows: any[] = rows): boolean {
     let error = 0;
     currentRows.forEach((row) => {
       Object.keys(row).forEach((key) => {
@@ -114,7 +114,9 @@ function DynamicFormInput({
               <div key={key + i}>
                 <TextField
                   className={classes.input}
-                  error={showValidationResult && validateField(row[key], field)}
+                  error={
+                    showValidationResult && isFieldInvalid(row[key], field)
+                  }
                   label={key}
                   placeholder=""
                   required={!field.nullable}

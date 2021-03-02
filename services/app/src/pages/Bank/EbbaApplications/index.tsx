@@ -13,9 +13,11 @@ function EbbaApplicationsPage() {
   //
   // When the user updates an EbbaApplication, this updates the Apollo cache
   // and causes ebbaApplications in this component to update. This passes down
-  // updated ebbaApplications to the child data grid. Finally, the key system
-  // in ControlledDataGrid does match work correctly, which causes the whole grid
-  // to re-render and forcefully close any EbbaApplicationDrawer that is open.
+  // updated ebbaApplications to the child data grid. Finally, the
+  // ControlledDataGrid component currently ALWAYS re-renders on data change,
+  // which causes the whole grid to re-render and forcefully close any
+  // EbbaApplicationDrawer that is open.
+
   const { data, error } = useEbbaApplicationsQuery({
     fetchPolicy: "no-cache",
   });

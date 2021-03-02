@@ -56,7 +56,7 @@ interface Props {
   errMsg?: string;
   contract: ContractsInsertInput;
   currentJSONConfig: any;
-  validateField: (item: any) => boolean;
+  isFieldInvalid: (item: any) => boolean;
   setContract: (contract: ContractsInsertInput) => void;
   setIsLateFeeDynamicFormValid: (isValid: boolean) => void;
   setCurrentJSONConfig: (jsonConfig: any) => void;
@@ -68,7 +68,7 @@ function ContractTermsForm({
   errMsg = "",
   contract,
   currentJSONConfig,
-  validateField,
+  isFieldInvalid,
   setContract,
   setCurrentJSONConfig,
   setIsLateFeeDynamicFormValid,
@@ -123,7 +123,7 @@ function ContractTermsForm({
           <DatePicker
             className={classes.datePicker}
             id={item.internal_name}
-            error={errMsg.length > 0 && validateField(item)}
+            error={errMsg.length > 0 && isFieldInvalid(item)}
             label={item.display_name}
             required={!item.nullable}
             value={item.value || null}
@@ -145,7 +145,7 @@ function ContractTermsForm({
           <CurrencyTextField
             style={{ width: 300 }}
             label={item.display_name}
-            error={errMsg.length > 0 && validateField(item)}
+            error={errMsg.length > 0 && isFieldInvalid(item)}
             currencySymbol={getSymbol(item.format)}
             outputFormat="string"
             minimumValue="0"
@@ -191,7 +191,7 @@ function ContractTermsForm({
         return (
           <TextField
             className={classes.inputField}
-            error={errMsg.length > 0 && validateField(item)}
+            error={errMsg.length > 0 && isFieldInvalid(item)}
             label={item.display_name}
             placeholder=""
             required={!item.nullable}

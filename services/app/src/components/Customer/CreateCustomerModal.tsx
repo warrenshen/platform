@@ -17,6 +17,7 @@ import {
   CompanySettingsInsertInput,
   ContractsInsertInput,
 } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import {
   createProductConfigFieldsFromProductType,
   createProductConfigForServer,
@@ -45,7 +46,8 @@ interface Props {
   handleClose: () => void;
 }
 
-function AddCustomerModal({ handleClose }: Props) {
+function CreateCustomerModal({ handleClose }: Props) {
+  const snackbar = useSnackbar();
   const classes = useStyles();
 
   const [customer, setCustomer] = useState<CompaniesInsertInput>({});
@@ -57,6 +59,8 @@ function AddCustomerModal({ handleClose }: Props) {
   });
   const [currentJSONConfig, setCurrentJSONConfig] = useState<any>({});
 
+  const [errMsg, setErrMsg] = useState("");
+
   useEffect(() => {
     if (contract.product_type) {
       setCurrentJSONConfig(
@@ -65,11 +69,51 @@ function AddCustomerModal({ handleClose }: Props) {
     }
   }, [contract.product_type]);
 
+  const [
+    isLateFeeDynamicFormValid,
+    setIsLateFeeDynamicFormValid,
+  ] = useState<boolean>(false);
+
+  const isFieldInvalid = (item: any) => {
+    if (item.type === "date") {
+      if (!item.value || !item.value.toString().length) {
+        return !item.nullable;
+      } else {
+        return isNaN(Date.parse(item.value));
+      }
+    } else if (item.type === "float") {
+      if (!item.nullable) {
+        return item.value === null || !item.value.toString().length;
+      }
+    } else if (item.type !== "boolean") {
+      if (item.internal_name === "late_fee_structure") {
+        return !isLateFeeDynamicFormValid;
+      } else if (!item.nullable) {
+        return !item.value || !item.value.toString().length;
+      }
+    }
+    return false;
+  };
+
   const handleClickCreate = async () => {
     if (!contract || !contract.product_type) {
       console.log("Developer error");
       return;
     }
+
+    const error = Object.values(currentJSONConfig)
+      .filter((item: any) => isFieldInvalid(item))
+      .toString().length;
+    if (error) {
+      setErrMsg("Please complete all required fields.");
+      return;
+    }
+
+    if (!contract || !contract.product_type) {
+      console.log("Developer error");
+      return;
+    }
+    setErrMsg("");
 
     const response = await createCompany({
       company: customer,
@@ -86,8 +130,11 @@ function AddCustomerModal({ handleClose }: Props) {
     });
 
     if (response.status !== "OK") {
-      alert("Error: could not create customer! Reason: " + response.msg);
+      snackbar.showError(
+        `Error: could not create customer! Reason: ${response.msg}`
+      );
     } else {
+      snackbar.showSuccess("Success! Customer created.");
       handleClose();
     }
   };
@@ -97,29 +144,6 @@ function AddCustomerModal({ handleClose }: Props) {
     !customer.identifier ||
     !contract.product_type ||
     !contract.start_date;
-
-  const [
-    isLateFeeDynamicFormValid,
-    setIsLateFeeDynamicFormValid,
-  ] = useState<boolean>(false);
-
-  const validateField = (item: any) => {
-    if (item.type === "date") {
-      if (!item.value || !item.value.toString().length) {
-        return !item.nullable;
-      } else {
-        return isNaN(Date.parse(item.value));
-      }
-    }
-    if (item.type !== "boolean") {
-      if (item.internal_name === "late_fee_structure") {
-        return !isLateFeeDynamicFormValid;
-      } else if (!item.nullable) {
-        return !item.value || !item.value.toString().length;
-      }
-    }
-    return false;
-  };
 
   return (
     <Dialog open onClose={handleClose} classes={{ paper: classes.dialog }}>
@@ -156,8 +180,9 @@ function AddCustomerModal({ handleClose }: Props) {
             <ContractTermsForm
               isProductTypeEditable
               isStartDateEditable
+              errMsg={errMsg}
               contract={contract}
-              validateField={validateField}
+              isFieldInvalid={isFieldInvalid}
               currentJSONConfig={currentJSONConfig}
               setContract={setContract}
               setCurrentJSONConfig={setCurrentJSONConfig}
@@ -181,4 +206,4 @@ function AddCustomerModal({ handleClose }: Props) {
   );
 }
 
-export default AddCustomerModal;
+export default CreateCustomerModal;

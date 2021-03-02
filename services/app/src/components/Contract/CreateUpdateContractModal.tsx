@@ -134,7 +134,7 @@ function CreateUpdateContractModal({
     { loading: isUpdateContractLoading },
   ] = useCustomMutation(updateContractMutation);
 
-  const validateField = (item: any) => {
+  const isFieldInvalid = (item: any) => {
     if (item.type === "date") {
       if (!item.value || !item.value.toString().length) {
         return !item.nullable;
@@ -143,7 +143,7 @@ function CreateUpdateContractModal({
       }
     } else if (item.type === "float") {
       if (!item.nullable) {
-        return !item.value.toString().length;
+        return item.value === null || !item.value.toString().length;
       }
     } else if (item.type !== "boolean") {
       if (item.internal_name === "late_fee_structure") {
@@ -157,7 +157,7 @@ function CreateUpdateContractModal({
 
   const handleSubmit = async () => {
     const error = Object.values(currentJSONConfig)
-      .filter((item: any) => validateField(item))
+      .filter((item: any) => isFieldInvalid(item))
       .toString().length;
     if (error) {
       setErrMsg("Please complete all required fields.");
@@ -201,7 +201,7 @@ function CreateUpdateContractModal({
         `Error: could not update contract! Reason: ${response.msg}`
       );
     } else {
-      snackbar.showSuccess("Success! Contract updated successfully.");
+      snackbar.showSuccess("Success! Contract updated.");
       handleClose();
     }
   };
@@ -223,7 +223,7 @@ function CreateUpdateContractModal({
             errMsg={errMsg}
             contract={contract}
             currentJSONConfig={currentJSONConfig}
-            validateField={validateField}
+            isFieldInvalid={isFieldInvalid}
             setContract={setContract}
             setCurrentJSONConfig={setCurrentJSONConfig}
             setIsLateFeeDynamicFormValid={setIsLateFeeDynamicFormValid}
