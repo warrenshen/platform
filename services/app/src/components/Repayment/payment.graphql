@@ -22,7 +22,7 @@ query GetPaymentForSettlement($id: uuid!) {
       name
       contract {
         id
-        product_type
+        ...Contract
       }
     }
     submitted_by_user {

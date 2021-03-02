@@ -11,6 +11,7 @@ import SettleRepaymentConfirmEffect from "components/Repayment/SettleRepaymentCo
 import SettleRepaymentSelectLoans from "components/Repayment/SettleRepaymentSelectLoans";
 import {
   Companies,
+  Contracts,
   GetLoansByLoanIdsQuery,
   Loans,
   Payments,
@@ -19,6 +20,10 @@ import {
   useGetPaymentForSettlementQuery,
 } from "generated/graphql";
 import { PaymentOptionEnum } from "lib/enum";
+import {
+  computeSettlementDateForPayment,
+  getSettlementTimelineConfigFromContract,
+} from "lib/finance/payments/advance";
 import {
   calculateEffectOfPayment,
   LoanBalance,
@@ -61,6 +66,17 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
       if (existingPayment) {
         setSelectedLoanIds(existingPayment.items_covered?.loan_ids || []);
         setCustomer(existingPayment.company as Companies);
+
+        const settlementTimelineConfig = getSettlementTimelineConfigFromContract(
+          existingPayment.company?.contract as Contracts
+        );
+
+        const settlementDate = computeSettlementDateForPayment(
+          existingPayment.method,
+          existingPayment.requested_payment_date,
+          settlementTimelineConfig
+        );
+
         setPayment({
           id: existingPayment.id,
           company_id: existingPayment.company_id,
@@ -69,7 +85,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
           method: existingPayment.method,
           requested_payment_date: existingPayment.requested_payment_date,
           payment_date: existingPayment.requested_payment_date,
-          settlement_date: existingPayment.settlement_date,
+          settlement_date: settlementDate,
         } as PaymentsInsertInput);
       } else {
         alert("Existing payment not found");

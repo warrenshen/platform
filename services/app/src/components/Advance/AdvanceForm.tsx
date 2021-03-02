@@ -14,7 +14,6 @@ import LoansDataGrid from "components/Loans/LoansDataGrid";
 import DatePicker from "components/Shared/Dates/DatePicker";
 import { LoanFragment, PaymentsInsertInput } from "generated/graphql";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
-import { computeSettlementDateForPayment } from "lib/finance/payments/advance";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -27,10 +26,16 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   payment: PaymentsInsertInput;
   selectedLoans: LoanFragment[];
+  settlementDate: string | null;
   setPayment: (payment: PaymentsInsertInput) => void;
 }
 
-function PaymentAdvanceForm({ payment, selectedLoans, setPayment }: Props) {
+function PaymentAdvanceForm({
+  payment,
+  selectedLoans,
+  settlementDate,
+  setPayment,
+}: Props) {
   const classes = useStyles();
 
   return (
@@ -86,10 +91,6 @@ function PaymentAdvanceForm({ payment, selectedLoans, setPayment }: Props) {
             setPayment({
               ...payment,
               payment_date: value,
-              settlement_date: computeSettlementDateForPayment(
-                value,
-                payment.method
-              ),
             })
           }
         />
@@ -105,13 +106,8 @@ function PaymentAdvanceForm({ payment, selectedLoans, setPayment }: Props) {
           id="settlement-date-date-picker"
           label="Settlement Date"
           disableNonBankDays
-          value={payment.settlement_date}
-          onChange={(value) =>
-            setPayment({
-              ...payment,
-              settlement_date: value,
-            })
-          }
+          disabled
+          value={settlementDate}
         />
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">

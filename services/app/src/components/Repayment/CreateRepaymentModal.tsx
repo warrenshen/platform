@@ -17,8 +17,11 @@ import {
   ProductTypeEnum,
   useCompanyWithDetailsByCompanyIdQuery,
 } from "generated/graphql";
-import { addBizDays } from "lib/date";
 import { PaymentMethodEnum } from "lib/enum";
+import {
+  computeSettlementDateForPayment,
+  getSettlementTimelineConfigFromContract,
+} from "lib/finance/payments/advance";
 import {
   calculateEffectOfPayment,
   createPayment,
@@ -48,17 +51,7 @@ function RepaymentModal({
   });
 
   const company = data?.companies_by_pk;
-  const contract = company?.contract;
-
-  const existingContractFields = contract?.product_config.v1.fields;
-
-  const settlmentTimelineConfigRaw =
-    existingContractFields.find(
-      (field: any) =>
-        field.internal_name === "repayment_type_settlement_timeline"
-    )?.value || "{}";
-
-  const settlementTimelineConfig = JSON.parse(settlmentTimelineConfigRaw);
+  const contract = company?.contract || null;
 
   // There are 2 states that we show, one when the user is selecting
   // the payment method date, and payment type, and the next is when
@@ -78,11 +71,17 @@ function RepaymentModal({
     payment_date: null,
   });
 
-  let settlementDate: string | null = null;
-  if (payment.payment_date && payment.method) {
-    const days = settlementTimelineConfig[payment.method] || 2;
-    settlementDate = addBizDays(payment.payment_date, days);
-  }
+  const settlementTimelineConfig = getSettlementTimelineConfigFromContract(
+    contract
+  );
+  const settlementDate = computeSettlementDateForPayment(
+    payment.method,
+    payment.payment_date,
+    settlementTimelineConfig
+  );
+
+  console.log(settlementDate);
+
   // A payment option is the user's choice to payment the remaining balances on the loan, to
   // pay the minimum amount required, or to pay a custom amount.
   const [paymentOption, setPaymentOption] = useState("");

@@ -12038,7 +12038,7 @@ export type GetPaymentForSettlementQuery = {
   payments_by_pk?: Maybe<
     Pick<Payments, "id"> & {
       company: Pick<Companies, "id" | "name"> & {
-        contract?: Maybe<Pick<Contracts, "id" | "product_type">>;
+        contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
       };
       submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
     } & PaymentFragment
@@ -15735,7 +15735,7 @@ export const GetPaymentForSettlementDocument = gql`
         name
         contract {
           id
-          product_type
+          ...Contract
         }
       }
       submitted_by_user {
@@ -15745,6 +15745,7 @@ export const GetPaymentForSettlementDocument = gql`
     }
   }
   ${PaymentFragmentDoc}
+  ${ContractFragmentDoc}
 `;
 
 /**
