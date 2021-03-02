@@ -52,13 +52,13 @@ function RepaymentModal({
 
   const existingContractFields = contract?.product_config.v1.fields;
 
-  const settlementTimelineConfig =
-    JSON.parse(
-      existingContractFields.find(
-        (field: any) =>
-          field.internal_name === "repayment_type_settlement_timeline"
-      )?.value
-    ) || {};
+  const settlmentTimelineConfigRaw =
+    existingContractFields.find(
+      (field: any) =>
+        field.internal_name === "repayment_type_settlement_timeline"
+    )?.value || "{}";
+
+  const settlementTimelineConfig = JSON.parse(settlmentTimelineConfigRaw);
 
   // There are 2 states that we show, one when the user is selecting
   // the payment method date, and payment type, and the next is when
