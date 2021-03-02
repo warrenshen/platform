@@ -478,6 +478,7 @@ class EbbaApplication(Base):
 	approved_at = Column(DateTime)
 	rejected_at = Column(DateTime)
 	rejection_note = Column(Text)
+	calculated_borrowing_base = Column(Numeric)
 
 	company = relationship(
 		'Company',

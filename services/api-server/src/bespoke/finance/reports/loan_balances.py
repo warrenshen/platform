@@ -43,19 +43,62 @@ SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 	'total_outstanding_interest': float,
 	'total_outstanding_fees': float,
 	'total_principal_in_requested_state': float,
-	'available_limit': float
+	'available_limit': float,
+})
+
+EbbaApplicationUpdateDict = TypedDict('EbbaApplicationUpdateDict', {
+	'id': str,
+	'calculated_borrowing_base': float,
 })
 
 CustomerUpdateDict = TypedDict('CustomerUpdateDict', {
 	'loan_updates': List[LoanUpdateDict],
+	'active_ebba_application_update': EbbaApplicationUpdateDict,
 	'summary_update': SummaryUpdateDict
 })
+
+
+def _get_active_ebba_application_update(
+	contract_helper: contract_util.ContractHelper,
+	ebba_application: models.EbbaApplicationDict,
+	today: datetime.date) -> Tuple[EbbaApplicationUpdateDict, errors.Error]:
+
+	cur_contract, err = contract_helper.get_contract(today)
+	if err:
+		return None, err
+
+	product_type, err = cur_contract.get_product_type()
+	if err:
+		return None, err
+
+	# If we're not working with a LINE_OF_CREDIT contract, we just return None
+	# for the update dict without an error
+	if product_type != ProductType.LINE_OF_CREDIT:
+		return None, None
+
+	# If we don't have an active borrowing base, something is wrong
+	if not ebba_application:
+		err = errors.Error(
+			f"Attempt to compute a new borrowing base for LINE_OF_CREDIT contract without an active borrowing base '{cur_contract.contract_id}'")
+		logging.error(str(err))
+		return None, err
+
+	calculated_borrowing_base, err = cur_contract.as_loc_contract().compute_borrowing_base(ebba_application)
+	if err:
+		logging.error(
+			f"Failed computing borrowing base for contract '{cur_contract.contract_id}' and ebba application '{ebba_application['id']}'")
+		return None, err
+
+	return EbbaApplicationUpdateDict(
+		id=ebba_application['id'],
+		calculated_borrowing_base=calculated_borrowing_base,
+	), None
 
 
 def _get_summary_update(
 	contract_helper: contract_util.ContractHelper,
 	loan_updates: List[LoanUpdateDict],
-	active_ebba_application: models.EbbaApplicationDict,
+	active_ebba_application_update: EbbaApplicationUpdateDict,
 	today: datetime.date
 	) -> Tuple[SummaryUpdateDict, errors.Error]:
 	cur_contract, err = contract_helper.get_contract(today)
@@ -75,17 +118,10 @@ def _get_summary_update(
 	# The adjusted_total_limit for line of credit contracts uses the borrowing
 	# base as its adjusted_total_limit
 	if product_type == ProductType.LINE_OF_CREDIT:
-		if active_ebba_application:
-			borrowing_base, err = cur_contract.as_loc_contract().compute_borrowing_base(active_ebba_application)
-			if err:
-				logging.error(
-					f"Failed computing borrowing base for contract '{cur_contract.contract_id}' and ebba application '{active_ebba_application['id']}'")
-				return None, err
-			adjusted_total_limit = borrowing_base
+		if active_ebba_application_update:
+			adjusted_total_limit = active_ebba_application_update['calculated_borrowing_base']
 		else:
 			adjusted_total_limit = 0.0
-			logging.warning(
-				f"Company does not have an active borrowing base for contract '{cur_contract.contract_id}'")
 
 	total_outstanding_principal = 0.0
 	total_outstanding_interest = 0.0
@@ -104,7 +140,7 @@ def _get_summary_update(
 		total_outstanding_interest=total_outstanding_interest,
 		total_outstanding_fees=total_outstanding_fees,
 		total_principal_in_requested_state=0.0,
-		available_limit=max(0.0, maximum_principal_limit-total_outstanding_principal)
+		available_limit=max(0.0, maximum_principal_limit-total_outstanding_principal),
 	), None
 
 class CustomerBalance(object):
@@ -169,9 +205,17 @@ class CustomerBalance(object):
 		if all_errors:
 			raise Exception('Will not proceed with updates because there was more than 1 error during loan balance updating')
 
+
+		ebba_application_update, err = _get_active_ebba_application_update(
+			contract_helper,
+			financials.get('active_ebba_application'),
+			today)
+		if err:
+			return None, err
+
 		summary_update, err = _get_summary_update(contract_helper,
 			loan_update_dicts,
-			financials.get('active_ebba_application'),
+			ebba_application_update,
 			today)
 		if err:
 			return None, err
@@ -180,7 +224,8 @@ class CustomerBalance(object):
 
 		return CustomerUpdateDict(
 			loan_updates=loan_update_dicts,
-			summary_update=summary_update
+			active_ebba_application_update=ebba_application_update,
+			summary_update=summary_update,
 		), None
 
 	def write(self, customer_update: CustomerUpdateDict) -> Tuple[bool, errors.Error]:
@@ -235,6 +280,16 @@ class CustomerBalance(object):
 
 			if should_add_summary:
 				session.add(financial_summary)
+
+			# Update the active ebba application's calculated borrowing base to
+			# reflect the value as a product of the current contract. These are
+			# first computed in the UI and stored on the server. However, if the
+			# contract changes, then the calculated value we've stored may no
+			# longer reflect the terms of the company's contract.
+			active_ebba_application_update = customer_update.get('active_ebba_application_update')
+			if active_ebba_application_update:
+				app = session.query(models.EbbaApplication).get(active_ebba_application_update['id'])
+				app.calculated_borrowing_base = decimal.Decimal(active_ebba_application_update['calculated_borrowing_base'])
 
 			# The balance was updated so we no longer need to "recompute" it
 			company = session.query(models.Company).get(self._company_id)

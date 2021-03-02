@@ -60,17 +60,23 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			expected_update = test['expected_loan_updates'][i]
 			actual_update = cast(Dict, loan_updates[i])
 
+			copied_update = {**actual_update}
+
 			keys_to_delete = ['loan_id']
 			for key in keys_to_delete:
-				del actual_update[key]
+				del copied_update[key]
 				if key in expected_update:
 					del expected_update[key]
 
-			test_helper.assertDeepAlmostEqual(self, expected_update, actual_update)
+			test_helper.assertDeepAlmostEqual(self, expected_update, copied_update)
 
 		if test.get('expected_summary_update'):
 			test_helper.assertDeepAlmostEqual(self, test['expected_summary_update'],
 				cast(Dict, customer_update['summary_update']))
+
+		success, err = customer_balance.write(customer_update)
+		self.assertTrue(success)
+		self.assertIsNone(err)
 
 	def test_success_no_payments_no_loans(self) -> None:
 
@@ -104,7 +110,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_outstanding_interest': 0.0,
 					'total_outstanding_fees': 0.0,
 					'total_principal_in_requested_state': 0.0,
-					'available_limit': 120000.01
+					'available_limit': 120000.01,
 				}
 			}
 		]
@@ -245,7 +251,6 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
-
 	def test_success_compute_borrowing_base(self) -> None:
 		def populate_fn(session: Any, company_id: str) -> None:
 			session.add(models.Contract(
@@ -292,29 +297,35 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		#  + ((100k * 0.25) / 100.0)
 		#  + ((1M * 0.75) / 100.0)
 		# = $8,250
-		tests: List[Dict] = [
-			{
-				'today': '10/1/2020',
-				'expected_loan_updates': [],
-				'populate_fn': populate_fn,
-				'expected_summary_update': {
-					'product_type': 'line_of_credit',
-					'total_limit': 120000.01,
-					'adjusted_total_limit': 8250,
-					'total_outstanding_principal': 0.0,
-					'total_outstanding_interest': 0.0,
-					'total_outstanding_fees': 0.0,
-					'total_principal_in_requested_state': 0.0,
-					'available_limit': 120000.01
-				}
+		self._run_test({
+			'today': '10/1/2020',
+			'expected_loan_updates': [],
+			'populate_fn': populate_fn,
+			'expected_summary_update': {
+				'product_type': 'line_of_credit',
+				'total_limit': 120000.01,
+				'adjusted_total_limit': 8250,
+				'total_outstanding_principal': 0.0,
+				'total_outstanding_interest': 0.0,
+				'total_outstanding_fees': 0.0,
+				'total_principal_in_requested_state': 0.0,
+				'available_limit': 120000.01
 			}
-		]
-		for test in tests:
-			self._run_test(test)
+		})
 
+		with session_scope(self.session_maker) as session:
+			ebba = session.query(models.EbbaApplication).first()
+			print(ebba.id, ebba.calculated_borrowing_base)
+			self.assertEqual(ebba.calculated_borrowing_base, 8250)
 
-	def test_success_line_of_credit_without_borrowing_base(self) -> None:
-		def populate_fn(session: Any, company_id: str) -> None:
+	def test_failure_line_of_credit_without_borrowing_base(self) -> None:
+		self.reset()
+		seed = test_helper.BasicSeed.create(self.session_maker, self)
+		seed.initialize()
+
+		company_id = seed.get_company_id('company_admin', index=0)
+
+		with session_scope(self.session_maker) as session:
 			session.add(models.Contract(
 				company_id=company_id,
 				product_type=ProductType.LINE_OF_CREDIT,
@@ -334,23 +345,13 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				adjusted_end_date=date_util.load_date_str('12/1/2020')
 			))
 
-		tests: List[Dict] = [
-			{
-				'today': '10/1/2020',
-				'expected_loan_updates': [],
-				'populate_fn': populate_fn,
-				'expected_summary_update': {
-					'product_type': 'line_of_credit',
-					'total_limit': 120000.01,
-					'adjusted_total_limit': 0.0,
-					'total_outstanding_principal': 0.0,
-					'total_outstanding_interest': 0.0,
-					'total_outstanding_fees': 0.0,
-					'total_principal_in_requested_state': 0.0,
-					'available_limit': 120000.01
-				}
-			}
-		]
-		for test in tests:
-			self._run_test(test)
-
+		customer_balance = loan_balances.CustomerBalance(
+			company_dict=models.CompanyDict(
+				name='Distributor 1',
+				id=company_id,
+			),
+			session_maker=self.session_maker
+		)
+		customer_update, err = customer_balance.update(today=date_util.load_date_str('10/01/2020'))
+		self.assertIsNotNone(err)
+		self.assertIn("Attempt to compute a new borrowing base for LINE_OF_CREDIT contract", str(err))
