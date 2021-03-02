@@ -57,7 +57,6 @@ export const bankRoutes = {
   loansPurchaseOrder: "/loans-purchase-order",
   payments: "/payments",
   paymentsReadyForSettlement: "/payments-ready-for-settlement",
-  paymentsReverseDraftAch: "/payments-reverse-draft-ach",
   purchaseOrders: "/purchase-orders",
   transactions: "/transactions",
   vendors: "/vendors",

@@ -175,11 +175,6 @@ const getBankNavItems = (): NavItem[] => {
           icon: <PaymentIcon />,
         },
         {
-          text: "Reverse Draft ACH",
-          link: bankRoutes.paymentsReverseDraftAch,
-          icon: <PaymentIcon />,
-        },
-        {
           text: "Ready for Settlement",
           link: bankRoutes.paymentsReadyForSettlement,
           icon: <PaymentIcon />,

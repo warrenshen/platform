@@ -27,7 +27,6 @@ import BankLoansPastDuePage from "pages/Bank/LoansPastDue";
 import BankOverviewPage from "pages/Bank/Overview";
 import BankPaymentsPage from "pages/Bank/Payments";
 import BankPaymentsReadyForSettlementPage from "pages/Bank/PaymentsReadyForSettlementPage";
-import BankPaymentsReverseDraftAchPage from "pages/Bank/PaymentsReverseDraftAchPage";
 import BankPurchaseOrdersPage from "pages/Bank/PurchaseOrders";
 import BankTransactionsPage from "pages/Bank/Transactions";
 import BankVendorsPage from "pages/Bank/Vendors";
@@ -283,13 +282,6 @@ function App() {
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
         >
           <BankPaymentsReadyForSettlementPage />
-        </PrivateRoute>
-        <PrivateRoute
-          exact
-          path={bankRoutes.paymentsReverseDraftAch}
-          requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
-        >
-          <BankPaymentsReverseDraftAchPage />
         </PrivateRoute>
         <PrivateRoute
           exact

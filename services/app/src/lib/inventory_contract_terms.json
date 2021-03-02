@@ -74,7 +74,8 @@
           {
             "display_name": "% of Interest",
             "nullable": false,
-            "type": "float"
+            "type": "float",
+            "format": "percentage"
           }
         ],
         "internal_name": "late_fee_structure",

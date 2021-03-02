@@ -99,15 +99,87 @@ export async function terminateContractMutation(
     );
 }
 
+// Contract terms related methods.
 export type ProductConfigField = {
   section: string;
   type: string;
+  fields: [ProductConfigField];
   format?: string;
   internal_name: string;
   display_name: string;
   value: any;
   description?: string;
   nullable?: boolean;
+};
+
+// TODO (warrenshen): clean up the `type === 'json'` conditions below.
+// Instead of shared component DynamicFormInput expecting a string,
+// parse the string here and change it to be expecting JSON.
+//
+// Additionally, remove hardcoded `fields[1]` if possible.
+const formatValueForClient = (
+  type: string,
+  value: string | null,
+  format: string | null,
+  fields: ProductConfigField[] | null
+) => {
+  if (type === "json") {
+    if (fields === null || value === null) {
+      return value;
+    }
+    const parsedValue = JSON.parse(value);
+    Object.keys(parsedValue).forEach((field) => {
+      const value = parsedValue[field] as number;
+      if (fields[1].format === "percentage") {
+        parsedValue[field] = value * 100 <= 100 ? value * 100 : null;
+      }
+    });
+    return JSON.stringify(parsedValue);
+  } else if (type === "float") {
+    if (value === null) {
+      return value;
+    }
+    const parsedValue = parseFloat(value);
+    if (format === "percentage") {
+      const parsedPercent = parsedValue * 100;
+      return parsedPercent <= 100 ? parsedPercent : null;
+    } else {
+      return parsedValue;
+    }
+  } else if (type === "integer") {
+    return value ? parseInt(value) : null;
+  } else {
+    return value;
+  }
+};
+
+const formatValueForServer = (
+  type: string,
+  value: string | null,
+  format: string | null,
+  fields: ProductConfigField[] | null
+) => {
+  if (type === "json") {
+    if (fields === null || value === null) {
+      return value;
+    }
+    const parsedValue = JSON.parse(value);
+    Object.keys(parsedValue).forEach((field) => {
+      const value = parsedValue[field] as number;
+      if (fields[1].format === "percentage") {
+        parsedValue[field] = value / 100;
+      }
+    });
+    return JSON.stringify(parsedValue);
+  } else if (type === "float") {
+    return value
+      ? parseFloat(value) / (format === "percentage" ? 100 : 1)
+      : null;
+  } else if (type === "integer") {
+    return value ? parseInt(value) : null;
+  } else {
+    return value;
+  }
 };
 
 export function createProductConfigFieldsFromProductType(
@@ -141,27 +213,18 @@ export function createProductConfigFieldsFromContract(
         templateField &&
         (existingField.value !== null || templateField.nullable)
       ) {
-        templateField.value = existingField.value;
+        templateField.value = formatValueForClient(
+          templateField.type,
+          existingField.value,
+          templateField.format || null,
+          templateField.fields || null
+        );
       }
     });
   }
 
   return templateFields;
 }
-
-const formatValue = (type: any, value: any) => {
-  switch (type) {
-    case "float":
-      return parseFloat(value);
-    case "integer":
-      return parseInt(value);
-    case "date":
-    case "string":
-      return value;
-    default:
-      return value;
-  }
-};
 
 export function createProductConfigForServer(
   productType: ProductTypeEnum,
@@ -170,7 +233,12 @@ export function createProductConfigForServer(
   const shortenedJSONConfig = productConfigFields.map(
     (field: ProductConfigField) => ({
       internal_name: field.internal_name,
-      value: formatValue(field.type, field.value),
+      value: formatValueForServer(
+        field.type,
+        field.value,
+        field.format || null,
+        field.fields || null
+      ),
     })
   );
   const currentJSON = JSON.parse(ProductTypeToContractTermsJson[productType]);
