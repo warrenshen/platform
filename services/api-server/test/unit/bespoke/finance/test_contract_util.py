@@ -137,7 +137,7 @@ class TestContractHelper(unittest.TestCase):
 
 	def test_multiple_contracts_in_different_date_ranges(self) -> None:
 		company_id = 'unused_for_debug_msg'
-		
+
 		contract_dicts = [
 			models.ContractDict(
 				id='unused',
@@ -175,7 +175,7 @@ class TestContractHelper(unittest.TestCase):
 		# Not contract specified for this time range
 		contract, err = contract_helper.get_contract(date_util.load_date_str('1/1/2020'))
 		self.assertIsNotNone(err)
-		
+
 class TestLateFeeStructure(unittest.TestCase):
 
 	def test_success_get_fee_multiplier(self) -> None:

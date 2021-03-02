@@ -8,6 +8,7 @@ from typing import Any, Callable, Dict, List, Tuple, cast
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
+from bespoke.db.db_constants import ProductType
 from mypy_extensions import TypedDict
 
 FieldDict = TypedDict('FieldDict', {
@@ -328,10 +329,28 @@ class Contract(object):
 			success, err = contract._populate(throw_error=False)
 			if err:
 				return None, err
-			# Test that the fee structure was populated correctly.
-			_, err = contract.get_fee_multiplier(days_past_due=1)
+
+			# TODO(pjstein): This test does not work for LOC Contracts because they don't
+			# have a late fee structure (different system). As we add
+			# subclasses for the other product types, we'll want to change
+			# the line above from contract = Contract(contract_dict, private=True)
+			# to contract = Contract(contract_dict, private=True).for_product_type()
+			# which will return an instance of the appropriate subclass.
+			# Each subclass should have a `validate` method that checks
+			# for internal consistency that we can use here. Doing all of that
+			# will be easier when we know a bit more about the shape those
+			# other product types will take.
+
+			# Test that the fee structure was populated correctly for product type
+			# INVENTORY_FINANCING
+			product_type, errs = contract.get_product_type()
 			if err:
 				return None, err
+
+			if product_type == ProductType.INVENTORY_FINANCING:
+				_, err = contract.get_fee_multiplier(days_past_due=1)
+				if err:
+					return None, err
 
 		return contract, None
 
@@ -379,7 +398,7 @@ class ContractHelper(object):
 
 	def get_contract(self, cur_date: datetime.date) -> Tuple[Contract, errors.Error]:
 		# Find the contract that fits in between the time range
-		
+
 		for cur_contract in self._contract_dicts:
 			if cur_date >= cur_contract['start_date'] and cur_date <= cur_contract['adjusted_end_date']:
 				return Contract.build(cur_contract, validate=False)
@@ -408,7 +427,7 @@ class ContractHelper(object):
 			if i == 0:
 				continue
 
-			prev_contract = sorted_contract_dicts[i - 1] 
+			prev_contract = sorted_contract_dicts[i - 1]
 			cur_contract = sorted_contract_dicts[i]
 			if cur_contract['start_date'] < prev_contract['adjusted_end_date']:
 				return None, errors.Error('Contract #{} has a start and end range which overlaps in time with Contract #{}'.format(
