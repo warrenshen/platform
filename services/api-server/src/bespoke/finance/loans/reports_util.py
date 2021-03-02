@@ -147,25 +147,25 @@ def run_customer_balances_for_companies(session_maker: Callable,
 	descriptive errors that we do not consider a 'failure'. The second return value
 	is an optional fatal error."""
 	logging.info('There are {} companies for whom we are updating balances'.format(len(companies)))
-	errors: List[str] = []
+	errors_list: List[str] = []
 
 	if not len(companies):
-		return errors, None
+		return errors_list, None
 
 	for company in companies:
 		descriptive_error = update_company_balance(session_maker, company, report_date)
 		if descriptive_error:
-			errors.append(descriptive_error)
+			errors_list.append(descriptive_error)
 
 	with session_scope(session_maker) as session:
 		fatal_error = compute_and_update_bank_financial_summaries(session, report_date)
 		if fatal_error:
-			return errors, fatal_error
+			return errors_list, fatal_error
 
-	if len(errors) == len(companies):
-		return errors, 'No companies balances could be computed successfully. Errors: {}'.format(errors) 
+	if len(errors_list) == len(companies):
+		return errors_list, errors.Error('No companies balances could be computed successfully. Errors: {}'.format(errors))
 
-	return errors, None
+	return errors_list, None
 
 
 def list_companies_that_need_balances_recomputed(session_maker: Callable) -> List[models.CompanyDict]:

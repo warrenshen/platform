@@ -41,10 +41,15 @@ def _list_artifacts_for_inventory(
 			artifact_id = str(purchase_order.id)
 			artifact_ids.append(artifact_id)
 
+			# Drafted POs may not have amounts specified yet
+			amount = 0.0
+			if purchase_order.amount:
+				amount = float(purchase_order.amount)
+
 			artifacts_by_id[artifact_id] = ArtifactDict(
 				artifact_id=artifact_id,
-				total_amount=float(purchase_order.amount),
-				amount_remaining=float(purchase_order.amount)
+				total_amount=amount,
+				amount_remaining=amount
 			)
 
 		used_amounts_per_id = sibling_util.get_loan_sum_per_artifact(
