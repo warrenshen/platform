@@ -162,6 +162,9 @@ def run_customer_balances_for_companies(session_maker: Callable,
 		if fatal_error:
 			return errors, fatal_error
 
+	if len(errors) == len(companies):
+		return errors, 'No companies balances could be computed successfully. Errors: {}'.format(errors) 
+
 	return errors, None
 
 

@@ -13,6 +13,7 @@ import {
 import DatePicker from "components/Shared/Dates/DatePicker";
 import { Companies } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
+import { todayAsDateStr } from "lib/date";
 import { runCustomerBalances } from "lib/finance/loans/reports";
 import { useState } from "react";
 
@@ -42,7 +43,7 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
 
-  const [reportDate, setReportDate] = useState<string | null>(null);
+  const [reportDate, setReportDate] = useState<string | null>(todayAsDateStr());
 
   const handleClickSubmit = async () => {
     if (!reportDate) {
@@ -57,7 +58,9 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
       console.log({ type: "runCustomerBalances", response });
 
       if (response.status !== "OK") {
-        snackbar.showError("Error! Could not re-calculate customer balances.");
+        snackbar.showError(
+          "Error! Could not re-calculate customer balances. " + response.msg
+        );
       } else {
         snackbar.showSuccess("Success! Customer balances recalculated.");
         handleClose();
