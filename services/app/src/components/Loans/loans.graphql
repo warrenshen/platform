@@ -27,6 +27,52 @@ query GetActiveLoansForCompany($companyId: uuid!, $loanType: loan_type_enum!) {
   }
 }
 
+query GetNotFundedLoansForBank {
+  loans(where: { funded_at: { _is_null: true } }) {
+    id
+    ...Loan
+    company {
+      id
+      name
+    }
+    line_of_credit {
+      id
+      ...LineOfCredit
+    }
+    purchase_order {
+      id
+      order_number
+      vendor {
+        id
+        name
+      }
+    }
+  }
+}
+
+query GetFundedLoansForBank {
+  loans(where: { funded_at: { _is_null: false } }) {
+    id
+    ...Loan
+    company {
+      id
+      name
+    }
+    line_of_credit {
+      id
+      ...LineOfCredit
+    }
+    purchase_order {
+      id
+      order_number
+      vendor {
+        id
+        name
+      }
+    }
+  }
+}
+
 query GetClosedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum!) {
   companies_by_pk(id: $companyId) {
     id

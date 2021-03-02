@@ -9,7 +9,7 @@ import {
   LoanFragment,
   Loans,
   LoanStatusEnum,
-  useLoansByStatusesForBankQuery,
+  useGetNotFundedLoansForBankQuery,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { Action, check } from "lib/auth/rbac-rules";
@@ -22,11 +22,7 @@ function LoansActionRequiredPage() {
     user: { role },
   } = useContext(CurrentUserContext);
 
-  const { data, error, refetch } = useLoansByStatusesForBankQuery({
-    variables: {
-      statuses: [LoanStatusEnum.ApprovalRequested, LoanStatusEnum.Approved],
-    },
-  });
+  const { data, error, refetch } = useGetNotFundedLoansForBankQuery();
 
   if (error) {
     alert("Error querying loans. " + error);

@@ -11723,6 +11723,42 @@ export type GetActiveLoansForCompanyQuery = {
   >;
 };
 
+export type GetNotFundedLoansForBankQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetNotFundedLoansForBankQuery = {
+  loans: Array<
+    Pick<Loans, "id"> & {
+      company: Pick<Companies, "id" | "name">;
+      line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
+      purchase_order?: Maybe<
+        Pick<PurchaseOrders, "id" | "order_number"> & {
+          vendor?: Maybe<Pick<Vendors, "id" | "name">>;
+        }
+      >;
+    } & LoanFragment
+  >;
+};
+
+export type GetFundedLoansForBankQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetFundedLoansForBankQuery = {
+  loans: Array<
+    Pick<Loans, "id"> & {
+      company: Pick<Companies, "id" | "name">;
+      line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
+      purchase_order?: Maybe<
+        Pick<PurchaseOrders, "id" | "order_number"> & {
+          vendor?: Maybe<Pick<Vendors, "id" | "name">>;
+        }
+      >;
+    } & LoanFragment
+  >;
+};
+
 export type GetClosedLoansForCompanyQueryVariables = Exact<{
   companyId: Scalars["uuid"];
   loanType: LoanTypeEnum;
@@ -14228,6 +14264,154 @@ export type GetActiveLoansForCompanyLazyQueryHookResult = ReturnType<
 export type GetActiveLoansForCompanyQueryResult = Apollo.QueryResult<
   GetActiveLoansForCompanyQuery,
   GetActiveLoansForCompanyQueryVariables
+>;
+export const GetNotFundedLoansForBankDocument = gql`
+  query GetNotFundedLoansForBank {
+    loans(where: { funded_at: { _is_null: true } }) {
+      id
+      ...Loan
+      company {
+        id
+        name
+      }
+      line_of_credit {
+        id
+        ...LineOfCredit
+      }
+      purchase_order {
+        id
+        order_number
+        vendor {
+          id
+          name
+        }
+      }
+    }
+  }
+  ${LoanFragmentDoc}
+  ${LineOfCreditFragmentDoc}
+`;
+
+/**
+ * __useGetNotFundedLoansForBankQuery__
+ *
+ * To run a query within a React component, call `useGetNotFundedLoansForBankQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetNotFundedLoansForBankQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetNotFundedLoansForBankQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetNotFundedLoansForBankQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetNotFundedLoansForBankQuery,
+    GetNotFundedLoansForBankQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetNotFundedLoansForBankQuery,
+    GetNotFundedLoansForBankQueryVariables
+  >(GetNotFundedLoansForBankDocument, baseOptions);
+}
+export function useGetNotFundedLoansForBankLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetNotFundedLoansForBankQuery,
+    GetNotFundedLoansForBankQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetNotFundedLoansForBankQuery,
+    GetNotFundedLoansForBankQueryVariables
+  >(GetNotFundedLoansForBankDocument, baseOptions);
+}
+export type GetNotFundedLoansForBankQueryHookResult = ReturnType<
+  typeof useGetNotFundedLoansForBankQuery
+>;
+export type GetNotFundedLoansForBankLazyQueryHookResult = ReturnType<
+  typeof useGetNotFundedLoansForBankLazyQuery
+>;
+export type GetNotFundedLoansForBankQueryResult = Apollo.QueryResult<
+  GetNotFundedLoansForBankQuery,
+  GetNotFundedLoansForBankQueryVariables
+>;
+export const GetFundedLoansForBankDocument = gql`
+  query GetFundedLoansForBank {
+    loans(where: { funded_at: { _is_null: false } }) {
+      id
+      ...Loan
+      company {
+        id
+        name
+      }
+      line_of_credit {
+        id
+        ...LineOfCredit
+      }
+      purchase_order {
+        id
+        order_number
+        vendor {
+          id
+          name
+        }
+      }
+    }
+  }
+  ${LoanFragmentDoc}
+  ${LineOfCreditFragmentDoc}
+`;
+
+/**
+ * __useGetFundedLoansForBankQuery__
+ *
+ * To run a query within a React component, call `useGetFundedLoansForBankQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetFundedLoansForBankQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetFundedLoansForBankQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetFundedLoansForBankQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetFundedLoansForBankQuery,
+    GetFundedLoansForBankQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetFundedLoansForBankQuery,
+    GetFundedLoansForBankQueryVariables
+  >(GetFundedLoansForBankDocument, baseOptions);
+}
+export function useGetFundedLoansForBankLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetFundedLoansForBankQuery,
+    GetFundedLoansForBankQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetFundedLoansForBankQuery,
+    GetFundedLoansForBankQueryVariables
+  >(GetFundedLoansForBankDocument, baseOptions);
+}
+export type GetFundedLoansForBankQueryHookResult = ReturnType<
+  typeof useGetFundedLoansForBankQuery
+>;
+export type GetFundedLoansForBankLazyQueryHookResult = ReturnType<
+  typeof useGetFundedLoansForBankLazyQuery
+>;
+export type GetFundedLoansForBankQueryResult = Apollo.QueryResult<
+  GetFundedLoansForBankQuery,
+  GetFundedLoansForBankQueryVariables
 >;
 export const GetClosedLoansForCompanyDocument = gql`
   query GetClosedLoansForCompany(

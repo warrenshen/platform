@@ -8,13 +8,9 @@ import {
 import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import {
-  LoanFragment,
-  LoanStatusEnum,
-  useLoansByStatusesForBankQuery,
-} from "generated/graphql";
+import { LoanFragment, useGetFundedLoansForBankQuery } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
-import { useState, useContext } from "react";
+import { useContext, useState } from "react";
 
 const matureDaysList = [7, 14, 30];
 
@@ -24,11 +20,7 @@ function BankLoansMaturingPage() {
   } = useContext(CurrentUserContext);
   const [matureDays, setMatureDays] = useState(matureDaysList[1]);
 
-  const { data, error } = useLoansByStatusesForBankQuery({
-    variables: {
-      statuses: [LoanStatusEnum.Funded],
-    },
-  });
+  const { data, error, refetch } = useGetFundedLoansForBankQuery();
 
   if (error) {
     alert("Error querying loans. " + error);
