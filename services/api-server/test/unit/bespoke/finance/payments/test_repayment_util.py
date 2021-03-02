@@ -791,6 +791,7 @@ class TestCreatePayment(db_unittest.TestCase):
 			self.assertEqual(user_id, payment.submitted_by_user_id)
 			self.assertEqual(user_id, payment.requested_by_user_id)
 			self.assertEqual(payment_date, date_util.date_to_str(payment.requested_payment_date))
+			self.assertIsNone(payment.settlement_date)
 			self.assertEqual(loan_ids, cast(Dict, payment.items_covered)['loan_ids'])
 
 			loans = cast(

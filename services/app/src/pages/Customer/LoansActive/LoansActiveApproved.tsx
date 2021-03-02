@@ -14,6 +14,7 @@ import {
   LoanFragment,
   Loans,
 } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import { Action, check } from "lib/auth/rbac-rules";
 import { useContext, useMemo, useState } from "react";
 
@@ -41,6 +42,7 @@ interface Props {
 
 function LoansActiveApproved({ data }: Props) {
   const classes = useStyles();
+  const snackbar = useSnackbar();
 
   const {
     user: { companyId, productType, role },
@@ -87,7 +89,18 @@ function LoansActiveApproved({ data }: Props) {
                 disabled={selectedLoans.length <= 0}
                 variant="contained"
                 color="primary"
-                onClick={() => setIsPayOffLoansModalOpen(true)}
+                onClick={() => {
+                  const fundedLoans = selectedLoans.filter((l) => {
+                    return l.funded_at;
+                  });
+                  if (fundedLoans.length !== selectedLoans.length) {
+                    snackbar.showError(
+                      "Please unselect any loans which are not funded yet. These may not be paid off yet."
+                    );
+                    return;
+                  }
+                  setIsPayOffLoansModalOpen(true);
+                }}
               >
                 Pay Off Loans
               </Button>

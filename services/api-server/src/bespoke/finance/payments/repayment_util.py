@@ -410,7 +410,7 @@ def create_payment(
 		}
 		payment.requested_by_user_id = user_id
 		payment.requested_payment_date = date_util.load_date_str(payment_insert_input['payment_date'])
-		payment.settlement_date = date_util.load_date_str(payment_insert_input['settlement_date'])
+		# Settlement date should not be set until the banker settles the payment.
 
 		session.add(payment)
 		session.flush()

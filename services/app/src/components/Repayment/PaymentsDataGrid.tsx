@@ -9,7 +9,7 @@ import DataGridActionMenu, {
 import DateDataGridCell, {
   DatetimeDataGridCell,
 } from "components/Shared/DataGrid/DateDataGridCell";
-import { PaymentFragment } from "generated/graphql";
+import { PaymentFragment, Payments } from "generated/graphql";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
 import { truncateUuid } from "lib/uuid";
 import { useMemo, useState } from "react";
@@ -19,6 +19,9 @@ interface Props {
   customerSearchQuery: string;
   onClickCustomerName: (value: string) => void;
   actionItems?: DataGridActionItem[];
+  enableSelect: boolean;
+  selectedPaymentIds?: Payments["id"][];
+  handleSelectPayments?: (payments: PaymentFragment[]) => void;
 }
 
 function PaymentsDataGrid({
@@ -26,6 +29,9 @@ function PaymentsDataGrid({
   customerSearchQuery,
   onClickCustomerName,
   actionItems,
+  enableSelect,
+  selectedPaymentIds,
+  handleSelectPayments,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = payments;
@@ -128,15 +134,25 @@ function PaymentsDataGrid({
     [dataGrid?.instance, actionItems, onClickCustomerName]
   );
 
+  const handleSelectionChanged = useMemo(
+    () => ({ selectedRowsData }: any) =>
+      handleSelectPayments &&
+      handleSelectPayments(selectedRowsData as PaymentFragment[]),
+    [handleSelectPayments]
+  );
+
   return (
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
       <ControlledDataGrid
         pager
+        select={enableSelect}
         dataSource={rows}
         columns={columns}
         pageSize={30}
         allowedPageSizes={[30]}
         ref={(ref) => setDataGrid(ref)}
+        selectedRowKeys={selectedPaymentIds}
+        onSelectionChanged={handleSelectionChanged}
       />
     </Box>
   );

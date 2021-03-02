@@ -212,7 +212,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
                 </Button>
               </Box>
             )}
-            <Box>
+            <Box display="flex" justifyContent="flex-end">
               <Button onClick={handleClose}>Cancel</Button>
               {isOnSelectLoans ? (
                 <Button

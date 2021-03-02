@@ -1,21 +1,18 @@
 import { Box, Typography } from "@material-ui/core";
-import { ValueFormatterParams } from "@material-ui/data-grid";
 import PaymentsDataGrid from "components/Repayment/PaymentsDataGrid";
 import SettleRepaymentModal from "components/Repayment/SettleRepaymentModal";
+import Can from "components/Shared/Can";
+import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
+  PaymentFragment,
   useGetPaymentsQuery,
   useGetSubmittedPaymentsQuery,
 } from "generated/graphql";
-import { Action, check } from "lib/auth/rbac-rules";
-import { useState, useContext } from "react";
+import { Action } from "lib/auth/rbac-rules";
+import { useMemo, useState } from "react";
 
 function BankPaymentsPage() {
-  const {
-    user: { role },
-  } = useContext(CurrentUserContext);
-
   const { data, refetch: refetchPayments } = useGetPaymentsQuery();
   const {
     data: submittedPaymentsData,
@@ -25,43 +22,56 @@ function BankPaymentsPage() {
   const payments = data?.payments || [];
   const submittedPayments = submittedPaymentsData?.payments || [];
 
-  const [isSettleRepaymentModalOpen, setIsSettleRepaymentModalOpen] = useState(
-    false
+  // State for modal(s).
+  const [selectedPayments, setSelectedPayments] = useState<PaymentFragment[]>(
+    []
   );
-  const [targetPaymentId, setTargetPaymentId] = useState("");
 
+  const handleSelectPayments = useMemo(
+    () => (payments: PaymentFragment[]) => {
+      setSelectedPayments(payments);
+    },
+    [setSelectedPayments]
+  );
+
+  let selectedPaymentId = "";
+  if (selectedPayments.length > 0) {
+    selectedPaymentId = selectedPayments[0].id;
+  }
   return (
     <Page appBarTitle={"Payments"}>
-      {isSettleRepaymentModalOpen && (
-        <SettleRepaymentModal
-          paymentId={targetPaymentId}
-          handleClose={() => {
-            refetchPayments();
-            refetchSubmittedPayments();
-            setIsSettleRepaymentModalOpen(false);
-          }}
-        />
-      )}
       <Box>
         <Typography variant="h6">Payments - Action Required</Typography>
+        <Box mb={2} display="flex" flexDirection="row-reverse">
+          <Can perform={Action.SettleRepayment}>
+            <Box>
+              <ModalButton
+                isDisabled={selectedPayments.length !== 1}
+                label={"Settle Payment"}
+                modal={({ handleClose }) => (
+                  <SettleRepaymentModal
+                    paymentId={selectedPaymentId}
+                    handleClose={() => {
+                      refetchPayments();
+                      refetchSubmittedPayments();
+                      setSelectedPayments([]);
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          </Can>
+        </Box>
         <PaymentsDataGrid
           payments={submittedPayments}
           customerSearchQuery={""}
           onClickCustomerName={() => {}}
-          actionItems={
-            check(role, Action.SettleRepayment)
-              ? [
-                  {
-                    key: "settle-repayment",
-                    label: "Settle Payment",
-                    handleClick: (params: ValueFormatterParams) => {
-                      setTargetPaymentId(params.row.data.id as string);
-                      setIsSettleRepaymentModalOpen(true);
-                    },
-                  },
-                ]
-              : []
-          }
+          enableSelect={true}
+          handleSelectPayments={handleSelectPayments}
+          selectedPaymentIds={selectedPayments.map((p) => {
+            return p.id;
+          })}
         />
       </Box>
       <Box>
@@ -70,6 +80,7 @@ function BankPaymentsPage() {
           payments={payments}
           customerSearchQuery={""}
           onClickCustomerName={() => {}}
+          enableSelect={false}
         />
       </Box>
     </Page>
