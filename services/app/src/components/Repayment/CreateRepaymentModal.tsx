@@ -15,7 +15,9 @@ import {
   LoanFragment,
   PaymentsInsertInput,
   ProductTypeEnum,
+  useCompanyWithDetailsByCompanyIdQuery,
 } from "generated/graphql";
+import { addBizDays } from "lib/date";
 import { PaymentMethodEnum } from "lib/enum";
 import {
   calculateEffectOfPayment,
@@ -39,6 +41,25 @@ function RepaymentModal({
   selectedLoans,
   handleClose,
 }: Props) {
+  const { data } = useCompanyWithDetailsByCompanyIdQuery({
+    variables: {
+      companyId: companyId,
+    },
+  });
+
+  const company = data?.companies_by_pk;
+  const contract = company?.contract;
+
+  const existingContractFields = contract?.product_config.v1.fields;
+
+  const settlementTimelineConfig =
+    JSON.parse(
+      existingContractFields.find(
+        (field: any) =>
+          field.internal_name === "repayment_type_settlement_timeline"
+      )?.value
+    ) || {};
+
   // There are 2 states that we show, one when the user is selecting
   // the payment method date, and payment type, and the next is when
   // they have to "confirm" what they have selected.
@@ -57,6 +78,11 @@ function RepaymentModal({
     payment_date: null,
   });
 
+  let settlementDate: string | null = null;
+  if (payment.payment_date && payment.method) {
+    const days = settlementTimelineConfig[payment.method] || 2;
+    settlementDate = addBizDays(payment.payment_date, days);
+  }
   // A payment option is the user's choice to payment the remaining balances on the loan, to
   // pay the minimum amount required, or to pay a custom amount.
   const [paymentOption, setPaymentOption] = useState("");
@@ -80,7 +106,7 @@ function RepaymentModal({
     }
 
     const response = await calculateEffectOfPayment({
-      payment: payment,
+      payment: { ...payment, settlement_date: settlementDate },
       company_id: companyId,
       payment_option: paymentOption,
       loan_ids: selectedLoanIds,
@@ -135,7 +161,7 @@ function RepaymentModal({
     }
 
     const response = await createPayment({
-      payment: payment,
+      payment: { ...payment, settlement_date: settlementDate },
       company_id: companyId,
       loan_ids: selectedLoanIds,
     });
@@ -159,6 +185,7 @@ function RepaymentModal({
             paymentOption={paymentOption}
             setPayment={setPayment}
             setPaymentOption={setPaymentOption}
+            settlementDate={settlementDate}
           />
         ) : (
           <CreateRepaymentConfirmEffect

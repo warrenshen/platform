@@ -1,4 +1,4 @@
-import { format, parse } from "date-fns";
+import { addBusinessDays, format, parse } from "date-fns";
 
 export const DateFormatClient = "MM/dd/yyyy";
 export const DateFormatServer = "yyyy-MM-dd";
@@ -23,4 +23,14 @@ export function formatDateString(dateString: string) {
       return null;
     }
   }
+}
+
+export function addBizDays(dateString: string, days: number) {
+  if (!dateString) {
+    return "Invalid Date";
+  }
+
+  const date = parse(dateString, DateFormatServer, new Date());
+  const result = addBusinessDays(date, days);
+  return format(result, DateFormatServer);
 }

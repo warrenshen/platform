@@ -1,4 +1,5 @@
 import datetime
+import logging
 import json
 
 from mypy_extensions import TypedDict
@@ -76,9 +77,13 @@ class CreatePaymentView(MethodView):
 		company_id = form['company_id']
 		loan_ids = form['loan_ids']
 		payment_id, err = repayment_util.create_payment(
-			company_id, payment, loan_ids, 
+			company_id, payment, loan_ids,
 			user_session.get_user_id(), current_app.session_maker
 		)
+
+		if err:
+			logging.error(f"Failed creating repayment for company '{company_id}'; err: '{err}'")
+			return handler_util.make_error_response(err)
 
 		return make_response(json.dumps({
 			'status': 'OK',
@@ -95,7 +100,7 @@ class SettlePaymentView(MethodView):
 			return handler_util.make_error_response('No data provided')
 
 		required_keys = [
-			'payment_id', 'company_id', 'loan_ids', 
+			'payment_id', 'company_id', 'loan_ids',
 			'transaction_inputs', 'settlement_date', 'payment_date'
 		]
 		for key in required_keys:
@@ -106,8 +111,8 @@ class SettlePaymentView(MethodView):
 		user_session = auth_util.UserSession.from_session()
 
 		payment_id, err = repayment_util.settle_payment(
-			cast(repayment_util.SettlePaymentReqDict, form), 
-			user_session.get_user_id(), 
+			cast(repayment_util.SettlePaymentReqDict, form),
+			user_session.get_user_id(),
 			current_app.session_maker
 		)
 

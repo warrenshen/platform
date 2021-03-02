@@ -59,6 +59,7 @@ interface Props {
   isFieldInvalid: (item: any) => boolean;
   setContract: (contract: ContractsInsertInput) => void;
   setIsLateFeeDynamicFormValid: (isValid: boolean) => void;
+  setIsRepaymentSettlementTimelineValid: (isValid: boolean) => void;
   setCurrentJSONConfig: (jsonConfig: any) => void;
 }
 
@@ -72,6 +73,7 @@ function ContractTermsForm({
   setContract,
   setCurrentJSONConfig,
   setIsLateFeeDynamicFormValid,
+  setIsRepaymentSettlementTimelineValid,
 }: Props) {
   const classes = useStyles();
 
@@ -96,7 +98,7 @@ function ContractTermsForm({
     findAndReplaceInJSON(item, JSON.stringify(lateFeeDynamicFormValue));
   };
 
-  const getLateFeeDynamicForminitialValues = (
+  const getLateFeeDynamicFormInitialValues = (
     item: any
   ): any[][] | undefined => {
     const { fields, value } = item;
@@ -110,6 +112,56 @@ function ContractTermsForm({
         result.push({
           [days_past_due]: key ? key.toString() : "",
           [interest]: parsedValue[key] ? parsedValue[key].toString() : "",
+        });
+      });
+    }
+    return result;
+  };
+
+  // Transforms something that looks like this
+  // ​
+  // value = [
+  //   { "Payment Type": "ach", "Days to Settle": "10" },
+  //   { "Payment Type": "wire", "Days to Settle": "5" }
+  // ]
+  //
+  // into something like looks like this
+  //
+  // mappedValue = [
+  //   { ach: 10 },
+  //   { wire: 5 },
+  // ]
+  // And then adds it to our state object
+
+  const parseRepaymentSettlementTimelineFormValue = (
+    item: any,
+    value: any
+  ): void => {
+    const mappedValue = value.map((v: any) => {
+      const [payment_type, days_to_settles] = Object.keys(v);
+      return { [v[payment_type].toString()]: parseInt(v[days_to_settles]) };
+    });
+    const v = Object.assign({}, ...mappedValue);
+
+    findAndReplaceInJSON(item, JSON.stringify(v));
+  };
+
+  const getRepaymentSettlementTimelineInitialValues = (
+    item: any
+  ): any[][] | undefined => {
+    const { fields, value } = item;
+    let result;
+    if (value) {
+      result = [];
+      const parsedValue = JSON.parse(value);
+      const [payment_type, days_to_settle] = fields.map(
+        (f: any) => f.display_name
+      );
+      const keys = Object.keys(parsedValue);
+      keys.forEach((key) => {
+        result.push({
+          [payment_type]: key ? key.toString() : "",
+          [days_to_settle]: parsedValue[key] ? parsedValue[key].toString() : "",
         });
       });
     }
@@ -179,11 +231,24 @@ function ContractTermsForm({
           <DynamicFormInput
             fields={item.fields}
             name={item.display_name}
-            initialValues={getLateFeeDynamicForminitialValues(item)}
+            initialValues={getLateFeeDynamicFormInitialValues(item)}
             showValidationResult={errMsg.length > 0}
             handleChange={(value: any, error) => {
               setIsLateFeeDynamicFormValid(error);
               parseLateFeeDynamicFormValue(item, value);
+            }}
+          />
+        );
+      case item.internal_name === "repayment_type_settlement_timeline":
+        return (
+          <DynamicFormInput
+            fields={item.fields}
+            name={item.display_name}
+            initialValues={getRepaymentSettlementTimelineInitialValues(item)}
+            showValidationResult={false}
+            handleChange={(value: any, error) => {
+              setIsRepaymentSettlementTimelineValid(error);
+              parseRepaymentSettlementTimelineFormValue(item, value);
             }}
           />
         );

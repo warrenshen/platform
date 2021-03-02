@@ -62,7 +62,7 @@ RepaymentEffectRespDict = TypedDict('RepaymentEffectRespDict', {
 })
 
 SettlePaymentReqDict = TypedDict('SettlePaymentReqDict', {
-	'company_id': str, 
+	'company_id': str,
 	'payment_id': str,
 	'loan_ids': List[str],
 	'transaction_inputs': List[TransactionInputDict],
@@ -123,7 +123,7 @@ def calculate_repayment_effect(
 
 	if not payment_input.get('payment_date'):
 		return None, errors.Error('Payment date must be specified')
-	
+
 	if not payment_input.get('settlement_date'):
 		return None, errors.Error('Settlement date must be specified')
 
@@ -135,7 +135,7 @@ def calculate_repayment_effect(
 	err_details = {'company_id': company_id, 'loan_ids': loan_ids, 'method': 'calculate_repayment_effect'}
 	payment_settlement_date = date_util.load_date_str(payment_input['settlement_date'])
 
-	with session_scope(session_maker) as session:		
+	with session_scope(session_maker) as session:
 		loans = cast(
 			List[models.Loan],
 			session.query(models.Loan).filter(
@@ -325,7 +325,7 @@ def calculate_repayment_effect(
 
 		cur_transaction['amount'] += amount_as_credit_to_user
 		cur_transaction['to_principal'] += amount_as_credit_to_user
-		cur_loan_balance_after['outstanding_principal_balance'] -= amount_as_credit_to_user 
+		cur_loan_balance_after['outstanding_principal_balance'] -= amount_as_credit_to_user
 
 	elif payment_option == 'pay_minimum_due':
 
@@ -375,7 +375,7 @@ def create_payment(
 
 	payment_id = None
 
-	with session_scope(session_maker) as session:			
+	with session_scope(session_maker) as session:
 		loans = cast(
 			List[models.Loan],
 			session.query(models.Loan).filter(
@@ -410,12 +410,14 @@ def create_payment(
 		}
 		payment.requested_by_user_id = user_id
 		payment.requested_payment_date = date_util.load_date_str(payment_insert_input['payment_date'])
+		payment.settlement_date = date_util.load_date_str(payment_insert_input['settlement_date'])
+
 		session.add(payment)
 		session.flush()
 		payment_id = str(payment.id)
 
 		is_scheduled = payment_insert_input['method'] == PaymentMethod.REVERSE_DRAFT_ACH
-		payment_status = PaymentStatusEnum.SCHEDULED if is_scheduled else PaymentStatusEnum.PENDING 
+		payment_status = PaymentStatusEnum.SCHEDULED if is_scheduled else PaymentStatusEnum.PENDING
 		for loan in loans:
 			loan.payment_status = payment_status
 
@@ -424,7 +426,7 @@ def create_payment(
 
 def settle_payment(
 	req: SettlePaymentReqDict, user_id: str, session_maker: Callable) -> Tuple[List[str], errors.Error]:
-	
+
 	err_details = {
 		'method': 'settle_payment',
 		'req': req
@@ -527,8 +529,8 @@ def settle_payment(
 				cur_loan.payment_status = PaymentStatusEnum.PARTIALLY_PAID
 
 		payment_util.make_payment_applied(
-			payment, 
-			settled_by_user_id=user_id, 
+			payment,
+			settled_by_user_id=user_id,
 			payment_date=payment_date,
 			settlement_date=payment_settlement_date
 		)

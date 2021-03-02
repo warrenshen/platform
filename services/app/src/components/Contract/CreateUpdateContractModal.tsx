@@ -93,6 +93,11 @@ function CreateUpdateContractModal({
     setIsLateFeeDynamicFormValid,
   ] = useState<boolean>(false);
 
+  const [
+    isRepaymentSettlementTimelineValid,
+    setIsRepaymentSettlementTimelineValid,
+  ] = useState<boolean>(false);
+
   const { loading: isExistingContractLoading } = useGetContractQuery({
     skip: actionType === ActionType.New,
     variables: {
@@ -148,6 +153,8 @@ function CreateUpdateContractModal({
     } else if (item.type !== "boolean") {
       if (item.internal_name === "late_fee_structure") {
         return !isLateFeeDynamicFormValid;
+      } else if (item.internal_name === "repayment_type_settlement_timeline") {
+        return !isRepaymentSettlementTimelineValid;
       } else if (!item.nullable) {
         return !item.value || !item.value.toString().length;
       }
@@ -227,6 +234,9 @@ function CreateUpdateContractModal({
             setContract={setContract}
             setCurrentJSONConfig={setCurrentJSONConfig}
             setIsLateFeeDynamicFormValid={setIsLateFeeDynamicFormValid}
+            setIsRepaymentSettlementTimelineValid={
+              setIsRepaymentSettlementTimelineValid
+            }
           />
           {errMsg && (
             <Box className={classes.errorBox} mt={3}>

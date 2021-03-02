@@ -33,6 +33,7 @@ interface Props {
   selectedLoans: LoanFragment[];
   payment: PaymentsInsertInput;
   paymentOption: string;
+  settlementDate: string | null;
   setPayment: (payment: PaymentsInsertInput) => void;
   setPaymentOption: (paymentOption: string) => void;
 }
@@ -41,12 +42,11 @@ function CreateRepaymentSelectLoans({
   selectedLoans,
   payment,
   paymentOption,
+  settlementDate,
   setPayment,
   setPaymentOption,
 }: Props) {
   const classes = useStyles();
-
-  /* TODO(dlluncor): Determine the settlement date in the backend and disable it for the user */
 
   return (
     <Box>
@@ -123,15 +123,10 @@ function CreateRepaymentSelectLoans({
             className={classes.inputField}
             id="payment-modal-settlement-date-date-picker"
             label="Settlement Date"
+            disabled
             disablePast
             disableNonBankDays
-            value={payment.settlement_date}
-            onChange={(value) => {
-              setPayment({
-                ...payment,
-                settlement_date: value,
-              });
-            }}
+            value={settlementDate}
           />
         </Box>
       </Box>
