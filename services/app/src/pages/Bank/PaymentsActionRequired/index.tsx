@@ -43,12 +43,11 @@ function BankPaymentsActionRequiredPage() {
     refetch: refetchSubmittedPayments,
   } = useGetSubmittedPaymentsQuery();
 
-  const submittedPayments = submittedPaymentsData?.payments || [];
+  const submittedPayments = useMemo(() => {
+    return submittedPaymentsData?.payments || [];
+  }, [submittedPaymentsData]);
 
-  // State for modal(s).
-  const [selectedNotifyPayments, setSelectedNotifyPayments] = useState<
-    PaymentFragment[]
-  >([]);
+  // Schedule section
   const [selectedScheduledPayments, setSelectedScheduledPayments] = useState<
     PaymentFragment[]
   >([]);
@@ -60,6 +59,42 @@ function BankPaymentsActionRequiredPage() {
     [setSelectedScheduledPayments]
   );
 
+  let scheduledPaymentId = useMemo(() => {
+    if (selectedScheduledPayments.length > 0) {
+      return selectedScheduledPayments[0].id;
+    }
+    return "";
+  }, [selectedScheduledPayments]);
+
+  const seletedSchedulePaymentIds = useMemo(() => {
+    return selectedScheduledPayments.map((p) => {
+      return p.id;
+    });
+  }, [selectedScheduledPayments]);
+
+  const scheduledPayments = useMemo(() => {
+    return submittedPayments.filter((p) => {
+      return p.method === "reverse_draft_ach";
+    });
+  }, [submittedPayments]);
+
+  // Notify section
+  const [selectedNotifyPayments, setSelectedNotifyPayments] = useState<
+    PaymentFragment[]
+  >([]);
+
+  const notifyPayments = useMemo(() => {
+    return submittedPayments.filter((p) => {
+      return p.method !== "reverse_draft_ach";
+    });
+  }, [submittedPayments]);
+
+  const seletedNotifyPaymentIds = useMemo(() => {
+    return selectedNotifyPayments.map((p) => {
+      return p.id;
+    });
+  }, [selectedNotifyPayments]);
+
   const handleSelectNotifyPayments = useMemo(
     () => (payments: PaymentFragment[]) => {
       setSelectedNotifyPayments(payments);
@@ -67,29 +102,12 @@ function BankPaymentsActionRequiredPage() {
     [setSelectedNotifyPayments]
   );
 
-  const seletedSchedulePaymentIds = selectedScheduledPayments.map((p) => {
-    return p.id;
-  });
-
-  const seletedNotifyPaymentIds = selectedNotifyPayments.map((p) => {
-    return p.id;
-  });
-
-  const scheduledPayments = submittedPayments.filter((p) => {
-    return p.method === "reverse_draft_ach";
-  });
-  const notifyPayments = submittedPayments.filter((p) => {
-    return p.method !== "reverse_draft_ach";
-  });
-
-  let scheduledPaymentId = "";
-  if (seletedSchedulePaymentIds.length > 0) {
-    scheduledPaymentId = selectedScheduledPayments[0].id;
-  }
-  let notifyPaymentId = "";
-  if (seletedNotifyPaymentIds.length > 0) {
-    notifyPaymentId = seletedNotifyPaymentIds[0].id;
-  }
+  let notifyPaymentId = useMemo(() => {
+    if (selectedNotifyPayments.length > 0) {
+      return selectedNotifyPayments[0].id;
+    }
+    return "";
+  }, [selectedNotifyPayments]);
 
   return (
     <Page appBarTitle={"Payments - Action Required"}>

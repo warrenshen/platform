@@ -186,7 +186,8 @@ class Contract(object):
 		if err:
 			return None, err
 
-		if type(field['value']) != bool:
+		# Checking if field['value'] allows us to permit None, which is treated as False.
+		if field['value'] and type(field['value']) != bool:
 			return None, errors.Error(
 				'Got an "{}" which is not stored as a boolean'.format(internal_name),
 				details={'contract_config': self._config})
