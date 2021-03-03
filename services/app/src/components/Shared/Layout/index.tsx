@@ -155,18 +155,6 @@ const getBankNavItems = (): NavItem[] => {
       ],
     },
     {
-      text: "Purchase Orders",
-      link: bankRoutes.purchaseOrders,
-    },
-    {
-      text: "Borrowing Bases",
-      link: bankRoutes.ebbaApplications,
-    },
-    {
-      text: "Advances",
-      link: bankRoutes.advances,
-    },
-    {
       text: "Payments",
       items: [
         {
@@ -182,8 +170,12 @@ const getBankNavItems = (): NavItem[] => {
       ],
     },
     {
-      text: "Transactions",
-      link: bankRoutes.transactions,
+      text: "Purchase Orders",
+      link: bankRoutes.purchaseOrders,
+    },
+    {
+      text: "Borrowing Bases",
+      link: bankRoutes.ebbaApplications,
     },
     {
       text: "Customers",
@@ -192,6 +184,14 @@ const getBankNavItems = (): NavItem[] => {
     {
       text: "Vendors",
       link: bankRoutes.vendors,
+    },
+    {
+      text: "Advances",
+      link: bankRoutes.advances,
+    },
+    {
+      text: "Transactions",
+      link: bankRoutes.transactions,
     },
     {
       text: "Settings",
