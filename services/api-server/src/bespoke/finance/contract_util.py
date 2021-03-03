@@ -60,6 +60,9 @@ def _parse_late_fee_structure(late_fee_field: FullFieldDict) -> Tuple[List[Tuple
 		if type(k) != str or not is_number:
 			return None, errors.Error('Invalid late fee structure. The key must be a string and the value must be a float')
 
+		if float(v) < 0 or 1.0 < float(v):
+			return None, errors.Error(f"Invalid late fee structure. '{k}' must have a value between 0 and 1")
+
 		# the key can either be an integer range 1-5, or it can be the tail-end
 		# of a range, e.g., 7+
 		has_infinity_case = False
@@ -246,6 +249,33 @@ class Contract(object):
 	def _use_preceeding_business_day(self) -> Tuple[bool, errors.Error]:
 		return self._get_bool_value('preceeding_business_day')
 
+	def get_maturity_date(self, advance_settlement_date: datetime.date) -> Tuple[datetime.date, errors.Error]:
+		"""
+			Get the maturity date of a loan that starts with it's advance on this
+			particular settlement date
+		"""
+		num_days_after_repayment, err = self._get_int_value('contract_financing_terms')
+		if err:
+			return None, err
+
+		maturity_date = advance_settlement_date + timedelta(days=num_days_after_repayment)
+		return maturity_date, None
+
+	def get_adjusted_maturity_date(self, advance_settlement_date: datetime.date) -> Tuple[datetime.date, errors.Error]:
+		"""
+			Get the maturity date of a loan that starts with it's advance on this
+			particular settlement date
+		"""
+		maturity_date, err = self.get_maturity_date(advance_settlement_date)
+		if err:
+			return None, err
+
+		use_preceeding, err = self._use_preceeding_business_day()
+		if err:
+			return None, err
+
+		return date_util.get_nearest_business_day(maturity_date, preceeding=use_preceeding), None
+
 	def get_fee_multiplier(self, days_past_due: int) -> Tuple[float, errors.Error]:
 		"""
 			Past on how many days past due this loan is, we have a multiplier of how
@@ -276,40 +306,30 @@ class Contract(object):
 			'Could not find a matching fee multiplier for days_past_due={}'.format(
 				days_past_due))
 
-	def get_maturity_date(self, advance_settlement_date: datetime.date) -> Tuple[datetime.date, errors.Error]:
-		"""
-			Get the maturity date of a loan that starts with it's advance on this
-			particular settlement date
-		"""
-		num_days_after_repayment, err = self._get_int_value('contract_financing_terms')
-		if err:
-			return None, err
-
-		maturity_date = advance_settlement_date + timedelta(days=num_days_after_repayment)
-		return maturity_date, None
-
-	def get_adjusted_maturity_date(self, advance_settlement_date: datetime.date) -> Tuple[datetime.date, errors.Error]:
-		"""
-			Get the maturity date of a loan that starts with it's advance on this
-			particular settlement date
-		"""
-		maturity_date, err = self.get_maturity_date(advance_settlement_date)
-		if err:
-			return None, err
-
-		use_preceeding, err = self._use_preceeding_business_day()
-		if err:
-			return None, err
-
-		return date_util.get_nearest_business_day(maturity_date, preceeding=use_preceeding), None
-
 	def get_fields(self) -> List[FieldDict]:
 		self._populate()
 
 		return self._field_dicts
 
-	def as_loc_contract(self) -> 'LOCContract':
-		return LOCContract(self._contract_dict, self._private)
+	def validate(self) -> errors.Error:
+		raise NotImplementedError("validate is not implemented on this class")
+
+	def for_product_type(self) -> Tuple['Contract', errors.Error]:
+		product_type, err = self.get_product_type()
+		if err:
+			return None, err
+
+		Constructor = {
+			ProductType.LINE_OF_CREDIT: LOCContract,
+			ProductType.INVENTORY_FINANCING: InventoryFinancingContract,
+		}.get(product_type)
+
+		if not Constructor:
+			return None, errors.Error(f"Cannot coerce '{product_type}' contracts to a subclass")
+
+		obj = Constructor(self._contract_dict, self._private)
+		obj._populate()
+		return obj, None
 
 	@staticmethod
 	def build(contract_dict: models.ContractDict, validate: bool) -> Tuple['Contract', errors.Error]:
@@ -326,42 +346,35 @@ class Contract(object):
 		contract = Contract(contract_dict, private=True)
 
 		if validate:
-			success, err = contract._populate(throw_error=False)
+			concrete_object, err = contract.for_product_type()
 			if err:
 				return None, err
 
-			# TODO(pjstein): This test does not work for LOC Contracts because they don't
-			# have a late fee structure (different system). As we add
-			# subclasses for the other product types, we'll want to change
-			# the line above from contract = Contract(contract_dict, private=True)
-			# to contract = Contract(contract_dict, private=True).for_product_type()
-			# which will return an instance of the appropriate subclass.
-			# Each subclass should have a `validate` method that checks
-			# for internal consistency that we can use here. Doing all of that
-			# will be easier when we know a bit more about the shape those
-			# other product types will take.
-
-			# Test that the fee structure was populated correctly for product type
-			# INVENTORY_FINANCING
-			product_type, errs = contract.get_product_type()
+			err = concrete_object.validate()
 			if err:
 				return None, err
-
-			if product_type == ProductType.INVENTORY_FINANCING:
-				_, err = contract.get_fee_multiplier(days_past_due=1)
-				if err:
-					return None, err
 
 		return contract, None
 
 
-class LOCContract(Contract):
+class InventoryFinancingContract(Contract):
+	"""Stubbed subclass so that we can start handling the vagaries of
+	different contract types"""
 
+	def __init__(self, c: models.ContractDict, private: bool) -> None:
+		super(InventoryFinancingContract, self).__init__(c, private)
+
+	def validate(self) -> errors.Error:
+		_, err = self.get_fee_multiplier(days_past_due=1)
+		return err
+
+
+class LOCContract(Contract):
 
 	def __init__(self, c: models.ContractDict, private: bool) -> None:
 		super(LOCContract, self).__init__(c, private)
 
-	def get_borrowing_base_accounts_receivable(self) -> Tuple[float, errors.Error]:
+	def get_borrowing_base_accounts_receivable_percentage(self) -> Tuple[float, errors.Error]:
 		return self._get_float_value('borrowing_base_accounts_receivable_percentage')
 
 	def get_borrowing_base_inventory_percentage(self) -> Tuple[float, errors.Error]:
@@ -372,7 +385,7 @@ class LOCContract(Contract):
 
 	# Based on https://github.com/bespoke-capital/platform/blob/3d0574e2d1198137ff089f02ddafe383708c0d0e/services/app/src/components/EbbaApplication/CreateEbbaApplicationModal.tsx#L44-L76
 	def compute_borrowing_base(self, ebba: models.EbbaApplicationDict) -> Tuple[float, errors.Error]:
-		accounts_receivable_percentage, err = self.get_borrowing_base_accounts_receivable()
+		accounts_receivable_percentage, err = self.get_borrowing_base_accounts_receivable_percentage()
 		if err:
 			return None, err
 
@@ -390,6 +403,25 @@ class LOCContract(Contract):
 			+ ((ebba['monthly_cash'] * cash_percentage) / 100.0)
 
 		return borrowing_base, None
+
+	def validate(self) -> errors.Error:
+		fields = (
+			'borrowing_base_accounts_receivable_percentage',
+			'borrowing_base_inventory_percentage',
+			'borrowing_base_cash_percentage'
+		)
+
+		for field in fields:
+			v, err = getattr(self, f"get_{field}")()
+			if err:
+				return err
+
+			if v < 0.0 or 1.0 < v:
+				return errors.Error(
+					f"'{field}' must have a value between 0 and 1"
+				)
+
+		return None
 
 class ContractHelper(object):
 

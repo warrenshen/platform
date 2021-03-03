@@ -76,6 +76,12 @@ def _get_active_ebba_application_update(
 	if product_type != ProductType.LINE_OF_CREDIT:
 		return None, None
 
+	cur_contract, err = cur_contract.for_product_type()
+	if err:
+		return None, err
+
+	cur_contract = cast(contract_util.LOCContract, cur_contract)
+
 	# If we don't have an active borrowing base, something is wrong
 	if not ebba_application:
 		err = errors.Error(
@@ -83,7 +89,7 @@ def _get_active_ebba_application_update(
 		logging.error(str(err))
 		return None, err
 
-	calculated_borrowing_base, err = cur_contract.as_loc_contract().compute_borrowing_base(ebba_application)
+	calculated_borrowing_base, err = cur_contract.compute_borrowing_base(ebba_application)
 	if err:
 		logging.error(
 			f"Failed computing borrowing base for contract '{cur_contract.contract_id}' and ebba application '{ebba_application['id']}'")

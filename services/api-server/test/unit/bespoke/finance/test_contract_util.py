@@ -11,27 +11,24 @@ from bespoke.finance import contract_util
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
 
-def _get_default_contract_config(overrides: Dict) -> Dict:
+def _get_default_contract_config(product_type: str, overrides: Dict) -> Dict:
 	contract_dict = ContractInputDict(
 					interest_rate=0.05,
 					maximum_principal_amount=120000.01,
 					max_days_until_repayment=30,
 					late_fee_structure='', # unused
 	)
-
 	d = cast(Dict, contract_dict)
-	if overrides.get('late_fee_structure'):
-		d['late_fee_structure'] = overrides['late_fee_structure']
-
+	d.update(overrides)
 	return contract_test_helper.create_contract_config(
-				product_type=ProductType.INVENTORY_FINANCING,
+				product_type=product_type,
 				input_dict=cast(ContractInputDict, d)
 		)
 
 class TestContractHelper(unittest.TestCase):
 
 	def test_missing_start_date(self) -> None:
-		config = _get_default_contract_config({
+		config = _get_default_contract_config(ProductType.INVENTORY_FINANCING, {
 			'late_fee_structure': json.dumps(
 				{'1-3': 0.5, '4-9': 0.4, '10+': 0.3})
 		})
@@ -51,7 +48,7 @@ class TestContractHelper(unittest.TestCase):
 		self.assertIn('missing a start_date', err.msg)
 
 	def test_missing_end_date(self) -> None:
-		config = _get_default_contract_config({
+		config = _get_default_contract_config(ProductType.INVENTORY_FINANCING, {
 			'late_fee_structure': json.dumps(
 				{'1-3': 0.5, '4-9': 0.4, '10+': 0.3})
 		})
@@ -71,7 +68,7 @@ class TestContractHelper(unittest.TestCase):
 		self.assertIn('missing a adjusted end_date', err.msg)
 
 	def test_overlapping_date_ranges(self) -> None:
-		config = _get_default_contract_config({
+		config = _get_default_contract_config(ProductType.INVENTORY_FINANCING, {
 			'late_fee_structure': json.dumps(
 				{'1-3': 0.5, '4-9': 0.4, '10+': 0.3})
 		})
@@ -110,7 +107,7 @@ class TestContractHelper(unittest.TestCase):
 			}
 		]
 
-		config = _get_default_contract_config({
+		config = _get_default_contract_config(ProductType.INVENTORY_FINANCING, {
 			'late_fee_structure': json.dumps(
 				{'1-3': 0.5, '4-9': 0.4, '10+': 0.3})
 		})
@@ -142,7 +139,7 @@ class TestContractHelper(unittest.TestCase):
 			models.ContractDict(
 				id='unused',
 				product_type=ProductType.INVENTORY_FINANCING,
-				product_config=_get_default_contract_config({
+				product_config=_get_default_contract_config(ProductType.INVENTORY_FINANCING, {
 					'late_fee_structure': json.dumps({'1-3': 0.5, '4-9': 0.4, '10+': 0.3})
 				}),
 				start_date=date_util.load_date_str('2/11/2020'),
@@ -152,7 +149,7 @@ class TestContractHelper(unittest.TestCase):
 			models.ContractDict(
 				id='unused2',
 				product_type=ProductType.INVENTORY_FINANCING,
-				product_config=_get_default_contract_config({
+				product_config=_get_default_contract_config(ProductType.INVENTORY_FINANCING, {
 					'late_fee_structure': json.dumps({'1-3': 0.1, '4-9': 0.2, '10+': 0.5})
 				}),
 				start_date=date_util.load_date_str('2/16/2020'),
@@ -179,7 +176,7 @@ class TestContractHelper(unittest.TestCase):
 class TestLateFeeStructure(unittest.TestCase):
 
 	def test_success_get_fee_multiplier(self) -> None:
-		config = _get_default_contract_config({
+		config = _get_default_contract_config(ProductType.INVENTORY_FINANCING, {
 			'late_fee_structure': json.dumps(
 				{'1-3': 0.5, '4-9': 0.4, '10+': 0.3})
 		})
@@ -209,7 +206,7 @@ class TestLateFeeStructure(unittest.TestCase):
 				self.assertIsNone(err)
 				self.assertAlmostEqual(test['expected_val'], multiplier)
 
-	def test_failure_invalid_examples(self) -> None:
+	def test_failure_invalid_inventory_financing(self) -> None:
 		tests: List[Dict] = [
 			{
 				'late_fee_structure': {},
@@ -250,13 +247,21 @@ class TestLateFeeStructure(unittest.TestCase):
 			{
 				'late_fee_structure': {'2-10': 0.5, '11-40': 0.4, '41+': 0.5},
 				'in_err_msg': 'must start with day 1'
+			},
+			{
+				'late_fee_structure': {'1-10': 1.5, '11+': 0.1},
+				'in_err_msg': 'between 0 and 1',
+			},
+			{
+				'late_fee_structure': {'1-10': -0.1, '11+': 0.1},
+				'in_err_msg': 'between 0 and 1',
 			}
 		]
 
 		# Test it fails because of validate=True
 		for i in range(len(tests)):
 			test = tests[i]
-			config = _get_default_contract_config({
+			config = _get_default_contract_config(ProductType.INVENTORY_FINANCING, {
 				'late_fee_structure': json.dumps(test['late_fee_structure'])
 			})
 			contract, err = contract_util.Contract.build(models.Contract(
@@ -267,7 +272,7 @@ class TestLateFeeStructure(unittest.TestCase):
 
 		for i in range(len(tests)):
 			test = tests[i]
-			config = _get_default_contract_config({
+			config = _get_default_contract_config(ProductType.INVENTORY_FINANCING, {
 				'late_fee_structure': json.dumps(test['late_fee_structure'])
 			})
 			contract, err = contract_util.Contract.build(models.Contract(
@@ -278,4 +283,45 @@ class TestLateFeeStructure(unittest.TestCase):
 
 				# Test it fails because you didnt validate in the build, but your try to grab it here.
 			_, err = contract.get_fee_multiplier(days_past_due=2)
+			self.assertIn(test['in_err_msg'], err.msg)
+
+	def test_failure_invalid_line_of_credit(self) -> None:
+		tests: List[Dict] = [
+			{
+				'update': {},
+				'in_err_msg': 'Non-existent',
+			},
+			{
+				'update': {
+					'borrowing_base_accounts_receivable_percentage': 0.5,
+					'borrowing_base_inventory_percentage': 0.5,
+				},
+				'in_err_msg': 'cash_percentage'
+			},
+			{
+				'update': {
+					'borrowing_base_accounts_receivable_percentage': 0.5,
+					'borrowing_base_inventory_percentage': 0.5,
+					'borrowing_base_cash_percentage': 1.5,
+				},
+				'in_err_msg': 'between 0 and 1'
+			},
+			{
+				'update': {
+					'borrowing_base_accounts_receivable_percentage': 0.5,
+					'borrowing_base_inventory_percentage': 0.5,
+					'borrowing_base_cash_percentage': -0.1,
+				},
+				'in_err_msg': 'between 0 and 1'
+			}
+		]
+
+		# Test it fails because of validate=True
+		for i in range(len(tests)):
+			test = tests[i]
+			config = _get_default_contract_config(ProductType.LINE_OF_CREDIT, test['update'])
+			contract, err = contract_util.Contract.build(models.Contract(
+						product_type=ProductType.LINE_OF_CREDIT,
+						product_config=config
+			).as_dict(), validate=True)
 			self.assertIn(test['in_err_msg'], err.msg)
