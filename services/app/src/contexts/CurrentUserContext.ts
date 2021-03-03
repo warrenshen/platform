@@ -4,7 +4,7 @@ import { createContext } from "react";
 
 export type User = {
   id: Users["id"];
-  companyId: Users["company_id"];
+  companyId: Users["company_id"] | null;
   role: UserRolesEnum;
   productType: ProductTypeEnum | null;
 };
@@ -20,7 +20,7 @@ export type CurrentUserContextType = {
 
 export const BlankUser = {
   id: "",
-  companyId: "",
+  companyId: null,
   role: UserRolesEnum.CompanyAdmin,
   productType: null,
 };

@@ -26,7 +26,7 @@ function PrivateRoute(props: Props & RouteProps) {
   const shouldRender = isSignedIn && canVisitRoute;
 
   const { data } = useCompanyWithDetailsByCompanyIdQuery({
-    skip: !companyId,
+    skip: companyId === null,
     variables: {
       companyId,
     },
