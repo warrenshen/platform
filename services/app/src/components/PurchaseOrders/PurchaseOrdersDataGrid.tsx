@@ -68,7 +68,7 @@ function PurchaseOrdersDataGrid({
       },
       {
         dataField: "status",
-        caption: "Status",
+        caption: "Confirmation Status",
         width: 120,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (

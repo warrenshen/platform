@@ -14,6 +14,7 @@ const StatusToColor = {
 };
 
 function PaymentStatusChip({ paymentStatus }: Props) {
+  console.log({ paymentStatus });
   return (
     <Box>
       {paymentStatus && (
@@ -21,7 +22,7 @@ function PaymentStatusChip({ paymentStatus }: Props) {
           color={"white"}
           background={StatusToColor[paymentStatus]}
           label={PaymentStatusToLabel[paymentStatus]}
-        ></Chip>
+        />
       )}
     </Box>
   );

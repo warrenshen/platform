@@ -95,12 +95,12 @@ function CustomerLoansActivePage() {
         </Box>
         <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
-          <Typography variant="h6">Loans - Pending</Typography>
+          <Typography variant="h6">Loans - Not Funded</Typography>
           <LoansActiveNotApproved data={data} />
         </Box>
         <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
-          <Typography variant="h6">Loans - Approved</Typography>
+          <Typography variant="h6">Loans - Funded</Typography>
           <LoansActiveApproved data={data} />
         </Box>
       </Box>

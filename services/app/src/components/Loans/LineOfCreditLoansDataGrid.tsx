@@ -58,8 +58,9 @@ function LineOfCreditLoansDataGrid({
         ),
       },
       {
+        visible: !isMaturityVisible,
         dataField: "status",
-        caption: "Status",
+        caption: "Approval Status",
         width: 120,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (

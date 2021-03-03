@@ -139,7 +139,7 @@ export const AllProductTypes = [
 export const RequestStatusToLabel = {
   [RequestStatusEnum.Drafted]: "Drafted",
   [RequestStatusEnum.ApprovalRequested]: "Requested",
-  [RequestStatusEnum.Approved]: "Approved",
+  [RequestStatusEnum.Approved]: "Confirmed",
   [RequestStatusEnum.Rejected]: "Rejected",
 };
 

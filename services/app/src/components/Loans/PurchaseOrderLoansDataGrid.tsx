@@ -2,7 +2,7 @@ import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
-import IsFundedChip from "components/Shared/Chip/IsFundedChip";
+import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import PaymentStatusChip from "components/Shared/Chip/PaymentStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
@@ -10,7 +10,7 @@ import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import { LoanFragment, Loans } from "generated/graphql";
+import { LoanFragment, Loans, LoanStatusEnum } from "generated/graphql";
 import { PaymentStatusEnum } from "lib/enum";
 import { createLoanPublicIdentifier } from "lib/loans";
 import { useMemo } from "react";
@@ -63,12 +63,13 @@ function PurchaseOrderLoansDataGrid({
         ),
       },
       {
-        dataField: "funded_at",
-        caption: "Status",
+        visible: !isMaturityVisible,
+        dataField: "status",
+        caption: "Approval Status",
         width: 120,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
-          <IsFundedChip fundedAt={params.value as string} />
+          <LoanStatusChip loanStatus={params.value as LoanStatusEnum} />
         ),
       },
       {

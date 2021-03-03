@@ -48,7 +48,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
       pageSize = 50,
       pager,
       pageIndex,
-      allowedPageSizes = [10, 20, 50],
+      allowedPageSizes = [],
       pagerSizeSelector = true,
       filtering,
       select,

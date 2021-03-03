@@ -45,10 +45,7 @@ function LoansActiveApproved({ data }: Props) {
 
   const company = data?.companies_by_pk;
   const loans = useMemo(
-    () =>
-      (company?.loans || []).filter((loan) =>
-        loan.approved_at ? true : false
-      ),
+    () => (company?.loans || []).filter((loan) => !!loan.funded_at),
     [company?.loans]
   );
 
@@ -109,7 +106,6 @@ function LoansActiveApproved({ data }: Props) {
           <PolymorphicLoansDataGrid
             isMultiSelectEnabled={check(role, Action.SelectLoan)}
             isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
-            pager={false}
             productType={productType}
             loans={loans}
             selectedLoanIds={selectedLoanIds}
