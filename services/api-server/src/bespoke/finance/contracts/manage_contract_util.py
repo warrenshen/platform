@@ -127,14 +127,13 @@ def add_new_contract(req: AddNewContractReqDict, bank_admin_user_id: str, sessio
 		if not company:
 			return False, errors.Error('Company could not be found', details=err_details)
 
-		cur_contract = None
-
-		if company.contract_id:
-			cur_contract = cast(
-				models.Contract,
-				session.query(models.Contract).filter(
-					models.Contract.id == company.contract_id
-				).first())
+		existing_contracts = cast(
+			List[models.Contract],
+			session.query(models.Contract).filter(
+				models.Contract.company_id == req['company_id']
+			).all())
+		if not existing_contracts:
+			existing_contracts = []
 
 		new_contract = models.Contract(company_id=company.id)
 		success, err = _update_contract(new_contract, req['contract_fields'], bank_admin_user_id)
@@ -145,14 +144,15 @@ def add_new_contract(req: AddNewContractReqDict, bank_admin_user_id: str, sessio
 		start_date = new_contract.start_date
 		end_date = new_contract.adjusted_end_date
 
-		if cur_contract:
-			if not cur_contract.adjusted_end_date:
-				return False, errors.Error('Adjusted end date must be set on the current contract', details=err_details)
+		for cur_contract in existing_contracts:
 
-			if start_date > cur_contract.start_date and start_date < cur_contract.adjusted_end_date:
+			if not cur_contract.adjusted_end_date:
+				return False, errors.Error('Adjusted end date must be set on the all contracts', details=err_details)
+
+			if start_date >= cur_contract.start_date and start_date <= cur_contract.adjusted_end_date:
 				return False, errors.Error('New contract start_date intersects with the current contract start and end date', details=err_details)
 
-			if end_date > cur_contract.start_date and end_date < cur_contract.adjusted_end_date:
+			if end_date >= cur_contract.start_date and end_date <= cur_contract.adjusted_end_date:
 				return False, errors.Error('New contract end_date intersects with the current contract start and end date', details=err_details)
 
 		session.add(new_contract)
