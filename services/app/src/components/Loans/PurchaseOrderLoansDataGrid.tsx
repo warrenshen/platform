@@ -13,6 +13,7 @@ import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { LoanFragment, Loans, LoanStatusEnum } from "generated/graphql";
 import { PaymentStatusEnum } from "lib/enum";
 import { createLoanPublicIdentifier } from "lib/loans";
+import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
@@ -66,7 +67,7 @@ function PurchaseOrderLoansDataGrid({
         visible: !isMaturityVisible,
         dataField: "status",
         caption: "Approval Status",
-        width: 120,
+        width: ColumnWidths.Status,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
           <LoanStatusChip loanStatus={params.value as LoanStatusEnum} />
@@ -76,8 +77,8 @@ function PurchaseOrderLoansDataGrid({
         visible: isMaturityVisible,
         dataField: "payment_status",
         caption: "Payment Status",
-        width: 120,
-        alignment: "right",
+        width: ColumnWidths.Status,
+        alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
           <PaymentStatusChip
             paymentStatus={params.value as PaymentStatusEnum}
@@ -88,7 +89,7 @@ function PurchaseOrderLoansDataGrid({
         visible: !isMiniTable,
         dataField: "artifact_id",
         caption: "Purchase Order",
-        width: 160,
+        minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <PurchaseOrderDrawerLauncher
             label={params.row.data.purchase_order?.order_number as string}
@@ -97,9 +98,9 @@ function PurchaseOrderLoansDataGrid({
         ),
       },
       {
-        alignment: "right",
         caption: "Amount",
-        minWidth: 150,
+        width: ColumnWidths.Currency,
+        alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.amount} />
         ),
@@ -107,8 +108,8 @@ function PurchaseOrderLoansDataGrid({
       {
         visible: !isMiniTable && !isMaturityVisible,
         caption: "Requested Payment Date",
+        width: ColumnWidths.Date,
         alignment: "right",
-        minWidth: 140,
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell
             dateString={params.row.data.requested_payment_date}
@@ -124,8 +125,8 @@ function PurchaseOrderLoansDataGrid({
       {
         visible: isMaturityVisible,
         caption: "Origination Date",
+        width: ColumnWidths.Date,
         alignment: "right",
-        minWidth: 140,
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.origination_date} />
         ),
@@ -133,8 +134,8 @@ function PurchaseOrderLoansDataGrid({
       {
         visible: isMaturityVisible,
         caption: "Maturity Date",
+        width: ColumnWidths.Date,
         alignment: "right",
-        minWidth: 140,
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.maturity_date} />
         ),
@@ -143,8 +144,8 @@ function PurchaseOrderLoansDataGrid({
         visible: isMaturityVisible,
         dataField: "outstanding_principal_balance",
         caption: "Outstanding Principal Balance",
+        width: ColumnWidths.Currency,
         alignment: "right",
-        width: 160,
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell
             value={params.row.data.outstanding_principal_balance}
@@ -155,8 +156,8 @@ function PurchaseOrderLoansDataGrid({
         visible: isMaturityVisible,
         dataField: "outstanding_interest",
         caption: "Outstanding Interest",
+        width: ColumnWidths.Currency,
         alignment: "right",
-        width: 160,
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.outstanding_interest} />
         ),
@@ -165,8 +166,8 @@ function PurchaseOrderLoansDataGrid({
         visible: isMaturityVisible,
         dataField: "outstanding_fees",
         caption: "Outstanding Fees",
+        width: ColumnWidths.Currency,
         alignment: "right",
-        width: 160,
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.outstanding_fees} />
         ),

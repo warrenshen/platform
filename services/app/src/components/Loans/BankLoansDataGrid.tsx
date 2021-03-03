@@ -18,6 +18,7 @@ import {
 } from "generated/graphql";
 import { AllLoanStatuses, LoanTypeToLabel } from "lib/enum";
 import { createLoanPublicIdentifier } from "lib/loans";
+import { ColumnWidths } from "lib/tables";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -111,7 +112,7 @@ function BankLoansDataGrid({
       {
         dataField: "status",
         caption: "Status",
-        width: 120,
+        width: ColumnWidths.Status,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
           <LoanStatusChip loanStatus={params.value as LoanStatusEnum} />
@@ -133,25 +134,21 @@ function BankLoansDataGrid({
       {
         dataField: "company.name",
         caption: "Customer Name",
-        width: 190,
+        minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-          >
-            <Box>{params.row.data.company.name as string}</Box>
-            <Box ml={0.5}>
-              <Link to={`/customers/${params.row.data.company.id}/loans`}>
+          <Box display="flex" alignItems="center">
+            <Link to={`/customers/${params.row.data.company.id}/loans`}>
+              <Box display="flex" alignItems="center" mr={1}>
                 <FilterList />
-              </Link>
-            </Box>
+              </Box>
+            </Link>
+            <Box>{params.row.data.company.name as string}</Box>
           </Box>
         ),
       },
       {
         caption: "Loan Type",
-        width: 190,
+        minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <Box>
             {LoanTypeToLabel[params.row.data.loan_type as LoanTypeEnum]}
@@ -160,16 +157,16 @@ function BankLoansDataGrid({
       },
       {
         caption: "Loan Amount",
+        width: ColumnWidths.Currency,
         alignment: "right",
-        width: 120,
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.amount} />
         ),
       },
       {
         caption: "Requested Payment Date",
+        width: ColumnWidths.Date,
         alignment: "right",
-        width: 140,
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell
             dateString={params.row.data.requested_payment_date}
@@ -179,8 +176,8 @@ function BankLoansDataGrid({
       {
         visible: isMaturityVisible,
         caption: "Maturity Date",
-        alignment: "center",
-        width: 120,
+        width: ColumnWidths.Date,
+        alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.maturity_date} />
         ),
@@ -189,22 +186,22 @@ function BankLoansDataGrid({
         visible: isMaturityVisible,
         caption: "Maturing in (Days)",
         width: 150,
-        alignment: "center",
+        alignment: "right",
         cellRender: maturingInDaysRenderer,
       },
       {
         visible: loansPastDue,
         dataField: "outstanding_interest",
         caption: "Interest Accrued",
-        alignment: "center",
-        width: 140,
+        width: ColumnWidths.Currency,
+        alignment: "right",
       },
       {
         visible: loansPastDue,
         dataField: "outstanding_fees",
         caption: "Late Fees Accrued",
-        alignment: "center",
-        width: 150,
+        width: ColumnWidths.Currency,
+        alignment: "right",
       },
       {
         visible: loansPastDue,

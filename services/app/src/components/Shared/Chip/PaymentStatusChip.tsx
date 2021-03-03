@@ -14,7 +14,6 @@ const StatusToColor = {
 };
 
 function PaymentStatusChip({ paymentStatus }: Props) {
-  console.log({ paymentStatus });
   return (
     <Box>
       {paymentStatus && (

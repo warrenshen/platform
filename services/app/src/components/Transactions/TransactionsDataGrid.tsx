@@ -9,6 +9,7 @@ import DataGrid, {
   Paging,
 } from "devextreme-react/data-grid";
 import { TransactionFragment } from "generated/graphql";
+import { ColumnWidths } from "lib/tables";
 
 interface Props {
   transactions: TransactionFragment[];
@@ -26,7 +27,8 @@ function TransactionsDataGrid({ transactions, isMiniTable }: Props) {
   const columns: IColumnProps[] = [
     {
       caption: "Date",
-      width: 140,
+      width: ColumnWidths.Date,
+      alignment: "right",
       cellRender: (params: ValueFormatterParams) => (
         <DateDataGridCell dateString={params.row.data.effective_date} />
       ),
@@ -57,28 +59,32 @@ function TransactionsDataGrid({ transactions, isMiniTable }: Props) {
     },
     {
       caption: "Amount",
-      width: 140,
+      width: ColumnWidths.Currency,
+      alignment: "right",
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell value={params.row.data.amount} />
       ),
     },
     {
       caption: "To Principal",
-      width: 140,
+      width: ColumnWidths.Currency,
+      alignment: "right",
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell value={params.row.data.to_principal} />
       ),
     },
     {
       caption: "To Interest",
-      width: 140,
+      width: ColumnWidths.Currency,
+      alignment: "right",
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell value={params.row.data.to_interest} />
       ),
     },
     {
       caption: "To Fees",
-      width: 100,
+      width: ColumnWidths.Currency,
+      alignment: "right",
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell value={params.row.data.to_fees} />
       ),

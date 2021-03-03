@@ -5,6 +5,7 @@ import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import { EbbaApplicationsQuery, RequestStatusEnum } from "generated/graphql";
+import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
@@ -55,6 +56,7 @@ function EbbaApplicationsDataGrid({
       {
         dataField: "application_month",
         caption: "Application Date",
+        width: ColumnWidths.Date,
         alignment: "right",
       },
       {

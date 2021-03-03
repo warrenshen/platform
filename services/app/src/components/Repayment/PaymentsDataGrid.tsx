@@ -11,6 +11,7 @@ import DateDataGridCell, {
 } from "components/Shared/DataGrid/DateDataGridCell";
 import { PaymentFragment, Payments } from "generated/graphql";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
+import { ColumnWidths } from "lib/tables";
 import { truncateUuid } from "lib/uuid";
 import { useMemo, useState } from "react";
 
@@ -57,8 +58,8 @@ function PaymentsDataGrid({
       },
       {
         caption: "Amount",
+        width: ColumnWidths.Currency,
         alignment: "right",
-        width: 140,
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.amount} />
         ),
@@ -92,14 +93,16 @@ function PaymentsDataGrid({
       },
       {
         caption: "Submitted Date",
-        width: 140,
+        width: ColumnWidths.Date,
+        alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <DatetimeDataGridCell datetimeString={params.row.data.submitted_at} />
         ),
       },
       {
         caption: "Requested Payment Date",
-        width: 140,
+        width: ColumnWidths.Date,
+        alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell
             dateString={params.row.data.requested_payment_date}
@@ -108,14 +111,16 @@ function PaymentsDataGrid({
       },
       {
         caption: "Payment Date",
-        width: 140,
+        width: ColumnWidths.Date,
+        alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.payment_date} />
         ),
       },
       {
         caption: "Settlement Date",
-        width: 140,
+        width: ColumnWidths.Date,
+        alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.settlement_date} />
         ),

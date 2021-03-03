@@ -12,14 +12,6 @@ function LoanBalancesDataGrid({ loanBalances }: Props) {
   const rows = loanBalances;
   const columns = useMemo(
     () => [
-      // {
-      //   caption: "Maturity Date",
-      //   alignment: "right",
-      //   width: 120,
-      //   cellRender: (params: ValueFormatterParams) => (
-      //     <DateDataGridCell dateString={params.row.data.maturity_date} />
-      //   ),
-      // },
       {
         dataField: "outstanding_principal_balance",
         caption: "Outstanding Principal",

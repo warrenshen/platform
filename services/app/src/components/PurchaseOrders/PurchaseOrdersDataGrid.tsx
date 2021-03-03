@@ -13,6 +13,7 @@ import {
   PurchaseOrders,
   RequestStatusEnum,
 } from "generated/graphql";
+import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
@@ -47,8 +48,8 @@ function PurchaseOrdersDataGrid({
     () => [
       {
         dataField: "order_number",
-        width: 140,
         caption: "Order Number",
+        minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <PurchaseOrderDrawerLauncher
             label={params.row.data.order_number as string}
@@ -69,7 +70,7 @@ function PurchaseOrdersDataGrid({
       {
         dataField: "status",
         caption: "Confirmation Status",
-        width: 120,
+        width: ColumnWidths.Status,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
           <RequestStatusChip
@@ -81,29 +82,33 @@ function PurchaseOrdersDataGrid({
         visible: isCompanyVisible,
         dataField: "company_name",
         caption: "Customer",
+        minWidth: ColumnWidths.MinWidth,
       },
       {
         dataField: "vendor_name",
         caption: "Vendor",
+        minWidth: ColumnWidths.MinWidth,
       },
       {
         caption: "Amount",
+        width: ColumnWidths.Currency,
+        alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.amount} />
         ),
       },
       {
         caption: "Order Date",
+        width: ColumnWidths.Date,
         alignment: "center",
-        width: 115,
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.order_date} />
         ),
       },
       {
         caption: "Delivery Date",
+        width: ColumnWidths.Date,
         alignment: "center",
-        width: 115,
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.delivery_date} />
         ),

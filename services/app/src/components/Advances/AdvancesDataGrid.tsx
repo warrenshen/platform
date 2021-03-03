@@ -4,6 +4,7 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { PaymentFragment } from "generated/graphql";
+import { ColumnWidths } from "lib/tables";
 import { useMemo, useState } from "react";
 
 function getRows(payments: PaymentFragment[]): RowsProp {
@@ -53,8 +54,8 @@ function AdvancesDataGrid({
       },
       {
         caption: "Amount",
+        width: ColumnWidths.Currency,
         alignment: "right",
-        width: 140,
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.amount} />
         ),
@@ -66,7 +67,7 @@ function AdvancesDataGrid({
       },
       {
         caption: "Payment Date",
-        width: 140,
+        width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.payment_date} />
@@ -74,7 +75,7 @@ function AdvancesDataGrid({
       },
       {
         caption: "Settlement Date",
-        width: 140,
+        width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.settlement_date} />

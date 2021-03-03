@@ -9,6 +9,7 @@ import DataGridActionMenu, {
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { LoanFragment, LoanStatusEnum } from "generated/graphql";
 import { createLoanPublicIdentifier } from "lib/loans";
+import { ColumnWidths } from "lib/tables";
 import { useEffect, useMemo, useState } from "react";
 
 interface Props {
@@ -82,16 +83,16 @@ function LoansDataGrid({
       {
         visible: isMaturityVisible,
         caption: "Maturity Date",
+        width: ColumnWidths.Date,
         alignment: "right",
-        width: 120,
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.maturity_date} />
         ),
       },
       {
         caption: "Loan Amount",
+        width: ColumnWidths.Date,
         alignment: "right",
-        width: 120,
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.amount} />
         ),

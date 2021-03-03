@@ -1,0 +1,9 @@
+export const ColumnWidths = {
+  // Fixed width columns.
+  Currency: 140,
+  Date: 120,
+  Status: 120,
+
+  // Variable width columns (customer name, purchase order number, etc).
+  MinWidth: 200,
+};

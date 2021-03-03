@@ -5,6 +5,7 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { ContractFragment, ProductTypeEnum } from "generated/graphql";
 import { ProductTypeToLabel } from "lib/enum";
+import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
@@ -33,6 +34,7 @@ function ContractsDataGrid({ isCompanyVisible = true, contracts }: Props) {
       {
         dataField: "start_date",
         caption: "Start Date",
+        width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.start_date} />
@@ -41,6 +43,7 @@ function ContractsDataGrid({ isCompanyVisible = true, contracts }: Props) {
       {
         dataField: "end_date",
         caption: "End Date",
+        width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.end_date} />
@@ -49,6 +52,7 @@ function ContractsDataGrid({ isCompanyVisible = true, contracts }: Props) {
       {
         dataField: "adjusted_end_date",
         caption: "Termination Date",
+        width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.adjusted_end_date} />

@@ -10,6 +10,7 @@ import DataGridActionMenu, {
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { LoanFragment, Loans, LoanStatusEnum } from "generated/graphql";
 import { createLoanPublicIdentifier } from "lib/loans";
+import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
@@ -51,8 +52,8 @@ function LineOfCreditLoansDataGrid({
         visible: !!actionItems && actionItems.length > 0,
         dataField: "action",
         caption: "Action",
+        width: ColumnWidths.Status,
         alignment: "center",
-        minWidth: 100,
         cellRender: (params: ValueFormatterParams) => (
           <DataGridActionMenu params={params} actionItems={actionItems} />
         ),
@@ -61,7 +62,7 @@ function LineOfCreditLoansDataGrid({
         visible: !isMaturityVisible,
         dataField: "status",
         caption: "Approval Status",
-        width: 120,
+        width: ColumnWidths.Status,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
           <LoanStatusChip loanStatus={params.value as LoanStatusEnum} />
@@ -80,7 +81,7 @@ function LineOfCreditLoansDataGrid({
       },
       {
         caption: "Recipient Vendor",
-        minWidth: 150,
+        minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <Box>
             {params.row.data?.line_of_credit?.is_credit_for_vendor
@@ -90,9 +91,9 @@ function LineOfCreditLoansDataGrid({
         ),
       },
       {
-        alignment: "right",
         caption: "Amount",
-        minWidth: 150,
+        width: ColumnWidths.Currency,
+        alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.amount} />
         ),
@@ -100,8 +101,8 @@ function LineOfCreditLoansDataGrid({
       {
         visible: !isMaturityVisible,
         caption: "Requested Payment Date",
+        width: ColumnWidths.Date,
         alignment: "right",
-        minWidth: 140,
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell
             dateString={params.row.data.requested_payment_date}
@@ -117,8 +118,8 @@ function LineOfCreditLoansDataGrid({
       {
         visible: isMaturityVisible,
         caption: "Origination Date",
+        width: ColumnWidths.Date,
         alignment: "right",
-        minWidth: 140,
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.origination_date} />
         ),
@@ -126,8 +127,8 @@ function LineOfCreditLoansDataGrid({
       {
         visible: isMaturityVisible,
         caption: "Maturity Date",
+        width: ColumnWidths.Date,
         alignment: "right",
-        minWidth: 140,
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.maturity_date} />
         ),
@@ -136,8 +137,8 @@ function LineOfCreditLoansDataGrid({
         visible: isMaturityVisible,
         dataField: "outstanding_principal_balance",
         caption: "Outstanding Principal Balance",
+        width: ColumnWidths.Currency,
         alignment: "right",
-        width: 160,
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell
             value={params.row.data.outstanding_principal_balance}
@@ -148,8 +149,8 @@ function LineOfCreditLoansDataGrid({
         visible: isMaturityVisible,
         dataField: "outstanding_interest",
         caption: "Outstanding Interest",
+        width: ColumnWidths.Currency,
         alignment: "right",
-        width: 160,
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.outstanding_interest} />
         ),
@@ -158,8 +159,8 @@ function LineOfCreditLoansDataGrid({
         visible: isMaturityVisible,
         dataField: "outstanding_fees",
         caption: "Outstanding Fees",
+        width: ColumnWidths.Currency,
         alignment: "right",
-        width: 160,
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.outstanding_fees} />
         ),
