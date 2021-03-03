@@ -16,11 +16,11 @@ import { createLoanPublicIdentifier } from "lib/loans";
 import { useMemo } from "react";
 
 interface Props {
-  pager?: boolean;
   isMaturityVisible?: boolean; // Whether maturity date, principal balance, interest, and fees are visible.
   isMiniTable?: boolean;
   isMultiSelectEnabled?: boolean;
   isViewNotesEnabled?: boolean;
+  pager?: boolean;
   loans: LoanFragment[];
   actionItems?: DataGridActionItem[];
   selectedLoanIds?: Loans["id"][];
@@ -28,11 +28,11 @@ interface Props {
 }
 
 function PurchaseOrderLoansDataGrid({
-  pager = true,
   isMaturityVisible = true,
   isMiniTable = false,
   isMultiSelectEnabled = false,
   isViewNotesEnabled = false,
+  pager = true,
   loans,
   actionItems,
   selectedLoanIds,
@@ -65,8 +65,8 @@ function PurchaseOrderLoansDataGrid({
       {
         dataField: "funded_at",
         caption: "Status",
+        width: 120,
         alignment: "center",
-        minWidth: 100,
         cellRender: (params: ValueFormatterParams) => (
           <IsFundedChip fundedAt={params.value as string} />
         ),
@@ -75,8 +75,8 @@ function PurchaseOrderLoansDataGrid({
         visible: isMaturityVisible,
         dataField: "payment_status",
         caption: "Payment Status",
+        width: 120,
         alignment: "right",
-        width: 140,
         cellRender: (params: ValueFormatterParams) => (
           <PaymentStatusChip
             paymentStatus={params.value as PaymentStatusEnum}

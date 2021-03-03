@@ -111,7 +111,7 @@ function BankLoansDataGrid({
       {
         dataField: "status",
         caption: "Status",
-        width: 150,
+        width: 120,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
           <LoanStatusChip loanStatus={params.value as LoanStatusEnum} />

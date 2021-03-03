@@ -39,7 +39,7 @@ function EbbaApplicationsDataGrid({
       {
         dataField: "status",
         caption: "Status",
-        minWidth: 165,
+        width: 120,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
           <RequestStatusChip

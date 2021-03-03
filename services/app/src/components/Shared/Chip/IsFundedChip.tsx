@@ -11,7 +11,7 @@ function PaymentStatusChip({ fundedAt }: Props) {
   const label = isFunded ? "Funded" : "No Funds";
   return (
     <Box>
-      <Chip color={"white"} background={backgroundColor} label={label}></Chip>
+      <Chip color={"white"} background={backgroundColor} label={label} />
     </Box>
   );
 }

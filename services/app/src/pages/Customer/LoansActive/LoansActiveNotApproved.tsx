@@ -43,11 +43,9 @@ function LoansActiveNotApproved({ data }: Props) {
   } = useContext(CurrentUserContext);
 
   const company = data?.companies_by_pk;
+
   const loans = useMemo(
-    () =>
-      (company?.loans || []).filter((loan) => {
-        return loan.approved_at ? false : true;
-      }),
+    () => (company?.loans || []).filter((loan) => !loan.approved_at),
     [company?.loans]
   );
   const financialSummary = company?.financial_summary || null;
@@ -113,6 +111,7 @@ function LoansActiveNotApproved({ data }: Props) {
           isMaturityVisible={false}
           isMultiSelectEnabled={check(role, Action.SelectLoan)}
           isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
+          pager={false}
           productType={productType}
           loans={loans}
           selectedLoanIds={selectedLoanIds}

@@ -174,7 +174,8 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
           <Pager
             visible={pager}
             showInfo={true}
-            allowedPageSizes={allowedPageSizes}
+            infoText={"Page {0} of {1} ({2} items)"}
+            allowedPageSizes={pager ? allowedPageSizes : "auto"}
             showPageSizeSelector={pagerSizeSelector}
           />
         )}

@@ -109,6 +109,7 @@ function LoansActiveApproved({ data }: Props) {
           <PolymorphicLoansDataGrid
             isMultiSelectEnabled={check(role, Action.SelectLoan)}
             isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
+            pager={false}
             productType={productType}
             loans={loans}
             selectedLoanIds={selectedLoanIds}

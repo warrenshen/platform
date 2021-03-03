@@ -16,6 +16,7 @@ interface Props {
   isMaturityVisible?: boolean; // Whether maturity date, principal balance, interest, and fees are visible.
   isMultiSelectEnabled?: boolean;
   isViewNotesEnabled?: boolean;
+  pager?: boolean;
   loans: LoanFragment[];
   actionItems?: DataGridActionItem[];
   selectedLoanIds?: Loans["id"][];
@@ -26,6 +27,7 @@ function LineOfCreditLoansDataGrid({
   isMaturityVisible = true,
   isMultiSelectEnabled,
   isViewNotesEnabled,
+  pager = true,
   loans,
   actionItems,
   selectedLoanIds,
@@ -58,8 +60,8 @@ function LineOfCreditLoansDataGrid({
       {
         dataField: "status",
         caption: "Status",
+        width: 120,
         alignment: "center",
-        minWidth: 175,
         cellRender: (params: ValueFormatterParams) => (
           <LoanStatusChip loanStatus={params.value as LoanStatusEnum} />
         ),
@@ -175,7 +177,7 @@ function LineOfCreditLoansDataGrid({
   return (
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
       <ControlledDataGrid
-        pager
+        pager={pager}
         select={isMultiSelectEnabled}
         dataSource={rows}
         columns={columns}

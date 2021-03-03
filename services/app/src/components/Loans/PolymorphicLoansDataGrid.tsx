@@ -7,6 +7,7 @@ interface Props {
   isMaturityVisible?: boolean;
   isMultiSelectEnabled?: boolean;
   isViewNotesEnabled?: boolean;
+  pager?: boolean;
   productType: ProductTypeEnum | null;
   loans: LoanFragment[];
   actionItems?: DataGridActionItem[];
@@ -18,6 +19,7 @@ function PolymorphicLoansDataGrid({
   isMaturityVisible = true,
   isMultiSelectEnabled,
   isViewNotesEnabled,
+  pager,
   productType,
   loans,
   actionItems,
@@ -30,6 +32,7 @@ function PolymorphicLoansDataGrid({
         isMaturityVisible={isMaturityVisible}
         isMultiSelectEnabled={isMultiSelectEnabled}
         isViewNotesEnabled={isViewNotesEnabled}
+        pager={pager}
         loans={loans}
         actionItems={actionItems}
         selectedLoanIds={selectedLoanIds}
@@ -42,6 +45,7 @@ function PolymorphicLoansDataGrid({
         isMaturityVisible={isMaturityVisible}
         isMultiSelectEnabled={isMultiSelectEnabled}
         isViewNotesEnabled={isViewNotesEnabled}
+        pager={pager}
         loans={loans}
         actionItems={actionItems}
         selectedLoanIds={selectedLoanIds}

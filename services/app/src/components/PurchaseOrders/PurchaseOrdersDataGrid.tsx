@@ -69,7 +69,7 @@ function PurchaseOrdersDataGrid({
       {
         dataField: "status",
         caption: "Status",
-        width: 165,
+        width: 120,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
           <RequestStatusChip

@@ -14193,8 +14193,9 @@ export const GetActiveLoansForCompanyDocument = gql`
       loans(
         where: {
           _and: [
-            { closed_at: { _is_null: true } }
             { loan_type: { _eq: $loanType } }
+            { closed_at: { _is_null: true } }
+            { rejected_at: { _is_null: true } }
           ]
         }
       ) {
