@@ -13,9 +13,6 @@ const useStyles = makeStyles({
     flexDirection: "row",
     alignItems: "center",
   },
-  input: {
-    marginRight: "1rem",
-  },
   action: {
     width: 32,
     padding: 0,
@@ -31,7 +28,7 @@ interface Props {
   handleChange: (value: any, error: boolean) => void;
 }
 
-function DynamicFormInput({
+function JsonFormInput({
   name,
   fields,
   showValidationResult,
@@ -114,9 +111,8 @@ function DynamicFormInput({
           {Object.keys(row).map((key) => {
             const field = fields.find((f: any) => f.display_name === key);
             return (
-              <div key={key + i}>
+              <Box key={key + i} mr={1}>
                 <TextField
-                  className={classes.input}
                   error={
                     showValidationResult && isFieldInvalid(row[key], field)
                   }
@@ -128,7 +124,7 @@ function DynamicFormInput({
                     handleChangeInput(value, key, i);
                   }}
                 />
-              </div>
+              </Box>
             );
           })}
           <Button
@@ -151,4 +147,4 @@ function DynamicFormInput({
   );
 }
 
-export default DynamicFormInput;
+export default JsonFormInput;

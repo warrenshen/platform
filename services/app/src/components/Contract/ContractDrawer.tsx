@@ -9,6 +9,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import JsonContractTerm from "components/Contract/JsonContractTerm";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Contracts,
@@ -40,7 +41,7 @@ interface Props {
 }
 
 // TODO: Refactor this contract render logic with ContractModal?
-const renderSwitch = (item: any) => {
+const renderSwitchHelper = (item: any) => {
   if (item.type === "date") {
     return item.value ? formatDateString(item.value as string) : "-";
   } else if (item.type === "float") {
@@ -55,6 +56,16 @@ const renderSwitch = (item: any) => {
     return item.value ? "Yes" : "No";
   } else {
     return item.value;
+  }
+};
+
+const renderSwitch = (item: any) => {
+  if (item.type === "json") {
+    return <JsonContractTerm fields={item.fields} value={item.value} />;
+  } else {
+    return (
+      <Typography variant={"body1"}>{renderSwitchHelper(item)}</Typography>
+    );
   }
 };
 
@@ -142,9 +153,7 @@ function ContractDrawer({ contractId, handleClose }: Props) {
                       <Typography variant="subtitle2" color="textSecondary">
                         {item.display_name}
                       </Typography>
-                      <Typography variant={"body1"}>
-                        {renderSwitch(item)}
-                      </Typography>
+                      {renderSwitch(item)}
                       <FormHelperText id={item.display_name}>
                         {item.description}
                       </FormHelperText>

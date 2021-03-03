@@ -13,7 +13,7 @@ import {
 } from "@material-ui/core";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import DatePicker from "components/Shared/Dates/DatePicker";
-import DynamicFormInput from "components/Shared/DynamicFormInput";
+import JsonFormInput from "components/Shared/FormInputs/JsonFormInput";
 import { ContractsInsertInput, ProductTypeEnum } from "generated/graphql";
 import { AllProductTypes, ProductTypeToLabel } from "lib/enum";
 import { groupBy } from "lodash";
@@ -76,7 +76,6 @@ function ContractTermsForm({
   setIsRepaymentSettlementTimelineValid,
 }: Props) {
   const classes = useStyles();
-
   const sections = useMemo(() => groupBy(currentJSONConfig, (d) => d.section), [
     currentJSONConfig,
   ]);
@@ -95,7 +94,7 @@ function ContractTermsForm({
       return { [v[days_past_due].toString()]: parseFloat(v[interest]) };
     });
     const lateFeeDynamicFormValue = Object.assign({}, ...mappedValue);
-    findAndReplaceInJSON(item, JSON.stringify(lateFeeDynamicFormValue));
+    findAndReplaceInJSON(item, lateFeeDynamicFormValue);
   };
 
   const getLateFeeDynamicFormInitialValues = (
@@ -105,13 +104,12 @@ function ContractTermsForm({
     let result;
     if (value) {
       result = [];
-      const parsedValue = JSON.parse(value);
       const [days_past_due, interest] = fields.map((f: any) => f.display_name);
-      const keys = Object.keys(parsedValue);
+      const keys = Object.keys(value);
       keys.forEach((key) => {
         result.push({
           [days_past_due]: key ? key.toString() : "",
-          [interest]: parsedValue[key] ? parsedValue[key].toString() : "",
+          [interest]: value[key] ? value[key].toString() : "",
         });
       });
     }
@@ -143,7 +141,7 @@ function ContractTermsForm({
     });
     const v = Object.assign({}, ...mappedValue);
 
-    findAndReplaceInJSON(item, JSON.stringify(v));
+    findAndReplaceInJSON(item, v);
   };
 
   const getRepaymentSettlementTimelineInitialValues = (
@@ -153,15 +151,14 @@ function ContractTermsForm({
     let result;
     if (value) {
       result = [];
-      const parsedValue = JSON.parse(value);
       const [payment_type, days_to_settle] = fields.map(
         (f: any) => f.display_name
       );
-      const keys = Object.keys(parsedValue);
+      const keys = Object.keys(value);
       keys.forEach((key) => {
         result.push({
           [payment_type]: key ? key.toString() : "",
-          [days_to_settle]: parsedValue[key] ? parsedValue[key].toString() : "",
+          [days_to_settle]: value[key] ? value[key].toString() : "",
         });
       });
     }
@@ -228,7 +225,7 @@ function ContractTermsForm({
         );
       case item.internal_name === "late_fee_structure":
         return (
-          <DynamicFormInput
+          <JsonFormInput
             fields={item.fields}
             name={item.display_name}
             initialValues={getLateFeeDynamicFormInitialValues(item)}
@@ -241,7 +238,7 @@ function ContractTermsForm({
         );
       case item.internal_name === "repayment_type_settlement_timeline":
         return (
-          <DynamicFormInput
+          <JsonFormInput
             fields={item.fields}
             name={item.display_name}
             initialValues={getRepaymentSettlementTimelineInitialValues(item)}

@@ -1,0 +1,37 @@
+import { Box, Typography } from "@material-ui/core";
+import { ProductConfigField } from "lib/customer/contracts";
+
+interface Props {
+  fields: ProductConfigField[];
+  value: any;
+}
+
+function JsonContractTerm({ fields, value }: Props) {
+  return (
+    <Box display="flex" flexDirection="column">
+      <Box display="flex">
+        {fields.map((field) => (
+          <Box display="flex" justifyContent="flex-end" width={150}>
+            <Typography key={field.display_name}>
+              {field.display_name}
+            </Typography>
+          </Box>
+        ))}
+      </Box>
+      <Box display="flex" flexDirection="column">
+        {Object.keys(value).map((key) => (
+          <Box key={key} display="flex">
+            <Box display="flex" justifyContent="flex-end" width={150}>
+              <Typography>{key}</Typography>
+            </Box>
+            <Box display="flex" justifyContent="flex-end" width={150}>
+              <Typography>{value[key]}</Typography>
+            </Box>
+          </Box>
+        ))}
+      </Box>
+    </Box>
+  );
+}
+
+export default JsonContractTerm;

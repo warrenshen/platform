@@ -103,7 +103,7 @@ export async function terminateContractMutation(
 export type ProductConfigField = {
   section: string;
   type: string;
-  fields: [ProductConfigField];
+  fields?: ProductConfigField[];
   format?: string;
   internal_name: string;
   display_name: string;
@@ -112,11 +112,7 @@ export type ProductConfigField = {
   nullable?: boolean;
 };
 
-// TODO (warrenshen): clean up the `type === 'json'` conditions below.
-// Instead of shared component DynamicFormInput expecting a string,
-// parse the string here and change it to be expecting JSON.
-//
-// Additionally, remove hardcoded `fields[1]` if possible.
+// TODO (warrenshen): remove hardcoded `fields[1]` if possible.
 const formatValueForClient = (
   type: string,
   value: string | null,
@@ -134,7 +130,7 @@ const formatValueForClient = (
         parsedValue[field] = value * 100 <= 100 ? value * 100 : null;
       }
     });
-    return JSON.stringify(parsedValue);
+    return parsedValue;
   } else if (type === "float") {
     if (value === null) {
       return value;
@@ -155,15 +151,25 @@ const formatValueForClient = (
 
 const formatValueForServer = (
   type: string,
-  value: string | null,
+  value: any,
   format: string | null,
   fields: ProductConfigField[] | null
 ) => {
+  // If type is not "json" but type of value is "object", something went wrong.
+  if (type !== "json" && value !== null && typeof value === "object") {
+    console.log(
+      'Developer error: type is not "json" but type of value is "object".'
+    );
+    return null;
+  }
+
   if (type === "json") {
-    if (fields === null || value === null) {
+    if (fields === null || value === null || typeof value !== "object") {
       return value;
     }
-    const parsedValue = JSON.parse(value);
+    const parsedValue: { [key: string]: any } = {
+      ...value,
+    };
     Object.keys(parsedValue).forEach((field) => {
       const value = parsedValue[field] as number;
       if (fields[1].format === "percentage") {
@@ -171,8 +177,10 @@ const formatValueForServer = (
       }
     });
     return JSON.stringify(parsedValue);
-  } else if (type === "float") {
-    return value
+  }
+
+  if (type === "float") {
+    return value !== null
       ? parseFloat(value) / (format === "percentage" ? 100 : 1)
       : null;
   } else if (type === "integer") {
