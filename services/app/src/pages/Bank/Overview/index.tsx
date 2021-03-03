@@ -10,11 +10,11 @@ import BankFinancialSummariesDataGrid from "components/BankFinancialSummaries/Ba
 import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
 import Page from "components/Shared/Page";
 import {
-  LoanStatusEnum,
-  useGetLatestBankFinancialSummariesQuery,
-  useLoansByStatusesForBankQuery,
+  useGetFundedLoansForBankSubscription,
+  useGetLatestBankFinancialSummariesSubscription,
 } from "generated/graphql";
 import { bankRoutes } from "lib/routes";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -41,25 +41,9 @@ function BankOverviewPage() {
   const {
     data: latestBankFinancialSummariesData,
     error: latestBankFinancialSummariesError,
-  } = useGetLatestBankFinancialSummariesQuery();
+  } = useGetLatestBankFinancialSummariesSubscription();
 
-  const {
-    data: maturingLoansData,
-    error: maturingLoansError,
-  } = useLoansByStatusesForBankQuery({
-    variables: {
-      statuses: [LoanStatusEnum.Funded],
-    },
-  });
-
-  const {
-    data: pastDueLoansData,
-    error: pastDueLoansError,
-  } = useLoansByStatusesForBankQuery({
-    variables: {
-      statuses: [LoanStatusEnum.PastDue],
-    },
-  });
+  const { data, error } = useGetFundedLoansForBankSubscription();
 
   if (latestBankFinancialSummariesError) {
     alert(
@@ -68,20 +52,38 @@ function BankOverviewPage() {
     );
   }
 
-  if (maturingLoansError) {
-    alert("Error querying maturing loans. " + maturingLoansError);
-  }
-
-  if (pastDueLoansError) {
-    alert("Error querying past due loans. " + pastDueLoansError);
+  if (error) {
+    alert("Error querying loans. " + error);
   }
 
   const bankFinancialSummaries =
     latestBankFinancialSummariesData?.bank_financial_summaries || [];
   let filteredBankFinancialSummaries = bankFinancialSummaries;
 
-  const maturingLoans = maturingLoansData?.loans || [];
-  const pastDueLoans = pastDueLoansData?.loans || [];
+  const loans = data?.loans;
+  const maturingLoans = useMemo(
+    () =>
+      (loans || []).filter((loan) => {
+        const pastDueThreshold = new Date(Date.now());
+        const matureThreshold = new Date(
+          new Date(Date.now()).getTime() + 14 * 24 * 60 * 60 * 1000
+        );
+        const maturityDate = new Date(loan.maturity_date);
+        return (
+          matureThreshold > maturityDate && pastDueThreshold < maturityDate
+        );
+      }),
+    [loans]
+  );
+  const pastDueLoans = useMemo(
+    () =>
+      (loans || []).filter((loan) => {
+        const pastDueThreshold = new Date(Date.now());
+        const maturityDate = new Date(loan.maturity_date);
+        return pastDueThreshold > maturityDate;
+      }),
+    [loans]
+  );
 
   // Find the latest timestamp in the bank financial summaries and filter the list
   // based on that timestamp. There will be at most 4 items in this list (per the

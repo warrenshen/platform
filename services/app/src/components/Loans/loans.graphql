@@ -1,28 +1,21 @@
-query GetActiveLoansForCompany($companyId: uuid!, $loanType: loan_type_enum!) {
-  companies_by_pk(id: $companyId) {
+subscription GetLoansForBank {
+  loans {
     id
-    financial_summary {
+    ...Loan
+    company {
       id
-      ...FinancialSummary
+      name
     }
-    loans(
-      where: {
-        _and: [
-          { loan_type: { _eq: $loanType } }
-          { closed_at: { _is_null: true } }
-          { rejected_at: { _is_null: true } }
-        ]
-      }
-    ) {
+    line_of_credit {
       id
-      ...LoanLimited
-      line_of_credit {
+      ...LineOfCredit
+    }
+    purchase_order {
+      id
+      order_number
+      vendor {
         id
-        ...LineOfCredit
-      }
-      purchase_order {
-        id
-        order_number
+        name
       }
     }
   }
@@ -51,7 +44,7 @@ subscription GetNotFundedLoansForBank {
   }
 }
 
-query GetFundedLoansForBank {
+subscription GetFundedLoansForBank {
   loans(where: { funded_at: { _is_null: false } }) {
     id
     ...Loan
@@ -69,6 +62,36 @@ query GetFundedLoansForBank {
       vendor {
         id
         name
+      }
+    }
+  }
+}
+
+query GetActiveLoansForCompany($companyId: uuid!, $loanType: loan_type_enum!) {
+  companies_by_pk(id: $companyId) {
+    id
+    financial_summary {
+      id
+      ...FinancialSummary
+    }
+    loans(
+      where: {
+        _and: [
+          { loan_type: { _eq: $loanType } }
+          { closed_at: { _is_null: true } }
+          { rejected_at: { _is_null: true } }
+        ]
+      }
+    ) {
+      id
+      ...LoanLimited
+      line_of_credit {
+        id
+        ...LineOfCredit
+      }
+      purchase_order {
+        id
+        order_number
       }
     }
   }
@@ -103,52 +126,6 @@ query GetClosedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum!) {
   }
 }
 
-query LoanSiblings(
-  $loanId: uuid!
-  $loanType: loan_type_enum!
-  $artifactId: uuid!
-) {
-  loans(
-    where: {
-      _and: [
-        { id: { _neq: $loanId } }
-        { loan_type: { _eq: $loanType } }
-        { artifact_id: { _eq: $artifactId } }
-      ]
-    }
-  ) {
-    id
-    loan_type
-    artifact_id
-    amount
-    status
-  }
-}
-
-query LoansByCompanyAndLoanTypeForCustomer(
-  $companyId: uuid!
-  $loanType: loan_type_enum!
-) {
-  loans(
-    where: {
-      _and: [
-        { company_id: { _eq: $companyId } }
-        { loan_type: { _eq: $loanType } }
-      ]
-    }
-  ) {
-    ...LoanLimited
-    line_of_credit {
-      id
-      ...LineOfCredit
-    }
-    purchase_order {
-      id
-      order_number
-    }
-  }
-}
-
 query GetOutstandingLoansForCustomer(
   $companyId: uuid!
   $loanType: loan_type_enum!
@@ -157,8 +134,8 @@ query GetOutstandingLoansForCustomer(
     where: {
       _and: [
         { company_id: { _eq: $companyId } }
-        { status: { _in: [funded, past_due] } }
         { loan_type: { _eq: $loanType } }
+        { funded_at: { _is_null: false } }
       ]
     }
   ) {
@@ -195,52 +172,6 @@ query LoansByCompanyAndLoanTypeForBank(
     purchase_order {
       id
       order_number
-    }
-  }
-}
-
-query LoansForBank {
-  loans {
-    id
-    ...Loan
-    company {
-      id
-      name
-    }
-    line_of_credit {
-      id
-      ...LineOfCredit
-    }
-    purchase_order {
-      id
-      order_number
-      vendor {
-        id
-        name
-      }
-    }
-  }
-}
-
-query LoansByStatusesForBank($statuses: [loan_status_enum!]!) {
-  loans(where: { status: { _in: $statuses } }) {
-    id
-    ...Loan
-    company {
-      id
-      name
-    }
-    line_of_credit {
-      id
-      ...LineOfCredit
-    }
-    purchase_order {
-      id
-      order_number
-      vendor {
-        id
-        name
-      }
     }
   }
 }

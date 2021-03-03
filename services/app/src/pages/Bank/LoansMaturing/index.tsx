@@ -7,21 +7,35 @@ import {
 } from "@material-ui/core";
 import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
 import Page from "components/Shared/Page";
-import { LoanFragment, useGetFundedLoansForBankQuery } from "generated/graphql";
-import { useState } from "react";
+import { useGetFundedLoansForBankSubscription } from "generated/graphql";
+import { useMemo, useState } from "react";
 
 const matureDaysList = [7, 14, 30];
 
 function BankLoansMaturingPage() {
   const [matureDays, setMatureDays] = useState(matureDaysList[1]);
 
-  const { data, error } = useGetFundedLoansForBankQuery();
+  const { data, error } = useGetFundedLoansForBankSubscription();
 
   if (error) {
     alert("Error querying loans. " + error);
   }
 
-  const loans = (data?.loans || []) as LoanFragment[];
+  const loans = data?.loans;
+  const maturingLoans = useMemo(
+    () =>
+      (loans || []).filter((loan) => {
+        const pastDueThreshold = new Date(Date.now());
+        const matureThreshold = new Date(
+          new Date(Date.now()).getTime() + matureDays * 24 * 60 * 60 * 1000
+        );
+        const maturityDate = new Date(loan.maturity_date);
+        return (
+          matureThreshold > maturityDate && pastDueThreshold < maturityDate
+        );
+      }),
+    [loans, matureDays]
+  );
 
   return (
     <Page appBarTitle={"Loans Maturing in X Days"}>
@@ -51,7 +65,7 @@ function BankLoansMaturingPage() {
         <BankLoansDataGrid
           isFilteringEnabled
           isMaturityVisible
-          loans={loans}
+          loans={maturingLoans}
           matureDays={matureDays}
         />
       </Box>

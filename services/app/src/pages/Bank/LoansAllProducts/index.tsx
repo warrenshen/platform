@@ -1,10 +1,10 @@
 import { Box } from "@material-ui/core";
 import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
 import Page from "components/Shared/Page";
-import { useLoansForBankQuery } from "generated/graphql";
+import { useGetLoansForBankSubscription } from "generated/graphql";
 
 function LoansAllProductsPage() {
-  const { data, error } = useLoansForBankQuery();
+  const { data, error } = useGetLoansForBankSubscription();
 
   if (error) {
     alert("Error querying loans. " + error);

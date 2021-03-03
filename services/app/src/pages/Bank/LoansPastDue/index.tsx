@@ -1,24 +1,26 @@
 import { Box } from "@material-ui/core";
 import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
 import Page from "components/Shared/Page";
-import {
-  LoanFragment,
-  LoanStatusEnum,
-  useLoansByStatusesForBankQuery,
-} from "generated/graphql";
+import { useGetFundedLoansForBankSubscription } from "generated/graphql";
+import { useMemo } from "react";
 
 function LoansPastDuePage() {
-  const { data, error } = useLoansByStatusesForBankQuery({
-    variables: {
-      statuses: [LoanStatusEnum.PastDue],
-    },
-  });
+  const { data, error } = useGetFundedLoansForBankSubscription();
 
   if (error) {
     alert("Error querying purchase order loans. " + error);
   }
 
-  const purchaseOrderLoans = (data?.loans || []) as LoanFragment[];
+  const loans = data?.loans;
+  const pastDueLoans = useMemo(
+    () =>
+      (loans || []).filter((loan) => {
+        const pastDueThreshold = new Date(Date.now());
+        const maturityDate = new Date(loan.maturity_date);
+        return pastDueThreshold > maturityDate;
+      }),
+    [loans]
+  );
 
   return (
     <Page appBarTitle={"Loans Past Due"}>
@@ -27,7 +29,7 @@ function LoansPastDuePage() {
           isDaysPastDueVisible
           isFilteringEnabled
           isMaturityVisible
-          loans={purchaseOrderLoans}
+          loans={pastDueLoans}
         />
       </Box>
     </Page>

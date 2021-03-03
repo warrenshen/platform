@@ -1,3 +1,18 @@
+subscription GetLatestBankFinancialSummaries {
+  bank_financial_summaries(limit: 4, order_by: { date: desc }) {
+    id
+    date
+    product_type
+    total_limit
+    adjusted_total_limit
+    total_outstanding_principal
+    total_outstanding_interest
+    total_outstanding_fees
+    total_principal_in_requested_state
+    available_limit
+  }
+}
+
 query GetCompanyForCustomerOverview(
   $companyId: uuid!
   $loanType: loan_type_enum
@@ -115,21 +130,6 @@ query GetCompanyForCustomerContractPage($companyId: uuid!) {
       id
       ...FinancialSummary
     }
-  }
-}
-
-query GetLatestBankFinancialSummaries {
-  bank_financial_summaries(limit: 4, order_by: { date: desc }) {
-    id
-    date
-    product_type
-    total_limit
-    adjusted_total_limit
-    total_outstanding_principal
-    total_outstanding_interest
-    total_outstanding_fees
-    total_principal_in_requested_state
-    available_limit
   }
 }
 

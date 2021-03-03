@@ -3,6 +3,7 @@ import { ValueFormatterParams } from "@material-ui/data-grid";
 import { FilterList } from "@material-ui/icons";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
+import PaymentStatusChip from "components/Shared/Chip/PaymentStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DataGridActionMenu, {
@@ -16,7 +17,7 @@ import {
   LoanTypeEnum,
   RequestStatusEnum,
 } from "generated/graphql";
-import { AllLoanStatuses, LoanTypeToLabel } from "lib/enum";
+import { AllLoanStatuses, LoanTypeToLabel, PaymentStatusEnum } from "lib/enum";
 import { createLoanPublicIdentifier } from "lib/loans";
 import { ColumnWidths } from "lib/tables";
 import { useEffect, useMemo, useState } from "react";
@@ -28,7 +29,6 @@ interface Props {
   isMaturityVisible?: boolean;
   isMultiSelectEnabled?: boolean;
   isSortingDisabled?: boolean;
-  isStatusVisible?: boolean;
   pager?: boolean;
   matureDays?: number;
   filterByStatus?: RequestStatusEnum;
@@ -46,7 +46,6 @@ function BankLoansDataGrid({
   isMaturityVisible = false,
   isMultiSelectEnabled = false,
   isSortingDisabled = false,
-  isStatusVisible = true,
   pager = true,
   matureDays = 0,
   filterByStatus,
@@ -123,9 +122,9 @@ function BankLoansDataGrid({
         ),
       },
       {
-        visible: isStatusVisible,
+        visible: !isMaturityVisible,
         dataField: "status",
-        caption: "Status",
+        caption: "Approval Status",
         width: ColumnWidths.Status,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
@@ -144,6 +143,18 @@ function BankLoansDataGrid({
           valueExpr: "status",
           displayExpr: "status",
         },
+      },
+      {
+        visible: isMaturityVisible,
+        dataField: "payment_status",
+        caption: "Payment Status",
+        width: ColumnWidths.Status,
+        alignment: "center",
+        cellRender: (params: ValueFormatterParams) => (
+          <PaymentStatusChip
+            paymentStatus={params.value as PaymentStatusEnum}
+          />
+        ),
       },
       {
         dataField: "company.name",
@@ -209,7 +220,7 @@ function BankLoansDataGrid({
         visible: isDaysPastDueVisible,
         caption: "Days Past Due",
         width: 130,
-        alignment: "center",
+        alignment: "right",
         cellRender: daysPastDueRenderer,
       },
       {
@@ -245,7 +256,7 @@ function BankLoansDataGrid({
         ),
       },
     ],
-    [isDaysPastDueVisible, isMaturityVisible, isStatusVisible, actionItems]
+    [isDaysPastDueVisible, isMaturityVisible, actionItems]
   );
 
   const handleSelectionChanged = useMemo(
