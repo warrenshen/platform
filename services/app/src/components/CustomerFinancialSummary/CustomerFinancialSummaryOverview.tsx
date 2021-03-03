@@ -32,6 +32,12 @@ function CustomerFinancialSummaryOverview({
 
   return (
     <Box display="flex" flexDirection="column">
+      <Typography variant="h6" gutterBottom={true}>
+        Financial Summary
+      </Typography>
+      <Typography variant="body2" gutterBottom={true}>
+        Note: financial summary is updated on an hourly candence.
+      </Typography>
       {isBalanceVisible && (
         <>
           <Box display="flex" justifyContent="space-between" width="100%">

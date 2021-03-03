@@ -107,6 +107,9 @@ function BankOverviewPage() {
           <Typography variant="h6" gutterBottom={true}>
             Financial Summaries by Product Type
           </Typography>
+          <Typography variant="body2" gutterBottom={true}>
+            Note: financial summaries are updated on an hourly candence.
+          </Typography>
           <BankFinancialSummariesDataGrid
             bankFinancialSummaries={filteredBankFinancialSummaries}
           />
