@@ -24,6 +24,16 @@
         "nullable": false
       },
       {
+        "section": "Limits",
+        "type": "float",
+        "format": "currency",
+        "internal_name": "minimum_monthly_amount",
+        "display_name": "Minimum Monthly Amount",
+        "description": "Across all products, a customer has a monthly minimum revenue generation requirement; this amount is specified in their contract. This can be thought of as an account level “minimum revenue” service fee that gets covered if the customer is actively generating revenue based on their product usage, past that minimum",
+        "value": null,
+        "nullable": false
+      },
+      {
         "section": "Fees",
         "type": "float",
         "format": "percentage",
@@ -99,16 +109,6 @@
         "internal_name": "preceeding_business_day",
         "display_name": "Preceeding Business Day",
         "description": "versus Succeeding Business Day (for adjusted maturity date)",
-        "value": null,
-        "nullable": false
-      },
-      {
-        "section": "Limits",
-        "type": "float",
-        "format": "currency",
-        "internal_name": "minimum_monthly_amount",
-        "display_name": "Minimum Monthly Amount",
-        "description": "Across all products, a customer has a monthly minimum revenue generation requirement; this amount is specified in their contract. This can be thought of as an account level “minimum revenue” service fee that gets covered if the customer is actively generating revenue based on their product usage, past that minimum",
         "value": null,
         "nullable": false
       },

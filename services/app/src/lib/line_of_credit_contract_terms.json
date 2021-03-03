@@ -5,6 +5,16 @@
     "fields": [
       {
         "section": "Limits",
+        "type": "integer",
+        "format": "number",
+        "internal_name": "contract_financing_terms",
+        "display_name": "Contract Financing Terms",
+        "description": "How long our client can keep a principal advance before mandatory repayment",
+        "value": null,
+        "nullable": false
+      },
+      {
+        "section": "Limits",
         "type": "float",
         "format": "currency",
         "internal_name": "maximum_amount",

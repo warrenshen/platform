@@ -8,8 +8,10 @@ import {
   makeStyles,
   Theme,
 } from "@material-ui/core";
+import AdvanceForm from "components/Advance/AdvanceForm";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { LoanFragment, PaymentsInsertInput } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, loansRoutes } from "lib/api";
 import { todayAsDateStr } from "lib/date";
 import { PaymentMethodEnum } from "lib/enum";
@@ -18,7 +20,6 @@ import {
   DefaultSettlementTimelineConfig,
 } from "lib/finance/payments/advance";
 import { useContext, useState } from "react";
-import AdvanceForm from "./AdvanceForm";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -44,6 +45,7 @@ interface Props {
 
 function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
   const classes = useStyles();
+  const snackbar = useSnackbar();
   const {
     user: { companyId },
   } = useContext(CurrentUserContext);
@@ -89,8 +91,13 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
     );
     if (response.data?.status === "ERROR") {
       alert(response.data?.msg);
+      snackbar.showError(
+        `Error! Could not create advance. Reason: ${response.data?.msg}`
+      );
+    } else {
+      snackbar.showSuccess("Success! Advance created.");
+      handleClose();
     }
-    handleClose();
   };
 
   return isDialogReady ? (

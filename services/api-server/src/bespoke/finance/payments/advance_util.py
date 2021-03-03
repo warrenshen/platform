@@ -12,11 +12,10 @@ from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
-from bespoke.finance import contract_util
-from bespoke.finance import number_util
+from bespoke.finance import contract_util, number_util
+from bespoke.finance.loans import sibling_util
 from bespoke.finance.payments import payment_util
 from bespoke.finance.types import per_customer_types
-from bespoke.finance.loans import sibling_util
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 

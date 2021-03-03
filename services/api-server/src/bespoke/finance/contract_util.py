@@ -247,7 +247,16 @@ class Contract(object):
 		return self._get_float_value('factoring_fee_percentage')
 
 	def _use_preceeding_business_day(self) -> Tuple[bool, errors.Error]:
-		return self._get_bool_value('preceeding_business_day')
+		product_type, err = self.get_product_type()
+
+		if err:
+			return None, err
+
+		if product_type == ProductType.LINE_OF_CREDIT:
+			# Always use succeeding business day for line of credit product type.
+			return False, None
+		else:
+			return self._get_bool_value('preceeding_business_day')
 
 	def get_maturity_date(self, advance_settlement_date: datetime.date) -> Tuple[datetime.date, errors.Error]:
 		"""
