@@ -20,7 +20,7 @@ function BankLoansMaturingPage() {
   } = useContext(CurrentUserContext);
   const [matureDays, setMatureDays] = useState(matureDaysList[1]);
 
-  const { data, error, refetch } = useGetFundedLoansForBankQuery();
+  const { data, error } = useGetFundedLoansForBankQuery();
 
   if (error) {
     alert("Error querying loans. " + error);

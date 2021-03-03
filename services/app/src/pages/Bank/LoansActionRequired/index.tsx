@@ -9,7 +9,7 @@ import {
   LoanFragment,
   Loans,
   LoanStatusEnum,
-  useGetNotFundedLoansForBankQuery,
+  useGetNotFundedLoansForBankSubscription,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { Action, check } from "lib/auth/rbac-rules";
@@ -22,7 +22,7 @@ function LoansActionRequiredPage() {
     user: { role },
   } = useContext(CurrentUserContext);
 
-  const { data, error, refetch } = useGetNotFundedLoansForBankQuery();
+  const { data, error } = useGetNotFundedLoansForBankSubscription();
 
   if (error) {
     alert("Error querying loans. " + error);
@@ -45,7 +45,6 @@ function LoansActionRequiredPage() {
     if (response.status !== "OK") {
       alert("Could not approve loans!");
     }
-    refetch();
   };
 
   const handleRejectLoan = async () => {
@@ -61,7 +60,6 @@ function LoansActionRequiredPage() {
     if (response.status !== "OK") {
       alert("Could not reject loan. Reason: " + response.msg);
     }
-    refetch();
   };
 
   const loans = data?.loans || [];
@@ -88,10 +86,9 @@ function LoansActionRequiredPage() {
                 <CreateAdvanceModal
                   selectedLoans={selectedLoans}
                   handleClose={() => {
-                    refetch();
+                    handleClose();
                     setSelectedLoans([]);
                     setSelectedLoanIds([]);
-                    handleClose();
                   }}
                 />
               )}

@@ -27,7 +27,7 @@ query GetActiveLoansForCompany($companyId: uuid!, $loanType: loan_type_enum!) {
   }
 }
 
-query GetNotFundedLoansForBank {
+subscription GetNotFundedLoansForBank {
   loans(where: { funded_at: { _is_null: true } }) {
     id
     ...Loan

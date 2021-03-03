@@ -133,9 +133,9 @@ function BankCustomerLoansSubpage({ companyId, productType }: Props) {
           selectedLoans={selectedLoans}
           handleClose={() => {
             refetch();
+            setIsCreateAdvanceModalOpen(false);
             setSelectedLoans([]);
             setSelectedLoanIds([]);
-            setIsCreateAdvanceModalOpen(false);
           }}
         />
       )}

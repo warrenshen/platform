@@ -89,9 +89,9 @@ function CustomerOverviewPage() {
                   selectedLoans={selectedLoans}
                   handleClose={() => {
                     refetch();
+                    setIsCreateRepaymentModalOpen(false);
                     setSelectedLoans([]);
                     setSelectedLoanIds([]);
-                    setIsCreateRepaymentModalOpen(false);
                   }}
                 />
               )}
