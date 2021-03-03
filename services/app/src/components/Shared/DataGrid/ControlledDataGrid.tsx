@@ -108,11 +108,11 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
           setPageIndex(value);
         }
         if (fullName.endsWith("sortOrder")) {
-          const index = fullName.match(/(?<=\[).+?(?=\])/g)[0];
+          const index = fullName.match("/(?<=[).+?(?=])/g")[0];
           if (onSortingChanged) onSortingChanged(index, value);
         }
         if (fullName.endsWith("filterValue")) {
-          const index = fullName.match(/(?<=\[).+?(?=\])/g)[0];
+          const index = fullName.match("/(?<=[).+?(?=])/g")[0];
           if (onFilteringChanged) onFilteringChanged(index, value);
         }
       },
