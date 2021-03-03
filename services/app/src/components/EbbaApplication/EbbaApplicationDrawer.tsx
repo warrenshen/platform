@@ -186,22 +186,28 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
               <Typography variant="subtitle2" color="textSecondary">
                 Actions
               </Typography>
-              <Box mt={1}>
-                <ModalButton
-                  label={"Edit"}
-                  color={"default"}
-                  modal={({ handleClose }) => (
-                    <CreateUpdateEbbaApplicationModal
-                      actionType={ActionType.Update}
-                      ebbaApplicationId={ebbaApplication.id}
-                      handleClose={() => {
-                        refetch();
-                        handleClose();
-                      }}
-                    />
-                  )}
-                />
-              </Box>
+              {![
+                RequestStatusEnum.Approved,
+                RequestStatusEnum.Rejected,
+              ].includes(ebbaApplication.status) && (
+                <Box mt={1}>
+                  <ModalButton
+                    label={"Edit"}
+                    color={"default"}
+                    modal={({ handleClose }) => (
+                      <CreateUpdateEbbaApplicationModal
+                        actionType={ActionType.Update}
+                        companyId={ebbaApplication.company_id}
+                        ebbaApplicationId={ebbaApplication.id}
+                        handleClose={() => {
+                          refetch();
+                          handleClose();
+                        }}
+                      />
+                    )}
+                  />
+                </Box>
+              )}
               {ebbaApplication.status !== RequestStatusEnum.Approved && (
                 <Box mt={1}>
                   <Button

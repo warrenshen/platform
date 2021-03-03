@@ -47,6 +47,7 @@ function CustomerEbbaApplicationsPage() {
           modal={({ handleClose }) => (
             <CreateUpdateEbbaApplicationModal
               actionType={ActionType.New}
+              companyId={companyId}
               ebbaApplicationId={null}
               handleClose={() => {
                 refetch();

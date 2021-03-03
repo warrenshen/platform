@@ -9,10 +9,11 @@ import {
   Theme,
 } from "@material-ui/core";
 import EbbaApplicationForm from "components/EbbaApplication/EbbaApplicationForm";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
+  Companies,
   ContractFragment,
   EbbaApplicationFilesInsertInput,
+  EbbaApplications,
   EbbaApplicationsInsertInput,
   ProductTypeEnum,
   useAddEbbaApplicationMutation,
@@ -24,7 +25,7 @@ import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, ebbaApplicationsRoutes } from "lib/api";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
-import { useContext, useState } from "react";
+import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -82,20 +83,19 @@ function computeBorrowingBase(
 
 interface Props {
   actionType: ActionType;
-  ebbaApplicationId: string | null;
+  companyId: Companies["id"];
+  ebbaApplicationId: EbbaApplications["id"] | null;
   handleClose: () => void;
 }
 
-function CreateEbbaApplicationModal({
+function CreateUpdateEbbaApplicationModal({
   actionType,
+  companyId,
   ebbaApplicationId = null,
   handleClose,
 }: Props) {
   const snackbar = useSnackbar();
   const classes = useStyles();
-  const {
-    user: { companyId },
-  } = useContext(CurrentUserContext);
 
   const { data } = useGetCompanyWithActiveContractQuery({
     variables: {
@@ -273,4 +273,4 @@ function CreateEbbaApplicationModal({
   ) : null;
 }
 
-export default CreateEbbaApplicationModal;
+export default CreateUpdateEbbaApplicationModal;
