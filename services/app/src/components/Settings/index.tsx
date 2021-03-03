@@ -2,11 +2,10 @@ import { Box } from "@material-ui/core";
 import AddAccountButton from "components/BankAccount/AddAccountButton";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import CompanySettingsCard from "components/Settings/CompanySettingsCard";
-import EditAccountSettingsModal from "components/Settings/EditCompanySettingsModal";
-import CompanyInfo from "components/Shared/CompanyProfile/CompanyInfo";
+import EditCompanySettingsModal from "components/Settings/EditCompanySettingsModal";
 import Can from "components/Shared/Can";
+import CompanyInfo from "components/Shared/CompanyProfile/CompanyInfo";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-
 import {
   BankAccountFragment,
   CompanyFragment,
@@ -15,7 +14,7 @@ import {
   ContractFragment,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
-import React, { useState, useContext } from "react";
+import React, { useContext, useState } from "react";
 
 interface Props {
   companyId: string;
@@ -53,10 +52,9 @@ function Settings({
           </Box>
           <Box mt={3}>
             {accountSettingsOpen && (
-              <EditAccountSettingsModal
+              <EditCompanySettingsModal
                 companyId={companyId}
                 existingSettings={settings}
-                existingContract={contract}
                 handleClose={() => {
                   handleDataChange();
                   setAccountSettingsOpen(false);

@@ -12082,41 +12082,22 @@ export type GetContractQuery = {
   >;
 };
 
-export type AddContractMutationVariables = Exact<{
-  contract: ContractsInsertInput;
-}>;
-
-export type AddContractMutation = {
-  insert_contracts_one?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
-};
-
-export type UpdateContractMutationVariables = Exact<{
-  contractId: Scalars["uuid"];
-  contract: ContractsSetInput;
-}>;
-
-export type UpdateContractMutation = {
-  update_contracts_by_pk?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
-};
-
-export type UpdateCompanySettingsMutationVariables = Exact<{
-  companyId: Scalars["uuid"];
-  companySettingsId: Scalars["uuid"];
-  vendorAgreementTemplateLink?: Maybe<Scalars["String"]>;
-  contractId: Scalars["uuid"];
-}>;
-
-export type UpdateCompanySettingsMutation = {
-  update_company_settings_by_pk?: Maybe<CompanySettingsFragment>;
-  update_companies_by_pk?: Maybe<CompanyFragment>;
-};
-
 export type GetCompanySettingsQueryVariables = Exact<{
   companySettingsId: Scalars["uuid"];
 }>;
 
 export type GetCompanySettingsQuery = {
   company_settings_by_pk?: Maybe<CompanySettingsFragment>;
+};
+
+export type UpdateCompanySettingsMutationVariables = Exact<{
+  companyId: Scalars["uuid"];
+  companySettingsId: Scalars["uuid"];
+  vendorAgreementTemplateLink?: Maybe<Scalars["String"]>;
+}>;
+
+export type UpdateCompanySettingsMutation = {
+  update_company_settings_by_pk?: Maybe<CompanySettingsFragment>;
 };
 
 export type BankAccountsForTransferQueryVariables = Exact<{
@@ -15980,174 +15961,6 @@ export type GetContractQueryResult = Apollo.QueryResult<
   GetContractQuery,
   GetContractQueryVariables
 >;
-export const AddContractDocument = gql`
-  mutation AddContract($contract: contracts_insert_input!) {
-    insert_contracts_one(object: $contract) {
-      id
-      ...Contract
-    }
-  }
-  ${ContractFragmentDoc}
-`;
-export type AddContractMutationFn = Apollo.MutationFunction<
-  AddContractMutation,
-  AddContractMutationVariables
->;
-
-/**
- * __useAddContractMutation__
- *
- * To run a mutation, you first call `useAddContractMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddContractMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [addContractMutation, { data, loading, error }] = useAddContractMutation({
- *   variables: {
- *      contract: // value for 'contract'
- *   },
- * });
- */
-export function useAddContractMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    AddContractMutation,
-    AddContractMutationVariables
-  >
-) {
-  return Apollo.useMutation<AddContractMutation, AddContractMutationVariables>(
-    AddContractDocument,
-    baseOptions
-  );
-}
-export type AddContractMutationHookResult = ReturnType<
-  typeof useAddContractMutation
->;
-export type AddContractMutationResult = Apollo.MutationResult<AddContractMutation>;
-export type AddContractMutationOptions = Apollo.BaseMutationOptions<
-  AddContractMutation,
-  AddContractMutationVariables
->;
-export const UpdateContractDocument = gql`
-  mutation UpdateContract($contractId: uuid!, $contract: contracts_set_input!) {
-    update_contracts_by_pk(pk_columns: { id: $contractId }, _set: $contract) {
-      id
-      ...Contract
-    }
-  }
-  ${ContractFragmentDoc}
-`;
-export type UpdateContractMutationFn = Apollo.MutationFunction<
-  UpdateContractMutation,
-  UpdateContractMutationVariables
->;
-
-/**
- * __useUpdateContractMutation__
- *
- * To run a mutation, you first call `useUpdateContractMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateContractMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateContractMutation, { data, loading, error }] = useUpdateContractMutation({
- *   variables: {
- *      contractId: // value for 'contractId'
- *      contract: // value for 'contract'
- *   },
- * });
- */
-export function useUpdateContractMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdateContractMutation,
-    UpdateContractMutationVariables
-  >
-) {
-  return Apollo.useMutation<
-    UpdateContractMutation,
-    UpdateContractMutationVariables
-  >(UpdateContractDocument, baseOptions);
-}
-export type UpdateContractMutationHookResult = ReturnType<
-  typeof useUpdateContractMutation
->;
-export type UpdateContractMutationResult = Apollo.MutationResult<UpdateContractMutation>;
-export type UpdateContractMutationOptions = Apollo.BaseMutationOptions<
-  UpdateContractMutation,
-  UpdateContractMutationVariables
->;
-export const UpdateCompanySettingsDocument = gql`
-  mutation UpdateCompanySettings(
-    $companyId: uuid!
-    $companySettingsId: uuid!
-    $vendorAgreementTemplateLink: String
-    $contractId: uuid!
-  ) {
-    update_company_settings_by_pk(
-      pk_columns: { id: $companySettingsId }
-      _set: { vendor_agreement_docusign_template: $vendorAgreementTemplateLink }
-    ) {
-      ...CompanySettings
-    }
-    update_companies_by_pk(
-      pk_columns: { id: $companyId }
-      _set: { contract_id: $contractId }
-    ) {
-      ...Company
-    }
-  }
-  ${CompanySettingsFragmentDoc}
-  ${CompanyFragmentDoc}
-`;
-export type UpdateCompanySettingsMutationFn = Apollo.MutationFunction<
-  UpdateCompanySettingsMutation,
-  UpdateCompanySettingsMutationVariables
->;
-
-/**
- * __useUpdateCompanySettingsMutation__
- *
- * To run a mutation, you first call `useUpdateCompanySettingsMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateCompanySettingsMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateCompanySettingsMutation, { data, loading, error }] = useUpdateCompanySettingsMutation({
- *   variables: {
- *      companyId: // value for 'companyId'
- *      companySettingsId: // value for 'companySettingsId'
- *      vendorAgreementTemplateLink: // value for 'vendorAgreementTemplateLink'
- *      contractId: // value for 'contractId'
- *   },
- * });
- */
-export function useUpdateCompanySettingsMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdateCompanySettingsMutation,
-    UpdateCompanySettingsMutationVariables
-  >
-) {
-  return Apollo.useMutation<
-    UpdateCompanySettingsMutation,
-    UpdateCompanySettingsMutationVariables
-  >(UpdateCompanySettingsDocument, baseOptions);
-}
-export type UpdateCompanySettingsMutationHookResult = ReturnType<
-  typeof useUpdateCompanySettingsMutation
->;
-export type UpdateCompanySettingsMutationResult = Apollo.MutationResult<UpdateCompanySettingsMutation>;
-export type UpdateCompanySettingsMutationOptions = Apollo.BaseMutationOptions<
-  UpdateCompanySettingsMutation,
-  UpdateCompanySettingsMutationVariables
->;
 export const GetCompanySettingsDocument = gql`
   query GetCompanySettings($companySettingsId: uuid!) {
     company_settings_by_pk(id: $companySettingsId) {
@@ -16204,6 +16017,64 @@ export type GetCompanySettingsLazyQueryHookResult = ReturnType<
 export type GetCompanySettingsQueryResult = Apollo.QueryResult<
   GetCompanySettingsQuery,
   GetCompanySettingsQueryVariables
+>;
+export const UpdateCompanySettingsDocument = gql`
+  mutation UpdateCompanySettings(
+    $companyId: uuid!
+    $companySettingsId: uuid!
+    $vendorAgreementTemplateLink: String
+  ) {
+    update_company_settings_by_pk(
+      pk_columns: { id: $companySettingsId }
+      _set: { vendor_agreement_docusign_template: $vendorAgreementTemplateLink }
+    ) {
+      ...CompanySettings
+    }
+  }
+  ${CompanySettingsFragmentDoc}
+`;
+export type UpdateCompanySettingsMutationFn = Apollo.MutationFunction<
+  UpdateCompanySettingsMutation,
+  UpdateCompanySettingsMutationVariables
+>;
+
+/**
+ * __useUpdateCompanySettingsMutation__
+ *
+ * To run a mutation, you first call `useUpdateCompanySettingsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCompanySettingsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCompanySettingsMutation, { data, loading, error }] = useUpdateCompanySettingsMutation({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *      companySettingsId: // value for 'companySettingsId'
+ *      vendorAgreementTemplateLink: // value for 'vendorAgreementTemplateLink'
+ *   },
+ * });
+ */
+export function useUpdateCompanySettingsMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateCompanySettingsMutation,
+    UpdateCompanySettingsMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    UpdateCompanySettingsMutation,
+    UpdateCompanySettingsMutationVariables
+  >(UpdateCompanySettingsDocument, baseOptions);
+}
+export type UpdateCompanySettingsMutationHookResult = ReturnType<
+  typeof useUpdateCompanySettingsMutation
+>;
+export type UpdateCompanySettingsMutationResult = Apollo.MutationResult<UpdateCompanySettingsMutation>;
+export type UpdateCompanySettingsMutationOptions = Apollo.BaseMutationOptions<
+  UpdateCompanySettingsMutation,
+  UpdateCompanySettingsMutationVariables
 >;
 export const BankAccountsForTransferDocument = gql`
   query BankAccountsForTransfer($companyId: uuid!) {

@@ -1,26 +1,19 @@
+query GetCompanySettings($companySettingsId: uuid!) {
+  company_settings_by_pk(id: $companySettingsId) {
+    ...CompanySettings
+  }
+}
+
 # Account-level settings which can be modified in the EditAccountSettings component
 mutation UpdateCompanySettings(
   $companyId: uuid!
   $companySettingsId: uuid!
   $vendorAgreementTemplateLink: String
-  $contractId: uuid!
 ) {
   update_company_settings_by_pk(
     pk_columns: { id: $companySettingsId }
     _set: { vendor_agreement_docusign_template: $vendorAgreementTemplateLink }
   ) {
-    ...CompanySettings
-  }
-  update_companies_by_pk(
-    pk_columns: { id: $companyId }
-    _set: { contract_id: $contractId }
-  ) {
-    ...Company
-  }
-}
-
-query GetCompanySettings($companySettingsId: uuid!) {
-  company_settings_by_pk(id: $companySettingsId) {
     ...CompanySettings
   }
 }
