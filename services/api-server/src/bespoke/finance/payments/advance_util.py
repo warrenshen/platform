@@ -4,6 +4,7 @@
 
 import datetime
 import decimal
+import logging
 from datetime import timedelta
 from typing import Callable, Dict, List, Tuple, cast
 
@@ -15,6 +16,7 @@ from bespoke.finance import contract_util
 from bespoke.finance import number_util
 from bespoke.finance.payments import payment_util
 from bespoke.finance.types import per_customer_types
+from bespoke.finance.loans import sibling_util
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 
@@ -47,7 +49,7 @@ def _get_contracts_by_company_id(
 			contract_ids.append(str(company.contract_id))
 
 	if companies_with_missing_contracts:
-		return None, errors.Error('{} have missing contracts, cannot proceed with the advances process'.format(companies_with_missing_contracts), details=err_details)		
+		return None, errors.Error('{} have missing contracts, cannot proceed with the advances process'.format(companies_with_missing_contracts), details=err_details)
 
 	contracts = cast(
 		List[models.Contract],
@@ -68,11 +70,12 @@ def _get_contracts_by_company_id(
 	return company_id_to_contract, None
 
 def fund_loans_with_advance(
-	req: FundLoansReqDict, bank_admin_user_id: str, 
+	req: FundLoansReqDict, bank_admin_user_id: str,
 	session_maker: Callable) -> Tuple[FundLoansRespDict, errors.Error]:
 
 	payment_input = req['payment']
 	loan_ids = req['loan_ids']
+	purchase_order_ids = set()
 
 	err_details = {
 		'payment_input': payment_input,
@@ -153,10 +156,10 @@ def fund_loans_with_advance(
 				type=db_constants.PaymentType.ADVANCE,
 				amount=amount_to_company,
 				payment_method=payment_input['method']
-			), 
+			),
 			user_id=bank_admin_user_id)
 			payment_util.make_payment_applied(
-				payment, settled_by_user_id=bank_admin_user_id, 
+				payment, settled_by_user_id=bank_admin_user_id,
 				payment_date=payment_date,
 				settlement_date=settlement_date)
 			session.add(payment)
@@ -195,6 +198,28 @@ def fund_loans_with_advance(
 			loan.origination_date = settlement_date
 			loan.maturity_date = maturity_date
 			loan.adjusted_maturity_date = adjusted_maturity_date
+
+			if loan.loan_type == db_constants.LoanTypeEnum.INVENTORY and loan.artifact_id:
+				purchase_order_ids.add(loan.artifact_id)
+
+	# Once all of those writes are complete, we check if any of the associated
+	# purchase orders are full funded and mark them so
+	with session_scope(session_maker) as session:
+		for purchase_order_id in purchase_order_ids:
+			purchase_order = cast(
+				models.PurchaseOrder,
+				session.query(models.PurchaseOrder).get(purchase_order_id)
+			)
+			if not purchase_order:
+				logging.warning(f"Failed to find purchase order with id '{purchase_order_id}'")
+				continue # Early Continuation
+
+			funded_amount = sibling_util.get_funded_loan_sum_on_artifact(
+				session,
+				purchase_order_id)
+
+			if funded_amount >= purchase_order.amount:
+				purchase_order.funded_at = date_util.now()
 
 	return FundLoansRespDict(status='OK'), None
 

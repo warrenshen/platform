@@ -315,7 +315,6 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 		with session_scope(self.session_maker) as session:
 			ebba = session.query(models.EbbaApplication).first()
-			print(ebba.id, ebba.calculated_borrowing_base)
 			self.assertEqual(ebba.calculated_borrowing_base, 8250)
 
 	def test_failure_line_of_credit_without_borrowing_base(self) -> None:

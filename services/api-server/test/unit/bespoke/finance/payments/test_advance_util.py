@@ -5,7 +5,7 @@ from typing import cast, List, Dict
 
 from bespoke.db import models
 from bespoke.db.db_constants import ProductType
-from bespoke.db.db_constants import LoanStatusEnum
+from bespoke.db.db_constants import LoanStatusEnum, LoanTypeEnum
 from bespoke.db.models import session_scope
 from bespoke.finance.payments import advance_util
 from bespoke.finance.payments import payment_util
@@ -47,6 +47,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		input_loans = test['loans']
 		company_indices = test['company_indices']
 		payment_amount = test['payment_input_amount']
+		purchase_orders = test.get("purchase_orders", [])
 		bank_admin_user_id = seed.get_user_id('bank_admin')
 
 		loan_ids = []
@@ -68,13 +69,25 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				cur_company.contract_id = cur_contract_ids[-1]
 				session.flush()
 
+			for purchase_order in purchase_orders:
+				po = models.PurchaseOrder(
+					id=purchase_order["id"],
+					amount=purchase_order["amount"],
+				)
+				session.add(po)
+				session.flush()
+
 			for i in range(len(input_loans)):
 				amount = input_loans[i]['amount']
+				loan_type = input_loans[i].get("loan_type", LoanTypeEnum.INVENTORY)
+				artifact_id = input_loans[i].get("artifact_id", None)
 				index = company_indices[i]
 				company_id = seed.get_company_id('company_admin', index=index)
 				loan = models.Loan(
 					company_id=company_id,
 					amount=decimal.Decimal(amount),
+					loan_type=loan_type,
+					artifact_id=artifact_id,
 					approved_at=date_util.now()
 				)
 				session.add(loan)
@@ -122,7 +135,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				self.assertEqual(company_id, loan.company_id)
 				self.assertAlmostEqual(expected_loan['amount'], float(loan.amount))
 				self.assertAlmostEqual(expected_loan['amount'], float(loan.outstanding_principal_balance))
-				self.assertEqual(expected_loan['maturity_date'], 
+				self.assertEqual(expected_loan['maturity_date'],
 												 date_util.date_to_str(loan.maturity_date))
 				self.assertEqual(expected_loan['adjusted_maturity_date'],
 												 date_util.date_to_str(loan.adjusted_maturity_date))
@@ -181,6 +194,14 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				self.assertEqual(matching_payment.id, transaction.payment_id)
 				self.assertEqual(bank_admin_user_id, transaction.created_by_user_id)
 
+			for purchase_order_id in test.get('expected_funded_purchase_order_ids', []):
+				po = session.query(models.PurchaseOrder).get(purchase_order_id)
+				self.assertIsNotNone(po.funded_at)
+
+			for purchase_order_id in test.get('expected_unfunded_purchase_order_ids', []):
+				po = session.query(models.PurchaseOrder).get(purchase_order_id)
+				self.assertIsNone(po.funded_at)
+
 	def test_successful_advance_one_customer(self) -> None:
 		tests: List[Dict] = [
 			{
@@ -201,10 +222,10 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				},
 				'loans': [
 					{
-						'amount': 10.01, 
+						'amount': 10.01,
 					},
 					{
-						'amount': 20.02
+						'amount': 20.02,
 					}
 				],
 				'payment_date': '10/18/2020',
@@ -240,7 +261,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'loan_index': 1,
 						'payment_index': 0
 					}
-				]
+				],
 			}
 		]
 
@@ -273,7 +294,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'amount': 20.02,
 					},
 					{
-						'amount': 30.03, 
+						'amount': 30.03,
 					},
 					{
 						'amount': 40.04,
@@ -295,7 +316,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'adjusted_maturity_date': '10/30/2020' # because use_preceeding_business_day=True
 					},
 					{
-						'amount': 30.03, 
+						'amount': 30.03,
 						'maturity_date': '10/24/2020', # Saturday
 						'adjusted_maturity_date': '10/26/2020' # skip from Saturday to Monday
 					},
@@ -469,3 +490,169 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 			session_maker=self.session_maker
 		)
 		self.assertIn('exactly', err.msg)
+
+	def test_successful_purchase_order_fully_funded(self) -> None:
+		tests: List[Dict] = [
+			{
+				'comment': 'Test multiple loans approved from one customer',
+				'contracts_by_company_index': {
+					0: [
+						_get_default_contract(
+							use_preceeding_business_day=False,
+							days_until_repayment=10
+						)
+					],
+					1: [
+						_get_default_contract(
+							use_preceeding_business_day=False,
+							days_until_repayment=20
+						)
+					]
+				},
+				'purchase_orders': [
+					{
+						'id': 'a012e58e-6378-450c-a753-943533f7ae88',
+						'amount': 30.03,
+					}
+				],
+				'loans': [
+					{
+						'amount': 10.01,
+						'loan_type': LoanTypeEnum.INVENTORY,
+						'artifact_id': 'a012e58e-6378-450c-a753-943533f7ae88',
+					},
+					{
+						'amount': 20.02,
+						'loan_type': LoanTypeEnum.INVENTORY,
+						'artifact_id': 'a012e58e-6378-450c-a753-943533f7ae88',
+					}
+				],
+				'payment_date': '10/18/2020',
+				'settlement_date':  '10/20/2020',
+				'company_indices': [0, 0],
+				'payment_input_amount': 30.03,
+				'expected_loans': [
+					{
+						'amount': 10.01,
+						'maturity_date': '10/30/2020',
+						'adjusted_maturity_date': '10/30/2020'
+					},
+					{
+						'amount': 20.02,
+						'maturity_date': '10/30/2020',
+						'adjusted_maturity_date': '10/30/2020'
+					}
+				],
+				'expected_payments': [
+					{
+						'amount': 30.03,
+						'company_index': 0
+					}
+				],
+				'expected_transactions': [
+					{
+						'amount': 10.01,
+						'loan_index': 0,
+						'payment_index': 0
+					},
+					{
+						'amount': 20.02,
+						'loan_index': 1,
+						'payment_index': 0
+					}
+				],
+				'expected_funded_purchase_order_ids': [
+					'a012e58e-6378-450c-a753-943533f7ae88',
+				]
+			}
+		]
+
+		for test in tests:
+			self._run_test(test)
+
+
+	def test_successful_purchase_order_one_funded_one_not(self) -> None:
+		tests: List[Dict] = [
+			{
+				'comment': 'Test multiple loans approved from one customer',
+				'contracts_by_company_index': {
+					0: [
+						_get_default_contract(
+							use_preceeding_business_day=False,
+							days_until_repayment=10
+						)
+					],
+					1: [
+						_get_default_contract(
+							use_preceeding_business_day=False,
+							days_until_repayment=20
+						)
+					]
+				},
+				'purchase_orders': [
+					{
+						'id': 'a012e58e-6378-450c-a753-943533f7ae88',
+						'amount': 10.01,
+					},
+					{
+						'id': 'a012e58e-6378-450c-a753-943533f7ae89',
+						'amount': 30.03,
+					}
+				],
+				'loans': [
+					{
+						'amount': 10.01,
+						'loan_type': LoanTypeEnum.INVENTORY,
+						'artifact_id': 'a012e58e-6378-450c-a753-943533f7ae88',
+					},
+					{
+						'amount': 20.02,
+						'loan_type': LoanTypeEnum.INVENTORY,
+						'artifact_id': 'a012e58e-6378-450c-a753-943533f7ae89',
+					}
+				],
+				'payment_date': '10/18/2020',
+				'settlement_date':  '10/20/2020',
+				'company_indices': [0, 0],
+				'payment_input_amount': 30.03,
+				'expected_loans': [
+					{
+						'amount': 10.01,
+						'maturity_date': '10/30/2020',
+						'adjusted_maturity_date': '10/30/2020'
+					},
+					{
+						'amount': 20.02,
+						'maturity_date': '10/30/2020',
+						'adjusted_maturity_date': '10/30/2020'
+					}
+				],
+				'expected_payments': [
+					{
+						'amount': 30.03,
+						'company_index': 0
+					}
+				],
+				'expected_transactions': [
+					{
+						'amount': 10.01,
+						'loan_index': 0,
+						'payment_index': 0
+					},
+					{
+						'amount': 20.02,
+						'loan_index': 1,
+						'payment_index': 0
+					}
+				],
+				'expected_funded_purchase_order_ids': [
+					'a012e58e-6378-450c-a753-943533f7ae88',
+				],
+				'expected_unfunded_purchase_order_ids': [
+					'a012e58e-6378-450c-a753-943533f7ae89',
+				]
+			}
+		]
+
+		for test in tests:
+			self._run_test(test)
