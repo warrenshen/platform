@@ -17,10 +17,10 @@ import {
   ProductTypeEnum,
   useGetOutstandingLoansForCustomerQuery,
 } from "generated/graphql";
+import { Action, check } from "lib/auth/rbac-rules";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
-import { Action, check } from "lib/auth/rbac-rules";
 import { useContext } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -139,7 +139,6 @@ function SettleRepaymentSelectLoans({
         <LoansDataGrid
           isSortingDisabled
           isStatusVisible={false}
-          customerSearchQuery={""}
           loans={selectedLoans}
           actionItems={
             check(role, Action.DeselectLoan)
@@ -163,7 +162,6 @@ function SettleRepaymentSelectLoans({
         <Typography>Loans not included in the above selection:</Typography>
         <LoansDataGrid
           isSortingDisabled
-          customerSearchQuery={""}
           loans={outstandingLoans.filter(
             (loan) => !selectedLoanIds.includes(loan.id)
           )}

@@ -51,7 +51,6 @@ function PaymentAdvanceForm({
           isMaturityVisible={false}
           isStatusVisible={false}
           loans={selectedLoans}
-          customerSearchQuery={""}
         />
       </Box>
       <Box mt={3}>

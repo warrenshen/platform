@@ -23,10 +23,13 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 interface Props {
-  isMaturityVisible: boolean;
+  isDaysPastDueVisible?: boolean;
+  isFilteringEnabled?: boolean;
+  isMaturityVisible?: boolean;
   isMultiSelectEnabled?: boolean;
-  fullView: boolean;
-  loansPastDue: boolean;
+  isSortingDisabled?: boolean;
+  isStatusVisible?: boolean;
+  pager?: boolean;
   matureDays?: number;
   filterByStatus?: RequestStatusEnum;
   loans: LoanFragment[];
@@ -38,10 +41,13 @@ interface Props {
 const getMaturityDate = (rowData: any) => new Date(rowData.maturity_date);
 
 function BankLoansDataGrid({
-  isMaturityVisible,
-  isMultiSelectEnabled,
-  fullView,
-  loansPastDue,
+  isDaysPastDueVisible = false,
+  isFilteringEnabled = false,
+  isMaturityVisible = false,
+  isMultiSelectEnabled = false,
+  isSortingDisabled = false,
+  isStatusVisible = true,
+  pager = true,
   matureDays = 0,
   filterByStatus,
   loans,
@@ -53,10 +59,16 @@ function BankLoansDataGrid({
   const rows = loans;
 
   useEffect(() => {
-    if (!dataGrid) return;
+    if (!dataGrid) {
+      return;
+    }
+
     dataGrid.instance.clearFilter(getMaturityDate);
-    if (loansPastDue)
+
+    if (isMaturityVisible) {
       dataGrid.instance.filter([getMaturityDate, "<", new Date(Date.now())]);
+    }
+
     if (matureDays > 0)
       dataGrid.instance.filter([
         [getMaturityDate, ">", new Date(Date.now())],
@@ -69,10 +81,11 @@ function BankLoansDataGrid({
           ),
         ],
       ]);
+
     if (filterByStatus) {
       dataGrid.instance.filter(["status", "=", filterByStatus]);
     }
-  }, [dataGrid, filterByStatus, loansPastDue, matureDays]);
+  }, [isMaturityVisible, dataGrid, filterByStatus, matureDays]);
 
   const maturingInDaysRenderer = (value: any) => {
     const maturityTime = getMaturityDate(value.data).getTime();
@@ -110,6 +123,7 @@ function BankLoansDataGrid({
         ),
       },
       {
+        visible: isStatusVisible,
         dataField: "status",
         caption: "Status",
         width: ColumnWidths.Status,
@@ -148,7 +162,8 @@ function BankLoansDataGrid({
       },
       {
         caption: "Loan Type",
-        minWidth: ColumnWidths.MinWidth,
+        width: ColumnWidths.Type,
+        alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
           <Box>
             {LoanTypeToLabel[params.row.data.loan_type as LoanTypeEnum]}
@@ -164,6 +179,7 @@ function BankLoansDataGrid({
         ),
       },
       {
+        visible: !isMaturityVisible,
         caption: "Requested Payment Date",
         width: ColumnWidths.Date,
         alignment: "right",
@@ -183,35 +199,53 @@ function BankLoansDataGrid({
         ),
       },
       {
-        visible: isMaturityVisible,
+        visible: !isDaysPastDueVisible && isMaturityVisible,
         caption: "Maturing in (Days)",
         width: 150,
         alignment: "right",
         cellRender: maturingInDaysRenderer,
       },
       {
-        visible: loansPastDue,
-        dataField: "outstanding_interest",
-        caption: "Interest Accrued",
-        width: ColumnWidths.Currency,
-        alignment: "right",
-      },
-      {
-        visible: loansPastDue,
-        dataField: "outstanding_fees",
-        caption: "Late Fees Accrued",
-        width: ColumnWidths.Currency,
-        alignment: "right",
-      },
-      {
-        visible: loansPastDue,
+        visible: isDaysPastDueVisible,
         caption: "Days Past Due",
         width: 130,
         alignment: "center",
         cellRender: daysPastDueRenderer,
       },
+      {
+        visible: isMaturityVisible,
+        dataField: "outstanding_principal_balance",
+        caption: "Outstanding Principal",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell
+            value={params.row.data.outstanding_principal_balance}
+          />
+        ),
+      },
+      {
+        visible: isMaturityVisible,
+        dataField: "outstanding_interest",
+        caption: "Outstanding Interest",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.outstanding_interest} />
+        ),
+      },
+      {
+        visible: isMaturityVisible,
+        dataField: "outstanding_fees",
+        caption: "Oustanding Late Fees",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.outstanding_fees} />
+        ),
+      },
     ],
-    [isMaturityVisible, loansPastDue, actionItems]
+    [isDaysPastDueVisible, isMaturityVisible, isStatusVisible, actionItems]
   );
 
   const handleSelectionChanged = useMemo(
@@ -221,16 +255,19 @@ function BankLoansDataGrid({
     [handleSelectLoans]
   );
 
-  const allowedPageSizes = useMemo(() => [5, 50], []);
-  const filtering = useMemo(() => ({ enable: fullView }), [fullView]);
+  const allowedPageSizes = useMemo(() => [], []);
+  const filtering = useMemo(() => ({ enable: isFilteringEnabled }), [
+    isFilteringEnabled,
+  ]);
 
   return (
     <ControlledDataGrid
       ref={(ref) => setDataGrid(ref)}
+      isSortingDisabled={isSortingDisabled}
       filtering={filtering}
-      pager={fullView}
+      pager={pager}
       select={isMultiSelectEnabled}
-      pageSize={fullView ? 50 : 5}
+      pageSize={10}
       allowedPageSizes={allowedPageSizes}
       dataSource={rows}
       columns={columns}

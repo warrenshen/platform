@@ -9,6 +9,7 @@ import { ProductTypeEnum, useCustomersForBankQuery } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { ProductTypeToLabel } from "lib/enum";
 import { bankRoutes } from "lib/routes";
+import { ColumnWidths } from "lib/tables";
 import { sortBy } from "lodash";
 import { useContext, useState } from "react";
 import { useRouteMatch } from "react-router-dom";
@@ -67,6 +68,8 @@ function BankCustomersPage() {
     {
       dataField: "contract.product_type",
       caption: "Product Type",
+      width: ColumnWidths.Type,
+      alignment: "center",
       cellRender: productTypeCellRenderer,
     },
     {

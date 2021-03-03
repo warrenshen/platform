@@ -60,7 +60,6 @@ function CreateRepaymentSelectLoans({
         isSortingDisabled
         isStatusVisible={false}
         loans={selectedLoans}
-        customerSearchQuery={""}
       />
       <Box mt={3}>
         <Typography variant="subtitle2">

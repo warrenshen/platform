@@ -129,8 +129,7 @@ function LoansActionRequiredPage() {
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <BankLoansDataGrid
           isMaturityVisible={false}
-          fullView
-          loansPastDue={false}
+          isFilteringEnabled
           loans={loans}
           selectedLoanIds={selectedLoanIds}
           handleSelectLoans={handleSelectLoans}

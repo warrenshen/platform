@@ -28,6 +28,8 @@ function ContractsDataGrid({ isCompanyVisible = true, contracts }: Props) {
       {
         dataField: "product_type",
         caption: "Product Type",
+        width: ColumnWidths.Type,
+        alignment: "center",
         cellRender: (params: ValueFormatterParams) =>
           ProductTypeToLabel[params.row.data.product_type as ProductTypeEnum],
       },

@@ -10,7 +10,7 @@ import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { LoanFragment, LoanStatusEnum } from "generated/graphql";
 import { createLoanPublicIdentifier } from "lib/loans";
 import { ColumnWidths } from "lib/tables";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 
 interface Props {
   isSortingDisabled?: boolean;
@@ -27,31 +27,15 @@ function LoansDataGrid({
   isSortingDisabled = false,
   isMaturityVisible = true,
   isStatusVisible = true,
-  customerSearchQuery = "",
   loans,
   actionItems,
 }: Props) {
-  const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = loans;
-
-  useEffect(() => {
-    if (!dataGrid) return;
-    if (customerSearchQuery) {
-      dataGrid.instance.filter([
-        "purchase_order.company.name",
-        "contains",
-        customerSearchQuery,
-      ]);
-    } else {
-      dataGrid.instance.clearFilter();
-    }
-  }, [dataGrid, customerSearchQuery]);
-
   const columns = useMemo(
     () => [
       {
         dataField: "id",
-        caption: "ID",
+        caption: "Identifier",
         width: 120,
         cellRender: (params: ValueFormatterParams) => (
           <LoanDrawerLauncher
@@ -135,7 +119,6 @@ function LoansDataGrid({
       isSortingDisabled={isSortingDisabled}
       dataSource={rows}
       columns={columns}
-      ref={(ref) => setDataGrid(ref)}
     />
   );
 }

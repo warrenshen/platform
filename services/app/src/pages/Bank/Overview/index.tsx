@@ -1,11 +1,13 @@
 import {
   Box,
+  Button,
   createStyles,
   makeStyles,
   Theme,
   Typography,
 } from "@material-ui/core";
 import BankFinancialSummariesDataGrid from "components/BankFinancialSummaries/BankFinancialSummariesDataGrid";
+import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
 import Page from "components/Shared/Page";
 import {
   LoanStatusEnum,
@@ -13,7 +15,7 @@ import {
   useLoansByStatusesForBankQuery,
 } from "generated/graphql";
 import { bankRoutes } from "lib/routes";
-import BankOverviewLoansTable from "pages/Bank/Overview/BankOverviewLoansTable";
+import { Link } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -28,10 +30,7 @@ const useStyles = makeStyles((theme: Theme) =>
       flexDirection: "column",
     },
     sectionSpace: {
-      height: theme.spacing(4),
-    },
-    box: {
-      width: "33%",
+      marginBottom: theme.spacing(4),
     },
   })
 );
@@ -113,24 +112,61 @@ function BankOverviewPage() {
           />
         </Box>
       </Box>
+      <Box className={classes.sectionSpace} />
       <Box className={classes.section}>
-        <BankOverviewLoansTable
-          isMaturityVisible
-          loans={maturingLoans}
-          tableName={"Loans Maturing in 14 Days"}
-          routeToTablePage={bankRoutes.loansMaturing}
-          loansPastDue={false}
-          matureDays={14}
-        />
+        <Typography variant="h6" gutterBottom={true}>
+          Loans Maturing in 14 Days
+        </Typography>
+        <Box display="flex" flexDirection="column">
+          <Box pb={2} display="flex">
+            <Box mr={2} mt={"auto"} mb={"auto"}>
+              <Button
+                size="small"
+                color="primary"
+                variant="contained"
+                component={Link}
+                to={bankRoutes.loansMaturing}
+              >
+                View all
+              </Button>
+            </Box>
+          </Box>
+          <Box style={{ height: "auto", width: "100%" }}>
+            <BankLoansDataGrid
+              isMaturityVisible
+              matureDays={14}
+              loans={maturingLoans}
+            />
+          </Box>
+        </Box>
       </Box>
+      <Box className={classes.sectionSpace} />
       <Box className={classes.section}>
-        <BankOverviewLoansTable
-          isMaturityVisible
-          loans={pastDueLoans}
-          tableName={"Loans Past Due"}
-          routeToTablePage={bankRoutes.loansPastDue}
-          loansPastDue={true}
-        />
+        <Typography variant="h6" gutterBottom={true}>
+          Loans Past Due
+        </Typography>
+        <Box display="flex" flexDirection="column">
+          <Box pb={2} display="flex">
+            <Box mr={2} mt={"auto"} mb={"auto"}>
+              <Button
+                size="small"
+                color="primary"
+                variant="contained"
+                component={Link}
+                to={bankRoutes.loansPastDue}
+              >
+                View all
+              </Button>
+            </Box>
+          </Box>
+          <Box style={{ height: "auto", width: "100%" }}>
+            <BankLoansDataGrid
+              isDaysPastDueVisible
+              isMaturityVisible
+              loans={pastDueLoans}
+            />
+          </Box>
+        </Box>
       </Box>
     </Page>
   );

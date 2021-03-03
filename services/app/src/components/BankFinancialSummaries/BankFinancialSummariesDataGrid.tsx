@@ -7,6 +7,7 @@ import {
   ProductTypeEnum,
 } from "generated/graphql";
 import { ProductTypeToLabel } from "lib/enum";
+import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
@@ -20,6 +21,8 @@ function BankFinancialSummariesDataGrid({ bankFinancialSummaries }: Props) {
       {
         dataField: "product_type",
         caption: "Product Type",
+        width: ColumnWidths.Type,
+        alignment: "center",
         cellRender: (params: ValueFormatterParams) =>
           ProductTypeToLabel[params.row.data.product_type as ProductTypeEnum],
       },
