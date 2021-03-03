@@ -1,4 +1,10 @@
-import { makeStyles, TextField, Typography } from "@material-ui/core";
+import {
+  Box,
+  Button,
+  makeStyles,
+  TextField,
+  Typography,
+} from "@material-ui/core";
 import { useEffect, useState } from "react";
 
 const useStyles = makeStyles({
@@ -6,18 +12,15 @@ const useStyles = makeStyles({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: "0.5rem",
   },
   input: {
     marginRight: "1rem",
   },
   action: {
-    marginRight: "1rem",
-    "&:hover": {
-      cursor: "pointer",
-    },
+    width: 32,
+    padding: 0,
+    minWidth: "initial",
   },
-  sectionName: {},
 });
 
 interface Props {
@@ -102,12 +105,12 @@ function DynamicFormInput({
   }
 
   return (
-    <div>
-      <Typography variant="caption" className={classes.sectionName}>
-        {name}
-      </Typography>
+    <Box display="flex" flexDirection="column">
+      <Box mb={0.5}>
+        <Typography variant="caption">{name}</Typography>
+      </Box>
       {rows.map((row, i) => (
-        <div key={i} className={classes.row}>
+        <Box key={i} className={classes.row} mb={1}>
           {Object.keys(row).map((key) => {
             const field = fields.find((f: any) => f.display_name === key);
             return (
@@ -128,21 +131,23 @@ function DynamicFormInput({
               </div>
             );
           })}
-          {i !== 0 ? (
-            <div
-              className={classes.action}
-              onClick={() => handleRemoveInputRow(i)}
-            >
-              –
-            </div>
-          ) : (
-            <div className={classes.action} onClick={handleAddInputRow}>
-              +
-            </div>
-          )}
-        </div>
+          <Button
+            className={classes.action}
+            variant="outlined"
+            onClick={() => handleRemoveInputRow(i)}
+          >
+            –
+          </Button>
+        </Box>
       ))}
-    </div>
+      <Button
+        className={classes.action}
+        variant="outlined"
+        onClick={handleAddInputRow}
+      >
+        +
+      </Button>
+    </Box>
   );
 }
 
