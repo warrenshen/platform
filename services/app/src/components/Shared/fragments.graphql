@@ -74,6 +74,7 @@ fragment PurchaseOrder on purchase_orders {
   is_cannabis
   status
   created_at
+  funded_at
   company {
     id
     name

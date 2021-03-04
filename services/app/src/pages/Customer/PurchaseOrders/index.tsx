@@ -1,4 +1,10 @@
-import { Box } from "@material-ui/core";
+import {
+  Box,
+  createStyles,
+  makeStyles,
+  Theme,
+  Typography,
+} from "@material-ui/core";
 import CreateMultiplePurchaseOrdersLoansModal from "components/Loan/CreateMultiplePurchaseOrdersLoansModal";
 import CreateUpdatePurchaseOrderLoanModal from "components/Loan/CreateUpdatePurchaseOrderLoanModal";
 import CreateUpdatePurchaseOrderModal from "components/PurchaseOrders/CreateUpdatePurchaseOrderModal";
@@ -16,7 +22,21 @@ import { Action } from "lib/auth/rbac-rules";
 import { ActionType } from "lib/enum";
 import { useContext, useMemo, useState } from "react";
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    section: {
+      display: "flex",
+      flexDirection: "column",
+    },
+    sectionSpace: {
+      height: theme.spacing(4),
+    },
+  })
+);
+
 function PurchaseOrdersPage() {
+  const classes = useStyles();
+
   const {
     user: { companyId },
   } = useContext(CurrentUserContext);
@@ -31,7 +51,19 @@ function PurchaseOrdersPage() {
     window.console.log("Error querying purchase orders. Error: " + error);
   }
 
-  const purchaseOrders = data?.purchase_orders || [];
+  const purchaseOrders = useMemo(() => data?.purchase_orders || [], [
+    data?.purchase_orders,
+  ]);
+
+  const fundedPurchaseOrders = useMemo(
+    () => purchaseOrders.filter((po) => !!po.funded_at),
+    [purchaseOrders]
+  );
+
+  const unfundedPurchaseOrders = useMemo(
+    () => purchaseOrders.filter((po) => !po.funded_at),
+    [purchaseOrders]
+  );
 
   const [selectedPurchaseOrderIds, setSelectedPurchaseOrderIds] = useState<
     PurchaseOrders["id"][]
@@ -47,7 +79,14 @@ function PurchaseOrdersPage() {
 
   return (
     <Page appBarTitle={"Purchase Orders"}>
-      <Box flex={1} display="flex" flexDirection="column" width="100%">
+      <Box
+        flex={1}
+        display="flex"
+        flexDirection="column"
+        width="100%"
+        className={classes.section}
+      >
+        <Typography variant="h6">Purchase Orders - Not Funded</Typography>
         <Box mb={2} display="flex" flexDirection="row-reverse">
           <Can perform={Action.AddPurchaseOrders}>
             <ModalButton
@@ -116,12 +155,26 @@ function PurchaseOrdersPage() {
             </Box>
           </Can>
         </Box>
-        <PurchaseOrdersDataGrid
-          isCompanyVisible={false}
-          purchaseOrders={purchaseOrders}
-          selectedPurchaseOrderIds={selectedPurchaseOrderIds}
-          handleSelectPurchaseOrders={handleSelectPurchaseOrders}
-        />
+        <Box>
+          <PurchaseOrdersDataGrid
+            isCompanyVisible={false}
+            purchaseOrders={unfundedPurchaseOrders}
+            selectedPurchaseOrderIds={selectedPurchaseOrderIds}
+            handleSelectPurchaseOrders={handleSelectPurchaseOrders}
+          />
+        </Box>
+        <Box className={classes.sectionSpace} />
+        <Box className={classes.section}>
+          <Typography variant="h6">Purchase Orders - Funded</Typography>
+          <Box className={classes.sectionSpace} />
+          <PurchaseOrdersDataGrid
+            isCompanyVisible={false}
+            isMultiSelectEnabled={false}
+            purchaseOrders={fundedPurchaseOrders}
+            selectedPurchaseOrderIds={[]}
+            handleSelectPurchaseOrders={() => {}}
+          />
+        </Box>
       </Box>
     </Page>
   );

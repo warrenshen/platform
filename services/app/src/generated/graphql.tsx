@@ -12415,6 +12415,7 @@ export type PurchaseOrderFragment = Pick<
   | "is_cannabis"
   | "status"
   | "created_at"
+  | "funded_at"
 > & {
   company: Pick<Companies, "id" | "name">;
   vendor?: Maybe<Pick<Vendors, "id" | "name">>;
@@ -12978,6 +12979,7 @@ export const PurchaseOrderFragmentDoc = gql`
     is_cannabis
     status
     created_at
+    funded_at
     company {
       id
       name
