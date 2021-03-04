@@ -10,7 +10,7 @@ update-requirements:
 	pip-compile requirements.in --output-file=requirements.txt
 
 # Example of running one test:
-# make run-test-local NAME=bespoke.finance.test_contract_util
+# make run-test-local NAME=unit.bespoke.finance.test_contract_util
 
 ifdef NAME
 run-test-local:

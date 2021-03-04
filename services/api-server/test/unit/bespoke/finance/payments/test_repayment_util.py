@@ -2,22 +2,21 @@ import datetime
 import decimal
 import json
 import uuid
-from typing import Any, List, Dict, cast
+from typing import Any, Dict, List, cast
 
 from bespoke.date import date_util
-from bespoke.db import models, db_constants
+from bespoke.db import db_constants, models
+from bespoke.db.db_constants import PaymentStatusEnum, ProductType
 from bespoke.db.models import session_scope
-from bespoke.finance.payments import payment_util
-from bespoke.finance.payments import repayment_util
-from bespoke.finance.payments.repayment_util import (
-	TransactionInputDict, LoanBalanceDict, LoanToShowDict)
-from bespoke.db.db_constants import ProductType, PaymentStatusEnum
-
+from bespoke.finance.payments import payment_util, repayment_util
+from bespoke.finance.payments.repayment_util import (LoanBalanceDict,
+                                                     LoanToShowDict,
+                                                     TransactionInputDict)
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
+from bespoke_test.db import db_unittest, test_helper
 from bespoke_test.payments import payment_test_helper
-from bespoke_test.db import db_unittest
-from bespoke_test.db import test_helper
+
 
 def _get_late_fee_structure() -> str:
 	return json.dumps({
