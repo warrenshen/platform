@@ -7899,6 +7899,7 @@ export type PurchaseOrders = {
   company_id: Scalars["uuid"];
   created_at: Scalars["timestamptz"];
   delivery_date?: Maybe<Scalars["date"]>;
+  funded_at?: Maybe<Scalars["timestamptz"]>;
   id: Scalars["uuid"];
   is_cannabis?: Maybe<Scalars["Boolean"]>;
   /** An array relationship */
@@ -8026,6 +8027,7 @@ export type PurchaseOrdersBoolExp = {
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   delivery_date?: Maybe<DateComparisonExp>;
+  funded_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   is_cannabis?: Maybe<BooleanComparisonExp>;
   loans?: Maybe<LoansBoolExp>;
@@ -8060,6 +8062,7 @@ export type PurchaseOrdersInsertInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   delivery_date?: Maybe<Scalars["date"]>;
+  funded_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_cannabis?: Maybe<Scalars["Boolean"]>;
   loans?: Maybe<LoansArrRelInsertInput>;
@@ -8082,6 +8085,7 @@ export type PurchaseOrdersMaxFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   delivery_date?: Maybe<Scalars["date"]>;
+  funded_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
@@ -8099,6 +8103,7 @@ export type PurchaseOrdersMaxOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   delivery_date?: Maybe<OrderBy>;
+  funded_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   order_date?: Maybe<OrderBy>;
   order_number?: Maybe<OrderBy>;
@@ -8116,6 +8121,7 @@ export type PurchaseOrdersMinFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   delivery_date?: Maybe<Scalars["date"]>;
+  funded_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
@@ -8133,6 +8139,7 @@ export type PurchaseOrdersMinOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   delivery_date?: Maybe<OrderBy>;
+  funded_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   order_date?: Maybe<OrderBy>;
   order_number?: Maybe<OrderBy>;
@@ -8172,6 +8179,7 @@ export type PurchaseOrdersOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   delivery_date?: Maybe<OrderBy>;
+  funded_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   is_cannabis?: Maybe<OrderBy>;
   loans_aggregate?: Maybe<LoansAggregateOrderBy>;
@@ -8205,6 +8213,8 @@ export enum PurchaseOrdersSelectColumn {
   /** column name */
   DeliveryDate = "delivery_date",
   /** column name */
+  FundedAt = "funded_at",
+  /** column name */
   Id = "id",
   /** column name */
   IsCannabis = "is_cannabis",
@@ -8233,6 +8243,7 @@ export type PurchaseOrdersSetInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   delivery_date?: Maybe<Scalars["date"]>;
+  funded_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_cannabis?: Maybe<Scalars["Boolean"]>;
   order_date?: Maybe<Scalars["date"]>;
@@ -8297,6 +8308,8 @@ export enum PurchaseOrdersUpdateColumn {
   CreatedAt = "created_at",
   /** column name */
   DeliveryDate = "delivery_date",
+  /** column name */
+  FundedAt = "funded_at",
   /** column name */
   Id = "id",
   /** column name */
@@ -11615,6 +11628,18 @@ export type EbbaApplicationsQuery = {
   >;
 };
 
+export type GetPurchaseOrdersForIdsQueryVariables = Exact<{
+  purchaseOrderIds?: Maybe<Array<Scalars["uuid"]>>;
+}>;
+
+export type GetPurchaseOrdersForIdsQuery = {
+  purchase_orders: Array<
+    Pick<PurchaseOrders, "id"> & {
+      loans: Array<Pick<Loans, "id"> & LoanFragment>;
+    } & PurchaseOrderFragment
+  >;
+};
+
 export type AddLineOfCreditMutationVariables = Exact<{
   lineOfCredit: LineOfCreditsInsertInput;
 }>;
@@ -13675,6 +13700,76 @@ export type EbbaApplicationsLazyQueryHookResult = ReturnType<
 export type EbbaApplicationsQueryResult = Apollo.QueryResult<
   EbbaApplicationsQuery,
   EbbaApplicationsQueryVariables
+>;
+export const GetPurchaseOrdersForIdsDocument = gql`
+  query GetPurchaseOrdersForIds($purchaseOrderIds: [uuid!]) {
+    purchase_orders(
+      where: {
+        _and: [
+          { id: { _in: $purchaseOrderIds } }
+          { status: { _eq: approved } }
+        ]
+      }
+    ) {
+      id
+      ...PurchaseOrder
+      loans {
+        id
+        ...Loan
+      }
+    }
+  }
+  ${PurchaseOrderFragmentDoc}
+  ${LoanFragmentDoc}
+`;
+
+/**
+ * __useGetPurchaseOrdersForIdsQuery__
+ *
+ * To run a query within a React component, call `useGetPurchaseOrdersForIdsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPurchaseOrdersForIdsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPurchaseOrdersForIdsQuery({
+ *   variables: {
+ *      purchaseOrderIds: // value for 'purchaseOrderIds'
+ *   },
+ * });
+ */
+export function useGetPurchaseOrdersForIdsQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetPurchaseOrdersForIdsQuery,
+    GetPurchaseOrdersForIdsQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetPurchaseOrdersForIdsQuery,
+    GetPurchaseOrdersForIdsQueryVariables
+  >(GetPurchaseOrdersForIdsDocument, baseOptions);
+}
+export function useGetPurchaseOrdersForIdsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetPurchaseOrdersForIdsQuery,
+    GetPurchaseOrdersForIdsQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetPurchaseOrdersForIdsQuery,
+    GetPurchaseOrdersForIdsQueryVariables
+  >(GetPurchaseOrdersForIdsDocument, baseOptions);
+}
+export type GetPurchaseOrdersForIdsQueryHookResult = ReturnType<
+  typeof useGetPurchaseOrdersForIdsQuery
+>;
+export type GetPurchaseOrdersForIdsLazyQueryHookResult = ReturnType<
+  typeof useGetPurchaseOrdersForIdsLazyQuery
+>;
+export type GetPurchaseOrdersForIdsQueryResult = Apollo.QueryResult<
+  GetPurchaseOrdersForIdsQuery,
+  GetPurchaseOrdersForIdsQueryVariables
 >;
 export const AddLineOfCreditDocument = gql`
   mutation AddLineOfCredit($lineOfCredit: line_of_credits_insert_input!) {

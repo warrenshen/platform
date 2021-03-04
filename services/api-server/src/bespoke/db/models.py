@@ -88,6 +88,7 @@ class Company(Base):
 	identifier = Column(String)
 	contract_id = Column(GUID)
 	needs_balance_recomputed = Column(Boolean, nullable=False, default=False)
+	latest_loan_identifier = Column(Integer, nullable=False, default=0)
 
 	def as_dict(self) -> CompanyDict:
 		return CompanyDict(
@@ -322,6 +323,8 @@ class Loan(Base):
 	outstanding_principal_balance = Column(Numeric)
 	outstanding_interest = Column(Numeric)
 	outstanding_fees = Column(Numeric)
+
+	identifier = Column(String)
 
 	def as_dict(self) -> LoanDict:
 		return LoanDict(

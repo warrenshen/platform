@@ -53,6 +53,9 @@ class ListArtifactsForCreateLoan(MethodView):
 		resp['status'] = 'OK'
 		return make_response(json.dumps(resp), 200)
 
+
+
 handler.add_url_rule(
 	'/list_artifacts_for_create_loan', view_func=ListArtifactsForCreateLoan.as_view(
 		name='list_artifacts_for_create_loan'))
+

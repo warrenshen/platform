@@ -1,4 +1,5 @@
 import { Box } from "@material-ui/core";
+import CreateMultiplePurchaseOrdersLoansModal from "components/Loan/CreateMultiplePurchaseOrdersLoansModal";
 import CreateUpdatePurchaseOrderLoanModal from "components/Loan/CreateUpdatePurchaseOrderLoanModal";
 import CreateUpdatePurchaseOrderModal from "components/PurchaseOrders/CreateUpdatePurchaseOrderModal";
 import PurchaseOrdersDataGrid from "components/PurchaseOrders/PurchaseOrdersDataGrid";
@@ -86,20 +87,31 @@ function PurchaseOrdersPage() {
           <Can perform={Action.FundPurchaseOrders}>
             <Box mr={1}>
               <ModalButton
-                isDisabled={selectedPurchaseOrderIds.length !== 1}
+                isDisabled={!selectedPurchaseOrderIds.length}
                 label={"Fund PO"}
-                modal={({ handleClose }) => (
-                  <CreateUpdatePurchaseOrderLoanModal
-                    actionType={ActionType.New}
-                    loanId=""
-                    artifactId={selectedPurchaseOrderIds[0]}
-                    handleClose={() => {
-                      refetch();
-                      handleClose();
-                      setSelectedPurchaseOrderIds([]);
-                    }}
-                  />
-                )}
+                modal={({ handleClose }) => {
+                  const handler = () => {
+                    refetch();
+                    handleClose();
+                    setSelectedPurchaseOrderIds([]);
+                  };
+                  if (selectedPurchaseOrderIds.length > 1) {
+                    return (
+                      <CreateMultiplePurchaseOrdersLoansModal
+                        artifactIds={selectedPurchaseOrderIds}
+                        handleClose={handler}
+                      />
+                    );
+                  }
+                  return (
+                    <CreateUpdatePurchaseOrderLoanModal
+                      actionType={ActionType.New}
+                      loanId=""
+                      artifactId={selectedPurchaseOrderIds[0]}
+                      handleClose={handler}
+                    />
+                  );
+                }}
               />
             </Box>
           </Can>

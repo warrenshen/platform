@@ -62,6 +62,9 @@ export const loansRoutes = {
   // Artifacts related.
   listArtifactsForCreateLoan:
     "/finance/loans/artifacts/list_artifacts_for_create_loan",
+
+  // purchase orders related
+  upsertPurchaseOrdersLoans: "/finance/loans/purchase_orders/upsert",
 };
 
 export const twoFactorRoutes = {

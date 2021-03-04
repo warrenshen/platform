@@ -27,7 +27,7 @@ function BankPurchaseOrdersPage() {
           actionItems={
             check(role, Action.ViewPurchaseOrdersActionMenu) ? [] : []
           }
-        ></PurchaseOrdersDataGrid>
+        />
       </Box>
     </Page>
   );

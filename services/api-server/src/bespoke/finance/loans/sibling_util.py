@@ -33,10 +33,11 @@ def get_loan_sum_on_artifact(
 # Using a SQL aggregation rathen than adding up floats in python gives a more
 # accurate sum here.
 def get_funded_loan_sum_on_artifact(session: Session, artifact_id: str) -> float:
-	return session.query(func.sum(models.Loan.amount)) \
+	result = session.query(func.sum(models.Loan.amount)) \
 		.filter(models.Loan.artifact_id == artifact_id) \
 		.filter(models.Loan.funded_at != None) \
 		.first()[0]
+	return result or 0.0
 
 def get_loan_sum_per_artifact(
 	session: Session, artifact_ids: List[str], excluding_loan_id: Optional[str]) -> Dict[str, float]:

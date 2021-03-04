@@ -17,12 +17,12 @@ from bespoke.email import email_manager, sendgrid_util
 from bespoke.email.email_manager import EmailConfigDict, SendGridConfigDict
 from server.config import get_config, is_development_env
 from server.views import (
-	auth, companies, contracts, files, notify, purchase_orders, 
+	auth, companies, contracts, files, notify, purchase_orders,
 	two_factor, users)
 from server.views.finance.ebba_applications import \
     approvals as ebba_application_approvals
 from server.views.finance.loans import (
-	advances, artifacts, approvals, repayments, reports)
+	advances, artifacts, approvals, repayments, reports, purchase_orders as loans_purchase_orders)
 
 if is_development_env(os.environ.get('FLASK_ENV')):
 	load_dotenv(os.path.join(os.environ.get('SERVER_ROOT_DIR'), '.env'))
@@ -70,6 +70,7 @@ app.register_blueprint(artifacts.handler, url_prefix='/finance/loans/artifacts')
 app.register_blueprint(advances.handler, url_prefix='/finance/loans/advances')
 app.register_blueprint(approvals.handler, url_prefix='/finance/loans/approvals')
 app.register_blueprint(reports.handler, url_prefix='/finance/loans/reports')
+app.register_blueprint(loans_purchase_orders.handler, url_prefix='/finance/loans/purchase_orders')
 
 app.app_config = config
 app.engine = models.create_engine()

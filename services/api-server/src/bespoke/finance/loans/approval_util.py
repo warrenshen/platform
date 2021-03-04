@@ -121,11 +121,11 @@ def submit_for_approval(loan_id: str, session_maker: Callable) -> Tuple[SubmitFo
 			)
 			if not purchase_order:
 				return None, errors.Error('No purchase order associated with this loan', details=err_details)
-			
+
 			customer_name = purchase_order.company.name
 
 			proposed_loans_total_amount = sibling_util.get_loan_sum_on_artifact(
-				session, 
+				session,
 				artifact_id=loan.artifact_id,
 				excluding_loan_id=loan.id
 			)

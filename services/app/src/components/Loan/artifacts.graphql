@@ -1,0 +1,14 @@
+query GetPurchaseOrdersForIds($purchaseOrderIds: [uuid!]) {
+  purchase_orders(
+    where: {
+      _and: [{ id: { _in: $purchaseOrderIds } }, { status: { _eq: approved } }]
+    }
+  ) {
+    id
+    ...PurchaseOrder
+    loans {
+      id
+      ...Loan
+    }
+  }
+}

@@ -45,8 +45,10 @@ class Config(object):
 		if is_development_env(self.FLASK_ENV):
 			self.NO_REPLY_EMAIL_ADDRESS = 'do-not-reply-development@bespokefinancial.com'
 
-		# TODO(dlluncor): Make env variables
-		self.BANK_NOTIFY_EMAIL_ADDRESSES = ['jira+bank@bespokefinancial.com']
+		self.BANK_NOTIFY_EMAIL_ADDRESSES = list(map(
+			lambda s: s.strip(),
+			os.environ.get('BANK_NOTIFY_EMAIL_ADDRESSES', 'jira+bank@bespokefinancial.com').split(',')))
+
 
 		self.SUPPORT_EMAIL_ADDRESS = os.environ.get(
 			'SUPPORT_EMAIL_ADDRESS', 'support@bespokefinancial.com')
