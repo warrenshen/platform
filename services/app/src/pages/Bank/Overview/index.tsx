@@ -7,7 +7,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import BankFinancialSummariesDataGrid from "components/BankFinancialSummaries/BankFinancialSummariesDataGrid";
-import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
+import LoansDataGrid from "components/Loans/LoansDataGrid";
 import Page from "components/Shared/Page";
 import {
   useGetFundedLoansForBankSubscription,
@@ -137,7 +137,8 @@ function BankOverviewPage() {
             </Box>
           </Box>
           <Box style={{ height: "auto", width: "100%" }}>
-            <BankLoansDataGrid
+            <LoansDataGrid
+              isCompanyVisible
               isMaturityVisible
               matureDays={14}
               loans={maturingLoans}
@@ -165,7 +166,8 @@ function BankOverviewPage() {
             </Box>
           </Box>
           <Box style={{ height: "auto", width: "100%" }}>
-            <BankLoansDataGrid
+            <LoansDataGrid
+              isCompanyVisible
               isDaysPastDueVisible
               isMaturityVisible
               loans={pastDueLoans}

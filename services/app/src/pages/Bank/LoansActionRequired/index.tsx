@@ -1,6 +1,6 @@
 import { Box, Button } from "@material-ui/core";
 import CreateAdvanceModal from "components/Advance/CreateAdvanceModal";
-import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
+import LoansDataGrid from "components/Loans/LoansDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
@@ -127,7 +127,8 @@ function LoansActionRequiredPage() {
         </Can>
       </Box>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-        <BankLoansDataGrid
+        <LoansDataGrid
+          isCompanyVisible
           isMaturityVisible={false}
           isFilteringEnabled
           loans={loans}

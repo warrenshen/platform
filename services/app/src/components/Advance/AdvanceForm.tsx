@@ -47,11 +47,7 @@ function PaymentAdvanceForm({
         </Typography>
       </Box>
       <Box mt={3}>
-        <LoansDataGrid
-          isMaturityVisible={false}
-          isStatusVisible={false}
-          loans={selectedLoans}
-        />
+        <LoansDataGrid isSortingDisabled loans={selectedLoans} />
       </Box>
       <Box mt={3}>
         <FormControl className={classes.inputField}>

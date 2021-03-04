@@ -5,7 +5,7 @@ import {
   MenuItem,
   Select,
 } from "@material-ui/core";
-import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
+import LoansDataGrid from "components/Loans/LoansDataGrid";
 import Page from "components/Shared/Page";
 import { useGetFundedLoansForBankSubscription } from "generated/graphql";
 import { useMemo, useState } from "react";
@@ -62,7 +62,8 @@ function BankLoansMaturingPage() {
         </FormControl>
       </Box>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-        <BankLoansDataGrid
+        <LoansDataGrid
+          isCompanyVisible
           isFilteringEnabled
           isMaturityVisible
           loans={maturingLoans}

@@ -1,5 +1,5 @@
 import { Box } from "@material-ui/core";
-import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
+import LoansDataGrid from "components/Loans/LoansDataGrid";
 import Page from "components/Shared/Page";
 import { useGetFundedLoansForBankSubscription } from "generated/graphql";
 import { useMemo } from "react";
@@ -25,7 +25,8 @@ function LoansPastDuePage() {
   return (
     <Page appBarTitle={"Loans Past Due"}>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-        <BankLoansDataGrid
+        <LoansDataGrid
+          isCompanyVisible
           isDaysPastDueVisible
           isFilteringEnabled
           isMaturityVisible

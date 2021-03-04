@@ -1,5 +1,5 @@
 import { Box } from "@material-ui/core";
-import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
+import LoansDataGrid from "components/Loans/LoansDataGrid";
 import Page from "components/Shared/Page";
 import { useGetLoansForBankSubscription } from "generated/graphql";
 
@@ -15,7 +15,12 @@ function LoansAllProductsPage() {
   return (
     <Page appBarTitle={"Loans All Products"}>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-        <BankLoansDataGrid isFilteringEnabled isMaturityVisible loans={loans} />
+        <LoansDataGrid
+          isCompanyVisible
+          isFilteringEnabled
+          isMaturityVisible
+          loans={loans}
+        />
       </Box>
     </Page>
   );

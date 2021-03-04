@@ -15,13 +15,13 @@ import {
   LoanTypeEnum,
   PaymentsInsertInput,
   ProductTypeEnum,
-  useGetOutstandingLoansForCustomerQuery,
+  useGetFundedLoansForCompanyQuery,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -55,7 +55,8 @@ function SettleRepaymentSelectLoans({
   const productType = customer.contract?.product_type;
 
   // Only loans maturing in 14 days or past due are the ones that may want to be shuffled in.
-  const { data } = useGetOutstandingLoansForCustomerQuery({
+  const { data } = useGetFundedLoansForCompanyQuery({
+    fetchPolicy: "network-only",
     variables: {
       companyId: customer.id,
       loanType:
@@ -64,7 +65,20 @@ function SettleRepaymentSelectLoans({
           : LoanTypeEnum.PurchaseOrder,
     },
   });
-  const outstandingLoans = data?.loans || [];
+  const maturingOrPastDueLoans = useMemo(
+    () =>
+      (data?.loans || []).filter((loan) => {
+        const pastDueThreshold = new Date(Date.now());
+        const matureThreshold = new Date(
+          new Date(Date.now()).getTime() + 7 * 24 * 60 * 60 * 1000
+        );
+        const maturityDate = new Date(loan.maturity_date);
+        return (
+          matureThreshold > maturityDate || pastDueThreshold > maturityDate
+        );
+      }),
+    [data?.loans]
+  );
 
   return payment && customer ? (
     <Box>
@@ -137,8 +151,9 @@ function SettleRepaymentSelectLoans({
       <Box mt={2}>
         <Typography>Selected loans this payment will apply towards:</Typography>
         <LoansDataGrid
+          isDaysPastDueVisible
+          isMaturityVisible
           isSortingDisabled
-          isStatusVisible={false}
           loans={selectedLoans}
           actionItems={
             check(role, Action.DeselectLoan)
@@ -159,10 +174,15 @@ function SettleRepaymentSelectLoans({
         />
       </Box>
       <Box mt={2}>
-        <Typography>Loans not included in the above selection:</Typography>
+        <Typography>
+          Loans not selected, but past due or maturing in 7 days:
+        </Typography>
         <LoansDataGrid
+          isDaysPastDueVisible
+          isMaturityVisible
           isSortingDisabled
-          loans={outstandingLoans.filter(
+          pageSize={5}
+          loans={maturingOrPastDueLoans.filter(
             (loan) => !selectedLoanIds.includes(loan.id)
           )}
           actionItems={

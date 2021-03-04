@@ -57,8 +57,9 @@ function CreateRepaymentSelectLoans({
         </Typography>
       </Box>
       <LoansDataGrid
+        isDaysPastDueVisible
+        isMaturityVisible
         isSortingDisabled
-        isStatusVisible={false}
         loans={selectedLoans}
       />
       <Box mt={3}>
