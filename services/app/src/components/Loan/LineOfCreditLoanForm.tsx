@@ -14,10 +14,9 @@ import {
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import DatePicker from "components/Shared/Dates/DatePicker";
 import {
-  CompanyVendorPartnerships,
+  ApprovedVendorsByPartnerCompanyIdQuery,
   LineOfCreditsInsertInput,
   LoansInsertInput,
-  Vendors,
 } from "generated/graphql";
 import { ChangeEvent } from "react";
 
@@ -29,17 +28,10 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-type VendorsByPartnerCompanyType = Pick<Vendors, "id"> & {
-  company_vendor_partnerships: Pick<
-    CompanyVendorPartnerships,
-    "id" | "approved_at"
-  >[];
-} & Pick<Vendors, "id" | "name">;
-
 interface Props {
   lineOfCredit: LineOfCreditsInsertInput;
   loan: LoansInsertInput;
-  selectableVendors: VendorsByPartnerCompanyType[];
+  selectableVendors: ApprovedVendorsByPartnerCompanyIdQuery["vendors"];
   setLineOfCredit: (lineOfCredit: LineOfCreditsInsertInput) => void;
   setLoan: (loan: LoansInsertInput) => void;
 }
