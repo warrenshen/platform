@@ -57,73 +57,101 @@ function EbbaApplicationForm({
 
   return (
     <Box display="flex" flexDirection="column">
-      <Box display="flex" flexDirection="row" mt={2}>
-        <DatePicker
-          className={classes.inputField}
-          id="application-month-date-picker"
-          label="Application Date"
-          disablePast={false}
-          value={ebbaApplication.application_month}
-          onChange={(value) =>
-            setEbbaApplication({
-              ...ebbaApplication,
-              application_month: value,
-            })
-          }
-        />
-      </Box>
-      <Box display="flex" flexDirection="row" mt={2}>
-        <FormControl className={classes.inputField}>
-          <CurrencyTextField
-            label="Accounts Receivable This Month ($)"
-            currencySymbol="$"
-            outputFormat="string"
-            textAlign="left"
-            value={ebbaApplication.monthly_accounts_receivable}
-            onChange={(_event: any, value: string) => {
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2">
+          What date would you like to submit a certification for?
+        </Typography>
+        <Box mt={1}>
+          <DatePicker
+            disableFuture
+            required
+            className={classes.inputField}
+            id="application-month-date-picker"
+            label="Certification Date"
+            disablePast={false}
+            value={ebbaApplication.application_month}
+            onChange={(value) =>
               setEbbaApplication({
                 ...ebbaApplication,
-                monthly_accounts_receivable: value,
-              });
-            }}
+                application_month: value,
+              })
+            }
           />
-        </FormControl>
-      </Box>
-      <Box display="flex" flexDirection="row" mt={2}>
-        <FormControl className={classes.inputField}>
-          <CurrencyTextField
-            label="Inventory This Month ($)"
-            currencySymbol="$"
-            outputFormat="string"
-            textAlign="left"
-            value={ebbaApplication.monthly_inventory}
-            onChange={(_event: any, value: string) => {
-              setEbbaApplication({
-                ...ebbaApplication,
-                monthly_inventory: value,
-              });
-            }}
-          />
-        </FormControl>
-      </Box>
-      <Box display="flex" flexDirection="row" mt={2}>
-        <FormControl className={classes.inputField}>
-          <CurrencyTextField
-            label="Cash This Month ($)"
-            currencySymbol="$"
-            outputFormat="string"
-            textAlign="left"
-            value={ebbaApplication.monthly_cash}
-            onChange={(_event: any, value: string) => {
-              setEbbaApplication({
-                ...ebbaApplication,
-                monthly_cash: value,
-              });
-            }}
-          />
-        </FormControl>
+        </Box>
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2">
+          For the month of the date you specified above, how much accounts
+          receivable do you have?
+        </Typography>
+        <Box mt={1}>
+          <FormControl className={classes.inputField}>
+            <CurrencyTextField
+              required
+              label="Accounts Receivable ($)"
+              currencySymbol="$"
+              outputFormat="string"
+              textAlign="left"
+              value={ebbaApplication.monthly_accounts_receivable}
+              onChange={(_event: any, value: string) => {
+                setEbbaApplication({
+                  ...ebbaApplication,
+                  monthly_accounts_receivable: value,
+                });
+              }}
+            />
+          </FormControl>
+        </Box>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2">
+          For the month of the date you specified above, how much inventory do
+          you have?
+        </Typography>
+        <Box mt={1}>
+          <FormControl className={classes.inputField}>
+            <CurrencyTextField
+              required
+              label="Inventory ($)"
+              currencySymbol="$"
+              outputFormat="string"
+              textAlign="left"
+              value={ebbaApplication.monthly_inventory}
+              onChange={(_event: any, value: string) => {
+                setEbbaApplication({
+                  ...ebbaApplication,
+                  monthly_inventory: value,
+                });
+              }}
+            />
+          </FormControl>
+        </Box>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2">
+          As of the date you specified above, how much cash do you have in your
+          bank account(s)?
+        </Typography>
+        <Box mt={1}>
+          <FormControl className={classes.inputField}>
+            <CurrencyTextField
+              required
+              label="Cash ($)"
+              currencySymbol="$"
+              outputFormat="string"
+              textAlign="left"
+              value={ebbaApplication.monthly_cash}
+              onChange={(_event: any, value: string) => {
+                setEbbaApplication({
+                  ...ebbaApplication,
+                  monthly_cash: value,
+                });
+              }}
+            />
+          </FormControl>
+        </Box>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={3}>
         <Typography variant="body1">{`Calculated Borrowing Base: ${
           calculatedBorrowingBase
             ? formatCurrency(calculatedBorrowingBase)

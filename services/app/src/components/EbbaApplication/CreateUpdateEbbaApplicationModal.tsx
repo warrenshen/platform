@@ -108,7 +108,7 @@ function CreateUpdateEbbaApplicationModal({
 
   // Default EbbaApplication for CREATE case.
   const newEbbaApplication = {
-    application_month: "2021-02-01",
+    application_month: null,
     monthly_accounts_receivable: "",
     monthly_inventory: "",
     monthly_cash: "",

@@ -86,7 +86,6 @@ function LoansActiveApproved({ data }: Props) {
                 modal={({ handleClose }) => (
                   <CreateRepaymentModal
                     companyId={companyId}
-                    productType={productType}
                     selectedLoans={selectedLoans}
                     handleClose={() => {
                       handleClose();

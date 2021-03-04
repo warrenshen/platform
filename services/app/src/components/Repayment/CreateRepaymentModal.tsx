@@ -14,7 +14,6 @@ import {
   Companies,
   LoanFragment,
   PaymentsInsertInput,
-  ProductTypeEnum,
   useCompanyWithDetailsByCompanyIdQuery,
 } from "generated/graphql";
 import { PaymentMethodEnum } from "lib/enum";
@@ -33,14 +32,12 @@ import { useState } from "react";
 
 interface Props {
   companyId: Companies["id"];
-  productType: ProductTypeEnum | null;
   selectedLoans: LoanFragment[];
   handleClose: () => void;
 }
 
-function RepaymentModal({
+function CreateRepaymentModal({
   companyId,
-  productType,
   selectedLoans,
   handleClose,
 }: Props) {
@@ -79,8 +76,6 @@ function RepaymentModal({
     payment.payment_date,
     settlementTimelineConfig
   );
-
-  console.log(settlementDate);
 
   // A payment option is the user's choice to payment the remaining balances on the loan, to
   // pay the minimum amount required, or to pay a custom amount.
@@ -245,4 +240,4 @@ function RepaymentModal({
   );
 }
 
-export default RepaymentModal;
+export default CreateRepaymentModal;

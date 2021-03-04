@@ -13,11 +13,11 @@ interface Props {
   label: string;
   value: string | null;
   error?: boolean;
-  disableFuture?: boolean;
-  disablePast?: boolean;
   disabled?: boolean;
-  required?: boolean;
+  disableFuture?: boolean;
   disableNonBankDays?: boolean; // disable days where the bank is not open
+  disablePast?: boolean;
+  required?: boolean;
   onChange?: (value: string | null) => void;
 }
 
