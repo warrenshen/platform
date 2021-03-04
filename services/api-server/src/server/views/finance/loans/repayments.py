@@ -1,21 +1,17 @@
 import datetime
-import logging
 import json
-
-from mypy_extensions import TypedDict
-from flask import request, make_response, current_app
-from flask import Response, Blueprint
-from flask.views import MethodView
-from typing import cast, Any, Dict
+import logging
+from typing import Any, Dict, cast
 
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
-from bespoke.finance.payments import repayment_util
-from bespoke.finance.payments import payment_util
-from bespoke.finance.types import per_customer_types
 from bespoke.finance.fetchers import per_customer_fetcher
-from server.views.common import handler_util
-from server.views.common import auth_util
+from bespoke.finance.payments import payment_util, repayment_util
+from bespoke.finance.types import per_customer_types
+from flask import Blueprint, Response, current_app, make_response, request
+from flask.views import MethodView
+from mypy_extensions import TypedDict
+from server.views.common import auth_util, handler_util
 
 handler = Blueprint('finance_loans_repayments', __name__)
 
@@ -115,6 +111,9 @@ class SettlePaymentView(MethodView):
 			user_session.get_user_id(),
 			current_app.session_maker
 		)
+
+		if err:
+			return handler_util.make_error_response(err)
 
 		return make_response(json.dumps({
 			'status': 'OK'
