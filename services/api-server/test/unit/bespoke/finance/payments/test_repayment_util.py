@@ -1167,6 +1167,61 @@ class TestSettlePayment(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
+	def test_failure_transactions_overpay_on_interest_and_fees_get_stored_on_principal(self) -> None:
+
+		test: Dict = {
+			'payment': {
+				'amount': (40.4 + 40.03 + 25.01) + (50.00 + 25.02 + 11.03),
+				'payment_method': 'ach',
+				'payment_date': '10/10/2020',
+				'settlement_date': '10/12/2020'
+			},
+			'loans': [
+				{
+					'amount': 50.0,
+					'outstanding_principal_balance': 40.4,
+					'outstanding_interest': 30.03,
+					'outstanding_fees': 20.01
+				},
+				{
+					'amount': 40.0,
+					'outstanding_principal_balance': 30.01,
+					'outstanding_interest': 20.02,
+					'outstanding_fees': 10.03
+				}
+			],
+			'transaction_inputs': [
+				{
+					'amount': 40.4 + 40.03 + 25.01,
+					'to_principal': 40.4,
+					'to_interest': 40.03, # $10 overpayment on interest
+					'to_fees': 25.01 # $5 overpayment on fees
+				},
+				{
+					'amount': 50.00 + 25.02 + 11.03,
+					'to_principal': 50.0, # $10 overpayment on principal
+					'to_interest': 25.02, # $5 overpayment on interest
+					'to_fees': 11.03 # $1 overpayment on fees
+				}
+			],
+			'loans_after_payment': [
+				{
+					'amount': 50.0,
+					'outstanding_principal_balance': -15, # from $15 overpayment
+					'outstanding_interest': 0,
+					'outstanding_fees': 0
+				},
+				{
+					'amount': 40.0,
+					'outstanding_principal_balance': -16,
+					'outstanding_interest': 0,
+					'outstanding_fees': 0
+				}
+			],
+			'in_err_msg': 'Interest on a loan may not be negative'
+		}
+		self._run_test(test)
+
 	def test_failure_unequal_loans(self) -> None:
 		seed = test_helper.BasicSeed.create(self.session_maker, self)
 		seed.initialize()

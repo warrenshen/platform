@@ -518,6 +518,16 @@ def settle_payment(
 			cur_loan.outstanding_interest = cur_loan.outstanding_interest - to_interest
 			cur_loan.outstanding_fees = cur_loan.outstanding_fees - to_fees
 
+			if cur_loan.outstanding_interest < 0:
+				return None, errors.Error(
+					'Interest on a loan may not be negative. You must reduce the amount applied to interest on {} by {} and apply it to the principal'.format(
+						cur_loan_id, -1 * cur_loan.outstanding_interest))
+
+			if cur_loan.outstanding_fees < 0:
+				return None, errors.Error(
+					'Fees on a loan may not be negative. You must reduce the amount applied to interest on {} by {} and apply it to the principal'.format(
+						cur_loan_id, -1 * cur_loan.outstanding_fees))
+
 			no_outstanding_balance = cur_loan.outstanding_principal_balance <= 0.0 \
 				and cur_loan.outstanding_interest <= 0.0 \
 				and cur_loan.outstanding_fees <= 0.0
