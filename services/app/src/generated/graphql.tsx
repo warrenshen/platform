@@ -2975,7 +2975,7 @@ export enum EbbaApplicationFilesUpdateColumn {
  * columns and relationships of "ebba_applications"
  */
 export type EbbaApplications = {
-  application_month: Scalars["date"];
+  application_date: Scalars["date"];
   approved_at?: Maybe<Scalars["timestamptz"]>;
   calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
   /** An object relationship */
@@ -3094,7 +3094,7 @@ export type EbbaApplicationsBoolExp = {
   _and?: Maybe<Array<Maybe<EbbaApplicationsBoolExp>>>;
   _not?: Maybe<EbbaApplicationsBoolExp>;
   _or?: Maybe<Array<Maybe<EbbaApplicationsBoolExp>>>;
-  application_month?: Maybe<DateComparisonExp>;
+  application_date?: Maybe<DateComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
   calculated_borrowing_base?: Maybe<NumericComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
@@ -3128,7 +3128,7 @@ export type EbbaApplicationsIncInput = {
 
 /** input type for inserting data into table "ebba_applications" */
 export type EbbaApplicationsInsertInput = {
-  application_month?: Maybe<Scalars["date"]>;
+  application_date?: Maybe<Scalars["date"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
@@ -3148,7 +3148,7 @@ export type EbbaApplicationsInsertInput = {
 
 /** aggregate max on columns */
 export type EbbaApplicationsMaxFields = {
-  application_month?: Maybe<Scalars["date"]>;
+  application_date?: Maybe<Scalars["date"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
   company_id?: Maybe<Scalars["uuid"]>;
@@ -3165,7 +3165,7 @@ export type EbbaApplicationsMaxFields = {
 
 /** order by max() on columns of table "ebba_applications" */
 export type EbbaApplicationsMaxOrderBy = {
-  application_month?: Maybe<OrderBy>;
+  application_date?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   calculated_borrowing_base?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
@@ -3182,7 +3182,7 @@ export type EbbaApplicationsMaxOrderBy = {
 
 /** aggregate min on columns */
 export type EbbaApplicationsMinFields = {
-  application_month?: Maybe<Scalars["date"]>;
+  application_date?: Maybe<Scalars["date"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
   company_id?: Maybe<Scalars["uuid"]>;
@@ -3199,7 +3199,7 @@ export type EbbaApplicationsMinFields = {
 
 /** order by min() on columns of table "ebba_applications" */
 export type EbbaApplicationsMinOrderBy = {
-  application_month?: Maybe<OrderBy>;
+  application_date?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   calculated_borrowing_base?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
@@ -3237,7 +3237,7 @@ export type EbbaApplicationsOnConflict = {
 
 /** ordering options when selecting data from "ebba_applications" */
 export type EbbaApplicationsOrderBy = {
-  application_month?: Maybe<OrderBy>;
+  application_date?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   calculated_borrowing_base?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
@@ -3263,7 +3263,7 @@ export type EbbaApplicationsPkColumnsInput = {
 /** select columns of table "ebba_applications" */
 export enum EbbaApplicationsSelectColumn {
   /** column name */
-  ApplicationMonth = "application_month",
+  ApplicationDate = "application_date",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -3294,7 +3294,7 @@ export enum EbbaApplicationsSelectColumn {
 
 /** input type for updating data in table "ebba_applications" */
 export type EbbaApplicationsSetInput = {
-  application_month?: Maybe<Scalars["date"]>;
+  application_date?: Maybe<Scalars["date"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
   company_id?: Maybe<Scalars["uuid"]>;
@@ -3377,7 +3377,7 @@ export type EbbaApplicationsSumOrderBy = {
 /** update columns of table "ebba_applications" */
 export enum EbbaApplicationsUpdateColumn {
   /** column name */
-  ApplicationMonth = "application_month",
+  ApplicationDate = "application_date",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -12485,7 +12485,7 @@ export type EbbaApplicationFragment = Pick<
   EbbaApplications,
   | "id"
   | "company_id"
-  | "application_month"
+  | "application_date"
   | "monthly_accounts_receivable"
   | "monthly_inventory"
   | "monthly_cash"
@@ -13051,7 +13051,7 @@ export const EbbaApplicationFragmentDoc = gql`
   fragment EbbaApplication on ebba_applications {
     id
     company_id
-    application_month
+    application_date
     monthly_accounts_receivable
     monthly_inventory
     monthly_cash
@@ -13643,7 +13643,7 @@ export type UpdateEbbaApplicationMutationOptions = Apollo.BaseMutationOptions<
 export const EbbaApplicationsDocument = gql`
   query EbbaApplications {
     ebba_applications(
-      order_by: [{ application_month: desc }, { created_at: desc }]
+      order_by: [{ application_date: desc }, { created_at: desc }]
     ) {
       id
       ...EbbaApplication
@@ -16495,7 +16495,7 @@ export const GetCompanyForCustomerBorrowingBaseDocument = gql`
     companies_by_pk(id: $companyId) {
       id
       ebba_applications(
-        order_by: [{ application_month: desc }, { created_at: desc }]
+        order_by: [{ application_date: desc }, { created_at: desc }]
       ) {
         id
         ...EbbaApplication

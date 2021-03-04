@@ -92,7 +92,7 @@ query GetCompanyForCustomerBorrowingBase($companyId: uuid!) {
   companies_by_pk(id: $companyId) {
     id
     ebba_applications(
-      order_by: [{ application_month: desc }, { created_at: desc }]
+      order_by: [{ application_date: desc }, { created_at: desc }]
     ) {
       id
       ...EbbaApplication

@@ -457,7 +457,7 @@ class File(Base):
 EbbaApplicationDict = TypedDict('EbbaApplicationDict', {
 	'id': str,
 	'company_id': str,
-	'application_month': datetime.date,
+	'application_date': datetime.date,
 	'monthly_accounts_receivable': float,
 	'monthly_inventory': float,
 	'monthly_cash': float,
@@ -473,7 +473,7 @@ class EbbaApplication(Base):
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id'), nullable=False))
-	application_month = Column(Date)
+	application_date = Column(Date)
 	monthly_accounts_receivable = Column(Numeric)
 	monthly_inventory = Column(Numeric)
 	monthly_cash = Column(Numeric)
@@ -493,7 +493,7 @@ class EbbaApplication(Base):
 		return EbbaApplicationDict(
 			id=str(self.id),
 			company_id=str(self.id),
-			application_month=self.application_month,
+			application_date=self.application_date,
 			monthly_accounts_receivable=float(self.monthly_accounts_receivable),
 			monthly_inventory=float(self.monthly_inventory),
 			monthly_cash=float(self.monthly_cash),

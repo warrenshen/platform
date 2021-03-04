@@ -48,7 +48,7 @@ function EbbaApplicationCard({ ebbaApplication }: Props) {
         <Box display="flex" mb={0.5}>
           <Typography className={classes.label}>Application Date</Typography>
           <Typography>
-            {formatDateString(ebbaApplication.application_month)}
+            {formatDateString(ebbaApplication.application_date)}
           </Typography>
         </Box>
         <Box display="flex" mb={2.5}>

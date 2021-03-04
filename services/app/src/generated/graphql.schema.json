@@ -20444,7 +20444,7 @@
         "description": "EBBA stands for Eligible Borrowing Base Amount: this is a table of applications to borrow via a line of credit with information required to determine a Borrowing Base\n\n\ncolumns and relationships of \"ebba_applications\"",
         "fields": [
           {
-            "name": "application_month",
+            "name": "application_date",
             "description": null,
             "args": [],
             "type": {
@@ -21381,7 +21381,7 @@
             "defaultValue": null
           },
           {
-            "name": "application_month",
+            "name": "application_date",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
@@ -21620,7 +21620,7 @@
         "fields": null,
         "inputFields": [
           {
-            "name": "application_month",
+            "name": "application_date",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -21790,7 +21790,7 @@
         "description": "aggregate max on columns",
         "fields": [
           {
-            "name": "application_month",
+            "name": "application_date",
             "description": null,
             "args": [],
             "type": {
@@ -21958,7 +21958,7 @@
         "fields": null,
         "inputFields": [
           {
-            "name": "application_month",
+            "name": "application_date",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -22098,7 +22098,7 @@
         "description": "aggregate min on columns",
         "fields": [
           {
-            "name": "application_month",
+            "name": "application_date",
             "description": null,
             "args": [],
             "type": {
@@ -22266,7 +22266,7 @@
         "fields": null,
         "inputFields": [
           {
-            "name": "application_month",
+            "name": "application_date",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -22550,7 +22550,7 @@
         "fields": null,
         "inputFields": [
           {
-            "name": "application_month",
+            "name": "application_date",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -22748,7 +22748,7 @@
         "interfaces": null,
         "enumValues": [
           {
-            "name": "application_month",
+            "name": "application_date",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -22841,7 +22841,7 @@
         "fields": null,
         "inputFields": [
           {
-            "name": "application_month",
+            "name": "application_date",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -23434,7 +23434,7 @@
         "interfaces": null,
         "enumValues": [
           {
-            "name": "application_month",
+            "name": "application_date",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

@@ -69,11 +69,11 @@ function EbbaApplicationForm({
             id="application-month-date-picker"
             label="Certification Date"
             disablePast={false}
-            value={ebbaApplication.application_month}
+            value={ebbaApplication.application_date}
             onChange={(value) =>
               setEbbaApplication({
                 ...ebbaApplication,
-                application_month: value,
+                application_date: value,
               })
             }
           />

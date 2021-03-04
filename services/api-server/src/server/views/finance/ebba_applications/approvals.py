@@ -82,7 +82,7 @@ class RespondToEbbaApplicationApprovalRequest(MethodView):
 				action_type = 'Rejected'
 
 			ebba_application_dicts = [{
-				'application_month': ebba_application.application_month,
+				'application_date': ebba_application.application_date,
 				'requested_at_date': date_util.human_readable_yearmonthday(ebba_application.requested_at)
 			}]
 
@@ -149,7 +149,7 @@ class SubmitEbbaApplicationForApproval(MethodView):
 			if not ebba_application:
 				return handler_util.make_error_response('Could not find EBBA application with given ID')
 
-			if not ebba_application.application_month:
+			if not ebba_application.application_date:
 				return handler_util.make_error_response('Application month is required')
 
 			if not ebba_application.monthly_accounts_receivable:

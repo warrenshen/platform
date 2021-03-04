@@ -133,7 +133,7 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
               Application Date
             </Typography>
             <Typography variant={"body1"}>
-              {ebbaApplication.application_month}
+              {ebbaApplication.application_date}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>

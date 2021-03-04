@@ -108,7 +108,7 @@ function CreateUpdateEbbaApplicationModal({
 
   // Default EbbaApplication for CREATE case.
   const newEbbaApplication = {
-    application_month: null,
+    application_date: null,
     monthly_accounts_receivable: "",
     monthly_inventory: "",
     monthly_cash: "",
@@ -180,7 +180,7 @@ function CreateUpdateEbbaApplicationModal({
         variables: {
           id: ebbaApplication.id,
           ebbaApplication: {
-            application_month: ebbaApplication.application_month,
+            application_date: ebbaApplication.application_date,
             monthly_accounts_receivable:
               ebbaApplication.monthly_accounts_receivable,
             monthly_inventory: ebbaApplication.monthly_inventory,
@@ -195,7 +195,7 @@ function CreateUpdateEbbaApplicationModal({
       const response = await addEbbaApplication({
         variables: {
           ebbaApplication: {
-            application_month: ebbaApplication.application_month,
+            application_date: ebbaApplication.application_date,
             monthly_accounts_receivable:
               ebbaApplication.monthly_accounts_receivable,
             monthly_inventory: ebbaApplication.monthly_inventory,

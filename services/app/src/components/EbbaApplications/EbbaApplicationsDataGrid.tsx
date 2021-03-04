@@ -54,7 +54,7 @@ function EbbaApplicationsDataGrid({
         caption: "Company",
       },
       {
-        dataField: "application_month",
+        dataField: "application_date",
         caption: "Application Date",
         width: ColumnWidths.Date,
         alignment: "right",
