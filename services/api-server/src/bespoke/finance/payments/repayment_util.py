@@ -431,8 +431,6 @@ def settle_payment(
 		'req': req
 	}
 
-	transaction_ids = []
-
 	with session_scope(session_maker) as session:
 
 		loans = cast(
@@ -525,8 +523,6 @@ def settle_payment(
 						cur_loan_id, -1 * new_outstanding_fees))
 
 			session.add(t)
-			session.flush()
-			transaction_ids.append(str(t.id))
 
 			cur_loan.outstanding_principal_balance = new_outstanding_principal_balance
 			cur_loan.outstanding_interest = new_outstanding_interest
@@ -548,5 +544,14 @@ def settle_payment(
 			payment_date=payment_date,
 			settlement_date=payment_settlement_date
 		)
+
+		session.flush()
+
+	transactions = cast(
+		List[models.Transaction],
+		session.query(models.Transaction).filter(
+			models.Transaction.payment_id == req['payment_id']
+		).all())
+	transaction_ids = list(map(lambda transaction: transaction.id, transactions))
 
 	return transaction_ids, None

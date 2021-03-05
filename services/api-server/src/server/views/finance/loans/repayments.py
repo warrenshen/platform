@@ -106,7 +106,7 @@ class SettlePaymentView(MethodView):
 
 		user_session = auth_util.UserSession.from_session()
 
-		payment_id, err = repayment_util.settle_payment(
+		transaction_ids, err = repayment_util.settle_payment(
 			cast(repayment_util.SettlePaymentReqDict, form),
 			user_session.get_user_id(),
 			current_app.session_maker
