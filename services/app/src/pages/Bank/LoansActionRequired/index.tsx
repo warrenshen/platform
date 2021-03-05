@@ -43,7 +43,14 @@ function LoansActionRequiredPage() {
   const handleApproveLoans = async () => {
     const response = await approveLoans(selectedLoanIds);
     if (response.status !== "OK") {
-      alert("Could not approve loans!");
+      snackbar.showError("Error! Could not approve loans.");
+    } else {
+      // TODO (warrenshen):
+      // Instead of clearing the selection,
+      // can we update the content of the selected loans?
+      setSelectedLoanIds([]);
+      setSelectedLoans([]);
+      snackbar.showSuccess("Success! Loan(s) approved.");
     }
   };
 
@@ -58,7 +65,14 @@ function LoansActionRequiredPage() {
       rejection_note: "Default rejection reason",
     });
     if (response.status !== "OK") {
-      alert("Could not reject loan. Reason: " + response.msg);
+      snackbar.showError("Could not reject loan. Reason: " + response.msg);
+    } else {
+      // TODO (warrenshen):
+      // Instead of clearing the selection,
+      // can we update the content of the selected loans?
+      setSelectedLoanIds([]);
+      setSelectedLoans([]);
+      snackbar.showSuccess("Success! Loan rejected.");
     }
   };
 

@@ -1,5 +1,6 @@
 import { Box } from "@material-ui/core";
 import Chip from "components/Shared/Chip";
+import { LoanStatusEnum } from "generated/graphql";
 import { PaymentStatusEnum, PaymentStatusToLabel } from "lib/enum";
 
 interface Props {
@@ -7,6 +8,7 @@ interface Props {
 }
 
 const StatusToColor = {
+  [LoanStatusEnum.Funded]: "#3498db", // Blue,
   [PaymentStatusEnum.PARTIALLY_PAID]: "#e67e22", // Orange
   [PaymentStatusEnum.PENDING]: "#f1c40f", // Yellow
   [PaymentStatusEnum.SCHEDULED]: "#f1c40f", // Yellow
@@ -16,13 +18,31 @@ const StatusToColor = {
 function PaymentStatusChip({ paymentStatus }: Props) {
   return (
     <Box>
-      {paymentStatus && (
-        <Chip
-          color={"white"}
-          background={StatusToColor[paymentStatus]}
-          label={PaymentStatusToLabel[paymentStatus]}
-        />
-      )}
+      <Chip
+        color={"white"}
+        background={
+          StatusToColor[
+            [
+              PaymentStatusEnum.PARTIALLY_PAID,
+              PaymentStatusEnum.PENDING,
+              PaymentStatusEnum.SCHEDULED,
+              PaymentStatusEnum.CLOSED,
+            ].includes(paymentStatus)
+              ? paymentStatus
+              : LoanStatusEnum.Funded
+          ]
+        }
+        label={
+          [
+            PaymentStatusEnum.PARTIALLY_PAID,
+            PaymentStatusEnum.PENDING,
+            PaymentStatusEnum.SCHEDULED,
+            PaymentStatusEnum.CLOSED,
+          ].includes(paymentStatus)
+            ? PaymentStatusToLabel[paymentStatus]
+            : "No Payment"
+        }
+      />
     </Box>
   );
 }

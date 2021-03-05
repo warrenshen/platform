@@ -24,7 +24,7 @@ function LoanStatusChip({ loanStatus }: Props) {
         color={"white"}
         background={StatusToColor[loanStatus]}
         label={LoanStatusToLabel[loanStatus]}
-      ></Chip>
+      />
     </Box>
   );
 }

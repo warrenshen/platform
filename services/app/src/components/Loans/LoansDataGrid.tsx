@@ -161,6 +161,17 @@ function LoansDataGrid({
       },
       {
         visible: isCompanyVisible,
+        caption: "Loan Type",
+        width: ColumnWidths.Type,
+        alignment: "center",
+        cellRender: (params: ValueFormatterParams) => (
+          <Box>
+            {LoanTypeToLabel[params.row.data.loan_type as LoanTypeEnum]}
+          </Box>
+        ),
+      },
+      {
+        visible: isCompanyVisible,
         dataField: "company.name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
@@ -172,17 +183,6 @@ function LoansDataGrid({
               </Box>
             </Link>
             <Box>{params.row.data.company.name as string}</Box>
-          </Box>
-        ),
-      },
-      {
-        visible: isCompanyVisible,
-        caption: "Loan Type",
-        width: ColumnWidths.Type,
-        alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
-          <Box>
-            {LoanTypeToLabel[params.row.data.loan_type as LoanTypeEnum]}
           </Box>
         ),
       },

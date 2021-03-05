@@ -67,7 +67,7 @@ function CreateRepaymentModal({
     company_id: companyId,
     type: PaymentTransferType.ToBank,
     amount: 0.0,
-    method: PaymentMethodEnum.None,
+    method: "",
     payment_date: null,
   });
 
@@ -75,7 +75,7 @@ function CreateRepaymentModal({
     contract
   );
   const settlementDate = computeSettlementDateForPayment(
-    payment.method,
+    payment.method || null,
     payment.payment_date,
     settlementTimelineConfig
   );
@@ -84,8 +84,7 @@ function CreateRepaymentModal({
   // pay the minimum amount required, or to pay a custom amount.
   const [paymentOption, setPaymentOption] = useState("");
 
-  const isPaymentMethodSet =
-    payment.method && payment.method !== PaymentMethodEnum.None;
+  const isPaymentMethodSet = !!payment.method;
 
   const isNextButtonEnabled =
     payment.payment_date && isPaymentMethodSet && paymentOption !== "";

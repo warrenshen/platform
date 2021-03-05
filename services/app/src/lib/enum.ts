@@ -66,7 +66,6 @@ export enum PaymentMethodEnum {
   Wire = "wire",
   Check = "check",
   Cash = "cash",
-  None = "none",
 }
 
 export const PaymentMethodToLabel = {
@@ -75,13 +74,11 @@ export const PaymentMethodToLabel = {
   [PaymentMethodEnum.Wire]: "Wire",
   [PaymentMethodEnum.Check]: "Check",
   [PaymentMethodEnum.Cash]: "Cash",
-  [PaymentMethodEnum.None]: "None",
 };
 
-// List of all supported product types, note that we do NOT include "None".
 export const AllPaymentMethods = [
-  PaymentMethodEnum.ACH,
   PaymentMethodEnum.ReverseDraftACH,
+  PaymentMethodEnum.ACH,
   PaymentMethodEnum.Wire,
   PaymentMethodEnum.Cash,
   PaymentMethodEnum.Check,
@@ -126,7 +123,6 @@ export const ProductTypeToLabel = {
 };
 
 // List of all supported product types, note that we do NOT include "None".
-
 export const AllProductTypes = [
   ProductTypeEnum.InventoryFinancing,
   ProductTypeEnum.LineOfCredit,

@@ -82,6 +82,7 @@ query GetActiveLoansForCompany($companyId: uuid!, $loanType: loan_type_enum!) {
           { rejected_at: { _is_null: true } }
         ]
       }
+      order_by: { adjusted_maturity_date: asc }
     ) {
       id
       ...LoanLimited
@@ -108,6 +109,7 @@ query GetFundedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum!) {
         { closed_at: { _is_null: true } }
       ]
     }
+    order_by: { adjusted_maturity_date: asc }
   ) {
     id
     ...LoanLimited
@@ -136,6 +138,7 @@ query GetClosedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum!) {
           { loan_type: { _eq: $loanType } }
         ]
       }
+      order_by: { adjusted_maturity_date: asc }
     ) {
       id
       ...LoanLimited
@@ -151,31 +154,6 @@ query GetClosedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum!) {
   }
 }
 
-query GetOutstandingLoansForCustomer(
-  $companyId: uuid!
-  $loanType: loan_type_enum!
-) {
-  loans(
-    where: {
-      _and: [
-        { company_id: { _eq: $companyId } }
-        { loan_type: { _eq: $loanType } }
-        { funded_at: { _is_null: false } }
-      ]
-    }
-  ) {
-    ...LoanLimited
-    line_of_credit {
-      id
-      ...LineOfCredit
-    }
-    purchase_order {
-      id
-      order_number
-    }
-  }
-}
-
 query LoansByCompanyAndLoanTypeForBank(
   $companyId: uuid!
   $loanType: loan_type_enum!
@@ -187,6 +165,7 @@ query LoansByCompanyAndLoanTypeForBank(
         { loan_type: { _eq: $loanType } }
       ]
     }
+    order_by: { adjusted_maturity_date: asc }
   ) {
     id
     ...Loan

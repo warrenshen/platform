@@ -97,11 +97,10 @@ function PaymentAdvanceForm({
       </Box>
       <Box display="flex" flexDirection="column" mt={3}>
         <DatePicker
+          disableNonBankDays
           className={classes.inputField}
           id="settlement-date-date-picker"
           label="Settlement Date"
-          disableNonBankDays
-          disabled
           value={settlementDate}
         />
         <Box mt={1}>

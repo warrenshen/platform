@@ -11,7 +11,6 @@ export const DefaultSettlementTimelineConfig = {
   [PaymentMethodEnum.Wire]: 2,
   [PaymentMethodEnum.Check]: 2,
   [PaymentMethodEnum.Cash]: 2,
-  [PaymentMethodEnum.None]: 2,
 };
 
 // If someone attempts to pay with a method for which their contract isn't configured
@@ -47,7 +46,7 @@ export function getSettlementTimelineConfigFromContract(
 // Given a payment method and date use the given timeline config to compute when
 // we anticipate the payment will settle
 export function computeSettlementDateForPayment(
-  paymentMethod: string | null | undefined,
+  paymentMethod: string | null,
   paymentDate: string | null,
   settlementTimelineConfig: any | null
 ) {

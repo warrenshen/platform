@@ -14,7 +14,6 @@ import { LoanFragment, PaymentsInsertInput } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, loansRoutes } from "lib/api";
 import { todayAsDateStr } from "lib/date";
-import { PaymentMethodEnum } from "lib/enum";
 import {
   computeSettlementDateForPayment,
   DefaultSettlementTimelineConfig,
@@ -70,7 +69,7 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
   // As of today (2021.03.02), this computed value will be two biz days after
   // the payment date
   const settlementDate = computeSettlementDateForPayment(
-    PaymentMethodEnum.None,
+    null,
     payment.payment_date,
     DefaultSettlementTimelineConfig
   );
