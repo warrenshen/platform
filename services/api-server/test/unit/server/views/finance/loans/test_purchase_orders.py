@@ -44,7 +44,7 @@ class TestUpsertPurchaseOrdersLoansView(db_unittest.TestCase):
 
 		for purchase_order in self.purchase_orders:
 			with session_scope(self.session_maker) as session:
-				session.add(models.PurchaseOrder(
+				session.add(models.PurchaseOrder( # type: ignore
 					id=purchase_order.id,
 					company_id=company_id,
 					amount=decimal.Decimal(purchase_order.amount),
@@ -229,7 +229,7 @@ class TestUpsertPurchaseOrdersLoansView(db_unittest.TestCase):
 	def test_model_permissions(self) -> None:
 		def populate(seed: test_helper.BasicSeed, session: Session) -> None:
 			company_id = seed.get_company_id('company_admin', index=1)
-			session.add(models.PurchaseOrder(
+			session.add(models.PurchaseOrder( # type: ignore
 				id='00000000-0000-0000-0000-000000000004',
 				company_id=company_id,
 				amount=decimal.Decimal(10000),

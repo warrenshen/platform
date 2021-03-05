@@ -1,0 +1,41 @@
+name: CI Api Server
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'services/api-server/**'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'services/api-server/**'
+
+jobs:
+  api:
+    defaults:
+      run:
+        working-directory: services/api-server
+    env:
+      HASURA_GRAPHQL_JWT_SECRET : '{"type":"HS256", "key": "FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKE"}'
+      SENDGRID_API_KEY: ''
+      URL_SECRET_KEY: urlsecretkey682
+      URL_SALT: urlfakesalt
+      PASSWORD_SALT: fakesalt
+      DATABASE_URL: 'sqlite:///tmp/test.db'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+      - name: install dependencies
+        run: pip install -r requirements.txt
+      - name: check code types
+        run: make mypy
+      - name: check test types
+        run: make mypy-tests
+      - name: run tests
+        run: make run-test-local

@@ -279,12 +279,19 @@ const computeLoans = (
   purchaseOrders: GetPurchaseOrdersForIdsQuery["purchase_orders"]
 ) =>
   purchaseOrders
+    .filter((po: any) => !po.funded_at)
     .map(
       (po: any) =>
         ({
           loan: {
             id: null,
-            amount: po.amount - sumAmountForLoans(po.loans),
+            amount:
+              po.amount -
+              sumAmountForLoans(
+                po.loans.filter(
+                  (loan: any) => loan.status !== LoanStatusEnum.Drafted
+                )
+              ),
             artifact_id: po.id,
             requested_payment_date: null,
           },

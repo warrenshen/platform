@@ -47,7 +47,7 @@ class TestExpireActiveEbbaApplications(db_unittest.TestCase):
 			app_id = None
 
 			with session_scope(session_maker) as session:
-				app = models.EbbaApplication(
+				app = models.EbbaApplication( # type: ignore
 					company_id=company_id,
 					application_date=date_util.load_date_str("03/04/2021"),
 					status=RequestStatusEnum.APPROVED,
@@ -95,7 +95,7 @@ class TestExpireActiveEbbaApplications(db_unittest.TestCase):
 			app_id = None
 
 			with session_scope(session_maker) as session:
-				app = models.EbbaApplication(
+				app = models.EbbaApplication( # type: ignore
 					company_id=company_id,
 					application_date=date_util.load_date_str("03/04/2021"),
 					status=RequestStatusEnum.APPROVED,
