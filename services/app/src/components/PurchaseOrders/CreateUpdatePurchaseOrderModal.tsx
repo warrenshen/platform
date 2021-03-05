@@ -20,8 +20,9 @@ import {
   useUpdatePurchaseOrderMutation,
   useVendorsByPartnerCompanyQuery,
 } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { authenticatedApi, purchaseOrdersRoutes } from "lib/api";
+import { submitPurchaseOrderMutation } from "lib/api/purchaseOrders";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
@@ -137,21 +138,10 @@ function CreateUpdatePurchaseOrderModal({
     { loading: isUpdatePurchaseOrderLoading },
   ] = useUpdatePurchaseOrderMutation();
 
-  const isDialogReady =
-    !isExistingPurchaseOrderLoading && !isSelectableVendorsLoading;
-  const isFormValid = !!purchaseOrder.vendor_id;
-  const isFormLoading =
-    isAddPurchaseOrderLoading || isUpdatePurchaseOrderLoading;
-  const isSaveDraftDisabled =
-    !isFormValid || isFormLoading || !purchaseOrder.order_number;
-  const isSaveSubmitDisabled =
-    isSaveDraftDisabled ||
-    !vendors?.find((vendor) => vendor.id === purchaseOrder.vendor_id)
-      ?.company_vendor_partnerships[0].approved_at ||
-    !purchaseOrder.order_date ||
-    !purchaseOrder.delivery_date ||
-    !purchaseOrder.amount ||
-    !purchaseOrderFile;
+  const [
+    submitPurchaseOrder,
+    { loading: isSubmitPurchaseOrderLoading },
+  ] = useCustomMutation(submitPurchaseOrderMutation);
 
   const upsertPurchaseOrder = async () => {
     const purchaseOrderFileData = purchaseOrderFile && {
@@ -225,14 +215,13 @@ function CreateUpdatePurchaseOrderModal({
     } else {
       // Since this is a SAVE AND SUBMIT action,
       // hit the PurchaseOrders.SubmitForApproval endpoint.
-      const response = await authenticatedApi.post(
-        purchaseOrdersRoutes.submitForApproval,
-        {
+      const response = await submitPurchaseOrder({
+        variables: {
           purchase_order_id: savedPurchaseOrder.id,
-        }
-      );
-      if (response.data?.status === "ERROR") {
-        snackbar.showError(`Error! Message: ${response.data?.msg}`);
+        },
+      });
+      if (response.status !== "OK") {
+        snackbar.showError(`Error! Message: ${response.msg}`);
       } else {
         snackbar.showSuccess(
           "Success! Purchase order saved and submitted to vendor."
@@ -241,6 +230,24 @@ function CreateUpdatePurchaseOrderModal({
       }
     }
   };
+
+  const isDialogReady =
+    !isExistingPurchaseOrderLoading && !isSelectableVendorsLoading;
+  const isFormValid = !!purchaseOrder.vendor_id;
+  const isFormLoading =
+    isAddPurchaseOrderLoading ||
+    isUpdatePurchaseOrderLoading ||
+    isSubmitPurchaseOrderLoading;
+  const isSaveDraftDisabled =
+    !isFormValid || isFormLoading || !purchaseOrder.order_number;
+  const isSaveSubmitDisabled =
+    isSaveDraftDisabled ||
+    !vendors?.find((vendor) => vendor.id === purchaseOrder.vendor_id)
+      ?.company_vendor_partnerships[0].approved_at ||
+    !purchaseOrder.order_date ||
+    !purchaseOrder.delivery_date ||
+    !purchaseOrder.amount ||
+    !purchaseOrderFile;
 
   return isDialogReady ? (
     <Dialog

@@ -36,7 +36,7 @@ function CustomerFinancialSummaryOverview({
         Financial Summary
       </Typography>
       <Typography variant="body2" gutterBottom={true}>
-        Note: financial summary is updated on an hourly candence.
+        Note: financial summary is updated on an hourly cadence.
       </Typography>
       {isBalanceVisible && (
         <>

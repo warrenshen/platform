@@ -5,13 +5,13 @@ import {
   FormHelperText,
   makeStyles,
   TextField,
-  Typography,
   Theme,
+  Typography,
 } from "@material-ui/core";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { routes } from "lib/routes";
 import { authenticatedApi, authRoutes } from "lib/api";
-import { useContext, useEffect, useState, useMemo } from "react";
+import { routes } from "lib/routes";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { useTitle } from "react-use";
 interface Props {
@@ -155,7 +155,7 @@ function ResetPassword(props: Props) {
                     error.length && setError("");
                     setPassword(value);
                   }}
-                ></TextField>
+                />
                 <TextField
                   data-cy="reset-password-input-confirmation"
                   type="password"
@@ -169,7 +169,7 @@ function ResetPassword(props: Props) {
                     error.length && setError("");
                     setConfirmationPassword(value);
                   }}
-                ></TextField>
+                />
               </div>
               {error && (
                 <FormHelperText className={classes.error} error>

@@ -153,7 +153,7 @@ function ForgotPassword(props: Props) {
                     error.length && setError("");
                     setEmail(value);
                   }}
-                ></TextField>
+                />
               </div>
               {error && (
                 <FormHelperText className={classes.error} error>

@@ -170,16 +170,6 @@ function CreateUpdateEbbaApplicationModal({
     ebbaApplication.application_date
   );
 
-  const isDialogReady = !isExistingEbbaApplicationLoading;
-  const isFormLoading =
-    isAddEbbaApplicationLoading || isUpdateEbbaApplicationLoading;
-  const isSubmitDisabled =
-    isFormLoading ||
-    !ebbaApplication.monthly_accounts_receivable ||
-    !ebbaApplication.monthly_inventory ||
-    !ebbaApplication.monthly_cash ||
-    ebbaApplicationFiles.length <= 0;
-
   const upsertEbbaApplication = async () => {
     if (actionType === ActionType.Update) {
       const response = await updateEbbaApplication({
@@ -242,6 +232,16 @@ function CreateUpdateEbbaApplicationModal({
       }
     }
   };
+
+  const isDialogReady = !isExistingEbbaApplicationLoading;
+  const isFormLoading =
+    isAddEbbaApplicationLoading || isUpdateEbbaApplicationLoading;
+  const isSubmitDisabled =
+    isFormLoading ||
+    !ebbaApplication.monthly_accounts_receivable ||
+    !ebbaApplication.monthly_inventory ||
+    !ebbaApplication.monthly_cash ||
+    ebbaApplicationFiles.length <= 0;
 
   return isDialogReady ? (
     <Dialog

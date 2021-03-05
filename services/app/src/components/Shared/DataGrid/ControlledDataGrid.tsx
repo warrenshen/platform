@@ -45,7 +45,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
     {
       dataSource,
       columns,
-      pageSize = 50,
+      pageSize = 10,
       pager,
       pageIndex,
       allowedPageSizes = [],
@@ -65,7 +65,6 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
     const _ref = useRef<DataGrid>(null);
     useImperativeHandle<DataGrid, any>(ref, () => _ref.current);
     const [_dataGridInstance, setDataGridInstance] = useState<any>();
-    const [_pageSize, setPageSize] = useState(pageSize);
     const [_pageIndex, setPageIndex] = useState(pageIndex);
 
     const _dataSource = useMemo<DataSource>(
@@ -99,13 +98,9 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
     const onOptionChanged = useCallback(
       () => (e: any): void => {
         const { fullName, value } = e;
-        if (fullName === "paging.pageSize") {
-          setPageSize(value);
-          setPageIndex(0);
-          if (onPageChanged) onPageChanged(value);
-        }
         if (fullName === "paging.pageIndex") {
           setPageIndex(value);
+          if (onPageChanged) onPageChanged(value);
         }
         if (fullName.endsWith("sortOrder")) {
           const index = fullName.match("/(?<=[).+?(?=])/g")[0];
@@ -169,13 +164,13 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
             />
           )
         )}
-        <Paging pageSize={_pageSize} pageIndex={_pageIndex} />
+        <Paging pageSize={pageSize} pageIndex={_pageIndex} />
         {pager && (
           <Pager
             visible={pager}
             showInfo={true}
             infoText={"Page {0} of {1} ({2} items)"}
-            allowedPageSizes={pager ? allowedPageSizes : "auto"}
+            allowedPageSizes={allowedPageSizes}
             showPageSizeSelector={pagerSizeSelector}
           />
         )}

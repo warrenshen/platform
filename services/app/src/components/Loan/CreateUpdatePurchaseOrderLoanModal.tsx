@@ -10,6 +10,7 @@ import {
   Theme,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
+import PurchaseOrderLoanForm from "components/Loan/PurchaseOrderLoanForm";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoansInsertInput,
@@ -23,8 +24,9 @@ import {
   useGetLoanForCustomerQuery,
   useUpdateLoanMutation,
 } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { authenticatedApi, loansRoutes } from "lib/api";
+import { submitLoanMutation } from "lib/api/loans";
 import { formatCurrency } from "lib/currency";
 import { ActionType } from "lib/enum";
 import {
@@ -33,7 +35,6 @@ import {
 } from "lib/finance/loans/artifacts";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useEffect, useState } from "react";
-import PurchaseOrderLoanForm from "./PurchaseOrderLoanForm";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -117,13 +118,6 @@ function CreateUpdatePurchaseOrderLoanModal({
       totalAmountForArtifact - amountUsedOnArtifact;
   }
 
-  const [addLoan, { loading: isAddLoanLoading }] = useAddLoanMutation();
-
-  const [
-    updateLoan,
-    { loading: isUpdateLoanLoading },
-  ] = useUpdateLoanMutation();
-
   // NOTE: This query implicitly has the companyId specified due to the table presets in Hasura
   const {
     data,
@@ -139,6 +133,47 @@ function CreateUpdatePurchaseOrderLoanModal({
 
   const selectedPurchaseOrder = approvedPurchaseOrders.find(
     (purchaseOrder) => purchaseOrder.id === loan.artifact_id
+  );
+
+  useEffect(() => {
+    async function loadArtifacts() {
+      const resp = await listArtifactsForCreateLoan({
+        product_type: ProductTypeEnum.InventoryFinancing,
+        company_id: companyId,
+        loan_id: loanId,
+      });
+      if (resp.status !== "OK") {
+        snackbar.showMessage(resp.msg);
+        return;
+      }
+      setArtifacts(resp.artifacts);
+
+      if (artifactId) {
+        const selectedArtifact = resp.artifacts.find((artifact) => {
+          return artifact.artifact_id === artifactId;
+        });
+        if (selectedArtifact) {
+          setLoan((loan) => {
+            return {
+              ...loan,
+              amount: selectedArtifact.amount_remaining,
+            };
+          });
+        }
+      }
+    }
+    loadArtifacts();
+  }, [snackbar, companyId, loanId, artifactId]);
+
+  const [addLoan, { loading: isAddLoanLoading }] = useAddLoanMutation();
+
+  const [
+    updateLoan,
+    { loading: isUpdateLoanLoading },
+  ] = useUpdateLoanMutation();
+
+  const [submitLoan, { loading: isSubmitLoanLoading }] = useCustomMutation(
+    submitLoanMutation
   );
 
   const [
@@ -188,44 +223,14 @@ function CreateUpdatePurchaseOrderLoanModal({
     }
   };
 
-  useEffect(() => {
-    async function loadArtifacts() {
-      const resp = await listArtifactsForCreateLoan({
-        product_type: ProductTypeEnum.InventoryFinancing,
-        company_id: companyId,
-        loan_id: loanId,
-      });
-      if (resp.status !== "OK") {
-        snackbar.showMessage(resp.msg);
-        return;
-      }
-      setArtifacts(resp.artifacts);
-
-      if (artifactId) {
-        const selectedArtifact = resp.artifacts.find((artifact) => {
-          return artifact.artifact_id === artifactId;
-        });
-        if (selectedArtifact) {
-          setLoan((loan) => {
-            return {
-              ...loan,
-              amount: selectedArtifact.amount_remaining,
-            };
-          });
-        }
-      }
-    }
-    loadArtifacts();
-  }, [snackbar, companyId, loanId, artifactId]);
-
   const handleClickSaveDraft = async () => {
     const savedLoan = await upsertPurchaseOrderLoan();
     if (!savedLoan) {
       alert("Could not upsert loan");
     } else {
       snackbar.showSuccess("Success! Loan saved as draft.");
+      handleClose();
     }
-    handleClose();
   };
 
   const handleClickSaveSubmit = async () => {
@@ -235,14 +240,15 @@ function CreateUpdatePurchaseOrderLoanModal({
     } else {
       // Since this is a SAVE AND SUBMIT action,
       // hit the PurchaseOrderLoans.SubmitForApproval endpoint.
-      const response = await authenticatedApi.post(
-        loansRoutes.submitForApproval,
-        {
+      const response = await submitLoan({
+        variables: {
           loan_id: savedLoan.id,
-        }
-      );
-      if (response.data?.status === "ERROR") {
-        snackbar.showMessage(response.data?.msg);
+        },
+      });
+      if (response.status !== "OK") {
+        snackbar.showError(
+          `Error! Could not submit loan. Reason: ${response.msg}`
+        );
       } else {
         snackbar.showSuccess(
           "Success! Loan saved and submitted to Bespoke. You may view this advance request in the Loans section."
@@ -255,10 +261,9 @@ function CreateUpdatePurchaseOrderLoanModal({
   const isDialogReady =
     !isExistingLoanLoading && !isApprovedPurchaseOrdersLoading;
   const isFormValid = !!loan.artifact_id;
-  const isFormLoading = isAddLoanLoading || isUpdateLoanLoading;
+  const isFormLoading =
+    isAddLoanLoading || isUpdateLoanLoading || isSubmitLoanLoading;
   const isSaveDraftDisabled = !isFormValid || isFormLoading;
-
-  // isLoanSiblingsLoading
 
   const disabledSubmitReasons = [];
   if (!isFormValid || !selectedPurchaseOrder) {

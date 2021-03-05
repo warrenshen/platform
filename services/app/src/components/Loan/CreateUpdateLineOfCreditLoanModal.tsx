@@ -9,6 +9,7 @@ import {
   makeStyles,
   Theme,
 } from "@material-ui/core";
+import LineOfCreditLoanForm from "components/Loan/LineOfCreditLoanForm";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LineOfCreditsInsertInput,
@@ -23,12 +24,12 @@ import {
   useGetLoanWithArtifactForCustomerQuery,
   useUpdateLineOfCreditAndLoanMutation,
 } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { authenticatedApi, loansRoutes } from "lib/api";
+import { submitLoanMutation } from "lib/api/loans";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
-import LineOfCreditLoanForm from "./LineOfCreditLoanForm";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -136,6 +137,10 @@ function CreateUpdateLineOfCreditLoanModal({
     { loading: isUpdateLineOfCreditAndLoanLoading },
   ] = useUpdateLineOfCreditAndLoanMutation();
 
+  const [submitLoan, { loading: isSubmitLoanLoading }] = useCustomMutation(
+    submitLoanMutation
+  );
+
   const [
     getCompanyNextLoanIdentifier,
   ] = useGetCompanyNextLoanIdentifierMutation();
@@ -207,8 +212,10 @@ function CreateUpdateLineOfCreditLoanModal({
     const savedLineOfCredit = await upsertLineOfCreditLoan();
     if (!savedLineOfCredit) {
       alert("Could not upsert loan");
+    } else {
+      snackbar.showSuccess("Success! Loan saved as draft.");
+      handleClose();
     }
-    handleClose();
   };
 
   const handleClickSaveSubmit = async () => {
@@ -218,17 +225,23 @@ function CreateUpdateLineOfCreditLoanModal({
     } else {
       // Since this is a SAVE AND SUBMIT action,
       // hit the PurchaseOrderLoans.SubmitForApproval endpoint.
-      const response = await authenticatedApi.post(
-        loansRoutes.submitForApproval,
-        {
+      const response = await submitLoan({
+        variables: {
           loan_id: savedLoan.id,
-        }
-      );
-      if (response.data?.status === "ERROR") {
-        alert(response.data?.msg);
+        },
+      });
+      if (response.status !== "OK") {
+        snackbar.showError(
+          `Error! Could not submit loan. Reason: ${response.msg}`
+        );
+        snackbar.showError(response.msg);
+      } else {
+        snackbar.showSuccess(
+          "Success! Loan saved and submitted to Bespoke. You may view this advance request in the Loans section."
+        );
+        handleClose();
       }
     }
-    handleClose();
   };
 
   const isDialogReady = !isExistingLoanLoading && !isApprovedVendorsLoading;
@@ -236,7 +249,8 @@ function CreateUpdateLineOfCreditLoanModal({
   const isFormLoading =
     isAddLineOfCreditLoading ||
     isAddLoanLoading ||
-    isUpdateLineOfCreditAndLoanLoading;
+    isUpdateLineOfCreditAndLoanLoading ||
+    isSubmitLoanLoading;
   const isSaveDraftDisabled = !isFormValid || isFormLoading;
 
   const isSaveSubmitDisabled =
