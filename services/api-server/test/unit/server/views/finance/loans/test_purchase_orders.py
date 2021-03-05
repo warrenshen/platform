@@ -31,12 +31,6 @@ class TestUpsertPurchaseOrdersLoansView(db_unittest.TestCase):
 		PurchaseOrderConfig('00000000-0000-0000-0000-000000000002', 100000),
 	)
 
-	def _seed_database(self) -> test_helper.BasicSeed:
-		self.reset()
-		seed = test_helper.BasicSeed.create(self.session_maker, self)
-		seed.initialize()
-		return seed
-
 	def _get_request_headers(self, user_id: str) -> Dict:
 		with app.app_context():
 			with session_scope(self.session_maker) as session:
@@ -45,7 +39,7 @@ class TestUpsertPurchaseOrdersLoansView(db_unittest.TestCase):
 				return headers
 
 	def _setup(self) -> test_helper.BasicSeed:
-		seed = self._seed_database()
+		seed = self.seed_database()
 		company_id = seed.get_company_id('company_admin', index=0)
 
 		for purchase_order in self.purchase_orders:

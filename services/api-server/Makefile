@@ -47,6 +47,7 @@ setup-db:
 mypy:
 	MYPYPATH=stubs mypy src/bespoke/db/main.py --config-file=mypy.ini
 	MYPYPATH=stubs mypy src/manage.py --config-file=mypy.ini
+	MYPYPATH=stubs mypy src/manage_async.py --config-file=mypy.ini
 	MYPYPATH=stubs mypy src/$(CUSTOMER_REPORTS_SCRIPT) --config-file=mypy.ini
 	MYPYPATH=stubs mypy src/$(RUN_BALANCES_SCRIPT) --config-file=mypy.ini
 

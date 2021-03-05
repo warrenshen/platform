@@ -11,7 +11,9 @@ from sqlalchemy_utils.functions import database_exists
 from typing import Callable
 
 from bespoke.db import models
+from bespoke_test.db import test_helper
 from manage import app
+from manage_async import app as async_app
 
 def get_db_url() -> str:
 	return 'sqlite:///tmp/test.db'
@@ -39,10 +41,13 @@ class TestCase(unittest.TestCase):
 		models.Base.metadata.create_all(engine)
 		self.session_maker = sessionmaker(engine)
 		app.session_maker = self.session_maker
+		async_app.session_maker = self.session_maker
 
 	def setUp(self) -> None:
 		self.reset()
 
-
-
-
+	def seed_database(self) -> test_helper.BasicSeed:
+		self.reset()
+		seed = test_helper.BasicSeed.create(self.session_maker, self)
+		seed.initialize()
+		return seed
