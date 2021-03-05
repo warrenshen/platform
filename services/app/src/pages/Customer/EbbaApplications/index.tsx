@@ -7,6 +7,7 @@ import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useGetCompanyForCustomerBorrowingBaseQuery } from "generated/graphql";
+import { withinNDaysOfNowOrBefore } from "lib/date";
 import { ActionType } from "lib/enum";
 import { useContext } from "react";
 
@@ -15,17 +16,23 @@ function CustomerEbbaApplicationsPage() {
     user: { companyId },
   } = useContext(CurrentUserContext);
 
-  const { data, refetch } = useGetCompanyForCustomerBorrowingBaseQuery({
-    variables: {
-      companyId,
-    },
-  });
+  const { data, loading, refetch } = useGetCompanyForCustomerBorrowingBaseQuery(
+    {
+      variables: {
+        companyId,
+      },
+    }
+  );
 
   const activeEbbaApplication =
     data?.companies_by_pk?.settings?.active_ebba_application;
   const ebbaApplications = data?.companies_by_pk?.ebba_applications || [];
 
-  const isActiveApplicationValid = activeEbbaApplication;
+  const isActiveApplicationValid = !!activeEbbaApplication;
+  const isActiveApplicationExpiringSoon = withinNDaysOfNowOrBefore(
+    activeEbbaApplication?.expires_at,
+    15
+  );
 
   return (
     <Page appBarTitle={"Borrowing Base"}>
@@ -65,23 +72,33 @@ function CustomerEbbaApplicationsPage() {
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={1} mb={2}>
-            {isActiveApplicationValid ? (
-              <Alert severity="info" style={{ alignSelf: "flex-start" }}>
-                <Box maxWidth={600}>
-                  Your current borrowing base certification is up-to-date. You
-                  can review its details below.
-                </Box>
-              </Alert>
-            ) : (
-              <Alert severity="warning" style={{ alignSelf: "flex-start" }}>
-                <Box maxWidth={600}>
-                  You do not have an up-to-date borrowing base certification.
-                  Please submit a new borrowing base certification for approval
-                  to establish your borrowing base. Otherwise, you will not be
-                  able to request new loans.
-                </Box>
-              </Alert>
-            )}
+            {!loading &&
+              (isActiveApplicationValid ? (
+                !isActiveApplicationExpiringSoon ? (
+                  <Alert severity="info" style={{ alignSelf: "flex-start" }}>
+                    <Box maxWidth={600}>
+                      Your current borrowing base certification is up-to-date.
+                      You can review its details below.
+                    </Box>
+                  </Alert>
+                ) : (
+                  <Alert severity="warning" style={{ alignSelf: "flex-start" }}>
+                    <Box maxWidth={600}>
+                      Your current borrowing base certification is expiring
+                      soon. Please submit a new certification.
+                    </Box>
+                  </Alert>
+                )
+              ) : (
+                <Alert severity="warning" style={{ alignSelf: "flex-start" }}>
+                  <Box maxWidth={600}>
+                    You do not have an up-to-date borrowing base certification.
+                    Please submit a new borrowing base certification for
+                    approval to establish your borrowing base. Otherwise, you
+                    will not be able to request new loans.
+                  </Box>
+                </Alert>
+              ))}
           </Box>
           {isActiveApplicationValid && activeEbbaApplication && (
             <EbbaApplicationCard ebbaApplication={activeEbbaApplication} />

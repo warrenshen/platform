@@ -1,4 +1,10 @@
-import { addBusinessDays, addMonths, format, parse } from "date-fns";
+import {
+  addBusinessDays,
+  addMonths,
+  differenceInDays,
+  format,
+  parse,
+} from "date-fns";
 
 export const DateFormatClient = "MM/dd/yyyy";
 export const DateFormatServer = "yyyy-MM-dd";
@@ -43,4 +49,18 @@ export function computeEbbaApplicationExpiresAt(dateString: string): string {
   const nextMonth = addMonths(date, 1);
   nextMonth.setDate(15);
   return format(nextMonth, DateFormatServer);
+}
+
+export function withinNDaysOfNowOrBefore(
+  dateString: string,
+  days: number
+): boolean {
+  if (!dateString) {
+    return false;
+  }
+  const date = parse(dateString, DateFormatServer, new Date());
+  const now = new Date();
+  // When this `date` is before `now`, differenceInDays returns a negative number
+  // which will be less than `days`
+  return differenceInDays(date, now) <= days;
 }

@@ -1,4 +1,11 @@
-import { AppBar, Box, Drawer, ListItem, ListItemText } from "@material-ui/core";
+import {
+  AppBar,
+  Box,
+  Chip,
+  Drawer,
+  ListItem,
+  ListItemText,
+} from "@material-ui/core";
 import List from "@material-ui/core/List";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -9,7 +16,12 @@ import TuneIcon from "@material-ui/icons/Tune";
 import NestedListItem from "components/Shared/Layout/NestedListItem";
 import UserMenu from "components/Shared/User/UserMenu";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { ProductTypeEnum, UserRolesEnum } from "generated/graphql";
+import {
+  ProductTypeEnum,
+  useGetCompanyForCustomerBorrowingBaseQuery,
+  UserRolesEnum,
+} from "generated/graphql";
+import { withinNDaysOfNowOrBefore } from "lib/date";
 import { bankRoutes, customerRoutes, routes } from "lib/routes";
 import { ReactNode, useContext } from "react";
 import { Link, matchPath, useLocation } from "react-router-dom";
@@ -55,6 +67,13 @@ const useStyles = makeStyles((theme: Theme) =>
     listItemText: {
       fontWeight: 500,
     },
+    chipCounter: {
+      marginLeft: "0.5rem",
+      fontWeight: 600,
+      marginBottom: "3px",
+      letterSpacing: "1px",
+      transform: "scale(0.9)",
+    },
   })
 );
 
@@ -70,7 +89,8 @@ type NavItem = {
 };
 
 const getCustomerNavItems = (
-  productType: ProductTypeEnum | null
+  productType: ProductTypeEnum | null,
+  showBorrowingBasesChip?: boolean
 ): NavItem[] => {
   return [
     {
@@ -102,6 +122,7 @@ const getCustomerNavItems = (
       visible: productType === ProductTypeEnum.LineOfCredit,
       text: "Borrowing Base",
       link: customerRoutes.ebbaApplications,
+      counter: showBorrowingBasesChip ? 1 : 0,
     },
     {
       text: "Vendors",
@@ -222,15 +243,32 @@ function Layout({ appBarTitle, children }: Props) {
   const classes = useStyles();
   const location = useLocation();
   const {
-    user: { role, productType },
+    user: { role, productType, companyId },
   } = useContext(CurrentUserContext);
+
+  const {
+    data,
+    loading: borrowingBaseLoading,
+  } = useGetCompanyForCustomerBorrowingBaseQuery({
+    variables: {
+      companyId,
+    },
+  });
+
+  const ebbaApplication =
+    data?.companies_by_pk?.settings?.active_ebba_application;
+
+  const showBorrowingBasesChip =
+    !borrowingBaseLoading &&
+    (!ebbaApplication ||
+      withinNDaysOfNowOrBefore(ebbaApplication.expires_at, 15));
 
   const navItems = [
     UserRolesEnum.BankAdmin,
     UserRolesEnum.BankReadOnly,
   ].includes(role)
     ? getBankNavItems()
-    : getCustomerNavItems(productType);
+    : getCustomerNavItems(productType, showBorrowingBasesChip);
 
   return (
     <div className={classes.root}>
@@ -276,6 +314,14 @@ function Layout({ appBarTitle, children }: Props) {
                     }}
                   >
                     {item.text}
+                    {!!item.counter && (
+                      <Chip
+                        size="small"
+                        color="secondary"
+                        className={classes.chipCounter}
+                        label={item.counter}
+                      />
+                    )}
                   </ListItemText>
                 </ListItem>
               ) : (
