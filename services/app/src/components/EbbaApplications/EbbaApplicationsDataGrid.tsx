@@ -51,7 +51,7 @@ function EbbaApplicationsDataGrid({
       {
         visible: isCompanyVisible,
         dataField: "company_name",
-        caption: "Company",
+        caption: "Customer Name",
       },
       {
         dataField: "application_date",

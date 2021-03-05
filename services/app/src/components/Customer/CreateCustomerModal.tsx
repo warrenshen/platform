@@ -161,7 +161,7 @@ function CreateCustomerModal({ handleClose }: Props) {
           <Box>
             <TextField
               className={classes.input}
-              label="Company Name"
+              label="Customer Name"
               placeholder="Distributor Example, Inc."
               value={customer.name || ""}
               onChange={({ target: { value } }) => {

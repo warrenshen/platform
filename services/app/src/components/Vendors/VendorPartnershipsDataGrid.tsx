@@ -37,7 +37,7 @@ function VendorPartnershipsDataGrid({
     () => [
       {
         dataField: isBankAccount ? "vendor.name" : "vendor_limited.name",
-        caption: "Vendor name",
+        caption: "Vendor Name",
         ...(isBankAccount && {
           cellRender: ({ value, data }: { value: string; data: any }) => (
             <ClickableDataGridCell
@@ -51,7 +51,7 @@ function VendorPartnershipsDataGrid({
       },
       {
         dataField: "company.name",
-        caption: "Company name",
+        caption: "Customer Name",
         visible: !!isDrilldownByCustomer ? false : !!isBankAccount,
       },
       {
