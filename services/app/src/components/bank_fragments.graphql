@@ -113,6 +113,7 @@ fragment Payment on payments {
 
 fragment Transaction on transactions {
   id
+  created_at
   loan_id
   payment_id
   type

@@ -101,7 +101,7 @@ export default function CreateMultiplePurchaseOrdersLoansModal({
     },
   });
 
-  const [upsertPurchaseOrdersLoans, _] = useCustomMutation(
+  const [upsertPurchaseOrdersLoans] = useCustomMutation(
     upsertPurchaseOrdersLoansMutation
   );
 

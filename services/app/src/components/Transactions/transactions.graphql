@@ -1,5 +1,5 @@
-query Transactions {
-  transactions {
+query GetTransactions {
+  transactions(order_by: { created_at: desc }) {
     id
     ...Transaction
     payment {

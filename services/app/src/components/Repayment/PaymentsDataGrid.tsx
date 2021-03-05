@@ -6,9 +6,8 @@ import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCel
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
-import DateDataGridCell, {
-  DatetimeDataGridCell,
-} from "components/Shared/DataGrid/DateDataGridCell";
+import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
+import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
 import { PaymentFragment, Payments } from "generated/graphql";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
 import { ColumnWidths } from "lib/tables";

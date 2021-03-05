@@ -56,12 +56,17 @@ function CreateRepaymentSelectLoans({
           method, and payment option.
         </Typography>
       </Box>
-      <LoansDataGrid
-        isDaysPastDueVisible
-        isMaturityVisible
-        isSortingDisabled
-        loans={selectedLoans}
-      />
+      <Box>
+        <Typography>
+          As of today, here are the details of your loans.
+        </Typography>
+        <LoansDataGrid
+          isDaysPastDueVisible
+          isMaturityVisible
+          isSortingDisabled
+          loans={selectedLoans}
+        />
+      </Box>
       <Box mt={3}>
         <Typography variant="subtitle2">
           Which payment method do you plan to pay with?

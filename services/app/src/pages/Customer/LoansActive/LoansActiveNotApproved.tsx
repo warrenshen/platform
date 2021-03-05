@@ -33,9 +33,10 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   data: GetActiveLoansForCompanyQuery | undefined;
+  handleDataChange: () => void;
 }
 
-function LoansActiveNotApproved({ data }: Props) {
+function LoansActiveNotApproved({ data, handleDataChange }: Props) {
   const classes = useStyles();
 
   const {
@@ -76,7 +77,7 @@ function LoansActiveNotApproved({ data }: Props) {
                 artifactId={null}
                 loanId={null}
                 handleClose={() => {
-                  // TODO: refetch.
+                  handleDataChange();
                   handleClose();
                 }}
               />
@@ -95,7 +96,7 @@ function LoansActiveNotApproved({ data }: Props) {
                   artifactId={null}
                   loanId={selectedLoanIds[0]}
                   handleClose={() => {
-                    // TODO: refetch.
+                    handleDataChange();
                     handleClose();
                     setSelectedLoanIds([]);
                   }}

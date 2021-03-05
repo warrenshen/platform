@@ -90,7 +90,6 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
       params
     );
     if (response.data?.status === "ERROR") {
-      alert(response.data?.msg);
       snackbar.showError(
         `Error! Could not create advance. Reason: ${response.data?.msg}`
       );

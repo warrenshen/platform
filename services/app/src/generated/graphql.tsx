@@ -12517,9 +12517,9 @@ export type FinancialSummaryFragment = Pick<
   | "available_limit"
 >;
 
-export type TransactionsQueryVariables = Exact<{ [key: string]: never }>;
+export type GetTransactionsQueryVariables = Exact<{ [key: string]: never }>;
 
-export type TransactionsQuery = {
+export type GetTransactionsQuery = {
   transactions: Array<
     Pick<Transactions, "id"> & {
       payment: Pick<Payments, "id"> & {
@@ -12819,6 +12819,7 @@ export type PaymentFragment = Pick<
 export type TransactionFragment = Pick<
   Transactions,
   | "id"
+  | "created_at"
   | "loan_id"
   | "payment_id"
   | "type"
@@ -13228,6 +13229,7 @@ export const PaymentFragmentDoc = gql`
 export const TransactionFragmentDoc = gql`
   fragment Transaction on transactions {
     id
+    created_at
     loan_id
     payment_id
     type
@@ -17043,9 +17045,9 @@ export type UpdateCompanyBankAccountMutationOptions = Apollo.BaseMutationOptions
   UpdateCompanyBankAccountMutation,
   UpdateCompanyBankAccountMutationVariables
 >;
-export const TransactionsDocument = gql`
-  query Transactions {
-    transactions {
+export const GetTransactionsDocument = gql`
+  query GetTransactions {
+    transactions(order_by: { created_at: desc }) {
       id
       ...Transaction
       payment {
@@ -17061,51 +17063,51 @@ export const TransactionsDocument = gql`
 `;
 
 /**
- * __useTransactionsQuery__
+ * __useGetTransactionsQuery__
  *
- * To run a query within a React component, call `useTransactionsQuery` and pass it any options that fit your needs.
- * When your component renders, `useTransactionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetTransactionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTransactionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useTransactionsQuery({
+ * const { data, loading, error } = useGetTransactionsQuery({
  *   variables: {
  *   },
  * });
  */
-export function useTransactionsQuery(
+export function useGetTransactionsQuery(
   baseOptions?: Apollo.QueryHookOptions<
-    TransactionsQuery,
-    TransactionsQueryVariables
+    GetTransactionsQuery,
+    GetTransactionsQueryVariables
   >
 ) {
-  return Apollo.useQuery<TransactionsQuery, TransactionsQueryVariables>(
-    TransactionsDocument,
+  return Apollo.useQuery<GetTransactionsQuery, GetTransactionsQueryVariables>(
+    GetTransactionsDocument,
     baseOptions
   );
 }
-export function useTransactionsLazyQuery(
+export function useGetTransactionsLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    TransactionsQuery,
-    TransactionsQueryVariables
+    GetTransactionsQuery,
+    GetTransactionsQueryVariables
   >
 ) {
-  return Apollo.useLazyQuery<TransactionsQuery, TransactionsQueryVariables>(
-    TransactionsDocument,
-    baseOptions
-  );
+  return Apollo.useLazyQuery<
+    GetTransactionsQuery,
+    GetTransactionsQueryVariables
+  >(GetTransactionsDocument, baseOptions);
 }
-export type TransactionsQueryHookResult = ReturnType<
-  typeof useTransactionsQuery
+export type GetTransactionsQueryHookResult = ReturnType<
+  typeof useGetTransactionsQuery
 >;
-export type TransactionsLazyQueryHookResult = ReturnType<
-  typeof useTransactionsLazyQuery
+export type GetTransactionsLazyQueryHookResult = ReturnType<
+  typeof useGetTransactionsLazyQuery
 >;
-export type TransactionsQueryResult = Apollo.QueryResult<
-  TransactionsQuery,
-  TransactionsQueryVariables
+export type GetTransactionsQueryResult = Apollo.QueryResult<
+  GetTransactionsQuery,
+  GetTransactionsQueryVariables
 >;
 export const VendorPartnershipsByCompanyIdDocument = gql`
   query VendorPartnershipsByCompanyId($companyId: uuid!) {

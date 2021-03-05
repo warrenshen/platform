@@ -33,9 +33,10 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   data: GetActiveLoansForCompanyQuery | undefined;
+  handleDataChange: () => void;
 }
 
-function LoansActiveApproved({ data }: Props) {
+function LoansActiveApproved({ data, handleDataChange }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
 
@@ -88,6 +89,7 @@ function LoansActiveApproved({ data }: Props) {
                     companyId={companyId}
                     selectedLoans={selectedLoans}
                     handleClose={() => {
+                      handleDataChange();
                       handleClose();
                       setSelectedLoans([]);
                       setSelectedLoanIds([]);

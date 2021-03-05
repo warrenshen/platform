@@ -1,12 +1,21 @@
 import { Box, Typography } from "@material-ui/core";
 import LoansBeforeAfterPaymentPreview from "components/Repayment/LoansBeforeAfterPaymentPreview";
+import { Loans } from "generated/graphql";
 import { LoanBeforeAfterPayment } from "lib/types";
 
 interface Props {
   loansBeforeAfterPayment: LoanBeforeAfterPayment[];
+  setLoanBeforeAfterPayment: (
+    loanId: Loans["id"],
+    field: string,
+    value: number
+  ) => void;
 }
 
-function SettleRepaymentConfirmEffect({ loansBeforeAfterPayment }: Props) {
+function SettleRepaymentConfirmEffect({
+  loansBeforeAfterPayment,
+  setLoanBeforeAfterPayment,
+}: Props) {
   return (
     <Box>
       <Box>
@@ -18,7 +27,9 @@ function SettleRepaymentConfirmEffect({ loansBeforeAfterPayment }: Props) {
       </Box>
       <Box mt={2}>
         <LoansBeforeAfterPaymentPreview
+          isSettlePayment
           loansBeforeAfterPayment={loansBeforeAfterPayment}
+          setLoanBeforeAfterPayment={setLoanBeforeAfterPayment}
         />
       </Box>
     </Box>

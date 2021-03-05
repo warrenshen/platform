@@ -112,7 +112,7 @@ function PaymentAdvanceForm({
         </Box>
       </Box>
       <Box mt={3}>
-        <FormControl className={classes.inputField}>
+        <FormControl>
           <CurrencyTextField
             disabled
             label="Amount"

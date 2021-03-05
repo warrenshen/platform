@@ -2,6 +2,7 @@ import { ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
+import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
 import DataGrid, {
   Column,
   IColumnProps,
@@ -25,6 +26,17 @@ function TransactionsDataGrid({ transactions, isMiniTable }: Props) {
   };
 
   const columns: IColumnProps[] = [
+    {
+      caption: "Created At",
+      width: ColumnWidths.Date,
+      alignment: "right",
+      cellRender: (params: ValueFormatterParams) => (
+        <DatetimeDataGridCell
+          isTimeVisible
+          datetimeString={params.row.data.created_at}
+        />
+      ),
+    },
     {
       caption: "Date",
       width: ColumnWidths.Date,

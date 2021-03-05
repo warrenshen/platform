@@ -43,7 +43,7 @@ function CustomerLoansActivePage() {
     user: { companyId, productType },
   } = useContext(CurrentUserContext);
 
-  const { data, error } = useGetActiveLoansForCompanyQuery({
+  const { data, error, refetch } = useGetActiveLoansForCompanyQuery({
     variables: {
       companyId,
       loanType:
@@ -96,12 +96,12 @@ function CustomerLoansActivePage() {
         <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
           <Typography variant="h6">Loans - Not Funded</Typography>
-          <LoansActiveNotApproved data={data} />
+          <LoansActiveNotApproved data={data} handleDataChange={refetch} />
         </Box>
         <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
           <Typography variant="h6">Loans - Funded</Typography>
-          <LoansActiveApproved data={data} />
+          <LoansActiveApproved data={data} handleDataChange={refetch} />
         </Box>
       </Box>
     </Page>

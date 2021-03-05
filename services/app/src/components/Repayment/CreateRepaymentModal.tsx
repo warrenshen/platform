@@ -16,6 +16,7 @@ import {
   PaymentsInsertInput,
   useCompanyWithDetailsByCompanyIdQuery,
 } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import { PaymentMethodEnum } from "lib/enum";
 import {
   computeSettlementDateForPayment,
@@ -41,6 +42,8 @@ function CreateRepaymentModal({
   selectedLoans,
   handleClose,
 }: Props) {
+  const snackbar = useSnackbar();
+
   const { data } = useCompanyWithDetailsByCompanyIdQuery({
     variables: {
       companyId: companyId,
@@ -164,6 +167,7 @@ function CreateRepaymentModal({
       setErrMsg(response.msg);
     } else {
       setErrMsg("");
+      snackbar.showSuccess("Success! Payment submitted for review by Bespoke.");
       handleClose();
     }
   };

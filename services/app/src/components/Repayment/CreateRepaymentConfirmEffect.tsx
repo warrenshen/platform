@@ -56,6 +56,7 @@ function CreateRepaymentConfirmEffect({
       </Box>
       <Box mt={2}>
         <LoansBeforeAfterPaymentPreview
+          isSettlePayment={false}
           loansBeforeAfterPayment={loansBeforeAfterPayment}
         />
       </Box>

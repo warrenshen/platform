@@ -1,9 +1,9 @@
 import Page from "components/Shared/Page";
 import TransactionsDataGrid from "components/Transactions/TransactionsDataGrid";
-import { useTransactionsQuery } from "generated/graphql";
+import { useGetTransactionsQuery } from "generated/graphql";
 
 function BankTransactionsPage() {
-  const { data } = useTransactionsQuery();
+  const { data } = useGetTransactionsQuery();
 
   const transactions = data?.transactions || [];
 
