@@ -21,8 +21,9 @@ import {
   useGetEbbaApplicationQuery,
   useUpdateEbbaApplicationMutation,
 } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { authenticatedApi, ebbaApplicationsRoutes } from "lib/api";
+import { submitEbbaApplicationMutation } from "lib/api/ebbaApplications";
 import { computeEbbaApplicationExpiresAt } from "lib/date";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
@@ -161,6 +162,11 @@ function CreateUpdateEbbaApplicationModal({
     { loading: isUpdateEbbaApplicationLoading },
   ] = useUpdateEbbaApplicationMutation();
 
+  const [
+    submitEbbaApplication,
+    { loading: isSubmitEbbaApplicationLoading },
+  ] = useCustomMutation(submitEbbaApplicationMutation);
+
   const calculatedBorrowingBase = computeBorrowingBase(
     contract,
     ebbaApplication
@@ -216,14 +222,13 @@ function CreateUpdateEbbaApplicationModal({
         "Error! Could not upsert borrowing base certification."
       );
     } else {
-      const response = await authenticatedApi.post(
-        ebbaApplicationsRoutes.submitForApproval,
-        {
+      const response = await submitEbbaApplication({
+        variables: {
           ebba_application_id: savedEbbaApplication.id,
-        }
-      );
-      if (response.data?.status === "ERROR") {
-        snackbar.showError(`Error! Message: ${response.data?.msg}`);
+        },
+      });
+      if (response.status === "ERROR") {
+        snackbar.showError(`Error! Message: ${response.msg}`);
       } else {
         snackbar.showSuccess(
           "Success! Borrowing base certification saved and submitted to Bespoke."
@@ -235,7 +240,9 @@ function CreateUpdateEbbaApplicationModal({
 
   const isDialogReady = !isExistingEbbaApplicationLoading;
   const isFormLoading =
-    isAddEbbaApplicationLoading || isUpdateEbbaApplicationLoading;
+    isAddEbbaApplicationLoading ||
+    isUpdateEbbaApplicationLoading ||
+    isSubmitEbbaApplicationLoading;
   const isSubmitDisabled =
     isFormLoading ||
     !ebbaApplication.monthly_accounts_receivable ||
