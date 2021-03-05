@@ -23,6 +23,7 @@ import {
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, ebbaApplicationsRoutes } from "lib/api";
+import { computeEbbaApplicationExpiresAt } from "lib/date";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useState } from "react";
@@ -164,6 +165,11 @@ function CreateUpdateEbbaApplicationModal({
     contract,
     ebbaApplication
   );
+
+  const computedExpiresAt = computeEbbaApplicationExpiresAt(
+    ebbaApplication.application_date
+  );
+
   const isDialogReady = !isExistingEbbaApplicationLoading;
   const isFormLoading =
     isAddEbbaApplicationLoading || isUpdateEbbaApplicationLoading;
@@ -186,6 +192,7 @@ function CreateUpdateEbbaApplicationModal({
             monthly_inventory: ebbaApplication.monthly_inventory,
             monthly_cash: ebbaApplication.monthly_cash,
             calculated_borrowing_base: calculatedBorrowingBase,
+            expires_at: computedExpiresAt,
           },
           ebbaApplicationFiles,
         },
@@ -201,6 +208,7 @@ function CreateUpdateEbbaApplicationModal({
             monthly_inventory: ebbaApplication.monthly_inventory,
             monthly_cash: ebbaApplication.monthly_cash,
             calculated_borrowing_base: calculatedBorrowingBase,
+            expires_at: computedExpiresAt,
             ebba_application_files: {
               data: ebbaApplicationFiles,
             },

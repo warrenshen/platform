@@ -2986,6 +2986,7 @@ export type EbbaApplications = {
   ebba_application_files: Array<EbbaApplicationFiles>;
   /** An aggregated array relationship */
   ebba_application_files_aggregate: EbbaApplicationFilesAggregate;
+  expires_at: Scalars["date"];
   id: Scalars["uuid"];
   monthly_accounts_receivable: Scalars["numeric"];
   monthly_cash: Scalars["numeric"];
@@ -3101,6 +3102,7 @@ export type EbbaApplicationsBoolExp = {
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   ebba_application_files?: Maybe<EbbaApplicationFilesBoolExp>;
+  expires_at?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   monthly_accounts_receivable?: Maybe<NumericComparisonExp>;
   monthly_cash?: Maybe<NumericComparisonExp>;
@@ -3135,6 +3137,7 @@ export type EbbaApplicationsInsertInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   ebba_application_files?: Maybe<EbbaApplicationFilesArrRelInsertInput>;
+  expires_at?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
@@ -3153,6 +3156,7 @@ export type EbbaApplicationsMaxFields = {
   calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  expires_at?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
@@ -3170,6 +3174,7 @@ export type EbbaApplicationsMaxOrderBy = {
   calculated_borrowing_base?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  expires_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   monthly_accounts_receivable?: Maybe<OrderBy>;
   monthly_cash?: Maybe<OrderBy>;
@@ -3187,6 +3192,7 @@ export type EbbaApplicationsMinFields = {
   calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  expires_at?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
@@ -3204,6 +3210,7 @@ export type EbbaApplicationsMinOrderBy = {
   calculated_borrowing_base?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  expires_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   monthly_accounts_receivable?: Maybe<OrderBy>;
   monthly_cash?: Maybe<OrderBy>;
@@ -3244,6 +3251,7 @@ export type EbbaApplicationsOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   ebba_application_files_aggregate?: Maybe<EbbaApplicationFilesAggregateOrderBy>;
+  expires_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   monthly_accounts_receivable?: Maybe<OrderBy>;
   monthly_cash?: Maybe<OrderBy>;
@@ -3273,6 +3281,8 @@ export enum EbbaApplicationsSelectColumn {
   /** column name */
   CreatedAt = "created_at",
   /** column name */
+  ExpiresAt = "expires_at",
+  /** column name */
   Id = "id",
   /** column name */
   MonthlyAccountsReceivable = "monthly_accounts_receivable",
@@ -3299,6 +3309,7 @@ export type EbbaApplicationsSetInput = {
   calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  expires_at?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
@@ -3386,6 +3397,8 @@ export enum EbbaApplicationsUpdateColumn {
   CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  ExpiresAt = "expires_at",
   /** column name */
   Id = "id",
   /** column name */
@@ -12493,6 +12506,7 @@ export type EbbaApplicationFragment = Pick<
   | "status"
   | "rejection_note"
   | "created_at"
+  | "expires_at"
 >;
 
 export type EbbaApplicationFileFragment = Pick<
@@ -13060,6 +13074,7 @@ export const EbbaApplicationFragmentDoc = gql`
     status
     rejection_note
     created_at
+    expires_at
   }
 `;
 export const EbbaApplicationFileFragmentDoc = gql`

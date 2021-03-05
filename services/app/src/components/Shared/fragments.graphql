@@ -171,6 +171,7 @@ fragment EbbaApplication on ebba_applications {
   status
   rejection_note
   created_at
+  expires_at
 }
 
 fragment EbbaApplicationFile on ebba_application_files {
