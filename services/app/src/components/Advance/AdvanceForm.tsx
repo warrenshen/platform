@@ -26,16 +26,10 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   payment: PaymentsInsertInput;
   selectedLoans: LoanFragment[];
-  settlementDate: string | null;
   setPayment: (payment: PaymentsInsertInput) => void;
 }
 
-function PaymentAdvanceForm({
-  payment,
-  selectedLoans,
-  settlementDate,
-  setPayment,
-}: Props) {
+function PaymentAdvanceForm({ payment, selectedLoans, setPayment }: Props) {
   const classes = useStyles();
 
   return (
@@ -101,7 +95,7 @@ function PaymentAdvanceForm({
           className={classes.inputField}
           id="settlement-date-date-picker"
           label="Settlement Date"
-          value={settlementDate}
+          value={payment.settlement_date}
         />
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">

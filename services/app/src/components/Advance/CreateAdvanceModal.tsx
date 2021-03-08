@@ -18,7 +18,7 @@ import {
   computeSettlementDateForPayment,
   DefaultSettlementTimelineConfig,
 } from "lib/finance/payments/advance";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -60,28 +60,38 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
     amount: loansTotal,
     method: "",
     payment_date: todayAsDateStr(),
+    settlement_date: null,
   } as PaymentsInsertInput;
 
   const [payment, setPayment] = useState(newPayment);
 
-  // We don't have a payment method here so we'll use None. We also don't have
-  // a real settlement timeline config here so we'll use the default.
-  // As of today (2021.03.02), this computed value will be two biz days after
-  // the payment date
-  const settlementDate = computeSettlementDateForPayment(
-    null,
-    payment.payment_date,
-    DefaultSettlementTimelineConfig
-  );
-
-  const isDialogReady = true;
-  const isFormValid = !!payment.method;
-  const isFormLoading = false;
-  const isSubmitDisabled = !isFormValid || isFormLoading;
+  useEffect(() => {
+    if (payment.method && payment.payment_date) {
+      // We don't have a payment method here so we'll use None. We also don't have
+      // a real settlement timeline config here so we'll use the default.
+      // As of today (2021.03.02), this computed value will be two biz days after
+      // the payment date
+      const settlementDate = computeSettlementDateForPayment(
+        payment.method,
+        payment.payment_date,
+        DefaultSettlementTimelineConfig
+      );
+      setPayment((payment) => ({
+        ...payment,
+        settlement_date: settlementDate,
+      }));
+    }
+  }, [payment.method, payment.payment_date, setPayment]);
 
   const handleClickSubmit = async () => {
     const params = {
-      payment: { ...payment, settlement_date: settlementDate },
+      payment: {
+        company_id: payment.company_id,
+        amount: payment.amount,
+        method: payment.method,
+        payment_date: payment.payment_date,
+        settlement_date: payment.settlement_date,
+      },
       loan_ids: selectedLoans.map((loan) => loan.id),
     };
     const response = await authenticatedApi.post(
@@ -98,6 +108,11 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
     }
   };
 
+  const isDialogReady = true;
+  const isFormValid = !!payment.method;
+  const isFormLoading = false;
+  const isSubmitDisabled = !isFormValid || isFormLoading;
+
   return isDialogReady ? (
     <Dialog
       open
@@ -111,7 +126,6 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
           selectedLoans={selectedLoans}
           payment={payment}
           setPayment={setPayment}
-          settlementDate={settlementDate}
         />
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
