@@ -204,3 +204,38 @@ fragment FinancialSummary on financial_summaries {
   total_principal_in_requested_state
   available_limit
 }
+
+fragment InvoiceFile on invoice_files {
+  invoice_id
+  file_id
+  file_type
+  file {
+    id
+    ...File
+  }
+}
+
+fragment Invoice on invoices {
+  id
+  company_id
+  payor_id
+  invoice_number
+  subtotal_amount
+  total_amount
+  taxes_amount
+  invoice_date
+  invoice_due_date
+  advance_date
+  is_cannabis
+  status
+  created_at
+  funded_at
+  company {
+    id
+    name
+  }
+  payor {
+    id
+    name
+  }
+}
