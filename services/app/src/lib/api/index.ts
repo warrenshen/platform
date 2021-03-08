@@ -17,7 +17,7 @@ export const fileRoutes = {
 };
 
 export const companyRoutes = {
-  createCompany: "/companies/create_company",
+  createCustomer: "/companies/create_customer",
 };
 
 export const contractRoutes = {

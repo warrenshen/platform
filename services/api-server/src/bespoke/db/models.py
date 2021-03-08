@@ -10,6 +10,7 @@ from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterator, List,
 
 import sqlalchemy
 from bespoke.date import date_util
+from bespoke.db.db_constants import CompanyType
 from fastapi_utils.guid_type import GUID, GUID_DEFAULT_SQLITE
 from mypy_extensions import TypedDict
 from sqlalchemy import (JSON, BigInteger, Boolean, Column, Date, DateTime,
@@ -89,6 +90,7 @@ class Company(Base):
 	contract_id = Column(GUID)
 	needs_balance_recomputed = Column(Boolean, nullable=False, default=False)
 	latest_loan_identifier = Column(Integer, nullable=False, default=0)
+	company_type = Column(String, nullable=False, default=CompanyType.Customer)
 
 	def as_dict(self) -> CompanyDict:
 		return CompanyDict(

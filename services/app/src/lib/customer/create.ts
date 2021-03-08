@@ -8,22 +8,22 @@ import {
 } from "generated/graphql";
 import { authenticatedApi, companyRoutes } from "lib/api";
 
-export type CreateCompanyReq = {
+export type CreateCustomerReq = {
   company: CompaniesInsertInput;
   settings: CompanySettingsInsertInput;
   contract: ContractsInsertInput;
 };
 
-export type CreateCompanyResp = {
+export type CreateCustomerResp = {
   status: string;
   msg: string;
 };
 
-export async function createCompany(
-  req: CreateCompanyReq
-): Promise<CreateCompanyResp> {
+export async function createCustomer(
+  req: CreateCustomerReq
+): Promise<CreateCustomerResp> {
   return authenticatedApi
-    .post(companyRoutes.createCompany, req)
+    .post(companyRoutes.createCustomer, req)
     .then((res) => {
       return res.data;
     })

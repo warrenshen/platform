@@ -1,7 +1,7 @@
 import json
 from typing import cast
 
-from bespoke.companies import create_company_util
+from bespoke.companies import create_customer_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from flask import Blueprint, Response, current_app, make_response, request
@@ -13,7 +13,7 @@ from server.views.common.auth_util import UserSession
 
 handler = Blueprint('companies', __name__)
 
-class CreateCompanyView(MethodView):
+class CreateCustomerView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
 	def post(self) -> Response:
@@ -30,7 +30,7 @@ class CreateCompanyView(MethodView):
 		user_session = auth_util.UserSession.from_session()
 		bank_admin_user_id = user_session.get_user_id()
 
-		resp, err = create_company_util.create_company(
+		resp, err = create_customer_util.create_customer(
 			req=form, bank_admin_user_id=bank_admin_user_id,
 			session_maker=current_app.session_maker)
 		if err:
@@ -39,4 +39,4 @@ class CreateCompanyView(MethodView):
 		return make_response(json.dumps(resp), 200)
 
 handler.add_url_rule(
-	'/create_company', view_func=CreateCompanyView.as_view(name='create_company_view'))
+	'/create_customer', view_func=CreateCustomerView.as_view(name='create_customer_views'))

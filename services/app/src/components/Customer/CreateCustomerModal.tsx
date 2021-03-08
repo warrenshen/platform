@@ -22,7 +22,7 @@ import {
   createProductConfigFieldsFromProductType,
   createProductConfigForServer,
 } from "lib/customer/contracts";
-import { createCompany } from "lib/customer/create";
+import { createCustomer } from "lib/customer/create";
 import { useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -122,7 +122,7 @@ function CreateCustomerModal({ handleClose }: Props) {
     }
     setErrMsg("");
 
-    const response = await createCompany({
+    const response = await createCustomer({
       company: customer,
       settings: companySetting,
       contract: {

@@ -24,6 +24,19 @@ PRODUCT_TYPES = [
 	ProductType.LINE_OF_CREDIT
 ]
 
+# Companies
+
+class CompanyType(object):
+	Customer = 'customer'
+	Vendor = 'vendor'
+	Payor = 'payor'
+
+COMPANY_TYPES = (
+	CompanyType.Customer,
+	CompanyType.Vendor,
+	CompanyType.Payor
+)
+
 # Artifacts
 
 class RequestStatusEnum(object):

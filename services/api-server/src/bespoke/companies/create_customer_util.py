@@ -26,19 +26,19 @@ ContractInsertInputDict = TypedDict('ContractInsertInputDict', {
 	'product_config': Dict
 })
 
-CreateCompanyReqDict = TypedDict('CreateCompanyReqDict', {
+CreateCustomerInputDict = TypedDict('CreateCustomerInputDict', {
 	'company': CompanyInsertInputDict,
 	'settings': CompanySettingsInsertInputDict,
 	'contract': ContractInsertInputDict
 })
 
-CreateCompanyRespDict = TypedDict('CreateCompanyRespDict', {
+CreateCustomerRespDict = TypedDict('CreateCustomerRespDict', {
 	'status': str
 })
 
-def create_company(
-	req: CreateCompanyReqDict, bank_admin_user_id: str,
-	session_maker: Callable) -> Tuple[CreateCompanyRespDict, errors.Error]:
+def create_customer(
+	req: CreateCustomerInputDict, bank_admin_user_id: str,
+	session_maker: Callable) -> Tuple[CreateCustomerRespDict, errors.Error]:
 
 	with session_scope(session_maker) as session:
 		company_name = req['company']['name']
@@ -90,6 +90,6 @@ def create_company(
 		contract.company_id = company_id
 
 
-	return CreateCompanyRespDict(
+	return CreateCustomerRespDict(
 		status='OK'
 	), None
