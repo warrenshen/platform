@@ -12,7 +12,13 @@ import {
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import DatePicker from "components/Shared/Dates/DatePicker";
-import { LoanFragment, PaymentsInsertInput } from "generated/graphql";
+import {
+  FinancialSummaryFragment,
+  LoanFragment,
+  PaymentsInsertInput,
+  ProductTypeEnum,
+} from "generated/graphql";
+import { formatCurrency } from "lib/currency";
 import {
   AllPaymentMethods,
   AllPaymentOptions,
@@ -30,19 +36,21 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
+  productType: ProductTypeEnum | null;
+  financialSummary: FinancialSummaryFragment | null;
   selectedLoans: LoanFragment[];
   payment: PaymentsInsertInput;
   paymentOption: string;
-  settlementDate: string | null;
   setPayment: (payment: PaymentsInsertInput) => void;
   setPaymentOption: (paymentOption: string) => void;
 }
 
 function CreateRepaymentSelectLoans({
+  productType,
+  financialSummary,
   selectedLoans,
   payment,
   paymentOption,
-  settlementDate,
   setPayment,
   setPaymentOption,
 }: Props) {
@@ -50,22 +58,83 @@ function CreateRepaymentSelectLoans({
 
   return (
     <Box>
-      <Box>
-        <Typography>
-          Step 1 of 2: Select loans to pay off and specify deposit date, payment
-          method, and payment option.
+      {productType === ProductTypeEnum.LineOfCredit ? (
+        <Box display="flex" flexDirection="column">
+          <Box>
+            <Typography variant="body1">
+              {`Outsanding Principal: ${
+                financialSummary
+                  ? formatCurrency(financialSummary.total_outstanding_principal)
+                  : "Loading..."
+              }`}
+            </Typography>
+          </Box>
+          <Box mt={1}>
+            <Typography variant="body1">
+              {`Outsanding Interest: ${
+                financialSummary
+                  ? formatCurrency(financialSummary.total_outstanding_interest)
+                  : "Loading..."
+              }`}
+            </Typography>
+          </Box>
+        </Box>
+      ) : (
+        <Box display="flex" flexDirection="column">
+          <Typography variant="body2">
+            You have selected the following loan(s) to make a payment towards.
+          </Typography>
+          <LoansDataGrid
+            isDaysPastDueVisible
+            isMaturityVisible
+            isSortingDisabled
+            loans={selectedLoans}
+          />
+        </Box>
+      )}
+      <Box mt={3}>
+        <Typography variant="subtitle2">
+          How much would you like to pay?
         </Typography>
-      </Box>
-      <Box>
-        <Typography>
-          As of today, here are the details of your loans.
-        </Typography>
-        <LoansDataGrid
-          isDaysPastDueVisible
-          isMaturityVisible
-          isSortingDisabled
-          loans={selectedLoans}
-        />
+        <Box mt={1}>
+          <FormControl className={classes.inputField}>
+            <InputLabel id="select-payment-option-label">
+              Payment Option
+            </InputLabel>
+            <Select
+              id="select-payment-option"
+              labelId="select-payment-option-label"
+              value={paymentOption}
+              onChange={({ target: { value } }) =>
+                setPaymentOption(value as string)
+              }
+            >
+              {AllPaymentOptions.map((paymentOption) => {
+                return (
+                  <MenuItem key={paymentOption} value={paymentOption}>
+                    {PaymentOptionToLabel[paymentOption]}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+        </Box>
+        {paymentOption === "custom_amount" && (
+          <Box mt={2}>
+            <FormControl className={classes.inputField}>
+              <CurrencyTextField
+                label="Amount"
+                currencySymbol="$"
+                outputFormat="string"
+                textAlign="left"
+                value={payment.amount}
+                onChange={(_event: any, value: string) => {
+                  setPayment({ ...payment, amount: value });
+                }}
+              />
+            </FormControl>
+          </Box>
+        )}
       </Box>
       <Box mt={3}>
         <Typography variant="subtitle2">
@@ -131,54 +200,10 @@ function CreateRepaymentSelectLoans({
             disabled
             disablePast
             disableNonBankDays
-            value={settlementDate}
+            value={payment.settlement_date}
           />
         </Box>
       </Box>
-      <Box mt={3}>
-        <Typography variant="subtitle2">
-          How much would you like to pay?
-        </Typography>
-        <Box mt={1}>
-          <FormControl className={classes.inputField}>
-            <InputLabel id="select-payment-option-label">
-              Payment Option
-            </InputLabel>
-            <Select
-              id="select-payment-option"
-              labelId="select-payment-option-label"
-              value={paymentOption}
-              onChange={({ target: { value } }) =>
-                setPaymentOption(value as string)
-              }
-            >
-              {AllPaymentOptions.map((paymentOption) => {
-                return (
-                  <MenuItem key={paymentOption} value={paymentOption}>
-                    {PaymentOptionToLabel[paymentOption]}
-                  </MenuItem>
-                );
-              })}
-            </Select>
-          </FormControl>
-        </Box>
-      </Box>
-      {paymentOption === "custom_amount" && (
-        <Box mt={2}>
-          <FormControl className={classes.inputField}>
-            <CurrencyTextField
-              label="Amount"
-              currencySymbol="$"
-              outputFormat="string"
-              textAlign="left"
-              value={payment.amount}
-              onChange={(_event: any, value: string) => {
-                setPayment({ ...payment, amount: value });
-              }}
-            />
-          </FormControl>
-        </Box>
-      )}
     </Box>
   );
 }

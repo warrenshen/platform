@@ -196,6 +196,7 @@ fragment LineOfCredit on line_of_credits {
 
 fragment FinancialSummary on financial_summaries {
   id
+  company_id
   total_limit
   adjusted_total_limit
   total_outstanding_principal

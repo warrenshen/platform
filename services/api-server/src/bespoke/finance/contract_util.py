@@ -293,6 +293,14 @@ class Contract(object):
 			For example, if the late fee structure is 25% more when things are 1-7 late,
 			then this returns 0.25 as the multiplier.
 		"""
+		product_type, err = self.get_product_type()
+		if err:
+			return None, err
+
+		# There is no fee multiplier for Line of Credit product type.
+		if product_type == ProductType.LINE_OF_CREDIT:
+			return 0.0, None
+
 		self._populate()
 
 		if not self._late_fee_ranges:

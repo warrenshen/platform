@@ -42,7 +42,7 @@ class CalculateEffectOfPaymentView(MethodView):
 		# NOTE: Fetching information is likely a slow task, so we probably want to
 		# turn this into an async operation.
 		effect_resp, err = repayment_util.calculate_repayment_effect(
-			payment, payment_option, form['company_id'], loan_ids, current_app.session_maker)
+			form['company_id'], payment, payment_option, loan_ids, current_app.session_maker)
 		if err:
 			return handler_util.make_error_response(err)
 

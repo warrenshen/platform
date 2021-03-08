@@ -14942,14 +14942,17 @@ export type GetCompanyForCustomerContractPageQuery = {
   >;
 };
 
-export type CompanyWithDetailsByCompanyIdQueryVariables = Exact<{
+export type GetCompanyWithDetailsByCompanyIdQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
 
-export type CompanyWithDetailsByCompanyIdQuery = {
+export type GetCompanyWithDetailsByCompanyIdQuery = {
   companies_by_pk?: Maybe<
     Pick<Companies, "id"> & {
       contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
+      financial_summary?: Maybe<
+        Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
+      >;
     }
   >;
 };
@@ -15184,6 +15187,7 @@ export type LineOfCreditFragment = Pick<
 export type FinancialSummaryFragment = Pick<
   FinancialSummaries,
   | "id"
+  | "company_id"
   | "total_limit"
   | "adjusted_total_limit"
   | "total_outstanding_principal"
@@ -15792,6 +15796,7 @@ export const LineOfCreditFragmentDoc = gql`
 export const FinancialSummaryFragmentDoc = gql`
   fragment FinancialSummary on financial_summaries {
     id
+    company_id
     total_limit
     adjusted_total_limit
     total_outstanding_principal
@@ -19281,66 +19286,71 @@ export type GetCompanyForCustomerContractPageQueryResult = Apollo.QueryResult<
   GetCompanyForCustomerContractPageQuery,
   GetCompanyForCustomerContractPageQueryVariables
 >;
-export const CompanyWithDetailsByCompanyIdDocument = gql`
-  query CompanyWithDetailsByCompanyId($companyId: uuid!) {
+export const GetCompanyWithDetailsByCompanyIdDocument = gql`
+  query GetCompanyWithDetailsByCompanyId($companyId: uuid!) {
     companies_by_pk(id: $companyId) {
       id
       contract {
         id
         ...Contract
       }
+      financial_summary {
+        id
+        ...FinancialSummary
+      }
     }
   }
   ${ContractFragmentDoc}
+  ${FinancialSummaryFragmentDoc}
 `;
 
 /**
- * __useCompanyWithDetailsByCompanyIdQuery__
+ * __useGetCompanyWithDetailsByCompanyIdQuery__
  *
- * To run a query within a React component, call `useCompanyWithDetailsByCompanyIdQuery` and pass it any options that fit your needs.
- * When your component renders, `useCompanyWithDetailsByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetCompanyWithDetailsByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompanyWithDetailsByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useCompanyWithDetailsByCompanyIdQuery({
+ * const { data, loading, error } = useGetCompanyWithDetailsByCompanyIdQuery({
  *   variables: {
  *      companyId: // value for 'companyId'
  *   },
  * });
  */
-export function useCompanyWithDetailsByCompanyIdQuery(
+export function useGetCompanyWithDetailsByCompanyIdQuery(
   baseOptions: Apollo.QueryHookOptions<
-    CompanyWithDetailsByCompanyIdQuery,
-    CompanyWithDetailsByCompanyIdQueryVariables
+    GetCompanyWithDetailsByCompanyIdQuery,
+    GetCompanyWithDetailsByCompanyIdQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    CompanyWithDetailsByCompanyIdQuery,
-    CompanyWithDetailsByCompanyIdQueryVariables
-  >(CompanyWithDetailsByCompanyIdDocument, baseOptions);
+    GetCompanyWithDetailsByCompanyIdQuery,
+    GetCompanyWithDetailsByCompanyIdQueryVariables
+  >(GetCompanyWithDetailsByCompanyIdDocument, baseOptions);
 }
-export function useCompanyWithDetailsByCompanyIdLazyQuery(
+export function useGetCompanyWithDetailsByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    CompanyWithDetailsByCompanyIdQuery,
-    CompanyWithDetailsByCompanyIdQueryVariables
+    GetCompanyWithDetailsByCompanyIdQuery,
+    GetCompanyWithDetailsByCompanyIdQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    CompanyWithDetailsByCompanyIdQuery,
-    CompanyWithDetailsByCompanyIdQueryVariables
-  >(CompanyWithDetailsByCompanyIdDocument, baseOptions);
+    GetCompanyWithDetailsByCompanyIdQuery,
+    GetCompanyWithDetailsByCompanyIdQueryVariables
+  >(GetCompanyWithDetailsByCompanyIdDocument, baseOptions);
 }
-export type CompanyWithDetailsByCompanyIdQueryHookResult = ReturnType<
-  typeof useCompanyWithDetailsByCompanyIdQuery
+export type GetCompanyWithDetailsByCompanyIdQueryHookResult = ReturnType<
+  typeof useGetCompanyWithDetailsByCompanyIdQuery
 >;
-export type CompanyWithDetailsByCompanyIdLazyQueryHookResult = ReturnType<
-  typeof useCompanyWithDetailsByCompanyIdLazyQuery
+export type GetCompanyWithDetailsByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useGetCompanyWithDetailsByCompanyIdLazyQuery
 >;
-export type CompanyWithDetailsByCompanyIdQueryResult = Apollo.QueryResult<
-  CompanyWithDetailsByCompanyIdQuery,
-  CompanyWithDetailsByCompanyIdQueryVariables
+export type GetCompanyWithDetailsByCompanyIdQueryResult = Apollo.QueryResult<
+  GetCompanyWithDetailsByCompanyIdQuery,
+  GetCompanyWithDetailsByCompanyIdQueryVariables
 >;
 export const GetCompanyNextLoanIdentifierDocument = gql`
   mutation GetCompanyNextLoanIdentifier(

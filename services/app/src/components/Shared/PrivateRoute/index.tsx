@@ -1,6 +1,6 @@
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
-  useCompanyWithDetailsByCompanyIdQuery,
+  useGetCompanyWithDetailsByCompanyIdQuery,
   UserRolesEnum,
 } from "generated/graphql";
 import { routes } from "lib/routes";
@@ -25,7 +25,7 @@ function PrivateRoute(props: Props & RouteProps) {
 
   const shouldRender = isSignedIn && canVisitRoute;
 
-  const { data } = useCompanyWithDetailsByCompanyIdQuery({
+  const { data } = useGetCompanyWithDetailsByCompanyIdQuery({
     skip: companyId === null,
     variables: {
       companyId,

@@ -36,7 +36,7 @@ interface Props {
   handleDataChange: () => void;
 }
 
-function LoansActiveNotApproved({ data, handleDataChange }: Props) {
+function LoansActiveNotFunded({ data, handleDataChange }: Props) {
   const classes = useStyles();
 
   const {
@@ -122,4 +122,4 @@ function LoansActiveNotApproved({ data, handleDataChange }: Props) {
   );
 }
 
-export default LoansActiveNotApproved;
+export default LoansActiveNotFunded;

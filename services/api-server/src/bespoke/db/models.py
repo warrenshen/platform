@@ -282,6 +282,7 @@ class Transaction(Base):
 LoanDict = TypedDict('LoanDict', {
 	'id': str,
 	'company_id': str,
+	'created_at': datetime.datetime,
 	'origination_date': datetime.date,
 	'maturity_date': datetime.date,
 	'adjusted_maturity_date': datetime.date,
@@ -297,6 +298,10 @@ class Loan(Base):
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	company_id = Column(GUID, nullable=False)
+
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+
 	loan_type = Column(Text)
 	artifact_id = Column(GUID)
 	requested_payment_date = Column(Date)
@@ -330,6 +335,7 @@ class Loan(Base):
 		return LoanDict(
 			id=str(self.id),
 			company_id=str(self.company_id),
+			created_at=self.created_at,
 			origination_date=self.origination_date,
 			maturity_date=self.maturity_date,
 			adjusted_maturity_date=self.adjusted_maturity_date,

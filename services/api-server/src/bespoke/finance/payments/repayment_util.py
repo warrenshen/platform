@@ -7,7 +7,7 @@ from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.db_constants import (LoanStatusEnum, PaymentMethod,
-                                     PaymentStatusEnum)
+                                     PaymentStatusEnum, ProductType)
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util, number_util
 from bespoke.finance.loans import loan_calculator
@@ -108,14 +108,16 @@ def _apply_to(balance: LoanBalanceDict, category: str, amount_left: float) -> Tu
 		return amount_left_to_use, amount_applied
 
 def calculate_repayment_effect(
+	company_id: str,
 	payment_input: payment_util.PaymentInsertInputDict,
 	payment_option: str,
-	company_id: str,
 	loan_ids: List[str],
 	session_maker: Callable,
 	test_only_skip_interest_and_fees_calculation: bool = False
 	) -> Tuple[RepaymentEffectRespDict, errors.Error]:
 	# What loans and fees does would this payment pay off?
+
+	err_details = {'company_id': company_id, 'loan_ids': loan_ids, 'method': 'calculate_repayment_effect'}
 
 	if payment_option == 'custom_amount':
 		if not number_util.is_number(payment_input.get('amount')) and payment_input['amount'] <= 0:
@@ -127,25 +129,58 @@ def calculate_repayment_effect(
 	if not payment_input.get('settlement_date'):
 		return None, errors.Error('Settlement date must be specified')
 
-	if not loan_ids:
-		return None, errors.Error('No loan ids are selected')
-
-	# Figure out how much is due by a particular date
-	loan_dicts = []
-	err_details = {'company_id': company_id, 'loan_ids': loan_ids, 'method': 'calculate_repayment_effect'}
 	payment_settlement_date = date_util.load_date_str(payment_input['settlement_date'])
 
 	with session_scope(session_maker) as session:
-		loans = cast(
-			List[models.Loan],
-			session.query(models.Loan).filter(
-				models.Loan.company_id == company_id
-			).filter(
-				models.Loan.id.in_(loan_ids)
+		# Get all contracts associated with company.
+		contracts = cast(
+			List[models.Contract],
+			session.query(models.Contract).filter(
+				models.Contract.company_id == company_id
 			).all())
+		if not contracts:
+			return None, errors.Error('Cannot calculate repayment effect, because no contracts are setup for this company')
 
-		if not loans:
-			return None, errors.Error('No loans found', details=err_details)
+		contract_dicts = [c.as_dict() for c in contracts]
+
+	contract_helper, err = contract_util.ContractHelper.build(company_id, contract_dicts)
+	if err:
+		return None, err
+
+	active_contract, err = contract_helper.get_contract(payment_settlement_date)
+	if err:
+		return None, err
+	if not active_contract:
+		return None, errors.Error('No active contract on settlement date')
+	product_type, err = active_contract.get_product_type()
+
+	# Figure out how much is due by a particular date
+	loan_dicts = []
+
+	with session_scope(session_maker) as session:
+		loans = []
+		if product_type == ProductType.LINE_OF_CREDIT:
+			loans = cast(
+				List[models.Loan],
+				session.query(models.Loan).filter(
+					models.Loan.company_id == company_id
+				).filter(
+					models.Loan.closed_at == None
+				))
+		else:
+			if not loan_ids:
+				return None, errors.Error('No loan ids are selected')
+
+			loans = cast(
+				List[models.Loan],
+				session.query(models.Loan).filter(
+					models.Loan.company_id == company_id
+				).filter(
+					models.Loan.id.in_(loan_ids)
+				).all())
+
+			if not loans:
+				return None, errors.Error('No loans found', details=err_details)
 
 		selected_loan_ids = set([])
 		for loan in loans:
@@ -157,6 +192,8 @@ def calculate_repayment_effect(
 			session.query(models.Loan).filter(
 				models.Loan.company_id == company_id
 			).filter(
+				models.Loan.closed_at == None
+			).filter(
 				models.Loan.adjusted_maturity_date <= payment_settlement_date.isoformat()
 			))
 
@@ -166,17 +203,6 @@ def calculate_repayment_effect(
 			past_due_loan_id = str(loan_past_due.id)
 			loans_past_due_ids.add(past_due_loan_id)
 			loans_past_due_dicts.append(loan_past_due.as_dict())
-
-		# Get all contracts associated with company.
-		contracts = cast(
-			List[models.Contract],
-			session.query(models.Contract).filter(
-				models.Contract.company_id == company_id
-			).all())
-		if not contracts:
-			return None, errors.Error('Cannot calculate repayment effect, because no contracts are setup for this company')
-
-		contract_dicts = [c.as_dict() for c in contracts]
 
 		# Get transactions associated with all the loans selected.
 		all_loan_ids = selected_loan_ids.union(loans_past_due_ids)
@@ -192,10 +218,6 @@ def calculate_repayment_effect(
 
 	# Calculate the loans "before" by running the loan calculator to determine
 	# the balance at that particular time.
-	contract_helper, err = contract_util.ContractHelper.build(company_id, contract_dicts)
-	if err:
-		return None, err
-
 	report_date = payment_settlement_date
 	loan_dict_and_balance_list: List[LoanDictAndBalance] = []
 
@@ -292,14 +314,18 @@ def calculate_repayment_effect(
 		# Apply in the order of earliest maturity date to latest maturity date
 		# while trying to cover as much of the loan coming due earliest
 		# Also paying off loans and fees takes preference over principal.
-		loan_dict_and_balance_list.sort(key=lambda l: l['loan']['adjusted_maturity_date'])
+		loan_dict_and_balance_list.sort(key=lambda l: (l['loan']['adjusted_maturity_date'], l['loan']['origination_date'], l['loan']['created_at']))
 		for loan_and_before_balance in loan_dict_and_balance_list:
 			balance_before = loan_and_before_balance['before_balance']
 			loan_dict = loan_and_before_balance['loan']
 
+			if product_type == ProductType.LINE_OF_CREDIT and amount_left <= 0:
+				continue
+
 			amount_left, amount_used_interest = _apply_to(balance_before, 'interest', amount_left)
 			amount_left, amount_used_fees = _apply_to(balance_before, 'fees', amount_left)
 			amount_left, amount_used_principal = _apply_to(balance_before, 'principal', amount_left)
+
 			loans_to_show.append(LoanToShowDict(
 				loan_id=loan_dict['id'],
 				transaction=TransactionInputDict(

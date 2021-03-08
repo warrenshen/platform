@@ -85,6 +85,7 @@ function CustomerOverviewPage() {
               {isCreateRepaymentModalOpen && (
                 <CreateRepaymentModal
                   companyId={companyId}
+                  productType={productType}
                   selectedLoans={selectedLoans}
                   handleClose={() => {
                     refetch();

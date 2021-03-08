@@ -103,6 +103,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 						_apply_transaction(tx, session, loan_not_selected)
 
 		resp, err = repayment_util.calculate_repayment_effect(
+			company_id=company_id,
 			payment_input=payment_util.PaymentInsertInputDict(
 				company_id='unused',
 				type='unused',
@@ -112,7 +113,6 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				settlement_date=test['settlement_date']
 			),
 			payment_option=test['payment_option'],
-			company_id=company_id,
 			loan_ids=loan_ids,
 			session_maker=session_maker,
 			test_only_skip_interest_and_fees_calculation=test.get('test_only_skip_interest_and_fees_calculation')

@@ -14,8 +14,8 @@ import {
   ProductTypeEnum,
   useGetActiveLoansForCompanyQuery,
 } from "generated/graphql";
-import LoansActiveApproved from "pages/Customer/LoansActive/LoansActiveApproved";
-import LoansActiveNotApproved from "pages/Customer/LoansActive/LoansActiveNotApproved";
+import LoansActiveFunded from "pages/Customer/LoansActive/LoansActiveFunded";
+import LoansActiveNotFunded from "pages/Customer/LoansActive/LoansActiveNotFunded";
 import { useContext } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -96,12 +96,12 @@ function CustomerLoansActivePage() {
         <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
           <Typography variant="h6">Loans - Not Funded</Typography>
-          <LoansActiveNotApproved data={data} handleDataChange={refetch} />
+          <LoansActiveNotFunded data={data} handleDataChange={refetch} />
         </Box>
         <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
           <Typography variant="h6">Loans - Funded</Typography>
-          <LoansActiveApproved data={data} handleDataChange={refetch} />
+          <LoansActiveFunded data={data} handleDataChange={refetch} />
         </Box>
       </Box>
     </Page>

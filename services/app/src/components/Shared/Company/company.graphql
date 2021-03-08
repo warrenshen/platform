@@ -134,12 +134,16 @@ query GetCompanyForCustomerContractPage($companyId: uuid!) {
 }
 
 # Query is used to determine what navigation options to show in sidebar.
-query CompanyWithDetailsByCompanyId($companyId: uuid!) {
+query GetCompanyWithDetailsByCompanyId($companyId: uuid!) {
   companies_by_pk(id: $companyId) {
     id
     contract {
       id
       ...Contract
+    }
+    financial_summary {
+      id
+      ...FinancialSummary
     }
   }
 }

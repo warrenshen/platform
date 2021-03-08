@@ -8,6 +8,7 @@ import {
   GetActiveLoansForCompanyQuery,
   LoanFragment,
   Loans,
+  ProductTypeEnum,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { Action, check } from "lib/auth/rbac-rules";
@@ -36,7 +37,7 @@ interface Props {
   handleDataChange: () => void;
 }
 
-function LoansActiveApproved({ data, handleDataChange }: Props) {
+function LoansActiveFunded({ data, handleDataChange }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
 
@@ -62,6 +63,10 @@ function LoansActiveApproved({ data, handleDataChange }: Props) {
     [setSelectedLoans, setSelectedLoanIds]
   );
 
+  const isLineOfCredit = productType === ProductTypeEnum.LineOfCredit;
+  const isCreateRepaymentDisabled =
+    !isLineOfCredit && selectedLoans.length <= 0;
+
   return (
     <Box className={classes.container}>
       <Box className={classes.sectionSpace} />
@@ -70,7 +75,7 @@ function LoansActiveApproved({ data, handleDataChange }: Props) {
           <Can perform={Action.RepayPurchaseOrderLoans}>
             <Box>
               <ModalButton
-                isDisabled={selectedLoans.length <= 0}
+                isDisabled={isCreateRepaymentDisabled}
                 label={"Pay Off Loans"}
                 handleClick={({ handleOpen }) => {
                   const fundedLoans = selectedLoans.filter(
@@ -87,6 +92,7 @@ function LoansActiveApproved({ data, handleDataChange }: Props) {
                 modal={({ handleClose }) => (
                   <CreateRepaymentModal
                     companyId={companyId}
+                    productType={productType}
                     selectedLoans={selectedLoans}
                     handleClose={() => {
                       handleDataChange();
@@ -105,7 +111,9 @@ function LoansActiveApproved({ data, handleDataChange }: Props) {
       <Box className={classes.section}>
         <Box display="flex" flex={1}>
           <PolymorphicLoansDataGrid
-            isMultiSelectEnabled={check(role, Action.SelectLoan)}
+            isMultiSelectEnabled={
+              !isLineOfCredit && check(role, Action.SelectLoan)
+            }
             isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
             productType={productType}
             loans={loans}
@@ -118,4 +126,4 @@ function LoansActiveApproved({ data, handleDataChange }: Props) {
   );
 }
 
-export default LoansActiveApproved;
+export default LoansActiveFunded;

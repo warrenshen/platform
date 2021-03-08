@@ -12,19 +12,19 @@ function RequestedRepaymentPreview({ payment }: Props) {
   return (
     <Box display="flex" flexDirection="column">
       <Box>
-        <Typography>
+        <Typography variant="body1">
           {`Payment Method: ${
             PaymentMethodToLabel[payment.method as PaymentMethodEnum]
           }`}
         </Typography>
       </Box>
       <Box mt={1}>
-        <Typography>
+        <Typography variant="body1">
           {`Requested Payment Amount: ${formatCurrency(payment.amount)}`}
         </Typography>
       </Box>
       <Box mt={1}>
-        <Typography>
+        <Typography variant="body1">
           {`Requested Payment Date: ${formatDateString(
             payment.requested_payment_date
           )}`}

@@ -17,7 +17,8 @@ import {
   Companies,
   LoanFragment,
   PaymentsInsertInput,
-  useCompanyWithDetailsByCompanyIdQuery,
+  ProductTypeEnum,
+  useGetCompanyWithDetailsByCompanyIdQuery,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { PaymentMethodEnum } from "lib/enum";
@@ -32,7 +33,7 @@ import {
   LoanTransaction,
 } from "lib/finance/payments/repayment";
 import { LoanBeforeAfterPayment } from "lib/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -53,19 +54,21 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   companyId: Companies["id"];
+  productType: ProductTypeEnum | null;
   selectedLoans: LoanFragment[];
   handleClose: () => void;
 }
 
 function CreateRepaymentModal({
   companyId,
+  productType,
   selectedLoans,
   handleClose,
 }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
 
-  const { data } = useCompanyWithDetailsByCompanyIdQuery({
+  const { data } = useGetCompanyWithDetailsByCompanyIdQuery({
     variables: {
       companyId: companyId,
     },
@@ -73,6 +76,7 @@ function CreateRepaymentModal({
 
   const company = data?.companies_by_pk;
   const contract = company?.contract || null;
+  const financialSummary = company?.financial_summary || null;
 
   // There are 2 states that we show, one when the user is selecting
   // the payment method date, and payment type, and the next is when
@@ -83,39 +87,34 @@ function CreateRepaymentModal({
   const [loansBeforeAfterPayment, setLoansBeforeAfterPayment] = useState<
     LoanBeforeAfterPayment[]
   >([]);
-
+  // A payment option is the user's choice to payment the remaining balances on the loan, to
+  // pay the minimum amount required, or to pay a custom amount.
+  const [paymentOption, setPaymentOption] = useState("");
   const [payment, setPayment] = useState<PaymentsInsertInput>({
     company_id: companyId,
     type: PaymentTransferType.ToBank,
     amount: 0.0,
     method: "",
     payment_date: null,
+    settlement_date: null,
   });
 
-  const settlementTimelineConfig = getSettlementTimelineConfigFromContract(
-    contract
-  );
-  const settlementDate = computeSettlementDateForPayment(
-    payment.method || null,
-    payment.payment_date,
-    settlementTimelineConfig
-  );
-
-  // A payment option is the user's choice to payment the remaining balances on the loan, to
-  // pay the minimum amount required, or to pay a custom amount.
-  const [paymentOption, setPaymentOption] = useState("");
-
-  const isPaymentMethodSet = !!payment.method;
-
-  const isNextButtonEnabled =
-    payment.payment_date && isPaymentMethodSet && paymentOption !== "";
-  const isActionButtonEnabled = isPaymentMethodSet && payment.amount > 0;
-  const actionBtnText =
-    payment.method === PaymentMethodEnum.ReverseDraftACH
-      ? "Schedule"
-      : "Notify";
-
-  const selectedLoanIds = selectedLoans.map((selectedLoan) => selectedLoan.id);
+  useEffect(() => {
+    if (payment.method && payment.payment_date) {
+      const settlementTimelineConfig = getSettlementTimelineConfigFromContract(
+        contract
+      );
+      const settlementDate = computeSettlementDateForPayment(
+        payment.method || null,
+        payment.payment_date,
+        settlementTimelineConfig
+      );
+      setPayment((payment) => ({
+        ...payment,
+        settlement_date: settlementDate,
+      }));
+    }
+  }, [contract, payment.method, payment.payment_date, setPayment]);
 
   const handleClickNext = async () => {
     if (payment.amount && payment.amount.length > 0) {
@@ -123,10 +122,10 @@ function CreateRepaymentModal({
     }
 
     const response = await calculateEffectOfPayment({
-      payment: { ...payment, settlement_date: settlementDate },
+      payment: { ...payment },
       company_id: companyId,
       payment_option: paymentOption,
-      loan_ids: selectedLoanIds,
+      loan_ids: selectedLoans.map((selectedLoan) => selectedLoan.id),
     });
 
     console.log({ type: "calculateEffectOfPayment", response });
@@ -178,9 +177,11 @@ function CreateRepaymentModal({
     }
 
     const response = await createPayment({
-      payment: { ...payment, settlement_date: settlementDate },
+      payment: { ...payment },
       company_id: companyId,
-      loan_ids: selectedLoanIds,
+      loan_ids: loansBeforeAfterPayment.map(
+        (loanBeforeAfterPayment) => loanBeforeAfterPayment.loan_id
+      ),
     });
 
     if (response.status !== "OK") {
@@ -192,18 +193,29 @@ function CreateRepaymentModal({
     }
   };
 
+  const isPaymentMethodSet = !!payment.method;
+
+  const isNextButtonEnabled =
+    payment.payment_date && isPaymentMethodSet && paymentOption !== "";
+  const isActionButtonEnabled = isPaymentMethodSet && payment.amount > 0;
+  const actionBtnText =
+    payment.method === PaymentMethodEnum.ReverseDraftACH
+      ? "Schedule"
+      : "Notify";
+
   return (
     <Dialog open fullWidth maxWidth="md" onClose={handleClose}>
       <DialogTitle className={classes.dialogTitle}>Pay Off Loans</DialogTitle>
       <DialogContent style={{ minHeight: 400 }}>
         {isOnSelectLoans ? (
           <CreateRepaymentSelectLoans
+            productType={productType}
+            financialSummary={financialSummary}
             selectedLoans={selectedLoans}
             payment={payment}
             paymentOption={paymentOption}
             setPayment={setPayment}
             setPaymentOption={setPaymentOption}
-            settlementDate={settlementDate}
           />
         ) : (
           <CreateRepaymentConfirmEffect
@@ -234,7 +246,6 @@ function CreateRepaymentModal({
                 </Button>
               )}
             </Box>
-
             <Box>
               <Button onClick={handleClose}>Cancel</Button>
               {isOnSelectLoans ? (
