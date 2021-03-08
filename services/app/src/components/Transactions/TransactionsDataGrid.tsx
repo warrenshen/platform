@@ -1,25 +1,21 @@
+import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
+import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
-import DataGrid, { Column, Pager, Paging } from "devextreme-react/data-grid";
 import { TransactionFragment } from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
-  transactions: TransactionFragment[];
   isMiniTable: Boolean;
+  transactions: TransactionFragment[];
 }
 
-function TransactionsDataGrid({ transactions, isMiniTable }: Props) {
+function TransactionsDataGrid({ isMiniTable, transactions }: Props) {
   const rows = transactions;
-
-  const companyNameRenderer = (params: ValueFormatterParams) => {
-    const companyName = params.row.data.payment.company.name;
-    return <ClickableDataGridCell label={companyName} onClick={() => {}} />;
-  };
 
   const columns = useMemo(
     () => [
@@ -58,7 +54,12 @@ function TransactionsDataGrid({ transactions, isMiniTable }: Props) {
         caption: "Company Name",
         visible: !isMiniTable,
         width: 140,
-        cellRender: companyNameRenderer,
+        cellRender: (params: ValueFormatterParams) => (
+          <ClickableDataGridCell
+            label={params.row.data.payment.company.name}
+            onClick={() => {}}
+          />
+        ),
       },
       {
         dataField: "type",
@@ -103,23 +104,9 @@ function TransactionsDataGrid({ transactions, isMiniTable }: Props) {
   );
 
   return (
-    <DataGrid height={"100%"} width={"100%"} dataSource={rows}>
-      {columns.map(
-        ({ dataField, caption, width, alignment, visible, cellRender }) => (
-          <Column
-            key={caption}
-            caption={caption}
-            dataField={dataField}
-            width={width}
-            alignment={alignment}
-            cellRender={cellRender}
-            visible={visible}
-          />
-        )
-      )}
-      <Paging pageSize={30} />
-      <Pager visible allowedPageSizes={[30]} />
-    </DataGrid>
+    <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
+      <ControlledDataGrid pager dataSource={rows} columns={columns} />
+    </Box>
   );
 }
 

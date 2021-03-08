@@ -47,7 +47,9 @@ function Users() {
   });
 
   const users: Maybe<UserFragment[]> =
-    role === UserRolesEnum.BankAdmin ? bankUsers?.users : customerUsers?.users;
+    (role === UserRolesEnum.BankAdmin
+      ? bankUsers?.users
+      : customerUsers?.users) || [];
 
   return (
     <Page appBarTitle={"Users"}>
@@ -97,6 +99,7 @@ function Users() {
         hideCompany={
           ![UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly].includes(role)
         }
+        users={users}
         actionItems={
           check(role, Action.ManipulateUser)
             ? [
@@ -111,7 +114,6 @@ function Users() {
               ]
             : []
         }
-        users={users}
       />
     </Page>
   );

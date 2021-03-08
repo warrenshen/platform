@@ -163,8 +163,6 @@ function PaymentsDataGrid({
         select={enableSelect}
         dataSource={rows}
         columns={columns}
-        pageSize={30}
-        allowedPageSizes={[30]}
         ref={(ref) => setDataGrid(ref)}
         selectedRowKeys={selectedPaymentIds}
         onSelectionChanged={handleSelectionChanged}

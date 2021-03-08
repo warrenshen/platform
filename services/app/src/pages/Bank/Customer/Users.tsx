@@ -1,9 +1,9 @@
 import { Box, Button } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
+import Can from "components/Shared/Can";
 import EditUserProfileModal from "components/Users/EditUserProfileModal";
 import InviteUserModal from "components/Users/InviteUserModal";
 import UsersDataGrid from "components/Users/UsersDataGrid";
-import Can from "components/Shared/Can";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   useListUsersByCompanyIdQuery,
@@ -11,7 +11,7 @@ import {
   UserRolesEnum,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
-import { useState, useContext } from "react";
+import { useContext, useState } from "react";
 import { useParams } from "react-router-dom";
 
 export interface CustomerParams {
@@ -26,11 +26,13 @@ function Users() {
   const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState({} as UserFragment);
   const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
-  const { data: customerUsers, refetch } = useListUsersByCompanyIdQuery({
+  const { data, refetch } = useListUsersByCompanyIdQuery({
     variables: {
       companyId: companyId,
     },
   });
+
+  const users = data?.users || [];
 
   return (
     <>
@@ -68,6 +70,8 @@ function Users() {
         </Box>
       </Can>
       <UsersDataGrid
+        hideCompany
+        users={users}
         actionItems={
           check(role, Action.ManipulateUser)
             ? [
@@ -82,8 +86,6 @@ function Users() {
               ]
             : []
         }
-        hideCompany
-        users={customerUsers?.users}
       />
     </>
   );

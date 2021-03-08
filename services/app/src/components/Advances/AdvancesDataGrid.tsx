@@ -95,8 +95,6 @@ function AdvancesDataGrid({
       dataSource={rows}
       columns={columns}
       pager
-      pageSize={30}
-      allowedPageSizes={[30]}
       ref={(ref) => setDataGrid(ref)}
     />
   );

@@ -9,11 +9,12 @@ import { useMemo } from "react";
 
 interface Props {
   hideCompany?: boolean;
+  users: UserFragment[];
   actionItems: DataGridActionItem[];
-  users?: UserFragment[];
 }
 
 function UsersDataGrid({ actionItems, hideCompany, users }: Props) {
+  const rows = users;
   const columns = useMemo(
     () => [
       {
@@ -59,15 +60,7 @@ function UsersDataGrid({ actionItems, hideCompany, users }: Props) {
 
   return (
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      {users && (
-        <ControlledDataGrid
-          dataSource={users}
-          columns={columns}
-          pager
-          pageSize={30}
-          allowedPageSizes={[30]}
-        />
-      )}
+      <ControlledDataGrid pager dataSource={rows} columns={columns} />
     </Box>
   );
 }
