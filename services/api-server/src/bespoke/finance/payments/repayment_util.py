@@ -63,10 +63,11 @@ RepaymentEffectRespDict = TypedDict('RepaymentEffectRespDict', {
 SettlePaymentReqDict = TypedDict('SettlePaymentReqDict', {
 	'company_id': str,
 	'payment_id': str,
-	'loan_ids': List[str],
-	'transaction_inputs': List[TransactionInputDict],
+	'amount': float,
 	'settlement_date': str, # Effective date of all the transactions as well
-	'payment_date': str # When the payment was deposited into the bank
+	'payment_date': str, # When the payment was deposited into the bank
+	'loan_ids': List[str],
+	'transaction_inputs': List[TransactionInputDict]
 })
 
 def _zero_if_null(val: Optional[float]) -> float:
@@ -482,11 +483,12 @@ def settle_payment(
 
 			transactions_sum += cur_sum
 
-		if not number_util.float_eq(transactions_sum, float(payment.amount)):
-			return None, errors.Error('Transaction inputs provided does not balance with the payment amount included', details=err_details)
-
+		payment_amount = req['amount']
 		payment_settlement_date = date_util.load_date_str(req['settlement_date'])
 		payment_date = date_util.load_date_str(req['payment_date'])
+
+		if not number_util.float_eq(transactions_sum, payment_amount):
+			return None, errors.Error('Transaction inputs provided does not balance with the payment amount included', details=err_details)
 
 		for i in range(len(req['transaction_inputs'])):
 			cur_loan_id = req['loan_ids'][i]
@@ -512,17 +514,19 @@ def settle_payment(
 			new_outstanding_interest = cur_loan.outstanding_interest - to_interest
 			new_outstanding_fees = cur_loan.outstanding_fees - to_fees
 
-			if new_outstanding_interest < 0:
+			if number_util.float_lt(float(new_outstanding_interest), 0):
 				return None, errors.Error(
 					'Interest on a loan may not be negative. You must reduce the amount applied to interest on {} by {} and apply it to the principal'.format(
 						cur_loan_id, -1 * new_outstanding_interest))
 
-			if new_outstanding_fees < 0:
+			if number_util.float_lt(float(new_outstanding_fees), 0):
 				return None, errors.Error(
 					'Fees on a loan may not be negative. You must reduce the amount applied to interest on {} by {} and apply it to the principal'.format(
 						cur_loan_id, -1 * new_outstanding_fees))
 
-			if new_outstanding_principal_balance < 0 and (new_outstanding_interest > 0 or new_outstanding_fees > 0):
+			if number_util.float_lt(float(new_outstanding_principal_balance), 0) and (
+				number_util.float_gt(float(new_outstanding_interest), 0) or
+				number_util.float_gt(float(new_outstanding_fees), 0)):
 				return None, errors.Error(
 					f'Principal on a loan may not be negative if interest or fees are not zero. You must reduce the amount applied to principal on {cur_loan_id} by {-1 * new_outstanding_principal_balance} and apply it to interest and fees.')
 
@@ -545,6 +549,7 @@ def settle_payment(
 		payment_util.make_payment_applied(
 			payment,
 			settled_by_user_id=user_id,
+			amount=decimal.Decimal(payment_amount),
 			payment_date=payment_date,
 			settlement_date=payment_settlement_date
 		)

@@ -948,10 +948,11 @@ class TestSettlePayment(db_unittest.TestCase):
 		req = repayment_util.SettlePaymentReqDict(
 			company_id=company_id,
 			payment_id=payment_id,
-			loan_ids=loan_ids,
-			transaction_inputs=test['transaction_inputs'],
+			amount=test['payment']['amount'],
 			payment_date=test['payment']['payment_date'],
-			settlement_date=test['payment']['settlement_date']
+			settlement_date=test['payment']['settlement_date'],
+			loan_ids=loan_ids,
+			transaction_inputs=test['transaction_inputs']
 		)
 
 		bank_admin_user_id = seed.get_user_id('bank_admin', index=0)
@@ -1310,10 +1311,11 @@ class TestSettlePayment(db_unittest.TestCase):
 		req = repayment_util.SettlePaymentReqDict(
 			company_id=company_id,
 			payment_id=None,
-			loan_ids=[str(uuid.uuid4())],
-			transaction_inputs=None,
+			amount=0.0,
 			payment_date=None,
-			settlement_date=None
+			settlement_date=None,
+			loan_ids=[str(uuid.uuid4())],
+			transaction_inputs=None
 		)
 
 		transaction_ids, err = repayment_util.settle_payment(

@@ -44,8 +44,11 @@ def create_payment(
 	return payment
 
 def make_payment_applied(
-	payment: models.Payment, settled_by_user_id: str,
-	payment_date: datetime.date, settlement_date: datetime.date) -> None:
+	payment: models.Payment,
+	settled_by_user_id: str,
+	amount: decimal.Decimal,
+	payment_date: datetime.date,
+	settlement_date: datetime.date) -> None:
 	"""
 		Call this method when you are ready to apply a payment
 
@@ -55,6 +58,7 @@ def make_payment_applied(
 	"""
 	payment.settled_at = date_util.now()
 	payment.settled_by_user_id = settled_by_user_id
+	payment.amount = amount
 	payment.payment_date = payment_date
 	payment.settlement_date = settlement_date
 
