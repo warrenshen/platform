@@ -12,7 +12,7 @@ from bespoke.db import models
 from bespoke.email import email_manager, sendgrid_util
 from bespoke.email.email_manager import EmailConfigDict, SendGridConfigDict
 from server.config import get_config, is_development_env
-from server.views import triggers
+from server.views import triggers, healthcheck
 
 
 if is_development_env(os.environ.get('FLASK_ENV')):
@@ -20,6 +20,7 @@ if is_development_env(os.environ.get('FLASK_ENV')):
 
 
 config = get_config()
+config.SERVER_TYPE = "async-triggers"
 
 
 sentry_sdk.init(
@@ -45,6 +46,7 @@ app.config.update(config.as_dict())
 
 # Register the blueprints
 app.register_blueprint(triggers.handler, url_prefix='/triggers')
+app.register_blueprint(healthcheck.handler, url_prefix='/healthcheck')
 
 app.app_config = config
 app.engine = models.create_engine()

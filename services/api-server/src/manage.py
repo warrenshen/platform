@@ -18,7 +18,7 @@ from bespoke.email.email_manager import EmailConfigDict, SendGridConfigDict
 from server.config import get_config, is_development_env
 from server.views import (
 	auth, companies, contracts, files, notify, purchase_orders,
-	two_factor, users)
+	two_factor, users, healthcheck)
 from server.views.finance.ebba_applications import \
     approvals as ebba_application_approvals
 from server.views.finance.loans import (
@@ -71,6 +71,9 @@ app.register_blueprint(advances.handler, url_prefix='/finance/loans/advances')
 app.register_blueprint(approvals.handler, url_prefix='/finance/loans/approvals')
 app.register_blueprint(reports.handler, url_prefix='/finance/loans/reports')
 app.register_blueprint(loans_purchase_orders.handler, url_prefix='/finance/loans/purchase_orders')
+
+# healthcheck
+app.register_blueprint(healthcheck.handler, url_prefix='/healthcheck')
 
 app.app_config = config
 app.engine = models.create_engine()

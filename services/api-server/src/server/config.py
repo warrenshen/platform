@@ -65,6 +65,9 @@ class Config(object):
 		# Async Server
 		self.ASYNC_SERVER_API_KEY = os.environ.get("ASYNC_SERVER_API_KEY", "ASYNC-SERVER-API-KEY-1085093607")
 
+		# Diagnostics
+		self.SERVER_TYPE = "api"
+
 	def get_security_config(self) -> security_util.ConfigDict:
 		return security_util.ConfigDict(
 			URL_SECRET_KEY=self.URL_SECRET_KEY,
