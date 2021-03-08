@@ -1,4 +1,3 @@
-import { Box } from "@material-ui/core";
 import PaymentsDataGrid from "components/Repayment/PaymentsDataGrid";
 import Page from "components/Shared/Page";
 import { useGetPaymentsQuery } from "generated/graphql";
@@ -10,14 +9,12 @@ function BankPaymentsPage() {
 
   return (
     <Page appBarTitle={"Payments - All"}>
-      <Box>
-        <PaymentsDataGrid
-          payments={payments}
-          customerSearchQuery={""}
-          onClickCustomerName={() => {}}
-          enableSelect={false}
-        />
-      </Box>
+      <PaymentsDataGrid
+        payments={payments}
+        customerSearchQuery={""}
+        onClickCustomerName={() => {}}
+        enableSelect={false}
+      />
     </Page>
   );
 }

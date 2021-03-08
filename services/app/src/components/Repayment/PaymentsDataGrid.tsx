@@ -38,6 +38,17 @@ function PaymentsDataGrid({
   const columns = useMemo(
     () => [
       {
+        caption: "Created At",
+        width: ColumnWidths.Date,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <DatetimeDataGridCell
+            isTimeVisible
+            datetimeString={params.row.data.created_at}
+          />
+        ),
+      },
+      {
         dataField: "id",
         caption: "Payment ID",
         width: 140,

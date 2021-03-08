@@ -12801,6 +12801,7 @@ export type LoanFragment = Pick<
 export type PaymentFragment = Pick<
   Payments,
   | "id"
+  | "created_at"
   | "amount"
   | "method"
   | "type"
@@ -13208,6 +13209,7 @@ export const LoanFragmentDoc = gql`
 export const PaymentFragmentDoc = gql`
   fragment Payment on payments {
     id
+    created_at
     amount
     method
     type
@@ -15584,7 +15586,10 @@ export type GetPaymentForSettlementQueryResult = Apollo.QueryResult<
 >;
 export const GetPaymentsDocument = gql`
   query GetPayments {
-    payments(where: { type: { _eq: "repayment" } }) {
+    payments(
+      where: { type: { _eq: "repayment" } }
+      order_by: { created_at: desc }
+    ) {
       id
       ...Payment
       company {

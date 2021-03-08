@@ -1,5 +1,8 @@
 query GetPayments {
-  payments(where: { type: { _eq: "repayment" } }) {
+  payments(
+    where: { type: { _eq: "repayment" } }
+    order_by: { created_at: desc }
+  ) {
     id
     ...Payment
     company {

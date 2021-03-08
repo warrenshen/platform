@@ -1,10 +1,13 @@
 import {
   Box,
   Button,
+  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  makeStyles,
+  Theme,
   Typography,
 } from "@material-ui/core";
 import CreateRepaymentConfirmEffect from "components/Repayment/CreateRepaymentConfirmEffect";
@@ -31,6 +34,23 @@ import {
 import { LoanBeforeAfterPayment } from "lib/types";
 import { useState } from "react";
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    dialog: {
+      width: 600,
+    },
+    dialogTitle: {
+      borderBottom: "1px solid #c7c7c7",
+    },
+    dialogActions: {
+      margin: theme.spacing(2),
+    },
+    submitButton: {
+      marginLeft: theme.spacing(1),
+    },
+  })
+);
+
 interface Props {
   companyId: Companies["id"];
   selectedLoans: LoanFragment[];
@@ -42,6 +62,7 @@ function CreateRepaymentModal({
   selectedLoans,
   handleClose,
 }: Props) {
+  const classes = useStyles();
   const snackbar = useSnackbar();
 
   const { data } = useCompanyWithDetailsByCompanyIdQuery({
@@ -173,7 +194,7 @@ function CreateRepaymentModal({
 
   return (
     <Dialog open fullWidth maxWidth="md" onClose={handleClose}>
-      <DialogTitle>Pay Off Loans</DialogTitle>
+      <DialogTitle className={classes.dialogTitle}>Pay Off Loans</DialogTitle>
       <DialogContent style={{ minHeight: 400 }}>
         {isOnSelectLoans ? (
           <CreateRepaymentSelectLoans
@@ -192,7 +213,7 @@ function CreateRepaymentModal({
           />
         )}
       </DialogContent>
-      <DialogActions>
+      <DialogActions className={classes.dialogActions}>
         <Box display="flex" flexDirection="column" width="100%">
           {errMsg && (
             <Box display="flex" justifyContent="flex-end" width="100%">
@@ -202,7 +223,7 @@ function CreateRepaymentModal({
             </Box>
           )}
           <Box display="flex" justifyContent="space-between">
-            <Box mb={2}>
+            <Box>
               {!isOnSelectLoans && (
                 <Button
                   variant="contained"

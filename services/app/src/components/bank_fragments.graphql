@@ -93,6 +93,7 @@ fragment Loan on loans {
 
 fragment Payment on payments {
   id
+  created_at
   amount
   method
   type

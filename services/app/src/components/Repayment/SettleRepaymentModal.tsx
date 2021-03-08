@@ -143,12 +143,12 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
     }
 
     const response = await calculateEffectOfPayment({
+      company_id: customer.id,
       payment: {
         amount: payment.amount,
         payment_date: payment.payment_date,
         settlement_date: payment.settlement_date,
       } as PaymentsInsertInput,
-      company_id: customer.id,
       payment_option: PaymentOptionEnum.CustomAmount,
       loan_ids: selectedLoanIds,
     });
@@ -201,12 +201,13 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
     const response = await settlePayment({
       payment_id: payment.id,
       company_id: customer.id,
+      amount: payment.amount,
+      payment_date: payment.payment_date,
+      settlement_date: payment.settlement_date,
       loan_ids: selectedLoanIds,
       transaction_inputs: loansBeforeAfterPayment.map(
         (beforeAfterPaymentLoan) => beforeAfterPaymentLoan.transaction
       ),
-      payment_date: payment.payment_date,
-      settlement_date: payment.settlement_date,
     });
 
     if (response.status !== "OK") {
@@ -258,7 +259,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
 
   return payment && customer ? (
     <Dialog open fullWidth maxWidth="md" onClose={handleClose}>
-      <DialogTitle>Settle Payment</DialogTitle>
+      <DialogTitle className={classes.dialogTitle}>Settle Payment</DialogTitle>
       <DialogContent>
         {isOnSelectLoans ? (
           <SettleRepaymentSelectLoans
@@ -271,8 +272,11 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
           />
         ) : (
           <SettleRepaymentConfirmEffect
+            payment={payment}
+            customer={customer}
             loansBeforeAfterPayment={loansBeforeAfterPayment}
             setLoanBeforeAfterPayment={setLoanBeforeAfterPayment}
+            setPayment={setPayment}
           />
         )}
       </DialogContent>

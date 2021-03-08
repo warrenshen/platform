@@ -6,6 +6,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
+import RequestedRepaymentPreview from "components/Repayment/RequestedRepaymentPreview";
 import DatePicker from "components/Shared/Dates/DatePicker";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
@@ -18,9 +19,6 @@ import {
   useGetFundedLoansForCompanyQuery,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
-import { formatCurrency } from "lib/currency";
-import { formatDateString } from "lib/date";
-import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
 import { useContext, useMemo } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -83,33 +81,18 @@ function SettleRepaymentSelectLoans({
   return payment && customer ? (
     <Box>
       <Box display="flex" flexDirection="column">
-        <Typography variant="body1">
+        <Typography variant="body2">
           {`${customer.name} submitted the following payment:`}
         </Typography>
         <Box mt={1}>
-          <Typography>
-            {`Payment Method: ${
-              PaymentMethodToLabel[payment.method as PaymentMethodEnum]
-            }`}
-          </Typography>
-        </Box>
-        <Box mt={1}>
-          <Typography>
-            {`Payment Amount: ${formatCurrency(payment.amount)}`}
-          </Typography>
-        </Box>
-        <Box mt={1}>
-          <Typography>
-            {`Requested Payment Date: ${formatDateString(
-              payment.requested_payment_date
-            )}`}
-          </Typography>
+          <RequestedRepaymentPreview payment={payment} />
         </Box>
       </Box>
       <Box display="flex" flexDirection="column" mt={3}>
         <Box mb={1}>
           <Typography variant="subtitle2">
-            {`Step 1: specify payment and settlement date (settlement date will change when payment date changes).`}
+            Step 1: specify payment and settlement date (settlement date will
+            change when payment date changes).
           </Typography>
         </Box>
         <DatePicker
@@ -128,7 +111,7 @@ function SettleRepaymentSelectLoans({
         />
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
-            Payment Date is the date the customer sent or will send the payment.
+            Payment Date is the date the customer sent the payment.
           </Typography>
         </Box>
       </Box>
@@ -148,8 +131,8 @@ function SettleRepaymentSelectLoans({
         />
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
-            Settlement date is the date the payment arrived or will arrive to
-            the recipient.
+            Settlement date is the date the payment arrived to a Bespoke bank
+            account.
           </Typography>
         </Box>
       </Box>

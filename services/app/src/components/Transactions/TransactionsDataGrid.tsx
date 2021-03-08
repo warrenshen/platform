@@ -3,14 +3,10 @@ import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridC
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
-import DataGrid, {
-  Column,
-  IColumnProps,
-  Pager,
-  Paging,
-} from "devextreme-react/data-grid";
+import DataGrid, { Column, Pager, Paging } from "devextreme-react/data-grid";
 import { TransactionFragment } from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
+import { useMemo } from "react";
 
 interface Props {
   transactions: TransactionFragment[];
@@ -25,83 +21,86 @@ function TransactionsDataGrid({ transactions, isMiniTable }: Props) {
     return <ClickableDataGridCell label={companyName} onClick={() => {}} />;
   };
 
-  const columns: IColumnProps[] = [
-    {
-      caption: "Created At",
-      width: ColumnWidths.Date,
-      alignment: "right",
-      cellRender: (params: ValueFormatterParams) => (
-        <DatetimeDataGridCell
-          isTimeVisible
-          datetimeString={params.row.data.created_at}
-        />
-      ),
-    },
-    {
-      caption: "Date",
-      width: ColumnWidths.Date,
-      alignment: "right",
-      cellRender: (params: ValueFormatterParams) => (
-        <DateDataGridCell dateString={params.row.data.effective_date} />
-      ),
-    },
-    {
-      dataField: "id",
-      caption: "Transaction ID",
-      visible: !isMiniTable,
-      width: 140,
-    },
-    {
-      dataField: "payment.id",
-      caption: "Payment ID",
-      visible: !isMiniTable,
-      width: 140,
-    },
-    {
-      caption: "Company Name",
-      visible: !isMiniTable,
-      width: 140,
-      cellRender: companyNameRenderer,
-    },
-    {
-      dataField: "type",
-      visible: !isMiniTable,
-      caption: "Type",
-      width: 140,
-    },
-    {
-      caption: "Amount",
-      width: ColumnWidths.Currency,
-      alignment: "right",
-      cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell value={params.row.data.amount} />
-      ),
-    },
-    {
-      caption: "To Principal",
-      width: ColumnWidths.Currency,
-      alignment: "right",
-      cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell value={params.row.data.to_principal} />
-      ),
-    },
-    {
-      caption: "To Interest",
-      width: ColumnWidths.Currency,
-      alignment: "right",
-      cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell value={params.row.data.to_interest} />
-      ),
-    },
-    {
-      caption: "To Fees",
-      width: ColumnWidths.Currency,
-      alignment: "right",
-      cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell value={params.row.data.to_fees} />
-      ),
-    },
-  ];
+  const columns = useMemo(
+    () => [
+      {
+        caption: "Created At",
+        width: ColumnWidths.Date,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <DatetimeDataGridCell
+            isTimeVisible
+            datetimeString={params.row.data.created_at}
+          />
+        ),
+      },
+      {
+        caption: "Date",
+        width: ColumnWidths.Date,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell dateString={params.row.data.effective_date} />
+        ),
+      },
+      {
+        dataField: "id",
+        caption: "Transaction ID",
+        visible: !isMiniTable,
+        width: 140,
+      },
+      {
+        dataField: "payment.id",
+        caption: "Payment ID",
+        visible: !isMiniTable,
+        width: 140,
+      },
+      {
+        caption: "Company Name",
+        visible: !isMiniTable,
+        width: 140,
+        cellRender: companyNameRenderer,
+      },
+      {
+        dataField: "type",
+        visible: !isMiniTable,
+        caption: "Type",
+        width: 140,
+      },
+      {
+        caption: "Amount",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.amount} />
+        ),
+      },
+      {
+        caption: "To Principal",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.to_principal} />
+        ),
+      },
+      {
+        caption: "To Interest",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.to_interest} />
+        ),
+      },
+      {
+        caption: "To Fees",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.to_fees} />
+        ),
+      },
+    ],
+    [isMiniTable]
+  );
 
   return (
     <DataGrid height={"100%"} width={"100%"} dataSource={rows}>
