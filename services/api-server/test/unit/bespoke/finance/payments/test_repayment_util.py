@@ -1221,6 +1221,86 @@ class TestSettlePayment(db_unittest.TestCase):
 		}
 		self._run_test(test)
 
+	def test_failure_transactions_overpay_on_principal_when_interest_not_zero(self) -> None:
+		"""
+		Tests that it is invalid to apply a transaction on a loan
+		that results in a negative principal and non-zero interest.
+		"""
+		test: Dict = {
+			'payment': {
+				'amount': 50.4 + 20.03 + 20,
+				'payment_method': 'ach',
+				'payment_date': '10/10/2020',
+				'settlement_date': '10/12/2020'
+			},
+			'loans': [
+				{
+					'amount': 50.0,
+					'outstanding_principal_balance': 40.4,
+					'outstanding_interest': 30.03,
+					'outstanding_fees': 20
+				}
+			],
+			'transaction_inputs': [
+				{
+					'amount': 50.4 + 20.03 + 20,
+					'to_principal': 50.4, # $10 overpayment on principal
+					'to_interest': 20.03, # $10 underpayment on interest
+					'to_fees': 20
+				}
+			],
+			'loans_after_payment': [
+				{
+					'amount': 50.0,
+					'outstanding_principal_balance': -10, # from $10 overpayment
+					'outstanding_interest': 10, # from $10 underpayment
+					'outstanding_fees': 0
+				}
+			],
+			'in_err_msg': 'Principal on a loan may not be negative if interest or fees are not zero'
+		}
+		self._run_test(test)
+
+	def test_failure_transactions_overpay_on_principal_when_fees_not_zero(self) -> None:
+		"""
+		Tests that it is invalid to apply a transaction on a loan
+		that results in a negative principal and non-zero fees.
+		"""
+		test: Dict = {
+			'payment': {
+				'amount': 50.4 + 30 + 10,
+				'payment_method': 'ach',
+				'payment_date': '10/10/2020',
+				'settlement_date': '10/12/2020'
+			},
+			'loans': [
+				{
+					'amount': 50.0,
+					'outstanding_principal_balance': 40.4,
+					'outstanding_interest': 30,
+					'outstanding_fees': 20
+				}
+			],
+			'transaction_inputs': [
+				{
+					'amount': 50.4 + 30 + 10,
+					'to_principal': 50.4, # $10 overpayment on principal
+					'to_interest': 30,
+					'to_fees': 10 # $10 underpayment on fees
+				}
+			],
+			'loans_after_payment': [
+				{
+					'amount': 50.0,
+					'outstanding_principal_balance': -10, # from $10 overpayment
+					'outstanding_interest': 0,
+					'outstanding_fees': 10 # from $10 underpayment
+				}
+			],
+			'in_err_msg': 'Principal on a loan may not be negative if interest or fees are not zero'
+		}
+		self._run_test(test)
+
 	def test_failure_unequal_loans(self) -> None:
 		seed = test_helper.BasicSeed.create(self.session_maker, self)
 		seed.initialize()

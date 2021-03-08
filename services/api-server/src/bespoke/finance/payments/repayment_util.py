@@ -522,6 +522,10 @@ def settle_payment(
 					'Fees on a loan may not be negative. You must reduce the amount applied to interest on {} by {} and apply it to the principal'.format(
 						cur_loan_id, -1 * new_outstanding_fees))
 
+			if new_outstanding_principal_balance < 0 and (new_outstanding_interest > 0 or new_outstanding_fees > 0):
+				return None, errors.Error(
+					f'Principal on a loan may not be negative if interest or fees are not zero. You must reduce the amount applied to principal on {cur_loan_id} by {-1 * new_outstanding_principal_balance} and apply it to interest and fees.')
+
 			session.add(t)
 
 			cur_loan.outstanding_principal_balance = new_outstanding_principal_balance
