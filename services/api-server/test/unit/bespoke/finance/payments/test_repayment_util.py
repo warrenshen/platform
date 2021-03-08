@@ -1222,6 +1222,46 @@ class TestSettlePayment(db_unittest.TestCase):
 		}
 		self._run_test(test)
 
+	def test_settle_payment_zero_principal_with_interest_and_fees_not_zero(self) -> None:
+		"""
+		Tests that it is valid to apply a transaction on a loan that
+		results in a principal of zero and non-zero interest and fees.
+		"""
+		test: Dict = {
+			'payment': {
+				'amount': 40.4 + 20.03 + 10,
+				'payment_method': 'ach',
+				'payment_date': '10/10/2020',
+				'settlement_date': '10/12/2020'
+			},
+			'loans': [
+				{
+					'amount': 50.0,
+					'outstanding_principal_balance': 40.4,
+					'outstanding_interest': 30.03,
+					'outstanding_fees': 20
+				}
+			],
+			'transaction_inputs': [
+				{
+					'amount': 40.4 + 20.03 + 10,
+					'to_principal': 40.4,
+					'to_interest': 20.03, # $10 underpayment on interest
+					'to_fees': 10 # $10 underpayment on fees
+				}
+			],
+			'loans_after_payment': [
+				{
+					'amount': 50.0,
+					'outstanding_principal_balance': 0,
+					'outstanding_interest': 10, # from $10 underpayment
+					'outstanding_fees': 10, # from $10 underpayment
+					'payment_status': PaymentStatusEnum.PARTIALLY_PAID
+				}
+			],
+		}
+		self._run_test(test)
+
 	def test_failure_transactions_overpay_on_principal_when_interest_not_zero(self) -> None:
 		"""
 		Tests that it is invalid to apply a transaction on a loan
