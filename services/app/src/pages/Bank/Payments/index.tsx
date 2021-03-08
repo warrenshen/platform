@@ -1,9 +1,9 @@
 import PaymentsDataGrid from "components/Repayment/PaymentsDataGrid";
 import Page from "components/Shared/Page";
-import { useGetPaymentsQuery } from "generated/graphql";
+import { useGetPaymentsSubscription } from "generated/graphql";
 
 function BankPaymentsPage() {
-  const { data } = useGetPaymentsQuery();
+  const { data } = useGetPaymentsSubscription();
 
   const payments = data?.payments || [];
 

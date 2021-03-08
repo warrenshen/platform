@@ -1,4 +1,4 @@
-query GetPayments {
+subscription GetPayments {
   payments(
     where: { type: { _eq: "repayment" } }
     order_by: { created_at: desc }
@@ -20,7 +20,7 @@ query GetPayments {
   }
 }
 
-query GetSubmittedPayments {
+subscription GetSubmittedPayments {
   payments(
     where: {
       _and: [

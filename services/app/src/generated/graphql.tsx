@@ -12041,9 +12041,9 @@ export type GetPaymentForSettlementQuery = {
   >;
 };
 
-export type GetPaymentsQueryVariables = Exact<{ [key: string]: never }>;
+export type GetPaymentsSubscriptionVariables = Exact<{ [key: string]: never }>;
 
-export type GetPaymentsQuery = {
+export type GetPaymentsSubscription = {
   payments: Array<
     Pick<Payments, "id"> & {
       company: Pick<Companies, "id" | "name">;
@@ -12053,11 +12053,11 @@ export type GetPaymentsQuery = {
   >;
 };
 
-export type GetSubmittedPaymentsQueryVariables = Exact<{
+export type GetSubmittedPaymentsSubscriptionVariables = Exact<{
   [key: string]: never;
 }>;
 
-export type GetSubmittedPaymentsQuery = {
+export type GetSubmittedPaymentsSubscription = {
   payments: Array<
     Pick<Payments, "id"> & {
       company: Pick<Companies, "id" | "name">;
@@ -15585,7 +15585,7 @@ export type GetPaymentForSettlementQueryResult = Apollo.QueryResult<
   GetPaymentForSettlementQueryVariables
 >;
 export const GetPaymentsDocument = gql`
-  query GetPayments {
+  subscription GetPayments {
     payments(
       where: { type: { _eq: "repayment" } }
       order_by: { created_at: desc }
@@ -15610,52 +15610,37 @@ export const GetPaymentsDocument = gql`
 `;
 
 /**
- * __useGetPaymentsQuery__
+ * __useGetPaymentsSubscription__
  *
- * To run a query within a React component, call `useGetPaymentsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetPaymentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetPaymentsSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetPaymentsSubscription` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetPaymentsQuery({
+ * const { data, loading, error } = useGetPaymentsSubscription({
  *   variables: {
  *   },
  * });
  */
-export function useGetPaymentsQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetPaymentsQuery,
-    GetPaymentsQueryVariables
+export function useGetPaymentsSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetPaymentsSubscription,
+    GetPaymentsSubscriptionVariables
   >
 ) {
-  return Apollo.useQuery<GetPaymentsQuery, GetPaymentsQueryVariables>(
-    GetPaymentsDocument,
-    baseOptions
-  );
+  return Apollo.useSubscription<
+    GetPaymentsSubscription,
+    GetPaymentsSubscriptionVariables
+  >(GetPaymentsDocument, baseOptions);
 }
-export function useGetPaymentsLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetPaymentsQuery,
-    GetPaymentsQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<GetPaymentsQuery, GetPaymentsQueryVariables>(
-    GetPaymentsDocument,
-    baseOptions
-  );
-}
-export type GetPaymentsQueryHookResult = ReturnType<typeof useGetPaymentsQuery>;
-export type GetPaymentsLazyQueryHookResult = ReturnType<
-  typeof useGetPaymentsLazyQuery
+export type GetPaymentsSubscriptionHookResult = ReturnType<
+  typeof useGetPaymentsSubscription
 >;
-export type GetPaymentsQueryResult = Apollo.QueryResult<
-  GetPaymentsQuery,
-  GetPaymentsQueryVariables
->;
+export type GetPaymentsSubscriptionResult = Apollo.SubscriptionResult<GetPaymentsSubscription>;
 export const GetSubmittedPaymentsDocument = gql`
-  query GetSubmittedPayments {
+  subscription GetSubmittedPayments {
     payments(
       where: {
         _and: [
@@ -15681,52 +15666,35 @@ export const GetSubmittedPaymentsDocument = gql`
 `;
 
 /**
- * __useGetSubmittedPaymentsQuery__
+ * __useGetSubmittedPaymentsSubscription__
  *
- * To run a query within a React component, call `useGetSubmittedPaymentsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetSubmittedPaymentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetSubmittedPaymentsSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetSubmittedPaymentsSubscription` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetSubmittedPaymentsQuery({
+ * const { data, loading, error } = useGetSubmittedPaymentsSubscription({
  *   variables: {
  *   },
  * });
  */
-export function useGetSubmittedPaymentsQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetSubmittedPaymentsQuery,
-    GetSubmittedPaymentsQueryVariables
+export function useGetSubmittedPaymentsSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetSubmittedPaymentsSubscription,
+    GetSubmittedPaymentsSubscriptionVariables
   >
 ) {
-  return Apollo.useQuery<
-    GetSubmittedPaymentsQuery,
-    GetSubmittedPaymentsQueryVariables
+  return Apollo.useSubscription<
+    GetSubmittedPaymentsSubscription,
+    GetSubmittedPaymentsSubscriptionVariables
   >(GetSubmittedPaymentsDocument, baseOptions);
 }
-export function useGetSubmittedPaymentsLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetSubmittedPaymentsQuery,
-    GetSubmittedPaymentsQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    GetSubmittedPaymentsQuery,
-    GetSubmittedPaymentsQueryVariables
-  >(GetSubmittedPaymentsDocument, baseOptions);
-}
-export type GetSubmittedPaymentsQueryHookResult = ReturnType<
-  typeof useGetSubmittedPaymentsQuery
+export type GetSubmittedPaymentsSubscriptionHookResult = ReturnType<
+  typeof useGetSubmittedPaymentsSubscription
 >;
-export type GetSubmittedPaymentsLazyQueryHookResult = ReturnType<
-  typeof useGetSubmittedPaymentsLazyQuery
->;
-export type GetSubmittedPaymentsQueryResult = Apollo.QueryResult<
-  GetSubmittedPaymentsQuery,
-  GetSubmittedPaymentsQueryVariables
->;
+export type GetSubmittedPaymentsSubscriptionResult = Apollo.SubscriptionResult<GetSubmittedPaymentsSubscription>;
 export const GetContractDocument = gql`
   query GetContract($id: uuid!) {
     contracts_by_pk(id: $id) {

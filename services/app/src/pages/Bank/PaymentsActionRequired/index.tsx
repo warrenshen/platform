@@ -12,7 +12,7 @@ import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
 import {
   PaymentFragment,
-  useGetSubmittedPaymentsQuery,
+  useGetSubmittedPaymentsSubscription,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { useMemo, useState } from "react";
@@ -38,14 +38,11 @@ const useStyles = makeStyles((theme: Theme) =>
 function BankPaymentsActionRequiredPage() {
   const classes = useStyles();
 
-  const {
-    data: submittedPaymentsData,
-    refetch: refetchSubmittedPayments,
-  } = useGetSubmittedPaymentsQuery();
+  const { data } = useGetSubmittedPaymentsSubscription();
 
   const submittedPayments = useMemo(() => {
-    return submittedPaymentsData?.payments || [];
-  }, [submittedPaymentsData]);
+    return data?.payments || [];
+  }, [data]);
 
   // Schedule section
   const [selectedScheduledPayments, setSelectedScheduledPayments] = useState<
@@ -123,7 +120,6 @@ function BankPaymentsActionRequiredPage() {
                   <SettleRepaymentModal
                     paymentId={scheduledPaymentId}
                     handleClose={() => {
-                      refetchSubmittedPayments();
                       setSelectedScheduledPayments([]);
                       handleClose();
                     }}
@@ -155,7 +151,6 @@ function BankPaymentsActionRequiredPage() {
                   <SettleRepaymentModal
                     paymentId={notifyPaymentId}
                     handleClose={() => {
-                      refetchSubmittedPayments();
                       setSelectedNotifyPayments([]);
                       handleClose();
                     }}
