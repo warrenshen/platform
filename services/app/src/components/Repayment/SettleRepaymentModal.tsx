@@ -1,10 +1,13 @@
 import {
   Box,
   Button,
+  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  makeStyles,
+  Theme,
   Typography,
 } from "@material-ui/core";
 import SettleRepaymentConfirmEffect from "components/Repayment/SettleRepaymentConfirmEffect";
@@ -34,12 +37,30 @@ import {
 import { LoanBeforeAfterPayment } from "lib/types";
 import { useEffect, useMemo, useState } from "react";
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    dialog: {
+      width: 500,
+    },
+    dialogTitle: {
+      borderBottom: "1px solid #c7c7c7",
+    },
+    dialogActions: {
+      margin: theme.spacing(2),
+    },
+    submitButton: {
+      marginLeft: theme.spacing(1),
+    },
+  })
+);
+
 interface Props {
   paymentId: Payments["id"];
   handleClose: () => void;
 }
 
 function SettleRepaymentModal({ paymentId, handleClose }: Props) {
+  const classes = useStyles();
   const snackbar = useSnackbar();
 
   // There are 2 states that we show, one when the user is selecting
@@ -70,16 +91,6 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
         setSelectedLoanIds(existingPayment.items_covered?.loan_ids || []);
         setCustomer(existingPayment.company as Companies);
 
-        const settlementTimelineConfig = getSettlementTimelineConfigFromContract(
-          existingPayment.company?.contract as Contracts
-        );
-
-        const settlementDate = computeSettlementDateForPayment(
-          existingPayment.method,
-          existingPayment.requested_payment_date,
-          settlementTimelineConfig
-        );
-
         setPayment({
           id: existingPayment.id,
           company_id: existingPayment.company_id,
@@ -88,13 +99,29 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
           method: existingPayment.method,
           requested_payment_date: existingPayment.requested_payment_date,
           payment_date: existingPayment.requested_payment_date,
-          settlement_date: settlementDate,
         } as PaymentsInsertInput);
       } else {
         alert("Existing payment not found");
       }
     },
   });
+
+  useEffect(() => {
+    if (customer && payment?.method && payment?.payment_date) {
+      const settlementTimelineConfig = getSettlementTimelineConfigFromContract(
+        customer.contract as Contracts
+      );
+      const settlementDate = computeSettlementDateForPayment(
+        payment.method,
+        payment.payment_date,
+        settlementTimelineConfig
+      );
+      setPayment((payment) => ({
+        ...payment,
+        settlement_date: settlementDate,
+      }));
+    }
+  }, [customer, payment?.method, payment?.payment_date, setPayment]);
 
   const { data: dataSelectedLoans } = useGetLoansByLoanIdsQuery({
     variables: {
@@ -249,8 +276,8 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
           />
         )}
       </DialogContent>
-      <DialogActions>
-        <Box display="flex" flexDirection="column" width="100%" mt={2}>
+      <DialogActions className={classes.dialogActions}>
+        <Box display="flex" flexDirection="column" width="100%">
           <Box display="flex" justifyContent="flex-end" width="100%">
             {errMsg && (
               <Typography variant="body1" color="secondary">
@@ -259,14 +286,14 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
             )}
           </Box>
           <Box display="flex" justifyContent="space-between">
-            <Box mb={2}>
+            <Box>
               {!isOnSelectLoans && (
                 <Button
                   variant="contained"
                   color="default"
                   onClick={() => setIsOnSelectLoans(true)}
                 >
-                  Back to Step 1
+                  Go Back
                 </Button>
               )}
             </Box>

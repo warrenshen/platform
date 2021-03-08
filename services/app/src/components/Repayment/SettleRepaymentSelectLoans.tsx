@@ -82,49 +82,54 @@ function SettleRepaymentSelectLoans({
 
   return payment && customer ? (
     <Box>
-      <Box>
-        <Typography>
-          {`${customer.name} submitted a ${
-            PaymentMethodToLabel[payment.method as PaymentMethodEnum]
-          } payment of ${formatCurrency(
-            payment.amount
-          )} with a requested payment date of ${formatDateString(
-            payment.requested_payment_date
-          )}.`}
+      <Box display="flex" flexDirection="column">
+        <Typography variant="body1">
+          {`${customer.name} submitted the following payment:`}
         </Typography>
-        <Typography>
-          {`Please select which loans this payment should apply towards below.
-            The loans that ${customer.name} wants to apply this payment towards
-            are pre-selected for you, but the final selection is up to your
-            discretion.`}
-        </Typography>
-        <Typography>
-          Once you are finished, press "Next" at the bottom to proceed to the
-          next step.
-        </Typography>
-      </Box>
-      <Box mt={3}>
         <Box mt={1}>
-          <DatePicker
-            className={classes.inputField}
-            id="payment-date-date-picker"
-            label="Payment Date"
-            disablePast
-            disableNonBankDays
-            value={payment.payment_date}
-            onChange={(value) => {
-              setPayment({
-                ...payment,
-                payment_date: value,
-              });
-            }}
-          />
-          <Box mt={1}>
-            <Typography variant="body2" color="textSecondary">
-              Payment Date is the date the customer sent or will send the
-              payment.
-            </Typography>
-          </Box>
+          <Typography>
+            {`Payment Method: ${
+              PaymentMethodToLabel[payment.method as PaymentMethodEnum]
+            }`}
+          </Typography>
+        </Box>
+        <Box mt={1}>
+          <Typography>
+            {`Payment Amount: ${formatCurrency(payment.amount)}`}
+          </Typography>
+        </Box>
+        <Box mt={1}>
+          <Typography>
+            {`Requested Payment Date: ${formatDateString(
+              payment.requested_payment_date
+            )}`}
+          </Typography>
+        </Box>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={3}>
+        <Box mb={1}>
+          <Typography variant="subtitle2">
+            {`Step 1: specify payment and settlement date (settlement date will change when payment date changes).`}
+          </Typography>
+        </Box>
+        <DatePicker
+          className={classes.inputField}
+          id="payment-date-date-picker"
+          label="Payment Date"
+          disablePast
+          disableNonBankDays
+          value={payment.payment_date}
+          onChange={(value) => {
+            setPayment({
+              ...payment,
+              payment_date: value,
+            });
+          }}
+        />
+        <Box mt={1}>
+          <Typography variant="body2" color="textSecondary">
+            Payment Date is the date the customer sent or will send the payment.
+          </Typography>
         </Box>
       </Box>
       <Box display="flex" flexDirection="column" mt={3}>
@@ -148,12 +153,18 @@ function SettleRepaymentSelectLoans({
           </Typography>
         </Box>
       </Box>
-      <Box mt={2}>
-        <Typography>Selected loans this payment will apply towards:</Typography>
+      <Box display="flex" flexDirection="column" mt={3}>
+        <Box mb={1}>
+          <Typography variant="subtitle2">
+            {`Step 2: select loans this payment will apply towards. The loans that ${customer.name} suggested are pre-selected, but the final selection is up to your discretion.`}
+          </Typography>
+        </Box>
+        <Typography variant="body1">Selected loans:</Typography>
         <LoansDataGrid
           isDaysPastDueVisible
           isMaturityVisible
           isSortingDisabled
+          pager={false}
           loans={selectedLoans}
           actionItems={
             check(role, Action.DeselectLoan)
@@ -173,8 +184,8 @@ function SettleRepaymentSelectLoans({
           }
         />
       </Box>
-      <Box mt={2}>
-        <Typography>
+      <Box mt={3}>
+        <Typography variant="body1">
           Loans not selected, but past due or maturing in 7 days:
         </Typography>
         <LoansDataGrid
