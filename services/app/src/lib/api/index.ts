@@ -95,4 +95,5 @@ export const unAuthenticatedApi = axios.create({
 export type CustomMutationResponse = {
   status: string;
   msg: string;
+  errors?: string[];
 };

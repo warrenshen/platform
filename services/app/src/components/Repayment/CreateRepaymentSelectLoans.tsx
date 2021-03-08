@@ -62,7 +62,7 @@ function CreateRepaymentSelectLoans({
         <Box display="flex" flexDirection="column">
           <Box>
             <Typography variant="body1">
-              {`Outsanding Principal: ${
+              {`Outstanding Principal: ${
                 financialSummary
                   ? formatCurrency(financialSummary.total_outstanding_principal)
                   : "Loading..."
@@ -71,7 +71,7 @@ function CreateRepaymentSelectLoans({
           </Box>
           <Box mt={1}>
             <Typography variant="body1">
-              {`Outsanding Interest: ${
+              {`Outstanding Interest: ${
                 financialSummary
                   ? formatCurrency(financialSummary.total_outstanding_interest)
                   : "Loading..."

@@ -2,14 +2,20 @@
 // when it comes to creating payment transactions
 
 import { Companies } from "generated/graphql";
-import { authenticatedApi, loansRoutes } from "lib/api";
+import { authenticatedApi, CustomMutationResponse, loansRoutes } from "lib/api";
 
-export async function runCustomerBalances(req: {
-  company_id?: Companies["id"];
-  report_date: string;
-}): Promise<{ status: string; msg: string }> {
+export type RunCustomerBalancesReq = {
+  variables: {
+    company_id?: Companies["id"];
+    report_date: string;
+  };
+};
+
+export async function runCustomerBalancesMutation(
+  req: RunCustomerBalancesReq
+): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(loansRoutes.runCustomerBalances, req)
+    .post(loansRoutes.runCustomerBalances, req.variables)
     .then((res) => {
       return res.data;
     })

@@ -12,9 +12,10 @@ import {
 } from "@material-ui/core";
 import DatePicker from "components/Shared/Dates/DatePicker";
 import { Companies } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { todayAsDateStr } from "lib/date";
-import { runCustomerBalances } from "lib/finance/loans/reports";
+import { runCustomerBalancesMutation } from "lib/finance/loans/reports";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -45,14 +46,21 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
 
   const [reportDate, setReportDate] = useState<string | null>(todayAsDateStr());
 
+  const [
+    runCustomerBalances,
+    { loading: isRunCustomerBalancesLoading },
+  ] = useCustomMutation(runCustomerBalancesMutation);
+
   const handleClickSubmit = async () => {
     if (!reportDate) {
     } else {
       // Note: companyId below may be undefined. This is valid in the case
       // that we want to run balances for all customers.
       const response = await runCustomerBalances({
-        company_id: companyId,
-        report_date: reportDate,
+        variables: {
+          company_id: companyId,
+          report_date: reportDate,
+        },
       });
 
       console.log({ type: "runCustomerBalances", response });
@@ -61,14 +69,19 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
         snackbar.showError(
           "Error! Could not re-calculate customer balances. " + response.msg
         );
+      } else if (response.errors && response.errors.length > 0) {
+        snackbar.showWarning(
+          `Partial success! Here are the customer(s) balances NOT recalculated: ${response.errors}`
+        );
+        handleClose();
       } else {
-        snackbar.showSuccess("Success! Customer balances recalculated.");
+        snackbar.showSuccess("Success! Customer(s) balances recalculated.");
         handleClose();
       }
     }
   };
 
-  const isSaveDisabled = !reportDate;
+  const isSaveDisabled = !reportDate || isRunCustomerBalancesLoading;
 
   return (
     <Dialog
