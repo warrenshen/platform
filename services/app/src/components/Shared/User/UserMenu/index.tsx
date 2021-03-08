@@ -33,7 +33,7 @@ function UserMenu() {
   };
 
   return (
-    <>
+    <Box>
       <Box display="flex" flexDirection="row" alignItems="center">
         <Box display="flex" flexDirection="column" alignItems="flex-end" mr={1}>
           <Typography variant="button">
@@ -44,7 +44,7 @@ function UserMenu() {
           <Typography variant="caption">{user?.email}</Typography>
         </Box>
         <IconButton onClick={handleClick}>
-          <AccountCircle></AccountCircle>
+          <AccountCircle />
         </IconButton>
       </Box>
       <Menu
@@ -69,7 +69,7 @@ function UserMenu() {
           Logout
         </MenuItem>
       </Menu>
-    </>
+    </Box>
   );
 }
 

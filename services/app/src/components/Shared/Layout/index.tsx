@@ -13,6 +13,7 @@ import Typography from "@material-ui/core/Typography";
 import AccountBalanceIcon from "@material-ui/icons/AccountBalance";
 import PaymentIcon from "@material-ui/icons/Payment";
 import TuneIcon from "@material-ui/icons/Tune";
+import EnvironmentChip from "components/Shared/Chip/EnvironmentChip";
 import NestedListItem from "components/Shared/Layout/NestedListItem";
 import UserMenu from "components/Shared/User/UserMenu";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
@@ -51,6 +52,7 @@ const useStyles = makeStyles((theme: Theme) =>
       ...theme.mixins.toolbar,
       display: "flex",
       justifyContent: "space-between",
+      alignItems: "center",
       paddingRight: "12px",
     },
     content: {
@@ -292,8 +294,16 @@ function Layout({ appBarTitle, children }: Props) {
         }}
         anchor="left"
       >
-        <Box className={classes.toolbar}>
-          <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="Logo" />
+        <Box display="flex" alignItems="center" minHeight={64} pl={1} pr={1}>
+          <img
+            src={`${process.env.PUBLIC_URL}/logo.png`}
+            alt="Logo"
+            width={150}
+            height={53}
+          />
+          <Box ml={1.5}>
+            <EnvironmentChip />
+          </Box>
         </Box>
         <List className={classes.list}>
           {navItems

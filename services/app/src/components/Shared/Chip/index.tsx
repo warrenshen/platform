@@ -1,5 +1,4 @@
-import { makeStyles } from "@material-ui/core";
-import { Chip as ChipMaterial } from "@material-ui/core";
+import { Chip as ChipMaterial, makeStyles } from "@material-ui/core";
 import { CellValue } from "@material-ui/data-grid";
 
 const useStyles = makeStyles({
