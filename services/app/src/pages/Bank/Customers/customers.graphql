@@ -1,5 +1,5 @@
 query CustomersForBank {
-  companies(where: { is_vendor: { _eq: false } }) {
+  companies(where: { company_type: { _eq: customer } }) {
     id
     ...CustomerForBank
     settings {

@@ -15,6 +15,7 @@ import {
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   CompaniesInsertInput,
+  CompanyTypeEnum,
   useAddVendorPartnershipMutation,
   UserRolesEnum,
   UsersInsertInput,
@@ -68,7 +69,7 @@ function RegisterVendorModal({ handleClose }: Props) {
             vendor: {
               data: {
                 name: vendor.name,
-                is_vendor: true,
+                company_type: CompanyTypeEnum.Vendor,
                 users: {
                   data: [{ ...contact }],
                 },
