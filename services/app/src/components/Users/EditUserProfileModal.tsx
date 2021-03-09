@@ -15,10 +15,14 @@ import {
   UserRolesEnum,
   useUpdateUserMutation,
 } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    dialog: {
+      width: 400,
+    },
     dialogTitle: {
       borderBottom: "1px solid #c7c7c7",
     },
@@ -47,6 +51,7 @@ function EditUserProfileModal({
   originalUserProfile,
   handleClose,
 }: Props) {
+  const snackbar = useSnackbar();
   const classes = useStyles();
 
   const [userProfile, setUserProfile] = useState(originalUserProfile);
@@ -54,7 +59,12 @@ function EditUserProfileModal({
   const [updateUser] = useUpdateUserMutation();
 
   return (
-    <Dialog open onClose={handleClose} maxWidth="xl">
+    <Dialog
+      open
+      onClose={handleClose}
+      maxWidth="xl"
+      classes={{ paper: classes.dialog }}
+    >
       <DialogTitle className={classes.dialogTitle}>
         Edit User Profile
       </DialogTitle>
@@ -156,6 +166,7 @@ function EditUserProfileModal({
                   },
                 },
               });
+              snackbar.showSuccess("Success! User updated.");
               handleClose();
             }}
             variant="contained"

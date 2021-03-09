@@ -1,11 +1,14 @@
-import { Button, Snackbar } from "@material-ui/core";
+import { Button, IconButton, Snackbar } from "@material-ui/core";
+import { ButtonProps } from "@material-ui/core/Button";
+import { SnackbarProps } from "@material-ui/core/Snackbar";
+import { Close } from "@material-ui/icons";
 import { Alert } from "@material-ui/lab";
 
 interface Props {
   message?: string;
   action?: string;
-  ButtonProps?: object;
-  SnackbarProps?: object;
+  ButtonProps?: Partial<ButtonProps>;
+  SnackbarProps: Partial<SnackbarProps>;
   customParameters: any;
 }
 
@@ -24,11 +27,24 @@ export default function CustomSnackbar({
         variant="filled"
         severity={customParameters?.type}
         action={
-          action ? (
-            <Button color="inherit" size="small" {...ButtonProps}>
-              {action}
-            </Button>
-          ) : null
+          <>
+            {action ? (
+              <Button color="inherit" size="small" {...ButtonProps}>
+                {action}
+              </Button>
+            ) : null}
+            <IconButton
+              aria-label="close"
+              color="inherit"
+              size="small"
+              onClick={(event) =>
+                SnackbarProps.onClose &&
+                SnackbarProps.onClose(event, "clickaway")
+              }
+            >
+              <Close />
+            </IconButton>
+          </>
         }
       >
         {message}
