@@ -75,7 +75,7 @@ function BankFinancialSummariesDataGrid({ bankFinancialSummaries }: Props) {
         ),
       },
       {
-        dataField: "total_limit",
+        dataField: "adjusted_total_limit",
         caption: "Total Limit",
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (

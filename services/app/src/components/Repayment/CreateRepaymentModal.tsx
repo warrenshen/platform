@@ -205,7 +205,7 @@ function CreateRepaymentModal({
 
   return (
     <Dialog open fullWidth maxWidth="md" onClose={handleClose}>
-      <DialogTitle className={classes.dialogTitle}>Pay Off Loans</DialogTitle>
+      <DialogTitle className={classes.dialogTitle}>Make Payment</DialogTitle>
       <DialogContent style={{ minHeight: 400 }}>
         {isOnSelectLoans ? (
           <CreateRepaymentSelectLoans

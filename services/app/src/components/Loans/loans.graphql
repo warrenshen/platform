@@ -22,7 +22,14 @@ subscription GetLoansForBank {
 }
 
 subscription GetNotFundedLoansForBank {
-  loans(where: { funded_at: { _is_null: true } }) {
+  loans(
+    where: {
+      _and: [
+        { funded_at: { _is_null: true } }
+        { closed_at: { _is_null: true } }
+      ]
+    }
+  ) {
     id
     ...Loan
     company {
@@ -45,7 +52,14 @@ subscription GetNotFundedLoansForBank {
 }
 
 subscription GetFundedLoansForBank {
-  loans(where: { funded_at: { _is_null: false } }) {
+  loans(
+    where: {
+      _and: [
+        { funded_at: { _is_null: false } }
+        { closed_at: { _is_null: true } }
+      ]
+    }
+  ) {
     id
     ...Loan
     company {

@@ -34,15 +34,13 @@ interface Props {
 
 function StatBox({ financialSummary }: Props) {
   const classes = useStyles();
-  let limitPercent = 0;
-  let outstandingAmount = 0;
 
-  if (financialSummary) {
-    outstandingAmount =
-      financialSummary.adjusted_total_limit - financialSummary.available_limit;
-    limitPercent =
-      (100 * outstandingAmount) / financialSummary.adjusted_total_limit;
-  }
+  const outstandingAmount = financialSummary
+    ? financialSummary.adjusted_total_limit - financialSummary.available_limit
+    : 0;
+  const limitPercent = financialSummary
+    ? (100 * outstandingAmount) / financialSummary.adjusted_total_limit
+    : 0;
 
   return (
     <Box className={classes.box}>

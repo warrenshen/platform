@@ -69,17 +69,6 @@ function LineOfCreditLoansDataGrid({
         ),
       },
       {
-        caption: "Credit For Vendor?",
-        minWidth: 150,
-        cellRender: (params: ValueFormatterParams) => (
-          <Box>
-            {params.row.data.line_of_credit?.is_credit_for_vendor
-              ? "Yes"
-              : "No"}
-          </Box>
-        ),
-      },
-      {
         caption: "Recipient Vendor",
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (

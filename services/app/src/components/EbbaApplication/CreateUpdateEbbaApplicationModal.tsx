@@ -75,11 +75,9 @@ function computeBorrowingBase(
     )?.value || 0;
 
   return (
-    (ebbaApplication.monthly_accounts_receivable *
-      accountsReceivablePercentage) /
-      100 +
-    (ebbaApplication.monthly_inventory * inventoryPercentage) / 100 +
-    (ebbaApplication.monthly_cash * cashPercentage) / 100
+    ebbaApplication.monthly_accounts_receivable * accountsReceivablePercentage +
+    ebbaApplication.monthly_inventory * inventoryPercentage +
+    ebbaApplication.monthly_cash * cashPercentage
   );
 }
 

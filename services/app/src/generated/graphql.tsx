@@ -14909,7 +14909,6 @@ export type GetLatestBankFinancialSummariesSubscription = {
       | "id"
       | "date"
       | "product_type"
-      | "total_limit"
       | "adjusted_total_limit"
       | "total_outstanding_principal"
       | "total_outstanding_interest"
@@ -15232,7 +15231,6 @@ export type FinancialSummaryFragment = Pick<
   FinancialSummaries,
   | "id"
   | "company_id"
-  | "total_limit"
   | "adjusted_total_limit"
   | "total_outstanding_principal"
   | "total_outstanding_interest"
@@ -15855,7 +15853,6 @@ export const FinancialSummaryFragmentDoc = gql`
   fragment FinancialSummary on financial_summaries {
     id
     company_id
-    total_limit
     adjusted_total_limit
     total_outstanding_principal
     total_outstanding_interest
@@ -17196,7 +17193,14 @@ export type GetLoansForBankSubscriptionHookResult = ReturnType<
 export type GetLoansForBankSubscriptionResult = Apollo.SubscriptionResult<GetLoansForBankSubscription>;
 export const GetNotFundedLoansForBankDocument = gql`
   subscription GetNotFundedLoansForBank {
-    loans(where: { funded_at: { _is_null: true } }) {
+    loans(
+      where: {
+        _and: [
+          { funded_at: { _is_null: true } }
+          { closed_at: { _is_null: true } }
+        ]
+      }
+    ) {
       id
       ...Loan
       company {
@@ -17253,7 +17257,14 @@ export type GetNotFundedLoansForBankSubscriptionHookResult = ReturnType<
 export type GetNotFundedLoansForBankSubscriptionResult = Apollo.SubscriptionResult<GetNotFundedLoansForBankSubscription>;
 export const GetFundedLoansForBankDocument = gql`
   subscription GetFundedLoansForBank {
-    loans(where: { funded_at: { _is_null: false } }) {
+    loans(
+      where: {
+        _and: [
+          { funded_at: { _is_null: false } }
+          { closed_at: { _is_null: true } }
+        ]
+      }
+    ) {
       id
       ...Loan
       company {
@@ -19017,7 +19028,6 @@ export const GetLatestBankFinancialSummariesDocument = gql`
       id
       date
       product_type
-      total_limit
       adjusted_total_limit
       total_outstanding_principal
       total_outstanding_interest

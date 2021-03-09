@@ -3,7 +3,6 @@ subscription GetLatestBankFinancialSummaries {
     id
     date
     product_type
-    total_limit
     adjusted_total_limit
     total_outstanding_principal
     total_outstanding_interest

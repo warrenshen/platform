@@ -76,7 +76,7 @@ function LoansActiveFunded({ data, handleDataChange }: Props) {
             <Box>
               <ModalButton
                 isDisabled={isCreateRepaymentDisabled}
-                label={"Pay Off Loans"}
+                label={"Make Payment"}
                 handleClick={({ handleOpen }) => {
                   const fundedLoans = selectedLoans.filter(
                     (loan) => loan.funded_at

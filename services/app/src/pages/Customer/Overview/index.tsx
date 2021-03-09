@@ -110,7 +110,7 @@ function CustomerOverviewPage() {
                     <Box display="flex" flexDirection="row-reverse" mb={2}>
                       <ModalButton
                         isDisabled={selectedLoanIds.length <= 0}
-                        label={"Pay Off Loans"}
+                        label={"Make Payment"}
                         modal={({ handleClose }) => (
                           <CreateRepaymentModal
                             companyId={companyId}
