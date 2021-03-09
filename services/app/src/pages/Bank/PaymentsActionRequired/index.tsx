@@ -11,7 +11,7 @@ import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
 import {
-  PaymentFragment,
+  PaymentLimitedFragment,
   useGetSubmittedPaymentsSubscription,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
@@ -46,11 +46,11 @@ function BankPaymentsActionRequiredPage() {
 
   // Schedule section
   const [selectedScheduledPayments, setSelectedScheduledPayments] = useState<
-    PaymentFragment[]
+    PaymentLimitedFragment[]
   >([]);
 
   const handleSelectSchedulePayments = useMemo(
-    () => (payments: PaymentFragment[]) => {
+    () => (payments: PaymentLimitedFragment[]) => {
       setSelectedScheduledPayments(payments);
     },
     [setSelectedScheduledPayments]
@@ -77,7 +77,7 @@ function BankPaymentsActionRequiredPage() {
 
   // Notify section
   const [selectedNotifyPayments, setSelectedNotifyPayments] = useState<
-    PaymentFragment[]
+    PaymentLimitedFragment[]
   >([]);
 
   const notifyPayments = useMemo(() => {
@@ -93,7 +93,7 @@ function BankPaymentsActionRequiredPage() {
   }, [selectedNotifyPayments]);
 
   const handleSelectNotifyPayments = useMemo(
-    () => (payments: PaymentFragment[]) => {
+    () => (payments: PaymentLimitedFragment[]) => {
       setSelectedNotifyPayments(payments);
     },
     [setSelectedNotifyPayments]

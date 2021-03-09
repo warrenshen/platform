@@ -11,7 +11,7 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoanTypeEnum,
   ProductTypeEnum,
-  useGetCompanyForCustomerOverviewQuery,
+  useGetCustomerOverviewQuery,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import React, { useContext } from "react";
@@ -45,7 +45,7 @@ function CustomerOverviewSubpage({ companyId, productType }: Props) {
     user: { role },
   } = useContext(CurrentUserContext);
 
-  const { data } = useGetCompanyForCustomerOverviewQuery({
+  const { data } = useGetCustomerOverviewQuery({
     variables: {
       companyId,
       loanType:

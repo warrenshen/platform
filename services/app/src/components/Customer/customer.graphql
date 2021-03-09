@@ -1,3 +1,46 @@
+query GetCustomerOverview($companyId: uuid!, $loanType: loan_type_enum) {
+  companies_by_pk(id: $companyId) {
+    id
+    financial_summary {
+      id
+      ...FinancialSummary
+    }
+    outstanding_loans: loans(
+      where: {
+        _and: [
+          { loan_type: { _eq: $loanType } }
+          { funded_at: { _is_null: false } }
+          { rejected_at: { _is_null: true } }
+          { closed_at: { _is_null: true } }
+        ]
+      }
+    ) {
+      id
+      ...LoanLimited
+      line_of_credit {
+        id
+        ...LineOfCredit
+      }
+      purchase_order {
+        id
+        order_number
+      }
+    }
+    pending_payments: payments(
+      where: {
+        _and: [
+          { type: { _eq: "repayment" } }
+          { submitted_at: { _is_null: false } }
+          { settled_at: { _is_null: true } }
+        ]
+      }
+    ) {
+      id
+      ...PaymentLimited
+    }
+  }
+}
+
 query GetCustomerForBank($id: uuid!) {
   companies_by_pk(id: $id) {
     id

@@ -976,6 +976,10 @@ export type Companies = {
   loans_aggregate: LoansAggregate;
   name: Scalars["String"];
   needs_balance_recomputed: Scalars["Boolean"];
+  /** An array relationship */
+  payments: Array<Payments>;
+  /** An aggregated array relationship */
+  payments_aggregate: PaymentsAggregate;
   phone_number?: Maybe<Scalars["String"]>;
   /** An array relationship */
   purchase_orders: Array<PurchaseOrders>;
@@ -1215,6 +1219,24 @@ export type CompaniesLoansAggregateArgs = {
 };
 
 /** columns and relationships of "companies" */
+export type CompaniesPaymentsArgs = {
+  distinct_on?: Maybe<Array<PaymentsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<PaymentsOrderBy>>;
+  where?: Maybe<PaymentsBoolExp>;
+};
+
+/** columns and relationships of "companies" */
+export type CompaniesPaymentsAggregateArgs = {
+  distinct_on?: Maybe<Array<PaymentsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<PaymentsOrderBy>>;
+  where?: Maybe<PaymentsBoolExp>;
+};
+
+/** columns and relationships of "companies" */
 export type CompaniesPurchaseOrdersArgs = {
   distinct_on?: Maybe<Array<PurchaseOrdersSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -1359,6 +1381,7 @@ export type CompaniesBoolExp = {
   loans?: Maybe<LoansBoolExp>;
   name?: Maybe<StringComparisonExp>;
   needs_balance_recomputed?: Maybe<BooleanComparisonExp>;
+  payments?: Maybe<PaymentsBoolExp>;
   phone_number?: Maybe<StringComparisonExp>;
   purchase_orders?: Maybe<PurchaseOrdersBoolExp>;
   purchase_orders_by_vendor?: Maybe<PurchaseOrdersBoolExp>;
@@ -1411,6 +1434,7 @@ export type CompaniesInsertInput = {
   loans?: Maybe<LoansArrRelInsertInput>;
   name?: Maybe<Scalars["String"]>;
   needs_balance_recomputed?: Maybe<Scalars["Boolean"]>;
+  payments?: Maybe<PaymentsArrRelInsertInput>;
   phone_number?: Maybe<Scalars["String"]>;
   purchase_orders?: Maybe<PurchaseOrdersArrRelInsertInput>;
   purchase_orders_by_vendor?: Maybe<PurchaseOrdersArrRelInsertInput>;
@@ -1553,6 +1577,7 @@ export type CompaniesOrderBy = {
   loans_aggregate?: Maybe<LoansAggregateOrderBy>;
   name?: Maybe<OrderBy>;
   needs_balance_recomputed?: Maybe<OrderBy>;
+  payments_aggregate?: Maybe<PaymentsAggregateOrderBy>;
   phone_number?: Maybe<OrderBy>;
   purchase_orders_aggregate?: Maybe<PurchaseOrdersAggregateOrderBy>;
   purchase_orders_by_vendor_aggregate?: Maybe<PurchaseOrdersAggregateOrderBy>;
@@ -6354,6 +6379,7 @@ export type Loans = {
   /** An object relationship */
   company: Companies;
   company_id: Scalars["uuid"];
+  created_at: Scalars["timestamptz"];
   funded_at?: Maybe<Scalars["timestamptz"]>;
   funded_by_user_id?: Maybe<Scalars["uuid"]>;
   id: Scalars["uuid"];
@@ -6383,6 +6409,7 @@ export type Loans = {
   requested_payment_date?: Maybe<Scalars["date"]>;
   /** This is the loan request status, e.g., drafted, approved, more_details_required, rejected */
   status: LoanStatusEnum;
+  updated_at: Scalars["timestamptz"];
 };
 
 /** aggregated selection of "loans" */
@@ -6462,6 +6489,7 @@ export type LoansBoolExp = {
   closed_at?: Maybe<TimestamptzComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
   funded_at?: Maybe<TimestamptzComparisonExp>;
   funded_by_user_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
@@ -6485,6 +6513,7 @@ export type LoansBoolExp = {
   requested_by_user_id?: Maybe<UuidComparisonExp>;
   requested_payment_date?: Maybe<DateComparisonExp>;
   status?: Maybe<LoanStatusEnumComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
 };
 
 /** unique or primary key constraints on table "loans" */
@@ -6511,6 +6540,7 @@ export type LoansInsertInput = {
   closed_at?: Maybe<Scalars["timestamptz"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   funded_at?: Maybe<Scalars["timestamptz"]>;
   funded_by_user_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -6534,6 +6564,7 @@ export type LoansInsertInput = {
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requested_payment_date?: Maybe<Scalars["date"]>;
   status?: Maybe<LoanStatusEnum>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** aggregate max on columns */
@@ -6545,6 +6576,7 @@ export type LoansMaxFields = {
   artifact_id?: Maybe<Scalars["uuid"]>;
   closed_at?: Maybe<Scalars["timestamptz"]>;
   company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   funded_at?: Maybe<Scalars["timestamptz"]>;
   funded_by_user_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -6564,6 +6596,7 @@ export type LoansMaxFields = {
   requested_at?: Maybe<Scalars["timestamptz"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requested_payment_date?: Maybe<Scalars["date"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** order by max() on columns of table "loans" */
@@ -6575,6 +6608,7 @@ export type LoansMaxOrderBy = {
   artifact_id?: Maybe<OrderBy>;
   closed_at?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
   funded_at?: Maybe<OrderBy>;
   funded_by_user_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
@@ -6594,6 +6628,7 @@ export type LoansMaxOrderBy = {
   requested_at?: Maybe<OrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
   requested_payment_date?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
 };
 
 /** aggregate min on columns */
@@ -6605,6 +6640,7 @@ export type LoansMinFields = {
   artifact_id?: Maybe<Scalars["uuid"]>;
   closed_at?: Maybe<Scalars["timestamptz"]>;
   company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   funded_at?: Maybe<Scalars["timestamptz"]>;
   funded_by_user_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -6624,6 +6660,7 @@ export type LoansMinFields = {
   requested_at?: Maybe<Scalars["timestamptz"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requested_payment_date?: Maybe<Scalars["date"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** order by min() on columns of table "loans" */
@@ -6635,6 +6672,7 @@ export type LoansMinOrderBy = {
   artifact_id?: Maybe<OrderBy>;
   closed_at?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
   funded_at?: Maybe<OrderBy>;
   funded_by_user_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
@@ -6654,6 +6692,7 @@ export type LoansMinOrderBy = {
   requested_at?: Maybe<OrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
   requested_payment_date?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
 };
 
 /** response of any mutation on the table "loans" */
@@ -6687,6 +6726,7 @@ export type LoansOrderBy = {
   closed_at?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
   funded_at?: Maybe<OrderBy>;
   funded_by_user_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
@@ -6710,6 +6750,7 @@ export type LoansOrderBy = {
   requested_by_user_id?: Maybe<OrderBy>;
   requested_payment_date?: Maybe<OrderBy>;
   status?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: "loans" */
@@ -6733,6 +6774,8 @@ export enum LoansSelectColumn {
   ClosedAt = "closed_at",
   /** column name */
   CompanyId = "company_id",
+  /** column name */
+  CreatedAt = "created_at",
   /** column name */
   FundedAt = "funded_at",
   /** column name */
@@ -6775,6 +6818,8 @@ export enum LoansSelectColumn {
   RequestedPaymentDate = "requested_payment_date",
   /** column name */
   Status = "status",
+  /** column name */
+  UpdatedAt = "updated_at",
 }
 
 /** input type for updating data in table "loans" */
@@ -6786,6 +6831,7 @@ export type LoansSetInput = {
   artifact_id?: Maybe<Scalars["uuid"]>;
   closed_at?: Maybe<Scalars["timestamptz"]>;
   company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   funded_at?: Maybe<Scalars["timestamptz"]>;
   funded_by_user_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
@@ -6807,6 +6853,7 @@ export type LoansSetInput = {
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requested_payment_date?: Maybe<Scalars["date"]>;
   status?: Maybe<LoanStatusEnum>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** aggregate stddev on columns */
@@ -6890,6 +6937,8 @@ export enum LoansUpdateColumn {
   /** column name */
   CompanyId = "company_id",
   /** column name */
+  CreatedAt = "created_at",
+  /** column name */
   FundedAt = "funded_at",
   /** column name */
   FundedByUserId = "funded_by_user_id",
@@ -6931,6 +6980,8 @@ export enum LoansUpdateColumn {
   RequestedPaymentDate = "requested_payment_date",
   /** column name */
   Status = "status",
+  /** column name */
+  UpdatedAt = "updated_at",
 }
 
 /** aggregate var_pop on columns */
@@ -14235,6 +14286,30 @@ export type GetAdvancesQuery = {
   >;
 };
 
+export type GetCustomerOverviewQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+  loanType?: Maybe<LoanTypeEnum>;
+}>;
+
+export type GetCustomerOverviewQuery = {
+  companies_by_pk?: Maybe<
+    Pick<Companies, "id"> & {
+      financial_summary?: Maybe<
+        Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
+      >;
+      outstanding_loans: Array<
+        Pick<Loans, "id"> & {
+          line_of_credit?: Maybe<
+            Pick<LineOfCredits, "id"> & LineOfCreditFragment
+          >;
+          purchase_order?: Maybe<Pick<PurchaseOrders, "id" | "order_number">>;
+        } & LoanLimitedFragment
+      >;
+      pending_payments: Array<Pick<Payments, "id"> & PaymentLimitedFragment>;
+    }
+  >;
+};
+
 export type GetCustomerForBankQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -14698,7 +14773,7 @@ export type GetPaymentQuery = {
     Pick<Payments, "id"> & {
       company: Pick<Companies, "id" | "name">;
       submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
-    } & PaymentFragment
+    } & PaymentLimitedFragment
   >;
 };
 
@@ -14840,53 +14915,6 @@ export type GetLatestBankFinancialSummariesSubscription = {
       | "total_principal_in_requested_state"
       | "available_limit"
     >
-  >;
-};
-
-export type GetCompanyForCustomerOverviewQueryVariables = Exact<{
-  companyId: Scalars["uuid"];
-  loanType?: Maybe<LoanTypeEnum>;
-}>;
-
-export type GetCompanyForCustomerOverviewQuery = {
-  companies_by_pk?: Maybe<
-    Pick<Companies, "id"> & {
-      financial_summary?: Maybe<
-        Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
-      >;
-      outstanding_loans: Array<
-        Pick<Loans, "id"> & {
-          line_of_credit?: Maybe<
-            Pick<LineOfCredits, "id"> & LineOfCreditFragment
-          >;
-          purchase_order?: Maybe<Pick<PurchaseOrders, "id" | "order_number">>;
-        } & LoanLimitedFragment
-      >;
-    }
-  >;
-};
-
-export type GetCompanyForCustomerLoansQueryVariables = Exact<{
-  companyId: Scalars["uuid"];
-  loanStatuses?: Maybe<Array<LoanStatusEnum>>;
-  loanType: LoanTypeEnum;
-}>;
-
-export type GetCompanyForCustomerLoansQuery = {
-  companies_by_pk?: Maybe<
-    Pick<Companies, "id"> & {
-      financial_summary?: Maybe<
-        Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
-      >;
-      loans: Array<
-        Pick<Loans, "id"> & {
-          line_of_credit?: Maybe<
-            Pick<LineOfCredits, "id"> & LineOfCreditFragment
-          >;
-          purchase_order?: Maybe<Pick<PurchaseOrders, "id" | "order_number">>;
-        } & LoanLimitedFragment
-      >;
-    }
   >;
 };
 
@@ -15118,6 +15146,20 @@ export type LoanLimitedFragment = Pick<
   | "approved_at"
   | "funded_at"
 > & { company: Pick<Companies, "id" | "identifier"> };
+
+export type PaymentLimitedFragment = Pick<
+  Payments,
+  | "id"
+  | "amount"
+  | "method"
+  | "type"
+  | "submitted_at"
+  | "settled_at"
+  | "settlement_date"
+  | "requested_payment_date"
+  | "payment_date"
+  | "items_covered"
+>;
 
 export type FileFragment = Pick<Files, "id" | "name" | "path">;
 
@@ -15507,16 +15549,16 @@ export type LoanFragment = Pick<
 export type PaymentFragment = Pick<
   Payments,
   | "id"
-  | "created_at"
-  | "amount"
-  | "method"
-  | "type"
   | "company_id"
+  | "created_at"
   | "submitted_at"
   | "settled_at"
-  | "settlement_date"
+  | "type"
+  | "method"
+  | "amount"
   | "requested_payment_date"
   | "payment_date"
+  | "settlement_date"
   | "items_covered"
 > & {
   company_bank_account?: Maybe<BankAccountFragment>;
@@ -15720,6 +15762,20 @@ export const LoanLimitedFragmentDoc = gql`
       id
       identifier
     }
+  }
+`;
+export const PaymentLimitedFragmentDoc = gql`
+  fragment PaymentLimited on payments {
+    id
+    amount
+    method
+    type
+    submitted_at
+    settled_at
+    settlement_date
+    requested_payment_date
+    payment_date
+    items_covered
   }
 `;
 export const FileFragmentDoc = gql`
@@ -15954,16 +16010,16 @@ export const LoanFragmentDoc = gql`
 export const PaymentFragmentDoc = gql`
   fragment Payment on payments {
     id
-    created_at
-    amount
-    method
-    type
     company_id
+    created_at
     submitted_at
     settled_at
-    settlement_date
+    type
+    method
+    amount
     requested_payment_date
     payment_date
+    settlement_date
     items_covered
     company_bank_account {
       ...BankAccount
@@ -16064,6 +16120,104 @@ export type GetAdvancesLazyQueryHookResult = ReturnType<
 export type GetAdvancesQueryResult = Apollo.QueryResult<
   GetAdvancesQuery,
   GetAdvancesQueryVariables
+>;
+export const GetCustomerOverviewDocument = gql`
+  query GetCustomerOverview($companyId: uuid!, $loanType: loan_type_enum) {
+    companies_by_pk(id: $companyId) {
+      id
+      financial_summary {
+        id
+        ...FinancialSummary
+      }
+      outstanding_loans: loans(
+        where: {
+          _and: [
+            { loan_type: { _eq: $loanType } }
+            { funded_at: { _is_null: false } }
+            { rejected_at: { _is_null: true } }
+            { closed_at: { _is_null: true } }
+          ]
+        }
+      ) {
+        id
+        ...LoanLimited
+        line_of_credit {
+          id
+          ...LineOfCredit
+        }
+        purchase_order {
+          id
+          order_number
+        }
+      }
+      pending_payments: payments(
+        where: {
+          _and: [
+            { type: { _eq: "repayment" } }
+            { submitted_at: { _is_null: false } }
+            { settled_at: { _is_null: true } }
+          ]
+        }
+      ) {
+        id
+        ...PaymentLimited
+      }
+    }
+  }
+  ${FinancialSummaryFragmentDoc}
+  ${LoanLimitedFragmentDoc}
+  ${LineOfCreditFragmentDoc}
+  ${PaymentLimitedFragmentDoc}
+`;
+
+/**
+ * __useGetCustomerOverviewQuery__
+ *
+ * To run a query within a React component, call `useGetCustomerOverviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerOverviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomerOverviewQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *      loanType: // value for 'loanType'
+ *   },
+ * });
+ */
+export function useGetCustomerOverviewQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetCustomerOverviewQuery,
+    GetCustomerOverviewQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetCustomerOverviewQuery,
+    GetCustomerOverviewQueryVariables
+  >(GetCustomerOverviewDocument, baseOptions);
+}
+export function useGetCustomerOverviewLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCustomerOverviewQuery,
+    GetCustomerOverviewQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetCustomerOverviewQuery,
+    GetCustomerOverviewQueryVariables
+  >(GetCustomerOverviewDocument, baseOptions);
+}
+export type GetCustomerOverviewQueryHookResult = ReturnType<
+  typeof useGetCustomerOverviewQuery
+>;
+export type GetCustomerOverviewLazyQueryHookResult = ReturnType<
+  typeof useGetCustomerOverviewLazyQuery
+>;
+export type GetCustomerOverviewQueryResult = Apollo.QueryResult<
+  GetCustomerOverviewQuery,
+  GetCustomerOverviewQueryVariables
 >;
 export const GetCustomerForBankDocument = gql`
   query GetCustomerForBank($id: uuid!) {
@@ -18198,7 +18352,7 @@ export const GetPaymentDocument = gql`
   query GetPayment($id: uuid!) {
     payments_by_pk(id: $id) {
       id
-      ...Payment
+      ...PaymentLimited
       company {
         id
         name
@@ -18209,7 +18363,7 @@ export const GetPaymentDocument = gql`
       }
     }
   }
-  ${PaymentFragmentDoc}
+  ${PaymentLimitedFragmentDoc}
 `;
 
 /**
@@ -18902,180 +19056,6 @@ export type GetLatestBankFinancialSummariesSubscriptionHookResult = ReturnType<
   typeof useGetLatestBankFinancialSummariesSubscription
 >;
 export type GetLatestBankFinancialSummariesSubscriptionResult = Apollo.SubscriptionResult<GetLatestBankFinancialSummariesSubscription>;
-export const GetCompanyForCustomerOverviewDocument = gql`
-  query GetCompanyForCustomerOverview(
-    $companyId: uuid!
-    $loanType: loan_type_enum
-  ) {
-    companies_by_pk(id: $companyId) {
-      id
-      financial_summary {
-        id
-        ...FinancialSummary
-      }
-      outstanding_loans: loans(
-        where: {
-          _and: [
-            { status: { _in: [funded, past_due] } }
-            { loan_type: { _eq: $loanType } }
-          ]
-        }
-      ) {
-        id
-        ...LoanLimited
-        line_of_credit {
-          id
-          ...LineOfCredit
-        }
-        purchase_order {
-          id
-          order_number
-        }
-      }
-    }
-  }
-  ${FinancialSummaryFragmentDoc}
-  ${LoanLimitedFragmentDoc}
-  ${LineOfCreditFragmentDoc}
-`;
-
-/**
- * __useGetCompanyForCustomerOverviewQuery__
- *
- * To run a query within a React component, call `useGetCompanyForCustomerOverviewQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCompanyForCustomerOverviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCompanyForCustomerOverviewQuery({
- *   variables: {
- *      companyId: // value for 'companyId'
- *      loanType: // value for 'loanType'
- *   },
- * });
- */
-export function useGetCompanyForCustomerOverviewQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    GetCompanyForCustomerOverviewQuery,
-    GetCompanyForCustomerOverviewQueryVariables
-  >
-) {
-  return Apollo.useQuery<
-    GetCompanyForCustomerOverviewQuery,
-    GetCompanyForCustomerOverviewQueryVariables
-  >(GetCompanyForCustomerOverviewDocument, baseOptions);
-}
-export function useGetCompanyForCustomerOverviewLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetCompanyForCustomerOverviewQuery,
-    GetCompanyForCustomerOverviewQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    GetCompanyForCustomerOverviewQuery,
-    GetCompanyForCustomerOverviewQueryVariables
-  >(GetCompanyForCustomerOverviewDocument, baseOptions);
-}
-export type GetCompanyForCustomerOverviewQueryHookResult = ReturnType<
-  typeof useGetCompanyForCustomerOverviewQuery
->;
-export type GetCompanyForCustomerOverviewLazyQueryHookResult = ReturnType<
-  typeof useGetCompanyForCustomerOverviewLazyQuery
->;
-export type GetCompanyForCustomerOverviewQueryResult = Apollo.QueryResult<
-  GetCompanyForCustomerOverviewQuery,
-  GetCompanyForCustomerOverviewQueryVariables
->;
-export const GetCompanyForCustomerLoansDocument = gql`
-  query GetCompanyForCustomerLoans(
-    $companyId: uuid!
-    $loanStatuses: [loan_status_enum!]
-    $loanType: loan_type_enum!
-  ) {
-    companies_by_pk(id: $companyId) {
-      id
-      financial_summary {
-        id
-        ...FinancialSummary
-      }
-      loans(
-        where: {
-          _and: [
-            { status: { _in: $loanStatuses } }
-            { loan_type: { _eq: $loanType } }
-          ]
-        }
-      ) {
-        id
-        ...LoanLimited
-        line_of_credit {
-          id
-          ...LineOfCredit
-        }
-        purchase_order {
-          id
-          order_number
-        }
-      }
-    }
-  }
-  ${FinancialSummaryFragmentDoc}
-  ${LoanLimitedFragmentDoc}
-  ${LineOfCreditFragmentDoc}
-`;
-
-/**
- * __useGetCompanyForCustomerLoansQuery__
- *
- * To run a query within a React component, call `useGetCompanyForCustomerLoansQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCompanyForCustomerLoansQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCompanyForCustomerLoansQuery({
- *   variables: {
- *      companyId: // value for 'companyId'
- *      loanStatuses: // value for 'loanStatuses'
- *      loanType: // value for 'loanType'
- *   },
- * });
- */
-export function useGetCompanyForCustomerLoansQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    GetCompanyForCustomerLoansQuery,
-    GetCompanyForCustomerLoansQueryVariables
-  >
-) {
-  return Apollo.useQuery<
-    GetCompanyForCustomerLoansQuery,
-    GetCompanyForCustomerLoansQueryVariables
-  >(GetCompanyForCustomerLoansDocument, baseOptions);
-}
-export function useGetCompanyForCustomerLoansLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetCompanyForCustomerLoansQuery,
-    GetCompanyForCustomerLoansQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    GetCompanyForCustomerLoansQuery,
-    GetCompanyForCustomerLoansQueryVariables
-  >(GetCompanyForCustomerLoansDocument, baseOptions);
-}
-export type GetCompanyForCustomerLoansQueryHookResult = ReturnType<
-  typeof useGetCompanyForCustomerLoansQuery
->;
-export type GetCompanyForCustomerLoansLazyQueryHookResult = ReturnType<
-  typeof useGetCompanyForCustomerLoansLazyQuery
->;
-export type GetCompanyForCustomerLoansQueryResult = Apollo.QueryResult<
-  GetCompanyForCustomerLoansQuery,
-  GetCompanyForCustomerLoansQueryVariables
->;
 export const GetCompanyWithActiveContractDocument = gql`
   query GetCompanyWithActiveContract($companyId: uuid!) {
     companies_by_pk(id: $companyId) {

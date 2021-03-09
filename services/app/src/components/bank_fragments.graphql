@@ -93,16 +93,16 @@ fragment Loan on loans {
 
 fragment Payment on payments {
   id
-  created_at
-  amount
-  method
-  type
   company_id
+  created_at
   submitted_at
   settled_at
-  settlement_date
+  type
+  method
+  amount
   requested_payment_date
   payment_date
+  settlement_date
   items_covered
   company_bank_account {
     ...BankAccount

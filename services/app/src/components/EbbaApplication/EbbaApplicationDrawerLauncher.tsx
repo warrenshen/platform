@@ -2,7 +2,7 @@ import { Button } from "@material-ui/core";
 import EbbaApplicationDrawer from "components/EbbaApplication/EbbaApplicationDrawer";
 import { EbbaApplications } from "generated/graphql";
 import { truncateUuid } from "lib/uuid";
-import React, { useState } from "react";
+import { useState } from "react";
 
 interface Props {
   ebbaApplicationId: EbbaApplications["id"];

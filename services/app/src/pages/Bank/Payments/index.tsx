@@ -10,10 +10,11 @@ function BankPaymentsPage() {
   return (
     <Page appBarTitle={"Payments - All"}>
       <PaymentsDataGrid
+        isCompanyVisible
+        enableSelect={false}
         payments={payments}
         customerSearchQuery={""}
         onClickCustomerName={() => {}}
-        enableSelect={false}
       />
     </Page>
   );

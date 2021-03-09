@@ -1,7 +1,7 @@
 query GetPayment($id: uuid!) {
   payments_by_pk(id: $id) {
     id
-    ...Payment
+    ...PaymentLimited
     company {
       id
       name

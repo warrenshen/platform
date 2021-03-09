@@ -19,7 +19,7 @@ import {
   LoanTypeEnum,
   ProductTypeEnum,
   Scalars,
-  useGetCompanyForCustomerOverviewQuery,
+  useGetCustomerOverviewQuery,
   useGetPurchaseOrdersForIdsQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -85,7 +85,7 @@ export default function CreateMultiplePurchaseOrdersLoansModal({
     user: { companyId, productType },
   } = useContext(CurrentUserContext);
 
-  const { data: customer } = useGetCompanyForCustomerOverviewQuery({
+  const { data: customer } = useGetCustomerOverviewQuery({
     variables: {
       companyId,
       loanType:

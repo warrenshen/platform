@@ -108,6 +108,19 @@ fragment LoanLimited on loans {
   }
 }
 
+fragment PaymentLimited on payments {
+  id
+  amount
+  method
+  type
+  submitted_at
+  settled_at
+  settlement_date
+  requested_payment_date
+  payment_date
+  items_covered
+}
+
 ## Files
 
 fragment File on files {

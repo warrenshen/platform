@@ -1,5 +1,6 @@
 import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
+import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
@@ -8,28 +9,29 @@ import DataGridActionMenu, {
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
-import { PaymentFragment, Payments } from "generated/graphql";
+import { PaymentLimitedFragment, Payments } from "generated/graphql";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
-import { truncateUuid } from "lib/uuid";
 import { useMemo, useState } from "react";
 
 interface Props {
-  payments: PaymentFragment[];
-  customerSearchQuery: string;
-  onClickCustomerName: (value: string) => void;
+  isCompanyVisible?: boolean;
+  payments: PaymentLimitedFragment[];
+  customerSearchQuery?: string;
+  onClickCustomerName?: (value: string) => void;
   actionItems?: DataGridActionItem[];
-  enableSelect: boolean;
+  enableSelect?: boolean;
   selectedPaymentIds?: Payments["id"][];
-  handleSelectPayments?: (payments: PaymentFragment[]) => void;
+  handleSelectPayments?: (payments: PaymentLimitedFragment[]) => void;
 }
 
-function PaymentsDataGrid({
+function RepaymentsDataGrid({
+  isCompanyVisible = false,
+  enableSelect = false,
   payments,
-  customerSearchQuery,
+  customerSearchQuery = "",
   onClickCustomerName,
   actionItems,
-  enableSelect,
   selectedPaymentIds,
   handleSelectPayments,
 }: Props) {
@@ -38,13 +40,13 @@ function PaymentsDataGrid({
   const columns = useMemo(
     () => [
       {
-        caption: "Created At",
+        caption: "Submitted At",
         width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <DatetimeDataGridCell
             isTimeVisible
-            datetimeString={params.row.data.created_at}
+            datetimeString={params.row.data.submitted_at}
           />
         ),
       },
@@ -53,7 +55,7 @@ function PaymentsDataGrid({
         caption: "Payment ID",
         width: 140,
         cellRender: (params: ValueFormatterParams) => (
-          <Box>{truncateUuid(params.row.data.id as string)}</Box>
+          <PaymentDrawerLauncher paymentId={params.row.data.id as string} />
         ),
       },
       {
@@ -75,18 +77,21 @@ function PaymentsDataGrid({
         ),
       },
       {
+        visible: isCompanyVisible,
         caption: "Company",
         width: 200,
         cellRender: (params: ValueFormatterParams) => (
           <ClickableDataGridCell
             label={params.row.data.company.name}
             onClick={() => {
-              onClickCustomerName(params.row.data.company.name);
-              dataGrid?.instance.filter([
-                "company.name",
-                "=",
-                params.row.data.company.name,
-              ]);
+              if (onClickCustomerName) {
+                onClickCustomerName(params.row.data.company?.name);
+                dataGrid?.instance.filter([
+                  "company.name",
+                  "=",
+                  params.row.data.company?.name,
+                ]);
+              }
             }}
           />
         ),
@@ -146,13 +151,13 @@ function PaymentsDataGrid({
         width: 140,
       },
     ],
-    [dataGrid?.instance, actionItems, onClickCustomerName]
+    [dataGrid?.instance, isCompanyVisible, actionItems, onClickCustomerName]
   );
 
   const handleSelectionChanged = useMemo(
     () => ({ selectedRowsData }: any) =>
       handleSelectPayments &&
-      handleSelectPayments(selectedRowsData as PaymentFragment[]),
+      handleSelectPayments(selectedRowsData as PaymentLimitedFragment[]),
     [handleSelectPayments]
   );
 
@@ -171,4 +176,4 @@ function PaymentsDataGrid({
   );
 }
 
-export default PaymentsDataGrid;
+export default RepaymentsDataGrid;
