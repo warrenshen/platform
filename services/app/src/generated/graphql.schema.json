@@ -42739,6 +42739,12 @@
         "interfaces": null,
         "enumValues": [
           {
+            "name": "invoice",
+            "description": "Invoice",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "line_of_credit",
             "description": "Line of Credit",
             "isDeprecated": false,

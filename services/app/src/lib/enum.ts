@@ -57,6 +57,7 @@ export const AllLoanStatuses = [
 export const LoanTypeToLabel = {
   [LoanTypeEnum.LineOfCredit]: "Line of Credit",
   [LoanTypeEnum.PurchaseOrder]: "Purchase Order",
+  [LoanTypeEnum.Invoice]: "Invoice",
 };
 
 // Payment Method enum related.

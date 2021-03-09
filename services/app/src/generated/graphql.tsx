@@ -6264,6 +6264,8 @@ export enum LoanTypeConstraint {
 }
 
 export enum LoanTypeEnum {
+  /** Invoice */
+  Invoice = "invoice",
   /** Line of Credit */
   LineOfCredit = "line_of_credit",
   /** Purchase Order */
