@@ -1,39 +1,54 @@
 import datetime
 import decimal
 import uuid
-from typing import cast, List, Dict
+from typing import Dict, List, cast
 
-from bespoke.db import models
-from bespoke.db.db_constants import ProductType
-from bespoke.db.db_constants import LoanStatusEnum, LoanTypeEnum
-from bespoke.db.models import session_scope
-from bespoke.finance.payments import advance_util
-from bespoke.finance.payments import payment_util
-from bespoke.finance import number_util
 from bespoke.date import date_util
-
+from bespoke.db import models
+from bespoke.db.db_constants import LoanStatusEnum, LoanTypeEnum, ProductType
+from bespoke.db.models import session_scope
+from bespoke.finance import number_util
+from bespoke.finance.payments import advance_util, payment_util
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
-from bespoke_test.db import db_unittest
-from bespoke_test.db import test_helper
+from bespoke_test.db import db_unittest, test_helper
+
 
 def _get_default_contract(
 	use_preceeding_business_day: bool,
 	days_until_repayment: int
 ) -> models.Contract:
 	return models.Contract(
-	product_type=ProductType.INVENTORY_FINANCING,
-	product_config=contract_test_helper.create_contract_config(
 		product_type=ProductType.INVENTORY_FINANCING,
-		input_dict=ContractInputDict(
-			interest_rate=0.05,
-			maximum_principal_amount=120000.01,
-			max_days_until_repayment=days_until_repayment,
-			late_fee_structure='', # unused
-			preceeding_business_day=use_preceeding_business_day
+		product_config=contract_test_helper.create_contract_config(
+			product_type=ProductType.INVENTORY_FINANCING,
+			input_dict=ContractInputDict(
+				interest_rate=0.05,
+				maximum_principal_amount=120000.01,
+				max_days_until_repayment=days_until_repayment,
+				late_fee_structure='', # unused
+				preceeding_business_day=use_preceeding_business_day
+			)
 		)
 	)
-)
+
+def _get_line_of_credit_contract() -> models.Contract:
+	return models.Contract(
+		product_type=ProductType.LINE_OF_CREDIT,
+		start_date=date_util.load_date_str('10/01/2020'),
+		end_date=date_util.load_date_str('12/31/2020'),
+		adjusted_end_date=date_util.load_date_str('12/31/2020'),
+		product_config=contract_test_helper.create_contract_config(
+			product_type=ProductType.LINE_OF_CREDIT,
+			input_dict=ContractInputDict(
+				interest_rate=0.05,
+				maximum_principal_amount=120000,
+				borrowing_base_accounts_receivable_percentage=100.0,
+				borrowing_base_inventory_percentage=100.0,
+				borrowing_base_cash_percentage=100.0
+			)
+		)
+	)
 
 class TestFundLoansWithAdvance(db_unittest.TestCase):
 
@@ -360,6 +375,50 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'payment_index': 1
 					}
 				]
+			}
+		]
+
+		for test in tests:
+			self._run_test(test)
+
+	def test_successful_advance_line_of_credit_loan(self) -> None:
+		tests: List[Dict] = [
+			{
+				'comment': 'Tests that an advance on a line of credit loan results in a maturity date based on adjusted end date of active contract of customer',
+				'contracts_by_company_index': {
+					0: [
+						_get_line_of_credit_contract()
+					],
+				},
+				'loans': [
+					{
+						'amount': 10.01,
+					},
+				],
+				'payment_date': '10/18/2020',
+				'settlement_date':  '10/20/2020',
+				'company_indices': [0],
+				'payment_input_amount': 10.01,
+				'expected_loans': [
+					{
+						'amount': 10.01,
+						'maturity_date': '12/31/2020',
+						'adjusted_maturity_date': '12/31/2020'
+					}
+				],
+				'expected_payments': [
+					{
+						'amount': 10.01,
+						'company_index': 0
+					}
+				],
+				'expected_transactions': [
+					{
+						'amount': 10.01,
+						'loan_index': 0,
+						'payment_index': 0
+					}
+				],
 			}
 		]
 

@@ -18,22 +18,20 @@ import datetime
 import decimal
 import logging
 from datetime import timedelta
-
-from mypy_extensions import TypedDict
-from typing import Callable, Tuple, List, cast
+from typing import Callable, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.models import session_scope
 from bespoke.db.db_constants import LoanStatusEnum, ProductType
-from bespoke.finance import contract_util
-from bespoke.finance import number_util
-from bespoke.finance.payments import payment_util
+from bespoke.db.models import session_scope
+from bespoke.finance import contract_util, number_util
+from bespoke.finance.fetchers import per_customer_fetcher
 from bespoke.finance.loans import loan_calculator
 from bespoke.finance.loans.loan_calculator import LoanUpdateDict
+from bespoke.finance.payments import payment_util
 from bespoke.finance.types import per_customer_types
-from bespoke.finance.fetchers import per_customer_fetcher
+from mypy_extensions import TypedDict
 
 SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 	'product_type': str,

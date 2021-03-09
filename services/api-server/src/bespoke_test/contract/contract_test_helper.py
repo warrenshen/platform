@@ -1,10 +1,11 @@
 """
 	A file that helps you create contracts for different products
 """
-from mypy_extensions import TypedDict
 from typing import Dict
 
 from bespoke.db import db_constants
+from bespoke.db.db_constants import ProductType
+from mypy_extensions import TypedDict
 
 ContractInputDict = TypedDict('ContractInputDict', {
 	'interest_rate': float,
@@ -33,6 +34,15 @@ def create_contract_config(
 			'internal_name': 'maximum_amount',
 			'value': input_dict['maximum_principal_amount']
 		},
+	] if product_type == ProductType.LINE_OF_CREDIT else [
+		{
+			'internal_name': 'factoring_fee_percentage',
+			'value': input_dict['interest_rate']
+		},
+		{
+			'internal_name': 'maximum_amount',
+			'value': input_dict['maximum_principal_amount']
+		},
 		{
 			'internal_name': 'contract_financing_terms',
 			'value': input_dict['max_days_until_repayment']
@@ -47,16 +57,17 @@ def create_contract_config(
 		}
 	]
 
-	borrowing_base_fields = (
-		'borrowing_base_accounts_receivable_percentage',
-		'borrowing_base_inventory_percentage',
-		'borrowing_base_cash_percentage'
-	)
+	if product_type == ProductType.LINE_OF_CREDIT:
+		borrowing_base_fields = (
+			'borrowing_base_accounts_receivable_percentage',
+			'borrowing_base_inventory_percentage',
+			'borrowing_base_cash_percentage'
+		)
 
-	for field in borrowing_base_fields:
-		value = input_dict.get(field)
-		if value:
-			fields.append({'internal_name': field, 'value': value})
+		for field in borrowing_base_fields:
+			value = input_dict.get(field)
+			if value:
+				fields.append({'internal_name': field, 'value': value})
 
 	return {
 		'version': version_key,

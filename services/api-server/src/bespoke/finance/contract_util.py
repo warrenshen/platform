@@ -240,6 +240,16 @@ class Contract(object):
 
 		return self._config['product_type'], None
 
+	def get_adjusted_end_date(self) -> Tuple[datetime.date, errors.Error]:
+		if 'adjusted_end_date' not in self._contract_dict:
+			return None, errors.Error('Adjusted end date missing in contract')
+
+		adjusted_end_date = self._contract_dict['adjusted_end_date']
+		if not adjusted_end_date:
+			return None, errors.Error('Adjusted end date in contract is not valid')
+
+		return adjusted_end_date, None
+
 	def get_maximum_principal_limit(self) -> Tuple[float, errors.Error]:
 		return self._get_float_value('maximum_amount')
 
@@ -248,7 +258,6 @@ class Contract(object):
 
 	def _use_preceeding_business_day(self) -> Tuple[bool, errors.Error]:
 		product_type, err = self.get_product_type()
-
 		if err:
 			return None, err
 
@@ -263,12 +272,23 @@ class Contract(object):
 			Get the maturity date of a loan that starts with it's advance on this
 			particular settlement date
 		"""
-		num_days_after_repayment, err = self._get_int_value('contract_financing_terms')
+		product_type, err = self.get_product_type()
 		if err:
 			return None, err
 
-		maturity_date = advance_settlement_date + timedelta(days=num_days_after_repayment)
-		return maturity_date, None
+		if product_type == ProductType.LINE_OF_CREDIT:
+			end_date, err = self.get_adjusted_end_date()
+			if err:
+				return None, err
+
+			return date_util.get_nearest_business_day(end_date, preceeding=False), None
+		else:
+			num_days_after_repayment, err = self._get_int_value('contract_financing_terms')
+			if err:
+				return None, err
+
+			maturity_date = advance_settlement_date + timedelta(days=num_days_after_repayment)
+			return maturity_date, None
 
 	def get_adjusted_maturity_date(self, advance_settlement_date: datetime.date) -> Tuple[datetime.date, errors.Error]:
 		"""
@@ -466,7 +486,7 @@ class ContractHelper(object):
 				return None, errors.Error('Contract #{} for company {} is missing a start_date'.format(i + 1, company_id))
 
 			if not c.get('adjusted_end_date'):
-				return None, errors.Error('Contract #{} for company {} is missing a adjusted end_date'.format(i + 1, company_id))
+				return None, errors.Error('Contract #{} for company {} is missing an adjusted end_date'.format(i + 1, company_id))
 
 			sorted_contract_dicts.append(c)
 

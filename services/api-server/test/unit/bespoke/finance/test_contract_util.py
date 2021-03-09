@@ -1,29 +1,43 @@
 import json
 import unittest
-
-from typing import List, Dict, cast
+from typing import Dict, List, cast
 
 from bespoke.date import date_util
-from bespoke.db.db_constants import ProductType
 from bespoke.db import models
+from bespoke.db.db_constants import ProductType
 from bespoke.finance import contract_util
-
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
 
+
 def _get_default_contract_config(product_type: str, overrides: Dict) -> Dict:
 	contract_dict = ContractInputDict(
-					interest_rate=0.05,
-					maximum_principal_amount=120000.01,
-					max_days_until_repayment=30,
-					late_fee_structure='', # unused
+		interest_rate=0.05,
+		maximum_principal_amount=120000.01,
+		max_days_until_repayment=30,
+		late_fee_structure='', # unused
 	)
 	d = cast(Dict, contract_dict)
 	d.update(overrides)
 	return contract_test_helper.create_contract_config(
-				product_type=product_type,
-				input_dict=cast(ContractInputDict, d)
-		)
+		product_type=product_type,
+		input_dict=cast(ContractInputDict, d)
+	)
+
+def _get_line_of_credit_contract_config(overrides: Dict) -> Dict:
+	contract_dict = ContractInputDict(
+		interest_rate=0.05,
+		maximum_principal_amount=120000,
+		borrowing_base_accounts_receivable_percentage=None,
+		borrowing_base_inventory_percentage=None,
+		borrowing_base_cash_percentage=None
+	)
+	d = cast(Dict, contract_dict)
+	d.update(overrides)
+	return contract_test_helper.create_contract_config(
+		product_type=ProductType.LINE_OF_CREDIT,
+		input_dict=cast(ContractInputDict, d)
+	)
 
 class TestContractHelper(unittest.TestCase):
 
@@ -65,7 +79,7 @@ class TestContractHelper(unittest.TestCase):
 		]
 
 		contract_helper, err = contract_util.ContractHelper.build(company_id, contract_dicts)
-		self.assertIn('missing a adjusted end_date', err.msg)
+		self.assertIn('missing an adjusted end_date', err.msg)
 
 	def test_overlapping_date_ranges(self) -> None:
 		config = _get_default_contract_config(ProductType.INVENTORY_FINANCING, {
@@ -319,7 +333,7 @@ class TestLateFeeStructure(unittest.TestCase):
 		# Test it fails because of validate=True
 		for i in range(len(tests)):
 			test = tests[i]
-			config = _get_default_contract_config(ProductType.LINE_OF_CREDIT, test['update'])
+			config = _get_line_of_credit_contract_config(test['update'])
 			contract, err = contract_util.Contract.build(models.Contract(
 						product_type=ProductType.LINE_OF_CREDIT,
 						product_config=config
