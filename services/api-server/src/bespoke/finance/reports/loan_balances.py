@@ -144,7 +144,7 @@ def _get_summary_update(
 		total_outstanding_interest=total_outstanding_interest,
 		total_outstanding_fees=total_outstanding_fees,
 		total_principal_in_requested_state=0.0,
-		available_limit=max(0.0, maximum_principal_limit-total_outstanding_principal),
+		available_limit=max(0.0, adjusted_total_limit - total_outstanding_principal),
 	), None
 
 class CustomerBalance(object):

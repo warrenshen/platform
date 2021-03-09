@@ -435,9 +435,9 @@ class LOCContract(Contract):
 			return None, err
 
 		borrowing_base = \
-			((ebba['monthly_accounts_receivable'] * accounts_receivable_percentage) / 100.0) \
-			+ ((ebba['monthly_inventory'] * inventory_percentage) / 100.0) \
-			+ ((ebba['monthly_cash'] * cash_percentage) / 100.0)
+			(ebba['monthly_accounts_receivable'] * accounts_receivable_percentage) \
+			+ (ebba['monthly_inventory'] * inventory_percentage) \
+			+ (ebba['monthly_cash'] * cash_percentage)
 
 		return borrowing_base, None
 
@@ -486,7 +486,7 @@ class ContractHelper(object):
 				return None, errors.Error('Contract #{} for company {} is missing a start_date'.format(i + 1, company_id))
 
 			if not c.get('adjusted_end_date'):
-				return None, errors.Error('Contract #{} for company {} is missing an adjusted end_date'.format(i + 1, company_id))
+				return None, errors.Error('Contract #{} for company {} is missing an adjusted_end_date'.format(i + 1, company_id))
 
 			sorted_contract_dicts.append(c)
 

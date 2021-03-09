@@ -79,7 +79,7 @@ class TestContractHelper(unittest.TestCase):
 		]
 
 		contract_helper, err = contract_util.ContractHelper.build(company_id, contract_dicts)
-		self.assertIn('missing an adjusted end_date', err.msg)
+		self.assertIn('missing an adjusted_end_date', err.msg)
 
 	def test_overlapping_date_ranges(self) -> None:
 		config = _get_default_contract_config(ProductType.INVENTORY_FINANCING, {

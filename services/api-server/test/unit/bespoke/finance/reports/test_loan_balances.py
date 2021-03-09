@@ -2,19 +2,18 @@ import datetime
 import decimal
 import json
 import uuid
-from typing import Any, List, Dict, cast
+from typing import Any, Dict, List, cast
 
 from bespoke.date import date_util
-from bespoke.db import models, db_constants
+from bespoke.db import db_constants, models
 from bespoke.db.db_constants import ProductType
 from bespoke.db.models import session_scope
 from bespoke.finance.reports import loan_balances
-
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
+from bespoke_test.db import db_unittest, test_helper
 from bespoke_test.payments import payment_test_helper
-from bespoke_test.db import db_unittest
-from bespoke_test.db import test_helper
+
 
 def _get_late_fee_structure() -> str:
 	return json.dumps({
@@ -260,7 +259,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					product_type=ProductType.LINE_OF_CREDIT,
 					input_dict=ContractInputDict(
 						interest_rate=5.00,
-						maximum_principal_amount=120000.01,
+						maximum_principal_amount=1200000,
 						max_days_until_repayment=0, # unused
 						late_fee_structure=_get_late_fee_structure(), # unused
 						borrowing_base_accounts_receivable_percentage=0.5,
@@ -303,19 +302,19 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			'populate_fn': populate_fn,
 			'expected_summary_update': {
 				'product_type': 'line_of_credit',
-				'total_limit': 120000.01,
-				'adjusted_total_limit': 8250,
+				'total_limit': 1200000,
+				'adjusted_total_limit': 825000,
 				'total_outstanding_principal': 0.0,
 				'total_outstanding_interest': 0.0,
 				'total_outstanding_fees': 0.0,
 				'total_principal_in_requested_state': 0.0,
-				'available_limit': 120000.01
+				'available_limit': 825000
 			}
 		})
 
 		with session_scope(self.session_maker) as session:
 			ebba = session.query(models.EbbaApplication).first()
-			self.assertEqual(ebba.calculated_borrowing_base, 8250)
+			self.assertEqual(ebba.calculated_borrowing_base, 825000)
 
 	def test_failure_line_of_credit_without_borrowing_base(self) -> None:
 		self.reset()

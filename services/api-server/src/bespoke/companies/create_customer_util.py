@@ -61,7 +61,8 @@ def create_customer(
 			product_type=req['contract']['product_type'],
 			product_config=req['contract']['product_config'],
 			start_date=date_util.load_date_str(req['contract']['start_date']),
-			end_date=date_util.load_date_str(req['contract']['end_date'])
+			end_date=date_util.load_date_str(req['contract']['end_date']),
+			adjusted_end_date=date_util.load_date_str(req['contract']['end_date']),
 		)
 		contract_obj, err = contract_util.Contract.build(contract.as_dict(), validate=True)
 		if err:
