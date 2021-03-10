@@ -120,9 +120,19 @@ class LoanCalculator(object):
 			return None, [errors.Error('Could not determine loan balance for loan_id={} because it has no origination_date set'.format(
 				loan['id']))]
 
+
+		# Get the MAX effective_date of all transactions.
+		# This may be in the future, since a transaction
+		# with an effective_date in the future may exist.
+		max_transaction_effective_date = max([transaction['effective_date'] for transaction in transactions])
+
 		# Once we've considered how these transactions were applied, here is the remaining amount
 		# which hasn't been factored in yet based on how much you owe up to this particular day.
-		days_out = date_util.num_calendar_days_passed(today, loan['origination_date'])
+		calculate_up_to_date = max(max_transaction_effective_date, today)
+		days_out = date_util.num_calendar_days_passed(
+			calculate_up_to_date,
+			loan['origination_date'],
+		)
 
 		# For each day between today and the origination date, you need to calculate interest and fees
 		# and consider transactions along the way.

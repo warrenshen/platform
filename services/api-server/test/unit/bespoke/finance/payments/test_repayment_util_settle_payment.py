@@ -92,8 +92,8 @@ class TestSettlePayment(db_unittest.TestCase):
 				type='unused',
 				amount=test['payment']['amount'],
 				method=test['payment']['payment_method'],
-				payment_date='10/19/2020',
-				settlement_date='unused',
+				payment_date='10/10/2020',
+				settlement_date='10/10/2020', # unused
 				items_covered=test['payment']['items_covered'] if 'items_covered' in test['payment'] else {},
 		),
 			loan_ids=loan_ids,
@@ -521,8 +521,8 @@ class TestSettlePayment(db_unittest.TestCase):
 			company_id=company_id,
 			payment_id=None,
 			amount=0.0,
-			payment_date=None,
-			settlement_date=None,
+			payment_date='10/10/20',
+			settlement_date='10/10/20',
 			loan_ids=[str(uuid.uuid4())],
 			transaction_inputs=None,
 		)
@@ -538,8 +538,8 @@ class TestSettlePayment(db_unittest.TestCase):
 			'payment': {
 				'amount': 60.06,
 				'payment_method': 'unused',
-				'payment_date': 'unused',
-				'settlement_date': 'unused'
+				'payment_date': '10/10/20',
+				'settlement_date': '10/10/20',
 			},
 			'loans': [
 				{
@@ -573,8 +573,8 @@ class TestSettlePayment(db_unittest.TestCase):
 				'amount': 60.06,
 				'payment_method': 'unused',
 				'settled_at': date_util.today_as_date(),
-				'payment_date': 'unused',
-				'settlement_date': 'unused'
+				'payment_date': '10/10/20',
+				'settlement_date': '10/10/20',
 			},
 			'loans': [
 				{
@@ -601,8 +601,8 @@ class TestSettlePayment(db_unittest.TestCase):
 				'amount': 60.06,
 				'payment_method': 'unused',
 				'type': db_constants.PaymentType.ADVANCE,
-				'payment_date': 'unused',
-				'settlement_date': 'unused'
+				'payment_date': '10/10/20',
+				'settlement_date': '10/10/20',
 			},
 			'loans': [
 				{
@@ -787,8 +787,8 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 				type='unused',
 				amount=test['payment']['amount'],
 				method=test['payment']['payment_method'],
-				payment_date='10/19/2020',
-				settlement_date='unused',
+				payment_date='10/10/20',
+				settlement_date='10/10/2020', # unused
 				items_covered=test['payment']['items_covered'] if 'items_covered' in test['payment'] else {},
 			),
 			user_id=user_id,
@@ -808,19 +808,21 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 			if payment and test['payment'].get('type'):
 				payment.type = test['payment']['type']
 
+		settlement_payment = test['settlement_payment'] if 'settlement_payment' in test else test['payment']
 		req = repayment_util.SettlePaymentLineOfCreditReqDict(
 			company_id=company_id,
 			payment_id=payment_id,
-			amount=test['payment']['amount'],
-			payment_date=test['payment']['payment_date'],
-			settlement_date=test['payment']['settlement_date'],
-			items_covered=test['payment']['items_covered'],
+			amount=settlement_payment['amount'],
+			payment_date=settlement_payment['payment_date'],
+			settlement_date=settlement_payment['settlement_date'],
+			items_covered=settlement_payment['items_covered'],
 		)
 
 		transaction_ids, err = repayment_util.settle_payment_line_of_credit(
 			req=req,
 			user_id=bank_admin_user_id,
 			session_maker=self.session_maker)
+
 		if test.get('in_err_msg'):
 			self.assertIn(test['in_err_msg'], err.msg)
 			return
@@ -894,9 +896,18 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 				else:
 					self.assertIsNone(cur_loan.closed_at) # we are not closed yet
 
-	def test_settle_payment_line_of_credit_single_loan(self) -> None:
+	def test_settle_payment_line_of_credit_single_loan_fully_paid(self) -> None:
 		tests: List[Dict] = [
 			{
+				'loans': [
+					{
+						'origination_date': '10/10/2020',
+						'amount': 50.0,
+						'outstanding_principal_balance': 50.0,
+						'outstanding_interest': 0.4,
+						'outstanding_fees': 0.0,
+					},
+				],
 				'transaction_lists': [
 					# Transactions are parallel to the loans defined in the test.
 					# These will be advances or repayments made against their respective loans.
@@ -909,18 +920,9 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 					'settlement_date': '10/13/2020',
 					'items_covered': { 'to_principal': 50.0, 'to_interest': 0.4 },
 				},
-				'loans': [
-					{
-						'origination_date': '10/10/2020',
-						'amount': 50.0,
-						'outstanding_principal_balance': 50.0,
-						'outstanding_interest': 0.4,
-						'outstanding_fees': 0.0,
-					},
-				],
 				'expected_transactions': [
 					{
-						'amount': 50.4,
+						'amount': 50.0 + 0.4,
 						'to_principal': 50.0,
 						'to_interest': 0.4,
 						'to_fees': 0.0
@@ -940,22 +942,101 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
-	def test_settle_payment_line_of_credit_multiple_loans(self) -> None:
+	def test_settle_payment_line_of_credit_single_loan_partially_paid_only_principal(self) -> None:
 		tests: List[Dict] = [
 			{
+				'loans': [
+					{
+						'origination_date': '10/10/2020',
+						'amount': 50.0,
+						'outstanding_principal_balance': 50.0,
+						'outstanding_interest': 0.0,
+						'outstanding_fees': 0.0,
+					},
+				],
 				'transaction_lists': [
 					# Transactions are parallel to the loans defined in the test.
 					# These will be advances or repayments made against their respective loans.
 					[{'type': 'advance', 'amount': 50.0, 'effective_date': '10/10/2020'}],
-					[{'type': 'advance', 'amount': 100.0, 'effective_date': '10/11/2020'}],
 				],
 				'payment': {
-					'amount': 50.0 + 0.4 + 100 + 0.8,
+					'amount': 50.0 + 0.0,
 					'payment_method': 'ach',
 					'payment_date': '10/11/2020',
 					'settlement_date': '10/13/2020',
-					'items_covered': { 'to_principal': 50.0 + 100.0, 'to_interest': 0.4 + 0.8 },
+					'items_covered': { 'to_principal': 50.0, 'to_interest': 0.0 },
 				},
+				'expected_transactions': [
+					{
+						'amount': 50.0 + 0.0,
+						'to_principal': 50.0,
+						'to_interest': 0.0,
+						'to_fees': 0.0
+					},
+				],
+				'loans_after_payment': [
+					{
+						'amount': 50.0,
+						'outstanding_principal_balance': 50.0 - 50.0,
+						'outstanding_interest': 0.4 - 0.0,
+						'outstanding_fees': 0.0 - 0.0,
+						'payment_status': PaymentStatusEnum.PARTIALLY_PAID
+					},
+				]
+			}
+		]
+		for test in tests:
+			self._run_test(test)
+
+	def test_settle_payment_line_of_credit_single_loan_partially_paid_only_interest(self) -> None:
+		tests: List[Dict] = [
+			{
+				'loans': [
+					{
+						'origination_date': '10/10/2020',
+						'amount': 50.0,
+						'outstanding_principal_balance': 50.0,
+						'outstanding_interest': 0.0,
+						'outstanding_fees': 0.0,
+					},
+				],
+				'transaction_lists': [
+					# Transactions are parallel to the loans defined in the test.
+					# These will be advances or repayments made against their respective loans.
+					[{'type': 'advance', 'amount': 50.0, 'effective_date': '10/10/2020'}],
+				],
+				'payment': {
+					'amount': 0.0 + 0.4,
+					'payment_method': 'ach',
+					'payment_date': '10/11/2020',
+					'settlement_date': '10/13/2020',
+					'items_covered': { 'to_principal': 0.0, 'to_interest': 0.4 },
+				},
+				'expected_transactions': [
+					{
+						'amount': 0.0 + 0.4,
+						'to_principal': 0.0,
+						'to_interest': 0.4,
+						'to_fees': 0.0
+					},
+				],
+				'loans_after_payment': [
+					{
+						'amount': 50.0,
+						'outstanding_principal_balance': 50.0 - 0.0,
+						'outstanding_interest': 0.4 - 0.4,
+						'outstanding_fees': 0.0 - 0.0,
+						'payment_status': PaymentStatusEnum.PARTIALLY_PAID
+					},
+				]
+			}
+		]
+		for test in tests:
+			self._run_test(test)
+
+	def test_settle_payment_line_of_credit_multiple_loans_fully_paid(self) -> None:
+		tests: List[Dict] = [
+			{
 				'loans': [
 					{
 						'origination_date': '10/10/2020',
@@ -972,6 +1053,19 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 						'outstanding_fees': 0.0
 					},
 				],
+				'transaction_lists': [
+					# Transactions are parallel to the loans defined in the test.
+					# These will be advances or repayments made against their respective loans.
+					[{'type': 'advance', 'amount': 50.0, 'effective_date': '10/10/2020'}],
+					[{'type': 'advance', 'amount': 100.0, 'effective_date': '10/11/2020'}],
+				],
+				'payment': {
+					'amount': 50.0 + 0.4 + 100 + 0.6,
+					'payment_method': 'ach',
+					'payment_date': '10/11/2020',
+					'settlement_date': '10/13/2020',
+					'items_covered': { 'to_principal': 50.0 + 100.0, 'to_interest': 0.4 + 0.6 },
+				},
 				'expected_transactions': [
 					{
 						'amount': 50.0 + 0.4,
@@ -1006,3 +1100,104 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 		]
 		for test in tests:
 			self._run_test(test)
+
+	def test_settle_payment_line_of_credit_multiple_loans_partially_paid_only_principal(self) -> None:
+		tests: List[Dict] = [
+			{
+				'loans': [
+					{
+						'origination_date': '10/10/2020',
+						'amount': 50.0,
+						'outstanding_principal_balance': 50.0,
+						'outstanding_interest': 0.4,
+						'outstanding_fees': 0.0
+					},
+					{
+						'origination_date': '10/11/2020',
+						'amount': 100.0,
+						'outstanding_principal_balance': 100.0,
+						'outstanding_interest': 0.6,
+						'outstanding_fees': 0.0
+					},
+				],
+				'transaction_lists': [
+					# Transactions are parallel to the loans defined in the test.
+					# These will be advances or repayments made against their respective loans.
+					[{'type': 'advance', 'amount': 50.0, 'effective_date': '10/10/2020'}],
+					[{'type': 'advance', 'amount': 100.0, 'effective_date': '10/11/2020'}],
+				],
+				'payment': {
+					'amount': 50.0 + 0.0 + 60.0 + 0.0,
+					'payment_method': 'ach',
+					'payment_date': '10/11/2020',
+					'settlement_date': '10/13/2020',
+					'items_covered': { 'to_principal': 50.0 + 60.0, 'to_interest': 0.0 + 0.0 },
+				},
+				'expected_transactions': [
+					{
+						'amount': 50.0 + 0.0,
+						'to_principal': 50.0,
+						'to_interest': 0.0,
+						'to_fees': 0.0
+					},
+					{
+						'amount': 60.0 + 0.0,
+						'to_principal': 60.0,
+						'to_interest': 0.0,
+						'to_fees': 0.0
+					},
+				],
+				'loans_after_payment': [
+					{
+						'amount': 50.0,
+						'outstanding_principal_balance': 50.0 - 50.0,
+						'outstanding_interest': 0.4 - 0.0,
+						'outstanding_fees': 0.0 - 0.0,
+						'payment_status': PaymentStatusEnum.PARTIALLY_PAID
+					},
+					{
+						'amount': 100.0,
+						'outstanding_principal_balance': 100.0 - 60.0,
+						'outstanding_interest': 0.6 - 0.0,
+						'outstanding_fees': 0.0 - 0.0,
+						'payment_status': PaymentStatusEnum.PARTIALLY_PAID
+					},
+				]
+			}
+		]
+		for test in tests:
+			self._run_test(test)
+
+	def test_failure_settle_payment_line_of_credit_invalid_to_principal_to_interest(self) -> None:
+		test: Dict = {
+			'loans': [
+				{
+					'origination_date': '10/10/2020',
+					'amount': 50.0,
+					'outstanding_principal_balance': 50.0,
+					'outstanding_interest': 0.4,
+					'outstanding_fees': 0.0
+				},
+			],
+			'transaction_lists': [
+				# Transactions are parallel to the loans defined in the test.
+				# These will be advances or repayments made against their respective loans.
+				[{'type': 'advance', 'amount': 50.0, 'effective_date': '10/10/2020'}],
+			],
+			'payment': {
+				'amount': 50.0 + 0.4,
+				'payment_method': 'ach',
+				'payment_date': '10/11/2020',
+				'settlement_date': '10/13/2020',
+				'items_covered': { 'to_principal': 50.0, 'to_interest': 0.4 },
+			},
+			'settlement_payment': {
+				'amount': 50.0 + 0.4,
+				'payment_method': 'ach',
+				'payment_date': '10/11/2020',
+				'settlement_date': '10/13/2020',
+				'items_covered': { 'to_principal': 50.0, 'to_interest': 0.0 }, # to_interest is wrong here.
+			},
+			'in_err_msg': 'Payment breakdown of to_principal vs to_interest',
+		}
+		self._run_test(test)

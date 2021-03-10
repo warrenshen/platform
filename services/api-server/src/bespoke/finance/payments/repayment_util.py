@@ -330,7 +330,10 @@ def calculate_repayment_effect(
 			balance_before = loan_and_before_balance['before_balance']
 			loan_dict = loan_and_before_balance['loan']
 
-			if product_type == ProductType.LINE_OF_CREDIT and amount_left <= 0:
+			if (
+				product_type == ProductType.LINE_OF_CREDIT and
+				number_util.float_lte(amount_left, 0)
+			):
 				continue
 
 			# Order MATTERS: payment is applied to interest, fees, and principal, in that order.
@@ -485,16 +488,16 @@ def create_repayment_line_of_credit(
 
 	payment_id = None
 
+	payment_amount = payment_insert_input['amount']
+	payment_method = payment_insert_input['method']
+
+	to_principal = payment_insert_input['items_covered']['to_principal']
+	to_interest = payment_insert_input['items_covered']['to_interest']
+
+	if not number_util.float_eq(payment_amount, to_principal + to_interest):
+		return None, errors.Error(f'Payment breakdown of to_principal vs to_interest ({to_principal}, {to_interest}) does not sum up to payment amount ({payment_amount})')
+
 	with session_scope(session_maker) as session:
-		payment_amount = payment_insert_input['amount']
-		payment_method = payment_insert_input['method']
-
-		to_principal = payment_insert_input['items_covered']['to_principal']
-		to_interest = payment_insert_input['items_covered']['to_interest']
-
-		if not number_util.float_eq(payment_amount, to_principal + to_interest):
-			return None, errors.Error(f'Payment breakdown of to_principal vs to_interest ({to_principal}, {to_interest}) does not sum up to payment amount ({payment_amount})')
-
 		payment_input = payment_util.PaymentInputDict(
 			type=db_constants.PaymentType.REPAYMENT,
 			amount=payment_amount,
@@ -530,8 +533,11 @@ def settle_payment(
 		'req': req
 	}
 
-	with session_scope(session_maker) as session:
+	payment_amount = req['amount']
+	payment_date = date_util.load_date_str(req['payment_date'])
+	payment_settlement_date = date_util.load_date_str(req['settlement_date'])
 
+	with session_scope(session_maker) as session:
 		loans = cast(
 			List[models.Loan],
 			session.query(models.Loan).filter(
@@ -567,6 +573,9 @@ def settle_payment(
 		if payment.type != db_constants.PaymentType.REPAYMENT:
 			return None, errors.Error('Can only apply repayments against loans', details=err_details)
 
+		if payment_date < payment.requested_payment_date:
+			return None, errors.Error('Payment date cannot be before the requested payment date', details=err_details)
+
 		transactions_sum = 0.0
 
 		for i in range(len(req['transaction_inputs'])):
@@ -581,17 +590,13 @@ def settle_payment(
 
 			transactions_sum += cur_sum
 
-		payment_amount = req['amount']
-		payment_settlement_date = date_util.load_date_str(req['settlement_date'])
-		payment_date = date_util.load_date_str(req['payment_date'])
-
-		if payment_settlement_date > date_util.today_as_date():
-			return None, errors.Error('Settlement date cannot be in the future')
-
 		if not number_util.float_eq(transactions_sum, payment_amount):
 			return None, errors.Error('Transaction inputs provided does not balance with the payment amount included', details=err_details)
 
-		for i in range(len(req['transaction_inputs'])):
+		transaction_inputs = req['transaction_inputs']
+
+		# TODO(warrenshen): share the logic below with settle_payment_line_of_credit method.
+		for i in range(len(transaction_inputs)):
 			cur_loan_id = req['loan_ids'][i]
 			cur_loan = loan_id_to_loan[cur_loan_id]
 
@@ -611,6 +616,10 @@ def settle_payment(
 			t.created_by_user_id = user_id
 			t.effective_date = payment_settlement_date
 
+			# TODO(warrenshen): use balance_before below.
+			# balance_before = loan_dict_and_balance_list[i]['before_balance']
+			# We use balance_before here since we want to use loan balances
+			# as of the payment.settlement_date (which may be in the future).
 			new_outstanding_principal_balance = cur_loan.outstanding_principal_balance - to_principal
 			new_outstanding_interest = cur_loan.outstanding_interest - to_interest
 			new_outstanding_fees = cur_loan.outstanding_fees - to_fees
@@ -678,20 +687,21 @@ def settle_payment_line_of_credit(
 		'req': req
 	}
 
-	payment_id = req['payment_id']
-	company_id = req['company_id']
 	payment_amount = req['amount']
-	payment_settlement_date = date_util.load_date_str(req['settlement_date'])
 	payment_date = date_util.load_date_str(req['payment_date'])
+	payment_settlement_date = date_util.load_date_str(req['settlement_date'])
 
-	if payment_settlement_date > date_util.today_as_date():
-		return None, errors.Error('Settlement date cannot be in the future')
+	payment_amount_to_principal = req['items_covered']['to_principal']
+	payment_amount_to_interest = req['items_covered']['to_interest']
+
+	if not number_util.float_eq(payment_amount, payment_amount_to_principal + payment_amount_to_interest):
+		return None, errors.Error(f'Payment breakdown of to_principal vs to_interest ({payment_amount_to_principal}, {payment_amount_to_interest}) does not sum up to payment amount ({payment_amount})')
 
 	with session_scope(session_maker) as session:
 		payment = cast(
 			models.Payment,
 			session.query(models.Payment).filter(
-				models.Payment.id == payment_id
+				models.Payment.id == req['payment_id']
 			).first())
 		if not payment:
 			return None, errors.Error('No payment found to settle transaction', details=err_details)
@@ -702,18 +712,21 @@ def settle_payment_line_of_credit(
 		if payment.type != db_constants.PaymentType.REPAYMENT:
 			return None, errors.Error('Can only apply repayments against loans', details=err_details)
 
+		if payment_date < payment.requested_payment_date:
+			return None, errors.Error('Payment date cannot be before the requested payment date', details=err_details)
+
 		# Get all contracts associated with company.
 		contracts = cast(
 			List[models.Contract],
 			session.query(models.Contract).filter(
-				models.Contract.company_id == company_id
+				models.Contract.company_id == req['company_id']
 			).all())
 		if not contracts:
 			return None, errors.Error('Cannot calculate repayment effect, because no contracts are setup for this company')
 
 		contract_dicts = [c.as_dict() for c in contracts]
 
-		contract_helper, err = contract_util.ContractHelper.build(company_id, contract_dicts)
+		contract_helper, err = contract_util.ContractHelper.build(req['company_id'], contract_dicts)
 		if err:
 			return None, err
 
@@ -730,7 +743,7 @@ def settle_payment_line_of_credit(
 		loans = cast(
 			List[models.Loan],
 			session.query(models.Loan).filter(
-				models.Loan.company_id == company_id
+				models.Loan.company_id == req['company_id']
 			).filter(
 				models.Loan.closed_at == None
 			).all())
@@ -790,9 +803,8 @@ def settle_payment_line_of_credit(
 		# TODO(warrenshen): check the following:
 		# 1. payment_amount equals the sum of all transactions (or it results in a negative balance somehow).
 		# 2. payment_amount matches up with items_covered.to_principal and items_covered.to_interest.
-		amount_to_pay = payment_amount
-		amount_left = amount_to_pay
-		# TODO(warrenshen): use items_covered when determining transactions below.
+		amount_to_principal_left = payment_amount_to_principal
+		amount_to_interest_left = payment_amount_to_interest
 
 		# Apply in the order of earliest maturity date to latest maturity date
 		# while trying to cover as much of the loan coming due earliest
@@ -802,13 +814,16 @@ def settle_payment_line_of_credit(
 			balance_before = loan_and_before_balance['before_balance']
 			loan_dict = loan_and_before_balance['loan']
 
-			if amount_left <= 0:
+			if (
+				number_util.float_lte(amount_to_principal_left, 0) and
+				number_util.float_lte(amount_to_interest_left, 0)
+			):
 				continue
 
 			# Order MATTERS: payment is applied to interest, fees, and principal, in that order.
-			amount_left, amount_used_interest = _apply_to(balance_before, 'interest', amount_left)
-			amount_left, amount_used_fees = _apply_to(balance_before, 'fees', amount_left)
-			amount_left, amount_used_principal = _apply_to(balance_before, 'principal', amount_left)
+			amount_to_interest_left, amount_used_interest = _apply_to(balance_before, 'interest', amount_to_interest_left)
+			amount_to_interest_left, amount_used_fees = _apply_to(balance_before, 'fees', amount_to_interest_left)
+			amount_to_principal_left, amount_used_principal = _apply_to(balance_before, 'principal', amount_to_principal_left)
 
 			transaction_inputs.append(TransactionInputDict(
 					amount=amount_used_fees + amount_used_interest + amount_used_principal,
@@ -822,24 +837,27 @@ def settle_payment_line_of_credit(
 			cur_loan = loan_id_to_loan[cur_loan_id]
 
 			tx_input = transaction_inputs[i]
-			to_principal = decimal.Decimal(tx_input['to_principal'])
-			to_interest = decimal.Decimal(tx_input['to_interest'])
-			to_fees = decimal.Decimal(tx_input['to_fees'])
+			to_principal = tx_input['to_principal']
+			to_interest = tx_input['to_interest']
+			to_fees = tx_input['to_fees']
 
 			t = models.Transaction()
 			t.type = db_constants.PaymentType.REPAYMENT
 			t.amount = decimal.Decimal(tx_input['amount'])
-			t.to_principal = to_principal
-			t.to_interest = to_interest
-			t.to_fees = to_fees
+			t.to_principal = decimal.Decimal(tx_input['to_principal'])
+			t.to_interest = decimal.Decimal(tx_input['to_interest'])
+			t.to_fees = decimal.Decimal(tx_input['to_fees'])
 			t.loan_id = cur_loan_id
 			t.payment_id = req['payment_id']
 			t.created_by_user_id = user_id
 			t.effective_date = payment_settlement_date
 
-			new_outstanding_principal_balance = cur_loan.outstanding_principal_balance - to_principal
-			new_outstanding_interest = cur_loan.outstanding_interest - to_interest
-			new_outstanding_fees = cur_loan.outstanding_fees - to_fees
+			balance_before = loan_dict_and_balance_list[i]['before_balance']
+			# We use balance_before here since we want to use loan balances
+			# as of the payment.settlement_date (which may be in the future).
+			new_outstanding_principal_balance = balance_before['outstanding_principal_balance'] - to_principal
+			new_outstanding_interest = balance_before['outstanding_interest'] - to_interest
+			new_outstanding_fees = balance_before['outstanding_fees'] - to_fees
 
 			if number_util.float_lt(float(new_outstanding_interest), 0):
 				return None, errors.Error(
@@ -859,9 +877,9 @@ def settle_payment_line_of_credit(
 
 			session.add(t)
 
-			cur_loan.outstanding_principal_balance = new_outstanding_principal_balance
-			cur_loan.outstanding_interest = new_outstanding_interest
-			cur_loan.outstanding_fees = new_outstanding_fees
+			cur_loan.outstanding_principal_balance = decimal.Decimal((new_outstanding_principal_balance))
+			cur_loan.outstanding_interest = decimal.Decimal((new_outstanding_interest))
+			cur_loan.outstanding_fees = decimal.Decimal((new_outstanding_fees))
 
 			no_outstanding_balance = number_util.float_lte(float(cur_loan.outstanding_principal_balance), 0.0) \
 				and number_util.float_lte(float(cur_loan.outstanding_interest), 0.0) \

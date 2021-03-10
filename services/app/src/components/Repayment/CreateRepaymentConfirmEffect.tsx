@@ -34,6 +34,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
+
 interface Props {
   productType: ProductTypeEnum | null;
   payableAmountPrincipal: number;

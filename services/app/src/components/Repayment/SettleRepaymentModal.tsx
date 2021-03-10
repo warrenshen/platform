@@ -79,9 +79,6 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
   >([]);
   const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"][]>([]);
 
-  const [paymentAmountPrincipal, setPaymentAmountPrincipal] = useState(0.0);
-  const [paymentAmountInterest, setPaymentAmountInterest] = useState(0.0);
-
   const [
     calculateEffectResponse,
     setCalculateEffectResponse,
@@ -112,8 +109,6 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
           payment_date: existingPayment.requested_payment_date,
           items_covered: existingPayment.items_covered,
         } as PaymentsInsertInput);
-        setPaymentAmountPrincipal(existingPayment.items_covered.to_principal);
-        setPaymentAmountInterest(existingPayment.items_covered.to_interest);
       } else {
         alert("Existing payment not found");
       }
@@ -304,15 +299,11 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
             payableAmountInterest={
               calculateEffectResponse?.payable_amount_interest || 0
             }
-            paymentAmountPrincipal={paymentAmountPrincipal}
-            paymentAmountInterest={paymentAmountInterest}
             payment={payment}
             customer={customer}
             loansBeforeAfterPayment={loansBeforeAfterPayment}
             setLoanBeforeAfterPayment={setLoanBeforeAfterPayment}
             setPayment={setPayment}
-            setPaymentAmountPrincipal={setPaymentAmountPrincipal}
-            setPaymentAmountInterest={setPaymentAmountInterest}
           />
         )}
       </DialogContent>

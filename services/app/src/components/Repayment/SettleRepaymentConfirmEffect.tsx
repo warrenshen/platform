@@ -31,8 +31,6 @@ interface Props {
   productType: ProductTypeEnum | null;
   payableAmountPrincipal: number;
   payableAmountInterest: number;
-  paymentAmountPrincipal: number;
-  paymentAmountInterest: number;
   payment: PaymentsInsertInput;
   customer: Companies;
   loansBeforeAfterPayment: LoanBeforeAfterPayment[];
@@ -42,23 +40,17 @@ interface Props {
     value: number
   ) => void;
   setPayment: (payment: PaymentsInsertInput) => void;
-  setPaymentAmountPrincipal: (amount: number) => void;
-  setPaymentAmountInterest: (amount: number) => void;
 }
 
 function SettleRepaymentConfirmEffect({
   productType,
   payableAmountPrincipal,
   payableAmountInterest,
-  paymentAmountPrincipal,
-  paymentAmountInterest,
   loansBeforeAfterPayment,
   payment,
   customer,
   setLoanBeforeAfterPayment,
   setPayment,
-  setPaymentAmountPrincipal,
-  setPaymentAmountInterest,
 }: Props) {
   const classes = useStyles();
 
@@ -105,14 +97,17 @@ function SettleRepaymentConfirmEffect({
                 currencySymbol="$"
                 outputFormat="number"
                 textAlign="left"
-                value={paymentAmountPrincipal}
-                onChange={(_event: any, value: number) => {
-                  setPaymentAmountPrincipal(value);
+                value={payment.items_covered.to_principal}
+                onChange={(_event: any, value: number) =>
                   setPayment({
                     ...payment,
-                    amount: value + paymentAmountInterest,
-                  });
-                }}
+                    amount: value + payment.items_covered.to_interest,
+                    items_covered: {
+                      ...payment.items_covered,
+                      to_principal: value,
+                    },
+                  })
+                }
               />
             </FormControl>
           </Box>
@@ -123,21 +118,25 @@ function SettleRepaymentConfirmEffect({
                 currencySymbol="$"
                 outputFormat="number"
                 textAlign="left"
-                value={paymentAmountInterest}
-                onChange={(_event: any, value: number) => {
-                  setPaymentAmountInterest(value);
+                value={payment.items_covered.to_interest}
+                onChange={(_event: any, value: number) =>
                   setPayment({
                     ...payment,
-                    amount: value + paymentAmountPrincipal,
-                  });
-                }}
+                    amount: value + payment.items_covered.to_principal,
+                    items_covered: {
+                      ...payment.items_covered,
+                      to_interest: value,
+                    },
+                  })
+                }
               />
             </FormControl>
           </Box>
           <Box mt={1}>
             <Typography variant="body1">
               {`Calculated Payment Amount: ${formatCurrency(
-                paymentAmountPrincipal + paymentAmountInterest
+                payment.items_covered.to_principal +
+                  payment.items_covered.to_interest
               )}`}
             </Typography>
           </Box>
