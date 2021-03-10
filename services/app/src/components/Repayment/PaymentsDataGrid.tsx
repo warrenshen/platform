@@ -69,14 +69,6 @@ function RepaymentsDataGrid({
         ),
       },
       {
-        caption: "Amount",
-        width: ColumnWidths.Currency,
-        alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.amount} />
-        ),
-      },
-      {
         visible: isCompanyVisible,
         caption: "Company",
         width: 200,
@@ -94,6 +86,14 @@ function RepaymentsDataGrid({
               }
             }}
           />
+        ),
+      },
+      {
+        caption: "Amount",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.amount} />
         ),
       },
       {

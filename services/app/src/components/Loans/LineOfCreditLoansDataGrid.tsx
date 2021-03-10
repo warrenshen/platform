@@ -2,6 +2,7 @@ import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
+import PaymentStatusChip from "components/Shared/Chip/PaymentStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DataGridActionMenu, {
@@ -9,6 +10,7 @@ import DataGridActionMenu, {
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { LoanFragment, Loans, LoanStatusEnum } from "generated/graphql";
+import { PaymentStatusEnum } from "lib/enum";
 import { createLoanPublicIdentifier } from "lib/loans";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
@@ -66,6 +68,18 @@ function LineOfCreditLoansDataGrid({
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
           <LoanStatusChip loanStatus={params.value as LoanStatusEnum} />
+        ),
+      },
+      {
+        visible: isMaturityVisible,
+        dataField: "payment_status",
+        caption: "Payment Status",
+        width: ColumnWidths.Status,
+        alignment: "center",
+        cellRender: (params: ValueFormatterParams) => (
+          <PaymentStatusChip
+            paymentStatus={params.value as PaymentStatusEnum}
+          />
         ),
       },
       {

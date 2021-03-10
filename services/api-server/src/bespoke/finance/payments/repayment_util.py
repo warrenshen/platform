@@ -800,9 +800,6 @@ def settle_payment_line_of_credit(
 
 		transaction_inputs = []
 
-		# TODO(warrenshen): check the following:
-		# 1. payment_amount equals the sum of all transactions (or it results in a negative balance somehow).
-		# 2. payment_amount matches up with items_covered.to_principal and items_covered.to_interest.
 		amount_to_principal_left = payment_amount_to_principal
 		amount_to_interest_left = payment_amount_to_interest
 

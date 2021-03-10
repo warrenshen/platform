@@ -130,6 +130,7 @@ function BankPaymentsActionRequiredPage() {
           </Can>
         </Box>
         <PaymentsDataGrid
+          isCompanyVisible
           payments={scheduledPayments}
           customerSearchQuery={""}
           onClickCustomerName={() => {}}
@@ -161,6 +162,7 @@ function BankPaymentsActionRequiredPage() {
           </Can>
         </Box>
         <PaymentsDataGrid
+          isCompanyVisible
           payments={notifyPayments}
           customerSearchQuery={""}
           onClickCustomerName={() => {}}
