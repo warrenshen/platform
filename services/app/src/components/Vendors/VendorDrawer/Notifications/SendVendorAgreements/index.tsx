@@ -39,7 +39,7 @@ function SendVendorAgreements(props: Props) {
             }
           }}
           handleClose={() => setOpen(false)}
-        ></ConfirmModal>
+        />
       )}
       <Button
         size="small"

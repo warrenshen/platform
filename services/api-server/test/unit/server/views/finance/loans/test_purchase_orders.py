@@ -1,7 +1,6 @@
 import json
 import datetime
 import decimal
-from base64 import b64encode
 from typing import Callable, Dict, Any
 from dataclasses import dataclass
 
@@ -12,8 +11,6 @@ from bespoke.db.models import session_scope
 from bespoke_test.db import db_unittest
 from bespoke_test.db import test_helper
 from bespoke_test import auth_helper
-from bespoke_test.contract import contract_test_helper
-from bespoke_test.contract.contract_test_helper import ContractInputDict
 from sqlalchemy.orm.session import Session
 
 

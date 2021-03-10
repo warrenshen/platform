@@ -1,0 +1,112 @@
+query ListBankPayorPartnerships {
+  company_payor_partnerships {
+    ...BankPayorPartnership
+    company {
+      id
+      name
+    }
+    payor {
+      ...Payor
+      settings {
+        id
+      }
+      users {
+        ...Contact
+      }
+    }
+  }
+}
+
+query GetBankPayorPartnership($id: uuid!) {
+  company_payor_partnerships_by_pk(id: $id) {
+    ...BankPayorPartnership
+    payor {
+      ...Payor
+      settings {
+        id
+      }
+      users {
+        ...Contact
+      }
+    }
+    company {
+      ...Company
+      users {
+        ...Contact
+      }
+      settings {
+        ...CompanySettings
+      }
+    }
+    payor_agreement {
+      ...CompanyAgreement
+    }
+    payor_license {
+      ...CompanyLicense
+    }
+  }
+}
+
+mutation UpdateCompanyPayorPartnershipApprovedAt(
+  $companyPayorPartnershipId: uuid!
+  $approvedAt: timestamptz
+) {
+  update_company_payor_partnerships_by_pk(
+    pk_columns: { id: $companyPayorPartnershipId }
+    _set: { approved_at: $approvedAt }
+  ) {
+    ...BankPayorPartnership
+  }
+}
+
+mutation UpdatePayorInfo($id: uuid!, $company: companies_set_input!) {
+  update_companies_by_pk(pk_columns: { id: $id }, _set: $company) {
+    ...Payor
+  }
+}
+
+mutation UpdatePayorAgreementId(
+  $companyPayorPartnershipId: uuid!
+  $payorAgreementId: uuid
+) {
+  update_company_payor_partnerships_by_pk(
+    pk_columns: { id: $companyPayorPartnershipId }
+    _set: { payor_agreement_id: $payorAgreementId }
+  ) {
+    id
+    payor_agreement {
+      ...CompanyAgreement
+    }
+  }
+}
+
+mutation AddCompanyPayorAgreement(
+  $payorAgreement: company_agreements_insert_input!
+) {
+  insert_company_agreements_one(object: $payorAgreement) {
+    ...CompanyAgreement
+  }
+}
+
+## License mutations
+
+mutation UpdatePayorLicenseId(
+  $companyPayorPartnershipId: uuid!
+  $payorLicenseId: uuid!
+) {
+  update_company_payor_partnerships_by_pk(
+    pk_columns: { id: $companyPayorPartnershipId }
+    _set: { payor_license_id: $payorLicenseId }
+  ) {
+    id
+    payor_license {
+      ...CompanyLicense
+    }
+  }
+}
+
+mutation AddCompanyPayorLicense($payorLicense: company_licenses_insert_input!) {
+  insert_company_licenses_one(object: $payorLicense) {
+    ...CompanyLicense
+  }
+}

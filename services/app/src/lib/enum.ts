@@ -6,6 +6,7 @@ import {
   UserRolesEnum,
 } from "generated/graphql";
 import InventoryContractTermsJson from "./inventory_contract_terms.json";
+import InvoiceContractTermsJson from "./invoice_contract_terms.json";
 import LineOfCreditContractTermsJson from "./line_of_credit_contract_terms.json";
 
 // Action Type enum related.
@@ -109,7 +110,7 @@ export const ProductTypeToContractTermsJson = {
   [ProductTypeEnum.InventoryFinancing]: JSON.stringify(
     InventoryContractTermsJson
   ),
-  [ProductTypeEnum.InvoiceFinancing]: JSON.stringify({}),
+  [ProductTypeEnum.InvoiceFinancing]: JSON.stringify(InvoiceContractTermsJson),
   [ProductTypeEnum.LineOfCredit]: JSON.stringify(LineOfCreditContractTermsJson),
   [ProductTypeEnum.PurchaseMoneyFinancing]: JSON.stringify({}),
   [ProductTypeEnum.None]: JSON.stringify({}),
@@ -127,8 +128,8 @@ export const ProductTypeToLabel = {
 export const AllProductTypes = [
   ProductTypeEnum.InventoryFinancing,
   ProductTypeEnum.LineOfCredit,
+  ProductTypeEnum.InvoiceFinancing,
   // TODO(warren): Hiding these for now because things blow up when we allow a user to select it.
-  // ProductTypeEnum.InvoiceFinancing,
   // ProductTypeEnum.PurchaseMoneyFinancing,
 ];
 

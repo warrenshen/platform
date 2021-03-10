@@ -1,6 +1,6 @@
 import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
-import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
+import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
@@ -9,8 +9,8 @@ import DataGridActionMenu, {
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
-  PurchaseOrderFragment,
-  PurchaseOrders,
+  InvoiceFragment,
+  Invoices,
   RequestStatusEnum,
 } from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
@@ -19,41 +19,40 @@ import { useMemo } from "react";
 interface Props {
   isCompanyVisible: boolean;
   isMultiSelectEnabled?: boolean;
-  purchaseOrders: PurchaseOrderFragment[];
+  invoices: InvoiceFragment[];
   actionItems?: DataGridActionItem[];
-  selectedPurchaseOrderIds?: PurchaseOrders["id"][];
-  handleSelectPurchaseOrders?: (
-    purchaseOrders: PurchaseOrderFragment[]
-  ) => void;
+  selectedInvoiceIds?: Invoices["id"][];
+  handleSelectedInvoices?: (invoices: InvoiceFragment[]) => void;
 }
 
-function PurchaseOrdersDataGrid({
+export default function InvoicesDataGrid({
   isCompanyVisible,
   isMultiSelectEnabled = true,
-  purchaseOrders,
+  invoices,
   actionItems,
-  selectedPurchaseOrderIds,
-  handleSelectPurchaseOrders,
+  selectedInvoiceIds,
+  handleSelectedInvoices,
 }: Props) {
   const rows = useMemo(
     () =>
-      purchaseOrders.map((purchaseOrder) => ({
-        ...purchaseOrder,
-        company_name: purchaseOrder.company?.name,
-        vendor_name: purchaseOrder.vendor?.name,
+      invoices.map((invoice) => ({
+        ...invoice,
+        company_name: invoice.company?.name,
+        payor_name: invoice.payor?.name,
       })),
-    [purchaseOrders]
+    [invoices]
   );
+
   const columns = useMemo(
     () => [
       {
-        dataField: "order_number",
-        caption: "Order Number",
+        dataField: "invoice_number",
+        caption: "Invoice",
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
-          <PurchaseOrderDrawerLauncher
-            label={params.row.data.order_number as string}
-            purchaseOrderId={params.row.data.id as string}
+          <InvoiceDrawerLauncher
+            label={params.row.data.invoice_number as string}
+            invoiceId={params.row.data.id as string}
           />
         ),
       },
@@ -69,7 +68,7 @@ function PurchaseOrdersDataGrid({
       },
       {
         dataField: "status",
-        caption: "Confirmation Status",
+        caption: "Status",
         width: ColumnWidths.Status,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
@@ -85,32 +84,62 @@ function PurchaseOrdersDataGrid({
         minWidth: ColumnWidths.MinWidth,
       },
       {
-        dataField: "vendor_name",
-        caption: "Vendor",
+        dataField: "payor_name",
+        caption: "Payor",
         minWidth: ColumnWidths.MinWidth,
       },
       {
-        caption: "Amount",
+        caption: "Subtotal Amount",
+        dataField: "subtotal_amount",
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.amount} />
+          <CurrencyDataGridCell value={params.row.data.subtotal_amount} />
         ),
       },
       {
-        caption: "Order Date",
-        width: ColumnWidths.Date,
-        alignment: "center",
+        caption: "Taxes",
+        dataField: "taxes_amount",
+        width: ColumnWidths.Currency,
+        alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.order_date} />
+          <CurrencyDataGridCell value={params.row.data.taxes_amount} />
         ),
       },
       {
-        caption: "Delivery Date",
+        caption: "Total Amount",
+        dataField: "total_amount",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.total_amount} />
+        ),
+      },
+      {
+        caption: "Invoice Date",
+        dataField: "invoice_date",
         width: ColumnWidths.Date,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.delivery_date} />
+          <DateDataGridCell dateString={params.row.data.invoice_date} />
+        ),
+      },
+      {
+        caption: "Due Date",
+        dataField: "invoice_due_date",
+        width: ColumnWidths.Date,
+        alignment: "center",
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell dateString={params.row.data.invoice_due_date} />
+        ),
+      },
+      {
+        caption: "Advance Date",
+        dataField: "advance_date",
+        width: ColumnWidths.Date,
+        alignment: "center",
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell dateString={params.row.data.advance_date} />
         ),
       },
     ],
@@ -119,9 +148,9 @@ function PurchaseOrdersDataGrid({
 
   const handleSelectionChanged = useMemo(
     () => ({ selectedRowsData }: any) =>
-      handleSelectPurchaseOrders &&
-      handleSelectPurchaseOrders(selectedRowsData as PurchaseOrderFragment[]),
-    [handleSelectPurchaseOrders]
+      handleSelectedInvoices &&
+      handleSelectedInvoices(selectedRowsData as InvoiceFragment[]),
+    [handleSelectedInvoices]
   );
 
   return (
@@ -131,10 +160,9 @@ function PurchaseOrdersDataGrid({
         select={isMultiSelectEnabled}
         dataSource={rows}
         columns={columns}
-        selectedRowKeys={selectedPurchaseOrderIds}
+        selectedRowKeys={selectedInvoiceIds}
         onSelectionChanged={handleSelectionChanged}
       />
     </Box>
   );
 }
-export default PurchaseOrdersDataGrid;

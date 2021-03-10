@@ -1,0 +1,26 @@
+query GetInvoices {
+  invoices {
+    id
+    ...Invoice
+  }
+}
+
+query GetInvoicesByCompanyId($company_id: uuid!) {
+  invoices(where: { company_id: { _eq: $company_id } }) {
+    ...Invoice
+    company {
+      id
+      name
+    }
+    payor {
+      id
+      name
+    }
+  }
+}
+
+query GetApprovedInvoices {
+  invoices(where: { status: { _eq: approved } }) {
+    ...Invoice
+  }
+}

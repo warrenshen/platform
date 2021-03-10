@@ -45,6 +45,12 @@ export const purchaseOrdersRoutes = {
   submitForApproval: "/purchase_orders/submit_for_approval",
 };
 
+export const invoicesRoutes = {
+  create: "/invoices/create",
+  update: "/invoices/update",
+  submitForApproval: "/invoices/submit_for_approval",
+};
+
 export const loansRoutes = {
   // Loans related.
   submitForApproval: "/finance/loans/approvals/submit_for_approval",

@@ -33,6 +33,12 @@ export enum Action {
   EditPurchaseOrderLoan = "purchase-order-loan:edit",
   RepayPurchaseOrderLoans = "purchase-order-loans:repay",
 
+  // Invoices
+  AddInvoices = "invoices:add",
+  EditInvoices = "invoices:add",
+  FundInvoices = "invoices:fund",
+  ViewInvoicesActionMenu = "invoices:view-action-menu",
+
   // Payments
   SettleRepayment = "payments:settle-repayments",
 
@@ -156,6 +162,10 @@ const rules: Rules = {
       Action.AddPurchaseOrders,
       Action.EditPurchaseOrders,
       Action.FundPurchaseOrders,
+
+      Action.AddInvoices,
+      Action.EditInvoices,
+      Action.FundInvoices,
 
       Action.AddPurchaseOrderLoan,
       Action.EditPurchaseOrderLoan,

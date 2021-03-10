@@ -5274,7 +5274,7 @@ export type Invoices = {
   /** An aggregated array relationship */
   loans_aggregate: LoansAggregate;
   /** An object relationship */
-  payor: Companies;
+  payor?: Maybe<Payors>;
   payor_id: Scalars["uuid"];
   rejected_at?: Maybe<Scalars["date"]>;
   rejection_note?: Maybe<Scalars["String"]>;
@@ -5422,7 +5422,7 @@ export type InvoicesBoolExp = {
   invoice_number?: Maybe<StringComparisonExp>;
   is_cannabis?: Maybe<BooleanComparisonExp>;
   loans?: Maybe<LoansBoolExp>;
-  payor?: Maybe<CompaniesBoolExp>;
+  payor?: Maybe<PayorsBoolExp>;
   payor_id?: Maybe<UuidComparisonExp>;
   rejected_at?: Maybe<DateComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
@@ -5462,7 +5462,7 @@ export type InvoicesInsertInput = {
   invoice_number?: Maybe<Scalars["String"]>;
   is_cannabis?: Maybe<Scalars["Boolean"]>;
   loans?: Maybe<LoansArrRelInsertInput>;
-  payor?: Maybe<CompaniesObjRelInsertInput>;
+  payor?: Maybe<PayorsObjRelInsertInput>;
   payor_id?: Maybe<Scalars["uuid"]>;
   rejected_at?: Maybe<Scalars["date"]>;
   rejection_note?: Maybe<Scalars["String"]>;
@@ -5594,7 +5594,7 @@ export type InvoicesOrderBy = {
   invoice_number?: Maybe<OrderBy>;
   is_cannabis?: Maybe<OrderBy>;
   loans_aggregate?: Maybe<LoansAggregateOrderBy>;
-  payor?: Maybe<CompaniesOrderBy>;
+  payor?: Maybe<PayorsOrderBy>;
   payor_id?: Maybe<OrderBy>;
   rejected_at?: Maybe<OrderBy>;
   rejection_note?: Maybe<OrderBy>;
@@ -10084,7 +10084,7 @@ export type PurchaseOrders = {
   status: RequestStatusEnum;
   updated_at: Scalars["timestamptz"];
   /** An object relationship */
-  vendor: Companies;
+  vendor?: Maybe<Vendors>;
   vendor_id: Scalars["uuid"];
 };
 
@@ -10205,7 +10205,7 @@ export type PurchaseOrdersBoolExp = {
   requested_at?: Maybe<TimestamptzComparisonExp>;
   status?: Maybe<RequestStatusEnumComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
-  vendor?: Maybe<CompaniesBoolExp>;
+  vendor?: Maybe<VendorsBoolExp>;
   vendor_id?: Maybe<UuidComparisonExp>;
 };
 
@@ -10240,7 +10240,7 @@ export type PurchaseOrdersInsertInput = {
   requested_at?: Maybe<Scalars["timestamptz"]>;
   status?: Maybe<RequestStatusEnum>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
-  vendor?: Maybe<CompaniesObjRelInsertInput>;
+  vendor?: Maybe<VendorsObjRelInsertInput>;
   vendor_id?: Maybe<Scalars["uuid"]>;
 };
 
@@ -10357,7 +10357,7 @@ export type PurchaseOrdersOrderBy = {
   requested_at?: Maybe<OrderBy>;
   status?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
-  vendor?: Maybe<CompaniesOrderBy>;
+  vendor?: Maybe<VendorsOrderBy>;
   vendor_id?: Maybe<OrderBy>;
 };
 
@@ -14394,6 +14394,110 @@ export type EbbaApplicationsQuery = {
   >;
 };
 
+export type PayorsByPartnerCompanyQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+}>;
+
+export type PayorsByPartnerCompanyQuery = {
+  payors: Array<
+    Pick<Payors, "id"> & {
+      company_payor_partnerships: Array<
+        Pick<CompanyPayorPartnerships, "id" | "approved_at">
+      >;
+    } & PayorLimitedFragment
+  >;
+};
+
+export type ApprovedPayorsByPartnerCompanyIdQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+}>;
+
+export type ApprovedPayorsByPartnerCompanyIdQuery = {
+  payors: Array<
+    Pick<Payors, "id"> & {
+      company_payor_partnerships: Array<
+        Pick<CompanyPayorPartnerships, "id" | "approved_at">
+      >;
+    } & PayorLimitedFragment
+  >;
+};
+
+export type CompanyPayorPartnershipForVendorQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+  payorId: Scalars["uuid"];
+}>;
+
+export type CompanyPayorPartnershipForVendorQuery = {
+  company_payor_partnerships: Array<Pick<CompanyPayorPartnerships, "id">>;
+};
+
+export type GetInvoiceByIdQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type GetInvoiceByIdQuery = {
+  invoices_by_pk?: Maybe<
+    {
+      loans: Array<Pick<Loans, "id"> & LoanFragment>;
+      invoice_files: Array<InvoiceFileFragment>;
+    } & InvoiceFragment
+  >;
+};
+
+export type GetInvoicesForReviewQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type GetInvoicesForReviewQuery = {
+  invoices_by_pk?: Maybe<
+    Pick<
+      Invoices,
+      | "id"
+      | "company_id"
+      | "payor_id"
+      | "invoice_number"
+      | "invoice_date"
+      | "invoice_due_date"
+      | "advance_date"
+      | "subtotal_amount"
+      | "total_amount"
+      | "taxes_amount"
+      | "is_cannabis"
+      | "status"
+      | "created_at"
+    > & {
+      invoice_files: Array<
+        Pick<InvoiceFiles, "invoice_id" | "file_id"> & InvoiceFileFragment
+      >;
+      company: Pick<Companies, "id" | "name">;
+      payor?: Maybe<Pick<Payors, "id" | "name">>;
+    }
+  >;
+};
+
+export type GetInvoicesQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetInvoicesQuery = {
+  invoices: Array<Pick<Invoices, "id"> & InvoiceFragment>;
+};
+
+export type GetInvoicesByCompanyIdQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+}>;
+
+export type GetInvoicesByCompanyIdQuery = {
+  invoices: Array<
+    {
+      company: Pick<Companies, "id" | "name">;
+      payor?: Maybe<Pick<Payors, "id" | "name">>;
+    } & InvoiceFragment
+  >;
+};
+
+export type GetApprovedInvoicesQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetApprovedInvoicesQuery = { invoices: Array<InvoiceFragment> };
+
 export type GetPurchaseOrdersForIdsQueryVariables = Exact<{
   purchaseOrderIds?: Maybe<Array<Scalars["uuid"]>>;
 }>;
@@ -14502,7 +14606,7 @@ export type GetLoansForBankSubscription = {
       line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
       purchase_order?: Maybe<
         Pick<PurchaseOrders, "id" | "order_number"> & {
-          vendor: Pick<Companies, "id" | "name">;
+          vendor?: Maybe<Pick<Vendors, "id" | "name">>;
         }
       >;
     } & LoanFragment
@@ -14520,7 +14624,7 @@ export type GetNotFundedLoansForBankSubscription = {
       line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
       purchase_order?: Maybe<
         Pick<PurchaseOrders, "id" | "order_number"> & {
-          vendor: Pick<Companies, "id" | "name">;
+          vendor?: Maybe<Pick<Vendors, "id" | "name">>;
         }
       >;
     } & LoanFragment
@@ -14538,7 +14642,7 @@ export type GetFundedLoansForBankSubscription = {
       line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
       purchase_order?: Maybe<
         Pick<PurchaseOrders, "id" | "order_number"> & {
-          vendor: Pick<Companies, "id" | "name">;
+          vendor?: Maybe<Pick<Vendors, "id" | "name">>;
         }
       >;
     } & LoanFragment
@@ -14627,6 +14731,103 @@ export type GetLoansByLoanIdsQuery = {
   loans: Array<Pick<Loans, "id"> & LoanFragment>;
 };
 
+export type ListBankPayorPartnershipsQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type ListBankPayorPartnershipsQuery = {
+  company_payor_partnerships: Array<
+    {
+      company: Pick<Companies, "id" | "name">;
+      payor: {
+        settings: Pick<CompanySettings, "id">;
+        users: Array<ContactFragment>;
+      } & PayorFragment;
+    } & BankPayorPartnershipFragment
+  >;
+};
+
+export type GetBankPayorPartnershipQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type GetBankPayorPartnershipQuery = {
+  company_payor_partnerships_by_pk?: Maybe<
+    {
+      payor: {
+        settings: Pick<CompanySettings, "id">;
+        users: Array<ContactFragment>;
+      } & PayorFragment;
+      company: {
+        users: Array<ContactFragment>;
+        settings: CompanySettingsFragment;
+      } & CompanyFragment;
+      payor_agreement?: Maybe<CompanyAgreementFragment>;
+      payor_license?: Maybe<CompanyLicenseFragment>;
+    } & BankPayorPartnershipFragment
+  >;
+};
+
+export type UpdateCompanyPayorPartnershipApprovedAtMutationVariables = Exact<{
+  companyPayorPartnershipId: Scalars["uuid"];
+  approvedAt?: Maybe<Scalars["timestamptz"]>;
+}>;
+
+export type UpdateCompanyPayorPartnershipApprovedAtMutation = {
+  update_company_payor_partnerships_by_pk?: Maybe<BankPayorPartnershipFragment>;
+};
+
+export type UpdatePayorInfoMutationVariables = Exact<{
+  id: Scalars["uuid"];
+  company: CompaniesSetInput;
+}>;
+
+export type UpdatePayorInfoMutation = {
+  update_companies_by_pk?: Maybe<PayorFragment>;
+};
+
+export type UpdatePayorAgreementIdMutationVariables = Exact<{
+  companyPayorPartnershipId: Scalars["uuid"];
+  payorAgreementId?: Maybe<Scalars["uuid"]>;
+}>;
+
+export type UpdatePayorAgreementIdMutation = {
+  update_company_payor_partnerships_by_pk?: Maybe<
+    Pick<CompanyPayorPartnerships, "id"> & {
+      payor_agreement?: Maybe<CompanyAgreementFragment>;
+    }
+  >;
+};
+
+export type AddCompanyPayorAgreementMutationVariables = Exact<{
+  payorAgreement: CompanyAgreementsInsertInput;
+}>;
+
+export type AddCompanyPayorAgreementMutation = {
+  insert_company_agreements_one?: Maybe<CompanyAgreementFragment>;
+};
+
+export type UpdatePayorLicenseIdMutationVariables = Exact<{
+  companyPayorPartnershipId: Scalars["uuid"];
+  payorLicenseId: Scalars["uuid"];
+}>;
+
+export type UpdatePayorLicenseIdMutation = {
+  update_company_payor_partnerships_by_pk?: Maybe<
+    Pick<CompanyPayorPartnerships, "id"> & {
+      payor_license?: Maybe<CompanyLicenseFragment>;
+    }
+  >;
+};
+
+export type AddCompanyPayorLicenseMutationVariables = Exact<{
+  payorLicense: CompanyLicensesInsertInput;
+}>;
+
+export type AddCompanyPayorLicenseMutation = {
+  insert_company_licenses_one?: Maybe<CompanyLicenseFragment>;
+};
+
 export type PurchaseOrderQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -14664,7 +14865,7 @@ export type PurchaseOrderForReviewQuery = {
           PurchaseOrderFileFragment
       >;
       company: Pick<Companies, "id" | "name">;
-      vendor: Pick<Companies, "id" | "name">;
+      vendor?: Maybe<Pick<Vendors, "id" | "name">>;
     }
   >;
 };
@@ -15125,7 +15326,7 @@ export type PurchaseOrderFragment = Pick<
   | "funded_at"
 > & {
   company: Pick<Companies, "id" | "name">;
-  vendor: Pick<Companies, "id" | "name">;
+  vendor?: Maybe<Pick<Vendors, "id" | "name">>;
 };
 
 export type LoanLimitedFragment = Pick<
@@ -15262,8 +15463,18 @@ export type InvoiceFragment = Pick<
   | "funded_at"
 > & {
   company: Pick<Companies, "id" | "name">;
-  payor: Pick<Companies, "id" | "name">;
+  payor?: Maybe<Pick<Payors, "id" | "name">>;
 };
+
+export type PayorPartnershipFragment = Pick<
+  CompanyPayorPartnerships,
+  | "id"
+  | "company_id"
+  | "payor_id"
+  | "payor_agreement_id"
+  | "payor_license_id"
+  | "approved_at"
+>;
 
 export type GetTransactionsQueryVariables = Exact<{ [key: string]: never }>;
 
@@ -15546,6 +15757,28 @@ export type LoanFragment = Pick<
   | "requested_at"
 > & { company: Pick<Companies, "id" | "identifier"> };
 
+export type PayorFragment = Pick<
+  Companies,
+  | "id"
+  | "name"
+  | "address"
+  | "country"
+  | "state"
+  | "city"
+  | "zip_code"
+  | "phone_number"
+>;
+
+export type BankPayorPartnershipFragment = Pick<
+  CompanyPayorPartnerships,
+  | "id"
+  | "company_id"
+  | "payor_id"
+  | "payor_agreement_id"
+  | "payor_license_id"
+  | "approved_at"
+>;
+
 export type PaymentFragment = Pick<
   Payments,
   | "id"
@@ -15588,6 +15821,8 @@ export type CompanySettingsForCustomerFragment = Pick<
 >;
 
 export type VendorLimitedFragment = Pick<Vendors, "id" | "name">;
+
+export type PayorLimitedFragment = Pick<Payors, "id" | "name">;
 
 export type BankAccountsQueryVariables = Exact<{ [key: string]: never }>;
 
@@ -15902,6 +16137,16 @@ export const InvoiceFragmentDoc = gql`
     }
   }
 `;
+export const PayorPartnershipFragmentDoc = gql`
+  fragment PayorPartnership on company_payor_partnerships {
+    id
+    company_id
+    payor_id
+    payor_agreement_id
+    payor_license_id
+    approved_at
+  }
+`;
 export const ContactFragmentDoc = gql`
   fragment Contact on users {
     id
@@ -16009,6 +16254,28 @@ export const LoanFragmentDoc = gql`
     }
   }
 `;
+export const PayorFragmentDoc = gql`
+  fragment Payor on companies {
+    id
+    name
+    address
+    country
+    state
+    city
+    zip_code
+    phone_number
+  }
+`;
+export const BankPayorPartnershipFragmentDoc = gql`
+  fragment BankPayorPartnership on company_payor_partnerships {
+    id
+    company_id
+    payor_id
+    payor_agreement_id
+    payor_license_id
+    approved_at
+  }
+`;
 export const PaymentFragmentDoc = gql`
   fragment Payment on payments {
     id
@@ -16056,6 +16323,12 @@ export const CompanySettingsForCustomerFragmentDoc = gql`
 `;
 export const VendorLimitedFragmentDoc = gql`
   fragment VendorLimited on vendors {
+    id
+    name
+  }
+`;
+export const PayorLimitedFragmentDoc = gql`
+  fragment PayorLimited on payors {
     id
     name
   }
@@ -16608,6 +16881,529 @@ export type EbbaApplicationsLazyQueryHookResult = ReturnType<
 export type EbbaApplicationsQueryResult = Apollo.QueryResult<
   EbbaApplicationsQuery,
   EbbaApplicationsQueryVariables
+>;
+export const PayorsByPartnerCompanyDocument = gql`
+  query PayorsByPartnerCompany($companyId: uuid!) {
+    payors(
+      where: { company_payor_partnerships: { company_id: { _eq: $companyId } } }
+    ) {
+      id
+      ...PayorLimited
+      company_payor_partnerships {
+        id
+        approved_at
+      }
+    }
+  }
+  ${PayorLimitedFragmentDoc}
+`;
+
+/**
+ * __usePayorsByPartnerCompanyQuery__
+ *
+ * To run a query within a React component, call `usePayorsByPartnerCompanyQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePayorsByPartnerCompanyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePayorsByPartnerCompanyQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function usePayorsByPartnerCompanyQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    PayorsByPartnerCompanyQuery,
+    PayorsByPartnerCompanyQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    PayorsByPartnerCompanyQuery,
+    PayorsByPartnerCompanyQueryVariables
+  >(PayorsByPartnerCompanyDocument, baseOptions);
+}
+export function usePayorsByPartnerCompanyLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    PayorsByPartnerCompanyQuery,
+    PayorsByPartnerCompanyQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    PayorsByPartnerCompanyQuery,
+    PayorsByPartnerCompanyQueryVariables
+  >(PayorsByPartnerCompanyDocument, baseOptions);
+}
+export type PayorsByPartnerCompanyQueryHookResult = ReturnType<
+  typeof usePayorsByPartnerCompanyQuery
+>;
+export type PayorsByPartnerCompanyLazyQueryHookResult = ReturnType<
+  typeof usePayorsByPartnerCompanyLazyQuery
+>;
+export type PayorsByPartnerCompanyQueryResult = Apollo.QueryResult<
+  PayorsByPartnerCompanyQuery,
+  PayorsByPartnerCompanyQueryVariables
+>;
+export const ApprovedPayorsByPartnerCompanyIdDocument = gql`
+  query ApprovedPayorsByPartnerCompanyId($companyId: uuid!) {
+    payors(
+      where: {
+        company_payor_partnerships: {
+          _and: [
+            { company_id: { _eq: $companyId } }
+            { approved_at: { _is_null: false } }
+          ]
+        }
+      }
+    ) {
+      id
+      ...PayorLimited
+      company_payor_partnerships {
+        id
+        approved_at
+      }
+    }
+  }
+  ${PayorLimitedFragmentDoc}
+`;
+
+/**
+ * __useApprovedPayorsByPartnerCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useApprovedPayorsByPartnerCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useApprovedPayorsByPartnerCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useApprovedPayorsByPartnerCompanyIdQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useApprovedPayorsByPartnerCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    ApprovedPayorsByPartnerCompanyIdQuery,
+    ApprovedPayorsByPartnerCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    ApprovedPayorsByPartnerCompanyIdQuery,
+    ApprovedPayorsByPartnerCompanyIdQueryVariables
+  >(ApprovedPayorsByPartnerCompanyIdDocument, baseOptions);
+}
+export function useApprovedPayorsByPartnerCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    ApprovedPayorsByPartnerCompanyIdQuery,
+    ApprovedPayorsByPartnerCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    ApprovedPayorsByPartnerCompanyIdQuery,
+    ApprovedPayorsByPartnerCompanyIdQueryVariables
+  >(ApprovedPayorsByPartnerCompanyIdDocument, baseOptions);
+}
+export type ApprovedPayorsByPartnerCompanyIdQueryHookResult = ReturnType<
+  typeof useApprovedPayorsByPartnerCompanyIdQuery
+>;
+export type ApprovedPayorsByPartnerCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useApprovedPayorsByPartnerCompanyIdLazyQuery
+>;
+export type ApprovedPayorsByPartnerCompanyIdQueryResult = Apollo.QueryResult<
+  ApprovedPayorsByPartnerCompanyIdQuery,
+  ApprovedPayorsByPartnerCompanyIdQueryVariables
+>;
+export const CompanyPayorPartnershipForVendorDocument = gql`
+  query CompanyPayorPartnershipForVendor($companyId: uuid!, $payorId: uuid!) {
+    company_payor_partnerships(
+      where: {
+        _and: [
+          { company_id: { _eq: $companyId } }
+          { payor_id: { _eq: $payorId } }
+        ]
+      }
+    ) {
+      id
+    }
+  }
+`;
+
+/**
+ * __useCompanyPayorPartnershipForVendorQuery__
+ *
+ * To run a query within a React component, call `useCompanyPayorPartnershipForVendorQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCompanyPayorPartnershipForVendorQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCompanyPayorPartnershipForVendorQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *      payorId: // value for 'payorId'
+ *   },
+ * });
+ */
+export function useCompanyPayorPartnershipForVendorQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    CompanyPayorPartnershipForVendorQuery,
+    CompanyPayorPartnershipForVendorQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    CompanyPayorPartnershipForVendorQuery,
+    CompanyPayorPartnershipForVendorQueryVariables
+  >(CompanyPayorPartnershipForVendorDocument, baseOptions);
+}
+export function useCompanyPayorPartnershipForVendorLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    CompanyPayorPartnershipForVendorQuery,
+    CompanyPayorPartnershipForVendorQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    CompanyPayorPartnershipForVendorQuery,
+    CompanyPayorPartnershipForVendorQueryVariables
+  >(CompanyPayorPartnershipForVendorDocument, baseOptions);
+}
+export type CompanyPayorPartnershipForVendorQueryHookResult = ReturnType<
+  typeof useCompanyPayorPartnershipForVendorQuery
+>;
+export type CompanyPayorPartnershipForVendorLazyQueryHookResult = ReturnType<
+  typeof useCompanyPayorPartnershipForVendorLazyQuery
+>;
+export type CompanyPayorPartnershipForVendorQueryResult = Apollo.QueryResult<
+  CompanyPayorPartnershipForVendorQuery,
+  CompanyPayorPartnershipForVendorQueryVariables
+>;
+export const GetInvoiceByIdDocument = gql`
+  query GetInvoiceById($id: uuid!) {
+    invoices_by_pk(id: $id) {
+      ...Invoice
+      loans(where: { loan_type: { _eq: invoice } }) {
+        id
+        ...Loan
+      }
+      invoice_files {
+        ...InvoiceFile
+      }
+    }
+  }
+  ${InvoiceFragmentDoc}
+  ${LoanFragmentDoc}
+  ${InvoiceFileFragmentDoc}
+`;
+
+/**
+ * __useGetInvoiceByIdQuery__
+ *
+ * To run a query within a React component, call `useGetInvoiceByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetInvoiceByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetInvoiceByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetInvoiceByIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetInvoiceByIdQuery,
+    GetInvoiceByIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<GetInvoiceByIdQuery, GetInvoiceByIdQueryVariables>(
+    GetInvoiceByIdDocument,
+    baseOptions
+  );
+}
+export function useGetInvoiceByIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetInvoiceByIdQuery,
+    GetInvoiceByIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<GetInvoiceByIdQuery, GetInvoiceByIdQueryVariables>(
+    GetInvoiceByIdDocument,
+    baseOptions
+  );
+}
+export type GetInvoiceByIdQueryHookResult = ReturnType<
+  typeof useGetInvoiceByIdQuery
+>;
+export type GetInvoiceByIdLazyQueryHookResult = ReturnType<
+  typeof useGetInvoiceByIdLazyQuery
+>;
+export type GetInvoiceByIdQueryResult = Apollo.QueryResult<
+  GetInvoiceByIdQuery,
+  GetInvoiceByIdQueryVariables
+>;
+export const GetInvoicesForReviewDocument = gql`
+  query GetInvoicesForReview($id: uuid!) {
+    invoices_by_pk(id: $id) {
+      id
+      company_id
+      payor_id
+      invoice_number
+      invoice_date
+      invoice_due_date
+      advance_date
+      subtotal_amount
+      total_amount
+      taxes_amount
+      is_cannabis
+      status
+      created_at
+      invoice_files {
+        invoice_id
+        file_id
+        ...InvoiceFile
+      }
+      company {
+        id
+        name
+      }
+      payor {
+        id
+        name
+      }
+    }
+  }
+  ${InvoiceFileFragmentDoc}
+`;
+
+/**
+ * __useGetInvoicesForReviewQuery__
+ *
+ * To run a query within a React component, call `useGetInvoicesForReviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetInvoicesForReviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetInvoicesForReviewQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetInvoicesForReviewQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetInvoicesForReviewQuery,
+    GetInvoicesForReviewQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetInvoicesForReviewQuery,
+    GetInvoicesForReviewQueryVariables
+  >(GetInvoicesForReviewDocument, baseOptions);
+}
+export function useGetInvoicesForReviewLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetInvoicesForReviewQuery,
+    GetInvoicesForReviewQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetInvoicesForReviewQuery,
+    GetInvoicesForReviewQueryVariables
+  >(GetInvoicesForReviewDocument, baseOptions);
+}
+export type GetInvoicesForReviewQueryHookResult = ReturnType<
+  typeof useGetInvoicesForReviewQuery
+>;
+export type GetInvoicesForReviewLazyQueryHookResult = ReturnType<
+  typeof useGetInvoicesForReviewLazyQuery
+>;
+export type GetInvoicesForReviewQueryResult = Apollo.QueryResult<
+  GetInvoicesForReviewQuery,
+  GetInvoicesForReviewQueryVariables
+>;
+export const GetInvoicesDocument = gql`
+  query GetInvoices {
+    invoices {
+      id
+      ...Invoice
+    }
+  }
+  ${InvoiceFragmentDoc}
+`;
+
+/**
+ * __useGetInvoicesQuery__
+ *
+ * To run a query within a React component, call `useGetInvoicesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetInvoicesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetInvoicesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetInvoicesQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetInvoicesQuery,
+    GetInvoicesQueryVariables
+  >
+) {
+  return Apollo.useQuery<GetInvoicesQuery, GetInvoicesQueryVariables>(
+    GetInvoicesDocument,
+    baseOptions
+  );
+}
+export function useGetInvoicesLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetInvoicesQuery,
+    GetInvoicesQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<GetInvoicesQuery, GetInvoicesQueryVariables>(
+    GetInvoicesDocument,
+    baseOptions
+  );
+}
+export type GetInvoicesQueryHookResult = ReturnType<typeof useGetInvoicesQuery>;
+export type GetInvoicesLazyQueryHookResult = ReturnType<
+  typeof useGetInvoicesLazyQuery
+>;
+export type GetInvoicesQueryResult = Apollo.QueryResult<
+  GetInvoicesQuery,
+  GetInvoicesQueryVariables
+>;
+export const GetInvoicesByCompanyIdDocument = gql`
+  query GetInvoicesByCompanyId($company_id: uuid!) {
+    invoices(where: { company_id: { _eq: $company_id } }) {
+      ...Invoice
+      company {
+        id
+        name
+      }
+      payor {
+        id
+        name
+      }
+    }
+  }
+  ${InvoiceFragmentDoc}
+`;
+
+/**
+ * __useGetInvoicesByCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useGetInvoicesByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetInvoicesByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetInvoicesByCompanyIdQuery({
+ *   variables: {
+ *      company_id: // value for 'company_id'
+ *   },
+ * });
+ */
+export function useGetInvoicesByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetInvoicesByCompanyIdQuery,
+    GetInvoicesByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetInvoicesByCompanyIdQuery,
+    GetInvoicesByCompanyIdQueryVariables
+  >(GetInvoicesByCompanyIdDocument, baseOptions);
+}
+export function useGetInvoicesByCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetInvoicesByCompanyIdQuery,
+    GetInvoicesByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetInvoicesByCompanyIdQuery,
+    GetInvoicesByCompanyIdQueryVariables
+  >(GetInvoicesByCompanyIdDocument, baseOptions);
+}
+export type GetInvoicesByCompanyIdQueryHookResult = ReturnType<
+  typeof useGetInvoicesByCompanyIdQuery
+>;
+export type GetInvoicesByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useGetInvoicesByCompanyIdLazyQuery
+>;
+export type GetInvoicesByCompanyIdQueryResult = Apollo.QueryResult<
+  GetInvoicesByCompanyIdQuery,
+  GetInvoicesByCompanyIdQueryVariables
+>;
+export const GetApprovedInvoicesDocument = gql`
+  query GetApprovedInvoices {
+    invoices(where: { status: { _eq: approved } }) {
+      ...Invoice
+    }
+  }
+  ${InvoiceFragmentDoc}
+`;
+
+/**
+ * __useGetApprovedInvoicesQuery__
+ *
+ * To run a query within a React component, call `useGetApprovedInvoicesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetApprovedInvoicesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetApprovedInvoicesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetApprovedInvoicesQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetApprovedInvoicesQuery,
+    GetApprovedInvoicesQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetApprovedInvoicesQuery,
+    GetApprovedInvoicesQueryVariables
+  >(GetApprovedInvoicesDocument, baseOptions);
+}
+export function useGetApprovedInvoicesLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetApprovedInvoicesQuery,
+    GetApprovedInvoicesQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetApprovedInvoicesQuery,
+    GetApprovedInvoicesQueryVariables
+  >(GetApprovedInvoicesDocument, baseOptions);
+}
+export type GetApprovedInvoicesQueryHookResult = ReturnType<
+  typeof useGetApprovedInvoicesQuery
+>;
+export type GetApprovedInvoicesLazyQueryHookResult = ReturnType<
+  typeof useGetApprovedInvoicesLazyQuery
+>;
+export type GetApprovedInvoicesQueryResult = Apollo.QueryResult<
+  GetApprovedInvoicesQuery,
+  GetApprovedInvoicesQueryVariables
 >;
 export const GetPurchaseOrdersForIdsDocument = gql`
   query GetPurchaseOrdersForIds($purchaseOrderIds: [uuid!]) {
@@ -17715,6 +18511,490 @@ export type GetLoansByLoanIdsLazyQueryHookResult = ReturnType<
 export type GetLoansByLoanIdsQueryResult = Apollo.QueryResult<
   GetLoansByLoanIdsQuery,
   GetLoansByLoanIdsQueryVariables
+>;
+export const ListBankPayorPartnershipsDocument = gql`
+  query ListBankPayorPartnerships {
+    company_payor_partnerships {
+      ...BankPayorPartnership
+      company {
+        id
+        name
+      }
+      payor {
+        ...Payor
+        settings {
+          id
+        }
+        users {
+          ...Contact
+        }
+      }
+    }
+  }
+  ${BankPayorPartnershipFragmentDoc}
+  ${PayorFragmentDoc}
+  ${ContactFragmentDoc}
+`;
+
+/**
+ * __useListBankPayorPartnershipsQuery__
+ *
+ * To run a query within a React component, call `useListBankPayorPartnershipsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListBankPayorPartnershipsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListBankPayorPartnershipsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListBankPayorPartnershipsQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    ListBankPayorPartnershipsQuery,
+    ListBankPayorPartnershipsQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    ListBankPayorPartnershipsQuery,
+    ListBankPayorPartnershipsQueryVariables
+  >(ListBankPayorPartnershipsDocument, baseOptions);
+}
+export function useListBankPayorPartnershipsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    ListBankPayorPartnershipsQuery,
+    ListBankPayorPartnershipsQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    ListBankPayorPartnershipsQuery,
+    ListBankPayorPartnershipsQueryVariables
+  >(ListBankPayorPartnershipsDocument, baseOptions);
+}
+export type ListBankPayorPartnershipsQueryHookResult = ReturnType<
+  typeof useListBankPayorPartnershipsQuery
+>;
+export type ListBankPayorPartnershipsLazyQueryHookResult = ReturnType<
+  typeof useListBankPayorPartnershipsLazyQuery
+>;
+export type ListBankPayorPartnershipsQueryResult = Apollo.QueryResult<
+  ListBankPayorPartnershipsQuery,
+  ListBankPayorPartnershipsQueryVariables
+>;
+export const GetBankPayorPartnershipDocument = gql`
+  query GetBankPayorPartnership($id: uuid!) {
+    company_payor_partnerships_by_pk(id: $id) {
+      ...BankPayorPartnership
+      payor {
+        ...Payor
+        settings {
+          id
+        }
+        users {
+          ...Contact
+        }
+      }
+      company {
+        ...Company
+        users {
+          ...Contact
+        }
+        settings {
+          ...CompanySettings
+        }
+      }
+      payor_agreement {
+        ...CompanyAgreement
+      }
+      payor_license {
+        ...CompanyLicense
+      }
+    }
+  }
+  ${BankPayorPartnershipFragmentDoc}
+  ${PayorFragmentDoc}
+  ${ContactFragmentDoc}
+  ${CompanyFragmentDoc}
+  ${CompanySettingsFragmentDoc}
+  ${CompanyAgreementFragmentDoc}
+  ${CompanyLicenseFragmentDoc}
+`;
+
+/**
+ * __useGetBankPayorPartnershipQuery__
+ *
+ * To run a query within a React component, call `useGetBankPayorPartnershipQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBankPayorPartnershipQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBankPayorPartnershipQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetBankPayorPartnershipQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetBankPayorPartnershipQuery,
+    GetBankPayorPartnershipQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetBankPayorPartnershipQuery,
+    GetBankPayorPartnershipQueryVariables
+  >(GetBankPayorPartnershipDocument, baseOptions);
+}
+export function useGetBankPayorPartnershipLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetBankPayorPartnershipQuery,
+    GetBankPayorPartnershipQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetBankPayorPartnershipQuery,
+    GetBankPayorPartnershipQueryVariables
+  >(GetBankPayorPartnershipDocument, baseOptions);
+}
+export type GetBankPayorPartnershipQueryHookResult = ReturnType<
+  typeof useGetBankPayorPartnershipQuery
+>;
+export type GetBankPayorPartnershipLazyQueryHookResult = ReturnType<
+  typeof useGetBankPayorPartnershipLazyQuery
+>;
+export type GetBankPayorPartnershipQueryResult = Apollo.QueryResult<
+  GetBankPayorPartnershipQuery,
+  GetBankPayorPartnershipQueryVariables
+>;
+export const UpdateCompanyPayorPartnershipApprovedAtDocument = gql`
+  mutation UpdateCompanyPayorPartnershipApprovedAt(
+    $companyPayorPartnershipId: uuid!
+    $approvedAt: timestamptz
+  ) {
+    update_company_payor_partnerships_by_pk(
+      pk_columns: { id: $companyPayorPartnershipId }
+      _set: { approved_at: $approvedAt }
+    ) {
+      ...BankPayorPartnership
+    }
+  }
+  ${BankPayorPartnershipFragmentDoc}
+`;
+export type UpdateCompanyPayorPartnershipApprovedAtMutationFn = Apollo.MutationFunction<
+  UpdateCompanyPayorPartnershipApprovedAtMutation,
+  UpdateCompanyPayorPartnershipApprovedAtMutationVariables
+>;
+
+/**
+ * __useUpdateCompanyPayorPartnershipApprovedAtMutation__
+ *
+ * To run a mutation, you first call `useUpdateCompanyPayorPartnershipApprovedAtMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCompanyPayorPartnershipApprovedAtMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCompanyPayorPartnershipApprovedAtMutation, { data, loading, error }] = useUpdateCompanyPayorPartnershipApprovedAtMutation({
+ *   variables: {
+ *      companyPayorPartnershipId: // value for 'companyPayorPartnershipId'
+ *      approvedAt: // value for 'approvedAt'
+ *   },
+ * });
+ */
+export function useUpdateCompanyPayorPartnershipApprovedAtMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateCompanyPayorPartnershipApprovedAtMutation,
+    UpdateCompanyPayorPartnershipApprovedAtMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    UpdateCompanyPayorPartnershipApprovedAtMutation,
+    UpdateCompanyPayorPartnershipApprovedAtMutationVariables
+  >(UpdateCompanyPayorPartnershipApprovedAtDocument, baseOptions);
+}
+export type UpdateCompanyPayorPartnershipApprovedAtMutationHookResult = ReturnType<
+  typeof useUpdateCompanyPayorPartnershipApprovedAtMutation
+>;
+export type UpdateCompanyPayorPartnershipApprovedAtMutationResult = Apollo.MutationResult<UpdateCompanyPayorPartnershipApprovedAtMutation>;
+export type UpdateCompanyPayorPartnershipApprovedAtMutationOptions = Apollo.BaseMutationOptions<
+  UpdateCompanyPayorPartnershipApprovedAtMutation,
+  UpdateCompanyPayorPartnershipApprovedAtMutationVariables
+>;
+export const UpdatePayorInfoDocument = gql`
+  mutation UpdatePayorInfo($id: uuid!, $company: companies_set_input!) {
+    update_companies_by_pk(pk_columns: { id: $id }, _set: $company) {
+      ...Payor
+    }
+  }
+  ${PayorFragmentDoc}
+`;
+export type UpdatePayorInfoMutationFn = Apollo.MutationFunction<
+  UpdatePayorInfoMutation,
+  UpdatePayorInfoMutationVariables
+>;
+
+/**
+ * __useUpdatePayorInfoMutation__
+ *
+ * To run a mutation, you first call `useUpdatePayorInfoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePayorInfoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePayorInfoMutation, { data, loading, error }] = useUpdatePayorInfoMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      company: // value for 'company'
+ *   },
+ * });
+ */
+export function useUpdatePayorInfoMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdatePayorInfoMutation,
+    UpdatePayorInfoMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    UpdatePayorInfoMutation,
+    UpdatePayorInfoMutationVariables
+  >(UpdatePayorInfoDocument, baseOptions);
+}
+export type UpdatePayorInfoMutationHookResult = ReturnType<
+  typeof useUpdatePayorInfoMutation
+>;
+export type UpdatePayorInfoMutationResult = Apollo.MutationResult<UpdatePayorInfoMutation>;
+export type UpdatePayorInfoMutationOptions = Apollo.BaseMutationOptions<
+  UpdatePayorInfoMutation,
+  UpdatePayorInfoMutationVariables
+>;
+export const UpdatePayorAgreementIdDocument = gql`
+  mutation UpdatePayorAgreementId(
+    $companyPayorPartnershipId: uuid!
+    $payorAgreementId: uuid
+  ) {
+    update_company_payor_partnerships_by_pk(
+      pk_columns: { id: $companyPayorPartnershipId }
+      _set: { payor_agreement_id: $payorAgreementId }
+    ) {
+      id
+      payor_agreement {
+        ...CompanyAgreement
+      }
+    }
+  }
+  ${CompanyAgreementFragmentDoc}
+`;
+export type UpdatePayorAgreementIdMutationFn = Apollo.MutationFunction<
+  UpdatePayorAgreementIdMutation,
+  UpdatePayorAgreementIdMutationVariables
+>;
+
+/**
+ * __useUpdatePayorAgreementIdMutation__
+ *
+ * To run a mutation, you first call `useUpdatePayorAgreementIdMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePayorAgreementIdMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePayorAgreementIdMutation, { data, loading, error }] = useUpdatePayorAgreementIdMutation({
+ *   variables: {
+ *      companyPayorPartnershipId: // value for 'companyPayorPartnershipId'
+ *      payorAgreementId: // value for 'payorAgreementId'
+ *   },
+ * });
+ */
+export function useUpdatePayorAgreementIdMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdatePayorAgreementIdMutation,
+    UpdatePayorAgreementIdMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    UpdatePayorAgreementIdMutation,
+    UpdatePayorAgreementIdMutationVariables
+  >(UpdatePayorAgreementIdDocument, baseOptions);
+}
+export type UpdatePayorAgreementIdMutationHookResult = ReturnType<
+  typeof useUpdatePayorAgreementIdMutation
+>;
+export type UpdatePayorAgreementIdMutationResult = Apollo.MutationResult<UpdatePayorAgreementIdMutation>;
+export type UpdatePayorAgreementIdMutationOptions = Apollo.BaseMutationOptions<
+  UpdatePayorAgreementIdMutation,
+  UpdatePayorAgreementIdMutationVariables
+>;
+export const AddCompanyPayorAgreementDocument = gql`
+  mutation AddCompanyPayorAgreement(
+    $payorAgreement: company_agreements_insert_input!
+  ) {
+    insert_company_agreements_one(object: $payorAgreement) {
+      ...CompanyAgreement
+    }
+  }
+  ${CompanyAgreementFragmentDoc}
+`;
+export type AddCompanyPayorAgreementMutationFn = Apollo.MutationFunction<
+  AddCompanyPayorAgreementMutation,
+  AddCompanyPayorAgreementMutationVariables
+>;
+
+/**
+ * __useAddCompanyPayorAgreementMutation__
+ *
+ * To run a mutation, you first call `useAddCompanyPayorAgreementMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddCompanyPayorAgreementMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addCompanyPayorAgreementMutation, { data, loading, error }] = useAddCompanyPayorAgreementMutation({
+ *   variables: {
+ *      payorAgreement: // value for 'payorAgreement'
+ *   },
+ * });
+ */
+export function useAddCompanyPayorAgreementMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    AddCompanyPayorAgreementMutation,
+    AddCompanyPayorAgreementMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    AddCompanyPayorAgreementMutation,
+    AddCompanyPayorAgreementMutationVariables
+  >(AddCompanyPayorAgreementDocument, baseOptions);
+}
+export type AddCompanyPayorAgreementMutationHookResult = ReturnType<
+  typeof useAddCompanyPayorAgreementMutation
+>;
+export type AddCompanyPayorAgreementMutationResult = Apollo.MutationResult<AddCompanyPayorAgreementMutation>;
+export type AddCompanyPayorAgreementMutationOptions = Apollo.BaseMutationOptions<
+  AddCompanyPayorAgreementMutation,
+  AddCompanyPayorAgreementMutationVariables
+>;
+export const UpdatePayorLicenseIdDocument = gql`
+  mutation UpdatePayorLicenseId(
+    $companyPayorPartnershipId: uuid!
+    $payorLicenseId: uuid!
+  ) {
+    update_company_payor_partnerships_by_pk(
+      pk_columns: { id: $companyPayorPartnershipId }
+      _set: { payor_license_id: $payorLicenseId }
+    ) {
+      id
+      payor_license {
+        ...CompanyLicense
+      }
+    }
+  }
+  ${CompanyLicenseFragmentDoc}
+`;
+export type UpdatePayorLicenseIdMutationFn = Apollo.MutationFunction<
+  UpdatePayorLicenseIdMutation,
+  UpdatePayorLicenseIdMutationVariables
+>;
+
+/**
+ * __useUpdatePayorLicenseIdMutation__
+ *
+ * To run a mutation, you first call `useUpdatePayorLicenseIdMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePayorLicenseIdMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePayorLicenseIdMutation, { data, loading, error }] = useUpdatePayorLicenseIdMutation({
+ *   variables: {
+ *      companyPayorPartnershipId: // value for 'companyPayorPartnershipId'
+ *      payorLicenseId: // value for 'payorLicenseId'
+ *   },
+ * });
+ */
+export function useUpdatePayorLicenseIdMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdatePayorLicenseIdMutation,
+    UpdatePayorLicenseIdMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    UpdatePayorLicenseIdMutation,
+    UpdatePayorLicenseIdMutationVariables
+  >(UpdatePayorLicenseIdDocument, baseOptions);
+}
+export type UpdatePayorLicenseIdMutationHookResult = ReturnType<
+  typeof useUpdatePayorLicenseIdMutation
+>;
+export type UpdatePayorLicenseIdMutationResult = Apollo.MutationResult<UpdatePayorLicenseIdMutation>;
+export type UpdatePayorLicenseIdMutationOptions = Apollo.BaseMutationOptions<
+  UpdatePayorLicenseIdMutation,
+  UpdatePayorLicenseIdMutationVariables
+>;
+export const AddCompanyPayorLicenseDocument = gql`
+  mutation AddCompanyPayorLicense(
+    $payorLicense: company_licenses_insert_input!
+  ) {
+    insert_company_licenses_one(object: $payorLicense) {
+      ...CompanyLicense
+    }
+  }
+  ${CompanyLicenseFragmentDoc}
+`;
+export type AddCompanyPayorLicenseMutationFn = Apollo.MutationFunction<
+  AddCompanyPayorLicenseMutation,
+  AddCompanyPayorLicenseMutationVariables
+>;
+
+/**
+ * __useAddCompanyPayorLicenseMutation__
+ *
+ * To run a mutation, you first call `useAddCompanyPayorLicenseMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddCompanyPayorLicenseMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addCompanyPayorLicenseMutation, { data, loading, error }] = useAddCompanyPayorLicenseMutation({
+ *   variables: {
+ *      payorLicense: // value for 'payorLicense'
+ *   },
+ * });
+ */
+export function useAddCompanyPayorLicenseMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    AddCompanyPayorLicenseMutation,
+    AddCompanyPayorLicenseMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    AddCompanyPayorLicenseMutation,
+    AddCompanyPayorLicenseMutationVariables
+  >(AddCompanyPayorLicenseDocument, baseOptions);
+}
+export type AddCompanyPayorLicenseMutationHookResult = ReturnType<
+  typeof useAddCompanyPayorLicenseMutation
+>;
+export type AddCompanyPayorLicenseMutationResult = Apollo.MutationResult<AddCompanyPayorLicenseMutation>;
+export type AddCompanyPayorLicenseMutationOptions = Apollo.BaseMutationOptions<
+  AddCompanyPayorLicenseMutation,
+  AddCompanyPayorLicenseMutationVariables
 >;
 export const PurchaseOrderDocument = gql`
   query PurchaseOrder($id: uuid!) {

@@ -89,6 +89,28 @@ fragment Loan on loans {
   }
 }
 
+## Invoices
+
+fragment Payor on companies {
+  id
+  name
+  address
+  country
+  state
+  city
+  zip_code
+  phone_number
+}
+
+fragment BankPayorPartnership on company_payor_partnerships {
+  id
+  company_id
+  payor_id
+  payor_agreement_id
+  payor_license_id
+  approved_at
+}
+
 ## Finance
 
 fragment Payment on payments {

@@ -252,3 +252,12 @@ fragment Invoice on invoices {
     name
   }
 }
+
+fragment PayorPartnership on company_payor_partnerships {
+  id
+  company_id
+  payor_id
+  payor_agreement_id
+  payor_license_id
+  approved_at
+}

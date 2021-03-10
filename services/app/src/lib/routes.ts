@@ -29,6 +29,7 @@ export const customerRoutes = {
   purchaseOrders: "/1/purchase-orders",
   settings: "/1/settings",
   vendors: "/1/vendors",
+  invoices: "/1/invoices",
 };
 
 // Bank user routes are not prefixed.
@@ -58,6 +59,8 @@ export const bankRoutes = {
   payments: "/payments-all",
   paymentsActionRequired: "/payments-action-required",
   purchaseOrders: "/purchase-orders",
+  invoices: "/invoices",
   transactions: "/transactions",
   vendors: "/vendors",
+  payors: "/payors",
 };

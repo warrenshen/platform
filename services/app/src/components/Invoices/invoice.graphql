@@ -1,0 +1,43 @@
+query GetInvoiceById($id: uuid!) {
+  invoices_by_pk(id: $id) {
+    ...Invoice
+    loans(where: { loan_type: { _eq: invoice } }) {
+      id
+      ...Loan
+    }
+    invoice_files {
+      ...InvoiceFile
+    }
+  }
+}
+
+query GetInvoicesForReview($id: uuid!) {
+  invoices_by_pk(id: $id) {
+    id
+    company_id
+    payor_id
+    invoice_number
+    invoice_date
+    invoice_due_date
+    advance_date
+    subtotal_amount
+    total_amount
+    taxes_amount
+    is_cannabis
+    status
+    created_at
+    invoice_files {
+      invoice_id
+      file_id
+      ...InvoiceFile
+    }
+    company {
+      id
+      name
+    }
+    payor {
+      id
+      name
+    }
+  }
+}

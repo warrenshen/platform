@@ -20,6 +20,7 @@ import BankBankAccountsPage from "pages/Bank/BankAccounts";
 import BankCustomerPage from "pages/Bank/Customer";
 import BankCustomersPage from "pages/Bank/Customers";
 import BankEbbaApplicationsPage from "pages/Bank/EbbaApplications";
+import BankInvoicesPage from "pages/Bank/Invoices";
 import BankLoansActionRequiredPage from "pages/Bank/LoansActionRequired";
 import BankLoansAllProductsPage from "pages/Bank/LoansAllProducts";
 import BankLoansMaturingPage from "pages/Bank/LoansMaturing";
@@ -27,11 +28,13 @@ import BankLoansPastDuePage from "pages/Bank/LoansPastDue";
 import BankOverviewPage from "pages/Bank/Overview";
 import BankPaymentsPage from "pages/Bank/Payments";
 import BankPaymentsReadyForSettlementPage from "pages/Bank/PaymentsActionRequired";
+import BankPayorsPage from "pages/Bank/Payors";
 import BankPurchaseOrdersPage from "pages/Bank/PurchaseOrders";
 import BankTransactionsPage from "pages/Bank/Transactions";
 import BankVendorsPage from "pages/Bank/Vendors";
 import CustomerContractPage from "pages/Customer/Contract";
 import CustomerEbbaApplicationsPage from "pages/Customer/EbbaApplications";
+import CustomerInvoicesPages from "pages/Customer/Invoices";
 import CustomerLoansActivePage from "pages/Customer/LoansActive";
 import CustomerLoansClosedPage from "pages/Customer/LoansClosed";
 import CustomerOverviewPage from "pages/Customer/Overview";
@@ -183,6 +186,16 @@ function App() {
         </PrivateRoute>
         <PrivateRoute
           exact
+          path={customerRoutes.invoices}
+          requiredRoles={[
+            UserRolesEnum.CompanyAdmin,
+            UserRolesEnum.CompanyReadOnly,
+          ]}
+        >
+          <CustomerInvoicesPages />
+        </PrivateRoute>
+        <PrivateRoute
+          exact
           path={customerRoutes.settings}
           requiredRoles={[
             UserRolesEnum.CompanyAdmin,
@@ -241,6 +254,12 @@ function App() {
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
         >
           <BankPurchaseOrdersPage />
+        </PrivateRoute>
+        <PrivateRoute
+          path={bankRoutes.invoices}
+          requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
+        >
+          <BankInvoicesPage />
         </PrivateRoute>
         <PrivateRoute
           exact
@@ -303,6 +322,13 @@ function App() {
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
         >
           <BankVendorsPage />
+        </PrivateRoute>
+        <PrivateRoute
+          exact
+          path={bankRoutes.payors}
+          requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
+        >
+          <BankPayorsPage />
         </PrivateRoute>
         <Route>
           <Redirect to={routes.root} />

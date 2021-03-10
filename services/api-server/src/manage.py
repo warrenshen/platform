@@ -19,6 +19,7 @@ from server.config import get_config, is_development_env
 from server.views import (
 	auth, companies, contracts, files, notify, purchase_orders,
 	two_factor, users, healthcheck)
+from server.views.finance.invoices import routes as invoices_routes
 from server.views.finance.ebba_applications import \
     approvals as ebba_application_approvals
 from server.views.finance.loans import (
@@ -59,6 +60,9 @@ app.register_blueprint(users.handler, url_prefix='/users')
 
 # Purchase orders
 app.register_blueprint(purchase_orders.handler, url_prefix='/purchase_orders')
+
+# Invoices
+app.register_blueprint(invoices_routes.handler, url_prefix='/invoices')
 
 # Notifications
 app.register_blueprint(notify.handler, url_prefix='/notify')

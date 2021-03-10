@@ -162,6 +162,15 @@ class CompanyVendorPartnership(Base):
 	approved_at = Column(DateTime)
 
 
+class CompanyPayorPartnership(Base):
+	__tablename__ = 'company_payor_partnerships'
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	payor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	approved_at = Column(DateTime)
+
+
 class PurchaseOrderFile(Base):
 	__tablename__ = 'purchase_order_files'
 
@@ -511,6 +520,89 @@ class EbbaApplication(Base):
 			approved_at=self.approved_at,
 			rejected_at=self.rejected_at,
 			rejection_note=self.rejection_note,
+		)
+
+
+InvoiceDict = TypedDict('InvoiceDict', {
+	'id': str,
+	'company_id': str,
+	'payor_id': str,
+	'invoice_number': str,
+	'subtotal_amount': float,
+	'total_amount': float,
+	'taxes_amount': float,
+	'invoice_date': datetime.date,
+	'invoice_due_date': datetime.date,
+	'advance_date': datetime.date,
+	'status': str,
+	'requested_at': datetime.date,
+	'approved_at': datetime.date,
+	'funded_at': datetime.date,
+	'rejected_at': datetime.date,
+	'rejection_note': str,
+	'is_cannabis': bool,
+})
+
+class Invoice(Base):
+	__tablename__ = 'invoices'
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id'), nullable=False))
+	payor_id = cast(GUID, Column(GUID, ForeignKey('companies.id'), nullable=False))
+	invoice_number = Column(String)
+	subtotal_amount = Column(Numeric)
+	total_amount = Column(Numeric)
+	taxes_amount = Column(Numeric)
+	invoice_date = Column(Date)
+	invoice_due_date = Column(Date)
+	advance_date = Column(Date)
+	status = Column(String)
+	requested_at = Column(Date, nullable=True)
+	approved_at = Column(Date, nullable=True)
+	funded_at = Column(Date, nullable=True)
+	rejected_at = Column(Date, nullable=True)
+	rejection_note = Column(Text, nullable=True)
+	is_cannabis = Column(Boolean)
+
+	def as_dict(self) -> InvoiceDict:
+		return InvoiceDict(
+			id=str(self.id),
+			company_id=str(self.company_id),
+			payor_id=str(self.payor_id),
+			invoice_number=self.invoice_number,
+			subtotal_amount=float_or_null(self.subtotal_amount),
+			total_amount=float_or_null(self.total_amount),
+			taxes_amount=float_or_null(self.taxes_amount),
+			invoice_date=self.invoice_date,
+			invoice_due_date=self.invoice_due_date,
+			advance_date=self.advance_date,
+			status=self.status,
+			requested_at=self.requested_at,
+			approved_at=self.approved_at,
+			funded_at=self.funded_at,
+			rejected_at=self.rejected_at,
+			rejection_note=self.rejection_note,
+			is_cannabis=self.is_cannabis,
+		)
+
+InvoiceFileDict = TypedDict('InvoiceFileDict', {
+	'invoice_id': str,
+	'file_id': str,
+	'file_type': str,
+})
+
+class InvoiceFile(Base):
+	__tablename__ = 'invoice_files'
+
+	invoice_id = cast(GUID, Column(GUID, ForeignKey('invoices.id'), nullable=False, primary_key=True))
+	file_id = cast(GUID, Column(GUID, ForeignKey('files.id'), nullable=False, primary_key=True))
+	file_type = Column(String)
+
+	def as_dict(self) -> InvoiceFileDict:
+		return InvoiceFileDict(
+			invoice_id=str(self.invoice_id),
+			file_id=str(self.file_id),
+			file_type=self.file_type,
 		)
 
 

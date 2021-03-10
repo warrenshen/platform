@@ -18,10 +18,12 @@ class TwoFactorLinkType(object):
 class ProductType(object):
 	INVENTORY_FINANCING = 'inventory_financing'
 	LINE_OF_CREDIT = 'line_of_credit'
+	INVOICE_FINANCING = 'invoice_financing'
 
 PRODUCT_TYPES = [
 	ProductType.INVENTORY_FINANCING,
-	ProductType.LINE_OF_CREDIT
+	ProductType.LINE_OF_CREDIT,
+	ProductType.INVOICE_FINANCING,
 ]
 
 # Companies
@@ -82,4 +84,8 @@ class PaymentType(object):
 ADVANCE_TYPES = set([PaymentType.ADVANCE])
 
 REPAYMENT_TYPES = set([PaymentType.REPAYMENT])
+
+class InvoiceFileTypeEnum(object):
+	Invoice = 'invoice'
+	Cannabis = 'cannabis'
 

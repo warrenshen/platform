@@ -36432,13 +36432,9 @@
             "description": "An object relationship",
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "companies",
-                "ofType": null
-              }
+              "kind": "OBJECT",
+              "name": "payors",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -37231,7 +37227,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "companies_bool_exp",
+              "name": "payors_bool_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -37530,7 +37526,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "companies_obj_rel_insert_input",
+              "name": "payors_obj_rel_insert_input",
               "ofType": null
             },
             "defaultValue": null
@@ -38706,7 +38702,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "companies_order_by",
+              "name": "payors_order_by",
               "ofType": null
             },
             "defaultValue": null
@@ -65581,13 +65577,9 @@
             "description": "An object relationship",
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "companies",
-                "ofType": null
-              }
+              "kind": "OBJECT",
+              "name": "vendors",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -66270,7 +66262,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "companies_bool_exp",
+              "name": "vendors_bool_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -66519,7 +66511,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "companies_obj_rel_insert_input",
+              "name": "vendors_obj_rel_insert_input",
               "ofType": null
             },
             "defaultValue": null
@@ -67533,7 +67525,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "companies_order_by",
+              "name": "vendors_order_by",
               "ofType": null
             },
             "defaultValue": null

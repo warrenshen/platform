@@ -63,7 +63,7 @@ function ApproveVendor(props: Props) {
             setOpen(false);
           }}
           handleClose={() => setOpen(false)}
-        ></ConfirmModal>
+        />
       )}
       <Button
         size="small"

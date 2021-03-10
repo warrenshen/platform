@@ -127,6 +127,12 @@ const getCustomerNavItems = (
       counter: showBorrowingBasesChip ? 1 : 0,
     },
     {
+      visible: productType === ProductTypeEnum.InvoiceFinancing,
+      text: "Invoices",
+      link: customerRoutes.invoices,
+    },
+    {
+      visible: productType !== ProductTypeEnum.InvoiceFinancing,
       text: "Vendors",
       link: customerRoutes.vendors,
     },
@@ -201,12 +207,20 @@ const getBankNavItems = (): NavItem[] => {
       link: bankRoutes.ebbaApplications,
     },
     {
+      text: "Invoices",
+      link: bankRoutes.invoices,
+    },
+    {
       text: "Customers",
       link: bankRoutes.customers,
     },
     {
       text: "Vendors",
       link: bankRoutes.vendors,
+    },
+    {
+      text: "Payors",
+      link: bankRoutes.payors,
     },
     {
       text: "Advances",

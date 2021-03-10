@@ -1,6 +1,6 @@
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import ArtifactLoansDataGrid from "components/Artifacts/ArtifactLoansDataGrid";
-import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
+import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
 import { DataGridActionItem } from "components/Shared/DataGrid/DataGridActionMenu";
 import { LoanFragment, Loans } from "generated/graphql";
 
@@ -16,7 +16,7 @@ interface Props {
   handleSelectLoans?: (loans: LoanFragment[]) => void;
 }
 
-export default function PurchaseOrderLoansDataGrid({
+export default function InvoiceLoansDataGrid({
   isMaturityVisible = true,
   isMiniTable = false,
   isMultiSelectEnabled = false,
@@ -38,11 +38,11 @@ export default function PurchaseOrderLoansDataGrid({
       actionItems={actionItems}
       selectedLoanIds={selectedLoanIds}
       handleSelectLoans={handleSelectLoans}
-      artifactCaption="Purchase Order"
+      artifactCaption="Invoice Number"
       artifactCellRenderer={(params: ValueFormatterParams) => (
-        <PurchaseOrderDrawerLauncher
-          label={params.row.data.purchase_order?.order_number as string}
-          purchaseOrderId={params.row.data.purchase_order?.id as string}
+        <InvoiceDrawerLauncher
+          label={params.row.data.invoice?.invoice_id as string}
+          invoiceId={params.row.data.invoice?.id as string}
         />
       )}
     />

@@ -14,3 +14,8 @@ fragment VendorLimited on vendors {
   id
   name
 }
+
+fragment PayorLimited on payors {
+  id
+  name
+}
