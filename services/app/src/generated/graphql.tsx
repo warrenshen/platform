@@ -2172,12 +2172,12 @@ export type CompanyPayorPartnerships = {
   /** An object relationship */
   payor: Companies;
   /** An object relationship */
-  payor_agreement: CompanyAgreements;
-  payor_agreement_id: Scalars["uuid"];
+  payor_agreement?: Maybe<CompanyAgreements>;
+  payor_agreement_id?: Maybe<Scalars["uuid"]>;
   payor_id: Scalars["uuid"];
   /** An object relationship */
-  payor_license: CompanyLicenses;
-  payor_license_id: Scalars["uuid"];
+  payor_license?: Maybe<CompanyLicenses>;
+  payor_license_id?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -15593,13 +15593,16 @@ export type BankAccountsQueryVariables = Exact<{ [key: string]: never }>;
 
 export type BankAccountsQuery = { bank_accounts: Array<BankAccountFragment> };
 
-export type CustomersForBankQueryVariables = Exact<{ [key: string]: never }>;
+export type GetCustomersQueryVariables = Exact<{ [key: string]: never }>;
 
-export type CustomersForBankQuery = {
-  companies: Array<
+export type GetCustomersQuery = {
+  customers: Array<
     Pick<Companies, "id"> & {
-      settings: Pick<CompanySettings, "id"> & CompanySettingsFragment;
       contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
+      financial_summary?: Maybe<
+        Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
+      >;
+      settings: Pick<CompanySettings, "id"> & CompanySettingsFragment;
     } & CustomerForBankFragment
   >;
 };
@@ -20796,72 +20799,77 @@ export type BankAccountsQueryResult = Apollo.QueryResult<
   BankAccountsQuery,
   BankAccountsQueryVariables
 >;
-export const CustomersForBankDocument = gql`
-  query CustomersForBank {
-    companies(where: { company_type: { _eq: customer } }) {
+export const GetCustomersDocument = gql`
+  query GetCustomers {
+    customers: companies(where: { company_type: { _eq: customer } }) {
       id
       ...CustomerForBank
-      settings {
-        id
-        ...CompanySettings
-      }
       contract {
         id
         ...Contract
       }
+      financial_summary {
+        id
+        ...FinancialSummary
+      }
+      settings {
+        id
+        ...CompanySettings
+      }
     }
   }
   ${CustomerForBankFragmentDoc}
-  ${CompanySettingsFragmentDoc}
   ${ContractFragmentDoc}
+  ${FinancialSummaryFragmentDoc}
+  ${CompanySettingsFragmentDoc}
 `;
 
 /**
- * __useCustomersForBankQuery__
+ * __useGetCustomersQuery__
  *
- * To run a query within a React component, call `useCustomersForBankQuery` and pass it any options that fit your needs.
- * When your component renders, `useCustomersForBankQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetCustomersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomersQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useCustomersForBankQuery({
+ * const { data, loading, error } = useGetCustomersQuery({
  *   variables: {
  *   },
  * });
  */
-export function useCustomersForBankQuery(
+export function useGetCustomersQuery(
   baseOptions?: Apollo.QueryHookOptions<
-    CustomersForBankQuery,
-    CustomersForBankQueryVariables
+    GetCustomersQuery,
+    GetCustomersQueryVariables
   >
 ) {
-  return Apollo.useQuery<CustomersForBankQuery, CustomersForBankQueryVariables>(
-    CustomersForBankDocument,
+  return Apollo.useQuery<GetCustomersQuery, GetCustomersQueryVariables>(
+    GetCustomersDocument,
     baseOptions
   );
 }
-export function useCustomersForBankLazyQuery(
+export function useGetCustomersLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    CustomersForBankQuery,
-    CustomersForBankQueryVariables
+    GetCustomersQuery,
+    GetCustomersQueryVariables
   >
 ) {
-  return Apollo.useLazyQuery<
-    CustomersForBankQuery,
-    CustomersForBankQueryVariables
-  >(CustomersForBankDocument, baseOptions);
+  return Apollo.useLazyQuery<GetCustomersQuery, GetCustomersQueryVariables>(
+    GetCustomersDocument,
+    baseOptions
+  );
 }
-export type CustomersForBankQueryHookResult = ReturnType<
-  typeof useCustomersForBankQuery
+export type GetCustomersQueryHookResult = ReturnType<
+  typeof useGetCustomersQuery
 >;
-export type CustomersForBankLazyQueryHookResult = ReturnType<
-  typeof useCustomersForBankLazyQuery
+export type GetCustomersLazyQueryHookResult = ReturnType<
+  typeof useGetCustomersLazyQuery
 >;
-export type CustomersForBankQueryResult = Apollo.QueryResult<
-  CustomersForBankQuery,
-  CustomersForBankQueryVariables
+export type GetCustomersQueryResult = Apollo.QueryResult<
+  GetCustomersQuery,
+  GetCustomersQueryVariables
 >;
 export const CompanyVendorsDocument = gql`
   query CompanyVendors($companyId: uuid!) {

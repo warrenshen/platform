@@ -99,7 +99,6 @@ function SettleRepaymentSelectLoans({
           className={classes.inputField}
           id="payment-date-date-picker"
           label="Payment Date"
-          disablePast
           disableNonBankDays
           value={payment.payment_date}
           onChange={(value) => {
@@ -111,7 +110,8 @@ function SettleRepaymentSelectLoans({
         />
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
-            Payment Date is the date the customer sent the payment.
+            Payment Date is the date you initiated the Reverse Draft ACH or the
+            customer sent their payment.
           </Typography>
         </Box>
       </Box>

@@ -1,11 +1,13 @@
 import { Box, Button } from "@material-ui/core";
+import { ValueFormatterParams } from "@material-ui/data-grid";
 import CreateCustomerModal from "components/Customer/CreateCustomerModal";
 import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
+import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { ProductTypeEnum, useCustomersForBankQuery } from "generated/graphql";
+import { ProductTypeEnum, useGetCustomersQuery } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { ProductTypeToLabel } from "lib/enum";
 import { bankRoutes } from "lib/routes";
@@ -20,7 +22,7 @@ function BankCustomersPage() {
   } = useContext(CurrentUserContext);
 
   const { url } = useRouteMatch();
-  const { data, refetch } = useCustomersForBankQuery();
+  const { data, refetch } = useGetCustomersQuery();
 
   const [isCreateCustomerModalOpen, setIsCreateCustomerModalOpen] = useState(
     false
@@ -30,7 +32,7 @@ function BankCustomersPage() {
     setIsRunCustomerBalancesModalOpen,
   ] = useState(false);
 
-  const companies = data?.companies || [];
+  const customers = sortBy(data?.customers || [], (customer) => customer.name);
 
   const customerNameCellRenderer = ({
     value,
@@ -88,9 +90,49 @@ function BankCustomersPage() {
       dataField: "employer_identification_number",
       caption: "EIN",
     },
+    {
+      dataField: "total_outstanding_principal",
+      caption: "Total Outstanding Principal",
+      alignment: "right",
+      cellRender: (params: ValueFormatterParams) => (
+        <CurrencyDataGridCell
+          value={
+            params.row.data.financial_summary
+              ? params.row.data.financial_summary.total_outstanding_principal
+              : null
+          }
+        />
+      ),
+    },
+    {
+      dataField: "total_outstanding_interest",
+      caption: "Total Outstanding Interest",
+      alignment: "right",
+      cellRender: (params: ValueFormatterParams) => (
+        <CurrencyDataGridCell
+          value={
+            params.row.data.financial_summary
+              ? params.row.data.financial_summary.total_outstanding_interest
+              : null
+          }
+        />
+      ),
+    },
+    {
+      dataField: "total_outstanding_fees",
+      caption: "Total Outstanding Fees",
+      alignment: "right",
+      cellRender: (params: ValueFormatterParams) => (
+        <CurrencyDataGridCell
+          value={
+            params.row.data.financial_summary
+              ? params.row.data.financial_summary.total_outstanding_fees
+              : null
+          }
+        />
+      ),
+    },
   ];
-
-  const customers = sortBy(companies, (company) => company.name);
 
   return (
     <Page appBarTitle={"Customers"}>

@@ -1,14 +1,18 @@
-query CustomersForBank {
-  companies(where: { company_type: { _eq: customer } }) {
+query GetCustomers {
+  customers: companies(where: { company_type: { _eq: customer } }) {
     id
     ...CustomerForBank
-    settings {
-      id
-      ...CompanySettings
-    }
     contract {
       id
       ...Contract
+    }
+    financial_summary {
+      id
+      ...FinancialSummary
+    }
+    settings {
+      id
+      ...CompanySettings
     }
   }
 }
