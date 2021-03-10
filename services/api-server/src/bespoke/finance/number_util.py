@@ -11,6 +11,9 @@ def float_eq(a: float, b: float) -> bool:
 def float_lt(a: float, b: float) -> bool:
 	return False if float_eq(a, b) else a < b
 
+def float_lte(a: float, b: float) -> bool:
+	return True if float_eq(a, b) else a <= b
+
 def float_gt(a: float, b: float) -> bool:
 	return False if float_eq(a, b) else a > b
 

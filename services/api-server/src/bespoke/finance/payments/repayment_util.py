@@ -1,7 +1,7 @@
 
 import datetime
 import decimal
-from typing import Callable, List, Optional, Tuple, cast
+from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
@@ -54,6 +54,8 @@ LoanToShowDict = TypedDict('LoanToShowDict', {
 
 RepaymentEffectRespDict = TypedDict('RepaymentEffectRespDict', {
 	'status': str,
+	'payable_amount_principal': float,
+	'payable_amount_interest': float,
 	'loans_to_show': List[LoanToShowDict],
 	'amount_to_pay': float,
 	'amount_as_credit_to_user': float, # If the user overpaid more than what they could possibly owe, we keep this amount as a credit to them.
@@ -64,10 +66,19 @@ SettlePaymentReqDict = TypedDict('SettlePaymentReqDict', {
 	'company_id': str,
 	'payment_id': str,
 	'amount': float,
-	'settlement_date': str, # Effective date of all the transactions as well
 	'payment_date': str, # When the payment was deposited into the bank
+	'settlement_date': str, # Effective date of all the transactions as well
 	'loan_ids': List[str],
-	'transaction_inputs': List[TransactionInputDict]
+	'transaction_inputs': List[TransactionInputDict],
+})
+
+SettlePaymentLineOfCreditReqDict = TypedDict('SettlePaymentLineOfCreditReqDict', {
+	'company_id': str,
+	'payment_id': str,
+	'amount': float,
+	'payment_date': str, # When the payment was deposited into the bank
+	'settlement_date': str, # Effective date of all the transactions as well
+	'items_covered': payment_util.PaymentItemsCoveredDict,
 })
 
 def _zero_if_null(val: Optional[float]) -> float:
@@ -113,7 +124,7 @@ def calculate_repayment_effect(
 	payment_option: str,
 	loan_ids: List[str],
 	session_maker: Callable,
-	test_only_skip_interest_and_fees_calculation: bool = False
+	test_only_skip_interest_and_fees_calculation: bool = False,
 	) -> Tuple[RepaymentEffectRespDict, errors.Error]:
 	# What loans and fees does would this payment pay off?
 
@@ -322,6 +333,7 @@ def calculate_repayment_effect(
 			if product_type == ProductType.LINE_OF_CREDIT and amount_left <= 0:
 				continue
 
+			# Order MATTERS: payment is applied to interest, fees, and principal, in that order.
 			amount_left, amount_used_interest = _apply_to(balance_before, 'interest', amount_left)
 			amount_left, amount_used_fees = _apply_to(balance_before, 'fees', amount_left)
 			amount_left, amount_used_principal = _apply_to(balance_before, 'principal', amount_left)
@@ -387,17 +399,31 @@ def calculate_repayment_effect(
 	else:
 		return None, errors.Error('Unrecognized payment option')
 
+	payable_amount_principal = 0.0
+	payable_amount_interest = 0.0
+
+	for loan_to_show in loans_to_show:
+		before_loan_balance = loan_to_show['before_loan_balance']
+		payable_amount_principal += before_loan_balance['outstanding_principal_balance']
+		payable_amount_interest += before_loan_balance['outstanding_interest']
+
 	return RepaymentEffectRespDict(
 		status='OK',
+		payable_amount_principal=payable_amount_principal,
+		payable_amount_interest=payable_amount_interest,
 		loans_to_show=loans_to_show,
 		amount_to_pay=amount_to_pay,
 		amount_as_credit_to_user=amount_as_credit_to_user,
 		loans_past_due_but_not_selected=loans_past_due_but_not_selected
 	), None
 
-def create_payment(
-	company_id: str, payment_insert_input: payment_util.PaymentInsertInputDict,
-	loan_ids: List[str], user_id: str, session_maker: Callable) -> Tuple[str, errors.Error]:
+def create_repayment(
+	company_id: str,
+	payment_insert_input: payment_util.PaymentInsertInputDict,
+	loan_ids: List[str],
+	user_id: str,
+	session_maker: Callable,
+) -> Tuple[str, errors.Error]:
 
 	payment_id = None
 
@@ -432,7 +458,7 @@ def create_payment(
 		payment = payment_util.create_payment(
 			company_id, payment_input, user_id)
 		payment.items_covered = {
-			'loan_ids': loan_ids
+			'loan_ids': loan_ids,
 		}
 		payment.requested_by_user_id = user_id
 		payment.requested_payment_date = date_util.load_date_str(payment_insert_input['payment_date'])
@@ -446,6 +472,52 @@ def create_payment(
 		payment_status = PaymentStatusEnum.SCHEDULED if is_scheduled else PaymentStatusEnum.PENDING
 		for loan in loans:
 			loan.payment_status = payment_status
+
+
+	return payment_id, None
+
+def create_repayment_line_of_credit(
+	company_id: str,
+	payment_insert_input: payment_util.PaymentInsertInputDict,
+	user_id: str,
+	session_maker: Callable,
+) -> Tuple[str, errors.Error]:
+
+	payment_id = None
+
+	with session_scope(session_maker) as session:
+		payment_amount = payment_insert_input['amount']
+		payment_method = payment_insert_input['method']
+
+		to_principal = payment_insert_input['items_covered']['to_principal']
+		to_interest = payment_insert_input['items_covered']['to_interest']
+
+		if not number_util.float_eq(payment_amount, to_principal + to_interest):
+			return None, errors.Error(f'Payment breakdown of to_principal vs to_interest ({to_principal}, {to_interest}) does not sum up to payment amount ({payment_amount})')
+
+		payment_input = payment_util.PaymentInputDict(
+			type=db_constants.PaymentType.REPAYMENT,
+			amount=payment_amount,
+			payment_method=payment_method
+		)
+		payment = payment_util.create_payment(
+			company_id,
+			payment_input,
+			user_id,
+		)
+		payment.items_covered = cast(Dict[str, Any], payment_insert_input['items_covered'])
+		payment.requested_by_user_id = user_id
+		payment.requested_payment_date = date_util.load_date_str(payment_insert_input['payment_date'])
+		# Settlement date should not be set until the banker settles the payment.
+
+		session.add(payment)
+		session.flush()
+		payment_id = str(payment.id)
+
+		# is_scheduled = payment_insert_input['method'] == PaymentMethod.REVERSE_DRAFT_ACH
+		# payment_status = PaymentStatusEnum.SCHEDULED if is_scheduled else PaymentStatusEnum.PENDING
+		# for loan in loans:
+		# 	loan.payment_status = payment_status
 
 
 	return payment_id, None
@@ -513,6 +585,9 @@ def settle_payment(
 		payment_settlement_date = date_util.load_date_str(req['settlement_date'])
 		payment_date = date_util.load_date_str(req['payment_date'])
 
+		if payment_settlement_date > date_util.today_as_date():
+			return None, errors.Error('Settlement date cannot be in the future')
+
 		if not number_util.float_eq(transactions_sum, payment_amount):
 			return None, errors.Error('Transaction inputs provided does not balance with the payment amount included', details=err_details)
 
@@ -565,6 +640,232 @@ def settle_payment(
 			no_outstanding_balance = cur_loan.outstanding_principal_balance <= 0.0 \
 				and cur_loan.outstanding_interest <= 0.0 \
 				and cur_loan.outstanding_fees <= 0.0
+
+			if no_outstanding_balance:
+				cur_loan.closed_at = date_util.now()
+				cur_loan.payment_status = PaymentStatusEnum.CLOSED
+			else:
+				cur_loan.payment_status = PaymentStatusEnum.PARTIALLY_PAID
+
+		payment_util.make_payment_applied(
+			payment,
+			settled_by_user_id=user_id,
+			amount=decimal.Decimal(payment_amount),
+			payment_date=payment_date,
+			settlement_date=payment_settlement_date
+		)
+
+		session.flush()
+
+	transactions = cast(
+		List[models.Transaction],
+		session.query(models.Transaction).filter(
+			models.Transaction.payment_id == req['payment_id']
+		).all())
+	transaction_ids = list(map(lambda transaction: transaction.id, transactions))
+
+	return transaction_ids, None
+
+
+def settle_payment_line_of_credit(
+	req: SettlePaymentLineOfCreditReqDict,
+	user_id: str,
+	session_maker: Callable,
+) -> Tuple[List[str], errors.Error]:
+
+	err_details = {
+		'method': 'settle_payment_line_of_credit',
+		'req': req
+	}
+
+	payment_id = req['payment_id']
+	company_id = req['company_id']
+	payment_amount = req['amount']
+	payment_settlement_date = date_util.load_date_str(req['settlement_date'])
+	payment_date = date_util.load_date_str(req['payment_date'])
+
+	if payment_settlement_date > date_util.today_as_date():
+		return None, errors.Error('Settlement date cannot be in the future')
+
+	with session_scope(session_maker) as session:
+		payment = cast(
+			models.Payment,
+			session.query(models.Payment).filter(
+				models.Payment.id == payment_id
+			).first())
+		if not payment:
+			return None, errors.Error('No payment found to settle transaction', details=err_details)
+
+		if payment.settled_at:
+			return None, errors.Error('Cannot use this payment because it has already been settled and applied to certain loans', details=err_details)
+
+		if payment.type != db_constants.PaymentType.REPAYMENT:
+			return None, errors.Error('Can only apply repayments against loans', details=err_details)
+
+		# Get all contracts associated with company.
+		contracts = cast(
+			List[models.Contract],
+			session.query(models.Contract).filter(
+				models.Contract.company_id == company_id
+			).all())
+		if not contracts:
+			return None, errors.Error('Cannot calculate repayment effect, because no contracts are setup for this company')
+
+		contract_dicts = [c.as_dict() for c in contracts]
+
+		contract_helper, err = contract_util.ContractHelper.build(company_id, contract_dicts)
+		if err:
+			return None, err
+
+		active_contract, err = contract_helper.get_contract(payment_settlement_date)
+		if err:
+			return None, err
+		if not active_contract:
+			return None, errors.Error('No active contract on settlement date')
+		product_type, err = active_contract.get_product_type()
+
+		if product_type != ProductType.LINE_OF_CREDIT:
+			return None, errors.Error('Customer is not of Line of Credit product type', details=err_details)
+
+		loans = cast(
+			List[models.Loan],
+			session.query(models.Loan).filter(
+				models.Loan.company_id == company_id
+			).filter(
+				models.Loan.closed_at == None
+			).all())
+
+		all_loan_ids = map(lambda loan: loan.id, loans)
+		loan_id_to_loan = {}
+		for loan in loans:
+			loan_id_to_loan[str(loan.id)] = loan
+
+		transactions = cast(
+			List[models.Transaction],
+			session.query(models.Transaction).filter(
+				models.Transaction.loan_id.in_(all_loan_ids)
+			).all())
+
+		all_transaction_dicts = []
+		if transactions:
+			all_transaction_dicts = [t.as_dict() for t in transactions]
+
+		# Calculate the loans "before" by running the loan calculator to determine
+		# the balance at that particular time.
+		report_date = payment_settlement_date
+		loan_dicts = []
+		loan_dict_and_balance_list: List[LoanDictAndBalance] = []
+
+		for loan in loans:
+			loan_dicts.append(loan.as_dict())
+
+		# Find the before balances for the loans
+		for loan_dict in loan_dicts:
+			calculator = loan_calculator.LoanCalculator(contract_helper)
+			transactions_for_loan = loan_calculator.get_transactions_for_loan(
+				loan_dict['id'], all_transaction_dicts)
+			loan_update, errs = calculator.calculate_loan_balance(
+				loan_dict, transactions_for_loan, report_date)
+			if errs:
+				return None, errors.Error('\n'.join([err.msg for err in errs]))
+
+			# if test_only_skip_interest_and_fees_calculation:
+			# 	loan_update['outstanding_interest'] = 0.0
+			# 	loan_update['outstanding_fees'] = 0.0
+
+			# Keep track of what this loan balance is as of the date that this repayment
+			# will settle (so we have to calculate the additional interest and fees that will accrue)
+			loan_dict_and_balance_list.append(LoanDictAndBalance(
+				loan=loan_dict,
+				before_balance=LoanBalanceDict(
+					amount=loan_dict['amount'],
+					outstanding_principal_balance=loan_update['outstanding_principal'],
+					outstanding_interest=loan_update['outstanding_interest'],
+					outstanding_fees=loan_update['outstanding_fees']
+				)
+			))
+
+		transaction_inputs = []
+
+		# TODO(warrenshen): check the following:
+		# 1. payment_amount equals the sum of all transactions (or it results in a negative balance somehow).
+		# 2. payment_amount matches up with items_covered.to_principal and items_covered.to_interest.
+		amount_to_pay = payment_amount
+		amount_left = amount_to_pay
+		# TODO(warrenshen): use items_covered when determining transactions below.
+
+		# Apply in the order of earliest maturity date to latest maturity date
+		# while trying to cover as much of the loan coming due earliest
+		# Also paying off loans and fees takes preference over principal.
+		loan_dict_and_balance_list.sort(key=lambda l: (l['loan']['adjusted_maturity_date'], l['loan']['origination_date'], l['loan']['created_at']))
+		for loan_and_before_balance in loan_dict_and_balance_list:
+			balance_before = loan_and_before_balance['before_balance']
+			loan_dict = loan_and_before_balance['loan']
+
+			if amount_left <= 0:
+				continue
+
+			# Order MATTERS: payment is applied to interest, fees, and principal, in that order.
+			amount_left, amount_used_interest = _apply_to(balance_before, 'interest', amount_left)
+			amount_left, amount_used_fees = _apply_to(balance_before, 'fees', amount_left)
+			amount_left, amount_used_principal = _apply_to(balance_before, 'principal', amount_left)
+
+			transaction_inputs.append(TransactionInputDict(
+					amount=amount_used_fees + amount_used_interest + amount_used_principal,
+					to_principal=amount_used_principal,
+					to_interest=amount_used_interest,
+					to_fees=amount_used_fees
+				))
+
+		for i in range(len(transaction_inputs)):
+			cur_loan_id = loan_dict_and_balance_list[i]['loan']['id']
+			cur_loan = loan_id_to_loan[cur_loan_id]
+
+			tx_input = transaction_inputs[i]
+			to_principal = decimal.Decimal(tx_input['to_principal'])
+			to_interest = decimal.Decimal(tx_input['to_interest'])
+			to_fees = decimal.Decimal(tx_input['to_fees'])
+
+			t = models.Transaction()
+			t.type = db_constants.PaymentType.REPAYMENT
+			t.amount = decimal.Decimal(tx_input['amount'])
+			t.to_principal = to_principal
+			t.to_interest = to_interest
+			t.to_fees = to_fees
+			t.loan_id = cur_loan_id
+			t.payment_id = req['payment_id']
+			t.created_by_user_id = user_id
+			t.effective_date = payment_settlement_date
+
+			new_outstanding_principal_balance = cur_loan.outstanding_principal_balance - to_principal
+			new_outstanding_interest = cur_loan.outstanding_interest - to_interest
+			new_outstanding_fees = cur_loan.outstanding_fees - to_fees
+
+			if number_util.float_lt(float(new_outstanding_interest), 0):
+				return None, errors.Error(
+					'Interest on a loan may not be negative. You must reduce the amount applied to interest on {} by {} and apply it to the principal'.format(
+						cur_loan_id, -1 * new_outstanding_interest))
+
+			if number_util.float_lt(float(new_outstanding_fees), 0):
+				return None, errors.Error(
+					'Fees on a loan may not be negative. You must reduce the amount applied to interest on {} by {} and apply it to the principal'.format(
+						cur_loan_id, -1 * new_outstanding_fees))
+
+			if number_util.float_lt(float(new_outstanding_principal_balance), 0) and (
+				number_util.float_gt(float(new_outstanding_interest), 0) or
+				number_util.float_gt(float(new_outstanding_fees), 0)):
+				return None, errors.Error(
+					f'Principal on a loan may not be negative if interest or fees are not zero. You must reduce the amount applied to principal on {cur_loan_id} by {-1 * new_outstanding_principal_balance} and apply it to interest and fees.')
+
+			session.add(t)
+
+			cur_loan.outstanding_principal_balance = new_outstanding_principal_balance
+			cur_loan.outstanding_interest = new_outstanding_interest
+			cur_loan.outstanding_fees = new_outstanding_fees
+
+			no_outstanding_balance = number_util.float_lte(float(cur_loan.outstanding_principal_balance), 0.0) \
+				and number_util.float_lte(float(cur_loan.outstanding_interest), 0.0) \
+				and number_util.float_lte(float(cur_loan.outstanding_fees), 0.0)
 
 			if no_outstanding_balance:
 				cur_loan.closed_at = date_util.now()

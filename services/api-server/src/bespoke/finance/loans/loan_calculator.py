@@ -5,16 +5,14 @@
 """
 import datetime
 from datetime import timedelta
-
 from typing import List, Tuple
-from mypy_extensions import TypedDict
 
 from bespoke import errors
-from bespoke.db import models
 from bespoke.date import date_util
-from bespoke.finance import contract_util
-from bespoke.finance import number_util
-from bespoke.finance.payments import payment_util 
+from bespoke.db import models
+from bespoke.finance import contract_util, number_util
+from bespoke.finance.payments import payment_util
+from mypy_extensions import TypedDict
 
 LoanUpdateDict = TypedDict('LoanUpdateDict', {
 	'loan_id': str,
@@ -110,9 +108,9 @@ class LoanCalculator(object):
 			lines.extend(cur_lines)
 
 		return '\n'.join(lines)
-	
+
 	def calculate_loan_balance(self,
-		loan: models.LoanDict, transactions: List[models.TransactionDict], 
+		loan: models.LoanDict, transactions: List[models.TransactionDict],
 		today: datetime.date) -> Tuple[LoanUpdateDict, List[errors.Error]]:
 		# Replay the history of the loan and all the expenses that are due as a result.
 
@@ -160,7 +158,7 @@ class LoanCalculator(object):
 			if err:
 				errors_list.append(err)
 				continue
-			
+
 			# Fees
 			fees_due_today = 0.0
 			fee_multiplier = 0.0
@@ -184,7 +182,7 @@ class LoanCalculator(object):
 			# Apply repayment transactions at the "end of the day"
 			self._note_today(
 				cur_date=cur_date,
-				outstanding_principal=outstanding_principal, 
+				outstanding_principal=outstanding_principal,
 				interest_rate=cur_interest_rate,
 				fee_multiplier=fee_multiplier
 			)

@@ -19,6 +19,7 @@ import {
   Loans,
   Payments,
   PaymentsInsertInput,
+  ProductTypeEnum,
   useGetLoansByLoanIdsQuery,
   useGetPaymentForSettlementQuery,
 } from "generated/graphql";
@@ -30,9 +31,11 @@ import {
 } from "lib/finance/payments/advance";
 import {
   calculateEffectOfPayment,
+  CalculateEffectOfPaymentResp,
   LoanBalance,
   LoanTransaction,
   settlePayment,
+  settlePaymentLineOfCredit,
 } from "lib/finance/payments/repayment";
 import { LoanBeforeAfterPayment } from "lib/types";
 import { useEffect, useMemo, useState } from "react";
@@ -53,7 +56,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
-
 interface Props {
   paymentId: Payments["id"];
   handleClose: () => void;
@@ -69,17 +71,26 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
   const [isOnSelectLoans, setIsOnSelectLoans] = useState(true);
   const [errMsg, setErrMsg] = useState("");
 
-  const [loansBeforeAfterPayment, setLoansBeforeAfterPayment] = useState<
-    LoanBeforeAfterPayment[]
-  >([]);
+  const [customer, setCustomer] = useState<Companies | null>(null);
+  const [payment, setPayment] = useState<PaymentsInsertInput | null>(null);
 
   const [selectedLoans, setSelectedLoans] = useState<
     GetLoansByLoanIdsQuery["loans"]
   >([]);
   const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"][]>([]);
 
-  const [customer, setCustomer] = useState<Companies | null>(null);
-  const [payment, setPayment] = useState<PaymentsInsertInput | null>(null);
+  const [paymentAmountPrincipal, setPaymentAmountPrincipal] = useState(0.0);
+  const [paymentAmountInterest, setPaymentAmountInterest] = useState(0.0);
+
+  const [
+    calculateEffectResponse,
+    setCalculateEffectResponse,
+  ] = useState<CalculateEffectOfPaymentResp | null>(null);
+  const [loansBeforeAfterPayment, setLoansBeforeAfterPayment] = useState<
+    LoanBeforeAfterPayment[]
+  >([]);
+
+  const productType = customer?.contract?.product_type || null;
 
   useGetPaymentForSettlementQuery({
     variables: {
@@ -99,7 +110,10 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
           method: existingPayment.method,
           requested_payment_date: existingPayment.requested_payment_date,
           payment_date: existingPayment.requested_payment_date,
+          items_covered: existingPayment.items_covered,
         } as PaymentsInsertInput);
+        setPaymentAmountPrincipal(existingPayment.items_covered.to_principal);
+        setPaymentAmountInterest(existingPayment.items_covered.to_interest);
       } else {
         alert("Existing payment not found");
       }
@@ -165,6 +179,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
         return;
       }
 
+      setCalculateEffectResponse(response);
       setLoansBeforeAfterPayment(
         response.loans_to_show.map((loanToShow) => {
           const beforeLoan = loanToShow.before_loan_balance;
@@ -198,17 +213,27 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
       return;
     }
 
-    const response = await settlePayment({
-      payment_id: payment.id,
-      company_id: customer.id,
-      amount: payment.amount,
-      payment_date: payment.payment_date,
-      settlement_date: payment.settlement_date,
-      loan_ids: selectedLoanIds,
-      transaction_inputs: loansBeforeAfterPayment.map(
-        (beforeAfterPaymentLoan) => beforeAfterPaymentLoan.transaction
-      ),
-    });
+    const response =
+      productType === ProductTypeEnum.LineOfCredit
+        ? await settlePaymentLineOfCredit({
+            company_id: customer.id,
+            payment_id: payment.id,
+            amount: payment.amount,
+            payment_date: payment.payment_date,
+            settlement_date: payment.settlement_date,
+            items_covered: payment.items_covered,
+          })
+        : await settlePayment({
+            company_id: customer.id,
+            payment_id: payment.id,
+            amount: payment.amount,
+            payment_date: payment.payment_date,
+            settlement_date: payment.settlement_date,
+            loan_ids: selectedLoanIds,
+            transaction_inputs: loansBeforeAfterPayment.map(
+              (beforeAfterPaymentLoan) => beforeAfterPaymentLoan.transaction
+            ),
+          });
 
     if (response.status !== "OK") {
       setErrMsg(response.msg || "Error!");
@@ -272,11 +297,22 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
           />
         ) : (
           <SettleRepaymentConfirmEffect
+            productType={productType}
+            payableAmountPrincipal={
+              calculateEffectResponse?.payable_amount_principal || 0
+            }
+            payableAmountInterest={
+              calculateEffectResponse?.payable_amount_interest || 0
+            }
+            paymentAmountPrincipal={paymentAmountPrincipal}
+            paymentAmountInterest={paymentAmountInterest}
             payment={payment}
             customer={customer}
             loansBeforeAfterPayment={loansBeforeAfterPayment}
             setLoanBeforeAfterPayment={setLoanBeforeAfterPayment}
             setPayment={setPayment}
+            setPaymentAmountPrincipal={setPaymentAmountPrincipal}
+            setPaymentAmountInterest={setPaymentAmountInterest}
           />
         )}
       </DialogContent>

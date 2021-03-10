@@ -46,14 +46,16 @@ function StatBox({ financialSummary }: Props) {
     <Box className={classes.box}>
       <Card>
         <Box display="flex" flexDirection="column" p={2}>
-          <Typography variant="h4">
-            {financialSummary
-              ? formatCurrency(financialSummary.adjusted_total_limit)
-              : "TBD"}
-          </Typography>
-          <Typography variant="body1" color="textSecondary">
-            total limit
-          </Typography>
+          <Box style={{ textAlign: "start" }}>
+            <Typography variant="h4">
+              {financialSummary
+                ? formatCurrency(financialSummary.available_limit)
+                : "TBD"}
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              remaining amount
+            </Typography>
+          </Box>
           <div className={classes.progress}>
             <ProgressBar value={limitPercent} />
           </div>
@@ -66,14 +68,14 @@ function StatBox({ financialSummary }: Props) {
                 outstanding amount
               </Typography>
             </Box>
-            <Box style={{ textAlign: "end" }}>
+            <Box>
               <Typography variant="h5">
                 {financialSummary
-                  ? formatCurrency(financialSummary.available_limit)
+                  ? formatCurrency(financialSummary.adjusted_total_limit)
                   : "TBD"}
               </Typography>
-              <Typography variant="body2" color="textSecondary">
-                remaining amount
+              <Typography variant="body1" color="textSecondary">
+                total limit
               </Typography>
             </Box>
           </Box>

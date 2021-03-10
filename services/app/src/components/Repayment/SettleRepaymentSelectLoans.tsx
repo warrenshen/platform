@@ -136,66 +136,70 @@ function SettleRepaymentSelectLoans({
           </Typography>
         </Box>
       </Box>
-      <Box display="flex" flexDirection="column" mt={3}>
-        <Box mb={1}>
-          <Typography variant="subtitle2">
-            {`Step 2: select loans this payment will apply towards. The loans that ${customer.name} suggested are pre-selected, but the final selection is up to your discretion.`}
-          </Typography>
-        </Box>
-        <Typography variant="body1">Selected loans:</Typography>
-        <LoansDataGrid
-          isDaysPastDueVisible
-          isMaturityVisible
-          isSortingDisabled
-          pager={false}
-          loans={selectedLoans}
-          actionItems={
-            check(role, Action.DeselectLoan)
-              ? [
-                  {
-                    key: "deselect-loan",
-                    label: "Remove",
-                    handleClick: (params) =>
-                      setSelectedLoanIds(
-                        selectedLoanIds.filter(
-                          (loanId) => loanId !== params.row.data.id
-                        )
-                      ),
-                  },
-                ]
-              : []
-          }
-        />
-      </Box>
-      <Box mt={3}>
-        <Typography variant="body1">
-          Loans not selected, but past due or maturing in 7 days:
-        </Typography>
-        <LoansDataGrid
-          isDaysPastDueVisible
-          isMaturityVisible
-          isSortingDisabled
-          pageSize={5}
-          loans={maturingOrPastDueLoans.filter(
-            (loan) => !selectedLoanIds.includes(loan.id)
-          )}
-          actionItems={
-            check(role, Action.SelectLoan)
-              ? [
-                  {
-                    key: "select-loan",
-                    label: "Add",
-                    handleClick: (params) =>
-                      setSelectedLoanIds([
-                        ...selectedLoanIds,
-                        params.row.data.id as Loans["id"],
-                      ]),
-                  },
-                ]
-              : []
-          }
-        />
-      </Box>
+      {productType !== ProductTypeEnum.LineOfCredit && (
+        <>
+          <Box display="flex" flexDirection="column" mt={3}>
+            <Box mb={1}>
+              <Typography variant="subtitle2">
+                {`Step 2: select loans this payment will apply towards. The loans that ${customer.name} suggested are pre-selected, but the final selection is up to your discretion.`}
+              </Typography>
+            </Box>
+            <Typography variant="body1">Selected loans:</Typography>
+            <LoansDataGrid
+              isDaysPastDueVisible
+              isMaturityVisible
+              isSortingDisabled
+              pager={false}
+              loans={selectedLoans}
+              actionItems={
+                check(role, Action.DeselectLoan)
+                  ? [
+                      {
+                        key: "deselect-loan",
+                        label: "Remove",
+                        handleClick: (params) =>
+                          setSelectedLoanIds(
+                            selectedLoanIds.filter(
+                              (loanId) => loanId !== params.row.data.id
+                            )
+                          ),
+                      },
+                    ]
+                  : []
+              }
+            />
+          </Box>
+          <Box mt={3}>
+            <Typography variant="body1">
+              Loans not selected, but past due or maturing in 7 days:
+            </Typography>
+            <LoansDataGrid
+              isDaysPastDueVisible
+              isMaturityVisible
+              isSortingDisabled
+              pageSize={5}
+              loans={maturingOrPastDueLoans.filter(
+                (loan) => !selectedLoanIds.includes(loan.id)
+              )}
+              actionItems={
+                check(role, Action.SelectLoan)
+                  ? [
+                      {
+                        key: "select-loan",
+                        label: "Add",
+                        handleClick: (params) =>
+                          setSelectedLoanIds([
+                            ...selectedLoanIds,
+                            params.row.data.id as Loans["id"],
+                          ]),
+                      },
+                    ]
+                  : []
+              }
+            />
+          </Box>
+        </>
+      )}
     </Box>
   ) : null;
 }

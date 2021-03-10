@@ -96,6 +96,12 @@ function PaymentAdvanceForm({ payment, selectedLoans, setPayment }: Props) {
           id="settlement-date-date-picker"
           label="Settlement Date"
           value={payment.settlement_date}
+          onChange={(value) =>
+            setPayment({
+              ...payment,
+              settlement_date: value,
+            })
+          }
         />
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">

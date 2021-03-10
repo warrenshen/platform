@@ -54,10 +54,14 @@ export const loansRoutes = {
 
   // Payments related.
   createAdvance: "/finance/loans/advances/handle_advance",
-  createPayment: "/finance/loans/repayments/create_payment",
+  createRepayment: "/finance/loans/repayments/create_payment",
+  createRepaymentLineOfCredit:
+    "/finance/loans/repayments/create_payment_line_of_credit",
   calculateEffectOfPayment:
     "finance/loans/repayments/calculate_effect_of_payment",
   settlePayment: "/finance/loans/repayments/settle_payment",
+  settlePaymentLineOfCredit:
+    "/finance/loans/repayments/settle_payment_line_of_credit",
 
   // Artifacts related.
   listArtifactsForCreateLoan:

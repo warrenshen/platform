@@ -31,7 +31,7 @@ function TransactionsDataGrid({ isMiniTable, transactions }: Props) {
         ),
       },
       {
-        caption: "Date",
+        caption: "Effective Date",
         width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (

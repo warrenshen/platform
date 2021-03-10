@@ -9,8 +9,12 @@ import {
 export const DateFormatClient = "MM/dd/yyyy";
 export const DateFormatServer = "yyyy-MM-dd";
 
-export function todayAsDateStr(): string {
+export function todayAsDateStringServer(): string {
   return format(new Date(), DateFormatServer);
+}
+
+export function todayAsDateStringClient(): string {
+  return format(new Date(), DateFormatClient);
 }
 
 export function formatDateString(dateString: string) {

@@ -70,7 +70,7 @@ function CustomerOverviewSubpage({ companyId, productType }: Props) {
       <Box className={classes.section}>
         <Typography variant="h6">
           {`Pending Payments${
-            payments.length > 0 ? `(${payments.length})` : ""
+            payments.length > 0 ? ` (${payments.length})` : ""
           }`}
         </Typography>
         <Box display="flex" flex={1}>
@@ -88,7 +88,7 @@ function CustomerOverviewSubpage({ companyId, productType }: Props) {
       <Box className={classes.sectionSpace} />
       <Box className={classes.section}>
         <Typography variant="h6">
-          {`Outstanding Loans${loans.length > 0 ? `(${loans.length})` : ""}`}
+          {`Outstanding Loans${loans.length > 0 ? ` (${loans.length})` : ""}`}
         </Typography>
         <Box display="flex" flex={1}>
           <Box display="flex" flexDirection="column" width="100%">

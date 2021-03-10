@@ -120,7 +120,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				amount=payment_amount,
 				method='ach',
 				payment_date=payment_date,
-				settlement_date=settlement_date
+				settlement_date=settlement_date,
+				items_covered={'loan_ids': loan_ids},
 			)
 		)
 
@@ -541,8 +542,9 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					amount=0.2,
 					method='ach',
 					payment_date='10/28/2020',
-					settlement_date='10/30/2020'
-			  ),
+					settlement_date='10/30/2020',
+					items_covered={'loan_ids': loan_ids},
+			  	),
 				loan_ids=loan_ids
 			),
 			bank_admin_user_id='',

@@ -13,7 +13,7 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { LoanFragment, PaymentsInsertInput } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, loansRoutes } from "lib/api";
-import { todayAsDateStr } from "lib/date";
+import { todayAsDateStringServer } from "lib/date";
 import {
   computeSettlementDateForPayment,
   DefaultSettlementTimelineConfig,
@@ -59,7 +59,7 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
     company_id: companyId,
     amount: loansTotal,
     method: "",
-    payment_date: todayAsDateStr(),
+    payment_date: todayAsDateStringServer(),
     settlement_date: null,
   } as PaymentsInsertInput;
 

@@ -14,7 +14,7 @@ import DatePicker from "components/Shared/Dates/DatePicker";
 import { Companies } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { todayAsDateStr } from "lib/date";
+import { todayAsDateStringServer } from "lib/date";
 import { runCustomerBalancesMutation } from "lib/finance/loans/reports";
 import { useState } from "react";
 
@@ -44,7 +44,9 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
 
-  const [reportDate, setReportDate] = useState<string | null>(todayAsDateStr());
+  const [reportDate, setReportDate] = useState<string | null>(
+    todayAsDateStringServer()
+  );
 
   const [
     runCustomerBalances,

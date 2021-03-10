@@ -33,8 +33,10 @@ type LoanToShow = {
 export type CalculateEffectOfPaymentResp = {
   status: string;
   msg?: string;
-  loans_to_show?: LoanToShow[];
-  amount_to_pay?: number;
+  loans_to_show: LoanToShow[];
+  amount_to_pay: number;
+  payable_amount_principal: number;
+  payable_amount_interest: number;
 };
 
 export type SettlePaymentResp = {
@@ -67,13 +69,13 @@ export async function calculateEffectOfPayment(req: {
     );
 }
 
-export async function createPayment(req: {
-  payment: PaymentsInsertInput;
+export async function createRepayment(req: {
   company_id: string;
+  payment: PaymentsInsertInput;
   loan_ids: string[];
 }): Promise<CreatePaymentResp> {
   return authenticatedApi
-    .post(loansRoutes.createPayment, req)
+    .post(loansRoutes.createRepayment, req)
     .then((res) => {
       return res.data;
     })
@@ -91,7 +93,38 @@ export async function createPayment(req: {
     );
 }
 
-export async function settlePayment(req: {}): Promise<SettlePaymentResp> {
+export async function createRepaymentLineOfCredit(req: {
+  company_id: string;
+  payment: PaymentsInsertInput;
+}): Promise<CreatePaymentResp> {
+  return authenticatedApi
+    .post(loansRoutes.createRepaymentLineOfCredit, req)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not make payment for line of credit",
+        };
+      }
+    );
+}
+
+export async function settlePayment(req: {
+  company_id: string;
+  payment_id: string;
+  amount: number;
+  payment_date: string;
+  settlement_date: string;
+  loan_ids: string[];
+  transaction_inputs: LoanTransaction[];
+}): Promise<SettlePaymentResp> {
   return authenticatedApi
     .post(loansRoutes.settlePayment, req)
     .then((res) => {
@@ -104,6 +137,31 @@ export async function settlePayment(req: {}): Promise<SettlePaymentResp> {
         return {
           status: "ERROR",
           msg: "Could not settle payment for the loan(s)",
+        };
+      }
+    );
+}
+
+export async function settlePaymentLineOfCredit(req: {
+  company_id: string;
+  payment_id: string;
+  amount: number;
+  payment_date: string;
+  settlement_date: string;
+  items_covered: any;
+}): Promise<SettlePaymentResp> {
+  return authenticatedApi
+    .post(loansRoutes.settlePaymentLineOfCredit, req)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => response,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not settle payment for line of credit",
         };
       }
     );

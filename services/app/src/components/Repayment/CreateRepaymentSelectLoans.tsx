@@ -19,6 +19,7 @@ import {
   ProductTypeEnum,
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
+import { todayAsDateStringClient } from "lib/date";
 import {
   AllPaymentMethods,
   AllPaymentOptions,
@@ -62,6 +63,11 @@ function CreateRepaymentSelectLoans({
         <Box display="flex" flexDirection="column">
           <Box>
             <Typography variant="body1">
+              {`As of today, ${todayAsDateStringClient()}, your outstanding principal and interest are:`}
+            </Typography>
+          </Box>
+          <Box mt={1}>
+            <Typography variant="body1">
               {`Outstanding Principal: ${
                 financialSummary
                   ? formatCurrency(financialSummary.total_outstanding_principal)
@@ -92,50 +98,54 @@ function CreateRepaymentSelectLoans({
           />
         </Box>
       )}
-      <Box mt={3}>
-        <Typography variant="subtitle2">
-          How much would you like to pay?
-        </Typography>
-        <Box mt={1}>
-          <FormControl className={classes.inputField}>
-            <InputLabel id="select-payment-option-label">
-              Payment Option
-            </InputLabel>
-            <Select
-              id="select-payment-option"
-              labelId="select-payment-option-label"
-              value={paymentOption}
-              onChange={({ target: { value } }) =>
-                setPaymentOption(value as string)
-              }
-            >
-              {AllPaymentOptions.map((paymentOption) => {
-                return (
-                  <MenuItem key={paymentOption} value={paymentOption}>
-                    {PaymentOptionToLabel[paymentOption]}
-                  </MenuItem>
-                );
-              })}
-            </Select>
-          </FormControl>
-        </Box>
-        {paymentOption === "custom_amount" && (
-          <Box mt={2}>
-            <FormControl className={classes.inputField}>
-              <CurrencyTextField
-                label="Amount"
-                currencySymbol="$"
-                outputFormat="string"
-                textAlign="left"
-                value={payment.amount}
-                onChange={(_event: any, value: string) => {
-                  setPayment({ ...payment, amount: value });
-                }}
-              />
-            </FormControl>
+      {productType !== ProductTypeEnum.LineOfCredit && (
+        <>
+          <Box mt={3}>
+            <Typography variant="subtitle2">
+              How much would you like to pay?
+            </Typography>
+            <Box mt={1}>
+              <FormControl className={classes.inputField}>
+                <InputLabel id="select-payment-option-label">
+                  Payment Option
+                </InputLabel>
+                <Select
+                  id="select-payment-option"
+                  labelId="select-payment-option-label"
+                  value={paymentOption}
+                  onChange={({ target: { value } }) =>
+                    setPaymentOption(value as string)
+                  }
+                >
+                  {AllPaymentOptions.map((paymentOption) => {
+                    return (
+                      <MenuItem key={paymentOption} value={paymentOption}>
+                        {PaymentOptionToLabel[paymentOption]}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>
+            </Box>
+            {paymentOption === "custom_amount" && (
+              <Box mt={2}>
+                <FormControl className={classes.inputField}>
+                  <CurrencyTextField
+                    label="Amount"
+                    currencySymbol="$"
+                    outputFormat="string"
+                    textAlign="left"
+                    value={payment.amount}
+                    onChange={(_event: any, value: string) => {
+                      setPayment({ ...payment, amount: value });
+                    }}
+                  />
+                </FormControl>
+              </Box>
+            )}
           </Box>
-        )}
-      </Box>
+        </>
+      )}
       <Box mt={3}>
         <Typography variant="subtitle2">
           Which payment method do you plan to pay with?

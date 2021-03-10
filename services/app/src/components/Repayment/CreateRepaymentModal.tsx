@@ -28,7 +28,9 @@ import {
 } from "lib/finance/payments/advance";
 import {
   calculateEffectOfPayment,
-  createPayment,
+  CalculateEffectOfPaymentResp,
+  createRepayment,
+  createRepaymentLineOfCredit,
   LoanBalance,
   LoanTransaction,
 } from "lib/finance/payments/repayment";
@@ -84,12 +86,6 @@ function CreateRepaymentModal({
   const [isOnSelectLoans, setIsOnSelectLoans] = useState(true);
   const [errMsg, setErrMsg] = useState("");
 
-  const [loansBeforeAfterPayment, setLoansBeforeAfterPayment] = useState<
-    LoanBeforeAfterPayment[]
-  >([]);
-  // A payment option is the user's choice to payment the remaining balances on the loan, to
-  // pay the minimum amount required, or to pay a custom amount.
-  const [paymentOption, setPaymentOption] = useState("");
   const [payment, setPayment] = useState<PaymentsInsertInput>({
     company_id: companyId,
     type: PaymentTransferType.ToBank,
@@ -97,7 +93,22 @@ function CreateRepaymentModal({
     method: "",
     payment_date: null,
     settlement_date: null,
+    items_covered: {
+      to_principal: 0.0,
+      to_interest: 0.0,
+    },
   });
+  // A payment option is the user's choice to payment the remaining balances on the loan, to
+  // pay the minimum amount required, or to pay a custom amount.
+  const [paymentOption, setPaymentOption] = useState("");
+
+  const [
+    calculateEffectResponse,
+    setCalculateEffectResponse,
+  ] = useState<CalculateEffectOfPaymentResp | null>(null);
+  const [loansBeforeAfterPayment, setLoansBeforeAfterPayment] = useState<
+    LoanBeforeAfterPayment[]
+  >([]);
 
   useEffect(() => {
     if (payment.method && payment.payment_date) {
@@ -124,7 +135,10 @@ function CreateRepaymentModal({
     const response = await calculateEffectOfPayment({
       payment: { ...payment },
       company_id: companyId,
-      payment_option: paymentOption,
+      payment_option:
+        productType === ProductTypeEnum.LineOfCredit
+          ? "pay_in_full"
+          : paymentOption,
       loan_ids: selectedLoans.map((selectedLoan) => selectedLoan.id),
     });
 
@@ -134,13 +148,14 @@ function CreateRepaymentModal({
       setErrMsg(response.msg || "");
     } else {
       setErrMsg("");
-      setPayment({ ...payment, amount: response.amount_to_pay || 0 });
 
       if (!response.loans_to_show) {
         alert("Developer error: response does not include loans_to_show.");
         return;
       }
 
+      setCalculateEffectResponse(response);
+      setPayment({ ...payment, amount: response.amount_to_pay || 0 });
       setLoansBeforeAfterPayment(
         response.loans_to_show.map((loanToShow) => {
           const beforeLoan = loanToShow.before_loan_balance;
@@ -176,13 +191,19 @@ function CreateRepaymentModal({
       return;
     }
 
-    const response = await createPayment({
-      payment: { ...payment },
-      company_id: companyId,
-      loan_ids: loansBeforeAfterPayment.map(
-        (loanBeforeAfterPayment) => loanBeforeAfterPayment.loan_id
-      ),
-    });
+    const response =
+      productType === ProductTypeEnum.LineOfCredit
+        ? await createRepaymentLineOfCredit({
+            company_id: companyId,
+            payment: { ...payment },
+          })
+        : await createRepayment({
+            company_id: companyId,
+            payment: { ...payment },
+            loan_ids: loansBeforeAfterPayment.map(
+              (loanBeforeAfterPayment) => loanBeforeAfterPayment.loan_id
+            ),
+          });
 
     if (response.status !== "OK") {
       setErrMsg(response.msg);
@@ -193,11 +214,13 @@ function CreateRepaymentModal({
     }
   };
 
-  const isPaymentMethodSet = !!payment.method;
-
-  const isNextButtonEnabled =
-    payment.payment_date && isPaymentMethodSet && paymentOption !== "";
-  const isActionButtonEnabled = isPaymentMethodSet && payment.amount > 0;
+  const isNextButtonDisabled =
+    !payment.method ||
+    !payment.payment_date ||
+    !payment.settlement_date ||
+    (productType !== ProductTypeEnum.LineOfCredit && !paymentOption) ||
+    (paymentOption === "custom" && !payment.amount);
+  const isActionButtonEnabled = !!payment.method && payment.amount > 0;
   const actionBtnText =
     payment.method === PaymentMethodEnum.ReverseDraftACH
       ? "Schedule"
@@ -219,8 +242,15 @@ function CreateRepaymentModal({
           />
         ) : (
           <CreateRepaymentConfirmEffect
-            loansBeforeAfterPayment={loansBeforeAfterPayment}
+            productType={productType}
+            payableAmountPrincipal={
+              calculateEffectResponse?.payable_amount_principal || 0
+            }
+            payableAmountInterest={
+              calculateEffectResponse?.payable_amount_interest || 0
+            }
             payment={payment}
+            loansBeforeAfterPayment={loansBeforeAfterPayment}
             setPayment={setPayment}
           />
         )}
@@ -250,7 +280,7 @@ function CreateRepaymentModal({
               <Button onClick={handleClose}>Cancel</Button>
               {isOnSelectLoans ? (
                 <Button
-                  disabled={!isNextButtonEnabled}
+                  disabled={isNextButtonDisabled}
                   variant="contained"
                   color="primary"
                   onClick={handleClickNext}

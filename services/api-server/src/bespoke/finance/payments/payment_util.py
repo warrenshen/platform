@@ -15,6 +15,12 @@ from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 
+PaymentItemsCoveredDict = TypedDict('PaymentItemsCoveredDict', {
+	'loan_ids': List[str],
+	'to_principal': float,
+	'to_interest': float,
+}, total=False)
+
 PaymentInputDict = TypedDict('PaymentInputDict', {
 	'type': str,
 	'amount': float,
@@ -27,7 +33,8 @@ PaymentInsertInputDict = TypedDict('PaymentInsertInputDict', {
 	'amount': float,
 	'method': str,
 	'payment_date': str,
-	'settlement_date': str
+	'settlement_date': str,
+	'items_covered': PaymentItemsCoveredDict,
 })
 
 def create_payment(

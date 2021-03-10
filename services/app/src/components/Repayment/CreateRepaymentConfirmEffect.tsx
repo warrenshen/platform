@@ -1,30 +1,58 @@
 // This component shows all the details about their repayment
 // before the user either clicks "Schedule" in the case of reverse_ach
 // or "Close" in the case of all other payment types.
-import { Box, Typography } from "@material-ui/core";
+import {
+  Box,
+  createStyles,
+  FormControl,
+  makeStyles,
+  Theme,
+  Typography,
+} from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
+import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import LoansBeforeAfterPaymentPreview from "components/Repayment/LoansBeforeAfterPaymentPreview";
 import BankToBankTransfer, {
   PaymentTransferType,
 } from "components/Shared/BankToBankTransfer";
 import CompanyBank from "components/Shared/BankToBankTransfer/CompanyBank";
-import { BankAccounts, PaymentsInsertInput } from "generated/graphql";
+import {
+  BankAccounts,
+  PaymentsInsertInput,
+  ProductTypeEnum,
+} from "generated/graphql";
 import { formatCurrency } from "lib/currency";
+import { formatDateString } from "lib/date";
 import { PaymentMethodEnum } from "lib/enum";
 import { LoanBeforeAfterPayment } from "lib/types";
 import { useCallback } from "react";
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    inputField: {
+      width: 300,
+    },
+  })
+);
 interface Props {
-  loansBeforeAfterPayment: LoanBeforeAfterPayment[];
+  productType: ProductTypeEnum | null;
+  payableAmountPrincipal: number;
+  payableAmountInterest: number;
   payment: PaymentsInsertInput;
+  loansBeforeAfterPayment: LoanBeforeAfterPayment[];
   setPayment: (payment: PaymentsInsertInput) => void;
 }
 
 function CreateRepaymentConfirmEffect({
+  productType,
+  payableAmountPrincipal,
+  payableAmountInterest,
   loansBeforeAfterPayment,
   payment,
   setPayment,
 }: Props) {
+  const classes = useStyles();
+
   const onBespokeBankAccountSelection = useCallback(
     (id: BankAccounts["id"]) => {
       setPayment({
@@ -47,19 +75,105 @@ function CreateRepaymentConfirmEffect({
 
   return (
     <Box>
-      <Box>
-        <Typography>
-          Step 2 of 2: Review expected effect of payment, in the form of
-          balances of loans before vs balances of loans after payment, specify
-          payment information, and submit payment.
-        </Typography>
-      </Box>
-      <Box mt={2}>
-        <LoansBeforeAfterPaymentPreview
-          isSettlePayment={false}
-          loansBeforeAfterPayment={loansBeforeAfterPayment}
-        />
-      </Box>
+      {productType === ProductTypeEnum.LineOfCredit ? (
+        <Box>
+          <Box display="flex" flexDirection="column">
+            <Typography variant="body1">
+              {`As of the settlement date, ${formatDateString(
+                payment.settlement_date
+              )}, your outstanding principal and interest will be:`}
+            </Typography>
+          </Box>
+          <Box mt={1}>
+            <Typography variant="body1">
+              {`Outstanding Principal: ${formatCurrency(
+                payableAmountPrincipal
+              )}`}
+            </Typography>
+          </Box>
+          <Box mt={1}>
+            <Typography variant="body1">
+              {`Outstanding Interest: ${formatCurrency(payableAmountInterest)}`}
+            </Typography>
+          </Box>
+          <Box mt={3}>
+            <Typography variant="subtitle2">
+              How much of your outstanding principal do you want to pay for?
+            </Typography>
+            <Box mt={1}>
+              <FormControl className={classes.inputField}>
+                <CurrencyTextField
+                  label="Payment Amount to Principal"
+                  currencySymbol="$"
+                  outputFormat="number"
+                  textAlign="left"
+                  value={payment.items_covered.to_principal}
+                  onChange={(_event: any, value: number) => {
+                    setPayment({
+                      ...payment,
+                      amount: value + payment.items_covered.to_interest,
+                      items_covered: {
+                        ...payment.items_covered,
+                        to_principal: value,
+                      },
+                    });
+                  }}
+                />
+              </FormControl>
+            </Box>
+          </Box>
+          <Box mt={3}>
+            <Typography variant="subtitle2">
+              How much of your outstanding interest do you want to pay for?
+            </Typography>
+            <Box mt={1}>
+              <FormControl className={classes.inputField}>
+                <CurrencyTextField
+                  label="Payment Amount to Interest"
+                  currencySymbol="$"
+                  outputFormat="number"
+                  textAlign="left"
+                  value={payment.items_covered.to_interest}
+                  onChange={(_event: any, value: number) => {
+                    setPayment({
+                      ...payment,
+                      amount: value + payment.items_covered.to_principal,
+                      items_covered: {
+                        ...payment.items_covered,
+                        to_interest: value,
+                      },
+                    });
+                  }}
+                />
+              </FormControl>
+            </Box>
+          </Box>
+          <Box mt={3}>
+            <Typography variant="body1">
+              {`Calculated Payment Amount: ${formatCurrency(
+                payment.items_covered.to_principal +
+                  payment.items_covered.to_interest
+              )}`}
+            </Typography>
+          </Box>
+        </Box>
+      ) : (
+        <>
+          <Box>
+            <Typography>
+              Step 2 of 2: Review expected effect of payment, in the form of
+              balances of loans before vs balances of loans after payment,
+              specify payment information, and submit payment.
+            </Typography>
+          </Box>
+          <Box mt={2}>
+            <LoansBeforeAfterPaymentPreview
+              isSettlePayment={false}
+              loansBeforeAfterPayment={loansBeforeAfterPayment}
+            />
+          </Box>
+        </>
+      )}
       <Box mt={2}>
         {payment.amount <= 0 && (
           <Box>No amount is currently due. No further action is required</Box>
