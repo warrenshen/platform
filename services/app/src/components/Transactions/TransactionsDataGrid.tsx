@@ -10,11 +10,11 @@ import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
-  isMiniTable: Boolean;
+  isMiniTable?: Boolean;
   transactions: TransactionFragment[];
 }
 
-function TransactionsDataGrid({ isMiniTable, transactions }: Props) {
+function TransactionsDataGrid({ isMiniTable = false, transactions }: Props) {
   const rows = transactions;
 
   const columns = useMemo(
@@ -63,7 +63,6 @@ function TransactionsDataGrid({ isMiniTable, transactions }: Props) {
       },
       {
         dataField: "type",
-        visible: !isMiniTable,
         caption: "Type",
         width: 140,
       },

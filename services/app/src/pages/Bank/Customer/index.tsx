@@ -78,14 +78,14 @@ const getCustomerPaths = (productType: ProductTypeEnum) => [
     label: "Borrowing Base",
   },
   {
-    path: bankRoutes.customer.contract,
-    component: BankCustomerContractPage,
-    label: "Contract",
-  },
-  {
     path: bankRoutes.customer.vendors,
     component: BankCustomerVendorsSubpage,
     label: "Vendors",
+  },
+  {
+    path: bankRoutes.customer.contract,
+    component: BankCustomerContractPage,
+    label: "Contract",
   },
   {
     path: bankRoutes.customer.users,

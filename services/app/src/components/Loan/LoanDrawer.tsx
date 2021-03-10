@@ -179,6 +179,14 @@ function LoanDrawer({ loanId, handleClose }: Props) {
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
+              Origination Date
+            </Typography>
+            <Typography variant={"body1"}>
+              {formatDateString(loan.origination_date)}
+            </Typography>
+          </Box>
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
               Maturity Date
             </Typography>
             <Typography variant={"body1"}>
@@ -232,10 +240,7 @@ function LoanDrawer({ loanId, handleClose }: Props) {
               flexDirection="column"
               overflow="scroll"
             >
-              <TransactionsDataGrid
-                transactions={transactions}
-                isMiniTable={true}
-              />
+              <TransactionsDataGrid isMiniTable transactions={transactions} />
             </Box>
           </Box>
         )}

@@ -9,7 +9,7 @@ function BankTransactionsPage() {
 
   return (
     <Page appBarTitle={"Transactions"}>
-      <TransactionsDataGrid transactions={transactions} isMiniTable={false} />
+      <TransactionsDataGrid transactions={transactions} />
     </Page>
   );
 }
