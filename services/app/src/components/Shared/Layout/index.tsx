@@ -137,6 +137,11 @@ const getCustomerNavItems = (
       link: customerRoutes.vendors,
     },
     {
+      visible: productType === ProductTypeEnum.InvoiceFinancing,
+      text: "Payors",
+      link: customerRoutes.payors,
+    },
+    {
       text: "Contract",
       link: customerRoutes.contract,
     },

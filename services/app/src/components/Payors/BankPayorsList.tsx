@@ -7,7 +7,7 @@ export default function PayorsList() {
 
   const partnerships = data?.company_payor_partnerships || [];
 
-  const payors = sortBy(partnerships, (item) => item.payor.name);
+  const payors = sortBy(partnerships, (item) => item.payor?.name);
 
   return <PayorPartnershipsDataGrid data={payors} isBankAccount />;
 }

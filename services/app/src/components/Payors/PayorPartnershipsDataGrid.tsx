@@ -27,6 +27,8 @@ export default function PayorPartnershipsDataGrid({
           cellRender: ({ value, data }: { value: string; data: any }) => (
             <ClickableDataGridCell
               onClick={() => {
+                // TODO(pjstein): Do the PayorsDrawer and use the new style
+                // for launching the drawer.
                 console.log(data);
               }}
               label={value}

@@ -30,6 +30,7 @@ export const customerRoutes = {
   settings: "/1/settings",
   vendors: "/1/vendors",
   invoices: "/1/invoices",
+  payors: "/1/payors",
 };
 
 // Bank user routes are not prefixed.

@@ -38,6 +38,7 @@ import CustomerInvoicesPages from "pages/Customer/Invoices";
 import CustomerLoansActivePage from "pages/Customer/LoansActive";
 import CustomerLoansClosedPage from "pages/Customer/LoansClosed";
 import CustomerOverviewPage from "pages/Customer/Overview";
+import CustomerPayorsPage from "pages/Customer/Payors";
 import CustomerPurchaseOrdersPage from "pages/Customer/PurchaseOrders";
 import CustomerSettingsPage from "pages/Customer/Settings";
 import CustomerVendorsPage from "pages/Customer/Vendors";
@@ -213,6 +214,16 @@ function App() {
           ]}
         >
           <CustomerVendorsPage />
+        </PrivateRoute>
+        <PrivateRoute
+          exact
+          path={customerRoutes.payors}
+          requiredRoles={[
+            UserRolesEnum.CompanyAdmin,
+            UserRolesEnum.CompanyReadOnly,
+          ]}
+        >
+          <CustomerPayorsPage />
         </PrivateRoute>
         {/* Bank user routes */}
         <PrivateRoute

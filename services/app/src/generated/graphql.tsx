@@ -2170,7 +2170,7 @@ export type CompanyPayorPartnerships = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   id: Scalars["uuid"];
   /** An object relationship */
-  payor: Companies;
+  payor?: Maybe<Companies>;
   /** An object relationship */
   payor_agreement?: Maybe<CompanyAgreements>;
   payor_agreement_id?: Maybe<Scalars["uuid"]>;
@@ -2178,6 +2178,8 @@ export type CompanyPayorPartnerships = {
   /** An object relationship */
   payor_license?: Maybe<CompanyLicenses>;
   payor_license_id?: Maybe<Scalars["uuid"]>;
+  /** An object relationship */
+  payor_limited?: Maybe<Payors>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -2229,6 +2231,7 @@ export type CompanyPayorPartnershipsBoolExp = {
   payor_id?: Maybe<UuidComparisonExp>;
   payor_license?: Maybe<CompanyLicensesBoolExp>;
   payor_license_id?: Maybe<UuidComparisonExp>;
+  payor_limited?: Maybe<PayorsBoolExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
 };
 
@@ -2251,6 +2254,7 @@ export type CompanyPayorPartnershipsInsertInput = {
   payor_id?: Maybe<Scalars["uuid"]>;
   payor_license?: Maybe<CompanyLicensesObjRelInsertInput>;
   payor_license_id?: Maybe<Scalars["uuid"]>;
+  payor_limited?: Maybe<PayorsObjRelInsertInput>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -2336,6 +2340,7 @@ export type CompanyPayorPartnershipsOrderBy = {
   payor_id?: Maybe<OrderBy>;
   payor_license?: Maybe<CompanyLicensesOrderBy>;
   payor_license_id?: Maybe<OrderBy>;
+  payor_limited?: Maybe<PayorsOrderBy>;
   updated_at?: Maybe<OrderBy>;
 };
 
@@ -14739,10 +14744,12 @@ export type ListBankPayorPartnershipsQuery = {
   company_payor_partnerships: Array<
     {
       company: Pick<Companies, "id" | "name">;
-      payor: {
-        settings: Pick<CompanySettings, "id">;
-        users: Array<ContactFragment>;
-      } & PayorFragment;
+      payor?: Maybe<
+        {
+          settings: Pick<CompanySettings, "id">;
+          users: Array<ContactFragment>;
+        } & PayorFragment
+      >;
     } & BankPayorPartnershipFragment
   >;
 };
@@ -14754,10 +14761,12 @@ export type GetBankPayorPartnershipQueryVariables = Exact<{
 export type GetBankPayorPartnershipQuery = {
   company_payor_partnerships_by_pk?: Maybe<
     {
-      payor: {
-        settings: Pick<CompanySettings, "id">;
-        users: Array<ContactFragment>;
-      } & PayorFragment;
+      payor?: Maybe<
+        {
+          settings: Pick<CompanySettings, "id">;
+          users: Array<ContactFragment>;
+        } & PayorFragment
+      >;
       company: {
         users: Array<ContactFragment>;
         settings: CompanySettingsFragment;
@@ -14826,6 +14835,28 @@ export type AddCompanyPayorLicenseMutationVariables = Exact<{
 
 export type AddCompanyPayorLicenseMutation = {
   insert_company_licenses_one?: Maybe<CompanyLicenseFragment>;
+};
+
+export type ListPayorPartnershipsByCompanyIdQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+}>;
+
+export type ListPayorPartnershipsByCompanyIdQuery = {
+  company_payor_partnerships: Array<
+    Pick<CompanyPayorPartnerships, "id"> & {
+      payor_limited?: Maybe<PayorLimitedFragment>;
+    } & PayorPartnershipFragment
+  >;
+};
+
+export type AddPayorPartnershipMutationVariables = Exact<{
+  payorPartnership: CompanyPayorPartnershipsInsertInput;
+}>;
+
+export type AddPayorPartnershipMutation = {
+  insert_company_payor_partnerships_one?: Maybe<
+    { payor_limited?: Maybe<PayorLimitedFragment> } & PayorPartnershipFragment
+  >;
 };
 
 export type PurchaseOrderQueryVariables = Exact<{
@@ -18995,6 +19026,123 @@ export type AddCompanyPayorLicenseMutationResult = Apollo.MutationResult<AddComp
 export type AddCompanyPayorLicenseMutationOptions = Apollo.BaseMutationOptions<
   AddCompanyPayorLicenseMutation,
   AddCompanyPayorLicenseMutationVariables
+>;
+export const ListPayorPartnershipsByCompanyIdDocument = gql`
+  query ListPayorPartnershipsByCompanyId($companyId: uuid!) {
+    company_payor_partnerships(where: { company_id: { _eq: $companyId } }) {
+      id
+      ...PayorPartnership
+      payor_limited {
+        ...PayorLimited
+      }
+    }
+  }
+  ${PayorPartnershipFragmentDoc}
+  ${PayorLimitedFragmentDoc}
+`;
+
+/**
+ * __useListPayorPartnershipsByCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useListPayorPartnershipsByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListPayorPartnershipsByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListPayorPartnershipsByCompanyIdQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useListPayorPartnershipsByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    ListPayorPartnershipsByCompanyIdQuery,
+    ListPayorPartnershipsByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    ListPayorPartnershipsByCompanyIdQuery,
+    ListPayorPartnershipsByCompanyIdQueryVariables
+  >(ListPayorPartnershipsByCompanyIdDocument, baseOptions);
+}
+export function useListPayorPartnershipsByCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    ListPayorPartnershipsByCompanyIdQuery,
+    ListPayorPartnershipsByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    ListPayorPartnershipsByCompanyIdQuery,
+    ListPayorPartnershipsByCompanyIdQueryVariables
+  >(ListPayorPartnershipsByCompanyIdDocument, baseOptions);
+}
+export type ListPayorPartnershipsByCompanyIdQueryHookResult = ReturnType<
+  typeof useListPayorPartnershipsByCompanyIdQuery
+>;
+export type ListPayorPartnershipsByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useListPayorPartnershipsByCompanyIdLazyQuery
+>;
+export type ListPayorPartnershipsByCompanyIdQueryResult = Apollo.QueryResult<
+  ListPayorPartnershipsByCompanyIdQuery,
+  ListPayorPartnershipsByCompanyIdQueryVariables
+>;
+export const AddPayorPartnershipDocument = gql`
+  mutation AddPayorPartnership(
+    $payorPartnership: company_payor_partnerships_insert_input!
+  ) {
+    insert_company_payor_partnerships_one(object: $payorPartnership) {
+      ...PayorPartnership
+      payor_limited {
+        ...PayorLimited
+      }
+    }
+  }
+  ${PayorPartnershipFragmentDoc}
+  ${PayorLimitedFragmentDoc}
+`;
+export type AddPayorPartnershipMutationFn = Apollo.MutationFunction<
+  AddPayorPartnershipMutation,
+  AddPayorPartnershipMutationVariables
+>;
+
+/**
+ * __useAddPayorPartnershipMutation__
+ *
+ * To run a mutation, you first call `useAddPayorPartnershipMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddPayorPartnershipMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addPayorPartnershipMutation, { data, loading, error }] = useAddPayorPartnershipMutation({
+ *   variables: {
+ *      payorPartnership: // value for 'payorPartnership'
+ *   },
+ * });
+ */
+export function useAddPayorPartnershipMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    AddPayorPartnershipMutation,
+    AddPayorPartnershipMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    AddPayorPartnershipMutation,
+    AddPayorPartnershipMutationVariables
+  >(AddPayorPartnershipDocument, baseOptions);
+}
+export type AddPayorPartnershipMutationHookResult = ReturnType<
+  typeof useAddPayorPartnershipMutation
+>;
+export type AddPayorPartnershipMutationResult = Apollo.MutationResult<AddPayorPartnershipMutation>;
+export type AddPayorPartnershipMutationOptions = Apollo.BaseMutationOptions<
+  AddPayorPartnershipMutation,
+  AddPayorPartnershipMutationVariables
 >;
 export const PurchaseOrderDocument = gql`
   query PurchaseOrder($id: uuid!) {
