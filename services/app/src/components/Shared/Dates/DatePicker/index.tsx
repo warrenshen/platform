@@ -7,6 +7,7 @@ import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
 import { format, parse } from "date-fns";
 import { DateFormatServer } from "lib/date";
 import { addYearToBankHolidays, bankHolidays } from "lib/holidays";
+
 interface Props {
   className?: string;
   id: string;
@@ -15,8 +16,9 @@ interface Props {
   error?: boolean;
   disabled?: boolean;
   disableFuture?: boolean;
-  disableNonBankDays?: boolean; // disable days where the bank is not open
+  disableNonBankDays?: boolean; // Disable days where the bank is not open.
   disablePast?: boolean;
+  disabledBefore?: string; // Disable days before this date.
   required?: boolean;
   onChange?: (value: string | null) => void;
 }
@@ -34,18 +36,30 @@ function DatePicker(props: Props) {
         required={props.required}
         disabled={props.disabled}
         shouldDisableDate={(date) => {
-          if (date && props.disableNonBankDays) {
-            // Disable weekends.
-            if (date?.getDay() === 0 || date?.getDay() === 6) {
-              return true;
+          if (date) {
+            if (props.disabledBefore) {
+              const disabledBeforeDate = parse(
+                props.disabledBefore,
+                DateFormatServer,
+                new Date()
+              );
+              if (date < disabledBeforeDate) {
+                return true;
+              }
             }
-            // Disable bank holidays.
-            const year = date.getFullYear();
-            if (!bankHolidays.has(year)) {
-              addYearToBankHolidays(year, bankHolidays);
+            if (props.disableNonBankDays) {
+              // Disable weekends.
+              if (date?.getDay() === 0 || date?.getDay() === 6) {
+                return true;
+              }
+              // Disable bank holidays.
+              const year = date.getFullYear();
+              if (!bankHolidays.has(year)) {
+                addYearToBankHolidays(year, bankHolidays);
+              }
+              const holidays = bankHolidays.get(year);
+              return holidays.has(format(date, "MM/dd/yyyy"));
             }
-            const holidays = bankHolidays.get(year);
-            return holidays.has(format(date, "MM/dd/yyyy"));
           } else {
             return false;
           }
