@@ -9,9 +9,11 @@ from typing import Any, Callable, Dict, List, Tuple, Union, cast
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
+from bespoke.db.db_constants import ProductType
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
 from mypy_extensions import TypedDict
+from sqlalchemy.orm import Session
 
 ContractFieldsDict = TypedDict('ContractFieldsDict', {
 	'product_type': str,
@@ -58,6 +60,44 @@ def _update_contract(
 
 	return True, None
 
+def _update_loans_on_active_contract_updated(
+	contract: models.Contract,
+	session: Session,
+) -> Tuple[bool, errors.Error]:
+	"""
+	For line of credit customers, we update maturity date of all active loans when active contract is updated.
+	"""
+	contract_obj, err = contract_util.Contract.build(contract.as_dict(), validate=True)
+
+	product_type, err = contract_obj.get_product_type()
+	if err:
+		return False, err
+
+	if product_type != ProductType.LINE_OF_CREDIT:
+		return True, None
+
+	maturity_date, err = contract_obj.get_maturity_date(None)
+	if err:
+		return False, err
+
+	adjusted_maturity_date, err = contract_obj.get_adjusted_maturity_date(None)
+	if err:
+		return False, err
+
+	loans = cast(
+		List[models.Loan],
+		session.query(models.Loan).filter(
+			models.Loan.company_id == contract.company_id
+		).filter(
+			models.Loan.closed_at == None
+		).all())
+
+	for loan in loans:
+		loan.maturity_date = maturity_date
+		loan.adjusted_maturity_date = adjusted_maturity_date
+
+	return True, None
+
 def update_contract(req: UpdateContractReqDict, bank_admin_user_id: str, session_maker: Callable) -> Tuple[bool, errors.Error]:
 	err_details = {'req': req, 'method': 'update_contract'}
 
@@ -74,6 +114,10 @@ def update_contract(req: UpdateContractReqDict, bank_admin_user_id: str, session
 			return False, errors.Error('Cannot modify a contract which already has been terminated or "frozen"', details=err_details)
 
 		_, err = _update_contract(contract, req['contract_fields'], bank_admin_user_id)
+		if err:
+			return None, err
+
+		_, err = _update_loans_on_active_contract_updated(contract, session)
 		if err:
 			return None, err
 
@@ -109,6 +153,10 @@ def terminate_contract(req: TerminateContractReqDict, bank_admin_user_id: str, s
 		contract.terminated_by_user_id = bank_admin_user_id
 
 		company.contract_id = None
+
+		_, err = _update_loans_on_active_contract_updated(contract, session)
+		if err:
+			return None, err
 
 	return True, None
 
@@ -153,6 +201,11 @@ def add_new_contract(req: AddNewContractReqDict, bank_admin_user_id: str, sessio
 				return False, errors.Error('New contract end_date intersects with the current contract start and end date', details=err_details)
 
 		session.add(new_contract)
+
+		_, err = _update_loans_on_active_contract_updated(new_contract, session)
+		if err:
+			return None, err
+
 		session.flush()
 
 		new_contract_id = str(new_contract.id)

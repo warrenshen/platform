@@ -3,14 +3,13 @@
 	for a loan.
 """
 from typing import Callable, Dict, List, Tuple, cast
-from mypy_extensions import TypedDict
 
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.finance.loans import sibling_util
-
+from mypy_extensions import TypedDict
 from sqlalchemy.orm import Session
 
 ArtifactDict = TypedDict('ArtifactDict', {
