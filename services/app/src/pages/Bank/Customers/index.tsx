@@ -52,11 +52,6 @@ function BankCustomersPage() {
       ? ProductTypeToLabel[data.contract.product_type as ProductTypeEnum]
       : "Product Type TBD";
 
-  const addressCellRenderer = ({ data }: { data: any }) =>
-    `${data.address}${data.city ? `, ${data.city}, ` : ""}${
-      data.state ? `, ${data.state}` : ""
-    }`;
-
   const columns = [
     {
       dataField: "name",
@@ -67,33 +62,30 @@ function BankCustomersPage() {
     {
       dataField: "identifier",
       caption: "Identifier",
+      minWidth: ColumnWidths.MinWidth,
+      width: ColumnWidths.Type,
     },
     {
       dataField: "contract.product_type",
       caption: "Product Type",
       width: ColumnWidths.Type,
-      alignment: "center",
       cellRender: productTypeCellRenderer,
     },
     {
-      caption: "Address",
-      cellRender: addressCellRenderer,
-    },
-    {
-      dataField: "phone_number",
-      caption: "Phone Number",
+      dataField: "contract_name",
+      caption: "Contract Name",
+      width: ColumnWidths.Type,
     },
     {
       dataField: "dba_name",
       caption: "DBA",
-    },
-    {
-      dataField: "employer_identification_number",
-      caption: "EIN",
+      minWidth: ColumnWidths.MinWidth,
     },
     {
       dataField: "total_outstanding_principal",
       caption: "Total Outstanding Principal",
+      width: ColumnWidths.Currency,
+
       alignment: "right",
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell
@@ -108,6 +100,8 @@ function BankCustomersPage() {
     {
       dataField: "total_outstanding_interest",
       caption: "Total Outstanding Interest",
+      width: ColumnWidths.Currency,
+
       alignment: "right",
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell
@@ -122,6 +116,8 @@ function BankCustomersPage() {
     {
       dataField: "total_outstanding_fees",
       caption: "Total Outstanding Fees",
+      width: ColumnWidths.Currency,
+
       alignment: "right",
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell

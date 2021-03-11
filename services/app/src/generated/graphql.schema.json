@@ -7403,9 +7403,13 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "ENUM",
-              "name": "company_type_enum",
-              "ofType": null
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "ENUM",
+                "name": "company_type_enum",
+                "ofType": null
+              }
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -7777,6 +7781,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "contract_name",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "isDeprecated": false,
@@ -9533,9 +9549,13 @@
             "description": "An object relationship",
             "args": [],
             "type": {
-              "kind": "OBJECT",
-              "name": "company_type",
-              "ofType": null
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "company_type",
+                "ofType": null
+              }
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -10340,6 +10360,16 @@
             "defaultValue": null
           },
           {
+            "name": "contract_name",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "String_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "contracts",
             "description": null,
             "type": {
@@ -10769,6 +10799,16 @@
             "defaultValue": null
           },
           {
+            "name": "contract_name",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "contracts",
             "description": null,
             "type": {
@@ -11087,6 +11127,18 @@
             "deprecationReason": null
           },
           {
+            "name": "contract_name",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "country",
             "description": null,
             "args": [],
@@ -11283,6 +11335,16 @@
             "defaultValue": null
           },
           {
+            "name": "contract_name",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "country",
             "description": null,
             "type": {
@@ -11455,6 +11517,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "contract_name",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "isDeprecated": false,
@@ -11648,6 +11722,16 @@
           },
           {
             "name": "contract_id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "contract_name",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -12051,6 +12135,16 @@
             "defaultValue": null
           },
           {
+            "name": "contract_name",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "contracts_aggregate",
             "description": null,
             "type": {
@@ -12379,6 +12473,12 @@
             "deprecationReason": null
           },
           {
+            "name": "contract_name",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "country",
             "description": "column name",
             "isDeprecated": false,
@@ -12511,6 +12611,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "contract_name",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "defaultValue": null
@@ -12860,6 +12970,12 @@
           },
           {
             "name": "contract_id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "contract_name",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

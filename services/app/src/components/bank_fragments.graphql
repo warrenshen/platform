@@ -21,6 +21,7 @@ fragment CustomerForBank on companies {
   id
   identifier
   name
+  contract_name
   employer_identification_number
   dba_name
   address

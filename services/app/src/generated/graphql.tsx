@@ -928,7 +928,7 @@ export type Companies = {
   /** An aggregated array relationship */
   company_payor_partnerships_by_payor_aggregate: CompanyPayorPartnershipsAggregate;
   company_settings_id: Scalars["uuid"];
-  company_type?: Maybe<CompanyTypeEnum>;
+  company_type: CompanyTypeEnum;
   /** An array relationship */
   company_vendor_partnerships: Array<CompanyVendorPartnerships>;
   /** An aggregated array relationship */
@@ -940,6 +940,7 @@ export type Companies = {
   /** An object relationship */
   contract?: Maybe<Contracts>;
   contract_id?: Maybe<Scalars["uuid"]>;
+  contract_name?: Maybe<Scalars["String"]>;
   /** An array relationship */
   contracts: Array<Contracts>;
   /** An aggregated array relationship */
@@ -993,7 +994,7 @@ export type Companies = {
   settings: CompanySettings;
   state?: Maybe<Scalars["String"]>;
   /** An object relationship */
-  type?: Maybe<CompanyType>;
+  type: CompanyType;
   updated_at: Scalars["timestamptz"];
   /** An array relationship */
   users: Array<Users>;
@@ -1365,6 +1366,7 @@ export type CompaniesBoolExp = {
   company_vendor_partnerships_by_vendor?: Maybe<CompanyVendorPartnershipsBoolExp>;
   contract?: Maybe<ContractsBoolExp>;
   contract_id?: Maybe<UuidComparisonExp>;
+  contract_name?: Maybe<StringComparisonExp>;
   contracts?: Maybe<ContractsBoolExp>;
   country?: Maybe<StringComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
@@ -1418,6 +1420,7 @@ export type CompaniesInsertInput = {
   company_vendor_partnerships_by_vendor?: Maybe<CompanyVendorPartnershipsArrRelInsertInput>;
   contract?: Maybe<ContractsObjRelInsertInput>;
   contract_id?: Maybe<Scalars["uuid"]>;
+  contract_name?: Maybe<Scalars["String"]>;
   contracts?: Maybe<ContractsArrRelInsertInput>;
   country?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -1452,6 +1455,7 @@ export type CompaniesMaxFields = {
   city?: Maybe<Scalars["String"]>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
   contract_id?: Maybe<Scalars["uuid"]>;
+  contract_name?: Maybe<Scalars["String"]>;
   country?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   dba_name?: Maybe<Scalars["String"]>;
@@ -1472,6 +1476,7 @@ export type CompaniesMaxOrderBy = {
   city?: Maybe<OrderBy>;
   company_settings_id?: Maybe<OrderBy>;
   contract_id?: Maybe<OrderBy>;
+  contract_name?: Maybe<OrderBy>;
   country?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   dba_name?: Maybe<OrderBy>;
@@ -1492,6 +1497,7 @@ export type CompaniesMinFields = {
   city?: Maybe<Scalars["String"]>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
   contract_id?: Maybe<Scalars["uuid"]>;
+  contract_name?: Maybe<Scalars["String"]>;
   country?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   dba_name?: Maybe<Scalars["String"]>;
@@ -1512,6 +1518,7 @@ export type CompaniesMinOrderBy = {
   city?: Maybe<OrderBy>;
   company_settings_id?: Maybe<OrderBy>;
   contract_id?: Maybe<OrderBy>;
+  contract_name?: Maybe<OrderBy>;
   country?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   dba_name?: Maybe<OrderBy>;
@@ -1561,6 +1568,7 @@ export type CompaniesOrderBy = {
   company_vendor_partnerships_by_vendor_aggregate?: Maybe<CompanyVendorPartnershipsAggregateOrderBy>;
   contract?: Maybe<ContractsOrderBy>;
   contract_id?: Maybe<OrderBy>;
+  contract_name?: Maybe<OrderBy>;
   contracts_aggregate?: Maybe<ContractsAggregateOrderBy>;
   country?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
@@ -1607,6 +1615,8 @@ export enum CompaniesSelectColumn {
   /** column name */
   ContractId = "contract_id",
   /** column name */
+  ContractName = "contract_name",
+  /** column name */
   Country = "country",
   /** column name */
   CreatedAt = "created_at",
@@ -1641,6 +1651,7 @@ export type CompaniesSetInput = {
   company_settings_id?: Maybe<Scalars["uuid"]>;
   company_type?: Maybe<CompanyTypeEnum>;
   contract_id?: Maybe<Scalars["uuid"]>;
+  contract_name?: Maybe<Scalars["String"]>;
   country?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   dba_name?: Maybe<Scalars["String"]>;
@@ -1708,6 +1719,8 @@ export enum CompaniesUpdateColumn {
   CompanyType = "company_type",
   /** column name */
   ContractId = "contract_id",
+  /** column name */
+  ContractName = "contract_name",
   /** column name */
   Country = "country",
   /** column name */
@@ -15725,6 +15738,7 @@ export type CustomerForBankFragment = Pick<
   | "id"
   | "identifier"
   | "name"
+  | "contract_name"
   | "employer_identification_number"
   | "dba_name"
   | "address"
@@ -16195,6 +16209,7 @@ export const CustomerForBankFragmentDoc = gql`
     id
     identifier
     name
+    contract_name
     employer_identification_number
     dba_name
     address
