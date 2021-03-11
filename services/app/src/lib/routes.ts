@@ -62,6 +62,7 @@ export const bankRoutes = {
   paymentsActionRequired: "/payments-action-required",
   purchaseOrders: "/purchase-orders",
   invoices: "/invoices",
+  reports: "/reports",
   transactions: "/transactions",
   vendors: "/vendors",
   payors: "/payors",

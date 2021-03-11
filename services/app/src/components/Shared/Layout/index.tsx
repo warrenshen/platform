@@ -236,6 +236,10 @@ const getBankNavItems = (): NavItem[] => {
       link: bankRoutes.transactions,
     },
     {
+      text: "Reports",
+      link: bankRoutes.reports,
+    },
+    {
       text: "Settings",
       items: [
         {

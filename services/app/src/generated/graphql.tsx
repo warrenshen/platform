@@ -4523,6 +4523,7 @@ export type FinancialSummaries = {
   /** An object relationship */
   company: Companies;
   company_id: Scalars["uuid"];
+  date?: Maybe<Scalars["date"]>;
   id: Scalars["uuid"];
   total_limit: Scalars["numeric"];
   total_outstanding_fees: Scalars["numeric"];
@@ -4610,6 +4611,7 @@ export type FinancialSummariesBoolExp = {
   available_limit?: Maybe<NumericComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
+  date?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   total_limit?: Maybe<NumericComparisonExp>;
   total_outstanding_fees?: Maybe<NumericComparisonExp>;
@@ -4643,6 +4645,7 @@ export type FinancialSummariesInsertInput = {
   available_limit?: Maybe<Scalars["numeric"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
+  date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
@@ -4656,6 +4659,7 @@ export type FinancialSummariesMaxFields = {
   adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
   company_id?: Maybe<Scalars["uuid"]>;
+  date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
@@ -4669,6 +4673,7 @@ export type FinancialSummariesMaxOrderBy = {
   adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
+  date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -4682,6 +4687,7 @@ export type FinancialSummariesMinFields = {
   adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
   company_id?: Maybe<Scalars["uuid"]>;
+  date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
@@ -4695,6 +4701,7 @@ export type FinancialSummariesMinOrderBy = {
   adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
+  date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -4730,6 +4737,7 @@ export type FinancialSummariesOrderBy = {
   available_limit?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
+  date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -4752,6 +4760,8 @@ export enum FinancialSummariesSelectColumn {
   /** column name */
   CompanyId = "company_id",
   /** column name */
+  Date = "date",
+  /** column name */
   Id = "id",
   /** column name */
   TotalLimit = "total_limit",
@@ -4770,6 +4780,7 @@ export type FinancialSummariesSetInput = {
   adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
   company_id?: Maybe<Scalars["uuid"]>;
+  date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
@@ -4874,6 +4885,8 @@ export enum FinancialSummariesUpdateColumn {
   AvailableLimit = "available_limit",
   /** column name */
   CompanyId = "company_id",
+  /** column name */
+  Date = "date",
   /** column name */
   Id = "id",
   /** column name */
@@ -5272,12 +5285,12 @@ export enum InvoiceFilesUpdateColumn {
  */
 export type Invoices = {
   advance_date: Scalars["date"];
-  approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_at?: Maybe<Scalars["date"]>;
   /** An object relationship */
   company: Companies;
   company_id: Scalars["uuid"];
   created_at: Scalars["timestamptz"];
-  funded_at?: Maybe<Scalars["timestamptz"]>;
+  funded_at?: Maybe<Scalars["date"]>;
   id: Scalars["uuid"];
   invoice_date: Scalars["date"];
   invoice_due_date: Scalars["date"];
@@ -5294,9 +5307,9 @@ export type Invoices = {
   /** An object relationship */
   payor?: Maybe<Payors>;
   payor_id: Scalars["uuid"];
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["date"]>;
   rejection_note?: Maybe<Scalars["String"]>;
-  requested_at?: Maybe<Scalars["timestamptz"]>;
+  requested_at?: Maybe<Scalars["date"]>;
   status: RequestStatusEnum;
   subtotal_amount: Scalars["numeric"];
   taxes_amount: Scalars["numeric"];
@@ -5428,11 +5441,11 @@ export type InvoicesBoolExp = {
   _not?: Maybe<InvoicesBoolExp>;
   _or?: Maybe<Array<Maybe<InvoicesBoolExp>>>;
   advance_date?: Maybe<DateComparisonExp>;
-  approved_at?: Maybe<TimestamptzComparisonExp>;
+  approved_at?: Maybe<DateComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
-  funded_at?: Maybe<TimestamptzComparisonExp>;
+  funded_at?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   invoice_date?: Maybe<DateComparisonExp>;
   invoice_due_date?: Maybe<DateComparisonExp>;
@@ -5442,9 +5455,9 @@ export type InvoicesBoolExp = {
   loans?: Maybe<LoansBoolExp>;
   payor?: Maybe<PayorsBoolExp>;
   payor_id?: Maybe<UuidComparisonExp>;
-  rejected_at?: Maybe<TimestamptzComparisonExp>;
+  rejected_at?: Maybe<DateComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
-  requested_at?: Maybe<TimestamptzComparisonExp>;
+  requested_at?: Maybe<DateComparisonExp>;
   status?: Maybe<RequestStatusEnumComparisonExp>;
   subtotal_amount?: Maybe<NumericComparisonExp>;
   taxes_amount?: Maybe<NumericComparisonExp>;
@@ -5468,11 +5481,11 @@ export type InvoicesIncInput = {
 /** input type for inserting data into table "invoices" */
 export type InvoicesInsertInput = {
   advance_date?: Maybe<Scalars["date"]>;
-  approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_at?: Maybe<Scalars["date"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  funded_at?: Maybe<Scalars["timestamptz"]>;
+  funded_at?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   invoice_date?: Maybe<Scalars["date"]>;
   invoice_due_date?: Maybe<Scalars["date"]>;
@@ -5482,9 +5495,9 @@ export type InvoicesInsertInput = {
   loans?: Maybe<LoansArrRelInsertInput>;
   payor?: Maybe<PayorsObjRelInsertInput>;
   payor_id?: Maybe<Scalars["uuid"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["date"]>;
   rejection_note?: Maybe<Scalars["String"]>;
-  requested_at?: Maybe<Scalars["timestamptz"]>;
+  requested_at?: Maybe<Scalars["date"]>;
   status?: Maybe<RequestStatusEnum>;
   subtotal_amount?: Maybe<Scalars["numeric"]>;
   taxes_amount?: Maybe<Scalars["numeric"]>;
@@ -5495,18 +5508,18 @@ export type InvoicesInsertInput = {
 /** aggregate max on columns */
 export type InvoicesMaxFields = {
   advance_date?: Maybe<Scalars["date"]>;
-  approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_at?: Maybe<Scalars["date"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  funded_at?: Maybe<Scalars["timestamptz"]>;
+  funded_at?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   invoice_date?: Maybe<Scalars["date"]>;
   invoice_due_date?: Maybe<Scalars["date"]>;
   invoice_number?: Maybe<Scalars["String"]>;
   payor_id?: Maybe<Scalars["uuid"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["date"]>;
   rejection_note?: Maybe<Scalars["String"]>;
-  requested_at?: Maybe<Scalars["timestamptz"]>;
+  requested_at?: Maybe<Scalars["date"]>;
   subtotal_amount?: Maybe<Scalars["numeric"]>;
   taxes_amount?: Maybe<Scalars["numeric"]>;
   total_amount?: Maybe<Scalars["numeric"]>;
@@ -5537,18 +5550,18 @@ export type InvoicesMaxOrderBy = {
 /** aggregate min on columns */
 export type InvoicesMinFields = {
   advance_date?: Maybe<Scalars["date"]>;
-  approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_at?: Maybe<Scalars["date"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  funded_at?: Maybe<Scalars["timestamptz"]>;
+  funded_at?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   invoice_date?: Maybe<Scalars["date"]>;
   invoice_due_date?: Maybe<Scalars["date"]>;
   invoice_number?: Maybe<Scalars["String"]>;
   payor_id?: Maybe<Scalars["uuid"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["date"]>;
   rejection_note?: Maybe<Scalars["String"]>;
-  requested_at?: Maybe<Scalars["timestamptz"]>;
+  requested_at?: Maybe<Scalars["date"]>;
   subtotal_amount?: Maybe<Scalars["numeric"]>;
   taxes_amount?: Maybe<Scalars["numeric"]>;
   total_amount?: Maybe<Scalars["numeric"]>;
@@ -5674,19 +5687,19 @@ export enum InvoicesSelectColumn {
 /** input type for updating data in table "invoices" */
 export type InvoicesSetInput = {
   advance_date?: Maybe<Scalars["date"]>;
-  approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_at?: Maybe<Scalars["date"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  funded_at?: Maybe<Scalars["timestamptz"]>;
+  funded_at?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   invoice_date?: Maybe<Scalars["date"]>;
   invoice_due_date?: Maybe<Scalars["date"]>;
   invoice_number?: Maybe<Scalars["String"]>;
   is_cannabis?: Maybe<Scalars["Boolean"]>;
   payor_id?: Maybe<Scalars["uuid"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["date"]>;
   rejection_note?: Maybe<Scalars["String"]>;
-  requested_at?: Maybe<Scalars["timestamptz"]>;
+  requested_at?: Maybe<Scalars["date"]>;
   status?: Maybe<RequestStatusEnum>;
   subtotal_amount?: Maybe<Scalars["numeric"]>;
   taxes_amount?: Maybe<Scalars["numeric"]>;
@@ -14373,6 +14386,28 @@ export type BankCustomerListPayorPartnershipsQuery = {
   >;
 };
 
+export type GetFinancialSummariesByCompanyIdQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+}>;
+
+export type GetFinancialSummariesByCompanyIdQuery = {
+  financial_summaries: Array<
+    Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
+  >;
+};
+
+export type GetFinancialSummariesByDateQueryVariables = Exact<{
+  date: Scalars["date"];
+}>;
+
+export type GetFinancialSummariesByDateQuery = {
+  financial_summaries: Array<
+    Pick<FinancialSummaries, "id"> & {
+      company: Pick<Companies, "id" | "name">;
+    } & FinancialSummaryFragment
+  >;
+};
+
 export type GetEbbaApplicationQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -15496,6 +15531,7 @@ export type FinancialSummaryFragment = Pick<
   FinancialSummaries,
   | "id"
   | "company_id"
+  | "date"
   | "adjusted_total_limit"
   | "total_outstanding_principal"
   | "total_outstanding_interest"
@@ -16156,6 +16192,7 @@ export const FinancialSummaryFragmentDoc = gql`
   fragment FinancialSummary on financial_summaries {
     id
     company_id
+    date
     adjusted_total_limit
     total_outstanding_principal
     total_outstanding_interest
@@ -16759,6 +16796,126 @@ export type BankCustomerListPayorPartnershipsLazyQueryHookResult = ReturnType<
 export type BankCustomerListPayorPartnershipsQueryResult = Apollo.QueryResult<
   BankCustomerListPayorPartnershipsQuery,
   BankCustomerListPayorPartnershipsQueryVariables
+>;
+export const GetFinancialSummariesByCompanyIdDocument = gql`
+  query GetFinancialSummariesByCompanyId($companyId: uuid!) {
+    financial_summaries(where: { company_id: { _eq: $companyId } }) {
+      id
+      ...FinancialSummary
+    }
+  }
+  ${FinancialSummaryFragmentDoc}
+`;
+
+/**
+ * __useGetFinancialSummariesByCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useGetFinancialSummariesByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetFinancialSummariesByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetFinancialSummariesByCompanyIdQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useGetFinancialSummariesByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetFinancialSummariesByCompanyIdQuery,
+    GetFinancialSummariesByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetFinancialSummariesByCompanyIdQuery,
+    GetFinancialSummariesByCompanyIdQueryVariables
+  >(GetFinancialSummariesByCompanyIdDocument, baseOptions);
+}
+export function useGetFinancialSummariesByCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetFinancialSummariesByCompanyIdQuery,
+    GetFinancialSummariesByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetFinancialSummariesByCompanyIdQuery,
+    GetFinancialSummariesByCompanyIdQueryVariables
+  >(GetFinancialSummariesByCompanyIdDocument, baseOptions);
+}
+export type GetFinancialSummariesByCompanyIdQueryHookResult = ReturnType<
+  typeof useGetFinancialSummariesByCompanyIdQuery
+>;
+export type GetFinancialSummariesByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useGetFinancialSummariesByCompanyIdLazyQuery
+>;
+export type GetFinancialSummariesByCompanyIdQueryResult = Apollo.QueryResult<
+  GetFinancialSummariesByCompanyIdQuery,
+  GetFinancialSummariesByCompanyIdQueryVariables
+>;
+export const GetFinancialSummariesByDateDocument = gql`
+  query GetFinancialSummariesByDate($date: date!) {
+    financial_summaries(where: { date: { _eq: $date } }) {
+      id
+      ...FinancialSummary
+      company {
+        id
+        name
+      }
+    }
+  }
+  ${FinancialSummaryFragmentDoc}
+`;
+
+/**
+ * __useGetFinancialSummariesByDateQuery__
+ *
+ * To run a query within a React component, call `useGetFinancialSummariesByDateQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetFinancialSummariesByDateQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetFinancialSummariesByDateQuery({
+ *   variables: {
+ *      date: // value for 'date'
+ *   },
+ * });
+ */
+export function useGetFinancialSummariesByDateQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetFinancialSummariesByDateQuery,
+    GetFinancialSummariesByDateQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetFinancialSummariesByDateQuery,
+    GetFinancialSummariesByDateQueryVariables
+  >(GetFinancialSummariesByDateDocument, baseOptions);
+}
+export function useGetFinancialSummariesByDateLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetFinancialSummariesByDateQuery,
+    GetFinancialSummariesByDateQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetFinancialSummariesByDateQuery,
+    GetFinancialSummariesByDateQueryVariables
+  >(GetFinancialSummariesByDateDocument, baseOptions);
+}
+export type GetFinancialSummariesByDateQueryHookResult = ReturnType<
+  typeof useGetFinancialSummariesByDateQuery
+>;
+export type GetFinancialSummariesByDateLazyQueryHookResult = ReturnType<
+  typeof useGetFinancialSummariesByDateLazyQuery
+>;
+export type GetFinancialSummariesByDateQueryResult = Apollo.QueryResult<
+  GetFinancialSummariesByDateQuery,
+  GetFinancialSummariesByDateQueryVariables
 >;
 export const GetEbbaApplicationDocument = gql`
   query GetEbbaApplication($id: uuid!) {

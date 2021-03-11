@@ -1,0 +1,17 @@
+query GetFinancialSummariesByCompanyId($companyId: uuid!) {
+  financial_summaries(where: { company_id: { _eq: $companyId } }) {
+    id
+    ...FinancialSummary
+  }
+}
+
+query GetFinancialSummariesByDate($date: date!) {
+  financial_summaries(where: { date: { _eq: $date } }) {
+    id
+    ...FinancialSummary
+    company {
+      id
+      name
+    }
+  }
+}
