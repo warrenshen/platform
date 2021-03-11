@@ -24,6 +24,7 @@ export default function PayorPartnershipsDataGrid({
       {
         dataField: isBankAccount ? "payor.name" : "payor_limited.name",
         caption: "Payor Name",
+        minWidth: ColumnWidths.MinWidth,
         ...(isBankAccount && {
           cellRender: ({ value, data }: { value: string; data: any }) => (
             <ClickableDataGridCell

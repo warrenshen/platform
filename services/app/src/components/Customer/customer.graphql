@@ -69,3 +69,17 @@ query BankCustomerListVendorPartnerships($companyId: uuid!) {
     }
   }
 }
+
+query BankCustomerListPayorPartnerships($companyId: uuid!) {
+  company_payor_partnerships(where: { company_id: { _eq: $companyId } }) {
+    ...PayorPartnership
+    payor {
+      id
+      ...Payor
+      users {
+        id
+        ...Contact
+      }
+    }
+  }
+}

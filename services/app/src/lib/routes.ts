@@ -46,6 +46,7 @@ export const bankRoutes = {
     loans: "/loans",
     purchaseOrders: "/purchase-orders",
     vendors: "/vendors",
+    payors: "/payors",
     settings: "/settings",
     users: "/users",
   },

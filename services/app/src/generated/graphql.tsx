@@ -14357,6 +14357,22 @@ export type BankCustomerListVendorPartnershipsQuery = {
   >;
 };
 
+export type BankCustomerListPayorPartnershipsQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+}>;
+
+export type BankCustomerListPayorPartnershipsQuery = {
+  company_payor_partnerships: Array<
+    {
+      payor?: Maybe<
+        Pick<Companies, "id"> & {
+          users: Array<Pick<Users, "id"> & ContactFragment>;
+        } & PayorFragment
+      >;
+    } & PayorPartnershipFragment
+  >;
+};
+
 export type GetEbbaApplicationQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -16676,6 +16692,73 @@ export type BankCustomerListVendorPartnershipsLazyQueryHookResult = ReturnType<
 export type BankCustomerListVendorPartnershipsQueryResult = Apollo.QueryResult<
   BankCustomerListVendorPartnershipsQuery,
   BankCustomerListVendorPartnershipsQueryVariables
+>;
+export const BankCustomerListPayorPartnershipsDocument = gql`
+  query BankCustomerListPayorPartnerships($companyId: uuid!) {
+    company_payor_partnerships(where: { company_id: { _eq: $companyId } }) {
+      ...PayorPartnership
+      payor {
+        id
+        ...Payor
+        users {
+          id
+          ...Contact
+        }
+      }
+    }
+  }
+  ${PayorPartnershipFragmentDoc}
+  ${PayorFragmentDoc}
+  ${ContactFragmentDoc}
+`;
+
+/**
+ * __useBankCustomerListPayorPartnershipsQuery__
+ *
+ * To run a query within a React component, call `useBankCustomerListPayorPartnershipsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBankCustomerListPayorPartnershipsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBankCustomerListPayorPartnershipsQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useBankCustomerListPayorPartnershipsQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    BankCustomerListPayorPartnershipsQuery,
+    BankCustomerListPayorPartnershipsQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    BankCustomerListPayorPartnershipsQuery,
+    BankCustomerListPayorPartnershipsQueryVariables
+  >(BankCustomerListPayorPartnershipsDocument, baseOptions);
+}
+export function useBankCustomerListPayorPartnershipsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    BankCustomerListPayorPartnershipsQuery,
+    BankCustomerListPayorPartnershipsQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    BankCustomerListPayorPartnershipsQuery,
+    BankCustomerListPayorPartnershipsQueryVariables
+  >(BankCustomerListPayorPartnershipsDocument, baseOptions);
+}
+export type BankCustomerListPayorPartnershipsQueryHookResult = ReturnType<
+  typeof useBankCustomerListPayorPartnershipsQuery
+>;
+export type BankCustomerListPayorPartnershipsLazyQueryHookResult = ReturnType<
+  typeof useBankCustomerListPayorPartnershipsLazyQuery
+>;
+export type BankCustomerListPayorPartnershipsQueryResult = Apollo.QueryResult<
+  BankCustomerListPayorPartnershipsQuery,
+  BankCustomerListPayorPartnershipsQueryVariables
 >;
 export const GetEbbaApplicationDocument = gql`
   query GetEbbaApplication($id: uuid!) {

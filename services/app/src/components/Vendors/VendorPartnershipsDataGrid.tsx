@@ -39,6 +39,7 @@ function VendorPartnershipsDataGrid({
       {
         dataField: isBankAccount ? "vendor.name" : "vendor_limited.name",
         caption: "Vendor Name",
+        minWidth: ColumnWidths.MinWidth,
         ...(isBankAccount && {
           cellRender: ({ value, data }: { value: string; data: any }) => (
             <ClickableDataGridCell
