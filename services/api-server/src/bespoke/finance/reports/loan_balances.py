@@ -196,7 +196,12 @@ class CustomerBalance(object):
 				continue
 
 			calculator = loan_calculator.LoanCalculator(contract_helper)
-			loan_update_dict, errors = calculator.calculate_loan_balance(loan, transactions_for_loan, today)
+			loan_update_dict, errors = calculator.calculate_loan_balance(
+				loan,
+				transactions_for_loan,
+				today,
+				includes_future_transactions=True,
+			)
 			if errors:
 				logging.error('Got these errors associated with loan {}'.format(loan['id']))
 				for err in errors:

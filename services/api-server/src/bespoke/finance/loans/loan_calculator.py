@@ -109,26 +109,37 @@ class LoanCalculator(object):
 
 		return '\n'.join(lines)
 
-	def calculate_loan_balance(self,
-		loan: models.LoanDict, transactions: List[models.TransactionDict],
-		today: datetime.date) -> Tuple[LoanUpdateDict, List[errors.Error]]:
-		# Replay the history of the loan and all the expenses that are due as a result.
+	def calculate_loan_balance(
+		self,
+		loan: models.LoanDict,
+		transactions: List[models.TransactionDict],
+		today: datetime.date,
+		includes_future_transactions: bool,
+	) -> Tuple[LoanUpdateDict, List[errors.Error]]:
+		# includes_future_transactions: whether or not calculation of loan balance
+		# should includes transaction in the future (relative to the today parameter).
+		# For customer users of Bespoke, we generally want to include transactions in the future
+		# such that outstanding principal, interest, and fees are lower (payments are optimistically applied).
+		# For bank users of Bespoke, we may NOT want to include transactions in the future
+		# such that bank user can audit how loan balance changes over time on a day-by-day basis.
 
-		# Heres what you owe based on the transaction history applied to your loan
+		# Replay the history of the loan and all the expenses that are due as a result.
+		# Heres what you owe based on the transaction history applied to your loan.
 
 		if not loan['origination_date']:
 			return None, [errors.Error('Could not determine loan balance for loan_id={} because it has no origination_date set'.format(
 				loan['id']))]
 
+		calculate_up_to_date = today
 
-		# Get the MAX effective_date of all transactions.
-		# This may be in the future, since a transaction
-		# with an effective_date in the future may exist.
-		max_transaction_effective_date = max([transaction['effective_date'] for transaction in transactions])
+		if includes_future_transactions:
+			# Get the MAX effective_date of all transactions. This may include transactions with an effective_date
+			# in the future, since such transactions may exist from payments with a settlement_date in the future.
+			max_transaction_effective_date = max([transaction['effective_date'] for transaction in transactions])
+			calculate_up_to_date = max(max_transaction_effective_date, today)
 
 		# Once we've considered how these transactions were applied, here is the remaining amount
 		# which hasn't been factored in yet based on how much you owe up to this particular day.
-		calculate_up_to_date = max(max_transaction_effective_date, today)
 		days_out = date_util.num_calendar_days_passed(
 			calculate_up_to_date,
 			loan['origination_date'],

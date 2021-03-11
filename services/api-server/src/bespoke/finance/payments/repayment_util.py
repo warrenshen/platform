@@ -238,7 +238,11 @@ def calculate_repayment_effect(
 		transactions_for_loan = loan_calculator.get_transactions_for_loan(
 			loan_dict['id'], all_transaction_dicts)
 		loan_update, errs = calculator.calculate_loan_balance(
-			loan_dict, transactions_for_loan, report_date)
+			loan_dict,
+			transactions_for_loan,
+			report_date,
+			includes_future_transactions=True,
+		)
 		if errs:
 			return None, errors.Error('\n'.join([err.msg for err in errs]))
 
@@ -269,7 +273,11 @@ def calculate_repayment_effect(
 		transactions_for_loan = loan_calculator.get_transactions_for_loan(
 			past_due_loan_id, all_transaction_dicts)
 		loan_update, errs = calculator.calculate_loan_balance(
-			loan_past_due_dict, transactions_for_loan, report_date)
+			loan_past_due_dict,
+			transactions_for_loan,
+			report_date,
+			includes_future_transactions=True,
+		)
 		if errs:
 			return None, errors.Error('\n'.join([err.msg for err in errs]))
 
@@ -763,8 +771,8 @@ def settle_payment_line_of_credit(
 		if transactions:
 			all_transaction_dicts = [t.as_dict() for t in transactions]
 
-		# Do NOT allow settling a payment for loans if settlement_date is prior to
-		# the effective_date of any transaction(s) related to the loans.
+		# Do NOT allow settling a new payment for loans if payment.settlement_date is prior to
+		# the effective_date of any existing transaction(s) related to the loans.
 		#
 		# Why? Say we have the following:
 		# Loan L with transactions T1, T2, and T3 with the following settlement dates:
@@ -799,7 +807,11 @@ def settle_payment_line_of_credit(
 			transactions_for_loan = loan_calculator.get_transactions_for_loan(
 				loan_dict['id'], all_transaction_dicts)
 			loan_update, errs = calculator.calculate_loan_balance(
-				loan_dict, transactions_for_loan, report_date)
+				loan_dict,
+				transactions_for_loan,
+				report_date,
+				includes_future_transactions=True,
+			)
 			if errs:
 				return None, errors.Error('\n'.join([err.msg for err in errs]))
 
