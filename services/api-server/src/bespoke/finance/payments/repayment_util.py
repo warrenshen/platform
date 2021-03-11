@@ -763,6 +763,27 @@ def settle_payment_line_of_credit(
 		if transactions:
 			all_transaction_dicts = [t.as_dict() for t in transactions]
 
+		# Do NOT allow settling a payment for loans if settlement_date is prior to
+		# the effective_date of any transaction(s) related to the loans.
+		#
+		# Why? Say we have the following:
+		# Loan L with transactions T1, T2, and T3 with the following settlement dates:
+		# T1: "10/10/2020"
+		# T2: "10/11/2020"
+		# T3: "10/16/2020"
+		#
+		# Proposed payment P with the following settlement date: "10/14/2020".
+		#
+		# T3 was created with the assumption that the only transactions associated
+		# with L are T1 and T2. But if we accept P, this will create a transaction
+		# T4 which impacts interest & fees calculations before T3 happen. This means
+		# T3 will now be incorrect, since it was created based on T1 and T2 but
+		# should be created on T1, T2, and T4.
+		# TODO(warrenshen): perform this same check in settle_payment method.
+		max_transaction_effective_date = max([transaction_dict['effective_date'] for transaction_dict in all_transaction_dicts])
+		if payment_settlement_date < max_transaction_effective_date:
+			return None, errors.Error('Cannot settle a new payment for loans since the settlement date is prior to the effective_date of one or more existing transaction(s) of loans')
+
 		# Calculate the loans "before" by running the loan calculator to determine
 		# the balance at that particular time.
 		report_date = payment_settlement_date
