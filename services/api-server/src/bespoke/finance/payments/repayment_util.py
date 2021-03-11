@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import db_constants, models
+from bespoke.db import db_constants, models, models_util
 from bespoke.db.db_constants import (LoanStatusEnum, PaymentMethod,
                                      PaymentStatusEnum, ProductType)
 from bespoke.db.models import session_scope
@@ -223,9 +223,25 @@ def calculate_repayment_effect(
 				models.Transaction.loan_id.in_(all_loan_ids)
 			).all())
 
+		# Get the payments associated with the loan
 		all_transaction_dicts = []
+		all_payment_ids = []
 		if transactions:
-			all_transaction_dicts = [t.as_dict() for t in transactions]
+			for t in transactions:
+				all_transaction_dicts.append(t.as_dict())
+				all_payment_ids.append(str(t.payment_id))
+
+		existing_payments = cast(
+			List[models.Payment],
+			session.query(models.Payment).filter(
+				models.Payment.id.in_(all_payment_ids)
+			).all())
+
+		all_augmented_transactions, err = models_util.get_augmented_transactions(
+			all_transaction_dicts, [p.as_dict() for p in existing_payments]
+		)
+		if err:
+			return None, err
 
 	# Calculate the loans "before" by running the loan calculator to determine
 	# the balance at that particular time.
@@ -236,7 +252,7 @@ def calculate_repayment_effect(
 	for loan_dict in loan_dicts:
 		calculator = loan_calculator.LoanCalculator(contract_helper)
 		transactions_for_loan = loan_calculator.get_transactions_for_loan(
-			loan_dict['id'], all_transaction_dicts)
+			loan_dict['id'], all_augmented_transactions)
 		loan_update, errs = calculator.calculate_loan_balance(
 			loan_dict,
 			transactions_for_loan,
@@ -271,7 +287,7 @@ def calculate_repayment_effect(
 
 		calculator = loan_calculator.LoanCalculator(contract_helper)
 		transactions_for_loan = loan_calculator.get_transactions_for_loan(
-			past_due_loan_id, all_transaction_dicts)
+			past_due_loan_id, all_augmented_transactions)
 		loan_update, errs = calculator.calculate_loan_balance(
 			loan_past_due_dict,
 			transactions_for_loan,
@@ -767,9 +783,25 @@ def settle_payment_line_of_credit(
 				models.Transaction.loan_id.in_(all_loan_ids)
 			).all())
 
+		# Get the payments associated with the loan
 		all_transaction_dicts = []
+		all_payment_ids = []
 		if transactions:
-			all_transaction_dicts = [t.as_dict() for t in transactions]
+			for t in transactions:
+				all_transaction_dicts.append(t.as_dict())
+				all_payment_ids.append(str(t.payment_id))
+
+		existing_payments = cast(
+			List[models.Payment],
+			session.query(models.Payment).filter(
+				models.Payment.id.in_(all_payment_ids)
+			).all())
+
+		all_augmented_transactions, err = models_util.get_augmented_transactions(
+			all_transaction_dicts, [p.as_dict() for p in existing_payments]
+		)
+		if err:
+			return None, err
 
 		# Do NOT allow settling a new payment for loans if payment.settlement_date is prior to
 		# the effective_date of any existing transaction(s) related to the loans.
@@ -805,7 +837,7 @@ def settle_payment_line_of_credit(
 		for loan_dict in loan_dicts:
 			calculator = loan_calculator.LoanCalculator(contract_helper)
 			transactions_for_loan = loan_calculator.get_transactions_for_loan(
-				loan_dict['id'], all_transaction_dicts)
+				loan_dict['id'], all_augmented_transactions)
 			loan_update, errs = calculator.calculate_loan_balance(
 				loan_dict,
 				transactions_for_loan,

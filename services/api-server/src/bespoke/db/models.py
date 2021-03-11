@@ -264,6 +264,45 @@ class LineOfCredit(Base):
 		foreign_keys=[recipient_vendor_id]
 	)
 
+PaymentDict = TypedDict('PaymentDict', {
+	'id': str,
+	'type': str,
+	'amount': float,
+	'method': str,
+	'submitted_at': datetime.datetime,
+	'payment_date': datetime.date
+})
+
+class Payment(Base):
+	__tablename__ = 'payments'
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	type = Column(String)
+	amount = Column(Numeric)
+	company_id = Column(GUID, nullable=False)
+	method = Column(String)
+	requested_payment_date = Column(Date)
+	payment_date = Column(Date)
+	settlement_date = Column(Date)
+	items_covered = Column(JSON)
+
+	requested_by_user_id = Column(GUID)
+	submitted_at = Column(DateTime)
+	submitted_by_user_id = Column(GUID)
+	settled_at = Column(DateTime)
+	settled_by_user_id = Column(GUID)
+
+
+	def as_dict(self) -> PaymentDict:
+		return PaymentDict(
+			id=str(self.id),
+			type=self.type,
+			amount=float(self.amount),
+			method=self.method,
+			submitted_at=self.submitted_at,
+			payment_date=self.payment_date
+		)
+
 TransactionDict = TypedDict('TransactionDict', {
 	'id': str,
 	'type': str,
@@ -274,6 +313,12 @@ TransactionDict = TypedDict('TransactionDict', {
 	'to_interest': float,
 	'to_fees': float,
 	'effective_date': datetime.date
+})
+
+# Transaction with some additional pieces of information
+AugmentedTransactionDict = TypedDict('AugmentedTransactionDict', {
+	'transaction': TransactionDict,
+	'payment': PaymentDict # The payment which was used to create this transaction
 })
 
 class Transaction(Base):
@@ -371,45 +416,6 @@ class Loan(Base):
 			outstanding_fees=float_or_null(self.outstanding_fees)
 		)
 
-
-PaymentDict = TypedDict('PaymentDict', {
-	'id': str,
-	'type': str,
-	'amount': float,
-	'method': str,
-	'submitted_at': datetime.datetime,
-	'payment_date': datetime.date
-})
-
-class Payment(Base):
-	__tablename__ = 'payments'
-
-	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
-	type = Column(String)
-	amount = Column(Numeric)
-	company_id = Column(GUID, nullable=False)
-	method = Column(String)
-	requested_payment_date = Column(Date)
-	payment_date = Column(Date)
-	settlement_date = Column(Date)
-	items_covered = Column(JSON)
-
-	requested_by_user_id = Column(GUID)
-	submitted_at = Column(DateTime)
-	submitted_by_user_id = Column(GUID)
-	settled_at = Column(DateTime)
-	settled_by_user_id = Column(GUID)
-
-
-	def as_dict(self) -> PaymentDict:
-		return PaymentDict(
-			id=str(self.id),
-			type=self.type,
-			amount=float(self.amount),
-			method=self.method,
-			submitted_at=self.submitted_at,
-			payment_date=self.payment_date
-		)
 
 class BankFinancialSummary(Base):
 	__tablename__ = 'bank_financial_summaries'

@@ -4,9 +4,10 @@
 from typing import Callable, List, Tuple, cast
 
 from bespoke import errors
-from bespoke.db import db_constants, models
-from bespoke.db.models import (ContractDict, CompanyDict, CompanySettingsDict, LoanDict,
-							   PaymentDict, TransactionDict, EbbaApplicationDict, session_scope)
+from bespoke.db import db_constants, models, models_util
+from bespoke.db.models import (
+	ContractDict, CompanyDict, CompanySettingsDict, LoanDict,
+	PaymentDict, TransactionDict, EbbaApplicationDict, session_scope)
 from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
 
@@ -31,7 +32,7 @@ class Fetcher(object):
 		self._contracts: List[ContractDict] = []
 		self._loans: List[LoanDict] = []
 		self._payments: List[PaymentDict] = []
-		self._transactions: List[TransactionDict] = []
+		self._augmented_transactions: List[per_customer_types.AugmentedTransactionDict] = []
 		self._ebba_applications: List[EbbaApplicationDict] = []
 		self._active_ebba_application: EbbaApplicationDict = None
 
@@ -49,7 +50,8 @@ class Fetcher(object):
 
 		return True, None
 
-	def _fetch_transactions(self, loan_ids: List[str]) -> Tuple[bool, errors.Error]:
+	def _fetch_transactions(
+		self, loan_ids: List[str], payments: List[models.PaymentDict]) -> Tuple[bool, errors.Error]:
 		if not loan_ids:
 			return True, None
 
@@ -61,7 +63,12 @@ class Fetcher(object):
 				).all())
 			if not transactions:
 				return True, None
-			self._transactions = [t.as_dict() for t in transactions]
+
+			self._augmented_transactions, err = models_util.get_augmented_transactions(
+				[t.as_dict() for t in transactions], payments
+			)
+			if err:
+				return None, err
 
 		return True, None
 
@@ -145,7 +152,7 @@ class Fetcher(object):
 			return None, err
 
 		loan_ids = [l['id'] for l in self._loans]
-		_, err = self._fetch_transactions(loan_ids)
+		_, err = self._fetch_transactions(loan_ids, self._payments)
 		if err:
 			return None, err
 
@@ -173,7 +180,7 @@ class Fetcher(object):
 
 		loans_str = '\n'.join([_loan_to_str(l) for l in self._loans])
 		payments_str = '\n'.join([_payment_to_str(p) for p in self._payments])
-		transactions_str = '\n'.join([_transaction_to_str(t) for t in self._transactions])
+		transactions_str = '\n'.join([_transaction_to_str(t['transaction']) for t in self._augmented_transactions])
 
 		return 'The summary for company "{}" is\nLoans:\n{}\nPayments:\n{}\nTransactions{}\n'.format(
 			company_dict['name'], loans_str, payments_str, transactions_str)
@@ -186,7 +193,7 @@ class Fetcher(object):
 				contracts=self._contracts,
 				loans=self._loans,
 				payments=self._payments,
-				transactions=self._transactions,
+				augmented_transactions=self._augmented_transactions,
 				ebba_applications=self._ebba_applications,
 				active_ebba_application=self._active_ebba_application
 			)

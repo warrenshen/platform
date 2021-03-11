@@ -182,7 +182,8 @@ class CustomerBalance(object):
 		total_principal_in_requested_state = 0.0
 
 		for loan in financials['loans']:
-			transactions_for_loan = loan_calculator.get_transactions_for_loan(loan['id'], financials['transactions'])
+			transactions_for_loan = loan_calculator.get_transactions_for_loan(
+				loan['id'], financials['augmented_transactions'])
 
 			if loan['status'] == LoanStatusEnum.APPROVAL_REQUESTED:
 				total_principal_in_requested_state += loan['amount']

@@ -6,6 +6,7 @@ from mypy_extensions import TypedDict
 from typing import List
 
 from bespoke.db.models import (
+	AugmentedTransactionDict,
 	ContractDict, CompanyDict, CompanySettingsDict,
 	LoanDict, TransactionDict, PaymentDict, EbbaApplicationDict
 )
@@ -14,7 +15,7 @@ Financials = TypedDict('Financials', {
 	'contracts': List[ContractDict],
 	'loans': List[LoanDict],
 	'payments': List[PaymentDict],
-	'transactions': List[TransactionDict],
+	'augmented_transactions': List[AugmentedTransactionDict],
 	'ebba_applications': List[EbbaApplicationDict],
 	'active_ebba_application': EbbaApplicationDict,
 })

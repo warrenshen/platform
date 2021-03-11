@@ -42,19 +42,19 @@ class BalanceRange(object):
 		self.fee_multipliers.append(fee_multiplier)
 
 def _get_transactions_on_date(
-	cur_date: datetime.date, transactions: List[models.TransactionDict]) -> List[models.TransactionDict]:
+	cur_date: datetime.date, augmented_transactions: List[models.AugmentedTransactionDict]) -> List[models.AugmentedTransactionDict]:
 	txs_on_date = []
-	for tx in transactions:
-		if tx['effective_date'] == cur_date:
+	for tx in augmented_transactions:
+		if tx['transaction']['effective_date'] == cur_date:
 			txs_on_date.append(tx)
 
 	return txs_on_date
 
-def get_transactions_for_loan(loan_id: str, transactions: List[models.TransactionDict]) -> List[models.TransactionDict]:
+def get_transactions_for_loan(loan_id: str, augmented_transactions: List[models.AugmentedTransactionDict]) -> List[models.AugmentedTransactionDict]:
 	loan_txs = []
-	for t in transactions:
-		if t['loan_id'] == loan_id:
-			loan_txs.append(t)
+	for tx in augmented_transactions:
+		if tx['transaction']['loan_id'] == loan_id:
+			loan_txs.append(tx)
 	return loan_txs
 
 class LoanCalculator(object):
@@ -112,7 +112,7 @@ class LoanCalculator(object):
 	def calculate_loan_balance(
 		self,
 		loan: models.LoanDict,
-		transactions: List[models.TransactionDict],
+		augmented_transactions: List[models.AugmentedTransactionDict],
 		today: datetime.date,
 		includes_future_transactions: bool,
 	) -> Tuple[LoanUpdateDict, List[errors.Error]]:
@@ -135,7 +135,7 @@ class LoanCalculator(object):
 		if includes_future_transactions:
 			# Get the MAX effective_date of all transactions. This may include transactions with an effective_date
 			# in the future, since such transactions may exist from payments with a settlement_date in the future.
-			max_transaction_effective_date = max([transaction['effective_date'] for transaction in transactions])
+			max_transaction_effective_date = max([aug_tx['transaction']['effective_date'] for aug_tx in augmented_transactions])
 			calculate_up_to_date = max(max_transaction_effective_date, today)
 
 		# Once we've considered how these transactions were applied, here is the remaining amount
@@ -160,9 +160,10 @@ class LoanCalculator(object):
 		for i in range(days_out):
 			cur_date = loan['origination_date'] + timedelta(days=i)
 			# Check each transaction and the effect it had on this loan
-			cur_transactions = _get_transactions_on_date(cur_date, transactions)
+			cur_augmented_transactions = _get_transactions_on_date(cur_date, augmented_transactions)
 
-			for tx in cur_transactions:
+			for aug_tx in cur_augmented_transactions:
+				tx = aug_tx['transaction']
 				# TODO(dlluncor): what happens when fees, interest or principal go negative?
 				if payment_util.is_advance(tx):
 					outstanding_principal += tx['to_principal']
@@ -191,8 +192,7 @@ class LoanCalculator(object):
 					errors_list.append(err)
 					continue
 			else:
-				# TODO(dlluncor): Do fees accrue on the day of the maturity date? I dont think
-				# so but check
+				# Fees do not accrue on the day of the maturity date
 				pass
 
 			# Add it to the outstanding interest and fees
@@ -208,7 +208,8 @@ class LoanCalculator(object):
 				fee_multiplier=fee_multiplier
 			)
 
-			for tx in cur_transactions:
+			for aug_tx in cur_augmented_transactions:
+				tx = aug_tx['transaction']
 				if payment_util.is_repayment(tx):
 					outstanding_principal -= tx['to_principal']
 					outstanding_interest -= tx['to_interest']
