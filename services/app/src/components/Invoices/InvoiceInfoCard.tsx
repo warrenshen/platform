@@ -57,12 +57,12 @@ function InvoiceInfoCard({ invoice }: Props) {
             <Box>{formatCurrency(invoice.subtotal_amount)}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
-            <Box className={classes.label}>Total Amount</Box>
-            <Box>{formatCurrency(invoice.total_amount)}</Box>
-          </Box>
-          <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Taxes</Box>
             <Box>{formatCurrency(invoice.taxes_amount)}</Box>
+          </Box>
+          <Box display="flex" pb={0.25}>
+            <Box className={classes.label}>Total Amount</Box>
+            <Box>{formatCurrency(invoice.total_amount)}</Box>
           </Box>
           <Box display="flex" alignItems="center" pt={0.5} pb={1}>
             <CheckCircle

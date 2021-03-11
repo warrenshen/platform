@@ -19,8 +19,16 @@ query GetInvoicesByCompanyId($company_id: uuid!) {
   }
 }
 
-query GetApprovedInvoices {
-  invoices(where: { status: { _eq: approved } }) {
+query GetApprovedInvoicesByCompanyId($companyId: uuid!) {
+  invoices(
+    where: {
+      _and: [
+        { approved_at: { _is_null: false } }
+        { funded_at: { _is_null: true } }
+        { company_id: { _eq: $companyId } }
+      ]
+    }
+  ) {
     ...Invoice
   }
 }

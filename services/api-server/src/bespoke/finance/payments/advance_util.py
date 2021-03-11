@@ -28,6 +28,11 @@ FundLoansRespDict = TypedDict('FundLoansRespDict', {
 	'status': str
 })
 
+ARTIFACT_MODEL_INDEX = {
+	db_constants.LoanTypeEnum.INVENTORY: models.PurchaseOrder,
+	db_constants.LoanTypeEnum.INVOICE: models.Invoice,
+}
+
 def _get_contracts_by_company_id(
 	company_ids: List[str], session: Session,
 	err_details: Dict) -> Tuple[Dict[str, contract_util.Contract], errors.Error]:
@@ -74,7 +79,9 @@ def fund_loans_with_advance(
 
 	payment_input = req['payment']
 	loan_ids = req['loan_ids']
-	purchase_order_ids = set()
+	artifact_ids_index: Dict[str, set] = {
+		k: set() for k in ARTIFACT_MODEL_INDEX
+	}
 
 	err_details = {
 		'payment_input': payment_input,
@@ -200,27 +207,27 @@ def fund_loans_with_advance(
 			loan.maturity_date = maturity_date
 			loan.adjusted_maturity_date = adjusted_maturity_date
 
-			if loan.loan_type == db_constants.LoanTypeEnum.INVENTORY and loan.artifact_id:
-				purchase_order_ids.add(loan.artifact_id)
+			if loan.loan_type in artifact_ids_index:
+				artifact_ids_index[loan.loan_type].add(loan.artifact_id)
 
 	# Once all of those writes are complete, we check if any of the associated
-	# purchase orders are full funded and mark them so
+	# artifacts are fully funded and mark them so
 	with session_scope(session_maker) as session:
-		for purchase_order_id in purchase_order_ids:
-			purchase_order = cast(
-				models.PurchaseOrder,
-				session.query(models.PurchaseOrder).get(purchase_order_id)
-			)
-			if not purchase_order:
-				logging.warning(f"Failed to find purchase order with id '{purchase_order_id}'")
-				continue # Early Continuation
+		for loan_type, ids in artifact_ids_index.items():
+			Model = ARTIFACT_MODEL_INDEX[loan_type]
+			for id_ in ids:
+				artifact = session.query(Model).get(id_)
 
-			funded_amount = sibling_util.get_funded_loan_sum_on_artifact(
-				session,
-				purchase_order_id)
+				if not artifact:
+					logging.warning(f"Failed to find artifact with id {id_} of for loan with {loan_type}")
+					continue # Early Continuation
 
-			if funded_amount >= purchase_order.amount:
-				purchase_order.funded_at = date_util.now()
+				funded_amount = sibling_util.get_funded_loan_sum_on_artifact(
+					session,
+					id_)
+
+				if funded_amount >= artifact.max_loan_amount():
+					artifact.funded_at = date_util.now()
 
 	return FundLoansRespDict(status='OK'), None
 

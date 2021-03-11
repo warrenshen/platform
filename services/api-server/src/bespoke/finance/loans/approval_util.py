@@ -112,6 +112,9 @@ def submit_for_approval(loan_id: str, session_maker: Callable) -> Tuple[SubmitFo
 		if loan.amount > financial_summary.available_limit:
 			return None, errors.Error('Loan amount requested exceeds the maximum limit for this account', details=err_details)
 
+		customer_name = None
+		loan_html = None
+
 		if loan.loan_type == LoanTypeEnum.INVENTORY:
 			purchase_order = cast(
 				models.PurchaseOrder,
@@ -162,6 +165,22 @@ def submit_for_approval(loan_id: str, session_maker: Callable) -> Tuple[SubmitFo
 <li>Amount: {loan.amount}</li>
 </ul>
 			"""
+
+		elif loan.loan_type == LoanTypeEnum.INVOICE:
+			invoice = session.query(models.Invoice).get(loan.artifact_id)
+			customer_name = invoice.company.name
+			payor_name = invoice.payor.name
+
+			loan_html = f"""<ul>
+<li>Loan type: Invoice</li>
+<li>Company: {customer_name}</li>
+<li>Invoice: {invoice.invoice_number}</li>
+<li>Requested payment date: {loan.requested_payment_date}</li>
+<li>Amount: {loan.amount}</li>
+</ul>"""
+
+		if not customer_name or not loan_html:
+			return None, errors.Error("Failed to generated HTML for loan")
 
 		loan.status = RequestStatusEnum.APPROVAL_REQUESTED
 		loan.requested_at = date_util.now()

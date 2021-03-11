@@ -5,6 +5,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import CreateUpdateInvoiceLoanModal from "components/Invoices/CreateUpdateInvoiceLoanModal";
 import CreateUpdateInvoiceModal from "components/Invoices/CreateUpdateInvoiceModal";
 import InvoicesDataGrid from "components/Invoices/InvoicesDataGrid";
 import Can from "components/Shared/Can";
@@ -112,6 +113,29 @@ export default function CustomerInvoicesPages() {
                     }}
                   />
                 )}
+              />
+            </Box>
+          </Can>
+          <Can perform={Action.FundInvoices}>
+            <Box mr={1}>
+              <ModalButton
+                isDisabled={selectedInvoiceIds.length !== 1}
+                label={"Fund PO"}
+                modal={({ handleClose }) => {
+                  const handler = () => {
+                    refetch();
+                    handleClose();
+                    setSelectedInvoiceIds([]);
+                  };
+                  return (
+                    <CreateUpdateInvoiceLoanModal
+                      actionType={ActionType.New}
+                      loanId=""
+                      artifactId={selectedInvoiceIds[0]}
+                      handleClose={handler}
+                    />
+                  );
+                }}
               />
             </Box>
           </Can>

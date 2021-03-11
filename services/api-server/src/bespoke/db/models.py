@@ -191,7 +191,17 @@ def float_or_null(val: Optional[decimal.Decimal]) -> float:
 
 	return float(val)
 
-class PurchaseOrder(Base):
+
+class Artifact(Base):
+	__abstract__ = True
+
+	funded_at = Column(DateTime)
+
+	def max_loan_amount(self) -> Optional[decimal.Decimal]:
+		raise NotImplementedError("max_loan_amount is not implemented on this artifact")
+
+
+class PurchaseOrder(Artifact):
 	"""
 					Purchase orders created by customers for financing
 	"""
@@ -229,6 +239,9 @@ class PurchaseOrder(Base):
 			order_number=self.order_number,
 			status=self.status
 		)
+
+	def max_loan_amount(self) -> Optional[decimal.Decimal]:
+		return self.amount
 
 class LineOfCredit(Base):
 	"""
@@ -536,15 +549,15 @@ InvoiceDict = TypedDict('InvoiceDict', {
 	'invoice_due_date': datetime.date,
 	'advance_date': datetime.date,
 	'status': str,
-	'requested_at': datetime.date,
-	'approved_at': datetime.date,
-	'funded_at': datetime.date,
-	'rejected_at': datetime.date,
+	'requested_at': datetime.datetime,
+	'approved_at': datetime.datetime,
+	'funded_at': datetime.datetime,
+	'rejected_at': datetime.datetime,
 	'rejection_note': str,
 	'is_cannabis': bool,
 })
 
-class Invoice(Base):
+class Invoice(Artifact):
 	__tablename__ = 'invoices'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
@@ -558,12 +571,22 @@ class Invoice(Base):
 	invoice_due_date = Column(Date)
 	advance_date = Column(Date)
 	status = Column(String)
-	requested_at = Column(Date, nullable=True)
-	approved_at = Column(Date, nullable=True)
-	funded_at = Column(Date, nullable=True)
-	rejected_at = Column(Date, nullable=True)
-	rejection_note = Column(Text, nullable=True)
+	requested_at = Column(DateTime)
+	approved_at = Column(DateTime)
+	funded_at = Column(DateTime)
+	rejected_at = Column(DateTime)
+	rejection_note = Column(Text)
 	is_cannabis = Column(Boolean)
+
+	company = relationship(
+		'Company',
+		foreign_keys=[company_id]
+	)
+
+	payor = relationship(
+		'Company',
+		foreign_keys=[payor_id]
+	)
 
 	def as_dict(self) -> InvoiceDict:
 		return InvoiceDict(
@@ -585,6 +608,9 @@ class Invoice(Base):
 			rejection_note=self.rejection_note,
 			is_cannabis=self.is_cannabis,
 		)
+
+	def max_loan_amount(self) -> Optional[decimal.Decimal]:
+		return self.subtotal_amount
 
 InvoiceFileDict = TypedDict('InvoiceFileDict', {
 	'invoice_id': str,

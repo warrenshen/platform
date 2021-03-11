@@ -1,3 +1,4 @@
+import CreateUpdateInvoiceLoanModal from "components/Invoices/CreateUpdateInvoiceLoanModal";
 import CreateUpdateLineOfCreditLoanModal from "components/Loan/CreateUpdateLineOfCreditLoanModal";
 import CreateUpdatePurchaseOrderLoanModal from "components/Loan/CreateUpdatePurchaseOrderLoanModal";
 import { Loans, ProductTypeEnum, Scalars } from "generated/graphql";
@@ -31,6 +32,15 @@ function CreateUpdatePolymorphicLoanModal({
     return (
       <CreateUpdateLineOfCreditLoanModal
         actionType={actionType}
+        loanId={loanId}
+        handleClose={handleClose}
+      />
+    );
+  } else if (productType === ProductTypeEnum.InvoiceFinancing) {
+    return (
+      <CreateUpdateInvoiceLoanModal
+        actionType={actionType}
+        artifactId={artifactId}
         loanId={loanId}
         handleClose={handleClose}
       />

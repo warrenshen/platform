@@ -81,7 +81,7 @@ subscription GetFundedLoansForBank {
   }
 }
 
-query GetActiveLoansForCompany($companyId: uuid!, $loanType: loan_type_enum!) {
+query GetActiveLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
   companies_by_pk(id: $companyId) {
     id
     financial_summary {
@@ -138,7 +138,7 @@ query GetFundedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum!) {
   }
 }
 
-query GetClosedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum!) {
+query GetClosedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
   companies_by_pk(id: $companyId) {
     id
     financial_summary {
@@ -170,7 +170,7 @@ query GetClosedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum!) {
 
 query LoansByCompanyAndLoanTypeForBank(
   $companyId: uuid!
-  $loanType: loan_type_enum!
+  $loanType: loan_type_enum
 ) {
   loans(
     where: {

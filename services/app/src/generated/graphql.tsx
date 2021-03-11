@@ -5272,12 +5272,12 @@ export enum InvoiceFilesUpdateColumn {
  */
 export type Invoices = {
   advance_date: Scalars["date"];
-  approved_at?: Maybe<Scalars["date"]>;
+  approved_at?: Maybe<Scalars["timestamptz"]>;
   /** An object relationship */
   company: Companies;
   company_id: Scalars["uuid"];
   created_at: Scalars["timestamptz"];
-  funded_at?: Maybe<Scalars["date"]>;
+  funded_at?: Maybe<Scalars["timestamptz"]>;
   id: Scalars["uuid"];
   invoice_date: Scalars["date"];
   invoice_due_date: Scalars["date"];
@@ -5294,9 +5294,9 @@ export type Invoices = {
   /** An object relationship */
   payor?: Maybe<Payors>;
   payor_id: Scalars["uuid"];
-  rejected_at?: Maybe<Scalars["date"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejection_note?: Maybe<Scalars["String"]>;
-  requested_at?: Maybe<Scalars["date"]>;
+  requested_at?: Maybe<Scalars["timestamptz"]>;
   status: RequestStatusEnum;
   subtotal_amount: Scalars["numeric"];
   taxes_amount: Scalars["numeric"];
@@ -5428,11 +5428,11 @@ export type InvoicesBoolExp = {
   _not?: Maybe<InvoicesBoolExp>;
   _or?: Maybe<Array<Maybe<InvoicesBoolExp>>>;
   advance_date?: Maybe<DateComparisonExp>;
-  approved_at?: Maybe<DateComparisonExp>;
+  approved_at?: Maybe<TimestamptzComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
-  funded_at?: Maybe<DateComparisonExp>;
+  funded_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   invoice_date?: Maybe<DateComparisonExp>;
   invoice_due_date?: Maybe<DateComparisonExp>;
@@ -5442,9 +5442,9 @@ export type InvoicesBoolExp = {
   loans?: Maybe<LoansBoolExp>;
   payor?: Maybe<PayorsBoolExp>;
   payor_id?: Maybe<UuidComparisonExp>;
-  rejected_at?: Maybe<DateComparisonExp>;
+  rejected_at?: Maybe<TimestamptzComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
-  requested_at?: Maybe<DateComparisonExp>;
+  requested_at?: Maybe<TimestamptzComparisonExp>;
   status?: Maybe<RequestStatusEnumComparisonExp>;
   subtotal_amount?: Maybe<NumericComparisonExp>;
   taxes_amount?: Maybe<NumericComparisonExp>;
@@ -5468,11 +5468,11 @@ export type InvoicesIncInput = {
 /** input type for inserting data into table "invoices" */
 export type InvoicesInsertInput = {
   advance_date?: Maybe<Scalars["date"]>;
-  approved_at?: Maybe<Scalars["date"]>;
+  approved_at?: Maybe<Scalars["timestamptz"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  funded_at?: Maybe<Scalars["date"]>;
+  funded_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   invoice_date?: Maybe<Scalars["date"]>;
   invoice_due_date?: Maybe<Scalars["date"]>;
@@ -5482,9 +5482,9 @@ export type InvoicesInsertInput = {
   loans?: Maybe<LoansArrRelInsertInput>;
   payor?: Maybe<PayorsObjRelInsertInput>;
   payor_id?: Maybe<Scalars["uuid"]>;
-  rejected_at?: Maybe<Scalars["date"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejection_note?: Maybe<Scalars["String"]>;
-  requested_at?: Maybe<Scalars["date"]>;
+  requested_at?: Maybe<Scalars["timestamptz"]>;
   status?: Maybe<RequestStatusEnum>;
   subtotal_amount?: Maybe<Scalars["numeric"]>;
   taxes_amount?: Maybe<Scalars["numeric"]>;
@@ -5495,18 +5495,18 @@ export type InvoicesInsertInput = {
 /** aggregate max on columns */
 export type InvoicesMaxFields = {
   advance_date?: Maybe<Scalars["date"]>;
-  approved_at?: Maybe<Scalars["date"]>;
+  approved_at?: Maybe<Scalars["timestamptz"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  funded_at?: Maybe<Scalars["date"]>;
+  funded_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   invoice_date?: Maybe<Scalars["date"]>;
   invoice_due_date?: Maybe<Scalars["date"]>;
   invoice_number?: Maybe<Scalars["String"]>;
   payor_id?: Maybe<Scalars["uuid"]>;
-  rejected_at?: Maybe<Scalars["date"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejection_note?: Maybe<Scalars["String"]>;
-  requested_at?: Maybe<Scalars["date"]>;
+  requested_at?: Maybe<Scalars["timestamptz"]>;
   subtotal_amount?: Maybe<Scalars["numeric"]>;
   taxes_amount?: Maybe<Scalars["numeric"]>;
   total_amount?: Maybe<Scalars["numeric"]>;
@@ -5537,18 +5537,18 @@ export type InvoicesMaxOrderBy = {
 /** aggregate min on columns */
 export type InvoicesMinFields = {
   advance_date?: Maybe<Scalars["date"]>;
-  approved_at?: Maybe<Scalars["date"]>;
+  approved_at?: Maybe<Scalars["timestamptz"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  funded_at?: Maybe<Scalars["date"]>;
+  funded_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   invoice_date?: Maybe<Scalars["date"]>;
   invoice_due_date?: Maybe<Scalars["date"]>;
   invoice_number?: Maybe<Scalars["String"]>;
   payor_id?: Maybe<Scalars["uuid"]>;
-  rejected_at?: Maybe<Scalars["date"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejection_note?: Maybe<Scalars["String"]>;
-  requested_at?: Maybe<Scalars["date"]>;
+  requested_at?: Maybe<Scalars["timestamptz"]>;
   subtotal_amount?: Maybe<Scalars["numeric"]>;
   taxes_amount?: Maybe<Scalars["numeric"]>;
   total_amount?: Maybe<Scalars["numeric"]>;
@@ -5674,19 +5674,19 @@ export enum InvoicesSelectColumn {
 /** input type for updating data in table "invoices" */
 export type InvoicesSetInput = {
   advance_date?: Maybe<Scalars["date"]>;
-  approved_at?: Maybe<Scalars["date"]>;
+  approved_at?: Maybe<Scalars["timestamptz"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  funded_at?: Maybe<Scalars["date"]>;
+  funded_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   invoice_date?: Maybe<Scalars["date"]>;
   invoice_due_date?: Maybe<Scalars["date"]>;
   invoice_number?: Maybe<Scalars["String"]>;
   is_cannabis?: Maybe<Scalars["Boolean"]>;
   payor_id?: Maybe<Scalars["uuid"]>;
-  rejected_at?: Maybe<Scalars["date"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejection_note?: Maybe<Scalars["String"]>;
-  requested_at?: Maybe<Scalars["date"]>;
+  requested_at?: Maybe<Scalars["timestamptz"]>;
   status?: Maybe<RequestStatusEnum>;
   subtotal_amount?: Maybe<Scalars["numeric"]>;
   taxes_amount?: Maybe<Scalars["numeric"]>;
@@ -14512,9 +14512,13 @@ export type GetInvoicesByCompanyIdQuery = {
   >;
 };
 
-export type GetApprovedInvoicesQueryVariables = Exact<{ [key: string]: never }>;
+export type GetApprovedInvoicesByCompanyIdQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+}>;
 
-export type GetApprovedInvoicesQuery = { invoices: Array<InvoiceFragment> };
+export type GetApprovedInvoicesByCompanyIdQuery = {
+  invoices: Array<InvoiceFragment>;
+};
 
 export type GetPurchaseOrdersForIdsQueryVariables = Exact<{
   purchaseOrderIds?: Maybe<Array<Scalars["uuid"]>>;
@@ -14669,7 +14673,7 @@ export type GetFundedLoansForBankSubscription = {
 
 export type GetActiveLoansForCompanyQueryVariables = Exact<{
   companyId: Scalars["uuid"];
-  loanType: LoanTypeEnum;
+  loanType?: Maybe<LoanTypeEnum>;
 }>;
 
 export type GetActiveLoansForCompanyQuery = {
@@ -14706,7 +14710,7 @@ export type GetFundedLoansForCompanyQuery = {
 
 export type GetClosedLoansForCompanyQueryVariables = Exact<{
   companyId: Scalars["uuid"];
-  loanType: LoanTypeEnum;
+  loanType?: Maybe<LoanTypeEnum>;
 }>;
 
 export type GetClosedLoansForCompanyQuery = {
@@ -14729,7 +14733,7 @@ export type GetClosedLoansForCompanyQuery = {
 
 export type LoansByCompanyAndLoanTypeForBankQueryVariables = Exact<{
   companyId: Scalars["uuid"];
-  loanType: LoanTypeEnum;
+  loanType?: Maybe<LoanTypeEnum>;
 }>;
 
 export type LoansByCompanyAndLoanTypeForBankQuery = {
@@ -17395,9 +17399,17 @@ export type GetInvoicesByCompanyIdQueryResult = Apollo.QueryResult<
   GetInvoicesByCompanyIdQuery,
   GetInvoicesByCompanyIdQueryVariables
 >;
-export const GetApprovedInvoicesDocument = gql`
-  query GetApprovedInvoices {
-    invoices(where: { status: { _eq: approved } }) {
+export const GetApprovedInvoicesByCompanyIdDocument = gql`
+  query GetApprovedInvoicesByCompanyId($companyId: uuid!) {
+    invoices(
+      where: {
+        _and: [
+          { approved_at: { _is_null: false } }
+          { funded_at: { _is_null: true } }
+          { company_id: { _eq: $companyId } }
+        ]
+      }
+    ) {
       ...Invoice
     }
   }
@@ -17405,51 +17417,52 @@ export const GetApprovedInvoicesDocument = gql`
 `;
 
 /**
- * __useGetApprovedInvoicesQuery__
+ * __useGetApprovedInvoicesByCompanyIdQuery__
  *
- * To run a query within a React component, call `useGetApprovedInvoicesQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetApprovedInvoicesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetApprovedInvoicesByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetApprovedInvoicesByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetApprovedInvoicesQuery({
+ * const { data, loading, error } = useGetApprovedInvoicesByCompanyIdQuery({
  *   variables: {
+ *      companyId: // value for 'companyId'
  *   },
  * });
  */
-export function useGetApprovedInvoicesQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetApprovedInvoicesQuery,
-    GetApprovedInvoicesQueryVariables
+export function useGetApprovedInvoicesByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetApprovedInvoicesByCompanyIdQuery,
+    GetApprovedInvoicesByCompanyIdQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    GetApprovedInvoicesQuery,
-    GetApprovedInvoicesQueryVariables
-  >(GetApprovedInvoicesDocument, baseOptions);
+    GetApprovedInvoicesByCompanyIdQuery,
+    GetApprovedInvoicesByCompanyIdQueryVariables
+  >(GetApprovedInvoicesByCompanyIdDocument, baseOptions);
 }
-export function useGetApprovedInvoicesLazyQuery(
+export function useGetApprovedInvoicesByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    GetApprovedInvoicesQuery,
-    GetApprovedInvoicesQueryVariables
+    GetApprovedInvoicesByCompanyIdQuery,
+    GetApprovedInvoicesByCompanyIdQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    GetApprovedInvoicesQuery,
-    GetApprovedInvoicesQueryVariables
-  >(GetApprovedInvoicesDocument, baseOptions);
+    GetApprovedInvoicesByCompanyIdQuery,
+    GetApprovedInvoicesByCompanyIdQueryVariables
+  >(GetApprovedInvoicesByCompanyIdDocument, baseOptions);
 }
-export type GetApprovedInvoicesQueryHookResult = ReturnType<
-  typeof useGetApprovedInvoicesQuery
+export type GetApprovedInvoicesByCompanyIdQueryHookResult = ReturnType<
+  typeof useGetApprovedInvoicesByCompanyIdQuery
 >;
-export type GetApprovedInvoicesLazyQueryHookResult = ReturnType<
-  typeof useGetApprovedInvoicesLazyQuery
+export type GetApprovedInvoicesByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useGetApprovedInvoicesByCompanyIdLazyQuery
 >;
-export type GetApprovedInvoicesQueryResult = Apollo.QueryResult<
-  GetApprovedInvoicesQuery,
-  GetApprovedInvoicesQueryVariables
+export type GetApprovedInvoicesByCompanyIdQueryResult = Apollo.QueryResult<
+  GetApprovedInvoicesByCompanyIdQuery,
+  GetApprovedInvoicesByCompanyIdQueryVariables
 >;
 export const GetPurchaseOrdersForIdsDocument = gql`
   query GetPurchaseOrdersForIds($purchaseOrderIds: [uuid!]) {
@@ -18165,10 +18178,7 @@ export type GetFundedLoansForBankSubscriptionHookResult = ReturnType<
 >;
 export type GetFundedLoansForBankSubscriptionResult = Apollo.SubscriptionResult<GetFundedLoansForBankSubscription>;
 export const GetActiveLoansForCompanyDocument = gql`
-  query GetActiveLoansForCompany(
-    $companyId: uuid!
-    $loanType: loan_type_enum!
-  ) {
+  query GetActiveLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
     companies_by_pk(id: $companyId) {
       id
       financial_summary {
@@ -18335,10 +18345,7 @@ export type GetFundedLoansForCompanyQueryResult = Apollo.QueryResult<
   GetFundedLoansForCompanyQueryVariables
 >;
 export const GetClosedLoansForCompanyDocument = gql`
-  query GetClosedLoansForCompany(
-    $companyId: uuid!
-    $loanType: loan_type_enum!
-  ) {
+  query GetClosedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
     companies_by_pk(id: $companyId) {
       id
       financial_summary {
@@ -18424,7 +18431,7 @@ export type GetClosedLoansForCompanyQueryResult = Apollo.QueryResult<
 export const LoansByCompanyAndLoanTypeForBankDocument = gql`
   query LoansByCompanyAndLoanTypeForBank(
     $companyId: uuid!
-    $loanType: loan_type_enum!
+    $loanType: loan_type_enum
   ) {
     loans(
       where: {

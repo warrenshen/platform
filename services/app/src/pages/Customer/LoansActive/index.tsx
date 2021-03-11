@@ -9,11 +9,8 @@ import { Alert } from "@material-ui/lab";
 import CustomerFinancialSummaryOverview from "components/CustomerFinancialSummary/CustomerFinancialSummaryOverview";
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import {
-  LoanTypeEnum,
-  ProductTypeEnum,
-  useGetActiveLoansForCompanyQuery,
-} from "generated/graphql";
+import { useGetActiveLoansForCompanyQuery } from "generated/graphql";
+import { ProductTypeToLoanType } from "lib/enum";
 import LoansActiveFunded from "pages/Customer/LoansActive/LoansActiveFunded";
 import LoansActiveNotFunded from "pages/Customer/LoansActive/LoansActiveNotFunded";
 import { useContext } from "react";
@@ -43,13 +40,15 @@ function CustomerLoansActivePage() {
     user: { companyId, productType },
   } = useContext(CurrentUserContext);
 
+  const loanType =
+    !!productType && productType in ProductTypeToLoanType
+      ? ProductTypeToLoanType[productType]
+      : null;
+
   const { data, error, refetch } = useGetActiveLoansForCompanyQuery({
     variables: {
       companyId,
-      loanType:
-        productType === ProductTypeEnum.LineOfCredit
-          ? LoanTypeEnum.LineOfCredit
-          : LoanTypeEnum.PurchaseOrder,
+      loanType,
     },
   });
 

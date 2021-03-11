@@ -10,7 +10,6 @@ import {
   Theme,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
-import PurchaseOrderLoanForm from "components/Loan/PurchaseOrderLoanForm";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoansInsertInput,
@@ -19,7 +18,6 @@ import {
   ProductTypeEnum,
   Scalars,
   useAddLoanMutation,
-  useApprovedPurchaseOrdersQuery,
   useGetCompanyNextLoanIdentifierMutation,
   useGetLoanForCustomerQuery,
   useUpdateLoanMutation,
@@ -34,7 +32,9 @@ import {
   listArtifactsForCreateLoan,
 } from "lib/finance/loans/artifacts";
 import { isNull, mergeWith } from "lodash";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
+import ArtifactLoanForm, { ArtifactListItem } from "./ArtifactLoanForm";
+import { IdComponent } from "./interfaces";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -56,27 +56,36 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   actionType: ActionType;
   artifactId: Scalars["uuid"] | null;
+  approvedArtifacts: ArtifactListItem[];
   loanId: Scalars["uuid"] | null;
+  loanType: LoanTypeEnum;
+  InfoCard: IdComponent;
   handleClose: () => void;
 }
 
-function CreateUpdatePurchaseOrderLoanModal({
+export default function CreateUpdateArtifactLoanModal({
   actionType,
-  artifactId = null, // this is passed in when a user clicks "Fund" from the Purchase Orders grid
-  loanId = null,
+  artifactId,
+  approvedArtifacts,
+  loanId,
+  loanType,
+  InfoCard,
   handleClose,
 }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
 
   const {
-    user: { companyId },
+    user: { companyId, productType },
   } = useContext(CurrentUserContext);
+
+  const artifactCopyLower = getProductTypeCopy(productType!);
+  const artifactCopyUpper = capsFirst(artifactCopyLower);
 
   // Default Loan for CREATE case.
   const newLoan: LoansInsertInput = {
     artifact_id: artifactId || "",
-    loan_type: LoanTypeEnum.PurchaseOrder,
+    loan_type: loanType,
     requested_payment_date: null,
     amount: "",
     status: LoanStatusEnum.Drafted,
@@ -103,42 +112,36 @@ function CreateUpdatePurchaseOrderLoanModal({
   let amountUsedOnArtifact = 0.0;
   let totalAmountForArtifact = 0.0;
   let totalAmountAvailableOnArtifact = 0.0;
-  const idToArtifact: { [artifact_id: string]: Artifact } = {};
 
-  for (let i = 0; i < artifacts.length; i++) {
-    const artifact = artifacts[i];
-    idToArtifact[artifact.artifact_id] = artifact;
-  }
-  if (artifacts && loan.artifact_id in idToArtifact) {
-    const curArtifact = idToArtifact[loan.artifact_id];
+  const idToArtifact: { [artifact_id: string]: Artifact } = useMemo(
+    () =>
+      artifacts.reduce(
+        (m, a) => ({
+          ...m,
+          [a.artifact_id]: a,
+        }),
+        {}
+      ),
+    [artifacts]
+  );
+
+  const selectedArtifact = idToArtifact[loan.artifact_id];
+
+  if (selectedArtifact) {
     amountUsedOnArtifact =
-      curArtifact.total_amount - curArtifact.amount_remaining;
-    totalAmountForArtifact = curArtifact.total_amount;
+      selectedArtifact.total_amount - selectedArtifact.amount_remaining;
+    totalAmountForArtifact = selectedArtifact.total_amount;
     totalAmountAvailableOnArtifact =
       totalAmountForArtifact - amountUsedOnArtifact;
   }
 
-  // NOTE: This query implicitly has the companyId specified due to the table presets in Hasura
-  const {
-    data,
-    loading: isApprovedPurchaseOrdersLoading,
-  } = useApprovedPurchaseOrdersQuery({
-    fetchPolicy: "network-only",
-  });
-
   const proposedLoansTotalAmount =
     amountUsedOnArtifact + parseFloat(loan?.amount) || 0;
-
-  const approvedPurchaseOrders = data?.purchase_orders || [];
-
-  const selectedPurchaseOrder = approvedPurchaseOrders.find(
-    (purchaseOrder) => purchaseOrder.id === loan.artifact_id
-  );
 
   useEffect(() => {
     async function loadArtifacts() {
       const resp = await listArtifactsForCreateLoan({
-        product_type: ProductTypeEnum.InventoryFinancing,
+        product_type: productType!,
         company_id: companyId,
         loan_id: loanId,
       });
@@ -146,24 +149,25 @@ function CreateUpdatePurchaseOrderLoanModal({
         snackbar.showMessage(resp.msg);
         return;
       }
+
       setArtifacts(resp.artifacts);
 
       if (artifactId) {
-        const selectedArtifact = resp.artifacts.find((artifact) => {
+        const artifact = resp.artifacts.find((artifact) => {
           return artifact.artifact_id === artifactId;
         });
-        if (selectedArtifact) {
+        if (artifact) {
           setLoan((loan) => {
             return {
               ...loan,
-              amount: selectedArtifact.amount_remaining,
+              amount: artifact.amount_remaining,
             };
           });
         }
       }
     }
     loadArtifacts();
-  }, [snackbar, companyId, loanId, artifactId]);
+  }, [snackbar, companyId, loanId, artifactId, productType]);
 
   const [addLoan, { loading: isAddLoanLoading }] = useAddLoanMutation();
 
@@ -190,7 +194,7 @@ function CreateUpdatePurchaseOrderLoanModal({
     return response.data?.update_companies_by_pk?.latest_loan_identifier;
   };
 
-  const upsertPurchaseOrderLoan = async () => {
+  const upsertArtifactLoan = async () => {
     if (actionType === ActionType.Update) {
       const response = await updateLoan({
         variables: {
@@ -211,7 +215,7 @@ function CreateUpdatePurchaseOrderLoanModal({
           variables: {
             loan: {
               identifier: nextLoanIdentifier.toString(),
-              loan_type: LoanTypeEnum.PurchaseOrder,
+              loan_type: loanType,
               artifact_id: loan.artifact_id,
               requested_payment_date: loan.requested_payment_date || null,
               amount: loan.amount || null,
@@ -224,7 +228,7 @@ function CreateUpdatePurchaseOrderLoanModal({
   };
 
   const handleClickSaveDraft = async () => {
-    const savedLoan = await upsertPurchaseOrderLoan();
+    const savedLoan = await upsertArtifactLoan();
     if (!savedLoan) {
       alert("Could not upsert loan");
     } else {
@@ -234,12 +238,12 @@ function CreateUpdatePurchaseOrderLoanModal({
   };
 
   const handleClickSaveSubmit = async () => {
-    const savedLoan = await upsertPurchaseOrderLoan();
+    const savedLoan = await upsertArtifactLoan();
     if (!savedLoan) {
       alert("Could not upsert loan");
     } else {
       // Since this is a SAVE AND SUBMIT action,
-      // hit the PurchaseOrderLoans.SubmitForApproval endpoint.
+      // hit the SubmitForApproval endpoint.
       const response = await submitLoan({
         variables: {
           loan_id: savedLoan.id,
@@ -258,29 +262,29 @@ function CreateUpdatePurchaseOrderLoanModal({
     }
   };
 
-  const isDialogReady =
-    !isExistingLoanLoading && !isApprovedPurchaseOrdersLoading;
+  const isDialogReady = !isExistingLoanLoading;
   const isFormValid = !!loan.artifact_id;
   const isFormLoading =
     isAddLoanLoading || isUpdateLoanLoading || isSubmitLoanLoading;
   const isSaveDraftDisabled = !isFormValid || isFormLoading;
 
   const disabledSubmitReasons = [];
-  if (!isFormValid || !selectedPurchaseOrder) {
-    disabledSubmitReasons.push("Purchase order has not been selected");
+  if (!isFormValid || !selectedArtifact) {
+    disabledSubmitReasons.push(`${artifactCopyUpper} has not been selected`);
   }
   if (isFormLoading) {
     disabledSubmitReasons.push("Data is loading");
   }
   if (proposedLoansTotalAmount > totalAmountForArtifact) {
     disabledSubmitReasons.push(
-      "Requested total exceeds amount available on this purchase order. The total principal against this purchase order would be " +
+      `Requested total exceeds amount available on this ${artifactCopyLower}. The total principal against this ${artifactCopyLower} would be ` +
         formatCurrency(proposedLoansTotalAmount) +
         " versus the " +
         formatCurrency(totalAmountForArtifact) +
         " allowed"
     );
   }
+
   if (!loan?.requested_payment_date) {
     disabledSubmitReasons.push("Requested payment date is not set");
   }
@@ -291,111 +295,154 @@ function CreateUpdatePurchaseOrderLoanModal({
   const isSaveSubmitDisabled = disabledSubmitReasons.length > 0;
   // If the purchase order ID is being passed in through the props, this means that the
   // user cannot select a purchase order themselves.
-  const disablePurchaseOrderEditing = artifactId !== null;
-  const canCreateLoanFromPurchaseOrder = totalAmountAvailableOnArtifact > 0;
-  const noPurchaseOrderSelected = artifactId === null;
+  const disableArtifactEditing = artifactId !== null;
+  const canCreateLoanFromArtifact = totalAmountAvailableOnArtifact > 0;
+  const noArtifactSelected = artifactId === null;
   const canCreateLoan =
-    canCreateLoanFromPurchaseOrder || noPurchaseOrderSelected;
+    (canCreateLoanFromArtifact || noArtifactSelected) &&
+    approvedArtifacts.length > 0;
 
-  return isDialogReady ? (
-    <>
-      {!canCreateLoan && (
-        <Dialog
-          open
-          onClose={handleClose}
-          maxWidth="xl"
-          classes={{ paper: classes.dialog }}
-        >
-          <DialogTitle className={classes.dialogTitle}>
-            Cannot create loan
-          </DialogTitle>
-          <DialogContent>
-            <Box mt={1}>
-              <Alert severity="warning">
-                <span>
-                  The maximum amount has been requested for this purchase order.
-                  You may close this dialog and create a different purchase
-                  order to create advances off of.
-                </span>
-              </Alert>
-            </Box>
-          </DialogContent>
-          <DialogActions className={classes.dialogActions}>
-            <Box>
-              <Button onClick={handleClose}>Cancel</Button>
-            </Box>
-          </DialogActions>
-        </Dialog>
-      )}
-      {canCreateLoan && (
-        <Dialog
-          open
-          onClose={handleClose}
-          maxWidth="xl"
-          classes={{ paper: classes.dialog }}
-        >
-          <DialogTitle className={classes.dialogTitle}>
-            {`${
-              actionType === ActionType.Update ? "Edit" : "Create"
-            } Inventory Loan`}
-          </DialogTitle>
-          <DialogContent>
-            <PurchaseOrderLoanForm
-              canEditPurchaseOrder={
-                actionType === ActionType.New && !disablePurchaseOrderEditing
-              }
-              loan={loan}
-              setLoan={setLoan}
-              approvedPurchaseOrders={approvedPurchaseOrders}
-              selectedPurchaseOrder={selectedPurchaseOrder}
-              idToArtifact={idToArtifact}
-            />
-            {disabledSubmitReasons.length > 0 && (
-              <Box mt={1}>
-                <Alert severity="warning">
-                  <span>
-                    Reasons you cannot submit, but can only save this as a draft
-                  </span>
-                  <br />
-                  <div>
-                    <ul>
-                      {disabledSubmitReasons.map((reason, index) => {
-                        return (
-                          <li key={"disabled-reason-" + index}>{reason}</li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                </Alert>
-              </Box>
-            )}
-          </DialogContent>
-          <DialogActions className={classes.dialogActions}>
-            <Box>
-              <Button onClick={handleClose}>Cancel</Button>
-              <Button
-                disabled={isSaveDraftDisabled}
-                onClick={handleClickSaveDraft}
-                variant={"contained"}
-                color={"secondary"}
-              >
-                Save as Draft
-              </Button>
-              <Button
-                className={classes.submitButton}
-                disabled={isSaveSubmitDisabled}
-                onClick={handleClickSaveSubmit}
-                variant="contained"
-                color="primary"
-              >
-                Save and Submit
-              </Button>
-            </Box>
-          </DialogActions>
-        </Dialog>
-      )}
-    </>
-  ) : null;
+  // Return null when we aren't yet ready
+  if (!isDialogReady) {
+    return null;
+  }
+
+  // Render a prompt that just tells folks they can't take out new loans against
+  // this artifact
+  if (!canCreateLoan) {
+    return (
+      <Dialog
+        open
+        onClose={handleClose}
+        maxWidth="xl"
+        classes={{ paper: classes.dialog }}
+      >
+        <DialogTitle className={classes.dialogTitle}>
+          Cannot create loan
+        </DialogTitle>
+        <DialogContent>
+          <Box mt={1}>
+            <Alert severity="warning">
+              <span>
+                The maximum amount has been requested for this{" "}
+                {artifactCopyLower} or it is not yet approved. You may close
+                this dialog and create a different {artifactCopyLower}
+                to create advances off of.
+              </span>
+            </Alert>
+          </Box>
+        </DialogContent>
+        <DialogActions className={classes.dialogActions}>
+          <Box>
+            <Button onClick={handleClose}>Cancel</Button>
+          </Box>
+        </DialogActions>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Dialog
+      open
+      onClose={handleClose}
+      maxWidth="xl"
+      classes={{ paper: classes.dialog }}
+    >
+      <DialogTitle className={classes.dialogTitle}>
+        {`${
+          actionType === ActionType.Update ? "Edit" : "Create"
+        } ${getProductTypeLoanTitle(productType!)}`}
+      </DialogTitle>
+      <DialogContent>
+        <ArtifactLoanForm
+          artifactTitle={getProductTypeArtifactTitle(productType!)}
+          canEditArtifact={
+            actionType === ActionType.New && !disableArtifactEditing
+          }
+          loan={loan}
+          setLoan={setLoan}
+          approvedArtifacts={approvedArtifacts}
+          selectedArtifact={selectedArtifact}
+          idToArtifact={idToArtifact}
+          InfoCard={InfoCard}
+        />
+        {disabledSubmitReasons.length > 0 && (
+          <Box mt={1}>
+            <Alert severity="warning">
+              <span>
+                Reasons you cannot submit, but can only save this as a draft
+              </span>
+              <br />
+              <div>
+                <ul>
+                  {disabledSubmitReasons.map((reason, index) => {
+                    return <li key={"disabled-reason-" + index}>{reason}</li>;
+                  })}
+                </ul>
+              </div>
+            </Alert>
+          </Box>
+        )}
+      </DialogContent>
+      <DialogActions className={classes.dialogActions}>
+        <Box>
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button
+            disabled={isSaveDraftDisabled}
+            onClick={handleClickSaveDraft}
+            variant={"contained"}
+            color={"secondary"}
+          >
+            Save as Draft
+          </Button>
+          <Button
+            className={classes.submitButton}
+            disabled={isSaveSubmitDisabled}
+            onClick={handleClickSaveSubmit}
+            variant="contained"
+            color="primary"
+          >
+            Save and Submit
+          </Button>
+        </Box>
+      </DialogActions>
+    </Dialog>
+  );
 }
 
-export default CreateUpdatePurchaseOrderLoanModal;
+const getProductTypeCopy = (productType: ProductTypeEnum) => {
+  switch (productType) {
+    case ProductTypeEnum.InventoryFinancing:
+      return "purchase order";
+    case ProductTypeEnum.InvoiceFinancing:
+      return "invoice";
+    default:
+      return "artifact";
+  }
+};
+
+const getProductTypeLoanTitle = (productType: ProductTypeEnum) => {
+  switch (productType) {
+    case ProductTypeEnum.InventoryFinancing:
+      return "Inventory Loan";
+    case ProductTypeEnum.InvoiceFinancing:
+      return "Invoice Loan";
+    default:
+      return "Artifact Loan";
+  }
+};
+
+const getProductTypeArtifactTitle = (productType: ProductTypeEnum) => {
+  switch (productType) {
+    case ProductTypeEnum.InventoryFinancing:
+      return "Purchase Order";
+    case ProductTypeEnum.InvoiceFinancing:
+      return "Invoice";
+    default:
+      return "Artifact";
+  }
+};
+
+const capsFirst = (s: string) => {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+};

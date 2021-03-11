@@ -9,11 +9,11 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoanFragment,
   Loans,
-  LoanTypeEnum,
   ProductTypeEnum,
   useLoansByCompanyAndLoanTypeForBankQuery,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
+import { ProductTypeToLoanType } from "lib/enum";
 import { approveLoans, rejectLoan } from "lib/finance/loans/approval";
 import { useContext, useState } from "react";
 
@@ -22,24 +22,30 @@ interface Props {
   productType: ProductTypeEnum;
 }
 
-function BankCustomerLoansSubpage({ companyId, productType }: Props) {
+export default function BankCustomerLoansSubpage({
+  companyId,
+  productType,
+}: Props) {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
 
+  const loanType =
+    !!productType && productType in ProductTypeToLoanType
+      ? ProductTypeToLoanType[productType]
+      : null;
+
   const { data, error, refetch } = useLoansByCompanyAndLoanTypeForBankQuery({
     fetchPolicy: "network-only",
+    skip: !loanType,
     notifyOnNetworkStatusChange: true,
     variables: {
       companyId,
-      loanType:
-        productType === ProductTypeEnum.LineOfCredit
-          ? LoanTypeEnum.LineOfCredit
-          : LoanTypeEnum.PurchaseOrder,
+      loanType,
     },
   });
   if (error) {
-    alert("Error querying purchase orders. " + error);
+    alert("Error querying loans. " + error);
   }
 
   const loans = data?.loans || [];
@@ -192,5 +198,3 @@ function BankCustomerLoansSubpage({ companyId, productType }: Props) {
     </Box>
   );
 }
-
-export default BankCustomerLoansSubpage;

@@ -148,3 +148,14 @@ export const UserRoleToLabel = {
   [UserRolesEnum.CompanyAdmin]: "Company Admin",
   [UserRolesEnum.CompanyReadOnly]: "Company User (View Only)",
 };
+
+// Mapping for when we look up loans based on ProductType
+export const ProductTypeToLoanType = {
+  [ProductTypeEnum.InventoryFinancing]: LoanTypeEnum.PurchaseOrder,
+  [ProductTypeEnum.LineOfCredit]: LoanTypeEnum.LineOfCredit,
+  [ProductTypeEnum.InvoiceFinancing]: LoanTypeEnum.Invoice,
+  // TODO(pjstein): Waiting on PMF.
+  [ProductTypeEnum.PurchaseMoneyFinancing]: null,
+  // Give None a type so that we're exhaustive
+  [ProductTypeEnum.None]: null,
+};

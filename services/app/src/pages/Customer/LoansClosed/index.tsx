@@ -8,12 +8,9 @@ import {
 import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import {
-  LoanTypeEnum,
-  ProductTypeEnum,
-  useGetClosedLoansForCompanyQuery,
-} from "generated/graphql";
+import { useGetClosedLoansForCompanyQuery } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
+import { ProductTypeToLoanType } from "lib/enum";
 import { useContext } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -41,13 +38,15 @@ function CustomerLoansClosedPage() {
     user: { companyId, productType, role },
   } = useContext(CurrentUserContext);
 
+  const loanType =
+    !!productType && productType in ProductTypeToLoanType
+      ? ProductTypeToLoanType[productType]
+      : null;
+
   const { data, error } = useGetClosedLoansForCompanyQuery({
     variables: {
       companyId,
-      loanType:
-        productType === ProductTypeEnum.LineOfCredit
-          ? LoanTypeEnum.LineOfCredit
-          : LoanTypeEnum.PurchaseOrder,
+      loanType,
     },
   });
 

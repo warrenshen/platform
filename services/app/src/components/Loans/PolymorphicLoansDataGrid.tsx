@@ -1,3 +1,4 @@
+import InvoiceLoansDataGrid from "components/Invoices/InvoiceLoansDataGrid";
 import LineOfCreditLoansDataGrid from "components/Loans/LineOfCreditLoansDataGrid";
 import PurchaseOrderLoansDataGrid from "components/Loans/PurchaseOrderLoansDataGrid";
 import { DataGridActionItem } from "components/Shared/DataGrid/DataGridActionMenu";
@@ -42,6 +43,19 @@ function PolymorphicLoansDataGrid({
   } else if (productType === ProductTypeEnum.LineOfCredit) {
     return (
       <LineOfCreditLoansDataGrid
+        isMaturityVisible={isMaturityVisible}
+        isMultiSelectEnabled={isMultiSelectEnabled}
+        isViewNotesEnabled={isViewNotesEnabled}
+        pager={pager}
+        loans={loans}
+        actionItems={actionItems}
+        selectedLoanIds={selectedLoanIds}
+        handleSelectLoans={handleSelectLoans}
+      />
+    );
+  } else if (productType === ProductTypeEnum.InvoiceFinancing) {
+    return (
+      <InvoiceLoansDataGrid
         isMaturityVisible={isMaturityVisible}
         isMultiSelectEnabled={isMultiSelectEnabled}
         isViewNotesEnabled={isViewNotesEnabled}
