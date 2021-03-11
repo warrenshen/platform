@@ -185,7 +185,7 @@ class LoanCalculator(object):
 				pass
 
 			# Add it to the outstanding interest and fees
-			interest_due_on_day = cur_interest_rate / 100.0 * max(0.0, outstanding_principal)
+			interest_due_on_day = cur_interest_rate * max(0.0, outstanding_principal)
 			outstanding_interest += interest_due_on_day
 			outstanding_fees += fee_multiplier * interest_due_on_day
 

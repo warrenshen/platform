@@ -17,6 +17,7 @@ from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
 from bespoke_test.payments import payment_test_helper
 
+INTEREST_RATE = 0.002 # 0.2%
 
 def _get_late_fee_structure() -> str:
 	return json.dumps({
@@ -32,7 +33,7 @@ def _get_contract(company_id: str) -> models.Contract:
 		product_config=contract_test_helper.create_contract_config(
 			product_type=ProductType.LINE_OF_CREDIT,
 			input_dict=ContractInputDict(
-				interest_rate=0.2,
+				interest_rate=INTEREST_RATE,
 				maximum_principal_amount=120000.01,
 				max_days_until_repayment=0, # unused
 				late_fee_structure=_get_late_fee_structure(),

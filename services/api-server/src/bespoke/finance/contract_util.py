@@ -254,6 +254,7 @@ class Contract(object):
 		return self._get_float_value('maximum_amount')
 
 	def get_interest_rate(self) -> Tuple[float, errors.Error]:
+		# Returns interest rate in decimal format (0.0 = 0%, 1.0 = 100%).
 		return self._get_float_value('factoring_fee_percentage')
 
 	def _use_preceeding_business_day(self) -> Tuple[bool, errors.Error]:

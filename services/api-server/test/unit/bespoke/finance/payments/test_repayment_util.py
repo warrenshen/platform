@@ -17,6 +17,7 @@ from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
 from bespoke_test.payments import payment_test_helper
 
+INTEREST_RATE = 0.002 # 0.2%
 
 def _get_late_fee_structure() -> str:
 	return json.dumps({
@@ -32,7 +33,7 @@ def _get_contract(company_id: str) -> models.Contract:
 		product_config=contract_test_helper.create_contract_config(
 			product_type=ProductType.INVENTORY_FINANCING,
 			input_dict=ContractInputDict(
-				interest_rate=0.2,
+				interest_rate=INTEREST_RATE,
 				maximum_principal_amount=120000.01,
 				max_days_until_repayment=0, # unused
 				late_fee_structure=_get_late_fee_structure(),
@@ -162,7 +163,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 
 
 	def test_custom_amount_single_loan_before_maturity_no_transactions(self) -> None:
-		daily_interest = 0.2 / 100 * 20.02 # ~0.04 = daily_interest_rate_pct / 100 * principal_owed
+		daily_interest = INTEREST_RATE * 20.02 # ~0.04 = daily_interest_rate_pct * principal_owed
 		# Amount as credit is equal to the outstanding principal balance since
 		# they overpaid on this one.
 
@@ -216,8 +217,8 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 
 	def test_custom_amount_multiple_loans_credit_remaining(self) -> None:
 		#credit_amount = 15.01 - 9.99 - 1.03 - 1.88 - 0.73
-		daily_interest1 = 0.04 # 0.2 / 100 * 20.00 == daily_interest_rate_pct / 100 * principal_owed
-		daily_interest2 = 0.06 # 0.2 / 100 * 30.00 == daily_interest_rate_pct / 100 * principal_owed
+		daily_interest1 = 0.04 # INTEREST_RATE * 20.00 == daily_interest_rate_pct * principal_owed
+		daily_interest2 = 0.06 # INTEREST_RATE * 30.00 == daily_interest_rate_pct * principal_owed
 
 		test: Dict = {
 			'comment': 'The user pays off multiple loans and have a credit remaining on their principal',
@@ -295,9 +296,9 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 		self._run_test(test)
 
 	def test_custom_amount_multiple_loans_cant_pay_off_everything(self) -> None:
-		daily_interest1 = 0.2 / 100 * 10.00 # == 0.02
-		daily_interest2 = 0.2 / 100 * 30.00
-		daily_interest3 = 0.2 / 100 * 50.00
+		daily_interest1 = INTEREST_RATE * 10.00 # == 0.02
+		daily_interest2 = INTEREST_RATE * 30.00
+		daily_interest3 = INTEREST_RATE * 50.00
 		test: Dict = {
 			'comment': 'The user pays exactly what they specified',
 			'loans': [
@@ -411,8 +412,8 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 		self._run_test(test)
 
 	def test_pay_minimum_due(self) -> None:
-		daily_interest1 = 0.2 / 100 * 20.00
-		daily_interest2 = 0.2 / 100 * 30.00
+		daily_interest1 = INTEREST_RATE * 20.00
+		daily_interest2 = INTEREST_RATE * 30.00
 
 		first_loan_payment_amount = 20.00 + (daily_interest1 * 9) + (daily_interest1 * 3 * 0.25)
 		second_loan_payment_amount = 30.00 + (daily_interest2 * 4) + (daily_interest2 * 1 * 0.25)

@@ -86,7 +86,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				product_config=contract_test_helper.create_contract_config(
 					product_type=ProductType.INVENTORY_FINANCING,
 					input_dict=ContractInputDict(
-						interest_rate=5.00,
+						interest_rate=0.05,
 						maximum_principal_amount=120000.01,
 						max_days_until_repayment=0, # unused
 						late_fee_structure=_get_late_fee_structure(), # unused
@@ -125,7 +125,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				product_config=contract_test_helper.create_contract_config(
 					product_type=ProductType.INVENTORY_FINANCING,
 					input_dict=ContractInputDict(
-						interest_rate=5.00,
+						interest_rate=0.05,
 						maximum_principal_amount=120000.01,
 						max_days_until_repayment=0, # unused
 						late_fee_structure=_get_late_fee_structure(), # unused
@@ -194,7 +194,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				product_config=contract_test_helper.create_contract_config(
 					product_type=ProductType.INVENTORY_FINANCING,
 					input_dict=ContractInputDict(
-						interest_rate=0.2,
+						interest_rate=0.002,
 						maximum_principal_amount=120000.01,
 						max_days_until_repayment=0, # unused
 						late_fee_structure=_get_late_fee_structure(),
@@ -258,7 +258,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				product_config=contract_test_helper.create_contract_config(
 					product_type=ProductType.LINE_OF_CREDIT,
 					input_dict=ContractInputDict(
-						interest_rate=5.00,
+						interest_rate=0.05,
 						maximum_principal_amount=1200000,
 						max_days_until_repayment=0, # unused
 						late_fee_structure=_get_late_fee_structure(), # unused
@@ -330,7 +330,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				product_config=contract_test_helper.create_contract_config(
 					product_type=ProductType.LINE_OF_CREDIT,
 					input_dict=ContractInputDict(
-						interest_rate=5.00,
+						interest_rate=0.05,
 						maximum_principal_amount=120000.01,
 						max_days_until_repayment=0, # unused
 						late_fee_structure=_get_late_fee_structure(), # unused
