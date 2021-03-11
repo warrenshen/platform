@@ -52,6 +52,7 @@ function EbbaApplicationsDataGrid({
         visible: isCompanyVisible,
         dataField: "company_name",
         caption: "Customer Name",
+        minWidth: ColumnWidths.MinWidth,
       },
       {
         dataField: "application_date",

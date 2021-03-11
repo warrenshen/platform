@@ -3,6 +3,7 @@ import { ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import VerificationChip from "components/Vendors/VerificationChip";
+import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 const verificationCellRenderer = (params: ValueFormatterParams) => (
@@ -39,6 +40,7 @@ export default function PayorPartnershipsDataGrid({
       {
         dataField: "company.name",
         caption: "Customer Name",
+        minWidth: ColumnWidths.MinWidth,
         visible: !!isDrilldownByCustomer ? false : !!isBankAccount,
       },
       {

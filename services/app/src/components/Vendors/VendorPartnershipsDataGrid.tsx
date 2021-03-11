@@ -3,6 +3,7 @@ import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridC
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import VendorDrawer from "components/Vendors/VendorDrawer";
 import VerificationChip from "components/Vendors/VerificationChip";
+import { ColumnWidths } from "lib/tables";
 import { useMemo, useState } from "react";
 
 function VendorPartnershipsDataGrid({
@@ -52,6 +53,7 @@ function VendorPartnershipsDataGrid({
       {
         dataField: "company.name",
         caption: "Customer Name",
+        minWidth: ColumnWidths.MinWidth,
         visible: !!isDrilldownByCustomer ? false : !!isBankAccount,
       },
       {

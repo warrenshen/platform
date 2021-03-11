@@ -61,6 +61,7 @@ function BankCustomersPage() {
     {
       dataField: "name",
       caption: "Customer Name",
+      minWidth: ColumnWidths.MinWidth,
       cellRender: customerNameCellRenderer,
     },
     {
