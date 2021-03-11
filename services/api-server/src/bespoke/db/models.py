@@ -85,12 +85,13 @@ class Company(Base):
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	company_settings_id = Column(GUID, nullable=False)
+	contract_id = Column(GUID)
+	company_type = Column(String, nullable=False, default=CompanyType.Customer)
 	name = Column(String)
 	identifier = Column(String)
-	contract_id = Column(GUID)
+	contract_name = Column(String)
 	needs_balance_recomputed = Column(Boolean, nullable=False, default=False)
 	latest_loan_identifier = Column(Integer, nullable=False, default=0)
-	company_type = Column(String, nullable=False, default=CompanyType.Customer)
 
 	def as_dict(self) -> CompanyDict:
 		return CompanyDict(
