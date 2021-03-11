@@ -547,8 +547,8 @@ class Invoice(Base):
 	__tablename__ = 'invoices'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
-	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id'), nullable=False))
-	payor_id = cast(GUID, Column(GUID, ForeignKey('companies.id'), nullable=False))
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	payor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	invoice_number = Column(String)
 	subtotal_amount = Column(Numeric)
 	total_amount = Column(Numeric)

@@ -65,10 +65,12 @@ class LoanStatusEnum(object):
 class LoanTypeEnum(object):
 	LINE_OF_CREDIT = 'line_of_credit'
 	INVENTORY = 'purchase_order'
+	INVOICE = 'invoice'
 
 ALL_LOAN_TYPES = [
 	LoanTypeEnum.LINE_OF_CREDIT,
 	LoanTypeEnum.INVENTORY,
+	LoanTypeEnum.INVOICE,
 ]
 
 # Payments

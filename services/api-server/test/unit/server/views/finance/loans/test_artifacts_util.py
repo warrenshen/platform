@@ -183,3 +183,106 @@ class TestListArtifactsForCreateLoan(db_unittest.TestCase):
 			]
 		}
 		self._run_test(test)
+
+	def test_invoice_financing_many_loans_from_two_purchase_orders(self) -> None:
+		test: Dict = {
+			'product_type': db_constants.ProductType.INVOICE_FINANCING,
+			'loans': [
+				models.Loan(
+					loan_type=db_constants.LoanTypeEnum.INVOICE,
+					requested_payment_date=date_util.load_date_str('10/01/2020'),
+					amount=decimal.Decimal(90.02),
+					status=db_constants.LoanStatusEnum.APPROVAL_REQUESTED
+				),
+				models.Loan(
+					loan_type=db_constants.LoanTypeEnum.INVOICE,
+					requested_payment_date=date_util.load_date_str('10/01/2020'),
+					amount=decimal.Decimal(30.02),
+					status=db_constants.LoanStatusEnum.APPROVED
+				),
+				models.Loan(
+					loan_type=db_constants.LoanTypeEnum.INVOICE,
+					requested_payment_date=date_util.load_date_str('10/01/2020'),
+					amount=decimal.Decimal(20.02),
+					status=db_constants.LoanStatusEnum.APPROVED
+				),
+				models.Loan(
+					loan_type=db_constants.LoanTypeEnum.INVOICE,
+					requested_payment_date=date_util.load_date_str('10/01/2020'),
+					amount=decimal.Decimal(50.02),
+					status=db_constants.LoanStatusEnum.CLOSED
+				),
+				models.Loan(
+					loan_type=db_constants.LoanTypeEnum.INVOICE,
+					requested_payment_date=date_util.load_date_str('10/02/2020'),
+					amount=decimal.Decimal(10.01)
+				)
+				# Many loans in several states add up to more than the $100 allotted for that
+				# one purchase order when summed up.
+			],
+			'artifacts': [
+				models.Invoice(
+					subtotal_amount=decimal.Decimal(100.0)
+				),
+				models.Invoice(
+					subtotal_amount=decimal.Decimal(200.0)
+				),
+				models.Invoice(
+					subtotal_amount=decimal.Decimal(300.0)
+				)
+			],
+			'loan_artifact_indices': [0, 0, 0, 1, 1],
+			'loan_id_index': None,
+			'expected_artifacts': [
+				{
+					'artifact_id': None, # filled in by test
+					'total_amount': 100.0,
+					'amount_remaining': 0 # would normally send the amount remaining negative
+				},
+				{
+					'artifact_id': None, # filled in by test
+					'total_amount': 200.0,
+					'amount_remaining': 200.0 - (50.02 + 10.01)
+				},
+				{
+					'artifact_id': None, # filled in by test
+					'total_amount': 300.0,
+					'amount_remaining': 300.0 # no loans associated with this artifact
+				}
+			]
+		}
+		self._run_test(test)
+
+	def test_invoice_financing_exclude_loan_id(self) -> None:
+		test: Dict = {
+			'product_type': db_constants.ProductType.INVOICE_FINANCING,
+			'loans': [
+				models.Loan(
+					loan_type=db_constants.LoanTypeEnum.INVOICE,
+					requested_payment_date=date_util.load_date_str('10/01/2020'),
+					amount=decimal.Decimal(200.02),
+					status=db_constants.LoanStatusEnum.APPROVAL_REQUESTED
+				),
+				models.Loan(
+					loan_type=db_constants.LoanTypeEnum.INVOICE,
+					requested_payment_date=date_util.load_date_str('10/01/2020'),
+					amount=decimal.Decimal(130.02),
+					status=db_constants.LoanStatusEnum.APPROVED
+				)
+			],
+			'artifacts': [
+				models.Invoice(
+					subtotal_amount=decimal.Decimal(700.0)
+				),
+			],
+			'loan_artifact_indices': [0, 0],
+			'loan_id_index': 0,
+			'expected_artifacts': [
+				{
+					'artifact_id': None, # filled in by test
+					'total_amount': 700.0,
+					'amount_remaining': 700.0 - 130.02 # check that your loan (200.02 amount) is not included
+				}
+			]
+		}
+		self._run_test(test)
