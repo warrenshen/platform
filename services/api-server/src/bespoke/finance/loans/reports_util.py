@@ -172,14 +172,14 @@ def run_customer_balances_for_companies(
 		if descriptive_error:
 			errors_list.append(descriptive_error)
 
+	if len(errors_list) == len(companies):
+		return errors_list, errors.Error('No companies balances could be computed successfully. Errors: {}'.format(
+			errors_list))
+
 	with session_scope(session_maker) as session:
 		fatal_error = compute_and_update_bank_financial_summaries(session, report_date)
 		if fatal_error:
 			return errors_list, fatal_error
-
-	if len(errors_list) == len(companies):
-		return errors_list, errors.Error('No companies balances could be computed successfully. Errors: {}'.format(
-			errors_list))
 
 	return errors_list, None
 
