@@ -5,6 +5,10 @@ import CompanySettingsCard from "components/Settings/CompanySettingsCard";
 import EditCompanySettingsModal from "components/Settings/EditCompanySettingsModal";
 import Can from "components/Shared/Can";
 import CompanyInfo from "components/Shared/CompanyProfile/CompanyInfo";
+import ModalButton from "components/Shared/Modal/ModalButton";
+import EditUserProfileModal from "components/Users/EditUserProfileModal";
+import InviteUserModal from "components/Users/InviteUserModal";
+import UsersDataGrid from "components/Users/UsersDataGrid";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   BankAccountFragment,
@@ -12,9 +16,12 @@ import {
   CompanySettingsForCustomerFragment,
   CompanySettingsFragment,
   ContractFragment,
+  useListUsersByCompanyIdQuery,
+  UserRolesEnum,
+  Users,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
-import React, { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 
 interface Props {
   companyId: string;
@@ -36,58 +43,127 @@ function Settings({
   const {
     user: { role },
   } = useContext(CurrentUserContext);
+
   const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
 
+  const { data, refetch } = useListUsersByCompanyIdQuery({
+    variables: {
+      companyId,
+    },
+  });
+
+  const users = data?.users || [];
+
+  const [selectedUsers, setSelectedUsers] = useState<Users[]>([]);
+  const [selectedUserIds, setSelectedUserIds] = useState<Users["id"]>([]);
+
+  const handleSelectUsers = useMemo(
+    () => (users: Users[]) => {
+      setSelectedUsers(users);
+      setSelectedUserIds(users.map((user) => user.id));
+    },
+    [setSelectedUserIds]
+  );
+
   return (
-    <div>
+    <Box>
+      <h1>Account Settings</h1>
       <Box>
-        <h2>Account Settings</h2>
-        <Box>
-          <h3>Customer Settings</h3>
-          <Box mt={3}>
-            <CompanyInfo
-              company={company}
-              isEditAllowed={check(role, Action.EditBankAccount)}
+        <h2>Customer Settings</h2>
+        <Box mt={3}>
+          <CompanyInfo
+            company={company}
+            isEditAllowed={check(role, Action.EditBankAccount)}
+          />
+        </Box>
+        <Box mt={3}>
+          {accountSettingsOpen && (
+            <EditCompanySettingsModal
+              companyId={companyId}
+              existingSettings={settings}
+              handleClose={() => {
+                handleDataChange();
+                setAccountSettingsOpen(false);
+              }}
             />
-          </Box>
-          <Box mt={3}>
-            {accountSettingsOpen && (
-              <EditCompanySettingsModal
+          )}
+          <CompanySettingsCard
+            contract={contract}
+            settings={settings}
+            handleClick={() => {
+              setAccountSettingsOpen(true);
+            }}
+          />
+        </Box>
+      </Box>
+      <Box>
+        <h2>Bank Accounts</h2>
+        <Can perform={Action.AddBankAccount}>
+          <AddAccountButton companyId={settings.company_id} />
+        </Can>
+        <Box display="flex" mt={3}>
+          {bankAccounts.map((bankAccount, index) => (
+            <Box mr={2} key={index}>
+              <BankAccountInfoCard
+                bankAccount={bankAccount}
+                isEditAllowed={check(role, Action.EditBankAccount)}
+              />
+            </Box>
+          ))}
+        </Box>
+      </Box>
+      <Box>
+        <h2>Users</h2>
+        <Box display="flex" flexDirection="row-reverse">
+          <ModalButton
+            label={"Invite User"}
+            modal={({ handleClose }) => (
+              <InviteUserModal
                 companyId={companyId}
-                existingSettings={settings}
+                userRoles={[
+                  UserRolesEnum.CompanyAdmin,
+                  UserRolesEnum.CompanyReadOnly,
+                ]}
                 handleClose={() => {
-                  handleDataChange();
-                  setAccountSettingsOpen(false);
+                  refetch();
+                  handleClose();
                 }}
               />
             )}
-            <CompanySettingsCard
-              contract={contract}
-              settings={settings}
-              handleClick={() => {
-                setAccountSettingsOpen(true);
-              }}
+          />
+          <Box mr={2}>
+            <ModalButton
+              isDisabled={selectedUsers.length !== 1}
+              label={"Edit User"}
+              modal={({ handleClose }) => (
+                <EditUserProfileModal
+                  userId={selectedUsers[0].id}
+                  companyId={companyId}
+                  originalUserProfile={selectedUsers[0]}
+                  handleClose={() => {
+                    refetch();
+                    handleClose();
+                  }}
+                />
+              )}
             />
           </Box>
         </Box>
-        <Box>
-          <h3>Bank Accounts</h3>
-          <Can perform={Action.AddBankAccount}>
-            <AddAccountButton companyId={settings.company_id} />
-          </Can>
-          <Box display="flex" mt={3}>
-            {bankAccounts.map((bankAccount, index) => (
-              <Box mr={2} key={index}>
-                <BankAccountInfoCard
-                  bankAccount={bankAccount}
-                  isEditAllowed={check(role, Action.EditBankAccount)}
-                />
-              </Box>
-            ))}
-          </Box>
+        <Box display="flex" mt={3}>
+          <UsersDataGrid
+            isMultiSelectEnabled
+            hideCompany={
+              ![UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly].includes(
+                role
+              )
+            }
+            users={users}
+            selectedUserIds={selectedUserIds}
+            handleSelectUsers={handleSelectUsers}
+          />
         </Box>
       </Box>
-    </div>
+    </Box>
   );
 }
 

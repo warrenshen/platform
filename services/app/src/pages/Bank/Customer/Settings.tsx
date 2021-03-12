@@ -3,25 +3,22 @@ import Settings from "components/Settings";
 import AdvancesBank from "components/Shared/BespokeBankAssignment/AdvancesBank";
 import CollectionsBank from "components/Shared/BespokeBankAssignment/CollectionsBank";
 import Can from "components/Shared/Can";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   CompanySettingsFragment,
   ContractFragment,
   useCompanyQuery,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
-import { useContext } from "react";
-import { useParams } from "react-router-dom";
 
 export interface CustomerParams {
   companyId: string;
 }
 
-function SettingsPage() {
-  const { companyId: companyIdFromParams } = useParams<CustomerParams>();
-  const { user } = useContext(CurrentUserContext);
-  const companyId = companyIdFromParams || user.companyId;
+interface Props {
+  companyId: string;
+}
 
+function BankCustomerSettingsSubpage({ companyId }: Props) {
   const { data, refetch } = useCompanyQuery({
     variables: {
       companyId,
@@ -43,24 +40,26 @@ function SettingsPage() {
         handleDataChange={() => refetch()}
       />
       <Can perform={Action.AssignBespokeBankAccountForCustomer}>
-        <h3>Collection and Advances Accounts</h3>
-        <Box mt={2} display="flex">
-          <AdvancesBank
-            companySettingsId={settings?.id}
-            assignedBespokeBankAccount={
-              company.settings?.advances_bespoke_bank_account || undefined
-            }
-          />
-          <CollectionsBank
-            companySettingsId={settings?.id}
-            assignedBespokeBankAccount={
-              company.settings?.collections_bespoke_bank_account || undefined
-            }
-          />
+        <Box mt={2}>
+          <h2>Bespoke Collection and Advances Accounts</h2>
+          <Box display="flex">
+            <AdvancesBank
+              companySettingsId={settings?.id}
+              assignedBespokeBankAccount={
+                company.settings?.advances_bespoke_bank_account || undefined
+              }
+            />
+            <CollectionsBank
+              companySettingsId={settings?.id}
+              assignedBespokeBankAccount={
+                company.settings?.collections_bespoke_bank_account || undefined
+              }
+            />
+          </Box>
         </Box>
       </Can>
     </>
   ) : null;
 }
 
-export default SettingsPage;
+export default BankCustomerSettingsSubpage;

@@ -4,16 +4,26 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
-import { UserFragment } from "generated/graphql";
+import { UserFragment, Users } from "generated/graphql";
 import { useMemo } from "react";
 
 interface Props {
+  isMultiSelectEnabled?: boolean;
   hideCompany?: boolean;
   users: UserFragment[];
-  actionItems: DataGridActionItem[];
+  selectedUserIds?: Users["id"][];
+  handleSelectUsers?: (users: Users[]) => void;
+  actionItems?: DataGridActionItem[];
 }
 
-function UsersDataGrid({ actionItems, hideCompany, users }: Props) {
+function UsersDataGrid({
+  isMultiSelectEnabled = false,
+  hideCompany,
+  users,
+  selectedUserIds,
+  handleSelectUsers,
+  actionItems,
+}: Props) {
   const rows = users;
   const columns = useMemo(
     () => [
@@ -47,7 +57,7 @@ function UsersDataGrid({ actionItems, hideCompany, users }: Props) {
         width: 150,
       },
       {
-        visible: actionItems.length > 0,
+        visible: !!actionItems && actionItems.length > 0,
         caption: "Action",
         width: 90,
         cellRender: (params: ValueFormatterParams) => (
@@ -58,9 +68,22 @@ function UsersDataGrid({ actionItems, hideCompany, users }: Props) {
     [hideCompany, actionItems]
   );
 
+  const handleSelectionChanged = useMemo(
+    () => ({ selectedRowsData }: any) =>
+      handleSelectUsers && handleSelectUsers(selectedRowsData as Users[]),
+    [handleSelectUsers]
+  );
+
   return (
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      <ControlledDataGrid pager dataSource={rows} columns={columns} />
+      <ControlledDataGrid
+        pager
+        select={isMultiSelectEnabled}
+        dataSource={rows}
+        columns={columns}
+        selectedRowKeys={selectedUserIds}
+        onSelectionChanged={handleSelectionChanged}
+      />
     </Box>
   );
 }

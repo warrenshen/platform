@@ -9,6 +9,7 @@ import { useState } from "react";
 interface Props {
   companyId: string;
 }
+
 function BankCustomerContractSubpage({ companyId }: Props) {
   const { data, refetch } = useGetCompanyForCustomerContractPageQuery({
     variables: {

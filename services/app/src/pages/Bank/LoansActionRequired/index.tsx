@@ -144,11 +144,11 @@ function LoansActionRequiredPage() {
         <LoansDataGrid
           isCompanyVisible
           isMaturityVisible={false}
+          isMultiSelectEnabled={check(role, Action.SelectLoan)}
           isFilteringEnabled
           loans={loans}
           selectedLoanIds={selectedLoanIds}
           handleSelectLoans={handleSelectLoans}
-          isMultiSelectEnabled={check(role, Action.SelectLoan)}
         />
       </Box>
     </Page>

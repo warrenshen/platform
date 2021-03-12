@@ -23,7 +23,6 @@ import BankCustomerOverviewSubpage from "./Overview";
 import BankCustomerPayorsSubpage from "./Payors";
 import BankCustomerPurchaseOrdersSubpage from "./PurchaseOrders";
 import BankCustomerSettingsSubpage from "./Settings";
-import BankCustomerUsersSubpage from "./Users";
 import BankCustomerVendorsSubpage from "./Vendors";
 
 const DRAWER_WIDTH = 175;
@@ -94,11 +93,6 @@ const getCustomerPaths = (productType: ProductTypeEnum) => [
     path: bankRoutes.customer.contract,
     component: BankCustomerContractPage,
     label: "Contract",
-  },
-  {
-    path: bankRoutes.customer.users,
-    component: BankCustomerUsersSubpage,
-    label: "Users",
   },
   {
     path: bankRoutes.customer.settings,

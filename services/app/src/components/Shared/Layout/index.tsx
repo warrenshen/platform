@@ -146,10 +146,6 @@ const getCustomerNavItems = (
       link: customerRoutes.contract,
     },
     {
-      text: "Users",
-      link: routes.users,
-    },
-    {
       text: "Settings",
       link: customerRoutes.settings,
     },

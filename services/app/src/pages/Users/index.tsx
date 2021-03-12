@@ -55,12 +55,8 @@ function Users() {
     <Page appBarTitle={"Users"}>
       {open && (
         <InviteUserModal
-          companyId={role === UserRolesEnum.BankAdmin ? undefined : companyId}
-          userRoles={
-            role === UserRolesEnum.BankAdmin
-              ? [UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]
-              : [UserRolesEnum.CompanyAdmin, UserRolesEnum.CompanyReadOnly]
-          }
+          companyId={undefined}
+          userRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
           handleClose={() => {
             refetchCustomerUsers();
             refetchBankUsers();
