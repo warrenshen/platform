@@ -31,8 +31,10 @@ class CreateInvoiceView(MethodView):
 		return make_response(json.dumps({
 			'status': 'OK',
 			'msg': 'Success',
-			'invoice': models.safe_serialize(invoice),
-			'files': files,
+			'data': {
+				'invoice': models.safe_serialize(invoice),
+				'files': files,
+			}
 		}))
 
 class UpdateInvoiceView(MethodView):
@@ -68,6 +70,8 @@ class UpdateInvoiceView(MethodView):
 		return make_response(json.dumps({
 			'status': 'OK',
 			'msg': 'Success',
-			'invoice': models.safe_serialize(invoice_dict),
-			'files': files,
+			'data': {
+				'invoice': models.safe_serialize(invoice_dict),
+				'files': files,
+			}
 		}))

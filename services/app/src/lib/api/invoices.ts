@@ -7,7 +7,7 @@ import {
 
 export type SubmitInvoiceForApprovalRequest = {
   variables: {
-    invoice_id: Invoices["id"];
+    id: Invoices["id"];
   };
 };
 
@@ -47,6 +47,24 @@ export async function updateInvoiceMutation(
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
     .post(invoicesRoutes.update, request.variables)
+    .then((response) => response.data)
+    .then(
+      (response) => response,
+      (error) => {
+        console.error("Failed to update an invoice. Err:", error);
+        return {
+          status: "ERROR",
+          msg: "Failed to update an invoice",
+        };
+      }
+    );
+}
+
+export async function submitInvoiceForApproval(
+  request: SubmitInvoiceForApprovalRequest
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(invoicesRoutes.submitForApproval, request.variables)
     .then((response) => response.data)
     .then(
       (response) => response,

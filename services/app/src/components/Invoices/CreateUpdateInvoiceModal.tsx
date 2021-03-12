@@ -19,7 +19,11 @@ import {
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { createInvoiceMutation, updateInvoiceMutation } from "lib/api/invoices";
+import {
+  createInvoiceMutation,
+  submitInvoiceForApproval,
+  updateInvoiceMutation,
+} from "lib/api/invoices";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
@@ -154,8 +158,22 @@ export default function CreateUpdateInvoiceModal({
       snackbar.showError("Error! Could not upsert invoice");
       return;
     }
-    // TODO(pjstein): Handle submit request once we have the backend done
-    snackbar.showSuccess("Success! Invoice saved and submitted!");
+
+    if (result.data && result.data.invoice) {
+      const response = await submitInvoiceForApproval({
+        variables: {
+          id: result.data.invoice.id,
+        },
+      });
+
+      if (response.status !== "OK") {
+        snackbar.showError(`Error! Message: ${response.msg}`);
+      } else {
+        snackbar.showSuccess("Success! Invoice saved and submitted!");
+      }
+    }
+
+    handleClose();
   };
 
   const isReady = !isExistingInvoiceLoading && !isPayorsLoading;
@@ -165,8 +183,8 @@ export default function CreateUpdateInvoiceModal({
     !isFormValid || isFormLoading || !invoice.invoice_number;
   const isSaveSubmitDisabled =
     isSaveDraftDisabled ||
-    !payors.find((p) => p.id === invoice.id)?.company_payor_partnerships[0]
-      .approved_at ||
+    !payors.find((p) => p.id === invoice.payor_id)
+      ?.company_payor_partnerships[0].approved_at ||
     !invoice.invoice_number ||
     !invoice.invoice_date ||
     !invoice.invoice_due_date ||

@@ -14491,12 +14491,12 @@ export type ApprovedPayorsByPartnerCompanyIdQuery = {
   >;
 };
 
-export type CompanyPayorPartnershipForVendorQueryVariables = Exact<{
+export type CompanyPayorPartnershipForPayorQueryVariables = Exact<{
   companyId: Scalars["uuid"];
   payorId: Scalars["uuid"];
 }>;
 
-export type CompanyPayorPartnershipForVendorQuery = {
+export type CompanyPayorPartnershipForPayorQuery = {
   company_payor_partnerships: Array<Pick<CompanyPayorPartnerships, "id">>;
 };
 
@@ -14513,11 +14513,11 @@ export type GetInvoiceByIdQuery = {
   >;
 };
 
-export type GetInvoicesForReviewQueryVariables = Exact<{
+export type GetInvoiceForReviewQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
 
-export type GetInvoicesForReviewQuery = {
+export type GetInvoiceForReviewQuery = {
   invoices_by_pk?: Maybe<
     Pick<
       Invoices,
@@ -17307,8 +17307,8 @@ export type ApprovedPayorsByPartnerCompanyIdQueryResult = Apollo.QueryResult<
   ApprovedPayorsByPartnerCompanyIdQuery,
   ApprovedPayorsByPartnerCompanyIdQueryVariables
 >;
-export const CompanyPayorPartnershipForVendorDocument = gql`
-  query CompanyPayorPartnershipForVendor($companyId: uuid!, $payorId: uuid!) {
+export const CompanyPayorPartnershipForPayorDocument = gql`
+  query CompanyPayorPartnershipForPayor($companyId: uuid!, $payorId: uuid!) {
     company_payor_partnerships(
       where: {
         _and: [
@@ -17323,53 +17323,53 @@ export const CompanyPayorPartnershipForVendorDocument = gql`
 `;
 
 /**
- * __useCompanyPayorPartnershipForVendorQuery__
+ * __useCompanyPayorPartnershipForPayorQuery__
  *
- * To run a query within a React component, call `useCompanyPayorPartnershipForVendorQuery` and pass it any options that fit your needs.
- * When your component renders, `useCompanyPayorPartnershipForVendorQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useCompanyPayorPartnershipForPayorQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCompanyPayorPartnershipForPayorQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useCompanyPayorPartnershipForVendorQuery({
+ * const { data, loading, error } = useCompanyPayorPartnershipForPayorQuery({
  *   variables: {
  *      companyId: // value for 'companyId'
  *      payorId: // value for 'payorId'
  *   },
  * });
  */
-export function useCompanyPayorPartnershipForVendorQuery(
+export function useCompanyPayorPartnershipForPayorQuery(
   baseOptions: Apollo.QueryHookOptions<
-    CompanyPayorPartnershipForVendorQuery,
-    CompanyPayorPartnershipForVendorQueryVariables
+    CompanyPayorPartnershipForPayorQuery,
+    CompanyPayorPartnershipForPayorQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    CompanyPayorPartnershipForVendorQuery,
-    CompanyPayorPartnershipForVendorQueryVariables
-  >(CompanyPayorPartnershipForVendorDocument, baseOptions);
+    CompanyPayorPartnershipForPayorQuery,
+    CompanyPayorPartnershipForPayorQueryVariables
+  >(CompanyPayorPartnershipForPayorDocument, baseOptions);
 }
-export function useCompanyPayorPartnershipForVendorLazyQuery(
+export function useCompanyPayorPartnershipForPayorLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    CompanyPayorPartnershipForVendorQuery,
-    CompanyPayorPartnershipForVendorQueryVariables
+    CompanyPayorPartnershipForPayorQuery,
+    CompanyPayorPartnershipForPayorQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    CompanyPayorPartnershipForVendorQuery,
-    CompanyPayorPartnershipForVendorQueryVariables
-  >(CompanyPayorPartnershipForVendorDocument, baseOptions);
+    CompanyPayorPartnershipForPayorQuery,
+    CompanyPayorPartnershipForPayorQueryVariables
+  >(CompanyPayorPartnershipForPayorDocument, baseOptions);
 }
-export type CompanyPayorPartnershipForVendorQueryHookResult = ReturnType<
-  typeof useCompanyPayorPartnershipForVendorQuery
+export type CompanyPayorPartnershipForPayorQueryHookResult = ReturnType<
+  typeof useCompanyPayorPartnershipForPayorQuery
 >;
-export type CompanyPayorPartnershipForVendorLazyQueryHookResult = ReturnType<
-  typeof useCompanyPayorPartnershipForVendorLazyQuery
+export type CompanyPayorPartnershipForPayorLazyQueryHookResult = ReturnType<
+  typeof useCompanyPayorPartnershipForPayorLazyQuery
 >;
-export type CompanyPayorPartnershipForVendorQueryResult = Apollo.QueryResult<
-  CompanyPayorPartnershipForVendorQuery,
-  CompanyPayorPartnershipForVendorQueryVariables
+export type CompanyPayorPartnershipForPayorQueryResult = Apollo.QueryResult<
+  CompanyPayorPartnershipForPayorQuery,
+  CompanyPayorPartnershipForPayorQueryVariables
 >;
 export const GetInvoiceByIdDocument = gql`
   query GetInvoiceById($id: uuid!) {
@@ -17437,8 +17437,8 @@ export type GetInvoiceByIdQueryResult = Apollo.QueryResult<
   GetInvoiceByIdQuery,
   GetInvoiceByIdQueryVariables
 >;
-export const GetInvoicesForReviewDocument = gql`
-  query GetInvoicesForReview($id: uuid!) {
+export const GetInvoiceForReviewDocument = gql`
+  query GetInvoiceForReview($id: uuid!) {
     invoices_by_pk(id: $id) {
       id
       company_id
@@ -17472,52 +17472,52 @@ export const GetInvoicesForReviewDocument = gql`
 `;
 
 /**
- * __useGetInvoicesForReviewQuery__
+ * __useGetInvoiceForReviewQuery__
  *
- * To run a query within a React component, call `useGetInvoicesForReviewQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetInvoicesForReviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetInvoiceForReviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetInvoiceForReviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetInvoicesForReviewQuery({
+ * const { data, loading, error } = useGetInvoiceForReviewQuery({
  *   variables: {
  *      id: // value for 'id'
  *   },
  * });
  */
-export function useGetInvoicesForReviewQuery(
+export function useGetInvoiceForReviewQuery(
   baseOptions: Apollo.QueryHookOptions<
-    GetInvoicesForReviewQuery,
-    GetInvoicesForReviewQueryVariables
+    GetInvoiceForReviewQuery,
+    GetInvoiceForReviewQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    GetInvoicesForReviewQuery,
-    GetInvoicesForReviewQueryVariables
-  >(GetInvoicesForReviewDocument, baseOptions);
+    GetInvoiceForReviewQuery,
+    GetInvoiceForReviewQueryVariables
+  >(GetInvoiceForReviewDocument, baseOptions);
 }
-export function useGetInvoicesForReviewLazyQuery(
+export function useGetInvoiceForReviewLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    GetInvoicesForReviewQuery,
-    GetInvoicesForReviewQueryVariables
+    GetInvoiceForReviewQuery,
+    GetInvoiceForReviewQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    GetInvoicesForReviewQuery,
-    GetInvoicesForReviewQueryVariables
-  >(GetInvoicesForReviewDocument, baseOptions);
+    GetInvoiceForReviewQuery,
+    GetInvoiceForReviewQueryVariables
+  >(GetInvoiceForReviewDocument, baseOptions);
 }
-export type GetInvoicesForReviewQueryHookResult = ReturnType<
-  typeof useGetInvoicesForReviewQuery
+export type GetInvoiceForReviewQueryHookResult = ReturnType<
+  typeof useGetInvoiceForReviewQuery
 >;
-export type GetInvoicesForReviewLazyQueryHookResult = ReturnType<
-  typeof useGetInvoicesForReviewLazyQuery
+export type GetInvoiceForReviewLazyQueryHookResult = ReturnType<
+  typeof useGetInvoiceForReviewLazyQuery
 >;
-export type GetInvoicesForReviewQueryResult = Apollo.QueryResult<
-  GetInvoicesForReviewQuery,
-  GetInvoicesForReviewQueryVariables
+export type GetInvoiceForReviewQueryResult = Apollo.QueryResult<
+  GetInvoiceForReviewQuery,
+  GetInvoiceForReviewQueryVariables
 >;
 export const GetInvoicesDocument = gql`
   query GetInvoices {

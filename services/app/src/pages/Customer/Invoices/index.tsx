@@ -120,7 +120,7 @@ export default function CustomerInvoicesPages() {
             <Box mr={1}>
               <ModalButton
                 isDisabled={selectedInvoiceIds.length !== 1}
-                label={"Fund PO"}
+                label={"Fund Invoice"}
                 modal={({ handleClose }) => {
                   const handler = () => {
                     refetch();

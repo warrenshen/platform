@@ -19,6 +19,7 @@ from server.views.common import auth_util, handler_util
 
 handler = Blueprint('two_factor', __name__)
 
+
 class GenerateCodeView(MethodView):
 
 	# NOTE: We aren't using this two-factor path yet
@@ -38,7 +39,7 @@ class GenerateCodeView(MethodView):
 
 		with session_scope(current_app.session_maker) as session:
 			two_factor_info, err = two_factor_util.get_two_factor_link(
-				link_val, cfg.get_security_config(), 
+				link_val, cfg.get_security_config(),
 				max_age_in_seconds=security_util.SECONDS_IN_HOUR * 8, session=session)
 			if err:
 				return handler_util.make_error_response(err)
@@ -83,7 +84,7 @@ class ApproveCodeView(MethodView):
 
 		with session_scope(current_app.session_maker) as session:
 			two_factor_info, err = two_factor_util.get_two_factor_link(
-				link_val, cfg.get_security_config(), 
+				link_val, cfg.get_security_config(),
 				max_age_in_seconds=security_util.SECONDS_IN_HOUR * 8, session=session)
 			if err:
 				return handler_util.make_error_response(err)
@@ -124,7 +125,7 @@ class GetSecureLinkPayloadView(MethodView):
 
 		with session_scope(current_app.session_maker) as session:
 			two_factor_info, err = two_factor_util.get_two_factor_link(
-				link_signed_val, cfg.get_security_config(), 
+				link_signed_val, cfg.get_security_config(),
 				max_age_in_seconds=security_util.SECONDS_IN_DAY * 7, session=session)
 			if err:
 				return handler_util.make_error_response(err)
@@ -145,12 +146,14 @@ class GetSecureLinkPayloadView(MethodView):
 		link_type = form_info.get('type')
 		access_token = None
 		refresh_token = None
-		if link_type == db_constants.TwoFactorLinkType.CONFIRM_PURCHASE_ORDER:
+
+		if link_type in db_constants.REVIEWER_LINK_TYPE_TO_ROLE:
+			user_role = db_constants.REVIEWER_LINK_TYPE_TO_ROLE[link_type]
 			user = models.User(
 				email=email,
 				password='',
 				id=None,
-				role=db_constants.UserRoles.PURCHASE_ORDER_REVIEWER,
+				role=user_role,
 				company_id=company_id
 			)
 			claims_payload = auth_util.get_claims_payload(user)

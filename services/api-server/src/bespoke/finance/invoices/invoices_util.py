@@ -169,6 +169,8 @@ def update_invoice(
 				for f in files:
 					session.delete(f) # type: ignore
 
+				session.commit()
+
 				for rf in request.files:
 					fm = models.InvoiceFile( # type: ignore
 						file_id=rf.file_id,
@@ -205,7 +207,7 @@ def is_invoice_ready_for_approval(
 
 			invoice_file = session.query(models.InvoiceFile) \
 				.filter_by(
-					company_id=invoice.company_id,
+					invoice_id=invoice.id,
 					file_type=db_constants.InvoiceFileTypeEnum.Invoice
 				).first()
 			if not invoice_file:
@@ -253,8 +255,7 @@ def handle_invoice_approval_request(
 	if err:
 		return err
 
-	"""TODO(pjstein): We need a new template for this one. Those are tied
-	to David's cell right now.
+
 	info = models.TwoFactorFormInfoDict(
 		type=db_constants.TwoFactorLinkType.CONFIRM_INVOICE,
 		payload={'invoice_id': invoice_id},
@@ -264,7 +265,6 @@ def handle_invoice_approval_request(
 		form_info=info,
 		expires_at=date_util.hours_from_today(24 * 7)
 	)
-	"""
 
 	try:
 		with models.session_scope(session_maker) as session:
@@ -279,9 +279,6 @@ def handle_invoice_approval_request(
 				'customer_name': customer.name,
 			}
 
-			"""TODO(pjstein): We need a new template for this one. Those are tied
-			to David's cell right now.
-
 			_, err = sendgrid_client.send(
 				sendgrid_util.TemplateNames.PAYOR_TO_APPROVE_INVOICE,
 				template_data,
@@ -290,7 +287,6 @@ def handle_invoice_approval_request(
 			)
 			if err:
 				return err
-			"""
 
 			invoice.status = db_constants.RequestStatusEnum.APPROVAL_REQUESTED
 			invoice.requested_at = date_util.now()

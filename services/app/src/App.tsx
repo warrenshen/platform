@@ -11,6 +11,8 @@ import {
 } from "lib/routes";
 import ForgotPasswordPage from "pages/Anonymous/ForgotPassword";
 import ResetPasswordPage from "pages/Anonymous/ResetPassword";
+import ReviewInvoicePage from "pages/Anonymous/ReviewInvoice";
+import ReviewInvoiceCompletePage from "pages/Anonymous/ReviewInvoiceComplete";
 import ReviewPurchaseOrderPage from "pages/Anonymous/ReviewPurchaseOrder";
 import ReviewPurchaseOrderCompletePage from "pages/Anonymous/ReviewPurchaseOrderComplete";
 import SecureLinkPage from "pages/Anonymous/SecureLink";
@@ -65,7 +67,7 @@ function App() {
         <Route exact path={anonymousRoutes.secureLink}>
           <SecureLinkPage />
         </Route>
-        {/* Purchase Order Reviewer user routes */}
+        {/*  Reviewer user routes */}
         <Route
           exact
           path={anonymousRoutes.reviewPurchaseOrder}
@@ -75,6 +77,16 @@ function App() {
           exact
           path={anonymousRoutes.reviewPurchaseOrderComplete}
           component={ReviewPurchaseOrderCompletePage}
+        />
+        <Route
+          exact
+          path={anonymousRoutes.reviewInvoice}
+          component={ReviewInvoicePage}
+        />
+        <Route
+          exact
+          path={anonymousRoutes.reviewInvoiceComplete}
+          component={ReviewInvoiceCompletePage}
         />
         <Route
           exact

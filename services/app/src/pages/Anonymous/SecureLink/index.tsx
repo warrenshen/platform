@@ -21,6 +21,7 @@ type GetSecureLinkPayloadResp = {
 
 const linkTypeToRoute: { [type: string]: string } = {
   confirm_purchase_order: anonymousRoutes.reviewPurchaseOrder,
+  confirm_invoice: anonymousRoutes.reviewInvoice,
   forgot_password: anonymousRoutes.resetPassword,
 };
 

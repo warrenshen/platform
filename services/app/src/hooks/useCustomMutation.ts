@@ -35,6 +35,7 @@ export default function useCustomMutation(
         status: response.status,
         msg: response.msg,
         errors: response.errors,
+        data: response.data,
       };
     } catch (error) {
       setError(error);

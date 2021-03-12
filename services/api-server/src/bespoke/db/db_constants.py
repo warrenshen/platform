@@ -6,12 +6,19 @@
 
 class UserRoles(object):
 	PURCHASE_ORDER_REVIEWER = 'purchase_order_reviewer'
+	INVOICE_REVIEWER = 'invoice_reviewer'
 
 BANK_ROLES = ['bank_admin'] # Having any of these roles means you are a Bespoke bank user
 
 class TwoFactorLinkType(object):
 	CONFIRM_PURCHASE_ORDER = 'confirm_purchase_order'
+	CONFIRM_INVOICE = 'confirm_invoice'
 	FORGOT_PASSWORD = 'forgot_password'
+
+REVIEWER_LINK_TYPE_TO_ROLE = {
+	TwoFactorLinkType.CONFIRM_PURCHASE_ORDER: UserRoles.PURCHASE_ORDER_REVIEWER,
+	TwoFactorLinkType.CONFIRM_INVOICE: UserRoles.INVOICE_REVIEWER,
+}
 
 # Contracts
 

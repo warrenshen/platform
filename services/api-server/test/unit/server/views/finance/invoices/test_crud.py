@@ -191,7 +191,7 @@ class InvoiceViewTest(db_unittest.TestCase):
 
 	def _check_request_response(self, request: Dict, response: Dict) -> None:
 		with models.session_scope(self.session_maker) as session:
-			invoice = session.query(models.Invoice).get(response['invoice']['id'])
+			invoice = session.query(models.Invoice).get(response['data']['invoice']['id'])
 			self._check_request_invoice_fields(request, invoice)
 
 			for f in request.get('files', []):
@@ -264,7 +264,7 @@ class TestCreateInvoiceView(InvoiceViewTest):
 		self.assertEqual(response['status'], 'OK')
 
 		with models.session_scope(self.session_maker) as session:
-			invoice = session.query(models.Invoice).get(response['invoice']['id'])
+			invoice = session.query(models.Invoice).get(response['data']['invoice']['id'])
 			self._check_request_invoice_fields(request, invoice)
 
 

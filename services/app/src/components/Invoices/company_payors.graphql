@@ -31,7 +31,7 @@ query ApprovedPayorsByPartnerCompanyId($companyId: uuid!) {
   }
 }
 
-query CompanyPayorPartnershipForVendor($companyId: uuid!, $payorId: uuid!) {
+query CompanyPayorPartnershipForPayor($companyId: uuid!, $payorId: uuid!) {
   company_payor_partnerships(
     where: {
       _and: [

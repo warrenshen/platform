@@ -49,6 +49,7 @@ export const invoicesRoutes = {
   create: "/invoices/create",
   update: "/invoices/update",
   submitForApproval: "/invoices/submit_for_approval",
+  respondToApprovalRequest: "/invoices/respond_to_approval_request",
 };
 
 export const loansRoutes = {
@@ -106,4 +107,5 @@ export type CustomMutationResponse = {
   status: string;
   msg: string;
   errors?: string[];
+  data?: any;
 };

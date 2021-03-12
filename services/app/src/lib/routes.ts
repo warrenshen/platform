@@ -12,6 +12,8 @@ export const anonymousRoutes = {
   secureLink: "/get-secure-link",
   reviewPurchaseOrder: "/review-purchase-order",
   reviewPurchaseOrderComplete: "/review-purchase-order-complete",
+  reviewInvoice: "/review-invoice",
+  reviewInvoiceComplete: "/review-invoice-complete",
   resetPassword: "/reset-password",
   forgotPassword: "/forgot-password",
 };
