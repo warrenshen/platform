@@ -11,7 +11,7 @@ import {
 } from "@material-ui/core";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import PurchaseOrderInfoCard from "components/PurchaseOrder/PurchaseOrderInfoCard";
-import DatePicker from "components/Shared/Dates/DatePicker";
+import DatePicker from "components/Shared/FormInputs/DatePicker";
 import { LoansInsertInput, PurchaseOrderFragment } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { Artifact } from "lib/finance/loans/artifacts";

@@ -10,7 +10,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import DatePicker from "components/Shared/Dates/DatePicker";
+import DatePicker from "components/Shared/FormInputs/DatePicker";
 import { Companies } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";

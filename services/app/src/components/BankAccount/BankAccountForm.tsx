@@ -5,7 +5,7 @@ import {
   makeStyles,
   TextField,
 } from "@material-ui/core";
-import DatePicker from "components/Shared/Dates/DatePicker";
+import DatePicker from "components/Shared/FormInputs/DatePicker";
 import { BankAccountsInsertInput, UserRolesEnum } from "generated/graphql";
 import { ChangeEvent } from "react";
 

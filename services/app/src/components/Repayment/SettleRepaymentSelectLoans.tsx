@@ -7,7 +7,7 @@ import {
 } from "@material-ui/core";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import RequestedRepaymentPreview from "components/Repayment/RequestedRepaymentPreview";
-import DatePicker from "components/Shared/Dates/DatePicker";
+import DatePicker from "components/Shared/FormInputs/DatePicker";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,

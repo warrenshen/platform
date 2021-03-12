@@ -7,7 +7,7 @@ import {
   DialogTitle,
   makeStyles,
 } from "@material-ui/core";
-import DatePicker from "components/Shared/Dates/DatePicker";
+import DatePicker from "components/Shared/FormInputs/DatePicker";
 import {
   Contracts,
   ContractsInsertInput,

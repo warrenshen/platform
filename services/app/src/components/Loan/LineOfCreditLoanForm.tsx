@@ -12,7 +12,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
-import DatePicker from "components/Shared/Dates/DatePicker";
+import DatePicker from "components/Shared/FormInputs/DatePicker";
 import {
   ApprovedVendorsByPartnerCompanyIdQuery,
   LineOfCreditsInsertInput,

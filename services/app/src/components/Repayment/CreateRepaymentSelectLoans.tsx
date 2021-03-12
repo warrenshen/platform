@@ -11,7 +11,7 @@ import {
 } from "@material-ui/core";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
-import DatePicker from "components/Shared/Dates/DatePicker";
+import DatePicker from "components/Shared/FormInputs/DatePicker";
 import {
   FinancialSummaryFragment,
   LoanFragment,

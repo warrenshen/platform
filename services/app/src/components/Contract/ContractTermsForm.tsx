@@ -12,7 +12,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
-import DatePicker from "components/Shared/Dates/DatePicker";
+import DatePicker from "components/Shared/FormInputs/DatePicker";
 import JsonFormInput from "components/Shared/FormInputs/JsonFormInput";
 import { ContractsInsertInput, ProductTypeEnum } from "generated/graphql";
 import { AllProductTypes, ProductTypeToLabel } from "lib/enum";
@@ -193,6 +193,7 @@ function ContractTermsForm({
         return (
           <CurrencyTextField
             style={{ width: 300 }}
+            modifyValueOnWheel={false}
             label={item.display_name}
             error={errMsg.length > 0 && isFieldInvalid(item)}
             currencySymbol={getSymbol(item.format)}
@@ -202,7 +203,6 @@ function ContractTermsForm({
             textAlign="left"
             required={!item.nullable}
             value={item.value === null ? "" : item.value}
-            modifyValueOnWheel={false}
             onChange={(_event: any, value: string) =>
               findAndReplaceInJSON(item, value)
             }

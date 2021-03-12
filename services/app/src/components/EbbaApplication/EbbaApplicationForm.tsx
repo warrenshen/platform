@@ -7,9 +7,9 @@ import {
   Typography,
 } from "@material-ui/core";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
-import DatePicker from "components/Shared/Dates/DatePicker";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileUploadDropzone from "components/Shared/File/UploadDropzone";
+import DatePicker from "components/Shared/FormInputs/DatePicker";
 import {
   EbbaApplicationFilesInsertInput,
   EbbaApplicationsInsertInput,

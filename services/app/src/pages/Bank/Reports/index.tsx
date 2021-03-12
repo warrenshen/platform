@@ -9,7 +9,7 @@ import {
   Theme,
 } from "@material-ui/core";
 import FinancialSummariesDataGrid from "components/CustomerFinancialSummaries/FinancialSummariesDataGrid";
-import DatePicker from "components/Shared/Dates/DatePicker";
+import DatePicker from "components/Shared/FormInputs/DatePicker";
 import Page from "components/Shared/Page";
 import {
   Companies,
