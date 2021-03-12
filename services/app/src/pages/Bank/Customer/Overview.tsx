@@ -57,7 +57,7 @@ function CustomerOverviewSubpage({ companyId, productType }: Props) {
   });
 
   const company = data?.companies_by_pk;
-  const financialSummary = company?.financial_summary || null;
+  const financialSummary = company?.financial_summaries[0] || null;
   const payments = company?.pending_payments || [];
   const loans = company?.outstanding_loans || [];
 

@@ -13,7 +13,7 @@ import DatePicker from "components/Shared/Dates/DatePicker";
 import Page from "components/Shared/Page";
 import {
   Companies,
-  useGetCustomersQuery,
+  useGetCustomersWithMetadataQuery,
   useGetFinancialSummariesByCompanyIdQuery,
   useGetFinancialSummariesByDateQuery,
 } from "generated/graphql";
@@ -46,7 +46,10 @@ function BankReportsPage() {
   const [companyId, setCompanyId] = useState<Companies["id"]>("");
   const [selectedDate, setSelectedDate] = useState(todayAsDateStringServer());
 
-  const { data: customersData, error: customersError } = useGetCustomersQuery();
+  const {
+    data: customersData,
+    error: customersError,
+  } = useGetCustomersWithMetadataQuery();
 
   const {
     data: financialSummariesByDateData,

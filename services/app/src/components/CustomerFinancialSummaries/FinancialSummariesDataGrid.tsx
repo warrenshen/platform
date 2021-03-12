@@ -30,7 +30,7 @@ function FinancialSummariesDataGrid({ financialSummaries }: Props) {
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <Box display="flex" alignItems="center">
-            <Box>{params.row.data.company.name as string}</Box>
+            <Box>{(params.row.data.company?.name || "-") as string}</Box>
           </Box>
         ),
       },

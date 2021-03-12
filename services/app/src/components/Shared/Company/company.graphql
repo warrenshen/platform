@@ -35,10 +35,6 @@ query GetCompanyForCustomerBorrowingBase($companyId: uuid!) {
         name
       }
     }
-    financial_summary {
-      id
-      ...FinancialSummary
-    }
     settings {
       id
       active_ebba_application {
@@ -60,10 +56,6 @@ query GetCompanyForCustomerContractPage($companyId: uuid!) {
       id
       ...Contract
     }
-    financial_summary {
-      id
-      ...FinancialSummary
-    }
   }
 }
 
@@ -75,7 +67,7 @@ query GetCompanyWithDetailsByCompanyId($companyId: uuid!) {
       id
       ...Contract
     }
-    financial_summary {
+    financial_summaries(order_by: { date: desc }, limit: 1) {
       id
       ...FinancialSummary
     }

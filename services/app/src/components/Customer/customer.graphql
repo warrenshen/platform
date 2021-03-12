@@ -1,7 +1,7 @@
 query GetCustomerOverview($companyId: uuid!, $loanType: loan_type_enum) {
   companies_by_pk(id: $companyId) {
     id
-    financial_summary {
+    financial_summaries(order_by: { date: desc }, limit: 1) {
       id
       ...FinancialSummary
     }

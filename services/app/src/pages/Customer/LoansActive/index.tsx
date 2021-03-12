@@ -57,7 +57,7 @@ function CustomerLoansActivePage() {
   }
 
   const company = data?.companies_by_pk;
-  const financialSummary = company?.financial_summary || null;
+  const financialSummary = company?.financial_summaries[0] || null;
 
   const canCreateUpdateNewLoan =
     financialSummary && financialSummary?.available_limit > 0;

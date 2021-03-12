@@ -3334,6 +3334,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "args": [],
@@ -3816,6 +3828,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "args": [],
@@ -3901,6 +3925,16 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -4059,6 +4093,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "numeric_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "type": {
@@ -4148,6 +4192,16 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -4259,6 +4313,16 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -4396,6 +4460,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "args": [],
@@ -4501,6 +4577,16 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -4638,6 +4724,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "args": [],
@@ -4743,6 +4841,16 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -5006,6 +5114,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "type": {
@@ -5103,6 +5221,12 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -5213,6 +5337,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "type": {
@@ -5305,6 +5439,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "args": [],
@@ -5380,6 +5526,16 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -5481,6 +5637,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "args": [],
@@ -5556,6 +5724,16 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -5657,6 +5835,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "args": [],
@@ -5732,6 +5922,16 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -5833,6 +6033,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "args": [],
@@ -5917,6 +6129,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "type": {
@@ -5989,6 +6211,12 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -6080,6 +6308,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "args": [],
@@ -6155,6 +6395,16 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -6256,6 +6506,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "args": [],
@@ -6331,6 +6593,16 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -6432,6 +6704,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "args": [],
@@ -6507,6 +6791,16 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -8199,13 +8493,175 @@
             "deprecationReason": null
           },
           {
-            "name": "financial_summary",
-            "description": "An object relationship",
-            "args": [],
+            "name": "financial_summaries",
+            "description": "An array relationship",
+            "args": [
+              {
+                "name": "distinct_on",
+                "description": "distinct select on columns",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "ENUM",
+                      "name": "financial_summaries_select_column",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "limit",
+                "description": "limit the number of rows returned",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "offset",
+                "description": "skip the first n rows. Use only with order_by",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "order_by",
+                "description": "sort the rows by one or more columns",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "financial_summaries_order_by",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "where",
+                "description": "filter the rows returned",
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "financial_summaries_bool_exp",
+                  "ofType": null
+                },
+                "defaultValue": null
+              }
+            ],
             "type": {
-              "kind": "OBJECT",
-              "name": "financial_summaries",
-              "ofType": null
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "financial_summaries",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "financial_summaries_aggregate",
+            "description": "An aggregated array relationship",
+            "args": [
+              {
+                "name": "distinct_on",
+                "description": "distinct select on columns",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "ENUM",
+                      "name": "financial_summaries_select_column",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "limit",
+                "description": "limit the number of rows returned",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "offset",
+                "description": "skip the first n rows. Use only with order_by",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "order_by",
+                "description": "sort the rows by one or more columns",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "financial_summaries_order_by",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null
+              },
+              {
+                "name": "where",
+                "description": "filter the rows returned",
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "financial_summaries_bool_exp",
+                  "ofType": null
+                },
+                "defaultValue": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "financial_summaries_aggregate",
+                "ofType": null
+              }
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -10430,7 +10886,7 @@
             "defaultValue": null
           },
           {
-            "name": "financial_summary",
+            "name": "financial_summaries",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
@@ -10869,11 +11325,11 @@
             "defaultValue": null
           },
           {
-            "name": "financial_summary",
+            "name": "financial_summaries",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "financial_summaries_obj_rel_insert_input",
+              "name": "financial_summaries_arr_rel_insert_input",
               "ofType": null
             },
             "defaultValue": null
@@ -12205,11 +12661,11 @@
             "defaultValue": null
           },
           {
-            "name": "financial_summary",
+            "name": "financial_summaries_aggregate",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "financial_summaries_order_by",
+              "name": "financial_summaries_aggregate_order_by",
               "ofType": null
             },
             "defaultValue": null
@@ -31122,6 +31578,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "args": [],
@@ -31604,6 +32072,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "args": [],
@@ -31679,6 +32159,16 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -31847,6 +32337,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "numeric_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "type": {
@@ -31870,7 +32370,7 @@
         "interfaces": null,
         "enumValues": [
           {
-            "name": "financial_summaries_company_id_key",
+            "name": "financial_summaries_company_id_date_key",
             "description": "unique or primary key constraint",
             "isDeprecated": false,
             "deprecationReason": null
@@ -31942,6 +32442,16 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -32063,6 +32573,16 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -32200,6 +32720,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "args": [],
@@ -32305,6 +32837,16 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -32442,6 +32984,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "args": [],
@@ -32547,6 +33101,16 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -32820,6 +33384,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "type": {
@@ -32917,6 +33491,12 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -33027,6 +33607,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "type": {
@@ -33119,6 +33709,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "args": [],
@@ -33194,6 +33796,16 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -33295,6 +33907,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "args": [],
@@ -33370,6 +33994,16 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -33471,6 +34105,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "args": [],
@@ -33546,6 +34192,16 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -33647,6 +34303,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "args": [],
@@ -33731,6 +34399,16 @@
             "defaultValue": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "type": {
@@ -33803,6 +34481,12 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -33894,6 +34578,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "args": [],
@@ -33969,6 +34665,16 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -34070,6 +34776,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "args": [],
@@ -34145,6 +34863,16 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -34246,6 +34974,18 @@
             "deprecationReason": null
           },
           {
+            "name": "total_outstanding_principal_for_interest",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_principal_in_requested_state",
             "description": null,
             "args": [],
@@ -34321,6 +35061,16 @@
           },
           {
             "name": "total_outstanding_principal",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "total_outstanding_principal_for_interest",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -36195,7 +36945,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "date",
+              "name": "timestamptz",
               "ofType": null
             },
             "isDeprecated": false,
@@ -36255,7 +37005,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "date",
+              "name": "timestamptz",
               "ofType": null
             },
             "isDeprecated": false,
@@ -36723,7 +37473,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "date",
+              "name": "timestamptz",
               "ofType": null
             },
             "isDeprecated": false,
@@ -36747,7 +37497,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "date",
+              "name": "timestamptz",
               "ofType": null
             },
             "isDeprecated": false,
@@ -37369,7 +38119,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "date_comparison_exp",
+              "name": "timestamptz_comparison_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -37409,7 +38159,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "date_comparison_exp",
+              "name": "timestamptz_comparison_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -37509,7 +38259,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "date_comparison_exp",
+              "name": "timestamptz_comparison_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -37529,7 +38279,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "date_comparison_exp",
+              "name": "timestamptz_comparison_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -37668,7 +38418,7 @@
             "description": null,
             "type": {
               "kind": "SCALAR",
-              "name": "date",
+              "name": "timestamptz",
               "ofType": null
             },
             "defaultValue": null
@@ -37708,7 +38458,7 @@
             "description": null,
             "type": {
               "kind": "SCALAR",
-              "name": "date",
+              "name": "timestamptz",
               "ofType": null
             },
             "defaultValue": null
@@ -37808,7 +38558,7 @@
             "description": null,
             "type": {
               "kind": "SCALAR",
-              "name": "date",
+              "name": "timestamptz",
               "ofType": null
             },
             "defaultValue": null
@@ -37828,7 +38578,7 @@
             "description": null,
             "type": {
               "kind": "SCALAR",
-              "name": "date",
+              "name": "timestamptz",
               "ofType": null
             },
             "defaultValue": null
@@ -37911,7 +38661,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "date",
+              "name": "timestamptz",
               "ofType": null
             },
             "isDeprecated": false,
@@ -37947,7 +38697,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "date",
+              "name": "timestamptz",
               "ofType": null
             },
             "isDeprecated": false,
@@ -38019,7 +38769,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "date",
+              "name": "timestamptz",
               "ofType": null
             },
             "isDeprecated": false,
@@ -38043,7 +38793,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "date",
+              "name": "timestamptz",
               "ofType": null
             },
             "isDeprecated": false,
@@ -38307,7 +39057,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "date",
+              "name": "timestamptz",
               "ofType": null
             },
             "isDeprecated": false,
@@ -38343,7 +39093,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "date",
+              "name": "timestamptz",
               "ofType": null
             },
             "isDeprecated": false,
@@ -38415,7 +39165,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "date",
+              "name": "timestamptz",
               "ofType": null
             },
             "isDeprecated": false,
@@ -38439,7 +39189,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "date",
+              "name": "timestamptz",
               "ofType": null
             },
             "isDeprecated": false,
@@ -39235,7 +39985,7 @@
             "description": null,
             "type": {
               "kind": "SCALAR",
-              "name": "date",
+              "name": "timestamptz",
               "ofType": null
             },
             "defaultValue": null
@@ -39265,7 +40015,7 @@
             "description": null,
             "type": {
               "kind": "SCALAR",
-              "name": "date",
+              "name": "timestamptz",
               "ofType": null
             },
             "defaultValue": null
@@ -39335,7 +40085,7 @@
             "description": null,
             "type": {
               "kind": "SCALAR",
-              "name": "date",
+              "name": "timestamptz",
               "ofType": null
             },
             "defaultValue": null
@@ -39355,7 +40105,7 @@
             "description": null,
             "type": {
               "kind": "SCALAR",
-              "name": "date",
+              "name": "timestamptz",
               "ofType": null
             },
             "defaultValue": null

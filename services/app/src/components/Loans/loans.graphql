@@ -84,7 +84,7 @@ subscription GetFundedLoansForBank {
 query GetActiveLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
   companies_by_pk(id: $companyId) {
     id
-    financial_summary {
+    financial_summaries(order_by: { date: desc }, limit: 1) {
       id
       ...FinancialSummary
     }
@@ -141,10 +141,6 @@ query GetFundedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum!) {
 query GetClosedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
   companies_by_pk(id: $companyId) {
     id
-    financial_summary {
-      id
-      ...FinancialSummary
-    }
     loans(
       where: {
         _and: [

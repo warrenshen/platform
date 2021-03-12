@@ -49,7 +49,7 @@ function LoansActiveNotFunded({ data, handleDataChange }: Props) {
     () => (company?.loans || []).filter((loan) => !loan.funded_at),
     [company?.loans]
   );
-  const financialSummary = company?.financial_summary || null;
+  const financialSummary = company?.financial_summaries[0] || null;
 
   const canCreateUpdateNewLoan =
     financialSummary?.available_limit && financialSummary?.available_limit > 0;

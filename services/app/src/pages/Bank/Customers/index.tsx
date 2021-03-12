@@ -7,7 +7,10 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { ProductTypeEnum, useGetCustomersQuery } from "generated/graphql";
+import {
+  ProductTypeEnum,
+  useGetCustomersWithMetadataQuery,
+} from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { ProductTypeToLabel } from "lib/enum";
 import { bankRoutes } from "lib/routes";
@@ -22,7 +25,7 @@ function BankCustomersPage() {
   } = useContext(CurrentUserContext);
 
   const { url } = useRouteMatch();
-  const { data, refetch } = useGetCustomersQuery();
+  const { data, refetch } = useGetCustomersWithMetadataQuery();
 
   const [isCreateCustomerModalOpen, setIsCreateCustomerModalOpen] = useState(
     false
@@ -90,8 +93,9 @@ function BankCustomersPage() {
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell
           value={
-            params.row.data.financial_summary
-              ? params.row.data.financial_summary.total_outstanding_principal
+            params.row.data.financial_summaries[0]
+              ? params.row.data.financial_summaries[0]
+                  ?.total_outstanding_principal
               : null
           }
         />
@@ -106,8 +110,9 @@ function BankCustomersPage() {
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell
           value={
-            params.row.data.financial_summary
-              ? params.row.data.financial_summary.total_outstanding_interest
+            params.row.data.financial_summaries[0]
+              ? params.row.data.financial_summaries[0]
+                  ?.total_outstanding_interest
               : null
           }
         />
@@ -122,8 +127,8 @@ function BankCustomersPage() {
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell
           value={
-            params.row.data.financial_summary
-              ? params.row.data.financial_summary.total_outstanding_fees
+            params.row.data.financial_summaries[0]
+              ? params.row.data.financial_summaries[0]?.total_outstanding_fees
               : null
           }
         />

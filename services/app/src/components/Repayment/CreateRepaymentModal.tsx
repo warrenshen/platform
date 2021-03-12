@@ -78,7 +78,7 @@ function CreateRepaymentModal({
 
   const company = data?.companies_by_pk;
   const contract = company?.contract || null;
-  const financialSummary = company?.financial_summary || null;
+  const financialSummary = company?.financial_summaries[0] || null;
 
   // There are 2 states that we show, one when the user is selecting
   // the payment method date, and payment type, and the next is when

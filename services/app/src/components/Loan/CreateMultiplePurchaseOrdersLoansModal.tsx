@@ -304,7 +304,7 @@ const sumPossibleLoans = (computedLoans: PurchaseOrderLoanUpsert[]) =>
   computedLoans.reduce((sum: number, l: any) => (sum += l.loan.amount), 0);
 
 const grabCustomerBalanceRemaining = (data: any) =>
-  data.companies_by_pk.financial_summary.available_limit;
+  data.companies_by_pk.financial_summaries[0]?.available_limit;
 
 const decorateLoansWithPaymentDate = (
   loans: PurchaseOrderLoanUpsert[],

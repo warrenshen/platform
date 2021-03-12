@@ -1,4 +1,4 @@
-query GetCustomers {
+query GetCustomersWithMetadata {
   customers: companies(where: { company_type: { _eq: customer } }) {
     id
     ...CustomerForBank
@@ -6,7 +6,7 @@ query GetCustomers {
       id
       ...Contract
     }
-    financial_summary {
+    financial_summaries(order_by: { date: desc }, limit: 1) {
       id
       ...FinancialSummary
     }
