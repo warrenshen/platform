@@ -109,6 +109,7 @@ def compute_bank_financial_summaries(session: Session,
 				total_limit=decimal.Decimal(0.0),
 				adjusted_total_limit=decimal.Decimal(0.0),
 				total_outstanding_principal=decimal.Decimal(0.0),
+				total_outstanding_principal_for_interest=decimal.Decimal(0.0),
 				total_outstanding_interest=decimal.Decimal(0.0),
 				total_outstanding_fees=decimal.Decimal(0.0),
 				total_principal_in_requested_state=decimal.Decimal(0.0),
@@ -122,6 +123,7 @@ def compute_bank_financial_summaries(session: Session,
 		cur_bank_summary.total_limit += decimal.Decimal(summary.total_limit or 0)
 		cur_bank_summary.adjusted_total_limit += decimal.Decimal(summary.adjusted_total_limit or 0)
 		cur_bank_summary.total_outstanding_principal += decimal.Decimal(summary.total_outstanding_principal or 0)
+		cur_bank_summary.total_outstanding_principal_for_interest += decimal.Decimal(summary.total_outstanding_principal_for_interest or 0)
 		cur_bank_summary.total_outstanding_interest += decimal.Decimal(summary.total_outstanding_interest or 0)
 		cur_bank_summary.total_outstanding_fees += decimal.Decimal(summary.total_outstanding_fees or 0)
 		cur_bank_summary.total_principal_in_requested_state += decimal.Decimal(summary.total_principal_in_requested_state or 0)

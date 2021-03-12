@@ -97,6 +97,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			total_limit=decimal.Decimal(100.0),
 			adjusted_total_limit=decimal.Decimal(100.0),
 			total_outstanding_principal=decimal.Decimal(50.0),
+			total_outstanding_principal_for_interest=decimal.Decimal(60.0),
 			total_outstanding_interest=decimal.Decimal(12.50),
 			total_outstanding_fees=decimal.Decimal(5.25),
 			total_principal_in_requested_state=decimal.Decimal(0.0),

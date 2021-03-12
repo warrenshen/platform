@@ -80,6 +80,25 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		self.assertTrue(success)
 		self.assertIsNone(err)
 
+		with session_scope(self.session_maker) as session:
+			financial_summary = cast(
+				models.FinancialSummary,
+				session.query(models.FinancialSummary).filter(
+					models.FinancialSummary.company_id == company_id).first())
+
+			if test.get('expected_summary_update'):
+				self.assertIsNotNone(financial_summary)
+				expected = test['expected_summary_update']
+				actual = financial_summary
+				self.assertAlmostEqual(expected['total_limit'], float(actual.total_limit))
+				self.assertAlmostEqual(expected['total_outstanding_principal'], float(actual.total_outstanding_principal))
+				self.assertAlmostEqual(expected['total_outstanding_principal_for_interest'], float(actual.total_outstanding_principal_for_interest))
+				self.assertAlmostEqual(expected['total_outstanding_interest'], float(actual.total_outstanding_interest))
+				self.assertAlmostEqual(expected['total_outstanding_fees'], float(actual.total_outstanding_fees))
+				self.assertAlmostEqual(expected['total_principal_in_requested_state'], float(actual.total_principal_in_requested_state))
+				self.assertAlmostEqual(expected['available_limit'], float(actual.available_limit))
+
+
 	def test_success_no_payments_no_loans(self) -> None:
 
 		def populate_fn(session: Any, company_id: str) -> None:
