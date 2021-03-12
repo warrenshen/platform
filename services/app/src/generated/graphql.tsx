@@ -8791,8 +8791,6 @@ export enum OrderBy {
  */
 export type Payments = {
   amount: Scalars["numeric"];
-  /** TODO: remove in favor of settled_at naming convention */
-  applied_at?: Maybe<Scalars["timestamptz"]>;
   /** An object relationship */
   bespoke_bank_account?: Maybe<BankAccounts>;
   bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
@@ -8908,7 +8906,6 @@ export type PaymentsBoolExp = {
   _not?: Maybe<PaymentsBoolExp>;
   _or?: Maybe<Array<Maybe<PaymentsBoolExp>>>;
   amount?: Maybe<NumericComparisonExp>;
-  applied_at?: Maybe<TimestamptzComparisonExp>;
   bespoke_bank_account?: Maybe<BankAccountsBoolExp>;
   bespoke_bank_account_id?: Maybe<UuidComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
@@ -8962,7 +8959,6 @@ export type PaymentsIncInput = {
 /** input type for inserting data into table "payments" */
 export type PaymentsInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
-  applied_at?: Maybe<Scalars["timestamptz"]>;
   bespoke_bank_account?: Maybe<BankAccountsObjRelInsertInput>;
   bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
@@ -8990,7 +8986,6 @@ export type PaymentsInsertInput = {
 /** aggregate max on columns */
 export type PaymentsMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
-  applied_at?: Maybe<Scalars["timestamptz"]>;
   bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
@@ -9012,7 +9007,6 @@ export type PaymentsMaxFields = {
 /** order by max() on columns of table "payments" */
 export type PaymentsMaxOrderBy = {
   amount?: Maybe<OrderBy>;
-  applied_at?: Maybe<OrderBy>;
   bespoke_bank_account_id?: Maybe<OrderBy>;
   company_bank_account_id?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
@@ -9034,7 +9028,6 @@ export type PaymentsMaxOrderBy = {
 /** aggregate min on columns */
 export type PaymentsMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
-  applied_at?: Maybe<Scalars["timestamptz"]>;
   bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
@@ -9056,7 +9049,6 @@ export type PaymentsMinFields = {
 /** order by min() on columns of table "payments" */
 export type PaymentsMinOrderBy = {
   amount?: Maybe<OrderBy>;
-  applied_at?: Maybe<OrderBy>;
   bespoke_bank_account_id?: Maybe<OrderBy>;
   company_bank_account_id?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
@@ -9099,7 +9091,6 @@ export type PaymentsOnConflict = {
 /** ordering options when selecting data from "payments" */
 export type PaymentsOrderBy = {
   amount?: Maybe<OrderBy>;
-  applied_at?: Maybe<OrderBy>;
   bespoke_bank_account?: Maybe<BankAccountsOrderBy>;
   bespoke_bank_account_id?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
@@ -9139,8 +9130,6 @@ export enum PaymentsSelectColumn {
   /** column name */
   Amount = "amount",
   /** column name */
-  AppliedAt = "applied_at",
-  /** column name */
   BespokeBankAccountId = "bespoke_bank_account_id",
   /** column name */
   CompanyBankAccountId = "company_bank_account_id",
@@ -9179,7 +9168,6 @@ export enum PaymentsSelectColumn {
 /** input type for updating data in table "payments" */
 export type PaymentsSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
-  applied_at?: Maybe<Scalars["timestamptz"]>;
   bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
@@ -9243,8 +9231,6 @@ export type PaymentsSumOrderBy = {
 export enum PaymentsUpdateColumn {
   /** column name */
   Amount = "amount",
-  /** column name */
-  AppliedAt = "applied_at",
   /** column name */
   BespokeBankAccountId = "bespoke_bank_account_id",
   /** column name */
