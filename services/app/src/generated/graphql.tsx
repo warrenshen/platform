@@ -16610,7 +16610,11 @@ export const GetCustomerOverviewDocument = gql`
   query GetCustomerOverview($companyId: uuid!, $loanType: loan_type_enum) {
     companies_by_pk(id: $companyId) {
       id
-      financial_summaries(order_by: { date: desc }, limit: 1) {
+      financial_summaries(
+        order_by: { date: desc }
+        where: { date: { _is_null: false } }
+        limit: 1
+      ) {
         id
         ...FinancialSummary
       }
@@ -18535,7 +18539,11 @@ export const GetActiveLoansForCompanyDocument = gql`
   query GetActiveLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
     companies_by_pk(id: $companyId) {
       id
-      financial_summaries(order_by: { date: desc }, limit: 1) {
+      financial_summaries(
+        order_by: { date: desc }
+        where: { date: { _is_null: false } }
+        limit: 1
+      ) {
         id
         ...FinancialSummary
       }

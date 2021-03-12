@@ -16,11 +16,11 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoanFragment,
   Loans,
-  LoanTypeEnum,
   ProductTypeEnum,
   useGetCustomerOverviewQuery,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
+import { ProductTypeToLoanType } from "lib/enum";
 import { useContext, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -50,13 +50,15 @@ function CustomerOverviewPage() {
     user: { companyId, productType, role },
   } = useContext(CurrentUserContext);
 
+  const loanType =
+    !!productType && productType in ProductTypeToLoanType
+      ? ProductTypeToLoanType[productType]
+      : null;
+
   const { data, refetch } = useGetCustomerOverviewQuery({
     variables: {
       companyId,
-      loanType:
-        productType === ProductTypeEnum.LineOfCredit
-          ? LoanTypeEnum.LineOfCredit
-          : LoanTypeEnum.PurchaseOrder,
+      loanType,
     },
   });
 
