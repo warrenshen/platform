@@ -202,23 +202,26 @@ class CustomerBalance(object):
 				continue
 
 			calculator = loan_calculator.LoanCalculator(contract_helper)
-			loan_update_dict, errors = calculator.calculate_loan_balance(
+			loan_update_dict, errors_list = calculator.calculate_loan_balance(
 				loan,
 				transactions_for_loan,
 				today,
 				includes_future_transactions=includes_future_transactions,
 			)
-			if errors:
+			if errors_list:
 				logging.error('Got these errors associated with loan {}'.format(loan['id']))
-				for err in errors:
+				for err in errors_list:
 					logging.error(err.msg)
 
-				all_errors.extend(errors)
+				all_errors.extend(errors_list)
 			else:
 				loan_update_dicts.append(loan_update_dict)
 
 		if all_errors:
-			raise Exception('Will not proceed with updates because there was more than 1 error during loan balance updating')
+			return None, errors.Error(
+				'Will not proceed with updates because there was more than 1 error during loan balance updating',
+				details={'errors': all_errors}
+			)
 
 
 		ebba_application_update, err = _get_active_ebba_application_update(
