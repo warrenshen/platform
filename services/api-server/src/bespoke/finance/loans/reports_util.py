@@ -15,7 +15,7 @@ CompanyBalanceComputeResult = Tuple[List[str], errors.Error]
 
 def update_company_balance(
 	session_maker: Callable,
-	company: models.CompanyDict, 
+	company: models.CompanyDict,
 	report_date: datetime.date,
 	includes_future_transactions: bool
 ) -> Optional[str]:
@@ -37,7 +37,7 @@ def update_company_balance(
 		logging.error(msg)
 		return msg
 
-	logging.info(f"Successfully updated balance for '{company['name']}' with id: '{company['id']}'")
+	logging.info(f"Successfully updated balance for '{company['name']}' with id '{company['id']}' for date '{report_date}'")
 	return None
 
 
@@ -62,6 +62,9 @@ def compute_bank_financial_summaries(session: Session,
 	returns the list of bank financial summaries and an optional descriptive error.
 	"""
 	financial_summaries, err = financial_summary_util.get_latest_financial_summary_for_all_customers(session)
+
+	if err:
+		return None, err
 
 	if not financial_summaries:
 		return None, errors.Error('No financial summaries registered in the DB') # Early Return
@@ -147,7 +150,7 @@ def compute_and_update_bank_financial_summaries(session: Session, report_date: d
 
 def run_customer_balances_for_companies(
 	session_maker: Callable,
-	companies: List[models.CompanyDict], 
+	companies: List[models.CompanyDict],
 	report_date: datetime.date,
 	includes_future_transactions: bool,
 	) -> CompanyBalanceComputeResult:

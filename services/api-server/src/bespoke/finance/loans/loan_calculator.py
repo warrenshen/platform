@@ -143,10 +143,12 @@ class LoanCalculator(object):
 		calculate_up_to_date = today
 
 		if includes_future_transactions:
-			# Get the MAX effective_date of all transactions. This may include transactions with an effective_date
-			# in the future, since such transactions may exist from payments with a settlement_date in the future.
-			max_transaction_effective_date = max([aug_tx['transaction']['effective_date'] for aug_tx in augmented_transactions])
-			calculate_up_to_date = max(max_transaction_effective_date, today)
+			effective_dates = [aug_tx['transaction']['effective_date'] for aug_tx in augmented_transactions]
+			if len(effective_dates) > 0:
+				# Get the MAX effective_date of all transactions. This may include transactions with an effective_date
+				# in the future, since such transactions may exist from payments with a settlement_date in the future.
+				max_transaction_effective_date = max(effective_dates)
+				calculate_up_to_date = max(max_transaction_effective_date, today)
 
 		# Once we've considered how these transactions were applied, here is the remaining amount
 		# which hasn't been factored in yet based on how much you owe up to this particular day.

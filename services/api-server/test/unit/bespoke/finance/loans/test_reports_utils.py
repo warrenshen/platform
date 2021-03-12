@@ -6,14 +6,14 @@ from typing import Any, Callable, Dict, List
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
+from bespoke.db.db_constants import PRODUCT_TYPES, ProductType
 from bespoke.db.models import session_scope
-from bespoke.db.db_constants import ProductType, PRODUCT_TYPES
-from bespoke_test.db import db_unittest
-from bespoke_test.db import test_helper
+from bespoke.finance.loans import reports_util
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
-from bespoke.finance.loans import reports_util
+from bespoke_test.db import db_unittest, test_helper
 from sqlalchemy.orm.session import Session
+
 
 def _get_late_fee_structure() -> str:
 	return json.dumps({
@@ -109,7 +109,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 	def test_failure_on_unpopulated(self) -> None:
 		def populate(session: Session, seed: test_helper.BasicSeed) -> None:
 			return
-		self._run_compute_test(populate, None, errors.Error("No financial summaries registered in the DB"))
+		self._run_compute_test(populate, None, errors.Error("No financial summary found that has a date populated"))
 
 
 	def test_compute_success_with_one_financial_summary(self) -> None:
