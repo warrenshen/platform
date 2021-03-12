@@ -174,7 +174,7 @@ function SettleRepaymentConfirmEffect({
             <CurrencyTextField
               label="Amount"
               currencySymbol="$"
-              outputFormat="string"
+              outputFormat="number"
               textAlign="left"
               value={payment.amount}
               onChange={(_event: any, value: string) => {
