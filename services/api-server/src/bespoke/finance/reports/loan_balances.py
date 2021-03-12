@@ -38,6 +38,7 @@ SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 	'total_limit': float,
 	'adjusted_total_limit': float,
 	'total_outstanding_principal': float,
+	'total_outstanding_principal_for_interest': float,
 	'total_outstanding_interest': float,
 	'total_outstanding_fees': float,
 	'total_principal_in_requested_state': float,
@@ -128,11 +129,13 @@ def _get_summary_update(
 			adjusted_total_limit = 0.0
 
 	total_outstanding_principal = 0.0
+	total_outstanding_principal_for_interest = 0.0
 	total_outstanding_interest = 0.0
 	total_outstanding_fees = 0.0
 
 	for l in loan_updates:
 		total_outstanding_principal += l['outstanding_principal']
+		total_outstanding_principal_for_interest += l['outstanding_principal_for_interest']
 		total_outstanding_interest += l['outstanding_interest']
 		total_outstanding_fees += l['outstanding_fees']
 
@@ -141,6 +144,7 @@ def _get_summary_update(
 		total_limit=maximum_principal_limit,
 		adjusted_total_limit=adjusted_total_limit,
 		total_outstanding_principal=total_outstanding_principal,
+		total_outstanding_principal_for_interest=total_outstanding_principal_for_interest,
 		total_outstanding_interest=total_outstanding_interest,
 		total_outstanding_fees=total_outstanding_fees,
 		total_principal_in_requested_state=0.0,
@@ -157,7 +161,7 @@ class CustomerBalance(object):
 		self._company_name = company_dict['name']
 		self._company_id = company_dict['id']
 
-	def update(self, today: datetime.date) -> Tuple[CustomerUpdateDict, errors.Error]:
+	def update(self, today: datetime.date, includes_future_transactions: bool) -> Tuple[CustomerUpdateDict, errors.Error]:
 		# Get your contracts and loans
 		fetcher = per_customer_fetcher.Fetcher(per_customer_types.CompanyInfoDict(
 			id=self._company_id,
@@ -201,7 +205,7 @@ class CustomerBalance(object):
 				loan,
 				transactions_for_loan,
 				today,
-				includes_future_transactions=True,
+				includes_future_transactions=includes_future_transactions,
 			)
 			if errors:
 				logging.error('Got these errors associated with loan {}'.format(loan['id']))

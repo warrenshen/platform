@@ -18,6 +18,7 @@ LoanUpdateDict = TypedDict('LoanUpdateDict', {
 	'loan_id': str,
 	'adjusted_maturity_date': datetime.date,
 	'outstanding_principal': float,
+	'outstanding_principal_for_interest': float,
 	'outstanding_interest': float,
 	'outstanding_fees': float
 })
@@ -40,6 +41,15 @@ class BalanceRange(object):
 	def add_fee_info(self, interest_rate: float, fee_multiplier: float) -> None:
 		self.interest_rates.append(interest_rate)
 		self.fee_multipliers.append(fee_multiplier)
+
+def _get_transactions_on_payment_date(
+	cur_date: datetime.date, augmented_transactions: List[models.AugmentedTransactionDict]) -> List[models.AugmentedTransactionDict]:
+	txs_on_date = []
+	for tx in augmented_transactions:
+		if tx['payment']['payment_date'] == cur_date:
+			txs_on_date.append(tx)
+
+	return txs_on_date
 
 def _get_transactions_on_date(
 	cur_date: datetime.date, augmented_transactions: List[models.AugmentedTransactionDict]) -> List[models.AugmentedTransactionDict]:
@@ -147,7 +157,8 @@ class LoanCalculator(object):
 
 		# For each day between today and the origination date, you need to calculate interest and fees
 		# and consider transactions along the way.
-		outstanding_principal = 0.0
+		outstanding_principal = 0.0 # The customer sees this as their outstanding principal
+		outstanding_principal_for_interest = 0.0 # Amount of principal used for calculating interest and fees off of
 		outstanding_interest = 0.0
 		outstanding_fees = 0.0
 		errors_list = []
@@ -167,6 +178,7 @@ class LoanCalculator(object):
 				# TODO(dlluncor): what happens when fees, interest or principal go negative?
 				if payment_util.is_advance(tx):
 					outstanding_principal += tx['to_principal']
+					outstanding_principal_for_interest += tx['to_principal']
 					outstanding_interest += tx['to_interest']
 					outstanding_fees += tx['to_fees']
 
@@ -196,7 +208,7 @@ class LoanCalculator(object):
 				pass
 
 			# Add it to the outstanding interest and fees
-			interest_due_on_day = cur_interest_rate * max(0.0, outstanding_principal)
+			interest_due_on_day = cur_interest_rate * max(0.0, outstanding_principal_for_interest)
 			outstanding_interest += interest_due_on_day
 			outstanding_fees += fee_multiplier * interest_due_on_day
 
@@ -208,10 +220,18 @@ class LoanCalculator(object):
 				fee_multiplier=fee_multiplier
 			)
 
+			transactions_on_payment_date = _get_transactions_on_payment_date(cur_date, augmented_transactions)
+			for aug_tx in transactions_on_payment_date:
+				tx = aug_tx['transaction']
+				if payment_util.is_repayment(tx):
+					# The outstanding principal for a payment gets reduced on the payment date
+					outstanding_principal -= tx['to_principal']
+
 			for aug_tx in cur_augmented_transactions:
 				tx = aug_tx['transaction']
 				if payment_util.is_repayment(tx):
-					outstanding_principal -= tx['to_principal']
+					# The principal for interest calculations gets paid off on the settlement date
+					outstanding_principal_for_interest -= tx['to_principal']
 					outstanding_interest -= tx['to_interest']
 					outstanding_fees -= tx['to_fees']
 
@@ -229,6 +249,7 @@ class LoanCalculator(object):
 			loan_id=loan['id'],
 			adjusted_maturity_date=loan['adjusted_maturity_date'],
 			outstanding_principal=outstanding_principal,
+			outstanding_principal_for_interest=outstanding_principal_for_interest,
 			outstanding_interest=outstanding_interest,
 			outstanding_fees=outstanding_fees
 		), None

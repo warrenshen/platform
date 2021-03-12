@@ -45,13 +45,14 @@ def _get_contract(company_id: str) -> models.Contract:
 
 def _apply_transaction(tx: Dict, session: Any, loan: models.Loan) -> None:
 	if tx['type'] == 'advance':
-		payment_test_helper.make_advance(session, loan, tx['amount'], tx['effective_date'])
+		payment_test_helper.make_advance(session, loan, tx['amount'], tx['payment_date'], tx['effective_date'])
 	elif tx['type'] == 'repayment':
 		payment_test_helper.make_repayment(
 			session, loan,
 			to_principal=tx['to_principal'],
 			to_interest=tx['to_interest'],
 			to_fees=tx['to_fees'],
+			payment_date=tx['payment_date'],
 			effective_date=tx['effective_date']
 		)
 	else:
@@ -912,7 +913,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 				'transaction_lists': [
 					# Transactions are parallel to the loans defined in the test.
 					# These will be advances or repayments made against their respective loans.
-					[{'type': 'advance', 'amount': 50.0, 'effective_date': '10/10/2020'}],
+					[{'type': 'advance', 'amount': 50.0, 'payment_date': '10/10/2020', 'effective_date': '10/10/2020'}],
 				],
 				'payment': {
 					'amount': 50.0 + 0.4,
@@ -958,7 +959,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 				'transaction_lists': [
 					# Transactions are parallel to the loans defined in the test.
 					# These will be advances or repayments made against their respective loans.
-					[{'type': 'advance', 'amount': 50.0, 'effective_date': '10/10/2020'}],
+					[{'type': 'advance', 'amount': 50.0, 'payment_date': '10/10/2020', 'effective_date': '10/10/2020'}],
 				],
 				'payment': {
 					'amount': 50.0 + 0.0,
@@ -1004,7 +1005,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 				'transaction_lists': [
 					# Transactions are parallel to the loans defined in the test.
 					# These will be advances or repayments made against their respective loans.
-					[{'type': 'advance', 'amount': 50.0, 'effective_date': '10/10/2020'}],
+					[{'type': 'advance', 'amount': 50.0, 'payment_date': '10/10/2020', 'effective_date': '10/10/2020'}],
 				],
 				'payment': {
 					'amount': 0.0 + 0.4,
@@ -1057,8 +1058,8 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 				'transaction_lists': [
 					# Transactions are parallel to the loans defined in the test.
 					# These will be advances or repayments made against their respective loans.
-					[{'type': 'advance', 'amount': 50.0, 'effective_date': '10/10/2020'}],
-					[{'type': 'advance', 'amount': 100.0, 'effective_date': '10/11/2020'}],
+					[{'type': 'advance', 'amount': 50.0, 'payment_date': '10/10/2020', 'effective_date': '10/10/2020'}],
+					[{'type': 'advance', 'amount': 100.0, 'payment_date': '10/11/2020', 'effective_date': '10/11/2020'}],
 				],
 				'payment': {
 					'amount': 50.0 + 0.4 + 100 + 0.6,
@@ -1124,8 +1125,8 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 				'transaction_lists': [
 					# Transactions are parallel to the loans defined in the test.
 					# These will be advances or repayments made against their respective loans.
-					[{'type': 'advance', 'amount': 50.0, 'effective_date': '10/10/2020'}],
-					[{'type': 'advance', 'amount': 100.0, 'effective_date': '10/11/2020'}],
+					[{'type': 'advance', 'amount': 50.0, 'payment_date': '10/10/2020', 'effective_date': '10/10/2020'}],
+					[{'type': 'advance', 'amount': 100.0, 'payment_date': '10/11/2020', 'effective_date': '10/11/2020'}],
 				],
 				'payment': {
 					'amount': 50.0 + 0.0 + 60.0 + 0.0,
@@ -1183,7 +1184,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 			'transaction_lists': [
 				# Transactions are parallel to the loans defined in the test.
 				# These will be advances or repayments made against their respective loans.
-				[{'type': 'advance', 'amount': 50.0, 'effective_date': '10/10/2020'}],
+				[{'type': 'advance', 'amount': 50.0, 'payment_date': '10/10/2020', 'effective_date': '10/10/2020'}],
 			],
 			'payment': {
 				'amount': 50.0 + 0.4,

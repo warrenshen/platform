@@ -39,7 +39,8 @@ def main() -> None:
 	for company_dict in company_dicts:
 		company_name = company_dict['name']
 		customer_balance = loan_balances.CustomerBalance(company_dict, session_maker)
-		customer_update_dict, err = customer_balance.update(today=date_util.today_as_date())
+		customer_update_dict, err = customer_balance.update(
+			today=date_util.today_as_date(), includes_future_transactions=True)
 		if err:
 			logging.error('Error updating customer balance for company "{}". Error: {}'.format(
 				company_name, err

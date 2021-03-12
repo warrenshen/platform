@@ -6,12 +6,13 @@ from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.db_constants import PaymentType
 
-def make_advance(session: Any, loan: models.Loan, amount: float, effective_date: str) -> None:
+def make_advance(session: Any, loan: models.Loan, amount: float, payment_date: str, effective_date: str) -> None:
 	# Advance is made
 	payment = models.Payment(
 		type=PaymentType.ADVANCE,
 		amount=decimal.Decimal(amount),
-		company_id=loan.company_id
+		company_id=loan.company_id,
+		payment_date=date_util.load_date_str(payment_date)
 	)
 	session.add(payment)
 	session.flush()
@@ -29,13 +30,14 @@ def make_advance(session: Any, loan: models.Loan, amount: float, effective_date:
 def make_repayment(
 	session: Any, loan: models.Loan, 
 	to_principal: float, to_interest: float, to_fees: float, 
-	effective_date: str) -> None:
+	payment_date: str, effective_date: str) -> None:
 	# Advance is made
 	amount = to_principal + to_interest + to_fees
 	payment = models.Payment(
 		type=PaymentType.REPAYMENT,
 		amount=decimal.Decimal(amount),
-		company_id=loan.company_id
+		company_id=loan.company_id,
+		payment_date=date_util.load_date_str(payment_date)
 	)
 	session.add(payment)
 	session.flush()

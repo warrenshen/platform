@@ -45,13 +45,14 @@ def _get_contract(company_id: str) -> models.Contract:
 
 def _apply_transaction(tx: Dict, session: Any, loan: models.Loan) -> None:
 	if tx['type'] == 'advance':
-		payment_test_helper.make_advance(session, loan, tx['amount'], tx['effective_date'])
+		payment_test_helper.make_advance(session, loan, tx['amount'], tx['payment_date'], tx['effective_date'])
 	elif tx['type'] == 'repayment':
 		payment_test_helper.make_repayment(
 			session, loan,
 			to_principal=tx['to_principal'],
 			to_interest=tx['to_interest'],
 			to_fees=tx['to_fees'],
+			payment_date=tx['payment_date'],
 			effective_date=tx['effective_date']
 		)
 	else:
@@ -179,7 +180,14 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 			'transaction_lists': [
 				# Transactions are parallel to the loans defined in the test.
 				# These will be advances or repayments made against their respective loans.
-				[{'type': 'advance', 'amount': 20.02, 'effective_date': '9/1/2020'}]
+				[
+					{
+						'type': 'advance', 
+						'amount': 20.02, 
+						'payment_date': '9/1/2020',
+						'effective_date': '9/1/2020'
+					}
+				]
 			],
 			'payment_date': '9/12/2020',
 			'settlement_date': '9/14/2020',
@@ -237,8 +245,8 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 			'transaction_lists': [
 				# Transactions are parallel to the loans defined in the test.
 				# These will be advances or repayments made against their respective loans.
-				[{'type': 'advance', 'amount': 20.00, 'effective_date': '8/20/2020'}],
-				[{'type': 'advance', 'amount': 30.00, 'effective_date': '8/22/2020'}]
+				[{'type': 'advance', 'amount': 20.00, 'payment_date': '8/20/2020', 'effective_date': '8/20/2020'}],
+				[{'type': 'advance', 'amount': 30.00, 'payment_date': '8/22/2020', 'effective_date': '8/22/2020'}]
 			],
 			'payment_date': '8/24/2020',
 			'settlement_date': '8/28/2020', # late fees accrued on the 1st loan
@@ -321,9 +329,9 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 			'transaction_lists': [
 				# Transactions are parallel to the loans defined in the test.
 				# These will be advances or repayments made against their respective loans.
-				[{'type': 'advance', 'amount': 10.00, 'effective_date': '02/01/2020'}],
-				[{'type': 'advance', 'amount': 30.00, 'effective_date': '02/05/2020'}],
-				[{'type': 'advance', 'amount': 50.00, 'effective_date': '02/10/2020'}]
+				[{'type': 'advance', 'amount': 10.00, 'payment_date': '02/01/2020', 'effective_date': '02/01/2020'}],
+				[{'type': 'advance', 'amount': 30.00, 'payment_date': '02/05/2020', 'effective_date': '02/05/2020'}],
+				[{'type': 'advance', 'amount': 50.00, 'payment_date': '02/10/2020', 'effective_date': '02/10/2020'}]
 			],
 			'payment_date': '02/15/2020',
 			'settlement_date': '02/20/2020',
@@ -436,8 +444,8 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				'transaction_lists': [
 					# Transactions are parallel to the loans defined in the test.
 					# These will be advances or repayments made against their respective loans.
-					[{'type': 'advance', 'amount': 20.00, 'effective_date': '09/20/2020'}],
-					[{'type': 'advance', 'amount': 30.00, 'effective_date': '09/25/2020'}],
+					[{'type': 'advance', 'amount': 20.00, 'payment_date': '09/20/2020', 'effective_date': '09/20/2020'}],
+					[{'type': 'advance', 'amount': 30.00, 'payment_date': '09/25/2020', 'effective_date': '09/25/2020'}],
 				],
 				'payment_date': '09/25/2020',
 				'settlement_date': '09/28/2020',
@@ -509,8 +517,8 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				'transaction_lists': [
 					# Transactions are parallel to the loans defined in the test.
 					# These will be advances or repayments made against their respective loans.
-					[{'type': 'advance', 'amount': 20.00, 'effective_date': '09/20/2020'}],
-					[{'type': 'advance', 'amount': 30.00, 'effective_date': '09/25/2020'}],
+					[{'type': 'advance', 'amount': 20.00, 'payment_date': '09/20/2020', 'effective_date': '09/20/2020'}],
+					[{'type': 'advance', 'amount': 30.00, 'payment_date': '09/25/2020', 'effective_date': '09/25/2020'}],
 				],
 				'payment_date': '09/25/2020',
 				'settlement_date': '09/28/2020',
@@ -590,8 +598,8 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				'transaction_lists': [
 					# Transactions are parallel to the loans defined in the test.
 					# These will be advances or repayments made against their respective loans.
-					[{'type': 'advance', 'amount': 20.00, 'effective_date': '09/20/2020'}],
-					[{'type': 'advance', 'amount': 30.00, 'effective_date': '09/25/2020'}],
+					[{'type': 'advance', 'amount': 20.00, 'payment_date': '09/20/2020', 'effective_date': '09/20/2020'}],
+					[{'type': 'advance', 'amount': 30.00, 'payment_date': '09/25/2020', 'effective_date': '09/25/2020'}],
 				],
 				'payment_date': '09/25/2020',
 				'settlement_date': '09/30/2020',
@@ -668,16 +676,17 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				'transaction_lists': [
 					# Transactions are parallel to the loans defined in the test.
 					# These will be advances or repayments made against their respective loans.
-					[{'type': 'advance', 'amount': 20.02, 'effective_date': '11/05/2020'}]
+					[{'type': 'advance', 'amount': 20.02, 'payment_date': '11/05/2020', 'effective_date': '11/05/2020'}]
 				],
 				'transaction_lists_for_not_selected': [
 					# Transactions are parallel to the loans defined in the test.
 					# These will be advances or repayments made against their respective loans.
 					[
-						{'type': 'advance', 'amount': 30.02, 'effective_date': '11/10/2020'},
-						{'type': 'repayment', 'to_principal': 10.02, 'to_interest': 0.0, 'to_fees': 0.0, 'effective_date': '11/12/2020'}
+						{'type': 'advance', 'amount': 30.02, 'payment_date': '11/10/2020', 'effective_date': '11/10/2020'},
+						{'type': 'repayment', 'to_principal': 10.02, 'to_interest': 0.0, 'to_fees': 0.0, 
+						 'payment_date': '11/12/2020', 'effective_date': '11/12/2020'}
 					],
-					[{'type': 'advance', 'amount': 50.02, 'effective_date': '11/22/2020'}]
+					[{'type': 'advance', 'amount': 50.02, 'payment_date': '11/22/2020', 'effective_date': '11/22/2020'}]
 				],
 				'loans_not_selected': [
 					models.Loan(
