@@ -6,9 +6,9 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import LoansBeforeAfterPaymentPreview from "components/Repayment/LoansBeforeAfterPaymentPreview";
 import RequestedRepaymentPreview from "components/Repayment/RequestedRepaymentPreview";
+import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import {
   Companies,
   Loans,
@@ -92,13 +92,10 @@ function SettleRepaymentConfirmEffect({
           </Box>
           <Box mt={1}>
             <FormControl className={classes.inputField}>
-              <CurrencyTextField
-                label="Payment Amount to Principal"
-                currencySymbol="$"
-                outputFormat="number"
-                textAlign="left"
+              <CurrencyInput
+                label={"Payment Amount to Principal"}
                 value={payment.items_covered.to_principal}
-                onChange={(_event: any, value: number) =>
+                handleChange={(value: number) =>
                   setPayment({
                     ...payment,
                     amount: value + payment.items_covered.to_interest,
@@ -113,13 +110,10 @@ function SettleRepaymentConfirmEffect({
           </Box>
           <Box mt={1}>
             <FormControl className={classes.inputField}>
-              <CurrencyTextField
-                label="Payment Amount to Interest"
-                currencySymbol="$"
-                outputFormat="number"
-                textAlign="left"
+              <CurrencyInput
+                label={"Payment Amount to Interest"}
                 value={payment.items_covered.to_interest}
-                onChange={(_event: any, value: number) =>
+                handleChange={(value: number) =>
                   setPayment({
                     ...payment,
                     amount: value + payment.items_covered.to_principal,
@@ -171,13 +165,10 @@ function SettleRepaymentConfirmEffect({
             </Typography>
           </Box>
           <FormControl className={classes.inputField}>
-            <CurrencyTextField
-              label="Amount"
-              currencySymbol="$"
-              outputFormat="number"
-              textAlign="left"
+            <CurrencyInput
+              label={"Amount"}
               value={payment.amount}
-              onChange={(_event: any, value: string) => {
+              handleChange={(value: number) => {
                 setPayment({ ...payment, amount: value });
               }}
             />

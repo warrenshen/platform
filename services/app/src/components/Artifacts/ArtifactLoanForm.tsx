@@ -8,7 +8,7 @@ import {
   Select,
   Typography,
 } from "@material-ui/core";
-import CurrencyTextField from "@unicef/material-ui-currency-textfield";
+import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import { LoansInsertInput } from "generated/graphql";
 import { Artifact } from "lib/finance/loans/artifacts";
@@ -127,13 +127,10 @@ export default function ArtifactLoanForm({
       </Box>
       <Box mt={3}>
         <FormControl className={classes.inputField}>
-          <CurrencyTextField
-            label="Amount"
-            currencySymbol="$"
-            outputFormat="string"
-            textAlign="left"
+          <CurrencyInput
+            label={"Amount"}
             value={loan.amount}
-            onChange={(_event: any, value: string) =>
+            handleChange={(value: number) =>
               setLoan({
                 ...loan,
                 amount: value,

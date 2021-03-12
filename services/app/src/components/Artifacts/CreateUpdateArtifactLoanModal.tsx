@@ -87,7 +87,7 @@ export default function CreateUpdateArtifactLoanModal({
     artifact_id: artifactId || "",
     loan_type: loanType,
     requested_payment_date: null,
-    amount: "",
+    amount: null,
     status: LoanStatusEnum.Drafted,
   };
 

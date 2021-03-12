@@ -12,9 +12,9 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileUploadDropzone from "components/Shared/File/UploadDropzone";
+import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import {
   InvoiceFileFragment,
@@ -157,13 +157,10 @@ export default function InvoiceForm({
       </Box>
       <Box mt={2}>
         <FormControl fullWidth className={classes.inputField}>
-          <CurrencyTextField
-            label="Subtotal Amount"
-            currencySymbol="$"
-            outputFormat="string"
-            textAlign="left"
+          <CurrencyInput
+            label={"Subtotal Amount"}
             value={invoice.subtotal_amount}
-            onChange={(_event: any, value: string) =>
+            handleChange={(value: number) =>
               setInvoice({
                 ...invoice,
                 subtotal_amount: value,
@@ -174,13 +171,10 @@ export default function InvoiceForm({
       </Box>
       <Box mt={3}>
         <FormControl fullWidth className={classes.inputField}>
-          <CurrencyTextField
-            label="Taxes"
-            currencySymbol="$"
-            outputFormat="string"
-            textAlign="left"
+          <CurrencyInput
+            label={"Taxes"}
             value={invoice.taxes_amount}
-            onChange={(_event: any, value: string) =>
+            handleChange={(value: number) =>
               setInvoice({
                 ...invoice,
                 taxes_amount: value,
@@ -191,13 +185,10 @@ export default function InvoiceForm({
       </Box>
       <Box mt={2}>
         <FormControl fullWidth className={classes.inputField}>
-          <CurrencyTextField
-            label="Total Amount"
-            currencySymbol="$"
-            outputFormat="string"
-            textAlign="left"
+          <CurrencyInput
+            label={"Total Amount"}
             value={invoice.total_amount}
-            onChange={(_event: any, value: string) =>
+            handleChange={(value: number) =>
               setInvoice({
                 ...invoice,
                 total_amount: value,

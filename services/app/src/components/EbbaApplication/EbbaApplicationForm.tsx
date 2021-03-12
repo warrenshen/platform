@@ -6,9 +6,9 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileUploadDropzone from "components/Shared/File/UploadDropzone";
+import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import {
   EbbaApplicationFilesInsertInput,
@@ -86,14 +86,11 @@ function EbbaApplicationForm({
         </Typography>
         <Box mt={1}>
           <FormControl className={classes.inputField}>
-            <CurrencyTextField
-              required
-              label="Accounts Receivable ($)"
-              currencySymbol="$"
-              outputFormat="string"
-              textAlign="left"
+            <CurrencyInput
+              isRequired
+              label={"Accounts Receivable ($)"}
               value={ebbaApplication.monthly_accounts_receivable}
-              onChange={(_event: any, value: string) => {
+              handleChange={(value: number) => {
                 setEbbaApplication({
                   ...ebbaApplication,
                   monthly_accounts_receivable: value,
@@ -110,14 +107,11 @@ function EbbaApplicationForm({
         </Typography>
         <Box mt={1}>
           <FormControl className={classes.inputField}>
-            <CurrencyTextField
-              required
-              label="Inventory ($)"
-              currencySymbol="$"
-              outputFormat="string"
-              textAlign="left"
+            <CurrencyInput
+              isRequired
+              label={"Inventory ($)"}
               value={ebbaApplication.monthly_inventory}
-              onChange={(_event: any, value: string) => {
+              handleChange={(value: number) => {
                 setEbbaApplication({
                   ...ebbaApplication,
                   monthly_inventory: value,
@@ -134,14 +128,11 @@ function EbbaApplicationForm({
         </Typography>
         <Box mt={1}>
           <FormControl className={classes.inputField}>
-            <CurrencyTextField
-              required
-              label="Cash ($)"
-              currencySymbol="$"
-              outputFormat="string"
-              textAlign="left"
+            <CurrencyInput
+              isRequired
+              label={"Cash ($)"}
               value={ebbaApplication.monthly_cash}
-              onChange={(_event: any, value: string) => {
+              handleChange={(value: number) => {
                 setEbbaApplication({
                   ...ebbaApplication,
                   monthly_cash: value,

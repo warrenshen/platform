@@ -12,9 +12,9 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileUploadDropzone from "components/Shared/File/UploadDropzone";
+import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import {
   CompanyVendorPartnerships,
@@ -152,13 +152,10 @@ function PurchaseOrderForm({
       </Box>
       <Box mt={3}>
         <FormControl fullWidth className={classes.inputField}>
-          <CurrencyTextField
+          <CurrencyInput
             label="Amount"
-            currencySymbol="$"
-            outputFormat="string"
-            textAlign="left"
             value={purchaseOrder.amount}
-            onChange={(_event: any, value: string) =>
+            handleChange={(value) =>
               setPurchaseOrder({
                 ...purchaseOrder,
                 amount: value,

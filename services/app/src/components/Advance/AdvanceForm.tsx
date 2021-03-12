@@ -9,8 +9,8 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
+import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import { LoanFragment, PaymentsInsertInput } from "generated/graphql";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
@@ -112,14 +112,7 @@ function PaymentAdvanceForm({ payment, selectedLoans, setPayment }: Props) {
       </Box>
       <Box mt={3}>
         <FormControl>
-          <CurrencyTextField
-            disabled
-            label="Amount"
-            currencySymbol="$"
-            outputFormat="string"
-            textAlign="left"
-            value={payment.amount}
-          />
+          <CurrencyInput isDisabled label={"Amount"} value={payment.amount} />
         </FormControl>
       </Box>
     </Box>

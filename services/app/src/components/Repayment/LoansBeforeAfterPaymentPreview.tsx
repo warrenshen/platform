@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import { ArrowRightAlt } from "@material-ui/icons";
-import CurrencyTextField from "@unicef/material-ui-currency-textfield";
+import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import { Loans } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { LoanBeforeAfterPayment } from "lib/types";
@@ -169,49 +169,43 @@ function LoansBeforeAfterPaymentPreview({
                       setLoanBeforeAfterPayment && (
                         <Box display="flex" mb={2}>
                           <Box mr={1}>
-                            <CurrencyTextField
-                              label="To Principal"
-                              currencySymbol="$"
-                              outputFormat="string"
+                            <CurrencyInput
+                              label={"To Principal"}
                               textAlign="right"
                               value={transaction.to_principal}
-                              onChange={(_event: any, value: string) =>
+                              handleChange={(value: number) =>
                                 setLoanBeforeAfterPayment(
                                   loanId,
                                   "to_principal",
-                                  parseFloat(value)
+                                  value
                                 )
                               }
                             />
                           </Box>
                           <Box mr={1}>
-                            <CurrencyTextField
-                              label="To Interest"
-                              currencySymbol="$"
-                              outputFormat="string"
+                            <CurrencyInput
+                              label={"To Interest"}
                               textAlign="right"
                               value={transaction.to_interest}
-                              onChange={(_event: any, value: string) =>
+                              handleChange={(value: number) =>
                                 setLoanBeforeAfterPayment(
                                   loanId,
                                   "to_interest",
-                                  parseFloat(value)
+                                  value
                                 )
                               }
                             />
                           </Box>
                           <Box>
-                            <CurrencyTextField
-                              label="To Fees"
-                              currencySymbol="$"
-                              outputFormat="string"
+                            <CurrencyInput
+                              label={"To Fees"}
                               textAlign="right"
                               value={transaction.to_fees}
-                              onChange={(_event: any, value: string) =>
+                              handleChange={(value: number) =>
                                 setLoanBeforeAfterPayment(
                                   loanId,
                                   "to_fees",
-                                  parseFloat(value)
+                                  value
                                 )
                               }
                             />

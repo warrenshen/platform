@@ -203,9 +203,7 @@ function ContractTermsForm({
             textAlign="left"
             required={!item.nullable}
             value={item.value === null ? "" : item.value}
-            onChange={(_event: any, value: string) =>
-              findAndReplaceInJSON(item, value)
-            }
+            handleChange={(value: number) => findAndReplaceInJSON(item, value)}
           />
         );
       case item.type === "boolean":

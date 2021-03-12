@@ -9,8 +9,8 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
+import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import {
   FinancialSummaryFragment,
@@ -130,13 +130,10 @@ function CreateRepaymentSelectLoans({
             {paymentOption === "custom_amount" && (
               <Box mt={2}>
                 <FormControl className={classes.inputField}>
-                  <CurrencyTextField
-                    label="Amount"
-                    currencySymbol="$"
-                    outputFormat="string"
-                    textAlign="left"
+                  <CurrencyInput
+                    label={"Amount"}
                     value={payment.amount}
-                    onChange={(_event: any, value: string) => {
+                    handleChange={(value: number) => {
                       setPayment({ ...payment, amount: value });
                     }}
                   />
