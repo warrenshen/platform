@@ -2301,6 +2301,8 @@ export type CompanyPayorPartnershipsBoolExp = {
 /** unique or primary key constraints on table "company_payor_partnerships" */
 export enum CompanyPayorPartnershipsConstraint {
   /** unique or primary key constraint */
+  CompanyPayorPartnershipsCompanyIdPayorIdKey = "company_payor_partnerships_company_id_payor_id_key",
+  /** unique or primary key constraint */
   CompanyPayorPartnershipsPkey = "company_payor_partnerships_pkey",
 }
 
@@ -2484,7 +2486,9 @@ export type CompanySettings = {
   /** An object relationship */
   company?: Maybe<Companies>;
   company_id?: Maybe<Scalars["uuid"]>;
+  created_at: Scalars["timestamptz"];
   id: Scalars["uuid"];
+  updated_at: Scalars["timestamptz"];
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
 };
 
@@ -2533,7 +2537,9 @@ export type CompanySettingsBoolExp = {
   collections_bespoke_bank_account_id?: Maybe<UuidComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
   vendor_agreement_docusign_template?: Maybe<StringComparisonExp>;
 };
 
@@ -2553,7 +2559,9 @@ export type CompanySettingsInsertInput = {
   collections_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
 };
 
@@ -2563,7 +2571,9 @@ export type CompanySettingsMaxFields = {
   advances_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   collections_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
 };
 
@@ -2573,7 +2583,9 @@ export type CompanySettingsMaxOrderBy = {
   advances_bespoke_bank_account_id?: Maybe<OrderBy>;
   collections_bespoke_bank_account_id?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
   vendor_agreement_docusign_template?: Maybe<OrderBy>;
 };
 
@@ -2583,7 +2595,9 @@ export type CompanySettingsMinFields = {
   advances_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   collections_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
 };
 
@@ -2593,7 +2607,9 @@ export type CompanySettingsMinOrderBy = {
   advances_bespoke_bank_account_id?: Maybe<OrderBy>;
   collections_bespoke_bank_account_id?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
   vendor_agreement_docusign_template?: Maybe<OrderBy>;
 };
 
@@ -2628,7 +2644,9 @@ export type CompanySettingsOrderBy = {
   collections_bespoke_bank_account_id?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
   vendor_agreement_docusign_template?: Maybe<OrderBy>;
 };
 
@@ -2648,7 +2666,11 @@ export enum CompanySettingsSelectColumn {
   /** column name */
   CompanyId = "company_id",
   /** column name */
+  CreatedAt = "created_at",
+  /** column name */
   Id = "id",
+  /** column name */
+  UpdatedAt = "updated_at",
   /** column name */
   VendorAgreementDocusignTemplate = "vendor_agreement_docusign_template",
 }
@@ -2659,7 +2681,9 @@ export type CompanySettingsSetInput = {
   advances_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   collections_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
 };
 
@@ -2674,7 +2698,11 @@ export enum CompanySettingsUpdateColumn {
   /** column name */
   CompanyId = "company_id",
   /** column name */
+  CreatedAt = "created_at",
+  /** column name */
   Id = "id",
+  /** column name */
+  UpdatedAt = "updated_at",
   /** column name */
   VendorAgreementDocusignTemplate = "vendor_agreement_docusign_template",
 }
@@ -2902,6 +2930,8 @@ export type CompanyVendorPartnershipsBoolExp = {
 export enum CompanyVendorPartnershipsConstraint {
   /** unique or primary key constraint */
   CompanyVendorPartnershipPkey = "company_vendor_partnership_pkey",
+  /** unique or primary key constraint */
+  CompanyVendorPartnershipsCompanyIdVendorIdKey = "company_vendor_partnerships_company_id_vendor_id_key",
 }
 
 /** input type for inserting data into table "company_vendor_partnerships" */
@@ -15605,12 +15635,13 @@ export type FinancialSummaryFragment = Pick<
   | "id"
   | "company_id"
   | "date"
+  | "available_limit"
   | "adjusted_total_limit"
   | "total_outstanding_principal"
   | "total_outstanding_interest"
   | "total_outstanding_fees"
   | "total_principal_in_requested_state"
-  | "available_limit"
+  | "total_outstanding_principal_for_interest"
 >;
 
 export type InvoiceFileFragment = Pick<
@@ -16268,12 +16299,13 @@ export const FinancialSummaryFragmentDoc = gql`
     id
     company_id
     date
+    available_limit
     adjusted_total_limit
     total_outstanding_principal
     total_outstanding_interest
     total_outstanding_fees
     total_principal_in_requested_state
-    available_limit
+    total_outstanding_principal_for_interest
   }
 `;
 export const InvoiceFileFragmentDoc = gql`
