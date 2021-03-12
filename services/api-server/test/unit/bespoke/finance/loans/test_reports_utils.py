@@ -93,6 +93,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 		session.commit()
 
 		session.add(models.FinancialSummary(
+			date=datetime.date.today(),
 			company_id=company_id,
 			total_limit=decimal.Decimal(100.0),
 			adjusted_total_limit=decimal.Decimal(100.0),

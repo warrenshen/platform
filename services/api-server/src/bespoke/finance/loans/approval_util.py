@@ -7,7 +7,9 @@ from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.db.db_constants import (ALL_LOAN_TYPES, LoanTypeEnum, LoanStatusEnum,
                                      RequestStatusEnum)
+from bespoke.finance import financial_summary_util
 from bespoke.finance.loans import sibling_util
+
 
 ApproveLoansReqDict = TypedDict('ApproveLoansReqDict', {
 	'loan_ids': List[str],
@@ -100,12 +102,7 @@ def submit_for_approval(loan_id: str, session_maker: Callable) -> Tuple[SubmitFo
 		if loan.amount is None or loan.amount <= 0:
 			return None, errors.Error('Invalid amount', details=err_details)
 
-		financial_summary = cast(
-			models.FinancialSummary,
-			session.query(models.FinancialSummary).filter_by(
-				company_id=loan.company_id
-			).first()
-		)
+		financial_summary = financial_summary_util.get_latest_financial_summary(loan.company_id, session)
 		if not financial_summary:
 			return None, errors.Error('No financial summary associated with this customer, so we could not determine the max limit allowed', details=err_details)
 

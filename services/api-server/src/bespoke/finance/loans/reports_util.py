@@ -6,6 +6,7 @@ from typing import Callable, Iterable, List, Optional, Tuple, cast
 from bespoke import errors
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
+from bespoke.finance import financial_summary_util
 from bespoke.finance.reports import loan_balances
 from sqlalchemy.orm.session import Session
 
@@ -60,9 +61,8 @@ def compute_bank_financial_summaries(session: Session,
 	and compute new bank financial statements across all of our product types. This function
 	returns the list of bank financial summaries and an optional descriptive error.
 	"""
-	financial_summaries = cast(
-		List[models.FinancialSummary],
-		session.query(models.FinancialSummary).all())
+	financial_summaries, err = financial_summary_util.get_latest_financial_summary_for_all_customers(session)
+
 	if not financial_summaries:
 		return None, errors.Error('No financial summaries registered in the DB') # Early Return
 

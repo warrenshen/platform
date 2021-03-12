@@ -51,6 +51,7 @@ EbbaApplicationUpdateDict = TypedDict('EbbaApplicationUpdateDict', {
 })
 
 CustomerUpdateDict = TypedDict('CustomerUpdateDict', {
+	'today': datetime.date,
 	'loan_updates': List[LoanUpdateDict],
 	'active_ebba_application_update': EbbaApplicationUpdateDict,
 	'summary_update': SummaryUpdateDict
@@ -237,6 +238,7 @@ class CustomerBalance(object):
 		summary_update['total_principal_in_requested_state'] = total_principal_in_requested_state
 
 		return CustomerUpdateDict(
+			today=today,
 			loan_updates=loan_update_dicts,
 			active_ebba_application_update=ebba_application_update,
 			summary_update=summary_update,
@@ -274,7 +276,8 @@ class CustomerBalance(object):
 			financial_summary = cast(
 				models.FinancialSummary,
 				session.query(models.FinancialSummary).filter(
-					models.FinancialSummary.company_id == self._company_id).first())
+					models.FinancialSummary.company_id == self._company_id)
+				.filter(models.FinancialSummary.date == customer_update['today'].isoformat()).first())
 
 			should_add_summary = not financial_summary
 			if should_add_summary:
@@ -284,6 +287,7 @@ class CustomerBalance(object):
 
 			summary_update = customer_update['summary_update']
 
+			financial_summary.date = customer_update['today']
 			financial_summary.total_limit = decimal.Decimal(summary_update['total_limit'])
 			financial_summary.adjusted_total_limit = decimal.Decimal(summary_update['adjusted_total_limit'])
 			financial_summary.total_outstanding_principal = decimal.Decimal(summary_update['total_outstanding_principal'])

@@ -436,6 +436,7 @@ class FinancialSummary(Base):
 	__tablename__ = 'financial_summaries'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	date = Column(Date)
 	company_id = Column(GUID, nullable=False)
 	total_limit = Column(Numeric, nullable=False)
 	total_outstanding_principal = Column(Numeric, nullable=False)
