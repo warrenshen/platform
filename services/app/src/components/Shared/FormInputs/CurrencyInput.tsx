@@ -4,11 +4,13 @@ interface Props {
   isDisabled?: boolean;
   isRequired?: boolean;
   textAlign?: "left" | "right";
+  currencySymbol?: "$" | "%" | ""; // This props allows us to use this component for non-currency number input fields.
+  decimalPlaces?: number;
+  minimumValue?: number;
+  maximumValue?: number;
   label: string;
   error?: string;
   value: number;
-  minimumValue?: number;
-  maximumValue?: number;
   handleChange?: (value: number) => void;
 }
 
@@ -16,11 +18,13 @@ function CurrencyInput({
   isDisabled = false,
   isRequired = false,
   textAlign = "left",
+  currencySymbol = "$",
+  decimalPlaces = 2,
+  minimumValue,
+  maximumValue,
   label,
   error,
   value,
-  minimumValue,
-  maximumValue,
   handleChange,
 }: Props) {
   return (
@@ -28,15 +32,18 @@ function CurrencyInput({
       disabled={isDisabled}
       required={isRequired}
       modifyValueOnWheel={false}
-      currencySymbol="$"
-      outputFormat="number"
-      minimumValue={minimumValue}
-      maximumValue={maximumValue}
+      currencySymbol={currencySymbol}
+      outputFormat={"number"}
+      decimalPlaces={decimalPlaces}
+      minimumValue={minimumValue?.toString()}
+      maximumValue={maximumValue?.toString()}
       textAlign={textAlign}
       label={label}
       error={error || ""}
       value={value}
-      handleChange={(value: number) => handleChange && handleChange(value)}
+      onChange={(_event: any, value: number) =>
+        handleChange && handleChange(value)
+      }
     />
   );
 }

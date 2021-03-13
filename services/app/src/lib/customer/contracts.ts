@@ -115,11 +115,17 @@ export type ProductConfigField = {
 // TODO (warrenshen): remove hardcoded `fields[1]` if possible.
 const formatValueForClient = (
   type: string,
-  value: string | null,
+  value: string | number | null,
   format: string | null,
   fields: ProductConfigField[] | null
 ) => {
   if (type === "json") {
+    if (typeof value !== "string") {
+      console.error(
+        'Developer error: type is "json" but type of value is not "string".'
+      );
+      return null;
+    }
     if (fields === null || value === null) {
       return value;
     }
@@ -135,7 +141,7 @@ const formatValueForClient = (
     if (value === null) {
       return value;
     }
-    const parsedValue = parseFloat(value);
+    const parsedValue = typeof value === "string" ? parseFloat(value) : value;
     if (format === "percentage") {
       const parsedPercent = parsedValue * 100;
       return parsedPercent <= 100 ? parsedPercent : null;
@@ -143,7 +149,13 @@ const formatValueForClient = (
       return parsedValue;
     }
   } else if (type === "integer") {
-    return value ? parseInt(value) : null;
+    if (typeof value !== "number") {
+      console.error(
+        'Developer error: type is "integer" but type of value is not "number".'
+      );
+      return null;
+    }
+    return value || null;
   } else {
     return value;
   }
@@ -157,7 +169,7 @@ const formatValueForServer = (
 ) => {
   // If type is not "json" but type of value is "object", something went wrong.
   if (type !== "json" && value !== null && typeof value === "object") {
-    console.log(
+    console.error(
       'Developer error: type is not "json" but type of value is "object".'
     );
     return null;

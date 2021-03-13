@@ -11,7 +11,7 @@ import {
   TextField,
   Typography,
 } from "@material-ui/core";
-import CurrencyTextField from "@unicef/material-ui-currency-textfield";
+import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import JsonFormInput from "components/Shared/FormInputs/JsonFormInput";
 import { ContractsInsertInput, ProductTypeEnum } from "generated/graphql";
@@ -191,18 +191,17 @@ function ContractTermsForm({
           }
         };
         return (
-          <CurrencyTextField
-            style={{ width: 300 }}
-            modifyValueOnWheel={false}
-            label={item.display_name}
-            error={errMsg.length > 0 && isFieldInvalid(item)}
+          <CurrencyInput
+            isRequired={!item.nullable}
             currencySymbol={getSymbol(item.format)}
-            outputFormat="string"
-            minimumValue="0"
-            maximumValue={item.format === "percentage" ? "100" : undefined}
-            textAlign="left"
-            required={!item.nullable}
-            value={item.value === null ? "" : item.value}
+            decimalPlaces={item.format === "percentage" ? 5 : 2}
+            minimumValue={0}
+            maximumValue={item.format === "percentage" ? 100 : undefined}
+            label={item.display_name}
+            error={
+              errMsg.length > 0 && isFieldInvalid(item) ? errMsg : undefined
+            }
+            value={item.value || null}
             handleChange={(value: number) => findAndReplaceInJSON(item, value)}
           />
         );

@@ -10,8 +10,8 @@ function JsonContractTerm({ fields, value }: Props) {
   return (
     <Box display="flex" flexDirection="column">
       <Box display="flex">
-        {fields.map((field) => (
-          <Box display="flex" justifyContent="flex-end" width={150}>
+        {fields.map((field, index) => (
+          <Box key={index} display="flex" justifyContent="flex-end" width={150}>
             <Typography key={field.display_name}>
               {field.display_name}
             </Typography>
