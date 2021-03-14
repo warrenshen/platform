@@ -108,18 +108,18 @@
         "type": "json",
         "fields": [
           {
-            "display_name": "Payment Type",
+            "display_name": "Payment Method",
             "nullable": false
           },
           {
-            "display_name": "Days to Settle",
+            "display_name": "Clearance Days",
             "nullable": false,
             "type": "integer"
           }
         ],
         "internal_name": "repayment_type_settlement_timeline",
         "display_name": "Repayment Settlement Timeline",
-        "description": "",
+        "description": "Clearance days is the number of additional days after a payment's deposit date during which interest is charged.",
         "value": null
       }
     ]
