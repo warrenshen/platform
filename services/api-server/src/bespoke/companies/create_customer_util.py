@@ -6,6 +6,7 @@ from typing import Callable, Dict, Tuple, cast
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
+from bespoke.db.db_constants import CompanyType
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
 from mypy_extensions import TypedDict
@@ -42,14 +43,23 @@ def create_customer(
 
 	with session_scope(session_maker) as session:
 		company_name = req['company']['name']
-		existing_company = cast(
+		company_identifier = req['company']['identifier']
+
+		existing_company_by_name = cast(
 			models.Company,
 			session.query(models.Company).filter(
 				models.Company.name == company_name
 			).first())
-		if existing_company:
-			return None, errors.Error('A company with the name "{}" already exists'.format(company_name))
+		if existing_company_by_name:
+			return None, errors.Error(f'A company with name "{company_name}" already exists')
 
+		existing_company_by_identifier = cast(
+			models.Company,
+			session.query(models.Company).filter(
+				models.Company.identifier == company_identifier
+			).first())
+		if existing_company_by_identifier:
+			return None, errors.Error(f'A company with identifier "{company_identifier}" already exists')
 
 		company_settings = models.CompanySettings()
 		session.add(company_settings)
@@ -78,8 +88,9 @@ def create_customer(
 		contract_id = str(contract.id)
 
 		company = models.Company(
+			company_type=CompanyType.Customer,
 			name=company_name,
-			identifier=req['company']['identifier'],
+			identifier=company_identifier,
 			company_settings_id=company_settings_id,
 			contract_id=contract_id
 		)
