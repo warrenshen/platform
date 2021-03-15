@@ -32,12 +32,7 @@ class RunCustomerBalancesView(MethodView):
 		company_dicts = []
 
 		if not form.get('company_id'):
-			with session_scope(session_maker) as session:
-				# Find customers to run reports for
-				companies = cast(
-					List[models.Company],
-					session.query(models.Company))
-				company_dicts = [company.as_dict() for company in companies]
+			company_dicts = reports_util.list_all_companies(session_maker)
 		else:
 			with session_scope(session_maker) as session:
 				# Find the single customer to run reports for

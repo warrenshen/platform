@@ -361,6 +361,7 @@ class Contract(object):
 			ProductType.LINE_OF_CREDIT: LOCContract,
 			ProductType.INVENTORY_FINANCING: InventoryFinancingContract,
 			ProductType.INVOICE_FINANCING: InvoiceFinancingContract,
+			ProductType.PURCHASE_MONEY_FINANCING: PMFContract,
 		}.get(product_type)
 
 		if not Constructor:
@@ -412,6 +413,16 @@ class InvoiceFinancingContract(Contract):
 
 	def __init__(self, c: models.ContractDict, private: bool) -> None:
 		super(InvoiceFinancingContract, self).__init__(c, private)
+
+	def validate(self) -> errors.Error:
+		_, err = self.get_fee_multiplier(days_past_due=1)
+		return err
+
+
+class PMFContract(Contract):
+
+	def __init__(self, c: models.ContractDict, private: bool) -> None:
+		super(PMFContract, self).__init__(c, private)
 
 	def validate(self) -> errors.Error:
 		_, err = self.get_fee_multiplier(days_past_due=1)

@@ -26,11 +26,13 @@ class ProductType(object):
 	INVENTORY_FINANCING = 'inventory_financing'
 	LINE_OF_CREDIT = 'line_of_credit'
 	INVOICE_FINANCING = 'invoice_financing'
+	PURCHASE_MONEY_FINANCING = 'purchase_money_financing'
 
 PRODUCT_TYPES = [
 	ProductType.INVENTORY_FINANCING,
 	ProductType.LINE_OF_CREDIT,
 	ProductType.INVOICE_FINANCING,
+	ProductType.PURCHASE_MONEY_FINANCING,
 ]
 
 # Companies

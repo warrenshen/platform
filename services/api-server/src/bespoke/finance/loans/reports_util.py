@@ -198,10 +198,12 @@ def run_customer_balances_for_companies_that_need_recompute(
 
 def list_all_companies(session_maker: Callable) -> List[models.CompanyDict]:
 	with session_scope(session_maker) as session:
-		return [company.as_dict() \
-			for company in session.query(models.Company).all()]
+		companies = session.query(models.Company) \
+			.filter(models.Company.company_type == db_constants.CompanyType.Customer) \
+			.all()
+		return [company.as_dict() for company in companies]
 
 def run_customer_balances_for_all_companies(
 	session_maker: Callable, report_date: datetime.date, includes_future_transactions: bool) -> CompanyBalanceComputeResult:
-	companies = list_companies_that_need_balances_recomputed(session_maker)
+	companies = list_all_companies(session_maker)
 	return run_customer_balances_for_companies(session_maker, companies, report_date, includes_future_transactions)

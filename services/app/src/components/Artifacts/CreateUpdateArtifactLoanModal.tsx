@@ -412,7 +412,8 @@ export default function CreateUpdateArtifactLoanModal({
 
 const getProductTypeCopy = (productType: ProductTypeEnum) => {
   switch (productType) {
-    case ProductTypeEnum.InventoryFinancing:
+    case (ProductTypeEnum.InventoryFinancing,
+    ProductTypeEnum.PurchaseMoneyFinancing):
       return "purchase order";
     case ProductTypeEnum.InvoiceFinancing:
       return "invoice";
@@ -423,7 +424,8 @@ const getProductTypeCopy = (productType: ProductTypeEnum) => {
 
 const getProductTypeLoanTitle = (productType: ProductTypeEnum) => {
   switch (productType) {
-    case ProductTypeEnum.InventoryFinancing:
+    case (ProductTypeEnum.InventoryFinancing,
+    ProductTypeEnum.PurchaseMoneyFinancing):
       return "Inventory Loan";
     case ProductTypeEnum.InvoiceFinancing:
       return "Invoice Loan";
@@ -434,7 +436,8 @@ const getProductTypeLoanTitle = (productType: ProductTypeEnum) => {
 
 const getProductTypeArtifactTitle = (productType: ProductTypeEnum) => {
   switch (productType) {
-    case ProductTypeEnum.InventoryFinancing:
+    case (ProductTypeEnum.InventoryFinancing,
+    ProductTypeEnum.InventoryFinancing):
       return "Purchase Order";
     case ProductTypeEnum.InvoiceFinancing:
       return "Invoice";

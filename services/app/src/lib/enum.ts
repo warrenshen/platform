@@ -9,6 +9,7 @@ import {
 import InventoryContractTermsJson from "./inventory_contract_terms.json";
 import InvoiceContractTermsJson from "./invoice_contract_terms.json";
 import LineOfCreditContractTermsJson from "./line_of_credit_contract_terms.json";
+import PMFContractTermsJson from "./pmf_contract_terms.json";
 
 // Action Type enum related.
 export enum ActionType {
@@ -113,7 +114,9 @@ export const ProductTypeToContractTermsJson = {
   ),
   [ProductTypeEnum.InvoiceFinancing]: JSON.stringify(InvoiceContractTermsJson),
   [ProductTypeEnum.LineOfCredit]: JSON.stringify(LineOfCreditContractTermsJson),
-  [ProductTypeEnum.PurchaseMoneyFinancing]: JSON.stringify({}),
+  [ProductTypeEnum.PurchaseMoneyFinancing]: JSON.stringify(
+    PMFContractTermsJson
+  ),
   [ProductTypeEnum.None]: JSON.stringify({}),
 };
 
@@ -131,7 +134,7 @@ export const AllProductTypes = [
   ProductTypeEnum.LineOfCredit,
   ProductTypeEnum.InvoiceFinancing,
   // TODO(warren): Hiding these for now because things blow up when we allow a user to select it.
-  // ProductTypeEnum.PurchaseMoneyFinancing,
+  ProductTypeEnum.PurchaseMoneyFinancing,
 ];
 
 // Request status enum related.
@@ -155,8 +158,9 @@ export const ProductTypeToLoanType = {
   [ProductTypeEnum.InventoryFinancing]: LoanTypeEnum.PurchaseOrder,
   [ProductTypeEnum.LineOfCredit]: LoanTypeEnum.LineOfCredit,
   [ProductTypeEnum.InvoiceFinancing]: LoanTypeEnum.Invoice,
-  // TODO(pjstein): Waiting on PMF.
-  [ProductTypeEnum.PurchaseMoneyFinancing]: null,
+  // PMF loans are associated with a purchase order and invoices are used to
+  // repay those loans
+  [ProductTypeEnum.PurchaseMoneyFinancing]: LoanTypeEnum.PurchaseOrder,
   // Give None a type so that we're exhaustive
   [ProductTypeEnum.None]: null,
 };

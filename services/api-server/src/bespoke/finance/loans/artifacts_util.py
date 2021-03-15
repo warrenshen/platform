@@ -101,9 +101,12 @@ def list_artifacts_for_create_loan(
 
 	if product_type == db_constants.ProductType.LINE_OF_CREDIT:
 		return ListArtifactsResp(artifacts=[], status='OK'), None
-	elif product_type == db_constants.ProductType.INVENTORY_FINANCING:
+
+	elif product_type == db_constants.ProductType.INVENTORY_FINANCING \
+		or product_type == db_constants.ProductType.PURCHASE_MONEY_FINANCING:
 		artifacts = _list_artifacts_for_inventory(company_id, loan_id, session_maker)
 		return ListArtifactsResp(artifacts=artifacts, status='OK'), None
+
 	elif product_type == db_constants.ProductType.INVOICE_FINANCING:
 		artifacts = _list_artifacts_for_invoice(company_id, loan_id, session_maker)
 		return ListArtifactsResp(artifacts=artifacts, status='OK'), None

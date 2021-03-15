@@ -116,7 +116,9 @@ const getCustomerNavItems = (
       ],
     },
     {
-      visible: productType === ProductTypeEnum.InventoryFinancing,
+      visible:
+        productType === ProductTypeEnum.InventoryFinancing ||
+        productType === ProductTypeEnum.PurchaseMoneyFinancing,
       text: "Purchase Orders",
       link: customerRoutes.purchaseOrders,
     },
@@ -127,7 +129,9 @@ const getCustomerNavItems = (
       counter: showBorrowingBasesChip ? 1 : 0,
     },
     {
-      visible: productType === ProductTypeEnum.InvoiceFinancing,
+      visible:
+        productType === ProductTypeEnum.InvoiceFinancing ||
+        productType === ProductTypeEnum.PurchaseMoneyFinancing,
       text: "Invoices",
       link: customerRoutes.invoices,
     },
@@ -137,7 +141,9 @@ const getCustomerNavItems = (
       link: customerRoutes.vendors,
     },
     {
-      visible: productType === ProductTypeEnum.InvoiceFinancing,
+      visible:
+        productType === ProductTypeEnum.InvoiceFinancing ||
+        productType === ProductTypeEnum.PurchaseMoneyFinancing,
       text: "Payors",
       link: customerRoutes.payors,
     },

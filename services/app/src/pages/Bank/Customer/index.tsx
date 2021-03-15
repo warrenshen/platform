@@ -84,7 +84,9 @@ const getCustomerPaths = (productType: ProductTypeEnum) => [
     label: "Vendors",
   },
   {
-    visible: productType === ProductTypeEnum.InvoiceFinancing,
+    visible:
+      productType === ProductTypeEnum.InvoiceFinancing ||
+      productType === ProductTypeEnum.PurchaseMoneyFinancing,
     path: bankRoutes.customer.payors,
     component: BankCustomerPayorsSubpage,
     label: "Payors",

@@ -19,7 +19,10 @@ function CreateUpdatePolymorphicLoanModal({
   loanId = null,
   handleClose,
 }: Props) {
-  if (productType === ProductTypeEnum.InventoryFinancing) {
+  if (
+    productType === ProductTypeEnum.InventoryFinancing ||
+    productType === ProductTypeEnum.PurchaseMoneyFinancing
+  ) {
     return (
       <CreateUpdatePurchaseOrderLoanModal
         actionType={actionType}

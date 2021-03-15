@@ -82,7 +82,7 @@ class Fetcher(object):
 				).all())
 			if not payments:
 				return True, None
-			self._payments = [p.as_dict() for p in payments]
+			self._payments = [p.as_dict() for p in payments if p.amount is not None]
 
 		return True, None
 

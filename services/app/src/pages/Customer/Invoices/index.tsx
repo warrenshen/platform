@@ -15,6 +15,7 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   InvoiceFragment,
   Invoices,
+  ProductTypeEnum,
   useGetInvoicesByCompanyIdQuery,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
@@ -37,7 +38,7 @@ export default function CustomerInvoicesPages() {
   const classes = useStyles();
 
   const {
-    user: { companyId },
+    user: { companyId, productType },
   } = useContext(CurrentUserContext);
 
   const { data, refetch, error } = useGetInvoicesByCompanyIdQuery({
@@ -65,6 +66,8 @@ export default function CustomerInvoicesPages() {
     Invoices["id"][]
   >([]);
 
+  const isInvoiceFinancing = productType === ProductTypeEnum.InvoiceFinancing;
+
   const handleSelectInvoices = useMemo(
     () => (invoices: InvoiceFragment[]) =>
       setSelectedInvoiceIds(invoices.map((i) => i.id)),
@@ -79,7 +82,9 @@ export default function CustomerInvoicesPages() {
         width="100%"
         className={classes.section}
       >
-        <Typography variant="h6">Invoices - Not Funded</Typography>
+        <Typography variant="h6">
+          Invoices {isInvoiceFinancing ? "- Not Funded" : ""}
+        </Typography>
         <Box mb={2} display="flex" flexDirection="row-reverse">
           <Can perform={Action.AddInvoices}>
             <ModalButton
@@ -116,51 +121,57 @@ export default function CustomerInvoicesPages() {
               />
             </Box>
           </Can>
-          <Can perform={Action.FundInvoices}>
-            <Box mr={1}>
-              <ModalButton
-                isDisabled={selectedInvoiceIds.length !== 1}
-                label={"Fund Invoice"}
-                modal={({ handleClose }) => {
-                  const handler = () => {
-                    refetch();
-                    handleClose();
-                    setSelectedInvoiceIds([]);
-                  };
-                  return (
-                    <CreateUpdateInvoiceLoanModal
-                      actionType={ActionType.New}
-                      loanId=""
-                      artifactId={selectedInvoiceIds[0]}
-                      handleClose={handler}
-                    />
-                  );
-                }}
-              />
-            </Box>
-          </Can>
+          {isInvoiceFinancing && (
+            <Can perform={Action.FundInvoices}>
+              <Box mr={1}>
+                <ModalButton
+                  isDisabled={selectedInvoiceIds.length !== 1}
+                  label={"Fund Invoice"}
+                  modal={({ handleClose }) => {
+                    const handler = () => {
+                      refetch();
+                      handleClose();
+                      setSelectedInvoiceIds([]);
+                    };
+                    return (
+                      <CreateUpdateInvoiceLoanModal
+                        actionType={ActionType.New}
+                        loanId=""
+                        artifactId={selectedInvoiceIds[0]}
+                        handleClose={handler}
+                      />
+                    );
+                  }}
+                />
+              </Box>
+            </Can>
+          )}
         </Box>
       </Box>
       <Box>
         <InvoicesDataGrid
           isCompanyVisible={false}
-          invoices={unfundedInvoices}
+          invoices={isInvoiceFinancing ? unfundedInvoices : invoices}
           selectedInvoiceIds={selectedInvoiceIds}
           handleSelectedInvoices={handleSelectInvoices}
         />
       </Box>
-      <Box className={classes.sectionSpace} />
-      <Box className={classes.section}>
-        <Typography variant="h6">Invoices - Funded</Typography>
-        <Box className={classes.sectionSpace} />
-        <InvoicesDataGrid
-          isCompanyVisible={false}
-          isMultiSelectEnabled={false}
-          invoices={fundedInvoices}
-          selectedInvoiceIds={[]}
-          handleSelectedInvoices={() => {}}
-        />
-      </Box>
+      {isInvoiceFinancing && (
+        <>
+          <Box className={classes.sectionSpace} />
+          <Box className={classes.section}>
+            <Typography variant="h6">Invoices - Funded</Typography>
+            <Box className={classes.sectionSpace} />
+            <InvoicesDataGrid
+              isCompanyVisible={false}
+              isMultiSelectEnabled={false}
+              invoices={fundedInvoices}
+              selectedInvoiceIds={[]}
+              handleSelectedInvoices={() => {}}
+            />
+          </Box>
+        </>
+      )}
     </Page>
   );
 }

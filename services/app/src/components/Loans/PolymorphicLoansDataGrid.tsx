@@ -27,7 +27,10 @@ function PolymorphicLoansDataGrid({
   selectedLoanIds,
   handleSelectLoans,
 }: Props) {
-  if (productType === ProductTypeEnum.InventoryFinancing) {
+  if (
+    productType === ProductTypeEnum.InventoryFinancing ||
+    productType === ProductTypeEnum.PurchaseMoneyFinancing
+  ) {
     return (
       <PurchaseOrderLoansDataGrid
         isMaturityVisible={isMaturityVisible}

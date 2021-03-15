@@ -115,19 +115,19 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 	def test_compute_success_with_one_financial_summary(self) -> None:
 		def populate(session: Session, seed: test_helper.BasicSeed) -> None:
 			company_id = seed.get_company_id('company_admin', index=0)
-			self._add_summary_for_company(session, company_id, ProductType.INVENTORY_FINANCING)
+			self._add_summary_for_company(session, company_id, ProductType.PURCHASE_MONEY_FINANCING)
 
 		self._run_compute_test(populate, expected_summaries=[
 			models.BankFinancialSummary(
 				date=datetime.date.today(),
 				product_type=ProductType.INVENTORY_FINANCING,
-				total_limit=decimal.Decimal(100.0),
-				adjusted_total_limit=decimal.Decimal(100.0),
-				total_outstanding_principal=decimal.Decimal(50.0),
-				total_outstanding_interest=decimal.Decimal(12.50),
-				total_outstanding_fees=decimal.Decimal(5.25),
-				total_principal_in_requested_state=decimal.Decimal(0.0),
-				available_limit=decimal.Decimal(25.00),
+				total_limit=decimal.Decimal(0),
+				adjusted_total_limit=decimal.Decimal(0),
+				total_outstanding_principal=decimal.Decimal(0),
+				total_outstanding_interest=decimal.Decimal(0),
+				total_outstanding_fees=decimal.Decimal(0),
+				total_principal_in_requested_state=decimal.Decimal(0),
+				available_limit=decimal.Decimal(0),
 			),
 			models.BankFinancialSummary(
 				date=datetime.date.today(),
@@ -150,6 +150,17 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_fees=decimal.Decimal(0),
 				total_principal_in_requested_state=decimal.Decimal(0),
 				available_limit=decimal.Decimal(0),
+			),
+			models.BankFinancialSummary(
+				date=datetime.date.today(),
+				product_type=ProductType.PURCHASE_MONEY_FINANCING,
+				total_limit=decimal.Decimal(100.0),
+				adjusted_total_limit=decimal.Decimal(100.0),
+				total_outstanding_principal=decimal.Decimal(50.0),
+				total_outstanding_interest=decimal.Decimal(12.50),
+				total_outstanding_fees=decimal.Decimal(5.25),
+				total_principal_in_requested_state=decimal.Decimal(0.0),
+				available_limit=decimal.Decimal(25.00),
 			),
 		], expected_error=None)
 
@@ -185,6 +196,17 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			models.BankFinancialSummary(
 				date=datetime.date.today(),
 				product_type=ProductType.LINE_OF_CREDIT,
+				total_limit=decimal.Decimal(0),
+				adjusted_total_limit=decimal.Decimal(0),
+				total_outstanding_principal=decimal.Decimal(0),
+				total_outstanding_interest=decimal.Decimal(0),
+				total_outstanding_fees=decimal.Decimal(0),
+				total_principal_in_requested_state=decimal.Decimal(0),
+				available_limit=decimal.Decimal(0),
+			),
+			models.BankFinancialSummary(
+				date=datetime.date.today(),
+				product_type=ProductType.PURCHASE_MONEY_FINANCING,
 				total_limit=decimal.Decimal(0),
 				adjusted_total_limit=decimal.Decimal(0),
 				total_outstanding_principal=decimal.Decimal(0),
@@ -234,6 +256,17 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_fees=decimal.Decimal(5.25),
 				total_principal_in_requested_state=decimal.Decimal(0.0),
 				available_limit=decimal.Decimal(25.00),
+			),
+			models.BankFinancialSummary(
+				date=datetime.date.today(),
+				product_type=ProductType.PURCHASE_MONEY_FINANCING,
+				total_limit=decimal.Decimal(0),
+				adjusted_total_limit=decimal.Decimal(0),
+				total_outstanding_principal=decimal.Decimal(0),
+				total_outstanding_interest=decimal.Decimal(0),
+				total_outstanding_fees=decimal.Decimal(0),
+				total_principal_in_requested_state=decimal.Decimal(0),
+				available_limit=decimal.Decimal(0),
 			),
 		], expected_error=None)
 
