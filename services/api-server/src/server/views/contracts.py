@@ -1,7 +1,7 @@
 import json
 from typing import cast
 
-from bespoke.db import db_constants, models
+from bespoke.db import db_constants, models, models_util
 from bespoke.db.models import session_scope
 from bespoke.finance.contracts import manage_contract_util
 from flask import Blueprint, Response, current_app, make_response, request
@@ -44,12 +44,9 @@ class UpdateContractView(MethodView):
 				return handler_util.make_error_response(
 					f"Failed to find contract specified in the request (id: {form['contract_id']})")
 
-			company = session.query(models.Company).filter(models.Company.id == contract.company_id).first()
-			if not company:
-				return handler_util.make_error_response(
-					f"Failed to find company associated with the contract specified in the request (id: {form['contract_id']})")
-
-			company.needs_balance_recomputed = True
+			success, err = models_util.set_needs_balance_recomputed(contract.company_id, session)
+			if err:
+				return handler_util.make_error_response(err)
 
 		return make_response(json.dumps({
 			'status': 'OK'
