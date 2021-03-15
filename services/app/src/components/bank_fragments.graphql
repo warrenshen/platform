@@ -122,6 +122,7 @@ fragment Payment on payments {
   settled_at
   type
   method
+  requested_amount
   amount
   requested_payment_date
   payment_date

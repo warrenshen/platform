@@ -17750,6 +17750,18 @@
             "deprecationReason": null
           },
           {
+            "name": "payor_agreement_docusign_template",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "updated_at",
             "description": null,
             "args": [],
@@ -18135,6 +18147,16 @@
             "defaultValue": null
           },
           {
+            "name": "payor_agreement_docusign_template",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "String_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "updated_at",
             "description": null,
             "type": {
@@ -18283,6 +18305,16 @@
             "defaultValue": null
           },
           {
+            "name": "payor_agreement_docusign_template",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "updated_at",
             "description": null,
             "type": {
@@ -18385,6 +18417,18 @@
             "deprecationReason": null
           },
           {
+            "name": "payor_agreement_docusign_template",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "updated_at",
             "description": null,
             "args": [],
@@ -18472,6 +18516,16 @@
           },
           {
             "name": "id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "payor_agreement_docusign_template",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -18583,6 +18637,18 @@
             "deprecationReason": null
           },
           {
+            "name": "payor_agreement_docusign_template",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "updated_at",
             "description": null,
             "args": [],
@@ -18670,6 +18736,16 @@
           },
           {
             "name": "id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "payor_agreement_docusign_template",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -18953,6 +19029,16 @@
             "defaultValue": null
           },
           {
+            "name": "payor_agreement_docusign_template",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "updated_at",
             "description": null,
             "type": {
@@ -19047,6 +19133,12 @@
             "deprecationReason": null
           },
           {
+            "name": "payor_agreement_docusign_template",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "updated_at",
             "description": "column name",
             "isDeprecated": false,
@@ -19128,6 +19220,16 @@
             "defaultValue": null
           },
           {
+            "name": "payor_agreement_docusign_template",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "updated_at",
             "description": null,
             "type": {
@@ -19192,6 +19294,12 @@
           },
           {
             "name": "id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "payor_agreement_docusign_template",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -57093,16 +57201,12 @@
         "fields": [
           {
             "name": "amount",
-            "description": null,
+            "description": "The amount this payment actually is, as opposed to the requested amount",
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "numeric",
-                "ofType": null
-              }
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -57204,6 +57308,18 @@
             "deprecationReason": null
           },
           {
+            "name": "deposit_date",
+            "description": "The date when payment is credited to destination account",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "id",
             "description": null,
             "args": [],
@@ -57221,7 +57337,7 @@
           },
           {
             "name": "items_covered",
-            "description": "When a user submits a repayment, describes what loans this payment is intended for",
+            "description": "JSON blob which records information about this payment: which loans this payment is intended for, how much of this payment is intended to go to principal vs interest, etc",
             "args": [
               {
                 "name": "path",
@@ -57264,11 +57380,23 @@
           },
           {
             "name": "payment_date",
-            "description": "What day this payment or advance was deposited into a bank",
+            "description": "The date when payment is debited from source account",
             "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "date",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "requested_amount",
+            "description": "The amount the customer requests this payment to be",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
               "ofType": null
             },
             "isDeprecated": false,
@@ -57336,7 +57464,7 @@
           },
           {
             "name": "settlement_date",
-            "description": "The date that this payment or advance is settled and is effective for financial calculations",
+            "description": "The date when payment is settled and is effective for financial calculations",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -57844,6 +57972,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "requested_amount",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -57859,6 +57999,16 @@
         "inputFields": [
           {
             "name": "amount",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "requested_amount",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -57997,6 +58147,16 @@
             "defaultValue": null
           },
           {
+            "name": "deposit_date",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "date_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "id",
             "description": null,
             "type": {
@@ -58032,6 +58192,16 @@
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "date_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "requested_amount",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "numeric_comparison_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -58250,6 +58420,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "requested_amount",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -58343,6 +58523,16 @@
             "defaultValue": null
           },
           {
+            "name": "deposit_date",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "id",
             "description": null,
             "type": {
@@ -58378,6 +58568,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "date",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "requested_amount",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
               "ofType": null
             },
             "defaultValue": null
@@ -58563,6 +58763,18 @@
             "deprecationReason": null
           },
           {
+            "name": "deposit_date",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "id",
             "description": null,
             "args": [],
@@ -58593,6 +58805,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "date",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "requested_amount",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
               "ofType": null
             },
             "isDeprecated": false,
@@ -58769,6 +58993,16 @@
             "defaultValue": null
           },
           {
+            "name": "deposit_date",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "id",
             "description": null,
             "type": {
@@ -58790,6 +59024,16 @@
           },
           {
             "name": "payment_date",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "requested_amount",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -58959,6 +59203,18 @@
             "deprecationReason": null
           },
           {
+            "name": "deposit_date",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "id",
             "description": null,
             "args": [],
@@ -58989,6 +59245,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "date",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "requested_amount",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
               "ofType": null
             },
             "isDeprecated": false,
@@ -59165,6 +59433,16 @@
             "defaultValue": null
           },
           {
+            "name": "deposit_date",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "id",
             "description": null,
             "type": {
@@ -59186,6 +59464,16 @@
           },
           {
             "name": "payment_date",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "requested_amount",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -59519,6 +59807,16 @@
             "defaultValue": null
           },
           {
+            "name": "deposit_date",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "id",
             "description": null,
             "type": {
@@ -59550,6 +59848,16 @@
           },
           {
             "name": "payment_date",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "requested_amount",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -59758,6 +60066,12 @@
             "deprecationReason": null
           },
           {
+            "name": "deposit_date",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "id",
             "description": "column name",
             "isDeprecated": false,
@@ -59777,6 +60091,12 @@
           },
           {
             "name": "payment_date",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "requested_amount",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -59895,6 +60215,16 @@
             "defaultValue": null
           },
           {
+            "name": "deposit_date",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "date",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "id",
             "description": null,
             "type": {
@@ -59930,6 +60260,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "date",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "requested_amount",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
               "ofType": null
             },
             "defaultValue": null
@@ -60045,6 +60385,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "requested_amount",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -60067,6 +60419,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "requested_amount",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -60080,6 +60442,18 @@
         "fields": [
           {
             "name": "amount",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "requested_amount",
             "description": null,
             "args": [],
             "type": {
@@ -60111,6 +60485,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "requested_amount",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -60124,6 +60508,18 @@
         "fields": [
           {
             "name": "amount",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "requested_amount",
             "description": null,
             "args": [],
             "type": {
@@ -60155,6 +60551,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "requested_amount",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -60168,6 +60574,18 @@
         "fields": [
           {
             "name": "amount",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "requested_amount",
             "description": null,
             "args": [],
             "type": {
@@ -60192,6 +60610,16 @@
         "inputFields": [
           {
             "name": "amount",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "requested_amount",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -60244,6 +60672,12 @@
             "deprecationReason": null
           },
           {
+            "name": "deposit_date",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "id",
             "description": "column name",
             "isDeprecated": false,
@@ -60263,6 +60697,12 @@
           },
           {
             "name": "payment_date",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "requested_amount",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -60340,6 +60780,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "requested_amount",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -60362,6 +60814,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "requested_amount",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -60375,6 +60837,18 @@
         "fields": [
           {
             "name": "amount",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "requested_amount",
             "description": null,
             "args": [],
             "type": {
@@ -60406,6 +60880,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "requested_amount",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -60419,6 +60903,18 @@
         "fields": [
           {
             "name": "amount",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "requested_amount",
             "description": null,
             "args": [],
             "type": {
@@ -60443,6 +60939,16 @@
         "inputFields": [
           {
             "name": "amount",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "requested_amount",
             "description": null,
             "type": {
               "kind": "ENUM",

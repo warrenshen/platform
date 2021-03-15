@@ -170,10 +170,10 @@ function CreateRepaymentConfirmEffect({
         </>
       )}
       <Box mt={2}>
-        {payment.amount <= 0 && (
+        {payment.requested_amount <= 0 && (
           <Box>No amount is currently due. No further action is required</Box>
         )}
-        {payment.amount > 0 && (
+        {payment.requested_amount > 0 && (
           <Box>
             {[PaymentMethodEnum.ACH, PaymentMethodEnum.Wire].includes(
               payment.method as PaymentMethodEnum
@@ -188,8 +188,8 @@ function CreateRepaymentConfirmEffect({
                 <Box mt={2}>
                   <Alert severity="warning">
                     After clicking "Notify", you must initiate this transfer for{" "}
-                    <b>{formatCurrency(payment.amount)}</b> from your bank
-                    account. Upon receipt Bespoke will mark this payment as
+                    <b>{formatCurrency(payment.requested_amount)}</b> from your
+                    bank account. Upon receipt Bespoke will mark this payment as
                     "settled," and apply towards outstanding loans and fees
                     accordingly.
                   </Alert>
@@ -213,8 +213,8 @@ function CreateRepaymentConfirmEffect({
                 <Box mt={2}>
                   <Alert severity="info">
                     Click "Schedule" for Bespoke to initiate this transfer for{" "}
-                    <b>{formatCurrency(payment.amount)}</b> from your bank
-                    account.
+                    <b>{formatCurrency(payment.requested_amount)}</b> from your
+                    bank account.
                     <br />
                     <br />
                     Upon receipt Bespoke will mark this payment as "settled,"
@@ -227,8 +227,9 @@ function CreateRepaymentConfirmEffect({
               <Box mt={2}>
                 <Alert severity="info">
                   After clicking "Notify", We will coordinate the collection of{" "}
-                  <b>{formatCurrency(payment.amount)}</b>. Please reach out to
-                  Bespoke support. This method of payment will incur a $100 fee.
+                  <b>{formatCurrency(payment.requested_amount)}</b>. Please
+                  reach out to Bespoke support. This method of payment will
+                  incur a $100 fee.
                 </Alert>
               </Box>
             )}
@@ -236,7 +237,8 @@ function CreateRepaymentConfirmEffect({
               <Box mt={2}>
                 <Alert severity="info">
                   After clicking "Notify", please make the check payable to
-                  Bespoke Financial for <b>{formatCurrency(payment.amount)}</b>
+                  Bespoke Financial for{" "}
+                  <b>{formatCurrency(payment.requested_amount)}</b>
                 </Alert>
               </Box>
             )}

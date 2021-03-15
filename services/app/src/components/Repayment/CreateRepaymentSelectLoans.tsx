@@ -56,7 +56,9 @@ function CreateRepaymentSelectLoans({
   setPaymentOption,
 }: Props) {
   const classes = useStyles();
-
+  const isReverseDraftACH =
+    payment.method === PaymentMethodEnum.ReverseDraftACH;
+  console.log({ payment, method: payment.method });
   return (
     <Box>
       {productType === ProductTypeEnum.LineOfCredit ? (
@@ -134,7 +136,7 @@ function CreateRepaymentSelectLoans({
                     label={"Amount"}
                     value={payment.amount}
                     handleChange={(value: number) => {
-                      setPayment({ ...payment, amount: value });
+                      setPayment({ ...payment, requested_amount: value });
                     }}
                   />
                 </FormControl>
@@ -174,43 +176,54 @@ function CreateRepaymentSelectLoans({
           </FormControl>
         </Box>
       </Box>
-      <Box mt={3}>
-        <Typography variant="subtitle2">
-          What date will the payment leave your bank account?
-        </Typography>
-        <Box mt={1}>
-          <DatePicker
-            className={classes.inputField}
-            id="payment-modal-payment-date-date-picker"
-            label="Payment Date"
-            disablePast
-            disableNonBankDays
-            value={payment.payment_date}
-            onChange={(value) => {
-              setPayment({
-                ...payment,
-                payment_date: value,
-              });
-            }}
-          />
-        </Box>
-      </Box>
-      <Box mt={3}>
-        <Typography variant="subtitle2">
-          Settlement Date (when fees arrive and Bespoke can use the payment)
-        </Typography>
-        <Box mt={1}>
-          <DatePicker
-            className={classes.inputField}
-            id="payment-modal-settlement-date-date-picker"
-            label="Settlement Date"
-            disabled
-            disablePast
-            disableNonBankDays
-            value={payment.settlement_date}
-          />
-        </Box>
-      </Box>
+      {payment.method && (
+        <>
+          <Box mt={3}>
+            <Typography variant="subtitle2">
+              {isReverseDraftACH
+                ? "What date would you like the payment to be withdrawn from your bank account?"
+                : "What date did the payment leave your bank account?"}
+            </Typography>
+            <Box mt={1}>
+              <DatePicker
+                className={classes.inputField}
+                id="payment-modal-payment-date-date-picker"
+                label={
+                  isReverseDraftACH ? "Requested Payment Date" : "Payment Date"
+                }
+                disablePast
+                disableNonBankDays
+                value={payment.requested_payment_date}
+                onChange={(value) => {
+                  setPayment({
+                    ...payment,
+                    requested_payment_date: value,
+                  });
+                }}
+              />
+            </Box>
+          </Box>
+          <Box mt={3}>
+            <Typography variant="subtitle2">Settlement Date</Typography>
+            <Typography variant="body2">
+              {`Based on your payment method and ${
+                isReverseDraftACH ? "requested" : "specified"
+              } payment date, this is the expected date when your payment will count towards your balance.`}
+            </Typography>
+            <Box mt={1}>
+              <DatePicker
+                className={classes.inputField}
+                id="payment-modal-settlement-date-date-picker"
+                label="Settlement Date"
+                disabled
+                disablePast
+                disableNonBankDays
+                value={payment.settlement_date}
+              />
+            </Box>
+          </Box>
+        </>
+      )}
     </Box>
   );
 }

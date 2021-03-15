@@ -72,7 +72,6 @@ export async function calculateEffectOfPayment(req: {
 export async function createRepayment(req: {
   company_id: string;
   payment: PaymentsInsertInput;
-  loan_ids: string[];
 }): Promise<CreatePaymentResp> {
   return authenticatedApi
     .post(loansRoutes.createRepayment, req)
