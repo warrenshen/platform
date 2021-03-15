@@ -1,11 +1,15 @@
 import { Box, Button, makeStyles, TextField } from "@material-ui/core";
 import Can from "components/Shared/Can";
-import { useUpdateVendorInfoMutation, VendorFragment } from "generated/graphql";
+import {
+  ThirdPartyFragment,
+  useUpdateCompanyInfoMutation,
+} from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { useState } from "react";
 
 interface Props {
-  vendor: VendorFragment;
+  company: ThirdPartyFragment;
+  editAction: Action;
 }
 
 const useStyles = makeStyles({
@@ -20,15 +24,13 @@ const useStyles = makeStyles({
   },
 });
 
-function VendorInfo(props: Props) {
+export default function ThirdPartyInfo({ company, editAction }: Props) {
   const classes = useStyles();
   const [editing, setEditing] = useState(false);
-  const [editedVendor, setEditedVendor] = useState<VendorFragment>(
-    props.vendor || {}
+  const [editedCompany, setEditedCompany] = useState<ThirdPartyFragment>(
+    company
   );
-  const [updateVendorContactInfo] = useUpdateVendorInfoMutation();
-
-  const vendor = props.vendor;
+  const [updateCompanyInfo] = useUpdateCompanyInfoMutation();
 
   return editing ? (
     <>
@@ -37,17 +39,17 @@ function VendorInfo(props: Props) {
           <TextField
             label="Name"
             className={classes.baseInput}
-            value={editedVendor?.name}
+            value={editedCompany?.name}
             onChange={({ target: { value } }) => {
-              setEditedVendor({ ...editedVendor, name: value });
+              setEditedCompany({ ...editedCompany, name: value });
             }}
           />
           <TextField
             label="Phone number"
             className={classes.baseInput}
-            value={editedVendor?.phone_number}
+            value={editedCompany?.phone_number}
             onChange={({ target: { value } }) => {
-              setEditedVendor({ ...editedVendor, phone_number: value });
+              setEditedCompany({ ...editedCompany, phone_number: value });
             }}
           />
         </Box>
@@ -55,42 +57,42 @@ function VendorInfo(props: Props) {
         <Box display="flex" flexDirection="column" my={3}>
           <TextField
             label="Address"
-            value={editedVendor?.address}
+            value={editedCompany?.address}
             onChange={({ target: { value } }) => {
-              setEditedVendor({ ...editedVendor, address: value });
+              setEditedCompany({ ...editedCompany, address: value });
             }}
           />
           <Box display="flex" justifyContent="space-between" pt={1}>
             <TextField
               label="Country"
               className={classes.subInput}
-              value={editedVendor?.country}
+              value={editedCompany?.country}
               onChange={({ target: { value } }) => {
-                setEditedVendor({ ...editedVendor, country: value });
+                setEditedCompany({ ...editedCompany, country: value });
               }}
             />
             <TextField
               label="State"
               className={classes.subInput}
-              value={editedVendor?.state}
+              value={editedCompany?.state}
               onChange={({ target: { value } }) => {
-                setEditedVendor({ ...editedVendor, state: value });
+                setEditedCompany({ ...editedCompany, state: value });
               }}
             />
             <TextField
               label="City"
               className={classes.subInput}
-              value={editedVendor?.city}
+              value={editedCompany?.city}
               onChange={({ target: { value } }) => {
-                setEditedVendor({ ...editedVendor, city: value });
+                setEditedCompany({ ...editedCompany, city: value });
               }}
             />
             <TextField
               label="Zip Code"
               className={classes.subInput}
-              value={editedVendor?.zip_code}
+              value={editedCompany?.zip_code}
               onChange={({ target: { value } }) => {
-                setEditedVendor({ ...editedVendor, zip_code: value });
+                setEditedCompany({ ...editedCompany, zip_code: value });
               }}
             />
           </Box>
@@ -101,22 +103,22 @@ function VendorInfo(props: Props) {
             variant="contained"
             color="primary"
             onClick={async () => {
-              await updateVendorContactInfo({
+              await updateCompanyInfo({
                 variables: {
-                  id: editedVendor.id,
+                  id: editedCompany.id,
                   company: {
-                    address: editedVendor.address,
-                    city: editedVendor.city,
-                    country: editedVendor.country,
-                    name: editedVendor.name,
-                    phone_number: editedVendor.phone_number,
-                    state: editedVendor.state,
-                    zip_code: editedVendor.zip_code,
+                    address: editedCompany.address,
+                    city: editedCompany.city,
+                    country: editedCompany.country,
+                    name: editedCompany.name,
+                    phone_number: editedCompany.phone_number,
+                    state: editedCompany.state,
+                    zip_code: editedCompany.zip_code,
                   },
                 },
                 optimisticResponse: {
                   update_companies_by_pk: {
-                    ...editedVendor,
+                    ...editedCompany,
                   },
                 },
               });
@@ -140,18 +142,19 @@ function VendorInfo(props: Props) {
     </>
   ) : (
     <Box>
-      {vendor.phone_number ? <Box>{vendor.phone_number}</Box> : null}
-      {vendor.address && (
+      {company.phone_number ? <Box>{company.phone_number}</Box> : null}
+      {company.address && (
         <Box py={1}>
           <Box>
-            <Box>{vendor.address}</Box>
+            <Box>{company.address}</Box>
             <Box>
-              {vendor.city}, {vendor.state} {vendor.country} {vendor.zip_code}
+              {company.city}, {company.state} {company.country}{" "}
+              {company.zip_code}
             </Box>
           </Box>
         </Box>
       )}
-      <Can perform={Action.EditVendor}>
+      <Can perform={editAction}>
         <Button
           variant="outlined"
           size="small"
@@ -163,5 +166,3 @@ function VendorInfo(props: Props) {
     </Box>
   );
 }
-
-export default VendorInfo;

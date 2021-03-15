@@ -1,4 +1,5 @@
 import { Box } from "@material-ui/core";
+import AddPayorButton from "components/Payors/AddPayorButton";
 import PayorPartnershipsDataGrid from "components/Payors/PayorPartnershipsDataGrid";
 import { useBankCustomerListPayorPartnershipsQuery } from "generated/graphql";
 import { sortBy } from "lodash";
@@ -23,9 +24,15 @@ export default function BankCustomerPayors({ companyId }: Props) {
     (item) => item.payor?.name
   );
 
-  // TODO(pjstein: Make the "Add Payor" button when we can)
   return (
     <Box>
+      <Box
+        display="flex"
+        style={{ marginBottom: "1rem" }}
+        flexDirection="row-reverse"
+      >
+        <AddPayorButton />
+      </Box>
       <Box display="flex" flexWrap="wrap">
         <PayorPartnershipsDataGrid
           isDrilldownByCustomer

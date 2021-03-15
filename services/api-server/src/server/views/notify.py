@@ -37,11 +37,10 @@ CompanyInfoDict = TypedDict('CompanyInfoDict', {
 	'recipients': List[RecipientDict]
 })
 
-VendorInfoDict = TypedDict('VendorInfoDict', {
+ThirdPartyInfoDict = TypedDict('ThirdPartyInfoDict', {
 	'name': str,
 	'recipients': List[RecipientDict]
 })
-
 
 class SendPayload(object):
 
@@ -81,11 +80,13 @@ class NotifyHelper(object):
 				session.query(models.CompanySettings).filter_by(
 					company_id=company_id).first()
 			)
-			settings = CompanySettingsDict(
-				vendor_agreement_docusign_template='')
+			settings = CompanySettingsDict( # type: ignore
+				vendor_agreement_docusign_template='',
+				payor_agreement_docusign_template='')
 			if company_settings:
-				actual_settings = CompanySettingsDict(
-					vendor_agreement_docusign_template=company_settings.vendor_agreement_docusign_template
+				actual_settings = CompanySettingsDict( # type: ignore
+					vendor_agreement_docusign_template=company_settings.vendor_agreement_docusign_template,
+					payor_agreement_docusign_template=company_settings.payor_agreement_docusign_template,
 				)
 				settings = actual_settings
 
@@ -102,24 +103,16 @@ class NotifyHelper(object):
 				recipients=recipients
 			)
 
-	def _get_vendor_info(self, vendor_id: str) -> VendorInfoDict:
-
+	def _get_third_party_info(self, id_: str) -> ThirdPartyInfoDict:
 		with session_scope(self._session_maker) as session:
-			company = cast(
-				models.Company,
-				session.query(models.Company).filter_by(
-					id=vendor_id).first()
-			)
-			vendor_users = cast(List[models.User], session.query(
-				models.User).filter_by(company_id=vendor_id).all())
-			if vendor_users:
-				recipients = [_user_to_recipient(
-					user) for user in vendor_users]
-
-			company_name = company.name
-			return VendorInfoDict(
-				name=company_name,
-				recipients=recipients
+			company = session.query(models.Company).get(id_)
+			users = session.query(models.User) \
+				.filter(models.User.company_id == company.id) \
+				.all()
+			recipients = [_user_to_recipient(u) for u in users] if users else []
+			return ThirdPartyInfoDict(
+				name=company.name,
+				recipients=[_user_to_recipient(u) for u in users]
 			)
 
 	def fetch(self) -> Tuple[List[SendPayload], errors.Error]:
@@ -130,8 +123,14 @@ class NotifyHelper(object):
 		}
 
 		vendor_info = None
+		payor_info = None
+		company_info = None
+
 		if 'vendor_id' in self._input_data:
-			vendor_info = self._get_vendor_info(self._input_data['vendor_id'])
+			vendor_info = self._get_third_party_info(self._input_data['vendor_id'])
+
+		if 'payor_id' in self._input_data:
+			payor_info = self._get_third_party_info(self._input_data['payor_id'])
 
 		if 'company_id' in self._input_data:
 			company_info = self._get_company_info(
@@ -143,7 +142,10 @@ class NotifyHelper(object):
 		if vendor_info and len(vendor_info['recipients']) == 0:
 			return None, errors.Error('No users are setup for this vendor receiving the message', details=err_details)
 
-		if notification_name == 'vendor_approved':
+		if payor_info and len(payor_info['recipients']) == 0:
+			return None, errors.Error('No users are setup for this payor', details=err_details)
+
+		if vendor_info and notification_name == 'vendor_approved':
 			template_data = {
 				'customer_name': company_info['name'],
 				'vendor_name': vendor_info['name']
@@ -160,7 +162,8 @@ class NotifyHelper(object):
 				recipients=vendor_info['recipients']
 			)
 			return [to_customer_payload, to_vendor_payload], None
-		elif notification_name == 'vendor_agreement_with_customer':
+
+		elif vendor_info and notification_name == 'vendor_agreement_with_customer':
 			template_data = {
 				'customer_name': company_info['name'],
 				'docusign_link': company_info['settings']['vendor_agreement_docusign_template']
@@ -172,6 +175,39 @@ class NotifyHelper(object):
 				recipients=[primary_vendor_recipient]
 			)
 			return [to_vendor_payload], None
+
+		elif payor_info and notification_name == 'payor_approved':
+			template_data = {
+				'customer_name': company_info['name'],
+				'payor_name': payor_info['name']
+			}
+
+			to_customer_payload = SendPayload(
+				template_name=TemplateNames.PAYOR_APPROVED_NOTIFY_CUSTOMER,
+				template_data=template_data,
+				recipients=company_info['recipients']
+			)
+			to_payor_payload = SendPayload(
+				template_name=TemplateNames.PAYOR_APPROVED_NOTIFY_PAYOR,
+				template_data=template_data,
+				recipients=payor_info['recipients']
+			)
+			return [to_customer_payload, to_payor_payload], None
+
+
+		elif payor_info and notification_name == 'payor_agreement_with_customer':
+			template_data = {
+				'customer_name': company_info['name'],
+				'docusign_link': company_info['settings']['payor_agreement_docusign_template'] # type: ignore
+			}
+			primary_payor_recipient = payor_info['recipients'][0]
+			to_payor_payload = SendPayload(
+				template_name=TemplateNames.PAYOR_AGREEMENT_WITH_CUSTOMER,
+				template_data=template_data,
+				recipients=[primary_payor_recipient]
+			)
+			return [to_payor_payload], None
+
 
 		return None, errors.Error('Unrecognized notification name provided {}'.format(notification_name), details=err_details)
 

@@ -1,22 +1,22 @@
 import { Box, Button } from "@material-ui/core";
 import Can from "components/Shared/Can";
-import ContactCard from "components/Vendors/VendorDrawer/ContactCard";
+import ContactCard from "components/ThirdParties/ContactCard";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import {
-  Companies,
-  CompanyVendorPartnerships,
-  ContactFragment,
-} from "generated/graphql";
+import { Companies, ContactFragment } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { useContext, useState } from "react";
 
 interface Props {
   companyId: Companies["id"];
-  companyVendorPartnershipId: CompanyVendorPartnerships["id"];
   contacts: Array<ContactFragment>;
+  onActionComplete: () => Promise<null>;
 }
 
-function Contacts(props: Props) {
+export default function Contacts({
+  companyId,
+  contacts,
+  onActionComplete,
+}: Props) {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
@@ -30,6 +30,7 @@ function Contacts(props: Props) {
             variant="outlined"
             size="small"
             onClick={() => {
+              onActionComplete();
               setAddingContact(true);
             }}
           >
@@ -39,24 +40,23 @@ function Contacts(props: Props) {
       </Can>
       {addingContact && (
         <ContactCard
-          companyId={props.companyId}
-          companyVendorPartnershipId={props.companyVendorPartnershipId}
-          creating
-          onCreateComplete={() => setAddingContact(false)}
+          isCreating
+          companyId={companyId}
+          onCreateComplete={async () => {
+            onActionComplete();
+            setAddingContact(false);
+          }}
         />
       )}
-      {props.contacts.map((contact) => {
+      {contacts.map((contact) => {
         return (
           <ContactCard
             key={contact.id}
-            contact={contact}
-            companyVendorPartnershipId={props.companyVendorPartnershipId}
             isEditAllowed={check(role, Action.EditVendorContact)}
+            contact={contact}
           />
         );
       })}
     </Box>
   );
 }
-
-export default Contacts;

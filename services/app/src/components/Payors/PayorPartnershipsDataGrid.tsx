@@ -4,7 +4,8 @@ import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridC
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import VerificationChip from "components/Vendors/VerificationChip";
 import { ColumnWidths } from "lib/tables";
-import { useMemo } from "react";
+import React, { useMemo, useState } from "react";
+import PayorDrawer from "./PayorDrawer";
 
 const verificationCellRenderer = (params: ValueFormatterParams) => (
   <VerificationChip value={params.value} />
@@ -19,6 +20,21 @@ export default function PayorPartnershipsDataGrid({
   isDrilldownByCustomer?: boolean;
   data: any;
 }) {
+  const [open, setOpen] = useState(false);
+
+  const [
+    currentPayorPartnershipId,
+    setCurrentPayorPartnershipId,
+  ] = useState<string>();
+
+  const onCellClick = useMemo(
+    () => ({ id }: { id: string }) => {
+      !open && setOpen(true);
+      setCurrentPayorPartnershipId(id);
+    },
+    [open, setOpen, setCurrentPayorPartnershipId]
+  );
+
   const columns = useMemo(
     () => [
       {
@@ -29,9 +45,7 @@ export default function PayorPartnershipsDataGrid({
           cellRender: ({ value, data }: { value: string; data: any }) => (
             <ClickableDataGridCell
               onClick={() => {
-                // TODO(pjstein): Do the PayorsDrawer and use the new style
-                // for launching the drawer.
-                console.log(data);
+                onCellClick(data);
               }}
               label={value}
             />
@@ -74,17 +88,25 @@ export default function PayorPartnershipsDataGrid({
         cellRender: verificationCellRenderer,
       },
     ],
-    [isBankAccount, isDrilldownByCustomer]
+    [isBankAccount, isDrilldownByCustomer, onCellClick]
   );
 
   return (
-    <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      <ControlledDataGrid
-        pager
-        dataSource={data}
-        columns={columns}
-        filtering={{ enable: true, filterBy: { index: 0, value: "" } }}
-      />
-    </Box>
+    <>
+      {open && currentPayorPartnershipId && (
+        <PayorDrawer
+          partnershipId={currentPayorPartnershipId}
+          handleClose={() => setOpen(false)}
+        />
+      )}
+      <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
+        <ControlledDataGrid
+          pager
+          dataSource={data}
+          columns={columns}
+          filtering={{ enable: true, filterBy: { index: 0, value: "" } }}
+        />
+      </Box>
+    </>
   );
 }

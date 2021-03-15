@@ -102,6 +102,7 @@ class Company(Base):
 CompanySettingsDict = TypedDict('CompanySettingsDict', {
 	'id': str,
 	'vendor_agreement_docusign_template': str,
+	'payor_agreement_docusign_template': str,
 	'active_ebba_application_id': str,
 })
 
@@ -111,12 +112,14 @@ class CompanySettings(Base):
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	company_id = Column(GUID)
 	vendor_agreement_docusign_template = Column(Text)
+	payor_agreement_docusign_template = Column(Text)
 	active_ebba_application_id = cast(GUID, Column(GUID, ForeignKey('ebba_applications.id')))
 
 	def as_dict(self) -> CompanySettingsDict:
 		return CompanySettingsDict(
 			id=str(self.id),
 			vendor_agreement_docusign_template=self.vendor_agreement_docusign_template,
+			payor_agreement_docusign_template=self.payor_agreement_docusign_template,
 			active_ebba_application_id=str(self.active_ebba_application_id),
 		)
 

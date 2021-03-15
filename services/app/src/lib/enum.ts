@@ -1,4 +1,5 @@
 import {
+  CompanyTypeEnum,
   LoanStatusEnum,
   LoanTypeEnum,
   ProductTypeEnum,
@@ -158,4 +159,16 @@ export const ProductTypeToLoanType = {
   [ProductTypeEnum.PurchaseMoneyFinancing]: null,
   // Give None a type so that we're exhaustive
   [ProductTypeEnum.None]: null,
+};
+
+export const CompanyTypeToDisplayLower = {
+  [CompanyTypeEnum.Vendor]: "vendor",
+  [CompanyTypeEnum.Payor]: "payor",
+  [CompanyTypeEnum.Customer]: "customer",
+};
+
+export const CompanyTypeToDisplayUpper = {
+  [CompanyTypeEnum.Vendor]: "Vendor",
+  [CompanyTypeEnum.Payor]: "Payor",
+  [CompanyTypeEnum.Customer]: "Customer",
 };

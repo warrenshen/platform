@@ -13,10 +13,10 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   CompaniesInsertInput,
   CompanyTypeEnum,
-  useAddVendorPartnershipMutation,
+  ListPayorPartnershipsByCompanyIdDocument,
+  useAddPayorPartnershipMutation,
   UserRolesEnum,
   UsersInsertInput,
-  VendorPartnershipsByCompanyIdDocument,
 } from "generated/graphql";
 import { InventoryNotifier } from "lib/notifications/inventory";
 import { CustomerParams } from "pages/Bank/Customer";
@@ -35,7 +35,7 @@ interface Props {
   handleClose: () => void;
 }
 
-function RegisterVendorModal({ handleClose }: Props) {
+export default function RegisterPayorModal({ handleClose }: Props) {
   const {
     user: { companyId: userCompanyId, role },
   } = useContext(CurrentUserContext);
@@ -46,27 +46,29 @@ function RegisterVendorModal({ handleClose }: Props) {
   const companyId = paramsCompanyId || userCompanyId;
 
   const classes = useStyles();
-  const [vendor, setVendor] = useState<CompaniesInsertInput>({ name: "" });
+
+  const [payor, setPayor] = useState<CompaniesInsertInput>({ name: "" });
+
   const [contact, setContact] = useState<UsersInsertInput>({
     first_name: "",
     email: "",
     last_name: "",
     phone_number: "",
   });
-  const [addVendorPartnership, { loading }] = useAddVendorPartnershipMutation();
+  const [AddPayorPartnership, { loading }] = useAddPayorPartnershipMutation();
   const notifier = new InventoryNotifier();
 
   const handleRegisterClick = async () => {
     try {
-      const response = await addVendorPartnership({
+      const response = await AddPayorPartnership({
         variables: {
-          vendorPartnership: {
+          payorPartnership: {
             company_id:
               role === UserRolesEnum.BankAdmin ? companyId : undefined,
-            vendor: {
+            payor: {
               data: {
-                name: vendor.name,
-                company_type: CompanyTypeEnum.Vendor,
+                name: payor.name,
+                company_type: CompanyTypeEnum.Payor,
                 users: {
                   data: [{ ...contact }],
                 },
@@ -79,7 +81,7 @@ function RegisterVendorModal({ handleClose }: Props) {
         },
         refetchQueries: [
           {
-            query: VendorPartnershipsByCompanyIdDocument,
+            query: ListPayorPartnershipsByCompanyIdDocument,
             variables: {
               companyId: companyId,
             },
@@ -87,15 +89,15 @@ function RegisterVendorModal({ handleClose }: Props) {
         ],
       });
 
-      const vendorId =
-        response.data?.insert_company_vendor_partnerships_one?.vendor_id;
-      if (!vendorId) {
-        setErrorMessage("Error! Empty vendor id provided");
+      const payorId =
+        response.data?.insert_company_payor_partnerships_one?.payor_id;
+      if (!payorId) {
+        setErrorMessage("Error! Empty payor id provided");
         return;
       }
-      const emailResp = await notifier.sendVendorAgreementWithCustomer({
+      const emailResp = await notifier.sendPayorAgreementWithCustomer({
         company_id: companyId,
-        vendor_id: vendorId,
+        payor_id: payorId,
       });
 
       if (emailResp.status !== "OK") {
@@ -106,7 +108,7 @@ function RegisterVendorModal({ handleClose }: Props) {
       handleClose();
     } catch (error) {
       setErrorMessage(
-        "Could not create Vendor. Please fill out all required fields and ensure the email is not already taken."
+        "Could not create Payor. Please fill out all required fields and ensure the email is not already taken."
       );
     }
   };
@@ -118,14 +120,14 @@ function RegisterVendorModal({ handleClose }: Props) {
       maxWidth="md"
       classes={{ paper: classes.dialog }}
     >
-      <DialogTitle>Register Vendor</DialogTitle>
+      <DialogTitle>Register Payor</DialogTitle>
       <RegisterThirdPartyForm
-        companyType={CompanyTypeEnum.Vendor}
+        companyType={CompanyTypeEnum.Payor}
         role={role}
         contact={contact}
         setContact={setContact}
-        company={vendor}
-        setCompany={setVendor}
+        company={payor}
+        setCompany={setPayor}
         errorMessage={errorMessage}
       />
       <DialogActions>
@@ -136,7 +138,7 @@ function RegisterVendorModal({ handleClose }: Props) {
           <Button
             disabled={
               loading ||
-              !vendor.name ||
+              !payor.name ||
               !contact.first_name ||
               !contact.last_name ||
               !contact.email
@@ -152,5 +154,3 @@ function RegisterVendorModal({ handleClose }: Props) {
     </Dialog>
   );
 }
-
-export default RegisterVendorModal;

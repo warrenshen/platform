@@ -14519,7 +14519,7 @@ export type BankCustomerListVendorPartnershipsQuery = {
     {
       vendor: Pick<Companies, "id"> & {
         users: Array<Pick<Users, "id"> & ContactFragment>;
-      } & VendorFragment;
+      } & ThirdPartyFragment;
       vendor_bank_account?: Maybe<Pick<BankAccounts, "id" | "verified_at">>;
     } & BankVendorPartnershipFragment
   >;
@@ -14535,7 +14535,7 @@ export type BankCustomerListPayorPartnershipsQuery = {
       payor?: Maybe<
         Pick<Companies, "id"> & {
           users: Array<Pick<Users, "id"> & ContactFragment>;
-        } & PayorFragment
+        } & ThirdPartyFragment
       >;
     } & PayorPartnershipFragment
   >;
@@ -14970,7 +14970,7 @@ export type ListBankPayorPartnershipsQuery = {
         {
           settings: Pick<CompanySettings, "id">;
           users: Array<ContactFragment>;
-        } & PayorFragment
+        } & ThirdPartyFragment
       >;
     } & BankPayorPartnershipFragment
   >;
@@ -14987,7 +14987,7 @@ export type GetBankPayorPartnershipQuery = {
         {
           settings: Pick<CompanySettings, "id">;
           users: Array<ContactFragment>;
-        } & PayorFragment
+        } & ThirdPartyFragment
       >;
       company: {
         users: Array<ContactFragment>;
@@ -15014,7 +15014,7 @@ export type UpdatePayorInfoMutationVariables = Exact<{
 }>;
 
 export type UpdatePayorInfoMutation = {
-  update_companies_by_pk?: Maybe<PayorFragment>;
+  update_companies_by_pk?: Maybe<ThirdPartyFragment>;
 };
 
 export type UpdatePayorAgreementIdMutationVariables = Exact<{
@@ -15725,6 +15725,15 @@ export type PayorPartnershipFragment = Pick<
   | "approved_at"
 >;
 
+export type UpdateCompanyInfoMutationVariables = Exact<{
+  id: Scalars["uuid"];
+  company: CompaniesSetInput;
+}>;
+
+export type UpdateCompanyInfoMutation = {
+  update_companies_by_pk?: Maybe<ThirdPartyFragment>;
+};
+
 export type GetTransactionsQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetTransactionsQuery = {
@@ -15798,7 +15807,7 @@ export type BankListVendorPartnershipsQuery = {
       vendor: {
         settings: Pick<CompanySettings, "id">;
         users: Array<ContactFragment>;
-      } & VendorFragment;
+      } & ThirdPartyFragment;
       vendor_bank_account?: Maybe<Pick<BankAccounts, "id" | "verified_at">>;
     } & BankVendorPartnershipFragment
   >;
@@ -15817,7 +15826,7 @@ export type BankVendorPartnershipQuery = {
           advances_bespoke_bank_account?: Maybe<BankAccountFragment>;
         };
         users: Array<ContactFragment>;
-      } & VendorFragment;
+      } & ThirdPartyFragment;
       company: {
         users: Array<ContactFragment>;
         settings: CompanySettingsFragment;
@@ -15881,7 +15890,7 @@ export type UpdateVendorInfoMutationVariables = Exact<{
 }>;
 
 export type UpdateVendorInfoMutation = {
-  update_companies_by_pk?: Maybe<VendorFragment>;
+  update_companies_by_pk?: Maybe<ThirdPartyFragment>;
 };
 
 export type UpdateVendorAgreementIdMutationVariables = Exact<{
@@ -16007,7 +16016,7 @@ export type LoanFragment = Pick<
   | "requested_at"
 > & { company: Pick<Companies, "id" | "identifier"> };
 
-export type PayorFragment = Pick<
+export type ThirdPartyFragment = Pick<
   Companies,
   | "id"
   | "name"
@@ -16510,8 +16519,8 @@ export const LoanFragmentDoc = gql`
     }
   }
 `;
-export const PayorFragmentDoc = gql`
-  fragment Payor on companies {
+export const ThirdPartyFragmentDoc = gql`
+  fragment ThirdParty on companies {
     id
     name
     address
@@ -16823,7 +16832,7 @@ export const BankCustomerListVendorPartnershipsDocument = gql`
       ...BankVendorPartnership
       vendor {
         id
-        ...Vendor
+        ...ThirdParty
         users {
           id
           ...Contact
@@ -16836,7 +16845,7 @@ export const BankCustomerListVendorPartnershipsDocument = gql`
     }
   }
   ${BankVendorPartnershipFragmentDoc}
-  ${VendorFragmentDoc}
+  ${ThirdPartyFragmentDoc}
   ${ContactFragmentDoc}
 `;
 
@@ -16894,7 +16903,7 @@ export const BankCustomerListPayorPartnershipsDocument = gql`
       ...PayorPartnership
       payor {
         id
-        ...Payor
+        ...ThirdParty
         users {
           id
           ...Contact
@@ -16903,7 +16912,7 @@ export const BankCustomerListPayorPartnershipsDocument = gql`
     }
   }
   ${PayorPartnershipFragmentDoc}
-  ${PayorFragmentDoc}
+  ${ThirdPartyFragmentDoc}
   ${ContactFragmentDoc}
 `;
 
@@ -18978,7 +18987,7 @@ export const ListBankPayorPartnershipsDocument = gql`
         name
       }
       payor {
-        ...Payor
+        ...ThirdParty
         settings {
           id
         }
@@ -18989,7 +18998,7 @@ export const ListBankPayorPartnershipsDocument = gql`
     }
   }
   ${BankPayorPartnershipFragmentDoc}
-  ${PayorFragmentDoc}
+  ${ThirdPartyFragmentDoc}
   ${ContactFragmentDoc}
 `;
 
@@ -19045,7 +19054,7 @@ export const GetBankPayorPartnershipDocument = gql`
     company_payor_partnerships_by_pk(id: $id) {
       ...BankPayorPartnership
       payor {
-        ...Payor
+        ...ThirdParty
         settings {
           id
         }
@@ -19071,7 +19080,7 @@ export const GetBankPayorPartnershipDocument = gql`
     }
   }
   ${BankPayorPartnershipFragmentDoc}
-  ${PayorFragmentDoc}
+  ${ThirdPartyFragmentDoc}
   ${ContactFragmentDoc}
   ${CompanyFragmentDoc}
   ${CompanySettingsFragmentDoc}
@@ -19186,10 +19195,10 @@ export type UpdateCompanyPayorPartnershipApprovedAtMutationOptions = Apollo.Base
 export const UpdatePayorInfoDocument = gql`
   mutation UpdatePayorInfo($id: uuid!, $company: companies_set_input!) {
     update_companies_by_pk(pk_columns: { id: $id }, _set: $company) {
-      ...Payor
+      ...ThirdParty
     }
   }
-  ${PayorFragmentDoc}
+  ${ThirdPartyFragmentDoc}
 `;
 export type UpdatePayorInfoMutationFn = Apollo.MutationFunction<
   UpdatePayorInfoMutation,
@@ -21534,6 +21543,56 @@ export type UpdateCompanyBankAccountMutationOptions = Apollo.BaseMutationOptions
   UpdateCompanyBankAccountMutation,
   UpdateCompanyBankAccountMutationVariables
 >;
+export const UpdateCompanyInfoDocument = gql`
+  mutation UpdateCompanyInfo($id: uuid!, $company: companies_set_input!) {
+    update_companies_by_pk(pk_columns: { id: $id }, _set: $company) {
+      ...ThirdParty
+    }
+  }
+  ${ThirdPartyFragmentDoc}
+`;
+export type UpdateCompanyInfoMutationFn = Apollo.MutationFunction<
+  UpdateCompanyInfoMutation,
+  UpdateCompanyInfoMutationVariables
+>;
+
+/**
+ * __useUpdateCompanyInfoMutation__
+ *
+ * To run a mutation, you first call `useUpdateCompanyInfoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCompanyInfoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCompanyInfoMutation, { data, loading, error }] = useUpdateCompanyInfoMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      company: // value for 'company'
+ *   },
+ * });
+ */
+export function useUpdateCompanyInfoMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateCompanyInfoMutation,
+    UpdateCompanyInfoMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    UpdateCompanyInfoMutation,
+    UpdateCompanyInfoMutationVariables
+  >(UpdateCompanyInfoDocument, baseOptions);
+}
+export type UpdateCompanyInfoMutationHookResult = ReturnType<
+  typeof useUpdateCompanyInfoMutation
+>;
+export type UpdateCompanyInfoMutationResult = Apollo.MutationResult<UpdateCompanyInfoMutation>;
+export type UpdateCompanyInfoMutationOptions = Apollo.BaseMutationOptions<
+  UpdateCompanyInfoMutation,
+  UpdateCompanyInfoMutationVariables
+>;
 export const GetTransactionsDocument = gql`
   query GetTransactions {
     transactions(order_by: { created_at: desc }) {
@@ -21875,7 +21934,7 @@ export const BankListVendorPartnershipsDocument = gql`
         name
       }
       vendor {
-        ...Vendor
+        ...ThirdParty
         settings {
           id
         }
@@ -21890,7 +21949,7 @@ export const BankListVendorPartnershipsDocument = gql`
     }
   }
   ${BankVendorPartnershipFragmentDoc}
-  ${VendorFragmentDoc}
+  ${ThirdPartyFragmentDoc}
   ${ContactFragmentDoc}
 `;
 
@@ -21946,7 +22005,7 @@ export const BankVendorPartnershipDocument = gql`
     company_vendor_partnerships_by_pk(id: $id) {
       ...BankVendorPartnership
       vendor {
-        ...Vendor
+        ...ThirdParty
         settings {
           id
           collections_bespoke_bank_account {
@@ -21986,7 +22045,7 @@ export const BankVendorPartnershipDocument = gql`
     }
   }
   ${BankVendorPartnershipFragmentDoc}
-  ${VendorFragmentDoc}
+  ${ThirdPartyFragmentDoc}
   ${BankAccountFragmentDoc}
   ${ContactFragmentDoc}
   ${CompanyFragmentDoc}
@@ -22320,10 +22379,10 @@ export type UpdateCompanyVendorPartnershipApprovedAtMutationOptions = Apollo.Bas
 export const UpdateVendorInfoDocument = gql`
   mutation UpdateVendorInfo($id: uuid!, $company: companies_set_input!) {
     update_companies_by_pk(pk_columns: { id: $id }, _set: $company) {
-      ...Vendor
+      ...ThirdParty
     }
   }
-  ${VendorFragmentDoc}
+  ${ThirdPartyFragmentDoc}
 `;
 export type UpdateVendorInfoMutationFn = Apollo.MutationFunction<
   UpdateVendorInfoMutation,

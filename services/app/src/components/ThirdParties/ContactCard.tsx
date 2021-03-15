@@ -10,11 +10,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import {
-  BankVendorPartnershipDocument,
-  BankVendorPartnershipQuery,
-  BankVendorPartnershipQueryVariables,
   Companies,
-  CompanyVendorPartnerships,
   ContactFragment,
   useAddVendorContactMutation,
   UsersInsertInput,
@@ -41,28 +37,36 @@ export enum CardState {
 
 interface Props {
   contact?: ContactFragment;
-  creating?: boolean;
+  isCreating?: boolean;
   onCreateComplete?: () => void;
   companyId?: Companies["id"];
-  companyVendorPartnershipId: CompanyVendorPartnerships["id"];
   isEditAllowed?: boolean;
 }
 
-function ContactCard(props: Props) {
-  const { isEditAllowed = true } = props;
+export default function ContactCard({
+  isEditAllowed = true,
+  contact: givenContact,
+  isCreating,
+  onCreateComplete,
+  companyId,
+}: Props) {
   const classes = useStyles();
+
   const [contact, setContact] = useState<UsersInsertInput>(
-    props.contact || { company_id: props.companyId }
+    givenContact || { company_id: companyId }
   );
+
   const [cardState, setCardState] = useState<CardState>(
-    props.creating ? CardState.Creating : CardState.Viewing
+    isCreating ? CardState.Creating : CardState.Viewing
   );
+
   const [updateContact] = useUpdateVendorContactMutation();
+
   const [addContact] = useAddVendorContactMutation();
 
   useEffect(() => {
-    setContact(props.contact || { company_id: props.companyId });
-  }, [props.companyId, props.contact]);
+    setContact(givenContact || { company_id: companyId });
+  }, [companyId, givenContact]);
 
   return (
     <Card className={classes.card}>
@@ -108,11 +112,11 @@ function ContactCard(props: Props) {
         ) : (
           <>
             <Typography variant="subtitle1">
-              {props?.contact?.full_name}
+              {givenContact?.full_name}
             </Typography>
-            <Typography variant="subtitle1">{props?.contact?.email}</Typography>
+            <Typography variant="subtitle1">{givenContact?.email}</Typography>
             <Typography variant="subtitle1">
-              {props?.contact?.phone_number}
+              {givenContact?.phone_number}
             </Typography>
           </>
         )}
@@ -135,7 +139,7 @@ function ContactCard(props: Props) {
                 size="small"
                 onClick={() => {
                   setCardState(CardState.Viewing);
-                  props.onCreateComplete && props.onCreateComplete();
+                  onCreateComplete && onCreateComplete();
                 }}
               >
                 Cancel
@@ -159,66 +163,16 @@ function ContactCard(props: Props) {
                           phone_number: contact.phone_number,
                         },
                       },
-                      optimisticResponse: {
-                        update_users_by_pk: {
-                          ...(contact as ContactFragment),
-                        },
-                      },
                     });
                   } else if (cardState === CardState.Creating) {
-                    await addContact({
+                    addContact({
                       variables: {
                         contact,
                       },
-                      optimisticResponse: {
-                        insert_users_one: {
-                          ...(contact as ContactFragment),
-                        },
-                      },
-                      update: (proxy, { data: optimisticResponse }) => {
-                        if (props.companyId) {
-                          const data = proxy.readQuery<
-                            BankVendorPartnershipQuery,
-                            BankVendorPartnershipQueryVariables
-                          >({
-                            query: BankVendorPartnershipDocument,
-                            variables: { id: props.companyVendorPartnershipId },
-                          });
-
-                          if (
-                            !data?.company_vendor_partnerships_by_pk?.vendor ||
-                            !optimisticResponse?.insert_users_one
-                          ) {
-                            return;
-                          }
-
-                          proxy.writeQuery<
-                            BankVendorPartnershipQuery,
-                            BankVendorPartnershipQueryVariables
-                          >({
-                            query: BankVendorPartnershipDocument,
-                            variables: { id: props.companyVendorPartnershipId },
-                            data: {
-                              company_vendor_partnerships_by_pk: {
-                                ...data.company_vendor_partnerships_by_pk,
-                                vendor: {
-                                  ...data.company_vendor_partnerships_by_pk
-                                    .vendor,
-                                  users: [
-                                    ...data.company_vendor_partnerships_by_pk
-                                      .vendor.users,
-                                    optimisticResponse.insert_users_one,
-                                  ],
-                                },
-                              },
-                            },
-                          });
-                        }
-                      },
                     });
-                    props.onCreateComplete && props.onCreateComplete();
                   }
-                  setCardState(CardState.Viewing);
+                  setCardState(CardState.Editing);
+                  onCreateComplete && onCreateComplete();
                 }}
               >
                 Submit
@@ -230,5 +184,3 @@ function ContactCard(props: Props) {
     </Card>
   );
 }
-
-export default ContactCard;

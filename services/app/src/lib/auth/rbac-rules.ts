@@ -53,6 +53,14 @@ export enum Action {
   EditVendorContact = "vendor:edit-contact",
   SendVendorAgreements = "vendor:send-agreements",
 
+  // Payor
+  AddPayor = "payor:add",
+  EditPayor = "payor:edit",
+  ApprovePayor = "payor:approve",
+  AddPayorContact = "payor:add-contact",
+  EditPayorContact = "payor:edit-contact",
+  SendPayorAgreements = "payor:send-agreements",
+
   // Users
   ManipulateUser = "users:manipulate",
 
@@ -142,6 +150,13 @@ const rules: Rules = {
       Action.AddVendorContact,
       Action.EditVendorContact,
       Action.SendVendorAgreements,
+
+      Action.AddPayor,
+      Action.EditPayor,
+      Action.ApprovePayor,
+      Action.AddPayorContact,
+      Action.EditPayorContact,
+      Action.SendPayorAgreements,
 
       Action.ManipulateUser,
     ],

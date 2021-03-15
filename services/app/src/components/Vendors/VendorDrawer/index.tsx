@@ -10,13 +10,13 @@ import {
 import * as Sentry from "@sentry/react";
 import AdvancesBank from "components/Shared/BespokeBankAssignment/AdvancesBank";
 import CollectionsBank from "components/Shared/BespokeBankAssignment/CollectionsBank";
+import Can from "components/Shared/Can";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileUploadDropzone from "components/Shared/File/UploadDropzone";
 import ApproveVendor from "components/Vendors/VendorDrawer/Actions/ApproveVendor";
 import BankAccount from "components/Vendors/VendorDrawer/BankAccount";
 import Contacts from "components/Vendors/VendorDrawer/Contacts";
 import VendorInfo from "components/Vendors/VendorDrawer/VendorInfo";
-import Can from "components/Shared/Can";
 import {
   BankVendorPartnershipDocument,
   CompanyAgreementsInsertInput,
@@ -281,8 +281,6 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
             />
           </Box>
         </Can>
-
-        <Typography variant="h6"> Customers </Typography>
       </Box>
     </Drawer>
   );

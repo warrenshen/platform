@@ -20,6 +20,10 @@ class TemplateNames(object):
 	VENDOR_TO_APPROVE_PURCHASE_ORDER = 'vendor_to_approve_purchase_order'
 	VENDOR_APPROVES_OR_REJECTS_PURCHASE_ORDER = 'vendor_approves_or_rejects_purchase_order'
 
+	PAYOR_AGREEMENT_WITH_CUSTOMER = 'payor_agreement_with_customer'
+	PAYOR_APPROVED_NOTIFY_CUSTOMER = 'payor_approved_notify_customer'
+	PAYOR_APPROVED_NOTIFY_PAYOR = 'payor_approved_notify_payor'
+
 	PAYOR_TO_APPROVE_INVOICE = 'payor_to_approve_invoice'
 	PAYOR_APPROVES_OR_REJECTS_INVOICE = 'payor_approves_or_rejects_invoice'
 
@@ -57,6 +61,19 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 	TemplateNames.VENDOR_APPROVES_OR_REJECTS_PURCHASE_ORDER: {
 		'id': 'd-0cdbf4e6769640a7aa44a0dd9dbc92ce',
 		'requires_secure_link': False
+	},
+
+	TemplateNames.PAYOR_AGREEMENT_WITH_CUSTOMER: {
+		'id': 'd-4f9366de99b4438ba04d65a23acd9c6a',
+		'requires_secure_link': False,
+	},
+	TemplateNames.PAYOR_APPROVED_NOTIFY_CUSTOMER: {
+		'id': 'd-9212ad638d2b4369bcf0e1e5fa00a80d',
+		'requires_secure_link': False,
+	},
+	TemplateNames.PAYOR_APPROVED_NOTIFY_PAYOR: {
+		'id': 'd-ad99c657383e4746b59c67111b11bc00',
+		'requires_secure_link': False,
 	},
 
 	TemplateNames.PAYOR_TO_APPROVE_INVOICE: {

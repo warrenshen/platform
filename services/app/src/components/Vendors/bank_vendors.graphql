@@ -8,7 +8,7 @@ query BankListVendorPartnerships {
       name
     }
     vendor {
-      ...Vendor
+      ...ThirdParty
       settings {
         id
       }
@@ -27,7 +27,7 @@ query BankVendorPartnership($id: uuid!) {
   company_vendor_partnerships_by_pk(id: $id) {
     ...BankVendorPartnership
     vendor {
-      ...Vendor
+      ...ThirdParty
       settings {
         id
       }
@@ -114,7 +114,7 @@ mutation UpdateCompanyVendorPartnershipApprovedAt(
 
 mutation UpdateVendorInfo($id: uuid!, $company: companies_set_input!) {
   update_companies_by_pk(pk_columns: { id: $id }, _set: $company) {
-    ...Vendor
+    ...ThirdParty
   }
 }
 

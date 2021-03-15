@@ -61,7 +61,7 @@ query BankCustomerListVendorPartnerships($companyId: uuid!) {
     ...BankVendorPartnership
     vendor {
       id
-      ...Vendor
+      ...ThirdParty
       users {
         id
         ...Contact
@@ -79,7 +79,7 @@ query BankCustomerListPayorPartnerships($companyId: uuid!) {
     ...PayorPartnership
     payor {
       id
-      ...Payor
+      ...ThirdParty
       users {
         id
         ...Contact
