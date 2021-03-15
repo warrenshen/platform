@@ -90,6 +90,7 @@ class Company(Base):
 	name = Column(String)
 	identifier = Column(String)
 	contract_name = Column(String)
+	dba_name = Column(String)
 	needs_balance_recomputed = Column(Boolean, nullable=False, default=False)
 	latest_loan_identifier = Column(Integer, nullable=False, default=0)
 
