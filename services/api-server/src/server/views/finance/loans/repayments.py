@@ -66,7 +66,6 @@ class CreatePaymentView(MethodView):
 		required_keys = [
 			'company_id',
 			'payment',
-			'loan_ids',
 		]
 		for key in required_keys:
 			if key not in form:
@@ -80,13 +79,12 @@ class CreatePaymentView(MethodView):
 
 		payment = form['payment']
 		company_id = form['company_id']
-		loan_ids = form['loan_ids']
 		payment_id, err = repayment_util.create_repayment(
 			company_id,
 			payment,
-			loan_ids,
 			user_session.get_user_id(),
-			current_app.session_maker
+			current_app.session_maker,
+			is_line_of_credit=False,
 		)
 
 		if err:
@@ -123,11 +121,12 @@ class CreatePaymentLineOfCreditView(MethodView):
 
 		company_id = form['company_id']
 		payment = form['payment']
-		payment_id, err = repayment_util.create_repayment_line_of_credit(
+		payment_id, err = repayment_util.create_repayment(
 			company_id,
 			payment,
 			user_session.get_user_id(),
-			current_app.session_maker
+			current_app.session_maker,
+			is_line_of_credit=True,
 		)
 
 		if err:

@@ -117,8 +117,10 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 			payment=payment_util.PaymentInsertInputDict(
 				company_id='unused',
 				type='unused',
+				requested_amount=None,
 				amount=payment_amount,
 				method='ach',
+				requested_payment_date=None,
 				payment_date=payment_date,
 				settlement_date=settlement_date,
 				items_covered={'loan_ids': loan_ids},
@@ -539,8 +541,10 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				payment=payment_util.PaymentInsertInputDict(
 					company_id='unused',
 					type='unused',
-					amount=0.2,
 					method='ach',
+					requested_amount=None,
+					amount=0.2,
+					requested_payment_date=None,
 					payment_date='10/28/2020',
 					settlement_date='10/30/2020',
 					items_covered={'loan_ids': loan_ids},

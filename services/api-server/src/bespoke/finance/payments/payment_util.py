@@ -23,15 +23,23 @@ PaymentItemsCoveredDict = TypedDict('PaymentItemsCoveredDict', {
 
 PaymentInputDict = TypedDict('PaymentInputDict', {
 	'type': str,
+	'payment_method': str,
 	'amount': float,
-	'payment_method': str
+})
+
+RepaymentPaymentInputDict = TypedDict('RepaymentPaymentInputDict', {
+	'payment_method': str,
+	'requested_amount': float,
+	'requested_payment_date': datetime.date,
 })
 
 PaymentInsertInputDict = TypedDict('PaymentInsertInputDict', {
 	'company_id': str,
 	'type': str,
+	'requested_amount': float,
 	'amount': float,
 	'method': str,
+	'requested_payment_date': str,
 	'payment_date': str,
 	'settlement_date': str,
 	'items_covered': PaymentItemsCoveredDict,
@@ -46,6 +54,21 @@ def create_payment(
 	payment.type = payment_input['type']
 	payment.company_id = company_id
 	payment.method = payment_input['payment_method']
+	payment.submitted_at = datetime.datetime.now()
+	payment.submitted_by_user_id = user_id
+	return payment
+
+def create_repayment_payment(
+	company_id: str,
+	payment_input: RepaymentPaymentInputDict,
+	user_id: str) -> models.Payment:
+
+	payment = models.Payment()
+	payment.company_id = company_id
+	payment.type = db_constants.PaymentType.REPAYMENT
+	payment.method = payment_input['payment_method']
+	payment.requested_amount = decimal.Decimal(payment_input['requested_amount'])
+	payment.requested_payment_date = payment_input['requested_payment_date']
 	payment.submitted_at = datetime.datetime.now()
 	payment.submitted_by_user_id = user_id
 	return payment

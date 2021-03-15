@@ -6,7 +6,8 @@ from typing import Any, Dict, List, cast
 
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
-from bespoke.db.db_constants import PaymentStatusEnum, ProductType
+from bespoke.db.db_constants import (PaymentMethod, PaymentStatusEnum,
+                                     ProductType)
 from bespoke.db.models import session_scope
 from bespoke.finance.payments import payment_util, repayment_util
 from bespoke.finance.payments.repayment_util import (LoanBalanceDict,
@@ -109,11 +110,13 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 			payment_input=payment_util.PaymentInsertInputDict(
 				company_id='unused',
 				type='unused',
+				requested_amount=None,
 				amount=test['payment_input_amount'],
 				method='ach',
+				requested_payment_date=None,
 				payment_date=test['payment_date'],
 				settlement_date=test['settlement_date'],
-				items_covered={},
+				items_covered={ 'loan_ids': loan_ids },
 			),
 			payment_option=test['payment_option'],
 			loan_ids=loan_ids,
@@ -182,8 +185,8 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				# These will be advances or repayments made against their respective loans.
 				[
 					{
-						'type': 'advance', 
-						'amount': 20.02, 
+						'type': 'advance',
+						'amount': 20.02,
 						'payment_date': '9/1/2020',
 						'effective_date': '9/1/2020'
 					}
@@ -683,7 +686,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 					# These will be advances or repayments made against their respective loans.
 					[
 						{'type': 'advance', 'amount': 30.02, 'payment_date': '11/10/2020', 'effective_date': '11/10/2020'},
-						{'type': 'repayment', 'to_principal': 10.02, 'to_interest': 0.0, 'to_fees': 0.0, 
+						{'type': 'repayment', 'to_principal': 10.02, 'to_interest': 0.0, 'to_fees': 0.0,
 						 'payment_date': '11/12/2020', 'effective_date': '11/12/2020'}
 					],
 					[{'type': 'advance', 'amount': 50.02, 'payment_date': '11/22/2020', 'effective_date': '11/22/2020'}]
@@ -775,15 +778,17 @@ class TestCreatePayment(db_unittest.TestCase):
 			payment_insert_input=payment_util.PaymentInsertInputDict(
 				company_id='unused',
 				type='unused',
-				amount=payment_input_amount,
+				requested_amount=payment_input_amount,
+				amount=None,
 				method=test['payment_method'],
-				payment_date=payment_date,
+				requested_payment_date=payment_date,
+				payment_date=None,
 				settlement_date='unused',
-				items_covered={},
-		),
-			loan_ids=loan_ids,
+				items_covered={ 'loan_ids': loan_ids },
+			),
 			user_id=user_id,
-			session_maker=self.session_maker)
+			session_maker=self.session_maker,
+			is_line_of_credit=False)
 		self.assertIsNone(err)
 
 		with session_scope(session_maker) as session:
@@ -794,7 +799,7 @@ class TestCreatePayment(db_unittest.TestCase):
 				).first())
 
 			# Assertions on the payment
-			self.assertAlmostEqual(payment_input_amount, float(payment.amount))
+			self.assertAlmostEqual(payment_input_amount, float(payment.requested_amount))
 			self.assertEqual(db_constants.PaymentType.REPAYMENT, payment.type)
 			self.assertEqual(company_id, payment.company_id)
 			self.assertEqual(test['payment_method'], payment.method)
@@ -868,10 +873,20 @@ class TestCreatePayment(db_unittest.TestCase):
 		user_id = seed.get_user_id('company_admin', index=0)
 		payment_id, err = repayment_util.create_repayment(
 			company_id=None,
-			payment_insert_input=None,
-			loan_ids=[str(uuid.uuid4())],
+			payment_insert_input=payment_util.PaymentInsertInputDict(
+				company_id='unused',
+				type='unused',
+				requested_amount=10.0,
+				amount=None,
+				method=PaymentMethod.REVERSE_DRAFT_ACH,
+				requested_payment_date='10/10/2020',
+				payment_date=None,
+				settlement_date='unused',
+				items_covered={ 'loan_ids': [str(uuid.uuid4())] },
+			),
 			user_id=user_id,
-			session_maker=self.session_maker)
+			session_maker=self.session_maker,
+			is_line_of_credit=False)
 		self.assertIn('No loans', err.msg)
 
 	def test_not_funded_loan(self) -> None:
@@ -893,8 +908,18 @@ class TestCreatePayment(db_unittest.TestCase):
 
 		payment_id, err = repayment_util.create_repayment(
 			company_id=company_id,
-			payment_insert_input=None,
-			loan_ids=[loan_id],
+			payment_insert_input=payment_util.PaymentInsertInputDict(
+				company_id='unused',
+				type='unused',
+				requested_amount=10.0,
+				amount=None,
+				method=PaymentMethod.REVERSE_DRAFT_ACH,
+				requested_payment_date='10/10/2020',
+				payment_date=None,
+				settlement_date='unused',
+				items_covered={ 'loan_ids': [loan_id] },
+			),
 			user_id=user_id,
-			session_maker=self.session_maker)
+			session_maker=self.session_maker,
+			is_line_of_credit=False)
 		self.assertIn('are funded', err.msg)

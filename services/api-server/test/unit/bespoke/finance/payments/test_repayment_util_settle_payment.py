@@ -92,15 +92,17 @@ class TestSettlePayment(db_unittest.TestCase):
 			payment_insert_input=payment_util.PaymentInsertInputDict(
 				company_id='unused',
 				type='unused',
-				amount=test['payment']['amount'],
 				method=test['payment']['payment_method'],
-				payment_date='10/10/2020',
+				requested_amount=test['payment']['amount'],
+				amount=None,
+				requested_payment_date='10/10/2020',
+				payment_date=None,
 				settlement_date='10/10/2020', # unused
-				items_covered=test['payment']['items_covered'] if 'items_covered' in test['payment'] else {},
-		),
-			loan_ids=loan_ids,
+				items_covered={ 'loan_ids': loan_ids },
+			),
 			user_id=user_id,
-			session_maker=self.session_maker)
+			session_maker=self.session_maker,
+			is_line_of_credit=False)
 		self.assertIsNone(err)
 
 		# Say the payment has already been applied if the test has this value set.
@@ -782,19 +784,22 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 		user_id = seed.get_user_id('company_admin', index=0)
 
 		# Make sure we have a payment already registered in the system that we are settling.
-		payment_id, err = repayment_util.create_repayment_line_of_credit(
+		payment_id, err = repayment_util.create_repayment(
 			company_id=company_id,
 			payment_insert_input=payment_util.PaymentInsertInputDict(
 				company_id='unused',
 				type='unused',
-				amount=test['payment']['amount'],
 				method=test['payment']['payment_method'],
-				payment_date='10/10/20',
+				requested_amount=test['payment']['amount'],
+				amount=None,
+				requested_payment_date='10/10/20',
+				payment_date=None,
 				settlement_date='10/10/2020', # unused
 				items_covered=test['payment']['items_covered'] if 'items_covered' in test['payment'] else {},
 			),
 			user_id=user_id,
-			session_maker=self.session_maker)
+			session_maker=self.session_maker,
+			is_line_of_credit=True)
 		self.assertIsNone(err)
 
 		# Say the payment has already been applied if the test has this value set.

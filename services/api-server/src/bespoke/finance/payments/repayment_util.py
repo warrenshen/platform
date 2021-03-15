@@ -131,8 +131,8 @@ def calculate_repayment_effect(
 	err_details = {'company_id': company_id, 'loan_ids': loan_ids, 'method': 'calculate_repayment_effect'}
 
 	if payment_option == 'custom_amount':
-		if not number_util.is_number(payment_input.get('amount')) and payment_input['amount'] <= 0:
-			return None, errors.Error('Amount must greater than 0 when the payment option is Custom Amount')
+		if not number_util.is_number(payment_input.get('amount')) or payment_input['amount'] <= 0:
+			return None, errors.Error('Payment requested amount must greater than 0 when the payment option is Custom Amount')
 
 	if not payment_input.get('payment_date'):
 		return None, errors.Error('Payment date must be specified')
@@ -447,105 +447,87 @@ def calculate_repayment_effect(
 def create_repayment(
 	company_id: str,
 	payment_insert_input: payment_util.PaymentInsertInputDict,
-	loan_ids: List[str],
 	user_id: str,
 	session_maker: Callable,
+	is_line_of_credit: bool,
 ) -> Tuple[str, errors.Error]:
+
+	err_details = {'company_id': company_id, 'method': 'create_repayment'}
+
+	payment_method = payment_insert_input['method']
+	requested_payment_date = date_util.load_date_str(payment_insert_input['requested_payment_date'])
+	requested_amount = payment_insert_input['requested_amount']
+	items_covered = payment_insert_input['items_covered']
+
+	if not payment_method:
+		return None, errors.Error('Payment method must be specified', details=err_details)
+
+	if not number_util.is_number(requested_amount) or requested_amount <= 0:
+		return None, errors.Error('Payment requested amount must greater than 0 when the payment option is Custom Amount', details=err_details)
+
+	if not requested_payment_date:
+		return None, errors.Error('Requested payment date must be specified', details=err_details)
+
+	if is_line_of_credit:
+		if 'to_principal' not in items_covered or 'to_interest' not in items_covered:
+			return None, errors.Error('items_covered.to_principal and items_covered.to_interest must be specified', details=err_details)
+
+		to_principal = items_covered['to_principal']
+		to_interest = items_covered['to_interest']
+		if not number_util.float_eq(requested_amount, to_principal + to_interest):
+			return None, errors.Error(f'Requested breakdown of to_principal vs to_interest ({to_principal}, {to_interest}) does not sum up to requested amount ({requested_amount})')
+	else:
+		if 'loan_ids' not in items_covered:
+			return None, errors.Error('items_covered.loan_ids must be specified', details=err_details)
 
 	payment_id = None
 
 	with session_scope(session_maker) as session:
-		loans = cast(
-			List[models.Loan],
-			session.query(models.Loan).filter(
-				models.Loan.company_id == company_id
-			).filter(
-				models.Loan.id.in_(loan_ids)
-			).all())
+		loans = []
+		if not is_line_of_credit:
+			loan_ids = items_covered['loan_ids']
+			loans = cast(
+				List[models.Loan],
+				session.query(models.Loan).filter(
+					models.Loan.company_id == company_id
+				).filter(
+					models.Loan.id.in_(loan_ids)
+				).all())
 
-		if not loans:
-			return None, errors.Error('No loans associated with create payment submission')
+			if not loans:
+				return None, errors.Error('No loans associated with create payment submission')
 
-		if len(loans) != len(loan_ids):
-			return None, errors.Error('Not all loans found in create payment submission')
+			if len(loans) != len(loan_ids):
+				return None, errors.Error('Not all loans found in create payment submission')
 
-		not_funded_loan_ids = []
-		for loan in loans:
-			if not loan.funded_at:
-				not_funded_loan_ids.append(loan.id)
+			not_funded_loan_ids = []
+			for loan in loans:
+				if not loan.funded_at:
+					not_funded_loan_ids.append(loan.id)
 
-		if not_funded_loan_ids:
-			return None, errors.Error('Not all loans are funded')
+			if not_funded_loan_ids:
+				return None, errors.Error('Not all loans are funded')
 
-		payment_input = payment_util.PaymentInputDict(
-			type=db_constants.PaymentType.REPAYMENT,
-			amount=payment_insert_input['amount'],
-			payment_method=payment_insert_input['method']
+		payment_input = payment_util.RepaymentPaymentInputDict(
+			payment_method=payment_method,
+			requested_amount=requested_amount,
+			requested_payment_date=requested_payment_date,
 		)
-		payment = payment_util.create_payment(
+		payment = payment_util.create_repayment_payment(
 			company_id, payment_input, user_id)
-		payment.items_covered = {
-			'loan_ids': loan_ids,
-		}
+		payment.items_covered = cast(Dict[str, Any], items_covered)
 		payment.requested_by_user_id = user_id
-		payment.requested_payment_date = date_util.load_date_str(payment_insert_input['payment_date'])
 		# Settlement date should not be set until the banker settles the payment.
 
 		session.add(payment)
 		session.flush()
 		payment_id = str(payment.id)
 
-		is_scheduled = payment_insert_input['method'] == PaymentMethod.REVERSE_DRAFT_ACH
+		is_scheduled = payment_method == PaymentMethod.REVERSE_DRAFT_ACH
 		payment_status = PaymentStatusEnum.SCHEDULED if is_scheduled else PaymentStatusEnum.PENDING
+
 		for loan in loans:
 			loan.payment_status = payment_status
-
-
-	return payment_id, None
-
-def create_repayment_line_of_credit(
-	company_id: str,
-	payment_insert_input: payment_util.PaymentInsertInputDict,
-	user_id: str,
-	session_maker: Callable,
-) -> Tuple[str, errors.Error]:
-
-	payment_id = None
-
-	payment_amount = payment_insert_input['amount']
-	payment_method = payment_insert_input['method']
-
-	to_principal = payment_insert_input['items_covered']['to_principal']
-	to_interest = payment_insert_input['items_covered']['to_interest']
-
-	if not number_util.float_eq(payment_amount, to_principal + to_interest):
-		return None, errors.Error(f'Payment breakdown of to_principal vs to_interest ({to_principal}, {to_interest}) does not sum up to payment amount ({payment_amount})')
-
-	with session_scope(session_maker) as session:
-		payment_input = payment_util.PaymentInputDict(
-			type=db_constants.PaymentType.REPAYMENT,
-			amount=payment_amount,
-			payment_method=payment_method
-		)
-		payment = payment_util.create_payment(
-			company_id,
-			payment_input,
-			user_id,
-		)
-		payment.items_covered = cast(Dict[str, Any], payment_insert_input['items_covered'])
-		payment.requested_by_user_id = user_id
-		payment.requested_payment_date = date_util.load_date_str(payment_insert_input['payment_date'])
-		# Settlement date should not be set until the banker settles the payment.
-
-		session.add(payment)
-		session.flush()
-		payment_id = str(payment.id)
-
-		# is_scheduled = payment_insert_input['method'] == PaymentMethod.REVERSE_DRAFT_ACH
-		# payment_status = PaymentStatusEnum.SCHEDULED if is_scheduled else PaymentStatusEnum.PENDING
-		# for loan in loans:
-		# 	loan.payment_status = payment_status
-
 
 	return payment_id, None
 

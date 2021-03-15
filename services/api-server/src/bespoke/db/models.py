@@ -278,9 +278,10 @@ class Payment(Base):
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	type = Column(String)
-	amount = Column(Numeric)
 	company_id = Column(GUID, nullable=False)
 	method = Column(String)
+	requested_amount = Column(Numeric)
+	amount = Column(Numeric)
 	requested_payment_date = Column(Date)
 	payment_date = Column(Date)
 	settlement_date = Column(Date)
