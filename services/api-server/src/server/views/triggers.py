@@ -21,6 +21,8 @@ class UpdateDirtyCompanyBalancesView(MethodView):
 
 	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
+		logging.info("Received request to update dirty company balances")
+
 		descriptive_errors, fatal_error = reports_util.run_customer_balances_for_companies_that_need_recompute(
 			current_app.session_maker,
 			datetime.date.today(),
@@ -29,6 +31,8 @@ class UpdateDirtyCompanyBalancesView(MethodView):
 		if fatal_error:
 			logging.error(f"Got fatal error while recomputing balances for companies that need it: '{fatal_error}'")
 			return handler_util.make_error_response(fatal_error)
+
+		logging.info("Finished request to update dirty company balances")
 
 		return make_response(json.dumps({
 			"status": "OK",
@@ -43,6 +47,8 @@ class UpdateAllCompanyBalancesView(MethodView):
 
 	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
+		logging.info("Received request to update all company balances")
+
 		descriptive_errors, fatal_error = reports_util.run_customer_balances_for_all_companies(
 			current_app.session_maker,
 			datetime.date.today(),
@@ -51,6 +57,8 @@ class UpdateAllCompanyBalancesView(MethodView):
 		if fatal_error:
 			logging.error(f"Got fatal error while recomputing balances for all companies: '{fatal_error}'")
 			return handler_util.make_error_response(fatal_error)
+
+		logging.info("Finished updating all company balances")
 
 		return make_response(json.dumps({
 			"status": "OK",
@@ -67,6 +75,8 @@ class ExpireActiveEbbaApplications(MethodView):
 	@handler_util.catch_bad_json_request
 	@typing.no_type_check
 	def post(self) -> Response:
+		logging.info("Received request to expire old ebba applications")
+
 		with session_scope(current_app.session_maker) as session:
 			results = session.query(models.CompanySettings) \
 				.filter(models.CompanySettings.active_ebba_application_id != None) \
@@ -77,6 +87,8 @@ class ExpireActiveEbbaApplications(MethodView):
 			for company in results:
 				logging.info(f"Expiring active borrowing base for '{company.company_id}'")
 				company.active_ebba_application_id = None
+
+		logging.info("Finished expiring old ebba applications")
 
 		return make_response(json.dumps({
 			"status": "OK",
@@ -90,12 +102,16 @@ class SetDirtyCompanyBalancesView(MethodView):
 
 	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
+		logging.info("Received request to declare that a company needs its balance recomputed")
+
 		data = json.loads(request.data)
 
 		company_id = data.get('event', {}) \
 			.get('data', {}) \
 			.get('new', {}) \
 			.get('company_id')
+
+		logging.info(f"Marking that company.needs_balance_recomputed for company: '{company_id}'")
 
 		if not company_id:
 			return handler_util.make_error_response(
@@ -104,8 +120,11 @@ class SetDirtyCompanyBalancesView(MethodView):
 		with models.session_scope(current_app.session_maker) as session:
 			_, err = models_util.set_needs_balance_recomputed(company_id, session)
 			if err:
+				logging.error(f"FAILED marking that company.needs_balance_recomputed for company: '{company_id}'")
 				return handler_util.make_error_response(
 					"Failed setting company dirty", status_code=500)
+
+		logging.info(f"Finished marking that company.needs_balance_recomputed for company: '{company_id}'")
 
 		return make_response(json.dumps({
 			"status": "OK"
