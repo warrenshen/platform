@@ -35,6 +35,8 @@ class TemplateNames(object):
 	USER_INVITED_TO_PLATFORM = 'user_invited_to_platform'
 	USER_FORGOT_PASSWORD = 'user_forgot_password'
 
+	OPS_TRIGGER_NOTIFICATION = 'ops_trigger_notification'
+
 
 TemplateConfigDict = TypedDict('TemplateConfigDict', {
 	'id': str,
@@ -106,6 +108,10 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 	TemplateNames.USER_FORGOT_PASSWORD: {
 		'id': 'd-7a8a3b36662a45d5bdaa03441b6715b0',
 		'requires_secure_link': True
+	},
+	TemplateNames.OPS_TRIGGER_NOTIFICATION: {
+		'id': 'd-6b7e9c5b88ef47a49c352b8a5596eb5f',
+		'requires_secure_link': False,
 	}
 }
 

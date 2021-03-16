@@ -64,6 +64,11 @@ class Config(object):
 
 		# Async Server
 		self.ASYNC_SERVER_API_KEY = os.environ.get("ASYNC_SERVER_API_KEY", "ASYNC-SERVER-API-KEY-1085093607")
+		self.OPS_EMAIL_ADDRESSES = list(map(
+			lambda s: s.strip(),
+			os.environ.get('OPS_EMAIL_ADDRESSES', 'bespoke-ops@sweatequity.vc').split(',')))
+
+		self.DONT_SEND_OPS_EMAILS = bool(int(os.environ.get('DONT_SEND_OPS_EMAILS', '0')))
 
 		# Diagnostics
 		self.SERVER_TYPE = "api"

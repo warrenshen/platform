@@ -2,10 +2,13 @@ import json
 import datetime
 import logging
 import typing
+from mypy_extensions import TypedDict
 
 from bespoke.db.models import session_scope
 from bespoke.db import models, models_util
+from bespoke.email import sendgrid_util
 from bespoke.finance.loans import reports_util
+from bespoke import errors
 from server.views.common import auth_util, handler_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
@@ -13,6 +16,50 @@ from sqlalchemy import func
 
 
 handler = Blueprint('triggers', __name__)
+
+
+NotificationTemplateData = TypedDict('NotificationTemplateData', {
+	'trigger_name': str,
+	'domain': str,
+	'outcome': str,
+	'fatal_error': str,
+	'descriptive_errors': typing.List[str],
+}, total=False)
+
+
+def _prepare_notification_data(
+	trigger_name: str,
+	fatal_error: errors.Error,
+	descriptive_errors: typing.List[str]) -> NotificationTemplateData:
+
+	data = NotificationTemplateData(
+		trigger_name=trigger_name,
+		domain=current_app.app_config.BESPOKE_DOMAIN,
+		outcome='FAILED' if fatal_error else 'SUCCEEDED',
+	)
+
+	if fatal_error:
+		data['fatal_error'] = str(fatal_error)
+
+	if descriptive_errors and len(descriptive_errors):
+		data['descriptive_errors'] = descriptive_errors
+
+	return data
+
+
+def _send_ops_notification(data: NotificationTemplateData) -> errors.Error:
+	if current_app.app_config.DONT_SEND_OPS_EMAILS:
+		return None
+
+	_, err = current_app.sendgrid_client.send(
+		template_name=sendgrid_util.TemplateNames.OPS_TRIGGER_NOTIFICATION,
+		template_data=data,
+		recipients=current_app.app_config.OPS_EMAIL_ADDRESSES,
+	)
+	if err:
+		logging.error(f"Failed sending trigger notification email. Error: '{err}'")
+		return err
+	return None
 
 
 class UpdateDirtyCompanyBalancesView(MethodView):
@@ -59,6 +106,14 @@ class UpdateAllCompanyBalancesView(MethodView):
 			return handler_util.make_error_response(fatal_error)
 
 		logging.info("Finished updating all company balances")
+
+		err = _send_ops_notification(_prepare_notification_data(
+			'update_all_customer_balances',
+			fatal_error,
+			descriptive_errors))
+		if err:
+			return handler_util.make_error_response(
+				f"Failed sending update_all_customer_balances trigger notification. Error: '{err}'")
 
 		return make_response(json.dumps({
 			"status": "OK",
