@@ -164,7 +164,7 @@ def fund_loans_with_advance(
 				payment_method=payment_input['method']
 			),
 			user_id=bank_admin_user_id)
-			payment_util.make_payment_applied(
+			payment_util.make_advance_payment_settled(
 				payment,
 				settled_by_user_id=bank_admin_user_id,
 				payment_date=payment_date,

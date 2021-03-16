@@ -182,6 +182,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				self.assertIsNotNone(payment.settled_at)
 				self.assertIsNotNone(payment.submitted_at)
 				self.assertEqual(payment_date, date_util.date_to_str(payment.payment_date))
+				# For advances, deposit date is always equal to the settlement date.
+				self.assertEqual(settlement_date, date_util.date_to_str(payment.deposit_date))
 				self.assertEqual(settlement_date, date_util.date_to_str(payment.settlement_date))
 				self.assertEqual(bank_admin_user_id, payment.settled_by_user_id)
 				self.assertEqual(bank_admin_user_id, payment.submitted_by_user_id)

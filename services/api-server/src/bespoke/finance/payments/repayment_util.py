@@ -783,8 +783,7 @@ def settle_repayment(
 		# T4 which impacts interest & fees calculations before T3 happen. This means
 		# T3 will now be incorrect, since it was created based on T1 and T2 but
 		# should be created on T1, T2, and T4.
-		# TODO(warrenshen): use augmented transactions here.
-		effective_dates = [transaction_dict['effective_date'] for transaction_dict in all_transaction_dicts]
+		effective_dates = [augmented_transaction['transaction']['effective_date'] for augmented_transaction in all_augmented_transactions]
 		if len(effective_dates):
 			max_transaction_effective_date = max(effective_dates)
 			if settlement_date < max_transaction_effective_date:
@@ -934,7 +933,7 @@ def settle_repayment(
 			else:
 				cur_loan.payment_status = PaymentStatusEnum.PARTIALLY_PAID
 
-		payment_util.make_payment_settled(
+		payment_util.make_repayment_payment_settled(
 			payment,
 			amount=decimal.Decimal(payment_amount),
 			deposit_date=deposit_date,
