@@ -30,13 +30,23 @@ function CustomerFinancialSummaryOverview({
 }: Props) {
   const classes = useStyles();
 
+  const minimumMonthlyPayload = financialSummary?.minimum_monthly_payload;
+  let minimumMonthlyFee = -1;
+  if (minimumMonthlyPayload && Object.keys(minimumMonthlyPayload).length > 0) {
+    // Three keys you can read from:
+    // amount_short: How much you will be charged extra for not using the product enough
+    // minimum_amount: What is the minimum required revenue Bespoke gets from interest.
+    // amount_accrued: How much you will pay this month in interest
+    minimumMonthlyFee = minimumMonthlyPayload.amount_short;
+  }
+
   return (
     <Box display="flex" flexDirection="column">
       <Typography variant="h6" gutterBottom={true}>
         Financial Summary
       </Typography>
       <Typography variant="body2" gutterBottom={true}>
-        Note: financial summary is updated on an hourly cadence.
+        Note: financial summary is updated approximately every 5 minutes.
       </Typography>
       {isBalanceVisible && (
         <>
@@ -83,6 +93,20 @@ function CustomerFinancialSummaryOverview({
                   </Typography>
                   <Typography variant="subtitle1" color="textSecondary">
                     total outstanding fees
+                  </Typography>
+                </Box>
+              </Card>
+            </Box>
+            <Box className={classes.box}>
+              <Card>
+                <Box display="flex" flexDirection="column" p={2}>
+                  <Typography variant="h4">
+                    {minimumMonthlyFee !== -1
+                      ? formatCurrency(minimumMonthlyFee)
+                      : "TBD"}
+                  </Typography>
+                  <Typography variant="subtitle1" color="textSecondary">
+                    minimum monthly fee
                   </Typography>
                 </Box>
               </Card>

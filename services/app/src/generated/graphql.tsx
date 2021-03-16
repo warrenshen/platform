@@ -4620,12 +4620,18 @@ export type FinancialSummaries = {
   company_id: Scalars["uuid"];
   date?: Maybe<Scalars["date"]>;
   id: Scalars["uuid"];
+  minimum_monthly_payload?: Maybe<Scalars["jsonb"]>;
   total_limit: Scalars["numeric"];
   total_outstanding_fees: Scalars["numeric"];
   total_outstanding_interest: Scalars["numeric"];
   total_outstanding_principal: Scalars["numeric"];
   total_outstanding_principal_for_interest?: Maybe<Scalars["numeric"]>;
   total_principal_in_requested_state: Scalars["numeric"];
+};
+
+/** columns and relationships of "financial_summaries" */
+export type FinancialSummariesMinimumMonthlyPayloadArgs = {
+  path?: Maybe<Scalars["String"]>;
 };
 
 /** aggregated selection of "financial_summaries" */
@@ -4670,6 +4676,11 @@ export type FinancialSummariesAggregateOrderBy = {
   variance?: Maybe<FinancialSummariesVarianceOrderBy>;
 };
 
+/** append existing jsonb value of filtered columns with new jsonb value */
+export type FinancialSummariesAppendInput = {
+  minimum_monthly_payload?: Maybe<Scalars["jsonb"]>;
+};
+
 /** input type for inserting array relation for remote table "financial_summaries" */
 export type FinancialSummariesArrRelInsertInput = {
   data: Array<FinancialSummariesInsertInput>;
@@ -4711,6 +4722,7 @@ export type FinancialSummariesBoolExp = {
   company_id?: Maybe<UuidComparisonExp>;
   date?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  minimum_monthly_payload?: Maybe<JsonbComparisonExp>;
   total_limit?: Maybe<NumericComparisonExp>;
   total_outstanding_fees?: Maybe<NumericComparisonExp>;
   total_outstanding_interest?: Maybe<NumericComparisonExp>;
@@ -4726,6 +4738,21 @@ export enum FinancialSummariesConstraint {
   /** unique or primary key constraint */
   FinancialSummariesPkey = "financial_summaries_pkey",
 }
+
+/** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+export type FinancialSummariesDeleteAtPathInput = {
+  minimum_monthly_payload?: Maybe<Array<Maybe<Scalars["String"]>>>;
+};
+
+/** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+export type FinancialSummariesDeleteElemInput = {
+  minimum_monthly_payload?: Maybe<Scalars["Int"]>;
+};
+
+/** delete key/value pair or string element. key/value pairs are matched based on their key value */
+export type FinancialSummariesDeleteKeyInput = {
+  minimum_monthly_payload?: Maybe<Scalars["String"]>;
+};
 
 /** input type for incrementing integer column in table "financial_summaries" */
 export type FinancialSummariesIncInput = {
@@ -4747,6 +4774,7 @@ export type FinancialSummariesInsertInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
+  minimum_monthly_payload?: Maybe<Scalars["jsonb"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
@@ -4844,6 +4872,7 @@ export type FinancialSummariesOrderBy = {
   company_id?: Maybe<OrderBy>;
   date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  minimum_monthly_payload?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
   total_outstanding_interest?: Maybe<OrderBy>;
@@ -4855,6 +4884,11 @@ export type FinancialSummariesOrderBy = {
 /** primary key columns input for table: "financial_summaries" */
 export type FinancialSummariesPkColumnsInput = {
   id: Scalars["uuid"];
+};
+
+/** prepend existing jsonb value of filtered columns with new jsonb value */
+export type FinancialSummariesPrependInput = {
+  minimum_monthly_payload?: Maybe<Scalars["jsonb"]>;
 };
 
 /** select columns of table "financial_summaries" */
@@ -4869,6 +4903,8 @@ export enum FinancialSummariesSelectColumn {
   Date = "date",
   /** column name */
   Id = "id",
+  /** column name */
+  MinimumMonthlyPayload = "minimum_monthly_payload",
   /** column name */
   TotalLimit = "total_limit",
   /** column name */
@@ -4890,6 +4926,7 @@ export type FinancialSummariesSetInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
+  minimum_monthly_payload?: Maybe<Scalars["jsonb"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
@@ -5006,6 +5043,8 @@ export enum FinancialSummariesUpdateColumn {
   Date = "date",
   /** column name */
   Id = "id",
+  /** column name */
+  MinimumMonthlyPayload = "minimum_monthly_payload",
   /** column name */
   TotalLimit = "total_limit",
   /** column name */
@@ -5430,6 +5469,13 @@ export type Invoices = {
   /** An aggregated array relationship */
   loans_aggregate: LoansAggregate;
   /** An object relationship */
+  payment?: Maybe<Payments>;
+  payment_confirmed_at?: Maybe<Scalars["timestamptz"]>;
+  payment_id?: Maybe<Scalars["uuid"]>;
+  payment_rejected_at?: Maybe<Scalars["timestamptz"]>;
+  payment_rejection_note?: Maybe<Scalars["String"]>;
+  payment_requested_at?: Maybe<Scalars["timestamptz"]>;
+  /** An object relationship */
   payor?: Maybe<Payors>;
   payor_id: Scalars["uuid"];
   rejected_at?: Maybe<Scalars["timestamptz"]>;
@@ -5578,6 +5624,12 @@ export type InvoicesBoolExp = {
   invoice_number?: Maybe<StringComparisonExp>;
   is_cannabis?: Maybe<BooleanComparisonExp>;
   loans?: Maybe<LoansBoolExp>;
+  payment?: Maybe<PaymentsBoolExp>;
+  payment_confirmed_at?: Maybe<TimestamptzComparisonExp>;
+  payment_id?: Maybe<UuidComparisonExp>;
+  payment_rejected_at?: Maybe<TimestamptzComparisonExp>;
+  payment_rejection_note?: Maybe<StringComparisonExp>;
+  payment_requested_at?: Maybe<TimestamptzComparisonExp>;
   payor?: Maybe<PayorsBoolExp>;
   payor_id?: Maybe<UuidComparisonExp>;
   rejected_at?: Maybe<TimestamptzComparisonExp>;
@@ -5618,6 +5670,12 @@ export type InvoicesInsertInput = {
   invoice_number?: Maybe<Scalars["String"]>;
   is_cannabis?: Maybe<Scalars["Boolean"]>;
   loans?: Maybe<LoansArrRelInsertInput>;
+  payment?: Maybe<PaymentsObjRelInsertInput>;
+  payment_confirmed_at?: Maybe<Scalars["timestamptz"]>;
+  payment_id?: Maybe<Scalars["uuid"]>;
+  payment_rejected_at?: Maybe<Scalars["timestamptz"]>;
+  payment_rejection_note?: Maybe<Scalars["String"]>;
+  payment_requested_at?: Maybe<Scalars["timestamptz"]>;
   payor?: Maybe<PayorsObjRelInsertInput>;
   payor_id?: Maybe<Scalars["uuid"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
@@ -5641,6 +5699,11 @@ export type InvoicesMaxFields = {
   invoice_date?: Maybe<Scalars["date"]>;
   invoice_due_date?: Maybe<Scalars["date"]>;
   invoice_number?: Maybe<Scalars["String"]>;
+  payment_confirmed_at?: Maybe<Scalars["timestamptz"]>;
+  payment_id?: Maybe<Scalars["uuid"]>;
+  payment_rejected_at?: Maybe<Scalars["timestamptz"]>;
+  payment_rejection_note?: Maybe<Scalars["String"]>;
+  payment_requested_at?: Maybe<Scalars["timestamptz"]>;
   payor_id?: Maybe<Scalars["uuid"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejection_note?: Maybe<Scalars["String"]>;
@@ -5662,6 +5725,11 @@ export type InvoicesMaxOrderBy = {
   invoice_date?: Maybe<OrderBy>;
   invoice_due_date?: Maybe<OrderBy>;
   invoice_number?: Maybe<OrderBy>;
+  payment_confirmed_at?: Maybe<OrderBy>;
+  payment_id?: Maybe<OrderBy>;
+  payment_rejected_at?: Maybe<OrderBy>;
+  payment_rejection_note?: Maybe<OrderBy>;
+  payment_requested_at?: Maybe<OrderBy>;
   payor_id?: Maybe<OrderBy>;
   rejected_at?: Maybe<OrderBy>;
   rejection_note?: Maybe<OrderBy>;
@@ -5683,6 +5751,11 @@ export type InvoicesMinFields = {
   invoice_date?: Maybe<Scalars["date"]>;
   invoice_due_date?: Maybe<Scalars["date"]>;
   invoice_number?: Maybe<Scalars["String"]>;
+  payment_confirmed_at?: Maybe<Scalars["timestamptz"]>;
+  payment_id?: Maybe<Scalars["uuid"]>;
+  payment_rejected_at?: Maybe<Scalars["timestamptz"]>;
+  payment_rejection_note?: Maybe<Scalars["String"]>;
+  payment_requested_at?: Maybe<Scalars["timestamptz"]>;
   payor_id?: Maybe<Scalars["uuid"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejection_note?: Maybe<Scalars["String"]>;
@@ -5704,6 +5777,11 @@ export type InvoicesMinOrderBy = {
   invoice_date?: Maybe<OrderBy>;
   invoice_due_date?: Maybe<OrderBy>;
   invoice_number?: Maybe<OrderBy>;
+  payment_confirmed_at?: Maybe<OrderBy>;
+  payment_id?: Maybe<OrderBy>;
+  payment_rejected_at?: Maybe<OrderBy>;
+  payment_rejection_note?: Maybe<OrderBy>;
+  payment_requested_at?: Maybe<OrderBy>;
   payor_id?: Maybe<OrderBy>;
   rejected_at?: Maybe<OrderBy>;
   rejection_note?: Maybe<OrderBy>;
@@ -5750,6 +5828,12 @@ export type InvoicesOrderBy = {
   invoice_number?: Maybe<OrderBy>;
   is_cannabis?: Maybe<OrderBy>;
   loans_aggregate?: Maybe<LoansAggregateOrderBy>;
+  payment?: Maybe<PaymentsOrderBy>;
+  payment_confirmed_at?: Maybe<OrderBy>;
+  payment_id?: Maybe<OrderBy>;
+  payment_rejected_at?: Maybe<OrderBy>;
+  payment_rejection_note?: Maybe<OrderBy>;
+  payment_requested_at?: Maybe<OrderBy>;
   payor?: Maybe<PayorsOrderBy>;
   payor_id?: Maybe<OrderBy>;
   rejected_at?: Maybe<OrderBy>;
@@ -5790,6 +5874,16 @@ export enum InvoicesSelectColumn {
   /** column name */
   IsCannabis = "is_cannabis",
   /** column name */
+  PaymentConfirmedAt = "payment_confirmed_at",
+  /** column name */
+  PaymentId = "payment_id",
+  /** column name */
+  PaymentRejectedAt = "payment_rejected_at",
+  /** column name */
+  PaymentRejectionNote = "payment_rejection_note",
+  /** column name */
+  PaymentRequestedAt = "payment_requested_at",
+  /** column name */
   PayorId = "payor_id",
   /** column name */
   RejectedAt = "rejected_at",
@@ -5821,6 +5915,11 @@ export type InvoicesSetInput = {
   invoice_due_date?: Maybe<Scalars["date"]>;
   invoice_number?: Maybe<Scalars["String"]>;
   is_cannabis?: Maybe<Scalars["Boolean"]>;
+  payment_confirmed_at?: Maybe<Scalars["timestamptz"]>;
+  payment_id?: Maybe<Scalars["uuid"]>;
+  payment_rejected_at?: Maybe<Scalars["timestamptz"]>;
+  payment_rejection_note?: Maybe<Scalars["String"]>;
+  payment_requested_at?: Maybe<Scalars["timestamptz"]>;
   payor_id?: Maybe<Scalars["uuid"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejection_note?: Maybe<Scalars["String"]>;
@@ -5910,6 +6009,16 @@ export enum InvoicesUpdateColumn {
   InvoiceNumber = "invoice_number",
   /** column name */
   IsCannabis = "is_cannabis",
+  /** column name */
+  PaymentConfirmedAt = "payment_confirmed_at",
+  /** column name */
+  PaymentId = "payment_id",
+  /** column name */
+  PaymentRejectedAt = "payment_rejected_at",
+  /** column name */
+  PaymentRejectionNote = "payment_rejection_note",
+  /** column name */
+  PaymentRequestedAt = "payment_requested_at",
   /** column name */
   PayorId = "payor_id",
   /** column name */
@@ -8507,14 +8616,24 @@ export type MutationRootUpdateFilesByPkArgs = {
 
 /** mutation root */
 export type MutationRootUpdateFinancialSummariesArgs = {
+  _append?: Maybe<FinancialSummariesAppendInput>;
+  _delete_at_path?: Maybe<FinancialSummariesDeleteAtPathInput>;
+  _delete_elem?: Maybe<FinancialSummariesDeleteElemInput>;
+  _delete_key?: Maybe<FinancialSummariesDeleteKeyInput>;
   _inc?: Maybe<FinancialSummariesIncInput>;
+  _prepend?: Maybe<FinancialSummariesPrependInput>;
   _set?: Maybe<FinancialSummariesSetInput>;
   where: FinancialSummariesBoolExp;
 };
 
 /** mutation root */
 export type MutationRootUpdateFinancialSummariesByPkArgs = {
+  _append?: Maybe<FinancialSummariesAppendInput>;
+  _delete_at_path?: Maybe<FinancialSummariesDeleteAtPathInput>;
+  _delete_elem?: Maybe<FinancialSummariesDeleteElemInput>;
+  _delete_key?: Maybe<FinancialSummariesDeleteKeyInput>;
   _inc?: Maybe<FinancialSummariesIncInput>;
+  _prepend?: Maybe<FinancialSummariesPrependInput>;
   _set?: Maybe<FinancialSummariesSetInput>;
   pk_columns: FinancialSummariesPkColumnsInput;
 };
@@ -15244,6 +15363,9 @@ export type GetPaymentForSettlementQuery = {
     Pick<Payments, "id"> & {
       company: Pick<Companies, "id" | "name"> & {
         contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
+        financial_summaries: Array<
+          Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
+        >;
       };
       submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
     } & PaymentFragment
@@ -15689,6 +15811,7 @@ export type FinancialSummaryFragment = Pick<
   | "total_outstanding_fees"
   | "total_principal_in_requested_state"
   | "total_outstanding_principal_for_interest"
+  | "minimum_monthly_payload"
 >;
 
 export type InvoiceFileFragment = Pick<
@@ -16364,6 +16487,7 @@ export const FinancialSummaryFragmentDoc = gql`
     total_outstanding_fees
     total_principal_in_requested_state
     total_outstanding_principal_for_interest
+    minimum_monthly_payload
   }
 `;
 export const InvoiceFileFragmentDoc = gql`
@@ -20307,6 +20431,10 @@ export const GetPaymentForSettlementDocument = gql`
           id
           ...Contract
         }
+        financial_summaries(order_by: { date: desc }, limit: 1) {
+          id
+          ...FinancialSummary
+        }
       }
       submitted_by_user {
         id
@@ -20316,6 +20444,7 @@ export const GetPaymentForSettlementDocument = gql`
   }
   ${PaymentFragmentDoc}
   ${ContractFragmentDoc}
+  ${FinancialSummaryFragmentDoc}
 `;
 
 /**
