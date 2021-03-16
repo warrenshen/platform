@@ -6,6 +6,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import PaymentsDataGrid from "components/Repayment/PaymentsDataGrid";
+import ScheduleRepaymentModal from "components/Repayment/ScheduleRepaymentModal";
 import SettleRepaymentModal from "components/Repayment/SettleRepaymentModal";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
@@ -130,9 +131,9 @@ function BankPaymentsActionRequiredPage() {
               <Box>
                 <ModalButton
                   isDisabled={seletedSchedulePaymentIds.length !== 1}
-                  label={"Settle Payment"}
+                  label={"Schedule Payment"}
                   modal={({ handleClose }) => (
-                    <SettleRepaymentModal
+                    <ScheduleRepaymentModal
                       paymentId={scheduledPaymentId}
                       handleClose={() => {
                         setSelectedScheduledPayments([]);
@@ -146,6 +147,7 @@ function BankPaymentsActionRequiredPage() {
           </Box>
           <PaymentsDataGrid
             isCompanyVisible
+            isMethodVisible={false}
             enableSelect
             payments={scheduledPayments}
             customerSearchQuery={""}
@@ -180,6 +182,7 @@ function BankPaymentsActionRequiredPage() {
           </Box>
           <PaymentsDataGrid
             isCompanyVisible
+            isMethodVisible={false}
             enableSelect
             payments={pendingReverseDraftPayments}
             customerSearchQuery={""}

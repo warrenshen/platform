@@ -16,6 +16,7 @@ import { useMemo, useState } from "react";
 
 interface Props {
   isCompanyVisible?: boolean;
+  isMethodVisible?: boolean;
   payments: PaymentLimitedFragment[];
   customerSearchQuery?: string;
   onClickCustomerName?: (value: string) => void;
@@ -27,6 +28,7 @@ interface Props {
 
 function RepaymentsDataGrid({
   isCompanyVisible = false,
+  isMethodVisible = true,
   enableSelect = false,
   payments,
   customerSearchQuery = "",
@@ -89,14 +91,7 @@ function RepaymentsDataGrid({
         ),
       },
       {
-        caption: "Amount",
-        width: ColumnWidths.Currency,
-        alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.amount} />
-        ),
-      },
-      {
+        visible: isMethodVisible,
         dataField: "method",
         caption: "Method",
         width: 150,
@@ -104,6 +99,24 @@ function RepaymentsDataGrid({
           <Box>
             {PaymentMethodToLabel[params.row.data.method as PaymentMethodEnum]}
           </Box>
+        ),
+      },
+      {
+        dataField: "requested_amount",
+        caption: "Requested Amount",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.requested_amount} />
+        ),
+      },
+      {
+        dataField: "amount",
+        caption: "Amount",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.amount} />
         ),
       },
       {
@@ -151,7 +164,13 @@ function RepaymentsDataGrid({
         width: 140,
       },
     ],
-    [dataGrid?.instance, isCompanyVisible, actionItems, onClickCustomerName]
+    [
+      dataGrid?.instance,
+      isCompanyVisible,
+      isMethodVisible,
+      actionItems,
+      onClickCustomerName,
+    ]
   );
 
   const handleSelectionChanged = useMemo(

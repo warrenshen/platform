@@ -109,7 +109,8 @@ function CreateRepaymentConfirmEffect({
                   handleChange={(value: number) => {
                     setPayment({
                       ...payment,
-                      amount: value + payment.items_covered.to_interest,
+                      requested_amount:
+                        value + payment.items_covered.to_interest,
                       items_covered: {
                         ...payment.items_covered,
                         to_principal: value,
@@ -132,7 +133,8 @@ function CreateRepaymentConfirmEffect({
                   handleChange={(value: number) => {
                     setPayment({
                       ...payment,
-                      amount: value + payment.items_covered.to_principal,
+                      requested_amount:
+                        value + payment.items_covered.to_principal,
                       items_covered: {
                         ...payment.items_covered,
                         to_interest: value,

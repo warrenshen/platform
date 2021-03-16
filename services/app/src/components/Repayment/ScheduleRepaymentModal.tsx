@@ -10,12 +10,11 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import SettleRepaymentConfirmEffect from "components/Repayment/SettleRepaymentConfirmEffect";
-import SettleRepaymentSelectLoans from "components/Repayment/SettleRepaymentSelectLoans";
+import CreateRepaymentConfirmEffect from "components/Repayment/CreateRepaymentConfirmEffect";
+import ScheduleRepaymentSelectLoans from "components/Repayment/ScheduleRepaymentSelectLoans";
 import {
   Companies,
   GetLoansByLoanIdsQuery,
-  Loans,
   Payments,
   PaymentsInsertInput,
   ProductTypeEnum,
@@ -31,18 +30,17 @@ import {
 import {
   calculateEffectOfPayment,
   CalculateEffectOfPaymentResp,
+  createRepayment,
   LoanBalance,
   LoanTransaction,
-  settlePayment,
-  settlePaymentLineOfCredit,
 } from "lib/finance/payments/repayment";
 import { LoanBeforeAfterPayment } from "lib/types";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     dialog: {
-      width: 500,
+      width: 600,
     },
     dialogTitle: {
       borderBottom: "1px solid #c7c7c7",
@@ -61,7 +59,7 @@ interface Props {
   handleClose: () => void;
 }
 
-function SettleRepaymentModal({ paymentId, handleClose }: Props) {
+function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
 
@@ -77,7 +75,6 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
   const [selectedLoans, setSelectedLoans] = useState<
     GetLoansByLoanIdsQuery["loans"]
   >([]);
-  const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"][]>([]);
 
   const contract = customer?.contract || null;
   const productType = customer?.contract?.product_type || null;
@@ -97,15 +94,14 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
     onCompleted: (data) => {
       const existingPayment = data?.payments_by_pk;
       if (existingPayment) {
-        setSelectedLoanIds(existingPayment.items_covered?.loan_ids || []);
         setCustomer(existingPayment.company as Companies);
-
         setPayment({
           id: existingPayment.id,
           company_id: existingPayment.company_id,
           type: existingPayment.type,
           method: existingPayment.method,
-          amount: existingPayment.amount,
+          requested_amount: existingPayment.requested_amount,
+          amount: existingPayment.requested_amount,
           requested_payment_date: existingPayment.requested_payment_date,
           payment_date: existingPayment.requested_payment_date,
           items_covered: existingPayment.items_covered,
@@ -122,12 +118,13 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
         contract
       );
       const settlementDate = computeSettlementDateForPayment(
-        payment.method,
+        payment.method || null,
         payment.payment_date,
         settlementTimelineConfig
       );
       setPayment((payment) => ({
         ...payment,
+        deposit_date: settlementDate,
         settlement_date: settlementDate,
       }));
     }
@@ -136,7 +133,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
   const { data: selectedLoansData } = useGetLoansByLoanIdsQuery({
     skip: !!payment?.items_covered?.loan_ids,
     variables: {
-      loanIds: selectedLoanIds,
+      loanIds: payment?.items_covered?.loan_ids || [],
     },
   });
 
@@ -159,9 +156,9 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
         amount: payment.amount,
         payment_date: payment.payment_date,
         settlement_date: payment.settlement_date,
-      } as PaymentsInsertInput,
+      },
       payment_option: PaymentOptionEnum.CustomAmount,
-      loan_ids: selectedLoanIds,
+      loan_ids: selectedLoans.map((selectedLoan) => selectedLoan.id),
     });
 
     console.log({ type: "calculateEffectOfPayment", response });
@@ -172,11 +169,21 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
       setErrMsg("");
 
       if (!response.loans_to_show) {
-        alert("Developer error: response does not include loans_afterwards.");
+        alert("Developer error: response does not include loans_to_show.");
         return;
       }
 
       setCalculateEffectResponse(response);
+      setPayment({
+        ...payment,
+        requested_amount: response.amount_to_pay || null,
+        items_covered: {
+          ...payment.items_covered,
+          loan_ids: response.loans_to_show.map(
+            (loanToShow) => loanToShow.loan_id
+          ),
+        },
+      });
       setLoansBeforeAfterPayment(
         response.loans_to_show.map((loanToShow) => {
           const beforeLoan = loanToShow.before_loan_balance;
@@ -194,8 +201,8 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
                 afterLoan.outstanding_principal_balance,
               outstanding_interest: afterLoan.outstanding_interest,
               outstanding_fees: afterLoan.outstanding_fees,
+              transaction: loanToShow.transaction as LoanTransaction,
             } as LoanBalance,
-            transaction: loanToShow.transaction as LoanTransaction,
           } as LoanBeforeAfterPayment;
         })
       );
@@ -210,90 +217,47 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
       return;
     }
 
-    const response =
-      productType === ProductTypeEnum.LineOfCredit
-        ? await settlePaymentLineOfCredit({
-            company_id: customer.id,
-            payment_id: payment.id,
-            amount: payment.amount,
-            payment_date: payment.payment_date,
-            settlement_date: payment.settlement_date,
-            items_covered: payment.items_covered,
-          })
-        : await settlePayment({
-            company_id: customer.id,
-            payment_id: payment.id,
-            amount: payment.amount,
-            payment_date: payment.payment_date,
-            settlement_date: payment.settlement_date,
-            loan_ids: selectedLoanIds,
-            transaction_inputs: loansBeforeAfterPayment.map(
-              (beforeAfterPaymentLoan) => beforeAfterPaymentLoan.transaction
-            ),
-          });
+    if (payment.requested_amount <= 0) {
+      setErrMsg("Payment amount must be larger than 0");
+      return;
+    }
+
+    const response = await createRepayment({
+      company_id: customer.id,
+      payment: { ...payment },
+      is_line_of_credit: productType === ProductTypeEnum.LineOfCredit,
+    });
 
     if (response.status !== "OK") {
-      setErrMsg(response.msg || "Error!");
+      setErrMsg(response.msg);
     } else {
       setErrMsg("");
-      snackbar.showSuccess("Success! Payment settled.");
+      snackbar.showSuccess("Success! Payment submitted for review by Bespoke.");
       handleClose();
     }
   };
 
-  const setLoanBeforeAfterPayment = useMemo(
-    () => (loanId: Loans["id"], field: string, value: number) => {
-      const newLoansBeforeAfterPayment = [...loansBeforeAfterPayment];
-      const loanBeforeAfterPayment = newLoansBeforeAfterPayment.find(
-        (loanBeforeAfterPayment) => loanBeforeAfterPayment.loan_id === loanId
-      );
-      if (!loanBeforeAfterPayment) {
-        console.log("Developer error! Could not find loanBeforeAfterPayment.");
-      } else {
-        if (!["to_principal", "to_interest", "to_fees"].includes(field)) {
-          console.log("Developer error! Invalid field given.");
-        } else {
-          const {
-            loan_balance_before: loanBalanceBefore,
-            loan_balance_after: loanBalanceAfter,
-            transaction,
-          } = loanBeforeAfterPayment;
-          transaction[
-            field as "to_principal" | "to_interest" | "to_fees"
-          ] = value;
-          transaction.amount =
-            transaction.to_principal +
-            transaction.to_interest +
-            transaction.to_fees;
-          loanBalanceAfter.outstanding_principal_balance =
-            loanBalanceBefore.outstanding_principal_balance -
-            transaction.to_principal;
-          loanBalanceAfter.outstanding_interest =
-            loanBalanceBefore.outstanding_interest - transaction.to_interest;
-          loanBalanceAfter.outstanding_fees =
-            loanBalanceBefore.outstanding_fees - transaction.to_fees;
-          setLoansBeforeAfterPayment(newLoansBeforeAfterPayment);
-        }
-      }
-    },
-    [loansBeforeAfterPayment, setLoansBeforeAfterPayment]
-  );
+  if (!payment || !customer) {
+    return null;
+  }
 
-  return payment && customer ? (
+  const isNextButtonDisabled =
+    !payment.method || !payment.payment_date || !payment.deposit_date;
+  const isActionButtonDisabled = !payment.method || payment.amount <= 0;
+
+  return (
     <Dialog open fullWidth maxWidth="md" onClose={handleClose}>
-      <DialogTitle className={classes.dialogTitle}>Settle Payment</DialogTitle>
-      <DialogContent>
+      <DialogTitle className={classes.dialogTitle}>Make Payment</DialogTitle>
+      <DialogContent style={{ minHeight: 400 }}>
         {isOnSelectLoans ? (
-          <SettleRepaymentSelectLoans
+          <ScheduleRepaymentSelectLoans
             payment={payment}
             customer={customer}
-            selectedLoanIds={selectedLoanIds}
             selectedLoans={selectedLoans}
             setPayment={setPayment}
-            setSelectedLoanIds={setSelectedLoanIds}
           />
         ) : (
-          <SettleRepaymentConfirmEffect
+          <CreateRepaymentConfirmEffect
             productType={productType}
             payableAmountPrincipal={
               calculateEffectResponse?.payable_amount_principal || 0
@@ -302,22 +266,20 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
               calculateEffectResponse?.payable_amount_interest || 0
             }
             payment={payment}
-            customer={customer}
             loansBeforeAfterPayment={loansBeforeAfterPayment}
-            setLoanBeforeAfterPayment={setLoanBeforeAfterPayment}
             setPayment={setPayment}
           />
         )}
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
         <Box display="flex" flexDirection="column" width="100%">
-          <Box display="flex" justifyContent="flex-end" width="100%">
-            {errMsg && (
+          {errMsg && (
+            <Box display="flex" justifyContent="flex-end" width="100%">
               <Typography variant="body1" color="secondary">
                 {errMsg}
               </Typography>
-            )}
-          </Box>
+            </Box>
+          )}
           <Box display="flex" justifyContent="space-between">
             <Box>
               {!isOnSelectLoans && (
@@ -326,7 +288,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
                   color="default"
                   onClick={() => setIsOnSelectLoans(true)}
                 >
-                  Go Back
+                  Back to Step 1
                 </Button>
               )}
             </Box>
@@ -334,6 +296,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
               <Button onClick={handleClose}>Cancel</Button>
               {isOnSelectLoans ? (
                 <Button
+                  disabled={isNextButtonDisabled}
                   variant="contained"
                   color="primary"
                   onClick={handleClickNext}
@@ -342,11 +305,12 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
                 </Button>
               ) : (
                 <Button
+                  disabled={isActionButtonDisabled}
                   variant="contained"
                   color="primary"
                   onClick={handleClickConfirm}
                 >
-                  Confirm
+                  Schedule
                 </Button>
               )}
             </Box>
@@ -354,7 +318,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
         </Box>
       </DialogActions>
     </Dialog>
-  ) : null;
+  );
 }
 
-export default SettleRepaymentModal;
+export default ScheduleRepaymentModal;

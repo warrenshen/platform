@@ -39,7 +39,8 @@ function CurrencyInput({
       maximumValue={maximumValue?.toString()}
       textAlign={textAlign}
       label={label}
-      error={error || ""}
+      error={!!error}
+      helperText={error || ""}
       value={value}
       onChange={(_event: any, value: number) =>
         handleChange && handleChange(value)

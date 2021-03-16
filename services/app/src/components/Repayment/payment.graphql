@@ -24,6 +24,10 @@ query GetPaymentForSettlement($id: uuid!) {
         id
         ...Contract
       }
+      financial_summaries(order_by: { date: desc }, limit: 1) {
+        id
+        ...FinancialSummary
+      }
     }
     submitted_by_user {
       id
