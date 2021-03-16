@@ -69,7 +69,7 @@ def get_transactions_for_loan(loan_id: str, augmented_transactions: List[models.
 	return loan_txs
 
 AccumulatedAmountDict = TypedDict('AccumulatedAmountDict', {
-	'total_amount': float
+	'interest_amount': float
 })
 
 class FeeAccumulator(object):
@@ -84,18 +84,18 @@ class FeeAccumulator(object):
 		cur_date = start_date
 
 		while cur_date <= end_date:
-			self.accumulate(0.0, 0.0, cur_date)
+			self.accumulate(0.0, cur_date)
 			cur_date = start_date + timedelta(days=30)
 
 	def get_month_to_amounts(self) -> Dict[finance_types.Month, AccumulatedAmountDict]:
 		return self._month_to_amounts
 
-	def accumulate(self, fee_for_day: float, interest_for_day: float, day: datetime.date) -> None:
+	def accumulate(self, interest_for_day: float, day: datetime.date) -> None:
 		month = finance_types.Month(month=day.month, year=day.year)
 		if month not in self._month_to_amounts:
-			self._month_to_amounts[month] = AccumulatedAmountDict(total_amount=0)
+			self._month_to_amounts[month] = AccumulatedAmountDict(interest_amount=0)
 
-		self._month_to_amounts[month]['total_amount'] += fee_for_day + interest_for_day
+		self._month_to_amounts[month]['interest_amount'] += interest_for_day
 
 
 class LoanCalculator(object):
@@ -249,7 +249,7 @@ class LoanCalculator(object):
 			outstanding_fees += fee_due_for_day
 
 			self._fee_accumulator.accumulate(
-				fee_for_day=fee_due_for_day, interest_for_day=interest_due_for_day, day=cur_date)
+				interest_for_day=interest_due_for_day, day=cur_date)
 
 			# Apply repayment transactions at the "end of the day"
 			self._note_today(

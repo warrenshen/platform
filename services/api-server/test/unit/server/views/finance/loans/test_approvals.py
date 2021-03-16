@@ -93,6 +93,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 				total_outstanding_fees=decimal.Decimal(0.0), # unused
 				total_principal_in_requested_state=decimal.Decimal(0.0), # unused
 				available_limit=decimal.Decimal(200.0),
+				minimum_monthly_payload={}
 			),
 			'loans': [],
 			'loan_index': None,
@@ -113,6 +114,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 				total_outstanding_fees=decimal.Decimal(0.0), # unused
 				total_principal_in_requested_state=decimal.Decimal(0.0), # unused
 				available_limit=decimal.Decimal(200.0),
+				minimum_monthly_payload={}
 			),
 			'loans': [
 				models.Loan(
@@ -168,6 +170,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 				total_outstanding_fees=decimal.Decimal(0.0), # unused
 				total_principal_in_requested_state=decimal.Decimal(0.0), # unused
 				available_limit=decimal.Decimal(200.0),
+				minimum_monthly_payload={}
 			),
 			'loans': [
 				models.Loan(
@@ -196,6 +199,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 				total_outstanding_fees=decimal.Decimal(0.0), # unused
 				total_principal_in_requested_state=decimal.Decimal(0.0), # unused
 				available_limit=decimal.Decimal(200.0),
+				minimum_monthly_payload={}
 			),
 			'loans': [
 				models.Loan(
@@ -238,6 +242,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 				total_outstanding_fees=decimal.Decimal(0.0), # unused
 				total_principal_in_requested_state=decimal.Decimal(0.0), # unused
 				available_limit=decimal.Decimal(200.0),
+				minimum_monthly_payload={}
 			),
 			'loans': [
 				models.Loan(

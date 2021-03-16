@@ -76,10 +76,6 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			test_helper.assertDeepAlmostEqual(self, test['expected_summary_update'],
 				cast(Dict, customer_update['summary_update']))
 
-		if test.get('expected_fees_update') is not None:
-			test_helper.assertDeepAlmostEqual(self, test['expected_fees_update'], 
-				cast(Dict, customer_update['fees_update']))
-
 		success, err = customer_balance.write(customer_update)
 		self.assertTrue(success)
 		self.assertIsNone(err)
@@ -94,6 +90,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				self.assertIsNotNone(financial_summary)
 				expected = test['expected_summary_update']
 				actual = financial_summary
+
 				self.assertAlmostEqual(expected['total_limit'], float(actual.total_limit))
 				self.assertAlmostEqual(expected['total_outstanding_principal'], float(actual.total_outstanding_principal))
 				self.assertAlmostEqual(expected['total_outstanding_principal_for_interest'], float(actual.total_outstanding_principal_for_interest))
@@ -101,6 +98,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				self.assertAlmostEqual(expected['total_outstanding_fees'], float(actual.total_outstanding_fees))
 				self.assertAlmostEqual(expected['total_principal_in_requested_state'], float(actual.total_principal_in_requested_state))
 				self.assertAlmostEqual(expected['available_limit'], float(actual.available_limit))
+
+				test_helper.assertDeepAlmostEqual(
+					self, expected['minimum_monthly_payload'], cast(Dict, actual.minimum_monthly_payload))
 
 
 	def test_success_no_payments_no_loans(self) -> None:
@@ -139,14 +139,10 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_outstanding_fees': 0.0,
 					'total_principal_in_requested_state': 0.0,
 					'available_limit': 120000.01,
-				},
-				'expected_fees_update': {
-					'month_to_fees': {
-						(10, 2020): {
-							'minimum_due': 2001.03,
-							'amount_accrued': 0.0,
-							'minimum_fee': 2001.03
-						}
+					'minimum_monthly_payload': {
+						'minimum_amount': 2001.03,
+						'amount_accrued': 0.0,
+						'amount_short': 2001.03					
 					}
 				}
 			}
@@ -223,15 +219,11 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_outstanding_interest': (3 * 0.05 * 500.03) + (2 * 0.05 * 100.03),
 					'total_outstanding_fees': 0.0,
 					'total_principal_in_requested_state': 0.0,
-					'available_limit': 120000.01 - (500.03 + 100.03)
-				},
-				'expected_fees_update': {
-					'month_to_fees': {
-						(10, 2020): {
-							'minimum_due': 200.03,
+					'available_limit': 120000.01 - (500.03 + 100.03),
+					'minimum_monthly_payload': {
+							'minimum_amount': 200.03,
 							'amount_accrued': (3 * 0.05 * 500.03) + (2 * 0.05 * 100.03),
-							'minimum_fee': 200.03 - ((3 * 0.05 * 500.03) + (2 * 0.05 * 100.03))
-						}
+							'amount_short': 200.03 - ((3 * 0.05 * 500.03) + (2 * 0.05 * 100.03))
 					}
 				}
 			}
@@ -250,6 +242,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					input_dict=ContractInputDict(
 						interest_rate=0.002,
 						maximum_principal_amount=120000.01,
+						minimum_monthly_amount=1.03,
 						max_days_until_repayment=0, # unused
 						late_fee_structure=_get_late_fee_structure(),
 					)
@@ -337,6 +330,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					input_dict=ContractInputDict(
 						interest_rate=0.05,
 						maximum_principal_amount=1200000,
+						minimum_monthly_amount=1.03,
 						max_days_until_repayment=0, # unused
 						late_fee_structure=_get_late_fee_structure(), # unused
 						borrowing_base_accounts_receivable_percentage=0.5,
@@ -387,7 +381,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				'total_outstanding_interest': 0.0,
 				'total_outstanding_fees': 0.0,
 				'total_principal_in_requested_state': 0.0,
-				'available_limit': 825000
+				'available_limit': 825000,
+				'minimum_monthly_payload': {
+						'minimum_amount': 1.03,
+						'amount_accrued':0.0,
+						'amount_short': 1.03
+				}
 			}
 		})
 

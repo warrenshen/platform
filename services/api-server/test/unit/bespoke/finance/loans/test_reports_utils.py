@@ -103,6 +103,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			total_outstanding_fees=decimal.Decimal(5.25),
 			total_principal_in_requested_state=decimal.Decimal(0.0),
 			available_limit=decimal.Decimal(25.00),
+			minimum_monthly_payload={}
 		))
 
 
@@ -127,7 +128,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_interest=decimal.Decimal(0),
 				total_outstanding_fees=decimal.Decimal(0),
 				total_principal_in_requested_state=decimal.Decimal(0),
-				available_limit=decimal.Decimal(0),
+				available_limit=decimal.Decimal(0)
 			),
 			models.BankFinancialSummary(
 				date=datetime.date.today(),

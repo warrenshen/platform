@@ -36,8 +36,8 @@ from mypy_extensions import TypedDict
 
 FeeDict = TypedDict('FeeDict', {
 	'amount_accrued': float, # how much has accrued in fees for the time period
-	'minimum_due': float, # the minimum you must pay in a time period
-	'minimum_fee': float # how much you owe for a time period because of the minimum_due
+	'minimum_amount': float, # the minimum you must pay in a time period
+	'amount_short': float # how much you owe for a time period because of the minimum_due
 })
 
 FeesUpdateDict = TypedDict('FeesUpdateDict', {
@@ -54,6 +54,7 @@ SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 	'total_outstanding_fees': float,
 	'total_principal_in_requested_state': float,
 	'available_limit': float,
+	'minimum_monthly_payload': FeeDict
 })
 
 EbbaApplicationUpdateDict = TypedDict('EbbaApplicationUpdateDict', {
@@ -63,7 +64,6 @@ EbbaApplicationUpdateDict = TypedDict('EbbaApplicationUpdateDict', {
 
 CustomerUpdateDict = TypedDict('CustomerUpdateDict', {
 	'today': datetime.date,
-	'fees_update': FeesUpdateDict,
 	'loan_updates': List[LoanUpdateDict],
 	'active_ebba_application_update': EbbaApplicationUpdateDict,
 	'summary_update': SummaryUpdateDict
@@ -112,11 +112,42 @@ def _get_active_ebba_application_update(
 		calculated_borrowing_base=calculated_borrowing_base,
 	), None
 
+def _get_cur_month_minimum_fees(contract_helper: contract_util.ContractHelper, today: datetime.date, fee_accumulator: loan_calculator.FeeAccumulator) -> Tuple[FeeDict, errors.Error]:
+	cur_contract, err = contract_helper.get_contract(today)
+	if err:
+		return None, err
+	minimum_monthly_due, err = cur_contract.get_minimum_monthly_amount()
+	if err:
+		return None, err
+
+	month_to_fee_amounts = fee_accumulator.get_month_to_amounts()
+	month_to_fees = dict()
+	month = finance_types.Month(month=today.month, year=today.year)
+	if month not in month_to_fee_amounts:
+		return None, errors.Error('{} is missing the minimum fees amount'.format(month))
+
+	amount_dict = month_to_fee_amounts[month]
+	amount_accrued = amount_dict['interest_amount']
+	amount_short = max(0, minimum_monthly_due - amount_accrued)
+
+	month_to_fees[month] = FeeDict(
+		minimum_amount=minimum_monthly_due,
+		amount_accrued=amount_accrued,
+		amount_short=amount_short,
+	)
+
+	if len(month_to_fees.keys()) != 1:
+		return None, errors.Error('Only the current month may be used for minimum fee calculations')
+
+	cur_month_key = list(month_to_fees.keys())[0]
+	cur_month_fees = month_to_fees[cur_month_key]
+	return cur_month_fees, None
 
 def _get_summary_update(
 	contract_helper: contract_util.ContractHelper,
 	loan_updates: List[LoanUpdateDict],
 	active_ebba_application_update: EbbaApplicationUpdateDict,
+	fee_accumulator: loan_calculator.FeeAccumulator,
 	today: datetime.date
 	) -> Tuple[SummaryUpdateDict, errors.Error]:
 	cur_contract, err = contract_helper.get_contract(today)
@@ -152,6 +183,10 @@ def _get_summary_update(
 		total_outstanding_interest += l['outstanding_interest']
 		total_outstanding_fees += l['outstanding_fees']
 
+	minimum_monthly_payload, err = _get_cur_month_minimum_fees(contract_helper, today, fee_accumulator)
+	if err:
+		return None, err
+
 	return SummaryUpdateDict(
 		product_type=product_type,
 		total_limit=maximum_principal_limit,
@@ -162,6 +197,7 @@ def _get_summary_update(
 		total_outstanding_fees=total_outstanding_fees,
 		total_principal_in_requested_state=0.0,
 		available_limit=max(0.0, adjusted_total_limit - total_outstanding_principal),
+		minimum_monthly_payload=minimum_monthly_payload
 	), None
 
 class CustomerBalance(object):
@@ -253,36 +289,16 @@ class CustomerBalance(object):
 		summary_update, err = _get_summary_update(contract_helper,
 			loan_update_dicts,
 			ebba_application_update,
+			fee_accumulator,
 			today)
 		if err:
 			return None, err
 
 		summary_update['total_principal_in_requested_state'] = total_principal_in_requested_state
 
-		month_to_fee_amounts = fee_accumulator.get_month_to_amounts()
-		month_to_fees = dict()
-		for month, amount_dict in month_to_fee_amounts.items():
-			amount_accrued = amount_dict['total_amount']
-			cur_date = datetime.date(year=month.year, month=month.month, day=1)
-			cur_contract, err = contract_helper.get_contract(cur_date)
-			if err:
-				return None, err
-			minimum_monthly_due, err = cur_contract.get_minimum_monthly_amount()
-			if err:
-				return None, err
-			amount_short = max(0, minimum_monthly_due - amount_accrued)
-
-			month_to_fees[month] = FeeDict(
-				minimum_due=minimum_monthly_due,
-				amount_accrued=amount_accrued,
-				minimum_fee=amount_short,
-			)
-
-
 		return CustomerUpdateDict(
 			today=today,
 			loan_updates=loan_update_dicts,
-			fees_update=FeesUpdateDict(month_to_fees=month_to_fees),
 			active_ebba_application_update=ebba_application_update,
 			summary_update=summary_update,
 		), None
@@ -328,6 +344,8 @@ class CustomerBalance(object):
 					company_id=self._company_id
 				)
 
+
+
 			summary_update = customer_update['summary_update']
 
 			financial_summary.date = customer_update['today']
@@ -339,6 +357,7 @@ class CustomerBalance(object):
 			financial_summary.total_outstanding_fees = decimal.Decimal(summary_update['total_outstanding_fees'])
 			financial_summary.total_principal_in_requested_state = decimal.Decimal(summary_update['total_principal_in_requested_state'])
 			financial_summary.available_limit = decimal.Decimal(summary_update['available_limit'])
+			financial_summary.minimum_monthly_payload = cast(Dict, summary_update['minimum_monthly_payload'])
 
 			if should_add_summary:
 				session.add(financial_summary)

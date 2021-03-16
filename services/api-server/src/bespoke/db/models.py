@@ -452,6 +452,7 @@ class FinancialSummary(Base):
 	total_principal_in_requested_state = Column(Numeric, nullable=False)
 	available_limit = Column(Numeric, nullable=False)
 	adjusted_total_limit = Column(Numeric, nullable=False)
+	minimum_monthly_payload = Column(JSON, nullable=False)
 
 ### End of financial tables
 
