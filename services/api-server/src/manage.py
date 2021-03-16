@@ -17,8 +17,8 @@ from bespoke.email import email_manager, sendgrid_util
 from bespoke.email.email_manager import EmailConfigDict, SendGridConfigDict
 from server.config import get_config, is_development_env
 from server.views import (
-	auth, companies, contracts, files, notify, purchase_orders,
-	two_factor, users, healthcheck)
+	auth, companies, contracts, files, healthcheck, notify, purchase_orders,
+	two_factor, users)
 from server.views.finance.invoices import routes as invoices_routes
 from server.views.finance.ebba_applications import \
     approvals as ebba_application_approvals

@@ -110,8 +110,5 @@ class TestUpdateContractView(db_unittest.TestCase):
 			self.assertEqual(response_data["status"], "OK", msg=response_data.get('msg'))
 
 		with session_scope(self.session_maker) as session:
-			company = session.query(models.Company).get(company_id)
-			self.assertEqual(company.needs_balance_recomputed, True)
-
 			contract = session.query(models.Contract).get(contract_id)
 			self.assertEqual(contract.product_type, ProductType.LINE_OF_CREDIT)

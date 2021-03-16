@@ -4,7 +4,7 @@ import logging
 import typing
 
 from bespoke.db.models import session_scope
-from bespoke.db import models
+from bespoke.db import models, models_util
 from bespoke.finance.loans import reports_util
 from server.views.common import auth_util, handler_util
 from flask import Blueprint, Response, current_app, make_response, request
@@ -84,6 +84,35 @@ class ExpireActiveEbbaApplications(MethodView):
 		}))
 
 
+class SetDirtyCompanyBalancesView(MethodView):
+
+	decorators = [auth_util.requires_async_magic_header]
+
+	@handler_util.catch_bad_json_request
+	def post(self) -> Response:
+		data = json.loads(request.data)
+
+		company_id = data.get('event', {}) \
+			.get('data', {}) \
+			.get('new', {}) \
+			.get('company_id')
+
+		if not company_id:
+			return handler_util.make_error_response(
+				"Failed to find company_id in request", status_code=500)
+
+		with models.session_scope(current_app.session_maker) as session:
+			_, err = models_util.set_needs_balance_recomputed(company_id, session)
+			if err:
+				return handler_util.make_error_response(
+					"Failed setting company dirty", status_code=500)
+
+		return make_response(json.dumps({
+			"status": "OK"
+		}))
+
+
+
 handler.add_url_rule(
 	'/update-dirty-customer-balances',
 	view_func=UpdateDirtyCompanyBalancesView.as_view(name='update_dirty_customer_balances_view'))
@@ -97,3 +126,7 @@ handler.add_url_rule(
 handler.add_url_rule(
 	"/expire-active-ebba-applications",
 	view_func=ExpireActiveEbbaApplications.as_view(name='expire_active_ebba_applications'))
+
+handler.add_url_rule(
+	'/set_dirty_company_balances_view',
+	view_func=SetDirtyCompanyBalancesView.as_view(name='set_dirty_company_balances_view'))

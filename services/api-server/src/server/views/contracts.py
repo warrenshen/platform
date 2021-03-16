@@ -44,10 +44,6 @@ class UpdateContractView(MethodView):
 				return handler_util.make_error_response(
 					f"Failed to find contract specified in the request (id: {form['contract_id']})")
 
-			success, err = models_util.set_needs_balance_recomputed(contract.company_id, session)
-			if err:
-				return handler_util.make_error_response(err)
-
 		return make_response(json.dumps({
 			'status': 'OK'
 		}), 200)
