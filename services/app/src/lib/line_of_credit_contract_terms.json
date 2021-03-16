@@ -109,7 +109,29 @@
         "fields": [
           {
             "display_name": "Payment Method",
-            "nullable": false
+            "nullable": false,
+            "options": [
+              {
+                "value": "ach",
+                "display_name": "ACH"
+              },
+              {
+                "value": "reverse_draft_ach",
+                "display_name": "Reverse Draft ACH"
+              },
+              {
+                "value": "wire",
+                "display_name": "Wire"
+              },
+              {
+                "value": "check",
+                "display_name": "Check"
+              },
+              {
+                "value": "cash",
+                "display_name": "Cash"
+              }
+            ]
           },
           {
             "display_name": "Clearance Days",

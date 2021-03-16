@@ -1,7 +1,11 @@
 import {
   Box,
   Button,
+  FormControl,
+  InputLabel,
   makeStyles,
+  MenuItem,
+  Select,
   TextField,
   Typography,
 } from "@material-ui/core";
@@ -110,6 +114,34 @@ function JsonFormInput({
         <Box key={i} className={classes.row} mb={1}>
           {Object.keys(row).map((key) => {
             const field = fields.find((f: any) => f.display_name === key);
+
+            if (field.options) {
+              const idString = `select-${field.display_name
+                .toLowerCase()
+                .replace(/s/g, "-")}`;
+
+              return (
+                <FormControl key={`${idString}-form-control`}>
+                  <InputLabel id={`${idString}-input-label`}>{key}</InputLabel>
+                  <Select
+                    id={idString}
+                    labelId={`${idString}-label`}
+                    value={row[key]}
+                    style={{ width: 200, marginRight: 6 }}
+                    onChange={({ target: { value } }) => {
+                      handleChangeInput(value as string, key, i);
+                    }}
+                  >
+                    {field.options.map((option: any) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.display_name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              );
+            }
+
             return (
               <Box key={key + i} mr={1}>
                 <TextField
