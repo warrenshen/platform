@@ -5,14 +5,14 @@
 """
 import datetime
 from datetime import timedelta
-from typing import Dict, List, Tuple, NamedTuple
+from typing import Dict, List, NamedTuple, Tuple
 
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.finance import contract_util, number_util
-from bespoke.finance.types import finance_types
 from bespoke.finance.payments import payment_util
+from bespoke.finance.types import finance_types
 from mypy_extensions import TypedDict
 
 LoanUpdateDict = TypedDict('LoanUpdateDict', {
@@ -43,19 +43,20 @@ class BalanceRange(object):
 		self.interest_rates.append(interest_rate)
 		self.fee_multipliers.append(fee_multiplier)
 
-def _get_transactions_on_payment_date(
+def _get_transactions_on_deposit_date(
 	cur_date: datetime.date, augmented_transactions: List[models.AugmentedTransactionDict]) -> List[models.AugmentedTransactionDict]:
 	txs_on_date = []
 	for tx in augmented_transactions:
-		if tx['payment']['payment_date'] == cur_date:
+		if tx['payment']['deposit_date'] == cur_date:
 			txs_on_date.append(tx)
 
 	return txs_on_date
 
-def _get_transactions_on_date(
+def _get_transactions_on_settlement_date(
 	cur_date: datetime.date, augmented_transactions: List[models.AugmentedTransactionDict]) -> List[models.AugmentedTransactionDict]:
 	txs_on_date = []
 	for tx in augmented_transactions:
+		# Note: we could use tx['payment']['settlement_date'] here alternatively.
 		if tx['transaction']['effective_date'] == cur_date:
 			txs_on_date.append(tx)
 
@@ -205,9 +206,9 @@ class LoanCalculator(object):
 		for i in range(days_out):
 			cur_date = loan['origination_date'] + timedelta(days=i)
 			# Check each transaction and the effect it had on this loan
-			cur_augmented_transactions = _get_transactions_on_date(cur_date, augmented_transactions)
+			transactions_on_settlement_date = _get_transactions_on_settlement_date(cur_date, augmented_transactions)
 
-			for aug_tx in cur_augmented_transactions:
+			for aug_tx in transactions_on_settlement_date:
 				tx = aug_tx['transaction']
 				# TODO(dlluncor): what happens when fees, interest or principal go negative?
 				if payment_util.is_advance(tx):
@@ -259,14 +260,14 @@ class LoanCalculator(object):
 				fee_multiplier=fee_multiplier
 			)
 
-			transactions_on_payment_date = _get_transactions_on_payment_date(cur_date, augmented_transactions)
-			for aug_tx in transactions_on_payment_date:
+			transactions_on_deposit_date = _get_transactions_on_deposit_date(cur_date, augmented_transactions)
+			for aug_tx in transactions_on_deposit_date:
 				tx = aug_tx['transaction']
 				if payment_util.is_repayment(tx):
 					# The outstanding principal for a payment gets reduced on the payment date
 					outstanding_principal -= tx['to_principal']
 
-			for aug_tx in cur_augmented_transactions:
+			for aug_tx in transactions_on_settlement_date:
 				tx = aug_tx['transaction']
 				if payment_util.is_repayment(tx):
 					# The principal for interest calculations gets paid off on the settlement date

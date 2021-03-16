@@ -274,7 +274,8 @@ PaymentDict = TypedDict('PaymentDict', {
 	'amount': float,
 	'method': str,
 	'submitted_at': datetime.datetime,
-	'payment_date': datetime.date
+	'deposit_date': datetime.date,
+	'settlement_date': datetime.date,
 })
 
 class Payment(Base):
@@ -306,7 +307,8 @@ class Payment(Base):
 			amount=float(self.amount),
 			method=self.method,
 			submitted_at=self.submitted_at,
-			payment_date=self.payment_date
+			deposit_date=self.deposit_date,
+			settlement_date=self.settlement_date,
 		)
 
 TransactionDict = TypedDict('TransactionDict', {

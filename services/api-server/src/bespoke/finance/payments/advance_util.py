@@ -166,10 +166,11 @@ def fund_loans_with_advance(
 			user_id=bank_admin_user_id)
 			payment_util.make_advance_payment_settled(
 				payment,
-				settled_by_user_id=bank_admin_user_id,
-				payment_date=payment_date,
 				amount=decimal.Decimal(amount_to_company),
-				settlement_date=settlement_date)
+				payment_date=payment_date,
+				settlement_date=settlement_date,
+				settled_by_user_id=bank_admin_user_id,
+			)
 			session.add(payment)
 			session.flush()
 			payment_id = payment.id

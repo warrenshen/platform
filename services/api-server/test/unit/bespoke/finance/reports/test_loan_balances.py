@@ -49,7 +49,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			session_maker=self.session_maker
 		)
 		customer_update, err = customer_balance.update(
-			today=date_util.load_date_str(test['today']), 
+			today=date_util.load_date_str(test['today']),
 			includes_future_transactions=test['includes_future_transactions']
 		)
 		self.assertIsNone(err)
@@ -142,7 +142,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'minimum_monthly_payload': {
 						'minimum_amount': 2001.03,
 						'amount_accrued': 0.0,
-						'amount_short': 2001.03					
+						'amount_short': 2001.03
 					}
 				}
 			}
