@@ -4,7 +4,7 @@
 """
 import datetime
 import decimal
-from typing import Callable, List, Tuple, Union, cast
+from typing import Any, Callable, Dict, List, Tuple, Union, cast
 
 from bespoke import errors
 from bespoke.date import date_util
@@ -31,6 +31,8 @@ RepaymentPaymentInputDict = TypedDict('RepaymentPaymentInputDict', {
 	'payment_method': str,
 	'requested_amount': float,
 	'requested_payment_date': datetime.date,
+	'payment_date': datetime.date,
+	'items_covered': PaymentItemsCoveredDict,
 })
 
 PaymentInsertInputDict = TypedDict('PaymentInsertInputDict', {
@@ -69,6 +71,8 @@ def create_repayment_payment(
 	payment.method = payment_input['payment_method']
 	payment.requested_amount = decimal.Decimal(payment_input['requested_amount'])
 	payment.requested_payment_date = payment_input['requested_payment_date']
+	payment.payment_date = payment_input['payment_date']
+	payment.items_covered = cast(Dict[str, Any], payment_input['items_covered'])
 	payment.submitted_at = datetime.datetime.now()
 	payment.submitted_by_user_id = user_id
 	return payment

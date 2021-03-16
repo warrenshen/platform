@@ -1,7 +1,7 @@
 
 import datetime
 import decimal
-from typing import Any, Callable, Dict, List, Optional, Tuple, cast
+from typing import Any, Callable, List, Optional, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
@@ -509,16 +509,17 @@ def create_repayment(
 			if not_funded_loan_ids:
 				return None, errors.Error('Not all loans are funded')
 
+		# Settlement date should not be set until the banker settles the payment.
 		payment_input = payment_util.RepaymentPaymentInputDict(
 			payment_method=payment_method,
 			requested_amount=requested_amount,
 			requested_payment_date=requested_payment_date,
+			payment_date=requested_payment_date if payment_method != PaymentMethod.REVERSE_DRAFT_ACH else None,
+			items_covered=items_covered,
 		)
 		payment = payment_util.create_repayment_payment(
 			company_id, payment_input, user_id)
-		payment.items_covered = cast(Dict[str, Any], items_covered)
 		payment.requested_by_user_id = user_id
-		# Settlement date should not be set until the banker settles the payment.
 
 		session.add(payment)
 		session.flush()

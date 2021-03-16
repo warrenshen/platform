@@ -182,7 +182,7 @@ function CreateRepaymentSelectLoans({
             <Typography variant="subtitle2">
               {isReverseDraftACH
                 ? "What date would you like the payment to be withdrawn from your bank account?"
-                : "What date did the payment leave your bank account?"}
+                : "What date did or will the payment leave your bank account?"}
             </Typography>
             <Box mt={1}>
               <DatePicker
