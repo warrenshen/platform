@@ -21,6 +21,7 @@ import {
   useGetLoansByLoanIdsQuery,
   useGetPaymentForSettlementQuery,
 } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { PaymentOptionEnum } from "lib/enum";
 import {
@@ -30,9 +31,9 @@ import {
 import {
   calculateEffectOfPayment,
   CalculateEffectOfPaymentResp,
-  createRepayment,
   LoanBalance,
   LoanTransaction,
+  scheduleRepaymentMutation,
 } from "lib/finance/payments/repayment";
 import { LoanBeforeAfterPayment } from "lib/types";
 import { useEffect, useState } from "react";
@@ -144,6 +145,11 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
     }
   }, [selectedLoansData]);
 
+  const [
+    scheduleRepayment,
+    { loading: isScheduleRepaymentLoading },
+  ] = useCustomMutation(scheduleRepaymentMutation);
+
   const handleClickNext = async () => {
     if (!payment || !customer) {
       alert("Developer error: payment or customer does not exist.");
@@ -222,17 +228,22 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
       return;
     }
 
-    const response = await createRepayment({
-      company_id: customer.id,
-      payment: { ...payment },
-      is_line_of_credit: productType === ProductTypeEnum.LineOfCredit,
+    const response = await scheduleRepayment({
+      variables: {
+        company_id: customer.id,
+        payment_id: paymentId,
+        amount: payment.amount,
+        payment_date: payment.payment_date,
+        items_covered: payment.items_covered,
+        is_line_of_credit: productType === ProductTypeEnum.LineOfCredit,
+      },
     });
 
     if (response.status !== "OK") {
       setErrMsg(response.msg);
     } else {
       setErrMsg("");
-      snackbar.showSuccess("Success! Payment submitted for review by Bespoke.");
+      snackbar.showSuccess("Success! Payment scheduled.");
       handleClose();
     }
   };
@@ -243,11 +254,14 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
 
   const isNextButtonDisabled =
     !payment.method || !payment.payment_date || !payment.deposit_date;
-  const isActionButtonDisabled = !payment.method || payment.amount <= 0;
+  const isActionButtonDisabled =
+    isScheduleRepaymentLoading || !payment.method || payment.amount <= 0;
 
   return (
     <Dialog open fullWidth maxWidth="md" onClose={handleClose}>
-      <DialogTitle className={classes.dialogTitle}>Make Payment</DialogTitle>
+      <DialogTitle className={classes.dialogTitle}>
+        Schedule Reverse Draft ACH Payment
+      </DialogTitle>
       <DialogContent style={{ minHeight: 400 }}>
         {isOnSelectLoans ? (
           <ScheduleRepaymentSelectLoans

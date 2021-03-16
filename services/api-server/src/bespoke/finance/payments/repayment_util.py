@@ -62,7 +62,15 @@ RepaymentEffectRespDict = TypedDict('RepaymentEffectRespDict', {
 	'loans_past_due_but_not_selected': List[LoanToShowDict]
 })
 
-SettlePaymentReqDict = TypedDict('SettlePaymentReqDict', {
+ScheduleRepaymentReqDict = TypedDict('ScheduleRepaymentReqDict', {
+	'company_id': str,
+	'payment_id': str,
+	'amount': float,
+	'payment_date': str, # When the payment was deposited into the bank
+	'items_covered': payment_util.PaymentItemsCoveredDict,
+})
+
+SettleRepaymentReqDict = TypedDict('SettleRepaymentReqDict', {
 	'company_id': str,
 	'payment_id': str,
 	'amount': float,
@@ -459,7 +467,7 @@ def create_repayment(
 		return None, errors.Error('Payment method must be specified', details=err_details)
 
 	if not number_util.is_number(requested_amount) or requested_amount <= 0:
-		return None, errors.Error('Payment requested amount must greater than 0 when the payment option is Custom Amount', details=err_details)
+		return None, errors.Error('Payment requested amount must greater than 0', details=err_details)
 
 	if not requested_payment_date:
 		return None, errors.Error('Requested payment date must be specified', details=err_details)
@@ -527,8 +535,95 @@ def create_repayment(
 
 	return payment_id, None
 
+def schedule_repayment(
+	company_id: str,
+	payment_id: str,
+	req: ScheduleRepaymentReqDict,
+	user_id: str,
+	session_maker: Callable,
+	is_line_of_credit: bool,
+) -> Tuple[str, errors.Error]:
+
+	err_details = {'company_id': company_id, 'payment_id': payment_id, 'method': 'schedule_repayment'}
+
+	payment_date = date_util.load_date_str(req['payment_date'])
+	payment_amount = req['amount']
+	items_covered = req['items_covered']
+
+	if not number_util.is_number(payment_amount) or payment_amount <= 0:
+		return None, errors.Error('Payment amount must greater than 0', details=err_details)
+
+	if not payment_date:
+		return None, errors.Error('Payment date must be specified', details=err_details)
+
+	if is_line_of_credit:
+		if 'to_principal' not in items_covered or 'to_interest' not in items_covered:
+			return None, errors.Error('items_covered.to_principal and items_covered.to_interest must be specified', details=err_details)
+
+		to_principal = items_covered['to_principal']
+		to_interest = items_covered['to_interest']
+		if not number_util.float_eq(payment_amount, to_principal + to_interest):
+			return None, errors.Error(f'Requested breakdown of to_principal vs to_interest ({to_principal}, {to_interest}) does not sum up to requested amount ({payment_amount})')
+	else:
+		if 'loan_ids' not in items_covered:
+			return None, errors.Error('items_covered.loan_ids must be specified', details=err_details)
+
+	payment_id = None
+
+	with session_scope(session_maker) as session:
+		payment = cast(
+			models.Payment,
+			session.query(models.Payment).filter(
+				models.Payment.id == req['payment_id']
+			).first())
+
+		if not payment:
+			return None, errors.Error('No payment found to settle transaction', details=err_details)
+
+		if not payment.method == PaymentMethod.REVERSE_DRAFT_ACH:
+			return None, errors.Error('Payment method must be Reverse Draft ACH', details=err_details)
+
+		loans = []
+		if not is_line_of_credit:
+			loan_ids = items_covered['loan_ids']
+			loans = cast(
+				List[models.Loan],
+				session.query(models.Loan).filter(
+					models.Loan.company_id == company_id
+				).filter(
+					models.Loan.id.in_(loan_ids)
+				).all())
+
+			if not loans:
+				return None, errors.Error('No loans associated with create payment submission')
+
+			if len(loans) != len(loan_ids):
+				return None, errors.Error('Not all loans found in create payment submission')
+
+			not_funded_loan_ids = []
+			for loan in loans:
+				if not loan.funded_at:
+					not_funded_loan_ids.append(loan.id)
+
+			if not_funded_loan_ids:
+				return None, errors.Error('Not all loans are funded')
+
+		payment.amount = decimal.Decimal(payment_amount)
+		payment.payment_date = payment_date
+
+		# Settlement date should not be set until the banker settles the payment.
+		session.flush()
+		payment_id = str(payment.id)
+
+		# TODO(warrenshen): look into these statuses, perhaps we need a "Requested"?
+		payment_status = PaymentStatusEnum.SCHEDULED
+		for loan in loans:
+			loan.payment_status = payment_status
+
+	return payment_id, None
+
 def settle_payment(
-	req: SettlePaymentReqDict,
+	req: SettleRepaymentReqDict,
 	user_id: str,
 	session_maker: Callable,
 	is_line_of_credit: bool,

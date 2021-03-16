@@ -2,12 +2,7 @@
 // when it comes to creating payment transactions
 
 import { Loans, PaymentsInsertInput } from "generated/graphql";
-import { authenticatedApi, loansRoutes } from "lib/api";
-
-export type CreatePaymentResp = {
-  status: string;
-  msg: string;
-};
+import { authenticatedApi, CustomMutationResponse, loansRoutes } from "lib/api";
 
 export type LoanBalance = {
   loan_id?: Loans["id"];
@@ -73,7 +68,7 @@ export async function createRepayment(req: {
   company_id: string;
   payment: PaymentsInsertInput;
   is_line_of_credit: boolean;
-}): Promise<CreatePaymentResp> {
+}): Promise<CustomMutationResponse> {
   return authenticatedApi
     .post(loansRoutes.createRepayment, req)
     .then((res) => {
@@ -88,6 +83,37 @@ export async function createRepayment(req: {
         return {
           status: "ERROR",
           msg: "Could not make payment for the loan(s)",
+        };
+      }
+    );
+}
+
+export type ScheduleRepaymentReq = {
+  variables: {
+    company_id: string;
+    payment_id: string;
+    amount: number;
+    payment_date: string;
+    items_covered: any;
+    is_line_of_credit: boolean;
+  };
+};
+
+export async function scheduleRepaymentMutation(
+  req: ScheduleRepaymentReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(loansRoutes.scheduleRepayment, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => response,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not schedule repayment",
         };
       }
     );

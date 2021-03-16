@@ -150,7 +150,7 @@ class TestSettlePayment(db_unittest.TestCase):
 			if payment and test['payment'].get('type'):
 				payment.type = test['payment']['type']
 
-		req = repayment_util.SettlePaymentReqDict(
+		req = repayment_util.SettleRepaymentReqDict(
 			company_id=company_id,
 			payment_id=payment_id,
 			amount=test['payment']['amount'],
@@ -683,7 +683,7 @@ class TestSettlePayment(db_unittest.TestCase):
 			contract = _get_contract(company_id, is_line_of_credit=False)
 			session.add(contract)
 
-		req = repayment_util.SettlePaymentReqDict(
+		req = repayment_util.SettleRepaymentReqDict(
 			company_id=company_id,
 			payment_id=None,
 			amount=50.0 + 0.0 + 0.0,
@@ -1019,7 +1019,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 				payment.type = test['payment']['type']
 
 		settlement_payment = test['settlement_payment'] if 'settlement_payment' in test else test['payment']
-		req = repayment_util.SettlePaymentReqDict(
+		req = repayment_util.SettleRepaymentReqDict(
 			company_id=company_id,
 			payment_id=payment_id,
 			amount=settlement_payment['amount'],

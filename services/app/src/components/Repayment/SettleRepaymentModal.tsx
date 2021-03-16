@@ -23,7 +23,11 @@ import {
   useGetPaymentForSettlementQuery,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
-import { PaymentOptionEnum } from "lib/enum";
+import {
+  PaymentMethodEnum,
+  PaymentMethodToLabel,
+  PaymentOptionEnum,
+} from "lib/enum";
 import {
   computeSettlementDateForPayment,
   getSettlementTimelineConfigFromContract,
@@ -281,7 +285,11 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
 
   return payment && customer ? (
     <Dialog open fullWidth maxWidth="md" onClose={handleClose}>
-      <DialogTitle className={classes.dialogTitle}>Settle Payment</DialogTitle>
+      <DialogTitle className={classes.dialogTitle}>
+        {`Settle ${
+          PaymentMethodToLabel[payment.method as PaymentMethodEnum]
+        } Payment`}
+      </DialogTitle>
       <DialogContent>
         {isOnSelectLoans ? (
           <SettleRepaymentSelectLoans

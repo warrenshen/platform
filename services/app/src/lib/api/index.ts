@@ -60,10 +60,11 @@ export const loansRoutes = {
   runCustomerBalances: "/finance/loans/reports/run_customer_balances",
 
   // Payments related.
-  createAdvance: "/finance/loans/advances/handle_advance",
-  createRepayment: "/finance/loans/repayments/create_payment",
   calculateEffectOfPayment:
     "finance/loans/repayments/calculate_effect_of_payment",
+  createAdvance: "/finance/loans/advances/handle_advance",
+  createRepayment: "/finance/loans/repayments/create_repayment",
+  scheduleRepayment: "/finance/loans/repayments/schedule_repayment",
   settlePayment: "/finance/loans/repayments/settle_payment",
   settlePaymentLineOfCredit:
     "/finance/loans/repayments/settle_payment_line_of_credit",
