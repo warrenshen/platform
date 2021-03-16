@@ -72,6 +72,7 @@ export async function calculateEffectOfPayment(req: {
 export async function createRepayment(req: {
   company_id: string;
   payment: PaymentsInsertInput;
+  is_line_of_credit: boolean;
 }): Promise<CreatePaymentResp> {
   return authenticatedApi
     .post(loansRoutes.createRepayment, req)
@@ -87,29 +88,6 @@ export async function createRepayment(req: {
         return {
           status: "ERROR",
           msg: "Could not make payment for the loan(s)",
-        };
-      }
-    );
-}
-
-export async function createRepaymentLineOfCredit(req: {
-  company_id: string;
-  payment: PaymentsInsertInput;
-}): Promise<CreatePaymentResp> {
-  return authenticatedApi
-    .post(loansRoutes.createRepaymentLineOfCredit, req)
-    .then((res) => {
-      return res.data;
-    })
-    .then(
-      (response) => {
-        return response;
-      },
-      (error) => {
-        console.log("error", error);
-        return {
-          status: "ERROR",
-          msg: "Could not make payment for line of credit",
         };
       }
     );

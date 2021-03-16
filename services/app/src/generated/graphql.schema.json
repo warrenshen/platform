@@ -11099,6 +11099,12 @@
         "interfaces": null,
         "enumValues": [
           {
+            "name": "companies_company_settings_id_key",
+            "description": "unique or primary key constraint",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "companies_pkey",
             "description": "unique or primary key constraint",
             "isDeprecated": false,

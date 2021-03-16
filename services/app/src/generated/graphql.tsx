@@ -1448,6 +1448,8 @@ export type CompaniesBoolExp = {
 /** unique or primary key constraints on table "companies" */
 export enum CompaniesConstraint {
   /** unique or primary key constraint */
+  CompaniesCompanySettingsIdKey = "companies_company_settings_id_key",
+  /** unique or primary key constraint */
   CompaniesPkey = "companies_pkey",
 }
 
@@ -16051,6 +16053,7 @@ export type PaymentFragment = Pick<
   | "amount"
   | "requested_payment_date"
   | "payment_date"
+  | "deposit_date"
   | "settlement_date"
   | "items_covered"
 > & {
@@ -16554,6 +16557,7 @@ export const PaymentFragmentDoc = gql`
     amount
     requested_payment_date
     payment_date
+    deposit_date
     settlement_date
     items_covered
     company_bank_account {

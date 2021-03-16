@@ -66,6 +66,7 @@ class CreatePaymentView(MethodView):
 		required_keys = [
 			'company_id',
 			'payment',
+			'is_line_of_credit',
 		]
 		for key in required_keys:
 			if key not in form:
@@ -77,56 +78,15 @@ class CreatePaymentView(MethodView):
 		if not user_session.is_bank_or_this_company_admin(form['company_id']):
 			return handler_util.make_error_response('Access Denied')
 
-		payment = form['payment']
 		company_id = form['company_id']
+		payment = form['payment']
+		is_line_of_credit = form['is_line_of_credit']
 		payment_id, err = repayment_util.create_repayment(
 			company_id,
 			payment,
 			user_session.get_user_id(),
 			current_app.session_maker,
-			is_line_of_credit=False,
-		)
-
-		if err:
-			logging.error(f"Failed creating repayment for company '{company_id}'; err: '{err}'")
-			return handler_util.make_error_response(err)
-
-		return make_response(json.dumps({
-			'status': 'OK',
-			'payment_id': payment_id
-		}), 200)
-
-class CreatePaymentLineOfCreditView(MethodView):
-	decorators = [auth_util.login_required]
-
-	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
-		form = json.loads(request.data)
-		if not form:
-			return handler_util.make_error_response('No data provided')
-
-		required_keys = [
-			'company_id',
-			'payment',
-		]
-		for key in required_keys:
-			if key not in form:
-				return handler_util.make_error_response(
-					'Missing key {} from create repayment line of credit request'.format(key))
-
-		user_session = auth_util.UserSession.from_session()
-
-		if not user_session.is_bank_or_this_company_admin(form['company_id']):
-			return handler_util.make_error_response('Access Denied')
-
-		company_id = form['company_id']
-		payment = form['payment']
-		payment_id, err = repayment_util.create_repayment(
-			company_id,
-			payment,
-			user_session.get_user_id(),
-			current_app.session_maker,
-			is_line_of_credit=True,
+			is_line_of_credit=is_line_of_credit,
 		)
 
 		if err:
@@ -213,9 +173,6 @@ class SettlePaymentLineOfCreditView(MethodView):
 
 handler.add_url_rule(
 	'/create_payment', view_func=CreatePaymentView.as_view(name='create_payment_view'))
-
-handler.add_url_rule(
-	'/create_payment_line_of_credit', view_func=CreatePaymentLineOfCreditView.as_view(name='create_payment_line_of_credit_view'))
 
 handler.add_url_rule(
 	'/calculate_effect_of_payment', view_func=CalculateEffectOfPaymentView.as_view(name='calculate_effect_of_repayment_view'))

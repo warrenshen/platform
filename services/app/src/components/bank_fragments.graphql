@@ -126,6 +126,7 @@ fragment Payment on payments {
   amount
   requested_payment_date
   payment_date
+  deposit_date
   settlement_date
   items_covered
   company_bank_account {

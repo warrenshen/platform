@@ -40,7 +40,7 @@ function BankPaymentsActionRequiredPage() {
 
   const { data } = useGetSubmittedPaymentsSubscription();
 
-  const submittedPayments = useMemo(() => {
+  const payments = useMemo(() => {
     return data?.payments || [];
   }, [data]);
 
@@ -69,22 +69,34 @@ function BankPaymentsActionRequiredPage() {
     });
   }, [selectedScheduledPayments]);
 
-  const scheduledPayments = useMemo(() => {
-    return submittedPayments.filter((p) => {
-      return p.method === "reverse_draft_ach";
+  const scheduledPayments = useMemo(
+    () =>
+      payments.filter(
+        (payment) =>
+          payment.method === "reverse_draft_ach" && !payment.payment_date
+      ),
+    [payments]
+  );
+
+  const pendingReverseDraftPayments = useMemo(
+    () =>
+      payments.filter(
+        (payment) =>
+          payment.method === "reverse_draft_ach" && !!payment.payment_date
+      ),
+    [payments]
+  );
+
+  const notifyPayments = useMemo(() => {
+    return payments.filter((p) => {
+      return p.method !== "reverse_draft_ach";
     });
-  }, [submittedPayments]);
+  }, [payments]);
 
   // Notify section
   const [selectedNotifyPayments, setSelectedNotifyPayments] = useState<
     PaymentLimitedFragment[]
   >([]);
-
-  const notifyPayments = useMemo(() => {
-    return submittedPayments.filter((p) => {
-      return p.method !== "reverse_draft_ach";
-    });
-  }, [submittedPayments]);
 
   const seletedNotifyPaymentIds = useMemo(() => {
     return selectedNotifyPayments.map((p) => {
@@ -109,67 +121,105 @@ function BankPaymentsActionRequiredPage() {
   return (
     <Page appBarTitle={"Payments - Action Required"}>
       <Box className={classes.container}>
-        <Typography variant="h6">Payments - Reverse Draft ACH</Typography>
-        <Box mb={2} display="flex" flexDirection="row-reverse">
-          <Can perform={Action.SettleRepayment}>
-            <Box>
-              <ModalButton
-                isDisabled={seletedSchedulePaymentIds.length !== 1}
-                label={"Settle Payment"}
-                modal={({ handleClose }) => (
-                  <SettleRepaymentModal
-                    paymentId={scheduledPaymentId}
-                    handleClose={() => {
-                      setSelectedScheduledPayments([]);
-                      handleClose();
-                    }}
-                  />
-                )}
-              />
-            </Box>
-          </Can>
+        <Box className={classes.section}>
+          <Typography variant="h6">
+            Payments - Requested Reverse Draft ACHs
+          </Typography>
+          <Box mb={2} display="flex" flexDirection="row-reverse">
+            <Can perform={Action.SettleRepayment}>
+              <Box>
+                <ModalButton
+                  isDisabled={seletedSchedulePaymentIds.length !== 1}
+                  label={"Settle Payment"}
+                  modal={({ handleClose }) => (
+                    <SettleRepaymentModal
+                      paymentId={scheduledPaymentId}
+                      handleClose={() => {
+                        setSelectedScheduledPayments([]);
+                        handleClose();
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            </Can>
+          </Box>
+          <PaymentsDataGrid
+            isCompanyVisible
+            enableSelect
+            payments={scheduledPayments}
+            customerSearchQuery={""}
+            onClickCustomerName={() => {}}
+            selectedPaymentIds={seletedSchedulePaymentIds}
+            handleSelectPayments={handleSelectSchedulePayments}
+          />
         </Box>
-        <PaymentsDataGrid
-          isCompanyVisible
-          payments={scheduledPayments}
-          customerSearchQuery={""}
-          onClickCustomerName={() => {}}
-          enableSelect={true}
-          selectedPaymentIds={seletedSchedulePaymentIds}
-          handleSelectPayments={handleSelectSchedulePayments}
-        />
-      </Box>
-      <Box className={classes.sectionSpace} />
-      <Box className={classes.container}>
-        <Typography variant="h6">Payments - Notified</Typography>
-        <Box mb={2} display="flex" flexDirection="row-reverse">
-          <Can perform={Action.SettleRepayment}>
-            <Box>
-              <ModalButton
-                isDisabled={seletedNotifyPaymentIds.length !== 1}
-                label={"Settle Payment"}
-                modal={({ handleClose }) => (
-                  <SettleRepaymentModal
-                    paymentId={notifyPaymentId}
-                    handleClose={() => {
-                      setSelectedNotifyPayments([]);
-                      handleClose();
-                    }}
-                  />
-                )}
-              />
-            </Box>
-          </Can>
+        <Box className={classes.sectionSpace} />
+        <Box className={classes.section}>
+          <Typography variant="h6">
+            Payments - Pending Reverse Draft ACHs
+          </Typography>
+          <Box mb={2} display="flex" flexDirection="row-reverse">
+            <Can perform={Action.SettleRepayment}>
+              <Box>
+                <ModalButton
+                  isDisabled={seletedSchedulePaymentIds.length !== 1}
+                  label={"Settle Payment"}
+                  modal={({ handleClose }) => (
+                    <SettleRepaymentModal
+                      paymentId={scheduledPaymentId}
+                      handleClose={() => {
+                        setSelectedScheduledPayments([]);
+                        handleClose();
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            </Can>
+          </Box>
+          <PaymentsDataGrid
+            isCompanyVisible
+            enableSelect
+            payments={pendingReverseDraftPayments}
+            customerSearchQuery={""}
+            onClickCustomerName={() => {}}
+            selectedPaymentIds={seletedSchedulePaymentIds}
+            handleSelectPayments={handleSelectSchedulePayments}
+          />
         </Box>
-        <PaymentsDataGrid
-          isCompanyVisible
-          payments={notifyPayments}
-          customerSearchQuery={""}
-          onClickCustomerName={() => {}}
-          enableSelect={true}
-          selectedPaymentIds={seletedNotifyPaymentIds}
-          handleSelectPayments={handleSelectNotifyPayments}
-        />
+        <Box className={classes.sectionSpace} />
+        <Box className={classes.section}>
+          <Typography variant="h6">Payments - Notifications</Typography>
+          <Box mb={2} display="flex" flexDirection="row-reverse">
+            <Can perform={Action.SettleRepayment}>
+              <Box>
+                <ModalButton
+                  isDisabled={seletedNotifyPaymentIds.length !== 1}
+                  label={"Settle Payment"}
+                  modal={({ handleClose }) => (
+                    <SettleRepaymentModal
+                      paymentId={notifyPaymentId}
+                      handleClose={() => {
+                        setSelectedNotifyPayments([]);
+                        handleClose();
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            </Can>
+          </Box>
+          <PaymentsDataGrid
+            isCompanyVisible
+            enableSelect
+            payments={notifyPayments}
+            customerSearchQuery={""}
+            onClickCustomerName={() => {}}
+            selectedPaymentIds={seletedNotifyPaymentIds}
+            handleSelectPayments={handleSelectNotifyPayments}
+          />
+        </Box>
       </Box>
     </Page>
   );

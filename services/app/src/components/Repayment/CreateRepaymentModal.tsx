@@ -30,7 +30,6 @@ import {
   calculateEffectOfPayment,
   CalculateEffectOfPaymentResp,
   createRepayment,
-  createRepaymentLineOfCredit,
   LoanBalance,
   LoanTransaction,
 } from "lib/finance/payments/repayment";
@@ -94,6 +93,7 @@ function CreateRepaymentModal({
     requested_payment_date: null,
     settlement_date: null,
     items_covered: {
+      loan_ids: [],
       requested_to_principal: null,
       requested_to_interest: null,
       to_principal: null,
@@ -160,6 +160,12 @@ function CreateRepaymentModal({
       setPayment({
         ...payment,
         requested_amount: response.amount_to_pay || null,
+        items_covered: {
+          ...payment.items_covered,
+          loan_ids: response.loans_to_show.map(
+            (loanToShow) => loanToShow.loan_id
+          ),
+        },
       });
       setLoansBeforeAfterPayment(
         response.loans_to_show.map((loanToShow) => {
@@ -194,19 +200,11 @@ function CreateRepaymentModal({
       return;
     }
 
-    const loanIds = loansBeforeAfterPayment.map(
-      (loanBeforeAfterPayment) => loanBeforeAfterPayment.loan_id
-    );
-    const response =
-      productType === ProductTypeEnum.LineOfCredit
-        ? await createRepaymentLineOfCredit({
-            company_id: companyId,
-            payment: { ...payment },
-          })
-        : await createRepayment({
-            company_id: companyId,
-            payment: { ...payment, items_covered: { loan_ids: loanIds } },
-          });
+    const response = await createRepayment({
+      company_id: companyId,
+      payment: { ...payment },
+      is_line_of_credit: productType === ProductTypeEnum.LineOfCredit,
+    });
 
     if (response.status !== "OK") {
       setErrMsg(response.msg);
