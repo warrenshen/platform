@@ -98,21 +98,21 @@ function SettleRepaymentSelectLoans({
         <DatePicker
           className={classes.inputField}
           id="payment-date-date-picker"
-          label="Payment Date"
+          label="Deposit Date"
           disableNonBankDays
-          disabledBefore={payment.requested_payment_date}
-          value={payment.payment_date}
+          disabledBefore={payment.payment_date}
+          value={payment.deposit_date}
           onChange={(value) => {
             setPayment({
               ...payment,
-              payment_date: value,
+              deposit_date: value,
             });
           }}
         />
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
-            Payment Date is the date you initiated the Reverse Draft ACH or the
-            customer sent their payment.
+            Deposit Date is the date the payment arrived to a Bespoke bank
+            account.
           </Typography>
         </Box>
       </Box>
@@ -132,8 +132,8 @@ function SettleRepaymentSelectLoans({
         />
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
-            Settlement date is the date the payment arrived to a Bespoke bank
-            account.
+            Settlement Date is the date the payment is applied to loans. It is
+            based off of Deposit Date and Clearance Days.
           </Typography>
         </Box>
       </Box>

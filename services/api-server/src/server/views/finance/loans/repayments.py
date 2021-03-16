@@ -156,47 +156,14 @@ class SettleRepaymentView(MethodView):
 			return handler_util.make_error_response('No data provided')
 
 		required_keys = [
-			'payment_id', 'company_id',
-			'amount', 'payment_date', 'settlement_date',
-			'loan_ids', 'transaction_inputs'
-		]
-		for key in required_keys:
-			if key not in form:
-				return handler_util.make_error_response(
-					'Missing key {} from handle payment request'.format(key))
-
-		user_session = auth_util.UserSession.from_session()
-
-		transaction_ids, err = repayment_util.settle_payment(
-			cast(repayment_util.SettleRepaymentReqDict, form),
-			user_session.get_user_id(),
-			current_app.session_maker,
-			is_line_of_credit=False,
-		)
-
-		if err:
-			return handler_util.make_error_response(err)
-
-		return make_response(json.dumps({
-			'status': 'OK'
-		}), 200)
-
-class SettleRepaymentLineOfCreditView(MethodView):
-	decorators = [auth_util.bank_admin_required]
-
-	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
-		form = cast(Dict, json.loads(request.data))
-		if not form:
-			return handler_util.make_error_response('No data provided')
-
-		required_keys = [
 			'company_id',
 			'payment_id',
 			'amount',
-			'payment_date',
+			'deposit_date',
 			'settlement_date',
 			'items_covered',
+			'transaction_inputs',
+			'is_line_of_credit',
 		]
 		for key in required_keys:
 			if key not in form:
@@ -205,11 +172,12 @@ class SettleRepaymentLineOfCreditView(MethodView):
 
 		user_session = auth_util.UserSession.from_session()
 
-		transaction_ids, err = repayment_util.settle_payment(
+		is_line_of_credit = form['is_line_of_credit']
+		transaction_ids, err = repayment_util.settle_repayment(
 			cast(repayment_util.SettleRepaymentReqDict, form),
 			user_session.get_user_id(),
 			current_app.session_maker,
-			is_line_of_credit=True,
+			is_line_of_credit=is_line_of_credit,
 		)
 
 		if err:
@@ -229,7 +197,4 @@ handler.add_url_rule(
 	'/schedule_repayment', view_func=ScheduleRepaymentView.as_view(name='schedule_payment_view'))
 
 handler.add_url_rule(
-	'/settle_payment', view_func=SettleRepaymentView.as_view(name='settle_payment_view'))
-
-handler.add_url_rule(
-	'/settle_payment_line_of_credit', view_func=SettleRepaymentLineOfCreditView.as_view(name='settle_payment_line_of_credit_view'))
+	'/settle_repayment', view_func=SettleRepaymentView.as_view(name='settle_repayment_view'))

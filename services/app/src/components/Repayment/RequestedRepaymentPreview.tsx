@@ -22,16 +22,14 @@ function RequestedRepaymentPreview({ payment }: Props) {
         <Typography variant="body1">
           {`Requested Payment Amount: ${formatCurrency(payment.amount)}`}
         </Typography>
-        {payment.items_covered.to_principal !== undefined &&
-          payment.items_covered.to_interest !== undefined && (
-            <Typography variant="subtitle2">
-              {`Requested Breakdown:\nPrincipal: ${formatCurrency(
-                payment.items_covered.to_principal
-              )}\nInterest: ${formatCurrency(
-                payment.items_covered.to_interest
-              )}`}
-            </Typography>
-          )}
+        {(payment.items_covered.to_principal ||
+          payment.items_covered.to_interest) && (
+          <Typography variant="subtitle2">
+            {`Requested Breakdown:\nPrincipal: ${formatCurrency(
+              payment.items_covered.to_principal
+            )}\nInterest: ${formatCurrency(payment.items_covered.to_interest)}`}
+          </Typography>
+        )}
       </Box>
       <Box mt={1}>
         <Typography variant="body1">

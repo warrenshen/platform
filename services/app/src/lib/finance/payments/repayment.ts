@@ -34,11 +34,6 @@ export type CalculateEffectOfPaymentResp = {
   payable_amount_interest: number;
 };
 
-export type SettlePaymentResp = {
-  status: string;
-  msg?: string;
-};
-
 export async function calculateEffectOfPayment(req: {
   payment: PaymentsInsertInput;
   company_id: string;
@@ -119,42 +114,24 @@ export async function scheduleRepaymentMutation(
     );
 }
 
-export async function settlePayment(req: {
-  company_id: string;
-  payment_id: string;
-  amount: number;
-  payment_date: string;
-  settlement_date: string;
-  loan_ids: string[];
-  transaction_inputs: LoanTransaction[];
-}): Promise<SettlePaymentResp> {
-  return authenticatedApi
-    .post(loansRoutes.settlePayment, req)
-    .then((res) => {
-      return res.data;
-    })
-    .then(
-      (response) => response,
-      (error) => {
-        console.log("error", error);
-        return {
-          status: "ERROR",
-          msg: "Could not settle payment for the loan(s)",
-        };
-      }
-    );
-}
+export type SettleRepaymentReq = {
+  variables: {
+    company_id: string;
+    payment_id: string;
+    amount: number;
+    deposit_date: string;
+    settlement_date: string;
+    items_covered: any;
+    transaction_inputs: any;
+    is_line_of_credit: boolean;
+  };
+};
 
-export async function settlePaymentLineOfCredit(req: {
-  company_id: string;
-  payment_id: string;
-  amount: number;
-  payment_date: string;
-  settlement_date: string;
-  items_covered: any;
-}): Promise<SettlePaymentResp> {
+export async function settleRepaymentMutation(
+  req: SettleRepaymentReq
+): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(loansRoutes.settlePaymentLineOfCredit, req)
+    .post(loansRoutes.settleRepayment, req.variables)
     .then((res) => {
       return res.data;
     })
@@ -164,7 +141,7 @@ export async function settlePaymentLineOfCredit(req: {
         console.log("error", error);
         return {
           status: "ERROR",
-          msg: "Could not settle payment for line of credit",
+          msg: "Could not settle payment",
         };
       }
     );

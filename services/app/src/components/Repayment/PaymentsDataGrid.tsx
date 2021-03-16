@@ -146,6 +146,14 @@ function RepaymentsDataGrid({
         ),
       },
       {
+        caption: "Deposit Date",
+        width: ColumnWidths.Date,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell dateString={params.row.data.deposit_date} />
+        ),
+      },
+      {
         caption: "Settlement Date",
         width: ColumnWidths.Date,
         alignment: "right",

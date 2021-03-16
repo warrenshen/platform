@@ -104,7 +104,7 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
           requested_amount: existingPayment.requested_amount,
           amount: existingPayment.requested_amount,
           requested_payment_date: existingPayment.requested_payment_date,
-          payment_date: existingPayment.requested_payment_date,
+          payment_date: existingPayment.requested_payment_date, // Default payment_date to requested_payment_date
           items_covered: existingPayment.items_covered,
         } as PaymentsInsertInput);
       } else {
@@ -132,7 +132,7 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
   }, [contract, payment?.method, payment?.payment_date, setPayment]);
 
   const { data: selectedLoansData } = useGetLoansByLoanIdsQuery({
-    skip: !!payment?.items_covered?.loan_ids,
+    skip: !payment?.items_covered?.loan_ids,
     variables: {
       loanIds: payment?.items_covered?.loan_ids || [],
     },
@@ -160,7 +160,6 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
       company_id: customer.id,
       payment: {
         amount: payment.amount,
-        payment_date: payment.payment_date,
         settlement_date: payment.settlement_date,
       },
       payment_option: PaymentOptionEnum.CustomAmount,
@@ -255,7 +254,7 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
   const isNextButtonDisabled =
     !payment.method || !payment.payment_date || !payment.deposit_date;
   const isActionButtonDisabled =
-    isScheduleRepaymentLoading || !payment.method || payment.amount <= 0;
+    isNextButtonDisabled || isScheduleRepaymentLoading || payment.amount <= 0;
 
   return (
     <Dialog open fullWidth maxWidth="md" onClose={handleClose}>

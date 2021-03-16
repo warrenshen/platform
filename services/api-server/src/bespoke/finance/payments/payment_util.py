@@ -73,12 +73,14 @@ def create_repayment_payment(
 	payment.submitted_by_user_id = user_id
 	return payment
 
+# TODO(warrenshen): check this method, why is settlement_date being set?
 def make_payment_applied(
 	payment: models.Payment,
 	settled_by_user_id: str,
 	amount: decimal.Decimal,
 	payment_date: datetime.date,
-	settlement_date: datetime.date) -> None:
+	settlement_date: datetime.date,
+) -> None:
 	"""
 		Call this method when you are ready to apply a payment
 
@@ -90,6 +92,26 @@ def make_payment_applied(
 	payment.settled_by_user_id = settled_by_user_id
 	payment.amount = amount
 	payment.payment_date = payment_date
+	payment.settlement_date = settlement_date
+
+def make_payment_settled(
+	payment: models.Payment,
+	amount: decimal.Decimal,
+	deposit_date: datetime.date,
+	settlement_date: datetime.date,
+	settled_by_user_id: str,
+) -> None:
+	"""
+		Call this method when you are ready to settle a payment
+
+		deposit_date:    When the payment was deposited to the bank
+		settlement_date: When the funds are available to withdraw, and when fees / interest
+		                 start to accrue
+	"""
+	payment.settled_at = date_util.now()
+	payment.settled_by_user_id = settled_by_user_id
+	payment.amount = amount
+	payment.deposit_date = deposit_date
 	payment.settlement_date = settlement_date
 
 def is_advance(p: Union[models.PaymentDict, models.TransactionDict]) -> bool:

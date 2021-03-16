@@ -74,7 +74,7 @@ SettleRepaymentReqDict = TypedDict('SettleRepaymentReqDict', {
 	'company_id': str,
 	'payment_id': str,
 	'amount': float,
-	'payment_date': str, # When the payment was deposited into the bank
+	'deposit_date': str, # When the payment was deposited into the bank
 	'settlement_date': str, # Effective date of all the transactions as well
 	'items_covered': payment_util.PaymentItemsCoveredDict,
 	'transaction_inputs': List[TransactionInputDict],
@@ -124,7 +124,7 @@ def calculate_repayment_effect(
 	loan_ids: List[str],
 	session_maker: Callable,
 	test_only_skip_interest_and_fees_calculation: bool = False,
-	) -> Tuple[RepaymentEffectRespDict, errors.Error]:
+) -> Tuple[RepaymentEffectRespDict, errors.Error]:
 	# What loans and fees does would this payment pay off?
 
 	err_details = {'company_id': company_id, 'loan_ids': loan_ids, 'method': 'calculate_repayment_effect'}
@@ -132,9 +132,6 @@ def calculate_repayment_effect(
 	if payment_option == 'custom_amount':
 		if not number_util.is_number(payment_input.get('amount')) or payment_input['amount'] <= 0:
 			return None, errors.Error('Payment requested amount must greater than 0 when the payment option is Custom Amount')
-
-	if not payment_input.get('payment_date'):
-		return None, errors.Error('Payment date must be specified')
 
 	if not payment_input.get('settlement_date'):
 		return None, errors.Error('Settlement date must be specified')
@@ -583,6 +580,9 @@ def schedule_repayment(
 		if not payment.method == PaymentMethod.REVERSE_DRAFT_ACH:
 			return None, errors.Error('Payment method must be Reverse Draft ACH', details=err_details)
 
+		if payment_date < payment.requested_payment_date:
+			return None, errors.Error('Payment date cannot be before the requested payment date', details=err_details)
+
 		loans = []
 		if not is_line_of_credit:
 			loan_ids = items_covered['loan_ids']
@@ -622,7 +622,7 @@ def schedule_repayment(
 
 	return payment_id, None
 
-def settle_payment(
+def settle_repayment(
 	req: SettleRepaymentReqDict,
 	user_id: str,
 	session_maker: Callable,
@@ -630,15 +630,21 @@ def settle_payment(
 ) -> Tuple[List[str], errors.Error]:
 
 	err_details = {
-		'method': 'settle_payment',
+		'method': 'settle_repayment',
 		'req': req
 	}
 
 	payment_amount = req['amount']
-	payment_date = date_util.load_date_str(req['payment_date'])
-	payment_settlement_date = date_util.load_date_str(req['settlement_date'])
+	deposit_date = date_util.load_date_str(req['deposit_date'])
+	settlement_date = date_util.load_date_str(req['settlement_date'])
 	items_covered = req['items_covered']
 	transaction_inputs = []
+
+	if not deposit_date:
+		return None, errors.Error('deposit_date must be specified')
+
+	if not settlement_date:
+		return None, errors.Error('settlement_date must be specified')
 
 	if is_line_of_credit:
 		if 'to_principal' not in items_covered or 'to_interest' not in items_covered:
@@ -690,7 +696,7 @@ def settle_payment(
 		if err:
 			return None, err
 
-		active_contract, err = contract_helper.get_contract(payment_settlement_date)
+		active_contract, err = contract_helper.get_contract(settlement_date)
 		if err:
 			return None, err
 		if not active_contract:
@@ -781,7 +787,7 @@ def settle_payment(
 		effective_dates = [transaction_dict['effective_date'] for transaction_dict in all_transaction_dicts]
 		if len(effective_dates):
 			max_transaction_effective_date = max(effective_dates)
-			if payment_settlement_date < max_transaction_effective_date:
+			if settlement_date < max_transaction_effective_date:
 				return None, errors.Error('Cannot settle a new payment for loans since the settlement date is prior to the effective_date of one or more existing transaction(s) of loans')
 
 		payment = cast(
@@ -798,8 +804,11 @@ def settle_payment(
 		if payment.type != db_constants.PaymentType.REPAYMENT:
 			return None, errors.Error('Can only apply repayments against loans', details=err_details)
 
-		if payment_date < payment.requested_payment_date:
-			return None, errors.Error('Payment date cannot be before the requested payment date', details=err_details)
+		if not payment.payment_date:
+			return None, errors.Error('Payment must have a payment date')
+
+		if deposit_date < payment.payment_date:
+			return None, errors.Error('Deposit date cannot be before the payment date', details=err_details)
 
 		# Note: it is important that we use `loan_ids` to create `loan_dicts`.
 		# This is because the order of `loan_ids` maps to the order of
@@ -816,7 +825,7 @@ def settle_payment(
 			loan_update, errs = calculator.calculate_loan_balance(
 				loan_dict,
 				transactions_for_loan,
-				payment_settlement_date,
+				settlement_date,
 				includes_future_transactions=True,
 			)
 			if errs:
@@ -884,7 +893,7 @@ def settle_payment(
 			t.loan_id = cur_loan_id
 			t.payment_id = req['payment_id']
 			t.created_by_user_id = user_id
-			t.effective_date = payment_settlement_date
+			t.effective_date = settlement_date
 
 			balance_before = loan_dict_and_balance_list[i]['before_balance']
 			# We use balance_before here since we want to use loan balances
@@ -925,12 +934,12 @@ def settle_payment(
 			else:
 				cur_loan.payment_status = PaymentStatusEnum.PARTIALLY_PAID
 
-		payment_util.make_payment_applied(
+		payment_util.make_payment_settled(
 			payment,
-			settled_by_user_id=user_id,
 			amount=decimal.Decimal(payment_amount),
-			payment_date=payment_date,
-			settlement_date=payment_settlement_date
+			deposit_date=deposit_date,
+			settlement_date=settlement_date,
+			settled_by_user_id=user_id,
 		)
 
 		session.flush()

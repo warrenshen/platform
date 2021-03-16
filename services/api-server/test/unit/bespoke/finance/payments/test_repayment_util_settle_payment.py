@@ -144,6 +144,8 @@ class TestSettlePayment(db_unittest.TestCase):
 				session.query(models.Payment).filter(
 					models.Payment.id == payment_id
 				).first())
+			# TODO(warrenshen): actually do the "schedule payment" flow to set the payment date.
+			payment.payment_date = date_util.load_date_str(test['payment']['payment_date'])
 			if payment and test['payment'].get('settled_at'):
 				payment.settled_at = test['payment']['settled_at']
 
@@ -154,7 +156,7 @@ class TestSettlePayment(db_unittest.TestCase):
 			company_id=company_id,
 			payment_id=payment_id,
 			amount=test['payment']['amount'],
-			payment_date=test['payment']['payment_date'],
+			deposit_date=test['payment']['payment_date'],
 			settlement_date=test['payment']['settlement_date'],
 			items_covered={ 'loan_ids': loan_ids },
 			transaction_inputs=test['transaction_inputs'],
@@ -162,7 +164,7 @@ class TestSettlePayment(db_unittest.TestCase):
 
 		bank_admin_user_id = seed.get_user_id('bank_admin', index=0)
 
-		transaction_ids, err = repayment_util.settle_payment(
+		transaction_ids, err = repayment_util.settle_repayment(
 			req=req,
 			user_id=bank_admin_user_id,
 			session_maker=self.session_maker,
@@ -687,7 +689,7 @@ class TestSettlePayment(db_unittest.TestCase):
 			company_id=company_id,
 			payment_id=None,
 			amount=50.0 + 0.0 + 0.0,
-			payment_date='10/10/20',
+			deposit_date='10/10/20',
 			settlement_date='10/10/20',
 			items_covered={ 'loan_ids': [str(uuid.uuid4())] },
 			transaction_inputs=[
@@ -700,7 +702,7 @@ class TestSettlePayment(db_unittest.TestCase):
 			],
 		)
 
-		transaction_ids, err = repayment_util.settle_payment(
+		transaction_ids, err = repayment_util.settle_repayment(
 			req=req,
 			user_id=user_id,
 			session_maker=self.session_maker,
@@ -1012,6 +1014,8 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 				session.query(models.Payment).filter(
 					models.Payment.id == payment_id
 				).first())
+			# TODO(warrenshen): actually do the "schedule payment" flow to set the payment date.
+			payment.payment_date = date_util.load_date_str(test['payment']['payment_date'])
 			if payment and test['payment'].get('settled_at'):
 				payment.settled_at = test['payment']['settled_at']
 
@@ -1023,13 +1027,13 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 			company_id=company_id,
 			payment_id=payment_id,
 			amount=settlement_payment['amount'],
-			payment_date=settlement_payment['payment_date'],
+			deposit_date=settlement_payment['payment_date'],
 			settlement_date=settlement_payment['settlement_date'],
 			items_covered=settlement_payment['items_covered'],
 			transaction_inputs=[],
 		)
 
-		transaction_ids, err = repayment_util.settle_payment(
+		transaction_ids, err = repayment_util.settle_repayment(
 			req=req,
 			user_id=bank_admin_user_id,
 			session_maker=self.session_maker,

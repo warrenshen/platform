@@ -22,6 +22,7 @@ import {
   useGetLoansByLoanIdsQuery,
   useGetPaymentForSettlementQuery,
 } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import {
   PaymentMethodEnum,
@@ -37,8 +38,7 @@ import {
   CalculateEffectOfPaymentResp,
   LoanBalance,
   LoanTransaction,
-  settlePayment,
-  settlePaymentLineOfCredit,
+  settleRepaymentMutation,
 } from "lib/finance/payments/repayment";
 import { LoanBeforeAfterPayment } from "lib/types";
 import { useEffect, useMemo, useState } from "react";
@@ -111,7 +111,9 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
           method: existingPayment.method,
           amount: existingPayment.amount,
           requested_payment_date: existingPayment.requested_payment_date,
-          payment_date: existingPayment.requested_payment_date,
+          payment_date: existingPayment.payment_date,
+          deposit_date: existingPayment.payment_date, // Default deposit_date to payment_date
+          settlement_date: null,
           items_covered: existingPayment.items_covered,
         } as PaymentsInsertInput);
       } else {
@@ -121,13 +123,13 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
   });
 
   useEffect(() => {
-    if (contract && payment?.method && payment?.payment_date) {
+    if (contract && payment?.method && payment?.deposit_date) {
       const settlementTimelineConfig = getSettlementTimelineConfigFromContract(
         contract
       );
       const settlementDate = computeSettlementDateForPayment(
         payment.method,
-        payment.payment_date,
+        payment.deposit_date,
         settlementTimelineConfig
       );
       setPayment((payment) => ({
@@ -135,10 +137,10 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
         settlement_date: settlementDate,
       }));
     }
-  }, [contract, payment?.method, payment?.payment_date, setPayment]);
+  }, [contract, payment?.method, payment?.deposit_date, setPayment]);
 
   const { data: selectedLoansData } = useGetLoansByLoanIdsQuery({
-    skip: !!payment?.items_covered?.loan_ids,
+    skip: !payment?.items_covered?.loan_ids,
     variables: {
       loanIds: selectedLoanIds,
     },
@@ -151,6 +153,11 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
     }
   }, [selectedLoansData]);
 
+  const [
+    settleRepayment,
+    { loading: isSettleRepaymentLoading },
+  ] = useCustomMutation(settleRepaymentMutation);
+
   const handleClickNext = async () => {
     if (!payment || !customer) {
       alert("Developer error: payment or customer does not exist.");
@@ -161,7 +168,6 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
       company_id: customer.id,
       payment: {
         amount: payment.amount,
-        payment_date: payment.payment_date,
         settlement_date: payment.settlement_date,
       } as PaymentsInsertInput,
       payment_option: PaymentOptionEnum.CustomAmount,
@@ -214,27 +220,20 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
       return;
     }
 
-    const response =
-      productType === ProductTypeEnum.LineOfCredit
-        ? await settlePaymentLineOfCredit({
-            company_id: customer.id,
-            payment_id: payment.id,
-            amount: payment.amount,
-            payment_date: payment.payment_date,
-            settlement_date: payment.settlement_date,
-            items_covered: payment.items_covered,
-          })
-        : await settlePayment({
-            company_id: customer.id,
-            payment_id: payment.id,
-            amount: payment.amount,
-            payment_date: payment.payment_date,
-            settlement_date: payment.settlement_date,
-            loan_ids: selectedLoanIds,
-            transaction_inputs: loansBeforeAfterPayment.map(
-              (beforeAfterPaymentLoan) => beforeAfterPaymentLoan.transaction
-            ),
-          });
+    const response = await settleRepayment({
+      variables: {
+        company_id: customer.id,
+        payment_id: payment.id,
+        amount: payment.amount,
+        deposit_date: payment.deposit_date,
+        settlement_date: payment.settlement_date,
+        items_covered: payment.items_covered,
+        transaction_inputs: loansBeforeAfterPayment.map(
+          (beforeAfterPaymentLoan) => beforeAfterPaymentLoan.transaction
+        ),
+        is_line_of_credit: productType === ProductTypeEnum.LineOfCredit,
+      },
+    });
 
     if (response.status !== "OK") {
       setErrMsg(response.msg || "Error!");
@@ -282,6 +281,12 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
     },
     [loansBeforeAfterPayment, setLoansBeforeAfterPayment]
   );
+
+  const isNextButtonDisabled =
+    !payment?.deposit_date || !payment?.settlement_date;
+  // TODO(warrenshen): also check if payment.items_covered is valid.
+  const isSubmitButtonDisabled =
+    isNextButtonDisabled || isSettleRepaymentLoading;
 
   return payment && customer ? (
     <Dialog open fullWidth maxWidth="md" onClose={handleClose}>
@@ -342,6 +347,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
               <Button onClick={handleClose}>Cancel</Button>
               {isOnSelectLoans ? (
                 <Button
+                  disabled={isNextButtonDisabled}
                   variant="contained"
                   color="primary"
                   onClick={handleClickNext}
@@ -350,6 +356,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
                 </Button>
               ) : (
                 <Button
+                  disabled={isSubmitButtonDisabled}
                   variant="contained"
                   color="primary"
                   onClick={handleClickConfirm}

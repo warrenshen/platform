@@ -288,6 +288,7 @@ class Payment(Base):
 	amount = Column(Numeric)
 	requested_payment_date = Column(Date)
 	payment_date = Column(Date)
+	deposit_date = Column(Date)
 	settlement_date = Column(Date)
 	items_covered = Column(JSON)
 
