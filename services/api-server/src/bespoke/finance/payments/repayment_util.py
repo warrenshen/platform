@@ -240,8 +240,9 @@ def calculate_repayment_effect(
 	loan_dict_and_balance_list: List[LoanDictAndBalance] = []
 
 	# Find the before balances for the loans
+	fee_accumulator = loan_calculator.FeeAccumulator()
 	for loan_dict in loan_dicts:
-		calculator = loan_calculator.LoanCalculator(contract_helper)
+		calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
 		transactions_for_loan = loan_calculator.get_transactions_for_loan(
 			loan_dict['id'], all_augmented_transactions)
 		loan_update, errs = calculator.calculate_loan_balance(
@@ -270,13 +271,14 @@ def calculate_repayment_effect(
 		))
 
 	loans_past_due_but_not_selected = []
+	fee_accumulator_past_due = loan_calculator.FeeAccumulator()
 	# List out the before balances for unselected, but overdue loans to show to the user.
 	for loan_past_due_dict in loans_past_due_dicts:
 		past_due_loan_id = loan_past_due_dict['id']
 		if past_due_loan_id in selected_loan_ids:
 			continue
 
-		calculator = loan_calculator.LoanCalculator(contract_helper)
+		calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator_past_due)
 		transactions_for_loan = loan_calculator.get_transactions_for_loan(
 			past_due_loan_id, all_augmented_transactions)
 		loan_update, errs = calculator.calculate_loan_balance(
@@ -711,8 +713,9 @@ def settle_payment(
 		loan_dict_and_balance_list: List[LoanDictAndBalance] = []
 
 		# Find the before balances for the loans
+		fee_accumulator = loan_calculator.FeeAccumulator()
 		for loan_dict in loan_dicts:
-			calculator = loan_calculator.LoanCalculator(contract_helper)
+			calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
 			transactions_for_loan = loan_calculator.get_transactions_for_loan(
 				loan_dict['id'], all_augmented_transactions)
 			loan_update, errs = calculator.calculate_loan_balance(

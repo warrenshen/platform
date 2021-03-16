@@ -18,7 +18,7 @@ import datetime
 import decimal
 import logging
 from datetime import timedelta
-from typing import Callable, List, Tuple, cast
+from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
@@ -28,10 +28,21 @@ from bespoke.db.models import session_scope
 from bespoke.finance import contract_util, number_util
 from bespoke.finance.fetchers import per_customer_fetcher
 from bespoke.finance.loans import loan_calculator
+from bespoke.finance.types import finance_types
 from bespoke.finance.loans.loan_calculator import LoanUpdateDict
 from bespoke.finance.payments import payment_util
 from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
+
+FeeDict = TypedDict('FeeDict', {
+	'amount_accrued': float, # how much has accrued in fees for the time period
+	'minimum_due': float, # the minimum you must pay in a time period
+	'minimum_fee': float # how much you owe for a time period because of the minimum_due
+})
+
+FeesUpdateDict = TypedDict('FeesUpdateDict', {
+	'month_to_fees': Dict[finance_types.Month, FeeDict] # Map of month to the fees due for this month
+})
 
 SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 	'product_type': str,
@@ -52,6 +63,7 @@ EbbaApplicationUpdateDict = TypedDict('EbbaApplicationUpdateDict', {
 
 CustomerUpdateDict = TypedDict('CustomerUpdateDict', {
 	'today': datetime.date,
+	'fees_update': FeesUpdateDict,
 	'loan_updates': List[LoanUpdateDict],
 	'active_ebba_application_update': EbbaApplicationUpdateDict,
 	'summary_update': SummaryUpdateDict
@@ -176,11 +188,18 @@ class CustomerBalance(object):
 		financials = customer_info['financials']
 		num_loans = len(financials['loans'])
 
-		# TODO(dlluncor): Handle account-level fees
 		contract_helper, err = contract_util.ContractHelper.build(
 			self._company_id, financials['contracts'])
 		if err:
 			return None, err
+
+		# TODO(dlluncor): Allow someone who runs a report to tell us when is the
+		# start date to fetch information from.
+		#
+		# For now, we just assume it's the same as today.
+		start_date = today
+		fee_accumulator = loan_calculator.FeeAccumulator()
+		fee_accumulator.init_with_date_range(start_date, today)
 
 		all_errors = []
 		loan_update_dicts = []
@@ -201,7 +220,7 @@ class CustomerBalance(object):
 				logging.error('Data issue, adjusted_maturity_date missing for loan {}'.format(loan['id']))
 				continue
 
-			calculator = loan_calculator.LoanCalculator(contract_helper)
+			calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
 			loan_update_dict, errors_list = calculator.calculate_loan_balance(
 				loan,
 				transactions_for_loan,
@@ -240,9 +259,30 @@ class CustomerBalance(object):
 
 		summary_update['total_principal_in_requested_state'] = total_principal_in_requested_state
 
+		month_to_fee_amounts = fee_accumulator.get_month_to_amounts()
+		month_to_fees = dict()
+		for month, amount_dict in month_to_fee_amounts.items():
+			amount_accrued = amount_dict['total_amount']
+			cur_date = datetime.date(year=month.year, month=month.month, day=1)
+			cur_contract, err = contract_helper.get_contract(cur_date)
+			if err:
+				return None, err
+			minimum_monthly_due, err = cur_contract.get_minimum_monthly_amount()
+			if err:
+				return None, err
+			amount_short = max(0, minimum_monthly_due - amount_accrued)
+
+			month_to_fees[month] = FeeDict(
+				minimum_due=minimum_monthly_due,
+				amount_accrued=amount_accrued,
+				minimum_fee=amount_short,
+			)
+
+
 		return CustomerUpdateDict(
 			today=today,
 			loan_updates=loan_update_dicts,
+			fees_update=FeesUpdateDict(month_to_fees=month_to_fees),
 			active_ebba_application_update=ebba_application_update,
 			summary_update=summary_update,
 		), None

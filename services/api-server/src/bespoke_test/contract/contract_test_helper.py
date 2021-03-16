@@ -13,6 +13,7 @@ ContractInputDict = TypedDict('ContractInputDict', {
 	'max_days_until_repayment': int,
 	'late_fee_structure': str,
 	'preceeding_business_day': bool,
+	'minimum_monthly_amount': float,
 	# LOC contracts
 	'borrowing_base_accounts_receivable_percentage': float,
 	'borrowing_base_inventory_percentage': float,
@@ -25,6 +26,7 @@ def create_contract_config(
 		raise Exception('Unknown product type provided {}'.format(product_type))
 
 	version_key = 'v{}'.format(version)
+	# Shared fields across all product types
 	fields = [
 		{
 			'internal_name': 'factoring_fee_percentage',
@@ -34,28 +36,30 @@ def create_contract_config(
 			'internal_name': 'maximum_amount',
 			'value': input_dict['maximum_principal_amount']
 		},
-	] if product_type == ProductType.LINE_OF_CREDIT else [
 		{
-			'internal_name': 'factoring_fee_percentage',
-			'value': input_dict['interest_rate']
-		},
-		{
-			'internal_name': 'maximum_amount',
-			'value': input_dict['maximum_principal_amount']
-		},
-		{
-			'internal_name': 'contract_financing_terms',
-			'value': input_dict['max_days_until_repayment']
-		},
-		{
-			'internal_name': 'late_fee_structure',
-			'value': input_dict['late_fee_structure']
-		},
-		{
-			'internal_name': 'preceeding_business_day',
-			'value': input_dict.get('preceeding_business_day')
+			'internal_name': 'minimum_monthly_amount',
+			'value': input_dict.get('minimum_monthly_amount', 0.0)
 		}
 	]
+
+	if product_type != ProductType.LINE_OF_CREDIT:
+		# Non-LOC fields
+		fields.extend([
+			{
+				'internal_name': 'contract_financing_terms',
+				'value': input_dict['max_days_until_repayment']
+			},
+			{
+				'internal_name': 'late_fee_structure',
+				'value': input_dict['late_fee_structure']
+			},
+			{
+				'internal_name': 'preceeding_business_day',
+				'value': input_dict.get('preceeding_business_day')
+			}
+		])
+
+	#minimum_monthly_amount
 
 	if product_type == ProductType.LINE_OF_CREDIT:
 		borrowing_base_fields = (

@@ -5,12 +5,13 @@
 """
 import datetime
 from datetime import timedelta
-from typing import List, Tuple
+from typing import Dict, List, Tuple, NamedTuple
 
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.finance import contract_util, number_util
+from bespoke.finance.types import finance_types
 from bespoke.finance.payments import payment_util
 from mypy_extensions import TypedDict
 
@@ -67,13 +68,44 @@ def get_transactions_for_loan(loan_id: str, augmented_transactions: List[models.
 			loan_txs.append(tx)
 	return loan_txs
 
+AccumulatedAmountDict = TypedDict('AccumulatedAmountDict', {
+	'total_amount': float
+})
+
+class FeeAccumulator(object):
+	"""
+		Helps keep track of how many fees have been paid over a particular period of time.
+	"""
+	def __init__(self) -> None:
+		self._month_to_amounts: Dict[finance_types.Month, AccumulatedAmountDict] = {}
+
+	def init_with_date_range(self, start_date: datetime.date, end_date: datetime.date) -> None:
+		# Allows you to initialize what months must get included based on this date range
+		cur_date = start_date
+
+		while cur_date <= end_date:
+			self.accumulate(0.0, 0.0, cur_date)
+			cur_date = start_date + timedelta(days=30)
+
+	def get_month_to_amounts(self) -> Dict[finance_types.Month, AccumulatedAmountDict]:
+		return self._month_to_amounts
+
+	def accumulate(self, fee_for_day: float, interest_for_day: float, day: datetime.date) -> None:
+		month = finance_types.Month(month=day.month, year=day.year)
+		if month not in self._month_to_amounts:
+			self._month_to_amounts[month] = AccumulatedAmountDict(total_amount=0)
+
+		self._month_to_amounts[month]['total_amount'] += fee_for_day + interest_for_day
+
+
 class LoanCalculator(object):
 	"""
 		Helps calculate and summarize the history of the loan with respect to
 		how the interest and fees are accumulated.
 	"""
-	def __init__(self, contract_helper: contract_util.ContractHelper) -> None:
+	def __init__(self, contract_helper: contract_util.ContractHelper, fee_accumulator: FeeAccumulator) -> None:
 		self._contract_helper = contract_helper
+		self._fee_accumulator = fee_accumulator
 		# For summarization
 		self._balance_ranges: List[BalanceRange] = []
 
@@ -210,9 +242,14 @@ class LoanCalculator(object):
 				pass
 
 			# Add it to the outstanding interest and fees
-			interest_due_on_day = cur_interest_rate * max(0.0, outstanding_principal_for_interest)
-			outstanding_interest += interest_due_on_day
-			outstanding_fees += fee_multiplier * interest_due_on_day
+			interest_due_for_day = cur_interest_rate * max(0.0, outstanding_principal_for_interest)
+			outstanding_interest += interest_due_for_day
+
+			fee_due_for_day = fee_multiplier * interest_due_for_day
+			outstanding_fees += fee_due_for_day
+
+			self._fee_accumulator.accumulate(
+				fee_for_day=fee_due_for_day, interest_for_day=interest_due_for_day, day=cur_date)
 
 			# Apply repayment transactions at the "end of the day"
 			self._note_today(

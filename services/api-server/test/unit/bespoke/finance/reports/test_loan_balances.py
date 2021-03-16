@@ -72,9 +72,13 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 			test_helper.assertDeepAlmostEqual(self, expected_update, copied_update)
 
-		if test.get('expected_summary_update'):
+		if test.get('expected_summary_update') is not None:
 			test_helper.assertDeepAlmostEqual(self, test['expected_summary_update'],
 				cast(Dict, customer_update['summary_update']))
+
+		if test.get('expected_fees_update') is not None:
+			test_helper.assertDeepAlmostEqual(self, test['expected_fees_update'], 
+				cast(Dict, customer_update['fees_update']))
 
 		success, err = customer_balance.write(customer_update)
 		self.assertTrue(success)
@@ -86,7 +90,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				session.query(models.FinancialSummary).filter(
 					models.FinancialSummary.company_id == company_id).first())
 
-			if test.get('expected_summary_update'):
+			if test.get('expected_summary_update') is not None:
 				self.assertIsNotNone(financial_summary)
 				expected = test['expected_summary_update']
 				actual = financial_summary
@@ -110,6 +114,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					input_dict=ContractInputDict(
 						interest_rate=0.05,
 						maximum_principal_amount=120000.01,
+						minimum_monthly_amount=2001.03,
 						max_days_until_repayment=0, # unused
 						late_fee_structure=_get_late_fee_structure(), # unused
 					)
@@ -134,6 +139,15 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_outstanding_fees': 0.0,
 					'total_principal_in_requested_state': 0.0,
 					'available_limit': 120000.01,
+				},
+				'expected_fees_update': {
+					'month_to_fees': {
+						(10, 2020): {
+							'minimum_due': 2001.03,
+							'amount_accrued': 0.0,
+							'minimum_fee': 2001.03
+						}
+					}
 				}
 			}
 		]
@@ -151,6 +165,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					input_dict=ContractInputDict(
 						interest_rate=0.05,
 						maximum_principal_amount=120000.01,
+						minimum_monthly_amount=200.03,
 						max_days_until_repayment=0, # unused
 						late_fee_structure=_get_late_fee_structure(), # unused
 					)
@@ -209,6 +224,15 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'total_outstanding_fees': 0.0,
 					'total_principal_in_requested_state': 0.0,
 					'available_limit': 120000.01 - (500.03 + 100.03)
+				},
+				'expected_fees_update': {
+					'month_to_fees': {
+						(10, 2020): {
+							'minimum_due': 200.03,
+							'amount_accrued': (3 * 0.05 * 500.03) + (2 * 0.05 * 100.03),
+							'minimum_fee': 200.03 - ((3 * 0.05 * 500.03) + (2 * 0.05 * 100.03))
+						}
+					}
 				}
 			}
 		]
