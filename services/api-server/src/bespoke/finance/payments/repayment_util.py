@@ -614,7 +614,7 @@ def settle_payment(
 					models.Loan.closed_at == None
 				).all())
 
-			loan_ids = list(map(lambda loan: loan.id, loans))
+			loan_ids = list(map(lambda loan: str(loan.id), loans))
 		else:
 			loan_ids = items_covered['loan_ids']
 			loans = cast(
