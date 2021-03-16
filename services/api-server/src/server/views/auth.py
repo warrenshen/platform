@@ -1,18 +1,17 @@
 import datetime
 import json
+from typing import Callable, Dict, List, cast
 
 from bespoke.date import date_util
-from bespoke.db import models, db_constants
+from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.security import security_util, two_factor_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from flask_jwt_extended import (create_access_token, create_refresh_token,
-								get_jwt_identity, get_raw_jwt,
-								jwt_refresh_token_required)
-from typing import cast, List, Dict, Callable
-
+                                get_jwt_identity, get_raw_jwt,
+                                jwt_refresh_token_required)
 from server.config import Config
 from server.views.common import auth_util, handler_util
 
@@ -112,7 +111,7 @@ class ResetPasswordView(MethodView):
 
 		with session_scope(current_app.session_maker) as session:
 			two_factor_info, err = two_factor_util.get_two_factor_link(
-				link_val, cfg.get_security_config(), 
+				link_val, cfg.get_security_config(),
 				max_age_in_seconds=security_util.SECONDS_IN_DAY * 3, session=session)
 			if err:
 				return handler_util.make_error_response(err)

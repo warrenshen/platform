@@ -125,7 +125,6 @@ function PurchaseOrderForm({
           className={classes.inputField}
           id="order-date-date-picker"
           label="Order Date"
-          disablePast
           value={purchaseOrder.order_date}
           onChange={(value) =>
             setPurchaseOrder({
@@ -140,7 +139,6 @@ function PurchaseOrderForm({
           className={classes.inputField}
           id="delivery-date-date-picker"
           label="Delivery date"
-          disablePast
           value={purchaseOrder.delivery_date}
           onChange={(value) =>
             setPurchaseOrder({

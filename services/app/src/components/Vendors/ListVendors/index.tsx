@@ -1,20 +1,15 @@
-import VendorPartnershipList from "components/Vendors/VendorPartnershipsDataGrid";
+import VendorPartnershipsDataGrid from "components/Vendors/VendorPartnershipsDataGrid";
 import { useBankListVendorPartnershipsQuery } from "generated/graphql";
 import { sortBy } from "lodash";
 
 function ListVendors() {
   const { data }: { data: any } = useBankListVendorPartnershipsQuery();
 
-  if (!data || !data.company_vendor_partnerships) {
-    return null;
-  }
+  const partnerships = data?.company_vendor_partnerships || [];
 
-  const vendorPartnerships = sortBy(
-    data.company_vendor_partnerships,
-    (item) => item.vendor.name
-  );
+  const vendors = sortBy(partnerships, (item) => item.vendor.name);
 
-  return <VendorPartnershipList data={vendorPartnerships} isBankAccount />;
+  return <VendorPartnershipsDataGrid data={vendors} isBankAccount />;
 }
 
 export default ListVendors;

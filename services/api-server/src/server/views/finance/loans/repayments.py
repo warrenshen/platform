@@ -162,7 +162,8 @@ class SettlePaymentView(MethodView):
 		transaction_ids, err = repayment_util.settle_payment(
 			cast(repayment_util.SettlePaymentReqDict, form),
 			user_session.get_user_id(),
-			current_app.session_maker
+			current_app.session_maker,
+			is_line_of_credit=False,
 		)
 
 		if err:
@@ -196,10 +197,11 @@ class SettlePaymentLineOfCreditView(MethodView):
 
 		user_session = auth_util.UserSession.from_session()
 
-		transaction_ids, err = repayment_util.settle_payment_line_of_credit(
-			cast(repayment_util.SettlePaymentLineOfCreditReqDict, form),
+		transaction_ids, err = repayment_util.settle_payment(
+			cast(repayment_util.SettlePaymentReqDict, form),
 			user_session.get_user_id(),
-			current_app.session_maker
+			current_app.session_maker,
+			is_line_of_credit=True,
 		)
 
 		if err:
