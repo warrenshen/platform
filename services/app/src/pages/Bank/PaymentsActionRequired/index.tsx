@@ -131,7 +131,7 @@ function BankPaymentsActionRequiredPage() {
               <Box>
                 <ModalButton
                   isDisabled={seletedSchedulePaymentIds.length !== 1}
-                  label={"Schedule Payment"}
+                  label={"Submit Payment"}
                   modal={({ handleClose }) => (
                     <ScheduleRepaymentModal
                       paymentId={scheduledPaymentId}
@@ -159,7 +159,7 @@ function BankPaymentsActionRequiredPage() {
         <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
           <Typography variant="h6">
-            Payments - Pending Reverse Draft ACHs
+            Payments - Submitted Reverse Draft ACHs
           </Typography>
           <Box mb={2} display="flex" flexDirection="row-reverse">
             <Can perform={Action.SettleRepayment}>

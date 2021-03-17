@@ -30,7 +30,7 @@ function DatePicker(props: Props) {
         className={props.className || ""}
         disableToolbar
         disableFuture={props.disableFuture}
-        disablePast={props.disablePast || props.disableNonBankDays}
+        disablePast={props.disablePast}
         autoOk
         error={props.error}
         required={props.required}

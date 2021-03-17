@@ -25,7 +25,7 @@ type LoanToShow = {
   transaction: LoanTransaction;
 };
 
-export type CalculateEffectOfPaymentResp = {
+export type CalculateRepaymentEffectResp = {
   status: string;
   msg?: string;
   loans_to_show: LoanToShow[];
@@ -34,14 +34,15 @@ export type CalculateEffectOfPaymentResp = {
   payable_amount_interest: number;
 };
 
-export async function calculateEffectOfPayment(req: {
-  payment: PaymentsInsertInput;
+export async function calculateRepaymentEffect(req: {
   company_id: string;
   payment_option: string;
+  amount: number;
+  settlement_date: string;
   loan_ids: string[];
-}): Promise<CalculateEffectOfPaymentResp> {
+}): Promise<CalculateRepaymentEffectResp> {
   return authenticatedApi
-    .post(loansRoutes.calculateEffectOfPayment, req)
+    .post(loansRoutes.calculateRepaymentEffect, req)
     .then((res) => {
       return res.data;
     })

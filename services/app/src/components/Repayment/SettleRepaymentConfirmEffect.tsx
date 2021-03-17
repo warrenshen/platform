@@ -156,25 +156,6 @@ function SettleRepaymentConfirmEffect({
           />
         </Box>
       )}
-      {productType !== ProductTypeEnum.LineOfCredit && (
-        <Box display="flex" flexDirection="column" mt={3}>
-          <Box mb={1}>
-            <Typography variant="subtitle2">
-              Step 4: finalize actual payment amount (this may be different from
-              the requested payment amount).
-            </Typography>
-          </Box>
-          <FormControl className={classes.inputField}>
-            <CurrencyInput
-              label={"Amount"}
-              value={payment.amount}
-              handleChange={(value: number) => {
-                setPayment({ ...payment, amount: value });
-              }}
-            />
-          </FormControl>
-        </Box>
-      )}
     </Box>
   );
 }

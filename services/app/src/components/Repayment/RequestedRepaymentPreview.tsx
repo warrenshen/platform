@@ -20,7 +20,9 @@ function RequestedRepaymentPreview({ payment }: Props) {
       </Box>
       <Box mt={1}>
         <Typography variant="body1">
-          {`Requested Payment Amount: ${formatCurrency(payment.amount)}`}
+          {`Requested Payment Amount: ${formatCurrency(
+            payment.requested_amount
+          )}`}
         </Typography>
         {(payment.items_covered.to_principal ||
           payment.items_covered.to_interest) && (

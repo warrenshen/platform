@@ -119,8 +119,9 @@ def _apply_to(balance: LoanBalanceDict, category: str, amount_left: float) -> Tu
 
 def calculate_repayment_effect(
 	company_id: str,
-	payment_input: payment_util.PaymentInsertInputDict,
 	payment_option: str,
+	amount: float,
+	settlement_date: str,
 	loan_ids: List[str],
 	session_maker: Callable,
 	test_only_skip_interest_and_fees_calculation: bool = False,
@@ -130,13 +131,13 @@ def calculate_repayment_effect(
 	err_details = {'company_id': company_id, 'loan_ids': loan_ids, 'method': 'calculate_repayment_effect'}
 
 	if payment_option == 'custom_amount':
-		if not number_util.is_number(payment_input.get('amount')) or payment_input['amount'] <= 0:
-			return None, errors.Error('Payment requested amount must greater than 0 when the payment option is Custom Amount')
+		if not number_util.is_number(amount) or amount <= 0:
+			return None, errors.Error('Payment amount must greater than 0 when payment option is Custom Amount')
 
-	if not payment_input.get('settlement_date'):
+	if not settlement_date:
 		return None, errors.Error('Settlement date must be specified')
 
-	payment_settlement_date = date_util.load_date_str(payment_input['settlement_date'])
+	payment_settlement_date = date_util.load_date_str(settlement_date)
 
 	with session_scope(session_maker) as session:
 		# Get all contracts associated with company.
@@ -186,8 +187,17 @@ def calculate_repayment_effect(
 					models.Loan.id.in_(loan_ids)
 				).all())
 
-			if not loans:
-				return None, errors.Error('No loans found', details=err_details)
+			if len(loans) != len(loan_ids):
+				return None, errors.Error('Not all selected loans found')
+
+			# TODO(warrenshen): add this check back in and update unit tests.
+			# not_funded_loan_ids = [loan.id for loan in loans if not loan.funded_at]
+			# if len(not_funded_loan_ids) > 0:
+			# 	return None, errors.Error('Not all selected loans are funded')
+
+			closed_loan_ids = [loan.id for loan in loans if loan.closed_at]
+			if len(closed_loan_ids) > 0:
+				return None, errors.Error('Some selected loans are closed already')
 
 		selected_loan_ids = set([])
 		for loan in loans:
@@ -341,7 +351,7 @@ def calculate_repayment_effect(
 		return current_payment_amount
 
 	if payment_option == 'custom_amount':
-		amount_to_pay = payment_input['amount']
+		amount_to_pay = amount
 		amount_left = amount_to_pay
 
 		# Apply in the order of earliest maturity date to latest maturity date
@@ -459,6 +469,7 @@ def create_repayment(
 	requested_payment_date = date_util.load_date_str(payment_insert_input['requested_payment_date'])
 	requested_amount = payment_insert_input['requested_amount']
 	items_covered = payment_insert_input['items_covered']
+	loan_ids = None
 
 	if not payment_method:
 		return None, errors.Error('Payment method must be specified', details=err_details)
@@ -481,12 +492,15 @@ def create_repayment(
 		if 'loan_ids' not in items_covered:
 			return None, errors.Error('items_covered.loan_ids must be specified', details=err_details)
 
+		loan_ids = items_covered['loan_ids']
+		if len(loan_ids) <= 0:
+			return None, errors.Error('At least one loan ID must be specified')
+
 	payment_id = None
 
 	with session_scope(session_maker) as session:
 		loans = []
 		if not is_line_of_credit:
-			loan_ids = items_covered['loan_ids']
 			loans = cast(
 				List[models.Loan],
 				session.query(models.Loan).filter(
@@ -495,19 +509,16 @@ def create_repayment(
 					models.Loan.id.in_(loan_ids)
 				).all())
 
-			if not loans:
-				return None, errors.Error('No loans associated with create payment submission')
-
 			if len(loans) != len(loan_ids):
-				return None, errors.Error('Not all loans found in create payment submission')
+				return None, errors.Error('Not all selected loans found')
 
-			not_funded_loan_ids = []
-			for loan in loans:
-				if not loan.funded_at:
-					not_funded_loan_ids.append(loan.id)
+			not_funded_loan_ids = [loan.id for loan in loans if not loan.funded_at]
+			if len(not_funded_loan_ids) > 0:
+				return None, errors.Error('Not all selected loans are funded')
 
-			if not_funded_loan_ids:
-				return None, errors.Error('Not all loans are funded')
+			closed_loan_ids = [loan.id for loan in loans if loan.closed_at]
+			if len(closed_loan_ids) > 0:
+				return None, errors.Error('Some selected loans are closed already')
 
 		# Settlement date should not be set until the banker settles the payment.
 		payment_input = payment_util.RepaymentPaymentInputDict(

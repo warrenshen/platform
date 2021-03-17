@@ -15,7 +15,7 @@ from server.views.common import auth_util, handler_util
 
 handler = Blueprint('finance_loans_repayments', __name__)
 
-class CalculateEffectOfPaymentView(MethodView):
+class CalculateRepaymentEffectView(MethodView):
 	decorators = [auth_util.login_required]
 
 	@handler_util.catch_bad_json_request
@@ -24,7 +24,13 @@ class CalculateEffectOfPaymentView(MethodView):
 		if not form:
 			return handler_util.make_error_response('No data provided')
 
-		required_keys = ['payment', 'company_id', 'loan_ids', 'payment_option']
+		required_keys = [
+			'company_id',
+			'payment_option',
+			'amount',
+			'settlement_date',
+			'loan_ids',
+		]
 		for key in required_keys:
 			if key not in form:
 				return handler_util.make_error_response(
@@ -35,16 +41,19 @@ class CalculateEffectOfPaymentView(MethodView):
 		if not user_session.is_bank_or_this_company_admin(form['company_id']):
 			return handler_util.make_error_response('Access Denied')
 
-		payment = form['payment']
+		company_id = form['company_id']
 		payment_option = form['payment_option']
+		amount = form['amount']
+		settlement_date = form['settlement_date']
 		loan_ids = form['loan_ids']
 
 		# NOTE: Fetching information is likely a slow task, so we probably want to
 		# turn this into an async operation.
 		effect_resp, err = repayment_util.calculate_repayment_effect(
-			form['company_id'],
-			payment,
+			company_id,
 			payment_option,
+			amount,
+			settlement_date,
 			loan_ids,
 			current_app.session_maker,
 		)
@@ -188,7 +197,7 @@ class SettleRepaymentView(MethodView):
 		}), 200)
 
 handler.add_url_rule(
-	'/calculate_effect_of_payment', view_func=CalculateEffectOfPaymentView.as_view(name='calculate_effect_of_repayment_view'))
+	'/calculate_effect_of_payment', view_func=CalculateRepaymentEffectView.as_view(name='calculate_effect_of_repayment_view'))
 
 handler.add_url_rule(
 	'/create_repayment', view_func=CreateRepaymentView.as_view(name='create_payment_view'))

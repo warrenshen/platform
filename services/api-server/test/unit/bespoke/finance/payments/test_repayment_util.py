@@ -107,18 +107,9 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 
 		resp, err = repayment_util.calculate_repayment_effect(
 			company_id=company_id,
-			payment_input=payment_util.PaymentInsertInputDict(
-				company_id='unused',
-				type='unused',
-				requested_amount=None,
-				amount=test['payment_input_amount'],
-				method='ach',
-				requested_payment_date=None,
-				payment_date=test['payment_date'],
-				settlement_date=test['settlement_date'],
-				items_covered={ 'loan_ids': loan_ids },
-			),
 			payment_option=test['payment_option'],
+			amount=test['payment_input_amount'],
+			settlement_date=test['settlement_date'],
 			loan_ids=loan_ids,
 			session_maker=session_maker,
 			test_only_skip_interest_and_fees_calculation=test.get('test_only_skip_interest_and_fees_calculation')
@@ -764,7 +755,7 @@ class TestCreatePayment(db_unittest.TestCase):
 					company_id=company_id,
 					amount=decimal.Decimal(amount),
 					approved_at=date_util.now(),
-					funded_at=date_util.now()
+					funded_at=date_util.now(),
 				)
 				session.add(loan)
 				session.flush()
@@ -887,7 +878,7 @@ class TestCreatePayment(db_unittest.TestCase):
 			user_id=user_id,
 			session_maker=self.session_maker,
 			is_line_of_credit=False)
-		self.assertIn('No loans', err.msg)
+		self.assertIn('Not all selected loans found', err.msg)
 
 	def test_not_funded_loan(self) -> None:
 		seed = test_helper.BasicSeed.create(self.session_maker, self)

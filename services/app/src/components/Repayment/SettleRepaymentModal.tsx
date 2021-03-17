@@ -34,8 +34,8 @@ import {
   getSettlementTimelineConfigFromContract,
 } from "lib/finance/payments/advance";
 import {
-  calculateEffectOfPayment,
-  CalculateEffectOfPaymentResp,
+  calculateRepaymentEffect,
+  CalculateRepaymentEffectResp,
   LoanBalance,
   LoanTransaction,
   settleRepaymentMutation,
@@ -89,7 +89,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
   const [
     calculateEffectResponse,
     setCalculateEffectResponse,
-  ] = useState<CalculateEffectOfPaymentResp | null>(null);
+  ] = useState<CalculateRepaymentEffectResp | null>(null);
   const [loansBeforeAfterPayment, setLoansBeforeAfterPayment] = useState<
     LoanBeforeAfterPayment[]
   >([]);
@@ -103,12 +103,12 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
       if (existingPayment) {
         setSelectedLoanIds(existingPayment.items_covered?.loan_ids || []);
         setCustomer(existingPayment.company as Companies);
-
         setPayment({
           id: existingPayment.id,
           company_id: existingPayment.company_id,
           type: existingPayment.type,
           method: existingPayment.method,
+          requested_amount: existingPayment.requested_amount,
           amount: existingPayment.amount,
           requested_payment_date: existingPayment.requested_payment_date,
           payment_date: existingPayment.payment_date,
@@ -164,17 +164,15 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
       return;
     }
 
-    const response = await calculateEffectOfPayment({
+    const response = await calculateRepaymentEffect({
       company_id: customer.id,
-      payment: {
-        amount: payment.amount,
-        settlement_date: payment.settlement_date,
-      } as PaymentsInsertInput,
       payment_option: PaymentOptionEnum.CustomAmount,
+      amount: payment.amount,
+      settlement_date: payment.settlement_date,
       loan_ids: selectedLoanIds,
     });
 
-    console.log({ type: "calculateEffectOfPayment", response });
+    console.log({ type: "calculateRepaymentEffect", response });
 
     if (response.status !== "OK") {
       setErrMsg(response.msg || "");
@@ -283,7 +281,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
   );
 
   const isNextButtonDisabled =
-    !payment?.deposit_date || !payment?.settlement_date;
+    !payment?.amount || !payment?.deposit_date || !payment?.settlement_date;
   // TODO(warrenshen): also check if payment.items_covered is valid.
   const isSubmitButtonDisabled =
     isNextButtonDisabled || isSettleRepaymentLoading;

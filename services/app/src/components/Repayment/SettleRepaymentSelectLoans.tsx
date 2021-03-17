@@ -1,12 +1,14 @@
 import {
   Box,
   createStyles,
+  FormControl,
   makeStyles,
   Theme,
   Typography,
 } from "@material-ui/core";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import RequestedRepaymentPreview from "components/Repayment/RequestedRepaymentPreview";
+import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
@@ -89,9 +91,25 @@ function SettleRepaymentSelectLoans({
         </Box>
       </Box>
       <Box display="flex" flexDirection="column" mt={3}>
-        <Box mb={1}>
+        <Box display="flex" flexDirection="column">
+          <Box mb={1}>
+            <Typography variant="subtitle2">
+              Step 1: specify actual amount of this payment.
+            </Typography>
+          </Box>
+          <FormControl className={classes.inputField}>
+            <CurrencyInput
+              label={"Amount"}
+              value={payment.amount}
+              handleChange={(value: number) => {
+                setPayment({ ...payment, amount: value });
+              }}
+            />
+          </FormControl>
+        </Box>
+        <Box mt={3} mb={1}>
           <Typography variant="subtitle2">
-            Step 1: specify payment and settlement date (settlement date will
+            Step 2: specify payment and settlement date (settlement date will
             change when payment date changes).
           </Typography>
         </Box>

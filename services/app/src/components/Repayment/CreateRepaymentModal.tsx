@@ -27,8 +27,8 @@ import {
   getSettlementTimelineConfigFromContract,
 } from "lib/finance/payments/advance";
 import {
-  calculateEffectOfPayment,
-  CalculateEffectOfPaymentResp,
+  calculateRepaymentEffect,
+  CalculateRepaymentEffectResp,
   createRepayment,
   LoanBalance,
   LoanTransaction,
@@ -107,7 +107,7 @@ function CreateRepaymentModal({
   const [
     calculateEffectResponse,
     setCalculateEffectResponse,
-  ] = useState<CalculateEffectOfPaymentResp | null>(null);
+  ] = useState<CalculateRepaymentEffectResp | null>(null);
   const [loansBeforeAfterPayment, setLoansBeforeAfterPayment] = useState<
     LoanBeforeAfterPayment[]
   >([]);
@@ -130,21 +130,20 @@ function CreateRepaymentModal({
   }, [contract, payment.method, payment.requested_payment_date, setPayment]);
 
   const handleClickNext = async () => {
-    const response = await calculateEffectOfPayment({
+    const response = await calculateRepaymentEffect({
       company_id: companyId,
-      payment: {
-        ...payment,
-        amount: payment.requested_amount,
-        payment_date: payment.requested_payment_date,
-      },
       payment_option:
         productType === ProductTypeEnum.LineOfCredit
           ? "pay_in_full"
           : paymentOption,
+      // We use payment.requested_amount here since we want to calculate what is
+      // the effect of this repayment assumption its amount is the requested amount.
+      amount: payment.requested_amount,
+      settlement_date: payment.settlement_date,
       loan_ids: selectedLoans.map((selectedLoan) => selectedLoan.id),
     });
 
-    console.log({ type: "calculateEffectOfPayment", response });
+    console.log({ type: "calculateRepaymentEffect", response });
 
     if (response.status !== "OK") {
       setErrMsg(response.msg || "");
