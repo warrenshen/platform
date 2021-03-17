@@ -76,6 +76,7 @@ SettleRepaymentReqDict = TypedDict('SettleRepaymentReqDict', {
 	'amount': float,
 	'deposit_date': str, # When the payment was deposited into the bank
 	'settlement_date': str, # Effective date of all the transactions as well
+	'amount_as_credit_to_user': float,
 	'items_covered': payment_util.PaymentItemsCoveredDict,
 	'transaction_inputs': List[TransactionInputDict],
 })
@@ -391,15 +392,8 @@ def calculate_repayment_effect(
 				)
 			))
 		amount_as_credit_to_user = amount_left
-		# Any amount remaining is stored as a negative principal balance on one of the loans
-		# (we choose the last loan here for convenience)
-		cur_transaction = loans_to_show[-1]['transaction']
-		cur_loan_balance_after = loans_to_show[-1]['after_loan_balance']
-
-		cur_transaction['amount'] += amount_as_credit_to_user
-		cur_transaction['to_principal'] += amount_as_credit_to_user
-		cur_loan_balance_after['outstanding_principal_balance'] -= amount_as_credit_to_user
-
+		# Any amount remaining is stored as a separate transaction which counts
+		# as a user credit
 	elif payment_option == 'pay_minimum_due':
 
 		for loan_and_before_balance in loan_dict_and_balance_list:
@@ -653,6 +647,7 @@ def settle_repayment(
 	deposit_date = date_util.load_date_str(req['deposit_date'])
 	settlement_date = date_util.load_date_str(req['settlement_date'])
 	items_covered = req['items_covered']
+	credit_to_user = req['amount_as_credit_to_user']
 	transaction_inputs = []
 
 	if not deposit_date:
@@ -667,7 +662,7 @@ def settle_repayment(
 
 		to_principal = items_covered['to_principal']
 		to_interest = items_covered['to_interest']
-		if not number_util.float_eq(payment_amount, to_principal + to_interest):
+		if not number_util.float_eq(payment_amount, to_principal + to_interest + credit_to_user):
 			return None, errors.Error(f'Requested breakdown of to_principal vs to_interest ({to_principal}, {to_interest}) does not sum up to requested amount ({payment_amount})')
 	else:
 		if not items_covered or 'loan_ids' not in items_covered:
@@ -692,7 +687,7 @@ def settle_repayment(
 
 			transactions_sum += cur_sum
 
-		if not number_util.float_eq(transactions_sum, payment_amount):
+		if not number_util.float_eq(transactions_sum + credit_to_user, payment_amount):
 			return None, errors.Error('Transaction inputs provided does not balance with the payment amount included', details=err_details)
 
 	with session_scope(session_maker) as session:
@@ -889,6 +884,19 @@ def settle_repayment(
 					to_fees=amount_used_fees
 				))
 
+		if number_util.float_gt(credit_to_user, 0.0):
+			t = models.Transaction()
+			t.type = db_constants.TransactionType.CREDIT_TO_USER
+			t.amount = decimal.Decimal(credit_to_user)
+			t.to_principal = decimal.Decimal(0.0)
+			t.to_interest = decimal.Decimal(0.0)
+			t.to_fees = decimal.Decimal(0.0)
+			# NOTE: no loan_id is set for credits
+			t.payment_id = req['payment_id']
+			t.created_by_user_id = user_id
+			t.effective_date = settlement_date
+			session.add(t)
+
 		for i in range(len(transaction_inputs)):
 			cur_loan_id = loan_dict_and_balance_list[i]['loan']['id']
 			cur_loan = loan_id_to_loan[cur_loan_id]
@@ -926,11 +934,9 @@ def settle_repayment(
 					'Fees on a loan may not be negative. You must reduce the amount applied to interest on {} by {} and apply it to the principal'.format(
 						cur_loan_id, -1 * new_outstanding_fees))
 
-			if number_util.float_lt(new_outstanding_principal_balance, 0) and (
-				number_util.float_gt(new_outstanding_interest, 0) or
-				number_util.float_gt(new_outstanding_fees, 0)):
+			if number_util.float_lt(new_outstanding_principal_balance, 0):
 				return None, errors.Error(
-					f'Principal on a loan may not be negative if interest or fees are not zero. You must reduce the amount applied to principal on {cur_loan_id} by {-1 * new_outstanding_principal_balance} and apply it to interest and fees.')
+					f'Principal on a loan may not be negative or you must reduce the amount applied to principal on {cur_loan_id} by {-1 * new_outstanding_principal_balance}.')
 
 			session.add(t)
 

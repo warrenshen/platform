@@ -193,8 +193,8 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				LoanToShowDict(
 					loan_id='filled in by test',
 					transaction=TransactionInputDict(
-						amount=30.01,
-						to_principal=30.01 - (14 * daily_interest),
+						amount=20.02 + 14 * daily_interest,
+						to_principal=20.02,
 						to_interest=14 * daily_interest,
 						to_fees=0.0
 					),
@@ -206,7 +206,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 					),
 					after_loan_balance=LoanBalanceDict(
 						amount=20.02,
-						outstanding_principal_balance=20.02 + (14 * daily_interest) - 30.01,
+						outstanding_principal_balance=0.0,
 						outstanding_interest=0.0,
 						outstanding_fees=0.0
 					)
@@ -273,8 +273,8 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				LoanToShowDict(
 					loan_id='filled in by test',
 					transaction=TransactionInputDict(
-						amount=105.00 - 20.37, # remainder after the first transaction
-						to_principal=105.00 - 20.37 - (7 * daily_interest2), # 84.21
+						amount=30.0 + 7 * daily_interest2,
+						to_principal=30.0,
 						to_interest=7 * daily_interest2,
 						to_fees=0.0
 					),
@@ -286,7 +286,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 					),
 					after_loan_balance=LoanBalanceDict(
 						amount=30.00,
-						outstanding_principal_balance=30.0-84.21,
+						outstanding_principal_balance=0.0, # we dont store the credit on the principal
 						outstanding_interest=0.0,
 						outstanding_fees=0.0
 					)
