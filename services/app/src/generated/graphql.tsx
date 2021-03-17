@@ -15106,7 +15106,9 @@ export type GetBankPayorPartnershipQuery = {
     {
       payor?: Maybe<
         {
-          settings: Pick<CompanySettings, "id">;
+          settings: Pick<CompanySettings, "id"> & {
+            collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
+          };
           users: Array<ContactFragment>;
         } & ThirdPartyFragment
       >;
@@ -19185,6 +19187,9 @@ export const GetBankPayorPartnershipDocument = gql`
         ...ThirdParty
         settings {
           id
+          collections_bespoke_bank_account {
+            ...BankAccount
+          }
         }
         users {
           ...Contact
@@ -19209,6 +19214,7 @@ export const GetBankPayorPartnershipDocument = gql`
   }
   ${BankPayorPartnershipFragmentDoc}
   ${ThirdPartyFragmentDoc}
+  ${BankAccountFragmentDoc}
   ${ContactFragmentDoc}
   ${CompanyFragmentDoc}
   ${CompanySettingsFragmentDoc}

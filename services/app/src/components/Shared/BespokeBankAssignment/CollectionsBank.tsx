@@ -54,7 +54,7 @@ function CollectionsBank(props: Props) {
           },
         });
       }}
-    ></BespokeBankAssignment>
+    />
   );
 }
 

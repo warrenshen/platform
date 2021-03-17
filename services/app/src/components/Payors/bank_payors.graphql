@@ -24,6 +24,9 @@ query GetBankPayorPartnership($id: uuid!) {
       ...ThirdParty
       settings {
         id
+        collections_bespoke_bank_account {
+          ...BankAccount
+        }
       }
       users {
         ...Contact
