@@ -592,6 +592,9 @@ def schedule_repayment(
 		if not payment.method == PaymentMethodEnum.REVERSE_DRAFT_ACH:
 			return None, errors.Error('Payment method must be Reverse Draft ACH', details=err_details)
 
+		if payment_amount > payment.requested_amount:
+			return None, errors.Error('Payment amount cannot be greater than requested payment amount', details=err_details)
+
 		if payment_date < payment.requested_payment_date:
 			return None, errors.Error('Payment date cannot be before the requested payment date', details=err_details)
 
