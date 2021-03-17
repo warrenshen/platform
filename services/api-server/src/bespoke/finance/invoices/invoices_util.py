@@ -5,8 +5,12 @@ from typing import Callable, Dict, Tuple, List, Optional
 
 from bespoke import errors
 from bespoke.db import models, db_constants
+from bespoke.finance.payments import payment_util
 from bespoke.date import date_util
 from bespoke.email import sendgrid_util
+from server.views.common import auth_util
+
+from sqlalchemy.orm import Session
 
 
 REQUIRED_KEYS_FOR_APPROVAL = (
@@ -110,21 +114,100 @@ class InvoiceData:
 
 
 @dataclass
-class Request:
+class UpsertRequest:
 	invoice: InvoiceData
 	files: List[InvoiceFileItem]
 
 	@staticmethod
-	def from_dict(d: Dict) -> 'Request':
-		return Request(
+	def from_dict(d: Dict) -> 'UpsertRequest':
+		return UpsertRequest(
 			InvoiceData.from_dict(d.get('invoice')),
 			[InvoiceFileItem.from_dict(f) for f in d.get('files', [])]
 		)
 
 
+@dataclass
+class SubmitForPaymentRequest:
+	invoice_ids: List[str]
+
+	@staticmethod
+	def from_dict(d: Dict) -> 'SubmitForPaymentRequest':
+		return SubmitForPaymentRequest(d.get('invoice_ids', []))
+
+
+@dataclass
+class InvoicePaymentRequestResponse:
+	invoice_id: str
+	new_status: db_constants.RequestStatusEnum
+	link_val: str
+	rejection_note: Optional[str]
+	amount: Optional[float]
+	anticipated_payment_date: Optional[datetime.date]
+	payment_method: Optional[db_constants.PaymentMethodEnum]
+
+	@staticmethod
+	def from_dict(d: Dict) -> Tuple['InvoicePaymentRequestResponse', errors.Error]:
+		invoice_id = d.get('invoice_id')
+		if not invoice_id:
+			return None, errors.Error('missing key: invoice_id')
+
+		link_val = d.get('link_val')
+		if not link_val:
+			return None, errors.Error('missing key: link_val')
+
+		new_status = d.get('new_status')
+		if not new_status:
+			return None, errors.Error('missing key: new_status')
+
+		rejection_note = d.get('rejection_note')
+
+		if new_status == db_constants.RequestStatusEnum.REJECTED:
+			if not rejection_note:
+				return None, errors.Error("Rejected invoice payments require a note")
+			return InvoicePaymentRequestResponse(
+				invoice_id,
+				new_status,
+				link_val,
+				rejection_note,
+				None,
+				None,
+				None
+			), None
+
+		if new_status != db_constants.RequestStatusEnum.APPROVED:
+			return None, errors.Error("invalid new status")
+
+		amount = d.get('amount')
+		if not amount:
+			return None, errors.Error('missing key: amount')
+		amount = float(amount)
+
+		anticipated_payment_date = d.get('anticipated_payment_date')
+		if not anticipated_payment_date:
+			return None, errors.Error('missing key: anticipated_payment_date')
+		anticipated_payment_date = date_util.load_date_str(anticipated_payment_date)
+
+		payment_method = d.get('payment_method')
+		if not payment_method:
+			return None, errors.Error('missing key: payment_method')
+
+		if payment_method not in db_constants.ALL_PAYMENT_METHODS:
+			return None, errors.Error('invalid payment method')
+
+		return InvoicePaymentRequestResponse(
+			invoice_id,
+			new_status,
+			link_val,
+			rejection_note,
+			amount,
+			anticipated_payment_date,
+			payment_method
+		), None
+
+
 def create_invoice(
 	session_maker: Callable,
-	request: Request
+	request: UpsertRequest
 	) -> Tuple[models.InvoiceDict, List[models.InvoiceFileDict], errors.Error]:
 
 	try:
@@ -151,7 +234,7 @@ def create_invoice(
 
 def update_invoice(
 	session_maker: Callable,
-	request: Request
+	request: UpsertRequest
 	) -> Tuple[models.InvoiceDict, List[models.InvoiceFileDict], errors.Error]:
 
 	try:
@@ -296,11 +379,125 @@ def handle_invoice_approval_request(
 	return None
 
 
+def send_one_notification_for_payment(
+	session: Session,
+	client: sendgrid_util.Client,
+	invoice: models.Invoice,
+	customer: models.Company) -> errors.Error:
+
+	info = models.TwoFactorFormInfoDict(
+		type=db_constants.TwoFactorLinkType.PAY_INVOICE,
+		payload={'invoice_id': str(invoice.id)}
+	)
+
+	payload = sendgrid_util.TwoFactorPayloadDict(
+		form_info=info,
+		expires_at=date_util.hours_from_today(24 * 7)
+	)
+
+	template_data = {
+		'payor_name': invoice.payor.name,
+		'customer_name': customer.name
+	}
+
+	users = session.query(models.User) \
+		.filter(models.User.company_id == invoice.payor.id) \
+		.all()
+	emails = [u.email for u in users if u.email]
+
+	_, err = client.send(
+		sendgrid_util.TemplateNames.PAYOR_TO_PAY_INVOICE,
+		template_data,
+		emails,
+		two_factor_payload=payload,
+	)
+	if err:
+		return err
+
+	# Update the payment_requested_at timestamp
+	invoice.payment_requested_at = date_util.now()
+	return None
 
 
+def submit_invoices_for_payment(
+	session_maker: Callable,
+	client: sendgrid_util.Client,
+	company_id: str,
+	request: SubmitForPaymentRequest) -> errors.Error:
+
+	# Ensure that all of the invoices belong to the given company
+	with models.session_scope(session_maker) as session:
+		invoices = session.query(models.Invoice) \
+			.filter(models.Invoice.id.in_(request.invoice_ids)) \
+			.all()
+
+		if len(invoices) != len(request.invoice_ids):
+			return errors.Error(
+				"The number of retrieved invoices did not match the number of ids given")
+
+		mismatches = [invoice for invoice in invoices if str(invoice.company_id) != company_id]
+
+		if len(mismatches):
+			return errors.Error(
+				f"{len(mismatches)} of the given invoices did not belong to the user")
+
+		# We also make sure that all of the invoices have an approved_at timestamp set
+		not_approved = [invoice for invoice in invoices if not invoice.approved_at]
+		if len(not_approved):
+			return errors.Error(f"{len(not_approved)} of the given invoices are not yet approved")
+
+		# All good. For each invoice, send an email to the payor
+		customer = session.query(models.Company).get(company_id)
+
+		for invoice in invoices:
+			err = send_one_notification_for_payment(session, client, invoice, customer)
+			if err:
+				return err
+
+		return None
 
 
+def respond_to_payment_request(
+	session: Session,
+	client: sendgrid_util.Client,
+	email: str,
+	data: InvoicePaymentRequestResponse) -> errors.Error:
 
+	user = session.query(models.User) \
+		.filter(models.User.email == email) \
+		.first()
+	if not user:
+		return errors.Error("Could not find user")
 
+	invoice = session.query(models.Invoice).get(data.invoice_id)
 
+	if invoice.payor_id != user.company_id:
+		return errors.Error("User cannot approve this invoice")
 
+	# Do we need to email folks when a payment is rejected?
+	if data.new_status == db_constants.RequestStatusEnum.REJECTED:
+		invoice.payment_rejected_at = date_util.now()
+		invoice.payment_rejection_note = data.rejection_note
+		return None
+
+	invoice.payment_confirmed_at = date_util.now()
+
+	payment = payment_util.create_repayment_payment(
+		str(invoice.company_id),
+		payment_util.RepaymentPaymentInputDict(
+			payment_method=str(data.payment_method),
+			requested_amount=data.amount,
+			requested_payment_date=data.anticipated_payment_date,
+			payment_date=data.anticipated_payment_date,
+			items_covered=payment_util.PaymentItemsCoveredDict(
+				invoice_ids=[str(invoice.id)]
+			)
+		),
+		str(user.id))
+
+	session.add(payment)
+	session.commit()
+	session.refresh(payment)
+
+	invoice.payment_id = payment.id
+	return None

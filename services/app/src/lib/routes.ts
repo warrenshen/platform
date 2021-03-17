@@ -14,6 +14,8 @@ export const anonymousRoutes = {
   reviewPurchaseOrderComplete: "/review-purchase-order-complete",
   reviewInvoice: "/review-invoice",
   reviewInvoiceComplete: "/review-invoice-complete",
+  reviewInvoicePayment: "/review-invoice-payment",
+  reviewInvoicePaymentComplete: "/review-invoice-payment-complete",
   resetPassword: "/reset-password",
   forgotPassword: "/forgot-password",
 };

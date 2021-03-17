@@ -26,6 +26,10 @@ query GetInvoiceForReview($id: uuid!) {
     is_cannabis
     status
     created_at
+    payment_requested_at
+    payment_confirmed_at
+    payment_rejected_at
+    payment_rejection_note
     invoice_files {
       invoice_id
       file_id

@@ -6,7 +6,7 @@ from typing import Any, Dict, List, cast
 
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
-from bespoke.db.db_constants import (PaymentMethod, PaymentStatusEnum,
+from bespoke.db.db_constants import (PaymentMethodEnum, PaymentStatusEnum,
                                      ProductType)
 from bespoke.db.models import session_scope
 from bespoke.finance.payments import payment_util, repayment_util
@@ -878,7 +878,7 @@ class TestCreatePayment(db_unittest.TestCase):
 				type='unused',
 				requested_amount=10.0,
 				amount=None,
-				method=PaymentMethod.REVERSE_DRAFT_ACH,
+				method=PaymentMethodEnum.REVERSE_DRAFT_ACH,
 				requested_payment_date='10/10/2020',
 				payment_date=None,
 				settlement_date='unused',
@@ -913,7 +913,7 @@ class TestCreatePayment(db_unittest.TestCase):
 				type='unused',
 				requested_amount=10.0,
 				amount=None,
-				method=PaymentMethod.REVERSE_DRAFT_ACH,
+				method=PaymentMethodEnum.REVERSE_DRAFT_ACH,
 				requested_payment_date='10/10/2020',
 				payment_date=None,
 				settlement_date='unused',

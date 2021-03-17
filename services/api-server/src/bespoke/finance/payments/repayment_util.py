@@ -6,7 +6,7 @@ from typing import Any, Callable, List, Optional, Tuple, cast
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import db_constants, models, models_util
-from bespoke.db.db_constants import (LoanStatusEnum, PaymentMethod,
+from bespoke.db.db_constants import (LoanStatusEnum, PaymentMethodEnum,
                                      PaymentStatusEnum, ProductType)
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util, number_util
@@ -514,7 +514,7 @@ def create_repayment(
 			payment_method=payment_method,
 			requested_amount=requested_amount,
 			requested_payment_date=requested_payment_date,
-			payment_date=requested_payment_date if payment_method != PaymentMethod.REVERSE_DRAFT_ACH else None,
+			payment_date=requested_payment_date if payment_method != PaymentMethodEnum.REVERSE_DRAFT_ACH else None,
 			items_covered=items_covered,
 		)
 		payment = payment_util.create_repayment_payment(
@@ -525,7 +525,7 @@ def create_repayment(
 		session.flush()
 		payment_id = str(payment.id)
 
-		is_scheduled = payment_method == PaymentMethod.REVERSE_DRAFT_ACH
+		is_scheduled = payment_method == PaymentMethodEnum.REVERSE_DRAFT_ACH
 		payment_status = PaymentStatusEnum.SCHEDULED if is_scheduled else PaymentStatusEnum.PENDING
 
 		for loan in loans:
@@ -578,7 +578,7 @@ def schedule_repayment(
 		if not payment:
 			return None, errors.Error('No payment found to settle transaction', details=err_details)
 
-		if not payment.method == PaymentMethod.REVERSE_DRAFT_ACH:
+		if not payment.method == PaymentMethodEnum.REVERSE_DRAFT_ACH:
 			return None, errors.Error('Payment method must be Reverse Draft ACH', details=err_details)
 
 		if payment_date < payment.requested_payment_date:

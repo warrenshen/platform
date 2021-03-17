@@ -38,6 +38,7 @@ export enum Action {
   EditInvoices = "invoices:add",
   FundInvoices = "invoices:fund",
   ViewInvoicesActionMenu = "invoices:view-action-menu",
+  RequestPaymentOnInvoices = "invoices:request-payment",
 
   // Payments
   SettleRepayment = "payments:settle-repayments",
@@ -181,6 +182,7 @@ const rules: Rules = {
       Action.AddInvoices,
       Action.EditInvoices,
       Action.FundInvoices,
+      Action.RequestPaymentOnInvoices,
 
       Action.AddPurchaseOrderLoan,
       Action.EditPurchaseOrderLoan,

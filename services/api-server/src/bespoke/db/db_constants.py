@@ -13,11 +13,13 @@ BANK_ROLES = ['bank_admin'] # Having any of these roles means you are a Bespoke 
 class TwoFactorLinkType(object):
 	CONFIRM_PURCHASE_ORDER = 'confirm_purchase_order'
 	CONFIRM_INVOICE = 'confirm_invoice'
+	PAY_INVOICE = 'pay_invoice'
 	FORGOT_PASSWORD = 'forgot_password'
 
 REVIEWER_LINK_TYPE_TO_ROLE = {
 	TwoFactorLinkType.CONFIRM_PURCHASE_ORDER: UserRoles.PURCHASE_ORDER_REVIEWER,
 	TwoFactorLinkType.CONFIRM_INVOICE: UserRoles.INVOICE_REVIEWER,
+	TwoFactorLinkType.PAY_INVOICE: UserRoles.INVOICE_REVIEWER,
 }
 
 # Contracts
@@ -84,8 +86,20 @@ ALL_LOAN_TYPES = [
 
 # Payments
 
-class PaymentMethod(object):
+class PaymentMethodEnum(object):
 	REVERSE_DRAFT_ACH = 'reverse_draft_ach'
+	ACH = 'ach'
+	WIRE = 'wire'
+	CHECK = 'check'
+	CASH = 'cash'
+
+ALL_PAYMENT_METHODS = (
+	PaymentMethodEnum.REVERSE_DRAFT_ACH,
+	PaymentMethodEnum.ACH,
+	PaymentMethodEnum.WIRE,
+	PaymentMethodEnum.CHECK,
+	PaymentMethodEnum.CASH
+)
 
 class PaymentType(object):
 	REPAYMENT = 'repayment'

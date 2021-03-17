@@ -26,6 +26,7 @@ class TemplateNames(object):
 
 	PAYOR_TO_APPROVE_INVOICE = 'payor_to_approve_invoice'
 	PAYOR_APPROVES_OR_REJECTS_INVOICE = 'payor_approves_or_rejects_invoice'
+	PAYOR_TO_PAY_INVOICE = 'payor_to_pay_invoice'
 
 	BANK_USER_APPROVES_OR_REJECTS_EBBA_APPLICATION = 'bank_user_approves_or_rejects_ebba_application'
 
@@ -85,6 +86,10 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 	TemplateNames.PAYOR_APPROVES_OR_REJECTS_INVOICE: {
 		'id': 'd-c1b6738833d741588e7c77ae9afc8903',
 		'requires_secure_link': False,
+	},
+	TemplateNames.PAYOR_TO_PAY_INVOICE: {
+		'id': 'd-62fbb49f06254e11a2b04f3f0fee6bbd',
+		'requires_secure_link': True,
 	},
 
 	TemplateNames.BANK_USER_APPROVES_OR_REJECTS_EBBA_APPLICATION: {

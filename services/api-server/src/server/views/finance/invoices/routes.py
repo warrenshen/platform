@@ -6,6 +6,10 @@ from server.views.finance.invoices.approval import (
 	SubmitForApprovalView,
 	RespondToApprovalRequestView
 )
+from server.views.finance.invoices.payment import (
+	SubmitForPaymentView,
+	RespondToPaymentRequestView
+)
 from flask import Blueprint
 
 handler = Blueprint('finance_invoices', __name__)
@@ -20,3 +24,11 @@ handler.add_url_rule(
 handler.add_url_rule(
 	'/respond_to_approval_request',
 	view_func=RespondToApprovalRequestView.as_view('respond_to_approval_request'))
+
+handler.add_url_rule(
+	'/submit_for_payment',
+	view_func=SubmitForPaymentView.as_view('submit_for_payment'))
+
+handler.add_url_rule(
+	'/respond_to_payment_request',
+	view_func=RespondToPaymentRequestView.as_view('respond_to_payment_request'))

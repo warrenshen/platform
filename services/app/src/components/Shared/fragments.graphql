@@ -246,6 +246,9 @@ fragment Invoice on invoices {
   status
   created_at
   funded_at
+  payment_requested_at
+  payment_confirmed_at
+  payment_rejected_at
   company {
     id
     name

@@ -1,9 +1,14 @@
-import { Invoices, InvoicesInsertInput } from "generated/graphql";
+import {
+  Invoices,
+  InvoicesInsertInput,
+  RequestStatusEnum,
+} from "generated/graphql";
 import {
   authenticatedApi,
   CustomMutationResponse,
   invoicesRoutes,
 } from "lib/api";
+import { PaymentMethodEnum } from "lib/enum";
 
 export type SubmitInvoiceForApprovalRequest = {
   variables: {
@@ -21,6 +26,24 @@ export type UpsertInvoiceRequest = {
   variables: {
     invoice: InvoicesInsertInput;
     files: InvoiceFileItem[];
+  };
+};
+
+export type SubmitInvoiceForPaymentRequest = {
+  variables: {
+    invoice_ids: Invoices["id"][];
+  };
+};
+
+export type RespondToInvoicePaymentRequest = {
+  variables: {
+    invoice_id: Invoices["id"];
+    new_status: RequestStatusEnum;
+    rejection_note: string | null;
+    link_val: string;
+    amount: number | null;
+    anticipated_payment_date: string | null;
+    payment_method: PaymentMethodEnum | null;
   };
 };
 
@@ -69,10 +92,46 @@ export async function submitInvoiceForApproval(
     .then(
       (response) => response,
       (error) => {
-        console.error("Failed to update an invoice. Err:", error);
+        console.error("Failed to submit invoice for approval. Err:", error);
         return {
           status: "ERROR",
           msg: "Failed to update an invoice",
+        };
+      }
+    );
+}
+
+export async function submitInvoiceForPaymentMutation(
+  request: SubmitInvoiceForPaymentRequest
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(invoicesRoutes.submitForPayment, request.variables)
+    .then((response) => response.data)
+    .then(
+      (response) => response,
+      (error) => {
+        console.error("Failed to submit invoices for payment. Err:", error);
+        return {
+          status: "ERROR",
+          msg: "Failed to submit invoice(s) for payment",
+        };
+      }
+    );
+}
+
+export async function respondToInvoicePaymentMutation(
+  request: RespondToInvoicePaymentRequest
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(invoicesRoutes.respondToPaymentRequest, request.variables)
+    .then((response) => response.data)
+    .then(
+      (response) => response,
+      (error) => {
+        console.error("Failed to repson to invoice approval. Err:", error);
+        return {
+          status: "ERROR",
+          msg: "Failed to respond to invoice request for payment.",
         };
       }
     );

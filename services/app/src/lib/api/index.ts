@@ -50,6 +50,8 @@ export const invoicesRoutes = {
   update: "/invoices/update",
   submitForApproval: "/invoices/submit_for_approval",
   respondToApprovalRequest: "/invoices/respond_to_approval_request",
+  submitForPayment: "/invoices/submit_for_payment",
+  respondToPaymentRequest: "/invoices/respond_to_payment_request",
 };
 
 export const loansRoutes = {

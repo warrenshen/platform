@@ -13,6 +13,8 @@ import ForgotPasswordPage from "pages/Anonymous/ForgotPassword";
 import ResetPasswordPage from "pages/Anonymous/ResetPassword";
 import ReviewInvoicePage from "pages/Anonymous/ReviewInvoice";
 import ReviewInvoiceCompletePage from "pages/Anonymous/ReviewInvoiceComplete";
+import ReviewInvoicePaymentPage from "pages/Anonymous/ReviewInvoicePayment";
+import ReviewInvoicePaymentCompletePage from "pages/Anonymous/ReviewInvoicePaymentComplete";
 import ReviewPurchaseOrderPage from "pages/Anonymous/ReviewPurchaseOrder";
 import ReviewPurchaseOrderCompletePage from "pages/Anonymous/ReviewPurchaseOrderComplete";
 import SecureLinkPage from "pages/Anonymous/SecureLink";
@@ -87,6 +89,17 @@ function App() {
           exact
           path={anonymousRoutes.reviewInvoiceComplete}
           component={ReviewInvoiceCompletePage}
+        />
+
+        <Route
+          exact
+          path={anonymousRoutes.reviewInvoicePayment}
+          component={ReviewInvoicePaymentPage}
+        />
+        <Route
+          exact
+          path={anonymousRoutes.reviewInvoicePaymentComplete}
+          component={ReviewInvoicePaymentCompletePage}
         />
         <Route
           exact

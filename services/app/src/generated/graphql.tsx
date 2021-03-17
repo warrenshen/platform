@@ -14812,6 +14812,10 @@ export type GetInvoiceForReviewQuery = {
       | "is_cannabis"
       | "status"
       | "created_at"
+      | "payment_requested_at"
+      | "payment_confirmed_at"
+      | "payment_rejected_at"
+      | "payment_rejection_note"
     > & {
       invoice_files: Array<
         Pick<InvoiceFiles, "invoice_id" | "file_id"> & InvoiceFileFragment
@@ -15837,6 +15841,9 @@ export type InvoiceFragment = Pick<
   | "status"
   | "created_at"
   | "funded_at"
+  | "payment_requested_at"
+  | "payment_confirmed_at"
+  | "payment_rejected_at"
 > & {
   company: Pick<Companies, "id" | "name">;
   payor?: Maybe<Pick<Payors, "id" | "name">>;
@@ -16520,6 +16527,9 @@ export const InvoiceFragmentDoc = gql`
     status
     created_at
     funded_at
+    payment_requested_at
+    payment_confirmed_at
+    payment_rejected_at
     company {
       id
       name
@@ -17757,6 +17767,10 @@ export const GetInvoiceForReviewDocument = gql`
       is_cannabis
       status
       created_at
+      payment_requested_at
+      payment_confirmed_at
+      payment_rejected_at
+      payment_rejection_note
       invoice_files {
         invoice_id
         file_id

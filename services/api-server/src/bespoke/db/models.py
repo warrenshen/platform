@@ -559,6 +559,7 @@ InvoiceDict = TypedDict('InvoiceDict', {
 	'id': str,
 	'company_id': str,
 	'payor_id': str,
+	'payment_id': Optional[str],
 	'invoice_number': str,
 	'subtotal_amount': float,
 	'total_amount': float,
@@ -573,6 +574,10 @@ InvoiceDict = TypedDict('InvoiceDict', {
 	'rejected_at': datetime.datetime,
 	'rejection_note': str,
 	'is_cannabis': bool,
+	'payment_requested_at': datetime.datetime,
+	'payment_confirmed_at': datetime.datetime,
+	'payment_rejected_at': datetime.datetime,
+	'payment_rejection_note': str,
 })
 
 class Invoice(Artifact):
@@ -581,6 +586,7 @@ class Invoice(Artifact):
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	payor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	payment_id = cast(GUID, Column(GUID, ForeignKey('payments.id'), nullable=True))
 	invoice_number = Column(String)
 	subtotal_amount = Column(Numeric)
 	total_amount = Column(Numeric)
@@ -594,6 +600,10 @@ class Invoice(Artifact):
 	funded_at = Column(DateTime)
 	rejected_at = Column(DateTime)
 	rejection_note = Column(Text)
+	payment_requested_at = Column(DateTime)
+	payment_confirmed_at = Column(DateTime)
+	payment_rejected_at = Column(DateTime)
+	payment_rejection_note = Column(Text)
 	is_cannabis = Column(Boolean)
 
 	company = relationship(
@@ -611,6 +621,7 @@ class Invoice(Artifact):
 			id=str(self.id),
 			company_id=str(self.company_id),
 			payor_id=str(self.payor_id),
+			payment_id=str(self.payment_id) if self.payment_id else None,
 			invoice_number=self.invoice_number,
 			subtotal_amount=float_or_null(self.subtotal_amount),
 			total_amount=float_or_null(self.total_amount),
@@ -625,6 +636,10 @@ class Invoice(Artifact):
 			rejected_at=self.rejected_at,
 			rejection_note=self.rejection_note,
 			is_cannabis=self.is_cannabis,
+			payment_requested_at=self.payment_requested_at,
+			payment_confirmed_at=self.payment_confirmed_at,
+			payment_rejected_at=self.payment_rejected_at,
+			payment_rejection_note=self.payment_rejection_note,
 		)
 
 	def max_loan_amount(self) -> Optional[decimal.Decimal]:
