@@ -18,6 +18,7 @@ import {
   useRouteMatch,
 } from "react-router-dom";
 import BankCustomerEbbaApplicationsSubpage from "./EbbaApplications";
+import BankCustomerInvoicesSubpage from "./Invoices";
 import BankCustomerLoansSubpage from "./Loans";
 import BankCustomerOverviewSubpage from "./Overview";
 import BankCustomerPayorsSubpage from "./Payors";
@@ -66,7 +67,9 @@ const getCustomerPaths = (productType: ProductTypeEnum) => [
     label: "Loans",
   },
   {
-    visible: productType === ProductTypeEnum.InventoryFinancing,
+    visible:
+      productType === ProductTypeEnum.InventoryFinancing ||
+      productType === ProductTypeEnum.PurchaseMoneyFinancing,
     path: bankRoutes.customer.purchaseOrders,
     component: BankCustomerPurchaseOrdersSubpage,
     label: "Purchase Orders",
@@ -76,6 +79,14 @@ const getCustomerPaths = (productType: ProductTypeEnum) => [
     path: bankRoutes.customer.ebbaApplications,
     component: BankCustomerEbbaApplicationsSubpage,
     label: "Borrowing Base",
+  },
+  {
+    visible:
+      productType === ProductTypeEnum.InvoiceFinancing ||
+      productType === ProductTypeEnum.PurchaseMoneyFinancing,
+    path: bankRoutes.customer.invoices,
+    component: BankCustomerInvoicesSubpage,
+    label: "Invoices",
   },
   {
     visible: productType !== ProductTypeEnum.InvoiceFinancing,

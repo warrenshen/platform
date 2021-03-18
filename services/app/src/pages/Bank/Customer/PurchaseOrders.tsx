@@ -22,6 +22,7 @@ function BankCustomerPurchaseOrdersSubpage({ companyId }: Props) {
   return (
     <Box flex={1} display="flex" flexDirection="column" width="100%">
       <PurchaseOrdersDataGrid
+        isMultiSelectEnabled={false}
         isCompanyVisible={false}
         purchaseOrders={purchaseOrders}
       />
