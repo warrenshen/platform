@@ -46,7 +46,7 @@ NEW_PURCHASE_ORDER_TUPLES = [
 	("LU", "Ninja Supply", "INV-000254", "8/26/2020", "12/7/2020", 30915.50),
 ]
 
-def create_new_purchase_orders(session: Session) -> None:
+def import_funded_purchase_orders_leune(session: Session) -> None:
 	purchase_orders_count = len(NEW_PURCHASE_ORDER_TUPLES)
 	print(f'Creating {purchase_orders_count} purchase orders...')
 
@@ -143,7 +143,7 @@ def main() -> None:
 	session_maker = models.new_sessionmaker(engine)
 
 	with models.session_scope(session_maker) as session:
-		create_new_purchase_orders(session)
+		import_funded_purchase_orders_leune(session)
 
 if __name__ == "__main__":
 	if not os.environ.get("DATABASE_URL"):

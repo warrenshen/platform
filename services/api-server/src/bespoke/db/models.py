@@ -382,6 +382,7 @@ class Loan(Base):
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 
+	identifier = Column(String)
 	loan_type = Column(Text)
 	artifact_id = Column(GUID)
 	requested_payment_date = Column(Date)
@@ -408,8 +409,6 @@ class Loan(Base):
 	outstanding_principal_balance = Column(Numeric)
 	outstanding_interest = Column(Numeric)
 	outstanding_fees = Column(Numeric)
-
-	identifier = Column(String)
 
 	def as_dict(self) -> LoanDict:
 		return LoanDict(

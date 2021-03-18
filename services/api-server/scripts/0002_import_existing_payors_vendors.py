@@ -226,7 +226,7 @@ NEW_PAYOR_VENDOR_TUPLES = [
 	('GF', 'Grupo Flor', 'Payor', 'From the Earth Ventura', 'From the Earth Ventura', '', ''),
 ]
 
-def create_payors_vendors(session: Session) -> None:
+def import_existing_payors_vendors(session: Session) -> None:
 	payors_vendors_count = len(NEW_PAYOR_VENDOR_TUPLES)
 	print(f'Creating {payors_vendors_count} payors / vendors...')
 
@@ -357,7 +357,7 @@ def main() -> None:
 	session_maker = models.new_sessionmaker(engine)
 
 	with models.session_scope(session_maker) as session:
-		create_payors_vendors(session)
+		import_existing_payors_vendors(session)
 
 if __name__ == '__main__':
 	if not os.environ.get('DATABASE_URL'):

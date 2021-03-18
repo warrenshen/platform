@@ -51,7 +51,7 @@ NEW_CUSTOMER_TUPLES = [
     ('Grupo Flor', 'GF', 'FLOR X, INC.'),
 ]
 
-def create_customers(session: Session) -> None:
+def import_existing_customers(session: Session) -> None:
 	customers_count = len(NEW_CUSTOMER_TUPLES)
 	print(f'Creating {customers_count} customers...')
 
@@ -85,7 +85,7 @@ def main() -> None:
 	session_maker = models.new_sessionmaker(engine)
 
 	with models.session_scope(session_maker) as session:
-		create_customers(session)
+		import_existing_customers(session)
 
 if __name__ == "__main__":
 	if not os.environ.get("DATABASE_URL"):
