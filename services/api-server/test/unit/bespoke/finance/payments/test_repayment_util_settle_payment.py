@@ -581,6 +581,80 @@ class TestSettlePayment(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
+	def test_failure_overpayment_the_wrong_way_using_principal_overpayment(self) -> None:
+		"""
+		Tests that an overpayment on the principal gets rejected
+		"""
+		test: Dict = {
+			'loans': [
+				{
+					'amount': 50.0,
+					'origination_date': '10/10/2020',
+					'maturity_date': '10/24/2020',
+					'outstanding_principal_balance': 50.0,
+					'outstanding_interest': 0.3,
+					'outstanding_fees': 0.0,
+				}
+			],
+			'transaction_lists': [
+				# Transactions are parallel to the loans defined in the test.
+				# These will be advances or repayments made against their respective loans.
+				[
+					{
+						'type': 'advance',
+						'amount': 50.0,
+						'payment_date': '10/10/2020',
+						'effective_date': '10/10/2020'
+					}
+				]
+			],
+			'payment': {
+				'amount': 55.0 + 0.3 + 0.0,
+				'payment_method': 'ach',
+				'payment_date': '10/10/2020',
+				'settlement_date': '10/12/2020'
+			},
+			'transaction_inputs': [
+				{
+					'amount': 55.0 + 0.3 + 0.0,
+					'to_principal': 55.0,
+					'to_interest': 0.3,
+					'to_fees': 0.0,
+				}
+			],
+			'amount_as_credit_to_user': 0.0,
+			'expected_transactions': [
+				# Sort order is from largest to smallest
+				{
+					'amount': 50.0 + 0.3 + 0.0,
+					'to_principal': 50.0, # $5 overpayment on principal
+					'to_interest': 0.3,
+					'to_fees': 0.0,
+					'type': db_constants.PaymentType.REPAYMENT,
+					'loan_id_index': 0
+				},
+				{
+					'amount': 5.0,
+					'to_principal': 0.0,
+					'to_interest': 0.0,
+					'to_fees': 0.0,
+					'type': db_constants.TransactionType.CREDIT_TO_USER,
+					'loan_id_index': None
+				},
+			],
+			'loans_after_payment': [
+				{
+					'amount': 50.0,
+					'outstanding_principal_balance': 0.0,
+					'outstanding_interest': 0.0,
+					'outstanding_fees': 0.0,
+					'payment_status': PaymentStatusEnum.CLOSED,
+				}
+			],
+			'in_err_msg': 'Principal on a loan may not be negative'
+		}
+		self._run_test(test)
+
 	def test_failure_transactions_overpay_on_interest_and_fees_get_stored_on_principal(self) -> None:
 
 		test: Dict = {

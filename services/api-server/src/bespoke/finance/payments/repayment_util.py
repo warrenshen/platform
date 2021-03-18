@@ -692,8 +692,7 @@ def settle_repayment(
 		if not number_util.float_eq(transactions_sum + credit_to_user, payment_amount):
 			return None, errors.Error('Transaction inputs provided does not balance with the payment amount included', details=err_details)
 
-	with session_scope(session_maker) as session:
-		# Get all contracts associated with company.
+	def _settle_logic(session: Session) -> Tuple[bool, errors.Error]:
 		contracts = cast(
 			List[models.Contract],
 			session.query(models.Contract).filter(
@@ -959,14 +958,22 @@ def settle_repayment(
 			settlement_date=settlement_date,
 			settled_by_user_id=user_id,
 		)
+		return True, None
+
+	with session_scope(session_maker) as session:
+		# Get all contracts associated with company.
+		success, err = _settle_logic(session)
+		if err:
+			session.rollback()
+			return None, err
 
 		session.flush()
 
-	transactions = cast(
-		List[models.Transaction],
-		session.query(models.Transaction).filter(
-			models.Transaction.payment_id == req['payment_id']
-		).all())
-	transaction_ids = list(map(lambda transaction: transaction.id, transactions))
+		transactions = cast(
+			List[models.Transaction],
+			session.query(models.Transaction).filter(
+				models.Transaction.payment_id == req['payment_id']
+			).all())
+		transaction_ids = list(map(lambda transaction: transaction.id, transactions))
 
 	return transaction_ids, None
