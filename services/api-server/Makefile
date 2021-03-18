@@ -9,8 +9,10 @@ PYTHONPATH=$(server_root_dir)/src
 update-requirements:
 	pip-compile requirements.in --output-file=requirements.txt
 
-# Example of running one test:
+# Example of running a file of tests:
 # make run-test-local NAME=unit.bespoke.finance.test_contract_util
+# Example of running a single test in a file of tests:
+# make run-test-local NAME=unit.bespoke.finance.test_contract_util.TestContractHelper.test_missing_start_date
 
 ifdef NAME
 run-test-local:

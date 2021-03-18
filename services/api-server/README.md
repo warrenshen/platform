@@ -66,7 +66,7 @@ make runlocal
 
 To stat up the hot-reloading Python server for asynchronous tasks on localhost:7001...
 
-    make run-async-local
+make run-async-local
 
 # Contributing
 
