@@ -43,6 +43,9 @@ def backfill_loan_identifiers(session: Session) -> None:
             loan.identifier = str(latest_loan_identifier)
             print(f'Updated loan {loan.id} identifier to "{latest_loan_identifier}"')
 
+        customer.latest_loan_identifier = latest_loan_identifier
+        print(f'Customer {customer.name} latest_loan_identifier is now "{latest_loan_identifier}"')
+
         session.flush()
 
 def main() -> None:
