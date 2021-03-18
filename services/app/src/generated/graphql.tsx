@@ -9498,6 +9498,8 @@ export type Payors = {
   name?: Maybe<Scalars["String"]>;
   needs_balance_recomputed?: Maybe<Scalars["Boolean"]>;
   phone_number?: Maybe<Scalars["String"]>;
+  /** An object relationship */
+  settings?: Maybe<CompanySettings>;
   state?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   zip_code?: Maybe<Scalars["String"]>;
@@ -9599,6 +9601,7 @@ export type PayorsBoolExp = {
   name?: Maybe<StringComparisonExp>;
   needs_balance_recomputed?: Maybe<BooleanComparisonExp>;
   phone_number?: Maybe<StringComparisonExp>;
+  settings?: Maybe<CompanySettingsBoolExp>;
   state?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
   zip_code?: Maybe<StringComparisonExp>;
@@ -9627,6 +9630,7 @@ export type PayorsInsertInput = {
   name?: Maybe<Scalars["String"]>;
   needs_balance_recomputed?: Maybe<Scalars["Boolean"]>;
   phone_number?: Maybe<Scalars["String"]>;
+  settings?: Maybe<CompanySettingsObjRelInsertInput>;
   state?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   zip_code?: Maybe<Scalars["String"]>;
@@ -9747,6 +9751,7 @@ export type PayorsOrderBy = {
   name?: Maybe<OrderBy>;
   needs_balance_recomputed?: Maybe<OrderBy>;
   phone_number?: Maybe<OrderBy>;
+  settings?: Maybe<CompanySettingsOrderBy>;
   state?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   zip_code?: Maybe<OrderBy>;
@@ -14821,7 +14826,15 @@ export type GetInvoiceForReviewQuery = {
         Pick<InvoiceFiles, "invoice_id" | "file_id"> & InvoiceFileFragment
       >;
       company: Pick<Companies, "id" | "name">;
-      payor?: Maybe<Pick<Payors, "id" | "name">>;
+      payor?: Maybe<
+        Pick<Payors, "id" | "name"> & {
+          settings?: Maybe<
+            Pick<CompanySettings, "id"> & {
+              collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
+            }
+          >;
+        }
+      >;
     }
   >;
 };
@@ -17783,10 +17796,17 @@ export const GetInvoiceForReviewDocument = gql`
       payor {
         id
         name
+        settings {
+          id
+          collections_bespoke_bank_account {
+            ...BankAccount
+          }
+        }
       }
     }
   }
   ${InvoiceFileFragmentDoc}
+  ${BankAccountFragmentDoc}
 `;
 
 /**

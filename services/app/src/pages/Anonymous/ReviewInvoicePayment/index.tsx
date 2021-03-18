@@ -60,6 +60,9 @@ const useStyles = makeStyles((theme: Theme) =>
     dialogActions: {
       margin: theme.spacing(2),
     },
+    paymentInfo: {
+      marginTop: theme.spacing(3),
+    },
   })
 );
 
@@ -82,6 +85,9 @@ export default function ReviewInvoicePaymentPage(props: Props) {
   });
 
   const invoice = data?.invoices_by_pk;
+
+  const collectionsAccount =
+    invoice && invoice.payor?.settings?.collections_bespoke_bank_account;
 
   const invoiceFileIds = useMemo(() => {
     const invoiceFile = invoice?.invoice_files.filter(
@@ -196,6 +202,46 @@ export default function ReviewInvoicePaymentPage(props: Props) {
               Cannabis or Derivatives File(s)
             </Typography>
             <DownloadThumbnail fileIds={invoiceCannabisFileIds} />
+          </Box>
+        )}
+        {collectionsAccount && (
+          <Box mr={3} className={classes.paymentInfo}>
+            <Typography variant="subtitle1">Payment Information</Typography>
+            <Typography variant="body2">
+              Please make your payment to this Bank Account
+            </Typography>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Bank Name
+              </Typography>
+              <Typography variant={"body1"}>
+                {collectionsAccount.bank_name}
+              </Typography>
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Bank Address
+              </Typography>
+              <Typography variant={"body1"}>
+                {collectionsAccount.bank_address || "Unknown"}
+              </Typography>
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Routing Number
+              </Typography>
+              <Typography variant={"body1"}>
+                {collectionsAccount.routing_number}
+              </Typography>
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Account Number
+              </Typography>
+              <Typography variant={"body1"}>
+                {collectionsAccount.account_number}
+              </Typography>
+            </Box>
           </Box>
         )}
         <Box display="flex" justifyContent="center" mt={4}>
