@@ -16,11 +16,12 @@ import {
   Companies,
   GetLoansByLoanIdsQuery,
   Loans,
+  LoanTypeEnum,
   Payments,
   PaymentsInsertInput,
   ProductTypeEnum,
-  useGetLoansByLoanIdsQuery,
   useGetPaymentForSettlementQuery,
+  useLoansByCompanyAndLoanTypeForBankQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -28,6 +29,7 @@ import {
   PaymentMethodEnum,
   PaymentMethodToLabel,
   PaymentOptionEnum,
+  ProductTypeToLoanType,
 } from "lib/enum";
 import {
   computeSettlementDateForPayment,
@@ -122,6 +124,33 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
     },
   });
 
+  const loanType =
+    !!productType && productType in ProductTypeToLoanType
+      ? ProductTypeToLoanType[productType]
+      : null;
+
+  const { data } = useLoansByCompanyAndLoanTypeForBankQuery({
+    skip: !payment,
+    fetchPolicy: "network-only",
+    variables: {
+      companyId: payment?.company_id || "",
+      loanType: loanType || LoanTypeEnum.PurchaseOrder,
+    },
+  });
+  const allLoans = data?.loans;
+
+  useEffect(() => {
+    if (allLoans && payment) {
+      const loans = !payment.items_covered.loan_ids
+        ? allLoans
+        : allLoans.filter(
+            (l) => payment.items_covered.loan_ids.indexOf(l.id) >= 0
+          );
+      setSelectedLoans(loans);
+      setSelectedLoanIds(loans.map((l) => l.id));
+    }
+  }, [allLoans, payment]);
+
   useEffect(() => {
     if (contract && payment?.method && payment?.deposit_date) {
       const settlementTimelineConfig = getSettlementTimelineConfigFromContract(
@@ -138,20 +167,6 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
       }));
     }
   }, [contract, payment?.method, payment?.deposit_date, setPayment]);
-
-  const { data: selectedLoansData } = useGetLoansByLoanIdsQuery({
-    skip: !payment?.items_covered?.loan_ids,
-    variables: {
-      loanIds: selectedLoanIds,
-    },
-  });
-
-  useEffect(() => {
-    if (selectedLoansData) {
-      const selectedLoans = selectedLoansData.loans || [];
-      setSelectedLoans(selectedLoans);
-    }
-  }, [selectedLoansData]);
 
   const [
     settleRepayment,
@@ -225,7 +240,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
         amount: payment.amount,
         deposit_date: payment.deposit_date,
         settlement_date: payment.settlement_date,
-        items_covered: payment.items_covered,
+        items_covered: { ...payment.items_covered, loan_ids: selectedLoanIds },
         transaction_inputs: loansBeforeAfterPayment.map(
           (beforeAfterPaymentLoan) => beforeAfterPaymentLoan.transaction
         ),
@@ -299,6 +314,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
           <SettleRepaymentSelectLoans
             payment={payment}
             customer={customer}
+            allLoans={allLoans || []}
             selectedLoanIds={selectedLoanIds}
             selectedLoans={selectedLoans}
             setPayment={setPayment}

@@ -14,11 +14,10 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   GetLoansByLoanIdsQuery,
+  LoanFragment,
   Loans,
-  LoanTypeEnum,
   PaymentsInsertInput,
   ProductTypeEnum,
-  useGetFundedLoansForCompanyQuery,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { useContext, useMemo } from "react";
@@ -34,6 +33,7 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   payment: PaymentsInsertInput;
   customer: Companies;
+  allLoans: LoanFragment[];
   selectedLoanIds: Loans["id"][];
   selectedLoans: GetLoansByLoanIdsQuery["loans"];
   setPayment: (payment: PaymentsInsertInput) => void;
@@ -42,6 +42,7 @@ interface Props {
 function SettleRepaymentSelectLoans({
   payment,
   customer,
+  allLoans,
   selectedLoanIds,
   selectedLoans,
   setPayment,
@@ -54,20 +55,9 @@ function SettleRepaymentSelectLoans({
   const classes = useStyles();
   const productType = customer.contract?.product_type;
 
-  // Only loans maturing in 14 days or past due are the ones that may want to be shuffled in.
-  const { data } = useGetFundedLoansForCompanyQuery({
-    fetchPolicy: "network-only",
-    variables: {
-      companyId: customer.id,
-      loanType:
-        productType === ProductTypeEnum.LineOfCredit
-          ? LoanTypeEnum.LineOfCredit
-          : LoanTypeEnum.PurchaseOrder,
-    },
-  });
   const maturingOrPastDueLoans = useMemo(
     () =>
-      (data?.loans || []).filter((loan) => {
+      (allLoans || []).filter((loan) => {
         const pastDueThreshold = new Date(Date.now());
         const matureThreshold = new Date(
           new Date(Date.now()).getTime() + 7 * 24 * 60 * 60 * 1000
@@ -77,7 +67,7 @@ function SettleRepaymentSelectLoans({
           matureThreshold > maturityDate || pastDueThreshold > maturityDate
         );
       }),
-    [data?.loans]
+    [allLoans]
   );
 
   return payment && customer ? (
