@@ -14,7 +14,6 @@ import { InvoiceFragment } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { submitInvoiceForPaymentMutation } from "lib/api/invoices";
-import React from "react";
 import InvoicesDataGrid from "./InvoicesDataGrid";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -53,10 +52,14 @@ export default function RequestPaymentOnInvoiceModal({
     submitInvoiceForPaymentMutation
   );
 
+  const filteredInvoices = invoices.filter(
+    (i) => !i.payment_confirmed_at && !i.payment_rejected_at
+  );
+
   const handleSubmit = async () => {
     const response = await submitInvoiceForPayment({
       variables: {
-        invoice_ids: invoices.map((i) => i.id),
+        invoice_ids: filteredInvoices.map((i) => i.id),
       },
     });
 
@@ -68,6 +71,32 @@ export default function RequestPaymentOnInvoiceModal({
 
     handleClose();
   };
+
+  const areAnyInvoicesAvailable = !!filteredInvoices.length;
+  const someInvoicesElided = filteredInvoices.length !== invoices.length;
+
+  if (!areAnyInvoicesAvailable) {
+    return (
+      <Dialog open onClose={handleClose} classes={{ paper: classes.dialog }}>
+        <DialogTitle className={classes.dialogTitle}>
+          Payor Already Responded
+        </DialogTitle>
+        <DialogContent>
+          <Box mt={1}>
+            <Alert severity="warning">
+              The payor(s) of the selected invoice(s) already confirmed or
+              rejected payment. There's nothing left for you to do here.
+            </Alert>
+          </Box>
+        </DialogContent>
+        <DialogActions className={classes.dialogActions}>
+          <Box>
+            <Button onClick={handleClose}>Cancel</Button>
+          </Box>
+        </DialogActions>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open onClose={handleClose} classes={{ paper: classes.dialog }}>
@@ -83,6 +112,14 @@ export default function RequestPaymentOnInvoiceModal({
             they can complete payment.
           </Alert>
         </Box>
+        {someInvoicesElided && (
+          <Box mt={1}>
+            <Alert severity="warning">
+              Some invoices were removed from your selection because the payor
+              has already responded to a request for payment.
+            </Alert>
+          </Box>
+        )}
         <Box>
           <InvoicesDataGrid
             isCompanyVisible={false}
