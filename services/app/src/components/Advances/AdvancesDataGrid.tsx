@@ -36,8 +36,8 @@ function AdvancesDataGrid({
         width: 140,
       },
       {
-        caption: "Company",
-        width: 140,
+        caption: "Customer Name",
+        minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <ClickableDataGridCell
             label={params.row.data.company.name}

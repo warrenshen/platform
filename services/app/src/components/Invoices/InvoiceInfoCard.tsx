@@ -33,11 +33,11 @@ function InvoiceInfoCard({ invoice }: Props) {
       <Card>
         <CardContent>
           <Box display="flex" pb={0.25}>
-            <Box className={classes.label}>Vendor</Box>
+            <Box className={classes.label}>Payor</Box>
             <Box>{invoice.payor?.name}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
-            <Box className={classes.label}>Order Number</Box>
+            <Box className={classes.label}>Invoice Number</Box>
             <Box>{invoice.invoice_number}</Box>
           </Box>
           <Box display="flex" pb={0.25}>

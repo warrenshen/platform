@@ -72,8 +72,8 @@ function RepaymentsDataGrid({
       },
       {
         visible: isCompanyVisible,
-        caption: "Company",
-        width: 200,
+        caption: "Customer Name",
+        minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <ClickableDataGridCell
             label={params.row.data.company.name}
@@ -94,7 +94,7 @@ function RepaymentsDataGrid({
         visible: isMethodVisible,
         dataField: "method",
         caption: "Method",
-        width: 150,
+        minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <Box>
             {PaymentMethodToLabel[params.row.data.method as PaymentMethodEnum]}
