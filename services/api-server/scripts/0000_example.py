@@ -3,7 +3,7 @@ This script demonstrates how to access the database outside of application conte
 It demands the 'DATABASE_URL' environment be set to connect to the database.
 For example:
 
-DATABASE_URL=postgres+psycopg2://postgres:postgrespassword@localhost:5432/postgres python scripts/example.py
+DATABASE_URL=postgres+psycopg2://postgres:postgrespassword@localhost:5432/postgres python scripts/0000_example.py
 """
 
 import os
