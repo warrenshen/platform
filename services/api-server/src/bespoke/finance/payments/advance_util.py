@@ -15,13 +15,15 @@ from bespoke.db.models import session_scope
 from bespoke.finance import contract_util, number_util
 from bespoke.finance.loans import sibling_util
 from bespoke.finance.payments import payment_util
+from bespoke.finance.transactions import transaction_util
 from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 
 FundLoansReqDict = TypedDict('FundLoansReqDict', {
 	'loan_ids': List[str],
-	'payment': payment_util.PaymentInsertInputDict
+	'payment': payment_util.PaymentInsertInputDict,
+	'should_charge_wire_fee': bool
 })
 
 FundLoansRespDict = TypedDict('FundLoansRespDict', {
@@ -32,46 +34,6 @@ ARTIFACT_MODEL_INDEX = {
 	db_constants.LoanTypeEnum.INVENTORY: models.PurchaseOrder,
 	db_constants.LoanTypeEnum.INVOICE: models.Invoice,
 }
-
-def _get_contracts_by_company_id(
-	company_ids: List[str], session: Session,
-	err_details: Dict) -> Tuple[Dict[str, contract_util.Contract], errors.Error]:
-	companies = cast(
-		List[models.Company],
-		session.query(models.Company).filter(
-			models.Company.id.in_(company_ids)
-		).all())
-	if not companies or len(companies) != len(company_ids):
-		return None, errors.Error('Could not find all the companies associated with all the loans provided', details=err_details)
-
-	contract_ids = []
-	companies_with_missing_contracts = []
-	for company in companies:
-		if not company.contract_id:
-			companies_with_missing_contracts.append(str(company.name))
-		else:
-			contract_ids.append(str(company.contract_id))
-
-	if companies_with_missing_contracts:
-		return None, errors.Error('{} have missing contracts, cannot proceed with the advances process'.format(companies_with_missing_contracts), details=err_details)
-
-	contracts = cast(
-		List[models.Contract],
-		session.query(models.Contract).filter(
-			models.Contract.id.in_(contract_ids)
-		).all())
-	if not contracts or len(contracts) != len(contract_ids):
-		return None, errors.Error('Could not find all the contracts associated with all companies associated with the loans provided', details=err_details)
-
-	company_id_to_contract = {}
-	for contract in contracts:
-		company_id = str(contract.company_id)
-		contract_obj, err = contract_util.Contract.build(contract.as_dict(), validate=False)
-		if err:
-			return None, err
-		company_id_to_contract[company_id] = contract_obj
-
-	return company_id_to_contract, None
 
 def fund_loans_with_advance(
 	req: FundLoansReqDict, bank_admin_user_id: str,
@@ -148,7 +110,7 @@ def fund_loans_with_advance(
 		# Load up the contracts for all the companies listed here
 
 		unique_company_ids = list(company_id_to_loans.keys())
-		contracts_by_company_id, err = _get_contracts_by_company_id(
+		contracts_by_company_id, err = contract_util.get_active_contracts_by_company_id(
 			unique_company_ids, session, err_details)
 		if err:
 			return None, err
@@ -188,6 +150,22 @@ def fund_loans_with_advance(
 				t.created_by_user_id = bank_admin_user_id
 				t.effective_date = settlement_date
 				session.add(t)
+
+			if req['should_charge_wire_fee']:
+				cur_contract = contracts_by_company_id[company_id]
+				cur_wire_fee, err = cur_contract.get_wire_fee()
+				if err:
+					return None, err
+
+				t = transaction_util.create_account_level_fee(
+					subtype=db_constants.TransactionSubType.WIRE_FEE,
+					amount=cur_wire_fee,
+					payment_id=payment_id,
+					created_by_user_id=bank_admin_user_id,
+					effective_date=settlement_date
+				)
+				session.add(t)
+
 
 		for loan in loans:
 			cur_contract = contracts_by_company_id[str(loan.company_id)]

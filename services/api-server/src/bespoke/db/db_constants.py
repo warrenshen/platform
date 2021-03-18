@@ -107,6 +107,10 @@ class PaymentType(object):
 
 class TransactionType(object):
 	CREDIT_TO_USER = 'credit_to_user'
+	FEE = 'fee'
+
+class TransactionSubType(object):
+	WIRE_FEE = 'wire_fee'
 
 # There might be many payment types that represent an advance
 ADVANCE_TYPES = set([PaymentType.ADVANCE])

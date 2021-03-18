@@ -14,6 +14,7 @@ ContractInputDict = TypedDict('ContractInputDict', {
 	'late_fee_structure': str,
 	'preceeding_business_day': bool,
 	'minimum_monthly_amount': float,
+	'wire_fee': float,
 	# LOC contracts
 	'borrowing_base_accounts_receivable_percentage': float,
 	'borrowing_base_inventory_percentage': float,
@@ -39,6 +40,10 @@ def create_contract_config(
 		{
 			'internal_name': 'minimum_monthly_amount',
 			'value': input_dict.get('minimum_monthly_amount', 0.0)
+		},
+		{
+			'internal_name': 'wire_fee',
+			'value': input_dict.get('wire_fee', 0.0)
 		}
 	]
 
@@ -58,8 +63,6 @@ def create_contract_config(
 				'value': input_dict.get('preceeding_business_day')
 			}
 		])
-
-	#minimum_monthly_amount
 
 	if product_type == ProductType.LINE_OF_CREDIT:
 		borrowing_base_fields = (

@@ -12,6 +12,7 @@ from bespoke.db.models import session_scope
 from bespoke.finance import contract_util, number_util
 from bespoke.finance.loans import loan_calculator
 from bespoke.finance.payments import payment_util
+from bespoke.finance.transactions import transaction_util
 from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
@@ -886,16 +887,12 @@ def settle_repayment(
 				))
 
 		if number_util.float_gt(credit_to_user, 0.0):
-			t = models.Transaction()
-			t.type = db_constants.TransactionType.CREDIT_TO_USER
-			t.amount = decimal.Decimal(credit_to_user)
-			t.to_principal = decimal.Decimal(0.0)
-			t.to_interest = decimal.Decimal(0.0)
-			t.to_fees = decimal.Decimal(0.0)
-			# NOTE: no loan_id is set for credits
-			t.payment_id = req['payment_id']
-			t.created_by_user_id = user_id
-			t.effective_date = settlement_date
+			t = transaction_util.create_credit_to_user(
+				amount=credit_to_user,
+				payment_id=req['payment_id'],
+				created_by_user_id=user_id,
+				effective_date=settlement_date
+			)
 			session.add(t)
 
 		for i in range(len(transaction_inputs)):

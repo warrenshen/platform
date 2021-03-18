@@ -334,6 +334,7 @@ class Transaction(Base):
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	type = Column(Text, nullable=False)
+	subtype = Column(Text)
 	amount = Column(Numeric, nullable=False)
 	loan_id = Column(GUID)
 	payment_id = Column(GUID, nullable=False)

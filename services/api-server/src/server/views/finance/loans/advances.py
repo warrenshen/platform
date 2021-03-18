@@ -21,12 +21,12 @@ class HandleAdvanceView(MethodView):
 		if not form:
 			return handler_util.make_error_response('No data provided')
 
-		required_keys = ['payment', 'loan_ids']
+		required_keys = ['payment', 'loan_ids', 'should_charge_wire_fee']
 
 		for key in required_keys:
 			if key not in form:
 				return handler_util.make_error_response(
-					'Missing key {} from handle payment request'.format(key))
+					'Missing key {} from handle advance request'.format(key))
 
 		user_session = auth_util.UserSession.from_session()
 

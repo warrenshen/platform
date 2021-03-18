@@ -3,6 +3,7 @@ import json
 import logging
 import sys
 from datetime import timedelta
+from sqlalchemy.orm.session import Session
 from typing import Any, Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
@@ -260,6 +261,9 @@ class Contract(object):
 		# Returns interest rate in decimal format (0.0 = 0%, 1.0 = 100%).
 		return self._get_float_value('factoring_fee_percentage')
 
+	def get_wire_fee(self) -> Tuple[float, errors.Error]:
+		return self._get_float_value('wire_fee')
+
 	def _use_preceeding_business_day(self) -> Tuple[bool, errors.Error]:
 		product_type, err = self.get_product_type()
 		if err:
@@ -484,6 +488,47 @@ class LOCContract(Contract):
 				)
 
 		return None
+
+
+def get_active_contracts_by_company_id(
+	company_ids: List[str], session: Session,
+	err_details: Dict) -> Tuple[Dict[str, Contract], errors.Error]:
+	companies = cast(
+		List[models.Company],
+		session.query(models.Company).filter(
+			models.Company.id.in_(company_ids)
+		).all())
+	if not companies or len(companies) != len(company_ids):
+		return None, errors.Error('Could not find all the companies associated with all the loans provided', details=err_details)
+
+	contract_ids = []
+	companies_with_missing_contracts = []
+	for company in companies:
+		if not company.contract_id:
+			companies_with_missing_contracts.append(str(company.name))
+		else:
+			contract_ids.append(str(company.contract_id))
+
+	if companies_with_missing_contracts:
+		return None, errors.Error('{} have missing contracts, cannot proceed with the advances process'.format(companies_with_missing_contracts), details=err_details)
+
+	contracts = cast(
+		List[models.Contract],
+		session.query(models.Contract).filter(
+			models.Contract.id.in_(contract_ids)
+		).all())
+	if not contracts or len(contracts) != len(contract_ids):
+		return None, errors.Error('Could not find all the contracts associated with all companies associated with the loans provided', details=err_details)
+
+	company_id_to_contract = {}
+	for contract in contracts:
+		company_id = str(contract.company_id)
+		contract_obj, err = Contract.build(contract.as_dict(), validate=False)
+		if err:
+			return None, err
+		company_id_to_contract[company_id] = contract_obj
+
+	return company_id_to_contract, None
 
 class ContractHelper(object):
 

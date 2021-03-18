@@ -93,6 +93,7 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
         settlement_date: payment.settlement_date,
       },
       loan_ids: selectedLoans.map((loan) => loan.id),
+      should_charge_wire_fee: false, // TODO(warren): Support this feature in the frontend
     };
     const response = await authenticatedApi.post(
       loansRoutes.createAdvance,

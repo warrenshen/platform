@@ -16,13 +16,15 @@ from bespoke_test.db import db_unittest, test_helper
 
 def _get_default_contract(
 	use_preceeding_business_day: bool,
-	days_until_repayment: int
+	days_until_repayment: int,
+	wire_fee: float = 0.0
 ) -> models.Contract:
 	return models.Contract(
 		product_type=ProductType.INVENTORY_FINANCING,
 		product_config=contract_test_helper.create_contract_config(
 			product_type=ProductType.INVENTORY_FINANCING,
 			input_dict=ContractInputDict(
+				wire_fee=wire_fee,
 				interest_rate=0.05,
 				maximum_principal_amount=120000.01,
 				max_days_until_repayment=days_until_repayment,
@@ -124,7 +126,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				payment_date=payment_date,
 				settlement_date=settlement_date,
 				items_covered={'loan_ids': loan_ids},
-			)
+			),
+			should_charge_wire_fee=test['should_charge_wire_fee']
 		)
 
 		resp, err = advance_util.fund_loans_with_advance(
@@ -201,16 +204,28 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				transaction = transactions[i]
 				exp_transaction = test['expected_transactions'][i]
 				exp_company_id = seed.get_company_id('company_admin', index=exp_payment['company_index'])
-				matching_loan = loans[exp_transaction['loan_index']]
-				matching_payment = payments[exp_transaction['payment_index']]
-
+				
 				self.assertAlmostEqual(exp_transaction['amount'], float(transaction.amount))
-				self.assertEqual('advance', transaction.type)
-				self.assertAlmostEqual(exp_transaction['amount'], float(transaction.to_principal))
+				self.assertEqual(exp_transaction['type'], transaction.type)
+				self.assertEqual(exp_transaction.get('subtype'), transaction.subtype)
+
+				if transaction.type == 'fee':
+					self.assertAlmostEqual(0.0, float(transaction.to_principal))
+				else:
+					self.assertAlmostEqual(exp_transaction['amount'], float(transaction.to_principal))
+				
 				self.assertAlmostEqual(0.0, float(transaction.to_interest))
 				self.assertAlmostEqual(0.0, float(transaction.to_fees))
+				
+				loan_index = exp_transaction['loan_index']
+				if loan_index is None:
+					self.assertIsNone(transaction.loan_id)
+				else:
+					matching_loan = loans[loan_index]
+					self.assertEqual(matching_loan.id, transaction.loan_id)
+
+				matching_payment = payments[exp_transaction['payment_index']]
 				self.assertEqual(matching_payment.settlement_date, transaction.effective_date)
-				self.assertEqual(matching_loan.id, transaction.loan_id)
 				self.assertEqual(matching_payment.id, transaction.payment_id)
 				self.assertEqual(bank_admin_user_id, transaction.created_by_user_id)
 
@@ -222,7 +237,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				po = session.query(models.PurchaseOrder).get(purchase_order_id)
 				self.assertIsNone(po.funded_at)
 
-	def test_successful_advance_one_customer(self) -> None:
+	def test_successful_advance_one_customer_with_wire_fee(self) -> None:
 		tests: List[Dict] = [
 			{
 				'comment': 'Test multiple loans approved from one customer',
@@ -230,13 +245,15 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					0: [
 						_get_default_contract(
 							use_preceeding_business_day=False,
-							days_until_repayment=10
+							days_until_repayment=10,
+							wire_fee=50.0,
 						)
 					],
 					1: [
 						_get_default_contract(
 							use_preceeding_business_day=False,
-							days_until_repayment=20
+							days_until_repayment=20,
+							wire_fee=60.0
 						)
 					]
 				},
@@ -248,6 +265,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'amount': 20.02,
 					}
 				],
+				'should_charge_wire_fee': True,
 				'payment_date': '10/18/2020',
 				'settlement_date':  '10/20/2020',
 				'company_indices': [0, 0],
@@ -274,12 +292,21 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					{
 						'amount': 10.01,
 						'loan_index': 0,
-						'payment_index': 0
+						'payment_index': 0,
+						'type': 'advance'
 					},
 					{
 						'amount': 20.02,
 						'loan_index': 1,
-						'payment_index': 0
+						'payment_index': 0,
+						'type': 'advance'
+					},
+					{
+						'amount': 50.00,
+						'loan_index': None,
+						'payment_index': 0,
+						'type': 'fee',
+						'subtype': 'wire_fee'
 					}
 				],
 			}
@@ -296,13 +323,15 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					0: [
 						_get_default_contract(
 							use_preceeding_business_day=False,
-							days_until_repayment=4
+							days_until_repayment=4,
+							wire_fee=50.0
 						)
 					],
 					1: [
 						_get_default_contract(
 							use_preceeding_business_day=True,
-							days_until_repayment=11
+							days_until_repayment=11,
+							wire_fee=60.0
 						)
 					]
 				},
@@ -320,6 +349,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'amount': 40.04,
 					}
 				],
+				'should_charge_wire_fee': True,
 				'payment_date': '10/18/2020',
 				'settlement_date':  '10/20/2020',
 				'company_indices': [0, 1, 0, 1],
@@ -362,22 +392,40 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					{
 						'amount': 10.01,
 						'loan_index': 0,
-						'payment_index': 0
+						'payment_index': 0,
+						'type': 'advance'
 					},
 					{
 						'amount': 20.02,
 						'loan_index': 1,
-						'payment_index': 1
+						'payment_index': 1,
+						'type': 'advance'
 					},
 					{
 						'amount': 30.03,
 						'loan_index': 2,
-						'payment_index': 0
+						'payment_index': 0,
+						'type': 'advance'
 					},
 					{
 						'amount': 40.04,
 						'loan_index': 3,
-						'payment_index': 1
+						'payment_index': 1,
+						'type': 'advance'
+					},
+					{
+						'amount': 50.00,
+						'loan_index': None,
+						'payment_index': 0,
+						'type': 'fee',
+						'subtype': 'wire_fee'
+					},
+					{
+						'amount': 60.00,
+						'loan_index': None,
+						'payment_index': 1,
+						'type': 'fee',
+						'subtype': 'wire_fee'
 					}
 				]
 			}
@@ -404,6 +452,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				'settlement_date':  '10/20/2020',
 				'company_indices': [0],
 				'payment_input_amount': 10.01,
+				'should_charge_wire_fee': False,
 				'expected_loans': [
 					{
 						'amount': 10.01,
@@ -421,7 +470,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					{
 						'amount': 10.01,
 						'loan_index': 0,
-						'payment_index': 0
+						'payment_index': 0,
+						'type': 'advance'
 					}
 				],
 			}
@@ -434,7 +484,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		resp, err = advance_util.fund_loans_with_advance(
 			req=advance_util.FundLoansReqDict(
 				loan_ids=[],
-				payment=None
+				payment=None,
+				should_charge_wire_fee=False
 			),
 			bank_admin_user_id='',
 			session_maker=self.session_maker
@@ -461,7 +512,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		resp, err = advance_util.fund_loans_with_advance(
 			req=advance_util.FundLoansReqDict(
 				payment=None,
-				loan_ids=loan_ids
+				loan_ids=loan_ids,
+				should_charge_wire_fee=False
 			),
 			bank_admin_user_id='',
 			session_maker=self.session_maker
@@ -488,7 +540,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		resp, err = advance_util.fund_loans_with_advance(
 			req=advance_util.FundLoansReqDict(
 				payment=None,
-				loan_ids=loan_ids
+				loan_ids=loan_ids,
+				should_charge_wire_fee=False
 			),
 			bank_admin_user_id='',
 			session_maker=self.session_maker
@@ -513,7 +566,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		resp, err = advance_util.fund_loans_with_advance(
 			req=advance_util.FundLoansReqDict(
 				payment=None,
-				loan_ids=loan_ids
+				loan_ids=loan_ids,
+				should_charge_wire_fee=False
 			),
 			bank_admin_user_id='',
 			session_maker=self.session_maker
@@ -551,7 +605,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					settlement_date='10/30/2020',
 					items_covered={'loan_ids': loan_ids},
 			  	),
-				loan_ids=loan_ids
+				loan_ids=loan_ids,
+				should_charge_wire_fee=False
 			),
 			bank_admin_user_id='',
 			session_maker=self.session_maker
@@ -582,6 +637,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'amount': 30.03,
 					}
 				],
+				'should_charge_wire_fee': False,
 				'loans': [
 					{
 						'amount': 10.01,
@@ -620,12 +676,14 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					{
 						'amount': 10.01,
 						'loan_index': 0,
-						'payment_index': 0
+						'payment_index': 0,
+						'type': 'advance'
 					},
 					{
 						'amount': 20.02,
 						'loan_index': 1,
-						'payment_index': 0
+						'payment_index': 0,
+						'type': 'advance'
 					}
 				],
 				'expected_funded_purchase_order_ids': [
@@ -678,6 +736,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'artifact_id': 'a012e58e-6378-450c-a753-943533f7ae89',
 					}
 				],
+				'should_charge_wire_fee': False,
 				'payment_date': '10/18/2020',
 				'settlement_date':  '10/20/2020',
 				'company_indices': [0, 0],
@@ -704,12 +763,14 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					{
 						'amount': 10.01,
 						'loan_index': 0,
-						'payment_index': 0
+						'payment_index': 0,
+						'type': 'advance'
 					},
 					{
 						'amount': 20.02,
 						'loan_index': 1,
-						'payment_index': 0
+						'payment_index': 0,
+						'type': 'advance'
 					}
 				],
 				'expected_funded_purchase_order_ids': [
