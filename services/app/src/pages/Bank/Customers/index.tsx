@@ -53,7 +53,7 @@ function BankCustomersPage() {
   const productTypeCellRenderer = ({ data }: { data: any }) =>
     data.contract
       ? ProductTypeToLabel[data.contract.product_type as ProductTypeEnum]
-      : "Product Type TBD";
+      : "None";
 
   const columns = [
     {

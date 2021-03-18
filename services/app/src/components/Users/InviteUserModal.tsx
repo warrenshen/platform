@@ -19,6 +19,7 @@ import {
   UserRolesEnum,
   UsersInsertInput,
 } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, userRoutes } from "lib/api";
 import { UserRoleToLabel } from "lib/enum";
 import { useState } from "react";
@@ -70,6 +71,7 @@ interface Props {
 }
 
 function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
+  const snackbar = useSnackbar();
   const classes = useStyles();
 
   const [user, setUser] = useState<UsersInsertInput>({
@@ -106,15 +108,18 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
       return;
     }
 
-    const loginResp = await createLogin({
+    const response = await createLogin({
       company_id: companyId || null,
       user_id: userId,
     });
-    if (loginResp.status !== "OK") {
-      setErrMsg(loginResp.msg || "Error creating login for user");
-      return;
+    if (response.status !== "OK") {
+      snackbar.showError(
+        `Error: could not invite user. Reason: ${response.msg}`
+      );
+    } else {
+      snackbar.showSuccess("Success! User invited.");
+      handleClose();
     }
-    handleClose();
   };
 
   return (
