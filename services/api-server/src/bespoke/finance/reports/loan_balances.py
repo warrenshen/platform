@@ -22,7 +22,7 @@ from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import models
+from bespoke.db import models, db_constants
 from bespoke.db.db_constants import LoanStatusEnum, ProductType
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util, number_util
@@ -40,8 +40,9 @@ FeeDict = TypedDict('FeeDict', {
 	'amount_short': float # how much you owe for a time period because of the minimum_due
 })
 
-FeesUpdateDict = TypedDict('FeesUpdateDict', {
-	'month_to_fees': Dict[finance_types.Month, FeeDict] # Map of month to the fees due for this month
+AccountBalanceDict = TypedDict('AccountBalanceDict', {
+	'fees_total': float,
+	'credits_total': float
 })
 
 SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
@@ -54,7 +55,8 @@ SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 	'total_outstanding_fees': float,
 	'total_principal_in_requested_state': float,
 	'available_limit': float,
-	'minimum_monthly_payload': FeeDict
+	'minimum_monthly_payload': FeeDict,
+	'account_level_balance_payload': AccountBalanceDict
 })
 
 EbbaApplicationUpdateDict = TypedDict('EbbaApplicationUpdateDict', {
@@ -143,7 +145,32 @@ def _get_cur_month_minimum_fees(contract_helper: contract_util.ContractHelper, t
 	cur_month_fees = month_to_fees[cur_month_key]
 	return cur_month_fees, None
 
+def _get_account_level_balance(customer_info: per_customer_types.CustomerFinancials) -> Tuple[AccountBalanceDict, errors.Error]:
+	fees_total = 0.0
+	credits_total = 0.0
+
+	for aug_tx in customer_info['financials']['augmented_transactions']:
+		tx = aug_tx['transaction']
+		if tx['loan_id'] is not None:
+			continue
+
+		tx_type = tx['type']
+		# Account level transactions have no loan_id associated with them
+		if tx_type in db_constants.FEE_TYPES:
+			fees_total += tx['amount']
+		elif tx_type in db_constants.CREDIT_TO_USER_TYPES:
+			credits_total += tx['amount']
+		else:
+			return None, errors.Error('Transaction {} has a type "{}" which is neither a fee nor a credit to a user. This implies an unregistered or incorrect transaction type'.format(
+				tx['id'], tx_type))
+
+	return AccountBalanceDict(
+		fees_total=fees_total,
+		credits_total=credits_total
+	), None
+
 def _get_summary_update(
+	customer_info: per_customer_types.CustomerFinancials,
 	contract_helper: contract_util.ContractHelper,
 	loan_updates: List[LoanUpdateDict],
 	active_ebba_application_update: EbbaApplicationUpdateDict,
@@ -187,6 +214,10 @@ def _get_summary_update(
 	if err:
 		return None, err
 
+	account_level_balance, err = _get_account_level_balance(customer_info)
+	if err:
+		return None, err
+
 	return SummaryUpdateDict(
 		product_type=product_type,
 		total_limit=maximum_principal_limit,
@@ -197,7 +228,8 @@ def _get_summary_update(
 		total_outstanding_fees=total_outstanding_fees,
 		total_principal_in_requested_state=0.0,
 		available_limit=max(0.0, adjusted_total_limit - total_outstanding_principal),
-		minimum_monthly_payload=minimum_monthly_payload
+		minimum_monthly_payload=minimum_monthly_payload,
+		account_level_balance_payload=account_level_balance
 	), None
 
 class CustomerBalance(object):
@@ -286,7 +318,9 @@ class CustomerBalance(object):
 		if err:
 			return None, err
 
-		summary_update, err = _get_summary_update(contract_helper,
+		summary_update, err = _get_summary_update(
+			customer_info,
+			contract_helper,
 			loan_update_dicts,
 			ebba_application_update,
 			fee_accumulator,
@@ -358,6 +392,7 @@ class CustomerBalance(object):
 			financial_summary.total_principal_in_requested_state = decimal.Decimal(summary_update['total_principal_in_requested_state'])
 			financial_summary.available_limit = decimal.Decimal(summary_update['available_limit'])
 			financial_summary.minimum_monthly_payload = cast(Dict, summary_update['minimum_monthly_payload'])
+			financial_summary.account_level_balance_payload = cast(Dict, summary_update['account_level_balance_payload'])
 
 			if should_add_summary:
 				session.add(financial_summary)

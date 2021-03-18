@@ -51,15 +51,16 @@ class Fetcher(object):
 		return True, None
 
 	def _fetch_transactions(
-		self, loan_ids: List[str], payments: List[models.PaymentDict]) -> Tuple[bool, errors.Error]:
-		if not loan_ids:
+		self, payments: List[models.PaymentDict]) -> Tuple[bool, errors.Error]:
+		if not payments:
 			return True, None
 
+		payment_ids = [p['id'] for p in payments]
 		with session_scope(self._session_maker) as session:
 			transactions = cast(
 				List[models.Transaction],
 				session.query(models.Transaction).filter(
-					models.Transaction.loan_id.in_(loan_ids)
+					models.Transaction.payment_id.in_(payment_ids)
 				).all())
 			if not transactions:
 				return True, None
@@ -151,8 +152,7 @@ class Fetcher(object):
 		if err:
 			return None, err
 
-		loan_ids = [l['id'] for l in self._loans]
-		_, err = self._fetch_transactions(loan_ids, self._payments)
+		_, err = self._fetch_transactions(self._payments)
 		if err:
 			return None, err
 

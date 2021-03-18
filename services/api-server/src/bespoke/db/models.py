@@ -350,8 +350,8 @@ class Transaction(Base):
 			id=str(self.id),
 			type=self.type,
 			amount=float(self.amount),
-			loan_id=str(self.loan_id),
-			payment_id=str(self.payment_id),
+			loan_id=str(self.loan_id) if self.loan_id else None,
+			payment_id=str(self.payment_id) if self.payment_id else None,
 			to_principal=float(self.to_principal),
 			to_interest=float(self.to_interest),
 			to_fees=float(self.to_fees),
@@ -456,6 +456,7 @@ class FinancialSummary(Base):
 	available_limit = Column(Numeric, nullable=False)
 	adjusted_total_limit = Column(Numeric, nullable=False)
 	minimum_monthly_payload = Column(JSON, nullable=False)
+	account_level_balance_payload = Column(JSON, nullable=False)
 
 ### End of financial tables
 

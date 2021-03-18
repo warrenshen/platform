@@ -6,7 +6,7 @@ from bespoke.db import models
 from bespoke.db.db_constants import PaymentType
 
 
-def make_advance(session: Any, loan: models.Loan, amount: float, payment_date: str, effective_date: str) -> None:
+def make_advance(session: Any, loan: models.Loan, amount: float, payment_date: str, effective_date: str) -> models.Transaction:
 	# Advance is made
 	payment = models.Payment(
 		type=PaymentType.ADVANCE,
@@ -18,7 +18,7 @@ def make_advance(session: Any, loan: models.Loan, amount: float, payment_date: s
 	)
 	session.add(payment)
 	session.flush()
-	session.add(models.Transaction(
+	t = models.Transaction(
 		type=PaymentType.ADVANCE,
 		amount=decimal.Decimal(amount),
 		loan_id=loan.id,
@@ -27,7 +27,10 @@ def make_advance(session: Any, loan: models.Loan, amount: float, payment_date: s
 		to_interest=decimal.Decimal(0.0),
 		to_fees=decimal.Decimal(0.0),
 		effective_date=date_util.load_date_str(effective_date)
-	))
+	)
+	session.add(t)
+	session.flush()
+	return t
 
 def make_repayment(
 	session: Any, loan: models.Loan,

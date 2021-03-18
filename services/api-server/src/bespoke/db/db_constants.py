@@ -113,9 +113,12 @@ class TransactionType(object):
 class TransactionSubType(object):
 	WIRE_FEE = 'wire_fee'
 
-# There might be many payment types that represent an advance
-ADVANCE_TYPES = set([PaymentType.ADVANCE])
+# There might be many types that represent a fee, credit to user, etc
+CREDIT_TO_USER_TYPES = set([TransactionType.CREDIT_TO_USER])
+FEE_TYPES = set([TransactionType.FEE])
 
+# There might be many types that represent an advance, repayment, etc
+ADVANCE_TYPES = set([PaymentType.ADVANCE])
 REPAYMENT_TYPES = set([PaymentType.REPAYMENT])
 
 class InvoiceFileTypeEnum(object):

@@ -8,6 +8,7 @@ from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.db_constants import ProductType
 from bespoke.db.models import session_scope
+from bespoke.finance.transactions import transaction_util
 from bespoke.finance.reports import loan_balances
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
@@ -39,7 +40,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			))
 
 			if test.get('populate_fn'):
-				test['populate_fn'](session, company_id)
+				test['populate_fn'](session, seed, company_id)
 
 		customer_balance = loan_balances.CustomerBalance(
 			company_dict=models.CompanyDict(
@@ -100,12 +101,14 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				self.assertAlmostEqual(expected['available_limit'], float(actual.available_limit))
 
 				test_helper.assertDeepAlmostEqual(
+					self, expected['account_level_balance_payload'], cast(Dict, actual.account_level_balance_payload))
+				test_helper.assertDeepAlmostEqual(
 					self, expected['minimum_monthly_payload'], cast(Dict, actual.minimum_monthly_payload))
 
 
 	def test_success_no_payments_no_loans(self) -> None:
 
-		def populate_fn(session: Any, company_id: str) -> None:
+		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
 				product_type=ProductType.INVENTORY_FINANCING,
@@ -143,6 +146,10 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'minimum_amount': 2001.03,
 						'amount_accrued': 0.0,
 						'amount_short': 2001.03
+					},
+					'account_level_balance_payload': {
+							'fees_total': 0.0,
+							'credits_total': 0.0
 					}
 				}
 			}
@@ -152,7 +159,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 	def test_success_no_payments_two_loans_not_due_yet(self) -> None:
 
-		def populate_fn(session: Any, company_id: str) -> None:
+		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
 				product_type=ProductType.INVENTORY_FINANCING,
@@ -224,6 +231,10 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 							'minimum_amount': 200.03,
 							'amount_accrued': (3 * 0.05 * 500.03) + (2 * 0.05 * 100.03),
 							'amount_short': 200.03 - ((3 * 0.05 * 500.03) + (2 * 0.05 * 100.03))
+					},
+					'account_level_balance_payload': {
+							'fees_total': 0.0,
+							'credits_total': 0.0
 					}
 				}
 			}
@@ -231,9 +242,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
-	def test_success_one_payment_one_loan_past_due(self) -> None:
+	def test_success_one_payment_one_loan_past_due_with_account_balances(self) -> None:
 
-		def populate_fn(session: Any, company_id: str) -> None:
+		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
 				product_type=ProductType.INVENTORY_FINANCING,
@@ -257,9 +268,39 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				amount=decimal.Decimal(500.03)
 			)
 			session.add(loan)
-			payment_test_helper.make_advance(
+			advance_tx = payment_test_helper.make_advance(
 				session, loan, amount=500.03,  payment_date='09/30/2020', effective_date='10/01/2020'
 			)
+
+			# Book an account-level fee and a credit, and make sure it doesnt influence
+			# any of the loan updates
+			t = transaction_util.create_account_level_fee(
+				subtype='wire_fee', amount=1000.01, payment_id=advance_tx.payment_id,
+				created_by_user_id=seed.get_user_id('bank_admin'),
+				effective_date=date_util.load_date_str('10/01/2020')
+			)
+			session.add(t)
+
+			t = transaction_util.create_account_level_fee(
+				subtype='wire_fee', amount=2000.01, payment_id=advance_tx.payment_id,
+				created_by_user_id=seed.get_user_id('bank_admin'),
+				effective_date=date_util.load_date_str('10/01/2020')
+			)
+			session.add(t)
+
+			t2 = transaction_util.create_credit_to_user(
+				amount=3000.02, payment_id=advance_tx.payment_id, # not a sensical payment_id here, but thats OK
+				created_by_user_id=seed.get_user_id('bank_admin'),
+				effective_date=date_util.load_date_str('10/01/2020')
+			)
+			session.add(t2)
+
+			t2 = transaction_util.create_credit_to_user(
+				amount=4000.02, payment_id=advance_tx.payment_id, # not a sensical payment_id here, but thats OK
+				created_by_user_id=seed.get_user_id('bank_admin'),
+				effective_date=date_util.load_date_str('10/01/2020')
+			)
+			session.add(t2)
 
 			payment_test_helper.make_repayment(
 				session, loan,
@@ -285,7 +326,27 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_interest': 2 * 0.002 * 500.03, # Even though the principal is reduced, we keep a separate number for interest calculations
 						'outstanding_fees': 0.0
 					}
-				]
+				],
+				'expected_summary_update': {
+					'product_type': 'inventory_financing',
+					'total_limit': 120000.01,
+					'adjusted_total_limit': 120000.01,
+					'total_outstanding_principal': 450.03,
+					'total_outstanding_principal_for_interest': 500.03,
+					'total_outstanding_interest': 2 * 0.002 * 500.03,
+					'total_outstanding_fees': 0.0,
+					'total_principal_in_requested_state': 0.0,
+					'available_limit': 120000.01 - (450.03),
+					'minimum_monthly_payload': {
+							'minimum_amount': 1.03,
+							'amount_accrued': 2 * 0.002 * 500.03,
+							'amount_short': 0.0
+					},
+					'account_level_balance_payload': {
+							'fees_total': 3000.02,
+							'credits_total': 7000.04
+					}
+				}
 			},
 			{
 				'today': '10/03/2020', # On the repayment date, you paid off interest and some principal
@@ -321,7 +382,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			self._run_test(test)
 
 	def test_success_compute_borrowing_base(self) -> None:
-		def populate_fn(session: Any, company_id: str) -> None:
+		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
 				product_type=ProductType.LINE_OF_CREDIT,
@@ -386,6 +447,10 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'minimum_amount': 1.03,
 						'amount_accrued':0.0,
 						'amount_short': 1.03
+				},
+				'account_level_balance_payload': {
+						'fees_total': 0.0,
+						'credits_total': 0.0
 				}
 			}
 		})

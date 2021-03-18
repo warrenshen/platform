@@ -103,7 +103,8 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			total_outstanding_fees=decimal.Decimal(5.25),
 			total_principal_in_requested_state=decimal.Decimal(0.0),
 			available_limit=decimal.Decimal(25.00),
-			minimum_monthly_payload={}
+			minimum_monthly_payload={},
+			account_level_balance_payload={}
 		))
 
 
