@@ -69,7 +69,7 @@ def import_settled_advances_leune(session: Session) -> None:
 			not parsed_deposit_date or
 			not parsed_settlement_date
 		):
-			print(f'[{index + 1} of {advances_count}] Invalid loan field(s)')
+			print(f'[{index + 1} of {advances_count}] Invalid advance field(s)')
 			print(f'EXITING EARLY')
 			return
 
@@ -111,9 +111,9 @@ def import_settled_advances_leune(session: Session) -> None:
 
 		parsed_payment_type = None
 		if payment_type == 'advance':
-			parsed_loan_type = PaymentType.ADVANCE
+			parsed_payment_type = PaymentType.ADVANCE
 
-		if parsed_loan_type != PaymentType.ADVANCE:
+		if parsed_payment_type != PaymentType.ADVANCE:
 			print(f'[{index + 1} of {advances_count}] Invalid advance field(s)')
 			print(f'EXITING EARLY')
 			return
