@@ -224,6 +224,7 @@ class PurchaseOrder(Artifact):
 	rejected_at = Column(DateTime)
 	rejection_note = Column(Text)
 	funded_at = Column(DateTime)
+	is_cannabis = Column(Boolean)
 
 	# TODO(dlluncor): Im concerned about too many joins and relationships
 	# happening here, I think we want to cut these off.
