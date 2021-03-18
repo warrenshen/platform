@@ -14,7 +14,6 @@ import SettleRepaymentConfirmEffect from "components/Repayment/SettleRepaymentCo
 import SettleRepaymentSelectLoans from "components/Repayment/SettleRepaymentSelectLoans";
 import {
   Companies,
-  GetLoansByLoanIdsQuery,
   Loans,
   LoanTypeEnum,
   Payments,
@@ -80,9 +79,6 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
   const [customer, setCustomer] = useState<Companies | null>(null);
   const [payment, setPayment] = useState<PaymentsInsertInput | null>(null);
 
-  const [selectedLoans, setSelectedLoans] = useState<
-    GetLoansByLoanIdsQuery["loans"]
-  >([]);
   const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"][]>([]);
 
   const contract = customer?.contract || null;
@@ -138,18 +134,6 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
     },
   });
   const allLoans = data?.loans;
-
-  useEffect(() => {
-    if (allLoans && payment) {
-      const loans = !payment.items_covered.loan_ids
-        ? allLoans
-        : allLoans.filter(
-            (l) => payment.items_covered.loan_ids.indexOf(l.id) >= 0
-          );
-      setSelectedLoans(loans);
-      setSelectedLoanIds(loans.map((l) => l.id));
-    }
-  }, [allLoans, payment]);
 
   useEffect(() => {
     if (contract && payment?.method && payment?.deposit_date) {
@@ -295,6 +279,12 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
     },
     [loansBeforeAfterPayment, setLoansBeforeAfterPayment]
   );
+
+  const selectedLoans = useMemo(() => {
+    return !allLoans
+      ? []
+      : allLoans.filter((l) => selectedLoanIds.indexOf(l.id) >= 0);
+  }, [allLoans, selectedLoanIds]);
 
   const isNextButtonDisabled =
     !payment?.amount || !payment?.deposit_date || !payment?.settlement_date;
