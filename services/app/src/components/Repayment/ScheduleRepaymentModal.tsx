@@ -10,7 +10,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import CreateRepaymentConfirmEffect from "components/Repayment/CreateRepaymentConfirmEffect";
+import ScheduleRepaymentConfirmEffect from "components/Repayment/ScheduleRepaymentConfirmEffect";
 import ScheduleRepaymentSelectLoans from "components/Repayment/ScheduleRepaymentSelectLoans";
 import {
   Companies,
@@ -105,7 +105,16 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
           amount: existingPayment.requested_amount,
           requested_payment_date: existingPayment.requested_payment_date,
           payment_date: existingPayment.requested_payment_date, // Default payment_date to requested_payment_date
-          items_covered: existingPayment.items_covered,
+          items_covered: {
+            loan_ids: existingPayment.items_covered.loan_ids,
+            requested_to_principal:
+              existingPayment.items_covered.requested_to_principal,
+            requested_to_interest:
+              existingPayment.items_covered.requested_to_interest,
+            // Default to_principal and to_interest to their requested counterparts.
+            to_principal: existingPayment.items_covered.requested_to_principal,
+            to_interest: existingPayment.items_covered.requested_to_interest,
+          },
         } as PaymentsInsertInput);
       } else {
         alert("Existing payment not found");
@@ -268,7 +277,7 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
             setPayment={setPayment}
           />
         ) : (
-          <CreateRepaymentConfirmEffect
+          <ScheduleRepaymentConfirmEffect
             productType={productType}
             payableAmountPrincipal={
               calculateEffectResponse?.payable_amount_principal || 0
@@ -277,6 +286,7 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
               calculateEffectResponse?.payable_amount_interest || 0
             }
             payment={payment}
+            customer={customer}
             loansBeforeAfterPayment={loansBeforeAfterPayment}
             setPayment={setPayment}
           />

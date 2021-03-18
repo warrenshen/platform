@@ -1,7 +1,7 @@
 
 import datetime
 import decimal
-from typing import Any, Callable, List, Optional, Tuple, cast
+from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
@@ -475,13 +475,13 @@ def create_repayment(
 		return None, errors.Error('Requested payment date must be specified', details=err_details)
 
 	if is_line_of_credit:
-		if 'to_principal' not in items_covered or 'to_interest' not in items_covered:
-			return None, errors.Error('items_covered.to_principal and items_covered.to_interest must be specified', details=err_details)
+		if 'requested_to_principal' not in items_covered or 'requested_to_interest' not in items_covered:
+			return None, errors.Error('items_covered.requested_to_principal and items_covered.requested_to_interest must be specified', details=err_details)
 
-		to_principal = items_covered['to_principal']
-		to_interest = items_covered['to_interest']
-		if not number_util.float_eq(requested_amount, to_principal + to_interest):
-			return None, errors.Error(f'Requested breakdown of to_principal vs to_interest ({to_principal}, {to_interest}) does not sum up to requested amount ({requested_amount})')
+		requested_to_principal = items_covered['requested_to_principal']
+		requested_to_interest = items_covered['requested_to_interest']
+		if not number_util.float_eq(requested_amount, requested_to_principal + requested_to_interest):
+			return None, errors.Error(f'Requested breakdown of requested_to_principal vs requested_to_interest ({requested_to_principal}, {requested_to_interest}) does not sum up to requested amount ({requested_amount})')
 	else:
 		if 'loan_ids' not in items_covered:
 			return None, errors.Error('items_covered.loan_ids must be specified', details=err_details)
@@ -619,6 +619,7 @@ def schedule_repayment(
 
 		payment.amount = decimal.Decimal(payment_amount)
 		payment.payment_date = payment_date
+		payment.items_covered = cast(Dict[str, Any], items_covered)
 
 		# Settlement date should not be set until the banker settles the payment.
 		session.flush()

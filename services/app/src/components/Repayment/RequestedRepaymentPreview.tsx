@@ -24,12 +24,14 @@ function RequestedRepaymentPreview({ payment }: Props) {
             payment.requested_amount
           )}`}
         </Typography>
-        {(payment.items_covered.to_principal ||
-          payment.items_covered.to_interest) && (
+        {(payment.items_covered.requested_to_principal ||
+          payment.items_covered.requested_to_interest) && (
           <Typography variant="subtitle2">
             {`Requested Breakdown:\nPrincipal: ${formatCurrency(
-              payment.items_covered.to_principal
-            )}\nInterest: ${formatCurrency(payment.items_covered.to_interest)}`}
+              payment.items_covered.requested_to_principal
+            )}\nInterest: ${formatCurrency(
+              payment.items_covered.requested_to_interest
+            )}`}
           </Typography>
         )}
       </Box>

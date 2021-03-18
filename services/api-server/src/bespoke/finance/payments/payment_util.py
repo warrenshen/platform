@@ -18,6 +18,8 @@ from sqlalchemy.orm.session import Session
 PaymentItemsCoveredDict = TypedDict('PaymentItemsCoveredDict', {
 	'loan_ids': List[str],
 	'invoice_ids': List[str],
+	'requested_to_principal': float,
+	'requested_to_interest': float,
 	'to_principal': float,
 	'to_interest': float,
 }, total=False)

@@ -1,6 +1,3 @@
-// This component shows all the details about their repayment
-// before the user either clicks "Schedule" in the case of reverse_ach
-// or "Close" in the case of all other payment types.
 import {
   Box,
   createStyles,
@@ -11,13 +8,12 @@ import {
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import LoansBeforeAfterPaymentPreview from "components/Repayment/LoansBeforeAfterPaymentPreview";
-import BankToBankTransfer, {
-  PaymentTransferType,
-} from "components/Shared/BankToBankTransfer";
+import RequestedRepaymentPreview from "components/Repayment/RequestedRepaymentPreview";
 import CompanyBank from "components/Shared/BankToBankTransfer/CompanyBank";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import {
   BankAccounts,
+  Companies,
   PaymentsInsertInput,
   ProductTypeEnum,
 } from "generated/graphql";
@@ -25,7 +21,6 @@ import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 import { PaymentMethodEnum } from "lib/enum";
 import { LoanBeforeAfterPayment } from "lib/types";
-import { useCallback } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -40,49 +35,41 @@ interface Props {
   payableAmountPrincipal: number;
   payableAmountInterest: number;
   payment: PaymentsInsertInput;
+  customer: Companies;
   loansBeforeAfterPayment: LoanBeforeAfterPayment[];
   setPayment: (payment: PaymentsInsertInput) => void;
 }
 
-function CreateRepaymentConfirmEffect({
+function ScheduleRepaymentConfirmEffect({
   productType,
   payableAmountPrincipal,
   payableAmountInterest,
   loansBeforeAfterPayment,
   payment,
+  customer,
   setPayment,
 }: Props) {
   const classes = useStyles();
 
-  const onBespokeBankAccountSelection = useCallback(
-    (id: BankAccounts["id"]) => {
-      setPayment({
-        ...payment,
-        bespoke_bank_account_id: id,
-      });
-    },
-    [payment, setPayment]
-  );
-
-  const onCompanyBankAccountSelection = useCallback(
-    (id: BankAccounts["id"]) => {
-      setPayment({
-        ...payment,
-        company_bank_account_id: id,
-      });
-    },
-    [payment, setPayment]
-  );
-
   return (
     <Box>
+      <Box display="flex" flexDirection="column">
+        <Typography variant="body2">
+          {`${customer.name} submitted the following payment:`}
+        </Typography>
+        <Box mt={1}>
+          <RequestedRepaymentPreview payment={payment} />
+        </Box>
+      </Box>
       {productType === ProductTypeEnum.LineOfCredit ? (
-        <Box>
+        <Box mt={3}>
           <Box display="flex" flexDirection="column">
             <Typography variant="body1">
               {`As of the settlement date, ${formatDateString(
                 payment.settlement_date
-              )}, your outstanding principal and interest will be:`}
+              )}, ${
+                customer.name
+              } will have the following outstanding principal and interest:`}
             </Typography>
           </Box>
           <Box mt={1}>
@@ -99,21 +86,20 @@ function CreateRepaymentConfirmEffect({
           </Box>
           <Box mt={3}>
             <Typography variant="subtitle2">
-              How much of your outstanding principal do you want to pay for?
+              How much of payment will go to outstanding principal?
             </Typography>
             <Box mt={1}>
               <FormControl className={classes.inputField}>
                 <CurrencyInput
                   label={"Payment Amount to Principal"}
-                  value={payment.items_covered.requested_to_principal}
+                  value={payment.items_covered.to_principal}
                   handleChange={(value: number) => {
                     setPayment({
                       ...payment,
-                      requested_amount:
-                        value + payment.items_covered.requested_to_interest,
+                      amount: value + payment.items_covered.to_interest,
                       items_covered: {
                         ...payment.items_covered,
-                        requested_to_principal: value,
+                        to_principal: value,
                       },
                     });
                   }}
@@ -123,21 +109,20 @@ function CreateRepaymentConfirmEffect({
           </Box>
           <Box mt={3}>
             <Typography variant="subtitle2">
-              How much of your outstanding interest do you want to pay for?
+              How much of payment will go to outstanding interest?
             </Typography>
             <Box mt={1}>
               <FormControl className={classes.inputField}>
                 <CurrencyInput
                   label={"Payment Amount to Interest"}
-                  value={payment.items_covered.requested_to_interest}
+                  value={payment.items_covered.to_interest}
                   handleChange={(value: number) => {
                     setPayment({
                       ...payment,
-                      requested_amount:
-                        value + payment.items_covered.requested_to_principal,
+                      amount: value + payment.items_covered.to_principal,
                       items_covered: {
                         ...payment.items_covered,
-                        requested_to_interest: value,
+                        to_interest: value,
                       },
                     });
                   }}
@@ -148,14 +133,14 @@ function CreateRepaymentConfirmEffect({
           <Box mt={3}>
             <Typography variant="body1">
               {`Calculated Payment Amount: ${formatCurrency(
-                payment.items_covered.requested_to_principal +
-                  payment.items_covered.requested_to_interest
+                payment.items_covered.to_principal +
+                  payment.items_covered.to_interest
               )}`}
             </Typography>
           </Box>
         </Box>
       ) : (
-        <>
+        <Box mt={3}>
           <Box>
             <Typography>
               Step 2 of 2: Review expected effect of payment, in the form of
@@ -169,7 +154,7 @@ function CreateRepaymentConfirmEffect({
               loansBeforeAfterPayment={loansBeforeAfterPayment}
             />
           </Box>
-        </>
+        </Box>
       )}
       <Box mt={2}>
         {payment.requested_amount <= 0 && (
@@ -177,27 +162,6 @@ function CreateRepaymentConfirmEffect({
         )}
         {payment.requested_amount > 0 && (
           <Box>
-            {[PaymentMethodEnum.ACH, PaymentMethodEnum.Wire].includes(
-              payment.method as PaymentMethodEnum
-            ) && (
-              <>
-                <BankToBankTransfer
-                  type={(payment.type || "") as PaymentTransferType}
-                  companyId={payment.company_id}
-                  onBespokeBankAccountSelection={onBespokeBankAccountSelection}
-                  onCompanyBankAccountSelection={onCompanyBankAccountSelection}
-                />
-                <Box mt={2}>
-                  <Alert severity="warning">
-                    After clicking "Notify", you must initiate this transfer for{" "}
-                    <b>{formatCurrency(payment.requested_amount)}</b> from your
-                    bank account. Upon receipt Bespoke will mark this payment as
-                    "settled," and apply towards outstanding loans and fees
-                    accordingly.
-                  </Alert>
-                </Box>
-              </>
-            )}
             {payment.method === PaymentMethodEnum.ReverseDraftACH && (
               <Box>
                 <Box mb={2}>
@@ -225,25 +189,6 @@ function CreateRepaymentConfirmEffect({
                 </Box>
               </Box>
             )}
-            {payment.method === PaymentMethodEnum.Cash && (
-              <Box mt={2}>
-                <Alert severity="info">
-                  After clicking "Notify", We will coordinate the collection of{" "}
-                  <b>{formatCurrency(payment.requested_amount)}</b>. Please
-                  reach out to Bespoke support. This method of payment will
-                  incur a $100 fee.
-                </Alert>
-              </Box>
-            )}
-            {payment.method === PaymentMethodEnum.Check && (
-              <Box mt={2}>
-                <Alert severity="info">
-                  After clicking "Notify", please make the check payable to
-                  Bespoke Financial for{" "}
-                  <b>{formatCurrency(payment.requested_amount)}</b>
-                </Alert>
-              </Box>
-            )}
           </Box>
         )}
       </Box>
@@ -251,4 +196,4 @@ function CreateRepaymentConfirmEffect({
   );
 }
 
-export default CreateRepaymentConfirmEffect;
+export default ScheduleRepaymentConfirmEffect;

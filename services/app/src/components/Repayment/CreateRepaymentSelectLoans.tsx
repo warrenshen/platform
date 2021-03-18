@@ -58,7 +58,7 @@ function CreateRepaymentSelectLoans({
   const classes = useStyles();
   const isReverseDraftACH =
     payment.method === PaymentMethodEnum.ReverseDraftACH;
-  console.log({ payment, method: payment.method });
+
   return (
     <Box>
       {productType === ProductTypeEnum.LineOfCredit ? (

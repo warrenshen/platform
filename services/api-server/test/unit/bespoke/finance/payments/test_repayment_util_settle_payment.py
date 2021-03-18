@@ -1086,7 +1086,12 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 					'payment_method': 'ach',
 					'payment_date': '10/11/2020',
 					'settlement_date': '10/13/2020',
-					'items_covered': { 'to_principal': 50.0, 'to_interest': 0.4 },
+					'items_covered': {
+						'requested_to_principal': 50.0,
+						'requested_to_interest': 0.4,
+						'to_principal': 50.0,
+						'to_interest': 0.4,
+					 },
 				},
 				'expected_transactions': [
 					{
@@ -1195,7 +1200,12 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 					'payment_method': 'ach',
 					'payment_date': '10/11/2020',
 					'settlement_date': '10/13/2020',
-					'items_covered': { 'to_principal': 50.0, 'to_interest': 0.0 },
+					'items_covered': {
+						'requested_to_principal': 50.0,
+						'requested_to_interest': 0.0,
+						'to_principal': 50.0,
+						'to_interest': 0.0,
+					},
 				},
 				'amount_as_credit_to_user': 0.0,
 				'expected_transactions': [
@@ -1246,7 +1256,12 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 					'payment_method': 'ach',
 					'payment_date': '10/11/2020',
 					'settlement_date': '10/13/2020',
-					'items_covered': { 'to_principal': 0.0, 'to_interest': 0.4 },
+					'items_covered': {
+						'requested_to_principal': 0.0,
+						'requested_to_interest': 0.4,
+						'to_principal': 0.0,
+						'to_interest': 0.4,
+					},
 				},
 				'amount_as_credit_to_user': 0.0,
 				'expected_transactions': [
@@ -1307,7 +1322,12 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 					'payment_method': 'ach',
 					'payment_date': '10/11/2020',
 					'settlement_date': '10/13/2020',
-					'items_covered': { 'to_principal': 50.0 + 100.0, 'to_interest': 0.4 + 0.6 },
+					'items_covered': {
+						'requested_to_principal': 50.0 + 100.0,
+						'requested_to_interest': 0.4 + 0.6,
+						'to_principal': 50.0 + 100.0,
+						'to_interest': 0.4 + 0.6,
+					},
 				},
 				'amount_as_credit_to_user': 0.0,
 				'expected_transactions': [
@@ -1383,7 +1403,12 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 					'payment_method': 'ach',
 					'payment_date': '10/11/2020',
 					'settlement_date': '10/13/2020',
-					'items_covered': { 'to_principal': 50.0 + 60.0, 'to_interest': 0.0 + 0.0 },
+					'items_covered': {
+						'requested_to_principal': 50.0 + 60.0,
+						'requested_to_interest': 0.0 + 0.0,
+						'to_principal': 50.0 + 60.0,
+						'to_interest': 0.0 + 0.0,
+					},
 				},
 				'amount_as_credit_to_user': 0.0,
 				'expected_transactions': [
@@ -1448,7 +1473,10 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 				'payment_method': 'ach',
 				'payment_date': '10/11/2020',
 				'settlement_date': '10/13/2020',
-				'items_covered': { 'to_principal': 50.0, 'to_interest': 0.4 },
+				'items_covered': {
+					'requested_to_principal': 50.0,
+					'requested_to_interest': 0.4,
+				},
 			},
 			'amount_as_credit_to_user': 0.0,
 			'settlement_payment': {
@@ -1456,7 +1484,12 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 				'payment_method': 'ach',
 				'payment_date': '10/11/2020',
 				'settlement_date': '10/13/2020',
-				'items_covered': { 'to_principal': 50.0, 'to_interest': 0.0 }, # to_interest is wrong here.
+				'items_covered': {
+					'requested_to_principal': 50.0,
+					'requested_to_interest': 0.4,
+					'to_principal': 50.0,
+					'to_interest': 0.0,
+				}, # to_interest is wrong here.
 			},
 			'in_err_msg': 'Requested breakdown of to_principal vs to_interest',
 		}
