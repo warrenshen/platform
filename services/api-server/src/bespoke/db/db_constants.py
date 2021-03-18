@@ -92,6 +92,7 @@ class PaymentMethodEnum(object):
 	WIRE = 'wire'
 	CHECK = 'check'
 	CASH = 'cash'
+	UNKNOWN = 'unknown'
 
 ALL_PAYMENT_METHODS = (
 	PaymentMethodEnum.REVERSE_DRAFT_ACH,

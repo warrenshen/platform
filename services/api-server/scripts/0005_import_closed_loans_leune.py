@@ -147,7 +147,7 @@ def import_closed_loans_leune(session: Session) -> None:
 			adjusted_maturity_date=parsed_adjusted_maturity_date,
 			amount=amount,
 			requested_at=parsed_funded_at, # Set requested_at to funded_at.
-			approved_at=parsed_funded_at, # Set approved_at to approved_at.
+			approved_at=parsed_funded_at, # Set approved_at to funded_at.
 			funded_at=parsed_funded_at,
 			closed_at=None, # Note we leave closed_at to None; when payments are imported in, we will set this field.
 		)
