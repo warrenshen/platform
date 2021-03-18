@@ -229,6 +229,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
         transaction_inputs: loansBeforeAfterPayment.map(
           (beforeAfterPaymentLoan) => beforeAfterPaymentLoan.transaction
         ),
+        amount_as_credit_to_user: 0,
         is_line_of_credit: productType === ProductTypeEnum.LineOfCredit,
       },
     });

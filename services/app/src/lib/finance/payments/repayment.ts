@@ -124,6 +124,7 @@ export type SettleRepaymentReq = {
     settlement_date: string;
     items_covered: any;
     transaction_inputs: any;
+    amount_as_credit_to_user: number;
     is_line_of_credit: boolean;
   };
 };
