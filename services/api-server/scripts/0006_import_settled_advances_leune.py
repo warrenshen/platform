@@ -60,7 +60,8 @@ def import_settled_advances_leune(session: Session) -> None:
 		parsed_payment_date = date_util.load_date_str(payment_date)
 		parsed_deposit_date = date_util.load_date_str(deposit_date)
 		parsed_settlement_date = date_util.load_date_str(settlement_date)
-		parsed_settled_at = datetime.combine(date_util.load_date_str(settlement_date), time())
+		parsed_submitted_at = datetime.combine(parsed_payment_date, time())
+		parsed_settled_at = datetime.combine(parsed_settlement_date, time())
 
 		if (
 			not amount or
@@ -144,7 +145,7 @@ def import_settled_advances_leune(session: Session) -> None:
 				payment_date=parsed_payment_date,
 				deposit_date=parsed_deposit_date,
 				settlement_date=parsed_settlement_date,
-				submitted_at=parsed_settled_at, # Set submitted_at to settled_at.
+				submitted_at=parsed_submitted_at,
 				settled_at=parsed_settled_at,
 			)
 			session.add(advance)

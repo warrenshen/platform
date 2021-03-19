@@ -60,7 +60,8 @@ def import_settled_repayments_leune(session: Session) -> None:
 
 		parsed_deposit_date = date_util.load_date_str(deposit_date)
 		parsed_settlement_date = date_util.load_date_str(settlement_date)
-		parsed_settled_at = datetime.combine(date_util.load_date_str(settlement_date), time())
+		parsed_submitted_at = datetime.combine(parsed_deposit_date, time())
+		parsed_settled_at = datetime.combine(parsed_settlement_date, time())
 
 		if (
 			not amount or
@@ -118,19 +119,25 @@ def import_settled_repayments_leune(session: Session) -> None:
 			print(f'EXITING EARLY')
 			return
 
-		existing_repayment = cast(
-			models.Payment,
-			session.query(models.Payment).filter(
-				models.Payment.company_id == customer.id
+		amount_to_loan = to_principal + to_interest + to_fees
+		amount_to_account = wire_fee
+
+		if not number_util.float_eq(amount, amount_to_loan + amount_to_account):
+			print(f'[{index + 1} of {repayments_count}] Invalid repayment field(s): math')
+			print(f'EXITING EARLY')
+			return
+
+		existing_repayment_transaction = cast(
+			models.Transaction,
+			session.query(models.Transaction).filter(
+				models.Transaction.type == PaymentType.REPAYMENT
 			).filter(
-				models.Payment.type == PaymentType.REPAYMENT
+				models.Transaction.loan_id == loan.id
 			).filter(
-				models.Payment.amount == amount
-			).filter(
-				models.Payment.settlement_date == parsed_settlement_date
+				models.Transaction.effective_date == parsed_settlement_date
 			).first())
 
-		if existing_repayment:
+		if existing_repayment_transaction:
 			print(f'[{index + 1} of {repayments_count}] Repayment on loan {loan_identifier} with settlement date {settlement_date} already exists')
 			continue
 		else:
@@ -145,10 +152,10 @@ def import_settled_repayments_leune(session: Session) -> None:
 				company_id=customer.id,
 				type=PaymentType.REPAYMENT,
 				method=PaymentMethodEnum.UNKNOWN,
-				amount=amount,
+				amount=amount_to_loan,
 				deposit_date=parsed_deposit_date,
 				settlement_date=parsed_settlement_date,
-				submitted_at=parsed_settled_at, # Set submitted_at to settled_at.
+				submitted_at=parsed_submitted_at,
 				settled_at=parsed_settled_at,
 			)
 			session.add(repayment)
@@ -159,10 +166,10 @@ def import_settled_repayments_leune(session: Session) -> None:
 				loan_id=loan.id,
 				type=PaymentType.REPAYMENT,
 				subtype=None,
-				amount=amount,
-				to_principal=decimal.Decimal(amount),
-				to_interest=decimal.Decimal(0.0),
-				to_fees=decimal.Decimal(0.0),
+				amount=amount_to_loan,
+				to_principal=decimal.Decimal(to_principal),
+				to_interest=decimal.Decimal(to_interest),
+				to_fees=decimal.Decimal(to_fees),
 				effective_date=parsed_settlement_date,
 			)
 			session.add(transaction)
