@@ -31,6 +31,8 @@ function CustomerFinancialSummaryOverview({
   const classes = useStyles();
 
   const minimumMonthlyPayload = financialSummary?.minimum_monthly_payload;
+  const accountBalancePayload = financialSummary?.account_level_balance_payload;
+
   let minimumMonthlyFee = -1;
   if (minimumMonthlyPayload && Object.keys(minimumMonthlyPayload).length > 0) {
     // Three keys you can read from:
@@ -40,6 +42,15 @@ function CustomerFinancialSummaryOverview({
     minimumMonthlyFee = minimumMonthlyPayload.amount_short;
   }
 
+  let accountFees = -1;
+  let accountCredits = -1;
+  if (accountBalancePayload && Object.keys(accountBalancePayload).length > 0) {
+    // Keys you can use:
+    //  fees_total: How many account-level fees in $ you owe currently
+    //  credits_total: How many credits does Bespoke owe you due to overpayments
+    accountFees = accountBalancePayload.fees_total;
+    accountCredits = accountBalancePayload.credits_total;
+  }
   return (
     <Box display="flex" flexDirection="column">
       <Typography variant="h6" gutterBottom={true}>
@@ -50,6 +61,9 @@ function CustomerFinancialSummaryOverview({
       </Typography>
       {isBalanceVisible && (
         <>
+          <Box>
+            <h3>Loans</h3>
+          </Box>
           <Box display="flex" justifyContent="space-between" width="100%">
             <Box className={classes.box}>
               <Card>
@@ -97,24 +111,58 @@ function CustomerFinancialSummaryOverview({
                 </Box>
               </Card>
             </Box>
-            <Box className={classes.box}>
-              <Card>
-                <Box display="flex" flexDirection="column" p={2}>
-                  <Typography variant="h4">
-                    {minimumMonthlyFee !== -1
-                      ? formatCurrency(minimumMonthlyFee)
-                      : "TBD"}
-                  </Typography>
-                  <Typography variant="subtitle1" color="textSecondary">
-                    minimum monthly fee
-                  </Typography>
-                </Box>
-              </Card>
-            </Box>
           </Box>
           <Box mt={1} />
         </>
       )}
+      <Box>
+        <h3>Fees</h3>
+      </Box>
+      <Box display="flex" justifyContent="space-between" width="100%">
+        <Box className={classes.box}>
+          <Card>
+            <Box display="flex" flexDirection="column" p={2}>
+              <Typography variant="h4">
+                {minimumMonthlyFee !== -1
+                  ? formatCurrency(minimumMonthlyFee)
+                  : "TBD"}
+              </Typography>
+              <Typography variant="subtitle1" color="textSecondary">
+                minimum monthly fee
+              </Typography>
+            </Box>
+          </Card>
+        </Box>
+        <Box className={classes.box}>
+          <Card>
+            <Box display="flex" flexDirection="column" p={2}>
+              <Typography variant="h4">
+                {accountFees !== -1 ? formatCurrency(accountFees) : "TBD"}
+              </Typography>
+              <Typography variant="subtitle1" color="textSecondary">
+                account fees
+              </Typography>
+            </Box>
+          </Card>
+        </Box>
+        <Box className={classes.box}>
+          <Card>
+            <Box display="flex" flexDirection="column" p={2}>
+              <Typography variant="h4">
+                {accountCredits !== -1 ? formatCurrency(accountCredits) : "TBD"}
+              </Typography>
+              <Typography variant="subtitle1" color="textSecondary">
+                account credits
+              </Typography>
+            </Box>
+          </Card>
+        </Box>
+        <Box mt={1} />
+      </Box>
+      <Box>
+        <h3>Limits</h3>
+      </Box>
+      <Box mt={1} />
       <StatBox financialSummary={financialSummary} />
     </Box>
   );

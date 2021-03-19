@@ -15884,6 +15884,7 @@ export type FinancialSummaryFragment = Pick<
   | "total_principal_in_requested_state"
   | "total_outstanding_principal_for_interest"
   | "minimum_monthly_payload"
+  | "account_level_balance_payload"
 >;
 
 export type InvoiceFileFragment = Pick<
@@ -16575,6 +16576,7 @@ export const FinancialSummaryFragmentDoc = gql`
     total_principal_in_requested_state
     total_outstanding_principal_for_interest
     minimum_monthly_payload
+    account_level_balance_payload
   }
 `;
 export const InvoiceFileFragmentDoc = gql`
