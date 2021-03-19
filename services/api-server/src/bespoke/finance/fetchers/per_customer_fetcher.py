@@ -56,6 +56,7 @@ class Fetcher(object):
 			return True, None
 
 		payment_ids = [p['id'] for p in payments]
+
 		with session_scope(self._session_maker) as session:
 			transactions = cast(
 				List[models.Transaction],

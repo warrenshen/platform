@@ -419,7 +419,7 @@ class TestSettlePayment(db_unittest.TestCase):
 					'to_principal': 0.0,
 					'to_interest': 0.0,
 					'to_fees': 0.0,
-					'type': db_constants.TransactionType.CREDIT_TO_USER,
+					'type': db_constants.PaymentType.CREDIT_TO_USER,
 					'loan_id_index': None
 				},
 			],
@@ -549,7 +549,7 @@ class TestSettlePayment(db_unittest.TestCase):
 						'to_principal': 0.0,
 						'to_interest': 0.0,
 						'to_fees': 0.0,
-						'type': db_constants.TransactionType.CREDIT_TO_USER,
+						'type': db_constants.PaymentType.CREDIT_TO_USER,
 						'loan_id_index': None
 					},
 				],
@@ -638,7 +638,7 @@ class TestSettlePayment(db_unittest.TestCase):
 					'to_principal': 0.0,
 					'to_interest': 0.0,
 					'to_fees': 0.0,
-					'type': db_constants.TransactionType.CREDIT_TO_USER,
+					'type': db_constants.PaymentType.CREDIT_TO_USER,
 					'loan_id_index': None
 				},
 			],
@@ -1232,7 +1232,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 						'to_principal': 0.0,
 						'to_interest': 0.0,
 						'to_fees': 0.0,
-						'type': db_constants.TransactionType.CREDIT_TO_USER,
+						'type': db_constants.PaymentType.CREDIT_TO_USER,
 						'loan_id_index': None
 					},
 				],

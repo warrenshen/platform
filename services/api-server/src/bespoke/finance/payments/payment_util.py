@@ -149,6 +149,92 @@ def sum(vals: List[float]) -> float:
 
 	return sum_val
 
+def create_and_add_credit_to_user(
+	company_id: str,
+	amount: float, 
+	originating_payment_id: str,
+	created_by_user_id: str,
+	payment_date: datetime.date,
+	effective_date: datetime.date,
+	session: Session) -> models.Transaction: 
+
+	payment = create_payment(
+		company_id=company_id,
+		payment_input=PaymentInputDict(
+			type=db_constants.PaymentType.CREDIT_TO_USER,
+			payment_method='', # Not needed since its a fee, you can look up the originating payment_id
+			amount=amount
+		),
+		user_id=created_by_user_id
+	)
+	payment.originating_payment_id = originating_payment_id
+	payment.payment_date = payment_date
+	payment.settlement_date = effective_date
+	payment.settled_at = date_util.now()
+	payment.settled_by_user_id = created_by_user_id
+	session.add(payment)
+	session.flush()
+	payment_id = str(payment.id)
+
+	t = models.Transaction()
+	t.type = db_constants.PaymentType.CREDIT_TO_USER
+	t.amount = decimal.Decimal(amount)
+	t.to_principal = decimal.Decimal(0.0)
+	t.to_interest = decimal.Decimal(0.0)
+	t.to_fees = decimal.Decimal(0.0)
+	# NOTE: no loan_id is set for credits
+	t.payment_id = payment_id
+	t.created_by_user_id = created_by_user_id
+	t.effective_date = effective_date
+
+	session.add(t)
+	return t
+
+def create_and_add_account_level_fee(
+	company_id: str,
+	subtype: str, 
+	amount: float, 
+	originating_payment_id: str, 
+	created_by_user_id: str,
+	payment_date: datetime.date,
+	effective_date: datetime.date,
+	session: Session) -> models.Transaction:
+
+	payment = create_payment(
+		company_id=company_id,
+		payment_input=PaymentInputDict(
+			type=db_constants.PaymentType.FEE,
+			payment_method='', # Not needed since its a fee, you can look up the originating payment_id
+			amount=amount
+		),
+		user_id=created_by_user_id
+	)
+	payment.originating_payment_id = originating_payment_id
+	payment.payment_date = payment_date
+	payment.settlement_date = effective_date
+	payment.settled_at = date_util.now()
+	payment.settled_by_user_id = created_by_user_id
+
+	session.add(payment)
+	session.flush()
+	payment_id = str(payment.id)
+
+	t = models.Transaction()
+	t.type = db_constants.PaymentType.FEE
+	t.subtype = subtype
+	t.amount = decimal.Decimal(amount)
+	t.to_principal = decimal.Decimal(0.0)
+	t.to_interest = decimal.Decimal(0.0)
+	t.to_fees = decimal.Decimal(0.0)
+	# NOTE: no loan_id is set for credits
+	t.payment_id = payment_id
+	t.created_by_user_id = created_by_user_id
+	t.effective_date = effective_date
+
+	session.add(t)
+	return t
+
+
 
 
 

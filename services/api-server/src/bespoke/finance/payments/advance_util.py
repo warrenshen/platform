@@ -15,7 +15,6 @@ from bespoke.db.models import session_scope
 from bespoke.finance import contract_util, number_util
 from bespoke.finance.loans import sibling_util
 from bespoke.finance.payments import payment_util
-from bespoke.finance.transactions import transaction_util
 from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
@@ -157,12 +156,15 @@ def fund_loans_with_advance(
 				if err:
 					return None, err
 
-				t = transaction_util.create_account_level_fee(
+				t = payment_util.create_and_add_account_level_fee(
+					company_id=company_id,
 					subtype=db_constants.TransactionSubType.WIRE_FEE,
 					amount=cur_wire_fee,
-					payment_id=payment_id,
+					originating_payment_id=payment_id,
 					created_by_user_id=bank_admin_user_id,
-					effective_date=settlement_date
+					payment_date=payment_date,
+					effective_date=settlement_date,
+					session=session
 				)
 				session.add(t)
 

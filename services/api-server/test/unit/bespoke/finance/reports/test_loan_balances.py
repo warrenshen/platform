@@ -8,7 +8,7 @@ from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.db_constants import ProductType
 from bespoke.db.models import session_scope
-from bespoke.finance.transactions import transaction_util
+from bespoke.finance.payments import payment_util
 from bespoke.finance.reports import loan_balances
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
@@ -274,33 +274,41 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 			# Book an account-level fee and a credit, and make sure it doesnt influence
 			# any of the loan updates
-			t = transaction_util.create_account_level_fee(
-				subtype='wire_fee', amount=1000.01, payment_id=advance_tx.payment_id,
+			payment_util.create_and_add_account_level_fee(
+				company_id=company_id,
+				subtype='wire_fee', amount=1000.01, originating_payment_id=advance_tx.payment_id,
 				created_by_user_id=seed.get_user_id('bank_admin'),
-				effective_date=date_util.load_date_str('10/01/2020')
+				payment_date=date_util.load_date_str('10/01/2020'),
+				effective_date=date_util.load_date_str('10/01/2020'),
+				session=session
 			)
-			session.add(t)
 
-			t = transaction_util.create_account_level_fee(
-				subtype='wire_fee', amount=2000.01, payment_id=advance_tx.payment_id,
+			payment_util.create_and_add_account_level_fee(
+				company_id=company_id,
+				subtype='wire_fee', amount=2000.01, originating_payment_id=advance_tx.payment_id,
 				created_by_user_id=seed.get_user_id('bank_admin'),
-				effective_date=date_util.load_date_str('10/01/2020')
+				payment_date=date_util.load_date_str('10/01/2020'),
+				effective_date=date_util.load_date_str('10/01/2020'),
+				session=session
 			)
-			session.add(t)
 
-			t2 = transaction_util.create_credit_to_user(
-				amount=3000.02, payment_id=advance_tx.payment_id, # not a sensical payment_id here, but thats OK
+			payment_util.create_and_add_credit_to_user(
+				company_id=company_id,
+				amount=3000.02, originating_payment_id=advance_tx.payment_id,
 				created_by_user_id=seed.get_user_id('bank_admin'),
-				effective_date=date_util.load_date_str('10/01/2020')
+				payment_date=date_util.load_date_str('10/01/2020'),
+				effective_date=date_util.load_date_str('10/01/2020'),
+				session=session
 			)
-			session.add(t2)
 
-			t2 = transaction_util.create_credit_to_user(
-				amount=4000.02, payment_id=advance_tx.payment_id, # not a sensical payment_id here, but thats OK
+			payment_util.create_and_add_credit_to_user(
+				company_id=company_id,
+				amount=4000.02, originating_payment_id=advance_tx.payment_id,
 				created_by_user_id=seed.get_user_id('bank_admin'),
-				effective_date=date_util.load_date_str('10/01/2020')
+				payment_date=date_util.load_date_str('10/01/2020'),
+				effective_date=date_util.load_date_str('10/01/2020'),
+				session=session
 			)
-			session.add(t2)
 
 			payment_test_helper.make_repayment(
 				session, loan,

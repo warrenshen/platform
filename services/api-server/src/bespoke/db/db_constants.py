@@ -105,17 +105,15 @@ ALL_PAYMENT_METHODS = (
 class PaymentType(object):
 	REPAYMENT = 'repayment'
 	ADVANCE = 'advance'
-
-class TransactionType(object):
-	CREDIT_TO_USER = 'credit_to_user'
-	FEE = 'fee'
+	CREDIT_TO_USER = 'credit_to_user' # Bespoke giving $ credit to a user
+	FEE = 'fee' # Bespoke charging the user a fee
 
 class TransactionSubType(object):
 	WIRE_FEE = 'wire_fee'
 
 # There might be many types that represent a fee, credit to user, etc
-CREDIT_TO_USER_TYPES = set([TransactionType.CREDIT_TO_USER])
-FEE_TYPES = set([TransactionType.FEE])
+CREDIT_TO_USER_TYPES = set([PaymentType.CREDIT_TO_USER])
+FEE_TYPES = set([PaymentType.FEE])
 
 # There might be many types that represent an advance, repayment, etc
 ADVANCE_TYPES = set([PaymentType.ADVANCE])

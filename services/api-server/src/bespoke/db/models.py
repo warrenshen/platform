@@ -299,6 +299,7 @@ class Payment(Base):
 	submitted_by_user_id = Column(GUID)
 	settled_at = Column(DateTime)
 	settled_by_user_id = Column(GUID)
+	originating_payment_id = Column(GUID)
 
 
 	def as_dict(self) -> PaymentDict:

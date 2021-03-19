@@ -179,14 +179,22 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				exp_payment = test['expected_payments'][i]
 				exp_company_id = seed.get_company_id('company_admin', index=exp_payment['company_index'])
 				self.assertAlmostEqual(exp_payment['amount'], float(payment.amount))
-				self.assertEqual('advance', payment.type)
+				self.assertEqual(exp_payment['type'], payment.type)
 				self.assertEqual(exp_company_id, payment.company_id)
-				self.assertEqual('ach', payment.method)
+
+				if exp_payment['type'] == 'advance':
+					self.assertEqual('ach', payment.method)
+					self.assertEqual(settlement_date, date_util.date_to_str(payment.deposit_date))
+				else:
+					# No payment method associated with fees or credits
+					self.assertEqual('', payment.method)
+					# Fees or credits dont get settled immediately
+					self.assertIsNone(payment.deposit_date)
+
 				self.assertIsNotNone(payment.settled_at)
 				self.assertIsNotNone(payment.submitted_at)
 				self.assertEqual(payment_date, date_util.date_to_str(payment.payment_date))
 				# For advances, deposit date is always equal to the settlement date.
-				self.assertEqual(settlement_date, date_util.date_to_str(payment.deposit_date))
 				self.assertEqual(settlement_date, date_util.date_to_str(payment.settlement_date))
 				self.assertEqual(bank_admin_user_id, payment.settled_by_user_id)
 				self.assertEqual(bank_admin_user_id, payment.submitted_by_user_id)
@@ -227,6 +235,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				matching_payment = payments[exp_transaction['payment_index']]
 				self.assertEqual(matching_payment.settlement_date, transaction.effective_date)
 				self.assertEqual(matching_payment.id, transaction.payment_id)
+				
 				self.assertEqual(bank_admin_user_id, transaction.created_by_user_id)
 
 			for purchase_order_id in test.get('expected_funded_purchase_order_ids', []):
@@ -285,7 +294,13 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				'expected_payments': [
 					{
 						'amount': 30.03,
-						'company_index': 0
+						'company_index': 0,
+						'type': 'advance'
+					},
+					{
+						'amount': 50.00,
+						'company_index': 0,
+						'type': 'fee'
 					}
 				],
 				'expected_transactions': [
@@ -304,7 +319,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					{
 						'amount': 50.00,
 						'loan_index': None,
-						'payment_index': 0,
+						'payment_index': 1,
 						'type': 'fee',
 						'subtype': 'wire_fee'
 					}
@@ -377,14 +392,26 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					}
 				],
 				'expected_payments': [
-				  # We create two payments, one for each customer
+				  # We create two payments, one for each customer, plus the payments for the wire fees
 					{
 						'amount': 10.01 + 30.03,
-						'company_index': 0
+						'company_index': 0,
+						'type': 'advance'
+					},
+					{
+						'amount': 50.00,
+						'company_index': 0,
+						'type': 'fee'
+					},
+					{
+						'amount': 60.00,
+						'company_index': 1,
+						'type': 'fee'
 					},
 					{
 						'amount': 20.02 + 40.04,
-						'company_index': 1
+						'company_index': 1,
+						'type': 'advance'
 					}
 				],
 				'expected_transactions': [
@@ -398,7 +425,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					{
 						'amount': 20.02,
 						'loan_index': 1,
-						'payment_index': 1,
+						'payment_index': 3,
 						'type': 'advance'
 					},
 					{
@@ -410,20 +437,20 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					{
 						'amount': 40.04,
 						'loan_index': 3,
-						'payment_index': 1,
+						'payment_index': 3,
 						'type': 'advance'
 					},
 					{
 						'amount': 50.00,
 						'loan_index': None,
-						'payment_index': 0,
+						'payment_index': 1,
 						'type': 'fee',
 						'subtype': 'wire_fee'
 					},
 					{
 						'amount': 60.00,
 						'loan_index': None,
-						'payment_index': 1,
+						'payment_index': 2,
 						'type': 'fee',
 						'subtype': 'wire_fee'
 					}
@@ -463,7 +490,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				'expected_payments': [
 					{
 						'amount': 10.01,
-						'company_index': 0
+						'company_index': 0,
+						'type': 'advance'
 					}
 				],
 				'expected_transactions': [
@@ -669,7 +697,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				'expected_payments': [
 					{
 						'amount': 30.03,
-						'company_index': 0
+						'company_index': 0,
+						'type': 'advance'
 					}
 				],
 				'expected_transactions': [
@@ -756,7 +785,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				'expected_payments': [
 					{
 						'amount': 30.03,
-						'company_index': 0
+						'company_index': 0,
+						'type': 'advance'
 					}
 				],
 				'expected_transactions': [
