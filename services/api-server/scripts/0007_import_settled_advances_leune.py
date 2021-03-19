@@ -55,6 +55,7 @@ def import_settled_advances_leune(session: Session) -> None:
 	print(f'Running for {advances_count} advances...')
 
 	for index, new_advance_tuple in enumerate(ADVANCE_TUPLES):
+		print(f'[{index + 1} of {advances_count}]')
 		customer_identifier, loan_identifier, amount, payment_type, payment_date, deposit_date, settlement_date = new_advance_tuple
 
 		parsed_payment_date = date_util.load_date_str(payment_date)

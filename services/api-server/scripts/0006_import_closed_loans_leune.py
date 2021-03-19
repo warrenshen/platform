@@ -53,6 +53,7 @@ def import_closed_loans_leune(session: Session) -> None:
 	print(f'Running for {loans_count} loans...')
 
 	for index, new_loan_tuple in enumerate(LOAN_TUPLES):
+		print(f'[{index + 1} of {loans_count}]')
 		customer_identifier, loan_identifier, loan_type, artifact_identifier, amount, origination_date, maturity_date, adjusted_maturity_date, funded_date = new_loan_tuple
 
 		customer = cast(

@@ -51,6 +51,7 @@ def import_funded_purchase_orders_leune(session: Session) -> None:
 	print(f'Creating {purchase_orders_count} purchase orders...')
 
 	for index, new_purchase_order_tuple in enumerate(NEW_PURCHASE_ORDER_TUPLES):
+		print(f'[{index + 1} of {purchase_orders_count}]')
 		customer_identifier, vendor_name, order_number, order_date, funded_date, amount = new_purchase_order_tuple
 
 		customer = cast(

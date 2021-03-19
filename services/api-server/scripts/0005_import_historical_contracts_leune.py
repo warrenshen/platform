@@ -19,6 +19,7 @@ from bespoke_test.contract.contract_test_helper import (ContractInputDict,
 # customer_identifier, product_type, start_date, end_date, termination_date, financing_terms, maximum_amount, minimum_monthly_amount, advance_rate, factoring_fee_percentage, factoring_fee_threshold, wire_fee
 CONTRACT_TUPLES = [
 	("LU", "Inventory", "6/5/2020", "6/5/2021", "12/8/2020", 120.00, 600000.00, 0.00, 100.00, 0.00075, 0.00, 0),
+	("LU", "Inventory", "12/09/2020", "12/09/2021", "12/09/2021", 120.00, 1000000.00, 0.00, 100.00, 0.00075, 0.00, 0),
 ]
 
 def import_historical_contracts_leune(session: Session) -> None:
@@ -26,12 +27,19 @@ def import_historical_contracts_leune(session: Session) -> None:
 	print(f'Running for {contracts_count} contracts...')
 
 	for index, new_contract_tuple in enumerate(CONTRACT_TUPLES):
+		print(f'[{index + 1} of {contracts_count}]')
 		customer_identifier, product_type, start_date, end_date, termination_date, financing_terms, maximum_amount, minimum_monthly_amount, advance_rate, factoring_fee_percentage, factoring_fee_threshold, wire_fee = new_contract_tuple
 
 		parsed_start_date = date_util.load_date_str(start_date)
 		parsed_end_date = date_util.load_date_str(end_date)
 		parsed_termination_date = date_util.load_date_str(termination_date)
-		parsed_terminated_at = datetime.combine(parsed_termination_date, time())
+
+		today_date = date_util.today_as_date()
+		is_contract_terminated = parsed_termination_date <= today_date
+		if is_contract_terminated:
+			parsed_terminated_at = datetime.combine(parsed_termination_date, time())
+		else:
+			parsed_terminated_at = None
 
 		parsed_product_type = None
 		if product_type == 'Inventory':
@@ -127,6 +135,10 @@ def import_historical_contracts_leune(session: Session) -> None:
 			session.add(contract)
 
 			print(f'[{index + 1} of {contracts_count}] Created contract of {parsed_product_type} product type with start date {start_date} and end date {end_date} for {customer.name} ({customer.identifier})')
+
+			if not is_contract_terminated:
+				print(f'[{index + 1} of {contracts_count}] Contract with termination date {termination_date} is not terminated, setting it as the active contract for {customer.name} ({customer.identifier})...')
+				customer.contract_id = contract.id
 
 def main() -> None:
 	engine = models.create_engine()
