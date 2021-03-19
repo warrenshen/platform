@@ -13,6 +13,7 @@ from bespoke.date import date_util
 from bespoke.db import db_constants, models, models_util
 from bespoke.db.db_constants import (ALL_LOAN_TYPES, CompanyType,
                                      LoanStatusEnum, PaymentMethodEnum,
+                                     PaymentStatusEnum,
                                      PaymentType)
 from bespoke.finance import contract_util, number_util
 from bespoke.finance.loans import loan_calculator
