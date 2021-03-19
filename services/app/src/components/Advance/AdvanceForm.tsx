@@ -1,7 +1,9 @@
 import {
   Box,
+  Checkbox,
   createStyles,
   FormControl,
+  FormControlLabel,
   InputLabel,
   makeStyles,
   MenuItem,
@@ -14,6 +16,7 @@ import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import { LoanFragment, PaymentsInsertInput } from "generated/graphql";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
+import { ChangeEvent } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -27,9 +30,17 @@ interface Props {
   payment: PaymentsInsertInput;
   selectedLoans: LoanFragment[];
   setPayment: (payment: PaymentsInsertInput) => void;
+  shouldChargeWireFee: boolean;
+  setShouldChargeWireFee: (val: boolean) => void;
 }
 
-function PaymentAdvanceForm({ payment, selectedLoans, setPayment }: Props) {
+function PaymentAdvanceForm({
+  payment,
+  selectedLoans,
+  setPayment,
+  shouldChargeWireFee,
+  setShouldChargeWireFee,
+}: Props) {
   const classes = useStyles();
 
   return (
@@ -114,6 +125,22 @@ function PaymentAdvanceForm({ payment, selectedLoans, setPayment }: Props) {
         <FormControl>
           <CurrencyInput isDisabled label={"Amount"} value={payment.amount} />
         </FormControl>
+      </Box>
+      <Box>
+        <Box mt={2}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={shouldChargeWireFee}
+                onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                  setShouldChargeWireFee(event.target.checked);
+                }}
+                color="primary"
+              />
+            }
+            label={"Charge Wire Fee"}
+          />
+        </Box>
       </Box>
     </Box>
   );

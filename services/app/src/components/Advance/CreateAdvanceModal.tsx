@@ -64,6 +64,7 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
   } as PaymentsInsertInput;
 
   const [payment, setPayment] = useState(newPayment);
+  const [shouldChargeWireFee, setShouldChargeWireFee] = useState(false);
 
   useEffect(() => {
     if (payment.method && payment.payment_date) {
@@ -93,7 +94,7 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
         settlement_date: payment.settlement_date,
       },
       loan_ids: selectedLoans.map((loan) => loan.id),
-      should_charge_wire_fee: false, // TODO(warren): Support this feature in the frontend
+      should_charge_wire_fee: shouldChargeWireFee,
     };
     const response = await authenticatedApi.post(
       loansRoutes.createAdvance,
@@ -127,6 +128,8 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
           selectedLoans={selectedLoans}
           payment={payment}
           setPayment={setPayment}
+          shouldChargeWireFee={shouldChargeWireFee}
+          setShouldChargeWireFee={setShouldChargeWireFee}
         />
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
