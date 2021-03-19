@@ -76,15 +76,14 @@ export default function ReviewInvoiceApproveModal({
       classes={{ paper: classes.dialog }}
     >
       <DialogTitle className={classes.dialogTitle}>
-        Confirm Bank Information
+        Confirm Invoice Due Date
       </DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Please verify that the invoice described below is valid. If the
-          information is not up-to-date, please contact us. Otherwise, press the
-          "Confirm" button below.
+          Please confirm that the invoice due date is correct and that you have
+          not paid off this invoice to {invoice.company.name} yet.
         </DialogContentText>
-        <Box>
+        <Box display="flex" flexDirection="row" justifyContent="center">
           <InvoiceInfoCard invoice={invoice} />
         </Box>
       </DialogContent>
