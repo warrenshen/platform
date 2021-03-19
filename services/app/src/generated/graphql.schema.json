@@ -31776,6 +31776,29 @@
         "description": "columns and relationships of \"financial_summaries\"",
         "fields": [
           {
+            "name": "account_level_balance_payload",
+            "description": null,
+            "args": [
+              {
+                "name": "path",
+                "description": "JSON select path",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                },
+                "defaultValue": null
+              }
+            ],
+            "type": {
+              "kind": "SCALAR",
+              "name": "jsonb",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "adjusted_total_limit",
             "description": null,
             "args": [],
@@ -32331,6 +32354,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "account_level_balance_payload",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "jsonb",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "minimum_monthly_payload",
             "description": null,
             "type": {
@@ -32631,6 +32664,16 @@
             "defaultValue": null
           },
           {
+            "name": "account_level_balance_payload",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "jsonb_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "adjusted_total_limit",
             "description": null,
             "type": {
@@ -32795,6 +32838,20 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "account_level_balance_payload",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null
+          },
+          {
             "name": "minimum_monthly_payload",
             "description": null,
             "type": {
@@ -32820,6 +32877,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "account_level_balance_payload",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "minimum_monthly_payload",
             "description": null,
             "type": {
@@ -32840,6 +32907,16 @@
         "description": "delete key/value pair or string element. key/value pairs are matched based on their key value",
         "fields": null,
         "inputFields": [
+          {
+            "name": "account_level_balance_payload",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "minimum_monthly_payload",
             "description": null,
@@ -32952,6 +33029,16 @@
         "description": "input type for inserting data into table \"financial_summaries\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "account_level_balance_payload",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "jsonb",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "adjusted_total_limit",
             "description": null,
@@ -33765,6 +33852,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "account_level_balance_payload",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "adjusted_total_limit",
             "description": null,
             "type": {
@@ -33931,6 +34028,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "account_level_balance_payload",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "jsonb",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "minimum_monthly_payload",
             "description": null,
             "type": {
@@ -33953,6 +34060,12 @@
         "inputFields": null,
         "interfaces": null,
         "enumValues": [
+          {
+            "name": "account_level_balance_payload",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "adjusted_total_limit",
             "description": "column name",
@@ -34034,6 +34147,16 @@
         "description": "input type for updating data in table \"financial_summaries\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "account_level_balance_payload",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "jsonb",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "adjusted_total_limit",
             "description": null,
@@ -34959,6 +35082,12 @@
         "inputFields": null,
         "interfaces": null,
         "enumValues": [
+          {
+            "name": "account_level_balance_payload",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "adjusted_total_limit",
             "description": "column name",
@@ -39013,6 +39142,12 @@
         "inputFields": null,
         "interfaces": null,
         "enumValues": [
+          {
+            "name": "invoices_payment_id_key",
+            "description": "unique or primary key constraint",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "invoices_pkey",
             "description": "unique or primary key constraint",
@@ -45557,9 +45692,13 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -46698,6 +46837,12 @@
         "inputFields": null,
         "interfaces": null,
         "enumValues": [
+          {
+            "name": "loans_company_id_identifier_key",
+            "description": "unique or primary key constraint",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "loans_pkey",
             "description": "unique or primary key constraint",
@@ -58208,6 +58353,18 @@
             "deprecationReason": null
           },
           {
+            "name": "invoice",
+            "description": "An object relationship",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "invoices",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "items_covered",
             "description": "JSON blob which records information about this payment: which loans this payment is intended for, how much of this payment is intended to go to principal vs interest, etc",
             "args": [
@@ -59039,6 +59196,16 @@
             "defaultValue": null
           },
           {
+            "name": "invoice",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "invoices_bool_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "items_covered",
             "description": null,
             "type": {
@@ -59410,6 +59577,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "invoice",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "invoices_obj_rel_insert_input",
               "ofType": null
             },
             "defaultValue": null
@@ -60694,6 +60871,16 @@
             "type": {
               "kind": "ENUM",
               "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "invoice",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "invoices_order_by",
               "ofType": null
             },
             "defaultValue": null
@@ -86671,13 +86858,9 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "uuid",
-                "ofType": null
-              }
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -86719,13 +86902,9 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "uuid",
-                "ofType": null
-              }
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -86786,6 +86965,18 @@
                 "name": "uuid",
                 "ofType": null
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "subtype",
+            "description": "For information purposes, to understand why a fee may have been generated, for example",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -87498,6 +87689,16 @@
             "defaultValue": null
           },
           {
+            "name": "subtype",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "String_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "to_fees",
             "description": null,
             "type": {
@@ -87717,6 +87918,16 @@
             "defaultValue": null
           },
           {
+            "name": "subtype",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "to_fees",
             "description": null,
             "type": {
@@ -87875,6 +88086,18 @@
             "deprecationReason": null
           },
           {
+            "name": "subtype",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "to_fees",
             "description": null,
             "args": [],
@@ -88016,6 +88239,16 @@
           },
           {
             "name": "payment_id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "subtype",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -88183,6 +88416,18 @@
             "deprecationReason": null
           },
           {
+            "name": "subtype",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "to_fees",
             "description": null,
             "args": [],
@@ -88324,6 +88569,16 @@
           },
           {
             "name": "payment_id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "subtype",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -88627,6 +88882,16 @@
             "defaultValue": null
           },
           {
+            "name": "subtype",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "to_fees",
             "description": null,
             "type": {
@@ -88759,6 +89024,12 @@
             "deprecationReason": null
           },
           {
+            "name": "subtype",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "to_fees",
             "description": "column name",
             "isDeprecated": false,
@@ -88877,6 +89148,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "subtype",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "defaultValue": null
@@ -89424,6 +89705,12 @@
           },
           {
             "name": "payment_id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "subtype",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

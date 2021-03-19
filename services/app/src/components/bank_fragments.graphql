@@ -103,6 +103,17 @@ fragment ThirdParty on companies {
   phone_number
 }
 
+fragment BankPayor on payors {
+  id
+  name
+  address
+  country
+  state
+  city
+  zip_code
+  phone_number
+}
+
 fragment BankPayorPartnership on company_payor_partnerships {
   id
   company_id

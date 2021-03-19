@@ -17,6 +17,13 @@ subscription GetPayments {
       id
       full_name
     }
+    invoice {
+      id
+      payor {
+        id
+        name
+      }
+    }
   }
 }
 
@@ -39,6 +46,13 @@ subscription GetSubmittedPayments {
     submitted_by_user {
       id
       full_name
+    }
+    invoice {
+      id
+      payor {
+        id
+        name
+      }
     }
   }
 }

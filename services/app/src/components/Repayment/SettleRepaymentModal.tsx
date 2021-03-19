@@ -13,6 +13,7 @@ import {
 import SettleRepaymentConfirmEffect from "components/Repayment/SettleRepaymentConfirmEffect";
 import SettleRepaymentSelectLoans from "components/Repayment/SettleRepaymentSelectLoans";
 import {
+  BankPayorFragment,
   Companies,
   Loans,
   LoanTypeEnum,
@@ -77,6 +78,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
   const [errMsg, setErrMsg] = useState("");
 
   const [customer, setCustomer] = useState<Companies | null>(null);
+  const [payor, setPayor] = useState<BankPayorFragment | null>(null);
   const [payment, setPayment] = useState<PaymentsInsertInput | null>(null);
 
   const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"][]>([]);
@@ -101,6 +103,10 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
       if (existingPayment) {
         setSelectedLoanIds(existingPayment.items_covered?.loan_ids || []);
         setCustomer(existingPayment.company as Companies);
+        setPayor(
+          (existingPayment.invoice?.payor ||
+            existingPayment.company) as BankPayorFragment
+        );
         setPayment({
           id: existingPayment.id,
           company_id: existingPayment.company_id,
@@ -311,6 +317,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
           <SettleRepaymentSelectLoans
             payment={payment}
             customer={customer}
+            payor={payor!}
             allLoans={allLoans || []}
             selectedLoanIds={selectedLoanIds}
             selectedLoans={selectedLoans}

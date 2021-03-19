@@ -12,6 +12,7 @@ import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
+  BankPayorFragment,
   Companies,
   GetLoansByLoanIdsQuery,
   LoanFragment,
@@ -33,6 +34,7 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   payment: PaymentsInsertInput;
   customer: Companies;
+  payor: BankPayorFragment;
   allLoans: LoanFragment[];
   selectedLoanIds: Loans["id"][];
   selectedLoans: GetLoansByLoanIdsQuery["loans"];
@@ -42,6 +44,7 @@ interface Props {
 function SettleRepaymentSelectLoans({
   payment,
   customer,
+  payor,
   allLoans,
   selectedLoanIds,
   selectedLoans,
@@ -70,11 +73,11 @@ function SettleRepaymentSelectLoans({
     [allLoans]
   );
 
-  return payment && customer ? (
+  return payment && customer && payor ? (
     <Box>
       <Box display="flex" flexDirection="column">
         <Typography variant="body2">
-          {`${customer.name} submitted the following payment:`}
+          {`${payor.name} submitted the following payment:`}
         </Typography>
         <Box mt={1}>
           <RequestedRepaymentPreview payment={payment} />

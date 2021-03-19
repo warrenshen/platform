@@ -91,6 +91,16 @@ function RepaymentsDataGrid({
         ),
       },
       {
+        caption: "Payor",
+        width: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <Box>
+            {params.row.data.invoice?.payor.name ||
+              params.row.data.company?.name}
+          </Box>
+        ),
+      },
+      {
         visible: isMethodVisible,
         dataField: "method",
         caption: "Method",
