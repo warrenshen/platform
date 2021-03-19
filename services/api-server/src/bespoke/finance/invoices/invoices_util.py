@@ -91,10 +91,16 @@ class InvoiceData:
 		return None
 
 	@staticmethod
-	def from_dict(d: Dict) -> 'InvoiceData':
+	def from_dict(d: Dict) -> Tuple['InvoiceData', errors.Error]:
+		if not d:
+			return None, errors.Error('cannot instantiate InvoiceData from nothing')
+
 		invoice_date = d.get('invoice_date')
 		if invoice_date:
-			invoice_date = date_util.load_date_str(invoice_date)
+			try:
+				invoice_date = date_util.load_date_str(invoice_date)
+			except:
+				return None, errors.Error('invalid invoice_date')
 
 		return InvoiceData(
 			d.get('id'),
@@ -110,7 +116,7 @@ class InvoiceData:
 			d.get('status'),
 			d.get('rejection_note'),
 			d.get('is_cannabis'),
-		)
+		), None
 
 
 @dataclass
@@ -119,11 +125,15 @@ class UpsertRequest:
 	files: List[InvoiceFileItem]
 
 	@staticmethod
-	def from_dict(d: Dict) -> 'UpsertRequest':
+	def from_dict(d: Dict) -> Tuple['UpsertRequest', errors.Error]:
+		data, err = InvoiceData.from_dict(d.get('invoice'))
+		if err:
+			return None, err
+
 		return UpsertRequest(
-			InvoiceData.from_dict(d.get('invoice')),
+			data,
 			[InvoiceFileItem.from_dict(f) for f in d.get('files', [])]
-		)
+		), None
 
 
 @dataclass
@@ -163,7 +173,7 @@ class InvoicePaymentRequestResponse:
 
 		if new_status == db_constants.RequestStatusEnum.REJECTED:
 			if not rejection_note:
-				return None, errors.Error("Rejected invoice payments require a note")
+				return None, errors.Error('rejected invoice payments require a note')
 			return InvoicePaymentRequestResponse(
 				invoice_id,
 				new_status,
@@ -180,12 +190,23 @@ class InvoicePaymentRequestResponse:
 		amount = d.get('amount')
 		if not amount:
 			return None, errors.Error('missing key: amount')
-		amount = float(amount)
+
+		if str(amount).lower() == 'nan':
+			return None, errors.Error("'amount' cannot be NaN")
+
+		try:
+			amount = float(amount)
+		except:
+			return None, errors.Error("'amount' is not a float")
 
 		anticipated_payment_date = d.get('anticipated_payment_date')
 		if not anticipated_payment_date:
 			return None, errors.Error('missing key: anticipated_payment_date')
-		anticipated_payment_date = date_util.load_date_str(anticipated_payment_date)
+
+		try:
+			anticipated_payment_date = date_util.load_date_str(anticipated_payment_date)
+		except:
+			return None, errors.Error('invalid anticipated_payment_date')
 
 		payment_method = d.get('payment_method')
 		if not payment_method:
@@ -277,11 +298,13 @@ def is_invoice_ready_for_approval(
 	try:
 		with models.session_scope(session_maker) as session:
 			invoice = session.query(models.Invoice).get(invoice_id)
+			if not invoice:
+				return errors.Error("no invoice with that id")
 
 			for key in REQUIRED_KEYS_FOR_APPROVAL:
 				value = getattr(invoice, key)
 				if value is None:
-					return errors.Error(f"Missing {key}")
+					return errors.Error(f"missing key: {key}")
 
 			for key in REQUIRED_POSITIVE_VALUES_FOR_APPROVAL:
 				value = getattr(invoice, key)
@@ -299,6 +322,7 @@ def is_invoice_ready_for_approval(
 			relationship = session.query(models.CompanyPayorPartnership) \
 				.filter_by(company_id=invoice.company_id, payor_id=invoice.payor_id) \
 				.first()
+
 			if not relationship or relationship.approved_at is None:
 				return errors.Error("payor is not approved")
 
@@ -308,7 +332,7 @@ def is_invoice_ready_for_approval(
 			if not payor_users:
 				return errors.Error("no users configured for this payor")
 	except Exception as e:
-		logging.exception("Caught exception while checking if invoice is ready for approval")
+		logging.exception("caught exception while checking if invoice is ready for approval")
 		return errors.Error(str(e))
 	return None
 
@@ -337,7 +361,6 @@ def handle_invoice_approval_request(
 	err = is_invoice_ready_for_approval(session_maker, invoice_id)
 	if err:
 		return err
-
 
 	info = models.TwoFactorFormInfoDict(
 		type=db_constants.TwoFactorLinkType.CONFIRM_INVOICE,
@@ -405,14 +428,15 @@ def send_one_notification_for_payment(
 		.all()
 	emails = [u.email for u in users if u.email]
 
-	_, err = client.send(
-		sendgrid_util.TemplateNames.PAYOR_TO_PAY_INVOICE,
-		template_data,
-		emails,
-		two_factor_payload=payload,
-	)
-	if err:
-		return err
+	if len(emails):
+		_, err = client.send(
+			sendgrid_util.TemplateNames.PAYOR_TO_PAY_INVOICE,
+			template_data,
+			emails,
+			two_factor_payload=payload,
+		)
+		if err:
+			return err
 
 	# Update the payment_requested_at timestamp
 	invoice.payment_requested_at = date_util.now()
@@ -433,7 +457,7 @@ def submit_invoices_for_payment(
 
 		if len(invoices) != len(request.invoice_ids):
 			return errors.Error(
-				"The number of retrieved invoices did not match the number of ids given")
+				"the number of retrieved invoices did not match the number of ids given")
 
 		mismatches = [invoice for invoice in invoices if str(invoice.company_id) != company_id]
 
@@ -444,7 +468,7 @@ def submit_invoices_for_payment(
 		# We also make sure that all of the invoices have an approved_at timestamp set
 		not_approved = [invoice for invoice in invoices if not invoice.approved_at]
 		if len(not_approved):
-			return errors.Error(f"{len(not_approved)} of the given invoices are not yet approved")
+			return errors.Error(f"{len(not_approved)} of the given invoices not yet approved")
 
 		# All good. For each invoice, send an email to the payor
 		customer = session.query(models.Company).get(company_id)
@@ -467,12 +491,12 @@ def respond_to_payment_request(
 		.filter(models.User.email == email) \
 		.first()
 	if not user:
-		return errors.Error("Could not find user")
+		return errors.Error("could not find user")
 
 	invoice = session.query(models.Invoice).get(data.invoice_id)
 
 	if invoice.payor_id != user.company_id:
-		return errors.Error("User cannot approve this invoice")
+		return errors.Error("user cannot approve this invoice")
 
 	# Do we need to email folks when a payment is rejected?
 	if data.new_status == db_constants.RequestStatusEnum.REJECTED:

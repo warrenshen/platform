@@ -20,7 +20,10 @@ class CreateInvoiceView(MethodView):
 		if not user_session.is_company_admin():
 			return handler_util.make_error_response("Access Denied", status_code=403)
 
-		data = invoices_util.UpsertRequest.from_dict(json.loads(request.data))
+		data, err = invoices_util.UpsertRequest.from_dict(json.loads(request.data))
+		if err:
+			return handler_util.make_error_response(err)
+
 		if user_session.is_company_admin() and data.invoice.company_id != company_id:
 			return handler_util.make_error_response("Mismatched company ids")
 
@@ -49,7 +52,10 @@ class UpdateInvoiceView(MethodView):
 		if not user_session.is_company_admin():
 			return handler_util.make_error_response("Access Denied", status_code=403)
 
-		data = invoices_util.UpsertRequest.from_dict(json.loads(request.data))
+		data, err = invoices_util.UpsertRequest.from_dict(json.loads(request.data))
+		if err:
+			return handler_util.make_error_response(err)
+
 		if user_session.is_company_admin() and data.invoice.company_id != company_id:
 			return handler_util.make_error_response("Mismatched company ids")
 
