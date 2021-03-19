@@ -37,6 +37,7 @@ function AdvancesDataGrid({
       },
       {
         caption: "Customer Name",
+        dataField: "company.name",
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <ClickableDataGridCell
@@ -54,6 +55,7 @@ function AdvancesDataGrid({
       },
       {
         caption: "Amount",
+        dataField: "amount",
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -67,6 +69,7 @@ function AdvancesDataGrid({
       },
       {
         caption: "Payment Date",
+        dataField: "payment_date",
         width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -75,6 +78,7 @@ function AdvancesDataGrid({
       },
       {
         caption: "Settlement Date",
+        dataField: "settlement_date",
         width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (

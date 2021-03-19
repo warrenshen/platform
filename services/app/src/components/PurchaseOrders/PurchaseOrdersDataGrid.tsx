@@ -91,6 +91,7 @@ function PurchaseOrdersDataGrid({
       },
       {
         caption: "Amount",
+        dataField: "amount",
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -99,6 +100,7 @@ function PurchaseOrdersDataGrid({
       },
       {
         caption: "Order Date",
+        dataField: "order_date",
         width: ColumnWidths.Date,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
@@ -107,6 +109,7 @@ function PurchaseOrdersDataGrid({
       },
       {
         caption: "Delivery Date",
+        dataField: "delivery_date",
         width: ColumnWidths.Date,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (

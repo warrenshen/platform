@@ -155,13 +155,14 @@ function LoansDataGrid({
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
           <PaymentStatusChip
-            paymentStatus={params.value as PaymentStatusEnum}
+            paymentStatus={params.row.data.payment_status as PaymentStatusEnum}
           />
         ),
       },
       {
         visible: isCompanyVisible,
         caption: "Loan Type",
+        dataField: "loan_type",
         width: ColumnWidths.Type,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
@@ -188,6 +189,7 @@ function LoansDataGrid({
       },
       {
         caption: "Loan Amount",
+        dataField: "amount",
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -197,6 +199,7 @@ function LoansDataGrid({
       {
         visible: !isMaturityVisible,
         caption: "Requested Payment Date",
+        dataField: "requested_payment_date",
         width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -208,6 +211,7 @@ function LoansDataGrid({
       {
         visible: isMaturityVisible,
         caption: "Maturity Date",
+        dataField: "maturity_date",
         width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -219,14 +223,14 @@ function LoansDataGrid({
         caption: "Maturing in (Days)",
         width: 150,
         alignment: "right",
-        cellRender: maturingInDaysRenderer,
+        calculateCellValue: (row: any) => maturingInDaysRenderer({ data: row }),
       },
       {
         visible: isDaysPastDueVisible,
         caption: "Days Past Due",
         width: 130,
         alignment: "right",
-        cellRender: daysPastDueRenderer,
+        calculateCellValue: (row: any) => daysPastDueRenderer({ data: row }),
       },
       {
         visible: isMaturityVisible,

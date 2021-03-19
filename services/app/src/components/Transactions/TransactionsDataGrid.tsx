@@ -21,6 +21,7 @@ function TransactionsDataGrid({ isMiniTable = false, transactions }: Props) {
     () => [
       {
         caption: "Created At",
+        dataField: "created_at",
         width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -32,6 +33,7 @@ function TransactionsDataGrid({ isMiniTable = false, transactions }: Props) {
       },
       {
         caption: "Effective Date",
+        dataField: "effective_date",
         width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -52,6 +54,7 @@ function TransactionsDataGrid({ isMiniTable = false, transactions }: Props) {
       },
       {
         caption: "Company Name",
+        dataField: "payment.company.name",
         visible: !isMiniTable,
         width: 140,
         cellRender: (params: ValueFormatterParams) => (
@@ -68,6 +71,7 @@ function TransactionsDataGrid({ isMiniTable = false, transactions }: Props) {
       },
       {
         caption: "Amount",
+        dataField: "amount",
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -76,6 +80,7 @@ function TransactionsDataGrid({ isMiniTable = false, transactions }: Props) {
       },
       {
         caption: "To Principal",
+        dataField: "to_principal",
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -84,6 +89,7 @@ function TransactionsDataGrid({ isMiniTable = false, transactions }: Props) {
       },
       {
         caption: "To Interest",
+        dataField: "to_interest",
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -92,6 +98,7 @@ function TransactionsDataGrid({ isMiniTable = false, transactions }: Props) {
       },
       {
         caption: "To Fees",
+        dataField: "to_fees",
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (

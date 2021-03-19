@@ -1,5 +1,6 @@
 import DataGrid, {
   Column,
+  Export,
   FilterRow,
   IColumnProps,
   Pager,
@@ -127,6 +128,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
         onSelectionChanged={onSelectionChanged}
         onOptionChanged={onOptionChanged}
       >
+        <Export enabled={true} />
         <FilterRow visible={filtering?.enable} showOperationChooser={false} />
         {columns.map(
           (
@@ -139,6 +141,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
               alignment,
               cellRender,
               lookup,
+              calculateCellValue,
             },
             index
           ) => (
@@ -151,6 +154,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
               minWidth={minWidth}
               alignment={alignment}
               cellRender={cellRender}
+              calculateCellValue={calculateCellValue}
               lookup={lookup}
               {...(sortBy &&
                 Object.keys(sortBy).length > 0 &&

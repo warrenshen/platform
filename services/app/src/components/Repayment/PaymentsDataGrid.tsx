@@ -45,6 +45,8 @@ function RepaymentsDataGrid({
         caption: "Submitted At",
         width: ColumnWidths.Date,
         alignment: "right",
+        calculateCellValue: ({ submitted_at }: PaymentLimitedFragment) =>
+          submitted_at,
         cellRender: (params: ValueFormatterParams) => (
           <DatetimeDataGridCell
             isTimeVisible
@@ -56,6 +58,7 @@ function RepaymentsDataGrid({
         dataField: "id",
         caption: "Payment ID",
         width: 140,
+        calculateCellValue: ({ id }: PaymentLimitedFragment) => id,
         cellRender: (params: ValueFormatterParams) => (
           <PaymentDrawerLauncher paymentId={params.row.data.id as string} />
         ),
@@ -74,6 +77,7 @@ function RepaymentsDataGrid({
         visible: isCompanyVisible,
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
+        calculateCellValue: ({ company }: any) => company?.name,
         cellRender: (params: ValueFormatterParams) => (
           <ClickableDataGridCell
             label={params.row.data.company.name}
@@ -93,6 +97,8 @@ function RepaymentsDataGrid({
       {
         caption: "Payor",
         width: ColumnWidths.MinWidth,
+        calculateCellValue: ({ invoice, company }: any) =>
+          invoice?.payor.name || company?.name,
         cellRender: (params: ValueFormatterParams) => (
           <Box>
             {params.row.data.invoice?.payor.name ||
@@ -105,6 +111,7 @@ function RepaymentsDataGrid({
         dataField: "method",
         caption: "Method",
         minWidth: ColumnWidths.MinWidth,
+        calculateCellValue: ({ method }: PaymentLimitedFragment) => method,
         cellRender: (params: ValueFormatterParams) => (
           <Box>
             {PaymentMethodToLabel[params.row.data.method as PaymentMethodEnum]}
@@ -116,6 +123,7 @@ function RepaymentsDataGrid({
         caption: "Requested Amount",
         width: ColumnWidths.Currency,
         alignment: "right",
+        calculateCellValue: ({ requested_amount }: any) => requested_amount,
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.requested_amount} />
         ),
@@ -125,6 +133,7 @@ function RepaymentsDataGrid({
         caption: "Amount",
         width: ColumnWidths.Currency,
         alignment: "right",
+        calculateCellValue: ({ amount }: PaymentLimitedFragment) => amount,
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.amount} />
         ),
@@ -133,6 +142,8 @@ function RepaymentsDataGrid({
         caption: "Submitted Date",
         width: ColumnWidths.Date,
         alignment: "right",
+        calculateCellValue: ({ submitted_at }: PaymentLimitedFragment) =>
+          submitted_at,
         cellRender: (params: ValueFormatterParams) => (
           <DatetimeDataGridCell datetimeString={params.row.data.submitted_at} />
         ),
@@ -141,6 +152,9 @@ function RepaymentsDataGrid({
         caption: "Requested Payment Date",
         width: ColumnWidths.Date,
         alignment: "right",
+        calculateCellValue: ({
+          requested_payment_date,
+        }: PaymentLimitedFragment) => requested_payment_date,
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell
             dateString={params.row.data.requested_payment_date}
@@ -151,6 +165,8 @@ function RepaymentsDataGrid({
         caption: "Payment Date",
         width: ColumnWidths.Date,
         alignment: "right",
+        calculateCellValue: ({ payment_date }: PaymentLimitedFragment) =>
+          payment_date,
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.payment_date} />
         ),
@@ -159,6 +175,7 @@ function RepaymentsDataGrid({
         caption: "Deposit Date",
         width: ColumnWidths.Date,
         alignment: "right",
+        calculateCellValue: ({ deposit_date }: any) => deposit_date,
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.deposit_date} />
         ),
@@ -167,6 +184,8 @@ function RepaymentsDataGrid({
         caption: "Settlement Date",
         width: ColumnWidths.Date,
         alignment: "right",
+        calculateCellValue: ({ settlement_date }: PaymentLimitedFragment) =>
+          settlement_date,
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.settlement_date} />
         ),

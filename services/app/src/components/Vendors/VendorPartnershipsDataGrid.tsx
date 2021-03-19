@@ -72,12 +72,16 @@ function VendorPartnershipsDataGrid({
         caption: "Signed Vendor Agreement",
         alignment: "center",
         width: isBankAccount ? 195 : 225,
+        calculateCellValue: (data: any) =>
+          !!data.vendor_agreement_id ? "Yes" : "No",
         cellRender: verificationCellRenderer,
       },
       {
         dataField: "vendor_license_id",
         caption: "Verified license",
         alignment: "center",
+        calculateCellValue: (data: any) =>
+          !!data.vendor_license_id ? "Yes" : "No",
         cellRender: verificationCellRenderer,
       },
       {

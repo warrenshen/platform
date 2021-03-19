@@ -88,8 +88,11 @@ function BankCustomersPage() {
       dataField: "total_outstanding_principal",
       caption: "Total Outstanding Principal",
       width: ColumnWidths.Currency,
-
       alignment: "right",
+      calculateCellValue: (data: any) =>
+        data.financial_summaries[0]
+          ? data.financial_summaries[0]?.total_outstanding_principal
+          : null,
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell
           value={
@@ -105,8 +108,11 @@ function BankCustomersPage() {
       dataField: "total_outstanding_interest",
       caption: "Total Outstanding Interest",
       width: ColumnWidths.Currency,
-
       alignment: "right",
+      calculateCellValue: (data: any) =>
+        data.financial_summaries[0]
+          ? data.financial_summaries[0]?.total_outstanding_interest
+          : null,
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell
           value={
@@ -122,8 +128,11 @@ function BankCustomersPage() {
       dataField: "total_outstanding_fees",
       caption: "Total Outstanding Fees",
       width: ColumnWidths.Currency,
-
       alignment: "right",
+      calculateCellValue: (data: any) =>
+        data.financial_summaries[0]
+          ? data.financial_summaries[0]?.total_outstanding_fees
+          : null,
       cellRender: (params: ValueFormatterParams) => (
         <CurrencyDataGridCell
           value={

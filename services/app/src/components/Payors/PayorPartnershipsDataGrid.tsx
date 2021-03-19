@@ -69,16 +69,20 @@ export default function PayorPartnershipsDataGrid({
         visible: !!isDrilldownByCustomer,
       },
       {
-        dataField: "vendor_agreement_id",
-        caption: "Signed Vendor Agreement",
+        dataField: "payor_agreement_id",
+        caption: "Signed payor Agreement",
         alignment: "center",
         width: isBankAccount ? 195 : 225,
+        calculateCellValue: (data: any) =>
+          !!data.payor_agreement_id ? "Yes" : "No",
         cellRender: verificationCellRenderer,
       },
       {
-        dataField: "vendor_license_id",
+        dataField: "payor_license_id",
         caption: "Verified license",
         alignment: "center",
+        calculateCellValue: (data: any) =>
+          !!data.payor_license_id ? "Yes" : "No",
         cellRender: verificationCellRenderer,
       },
       {

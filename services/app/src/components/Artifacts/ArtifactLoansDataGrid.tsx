@@ -73,7 +73,9 @@ export default function ArtifactLoansDataGrid({
         width: ColumnWidths.Status,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
-          <LoanStatusChip loanStatus={params.value as LoanStatusEnum} />
+          <LoanStatusChip
+            loanStatus={params.row.data.status as LoanStatusEnum}
+          />
         ),
       },
       {
@@ -97,6 +99,7 @@ export default function ArtifactLoansDataGrid({
       },
       {
         caption: "Amount",
+        dataField: "amount",
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -106,6 +109,7 @@ export default function ArtifactLoansDataGrid({
       {
         visible: !isMiniTable && !isMaturityVisible,
         caption: "Requested Payment Date",
+        dataField: "requested_payment_date",
         width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -123,6 +127,7 @@ export default function ArtifactLoansDataGrid({
       {
         visible: isMaturityVisible,
         caption: "Origination Date",
+        dataField: "origination_date",
         width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -132,6 +137,7 @@ export default function ArtifactLoansDataGrid({
       {
         visible: isMaturityVisible,
         caption: "Maturity Date",
+        dataField: "maturity_date",
         width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (

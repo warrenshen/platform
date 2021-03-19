@@ -85,6 +85,10 @@ function LineOfCreditLoansDataGrid({
       {
         caption: "Recipient Vendor",
         minWidth: ColumnWidths.MinWidth,
+        calculateCellValue: (data: any) =>
+          data?.line_of_credit?.is_credit_for_vendor
+            ? data.line_of_credit.recipient_vendor?.name
+            : "N/A",
         cellRender: (params: ValueFormatterParams) => (
           <Box>
             {params.row.data?.line_of_credit?.is_credit_for_vendor
@@ -95,6 +99,7 @@ function LineOfCreditLoansDataGrid({
       },
       {
         caption: "Amount",
+        dataField: "amount",
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -104,6 +109,7 @@ function LineOfCreditLoansDataGrid({
       {
         visible: !isMaturityVisible,
         caption: "Requested Payment Date",
+        dataField: "requested_payment_date",
         width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -121,6 +127,7 @@ function LineOfCreditLoansDataGrid({
       {
         visible: isMaturityVisible,
         caption: "Origination Date",
+        dataField: "origination_date",
         width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
@@ -130,6 +137,7 @@ function LineOfCreditLoansDataGrid({
       {
         visible: isMaturityVisible,
         caption: "Maturity Date",
+        dataField: "maturity_date",
         width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (

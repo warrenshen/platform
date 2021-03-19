@@ -1,9 +1,8 @@
-import Chip from "components/Shared/Chip";
-import { CellValue } from "@material-ui/data-grid";
-import DoneIcon from "@material-ui/icons/Done";
-import ClearIcon from "@material-ui/icons/Clear";
-
 import { makeStyles } from "@material-ui/core";
+import { CellValue } from "@material-ui/data-grid";
+import ClearIcon from "@material-ui/icons/Clear";
+import DoneIcon from "@material-ui/icons/Done";
+import Chip from "components/Shared/Chip";
 
 const useStyles = makeStyles({
   icon: {
@@ -13,13 +12,22 @@ const useStyles = makeStyles({
 
 function VerificationChip({ value }: { value: CellValue }) {
   const classes = useStyles({ color: "white" });
-  const background = value ? "var(--table-accent-color)" : "disabled";
-  const parsedValue = value ? "yes" : "no";
-  const icon: JSX.Element = value ? (
-    <DoneIcon className={classes.icon} />
-  ) : (
-    <ClearIcon className={classes.icon} />
-  );
+  const parsedValue = (value === "Yes" || value === "No"
+    ? value
+    : value
+    ? "yes"
+    : "no"
+  ).toLowerCase();
+
+  const background =
+    parsedValue === "yes" ? "var(--table-accent-color)" : "disabled";
+
+  const icon: JSX.Element =
+    parsedValue === "yes" ? (
+      <DoneIcon className={classes.icon} />
+    ) : (
+      <ClearIcon className={classes.icon} />
+    );
   return (
     <Chip
       label={parsedValue}
