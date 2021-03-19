@@ -162,6 +162,7 @@ export default function InvoiceForm({
               setInvoice({
                 ...invoice,
                 subtotal_amount: value,
+                total_amount: value + (invoice.taxes_amount || 0),
               })
             }
           />
@@ -176,6 +177,7 @@ export default function InvoiceForm({
               setInvoice({
                 ...invoice,
                 taxes_amount: value,
+                total_amount: value + (invoice.subtotal_amount || 0),
               })
             }
           />
