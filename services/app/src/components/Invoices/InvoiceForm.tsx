@@ -115,7 +115,6 @@ export default function InvoiceForm({
           className={classes.inputField}
           id="invoice-date-date-picker"
           label="Invoice Date"
-          disablePast
           value={invoice.invoice_date}
           onChange={(value) =>
             setInvoice({
@@ -130,7 +129,6 @@ export default function InvoiceForm({
           className={classes.inputField}
           id="invoice-due-date-date-picker"
           label="Due Date"
-          disablePast
           value={invoice.invoice_due_date}
           onChange={(value) =>
             setInvoice({

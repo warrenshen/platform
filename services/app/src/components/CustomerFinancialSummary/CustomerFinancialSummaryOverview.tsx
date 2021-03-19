@@ -54,10 +54,10 @@ function CustomerFinancialSummaryOverview({
   return (
     <Box display="flex" flexDirection="column">
       <Typography variant="h6" gutterBottom={true}>
-        Financial Summary
+        Dashboard
       </Typography>
       <Typography variant="body2" gutterBottom={true}>
-        Note: financial summary is updated approximately every 5 minutes.
+        Note: dashboard is updated approximately every 5 minutes.
       </Typography>
       {isBalanceVisible && (
         <>
