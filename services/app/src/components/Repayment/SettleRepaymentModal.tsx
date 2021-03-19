@@ -132,6 +132,13 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
       companyId: payment?.company_id || "",
       loanType: loanType || LoanTypeEnum.PurchaseOrder,
     },
+    // If this runs, then the payment has been set. We only need to overwrite
+    // selectedLoanIds if they're empty
+    onCompleted: ({ loans }) => {
+      if (!selectedLoanIds.length) {
+        setSelectedLoanIds(loans.map((l) => l.id));
+      }
+    },
   });
   const allLoans = data?.loans;
 
