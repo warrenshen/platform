@@ -251,6 +251,7 @@ def import_settled_repayments_leune(session: Session) -> None:
 			else:
 				print(f'[{index + 1} of {repayments_count}] Repayment on loan {loan_identifier} closed out loan, setting loan.closed_at to {parsed_settled_at}...')
 				loan.closed_at = parsed_settled_at
+				loan.payment_status = PaymentStatusEnum.CLOSED
 
 def main() -> None:
 	engine = models.create_engine()
