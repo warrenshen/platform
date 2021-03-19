@@ -18,7 +18,7 @@ from bespoke_test.contract.contract_test_helper import (ContractInputDict,
 
 # customer_identifier, product_type, start_date, end_date, termination_date, financing_terms, maximum_amount, minimum_monthly_amount, advance_rate, factoring_fee_percentage, factoring_fee_threshold, wire_fee
 CONTRACT_TUPLES = [
-	("LU", "Inventory", "6/5/2020", "6/5/2021", "12/8/2020", 120.00, 600000.00, 0.00, 100.00, 0.075, 0.00, 0),
+	("LU", "Inventory", "6/5/2020", "6/5/2021", "12/8/2020", 120.00, 600000.00, 0.00, 100.00, 0.00075, 0.00, 0),
 ]
 
 def import_historical_contracts_leune(session: Session) -> None:
@@ -105,7 +105,7 @@ def import_historical_contracts_leune(session: Session) -> None:
 				advance_rate=advance_rate,
 				interest_rate=factoring_fee_percentage,
 				factoring_fee_threshold=factoring_fee_threshold,
-				late_fee_structure='{"1-14": 25, "15-29": 50, "30+": 100}',
+				late_fee_structure='{"1-14": 0.25, "15-29": 0.5, "30+": 1.0}',
 				preceeding_business_day=False,
 				wire_fee=wire_fee,
 				repayment_type_settlement_timeline='{}',

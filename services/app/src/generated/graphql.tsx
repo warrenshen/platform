@@ -8967,6 +8967,8 @@ export type Payments = {
   /** JSON blob which records information about this payment: which loans this payment is intended for, how much of this payment is intended to go to principal vs interest, etc */
   items_covered: Scalars["jsonb"];
   method: Scalars["String"];
+  /** Mostly used for credits and fees, if this payment for a fee or credit was due to an underlying advance or repayment */
+  originating_payment_id?: Maybe<Scalars["uuid"]>;
   /** The date when payment is debited from source account */
   payment_date?: Maybe<Scalars["date"]>;
   /** The amount the customer requests this payment to be */
@@ -9084,6 +9086,7 @@ export type PaymentsBoolExp = {
   invoice?: Maybe<InvoicesBoolExp>;
   items_covered?: Maybe<JsonbComparisonExp>;
   method?: Maybe<StringComparisonExp>;
+  originating_payment_id?: Maybe<UuidComparisonExp>;
   payment_date?: Maybe<DateComparisonExp>;
   requested_amount?: Maybe<NumericComparisonExp>;
   requested_by_user_id?: Maybe<UuidComparisonExp>;
@@ -9141,6 +9144,7 @@ export type PaymentsInsertInput = {
   invoice?: Maybe<InvoicesObjRelInsertInput>;
   items_covered?: Maybe<Scalars["jsonb"]>;
   method?: Maybe<Scalars["String"]>;
+  originating_payment_id?: Maybe<Scalars["uuid"]>;
   payment_date?: Maybe<Scalars["date"]>;
   requested_amount?: Maybe<Scalars["numeric"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -9166,6 +9170,7 @@ export type PaymentsMaxFields = {
   deposit_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   method?: Maybe<Scalars["String"]>;
+  originating_payment_id?: Maybe<Scalars["uuid"]>;
   payment_date?: Maybe<Scalars["date"]>;
   requested_amount?: Maybe<Scalars["numeric"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -9189,6 +9194,7 @@ export type PaymentsMaxOrderBy = {
   deposit_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   method?: Maybe<OrderBy>;
+  originating_payment_id?: Maybe<OrderBy>;
   payment_date?: Maybe<OrderBy>;
   requested_amount?: Maybe<OrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
@@ -9212,6 +9218,7 @@ export type PaymentsMinFields = {
   deposit_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   method?: Maybe<Scalars["String"]>;
+  originating_payment_id?: Maybe<Scalars["uuid"]>;
   payment_date?: Maybe<Scalars["date"]>;
   requested_amount?: Maybe<Scalars["numeric"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -9235,6 +9242,7 @@ export type PaymentsMinOrderBy = {
   deposit_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   method?: Maybe<OrderBy>;
+  originating_payment_id?: Maybe<OrderBy>;
   payment_date?: Maybe<OrderBy>;
   requested_amount?: Maybe<OrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
@@ -9284,6 +9292,7 @@ export type PaymentsOrderBy = {
   invoice?: Maybe<InvoicesOrderBy>;
   items_covered?: Maybe<OrderBy>;
   method?: Maybe<OrderBy>;
+  originating_payment_id?: Maybe<OrderBy>;
   payment_date?: Maybe<OrderBy>;
   requested_amount?: Maybe<OrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
@@ -9330,6 +9339,8 @@ export enum PaymentsSelectColumn {
   /** column name */
   Method = "method",
   /** column name */
+  OriginatingPaymentId = "originating_payment_id",
+  /** column name */
   PaymentDate = "payment_date",
   /** column name */
   RequestedAmount = "requested_amount",
@@ -9364,6 +9375,7 @@ export type PaymentsSetInput = {
   id?: Maybe<Scalars["uuid"]>;
   items_covered?: Maybe<Scalars["jsonb"]>;
   method?: Maybe<Scalars["String"]>;
+  originating_payment_id?: Maybe<Scalars["uuid"]>;
   payment_date?: Maybe<Scalars["date"]>;
   requested_amount?: Maybe<Scalars["numeric"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -9445,6 +9457,8 @@ export enum PaymentsUpdateColumn {
   ItemsCovered = "items_covered",
   /** column name */
   Method = "method",
+  /** column name */
+  OriginatingPaymentId = "originating_payment_id",
   /** column name */
   PaymentDate = "payment_date",
   /** column name */

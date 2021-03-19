@@ -10,11 +10,12 @@ from sqlalchemy.orm.session import Session
 # Path hack before we try to import bespoke
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../src")))
 from bespoke.date import date_util
-from bespoke.db import models
+from bespoke.db import db_constants, models, models_util
 from bespoke.db.db_constants import (ALL_LOAN_TYPES, CompanyType,
                                      LoanStatusEnum, PaymentMethodEnum,
                                      PaymentType)
-from bespoke.finance import number_util
+from bespoke.finance import contract_util, number_util
+from bespoke.finance.loans import loan_calculator
 
 # customer_identifier, loan_identifier, payment_type, deposit_date, settlement_date, amount, to_principal, to_interest, to_fees, wire_fee
 REPAYMENT_TUPLES = [
@@ -56,6 +57,7 @@ def import_settled_repayments_leune(session: Session) -> None:
 	print(f'Running for {repayments_count} repayments...')
 
 	for index, new_repayment_tuple in enumerate(REPAYMENT_TUPLES):
+		print(f'[{index + 1} of {repayments_count}]')
 		customer_identifier, loan_identifier, payment_type, deposit_date, settlement_date, amount, to_principal, to_interest, to_fees, wire_fee = new_repayment_tuple
 
 		parsed_deposit_date = date_util.load_date_str(deposit_date)
@@ -177,8 +179,78 @@ def import_settled_repayments_leune(session: Session) -> None:
 
 			print(f'[{index + 1} of {repayments_count}] Created repayment on loan {loan_identifier} for {customer.name} ({customer.identifier})')
 
-			# TODO(warrenshen): loan up a LoanCalculator and check if loan is correctly closed.
+			# Load up a LoanCalculator and check if loan is closed.
 			# If so, set loan.closed_at to parsed_settled_at. Otherwise, continue.
+			contracts = cast(
+				List[models.Contract],
+				session.query(models.Contract).filter(
+					models.Contract.company_id == customer.id
+				).all())
+			if not contracts:
+				return None, errors.Error('Cannot calculate repayment effect because no contracts are setup for this company')
+
+			contract_dicts = [c.as_dict() for c in contracts]
+
+			contract_helper, err = contract_util.ContractHelper.build(customer.id, contract_dicts)
+			if err:
+				print(f'[{index + 1} of {repayments_count}] Repayment on loan {loan_identifier} failed because of error with ContractHelper: {err}')
+				print(f'EXITING EARLY')
+				return
+
+			# Get all transactions associated with loan
+			transactions = cast(
+				List[models.Transaction],
+				session.query(models.Transaction).filter(
+					models.Transaction.loan_id == loan.id
+				).all())
+
+			# Get all payments associated with loan
+			payment_ids = list(set([transaction.payment_id for transaction in transactions]))
+
+			payments = cast(
+				List[models.Payment],
+				session.query(models.Payment).filter(
+					models.Payment.id.in_(payment_ids)
+				).all())
+
+			augmented_transactions, err = models_util.get_augmented_transactions(
+				[transaction.as_dict() for transaction in transactions],
+				[payment.as_dict() for payment in payments],
+			)
+			if err:
+				print(f'[{index + 1} of {repayments_count}] Repayment on loan {loan_identifier} failed because of error with augmented transactions: {err}')
+				print(f'EXITING EARLY')
+				return
+
+			fee_accumulator = loan_calculator.FeeAccumulator()
+			calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
+			transactions_for_loan = loan_calculator.get_transactions_for_loan(
+				loan.id,
+				augmented_transactions,
+			)
+
+			loan_update, errs = calculator.calculate_loan_balance(
+				loan.as_dict(),
+				transactions_for_loan,
+				parsed_settlement_date,
+				includes_future_transactions=True,
+			)
+
+			if errs:
+				print(f'[{index + 1} of {repayments_count}] Repayment on loan {loan_identifier} failed because of error with LoanCalculator: {errs}')
+				print(f'EXITING EARLY')
+				return
+
+			if (
+				loan_update['outstanding_principal'] != 0.0 or
+				loan_update['outstanding_principal_for_interest'] != 0.0 or
+				loan_update['outstanding_interest'] != 0.0 or
+				loan_update['outstanding_fees'] != 0.0
+			):
+				print(f'[{index + 1} of {repayments_count}] Repayment on loan {loan_identifier} did not close out loan')
+			else:
+				print(f'[{index + 1} of {repayments_count}] Repayment on loan {loan_identifier} closed out loan, setting loan.closed_at to {parsed_settled_at}...')
+				loan.closed_at = parsed_settled_at
 
 def main() -> None:
 	engine = models.create_engine()

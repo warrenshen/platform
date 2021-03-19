@@ -22,16 +22,15 @@ from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import models, db_constants
+from bespoke.db import db_constants, models
 from bespoke.db.db_constants import LoanStatusEnum, ProductType
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util, number_util
 from bespoke.finance.fetchers import per_customer_fetcher
 from bespoke.finance.loans import loan_calculator
-from bespoke.finance.types import finance_types
 from bespoke.finance.loans.loan_calculator import LoanUpdateDict
 from bespoke.finance.payments import payment_util
-from bespoke.finance.types import per_customer_types
+from bespoke.finance.types import finance_types, per_customer_types
 from mypy_extensions import TypedDict
 
 FeeDict = TypedDict('FeeDict', {

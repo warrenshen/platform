@@ -3,11 +3,12 @@
 	common operations on models.py
 """
 
-from sqlalchemy.orm.session import Session
 from typing import List, Tuple
 
-from bespoke.db import models
 from bespoke import errors
+from bespoke.db import models
+from sqlalchemy.orm.session import Session
+
 
 def set_needs_balance_recomputed(company_id: str, session: Session) -> Tuple[bool, errors.Error]:
 
@@ -30,7 +31,7 @@ def get_augmented_transactions(transactions: List[models.TransactionDict], payme
 			if t['payment_id'] not in id_to_payment:
 				return None, errors.Error(
 					'[DATA ERROR]: Transaction {} is missing an associated payment'.format(t['id']))
-			
+
 			augmented_transactions.append(models.AugmentedTransactionDict(
 				transaction=t,
 				payment=id_to_payment[t['payment_id']]
