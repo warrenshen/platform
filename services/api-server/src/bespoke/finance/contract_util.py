@@ -3,7 +3,6 @@ import json
 import logging
 import sys
 from datetime import timedelta
-from sqlalchemy.orm.session import Session
 from typing import Any, Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
@@ -11,6 +10,7 @@ from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.db_constants import ProductType
 from mypy_extensions import TypedDict
+from sqlalchemy.orm.session import Session
 
 FieldDict = TypedDict('FieldDict', {
 		'name': str,

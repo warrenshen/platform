@@ -9,12 +9,16 @@ from mypy_extensions import TypedDict
 
 ContractInputDict = TypedDict('ContractInputDict', {
 	'interest_rate': float,
+	'advance_rate': float,
 	'maximum_principal_amount': float,
 	'max_days_until_repayment': int,
 	'late_fee_structure': str,
 	'preceeding_business_day': bool,
 	'minimum_monthly_amount': float,
+	'factoring_fee_threshold': float,
+	'adjusted_factoring_fee_percentage': float,
 	'wire_fee': float,
+	'repayment_type_settlement_timeline': str,
 	# LOC contracts
 	'borrowing_base_accounts_receivable_percentage': float,
 	'borrowing_base_inventory_percentage': float,
@@ -42,8 +46,24 @@ def create_contract_config(
 			'value': input_dict.get('minimum_monthly_amount', 0.0)
 		},
 		{
+			'internal_name': 'advance_rate',
+			'value': input_dict.get('advance_rate', 1.0)
+		},
+		{
+			'internal_name': 'factoring_fee_threshold',
+			'value': input_dict.get('factoring_fee_threshold', None)
+		},
+		{
+			'internal_name': 'adjusted_factoring_fee_percentage',
+			'value': input_dict.get('adjusted_factoring_fee_percentage', None)
+		},
+		{
 			'internal_name': 'wire_fee',
 			'value': input_dict.get('wire_fee', 0.0)
+		},
+		{
+			'internal_name': 'repayment_type_settlement_timeline',
+			'value': input_dict.get('repayment_type_settlement_timeline', '{}')
 		}
 	]
 
