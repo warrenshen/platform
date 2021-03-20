@@ -23,6 +23,7 @@ function BankPurchaseOrdersPage() {
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <PurchaseOrdersDataGrid
           isCompanyVisible
+          isExcelExport
           purchaseOrders={purchaseOrders}
           actionItems={
             check(role, Action.ViewPurchaseOrdersActionMenu) ? [] : []

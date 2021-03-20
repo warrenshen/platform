@@ -10,11 +10,16 @@ import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
-  isMiniTable?: Boolean;
   transactions: TransactionFragment[];
+  isMiniTable?: Boolean;
+  isExcelExport?: boolean;
 }
 
-function TransactionsDataGrid({ isMiniTable = false, transactions }: Props) {
+function TransactionsDataGrid({
+  transactions,
+  isMiniTable = false,
+  isExcelExport = false,
+}: Props) {
   const rows = transactions;
 
   const columns = useMemo(
@@ -111,7 +116,12 @@ function TransactionsDataGrid({ isMiniTable = false, transactions }: Props) {
 
   return (
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      <ControlledDataGrid pager dataSource={rows} columns={columns} />
+      <ControlledDataGrid
+        pager
+        dataSource={rows}
+        columns={columns}
+        isExcelExport={isExcelExport}
+      />
     </Box>
   );
 }

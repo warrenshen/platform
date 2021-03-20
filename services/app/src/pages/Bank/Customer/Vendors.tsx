@@ -36,8 +36,9 @@ function Vendors({ companyId }: Props) {
       <Box display="flex" flexWrap="wrap">
         <VendorPartnershipList
           isDrilldownByCustomer
-          data={vendorPartnerships}
+          isExcelExport
           isBankAccount
+          data={vendorPartnerships}
         />
       </Box>
     </Box>

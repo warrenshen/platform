@@ -114,6 +114,7 @@ function BankReportsPage() {
         <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
           <FinancialSummariesDataGrid
             financialSummaries={financialSummariesByDate}
+            isExcelExport
           />
         </Box>
       </Box>
@@ -145,6 +146,7 @@ function BankReportsPage() {
         <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
           <FinancialSummariesDataGrid
             financialSummaries={financialSummariesByCompanyId}
+            isExcelExport
           />
         </Box>
       </Box>

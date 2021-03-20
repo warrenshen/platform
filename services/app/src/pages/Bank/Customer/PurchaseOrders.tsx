@@ -25,6 +25,7 @@ function BankCustomerPurchaseOrdersSubpage({ companyId }: Props) {
         isMultiSelectEnabled={false}
         isCompanyVisible={false}
         purchaseOrders={purchaseOrders}
+        isExcelExport
       />
     </Box>
   );

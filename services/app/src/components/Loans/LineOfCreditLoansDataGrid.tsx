@@ -19,6 +19,7 @@ interface Props {
   isMaturityVisible?: boolean; // Whether maturity date, principal balance, interest, and fees are visible.
   isMultiSelectEnabled?: boolean;
   isViewNotesEnabled?: boolean;
+  isExcelExport?: boolean;
   pager?: boolean;
   loans: LoanFragment[];
   actionItems?: DataGridActionItem[];
@@ -30,6 +31,7 @@ function LineOfCreditLoansDataGrid({
   isMaturityVisible = true,
   isMultiSelectEnabled,
   isViewNotesEnabled,
+  isExcelExport = false,
   pager = true,
   loans,
   actionItems,
@@ -196,6 +198,7 @@ function LineOfCreditLoansDataGrid({
         columns={columns}
         selectedRowKeys={selectedLoanIds}
         onSelectionChanged={handleSelectionChanged}
+        isExcelExport={isExcelExport}
       />
     </Box>
   );

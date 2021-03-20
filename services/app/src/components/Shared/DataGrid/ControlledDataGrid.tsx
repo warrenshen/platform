@@ -39,6 +39,7 @@ interface DataGridProps {
   onPageChanged?: (page: number) => void; // callback
   onSortingChanged?: (index: number, order: "asc" | "desc") => void; // callback
   onFilteringChanged?: (index: number, value: string) => void;
+  isExcelExport?: boolean;
 }
 
 const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
@@ -60,6 +61,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
       onPageChanged,
       onSortingChanged,
       onFilteringChanged,
+      isExcelExport = false,
     }: DataGridProps,
     ref
   ) => {
@@ -128,7 +130,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
         onSelectionChanged={onSelectionChanged}
         onOptionChanged={onOptionChanged}
       >
-        <Export enabled={true} />
+        <Export enabled={isExcelExport} />
         <FilterRow visible={filtering?.enable} showOperationChooser={false} />
         {columns.map(
           (

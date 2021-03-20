@@ -9,7 +9,7 @@ function BankTransactionsPage() {
 
   return (
     <Page appBarTitle={"Transactions"}>
-      <TransactionsDataGrid transactions={transactions} />
+      <TransactionsDataGrid transactions={transactions} isExcelExport />
     </Page>
   );
 }

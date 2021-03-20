@@ -10,10 +10,15 @@ import { useMemo } from "react";
 
 interface Props {
   isCompanyVisible?: boolean;
+  isExcelExport?: boolean;
   contracts: ContractFragment[];
 }
 
-function ContractsDataGrid({ isCompanyVisible = true, contracts }: Props) {
+function ContractsDataGrid({
+  isCompanyVisible = true,
+  isExcelExport = false,
+  contracts,
+}: Props) {
   const rows = contracts;
   const columns = useMemo(
     () => [
@@ -66,7 +71,12 @@ function ContractsDataGrid({ isCompanyVisible = true, contracts }: Props) {
 
   return (
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      <ControlledDataGrid dataSource={rows} columns={columns} pager />
+      <ControlledDataGrid
+        dataSource={rows}
+        columns={columns}
+        isExcelExport={isExcelExport}
+        pager
+      />
     </Box>
   );
 }

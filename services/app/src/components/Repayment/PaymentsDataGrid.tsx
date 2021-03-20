@@ -17,6 +17,7 @@ import { useMemo, useState } from "react";
 interface Props {
   isCompanyVisible?: boolean;
   isMethodVisible?: boolean;
+  isExcelExport?: boolean;
   payments: PaymentLimitedFragment[];
   customerSearchQuery?: string;
   onClickCustomerName?: (value: string) => void;
@@ -30,6 +31,7 @@ function RepaymentsDataGrid({
   isCompanyVisible = false,
   isMethodVisible = true,
   enableSelect = false,
+  isExcelExport = false,
   payments,
   customerSearchQuery = "",
   onClickCustomerName,
@@ -222,6 +224,7 @@ function RepaymentsDataGrid({
       <ControlledDataGrid
         pager
         select={enableSelect}
+        isExcelExport={isExcelExport}
         dataSource={rows}
         columns={columns}
         ref={(ref) => setDataGrid(ref)}

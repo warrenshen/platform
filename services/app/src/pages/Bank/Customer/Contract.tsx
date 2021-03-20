@@ -75,7 +75,7 @@ function BankCustomerContractSubpage({ companyId }: Props) {
         <Box mb={1}>
           <Typography variant="h6">Historical Contracts</Typography>
         </Box>
-        <ContractsDataGrid contracts={contracts} />
+        <ContractsDataGrid isExcelExport contracts={contracts} />
       </Box>
     </Box>
   );

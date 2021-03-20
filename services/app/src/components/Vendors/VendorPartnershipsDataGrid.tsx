@@ -8,10 +8,12 @@ import { useMemo, useState } from "react";
 
 function VendorPartnershipsDataGrid({
   isBankAccount,
+  isExcelExport = false,
   isDrilldownByCustomer,
   data,
 }: {
   isBankAccount?: boolean;
+  isExcelExport?: boolean;
   isDrilldownByCustomer?: boolean;
   data: any;
 }) {
@@ -132,6 +134,7 @@ function VendorPartnershipsDataGrid({
           sortBy={{ index: 0, order: "desc" }}
           filtering={{ enable: true, filterBy: { index: 0, value: "" } }}
           columns={columns}
+          isExcelExport={isExcelExport}
           pager
         />
       </Box>

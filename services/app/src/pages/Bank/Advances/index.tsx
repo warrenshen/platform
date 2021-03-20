@@ -13,6 +13,7 @@ function BankAdvancesPage() {
         payments={payments}
         customerSearchQuery={""}
         onClickCustomerName={() => {}}
+        isExcelExport
       />
     </Page>
   );

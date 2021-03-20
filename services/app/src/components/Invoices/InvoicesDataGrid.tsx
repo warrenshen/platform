@@ -23,6 +23,7 @@ interface Props {
   actionItems?: DataGridActionItem[];
   selectedInvoiceIds?: Invoices["id"][];
   handleSelectedInvoices?: (invoices: InvoiceFragment[]) => void;
+  isExcelExport?: boolean;
 }
 
 export default function InvoicesDataGrid({
@@ -32,6 +33,7 @@ export default function InvoicesDataGrid({
   actionItems,
   selectedInvoiceIds,
   handleSelectedInvoices,
+  isExcelExport = false,
 }: Props) {
   const rows = useMemo(
     () =>
@@ -162,6 +164,7 @@ export default function InvoicesDataGrid({
         columns={columns}
         selectedRowKeys={selectedInvoiceIds}
         onSelectionChanged={handleSelectionChanged}
+        isExcelExport={isExcelExport}
       />
     </Box>
   );

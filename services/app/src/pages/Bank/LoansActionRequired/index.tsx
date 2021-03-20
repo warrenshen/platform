@@ -146,6 +146,7 @@ function LoansActionRequiredPage() {
           isMaturityVisible={false}
           isMultiSelectEnabled={check(role, Action.SelectLoan)}
           isFilteringEnabled
+          isExcelExport
           loans={loans}
           selectedLoanIds={selectedLoanIds}
           handleSelectLoans={handleSelectLoans}

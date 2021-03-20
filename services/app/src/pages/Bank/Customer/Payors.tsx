@@ -36,8 +36,9 @@ export default function BankCustomerPayors({ companyId }: Props) {
       <Box display="flex" flexWrap="wrap">
         <PayorPartnershipsDataGrid
           isDrilldownByCustomer
-          data={vendorPartnerships}
+          isExcelExport
           isBankAccount
+          data={vendorPartnerships}
         />
       </Box>
     </Box>

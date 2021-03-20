@@ -10,11 +10,13 @@ import { useMemo } from "react";
 
 interface Props {
   isCompanyVisible?: boolean;
+  isExcelExport?: boolean;
   ebbaApplications: EbbaApplicationsQuery["ebba_applications"];
 }
 
 function EbbaApplicationsDataGrid({
   isCompanyVisible = true,
+  isExcelExport = false,
   ebbaApplications,
 }: Props) {
   const rows = useMemo(
@@ -102,7 +104,12 @@ function EbbaApplicationsDataGrid({
 
   return (
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-      <ControlledDataGrid pager dataSource={rows} columns={columns} />
+      <ControlledDataGrid
+        pager
+        dataSource={rows}
+        columns={columns}
+        isExcelExport={isExcelExport}
+      />
     </Box>
   );
 }

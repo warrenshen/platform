@@ -9,6 +9,7 @@ interface Props {
   isMiniTable?: boolean;
   isMultiSelectEnabled?: boolean;
   isViewNotesEnabled?: boolean;
+  isExcelExport?: boolean;
   pager?: boolean;
   loans: LoanFragment[];
   actionItems?: DataGridActionItem[];
@@ -21,6 +22,7 @@ export default function InvoiceLoansDataGrid({
   isMiniTable = false,
   isMultiSelectEnabled = false,
   isViewNotesEnabled = false,
+  isExcelExport = false,
   pager = true,
   loans,
   actionItems,
@@ -33,6 +35,7 @@ export default function InvoiceLoansDataGrid({
       isMiniTable={isMiniTable}
       isMultiSelectEnabled={isMultiSelectEnabled}
       isViewNotesEnabled={isViewNotesEnabled}
+      isExcelExport={isExcelExport}
       pager={pager}
       loans={loans}
       actionItems={actionItems}

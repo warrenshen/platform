@@ -138,6 +138,7 @@ function BankOverviewPage() {
           </Box>
           <Box style={{ height: "auto", width: "100%" }}>
             <LoansDataGrid
+              isExcelExport
               isCompanyVisible
               isMaturityVisible
               matureDays={14}
@@ -167,6 +168,7 @@ function BankOverviewPage() {
           </Box>
           <Box style={{ height: "auto", width: "100%" }}>
             <LoansDataGrid
+              isExcelExport
               isCompanyVisible
               isDaysPastDueVisible
               isMaturityVisible

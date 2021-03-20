@@ -25,6 +25,7 @@ import { Link } from "react-router-dom";
 
 interface Props {
   isCompanyVisible?: boolean;
+  isExcelExport?: boolean;
   isDaysPastDueVisible?: boolean;
   isFilteringEnabled?: boolean;
   isMaturityVisible?: boolean;
@@ -44,6 +45,7 @@ const getMaturityDate = (rowData: any) => new Date(rowData.maturity_date);
 
 function LoansDataGrid({
   isCompanyVisible = false,
+  isExcelExport = false,
   isDaysPastDueVisible = false,
   isFilteringEnabled = false,
   isMaturityVisible = false,
@@ -293,6 +295,7 @@ function LoansDataGrid({
       columns={columns}
       selectedRowKeys={selectedLoanIds}
       onSelectionChanged={handleSelectionChanged}
+      isExcelExport={isExcelExport}
     />
   );
 }

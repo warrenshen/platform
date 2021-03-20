@@ -149,6 +149,7 @@ function BankPaymentsActionRequiredPage() {
             isCompanyVisible
             isMethodVisible={false}
             enableSelect
+            isExcelExport
             payments={scheduledPayments}
             customerSearchQuery={""}
             onClickCustomerName={() => {}}
@@ -184,6 +185,7 @@ function BankPaymentsActionRequiredPage() {
             isCompanyVisible
             isMethodVisible={false}
             enableSelect
+            isExcelExport
             payments={pendingReverseDraftPayments}
             customerSearchQuery={""}
             onClickCustomerName={() => {}}
@@ -216,6 +218,7 @@ function BankPaymentsActionRequiredPage() {
           <PaymentsDataGrid
             isCompanyVisible
             enableSelect
+            isExcelExport
             payments={notifyPayments}
             customerSearchQuery={""}
             onClickCustomerName={() => {}}

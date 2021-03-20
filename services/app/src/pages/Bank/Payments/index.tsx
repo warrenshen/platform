@@ -11,6 +11,7 @@ function BankPaymentsPage() {
     <Page appBarTitle={"Payments - All"}>
       <PaymentsDataGrid
         isCompanyVisible
+        isExcelExport
         enableSelect={false}
         payments={payments}
         customerSearchQuery={""}

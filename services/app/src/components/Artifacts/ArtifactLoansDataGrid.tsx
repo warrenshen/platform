@@ -20,6 +20,7 @@ interface Props {
   isMiniTable?: boolean;
   isMultiSelectEnabled?: boolean;
   isViewNotesEnabled?: boolean;
+  isExcelExport?: boolean;
   pager?: boolean;
   loans: LoanFragment[];
   actionItems?: DataGridActionItem[];
@@ -34,6 +35,7 @@ export default function ArtifactLoansDataGrid({
   isMiniTable = false,
   isMultiSelectEnabled = false,
   isViewNotesEnabled = false,
+  isExcelExport = false,
   pager = true,
   artifactCaption,
   artifactCellRenderer,
@@ -204,6 +206,7 @@ export default function ArtifactLoansDataGrid({
         columns={columns}
         selectedRowKeys={selectedLoanIds}
         onSelectionChanged={handleSelectionChanged}
+        isExcelExport={isExcelExport}
       />
     </Box>
   );

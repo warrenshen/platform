@@ -185,6 +185,7 @@ export default function BankCustomerLoansSubpage({
         <PolymorphicLoansDataGrid
           isMultiSelectEnabled={check(role, Action.SelectLoan)}
           isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
+          isExcelExport
           productType={productType}
           loans={loans}
           selectedLoanIds={selectedLoanIds}

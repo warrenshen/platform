@@ -10,6 +10,7 @@ import { useMemo } from "react";
 interface Props {
   isMultiSelectEnabled?: boolean;
   hideCompany?: boolean;
+  isExcelExport?: boolean;
   users: UserFragment[];
   selectedUserIds?: Users["id"][];
   handleSelectUsers?: (users: Users[]) => void;
@@ -19,6 +20,7 @@ interface Props {
 function UsersDataGrid({
   isMultiSelectEnabled = false,
   hideCompany,
+  isExcelExport = false,
   users,
   selectedUserIds,
   handleSelectUsers,
@@ -83,6 +85,7 @@ function UsersDataGrid({
         columns={columns}
         selectedRowKeys={selectedUserIds}
         onSelectionChanged={handleSelectionChanged}
+        isExcelExport={isExcelExport}
       />
     </Box>
   );

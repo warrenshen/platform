@@ -78,7 +78,7 @@ function CustomerOverviewSubpage({ companyId, productType }: Props) {
         <Box display="flex" flex={1}>
           <Box display="flex" flexDirection="column" width="100%">
             {payments.length > 0 ? (
-              <PaymentsDataGrid payments={payments} />
+              <PaymentsDataGrid isExcelExport payments={payments} />
             ) : (
               <Typography variant="body1">
                 Customer does not have any pending payments.
@@ -96,6 +96,7 @@ function CustomerOverviewSubpage({ companyId, productType }: Props) {
           <Box display="flex" flexDirection="column" width="100%">
             {loans.length > 0 ? (
               <PolymorphicLoansDataGrid
+                isExcelExport
                 isMultiSelectEnabled={check(role, Action.SelectLoan)}
                 isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
                 productType={productType}

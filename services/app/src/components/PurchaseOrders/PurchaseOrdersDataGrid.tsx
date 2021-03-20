@@ -19,6 +19,7 @@ import { useMemo } from "react";
 interface Props {
   isCompanyVisible: boolean;
   isMultiSelectEnabled?: boolean;
+  isExcelExport?: boolean;
   purchaseOrders: PurchaseOrderFragment[];
   actionItems?: DataGridActionItem[];
   selectedPurchaseOrderIds?: PurchaseOrders["id"][];
@@ -30,6 +31,7 @@ interface Props {
 function PurchaseOrdersDataGrid({
   isCompanyVisible,
   isMultiSelectEnabled = true,
+  isExcelExport = false,
   purchaseOrders,
   actionItems,
   selectedPurchaseOrderIds,
@@ -132,6 +134,7 @@ function PurchaseOrdersDataGrid({
       <ControlledDataGrid
         pager
         select={isMultiSelectEnabled}
+        isExcelExport={isExcelExport}
         dataSource={rows}
         columns={columns}
         selectedRowKeys={selectedPurchaseOrderIds}

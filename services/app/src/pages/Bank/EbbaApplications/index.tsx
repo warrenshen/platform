@@ -30,7 +30,10 @@ function EbbaApplicationsPage() {
 
   return (
     <Page appBarTitle={"Borrowing Bases"}>
-      <EbbaApplicationsDataGrid ebbaApplications={ebbaApplications} />
+      <EbbaApplicationsDataGrid
+        ebbaApplications={ebbaApplications}
+        isExcelExport
+      />
     </Page>
   );
 }

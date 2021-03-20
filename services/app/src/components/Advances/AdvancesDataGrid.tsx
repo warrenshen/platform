@@ -19,12 +19,14 @@ interface Props {
   payments: PaymentFragment[];
   customerSearchQuery: string;
   onClickCustomerName: (value: string) => void;
+  isExcelExport?: boolean;
 }
 
 function AdvancesDataGrid({
   payments,
   customerSearchQuery,
   onClickCustomerName,
+  isExcelExport = false,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = getRows(payments);
@@ -98,8 +100,9 @@ function AdvancesDataGrid({
     <ControlledDataGrid
       dataSource={rows}
       columns={columns}
-      pager
       ref={(ref) => setDataGrid(ref)}
+      isExcelExport={isExcelExport}
+      pager
     />
   );
 }

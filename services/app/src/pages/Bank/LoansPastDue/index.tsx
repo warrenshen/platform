@@ -30,6 +30,7 @@ function LoansPastDuePage() {
           isDaysPastDueVisible
           isFilteringEnabled
           isMaturityVisible
+          isExcelExport
           loans={pastDueLoans}
         />
       </Box>

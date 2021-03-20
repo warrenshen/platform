@@ -25,6 +25,7 @@ export default function BankCustomerInvoicesSubpage({ companyId }: Props) {
         isCompanyVisible={false}
         invoices={invoices}
         isMultiSelectEnabled={false}
+        isExcelExport
       />
     </Box>
   );

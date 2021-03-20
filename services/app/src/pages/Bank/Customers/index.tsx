@@ -192,7 +192,12 @@ function BankCustomersPage() {
         )}
       </Box>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-        <ControlledDataGrid dataSource={customers} columns={columns} pager />
+        <ControlledDataGrid
+          dataSource={customers}
+          columns={columns}
+          isExcelExport
+          pager
+        />
       </Box>
     </Page>
   );

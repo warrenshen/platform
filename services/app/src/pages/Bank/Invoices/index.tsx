@@ -24,6 +24,7 @@ export default function BankInvoicesPage() {
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <InvoicesDataGrid
           isCompanyVisible
+          isExcelExport
           invoices={invoices}
           actionItems={check(role, Action.ViewInvoicesActionMenu) ? [] : []}
         />

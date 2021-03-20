@@ -4,7 +4,7 @@ import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridC
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import VerificationChip from "components/Vendors/VerificationChip";
 import { ColumnWidths } from "lib/tables";
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import PayorDrawer from "./PayorDrawer";
 
 const verificationCellRenderer = (params: ValueFormatterParams) => (
@@ -13,10 +13,12 @@ const verificationCellRenderer = (params: ValueFormatterParams) => (
 
 export default function PayorPartnershipsDataGrid({
   isBankAccount,
+  isExcelExport = false,
   isDrilldownByCustomer,
   data,
 }: {
   isBankAccount?: boolean;
+  isExcelExport?: boolean;
   isDrilldownByCustomer?: boolean;
   data: any;
 }) {
@@ -109,6 +111,7 @@ export default function PayorPartnershipsDataGrid({
           dataSource={data}
           columns={columns}
           filtering={{ enable: true, filterBy: { index: 0, value: "" } }}
+          isExcelExport={isExcelExport}
         />
       </Box>
     </>

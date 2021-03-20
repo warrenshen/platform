@@ -9,9 +9,13 @@ import { useMemo } from "react";
 
 interface Props {
   financialSummaries: GetFinancialSummariesByCompanyIdQuery["financial_summaries"];
+  isExcelExport?: boolean;
 }
 
-function FinancialSummariesDataGrid({ financialSummaries }: Props) {
+function FinancialSummariesDataGrid({
+  financialSummaries,
+  isExcelExport = false,
+}: Props) {
   const rows = financialSummaries;
   const columns = useMemo(
     () => [
@@ -110,6 +114,7 @@ function FinancialSummariesDataGrid({ financialSummaries }: Props) {
         isSortingDisabled
         dataSource={rows}
         columns={columns}
+        isExcelExport={isExcelExport}
       />
     </Box>
   );

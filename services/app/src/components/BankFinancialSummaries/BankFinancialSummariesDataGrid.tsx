@@ -90,6 +90,7 @@ function BankFinancialSummariesDataGrid({ bankFinancialSummaries }: Props) {
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
       <ControlledDataGrid
         isSortingDisabled
+        isExcelExport
         dataSource={rows}
         columns={columns}
       />

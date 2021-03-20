@@ -66,6 +66,7 @@ function BankLoansMaturingPage() {
           isCompanyVisible
           isFilteringEnabled
           isMaturityVisible
+          isExcelExport
           loans={maturingLoans}
           matureDays={matureDays}
         />
