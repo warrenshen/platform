@@ -55,7 +55,8 @@ def delete_old_bank_financial_summaries(session: Session, report_date: datetime.
 			cast(Callable, session.delete)(bank_summary)
 
 
-def compute_bank_financial_summaries(session: Session,
+def compute_bank_financial_summaries(
+	session: Session,
 	report_date: datetime.date) -> Tuple[Iterable[models.BankFinancialSummary], errors.Error]:
 	"""Given a session_maker and a report date, we grab the current financial statements
 	and compute new bank financial statements across all of our product types. This function
@@ -83,7 +84,13 @@ def compute_bank_financial_summaries(session: Session,
 	if len(companies) != len(company_ids):
 		return None, errors.Error('Not all companies found that have a financial summary') # Early Return
 
-	contract_ids = [str(company.contract_id) for company in companies]
+	contract_ids = []
+
+	for company in companies:
+		if not company.contract_id:
+			return None, errors.Error('Company "{}" has no contract setup for it'.format(company.name))
+
+		contract_ids.append(str(company.contract_id))
 
 	contracts = cast(
 		List[models.Contract],
