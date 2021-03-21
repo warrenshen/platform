@@ -233,8 +233,7 @@ def import_settled_repayments_leune(session: Session) -> None:
 			loan_update, errs = calculator.calculate_loan_balance(
 				loan.as_dict(),
 				transactions_for_loan,
-				parsed_settlement_date,
-				includes_future_transactions=True,
+				parsed_settlement_date
 			)
 
 			if errs:

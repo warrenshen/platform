@@ -264,8 +264,7 @@ def calculate_repayment_effect(
 		loan_update, errs = calculator.calculate_loan_balance(
 			loan_dict,
 			transactions_for_loan,
-			report_date,
-			includes_future_transactions=True,
+			report_date
 		)
 		if errs:
 			return None, errors.Error('\n'.join([err.msg for err in errs]))
@@ -300,8 +299,7 @@ def calculate_repayment_effect(
 		loan_update, errs = calculator.calculate_loan_balance(
 			loan_past_due_dict,
 			transactions_for_loan,
-			report_date,
-			includes_future_transactions=True,
+			report_date
 		)
 		if errs:
 			return None, errors.Error('\n'.join([err.msg for err in errs]))
@@ -835,8 +833,7 @@ def settle_repayment(
 			loan_update, errs = calculator.calculate_loan_balance(
 				loan_dict,
 				transactions_for_loan,
-				settlement_date,
-				includes_future_transactions=True,
+				settlement_date
 			)
 			if errs:
 				return None, errors.Error('\n'.join([err.msg for err in errs]))

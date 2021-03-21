@@ -50,8 +50,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			session_maker=self.session_maker
 		)
 		customer_update, err = customer_balance.update(
-			today=date_util.load_date_str(test['today']),
-			includes_future_transactions=test['includes_future_transactions']
+			today=date_util.load_date_str(test['today'])
 		)
 		self.assertIsNone(err)
 
@@ -129,7 +128,6 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		tests: List[Dict] = [
 			{
 				'today': '10/1/2020',
-				'includes_future_transactions': True,
 				'expected_loan_updates': [],
 				'populate_fn': populate_fn,
 				'expected_summary_update': {
@@ -199,7 +197,6 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		tests: List[Dict] = [
 			{
 				'today': '10/3/2020', # It's been 3 days since the loan starte, and no late fees have accrued.
-				'includes_future_transactions': False,
 				'populate_fn': populate_fn,
 				'expected_loan_updates': [
 					{
@@ -324,14 +321,13 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		tests: List[Dict] = [
 			{
 				'today': '10/02/2020', # On the repayment payment date, you only reduce the outstanding principal balance
-				'includes_future_transactions': False,
 				'populate_fn': populate_fn,
 				'expected_loan_updates': [
 					{
 						'adjusted_maturity_date': date_util.load_date_str('10/05/2020'),
 						'outstanding_principal': 450.03,
 						'outstanding_principal_for_interest': 500.03,
-						'outstanding_interest': 2 * 0.002 * 500.03, # Even though the principal is reduced, we keep a separate number for interest calculations
+						'outstanding_interest': -1 * 0.002 * 500.03, # They owe 2 days of interest, but pay off 3, so its -1 day of interest
 						'outstanding_fees': 0.0
 					}
 				],
@@ -341,7 +337,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'adjusted_total_limit': 120000.01,
 					'total_outstanding_principal': 450.03,
 					'total_outstanding_principal_for_interest': 500.03,
-					'total_outstanding_interest': 2 * 0.002 * 500.03,
+					'total_outstanding_interest': -1 * 0.002 * 500.03,
 					'total_outstanding_fees': 0.0,
 					'total_principal_in_requested_state': 0.0,
 					'available_limit': 120000.01 - (450.03),
@@ -357,8 +353,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				}
 			},
 			{
-				'today': '10/03/2020', # On the repayment date, you paid off interest and some principal
-				'includes_future_transactions': False,
+				'today': '10/03/2020', # On the repayment date, you paid off interest and some principal that still accrued due to principal_for_interest
 				'populate_fn': populate_fn,
 				'expected_loan_updates': [
 					{
@@ -372,7 +367,6 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			},
 			{
 				'today': '10/26/2020', # It's been 21 days that the loan is late.
-				'includes_future_transactions': False,
 				'populate_fn': populate_fn,
 				'expected_loan_updates': [
 					{
@@ -438,7 +432,6 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		# = $8,250
 		self._run_test({
 			'today': '10/1/2020',
-			'includes_future_transactions': True,
 			'expected_loan_updates': [],
 			'populate_fn': populate_fn,
 			'expected_summary_update': {
@@ -502,8 +495,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			session_maker=self.session_maker
 		)
 		customer_update, err = customer_balance.update(
-			today=date_util.load_date_str('10/01/2020'),
-			includes_future_transactions=True
+			today=date_util.load_date_str('10/01/2020')
 		)
 		self.assertIsNotNone(err)
 		self.assertIn("Attempt to compute a new borrowing base for LINE_OF_CREDIT contract", str(err))

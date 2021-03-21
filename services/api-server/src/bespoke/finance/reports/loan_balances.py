@@ -241,7 +241,7 @@ class CustomerBalance(object):
 		self._company_name = company_dict['name']
 		self._company_id = company_dict['id']
 
-	def update(self, today: datetime.date, includes_future_transactions: bool) -> Tuple[CustomerUpdateDict, errors.Error]:
+	def update(self, today: datetime.date) -> Tuple[CustomerUpdateDict, errors.Error]:
 		# Get your contracts and loans
 		fetcher = per_customer_fetcher.Fetcher(per_customer_types.CompanyInfoDict(
 			id=self._company_id,
@@ -291,8 +291,7 @@ class CustomerBalance(object):
 			loan_update_dict, errors_list = calculator.calculate_loan_balance(
 				loan,
 				transactions_for_loan,
-				today,
-				includes_future_transactions=includes_future_transactions,
+				today
 			)
 			if errors_list:
 				logging.error('Got these errors associated with loan {}'.format(loan['id']))

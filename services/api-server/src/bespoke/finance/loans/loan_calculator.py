@@ -156,16 +156,8 @@ class LoanCalculator(object):
 		self,
 		loan: models.LoanDict,
 		augmented_transactions: List[models.AugmentedTransactionDict],
-		today: datetime.date,
-		includes_future_transactions: bool,
+		today: datetime.date
 	) -> Tuple[LoanUpdateDict, List[errors.Error]]:
-		# includes_future_transactions: whether or not calculation of loan balance
-		# should includes transaction in the future (relative to the today parameter).
-		# For customer users of Bespoke, we generally want to include transactions in the future
-		# such that outstanding principal, interest, and fees are lower (payments are optimistically applied).
-		# For bank users of Bespoke, we may NOT want to include transactions in the future
-		# such that bank user can audit how loan balance changes over time on a day-by-day basis.
-
 		# Replay the history of the loan and all the expenses that are due as a result.
 		# Heres what you owe based on the transaction history applied to your loan.
 
@@ -174,14 +166,6 @@ class LoanCalculator(object):
 				loan['id']))]
 
 		calculate_up_to_date = today
-
-		if includes_future_transactions:
-			effective_dates = [aug_tx['transaction']['effective_date'] for aug_tx in augmented_transactions]
-			if len(effective_dates) > 0:
-				# Get the MAX effective_date of all transactions. This may include transactions with an effective_date
-				# in the future, since such transactions may exist from payments with a settlement_date in the future.
-				max_transaction_effective_date = max(effective_dates)
-				calculate_up_to_date = max(max_transaction_effective_date, today)
 
 		# Once we've considered how these transactions were applied, here is the remaining amount
 		# which hasn't been factored in yet based on how much you owe up to this particular day.
@@ -202,15 +186,17 @@ class LoanCalculator(object):
 		# advance associated with this loan.
 		# Data consistency check. The origination_date on the loan should match the effective_date on the
 		# first advance transaction that funds this loan.
+		the_latest_tx_settlement_date = None
 
 		for i in range(days_out):
 			cur_date = loan['origination_date'] + timedelta(days=i)
 			# Check each transaction and the effect it had on this loan
 			transactions_on_settlement_date = _get_transactions_on_settlement_date(cur_date, augmented_transactions)
 
+			# Advances count against principal on the settlement date (which happens to be
+			# be the same as deposit date)
 			for aug_tx in transactions_on_settlement_date:
 				tx = aug_tx['transaction']
-				# TODO(dlluncor): what happens when fees, interest or principal go negative?
 				if payment_util.is_advance(tx):
 					outstanding_principal += tx['to_principal']
 					outstanding_principal_for_interest += tx['to_principal']
@@ -262,21 +248,40 @@ class LoanCalculator(object):
 
 			transactions_on_deposit_date = _get_transactions_on_deposit_date(cur_date, augmented_transactions)
 			for aug_tx in transactions_on_deposit_date:
+
+				# Keep track of the latest deposit date seen for a tx
+				cur_settlement_date = aug_tx['transaction']['effective_date']
+				if the_latest_tx_settlement_date is None or cur_settlement_date > the_latest_tx_settlement_date:
+					the_latest_tx_settlement_date = cur_settlement_date
+
 				tx = aug_tx['transaction']
 				if payment_util.is_repayment(tx):
 					# The outstanding principal for a payment gets reduced on the payment date
 					outstanding_principal -= tx['to_principal']
+					outstanding_interest -= tx['to_interest']
+					outstanding_fees -= tx['to_fees']
 
 			for aug_tx in transactions_on_settlement_date:
 				tx = aug_tx['transaction']
 				if payment_util.is_repayment(tx):
 					# The principal for interest calculations gets paid off on the settlement date
 					outstanding_principal_for_interest -= tx['to_principal']
-					outstanding_interest -= tx['to_interest']
-					outstanding_fees -= tx['to_fees']
+
 
 		if errors_list:
 			return None, errors_list
+
+		# If you haven't gone through the transaction's settlement days, but you did include
+		# them because they were deposited, interest and fees may go negative for those
+		# clearance days, but then when those settlement days happen, the fees and interest
+		# balance out.
+		#
+		# To prevent that confusion of a temporary small negative interest and fees, we choose
+		# to represent that as 0, because it will practically be that value when things actually
+		# settle.
+		#if the_latest_tx_settlement_date > today:
+		#	outstanding_interest = max(0, outstanding_interest)
+		#	outstanding_fees = max(0, outstanding_fees)
 
 		# Note the final date that this report was run.
 		self._balance_ranges[-1].add_end_date(cur_date)

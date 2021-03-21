@@ -49,8 +49,7 @@ class RunCustomerBalancesView(MethodView):
 		descriptive_errors, fatal_error = reports_util.run_customer_balances_for_companies(
 			session_maker,
 			company_dicts,
-			report_date,
-			includes_future_transactions=True
+			report_date
 		)
 
 		if fatal_error:
