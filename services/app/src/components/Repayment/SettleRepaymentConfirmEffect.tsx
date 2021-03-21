@@ -147,6 +147,23 @@ function SettleRepaymentConfirmEffect({
           />
         </Box>
       )}
+      <Box mt={1}>
+        <FormControl className={classes.inputField}>
+          <CurrencyInput
+            label={"Payment Amount to Holding Account"}
+            value={payment.items_covered.to_user_credit}
+            handleChange={(value: number) =>
+              setPayment({
+                ...payment,
+                items_covered: {
+                  ...payment.items_covered,
+                  to_user_credit: value,
+                },
+              })
+            }
+          />
+        </FormControl>
+      </Box>
     </Box>
   );
 }

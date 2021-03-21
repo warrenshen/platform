@@ -81,6 +81,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
   const [payor, setPayor] = useState<BankPayorFragment | null>(null);
   const [payment, setPayment] = useState<PaymentsInsertInput | null>(null);
 
+  // TODO(warrenshen): Use payment.items_covered instead of selectedLoanIds.
   const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"][]>([]);
 
   const contract = customer?.contract || null;
@@ -120,7 +121,17 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
           payment_date: existingPayment.payment_date,
           deposit_date: existingPayment.payment_date, // Default deposit_date to payment_date
           settlement_date: null,
-          items_covered: existingPayment.items_covered,
+          items_covered: {
+            loan_ids: existingPayment.items_covered.loan_ids,
+            requested_to_principal:
+              existingPayment.items_covered.requested_to_principal,
+            requested_to_interest:
+              existingPayment.items_covered.requested_to_interest,
+            // Default to_principal and to_interest to their requested counterparts.
+            to_principal: existingPayment.items_covered.to_principal,
+            to_interest: existingPayment.items_covered.to_interest,
+            to_user_credit: 0,
+          },
         } as PaymentsInsertInput);
       } else {
         alert("Existing payment not found");
@@ -243,7 +254,6 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
         transaction_inputs: loansBeforeAfterPayment.map(
           (beforeAfterPaymentLoan) => beforeAfterPaymentLoan.transaction
         ),
-        amount_as_credit_to_user: 0,
         is_line_of_credit: productType === ProductTypeEnum.LineOfCredit,
       },
     });

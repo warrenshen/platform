@@ -154,9 +154,12 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 	settlement_payment = test['settlement_payment'] if 'settlement_payment' in test else test['payment']
 
 	if is_line_of_credit:
-		items_covered = settlement_payment['items_covered'] if 'items_covered' in settlement_payment else {}
+		items_covered = settlement_payment['items_covered']
 	else:
-		items_covered = { 'loan_ids': loan_ids }
+		items_covered = settlement_payment['items_covered'] if 'items_covered' in settlement_payment else {}
+		if 'to_user_credit' not in items_covered:
+			items_covered['to_user_credit'] = 0.0
+		items_covered['loan_ids'] = loan_ids
 
 	req = repayment_util.SettleRepaymentReqDict(
 		company_id=company_id,
@@ -166,7 +169,6 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 		settlement_date=settlement_payment['settlement_date'],
 		items_covered=items_covered,
 		transaction_inputs=test['transaction_inputs'],
-		amount_as_credit_to_user=test['amount_as_credit_to_user']
 	)
 
 	bank_admin_user_id = seed.get_user_id('bank_admin', index=0)
@@ -261,7 +263,7 @@ class TestSettlePayment(db_unittest.TestCase):
 		test['is_line_of_credit'] = False
 		_run_test(self, test)
 
-	def test_settle_payment_partially_paid(self) -> None:
+	def test_partially_paid(self) -> None:
 		tests: List[Dict] = [
 			{
 				'loans': [
@@ -307,8 +309,10 @@ class TestSettlePayment(db_unittest.TestCase):
 					'payment_method': 'ach',
 					'payment_date': '10/10/2020',
 					'settlement_date': '10/12/2020',
+					'items_covered': {
+						'to_user_credit': 0.0,
+					},
 				},
-				'amount_as_credit_to_user': 0.0,
 				'transaction_inputs': [
 					{
 						'amount': 40.0 + 0.3,
@@ -362,7 +366,7 @@ class TestSettlePayment(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
-	def test_settle_payment_fully_paid_and_closed_and_overpayment(self) -> None:
+	def test_fully_paid_and_closed_and_overpayment(self) -> None:
 		"""
 		Tests that an overpayment results in a credit (in the form of a transaction with nothing attached to it)
 		"""
@@ -393,7 +397,10 @@ class TestSettlePayment(db_unittest.TestCase):
 				'amount': 55.0 + 0.3 + 0.0,
 				'payment_method': 'ach',
 				'payment_date': '10/10/2020',
-				'settlement_date': '10/12/2020'
+				'settlement_date': '10/12/2020',
+				'items_covered': {
+					'to_user_credit': 5.0,
+				},
 			},
 			'transaction_inputs': [
 				{
@@ -403,7 +410,6 @@ class TestSettlePayment(db_unittest.TestCase):
 					'to_fees': 0.0,
 				}
 			],
-			'amount_as_credit_to_user': 5.0,
 			'expected_transactions': [
 				# Sort order is from largest to smallest
 				{
@@ -435,7 +441,7 @@ class TestSettlePayment(db_unittest.TestCase):
 		}
 		self._run_test(test)
 
-	def test_settle_payment_partially_paid_and_closed_and_overpayment(self) -> None:
+	def test_partially_paid_and_closed_and_overpayment(self) -> None:
 		tests: List[Dict] = [
 			{
 				'loans': [
@@ -492,12 +498,14 @@ class TestSettlePayment(db_unittest.TestCase):
 						},
 					],
 				],
-				'amount_as_credit_to_user': 5.0,
 				'payment': {
 					'amount': 45.0 + 40.0 + 0.24 + 30.0 + 0.18 + 5.0, # 5.0 is the overpayment
 					'payment_method': 'ach',
 					'payment_date': '10/10/2020',
-					'settlement_date': '10/12/2020'
+					'settlement_date': '10/12/2020',
+					'items_covered': {
+						'to_user_credit': 5.0,
+					},
 				},
 				'transaction_inputs': [
 					{
@@ -622,7 +630,6 @@ class TestSettlePayment(db_unittest.TestCase):
 					'to_fees': 0.0,
 				}
 			],
-			'amount_as_credit_to_user': 0.0,
 			'expected_transactions': [
 				# Sort order is from largest to smallest
 				{
@@ -702,7 +709,6 @@ class TestSettlePayment(db_unittest.TestCase):
 				'payment_date': '10/10/2020',
 				'settlement_date': '10/12/2020'
 			},
-			'amount_as_credit_to_user': 0.0,
 			'transaction_inputs': [
 				{
 					'amount': 50.0 + 0.3 + 10.0 + 5.0,
@@ -735,7 +741,7 @@ class TestSettlePayment(db_unittest.TestCase):
 		}
 		self._run_test(test)
 
-	def test_settle_payment_zero_principal_with_interest_and_fees_not_zero(self) -> None:
+	def test_zero_principal_with_interest_and_fees_not_zero(self) -> None:
 		"""
 		Tests that it is valid to apply a transaction on a loan that
 		results in a principal of zero and non-zero interest and fees.
@@ -769,7 +775,6 @@ class TestSettlePayment(db_unittest.TestCase):
 				'payment_date': '10/10/2020',
 				'settlement_date': '10/12/2020'
 			},
-			'amount_as_credit_to_user': 0.0,
 			'transaction_inputs': [
 				{
 					'amount': 50.0 + 0.0 + 0.0,
@@ -828,7 +833,6 @@ class TestSettlePayment(db_unittest.TestCase):
 					},
 				],
 			],
-			'amount_as_credit_to_user': 0.0,
 			'payment': {
 				'amount': 50.0 + 10.0 + 0.0 + 0.0,
 				'payment_method': 'ach',
@@ -871,7 +875,10 @@ class TestSettlePayment(db_unittest.TestCase):
 			amount=50.0 + 0.0 + 0.0,
 			deposit_date='10/10/20',
 			settlement_date='10/10/20',
-			items_covered={ 'loan_ids': [str(uuid.uuid4())] },
+			items_covered={
+				'loan_ids': [str(uuid.uuid4())],
+				'to_user_credit': 0.0,
+			},
 			transaction_inputs=[
 				{
 					'amount': 50.0 + 0.0 + 0.0,
@@ -880,7 +887,6 @@ class TestSettlePayment(db_unittest.TestCase):
 					'to_fees': 0.0,
 				},
 			],
-			amount_as_credit_to_user=0.0
 		)
 
 		transaction_ids, err = repayment_util.settle_repayment(
@@ -931,7 +937,6 @@ class TestSettlePayment(db_unittest.TestCase):
 					},
 				],
 			],
-			'amount_as_credit_to_user': 0.0,
 			'payment': {
 				'amount': 30.0 + 0.0 + 0.0,
 				'payment_method': 'unused',
@@ -974,7 +979,6 @@ class TestSettlePayment(db_unittest.TestCase):
 					},
 				],
 			],
-			'amount_as_credit_to_user': 0.0,
 			'payment': {
 				'amount': 30.0 + 0.0 + 0.0,
 				'payment_method': 'unused',
@@ -1018,7 +1022,6 @@ class TestSettlePayment(db_unittest.TestCase):
 					},
 				],
 			],
-			'amount_as_credit_to_user': 0.0,
 			'payment': {
 				'amount': 30.0 + 0.0 + 0.0,
 				'payment_method': 'unused',
@@ -1063,7 +1066,6 @@ class TestSettlePayment(db_unittest.TestCase):
 					},
 				],
 			],
-			'amount_as_credit_to_user': 0.0,
 			'payment': {
 				'amount': 30.0 + 0.0 + 0.0,
 				'payment_method': 'unused',
@@ -1108,7 +1110,6 @@ class TestSettlePayment(db_unittest.TestCase):
 					},
 				],
 			],
-			'amount_as_credit_to_user': 0.0,
 			'payment': {
 				'amount': 30.0 + 0.0 + 0.0 + err_amount,
 				'payment_method': 'unused',
@@ -1122,6 +1123,7 @@ class TestSettlePayment(db_unittest.TestCase):
 					'to_principal': 30.0,
 					'to_interest': 0.0,
 					'to_fees': 0.0 + err_amount,
+					'to_user_credit': 0.0,
 				}
 			],
 			'in_err_msg': 'Transaction at index 0 does not balance'
@@ -1135,7 +1137,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 		test['transaction_inputs'] = []
 		_run_test(self, test)
 
-	def test_settle_payment_line_of_credit_single_loan_fully_paid(self) -> None:
+	def test_line_of_credit_single_loan_fully_paid(self) -> None:
 		tests: List[Dict] = [
 			{
 				'loans': [
@@ -1154,7 +1156,6 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 					# These will be advances or repayments made against their respective loans.
 					[{'type': 'advance', 'amount': 50.0, 'payment_date': '10/10/2020', 'effective_date': '10/10/2020'}],
 				],
-				'amount_as_credit_to_user': 0,
 				'payment': {
 					'amount': 50.0 + 0.4,
 					'payment_method': 'ach',
@@ -1165,6 +1166,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 						'requested_to_interest': 0.4,
 						'to_principal': 50.0,
 						'to_interest': 0.4,
+						'to_user_credit': 0.0,
 					 },
 				},
 				'expected_transactions': [
@@ -1191,7 +1193,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
-	def test_settle_payment_line_of_credit_single_loan_overpayment(self) -> None:
+	def test_line_of_credit_single_loan_overpayment(self) -> None:
 		tests: List[Dict] = [
 			{
 				'loans': [
@@ -1210,13 +1212,16 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 					# These will be advances or repayments made against their respective loans.
 					[{'type': 'advance', 'amount': 50.0, 'payment_date': '10/10/2020', 'effective_date': '10/10/2020'}],
 				],
-				'amount_as_credit_to_user': 10.0,
 				'payment': {
 					'amount': 50.0 + 0.4 + 10.0,
 					'payment_method': 'ach',
 					'payment_date': '10/11/2020',
 					'settlement_date': '10/13/2020',
-					'items_covered': { 'to_principal': 50.0, 'to_interest': 0.4 },
+					'items_covered': {
+						'to_principal': 50.0,
+						'to_interest': 0.4,
+						'to_user_credit': 10.0,
+					},
 				},
 				'expected_transactions': [
 					{
@@ -1250,7 +1255,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
-	def test_settle_payment_line_of_credit_single_loan_partially_paid_only_principal(self) -> None:
+	def test_line_of_credit_single_loan_partially_paid_only_principal(self) -> None:
 		tests: List[Dict] = [
 			{
 				'loans': [
@@ -1279,9 +1284,9 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 						'requested_to_interest': 0.0,
 						'to_principal': 50.0,
 						'to_interest': 0.0,
+						'to_user_credit': 0.0,
 					},
 				},
-				'amount_as_credit_to_user': 0.0,
 				'expected_transactions': [
 					{
 						'amount': 50.0 + 0.0,
@@ -1306,7 +1311,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
-	def test_settle_payment_line_of_credit_single_loan_partially_paid_only_interest(self) -> None:
+	def test_line_of_credit_single_loan_partially_paid_only_interest(self) -> None:
 		tests: List[Dict] = [
 			{
 				'loans': [
@@ -1335,9 +1340,9 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 						'requested_to_interest': 0.4,
 						'to_principal': 0.0,
 						'to_interest': 0.4,
+						'to_user_credit': 0.0,
 					},
 				},
-				'amount_as_credit_to_user': 0.0,
 				'expected_transactions': [
 					{
 						'amount': 0.0 + 0.4,
@@ -1362,7 +1367,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
-	def test_settle_payment_line_of_credit_multiple_loans_fully_paid(self) -> None:
+	def test_line_of_credit_multiple_loans_fully_paid(self) -> None:
 		tests: List[Dict] = [
 			{
 				'loans': [
@@ -1401,9 +1406,9 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 						'requested_to_interest': 0.4 + 0.6,
 						'to_principal': 50.0 + 100.0,
 						'to_interest': 0.4 + 0.6,
+						'to_user_credit': 0.0,
 					},
 				},
-				'amount_as_credit_to_user': 0.0,
 				'expected_transactions': [
 					{
 						'amount': 100.0 + 0.6,
@@ -1443,7 +1448,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
-	def test_settle_payment_line_of_credit_multiple_loans_partially_paid_only_principal(self) -> None:
+	def test_line_of_credit_multiple_loans_partially_paid_only_principal(self) -> None:
 		tests: List[Dict] = [
 			{
 				'loans': [
@@ -1482,9 +1487,9 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 						'requested_to_interest': 0.0 + 0.0,
 						'to_principal': 50.0 + 60.0,
 						'to_interest': 0.0 + 0.0,
+						'to_user_credit': 0.0,
 					},
 				},
-				'amount_as_credit_to_user': 0.0,
 				'expected_transactions': [
 					{
 						'amount': 60.0 + 0.0,
@@ -1524,7 +1529,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
-	def test_failure_settle_payment_line_of_credit_invalid_to_principal_to_interest(self) -> None:
+	def test_failure_line_of_credit_invalid_to_principal_to_interest(self) -> None:
 		test: Dict = {
 			'loans': [
 				{
@@ -1552,7 +1557,6 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 					'requested_to_interest': 0.4,
 				},
 			},
-			'amount_as_credit_to_user': 0.0,
 			'settlement_payment': {
 				'amount': 50.0 + 0.4,
 				'payment_method': 'ach',
@@ -1562,9 +1566,151 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 					'requested_to_principal': 50.0,
 					'requested_to_interest': 0.4,
 					'to_principal': 50.0,
-					'to_interest': 0.0,
-				}, # to_interest is wrong here.
+					'to_interest': 0.0, # to_interest is wrong here.
+					'to_user_credit': 0.0,
+				},
 			},
 			'in_err_msg': 'Sum of amount to principal',
+		}
+		self._run_test(test)
+
+	def test_failure_line_of_credit_invalid_to_user_credit(self) -> None:
+		test: Dict = {
+			'loans': [
+				{
+					'origination_date': '10/10/2020',
+					'maturity_date': '10/21/2020',
+					'adjusted_maturity_date': '10/21/2020',
+					'amount': 50.0,
+					'outstanding_principal_balance': 50.0,
+					'outstanding_interest': 0.4,
+					'outstanding_fees': 0.0
+				},
+			],
+			'transaction_lists': [
+				# Transactions are parallel to the loans defined in the test.
+				# These will be advances or repayments made against their respective loans.
+				[{'type': 'advance', 'amount': 50.0, 'payment_date': '10/10/2020', 'effective_date': '10/10/2020'}],
+			],
+			'payment': {
+				'amount': 50.0 + 0.4,
+				'payment_method': 'ach',
+				'payment_date': '10/11/2020',
+				'settlement_date': '10/13/2020',
+				'items_covered': {
+					'requested_to_principal': 50.0,
+					'requested_to_interest': 0.4,
+				},
+			},
+			'settlement_payment': {
+				'amount': 50.0 + 0.4 + 0.0,
+				'payment_method': 'ach',
+				'payment_date': '10/11/2020',
+				'settlement_date': '10/13/2020',
+				'items_covered': {
+					'requested_to_principal': 50.0,
+					'requested_to_interest': 0.4,
+					'to_principal': 50.0,
+					'to_interest': 0.0,
+					'to_user_credit': 10.0, # to_user_credit is wrong here
+				},
+			},
+			'in_err_msg': 'Sum of amount to principal',
+		}
+		self._run_test(test)
+
+	def test_failure_line_of_credit_principal_overpayment(self) -> None:
+		"""
+		Tests that an overpayment on the principal gets rejected
+		"""
+		test: Dict = {
+			'loans': [
+				{
+					'origination_date': '10/10/2020',
+					'maturity_date': '10/21/2020',
+					'adjusted_maturity_date': '10/21/2020',
+					'amount': 50.0,
+					'outstanding_principal_balance': 50.0,
+					'outstanding_interest': 0.4,
+					'outstanding_fees': 0.0
+				},
+			],
+			'transaction_lists': [
+				# Transactions are parallel to the loans defined in the test.
+				# These will be advances or repayments made against their respective loans.
+				[{'type': 'advance', 'amount': 50.0, 'payment_date': '10/10/2020', 'effective_date': '10/10/2020'}],
+			],
+			'payment': {
+				'amount': 50.0 + 0.4 + 10.0, # 10.0 overpayment
+				'payment_method': 'ach',
+				'payment_date': '10/11/2020',
+				'settlement_date': '10/13/2020',
+				'items_covered': {
+					'requested_to_principal': 50.0 + 10.0, # 10.0 overpayment
+					'requested_to_interest': 0.4,
+				},
+			},
+			'settlement_payment': {
+				'amount': 50.0 + 0.4 + 10.0, # 10.0 overpayment
+				'payment_method': 'ach',
+				'payment_date': '10/11/2020',
+				'settlement_date': '10/13/2020',
+				'items_covered': {
+					'requested_to_principal': 50.0 + 10.0, # 10.0 overpayment
+					'requested_to_interest': 0.4,
+					'to_principal': 50.0 + 10.0, # 10.0 overpayment
+					'to_interest': 0.4,
+					'to_user_credit': 0.0,
+				},
+			},
+			'in_err_msg': 'Outstanding principal may not be negative after payment',
+		}
+		self._run_test(test)
+
+	def test_failure_line_of_credit_interest_overpayment(self) -> None:
+		"""
+		Tests that an overpayment on the interest gets rejected
+		"""
+		test: Dict = {
+			'loans': [
+				{
+					'origination_date': '10/10/2020',
+					'maturity_date': '10/21/2020',
+					'adjusted_maturity_date': '10/21/2020',
+					'amount': 50.0,
+					'outstanding_principal_balance': 50.0,
+					'outstanding_interest': 0.4,
+					'outstanding_fees': 0.0
+				},
+			],
+			'transaction_lists': [
+				# Transactions are parallel to the loans defined in the test.
+				# These will be advances or repayments made against their respective loans.
+				[{'type': 'advance', 'amount': 50.0, 'payment_date': '10/10/2020', 'effective_date': '10/10/2020'}],
+			],
+			'payment': {
+				'amount': 50.0 + 0.4 + 10.0, # 10.0 overpayment
+				'payment_method': 'ach',
+				'payment_date': '10/11/2020',
+				'settlement_date': '10/13/2020',
+				'items_covered': {
+					'requested_to_principal': 50.0,
+					'requested_to_interest': 0.4 + 10.0, # 10.0 overpayment
+				},
+			},
+			'settlement_payment': {
+				'amount': 50.0 + 0.4 + 10.0, # 10.0 overpayment
+				'payment_method': 'ach',
+				'payment_date': '10/11/2020',
+				'settlement_date': '10/13/2020',
+				'items_covered': {
+					'requested_to_principal': 50.0,
+					'requested_to_interest': 0.4 + 10.0, # 10.0 overpayment
+					'to_principal': 50.0,
+					'to_interest': 0.4 + 10.0, # 10.0 overpayment
+					'to_user_credit': 0.0,
+				},
+			},
+			'in_err_msg': 'Outstanding interest may not be negative after payment',
 		}
 		self._run_test(test)

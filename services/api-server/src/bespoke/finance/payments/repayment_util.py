@@ -76,7 +76,6 @@ SettleRepaymentReqDict = TypedDict('SettleRepaymentReqDict', {
 	'amount': float,
 	'deposit_date': str, # When the payment was deposited into the bank
 	'settlement_date': str, # Effective date of all the transactions as well
-	'amount_as_credit_to_user': float,
 	'items_covered': payment_util.PaymentItemsCoveredDict,
 	'transaction_inputs': List[TransactionInputDict],
 })
@@ -646,7 +645,6 @@ def settle_repayment(
 	deposit_date = date_util.load_date_str(req['deposit_date'])
 	settlement_date = date_util.load_date_str(req['settlement_date'])
 	items_covered = req['items_covered']
-	credit_to_user = req['amount_as_credit_to_user']
 	transaction_inputs = []
 
 	if not deposit_date:
@@ -655,14 +653,19 @@ def settle_repayment(
 	if not settlement_date:
 		return None, errors.Error('settlement_date must be specified')
 
+	if 'to_user_credit' not in items_covered:
+			return None, errors.Error('items_covered.to_user_credit must be specified', details=err_details)
+
+	to_user_credit = items_covered['to_user_credit']
+
 	if is_line_of_credit:
 		if 'to_principal' not in items_covered or 'to_interest' not in items_covered:
 			return None, errors.Error('items_covered.to_principal and items_covered.to_interest must be specified', details=err_details)
 
 		to_principal = items_covered['to_principal']
 		to_interest = items_covered['to_interest']
-		if not number_util.float_eq(payment_amount, to_principal + to_interest + credit_to_user):
-			return None, errors.Error(f'Sum of amount to principal ({number_util.to_dollar_format(to_principal)}), amount to interest ({number_util.to_dollar_format(to_interest)}), and credit to user ({number_util.to_dollar_format(credit_to_user)}) does not equal payment amount ({number_util.to_dollar_format(payment_amount)})', details=err_details)
+		if not number_util.float_eq(payment_amount, to_principal + to_interest + to_user_credit):
+			return None, errors.Error(f'Sum of amount to principal ({number_util.to_dollar_format(to_principal)}), amount to interest ({number_util.to_dollar_format(to_interest)}), and credit to user ({number_util.to_dollar_format(to_user_credit)}) does not equal payment amount ({number_util.to_dollar_format(payment_amount)})', details=err_details)
 	else:
 		if not items_covered or 'loan_ids' not in items_covered:
 			return None, errors.Error('items_covered.loan_ids must be specified', details=err_details)
@@ -686,7 +689,7 @@ def settle_repayment(
 
 			transactions_sum += cur_sum
 
-		computed_payment_amount = transactions_sum + credit_to_user
+		computed_payment_amount = transactions_sum + to_user_credit
 		if not number_util.float_eq(computed_payment_amount, payment_amount):
 			return None, errors.Error(f'Sum of transactions and credit to user ({computed_payment_amount}) does not equal payment amount ({payment_amount})', details=err_details)
 
@@ -895,10 +898,10 @@ def settle_repayment(
 				return None, errors.Error(
 					f'Outstanding interest may not be negative after payment: you must reduce the amount applied to interest by {number_util.to_dollar_format(amount_to_interest_left)}')
 
-		if number_util.float_gt(credit_to_user, 0.0):
+		if number_util.float_gt(to_user_credit, 0.0):
 			payment_util.create_and_add_credit_to_user(
 				company_id=req['company_id'],
-				amount=credit_to_user,
+				amount=to_user_credit,
 				originating_payment_id=req['payment_id'],
 				created_by_user_id=user_id,
 				payment_date=deposit_date,

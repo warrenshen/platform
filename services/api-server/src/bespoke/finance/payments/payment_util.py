@@ -22,6 +22,7 @@ PaymentItemsCoveredDict = TypedDict('PaymentItemsCoveredDict', {
 	'requested_to_interest': float,
 	'to_principal': float,
 	'to_interest': float,
+	'to_user_credit': float,
 }, total=False)
 
 PaymentInputDict = TypedDict('PaymentInputDict', {
@@ -151,12 +152,12 @@ def sum(vals: List[float]) -> float:
 
 def create_and_add_credit_to_user(
 	company_id: str,
-	amount: float, 
+	amount: float,
 	originating_payment_id: str,
 	created_by_user_id: str,
 	payment_date: datetime.date,
 	effective_date: datetime.date,
-	session: Session) -> models.Transaction: 
+	session: Session) -> models.Transaction:
 
 	payment = create_payment(
 		company_id=company_id,
@@ -192,9 +193,9 @@ def create_and_add_credit_to_user(
 
 def create_and_add_account_level_fee(
 	company_id: str,
-	subtype: str, 
-	amount: float, 
-	originating_payment_id: str, 
+	subtype: str,
+	amount: float,
+	originating_payment_id: str,
 	created_by_user_id: str,
 	payment_date: datetime.date,
 	effective_date: datetime.date,

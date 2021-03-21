@@ -172,7 +172,6 @@ class SettleRepaymentView(MethodView):
 			'settlement_date',
 			'items_covered',
 			'transaction_inputs',
-			'amount_as_credit_to_user',
 			'is_line_of_credit',
 		]
 		for key in required_keys:
