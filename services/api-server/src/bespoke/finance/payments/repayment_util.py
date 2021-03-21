@@ -691,6 +691,7 @@ def settle_repayment(
 			return None, errors.Error(f'Sum of transactions and credit to user ({computed_payment_amount}) does not equal payment amount ({payment_amount})', details=err_details)
 
 	def _settle_logic(session: Session) -> Tuple[bool, errors.Error]:
+		# Get all contracts associated with company.
 		contracts = cast(
 			List[models.Contract],
 			session.query(models.Contract).filter(
@@ -868,6 +869,8 @@ def settle_repayment(
 					number_util.float_lte(amount_to_principal_left, 0) and
 					number_util.float_lte(amount_to_interest_left, 0)
 				):
+					# If there it no amount left to pay (for neither principal nor interest),
+					# skip and do not create a TransactionInputDict.
 					continue
 
 				# Order MATTERS: payment is applied to interest, fees, and principal, in that order.
@@ -881,6 +884,16 @@ def settle_repayment(
 					to_interest=amount_used_interest,
 					to_fees=amount_used_fees
 				))
+
+			# If there is remaining amount to pay (for either principal or interest),
+			# this means this repayment is an over-payment.
+			if number_util.float_gt(amount_to_principal_left, 0):
+				return None, errors.Error(
+					f'Outstanding principal may not be negative after payment: you must reduce the amount applied to principal by {number_util.to_dollar_format(amount_to_principal_left)}')
+
+			if number_util.float_gt(amount_to_interest_left, 0):
+				return None, errors.Error(
+					f'Outstanding interest may not be negative after payment: you must reduce the amount applied to interest by {number_util.to_dollar_format(amount_to_interest_left)}')
 
 		if number_util.float_gt(credit_to_user, 0.0):
 			payment_util.create_and_add_credit_to_user(
@@ -922,17 +935,15 @@ def settle_repayment(
 
 			if number_util.float_lt(new_outstanding_interest, 0):
 				return None, errors.Error(
-					'Interest on a loan may not be negative. You must reduce the amount applied to interest on {} by {} and apply it to the principal'.format(
-						cur_loan_id, -1 * new_outstanding_interest))
+					f'Interest on a loan may not be negative: you must reduce the amount applied to interest on {cur_loan_id} by {-1 * new_outstanding_interest}')
 
 			if number_util.float_lt(new_outstanding_fees, 0):
 				return None, errors.Error(
-					'Fees on a loan may not be negative. You must reduce the amount applied to interest on {} by {} and apply it to the principal'.format(
-						cur_loan_id, -1 * new_outstanding_fees))
+					f'Fees on a loan may not be negative after payment: you must reduce the amount applied to interest on {cur_loan_id} by {-1 * new_outstanding_fees}')
 
 			if number_util.float_lt(new_outstanding_principal_balance, 0):
 				return None, errors.Error(
-					f'Principal on a loan may not be negative or you must reduce the amount applied to principal on {cur_loan_id} by {-1 * new_outstanding_principal_balance}.')
+					f'Principal on a loan may not be negative after payment: you must reduce the amount applied to principal on {cur_loan_id} by {-1 * new_outstanding_principal_balance}')
 
 			session.add(t)
 
@@ -960,7 +971,6 @@ def settle_repayment(
 		return True, None
 
 	with session_scope(session_maker) as session:
-		# Get all contracts associated with company.
 		success, err = _settle_logic(session)
 		if err:
 			session.rollback()

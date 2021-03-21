@@ -99,7 +99,6 @@ function SettleRepaymentConfirmEffect({
                 handleChange={(value: number) =>
                   setPayment({
                     ...payment,
-                    amount: value + payment.items_covered.to_interest,
                     items_covered: {
                       ...payment.items_covered,
                       to_principal: value,
@@ -117,7 +116,6 @@ function SettleRepaymentConfirmEffect({
                 handleChange={(value: number) =>
                   setPayment({
                     ...payment,
-                    amount: value + payment.items_covered.to_principal,
                     items_covered: {
                       ...payment.items_covered,
                       to_interest: value,
