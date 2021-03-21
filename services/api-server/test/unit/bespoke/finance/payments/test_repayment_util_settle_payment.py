@@ -1079,7 +1079,7 @@ class TestSettlePayment(db_unittest.TestCase):
 					'to_fees': 0.0 + err_amount,
 				}
 			],
-			'in_err_msg': 'does not balance with the payment amount'
+			'in_err_msg': 'Sum of transactions and credit to user'
 		}
 		self._run_test(test)
 

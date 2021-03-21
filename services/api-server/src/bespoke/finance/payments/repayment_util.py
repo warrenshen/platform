@@ -688,8 +688,9 @@ def settle_repayment(
 
 			transactions_sum += cur_sum
 
-		if not number_util.float_eq(transactions_sum + credit_to_user, payment_amount):
-			return None, errors.Error('Transaction inputs provided does not balance with the payment amount included', details=err_details)
+		computed_payment_amount = transactions_sum + credit_to_user
+		if not number_util.float_eq(computed_payment_amount, payment_amount):
+			return None, errors.Error(f'Sum of transactions and credit to user ({computed_payment_amount}) does not equal payment amount ({payment_amount})', details=err_details)
 
 	def _settle_logic(session: Session) -> Tuple[bool, errors.Error]:
 		contracts = cast(
