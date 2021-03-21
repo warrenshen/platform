@@ -1,6 +1,7 @@
 subscription GetLatestBankFinancialSummaries {
   bank_financial_summaries(limit: 4, order_by: { date: desc }) {
     id
+    updated_at
     date
     product_type
     adjusted_total_limit

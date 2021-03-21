@@ -57,7 +57,7 @@ function CustomerFinancialSummaryOverview({
         Dashboard
       </Typography>
       <Typography variant="body2" gutterBottom={true}>
-        Note: dashboard is updated approximately every 5 minutes.
+        Note: dashboard is updated every minute.
       </Typography>
       {isBalanceVisible && (
         <>
@@ -76,7 +76,7 @@ function CustomerFinancialSummaryOverview({
                       : "TBD"}
                   </Typography>
                   <Typography variant="subtitle1" color="textSecondary">
-                    total outstanding principal balance
+                    Outstanding Principal
                   </Typography>
                 </Box>
               </Card>
@@ -92,7 +92,7 @@ function CustomerFinancialSummaryOverview({
                       : "TBD"}
                   </Typography>
                   <Typography variant="subtitle1" color="textSecondary">
-                    total outstanding interest
+                    Accrued Interest
                   </Typography>
                 </Box>
               </Card>
@@ -106,7 +106,7 @@ function CustomerFinancialSummaryOverview({
                       : "TBD"}
                   </Typography>
                   <Typography variant="subtitle1" color="textSecondary">
-                    total outstanding fees
+                    Accrued Fees
                   </Typography>
                 </Box>
               </Card>
@@ -116,7 +116,7 @@ function CustomerFinancialSummaryOverview({
         </>
       )}
       <Box>
-        <h3>Fees</h3>
+        <h3>Account</h3>
       </Box>
       <Box display="flex" justifyContent="space-between" width="100%">
         <Box className={classes.box}>
@@ -128,7 +128,7 @@ function CustomerFinancialSummaryOverview({
                   : "TBD"}
               </Typography>
               <Typography variant="subtitle1" color="textSecondary">
-                minimum monthly fee
+                Minimum Monthly Fee
               </Typography>
             </Box>
           </Card>
@@ -140,7 +140,7 @@ function CustomerFinancialSummaryOverview({
                 {accountFees !== -1 ? formatCurrency(accountFees) : "TBD"}
               </Typography>
               <Typography variant="subtitle1" color="textSecondary">
-                account fees
+                Account Fees
               </Typography>
             </Box>
           </Card>
@@ -152,7 +152,7 @@ function CustomerFinancialSummaryOverview({
                 {accountCredits !== -1 ? formatCurrency(accountCredits) : "TBD"}
               </Typography>
               <Typography variant="subtitle1" color="textSecondary">
-                account credits
+                Account Credits
               </Typography>
             </Box>
           </Card>

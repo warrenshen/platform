@@ -28,7 +28,7 @@ function BankFinancialSummariesDataGrid({ bankFinancialSummaries }: Props) {
       },
       {
         dataField: "total_outstanding_principal",
-        caption: "Total Outstanding Principal",
+        caption: "Outstanding Principal",
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell
@@ -38,7 +38,7 @@ function BankFinancialSummariesDataGrid({ bankFinancialSummaries }: Props) {
       },
       {
         dataField: "total_outstanding_interest",
-        caption: "Total Outstanding Interest",
+        caption: "Accrued Interest",
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell
@@ -48,7 +48,7 @@ function BankFinancialSummariesDataGrid({ bankFinancialSummaries }: Props) {
       },
       {
         dataField: "total_outstanding_fees",
-        caption: "Total Outstanding Fees",
+        caption: "Accrued Fees",
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell
@@ -58,7 +58,7 @@ function BankFinancialSummariesDataGrid({ bankFinancialSummaries }: Props) {
       },
       {
         dataField: "total_principal_in_requested_state",
-        caption: "Total Principal in Requested State",
+        caption: "Principal in Requested State",
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell

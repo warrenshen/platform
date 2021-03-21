@@ -1,5 +1,6 @@
 import { Box } from "@material-ui/core";
 import { format, parseISO } from "date-fns";
+import { DateFormatClient, TimeFormatClient } from "lib/date";
 
 interface Props {
   isTimeVisible?: boolean;
@@ -12,7 +13,9 @@ function DatetimeDataGridCell({ isTimeVisible, datetimeString }: Props) {
       {datetimeString
         ? format(
             parseISO(datetimeString),
-            isTimeVisible ? "MM/dd/yyyy HH:mm:ss" : "MM/dd/yyyy"
+            isTimeVisible
+              ? `${DateFormatClient} ${TimeFormatClient}`
+              : DateFormatClient
           )
         : "-"}
     </Box>

@@ -4,10 +4,12 @@ import {
   differenceInDays,
   format,
   parse,
+  parseISO,
 } from "date-fns";
 
 export const DateFormatClient = "MM/dd/yyyy";
 export const DateFormatServer = "yyyy-MM-dd";
+export const TimeFormatClient = "hh:mm:ss a";
 
 export function todayAsDateStringServer(): string {
   return format(new Date(), DateFormatServer);
@@ -29,6 +31,24 @@ export function formatDateString(dateString: string) {
     } catch (error) {
       console.error(
         `Could not format the date string "${dateString}", returning null. Error message: "${error}".`
+      );
+      return null;
+    }
+  }
+}
+
+export function formatDatetimeString(datetimeString: string) {
+  if (!datetimeString) {
+    return "Invalid Datetime";
+  } else {
+    try {
+      return format(
+        parseISO(datetimeString),
+        `${DateFormatClient} ${TimeFormatClient}`
+      );
+    } catch (error) {
+      console.error(
+        `Could not format the datetime string "${datetimeString}", returning null. Error message: "${error}".`
       );
       return null;
     }

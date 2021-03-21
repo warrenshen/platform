@@ -52,8 +52,8 @@ function StatBox({ financialSummary }: Props) {
                 ? formatCurrency(financialSummary.available_limit)
                 : "TBD"}
             </Typography>
-            <Typography variant="body2" color="textSecondary">
-              remaining amount
+            <Typography variant="body1" color="textSecondary">
+              Available Credit
             </Typography>
           </Box>
           <div className={classes.progress}>
@@ -64,8 +64,8 @@ function StatBox({ financialSummary }: Props) {
               <Typography variant="h5">
                 {financialSummary ? formatCurrency(outstandingAmount) : "TBD"}
               </Typography>
-              <Typography variant="body2" color="textSecondary">
-                outstanding amount
+              <Typography variant="body1" color="textSecondary">
+                Outstanding Principal
               </Typography>
             </Box>
             <Box>
@@ -75,7 +75,7 @@ function StatBox({ financialSummary }: Props) {
                   : "TBD"}
               </Typography>
               <Typography variant="body1" color="textSecondary">
-                total limit
+                Maximum Credit Limit
               </Typography>
             </Box>
           </Box>

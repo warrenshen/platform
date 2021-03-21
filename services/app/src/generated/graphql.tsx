@@ -454,6 +454,7 @@ export enum BankAccountsUpdateColumn {
 export type BankFinancialSummaries = {
   adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit: Scalars["numeric"];
+  created_at: Scalars["timestamptz"];
   date: Scalars["date"];
   id: Scalars["uuid"];
   product_type: Scalars["String"];
@@ -463,6 +464,7 @@ export type BankFinancialSummaries = {
   total_outstanding_principal: Scalars["numeric"];
   total_outstanding_principal_for_interest?: Maybe<Scalars["numeric"]>;
   total_principal_in_requested_state: Scalars["numeric"];
+  updated_at: Scalars["timestamptz"];
 };
 
 /** aggregated selection of "bank_financial_summaries" */
@@ -544,6 +546,7 @@ export type BankFinancialSummariesBoolExp = {
   _or?: Maybe<Array<Maybe<BankFinancialSummariesBoolExp>>>;
   adjusted_total_limit?: Maybe<NumericComparisonExp>;
   available_limit?: Maybe<NumericComparisonExp>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
   date?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   product_type?: Maybe<StringComparisonExp>;
@@ -553,6 +556,7 @@ export type BankFinancialSummariesBoolExp = {
   total_outstanding_principal?: Maybe<NumericComparisonExp>;
   total_outstanding_principal_for_interest?: Maybe<NumericComparisonExp>;
   total_principal_in_requested_state?: Maybe<NumericComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
 };
 
 /** unique or primary key constraints on table "bank_financial_summaries" */
@@ -577,6 +581,7 @@ export type BankFinancialSummariesIncInput = {
 export type BankFinancialSummariesInsertInput = {
   adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   product_type?: Maybe<Scalars["String"]>;
@@ -586,12 +591,14 @@ export type BankFinancialSummariesInsertInput = {
   total_outstanding_principal?: Maybe<Scalars["numeric"]>;
   total_outstanding_principal_for_interest?: Maybe<Scalars["numeric"]>;
   total_principal_in_requested_state?: Maybe<Scalars["numeric"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** aggregate max on columns */
 export type BankFinancialSummariesMaxFields = {
   adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   product_type?: Maybe<Scalars["String"]>;
@@ -601,12 +608,14 @@ export type BankFinancialSummariesMaxFields = {
   total_outstanding_principal?: Maybe<Scalars["numeric"]>;
   total_outstanding_principal_for_interest?: Maybe<Scalars["numeric"]>;
   total_principal_in_requested_state?: Maybe<Scalars["numeric"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** order by max() on columns of table "bank_financial_summaries" */
 export type BankFinancialSummariesMaxOrderBy = {
   adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
   date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   product_type?: Maybe<OrderBy>;
@@ -616,12 +625,14 @@ export type BankFinancialSummariesMaxOrderBy = {
   total_outstanding_principal?: Maybe<OrderBy>;
   total_outstanding_principal_for_interest?: Maybe<OrderBy>;
   total_principal_in_requested_state?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
 };
 
 /** aggregate min on columns */
 export type BankFinancialSummariesMinFields = {
   adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   product_type?: Maybe<Scalars["String"]>;
@@ -631,12 +642,14 @@ export type BankFinancialSummariesMinFields = {
   total_outstanding_principal?: Maybe<Scalars["numeric"]>;
   total_outstanding_principal_for_interest?: Maybe<Scalars["numeric"]>;
   total_principal_in_requested_state?: Maybe<Scalars["numeric"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** order by min() on columns of table "bank_financial_summaries" */
 export type BankFinancialSummariesMinOrderBy = {
   adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
   date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   product_type?: Maybe<OrderBy>;
@@ -646,6 +659,7 @@ export type BankFinancialSummariesMinOrderBy = {
   total_outstanding_principal?: Maybe<OrderBy>;
   total_outstanding_principal_for_interest?: Maybe<OrderBy>;
   total_principal_in_requested_state?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
 };
 
 /** response of any mutation on the table "bank_financial_summaries" */
@@ -673,6 +687,7 @@ export type BankFinancialSummariesOnConflict = {
 export type BankFinancialSummariesOrderBy = {
   adjusted_total_limit?: Maybe<OrderBy>;
   available_limit?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
   date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   product_type?: Maybe<OrderBy>;
@@ -682,6 +697,7 @@ export type BankFinancialSummariesOrderBy = {
   total_outstanding_principal?: Maybe<OrderBy>;
   total_outstanding_principal_for_interest?: Maybe<OrderBy>;
   total_principal_in_requested_state?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: "bank_financial_summaries" */
@@ -695,6 +711,8 @@ export enum BankFinancialSummariesSelectColumn {
   AdjustedTotalLimit = "adjusted_total_limit",
   /** column name */
   AvailableLimit = "available_limit",
+  /** column name */
+  CreatedAt = "created_at",
   /** column name */
   Date = "date",
   /** column name */
@@ -713,12 +731,15 @@ export enum BankFinancialSummariesSelectColumn {
   TotalOutstandingPrincipalForInterest = "total_outstanding_principal_for_interest",
   /** column name */
   TotalPrincipalInRequestedState = "total_principal_in_requested_state",
+  /** column name */
+  UpdatedAt = "updated_at",
 }
 
 /** input type for updating data in table "bank_financial_summaries" */
 export type BankFinancialSummariesSetInput = {
   adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
   date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   product_type?: Maybe<Scalars["String"]>;
@@ -728,6 +749,7 @@ export type BankFinancialSummariesSetInput = {
   total_outstanding_principal?: Maybe<Scalars["numeric"]>;
   total_outstanding_principal_for_interest?: Maybe<Scalars["numeric"]>;
   total_principal_in_requested_state?: Maybe<Scalars["numeric"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** aggregate stddev on columns */
@@ -833,6 +855,8 @@ export enum BankFinancialSummariesUpdateColumn {
   /** column name */
   AvailableLimit = "available_limit",
   /** column name */
+  CreatedAt = "created_at",
+  /** column name */
   Date = "date",
   /** column name */
   Id = "id",
@@ -850,6 +874,8 @@ export enum BankFinancialSummariesUpdateColumn {
   TotalOutstandingPrincipalForInterest = "total_outstanding_principal_for_interest",
   /** column name */
   TotalPrincipalInRequestedState = "total_principal_in_requested_state",
+  /** column name */
+  UpdatedAt = "updated_at",
 }
 
 /** aggregate var_pop on columns */
@@ -4619,7 +4645,7 @@ export type FinancialSummaries = {
   /** An object relationship */
   company: Companies;
   company_id: Scalars["uuid"];
-  date?: Maybe<Scalars["date"]>;
+  date: Scalars["date"];
   id: Scalars["uuid"];
   minimum_monthly_payload?: Maybe<Scalars["jsonb"]>;
   total_limit: Scalars["numeric"];
@@ -6697,7 +6723,39 @@ export type Loans = {
   requested_payment_date?: Maybe<Scalars["date"]>;
   /** This is the loan request status, e.g., drafted, approved, more_details_required, rejected */
   status: LoanStatusEnum;
+  /** An array relationship */
+  transactions: Array<Transactions>;
+  /** An aggregated array relationship */
+  transactions_aggregate: TransactionsAggregate;
   updated_at: Scalars["timestamptz"];
+};
+
+/**
+ * All common fields amongst loans go here, and fields specific to that loan type are joined in by the artifact_id
+ *
+ *
+ * columns and relationships of "loans"
+ */
+export type LoansTransactionsArgs = {
+  distinct_on?: Maybe<Array<TransactionsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<TransactionsOrderBy>>;
+  where?: Maybe<TransactionsBoolExp>;
+};
+
+/**
+ * All common fields amongst loans go here, and fields specific to that loan type are joined in by the artifact_id
+ *
+ *
+ * columns and relationships of "loans"
+ */
+export type LoansTransactionsAggregateArgs = {
+  distinct_on?: Maybe<Array<TransactionsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<TransactionsOrderBy>>;
+  where?: Maybe<TransactionsBoolExp>;
 };
 
 /** aggregated selection of "loans" */
@@ -6801,6 +6859,7 @@ export type LoansBoolExp = {
   requested_by_user_id?: Maybe<UuidComparisonExp>;
   requested_payment_date?: Maybe<DateComparisonExp>;
   status?: Maybe<LoanStatusEnumComparisonExp>;
+  transactions?: Maybe<TransactionsBoolExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
 };
 
@@ -6854,6 +6913,7 @@ export type LoansInsertInput = {
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requested_payment_date?: Maybe<Scalars["date"]>;
   status?: Maybe<LoanStatusEnum>;
+  transactions?: Maybe<TransactionsArrRelInsertInput>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -7040,6 +7100,7 @@ export type LoansOrderBy = {
   requested_by_user_id?: Maybe<OrderBy>;
   requested_payment_date?: Maybe<OrderBy>;
   status?: Maybe<OrderBy>;
+  transactions_aggregate?: Maybe<TransactionsAggregateOrderBy>;
   updated_at?: Maybe<OrderBy>;
 };
 
@@ -15571,6 +15632,7 @@ export type GetLatestBankFinancialSummariesSubscription = {
     Pick<
       BankFinancialSummaries,
       | "id"
+      | "updated_at"
       | "date"
       | "product_type"
       | "adjusted_total_limit"
@@ -21180,6 +21242,7 @@ export const GetLatestBankFinancialSummariesDocument = gql`
   subscription GetLatestBankFinancialSummaries {
     bank_financial_summaries(limit: 4, order_by: { date: desc }) {
       id
+      updated_at
       date
       product_type
       adjusted_total_limit

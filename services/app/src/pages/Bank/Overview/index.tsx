@@ -13,6 +13,7 @@ import {
   useGetFundedLoansForBankSubscription,
   useGetLatestBankFinancialSummariesSubscription,
 } from "generated/graphql";
+import { formatDatetimeString } from "lib/date";
 import { bankRoutes } from "lib/routes";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
@@ -107,10 +108,14 @@ function BankOverviewPage() {
       <Box className={classes.container}>
         <Box className={classes.section}>
           <Typography variant="h6" gutterBottom={true}>
-            Financial Summaries by Product Type
+            Dashboard
           </Typography>
           <Typography variant="body2" gutterBottom={true}>
-            Note: financial summaries are updated on an hourly cadence.
+            {`Note: dashboard is updated on an hourly cadence (last update: ${
+              formatDatetimeString(
+                filteredBankFinancialSummaries[0]?.updated_at
+              ) || "TBD"
+            }).`}
           </Typography>
           <BankFinancialSummariesDataGrid
             bankFinancialSummaries={filteredBankFinancialSummaries}
