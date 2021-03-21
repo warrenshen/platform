@@ -43,6 +43,17 @@ export function getSettlementTimelineConfigFromContract(
   return JSON.parse(settlmentTimelineConfigRaw);
 }
 
+// Deposit date for Reverse Draft ACH is always one business day.
+export function computeDepositDateForReverseDraftACH(
+  paymentDate: string | null
+) {
+  if (!paymentDate) {
+    return null;
+  }
+
+  return addBizDays(paymentDate, 1);
+}
+
 // Given a payment method and date use the given timeline config to compute when
 // we anticipate the payment will settle
 export function computeSettlementDateForPayment(

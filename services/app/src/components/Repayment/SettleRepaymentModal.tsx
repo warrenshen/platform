@@ -113,7 +113,9 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
           type: existingPayment.type,
           method: existingPayment.method,
           requested_amount: existingPayment.requested_amount,
-          amount: existingPayment.amount,
+          // For Reverse Draft ACH method, amount will have a value.
+          // For other methods, amount will not have a value so we use requested_amount.
+          amount: existingPayment.amount || existingPayment.requested_amount,
           requested_payment_date: existingPayment.requested_payment_date,
           payment_date: existingPayment.payment_date,
           deposit_date: existingPayment.payment_date, // Default deposit_date to payment_date

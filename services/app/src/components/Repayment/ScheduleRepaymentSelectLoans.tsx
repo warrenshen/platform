@@ -116,14 +116,29 @@ function ScheduleRepaymentSelectLoans({
         <DatePicker
           disabled
           className={classes.inputField}
-          id="settlement-date-date-picker"
+          id="deposit-date-date-picker"
           label="Expected Deposit Date"
           value={payment.deposit_date}
         />
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
-            Expected deposit date is the date we expect the payment to arrive to
+            Expected Deposit Date is the date we expect the payment to arrive to
             a Bespoke bank account.
+          </Typography>
+        </Box>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={3}>
+        <DatePicker
+          disabled
+          className={classes.inputField}
+          id="settlement-date-date-picker"
+          label="Expected Settlement Date"
+          value={payment.settlement_date}
+        />
+        <Box mt={1}>
+          <Typography variant="body2" color="textSecondary">
+            Expected Settlement Date is the date we expect the payment to be
+            applied to interest balance (deposit date plus Clearance Days).
           </Typography>
         </Box>
       </Box>

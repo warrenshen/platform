@@ -13,6 +13,7 @@ import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
 import {
   PaymentLimitedFragment,
+  Payments,
   useGetSubmittedPaymentsSubscription,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
@@ -45,31 +46,40 @@ function BankPaymentsActionRequiredPage() {
     return data?.payments || [];
   }, [data]);
 
-  // Schedule section
-  const [selectedScheduledPayments, setSelectedScheduledPayments] = useState<
-    PaymentLimitedFragment[]
+  // Reverse Draft ACH - schedule section
+  const [selectedSchedulePaymentIds, setSelectedSchedulePaymentIds] = useState<
+    Payments["id"]
   >([]);
 
   const handleSelectSchedulePayments = useMemo(
-    () => (payments: PaymentLimitedFragment[]) => {
-      setSelectedScheduledPayments(payments);
-    },
-    [setSelectedScheduledPayments]
+    () => (payments: PaymentLimitedFragment[]) =>
+      setSelectedSchedulePaymentIds(payments.map((payment) => payment.id)),
+    [setSelectedSchedulePaymentIds]
   );
 
-  let scheduledPaymentId = useMemo(() => {
-    if (selectedScheduledPayments.length > 0) {
-      return selectedScheduledPayments[0].id;
-    }
-    return "";
-  }, [selectedScheduledPayments]);
+  // Reverse Draft ACH - settle section
+  const [selectedSettlePaymentIds, setSelectedSettlePaymentIds] = useState<
+    Payments["id"]
+  >([]);
 
-  const seletedSchedulePaymentIds = useMemo(() => {
-    return selectedScheduledPayments.map((p) => {
-      return p.id;
-    });
-  }, [selectedScheduledPayments]);
+  const handleSelectSettlePayments = useMemo(
+    () => (payments: PaymentLimitedFragment[]) =>
+      setSelectedSettlePaymentIds(payments.map((payment) => payment.id)),
+    [setSelectedSettlePaymentIds]
+  );
 
+  // Not Reverse Draft ACH - settle section (notify)
+  const [selectedNotifyPaymentIds, setSelectedNotifyPaymentIds] = useState<
+    Payments["id"]
+  >([]);
+
+  const handleSelectNotifyPayments = useMemo(
+    () => (payments: PaymentLimitedFragment[]) =>
+      setSelectedNotifyPaymentIds(payments.map((payment) => payment.id)),
+    [setSelectedNotifyPaymentIds]
+  );
+
+  // Filtered payments
   const scheduledPayments = useMemo(
     () =>
       payments.filter(
@@ -94,31 +104,6 @@ function BankPaymentsActionRequiredPage() {
     });
   }, [payments]);
 
-  // Notify section
-  const [selectedNotifyPayments, setSelectedNotifyPayments] = useState<
-    PaymentLimitedFragment[]
-  >([]);
-
-  const seletedNotifyPaymentIds = useMemo(() => {
-    return selectedNotifyPayments.map((p) => {
-      return p.id;
-    });
-  }, [selectedNotifyPayments]);
-
-  const handleSelectNotifyPayments = useMemo(
-    () => (payments: PaymentLimitedFragment[]) => {
-      setSelectedNotifyPayments(payments);
-    },
-    [setSelectedNotifyPayments]
-  );
-
-  let notifyPaymentId = useMemo(() => {
-    if (selectedNotifyPayments.length > 0) {
-      return selectedNotifyPayments[0].id;
-    }
-    return "";
-  }, [selectedNotifyPayments]);
-
   return (
     <Page appBarTitle={"Payments - Action Required"}>
       <Box className={classes.container}>
@@ -130,13 +115,13 @@ function BankPaymentsActionRequiredPage() {
             <Can perform={Action.SettleRepayment}>
               <Box>
                 <ModalButton
-                  isDisabled={seletedSchedulePaymentIds.length !== 1}
+                  isDisabled={selectedSchedulePaymentIds.length !== 1}
                   label={"Submit Payment"}
                   modal={({ handleClose }) => (
                     <ScheduleRepaymentModal
-                      paymentId={scheduledPaymentId}
+                      paymentId={selectedSchedulePaymentIds[0]}
                       handleClose={() => {
-                        setSelectedScheduledPayments([]);
+                        setSelectedSchedulePaymentIds([]);
                         handleClose();
                       }}
                     />
@@ -153,7 +138,7 @@ function BankPaymentsActionRequiredPage() {
             payments={scheduledPayments}
             customerSearchQuery={""}
             onClickCustomerName={() => {}}
-            selectedPaymentIds={seletedSchedulePaymentIds}
+            selectedPaymentIds={selectedSchedulePaymentIds}
             handleSelectPayments={handleSelectSchedulePayments}
           />
         </Box>
@@ -166,13 +151,13 @@ function BankPaymentsActionRequiredPage() {
             <Can perform={Action.SettleRepayment}>
               <Box>
                 <ModalButton
-                  isDisabled={seletedSchedulePaymentIds.length !== 1}
+                  isDisabled={selectedSettlePaymentIds.length !== 1}
                   label={"Settle Payment"}
                   modal={({ handleClose }) => (
                     <SettleRepaymentModal
-                      paymentId={scheduledPaymentId}
+                      paymentId={selectedSettlePaymentIds[0]}
                       handleClose={() => {
-                        setSelectedScheduledPayments([]);
+                        setSelectedSettlePaymentIds([]);
                         handleClose();
                       }}
                     />
@@ -189,8 +174,8 @@ function BankPaymentsActionRequiredPage() {
             payments={pendingReverseDraftPayments}
             customerSearchQuery={""}
             onClickCustomerName={() => {}}
-            selectedPaymentIds={seletedSchedulePaymentIds}
-            handleSelectPayments={handleSelectSchedulePayments}
+            selectedPaymentIds={selectedSettlePaymentIds}
+            handleSelectPayments={handleSelectSettlePayments}
           />
         </Box>
         <Box className={classes.sectionSpace} />
@@ -200,13 +185,13 @@ function BankPaymentsActionRequiredPage() {
             <Can perform={Action.SettleRepayment}>
               <Box>
                 <ModalButton
-                  isDisabled={seletedNotifyPaymentIds.length !== 1}
+                  isDisabled={selectedNotifyPaymentIds.length !== 1}
                   label={"Settle Payment"}
                   modal={({ handleClose }) => (
                     <SettleRepaymentModal
-                      paymentId={notifyPaymentId}
+                      paymentId={selectedNotifyPaymentIds[0]}
                       handleClose={() => {
-                        setSelectedNotifyPayments([]);
+                        setSelectedNotifyPaymentIds([]);
                         handleClose();
                       }}
                     />
@@ -222,7 +207,7 @@ function BankPaymentsActionRequiredPage() {
             payments={notifyPayments}
             customerSearchQuery={""}
             onClickCustomerName={() => {}}
-            selectedPaymentIds={seletedNotifyPaymentIds}
+            selectedPaymentIds={selectedNotifyPaymentIds}
             handleSelectPayments={handleSelectNotifyPayments}
           />
         </Box>
