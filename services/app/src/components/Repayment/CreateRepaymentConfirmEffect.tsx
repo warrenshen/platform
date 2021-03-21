@@ -78,25 +78,29 @@ function CreateRepaymentConfirmEffect({
     <Box>
       {productType === ProductTypeEnum.LineOfCredit ? (
         <Box>
-          <Box display="flex" flexDirection="column">
-            <Typography variant="body1">
-              {`As of the settlement date, ${formatDateString(
-                payment.settlement_date
-              )}, your outstanding principal and interest will be:`}
-            </Typography>
-          </Box>
-          <Box mt={1}>
-            <Typography variant="body1">
-              {`Outstanding Principal: ${formatCurrency(
-                payableAmountPrincipal
-              )}`}
-            </Typography>
-          </Box>
-          <Box mt={1}>
-            <Typography variant="body1">
-              {`Outstanding Interest: ${formatCurrency(payableAmountInterest)}`}
-            </Typography>
-          </Box>
+          <Alert severity="info">
+            <Box display="flex" flexDirection="column">
+              <Typography variant="body1">
+                {`As of the settlement date, ${formatDateString(
+                  payment.settlement_date
+                )}, your outstanding principal and interest will be:`}
+              </Typography>
+            </Box>
+            <Box mt={1}>
+              <Typography variant="body1">
+                {`Outstanding Principal: ${formatCurrency(
+                  payableAmountPrincipal
+                )}`}
+              </Typography>
+            </Box>
+            <Box mt={1}>
+              <Typography variant="body1">
+                {`Outstanding Interest: ${formatCurrency(
+                  payableAmountInterest
+                )}`}
+              </Typography>
+            </Box>
+          </Alert>
           <Box mt={3}>
             <Typography variant="subtitle2">
               How much of your outstanding principal do you want to pay for?

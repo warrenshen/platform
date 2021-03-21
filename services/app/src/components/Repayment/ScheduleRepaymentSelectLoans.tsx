@@ -78,8 +78,8 @@ function ScheduleRepaymentSelectLoans({
   return payment && customer ? (
     <Box>
       <Box display="flex" flexDirection="column">
-        <Typography variant="body2">
-          {`${customer.name} submitted the following payment:`}
+        <Typography variant="body1">
+          {`${customer.name} submitted the following Reverse Draft ACH request:`}
         </Typography>
         <Box mt={1}>
           <RequestedRepaymentPreview payment={payment} />
@@ -88,7 +88,7 @@ function ScheduleRepaymentSelectLoans({
       <Box display="flex" flexDirection="column" mt={3}>
         <Box mb={1}>
           <Typography variant="subtitle2">
-            Step 1: specify payment date.
+            When did or will you trigger the Reverse Draft ACH?
           </Typography>
         </Box>
         <DatePicker

@@ -1565,6 +1565,6 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 					'to_interest': 0.0,
 				}, # to_interest is wrong here.
 			},
-			'in_err_msg': 'Requested breakdown of to_principal vs to_interest',
+			'in_err_msg': 'Sum of amount to principal',
 		}
 		self._run_test(test)

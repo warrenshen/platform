@@ -76,7 +76,7 @@ function SettleRepaymentSelectLoans({
   return payment && customer && payor ? (
     <Box>
       <Box display="flex" flexDirection="column">
-        <Typography variant="body2">
+        <Typography variant="body1">
           {`${payor.name} submitted the following payment:`}
         </Typography>
         <Box mt={1}>

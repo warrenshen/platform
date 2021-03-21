@@ -16,7 +16,7 @@ from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 
-# These inputs are seen by the Bank admin before sending them to the /settle_payment
+# These inputs are seen by the Bank admin before sending them to the /settle_repayment
 # handler.
 #
 # The admin has the ability to modify these values which is why we send it up to them.
@@ -564,7 +564,7 @@ def schedule_repayment(
 		to_principal = items_covered['to_principal']
 		to_interest = items_covered['to_interest']
 		if not number_util.float_eq(payment_amount, to_principal + to_interest):
-			return None, errors.Error(f'Requested breakdown of to_principal vs to_interest ({to_principal}, {to_interest}) does not sum up to requested amount ({payment_amount})')
+			return None, errors.Error(f'Sum of to principal ({to_principal}) and to interest ({to_interest}) does not equal payment amount ({payment_amount})', details=err_details)
 	else:
 		if 'loan_ids' not in items_covered:
 			return None, errors.Error('items_covered.loan_ids must be specified', details=err_details)
@@ -662,7 +662,7 @@ def settle_repayment(
 		to_principal = items_covered['to_principal']
 		to_interest = items_covered['to_interest']
 		if not number_util.float_eq(payment_amount, to_principal + to_interest + credit_to_user):
-			return None, errors.Error(f'Requested breakdown of to_principal vs to_interest ({to_principal}, {to_interest}) does not sum up to requested amount ({payment_amount})')
+			return None, errors.Error(f'Sum of amount to principal ({number_util.to_dollar_format(to_principal)}), amount to interest ({number_util.to_dollar_format(to_interest)}), and credit to user ({number_util.to_dollar_format(credit_to_user)}) does not equal payment amount ({number_util.to_dollar_format(payment_amount)})', details=err_details)
 	else:
 		if not items_covered or 'loan_ids' not in items_covered:
 			return None, errors.Error('items_covered.loan_ids must be specified', details=err_details)

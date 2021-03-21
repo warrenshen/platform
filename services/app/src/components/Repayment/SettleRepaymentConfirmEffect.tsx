@@ -6,8 +6,8 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import LoansBeforeAfterPaymentPreview from "components/Repayment/LoansBeforeAfterPaymentPreview";
-import RequestedRepaymentPreview from "components/Repayment/RequestedRepaymentPreview";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import {
   Companies,
@@ -56,38 +56,39 @@ function SettleRepaymentConfirmEffect({
 
   return (
     <Box>
-      <Box display="flex" flexDirection="column">
-        <Typography variant="body2">
-          {`${customer.name} submitted the following payment:`}
-        </Typography>
-        <Box mt={1}>
-          <RequestedRepaymentPreview payment={payment} />
-        </Box>
-      </Box>
       {productType === ProductTypeEnum.LineOfCredit ? (
-        <Box display="flex" flexDirection="column" mt={3}>
+        <Box display="flex" flexDirection="column">
           <Box mb={1}>
             <Typography variant="subtitle2">
               Step 3: review / edit how payment will be applied to loan(s).
             </Typography>
           </Box>
-          <Box display="flex" flexDirection="column">
-            <Typography variant="body1">
-              {`Before payment balances are as of the settlement date, ${formatDateString(
-                payment.settlement_date
-              )}.`}
-            </Typography>
-          </Box>
+          <Alert severity="info">
+            <Box display="flex" flexDirection="column">
+              <Typography variant="body1">
+                {`As of the settlement date, ${formatDateString(
+                  payment.settlement_date
+                )}, ${customer.name}'s balances will be:`}
+              </Typography>
+            </Box>
+            <Box mt={1}>
+              <Typography variant="body1">
+                {`Outstanding Principal: ${formatCurrency(
+                  payableAmountPrincipal
+                )}`}
+              </Typography>
+            </Box>
+            <Box mt={1}>
+              <Typography variant="body1">
+                {`Outstanding Interest: ${formatCurrency(
+                  payableAmountInterest
+                )}`}
+              </Typography>
+            </Box>
+          </Alert>
           <Box mt={1}>
             <Typography variant="body1">
-              {`Outstanding Principal: ${formatCurrency(
-                payableAmountPrincipal
-              )}`}
-            </Typography>
-          </Box>
-          <Box mt={1}>
-            <Typography variant="body1">
-              {`Outstanding Interest: ${formatCurrency(payableAmountInterest)}`}
+              {`Payment Amount: ${formatCurrency(payment.amount)}`}
             </Typography>
           </Box>
           <Box mt={1}>
@@ -125,14 +126,6 @@ function SettleRepaymentConfirmEffect({
                 }
               />
             </FormControl>
-          </Box>
-          <Box mt={1}>
-            <Typography variant="body1">
-              {`Calculated Payment Amount: ${formatCurrency(
-                payment.items_covered.to_principal +
-                  payment.items_covered.to_interest
-              )}`}
-            </Typography>
           </Box>
         </Box>
       ) : (
