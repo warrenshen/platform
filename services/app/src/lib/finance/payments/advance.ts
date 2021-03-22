@@ -2,15 +2,20 @@ import { ContractFragment } from "generated/graphql";
 import { addBizDays } from "lib/date";
 import { PaymentMethodEnum } from "lib/enum";
 
-// These default values are used when the there is no timeline config passed to our
-// computeSettlementDateForPayment function. Today, we use these values for the bank
-// itself as well.
-export const DefaultSettlementTimelineConfig = {
+// For a customer, these default values are used when the there is no
+// timeline config passed to the computeSettlementDateForPayment function.
+export const DefaultSettlementTimelineConfigForCustomer = {
   [PaymentMethodEnum.ACH]: 2,
   [PaymentMethodEnum.ReverseDraftACH]: 2,
   [PaymentMethodEnum.Wire]: 2,
-  [PaymentMethodEnum.Check]: 2,
-  [PaymentMethodEnum.Cash]: 2,
+  [PaymentMethodEnum.Check]: 5,
+  [PaymentMethodEnum.Cash]: 5,
+};
+
+// For an advance created by a bank user.
+export const SettlementTimelineConfigForBankAdvance = {
+  [PaymentMethodEnum.ACH]: 1,
+  [PaymentMethodEnum.Wire]: 0,
 };
 
 // If someone attempts to pay with a method for which their contract isn't configured
@@ -43,17 +48,6 @@ export function getSettlementTimelineConfigFromContract(
   return JSON.parse(settlmentTimelineConfigRaw);
 }
 
-// Deposit date for Reverse Draft ACH is always one business day.
-export function computeDepositDateForReverseDraftACH(
-  paymentDate: string | null
-) {
-  if (!paymentDate) {
-    return null;
-  }
-
-  return addBizDays(paymentDate, 1);
-}
-
 // Given a payment method and date use the given timeline config to compute when
 // we anticipate the payment will settle
 export function computeSettlementDateForPayment(
@@ -67,8 +61,11 @@ export function computeSettlementDateForPayment(
 
   const config = !!settlementTimelineConfig
     ? settlementTimelineConfig
-    : DefaultSettlementTimelineConfig;
+    : DefaultSettlementTimelineConfigForCustomer;
 
-  const days = config[paymentMethod] || DefaultSettlementDaysFallback;
+  const days =
+    paymentMethod in config
+      ? config[paymentMethod]
+      : DefaultSettlementDaysFallback;
   return addBizDays(paymentDate, days);
 }

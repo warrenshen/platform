@@ -16,7 +16,7 @@ import { authenticatedApi, loansRoutes } from "lib/api";
 import { todayAsDateStringServer } from "lib/date";
 import {
   computeSettlementDateForPayment,
-  DefaultSettlementTimelineConfig,
+  SettlementTimelineConfigForBankAdvance,
 } from "lib/finance/payments/advance";
 import { useContext, useEffect, useState } from "react";
 
@@ -68,17 +68,14 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
 
   useEffect(() => {
     if (payment.method && payment.payment_date) {
-      // We don't have a payment method here so we'll use None. We also don't have
-      // a real settlement timeline config here so we'll use the default.
-      // As of today (2021.03.02), this computed value will be two biz days after
-      // the payment date
       const settlementDate = computeSettlementDateForPayment(
         payment.method,
         payment.payment_date,
-        DefaultSettlementTimelineConfig
+        SettlementTimelineConfigForBankAdvance
       );
       setPayment((payment) => ({
         ...payment,
+        deposit_date: settlementDate,
         settlement_date: settlementDate,
       }));
     }

@@ -48,11 +48,16 @@ function PaymentAdvanceForm({
       <Box mt={3}>
         <Typography>
           You are recording advances(s) for the following loans. Please enter in
-          payment information for the advance sent out and then press "Submit".
+          payment information for the payment sent out and then press "Submit".
         </Typography>
       </Box>
       <Box mt={3}>
         <LoansDataGrid isSortingDisabled loans={selectedLoans} />
+      </Box>
+      <Box mt={3}>
+        <FormControl>
+          <CurrencyInput isDisabled label={"Amount"} value={payment.amount} />
+        </FormControl>
       </Box>
       <Box mt={3}>
         <FormControl className={classes.inputField}>
@@ -105,7 +110,7 @@ function PaymentAdvanceForm({
           disableNonBankDays
           className={classes.inputField}
           id="settlement-date-date-picker"
-          label="Settlement Date"
+          label="Deposit / Settlement Date"
           value={payment.settlement_date}
           onChange={(value) =>
             setPayment({
@@ -116,18 +121,13 @@ function PaymentAdvanceForm({
         />
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
-            Settlement date is the date the advance arrived or will arrive to
-            the recipient.
+            Deposit Date is the date the advance arrived or will arrive to the
+            recipient. For advances, Deposit Date equals Settlement Date.
           </Typography>
         </Box>
       </Box>
-      <Box mt={3}>
-        <FormControl>
-          <CurrencyInput isDisabled label={"Amount"} value={payment.amount} />
-        </FormControl>
-      </Box>
       <Box>
-        <Box mt={2}>
+        <Box mt={3}>
           <FormControlLabel
             control={
               <Checkbox

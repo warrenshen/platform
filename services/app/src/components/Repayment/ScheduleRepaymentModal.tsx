@@ -25,7 +25,6 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { PaymentOptionEnum } from "lib/enum";
 import {
-  computeDepositDateForReverseDraftACH,
   computeSettlementDateForPayment,
   getSettlementTimelineConfigFromContract,
 } from "lib/finance/payments/advance";
@@ -126,14 +125,13 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
 
   useEffect(() => {
     if (contract && payment?.method && payment?.payment_date) {
-      const depositDate = computeDepositDateForReverseDraftACH(
-        payment.payment_date
-      );
+      // For Reverse Draft ACH payment method, deposit date equals payment date.
+      const depositDate = payment.payment_date;
       const settlementTimelineConfig = getSettlementTimelineConfigFromContract(
         contract
       );
       const settlementDate = computeSettlementDateForPayment(
-        payment.method || null,
+        payment.method,
         depositDate,
         settlementTimelineConfig
       );

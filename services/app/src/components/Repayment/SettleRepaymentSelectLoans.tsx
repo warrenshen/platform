@@ -102,8 +102,8 @@ function SettleRepaymentSelectLoans({
         </Box>
         <Box mt={3} mb={1}>
           <Typography variant="subtitle2">
-            Step 2: specify payment and settlement date (settlement date will
-            change when payment date changes).
+            Step 2: specify Deposit Date and Settlment Date (Settlement Date
+            will automatically change when Deposit Date changes).
           </Typography>
         </Box>
         <DatePicker

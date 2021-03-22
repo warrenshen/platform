@@ -6,20 +6,16 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import { Alert } from "@material-ui/lab";
 import LoansBeforeAfterPaymentPreview from "components/Repayment/LoansBeforeAfterPaymentPreview";
 import RequestedRepaymentPreview from "components/Repayment/RequestedRepaymentPreview";
-import CompanyBank from "components/Shared/BankToBankTransfer/CompanyBank";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import {
-  BankAccounts,
   Companies,
   PaymentsInsertInput,
   ProductTypeEnum,
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
-import { PaymentMethodEnum } from "lib/enum";
 import { LoanBeforeAfterPayment } from "lib/types";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -156,42 +152,6 @@ function ScheduleRepaymentConfirmEffect({
           </Box>
         </Box>
       )}
-      <Box mt={2}>
-        {payment.requested_amount <= 0 && (
-          <Box>No amount is currently due. No further action is required</Box>
-        )}
-        {payment.requested_amount > 0 && (
-          <Box>
-            {payment.method === PaymentMethodEnum.ReverseDraftACH && (
-              <Box>
-                <Box mb={2}>
-                  <Typography variant="body1">
-                    Please specify which bank account you want Bespoke to
-                    withdraw the payment amount from.
-                  </Typography>
-                </Box>
-                <CompanyBank
-                  companyId={payment.company_id}
-                  onCompanyBankAccountSelection={(id: BankAccounts["id"]) =>
-                    setPayment({ ...payment, company_bank_account_id: id })
-                  }
-                />
-                <Box mt={2}>
-                  <Alert severity="info">
-                    Click "Schedule" for Bespoke to initiate this transfer for{" "}
-                    <b>{formatCurrency(payment.requested_amount)}</b> from your
-                    bank account.
-                    <br />
-                    <br />
-                    Upon receipt Bespoke will mark this payment as "settled,"
-                    and apply towards outstanding loans and fees accordingly.{" "}
-                  </Alert>{" "}
-                </Box>
-              </Box>
-            )}
-          </Box>
-        )}
-      </Box>
     </Box>
   );
 }

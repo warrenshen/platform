@@ -206,7 +206,9 @@ function CreateRepaymentSelectLoans({
             </Box>
           </Box>
           <Box mt={3}>
-            <Typography variant="subtitle2">Settlement Date</Typography>
+            <Typography variant="subtitle2">
+              What is my expected settlement date?
+            </Typography>
             <Typography variant="body2">
               {`Based on your payment method and ${
                 isReverseDraftACH ? "requested" : "specified"
