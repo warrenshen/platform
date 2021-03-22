@@ -5,7 +5,8 @@ from typing import Dict, List, cast
 
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.db_constants import LoanStatusEnum, LoanTypeEnum, ProductType
+from bespoke.db.db_constants import (LoanStatusEnum, LoanTypeEnum,
+                                     PaymentMethodEnum, ProductType)
 from bespoke.db.models import session_scope
 from bespoke.finance import number_util
 from bespoke.finance.payments import advance_util, payment_util
@@ -121,7 +122,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				type='unused',
 				requested_amount=None,
 				amount=payment_amount,
-				method='ach',
+				method=test['payment_method'] if 'payment_method' in test else PaymentMethodEnum.ACH,
 				requested_payment_date=None,
 				payment_date=payment_date,
 				settlement_date=settlement_date,
@@ -135,8 +136,12 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 			bank_admin_user_id=bank_admin_user_id,
 			session_maker=session_maker
 		)
-		self.assertIsNone(err)
-		self.assertEqual('OK', resp.get('status'), msg=err)
+		if test.get('in_err_msg'):
+			self.assertIn(test['in_err_msg'], err.msg)
+			return
+		else:
+			self.assertIsNone(err)
+			self.assertEqual('OK', resp.get('status'), msg=err)
 
 		# Run validations
 		with session_scope(session_maker) as session:
@@ -183,7 +188,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				self.assertEqual(exp_company_id, payment.company_id)
 
 				if exp_payment['type'] == 'advance':
-					self.assertEqual('ach', payment.method)
+					self.assertEqual(exp_payment['method'] if 'method' in exp_payment else PaymentMethodEnum.ACH, payment.method)
 					self.assertEqual(settlement_date, date_util.date_to_str(payment.deposit_date))
 				else:
 					# No payment method associated with fees or credits
@@ -212,7 +217,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				transaction = transactions[i]
 				exp_transaction = test['expected_transactions'][i]
 				exp_company_id = seed.get_company_id('company_admin', index=exp_payment['company_index'])
-				
+
 				self.assertAlmostEqual(exp_transaction['amount'], float(transaction.amount))
 				self.assertEqual(exp_transaction['type'], transaction.type)
 				self.assertEqual(exp_transaction.get('subtype'), transaction.subtype)
@@ -221,10 +226,10 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					self.assertAlmostEqual(0.0, float(transaction.to_principal))
 				else:
 					self.assertAlmostEqual(exp_transaction['amount'], float(transaction.to_principal))
-				
+
 				self.assertAlmostEqual(0.0, float(transaction.to_interest))
 				self.assertAlmostEqual(0.0, float(transaction.to_fees))
-				
+
 				loan_index = exp_transaction['loan_index']
 				if loan_index is None:
 					self.assertIsNone(transaction.loan_id)
@@ -235,7 +240,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				matching_payment = payments[exp_transaction['payment_index']]
 				self.assertEqual(matching_payment.settlement_date, transaction.effective_date)
 				self.assertEqual(matching_payment.id, transaction.payment_id)
-				
+
 				self.assertEqual(bank_admin_user_id, transaction.created_by_user_id)
 
 			for purchase_order_id in test.get('expected_funded_purchase_order_ids', []):
@@ -275,6 +280,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					}
 				],
 				'should_charge_wire_fee': True,
+				'payment_method': PaymentMethodEnum.WIRE,
 				'payment_date': '10/18/2020',
 				'settlement_date':  '10/20/2020',
 				'company_indices': [0, 0],
@@ -295,7 +301,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					{
 						'amount': 30.03,
 						'company_index': 0,
-						'type': 'advance'
+						'type': 'advance',
+						'method': PaymentMethodEnum.WIRE,
 					},
 					{
 						'amount': 50.00,
@@ -365,6 +372,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					}
 				],
 				'should_charge_wire_fee': True,
+				'payment_method': PaymentMethodEnum.WIRE,
 				'payment_date': '10/18/2020',
 				'settlement_date':  '10/20/2020',
 				'company_indices': [0, 1, 0, 1],
@@ -396,7 +404,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					{
 						'amount': 10.01 + 30.03,
 						'company_index': 0,
-						'type': 'advance'
+						'type': 'advance',
+						'method': PaymentMethodEnum.WIRE,
 					},
 					{
 						'amount': 50.00,
@@ -411,7 +420,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					{
 						'amount': 20.02 + 40.04,
 						'company_index': 1,
-						'type': 'advance'
+						'type': 'advance',
+						'method': PaymentMethodEnum.WIRE,
 					}
 				],
 				'expected_transactions': [
@@ -809,6 +819,93 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				'expected_unfunded_purchase_order_ids': [
 					'a012e58e-6378-450c-a753-943533f7ae89',
 				]
+			}
+		]
+
+		for test in tests:
+			self._run_test(test)
+
+	def test_failure_wire_fee_but_not_wire_method(self) -> None:
+		tests: List[Dict] = [
+			{
+				'comment': 'Tests that it is invalid to try to charge a wire fee if payment method is not Wire',
+				'contracts_by_company_index': {
+					0: [
+						_get_default_contract(
+							use_preceeding_business_day=False,
+							days_until_repayment=10,
+							wire_fee=50.0,
+						)
+					],
+					1: [
+						_get_default_contract(
+							use_preceeding_business_day=False,
+							days_until_repayment=20,
+							wire_fee=60.0
+						)
+					]
+				},
+				'loans': [
+					{
+						'amount': 10.01,
+					},
+					{
+						'amount': 20.02,
+					}
+				],
+				'should_charge_wire_fee': True,
+				'payment_method': PaymentMethodEnum.ACH, # This is wrong, it conflicts with should_charge_wire_fee.
+				'payment_date': '10/18/2020',
+				'settlement_date':  '10/20/2020',
+				'company_indices': [0, 0],
+				'payment_input_amount': 30.03,
+				'expected_loans': [
+					{
+						'amount': 10.01,
+						'maturity_date': '10/30/2020',
+						'adjusted_maturity_date': '10/30/2020'
+					},
+					{
+						'amount': 20.02,
+						'maturity_date': '10/30/2020',
+						'adjusted_maturity_date': '10/30/2020'
+					}
+				],
+				'expected_payments': [
+					{
+						'amount': 30.03,
+						'company_index': 0,
+						'type': 'advance',
+						'method': PaymentMethodEnum.WIRE,
+					},
+					{
+						'amount': 50.00,
+						'company_index': 0,
+						'type': 'fee'
+					}
+				],
+				'expected_transactions': [
+					{
+						'amount': 10.01,
+						'loan_index': 0,
+						'payment_index': 0,
+						'type': 'advance'
+					},
+					{
+						'amount': 20.02,
+						'loan_index': 1,
+						'payment_index': 0,
+						'type': 'advance'
+					},
+					{
+						'amount': 50.00,
+						'loan_index': None,
+						'payment_index': 1,
+						'type': 'fee',
+						'subtype': 'wire_fee'
+					}
+				],
+				'in_err_msg': 'Cannot charge wire fee if payment method is not Wire',
 			}
 		]
 

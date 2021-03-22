@@ -114,6 +114,12 @@ def fund_loans_with_advance(
 		if err:
 			return None, err
 
+		payment_method = payment_input['method']
+		should_charge_wire_fee = req['should_charge_wire_fee']
+
+		if payment_method != db_constants.PaymentMethodEnum.WIRE and should_charge_wire_fee is True:
+			return None, errors.Error('Cannot charge wire fee if payment method is not Wire', details=err_details)
+
 		payment_date = date_util.load_date_str(payment_input['payment_date'])
 		settlement_date = date_util.load_date_str(payment_input['settlement_date'])
 
@@ -122,7 +128,7 @@ def fund_loans_with_advance(
 			payment = payment_util.create_payment(company_id, payment_util.PaymentInputDict(
 				type=db_constants.PaymentType.ADVANCE,
 				amount=amount_to_company,
-				payment_method=payment_input['method']
+				payment_method=payment_method,
 			),
 			user_id=bank_admin_user_id)
 			payment_util.make_advance_payment_settled(
@@ -150,7 +156,7 @@ def fund_loans_with_advance(
 				t.effective_date = settlement_date
 				session.add(t)
 
-			if req['should_charge_wire_fee']:
+			if should_charge_wire_fee:
 				cur_contract = contracts_by_company_id[company_id]
 				cur_wire_fee, err = cur_contract.get_wire_fee()
 				if err:

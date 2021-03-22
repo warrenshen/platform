@@ -87,10 +87,10 @@ function PaymentAdvanceForm({
       </Box>
       <Box display="flex" flexDirection="column" mt={3}>
         <DatePicker
+          disableNonBankDays
           className={classes.inputField}
           id="payment-date-date-picker"
           label="Payment Date"
-          disableNonBankDays
           value={payment.payment_date}
           onChange={(value) =>
             setPayment({
@@ -126,7 +126,7 @@ function PaymentAdvanceForm({
           </Typography>
         </Box>
       </Box>
-      <Box>
+      {payment.method === PaymentMethodEnum.Wire && (
         <Box mt={3}>
           <FormControlLabel
             control={
@@ -138,10 +138,10 @@ function PaymentAdvanceForm({
                 color="primary"
               />
             }
-            label={"Charge Wire Fee"}
+            label={"Charge Wire Fee?"}
           />
         </Box>
-      </Box>
+      )}
     </Box>
   );
 }

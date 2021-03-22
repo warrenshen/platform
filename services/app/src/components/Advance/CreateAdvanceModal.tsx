@@ -14,6 +14,7 @@ import { LoanFragment, PaymentsInsertInput } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, loansRoutes } from "lib/api";
 import { todayAsDateStringServer } from "lib/date";
+import { PaymentMethodEnum } from "lib/enum";
 import {
   computeSettlementDateForPayment,
   SettlementTimelineConfigForBankAdvance,
@@ -67,6 +68,8 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
   const [shouldChargeWireFee, setShouldChargeWireFee] = useState(false);
 
   useEffect(() => {
+    // When user changes payment method or payment date,
+    // automatically update expect deposit and settlement dates.
     if (payment.method && payment.payment_date) {
       const settlementDate = computeSettlementDateForPayment(
         payment.method,
@@ -80,6 +83,27 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
       }));
     }
   }, [payment.method, payment.payment_date, setPayment]);
+
+  useEffect(() => {
+    // If user selects payment method Wire and amount greater than $25,000,
+    // automatically check the "Charge Wire Fee" checkbox.
+    if (payment.method === PaymentMethodEnum.Wire && payment.amount > 25000) {
+      setShouldChargeWireFee(true);
+      snackbar.showInfo(
+        '"Charge Wire Fee?" auto-checked because amount is greater than $25,000.'
+      );
+    } else if (payment.method !== PaymentMethodEnum.Wire) {
+      setShouldChargeWireFee(false);
+      // Do not show a snackbar here since the "Charge Wire Fee?" checkbox
+      // is not shown when payment method is not Wire.
+    }
+  }, [
+    payment.method,
+    payment.amount,
+    snackbar,
+    setPayment,
+    setShouldChargeWireFee,
+  ]);
 
   const handleClickSubmit = async () => {
     const params = {
