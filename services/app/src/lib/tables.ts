@@ -1,8 +1,9 @@
 export const ColumnWidths = {
   // Fixed width columns.
   Currency: 140,
-  Date: 120,
-  Status: 120,
+  Date: 140,
+  DateContract: 220,
+  Status: 140,
   Type: 160,
   Actions: 75,
 

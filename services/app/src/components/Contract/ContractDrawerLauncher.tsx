@@ -5,11 +5,12 @@ import { truncateUuid } from "lib/uuid";
 import { ReactNode, useState } from "react";
 
 interface Props {
+  label?: string;
   contractId: Contracts["id"];
   children?: (handleClick: () => void) => ReactNode;
 }
 
-function Launcher({ contractId, children }: Props) {
+function Launcher({ label, contractId, children }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -24,8 +25,8 @@ function Launcher({ contractId, children }: Props) {
         children(() => setIsOpen(true))
       ) : (
         <ClickableDataGridCell
+          label={label || truncateUuid(contractId)}
           onClick={() => setIsOpen(true)}
-          label={truncateUuid(contractId)}
         />
       )}
     </>

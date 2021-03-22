@@ -15818,6 +15818,7 @@ export type ContractFragment = Pick<
   | "start_date"
   | "end_date"
   | "adjusted_end_date"
+  | "terminated_at"
 >;
 
 export type VendorPartnershipFragment = Pick<
@@ -16495,6 +16496,7 @@ export const ContractFragmentDoc = gql`
     start_date
     end_date
     adjusted_end_date
+    terminated_at
   }
 `;
 export const VendorPartnershipFragmentDoc = gql`

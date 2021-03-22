@@ -93,17 +93,6 @@ function ContractDrawer({ contractId, handleClose }: Props) {
     <Drawer open anchor="right" onClose={handleClose}>
       <Box className={classes.drawerContent} p={4}>
         <Typography variant="h5">Contract</Typography>
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="flex-start"
-          mt={2}
-        >
-          <Typography variant="subtitle2" color="textSecondary">
-            Platform ID
-          </Typography>
-          <Typography variant={"body1"}>{contract.id}</Typography>
-        </Box>
         <Box display="flex" flexDirection="column">
           {isBankUser && (
             <Box display="flex" flexDirection="column" mt={2}>
@@ -162,6 +151,17 @@ function ContractDrawer({ contractId, handleClose }: Props) {
                 ))}
               </Box>
             ))}
+          </Box>
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="flex-start"
+            mt={2}
+          >
+            <Typography variant="subtitle2" color="textSecondary">
+              Platform ID
+            </Typography>
+            <Typography variant={"body1"}>{contract.id}</Typography>
           </Box>
         </Box>
       </Box>

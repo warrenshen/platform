@@ -133,7 +133,7 @@ function ReviewPurchaseOrderPage(props: Props) {
         </Box>
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">
-            Order Number
+            PO Number
           </Typography>
           <Typography variant={"body1"}>
             {purchaseOrder.order_number}
@@ -149,7 +149,7 @@ function ReviewPurchaseOrderPage(props: Props) {
         </Box>
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">
-            Order Date
+            PO Date
           </Typography>
           <Typography variant={"body1"}>
             {formatDateString(purchaseOrder.order_date)}
@@ -165,7 +165,7 @@ function ReviewPurchaseOrderPage(props: Props) {
         </Box>
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">
-            Debtor
+            Buyer
           </Typography>
           <Typography variant={"body1"}>
             {purchaseOrder.company?.name}

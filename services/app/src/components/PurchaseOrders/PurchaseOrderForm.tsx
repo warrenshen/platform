@@ -110,7 +110,7 @@ function PurchaseOrderForm({
       <Box mt={2}>
         <TextField
           className={classes.inputField}
-          label="Order Number"
+          label="PO Number"
           value={purchaseOrder.order_number}
           onChange={({ target: { value } }) =>
             setPurchaseOrder({
@@ -124,7 +124,7 @@ function PurchaseOrderForm({
         <DatePicker
           className={classes.inputField}
           id="order-date-date-picker"
-          label="Order Date"
+          label="PO Date"
           value={purchaseOrder.order_date}
           onChange={(value) =>
             setPurchaseOrder({

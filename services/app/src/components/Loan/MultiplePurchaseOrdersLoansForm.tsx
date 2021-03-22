@@ -35,7 +35,7 @@ const columns = [
   },
   {
     dataField: "order_number",
-    caption: "Order Number",
+    caption: "PO Number",
     minWidth: ColumnWidths.Type,
     cellRender: (params: ValueFormatterParams) => (
       <span>{params.row.data.artifact.order_number}</span>
@@ -58,7 +58,7 @@ const columns = [
     ),
   },
   {
-    caption: "Order Date",
+    caption: "PO Date",
     width: ColumnWidths.Date,
     alignment: "center",
     cellRender: (params: ValueFormatterParams) => (

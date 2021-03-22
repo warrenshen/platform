@@ -50,7 +50,7 @@ function PurchaseOrdersDataGrid({
     () => [
       {
         dataField: "order_number",
-        caption: "Order Number",
+        caption: "PO Number",
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <PurchaseOrderDrawerLauncher
@@ -101,7 +101,7 @@ function PurchaseOrdersDataGrid({
         ),
       },
       {
-        caption: "Order Date",
+        caption: "PO Date",
         dataField: "order_date",
         width: ColumnWidths.Date,
         alignment: "center",

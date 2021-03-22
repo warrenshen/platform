@@ -50,6 +50,7 @@ fragment Contract on contracts {
   start_date
   end_date
   adjusted_end_date
+  terminated_at
 }
 
 ## Purchase Order Financing

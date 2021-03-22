@@ -5,6 +5,7 @@ const useStyles = makeStyles({
   clickableCell: {
     color: "var(--table-accent-color)",
     minWidth: 0,
+    textAlign: "left",
     textTransform: "initial",
     padding: "4px",
     "&:hover": {

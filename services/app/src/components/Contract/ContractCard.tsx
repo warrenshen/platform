@@ -26,11 +26,11 @@ interface Props {
 const useStyles = makeStyles(() =>
   createStyles({
     card: {
-      width: 300,
+      width: 420,
       minHeight: 100,
     },
     label: {
-      width: 130,
+      width: 200,
       color: grey[600],
     },
   })
@@ -48,7 +48,7 @@ function ContractCard({ contract, handleDataChange }: Props) {
             <Box>{ProductTypeToLabel[contract.product_type]}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
-            <Box className={classes.label}>Start Date</Box>
+            <Box className={classes.label}>Contract Start Date</Box>
             <Box>
               {contract.start_date
                 ? formatDateString(contract.start_date)
@@ -56,9 +56,17 @@ function ContractCard({ contract, handleDataChange }: Props) {
             </Box>
           </Box>
           <Box display="flex" pb={0.25}>
-            <Box className={classes.label}>End Date</Box>
+            <Box className={classes.label}>Contract Expected End Date</Box>
             <Box>
               {contract.end_date ? formatDateString(contract.end_date) : "-"}
+            </Box>
+          </Box>
+          <Box display="flex" pb={0.25}>
+            <Box className={classes.label}>Contract Termination Date</Box>
+            <Box>
+              {!!contract.terminated_at
+                ? formatDateString(contract.adjusted_end_date)
+                : "TBD"}
             </Box>
           </Box>
           <Box display="flex" flexDirection="column" pb={0.25}>

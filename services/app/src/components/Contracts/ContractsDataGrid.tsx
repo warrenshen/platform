@@ -4,6 +4,7 @@ import ContractDrawerLauncher from "components/Contract/ContractDrawerLauncher";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { ContractFragment, ProductTypeEnum } from "generated/graphql";
+import { formatDateString } from "lib/date";
 import { ProductTypeToLabel } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
@@ -25,23 +26,27 @@ function ContractsDataGrid({
       {
         dataField: "id",
         caption: "Platform ID",
-        width: 120,
+        minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
-          <ContractDrawerLauncher contractId={params.row.data.id} />
+          <ContractDrawerLauncher
+            label={`${formatDateString(
+              params.row.data.start_date
+            )} - ${formatDateString(params.row.data.adjusted_end_date)}`}
+            contractId={params.row.data.id}
+          />
         ),
       },
       {
         dataField: "product_type",
         caption: "Product Type",
         width: ColumnWidths.Type,
-        alignment: "center",
         cellRender: (params: ValueFormatterParams) =>
           ProductTypeToLabel[params.row.data.product_type as ProductTypeEnum],
       },
       {
         dataField: "start_date",
-        caption: "Start Date",
-        width: ColumnWidths.Date,
+        caption: "Contract Start Date",
+        width: ColumnWidths.DateContract,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.start_date} />
@@ -49,8 +54,8 @@ function ContractsDataGrid({
       },
       {
         dataField: "end_date",
-        caption: "End Date",
-        width: ColumnWidths.Date,
+        caption: "Contract Expected End Date",
+        width: ColumnWidths.DateContract,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.end_date} />
@@ -58,12 +63,15 @@ function ContractsDataGrid({
       },
       {
         dataField: "adjusted_end_date",
-        caption: "Termination Date",
-        width: ColumnWidths.Date,
+        caption: "Contract Termination Date",
+        width: ColumnWidths.DateContract,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.adjusted_end_date} />
-        ),
+        cellRender: (params: ValueFormatterParams) =>
+          !!params.row.data.terminated_at ? (
+            <DateDataGridCell dateString={params.row.data.adjusted_end_date} />
+          ) : (
+            "TBD"
+          ),
       },
     ],
     []
