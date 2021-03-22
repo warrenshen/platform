@@ -53,12 +53,6 @@ function CustomerFinancialSummaryOverview({
   }
   return (
     <Box display="flex" flexDirection="column">
-      <Typography variant="h6" gutterBottom={true}>
-        Dashboard
-      </Typography>
-      <Typography variant="body2" gutterBottom={true}>
-        Note: dashboard is updated every minute.
-      </Typography>
       {isBalanceVisible && (
         <>
           <Box>
@@ -113,56 +107,58 @@ function CustomerFinancialSummaryOverview({
             </Box>
           </Box>
           <Box mt={1} />
+          <Box>
+            <h3>Account</h3>
+          </Box>
+          <Box display="flex" justifyContent="space-between" width="100%">
+            <Box className={classes.box}>
+              <Card>
+                <Box display="flex" flexDirection="column" p={2}>
+                  <Typography variant="h4">
+                    {minimumMonthlyFee !== -1
+                      ? formatCurrency(minimumMonthlyFee)
+                      : "TBD"}
+                  </Typography>
+                  <Typography variant="subtitle1" color="textSecondary">
+                    Minimum Monthly Fee
+                  </Typography>
+                </Box>
+              </Card>
+            </Box>
+            <Box className={classes.box}>
+              <Card>
+                <Box display="flex" flexDirection="column" p={2}>
+                  <Typography variant="h4">
+                    {accountFees !== -1 ? formatCurrency(accountFees) : "TBD"}
+                  </Typography>
+                  <Typography variant="subtitle1" color="textSecondary">
+                    Account Fees
+                  </Typography>
+                </Box>
+              </Card>
+            </Box>
+            <Box className={classes.box}>
+              <Card>
+                <Box display="flex" flexDirection="column" p={2}>
+                  <Typography variant="h4">
+                    {accountCredits !== -1
+                      ? formatCurrency(accountCredits)
+                      : "TBD"}
+                  </Typography>
+                  <Typography variant="subtitle1" color="textSecondary">
+                    Account Credits
+                  </Typography>
+                </Box>
+              </Card>
+            </Box>
+            <Box mt={1} />
+          </Box>
+          <Box>
+            <h3>Limits</h3>
+          </Box>
+          <Box mt={1} />
         </>
       )}
-      <Box>
-        <h3>Account</h3>
-      </Box>
-      <Box display="flex" justifyContent="space-between" width="100%">
-        <Box className={classes.box}>
-          <Card>
-            <Box display="flex" flexDirection="column" p={2}>
-              <Typography variant="h4">
-                {minimumMonthlyFee !== -1
-                  ? formatCurrency(minimumMonthlyFee)
-                  : "TBD"}
-              </Typography>
-              <Typography variant="subtitle1" color="textSecondary">
-                Minimum Monthly Fee
-              </Typography>
-            </Box>
-          </Card>
-        </Box>
-        <Box className={classes.box}>
-          <Card>
-            <Box display="flex" flexDirection="column" p={2}>
-              <Typography variant="h4">
-                {accountFees !== -1 ? formatCurrency(accountFees) : "TBD"}
-              </Typography>
-              <Typography variant="subtitle1" color="textSecondary">
-                Account Fees
-              </Typography>
-            </Box>
-          </Card>
-        </Box>
-        <Box className={classes.box}>
-          <Card>
-            <Box display="flex" flexDirection="column" p={2}>
-              <Typography variant="h4">
-                {accountCredits !== -1 ? formatCurrency(accountCredits) : "TBD"}
-              </Typography>
-              <Typography variant="subtitle1" color="textSecondary">
-                Account Credits
-              </Typography>
-            </Box>
-          </Card>
-        </Box>
-        <Box mt={1} />
-      </Box>
-      <Box>
-        <h3>Limits</h3>
-      </Box>
-      <Box mt={1} />
       <StatBox financialSummary={financialSummary} />
     </Box>
   );

@@ -2,6 +2,8 @@ import {
   Box,
   createStyles,
   makeStyles,
+  Tab,
+  Tabs,
   Theme,
   Typography,
 } from "@material-ui/core";
@@ -9,11 +11,16 @@ import { Alert } from "@material-ui/lab";
 import CustomerFinancialSummaryOverview from "components/CustomerFinancialSummary/CustomerFinancialSummaryOverview";
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { useGetActiveLoansForCompanyQuery } from "generated/graphql";
+import {
+  ProductTypeEnum,
+  useGetActiveLoansForCompanyQuery,
+} from "generated/graphql";
 import { ProductTypeToLoanType } from "lib/enum";
+import { customerRoutes } from "lib/routes";
 import LoansActiveFunded from "pages/Customer/LoansActive/LoansActiveFunded";
 import LoansActiveNotFunded from "pages/Customer/LoansActive/LoansActiveNotFunded";
 import { useContext } from "react";
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -35,6 +42,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function CustomerLoansActivePage() {
   const classes = useStyles();
+  const history = useHistory();
 
   const {
     user: { companyId, productType },
@@ -64,7 +72,20 @@ function CustomerLoansActivePage() {
 
   return (
     <Page appBarTitle={"Loans - Active"}>
-      <Box className={classes.container}>
+      <Tabs
+        value={0}
+        indicatorColor="primary"
+        textColor="primary"
+        onChange={(_event: any, value: number) => {
+          if (value === 1) {
+            history.push(customerRoutes.loansClosed);
+          }
+        }}
+      >
+        <Tab label="Active Loans" />
+        <Tab label="Closed Loans" />
+      </Tabs>
+      <Box className={classes.container} mt={3}>
         <Box className={classes.section}>
           <Typography variant="h6">
             Request a new loan, edit an existing loan, and view active loans
@@ -97,11 +118,15 @@ function CustomerLoansActivePage() {
           <Typography variant="h6">Loans - Not Funded</Typography>
           <LoansActiveNotFunded data={data} handleDataChange={refetch} />
         </Box>
-        <Box className={classes.sectionSpace} />
-        <Box className={classes.section}>
-          <Typography variant="h6">Loans - Funded</Typography>
-          <LoansActiveFunded data={data} handleDataChange={refetch} />
-        </Box>
+        {productType !== ProductTypeEnum.LineOfCredit && (
+          <>
+            <Box className={classes.sectionSpace} />
+            <Box className={classes.section}>
+              <Typography variant="h6">Loans - Funded</Typography>
+              <LoansActiveFunded data={data} handleDataChange={refetch} />
+            </Box>
+          </>
+        )}
       </Box>
     </Page>
   );

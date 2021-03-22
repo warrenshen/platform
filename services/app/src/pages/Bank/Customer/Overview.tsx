@@ -15,7 +15,7 @@ import {
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { ProductTypeToLoanType } from "lib/enum";
-import React, { useContext } from "react";
+import { useContext } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

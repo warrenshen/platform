@@ -74,17 +74,45 @@ function CustomerOverviewPage() {
     <Page appBarTitle={"Overview"}>
       <Box className={classes.container}>
         <Box className={classes.section}>
+          <Typography variant="h6" gutterBottom={true}>
+            Dashboard
+          </Typography>
+          <Typography variant="body2" gutterBottom={true}>
+            Note: dashboard is updated every minute.
+          </Typography>
           <CustomerFinancialSummaryOverview
             financialSummary={financialSummary}
           />
         </Box>
         <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
-          <Typography variant="h6">
-            {`Pending Payments${
-              payments.length > 0 ? ` (${payments.length})` : ""
-            }`}
-          </Typography>
+          <Box display="flex" justifyContent="space-between">
+            <Typography variant="h6">
+              {`Pending Payments${
+                payments.length > 0 ? ` (${payments.length})` : ""
+              }`}
+            </Typography>
+            {productType === ProductTypeEnum.LineOfCredit && (
+              <Can perform={Action.RepayPurchaseOrderLoans}>
+                <Box display="flex" flexDirection="row-reverse" mb={2}>
+                  <ModalButton
+                    label={"Make Payment"}
+                    modal={({ handleClose }) => (
+                      <CreateRepaymentModal
+                        companyId={companyId}
+                        productType={productType}
+                        selectedLoans={[]}
+                        handleClose={() => {
+                          refetch();
+                          handleClose();
+                        }}
+                      />
+                    )}
+                  />
+                </Box>
+              </Can>
+            )}
+          </Box>
           <Box display="flex" flex={1}>
             <Box display="flex" flexDirection="column" width="100%">
               <Box display="flex" flex={1}>

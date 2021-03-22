@@ -2,6 +2,8 @@ import {
   Box,
   createStyles,
   makeStyles,
+  Tab,
+  Tabs,
   Theme,
   Typography,
 } from "@material-ui/core";
@@ -11,7 +13,9 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useGetClosedLoansForCompanyQuery } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { ProductTypeToLoanType } from "lib/enum";
+import { customerRoutes } from "lib/routes";
 import { useContext } from "react";
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -33,6 +37,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function CustomerLoansClosedPage() {
   const classes = useStyles();
+  const history = useHistory();
 
   const {
     user: { companyId, productType, role },
@@ -59,7 +64,20 @@ function CustomerLoansClosedPage() {
 
   return (
     <Page appBarTitle={"Loans - Closed"}>
-      <Box className={classes.container}>
+      <Tabs
+        value={1}
+        indicatorColor="primary"
+        textColor="primary"
+        onChange={(_event: any, value: number) => {
+          if (value === 0) {
+            history.push(customerRoutes.loansActive);
+          }
+        }}
+      >
+        <Tab label="Active Loans" />
+        <Tab label="Closed Loans" />
+      </Tabs>
+      <Box className={classes.container} mt={3}>
         <Box className={classes.section}>
           <Typography variant="h6">View your closed loans.</Typography>
         </Box>

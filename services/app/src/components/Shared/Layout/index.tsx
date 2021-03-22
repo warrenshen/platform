@@ -102,18 +102,7 @@ const getCustomerNavItems = (
     {
       visible: productType !== null,
       text: "Loans",
-      items: [
-        {
-          text: "Loans - Active",
-          link: customerRoutes.loansActive,
-          icon: <PaymentIcon />,
-        },
-        {
-          text: "Loans - Closed",
-          link: customerRoutes.loansClosed,
-          icon: <PaymentIcon />,
-        },
-      ],
+      link: customerRoutes.loansActive,
     },
     {
       visible:
