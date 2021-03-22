@@ -16,64 +16,68 @@ const useStyles = makeStyles({
 });
 
 interface Props {
+  role: UserRolesEnum;
   bankAccount: BankAccountsInsertInput;
   setBankAccount: (update: BankAccountsInsertInput) => void;
-  role: UserRolesEnum;
 }
 
 function BankAccountForm({ bankAccount, setBankAccount, role }: Props) {
   const classes = useStyles();
 
   return (
-    <Box
-      mt={1}
-      mb={3}
-      display="flex"
-      flexDirection="column"
-      className={classes.form}
-    >
-      <TextField
-        label="Bank Name"
-        required
-        value={bankAccount.bank_name}
-        onChange={({ target: { value } }) => {
-          setBankAccount({ ...bankAccount, bank_name: value });
-        }}
-      />
-      <TextField
-        label="Account Title"
-        placeholder="Title on the account"
-        required
-        value={bankAccount.account_title || ""}
-        onChange={({ target: { value } }) => {
-          setBankAccount({ ...bankAccount, account_title: value });
-        }}
-      />
-      <TextField
-        label="Account Type"
-        placeholder="Checking, Savings, etc"
-        required
-        value={bankAccount.account_type}
-        onChange={({ target: { value } }) => {
-          setBankAccount({ ...bankAccount, account_type: value });
-        }}
-      />
-      <TextField
-        label="Routing Number"
-        required
-        value={bankAccount.routing_number}
-        onChange={({ target: { value } }) => {
-          setBankAccount({ ...bankAccount, routing_number: value });
-        }}
-      />
-      <TextField
-        label="Account Number"
-        required
-        value={bankAccount.account_number}
-        onChange={({ target: { value } }) => {
-          setBankAccount({ ...bankAccount, account_number: value });
-        }}
-      />
+    <Box mb={3} display="flex" flexDirection="column" className={classes.form}>
+      <Box mt={1}>
+        <TextField
+          label="Bank Name"
+          required
+          value={bankAccount.bank_name}
+          onChange={({ target: { value } }) => {
+            setBankAccount({ ...bankAccount, bank_name: value });
+          }}
+        />
+      </Box>
+      <Box mt={1}>
+        <TextField
+          label="Account Title"
+          placeholder="Title on the account"
+          required
+          value={bankAccount.account_title || ""}
+          onChange={({ target: { value } }) => {
+            setBankAccount({ ...bankAccount, account_title: value });
+          }}
+        />
+      </Box>
+      <Box mt={1}>
+        <TextField
+          label="Account Type"
+          placeholder="Checking, Savings, etc"
+          required
+          value={bankAccount.account_type}
+          onChange={({ target: { value } }) => {
+            setBankAccount({ ...bankAccount, account_type: value });
+          }}
+        />
+      </Box>
+      <Box mt={1}>
+        <TextField
+          label="Routing Number"
+          required
+          value={bankAccount.routing_number}
+          onChange={({ target: { value } }) => {
+            setBankAccount({ ...bankAccount, routing_number: value });
+          }}
+        />
+      </Box>
+      <Box mt={1}>
+        <TextField
+          label="Account Number"
+          required
+          value={bankAccount.account_number}
+          onChange={({ target: { value } }) => {
+            setBankAccount({ ...bankAccount, account_number: value });
+          }}
+        />
+      </Box>
       <Box mt={2}>
         <FormControlLabel
           control={

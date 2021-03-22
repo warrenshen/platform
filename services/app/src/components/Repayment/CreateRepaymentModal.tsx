@@ -70,6 +70,7 @@ function CreateRepaymentModal({
   const snackbar = useSnackbar();
 
   const { data } = useGetCompanyWithDetailsByCompanyIdQuery({
+    fetchPolicy: "network-only",
     variables: {
       companyId: companyId,
     },

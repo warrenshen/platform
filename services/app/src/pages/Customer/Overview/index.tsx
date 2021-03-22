@@ -56,6 +56,7 @@ function CustomerOverviewPage() {
       : null;
 
   const { data, refetch } = useGetCustomerOverviewQuery({
+    fetchPolicy: "network-only",
     variables: {
       companyId,
       loanType,
@@ -74,12 +75,6 @@ function CustomerOverviewPage() {
     <Page appBarTitle={"Overview"}>
       <Box className={classes.container}>
         <Box className={classes.section}>
-          <Typography variant="h6" gutterBottom={true}>
-            Dashboard
-          </Typography>
-          <Typography variant="body2" gutterBottom={true}>
-            Note: dashboard is updated every minute.
-          </Typography>
           <CustomerFinancialSummaryOverview
             financialSummary={financialSummary}
           />

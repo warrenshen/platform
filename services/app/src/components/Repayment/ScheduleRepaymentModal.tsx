@@ -90,6 +90,7 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
   >([]);
 
   useGetPaymentForSettlementQuery({
+    fetchPolicy: "network-only",
     variables: {
       id: paymentId,
     },
