@@ -1,5 +1,0 @@
-query BankAccounts {
-  bank_accounts(where: { company_id: { _is_null: true } }) {
-    ...BankAccount
-  }
-}

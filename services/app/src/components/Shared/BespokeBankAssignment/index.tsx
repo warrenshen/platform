@@ -9,7 +9,10 @@ import {
 } from "@material-ui/core";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { BankAccountFragment, useBankAccountsQuery } from "generated/graphql";
+import {
+  BankAccountFragment,
+  useGetBespokeBankAccountsQuery,
+} from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { useContext } from "react";
 
@@ -31,7 +34,7 @@ function BespokeBankAssignment(props: Props) {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const { data } = useBankAccountsQuery();
+  const { data } = useGetBespokeBankAccountsQuery();
   const labelId = props.label.split(" ").join("-");
 
   if (!data || !data.bank_accounts) {

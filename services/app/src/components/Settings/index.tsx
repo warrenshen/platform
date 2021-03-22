@@ -1,6 +1,6 @@
 import { Box } from "@material-ui/core";
-import AddAccountButton from "components/BankAccount/AddAccountButton";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
+import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBankAccountModal";
 import CompanySettingsCard from "components/Settings/CompanySettingsCard";
 import EditCompanySettingsModal from "components/Settings/EditCompanySettingsModal";
 import Can from "components/Shared/Can";
@@ -99,7 +99,19 @@ function Settings({
       <Box>
         <h2>Bank Accounts</h2>
         <Can perform={Action.AddBankAccount}>
-          <AddAccountButton companyId={settings.company_id} />
+          <ModalButton
+            label={"Add Bank Account"}
+            modal={({ handleClose }) => (
+              <CreateUpdateBankAccountModal
+                companyId={companyId}
+                existingBankAccount={null}
+                handleClose={() => {
+                  handleDataChange();
+                  handleClose();
+                }}
+              />
+            )}
+          />
         </Can>
         <Box display="flex" mt={3}>
           {bankAccounts.map((bankAccount, index) => (

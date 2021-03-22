@@ -1,3 +1,15 @@
+query GetBespokeBankAccounts {
+  bank_accounts(where: { company_id: { _is_null: true } }) {
+    ...BankAccount
+  }
+}
+
+query GetBankAccountsByCompanyId($companyId: uuid!) {
+  bank_accounts(where: { company_id: { _eq: $companyId } }) {
+    ...BankAccount
+  }
+}
+
 query BankAccountsForTransfer($companyId: uuid!) {
   bank_accounts(where: { company_id: { _is_null: true } }) {
     ...BankAccount
@@ -10,11 +22,5 @@ query BankAccountsForTransfer($companyId: uuid!) {
         ...BankAccount
       }
     }
-  }
-}
-
-query ListBankAccounts($companyId: uuid!) {
-  bank_accounts(where: { company_id: { _eq: $companyId } }) {
-    ...BankAccount
   }
 }

@@ -31,12 +31,13 @@ function BankAccount(props: {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const [changeBankAccount] = useChangeBankAccountMutation();
-  const { data } = useCompanyBankAccountsQuery({
+
+  const { data, refetch } = useCompanyBankAccountsQuery({
     variables: {
       companyId: props.companyId,
     },
   });
+  const [changeBankAccount] = useChangeBankAccountMutation();
 
   const [addingNewAccount, setAddingNewAccount] = useState(false);
 
@@ -98,7 +99,10 @@ function BankAccount(props: {
           <CreateUpdateBankAccountModal
             companyId={props.companyId}
             existingBankAccount={null}
-            handleClose={() => setAddingNewAccount(false)}
+            handleClose={() => {
+              refetch();
+              setAddingNewAccount(false);
+            }}
           />
         )}
         {props.bankAccount && (

@@ -1,24 +1,38 @@
 import { Box } from "@material-ui/core";
-import AddAccountButton from "components/BankAccount/AddAccountButton";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
+import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBankAccountModal";
+import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { useBankAccountsQuery } from "generated/graphql";
+import { useGetBespokeBankAccountsQuery } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
-import React, { useContext } from "react";
+import { useContext } from "react";
 
 function BankAccounts() {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const { data } = useBankAccountsQuery();
+
+  const { data, refetch } = useGetBespokeBankAccountsQuery();
   const accounts = data?.bank_accounts || [];
 
   return (
     <Page appBarTitle={"Bank Accounts"}>
       {check(role, Action.AddBankAccount) && (
         <Box display="flex" flexDirection="row-reverse" mb={3}>
-          <AddAccountButton companyId={null} />
+          <ModalButton
+            label={"Add Bank Account"}
+            modal={({ handleClose }) => (
+              <CreateUpdateBankAccountModal
+                companyId={null}
+                existingBankAccount={null}
+                handleClose={() => {
+                  refetch();
+                  handleClose();
+                }}
+              />
+            )}
+          />
         </Box>
       )}
       <Box display="flex" flexWrap="wrap">

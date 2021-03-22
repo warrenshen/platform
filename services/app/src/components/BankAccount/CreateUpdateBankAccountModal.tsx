@@ -11,11 +11,8 @@ import {
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   BankAccountFragment,
-  BankAccountsDocument,
   BankAccountsInsertInput,
   Companies,
-  CompanyBankAccountsDocument,
-  CompanyForCustomerDocument,
   useAddBankAccountMutation,
   UserRolesEnum,
   useUpdateBankAccountMutation,
@@ -148,26 +145,6 @@ function CreateUpdateBankAccountModal({
               : undefined,
         },
       },
-      refetchQueries: companyId
-        ? [
-            {
-              query: CompanyBankAccountsDocument,
-              variables: {
-                companyId,
-              },
-            },
-            {
-              query: CompanyForCustomerDocument,
-              variables: {
-                companyId,
-              },
-            },
-          ]
-        : [
-            {
-              query: BankAccountsDocument,
-            },
-          ],
     });
   };
 

@@ -9,7 +9,7 @@ import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import {
   BankAccounts,
   Companies,
-  useListBankAccountsQuery,
+  useGetBankAccountsByCompanyIdQuery,
 } from "generated/graphql";
 import { useEffect, useState } from "react";
 
@@ -19,7 +19,7 @@ interface Props {
 }
 
 function CompanyBank({ companyId, onCompanyBankAccountSelection }: Props) {
-  const { data } = useListBankAccountsQuery({
+  const { data } = useGetBankAccountsByCompanyIdQuery({
     fetchPolicy: "network-only",
     variables: {
       companyId,

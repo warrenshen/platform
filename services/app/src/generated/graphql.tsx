@@ -14717,6 +14717,37 @@ export type GetAdvancesQuery = {
   >;
 };
 
+export type GetBespokeBankAccountsQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetBespokeBankAccountsQuery = {
+  bank_accounts: Array<BankAccountFragment>;
+};
+
+export type GetBankAccountsByCompanyIdQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+}>;
+
+export type GetBankAccountsByCompanyIdQuery = {
+  bank_accounts: Array<BankAccountFragment>;
+};
+
+export type BankAccountsForTransferQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+}>;
+
+export type BankAccountsForTransferQuery = {
+  bank_accounts: Array<BankAccountFragment>;
+  companies_by_pk?: Maybe<
+    Pick<Companies, "id"> & {
+      settings: Pick<CompanySettings, "id"> & {
+        collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
+      };
+    }
+  >;
+};
+
 export type GetCustomerOverviewQueryVariables = Exact<{
   companyId: Scalars["uuid"];
   loanType?: Maybe<LoanTypeEnum>;
@@ -15574,29 +15605,6 @@ export type UpdateCompanySettingsMutation = {
   update_company_settings_by_pk?: Maybe<CompanySettingsFragment>;
 };
 
-export type BankAccountsForTransferQueryVariables = Exact<{
-  companyId: Scalars["uuid"];
-}>;
-
-export type BankAccountsForTransferQuery = {
-  bank_accounts: Array<BankAccountFragment>;
-  companies_by_pk?: Maybe<
-    Pick<Companies, "id"> & {
-      settings: Pick<CompanySettings, "id"> & {
-        collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
-      };
-    }
-  >;
-};
-
-export type ListBankAccountsQueryVariables = Exact<{
-  companyId: Scalars["uuid"];
-}>;
-
-export type ListBankAccountsQuery = {
-  bank_accounts: Array<BankAccountFragment>;
-};
-
 export type AssignCollectionsBespokeBankAccountMutationVariables = Exact<{
   companySettingsId: Scalars["uuid"];
   bankAccountId?: Maybe<Scalars["uuid"]>;
@@ -16375,10 +16383,6 @@ export type VendorLimitedFragment = Pick<Vendors, "id" | "name">;
 
 export type PayorLimitedFragment = Pick<Payors, "id" | "name">;
 
-export type BankAccountsQueryVariables = Exact<{ [key: string]: never }>;
-
-export type BankAccountsQuery = { bank_accounts: Array<BankAccountFragment> };
-
 export type GetCustomersWithMetadataQueryVariables = Exact<{
   [key: string]: never;
 }>;
@@ -16971,6 +16975,185 @@ export type GetAdvancesLazyQueryHookResult = ReturnType<
 export type GetAdvancesQueryResult = Apollo.QueryResult<
   GetAdvancesQuery,
   GetAdvancesQueryVariables
+>;
+export const GetBespokeBankAccountsDocument = gql`
+  query GetBespokeBankAccounts {
+    bank_accounts(where: { company_id: { _is_null: true } }) {
+      ...BankAccount
+    }
+  }
+  ${BankAccountFragmentDoc}
+`;
+
+/**
+ * __useGetBespokeBankAccountsQuery__
+ *
+ * To run a query within a React component, call `useGetBespokeBankAccountsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBespokeBankAccountsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBespokeBankAccountsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetBespokeBankAccountsQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetBespokeBankAccountsQuery,
+    GetBespokeBankAccountsQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetBespokeBankAccountsQuery,
+    GetBespokeBankAccountsQueryVariables
+  >(GetBespokeBankAccountsDocument, baseOptions);
+}
+export function useGetBespokeBankAccountsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetBespokeBankAccountsQuery,
+    GetBespokeBankAccountsQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetBespokeBankAccountsQuery,
+    GetBespokeBankAccountsQueryVariables
+  >(GetBespokeBankAccountsDocument, baseOptions);
+}
+export type GetBespokeBankAccountsQueryHookResult = ReturnType<
+  typeof useGetBespokeBankAccountsQuery
+>;
+export type GetBespokeBankAccountsLazyQueryHookResult = ReturnType<
+  typeof useGetBespokeBankAccountsLazyQuery
+>;
+export type GetBespokeBankAccountsQueryResult = Apollo.QueryResult<
+  GetBespokeBankAccountsQuery,
+  GetBespokeBankAccountsQueryVariables
+>;
+export const GetBankAccountsByCompanyIdDocument = gql`
+  query GetBankAccountsByCompanyId($companyId: uuid!) {
+    bank_accounts(where: { company_id: { _eq: $companyId } }) {
+      ...BankAccount
+    }
+  }
+  ${BankAccountFragmentDoc}
+`;
+
+/**
+ * __useGetBankAccountsByCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useGetBankAccountsByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBankAccountsByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBankAccountsByCompanyIdQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useGetBankAccountsByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetBankAccountsByCompanyIdQuery,
+    GetBankAccountsByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetBankAccountsByCompanyIdQuery,
+    GetBankAccountsByCompanyIdQueryVariables
+  >(GetBankAccountsByCompanyIdDocument, baseOptions);
+}
+export function useGetBankAccountsByCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetBankAccountsByCompanyIdQuery,
+    GetBankAccountsByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetBankAccountsByCompanyIdQuery,
+    GetBankAccountsByCompanyIdQueryVariables
+  >(GetBankAccountsByCompanyIdDocument, baseOptions);
+}
+export type GetBankAccountsByCompanyIdQueryHookResult = ReturnType<
+  typeof useGetBankAccountsByCompanyIdQuery
+>;
+export type GetBankAccountsByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useGetBankAccountsByCompanyIdLazyQuery
+>;
+export type GetBankAccountsByCompanyIdQueryResult = Apollo.QueryResult<
+  GetBankAccountsByCompanyIdQuery,
+  GetBankAccountsByCompanyIdQueryVariables
+>;
+export const BankAccountsForTransferDocument = gql`
+  query BankAccountsForTransfer($companyId: uuid!) {
+    bank_accounts(where: { company_id: { _is_null: true } }) {
+      ...BankAccount
+    }
+    companies_by_pk(id: $companyId) {
+      id
+      settings {
+        id
+        collections_bespoke_bank_account {
+          ...BankAccount
+        }
+      }
+    }
+  }
+  ${BankAccountFragmentDoc}
+`;
+
+/**
+ * __useBankAccountsForTransferQuery__
+ *
+ * To run a query within a React component, call `useBankAccountsForTransferQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBankAccountsForTransferQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBankAccountsForTransferQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useBankAccountsForTransferQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    BankAccountsForTransferQuery,
+    BankAccountsForTransferQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    BankAccountsForTransferQuery,
+    BankAccountsForTransferQueryVariables
+  >(BankAccountsForTransferDocument, baseOptions);
+}
+export function useBankAccountsForTransferLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    BankAccountsForTransferQuery,
+    BankAccountsForTransferQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    BankAccountsForTransferQuery,
+    BankAccountsForTransferQueryVariables
+  >(BankAccountsForTransferDocument, baseOptions);
+}
+export type BankAccountsForTransferQueryHookResult = ReturnType<
+  typeof useBankAccountsForTransferQuery
+>;
+export type BankAccountsForTransferLazyQueryHookResult = ReturnType<
+  typeof useBankAccountsForTransferLazyQuery
+>;
+export type BankAccountsForTransferQueryResult = Apollo.QueryResult<
+  BankAccountsForTransferQuery,
+  BankAccountsForTransferQueryVariables
 >;
 export const GetCustomerOverviewDocument = gql`
   query GetCustomerOverview($companyId: uuid!, $loanType: loan_type_enum) {
@@ -21000,129 +21183,6 @@ export type UpdateCompanySettingsMutationOptions = Apollo.BaseMutationOptions<
   UpdateCompanySettingsMutation,
   UpdateCompanySettingsMutationVariables
 >;
-export const BankAccountsForTransferDocument = gql`
-  query BankAccountsForTransfer($companyId: uuid!) {
-    bank_accounts(where: { company_id: { _is_null: true } }) {
-      ...BankAccount
-    }
-    companies_by_pk(id: $companyId) {
-      id
-      settings {
-        id
-        collections_bespoke_bank_account {
-          ...BankAccount
-        }
-      }
-    }
-  }
-  ${BankAccountFragmentDoc}
-`;
-
-/**
- * __useBankAccountsForTransferQuery__
- *
- * To run a query within a React component, call `useBankAccountsForTransferQuery` and pass it any options that fit your needs.
- * When your component renders, `useBankAccountsForTransferQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useBankAccountsForTransferQuery({
- *   variables: {
- *      companyId: // value for 'companyId'
- *   },
- * });
- */
-export function useBankAccountsForTransferQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    BankAccountsForTransferQuery,
-    BankAccountsForTransferQueryVariables
-  >
-) {
-  return Apollo.useQuery<
-    BankAccountsForTransferQuery,
-    BankAccountsForTransferQueryVariables
-  >(BankAccountsForTransferDocument, baseOptions);
-}
-export function useBankAccountsForTransferLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    BankAccountsForTransferQuery,
-    BankAccountsForTransferQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    BankAccountsForTransferQuery,
-    BankAccountsForTransferQueryVariables
-  >(BankAccountsForTransferDocument, baseOptions);
-}
-export type BankAccountsForTransferQueryHookResult = ReturnType<
-  typeof useBankAccountsForTransferQuery
->;
-export type BankAccountsForTransferLazyQueryHookResult = ReturnType<
-  typeof useBankAccountsForTransferLazyQuery
->;
-export type BankAccountsForTransferQueryResult = Apollo.QueryResult<
-  BankAccountsForTransferQuery,
-  BankAccountsForTransferQueryVariables
->;
-export const ListBankAccountsDocument = gql`
-  query ListBankAccounts($companyId: uuid!) {
-    bank_accounts(where: { company_id: { _eq: $companyId } }) {
-      ...BankAccount
-    }
-  }
-  ${BankAccountFragmentDoc}
-`;
-
-/**
- * __useListBankAccountsQuery__
- *
- * To run a query within a React component, call `useListBankAccountsQuery` and pass it any options that fit your needs.
- * When your component renders, `useListBankAccountsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useListBankAccountsQuery({
- *   variables: {
- *      companyId: // value for 'companyId'
- *   },
- * });
- */
-export function useListBankAccountsQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    ListBankAccountsQuery,
-    ListBankAccountsQueryVariables
-  >
-) {
-  return Apollo.useQuery<ListBankAccountsQuery, ListBankAccountsQueryVariables>(
-    ListBankAccountsDocument,
-    baseOptions
-  );
-}
-export function useListBankAccountsLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    ListBankAccountsQuery,
-    ListBankAccountsQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    ListBankAccountsQuery,
-    ListBankAccountsQueryVariables
-  >(ListBankAccountsDocument, baseOptions);
-}
-export type ListBankAccountsQueryHookResult = ReturnType<
-  typeof useListBankAccountsQuery
->;
-export type ListBankAccountsLazyQueryHookResult = ReturnType<
-  typeof useListBankAccountsLazyQuery
->;
-export type ListBankAccountsQueryResult = Apollo.QueryResult<
-  ListBankAccountsQuery,
-  ListBankAccountsQueryVariables
->;
 export const AssignCollectionsBespokeBankAccountDocument = gql`
   mutation AssignCollectionsBespokeBankAccount(
     $companySettingsId: uuid!
@@ -22999,62 +23059,6 @@ export type AddCompanyVendorLicenseMutationResult = Apollo.MutationResult<AddCom
 export type AddCompanyVendorLicenseMutationOptions = Apollo.BaseMutationOptions<
   AddCompanyVendorLicenseMutation,
   AddCompanyVendorLicenseMutationVariables
->;
-export const BankAccountsDocument = gql`
-  query BankAccounts {
-    bank_accounts(where: { company_id: { _is_null: true } }) {
-      ...BankAccount
-    }
-  }
-  ${BankAccountFragmentDoc}
-`;
-
-/**
- * __useBankAccountsQuery__
- *
- * To run a query within a React component, call `useBankAccountsQuery` and pass it any options that fit your needs.
- * When your component renders, `useBankAccountsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useBankAccountsQuery({
- *   variables: {
- *   },
- * });
- */
-export function useBankAccountsQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    BankAccountsQuery,
-    BankAccountsQueryVariables
-  >
-) {
-  return Apollo.useQuery<BankAccountsQuery, BankAccountsQueryVariables>(
-    BankAccountsDocument,
-    baseOptions
-  );
-}
-export function useBankAccountsLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    BankAccountsQuery,
-    BankAccountsQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<BankAccountsQuery, BankAccountsQueryVariables>(
-    BankAccountsDocument,
-    baseOptions
-  );
-}
-export type BankAccountsQueryHookResult = ReturnType<
-  typeof useBankAccountsQuery
->;
-export type BankAccountsLazyQueryHookResult = ReturnType<
-  typeof useBankAccountsLazyQuery
->;
-export type BankAccountsQueryResult = Apollo.QueryResult<
-  BankAccountsQuery,
-  BankAccountsQueryVariables
 >;
 export const GetCustomersWithMetadataDocument = gql`
   query GetCustomersWithMetadata {

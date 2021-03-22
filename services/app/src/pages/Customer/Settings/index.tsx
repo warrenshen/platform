@@ -6,7 +6,7 @@ import {
   ContractFragment,
   useCompanyForCustomerQuery,
 } from "generated/graphql";
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { useParams } from "react-router-dom";
 
 export interface CustomerParams {
