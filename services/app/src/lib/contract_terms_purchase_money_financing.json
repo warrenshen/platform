@@ -39,7 +39,7 @@
         "format": "percentage",
         "internal_name": "advance_rate",
         "display_name": "Advance Rate",
-        "description": "% advance on the amount we loan out",
+        "description": "The maximum amount of the PO / Invoice that may be financed",
         "value": null,
         "nullable": false
       },
@@ -90,7 +90,7 @@
         ],
         "internal_name": "late_fee_structure",
         "display_name": "Late Fee Structure",
-        "description": "If days past due 1-14: 25% of interest, 15-29: 50%, 30+: 100%. Would like to have the flexibility to update the maturity date and override fees/interest as there have been some exceptions for charging late fees",
+        "description": "Example: 1-14: 25%, 15-29: 50%, 30+: 100%",
         "value": null
       },
       {

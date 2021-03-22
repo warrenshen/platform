@@ -29,7 +29,7 @@
         "format": "percentage",
         "internal_name": "advance_rate",
         "display_name": "Advance Rate",
-        "description": "% advance on the amount we loan out",
+        "description": "The maximum amount of the PO / Invoice that may be financed",
         "value": null,
         "nullable": false
       },
