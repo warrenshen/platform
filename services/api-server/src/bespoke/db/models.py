@@ -668,6 +668,20 @@ class InvoiceFile(Base):
 			file_type=self.file_type,
 		)
 
+class AuditEvent(Base):
+
+	__tablename__ = "audit_events"
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	user_id = cast(GUID, Column(GUID, ForeignKey('users.id'), nullable=True))
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id'), nullable=True))
+	is_system = Column(Boolean, nullable=True)
+	action = Column(String, nullable=False)
+	outcome = Column(String, nullable=False)
+	data = Column(JSON, nullable=True)
+	error = Column(String, nullable=True)
+
 
 def get_db_url() -> str:
 	return os.environ.get('DATABASE_URL')

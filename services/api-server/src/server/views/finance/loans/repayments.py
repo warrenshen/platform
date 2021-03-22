@@ -5,6 +5,7 @@ from typing import Any, Dict, cast
 
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
+from bespoke.audit import events
 from bespoke.finance.fetchers import per_customer_fetcher
 from bespoke.finance.payments import payment_util, repayment_util
 from bespoke.finance.types import per_customer_types
@@ -66,8 +67,9 @@ class CalculateRepaymentEffectView(MethodView):
 class CreateRepaymentView(MethodView):
 	decorators = [auth_util.login_required]
 
+	@events.wrap(events.Actions.LOANS_CREATE_REPAYMENT)
 	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
+	def post(self, **kwargs: Any) -> Response:
 		form = json.loads(request.data)
 		if not form:
 			return handler_util.make_error_response('No data provided')
@@ -110,8 +112,9 @@ class CreateRepaymentView(MethodView):
 class ScheduleRepaymentView(MethodView):
 	decorators = [auth_util.login_required]
 
+	@events.wrap(events.Actions.LOANS_SCHEDULE_REPAYMENT)
 	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
+	def post(self, **kwargs: Any) -> Response:
 		form = json.loads(request.data)
 		if not form:
 			return handler_util.make_error_response('No data provided')
@@ -158,8 +161,9 @@ class ScheduleRepaymentView(MethodView):
 class SettleRepaymentView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
+	@events.wrap(events.Actions.LOANS_SETTLE_REPAYMENT)
 	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
+	def post(self, **kwargs: Any) -> Response:
 		form = cast(Dict, json.loads(request.data))
 		if not form:
 			return handler_util.make_error_response('No data provided')

@@ -4,6 +4,7 @@ from typing import Any, cast
 
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
+from bespoke.audit import events
 from bespoke.finance.payments import advance_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
@@ -15,8 +16,9 @@ handler = Blueprint('finance_loans_advances', __name__)
 class HandleAdvanceView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
+	@events.wrap(events.Actions.LOANS_FUND_WITH_ADVANCE)
 	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
+	def post(self, **kwargs: Any) -> Response:
 		form = json.loads(request.data)
 		if not form:
 			return handler_util.make_error_response('No data provided')

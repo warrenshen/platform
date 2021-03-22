@@ -1,10 +1,11 @@
 import json
-from typing import Callable, List, cast
+from typing import Any, Callable, List, cast
 
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.db_constants import RequestStatusEnum
 from bespoke.db.models import session_scope
+from bespoke.audit import events
 from bespoke.email import sendgrid_util
 from bespoke.finance import number_util
 from bespoke.security import security_util, two_factor_util
@@ -26,8 +27,9 @@ class RespondToApprovalRequestView(MethodView):
 	"""
 	decorators = [auth_util.login_required]
 
+	@events.wrap(events.Actions.PURCHASE_ORDER_RESPOND_TO_APPROVAL)
 	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
+	def post(self, event: events.Event, **kwargs: Any) -> Response:
 		cfg = cast(Config, current_app.app_config)
 		sendgrid_client = cast(sendgrid_util.Client,
 							   current_app.sendgrid_client)
@@ -72,6 +74,12 @@ class RespondToApprovalRequestView(MethodView):
 			if bespoke_err:
 				return handler_util.make_error_response(bespoke_err)
 			two_factor_link = two_factor_info['link']
+
+			user = session.query(models.User) \
+				.filter(models.User.email == two_factor_info['email']) \
+				.first()
+			if user:
+				event.user_id(str(user.id))
 
 			purchase_order = cast(
 				models.PurchaseOrder,
@@ -130,8 +138,9 @@ class RespondToApprovalRequestView(MethodView):
 class SubmitForApprovalView(MethodView):
 	decorators = [auth_util.login_required]
 
+	@events.wrap(events.Actions.PURCHASE_ORDER_SUBMIT_FOR_APPROVAL)
 	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
+	def post(self, **kwargs: Any) -> Response:
 		sendgrid_client = cast(sendgrid_util.Client,
 							   current_app.sendgrid_client)
 

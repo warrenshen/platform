@@ -1,8 +1,10 @@
 import json
 import logging
+from typing import Any
 
 from server.views.common import auth_util, handler_util
 from bespoke.finance.invoices import invoices_util
+from bespoke.audit import events
 from bespoke.db import models
 
 from flask import Response, current_app, make_response, request
@@ -12,15 +14,17 @@ class CreateInvoiceView(MethodView):
 
 	decorators = [auth_util.login_required]
 
+	@events.wrap(events.Actions.INVOICE_CREATE)
 	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
+	def post(self, **kwargs: Any) -> Response:
 		user_session = auth_util.UserSession.from_session()
 		company_id = user_session.get_company_id()
 
 		if not user_session.is_company_admin():
 			return handler_util.make_error_response("Access Denied", status_code=403)
 
-		data, err = invoices_util.UpsertRequest.from_dict(json.loads(request.data))
+		request_data = json.loads(request.data)
+		data, err = invoices_util.UpsertRequest.from_dict(request_data)
 		if err:
 			return handler_util.make_error_response(err)
 
@@ -44,15 +48,17 @@ class UpdateInvoiceView(MethodView):
 
 	decorators = [auth_util.login_required]
 
+	@events.wrap(events.Actions.INVOICE_UPDATE)
 	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
+	def post(self, **kwargs: Any) -> Response:
 		user_session = auth_util.UserSession.from_session()
 		company_id = user_session.get_company_id()
 
 		if not user_session.is_company_admin():
 			return handler_util.make_error_response("Access Denied", status_code=403)
 
-		data, err = invoices_util.UpsertRequest.from_dict(json.loads(request.data))
+		request_data = json.loads(request.data)
+		data, err = invoices_util.UpsertRequest.from_dict(request_data)
 		if err:
 			return handler_util.make_error_response(err)
 

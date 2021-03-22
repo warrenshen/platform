@@ -1,8 +1,9 @@
 import json
-from typing import cast
+from typing import cast, Any
 
 from bespoke.db import db_constants, models, models_util
 from bespoke.db.models import session_scope
+from bespoke.audit import events
 from bespoke.finance.contracts import manage_contract_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
@@ -16,7 +17,11 @@ handler = Blueprint('contracts', __name__)
 class UpdateContractView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
-	def post(self) -> Response:
+	@events.wrap(events.Actions.CONTRACT_UPDATE)
+	def post(self, **kwargs: Any) -> Response:
+		user_session = auth_util.UserSession.from_session()
+		bank_admin_user_id = user_session.get_user_id()
+
 		form = json.loads(request.data)
 		if not form:
 			return handler_util.make_error_response('No data provided')
@@ -28,9 +33,6 @@ class UpdateContractView(MethodView):
 			if key not in form:
 				return handler_util.make_error_response(
 					'Missing key {} in request'.format(key))
-
-		user_session = auth_util.UserSession.from_session()
-		bank_admin_user_id = user_session.get_user_id()
 
 		_, err = manage_contract_util.update_contract(
 			req=form, bank_admin_user_id=bank_admin_user_id,
@@ -51,7 +53,11 @@ class UpdateContractView(MethodView):
 class TerminateContractView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
-	def post(self) -> Response:
+	@events.wrap(events.Actions.CONTRACT_TERMINATE)
+	def post(self, **kwargs: Any) -> Response:
+		user_session = auth_util.UserSession.from_session()
+		bank_admin_user_id = user_session.get_user_id()
+
 		form = json.loads(request.data)
 		if not form:
 			return handler_util.make_error_response('No data provided')
@@ -64,8 +70,6 @@ class TerminateContractView(MethodView):
 				return handler_util.make_error_response(
 					'Missing key {} in request'.format(key))
 
-		user_session = auth_util.UserSession.from_session()
-		bank_admin_user_id = user_session.get_user_id()
 		_, err = manage_contract_util.terminate_contract(
 			req=form, bank_admin_user_id=bank_admin_user_id,
 			session_maker=current_app.session_maker)
@@ -79,7 +83,11 @@ class TerminateContractView(MethodView):
 class AddNewContractView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
-	def post(self) -> Response:
+	@events.wrap(events.Actions.CONTRACT_CREATE)
+	def post(self, **kwargs: Any) -> Response:
+		user_session = auth_util.UserSession.from_session()
+		bank_admin_user_id = user_session.get_user_id()
+
 		form = json.loads(request.data)
 		if not form:
 			return handler_util.make_error_response('No data provided')
@@ -91,9 +99,6 @@ class AddNewContractView(MethodView):
 			if key not in form:
 				return handler_util.make_error_response(
 					'Missing key {} in request'.format(key))
-
-		user_session = auth_util.UserSession.from_session()
-		bank_admin_user_id = user_session.get_user_id()
 
 		_, err = manage_contract_util.add_new_contract(
 			req=form, bank_admin_user_id=bank_admin_user_id,

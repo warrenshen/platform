@@ -5,6 +5,7 @@ from typing import Callable, Iterable, List, Optional, Tuple, cast
 
 from bespoke import errors
 from bespoke.db import db_constants, models
+from bespoke.audit import events
 from bespoke.db.models import session_scope
 from bespoke.finance import financial_summary_util
 from bespoke.finance.reports import loan_balances
@@ -30,11 +31,25 @@ def update_company_balance(
 		logging.error(msg)
 		return msg
 
-	success, err = customer_balance.write(customer_update_dict)
-	if err:
-		msg = 'Error writing results to update customer balance. Error: {}'.format(err)
-		logging.error(msg)
-		return msg
+	event = events.new(
+		company_id=company['id'],
+		is_system=True,
+		action=events.Actions.COMPANY_BALANCE_UPDATE,
+		data={
+			'report_date': report_date,
+			'summary_update': customer_update_dict['summary_update'],
+			'loan_ids': [l['loan_id'] for l in customer_update_dict['loan_updates']],
+		}
+	)
+
+	with session_scope(session_maker) as session:
+		success, err = customer_balance.write(customer_update_dict)
+		if err:
+			msg = 'Error writing results to update customer balance. Error: {}'.format(err)
+			logging.error(msg)
+			event.failed().write_with_session(session)
+			return msg
+		event.succeeded().write_with_session(session)
 
 	logging.info(f"Successfully updated balance for '{company['name']}' with id '{company['id']}' for date '{report_date}'")
 	return None

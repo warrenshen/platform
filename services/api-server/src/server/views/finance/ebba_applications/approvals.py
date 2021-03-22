@@ -6,6 +6,7 @@ from bespoke.db import models
 from bespoke.db.db_constants import RequestStatusEnum
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
+from bespoke.audit import events
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from server.config import Config
@@ -16,8 +17,9 @@ handler = Blueprint('finance_ebba_applications_approvals', __name__)
 class RespondToEbbaApplicationApprovalRequest(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
+	@events.wrap(events.Actions.EBBA_APPLICATION_RESPOND_TO_APPROVAL)
 	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
+	def post(self, **kwargs: Any) -> Response:
 		cfg = cast(Config, current_app.app_config)
 		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
@@ -118,8 +120,9 @@ class RespondToEbbaApplicationApprovalRequest(MethodView):
 class SubmitEbbaApplicationForApproval(MethodView):
 	decorators = [auth_util.login_required]
 
+	@events.wrap(events.Actions.EBBA_APPLICATION_SUBMIT_FOR_APPROVAL)
 	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
+	def post(self, **kwargs: Any) -> Response:
 		cfg = cast(Config, current_app.app_config)
 		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 

@@ -5,6 +5,7 @@ from typing import Any, List, cast
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
+from bespoke.audit import events
 from bespoke.email import sendgrid_util
 from bespoke.finance.loans import approval_util
 from flask import Blueprint, Response, current_app, make_response, request
@@ -18,8 +19,9 @@ handler = Blueprint('finance_loans_approvals', __name__)
 class ApproveLoansView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
+	@events.wrap(events.Actions.LOANS_APPROVE)
 	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
+	def post(self, **kwargs: Any) -> Response:
 		form = json.loads(request.data)
 		if not form:
 			return handler_util.make_error_response('No data provided')
@@ -47,8 +49,9 @@ class ApproveLoansView(MethodView):
 class RejectLoanView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
+	@events.wrap(events.Actions.LOANS_REJECT)
 	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
+	def post(self, **kwargs: Any) -> Response:
 		form = json.loads(request.data)
 		if not form:
 			return handler_util.make_error_response('No data provided')
@@ -90,8 +93,9 @@ class RejectLoanView(MethodView):
 class SubmitForApprovalView(MethodView):
 	decorators = [auth_util.login_required]
 
+	@events.wrap(events.Actions.LOANS_SUBMIT_FOR_APPROVAL)
 	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
+	def post(self, **kwargs: Any) -> Response:
 		cfg = cast(Config, current_app.app_config)
 		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 

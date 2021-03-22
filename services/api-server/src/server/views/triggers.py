@@ -6,6 +6,7 @@ from mypy_extensions import TypedDict
 
 from bespoke.db.models import session_scope
 from bespoke.db import models, models_util
+from bespoke.audit import events
 from bespoke.email import sendgrid_util
 from bespoke.finance.loans import reports_util
 from bespoke import errors
@@ -138,6 +139,12 @@ class ExpireActiveEbbaApplications(MethodView):
 				.all()
 
 			for company in results:
+				events.new(
+					company_id=str(company.id),
+					action=events.Actions.EBBA_APPLICATION_EXPIRE,
+					is_system=True,
+					data={'ebba_application_id': str(company.active_ebba_application_id)}
+				).succeeded().write_with_session(session)
 				logging.info(f"Expiring active borrowing base for '{company.company_id}'")
 				company.active_ebba_application_id = None
 

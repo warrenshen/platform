@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import Any
 
 from server.views.common import auth_util, handler_util
 from bespoke.finance.invoices import invoices_util
@@ -7,6 +8,7 @@ from bespoke.date import date_util
 from bespoke.finance import number_util
 from bespoke.db import models
 from bespoke.db.db_constants import RequestStatusEnum
+from bespoke.audit import events
 from bespoke.email import sendgrid_util
 from bespoke.security import two_factor_util, security_util
 
@@ -18,10 +20,13 @@ class SubmitForApprovalView(MethodView):
 
 	decorators = [auth_util.login_required]
 
+	@events.wrap(events.Actions.INVOICE_SUBMIT_FOR_APPROVAL)
 	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
+	def post(self, **kwargs: Any) -> Response:
 		data = json.loads(request.data)
 		invoice_id = data.get('id')
+
+		user_session = auth_util.UserSession.from_session()
 
 		if not invoice_id:
 			return handler_util.make_error_response('no id in request')
@@ -50,11 +55,14 @@ class RespondToApprovalRequestView(MethodView):
 		'link_val'
 	)
 
+	@events.wrap(events.Actions.INVOICE_RESPOND_TO_APPROVAL)
 	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
+	def post(self, event: events.Event, **kwargs: Any) -> Response:
 		data = json.loads(request.data)
 		if not data:
 			return handler_util.make_error_response("No data provided")
+
+		user_session = auth_util.UserSession.from_session()
 
 		for key in self.required_keys:
 			if key not in data:
@@ -83,6 +91,12 @@ class RespondToApprovalRequestView(MethodView):
 			)
 			if err:
 				return handler_util.make_error_response(err)
+
+			user = session.query(models.User) \
+				.filter(models.User.email == info['email']) \
+				.first()
+			if user:
+				event.user_id(str(user.id))
 
 			invoice = session.query(models.Invoice).get(invoice_id)
 			invoice.status = new_request_status

@@ -1,8 +1,6 @@
 import json
 import logging
-
-import json
-import logging
+from typing import Any
 
 from server.views.common import auth_util, handler_util
 from bespoke.finance.invoices import invoices_util
@@ -10,6 +8,7 @@ from bespoke.date import date_util
 from bespoke.finance import number_util
 from bespoke.db import models
 from bespoke.db.db_constants import RequestStatusEnum
+from bespoke.audit import events
 from bespoke.email import sendgrid_util
 from bespoke.security import two_factor_util, security_util
 
@@ -20,15 +19,17 @@ class SubmitForPaymentView(MethodView):
 
 	decorators = [auth_util.login_required]
 
+	@events.wrap(events.Actions.INVOICE_SUBMIT_FOR_PAYMENT)
 	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
+	def post(self, **kwargs: Any) -> Response:
 		user_session = auth_util.UserSession.from_session()
 		company_id = user_session.get_company_id()
+		data = json.loads(request.data)
 
 		if not user_session.is_company_admin():
 			return handler_util.make_error_response("Access Denied", status_code=403)
 
-		data = invoices_util.SubmitForPaymentRequest.from_dict(json.loads(request.data))
+		data = invoices_util.SubmitForPaymentRequest.from_dict(data)
 
 		err = invoices_util.submit_invoices_for_payment(
 			current_app.session_maker,
@@ -48,9 +49,12 @@ class RespondToPaymentRequestView(MethodView):
 
 	decorators = [auth_util.login_required]
 
+	@events.wrap(events.Actions.INVOICE_RESPOND_TO_PAYMENT_REQUEST)
 	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
-		data, err = invoices_util.InvoicePaymentRequestResponse.from_dict(json.loads(request.data))
+	def post(self, event: events.Event, **kwargs: Any) -> Response:
+		data = json.loads(request.data)
+
+		data, err = invoices_util.InvoicePaymentRequestResponse.from_dict(data)
 		if err:
 			return handler_util.make_error_response(err)
 
@@ -62,6 +66,12 @@ class RespondToPaymentRequestView(MethodView):
 				session=session)
 			if err:
 				return handler_util.make_error_response(err)
+
+			user = session.query(models.User) \
+				.filter(models.User.email == info['email']) \
+				.first()
+			if user:
+				event.user_id(user.id)
 
 			err = invoices_util.respond_to_payment_request(
 				session,

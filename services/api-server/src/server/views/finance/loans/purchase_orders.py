@@ -11,6 +11,7 @@ from bespoke.email import sendgrid_util
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.db_constants import LoanTypeEnum, LoanStatusEnum
+from bespoke.audit import events
 from bespoke.finance.loans import sibling_util, approval_util
 
 from flask import Blueprint, Response, current_app, make_response, request
@@ -207,8 +208,9 @@ class UpsertPurchaseOrdersLoansView(MethodView):
 	"""Perform upserts on the given purchase order loans"""
 	decorators = [auth_util.login_required]
 
+	@events.wrap(events.Actions.LOANS_UPSERT_PURCHASE_ORDER_LOANS)
 	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
+	def post(self, **kwargs: Any) -> Response:
 		user_session = auth_util.UserSession.from_session()
 		company_id = user_session.get_company_id()
 
@@ -231,12 +233,19 @@ class UpsertPurchaseOrdersLoansView(MethodView):
 		# NB: We don't do many checks in here around the intergrity of the loan
 		# because those all happen when it gets submitted for approval and
 		# doing so twice in the same function would be redundant.
+		loan_events: List[events.Event] = []
+
 		with models.session_scope(current_app.session_maker) as session:
 			company = session.query(models.Company).get(company_id)
 			customer_name = company.name
 			loan_dicts = []
 
 			for item in upsert.data:
+				event = events.new(
+					user_id=user_session.get_user_id(),
+					company_id=company_id
+				)
+
 				loan = None
 				if not item.loan.id:
 					company.latest_loan_identifier += 1
@@ -256,17 +265,27 @@ class UpsertPurchaseOrdersLoansView(MethodView):
 					# We commit and refresh here so that the loan receives an ID
 					session.commit()
 					session.refresh(loan)
+
+					event.data(dict(loan.as_dict())) \
+						 .action(events.Actions.LOANS_CREATE_PURCHASE_ORDER_LOAN)
 				else:
 					loan = session.query(models.Loan).get(item.loan.id)
 					loan.amount = item.loan.amount
 					loan.requested_payment_date = item.loan.requested_payment_date
+					event.data(dict(loan.as_dict()))\
+						 .action(events.Actions.LOANS_UPDATE_PURCHASE_ORDER_LOAN)
 
 				loan_dicts.append(loan.as_dict())
+				loan_events.append(event)
 
 			if upsert.status == LoanStatusEnum.APPROVAL_REQUESTED:
 				err = _handle_approval_email(customer_name, loan_dicts)
 				if err:
 					return handler_util.make_error_response(err)
+
+		with models.session_scope(current_app.session_maker) as session:
+			for event in loan_events:
+				event.write_with_session(session)
 
 		return make_response(json.dumps({
 			"status": "OK",
