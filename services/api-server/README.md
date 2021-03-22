@@ -85,3 +85,21 @@ Run tests...
 ```
 make run-test-local
 ```
+
+## Restoring a Database from Another
+
+Take a dump of the OLD database
+
+	PGPASSWORD=xxx pg_dump -Fc --no-acl --no-owner -h $HOSTNAME -U $USER $DATABASE > db.dump
+
+Put it at some publicly accessible place (like s3)
+
+	aws s3 cp db.dump s3://$SOMEWHERE
+
+The S3 URL will need to be publicly accessible. You can either put it in a public bucket (bad) or generate a signed url
+
+	aws s3 presign s3://$SOMEWHERE
+
+Then restore your NEW database from the dump
+
+	heroku pg:backups:restore $MY_SIGNED_URL $NEW_DATABASE_NAME --app $APP
