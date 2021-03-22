@@ -1,6 +1,6 @@
 // This component shows all the details about their repayment
 // before the user either clicks "Schedule" in the case of reverse_ach
-// or "Close" in the case of all other payment types.
+// or "Notify" in the case of all other payment types.
 import {
   Box,
   createStyles,
@@ -10,22 +10,21 @@ import {
   Typography,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
+import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import LoansBeforeAfterPaymentPreview from "components/Repayment/LoansBeforeAfterPaymentPreview";
-import BankToBankTransfer, {
-  PaymentTransferType,
-} from "components/Shared/BankToBankTransfer";
 import CompanyBank from "components/Shared/BankToBankTransfer/CompanyBank";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import {
   BankAccounts,
+  Companies,
   PaymentsInsertInput,
   ProductTypeEnum,
+  useBankAccountsForTransferQuery,
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 import { PaymentMethodEnum } from "lib/enum";
 import { LoanBeforeAfterPayment } from "lib/types";
-import { useCallback } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -34,8 +33,8 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
-
 interface Props {
+  companyId: Companies["id"];
   productType: ProductTypeEnum | null;
   payableAmountPrincipal: number;
   payableAmountInterest: number;
@@ -45,6 +44,7 @@ interface Props {
 }
 
 function CreateRepaymentConfirmEffect({
+  companyId,
   productType,
   payableAmountPrincipal,
   payableAmountInterest,
@@ -54,25 +54,14 @@ function CreateRepaymentConfirmEffect({
 }: Props) {
   const classes = useStyles();
 
-  const onBespokeBankAccountSelection = useCallback(
-    (id: BankAccounts["id"]) => {
-      setPayment({
-        ...payment,
-        bespoke_bank_account_id: id,
-      });
+  const { data } = useBankAccountsForTransferQuery({
+    fetchPolicy: "network-only",
+    variables: {
+      companyId,
     },
-    [payment, setPayment]
-  );
-
-  const onCompanyBankAccountSelection = useCallback(
-    (id: BankAccounts["id"]) => {
-      setPayment({
-        ...payment,
-        company_bank_account_id: id,
-      });
-    },
-    [payment, setPayment]
-  );
+  });
+  const bespokeCollectionsBankAccount =
+    data?.companies_by_pk?.settings?.collections_bespoke_bank_account;
 
   return (
     <Box>
@@ -181,16 +170,19 @@ function CreateRepaymentConfirmEffect({
         )}
         {payment.requested_amount > 0 && (
           <Box>
+            <Box>Important payment instructions</Box>
             {[PaymentMethodEnum.ACH, PaymentMethodEnum.Wire].includes(
               payment.method as PaymentMethodEnum
             ) && (
               <>
-                <BankToBankTransfer
-                  type={(payment.type || "") as PaymentTransferType}
-                  companyId={payment.company_id}
-                  onBespokeBankAccountSelection={onBespokeBankAccountSelection}
-                  onCompanyBankAccountSelection={onCompanyBankAccountSelection}
-                />
+                <Box>
+                  {`Please send your ${payment.method} payment to the following bank account:`}
+                </Box>
+                {!!bespokeCollectionsBankAccount && (
+                  <BankAccountInfoCard
+                    bankAccount={bespokeCollectionsBankAccount}
+                  />
+                )}
                 <Box mt={2}>
                   <Alert severity="warning">
                     After clicking "Notify", you must initiate this transfer for{" "}

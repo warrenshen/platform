@@ -221,9 +221,9 @@ function CreateUpdateBankAccountModal({
       </DialogTitle>
       <DialogContent>
         <BankAccountForm
+          role={role}
           bankAccount={bankAccount}
           setBankAccount={setBankAccount}
-          role={role}
         />
         <Box display="flex" flexDirection="row-reverse" my={3}>
           <Button

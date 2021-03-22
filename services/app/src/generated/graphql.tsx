@@ -15582,7 +15582,7 @@ export type BankAccountsForTransferQuery = {
   bank_accounts: Array<BankAccountFragment>;
   companies_by_pk?: Maybe<
     Pick<Companies, "id"> & {
-      settings: {
+      settings: Pick<CompanySettings, "id"> & {
         collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
       };
     }
@@ -21008,6 +21008,7 @@ export const BankAccountsForTransferDocument = gql`
     companies_by_pk(id: $companyId) {
       id
       settings {
+        id
         collections_bespoke_bank_account {
           ...BankAccount
         }

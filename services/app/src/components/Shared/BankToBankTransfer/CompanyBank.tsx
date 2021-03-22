@@ -20,6 +20,7 @@ interface Props {
 
 function CompanyBank({ companyId, onCompanyBankAccountSelection }: Props) {
   const { data } = useListBankAccountsQuery({
+    fetchPolicy: "network-only",
     variables: {
       companyId,
     },
@@ -77,7 +78,9 @@ function CompanyBank({ companyId, onCompanyBankAccountSelection }: Props) {
       {companyBankAccount && (
         <Box mt={1} width="fit-content">
           <BankAccountInfoCard
+            isCannabisCompliantVisible
             isEditAllowed={false}
+            isVerificationVisible
             bankAccount={companyBankAccount}
           />
         </Box>

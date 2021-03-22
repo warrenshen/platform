@@ -162,6 +162,8 @@ function CreateRepaymentSelectLoans({
                 setPayment({
                   ...payment,
                   method: value as PaymentMethodEnum,
+                  requested_payment_date: null,
+                  settlement_date: null,
                 })
               }
             >
@@ -181,15 +183,15 @@ function CreateRepaymentSelectLoans({
           <Box mt={3}>
             <Typography variant="subtitle2">
               {isReverseDraftACH
-                ? "What date would you like the payment to be withdrawn from your bank account?"
-                : "What date did or will the payment leave your bank account?"}
+                ? "On which date would you like the payment to be withdrawn from your bank account?"
+                : "On which date will the payment arrive to the Bespoke bank account?"}
             </Typography>
             <Box mt={1}>
               <DatePicker
                 className={classes.inputField}
                 id="payment-modal-payment-date-date-picker"
                 label={
-                  isReverseDraftACH ? "Requested Payment Date" : "Payment Date"
+                  isReverseDraftACH ? "Requested Payment Date" : "Deposit Date"
                 }
                 disablePast
                 disableNonBankDays

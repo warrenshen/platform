@@ -25,8 +25,10 @@ function BankAccounts() {
         {accounts.map((account, index) => (
           <Box key={index} mr={2} mb={2}>
             <BankAccountInfoCard
-              bankAccount={account}
+              isCannabisCompliantVisible
               isEditAllowed={check(role, Action.EditBankAccount)}
+              isVerificationVisible
+              bankAccount={account}
             />
           </Box>
         ))}

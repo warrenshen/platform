@@ -71,8 +71,10 @@ function BespokeBankAssignment(props: Props) {
         <Box mt={2} width="fit-content">
           {props.assignedBespokeBankAccount && (
             <BankAccountInfoCard
-              bankAccount={props.assignedBespokeBankAccount}
+              isCannabisCompliantVisible
               isEditAllowed={check(role, Action.EditBankAccount)}
+              isVerificationVisible
+              bankAccount={props.assignedBespokeBankAccount}
             />
           )}
         </Box>

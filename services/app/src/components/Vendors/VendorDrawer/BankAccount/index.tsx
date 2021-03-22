@@ -11,7 +11,7 @@ import {
   useCompanyBankAccountsQuery,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
-import { useState, useContext } from "react";
+import { useContext, useState } from "react";
 
 const useStyles = makeStyles({
   baseInput: {
@@ -104,8 +104,10 @@ function BankAccount(props: {
         {props.bankAccount && (
           <Box width="fit-content" mt={2}>
             <BankAccountInfoCard
-              bankAccount={props.bankAccount}
+              isCannabisCompliantVisible
               isEditAllowed={check(role, Action.EditBankAccount)}
+              isVerificationVisible
+              bankAccount={props.bankAccount}
             />
           </Box>
         )}

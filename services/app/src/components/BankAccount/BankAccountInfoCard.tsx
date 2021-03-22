@@ -25,14 +25,16 @@ const useStyles = makeStyles({
 });
 
 interface Props {
+  isCannabisCompliantVisible?: boolean;
   isEditAllowed?: boolean;
   isVerificationVisible?: boolean;
   bankAccount: BankAccountFragment;
 }
 
 function BankAccountInfoCard({
-  isEditAllowed = true,
-  isVerificationVisible = true,
+  isCannabisCompliantVisible = false,
+  isEditAllowed = false,
+  isVerificationVisible = false,
   bankAccount,
 }: Props) {
   const classes = useStyles();
@@ -85,16 +87,20 @@ function BankAccountInfoCard({
               </Box>
             </Box>
           )}
-          <Box display="flex" alignItems="center" pt={0.5} pb={1}>
-            <CheckCircle
-              color={bankAccount.is_cannabis_compliant ? "primary" : "disabled"}
-            />
-            <Box pl={1}>
-              {bankAccount.is_cannabis_compliant
-                ? "Cannabis Compliant"
-                : "Not Cannabis Compliant"}
+          {isCannabisCompliantVisible && (
+            <Box display="flex" alignItems="center" pt={0.5} pb={1}>
+              <CheckCircle
+                color={
+                  bankAccount.is_cannabis_compliant ? "primary" : "disabled"
+                }
+              />
+              <Box pl={1}>
+                {bankAccount.is_cannabis_compliant
+                  ? "Cannabis Compliant"
+                  : "Not Cannabis Compliant"}
+              </Box>
             </Box>
-          </Box>
+          )}
         </CardContent>
         {isEditAllowed && (
           <CardActions>

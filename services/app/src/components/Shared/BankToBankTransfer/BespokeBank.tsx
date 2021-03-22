@@ -77,7 +77,9 @@ function BespokeBank({ companyId, onBespokeBankAccountSelection }: Props) {
       {bespokeBankAccount && (
         <Box mt={1} width="fit-content">
           <BankAccountInfoCard
+            isCannabisCompliantVisible
             isEditAllowed={false}
+            isVerificationVisible
             bankAccount={bespokeBankAccount}
           />
         </Box>

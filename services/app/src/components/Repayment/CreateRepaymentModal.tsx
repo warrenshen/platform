@@ -244,6 +244,7 @@ function CreateRepaymentModal({
           />
         ) : (
           <CreateRepaymentConfirmEffect
+            companyId={companyId}
             productType={productType}
             payableAmountPrincipal={
               calculateEffectResponse?.payable_amount_principal || 0

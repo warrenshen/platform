@@ -5,6 +5,7 @@ query BankAccountsForTransfer($companyId: uuid!) {
   companies_by_pk(id: $companyId) {
     id
     settings {
+      id
       collections_bespoke_bank_account {
         ...BankAccount
       }
