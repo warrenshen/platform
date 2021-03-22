@@ -1,6 +1,6 @@
 {
   "version": "v1",
-  "product_type": "inventory_financing",
+  "product_type": "invoice_financing",
   "v1": {
     "fields": [
       {
@@ -8,8 +8,8 @@
         "type": "integer",
         "format": "number",
         "internal_name": "contract_financing_terms",
-        "display_name": "Contract Financing Terms",
-        "description": "How long our client can keep a principal advance before mandatory repayment",
+        "display_name": "Financing Days",
+        "description": "",
         "value": null,
         "nullable": false
       },
@@ -18,8 +18,8 @@
         "type": "float",
         "format": "currency",
         "internal_name": "maximum_amount",
-        "display_name": "Maximum Amount",
-        "description": "Maximum principal outstanding the client can have at any point in time. Have ability to increase/decrease the amount over time",
+        "display_name": "Maximum Credit Limit",
+        "description": "",
         "value": null,
         "nullable": false
       },
@@ -28,13 +28,13 @@
         "type": "float",
         "format": "currency",
         "internal_name": "minimum_monthly_amount",
-        "display_name": "Minimum Monthly Amount",
-        "description": "Across all products, a customer has a monthly minimum revenue generation requirement; this amount is specified in their contract. This can be thought of as an account level “minimum revenue” service fee that gets covered if the customer is actively generating revenue based on their product usage, past that minimum",
+        "display_name": "Minimum Monthly Interest",
+        "description": "",
         "value": null,
         "nullable": false
       },
       {
-        "section": "Fees",
+        "section": "Financing Terms",
         "type": "float",
         "format": "percentage",
         "internal_name": "advance_rate",
@@ -44,37 +44,37 @@
         "nullable": false
       },
       {
-        "section": "Fees",
+        "section": "Financing Terms",
         "type": "float",
         "format": "percentage",
         "internal_name": "factoring_fee_percentage",
-        "display_name": "Factoring Fee Percentage",
+        "display_name": "Daily Interest Rate",
         "description": "Daily interest rate",
         "value": null,
         "nullable": false
       },
       {
-        "section": "Fees",
+        "section": "Financing Terms",
         "type": "float",
         "format": "currency",
         "internal_name": "factoring_fee_threshold",
-        "display_name": "Factoring Fee Threshold",
+        "display_name": "Volume Discount Threshold",
         "description": "Some clients have the ability to have a reduced interest rate if they meet certain requirements/thresholds",
         "value": null,
-        "nullable": false
+        "nullable": true
       },
       {
-        "section": "Fees",
+        "section": "Financing Terms",
         "type": "float",
         "format": "percentage",
         "internal_name": "adjusted_factoring_fee_percentage",
-        "display_name": "Adjusted Factoring Fee Percentage",
+        "display_name": "Discounted Daily Interest Rate",
         "description": "If the client meets the new threshold (as defined above) then this interest rate will be used",
         "value": null,
         "nullable": true
       },
       {
-        "section": "Fees",
+        "section": "Financing Terms",
         "type": "json",
         "fields": [
           {
@@ -94,7 +94,7 @@
         "value": null
       },
       {
-        "section": "Fees",
+        "section": "Financing Terms",
         "type": "float",
         "format": "currency",
         "internal_name": "wire_fee",
@@ -104,7 +104,7 @@
         "nullable": false
       },
       {
-        "section": "Fees",
+        "section": "Financing Terms",
         "type": "boolean",
         "internal_name": "preceeding_business_day",
         "display_name": "Preceeding Business Day",

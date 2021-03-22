@@ -25,7 +25,9 @@ function JsonContractTerm({ fields, value }: Props) {
               <Typography>{key}</Typography>
             </Box>
             <Box display="flex" justifyContent="flex-end" width={150}>
-              <Typography>{value[key]}</Typography>
+              <Typography>{`${value[key]}${
+                fields[1]?.format === "percentage" ? "%" : ""
+              }`}</Typography>
             </Box>
           </Box>
         ))}

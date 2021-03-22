@@ -6,10 +6,10 @@ import {
   RequestStatusEnum,
   UserRolesEnum,
 } from "generated/graphql";
-import InventoryContractTermsJson from "./inventory_contract_terms.json";
-import InvoiceContractTermsJson from "./invoice_contract_terms.json";
-import LineOfCreditContractTermsJson from "./line_of_credit_contract_terms.json";
-import PMFContractTermsJson from "./pmf_contract_terms.json";
+import InventoryContractTermsJson from "./contract_terms_inventory.json";
+import InvoiceContractTermsJson from "./contract_terms_invoice.json";
+import LineOfCreditContractTermsJson from "./contract_terms_line_of_credit.json";
+import PMFContractTermsJson from "./contract_terms_purchase_money_financing.json";
 
 // Action Type enum related.
 export enum ActionType {

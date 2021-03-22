@@ -46,7 +46,7 @@ const renderSwitchHelper = (item: any) => {
     return item.value ? formatDateString(item.value as string) : "-";
   } else if (item.type === "float") {
     if (item.format === "percentage") {
-      return `%${item.value}`;
+      return `${item.value}%`;
     } else if (item.format === "currency") {
       return formatCurrency(item.value);
     } else {
