@@ -9,7 +9,7 @@ import {
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { Payments, useGetPaymentQuery, UserRolesEnum } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
-import { formatDateString } from "lib/date";
+import { formatDateString, formatDatetimeString } from "lib/date";
 import { useContext } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -44,6 +44,7 @@ function PaymentDrawer({ paymentId, handleClose }: Props) {
   });
 
   const payment = data?.payments_by_pk;
+  console.log({ payment });
 
   return payment ? (
     <Drawer open anchor="right" onClose={handleClose}>
@@ -91,10 +92,12 @@ function PaymentDrawer({ paymentId, handleClose }: Props) {
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
-              Requested Payment Date
+              Requested Deposit Date
             </Typography>
             <Typography variant={"body1"}>
-              {formatDateString(payment.requested_payment_date)}
+              {payment.requested_payment_date
+                ? formatDateString(payment.requested_payment_date)
+                : "-"}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
@@ -102,7 +105,19 @@ function PaymentDrawer({ paymentId, handleClose }: Props) {
               Payment Date
             </Typography>
             <Typography variant={"body1"}>
-              {formatDateString(payment.payment_date)}
+              {payment.payment_date
+                ? formatDateString(payment.payment_date)
+                : "TBD"}
+            </Typography>
+          </Box>
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
+              Deposit Date
+            </Typography>
+            <Typography variant={"body1"}>
+              {payment.deposit_date
+                ? formatDateString(payment.deposit_date)
+                : "TBD"}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
@@ -110,7 +125,33 @@ function PaymentDrawer({ paymentId, handleClose }: Props) {
               Settlement Date
             </Typography>
             <Typography variant={"body1"}>
-              {formatDateString(payment.settlement_date)}
+              {payment.settlement_date
+                ? formatDateString(payment.settlement_date)
+                : "TBD"}
+            </Typography>
+          </Box>
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
+              Settlement By
+            </Typography>
+            <Typography variant={"body1"}>
+              {payment.settled_by_user?.full_name || "-"}
+            </Typography>
+          </Box>
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
+              Submitted Datetime
+            </Typography>
+            <Typography variant={"body1"}>
+              {formatDatetimeString(payment.submitted_at)}
+            </Typography>
+          </Box>
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
+              Submitted By
+            </Typography>
+            <Typography variant={"body1"}>
+              {payment.submitted_by_user?.full_name || "-"}
             </Typography>
           </Box>
         </Box>

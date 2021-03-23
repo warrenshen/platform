@@ -5,7 +5,9 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import PaymentsDataGrid from "components/Repayment/PaymentsDataGrid";
+import RepaymentsDataGrid, {
+  RepaymentTypeEnum,
+} from "components/Repayment/RepaymentsDataGrid";
 import ScheduleRepaymentModal from "components/Repayment/ScheduleRepaymentModal";
 import SettleRepaymentModal from "components/Repayment/SettleRepaymentModal";
 import Can from "components/Shared/Can";
@@ -130,9 +132,10 @@ function BankPaymentsActionRequiredPage() {
               </Box>
             </Can>
           </Box>
-          <PaymentsDataGrid
+          <RepaymentsDataGrid
             isCompanyVisible
             isMethodVisible={false}
+            repaymentType={RepaymentTypeEnum.RequestedReverseDraftACH}
             enableSelect
             isExcelExport
             payments={scheduledPayments}
@@ -166,9 +169,10 @@ function BankPaymentsActionRequiredPage() {
               </Box>
             </Can>
           </Box>
-          <PaymentsDataGrid
+          <RepaymentsDataGrid
             isCompanyVisible
             isMethodVisible={false}
+            repaymentType={RepaymentTypeEnum.ReverseDraftACH}
             enableSelect
             isExcelExport
             payments={pendingReverseDraftPayments}
@@ -200,10 +204,11 @@ function BankPaymentsActionRequiredPage() {
               </Box>
             </Can>
           </Box>
-          <PaymentsDataGrid
-            isCompanyVisible
+          <RepaymentsDataGrid
             enableSelect
+            isCompanyVisible
             isExcelExport
+            repaymentType={RepaymentTypeEnum.Other}
             payments={notifyPayments}
             customerSearchQuery={""}
             onClickCustomerName={() => {}}

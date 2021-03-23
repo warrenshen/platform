@@ -8,7 +8,7 @@ import {
 import CustomerFinancialSummaryOverview from "components/CustomerFinancialSummary/CustomerFinancialSummaryOverview";
 import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
 import CreateRepaymentModal from "components/Repayment/CreateRepaymentModal";
-import PaymentsDataGrid from "components/Repayment/PaymentsDataGrid";
+import RepaymentsDataGrid from "components/Repayment/RepaymentsDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
@@ -112,7 +112,7 @@ function CustomerOverviewPage() {
             <Box display="flex" flexDirection="column" width="100%">
               <Box display="flex" flex={1}>
                 {payments.length > 0 ? (
-                  <PaymentsDataGrid payments={payments} />
+                  <RepaymentsDataGrid payments={payments} />
                 ) : (
                   <Typography variant="body1">
                     You do not have any pending payments.

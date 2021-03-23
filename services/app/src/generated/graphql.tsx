@@ -70,6 +70,266 @@ export type StringComparisonExp = {
   _similar?: Maybe<Scalars["String"]>;
 };
 
+/**
+ * Capture information about business actions
+ *
+ *
+ * columns and relationships of "audit_events"
+ */
+export type AuditEvents = {
+  action: Scalars["String"];
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at: Scalars["timestamptz"];
+  data?: Maybe<Scalars["jsonb"]>;
+  error?: Maybe<Scalars["String"]>;
+  id: Scalars["uuid"];
+  is_system: Scalars["Boolean"];
+  outcome?: Maybe<Scalars["String"]>;
+  user_id?: Maybe<Scalars["uuid"]>;
+};
+
+/**
+ * Capture information about business actions
+ *
+ *
+ * columns and relationships of "audit_events"
+ */
+export type AuditEventsDataArgs = {
+  path?: Maybe<Scalars["String"]>;
+};
+
+/** aggregated selection of "audit_events" */
+export type AuditEventsAggregate = {
+  aggregate?: Maybe<AuditEventsAggregateFields>;
+  nodes: Array<AuditEvents>;
+};
+
+/** aggregate fields of "audit_events" */
+export type AuditEventsAggregateFields = {
+  count?: Maybe<Scalars["Int"]>;
+  max?: Maybe<AuditEventsMaxFields>;
+  min?: Maybe<AuditEventsMinFields>;
+};
+
+/** aggregate fields of "audit_events" */
+export type AuditEventsAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<AuditEventsSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** order by aggregate values of table "audit_events" */
+export type AuditEventsAggregateOrderBy = {
+  count?: Maybe<OrderBy>;
+  max?: Maybe<AuditEventsMaxOrderBy>;
+  min?: Maybe<AuditEventsMinOrderBy>;
+};
+
+/** append existing jsonb value of filtered columns with new jsonb value */
+export type AuditEventsAppendInput = {
+  data?: Maybe<Scalars["jsonb"]>;
+};
+
+/** input type for inserting array relation for remote table "audit_events" */
+export type AuditEventsArrRelInsertInput = {
+  data: Array<AuditEventsInsertInput>;
+  on_conflict?: Maybe<AuditEventsOnConflict>;
+};
+
+/** Boolean expression to filter rows from the table "audit_events". All fields are combined with a logical 'AND'. */
+export type AuditEventsBoolExp = {
+  _and?: Maybe<Array<Maybe<AuditEventsBoolExp>>>;
+  _not?: Maybe<AuditEventsBoolExp>;
+  _or?: Maybe<Array<Maybe<AuditEventsBoolExp>>>;
+  action?: Maybe<StringComparisonExp>;
+  company_id?: Maybe<UuidComparisonExp>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
+  data?: Maybe<JsonbComparisonExp>;
+  error?: Maybe<StringComparisonExp>;
+  id?: Maybe<UuidComparisonExp>;
+  is_system?: Maybe<BooleanComparisonExp>;
+  outcome?: Maybe<StringComparisonExp>;
+  user_id?: Maybe<UuidComparisonExp>;
+};
+
+/** unique or primary key constraints on table "audit_events" */
+export enum AuditEventsConstraint {
+  /** unique or primary key constraint */
+  AuditEventsPkey = "audit_events_pkey",
+}
+
+/** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+export type AuditEventsDeleteAtPathInput = {
+  data?: Maybe<Array<Maybe<Scalars["String"]>>>;
+};
+
+/** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+export type AuditEventsDeleteElemInput = {
+  data?: Maybe<Scalars["Int"]>;
+};
+
+/** delete key/value pair or string element. key/value pairs are matched based on their key value */
+export type AuditEventsDeleteKeyInput = {
+  data?: Maybe<Scalars["String"]>;
+};
+
+/** input type for inserting data into table "audit_events" */
+export type AuditEventsInsertInput = {
+  action?: Maybe<Scalars["String"]>;
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  data?: Maybe<Scalars["jsonb"]>;
+  error?: Maybe<Scalars["String"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  is_system?: Maybe<Scalars["Boolean"]>;
+  outcome?: Maybe<Scalars["String"]>;
+  user_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** aggregate max on columns */
+export type AuditEventsMaxFields = {
+  action?: Maybe<Scalars["String"]>;
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  error?: Maybe<Scalars["String"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  outcome?: Maybe<Scalars["String"]>;
+  user_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** order by max() on columns of table "audit_events" */
+export type AuditEventsMaxOrderBy = {
+  action?: Maybe<OrderBy>;
+  company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  error?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  outcome?: Maybe<OrderBy>;
+  user_id?: Maybe<OrderBy>;
+};
+
+/** aggregate min on columns */
+export type AuditEventsMinFields = {
+  action?: Maybe<Scalars["String"]>;
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  error?: Maybe<Scalars["String"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  outcome?: Maybe<Scalars["String"]>;
+  user_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** order by min() on columns of table "audit_events" */
+export type AuditEventsMinOrderBy = {
+  action?: Maybe<OrderBy>;
+  company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  error?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  outcome?: Maybe<OrderBy>;
+  user_id?: Maybe<OrderBy>;
+};
+
+/** response of any mutation on the table "audit_events" */
+export type AuditEventsMutationResponse = {
+  /** number of affected rows by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data of the affected rows by the mutation */
+  returning: Array<AuditEvents>;
+};
+
+/** input type for inserting object relation for remote table "audit_events" */
+export type AuditEventsObjRelInsertInput = {
+  data: AuditEventsInsertInput;
+  on_conflict?: Maybe<AuditEventsOnConflict>;
+};
+
+/** on conflict condition type for table "audit_events" */
+export type AuditEventsOnConflict = {
+  constraint: AuditEventsConstraint;
+  update_columns: Array<AuditEventsUpdateColumn>;
+  where?: Maybe<AuditEventsBoolExp>;
+};
+
+/** ordering options when selecting data from "audit_events" */
+export type AuditEventsOrderBy = {
+  action?: Maybe<OrderBy>;
+  company_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  data?: Maybe<OrderBy>;
+  error?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  is_system?: Maybe<OrderBy>;
+  outcome?: Maybe<OrderBy>;
+  user_id?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "audit_events" */
+export type AuditEventsPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** prepend existing jsonb value of filtered columns with new jsonb value */
+export type AuditEventsPrependInput = {
+  data?: Maybe<Scalars["jsonb"]>;
+};
+
+/** select columns of table "audit_events" */
+export enum AuditEventsSelectColumn {
+  /** column name */
+  Action = "action",
+  /** column name */
+  CompanyId = "company_id",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  Data = "data",
+  /** column name */
+  Error = "error",
+  /** column name */
+  Id = "id",
+  /** column name */
+  IsSystem = "is_system",
+  /** column name */
+  Outcome = "outcome",
+  /** column name */
+  UserId = "user_id",
+}
+
+/** input type for updating data in table "audit_events" */
+export type AuditEventsSetInput = {
+  action?: Maybe<Scalars["String"]>;
+  company_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  data?: Maybe<Scalars["jsonb"]>;
+  error?: Maybe<Scalars["String"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  is_system?: Maybe<Scalars["Boolean"]>;
+  outcome?: Maybe<Scalars["String"]>;
+  user_id?: Maybe<Scalars["uuid"]>;
+};
+
+/** update columns of table "audit_events" */
+export enum AuditEventsUpdateColumn {
+  /** column name */
+  Action = "action",
+  /** column name */
+  CompanyId = "company_id",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  Data = "data",
+  /** column name */
+  Error = "error",
+  /** column name */
+  Id = "id",
+  /** column name */
+  IsSystem = "is_system",
+  /** column name */
+  Outcome = "outcome",
+  /** column name */
+  UserId = "user_id",
+}
+
 /** columns and relationships of "bank_accounts" */
 export type BankAccounts = {
   account_number: Scalars["String"];
@@ -7385,6 +7645,10 @@ export type LoansVarianceOrderBy = {
 
 /** mutation root */
 export type MutationRoot = {
+  /** delete data from the table: "audit_events" */
+  delete_audit_events?: Maybe<AuditEventsMutationResponse>;
+  /** delete single row from the table: "audit_events" */
+  delete_audit_events_by_pk?: Maybe<AuditEvents>;
   /** delete data from the table: "bank_accounts" */
   delete_bank_accounts?: Maybe<BankAccountsMutationResponse>;
   /** delete single row from the table: "bank_accounts" */
@@ -7517,6 +7781,10 @@ export type MutationRoot = {
   delete_users_by_pk?: Maybe<Users>;
   /** delete data from the table: "vendors" */
   delete_vendors?: Maybe<VendorsMutationResponse>;
+  /** insert data into the table: "audit_events" */
+  insert_audit_events?: Maybe<AuditEventsMutationResponse>;
+  /** insert a single row into the table: "audit_events" */
+  insert_audit_events_one?: Maybe<AuditEvents>;
   /** insert data into the table: "bank_accounts" */
   insert_bank_accounts?: Maybe<BankAccountsMutationResponse>;
   /** insert a single row into the table: "bank_accounts" */
@@ -7653,6 +7921,10 @@ export type MutationRoot = {
   insert_vendors?: Maybe<VendorsMutationResponse>;
   /** insert a single row into the table: "vendors" */
   insert_vendors_one?: Maybe<Vendors>;
+  /** update data of the table: "audit_events" */
+  update_audit_events?: Maybe<AuditEventsMutationResponse>;
+  /** update single row of the table: "audit_events" */
+  update_audit_events_by_pk?: Maybe<AuditEvents>;
   /** update data of the table: "bank_accounts" */
   update_bank_accounts?: Maybe<BankAccountsMutationResponse>;
   /** update single row of the table: "bank_accounts" */
@@ -7785,6 +8057,16 @@ export type MutationRoot = {
   update_users_by_pk?: Maybe<Users>;
   /** update data of the table: "vendors" */
   update_vendors?: Maybe<VendorsMutationResponse>;
+};
+
+/** mutation root */
+export type MutationRootDeleteAuditEventsArgs = {
+  where: AuditEventsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteAuditEventsByPkArgs = {
+  id: Scalars["uuid"];
 };
 
 /** mutation root */
@@ -8118,6 +8400,18 @@ export type MutationRootDeleteUsersByPkArgs = {
 /** mutation root */
 export type MutationRootDeleteVendorsArgs = {
   where: VendorsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootInsertAuditEventsArgs = {
+  objects: Array<AuditEventsInsertInput>;
+  on_conflict?: Maybe<AuditEventsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertAuditEventsOneArgs = {
+  object: AuditEventsInsertInput;
+  on_conflict?: Maybe<AuditEventsOnConflict>;
 };
 
 /** mutation root */
@@ -8522,6 +8816,28 @@ export type MutationRootInsertVendorsArgs = {
 /** mutation root */
 export type MutationRootInsertVendorsOneArgs = {
   object: VendorsInsertInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateAuditEventsArgs = {
+  _append?: Maybe<AuditEventsAppendInput>;
+  _delete_at_path?: Maybe<AuditEventsDeleteAtPathInput>;
+  _delete_elem?: Maybe<AuditEventsDeleteElemInput>;
+  _delete_key?: Maybe<AuditEventsDeleteKeyInput>;
+  _prepend?: Maybe<AuditEventsPrependInput>;
+  _set?: Maybe<AuditEventsSetInput>;
+  where: AuditEventsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateAuditEventsByPkArgs = {
+  _append?: Maybe<AuditEventsAppendInput>;
+  _delete_at_path?: Maybe<AuditEventsDeleteAtPathInput>;
+  _delete_elem?: Maybe<AuditEventsDeleteElemInput>;
+  _delete_key?: Maybe<AuditEventsDeleteKeyInput>;
+  _prepend?: Maybe<AuditEventsPrependInput>;
+  _set?: Maybe<AuditEventsSetInput>;
+  pk_columns: AuditEventsPkColumnsInput;
 };
 
 /** mutation root */
@@ -10945,6 +11261,12 @@ export type PurchaseOrdersVarianceOrderBy = {
 
 /** query root */
 export type QueryRoot = {
+  /** fetch data from the table: "audit_events" */
+  audit_events: Array<AuditEvents>;
+  /** fetch aggregated fields from the table: "audit_events" */
+  audit_events_aggregate: AuditEventsAggregate;
+  /** fetch data from the table: "audit_events" using primary key columns */
+  audit_events_by_pk?: Maybe<AuditEvents>;
   /** fetch data from the table: "bank_accounts" */
   bank_accounts: Array<BankAccounts>;
   /** fetch aggregated fields from the table: "bank_accounts" */
@@ -11145,6 +11467,29 @@ export type QueryRoot = {
   vendors: Array<Vendors>;
   /** fetch aggregated fields from the table: "vendors" */
   vendors_aggregate: VendorsAggregate;
+};
+
+/** query root */
+export type QueryRootAuditEventsArgs = {
+  distinct_on?: Maybe<Array<AuditEventsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<AuditEventsOrderBy>>;
+  where?: Maybe<AuditEventsBoolExp>;
+};
+
+/** query root */
+export type QueryRootAuditEventsAggregateArgs = {
+  distinct_on?: Maybe<Array<AuditEventsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<AuditEventsOrderBy>>;
+  where?: Maybe<AuditEventsBoolExp>;
+};
+
+/** query root */
+export type QueryRootAuditEventsByPkArgs = {
+  id: Scalars["uuid"];
 };
 
 /** query root */
@@ -12244,6 +12589,12 @@ export enum RevokedTokensUpdateColumn {
 
 /** subscription root */
 export type SubscriptionRoot = {
+  /** fetch data from the table: "audit_events" */
+  audit_events: Array<AuditEvents>;
+  /** fetch aggregated fields from the table: "audit_events" */
+  audit_events_aggregate: AuditEventsAggregate;
+  /** fetch data from the table: "audit_events" using primary key columns */
+  audit_events_by_pk?: Maybe<AuditEvents>;
   /** fetch data from the table: "bank_accounts" */
   bank_accounts: Array<BankAccounts>;
   /** fetch aggregated fields from the table: "bank_accounts" */
@@ -12444,6 +12795,29 @@ export type SubscriptionRoot = {
   vendors: Array<Vendors>;
   /** fetch aggregated fields from the table: "vendors" */
   vendors_aggregate: VendorsAggregate;
+};
+
+/** subscription root */
+export type SubscriptionRootAuditEventsArgs = {
+  distinct_on?: Maybe<Array<AuditEventsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<AuditEventsOrderBy>>;
+  where?: Maybe<AuditEventsBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootAuditEventsAggregateArgs = {
+  distinct_on?: Maybe<Array<AuditEventsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<AuditEventsOrderBy>>;
+  where?: Maybe<AuditEventsBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootAuditEventsByPkArgs = {
+  id: Scalars["uuid"];
 };
 
 /** subscription root */
@@ -15516,6 +15890,7 @@ export type GetPaymentQuery = {
   payments_by_pk?: Maybe<
     Pick<Payments, "id"> & {
       company: Pick<Companies, "id" | "name">;
+      settled_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
       submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
     } & PaymentLimitedFragment
   >;
@@ -15880,14 +16255,16 @@ export type LoanLimitedFragment = Pick<
 export type PaymentLimitedFragment = Pick<
   Payments,
   | "id"
-  | "amount"
-  | "method"
-  | "type"
   | "submitted_at"
   | "settled_at"
-  | "settlement_date"
+  | "type"
+  | "method"
+  | "requested_amount"
+  | "amount"
   | "requested_payment_date"
   | "payment_date"
+  | "deposit_date"
+  | "settlement_date"
   | "items_covered"
 >;
 
@@ -16563,14 +16940,16 @@ export const LoanLimitedFragmentDoc = gql`
 export const PaymentLimitedFragmentDoc = gql`
   fragment PaymentLimited on payments {
     id
-    amount
-    method
-    type
     submitted_at
     settled_at
-    settlement_date
+    type
+    method
+    requested_amount
+    amount
     requested_payment_date
     payment_date
+    deposit_date
+    settlement_date
     items_covered
   }
 `;
@@ -20743,6 +21122,10 @@ export const GetPaymentDocument = gql`
       company {
         id
         name
+      }
+      settled_by_user {
+        id
+        full_name
       }
       submitted_by_user {
         id

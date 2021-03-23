@@ -191,7 +191,7 @@ function CreateRepaymentSelectLoans({
                 className={classes.inputField}
                 id="payment-modal-payment-date-date-picker"
                 label={
-                  isReverseDraftACH ? "Requested Payment Date" : "Deposit Date"
+                  isReverseDraftACH ? "Requested Withdraw Date" : "Deposit Date"
                 }
                 disablePast
                 disableNonBankDays
@@ -211,8 +211,10 @@ function CreateRepaymentSelectLoans({
             </Typography>
             <Typography variant="body2">
               {`Based on your payment method and ${
-                isReverseDraftACH ? "requested" : "specified"
-              } payment date, this is the expected date when your payment will count towards your balance.`}
+                isReverseDraftACH
+                  ? "requested withdraw date"
+                  : "specified deposit date"
+              }, this is the expected date when your payment will count towards your balance.`}
             </Typography>
             <Box mt={1}>
               <DatePicker

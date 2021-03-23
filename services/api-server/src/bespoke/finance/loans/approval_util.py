@@ -1,15 +1,14 @@
 from typing import Callable, Dict, List, Tuple, cast
-from mypy_extensions import TypedDict
 
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
+from bespoke.db.db_constants import (ALL_LOAN_TYPES, LoanStatusEnum,
+                                     LoanTypeEnum, RequestStatusEnum)
 from bespoke.db.models import session_scope
-from bespoke.db.db_constants import (ALL_LOAN_TYPES, LoanTypeEnum, LoanStatusEnum,
-                                     RequestStatusEnum)
 from bespoke.finance import financial_summary_util
 from bespoke.finance.loans import sibling_util
-
+from mypy_extensions import TypedDict
 
 ApproveLoansReqDict = TypedDict('ApproveLoansReqDict', {
 	'loan_ids': List[str],
@@ -138,7 +137,7 @@ def submit_for_approval(loan_id: str, session_maker: Callable) -> Tuple[SubmitFo
 <li>Loan type: Inventory Financing</li>
 <li>Company: {customer_name}</li>
 <li>Purchase order: {purchase_order.order_number}</li>
-<li>Request payment date: {loan.requested_payment_date}</li>
+<li>Requested deposit date: {loan.requested_payment_date}</li>
 <li>Amount: {loan.amount}</li>
 </ul>
 			"""
@@ -158,7 +157,7 @@ def submit_for_approval(loan_id: str, session_maker: Callable) -> Tuple[SubmitFo
 <li>Company: {customer_name}</li>
 <li>Is credit for vendor?: {"Yes" if line_of_credit.is_credit_for_vendor else "No"} </li>
 <li>Vendor (if appropriate): {receipient_vendor_name}</li>
-<li>Requested payment date: {loan.requested_payment_date}</li>
+<li>Requested deposit date: {loan.requested_payment_date}</li>
 <li>Amount: {loan.amount}</li>
 </ul>
 			"""
@@ -172,7 +171,7 @@ def submit_for_approval(loan_id: str, session_maker: Callable) -> Tuple[SubmitFo
 <li>Loan type: Invoice</li>
 <li>Company: {customer_name}</li>
 <li>Invoice: {invoice.invoice_number}</li>
-<li>Requested payment date: {loan.requested_payment_date}</li>
+<li>Requested deposit date: {loan.requested_payment_date}</li>
 <li>Amount: {loan.amount}</li>
 </ul>"""
 

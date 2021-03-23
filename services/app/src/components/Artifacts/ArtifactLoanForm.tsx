@@ -105,7 +105,7 @@ export default function ArtifactLoanForm({
         <DatePicker
           className={classes.inputField}
           id="requested-payment-date-date-picker"
-          label="Requested Payment Date"
+          label="Requested Deposit Date"
           disablePast
           disableNonBankDays
           value={loan.requested_payment_date}
@@ -118,7 +118,7 @@ export default function ArtifactLoanForm({
         />
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
-            Requested Payment Date is the date you want the advance from Bespoke
+            Requested Deposit Date is the date you want the advance from Bespoke
             to arrive to the vendor (the date when interest charges begin).
             Bespoke will try to adhere to this request, but the actual payment
             date may be different.

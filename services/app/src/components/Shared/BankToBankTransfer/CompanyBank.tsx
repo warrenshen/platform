@@ -77,12 +77,7 @@ function CompanyBank({ companyId, onCompanyBankAccountSelection }: Props) {
       </FormControl>
       {companyBankAccount && (
         <Box mt={1} width="fit-content">
-          <BankAccountInfoCard
-            isCannabisCompliantVisible
-            isEditAllowed={false}
-            isVerificationVisible
-            bankAccount={companyBankAccount}
-          />
+          <BankAccountInfoCard bankAccount={companyBankAccount} />
         </Box>
       )}
     </Box>

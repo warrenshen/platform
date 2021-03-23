@@ -1,4 +1,4 @@
-import PaymentsDataGrid from "components/Repayment/PaymentsDataGrid";
+import RepaymentsDataGrid from "components/Repayment/RepaymentsDataGrid";
 import Page from "components/Shared/Page";
 import { useGetPaymentsSubscription } from "generated/graphql";
 
@@ -9,7 +9,7 @@ function BankPaymentsPage() {
 
   return (
     <Page appBarTitle={"Payments - All"}>
-      <PaymentsDataGrid
+      <RepaymentsDataGrid
         isCompanyVisible
         isExcelExport
         enableSelect={false}

@@ -22,7 +22,7 @@ function RequestedRepaymentPreview({ payment }: Props) {
         </Box>
         <Box mt={1}>
           <Typography variant="body1">
-            {`Requested Payment Date: ${formatDateString(
+            {`Requested Deposit Date: ${formatDateString(
               payment.requested_payment_date
             )}`}
           </Typography>

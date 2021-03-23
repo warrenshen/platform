@@ -7,7 +7,7 @@ import {
 } from "@material-ui/core";
 import CustomerFinancialSummaryOverview from "components/CustomerFinancialSummary/CustomerFinancialSummaryOverview";
 import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
-import PaymentsDataGrid from "components/Repayment/PaymentsDataGrid";
+import RepaymentsDataGrid from "components/Repayment/RepaymentsDataGrid";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   ProductTypeEnum,
@@ -78,7 +78,7 @@ function CustomerOverviewSubpage({ companyId, productType }: Props) {
         <Box display="flex" flex={1}>
           <Box display="flex" flexDirection="column" width="100%">
             {payments.length > 0 ? (
-              <PaymentsDataGrid isExcelExport payments={payments} />
+              <RepaymentsDataGrid isExcelExport payments={payments} />
             ) : (
               <Typography variant="body1">
                 Customer does not have any pending payments.

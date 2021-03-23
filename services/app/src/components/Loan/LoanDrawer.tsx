@@ -163,7 +163,7 @@ function LoanDrawer({ loanId, handleClose }: Props) {
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
-              Requested Payment Date
+              Requested Deposit Date
             </Typography>
             <Typography variant={"body1"}>
               {formatDateString(loan.requested_payment_date)}

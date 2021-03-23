@@ -110,7 +110,7 @@ function LineOfCreditLoansDataGrid({
       },
       {
         visible: !isMaturityVisible,
-        caption: "Requested Payment Date",
+        caption: "Requested Deposit Date",
         dataField: "requested_payment_date",
         width: ColumnWidths.Date,
         alignment: "right",

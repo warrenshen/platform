@@ -110,7 +110,7 @@ export default function MultiplePurchaseOrdersLoansForm({
         <DatePicker
           className={classes.inputField}
           id="requested-payment-date-date-picker"
-          label="Requested Payment Date"
+          label="Requested Deposit Date"
           disablePast
           disableNonBankDays
           value={paymentDate}

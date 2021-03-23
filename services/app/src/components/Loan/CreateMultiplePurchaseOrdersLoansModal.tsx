@@ -232,7 +232,7 @@ export default function CreateMultiplePurchaseOrdersLoansModal({
           <Alert severity="warning">
             <span>
               Note: you are requesting loans for MULTIPLE purchase orders. All
-              loans requested will have the same requested payment date and be
+              loans requested will have the same Requested Deposit Date and be
               for the full remaining amount on each purchase order.
             </span>
           </Alert>

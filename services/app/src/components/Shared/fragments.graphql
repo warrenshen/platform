@@ -111,14 +111,16 @@ fragment LoanLimited on loans {
 
 fragment PaymentLimited on payments {
   id
-  amount
-  method
-  type
   submitted_at
   settled_at
-  settlement_date
+  type
+  method
+  requested_amount
+  amount
   requested_payment_date
   payment_date
+  deposit_date
+  settlement_date
   items_covered
 }
 

@@ -14,10 +14,18 @@ import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
 import { useMemo, useState } from "react";
 
+export enum RepaymentTypeEnum {
+  Closed = "closed",
+  RequestedReverseDraftACH = "requested-reverse-draft-ach",
+  ReverseDraftACH = "reverse-draft-ach",
+  Other = "other",
+}
+
 interface Props {
   isCompanyVisible?: boolean;
-  isMethodVisible?: boolean;
   isExcelExport?: boolean;
+  isMethodVisible?: boolean;
+  repaymentType?: RepaymentTypeEnum;
   payments: PaymentLimitedFragment[];
   customerSearchQuery?: string;
   onClickCustomerName?: (value: string) => void;
@@ -29,9 +37,10 @@ interface Props {
 
 function RepaymentsDataGrid({
   isCompanyVisible = false,
-  isMethodVisible = true,
-  enableSelect = false,
   isExcelExport = false,
+  isMethodVisible = true,
+  repaymentType = RepaymentTypeEnum.Other,
+  enableSelect = false,
   payments,
   customerSearchQuery = "",
   onClickCustomerName,
@@ -39,8 +48,20 @@ function RepaymentsDataGrid({
   selectedPaymentIds,
   handleSelectPayments,
 }: Props) {
+  const isClosed = repaymentType === RepaymentTypeEnum.Closed;
+  const isRequestedReverseDraftACH =
+    repaymentType === RepaymentTypeEnum.RequestedReverseDraftACH;
+  const isReverseDraftACH = repaymentType === RepaymentTypeEnum.ReverseDraftACH;
+  const isOther = repaymentType === RepaymentTypeEnum.Other;
   const [dataGrid, setDataGrid] = useState<any>(null);
-  const rows = payments;
+  const rows = useMemo(
+    () =>
+      payments.map((payment) => ({
+        ...payment,
+        amount: isOther ? payment.requested_amount : payment.amount,
+      })),
+    [isOther, payments]
+  );
   const columns = useMemo(
     () => [
       {
@@ -109,7 +130,7 @@ function RepaymentsDataGrid({
         ),
       },
       {
-        visible: isMethodVisible,
+        visible: true || isMethodVisible,
         dataField: "method",
         caption: "Method",
         minWidth: ColumnWidths.MinWidth,
@@ -121,6 +142,7 @@ function RepaymentsDataGrid({
         ),
       },
       {
+        visible: isRequestedReverseDraftACH,
         dataField: "requested_amount",
         caption: "Requested Amount",
         width: ColumnWidths.Currency,
@@ -131,8 +153,9 @@ function RepaymentsDataGrid({
         ),
       },
       {
+        visible: !isRequestedReverseDraftACH,
         dataField: "amount",
-        caption: "Amount",
+        caption: "Expected Amount",
         width: ColumnWidths.Currency,
         alignment: "right",
         calculateCellValue: ({ amount }: PaymentLimitedFragment) => amount,
@@ -141,17 +164,9 @@ function RepaymentsDataGrid({
         ),
       },
       {
-        caption: "Submitted Date",
-        width: ColumnWidths.Date,
-        alignment: "right",
-        calculateCellValue: ({ submitted_at }: PaymentLimitedFragment) =>
-          submitted_at,
-        cellRender: (params: ValueFormatterParams) => (
-          <DatetimeDataGridCell datetimeString={params.row.data.submitted_at} />
-        ),
-      },
-      {
-        caption: "Requested Payment Date",
+        visible: isRequestedReverseDraftACH,
+        dataField: "requested_payment_date",
+        caption: "Requested Deposit Date",
         width: ColumnWidths.Date,
         alignment: "right",
         calculateCellValue: ({
@@ -164,7 +179,8 @@ function RepaymentsDataGrid({
         ),
       },
       {
-        caption: "Payment Date",
+        visible: isReverseDraftACH || isOther,
+        caption: "Expected Deposit Date",
         width: ColumnWidths.Date,
         alignment: "right",
         calculateCellValue: ({ payment_date }: PaymentLimitedFragment) =>
@@ -174,6 +190,7 @@ function RepaymentsDataGrid({
         ),
       },
       {
+        visible: isClosed,
         caption: "Deposit Date",
         width: ColumnWidths.Date,
         alignment: "right",
@@ -183,6 +200,7 @@ function RepaymentsDataGrid({
         ),
       },
       {
+        visible: isClosed,
         caption: "Settlement Date",
         width: ColumnWidths.Date,
         alignment: "right",
@@ -192,21 +210,15 @@ function RepaymentsDataGrid({
           <DateDataGridCell dateString={params.row.data.settlement_date} />
         ),
       },
-      {
-        dataField: "submitted_by_user.full_name",
-        caption: "Submitted By",
-        width: 140,
-      },
-      {
-        dataField: "settled_by_user.full_name",
-        caption: "Settled By",
-        width: 140,
-      },
     ],
     [
       dataGrid?.instance,
       isCompanyVisible,
       isMethodVisible,
+      isClosed,
+      isRequestedReverseDraftACH,
+      isReverseDraftACH,
+      isOther,
       actionItems,
       onClickCustomerName,
     ]

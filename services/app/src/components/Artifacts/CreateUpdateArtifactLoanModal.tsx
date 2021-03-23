@@ -286,7 +286,7 @@ export default function CreateUpdateArtifactLoanModal({
   }
 
   if (!loan?.requested_payment_date) {
-    disabledSubmitReasons.push("Requested payment date is not set");
+    disabledSubmitReasons.push("Requested Deposit Date is not set");
   }
   if (!loan?.amount) {
     disabledSubmitReasons.push("Amount is not specified");
