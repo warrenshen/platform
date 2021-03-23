@@ -226,8 +226,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'available_limit': 120000.01 - (500.03 + 100.03),
 					'minimum_monthly_payload': {
 							'minimum_amount': 200.03,
-							'amount_accrued': (3 * 0.05 * 500.03) + (2 * 0.05 * 100.03),
-							'amount_short': 200.03 - ((3 * 0.05 * 500.03) + (2 * 0.05 * 100.03))
+							'amount_accrued': round((3 * 0.05 * 500.03) + (2 * 0.05 * 100.03), 2),
+							'amount_short': round(200.03 - ((3 * 0.05 * 500.03) + (2 * 0.05 * 100.03)), 2)
 					},
 					'account_level_balance_payload': {
 							'fees_total': 0.0,
@@ -343,7 +343,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'available_limit': 120000.01 - (450.03),
 					'minimum_monthly_payload': {
 							'minimum_amount': 1.03,
-							'amount_accrued': 2 * 0.002 * 500.03,
+							'amount_accrued': round(2 * 0.002 * 500.03, 2),
 							'amount_short': 0.0
 					},
 					'account_level_balance_payload': {

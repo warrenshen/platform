@@ -110,7 +110,7 @@ def _get_active_ebba_application_update(
 
 	return EbbaApplicationUpdateDict(
 		id=ebba_application['id'],
-		calculated_borrowing_base=calculated_borrowing_base,
+		calculated_borrowing_base=number_util.round_currency(calculated_borrowing_base),
 	), None
 
 def _get_cur_month_minimum_fees(contract_helper: contract_util.ContractHelper, today: datetime.date, fee_accumulator: loan_calculator.FeeAccumulator) -> Tuple[FeeDict, errors.Error]:
@@ -122,26 +122,19 @@ def _get_cur_month_minimum_fees(contract_helper: contract_util.ContractHelper, t
 		return None, err
 
 	month_to_fee_amounts = fee_accumulator.get_month_to_amounts()
-	month_to_fees = dict()
 	month = finance_types.Month(month=today.month, year=today.year)
 	if month not in month_to_fee_amounts:
 		return None, errors.Error('{} is missing the minimum fees amount'.format(month))
 
 	amount_dict = month_to_fee_amounts[month]
-	amount_accrued = amount_dict['interest_amount']
-	amount_short = max(0, minimum_monthly_due - amount_accrued)
+	amount_accrued = number_util.round_currency(amount_dict['interest_amount'])
+	amount_short = number_util.round_currency(max(0, minimum_monthly_due - amount_accrued))
 
-	month_to_fees[month] = FeeDict(
+	cur_month_fees = FeeDict(
 		minimum_amount=minimum_monthly_due,
 		amount_accrued=amount_accrued,
 		amount_short=amount_short,
 	)
-
-	if len(month_to_fees.keys()) != 1:
-		return None, errors.Error('Only the current month may be used for minimum fee calculations')
-
-	cur_month_key = list(month_to_fees.keys())[0]
-	cur_month_fees = month_to_fees[cur_month_key]
 	return cur_month_fees, None
 
 def _get_account_level_balance(customer_info: per_customer_types.CustomerFinancials) -> Tuple[AccountBalanceDict, errors.Error]:
@@ -164,8 +157,8 @@ def _get_account_level_balance(customer_info: per_customer_types.CustomerFinanci
 				tx['id'], tx_type))
 
 	return AccountBalanceDict(
-		fees_total=fees_total,
-		credits_total=credits_total
+		fees_total=number_util.round_currency(fees_total),
+		credits_total=number_util.round_currency(credits_total)
 	), None
 
 def _get_summary_update(
@@ -219,14 +212,14 @@ def _get_summary_update(
 
 	return SummaryUpdateDict(
 		product_type=product_type,
-		total_limit=maximum_principal_limit,
-		adjusted_total_limit=adjusted_total_limit,
-		total_outstanding_principal=total_outstanding_principal,
-		total_outstanding_principal_for_interest=total_outstanding_principal_for_interest,
-		total_outstanding_interest=total_outstanding_interest,
-		total_outstanding_fees=total_outstanding_fees,
+		total_limit=number_util.round_currency(maximum_principal_limit),
+		adjusted_total_limit=number_util.round_currency(adjusted_total_limit),
+		total_outstanding_principal=number_util.round_currency(total_outstanding_principal),
+		total_outstanding_principal_for_interest=number_util.round_currency(total_outstanding_principal_for_interest),
+		total_outstanding_interest=number_util.round_currency(total_outstanding_interest),
+		total_outstanding_fees=number_util.round_currency(total_outstanding_fees),
 		total_principal_in_requested_state=0.0,
-		available_limit=max(0.0, adjusted_total_limit - total_outstanding_principal),
+		available_limit=number_util.round_currency(max(0.0, adjusted_total_limit - total_outstanding_principal)),
 		minimum_monthly_payload=minimum_monthly_payload,
 		account_level_balance_payload=account_level_balance
 	), None

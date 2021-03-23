@@ -7,7 +7,7 @@ from bespoke import errors
 from bespoke.db import db_constants, models
 from bespoke.audit import events
 from bespoke.db.models import session_scope
-from bespoke.finance import financial_summary_util
+from bespoke.finance import financial_summary_util, number_util
 from bespoke.finance.reports import loan_balances
 from sqlalchemy.orm.session import Session
 
@@ -152,6 +152,17 @@ def compute_bank_financial_summaries(
 		cur_bank_summary.total_outstanding_fees += decimal.Decimal(summary.total_outstanding_fees or 0)
 		cur_bank_summary.total_principal_in_requested_state += decimal.Decimal(summary.total_principal_in_requested_state or 0)
 		cur_bank_summary.available_limit += decimal.Decimal(summary.available_limit or 0)
+
+	for product_type, cur_bank_summary in product_type_to_bank_summary.items():
+		cur_bank_summary.total_limit = number_util.round_currency_decimal(cur_bank_summary.total_limit)
+		cur_bank_summary.adjusted_total_limit = number_util.round_currency_decimal(cur_bank_summary.adjusted_total_limit)
+		cur_bank_summary.total_outstanding_principal = number_util.round_currency_decimal(cur_bank_summary.total_outstanding_principal)
+		cur_bank_summary.total_outstanding_principal_for_interest = number_util.round_currency_decimal(cur_bank_summary.total_outstanding_principal_for_interest)
+		cur_bank_summary.total_outstanding_interest = number_util.round_currency_decimal(cur_bank_summary.total_outstanding_interest)
+		cur_bank_summary.total_outstanding_fees = number_util.round_currency_decimal(cur_bank_summary.total_outstanding_fees)
+		cur_bank_summary.total_principal_in_requested_state = number_util.round_currency_decimal(cur_bank_summary.total_principal_in_requested_state)
+		cur_bank_summary.available_limit = number_util.round_currency_decimal(cur_bank_summary.available_limit)
+
 
 	return product_type_to_bank_summary.values(), None
 

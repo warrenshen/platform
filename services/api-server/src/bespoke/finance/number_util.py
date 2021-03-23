@@ -1,5 +1,6 @@
+import decimal
 import math
-from typing import Any
+from typing import Any, Union
 
 
 def to_dollar_format(amount: float) -> str:
@@ -17,10 +18,13 @@ def float_lte(a: float, b: float) -> bool:
 def float_gt(a: float, b: float) -> bool:
 	return False if float_eq(a, b) else a > b
 
-def is_currency_rounded(num: float) -> bool:
+def is_currency_rounded(num: Union[float, decimal.Decimal]) -> bool:
 	return round(num, 2) == num
 
 def round_currency(num: float) -> float:
+	return round(num, 2)
+
+def round_currency_decimal(num: decimal.Decimal) -> decimal.Decimal:
 	return round(num, 2)
 
 def is_number(val: Any) -> bool:
