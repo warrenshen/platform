@@ -6,10 +6,12 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import RequestedRepaymentPreview from "components/Repayment/RequestedRepaymentPreview";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import {
+  BankAccounts,
   Companies,
   GetLoansByLoanIdsQuery,
   PaymentsInsertInput,
@@ -26,12 +28,14 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   payment: PaymentsInsertInput;
   customer: Companies;
+  customerBankAccount: BankAccounts | null;
   selectedLoans: GetLoansByLoanIdsQuery["loans"];
   setPayment: (payment: PaymentsInsertInput) => void;
 }
 function ScheduleRepaymentSelectLoans({
   payment,
   customer,
+  customerBankAccount,
   selectedLoans,
   setPayment,
 }: Props) {
@@ -122,6 +126,19 @@ function ScheduleRepaymentSelectLoans({
             applied to interest balance (deposit date plus Clearance Days).
           </Typography>
         </Box>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={3}>
+        <Box mb={1}>
+          <Typography variant="subtitle2">
+            Which bank account should you trigger the reverse from?
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            {`${customer.name} requested that you withdraw from the following bank account:`}
+          </Typography>
+        </Box>
+        {customerBankAccount && (
+          <BankAccountInfoCard bankAccount={customerBankAccount} />
+        )}
       </Box>
     </Box>
   ) : null;

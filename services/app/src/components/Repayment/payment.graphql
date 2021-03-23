@@ -33,6 +33,10 @@ query GetPaymentForSettlement($id: uuid!) {
         ...FinancialSummary
       }
     }
+    company_bank_account {
+      id
+      ...BankAccount
+    }
     submitted_by_user {
       id
       full_name

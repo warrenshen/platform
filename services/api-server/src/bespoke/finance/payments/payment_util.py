@@ -37,6 +37,7 @@ RepaymentPaymentInputDict = TypedDict('RepaymentPaymentInputDict', {
 	'requested_payment_date': datetime.date,
 	'payment_date': datetime.date,
 	'items_covered': PaymentItemsCoveredDict,
+	'company_bank_account_id': str,
 })
 
 PaymentInsertInputDict = TypedDict('PaymentInsertInputDict', {
@@ -49,6 +50,7 @@ PaymentInsertInputDict = TypedDict('PaymentInsertInputDict', {
 	'payment_date': str,
 	'settlement_date': str,
 	'items_covered': PaymentItemsCoveredDict,
+	'company_bank_account_id': str,
 })
 
 def create_payment(
@@ -77,6 +79,7 @@ def create_repayment_payment(
 	payment.requested_payment_date = payment_input['requested_payment_date']
 	payment.payment_date = payment_input['payment_date']
 	payment.items_covered = cast(Dict[str, Any], payment_input['items_covered'])
+	payment.company_bank_account_id = payment_input['company_bank_account_id']
 	payment.submitted_at = datetime.datetime.now()
 	payment.submitted_by_user_id = user_id
 	return payment

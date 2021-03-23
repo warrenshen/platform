@@ -130,6 +130,7 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 			payment_date=None,
 			settlement_date='10/10/2020', # unused
 			items_covered={ 'loan_ids': loan_ids },
+			company_bank_account_id=test['payment']['company_bank_account_id'],
 		),
 		user_id=user_id,
 		session_maker=self.session_maker,
@@ -315,6 +316,7 @@ class TestSettlePayment(db_unittest.TestCase):
 					'items_covered': {
 						'to_user_credit': 0.0,
 					},
+					'company_bank_account_id': None,
 				},
 				'expected_payment': {
 					'amount': 40.0 + 0.3 + 20.0 + 0.24
@@ -407,6 +409,7 @@ class TestSettlePayment(db_unittest.TestCase):
 					'items_covered': {
 						'to_user_credit': 0.0,
 					},
+					'company_bank_account_id': None,
 				},
 				'expected_payment': {
 					'amount': 51.02 + 0.31 + 0.03
@@ -478,6 +481,7 @@ class TestSettlePayment(db_unittest.TestCase):
 				'items_covered': {
 					'to_user_credit': 5.0,
 				},
+				'company_bank_account_id': None,
 			},
 			'expected_payment': {
 				'amount': 55.0 + 0.3 + 0.0
@@ -586,6 +590,7 @@ class TestSettlePayment(db_unittest.TestCase):
 					'items_covered': {
 						'to_user_credit': 5.0,
 					},
+					'company_bank_account_id': None,
 				},
 				'expected_payment': {
 					'amount': 45.0 + 40.0 + 0.24 + 30.0 + 0.18 + 5.0
@@ -703,7 +708,8 @@ class TestSettlePayment(db_unittest.TestCase):
 				'amount': 55.0 + 0.3 + 0.0,
 				'payment_method': 'ach',
 				'payment_date': '10/10/2020',
-				'settlement_date': '10/12/2020'
+				'settlement_date': '10/12/2020',
+				'company_bank_account_id': None,
 			},
 			'expected_payment': {
 				'amount': 55.0 + 0.3 + 0.0
@@ -793,7 +799,8 @@ class TestSettlePayment(db_unittest.TestCase):
 				'amount': (50.0 + 0.3 + 10.0 + 5.0) + (40.0 + 0.0 + 5.0 + 1.0),
 				'payment_method': 'ach',
 				'payment_date': '10/10/2020',
-				'settlement_date': '10/12/2020'
+				'settlement_date': '10/12/2020',
+				'company_bank_account_id': None,
 			},
 			'expected_payment': {
 				'amount': (50.0 + 0.3 + 10.0 + 5.0) + (40.0 + 0.0 + 5.0 + 1.0)
@@ -862,7 +869,8 @@ class TestSettlePayment(db_unittest.TestCase):
 				'amount': 50.0 + 0.0 + 0.0,
 				'payment_method': 'ach',
 				'payment_date': '10/10/2020',
-				'settlement_date': '10/12/2020'
+				'settlement_date': '10/12/2020',
+				'company_bank_account_id': None,
 			},
 			'expected_payment': {
 				'amount': 50.0 + 0.0 + 0.0,
@@ -929,7 +937,8 @@ class TestSettlePayment(db_unittest.TestCase):
 				'amount': 50.0 + 10.0 + 0.0 + 0.0,
 				'payment_method': 'ach',
 				'payment_date': '10/10/2020',
-				'settlement_date': '10/12/2020'
+				'settlement_date': '10/12/2020',
+				'company_bank_account_id': None,
 			},
 			'expected_payment': {
 				'amount': 50.0 + 10.0 + 0.0 + 0.0,
@@ -1037,6 +1046,7 @@ class TestSettlePayment(db_unittest.TestCase):
 				'payment_method': 'unused',
 				'payment_date': '10/10/20',
 				'settlement_date': '10/10/20',
+				'company_bank_account_id': None,
 			},
 			'transaction_inputs': [
 				{
@@ -1080,6 +1090,7 @@ class TestSettlePayment(db_unittest.TestCase):
 				'settled_at': date_util.today_as_date(),
 				'payment_date': '10/10/20',
 				'settlement_date': '10/10/20',
+				'company_bank_account_id': None,
 			},
 			'transaction_inputs': [
 				{
@@ -1118,11 +1129,12 @@ class TestSettlePayment(db_unittest.TestCase):
 				],
 			],
 			'payment': {
+				'type': db_constants.PaymentType.ADVANCE,
 				'amount': 30.0 + 0.0 + 0.0,
 				'payment_method': 'unused',
-				'type': db_constants.PaymentType.ADVANCE,
 				'payment_date': '10/10/20',
 				'settlement_date': '10/10/20',
+				'company_bank_account_id': None,
 			},
 			'transaction_inputs': [
 				{
@@ -1164,9 +1176,9 @@ class TestSettlePayment(db_unittest.TestCase):
 			'payment': {
 				'amount': 30.0 + 0.0 + 0.0,
 				'payment_method': 'unused',
-				'type': db_constants.PaymentType.ADVANCE,
 				'payment_date': '10/10/20',
 				'settlement_date': '10/10/20',
+				'company_bank_account_id': None,
 			},
 			'transaction_inputs': [
 				{
@@ -1208,9 +1220,9 @@ class TestSettlePayment(db_unittest.TestCase):
 			'payment': {
 				'amount': 30.0 + 0.0 + 0.0 + err_amount,
 				'payment_method': 'unused',
-				'type': db_constants.PaymentType.ADVANCE,
 				'payment_date': '10/10/20',
 				'settlement_date': '10/10/20',
+				'company_bank_account_id': None,
 			},
 			'transaction_inputs': [
 				{
@@ -1263,6 +1275,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 						'to_interest': 0.4,
 						'to_user_credit': 0.0,
 					 },
+					 'company_bank_account_id': None,
 				},
 				'expected_transactions': [
 					{
@@ -1317,6 +1330,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 						'to_interest': 0.4,
 						'to_user_credit': 10.0,
 					},
+					'company_bank_account_id': None,
 				},
 				'expected_transactions': [
 					{
@@ -1381,6 +1395,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 						'to_interest': 0.0,
 						'to_user_credit': 0.0,
 					},
+					'company_bank_account_id': None,
 				},
 				'expected_transactions': [
 					{
@@ -1437,6 +1452,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 						'to_interest': 0.4,
 						'to_user_credit': 0.0,
 					},
+					'company_bank_account_id': None,
 				},
 				'expected_transactions': [
 					{
@@ -1503,6 +1519,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 						'to_interest': 0.4 + 0.6,
 						'to_user_credit': 0.0,
 					},
+					'company_bank_account_id': None,
 				},
 				'expected_transactions': [
 					{
@@ -1584,6 +1601,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 						'to_interest': 0.0 + 0.0,
 						'to_user_credit': 0.0,
 					},
+					'company_bank_account_id': None,
 				},
 				'expected_transactions': [
 					{
@@ -1651,6 +1669,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 					'requested_to_principal': 50.0,
 					'requested_to_interest': 0.4,
 				},
+				'company_bank_account_id': None,
 			},
 			'settlement_payment': {
 				'amount': 50.0 + 0.4,
@@ -1696,6 +1715,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 					'requested_to_principal': 50.0,
 					'requested_to_interest': 0.4,
 				},
+				'company_bank_account_id': None,
 			},
 			'settlement_payment': {
 				'amount': 50.0 + 0.4 + 0.0,
@@ -1744,6 +1764,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 					'requested_to_principal': 50.0 + 10.0, # 10.0 overpayment
 					'requested_to_interest': 0.4,
 				},
+				'company_bank_account_id': None,
 			},
 			'settlement_payment': {
 				'amount': 50.0 + 0.4 + 10.0, # 10.0 overpayment
@@ -1792,6 +1813,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 					'requested_to_principal': 50.0,
 					'requested_to_interest': 0.4 + 10.0, # 10.0 overpayment
 				},
+				'company_bank_account_id': None,
 			},
 			'settlement_payment': {
 				'amount': 50.0 + 0.4 + 10.0, # 10.0 overpayment

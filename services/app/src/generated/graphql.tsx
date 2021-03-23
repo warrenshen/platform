@@ -15853,6 +15853,9 @@ export type GetPaymentForSettlementQuery = {
           Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
         >;
       };
+      company_bank_account?: Maybe<
+        Pick<BankAccounts, "id"> & BankAccountFragment
+      >;
       submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
       invoice?: Maybe<
         Pick<Invoices, "id"> & {
@@ -20900,6 +20903,10 @@ export const GetPaymentForSettlementDocument = gql`
           ...FinancialSummary
         }
       }
+      company_bank_account {
+        id
+        ...BankAccount
+      }
       submitted_by_user {
         id
         full_name
@@ -20916,6 +20923,7 @@ export const GetPaymentForSettlementDocument = gql`
   ${PaymentFragmentDoc}
   ${ContractFragmentDoc}
   ${FinancialSummaryFragmentDoc}
+  ${BankAccountFragmentDoc}
   ${BankPayorFragmentDoc}
 `;
 

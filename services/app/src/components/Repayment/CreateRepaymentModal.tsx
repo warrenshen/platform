@@ -100,6 +100,7 @@ function CreateRepaymentModal({
       to_principal: null,
       to_interest: null,
     },
+    company_bank_account_id: null,
   });
   // A payment option is the user's choice to payment the remaining balances on the loan, to
   // pay the minimum amount required, or to pay a custom amount.

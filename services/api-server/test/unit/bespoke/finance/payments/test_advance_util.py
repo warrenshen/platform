@@ -127,6 +127,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				payment_date=payment_date,
 				settlement_date=settlement_date,
 				items_covered={'loan_ids': loan_ids},
+				company_bank_account_id=None,
 			),
 			should_charge_wire_fee=test['should_charge_wire_fee']
 		)
@@ -642,6 +643,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					payment_date='10/28/2020',
 					settlement_date='10/30/2020',
 					items_covered={'loan_ids': loan_ids},
+					company_bank_account_id=None,
 			  	),
 				loan_ids=loan_ids,
 				should_charge_wire_fee=False

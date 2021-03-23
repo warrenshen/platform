@@ -500,6 +500,7 @@ def create_repayment(
 	requested_payment_date = date_util.load_date_str(payment_insert_input['requested_payment_date'])
 	requested_amount = payment_insert_input['requested_amount']
 	items_covered = payment_insert_input['items_covered']
+	company_bank_account_id = payment_insert_input['company_bank_account_id']
 	loan_ids = None
 
 	if not payment_method:
@@ -511,12 +512,19 @@ def create_repayment(
 	if not requested_payment_date:
 		return None, errors.Error('Requested payment date must be specified', details=err_details)
 
+	if payment_method == PaymentMethodEnum.REVERSE_DRAFT_ACH and not company_bank_account_id:
+		return None, errors.Error('Bank account to trigger reverse from must be specified if payment method is Reverse Draft ACH', details=err_details)
+
 	if is_line_of_credit:
 		if 'requested_to_principal' not in items_covered or 'requested_to_interest' not in items_covered:
 			return None, errors.Error('items_covered.requested_to_principal and items_covered.requested_to_interest must be specified', details=err_details)
 
 		requested_to_principal = items_covered['requested_to_principal']
 		requested_to_interest = items_covered['requested_to_interest']
+
+		if requested_to_principal is None or requested_to_interest is None:
+			return None, errors.Error(f'Requested to principal and requested to interest must be specified')
+
 		if not number_util.float_eq(requested_amount, requested_to_principal + requested_to_interest):
 			return None, errors.Error(f'Requested breakdown of requested_to_principal vs requested_to_interest ({requested_to_principal}, {requested_to_interest}) does not sum up to requested amount ({requested_amount})')
 	else:
@@ -558,6 +566,7 @@ def create_repayment(
 			requested_payment_date=requested_payment_date,
 			payment_date=requested_payment_date if payment_method != PaymentMethodEnum.REVERSE_DRAFT_ACH else None,
 			items_covered=items_covered,
+			company_bank_account_id=company_bank_account_id,
 		)
 		payment = payment_util.create_repayment_payment(
 			company_id, payment_input, user_id)

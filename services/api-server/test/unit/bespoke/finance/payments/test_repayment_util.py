@@ -118,7 +118,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 		self.assertEqual('OK', resp.get('status'), msg=err)
 		test_helper.assertIsCurrencyRounded(self, resp['amount_to_pay']) # Ensure this number is always down to 2 digits
 		self.assertEqual(test['expected_amount_to_pay'], resp['amount_to_pay'])
-		
+
 		test_helper.assertIsCurrencyRounded(self, resp['amount_as_credit_to_user'])
 		self.assertAlmostEqual(test['expected_amount_as_credit_to_user'], resp['amount_as_credit_to_user'])
 
@@ -784,6 +784,7 @@ class TestCreatePayment(db_unittest.TestCase):
 				payment_date=None,
 				settlement_date='unused',
 				items_covered={ 'loan_ids': loan_ids },
+				company_bank_account_id=test['company_bank_account_id'],
 			),
 			user_id=user_id,
 			session_maker=self.session_maker,
@@ -808,6 +809,7 @@ class TestCreatePayment(db_unittest.TestCase):
 			self.assertEqual(payment_date, date_util.date_to_str(payment.requested_payment_date))
 			self.assertIsNone(payment.settlement_date)
 			self.assertEqual(loan_ids, cast(Dict, payment.items_covered)['loan_ids'])
+			self.assertEqual(test['company_bank_account_id'], str(payment.company_bank_account_id) if payment.company_bank_account_id else None)
 
 			loans = cast(
 				List[models.Loan],
@@ -829,6 +831,7 @@ class TestCreatePayment(db_unittest.TestCase):
 			{
 				'payment_amount': 30.1,
 				'payment_method': 'reverse_draft_ach',
+				'company_bank_account_id': str(uuid.uuid4()),
 				'loan_amounts': [20.1, 30.1],
 				'expected_loans': [
 					models.Loan(
@@ -850,6 +853,7 @@ class TestCreatePayment(db_unittest.TestCase):
 			{
 				'payment_amount': 40.1,
 				'payment_method': 'ach',
+				'company_bank_account_id': None,
 				'loan_amounts': [30.1, 40.1],
 				'expected_loans': [
 					models.Loan(
@@ -882,6 +886,7 @@ class TestCreatePayment(db_unittest.TestCase):
 				payment_date=None,
 				settlement_date='unused',
 				items_covered={ 'loan_ids': [str(uuid.uuid4())] },
+				company_bank_account_id=str(uuid.uuid4()),
 			),
 			user_id=user_id,
 			session_maker=self.session_maker,
@@ -917,6 +922,7 @@ class TestCreatePayment(db_unittest.TestCase):
 				payment_date=None,
 				settlement_date='unused',
 				items_covered={ 'loan_ids': [loan_id] },
+				company_bank_account_id=str(uuid.uuid4()),
 			),
 			user_id=user_id,
 			session_maker=self.session_maker,

@@ -293,6 +293,7 @@ class Payment(Base):
 	deposit_date = Column(Date)
 	settlement_date = Column(Date)
 	items_covered = Column(JSON)
+	company_bank_account_id = Column(GUID)
 
 	requested_by_user_id = Column(GUID)
 	submitted_at = Column(DateTime)

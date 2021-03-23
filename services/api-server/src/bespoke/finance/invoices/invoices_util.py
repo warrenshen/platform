@@ -1,17 +1,15 @@
-import logging
 import datetime
+import logging
 from dataclasses import dataclass, fields
-from typing import Callable, Dict, Tuple, List, Optional
+from typing import Callable, Dict, List, Optional, Tuple
 
 from bespoke import errors
-from bespoke.db import models, db_constants
-from bespoke.finance.payments import payment_util
 from bespoke.date import date_util
+from bespoke.db import db_constants, models
 from bespoke.email import sendgrid_util
+from bespoke.finance.payments import payment_util
 from server.views.common import auth_util
-
 from sqlalchemy.orm import Session
-
 
 REQUIRED_KEYS_FOR_APPROVAL = (
 	'invoice_number',
@@ -515,7 +513,8 @@ def respond_to_payment_request(
 			payment_date=data.anticipated_payment_date,
 			items_covered=payment_util.PaymentItemsCoveredDict(
 				invoice_ids=[str(invoice.id)]
-			)
+			),
+			company_bank_account_id=None,
 		),
 		str(user.id))
 

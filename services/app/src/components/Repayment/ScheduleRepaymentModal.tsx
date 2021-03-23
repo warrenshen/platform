@@ -13,6 +13,7 @@ import {
 import ScheduleRepaymentConfirmEffect from "components/Repayment/ScheduleRepaymentConfirmEffect";
 import ScheduleRepaymentSelectLoans from "components/Repayment/ScheduleRepaymentSelectLoans";
 import {
+  BankAccounts,
   Companies,
   GetLoansByLoanIdsQuery,
   Payments,
@@ -72,6 +73,10 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
 
   const [customer, setCustomer] = useState<Companies | null>(null);
   const [payment, setPayment] = useState<PaymentsInsertInput | null>(null);
+  const [
+    customerBankAccount,
+    setCustomerBankAccount,
+  ] = useState<BankAccounts | null>(null);
 
   const [selectedLoans, setSelectedLoans] = useState<
     GetLoansByLoanIdsQuery["loans"]
@@ -97,6 +102,9 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
       const existingPayment = data?.payments_by_pk;
       if (existingPayment) {
         setCustomer(existingPayment.company as Companies);
+        setCustomerBankAccount(
+          existingPayment.company_bank_account as BankAccounts
+        );
         setPayment({
           id: existingPayment.id,
           company_id: existingPayment.company_id,
@@ -118,7 +126,7 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
           },
         } as PaymentsInsertInput);
       } else {
-        alert("Existing payment not found");
+        snackbar.showError("Error! Payment not found.");
       }
     },
   });
@@ -277,6 +285,7 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
           <ScheduleRepaymentSelectLoans
             payment={payment}
             customer={customer}
+            customerBankAccount={customerBankAccount}
             selectedLoans={selectedLoans}
             setPayment={setPayment}
           />
