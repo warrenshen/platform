@@ -46,7 +46,7 @@ function BankPaymentsActionRequiredPage() {
 
   const payments = useMemo(() => {
     return data?.payments || [];
-  }, [data]);
+  }, [data?.payments]);
 
   // Reverse Draft ACH - schedule section
   const [selectedSchedulePaymentIds, setSelectedSchedulePaymentIds] = useState<
@@ -140,7 +140,6 @@ function BankPaymentsActionRequiredPage() {
             isExcelExport
             payments={scheduledPayments}
             customerSearchQuery={""}
-            onClickCustomerName={() => {}}
             selectedPaymentIds={selectedSchedulePaymentIds}
             handleSelectPayments={handleSelectSchedulePayments}
           />
@@ -177,7 +176,6 @@ function BankPaymentsActionRequiredPage() {
             isExcelExport
             payments={pendingReverseDraftPayments}
             customerSearchQuery={""}
-            onClickCustomerName={() => {}}
             selectedPaymentIds={selectedSettlePaymentIds}
             handleSelectPayments={handleSelectSettlePayments}
           />
@@ -211,7 +209,6 @@ function BankPaymentsActionRequiredPage() {
             repaymentType={RepaymentTypeEnum.Other}
             payments={notifyPayments}
             customerSearchQuery={""}
-            onClickCustomerName={() => {}}
             selectedPaymentIds={selectedNotifyPaymentIds}
             handleSelectPayments={handleSelectNotifyPayments}
           />

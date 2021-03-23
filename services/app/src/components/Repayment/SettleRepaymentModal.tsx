@@ -129,8 +129,8 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
             requested_to_interest:
               existingPayment.items_covered.requested_to_interest,
             // Default to_principal and to_interest to their requested counterparts.
-            to_principal: existingPayment.items_covered.to_principal,
-            to_interest: existingPayment.items_covered.to_interest,
+            to_principal: existingPayment.items_covered.requested_to_principal,
+            to_interest: existingPayment.items_covered.requested_to_interest,
             to_user_credit: 0,
           },
         } as PaymentsInsertInput);

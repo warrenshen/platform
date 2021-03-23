@@ -5,6 +5,7 @@ import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import { UserFragment, Users } from "generated/graphql";
+import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
@@ -33,7 +34,7 @@ function UsersDataGrid({
         visible: !hideCompany,
         dataField: "company_name",
         caption: "Company",
-        width: 200,
+        minWidth: ColumnWidths.MinWidth,
       },
       {
         caption: "Role",
@@ -41,27 +42,29 @@ function UsersDataGrid({
         width: 150,
       },
       {
-        dataField: "first_name",
         caption: "First Name",
+        dataField: "first_name",
+        minWidth: ColumnWidths.MinWidth,
       },
       {
-        dataField: "last_name",
         caption: "Last Name",
+        dataField: "last_name",
+        minWidth: ColumnWidths.MinWidth,
       },
       {
         dataField: "email",
         caption: "Email",
-        width: 270,
+        minWidth: ColumnWidths.MinWidth,
       },
       {
         dataField: "phone_number",
         caption: "Phone Number",
-        width: 150,
+        minWidth: ColumnWidths.PhoneNumber,
       },
       {
         visible: !!actionItems && actionItems.length > 0,
         caption: "Action",
-        width: 90,
+        width: ColumnWidths.Actions,
         cellRender: (params: ValueFormatterParams) => (
           <DataGridActionMenu params={params} actionItems={actionItems} />
         ),

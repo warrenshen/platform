@@ -3,6 +3,7 @@ export const ColumnWidths = {
   Currency: 160,
   Date: 140,
   DateContract: 220,
+  PhoneNumber: 150,
   Status: 140,
   Type: 160,
   Actions: 75,
