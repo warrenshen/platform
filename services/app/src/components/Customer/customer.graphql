@@ -56,24 +56,6 @@ query GetCustomerForBank($id: uuid!) {
   }
 }
 
-query BankCustomerListVendorPartnerships($companyId: uuid!) {
-  company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
-    ...BankVendorPartnership
-    vendor {
-      id
-      ...ThirdParty
-      users {
-        id
-        ...Contact
-      }
-    }
-    vendor_bank_account {
-      id
-      verified_at
-    }
-  }
-}
-
 query BankCustomerListPayorPartnerships($companyId: uuid!) {
   company_payor_partnerships(where: { company_id: { _eq: $companyId } }) {
     ...PayorPartnership

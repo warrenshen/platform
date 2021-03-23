@@ -1,7 +1,7 @@
 import { Box } from "@material-ui/core";
-import AddButton from "components/Vendors/AddVendor/Button";
-import VendorPartnershipList from "components/Vendors/VendorPartnershipsDataGrid";
-import { useBankCustomerListVendorPartnershipsQuery } from "generated/graphql";
+import AddVendorButton from "components/Vendors/AddVendorButton";
+import VendorPartnershipsDataGrid from "components/Vendors/VendorPartnershipsDataGrid";
+import { useGetVendorPartnershipsByCompanyIdQuery } from "generated/graphql";
 import { sortBy } from "lodash";
 
 interface Props {
@@ -9,7 +9,7 @@ interface Props {
 }
 
 function Vendors({ companyId }: Props) {
-  const { data } = useBankCustomerListVendorPartnershipsQuery({
+  const { data, refetch } = useGetVendorPartnershipsByCompanyIdQuery({
     variables: {
       companyId,
     },
@@ -31,14 +31,14 @@ function Vendors({ companyId }: Props) {
         style={{ marginBottom: "1rem" }}
         flexDirection="row-reverse"
       >
-        <AddButton />
+        <AddVendorButton companyId={companyId} handleDataChange={refetch} />
       </Box>
       <Box display="flex" flexWrap="wrap">
-        <VendorPartnershipList
+        <VendorPartnershipsDataGrid
+          isBankUserRole
           isDrilldownByCustomer
           isExcelExport
-          isBankAccount
-          data={vendorPartnerships}
+          vendorPartnerships={vendorPartnerships}
         />
       </Box>
     </Box>

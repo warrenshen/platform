@@ -18,12 +18,11 @@ import BankAccount from "components/Vendors/VendorDrawer/BankAccount";
 import Contacts from "components/Vendors/VendorDrawer/Contacts";
 import VendorInfo from "components/Vendors/VendorDrawer/VendorInfo";
 import {
-  BankVendorPartnershipDocument,
   CompanyAgreementsInsertInput,
   CompanyLicensesInsertInput,
   useAddCompanyVendorAgreementMutation,
   useAddCompanyVendorLicenseMutation,
-  useBankVendorPartnershipQuery,
+  useGetVendorPartnershipForBankQuery,
   useUpdateVendorAgreementIdMutation,
   useUpdateVendorLicenseIdMutation,
 } from "generated/graphql";
@@ -56,8 +55,9 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
   const {
     data,
     loading: isBankVendorPartnershipLoading,
+    refetch,
     error,
-  } = useBankVendorPartnershipQuery({
+  } = useGetVendorPartnershipForBankQuery({
     variables: {
       id: vendorPartnershipId,
     },
@@ -182,20 +182,17 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
                 });
                 const vendorLicenseId =
                   vendorLicense.data?.insert_company_licenses_one?.id;
-                await updateVendorLicenseId({
+                const response = await updateVendorLicenseId({
                   variables: {
                     companyVendorPartnershipId: vendorPartnershipId,
                     vendorLicenseId: vendorLicenseId,
                   },
-                  refetchQueries: [
-                    {
-                      query: BankVendorPartnershipDocument,
-                      variables: {
-                        id: vendorPartnershipId,
-                      },
-                    },
-                  ],
                 });
+                if (response.data?.update_company_vendor_partnerships_by_pk) {
+                  refetch();
+                } else {
+                  alert("Error!");
+                }
               }}
             />
           </Box>
@@ -236,20 +233,17 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
               });
               const vendorAgreementId =
                 companyAgreement.data?.insert_company_agreements_one?.id;
-              await updateVendorAgreementId({
+              const response = await updateVendorAgreementId({
                 variables: {
                   companyVendorPartnershipId: vendorPartnershipId,
                   vendorAgreementId: vendorAgreementId,
                 },
-                refetchQueries: [
-                  {
-                    query: BankVendorPartnershipDocument,
-                    variables: {
-                      id: vendorPartnershipId,
-                    },
-                  },
-                ],
               });
+              if (response.data?.update_company_vendor_partnerships_by_pk) {
+                refetch();
+              } else {
+                alert("Error!");
+              }
             }}
           />
         </Box>

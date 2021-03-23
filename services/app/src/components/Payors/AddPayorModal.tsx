@@ -11,17 +11,16 @@ import {
 import RegisterThirdPartyForm from "components/ThirdParties/RegisterThirdPartyForm";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
+  Companies,
   CompaniesInsertInput,
   CompanyTypeEnum,
-  ListPayorPartnershipsByCompanyIdDocument,
   useAddPayorPartnershipMutation,
   UserRolesEnum,
   UsersInsertInput,
 } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import { InventoryNotifier } from "lib/notifications/inventory";
-import { CustomerParams } from "pages/Bank/Customer";
 import { useContext, useState } from "react";
-import { useParams } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -32,23 +31,20 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
+  companyId: Companies["id"];
   handleClose: () => void;
 }
 
-export default function RegisterPayorModal({ handleClose }: Props) {
+function AddPayorModal({ companyId, handleClose }: Props) {
+  const classes = useStyles();
+  const snackbar = useSnackbar();
   const {
-    user: { companyId: userCompanyId, role },
+    user: { role },
   } = useContext(CurrentUserContext);
 
-  const { companyId: paramsCompanyId } = useParams<CustomerParams>();
   const [errorMessage, setErrorMessage] = useState("");
 
-  const companyId = paramsCompanyId || userCompanyId;
-
-  const classes = useStyles();
-
   const [payor, setPayor] = useState<CompaniesInsertInput>({ name: "" });
-
   const [contact, setContact] = useState<UsersInsertInput>({
     first_name: "",
     email: "",
@@ -79,14 +75,6 @@ export default function RegisterPayorModal({ handleClose }: Props) {
             },
           },
         },
-        refetchQueries: [
-          {
-            query: ListPayorPartnershipsByCompanyIdDocument,
-            variables: {
-              companyId: companyId,
-            },
-          },
-        ],
       });
 
       const payorId =
@@ -105,6 +93,7 @@ export default function RegisterPayorModal({ handleClose }: Props) {
         return;
       }
 
+      snackbar.showSuccess("Success! Payor created.");
       handleClose();
     } catch (error) {
       setErrorMessage(
@@ -120,7 +109,7 @@ export default function RegisterPayorModal({ handleClose }: Props) {
       maxWidth="md"
       classes={{ paper: classes.dialog }}
     >
-      <DialogTitle>Register Payor</DialogTitle>
+      <DialogTitle>Add Payor</DialogTitle>
       <RegisterThirdPartyForm
         companyType={CompanyTypeEnum.Payor}
         role={role}
@@ -154,3 +143,5 @@ export default function RegisterPayorModal({ handleClose }: Props) {
     </Dialog>
   );
 }
+
+export default AddPayorModal;

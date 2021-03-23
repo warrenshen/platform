@@ -1,3 +1,31 @@
+query GetVendorPartnershipsByCompanyId($companyId: uuid!) {
+  company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
+    ...VendorPartnership
+    vendor {
+      id
+      ...ThirdParty
+    }
+    vendor_bank_account {
+      id
+      verified_at
+    }
+  }
+}
+
+query VendorPartnershipsByCompanyId($companyId: uuid!) {
+  company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
+    id
+    ...VendorPartnership
+    vendor_limited {
+      ...VendorLimited
+    }
+    vendor_bank_account {
+      id
+      verified_at
+    }
+  }
+}
+
 query VendorsByPartnerCompany($companyId: uuid!) {
   vendors(
     where: { company_vendor_partnerships: { company_id: { _eq: $companyId } } }
@@ -43,6 +71,17 @@ query CompanyVendorPartnershipForVendor($companyId: uuid!, $vendorId: uuid!) {
     id
     vendor_bank_account {
       ...BankAccountForVendor
+    }
+  }
+}
+
+mutation AddVendorPartnership(
+  $vendorPartnership: company_vendor_partnerships_insert_input!
+) {
+  insert_company_vendor_partnerships_one(object: $vendorPartnership) {
+    ...VendorPartnership
+    vendor_limited {
+      ...VendorLimited
     }
   }
 }

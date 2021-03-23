@@ -1,31 +1,22 @@
 ## Queries
-
-query BankListVendorPartnerships {
-  company_vendor_partnerships {
-    ...BankVendorPartnership
+query GetVendorPartnershipForBank($id: uuid!) {
+  company_vendor_partnerships_by_pk(id: $id) {
+    ...VendorPartnership
     company {
-      id
-      name
-    }
-    vendor {
-      ...ThirdParty
-      settings {
-        id
-      }
+      ...Company
       users {
         ...Contact
       }
+      settings {
+        ...CompanySettings
+      }
     }
-    vendor_bank_account {
-      id
-      verified_at
+    company_agreement {
+      ...CompanyAgreement
     }
-  }
-}
-
-query BankVendorPartnership($id: uuid!) {
-  company_vendor_partnerships_by_pk(id: $id) {
-    ...BankVendorPartnership
+    company_license {
+      ...CompanyLicense
+    }
     vendor {
       ...ThirdParty
       settings {
@@ -43,20 +34,32 @@ query BankVendorPartnership($id: uuid!) {
         }
       }
     }
+    vendor_bank_account {
+      id
+      ...BankAccount
+    }
+  }
+}
+
+query GetVendorPartnershipsForBank {
+  company_vendor_partnerships {
+    ...VendorPartnership
     company {
-      ...Company
+      id
+      name
+    }
+    vendor {
+      ...ThirdParty
+      settings {
+        id
+      }
       users {
         ...Contact
       }
-      settings {
-        ...CompanySettings
-      }
     }
-    company_agreement {
-      ...CompanyAgreement
-    }
-    company_license {
-      ...CompanyLicense
+    vendor_bank_account {
+      id
+      verified_at
     }
   }
 }
@@ -106,7 +109,7 @@ mutation UpdateCompanyVendorPartnershipApprovedAt(
     pk_columns: { id: $companyVendorPartnershipId }
     _set: { approved_at: $approvedAt }
   ) {
-    ...BankVendorPartnership
+    ...VendorPartnership
   }
 }
 

@@ -3,20 +3,23 @@ import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridC
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import VendorDrawer from "components/Vendors/VendorDrawer";
 import VerificationChip from "components/Vendors/VerificationChip";
+import { VendorPartnershipFragment } from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
 import { useMemo, useState } from "react";
 
-function VendorPartnershipsDataGrid({
-  isBankAccount,
-  isExcelExport = false,
-  isDrilldownByCustomer,
-  data,
-}: {
-  isBankAccount?: boolean;
+interface Props {
+  isBankUserRole?: boolean;
   isExcelExport?: boolean;
   isDrilldownByCustomer?: boolean;
-  data: any;
-}) {
+  vendorPartnerships: VendorPartnershipFragment[];
+}
+
+function VendorPartnershipsDataGrid({
+  isBankUserRole,
+  isExcelExport = false,
+  isDrilldownByCustomer,
+  vendorPartnerships,
+}: Props) {
   const [open, setOpen] = useState(false);
   const [
     currentVendorPartnership,
@@ -36,13 +39,14 @@ function VendorPartnershipsDataGrid({
     []
   );
 
+  const rows = vendorPartnerships;
   const columns = useMemo(
     () => [
       {
-        dataField: isBankAccount ? "vendor.name" : "vendor_limited.name",
+        dataField: isBankUserRole ? "vendor.name" : "vendor_limited.name",
         caption: "Vendor Name",
         minWidth: ColumnWidths.MinWidth,
-        ...(isBankAccount && {
+        ...(isBankUserRole && {
           cellRender: ({ value, data }: { value: string; data: any }) => (
             <ClickableDataGridCell
               onClick={() => {
@@ -54,10 +58,10 @@ function VendorPartnershipsDataGrid({
         }),
       },
       {
+        visible: !!isDrilldownByCustomer ? false : !!isBankUserRole,
         dataField: "company.name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
-        visible: !!isDrilldownByCustomer ? false : !!isBankAccount,
       },
       {
         dataField: "address",
@@ -73,7 +77,7 @@ function VendorPartnershipsDataGrid({
         dataField: "vendor_agreement_id",
         caption: "Signed Vendor Agreement",
         alignment: "center",
-        width: isBankAccount ? 195 : 225,
+        width: isBankUserRole ? 195 : 225,
         calculateCellValue: (data: any) =>
           !!data.vendor_agreement_id ? "Yes" : "No",
         cellRender: verificationCellRenderer,
@@ -87,9 +91,9 @@ function VendorPartnershipsDataGrid({
         cellRender: verificationCellRenderer,
       },
       {
+        visible: !!isBankUserRole,
         dataField: "vendor_bank_account.verified_at",
         caption: "Verified Bank account",
-        visible: !!isBankAccount,
         alignment: "center",
         cellRender: verificationCellRenderer,
       },
@@ -101,7 +105,7 @@ function VendorPartnershipsDataGrid({
       },
     ],
     [
-      isBankAccount,
+      isBankUserRole,
       isDrilldownByCustomer,
       onCellClick,
       verificationCellRenderer,
@@ -128,14 +132,12 @@ function VendorPartnershipsDataGrid({
       )}
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <ControlledDataGrid
-          dataSource={data}
-          onSortingChanged={onSortingChanged}
-          onFilteringChanged={onFilteringChanged}
-          sortBy={{ index: 0, order: "desc" }}
-          filtering={{ enable: true, filterBy: { index: 0, value: "" } }}
-          columns={columns}
           isExcelExport={isExcelExport}
           pager
+          dataSource={rows}
+          onSortingChanged={onSortingChanged}
+          onFilteringChanged={onFilteringChanged}
+          columns={columns}
         />
       </Box>
     </>

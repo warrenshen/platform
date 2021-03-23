@@ -51,10 +51,6 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export interface CustomerParams {
-  companyId: string;
-}
-
 const getCustomerPaths = (productType: ProductTypeEnum) => [
   {
     path: bankRoutes.customer.overview,
@@ -115,7 +111,9 @@ const getCustomerPaths = (productType: ProductTypeEnum) => [
 ];
 
 function BankCustomerPage() {
-  const { companyId } = useParams<CustomerParams>();
+  const { companyId } = useParams<{
+    companyId: string;
+  }>();
   const { url, path } = useRouteMatch();
   const location = useLocation();
   const classes = useStyles();

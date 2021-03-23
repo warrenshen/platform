@@ -10,10 +10,6 @@ import {
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 
-export interface CustomerParams {
-  companyId: string;
-}
-
 interface Props {
   companyId: string;
 }

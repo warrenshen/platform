@@ -9,7 +9,7 @@ interface Props {
 }
 
 export default function BankCustomerPayors({ companyId }: Props) {
-  const { data } = useBankCustomerListPayorPartnershipsQuery({
+  const { data, refetch } = useBankCustomerListPayorPartnershipsQuery({
     variables: {
       companyId,
     },
@@ -19,7 +19,7 @@ export default function BankCustomerPayors({ companyId }: Props) {
     return null;
   }
 
-  const vendorPartnerships = sortBy(
+  const payorPartnerships = sortBy(
     data.company_payor_partnerships,
     (item) => item.payor?.name
   );
@@ -31,14 +31,14 @@ export default function BankCustomerPayors({ companyId }: Props) {
         style={{ marginBottom: "1rem" }}
         flexDirection="row-reverse"
       >
-        <AddPayorButton />
+        <AddPayorButton companyId={companyId} handleDataChange={refetch} />
       </Box>
       <Box display="flex" flexWrap="wrap">
         <PayorPartnershipsDataGrid
+          isBankAccount
           isDrilldownByCustomer
           isExcelExport
-          isBankAccount
-          data={vendorPartnerships}
+          data={payorPartnerships}
         />
       </Box>
     </Box>

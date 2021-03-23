@@ -11,17 +11,16 @@ import {
 import RegisterThirdPartyForm from "components/ThirdParties/RegisterThirdPartyForm";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
+  Companies,
   CompaniesInsertInput,
   CompanyTypeEnum,
   useAddVendorPartnershipMutation,
   UserRolesEnum,
   UsersInsertInput,
-  VendorPartnershipsByCompanyIdDocument,
 } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import { InventoryNotifier } from "lib/notifications/inventory";
-import { CustomerParams } from "pages/Bank/Customer";
 import { useContext, useState } from "react";
-import { useParams } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -32,20 +31,19 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
+  companyId: Companies["id"];
   handleClose: () => void;
 }
 
-function RegisterVendorModal({ handleClose }: Props) {
+function AddVendorModal({ companyId, handleClose }: Props) {
+  const classes = useStyles();
+  const snackbar = useSnackbar();
   const {
-    user: { companyId: userCompanyId, role },
+    user: { role },
   } = useContext(CurrentUserContext);
 
-  const { companyId: paramsCompanyId } = useParams<CustomerParams>();
   const [errorMessage, setErrorMessage] = useState("");
 
-  const companyId = paramsCompanyId || userCompanyId;
-
-  const classes = useStyles();
   const [vendor, setVendor] = useState<CompaniesInsertInput>({ name: "" });
   const [contact, setContact] = useState<UsersInsertInput>({
     first_name: "",
@@ -77,14 +75,6 @@ function RegisterVendorModal({ handleClose }: Props) {
             },
           },
         },
-        refetchQueries: [
-          {
-            query: VendorPartnershipsByCompanyIdDocument,
-            variables: {
-              companyId: companyId,
-            },
-          },
-        ],
       });
 
       const vendorId =
@@ -103,6 +93,7 @@ function RegisterVendorModal({ handleClose }: Props) {
         return;
       }
 
+      snackbar.showSuccess("Success! Vendor created.");
       handleClose();
     } catch (error) {
       setErrorMessage(
@@ -118,7 +109,7 @@ function RegisterVendorModal({ handleClose }: Props) {
       maxWidth="md"
       classes={{ paper: classes.dialog }}
     >
-      <DialogTitle>Register Vendor</DialogTitle>
+      <DialogTitle>Add Vendor</DialogTitle>
       <RegisterThirdPartyForm
         companyType={CompanyTypeEnum.Vendor}
         role={role}
@@ -153,4 +144,4 @@ function RegisterVendorModal({ handleClose }: Props) {
   );
 }
 
-export default RegisterVendorModal;
+export default AddVendorModal;

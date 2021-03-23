@@ -1,12 +1,32 @@
-import CustomerPayorsList from "components/Payors/CustomerPayorsList";
+import { Box } from "@material-ui/core";
+import AddPayorButton from "components/Payors/AddPayorButton";
+import PayorPartnershipsDataGrid from "components/Payors/PayorPartnershipsDataGrid";
 import Page from "components/Shared/Page";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
+import { useListPayorPartnershipsByCompanyIdQuery } from "generated/graphql";
+import { sortBy } from "lodash";
+import { useContext } from "react";
 
-export default function CustomerPayorsPage() {
-  // TODO(pjstein): Add the "Add Payor" button once we dig through the
-  // equivalent code for vendors
+function CustomerPayorsPage() {
+  const {
+    user: { companyId },
+  } = useContext(CurrentUserContext);
+
+  const { data } = useListPayorPartnershipsByCompanyIdQuery({
+    variables: { companyId },
+  });
+
+  const partnerships = data?.company_payor_partnerships || [];
+  const payors = sortBy(partnerships, (item) => item.payor_limited?.name);
+
   return (
     <Page appBarTitle="Payors">
-      <CustomerPayorsList />
+      <Box display="flex" flexDirection="row-reverse">
+        <AddPayorButton companyId={companyId} handleDataChange={() => {}} />
+      </Box>
+      <PayorPartnershipsDataGrid data={payors} />
     </Page>
   );
 }
+
+export default CustomerPayorsPage;

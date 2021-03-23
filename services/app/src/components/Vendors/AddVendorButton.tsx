@@ -1,6 +1,6 @@
-import AddPayorModal from "components/Payors/AddPayorModal";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
+import AddVendorModal from "components/Vendors/AddVendorModal";
 import { Companies } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 
@@ -9,13 +9,13 @@ interface Props {
   handleDataChange: () => void;
 }
 
-function AddPayorButton({ companyId, handleDataChange }: Props) {
+function AddVendorButton({ companyId, handleDataChange }: Props) {
   return (
-    <Can perform={Action.AddPayor}>
+    <Can perform={Action.AddVendor}>
       <ModalButton
-        label={"Add Payor"}
+        label={"Add Vendor"}
         modal={({ handleClose }) => (
-          <AddPayorModal
+          <AddVendorModal
             companyId={companyId}
             handleClose={() => {
               handleDataChange();
@@ -28,4 +28,4 @@ function AddPayorButton({ companyId, handleDataChange }: Props) {
   );
 }
 
-export default AddPayorButton;
+export default AddVendorButton;

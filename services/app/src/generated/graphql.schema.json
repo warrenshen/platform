@@ -47708,7 +47708,7 @@
           },
           {
             "name": "requested_payment_date",
-            "description": "When the user first requests a loan, they request what day they want the payment to be made to them",
+            "description": "The date the customer requests the loan to arrive to the recipient bank account (a better name for this column is requested_deposit_date)",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -60770,7 +60770,7 @@
           },
           {
             "name": "requested_payment_date",
-            "description": "When a customer requests or notifies us a payment should take place, the date they set is captured here",
+            "description": "The date the customer requests the payment to arrive to the recipient bank account (a better name for this column is requested_deposit_date)",
             "args": [],
             "type": {
               "kind": "SCALAR",

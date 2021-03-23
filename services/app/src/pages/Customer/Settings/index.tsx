@@ -7,16 +7,11 @@ import {
   useCompanyForCustomerQuery,
 } from "generated/graphql";
 import { useContext } from "react";
-import { useParams } from "react-router-dom";
-
-export interface CustomerParams {
-  companyId: string;
-}
 
 function SettingsPage() {
-  const { companyId: companyIdFromParams } = useParams<CustomerParams>();
-  const { user } = useContext(CurrentUserContext);
-  const companyId = companyIdFromParams || user.companyId;
+  const {
+    user: { companyId },
+  } = useContext(CurrentUserContext);
 
   const { data, refetch } = useCompanyForCustomerQuery({
     variables: {

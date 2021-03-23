@@ -10,9 +10,6 @@ import {
   Typography,
 } from "@material-ui/core";
 import {
-  BankVendorPartnershipDocument,
-  BankVendorPartnershipQuery,
-  BankVendorPartnershipQueryVariables,
   Companies,
   CompanyVendorPartnerships,
   ContactFragment,
@@ -159,61 +156,11 @@ function ContactCard(props: Props) {
                           phone_number: contact.phone_number,
                         },
                       },
-                      optimisticResponse: {
-                        update_users_by_pk: {
-                          ...(contact as ContactFragment),
-                        },
-                      },
                     });
                   } else if (cardState === CardState.Creating) {
                     await addContact({
                       variables: {
                         contact,
-                      },
-                      optimisticResponse: {
-                        insert_users_one: {
-                          ...(contact as ContactFragment),
-                        },
-                      },
-                      update: (proxy, { data: optimisticResponse }) => {
-                        if (props.companyId) {
-                          const data = proxy.readQuery<
-                            BankVendorPartnershipQuery,
-                            BankVendorPartnershipQueryVariables
-                          >({
-                            query: BankVendorPartnershipDocument,
-                            variables: { id: props.companyVendorPartnershipId },
-                          });
-
-                          if (
-                            !data?.company_vendor_partnerships_by_pk?.vendor ||
-                            !optimisticResponse?.insert_users_one
-                          ) {
-                            return;
-                          }
-
-                          proxy.writeQuery<
-                            BankVendorPartnershipQuery,
-                            BankVendorPartnershipQueryVariables
-                          >({
-                            query: BankVendorPartnershipDocument,
-                            variables: { id: props.companyVendorPartnershipId },
-                            data: {
-                              company_vendor_partnerships_by_pk: {
-                                ...data.company_vendor_partnerships_by_pk,
-                                vendor: {
-                                  ...data.company_vendor_partnerships_by_pk
-                                    .vendor,
-                                  users: [
-                                    ...data.company_vendor_partnerships_by_pk
-                                      .vendor.users,
-                                    optimisticResponse.insert_users_one,
-                                  ],
-                                },
-                              },
-                            },
-                          });
-                        }
                       },
                     });
                     props.onCreateComplete && props.onCreateComplete();
