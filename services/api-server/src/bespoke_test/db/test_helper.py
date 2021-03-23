@@ -10,6 +10,10 @@ from typing import Callable, Any, List, Dict
 from bespoke.db import models
 from bespoke.db.models import session_scope
 
+def assertIsCurrencyRounded(
+	test_case: unittest.TestCase, expected: float) -> None:
+	test_case.assertEqual(round(expected, 2), expected)
+
 def assertDeepAlmostEqual(
 	test_case: unittest.TestCase, expected: Dict, actual: Dict, *args: Any, **kwargs: Any) -> None:
 	"""

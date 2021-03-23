@@ -116,7 +116,10 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 		)
 		self.assertIsNone(err)
 		self.assertEqual('OK', resp.get('status'), msg=err)
+		test_helper.assertIsCurrencyRounded(self, resp['amount_to_pay']) # Ensure this number is always down to 2 digits
 		self.assertEqual(test['expected_amount_to_pay'], resp['amount_to_pay'])
+		
+		test_helper.assertIsCurrencyRounded(self, resp['amount_as_credit_to_user'])
 		self.assertAlmostEqual(test['expected_amount_as_credit_to_user'], resp['amount_as_credit_to_user'])
 
 		# Assert on the expected loans afterwards
@@ -135,6 +138,11 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 			test_helper.assertDeepAlmostEqual(self, expected['transaction'], actual['transaction'])
 			test_helper.assertDeepAlmostEqual(self, expected['before_loan_balance'], actual['before_loan_balance'])
 			test_helper.assertDeepAlmostEqual(self, expected['after_loan_balance'], actual['after_loan_balance'])
+
+			test_helper.assertIsCurrencyRounded(self, loan_to_show['transaction']['amount'])
+			test_helper.assertIsCurrencyRounded(self, loan_to_show['transaction']['to_principal'])
+			test_helper.assertIsCurrencyRounded(self, loan_to_show['transaction']['to_interest'])
+			test_helper.assertIsCurrencyRounded(self, loan_to_show['transaction']['to_fees'])
 
 		# Assert on which loans ended up in the past due but not selected
 		# category
@@ -188,20 +196,20 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 			'payment_option': 'custom_amount',
 			'payment_input_amount': 30.01,
 			'expected_amount_to_pay': 30.01,
-			'expected_amount_as_credit_to_user': -1 * (20.02 + (14 * daily_interest) - 30.01),
+			'expected_amount_as_credit_to_user': round(-1 * (20.02 + (14 * daily_interest) - 30.01), 2),
 			'expected_loans_to_show': [
 				LoanToShowDict(
 					loan_id='filled in by test',
 					transaction=TransactionInputDict(
-						amount=20.02 + 14 * daily_interest,
+						amount=round(20.02 + 14 * daily_interest, 2),
 						to_principal=20.02,
-						to_interest=14 * daily_interest,
+						to_interest=round(14 * daily_interest, 2),
 						to_fees=0.0
 					),
 					before_loan_balance=LoanBalanceDict(
 						amount=20.02,
 						outstanding_principal_balance=20.02,
-						outstanding_interest=14 * daily_interest,
+						outstanding_interest=round(14 * daily_interest, 2),
 						outstanding_fees=0.0
 					),
 					after_loan_balance=LoanBalanceDict(
@@ -446,7 +454,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				'payment_option': 'pay_minimum_due',
 				'payment_input_amount': None,
 				# principal + interest + fees on the first loan
-				'expected_amount_to_pay': 20.00 + (daily_interest1 * 9) + (daily_interest1 * 3 * 0.25),
+				'expected_amount_to_pay': round(20.00 + (daily_interest1 * 9) + (daily_interest1 * 3 * 0.25), 2),
 				'expected_amount_as_credit_to_user': 0.0,
 				'expected_loans_to_show': [
 					LoanToShowDict(
@@ -519,22 +527,22 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				'payment_option': 'pay_minimum_due',
 				'payment_input_amount': None,
 				# principal + interest + fees on the first loan
-				'expected_amount_to_pay': first_loan_payment_amount + second_loan_payment_amount,
+				'expected_amount_to_pay': round(first_loan_payment_amount + second_loan_payment_amount, 2),
 				'expected_amount_as_credit_to_user': 0.0,
 				'expected_loans_to_show': [
 					LoanToShowDict(
 						loan_id='filled in by test',
 						transaction=TransactionInputDict(
-							amount=20.00 + (daily_interest1 * 9) + (daily_interest1 * 3 * 0.25),
+							amount=20.00 + round((daily_interest1 * 9), 2) + round((daily_interest1 * 3 * 0.25), 2),
 							to_principal=20.00,
 							to_interest=(daily_interest1 * 9),
-							to_fees=(daily_interest1 * 3 * 0.25)
+							to_fees=round((daily_interest1 * 3 * 0.25), 2)
 						),
 						before_loan_balance=LoanBalanceDict(
 							amount=20.00,
 							outstanding_principal_balance=20.00,
 							outstanding_interest=(daily_interest1 * 9),
-							outstanding_fees=(daily_interest1 * 3 * 0.25)
+							outstanding_fees=round((daily_interest1 * 3 * 0.25), 2)
 						),
 						after_loan_balance=LoanBalanceDict(
 							amount=20.00,
@@ -546,16 +554,16 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 					LoanToShowDict(
 						loan_id='filled in by test',
 						transaction=TransactionInputDict(
-							amount=30.00 + (daily_interest2 * 4) + (daily_interest2 * 1 * 0.25),
+							amount=30.00 + round((daily_interest2 * 4), 2) + round((daily_interest2 * 1 * 0.25), 2),
 							to_principal=30.0,
 							to_interest=(daily_interest2 * 4),
-							to_fees=(daily_interest2 * 1 * 0.25)
+							to_fees=round((daily_interest2 * 1 * 0.25), 2)
 						),
 						before_loan_balance=LoanBalanceDict(
 							amount=30.00,
 							outstanding_principal_balance=30.0,
 							outstanding_interest=4 * daily_interest2,
-							outstanding_fees=(daily_interest2 * 1 * 0.25)
+							outstanding_fees=round((daily_interest2 * 1 * 0.25), 2)
 						),
 						after_loan_balance=LoanBalanceDict(
 							amount=30.00,
@@ -569,6 +577,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 			}
 		]
 
+		tests = [tests[1]]
 		for test in tests:
 			self._run_test(test)
 

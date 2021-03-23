@@ -193,7 +193,10 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 			).first())
 
 		# Assertions on the payment
-		self.assertAlmostEqual(test['payment']['amount'], float(payment.amount))
+		if test.get('expected_payment'):
+			self.assertAlmostEqual(test['expected_payment']['amount'], float(payment.amount))
+		else:
+			self.assertAlmostEqual(test['payment']['amount'], float(payment.amount))
 		self.assertEqual(db_constants.PaymentType.REPAYMENT, payment.type)
 		self.assertEqual(company_id, payment.company_id)
 		self.assertEqual(test['payment']['payment_method'], payment.method)
@@ -313,6 +316,9 @@ class TestSettlePayment(db_unittest.TestCase):
 						'to_user_credit': 0.0,
 					},
 				},
+				'expected_payment': {
+					'amount': 40.0 + 0.3 + 20.0 + 0.24
+				},
 				'transaction_inputs': [
 					{
 						'amount': 40.0 + 0.3,
@@ -366,6 +372,77 @@ class TestSettlePayment(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
+	def test_close_loan_handle_rounding_issue(self) -> None:
+		# Interest due: 0.002 * 51.02 * 3 => 0.30612
+		# Fees due: 0.02551
+		tests: List[Dict] = [
+			{
+				'loans': [
+					{
+						'amount': 51.02,
+						'origination_date': '10/10/2020',
+						'maturity_date': '10/11/2020',
+						'outstanding_principal_balance': 51.02, # unused
+						'outstanding_interest': 0.0, # unused
+						'outstanding_fees': 0.0, # unused
+					}
+				],
+				'transaction_lists': [
+					# Transactions are parallel to the loans defined in the test.
+					# These will be advances or repayments made against their respective loans.
+					[
+						{
+							'type': 'advance',
+							'amount': 51.02,
+							'payment_date': '10/10/2020',
+							'effective_date': '10/10/2020'
+						}
+					]
+				],
+				'payment': {
+					'amount': round(51.02 + 0.31 + 0.03, 2),
+					'payment_method': 'ach',
+					'payment_date': '10/10/2020',
+					'settlement_date': '10/12/2020',
+					'items_covered': {
+						'to_user_credit': 0.0,
+					},
+				},
+				'expected_payment': {
+					'amount': 51.02 + 0.31 + 0.03
+				},
+				'transaction_inputs': [
+					{
+						'amount': 51.02 + 0.31 + 0.03,
+						'to_principal': 51.02,
+						'to_interest': 0.31,
+						'to_fees': 0.03,
+					}
+				],
+				'expected_transactions': [
+					{
+						'type': db_constants.PaymentType.REPAYMENT,
+						'amount': 51.02 + 0.31 + 0.03,
+						'to_principal': 51.02,
+						'to_interest': 0.31,
+						'to_fees': 0.03,
+						'loan_id_index': 0,
+					}
+				],
+				'loans_after_payment': [
+					{
+						'amount': 51.02,
+						'outstanding_principal_balance': 50.0 - 50.0,
+						'outstanding_interest': 0.3 - 0.3,
+						'outstanding_fees': 0.0 - 0.0,
+						'payment_status': PaymentStatusEnum.CLOSED
+					}
+				]
+			}
+		]
+		for test in tests:
+			self._run_test(test)
+
 	def test_fully_paid_and_closed_and_overpayment(self) -> None:
 		"""
 		Tests that an overpayment results in a credit (in the form of a transaction with nothing attached to it)
@@ -401,6 +478,9 @@ class TestSettlePayment(db_unittest.TestCase):
 				'items_covered': {
 					'to_user_credit': 5.0,
 				},
+			},
+			'expected_payment': {
+				'amount': 55.0 + 0.3 + 0.0
 			},
 			'transaction_inputs': [
 				{
@@ -506,6 +586,9 @@ class TestSettlePayment(db_unittest.TestCase):
 					'items_covered': {
 						'to_user_credit': 5.0,
 					},
+				},
+				'expected_payment': {
+					'amount': 45.0 + 40.0 + 0.24 + 30.0 + 0.18 + 5.0
 				},
 				'transaction_inputs': [
 					{
@@ -622,6 +705,9 @@ class TestSettlePayment(db_unittest.TestCase):
 				'payment_date': '10/10/2020',
 				'settlement_date': '10/12/2020'
 			},
+			'expected_payment': {
+				'amount': 55.0 + 0.3 + 0.0
+			},
 			'transaction_inputs': [
 				{
 					'amount': 55.0 + 0.3 + 0.0,
@@ -709,6 +795,9 @@ class TestSettlePayment(db_unittest.TestCase):
 				'payment_date': '10/10/2020',
 				'settlement_date': '10/12/2020'
 			},
+			'expected_payment': {
+				'amount': (50.0 + 0.3 + 10.0 + 5.0) + (40.0 + 0.0 + 5.0 + 1.0)
+			},
 			'transaction_inputs': [
 				{
 					'amount': 50.0 + 0.3 + 10.0 + 5.0,
@@ -775,6 +864,9 @@ class TestSettlePayment(db_unittest.TestCase):
 				'payment_date': '10/10/2020',
 				'settlement_date': '10/12/2020'
 			},
+			'expected_payment': {
+				'amount': 50.0 + 0.0 + 0.0,
+			},
 			'transaction_inputs': [
 				{
 					'amount': 50.0 + 0.0 + 0.0,
@@ -838,6 +930,9 @@ class TestSettlePayment(db_unittest.TestCase):
 				'payment_method': 'ach',
 				'payment_date': '10/10/2020',
 				'settlement_date': '10/12/2020'
+			},
+			'expected_payment': {
+				'amount': 50.0 + 10.0 + 0.0 + 0.0,
 			},
 			'transaction_inputs': [
 				{

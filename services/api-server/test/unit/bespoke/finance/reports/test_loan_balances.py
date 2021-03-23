@@ -203,14 +203,14 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'adjusted_maturity_date': date_util.load_date_str('10/05/2020'),
 						'outstanding_principal': 500.03,
 						'outstanding_principal_for_interest': 500.03,
-						'outstanding_interest': 3 * 0.05 * 500.03, # 10/03 - 10/01 is 2 days apart, +1 day, is 3 days of interest.
+						'outstanding_interest': round(3 * 0.05 * 500.03, 2), # 10/03 - 10/01 is 2 days apart, +1 day, is 3 days of interest.
 						'outstanding_fees': 0.0
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('10/06/2020'),
 						'outstanding_principal': 100.03,
 						'outstanding_principal_for_interest': 100.03,
-						'outstanding_interest': 2 * 0.05 * 100.03, # 10/03 - 10/02 is 1 days apart, +1 day, is 2 days of interest.
+						'outstanding_interest': round(2 * 0.05 * 100.03, 2), # 10/03 - 10/02 is 1 days apart, +1 day, is 2 days of interest.
 						'outstanding_fees': 0.0
 					}
 				],
@@ -220,7 +220,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'adjusted_total_limit': 120000.01,
 					'total_outstanding_principal': 500.03 + 100.03,
 					'total_outstanding_principal_for_interest': 500.03 + 100.03,
-					'total_outstanding_interest': (3 * 0.05 * 500.03) + (2 * 0.05 * 100.03),
+					'total_outstanding_interest': round((3 * 0.05 * 500.03), 2) + round((2 * 0.05 * 100.03), 2),
 					'total_outstanding_fees': 0.0,
 					'total_principal_in_requested_state': 0.0,
 					'available_limit': 120000.01 - (500.03 + 100.03),
@@ -327,7 +327,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'adjusted_maturity_date': date_util.load_date_str('10/05/2020'),
 						'outstanding_principal': 450.03,
 						'outstanding_principal_for_interest': 500.03,
-						'outstanding_interest': -1 * 0.002 * 500.03, # They owe 2 days of interest, but pay off 3, so its -1 day of interest
+						'outstanding_interest': round(-1 * 0.002 * 500.03, 2), # They owe 2 days of interest, but pay off 3, so its -1 day of interest
 						'outstanding_fees': 0.0
 					}
 				],
@@ -337,7 +337,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'adjusted_total_limit': 120000.01,
 					'total_outstanding_principal': 450.03,
 					'total_outstanding_principal_for_interest': 500.03,
-					'total_outstanding_interest': -1 * 0.002 * 500.03,
+					'total_outstanding_interest': round(-1 * 0.002 * 500.03, 2),
 					'total_outstanding_fees': 0.0,
 					'total_principal_in_requested_state': 0.0,
 					'available_limit': 120000.01 - (450.03),
@@ -373,8 +373,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'adjusted_maturity_date': date_util.load_date_str('10/05/2020'),
 						'outstanding_principal': 450.03,
 						'outstanding_principal_for_interest': 450.03,
-						'outstanding_interest': 23 * daily_interest, # 23 days of interest accrued on 450.03 after the first partial repayment
-						'outstanding_fees': (14 * daily_interest * 0.25) + (7 * daily_interest * 0.5)
+						'outstanding_interest': round(23 * daily_interest, 2), # 23 days of interest accrued on 450.03 after the first partial repayment
+						'outstanding_fees': round((14 * daily_interest * 0.25) + (7 * daily_interest * 0.5), 2)
 					}
 				]
 			}

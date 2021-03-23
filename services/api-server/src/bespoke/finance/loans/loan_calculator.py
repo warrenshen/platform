@@ -293,8 +293,8 @@ class LoanCalculator(object):
 		return LoanUpdateDict(
 			loan_id=loan['id'],
 			adjusted_maturity_date=loan['adjusted_maturity_date'],
-			outstanding_principal=outstanding_principal,
-			outstanding_principal_for_interest=outstanding_principal_for_interest,
-			outstanding_interest=outstanding_interest,
-			outstanding_fees=outstanding_fees
+			outstanding_principal=number_util.round_currency(outstanding_principal),
+			outstanding_principal_for_interest=number_util.round_currency(outstanding_principal_for_interest),
+			outstanding_interest=number_util.round_currency(outstanding_interest),
+			outstanding_fees=number_util.round_currency(outstanding_fees)
 		), None
