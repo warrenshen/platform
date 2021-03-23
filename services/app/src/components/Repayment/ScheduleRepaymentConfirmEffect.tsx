@@ -51,7 +51,7 @@ function ScheduleRepaymentConfirmEffect({
     <Box>
       <Box display="flex" flexDirection="column">
         <Typography variant="body1">
-          {`${customer.name} submitted the following Reverse Draft ACH request:`}
+          {`${customer.name} requested the following Reverse Draft ACH:`}
         </Typography>
         <Box mt={1}>
           <RequestedRepaymentPreview payment={payment} />

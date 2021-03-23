@@ -462,15 +462,19 @@ def calculate_repayment_effect(
 		_round_loan(cur_loan)
 
 	for cur_loan in loans_past_due_but_not_selected:
-		_round_loan(cur_loan) 
+		_round_loan(cur_loan)
 
-	ordered_loans_to_show = []
-	loan_id_to_loan_to_show = {}
-	for cur_loan_to_show in loans_to_show:
-		loan_id_to_loan_to_show[cur_loan_to_show['loan_id']] = cur_loan_to_show
+	ordered_loans_to_show: List[LoanToShowDict] = []
+	# Note: for Line of Credit we do not show any loans, so we skip it here.
+	if product_type != ProductType.LINE_OF_CREDIT:
+		ordered_loans_to_show = []
+		loan_id_to_loan_to_show = {}
 
-	for loan_id in loan_ids:
-		ordered_loans_to_show.append(loan_id_to_loan_to_show[loan_id])
+		for cur_loan_to_show in loans_to_show:
+			loan_id_to_loan_to_show[cur_loan_to_show['loan_id']] = cur_loan_to_show
+
+		for loan_id in loan_ids:
+			ordered_loans_to_show.append(loan_id_to_loan_to_show[loan_id])
 
 	return RepaymentEffectRespDict(
 		status='OK',
@@ -479,7 +483,7 @@ def calculate_repayment_effect(
 		loans_to_show=ordered_loans_to_show,
 		amount_to_pay=number_util.round_currency(amount_to_pay),
 		amount_as_credit_to_user=number_util.round_currency(amount_as_credit_to_user),
-		loans_past_due_but_not_selected=loans_past_due_but_not_selected
+		loans_past_due_but_not_selected=loans_past_due_but_not_selected,
 	), None
 
 def create_repayment(
@@ -592,18 +596,6 @@ def schedule_repayment(
 	if not payment_date:
 		return None, errors.Error('Payment date must be specified', details=err_details)
 
-	if is_line_of_credit:
-		if 'to_principal' not in items_covered or 'to_interest' not in items_covered:
-			return None, errors.Error('items_covered.to_principal and items_covered.to_interest must be specified', details=err_details)
-
-		to_principal = items_covered['to_principal']
-		to_interest = items_covered['to_interest']
-		if not number_util.float_eq(payment_amount, to_principal + to_interest):
-			return None, errors.Error(f'Sum of to principal ({to_principal}) and to interest ({to_interest}) does not equal payment amount ({payment_amount})', details=err_details)
-	else:
-		if 'loan_ids' not in items_covered:
-			return None, errors.Error('items_covered.loan_ids must be specified', details=err_details)
-
 	payment_id = None
 
 	with session_scope(session_maker) as session:
@@ -625,43 +617,13 @@ def schedule_repayment(
 		if payment_date < payment.requested_payment_date:
 			return None, errors.Error('Payment date cannot be before the requested payment date', details=err_details)
 
-		loans = []
-		if not is_line_of_credit:
-			loan_ids = items_covered['loan_ids']
-			loans = cast(
-				List[models.Loan],
-				session.query(models.Loan).filter(
-					models.Loan.company_id == company_id
-				).filter(
-					models.Loan.id.in_(loan_ids)
-				).all())
-
-			if not loans:
-				return None, errors.Error('No loans associated with create payment submission')
-
-			if len(loans) != len(loan_ids):
-				return None, errors.Error('Not all loans found in create payment submission')
-
-			not_funded_loan_ids = []
-			for loan in loans:
-				if not loan.funded_at:
-					not_funded_loan_ids.append(loan.id)
-
-			if not_funded_loan_ids:
-				return None, errors.Error('Not all loans are funded')
-
 		payment.amount = decimal.Decimal(payment_amount)
 		payment.payment_date = payment_date
-		payment.items_covered = cast(Dict[str, Any], items_covered)
-
-		# Settlement date should not be set until the banker settles the payment.
-		session.flush()
-		payment_id = str(payment.id)
-
 		# TODO(warrenshen): look into these statuses, perhaps we need a "Requested"?
 		payment_status = PaymentStatusEnum.SCHEDULED
-		for loan in loans:
-			loan.payment_status = payment_status
+
+		session.flush()
+		payment_id = str(payment.id)
 
 	return payment_id, None
 
@@ -711,7 +673,7 @@ def settle_repayment(
 			return None, errors.Error('To principal specified is not rounded to the penny')
 
 		if not number_util.is_currency_rounded(to_interest):
-			return None, errors.Error('To interest specified is not rounded to the penny')			
+			return None, errors.Error('To interest specified is not rounded to the penny')
 
 		if not number_util.float_eq(payment_amount, to_principal + to_interest + to_user_credit):
 			return None, errors.Error(f'Sum of amount to principal ({number_util.to_dollar_format(to_principal)}), amount to interest ({number_util.to_dollar_format(to_interest)}), and credit to user ({number_util.to_dollar_format(to_user_credit)}) does not equal payment amount ({number_util.to_dollar_format(payment_amount)})', details=err_details)

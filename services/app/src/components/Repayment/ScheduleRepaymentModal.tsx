@@ -162,6 +162,7 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
     { loading: isScheduleRepaymentLoading },
   ] = useCustomMutation(scheduleRepaymentMutation);
 
+  // TODO(warrenshen): figure out if we want to keep handleClickNext or not?
   const handleClickNext = async () => {
     if (!payment || !customer) {
       alert("Developer error: payment or customer does not exist.");
@@ -232,7 +233,7 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
       return;
     }
 
-    if (payment.requested_amount <= 0) {
+    if (payment.amount <= 0) {
       setErrMsg("Payment amount must be larger than 0");
       return;
     }
@@ -252,7 +253,7 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
       setErrMsg(response.msg);
     } else {
       setErrMsg("");
-      snackbar.showSuccess("Success! Payment scheduled.");
+      snackbar.showSuccess("Success! Payment submitted.");
       handleClose();
     }
   };
@@ -269,7 +270,7 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
   return (
     <Dialog open fullWidth maxWidth="md" onClose={handleClose}>
       <DialogTitle className={classes.dialogTitle}>
-        Schedule Reverse Draft ACH Payment
+        Submit Reverse Draft ACH Payment
       </DialogTitle>
       <DialogContent style={{ minHeight: 400 }}>
         {isOnSelectLoans ? (
@@ -320,19 +321,19 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
               <Button onClick={handleClose}>Cancel</Button>
               {isOnSelectLoans ? (
                 <Button
-                  disabled={isNextButtonDisabled}
+                  disabled={isActionButtonDisabled}
                   variant="contained"
                   color="primary"
-                  onClick={handleClickNext}
+                  onClick={handleClickConfirm}
                 >
-                  Next
+                  Submit
                 </Button>
               ) : (
                 <Button
                   disabled={isActionButtonDisabled}
                   variant="contained"
                   color="primary"
-                  onClick={handleClickConfirm}
+                  onClick={handleClickNext}
                 >
                   Schedule
                 </Button>
