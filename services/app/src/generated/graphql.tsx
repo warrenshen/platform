@@ -9327,9 +9327,6 @@ export type Payments = {
   /** The amount this payment actually is, as opposed to the requested amount */
   amount?: Maybe<Scalars["numeric"]>;
   /** An object relationship */
-  bespoke_bank_account?: Maybe<BankAccounts>;
-  bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
-  /** An object relationship */
   company: Companies;
   /** An object relationship */
   company_bank_account?: Maybe<BankAccounts>;
@@ -9451,8 +9448,6 @@ export type PaymentsBoolExp = {
   _not?: Maybe<PaymentsBoolExp>;
   _or?: Maybe<Array<Maybe<PaymentsBoolExp>>>;
   amount?: Maybe<NumericComparisonExp>;
-  bespoke_bank_account?: Maybe<BankAccountsBoolExp>;
-  bespoke_bank_account_id?: Maybe<UuidComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
   company_bank_account?: Maybe<BankAccountsBoolExp>;
   company_bank_account_id?: Maybe<UuidComparisonExp>;
@@ -9509,8 +9504,6 @@ export type PaymentsIncInput = {
 /** input type for inserting data into table "payments" */
 export type PaymentsInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
-  bespoke_bank_account?: Maybe<BankAccountsObjRelInsertInput>;
-  bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_bank_account?: Maybe<BankAccountsObjRelInsertInput>;
   company_bank_account_id?: Maybe<Scalars["uuid"]>;
@@ -9540,7 +9533,6 @@ export type PaymentsInsertInput = {
 /** aggregate max on columns */
 export type PaymentsMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
-  bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -9564,7 +9556,6 @@ export type PaymentsMaxFields = {
 /** order by max() on columns of table "payments" */
 export type PaymentsMaxOrderBy = {
   amount?: Maybe<OrderBy>;
-  bespoke_bank_account_id?: Maybe<OrderBy>;
   company_bank_account_id?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
@@ -9588,7 +9579,6 @@ export type PaymentsMaxOrderBy = {
 /** aggregate min on columns */
 export type PaymentsMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
-  bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -9612,7 +9602,6 @@ export type PaymentsMinFields = {
 /** order by min() on columns of table "payments" */
 export type PaymentsMinOrderBy = {
   amount?: Maybe<OrderBy>;
-  bespoke_bank_account_id?: Maybe<OrderBy>;
   company_bank_account_id?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
@@ -9657,8 +9646,6 @@ export type PaymentsOnConflict = {
 /** ordering options when selecting data from "payments" */
 export type PaymentsOrderBy = {
   amount?: Maybe<OrderBy>;
-  bespoke_bank_account?: Maybe<BankAccountsOrderBy>;
-  bespoke_bank_account_id?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
   company_bank_account?: Maybe<BankAccountsOrderBy>;
   company_bank_account_id?: Maybe<OrderBy>;
@@ -9699,8 +9686,6 @@ export type PaymentsPrependInput = {
 export enum PaymentsSelectColumn {
   /** column name */
   Amount = "amount",
-  /** column name */
-  BespokeBankAccountId = "bespoke_bank_account_id",
   /** column name */
   CompanyBankAccountId = "company_bank_account_id",
   /** column name */
@@ -9744,7 +9729,6 @@ export enum PaymentsSelectColumn {
 /** input type for updating data in table "payments" */
 export type PaymentsSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
-  bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -9818,8 +9802,6 @@ export type PaymentsSumOrderBy = {
 export enum PaymentsUpdateColumn {
   /** column name */
   Amount = "amount",
-  /** column name */
-  BespokeBankAccountId = "bespoke_bank_account_id",
   /** column name */
   CompanyBankAccountId = "company_bank_account_id",
   /** column name */
@@ -16723,10 +16705,7 @@ export type PaymentFragment = Pick<
   | "deposit_date"
   | "settlement_date"
   | "items_covered"
-> & {
-  company_bank_account?: Maybe<BankAccountFragment>;
-  bespoke_bank_account?: Maybe<BankAccountFragment>;
-};
+> & { company_bank_account?: Maybe<BankAccountFragment> };
 
 export type TransactionFragment = Pick<
   Transactions,
@@ -17230,9 +17209,6 @@ export const PaymentFragmentDoc = gql`
     settlement_date
     items_covered
     company_bank_account {
-      ...BankAccount
-    }
-    bespoke_bank_account {
       ...BankAccount
     }
   }

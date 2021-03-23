@@ -60542,30 +60542,6 @@
             "deprecationReason": null
           },
           {
-            "name": "bespoke_bank_account",
-            "description": "An object relationship",
-            "args": [],
-            "type": {
-              "kind": "OBJECT",
-              "name": "bank_accounts",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "bespoke_bank_account_id",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "company",
             "description": "An object relationship",
             "args": [],
@@ -61431,26 +61407,6 @@
             "defaultValue": null
           },
           {
-            "name": "bespoke_bank_account",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "bank_accounts_bool_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "bespoke_bank_account_id",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "uuid_comparison_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "company",
             "description": null,
             "type": {
@@ -61827,26 +61783,6 @@
             "defaultValue": null
           },
           {
-            "name": "bespoke_bank_account",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "bank_accounts_obj_rel_insert_input",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "bespoke_bank_account_id",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "company",
             "description": null,
             "type": {
@@ -62109,18 +62045,6 @@
             "deprecationReason": null
           },
           {
-            "name": "bespoke_bank_account_id",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "company_bank_account_id",
             "description": null,
             "args": [],
@@ -62359,16 +62283,6 @@
             "defaultValue": null
           },
           {
-            "name": "bespoke_bank_account_id",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "company_bank_account_id",
             "description": null,
             "type": {
@@ -62565,18 +62479,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "numeric",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "bespoke_bank_account_id",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
               "ofType": null
             },
             "isDeprecated": false,
@@ -62812,16 +62714,6 @@
         "inputFields": [
           {
             "name": "amount",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "bespoke_bank_account_id",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -63175,26 +63067,6 @@
             "defaultValue": null
           },
           {
-            "name": "bespoke_bank_account",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "bank_accounts_order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "bespoke_bank_account_id",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "company",
             "description": null,
             "type": {
@@ -63500,12 +63372,6 @@
             "deprecationReason": null
           },
           {
-            "name": "bespoke_bank_account_id",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "company_bank_account_id",
             "description": "column name",
             "isDeprecated": false,
@@ -63634,16 +63500,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "numeric",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "bespoke_bank_account_id",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "uuid",
               "ofType": null
             },
             "defaultValue": null
@@ -64117,12 +63973,6 @@
         "enumValues": [
           {
             "name": "amount",
-            "description": "column name",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "bespoke_bank_account_id",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

@@ -131,9 +131,6 @@ fragment Payment on payments {
   company_bank_account {
     ...BankAccount
   }
-  bespoke_bank_account {
-    ...BankAccount
-  }
 }
 
 fragment Transaction on transactions {
