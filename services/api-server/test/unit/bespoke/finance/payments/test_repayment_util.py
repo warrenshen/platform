@@ -125,9 +125,8 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 		# Assert on the expected loans afterwards
 		self.assertEqual(len(test['expected_loans_to_show']), len(resp['loans_to_show']))
 
-		# Sort by increasing amount of loan balance owed to keep things in
-		# order with the test.
-		resp['loans_to_show'].sort(key=lambda l: l['before_loan_balance']['amount'])
+		# Loans to show will be organized by the loan_ids order passed in
+		#resp['loans_to_show'].sort(key=lambda l: l['before_loan_balance']['amount'])
 
 		for i in range(len(resp['loans_to_show'])):
 			loan_to_show = resp['loans_to_show'][i]

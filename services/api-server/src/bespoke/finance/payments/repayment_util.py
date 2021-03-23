@@ -464,12 +464,19 @@ def calculate_repayment_effect(
 	for cur_loan in loans_past_due_but_not_selected:
 		_round_loan(cur_loan) 
 
+	ordered_loans_to_show = []
+	loan_id_to_loan_to_show = {}
+	for cur_loan_to_show in loans_to_show:
+		loan_id_to_loan_to_show[cur_loan_to_show['loan_id']] = cur_loan_to_show
+
+	for loan_id in loan_ids:
+		ordered_loans_to_show.append(loan_id_to_loan_to_show[loan_id])
 
 	return RepaymentEffectRespDict(
 		status='OK',
 		payable_amount_principal=number_util.round_currency(payable_amount_principal),
 		payable_amount_interest=number_util.round_currency(payable_amount_interest),
-		loans_to_show=loans_to_show,
+		loans_to_show=ordered_loans_to_show,
 		amount_to_pay=number_util.round_currency(amount_to_pay),
 		amount_as_credit_to_user=number_util.round_currency(amount_as_credit_to_user),
 		loans_past_due_but_not_selected=loans_past_due_but_not_selected
