@@ -105,11 +105,12 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
         <Box py={3}>
           <VendorInfo vendor={omit(vendor, ["users"])} />
         </Box>
-        <Typography variant="h6"> Contacts </Typography>
+        <Typography variant="h6">Contacts</Typography>
         <Contacts
           contacts={vendor.users}
           companyId={vendor.id}
           companyVendorPartnershipId={data.company_vendor_partnerships_by_pk.id}
+          handleDataChange={refetch}
         />
         <Typography variant="h6"> Bank Information </Typography>
         <BankAccount

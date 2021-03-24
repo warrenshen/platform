@@ -6,22 +6,14 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControl,
-  InputLabel,
   makeStyles,
-  MenuItem,
-  Select,
   TextField,
   Theme,
 } from "@material-ui/core";
-import {
-  useAddUserMutation,
-  UserRolesEnum,
-  UsersInsertInput,
-} from "generated/graphql";
+import { UsersInsertInput } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { authenticatedApi, userRoutes } from "lib/api";
-import { UserRoleToLabel } from "lib/enum";
+import { createPayorVendorUserMutation } from "lib/api/users";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -44,82 +36,60 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export async function createLogin(req: {
-  company_id: string | null;
-  user_id: string;
-}): Promise<{ status: string; msg?: string }> {
-  return authenticatedApi
-    .post(userRoutes.createLogin, req)
-    .then((res) => {
-      return res.data;
-    })
-    .then(
-      (response) => {
-        return response;
-      },
-      (error) => {
-        console.log("error", error);
-        return { status: "ERROR", msg: "Could not create login for user" };
-      }
-    );
-}
-
 interface Props {
-  companyId?: string;
-  userRoles: UserRolesEnum[];
+  isPayor: boolean;
+  companyId: string;
   handleClose: () => void;
 }
 
-function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
+function InviteThirdPartyUserModal({ isPayor, companyId, handleClose }: Props) {
   const snackbar = useSnackbar();
   const classes = useStyles();
 
   const [user, setUser] = useState<UsersInsertInput>({
     company_id: companyId,
-    phone_number: "",
-    role: null,
     email: "",
     first_name: "",
     last_name: "",
-    password: "",
+    phone_number: "",
   });
   const [errMsg, setErrMsg] = useState("");
 
-  const [addUser] = useAddUserMutation();
+  const [
+    createPayorVendorUser,
+    { loading: isCreatePayorVendorUserLoading },
+  ] = useCustomMutation(createPayorVendorUserMutation);
 
   const handleClickSubmit = async () => {
-    const resp = await addUser({
+    const response = await createPayorVendorUser({
       variables: {
+        company_id: companyId,
         user: {
-          company_id: companyId,
           email: user.email,
           first_name: user.first_name,
           last_name: user.last_name,
           phone_number: user.phone_number,
-          role: user.role,
         },
+        is_payor: isPayor,
       },
     });
 
-    const userId = resp.data?.insert_users_one?.id;
-    if (!userId) {
-      setErrMsg("No user id was created");
-      return;
-    }
-
-    const response = await createLogin({
-      company_id: companyId || null,
-      user_id: userId,
-    });
     if (response.status !== "OK") {
+      setErrMsg(response.msg);
       snackbar.showError(
-        `Error: could not invite user. Reason: ${response.msg}`
+        `Error! Could not create user. Reason: ${response.msg}`
       );
     } else {
-      snackbar.showSuccess("Success! User invited.");
+      snackbar.showSuccess("Success! User created and sent a welcome email.");
       handleClose();
     }
   };
+
+  const isSubmitDisabled =
+    !user.first_name ||
+    !user.last_name ||
+    !user.email ||
+    isCreatePayorVendorUserLoading;
 
   return (
     <Dialog
@@ -128,25 +98,11 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
       maxWidth="xl"
       classes={{ paper: classes.dialog }}
     >
-      <DialogTitle className={classes.dialogTitle}>Invite New User</DialogTitle>
+      <DialogTitle className={classes.dialogTitle}>
+        Invite New Contact
+      </DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column">
-          <FormControl className={classes.usersInput}>
-            <InputLabel id="user-role-select-label">User Role</InputLabel>
-            <Select
-              labelId="user-role-select-label"
-              value={user.role || ""}
-              onChange={({ target: { value } }) => {
-                setUser({ ...user, role: value as UserRolesEnum });
-              }}
-            >
-              {userRoles.map((userRole) => (
-                <MenuItem key={userRole} value={userRole}>
-                  {UserRoleToLabel[userRole]}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
           <TextField
             label="First Name"
             className={classes.usersInput}
@@ -198,8 +154,8 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
         <Box>
           <Button onClick={handleClose}>Cancel</Button>
           <Button
+            disabled={isSubmitDisabled}
             className={classes.submitButton}
-            disabled={false}
             onClick={handleClickSubmit}
             variant="contained"
             color="primary"
@@ -212,4 +168,4 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
   );
 }
 
-export default InviteUserModal;
+export default InviteThirdPartyUserModal;

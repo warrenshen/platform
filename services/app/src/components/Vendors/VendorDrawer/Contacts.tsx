@@ -1,5 +1,7 @@
-import { Box, Button } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import Can from "components/Shared/Can";
+import ModalButton from "components/Shared/Modal/ModalButton";
+import InviteThirdPartyUserModal from "components/Users/InviteThirdPartyUserModal";
 import ContactCard from "components/Vendors/VendorDrawer/ContactCard";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
@@ -14,9 +16,15 @@ interface Props {
   companyId: Companies["id"];
   companyVendorPartnershipId: CompanyVendorPartnerships["id"];
   contacts: Array<ContactFragment>;
+  handleDataChange: () => void;
 }
 
-function Contacts(props: Props) {
+function Contacts({
+  companyId,
+  companyVendorPartnershipId,
+  contacts,
+  handleDataChange,
+}: Props) {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
@@ -25,32 +33,36 @@ function Contacts(props: Props) {
   return (
     <Box mb={3} mt={1}>
       <Can perform={Action.AddVendorContact}>
-        <Box mb={2}>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => {
-              setAddingContact(true);
-            }}
-          >
-            New
-          </Button>
-        </Box>
+        <ModalButton
+          label={"New Contact"}
+          size="small"
+          variant="outlined"
+          modal={({ handleClose }) => (
+            <InviteThirdPartyUserModal
+              isPayor={false}
+              companyId={companyId}
+              handleClose={() => {
+                handleDataChange();
+                handleClose();
+              }}
+            />
+          )}
+        />
       </Can>
       {addingContact && (
         <ContactCard
-          companyId={props.companyId}
-          companyVendorPartnershipId={props.companyVendorPartnershipId}
+          companyId={companyId}
+          companyVendorPartnershipId={companyVendorPartnershipId}
           creating
           onCreateComplete={() => setAddingContact(false)}
         />
       )}
-      {props.contacts.map((contact) => {
+      {contacts.map((contact) => {
         return (
           <ContactCard
             key={contact.id}
             contact={contact}
-            companyVendorPartnershipId={props.companyVendorPartnershipId}
+            companyVendorPartnershipId={companyVendorPartnershipId}
             isEditAllowed={check(role, Action.EditVendorContact)}
           />
         );

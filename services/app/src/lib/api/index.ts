@@ -28,6 +28,7 @@ export const contractRoutes = {
 
 export const userRoutes = {
   createLogin: "/users/create_login",
+  createPayorVendorUser: "/users/create_payor_vendor_user",
 };
 
 export const notifyRoutes = {
