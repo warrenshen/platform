@@ -2,13 +2,14 @@
 	A file for functions to creating objects that are helpful when using the database.
 """
 import logging
-import unittest
 import traceback
-from mypy_extensions import TypedDict
-from typing import Callable, Any, List, Dict
+import unittest
+from typing import Any, Callable, Dict, List
 
 from bespoke.db import models
 from bespoke.db.models import session_scope
+from mypy_extensions import TypedDict
+
 
 def assertIsCurrencyRounded(
 	test_case: unittest.TestCase, expected: float) -> None:
@@ -56,7 +57,7 @@ def assertDeepAlmostEqual(
 
 TestUser = TypedDict('TestUser', {
 	'user_id': str,
-	'company_id': str 
+	'company_id': str
 })
 
 TestAccountInfo = TypedDict('TestAccountInfo', {
@@ -101,7 +102,9 @@ class BasicSeed(object):
 				company_id=str(bank_company.id),
 				email='bankadmin+user{}@gmail.com'.format(i),
 				password='somepass{}'.format(i),
-				role='bank_admin'
+				role='bank_admin',
+				first_name='Bank Admin',
+				last_name='User',
 			)
 			session.add(bank_user)
 			session.flush()
@@ -141,7 +144,9 @@ class BasicSeed(object):
 				company_id=company_id,
 				email='companyadmin+user{}@gmail.com'.format(i),
 				password='somepass_c{}'.format(i),
-				role='company_admin'
+				role='company_admin',
+				first_name='Company Admin',
+				last_name='User',
 			)
 			session.add(company_user)
 			session.flush()
@@ -174,7 +179,7 @@ class BasicSeed(object):
 
 	def get_company_id(self, account_role: str, index: int = 0) -> str:
 		"""
-			When account_role='bank_admin' and index = 0, this will get the company ID for 
+			When account_role='bank_admin' and index = 0, this will get the company ID for
 			first bank_admin setup in the system, and so on and so forth.
 		"""
 		if account_role == 'bank_admin':
@@ -186,7 +191,7 @@ class BasicSeed(object):
 
 	def get_user_id(self, account_role: str, index: int = 0) -> str:
 		"""
-			When account_role='company_admin' and index = 1, this will get the company ID for 
+			When account_role='company_admin' and index = 1, this will get the company ID for
 			second bank_admin setup in the system, and so on and so forth.
 		"""
 		if account_role == 'bank_admin':

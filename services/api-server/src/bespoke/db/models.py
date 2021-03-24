@@ -63,6 +63,9 @@ class User(Base):
 	email = Column(String(120), unique=True, nullable=False)
 	password = Column(Text, nullable=False)
 	role = Column(String(120), nullable=False)
+	first_name = Column(Text, nullable=False)
+	last_name = Column(Text, nullable=False)
+	phone_number = Column(Text)
 
 
 class Customer(Base):

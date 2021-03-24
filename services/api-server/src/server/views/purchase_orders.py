@@ -1,11 +1,11 @@
 import json
 from typing import Any, Callable, List, cast
 
+from bespoke.audit import events
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.db_constants import RequestStatusEnum
 from bespoke.db.models import session_scope
-from bespoke.audit import events
 from bespoke.email import sendgrid_util
 from bespoke.finance import number_util
 from bespoke.security import security_util, two_factor_util

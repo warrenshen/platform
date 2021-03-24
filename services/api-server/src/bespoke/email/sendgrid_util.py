@@ -4,10 +4,10 @@ import logging
 from datetime import timedelta, timezone
 from typing import Callable, Dict, List, Text, Tuple, cast
 
+from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
-from bespoke import errors
 from bespoke.email import email_manager
 from bespoke.security import security_util
 from mypy_extensions import TypedDict
@@ -33,6 +33,8 @@ class TemplateNames(object):
 	CUSTOMER_REQUESTS_LOAN = 'customer_requests_loan'
 	CUSTOMER_SUBMITTED_EBBA_APPLICATION = 'customer_submitted_ebba_application'
 
+	USER_VENDOR_INVITED_TO_PLATFORM = 'user_vendor_invited_to_platform'
+	USER_PAYOR_INVITED_TO_PLATFORM = 'user_payor_invited_to_platform'
 	USER_INVITED_TO_PLATFORM = 'user_invited_to_platform'
 	USER_FORGOT_PASSWORD = 'user_forgot_password'
 
@@ -106,6 +108,14 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 		'requires_secure_link': False
 	},
 
+	TemplateNames.USER_VENDOR_INVITED_TO_PLATFORM: {
+		'id': 'd-381ba29d06d04336afa56bb16e626eb8',
+		'requires_secure_link': False
+	},
+	TemplateNames.USER_PAYOR_INVITED_TO_PLATFORM: {
+		'id': 'd-013f2164d131461193c928e928b5c86d',
+		'requires_secure_link': False
+	},
 	TemplateNames.USER_INVITED_TO_PLATFORM: {
 		'id': 'd-27a58f6f855b430085747a79d2f562cf',
 		'requires_secure_link': False
@@ -114,6 +124,7 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 		'id': 'd-7a8a3b36662a45d5bdaa03441b6715b0',
 		'requires_secure_link': True
 	},
+
 	TemplateNames.OPS_TRIGGER_NOTIFICATION: {
 		'id': 'd-6b7e9c5b88ef47a49c352b8a5596eb5f',
 		'requires_secure_link': False,

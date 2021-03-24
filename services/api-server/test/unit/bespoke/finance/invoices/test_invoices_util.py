@@ -1,22 +1,22 @@
-import json
-import uuid
-import decimal
 import datetime
+import decimal
+import json
 import unittest
-from typing import Any, Callable, Dict, Tuple, List, Optional
+import uuid
 from dataclasses import dataclass, fields
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
-from manage import app
 from bespoke import errors
-from bespoke.db import models, db_constants
 from bespoke.date import date_util
+from bespoke.db import db_constants, models
 from bespoke.email import sendgrid_util
 from bespoke.finance.invoices import invoices_util
 from bespoke_test import auth_helper
 from bespoke_test.db import db_unittest, test_helper
-
-from sqlalchemy.orm.session import Session
+from manage import app
 from sqlalchemy.orm import joinedload
+from sqlalchemy.orm.session import Session
+
 
 class TestUpsertRequestParsing(unittest.TestCase):
 
@@ -453,6 +453,8 @@ class TestIsInvoiceReadyForApproval(db_unittest.TestCase):
 						email='peter@webuyweed.com',
 						password='xxxx',
 						role='peter the payor',
+						first_name='Peter',
+						last_name='Payor',
 					)),
 				'None'
 			)
@@ -504,7 +506,9 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 				company_id=p.payors[0].id,
 				email='peter@webuyweed.com',
 				password='xxxx',
-				role='peter the payor'
+				role='peter the payor',
+				first_name='Peter',
+				last_name='Payor',
 			))
 
 		with models.session_scope(self.session_maker) as session:
@@ -550,7 +554,9 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 				company_id=p.payors[0].id,
 				email='peter@webuyweed.com',
 				password='xxxx',
-				role='peter the payor'
+				role='peter the payor',
+				first_name='Peter',
+				last_name='Payor',
 			))
 
 		with models.session_scope(self.session_maker) as session:
@@ -596,7 +602,9 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 				company_id=p.payors[0].id,
 				email='peter@webuyweed.com',
 				password='xxxx',
-				role='peter the payor'
+				role='peter the payor',
+				first_name='Peter',
+				last_name='Payor',
 			))
 
 		with models.session_scope(self.session_maker) as session:
@@ -643,7 +651,9 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 				company_id=p.payors[0].id,
 				email='peter@webuyweed.com',
 				password='xxxx',
-				role='peter the payor'
+				role='peter the payor',
+				first_name='Peter',
+				last_name='Payor',
 			))
 
 		invoice_id = None
