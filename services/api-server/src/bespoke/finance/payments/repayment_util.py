@@ -779,6 +779,15 @@ def settle_repayment(
 			if len(transaction_inputs) != len(loans):
 				return None, errors.Error('Unequal amount of transaction inputs provided relative to loans provided', details=err_details)
 
+		for loan in loans:
+			if not loan.origination_date:
+				return None, errors.Error('Loan {} is missing an origination date'.format(loan.id)) 
+
+			# Do not allow loans that are funded after the deposit date of this payment
+			if loan.origination_date > deposit_date:
+				return None, errors.Error('Cannot fund loan {} which has an origination date of {} with a payment being deposited earlier on {}'.format(
+					loan.id, loan.origination_date, deposit_date))
+
 		loan_id_to_loan = {}
 		for loan in loans:
 			loan_id_to_loan[str(loan.id)] = loan
