@@ -47,7 +47,7 @@ interface Props {
   handleClose: () => void;
 }
 
-export default function PayorDrawer({ partnershipId, handleClose }: Props) {
+function PayorDrawer({ partnershipId, handleClose }: Props) {
   const classes = useStyles();
 
   const { data, loading, refetch, error } = useGetBankPayorPartnershipQuery({
@@ -101,14 +101,12 @@ export default function PayorDrawer({ partnershipId, handleClose }: Props) {
             editAction={Action.EditVendor}
           />{" "}
         </Box>
-        <Typography variant="h6"> Contacts </Typography>
+        <Typography variant="h6">Contacts</Typography>
         <ContactsList
-          contacts={payor.users}
+          isPayor
           companyId={payor.id}
-          onActionComplete={async () => {
-            refetch();
-            return null;
-          }}
+          contacts={payor.users}
+          handleDataChange={refetch}
         />
         <Typography variant="h6"> Bank Information </Typography>
         <Box display="flex" mt={1}>
@@ -255,3 +253,5 @@ export default function PayorDrawer({ partnershipId, handleClose }: Props) {
     </Drawer>
   );
 }
+
+export default PayorDrawer;

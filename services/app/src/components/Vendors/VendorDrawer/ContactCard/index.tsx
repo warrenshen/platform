@@ -11,7 +11,6 @@ import {
 } from "@material-ui/core";
 import {
   Companies,
-  CompanyVendorPartnerships,
   ContactFragment,
   useAddVendorContactMutation,
   UsersInsertInput,
@@ -41,7 +40,6 @@ interface Props {
   creating?: boolean;
   onCreateComplete?: () => void;
   companyId?: Companies["id"];
-  companyVendorPartnershipId: CompanyVendorPartnerships["id"];
   isEditAllowed?: boolean;
 }
 

@@ -13,9 +13,9 @@ import CollectionsBank from "components/Shared/BespokeBankAssignment/Collections
 import Can from "components/Shared/Can";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileUploadDropzone from "components/Shared/File/UploadDropzone";
+import ContactsList from "components/ThirdParties/ContactsList";
 import ApproveVendor from "components/Vendors/VendorDrawer/Actions/ApproveVendor";
 import BankAccount from "components/Vendors/VendorDrawer/BankAccount";
-import Contacts from "components/Vendors/VendorDrawer/Contacts";
 import VendorInfo from "components/Vendors/VendorDrawer/VendorInfo";
 import {
   CompanyAgreementsInsertInput,
@@ -30,7 +30,7 @@ import { Action } from "lib/auth/rbac-rules";
 import { InventoryNotifier } from "lib/notifications/inventory";
 import { omit } from "lodash";
 import { useMemo } from "react";
-import SendVendorAgreements from "./Notifications/SendVendorAgreements";
+import SendVendorAgreements from "./VendorDrawer/Notifications/SendVendorAgreements";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -106,10 +106,10 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
           <VendorInfo vendor={omit(vendor, ["users"])} />
         </Box>
         <Typography variant="h6">Contacts</Typography>
-        <Contacts
-          contacts={vendor.users}
+        <ContactsList
+          isPayor={false}
           companyId={vendor.id}
-          companyVendorPartnershipId={data.company_vendor_partnerships_by_pk.id}
+          contacts={vendor.users}
           handleDataChange={refetch}
         />
         <Typography variant="h6"> Bank Information </Typography>

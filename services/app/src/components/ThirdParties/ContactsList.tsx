@@ -1,53 +1,46 @@
-import { Box, Button } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import Can from "components/Shared/Can";
+import ModalButton from "components/Shared/Modal/ModalButton";
 import ContactCard from "components/ThirdParties/ContactCard";
+import InviteThirdPartyUserModal from "components/Users/InviteThirdPartyUserModal";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { Companies, ContactFragment } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 
 interface Props {
+  isPayor: boolean;
   companyId: Companies["id"];
   contacts: Array<ContactFragment>;
-  onActionComplete: () => Promise<null>;
+  handleDataChange: () => void;
 }
 
-export default function Contacts({
-  companyId,
-  contacts,
-  onActionComplete,
-}: Props) {
+function Contacts({ isPayor, companyId, contacts, handleDataChange }: Props) {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const [addingContact, setAddingContact] = useState(false);
 
   return (
     <Box mb={3} mt={1}>
       <Can perform={Action.AddVendorContact}>
         <Box mb={2}>
-          <Button
-            variant="outlined"
+          <ModalButton
+            label={"New Contact"}
             size="small"
-            onClick={() => {
-              onActionComplete();
-              setAddingContact(true);
-            }}
-          >
-            New
-          </Button>
+            variant="outlined"
+            modal={({ handleClose }) => (
+              <InviteThirdPartyUserModal
+                isPayor={isPayor}
+                companyId={companyId}
+                handleClose={() => {
+                  handleDataChange();
+                  handleClose();
+                }}
+              />
+            )}
+          />
         </Box>
       </Can>
-      {addingContact && (
-        <ContactCard
-          isCreating
-          companyId={companyId}
-          onCreateComplete={async () => {
-            onActionComplete();
-            setAddingContact(false);
-          }}
-        />
-      )}
       {contacts.map((contact) => {
         return (
           <ContactCard
@@ -60,3 +53,5 @@ export default function Contacts({
     </Box>
   );
 }
+
+export default Contacts;
