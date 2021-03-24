@@ -62,7 +62,7 @@ class User(Base):
 	company_id = Column(GUID, nullable=True)
 	email = Column(String(120), unique=True, nullable=False)
 	password = Column(Text, nullable=False)
-	role = Column(String(120), nullable=False)
+	role = Column(String(120))
 	first_name = Column(Text, nullable=False)
 	last_name = Column(Text, nullable=False)
 	phone_number = Column(Text)

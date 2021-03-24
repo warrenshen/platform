@@ -74,8 +74,8 @@ class ForgotPasswordView(MethodView):
 		with session_scope(current_app.session_maker) as session:
 			user = session.query(models.User).filter(
 				models.User.email == email).first()
-			if not user:
-				return handler_util.make_error_response('No user associated with email "{}" exists'.format(email), 401)
+			if not user or not user.role:
+				return handler_util.make_error_response(f'An account with email "{email}" does not exist', 401)
 
 		sendgrid_client.send(
 			template_name=sendgrid_util.TemplateNames.USER_FORGOT_PASSWORD,
