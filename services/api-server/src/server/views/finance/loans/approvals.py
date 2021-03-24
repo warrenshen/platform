@@ -102,7 +102,6 @@ class ApproveLoansView(MethodView):
 				_, err = sendgrid_client.send(
 					template_name, template_data, recipients)
 				if err:
-					print(err)
 					return handler_util.make_error_response(err)
 
 		resp['status'] = 'OK'
@@ -128,6 +127,12 @@ class RejectLoanView(MethodView):
 		rejection_note = form['rejection_note']
 		user_session = auth_util.UserSession.from_session()
 
+		customer_name = ''
+		loan_identifier = ''
+		loan_amount = ''
+		loan_requested_payment_date = ''
+		loan_requested_date = ''
+
 		with session_scope(current_app.session_maker) as session:
 			loan = cast(
 				models.Loan,
@@ -138,15 +143,51 @@ class RejectLoanView(MethodView):
 			if not loan:
 				return handler_util.make_error_response('Could not find loan for given Loan ID')
 
-			company_id = loan.company_id
-			# When a loan gets rejected, you also have to clear out any state about
-			# whether it was approved.
+			customer_id = loan.company_id
+			# When a loan gets rejected, we clear out
+			# any state about whether it was approved.
 			loan.status = db_constants.LoanStatusEnum.REJECTED
 			loan.rejection_note = rejection_note
 			loan.rejected_at = date_util.now()
 			loan.rejected_by_user_id = user_session.get_user_id()
 			loan.approved_at = None
 			loan.approved_by_user_id = None
+
+			customer = cast(
+				models.Company,
+				session.query(models.Company).filter(
+					models.Company.id == customer_id
+				).first())
+			customer_name = customer.name
+
+			loan_identifier = f'{customer.identifier}{loan.identifier}'
+			loan_amount = number_util.to_dollar_format(float(loan.amount))
+			loan_requested_payment_date = date_util.date_to_str(loan.requested_payment_date)
+			loan_requested_date = date_util.human_readable_yearmonthday(loan.requested_at)
+
+			customer_users = cast(List[models.User], session.query(
+				models.User).filter_by(company_id=customer_id).all())
+			customer_emails = [user.email for user in customer_users]
+
+		template_name = sendgrid_util.TemplateNames.BANK_REJECTED_LOAN
+		template_data = {
+			'customer_name': customer_name,
+			'loan_identifier': loan_identifier,
+			'loan_amount': loan_amount,
+			'loan_requested_payment_date': loan_requested_payment_date,
+			'loan_requested_date': loan_requested_date,
+			'rejection_note': rejection_note,
+		}
+
+		cfg = cast(Config, current_app.app_config)
+		sendgrid_client = cast(sendgrid_util.Client,
+							current_app.sendgrid_client)
+
+		recipients = customer_emails
+		_, err = sendgrid_client.send(
+			template_name, template_data, recipients)
+		if err:
+			return handler_util.make_error_response(err)
 
 		return make_response(json.dumps({
 			'status': 'OK'

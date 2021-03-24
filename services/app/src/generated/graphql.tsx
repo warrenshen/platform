@@ -5769,6 +5769,7 @@ export type Invoices = {
   invoice_files_aggregate: InvoiceFilesAggregate;
   invoice_number: Scalars["String"];
   is_cannabis: Scalars["Boolean"];
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   /** An array relationship */
   loans: Array<Loans>;
   /** An aggregated array relationship */
@@ -5928,6 +5929,7 @@ export type InvoicesBoolExp = {
   invoice_files?: Maybe<InvoiceFilesBoolExp>;
   invoice_number?: Maybe<StringComparisonExp>;
   is_cannabis?: Maybe<BooleanComparisonExp>;
+  is_deleted?: Maybe<BooleanComparisonExp>;
   loans?: Maybe<LoansBoolExp>;
   payment?: Maybe<PaymentsBoolExp>;
   payment_confirmed_at?: Maybe<TimestamptzComparisonExp>;
@@ -5976,6 +5978,7 @@ export type InvoicesInsertInput = {
   invoice_files?: Maybe<InvoiceFilesArrRelInsertInput>;
   invoice_number?: Maybe<Scalars["String"]>;
   is_cannabis?: Maybe<Scalars["Boolean"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   loans?: Maybe<LoansArrRelInsertInput>;
   payment?: Maybe<PaymentsObjRelInsertInput>;
   payment_confirmed_at?: Maybe<Scalars["timestamptz"]>;
@@ -6134,6 +6137,7 @@ export type InvoicesOrderBy = {
   invoice_files_aggregate?: Maybe<InvoiceFilesAggregateOrderBy>;
   invoice_number?: Maybe<OrderBy>;
   is_cannabis?: Maybe<OrderBy>;
+  is_deleted?: Maybe<OrderBy>;
   loans_aggregate?: Maybe<LoansAggregateOrderBy>;
   payment?: Maybe<PaymentsOrderBy>;
   payment_confirmed_at?: Maybe<OrderBy>;
@@ -6181,6 +6185,8 @@ export enum InvoicesSelectColumn {
   /** column name */
   IsCannabis = "is_cannabis",
   /** column name */
+  IsDeleted = "is_deleted",
+  /** column name */
   PaymentConfirmedAt = "payment_confirmed_at",
   /** column name */
   PaymentId = "payment_id",
@@ -6222,6 +6228,7 @@ export type InvoicesSetInput = {
   invoice_due_date?: Maybe<Scalars["date"]>;
   invoice_number?: Maybe<Scalars["String"]>;
   is_cannabis?: Maybe<Scalars["Boolean"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   payment_confirmed_at?: Maybe<Scalars["timestamptz"]>;
   payment_id?: Maybe<Scalars["uuid"]>;
   payment_rejected_at?: Maybe<Scalars["timestamptz"]>;
@@ -6316,6 +6323,8 @@ export enum InvoicesUpdateColumn {
   InvoiceNumber = "invoice_number",
   /** column name */
   IsCannabis = "is_cannabis",
+  /** column name */
+  IsDeleted = "is_deleted",
   /** column name */
   PaymentConfirmedAt = "payment_confirmed_at",
   /** column name */
@@ -6958,6 +6967,7 @@ export type Loans = {
   funded_by_user_id?: Maybe<Scalars["uuid"]>;
   id: Scalars["uuid"];
   identifier: Scalars["String"];
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   /** An object relationship */
   line_of_credit?: Maybe<LineOfCredits>;
   loan_type?: Maybe<LoanTypeEnum>;
@@ -7100,6 +7110,7 @@ export type LoansBoolExp = {
   funded_by_user_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   identifier?: Maybe<StringComparisonExp>;
+  is_deleted?: Maybe<BooleanComparisonExp>;
   line_of_credit?: Maybe<LineOfCreditsBoolExp>;
   loan_type?: Maybe<LoanTypeEnumComparisonExp>;
   maturity_date?: Maybe<DateComparisonExp>;
@@ -7154,6 +7165,7 @@ export type LoansInsertInput = {
   funded_by_user_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   identifier?: Maybe<Scalars["String"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   line_of_credit?: Maybe<LineOfCreditsObjRelInsertInput>;
   loan_type?: Maybe<LoanTypeEnum>;
   maturity_date?: Maybe<Scalars["date"]>;
@@ -7341,6 +7353,7 @@ export type LoansOrderBy = {
   funded_by_user_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   identifier?: Maybe<OrderBy>;
+  is_deleted?: Maybe<OrderBy>;
   line_of_credit?: Maybe<LineOfCreditsOrderBy>;
   loan_type?: Maybe<OrderBy>;
   maturity_date?: Maybe<OrderBy>;
@@ -7396,6 +7409,8 @@ export enum LoansSelectColumn {
   /** column name */
   Identifier = "identifier",
   /** column name */
+  IsDeleted = "is_deleted",
+  /** column name */
   LoanType = "loan_type",
   /** column name */
   MaturityDate = "maturity_date",
@@ -7447,6 +7462,7 @@ export type LoansSetInput = {
   funded_by_user_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   identifier?: Maybe<Scalars["String"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   loan_type?: Maybe<LoanTypeEnum>;
   maturity_date?: Maybe<Scalars["date"]>;
   modified_at?: Maybe<Scalars["timestamptz"]>;
@@ -7557,6 +7573,8 @@ export enum LoansUpdateColumn {
   Id = "id",
   /** column name */
   Identifier = "identifier",
+  /** column name */
+  IsDeleted = "is_deleted",
   /** column name */
   LoanType = "loan_type",
   /** column name */
@@ -9338,6 +9356,7 @@ export type Payments = {
   id: Scalars["uuid"];
   /** An object relationship */
   invoice?: Maybe<Invoices>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   /** JSON blob which records information about this payment: which loans this payment is intended for, how much of this payment is intended to go to principal vs interest, etc */
   items_covered: Scalars["jsonb"];
   method: Scalars["String"];
@@ -9456,6 +9475,7 @@ export type PaymentsBoolExp = {
   deposit_date?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   invoice?: Maybe<InvoicesBoolExp>;
+  is_deleted?: Maybe<BooleanComparisonExp>;
   items_covered?: Maybe<JsonbComparisonExp>;
   method?: Maybe<StringComparisonExp>;
   originating_payment_id?: Maybe<UuidComparisonExp>;
@@ -9512,6 +9532,7 @@ export type PaymentsInsertInput = {
   deposit_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   invoice?: Maybe<InvoicesObjRelInsertInput>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   items_covered?: Maybe<Scalars["jsonb"]>;
   method?: Maybe<Scalars["String"]>;
   originating_payment_id?: Maybe<Scalars["uuid"]>;
@@ -9654,6 +9675,7 @@ export type PaymentsOrderBy = {
   deposit_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   invoice?: Maybe<InvoicesOrderBy>;
+  is_deleted?: Maybe<OrderBy>;
   items_covered?: Maybe<OrderBy>;
   method?: Maybe<OrderBy>;
   originating_payment_id?: Maybe<OrderBy>;
@@ -9697,6 +9719,8 @@ export enum PaymentsSelectColumn {
   /** column name */
   Id = "id",
   /** column name */
+  IsDeleted = "is_deleted",
+  /** column name */
   ItemsCovered = "items_covered",
   /** column name */
   Method = "method",
@@ -9734,6 +9758,7 @@ export type PaymentsSetInput = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   deposit_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   items_covered?: Maybe<Scalars["jsonb"]>;
   method?: Maybe<Scalars["String"]>;
   originating_payment_id?: Maybe<Scalars["uuid"]>;
@@ -9812,6 +9837,8 @@ export enum PaymentsUpdateColumn {
   DepositDate = "deposit_date",
   /** column name */
   Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
   /** column name */
   ItemsCovered = "items_covered",
   /** column name */
@@ -10781,6 +10808,7 @@ export type PurchaseOrders = {
   funded_at?: Maybe<Scalars["timestamptz"]>;
   id: Scalars["uuid"];
   is_cannabis?: Maybe<Scalars["Boolean"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   /** An array relationship */
   loans: Array<Loans>;
   /** An aggregated array relationship */
@@ -10909,6 +10937,7 @@ export type PurchaseOrdersBoolExp = {
   funded_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   is_cannabis?: Maybe<BooleanComparisonExp>;
+  is_deleted?: Maybe<BooleanComparisonExp>;
   loans?: Maybe<LoansBoolExp>;
   order_date?: Maybe<DateComparisonExp>;
   order_number?: Maybe<StringComparisonExp>;
@@ -10944,6 +10973,7 @@ export type PurchaseOrdersInsertInput = {
   funded_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_cannabis?: Maybe<Scalars["Boolean"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   loans?: Maybe<LoansArrRelInsertInput>;
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
@@ -11061,6 +11091,7 @@ export type PurchaseOrdersOrderBy = {
   funded_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   is_cannabis?: Maybe<OrderBy>;
+  is_deleted?: Maybe<OrderBy>;
   loans_aggregate?: Maybe<LoansAggregateOrderBy>;
   order_date?: Maybe<OrderBy>;
   order_number?: Maybe<OrderBy>;
@@ -11098,6 +11129,8 @@ export enum PurchaseOrdersSelectColumn {
   /** column name */
   IsCannabis = "is_cannabis",
   /** column name */
+  IsDeleted = "is_deleted",
+  /** column name */
   OrderDate = "order_date",
   /** column name */
   OrderNumber = "order_number",
@@ -11125,6 +11158,7 @@ export type PurchaseOrdersSetInput = {
   funded_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_cannabis?: Maybe<Scalars["Boolean"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
@@ -11193,6 +11227,8 @@ export enum PurchaseOrdersUpdateColumn {
   Id = "id",
   /** column name */
   IsCannabis = "is_cannabis",
+  /** column name */
+  IsDeleted = "is_deleted",
   /** column name */
   OrderDate = "order_date",
   /** column name */
@@ -13616,6 +13652,7 @@ export type Transactions = {
   /** For financial purposes, this is the date this transaction is considered in effect. */
   effective_date: Scalars["date"];
   id: Scalars["uuid"];
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   loan_id?: Maybe<Scalars["uuid"]>;
   modified_at: Scalars["timestamptz"];
   modified_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -13704,6 +13741,7 @@ export type TransactionsBoolExp = {
   created_by_user_id?: Maybe<UuidComparisonExp>;
   effective_date?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  is_deleted?: Maybe<BooleanComparisonExp>;
   loan_id?: Maybe<UuidComparisonExp>;
   modified_at?: Maybe<TimestamptzComparisonExp>;
   modified_by_user_id?: Maybe<UuidComparisonExp>;
@@ -13737,6 +13775,7 @@ export type TransactionsInsertInput = {
   created_by_user_id?: Maybe<Scalars["uuid"]>;
   effective_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   loan_id?: Maybe<Scalars["uuid"]>;
   modified_at?: Maybe<Scalars["timestamptz"]>;
   modified_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -13849,6 +13888,7 @@ export type TransactionsOrderBy = {
   created_by_user_id?: Maybe<OrderBy>;
   effective_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  is_deleted?: Maybe<OrderBy>;
   loan_id?: Maybe<OrderBy>;
   modified_at?: Maybe<OrderBy>;
   modified_by_user_id?: Maybe<OrderBy>;
@@ -13879,6 +13919,8 @@ export enum TransactionsSelectColumn {
   /** column name */
   Id = "id",
   /** column name */
+  IsDeleted = "is_deleted",
+  /** column name */
   LoanId = "loan_id",
   /** column name */
   ModifiedAt = "modified_at",
@@ -13905,6 +13947,7 @@ export type TransactionsSetInput = {
   created_by_user_id?: Maybe<Scalars["uuid"]>;
   effective_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   loan_id?: Maybe<Scalars["uuid"]>;
   modified_at?: Maybe<Scalars["timestamptz"]>;
   modified_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -13992,6 +14035,8 @@ export enum TransactionsUpdateColumn {
   EffectiveDate = "effective_date",
   /** column name */
   Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
   /** column name */
   LoanId = "loan_id",
   /** column name */
@@ -16169,6 +16214,7 @@ export type LoanLimitedFragment = Pick<
   | "artifact_id"
   | "identifier"
   | "status"
+  | "rejection_note"
   | "payment_status"
   | "amount"
   | "requested_payment_date"
@@ -16895,6 +16941,7 @@ export const LoanLimitedFragmentDoc = gql`
     artifact_id
     identifier
     status
+    rejection_note
     payment_status
     amount
     requested_payment_date

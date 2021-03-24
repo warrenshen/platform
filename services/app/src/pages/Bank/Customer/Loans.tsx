@@ -14,7 +14,6 @@ import {
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { ProductTypeToLoanType } from "lib/enum";
-import { approveLoans, rejectLoan } from "lib/finance/loans/approval";
 import { useContext, useState } from "react";
 
 interface Props {
@@ -70,26 +69,6 @@ export default function BankCustomerLoansSubpage({
     setIsUpdateLoanNotesModalOpen(true);
   };
 
-  const handleApproveLoan = async (loanId: string) => {
-    const response = await approveLoans([loanId]);
-    if (response.status !== "OK") {
-      alert("Could not approve loan. Reason: " + response.msg);
-    }
-    refetch();
-  };
-
-  const handleRejectLoan = async (loanId: string) => {
-    // TODO(warren): Handle entering a real rejection reason
-    const resp = await rejectLoan({
-      loan_id: loanId,
-      rejection_note: "Default rejection reason",
-    });
-    if (resp.status !== "OK") {
-      alert("Could not reject loan. Reason: " + resp.msg);
-    }
-    refetch();
-  };
-
   const actionItems = [
     ...(check(role, Action.EditLoanInternalNote)
       ? [
@@ -98,26 +77,6 @@ export default function BankCustomerLoansSubpage({
             label: "Edit Internal Note",
             handleClick: (params: ValueFormatterParams) =>
               handleEditLoanNotes(params.row.data.id as string),
-          },
-        ]
-      : []),
-    ...(check(role, Action.ApproveLoan)
-      ? [
-          {
-            key: "approve-loan",
-            label: "Approve Loan",
-            handleClick: (params: ValueFormatterParams) =>
-              handleApproveLoan(params.row.data.id as string),
-          },
-        ]
-      : []),
-    ...(check(role, Action.RejectLoan)
-      ? [
-          {
-            key: "reject-loan",
-            label: "Reject Loan",
-            handleClick: (params: ValueFormatterParams) =>
-              handleRejectLoan(params.row.data.id as string),
           },
         ]
       : []),

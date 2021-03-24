@@ -40,7 +40,7 @@ class TemplateNames(object):
 	CUSTOMER_REQUESTED_LOAN = 'customer_requests_loan'
 
 	BANK_APPROVED_LOANS = 'bank_approved_loans'
-	BANK_REJECTED_LOANS = 'bank_rejected_loans'
+	BANK_REJECTED_LOAN = 'bank_rejected_loan'
 
 	# Email sent to vendor when advance is sent to them.
 	BANK_SENT_ADVANCE_TO_VENDOR = 'bank_sent_advance_to_vendor'
@@ -137,6 +137,10 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 
 	TemplateNames.BANK_APPROVED_LOANS: {
 		'id': 'd-8a58d7a072da43628edb77c68e93182d',
+		'requires_secure_link': False
+	},
+	TemplateNames.BANK_REJECTED_LOAN: {
+		'id': 'd-42032ae8ab88455cb4c890d2561f11c4',
 		'requires_secure_link': False
 	},
 

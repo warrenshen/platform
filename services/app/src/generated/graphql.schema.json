@@ -39728,6 +39728,18 @@
             "deprecationReason": null
           },
           {
+            "name": "is_deleted",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "loans",
             "description": "An array relationship",
             "args": [
@@ -40759,6 +40771,16 @@
             "defaultValue": null
           },
           {
+            "name": "is_deleted",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "Boolean_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "loans",
             "description": null,
             "type": {
@@ -41115,6 +41137,16 @@
           },
           {
             "name": "is_cannabis",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "is_deleted",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -42580,6 +42612,16 @@
             "defaultValue": null
           },
           {
+            "name": "is_deleted",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "loans_aggregate",
             "description": null,
             "type": {
@@ -42848,6 +42890,12 @@
             "deprecationReason": null
           },
           {
+            "name": "is_deleted",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "payment_confirmed_at",
             "description": "column name",
             "isDeprecated": false,
@@ -43032,6 +43080,16 @@
           },
           {
             "name": "is_cannabis",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "is_deleted",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -43601,6 +43659,12 @@
           },
           {
             "name": "is_cannabis",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "is_deleted",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -47503,6 +47567,18 @@
             "deprecationReason": null
           },
           {
+            "name": "is_deleted",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "line_of_credit",
             "description": "An object relationship",
             "args": [],
@@ -48598,6 +48674,16 @@
             "defaultValue": null
           },
           {
+            "name": "is_deleted",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "Boolean_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "line_of_credit",
             "description": null,
             "type": {
@@ -49018,6 +49104,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "is_deleted",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null
@@ -50793,6 +50889,16 @@
             "defaultValue": null
           },
           {
+            "name": "is_deleted",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "line_of_credit",
             "description": null,
             "type": {
@@ -51113,6 +51219,12 @@
             "deprecationReason": null
           },
           {
+            "name": "is_deleted",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "loan_type",
             "description": "column name",
             "isDeprecated": false,
@@ -51345,6 +51457,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "is_deleted",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null
@@ -52050,6 +52172,12 @@
           },
           {
             "name": "identifier",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "is_deleted",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -60654,6 +60782,18 @@
             "deprecationReason": null
           },
           {
+            "name": "is_deleted",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "items_covered",
             "description": "JSON blob which records information about this payment: which loans this payment is intended for, how much of this payment is intended to go to principal vs interest, etc",
             "args": [
@@ -61487,6 +61627,16 @@
             "defaultValue": null
           },
           {
+            "name": "is_deleted",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "Boolean_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "items_covered",
             "description": null,
             "type": {
@@ -61858,6 +62008,16 @@
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "invoices_obj_rel_insert_input",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "is_deleted",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null
@@ -63147,6 +63307,16 @@
             "defaultValue": null
           },
           {
+            "name": "is_deleted",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "items_covered",
             "description": null,
             "type": {
@@ -63402,6 +63572,12 @@
             "deprecationReason": null
           },
           {
+            "name": "is_deleted",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "items_covered",
             "description": "column name",
             "isDeprecated": false,
@@ -63550,6 +63726,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "is_deleted",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null
@@ -64003,6 +64189,12 @@
           },
           {
             "name": "id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "is_deleted",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -70147,6 +70339,18 @@
             "deprecationReason": null
           },
           {
+            "name": "is_deleted",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "loans",
             "description": "An array relationship",
             "args": [
@@ -71186,6 +71390,16 @@
             "defaultValue": null
           },
           {
+            "name": "is_deleted",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "Boolean_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "loans",
             "description": null,
             "type": {
@@ -71426,6 +71640,16 @@
           },
           {
             "name": "is_cannabis",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "is_deleted",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -72449,6 +72673,16 @@
             "defaultValue": null
           },
           {
+            "name": "is_deleted",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "loans_aggregate",
             "description": null,
             "type": {
@@ -72645,6 +72879,12 @@
             "deprecationReason": null
           },
           {
+            "name": "is_deleted",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "order_date",
             "description": "column name",
             "isDeprecated": false,
@@ -72773,6 +73013,16 @@
           },
           {
             "name": "is_cannabis",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "is_deleted",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -73094,6 +73344,12 @@
           },
           {
             "name": "is_cannabis",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "is_deleted",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -89571,6 +89827,18 @@
             "deprecationReason": null
           },
           {
+            "name": "is_deleted",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "loan_id",
             "description": null,
             "args": [],
@@ -90312,6 +90580,16 @@
             "defaultValue": null
           },
           {
+            "name": "is_deleted",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "Boolean_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "loan_id",
             "description": null,
             "type": {
@@ -90536,6 +90814,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "is_deleted",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null
@@ -91505,6 +91793,16 @@
             "defaultValue": null
           },
           {
+            "name": "is_deleted",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "loan_id",
             "description": null,
             "type": {
@@ -91673,6 +91971,12 @@
             "deprecationReason": null
           },
           {
+            "name": "is_deleted",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "loan_id",
             "description": "column name",
             "isDeprecated": false,
@@ -91781,6 +92085,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "is_deleted",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null
@@ -92354,6 +92668,12 @@
           },
           {
             "name": "id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "is_deleted",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

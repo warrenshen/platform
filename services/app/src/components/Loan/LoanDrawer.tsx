@@ -12,6 +12,7 @@ import TransactionsDataGrid from "components/Transactions/TransactionsDataGrid";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Loans,
+  LoanStatusEnum,
   LoanTypeEnum,
   useGetLoanWithArtifactForCustomerQuery,
   useGetTransactionsForLoanQuery,
@@ -90,6 +91,14 @@ function LoanDrawer({ loanId, handleClose }: Props) {
             </Typography>
             <LoanStatusChip loanStatus={loan.status} />
           </Box>
+          {loan.status === LoanStatusEnum.Rejected && (
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Rejection Reason
+              </Typography>
+              <Typography variant={"body1"}>{loan.rejection_note}</Typography>
+            </Box>
+          )}
           {isBankUser && (
             <Box
               display="flex"
@@ -130,7 +139,9 @@ function LoanDrawer({ loanId, handleClose }: Props) {
                   Recipient Vendor
                 </Typography>
                 <Typography variant={"body1"}>
-                  {loan.line_of_credit?.recipient_vendor?.name}
+                  {loan.line_of_credit?.is_credit_for_vendor
+                    ? loan.line_of_credit?.recipient_vendor?.name
+                    : "N/A"}
                 </Typography>
               </Box>
             </>
@@ -171,18 +182,12 @@ function LoanDrawer({ loanId, handleClose }: Props) {
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
-              Payment Date
-            </Typography>
-            <Typography variant={"body1"}>
-              {formatDateString(loan.origination_date)}
-            </Typography>
-          </Box>
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
               Origination Date
             </Typography>
             <Typography variant={"body1"}>
-              {formatDateString(loan.origination_date)}
+              {loan.origination_date
+                ? formatDateString(loan.origination_date)
+                : "-"}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
@@ -190,7 +195,7 @@ function LoanDrawer({ loanId, handleClose }: Props) {
               Maturity Date
             </Typography>
             <Typography variant={"body1"}>
-              {formatDateString(loan.maturity_date)}
+              {loan.maturity_date ? formatDateString(loan.maturity_date) : "-"}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>

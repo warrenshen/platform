@@ -1,5 +1,6 @@
 import { Box, Button } from "@material-ui/core";
 import CreateAdvanceModal from "components/Advance/CreateAdvanceModal";
+import ReviewLoanRejectModal from "components/Loan/ReviewLoanRejectModal";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
@@ -12,8 +13,8 @@ import {
   useGetNotFundedLoansForBankSubscription,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
+import { approveLoans } from "lib/api/loans";
 import { Action, check } from "lib/auth/rbac-rules";
-import { approveLoans, rejectLoan } from "lib/finance/loans/approval";
 import { useContext, useMemo, useState } from "react";
 
 function LoansActionRequiredPage() {
@@ -54,35 +55,18 @@ function LoansActionRequiredPage() {
     }
   };
 
-  const handleRejectLoan = async () => {
-    // TODO(warren): Handle entering a real rejection reason
-    if (selectedLoanIds.length !== 1) {
-      snackbar.showError("Error! Developer error with handleRejectLoan.");
-      return;
-    }
-    const response = await rejectLoan({
-      loan_id: selectedLoanIds[0],
-      rejection_note: "Default rejection reason",
-    });
-    if (response.status !== "OK") {
-      snackbar.showError("Could not reject loan. Reason: " + response.msg);
-    } else {
-      // TODO (warrenshen):
-      // Instead of clearing the selection,
-      // can we update the content of the selected loans?
-      setSelectedLoanIds([]);
-      setSelectedLoans([]);
-      snackbar.showSuccess("Success! Loan rejected.");
-    }
-  };
-
-  const loans = data?.loans || [];
-
-  const approvalRequestedSelectedLoans = selectedLoans.filter(
-    (loan) => loan.status === LoanStatusEnum.ApprovalRequested
+  const loans = useMemo(() => data?.loans || [], [data?.loans]);
+  const approvalRequestedSelectedLoans = useMemo(
+    () =>
+      selectedLoans.filter(
+        (loan) => loan.status === LoanStatusEnum.ApprovalRequested
+      ),
+    [selectedLoans]
   );
-  const approvedSelectedLoans = selectedLoans.filter(
-    (loan) => loan.status === LoanStatusEnum.Approved
+  const approvedSelectedLoans = useMemo(
+    () =>
+      selectedLoans.filter((loan) => loan.status === LoanStatusEnum.Approved),
+    [selectedLoans]
   );
 
   return (
@@ -126,17 +110,23 @@ function LoansActionRequiredPage() {
         </Can>
         <Can perform={Action.RejectLoan}>
           <Box mr={2}>
-            <Button
-              disabled={
+            <ModalButton
+              isDisabled={
                 approvalRequestedSelectedLoans.length !== 1 ||
                 approvedSelectedLoans.length > 0
               }
-              variant="contained"
-              color="primary"
-              onClick={handleRejectLoan}
-            >
-              Reject Loan
-            </Button>
+              label={"Reject Loan"}
+              modal={({ handleClose }) => (
+                <ReviewLoanRejectModal
+                  loanId={selectedLoanIds[0]}
+                  handleClose={() => {
+                    handleClose();
+                    setSelectedLoans([]);
+                    setSelectedLoanIds([]);
+                  }}
+                />
+              )}
+            />
           </Box>
         </Can>
       </Box>
