@@ -72,7 +72,7 @@ function CreateUpdateLineOfCreditLoanModal({
   const newLineOfCredit: LineOfCreditsInsertInput = {
     company_id: companyId,
     is_credit_for_vendor: false,
-    recipient_vendor_id: "",
+    recipient_vendor_id: null,
   };
 
   // Default Loan for CREATE case.

@@ -74,7 +74,7 @@ function LineOfCreditLoanForm({
               disabled={selectableVendors.length <= 0}
               labelId="recipient-vendor-select-label"
               id="recipient-vendor-select"
-              value={lineOfCredit.recipient_vendor_id}
+              value={lineOfCredit.recipient_vendor_id || ""}
               onChange={({ target: { value } }) => {
                 const selectedVendor = selectableVendors?.find(
                   (selectableVendor) => selectableVendor.id === value

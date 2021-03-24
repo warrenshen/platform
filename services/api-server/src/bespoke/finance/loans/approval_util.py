@@ -46,13 +46,10 @@ def approve_loans(
 			).all())
 
 		if not loans:
-			return None, errors.Error('Could not find loan for given Loan ID', details=err_details)
-
-		if not loans:
 			return None, errors.Error('No loans found', details=err_details)
 
 		if len(loans) != len(loan_ids):
-			return None, errors.Error('Not all loans were found to fund in database', details=err_details)
+			return None, errors.Error('Not all loans were found', details=err_details)
 
 		approved_at = date_util.now()
 

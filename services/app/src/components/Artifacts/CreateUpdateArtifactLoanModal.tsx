@@ -341,6 +341,7 @@ export default function CreateUpdateArtifactLoanModal({
     );
   }
 
+  // TODO(warrenshen): this is showing "Create Artifact Loan".
   return (
     <Dialog
       open

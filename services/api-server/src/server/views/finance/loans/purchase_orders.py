@@ -198,7 +198,7 @@ def _handle_approval_email(
 	client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
 	_, err = client.send(
-		sendgrid_util.TemplateNames.CUSTOMER_REQUESTS_LOAN,
+		sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_LOAN,
 		data,
 		config.BANK_NOTIFY_EMAIL_ADDRESSES)
 

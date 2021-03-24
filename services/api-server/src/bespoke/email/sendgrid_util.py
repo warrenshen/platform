@@ -31,10 +31,23 @@ class TemplateNames(object):
 	PAYOR_APPROVES_OR_REJECTS_INVOICE = 'payor_approves_or_rejects_invoice'
 	PAYOR_TO_PAY_INVOICE = 'payor_to_pay_invoice'
 
-	BANK_USER_APPROVES_OR_REJECTS_EBBA_APPLICATION = 'bank_user_approves_or_rejects_ebba_application'
-
-	CUSTOMER_REQUESTS_LOAN = 'customer_requests_loan'
 	CUSTOMER_SUBMITTED_EBBA_APPLICATION = 'customer_submitted_ebba_application'
+	# TODO(warrenshen): remove this template in the future.
+	BANK_USER_APPROVES_OR_REJECTS_EBBA_APPLICATION = 'bank_user_approves_or_rejects_ebba_application'
+	BANK_APPROVED_EBBA_APPLICATION = 'bank_approved_ebba_application'
+	BANK_REJECTED_EBBA_APPLICATION = 'bank_rejected_ebba_application'
+
+	CUSTOMER_REQUESTED_LOAN = 'customer_requests_loan'
+
+	BANK_APPROVED_LOANS = 'bank_approved_loans'
+	BANK_REJECTED_LOANS = 'bank_rejected_loans'
+
+	# Email sent to vendor when advance is sent to them.
+	BANK_SENT_ADVANCE_TO_VENDOR = 'bank_sent_advance_to_vendor'
+	# Email sent to customer when advance is sent to vendor on their behalf.
+	BANK_SENT_ADVANCE_TO_VENDOR_FOR_CUSTOMER = 'bank_sent_advance_to_vendor_for_customer'
+	# Email sent to customer when advance is sent to them (for line of credit).
+	BANK_SENT_ADVANCE_TO_CUSTOMER = 'bank_sent_advance_to_customer'
 
 	USER_VENDOR_INVITED_TO_PLATFORM = 'user_vendor_invited_to_platform'
 	USER_PAYOR_INVITED_TO_PLATFORM = 'user_payor_invited_to_platform'
@@ -112,12 +125,18 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 		'requires_secure_link': False
 	},
 
-	TemplateNames.CUSTOMER_REQUESTS_LOAN: {
+	TemplateNames.CUSTOMER_REQUESTED_LOAN: {
 		'id': 'd-899b285fc6184e8c8da8b9d2f92aa505',
 		'requires_secure_link': False
 	},
 	TemplateNames.CUSTOMER_SUBMITTED_EBBA_APPLICATION: {
 		'id': 'd-2b91637879454c438de1b6fd42dd44e7',
+		'requires_secure_link': False
+	},
+
+
+	TemplateNames.BANK_APPROVED_LOANS: {
+		'id': 'd-8a58d7a072da43628edb77c68e93182d',
 		'requires_secure_link': False
 	},
 
