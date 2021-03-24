@@ -15,6 +15,7 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   PurchaseOrderFileTypeEnum,
   PurchaseOrders,
+  RequestStatusEnum,
   usePurchaseOrderQuery,
   UserRolesEnum,
 } from "generated/graphql";
@@ -78,17 +79,6 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
     <Drawer open anchor="right" onClose={handleClose}>
       <Box className={classes.drawerContent} p={4}>
         <Typography variant="h5">Purchase Order</Typography>
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="flex-start"
-          mt={2}
-        >
-          <Typography variant="subtitle2" color="textSecondary">
-            Platform ID
-          </Typography>
-          <Typography variant={"body1"}>{purchaseOrder.id}</Typography>
-        </Box>
         <Box display="flex" flexDirection="column">
           <Box
             display="flex"
@@ -101,6 +91,16 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
             </Typography>
             <RequestStatusChip requestStatus={purchaseOrder.status} />
           </Box>
+          {purchaseOrder.status === RequestStatusEnum.Rejected && (
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Rejection Reason
+              </Typography>
+              <Typography variant={"body1"}>
+                {purchaseOrder.rejection_note}
+              </Typography>
+            </Box>
+          )}
           {isBankUser && (
             <Box display="flex" flexDirection="column" mt={2}>
               <Typography variant="subtitle2" color="textSecondary">
@@ -196,6 +196,19 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
             isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
           />
         </Box>
+        {isBankUser && (
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="flex-start"
+            mt={2}
+          >
+            <Typography variant="subtitle2" color="textSecondary">
+              Platform ID
+            </Typography>
+            <Typography variant={"body1"}>{purchaseOrder.id}</Typography>
+          </Box>
+        )}
       </Box>
     </Drawer>
   ) : null;

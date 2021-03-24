@@ -122,7 +122,7 @@ export default function ReviewInvoicePage(props: Props) {
           <Typography variant="h5">{`${invoice.payor?.name}, your approval is requested`}</Typography>
           <Box mt={1}>
             <Typography variant="body2">
-              The invoice listed below requires your approval. Please review the
+              The invoice shown below requires your approval. Please review the
               info and press either approve or reject. If you press reject, you
               will be prompted to enter in a reason.
             </Typography>

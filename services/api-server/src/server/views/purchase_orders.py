@@ -62,9 +62,11 @@ class RespondToApprovalRequestView(MethodView):
 		if new_request_status == RequestStatusEnum.REJECTED and not rejection_note:
 			return handler_util.make_error_response('Rejection note is required if response is rejected')
 
-		purchase_order_dicts = []
 		vendor_name = ''
 		customer_name = ''
+		purchase_order_number = ''
+		purchase_order_amount = ''
+		purchase_order_requested_date = ''
 		action_type = ''
 
 		with session_scope(current_app.session_maker) as session:
@@ -97,11 +99,9 @@ class RespondToApprovalRequestView(MethodView):
 				purchase_order.rejection_note = rejection_note
 				action_type = 'Rejected'
 
-			purchase_order_dicts = [{
-				'order_number': purchase_order.order_number,
-				'amount': number_util.to_dollar_format(float(purchase_order.amount)),
-				'requested_at_date': date_util.human_readable_yearmonthday(purchase_order.requested_at)
-			}]
+			purchase_order_number = purchase_order.order_number
+			purchase_order_amount = number_util.to_dollar_format(float(purchase_order.amount))
+			purchase_order_requested_date = date_util.human_readable_yearmonthday(purchase_order.requested_at)
 
 			customer_users = cast(List[models.User], session.query(
 				models.User).filter_by(company_id=purchase_order.company_id).all())
@@ -116,13 +116,26 @@ class RespondToApprovalRequestView(MethodView):
 			cast(Callable, session.delete)(two_factor_link) # retire the link now that it has been used
 			session.commit()
 
-		template_name = sendgrid_util.TemplateNames.VENDOR_APPROVES_OR_REJECTS_PURCHASE_ORDER
-		template_data = {
-			'vendor_name': vendor_name,
-			'customer_name': customer_name,
-			'purchase_orders': purchase_order_dicts,
-			'action_type': action_type
-		}
+		if action_type == 'Approved':
+			template_name = sendgrid_util.TemplateNames.VENDOR_APPROVED_PURCHASE_ORDER
+			template_data = {
+				'vendor_name': vendor_name,
+				'customer_name': customer_name,
+				'purchase_order_number': purchase_order_number,
+				'purchase_order_amount': purchase_order_amount,
+				'purchase_order_requested_date': purchase_order_requested_date,
+			}
+		else:
+			template_name = sendgrid_util.TemplateNames.VENDOR_REJECTED_PURCHASE_ORDER
+			template_data = {
+				'vendor_name': vendor_name,
+				'customer_name': customer_name,
+				'purchase_order_number': purchase_order_number,
+				'purchase_order_amount': purchase_order_amount,
+				'purchase_order_requested_date': purchase_order_requested_date,
+				'rejection_note': rejection_note,
+			}
+
 		recipients = customer_emails
 		_, err = sendgrid_client.send(
 			template_name, template_data, recipients)

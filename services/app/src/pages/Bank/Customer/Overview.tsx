@@ -52,6 +52,7 @@ function CustomerOverviewSubpage({ companyId, productType }: Props) {
       : null;
 
   const { data } = useGetCustomerOverviewQuery({
+    fetchPolicy: "network-only",
     variables: {
       companyId,
       loanType,

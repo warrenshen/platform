@@ -74,6 +74,7 @@ fragment PurchaseOrder on purchase_orders {
   amount
   is_cannabis
   status
+  rejection_note
   created_at
   funded_at
   company {

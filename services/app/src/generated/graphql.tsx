@@ -16154,6 +16154,7 @@ export type PurchaseOrderFragment = Pick<
   | "amount"
   | "is_cannabis"
   | "status"
+  | "rejection_note"
   | "created_at"
   | "funded_at"
 > & {
@@ -16874,6 +16875,7 @@ export const PurchaseOrderFragmentDoc = gql`
     amount
     is_cannabis
     status
+    rejection_note
     created_at
     funded_at
     company {

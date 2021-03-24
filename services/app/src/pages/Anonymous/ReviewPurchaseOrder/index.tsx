@@ -124,7 +124,7 @@ function ReviewPurchaseOrderPage(props: Props) {
           <Typography variant="h5">{`${purchaseOrder.vendor?.name}, your approval is requested`}</Typography>
           <Box mt={1}>
             <Typography variant="body2">
-              The purchase order listed below requires your approval before we
+              The purchase order shown below requires your approval before we
               can process payment. Please review the info and press either
               approve or reject. If you press reject, you will be prompted to
               enter in a reason.

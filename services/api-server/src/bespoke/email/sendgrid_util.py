@@ -18,7 +18,10 @@ class TemplateNames(object):
 	VENDOR_APPROVED_NOTIFY_CUSTOMER = 'vendor_approved_notify_customer'
 	VENDOR_APPROVED_NOTIFY_VENDOR = 'vendor_approved_notify_vendor'
 	VENDOR_TO_APPROVE_PURCHASE_ORDER = 'vendor_to_approve_purchase_order'
+
 	VENDOR_APPROVES_OR_REJECTS_PURCHASE_ORDER = 'vendor_approves_or_rejects_purchase_order'
+	VENDOR_APPROVED_PURCHASE_ORDER = 'vendor_approved_purchase_order'
+	VENDOR_REJECTED_PURCHASE_ORDER = 'vendor_rejected_purchase_order'
 
 	PAYOR_AGREEMENT_WITH_CUSTOMER = 'payor_agreement_with_customer'
 	PAYOR_APPROVED_NOTIFY_CUSTOMER = 'payor_approved_notify_customer'
@@ -63,8 +66,18 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 		'id': 'd-17349ff8699a44f18da7144452d3731a',
 		'requires_secure_link': True
 	},
+
+	# TODO(warrenshen): remove this email template in the future.
 	TemplateNames.VENDOR_APPROVES_OR_REJECTS_PURCHASE_ORDER: {
 		'id': 'd-0cdbf4e6769640a7aa44a0dd9dbc92ce',
+		'requires_secure_link': False
+	},
+	TemplateNames.VENDOR_APPROVED_PURCHASE_ORDER: {
+		'id': 'd-e1a12a84c0db4014afd27c524ef01b1f',
+		'requires_secure_link': False
+	},
+	TemplateNames.VENDOR_REJECTED_PURCHASE_ORDER: {
+		'id': 'd-fd23a504eb8641139bd4a1efe0ae10fd',
 		'requires_secure_link': False
 	},
 

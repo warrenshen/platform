@@ -113,7 +113,7 @@ function ReviewPurchaseOrderApproveModal({
       <DialogContent>
         <DialogContentText>
           Please verify that your bank information below is up-to-date. This
-          account is where Bespoke may send an advance to in the future. If the
+          bank account is where Bespoke will send the advance to. If the
           information is not up-to-date, please contact us. Otherwise, press the
           "Confirm" button below.
         </DialogContentText>
