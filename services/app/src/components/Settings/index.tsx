@@ -165,12 +165,8 @@ function Settings({
         </Box>
         <Box display="flex" mt={3}>
           <UsersDataGrid
+            isCompanyVisible={false}
             isMultiSelectEnabled
-            hideCompany={
-              ![UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly].includes(
-                role
-              )
-            }
             users={users}
             selectedUserIds={selectedUserIds}
             handleSelectUsers={handleSelectUsers}

@@ -10,7 +10,7 @@ import { useMemo } from "react";
 
 interface Props {
   isMultiSelectEnabled?: boolean;
-  hideCompany?: boolean;
+  isCompanyVisible?: boolean;
   isExcelExport?: boolean;
   users: UserFragment[];
   selectedUserIds?: Users["id"][];
@@ -20,7 +20,7 @@ interface Props {
 
 function UsersDataGrid({
   isMultiSelectEnabled = false,
-  hideCompany,
+  isCompanyVisible = false,
   isExcelExport = false,
   users,
   selectedUserIds,
@@ -31,10 +31,18 @@ function UsersDataGrid({
   const columns = useMemo(
     () => [
       {
-        visible: !hideCompany,
+        visible: isCompanyVisible,
         dataField: "company_name",
         caption: "Company",
         minWidth: ColumnWidths.MinWidth,
+      },
+      {
+        visible: !!actionItems && actionItems.length > 0,
+        caption: "Action",
+        width: ColumnWidths.Actions,
+        cellRender: (params: ValueFormatterParams) => (
+          <DataGridActionMenu params={params} actionItems={actionItems} />
+        ),
       },
       {
         caption: "Role",
@@ -61,16 +69,8 @@ function UsersDataGrid({
         caption: "Phone Number",
         minWidth: ColumnWidths.PhoneNumber,
       },
-      {
-        visible: !!actionItems && actionItems.length > 0,
-        caption: "Action",
-        width: ColumnWidths.Actions,
-        cellRender: (params: ValueFormatterParams) => (
-          <DataGridActionMenu params={params} actionItems={actionItems} />
-        ),
-      },
     ],
-    [hideCompany, actionItems]
+    [isCompanyVisible, actionItems]
   );
 
   const handleSelectionChanged = useMemo(

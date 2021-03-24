@@ -107,7 +107,7 @@ function EditUserProfileModal({
           <TextField
             label="Phone Number"
             className={classes.usersInput}
-            value={userProfile.phone_number}
+            value={userProfile.phone_number || ""}
             onChange={({ target: { value } }) => {
               setUserProfile({
                 ...userProfile,

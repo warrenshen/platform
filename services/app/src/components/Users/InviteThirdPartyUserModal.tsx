@@ -63,14 +63,14 @@ function InviteThirdPartyUserModal({ isPayor, companyId, handleClose }: Props) {
   const handleClickSubmit = async () => {
     const response = await createPayorVendorUser({
       variables: {
+        is_payor: isPayor,
         company_id: companyId,
         user: {
           email: user.email,
           first_name: user.first_name,
           last_name: user.last_name,
           phone_number: user.phone_number,
-        },
-        is_payor: isPayor,
+        } as UsersInsertInput,
       },
     });
 

@@ -14,15 +14,12 @@ import {
   TextField,
   Theme,
 } from "@material-ui/core";
-import {
-  useAddUserMutation,
-  UserRolesEnum,
-  UsersInsertInput,
-} from "generated/graphql";
+import { UserRolesEnum, UsersInsertInput } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { authenticatedApi, userRoutes } from "lib/api";
+import { createBankCustomerUserMutation } from "lib/api/users";
 import { UserRoleToLabel } from "lib/enum";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -44,26 +41,6 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export async function createLogin(req: {
-  company_id: string | null;
-  user_id: string;
-}): Promise<{ status: string; msg?: string }> {
-  return authenticatedApi
-    .post(userRoutes.createLogin, req)
-    .then((res) => {
-      return res.data;
-    })
-    .then(
-      (response) => {
-        return response;
-      },
-      (error) => {
-        console.log("error", error);
-        return { status: "ERROR", msg: "Could not create login for user" };
-      }
-    );
-}
-
 interface Props {
   companyId?: string;
   userRoles: UserRolesEnum[];
@@ -76,50 +53,60 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
 
   const [user, setUser] = useState<UsersInsertInput>({
     company_id: companyId,
-    phone_number: "",
     role: null,
-    email: "",
     first_name: "",
     last_name: "",
-    password: "",
+    email: "",
+    phone_number: "",
   });
   const [errMsg, setErrMsg] = useState("");
 
-  const [addUser] = useAddUserMutation();
+  const [
+    createBankCustomerUser,
+    { loading: isCreateBankCustomerUserLoading },
+  ] = useCustomMutation(createBankCustomerUserMutation);
+
+  const isEmailValid = useMemo(
+    () =>
+      user.email &&
+      user.email.length &&
+      !!user.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/gi),
+    [user.email]
+  );
 
   const handleClickSubmit = async () => {
-    const resp = await addUser({
+    const response = await createBankCustomerUser({
       variables: {
+        company_id: companyId,
         user: {
           company_id: companyId,
+          role: user.role,
           email: user.email,
           first_name: user.first_name,
           last_name: user.last_name,
           phone_number: user.phone_number,
-          role: user.role,
-        },
+        } as UsersInsertInput,
       },
     });
 
-    const userId = resp.data?.insert_users_one?.id;
-    if (!userId) {
-      setErrMsg("No user id was created");
-      return;
-    }
-
-    const response = await createLogin({
-      company_id: companyId || null,
-      user_id: userId,
-    });
     if (response.status !== "OK") {
+      setErrMsg(response.msg);
       snackbar.showError(
-        `Error: could not invite user. Reason: ${response.msg}`
+        `Error! Could not create user. Reason: ${response.msg}`
       );
     } else {
-      snackbar.showSuccess("Success! User invited.");
+      snackbar.showSuccess("Success! User created and sent a welcome email.");
       handleClose();
     }
   };
+
+  const isSubmitDisabled =
+    !user.role ||
+    !user.first_name ||
+    !user.last_name ||
+    !user.email ||
+    !isEmailValid ||
+    isCreateBankCustomerUserLoading;
 
   return (
     <Dialog
@@ -134,6 +121,7 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
           <FormControl className={classes.usersInput}>
             <InputLabel id="user-role-select-label">User Role</InputLabel>
             <Select
+              required
               labelId="user-role-select-label"
               value={user.role || ""}
               onChange={({ target: { value } }) => {
@@ -148,6 +136,7 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
             </Select>
           </FormControl>
           <TextField
+            required
             label="First Name"
             className={classes.usersInput}
             value={user.first_name}
@@ -159,6 +148,7 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
             }}
           />
           <TextField
+            required
             label="Last Name"
             className={classes.usersInput}
             value={user.last_name}
@@ -170,8 +160,10 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
             }}
           />
           <TextField
+            required
             label="Email"
             className={classes.usersInput}
+            error={!!user.email && !isEmailValid}
             value={user.email}
             onChange={({ target: { value } }) => {
               setUser({
@@ -181,6 +173,7 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
             }}
           />
           <TextField
+            required
             label="Phone Number"
             className={classes.usersInput}
             value={user.phone_number}
@@ -198,8 +191,8 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
         <Box>
           <Button onClick={handleClose}>Cancel</Button>
           <Button
+            disabled={isSubmitDisabled}
             className={classes.submitButton}
-            disabled={false}
             onClick={handleClickSubmit}
             variant="contained"
             color="primary"

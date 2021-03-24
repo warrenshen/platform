@@ -92,9 +92,10 @@ function Users() {
         </Box>
       </Can>
       <UsersDataGrid
-        hideCompany={
-          ![UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly].includes(role)
-        }
+        isCompanyVisible={[
+          UserRolesEnum.BankAdmin,
+          UserRolesEnum.BankReadOnly,
+        ].includes(role)}
         users={users}
         actionItems={
           check(role, Action.ManipulateUser)

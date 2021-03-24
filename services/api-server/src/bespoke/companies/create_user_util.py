@@ -12,10 +12,16 @@ from bespoke.finance import contract_util
 from mypy_extensions import TypedDict
 
 UsersInsertInput = TypedDict('UsersInsertInput', {
+	'role': str,
 	'first_name': str,
 	'last_name': str,
 	'email': str,
 	'phone_number': str,
+})
+
+CreateBankCustomerInputDict = TypedDict('CreateBankCustomerInputDict', {
+	'company_id': str,
+	'user': UsersInsertInput,
 })
 
 CreateThirdPartyUserInputDict = TypedDict('CreateThirdPartyUserInputDict', {
@@ -27,6 +33,60 @@ CreateThirdPartyUserRespDict = TypedDict('CreateThirdPartyUserRespDict', {
 	'status': str,
 	'user_id': str,
 })
+
+def create_bank_or_customer_user(
+	req: CreateBankCustomerInputDict,
+	session_maker: Callable,
+) -> Tuple[str, errors.Error]:
+	# If company id is null, create a bank user. Otherwise, create a customer user.
+	company_id = req['company_id']
+	user_input = req['user']
+	role = user_input['role']
+	first_name = user_input['first_name']
+	last_name = user_input['last_name']
+	email = user_input['email']
+	phone_number = user_input['phone_number']
+
+	if not role:
+		return None, errors.Error('Role must be specified')
+
+	if not first_name or last_name:
+		return None, errors.Error('Full name must be specified')
+
+	if not email:
+		return None, errors.Error('Email must be specified')
+
+	user_id = None
+
+	with session_scope(session_maker) as session:
+		if company_id:
+			customer = session.query(models.Company) \
+				.filter(models.Company.id == company_id) \
+				.first()
+			if not customer:
+				return None, errors.Error('Could not find customer')
+			if customer.company_type != CompanyType.Customer:
+				return None, errors.Error('Company is not Customer company type')
+
+		user = session.query(models.User) \
+			.filter(models.User.email == email) \
+			.first()
+		if user:
+			return None, errors.Error('Email is already taken')
+
+		user = models.User()
+		user.company_id = company_id
+		user.role = role
+		user.first_name = first_name
+		user.last_name = last_name
+		user.email = email
+		user.phone_number = phone_number
+
+		session.add(user)
+		session.flush()
+		user_id = str(user.id)
+
+	return user_id, None
 
 def create_third_party_user(
 	req: CreateThirdPartyUserInputDict,
