@@ -12,7 +12,7 @@ function CustomerPayorsPage() {
     user: { companyId },
   } = useContext(CurrentUserContext);
 
-  const { data } = useListPayorPartnershipsByCompanyIdQuery({
+  const { data, refetch } = useListPayorPartnershipsByCompanyIdQuery({
     variables: { companyId },
   });
 
@@ -22,9 +22,11 @@ function CustomerPayorsPage() {
   return (
     <Page appBarTitle="Payors">
       <Box display="flex" flexDirection="row-reverse">
-        <AddPayorButton companyId={companyId} handleDataChange={() => {}} />
+        <AddPayorButton customerId={companyId} handleDataChange={refetch} />
       </Box>
-      <PayorPartnershipsDataGrid data={payors} />
+      <Box display="flex" mt={3}>
+        <PayorPartnershipsDataGrid data={payors} />
+      </Box>
     </Page>
   );
 }

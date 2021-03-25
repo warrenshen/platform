@@ -7,14 +7,3 @@ query ListPayorPartnershipsByCompanyId($companyId: uuid!) {
     }
   }
 }
-
-mutation AddPayorPartnership(
-  $payorPartnership: company_payor_partnerships_insert_input!
-) {
-  insert_company_payor_partnerships_one(object: $payorPartnership) {
-    ...PayorPartnership
-    payor_limited {
-      ...PayorLimited
-    }
-  }
-}

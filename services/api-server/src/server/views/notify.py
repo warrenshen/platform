@@ -13,8 +13,8 @@ from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from mypy_extensions import TypedDict
 from server.config import Config
-from server.views.common.auth_util import UserSession
 from server.views.common import auth_util, handler_util
+from server.views.common.auth_util import UserSession
 
 handler = Blueprint('email', __name__)
 

@@ -60,30 +60,31 @@ export default function RegisterThirdPartyForm({
           </Typography>
           <Box display="flex" flexDirection="column" mx={2}>
             <TextField
-              label="First Name"
               required
+              label="First Name"
               value={contact.first_name}
               onChange={({ target: { value } }) => {
                 setContact({ ...contact, first_name: value });
               }}
             />
             <TextField
-              label="Last Name"
               required
+              label="Last Name"
               value={contact.last_name}
               onChange={({ target: { value } }) => {
                 setContact({ ...contact, last_name: value });
               }}
             />
             <TextField
-              label="Email"
               required
+              label="Email"
               value={contact.email}
               onChange={({ target: { value } }) => {
                 setContact({ ...contact, email: value });
               }}
             />
             <TextField
+              required
               label="Phone Number"
               value={contact.phone_number}
               onChange={({ target: { value } }) => {

@@ -14,12 +14,11 @@ import {
   Companies,
   CompaniesInsertInput,
   CompanyTypeEnum,
-  useAddVendorPartnershipMutation,
-  UserRolesEnum,
   UsersInsertInput,
 } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { InventoryNotifier } from "lib/notifications/inventory";
+import { createPayorVendorMutation } from "lib/api/companies";
 import { useContext, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -31,13 +30,14 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  companyId: Companies["id"];
+  customerId: Companies["id"];
   handleClose: () => void;
 }
 
-function AddVendorModal({ companyId, handleClose }: Props) {
+function AddVendorModal({ customerId, handleClose }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
+
   const {
     user: { role },
   } = useContext(CurrentUserContext);
@@ -47,60 +47,46 @@ function AddVendorModal({ companyId, handleClose }: Props) {
   const [vendor, setVendor] = useState<CompaniesInsertInput>({ name: "" });
   const [contact, setContact] = useState<UsersInsertInput>({
     first_name: "",
-    email: "",
     last_name: "",
+    email: "",
     phone_number: "",
   });
-  const [addVendorPartnership, { loading }] = useAddVendorPartnershipMutation();
-  const notifier = new InventoryNotifier();
+
+  const [
+    createPayorVendor,
+    { loading: isCreatePayorVendorLoading },
+  ] = useCustomMutation(createPayorVendorMutation);
 
   const handleRegisterClick = async () => {
-    try {
-      const response = await addVendorPartnership({
-        variables: {
-          vendorPartnership: {
-            company_id:
-              role === UserRolesEnum.BankAdmin ? companyId : undefined,
-            vendor: {
-              data: {
-                name: vendor.name,
-                company_type: CompanyTypeEnum.Vendor,
-                users: {
-                  data: [{ ...contact }],
-                },
-                settings: {
-                  data: {},
-                },
-              },
-            },
-          },
-        },
-      });
+    const response = await createPayorVendor({
+      variables: {
+        is_payor: false,
+        customer_id: customerId,
+        company: vendor,
+        user: contact,
+      },
+    });
 
-      const vendorId =
-        response.data?.insert_company_vendor_partnerships_one?.vendor_id;
-      if (!vendorId) {
-        setErrorMessage("Error! Empty vendor id provided");
-        return;
-      }
-      const emailResp = await notifier.sendVendorAgreementWithCustomer({
-        company_id: companyId,
-        vendor_id: vendorId,
-      });
-
-      if (emailResp.status !== "OK") {
-        setErrorMessage("Could not send email. Error: " + emailResp.msg);
-        return;
-      }
-
-      snackbar.showSuccess("Success! Vendor created.");
-      handleClose();
-    } catch (error) {
-      setErrorMessage(
-        "Could not create Vendor. Please fill out all required fields and ensure the email is not already taken."
+    if (response.status !== "OK") {
+      setErrorMessage(response.msg);
+      snackbar.showError(
+        `Error! Could not create partner company. Reason: ${response.msg}`
       );
+    } else {
+      snackbar.showSuccess(
+        "Success! Partner company created and user sent a welcome email."
+      );
+      handleClose();
     }
   };
+
+  const isSubmitDisabled =
+    !vendor.name ||
+    !contact.first_name ||
+    !contact.last_name ||
+    !contact.email ||
+    !contact.phone_number ||
+    isCreatePayorVendorLoading;
 
   return (
     <Dialog
@@ -125,16 +111,10 @@ function AddVendorModal({ companyId, handleClose }: Props) {
             <Button onClick={handleClose}>Cancel</Button>
           </Box>
           <Button
-            disabled={
-              loading ||
-              !vendor.name ||
-              !contact.first_name ||
-              !contact.last_name ||
-              !contact.email
-            }
-            onClick={handleRegisterClick}
+            disabled={isSubmitDisabled}
             variant="contained"
             color="primary"
+            onClick={handleRegisterClick}
           >
             Register
           </Button>

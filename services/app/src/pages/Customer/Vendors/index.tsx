@@ -12,27 +12,25 @@ function CustomerVendorsPage() {
     user: { companyId },
   } = useContext(CurrentUserContext);
 
-  const { data } = useVendorPartnershipsByCompanyIdQuery({
+  const { data, refetch } = useVendorPartnershipsByCompanyIdQuery({
     variables: {
       companyId,
     },
   });
 
-  if (!data?.company_vendor_partnerships) {
-    return null;
-  }
-
   const vendorPartnerships = sortBy(
-    data.company_vendor_partnerships,
+    data?.company_vendor_partnerships || [],
     (item) => item.vendor_limited?.name
   );
 
   return (
     <Page appBarTitle={"Vendors"}>
       <Box display="flex" flexDirection="row-reverse">
-        <AddVendorButton companyId={companyId} handleDataChange={() => {}} />
+        <AddVendorButton customerId={companyId} handleDataChange={refetch} />
       </Box>
-      <VendorPartnershipsDataGrid vendorPartnerships={vendorPartnerships} />
+      <Box display="flex" mt={3}>
+        <VendorPartnershipsDataGrid vendorPartnerships={vendorPartnerships} />
+      </Box>
     </Page>
   );
 }

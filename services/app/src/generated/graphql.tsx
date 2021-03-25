@@ -15745,16 +15745,6 @@ export type ListPayorPartnershipsByCompanyIdQuery = {
   >;
 };
 
-export type AddPayorPartnershipMutationVariables = Exact<{
-  payorPartnership: CompanyPayorPartnershipsInsertInput;
-}>;
-
-export type AddPayorPartnershipMutation = {
-  insert_company_payor_partnerships_one?: Maybe<
-    { payor_limited?: Maybe<PayorLimitedFragment> } & PayorPartnershipFragment
-  >;
-};
-
 export type PurchaseOrderQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -15945,7 +15935,6 @@ export type GetCompanySettingsQuery = {
 };
 
 export type UpdateCompanySettingsMutationVariables = Exact<{
-  companyId: Scalars["uuid"];
   companySettingsId: Scalars["uuid"];
   vendorAgreementTemplateLink?: Maybe<Scalars["String"]>;
 }>;
@@ -16616,18 +16605,6 @@ export type CompanyVendorPartnershipForVendorQuery = {
     Pick<CompanyVendorPartnerships, "id"> & {
       vendor_bank_account?: Maybe<BankAccountForVendorFragment>;
     }
-  >;
-};
-
-export type AddVendorPartnershipMutationVariables = Exact<{
-  vendorPartnership: CompanyVendorPartnershipsInsertInput;
-}>;
-
-export type AddVendorPartnershipMutation = {
-  insert_company_vendor_partnerships_one?: Maybe<
-    {
-      vendor_limited?: Maybe<VendorLimitedFragment>;
-    } & VendorPartnershipFragment
   >;
 };
 
@@ -20345,61 +20322,6 @@ export type ListPayorPartnershipsByCompanyIdQueryResult = Apollo.QueryResult<
   ListPayorPartnershipsByCompanyIdQuery,
   ListPayorPartnershipsByCompanyIdQueryVariables
 >;
-export const AddPayorPartnershipDocument = gql`
-  mutation AddPayorPartnership(
-    $payorPartnership: company_payor_partnerships_insert_input!
-  ) {
-    insert_company_payor_partnerships_one(object: $payorPartnership) {
-      ...PayorPartnership
-      payor_limited {
-        ...PayorLimited
-      }
-    }
-  }
-  ${PayorPartnershipFragmentDoc}
-  ${PayorLimitedFragmentDoc}
-`;
-export type AddPayorPartnershipMutationFn = Apollo.MutationFunction<
-  AddPayorPartnershipMutation,
-  AddPayorPartnershipMutationVariables
->;
-
-/**
- * __useAddPayorPartnershipMutation__
- *
- * To run a mutation, you first call `useAddPayorPartnershipMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddPayorPartnershipMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [addPayorPartnershipMutation, { data, loading, error }] = useAddPayorPartnershipMutation({
- *   variables: {
- *      payorPartnership: // value for 'payorPartnership'
- *   },
- * });
- */
-export function useAddPayorPartnershipMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    AddPayorPartnershipMutation,
-    AddPayorPartnershipMutationVariables
-  >
-) {
-  return Apollo.useMutation<
-    AddPayorPartnershipMutation,
-    AddPayorPartnershipMutationVariables
-  >(AddPayorPartnershipDocument, baseOptions);
-}
-export type AddPayorPartnershipMutationHookResult = ReturnType<
-  typeof useAddPayorPartnershipMutation
->;
-export type AddPayorPartnershipMutationResult = Apollo.MutationResult<AddPayorPartnershipMutation>;
-export type AddPayorPartnershipMutationOptions = Apollo.BaseMutationOptions<
-  AddPayorPartnershipMutation,
-  AddPayorPartnershipMutationVariables
->;
 export const PurchaseOrderDocument = gql`
   query PurchaseOrder($id: uuid!) {
     purchase_orders_by_pk(id: $id) {
@@ -21244,7 +21166,6 @@ export type GetCompanySettingsQueryResult = Apollo.QueryResult<
 >;
 export const UpdateCompanySettingsDocument = gql`
   mutation UpdateCompanySettings(
-    $companyId: uuid!
     $companySettingsId: uuid!
     $vendorAgreementTemplateLink: String
   ) {
@@ -21275,7 +21196,6 @@ export type UpdateCompanySettingsMutationFn = Apollo.MutationFunction<
  * @example
  * const [updateCompanySettingsMutation, { data, loading, error }] = useUpdateCompanySettingsMutation({
  *   variables: {
- *      companyId: // value for 'companyId'
  *      companySettingsId: // value for 'companySettingsId'
  *      vendorAgreementTemplateLink: // value for 'vendorAgreementTemplateLink'
  *   },
@@ -23396,61 +23316,6 @@ export type CompanyVendorPartnershipForVendorLazyQueryHookResult = ReturnType<
 export type CompanyVendorPartnershipForVendorQueryResult = Apollo.QueryResult<
   CompanyVendorPartnershipForVendorQuery,
   CompanyVendorPartnershipForVendorQueryVariables
->;
-export const AddVendorPartnershipDocument = gql`
-  mutation AddVendorPartnership(
-    $vendorPartnership: company_vendor_partnerships_insert_input!
-  ) {
-    insert_company_vendor_partnerships_one(object: $vendorPartnership) {
-      ...VendorPartnership
-      vendor_limited {
-        ...VendorLimited
-      }
-    }
-  }
-  ${VendorPartnershipFragmentDoc}
-  ${VendorLimitedFragmentDoc}
-`;
-export type AddVendorPartnershipMutationFn = Apollo.MutationFunction<
-  AddVendorPartnershipMutation,
-  AddVendorPartnershipMutationVariables
->;
-
-/**
- * __useAddVendorPartnershipMutation__
- *
- * To run a mutation, you first call `useAddVendorPartnershipMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddVendorPartnershipMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [addVendorPartnershipMutation, { data, loading, error }] = useAddVendorPartnershipMutation({
- *   variables: {
- *      vendorPartnership: // value for 'vendorPartnership'
- *   },
- * });
- */
-export function useAddVendorPartnershipMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    AddVendorPartnershipMutation,
-    AddVendorPartnershipMutationVariables
-  >
-) {
-  return Apollo.useMutation<
-    AddVendorPartnershipMutation,
-    AddVendorPartnershipMutationVariables
-  >(AddVendorPartnershipDocument, baseOptions);
-}
-export type AddVendorPartnershipMutationHookResult = ReturnType<
-  typeof useAddVendorPartnershipMutation
->;
-export type AddVendorPartnershipMutationResult = Apollo.MutationResult<AddVendorPartnershipMutation>;
-export type AddVendorPartnershipMutationOptions = Apollo.BaseMutationOptions<
-  AddVendorPartnershipMutation,
-  AddVendorPartnershipMutationVariables
 >;
 export const GetCustomersWithMetadataDocument = gql`
   query GetCustomersWithMetadata {

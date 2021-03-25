@@ -67,7 +67,6 @@ function EditAccountSettingsModal({
   const handleClickSave = async () => {
     const response = await updateCompanySettings({
       variables: {
-        companyId,
         companySettingsId: settings.id,
         vendorAgreementTemplateLink:
           settings.vendor_agreement_docusign_template,

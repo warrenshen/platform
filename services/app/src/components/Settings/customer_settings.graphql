@@ -6,7 +6,6 @@ query GetCompanySettings($companySettingsId: uuid!) {
 
 # Account-level settings which can be modified in the EditAccountSettings component
 mutation UpdateCompanySettings(
-  $companyId: uuid!
   $companySettingsId: uuid!
   $vendorAgreementTemplateLink: String
 ) {

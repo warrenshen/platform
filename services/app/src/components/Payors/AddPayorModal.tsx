@@ -14,12 +14,11 @@ import {
   Companies,
   CompaniesInsertInput,
   CompanyTypeEnum,
-  useAddPayorPartnershipMutation,
-  UserRolesEnum,
   UsersInsertInput,
 } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { InventoryNotifier } from "lib/notifications/inventory";
+import { createPayorVendorMutation } from "lib/api/companies";
 import { useContext, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -31,13 +30,14 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  companyId: Companies["id"];
+  customerId: Companies["id"];
   handleClose: () => void;
 }
 
-function AddPayorModal({ companyId, handleClose }: Props) {
+function AddPayorModal({ customerId, handleClose }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
+
   const {
     user: { role },
   } = useContext(CurrentUserContext);
@@ -47,60 +47,46 @@ function AddPayorModal({ companyId, handleClose }: Props) {
   const [payor, setPayor] = useState<CompaniesInsertInput>({ name: "" });
   const [contact, setContact] = useState<UsersInsertInput>({
     first_name: "",
-    email: "",
     last_name: "",
+    email: "",
     phone_number: "",
   });
-  const [AddPayorPartnership, { loading }] = useAddPayorPartnershipMutation();
-  const notifier = new InventoryNotifier();
+
+  const [
+    createPayorVendor,
+    { loading: isCreatePayorVendorLoading },
+  ] = useCustomMutation(createPayorVendorMutation);
 
   const handleRegisterClick = async () => {
-    try {
-      const response = await AddPayorPartnership({
-        variables: {
-          payorPartnership: {
-            company_id:
-              role === UserRolesEnum.BankAdmin ? companyId : undefined,
-            payor: {
-              data: {
-                name: payor.name,
-                company_type: CompanyTypeEnum.Payor,
-                users: {
-                  data: [{ ...contact }],
-                },
-                settings: {
-                  data: {},
-                },
-              },
-            },
-          },
-        },
-      });
+    const response = await createPayorVendor({
+      variables: {
+        is_payor: true,
+        customer_id: customerId,
+        company: payor,
+        user: contact,
+      },
+    });
 
-      const payorId =
-        response.data?.insert_company_payor_partnerships_one?.payor_id;
-      if (!payorId) {
-        setErrorMessage("Error! Empty payor id provided");
-        return;
-      }
-      const emailResp = await notifier.sendPayorAgreementWithCustomer({
-        company_id: companyId,
-        payor_id: payorId,
-      });
-
-      if (emailResp.status !== "OK") {
-        setErrorMessage("Could not send email. Error: " + emailResp.msg);
-        return;
-      }
-
-      snackbar.showSuccess("Success! Payor created.");
-      handleClose();
-    } catch (error) {
-      setErrorMessage(
-        "Could not create Payor. Please fill out all required fields and ensure the email is not already taken."
+    if (response.status !== "OK") {
+      setErrorMessage(response.msg);
+      snackbar.showError(
+        `Error! Could not create partner company. Reason: ${response.msg}`
       );
+    } else {
+      snackbar.showSuccess(
+        "Success! Partner company created and user sent a welcome email."
+      );
+      handleClose();
     }
   };
+
+  const isSubmitDisabled =
+    !payor.name ||
+    !contact.first_name ||
+    !contact.last_name ||
+    !contact.email ||
+    !contact.phone_number ||
+    isCreatePayorVendorLoading;
 
   return (
     <Dialog
@@ -125,16 +111,10 @@ function AddPayorModal({ companyId, handleClose }: Props) {
             <Button onClick={handleClose}>Cancel</Button>
           </Box>
           <Button
-            disabled={
-              loading ||
-              !payor.name ||
-              !contact.first_name ||
-              !contact.last_name ||
-              !contact.email
-            }
-            onClick={handleRegisterClick}
+            disabled={isSubmitDisabled}
             variant="contained"
             color="primary"
+            onClick={handleRegisterClick}
           >
             Register
           </Button>

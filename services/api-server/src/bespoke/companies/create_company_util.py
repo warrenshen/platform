@@ -1,9 +1,10 @@
 """
 	Logic to help create a company.
 """
-from typing import Callable, Dict, Tuple, cast
+from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
+from bespoke.companies import create_user_util
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.db_constants import CompanyType
@@ -35,6 +36,12 @@ CreateCustomerInputDict = TypedDict('CreateCustomerInputDict', {
 
 CreateCustomerRespDict = TypedDict('CreateCustomerRespDict', {
 	'status': str
+})
+
+CreatePayorVendorInputDict = TypedDict('CreatePayorVendorInputDict', {
+	'customer_id': str,
+	'company': CompanyInsertInputDict,
+	'user': create_user_util.UserInsertInputDict,
 })
 
 def create_customer(
@@ -92,7 +99,7 @@ def create_customer(
 			name=company_name,
 			identifier=company_identifier,
 			company_settings_id=company_settings_id,
-			contract_id=contract_id
+			contract_id=contract_id,
 		)
 		session.add(company)
 		session.flush()
@@ -105,3 +112,76 @@ def create_customer(
 	return CreateCustomerRespDict(
 		status='OK'
 	), None
+
+def create_payor_vendor(
+	req: CreatePayorVendorInputDict,
+	session_maker: Callable,
+	is_payor: bool,
+) -> Tuple[str, errors.Error]:
+	customer_id = req['customer_id']
+
+	company_input = req['company']
+	company_name = company_input['name']
+
+	if not company_name:
+		return None, errors.Error('Name must be specified')
+
+	user_input = req['user']
+	user_first_name = user_input['first_name']
+	user_last_name = user_input['last_name']
+	user_email = user_input['email']
+	user_phone_number = user_input['phone_number']
+
+	if not user_first_name or not user_last_name:
+		return None, errors.Error('User full name must be specified')
+
+	if not user_email:
+		return None, errors.Error('User email must be specified')
+
+	if not user_phone_number:
+		return None, errors.Error('User phone number must be specified')
+
+	with session_scope(session_maker) as session:
+		company_settings = models.CompanySettings()
+		session.add(company_settings)
+		session.flush()
+		company_settings_id = str(company_settings.id)
+
+		company = models.Company(
+			company_settings_id=company_settings_id,
+			company_type=CompanyType.Payor if is_payor else CompanyType.Vendor,
+			name=company_name,
+		)
+		session.add(company)
+		session.flush()
+		company_id = str(company.id)
+
+		existing_user = session.query(models.User) \
+			.filter(models.User.email == user_email) \
+			.first()
+		if existing_user:
+			return None, errors.Error('Email is already taken')
+
+		# Note: Payor / Vendor users do not have any role for now.
+		user = models.User()
+		user.company_id = company_id
+		user.first_name = user_first_name
+		user.last_name = user_last_name
+		user.email = user_email
+		user.phone_number = user_phone_number
+		session.add(user)
+
+		if is_payor:
+			company_payor_partnership = models.CompanyPayorPartnership(
+				company_id=customer_id,
+				payor_id=company_id,
+			)
+			session.add(company_payor_partnership)
+		else:
+			company_vendor_partnership = models.CompanyVendorPartnership(
+				company_id=customer_id,
+				vendor_id=company_id,
+			)
+			session.add(company_vendor_partnership)
+
+	return company_id, None

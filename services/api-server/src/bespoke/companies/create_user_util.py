@@ -11,7 +11,7 @@ from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
 from mypy_extensions import TypedDict
 
-UsersInsertInput = TypedDict('UsersInsertInput', {
+UserInsertInputDict = TypedDict('UserInsertInputDict', {
 	'role': str,
 	'first_name': str,
 	'last_name': str,
@@ -21,12 +21,12 @@ UsersInsertInput = TypedDict('UsersInsertInput', {
 
 CreateBankCustomerInputDict = TypedDict('CreateBankCustomerInputDict', {
 	'company_id': str,
-	'user': UsersInsertInput,
+	'user': UserInsertInputDict,
 })
 
 CreateThirdPartyUserInputDict = TypedDict('CreateThirdPartyUserInputDict', {
 	'company_id': str,
-	'user': UsersInsertInput,
+	'user': UserInsertInputDict,
 })
 
 CreateThirdPartyUserRespDict = TypedDict('CreateThirdPartyUserRespDict', {
@@ -50,7 +50,7 @@ def create_bank_or_customer_user(
 	if not role:
 		return None, errors.Error('Role must be specified')
 
-	if not first_name or last_name:
+	if not first_name or not last_name:
 		return None, errors.Error('Full name must be specified')
 
 	if not email:
@@ -68,10 +68,10 @@ def create_bank_or_customer_user(
 			if customer.company_type != CompanyType.Customer:
 				return None, errors.Error('Company is not Customer company type')
 
-		user = session.query(models.User) \
+		existing_user = session.query(models.User) \
 			.filter(models.User.email == email) \
 			.first()
-		if user:
+		if existing_user:
 			return None, errors.Error('Email is already taken')
 
 		user = models.User()

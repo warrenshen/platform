@@ -31,7 +31,7 @@ function Vendors({ companyId }: Props) {
         style={{ marginBottom: "1rem" }}
         flexDirection="row-reverse"
       >
-        <AddVendorButton companyId={companyId} handleDataChange={refetch} />
+        <AddVendorButton customerId={companyId} handleDataChange={refetch} />
       </Box>
       <Box display="flex" flexWrap="wrap">
         <VendorPartnershipsDataGrid

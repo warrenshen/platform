@@ -5,18 +5,18 @@ import { Companies } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 
 interface Props {
-  companyId: Companies["id"];
+  customerId: Companies["id"];
   handleDataChange: () => void;
 }
 
-function AddPayorButton({ companyId, handleDataChange }: Props) {
+function AddPayorButton({ customerId, handleDataChange }: Props) {
   return (
     <Can perform={Action.AddPayor}>
       <ModalButton
         label={"Add Payor"}
         modal={({ handleClose }) => (
           <AddPayorModal
-            companyId={companyId}
+            customerId={customerId}
             handleClose={() => {
               handleDataChange();
               handleClose();

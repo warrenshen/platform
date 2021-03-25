@@ -165,8 +165,8 @@ class CompanyVendorPartnership(Base):
 	__tablename__ = 'company_vendor_partnerships'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
-	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
-	vendor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	company_id = Column(GUID, nullable=False)
+	vendor_id = Column(GUID, nullable=False)
 	approved_at = Column(DateTime)
 
 
@@ -174,8 +174,8 @@ class CompanyPayorPartnership(Base):
 	__tablename__ = 'company_payor_partnerships'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
-	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
-	payor_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	company_id = Column(GUID, nullable=False)
+	payor_id = Column(GUID, nullable=False)
 	approved_at = Column(DateTime)
 
 

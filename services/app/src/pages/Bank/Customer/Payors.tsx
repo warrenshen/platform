@@ -31,7 +31,7 @@ export default function BankCustomerPayors({ companyId }: Props) {
         style={{ marginBottom: "1rem" }}
         flexDirection="row-reverse"
       >
-        <AddPayorButton companyId={companyId} handleDataChange={refetch} />
+        <AddPayorButton customerId={companyId} handleDataChange={refetch} />
       </Box>
       <Box display="flex" flexWrap="wrap">
         <PayorPartnershipsDataGrid

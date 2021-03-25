@@ -18,11 +18,11 @@ import {
   ContractsInsertInput,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
+import { createCustomer } from "lib/api/companies";
 import {
   createProductConfigFieldsFromProductType,
   createProductConfigForServer,
 } from "lib/customer/contracts";
-import { createCustomer } from "lib/customer/create";
 import { useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
