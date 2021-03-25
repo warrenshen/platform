@@ -162,6 +162,14 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
+              Monthly Cash in DACA
+            </Typography>
+            <Typography variant={"body1"}>
+              {formatCurrency(ebbaApplication.amount_cash_in_daca)}
+            </Typography>
+          </Box>
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
               Calculated Borrowing Base
             </Typography>
             <Typography variant={"body1"}>

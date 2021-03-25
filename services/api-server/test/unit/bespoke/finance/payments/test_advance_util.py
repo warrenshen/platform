@@ -48,7 +48,8 @@ def _get_line_of_credit_contract() -> models.Contract:
 				maximum_principal_amount=120000,
 				borrowing_base_accounts_receivable_percentage=100.0,
 				borrowing_base_inventory_percentage=100.0,
-				borrowing_base_cash_percentage=100.0
+				borrowing_base_cash_percentage=100.0,
+				borrowing_base_cash_in_daca_percentage=0.0,
 			)
 		)
 	)

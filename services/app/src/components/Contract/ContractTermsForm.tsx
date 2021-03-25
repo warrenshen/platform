@@ -84,7 +84,7 @@ function ContractTermsForm({
   const sections = useMemo(() => groupBy(currentJSONConfig, (d) => d.section), [
     currentJSONConfig,
   ]);
-
+  console.log({ currentJSONConfig });
   const findAndReplaceInJSON = (item: any, value: any) => {
     const foundIndex = currentJSONConfig.findIndex(
       (field: any) => field.internal_name === item.internal_name
@@ -206,7 +206,7 @@ function ContractTermsForm({
             error={
               errMsg.length > 0 && isFieldInvalid(item) ? errMsg : undefined
             }
-            value={item.value || null}
+            value={item.value !== undefined ? item.value : null}
             handleChange={(value: number) => findAndReplaceInJSON(item, value)}
           />
         );
@@ -352,6 +352,14 @@ function ContractTermsForm({
                       )}
                     </Typography>
                   </FormHelperText>
+                  {item.is_hidden_if_null && (
+                    <FormHelperText id={"description-hidden-if-blank"}>
+                      <Typography color="primary" variant="caption">
+                        ** This item will be hidden from the customer if you
+                        leave it blank
+                      </Typography>
+                    </FormHelperText>
+                  )}
                 </FormControl>
               </Box>
             ))}

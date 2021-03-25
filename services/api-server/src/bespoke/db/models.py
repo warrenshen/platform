@@ -517,6 +517,7 @@ EbbaApplicationDict = TypedDict('EbbaApplicationDict', {
 	'monthly_accounts_receivable': float,
 	'monthly_inventory': float,
 	'monthly_cash': float,
+	'amount_cash_in_daca': float,
 	'status': str,
 	'requested_at': datetime.datetime,
 	'approved_at': datetime.datetime,
@@ -529,16 +530,17 @@ class EbbaApplication(Base):
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id'), nullable=False))
+	status = Column(String, nullable=False)
 	application_date = Column(Date)
 	monthly_accounts_receivable = Column(Numeric)
 	monthly_inventory = Column(Numeric)
 	monthly_cash = Column(Numeric)
-	status = Column(String, nullable=False)
+	amount_cash_in_daca = Column(Numeric)
+	calculated_borrowing_base = Column(Numeric)
 	requested_at = Column(DateTime)
 	approved_at = Column(DateTime)
 	rejected_at = Column(DateTime)
 	rejection_note = Column(Text)
-	calculated_borrowing_base = Column(Numeric)
 	expires_at = Column(Date)
 
 	company = relationship(
@@ -554,6 +556,7 @@ class EbbaApplication(Base):
 			monthly_accounts_receivable=float(self.monthly_accounts_receivable),
 			monthly_inventory=float(self.monthly_inventory),
 			monthly_cash=float(self.monthly_cash),
+			amount_cash_in_daca=float(self.amount_cash_in_daca),
 			status=self.status,
 			requested_at=self.requested_at,
 			approved_at=self.approved_at,

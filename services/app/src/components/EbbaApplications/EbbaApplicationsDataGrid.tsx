@@ -82,10 +82,18 @@ function EbbaApplicationsDataGrid({
       },
       {
         dataField: "monthly_cash",
-        caption: "Cash",
+        caption: "Cash in Deposit Accounts",
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.monthly_cash} />
+        ),
+      },
+      {
+        dataField: "amount_cash_in_daca",
+        caption: "Cash in DACA Deposit Accounts",
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell value={params.row.data.amount_cash_in_daca} />
         ),
       },
       {

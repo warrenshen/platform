@@ -23,6 +23,7 @@ ContractInputDict = TypedDict('ContractInputDict', {
 	'borrowing_base_accounts_receivable_percentage': float,
 	'borrowing_base_inventory_percentage': float,
 	'borrowing_base_cash_percentage': float,
+	'borrowing_base_cash_in_daca_percentage': float,
 }, total=False)
 
 def create_contract_config(
@@ -88,7 +89,8 @@ def create_contract_config(
 		borrowing_base_fields = (
 			'borrowing_base_accounts_receivable_percentage',
 			'borrowing_base_inventory_percentage',
-			'borrowing_base_cash_percentage'
+			'borrowing_base_cash_percentage',
+			'borrowing_base_cash_in_daca_percentage',
 		)
 
 		for field in borrowing_base_fields:

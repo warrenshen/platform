@@ -185,6 +185,7 @@ fragment EbbaApplication on ebba_applications {
   monthly_accounts_receivable
   monthly_inventory
   monthly_cash
+  amount_cash_in_daca
   calculated_borrowing_base
   status
   rejection_note

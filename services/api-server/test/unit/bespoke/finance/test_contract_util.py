@@ -30,7 +30,8 @@ def _get_line_of_credit_contract_config(overrides: Dict) -> Dict:
 		maximum_principal_amount=120000,
 		borrowing_base_accounts_receivable_percentage=None,
 		borrowing_base_inventory_percentage=None,
-		borrowing_base_cash_percentage=None
+		borrowing_base_cash_percentage=None,
+		borrowing_base_cash_in_daca_percentage=None,
 	)
 	d = cast(Dict, contract_dict)
 	d.update(overrides)
@@ -309,6 +310,7 @@ class TestLateFeeStructure(unittest.TestCase):
 				'update': {
 					'borrowing_base_accounts_receivable_percentage': 0.5,
 					'borrowing_base_inventory_percentage': 0.5,
+					'borrowing_base_cash_in_daca_percentage': 0.5,
 				},
 				'in_err_msg': 'cash_percentage'
 			},
@@ -317,6 +319,7 @@ class TestLateFeeStructure(unittest.TestCase):
 					'borrowing_base_accounts_receivable_percentage': 0.5,
 					'borrowing_base_inventory_percentage': 0.5,
 					'borrowing_base_cash_percentage': 1.5,
+					'borrowing_base_cash_in_daca_percentage': 0.5,
 				},
 				'in_err_msg': 'between 0 and 1'
 			},
@@ -325,6 +328,7 @@ class TestLateFeeStructure(unittest.TestCase):
 					'borrowing_base_accounts_receivable_percentage': 0.5,
 					'borrowing_base_inventory_percentage': 0.5,
 					'borrowing_base_cash_percentage': -0.1,
+					'borrowing_base_cash_in_daca_percentage': 0.5,
 				},
 				'in_err_msg': 'between 0 and 1'
 			}

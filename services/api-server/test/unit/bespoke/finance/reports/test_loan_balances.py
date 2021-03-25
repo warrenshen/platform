@@ -399,6 +399,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						borrowing_base_accounts_receivable_percentage=0.5,
 						borrowing_base_inventory_percentage=0.25,
 						borrowing_base_cash_percentage=0.75,
+						borrowing_base_cash_in_daca_percentage=0.25,
 					)
 				),
 				start_date=date_util.load_date_str('1/1/2020'),
@@ -412,6 +413,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				monthly_accounts_receivable=decimal.Decimal(100000.0), # 100k
 				monthly_inventory=decimal.Decimal(100000.0), #100k
 				monthly_cash=decimal.Decimal(1000000.0), # 1M
+				amount_cash_in_daca=decimal.Decimal(0.0),
 				status="approved",
 			)
 			session.add(ebba)
@@ -481,6 +483,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						borrowing_base_accounts_receivable_percentage=0.5,
 						borrowing_base_inventory_percentage=0.25,
 						borrowing_base_cash_percentage=0.75,
+						borrowing_base_cash_in_daca_percentage=0.0,
 					)
 				),
 				start_date=date_util.load_date_str('1/1/2020'),

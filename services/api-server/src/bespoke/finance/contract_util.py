@@ -199,10 +199,13 @@ class Contract(object):
 
 		return field['value'], None
 
-	def _get_float_value(self, internal_name: str) -> Tuple[float, errors.Error]:
+	def _get_float_value(self, internal_name: str, is_nullable: bool = False) -> Tuple[float, errors.Error]:
 		field, err = self._get_field(internal_name)
 		if err:
 			return None, err
+
+		if field['value'] is None and is_nullable:
+			return 0.0, None
 
 		if type(field['value']) != float and type(field['value']) != int:
 			return None, errors.Error(
@@ -441,13 +444,16 @@ class LOCContract(Contract):
 		super(LOCContract, self).__init__(c, private)
 
 	def get_borrowing_base_accounts_receivable_percentage(self) -> Tuple[float, errors.Error]:
-		return self._get_float_value('borrowing_base_accounts_receivable_percentage')
+		return self._get_float_value('borrowing_base_accounts_receivable_percentage', is_nullable=True)
 
 	def get_borrowing_base_inventory_percentage(self) -> Tuple[float, errors.Error]:
-		return self._get_float_value('borrowing_base_inventory_percentage')
+		return self._get_float_value('borrowing_base_inventory_percentage', is_nullable=True)
 
 	def get_borrowing_base_cash_percentage(self) -> Tuple[float, errors.Error]:
-		return self._get_float_value('borrowing_base_cash_percentage')
+		return self._get_float_value('borrowing_base_cash_percentage', is_nullable=True)
+
+	def get_borrowing_base_cash_in_daca_percentage(self) -> Tuple[float, errors.Error]:
+		return self._get_float_value('borrowing_base_cash_in_daca_percentage', is_nullable=True)
 
 	# Based on https://github.com/bespoke-capital/platform/blob/3d0574e2d1198137ff089f02ddafe383708c0d0e/services/app/src/components/EbbaApplication/CreateEbbaApplicationModal.tsx#L44-L76
 	def compute_borrowing_base(self, ebba: models.EbbaApplicationDict) -> Tuple[float, errors.Error]:
@@ -463,10 +469,15 @@ class LOCContract(Contract):
 		if err:
 			return None, err
 
+		cash_in_daca_percentage, err = self.get_borrowing_base_cash_in_daca_percentage()
+		if err:
+			return None, err
+
 		borrowing_base = \
-			(ebba['monthly_accounts_receivable'] * accounts_receivable_percentage) \
-			+ (ebba['monthly_inventory'] * inventory_percentage) \
-			+ (ebba['monthly_cash'] * cash_percentage)
+			((ebba['monthly_accounts_receivable'] or 0.0) * accounts_receivable_percentage) \
+			+ ((ebba['monthly_inventory'] or 0.0) * inventory_percentage) \
+			+ ((ebba['monthly_cash'] or 0.0) * cash_percentage) \
+			+ ((ebba['amount_cash_in_daca'] or 0.0) * cash_in_daca_percentage)
 
 		return borrowing_base, None
 
@@ -474,7 +485,8 @@ class LOCContract(Contract):
 		fields = (
 			'borrowing_base_accounts_receivable_percentage',
 			'borrowing_base_inventory_percentage',
-			'borrowing_base_cash_percentage'
+			'borrowing_base_cash_percentage',
+			'borrowing_base_cash_in_daca_percentage',
 		)
 
 		for field in fields:

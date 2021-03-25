@@ -26833,6 +26833,18 @@
         "description": "EBBA stands for Eligible Borrowing Base Amount: this is a table of applications to borrow via a line of credit with information required to determine a Borrowing Base\n\n\ncolumns and relationships of \"ebba_applications\"",
         "fields": [
           {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "application_date",
             "description": null,
             "args": [],
@@ -27637,6 +27649,18 @@
         "description": "aggregate avg on columns",
         "fields": [
           {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "calculated_borrowing_base",
             "description": null,
             "args": [],
@@ -27696,6 +27720,16 @@
         "description": "order by avg() on columns of table \"ebba_applications\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "calculated_borrowing_base",
             "description": null,
@@ -27782,6 +27816,16 @@
                 "name": "ebba_applications_bool_exp",
                 "ofType": null
               }
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "numeric_comparison_exp",
+              "ofType": null
             },
             "defaultValue": null
           },
@@ -27984,6 +28028,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "calculated_borrowing_base",
             "description": null,
             "type": {
@@ -28034,6 +28088,16 @@
         "description": "input type for inserting data into table \"ebba_applications\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "application_date",
             "description": null,
@@ -28215,6 +28279,18 @@
         "description": "aggregate max on columns",
         "fields": [
           {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "application_date",
             "description": null,
             "args": [],
@@ -28395,6 +28471,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "application_date",
             "description": null,
             "type": {
@@ -28544,6 +28630,18 @@
         "name": "ebba_applications_min_fields",
         "description": "aggregate min on columns",
         "fields": [
+          {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "application_date",
             "description": null,
@@ -28724,6 +28822,16 @@
         "description": "order by min() on columns of table \"ebba_applications\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "application_date",
             "description": null,
@@ -29019,6 +29127,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "application_date",
             "description": null,
             "type": {
@@ -29227,6 +29345,12 @@
         "interfaces": null,
         "enumValues": [
           {
+            "name": "amount_cash_in_daca",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "application_date",
             "description": "column name",
             "isDeprecated": false,
@@ -29325,6 +29449,16 @@
         "description": "input type for updating data in table \"ebba_applications\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "application_date",
             "description": null,
@@ -29486,6 +29620,18 @@
         "description": "aggregate stddev on columns",
         "fields": [
           {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "calculated_borrowing_base",
             "description": null,
             "args": [],
@@ -29546,6 +29692,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "calculated_borrowing_base",
             "description": null,
             "type": {
@@ -29595,6 +29751,18 @@
         "name": "ebba_applications_stddev_pop_fields",
         "description": "aggregate stddev_pop on columns",
         "fields": [
+          {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "calculated_borrowing_base",
             "description": null,
@@ -29656,6 +29824,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "calculated_borrowing_base",
             "description": null,
             "type": {
@@ -29705,6 +29883,18 @@
         "name": "ebba_applications_stddev_samp_fields",
         "description": "aggregate stddev_samp on columns",
         "fields": [
+          {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "calculated_borrowing_base",
             "description": null,
@@ -29766,6 +29956,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "calculated_borrowing_base",
             "description": null,
             "type": {
@@ -29815,6 +30015,18 @@
         "name": "ebba_applications_sum_fields",
         "description": "aggregate sum on columns",
         "fields": [
+          {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "calculated_borrowing_base",
             "description": null,
@@ -29876,6 +30088,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "calculated_borrowing_base",
             "description": null,
             "type": {
@@ -29928,6 +30150,12 @@
         "inputFields": null,
         "interfaces": null,
         "enumValues": [
+          {
+            "name": "amount_cash_in_daca",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "application_date",
             "description": "column name",
@@ -30027,6 +30255,18 @@
         "description": "aggregate var_pop on columns",
         "fields": [
           {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "calculated_borrowing_base",
             "description": null,
             "args": [],
@@ -30087,6 +30327,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "calculated_borrowing_base",
             "description": null,
             "type": {
@@ -30136,6 +30386,18 @@
         "name": "ebba_applications_var_samp_fields",
         "description": "aggregate var_samp on columns",
         "fields": [
+          {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "calculated_borrowing_base",
             "description": null,
@@ -30197,6 +30459,16 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "calculated_borrowing_base",
             "description": null,
             "type": {
@@ -30246,6 +30518,18 @@
         "name": "ebba_applications_variance_fields",
         "description": "aggregate variance on columns",
         "fields": [
+          {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "calculated_borrowing_base",
             "description": null,
@@ -30306,6 +30590,16 @@
         "description": "order by variance() on columns of table \"ebba_applications\"",
         "fields": null,
         "inputFields": [
+          {
+            "name": "amount_cash_in_daca",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
           {
             "name": "calculated_borrowing_base",
             "description": null,

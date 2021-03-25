@@ -11,11 +11,9 @@ import {
 import EbbaApplicationForm from "components/EbbaApplication/EbbaApplicationForm";
 import {
   Companies,
-  ContractFragment,
   EbbaApplicationFilesInsertInput,
   EbbaApplications,
   EbbaApplicationsInsertInput,
-  ProductTypeEnum,
   useAddEbbaApplicationMutation,
   useGetCompanyWithActiveContractQuery,
   useGetEbbaApplicationQuery,
@@ -27,7 +25,7 @@ import { submitEbbaApplicationMutation } from "lib/api/ebbaApplications";
 import { computeEbbaApplicationExpiresAt } from "lib/date";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -48,38 +46,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
-
-function computeBorrowingBase(
-  contract: ContractFragment | null,
-  ebbaApplication: EbbaApplicationsInsertInput
-): number | null {
-  if (!contract || contract.product_type !== ProductTypeEnum.LineOfCredit) {
-    return null;
-  }
-
-  const existingContractFields = contract.product_config.v1.fields;
-
-  const accountsReceivablePercentage =
-    existingContractFields.find(
-      (field: any) =>
-        field.internal_name === "borrowing_base_accounts_receivable_percentage"
-    )?.value || 0;
-  const inventoryPercentage =
-    existingContractFields.find(
-      (field: any) =>
-        field.internal_name === "borrowing_base_inventory_percentage"
-    )?.value || 0;
-  const cashPercentage =
-    existingContractFields.find(
-      (field: any) => field.internal_name === "borrowing_base_cash_percentage"
-    )?.value || 0;
-
-  return (
-    ebbaApplication.monthly_accounts_receivable * accountsReceivablePercentage +
-    ebbaApplication.monthly_inventory * inventoryPercentage +
-    ebbaApplication.monthly_cash * cashPercentage
-  );
-}
 
 interface Props {
   actionType: ActionType;
@@ -104,7 +70,49 @@ function CreateUpdateEbbaApplicationModal({
   });
 
   const company = data?.companies_by_pk;
-  const contract = company?.contract || null;
+
+  const existingContractFields = useMemo(
+    () => (company?.contract ? company.contract.product_config.v1.fields : []),
+    [company]
+  );
+
+  const accountsReceivablePercentage = useMemo(
+    () =>
+      existingContractFields.find(
+        (field: any) =>
+          field.internal_name ===
+          "borrowing_base_accounts_receivable_percentage"
+      )?.value || 0,
+    [existingContractFields]
+  );
+  const inventoryPercentage = useMemo(
+    () =>
+      existingContractFields.find(
+        (field: any) =>
+          field.internal_name === "borrowing_base_inventory_percentage"
+      )?.value || 0,
+    [existingContractFields]
+  );
+  const cashPercentage = useMemo(
+    () =>
+      existingContractFields.find(
+        (field: any) => field.internal_name === "borrowing_base_cash_percentage"
+      )?.value || 0,
+    [existingContractFields]
+  );
+  const cashInDacaPercentage = useMemo(
+    () =>
+      existingContractFields.find(
+        (field: any) =>
+          field.internal_name === "borrowing_base_cash_in_daca_percentage"
+      )?.value || 0,
+    [existingContractFields]
+  );
+
+  const isAccountsReceivableVisible = accountsReceivablePercentage > 0;
+  const isInventoryVisible = inventoryPercentage > 0;
+  const isCashVisible = cashPercentage > 0;
+  const isCashInDacaVisible = cashInDacaPercentage > 0;
 
   // Default EbbaApplication for CREATE case.
   const newEbbaApplication = {
@@ -112,6 +120,7 @@ function CreateUpdateEbbaApplicationModal({
     monthly_accounts_receivable: "",
     monthly_inventory: "",
     monthly_cash: "",
+    amount_cash_in_daca: "",
     calculated_borrowing_base: "",
   } as EbbaApplicationsInsertInput;
 
@@ -165,10 +174,11 @@ function CreateUpdateEbbaApplicationModal({
     { loading: isSubmitEbbaApplicationLoading },
   ] = useCustomMutation(submitEbbaApplicationMutation);
 
-  const calculatedBorrowingBase = computeBorrowingBase(
-    contract,
-    ebbaApplication
-  );
+  const calculatedBorrowingBase =
+    ebbaApplication.monthly_accounts_receivable * accountsReceivablePercentage +
+    ebbaApplication.monthly_inventory * inventoryPercentage +
+    ebbaApplication.monthly_cash * cashPercentage +
+    ebbaApplication.amount_cash_in_daca * cashInDacaPercentage;
 
   const computedExpiresAt = computeEbbaApplicationExpiresAt(
     ebbaApplication.application_date
@@ -185,6 +195,7 @@ function CreateUpdateEbbaApplicationModal({
               ebbaApplication.monthly_accounts_receivable,
             monthly_inventory: ebbaApplication.monthly_inventory,
             monthly_cash: ebbaApplication.monthly_cash,
+            amount_cash_in_daca: ebbaApplication.amount_cash_in_daca,
             calculated_borrowing_base: calculatedBorrowingBase,
             expires_at: computedExpiresAt,
           },
@@ -201,6 +212,7 @@ function CreateUpdateEbbaApplicationModal({
               ebbaApplication.monthly_accounts_receivable,
             monthly_inventory: ebbaApplication.monthly_inventory,
             monthly_cash: ebbaApplication.monthly_cash,
+            amount_cash_in_daca: ebbaApplication.amount_cash_in_daca,
             calculated_borrowing_base: calculatedBorrowingBase,
             expires_at: computedExpiresAt,
             ebba_application_files: {
@@ -246,6 +258,7 @@ function CreateUpdateEbbaApplicationModal({
     !ebbaApplication.monthly_accounts_receivable ||
     !ebbaApplication.monthly_inventory ||
     !ebbaApplication.monthly_cash ||
+    !ebbaApplication.amount_cash_in_daca ||
     ebbaApplicationFiles.length <= 0;
 
   return isDialogReady ? (
@@ -262,6 +275,10 @@ function CreateUpdateEbbaApplicationModal({
       </DialogTitle>
       <DialogContent>
         <EbbaApplicationForm
+          isAccountsReceivableVisible={isAccountsReceivableVisible}
+          isInventoryVisible={isInventoryVisible}
+          isCashVisible={isCashVisible}
+          isCashInDacaVisible={isCashInDacaVisible}
           companyId={companyId}
           calculatedBorrowingBase={calculatedBorrowingBase}
           ebbaApplication={ebbaApplication}

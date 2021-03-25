@@ -17,7 +17,6 @@ import {
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { useMemo } from "react";
-
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     inputField: {
@@ -27,6 +26,10 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
+  isAccountsReceivableVisible: boolean;
+  isInventoryVisible: boolean;
+  isCashVisible: boolean;
+  isCashInDacaVisible: boolean;
   companyId: Scalars["uuid"];
   calculatedBorrowingBase: number | null;
   ebbaApplication: EbbaApplicationsInsertInput;
@@ -38,6 +41,10 @@ interface Props {
 }
 
 function EbbaApplicationForm({
+  isAccountsReceivableVisible,
+  isInventoryVisible,
+  isCashVisible,
+  isCashInDacaVisible,
   companyId,
   calculatedBorrowingBase,
   ebbaApplication,
@@ -79,69 +86,98 @@ function EbbaApplicationForm({
           />
         </Box>
       </Box>
-      <Box display="flex" flexDirection="column" mt={2}>
-        <Typography variant="subtitle2">
-          For the month of the date you specified above, how much accounts
-          receivable do you have?
-        </Typography>
-        <Box mt={1}>
-          <FormControl className={classes.inputField}>
-            <CurrencyInput
-              isRequired
-              label={"Accounts Receivable ($)"}
-              value={ebbaApplication.monthly_accounts_receivable}
-              handleChange={(value: number) => {
-                setEbbaApplication({
-                  ...ebbaApplication,
-                  monthly_accounts_receivable: value,
-                });
-              }}
-            />
-          </FormControl>
+      {isAccountsReceivableVisible && (
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2">
+            For the month of the date you specified above, how much accounts
+            receivable do you have?
+          </Typography>
+          <Box mt={1}>
+            <FormControl className={classes.inputField}>
+              <CurrencyInput
+                isRequired
+                label={"Accounts Receivable ($)"}
+                value={ebbaApplication.monthly_accounts_receivable}
+                handleChange={(value: number) => {
+                  setEbbaApplication({
+                    ...ebbaApplication,
+                    monthly_accounts_receivable: value,
+                  });
+                }}
+              />
+            </FormControl>
+          </Box>
         </Box>
-      </Box>
-      <Box display="flex" flexDirection="column" mt={2}>
-        <Typography variant="subtitle2">
-          For the month of the date you specified above, how much inventory do
-          you have?
-        </Typography>
-        <Box mt={1}>
-          <FormControl className={classes.inputField}>
-            <CurrencyInput
-              isRequired
-              label={"Inventory ($)"}
-              value={ebbaApplication.monthly_inventory}
-              handleChange={(value: number) => {
-                setEbbaApplication({
-                  ...ebbaApplication,
-                  monthly_inventory: value,
-                });
-              }}
-            />
-          </FormControl>
+      )}
+      {isInventoryVisible && (
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2">
+            For the month of the date you specified above, how much inventory do
+            you have?
+          </Typography>
+          <Box mt={1}>
+            <FormControl className={classes.inputField}>
+              <CurrencyInput
+                isRequired
+                label={"Inventory ($)"}
+                value={ebbaApplication.monthly_inventory}
+                handleChange={(value: number) => {
+                  setEbbaApplication({
+                    ...ebbaApplication,
+                    monthly_inventory: value,
+                  });
+                }}
+              />
+            </FormControl>
+          </Box>
         </Box>
-      </Box>
-      <Box display="flex" flexDirection="column" mt={2}>
-        <Typography variant="subtitle2">
-          As of the date you specified above, how much cash do you have in your
-          bank account(s)?
-        </Typography>
-        <Box mt={1}>
-          <FormControl className={classes.inputField}>
-            <CurrencyInput
-              isRequired
-              label={"Cash ($)"}
-              value={ebbaApplication.monthly_cash}
-              handleChange={(value: number) => {
-                setEbbaApplication({
-                  ...ebbaApplication,
-                  monthly_cash: value,
-                });
-              }}
-            />
-          </FormControl>
+      )}
+      {isCashVisible && (
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2">
+            As of the date you specified above, how much cash do you have in
+            Deposit Accounts(s)?
+          </Typography>
+          <Box mt={1}>
+            <FormControl className={classes.inputField}>
+              <CurrencyInput
+                isRequired
+                label={"Cash ($)"}
+                value={ebbaApplication.monthly_cash}
+                handleChange={(value: number) => {
+                  setEbbaApplication({
+                    ...ebbaApplication,
+                    monthly_cash: value,
+                  });
+                }}
+              />
+            </FormControl>
+          </Box>
         </Box>
-      </Box>
+      )}
+      {isCashInDacaVisible && (
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2">
+            As of the date you specified above, how much cash do you have in
+            DACA Deposit Account(s)?
+          </Typography>
+          <Box mt={1}>
+            <FormControl className={classes.inputField}>
+              <CurrencyInput
+                isRequired
+                label={"Cash ($)"}
+                value={ebbaApplication.amount_cash_in_daca}
+                handleChange={(value: number) => {
+                  setEbbaApplication({
+                    ...ebbaApplication,
+                    amount_cash_in_daca: value,
+                  });
+                }}
+              />
+            </FormControl>
+          </Box>
+        </Box>
+      )}
       <Box display="flex" flexDirection="column" mt={3}>
         <Typography variant="body1">{`Calculated Borrowing Base: ${
           calculatedBorrowingBase

@@ -79,6 +79,14 @@ function EbbaApplicationCard({ ebbaApplication }: Props) {
             {formatCurrency(ebbaApplication.monthly_cash)}
           </Typography>
         </Box>
+        <Box display="flex" mb={0.5}>
+          <Typography className={classes.label}>
+            Monthly Cash in DACA
+          </Typography>
+          <Typography>
+            {formatCurrency(ebbaApplication.amount_cash_in_daca)}
+          </Typography>
+        </Box>
       </CardContent>
     </Card>
   );

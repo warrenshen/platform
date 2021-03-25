@@ -37,7 +37,8 @@
         "internal_name": "borrowing_base_accounts_receivable_percentage",
         "display_name": "Borrowing Base AR Percentage",
         "value": null,
-        "nullable": false
+        "nullable": true,
+        "is_hidden_if_null": true
       },
       {
         "section": "Financing Terms",
@@ -46,16 +47,28 @@
         "internal_name": "borrowing_base_inventory_percentage",
         "display_name": "Borrowing Base Inventory Percentage",
         "value": null,
-        "nullable": false
+        "nullable": true,
+        "is_hidden_if_null": true
       },
       {
         "section": "Financing Terms",
         "type": "float",
         "format": "percentage",
         "internal_name": "borrowing_base_cash_percentage",
-        "display_name": "Borrowing Base Cash Percentage",
+        "display_name": "Borrowing Base Cash in Deposit Accounts Percentage",
         "value": null,
-        "nullable": false
+        "nullable": true,
+        "is_hidden_if_null": true
+      },
+      {
+        "section": "Financing Terms",
+        "type": "float",
+        "format": "percentage",
+        "internal_name": "borrowing_base_cash_in_daca_percentage",
+        "display_name": "Borrowing Base Cash in DACA Deposit Accounts Percentage",
+        "value": null,
+        "nullable": true,
+        "is_hidden_if_null": true
       },
       {
         "section": "Financing Terms",

@@ -1,12 +1,12 @@
 import json
 from typing import Any, List, cast
 
+from bespoke.audit import events
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.db_constants import RequestStatusEnum
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
-from bespoke.audit import events
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from server.config import Config
@@ -163,6 +163,9 @@ class SubmitEbbaApplicationForApproval(MethodView):
 
 			if not ebba_application.monthly_cash:
 				return handler_util.make_error_response('Monthly cash is required')
+
+			if not ebba_application.amount_cash_in_daca:
+				return handler_util.make_error_response('Amount cash in DACA is required')
 
 			customer_name = ebba_application.company.name
 

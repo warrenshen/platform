@@ -24,6 +24,7 @@ export enum ContractTermNames {
   BorrowingBaseAccountsReceivablePercentage = "borrowing_base_accounts_receivable_percentage",
   BorrowingBaseInventoryPercentage = "borrowing_base_inventory_percentage",
   BorrowingBaseCashPercentage = "borrowing_base_cash_percentage",
+  BorrowingBaseCashInDacaPercentage = "borrowing_base_cash_in_daca_percentage",
   AdvanceRate = "advance_rate",
   FactoringFeePercentage = "factoring_fee_percentage",
   FactoringFeeThreshold = "factoring_fee_threshold",
@@ -60,7 +61,12 @@ export const ContractTermNameToDescriptions = {
   [ContractTermNames.BorrowingBaseCashPercentage]: {
     [ContractTermDescriptions.Bank]: "",
     [ContractTermDescriptions.Customer]:
-      "% of cash amount used in determining borrowing base",
+      "% of cash amount in Deposit Accounts used in determining borrowing base",
+  },
+  [ContractTermNames.BorrowingBaseCashInDacaPercentage]: {
+    [ContractTermDescriptions.Bank]: "",
+    [ContractTermDescriptions.Customer]:
+      "% of cash amount in DACA Deposit Accounts used in determining borrowing base",
   },
   [ContractTermNames.AdvanceRate]: {
     [ContractTermDescriptions.Bank]: "",
@@ -73,12 +79,12 @@ export const ContractTermNameToDescriptions = {
   },
   [ContractTermNames.FactoringFeeThreshold]: {
     [ContractTermDescriptions.Bank]:
-      "If customer meets this amount, a reduced interest rate will be used for principal above this amount (this is optional and will be hidden from the customer if left blank)",
+      "If customer meets this amount, a reduced interest rate will be used for principal above this amount",
     [ContractTermDescriptions.Customer]: "",
   },
   [ContractTermNames.AdjustedFactoringFeePercentage]: {
     [ContractTermDescriptions.Bank]:
-      "If customer meets the Volume Discount Threshold, this interest rate will be used (this is optional and will be hidden from the customer if left blank)",
+      "If customer meets the Volume Discount Threshold, this interest rate will be used",
     [ContractTermDescriptions.Customer]: "",
   },
   [ContractTermNames.LateFeeStructure]: {

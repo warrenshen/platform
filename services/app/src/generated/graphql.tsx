@@ -3913,6 +3913,7 @@ export enum EbbaApplicationFilesUpdateColumn {
  * columns and relationships of "ebba_applications"
  */
 export type EbbaApplications = {
+  amount_cash_in_daca?: Maybe<Scalars["numeric"]>;
   application_date: Scalars["date"];
   approved_at?: Maybe<Scalars["timestamptz"]>;
   calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
@@ -4014,6 +4015,7 @@ export type EbbaApplicationsArrRelInsertInput = {
 
 /** aggregate avg on columns */
 export type EbbaApplicationsAvgFields = {
+  amount_cash_in_daca?: Maybe<Scalars["Float"]>;
   calculated_borrowing_base?: Maybe<Scalars["Float"]>;
   monthly_accounts_receivable?: Maybe<Scalars["Float"]>;
   monthly_cash?: Maybe<Scalars["Float"]>;
@@ -4022,6 +4024,7 @@ export type EbbaApplicationsAvgFields = {
 
 /** order by avg() on columns of table "ebba_applications" */
 export type EbbaApplicationsAvgOrderBy = {
+  amount_cash_in_daca?: Maybe<OrderBy>;
   calculated_borrowing_base?: Maybe<OrderBy>;
   monthly_accounts_receivable?: Maybe<OrderBy>;
   monthly_cash?: Maybe<OrderBy>;
@@ -4033,6 +4036,7 @@ export type EbbaApplicationsBoolExp = {
   _and?: Maybe<Array<Maybe<EbbaApplicationsBoolExp>>>;
   _not?: Maybe<EbbaApplicationsBoolExp>;
   _or?: Maybe<Array<Maybe<EbbaApplicationsBoolExp>>>;
+  amount_cash_in_daca?: Maybe<NumericComparisonExp>;
   application_date?: Maybe<DateComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
   calculated_borrowing_base?: Maybe<NumericComparisonExp>;
@@ -4060,6 +4064,7 @@ export enum EbbaApplicationsConstraint {
 
 /** input type for incrementing integer column in table "ebba_applications" */
 export type EbbaApplicationsIncInput = {
+  amount_cash_in_daca?: Maybe<Scalars["numeric"]>;
   calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
@@ -4068,6 +4073,7 @@ export type EbbaApplicationsIncInput = {
 
 /** input type for inserting data into table "ebba_applications" */
 export type EbbaApplicationsInsertInput = {
+  amount_cash_in_daca?: Maybe<Scalars["numeric"]>;
   application_date?: Maybe<Scalars["date"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
@@ -4089,6 +4095,7 @@ export type EbbaApplicationsInsertInput = {
 
 /** aggregate max on columns */
 export type EbbaApplicationsMaxFields = {
+  amount_cash_in_daca?: Maybe<Scalars["numeric"]>;
   application_date?: Maybe<Scalars["date"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
@@ -4107,6 +4114,7 @@ export type EbbaApplicationsMaxFields = {
 
 /** order by max() on columns of table "ebba_applications" */
 export type EbbaApplicationsMaxOrderBy = {
+  amount_cash_in_daca?: Maybe<OrderBy>;
   application_date?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   calculated_borrowing_base?: Maybe<OrderBy>;
@@ -4125,6 +4133,7 @@ export type EbbaApplicationsMaxOrderBy = {
 
 /** aggregate min on columns */
 export type EbbaApplicationsMinFields = {
+  amount_cash_in_daca?: Maybe<Scalars["numeric"]>;
   application_date?: Maybe<Scalars["date"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
@@ -4143,6 +4152,7 @@ export type EbbaApplicationsMinFields = {
 
 /** order by min() on columns of table "ebba_applications" */
 export type EbbaApplicationsMinOrderBy = {
+  amount_cash_in_daca?: Maybe<OrderBy>;
   application_date?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   calculated_borrowing_base?: Maybe<OrderBy>;
@@ -4182,6 +4192,7 @@ export type EbbaApplicationsOnConflict = {
 
 /** ordering options when selecting data from "ebba_applications" */
 export type EbbaApplicationsOrderBy = {
+  amount_cash_in_daca?: Maybe<OrderBy>;
   application_date?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   calculated_borrowing_base?: Maybe<OrderBy>;
@@ -4208,6 +4219,8 @@ export type EbbaApplicationsPkColumnsInput = {
 
 /** select columns of table "ebba_applications" */
 export enum EbbaApplicationsSelectColumn {
+  /** column name */
+  AmountCashInDaca = "amount_cash_in_daca",
   /** column name */
   ApplicationDate = "application_date",
   /** column name */
@@ -4242,6 +4255,7 @@ export enum EbbaApplicationsSelectColumn {
 
 /** input type for updating data in table "ebba_applications" */
 export type EbbaApplicationsSetInput = {
+  amount_cash_in_daca?: Maybe<Scalars["numeric"]>;
   application_date?: Maybe<Scalars["date"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
@@ -4261,6 +4275,7 @@ export type EbbaApplicationsSetInput = {
 
 /** aggregate stddev on columns */
 export type EbbaApplicationsStddevFields = {
+  amount_cash_in_daca?: Maybe<Scalars["Float"]>;
   calculated_borrowing_base?: Maybe<Scalars["Float"]>;
   monthly_accounts_receivable?: Maybe<Scalars["Float"]>;
   monthly_cash?: Maybe<Scalars["Float"]>;
@@ -4269,6 +4284,7 @@ export type EbbaApplicationsStddevFields = {
 
 /** order by stddev() on columns of table "ebba_applications" */
 export type EbbaApplicationsStddevOrderBy = {
+  amount_cash_in_daca?: Maybe<OrderBy>;
   calculated_borrowing_base?: Maybe<OrderBy>;
   monthly_accounts_receivable?: Maybe<OrderBy>;
   monthly_cash?: Maybe<OrderBy>;
@@ -4277,6 +4293,7 @@ export type EbbaApplicationsStddevOrderBy = {
 
 /** aggregate stddev_pop on columns */
 export type EbbaApplicationsStddevPopFields = {
+  amount_cash_in_daca?: Maybe<Scalars["Float"]>;
   calculated_borrowing_base?: Maybe<Scalars["Float"]>;
   monthly_accounts_receivable?: Maybe<Scalars["Float"]>;
   monthly_cash?: Maybe<Scalars["Float"]>;
@@ -4285,6 +4302,7 @@ export type EbbaApplicationsStddevPopFields = {
 
 /** order by stddev_pop() on columns of table "ebba_applications" */
 export type EbbaApplicationsStddevPopOrderBy = {
+  amount_cash_in_daca?: Maybe<OrderBy>;
   calculated_borrowing_base?: Maybe<OrderBy>;
   monthly_accounts_receivable?: Maybe<OrderBy>;
   monthly_cash?: Maybe<OrderBy>;
@@ -4293,6 +4311,7 @@ export type EbbaApplicationsStddevPopOrderBy = {
 
 /** aggregate stddev_samp on columns */
 export type EbbaApplicationsStddevSampFields = {
+  amount_cash_in_daca?: Maybe<Scalars["Float"]>;
   calculated_borrowing_base?: Maybe<Scalars["Float"]>;
   monthly_accounts_receivable?: Maybe<Scalars["Float"]>;
   monthly_cash?: Maybe<Scalars["Float"]>;
@@ -4301,6 +4320,7 @@ export type EbbaApplicationsStddevSampFields = {
 
 /** order by stddev_samp() on columns of table "ebba_applications" */
 export type EbbaApplicationsStddevSampOrderBy = {
+  amount_cash_in_daca?: Maybe<OrderBy>;
   calculated_borrowing_base?: Maybe<OrderBy>;
   monthly_accounts_receivable?: Maybe<OrderBy>;
   monthly_cash?: Maybe<OrderBy>;
@@ -4309,6 +4329,7 @@ export type EbbaApplicationsStddevSampOrderBy = {
 
 /** aggregate sum on columns */
 export type EbbaApplicationsSumFields = {
+  amount_cash_in_daca?: Maybe<Scalars["numeric"]>;
   calculated_borrowing_base?: Maybe<Scalars["numeric"]>;
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
@@ -4317,6 +4338,7 @@ export type EbbaApplicationsSumFields = {
 
 /** order by sum() on columns of table "ebba_applications" */
 export type EbbaApplicationsSumOrderBy = {
+  amount_cash_in_daca?: Maybe<OrderBy>;
   calculated_borrowing_base?: Maybe<OrderBy>;
   monthly_accounts_receivable?: Maybe<OrderBy>;
   monthly_cash?: Maybe<OrderBy>;
@@ -4325,6 +4347,8 @@ export type EbbaApplicationsSumOrderBy = {
 
 /** update columns of table "ebba_applications" */
 export enum EbbaApplicationsUpdateColumn {
+  /** column name */
+  AmountCashInDaca = "amount_cash_in_daca",
   /** column name */
   ApplicationDate = "application_date",
   /** column name */
@@ -4359,6 +4383,7 @@ export enum EbbaApplicationsUpdateColumn {
 
 /** aggregate var_pop on columns */
 export type EbbaApplicationsVarPopFields = {
+  amount_cash_in_daca?: Maybe<Scalars["Float"]>;
   calculated_borrowing_base?: Maybe<Scalars["Float"]>;
   monthly_accounts_receivable?: Maybe<Scalars["Float"]>;
   monthly_cash?: Maybe<Scalars["Float"]>;
@@ -4367,6 +4392,7 @@ export type EbbaApplicationsVarPopFields = {
 
 /** order by var_pop() on columns of table "ebba_applications" */
 export type EbbaApplicationsVarPopOrderBy = {
+  amount_cash_in_daca?: Maybe<OrderBy>;
   calculated_borrowing_base?: Maybe<OrderBy>;
   monthly_accounts_receivable?: Maybe<OrderBy>;
   monthly_cash?: Maybe<OrderBy>;
@@ -4375,6 +4401,7 @@ export type EbbaApplicationsVarPopOrderBy = {
 
 /** aggregate var_samp on columns */
 export type EbbaApplicationsVarSampFields = {
+  amount_cash_in_daca?: Maybe<Scalars["Float"]>;
   calculated_borrowing_base?: Maybe<Scalars["Float"]>;
   monthly_accounts_receivable?: Maybe<Scalars["Float"]>;
   monthly_cash?: Maybe<Scalars["Float"]>;
@@ -4383,6 +4410,7 @@ export type EbbaApplicationsVarSampFields = {
 
 /** order by var_samp() on columns of table "ebba_applications" */
 export type EbbaApplicationsVarSampOrderBy = {
+  amount_cash_in_daca?: Maybe<OrderBy>;
   calculated_borrowing_base?: Maybe<OrderBy>;
   monthly_accounts_receivable?: Maybe<OrderBy>;
   monthly_cash?: Maybe<OrderBy>;
@@ -4391,6 +4419,7 @@ export type EbbaApplicationsVarSampOrderBy = {
 
 /** aggregate variance on columns */
 export type EbbaApplicationsVarianceFields = {
+  amount_cash_in_daca?: Maybe<Scalars["Float"]>;
   calculated_borrowing_base?: Maybe<Scalars["Float"]>;
   monthly_accounts_receivable?: Maybe<Scalars["Float"]>;
   monthly_cash?: Maybe<Scalars["Float"]>;
@@ -4399,6 +4428,7 @@ export type EbbaApplicationsVarianceFields = {
 
 /** order by variance() on columns of table "ebba_applications" */
 export type EbbaApplicationsVarianceOrderBy = {
+  amount_cash_in_daca?: Maybe<OrderBy>;
   calculated_borrowing_base?: Maybe<OrderBy>;
   monthly_accounts_receivable?: Maybe<OrderBy>;
   monthly_cash?: Maybe<OrderBy>;
@@ -16281,6 +16311,7 @@ export type EbbaApplicationFragment = Pick<
   | "monthly_accounts_receivable"
   | "monthly_inventory"
   | "monthly_cash"
+  | "amount_cash_in_daca"
   | "calculated_borrowing_base"
   | "status"
   | "rejection_note"
@@ -16993,6 +17024,7 @@ export const EbbaApplicationFragmentDoc = gql`
     monthly_accounts_receivable
     monthly_inventory
     monthly_cash
+    amount_cash_in_daca
     calculated_borrowing_base
     status
     rejection_note
