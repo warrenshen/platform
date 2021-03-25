@@ -3927,9 +3927,9 @@ export type EbbaApplications = {
   ebba_application_files_aggregate: EbbaApplicationFilesAggregate;
   expires_at: Scalars["date"];
   id: Scalars["uuid"];
-  monthly_accounts_receivable: Scalars["numeric"];
-  monthly_cash: Scalars["numeric"];
-  monthly_inventory: Scalars["numeric"];
+  monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
+  monthly_cash?: Maybe<Scalars["numeric"]>;
+  monthly_inventory?: Maybe<Scalars["numeric"]>;
   rejected_at?: Maybe<Scalars["timestamp"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;

@@ -192,10 +192,10 @@ function CreateUpdateEbbaApplicationModal({
           ebbaApplication: {
             application_date: ebbaApplication.application_date,
             monthly_accounts_receivable:
-              ebbaApplication.monthly_accounts_receivable,
-            monthly_inventory: ebbaApplication.monthly_inventory,
-            monthly_cash: ebbaApplication.monthly_cash,
-            amount_cash_in_daca: ebbaApplication.amount_cash_in_daca,
+              ebbaApplication.monthly_accounts_receivable || null,
+            monthly_inventory: ebbaApplication.monthly_inventory || null,
+            monthly_cash: ebbaApplication.monthly_cash || null,
+            amount_cash_in_daca: ebbaApplication.amount_cash_in_daca || null,
             calculated_borrowing_base: calculatedBorrowingBase,
             expires_at: computedExpiresAt,
           },
@@ -209,10 +209,10 @@ function CreateUpdateEbbaApplicationModal({
           ebbaApplication: {
             application_date: ebbaApplication.application_date,
             monthly_accounts_receivable:
-              ebbaApplication.monthly_accounts_receivable,
-            monthly_inventory: ebbaApplication.monthly_inventory,
-            monthly_cash: ebbaApplication.monthly_cash,
-            amount_cash_in_daca: ebbaApplication.amount_cash_in_daca,
+              ebbaApplication.monthly_accounts_receivable || null,
+            monthly_inventory: ebbaApplication.monthly_inventory || null,
+            monthly_cash: ebbaApplication.monthly_cash || null,
+            amount_cash_in_daca: ebbaApplication.amount_cash_in_daca || null,
             calculated_borrowing_base: calculatedBorrowingBase,
             expires_at: computedExpiresAt,
             ebba_application_files: {
@@ -255,10 +255,11 @@ function CreateUpdateEbbaApplicationModal({
     isSubmitEbbaApplicationLoading;
   const isSubmitDisabled =
     isFormLoading ||
-    !ebbaApplication.monthly_accounts_receivable ||
-    !ebbaApplication.monthly_inventory ||
-    !ebbaApplication.monthly_cash ||
-    !ebbaApplication.amount_cash_in_daca ||
+    (isAccountsReceivableVisible &&
+      !ebbaApplication.monthly_accounts_receivable) ||
+    (isInventoryVisible && !ebbaApplication.monthly_inventory) ||
+    (isCashVisible && !ebbaApplication.monthly_cash) ||
+    (isCashInDacaVisible && !ebbaApplication.amount_cash_in_daca) ||
     ebbaApplicationFiles.length <= 0;
 
   return isDialogReady ? (

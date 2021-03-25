@@ -113,6 +113,12 @@ def update_contract(req: UpdateContractReqDict, bank_admin_user_id: str, session
 		if contract.terminated_at:
 			return False, errors.Error('Cannot modify a contract which already has been terminated or "frozen"', details=err_details)
 
+		if not req['contract_fields']['start_date']:
+			return False, errors.Error('Start date must be specified', details=err_details)
+
+		if not req['contract_fields']['end_date']:
+			return False, errors.Error('End date must be specified', details=err_details)
+
 		_, err = _update_contract(contract, req['contract_fields'], bank_admin_user_id)
 		if err:
 			return None, err

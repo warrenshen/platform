@@ -142,7 +142,7 @@ function EbbaApplicationForm({
             <FormControl className={classes.inputField}>
               <CurrencyInput
                 isRequired
-                label={"Cash ($)"}
+                label={"Cash in Deposit Account(s)"}
                 value={ebbaApplication.monthly_cash}
                 handleChange={(value: number) => {
                   setEbbaApplication({
@@ -165,7 +165,7 @@ function EbbaApplicationForm({
             <FormControl className={classes.inputField}>
               <CurrencyInput
                 isRequired
-                label={"Cash ($)"}
+                label={"Cash in DACA Deposit Account(s)"}
                 value={ebbaApplication.amount_cash_in_daca}
                 handleChange={(value: number) => {
                   setEbbaApplication({

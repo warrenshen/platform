@@ -86,7 +86,8 @@
         "internal_name": "factoring_fee_threshold",
         "display_name": "Volume Discount Threshold",
         "value": null,
-        "nullable": true
+        "nullable": true,
+        "is_hidden_if_null": true
       },
       {
         "section": "Financing Terms",
@@ -95,7 +96,8 @@
         "internal_name": "adjusted_factoring_fee_percentage",
         "display_name": "Discounted Daily Interest Rate",
         "value": null,
-        "nullable": true
+        "nullable": true,
+        "is_hidden_if_null": true
       },
       {
         "section": "Financing Terms",

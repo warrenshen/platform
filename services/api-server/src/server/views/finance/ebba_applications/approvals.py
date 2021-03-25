@@ -155,18 +155,6 @@ class SubmitEbbaApplicationForApproval(MethodView):
 			if not ebba_application.application_date:
 				return handler_util.make_error_response('Application month is required')
 
-			if not ebba_application.monthly_accounts_receivable:
-				return handler_util.make_error_response('Monthly accounts receivable is required')
-
-			if not ebba_application.monthly_inventory:
-				return handler_util.make_error_response('Monthly inventory is required')
-
-			if not ebba_application.monthly_cash:
-				return handler_util.make_error_response('Monthly cash is required')
-
-			if not ebba_application.amount_cash_in_daca:
-				return handler_util.make_error_response('Amount cash in DACA is required')
-
 			customer_name = ebba_application.company.name
 
 			ebba_application.status = RequestStatusEnum.APPROVAL_REQUESTED
