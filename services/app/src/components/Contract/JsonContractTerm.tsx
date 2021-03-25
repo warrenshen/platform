@@ -1,5 +1,5 @@
 import { Box, Typography } from "@material-ui/core";
-import { ProductConfigField } from "lib/customer/contracts";
+import { ProductConfigField } from "lib/contracts";
 
 interface Props {
   fields: ProductConfigField[];
@@ -11,7 +11,12 @@ function JsonContractTerm({ fields, value }: Props) {
     <Box display="flex" flexDirection="column">
       <Box display="flex">
         {fields.map((field, index) => (
-          <Box key={index} display="flex" justifyContent="flex-end" width={150}>
+          <Box
+            key={index}
+            display="flex"
+            justifyContent="flex-start"
+            width={150}
+          >
             <Typography key={field.display_name}>
               {field.display_name}
             </Typography>
@@ -21,10 +26,10 @@ function JsonContractTerm({ fields, value }: Props) {
       <Box display="flex" flexDirection="column">
         {Object.keys(value).map((key) => (
           <Box key={key} display="flex">
-            <Box display="flex" justifyContent="flex-end" width={150}>
+            <Box display="flex" justifyContent="flex-start" width={150}>
               <Typography>{key}</Typography>
             </Box>
-            <Box display="flex" justifyContent="flex-end" width={150}>
+            <Box display="flex" justifyContent="flex-start" width={150}>
               <Typography>{`${value[key]}${
                 fields[1]?.format === "percentage" ? "%" : ""
               }`}</Typography>

@@ -22,7 +22,7 @@ import { createCustomer } from "lib/api/companies";
 import {
   createProductConfigFieldsFromProductType,
   createProductConfigForServer,
-} from "lib/customer/contracts";
+} from "lib/contracts";
 import { useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>

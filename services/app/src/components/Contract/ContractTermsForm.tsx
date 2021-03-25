@@ -15,6 +15,11 @@ import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import JsonFormInput from "components/Shared/FormInputs/JsonFormInput";
 import { ContractsInsertInput, ProductTypeEnum } from "generated/graphql";
+import {
+  ContractTermNames,
+  getContractTermBankDescription,
+  getContractTermCustomerDescription,
+} from "lib/contracts";
 import { AllProductTypes, ProductTypeToLabel } from "lib/enum";
 import { groupBy } from "lodash";
 import { ChangeEvent, useMemo } from "react";
@@ -332,11 +337,20 @@ function ContractTermsForm({
               {sectionName}
             </Typography>
             {content.map((item) => (
-              <Box key={item.internal_name} mt={2}>
+              <Box key={item.internal_name} mt={3}>
                 <FormControl fullWidth>
                   {renderSwitch(item)}
-                  <FormHelperText id={item.display_name}>
-                    {item.description}
+                  <FormHelperText id={"description-customer"}>
+                    {getContractTermCustomerDescription(
+                      item.internal_name as ContractTermNames
+                    )}
+                  </FormHelperText>
+                  <FormHelperText id={"description-bank"}>
+                    <Typography color="primary" variant="caption">
+                      {getContractTermBankDescription(
+                        item.internal_name as ContractTermNames
+                      )}
+                    </Typography>
                   </FormHelperText>
                 </FormControl>
               </Box>

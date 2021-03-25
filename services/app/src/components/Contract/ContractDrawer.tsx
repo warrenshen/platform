@@ -18,10 +18,10 @@ import {
 } from "generated/graphql";
 import {
   ContractTermNames,
+  createProductConfigFieldsFromContract,
   getContractTermCustomerDescription,
 } from "lib/contracts";
 import { formatCurrency } from "lib/currency";
-import { createProductConfigFieldsFromContract } from "lib/customer/contracts";
 import { formatDateString } from "lib/date";
 import { ProductTypeToLabel } from "lib/enum";
 import { groupBy } from "lodash";
@@ -140,21 +140,26 @@ function ContractDrawer({ contractId, handleClose }: Props) {
             {Object.entries(sections).map(([sectionName, content]) => (
               <Box key={sectionName} mt={2}>
                 <Typography variant="button">{sectionName}</Typography>
-                {content.map((item) => (
-                  <Box key={item.internal_name} mt={2}>
-                    <FormControl fullWidth>
-                      <Typography variant="subtitle2" color="textSecondary">
-                        {item.display_name}
-                      </Typography>
-                      {renderSwitch(item)}
-                      <FormHelperText id={item.display_name}>
-                        {getContractTermCustomerDescription(
-                          item.internal_name as ContractTermNames
-                        )}
-                      </FormHelperText>
-                    </FormControl>
-                  </Box>
-                ))}
+                {content.map((item) =>
+                  !(
+                    item.is_hidden_if_null &&
+                    (item.value === null || item.value === 0)
+                  ) ? (
+                    <Box key={item.internal_name} mt={2}>
+                      <FormControl fullWidth>
+                        <Typography variant="subtitle2" color="textSecondary">
+                          {item.display_name}
+                        </Typography>
+                        {renderSwitch(item)}
+                        <FormHelperText id={item.display_name}>
+                          {getContractTermCustomerDescription(
+                            item.internal_name as ContractTermNames
+                          )}
+                        </FormHelperText>
+                      </FormControl>
+                    </Box>
+                  ) : null
+                )}
               </Box>
             ))}
           </Box>

@@ -9,7 +9,6 @@
         "format": "currency",
         "internal_name": "maximum_amount",
         "display_name": "Maximum Credit Limit",
-        "description": "",
         "value": null,
         "nullable": false
       },
@@ -19,7 +18,6 @@
         "format": "currency",
         "internal_name": "minimum_monthly_amount",
         "display_name": "Minimum Monthly Interest",
-        "description": "",
         "value": null,
         "nullable": false
       },
@@ -29,7 +27,6 @@
         "format": "percentage",
         "internal_name": "advance_rate",
         "display_name": "Advance Rate",
-        "description": "The maximum amount of the PO / Invoice that may be financed",
         "value": null,
         "nullable": false
       },
@@ -39,7 +36,6 @@
         "format": "percentage",
         "internal_name": "borrowing_base_accounts_receivable_percentage",
         "display_name": "Borrowing Base AR Percentage",
-        "description": "% of AR amount used in determining borrowing base",
         "value": null,
         "nullable": false
       },
@@ -49,7 +45,6 @@
         "format": "percentage",
         "internal_name": "borrowing_base_inventory_percentage",
         "display_name": "Borrowing Base Inventory Percentage",
-        "description": "% of inventory amount used in determining borrowing base",
         "value": null,
         "nullable": false
       },
@@ -59,7 +54,6 @@
         "format": "percentage",
         "internal_name": "borrowing_base_cash_percentage",
         "display_name": "Borrowing Base Cash Percentage",
-        "description": "% of cash amount used in determining borrowing base",
         "value": null,
         "nullable": false
       },
@@ -69,7 +63,6 @@
         "format": "percentage",
         "internal_name": "factoring_fee_percentage",
         "display_name": "Daily Interest Rate",
-        "description": "Daily interest rate",
         "value": null,
         "nullable": false
       },
@@ -79,7 +72,6 @@
         "format": "currency",
         "internal_name": "factoring_fee_threshold",
         "display_name": "Volume Discount Threshold",
-        "description": "Some clients have the ability to have a reduced interest rate if they meet certain requirements/thresholds",
         "value": null,
         "nullable": true
       },
@@ -89,7 +81,6 @@
         "format": "percentage",
         "internal_name": "adjusted_factoring_fee_percentage",
         "display_name": "Discounted Daily Interest Rate",
-        "description": "If the client meets the new threshold (as defined above) then this interest rate will be used",
         "value": null,
         "nullable": true
       },
@@ -99,7 +90,6 @@
         "format": "currency",
         "internal_name": "wire_fee",
         "display_name": "Wire Fee",
-        "description": "Manually input the dollar amount for wire fees as they can vary. We can define/add fee names and amounts. Can be multiple wire fee types for each client",
         "value": null,
         "nullable": false
       },
@@ -140,8 +130,7 @@
           }
         ],
         "internal_name": "repayment_type_settlement_timeline",
-        "display_name": "Repayment Settlement Timeline",
-        "description": "Clearance days is the number of additional days after a payment's deposit date during which interest is charged.",
+        "display_name": "Clearance Days ",
         "value": null
       }
     ]

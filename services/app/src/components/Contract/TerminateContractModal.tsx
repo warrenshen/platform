@@ -15,7 +15,7 @@ import {
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { terminateContractMutation } from "lib/customer/contracts";
+import { terminateContractMutation } from "lib/contracts";
 import { isNull, mergeWith } from "lodash";
 import { useState } from "react";
 

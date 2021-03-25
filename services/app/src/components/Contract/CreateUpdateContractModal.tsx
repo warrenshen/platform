@@ -24,7 +24,7 @@ import {
   createProductConfigForServer,
   ProductConfigField,
   updateContractMutation,
-} from "lib/customer/contracts";
+} from "lib/contracts";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useEffect, useState } from "react";
@@ -228,7 +228,7 @@ function CreateUpdateContractModal({
           <Box mb={3}>
             <Alert severity="info">
               Note: only bank admins may create / edit contracts (you are a bank
-              admin).
+              admin). Description text in blue is only visible by bank users.
             </Alert>
           </Box>
           <ContractTermsForm
