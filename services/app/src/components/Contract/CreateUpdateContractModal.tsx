@@ -7,6 +7,7 @@ import {
   DialogTitle,
   makeStyles,
 } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import ContractTermsForm from "components/Contract/ContractTermsForm";
 import {
   Companies,
@@ -224,6 +225,12 @@ function CreateUpdateContractModal({
       </DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column">
+          <Box mb={3}>
+            <Alert severity="info">
+              Note: only bank admins may create / edit contracts (you are a bank
+              admin).
+            </Alert>
+          </Box>
           <ContractTermsForm
             isProductTypeEditable={actionType === ActionType.New}
             isStartDateEditable

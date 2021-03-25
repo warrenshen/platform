@@ -16,6 +16,10 @@ import {
   useGetContractQuery,
   UserRolesEnum,
 } from "generated/graphql";
+import {
+  ContractTermNames,
+  getContractTermCustomerDescription,
+} from "lib/contracts";
 import { formatCurrency } from "lib/currency";
 import { createProductConfigFieldsFromContract } from "lib/customer/contracts";
 import { formatDateString } from "lib/date";
@@ -144,7 +148,9 @@ function ContractDrawer({ contractId, handleClose }: Props) {
                       </Typography>
                       {renderSwitch(item)}
                       <FormHelperText id={item.display_name}>
-                        {item.description}
+                        {getContractTermCustomerDescription(
+                          item.internal_name as ContractTermNames
+                        )}
                       </FormHelperText>
                     </FormControl>
                   </Box>
