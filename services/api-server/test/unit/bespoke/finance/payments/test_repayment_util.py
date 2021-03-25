@@ -904,7 +904,7 @@ class TestCreatePayment(db_unittest.TestCase):
 			loan = models.Loan(
 				company_id=company_id,
 				amount=decimal.Decimal(2.0),
-				approved_at=date_util.now()
+				approved_at=date_util.now(),
 			)
 			session.add(loan)
 			session.flush()

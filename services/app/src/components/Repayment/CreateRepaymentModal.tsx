@@ -10,6 +10,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import CreateRepaymentConfirmEffect from "components/Repayment/CreateRepaymentConfirmEffect";
 import CreateRepaymentSelectLoans from "components/Repayment/CreateRepaymentSelectLoans";
 import { PaymentTransferType } from "components/Shared/BankToBankTransfer";
@@ -233,31 +234,38 @@ function CreateRepaymentModal({
     <Dialog open fullWidth maxWidth="md" onClose={handleClose}>
       <DialogTitle className={classes.dialogTitle}>Make Payment</DialogTitle>
       <DialogContent style={{ minHeight: 400 }}>
-        {isOnSelectLoans ? (
-          <CreateRepaymentSelectLoans
-            productType={productType}
-            financialSummary={financialSummary}
-            selectedLoans={selectedLoans}
-            payment={payment}
-            paymentOption={paymentOption}
-            setPayment={setPayment}
-            setPaymentOption={setPaymentOption}
-          />
-        ) : (
-          <CreateRepaymentConfirmEffect
-            companyId={companyId}
-            productType={productType}
-            payableAmountPrincipal={
-              calculateEffectResponse?.payable_amount_principal || 0
-            }
-            payableAmountInterest={
-              calculateEffectResponse?.payable_amount_interest || 0
-            }
-            payment={payment}
-            loansBeforeAfterPayment={loansBeforeAfterPayment}
-            setPayment={setPayment}
-          />
-        )}
+        <Box display="flex" flexDirection="column">
+          <Box mb={3}>
+            <Alert severity="info">
+              {`Note: only bank admins may create payments on behalf of customers. You (a bank admin) are creating a payment on behalf of ${company?.name}.`}
+            </Alert>
+          </Box>
+          {isOnSelectLoans ? (
+            <CreateRepaymentSelectLoans
+              productType={productType}
+              financialSummary={financialSummary}
+              selectedLoans={selectedLoans}
+              payment={payment}
+              paymentOption={paymentOption}
+              setPayment={setPayment}
+              setPaymentOption={setPaymentOption}
+            />
+          ) : (
+            <CreateRepaymentConfirmEffect
+              companyId={companyId}
+              productType={productType}
+              payableAmountPrincipal={
+                calculateEffectResponse?.payable_amount_principal || 0
+              }
+              payableAmountInterest={
+                calculateEffectResponse?.payable_amount_interest || 0
+              }
+              payment={payment}
+              loansBeforeAfterPayment={loansBeforeAfterPayment}
+              setPayment={setPayment}
+            />
+          )}
+        </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
         <Box display="flex" flexDirection="column" width="100%">

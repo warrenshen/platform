@@ -64,6 +64,7 @@ query GetCompanyForCustomerContractPage($companyId: uuid!) {
 query GetCompanyWithDetailsByCompanyId($companyId: uuid!) {
   companies_by_pk(id: $companyId) {
     id
+    name
     contract {
       id
       ...Contract

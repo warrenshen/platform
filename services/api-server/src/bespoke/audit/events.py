@@ -1,12 +1,11 @@
 import json
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Callable
+from typing import Any, Callable, Dict, Optional
 
-from server.views.common import auth_util
 from bespoke.db import models
-
-from flask import current_app, request, Response
+from flask import Response, current_app, request
+from server.views.common import auth_util
 from sqlalchemy.orm import Session
 
 

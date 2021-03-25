@@ -168,10 +168,14 @@ def calculate_repayment_effect(
 	with session_scope(session_maker) as session:
 		loans = []
 		if product_type == ProductType.LINE_OF_CREDIT:
+			# TODO(warrenshen): write a test to check that loans that do not
+			# have an origination_date set (ex. rejected loans) are NOT fetched.
 			loans = cast(
 				List[models.Loan],
 				session.query(models.Loan).filter(
 					models.Loan.company_id == company_id
+				).filter(
+					models.Loan.origination_date != None
 				).filter(
 					models.Loan.closed_at == None
 				))
@@ -651,6 +655,7 @@ def settle_repayment(
 	if not number_util.is_currency_rounded(req['amount']):
 		return None, errors.Error('Amount specified is not rounded to the penny')
 
+	company_id = req['company_id']
 	payment_amount = req['amount']
 	deposit_date = date_util.load_date_str(req['deposit_date'])
 	settlement_date = date_util.load_date_str(req['settlement_date'])
@@ -727,14 +732,14 @@ def settle_repayment(
 		contracts = cast(
 			List[models.Contract],
 			session.query(models.Contract).filter(
-				models.Contract.company_id == req['company_id']
+				models.Contract.company_id == company_id
 			).all())
 		if not contracts:
 			return None, errors.Error('Cannot settle payment because no contracts are setup for this company')
 
 		contract_dicts = [c.as_dict() for c in contracts]
 
-		contract_helper, err = contract_util.ContractHelper.build(req['company_id'], contract_dicts)
+		contract_helper, err = contract_util.ContractHelper.build(company_id, contract_dicts)
 		if err:
 			return None, err
 
@@ -751,10 +756,14 @@ def settle_repayment(
 			if product_type != ProductType.LINE_OF_CREDIT:
 				return None, errors.Error('Customer is not of Line of Credit product type', details=err_details)
 
+			# TODO(warrenshen): write a test to check that loans that do not
+			# have an origination_date set (ex. rejected loans) are NOT fetched.
 			loans = cast(
 				List[models.Loan],
 				session.query(models.Loan).filter(
-					models.Loan.company_id == req['company_id']
+					models.Loan.company_id == company_id
+				).filter(
+					models.Loan.origination_date != None
 				).filter(
 					models.Loan.closed_at == None
 				).all())
@@ -765,7 +774,7 @@ def settle_repayment(
 			loans = cast(
 				List[models.Loan],
 				session.query(models.Loan).filter(
-					models.Loan.company_id == req['company_id']
+					models.Loan.company_id == company_id
 				).filter(
 					models.Loan.id.in_(loan_ids)
 				).all())
@@ -781,7 +790,7 @@ def settle_repayment(
 
 		for loan in loans:
 			if not loan.origination_date:
-				return None, errors.Error('Loan {} is missing an origination date'.format(loan.id)) 
+				return None, errors.Error('Loan {} is missing an origination date'.format(loan.id))
 
 			# Do not allow loans that are funded after the deposit date of this payment
 			if loan.origination_date > deposit_date:

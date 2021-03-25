@@ -16043,7 +16043,7 @@ export type GetCompanyWithDetailsByCompanyIdQueryVariables = Exact<{
 
 export type GetCompanyWithDetailsByCompanyIdQuery = {
   companies_by_pk?: Maybe<
-    Pick<Companies, "id"> & {
+    Pick<Companies, "id" | "name"> & {
       contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
       financial_summaries: Array<
         Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
@@ -21589,6 +21589,7 @@ export const GetCompanyWithDetailsByCompanyIdDocument = gql`
   query GetCompanyWithDetailsByCompanyId($companyId: uuid!) {
     companies_by_pk(id: $companyId) {
       id
+      name
       contract {
         id
         ...Contract

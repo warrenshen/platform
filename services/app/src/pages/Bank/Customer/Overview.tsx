@@ -7,7 +7,10 @@ import {
 } from "@material-ui/core";
 import CustomerFinancialSummaryOverview from "components/CustomerFinancialSummary/CustomerFinancialSummaryOverview";
 import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
+import CreateRepaymentModal from "components/Repayment/CreateRepaymentModal";
 import RepaymentsDataGrid from "components/Repayment/RepaymentsDataGrid";
+import Can from "components/Shared/Can";
+import ModalButton from "components/Shared/Modal/ModalButton";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   ProductTypeEnum,
@@ -51,7 +54,7 @@ function CustomerOverviewSubpage({ companyId, productType }: Props) {
       ? ProductTypeToLoanType[productType]
       : null;
 
-  const { data } = useGetCustomerOverviewQuery({
+  const { data, refetch } = useGetCustomerOverviewQuery({
     fetchPolicy: "network-only",
     variables: {
       companyId,
@@ -76,6 +79,24 @@ function CustomerOverviewSubpage({ companyId, productType }: Props) {
             payments.length > 0 ? ` (${payments.length})` : ""
           }`}
         </Typography>
+        <Can perform={Action.RepayPurchaseOrderLoans}>
+          <Box display="flex" flexDirection="row-reverse" mb={2}>
+            <ModalButton
+              label={"Make Payment"}
+              modal={({ handleClose }) => (
+                <CreateRepaymentModal
+                  companyId={companyId}
+                  productType={productType}
+                  selectedLoans={[]}
+                  handleClose={() => {
+                    refetch();
+                    handleClose();
+                  }}
+                />
+              )}
+            />
+          </Box>
+        </Can>
         <Box display="flex" flex={1}>
           <Box display="flex" flexDirection="column" width="100%">
             {payments.length > 0 ? (
