@@ -22,17 +22,13 @@ import useSnackbar from "hooks/useSnackbar";
 import {
   createInvoiceMutation,
   submitInvoiceForApproval,
+  submitNewInvoiceForPaymentMutation,
   updateInvoiceMutation,
 } from "lib/api/invoices";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
 import InvoiceForm from "./InvoiceForm";
-interface Props {
-  actionType: ActionType;
-  invoiceId: string | null;
-  handleClose: () => void;
-}
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -51,7 +47,29 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function CreateUpdateInvoiceModal({
+const mapFiles = (files: any[]) =>
+  !files
+    ? []
+    : files.map((f) => ({
+        invoice_id: f.invoice_id,
+        file_id: f.file_id,
+        file_type: f.file_type,
+      }));
+
+/*
+isInvoiceForLoan
+true: new invoice is for loan (requires approval by Payor).
+false: new invoice is for payment (does not require approval by Payor).
+*/
+interface Props {
+  isInvoiceForLoan: boolean;
+  actionType: ActionType;
+  invoiceId: string | null;
+  handleClose: () => void;
+}
+
+function CreateUpdateInvoiceModal({
+  isInvoiceForLoan,
   actionType,
   handleClose,
   invoiceId = null,
@@ -127,6 +145,11 @@ export default function CreateUpdateInvoiceModal({
     { loading: isUpdateInvoiceLoading },
   ] = useCustomMutation(updateInvoiceMutation);
 
+  const [
+    submitNewInvoiceForPayment,
+    { loading: isSubmitNewInvoiceForPaymentLoading },
+  ] = useCustomMutation(submitNewInvoiceForPaymentMutation);
+
   const upsertInvoice = async () => {
     const files = [
       ...mapFiles([invoiceFile].filter((f) => !!f)),
@@ -160,25 +183,44 @@ export default function CreateUpdateInvoiceModal({
     }
 
     if (result.data && result.data.invoice) {
-      const response = await submitInvoiceForApproval({
-        variables: {
-          id: result.data.invoice.id,
-        },
-      });
+      if (isInvoiceForLoan) {
+        const response = await submitInvoiceForApproval({
+          variables: {
+            id: result.data.invoice.id,
+          },
+        });
 
-      if (response.status !== "OK") {
-        snackbar.showError(`Error! Message: ${response.msg}`);
+        if (response.status !== "OK") {
+          snackbar.showError(`Error! Message: ${response.msg}`);
+        } else {
+          snackbar.showSuccess(
+            "Success! Invoice saved and submitted to payor for approval."
+          );
+          handleClose();
+        }
       } else {
-        snackbar.showSuccess("Success! Invoice saved and submitted!");
+        const response = await submitNewInvoiceForPayment({
+          variables: {
+            invoice_id: result.data.invoice.id,
+          },
+        });
+
+        if (response.status !== "OK") {
+          snackbar.showError(`Error! Message: ${response.msg}`);
+        } else {
+          snackbar.showSuccess("Success! Invoice sent to payor for payment.");
+          handleClose();
+        }
       }
     }
-
-    handleClose();
   };
 
   const isReady = !isExistingInvoiceLoading && !isPayorsLoading;
   const isFormValid = !!invoice.payor_id;
-  const isFormLoading = isCreateInvoiceLoading || isUpdateInvoiceLoading;
+  const isFormLoading =
+    isCreateInvoiceLoading ||
+    isUpdateInvoiceLoading ||
+    isSubmitNewInvoiceForPaymentLoading;
   const isSaveDraftDisabled =
     !isFormValid || isFormLoading || !invoice.invoice_number;
   const isSaveSubmitDisabled =
@@ -188,7 +230,7 @@ export default function CreateUpdateInvoiceModal({
     !invoice.invoice_number ||
     !invoice.invoice_date ||
     !invoice.invoice_due_date ||
-    !invoice.advance_date ||
+    (isInvoiceForLoan && !invoice.advance_date) ||
     !invoice.subtotal_amount ||
     !invoice.total_amount ||
     !invoiceFile;
@@ -210,6 +252,7 @@ export default function CreateUpdateInvoiceModal({
       </DialogTitle>
       <DialogContent>
         <InvoiceForm
+          isInvoiceForLoan={isInvoiceForLoan}
           companyId={companyId}
           invoice={invoice}
           invoiceFile={invoiceFile}
@@ -244,11 +287,4 @@ export default function CreateUpdateInvoiceModal({
   );
 }
 
-const mapFiles = (files: any[]) =>
-  !files
-    ? []
-    : files.map((f) => ({
-        invoice_id: f.invoice_id,
-        file_id: f.file_id,
-        file_type: f.file_type,
-      }));
+export default CreateUpdateInvoiceModal;

@@ -24,7 +24,16 @@ import {
 } from "generated/graphql";
 import { ChangeEvent, useMemo } from "react";
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    inputField: {
+      width: 300,
+    },
+  })
+);
+
 interface Props {
+  isInvoiceForLoan: boolean;
   companyId: string;
   invoice: InvoicesInsertInput;
   invoiceFile?: InvoiceFileFragment;
@@ -35,15 +44,8 @@ interface Props {
   setInvoiceCannabisFiles: (files: InvoiceFileFragment[]) => void;
 }
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    inputField: {
-      width: 300,
-    },
-  })
-);
-
 export default function InvoiceForm({
+  isInvoiceForLoan,
   companyId,
   invoice,
   invoiceFile,
@@ -137,22 +139,29 @@ export default function InvoiceForm({
             })
           }
         />
+        <Box mt={1}>
+          <Typography variant="body2" color="textSecondary">
+            This is shown to the Payor as their due date.
+          </Typography>
+        </Box>
       </Box>
-      <Box mt={2}>
-        <DatePicker
-          className={classes.inputField}
-          id="invoice-advance-date-date-picker"
-          label="Advance Date"
-          disablePast
-          value={invoice.advance_date}
-          onChange={(value) =>
-            setInvoice({
-              ...invoice,
-              advance_date: value,
-            })
-          }
-        />
-      </Box>
+      {isInvoiceForLoan && (
+        <Box mt={2}>
+          <DatePicker
+            className={classes.inputField}
+            id="invoice-advance-date-date-picker"
+            label="Advance Date"
+            disablePast
+            value={invoice.advance_date}
+            onChange={(value) =>
+              setInvoice({
+                ...invoice,
+                advance_date: value,
+              })
+            }
+          />
+        </Box>
+      )}
       <Box mt={2}>
         <FormControl fullWidth className={classes.inputField}>
           <CurrencyInput

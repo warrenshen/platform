@@ -478,6 +478,30 @@ def submit_invoices_for_payment(
 
 		return None
 
+def submit_new_invoice_for_payment(
+	session_maker: Callable,
+	client: sendgrid_util.Client,
+	company_id: str,
+	invoice_id: str,
+) -> errors.Error:
+	# Ensure that all of the invoices belong to the given company
+	with models.session_scope(session_maker) as session:
+		invoice = session.query(models.Invoice) \
+			.filter(models.Invoice.id == invoice_id) \
+			.first()
+
+		if not invoice:
+			return errors.Error("Invoice not found")
+
+		# Approve invoice before it is sent out to payor for payment
+		invoice.status = db_constants.RequestStatusEnum.APPROVED
+
+		customer = session.query(models.Company).get(company_id)
+		err = send_one_notification_for_payment(session, client, invoice, customer)
+		if err:
+			return err
+
+		return None
 
 def respond_to_payment_request(
 	session: Session,

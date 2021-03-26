@@ -91,7 +91,7 @@ export default function ReviewInvoicePaymentConfirmModal({
         `Error! Something went wrong. Reason: ${response.msg}`
       );
     } else {
-      snackbar.showSuccess("Success! Invoice approved.");
+      snackbar.showSuccess("Success! Payment intent submitted.");
       handleConfirmSuccess();
     }
   };

@@ -98,6 +98,7 @@ export default function InvoicesFundedUnfundedList() {
               label={"Create Invoice"}
               modal={({ handleClose }) => (
                 <CreateUpdateInvoiceModal
+                  isInvoiceForLoan
                   actionType={ActionType.New}
                   invoiceId={null}
                   handleClose={() => {
@@ -115,6 +116,7 @@ export default function InvoicesFundedUnfundedList() {
                 label={"Edit Invoice"}
                 modal={({ handleClose }) => (
                   <CreateUpdateInvoiceModal
+                    isInvoiceForLoan
                     actionType={ActionType.Update}
                     invoiceId={selectedUnfundedInvoiceIds[0]}
                     handleClose={() => {

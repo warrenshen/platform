@@ -35,6 +35,12 @@ export type SubmitInvoiceForPaymentRequest = {
   };
 };
 
+export type SubmitNewInvoiceForPaymentRequest = {
+  variables: {
+    invoice_id: Invoices["id"];
+  };
+};
+
 export type RespondToInvoicePaymentRequest = {
   variables: {
     invoice_id: Invoices["id"];
@@ -132,6 +138,24 @@ export async function respondToInvoicePaymentMutation(
         return {
           status: "ERROR",
           msg: "Failed to respond to invoice request for payment.",
+        };
+      }
+    );
+}
+
+export async function submitNewInvoiceForPaymentMutation(
+  request: SubmitNewInvoiceForPaymentRequest
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(invoicesRoutes.submitNewInvoiceForPayment, request.variables)
+    .then((response) => response.data)
+    .then(
+      (response) => response,
+      (error) => {
+        console.error("Failed to submit new invoice for payment. Err:", error);
+        return {
+          status: "ERROR",
+          msg: "Failed to submit new invoice for payment",
         };
       }
     );

@@ -7,7 +7,6 @@ import {
 } from "@material-ui/core";
 import CreateUpdateInvoiceModal from "components/Invoices/CreateUpdateInvoiceModal";
 import InvoicesDataGrid from "components/Invoices/InvoicesDataGrid";
-import RequestPaymentOnInvoiceModal from "components/Invoices/RequestPaymentOnInvoiceModal";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
@@ -76,9 +75,10 @@ export default function AllInvoicesList() {
           <Can perform={Action.AddInvoices}>
             <ModalButton
               isDisabled={selectedInvoiceIds.length !== 0}
-              label={"Create Invoice"}
+              label={"Create Invoice for Payor"}
               modal={({ handleClose }) => (
                 <CreateUpdateInvoiceModal
+                  isInvoiceForLoan={false}
                   actionType={ActionType.New}
                   invoiceId={null}
                   handleClose={() => {
@@ -96,6 +96,7 @@ export default function AllInvoicesList() {
                 label={"Edit Invoice"}
                 modal={({ handleClose }) => (
                   <CreateUpdateInvoiceModal
+                    isInvoiceForLoan={false}
                     actionType={ActionType.Update}
                     invoiceId={selectedInvoiceIds[0]}
                     handleClose={() => {
@@ -103,23 +104,6 @@ export default function AllInvoicesList() {
                       handleClose();
                       handleSelectInvoices([]);
                     }}
-                  />
-                )}
-              />
-            </Box>
-          </Can>
-          <Can perform={Action.RequestPaymentOnInvoices}>
-            <Box mr={1}>
-              <ModalButton
-                isDisabled={!selectedInvoiceIds.length}
-                label={"Request Payment"}
-                modal={({ handleClose }) => (
-                  <RequestPaymentOnInvoiceModal
-                    invoices={invoices.filter(
-                      (invoice: InvoiceFragment) =>
-                        selectedInvoiceIds.indexOf(invoice.id) >= 0
-                    )}
-                    handleClose={handleClose}
                   />
                 )}
               />
