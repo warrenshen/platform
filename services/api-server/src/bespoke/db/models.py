@@ -462,6 +462,7 @@ class FinancialSummary(Base):
 	adjusted_total_limit = Column(Numeric, nullable=False)
 	minimum_monthly_payload = Column(JSON, nullable=False)
 	account_level_balance_payload = Column(JSON, nullable=False)
+	day_volume_threshold_met = Column(Date)
 
 ### End of financial tables
 

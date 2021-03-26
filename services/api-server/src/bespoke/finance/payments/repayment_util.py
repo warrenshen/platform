@@ -12,6 +12,7 @@ from bespoke.db.models import session_scope
 from bespoke.finance import contract_util, number_util
 from bespoke.finance.loans import loan_calculator
 from bespoke.finance.payments import payment_util
+from bespoke.finance import financial_summary_util
 from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
@@ -260,7 +261,17 @@ def calculate_repayment_effect(
 
 	# Find the before balances for the loans
 	fee_accumulator = loan_calculator.FeeAccumulator()
-	threshold_info = loan_calculator.get_empty_threshold_info()
+	financial_summary = financial_summary_util.get_latest_financial_summary(
+		company_id=company_id, session=session
+	)
+	if financial_summary:
+		threshold_info = loan_calculator.ThresholdInfoDict(
+			day_threshold_met=financial_summary.day_volume_threshold_met
+		)
+	else:
+		threshold_info = loan_calculator.ThresholdInfoDict(
+			day_threshold_met=None
+		)
 
 	for loan_dict in loan_dicts:
 		calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
@@ -881,8 +892,19 @@ def settle_repayment(
 
 		# Find the before balances for the loans
 		fee_accumulator = loan_calculator.FeeAccumulator()
-		threshold_info = loan_calculator.get_empty_threshold_info()
 
+		financial_summary = financial_summary_util.get_latest_financial_summary(
+			company_id=company_id, session=session
+		)
+		if financial_summary:
+			threshold_info = loan_calculator.ThresholdInfoDict(
+				day_threshold_met=financial_summary.day_volume_threshold_met
+			)
+		else:
+			threshold_info = loan_calculator.ThresholdInfoDict(
+				day_threshold_met=None
+			)
+		
 		for loan_dict in loan_dicts:
 			calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
 			transactions_for_loan = loan_calculator.get_transactions_for_loan(

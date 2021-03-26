@@ -29,13 +29,6 @@ ThresholdInfoDict = TypedDict('ThresholdInfoDict', {
 	'day_threshold_met': datetime.date
 })
 
-def get_empty_threshold_info() -> ThresholdInfoDict:
-	# TODO(dlluncor): Everywhere this is used, we actually should be fetching this
-	# information from the FinancialSummary where we can cache this value.
-	return ThresholdInfoDict(
-		day_threshold_met=None
-	)
-
 class ThresholdAccumulator(object):
 	"""
 		An object to accumulate the principal amounts for the factoring fee threshold 
