@@ -92,10 +92,13 @@ class Fetcher(object):
 
 		with session_scope(self._session_maker) as session:
 
+			# Order by oldest loans to newest loans
 			loans = cast(
 				List[models.Loan],
 				session.query(models.Loan).filter(
 					models.Loan.company_id == self._company_id
+				).order_by(
+    			models.Loan.origination_date.asc()
 				).all())
 			if not loans:
 				return True, None

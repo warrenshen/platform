@@ -260,11 +260,14 @@ def calculate_repayment_effect(
 
 	# Find the before balances for the loans
 	fee_accumulator = loan_calculator.FeeAccumulator()
+	threshold_info = loan_calculator.get_empty_threshold_info()
+
 	for loan_dict in loan_dicts:
 		calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
 		transactions_for_loan = loan_calculator.get_transactions_for_loan(
 			loan_dict['id'], all_augmented_transactions)
 		loan_update, errs = calculator.calculate_loan_balance(
+			threshold_info,
 			loan_dict,
 			transactions_for_loan,
 			report_date
@@ -300,6 +303,7 @@ def calculate_repayment_effect(
 		transactions_for_loan = loan_calculator.get_transactions_for_loan(
 			past_due_loan_id, all_augmented_transactions)
 		loan_update, errs = calculator.calculate_loan_balance(
+			threshold_info,
 			loan_past_due_dict,
 			transactions_for_loan,
 			report_date
@@ -877,11 +881,14 @@ def settle_repayment(
 
 		# Find the before balances for the loans
 		fee_accumulator = loan_calculator.FeeAccumulator()
+		threshold_info = loan_calculator.get_empty_threshold_info()
+
 		for loan_dict in loan_dicts:
 			calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
 			transactions_for_loan = loan_calculator.get_transactions_for_loan(
 				loan_dict['id'], all_augmented_transactions)
 			loan_update, errs = calculator.calculate_loan_balance(
+				threshold_info,
 				loan_dict,
 				transactions_for_loan,
 				settlement_date

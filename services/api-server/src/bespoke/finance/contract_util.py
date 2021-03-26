@@ -260,6 +260,12 @@ class Contract(object):
 	def get_minimum_monthly_amount(self) -> Tuple[float, errors.Error]:
 		return self._get_float_value('minimum_monthly_amount')
 
+	def get_factoring_fee_threshold(self) -> Tuple[float, errors.Error]:
+		return self._get_float_value('factoring_fee_threshold')
+
+	def get_discounted_interest_rate_due_to_factoring_fee(self) -> Tuple[float, errors.Error]:
+		return self._get_float_value('adjusted_factoring_fee_percentage')
+
 	def get_interest_rate(self) -> Tuple[float, errors.Error]:
 		# Returns interest rate in decimal format (0.0 = 0%, 1.0 = 100%).
 		return self._get_float_value('factoring_fee_percentage')

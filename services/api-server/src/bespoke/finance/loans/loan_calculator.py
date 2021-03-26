@@ -5,6 +5,7 @@
 """
 import datetime
 from datetime import timedelta
+from collections import OrderedDict
 from typing import Dict, List, NamedTuple, Tuple
 
 from bespoke import errors
@@ -23,6 +24,64 @@ LoanUpdateDict = TypedDict('LoanUpdateDict', {
 	'outstanding_interest': float,
 	'outstanding_fees': float
 })
+
+ThresholdInfoDict = TypedDict('ThresholdInfoDict', {
+	'day_threshold_met': datetime.date
+})
+
+def get_empty_threshold_info() -> ThresholdInfoDict:
+	# TODO(dlluncor): Everywhere this is used, we actually should be fetching this
+	# information from the FinancialSummary where we can cache this value.
+	return ThresholdInfoDict(
+		day_threshold_met=None
+	)
+
+class ThresholdAccumulator(object):
+	"""
+		An object to accumulate the principal amounts for the factoring fee threshold 
+	"""
+
+	def __init__(self, contract_helper: contract_util.ContractHelper) -> None:
+		self._date_to_txs: Dict[datetime.date, List[models.AugmentedTransactionDict]] = OrderedDict()
+		self._contract_helper = contract_helper
+
+	def add_transaction(self, tx: models.AugmentedTransactionDict) -> None:
+		cur_date = tx['transaction']['effective_date']
+		if cur_date not in self._date_to_txs:
+			self._date_to_txs[cur_date] = []
+
+		self._date_to_txs[cur_date].append(tx)
+
+	def compute_threshold_info(self) -> ThresholdInfoDict:
+		total_repayments_amount = 0.0
+
+		day_crosses_threshold = None
+		amount_below_threshold_on_crossing_day = None
+
+		for cur_date, aug_txs in self._date_to_txs.items():
+
+			cur_contract, err = self._contract_helper.get_contract(cur_date)
+			if err:
+				raise Exception(err.msg)
+
+			for aug_tx in aug_txs:
+				tx = aug_tx['transaction']
+				if payment_util.is_repayment(tx):
+					total_repayments_amount += tx['to_principal']
+
+			factoring_fee_threshold, err = cur_contract.get_factoring_fee_threshold()
+			has_threshold_set = factoring_fee_threshold is not None and err is None
+
+			if has_threshold_set:
+				# Perform calculation here.
+				if total_repayments_amount >= factoring_fee_threshold:
+					return ThresholdInfoDict(
+						day_threshold_met=cur_date
+					)
+
+		return ThresholdInfoDict(
+			day_threshold_met=None
+		)
 
 class BalanceRange(object):
 	"""
@@ -62,11 +121,16 @@ def _get_transactions_on_settlement_date(
 
 	return txs_on_date
 
-def get_transactions_for_loan(loan_id: str, augmented_transactions: List[models.AugmentedTransactionDict]) -> List[models.AugmentedTransactionDict]:
+def get_transactions_for_loan(
+	loan_id: str, augmented_transactions: List[models.AugmentedTransactionDict],
+	accumulator: ThresholdAccumulator = None) -> List[models.AugmentedTransactionDict]:
 	loan_txs = []
 	for tx in augmented_transactions:
 		if tx['transaction']['loan_id'] == loan_id:
 			loan_txs.append(tx)
+			if accumulator:
+				accumulator.add_transaction(tx)
+
 	return loan_txs
 
 AccumulatedAmountDict = TypedDict('AccumulatedAmountDict', {
@@ -154,6 +218,7 @@ class LoanCalculator(object):
 
 	def calculate_loan_balance(
 		self,
+		threshold_info: ThresholdInfoDict,
 		loan: models.LoanDict,
 		augmented_transactions: List[models.AugmentedTransactionDict],
 		today: datetime.date
@@ -167,12 +232,16 @@ class LoanCalculator(object):
 
 		calculate_up_to_date = today
 
-		# Once we've considered how these transactions were applied, here is the remaining amount
-		# which hasn't been factored in yet based on how much you owe up to this particular day.
-		days_out = date_util.num_calendar_days_passed(
-			calculate_up_to_date,
-			loan['origination_date'],
-		)
+		if today < loan['origination_date']:
+			# No loan has been originated yet, so skip any calculations for it.
+			days_out = 0
+		else:
+			# Once we've considered how these transactions were applied, here is the remaining amount
+			# which hasn't been factored in yet based on how much you owe up to this particular day.
+			days_out = date_util.num_calendar_days_passed(
+				calculate_up_to_date,
+				loan['origination_date'],
+			)
 
 		# For each day between today and the origination date, you need to calculate interest and fees
 		# and consider transactions along the way.
@@ -180,13 +249,13 @@ class LoanCalculator(object):
 		outstanding_principal_for_interest = 0.0 # Amount of principal used for calculating interest and fees off of
 		outstanding_interest = 0.0
 		outstanding_fees = 0.0
+
 		errors_list = []
 
 		# TODO(dlluncor): Error condition, the loan's origination_date is set, but there is no corresponding
 		# advance associated with this loan.
 		# Data consistency check. The origination_date on the loan should match the effective_date on the
 		# first advance transaction that funds this loan.
-		the_latest_tx_settlement_date = None
 
 		for i in range(days_out):
 			cur_date = loan['origination_date'] + timedelta(days=i)
@@ -195,6 +264,7 @@ class LoanCalculator(object):
 
 			# Advances count against principal on the settlement date (which happens to be
 			# be the same as deposit date)
+
 			for aug_tx in transactions_on_settlement_date:
 				tx = aug_tx['transaction']
 				if payment_util.is_advance(tx):
@@ -228,9 +298,38 @@ class LoanCalculator(object):
 				# Fees do not accrue on the day of the maturity date
 				pass
 
-			# Add it to the outstanding interest and fees
-			interest_due_for_day = cur_interest_rate * max(0.0, outstanding_principal_for_interest)
-			outstanding_interest += interest_due_for_day
+			# NOTE: divide money into amount above threshold and amount below threshold
+			factoring_fee_threshold, err = cur_contract.get_factoring_fee_threshold()
+			has_threshold_set = factoring_fee_threshold is not None and err is None
+			# TODO(dlluncor): Have threshold info be set and defined for all relevant contract
+			# periods, because the customer may have different thresholds for different
+			# contract periods.
+			day_threshold_met = threshold_info['day_threshold_met']
+
+			reduced_interest_rate = 0.0
+			amount_below_threshold = outstanding_principal_for_interest
+
+			if has_threshold_set and day_threshold_met:
+				# There was some day that the customer met the threshold
+
+				if cur_date > day_threshold_met:
+					# After the day we meet the threshold, everything is at the reduced interest rate
+					amount_below_threshold = 0.0
+
+				reduced_interest_rate, err = cur_contract.get_discounted_interest_rate_due_to_factoring_fee()
+				if err:
+					errors_list.append(err)
+					continue
+
+			if outstanding_principal_for_interest > 0:
+				# The interest due for the day can be split between an amount you pay
+				# at the introductory rate (cur_interest_rate), and the reduced interest rate
+				# which is any principal amount that puts you over the
+				amount_above_threshold = outstanding_principal_for_interest - amount_below_threshold
+
+				interest_due_for_day = cur_interest_rate * amount_below_threshold \
+					+ reduced_interest_rate * amount_above_threshold
+				outstanding_interest += interest_due_for_day
 
 			fee_due_for_day = fee_multiplier * interest_due_for_day
 			outstanding_fees += fee_due_for_day
@@ -248,12 +347,6 @@ class LoanCalculator(object):
 
 			transactions_on_deposit_date = _get_transactions_on_deposit_date(cur_date, augmented_transactions)
 			for aug_tx in transactions_on_deposit_date:
-
-				# Keep track of the latest deposit date seen for a tx
-				cur_settlement_date = aug_tx['transaction']['effective_date']
-				if the_latest_tx_settlement_date is None or cur_settlement_date > the_latest_tx_settlement_date:
-					the_latest_tx_settlement_date = cur_settlement_date
-
 				tx = aug_tx['transaction']
 				if payment_util.is_repayment(tx):
 					# The outstanding principal for a payment gets reduced on the payment date
@@ -275,16 +368,10 @@ class LoanCalculator(object):
 		# them because they were deposited, interest and fees may go negative for those
 		# clearance days, but then when those settlement days happen, the fees and interest
 		# balance out.
-		#
-		# To prevent that confusion of a temporary small negative interest and fees, we choose
-		# to represent that as 0, because it will practically be that value when things actually
-		# settle.
-		#if the_latest_tx_settlement_date > today:
-		#	outstanding_interest = max(0, outstanding_interest)
-		#	outstanding_fees = max(0, outstanding_fees)
 
 		# Note the final date that this report was run.
-		self._balance_ranges[-1].add_end_date(cur_date)
+		if self._balance_ranges:
+			self._balance_ranges[-1].add_end_date(cur_date)
 
 		# NOTE: This will be handy later when we want to show to the user how
 		# we calculated all the interest and fees.

@@ -265,9 +265,14 @@ class CustomerBalance(object):
 		loan_update_dicts = []
 		total_principal_in_requested_state = 0.0
 
+		# What day do you cross the threshold, and on that day you cross the threshold,
+		# how much money stays below the threshold
+		loan_id_to_transactions = {}
+		threshold_accumulator = loan_calculator.ThresholdAccumulator(contract_helper)
+
 		for loan in financials['loans']:
 			transactions_for_loan = loan_calculator.get_transactions_for_loan(
-				loan['id'], financials['augmented_transactions'])
+				loan['id'], financials['augmented_transactions'], accumulator=threshold_accumulator)
 
 			if loan['status'] == LoanStatusEnum.APPROVAL_REQUESTED:
 				total_principal_in_requested_state += loan['amount']
@@ -280,8 +285,17 @@ class CustomerBalance(object):
 				logging.error('Data issue, adjusted_maturity_date missing for loan {}'.format(loan['id']))
 				continue
 
+			loan_id_to_transactions[loan['id']] = transactions_for_loan
+
+		# Calculate a summary for the factoring fee threshold
+		threshold_info = threshold_accumulator.compute_threshold_info()
+
+		for loan in financials['loans']:
+			transactions_for_loan = loan_id_to_transactions[loan['id']]
+
 			calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
 			loan_update_dict, errors_list = calculator.calculate_loan_balance(
+				threshold_info,
 				loan,
 				transactions_for_loan,
 				today
