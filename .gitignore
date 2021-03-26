@@ -6,7 +6,6 @@ log*/
 .DS_Store
 output*/
 wandb
-data/*
 tmp/
 azcopy
 !requirements.txt
