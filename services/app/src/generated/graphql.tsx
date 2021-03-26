@@ -19298,6 +19298,7 @@ export const GetNotFundedLoansForBankDocument = gql`
           { closed_at: { _is_null: true } }
         ]
       }
+      order_by: { requested_payment_date: asc }
     ) {
       id
       ...Loan

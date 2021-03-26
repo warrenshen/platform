@@ -101,7 +101,7 @@ function PaymentAdvanceForm({
         />
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
-            Payment Date is the date you sent or will send the advance out.
+            The date you sent or will send the advance out.
           </Typography>
         </Box>
       </Box>
@@ -121,8 +121,7 @@ function PaymentAdvanceForm({
         />
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
-            Deposit Date is the date the advance arrived or will arrive to the
-            recipient. For advances, Deposit Date equals Settlement Date.
+            The date advance arrived or will arrive to the recipient.
           </Typography>
         </Box>
       </Box>
@@ -140,6 +139,12 @@ function PaymentAdvanceForm({
             }
             label={"Charge Wire Fee?"}
           />
+          <Box>
+            <Typography variant="body2" color="textSecondary">
+              If there are multiple customers, a Wire Fee will be recorded for
+              each customer.
+            </Typography>
+          </Box>
         </Box>
       )}
     </Box>
