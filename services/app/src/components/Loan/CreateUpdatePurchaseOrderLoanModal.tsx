@@ -5,7 +5,6 @@ import {
   Scalars,
   useApprovedPurchaseOrdersQuery,
 } from "generated/graphql";
-import { formatCurrency } from "lib/currency";
 import { ActionType } from "lib/enum";
 
 interface Props {
@@ -30,9 +29,7 @@ export default function CreateUpdatePurchaseOrderLoanModal({
 
   const artifactItems = purchaseOrders.map((po) => ({
     id: po.id,
-    copy: `${po.order_number} - ${po.vendor?.name} - ${formatCurrency(
-      po.amount
-    )} - ${po.delivery_date}`,
+    copy: po.order_number,
   }));
 
   if (loading) {

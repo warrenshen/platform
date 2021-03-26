@@ -62,6 +62,7 @@ function ReviewPurchaseOrderApproveModal({
     data,
     loading: isCompanyVendorPartnershipLoading,
   } = useCompanyVendorPartnershipForVendorQuery({
+    fetchPolicy: "network-only",
     variables: {
       companyId: purchaseOrder.company_id,
       vendorId: companyId,
@@ -113,9 +114,8 @@ function ReviewPurchaseOrderApproveModal({
       <DialogContent>
         <DialogContentText>
           Please verify that your bank information below is up-to-date. This
-          bank account is where Bespoke will send the advance to. If the
-          information is not up-to-date, please contact us. Otherwise, press the
-          "Confirm" button below.
+          bank account is where Bespoke will send financing to. If the
+          information is not up-to-date, please contact us.
         </DialogContentText>
         <Box>
           <BankAccountInfoCard

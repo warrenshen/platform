@@ -6,7 +6,6 @@ import {
   Scalars,
   useGetApprovedInvoicesByCompanyIdQuery,
 } from "generated/graphql";
-import { formatCurrency } from "lib/currency";
 import { ActionType } from "lib/enum";
 import { useContext } from "react";
 
@@ -38,11 +37,7 @@ export default function CreateUpdateInvoiceLoanModal({
 
   const artifactItems = invoices.map((invoice) => ({
     id: invoice.id,
-    copy: `${invoice.invoice_number} - ${
-      invoice.payor?.name
-    } - ${formatCurrency(invoice.subtotal_amount)} - ${
-      invoice.invoice_due_date
-    }`,
+    copy: invoice.invoice_number,
   }));
 
   // Wait until we're done loading to attempt a real render

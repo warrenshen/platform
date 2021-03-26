@@ -286,7 +286,7 @@ export default function CreateUpdateArtifactLoanModal({
   }
 
   if (!loan?.requested_payment_date) {
-    disabledSubmitReasons.push("Requested Deposit Date is not set");
+    disabledSubmitReasons.push("Requested Payment Date is not set");
   }
   if (!loan?.amount) {
     disabledSubmitReasons.push("Amount is not specified");
@@ -350,9 +350,7 @@ export default function CreateUpdateArtifactLoanModal({
       classes={{ paper: classes.dialog }}
     >
       <DialogTitle className={classes.dialogTitle}>
-        {`${
-          actionType === ActionType.Update ? "Edit" : "Create"
-        } ${getProductTypeLoanTitle(productType!)}`}
+        {actionType === ActionType.Update ? "Edit Loan" : "Request New Loan"}
       </DialogTitle>
       <DialogContent>
         <ArtifactLoanForm
@@ -425,20 +423,20 @@ const getProductTypeCopy = (productType: ProductTypeEnum) => {
 
 const getProductTypeLoanTitle = (productType: ProductTypeEnum) => {
   switch (productType) {
-    case (ProductTypeEnum.InventoryFinancing,
-    ProductTypeEnum.PurchaseMoneyFinancing):
+    case ProductTypeEnum.InventoryFinancing:
+    case ProductTypeEnum.PurchaseMoneyFinancing:
       return "Inventory Loan";
     case ProductTypeEnum.InvoiceFinancing:
       return "Invoice Loan";
     default:
-      return "Artifact Loan";
+      return "Loan";
   }
 };
 
 const getProductTypeArtifactTitle = (productType: ProductTypeEnum) => {
   switch (productType) {
-    case (ProductTypeEnum.InventoryFinancing,
-    ProductTypeEnum.InventoryFinancing):
+    case ProductTypeEnum.InventoryFinancing:
+    case ProductTypeEnum.PurchaseMoneyFinancing:
       return "Purchase Order";
     case ProductTypeEnum.InvoiceFinancing:
       return "Invoice";

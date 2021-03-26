@@ -228,7 +228,7 @@ function CreateUpdateContractModal({
           <Box mb={3}>
             <Alert severity="info">
               Note: only bank admins may create / edit contracts (you are a bank
-              admin). Description text in blue is only visible by bank users.
+              admin). Description text in blue is only visible to bank users.
             </Alert>
           </Box>
           <ContractTermsForm

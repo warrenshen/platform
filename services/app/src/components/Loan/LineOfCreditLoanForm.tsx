@@ -101,7 +101,7 @@ function LineOfCreditLoanForm({
         <DatePicker
           className={classes.inputField}
           id="requested-payment-date-date-picker"
-          label="Requested Deposit Date"
+          label="Requested Payment Date"
           disablePast
           disableNonBankDays
           value={loan.requested_payment_date}
@@ -114,10 +114,9 @@ function LineOfCreditLoanForm({
         />
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
-            Requested Deposit Date is the date you want the advance from Bespoke
-            to arrive to the recipient (the date when interest charges begin).
-            Bespoke will try to adhere to this request, but the actual payment
-            date may be different.
+            This is the date you want the recipient to receive financing. Given
+            enough advance notice, Bespoke Financial will adhere to this
+            request.
           </Typography>
         </Box>
       </Box>

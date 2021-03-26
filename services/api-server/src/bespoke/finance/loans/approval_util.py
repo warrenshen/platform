@@ -134,7 +134,7 @@ def submit_for_approval(loan_id: str, session_maker: Callable) -> Tuple[SubmitFo
 <li>Loan type: Inventory Financing</li>
 <li>Company: {customer_name}</li>
 <li>Purchase order: {purchase_order.order_number}</li>
-<li>Requested deposit date: {loan.requested_payment_date}</li>
+<li>Requested payment date: {loan.requested_payment_date}</li>
 <li>Amount: {loan.amount}</li>
 </ul>
 			"""
@@ -154,7 +154,7 @@ def submit_for_approval(loan_id: str, session_maker: Callable) -> Tuple[SubmitFo
 <li>Company: {customer_name}</li>
 <li>Is credit for vendor?: {"Yes" if line_of_credit.is_credit_for_vendor else "No"} </li>
 <li>Vendor (if appropriate): {receipient_vendor_name}</li>
-<li>Requested deposit date: {loan.requested_payment_date}</li>
+<li>Requested payment date: {loan.requested_payment_date}</li>
 <li>Amount: {loan.amount}</li>
 </ul>
 			"""
@@ -168,7 +168,7 @@ def submit_for_approval(loan_id: str, session_maker: Callable) -> Tuple[SubmitFo
 <li>Loan type: Invoice</li>
 <li>Company: {customer_name}</li>
 <li>Invoice: {invoice.invoice_number}</li>
-<li>Requested deposit date: {loan.requested_payment_date}</li>
+<li>Requested payment date: {loan.requested_payment_date}</li>
 <li>Amount: {loan.amount}</li>
 </ul>"""
 
