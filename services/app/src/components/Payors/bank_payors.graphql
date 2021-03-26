@@ -1,5 +1,5 @@
 query ListBankPayorPartnerships {
-  company_payor_partnerships {
+  company_payor_partnerships(order_by: { payor: { name: asc } }) {
     ...BankPayorPartnership
     company {
       id

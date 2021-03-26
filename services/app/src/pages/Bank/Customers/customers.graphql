@@ -1,5 +1,8 @@
 query GetCustomersWithMetadata {
-  customers: companies(where: { company_type: { _eq: customer } }) {
+  customers: companies(
+    where: { company_type: { _eq: customer } }
+    order_by: { name: asc }
+  ) {
     id
     ...CustomerForBank
     contract {

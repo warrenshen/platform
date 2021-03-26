@@ -42,7 +42,7 @@ query GetVendorPartnershipForBank($id: uuid!) {
 }
 
 query GetVendorPartnershipsForBank {
-  company_vendor_partnerships {
+  company_vendor_partnerships(order_by: { vendor: { name: asc } }) {
     ...VendorPartnership
     company {
       id

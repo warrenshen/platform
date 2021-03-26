@@ -5783,7 +5783,7 @@ export enum InvoiceFilesUpdateColumn {
  * columns and relationships of "invoices"
  */
 export type Invoices = {
-  advance_date: Scalars["date"];
+  advance_date?: Maybe<Scalars["date"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   /** An object relationship */
   company: Companies;
@@ -19807,7 +19807,7 @@ export type GetLoansByLoanIdsQueryResult = Apollo.QueryResult<
 >;
 export const ListBankPayorPartnershipsDocument = gql`
   query ListBankPayorPartnerships {
-    company_payor_partnerships {
+    company_payor_partnerships(order_by: { payor: { name: asc } }) {
       ...BankPayorPartnership
       company {
         id
@@ -22397,7 +22397,7 @@ export type GetVendorPartnershipForBankQueryResult = Apollo.QueryResult<
 >;
 export const GetVendorPartnershipsForBankDocument = gql`
   query GetVendorPartnershipsForBank {
-    company_vendor_partnerships {
+    company_vendor_partnerships(order_by: { vendor: { name: asc } }) {
       ...VendorPartnership
       company {
         id
@@ -23353,7 +23353,10 @@ export type CompanyVendorPartnershipForVendorQueryResult = Apollo.QueryResult<
 >;
 export const GetCustomersWithMetadataDocument = gql`
   query GetCustomersWithMetadata {
-    customers: companies(where: { company_type: { _eq: customer } }) {
+    customers: companies(
+      where: { company_type: { _eq: customer } }
+      order_by: { name: asc }
+    ) {
       id
       ...CustomerForBank
       contract {
