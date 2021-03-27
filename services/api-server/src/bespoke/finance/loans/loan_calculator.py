@@ -4,6 +4,7 @@
 	be associated with this loan at a particular date.
 """
 import datetime
+import logging
 from datetime import timedelta
 from collections import OrderedDict
 from typing import Dict, List, NamedTuple, Tuple
@@ -322,8 +323,13 @@ class LoanCalculator(object):
 
 				interest_due_for_day = cur_interest_rate * amount_below_threshold \
 					+ reduced_interest_rate * amount_above_threshold
-				outstanding_interest += interest_due_for_day
+			else:
+				logging.warn('Outstanding principal for interest went negative on {} for loan {}'.format(
+					cur_date, loan['id']
+				))
+				interest_due_for_day = 0.0
 
+			outstanding_interest += interest_due_for_day
 			fee_due_for_day = fee_multiplier * interest_due_for_day
 			outstanding_fees += fee_due_for_day
 
