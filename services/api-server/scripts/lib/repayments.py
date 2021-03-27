@@ -15,16 +15,17 @@ from bespoke.db.db_constants import (ALL_LOAN_TYPES, CompanyType,
                                      LoanStatusEnum, PaymentMethodEnum,
                                      PaymentType)
 from bespoke.finance import number_util
+from bespoke.excel import excel_reader
 
 
 def import_settled_repayments(
 	session: Session,
 	repayment_tuples,
 ) -> None:
-	repayments_count = len(REPAYMENT_TUPLES)
+	repayments_count = len(repayment_tuples)
 	print(f'Running for {repayments_count} repayments...')
 
-	for index, new_repayment_tuple in enumerate(REPAYMENT_TUPLES):
+	for index, new_repayment_tuple in enumerate(repayment_tuples):
 		print(f'[{index + 1} of {repayments_count}]')
 		customer_identifier, loan_identifier, payment_type, deposit_date, settlement_date, amount, to_principal, to_interest, to_fees, wire_fee = new_repayment_tuple
 
@@ -424,3 +425,18 @@ def import_settled_repayments_line_of_credit(
 				print(f'[{index + 1} of {repayments_count}] Repayment on loan {loan_identifier} closed out loan, setting loan.closed_at to {parsed_settled_at}...')
 				loan.closed_at = parsed_settled_at
 				loan.payment_status = PaymentStatusEnum.CLOSED
+
+def load_into_db_from_excel(session: Session, path: str) -> None:
+	print(f'Beginning import...')
+
+	workbook, err = excel_reader.ExcelWorkbook.load_xlsx(path)
+	if err:
+		raise Exception(err)
+
+	sheet, err = workbook.get_sheet_by_index(0)
+	if err:
+		raise Exception(err)
+
+	advances_tuples = sheet['rows']
+	import_settled_repayments(session, advances_tuples)
+	print(f'Finished import')

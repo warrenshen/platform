@@ -15,7 +15,7 @@ from bespoke.db.db_constants import (ALL_LOAN_TYPES, CompanyType,
                                      LoanStatusEnum, PaymentMethodEnum,
                                      PaymentType)
 from bespoke.finance import number_util
-
+from bespoke.excel import excel_reader
 
 def import_settled_advances(
 	session: Session,
@@ -138,3 +138,19 @@ def import_settled_advances(
 			session.flush()
 
 			print(f'[{index + 1} of {advances_count}] Created advance on loan {loan_identifier} for {customer.name} ({customer.identifier})')
+
+def load_into_db_from_excel(session: Session, path: str) -> None:
+	print(f'Beginning import...')
+
+	workbook, err = excel_reader.ExcelWorkbook.load_xlsx(path)
+	if err:
+		raise Exception(err)
+
+	sheet, err = workbook.get_sheet_by_index(0)
+	if err:
+		raise Exception(err)
+
+	advances_tuples = sheet['rows']
+	import_settled_advances(session, advances_tuples)
+	print(f'Finished import')
+
