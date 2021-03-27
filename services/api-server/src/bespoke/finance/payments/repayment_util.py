@@ -9,10 +9,9 @@ from bespoke.db import db_constants, models, models_util
 from bespoke.db.db_constants import (LoanStatusEnum, PaymentMethodEnum,
                                      PaymentStatusEnum, ProductType)
 from bespoke.db.models import session_scope
-from bespoke.finance import contract_util, number_util
+from bespoke.finance import contract_util, financial_summary_util, number_util
 from bespoke.finance.loans import loan_calculator
 from bespoke.finance.payments import payment_util
-from bespoke.finance import financial_summary_util
 from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
@@ -169,8 +168,10 @@ def calculate_repayment_effect(
 	with session_scope(session_maker) as session:
 		loans = []
 		if product_type == ProductType.LINE_OF_CREDIT:
-			# TODO(warrenshen): write a test to check that loans that do not
-			# have an origination_date set (ex. rejected loans) are NOT fetched.
+			# TODO(warrenshen):
+			# Write a test to check that loans that do not have an origination date set
+			# (ex. rejected loans) are NOT fetched.
+			# Write a test to check that loans are fetch sorted by origination date.
 			loans = cast(
 				List[models.Loan],
 				session.query(models.Loan).filter(
@@ -179,7 +180,9 @@ def calculate_repayment_effect(
 					models.Loan.origination_date != None
 				).filter(
 					models.Loan.closed_at == None
-				))
+				).order_by(
+					models.Loan.origination_date.asc()
+				).all())
 		else:
 			if not loan_ids:
 				return None, errors.Error('No loan ids are selected')
@@ -771,8 +774,10 @@ def settle_repayment(
 			if product_type != ProductType.LINE_OF_CREDIT:
 				return None, errors.Error('Customer is not of Line of Credit product type', details=err_details)
 
-			# TODO(warrenshen): write a test to check that loans that do not
-			# have an origination_date set (ex. rejected loans) are NOT fetched.
+			# TODO(warrenshen):
+			# Write a test to check that loans that do not have an origination date set
+			# (ex. rejected loans) are NOT fetched.
+			# Write a test to check that loans are fetch sorted by origination date.
 			loans = cast(
 				List[models.Loan],
 				session.query(models.Loan).filter(
@@ -780,7 +785,12 @@ def settle_repayment(
 				).filter(
 					models.Loan.origination_date != None
 				).filter(
+					# Do not fetch loans that have an origination_date in the future relative to this payment's settlement date.
+					models.Loan.origination_date <= settlement_date
+				).filter(
 					models.Loan.closed_at == None
+				).order_by(
+					models.Loan.origination_date.asc()
 				).all())
 
 			loan_ids = list(map(lambda loan: str(loan.id), loans))
@@ -869,6 +879,7 @@ def settle_repayment(
 			session.query(models.Payment).filter(
 				models.Payment.id == req['payment_id']
 			).first())
+
 		if not payment:
 			return None, errors.Error('No payment found to settle transaction', details=err_details)
 
@@ -904,7 +915,7 @@ def settle_repayment(
 			threshold_info = loan_calculator.ThresholdInfoDict(
 				day_threshold_met=None
 			)
-		
+
 		for loan_dict in loan_dicts:
 			calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
 			transactions_for_loan = loan_calculator.get_transactions_for_loan(

@@ -5,8 +5,8 @@
 """
 import datetime
 import logging
-from datetime import timedelta
 from collections import OrderedDict
+from datetime import timedelta
 from typing import Dict, List, NamedTuple, Tuple
 
 from bespoke import errors
@@ -32,7 +32,7 @@ ThresholdInfoDict = TypedDict('ThresholdInfoDict', {
 
 class ThresholdAccumulator(object):
 	"""
-		An object to accumulate the principal amounts for the factoring fee threshold 
+		An object to accumulate the principal amounts for the factoring fee threshold
 	"""
 
 	def __init__(self, contract_helper: contract_util.ContractHelper) -> None:
@@ -315,7 +315,9 @@ class LoanCalculator(object):
 					errors_list.append(err)
 					continue
 
-			if outstanding_principal_for_interest > 0:
+			if outstanding_principal_for_interest == 0:
+				interest_due_for_day = 0.0
+			elif outstanding_principal_for_interest > 0:
 				# The interest due for the day can be split between an amount you pay
 				# at the introductory rate (cur_interest_rate), and the reduced interest rate
 				# which is any principal amount that puts you over the
@@ -324,9 +326,7 @@ class LoanCalculator(object):
 				interest_due_for_day = cur_interest_rate * amount_below_threshold \
 					+ reduced_interest_rate * amount_above_threshold
 			else:
-				logging.warn('Outstanding principal for interest went negative on {} for loan {}'.format(
-					cur_date, loan['id']
-				))
+				logging.warn(f'Outstanding principal for interest ({outstanding_principal_for_interest}) is negative on {cur_date} for loan {loan["id"]}')
 				interest_due_for_day = 0.0
 
 			outstanding_interest += interest_due_for_day
