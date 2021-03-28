@@ -303,23 +303,38 @@ class TestLateFeeStructure(unittest.TestCase):
 	def test_failure_invalid_line_of_credit(self) -> None:
 		tests: List[Dict] = [
 			{
-				'update': {},
-				'in_err_msg': 'Non-existent',
-			},
-			{
 				'update': {
-					'borrowing_base_accounts_receivable_percentage': 0.5,
-					'borrowing_base_inventory_percentage': 0.5,
+					'borrowing_base_accounts_receivable_percentage': 100.0,
+					'borrowing_base_inventory_percentage': 1.0,
+					'borrowing_base_cash_percentage': 0.0,
 					'borrowing_base_cash_in_daca_percentage': 0.5,
 				},
-				'in_err_msg': 'cash_percentage'
+				'in_err_msg': 'between 0 and 1'
 			},
 			{
 				'update': {
 					'borrowing_base_accounts_receivable_percentage': 0.5,
-					'borrowing_base_inventory_percentage': 0.5,
-					'borrowing_base_cash_percentage': 1.5,
+					'borrowing_base_inventory_percentage': 100.0,
+					'borrowing_base_cash_percentage': 1.0,
 					'borrowing_base_cash_in_daca_percentage': 0.5,
+				},
+				'in_err_msg': 'between 0 and 1'
+			},
+			{
+				'update': {
+					'borrowing_base_accounts_receivable_percentage': 0.5,
+					'borrowing_base_inventory_percentage': 1.0,
+					'borrowing_base_cash_percentage': 100.0,
+					'borrowing_base_cash_in_daca_percentage': 0.5,
+				},
+				'in_err_msg': 'between 0 and 1'
+			},
+			{
+				'update': {
+					'borrowing_base_accounts_receivable_percentage': 1.0,
+					'borrowing_base_inventory_percentage': 0.5,
+					'borrowing_base_cash_percentage': 0.0,
+					'borrowing_base_cash_in_daca_percentage': 100.0,
 				},
 				'in_err_msg': 'between 0 and 1'
 			},
@@ -339,7 +354,7 @@ class TestLateFeeStructure(unittest.TestCase):
 			test = tests[i]
 			config = _get_line_of_credit_contract_config(test['update'])
 			contract, err = contract_util.Contract.build(models.Contract(
-						product_type=ProductType.LINE_OF_CREDIT,
-						product_config=config
+				product_type=ProductType.LINE_OF_CREDIT,
+				product_config=config,
 			).as_dict(), validate=True)
 			self.assertIn(test['in_err_msg'], err.msg)

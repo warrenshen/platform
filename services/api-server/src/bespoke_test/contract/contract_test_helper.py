@@ -95,8 +95,7 @@ def create_contract_config(
 
 		for field in borrowing_base_fields:
 			value = input_dict.get(field)
-			if value:
-				fields.append({'internal_name': field, 'value': value})
+			fields.append({'internal_name': field, 'value': value})
 
 	return {
 		'version': version_key,
