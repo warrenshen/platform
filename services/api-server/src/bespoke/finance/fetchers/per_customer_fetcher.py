@@ -5,9 +5,9 @@ from typing import Callable, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.db import db_constants, models, models_util
-from bespoke.db.models import (
-	ContractDict, CompanyDict, CompanySettingsDict, LoanDict,
-	PaymentDict, TransactionDict, EbbaApplicationDict, session_scope)
+from bespoke.db.models import (CompanyDict, CompanySettingsDict, ContractDict,
+                               EbbaApplicationDict, LoanDict, PaymentDict,
+                               TransactionDict, session_scope)
 from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
 

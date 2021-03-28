@@ -3,7 +3,7 @@ from datetime import timedelta, timezone
 
 import holidays
 import numpy as np
-from dateutil import parser
+from dateutil import parser, relativedelta
 
 us_holidays = holidays.UnitedStates()
 
@@ -36,6 +36,9 @@ def load_date_str(date_str: str) -> datetime.date:
 
 def today_as_date() -> datetime.date:
 	return load_date_str(date_to_str(now()))
+
+def calculate_ebba_application_expires_at(application_date: datetime.datetime) -> datetime.datetime:
+	return (application_date + relativedelta.relativedelta(months=1)).replace(15)
 
 def has_expired(expires_at: datetime.datetime) -> bool:
 	return now() >= expires_at

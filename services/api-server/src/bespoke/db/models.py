@@ -538,11 +538,11 @@ class EbbaApplication(Base):
 	monthly_cash = Column(Numeric)
 	amount_cash_in_daca = Column(Numeric)
 	calculated_borrowing_base = Column(Numeric)
+	rejection_note = Column(Text)
+	expires_at = Column(Date)
 	requested_at = Column(DateTime)
 	approved_at = Column(DateTime)
 	rejected_at = Column(DateTime)
-	rejection_note = Column(Text)
-	expires_at = Column(Date)
 
 	company = relationship(
 		'Company',

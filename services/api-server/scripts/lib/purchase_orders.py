@@ -27,7 +27,7 @@ def import_funded_purchase_orders(
 			order_date,
 			funded_date,
 			amount,
-		 ) = new_purchase_order_tuple
+		) = new_purchase_order_tuple
 
 		customer = cast(
 			models.Company,
