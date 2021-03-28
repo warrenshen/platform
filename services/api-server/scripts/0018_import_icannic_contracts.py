@@ -7,7 +7,7 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../src")))
 
 from bespoke.db import models
 
-from lib import advances
+from lib import contracts
 
 
 def main() -> None:
@@ -15,12 +15,12 @@ def main() -> None:
 		print("You must set 'DATABASE_URL' in the environment to use this script")
 		exit(1)
 
-	path = 'scripts/data/leune_advances_2021_03_24.xlsx'
+	path = 'scripts/data/icannic_contracts_2021_03_25.xlsx'
 	engine = models.create_engine()
 	session_maker = models.new_sessionmaker(engine)
 
 	with models.session_scope(session_maker) as session:
-		advances.load_into_db_from_excel(session, path)
+		contracts.load_into_db_from_excel(session, path)
 
 if __name__ == "__main__":
 	main()

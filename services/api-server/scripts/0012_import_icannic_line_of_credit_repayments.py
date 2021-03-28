@@ -15,7 +15,7 @@ from bespoke.excel import excel_reader
 
 from lib.repayments import import_settled_repayments_line_of_credit
 
-path = 'scripts/data/icannic_repayments_2020_03_25.xlsx'
+path = 'scripts/data/icannic_repayments_2021_03_25.xlsx'
 workbook, err = excel_reader.ExcelWorkbook.load_xlsx(path)
 if err:
 	raise Exception(err)

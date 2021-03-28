@@ -15,7 +15,7 @@ from bespoke.excel import excel_reader
 
 from lib.advances import import_settled_advances
 
-path = 'scripts/data/icannic_advances_2020_03_25.xlsx'
+path = 'scripts/data/icannic_advances_2021_03_25.xlsx'
 workbook, err = excel_reader.ExcelWorkbook.load_xlsx(path)
 if err:
 	raise Exception(err)

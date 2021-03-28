@@ -15,7 +15,7 @@ def main() -> None:
 		print("You must set 'DATABASE_URL' in the environment to use this script")
 		exit(1)
 
-	path = 'scripts/data/leune_loans_2020_03_24.xlsx'
+	path = 'scripts/data/leune_loans_2021_03_24.xlsx'
 	engine = models.create_engine()
 	session_maker = models.new_sessionmaker(engine)
 

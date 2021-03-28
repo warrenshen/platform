@@ -15,7 +15,7 @@ def main() -> None:
 		print("You must set 'DATABASE_URL' in the environment to use this script")
 		exit(1)
 
-	path = 'scripts/data/icannic_ebba_applications_2020_03_25.xlsx'
+	path = 'scripts/data/icannic_ebba_applications_2021_03_25.xlsx'
 	engine = models.create_engine()
 	session_maker = models.new_sessionmaker(engine)
 

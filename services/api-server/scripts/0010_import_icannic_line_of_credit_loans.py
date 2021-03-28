@@ -110,7 +110,7 @@ def import_line_of_credit_loans_icannic(session: Session) -> None:
 				models.Contract.company_id == customer.id
 			).all())
 		if not contracts:
-			print(f'[{index + 1} of {loans_count}] No contracts are setup for this {customer.name}')
+			print(f'[{index + 1} of {loans_count}] No contracts are setup for {customer.name}')
 			print(f'EXITING EARLY')
 			return
 
