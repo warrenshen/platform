@@ -104,6 +104,10 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				test_helper.assertDeepAlmostEqual(
 					self, expected['minimum_monthly_payload'], cast(Dict, actual.minimum_monthly_payload))
 
+			if 'expected_day_volume_threshold_met' in test:
+				self.assertEqual(
+					test['expected_day_volume_threshold_met'], financial_summary.day_volume_threshold_met)
+
 
 	def test_success_no_payments_no_loans(self) -> None:
 
@@ -148,7 +152,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'account_level_balance_payload': {
 							'fees_total': 0.0,
 							'credits_total': 0.0
-					}
+					},
+					'day_volume_threshold_met': None
 				}
 			}
 		]
@@ -232,7 +237,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'account_level_balance_payload': {
 							'fees_total': 0.0,
 							'credits_total': 0.0
-					}
+					},
+					'day_volume_threshold_met': None
 				}
 			}
 		]
@@ -336,7 +342,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_interest': 0.0,
 						'outstanding_fees': 0.0
 					}
-				]
+				],
+				'expected_day_volume_threshold_met': None
 			},
 			{
 				'today': '10/05/2020', # The day you cross the threshold, but it doesnt take effect until the next day
@@ -363,7 +370,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_interest': 0.0,
 						'outstanding_fees': 0.0
 					}
-				]
+				],
+				'expected_day_volume_threshold_met': date_util.load_date_str('10/05/2020')
 			},
 			{
 				'today': '10/09/2020', # You have 4 days after crossing the threshold, and should have the discounted rate
@@ -390,41 +398,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_interest': round(3 * 0.01 * 700.03, 2), # You have 3 days, all at the discounted rate
 						'outstanding_fees': 0.0
 					}
-				]
+				],
+				'expected_day_volume_threshold_met': date_util.load_date_str('10/05/2020')
 			},
 		]
 		for test in tests:
 			self._run_test(test)
-
-	"""
-	{
-					'today': '10/12/2020', # You are past the day you crossed the threshold, and other loans are fully at the lower interest rate
-					'populate_fn': populate_fn,
-					'expected_loan_updates': [
-						{
-							'adjusted_maturity_date': date_util.load_date_str('12/1/2020'),
-							'outstanding_principal': 500.03,
-							'outstanding_principal_for_interest': 500.03,
-							'outstanding_interest': round(12 * 0.05 * 500.03, 2), # 12 days of interest
-							'outstanding_fees': 0.0
-						},
-						{
-							'adjusted_maturity_date': date_util.load_date_str('12/2/2020'),
-							'outstanding_principal': 600.03,
-							'outstanding_principal_for_interest': 600.03,
-							'outstanding_interest': round(first_day + 11 * 0.01 * 600.03, 2), # Amount below threshold is 499.97
-							'outstanding_fees': 0.0
-						},
-						{
-							'adjusted_maturity_date': date_util.load_date_str('12/3/2020'),
-							'outstanding_principal': 0.0,
-							'outstanding_principal_for_interest': 0.0,
-							'outstanding_interest': 0.0,
-							'outstanding_fees': 0.0
-						}
-					]
-				}
-	"""
 
 	def test_success_one_payment_one_loan_past_due_with_account_balances(self) -> None:
 
@@ -536,7 +515,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'account_level_balance_payload': {
 							'fees_total': 3000.02,
 							'credits_total': 7000.04
-					}
+					},
+					'day_volume_threshold_met': None
 				}
 			},
 			{
@@ -641,7 +621,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				'account_level_balance_payload': {
 						'fees_total': 0.0,
 						'credits_total': 0.0
-				}
+				},
+				'day_volume_threshold_met': None
 			}
 		})
 

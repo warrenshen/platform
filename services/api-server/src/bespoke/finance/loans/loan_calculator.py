@@ -46,32 +46,45 @@ class ThresholdAccumulator(object):
 
 		self._date_to_txs[cur_date].append(tx)
 
-	def compute_threshold_info(self) -> ThresholdInfoDict:
+	def compute_threshold_info(self, report_date: datetime.date) -> ThresholdInfoDict:
 		total_repayments_amount = 0.0
 
 		day_crosses_threshold = None
 		amount_below_threshold_on_crossing_day = None
 
-		for cur_date, aug_txs in self._date_to_txs.items():
+		contract, err = self._contract_helper.get_contract(report_date)
+		if err:
+			raise Exception(err.msg)
 
-			cur_contract, err = self._contract_helper.get_contract(cur_date)
-			if err:
-				raise Exception(err.msg)
+		start_date, err = contract.get_start_date()
+		if err:
+			raise Exception(err.msg)
+
+		end_date, err = contract.get_adjusted_end_date()
+		if err:
+			raise Exception(err.msg)
+
+		factoring_fee_threshold, err = contract.get_factoring_fee_threshold()
+		has_threshold_set = factoring_fee_threshold is not None and err is None
+
+		for cur_date, aug_txs in self._date_to_txs.items():
 
 			for aug_tx in aug_txs:
 				tx = aug_tx['transaction']
+
+				if tx['effective_date'] < start_date or tx['effective_date'] > end_date or tx['effective_date'] > report_date:
+					# Dont include transactions happening outside of the range
+					# of the current contract in effect, or that come after
+					# the current report date.
+					continue
+
 				if payment_util.is_repayment(tx):
 					total_repayments_amount += tx['to_principal']
 
-			factoring_fee_threshold, err = cur_contract.get_factoring_fee_threshold()
-			has_threshold_set = factoring_fee_threshold is not None and err is None
-
-			if has_threshold_set:
-				# Perform calculation here.
-				if total_repayments_amount >= factoring_fee_threshold:
-					return ThresholdInfoDict(
-						day_threshold_met=cur_date
-					)
+			if has_threshold_set and total_repayments_amount >= factoring_fee_threshold:
+				return ThresholdInfoDict(
+					day_threshold_met=cur_date
+				)
 
 		return ThresholdInfoDict(
 			day_threshold_met=None

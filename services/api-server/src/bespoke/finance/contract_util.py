@@ -244,6 +244,16 @@ class Contract(object):
 
 		return self._config['product_type'], None
 
+	def get_start_date(self) -> Tuple[datetime.date, errors.Error]:
+		if 'start_date' not in self._contract_dict:
+			return None, errors.Error('Start date missing in contract')
+
+		start_date = self._contract_dict['start_date']
+		if not start_date:
+			return None, errors.Error('Start date in contract is not valid')
+
+		return start_date, None
+
 	def get_adjusted_end_date(self) -> Tuple[datetime.date, errors.Error]:
 		if 'adjusted_end_date' not in self._contract_dict:
 			return None, errors.Error('Adjusted end date missing in contract')
