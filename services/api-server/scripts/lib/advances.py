@@ -14,8 +14,9 @@ from bespoke.db import models
 from bespoke.db.db_constants import (ALL_LOAN_TYPES, CompanyType,
                                      LoanStatusEnum, PaymentMethodEnum,
                                      PaymentType)
-from bespoke.finance import number_util
 from bespoke.excel import excel_reader
+from bespoke.finance import number_util
+
 
 def import_settled_advances(
 	session: Session,
@@ -26,7 +27,15 @@ def import_settled_advances(
 
 	for index, new_advance_tuple in enumerate(advance_tuples):
 		print(f'[{index + 1} of {advances_count}]')
-		customer_identifier, loan_identifier, payment_type, amount, payment_date, deposit_date, settlement_date = new_advance_tuple
+		(
+			customer_identifier,
+			loan_identifier,
+			payment_type,
+			amount,
+			payment_date,
+			deposit_date,
+			settlement_date,
+		) = new_advance_tuple
 
 		parsed_amount = float(amount)
 		parsed_payment_date = date_util.load_date_str(payment_date)
@@ -35,7 +44,18 @@ def import_settled_advances(
 		parsed_submitted_at = datetime.combine(parsed_payment_date, time())
 		parsed_settled_at = datetime.combine(parsed_settlement_date, time())
 
+		try:
+			# If loan_identifier from XLSX is "25.0", convert it to 25.
+			numeric_loan_identifier = int(float(loan_identifier))
+			parsed_loan_identifier = str(numeric_loan_identifier)
+		except Exception:
+			# If loan_identifier from XLSX is "25A", convert it to 25.
+			numeric_loan_identifier = int("".join(filter(str.isdigit, loan_identifier)))
+			parsed_loan_identifier = loan_identifier
+
 		if (
+			not parsed_loan_identifier or
+			not numeric_loan_identifier or
 			not parsed_amount or
 			parsed_amount <= 0 or
 			not parsed_payment_date or
@@ -64,21 +84,21 @@ def import_settled_advances(
 			session.query(models.Loan).filter(
 				models.Loan.company_id == customer.id,
 			).filter(
-				models.Loan.identifier == loan_identifier
+				models.Loan.identifier == parsed_loan_identifier
 			).first())
 
 		if not loan:
-			print(f'[{index + 1} of {advances_count}] Loan with identifier {loan_identifier} does not exist')
+			print(f'[{index + 1} of {advances_count}] Loan with identifier {parsed_loan_identifier} does not exist')
 			print(f'EXITING EARLY')
 			return
 
 		if not number_util.float_eq(loan.amount, parsed_amount):
-			print(f'[{index + 1} of {advances_count}] Loan with identifer {loan_identifier} but incorrect amount exists')
+			print(f'[{index + 1} of {advances_count}] Loan with identifer {parsed_loan_identifier} but incorrect amount exists')
 			print(f'EXITING EARLY')
 			return
 
 		if loan.origination_date != parsed_settlement_date:
-			print(f'[{index + 1} of {advances_count}] Loan with identifer {loan_identifier} but incorrect origination date exists')
+			print(f'[{index + 1} of {advances_count}] Loan with identifer {parsed_loan_identifier} but incorrect origination date exists')
 			print(f'EXITING EARLY')
 			return
 
@@ -104,10 +124,10 @@ def import_settled_advances(
 			).first())
 
 		if existing_advance:
-			print(f'[{index + 1} of {advances_count}] Advance on loan {loan_identifier} with settlement date {settlement_date} already exists')
+			print(f'[{index + 1} of {advances_count}] Advance on loan {parsed_loan_identifier} with settlement date {settlement_date} already exists')
 			continue
 		else:
-			print(f'[{index + 1} of {advances_count}] Advance on loan {loan_identifier} for {customer.name} ({customer.identifier}) does not exist, creating it...')
+			print(f'[{index + 1} of {advances_count}] Advance on loan {parsed_loan_identifier} for {customer.name} ({customer.identifier}) does not exist, creating it...')
 
 			advance = models.Payment(
 				company_id=customer.id,
@@ -137,7 +157,7 @@ def import_settled_advances(
 			session.add(transaction)
 			session.flush()
 
-			print(f'[{index + 1} of {advances_count}] Created advance on loan {loan_identifier} for {customer.name} ({customer.identifier})')
+			print(f'[{index + 1} of {advances_count}] Created advance on loan {parsed_loan_identifier} for {customer.name} ({customer.identifier})')
 
 def load_into_db_from_excel(session: Session, path: str) -> None:
 	print(f'Beginning import...')
@@ -150,7 +170,9 @@ def load_into_db_from_excel(session: Session, path: str) -> None:
 	if err:
 		raise Exception(err)
 
-	advances_tuples = sheet['rows']
-	import_settled_advances(session, advances_tuples)
+	advance_tuples = sheet['rows']
+	# Skip the header row and filter out empty rows.
+	filtered_advance_tuples = list(filter(lambda advance_tuple: advance_tuple[0] is not '', advance_tuples[1:]))
+	import_settled_advances(session, filtered_advance_tuples)
 	print(f'Finished import')
 

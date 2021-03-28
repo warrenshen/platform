@@ -30,21 +30,48 @@ def import_settled_repayments(
 
 	for index, new_repayment_tuple in enumerate(repayment_tuples):
 		print(f'[{index + 1} of {repayments_count}]')
-		customer_identifier, loan_identifier, payment_type, deposit_date, settlement_date, amount, to_principal, to_interest, to_fees, wire_fee = new_repayment_tuple
+		(
+			customer_identifier,
+			loan_identifier,
+			payment_type,
+			deposit_date,
+			settlement_date,
+			amount,
+			to_principal,
+			to_interest,
+			to_fees,
+			wire_fee,
+		) = new_repayment_tuple
 
 		parsed_deposit_date = date_util.load_date_str(deposit_date)
 		parsed_settlement_date = date_util.load_date_str(settlement_date)
 		parsed_submitted_at = datetime.combine(parsed_deposit_date, time())
 		parsed_settled_at = datetime.combine(parsed_settlement_date, time())
+		parsed_amount = float(amount)
+		parsed_to_principal = float(to_principal or 0) # Value may be ''.
+		parsed_to_interest = float(to_interest or 0)
+		parsed_to_fees = float(to_fees or 0)
+		parsed_wire_fee = float(wire_fee or 0)
+
+		try:
+			# If loan_identifier from XLSX is "25.0", convert it to 25.
+			numeric_loan_identifier = int(float(loan_identifier))
+			parsed_loan_identifier = str(numeric_loan_identifier)
+		except Exception:
+			# If loan_identifier from XLSX is "25A", convert it to 25.
+			numeric_loan_identifier = int("".join(filter(str.isdigit, loan_identifier)))
+			parsed_loan_identifier = loan_identifier
 
 		if (
-			not amount or
-			amount <= 0 or
-			to_principal < 0 or
-			to_interest < 0 or
-			to_fees < 0 or
-			wire_fee < 0 or
-			not number_util.float_eq(amount, to_principal + to_interest + to_fees + wire_fee)
+			not parsed_loan_identifier or
+			not numeric_loan_identifier or
+			not parsed_amount or
+			parsed_amount <= 0 or
+			parsed_to_principal < 0 or
+			parsed_to_interest < 0 or
+			parsed_to_fees < 0 or
+			parsed_wire_fee < 0 or
+			not number_util.float_eq(parsed_amount, parsed_to_principal + parsed_to_interest + parsed_to_fees + parsed_wire_fee)
 		):
 			print(f'[{index + 1} of {repayments_count}] Invalid repayment field(s): numbers')
 			print(f'EXITING EARLY')
@@ -76,11 +103,11 @@ def import_settled_repayments(
 			session.query(models.Loan).filter(
 				models.Loan.company_id == customer.id,
 			).filter(
-				models.Loan.identifier == loan_identifier
+				models.Loan.identifier == parsed_loan_identifier
 			).first())
 
 		if not loan:
-			print(f'[{index + 1} of {repayments_count}] Loan with identifier {loan_identifier} does not exist')
+			print(f'[{index + 1} of {repayments_count}] Loan with identifier {parsed_loan_identifier} does not exist')
 			print(f'EXITING EARLY')
 			return
 
@@ -93,10 +120,10 @@ def import_settled_repayments(
 			print(f'EXITING EARLY')
 			return
 
-		amount_to_loan = to_principal + to_interest + to_fees
-		amount_to_account = wire_fee
+		amount_to_loan = parsed_to_principal + parsed_to_interest + parsed_to_fees
+		amount_to_account = parsed_wire_fee
 
-		if not number_util.float_eq(amount, amount_to_loan + amount_to_account):
+		if not number_util.float_eq(parsed_amount, amount_to_loan + amount_to_account):
 			print(f'[{index + 1} of {repayments_count}] Invalid repayment field(s): math')
 			print(f'EXITING EARLY')
 			return
@@ -112,14 +139,14 @@ def import_settled_repayments(
 			).first())
 
 		if existing_repayment_transaction:
-			print(f'[{index + 1} of {repayments_count}] Repayment on loan {loan_identifier} with settlement date {settlement_date} already exists')
+			print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} with settlement date {settlement_date} already exists')
 			continue
 		else:
-			print(f'[{index + 1} of {repayments_count}] Repayment on loan {loan_identifier} for {customer.name} ({customer.identifier}) does not exist, creating it...')
+			print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} for {customer.name} ({customer.identifier}) does not exist, creating it...')
 
-			if wire_fee > 0:
+			if parsed_wire_fee > 0:
 				# TODO(warrenshen): support case where wire_fee > 0.
-				print(f'[{index + 1} of {repayments_count}] Repayment on loan {loan_identifier} with settlement date {settlement_date} includes wire fee payment, skipping...')
+				print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} with settlement date {settlement_date} includes wire fee payment, skipping...')
 				continue
 
 			repayment = models.Payment(
@@ -141,15 +168,15 @@ def import_settled_repayments(
 				type=PaymentType.REPAYMENT,
 				subtype=None,
 				amount=amount_to_loan,
-				to_principal=decimal.Decimal(to_principal),
-				to_interest=decimal.Decimal(to_interest),
-				to_fees=decimal.Decimal(to_fees),
+				to_principal=decimal.Decimal(parsed_to_principal),
+				to_interest=decimal.Decimal(parsed_to_interest),
+				to_fees=decimal.Decimal(parsed_to_fees),
 				effective_date=parsed_settlement_date,
 			)
 			session.add(transaction)
 			session.flush()
 
-			print(f'[{index + 1} of {repayments_count}] Created repayment on loan {loan_identifier} for {customer.name} ({customer.identifier})')
+			print(f'[{index + 1} of {repayments_count}] Created repayment on loan {parsed_loan_identifier} for {customer.name} ({customer.identifier})')
 
 			# Load up a LoanCalculator and check if loan is closed.
 			# If so, set loan.closed_at to parsed_settled_at. Otherwise, continue.
@@ -159,13 +186,15 @@ def import_settled_repayments(
 					models.Contract.company_id == customer.id
 				).all())
 			if not contracts:
-				return None, errors.Error('Cannot calculate repayment effect because no contracts are setup for this company')
+				print(f'[{index + 1} of {repayments_count}] No contracts are setup for this {customer.name}')
+				print(f'EXITING EARLY')
+				return
 
 			contract_dicts = [c.as_dict() for c in contracts]
 
 			contract_helper, err = contract_util.ContractHelper.build(customer.id, contract_dicts)
 			if err:
-				print(f'[{index + 1} of {repayments_count}] Repayment on loan {loan_identifier} failed because of error with ContractHelper: {err}')
+				print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} failed because of error with ContractHelper: {err}')
 				print(f'EXITING EARLY')
 				return
 
@@ -190,7 +219,7 @@ def import_settled_repayments(
 				[payment.as_dict() for payment in payments],
 			)
 			if err:
-				print(f'[{index + 1} of {repayments_count}] Repayment on loan {loan_identifier} failed because of error with augmented transactions: {err}')
+				print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} failed because of error with augmented transactions: {err}')
 				print(f'EXITING EARLY')
 				return
 
@@ -202,13 +231,14 @@ def import_settled_repayments(
 			)
 
 			loan_update, errs = calculator.calculate_loan_balance(
+				loan_calculator.ThresholdInfoDict(day_threshold_met=None),
 				loan.as_dict(),
 				transactions_for_loan,
 				parsed_settlement_date
 			)
 
 			if errs:
-				print(f'[{index + 1} of {repayments_count}] Repayment on loan {loan_identifier} failed because of error with LoanCalculator: {errs}')
+				print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} failed because of error with LoanCalculator: {errs}')
 				print(f'EXITING EARLY')
 				return
 
@@ -218,9 +248,9 @@ def import_settled_repayments(
 				loan_update['outstanding_interest'] != 0.0 or
 				loan_update['outstanding_fees'] != 0.0
 			):
-				print(f'[{index + 1} of {repayments_count}] Repayment on loan {loan_identifier} did not close out loan')
+				print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} did not close out loan')
 			else:
-				print(f'[{index + 1} of {repayments_count}] Repayment on loan {loan_identifier} closed out loan, setting loan.closed_at to {parsed_settled_at}...')
+				print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} closed out loan, setting loan.closed_at to {parsed_settled_at}...')
 				loan.closed_at = parsed_settled_at
 				loan.payment_status = PaymentStatusEnum.CLOSED
 
@@ -459,6 +489,9 @@ def load_into_db_from_excel(session: Session, path: str) -> None:
 	if err:
 		raise Exception(err)
 
-	advances_tuples = sheet['rows']
-	import_settled_repayments(session, advances_tuples)
+	repayment_tuples = sheet['rows']
+	# TODO(warrenshen): in the future, handle line of credit repayments as well.
+	# Skip the header row and filter out empty rows.
+	filtered_repayment_tuples = list(filter(lambda repayment_tuple: repayment_tuple[0] is not '', repayment_tuples[1:]))
+	import_settled_repayments(session, filtered_repayment_tuples)
 	print(f'Finished import')
