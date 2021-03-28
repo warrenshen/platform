@@ -4,23 +4,30 @@ from datetime import datetime, time
 from os import path
 from typing import Any, Dict, List, Tuple, Union, cast
 
-from sqlalchemy.orm.session import Session
-
 # Path hack before we try to import bespoke
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.db_constants import CompanyType, RequestStatusEnum
 from bespoke.excel import excel_reader
+from sqlalchemy.orm.session import Session
+
 
 def import_funded_purchase_orders(
-	session: Session, 
+	session: Session,
 	purchase_order_tuples: List[List[str]]) -> None:
 	purchase_orders_count = len(purchase_order_tuples)
 	print(f'Creating {purchase_orders_count} purchase orders...')
 
 	for index, new_purchase_order_tuple in enumerate(purchase_order_tuples):
 		print(f'[{index + 1} of {purchase_orders_count}]')
-		customer_identifier, vendor_name, order_number, order_date, funded_date, amount = new_purchase_order_tuple
+		(
+			customer_identifier,
+			vendor_name,
+			order_number,
+			order_date,
+			funded_date,
+			amount,
+		 ) = new_purchase_order_tuple
 
 		customer = cast(
 			models.Company,
@@ -119,5 +126,7 @@ def load_into_db_from_excel(session: Session, path: str) -> None:
 		raise Exception(err)
 
 	purchase_order_tuples = sheet['rows']
-	import_funded_purchase_orders(session, purchase_order_tuples)
+	# Skip the header row and filter out empty rows.
+	filtered_purchase_order_tuples = list(filter(lambda purchase_order_tuple: purchase_order_tuple[0] is not '', purchase_order_tuples[1:]))
+	import_funded_purchase_orders(session, filtered_purchase_order_tuples)
 	print(f'Finished import')

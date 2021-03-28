@@ -12,21 +12,57 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../src")))
 from bespoke.date import date_util
 from bespoke.db import models, models_util
 from bespoke.db.db_constants import (ALL_LOAN_TYPES, CompanyType,
-                                     LoanStatusEnum, LoanTypeEnum, PaymentMethodEnum,
-                                     PaymentStatusEnum, PaymentType)
+                                     LoanStatusEnum, LoanTypeEnum,
+                                     PaymentMethodEnum, PaymentStatusEnum,
+                                     PaymentType)
 from bespoke.db.models import session_scope
 from bespoke.excel import excel_reader
 from bespoke.finance import contract_util, number_util
 from bespoke.finance.loans import loan_calculator
 from bespoke.finance.payments import repayment_util
 
+
 def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) -> None:
-	loans_count = len(LOAN_TUPLES)
+	loans_count = len(loan_tuples)
 	print(f'Running for {loans_count} loans...')
 
-	for index, new_loan_tuple in enumerate(LOAN_TUPLES):
+	for index, new_loan_tuple in enumerate(loan_tuples):
 		print(f'[{index + 1} of {loans_count}]')
-		customer_identifier, loan_identifier, loan_type, is_credit_for_vendor, recipient_vendor_name, amount, origination_date, funded_date = new_loan_tuple
+		(
+			customer_identifier,
+			loan_identifier,
+			loan_type,
+			is_credit_for_vendor,
+			recipient_vendor_name,
+			amount,
+			origination_date,
+			funded_date,
+		) = new_loan_tuple
+
+		parsed_amount = float(amount)
+		parsed_origination_date = date_util.load_date_str(origination_date)
+		parsed_funded_at = datetime.combine(date_util.load_date_str(funded_date), time())
+
+		try:
+			# If loan_identifier from XLSX is "25.0", convert it to 25.
+			numeric_loan_identifier = int(float(loan_identifier))
+			parsed_loan_identifier = str(numeric_loan_identifier)
+		except Exception:
+			# If loan_identifier from XLSX is "25A", convert it to 25.
+			numeric_loan_identifier = int("".join(filter(str.isdigit, loan_identifier)))
+			parsed_loan_identifier = loan_identifier
+
+		if (
+			not parsed_loan_identifier or
+			not numeric_loan_identifier or
+			not parsed_amount or
+			parsed_amount <= 0 or
+			not parsed_origination_date or
+			not parsed_funded_at
+		):
+			print(f'[{index + 1} of {loans_count}] Invalid loan field(s)')
+			print(f'EXITING EARLY')
+			return
 
 		customer = cast(
 			models.Company,
@@ -46,21 +82,21 @@ def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) 
 			session.query(models.Loan).filter(
 				models.Loan.company_id == customer.id,
 			).filter(
-				models.Loan.identifier == loan_identifier
+				models.Loan.identifier == parsed_loan_identifier
 			).first())
 
 		if existing_loan:
-			if not number_util.float_eq(existing_loan.amount, amount):
+			if not number_util.float_eq(existing_loan.amount, parsed_amount):
 				# If there is an existing loan with a different amount, this indicates
 				# that there is a pre-existing valid loan created for this customer. This is not
 				# supposed to happen on production, as we plan to import historical closed loans prior
 				# to the platform going live, but may happen on local or staging. In this case,
 				# suffix the identifier of pre-existing loan with an "A" character and continue.
-				print(f'[{index + 1} of {loans_count}] Loan with identifer {loan_identifier} but different amount exists')
-				existing_loan.identifier = loan_identifier + 'A'
+				print(f'[{index + 1} of {loans_count}] Loan with identifer {parsed_loan_identifier} but different amount exists')
+				existing_loan.identifier = parsed_loan_identifier + 'A'
 				session.flush()
 			else:
-				print(f'[{index + 1} of {loans_count}] Loan with identifer {loan_identifier} already exists')
+				print(f'[{index + 1} of {loans_count}] Loan with identifer {parsed_loan_identifier} already exists')
 				continue
 
 		parsed_loan_type = None
@@ -71,9 +107,6 @@ def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) 
 			print(f'[{index + 1} of {loans_count}] Invalid loan field(s): loan_type')
 			print(f'EXITING EARLY')
 			return
-
-		parsed_origination_date = date_util.load_date_str(origination_date)
-		parsed_funded_at = datetime.combine(date_util.load_date_str(funded_date), time())
 
 		parsed_is_credit_for_vendor = None
 		if is_credit_for_vendor == 'TRUE':
@@ -117,7 +150,7 @@ def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) 
 
 		contract_helper, err = contract_util.ContractHelper.build(customer.id, contract_dicts)
 		if err:
-			print(f'[{index + 1} of {repayments_count}] Repayment on loan {loan_identifier} failed because of error with ContractHelper: {err}')
+			print(f'[{index + 1} of {loans_count}] Repayment on loan {parsed_loan_identifier} failed because of error with ContractHelper: {err}')
 			print(f'EXITING EARLY')
 			return
 
@@ -137,17 +170,14 @@ def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) 
 
 		if (
 			(parsed_is_credit_for_vendor is True and not vendor_id) or
-			not amount or
-			amount <= 0 or
 			not adjusted_maturity_date or
-			not parsed_origination_date or
-			not parsed_funded_at
+			not parsed_origination_date
 		):
 			print(f'[{index + 1} of {loans_count}] Invalid loan field(s)')
 			print(f'EXITING EARLY')
 			return
 
-		print(f'[{index + 1} of {loans_count}] Loan {loan_identifier} for {customer.name} ({customer.identifier}) does not exist, creating it...')
+		print(f'[{index + 1} of {loans_count}] Loan {parsed_loan_identifier} for {customer.name} ({customer.identifier}) does not exist, creating it...')
 
 		line_of_credit = models.LineOfCredit(
 			company_id=customer.id,
@@ -167,14 +197,14 @@ def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) 
 
 		loan = models.Loan(
 			company_id=customer.id,
-			identifier=loan_identifier,
+			identifier=parsed_loan_identifier,
 			loan_type=parsed_loan_type,
 			artifact_id=artifact_id,
 			status=LoanStatusEnum.APPROVED, # Set status to APPROVED. If this loan is actually closed, a script that imports repayments will handle that.
 			origination_date=parsed_origination_date,
 			maturity_date=adjusted_maturity_date, # Default maturity_date to adjusted_maturity_date.
 			adjusted_maturity_date=adjusted_maturity_date,
-			amount=amount,
+			amount=parsed_amount,
 			requested_at=parsed_funded_at, # Set requested_at to funded_at.
 			approved_at=parsed_funded_at, # Set approved_at to funded_at.
 			funded_at=parsed_funded_at,
@@ -182,24 +212,61 @@ def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) 
 		)
 		session.add(loan)
 
-		print(f'[{index + 1} of {loans_count}] Created loan {loan_identifier} for {customer.name} ({customer.identifier})')
+		print(f'[{index + 1} of {loans_count}] Created loan {parsed_loan_identifier} for {customer.name} ({customer.identifier})')
 
-		numeric_loan_identifier = int("".join(filter(str.isdigit, loan_identifier)))
 		customer_latest_loan_identifier = customer.latest_loan_identifier
-
 		new_latest_loan_identifier = max(numeric_loan_identifier, customer_latest_loan_identifier)
 		customer.latest_loan_identifier = new_latest_loan_identifier
 
 		print(f'Customer {customer.name} latest_loan_identifier is now "{new_latest_loan_identifier}"')
 		session.flush()
 
-def import_closed_loans(session: Session, loan_tuples: List[List[str]]) -> None:
+def import_loans(session: Session, loan_tuples: List[List[str]]) -> None:
 	loans_count = len(loan_tuples)
 	print(f'Running for {loans_count} loans...')
 
 	for index, new_loan_tuple in enumerate(loan_tuples):
 		print(f'[{index + 1} of {loans_count}]')
-		customer_identifier, loan_identifier, loan_type, artifact_identifier, amount, origination_date, maturity_date, adjusted_maturity_date, funded_date = new_loan_tuple
+		(
+			customer_identifier,
+			loan_identifier,
+			loan_type,
+			artifact_identifier,
+			amount,
+			origination_date,
+			maturity_date,
+			adjusted_maturity_date,
+			funded_date,
+		) = new_loan_tuple
+
+		parsed_amount = float(amount)
+		parsed_origination_date = date_util.load_date_str(origination_date)
+		parsed_maturity_date = date_util.load_date_str(maturity_date)
+		parsed_adjusted_maturity_date = date_util.load_date_str(adjusted_maturity_date)
+		parsed_funded_at = datetime.combine(date_util.load_date_str(funded_date), time())
+
+		try:
+			# If loan_identifier from XLSX is "25.0", convert it to 25.
+			numeric_loan_identifier = int(float(loan_identifier))
+			parsed_loan_identifier = str(numeric_loan_identifier)
+		except Exception:
+			# If loan_identifier from XLSX is "25A", convert it to 25.
+			numeric_loan_identifier = int("".join(filter(str.isdigit, loan_identifier)))
+			parsed_loan_identifier = loan_identifier
+
+		if (
+			not parsed_loan_identifier or
+			not numeric_loan_identifier or
+			not parsed_amount or
+			parsed_amount <= 0 or
+			not parsed_origination_date or
+			not parsed_maturity_date or
+			not parsed_adjusted_maturity_date or
+			not parsed_funded_at
+		):
+			print(f'[{index + 1} of {loans_count}] Invalid loan field(s)')
+			print(f'EXITING EARLY')
+			return
 
 		customer = cast(
 			models.Company,
@@ -219,21 +286,21 @@ def import_closed_loans(session: Session, loan_tuples: List[List[str]]) -> None:
 			session.query(models.Loan).filter(
 				models.Loan.company_id == customer.id,
 			).filter(
-				models.Loan.identifier == loan_identifier
+				models.Loan.identifier == parsed_loan_identifier
 			).first())
 
 		if existing_loan:
-			if not number_util.float_eq(existing_loan.amount, amount):
+			if not number_util.float_eq(existing_loan.amount, parsed_amount):
 				# If there is an existing loan with a different amount, this indicates
 				# that there is a pre-existing valid loan created for this customer. This is not
 				# supposed to happen on production, as we plan to import historical closed loans prior
 				# to the platform going live, but may happen on local or staging. In this case,
 				# suffix the identifier of pre-existing loan with an "A" character and continue.
-				print(f'[{index + 1} of {loans_count}] Loan with identifer {loan_identifier} but different amount exists')
-				existing_loan.identifier = loan_identifier + 'A'
+				print(f'[{index + 1} of {loans_count}] Loan with identifer {parsed_loan_identifier} but different amount exists')
+				existing_loan.identifier = parsed_loan_identifier + 'A'
 				session.flush()
 			else:
-				print(f'[{index + 1} of {loans_count}] Loan with identifer {loan_identifier} already exists')
+				print(f'[{index + 1} of {loans_count}] Loan with identifer {parsed_loan_identifier} already exists')
 				continue
 
 		parsed_loan_type = None
@@ -263,35 +330,22 @@ def import_closed_loans(session: Session, loan_tuples: List[List[str]]) -> None:
 			else:
 				artifact_id = existing_purchase_order.id
 
-		parsed_origination_date = date_util.load_date_str(origination_date)
-		parsed_maturity_date = date_util.load_date_str(maturity_date)
-		parsed_adjusted_maturity_date = date_util.load_date_str(adjusted_maturity_date)
-		parsed_funded_at = datetime.combine(date_util.load_date_str(funded_date), time())
-
-		if (
-			not artifact_id or
-			not amount or
-			amount <= 0 or
-			not parsed_origination_date or
-			not parsed_maturity_date or
-			not parsed_adjusted_maturity_date or
-			not parsed_funded_at
-		):
-			print(f'[{index + 1} of {loans_count}] Invalid loan field(s)')
+		if not artifact_id:
+			print(f'[{index + 1} of {loans_count}] Invalid artifact')
 			print(f'EXITING EARLY')
 			return
 
-		print(f'[{index + 1} of {loans_count}] Loan {loan_identifier} for {customer.name} ({customer.identifier}) does not exist, creating it...')
+		print(f'[{index + 1} of {loans_count}] Loan {parsed_loan_identifier} for {customer.name} ({customer.identifier}) does not exist, creating it...')
 		loan = models.Loan(
 			company_id=customer.id,
-			identifier=loan_identifier,
+			identifier=parsed_loan_identifier,
 			loan_type=parsed_loan_type,
 			artifact_id=artifact_id,
-			status=LoanStatusEnum.CLOSED,
+			status=LoanStatusEnum.APPROVED,
 			origination_date=parsed_origination_date,
 			maturity_date=parsed_maturity_date,
 			adjusted_maturity_date=parsed_adjusted_maturity_date,
-			amount=amount,
+			amount=parsed_amount,
 			requested_at=parsed_funded_at, # Set requested_at to funded_at.
 			approved_at=parsed_funded_at, # Set approved_at to funded_at.
 			funded_at=parsed_funded_at,
@@ -299,11 +353,9 @@ def import_closed_loans(session: Session, loan_tuples: List[List[str]]) -> None:
 		)
 		session.add(loan)
 
-		print(f'[{index + 1} of {loans_count}] Created loan {loan_identifier} for {customer.name} ({customer.identifier})')
+		print(f'[{index + 1} of {loans_count}] Created loan {parsed_loan_identifier} for {customer.name} ({customer.identifier})')
 
-		numeric_loan_identifier = int("".join(filter(str.isdigit, loan_identifier)))
 		customer_latest_loan_identifier = customer.latest_loan_identifier
-
 		new_latest_loan_identifier = max(numeric_loan_identifier, customer_latest_loan_identifier)
 		customer.latest_loan_identifier = new_latest_loan_identifier
 
@@ -322,5 +374,8 @@ def load_into_db_from_excel(session: Session, path: str) -> None:
 		raise Exception(err)
 
 	loan_tuples = sheet['rows']
-	import_closed_loans(session, loan_tuples)
+	# TODO(warrenshen): in the future, handle line of credit loans as well.
+	# Skip the header row and filter out empty rows.
+	filtered_loan_tuples = list(filter(lambda loan_tuple: loan_tuple[0] is not '', loan_tuples[1:]))
+	import_loans(session, filtered_loan_tuples)
 	print(f'Finished import')
