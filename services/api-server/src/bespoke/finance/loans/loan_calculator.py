@@ -65,7 +65,7 @@ class ThresholdAccumulator(object):
 			raise Exception(err.msg)
 
 		factoring_fee_threshold, err = contract.get_factoring_fee_threshold()
-		has_threshold_set = factoring_fee_threshold is not None and err is None
+		has_threshold_set = factoring_fee_threshold > 0.0
 
 		for cur_date, aug_txs in self._date_to_txs.items():
 
@@ -307,7 +307,8 @@ class LoanCalculator(object):
 
 			# NOTE: divide money into amount above threshold and amount below threshold
 			factoring_fee_threshold, err = cur_contract.get_factoring_fee_threshold()
-			has_threshold_set = factoring_fee_threshold is not None and err is None
+			has_threshold_set = factoring_fee_threshold > 0.0
+
 			# TODO(dlluncor): Have threshold info be set and defined for all relevant contract
 			# periods, because the customer may have different thresholds for different
 			# contract periods.
