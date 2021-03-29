@@ -1,4 +1,4 @@
-import Settings from "components/Settings";
+import CustomerSettings from "components/Settings/CustomerSettings";
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
@@ -31,7 +31,7 @@ function SettingsPage() {
   return (
     <Page appBarTitle={"Settings"}>
       {company && (
-        <Settings
+        <CustomerSettings
           companyId={companyId}
           company={company}
           settings={settings}

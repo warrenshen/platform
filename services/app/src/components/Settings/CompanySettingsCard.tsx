@@ -7,6 +7,7 @@ import {
   createStyles,
   Link,
   makeStyles,
+  Typography,
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import Can from "components/Shared/Can";
@@ -47,19 +48,25 @@ function CompanySettingsCard({ contract, settings, handleClick }: Props) {
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Product Type</Box>
             <Box>
-              {contract ? ProductTypeToLabel[contract.product_type] : "TBD"}
+              <Typography variant="body2">
+                {contract ? ProductTypeToLabel[contract.product_type] : "TBD"}
+              </Typography>
             </Box>
           </Box>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Vendor Agreement</Box>
             <Box>
-              <Link
-                href={settings.vendor_agreement_docusign_template || ""}
-                rel="noreferrer"
-                target="_blank"
-              >
-                Link
-              </Link>
+              {settings.vendor_agreement_docusign_template ? (
+                <Link
+                  href={settings.vendor_agreement_docusign_template}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  Link
+                </Link>
+              ) : (
+                <Typography variant="body2">TBD</Typography>
+              )}
             </Box>
           </Box>
         </Box>

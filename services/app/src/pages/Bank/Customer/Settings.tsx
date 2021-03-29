@@ -1,14 +1,12 @@
 import { Box } from "@material-ui/core";
-import Settings from "components/Settings";
-import AdvancesBank from "components/Shared/BespokeBankAssignment/AdvancesBank";
+import { Alert } from "@material-ui/lab";
+import CustomerSettings from "components/Settings/CustomerSettings";
 import CollectionsBank from "components/Shared/BespokeBankAssignment/CollectionsBank";
-import Can from "components/Shared/Can";
 import {
   CompanySettingsFragment,
   ContractFragment,
   useCompanyQuery,
 } from "generated/graphql";
-import { Action } from "lib/auth/rbac-rules";
 
 interface Props {
   companyId: string;
@@ -26,8 +24,8 @@ function BankCustomerSettingsSubpage({ companyId }: Props) {
   const contract = data?.companies_by_pk?.contract as ContractFragment;
 
   return company ? (
-    <>
-      <Settings
+    <Box>
+      <CustomerSettings
         companyId={companyId}
         company={company}
         settings={settings}
@@ -35,16 +33,15 @@ function BankCustomerSettingsSubpage({ companyId }: Props) {
         bankAccounts={data?.companies_by_pk?.bank_accounts || []}
         handleDataChange={() => refetch()}
       />
-      <Can perform={Action.AssignBespokeBankAccountForCustomer}>
-        <Box mt={2}>
-          <h2>Bespoke Collection and Advances Accounts</h2>
+      <Box mt={8} mb={16}>
+        <h1>Additional Settings</h1>
+        <Alert severity="info">
+          Note: the settings below are only visible by bank users (you are a
+          bank user).
+        </Alert>
+        <Box>
+          <h2>Bespoke Collections Account</h2>
           <Box display="flex">
-            <AdvancesBank
-              companySettingsId={settings?.id}
-              assignedBespokeBankAccount={
-                company.settings?.advances_bespoke_bank_account || undefined
-              }
-            />
             <CollectionsBank
               companySettingsId={settings?.id}
               assignedBespokeBankAccount={
@@ -53,8 +50,8 @@ function BankCustomerSettingsSubpage({ companyId }: Props) {
             />
           </Box>
         </Box>
-      </Can>
-    </>
+      </Box>
+    </Box>
   ) : null;
 }
 
