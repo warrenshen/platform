@@ -1,5 +1,5 @@
-import { gql } from "@apollo/client";
 import * as Apollo from "@apollo/client";
+import { gql } from "@apollo/client";
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = {
   [K in keyof T]: T[K];
@@ -4936,6 +4936,8 @@ export type FinancialSummaries = {
   company: Companies;
   company_id: Scalars["uuid"];
   date: Scalars["date"];
+  /** This is the day the customer met their volume discount threshold for their contract term */
+  day_volume_threshold_met?: Maybe<Scalars["date"]>;
   id: Scalars["uuid"];
   minimum_monthly_payload?: Maybe<Scalars["jsonb"]>;
   total_limit: Scalars["numeric"];
@@ -5045,6 +5047,7 @@ export type FinancialSummariesBoolExp = {
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   date?: Maybe<DateComparisonExp>;
+  day_volume_threshold_met?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   minimum_monthly_payload?: Maybe<JsonbComparisonExp>;
   total_limit?: Maybe<NumericComparisonExp>;
@@ -5101,6 +5104,7 @@ export type FinancialSummariesInsertInput = {
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
   date?: Maybe<Scalars["date"]>;
+  day_volume_threshold_met?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   minimum_monthly_payload?: Maybe<Scalars["jsonb"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
@@ -5117,6 +5121,7 @@ export type FinancialSummariesMaxFields = {
   available_limit?: Maybe<Scalars["numeric"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   date?: Maybe<Scalars["date"]>;
+  day_volume_threshold_met?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
@@ -5132,6 +5137,7 @@ export type FinancialSummariesMaxOrderBy = {
   available_limit?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   date?: Maybe<OrderBy>;
+  day_volume_threshold_met?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -5147,6 +5153,7 @@ export type FinancialSummariesMinFields = {
   available_limit?: Maybe<Scalars["numeric"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   date?: Maybe<Scalars["date"]>;
+  day_volume_threshold_met?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
@@ -5162,6 +5169,7 @@ export type FinancialSummariesMinOrderBy = {
   available_limit?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   date?: Maybe<OrderBy>;
+  day_volume_threshold_met?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -5200,6 +5208,7 @@ export type FinancialSummariesOrderBy = {
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
   date?: Maybe<OrderBy>;
+  day_volume_threshold_met?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   minimum_monthly_payload?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
@@ -5234,6 +5243,8 @@ export enum FinancialSummariesSelectColumn {
   /** column name */
   Date = "date",
   /** column name */
+  DayVolumeThresholdMet = "day_volume_threshold_met",
+  /** column name */
   Id = "id",
   /** column name */
   MinimumMonthlyPayload = "minimum_monthly_payload",
@@ -5258,6 +5269,7 @@ export type FinancialSummariesSetInput = {
   available_limit?: Maybe<Scalars["numeric"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   date?: Maybe<Scalars["date"]>;
+  day_volume_threshold_met?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   minimum_monthly_payload?: Maybe<Scalars["jsonb"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
@@ -5376,6 +5388,8 @@ export enum FinancialSummariesUpdateColumn {
   CompanyId = "company_id",
   /** column name */
   Date = "date",
+  /** column name */
+  DayVolumeThresholdMet = "day_volume_threshold_met",
   /** column name */
   Id = "id",
   /** column name */
@@ -15660,24 +15674,6 @@ export type GetLoansByLoanIdsQuery = {
   loans: Array<Pick<Loans, "id"> & LoanFragment>;
 };
 
-export type ListBankPayorPartnershipsQueryVariables = Exact<{
-  [key: string]: never;
-}>;
-
-export type ListBankPayorPartnershipsQuery = {
-  company_payor_partnerships: Array<
-    {
-      company: Pick<Companies, "id" | "name">;
-      payor?: Maybe<
-        {
-          settings: Pick<CompanySettings, "id">;
-          users: Array<ContactFragment>;
-        } & ThirdPartyFragment
-      >;
-    } & BankPayorPartnershipFragment
-  >;
-};
-
 export type GetBankPayorPartnershipQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -15699,7 +15695,25 @@ export type GetBankPayorPartnershipQuery = {
       } & CompanyFragment;
       payor_agreement?: Maybe<CompanyAgreementFragment>;
       payor_license?: Maybe<CompanyLicenseFragment>;
-    } & BankPayorPartnershipFragment
+    } & PayorPartnershipFragment
+  >;
+};
+
+export type GetPayorPartnershipsForBankQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetPayorPartnershipsForBankQuery = {
+  company_payor_partnerships: Array<
+    {
+      company: Pick<Companies, "id" | "name">;
+      payor?: Maybe<
+        {
+          settings: Pick<CompanySettings, "id">;
+          users: Array<ContactFragment>;
+        } & ThirdPartyFragment
+      >;
+    } & PayorPartnershipFragment
   >;
 };
 
@@ -15709,7 +15723,7 @@ export type UpdateCompanyPayorPartnershipApprovedAtMutationVariables = Exact<{
 }>;
 
 export type UpdateCompanyPayorPartnershipApprovedAtMutation = {
-  update_company_payor_partnerships_by_pk?: Maybe<BankPayorPartnershipFragment>;
+  update_company_payor_partnerships_by_pk?: Maybe<PayorPartnershipFragment>;
 };
 
 export type UpdatePayorInfoMutationVariables = Exact<{
@@ -16734,16 +16748,6 @@ export type BankPayorFragment = Pick<
   | "phone_number"
 >;
 
-export type BankPayorPartnershipFragment = Pick<
-  CompanyPayorPartnerships,
-  | "id"
-  | "company_id"
-  | "payor_id"
-  | "payor_agreement_id"
-  | "payor_license_id"
-  | "approved_at"
->;
-
 export type PaymentFragment = Pick<
   Payments,
   | "id"
@@ -17219,16 +17223,6 @@ export const BankPayorFragmentDoc = gql`
     city
     zip_code
     phone_number
-  }
-`;
-export const BankPayorPartnershipFragmentDoc = gql`
-  fragment BankPayorPartnership on company_payor_partnerships {
-    id
-    company_id
-    payor_id
-    payor_agreement_id
-    payor_license_id
-    approved_at
   }
 `;
 export const BankAccountFragmentDoc = gql`
@@ -19805,81 +19799,10 @@ export type GetLoansByLoanIdsQueryResult = Apollo.QueryResult<
   GetLoansByLoanIdsQuery,
   GetLoansByLoanIdsQueryVariables
 >;
-export const ListBankPayorPartnershipsDocument = gql`
-  query ListBankPayorPartnerships {
-    company_payor_partnerships(order_by: { payor: { name: asc } }) {
-      ...BankPayorPartnership
-      company {
-        id
-        name
-      }
-      payor {
-        ...ThirdParty
-        settings {
-          id
-        }
-        users {
-          ...Contact
-        }
-      }
-    }
-  }
-  ${BankPayorPartnershipFragmentDoc}
-  ${ThirdPartyFragmentDoc}
-  ${ContactFragmentDoc}
-`;
-
-/**
- * __useListBankPayorPartnershipsQuery__
- *
- * To run a query within a React component, call `useListBankPayorPartnershipsQuery` and pass it any options that fit your needs.
- * When your component renders, `useListBankPayorPartnershipsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useListBankPayorPartnershipsQuery({
- *   variables: {
- *   },
- * });
- */
-export function useListBankPayorPartnershipsQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    ListBankPayorPartnershipsQuery,
-    ListBankPayorPartnershipsQueryVariables
-  >
-) {
-  return Apollo.useQuery<
-    ListBankPayorPartnershipsQuery,
-    ListBankPayorPartnershipsQueryVariables
-  >(ListBankPayorPartnershipsDocument, baseOptions);
-}
-export function useListBankPayorPartnershipsLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    ListBankPayorPartnershipsQuery,
-    ListBankPayorPartnershipsQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    ListBankPayorPartnershipsQuery,
-    ListBankPayorPartnershipsQueryVariables
-  >(ListBankPayorPartnershipsDocument, baseOptions);
-}
-export type ListBankPayorPartnershipsQueryHookResult = ReturnType<
-  typeof useListBankPayorPartnershipsQuery
->;
-export type ListBankPayorPartnershipsLazyQueryHookResult = ReturnType<
-  typeof useListBankPayorPartnershipsLazyQuery
->;
-export type ListBankPayorPartnershipsQueryResult = Apollo.QueryResult<
-  ListBankPayorPartnershipsQuery,
-  ListBankPayorPartnershipsQueryVariables
->;
 export const GetBankPayorPartnershipDocument = gql`
   query GetBankPayorPartnership($id: uuid!) {
     company_payor_partnerships_by_pk(id: $id) {
-      ...BankPayorPartnership
+      ...PayorPartnership
       payor {
         ...ThirdParty
         settings {
@@ -19909,7 +19832,7 @@ export const GetBankPayorPartnershipDocument = gql`
       }
     }
   }
-  ${BankPayorPartnershipFragmentDoc}
+  ${PayorPartnershipFragmentDoc}
   ${ThirdPartyFragmentDoc}
   ${BankAccountFragmentDoc}
   ${ContactFragmentDoc}
@@ -19967,6 +19890,77 @@ export type GetBankPayorPartnershipQueryResult = Apollo.QueryResult<
   GetBankPayorPartnershipQuery,
   GetBankPayorPartnershipQueryVariables
 >;
+export const GetPayorPartnershipsForBankDocument = gql`
+  query GetPayorPartnershipsForBank {
+    company_payor_partnerships(order_by: { payor: { name: asc } }) {
+      ...PayorPartnership
+      company {
+        id
+        name
+      }
+      payor {
+        ...ThirdParty
+        settings {
+          id
+        }
+        users {
+          ...Contact
+        }
+      }
+    }
+  }
+  ${PayorPartnershipFragmentDoc}
+  ${ThirdPartyFragmentDoc}
+  ${ContactFragmentDoc}
+`;
+
+/**
+ * __useGetPayorPartnershipsForBankQuery__
+ *
+ * To run a query within a React component, call `useGetPayorPartnershipsForBankQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPayorPartnershipsForBankQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPayorPartnershipsForBankQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetPayorPartnershipsForBankQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetPayorPartnershipsForBankQuery,
+    GetPayorPartnershipsForBankQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetPayorPartnershipsForBankQuery,
+    GetPayorPartnershipsForBankQueryVariables
+  >(GetPayorPartnershipsForBankDocument, baseOptions);
+}
+export function useGetPayorPartnershipsForBankLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetPayorPartnershipsForBankQuery,
+    GetPayorPartnershipsForBankQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetPayorPartnershipsForBankQuery,
+    GetPayorPartnershipsForBankQueryVariables
+  >(GetPayorPartnershipsForBankDocument, baseOptions);
+}
+export type GetPayorPartnershipsForBankQueryHookResult = ReturnType<
+  typeof useGetPayorPartnershipsForBankQuery
+>;
+export type GetPayorPartnershipsForBankLazyQueryHookResult = ReturnType<
+  typeof useGetPayorPartnershipsForBankLazyQuery
+>;
+export type GetPayorPartnershipsForBankQueryResult = Apollo.QueryResult<
+  GetPayorPartnershipsForBankQuery,
+  GetPayorPartnershipsForBankQueryVariables
+>;
 export const UpdateCompanyPayorPartnershipApprovedAtDocument = gql`
   mutation UpdateCompanyPayorPartnershipApprovedAt(
     $companyPayorPartnershipId: uuid!
@@ -19976,10 +19970,10 @@ export const UpdateCompanyPayorPartnershipApprovedAtDocument = gql`
       pk_columns: { id: $companyPayorPartnershipId }
       _set: { approved_at: $approvedAt }
     ) {
-      ...BankPayorPartnership
+      ...PayorPartnership
     }
   }
-  ${BankPayorPartnershipFragmentDoc}
+  ${PayorPartnershipFragmentDoc}
 `;
 export type UpdateCompanyPayorPartnershipApprovedAtMutationFn = Apollo.MutationFunction<
   UpdateCompanyPayorPartnershipApprovedAtMutation,

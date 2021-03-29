@@ -1,25 +1,6 @@
-query ListBankPayorPartnerships {
-  company_payor_partnerships(order_by: { payor: { name: asc } }) {
-    ...BankPayorPartnership
-    company {
-      id
-      name
-    }
-    payor {
-      ...ThirdParty
-      settings {
-        id
-      }
-      users {
-        ...Contact
-      }
-    }
-  }
-}
-
 query GetBankPayorPartnership($id: uuid!) {
   company_payor_partnerships_by_pk(id: $id) {
-    ...BankPayorPartnership
+    ...PayorPartnership
     payor {
       ...ThirdParty
       settings {
@@ -50,6 +31,25 @@ query GetBankPayorPartnership($id: uuid!) {
   }
 }
 
+query GetPayorPartnershipsForBank {
+  company_payor_partnerships(order_by: { payor: { name: asc } }) {
+    ...PayorPartnership
+    company {
+      id
+      name
+    }
+    payor {
+      ...ThirdParty
+      settings {
+        id
+      }
+      users {
+        ...Contact
+      }
+    }
+  }
+}
+
 mutation UpdateCompanyPayorPartnershipApprovedAt(
   $companyPayorPartnershipId: uuid!
   $approvedAt: timestamptz
@@ -58,7 +58,7 @@ mutation UpdateCompanyPayorPartnershipApprovedAt(
     pk_columns: { id: $companyPayorPartnershipId }
     _set: { approved_at: $approvedAt }
   ) {
-    ...BankPayorPartnership
+    ...PayorPartnership
   }
 }
 
