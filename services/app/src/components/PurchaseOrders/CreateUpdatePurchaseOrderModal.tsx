@@ -68,7 +68,7 @@ function CreateUpdatePurchaseOrderModal({
     order_date: null,
     delivery_date: null,
     amount: null,
-    is_cannabis: false,
+    is_cannabis: true,
     status: RequestStatusEnum.Drafted,
   } as PurchaseOrdersInsertInput;
 

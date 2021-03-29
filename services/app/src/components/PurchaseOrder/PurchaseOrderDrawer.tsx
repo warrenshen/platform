@@ -113,18 +113,18 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
           )}
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
-              PO Number
-            </Typography>
-            <Typography variant={"body1"}>
-              {purchaseOrder.order_number}
-            </Typography>
-          </Box>
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
               Vendor
             </Typography>
             <Typography variant={"body1"}>
               {purchaseOrder.vendor?.name}
+            </Typography>
+          </Box>
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
+              PO Number
+            </Typography>
+            <Typography variant={"body1"}>
+              {purchaseOrder.order_number}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>

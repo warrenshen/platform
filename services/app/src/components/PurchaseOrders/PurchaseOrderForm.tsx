@@ -163,6 +163,23 @@ function PurchaseOrderForm({
         </FormControl>
       </Box>
       <Box mt={3}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={!!purchaseOrder.is_cannabis}
+              onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                setPurchaseOrder({
+                  ...purchaseOrder,
+                  is_cannabis: event.target.checked,
+                })
+              }
+              color="primary"
+            />
+          }
+          label={"Does this order include cannabis or derivatives?"}
+        />
+      </Box>
+      <Box mt={2}>
         <Box mb={1}>
           <Typography variant="subtitle1" color="textSecondary">
             Purchase Order File Attachment
@@ -190,23 +207,6 @@ function PurchaseOrderForm({
             }}
           />
         </Box>
-      </Box>
-      <Box mt={2}>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={!!purchaseOrder.is_cannabis}
-              onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                setPurchaseOrder({
-                  ...purchaseOrder,
-                  is_cannabis: event.target.checked,
-                })
-              }
-              color="primary"
-            />
-          }
-          label={"Order includes cannabis or derivatives"}
-        />
       </Box>
       {!!purchaseOrder.is_cannabis && (
         <Box mt={2}>
