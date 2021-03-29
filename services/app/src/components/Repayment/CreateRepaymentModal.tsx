@@ -14,12 +14,14 @@ import { Alert } from "@material-ui/lab";
 import CreateRepaymentConfirmEffect from "components/Repayment/CreateRepaymentConfirmEffect";
 import CreateRepaymentSelectLoans from "components/Repayment/CreateRepaymentSelectLoans";
 import { PaymentTransferType } from "components/Shared/BankToBankTransfer";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   LoanFragment,
   PaymentsInsertInput,
   ProductTypeEnum,
   useGetCompanyWithDetailsByCompanyIdQuery,
+  UserRolesEnum,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { PaymentMethodEnum } from "lib/enum";
@@ -35,7 +37,7 @@ import {
   LoanTransaction,
 } from "lib/finance/payments/repayment";
 import { LoanBeforeAfterPayment } from "lib/types";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -69,6 +71,12 @@ function CreateRepaymentModal({
 }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
+
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+
+  const isBankUser = role === UserRolesEnum.BankAdmin;
 
   const { data } = useGetCompanyWithDetailsByCompanyIdQuery({
     fetchPolicy: "network-only",
@@ -235,11 +243,13 @@ function CreateRepaymentModal({
       <DialogTitle className={classes.dialogTitle}>Make Payment</DialogTitle>
       <DialogContent style={{ minHeight: 400 }}>
         <Box display="flex" flexDirection="column">
-          <Box mb={3}>
-            <Alert severity="info">
-              {`Note: only bank admins may create payments on behalf of customers. You (a bank admin) are creating a payment on behalf of ${company?.name}.`}
-            </Alert>
-          </Box>
+          {isBankUser && (
+            <Box mb={3}>
+              <Alert severity="info">
+                {`Note: only bank admins may create payments on behalf of customers. You (a bank admin) are creating a payment on behalf of ${company?.name}.`}
+              </Alert>
+            </Box>
+          )}
           {isOnSelectLoans ? (
             <CreateRepaymentSelectLoans
               productType={productType}
