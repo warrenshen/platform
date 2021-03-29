@@ -1,13 +1,15 @@
-import { Box, Button } from "@material-ui/core";
+import { Box, TextField } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import CreateCustomerModal from "components/Customer/CreateCustomerModal";
 import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
+import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
+  Companies,
   ProductTypeEnum,
   useGetCustomersWithMetadataQuery,
 } from "generated/graphql";
@@ -15,8 +17,8 @@ import { Action, check } from "lib/auth/rbac-rules";
 import { ProductTypeToLabel } from "lib/enum";
 import { bankRoutes } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
-import { sortBy } from "lodash";
-import { useContext, useState } from "react";
+import { filter, sortBy } from "lodash";
+import { useContext, useMemo, useState } from "react";
 import { useRouteMatch } from "react-router-dom";
 
 function BankCustomersPage() {
@@ -27,176 +29,173 @@ function BankCustomersPage() {
   const { url } = useRouteMatch();
   const { data, refetch } = useGetCustomersWithMetadataQuery();
 
-  const [isCreateCustomerModalOpen, setIsCreateCustomerModalOpen] = useState(
-    false
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const customers = useMemo(() => {
+    const filteredCustomers = filter(
+      data?.customers || [],
+      (customer) =>
+        customer.name.toLowerCase().indexOf(searchQuery.toLowerCase()) >= 0
+    );
+    return sortBy(filteredCustomers, (customer) => customer.name);
+  }, [searchQuery, data?.customers]);
+
+  const columns = useMemo(
+    () => [
+      {
+        dataField: "name",
+        caption: "Customer Name",
+        minWidth: ColumnWidths.MinWidth,
+        cellRender: ({ value, data }: { value: string; data: any }) => (
+          <ClickableDataGridCell
+            url={`${url}/${data.id}${bankRoutes.customer.overview}`}
+            label={value}
+          />
+        ),
+      },
+      {
+        dataField: "identifier",
+        caption: "Identifier",
+        minWidth: ColumnWidths.MinWidth,
+        width: ColumnWidths.Type,
+      },
+      {
+        dataField: "contract.product_type",
+        caption: "Product Type",
+        width: ColumnWidths.Type,
+        calculateCellValue: (data: Companies) =>
+          data.contract
+            ? ProductTypeToLabel[data.contract.product_type as ProductTypeEnum]
+            : "None",
+      },
+      {
+        dataField: "contract_name",
+        caption: "Contract Name",
+        width: ColumnWidths.Type,
+      },
+      {
+        dataField: "dba_name",
+        caption: "DBA",
+        minWidth: ColumnWidths.MinWidth,
+      },
+      {
+        dataField: "total_outstanding_principal",
+        caption: "Total Outstanding Principal",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        calculateCellValue: (data: any) =>
+          data.financial_summaries[0]
+            ? data.financial_summaries[0]?.total_outstanding_principal
+            : null,
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell
+            value={
+              params.row.data.financial_summaries[0]
+                ? params.row.data.financial_summaries[0]
+                    ?.total_outstanding_principal
+                : null
+            }
+          />
+        ),
+      },
+      {
+        dataField: "total_outstanding_interest",
+        caption: "Total Outstanding Interest",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        calculateCellValue: (data: any) =>
+          data.financial_summaries[0]
+            ? data.financial_summaries[0]?.total_outstanding_interest
+            : null,
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell
+            value={
+              params.row.data.financial_summaries[0]
+                ? params.row.data.financial_summaries[0]
+                    ?.total_outstanding_interest
+                : null
+            }
+          />
+        ),
+      },
+      {
+        dataField: "total_outstanding_fees",
+        caption: "Total Outstanding Fees",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        calculateCellValue: (data: any) =>
+          data.financial_summaries[0]
+            ? data.financial_summaries[0]?.total_outstanding_fees
+            : null,
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell
+            value={
+              params.row.data.financial_summaries[0]
+                ? params.row.data.financial_summaries[0]?.total_outstanding_fees
+                : null
+            }
+          />
+        ),
+      },
+    ],
+    [url]
   );
-  const [
-    isRunCustomerBalancesModalOpen,
-    setIsRunCustomerBalancesModalOpen,
-  ] = useState(false);
-
-  const customers = sortBy(data?.customers || [], (customer) => customer.name);
-
-  const customerNameCellRenderer = ({
-    value,
-    data,
-  }: {
-    value: string;
-    data: any;
-  }) => (
-    <ClickableDataGridCell
-      url={`${url}/${data.id}${bankRoutes.customer.overview}`}
-      label={value}
-    />
-  );
-
-  const productTypeCellRenderer = ({ data }: { data: any }) =>
-    data.contract
-      ? ProductTypeToLabel[data.contract.product_type as ProductTypeEnum]
-      : "None";
-
-  const columns = [
-    {
-      dataField: "name",
-      caption: "Customer Name",
-      minWidth: ColumnWidths.MinWidth,
-      cellRender: customerNameCellRenderer,
-    },
-    {
-      dataField: "identifier",
-      caption: "Identifier",
-      minWidth: ColumnWidths.MinWidth,
-      width: ColumnWidths.Type,
-    },
-    {
-      dataField: "contract.product_type",
-      caption: "Product Type",
-      width: ColumnWidths.Type,
-      cellRender: productTypeCellRenderer,
-    },
-    {
-      dataField: "contract_name",
-      caption: "Contract Name",
-      width: ColumnWidths.Type,
-    },
-    {
-      dataField: "dba_name",
-      caption: "DBA",
-      minWidth: ColumnWidths.MinWidth,
-    },
-    {
-      dataField: "total_outstanding_principal",
-      caption: "Total Outstanding Principal",
-      width: ColumnWidths.Currency,
-      alignment: "right",
-      calculateCellValue: (data: any) =>
-        data.financial_summaries[0]
-          ? data.financial_summaries[0]?.total_outstanding_principal
-          : null,
-      cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell
-          value={
-            params.row.data.financial_summaries[0]
-              ? params.row.data.financial_summaries[0]
-                  ?.total_outstanding_principal
-              : null
-          }
-        />
-      ),
-    },
-    {
-      dataField: "total_outstanding_interest",
-      caption: "Total Outstanding Interest",
-      width: ColumnWidths.Currency,
-      alignment: "right",
-      calculateCellValue: (data: any) =>
-        data.financial_summaries[0]
-          ? data.financial_summaries[0]?.total_outstanding_interest
-          : null,
-      cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell
-          value={
-            params.row.data.financial_summaries[0]
-              ? params.row.data.financial_summaries[0]
-                  ?.total_outstanding_interest
-              : null
-          }
-        />
-      ),
-    },
-    {
-      dataField: "total_outstanding_fees",
-      caption: "Total Outstanding Fees",
-      width: ColumnWidths.Currency,
-      alignment: "right",
-      calculateCellValue: (data: any) =>
-        data.financial_summaries[0]
-          ? data.financial_summaries[0]?.total_outstanding_fees
-          : null,
-      cellRender: (params: ValueFormatterParams) => (
-        <CurrencyDataGridCell
-          value={
-            params.row.data.financial_summaries[0]
-              ? params.row.data.financial_summaries[0]?.total_outstanding_fees
-              : null
-          }
-        />
-      ),
-    },
-  ];
 
   return (
     <Page appBarTitle={"Customers"}>
       <Box
         display="flex"
         style={{ marginBottom: "1rem" }}
-        flexDirection="row-reverse"
+        justifyContent="space-between"
       >
-        {isRunCustomerBalancesModalOpen && (
-          <RunCustomerBalancesModal
-            handleClose={() => {
-              refetch();
-              setIsRunCustomerBalancesModalOpen(false);
-            }}
+        <Box display="flex">
+          <TextField
+            label="Search"
+            value={searchQuery}
+            onChange={({ target: { value } }) => setSearchQuery(value)}
           />
-        )}
-        {isCreateCustomerModalOpen && (
-          <CreateCustomerModal
-            handleClose={() => {
-              refetch();
-              setIsCreateCustomerModalOpen(false);
-            }}
-          />
-        )}
-        {check(role, Action.RunBalances) && (
-          <Box>
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={() => setIsRunCustomerBalancesModalOpen(true)}
-            >
-              Run Balances
-            </Button>
-          </Box>
-        )}
-        {check(role, Action.ManipulateUser) && (
-          <Box mr={2}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => setIsCreateCustomerModalOpen(true)}
-            >
-              Create Customer
-            </Button>
-          </Box>
-        )}
+        </Box>
+        <Box display="flex" flexDirection="row-reverse">
+          {check(role, Action.ManipulateUser) && (
+            <Box>
+              <ModalButton
+                label={"Create Customer"}
+                color={"primary"}
+                modal={({ handleClose }) => (
+                  <CreateCustomerModal
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          )}
+          {check(role, Action.RunBalances) && (
+            <Box mr={2}>
+              <ModalButton
+                label={"Run Balances"}
+                color={"default"}
+                modal={({ handleClose }) => (
+                  <RunCustomerBalancesModal
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          )}
+        </Box>
       </Box>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <ControlledDataGrid
-          dataSource={customers}
-          columns={columns}
           isExcelExport
           pager
+          dataSource={customers}
+          columns={columns}
         />
       </Box>
     </Page>

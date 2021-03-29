@@ -1,14 +1,11 @@
 import { Box, Button } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
-import CreateAdvanceModal from "components/Advance/CreateAdvanceModal";
 import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
 import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
 import UpdateLoanNotesModal from "components/Loans/UpdateLoanNotesModal";
 import Can from "components/Shared/Can";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
-  LoanFragment,
-  Loans,
   ProductTypeEnum,
   useLoansByCompanyAndLoanTypeForBankQuery,
 } from "generated/graphql";
@@ -50,9 +47,6 @@ export default function BankCustomerLoansSubpage({
   const loans = data?.loans || [];
 
   // State for modal(s).
-  const [isCreateAdvanceModalOpen, setIsCreateAdvanceModalOpen] = useState(
-    false
-  );
   const [isUpdateLoanNotesModalOpen, setIsUpdateLoanNotesModalOpen] = useState(
     false
   );
@@ -61,8 +55,6 @@ export default function BankCustomerLoansSubpage({
     setIsRunCustomerBalancesModalOpen,
   ] = useState(false);
   const [targetLoanId, setTargetLoanId] = useState("");
-  const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
-  const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"]>([]);
 
   const handleEditLoanNotes = (loanId: string) => {
     setTargetLoanId(loanId);
@@ -93,17 +85,6 @@ export default function BankCustomerLoansSubpage({
           }}
         />
       )}
-      {isCreateAdvanceModalOpen && (
-        <CreateAdvanceModal
-          selectedLoans={selectedLoans}
-          handleClose={() => {
-            refetch();
-            setIsCreateAdvanceModalOpen(false);
-            setSelectedLoans([]);
-            setSelectedLoanIds([]);
-          }}
-        />
-      )}
       {isUpdateLoanNotesModalOpen && (
         <UpdateLoanNotesModal
           loanId={targetLoanId}
@@ -119,23 +100,10 @@ export default function BankCustomerLoansSubpage({
           <Box>
             <Button
               variant="contained"
-              color="secondary"
+              color="default"
               onClick={() => setIsRunCustomerBalancesModalOpen(true)}
             >
               Run Balances
-            </Button>
-          </Box>
-        </Can>
-
-        <Can perform={Action.CreateAdvance}>
-          <Box mr={2}>
-            <Button
-              disabled={selectedLoans.length <= 0}
-              variant="contained"
-              color="primary"
-              onClick={() => setIsCreateAdvanceModalOpen(true)}
-            >
-              Create Advance
             </Button>
           </Box>
         </Can>
@@ -147,12 +115,7 @@ export default function BankCustomerLoansSubpage({
           isExcelExport
           productType={productType}
           loans={loans}
-          selectedLoanIds={selectedLoanIds}
           actionItems={actionItems}
-          handleSelectLoans={(loans) => {
-            setSelectedLoans(loans);
-            setSelectedLoanIds(loans.map((loan) => loan.id));
-          }}
         />
       </Box>
     </Box>
