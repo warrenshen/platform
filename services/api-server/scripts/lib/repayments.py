@@ -136,6 +136,8 @@ def import_settled_repayments(
 				models.Transaction.loan_id == loan.id
 			).filter(
 				models.Transaction.effective_date == parsed_settlement_date
+			).filter(
+				models.Transaction.amount == parsed_amount
 			).first())
 
 		if existing_repayment_transaction:

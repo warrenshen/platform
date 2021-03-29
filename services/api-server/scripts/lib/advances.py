@@ -123,7 +123,23 @@ def import_settled_advances(
 				models.Payment.settlement_date == parsed_settlement_date
 			).first())
 
-		if existing_advance:
+		existing_transaction = cast(
+			models.Transaction,
+			session.query(models.Transaction).filter(
+				models.Transaction.loan_id == loan.id
+			).filter(
+				models.Transaction.type == PaymentType.ADVANCE
+			).filter(
+				models.Transaction.amount == parsed_amount
+			).filter(
+				models.Transaction.effective_date == parsed_settlement_date
+			).first())
+
+		# Note: we check for BOTH an existing advance and
+		# existing transaction because there may be two advances
+		# with the same amount with the same settlement date,
+		# but on two different loans (of the same amount).
+		if existing_advance and existing_transaction:
 			print(f'[{index + 1} of {advances_count}] Advance on loan {parsed_loan_identifier} with settlement date {settlement_date} already exists')
 			continue
 		else:

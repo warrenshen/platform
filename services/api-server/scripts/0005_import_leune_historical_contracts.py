@@ -133,12 +133,15 @@ def import_historical_contracts_leune(session: Session) -> None:
 				terminated_at=parsed_terminated_at,
 			)
 			session.add(contract)
+			session.flush()
+
+			contract_id = str(contract.id)
 
 			print(f'[{index + 1} of {contracts_count}] Created contract of {parsed_product_type} product type with start date {start_date} and end date {end_date} for {customer.name} ({customer.identifier})')
 
 			if not is_contract_terminated:
 				print(f'[{index + 1} of {contracts_count}] Contract with termination date {termination_date} is not terminated, setting it as the active contract for {customer.name} ({customer.identifier})...')
-				customer.contract_id = contract.id
+				customer.contract_id = contract_id
 
 def main() -> None:
 	engine = models.create_engine()

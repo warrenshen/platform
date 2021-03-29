@@ -4,8 +4,8 @@ import logging
 from typing import Callable, Iterable, List, Optional, Tuple, cast
 
 from bespoke import errors
-from bespoke.db import db_constants, models
 from bespoke.audit import events
+from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.finance import financial_summary_util, number_util
 from bespoke.finance.reports import loan_balances
