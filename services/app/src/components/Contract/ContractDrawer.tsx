@@ -142,8 +142,9 @@ function ContractDrawer({ contractId, handleClose }: Props) {
                 <Typography variant="button">{sectionName}</Typography>
                 {content.map((item) =>
                   !(
-                    item.is_hidden_if_null &&
-                    (item.value === null || item.value === 0)
+                    (item.is_hidden_if_null &&
+                      (item.value === null || item.value === 0)) ||
+                    item.is_hidden
                   ) ? (
                     <Box key={item.internal_name} mt={2}>
                       <FormControl fullWidth>

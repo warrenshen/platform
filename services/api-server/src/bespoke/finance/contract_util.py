@@ -293,6 +293,11 @@ class Contract(object):
 		return self._get_float_value('wire_fee')
 
 	def _use_preceeding_business_day(self) -> Tuple[bool, errors.Error]:
+		business_only_supports_succeeding_business_day = True
+		if business_only_supports_succeeding_business_day:
+			# When this is set to True, everybody must be the succeeding business day
+			return False, None
+
 		product_type, err = self.get_product_type()
 		if err:
 			return None, err

@@ -336,33 +336,36 @@ function ContractTermsForm({
             <Typography variant="h6" className={classes.sectionName}>
               {sectionName}
             </Typography>
-            {content.map((item) => (
-              <Box key={item.internal_name} mt={3}>
-                <FormControl fullWidth>
-                  {renderSwitch(item)}
-                  <FormHelperText id={"description-customer"}>
-                    {getContractTermCustomerDescription(
-                      item.internal_name as ContractTermNames
-                    )}
-                  </FormHelperText>
-                  <FormHelperText id={"description-bank"}>
-                    <Typography color="primary" variant="caption">
-                      {getContractTermBankDescription(
-                        item.internal_name as ContractTermNames
+            {content.map(
+              (item) =>
+                !item.is_hidden && (
+                  <Box key={item.internal_name} mt={3}>
+                    <FormControl fullWidth>
+                      {renderSwitch(item)}
+                      <FormHelperText id={"description-customer"}>
+                        {getContractTermCustomerDescription(
+                          item.internal_name as ContractTermNames
+                        )}
+                      </FormHelperText>
+                      <FormHelperText id={"description-bank"}>
+                        <Typography color="primary" variant="caption">
+                          {getContractTermBankDescription(
+                            item.internal_name as ContractTermNames
+                          )}
+                        </Typography>
+                      </FormHelperText>
+                      {item.is_hidden_if_null && (
+                        <FormHelperText id={"description-hidden-if-blank"}>
+                          <Typography color="primary" variant="caption">
+                            ** This item will be hidden from the customer if you
+                            leave it blank
+                          </Typography>
+                        </FormHelperText>
                       )}
-                    </Typography>
-                  </FormHelperText>
-                  {item.is_hidden_if_null && (
-                    <FormHelperText id={"description-hidden-if-blank"}>
-                      <Typography color="primary" variant="caption">
-                        ** This item will be hidden from the customer if you
-                        leave it blank
-                      </Typography>
-                    </FormHelperText>
-                  )}
-                </FormControl>
-              </Box>
-            ))}
+                    </FormControl>
+                  </Box>
+                )
+            )}
           </Box>
         ))}
         {errMsg && (

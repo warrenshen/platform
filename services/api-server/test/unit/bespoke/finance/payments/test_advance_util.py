@@ -353,7 +353,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					],
 					1: [
 						_get_default_contract(
-							use_preceeding_business_day=True,
+							use_preceeding_business_day=False,
 							days_until_repayment=11,
 							wire_fee=60.0
 						)
@@ -388,7 +388,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					{
 						'amount': 20.02,
 						'maturity_date': '10/31/2020', # Saturday
-						'adjusted_maturity_date': '10/30/2020' # because use_preceeding_business_day=True
+						'adjusted_maturity_date': '11/02/2020' # because use_preceeding_business_day=False
 					},
 					{
 						'amount': 30.03,
@@ -398,7 +398,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					{
 						'amount': 40.04,
 						'maturity_date': '10/31/2020', # Saturday
-						'adjusted_maturity_date': '10/30/2020' # because use_preceeding_business_day=True
+						'adjusted_maturity_date': '11/02/2020' # because use_preceeding_business_day=False
 					}
 				],
 				'expected_payments': [

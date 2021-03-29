@@ -234,6 +234,7 @@ export type ProductConfigField = {
   description?: string;
   nullable?: boolean;
   is_hidden_if_null?: boolean;
+  is_hidden?: boolean;
 };
 
 // TODO (warrenshen): remove hardcoded `fields[1]` if possible.
