@@ -220,6 +220,43 @@ class CreatePayorVendorUserView(MethodView):
 		create_user_resp['status'] = 'OK'
 		return make_response(json.dumps(create_user_resp))
 
+class UpdatePayorVendorUserView(MethodView):
+	"""
+	Updates a user under a Payor or a Vendor account.
+	"""
+	decorators = [auth_util.login_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self) -> Response:
+		form = cast(Dict, json.loads(request.data))
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'company_id',
+			'user_id',
+			'user',
+		]
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing key {key} in request')
+
+		user_session = auth_util.UserSession.from_session()
+
+		if not user_session.is_bank_or_this_company_admin(form['company_id']):
+			return handler_util.make_error_response('Access Denied')
+
+		create_user_resp, err = create_user_util.update_third_party_user(
+			cast(create_user_util.UpdateThirdPartyUserInputDict, form),
+			current_app.session_maker,
+		)
+
+		if err:
+			return handler_util.make_error_response(err)
+
+		create_user_resp['status'] = 'OK'
+		return make_response(json.dumps(create_user_resp))
+
 handler.add_url_rule(
 	'/create_login', view_func=CreateLoginView.as_view(name='create_login_view'))
 
@@ -228,3 +265,6 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/create_payor_vendor_user', view_func=CreatePayorVendorUserView.as_view(name='create_payor_vendor_user_view'))
+
+handler.add_url_rule(
+	'/update_payor_vendor_user', view_func=UpdatePayorVendorUserView.as_view(name='update_payor_vendor_user_view'))

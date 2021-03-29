@@ -1,3 +1,10 @@
+query GetUser($id: uuid!) {
+  users_by_pk(id: $id) {
+    id
+    ...User
+  }
+}
+
 query GetUsersByRoles($roles: [user_roles_enum!]!) {
   users(where: { role: { _in: $roles } }) {
     id
@@ -7,12 +14,6 @@ query GetUsersByRoles($roles: [user_roles_enum!]!) {
 
 query ListUsersByCompanyId($companyId: uuid!) {
   users(where: { company_id: { _eq: $companyId } }) {
-    ...User
-  }
-}
-
-mutation AddUser($user: users_insert_input!) {
-  insert_users_one(object: $user) {
     ...User
   }
 }

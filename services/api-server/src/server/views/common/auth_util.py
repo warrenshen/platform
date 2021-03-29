@@ -1,13 +1,12 @@
 from functools import wraps
-from typing import List, Callable, Any
-from mypy_extensions import TypedDict
+from typing import Any, Callable, List
 
 from bespoke import errors
-from bespoke.db import models, db_constants
-from server.views.common import handler_util
-
+from bespoke.db import db_constants, models
 from flask import Response, abort, current_app, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
+from mypy_extensions import TypedDict
+from server.views.common import handler_util
 
 UserPayloadDict = TypedDict('UserPayloadDict', {
 	'X-Hasura-User-Id': str,

@@ -16844,6 +16844,14 @@ export type UsersByEmailQuery = {
   users: Array<Pick<Users, "id" | "company_id" | "role">>;
 };
 
+export type GetUserQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type GetUserQuery = {
+  users_by_pk?: Maybe<Pick<Users, "id"> & UserFragment>;
+};
+
 export type GetUsersByRolesQueryVariables = Exact<{
   roles: Array<UserRolesEnum>;
 }>;
@@ -16857,12 +16865,6 @@ export type ListUsersByCompanyIdQueryVariables = Exact<{
 }>;
 
 export type ListUsersByCompanyIdQuery = { users: Array<UserFragment> };
-
-export type AddUserMutationVariables = Exact<{
-  user: UsersInsertInput;
-}>;
-
-export type AddUserMutation = { insert_users_one?: Maybe<UserFragment> };
 
 export const UserFragmentDoc = gql`
   fragment User on users {
@@ -23645,6 +23647,54 @@ export type UsersByEmailQueryResult = Apollo.QueryResult<
   UsersByEmailQuery,
   UsersByEmailQueryVariables
 >;
+export const GetUserDocument = gql`
+  query GetUser($id: uuid!) {
+    users_by_pk(id: $id) {
+      id
+      ...User
+    }
+  }
+  ${UserFragmentDoc}
+`;
+
+/**
+ * __useGetUserQuery__
+ *
+ * To run a query within a React component, call `useGetUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetUserQuery(
+  baseOptions: Apollo.QueryHookOptions<GetUserQuery, GetUserQueryVariables>
+) {
+  return Apollo.useQuery<GetUserQuery, GetUserQueryVariables>(
+    GetUserDocument,
+    baseOptions
+  );
+}
+export function useGetUserLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetUserQuery, GetUserQueryVariables>
+) {
+  return Apollo.useLazyQuery<GetUserQuery, GetUserQueryVariables>(
+    GetUserDocument,
+    baseOptions
+  );
+}
+export type GetUserQueryHookResult = ReturnType<typeof useGetUserQuery>;
+export type GetUserLazyQueryHookResult = ReturnType<typeof useGetUserLazyQuery>;
+export type GetUserQueryResult = Apollo.QueryResult<
+  GetUserQuery,
+  GetUserQueryVariables
+>;
 export const GetUsersByRolesDocument = gql`
   query GetUsersByRoles($roles: [user_roles_enum!]!) {
     users(where: { role: { _in: $roles } }) {
@@ -23759,51 +23809,4 @@ export type ListUsersByCompanyIdLazyQueryHookResult = ReturnType<
 export type ListUsersByCompanyIdQueryResult = Apollo.QueryResult<
   ListUsersByCompanyIdQuery,
   ListUsersByCompanyIdQueryVariables
->;
-export const AddUserDocument = gql`
-  mutation AddUser($user: users_insert_input!) {
-    insert_users_one(object: $user) {
-      ...User
-    }
-  }
-  ${UserFragmentDoc}
-`;
-export type AddUserMutationFn = Apollo.MutationFunction<
-  AddUserMutation,
-  AddUserMutationVariables
->;
-
-/**
- * __useAddUserMutation__
- *
- * To run a mutation, you first call `useAddUserMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddUserMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [addUserMutation, { data, loading, error }] = useAddUserMutation({
- *   variables: {
- *      user: // value for 'user'
- *   },
- * });
- */
-export function useAddUserMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    AddUserMutation,
-    AddUserMutationVariables
-  >
-) {
-  return Apollo.useMutation<AddUserMutation, AddUserMutationVariables>(
-    AddUserDocument,
-    baseOptions
-  );
-}
-export type AddUserMutationHookResult = ReturnType<typeof useAddUserMutation>;
-export type AddUserMutationResult = Apollo.MutationResult<AddUserMutation>;
-export type AddUserMutationOptions = Apollo.BaseMutationOptions<
-  AddUserMutation,
-  AddUserMutationVariables
 >;

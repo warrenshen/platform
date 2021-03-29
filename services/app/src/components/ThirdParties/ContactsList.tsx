@@ -2,10 +2,11 @@ import { Box } from "@material-ui/core";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import ContactCard from "components/ThirdParties/ContactCard";
-import InviteThirdPartyUserModal from "components/Users/InviteThirdPartyUserModal";
+import CreateUpdateThirdPartyUserModal from "components/Users/CreateUpdateThirdPartyUserModal";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { Companies, ContactFragment } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
+import { ActionType } from "lib/enum";
 import { useContext } from "react";
 
 interface Props {
@@ -29,9 +30,11 @@ function Contacts({ isPayor, companyId, contacts, handleDataChange }: Props) {
             size="small"
             variant="outlined"
             modal={({ handleClose }) => (
-              <InviteThirdPartyUserModal
+              <CreateUpdateThirdPartyUserModal
+                actionType={ActionType.New}
                 isPayor={isPayor}
                 companyId={companyId}
+                userId={null}
                 handleClose={() => {
                   handleDataChange();
                   handleClose();
@@ -41,15 +44,16 @@ function Contacts({ isPayor, companyId, contacts, handleDataChange }: Props) {
           />
         </Box>
       </Can>
-      {contacts.map((contact) => {
-        return (
-          <ContactCard
-            key={contact.id}
-            isEditAllowed={check(role, Action.EditVendorContact)}
-            contact={contact}
-          />
-        );
-      })}
+      {contacts.map((contact) => (
+        <ContactCard
+          key={contact.id}
+          isEditAllowed={check(role, Action.EditVendorContact)}
+          isPayor={isPayor}
+          companyId={companyId}
+          contact={contact}
+          handleDataChange={handleDataChange}
+        />
+      ))}
     </Box>
   );
 }

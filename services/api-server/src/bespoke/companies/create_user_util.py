@@ -34,6 +34,17 @@ CreateThirdPartyUserRespDict = TypedDict('CreateThirdPartyUserRespDict', {
 	'user_id': str,
 })
 
+UpdateThirdPartyUserInputDict = TypedDict('UpdateThirdPartyUserInputDict', {
+	'company_id': str,
+	'user_id': str,
+	'user': UserInsertInputDict,
+})
+
+UpdateThirdPartyUserRespDict = TypedDict('UpdateThirdPartyUserRespDict', {
+	'status': str,
+	'user_id': str,
+})
+
 def create_bank_or_customer_user(
 	req: CreateBankCustomerInputDict,
 	session_maker: Callable,
@@ -103,6 +114,9 @@ def create_third_party_user(
 	if not email:
 		return None, errors.Error('Email must be specified')
 
+	if not phone_number:
+		return None, errors.Error('Phone number must be specified')
+
 	user_id = None
 
 	with session_scope(session_maker) as session:
@@ -134,6 +148,40 @@ def create_third_party_user(
 		user_id = str(user.id)
 
 	return CreateThirdPartyUserRespDict(
+		status='OK',
+		user_id=user_id,
+	), None
+
+def update_third_party_user(
+	req: UpdateThirdPartyUserInputDict,
+	session_maker: Callable,
+) -> Tuple[CreateThirdPartyUserRespDict, errors.Error]:
+	user_id = req['user_id']
+	user_input = req['user']
+	first_name = user_input['first_name']
+	last_name = user_input['last_name']
+	email = user_input['email']
+	phone_number = user_input['phone_number']
+
+	if not email:
+		return None, errors.Error('Email must be specified')
+
+	if not phone_number:
+		return None, errors.Error('Phone number must be specified')
+
+	with session_scope(session_maker) as session:
+		user = session.query(models.User) \
+			.filter(models.User.id == user_id) \
+			.first()
+		if not user:
+			return None, errors.Error('Could not find existing user')
+
+		user.first_name = first_name
+		user.last_name = last_name
+		user.email = email
+		user.phone_number = phone_number
+
+	return UpdateThirdPartyUserRespDict(
 		status='OK',
 		user_id=user_id,
 	), None
