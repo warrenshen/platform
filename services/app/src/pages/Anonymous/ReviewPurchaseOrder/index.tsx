@@ -22,10 +22,6 @@ import { useHistory } from "react-router-dom";
 import ReviewPurchaseOrderApproveModal from "./ReviewPurchaseOrderApproveModal";
 import ReviewPurchaseOrderRejectModal from "./ReviewPurchaseOrderRejectModal";
 
-interface Props {
-  location: any;
-}
-
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     wrapper: {
@@ -64,10 +60,13 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function ReviewPurchaseOrderPage(props: Props) {
+interface Props {
+  location: any;
+}
+
+function ReviewPurchaseOrderPage({ location }: Props) {
   const classes = useStyles();
 
-  const location: any = props.location;
   const payload = location.state?.payload;
   const linkVal = location.state?.link_val;
   const purchaseOrderId = payload?.purchase_order_id;
