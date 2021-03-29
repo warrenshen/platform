@@ -6,6 +6,8 @@ export const ColumnWidths = {
   PhoneNumber: 150,
   Status: 140,
   Type: 160,
+  UserRole: 200,
+
   Actions: 75,
 
   // Variable width columns (customer name, purchase order number, etc).

@@ -42,7 +42,8 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  companyId?: string;
+  // companyId == null when inviting a bank user.
+  companyId: string | null;
   userRoles: UserRolesEnum[];
   handleClose: () => void;
 }

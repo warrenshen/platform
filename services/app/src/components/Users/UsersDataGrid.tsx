@@ -4,7 +4,8 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
-import { UserFragment, Users } from "generated/graphql";
+import { UserFragment, UserRolesEnum, Users } from "generated/graphql";
+import { UserRoleToLabel } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
@@ -47,7 +48,9 @@ function UsersDataGrid({
       {
         caption: "Role",
         dataField: "role",
-        width: 150,
+        width: ColumnWidths.UserRole,
+        calculateCellValue: ({ role }: Users) =>
+          UserRoleToLabel[role as UserRolesEnum],
       },
       {
         caption: "First Name",
