@@ -29,6 +29,7 @@ query VendorPartnershipsByCompanyId($companyId: uuid!) {
 query VendorsByPartnerCompany($companyId: uuid!) {
   vendors(
     where: { company_vendor_partnerships: { company_id: { _eq: $companyId } } }
+    order_by: { name: asc }
   ) {
     id
     ...VendorLimited

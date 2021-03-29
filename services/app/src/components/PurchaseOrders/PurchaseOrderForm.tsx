@@ -17,11 +17,10 @@ import FileUploadDropzone from "components/Shared/File/UploadDropzone";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import {
-  CompanyVendorPartnerships,
   PurchaseOrderFileFragment,
   PurchaseOrderFileTypeEnum,
   PurchaseOrdersInsertInput,
-  Vendors,
+  VendorsByPartnerCompanyQuery,
 } from "generated/graphql";
 import { ChangeEvent, useMemo } from "react";
 
@@ -33,19 +32,12 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-type VendorsByPartnerType = Pick<Vendors, "id"> & {
-  company_vendor_partnerships: Pick<
-    CompanyVendorPartnerships,
-    "id" | "approved_at"
-  >[];
-} & Pick<Vendors, "id" | "name">;
-
 interface Props {
   companyId: string;
   purchaseOrder: PurchaseOrdersInsertInput;
   purchaseOrderFile?: PurchaseOrderFileFragment;
   purchaseOrderCannabisFiles: PurchaseOrderFileFragment[];
-  vendors: VendorsByPartnerType[];
+  vendors: VendorsByPartnerCompanyQuery["vendors"];
   setPurchaseOrder: (purchaseOrder: PurchaseOrdersInsertInput) => void;
   setPurchaseOrderFile: (file: PurchaseOrderFileFragment) => void;
   setPurchaseOrderCannabisFiles: (files: PurchaseOrderFileFragment[]) => void;

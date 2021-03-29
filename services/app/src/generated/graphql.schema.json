@@ -70714,7 +70714,7 @@
           },
           {
             "name": "is_cannabis",
-            "description": null,
+            "description": "Whether this purchase order includes \"cannabis or derivatives\"; NULL means unknown (neither true nor false)",
             "args": [],
             "type": {
               "kind": "SCALAR",

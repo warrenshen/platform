@@ -1,5 +1,5 @@
-import * as Apollo from "@apollo/client";
 import { gql } from "@apollo/client";
+import * as Apollo from "@apollo/client";
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = {
   [K in keyof T]: T[K];
@@ -10851,6 +10851,7 @@ export type PurchaseOrders = {
   delivery_date?: Maybe<Scalars["date"]>;
   funded_at?: Maybe<Scalars["timestamptz"]>;
   id: Scalars["uuid"];
+  /** Whether this purchase order includes "cannabis or derivatives"; NULL means unknown (neither true nor false) */
   is_cannabis?: Maybe<Scalars["Boolean"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   /** An array relationship */
@@ -23146,6 +23147,7 @@ export const VendorsByPartnerCompanyDocument = gql`
       where: {
         company_vendor_partnerships: { company_id: { _eq: $companyId } }
       }
+      order_by: { name: asc }
     ) {
       id
       ...VendorLimited
