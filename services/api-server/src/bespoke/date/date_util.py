@@ -24,6 +24,9 @@ def now() -> datetime.datetime:
 def datetime_to_str(dt: datetime.datetime) -> str:
 	return dt.isoformat()
 
+def load_datetime_str(datetime_str: str) -> datetime.datetime:
+	return parser.parse(datetime_str).replace(tzinfo=datetime.timezone.utc)
+
 def date_to_str(date: datetime.date) -> str:
 	return date.strftime('%m/%d/%Y')
 

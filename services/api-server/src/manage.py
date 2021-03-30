@@ -15,6 +15,7 @@ from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.email import email_manager, sendgrid_util
 from bespoke.email.email_manager import EmailConfigDict, SendGridConfigDict
+from bespoke.security import two_factor_util
 from server.config import get_config, is_development_env
 from server.views import (
 	auth, companies, contracts, files, healthcheck, notify, purchase_orders,
@@ -96,6 +97,13 @@ email_client = email_manager.new_client(email_config)
 app.sendgrid_client = sendgrid_util.Client(
 	email_client, app.session_maker,
 	config.get_security_config())
+
+if not config.IS_TEST_ENV:
+	app.sms_client = two_factor_util.SMSClient(
+		account_sid=config.TWILIO_ACCOUNT_SID,
+		auth_token=config.TWILIO_AUTH_TOKEN,
+		from_=config.TWILIO_FROM_NUMBER	
+	)
 
 
 @app.jwt_manager.token_in_blacklist_loader

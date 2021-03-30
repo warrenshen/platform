@@ -1,10 +1,11 @@
-import { Box } from "@material-ui/core";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
+import useSnackbar from "hooks/useSnackbar";
 import { twoFactorRoutes, unAuthenticatedApi } from "lib/api";
 import { setAccessToken, setRefreshToken } from "lib/auth/tokenStorage";
 import { anonymousRoutes } from "lib/routes";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
+import AuthenticateViaPhonePage from "../AuthenticateViaPhone";
 
 type FormInfo = {
   type: string;
@@ -28,6 +29,7 @@ const linkTypeToRoute: { [type: string]: string } = {
 
 const getSecureLinkPayload = async (req: {
   val: string;
+  provided_token_val: string;
 }): Promise<GetSecureLinkPayloadResp> => {
   return unAuthenticatedApi
     .post(twoFactorRoutes.getSecureLinkPayload, req)
@@ -52,22 +54,26 @@ function useQuery() {
 function SecureLink() {
   const query = useQuery();
   const linkVal = query.get("val");
-  const [errMsg, setErrMsg] = useState<string>("");
+  const [codeEntered, setCodeEntered] = useState<string>("");
   const history = useHistory();
+  const snackbar = useSnackbar();
 
   const { resetUser } = useContext(CurrentUserContext);
 
-  useEffect(() => {
+  const onCodeSubmitted = useCallback(() => {
     if (!linkVal) {
       return;
     }
-    getSecureLinkPayload({ val: linkVal }).then(function (resp) {
+    getSecureLinkPayload({
+      val: linkVal,
+      provided_token_val: codeEntered,
+    }).then(function (resp) {
       if (resp.status !== "OK") {
-        setErrMsg(resp.msg || "");
+        snackbar.showError(resp.msg || "");
         return;
       }
       if (!resp.form_info) {
-        setErrMsg("No form information retrieved");
+        snackbar.showError("No form information retrieved");
         return;
       }
 
@@ -79,7 +85,7 @@ function SecureLink() {
       }
 
       if (!(resp.form_info.type in linkTypeToRoute)) {
-        setErrMsg(
+        snackbar.showError(
           "Unregistered type associated with link. Type: " + resp.form_info.type
         );
         return;
@@ -93,28 +99,15 @@ function SecureLink() {
         },
       });
     });
-  }, [linkVal, history, resetUser]);
+  }, [linkVal, history, resetUser, codeEntered, snackbar]);
 
   return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      width="100vw"
-      height="100vh"
-    >
-      <Box display="flex" flexDirection="column">
-        <Box>
-          <p>
-            {!linkVal
-              ? "No link value provided."
-              : errMsg
-              ? `Error loading link: ${errMsg}.`
-              : "Loading..."}
-          </p>
-        </Box>
-      </Box>
-    </Box>
+    <AuthenticateViaPhonePage
+      linkVal={linkVal}
+      codeEntered={codeEntered}
+      setCodeEntered={setCodeEntered}
+      onCodeSubmitted={onCodeSubmitted}
+    />
   );
 }
 

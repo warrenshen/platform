@@ -7,8 +7,9 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import useSnackbar from "hooks/useSnackbar";
+import { twoFactorRoutes, unAuthenticatedApi } from "lib/api";
+import { useCallback, useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -49,35 +50,64 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  location: any;
+  linkVal: string | null;
+  codeEntered: string;
+  setCodeEntered: (val: string) => void;
+  onCodeSubmitted: () => void;
 }
 
-function AuthenticateViaPhonePage({ location }: Props) {
+const sendTwoFactorSMSMessage = async (req: {
+  link_val: string | null;
+}): Promise<{ status: string; msg: string; phone_number: string }> => {
+  return unAuthenticatedApi
+    .post(twoFactorRoutes.sendTwoFactorSMSCode, req)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not send two factor SMS message",
+        };
+      }
+    );
+};
+
+function AuthenticateViaPhonePage({
+  linkVal,
+  codeEntered,
+  setCodeEntered,
+  onCodeSubmitted,
+}: Props) {
   const classes = useStyles();
-  const history = useHistory();
+  const snackbar = useSnackbar();
+  const [phoneNumber, setPhoneNumber] = useState("");
 
-  const payload = location.state?.payload;
-  // const linkVal = location.state?.link_val;
-  const phoneNumber = payload?.phone_number || "4085293475";
-
-  const [code, setCode] = useState("");
+  const handleClickResend = useCallback(() => {
+    sendTwoFactorSMSMessage({ link_val: linkVal }).then(function (resp) {
+      if (resp.status !== "OK") {
+        snackbar.showError("Failed to send sms message: " + resp.msg);
+        return;
+      }
+      window.console.log(resp);
+      setPhoneNumber(resp.phone_number);
+    });
+  }, [linkVal, snackbar]);
 
   useEffect(() => {
-    console.log({ message: "Request Python API to send text message here..." });
-  }, []);
-
-  const handleClickResend = () => {
-    console.log({ message: "Request Python API to send text message here..." });
-  };
+    handleClickResend();
+  }, [handleClickResend]);
 
   const handleClickSubmit = () => {
-    console.log({ message: "Request Python API to validate code here..." });
-    if (false) {
-      history.push("secure link for next step here...");
-    }
+    onCodeSubmitted();
   };
 
-  const isSubmitDisabled = !code;
+  const isSubmitDisabled = !codeEntered;
 
   return (
     <Box className={classes.wrapper}>
@@ -94,8 +124,8 @@ function AuthenticateViaPhonePage({ location }: Props) {
               <Box mt={1}>
                 <TextField
                   label="Enter code"
-                  value={code}
-                  onChange={({ target: { value } }) => setCode(value)}
+                  value={codeEntered}
+                  onChange={({ target: { value } }) => setCodeEntered(value)}
                 />
               </Box>
               <Box mt={3}>

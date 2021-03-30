@@ -35,26 +35,27 @@ packaging==20.8           # via dparse, safety
 passlib==1.7.4            # via -r requirements.in
 psycopg2-binary==2.8.5    # via -r requirements.in
 pydantic==1.7.3           # via fastapi, fastapi-utils
-pyjwt==1.7.1              # via -r requirements.in, flask-jwt-extended
+pyjwt==1.7.1              # via -r requirements.in, flask-jwt-extended, twilio
 pymeeus==0.4.3            # via convertdate
 pyparsing==2.4.7          # via packaging
 python-dateutil==2.8.1    # via botocore, holidays
 python-dotenv==0.13.0     # via -r requirements.in
 python-http-client==3.3.1  # via sendgrid
-pytz==2021.1              # via convertdate
+pytz==2021.1              # via convertdate, twilio
 pyyaml==5.3.1             # via dparse
-requests==2.25.1          # via safety
+requests==2.25.1          # via safety, twilio
 s3transfer==0.3.3         # via boto3
 safety==1.9.0             # via -r requirements.in
 sendgrid==6.4.8           # via -r requirements.in
 sentry-sdk[flask]==0.19.5  # via -r requirements.in
-six==1.15.0               # via flask-cors, flask-jwt-extended, holidays, python-dateutil, sqlalchemy-utils
+six==1.15.0               # via flask-cors, flask-jwt-extended, holidays, python-dateutil, sqlalchemy-utils, twilio
 sqlalchemy-stubs==0.4     # via -r requirements.in
 sqlalchemy-utils==0.36.8  # via -r requirements.in
 sqlalchemy==1.3.17        # via -r requirements.in, fastapi-utils, sqlalchemy-utils
 starkbank-ecdsa==1.1.0    # via sendgrid
 starlette==0.13.6         # via fastapi
 toml==0.10.2              # via dparse
+twilio==6.55.0            # via -r requirements.in
 typed-ast==1.4.1          # via mypy
 typing-extensions==3.7.4.3  # via mypy, sqlalchemy-stubs
 urllib3==1.26.2           # via botocore, requests, sentry-sdk

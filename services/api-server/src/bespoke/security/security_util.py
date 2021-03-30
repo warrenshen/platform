@@ -1,11 +1,13 @@
 import hashlib
 import random
 import string
-from typing import cast
+from typing import cast, Tuple
 
 from itsdangerous import URLSafeTimedSerializer
 from mypy_extensions import TypedDict
 from passlib.hash import pbkdf2_sha256 as sha256
+
+from bespoke import errors
 
 LinkInfoDict = TypedDict('LinkInfoDict', {
 	'link_id': str,
@@ -31,9 +33,12 @@ def get_url_serializer(cfg: ConfigDict) -> URLSafeTimedSerializer:
 	)
 
 
-def get_link_info_from_url(val: str, cfg: ConfigDict, max_age_in_seconds: int) -> LinkInfoDict:
+def get_link_info_from_url(val: str, cfg: ConfigDict, max_age_in_seconds: int) -> Tuple[LinkInfoDict, errors.Error]:
 	url_serializer = get_url_serializer(cfg)
-	return cast(LinkInfoDict, url_serializer.loads(val, max_age=max_age_in_seconds))
+	try:
+		return cast(LinkInfoDict, url_serializer.loads(val, max_age=max_age_in_seconds)), None
+	except Exception as e:
+		return None, errors.Error('Link has expired', details={'e': str(e)})
 
 
 def hash_password(password_salt: str, password: str) -> str:

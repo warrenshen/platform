@@ -3,16 +3,17 @@ import json
 
 from bespoke.db import models
 from bespoke.db.models import session_scope
-from datetime import timezone
+from datetime import timezone, timedelta
 from flask import request, make_response, current_app
 from flask import Response, Blueprint
 from flask.views import MethodView
 from flask_jwt_extended import create_access_token, create_refresh_token
 from sqlalchemy.orm.attributes import flag_modified
-from typing import cast, Callable, Dict
+from typing import cast, Callable, Dict, Tuple
 
 from bespoke.db import db_constants
 from bespoke.date import date_util
+from bespoke import errors
 from bespoke.security import security_util, two_factor_util
 from server.config import Config
 from server.views.common import auth_util, handler_util
@@ -20,12 +21,12 @@ from server.views.common import auth_util, handler_util
 handler = Blueprint('two_factor', __name__)
 
 
-class GenerateCodeView(MethodView):
+class SendSMSCodeView(MethodView):
 
-	# NOTE: We aren't using this two-factor path yet
 	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
 		cfg = cast(Config, current_app.app_config)
+		sms_client = cast(two_factor_util.SMSClient, current_app.sms_client)
 		form = json.loads(request.data)
 		if not form:
 			return handler_util.make_error_response('No data provided')
@@ -33,14 +34,14 @@ class GenerateCodeView(MethodView):
 		required_keys = ['link_val']
 		for key in required_keys:
 			if key not in form:
-				return handler_util.make_error_response(f'Missing {key} generate code request')
+				return handler_util.make_error_response(f'Missing {key} send code request')
 
 		link_val = form['link_val']
 
 		with session_scope(current_app.session_maker) as session:
 			two_factor_info, err = two_factor_util.get_two_factor_link(
 				link_val, cfg.get_security_config(),
-				max_age_in_seconds=security_util.SECONDS_IN_HOUR * 8, session=session)
+				max_age_in_seconds=security_util.SECONDS_IN_DAY * 7, session=session)
 			if err:
 				return handler_util.make_error_response(err)
 
@@ -50,75 +51,75 @@ class GenerateCodeView(MethodView):
 			if email not in token_states_dict:
 				return handler_util.make_error_response('Invalid email for link provided')
 
-			# NOTE: Handle expiration times for tokens
+			existing_user = session.query(models.User) \
+				.filter(models.User.email == email) \
+				.first()
+			if not existing_user:
+				return handler_util.make_error_response('No user found matching email "{}"'.format(email))
+			
+			# Look up the phone number for this user
+			to_phone_number = existing_user.phone_number
+			if not to_phone_number:
+				return handler_util.make_error_response('A phone number must first be specified for the user associated with email "{}"'.format(email))
+
+			token_val = security_util.mfa_code_generator()
+
 			token_states_dict[email] = {
-				'token_val': security_util.mfa_code_generator(),
-				'expires_in': ''
+				'token_val': token_val,
+				'expires_in': date_util.datetime_to_str(date_util.now() + timedelta(minutes=5))
 			}
 			cast(Callable, flag_modified)(two_factor_link, 'token_states')
 
-		# NOTE: Send two-factor code to email
-
-		return make_response(json.dumps({
-			'status': 'OK'
-		}), 200)
-
-
-class ApproveCodeView(MethodView):
-
-	# NOTE: We aren't using the two-factor path currently
-	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
-		cfg = cast(Config, current_app.app_config)
-		form = json.loads(request.data)
-		if not form:
-			return handler_util.make_error_response('No data provided')
-
-		link_val = form.get('link_val')
-		if not link_val:
-			return handler_util.make_error_response('Link value not provided')
-
-		provided_token_val = form.get('provided_token_val')
-		if not provided_token_val:
-			return handler_util.make_error_response('No token value provided')
-
-		with session_scope(current_app.session_maker) as session:
-			two_factor_info, err = two_factor_util.get_two_factor_link(
-				link_val, cfg.get_security_config(),
-				max_age_in_seconds=security_util.SECONDS_IN_HOUR * 8, session=session)
-			if err:
-				return handler_util.make_error_response(err)
-
-			two_factor_link = two_factor_info['link']
-			email = two_factor_info['email']
-			token_states_dict = cast(Dict, two_factor_link.token_states)
-
-			if email not in token_states_dict:
-				return handler_util.make_error_response('Not a valid email for this secure link')
-
-			token_dict = token_states_dict[email]
-			token_val = token_dict['token_val']
-			form_info = two_factor_link.form_info
-
-		if provided_token_val != token_val:
-			return handler_util.make_error_response('Provided token value is not correct')
+		# Send two-factor code via SMS
+		_, err = sms_client.send_text_message(
+			to_=to_phone_number,
+			msg='Your Bespoke two-factor code is {}'.format(token_val)
+		)
+		if err:
+			return handler_util.make_error_response(err)
 
 		return make_response(json.dumps({
 			'status': 'OK',
-			'form_info': form_info
+			'phone_number': to_phone_number
 		}), 200)
 
 
+def _approve_code(provided_token_val: str, two_factor_info: two_factor_util.TwoFactorInfoDict) -> Tuple[bool, errors.Error]:
+		two_factor_link = two_factor_info['link']
+		email = two_factor_info['email']
+		token_states_dict = cast(Dict, two_factor_link.token_states)
+
+		if email not in token_states_dict:
+			return None, errors.Error('Not a valid email for this secure link')
+
+		token_dict = token_states_dict[email]
+		token_val = token_dict['token_val']
+
+		# NOTE: Handle expiration times for tokens
+		expires_datetime = date_util.load_datetime_str(token_dict['expires_in'])
+		if date_util.now() > expires_datetime: 
+			return None, errors.Error('Token has expired, please request a new one')
+
+		if provided_token_val != token_val:
+			return None, errors.Error('Provided token value is not correct')
+
+		return True, None
+
+
 class GetSecureLinkPayloadView(MethodView):
+	# Decodes the secure link value and then returns the payload associated with it.
 
 	@handler_util.catch_bad_json_request
-	# Decodes the secure link value and then returns the payload associated with it.
 	def post(self) -> Response:
 		cfg = cast(Config, current_app.app_config)
 		form = json.loads(request.data)
 		link_signed_val = form.get('val')
 		if not link_signed_val:
 			return handler_util.make_error_response('Link provided is empty')
+
+		provided_token_val = form.get('provided_token_val')
+		if not provided_token_val:
+			return handler_util.make_error_response('No token value provided from the SMS message')
 
 		company_id = None
 		form_info = None
@@ -140,6 +141,10 @@ class GetSecureLinkPayloadView(MethodView):
 				models.User.email == email).first())
 			if not user:
 				return handler_util.make_error_response('User opening this link does not exist in the system at all')
+
+			success, err = _approve_code(provided_token_val, two_factor_info)
+			if err:
+				return handler_util.make_error_response(err)
 
 			company_id = user.company_id
 
@@ -179,4 +184,4 @@ handler.add_url_rule(
 	'/get_secure_link_payload', view_func=GetSecureLinkPayloadView.as_view(name='get_secure_link_payload_view'))
 
 handler.add_url_rule(
-	'/generate_code', view_func=GenerateCodeView.as_view(name='generate_code_view'))
+	'/send_sms_code', view_func=SendSMSCodeView.as_view(name='send_sms_code_view'))

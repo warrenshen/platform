@@ -84,6 +84,7 @@ export const loansRoutes = {
 
 export const twoFactorRoutes = {
   getSecureLinkPayload: "/two_factor/get_secure_link_payload",
+  sendTwoFactorSMSCode: "/two_factor/send_sms_code",
 };
 
 const api = axios.create({

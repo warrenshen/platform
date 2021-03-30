@@ -9,7 +9,6 @@ import {
   customerRoutes,
   routes,
 } from "lib/routes";
-import AnonymousAuthenticateViaPhonePage from "pages/Anonymous/AuthenticateViaPhone";
 import ForgotPasswordPage from "pages/Anonymous/ForgotPassword";
 import ResetPasswordPage from "pages/Anonymous/ResetPassword";
 import ReviewInvoicePage from "pages/Anonymous/ReviewInvoice";
@@ -71,11 +70,6 @@ function App() {
           <AnonymousSecureLinkPage />
         </Route>
         {/*  Reviewer user routes */}
-        <Route
-          exact
-          path={anonymousRoutes.authenticateViaPhone}
-          component={AnonymousAuthenticateViaPhonePage}
-        />
         <Route
           exact
           path={anonymousRoutes.reviewPurchaseOrder}

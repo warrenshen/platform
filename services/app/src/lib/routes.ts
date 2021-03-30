@@ -9,7 +9,7 @@ export const routes = {
 
 // Routes when you are neither a customer or bank, but you've been authenticated via the secure_link route
 export const anonymousRoutes = {
-  authenticateViaPhone: "/authenticate-via-phone",
+  secureLink: "/get-secure-link",
   forgotPassword: "/forgot-password",
   resetPassword: "/reset-password",
   reviewPurchaseOrder: "/review-purchase-order",
@@ -18,7 +18,7 @@ export const anonymousRoutes = {
   reviewInvoiceComplete: "/review-invoice-complete",
   reviewInvoicePayment: "/review-invoice-payment",
   reviewInvoicePaymentComplete: "/review-invoice-payment-complete",
-  secureLink: "/get-secure-link",
+  getSecureLinkPayload: "/get-secure-link-payload",
 };
 
 // Vendor user routes are prefixed with "/2".

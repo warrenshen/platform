@@ -6,12 +6,13 @@ from bespoke.security import security_util
 
 
 def _string_to_bool(text: str) -> bool:
+	if not text:
+		return False
 	return text.lower() == 'true'
 
 
 def is_development_env(flask_env: str) -> bool:
 	return flask_env == 'development'
-
 
 class Config(object):
 
@@ -31,6 +32,7 @@ class Config(object):
 
 		# General
 		self.FLASK_ENV = os.environ.get('FLASK_ENV')
+		self.IS_TEST_ENV = _string_to_bool(os.environ.get('IS_TEST_ENV'))
 
 		# Security
 		self.PASSWORD_SALT = os.environ.get('PASSWORD_SALT')
@@ -53,6 +55,9 @@ class Config(object):
 		self.SUPPORT_EMAIL_ADDRESS = os.environ.get(
 			'SUPPORT_EMAIL_ADDRESS', 'support@bespokefinancial.com')
 		self.SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
+		self.TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
+		self.TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')
+		self.TWILIO_FROM_NUMBER = os.environ.get('TWILIO_FROM_NUMBER')
 		self.BESPOKE_DOMAIN = os.environ.get(
 			'BESPOKE_DOMAIN', 'http://localhost:3005')
 
