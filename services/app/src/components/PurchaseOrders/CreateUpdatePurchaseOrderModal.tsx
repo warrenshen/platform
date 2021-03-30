@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   createStyles,
   Dialog,
@@ -7,16 +8,21 @@ import {
   DialogTitle,
   makeStyles,
   Theme,
+  Typography,
 } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import PurchaseOrderForm from "components/PurchaseOrders/PurchaseOrderForm";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
+  Companies,
   PurchaseOrderFileFragment,
   PurchaseOrderFileTypeEnum,
+  PurchaseOrders,
   PurchaseOrdersInsertInput,
   RequestStatusEnum,
   useAddPurchaseOrderMutation,
   usePurchaseOrderQuery,
+  UserRolesEnum,
   useUpdatePurchaseOrderMutation,
   useVendorsByPartnerCompanyQuery,
 } from "generated/graphql";
@@ -46,20 +52,24 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   actionType: ActionType;
-  purchaseOrderId: string | null;
+  companyId: Companies["id"];
+  purchaseOrderId: PurchaseOrders["id"] | null;
   handleClose: () => void;
 }
 
 function CreateUpdatePurchaseOrderModal({
   actionType,
-  purchaseOrderId = null,
+  companyId,
+  purchaseOrderId,
   handleClose,
 }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
+
   const {
-    user: { companyId },
+    user: { role },
   } = useContext(CurrentUserContext);
+  const isBankUser = role === UserRolesEnum.BankAdmin;
 
   // Default PurchaseOrder for CREATE case.
   const newPurchaseOrder = {
@@ -247,7 +257,8 @@ function CreateUpdatePurchaseOrderModal({
     !purchaseOrder.order_date ||
     !purchaseOrder.delivery_date ||
     !purchaseOrder.amount ||
-    !purchaseOrderFile;
+    !purchaseOrderFile ||
+    (!!purchaseOrder.is_cannabis && purchaseOrderCannabisFiles.length <= 0);
 
   return isDialogReady ? (
     <Dialog
@@ -262,6 +273,18 @@ function CreateUpdatePurchaseOrderModal({
         } Purchase Order`}
       </DialogTitle>
       <DialogContent>
+        {isBankUser && (
+          <Box mt={2} mb={3}>
+            <Alert severity="warning">
+              <Typography variant="body1">
+                {`Warning: you are ${
+                  actionType === ActionType.Update ? "editing" : "creating"
+                } a purchase order on behalf of this
+                customer (only bank admins can do this).`}
+              </Typography>
+            </Alert>
+          </Box>
+        )}
         <PurchaseOrderForm
           companyId={companyId}
           purchaseOrder={purchaseOrder}

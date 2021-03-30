@@ -75,7 +75,6 @@ function CreateRepaymentModal({
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-
   const isBankUser = role === UserRolesEnum.BankAdmin;
 
   const { data } = useGetCompanyWithDetailsByCompanyIdQuery({
@@ -246,7 +245,9 @@ function CreateRepaymentModal({
           {isBankUser && (
             <Box mb={3}>
               <Alert severity="info">
-                {`Note: only bank admins may create payments on behalf of customers. You (a bank admin) are creating a payment on behalf of ${company?.name}.`}
+                Note: only bank admins may create payments on behalf of
+                customers. You (a bank admin) are creating a payment on behalf
+                of this customer.
               </Alert>
             </Box>
           )}

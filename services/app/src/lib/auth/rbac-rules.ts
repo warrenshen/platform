@@ -124,6 +124,9 @@ const rules: Rules = {
   [UserRolesEnum.BankAdmin]: {
     static: [
       // Customer actions - bank performs on behalf of customer.
+      // Action.AddPurchaseOrders,
+      // Action.EditPurchaseOrders,
+      // Action.FundPurchaseOrders,
       Action.RepayPurchaseOrderLoans,
 
       // Bank actions.

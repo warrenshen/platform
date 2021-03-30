@@ -1,34 +1,11 @@
-import { Box } from "@material-ui/core";
-import PurchaseOrdersDataGrid from "components/PurchaseOrders/PurchaseOrdersDataGrid";
-import { usePurchaseOrdersByCompanyIdQuery } from "generated/graphql";
+import CustomerPageContentPurchaseOrders from "components/CustomerPageContent/PurchaseOrders";
 
 interface Props {
   companyId: string;
 }
 
 function BankCustomerPurchaseOrdersSubpage({ companyId }: Props) {
-  const { data, error } = usePurchaseOrdersByCompanyIdQuery({
-    variables: {
-      company_id: companyId,
-    },
-  });
-
-  if (error) {
-    window.console.log("Error querying purchase orders. Error: " + error);
-  }
-
-  const purchaseOrders = data?.purchase_orders || [];
-
-  return (
-    <Box flex={1} display="flex" flexDirection="column" width="100%">
-      <PurchaseOrdersDataGrid
-        isMultiSelectEnabled={false}
-        isCompanyVisible={false}
-        purchaseOrders={purchaseOrders}
-        isExcelExport
-      />
-    </Box>
-  );
+  return <CustomerPageContentPurchaseOrders companyId={companyId} />;
 }
 
 export default BankCustomerPurchaseOrdersSubpage;
