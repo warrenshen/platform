@@ -5,7 +5,7 @@ import { useEbbaApplicationsQuery } from "generated/graphql";
 function EbbaApplicationsPage() {
   // Note: we use the fetchPolicy "no-cache" here.
   //
-  // The following compnent tree is rendered.
+  // The following component tree is rendered.
   // EbbaApplicationsDataGrid >
   // EbbaApplicationDrawerLauncher >
   // EbbaApplicationDrawer >

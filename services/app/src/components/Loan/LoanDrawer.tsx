@@ -6,14 +6,17 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import UpdateLoanNotesModal from "components/Loans/UpdateLoanNotesModal";
 import PurchaseOrderInfoCard from "components/PurchaseOrder/PurchaseOrderInfoCard";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
+import ModalButton from "components/Shared/Modal/ModalButton";
 import TransactionsDataGrid from "components/Transactions/TransactionsDataGrid";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Loans,
   LoanStatusEnum,
   LoanTypeEnum,
+  useGetLoanWithArtifactForBankQuery,
   useGetLoanWithArtifactForCustomerQuery,
   useGetTransactionsForLoanQuery,
   UserRolesEnum,
@@ -46,13 +49,30 @@ function LoanDrawer({ loanId, handleClose }: Props) {
 
   const isBankUser = role === UserRolesEnum.BankAdmin;
 
-  const { data } = useGetLoanWithArtifactForCustomerQuery({
+  const {
+    data: bankData,
+    refetch: bankRefetch,
+  } = useGetLoanWithArtifactForBankQuery({
+    skip: !isBankUser,
     variables: {
       id: loanId,
     },
   });
 
-  const loan = data?.loans_by_pk;
+  const {
+    data: customerData,
+    refetch: customerRefetch,
+  } = useGetLoanWithArtifactForCustomerQuery({
+    skip: !isBankUser,
+    variables: {
+      id: loanId,
+    },
+  });
+
+  const refetch = isBankUser ? bankRefetch : customerRefetch;
+
+  const loan = isBankUser ? bankData?.loans_by_pk : customerData?.loans_by_pk;
+  const bankLoan = bankData?.loans_by_pk;
 
   const response = useGetTransactionsForLoanQuery({
     variables: {
@@ -223,6 +243,35 @@ function LoanDrawer({ loanId, handleClose }: Props) {
             </Typography>
           </Box>
         </Box>
+        {isBankUser && (
+          <>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Internal Notes
+              </Typography>
+              <Typography variant={"body1"}>
+                {bankLoan?.notes || "-"}
+              </Typography>
+            </Box>
+            <Box mt={1}>
+              <ModalButton
+                label={"Edit Internal Notes"}
+                color={"default"}
+                size={"small"}
+                variant={"outlined"}
+                modal={({ handleClose }) => (
+                  <UpdateLoanNotesModal
+                    loanId={loanId}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          </>
+        )}
         <Box
           display="flex"
           flexDirection="column"

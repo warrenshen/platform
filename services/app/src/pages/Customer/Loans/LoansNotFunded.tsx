@@ -8,6 +8,7 @@ import {
   GetActiveLoansForCompanyQuery,
   LoanFragment,
   Loans,
+  ProductTypeEnum,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { ActionType } from "lib/enum";
@@ -32,15 +33,16 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
+  productType: ProductTypeEnum;
   data: GetActiveLoansForCompanyQuery | undefined;
   handleDataChange: () => void;
 }
 
-function LoansActiveNotFunded({ data, handleDataChange }: Props) {
+function LoansNotFunded({ productType, data, handleDataChange }: Props) {
   const classes = useStyles();
 
   const {
-    user: { productType, role },
+    user: { role },
   } = useContext(CurrentUserContext);
 
   const company = data?.companies_by_pk;
@@ -49,7 +51,6 @@ function LoansActiveNotFunded({ data, handleDataChange }: Props) {
     () => (company?.loans || []).filter((loan) => !loan.funded_at),
     [company?.loans]
   );
-  console.log({ loans });
 
   const financialSummary = company?.financial_summaries[0] || null;
 
@@ -124,4 +125,4 @@ function LoansActiveNotFunded({ data, handleDataChange }: Props) {
   );
 }
 
-export default LoansActiveNotFunded;
+export default LoansNotFunded;

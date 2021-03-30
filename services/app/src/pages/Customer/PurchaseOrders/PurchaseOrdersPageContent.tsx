@@ -36,7 +36,7 @@ interface Props {
   companyId: string;
 }
 
-function CustomerPageContentPurchaseOrders({ companyId }: Props) {
+function CustomerPurchaseOrdersPageContent({ companyId }: Props) {
   const classes = useStyles();
 
   const { data, refetch, error } = usePurchaseOrdersByCompanyIdQuery({
@@ -178,4 +178,4 @@ function CustomerPageContentPurchaseOrders({ companyId }: Props) {
   );
 }
 
-export default CustomerPageContentPurchaseOrders;
+export default CustomerPurchaseOrdersPageContent;

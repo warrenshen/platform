@@ -1,6 +1,6 @@
-import CustomerPageContentPurchaseOrders from "components/CustomerPageContent/PurchaseOrders";
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
+import CustomerPurchaseOrdersPageContent from "pages/Customer/PurchaseOrders/PurchaseOrdersPageContent";
 import { useContext } from "react";
 
 function PurchaseOrdersPage() {
@@ -10,7 +10,7 @@ function PurchaseOrdersPage() {
 
   return (
     <Page appBarTitle={"Purchase Orders"}>
-      <CustomerPageContentPurchaseOrders companyId={companyId} />
+      <CustomerPurchaseOrdersPageContent companyId={companyId} />
     </Page>
   );
 }

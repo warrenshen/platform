@@ -15511,6 +15511,22 @@ export type GetLoanWithArtifactForCustomerQuery = {
   >;
 };
 
+export type GetLoanWithArtifactForBankQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type GetLoanWithArtifactForBankQuery = {
+  loans_by_pk?: Maybe<
+    {
+      company: Pick<Companies, "id" | "name">;
+      line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
+      purchase_order?: Maybe<
+        Pick<PurchaseOrders, "id"> & PurchaseOrderFragment
+      >;
+    } & LoanFragment
+  >;
+};
+
 export type GetTransactionsForLoanQueryVariables = Exact<{
   loan_id: Scalars["uuid"];
 }>;
@@ -16710,13 +16726,14 @@ export type LoanFragment = Pick<
   | "artifact_id"
   | "identifier"
   | "status"
+  | "rejection_note"
+  | "notes"
   | "payment_status"
   | "amount"
   | "requested_payment_date"
   | "origination_date"
   | "maturity_date"
   | "adjusted_maturity_date"
-  | "notes"
   | "outstanding_principal_balance"
   | "outstanding_interest"
   | "outstanding_fees"
@@ -17185,13 +17202,14 @@ export const LoanFragmentDoc = gql`
     artifact_id
     identifier
     status
+    rejection_note
+    notes
     payment_status
     amount
     requested_payment_date
     origination_date
     maturity_date
     adjusted_maturity_date
-    notes
     outstanding_principal_balance
     outstanding_interest
     outstanding_fees
@@ -19061,6 +19079,77 @@ export type GetLoanWithArtifactForCustomerLazyQueryHookResult = ReturnType<
 export type GetLoanWithArtifactForCustomerQueryResult = Apollo.QueryResult<
   GetLoanWithArtifactForCustomerQuery,
   GetLoanWithArtifactForCustomerQueryVariables
+>;
+export const GetLoanWithArtifactForBankDocument = gql`
+  query GetLoanWithArtifactForBank($id: uuid!) {
+    loans_by_pk(id: $id) {
+      ...Loan
+      company {
+        id
+        name
+      }
+      line_of_credit {
+        id
+        ...LineOfCredit
+      }
+      purchase_order {
+        id
+        ...PurchaseOrder
+      }
+    }
+  }
+  ${LoanFragmentDoc}
+  ${LineOfCreditFragmentDoc}
+  ${PurchaseOrderFragmentDoc}
+`;
+
+/**
+ * __useGetLoanWithArtifactForBankQuery__
+ *
+ * To run a query within a React component, call `useGetLoanWithArtifactForBankQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetLoanWithArtifactForBankQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetLoanWithArtifactForBankQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetLoanWithArtifactForBankQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetLoanWithArtifactForBankQuery,
+    GetLoanWithArtifactForBankQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetLoanWithArtifactForBankQuery,
+    GetLoanWithArtifactForBankQueryVariables
+  >(GetLoanWithArtifactForBankDocument, baseOptions);
+}
+export function useGetLoanWithArtifactForBankLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetLoanWithArtifactForBankQuery,
+    GetLoanWithArtifactForBankQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetLoanWithArtifactForBankQuery,
+    GetLoanWithArtifactForBankQueryVariables
+  >(GetLoanWithArtifactForBankDocument, baseOptions);
+}
+export type GetLoanWithArtifactForBankQueryHookResult = ReturnType<
+  typeof useGetLoanWithArtifactForBankQuery
+>;
+export type GetLoanWithArtifactForBankLazyQueryHookResult = ReturnType<
+  typeof useGetLoanWithArtifactForBankLazyQuery
+>;
+export type GetLoanWithArtifactForBankQueryResult = Apollo.QueryResult<
+  GetLoanWithArtifactForBankQuery,
+  GetLoanWithArtifactForBankQueryVariables
 >;
 export const GetTransactionsForLoanDocument = gql`
   query GetTransactionsForLoan($loan_id: uuid!) {

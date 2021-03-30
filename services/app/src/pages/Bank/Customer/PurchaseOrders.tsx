@@ -1,11 +1,11 @@
-import CustomerPageContentPurchaseOrders from "components/CustomerPageContent/PurchaseOrders";
+import CustomerPurchaseOrdersPageContent from "pages/Customer/PurchaseOrders/PurchaseOrdersPageContent";
 
 interface Props {
   companyId: string;
 }
 
 function BankCustomerPurchaseOrdersSubpage({ companyId }: Props) {
-  return <CustomerPageContentPurchaseOrders companyId={companyId} />;
+  return <CustomerPurchaseOrdersPageContent companyId={companyId} />;
 }
 
 export default BankCustomerPurchaseOrdersSubpage;

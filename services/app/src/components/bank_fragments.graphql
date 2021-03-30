@@ -59,13 +59,14 @@ fragment Loan on loans {
   artifact_id
   identifier
   status
+  rejection_note
+  notes
   payment_status
   amount
   requested_payment_date
   origination_date
   maturity_date
   adjusted_maturity_date
-  notes
   outstanding_principal_balance
   outstanding_interest
   outstanding_fees

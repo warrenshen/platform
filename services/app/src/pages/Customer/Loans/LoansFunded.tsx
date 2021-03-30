@@ -33,16 +33,17 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
+  productType: ProductTypeEnum;
   data: GetActiveLoansForCompanyQuery | undefined;
   handleDataChange: () => void;
 }
 
-function LoansActiveFunded({ data, handleDataChange }: Props) {
+function LoansFunded({ productType, data, handleDataChange }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
 
   const {
-    user: { companyId, productType, role },
+    user: { companyId, role },
   } = useContext(CurrentUserContext);
 
   const company = data?.companies_by_pk;
@@ -126,4 +127,4 @@ function LoansActiveFunded({ data, handleDataChange }: Props) {
   );
 }
 
-export default LoansActiveFunded;
+export default LoansFunded;

@@ -102,7 +102,7 @@ const getCustomerNavItems = (
     {
       visible: productType !== null,
       text: "Loans",
-      link: customerRoutes.loansActive,
+      link: customerRoutes.loans,
     },
     {
       visible:

@@ -40,8 +40,7 @@ import BankVendorsPage from "pages/Bank/Vendors";
 import CustomerContractPage from "pages/Customer/Contract";
 import CustomerEbbaApplicationsPage from "pages/Customer/EbbaApplications";
 import CustomerInvoicesPages from "pages/Customer/Invoices";
-import CustomerLoansActivePage from "pages/Customer/LoansActive";
-import CustomerLoansClosedPage from "pages/Customer/LoansClosed";
+import CustomerLoansPage from "pages/Customer/Loans";
 import CustomerOverviewPage from "pages/Customer/Overview";
 import CustomerPayorsPage from "pages/Customer/Payors";
 import CustomerPurchaseOrdersPage from "pages/Customer/PurchaseOrders";
@@ -183,23 +182,13 @@ function App() {
         </PrivateRoute>
         <PrivateRoute
           exact
-          path={customerRoutes.loansActive}
+          path={customerRoutes.loans}
           requiredRoles={[
             UserRolesEnum.CompanyAdmin,
             UserRolesEnum.CompanyReadOnly,
           ]}
         >
-          <CustomerLoansActivePage />
-        </PrivateRoute>
-        <PrivateRoute
-          exact
-          path={customerRoutes.loansClosed}
-          requiredRoles={[
-            UserRolesEnum.CompanyAdmin,
-            UserRolesEnum.CompanyReadOnly,
-          ]}
-        >
-          <CustomerLoansClosedPage />
+          <CustomerLoansPage />
         </PrivateRoute>
         <PrivateRoute
           exact

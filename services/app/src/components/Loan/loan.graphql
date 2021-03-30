@@ -28,6 +28,24 @@ query GetLoanWithArtifactForCustomer($id: uuid!) {
   }
 }
 
+query GetLoanWithArtifactForBank($id: uuid!) {
+  loans_by_pk(id: $id) {
+    ...Loan
+    company {
+      id
+      name
+    }
+    line_of_credit {
+      id
+      ...LineOfCredit
+    }
+    purchase_order {
+      id
+      ...PurchaseOrder
+    }
+  }
+}
+
 query GetTransactionsForLoan($loan_id: uuid!) {
   transactions(where: { loan_id: { _eq: $loan_id } }) {
     ...Transaction

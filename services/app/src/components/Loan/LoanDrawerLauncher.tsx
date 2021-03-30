@@ -1,7 +1,8 @@
+import { Box } from "@material-ui/core";
 import LoanDrawer from "components/Loan/LoanDrawer";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import { Loans } from "generated/graphql";
-import React, { useState } from "react";
+import { useState } from "react";
 
 interface Props {
   label: string;
@@ -12,12 +13,12 @@ function Launcher({ label, loanId }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <>
+    <Box>
       {isOpen && (
         <LoanDrawer loanId={loanId} handleClose={() => setIsOpen(false)} />
       )}
       <ClickableDataGridCell onClick={() => setIsOpen(true)} label={label} />
-    </>
+    </Box>
   );
 }
 

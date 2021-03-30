@@ -28,8 +28,7 @@ export const vendorRoutes = {};
 export const customerRoutes = {
   contract: "/1/contract",
   ebbaApplications: "/1/borrowing-base",
-  loansActive: "/1/loans-active",
-  loansClosed: "/1/loans-closed",
+  loans: "/1/loans",
   overview: "/1/overview",
   purchaseOrders: "/1/purchase-orders",
   settings: "/1/settings",
