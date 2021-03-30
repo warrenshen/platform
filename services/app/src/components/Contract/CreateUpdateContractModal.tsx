@@ -1,11 +1,14 @@
 import {
   Box,
   Button,
+  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   makeStyles,
+  Theme,
+  Typography,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import ContractTermsForm from "components/Contract/ContractTermsForm";
@@ -29,36 +32,41 @@ import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useEffect, useState } from "react";
 
-const useStyles = makeStyles({
-  section: {
-    fontWeight: 400,
-    fontSize: "18px",
-    marginTop: "1.5rem",
-    "&:first-of-type": {
-      marginTop: 0,
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    section: {
+      fontWeight: 400,
+      fontSize: "18px",
+      marginTop: "1.5rem",
+      "&:first-of-type": {
+        marginTop: 0,
+      },
     },
-  },
-  sectionName: {
-    marginBottom: "1.5rem",
-  },
-  inputField: {
-    width: 300,
-  },
-  datePicker: {
-    width: 300,
-    marginTop: 0,
-    marginBottom: 0,
-  },
-  dialogTitle: {
-    borderBottom: "1px solid #c7c7c7",
-    marginBottom: "1rem",
-  },
-  errorBox: {
-    color: "red",
-    position: "absolute",
-    bottom: "1rem",
-  },
-});
+    sectionName: {
+      marginBottom: "1.5rem",
+    },
+    inputField: {
+      width: 300,
+    },
+    datePicker: {
+      width: 300,
+      marginTop: 0,
+      marginBottom: 0,
+    },
+    dialogTitle: {
+      borderBottom: "1px solid #c7c7c7",
+      marginBottom: "1rem",
+    },
+    dialogActions: {
+      margin: theme.spacing(2),
+    },
+    errorBox: {
+      color: "red",
+      position: "absolute",
+      bottom: "1rem",
+    },
+  })
+);
 
 interface Props {
   actionType: ActionType;
@@ -227,8 +235,11 @@ function CreateUpdateContractModal({
         <Box display="flex" flexDirection="column">
           <Box mb={3}>
             <Alert severity="info">
-              Note: only bank admins may create / edit contracts (you are a bank
-              admin). Description text in blue is only visible to bank users.
+              <Typography variant="body1">
+                Note: only bank admins may create / edit contracts (you are a
+                bank admin). Description text in blue is only visible to bank
+                users.
+              </Typography>
             </Alert>
           </Box>
           <ContractTermsForm
@@ -252,7 +263,7 @@ function CreateUpdateContractModal({
           )}
         </Box>
       </DialogContent>
-      <DialogActions>
+      <DialogActions className={classes.dialogActions}>
         <Box display="flex">
           <Box pr={1}>
             <Button onClick={handleClose}>Cancel</Button>

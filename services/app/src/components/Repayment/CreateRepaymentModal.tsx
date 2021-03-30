@@ -243,11 +243,12 @@ function CreateRepaymentModal({
       <DialogContent style={{ minHeight: 400 }}>
         <Box display="flex" flexDirection="column">
           {isBankUser && (
-            <Box mb={3}>
+            <Box mt={2} mb={3}>
               <Alert severity="info">
-                Note: only bank admins may create payments on behalf of
-                customers. You (a bank admin) are creating a payment on behalf
-                of this customer.
+                <Typography variant="body1">
+                  Warning: you are creating a payment on behalf of this customer
+                  (only bank admins can do this).
+                </Typography>
               </Alert>
             </Box>
           )}
