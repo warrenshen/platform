@@ -39,15 +39,21 @@ class TemplateNames(object):
 
 	CUSTOMER_REQUESTED_LOAN = 'customer_requests_loan'
 
+	## LOAN REVIEWED
 	BANK_APPROVED_LOANS = 'bank_approved_loans'
 	BANK_REJECTED_LOAN = 'bank_rejected_loan'
 
+	## ADVANCE SENT
 	# Email sent to vendor when advance is sent to them.
 	BANK_SENT_ADVANCE_TO_VENDOR = 'bank_sent_advance_to_vendor'
-	# Email sent to customer when advance is sent to vendor on their behalf.
-	BANK_SENT_ADVANCE_TO_VENDOR_FOR_CUSTOMER = 'bank_sent_advance_to_vendor_for_customer'
-	# Email sent to customer when advance is sent to them (for line of credit).
-	BANK_SENT_ADVANCE_TO_CUSTOMER = 'bank_sent_advance_to_customer'
+	# Email sent to customer when advance(s) are made on their loan(s).
+	BANK_SENT_ADVANCES_FOR_LOANS = 'bank_sent_advances_for_loans'
+
+	## REPAYMENT REQUESTED
+	CUSTOMER_REQUESTED_REPAYMENT = 'customer_requested_repayment'
+
+	## REPAYMENT SETTLED
+	BANK_SETTLED_REPAYMENT = 'bank_settled_repayment'
 
 	USER_VENDOR_INVITED_TO_PLATFORM = 'user_vendor_invited_to_platform'
 	USER_PAYOR_INVITED_TO_PLATFORM = 'user_payor_invited_to_platform'
@@ -134,13 +140,21 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 		'requires_secure_link': False
 	},
 
-
 	TemplateNames.BANK_APPROVED_LOANS: {
 		'id': 'd-8a58d7a072da43628edb77c68e93182d',
 		'requires_secure_link': False
 	},
 	TemplateNames.BANK_REJECTED_LOAN: {
 		'id': 'd-42032ae8ab88455cb4c890d2561f11c4',
+		'requires_secure_link': False
+	},
+
+	TemplateNames.BANK_SENT_ADVANCE_TO_VENDOR: {
+		'id': 'd-3c62f5c701e8427386b3441335071a59',
+		'requires_secure_link': False
+	},
+	TemplateNames.BANK_SENT_ADVANCES_FOR_LOANS: {
+		'id': 'd-115465177d7b48a6bce8f4b9d1082470',
 		'requires_secure_link': False
 	},
 
@@ -206,13 +220,19 @@ class Client(object):
 			 template_name: str, template_data: Dict, recipients: List[str],
 			 two_factor_payload: TwoFactorPayloadDict = None) -> Tuple[bool, errors.Error]:
 
-		err_details = {
-			'template_name': template_name
-		}
+		# Validate whether recipient emails are valid.
+		for recipient_email in recipients:
+			if not recipient_email or '@' not in recipient_email:
+				return None, errors.Error(f'Invalid recipient email: "{recipient_email}"')
 
 		template_id = _get_template_id(template_name)
 		template_data['defaults'] = _get_template_defaults(
 			template_name, self._cfg)
+
+		err_details = {
+			'template_name': template_name,
+			'template_id': template_id,
+		}
 
 		if not _requires_secure_link(template_name):
 			try:

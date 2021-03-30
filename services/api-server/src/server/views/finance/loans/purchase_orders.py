@@ -1,22 +1,20 @@
-import json
 import datetime
 import decimal
-from typing import cast, Any, Dict, Callable, List, Tuple, Optional
+import json
 from dataclasses import dataclass
+from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 
-from server.views.common import auth_util, handler_util
-from server.config import Config
 from bespoke import errors
-from bespoke.email import sendgrid_util
+from bespoke.audit import events
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.db_constants import LoanTypeEnum, LoanStatusEnum
-from bespoke.audit import events
-from bespoke.finance.loans import sibling_util, approval_util
-
+from bespoke.db.db_constants import LoanStatusEnum, LoanTypeEnum
+from bespoke.email import sendgrid_util
+from bespoke.finance.loans import approval_util, sibling_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
-
+from server.config import Config
+from server.views.common import auth_util, handler_util
 
 handler = Blueprint('finance_loans_purchase_orders', __name__)
 

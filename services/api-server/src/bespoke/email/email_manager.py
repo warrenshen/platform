@@ -4,23 +4,19 @@ Implements EmailSender, simple abstraction on top of SendGrid python library
 for sending emails.
 """
 
-from __future__ import absolute_import
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
-import smtplib
 import logging
-import boto3
-
-from typing import cast, Any, List, Tuple, Union, Dict
-from mypy_extensions import TypedDict
-
+import smtplib
+from concurrent.futures import Future, ThreadPoolExecutor
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from typing import Union, List, Optional
-from concurrent.futures import ThreadPoolExecutor, Future
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
+import boto3
+from mypy_extensions import TypedDict
+from sendgrid.helpers.mail import Content, Email, Mail, To
 from sendgrid.sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Email, Content, Mail, To
 
 SendGridConfigDict = TypedDict('SendGridConfigDict', {
 	'api_key': str

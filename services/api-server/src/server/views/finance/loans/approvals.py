@@ -1,7 +1,8 @@
 import datetime
 import json
-from typing import Any, Dict, List, cast
+from typing import Any, Dict, List, Tuple, cast
 
+from bespoke import errors
 from bespoke.audit import events
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
@@ -16,6 +17,70 @@ from server.config import Config
 from server.views.common import auth_util, handler_util
 
 handler = Blueprint('finance_loans_approvals', __name__)
+
+def _send_bank_approved_loans_emails(
+	loan_ids: List[str],
+) -> Tuple[bool, errors.Error]:
+	cfg = cast(Config, current_app.app_config)
+	sendgrid_client = cast(sendgrid_util.Client,
+							current_app.sendgrid_client)
+
+	customer_id_to_loans: Dict[str, List[models.Loan]] = {}
+	with session_scope(current_app.session_maker) as session:
+		loans = cast(
+			List[models.Loan],
+			session.query(models.Loan).filter(
+				models.Loan.id.in_(loan_ids)
+			).all())
+
+		# Partition loans by customer_id.
+		for loan in loans:
+			customer_id = loan.company_id
+			if customer_id not in customer_id_to_loans:
+				customer_id_to_loans[customer_id] = []
+			customer_id_to_loans[customer_id].append(loan)
+
+		# For each customer_id, send an email to customer.
+		for customer_id in customer_id_to_loans:
+			customer_loans = customer_id_to_loans[customer_id]
+
+			customer = cast(
+				models.Company,
+				session.query(models.Company).filter(
+					models.Company.id == customer_id
+				).first())
+
+			customer_users = cast(
+				List[models.User],
+				session.query(models.User).filter_by(
+					company_id=customer_id
+				).all())
+
+			if not customer_users:
+				return False, errors.Error('There are no users configured for this customer')
+
+			customer_name = customer.name
+			customer_identifier = customer.identifier
+			loan_dicts = [{
+				'identifier': f'{customer_identifier}{loan.identifier}',
+				'amount': number_util.to_dollar_format(float(loan.amount)),
+				'requested_payment_date': date_util.date_to_str(loan.requested_payment_date),
+				'requested_date': date_util.human_readable_yearmonthday(loan.requested_at),
+			} for loan in customer_loans]
+			template_name = sendgrid_util.TemplateNames.BANK_APPROVED_LOANS
+			template_data = {
+				'customer_name': customer_name,
+				'loans': loan_dicts,
+			}
+
+			customer_emails = [user.email for user in customer_users]
+			recipients = customer_emails
+			_, err = sendgrid_client.send(
+				template_name, template_data, recipients)
+			if err:
+				return False, err
+
+	return True, None
 
 class ApproveLoansView(MethodView):
 	decorators = [auth_util.bank_admin_required]
@@ -44,65 +109,11 @@ class ApproveLoansView(MethodView):
 		if err:
 			return handler_util.make_error_response(err)
 
-		cfg = cast(Config, current_app.app_config)
-		sendgrid_client = cast(sendgrid_util.Client,
-							   current_app.sendgrid_client)
+		loan_ids = form['loan_ids']
+		_, err = _send_bank_approved_loans_emails(loan_ids)
 
-		customer_id_to_loans: Dict[str, List[models.Loan]] = {}
-		with session_scope(current_app.session_maker) as session:
-			loan_ids = form['loan_ids']
-			loans = cast(
-				List[models.Loan],
-				session.query(models.Loan).filter(
-					models.Loan.id.in_(loan_ids)
-				).all())
-
-			# Partition loans by customer_id.
-			for loan in loans:
-				customer_id = loan.company_id
-				if customer_id not in customer_id_to_loans:
-					customer_id_to_loans[customer_id] = []
-				customer_id_to_loans[customer_id].append(loan)
-
-			# For each customer_id, send an email to customer.
-			for customer_id in customer_id_to_loans:
-				customer_loans = customer_id_to_loans[customer_id]
-
-				customer = cast(
-					models.Company,
-					session.query(models.Company).filter(
-						models.Company.id == customer_id
-					).first())
-
-				customer_users = cast(
-					List[models.User],
-					session.query(models.User).filter_by(
-						company_id=customer_id
-					).all())
-
-				if not customer_users:
-					return handler_util.make_error_response('There are no users configured for this customer')
-
-				customer_name = customer.name
-				customer_identifier = customer.identifier
-				loan_dicts = [{
-					'identifier': f'{customer_identifier}{loan.identifier}',
-					'amount': number_util.to_dollar_format(float(loan.amount)),
-					'requested_payment_date': date_util.date_to_str(loan.requested_payment_date),
-					'requested_date': date_util.human_readable_yearmonthday(loan.requested_at),
-				} for loan in customer_loans]
-				template_name = sendgrid_util.TemplateNames.BANK_APPROVED_LOANS
-				template_data = {
-					'customer_name': customer_name,
-					'loans': loan_dicts,
-				}
-
-				customer_emails = [user.email for user in customer_users]
-				recipients = customer_emails
-				_, err = sendgrid_client.send(
-					template_name, template_data, recipients)
-				if err:
-					return handler_util.make_error_response(err)
+		if err:
+			return handler_util.make_error_response(err)
 
 		resp['status'] = 'OK'
 		return make_response(json.dumps(resp), 200)
