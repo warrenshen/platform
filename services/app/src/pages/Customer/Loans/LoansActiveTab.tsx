@@ -95,6 +95,7 @@ function CustomerLoansPageLoansTab({ companyId, productType }: Props) {
       <Box className={classes.section}>
         <Typography variant="h6">Loans - Not Funded</Typography>
         <LoansNotFunded
+          companyId={companyId}
           productType={productType}
           data={data}
           handleDataChange={refetch}

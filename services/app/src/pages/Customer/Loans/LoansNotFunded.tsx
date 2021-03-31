@@ -5,6 +5,7 @@ import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
+  Companies,
   GetActiveLoansForCompanyQuery,
   LoanFragment,
   Loans,
@@ -33,12 +34,18 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
+  companyId: Companies["id"];
   productType: ProductTypeEnum;
   data: GetActiveLoansForCompanyQuery | undefined;
   handleDataChange: () => void;
 }
 
-function LoansNotFunded({ productType, data, handleDataChange }: Props) {
+function LoansNotFunded({
+  companyId,
+  productType,
+  data,
+  handleDataChange,
+}: Props) {
   const classes = useStyles();
 
   const {
@@ -75,6 +82,7 @@ function LoansNotFunded({ productType, data, handleDataChange }: Props) {
             label={"Request New Loan"}
             modal={({ handleClose }) => (
               <CreateUpdatePolymorphicLoanModal
+                companyId={companyId}
                 productType={productType}
                 actionType={ActionType.New}
                 artifactId={null}
@@ -94,6 +102,7 @@ function LoansNotFunded({ productType, data, handleDataChange }: Props) {
               label={"Edit Loan"}
               modal={({ handleClose }) => (
                 <CreateUpdatePolymorphicLoanModal
+                  companyId={companyId}
                   productType={productType}
                   actionType={ActionType.Update}
                   artifactId={null}

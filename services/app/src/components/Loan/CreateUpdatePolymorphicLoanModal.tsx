@@ -1,11 +1,12 @@
 import CreateUpdateInvoiceLoanModal from "components/Invoices/CreateUpdateInvoiceLoanModal";
 import CreateUpdateLineOfCreditLoanModal from "components/Loan/CreateUpdateLineOfCreditLoanModal";
 import CreateUpdatePurchaseOrderLoanModal from "components/Loan/CreateUpdatePurchaseOrderLoanModal";
-import { Loans, ProductTypeEnum, Scalars } from "generated/graphql";
+import { Companies, Loans, ProductTypeEnum, Scalars } from "generated/graphql";
 import { ActionType } from "lib/enum";
 
 interface Props {
-  productType: ProductTypeEnum | null;
+  companyId: Companies["id"];
+  productType: ProductTypeEnum;
   actionType: ActionType;
   artifactId: Scalars["uuid"] | null;
   loanId: Loans["id"] | null;
@@ -13,6 +14,7 @@ interface Props {
 }
 
 function CreateUpdatePolymorphicLoanModal({
+  companyId,
   productType,
   actionType,
   artifactId = null,
@@ -25,6 +27,8 @@ function CreateUpdatePolymorphicLoanModal({
   ) {
     return (
       <CreateUpdatePurchaseOrderLoanModal
+        companyId={companyId}
+        productType={productType}
         actionType={actionType}
         artifactId={artifactId}
         loanId={loanId}
@@ -42,6 +46,8 @@ function CreateUpdatePolymorphicLoanModal({
   } else if (productType === ProductTypeEnum.InvoiceFinancing) {
     return (
       <CreateUpdateInvoiceLoanModal
+        companyId={companyId}
+        productType={productType}
         actionType={actionType}
         artifactId={artifactId}
         loanId={loanId}

@@ -5,12 +5,17 @@ import { useContext } from "react";
 
 function PurchaseOrdersPage() {
   const {
-    user: { companyId },
+    user: { companyId, productType },
   } = useContext(CurrentUserContext);
 
   return (
     <Page appBarTitle={"Purchase Orders"}>
-      <CustomerPurchaseOrdersPageContent companyId={companyId} />
+      {companyId && productType && (
+        <CustomerPurchaseOrdersPageContent
+          companyId={companyId}
+          productType={productType}
+        />
+      )}
     </Page>
   );
 }

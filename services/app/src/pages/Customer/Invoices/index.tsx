@@ -6,14 +6,21 @@ import InvoicesFundedUnfundedLists from "./InvoicesFundedUnfundedLists";
 
 export default function CustomerInvoicesPages() {
   const {
-    user: { productType },
+    user: { companyId, productType },
   } = useContext(CurrentUserContext);
 
   switch (productType) {
     case ProductTypeEnum.InvoiceFinancing:
-      return <InvoicesFundedUnfundedLists />;
+      return (
+        <InvoicesFundedUnfundedLists
+          companyId={companyId}
+          productType={productType}
+        />
+      );
     case ProductTypeEnum.PurchaseMoneyFinancing:
-      return <AllInvoicesList />;
+      return (
+        <AllInvoicesList companyId={companyId} productType={productType} />
+      );
     default:
       return null;
   }

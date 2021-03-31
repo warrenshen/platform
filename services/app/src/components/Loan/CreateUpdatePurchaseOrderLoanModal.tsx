@@ -1,7 +1,9 @@
 import CreateUpdateArtifactLoanModal from "components/Artifacts/CreateUpdateArtifactLoanModal";
 import PurchaseOrderInfoCardById from "components/PurchaseOrder/PurchaseOrderInfoCardById";
 import {
+  Companies,
   LoanTypeEnum,
+  ProductTypeEnum,
   Scalars,
   useGetFundablePurchaseOrdersQuery,
 } from "generated/graphql";
@@ -9,6 +11,8 @@ import { ActionType } from "lib/enum";
 
 interface Props {
   actionType: ActionType;
+  companyId: Companies["id"];
+  productType: ProductTypeEnum;
   artifactId: Scalars["uuid"] | null;
   loanId: Scalars["uuid"] | null;
   handleClose: () => void;
@@ -16,6 +20,8 @@ interface Props {
 
 export default function CreateUpdatePurchaseOrderLoanModal({
   actionType,
+  companyId,
+  productType,
   artifactId = null, // this is passed in when a user clicks "Fund" from the Purchase Orders grid
   loanId = null,
   handleClose,
@@ -39,6 +45,8 @@ export default function CreateUpdatePurchaseOrderLoanModal({
   return (
     <CreateUpdateArtifactLoanModal
       actionType={actionType}
+      companyId={companyId}
+      productType={productType}
       artifactId={artifactId}
       loanId={loanId}
       loanType={LoanTypeEnum.PurchaseOrder}

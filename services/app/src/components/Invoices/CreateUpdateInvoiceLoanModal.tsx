@@ -1,16 +1,18 @@
 import CreateUpdateArtifactLoanModal from "components/Artifacts/CreateUpdateArtifactLoanModal";
 import InvoiceInfoCardById from "components/Invoices/InvoicesInfoCardById";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
+  Companies,
   LoanTypeEnum,
+  ProductTypeEnum,
   Scalars,
   useGetApprovedInvoicesByCompanyIdQuery,
 } from "generated/graphql";
 import { ActionType } from "lib/enum";
-import { useContext } from "react";
 
 interface Props {
   actionType: ActionType;
+  companyId: Companies["id"];
+  productType: ProductTypeEnum;
   artifactId: Scalars["uuid"];
   loanId: Scalars["uuid"] | null;
   handleClose: () => void;
@@ -18,14 +20,12 @@ interface Props {
 
 export default function CreateUpdateInvoiceLoanModal({
   actionType,
+  companyId,
+  productType,
   artifactId,
   loanId,
   handleClose,
 }: Props) {
-  const {
-    user: { companyId },
-  } = useContext(CurrentUserContext);
-
   const { data, loading } = useGetApprovedInvoicesByCompanyIdQuery({
     fetchPolicy: "network-only",
     variables: {
@@ -48,6 +48,8 @@ export default function CreateUpdateInvoiceLoanModal({
   return (
     <CreateUpdateArtifactLoanModal
       actionType={actionType}
+      companyId={companyId}
+      productType={productType}
       artifactId={artifactId}
       loanId={loanId}
       loanType={LoanTypeEnum.Invoice}

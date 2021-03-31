@@ -10,8 +10,8 @@ import {
   Theme,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
+  Companies,
   LoansInsertInput,
   LoanStatusEnum,
   LoanTypeEnum,
@@ -32,7 +32,7 @@ import {
   listArtifactsForCreateLoan,
 } from "lib/finance/loans/artifacts";
 import { isNull, mergeWith } from "lodash";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ArtifactLoanForm, { ArtifactListItem } from "./ArtifactLoanForm";
 import { IdComponent } from "./interfaces";
 
@@ -55,6 +55,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   actionType: ActionType;
+  companyId: Companies["id"];
+  productType: ProductTypeEnum;
   artifactId: Scalars["uuid"] | null;
   approvedArtifacts: ArtifactListItem[];
   loanId: Scalars["uuid"] | null;
@@ -65,6 +67,8 @@ interface Props {
 
 export default function CreateUpdateArtifactLoanModal({
   actionType,
+  companyId,
+  productType,
   artifactId,
   approvedArtifacts,
   loanId,
@@ -74,10 +78,6 @@ export default function CreateUpdateArtifactLoanModal({
 }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
-
-  const {
-    user: { companyId, productType },
-  } = useContext(CurrentUserContext);
 
   const artifactCopyLower = getProductTypeCopy(productType!);
   const artifactCopyUpper = capsFirst(artifactCopyLower);

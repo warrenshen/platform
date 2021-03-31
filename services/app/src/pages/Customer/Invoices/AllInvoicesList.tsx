@@ -10,15 +10,16 @@ import InvoicesDataGrid from "components/Invoices/InvoicesDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
+  Companies,
   InvoiceFragment,
   Invoices,
+  ProductTypeEnum,
   useGetInvoicesByCompanyIdQuery,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { ActionType } from "lib/enum";
-import { useContext, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -32,12 +33,13 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function AllInvoicesList() {
-  const classes = useStyles();
+interface Props {
+  companyId: Companies["id"];
+  productType: ProductTypeEnum;
+}
 
-  const {
-    user: { companyId },
-  } = useContext(CurrentUserContext);
+export default function AllInvoicesList({ companyId, productType }: Props) {
+  const classes = useStyles();
 
   const { data, refetch, error } = useGetInvoicesByCompanyIdQuery({
     variables: {

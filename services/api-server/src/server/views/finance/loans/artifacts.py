@@ -37,7 +37,7 @@ class ListArtifactsForCreateLoan(MethodView):
 		loan_id = form['loan_id']
 
 		user_session = auth_util.UserSession.from_session()
-		if not user_session.is_company_admin_of_this_company(company_id):
+		if not user_session.is_bank_or_this_company_admin(company_id):
 			return handler_util.make_error_response('Access Denied')
 
 		resp, err = artifacts_util.list_artifacts_for_create_loan(

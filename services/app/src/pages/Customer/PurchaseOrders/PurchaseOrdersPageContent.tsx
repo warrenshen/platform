@@ -12,6 +12,8 @@ import PurchaseOrdersDataGrid from "components/PurchaseOrders/PurchaseOrdersData
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
+  Companies,
+  ProductTypeEnum,
   PurchaseOrderFragment,
   PurchaseOrders,
   usePurchaseOrdersByCompanyIdQuery,
@@ -33,10 +35,11 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  companyId: string;
+  companyId: Companies["id"];
+  productType: ProductTypeEnum;
 }
 
-function CustomerPurchaseOrdersPageContent({ companyId }: Props) {
+function CustomerPurchaseOrdersPageContent({ companyId, productType }: Props) {
   const classes = useStyles();
 
   const { data, refetch, error } = usePurchaseOrdersByCompanyIdQuery({
@@ -144,7 +147,9 @@ function CustomerPurchaseOrdersPageContent({ companyId }: Props) {
                 return (
                   <CreateUpdatePurchaseOrderLoanModal
                     actionType={ActionType.New}
-                    loanId=""
+                    companyId={companyId}
+                    productType={productType}
+                    loanId={null}
                     artifactId={selectedPurchaseOrderIds[0]}
                     handleClose={handler}
                   />
