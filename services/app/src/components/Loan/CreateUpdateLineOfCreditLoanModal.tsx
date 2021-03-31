@@ -8,7 +8,9 @@ import {
   DialogTitle,
   makeStyles,
   Theme,
+  Typography,
 } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import LineOfCreditLoanForm from "components/Loan/LineOfCreditLoanForm";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
@@ -274,9 +276,21 @@ function CreateUpdateLineOfCreditLoanModal({
       classes={{ paper: classes.dialog }}
     >
       <DialogTitle className={classes.dialogTitle}>
-        {`${actionType === ActionType.Update ? "Edit" : "Create"} Loan`}
+        {actionType === ActionType.Update ? "Edit Loan" : "Request New Loan"}
       </DialogTitle>
       <DialogContent>
+        {isBankUser && (
+          <Box mt={2} mb={3}>
+            <Alert severity="warning">
+              <Typography variant="body1">
+                {`Warning: you are ${
+                  actionType === ActionType.Update ? "editing" : "requesting"
+                } a loan on behalf of this
+                customer (only bank admins can do this).`}
+              </Typography>
+            </Alert>
+          </Box>
+        )}
         <LineOfCreditLoanForm
           lineOfCredit={lineOfCredit}
           loan={loan}
