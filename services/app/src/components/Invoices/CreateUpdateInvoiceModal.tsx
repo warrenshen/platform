@@ -8,6 +8,7 @@ import {
   makeStyles,
   Theme,
 } from "@material-ui/core";
+import InvoiceForm from "components/Invoices/InvoiceForm";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   InvoiceFileFragment,
@@ -28,7 +29,6 @@ import {
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
-import InvoiceForm from "./InvoiceForm";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -99,10 +99,6 @@ function CreateUpdateInvoiceModal({
 
   const [invoiceFile, setInvoiceFile] = useState<InvoiceFileFragment>();
 
-  const [invoiceCannabisFiles, setInvoiceCannabisFiles] = useState<
-    InvoiceFileFragment[]
-  >([]);
-
   const { data, loading: isPayorsLoading } = usePayorsByPartnerCompanyQuery({
     fetchPolicy: "network-only",
     variables: {
@@ -127,11 +123,6 @@ function CreateUpdateInvoiceModal({
           (f) => f.file_type === InvoiceFileTypeEnum.Invoice
         )[0]
       );
-      setInvoiceCannabisFiles(
-        existingInvoice.invoice_files.filter(
-          (f) => f.file_type === InvoiceFileTypeEnum.Cannabis
-        )
-      );
     },
   });
 
@@ -151,10 +142,7 @@ function CreateUpdateInvoiceModal({
   ] = useCustomMutation(submitNewInvoiceForPaymentMutation);
 
   const upsertInvoice = async () => {
-    const files = [
-      ...mapFiles([invoiceFile].filter((f) => !!f)),
-      ...mapFiles(invoiceCannabisFiles),
-    ];
+    const files = [...mapFiles([invoiceFile].filter((f) => !!f))];
 
     const fn = actionType === ActionType.New ? createInvoice : updateInvoice;
     return await fn({
@@ -256,11 +244,9 @@ function CreateUpdateInvoiceModal({
           companyId={companyId}
           invoice={invoice}
           invoiceFile={invoiceFile}
-          invoiceCannabisFiles={invoiceCannabisFiles}
           payors={payors}
           setInvoice={setInvoice}
           setInvoiceFile={setInvoiceFile}
-          setInvoiceCannabisFiles={setInvoiceCannabisFiles}
         />
       </DialogContent>
       <DialogActions className={classes.dialogActions}>

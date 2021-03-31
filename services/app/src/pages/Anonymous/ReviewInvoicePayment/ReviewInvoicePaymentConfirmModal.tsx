@@ -25,7 +25,7 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { respondToInvoicePaymentMutation } from "lib/api/invoices";
 import { todayAsDateStringServer } from "lib/date";
-import { AllPaymentMethods, PaymentMethodToLabel } from "lib/enum";
+import { PaymentMethodToLabel, PayorPaymentMethods } from "lib/enum";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -66,7 +66,7 @@ export default function ReviewInvoicePaymentConfirmModal({
 
   const [state, setState] = useState<PaymentsInsertInput>({
     requested_payment_date: todayAsDateStringServer(),
-    amount: invoice.subtotal_amount,
+    amount: invoice.total_amount,
     method: "",
   });
 
@@ -148,7 +148,7 @@ export default function ReviewInvoicePaymentConfirmModal({
                 })
               }
             >
-              {AllPaymentMethods.map((method) => {
+              {PayorPaymentMethods.map((method) => {
                 return (
                   <MenuItem key={method} value={method}>
                     {PaymentMethodToLabel[method]}
@@ -162,7 +162,7 @@ export default function ReviewInvoicePaymentConfirmModal({
           <FormControl className={classes.inputField}>
             <CurrencyInput
               label={"Amount"}
-              value={state.amount || invoice.subtotal_amount}
+              value={state.amount}
               handleChange={(value: number) =>
                 setState({
                   ...state,

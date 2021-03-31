@@ -1,9 +1,7 @@
 import {
   Box,
   Button,
-  Checkbox,
   createStyles,
-  FormControlLabel,
   makeStyles,
   Theme,
   Typography,
@@ -96,17 +94,6 @@ export default function ReviewInvoicePaymentPage(props: Props) {
     return invoiceFile ? [invoiceFile.file_id] : [];
   }, [invoice]);
 
-  const invoiceCannabisFileIds = useMemo(() => {
-    return (
-      invoice?.invoice_files
-        .filter(
-          (invoiceFile) =>
-            invoiceFile.file_type === InvoiceFileTypeEnum.Cannabis
-        )
-        .map((invoiceFile) => invoiceFile.file_id) || []
-    );
-  }, [invoice]);
-
   // If we've already confirmed this invoice, redirect to the complete page
   if (
     invoice &&
@@ -188,22 +175,6 @@ export default function ReviewInvoicePaymentPage(props: Props) {
           </Typography>
           <DownloadThumbnail fileIds={invoiceFileIds} />
         </Box>
-        <Box mt={2}>
-          <FormControlLabel
-            control={
-              <Checkbox disabled={true} checked={!!invoice?.is_cannabis} />
-            }
-            label={"Invoice includes cannabis or derivatives"}
-          />
-        </Box>
-        {invoice?.is_cannabis && (
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Cannabis or Derivatives File(s)
-            </Typography>
-            <DownloadThumbnail fileIds={invoiceCannabisFileIds} />
-          </Box>
-        )}
         {collectionsAccount && (
           <Box mr={3} className={classes.paymentInfo}>
             <Typography variant="subtitle1">Payment Information</Typography>

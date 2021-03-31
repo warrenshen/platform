@@ -1,9 +1,7 @@
 import {
   Box,
   Button,
-  Checkbox,
   createStyles,
-  FormControlLabel,
   makeStyles,
   Theme,
   Typography,
@@ -91,17 +89,6 @@ export default function ReviewInvoicePage(props: Props) {
     return invoiceFile ? [invoiceFile.file_id] : [];
   }, [invoice]);
 
-  const invoiceCannabisFileIds = useMemo(() => {
-    return (
-      invoice?.invoice_files
-        .filter(
-          (invoiceFile) =>
-            invoiceFile.file_type === InvoiceFileTypeEnum.Cannabis
-        )
-        .map((invoiceFile) => invoiceFile.file_id) || []
-    );
-  }, [invoice]);
-
   if (
     invoice &&
     [RequestStatusEnum.Approved, RequestStatusEnum.Rejected].includes(
@@ -186,22 +173,6 @@ export default function ReviewInvoicePage(props: Props) {
           </Typography>
           <DownloadThumbnail fileIds={invoiceFileIds} />
         </Box>
-        <Box mt={2}>
-          <FormControlLabel
-            control={
-              <Checkbox disabled={true} checked={!!invoice?.is_cannabis} />
-            }
-            label={"Invoice includes cannabis or derivatives"}
-          />
-        </Box>
-        {invoice?.is_cannabis && (
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Cannabis or Derivatives File(s)
-            </Typography>
-            <DownloadThumbnail fileIds={invoiceCannabisFileIds} />
-          </Box>
-        )}
         <Box display="flex" justifyContent="center" mt={4}>
           {isApproveModalOpen && (
             <ReviewInvoiceApproveModal

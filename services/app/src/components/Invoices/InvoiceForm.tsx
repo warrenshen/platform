@@ -1,9 +1,7 @@
 import {
   Box,
-  Checkbox,
   createStyles,
   FormControl,
-  FormControlLabel,
   InputLabel,
   makeStyles,
   MenuItem,
@@ -22,7 +20,7 @@ import {
   InvoicesInsertInput,
   PayorsByPartnerCompanyQuery,
 } from "generated/graphql";
-import { ChangeEvent, useMemo } from "react";
+import { useMemo } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -37,11 +35,9 @@ interface Props {
   companyId: string;
   invoice: InvoicesInsertInput;
   invoiceFile?: InvoiceFileFragment;
-  invoiceCannabisFiles: InvoiceFileFragment[];
   payors: PayorsByPartnerCompanyQuery["payors"];
   setInvoice: (invoice: InvoicesInsertInput) => void;
   setInvoiceFile: (file: InvoiceFileFragment) => void;
-  setInvoiceCannabisFiles: (files: InvoiceFileFragment[]) => void;
 }
 
 export default function InvoiceForm({
@@ -49,22 +45,15 @@ export default function InvoiceForm({
   companyId,
   invoice,
   invoiceFile,
-  invoiceCannabisFiles,
   payors,
   setInvoice,
   setInvoiceFile,
-  setInvoiceCannabisFiles,
 }: Props) {
   const classes = useStyles();
 
   const invoiceFileIds = useMemo(
     () => (invoiceFile ? [invoiceFile.file_id] : []),
     [invoiceFile]
-  );
-
-  const invoiceCannabisFileIds = useMemo(
-    () => invoiceCannabisFiles.map((f) => f.file_id),
-    [invoiceCannabisFiles]
   );
 
   return (
@@ -232,59 +221,6 @@ export default function InvoiceForm({
             }}
           />
         </Box>
-        <Box mt={2}>
-          <FormControlLabel
-            label="Invoice includes cannabis or derivatives"
-            control={
-              <Checkbox
-                checked={!!invoice.is_cannabis}
-                color="primary"
-                onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                  setInvoice({
-                    ...invoice,
-                    is_cannabis: event.target.checked,
-                  })
-                }
-              />
-            }
-          />
-        </Box>
-        {!!invoice.is_cannabis && (
-          <Box mt={2}>
-            <Box mb={1}>
-              <Typography variant="subtitle1" color="textSecondary">
-                Cannabis File Attachments
-              </Typography>
-              <Typography variant="body2" color="textSecondary">
-                Please upload the following: Shipping Manifest, Certificate of
-                Analysis.
-              </Typography>
-            </Box>
-            {invoiceCannabisFiles.length > 0 && (
-              <DownloadThumbnail fileIds={invoiceCannabisFileIds} />
-            )}
-            <Box mt={1}>
-              <FileUploadDropzone
-                companyId={companyId}
-                docType="invoice"
-                onUploadComplete={async (response) => {
-                  if (!response.succeeded) {
-                    return;
-                  }
-                  const { files_in_db: files } = response;
-                  setInvoiceCannabisFiles(
-                    files.map((file) => ({
-                      invoice_id: invoice.id,
-                      file_id: file.id,
-                      file_type: InvoiceFileTypeEnum.Cannabis,
-                      file: file,
-                    }))
-                  );
-                }}
-              />
-            </Box>
-          </Box>
-        )}
       </Box>
     </Box>
   );

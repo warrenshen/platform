@@ -88,6 +88,14 @@ export const AllPaymentMethods = [
   PaymentMethodEnum.Check,
 ];
 
+// Payment methods that a Payor may pay with.
+export const PayorPaymentMethods = [
+  PaymentMethodEnum.ACH,
+  PaymentMethodEnum.Wire,
+  PaymentMethodEnum.Cash,
+  PaymentMethodEnum.Check,
+];
+
 // Payment Option enum related.
 export enum PaymentOptionEnum {
   InFull = "pay_in_full",

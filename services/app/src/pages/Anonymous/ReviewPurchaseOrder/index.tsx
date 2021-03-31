@@ -1,9 +1,7 @@
 import {
   Box,
   Button,
-  Checkbox,
   createStyles,
-  FormControlLabel,
   makeStyles,
   Theme,
   Typography,
@@ -175,17 +173,6 @@ function ReviewPurchaseOrderPage({ location }: Props) {
             Purchase Order File
           </Typography>
           <DownloadThumbnail fileIds={purchaseOrderFileIds} />
-        </Box>
-        <Box mt={2}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                disabled={true}
-                checked={!!purchaseOrder?.is_cannabis}
-              />
-            }
-            label={"Order includes cannabis or derivatives"}
-          />
         </Box>
         {purchaseOrder?.is_cannabis && (
           <Box display="flex" flexDirection="column" mt={2}>
