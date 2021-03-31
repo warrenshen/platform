@@ -12,6 +12,7 @@ import {
 import LineOfCreditLoanForm from "components/Loan/LineOfCreditLoanForm";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
+  Companies,
   LineOfCreditsInsertInput,
   LoansInsertInput,
   LoanStatusEnum,
@@ -22,6 +23,7 @@ import {
   useApprovedVendorsByPartnerCompanyIdQuery,
   useGetCompanyNextLoanIdentifierMutation,
   useGetLoanWithArtifactForCustomerQuery,
+  UserRolesEnum,
   useUpdateLineOfCreditAndLoanMutation,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -53,12 +55,14 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   actionType: ActionType;
+  companyId: Companies["id"];
   loanId: Scalars["uuid"] | null;
   handleClose: () => void;
 }
 
 function CreateUpdateLineOfCreditLoanModal({
   actionType,
+  companyId,
   loanId = null,
   handleClose,
 }: Props) {
@@ -66,8 +70,9 @@ function CreateUpdateLineOfCreditLoanModal({
   const snackbar = useSnackbar();
 
   const {
-    user: { companyId },
+    user: { role },
   } = useContext(CurrentUserContext);
+  const isBankUser = role === UserRolesEnum.BankAdmin;
 
   const newLineOfCredit: LineOfCreditsInsertInput = {
     company_id: companyId,
@@ -180,6 +185,7 @@ function CreateUpdateLineOfCreditLoanModal({
         const responseLineOfCredit = await addLineOfCredit({
           variables: {
             lineOfCredit: {
+              company_id: isBankUser ? companyId : undefined,
               is_credit_for_vendor: lineOfCredit.is_credit_for_vendor,
               recipient_vendor_id: lineOfCredit.recipient_vendor_id,
             },
@@ -194,6 +200,7 @@ function CreateUpdateLineOfCreditLoanModal({
           const responseLoan = await addLoan({
             variables: {
               loan: {
+                company_id: isBankUser ? companyId : undefined,
                 identifier: nextLoanIdentifier.toString(),
                 artifact_id: artifactId,
                 loan_type: loan.loan_type,

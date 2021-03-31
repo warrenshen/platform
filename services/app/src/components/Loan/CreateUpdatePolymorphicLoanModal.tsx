@@ -38,6 +38,7 @@ function CreateUpdatePolymorphicLoanModal({
   } else if (productType === ProductTypeEnum.LineOfCredit) {
     return (
       <CreateUpdateLineOfCreditLoanModal
+        companyId={companyId}
         actionType={actionType}
         loanId={loanId}
         handleClose={handleClose}
