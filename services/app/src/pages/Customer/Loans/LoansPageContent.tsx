@@ -7,8 +7,8 @@ import {
   Theme,
 } from "@material-ui/core";
 import { ProductTypeEnum } from "generated/graphql";
-import CustomerLoansPageLoansTab from "pages/Customer/Loans/LoansActiveTab";
-import CustomerLoansPageLoansClosedTab from "pages/Customer/Loans/LoansClosedTab";
+import CustomerLoansActiveTab from "pages/Customer/Loans/LoansActiveTab";
+import CustomerLoansClosedTab from "pages/Customer/Loans/LoansClosedTab";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -57,12 +57,12 @@ function CustomerLoansPageContent({ companyId, productType }: Props) {
         <Tab label="Closed Loans" />
       </Tabs>
       {selectedTabIndex === 0 ? (
-        <CustomerLoansPageLoansTab
+        <CustomerLoansActiveTab
           companyId={companyId}
           productType={productType}
         />
       ) : (
-        <CustomerLoansPageLoansClosedTab
+        <CustomerLoansClosedTab
           companyId={companyId}
           productType={productType}
         />

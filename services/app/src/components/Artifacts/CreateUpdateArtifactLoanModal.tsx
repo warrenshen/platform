@@ -8,8 +8,10 @@ import {
   DialogTitle,
   makeStyles,
   Theme,
+  Typography,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   LoansInsertInput,
@@ -20,6 +22,7 @@ import {
   useAddLoanMutation,
   useGetCompanyNextLoanIdentifierMutation,
   useGetLoanForCustomerQuery,
+  UserRolesEnum,
   useUpdateLoanMutation,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -32,7 +35,7 @@ import {
   listArtifactsForCreateLoan,
 } from "lib/finance/loans/artifacts";
 import { isNull, mergeWith } from "lodash";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import ArtifactLoanForm, { ArtifactListItem } from "./ArtifactLoanForm";
 import { IdComponent } from "./interfaces";
 
@@ -78,6 +81,11 @@ export default function CreateUpdateArtifactLoanModal({
 }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
+
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = role === UserRolesEnum.BankAdmin;
 
   const artifactCopyLower = getProductTypeCopy(productType!);
   const artifactCopyUpper = capsFirst(artifactCopyLower);
@@ -214,6 +222,7 @@ export default function CreateUpdateArtifactLoanModal({
         const response = await addLoan({
           variables: {
             loan: {
+              company_id: isBankUser ? companyId : undefined,
               identifier: nextLoanIdentifier.toString(),
               loan_type: loanType,
               artifact_id: loan.artifact_id,
@@ -353,6 +362,18 @@ export default function CreateUpdateArtifactLoanModal({
         {actionType === ActionType.Update ? "Edit Loan" : "Request New Loan"}
       </DialogTitle>
       <DialogContent>
+        {isBankUser && (
+          <Box mt={2} mb={3}>
+            <Alert severity="warning">
+              <Typography variant="body1">
+                {`Warning: you are ${
+                  actionType === ActionType.Update ? "editing" : "requesting"
+                } a loan on behalf of this
+                customer (only bank admins can do this).`}
+              </Typography>
+            </Alert>
+          </Box>
+        )}
         <ArtifactLoanForm
           artifactTitle={getProductTypeArtifactTitle(productType!)}
           canEditArtifact={

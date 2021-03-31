@@ -123,10 +123,13 @@ export const check = (
 const rules: Rules = {
   [UserRolesEnum.BankAdmin]: {
     static: [
-      // Customer actions - bank performs on behalf of customer.
+      // Bank on-behalf-of actions - bank performs on behalf of customer.
       Action.AddPurchaseOrders,
       Action.EditPurchaseOrders,
       // Action.FundPurchaseOrders,
+
+      Action.AddPurchaseOrderLoan,
+      Action.EditPurchaseOrderLoan,
       Action.RepayPurchaseOrderLoans,
 
       // Bank actions.

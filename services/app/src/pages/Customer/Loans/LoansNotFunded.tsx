@@ -76,7 +76,7 @@ function LoansNotFunded({
   return (
     <Box className={classes.container}>
       <Box display="flex" flexDirection="row-reverse">
-        <Can perform={Action.AddPurchaseOrders}>
+        <Can perform={Action.AddPurchaseOrderLoan}>
           <ModalButton
             isDisabled={!canCreateUpdateNewLoan || selectedLoanIds.length !== 0}
             label={"Request New Loan"}
