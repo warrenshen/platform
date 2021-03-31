@@ -273,6 +273,9 @@ class Contract(object):
 	def get_factoring_fee_threshold(self) -> Tuple[float, errors.Error]:
 		return self._get_float_value('factoring_fee_threshold', is_nullable=True)
 
+	def get_factoring_fee_threshold_starting_value(self) -> Tuple[float, errors.Error]:
+		return self._get_float_value('factoring_fee_threshold_starting_value', is_nullable=False)
+
 	def get_discounted_interest_rate_due_to_factoring_fee(self) -> Tuple[float, errors.Error]:
 		factoring_fee_threshold, err = self._get_float_value('factoring_fee_threshold', is_nullable=True)
 		if err:

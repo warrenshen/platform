@@ -2,7 +2,7 @@ import datetime
 import decimal
 import json
 import uuid
-from typing import Any, Dict, List, cast
+from typing import Any, Callable, Dict, List, cast
 
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
@@ -247,84 +247,99 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 	def test_success_no_payments_two_loans_reduced_interest_rate_due_to_threshold(self) -> None:
 
-		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
-			session.add(models.Contract(
-				company_id=company_id,
-				product_type=ProductType.INVENTORY_FINANCING,
-				product_config=contract_test_helper.create_contract_config(
+		def get_populate_fn(threshold_starting_value: float) -> Callable:
+
+			def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+				session.add(models.Contract(
+					company_id=company_id,
 					product_type=ProductType.INVENTORY_FINANCING,
-					input_dict=ContractInputDict(
-						interest_rate=0.05,
-						maximum_principal_amount=120000.01,
-						minimum_monthly_amount=200.03,
-						factoring_fee_threshold=1000.0,
-						adjusted_factoring_fee_percentage=0.01, # reduced rate once you hit 1000 in principal owed
-						max_days_until_repayment=0, # unused
-						late_fee_structure=_get_late_fee_structure(), # unused
-					)
-				),
-				start_date=date_util.load_date_str('1/1/2020'),
-				adjusted_end_date=date_util.load_date_str('12/30/2020')
-			))
-			loan = models.Loan(
-				company_id=company_id,
-				origination_date=date_util.load_date_str('10/01/2020'),
-				adjusted_maturity_date=date_util.load_date_str('12/1/2020'),
-				amount=decimal.Decimal(500.03)
-			)
-			session.add(loan)
-			payment_test_helper.make_advance(
-				session, loan, amount=500.03, payment_date='10/01/2020', effective_date='10/01/2020')
+					product_config=contract_test_helper.create_contract_config(
+						product_type=ProductType.INVENTORY_FINANCING,
+						input_dict=ContractInputDict(
+							interest_rate=0.05,
+							maximum_principal_amount=120000.01,
+							minimum_monthly_amount=200.03,
+							factoring_fee_threshold=1000.0,
+							factoring_fee_threshold_starting_value=threshold_starting_value,
+							adjusted_factoring_fee_percentage=0.01, # reduced rate once you hit 1000 in principal owed
+							max_days_until_repayment=0, # unused
+							late_fee_structure=_get_late_fee_structure(), # unused
+						)
+					),
+					start_date=date_util.load_date_str('1/1/2020'),
+					adjusted_end_date=date_util.load_date_str('12/30/2020')
+				))
+				loan = models.Loan(
+					company_id=company_id,
+					origination_date=date_util.load_date_str('10/01/2020'),
+					adjusted_maturity_date=date_util.load_date_str('12/1/2020'),
+					amount=decimal.Decimal(500.03)
+				)
+				session.add(loan)
+				payment_test_helper.make_advance(
+					session, loan, amount=500.03, payment_date='10/01/2020', effective_date='10/01/2020')
 
-			loan2 = models.Loan(
-				company_id=company_id,
-				origination_date=date_util.load_date_str('10/05/2020'),
-				adjusted_maturity_date=date_util.load_date_str('12/2/2020'),
-				amount=decimal.Decimal(600.03)
-			)
-			session.add(loan2)
-			payment_test_helper.make_advance(
-				session, loan2, amount=600.03, payment_date='10/05/2020', effective_date='10/05/2020')
+				loan2 = models.Loan(
+					company_id=company_id,
+					origination_date=date_util.load_date_str('10/05/2020'),
+					adjusted_maturity_date=date_util.load_date_str('12/2/2020'),
+					amount=decimal.Decimal(600.03)
+				)
+				session.add(loan2)
+				payment_test_helper.make_advance(
+					session, loan2, amount=600.03, payment_date='10/05/2020', effective_date='10/05/2020')
 
-			loan3 = models.Loan(
-				company_id=company_id,
-				origination_date=date_util.load_date_str('10/07/2020'),
-				adjusted_maturity_date=date_util.load_date_str('12/3/2020'),
-				amount=decimal.Decimal(700.03)
-			)
-			session.add(loan3)
-			payment_test_helper.make_advance(
-				session, loan3, amount=700.03, payment_date='10/07/2020', effective_date='10/07/2020')
+				loan3 = models.Loan(
+					company_id=company_id,
+					origination_date=date_util.load_date_str('10/07/2020'),
+					adjusted_maturity_date=date_util.load_date_str('12/3/2020'),
+					amount=decimal.Decimal(700.03)
+				)
+				session.add(loan3)
+				payment_test_helper.make_advance(
+					session, loan3, amount=700.03, payment_date='10/07/2020', effective_date='10/07/2020')
 
-			# You cross the threshold on the 5th
-			payment_test_helper.make_repayment(
-				session, loan,
-				to_principal=500.03,
-				to_interest=0,
-				to_fees=0.0,
-				payment_date='10/05/2020',
-				effective_date='10/05/2020'
-			)
-			payment_test_helper.make_repayment(
-				session, loan2,
-				to_principal=500.03,
-				to_interest=0.0,
-				to_fees=0.0,
-				payment_date='10/05/2020',
-				effective_date='10/05/2020'
-			)
+				# Only 100 remaining after the 3rd.
+				payment_test_helper.make_repayment(
+					session, loan,
+					to_principal=400.03,
+					to_interest=0,
+					to_fees=0.0,
+					payment_date='10/03/2020',
+					effective_date='10/03/2020'
+				)
+
+				# You cross the threshold on the 5th if you started with 0 dollars.
+				payment_test_helper.make_repayment(
+					session, loan,
+					to_principal=100.00,
+					to_interest=0,
+					to_fees=0.0,
+					payment_date='10/05/2020',
+					effective_date='10/05/2020'
+				)
+				payment_test_helper.make_repayment(
+					session, loan2,
+					to_principal=500.03,
+					to_interest=0.0,
+					to_fees=0.0,
+					payment_date='10/05/2020',
+					effective_date='10/05/2020'
+				)
+			return populate_fn
+
 
 		first_day = 1 * 0.05 * 499.97 + 1 * 0.01 * (600.03 - 499.97)
 
 		tests: List[Dict] = [
 			{
 				'today': '10/03/2020', # Days before you cross the threshold
-				'populate_fn': populate_fn,
+				'populate_fn': get_populate_fn(threshold_starting_value=0.0),
 				'expected_loan_updates': [
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/1/2020'),
-						'outstanding_principal': 500.03,
-						'outstanding_principal_for_interest': 500.03,
+						'outstanding_principal': 100.00,
+						'outstanding_principal_for_interest': 100.00,
 						'outstanding_interest': round(3 * 0.05 * 500.03, 2), # 3 days of interest
 						'outstanding_fees': 0.0
 					},
@@ -347,13 +362,13 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			},
 			{
 				'today': '10/05/2020', # The day you cross the threshold, but it doesnt take effect until the next day
-				'populate_fn': populate_fn,
+				'populate_fn': get_populate_fn(threshold_starting_value=0.0),
 				'expected_loan_updates': [
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/1/2020'),
 						'outstanding_principal': 0.0,
 						'outstanding_principal_for_interest': 0.0,
-						'outstanding_interest': round(5 * 0.05 * 500.03, 2), # 5 days of interest
+						'outstanding_interest': round(3 * 0.05 * 500.03, 2) + round(2 * 0.05 * 100.00, 2), # 5 days of interest
 						'outstanding_fees': 0.0
 					},
 					{
@@ -375,13 +390,13 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			},
 			{
 				'today': '10/09/2020', # You have 4 days after crossing the threshold, and should have the discounted rate
-				'populate_fn': populate_fn,
+				'populate_fn': get_populate_fn(threshold_starting_value=0.0),
 				'expected_loan_updates': [
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/1/2020'),
 						'outstanding_principal': 0.0,
 						'outstanding_principal_for_interest': 0.0,
-						'outstanding_interest': round(5 * 0.05 * 500.03, 2), # 5 days of interest, stopped accruing after repayment
+						'outstanding_interest': round(3 * 0.05 * 500.03, 2) + round(2 * 0.05 * 100.00, 2), # 5 days of interest, stopped accruing after repayment
 						'outstanding_fees': 0.0
 					},
 					{
@@ -401,7 +416,64 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				],
 				'expected_day_volume_threshold_met': date_util.load_date_str('10/05/2020')
 			},
+			{
+				'today': '10/09/2020', # You crossed the threshold from the beginning
+				'populate_fn': get_populate_fn(threshold_starting_value=2000.0),
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('12/1/2020'),
+						'outstanding_principal': 0.0,
+						'outstanding_principal_for_interest': 0.0,
+						'outstanding_interest': round(3 * 0.01 * 500.03, 2) + round(2 * 0.01 * 100.00, 2), # 5 days of interest, stopped accruing after repayment
+						'outstanding_fees': 0.0
+					},
+					{
+						'adjusted_maturity_date': date_util.load_date_str('12/2/2020'),
+						'outstanding_principal': 100.0,
+						'outstanding_principal_for_interest': 100.0,
+						'outstanding_interest': round(1 * 0.01 * 600.03, 2) + round(4 * 0.01 * 100.0, 2), # All days at lower rate
+						'outstanding_fees': 0.0
+					},
+					{
+						'adjusted_maturity_date': date_util.load_date_str('12/3/2020'),
+						'outstanding_principal': 700.03,
+						'outstanding_principal_for_interest': 700.03,
+						'outstanding_interest': round(3 * 0.01 * 700.03, 2), # You have 3 days, all at the discounted rate
+						'outstanding_fees': 0.0
+					}
+				],
+				'expected_day_volume_threshold_met': date_util.load_date_str('01/01/2020')
+			},
+			{
+				'today': '10/09/2020', # You crossed the threshold on the 3rd instead of the 5th because of the starting value
+				'populate_fn': get_populate_fn(threshold_starting_value=800.0),
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('12/1/2020'),
+						'outstanding_principal': 0.0,
+						'outstanding_principal_for_interest': 0.0,
+						'outstanding_interest': round(3 * 0.05 * 500.03, 2) + round(2 * 0.01 * 100.00, 2), # 5 days of interest, stopped accruing after repayment
+						'outstanding_fees': 0.0
+					},
+					{
+						'adjusted_maturity_date': date_util.load_date_str('12/2/2020'),
+						'outstanding_principal': 100.0,
+						'outstanding_principal_for_interest': 100.0,
+						'outstanding_interest': round(1 * 0.01 * 600.03, 2) + round(4 * 0.01 * 100.0, 2), # All days at lower rate
+						'outstanding_fees': 0.0
+					},
+					{
+						'adjusted_maturity_date': date_util.load_date_str('12/3/2020'),
+						'outstanding_principal': 700.03,
+						'outstanding_principal_for_interest': 700.03,
+						'outstanding_interest': round(3 * 0.01 * 700.03, 2), # You have 3 days, all at the discounted rate
+						'outstanding_fees': 0.0
+					}
+				],
+				'expected_day_volume_threshold_met': date_util.load_date_str('10/03/2020')
+			},
 		]
+		tests = [tests[4]]
 		for test in tests:
 			self._run_test(test)
 

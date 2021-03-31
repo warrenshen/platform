@@ -16,6 +16,7 @@ ContractInputDict = TypedDict('ContractInputDict', {
 	'preceeding_business_day': bool,
 	'minimum_monthly_amount': float,
 	'factoring_fee_threshold': float,
+	'factoring_fee_threshold_starting_value': float,
 	'adjusted_factoring_fee_percentage': float,
 	'wire_fee': float,
 	'repayment_type_settlement_timeline': str,
@@ -53,6 +54,10 @@ def create_contract_config(
 		{
 			'internal_name': 'factoring_fee_threshold',
 			'value': input_dict.get('factoring_fee_threshold', None)
+		},
+		{
+			'internal_name': 'factoring_fee_threshold_starting_value',
+			'value': input_dict.get('factoring_fee_threshold_starting_value', None)
 		},
 		{
 			'internal_name': 'adjusted_factoring_fee_percentage',

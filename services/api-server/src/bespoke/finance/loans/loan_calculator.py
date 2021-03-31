@@ -47,11 +47,6 @@ class ThresholdAccumulator(object):
 		self._date_to_txs[cur_date].append(tx)
 
 	def compute_threshold_info(self, report_date: datetime.date) -> ThresholdInfoDict:
-		total_repayments_amount = 0.0
-
-		day_crosses_threshold = None
-		amount_below_threshold_on_crossing_day = None
-
 		contract, err = self._contract_helper.get_contract(report_date)
 		if err:
 			raise Exception(err.msg)
@@ -66,6 +61,16 @@ class ThresholdAccumulator(object):
 
 		factoring_fee_threshold, err = contract.get_factoring_fee_threshold()
 		has_threshold_set = factoring_fee_threshold > 0.0
+		starting_value, starting_value_err = contract.get_factoring_fee_threshold_starting_value()
+		if has_threshold_set and starting_value is None:
+			raise Exception('Factoring fee threshold starting value must be set if a customers factoring fee threshold is set')
+
+		total_repayments_amount = starting_value if starting_value else 0.0
+		if has_threshold_set and total_repayments_amount >= factoring_fee_threshold:
+			# You crossed the threshold immediately because of carry-over
+			return ThresholdInfoDict(
+				day_threshold_met=start_date
+			)
 
 		for cur_date, aug_txs in self._date_to_txs.items():
 
@@ -308,41 +313,28 @@ class LoanCalculator(object):
 			# NOTE: divide money into amount above threshold and amount below threshold
 			factoring_fee_threshold, err = cur_contract.get_factoring_fee_threshold()
 			has_threshold_set = factoring_fee_threshold > 0.0
-
-			# TODO(dlluncor): Have threshold info be set and defined for all relevant contract
-			# periods, because the customer may have different thresholds for different
-			# contract periods.
 			day_threshold_met = threshold_info['day_threshold_met']
 
-			reduced_interest_rate = 0.0
-			amount_below_threshold = outstanding_principal_for_interest
+			interest_rate_used = cur_interest_rate
 
 			if has_threshold_set and day_threshold_met:
 				# There was some day that the customer met the threshold
-
 				if cur_date > day_threshold_met:
 					# After the day we meet the threshold, everything is at the reduced interest rate
-					amount_below_threshold = 0.0
+					reduced_interest_rate, err = cur_contract.get_discounted_interest_rate_due_to_factoring_fee()
+					if err:
+						errors_list.append(err)
+						continue
 
-				reduced_interest_rate, err = cur_contract.get_discounted_interest_rate_due_to_factoring_fee()
-				if err:
-					errors_list.append(err)
-					continue
+					interest_rate_used = reduced_interest_rate
 
 			if outstanding_principal_for_interest == 0:
-				interest_due_for_day = 0.0
-			elif outstanding_principal_for_interest > 0:
-				# The interest due for the day can be split between an amount you pay
-				# at the introductory rate (cur_interest_rate), and the reduced interest rate
-				# which is any principal amount that puts you over the
-				amount_above_threshold = outstanding_principal_for_interest - amount_below_threshold
-
-				interest_due_for_day = cur_interest_rate * amount_below_threshold \
-					+ reduced_interest_rate * amount_above_threshold
-			else:
+				interest_rate_used = 0.0
+			elif outstanding_principal_for_interest < 0:
 				logging.warn(f'Outstanding principal for interest ({outstanding_principal_for_interest}) is negative on {cur_date} for loan {loan["id"]}')
 				interest_due_for_day = 0.0
 
+			interest_due_for_day = interest_rate_used * outstanding_principal_for_interest
 			outstanding_interest += interest_due_for_day
 			fee_due_for_day = fee_multiplier * interest_due_for_day
 			outstanding_fees += fee_due_for_day
@@ -354,7 +346,7 @@ class LoanCalculator(object):
 			self._note_today(
 				cur_date=cur_date,
 				outstanding_principal=outstanding_principal,
-				interest_rate=cur_interest_rate,
+				interest_rate=interest_rate_used,
 				fee_multiplier=fee_multiplier
 			)
 

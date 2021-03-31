@@ -61,6 +61,16 @@
       {
         "section": "Financing Terms",
         "type": "float",
+        "format": "currency",
+        "internal_name": "factoring_fee_threshold_starting_value",
+        "display_name": "Volume Discount Starting Value",
+        "value": null,
+        "nullable": true,
+        "is_hidden_if_null": true
+      },
+      {
+        "section": "Financing Terms",
+        "type": "float",
         "format": "percentage",
         "internal_name": "adjusted_factoring_fee_percentage",
         "display_name": "Discounted Daily Interest Rate",
