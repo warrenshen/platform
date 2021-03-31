@@ -69,15 +69,15 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
 
       if (response.status !== "OK") {
         snackbar.showError(
-          "Error! Could not re-calculate customer balances. " + response.msg
+          `Error! Could not re-calculate customer balances. Reason: ${response.msg}`
         );
       } else if (response.errors && response.errors.length > 0) {
         snackbar.showWarning(
-          `Partial success! Here are the customer(s) balances NOT recalculated: ${response.errors}`
+          `Partial success! Here are the customer balances NOT recalculated: ${response.errors}`
         );
         handleClose();
       } else {
-        snackbar.showSuccess("Success! Customer(s) balances recalculated.");
+        snackbar.showSuccess("Success! Customer balances recalculated.");
         handleClose();
       }
     }

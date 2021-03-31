@@ -191,6 +191,7 @@ function CreateUpdatePurchaseOrderModal({
       const response = await addPurchaseOrder({
         variables: {
           purchase_order: {
+            company_id: isBankUser ? companyId : undefined,
             vendor_id: purchaseOrder.vendor_id,
             order_number: purchaseOrder.order_number || null,
             order_date: purchaseOrder.order_date || null,
