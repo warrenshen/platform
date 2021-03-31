@@ -23,9 +23,6 @@ const useStyles = makeStyles((theme: Theme) =>
       display: "flex",
       flexDirection: "column",
     },
-    sectionSpace: {
-      height: theme.spacing(4),
-    },
   })
 );
 

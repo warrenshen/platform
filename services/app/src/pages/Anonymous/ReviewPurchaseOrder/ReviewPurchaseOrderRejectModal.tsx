@@ -12,8 +12,9 @@ import {
   Theme,
 } from "@material-ui/core";
 import { RequestStatusEnum } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { authenticatedApi, purchaseOrdersRoutes } from "lib/api";
+import { respondToPurchaseOrderApprovalRequestMutation } from "lib/api/purchaseOrders";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -48,19 +49,24 @@ function ReviewPurchaseOrderRejectModal({
 }: Props) {
   const snackbar = useSnackbar();
   const classes = useStyles();
+
   const [rejectionNote, setRejectionNote] = useState("");
 
+  const [
+    respondToApprovalRequest,
+    { loading: isRespondToApprovalRequestLoading },
+  ] = useCustomMutation(respondToPurchaseOrderApprovalRequestMutation);
+
   const handleClickReject = async () => {
-    const response = await authenticatedApi.post(
-      purchaseOrdersRoutes.respondToApprovalRequest,
-      {
+    const response = await respondToApprovalRequest({
+      variables: {
         purchase_order_id: purchaseOrderId,
         new_request_status: RequestStatusEnum.Rejected,
         rejection_note: rejectionNote,
         link_val: linkVal,
-      }
-    );
-    if (response.data?.status === "ERROR") {
+      },
+    });
+    if (response.status !== "OK") {
       snackbar.showError(
         `Error! Something went wrong. Reason: ${response.data?.msg}`
       );
@@ -69,6 +75,8 @@ function ReviewPurchaseOrderRejectModal({
       handleRejectSuccess();
     }
   };
+
+  const isSubmitDisabled = !rejectionNote || isRespondToApprovalRequestLoading;
 
   return (
     <Dialog
@@ -100,7 +108,7 @@ function ReviewPurchaseOrderRejectModal({
           Cancel
         </Button>
         <Button
-          disabled={!rejectionNote}
+          disabled={isSubmitDisabled}
           variant={"contained"}
           color={"primary"}
           onClick={handleClickReject}

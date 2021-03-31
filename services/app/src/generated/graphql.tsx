@@ -15886,6 +15886,22 @@ export type GetPurchaseOrdersQuery = {
   purchase_orders: Array<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
 };
 
+export type GetNotConfirmedPurchaseOrdersQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetNotConfirmedPurchaseOrdersQuery = {
+  purchase_orders: Array<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
+};
+
+export type GetConfirmedPurchaseOrdersQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetConfirmedPurchaseOrdersQuery = {
+  purchase_orders: Array<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
+};
+
 export type PurchaseOrdersByCompanyIdQueryVariables = Exact<{
   company_id: Scalars["uuid"];
 }>;
@@ -20766,6 +20782,120 @@ export type GetPurchaseOrdersLazyQueryHookResult = ReturnType<
 export type GetPurchaseOrdersQueryResult = Apollo.QueryResult<
   GetPurchaseOrdersQuery,
   GetPurchaseOrdersQueryVariables
+>;
+export const GetNotConfirmedPurchaseOrdersDocument = gql`
+  query GetNotConfirmedPurchaseOrders {
+    purchase_orders(where: { approved_at: { _is_null: true } }) {
+      id
+      ...PurchaseOrder
+    }
+  }
+  ${PurchaseOrderFragmentDoc}
+`;
+
+/**
+ * __useGetNotConfirmedPurchaseOrdersQuery__
+ *
+ * To run a query within a React component, call `useGetNotConfirmedPurchaseOrdersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetNotConfirmedPurchaseOrdersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetNotConfirmedPurchaseOrdersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetNotConfirmedPurchaseOrdersQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetNotConfirmedPurchaseOrdersQuery,
+    GetNotConfirmedPurchaseOrdersQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetNotConfirmedPurchaseOrdersQuery,
+    GetNotConfirmedPurchaseOrdersQueryVariables
+  >(GetNotConfirmedPurchaseOrdersDocument, baseOptions);
+}
+export function useGetNotConfirmedPurchaseOrdersLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetNotConfirmedPurchaseOrdersQuery,
+    GetNotConfirmedPurchaseOrdersQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetNotConfirmedPurchaseOrdersQuery,
+    GetNotConfirmedPurchaseOrdersQueryVariables
+  >(GetNotConfirmedPurchaseOrdersDocument, baseOptions);
+}
+export type GetNotConfirmedPurchaseOrdersQueryHookResult = ReturnType<
+  typeof useGetNotConfirmedPurchaseOrdersQuery
+>;
+export type GetNotConfirmedPurchaseOrdersLazyQueryHookResult = ReturnType<
+  typeof useGetNotConfirmedPurchaseOrdersLazyQuery
+>;
+export type GetNotConfirmedPurchaseOrdersQueryResult = Apollo.QueryResult<
+  GetNotConfirmedPurchaseOrdersQuery,
+  GetNotConfirmedPurchaseOrdersQueryVariables
+>;
+export const GetConfirmedPurchaseOrdersDocument = gql`
+  query GetConfirmedPurchaseOrders {
+    purchase_orders(where: { approved_at: { _is_null: false } }) {
+      id
+      ...PurchaseOrder
+    }
+  }
+  ${PurchaseOrderFragmentDoc}
+`;
+
+/**
+ * __useGetConfirmedPurchaseOrdersQuery__
+ *
+ * To run a query within a React component, call `useGetConfirmedPurchaseOrdersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetConfirmedPurchaseOrdersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetConfirmedPurchaseOrdersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetConfirmedPurchaseOrdersQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetConfirmedPurchaseOrdersQuery,
+    GetConfirmedPurchaseOrdersQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetConfirmedPurchaseOrdersQuery,
+    GetConfirmedPurchaseOrdersQueryVariables
+  >(GetConfirmedPurchaseOrdersDocument, baseOptions);
+}
+export function useGetConfirmedPurchaseOrdersLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetConfirmedPurchaseOrdersQuery,
+    GetConfirmedPurchaseOrdersQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetConfirmedPurchaseOrdersQuery,
+    GetConfirmedPurchaseOrdersQueryVariables
+  >(GetConfirmedPurchaseOrdersDocument, baseOptions);
+}
+export type GetConfirmedPurchaseOrdersQueryHookResult = ReturnType<
+  typeof useGetConfirmedPurchaseOrdersQuery
+>;
+export type GetConfirmedPurchaseOrdersLazyQueryHookResult = ReturnType<
+  typeof useGetConfirmedPurchaseOrdersLazyQuery
+>;
+export type GetConfirmedPurchaseOrdersQueryResult = Apollo.QueryResult<
+  GetConfirmedPurchaseOrdersQuery,
+  GetConfirmedPurchaseOrdersQueryVariables
 >;
 export const PurchaseOrdersByCompanyIdDocument = gql`
   query PurchaseOrdersByCompanyId($company_id: uuid!) {

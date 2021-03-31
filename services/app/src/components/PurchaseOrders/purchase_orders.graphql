@@ -5,6 +5,20 @@ query GetPurchaseOrders {
   }
 }
 
+query GetNotConfirmedPurchaseOrders {
+  purchase_orders(where: { approved_at: { _is_null: true } }) {
+    id
+    ...PurchaseOrder
+  }
+}
+
+query GetConfirmedPurchaseOrders {
+  purchase_orders(where: { approved_at: { _is_null: false } }) {
+    id
+    ...PurchaseOrder
+  }
+}
+
 query PurchaseOrdersByCompanyId($company_id: uuid!) {
   purchase_orders(where: { company_id: { _eq: $company_id } }) {
     ...PurchaseOrder

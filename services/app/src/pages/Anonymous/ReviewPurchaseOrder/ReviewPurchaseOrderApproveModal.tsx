@@ -18,8 +18,9 @@ import {
   RequestStatusEnum,
   useCompanyVendorPartnershipForVendorQuery,
 } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { authenticatedApi, purchaseOrdersRoutes } from "lib/api";
+import { respondToPurchaseOrderApprovalRequestMutation } from "lib/api/purchaseOrders";
 import { useContext } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -54,6 +55,7 @@ function ReviewPurchaseOrderApproveModal({
 }: Props) {
   const snackbar = useSnackbar();
   const classes = useStyles();
+
   const {
     user: { companyId },
   } = useContext(CurrentUserContext);
@@ -69,6 +71,11 @@ function ReviewPurchaseOrderApproveModal({
     },
   });
 
+  const [
+    respondToApprovalRequest,
+    { loading: isRespondToApprovalRequestLoading },
+  ] = useCustomMutation(respondToPurchaseOrderApprovalRequestMutation);
+
   if (!data?.company_vendor_partnerships[0]?.vendor_bank_account) {
     if (!isCompanyVendorPartnershipLoading) {
       snackbar.showError(
@@ -82,16 +89,15 @@ function ReviewPurchaseOrderApproveModal({
     .vendor_bank_account as BankAccountFragment;
 
   const handleClickApprove = async () => {
-    const response = await authenticatedApi.post(
-      purchaseOrdersRoutes.respondToApprovalRequest,
-      {
+    const response = await respondToApprovalRequest({
+      variables: {
         purchase_order_id: purchaseOrder.id,
         new_request_status: RequestStatusEnum.Approved,
         rejection_note: "",
         link_val: linkVal,
-      }
-    );
-    if (response.data?.status === "ERROR") {
+      },
+    });
+    if (response.status !== "OK") {
       snackbar.showError(
         `Error! Something went wrong. Reason: ${response.data?.msg}`
       );
@@ -100,6 +106,8 @@ function ReviewPurchaseOrderApproveModal({
       handleApproveSuccess();
     }
   };
+
+  const isSubmitDisabled = isRespondToApprovalRequestLoading;
 
   return (
     <Dialog
@@ -130,6 +138,7 @@ function ReviewPurchaseOrderApproveModal({
           Cancel
         </Button>
         <Button
+          disabled={isSubmitDisabled}
           variant={"contained"}
           color={"primary"}
           onClick={handleClickApprove}
