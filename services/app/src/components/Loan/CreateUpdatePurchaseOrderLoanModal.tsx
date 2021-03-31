@@ -3,7 +3,7 @@ import PurchaseOrderInfoCardById from "components/PurchaseOrder/PurchaseOrderInf
 import {
   LoanTypeEnum,
   Scalars,
-  useApprovedPurchaseOrdersQuery,
+  useGetFundablePurchaseOrdersQuery,
 } from "generated/graphql";
 import { ActionType } from "lib/enum";
 
@@ -21,7 +21,7 @@ export default function CreateUpdatePurchaseOrderLoanModal({
   handleClose,
 }: Props) {
   // NOTE: This query implicitly has the companyId specified due to the table presets in Hasura
-  const { data, loading } = useApprovedPurchaseOrdersQuery({
+  const { data, loading } = useGetFundablePurchaseOrdersQuery({
     fetchPolicy: "network-only",
   });
 

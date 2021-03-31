@@ -15896,11 +15896,11 @@ export type PurchaseOrdersByCompanyIdQuery = {
   >;
 };
 
-export type ApprovedPurchaseOrdersQueryVariables = Exact<{
+export type GetFundablePurchaseOrdersQueryVariables = Exact<{
   [key: string]: never;
 }>;
 
-export type ApprovedPurchaseOrdersQuery = {
+export type GetFundablePurchaseOrdersQuery = {
   purchase_orders: Array<PurchaseOrderFragment>;
 };
 
@@ -20828,9 +20828,13 @@ export type PurchaseOrdersByCompanyIdQueryResult = Apollo.QueryResult<
   PurchaseOrdersByCompanyIdQuery,
   PurchaseOrdersByCompanyIdQueryVariables
 >;
-export const ApprovedPurchaseOrdersDocument = gql`
-  query ApprovedPurchaseOrders {
-    purchase_orders(where: { status: { _eq: approved } }) {
+export const GetFundablePurchaseOrdersDocument = gql`
+  query GetFundablePurchaseOrders {
+    purchase_orders(
+      where: {
+        _and: [{ status: { _eq: approved } }, { funded_at: { _is_null: true } }]
+      }
+    ) {
       ...PurchaseOrder
     }
   }
@@ -20838,51 +20842,51 @@ export const ApprovedPurchaseOrdersDocument = gql`
 `;
 
 /**
- * __useApprovedPurchaseOrdersQuery__
+ * __useGetFundablePurchaseOrdersQuery__
  *
- * To run a query within a React component, call `useApprovedPurchaseOrdersQuery` and pass it any options that fit your needs.
- * When your component renders, `useApprovedPurchaseOrdersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetFundablePurchaseOrdersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetFundablePurchaseOrdersQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useApprovedPurchaseOrdersQuery({
+ * const { data, loading, error } = useGetFundablePurchaseOrdersQuery({
  *   variables: {
  *   },
  * });
  */
-export function useApprovedPurchaseOrdersQuery(
+export function useGetFundablePurchaseOrdersQuery(
   baseOptions?: Apollo.QueryHookOptions<
-    ApprovedPurchaseOrdersQuery,
-    ApprovedPurchaseOrdersQueryVariables
+    GetFundablePurchaseOrdersQuery,
+    GetFundablePurchaseOrdersQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    ApprovedPurchaseOrdersQuery,
-    ApprovedPurchaseOrdersQueryVariables
-  >(ApprovedPurchaseOrdersDocument, baseOptions);
+    GetFundablePurchaseOrdersQuery,
+    GetFundablePurchaseOrdersQueryVariables
+  >(GetFundablePurchaseOrdersDocument, baseOptions);
 }
-export function useApprovedPurchaseOrdersLazyQuery(
+export function useGetFundablePurchaseOrdersLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    ApprovedPurchaseOrdersQuery,
-    ApprovedPurchaseOrdersQueryVariables
+    GetFundablePurchaseOrdersQuery,
+    GetFundablePurchaseOrdersQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    ApprovedPurchaseOrdersQuery,
-    ApprovedPurchaseOrdersQueryVariables
-  >(ApprovedPurchaseOrdersDocument, baseOptions);
+    GetFundablePurchaseOrdersQuery,
+    GetFundablePurchaseOrdersQueryVariables
+  >(GetFundablePurchaseOrdersDocument, baseOptions);
 }
-export type ApprovedPurchaseOrdersQueryHookResult = ReturnType<
-  typeof useApprovedPurchaseOrdersQuery
+export type GetFundablePurchaseOrdersQueryHookResult = ReturnType<
+  typeof useGetFundablePurchaseOrdersQuery
 >;
-export type ApprovedPurchaseOrdersLazyQueryHookResult = ReturnType<
-  typeof useApprovedPurchaseOrdersLazyQuery
+export type GetFundablePurchaseOrdersLazyQueryHookResult = ReturnType<
+  typeof useGetFundablePurchaseOrdersLazyQuery
 >;
-export type ApprovedPurchaseOrdersQueryResult = Apollo.QueryResult<
-  ApprovedPurchaseOrdersQuery,
-  ApprovedPurchaseOrdersQueryVariables
+export type GetFundablePurchaseOrdersQueryResult = Apollo.QueryResult<
+  GetFundablePurchaseOrdersQuery,
+  GetFundablePurchaseOrdersQueryVariables
 >;
 export const GetPaymentDocument = gql`
   query GetPayment($id: uuid!) {

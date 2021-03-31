@@ -26,6 +26,7 @@ import {
   useUpdateVendorAgreementIdMutation,
   useUpdateVendorLicenseIdMutation,
 } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import { Action } from "lib/auth/rbac-rules";
 import { InventoryNotifier } from "lib/notifications/inventory";
 import { omit } from "lodash";
@@ -51,6 +52,7 @@ interface Props {
 
 function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
   const classes = useStyles();
+  const snackbar = useSnackbar();
 
   const {
     data,
@@ -191,8 +193,11 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
                 });
                 if (response.data?.update_company_vendor_partnerships_by_pk) {
                   refetch();
+                  snackbar.showSuccess("Success! Vendor license uploaded.");
                 } else {
-                  alert("Error!");
+                  snackbar.showError(
+                    "Error! Vendor license could not be uploaded."
+                  );
                 }
               }}
             />
@@ -242,8 +247,11 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
               });
               if (response.data?.update_company_vendor_partnerships_by_pk) {
                 refetch();
+                snackbar.showSuccess("Success! Vendor agreement uploaded.");
               } else {
-                alert("Error!");
+                snackbar.showError(
+                  "Error! Vendor agreement could not be uploaded."
+                );
               }
             }}
           />

@@ -15,8 +15,12 @@ query PurchaseOrdersByCompanyId($company_id: uuid!) {
   }
 }
 
-query ApprovedPurchaseOrders {
-  purchase_orders(where: { status: { _eq: approved } }) {
+query GetFundablePurchaseOrders {
+  purchase_orders(
+    where: {
+      _and: [{ status: { _eq: approved } }, { funded_at: { _is_null: true } }]
+    }
+  ) {
     ...PurchaseOrder
   }
 }
