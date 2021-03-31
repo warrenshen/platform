@@ -3,16 +3,12 @@ import os
 
 from typing import Dict
 from bespoke.security import security_util
-
+from bespoke.config.config_util import is_development_env
 
 def _string_to_bool(text: str) -> bool:
 	if not text:
 		return False
 	return text.lower() == 'true'
-
-
-def is_development_env(flask_env: str) -> bool:
-	return flask_env == 'development'
 
 class Config(object):
 

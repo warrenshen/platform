@@ -5,6 +5,7 @@ from datetime import timedelta, timezone
 from typing import Callable, Dict, List, Text, Tuple, cast
 
 from bespoke import errors
+from bespoke.config.config_util import is_development_env
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
@@ -67,6 +68,10 @@ TemplateConfigDict = TypedDict('TemplateConfigDict', {
 	'id': str,
 	'requires_secure_link': bool
 })
+
+TEMPLATES_TO_EXCLUDE_FROM_BESPOKE_NOTIFICATIONS = set([
+	TemplateNames.USER_FORGOT_PASSWORD
+])
 
 _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 	TemplateNames.VENDOR_AGREEMENT_WITH_CUSTOMER: {
@@ -207,6 +212,18 @@ TwoFactorPayloadDict = TypedDict('TwoFactorPayloadDict', {
 	'expires_at': datetime.datetime
 })
 
+def _maybe_add_extra_recipients(
+	recipients: List[str], cfg: email_manager.EmailConfigDict, template_name: str) -> List[str]:
+	if is_development_env(cfg['flask_env']):
+		return recipients
+
+	if template_name in TEMPLATES_TO_EXCLUDE_FROM_BESPOKE_NOTIFICATIONS:
+		return recipients
+
+	recipients.append(cfg['no_reply_email_addr'])
+
+	return recipients
+
 class Client(object):
 
 	def __init__(self, email_client: email_manager.EmailSender, session_maker: Callable,
@@ -228,6 +245,9 @@ class Client(object):
 		template_id = _get_template_id(template_name)
 		template_data['defaults'] = _get_template_defaults(
 			template_name, self._cfg)
+
+		recipients = _maybe_add_extra_recipients(
+			recipients, self._cfg, template_name)
 
 		err_details = {
 			'template_name': template_name,
