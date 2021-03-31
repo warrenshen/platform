@@ -23,7 +23,9 @@ class PurchaseOrderFileTypeEnum():
 
 class RespondToApprovalRequestView(MethodView):
 	"""
-		POST request that handles when a vendor approves a loan.
+	POST request that handles the following:
+	1. Vendor user approves a purchase order.
+	2. Bank user approves a purchase order on behalf of the vendor.
 	"""
 	decorators = [auth_util.login_required]
 
@@ -42,7 +44,7 @@ class RespondToApprovalRequestView(MethodView):
 			'purchase_order_id',
 			'new_request_status',
 			'rejection_note',
-			'link_val'
+			'link_val',
 		]
 		for key in required_keys:
 			if key not in data:
@@ -69,19 +71,28 @@ class RespondToApprovalRequestView(MethodView):
 		purchase_order_requested_date = ''
 		action_type = ''
 
-		with session_scope(current_app.session_maker) as session:
-			two_factor_info, bespoke_err = two_factor_util.get_two_factor_link(
-				link_val, cfg.get_security_config(),
-				max_age_in_seconds=security_util.SECONDS_IN_DAY * 7, session=session)
-			if bespoke_err:
-				return handler_util.make_error_response(bespoke_err)
-			two_factor_link = two_factor_info['link']
+		user_session = auth_util.UserSession.from_session()
 
-			user = session.query(models.User) \
-				.filter(models.User.email == two_factor_info['email']) \
-				.first()
-			if user:
-				event.user_id(str(user.id))
+		with session_scope(current_app.session_maker) as session:
+			if user_session.is_bank_admin():
+				user = session.query(models.User) \
+					.filter(models.User.email == user_session.get_user_id()) \
+					.first()
+				if user:
+					event.user_id(str(user.id))
+			else:
+				two_factor_info, bespoke_err = two_factor_util.get_two_factor_link(
+					link_val, cfg.get_security_config(),
+					max_age_in_seconds=security_util.SECONDS_IN_DAY * 7, session=session)
+				if bespoke_err:
+					return handler_util.make_error_response(bespoke_err)
+				two_factor_link = two_factor_info['link']
+
+				user = session.query(models.User) \
+					.filter(models.User.email == two_factor_info['email']) \
+					.first()
+				if user:
+					event.user_id(str(user.id))
 
 			purchase_order = cast(
 				models.PurchaseOrder,
@@ -113,7 +124,9 @@ class RespondToApprovalRequestView(MethodView):
 			customer_name = purchase_order.company.name
 			customer_emails = [user.email for user in customer_users]
 
-			cast(Callable, session.delete)(two_factor_link) # retire the link now that it has been used
+			if not user_session.is_bank_admin():
+				cast(Callable, session.delete)(two_factor_link) # retire the link now that it has been used
+
 			session.commit()
 
 		if action_type == 'Approved':

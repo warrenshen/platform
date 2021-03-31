@@ -10,7 +10,10 @@ import { grey } from "@material-ui/core/colors";
 import { CheckCircle } from "@material-ui/icons";
 import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBankAccountModal";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import { BankAccountFragment } from "generated/graphql";
+import {
+  BankAccountForVendorFragment,
+  BankAccountFragment,
+} from "generated/graphql";
 import { formatDateString } from "lib/date";
 import { obfuscateBankNumbers } from "lib/privacy";
 import { useState } from "react";
@@ -29,7 +32,7 @@ interface Props {
   isCannabisCompliantVisible?: boolean;
   isEditAllowed?: boolean;
   isVerificationVisible?: boolean;
-  bankAccount: BankAccountFragment;
+  bankAccount: BankAccountFragment | BankAccountForVendorFragment;
   handleDataChange?: () => void;
 }
 
@@ -88,14 +91,18 @@ function BankAccountInfoCard({
           <Box display="flex" alignItems="center" pt={0.5} pb={1}>
             <CheckCircle
               color={
-                bankAccount.verified_at && bankAccount.verified_date
+                (bankAccount as BankAccountFragment).verified_at &&
+                (bankAccount as BankAccountFragment).verified_date
                   ? "primary"
                   : "disabled"
               }
             />
             <Box pl={1}>
-              {bankAccount.verified_at && bankAccount.verified_date
-                ? `Verified on ${formatDateString(bankAccount.verified_date)}`
+              {(bankAccount as BankAccountFragment).verified_at &&
+              (bankAccount as BankAccountFragment).verified_date
+                ? `Verified on ${formatDateString(
+                    (bankAccount as BankAccountFragment).verified_date
+                  )}`
                 : "Not yet verified"}
             </Box>
           </Box>
@@ -103,10 +110,14 @@ function BankAccountInfoCard({
         {isCannabisCompliantVisible && (
           <Box display="flex" alignItems="center" pt={0.5} pb={1}>
             <CheckCircle
-              color={bankAccount.is_cannabis_compliant ? "primary" : "disabled"}
+              color={
+                (bankAccount as BankAccountFragment).is_cannabis_compliant
+                  ? "primary"
+                  : "disabled"
+              }
             />
             <Box pl={1}>
-              {bankAccount.is_cannabis_compliant
+              {(bankAccount as BankAccountFragment).is_cannabis_compliant
                 ? "Cannabis Compliant"
                 : "Not Cannabis Compliant"}
             </Box>
@@ -123,7 +134,7 @@ function BankAccountInfoCard({
             modal={({ handleClose }) => (
               <CreateUpdateBankAccountModal
                 companyId={bankAccount.company_id}
-                existingBankAccount={bankAccount}
+                existingBankAccount={bankAccount as BankAccountFragment}
                 handleClose={() => {
                   !!handleDataChange && handleDataChange();
                   handleClose();

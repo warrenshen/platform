@@ -81,9 +81,7 @@ class UserSession(object):
 			Many operations require this check, because most operations can only be done
 			by a company admin of their own company, or a bank admin.
 		"""
-		return self.is_bank_admin() or self.is_company_admin_of_this_company(
-			company_id
-		)
+		return self.is_bank_admin() or self.is_company_admin_of_this_company(company_id)
 
 	@staticmethod
 	def from_session() -> 'UserSession':

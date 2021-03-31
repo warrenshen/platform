@@ -9,10 +9,11 @@ import {
   DialogTitle,
   makeStyles,
   Theme,
+  Typography,
 } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import {
-  BankAccountFragment,
   PurchaseOrderFragment,
   RequestStatusEnum,
   useCompanyVendorPartnershipForVendorQuery,
@@ -24,7 +25,7 @@ import { respondToPurchaseOrderApprovalRequestMutation } from "lib/api/purchaseO
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     dialog: {
-      width: 400,
+      width: 500,
     },
     dialogTitle: {
       borderBottom: "1px solid #c7c7c7",
@@ -40,17 +41,10 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   purchaseOrder: PurchaseOrderFragment;
-  linkVal: string; // the link value used to generate this one-time reject ability
   handleClose: () => void;
-  handleApproveSuccess: () => void;
 }
 
-function ReviewPurchaseOrderApproveModal({
-  purchaseOrder,
-  linkVal,
-  handleClose,
-  handleApproveSuccess,
-}: Props) {
+function ApprovePurchaseOrderModal({ purchaseOrder, handleClose }: Props) {
   const snackbar = useSnackbar();
   const classes = useStyles();
 
@@ -70,17 +64,8 @@ function ReviewPurchaseOrderApproveModal({
     { loading: isRespondToApprovalRequestLoading },
   ] = useCustomMutation(respondToPurchaseOrderApprovalRequestMutation);
 
-  if (!data?.company_vendor_partnerships[0]?.vendor_bank_account) {
-    if (!isCompanyVendorPartnershipLoading) {
-      snackbar.showError(
-        "Error! Bespoke does not have your bank account information. Please contact Bespoke to resolve this."
-      );
-    }
-    return null;
-  }
-
-  const vendorBankAccount = data.company_vendor_partnerships[0]
-    .vendor_bank_account as BankAccountFragment;
+  const vendorBankAccount =
+    data?.company_vendor_partnerships[0]?.vendor_bank_account || null;
 
   const handleClickApprove = async () => {
     const response = await respondToApprovalRequest({
@@ -88,7 +73,7 @@ function ReviewPurchaseOrderApproveModal({
         purchase_order_id: purchaseOrder.id,
         new_request_status: RequestStatusEnum.Approved,
         rejection_note: "",
-        link_val: linkVal,
+        link_val: null,
       },
     });
     if (response.status !== "OK") {
@@ -97,7 +82,7 @@ function ReviewPurchaseOrderApproveModal({
       );
     } else {
       snackbar.showSuccess("Success! Purchase order approved.");
-      handleApproveSuccess();
+      handleClose();
     }
   };
 
@@ -111,20 +96,32 @@ function ReviewPurchaseOrderApproveModal({
       classes={{ paper: classes.dialog }}
     >
       <DialogTitle className={classes.dialogTitle}>
-        Confirm Bank Information
+        Approve Purchase Order
       </DialogTitle>
       <DialogContent>
+        <Box mt={2} mb={3}>
+          <Alert severity="warning">
+            <Typography variant="body1">
+              Warning: you are approving a purchase order on behalf of the
+              vendor (only bank admins can do this).
+            </Typography>
+          </Alert>
+        </Box>
         <DialogContentText>
-          Please verify that your bank information below is up-to-date. This
-          bank account is where Bespoke will send financing to. If the
-          information is not up-to-date, please contact us.
+          The following bank account is what is on file for the vendor.
         </DialogContentText>
         <Box>
-          <BankAccountInfoCard
-            isEditAllowed={false}
-            isVerificationVisible={false}
-            bankAccount={vendorBankAccount}
-          />
+          {isCompanyVendorPartnershipLoading ? (
+            <Typography variant="body1">Loading...</Typography>
+          ) : vendorBankAccount ? (
+            <BankAccountInfoCard
+              isEditAllowed={false}
+              isVerificationVisible={false}
+              bankAccount={vendorBankAccount}
+            />
+          ) : (
+            <Typography variant="body1">No bank account</Typography>
+          )}
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
@@ -144,4 +141,4 @@ function ReviewPurchaseOrderApproveModal({
   );
 }
 
-export default ReviewPurchaseOrderApproveModal;
+export default ApprovePurchaseOrderModal;

@@ -23,6 +23,7 @@ export enum Action {
 
   // Purchase Orders
   AddPurchaseOrders = "purchase-orders:add",
+  ApprovePurchaseOrders = "purchase-orders:approve",
   EditPurchaseOrders = "purchase-orders:manipulate",
   FundPurchaseOrders = "purchase-orders:fund",
   ViewPurchaseOrdersActionMenu = "purchase-orders:view-action-menu",
@@ -123,7 +124,7 @@ export const check = (
 const rules: Rules = {
   [UserRolesEnum.BankAdmin]: {
     static: [
-      // Bank on-behalf-of actions - bank performs on behalf of customer.
+      // Bank on-behalf-of customer actions - bank performs on behalf of customer.
       Action.AddPurchaseOrders,
       Action.EditPurchaseOrders,
       // Action.FundPurchaseOrders,
@@ -131,6 +132,9 @@ const rules: Rules = {
       Action.AddPurchaseOrderLoan,
       Action.EditPurchaseOrderLoan,
       Action.RepayPurchaseOrderLoans,
+
+      // Bank on-behalf-of vendor actions - bank performs on behalf of vendor.
+      Action.ApprovePurchaseOrders,
 
       // Bank actions.
       Action.AssignBespokeBankAccountForCustomer,
