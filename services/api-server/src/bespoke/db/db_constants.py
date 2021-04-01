@@ -107,6 +107,7 @@ class PaymentType(object):
 	ADVANCE = 'advance'
 	CREDIT_TO_USER = 'credit_to_user' # Bespoke giving $ credit to a user
 	FEE = 'fee' # Bespoke charging the user a fee
+	ADJUSTMENT = 'adjustment' # A manual adjustment to balance the books, or correct for rounding issues
 
 class TransactionSubType(object):
 	WIRE_FEE = 'wire_fee'
@@ -118,6 +119,7 @@ FEE_TYPES = set([PaymentType.FEE])
 # There might be many types that represent an advance, repayment, etc
 ADVANCE_TYPES = set([PaymentType.ADVANCE])
 REPAYMENT_TYPES = set([PaymentType.REPAYMENT])
+ADJUSTMENT_TYPES = set([PaymentType.ADJUSTMENT])
 
 class InvoiceFileTypeEnum(object):
 	Invoice = 'invoice'

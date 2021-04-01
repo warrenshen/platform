@@ -477,7 +477,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
-	def test_success_one_payment_one_loan_past_due_with_account_balances(self) -> None:
+	def test_success_one_payment_one_loan_past_due_with_account_balances_and_adjustments(self) -> None:
 
 		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
@@ -554,6 +554,20 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				effective_date='10/03/2020'
 			)
 
+			payment_util.create_and_add_adjustment(
+				company_id=company_id,
+				loan_id=str(loan.id),
+				tx_amount_dict=payment_util.TransactionAmountDict(
+					to_principal=-1.0,
+					to_interest=-4.2,
+					to_fees=2.0
+				),
+				created_by_user_id=seed.get_user_id('bank_admin'),
+				payment_date=date_util.load_date_str('10/26/2020'),
+				effective_date=date_util.load_date_str('10/26/2020'),
+				session=session
+			)
+
 		daily_interest = 0.002 * 450.03
 
 		tests: List[Dict] = [
@@ -610,10 +624,14 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				'expected_loan_updates': [
 					{
 						'adjusted_maturity_date': date_util.load_date_str('10/05/2020'),
-						'outstanding_principal': 450.03,
-						'outstanding_principal_for_interest': 450.03,
-						'outstanding_interest': round(23 * daily_interest, 2), # 23 days of interest accrued on 450.03 after the first partial repayment
-						'outstanding_fees': round((14 * daily_interest * 0.25) + (7 * daily_interest * 0.5), 2)
+						'outstanding_principal': 450.03 - 1.0,
+						'outstanding_principal_for_interest': 450.03 - 1.0,
+						# 23 days of interest accrued on 450.03 after the first partial repayment
+						# - 4.2 is for the adjustment
+						# - 1.0 is adjustment from principal
+						# + 2.0 is adjustment for interest
+						'outstanding_interest': round(23 * daily_interest, 2) - 4.2, 
+						'outstanding_fees': round((14 * daily_interest * 0.25) + (7 * daily_interest * 0.5), 2) + 2.0
 					}
 				]
 			}

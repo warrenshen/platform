@@ -37,6 +37,7 @@ class Actions(object):
 	LOANS_FUND_WITH_ADVANCE = 'loans_fund_with_advance'
 	LOANS_SUBMIT_FOR_APPROVAL = 'loans_submit_for_approval'
 	LOANS_APPROVE = 'loans_approve'
+	LOANS_MAKE_ADJUSTMENT = 'loans_make_adjustment'
 	LOANS_REJECT = 'loans_reject'
 	LOANS_UPSERT_PURCHASE_ORDER_LOANS = 'loans_upsert_purchase_order_loans'
 	LOANS_CREATE_PURCHASE_ORDER_LOAN = 'loans_create_purchase_order_loan'

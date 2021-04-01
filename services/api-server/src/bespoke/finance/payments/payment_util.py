@@ -31,6 +31,12 @@ PaymentInputDict = TypedDict('PaymentInputDict', {
 	'amount': float,
 })
 
+TransactionAmountDict = TypedDict('TransactionAmountDict', {
+	'to_principal': float,
+	'to_interest': float,
+	'to_fees': float
+})
+
 RepaymentPaymentInputDict = TypedDict('RepaymentPaymentInputDict', {
 	'payment_method': str,
 	'requested_amount': float,
@@ -136,6 +142,9 @@ def is_advance(p: Union[models.PaymentDict, models.TransactionDict]) -> bool:
 def is_repayment(p: Union[models.PaymentDict, models.TransactionDict]) -> bool:
 	return p['type'] in db_constants.REPAYMENT_TYPES
 
+def is_adjustment(p: Union[models.PaymentDict, models.TransactionDict]) -> bool:
+	return p['type'] in db_constants.ADJUSTMENT_TYPES
+
 # Loans represent balances
 # Fees represent account level fees (not tied to a loan)
 
@@ -152,6 +161,49 @@ def sum(vals: List[float]) -> float:
 		sum_val += float(val)
 
 	return sum_val
+
+def create_and_add_adjustment(
+	company_id: str,
+	loan_id: str,
+	tx_amount_dict: TransactionAmountDict,
+	created_by_user_id: str,
+	payment_date: datetime.date,
+	effective_date: datetime.date,
+	session: Session) -> models.Transaction:
+
+	tx_input = tx_amount_dict
+	amount = tx_input['to_principal'] + tx_input['to_interest'] + tx_input['to_fees']
+	payment = create_payment(
+		company_id=company_id,
+		payment_input=PaymentInputDict(
+			type=db_constants.PaymentType.ADJUSTMENT,
+			payment_method='', # Not needed since its an adjustment
+			amount=amount
+		),
+		user_id=created_by_user_id
+	)
+	payment.payment_date = payment_date
+	payment.settlement_date = effective_date
+	payment.settled_at = date_util.now()
+	payment.settled_by_user_id = created_by_user_id
+	payment.items_covered = {'loan_ids': [loan_id]}
+	session.add(payment)
+	session.flush()
+	payment_id = str(payment.id)
+
+	t = models.Transaction()
+	t.type = db_constants.PaymentType.ADJUSTMENT
+	t.amount = decimal.Decimal(amount)
+	t.to_principal = decimal.Decimal(tx_input['to_principal'])
+	t.to_interest = decimal.Decimal(tx_input['to_interest'])
+	t.to_fees = decimal.Decimal(tx_input['to_fees'])
+	t.loan_id = loan_id
+	t.payment_id = payment_id
+	t.created_by_user_id = created_by_user_id
+	t.effective_date = effective_date
+
+	session.add(t)
+	return t
 
 def create_and_add_credit_to_user(
 	company_id: str,

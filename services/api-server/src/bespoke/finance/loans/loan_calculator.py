@@ -279,7 +279,8 @@ class LoanCalculator(object):
 
 			for aug_tx in transactions_on_settlement_date:
 				tx = aug_tx['transaction']
-				if payment_util.is_advance(tx):
+				if payment_util.is_advance(tx) or payment_util.is_adjustment(tx):
+					# Adjustments and advances both get applied at the beginning of the day
 					outstanding_principal += tx['to_principal']
 					outstanding_principal_for_interest += tx['to_principal']
 					outstanding_interest += tx['to_interest']

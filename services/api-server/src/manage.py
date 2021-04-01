@@ -24,7 +24,9 @@ from server.views.finance.invoices import routes as invoices_routes
 from server.views.finance.ebba_applications import \
     approvals as ebba_application_approvals
 from server.views.finance.loans import (
-	advances, artifacts, approvals, repayments, reports, purchase_orders as loans_purchase_orders)
+	advances, adjustments, artifacts, approvals, repayments, reports, 
+	purchase_orders as loans_purchase_orders
+)
 
 if is_development_env(os.environ.get('FLASK_ENV')):
 	load_dotenv(os.path.join(os.environ.get('SERVER_ROOT_DIR'), '.env'))
@@ -74,6 +76,7 @@ app.register_blueprint(repayments.handler, url_prefix='/finance/loans/repayments
 app.register_blueprint(artifacts.handler, url_prefix='/finance/loans/artifacts')
 app.register_blueprint(advances.handler, url_prefix='/finance/loans/advances')
 app.register_blueprint(approvals.handler, url_prefix='/finance/loans/approvals')
+app.register_blueprint(adjustments.handler, url_prefix='/finance/loans/adjustments')
 app.register_blueprint(reports.handler, url_prefix='/finance/loans/reports')
 app.register_blueprint(loans_purchase_orders.handler, url_prefix='/finance/loans/purchase_orders')
 
