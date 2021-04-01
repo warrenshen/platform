@@ -5,6 +5,7 @@ import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
+  Companies,
   GetActiveLoansForCompanyQuery,
   LoanFragment,
   Loans,
@@ -33,17 +34,23 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
+  companyId: Companies["id"];
   productType: ProductTypeEnum;
   data: GetActiveLoansForCompanyQuery | undefined;
   handleDataChange: () => void;
 }
 
-function LoansFunded({ productType, data, handleDataChange }: Props) {
+function LoansFunded({
+  companyId,
+  productType,
+  data,
+  handleDataChange,
+}: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
 
   const {
-    user: { companyId, role },
+    user: { role },
   } = useContext(CurrentUserContext);
 
   const company = data?.companies_by_pk;

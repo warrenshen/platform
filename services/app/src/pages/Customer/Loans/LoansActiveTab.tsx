@@ -8,6 +8,7 @@ import {
 import { Alert } from "@material-ui/lab";
 import CustomerFinancialSummaryOverview from "components/CustomerFinancialSummary/CustomerFinancialSummaryOverview";
 import {
+  Companies,
   ProductTypeEnum,
   useGetActiveLoansForCompanyQuery,
 } from "generated/graphql";
@@ -34,7 +35,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  companyId: string;
+  companyId: Companies["id"];
   productType: ProductTypeEnum;
 }
 
@@ -107,6 +108,7 @@ function CustomerLoansPageLoansTab({ companyId, productType }: Props) {
           <Box className={classes.section}>
             <Typography variant="h6">Loans - Funded</Typography>
             <LoansFunded
+              companyId={companyId}
               productType={productType}
               data={data}
               handleDataChange={refetch}
