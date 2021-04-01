@@ -98,7 +98,7 @@ class Fetcher(object):
 				session.query(models.Loan).filter(
 					models.Loan.company_id == self._company_id
 				).order_by(
-    			models.Loan.origination_date.asc()
+    				models.Loan.origination_date.asc()
 				).all())
 			if not loans:
 				return True, None
