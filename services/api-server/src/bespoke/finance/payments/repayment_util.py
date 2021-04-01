@@ -1000,13 +1000,22 @@ def settle_repayment(
 			)
 
 		for i in range(len(transaction_inputs)):
-			cur_loan_id = loan_dict_and_balance_list[i]['loan']['id']
-			cur_loan = loan_id_to_loan[cur_loan_id]
-
 			tx_input = transaction_inputs[i]
 			to_principal = tx_input['to_principal']
 			to_interest = tx_input['to_interest']
 			to_fees = tx_input['to_fees']
+
+			# If transaction input is equivalent to zero, skip it.
+			# This may happen in the following case:
+			# 1. Customer selects loans
+			# 2. Customer specifies custom amount to pay
+			# 3. Custom amount covers only a subset of selected loans
+			# 4. Loan(s) not covered create transaction input(s) that are equivalent to zero.
+			if to_principal == 0.0 and to_interest == 0.0 and to_fees == 0.0:
+				continue
+
+			cur_loan_id = loan_dict_and_balance_list[i]['loan']['id']
+			cur_loan = loan_id_to_loan[cur_loan_id]
 
 			t = models.Transaction()
 			t.type = db_constants.PaymentType.REPAYMENT
@@ -1065,6 +1074,8 @@ def settle_repayment(
 			settlement_date=settlement_date,
 			settled_by_user_id=user_id,
 		)
+
+		# TODO(warrenshen): change this to return payment_ids.
 		return True, None
 
 	with session_scope(session_maker) as session:
@@ -1082,4 +1093,6 @@ def settle_repayment(
 			).all())
 		transaction_ids = list(map(lambda transaction: transaction.id, transactions))
 
+	# TODO(warrenshen): change this to return payment_ids.
+	# This currently does not return transaction ids of credit_to_user transactions.
 	return transaction_ids, None

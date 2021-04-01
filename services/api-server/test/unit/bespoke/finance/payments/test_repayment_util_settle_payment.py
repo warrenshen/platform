@@ -8,6 +8,7 @@ from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.db_constants import PaymentStatusEnum, ProductType
 from bespoke.db.models import session_scope
+from bespoke.finance import number_util
 from bespoke.finance.payments import payment_util, repayment_util
 from bespoke.finance.payments.repayment_util import (LoanBalanceDict,
                                                      LoanToShowDict,
@@ -124,7 +125,7 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 			company_id='unused',
 			type='unused',
 			method=test['payment']['payment_method'],
-			requested_amount=test['payment']['amount'],
+			requested_amount=number_util.round_currency(test['payment']['amount']),
 			amount=None,
 			requested_payment_date='10/10/2020',
 			payment_date=None,
@@ -165,7 +166,7 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 	req = repayment_util.SettleRepaymentReqDict(
 		company_id=company_id,
 		payment_id=payment_id,
-		amount=settlement_payment['amount'],
+		amount=number_util.round_currency(settlement_payment['amount']),
 		deposit_date=settlement_payment['payment_date'],
 		settlement_date=settlement_payment['settlement_date'],
 		items_covered=items_covered,
@@ -219,6 +220,10 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 		transactions = [t for t in transactions]
 		transactions.sort(key=lambda t: t.amount, reverse=True) # Sort from largest to least
 
+		# TODO(warrenshen): add this assert back in. This assert currently does not
+		# work because `expected_transactions` includes credit_to_user transactions
+		# but `transactions` does not.
+		# self.assertEqual(len(test['expected_transactions']), len(transactions))
 		for i in range(len(transactions)):
 			tx = transactions[i]
 			tx_input = test['expected_transactions'][i]
@@ -524,6 +529,142 @@ class TestSettlePayment(db_unittest.TestCase):
 			],
 		}
 		self._run_test(test)
+
+	def test_fully_paid_and_closed_skip_transactions_that_sum_to_zero(self) -> None:
+		tests: List[Dict] = [
+			{
+				'loans': [
+					{
+						'amount': 50.0,
+						'origination_date': '10/10/2020',
+						'maturity_date': '10/24/2020',
+						'outstanding_principal_balance': 50.0,
+						'outstanding_interest': 0.3,
+						'outstanding_fees': 0.0,
+					},
+					{
+						'amount': 40.0,
+						'origination_date': '10/10/2020',
+						'maturity_date': '10/24/2020',
+						'outstanding_principal_balance': 40.0,
+						'outstanding_interest': 0.24,
+						'outstanding_fees': 0.0,
+					},
+					{
+						'amount': 30.0,
+						'origination_date': '10/10/2020',
+						'maturity_date': '10/24/2020',
+						'outstanding_principal_balance': 30.0,
+						'outstanding_interest': 0.18,
+						'outstanding_fees': 0.0,
+					}
+				],
+				'transaction_lists': [
+					# Transactions are parallel to the loans defined in the test.
+					# These will be advances or repayments made against their respective loans.
+					[
+						{
+							'type': 'advance',
+							'amount': 50.0,
+							'payment_date': '10/10/2020',
+							'effective_date': '10/10/2020'
+						}
+					],
+					[
+						{
+							'type': 'advance',
+							'amount': 40.0,
+							'payment_date': '10/10/2020',
+							'effective_date': '10/10/2020'
+						}
+					],
+					[
+						{
+							'type': 'advance',
+							'amount': 30.0,
+							'payment_date': '10/10/2020',
+							'effective_date': '10/10/2020'
+						}
+					],
+				],
+				'payment': {
+					'amount': 50.0 + 0.3 + 40.0 + 0.24 + 0.0 + 0.0,
+					'payment_method': 'ach',
+					'payment_date': '10/10/2020',
+					'settlement_date': '10/12/2020',
+					'items_covered': {
+						'to_user_credit': 0.0,
+					},
+					'company_bank_account_id': None,
+				},
+				'expected_payment': {
+					'amount': 50.0 + 0.3 + 40.0 + 0.24 + 0.0 + 0.0,
+				},
+				'transaction_inputs': [
+					{
+						'amount': 50.0 + 0.3,
+						'to_principal': 50.0,
+						'to_interest': 0.3,
+						'to_fees': 0.0,
+					},
+					{
+						'amount': 40.0 + 0.24,
+						'to_principal': 40.0,
+						'to_interest': 0.24,
+						'to_fees': 0.0,
+					},
+					{
+						'amount': 0.0,
+						'to_principal': 0.0,
+						'to_interest': 0.0,
+						'to_fees': 0.0,
+					},
+				],
+				'expected_transactions': [
+					{
+						'type': db_constants.PaymentType.REPAYMENT,
+						'amount': 50.0 + 0.3,
+						'to_principal': 50.0,
+						'to_interest': 0.3,
+						'to_fees': 0.0,
+						'loan_id_index': 0,
+					},
+					{
+						'type': db_constants.PaymentType.REPAYMENT,
+						'amount': 40.0 + 0.24,
+						'to_principal': 40.0,
+						'to_interest': 0.24,
+						'to_fees': 0.0,
+						'loan_id_index': 1
+					},
+				],
+				'loans_after_payment': [
+					{
+						'amount': 50.0,
+						'outstanding_principal_balance': 50.0 - 50.0,
+						'outstanding_interest': 0.3 - 0.3,
+						'outstanding_fees': 0.0 - 0.0,
+						'payment_status': PaymentStatusEnum.CLOSED,
+					},
+					{
+						'amount': 40.0,
+						'outstanding_principal_balance': 40.0 - 40.0,
+						'outstanding_interest': 0.24 - 0.24,
+						'outstanding_fees': 0.0 - 0.0,
+						'payment_status': PaymentStatusEnum.CLOSED,
+					},
+					{
+						'amount': 30.0,
+						'outstanding_principal_balance': 30.0 - 0.0,
+						'outstanding_interest': 0.18 - 0.0,
+						'outstanding_fees': 0.0 - 0.0,
+						'payment_status': PaymentStatusEnum.PENDING,
+					},
+				]
+			}
+		]
+		for test in tests:
+			self._run_test(test)
 
 	def test_partially_paid_and_closed_and_overpayment(self) -> None:
 		tests: List[Dict] = [
