@@ -658,7 +658,7 @@ class TestSettlePayment(db_unittest.TestCase):
 						'outstanding_principal_balance': 30.0 - 0.0,
 						'outstanding_interest': 0.18 - 0.0,
 						'outstanding_fees': 0.0 - 0.0,
-						'payment_status': PaymentStatusEnum.PENDING,
+						'payment_status': None,
 					},
 				]
 			}

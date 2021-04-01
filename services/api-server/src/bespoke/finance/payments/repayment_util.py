@@ -1005,6 +1005,9 @@ def settle_repayment(
 			to_interest = tx_input['to_interest']
 			to_fees = tx_input['to_fees']
 
+			cur_loan_id = loan_dict_and_balance_list[i]['loan']['id']
+			cur_loan = loan_id_to_loan[cur_loan_id]
+
 			# If transaction input is equivalent to zero, skip it.
 			# This may happen in the following case:
 			# 1. Customer selects loans
@@ -1012,10 +1015,10 @@ def settle_repayment(
 			# 3. Custom amount covers only a subset of selected loans
 			# 4. Loan(s) not covered create transaction input(s) that are equivalent to zero.
 			if to_principal == 0.0 and to_interest == 0.0 and to_fees == 0.0:
+				# Set payment status to None, otherwise it would be left as PaymentStatusEnum.SCHEDULED.
+				# It could be that payment status is supposed to be PARTIALLY_PAID... ignore that case for now.
+				cur_loan.payment_status = None
 				continue
-
-			cur_loan_id = loan_dict_and_balance_list[i]['loan']['id']
-			cur_loan = loan_id_to_loan[cur_loan_id]
 
 			t = models.Transaction()
 			t.type = db_constants.PaymentType.REPAYMENT
