@@ -1,9 +1,9 @@
 import json
-import datetime
 import logging
 import typing
 from mypy_extensions import TypedDict
 
+from bespoke.date import date_util
 from bespoke.db.models import session_scope
 from bespoke.db import models, models_util
 from bespoke.audit import events
@@ -73,7 +73,7 @@ class UpdateDirtyCompanyBalancesView(MethodView):
 
 		descriptive_errors, fatal_error = reports_util.run_customer_balances_for_companies_that_need_recompute(
 			current_app.session_maker,
-			datetime.date.today()
+			date_util.now_in_pst().date()
 		)
 		if fatal_error:
 			logging.error(f"Got fatal error while recomputing balances for companies that need it: '{fatal_error}'")
@@ -98,7 +98,7 @@ class UpdateAllCompanyBalancesView(MethodView):
 
 		descriptive_errors, fatal_error = reports_util.run_customer_balances_for_all_companies(
 			current_app.session_maker,
-			datetime.date.today()
+			date_util.now_in_pst().date()
 		)
 		if fatal_error:
 			logging.error(f"Got fatal error while recomputing balances for all companies: '{fatal_error}'")

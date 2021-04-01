@@ -253,7 +253,7 @@ class UpsertPurchaseOrdersLoansView(MethodView):
 						loan_type=LoanTypeEnum.INVENTORY,
 						status=upsert.status,
 						artifact_id=item.artifact.id,
-						origination_date=datetime.date.today(),
+						origination_date=None,
 						identifier=str(loan_identifier),
 						amount=item.loan.amount,
 						requested_payment_date=item.loan.requested_payment_date,

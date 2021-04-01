@@ -1,4 +1,5 @@
 import datetime
+import pytz
 from datetime import timedelta, timezone
 
 import holidays
@@ -20,6 +21,11 @@ def hours_from_today(hours: int) -> datetime.datetime:
 
 def now() -> datetime.datetime:
 	return datetime.datetime.now(timezone.utc)
+
+def now_in_pst() -> datetime.datetime:
+	dt = datetime.datetime.now(pytz.utc)
+	dt = dt.astimezone(pytz.timezone('US/Pacific'))
+	return dt
 
 def datetime_to_str(dt: datetime.datetime) -> str:
 	return dt.isoformat()
