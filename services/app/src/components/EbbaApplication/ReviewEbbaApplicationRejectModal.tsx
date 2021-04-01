@@ -12,6 +12,7 @@ import {
   Theme,
 } from "@material-ui/core";
 import { EbbaApplications, RequestStatusEnum } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, ebbaApplicationsRoutes } from "lib/api";
 import { useState } from "react";
 
@@ -44,6 +45,8 @@ function ReviewEbbaApplicationRejectModal({
   handleRejectSuccess,
 }: Props) {
   const classes = useStyles();
+  const snackbar = useSnackbar();
+
   const [rejectionNote, setRejectionNote] = useState("");
 
   const handleClickReject = async () => {
@@ -56,8 +59,9 @@ function ReviewEbbaApplicationRejectModal({
       }
     );
     if (response.data?.status === "ERROR") {
-      alert(response.data?.msg);
+      snackbar.showError(`Error! Message: ${response.data?.msg}`);
     } else {
+      snackbar.showSuccess("Success! Borrowing base certification rejected.");
       handleRejectSuccess();
     }
   };

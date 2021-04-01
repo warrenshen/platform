@@ -19,6 +19,7 @@ import {
   useGetEbbaApplicationQuery,
   UserRolesEnum,
 } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, ebbaApplicationsRoutes } from "lib/api";
 import { formatCurrency } from "lib/currency";
 import { ActionType } from "lib/enum";
@@ -40,6 +41,8 @@ interface Props {
 
 function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
   const classes = useStyles();
+  const snackbar = useSnackbar();
+
   const {
     user: { role },
   } = useContext(CurrentUserContext);
@@ -75,9 +78,10 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
       params
     );
     if (response.data?.status === "ERROR") {
-      alert(response.data?.msg);
+      snackbar.showError(`Error! Message: ${response.data?.msg}`);
     } else {
       refetch();
+      snackbar.showSuccess("Success! Borrowing base certification approved.");
     }
   };
 
@@ -194,28 +198,23 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
               <Typography variant="subtitle2" color="textSecondary">
                 Actions
               </Typography>
-              {![
-                RequestStatusEnum.Approved,
-                RequestStatusEnum.Rejected,
-              ].includes(ebbaApplication.status) && (
-                <Box mt={1}>
-                  <ModalButton
-                    label={"Edit"}
-                    color={"default"}
-                    modal={({ handleClose }) => (
-                      <CreateUpdateEbbaApplicationModal
-                        actionType={ActionType.Update}
-                        companyId={ebbaApplication.company_id}
-                        ebbaApplicationId={ebbaApplication.id}
-                        handleClose={() => {
-                          refetch();
-                          handleClose();
-                        }}
-                      />
-                    )}
-                  />
-                </Box>
-              )}
+              <Box mt={1}>
+                <ModalButton
+                  label={"Edit"}
+                  color={"default"}
+                  modal={({ handleClose }) => (
+                    <CreateUpdateEbbaApplicationModal
+                      actionType={ActionType.Update}
+                      companyId={ebbaApplication.company_id}
+                      ebbaApplicationId={ebbaApplication.id}
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                      }}
+                    />
+                  )}
+                />
+              </Box>
               {ebbaApplication.status !== RequestStatusEnum.Approved && (
                 <Box mt={1}>
                   <Button

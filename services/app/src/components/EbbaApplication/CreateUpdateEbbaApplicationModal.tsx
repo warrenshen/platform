@@ -9,6 +9,7 @@ import {
   Theme,
 } from "@material-ui/core";
 import EbbaApplicationForm from "components/EbbaApplication/EbbaApplicationForm";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   EbbaApplicationFilesInsertInput,
@@ -17,6 +18,7 @@ import {
   useAddEbbaApplicationMutation,
   useGetCompanyWithActiveContractQuery,
   useGetEbbaApplicationQuery,
+  UserRolesEnum,
   useUpdateEbbaApplicationMutation,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -25,7 +27,7 @@ import { submitEbbaApplicationMutation } from "lib/api/ebbaApplications";
 import { computeEbbaApplicationExpiresAt } from "lib/date";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -62,6 +64,11 @@ function CreateUpdateEbbaApplicationModal({
 }: Props) {
   const snackbar = useSnackbar();
   const classes = useStyles();
+
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = role === UserRolesEnum.BankAdmin;
 
   const { data } = useGetCompanyWithActiveContractQuery({
     variables: {
@@ -231,6 +238,14 @@ function CreateUpdateEbbaApplicationModal({
       snackbar.showError(
         "Error! Could not upsert borrowing base certification."
       );
+      return;
+    }
+
+    // If bank user is editing the ebba application,
+    // there is no need to submit it to the bank.
+    if (isBankUser) {
+      snackbar.showSuccess("Success! Borrowing base certification saved.");
+      handleClose();
     } else {
       const response = await submitEbbaApplication({
         variables: {
