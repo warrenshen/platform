@@ -167,6 +167,7 @@ class CompanyVendorPartnership(Base):
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	company_id = Column(GUID, nullable=False)
 	vendor_id = Column(GUID, nullable=False)
+	vendor_bank_id = Column(GUID)
 	approved_at = Column(DateTime)
 
 

@@ -1,9 +1,10 @@
 import json
 import os
-
 from typing import Dict
-from bespoke.security import security_util
+
 from bespoke.config.config_util import is_development_env
+from bespoke.security import security_util
+
 
 def _string_to_bool(text: str) -> bool:
 	if not text:
@@ -43,10 +44,17 @@ class Config(object):
 		if is_development_env(self.FLASK_ENV):
 			self.NO_REPLY_EMAIL_ADDRESS = 'do-not-reply-development@bespokefinancial.com'
 
+		# List of emails reviewed by Bespoke Financial's operations team.
 		self.BANK_NOTIFY_EMAIL_ADDRESSES = list(map(
 			lambda s: s.strip(),
 			os.environ.get('BANK_NOTIFY_EMAIL_ADDRESSES', 'jira+bank@bespokefinancial.com').split(',')))
 
+		# List of emails reviewed by development team of this App.
+		self.OPS_EMAIL_ADDRESSES = list(map(
+			lambda s: s.strip(),
+			os.environ.get('OPS_EMAIL_ADDRESSES', 'bespoke-ops@sweatequity.vc').split(',')))
+
+		self.DONT_SEND_OPS_EMAILS = bool(int(os.environ.get('DONT_SEND_OPS_EMAILS', '0')))
 
 		self.SUPPORT_EMAIL_ADDRESS = os.environ.get(
 			'SUPPORT_EMAIL_ADDRESS', 'support@bespokefinancial.com')
@@ -65,11 +73,6 @@ class Config(object):
 
 		# Async Server
 		self.ASYNC_SERVER_API_KEY = os.environ.get("ASYNC_SERVER_API_KEY", "ASYNC-SERVER-API-KEY-1085093607")
-		self.OPS_EMAIL_ADDRESSES = list(map(
-			lambda s: s.strip(),
-			os.environ.get('OPS_EMAIL_ADDRESSES', 'bespoke-ops@sweatequity.vc').split(',')))
-
-		self.DONT_SEND_OPS_EMAILS = bool(int(os.environ.get('DONT_SEND_OPS_EMAILS', '0')))
 
 		# Diagnostics
 		self.SERVER_TYPE = "api"

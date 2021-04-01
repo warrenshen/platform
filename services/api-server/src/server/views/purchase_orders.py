@@ -181,6 +181,7 @@ class SubmitForApprovalView(MethodView):
 
 		vendor_emails = []
 		vendor_name = None
+		is_vendor_missing_bank_account = False
 		customer_name = None
 
 		with session_scope(current_app.session_maker) as session:
@@ -205,9 +206,15 @@ class SubmitForApprovalView(MethodView):
 			if purchase_order.amount is None or purchase_order.amount <= 0:
 				return handler_util.make_error_response('Invalid amount')
 
-			company_vendor_relationship = cast(models.CompanyVendorPartnership, session.query(
-				models.CompanyVendorPartnership
-			).filter_by(company_id=customer.id, vendor_id=vendor.id).first())
+			company_vendor_relationship = cast(
+				models.CompanyVendorPartnership, session.query(
+				models.CompanyVendorPartnership).filter_by(
+					company_id=customer.id,
+					vendor_id=vendor.id).first())
+
+			if not company_vendor_relationship.vendor_bank_id:
+				is_vendor_missing_bank_account = True
+
 			if not company_vendor_relationship or company_vendor_relationship.approved_at is None:
 				return handler_util.make_error_response('Vendor is not approved')
 
@@ -233,10 +240,6 @@ class SubmitForApprovalView(MethodView):
 
 			session.commit()
 
-		# Send the email to the vendor for them to approve or reject this purchase order
-
-		# Get the vendor_id and find its users
-		#
 		form_info = models.TwoFactorFormInfoDict(
 			type=db_constants.TwoFactorLinkType.CONFIRM_PURCHASE_ORDER,
 			payload={
@@ -248,16 +251,36 @@ class SubmitForApprovalView(MethodView):
 			expires_at=date_util.hours_from_today(24 * 7)
 		)
 
-		template_name = sendgrid_util.TemplateNames.VENDOR_TO_APPROVE_PURCHASE_ORDER
+		# Send the email to the vendor for them to approve or reject this purchase order
+		# Get the vendor_id and find its users
 		template_data = {
 			'vendor_name': vendor_name,
 			'customer_name': customer_name
 		}
-		recipients = vendor_emails
 		_, err = sendgrid_client.send(
-			template_name, template_data, recipients, two_factor_payload=two_factor_payload)
+			template_name=sendgrid_util.TemplateNames.VENDOR_TO_APPROVE_PURCHASE_ORDER,
+			template_data=template_data,
+			recipients=vendor_emails,
+			two_factor_payload=two_factor_payload,
+		)
 		if err:
 			return handler_util.make_error_response(err)
+
+		# If vendor does NOT have a bank account set up yet,
+		# send an email to the Bespoke team letting them know about this.
+		if is_vendor_missing_bank_account:
+			template_data = {
+				'vendor_name': vendor_name,
+				'customer_name': customer_name,
+			}
+			_, err = sendgrid_client.send(
+				template_name=sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_APPROVAL_NO_VENDOR_BANK_ACCOUNT,
+				template_data=template_data,
+				recipients=current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES + current_app.app_config.OPS_EMAIL_ADDRESSES,
+			)
+			if err:
+				return handler_util.make_error_response(err)
+
 
 		return make_response(json.dumps({
 			'status': 'OK',
