@@ -294,6 +294,14 @@ class CustomerBalance(object):
 			report_date=today)
 
 		for loan in financials['loans']:
+			if not loan['origination_date']:
+				# If the loan hasn't been originated yet, nothing to calculate
+				continue
+
+			if not loan['adjusted_maturity_date']:
+				logging.error('Data issue, adjusted_maturity_date missing for loan {}'.format(loan['id']))
+				continue
+
 			transactions_for_loan = loan_id_to_transactions[loan['id']]
 
 			calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)

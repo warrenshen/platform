@@ -5,6 +5,7 @@ from typing import Callable, Iterable, List, Optional, Tuple, cast
 
 from bespoke import errors
 from bespoke.audit import events
+from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
 from bespoke.finance import financial_summary_util, number_util
@@ -36,7 +37,7 @@ def update_company_balance(
 		is_system=True,
 		action=events.Actions.COMPANY_BALANCE_UPDATE,
 		data={
-			'report_date': report_date,
+			'report_date': date_util.date_to_str(report_date),
 			'summary_update': customer_update_dict['summary_update'],
 			'loan_ids': [l['loan_id'] for l in customer_update_dict['loan_updates']],
 		}
