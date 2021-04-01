@@ -130,6 +130,14 @@ function ReviewPurchaseOrderPage({ location }: Props) {
         </Box>
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">
+            Buyer
+          </Typography>
+          <Typography variant={"body1"}>
+            {purchaseOrder.company?.name}
+          </Typography>
+        </Box>
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2" color="textSecondary">
             PO Number
           </Typography>
           <Typography variant={"body1"}>
@@ -158,14 +166,6 @@ function ReviewPurchaseOrderPage({ location }: Props) {
           </Typography>
           <Typography variant={"body1"}>
             {formatDateString(purchaseOrder.delivery_date)}
-          </Typography>
-        </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            Buyer
-          </Typography>
-          <Typography variant={"body1"}>
-            {purchaseOrder.company?.name}
           </Typography>
         </Box>
         <Box display="flex" flexDirection="column" mt={2}>

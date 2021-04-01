@@ -119,6 +119,12 @@ export default function ReviewInvoicePaymentPage(props: Props) {
         </Box>
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">
+            Issuer
+          </Typography>
+          <Typography variant={"body1"}>{invoice.company?.name}</Typography>
+        </Box>
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2" color="textSecondary">
             Invoice Number
           </Typography>
           <Typography variant={"body1"}>{invoice.invoice_number}</Typography>
@@ -162,12 +168,6 @@ export default function ReviewInvoicePaymentPage(props: Props) {
           <Typography variant={"body1"}>
             {formatDateString(invoice.invoice_due_date)}
           </Typography>
-        </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Typography variant="subtitle2" color="textSecondary">
-            Issuer
-          </Typography>
-          <Typography variant={"body1"}>{invoice.company?.name}</Typography>
         </Box>
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">
