@@ -9,9 +9,6 @@ query Company($companyId: uuid!) {
       collections_bespoke_bank_account {
         ...BankAccount
       }
-      advances_bespoke_bank_account {
-        ...BankAccount
-      }
     }
     contract {
       ...Contract

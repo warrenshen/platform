@@ -8,8 +8,6 @@ import {
   Typography,
 } from "@material-ui/core";
 import * as Sentry from "@sentry/react";
-import AdvancesBank from "components/Shared/BespokeBankAssignment/AdvancesBank";
-import CollectionsBank from "components/Shared/BespokeBankAssignment/CollectionsBank";
 import Can from "components/Shared/Can";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileUploadDropzone from "components/Shared/File/UploadDropzone";
@@ -57,8 +55,8 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
   const {
     data,
     loading: isBankVendorPartnershipLoading,
-    refetch,
     error,
+    refetch,
   } = useGetVendorPartnershipForBankQuery({
     variables: {
       id: vendorPartnershipId,
@@ -114,7 +112,10 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
           contacts={vendor.users}
           handleDataChange={refetch}
         />
-        <Typography variant="h6"> Bank Information </Typography>
+        <Typography variant="h6">Bank Information</Typography>
+        <Typography variant="subtitle2">
+          Specify which bank account Bespoke will send advances to:
+        </Typography>
         <BankAccount
           companyId={vendor.id}
           companyVendorPartnershipId={data.company_vendor_partnerships_by_pk.id}
@@ -122,46 +123,15 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
             data.company_vendor_partnerships_by_pk.vendor_bank_account
           }
         />
-        <Box display="flex" mt={1}>
-          <AdvancesBank
-            companySettingsId={
-              data.company_vendor_partnerships_by_pk.vendor.settings?.id
-            }
-            assignedBespokeBankAccount={
-              data.company_vendor_partnerships_by_pk.vendor.settings
-                ?.advances_bespoke_bank_account || undefined
-            }
-          />
-          <CollectionsBank
-            companySettingsId={
-              data.company_vendor_partnerships_by_pk.vendor.settings?.id
-            }
-            assignedBespokeBankAccount={
-              data.company_vendor_partnerships_by_pk.vendor.settings
-                ?.collections_bespoke_bank_account || undefined
-            }
-          />
-        </Box>
-        <Grid container direction="column">
+        <Box flexDirection="column">
           <Grid item>
-            <Typography variant="h6" display="inline">
-              {" "}
-              Licenses{" "}
-            </Typography>
+            <Typography variant="h6">Licenses</Typography>
           </Grid>
           {licenseFileId && (
             <Grid item>
               <DownloadThumbnail fileIds={licenseFileIds} />
             </Grid>
           )}
-        </Grid>
-        <Box
-          mt={1}
-          mb={2}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
           <Box mt={1} mb={2}>
             <FileUploadDropzone
               companyId={vendor.id}
@@ -203,60 +173,56 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
             />
           </Box>
         </Box>
-        <Grid container direction="column">
+        <Box flexDirection="column">
           <Grid item>
-            <Typography variant="h6" display="inline">
-              {" "}
-              Vendor Agreement{" "}
-            </Typography>
+            <Typography variant="h6">Vendor Agreement</Typography>
           </Grid>
           {agreementFileId && (
             <Grid item>
               <DownloadThumbnail fileIds={agreementFileIds} />
             </Grid>
           )}
-        </Grid>
-        <Box mt={1} mb={2}>
-          <FileUploadDropzone
-            companyId={vendor.id}
-            docType="vendor_agreement"
-            maxFilesAllowed={1}
-            onUploadComplete={async (resp) => {
-              if (!resp.succeeded) {
-                return;
-              }
-              const fileId = resp.files_in_db[0].id;
-              // This is an agreement that the vendor signs with Bespoke, therefore
-              // company_id is vendor.id
-              const agreement: CompanyAgreementsInsertInput = {
-                file_id: fileId,
-                company_id: vendor.id,
-              };
-              const companyAgreement = await addCompanyVendorAgreement({
-                variables: {
-                  vendorAgreement: agreement,
-                },
-              });
-              const vendorAgreementId =
-                companyAgreement.data?.insert_company_agreements_one?.id;
-              const response = await updateVendorAgreementId({
-                variables: {
-                  companyVendorPartnershipId: vendorPartnershipId,
-                  vendorAgreementId: vendorAgreementId,
-                },
-              });
-              if (response.data?.update_company_vendor_partnerships_by_pk) {
-                refetch();
-                snackbar.showSuccess("Success! Vendor agreement uploaded.");
-              } else {
-                snackbar.showError(
-                  "Error! Vendor agreement could not be uploaded."
-                );
-              }
-            }}
-          />
+          <Box mt={1} mb={2}>
+            <FileUploadDropzone
+              companyId={vendor.id}
+              docType="vendor_agreement"
+              maxFilesAllowed={1}
+              onUploadComplete={async (resp) => {
+                if (!resp.succeeded) {
+                  return;
+                }
+                const fileId = resp.files_in_db[0].id;
+                // This is an agreement that the vendor signs with Bespoke, therefore
+                // company_id is vendor.id
+                const agreement: CompanyAgreementsInsertInput = {
+                  file_id: fileId,
+                  company_id: vendor.id,
+                };
+                const companyAgreement = await addCompanyVendorAgreement({
+                  variables: {
+                    vendorAgreement: agreement,
+                  },
+                });
+                const vendorAgreementId =
+                  companyAgreement.data?.insert_company_agreements_one?.id;
+                const response = await updateVendorAgreementId({
+                  variables: {
+                    companyVendorPartnershipId: vendorPartnershipId,
+                    vendorAgreementId: vendorAgreementId,
+                  },
+                });
+                if (response.data?.update_company_vendor_partnerships_by_pk) {
+                  refetch();
+                  snackbar.showSuccess("Success! Vendor agreement uploaded.");
+                } else {
+                  snackbar.showError(
+                    "Error! Vendor agreement could not be uploaded."
+                  );
+                }
+              }}
+            />
+          </Box>
         </Box>
-
         <Typography variant="h6"> Notifications </Typography>
         <Can perform={Action.SendVendorAgreements}>
           <Box mt={1} mb={2}>

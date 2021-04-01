@@ -16033,19 +16033,6 @@ export type AssignCollectionsBespokeBankAccountMutation = {
   >;
 };
 
-export type AssignAdvancesBespokeBankAccountMutationVariables = Exact<{
-  companySettingsId: Scalars["uuid"];
-  bankAccountId?: Maybe<Scalars["uuid"]>;
-}>;
-
-export type AssignAdvancesBespokeBankAccountMutation = {
-  update_company_settings_by_pk?: Maybe<
-    Pick<CompanySettings, "id"> & {
-      advances_bespoke_bank_account?: Maybe<BankAccountFragment>;
-    }
-  >;
-};
-
 export type GetLatestBankFinancialSummariesSubscriptionVariables = Exact<{
   [key: string]: never;
 }>;
@@ -16150,7 +16137,6 @@ export type CompanyQuery = {
       bank_accounts: Array<BankAccountFragment>;
       settings: {
         collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
-        advances_bespoke_bank_account?: Maybe<BankAccountFragment>;
       } & CompanySettingsFragment;
       contract?: Maybe<ContractFragment>;
     } & CompanyFragment
@@ -16493,7 +16479,6 @@ export type GetVendorPartnershipForBankQuery = {
       vendor: {
         settings: Pick<CompanySettings, "id"> & {
           collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
-          advances_bespoke_bank_account?: Maybe<BankAccountFragment>;
         };
         users: Array<ContactFragment>;
       } & ThirdPartyFragment;
@@ -16720,7 +16705,6 @@ export type CompanySettingsFragment = Pick<
   | "company_id"
   | "vendor_agreement_docusign_template"
   | "collections_bespoke_bank_account_id"
-  | "advances_bespoke_bank_account_id"
 >;
 
 export type VendorFragment = Pick<
@@ -17196,7 +17180,6 @@ export const CompanySettingsFragmentDoc = gql`
     company_id
     vendor_agreement_docusign_template
     collections_bespoke_bank_account_id
-    advances_bespoke_bank_account_id
   }
 `;
 export const VendorFragmentDoc = gql`
@@ -21532,65 +21515,6 @@ export type AssignCollectionsBespokeBankAccountMutationOptions = Apollo.BaseMuta
   AssignCollectionsBespokeBankAccountMutation,
   AssignCollectionsBespokeBankAccountMutationVariables
 >;
-export const AssignAdvancesBespokeBankAccountDocument = gql`
-  mutation AssignAdvancesBespokeBankAccount(
-    $companySettingsId: uuid!
-    $bankAccountId: uuid
-  ) {
-    update_company_settings_by_pk(
-      pk_columns: { id: $companySettingsId }
-      _set: { advances_bespoke_bank_account_id: $bankAccountId }
-    ) {
-      id
-      advances_bespoke_bank_account {
-        ...BankAccount
-      }
-    }
-  }
-  ${BankAccountFragmentDoc}
-`;
-export type AssignAdvancesBespokeBankAccountMutationFn = Apollo.MutationFunction<
-  AssignAdvancesBespokeBankAccountMutation,
-  AssignAdvancesBespokeBankAccountMutationVariables
->;
-
-/**
- * __useAssignAdvancesBespokeBankAccountMutation__
- *
- * To run a mutation, you first call `useAssignAdvancesBespokeBankAccountMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAssignAdvancesBespokeBankAccountMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [assignAdvancesBespokeBankAccountMutation, { data, loading, error }] = useAssignAdvancesBespokeBankAccountMutation({
- *   variables: {
- *      companySettingsId: // value for 'companySettingsId'
- *      bankAccountId: // value for 'bankAccountId'
- *   },
- * });
- */
-export function useAssignAdvancesBespokeBankAccountMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    AssignAdvancesBespokeBankAccountMutation,
-    AssignAdvancesBespokeBankAccountMutationVariables
-  >
-) {
-  return Apollo.useMutation<
-    AssignAdvancesBespokeBankAccountMutation,
-    AssignAdvancesBespokeBankAccountMutationVariables
-  >(AssignAdvancesBespokeBankAccountDocument, baseOptions);
-}
-export type AssignAdvancesBespokeBankAccountMutationHookResult = ReturnType<
-  typeof useAssignAdvancesBespokeBankAccountMutation
->;
-export type AssignAdvancesBespokeBankAccountMutationResult = Apollo.MutationResult<AssignAdvancesBespokeBankAccountMutation>;
-export type AssignAdvancesBespokeBankAccountMutationOptions = Apollo.BaseMutationOptions<
-  AssignAdvancesBespokeBankAccountMutation,
-  AssignAdvancesBespokeBankAccountMutationVariables
->;
 export const GetLatestBankFinancialSummariesDocument = gql`
   subscription GetLatestBankFinancialSummaries {
     bank_financial_summaries(limit: 4, order_by: { date: desc }) {
@@ -21968,9 +21892,6 @@ export const CompanyDocument = gql`
       settings {
         ...CompanySettings
         collections_bespoke_bank_account {
-          ...BankAccount
-        }
-        advances_bespoke_bank_account {
           ...BankAccount
         }
       }
@@ -22535,18 +22456,12 @@ export const GetVendorPartnershipForBankDocument = gql`
           collections_bespoke_bank_account {
             ...BankAccount
           }
-          advances_bespoke_bank_account {
-            ...BankAccount
-          }
         }
         users {
           ...Contact
         }
         settings {
           collections_bespoke_bank_account {
-            ...BankAccount
-          }
-          advances_bespoke_bank_account {
             ...BankAccount
           }
         }

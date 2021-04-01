@@ -29,9 +29,6 @@ query GetVendorPartnershipForBank($id: uuid!) {
         collections_bespoke_bank_account {
           ...BankAccount
         }
-        advances_bespoke_bank_account {
-          ...BankAccount
-        }
       }
     }
     vendor_bank_account {
