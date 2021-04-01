@@ -23,8 +23,7 @@ def update_company_balance(
 	logging.info(f"Updating balance for '{company['name']}' with id: '{company['id']}'")
 
 	customer_balance = loan_balances.CustomerBalance(company, session_maker)
-	customer_update_dict, err = customer_balance.update(
-		today=report_date)
+	customer_update_dict, err = customer_balance.update(today=report_date)
 	if err:
 		msg = 'Error updating customer balance for company "{}". Error: {}'.format(
 			company['name'], err
@@ -38,7 +37,6 @@ def update_company_balance(
 		action=events.Actions.COMPANY_BALANCE_UPDATE,
 		data={
 			'report_date': date_util.date_to_str(report_date),
-			'summary_update': customer_update_dict['summary_update'],
 			'loan_ids': [l['loan_id'] for l in customer_update_dict['loan_updates']],
 		}
 	)
