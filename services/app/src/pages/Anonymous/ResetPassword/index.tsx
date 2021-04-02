@@ -8,11 +8,10 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { authenticatedApi, authRoutes } from "lib/api";
 import { routes } from "lib/routes";
-import { useContext, useEffect, useMemo, useState } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { useHistory } from "react-router-dom";
 import { useTitle } from "react-use";
 interface Props {
   location: any;
@@ -79,8 +78,6 @@ function ResetPassword(props: Props) {
   const linkVal = props.location.state?.link_val;
 
   const history = useHistory();
-  const { state }: any = useLocation();
-  const { isSignedIn } = useContext(CurrentUserContext);
   const [error, setError] = useState("");
   const [password, setPassword] = useState("");
   const [success, setSuccess] = useState(false);
@@ -100,12 +97,6 @@ function ResetPassword(props: Props) {
     () => notEmptyPasswords && confirmationPassword !== password,
     [notEmptyPasswords, confirmationPassword, password]
   );
-
-  useEffect(() => {
-    if (isSignedIn) {
-      history.push(state?.from || routes.root);
-    }
-  }, [isSignedIn, history, state?.from]);
 
   const onFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

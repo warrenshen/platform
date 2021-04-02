@@ -9,7 +9,7 @@ import {
 } from "@material-ui/core";
 import useSnackbar from "hooks/useSnackbar";
 import { twoFactorRoutes, unAuthenticatedApi } from "lib/api";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -58,7 +58,12 @@ interface Props {
 
 const sendTwoFactorSMSMessage = async (req: {
   link_val: string | null;
-}): Promise<{ status: string; msg: string; phone_number: string }> => {
+}): Promise<{
+  status: string;
+  msg: string;
+  phone_number: string;
+  link_type: string;
+}> => {
   return unAuthenticatedApi
     .post(twoFactorRoutes.sendTwoFactorSMSCode, req)
     .then((res) => {
@@ -87,6 +92,8 @@ function AuthenticateViaPhonePage({
   const classes = useStyles();
   const snackbar = useSnackbar();
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [linkType, setLinkType] = useState<string>("");
+  const sentMessageOnLoad = useRef(false);
 
   const handleClickResend = useCallback(() => {
     sendTwoFactorSMSMessage({ link_val: linkVal }).then(function (resp) {
@@ -94,13 +101,24 @@ function AuthenticateViaPhonePage({
         snackbar.showError("Failed to send sms message: " + resp.msg);
         return;
       }
-      window.console.log(resp);
+      // Fill in some details for the UI
       setPhoneNumber(resp.phone_number);
+      setLinkType(resp.link_type);
+
+      if (resp.link_type === "forgot_password") {
+        // In the forgot_password case, we immediately request that we pull out
+        // the link information, no need for the user to use a code.
+        onCodeSubmitted();
+      }
     });
-  }, [linkVal, snackbar]);
+  }, [linkVal, snackbar, onCodeSubmitted, setLinkType]);
 
   useEffect(() => {
+    if (sentMessageOnLoad.current) {
+      return;
+    }
     handleClickResend();
+    sentMessageOnLoad.current = true;
   }, [handleClickResend]);
 
   const handleClickSubmit = () => {
@@ -108,6 +126,24 @@ function AuthenticateViaPhonePage({
   };
 
   const isSubmitDisabled = !codeEntered;
+
+  if (linkType === "forgot_password" || linkType === "") {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        width="100vw"
+        height="100vh"
+      >
+        <Box display="flex" flexDirection="column">
+          <Box>
+            <p>{!linkVal ? "No link value provided." : "Loading..."}</p>
+          </Box>
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box className={classes.wrapper}>

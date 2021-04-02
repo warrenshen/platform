@@ -9,11 +9,9 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { authenticatedApi, authRoutes } from "lib/api";
 import { routes } from "lib/routes";
-import { useContext, useEffect, useMemo, useState } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useMemo, useState } from "react";
 import { useTitle } from "react-use";
 
 interface Props {
@@ -83,9 +81,6 @@ function ForgotPassword(props: Props) {
   const classes = useStyles();
   useTitle("Forgot Password | Bespoke");
 
-  const history = useHistory();
-  const { state }: any = useLocation();
-  const { isSignedIn } = useContext(CurrentUserContext);
   const [error, setError] = useState("");
   const [email, setEmail] = useState("");
   const [success, setSuccess] = useState(false);
@@ -94,12 +89,6 @@ function ForgotPassword(props: Props) {
     () => email.length && !!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/gi),
     [email]
   );
-
-  useEffect(() => {
-    if (isSignedIn) {
-      history.push(state?.from || routes.root);
-    }
-  }, [isSignedIn, history, state?.from]);
 
   const onFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

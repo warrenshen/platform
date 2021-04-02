@@ -9,9 +9,8 @@ import {
   Theme,
 } from "@material-ui/core";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { anonymousRoutes, routes } from "lib/routes";
-import { useContext, useEffect, useState } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { anonymousRoutes } from "lib/routes";
+import { useContext, useState } from "react";
 import { useTitle } from "react-use";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -64,12 +63,10 @@ function SignIn() {
   const classes = useStyles();
   useTitle("Sign In | Bespoke");
 
-  const { isSignedIn, signIn } = useContext(CurrentUserContext);
+  const { signIn } = useContext(CurrentUserContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { state }: any = useLocation();
-  const history = useHistory();
 
   const onFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -87,12 +84,6 @@ function SignIn() {
       setPassword("");
     }
   };
-
-  useEffect(() => {
-    if (isSignedIn) {
-      history.push(state?.from || routes.root);
-    }
-  }, [isSignedIn, history, state?.from]);
 
   return (
     <Box className={classes.container}>

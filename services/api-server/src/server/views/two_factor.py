@@ -14,6 +14,7 @@ from typing import cast, Callable, Dict, Tuple
 from bespoke.db import db_constants
 from bespoke.date import date_util
 from bespoke import errors
+from bespoke.email import sendgrid_util
 from bespoke.security import security_util, two_factor_util
 from server.config import Config
 from server.views.common import auth_util, handler_util
@@ -57,6 +58,15 @@ class SendSMSCodeView(MethodView):
 			if not existing_user:
 				return handler_util.make_error_response('No user found matching email "{}"'.format(email))
 			
+			link_type = cast(Dict, two_factor_link.form_info).get('type', '')
+			if link_type == db_constants.TwoFactorLinkType.FORGOT_PASSWORD:
+				# Forgot your password links dont require 2FA
+				return make_response(json.dumps({
+					'status': 'OK',
+					'phone_number': '',
+					'link_type': link_type
+				}))
+
 			# Look up the phone number for this user
 			to_phone_number = existing_user.phone_number
 			if not to_phone_number:
@@ -70,7 +80,7 @@ class SendSMSCodeView(MethodView):
 			}
 			cast(Callable, flag_modified)(two_factor_link, 'token_states')
 
-		# Send two-factor code via SMS
+		# Send two-factor code via SMS for everyone
 		_, err = sms_client.send_text_message(
 			to_=to_phone_number,
 			msg='Your Bespoke two-factor code is {}'.format(token_val)
@@ -80,11 +90,15 @@ class SendSMSCodeView(MethodView):
 
 		return make_response(json.dumps({
 			'status': 'OK',
-			'phone_number': to_phone_number
+			'phone_number': to_phone_number,
+			'link_type': link_type
 		}), 200)
 
 
 def _approve_code(provided_token_val: str, two_factor_info: two_factor_util.TwoFactorInfoDict) -> Tuple[bool, errors.Error]:
+		if not provided_token_val:
+			return None, errors.Error('No token value provided from the SMS message')
+
 		two_factor_link = two_factor_info['link']
 		email = two_factor_info['email']
 		token_states_dict = cast(Dict, two_factor_link.token_states)
@@ -118,9 +132,6 @@ class GetSecureLinkPayloadView(MethodView):
 			return handler_util.make_error_response('Link provided is empty')
 
 		provided_token_val = form.get('provided_token_val')
-		if not provided_token_val:
-			return handler_util.make_error_response('No token value provided from the SMS message')
-
 		company_id = None
 		form_info = None
 
@@ -142,13 +153,16 @@ class GetSecureLinkPayloadView(MethodView):
 			if not user:
 				return handler_util.make_error_response('User opening this link does not exist in the system at all')
 
-			success, err = _approve_code(provided_token_val, two_factor_info)
-			if err:
-				return handler_util.make_error_response(err)
+			link_type = form_info.get('type')
+
+			if link_type != db_constants.TwoFactorLinkType.FORGOT_PASSWORD:
+				# Forgot password links dont need code approval
+				success, err = _approve_code(provided_token_val, two_factor_info)
+				if err:
+					return handler_util.make_error_response(err)
 
 			company_id = user.company_id
 
-		link_type = form_info.get('type')
 		access_token = None
 		refresh_token = None
 
