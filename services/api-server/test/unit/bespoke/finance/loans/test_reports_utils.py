@@ -49,6 +49,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 					self.assertEqual(expected.total_outstanding_fees, received.total_outstanding_fees)
 					self.assertEqual(expected.total_principal_in_requested_state, received.total_principal_in_requested_state)
 					self.assertEqual(expected.available_limit, received.available_limit)
+					self.assertEqual(expected.interest_accrued_today, received.interest_accrued_today)
 			else:
 				self.assertEqual(statements, expected_summaries)
 
@@ -101,8 +102,9 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			total_outstanding_principal_for_interest=decimal.Decimal(60.0),
 			total_outstanding_interest=decimal.Decimal(12.50),
 			total_outstanding_fees=decimal.Decimal(5.25),
-			total_principal_in_requested_state=decimal.Decimal(0.0),
+			total_principal_in_requested_state=decimal.Decimal(3.15),
 			available_limit=decimal.Decimal(25.00),
+			interest_accrued_today=decimal.Decimal(2.1),
 			minimum_monthly_payload={},
 			account_level_balance_payload={}
 		))
@@ -129,6 +131,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_interest=decimal.Decimal(0),
 				total_outstanding_fees=decimal.Decimal(0),
 				total_principal_in_requested_state=decimal.Decimal(0),
+				interest_accrued_today=decimal.Decimal(0),
 				available_limit=decimal.Decimal(0)
 			),
 			models.BankFinancialSummary(
@@ -140,6 +143,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_interest=decimal.Decimal(0),
 				total_outstanding_fees=decimal.Decimal(0),
 				total_principal_in_requested_state=decimal.Decimal(0),
+				interest_accrued_today=decimal.Decimal(0),
 				available_limit=decimal.Decimal(0),
 			),
 			models.BankFinancialSummary(
@@ -151,6 +155,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_interest=decimal.Decimal(0),
 				total_outstanding_fees=decimal.Decimal(0),
 				total_principal_in_requested_state=decimal.Decimal(0),
+				interest_accrued_today=decimal.Decimal(0),
 				available_limit=decimal.Decimal(0),
 			),
 			models.BankFinancialSummary(
@@ -161,7 +166,8 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_principal=decimal.Decimal(50.0),
 				total_outstanding_interest=decimal.Decimal(12.50),
 				total_outstanding_fees=decimal.Decimal(5.25),
-				total_principal_in_requested_state=decimal.Decimal(0.0),
+				total_principal_in_requested_state=round(decimal.Decimal(3.15), 2),
+				interest_accrued_today=round(decimal.Decimal(2.10), 2),
 				available_limit=decimal.Decimal(25.00),
 			),
 		], expected_error=None)
@@ -181,7 +187,8 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_principal=decimal.Decimal(100.0),
 				total_outstanding_interest=decimal.Decimal(25.00),
 				total_outstanding_fees=decimal.Decimal(10.50),
-				total_principal_in_requested_state=decimal.Decimal(0.0),
+				total_principal_in_requested_state=round(decimal.Decimal(2 * 3.15), 2),
+				interest_accrued_today=round(decimal.Decimal(2 * 2.10), 2),
 				available_limit=decimal.Decimal(50.0),
 			),
 			models.BankFinancialSummary(
@@ -193,6 +200,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_interest=decimal.Decimal(0),
 				total_outstanding_fees=decimal.Decimal(0),
 				total_principal_in_requested_state=decimal.Decimal(0),
+				interest_accrued_today=decimal.Decimal(0),
 				available_limit=decimal.Decimal(0),
 			),
 			models.BankFinancialSummary(
@@ -204,6 +212,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_interest=decimal.Decimal(0),
 				total_outstanding_fees=decimal.Decimal(0),
 				total_principal_in_requested_state=decimal.Decimal(0),
+				interest_accrued_today=decimal.Decimal(0),
 				available_limit=decimal.Decimal(0),
 			),
 			models.BankFinancialSummary(
@@ -215,6 +224,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_interest=decimal.Decimal(0),
 				total_outstanding_fees=decimal.Decimal(0),
 				total_principal_in_requested_state=decimal.Decimal(0),
+				interest_accrued_today=decimal.Decimal(0),
 				available_limit=decimal.Decimal(0),
 			),
 		], expected_error=None)
@@ -234,7 +244,8 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_principal=decimal.Decimal(50.0),
 				total_outstanding_interest=decimal.Decimal(12.50),
 				total_outstanding_fees=decimal.Decimal(5.25),
-				total_principal_in_requested_state=decimal.Decimal(0.0),
+				total_principal_in_requested_state=round(decimal.Decimal(3.15), 2),
+				interest_accrued_today=round(decimal.Decimal(2.10), 2),
 				available_limit=decimal.Decimal(25.00),
 			),
 			models.BankFinancialSummary(
@@ -246,6 +257,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_interest=decimal.Decimal(0),
 				total_outstanding_fees=decimal.Decimal(0),
 				total_principal_in_requested_state=decimal.Decimal(0),
+				interest_accrued_today=decimal.Decimal(0),
 				available_limit=decimal.Decimal(0),
 			),
 			models.BankFinancialSummary(
@@ -256,7 +268,8 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_principal=decimal.Decimal(50.0),
 				total_outstanding_interest=decimal.Decimal(12.50),
 				total_outstanding_fees=decimal.Decimal(5.25),
-				total_principal_in_requested_state=decimal.Decimal(0.0),
+				total_principal_in_requested_state=round(decimal.Decimal(3.15), 2),
+				interest_accrued_today=round(decimal.Decimal(2.10), 2),
 				available_limit=decimal.Decimal(25.00),
 			),
 			models.BankFinancialSummary(
@@ -268,6 +281,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 				total_outstanding_interest=decimal.Decimal(0),
 				total_outstanding_fees=decimal.Decimal(0),
 				total_principal_in_requested_state=decimal.Decimal(0),
+				interest_accrued_today=decimal.Decimal(0),
 				available_limit=decimal.Decimal(0),
 			),
 		], expected_error=None)

@@ -53,6 +53,7 @@ SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 	'total_outstanding_interest': float,
 	'total_outstanding_fees': float,
 	'total_principal_in_requested_state': float,
+	'total_interest_accrued_today': float,
 	'available_limit': float,
 	'minimum_monthly_payload': FeeDict,
 	'account_level_balance_payload': AccountBalanceDict,
@@ -196,12 +197,14 @@ def _get_summary_update(
 	total_outstanding_principal_for_interest = 0.0
 	total_outstanding_interest = 0.0
 	total_outstanding_fees = 0.0
+	total_interest_accrued_today = 0.0
 
 	for l in loan_updates:
 		total_outstanding_principal += l['outstanding_principal']
 		total_outstanding_principal_for_interest += l['outstanding_principal_for_interest']
 		total_outstanding_interest += l['outstanding_interest']
 		total_outstanding_fees += l['outstanding_fees']
+		total_interest_accrued_today += l['interest_accrued_today']
 
 	minimum_monthly_payload, err = _get_cur_month_minimum_fees(contract_helper, today, fee_accumulator)
 	if err:
@@ -220,6 +223,7 @@ def _get_summary_update(
 		total_outstanding_interest=number_util.round_currency(total_outstanding_interest),
 		total_outstanding_fees=number_util.round_currency(total_outstanding_fees),
 		total_principal_in_requested_state=0.0,
+		total_interest_accrued_today=number_util.round_currency(total_interest_accrued_today),
 		available_limit=number_util.round_currency(max(0.0, adjusted_total_limit - total_outstanding_principal)),
 		minimum_monthly_payload=minimum_monthly_payload,
 		account_level_balance_payload=account_level_balance,
@@ -407,6 +411,7 @@ class CustomerBalance(object):
 			financial_summary.total_outstanding_interest = decimal.Decimal(summary_update['total_outstanding_interest'])
 			financial_summary.total_outstanding_fees = decimal.Decimal(summary_update['total_outstanding_fees'])
 			financial_summary.total_principal_in_requested_state = decimal.Decimal(summary_update['total_principal_in_requested_state'])
+			financial_summary.interest_accrued_today = decimal.Decimal(summary_update['total_interest_accrued_today'])
 			financial_summary.available_limit = decimal.Decimal(summary_update['available_limit'])
 			financial_summary.minimum_monthly_payload = cast(Dict, summary_update['minimum_monthly_payload'])
 			financial_summary.account_level_balance_payload = cast(Dict, summary_update['account_level_balance_payload'])

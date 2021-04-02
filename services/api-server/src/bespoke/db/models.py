@@ -446,6 +446,7 @@ class BankFinancialSummary(Base):
 	total_principal_in_requested_state = Column(Numeric, nullable=False)
 	available_limit = Column(Numeric, nullable=False)
 	adjusted_total_limit = Column(Numeric, nullable=False)
+	interest_accrued_today = Column(Numeric, nullable=False)
 
 class FinancialSummary(Base):
 	__tablename__ = 'financial_summaries'
@@ -464,6 +465,7 @@ class FinancialSummary(Base):
 	minimum_monthly_payload = Column(JSON, nullable=False)
 	account_level_balance_payload = Column(JSON, nullable=False)
 	day_volume_threshold_met = Column(Date)
+	interest_accrued_today = Column(Numeric, nullable=False)
 
 ### End of financial tables
 

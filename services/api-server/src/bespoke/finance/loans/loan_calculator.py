@@ -23,7 +23,8 @@ LoanUpdateDict = TypedDict('LoanUpdateDict', {
 	'outstanding_principal': float,
 	'outstanding_principal_for_interest': float,
 	'outstanding_interest': float,
-	'outstanding_fees': float
+	'outstanding_fees': float,
+	'interest_accrued_today': float
 })
 
 ThresholdInfoDict = TypedDict('ThresholdInfoDict', {
@@ -261,6 +262,7 @@ class LoanCalculator(object):
 		outstanding_principal_for_interest = 0.0 # Amount of principal used for calculating interest and fees off of
 		outstanding_interest = 0.0
 		outstanding_fees = 0.0
+		interest_accrued_today = 0.0
 
 		errors_list = []
 
@@ -340,6 +342,9 @@ class LoanCalculator(object):
 			fee_due_for_day = fee_multiplier * interest_due_for_day
 			outstanding_fees += fee_due_for_day
 
+			if cur_date == today:
+				interest_accrued_today = interest_due_for_day
+
 			self._fee_accumulator.accumulate(
 				interest_for_day=interest_due_for_day, day=cur_date)
 
@@ -389,5 +394,6 @@ class LoanCalculator(object):
 			outstanding_principal=number_util.round_currency(outstanding_principal),
 			outstanding_principal_for_interest=number_util.round_currency(outstanding_principal_for_interest),
 			outstanding_interest=number_util.round_currency(outstanding_interest),
-			outstanding_fees=number_util.round_currency(outstanding_fees)
+			outstanding_fees=number_util.round_currency(outstanding_fees),
+			interest_accrued_today=number_util.round_currency(interest_accrued_today)
 		), None
