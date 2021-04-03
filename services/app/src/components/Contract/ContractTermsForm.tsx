@@ -84,7 +84,7 @@ function ContractTermsForm({
   const sections = useMemo(() => groupBy(currentJSONConfig, (d) => d.section), [
     currentJSONConfig,
   ]);
-  console.log({ currentJSONConfig });
+
   const findAndReplaceInJSON = (item: any, value: any) => {
     const foundIndex = currentJSONConfig.findIndex(
       (field: any) => field.internal_name === item.internal_name

@@ -145,7 +145,9 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
               Montly Accounts Receivable
             </Typography>
             <Typography variant={"body1"}>
-              {formatCurrency(ebbaApplication.monthly_accounts_receivable)}
+              {ebbaApplication.monthly_accounts_receivable !== null
+                ? formatCurrency(ebbaApplication.monthly_accounts_receivable)
+                : "-"}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
@@ -153,7 +155,9 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
               Monthly Inventory
             </Typography>
             <Typography variant={"body1"}>
-              {formatCurrency(ebbaApplication.monthly_inventory)}
+              {ebbaApplication.monthly_inventory !== null
+                ? formatCurrency(ebbaApplication.monthly_inventory)
+                : "-"}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
@@ -161,7 +165,9 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
               Monthly Cash
             </Typography>
             <Typography variant={"body1"}>
-              {formatCurrency(ebbaApplication.monthly_cash)}
+              {ebbaApplication.monthly_cash !== null
+                ? formatCurrency(ebbaApplication.monthly_cash)
+                : "-"}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
@@ -169,7 +175,9 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
               Monthly Cash in DACA
             </Typography>
             <Typography variant={"body1"}>
-              {formatCurrency(ebbaApplication.amount_cash_in_daca)}
+              {ebbaApplication.amount_cash_in_daca !== null
+                ? formatCurrency(ebbaApplication.amount_cash_in_daca)
+                : "-"}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>

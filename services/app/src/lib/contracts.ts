@@ -28,6 +28,7 @@ export enum ContractTermNames {
   AdvanceRate = "advance_rate",
   FactoringFeePercentage = "factoring_fee_percentage",
   FactoringFeeThreshold = "factoring_fee_threshold",
+  FactoringFeeThresholdStartingValue = "factoring_fee_threshold_starting_value",
   AdjustedFactoringFeePercentage = "adjusted_factoring_fee_percentage",
   LateFeeStructure = "late_fee_structure",
   WireFee = "wire_fee",
@@ -80,6 +81,10 @@ export const ContractTermNameToDescriptions = {
   [ContractTermNames.FactoringFeeThreshold]: {
     [ContractTermDescriptions.Bank]:
       "If customer meets this amount, a reduced interest rate will be used for principal above this amount",
+    [ContractTermDescriptions.Customer]: "",
+  },
+  [ContractTermNames.FactoringFeeThresholdStartingValue]: {
+    [ContractTermDescriptions.Bank]: "",
     [ContractTermDescriptions.Customer]: "",
   },
   [ContractTermNames.AdjustedFactoringFeePercentage]: {

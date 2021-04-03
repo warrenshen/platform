@@ -180,7 +180,7 @@ function EbbaApplicationForm({
       )}
       <Box display="flex" flexDirection="column" mt={3}>
         <Typography variant="body1">{`Calculated Borrowing Base: ${
-          calculatedBorrowingBase
+          calculatedBorrowingBase !== null
             ? formatCurrency(calculatedBorrowingBase)
             : "TBD"
         }`}</Typography>
