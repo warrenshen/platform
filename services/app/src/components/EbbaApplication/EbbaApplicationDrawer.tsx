@@ -185,7 +185,7 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
               Calculated Borrowing Base
             </Typography>
             <Typography variant={"body1"}>
-              {ebbaApplication.calculated_borrowing_base
+              {ebbaApplication.calculated_borrowing_base !== null
                 ? formatCurrency(ebbaApplication.calculated_borrowing_base)
                 : "TBD"}
             </Typography>
