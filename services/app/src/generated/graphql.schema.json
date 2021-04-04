@@ -4841,6 +4841,18 @@
             "deprecationReason": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "product_type",
             "description": null,
             "args": [],
@@ -5383,6 +5395,18 @@
             "deprecationReason": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "args": [],
@@ -5488,6 +5512,16 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "interest_accrued_today",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -5656,6 +5690,16 @@
             "defaultValue": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "numeric_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "product_type",
             "description": null,
             "type": {
@@ -5784,6 +5828,16 @@
             "defaultValue": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "type": {
@@ -5900,6 +5954,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
               "ofType": null
             },
             "defaultValue": null
@@ -6049,6 +6113,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "interest_accrued_today",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
               "ofType": null
             },
             "isDeprecated": false,
@@ -6213,6 +6289,16 @@
             "defaultValue": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "product_type",
             "description": null,
             "type": {
@@ -6357,6 +6443,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "interest_accrued_today",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
               "ofType": null
             },
             "isDeprecated": false,
@@ -6512,6 +6610,16 @@
           },
           {
             "name": "id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "interest_accrued_today",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -6805,6 +6913,16 @@
             "defaultValue": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "product_type",
             "description": null,
             "type": {
@@ -6953,6 +7071,12 @@
             "deprecationReason": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "product_type",
             "description": "column name",
             "isDeprecated": false,
@@ -7055,6 +7179,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
               "ofType": null
             },
             "defaultValue": null
@@ -7174,6 +7308,18 @@
             "deprecationReason": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "args": [],
@@ -7278,6 +7424,16 @@
             "defaultValue": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "type": {
@@ -7361,6 +7517,18 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "interest_accrued_today",
             "description": null,
             "args": [],
             "type": {
@@ -7476,6 +7644,16 @@
             "defaultValue": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "type": {
@@ -7559,6 +7737,18 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "interest_accrued_today",
             "description": null,
             "args": [],
             "type": {
@@ -7674,6 +7864,16 @@
             "defaultValue": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "type": {
@@ -7757,6 +7957,18 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "interest_accrued_today",
             "description": null,
             "args": [],
             "type": {
@@ -7872,6 +8084,16 @@
             "defaultValue": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "type": {
@@ -7975,6 +8197,12 @@
             "deprecationReason": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "product_type",
             "description": "column name",
             "isDeprecated": false,
@@ -8044,6 +8272,18 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "interest_accrued_today",
             "description": null,
             "args": [],
             "type": {
@@ -8159,6 +8399,16 @@
             "defaultValue": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "type": {
@@ -8242,6 +8492,18 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "interest_accrued_today",
             "description": null,
             "args": [],
             "type": {
@@ -8357,6 +8619,16 @@
             "defaultValue": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "type": {
@@ -8440,6 +8712,18 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "interest_accrued_today",
             "description": null,
             "args": [],
             "type": {
@@ -8546,6 +8830,16 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "interest_accrued_today",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -33980,6 +34274,18 @@
             "deprecationReason": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "minimum_monthly_payload",
             "description": null,
             "args": [
@@ -34544,6 +34850,18 @@
             "deprecationReason": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "args": [],
@@ -34639,6 +34957,16 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "interest_accrued_today",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -34832,6 +35160,16 @@
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "uuid_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "numeric_comparison_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -35062,6 +35400,16 @@
             "defaultValue": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "type": {
@@ -35208,6 +35556,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
               "ofType": null
             },
             "defaultValue": null
@@ -35365,6 +35723,18 @@
             "deprecationReason": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "args": [],
@@ -35500,6 +35870,16 @@
           },
           {
             "name": "id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "interest_accrued_today",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -35651,6 +36031,18 @@
             "deprecationReason": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "args": [],
@@ -35786,6 +36178,16 @@
           },
           {
             "name": "id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "interest_accrued_today",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -36089,6 +36491,16 @@
             "defaultValue": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "minimum_monthly_payload",
             "description": null,
             "type": {
@@ -36270,6 +36682,12 @@
             "deprecationReason": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "minimum_monthly_payload",
             "description": "column name",
             "isDeprecated": false,
@@ -36391,6 +36809,16 @@
             "defaultValue": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "minimum_monthly_payload",
             "description": null,
             "type": {
@@ -36484,6 +36912,18 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "interest_accrued_today",
             "description": null,
             "args": [],
             "type": {
@@ -36599,6 +37039,16 @@
             "defaultValue": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "type": {
@@ -36682,6 +37132,18 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "interest_accrued_today",
             "description": null,
             "args": [],
             "type": {
@@ -36797,6 +37259,16 @@
             "defaultValue": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "type": {
@@ -36880,6 +37352,18 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "interest_accrued_today",
             "description": null,
             "args": [],
             "type": {
@@ -36995,6 +37479,16 @@
             "defaultValue": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "type": {
@@ -37078,6 +37572,18 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "numeric",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "interest_accrued_today",
             "description": null,
             "args": [],
             "type": {
@@ -37184,6 +37690,16 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "interest_accrued_today",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -37308,6 +37824,12 @@
             "deprecationReason": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "minimum_monthly_payload",
             "description": "column name",
             "isDeprecated": false,
@@ -37371,6 +37893,18 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "interest_accrued_today",
             "description": null,
             "args": [],
             "type": {
@@ -37486,6 +38020,16 @@
             "defaultValue": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "type": {
@@ -37569,6 +38113,18 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "interest_accrued_today",
             "description": null,
             "args": [],
             "type": {
@@ -37684,6 +38240,16 @@
             "defaultValue": null
           },
           {
+            "name": "interest_accrued_today",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "total_limit",
             "description": null,
             "type": {
@@ -37767,6 +38333,18 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "interest_accrued_today",
             "description": null,
             "args": [],
             "type": {
@@ -37873,6 +38451,16 @@
           },
           {
             "name": "available_limit",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "interest_accrued_today",
             "description": null,
             "type": {
               "kind": "ENUM",

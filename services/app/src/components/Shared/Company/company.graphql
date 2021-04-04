@@ -10,6 +10,7 @@ subscription GetLatestBankFinancialSummaries {
     total_outstanding_fees
     total_principal_in_requested_state
     available_limit
+    interest_accrued_today
   }
 }
 

@@ -294,8 +294,11 @@ class CustomerBalance(object):
 			loan_id_to_transactions[loan['id']] = transactions_for_loan
 
 		# Calculate a summary for the factoring fee threshold
-		threshold_info = threshold_accumulator.compute_threshold_info(
-			report_date=today)
+		try:
+			threshold_info = threshold_accumulator.compute_threshold_info(
+				report_date=today)
+		except Exception as e:
+			return None, errors.Error(str(e))
 
 		for loan in financials['loans']:
 			if not loan['origination_date']:

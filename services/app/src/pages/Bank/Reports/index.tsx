@@ -49,12 +49,15 @@ function BankReportsPage() {
   const {
     data: customersData,
     error: customersError,
-  } = useGetCustomersWithMetadataQuery();
+  } = useGetCustomersWithMetadataQuery({
+    fetchPolicy: "network-only",
+  });
 
   const {
     data: financialSummariesByDateData,
     error: financialSummariesByDateError,
   } = useGetFinancialSummariesByDateQuery({
+    fetchPolicy: "network-only",
     variables: {
       date: selectedDate,
     },

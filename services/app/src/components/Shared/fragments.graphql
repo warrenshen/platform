@@ -226,6 +226,8 @@ fragment FinancialSummary on financial_summaries {
   total_outstanding_principal_for_interest
   minimum_monthly_payload
   account_level_balance_payload
+  day_volume_threshold_met
+  interest_accrued_today
 }
 
 fragment InvoiceFile on invoice_files {

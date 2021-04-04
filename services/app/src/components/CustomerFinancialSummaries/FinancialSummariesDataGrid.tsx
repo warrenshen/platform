@@ -41,6 +41,7 @@ function FinancialSummariesDataGrid({
       {
         dataField: "total_outstanding_principal",
         caption: "Principal Balance",
+        width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell
@@ -51,6 +52,7 @@ function FinancialSummariesDataGrid({
       {
         dataField: "total_outstanding_principal_for_interest",
         caption: "Interest Balance",
+        width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell
@@ -59,8 +61,20 @@ function FinancialSummariesDataGrid({
         ),
       },
       {
+        dataField: "interest_accrued_today",
+        caption: "Interest Accrued Today",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <CurrencyDataGridCell
+            value={params.row.data.interest_accrued_today}
+          />
+        ),
+      },
+      {
         dataField: "total_outstanding_interest",
         caption: "Outstanding Interest",
+        width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell
@@ -71,6 +85,7 @@ function FinancialSummariesDataGrid({
       {
         dataField: "total_outstanding_fees",
         caption: "Outstanding Fees",
+        width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell
@@ -81,6 +96,7 @@ function FinancialSummariesDataGrid({
       {
         dataField: "total_principal_in_requested_state",
         caption: "Requested Principal Balance",
+        width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell
@@ -91,6 +107,7 @@ function FinancialSummariesDataGrid({
       {
         dataField: "available_limit",
         caption: "Available Limit",
+        width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.available_limit} />
@@ -99,6 +116,7 @@ function FinancialSummariesDataGrid({
       {
         dataField: "adjusted_total_limit",
         caption: "Total Limit",
+        width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.adjusted_total_limit} />
