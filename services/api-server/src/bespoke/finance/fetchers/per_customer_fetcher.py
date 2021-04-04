@@ -11,7 +11,6 @@ from bespoke.db.models import (CompanyDict, CompanySettingsDict, ContractDict,
 from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
 
-
 def _loan_to_str(l: LoanDict) -> str:
 	return f"{l['id']},{l['origination_date']},{l['amount']},{l['status']}"
 
@@ -23,7 +22,8 @@ def _transaction_to_str(t: TransactionDict) -> str:
 
 class Fetcher(object):
 
-	def __init__(self, company_info_dict: per_customer_types.CompanyInfoDict, session_maker: Callable):
+	def __init__(self, 
+		company_info_dict: per_customer_types.CompanyInfoDict, session_maker: Callable, ignore_deleted: bool):
 		self._company_id = company_info_dict['id']
 		self._session_maker = session_maker
 
@@ -35,6 +35,7 @@ class Fetcher(object):
 		self._augmented_transactions: List[per_customer_types.AugmentedTransactionDict] = []
 		self._ebba_applications: List[EbbaApplicationDict] = []
 		self._active_ebba_application: EbbaApplicationDict = None
+		self._ignore_deleted = ignore_deleted
 
 	def _fetch_contracts(self) -> Tuple[bool, errors.Error]:
 
@@ -58,11 +59,14 @@ class Fetcher(object):
 		payment_ids = [p['id'] for p in payments]
 
 		with session_scope(self._session_maker) as session:
-			transactions = cast(
-				List[models.Transaction],
-				session.query(models.Transaction).filter(
+			query = session.query(models.Transaction).filter(
 					models.Transaction.payment_id.in_(payment_ids)
-				).all())
+				)
+			if self._ignore_deleted:
+				query = query.filter(cast(Callable, models.Transaction.is_deleted.isnot)(True))
+			
+			transactions = cast(List[models.Transaction], query.all())
+			
 			if not transactions:
 				return True, None
 
@@ -77,11 +81,15 @@ class Fetcher(object):
 	def _fetch_payments(self) -> Tuple[bool, errors.Error]:
 
 		with session_scope(self._session_maker) as session:
-			payments = cast(
-				List[models.Payment],
-				session.query(models.Payment).filter(
+			query = session.query(models.Payment).filter(
 					models.Payment.company_id == self._company_id
-				).all())
+			)
+
+			if self._ignore_deleted:
+				query = query.filter(cast(Callable, models.Payment.is_deleted.isnot)(True))
+
+			payments = cast(List[models.Payment], query.all())
+
 			if not payments:
 				return True, None
 			self._payments = [p.as_dict() for p in payments if p.amount is not None]
@@ -91,15 +99,17 @@ class Fetcher(object):
 	def _fetch_loans(self) -> Tuple[bool, errors.Error]:
 
 		with session_scope(self._session_maker) as session:
-
-			# Order by oldest loans to newest loans
-			loans = cast(
-				List[models.Loan],
-				session.query(models.Loan).filter(
+			query = session.query(models.Loan).filter(
 					models.Loan.company_id == self._company_id
 				).order_by(
     				models.Loan.origination_date.asc()
-				).all())
+				)
+
+			if self._ignore_deleted:
+				query = query.filter(cast(Callable, models.Loan.is_deleted.isnot)(True))
+
+			# Order by oldest loans to newest loans
+			loans = cast(List[models.Loan], query.all())
 			if not loans:
 				return True, None
 

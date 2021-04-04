@@ -37,7 +37,7 @@ def main() -> None:
 	# Run a report per customer
 	for company_dict in company_dicts:
 		company_name = company_dict['name']
-		fetcher = per_customer_fetcher.Fetcher(company_dict, session_maker)
+		fetcher = per_customer_fetcher.Fetcher(company_dict, session_maker, ignore_deleted=True)
 		_, err = fetcher.fetch()
 		if err:
 			logging.error('Error fetching for company "{}". Error: {}'.format(

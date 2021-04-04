@@ -45,6 +45,7 @@ class Actions(object):
 	LOANS_CREATE_REPAYMENT = 'loans_create_repayment'
 	LOANS_SCHEDULE_REPAYMENT = 'loans_schedule_repayment'
 	LOANS_SETTLE_REPAYMENT = 'loans_settle_repayment'
+	LOANS_UNDO_REPAYMENT = 'loans_undo_repayment'
 
 	COMPANY_BALANCE_UPDATE = 'company_balance_update'
 

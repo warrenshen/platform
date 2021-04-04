@@ -245,7 +245,7 @@ class CustomerBalance(object):
 		fetcher = per_customer_fetcher.Fetcher(per_customer_types.CompanyInfoDict(
 			id=self._company_id,
 			name=self._company_name
-		), self._session_maker)
+		), self._session_maker, ignore_deleted=True)
 		_, err = fetcher.fetch()
 		if err:
 			return None, err

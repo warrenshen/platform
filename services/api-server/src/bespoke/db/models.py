@@ -229,9 +229,8 @@ class PurchaseOrder(Artifact):
 	rejection_note = Column(Text)
 	funded_at = Column(DateTime)
 	is_cannabis = Column(Boolean)
+	is_deleted = Column(Boolean)
 
-	# TODO(dlluncor): Im concerned about too many joins and relationships
-	# happening here, I think we want to cut these off.
 	vendor = relationship(
 		'Company',
 		foreign_keys=[vendor_id]
@@ -305,7 +304,7 @@ class Payment(Base):
 	settled_at = Column(DateTime)
 	settled_by_user_id = Column(GUID)
 	originating_payment_id = Column(GUID)
-
+	is_deleted = Column(Boolean)
 
 	def as_dict(self) -> PaymentDict:
 		return PaymentDict(
@@ -350,6 +349,7 @@ class Transaction(Base):
 	to_fees = Column(Numeric, nullable=False)
 	effective_date = Column(Date, nullable=False)
 	created_by_user_id = Column(GUID)
+	is_deleted = Column(Boolean)
 
 	def as_dict(self) -> TransactionDict:
 		return TransactionDict(
@@ -415,6 +415,7 @@ class Loan(Base):
 	outstanding_principal_balance = Column(Numeric)
 	outstanding_interest = Column(Numeric)
 	outstanding_fees = Column(Numeric)
+	is_deleted = Column(Boolean)
 
 	def as_dict(self) -> LoanDict:
 		return LoanDict(
@@ -619,7 +620,8 @@ class Invoice(Artifact):
 	payment_rejected_at = Column(DateTime)
 	payment_rejection_note = Column(Text)
 	is_cannabis = Column(Boolean)
-
+	is_deleted = Column(Boolean)
+	
 	company = relationship(
 		'Company',
 		foreign_keys=[company_id]
