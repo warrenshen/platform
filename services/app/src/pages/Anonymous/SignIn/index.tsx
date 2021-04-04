@@ -9,8 +9,9 @@ import {
   Theme,
 } from "@material-ui/core";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { anonymousRoutes } from "lib/routes";
+import { anonymousRoutes, routes } from "lib/routes";
 import { useContext, useState } from "react";
+import { useHistory, useLocation } from "react-router-dom";
 import { useTitle } from "react-use";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -68,6 +69,9 @@ function SignIn() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  const { state }: any = useLocation();
+  const history = useHistory();
+
   const onFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
@@ -77,10 +81,9 @@ function SignIn() {
       // `await` is necessary here (even though the IDE says it is not)
       // to catch any errors thrown by `signIn`.
       await signIn(email, password);
+      history.push(state?.from || routes.root);
     } catch (err) {
-      setError(
-        "Error encountered while attempting to sign in. Please try again!"
-      );
+      setError("Error! Please double check your information and try again.");
       setPassword("");
     }
   };
@@ -99,7 +102,7 @@ function SignIn() {
           onChange={({ target: { value } }) => {
             setEmail(value);
           }}
-        ></TextField>
+        />
         <TextField
           data-cy="sign-in-input-password"
           type="password"
@@ -109,7 +112,7 @@ function SignIn() {
           onChange={({ target: { value } }) => {
             setPassword(value);
           }}
-        ></TextField>
+        />
         <FormHelperText className={classes.formInput} error>
           {error}
         </FormHelperText>
