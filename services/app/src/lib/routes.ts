@@ -35,13 +35,13 @@ export const customerRoutes = {
   vendors: "/1/vendors",
   invoices: "/1/invoices",
   payors: "/1/payors",
+  users: "/1/users",
 };
 
 // Bank user routes are not prefixed.
 export const bankRoutes = {
   overview: "/overview",
   advances: "/advances",
-  bankAccounts: "/bank-accounts",
   customerRoot: "/customers/:companyId",
   customer: {
     contract: "/contract",
@@ -59,10 +59,11 @@ export const bankRoutes = {
   ebbaApplications: "/borrowing-bases",
   loans: "/loans",
   payments: "/payments",
+  payors: "/payors",
   purchaseOrders: "/purchase-orders",
   invoices: "/invoices",
   reports: "/reports",
+  settings: "/settings",
   transactions: "/transactions",
   vendors: "/vendors",
-  payors: "/payors",
 };

@@ -55,14 +55,16 @@ function Settings({
   const users = data?.users || [];
 
   const [selectedUsers, setSelectedUsers] = useState<Users[]>([]);
-  const [selectedUserIds, setSelectedUserIds] = useState<Users["id"]>([]);
+
+  const selectedUserIds = useMemo(() => selectedUsers.map((user) => user.id), [
+    selectedUsers,
+  ]);
 
   const handleSelectUsers = useMemo(
     () => (users: Users[]) => {
       setSelectedUsers(users);
-      setSelectedUserIds(users.map((user) => user.id));
     },
-    [setSelectedUserIds]
+    [setSelectedUsers]
   );
 
   return (
@@ -129,6 +131,7 @@ function Settings({
         <h2>Users</h2>
         <Box display="flex" flexDirection="row-reverse">
           <ModalButton
+            isDisabled={selectedUsers.length > 0}
             label={"Invite User"}
             modal={({ handleClose }) => (
               <InviteUserModal
@@ -151,7 +154,6 @@ function Settings({
               modal={({ handleClose }) => (
                 <EditUserProfileModal
                   userId={selectedUsers[0].id}
-                  companyId={companyId}
                   originalUserProfile={selectedUsers[0]}
                   handleClose={() => {
                     refetch();

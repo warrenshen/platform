@@ -40,14 +40,12 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   userId: string;
-  companyId: string;
   originalUserProfile: UserFragment;
   handleClose: () => void;
 }
 
 function EditUserProfileModal({
   userId,
-  companyId,
   originalUserProfile,
   handleClose,
 }: Props) {

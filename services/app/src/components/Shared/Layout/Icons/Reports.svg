@@ -7,7 +7,6 @@
   fill="none"
   stroke-linecap="round"
   stroke-linejoin="round"
-  xmlns="http://www.w3.org/2000/svg"
 >
   <path
     stroke="none"
@@ -15,11 +14,29 @@
     fill="none"
   />
   <path
-    d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2"
+    d="M14 3v4a1 1 0 0 0 1 1h4"
     fill="none"
   />
   <path
-    d="M14 8h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5m2 0v1.5m0 -9v1.5"
+    d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"
     fill="none"
+  />
+  <line
+    x1="9"
+    y1="17"
+    x2="9"
+    y2="12"
+  />
+  <line
+    x1="12"
+    y1="17"
+    x2="12"
+    y2="16"
+  />
+  <line
+    x1="15"
+    y1="17"
+    x2="15"
+    y2="14"
   />
 </svg>

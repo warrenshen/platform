@@ -40,7 +40,6 @@ function UserProfile() {
     <Page appBarTitle={"Users"}>
       {user && open && (
         <EditUserProfileModal
-          companyId={currentUser.companyId}
           userId={currentUser.id}
           originalUserProfile={user}
           handleClose={() => setOpen(false)}

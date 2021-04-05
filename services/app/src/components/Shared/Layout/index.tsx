@@ -1,7 +1,6 @@
 import { Box, Drawer } from "@material-ui/core";
 import List from "@material-ui/core/List";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import TuneIcon from "@material-ui/icons/Tune";
 import EnvironmentChip from "components/Shared/Chip/EnvironmentChip";
 import BespokeFinancialLogo from "components/Shared/Layout/logo.png";
 import NestedListItem from "components/Shared/Layout/NestedListItem";
@@ -19,12 +18,16 @@ import { ReactNode, useContext } from "react";
 import { matchPath, useLocation } from "react-router-dom";
 import { useTitle } from "react-use";
 import styled from "styled-components";
+import { ReactComponent as BorrowingBasesIcon } from "./Icons/BorrowingBases.svg";
 import { ReactComponent as ContractsIcon } from "./Icons/Contracts.svg";
+import { ReactComponent as CustomersIcon } from "./Icons/Customers.svg";
+import { ReactComponent as InvoicesIcon } from "./Icons/Invoices.svg";
 import { ReactComponent as LoansIcon } from "./Icons/Loans.svg";
 import { ReactComponent as OverviewIcon } from "./Icons/Overview.svg";
 import { ReactComponent as PaymentsIcon } from "./Icons/Payments.svg";
 import { ReactComponent as PayorsIcon } from "./Icons/Payors.svg";
 import { ReactComponent as PurchaseOrdersIcon } from "./Icons/PurchaseOrders.svg";
+import { ReactComponent as ReportsIcon } from "./Icons/Reports.svg";
 import { ReactComponent as SettingsIcon } from "./Icons/Settings.svg";
 import { ReactComponent as VendorsIcon } from "./Icons/Vendors.svg";
 
@@ -156,7 +159,7 @@ const getCustomerNavItems = (
       visible:
         productType === ProductTypeEnum.InvoiceFinancing ||
         productType === ProductTypeEnum.PurchaseMoneyFinancing,
-      iconNode: PurchaseOrdersIcon,
+      iconNode: InvoicesIcon,
       text: "Invoices",
       link: customerRoutes.invoices,
     },
@@ -210,14 +213,17 @@ const getBankNavItems = (): NavItem[] => {
       link: bankRoutes.purchaseOrders,
     },
     {
+      iconNode: BorrowingBasesIcon,
       text: "Borrowing Bases",
       link: bankRoutes.ebbaApplications,
     },
     {
+      iconNode: InvoicesIcon,
       text: "Invoices",
       link: bankRoutes.invoices,
     },
     {
+      iconNode: CustomersIcon,
       text: "Customers",
       link: bankRoutes.customers,
     },
@@ -240,23 +246,14 @@ const getBankNavItems = (): NavItem[] => {
       link: bankRoutes.transactions,
     },
     {
+      iconNode: ReportsIcon,
       text: "Reports",
       link: bankRoutes.reports,
     },
     {
+      iconNode: SettingsIcon,
       text: "Settings",
-      items: [
-        {
-          text: "Users",
-          link: routes.users,
-          icon: <TuneIcon />,
-        },
-        {
-          text: "Bank Accounts",
-          link: bankRoutes.bankAccounts,
-          icon: <TuneIcon />,
-        },
-      ],
+      link: bankRoutes.settings,
     },
   ];
 };

@@ -20,7 +20,6 @@ import ReviewPurchaseOrderCompletePage from "pages/Anonymous/ReviewPurchaseOrder
 import AnonymousSecureLinkPage from "pages/Anonymous/SecureLink";
 import SignIn from "pages/Anonymous/SignIn";
 import BankAdvancesPage from "pages/Bank/Advances";
-import BankBankAccountsPage from "pages/Bank/BankAccounts";
 import BankCustomerPage from "pages/Bank/Customer";
 import BankCustomersPage from "pages/Bank/Customers";
 import BankEbbaApplicationsPage from "pages/Bank/EbbaApplications";
@@ -31,6 +30,7 @@ import BankPaymentsPage from "pages/Bank/Payments";
 import BankPayorsPage from "pages/Bank/Payors";
 import BankPurchaseOrdersPage from "pages/Bank/PurchaseOrders";
 import BankReportsPage from "pages/Bank/Reports";
+import BankSettingsPage from "pages/Bank/Settings";
 import BankTransactionsPage from "pages/Bank/Transactions";
 import BankVendorsPage from "pages/Bank/Vendors";
 import CustomerContractPage from "pages/Customer/Contract";
@@ -43,7 +43,6 @@ import CustomerPurchaseOrdersPage from "pages/Customer/PurchaseOrders";
 import CustomerSettingsPage from "pages/Customer/Settings";
 import CustomerVendorsPage from "pages/Customer/Vendors";
 import UserProfile from "pages/UserProfile";
-import Users from "pages/Users";
 import { useContext } from "react";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 import { useLocation } from "react-use";
@@ -133,17 +132,6 @@ function App() {
           ]}
         >
           <UserProfile />
-        </PrivateRoute>
-        <PrivateRoute
-          path={routes.users}
-          requiredRoles={[
-            UserRolesEnum.BankAdmin,
-            UserRolesEnum.BankReadOnly,
-            UserRolesEnum.CompanyAdmin,
-            UserRolesEnum.CompanyReadOnly,
-          ]}
-        >
-          <Users />
         </PrivateRoute>
         {/* Customer user routes */}
         <PrivateRoute
@@ -285,13 +273,6 @@ function App() {
         </PrivateRoute>
         <PrivateRoute
           exact
-          path={bankRoutes.bankAccounts}
-          requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
-        >
-          <BankBankAccountsPage />
-        </PrivateRoute>
-        <PrivateRoute
-          exact
           path={bankRoutes.payments}
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
         >
@@ -331,6 +312,13 @@ function App() {
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
         >
           <BankReportsPage />
+        </PrivateRoute>
+        <PrivateRoute
+          exact
+          path={bankRoutes.settings}
+          requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
+        >
+          <BankSettingsPage />
         </PrivateRoute>
         <Route>
           <Redirect to={routes.root} />
