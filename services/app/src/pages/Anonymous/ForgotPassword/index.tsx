@@ -9,6 +9,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import BespokeFinancialLogo from "components/Shared/Layout/logo.png";
 import { authenticatedApi, authRoutes } from "lib/api";
 import { routes } from "lib/routes";
 import { useMemo, useState } from "react";
@@ -117,7 +118,7 @@ function ForgotPassword(props: Props) {
             ← Back
           </Link>
           <Box className={classes.imageBox}>
-            <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="Logo" />
+            <img src={BespokeFinancialLogo} alt="Logo" />
           </Box>
           {!success ? (
             <>

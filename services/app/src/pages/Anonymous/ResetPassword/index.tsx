@@ -8,11 +8,13 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import BespokeFinancialLogo from "components/Shared/Layout/logo.png";
 import { authenticatedApi, authRoutes } from "lib/api";
 import { routes } from "lib/routes";
 import { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useTitle } from "react-use";
+
 interface Props {
   location: any;
 }
@@ -127,7 +129,7 @@ function ResetPassword(props: Props) {
       <Box className={classes.container}>
         <form onSubmit={onFormSubmit} className={classes.formContainer}>
           <Box className={classes.imageBox}>
-            <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="Logo" />
+            <img src={BespokeFinancialLogo} alt="Logo" />
           </Box>
           {!success ? (
             <>

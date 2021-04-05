@@ -135,7 +135,7 @@ function BankOverviewPage() {
                 color="primary"
                 variant="contained"
                 component={Link}
-                to={bankRoutes.loansMaturing}
+                to={bankRoutes.loans}
               >
                 View all
               </Button>
@@ -165,7 +165,7 @@ function BankOverviewPage() {
                 color="primary"
                 variant="contained"
                 component={Link}
-                to={bankRoutes.loansPastDue}
+                to={bankRoutes.loans}
               >
                 View all
               </Button>

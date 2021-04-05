@@ -1,10 +1,10 @@
 import { Box, Drawer } from "@material-ui/core";
 import List from "@material-ui/core/List";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import AccountBalanceIcon from "@material-ui/icons/AccountBalance";
 import PaymentIcon from "@material-ui/icons/Payment";
 import TuneIcon from "@material-ui/icons/Tune";
 import EnvironmentChip from "components/Shared/Chip/EnvironmentChip";
+import BespokeFinancialLogo from "components/Shared/Layout/logo.png";
 import NestedListItem from "components/Shared/Layout/NestedListItem";
 import SidebarItem from "components/Shared/Layout/SidebarItem";
 import UserMenu from "components/Shared/User/UserMenu";
@@ -195,30 +195,9 @@ const getBankNavItems = (): NavItem[] => {
       link: bankRoutes.overview,
     },
     {
+      iconNode: LoansIcon,
       text: "Loans",
-      counter: 0,
-      items: [
-        {
-          text: "All",
-          link: bankRoutes.loansAllProducts,
-          icon: <AccountBalanceIcon />,
-        },
-        {
-          text: "Action Required",
-          link: bankRoutes.loansActionRequired,
-          icon: <AccountBalanceIcon />,
-        },
-        {
-          text: "Maturing in X Days",
-          link: bankRoutes.loansMaturing,
-          icon: <AccountBalanceIcon />,
-        },
-        {
-          text: "Past Due (Collections)",
-          link: bankRoutes.loansPastDue,
-          icon: <AccountBalanceIcon />,
-        },
-      ],
+      link: bankRoutes.loans,
     },
     {
       text: "Payments",
@@ -341,12 +320,7 @@ function Layout({ appBarTitle, children }: Props) {
         anchor="left"
       >
         <Logo href={routes.root}>
-          <img
-            src={`${process.env.PUBLIC_URL}/logo.png`}
-            alt="Logo"
-            width={156}
-            height={32}
-          />
+          <img src={BespokeFinancialLogo} alt="Logo" width={156} height={32} />
         </Logo>
         <SidebarItems>
           <List className={classes.list}>

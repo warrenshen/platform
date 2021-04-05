@@ -84,6 +84,7 @@ const NestedListItem = ({ item }: Props) => {
         <List component="div" disablePadding>
           {item.items.map((nestedItem: any, index: number) => (
             <SidebarItem
+              key={index}
               isNested={true}
               isSelected={Boolean(
                 matchPath(location.pathname, nestedItem.link)

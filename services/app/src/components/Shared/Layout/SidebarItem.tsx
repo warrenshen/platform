@@ -8,7 +8,7 @@ const Wrapper = styled.div<{ isNested: boolean }>`
   margin-top: 8px;
 `;
 
-const Container = styled(Link)<{ isSelected: boolean }>`
+const Container = styled(Link)<{ $isSelected: boolean }>`
   display: flex;
   align-items: center;
 
@@ -16,15 +16,15 @@ const Container = styled(Link)<{ isSelected: boolean }>`
   padding: 0px 16px;
   margin: 0px 12px;
   color: ${(props) =>
-    props.isSelected ? "rgba(203, 166, 121, 1.0)" : "rgba(44, 42, 39, 0.8)"};
+    props.$isSelected ? "rgba(203, 166, 121, 1.0)" : "rgba(44, 42, 39, 0.8)"};
   background-color: ${(props) =>
-    props.isSelected ? "rgba(203, 166, 121, 0.15)" : "none"};
+    props.$isSelected ? "rgba(203, 166, 121, 0.15)" : "none"};
   border-radius: 6px;
   text-decoration: none;
 
   &:hover {
     background-color: ${(props) =>
-      props.isSelected ? "rgba(203, 166, 121, 0.15)" : "#fafafa"};
+      props.$isSelected ? "rgba(203, 166, 121, 0.15)" : "#fafafa"};
     cursor: pointer;
   }
 `;
@@ -74,7 +74,7 @@ function SidebarItem({
 }: Props) {
   return (
     <Wrapper isNested={isNested}>
-      <Container isSelected={isSelected} to={to}>
+      <Container $isSelected={isSelected} to={to}>
         {IconNode && (
           <IconWrapper>
             <IconNode

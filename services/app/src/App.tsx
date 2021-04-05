@@ -25,10 +25,7 @@ import BankCustomerPage from "pages/Bank/Customer";
 import BankCustomersPage from "pages/Bank/Customers";
 import BankEbbaApplicationsPage from "pages/Bank/EbbaApplications";
 import BankInvoicesPage from "pages/Bank/Invoices";
-import BankLoansActionRequiredPage from "pages/Bank/LoansActionRequired";
-import BankLoansAllProductsPage from "pages/Bank/LoansAllProducts";
-import BankLoansMaturingPage from "pages/Bank/LoansMaturing";
-import BankLoansPastDuePage from "pages/Bank/LoansPastDue";
+import BankLoansPage from "pages/Bank/Loans";
 import BankOverviewPage from "pages/Bank/Overview";
 import BankPaymentsPage from "pages/Bank/Payments";
 import BankPaymentsReadyForSettlementPage from "pages/Bank/PaymentsActionRequired";
@@ -250,30 +247,10 @@ function App() {
         </PrivateRoute>
         <PrivateRoute
           exact
-          path={bankRoutes.loansActionRequired}
+          path={bankRoutes.loans}
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
         >
-          <BankLoansActionRequiredPage />
-        </PrivateRoute>
-        <PrivateRoute
-          exact
-          path={bankRoutes.loansMaturing}
-          requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
-        >
-          <BankLoansMaturingPage />
-        </PrivateRoute>
-        <PrivateRoute
-          exact
-          path={bankRoutes.loansPastDue}
-          requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
-        >
-          <BankLoansPastDuePage />
-        </PrivateRoute>
-        <PrivateRoute
-          path={bankRoutes.loansAllProducts}
-          requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
-        >
-          <BankLoansAllProductsPage />
+          <BankLoansPage />
         </PrivateRoute>
         <PrivateRoute
           path={bankRoutes.purchaseOrders}

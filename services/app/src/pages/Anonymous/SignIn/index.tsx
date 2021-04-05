@@ -8,6 +8,7 @@ import {
   TextField,
   Theme,
 } from "@material-ui/core";
+import BespokeFinancialLogo from "components/Shared/Layout/logo.png";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { anonymousRoutes, routes } from "lib/routes";
 import { useContext, useState } from "react";
@@ -92,7 +93,7 @@ function SignIn() {
     <Box className={classes.container}>
       <form onSubmit={onFormSubmit} className={classes.formContainer}>
         <Box className={classes.imageBox}>
-          <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="Logo" />
+          <img src={BespokeFinancialLogo} alt="Logo" />
         </Box>
         <TextField
           data-cy="sign-in-input-email"
