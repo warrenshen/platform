@@ -1,7 +1,6 @@
 import { Box, Drawer } from "@material-ui/core";
 import List from "@material-ui/core/List";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import PaymentIcon from "@material-ui/icons/Payment";
 import TuneIcon from "@material-ui/icons/Tune";
 import EnvironmentChip from "components/Shared/Chip/EnvironmentChip";
 import BespokeFinancialLogo from "components/Shared/Layout/logo.png";
@@ -23,6 +22,7 @@ import styled from "styled-components";
 import { ReactComponent as ContractsIcon } from "./Icons/Contracts.svg";
 import { ReactComponent as LoansIcon } from "./Icons/Loans.svg";
 import { ReactComponent as OverviewIcon } from "./Icons/Overview.svg";
+import { ReactComponent as PaymentsIcon } from "./Icons/Payments.svg";
 import { ReactComponent as PayorsIcon } from "./Icons/Payors.svg";
 import { ReactComponent as PurchaseOrdersIcon } from "./Icons/PurchaseOrders.svg";
 import { ReactComponent as SettingsIcon } from "./Icons/Settings.svg";
@@ -200,19 +200,9 @@ const getBankNavItems = (): NavItem[] => {
       link: bankRoutes.loans,
     },
     {
+      iconNode: PaymentsIcon,
       text: "Payments",
-      items: [
-        {
-          text: "All",
-          link: bankRoutes.payments,
-          icon: <PaymentIcon />,
-        },
-        {
-          text: "Action Required",
-          link: bankRoutes.paymentsActionRequired,
-          icon: <PaymentIcon />,
-        },
-      ],
+      link: bankRoutes.payments,
     },
     {
       iconNode: PurchaseOrdersIcon,

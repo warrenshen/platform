@@ -28,7 +28,6 @@ import BankInvoicesPage from "pages/Bank/Invoices";
 import BankLoansPage from "pages/Bank/Loans";
 import BankOverviewPage from "pages/Bank/Overview";
 import BankPaymentsPage from "pages/Bank/Payments";
-import BankPaymentsReadyForSettlementPage from "pages/Bank/PaymentsActionRequired";
 import BankPayorsPage from "pages/Bank/Payors";
 import BankPurchaseOrdersPage from "pages/Bank/PurchaseOrders";
 import BankReportsPage from "pages/Bank/Reports";
@@ -297,13 +296,6 @@ function App() {
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
         >
           <BankPaymentsPage />
-        </PrivateRoute>
-        <PrivateRoute
-          exact
-          path={bankRoutes.paymentsActionRequired}
-          requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
-        >
-          <BankPaymentsReadyForSettlementPage />
         </PrivateRoute>
         <PrivateRoute
           exact

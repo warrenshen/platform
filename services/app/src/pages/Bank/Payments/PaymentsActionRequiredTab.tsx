@@ -12,7 +12,6 @@ import ScheduleRepaymentModal from "components/Repayment/ScheduleRepaymentModal"
 import SettleRepaymentModal from "components/Repayment/SettleRepaymentModal";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import Page from "components/Shared/Page";
 import {
   PaymentLimitedFragment,
   Payments,
@@ -20,6 +19,16 @@ import {
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { useMemo, useState } from "react";
+import styled from "styled-components";
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  flex: 1;
+
+  width: 100%;
+`;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -39,7 +48,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function BankPaymentsActionRequiredPage() {
+function BankPaymentsActionRequiredTab() {
   const classes = useStyles();
 
   const { data } = useGetSubmittedPaymentsSubscription();
@@ -107,12 +116,10 @@ function BankPaymentsActionRequiredPage() {
   }, [payments]);
 
   return (
-    <Page appBarTitle={"Payments - Action Required"}>
+    <Container>
       <Box className={classes.container}>
         <Box className={classes.section}>
-          <Typography variant="h6">
-            Payments - Requested Reverse Draft ACHs
-          </Typography>
+          <Typography variant="h6">Requested Reverse Draft ACHs</Typography>
           <Box mb={2} display="flex" flexDirection="row-reverse">
             <Can perform={Action.SettleRepayment}>
               <Box>
@@ -146,9 +153,7 @@ function BankPaymentsActionRequiredPage() {
         </Box>
         <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
-          <Typography variant="h6">
-            Payments - Submitted Reverse Draft ACHs
-          </Typography>
+          <Typography variant="h6">Submitted Reverse Draft ACHs</Typography>
           <Box mb={2} display="flex" flexDirection="row-reverse">
             <Can perform={Action.SettleRepayment}>
               <Box>
@@ -182,7 +187,7 @@ function BankPaymentsActionRequiredPage() {
         </Box>
         <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
-          <Typography variant="h6">Payments - Notifications</Typography>
+          <Typography variant="h6">Notifications</Typography>
           <Box mb={2} display="flex" flexDirection="row-reverse">
             <Can perform={Action.SettleRepayment}>
               <Box>
@@ -214,8 +219,8 @@ function BankPaymentsActionRequiredPage() {
           />
         </Box>
       </Box>
-    </Page>
+    </Container>
   );
 }
 
-export default BankPaymentsActionRequiredPage;
+export default BankPaymentsActionRequiredTab;
