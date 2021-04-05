@@ -307,7 +307,12 @@ function Layout({ appBarTitle, children }: Props) {
         anchor="left"
       >
         <Logo href={routes.root}>
-          <img src={BespokeFinancialLogo} alt="Logo" width={156} height={32} />
+          <img
+            src={BespokeFinancialLogo}
+            alt="Bespoke Financial Logo"
+            width={156}
+            height={32}
+          />
         </Logo>
         <SidebarItems>
           <List className={classes.list}>

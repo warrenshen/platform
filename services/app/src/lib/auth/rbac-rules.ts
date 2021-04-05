@@ -189,6 +189,9 @@ const rules: Rules = {
   },
   [UserRolesEnum.CompanyAdmin]: {
     static: [
+      Action.AddBankAccount,
+      Action.EditBankAccount,
+
       Action.AddPurchaseOrders,
       Action.EditPurchaseOrders,
       Action.FundPurchaseOrders,

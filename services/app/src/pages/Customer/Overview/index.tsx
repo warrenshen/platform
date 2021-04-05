@@ -15,13 +15,12 @@ import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoanFragment,
-  Loans,
   ProductTypeEnum,
   useGetCustomerOverviewQuery,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { ProductTypeToLoanType } from "lib/enum";
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -69,7 +68,10 @@ function CustomerOverviewPage() {
   const loans = company?.outstanding_loans || [];
 
   const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
-  const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"]>([]);
+
+  const selectedLoanIds = useMemo(() => selectedLoans.map((loan) => loan.id), [
+    selectedLoans,
+  ]);
 
   return (
     <Page appBarTitle={"Overview"}>
@@ -87,24 +89,24 @@ function CustomerOverviewPage() {
                 payments.length > 0 ? ` (${payments.length})` : ""
               }`}
             </Typography>
+          </Box>
+          <Box display="flex" flexDirection="row-reverse" mb={2}>
             {productType === ProductTypeEnum.LineOfCredit && (
               <Can perform={Action.RepayPurchaseOrderLoans}>
-                <Box display="flex" flexDirection="row-reverse" mb={2}>
-                  <ModalButton
-                    label={"Make Payment"}
-                    modal={({ handleClose }) => (
-                      <CreateRepaymentModal
-                        companyId={companyId}
-                        productType={productType}
-                        selectedLoans={[]}
-                        handleClose={() => {
-                          refetch();
-                          handleClose();
-                        }}
-                      />
-                    )}
-                  />
-                </Box>
+                <ModalButton
+                  label={"Make Payment"}
+                  modal={({ handleClose }) => (
+                    <CreateRepaymentModal
+                      companyId={companyId}
+                      productType={productType}
+                      selectedLoans={[]}
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                      }}
+                    />
+                  )}
+                />
               </Can>
             )}
           </Box>
@@ -131,48 +133,42 @@ function CustomerOverviewPage() {
                   loans.length > 0 ? ` (${loans.length})` : ""
                 }`}
               </Typography>
+              <Box display="flex" flexDirection="row-reverse" mb={2}>
+                <Can perform={Action.RepayPurchaseOrderLoans}>
+                  <ModalButton
+                    isDisabled={selectedLoanIds.length <= 0}
+                    label={"Make Payment"}
+                    modal={({ handleClose }) => (
+                      <CreateRepaymentModal
+                        companyId={companyId}
+                        productType={productType}
+                        selectedLoans={selectedLoans}
+                        handleClose={() => {
+                          refetch();
+                          handleClose();
+                          setSelectedLoans([]);
+                        }}
+                      />
+                    )}
+                  />
+                </Can>
+              </Box>
               <Box display="flex" flex={1}>
                 <Box display="flex" flexDirection="column" width="100%">
                   {loans.length > 0 ? (
-                    <>
-                      <Can perform={Action.RepayPurchaseOrderLoans}>
-                        <Box display="flex" flexDirection="row-reverse" mb={2}>
-                          <ModalButton
-                            isDisabled={selectedLoanIds.length <= 0}
-                            label={"Make Payment"}
-                            modal={({ handleClose }) => (
-                              <CreateRepaymentModal
-                                companyId={companyId}
-                                productType={productType}
-                                selectedLoans={selectedLoans}
-                                handleClose={() => {
-                                  refetch();
-                                  handleClose();
-                                  setSelectedLoans([]);
-                                  setSelectedLoanIds([]);
-                                }}
-                              />
-                            )}
-                          />
-                        </Box>
-                      </Can>
-                      <Box display="flex" flex={1}>
-                        <PolymorphicLoansDataGrid
-                          isMultiSelectEnabled={check(role, Action.SelectLoan)}
-                          isViewNotesEnabled={check(
-                            role,
-                            Action.ViewLoanInternalNote
-                          )}
-                          productType={productType}
-                          loans={loans}
-                          selectedLoanIds={selectedLoanIds}
-                          handleSelectLoans={(loans) => {
-                            setSelectedLoans(loans);
-                            setSelectedLoanIds(loans.map((loan) => loan.id));
-                          }}
-                        />
-                      </Box>
-                    </>
+                    <Box display="flex" flex={1}>
+                      <PolymorphicLoansDataGrid
+                        isMultiSelectEnabled={check(role, Action.SelectLoan)}
+                        isViewNotesEnabled={check(
+                          role,
+                          Action.ViewLoanInternalNote
+                        )}
+                        productType={productType}
+                        loans={loans}
+                        selectedLoanIds={selectedLoanIds}
+                        handleSelectLoans={(loans) => setSelectedLoans(loans)}
+                      />
+                    </Box>
                   ) : (
                     <Typography variant="body1">
                       You do not have any outstanding loans.

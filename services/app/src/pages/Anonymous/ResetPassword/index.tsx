@@ -40,8 +40,7 @@ const useStyles = makeStyles((theme: Theme) =>
       flexDirection: "column",
       justifyContent: "center",
       width: 400,
-      padding: theme.spacing(3),
-      paddingTop: theme.spacing(2),
+      padding: theme.spacing(4),
     },
     imageBox: {
       display: "flex",
@@ -129,7 +128,12 @@ function ResetPassword(props: Props) {
       <Box className={classes.container}>
         <form onSubmit={onFormSubmit} className={classes.formContainer}>
           <Box className={classes.imageBox}>
-            <img src={BespokeFinancialLogo} alt="Logo" />
+            <img
+              src={BespokeFinancialLogo}
+              alt="Bespoke Financial Logo"
+              width={156}
+              height={32}
+            />
           </Box>
           {!success ? (
             <>

@@ -13,12 +13,13 @@ import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
+  LoanFragment,
   ProductTypeEnum,
   useGetCustomerOverviewQuery,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { ProductTypeToLoanType } from "lib/enum";
-import { useContext } from "react";
+import { useContext, useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -67,6 +68,12 @@ function CustomerOverviewSubpage({ companyId, productType }: Props) {
   const payments = company?.pending_payments || [];
   const loans = company?.outstanding_loans || [];
 
+  const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
+
+  const selectedLoanIds = useMemo(() => selectedLoans.map((loan) => loan.id), [
+    selectedLoans,
+  ]);
+
   return (
     <Box className={classes.container}>
       <Box className={classes.section}>
@@ -79,24 +86,26 @@ function CustomerOverviewSubpage({ companyId, productType }: Props) {
             payments.length > 0 ? ` (${payments.length})` : ""
           }`}
         </Typography>
-        <Can perform={Action.RepayPurchaseOrderLoans}>
-          <Box display="flex" flexDirection="row-reverse" mb={2}>
-            <ModalButton
-              label={"Make Payment"}
-              modal={({ handleClose }) => (
-                <CreateRepaymentModal
-                  companyId={companyId}
-                  productType={productType}
-                  selectedLoans={[]}
-                  handleClose={() => {
-                    refetch();
-                    handleClose();
-                  }}
-                />
-              )}
-            />
-          </Box>
-        </Can>
+        <Box display="flex" flexDirection="row-reverse" mb={2}>
+          {productType === ProductTypeEnum.LineOfCredit && (
+            <Can perform={Action.RepayPurchaseOrderLoans}>
+              <ModalButton
+                label={"Make Payment"}
+                modal={({ handleClose }) => (
+                  <CreateRepaymentModal
+                    companyId={companyId}
+                    productType={productType}
+                    selectedLoans={[]}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Can>
+          )}
+        </Box>
         <Box display="flex" flex={1}>
           <Box display="flex" flexDirection="column" width="100%">
             {payments.length > 0 ? (
@@ -109,29 +118,60 @@ function CustomerOverviewSubpage({ companyId, productType }: Props) {
           </Box>
         </Box>
       </Box>
-      <Box className={classes.sectionSpace} />
-      <Box className={classes.section}>
-        <Typography variant="h6">
-          {`Outstanding Loans${loans.length > 0 ? ` (${loans.length})` : ""}`}
-        </Typography>
-        <Box display="flex" flex={1}>
-          <Box display="flex" flexDirection="column" width="100%">
-            {loans.length > 0 ? (
-              <PolymorphicLoansDataGrid
-                isExcelExport
-                isMultiSelectEnabled={check(role, Action.SelectLoan)}
-                isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
-                productType={productType}
-                loans={loans}
-              />
-            ) : (
-              <Typography variant="body1">
-                Customer does not have any outstanding loans.
-              </Typography>
-            )}
+      {productType !== ProductTypeEnum.LineOfCredit && (
+        <>
+          <Box className={classes.sectionSpace} />
+          <Box className={classes.section}>
+            <Typography variant="h6">
+              {`Outstanding Loans${
+                loans.length > 0 ? ` (${loans.length})` : ""
+              }`}
+            </Typography>
+            <Box display="flex" flexDirection="row-reverse" mb={2}>
+              <Can perform={Action.RepayPurchaseOrderLoans}>
+                <ModalButton
+                  isDisabled={selectedLoanIds.length <= 0}
+                  label={"Make Payment"}
+                  modal={({ handleClose }) => (
+                    <CreateRepaymentModal
+                      companyId={companyId}
+                      productType={productType}
+                      selectedLoans={selectedLoans}
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                        setSelectedLoans([]);
+                      }}
+                    />
+                  )}
+                />
+              </Can>
+            </Box>
+            <Box display="flex" flex={1}>
+              <Box display="flex" flexDirection="column" width="100%">
+                {loans.length > 0 ? (
+                  <PolymorphicLoansDataGrid
+                    isExcelExport
+                    isMultiSelectEnabled={check(role, Action.SelectLoan)}
+                    isViewNotesEnabled={check(
+                      role,
+                      Action.ViewLoanInternalNote
+                    )}
+                    productType={productType}
+                    loans={loans}
+                    selectedLoanIds={selectedLoanIds}
+                    handleSelectLoans={(loans) => setSelectedLoans(loans)}
+                  />
+                ) : (
+                  <Typography variant="body1">
+                    Customer does not have any outstanding loans.
+                  </Typography>
+                )}
+              </Box>
+            </Box>
           </Box>
-        </Box>
-      </Box>
+        </>
+      )}
     </Box>
   );
 }

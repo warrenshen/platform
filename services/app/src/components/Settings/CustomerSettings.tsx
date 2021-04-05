@@ -1,4 +1,4 @@
-import { Box } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBankAccountModal";
 import CompanySettingsCard from "components/Settings/CompanySettingsCard";
@@ -115,16 +115,20 @@ function Settings({
           />
         </Can>
         <Box display="flex" mt={3}>
-          {bankAccounts.map((bankAccount, index) => (
-            <Box mr={2} key={index}>
-              <BankAccountInfoCard
-                isCannabisCompliantVisible
-                isEditAllowed={check(role, Action.EditBankAccount)}
-                isVerificationVisible
-                bankAccount={bankAccount}
-              />
-            </Box>
-          ))}
+          {bankAccounts.length > 0 ? (
+            bankAccounts.map((bankAccount, index) => (
+              <Box mr={2} key={index}>
+                <BankAccountInfoCard
+                  isCannabisCompliantVisible
+                  isEditAllowed={check(role, Action.EditBankAccount)}
+                  isVerificationVisible
+                  bankAccount={bankAccount}
+                />
+              </Box>
+            ))
+          ) : (
+            <Typography variant="body2">No bank accounts set up yet</Typography>
+          )}
         </Box>
       </Box>
       <Box>
@@ -165,13 +169,17 @@ function Settings({
           </Box>
         </Box>
         <Box display="flex" mt={3}>
-          <UsersDataGrid
-            isCompanyVisible={false}
-            isMultiSelectEnabled
-            users={users}
-            selectedUserIds={selectedUserIds}
-            handleSelectUsers={handleSelectUsers}
-          />
+          {users.length > 0 ? (
+            <UsersDataGrid
+              isCompanyVisible={false}
+              isMultiSelectEnabled
+              users={users}
+              selectedUserIds={selectedUserIds}
+              handleSelectUsers={handleSelectUsers}
+            />
+          ) : (
+            <Typography variant="body2">No users set up yet</Typography>
+          )}
         </Box>
       </Box>
     </Box>

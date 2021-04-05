@@ -35,10 +35,8 @@ const useStyles = makeStyles((theme: Theme) =>
       display: "flex",
       flexDirection: "column",
       justifyContent: "center",
-      position: "relative",
       width: 400,
       padding: theme.spacing(4),
-      paddingTop: theme.spacing(2),
     },
     imageBox: {
       display: "flex",
@@ -93,7 +91,12 @@ function SignIn() {
     <Box className={classes.container}>
       <form onSubmit={onFormSubmit} className={classes.formContainer}>
         <Box className={classes.imageBox}>
-          <img src={BespokeFinancialLogo} alt="Logo" />
+          <img
+            src={BespokeFinancialLogo}
+            alt="Bespoke Financial Logo"
+            width={156}
+            height={32}
+          />
         </Box>
         <TextField
           data-cy="sign-in-input-email"
