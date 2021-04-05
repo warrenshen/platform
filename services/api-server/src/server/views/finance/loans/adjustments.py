@@ -29,7 +29,13 @@ class MakeAdjustmentView(MethodView):
 		user_session = auth_util.UserSession.from_session()
 
 		required_keys = [
-			'company_id', 'loan_id', 'tx_amounts', 'payment_date', 'settlement_date'
+			'company_id',
+			'loan_id',
+			'to_principal',
+			'to_interest',
+			'to_fees',
+			'deposit_date',
+			'settlement_date',
 		]
 
 		for key in required_keys:
@@ -37,19 +43,17 @@ class MakeAdjustmentView(MethodView):
 				return handler_util.make_error_response(
 					'Missing key {} from make adjustment request'.format(key))
 
-		tx_amounts = form['tx_amounts']
-
 		with models.session_scope(current_app.session_maker) as session:
 			payment_util.create_and_add_adjustment(
 				company_id=form['company_id'],
 				loan_id=form['loan_id'],
 				tx_amount_dict=payment_util.TransactionAmountDict(
-					to_principal=tx_amounts['to_principal'],
-					to_interest=tx_amounts['to_interest'],
-					to_fees=tx_amounts['to_fees']
+					to_principal=form['to_principal'],
+					to_interest=form['to_interest'],
+					to_fees=form['to_fees']
 				),
 				created_by_user_id=user_session.get_user_id(),
-				payment_date=date_util.load_date_str(form['payment_date']),
+				deposit_date=date_util.load_date_str(form['deposit_date']),
 				effective_date=date_util.load_date_str(form['settlement_date']),
 				session=session
 			)

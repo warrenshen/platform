@@ -584,7 +584,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					to_fees=2.0
 				),
 				created_by_user_id=seed.get_user_id('bank_admin'),
-				payment_date=date_util.load_date_str('10/26/2020'),
+				deposit_date=date_util.load_date_str('10/26/2020'),
 				effective_date=date_util.load_date_str('10/26/2020'),
 				session=session
 			)
@@ -654,7 +654,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						# - 4.2 is for the adjustment
 						# - 1.0 is adjustment from principal
 						# + 2.0 is adjustment for interest
-						'outstanding_interest': round(23 * daily_interest, 2) - 4.2, 
+						'outstanding_interest': round(23 * daily_interest, 2) - 4.2,
 						'outstanding_fees': round((14 * daily_interest * 0.25) + (7 * daily_interest * 0.5), 2) + 2.0,
 						'interest_accrued_today': round(daily_interest, 2)
 					}

@@ -56,7 +56,7 @@ def main() -> None:
 				to_fees=0.0,
 			),
 			created_by_user_id=None,
-			payment_date=effective_date,
+			deposit_date=effective_date,
 			effective_date=effective_date,
 			session=session,
 		)

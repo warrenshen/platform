@@ -167,7 +167,7 @@ def create_and_add_adjustment(
 	loan_id: str,
 	tx_amount_dict: TransactionAmountDict,
 	created_by_user_id: str,
-	payment_date: datetime.date,
+	deposit_date: datetime.date,
 	effective_date: datetime.date,
 	session: Session) -> models.Transaction:
 
@@ -182,7 +182,7 @@ def create_and_add_adjustment(
 		),
 		user_id=created_by_user_id
 	)
-	payment.payment_date = payment_date
+	payment.deposit_date = deposit_date
 	payment.settlement_date = effective_date
 	payment.settled_at = date_util.now()
 	payment.settled_by_user_id = created_by_user_id
