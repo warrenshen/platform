@@ -10,6 +10,13 @@ import { UserRolesEnum, useUserByIdQuery } from "generated/graphql";
 import { routes } from "lib/routes";
 import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
+import styled from "styled-components";
+
+const Email = styled.span`
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
 
 function UserMenu() {
   const client = useApolloClient() as ApolloClient<NormalizedCacheObject>;
@@ -32,11 +39,10 @@ function UserMenu() {
     setAnchorEl(null);
   };
 
-  // TODO(warrenshen): handle long emails better.
   return (
     <Box>
-      <Box display="flex" flexDirection="row" alignItems="center" py={1}>
-        <Box ml={1}>
+      <Box display="flex" flexDirection="row" alignItems="center" py={2} px={1}>
+        <Box>
           <IconButton onClick={handleClick}>
             <AccountCircle />
           </IconButton>
@@ -45,7 +51,7 @@ function UserMenu() {
           display="flex"
           flexDirection="column"
           alignItems="flex-start"
-          width={"100%"}
+          flex={1}
           ml={1}
           overflow="hidden"
         >
@@ -54,7 +60,7 @@ function UserMenu() {
               ? "Bespoke (Bank)"
               : user?.company?.name}
           </Typography>
-          <Typography variant="caption">{user?.email}</Typography>
+          <Email>{user?.email}</Email>
         </Box>
       </Box>
       <Menu
