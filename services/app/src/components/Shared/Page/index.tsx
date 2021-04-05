@@ -1,18 +1,31 @@
-import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
 import Layout from "components/Shared/Layout";
 import { ReactNode } from "react";
+import styled from "styled-components";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    container: {
-      flex: 1,
-      display: "flex",
-      flexDirection: "column",
-      padding: theme.spacing(3),
-      overflow: "scroll",
-    },
-  })
-);
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  flex: 1;
+
+  padding: 64px 96px;
+  overflow: scroll;
+`;
+
+const Title = styled.span`
+  margin-bottom: 24px;
+  font-size: 24px;
+  font-weight: 400;
+`;
+
+const Content = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  flex: 1;
+
+  padding-bottom: 128px;
+`;
 
 interface Props {
   appBarTitle: string;
@@ -20,11 +33,12 @@ interface Props {
 }
 
 function Page({ appBarTitle, children }: Props) {
-  const classes = useStyles();
-
   return (
     <Layout appBarTitle={appBarTitle}>
-      <Box className={classes.container}>{children}</Box>
+      <Container>
+        <Title>{appBarTitle}</Title>
+        <Content>{children}</Content>
+      </Container>
     </Layout>
   );
 }

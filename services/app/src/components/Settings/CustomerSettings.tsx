@@ -67,7 +67,6 @@ function Settings({
 
   return (
     <Box>
-      <h1>Account Settings</h1>
       <Box>
         <h2>Customer Settings</h2>
         <Box mt={3}>

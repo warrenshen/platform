@@ -86,7 +86,7 @@ function CustomerPurchaseOrdersPageContent({ companyId, productType }: Props) {
       width="100%"
       className={classes.section}
     >
-      <Typography variant="h6">Purchase Orders - Not Funded</Typography>
+      <Typography variant="h6">Not Funded</Typography>
       <Box mb={2} display="flex" flexDirection="row-reverse">
         <Can perform={Action.AddPurchaseOrders}>
           <ModalButton
@@ -169,7 +169,7 @@ function CustomerPurchaseOrdersPageContent({ companyId, productType }: Props) {
       </Box>
       <Box className={classes.sectionSpace} />
       <Box className={classes.section}>
-        <Typography variant="h6">Purchase Orders - Funded</Typography>
+        <Typography variant="h6">Funded</Typography>
         <Box className={classes.sectionSpace} />
         <PurchaseOrdersDataGrid
           isCompanyVisible={false}

@@ -95,7 +95,6 @@ export default function InvoicesFundedUnfundedList({
         width="100%"
         className={classes.section}
       >
-        <Typography variant="h6">Invoices - Not Funded</Typography>
         <Box mb={2} display="flex" flexDirection="row-reverse">
           <Can perform={Action.AddInvoices}>
             <ModalButton

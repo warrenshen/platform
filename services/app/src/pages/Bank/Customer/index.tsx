@@ -38,7 +38,6 @@ const useStyles = makeStyles((theme: Theme) =>
     content: {
       display: "flex",
       flexDirection: "column",
-      backgroundColor: theme.palette.background.default,
       width: `calc(100% - ${DRAWER_WIDTH}px)`,
       paddingLeft: theme.spacing(3),
     },
@@ -165,7 +164,10 @@ function BankCustomerPage() {
             <PrivateRoute
               key={customerPath.path}
               path={`${path}${customerPath.path}`}
-              requiredRoles={[UserRolesEnum.BankAdmin]}
+              requiredRoles={[
+                UserRolesEnum.BankAdmin,
+                UserRolesEnum.BankReadOnly,
+              ]}
             >
               {customerPath.component({ companyId, productType })}
             </PrivateRoute>

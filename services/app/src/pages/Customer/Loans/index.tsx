@@ -9,7 +9,7 @@ function CustomerLoansPage() {
   } = useContext(CurrentUserContext);
 
   return (
-    <Page appBarTitle={"Loans - Active"}>
+    <Page appBarTitle={"Loans"}>
       {companyId && productType && (
         <CustomerLoansPageContent
           companyId={companyId}

@@ -34,13 +34,13 @@ function BankCustomerSettingsSubpage({ companyId }: Props) {
         handleDataChange={() => refetch()}
       />
       <Box mt={8} mb={16}>
-        <h1>Additional Settings</h1>
+        <h2>Additional Settings</h2>
         <Alert severity="info">
           Note: the settings below are only visible by bank users (you are a
           bank user).
         </Alert>
         <Box>
-          <h2>Bespoke Collections Account</h2>
+          <h4>Bespoke Collections Account</h4>
           <Box display="flex">
             <CollectionsBank
               companySettingsId={settings?.id}

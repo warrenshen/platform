@@ -1,20 +1,12 @@
-import {
-  AppBar,
-  Box,
-  Chip,
-  Drawer,
-  ListItem,
-  ListItemText,
-} from "@material-ui/core";
+import { Box, Drawer } from "@material-ui/core";
 import List from "@material-ui/core/List";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import Toolbar from "@material-ui/core/Toolbar";
-import Typography from "@material-ui/core/Typography";
 import AccountBalanceIcon from "@material-ui/icons/AccountBalance";
 import PaymentIcon from "@material-ui/icons/Payment";
 import TuneIcon from "@material-ui/icons/Tune";
 import EnvironmentChip from "components/Shared/Chip/EnvironmentChip";
 import NestedListItem from "components/Shared/Layout/NestedListItem";
+import SidebarItem from "components/Shared/Layout/SidebarItem";
 import UserMenu from "components/Shared/User/UserMenu";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
@@ -25,8 +17,54 @@ import {
 import { withinNDaysOfNowOrBefore } from "lib/date";
 import { bankRoutes, customerRoutes, routes } from "lib/routes";
 import { ReactNode, useContext } from "react";
-import { Link, matchPath, useLocation } from "react-router-dom";
+import { matchPath, useLocation } from "react-router-dom";
 import { useTitle } from "react-use";
+import styled from "styled-components";
+import { ReactComponent as ContractsIcon } from "./Icons/Contracts.svg";
+import { ReactComponent as LoansIcon } from "./Icons/Loans.svg";
+import { ReactComponent as OverviewIcon } from "./Icons/Overview.svg";
+import { ReactComponent as PayorsIcon } from "./Icons/Payors.svg";
+import { ReactComponent as PurchaseOrdersIcon } from "./Icons/PurchaseOrders.svg";
+import { ReactComponent as SettingsIcon } from "./Icons/Settings.svg";
+import { ReactComponent as VendorsIcon } from "./Icons/Vendors.svg";
+
+const Wrapper = styled.div`
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+`;
+
+const Logo = styled.a`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 96px;
+`;
+
+const SidebarItems = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  flex: 1;
+
+  overflow: scroll;
+`;
+
+const Content = styled.main`
+  display: flex;
+  flexdirection: column;
+  alignitems: stretch;
+
+  flex: 1;
+
+  background-color: #f6f5f3;
+  overflow: scroll;
+`;
+
+const Footer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
 
 const DRAWER_WIDTH = 250;
 
@@ -46,6 +84,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     drawerPaper: {
       width: DRAWER_WIDTH,
+      border: "0px",
     },
     // necessary for content to be below app bar
     toolbar: {
@@ -66,16 +105,6 @@ const useStyles = makeStyles((theme: Theme) =>
     list: {
       padding: 0,
     },
-    listItemText: {
-      fontWeight: 500,
-    },
-    chipCounter: {
-      marginLeft: "0.5rem",
-      fontWeight: 600,
-      marginBottom: "3px",
-      letterSpacing: "1px",
-      transform: "scale(0.9)",
-    },
   })
 );
 
@@ -85,7 +114,9 @@ type NavItem = {
   visible?: boolean;
   text: string;
   link?: string;
+  iconNode?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
   icon?: ReactNode;
+  iconPath?: string;
   counter?: number;
   items?: NavItem[];
 };
@@ -96,11 +127,13 @@ const getCustomerNavItems = (
 ): NavItem[] => {
   return [
     {
+      iconNode: OverviewIcon,
       text: "Overview",
       link: customerRoutes.overview,
     },
     {
       visible: productType !== null,
+      iconNode: LoansIcon,
       text: "Loans",
       link: customerRoutes.loans,
     },
@@ -108,11 +141,13 @@ const getCustomerNavItems = (
       visible:
         productType === ProductTypeEnum.InventoryFinancing ||
         productType === ProductTypeEnum.PurchaseMoneyFinancing,
+      iconNode: PurchaseOrdersIcon,
       text: "Purchase Orders",
       link: customerRoutes.purchaseOrders,
     },
     {
       visible: productType === ProductTypeEnum.LineOfCredit,
+      iconNode: PurchaseOrdersIcon,
       text: "Borrowing Base",
       link: customerRoutes.ebbaApplications,
       counter: showBorrowingBasesChip ? 1 : 0,
@@ -121,11 +156,13 @@ const getCustomerNavItems = (
       visible:
         productType === ProductTypeEnum.InvoiceFinancing ||
         productType === ProductTypeEnum.PurchaseMoneyFinancing,
+      iconNode: PurchaseOrdersIcon,
       text: "Invoices",
       link: customerRoutes.invoices,
     },
     {
       visible: productType !== ProductTypeEnum.InvoiceFinancing,
+      iconNode: VendorsIcon,
       text: "Vendors",
       link: customerRoutes.vendors,
     },
@@ -133,14 +170,17 @@ const getCustomerNavItems = (
       visible:
         productType === ProductTypeEnum.InvoiceFinancing ||
         productType === ProductTypeEnum.PurchaseMoneyFinancing,
+      iconNode: PayorsIcon,
       text: "Payors",
       link: customerRoutes.payors,
     },
     {
+      iconNode: ContractsIcon,
       text: "Contract",
       link: customerRoutes.contract,
     },
     {
+      iconNode: SettingsIcon,
       text: "Settings",
       link: customerRoutes.settings,
     },
@@ -150,6 +190,7 @@ const getCustomerNavItems = (
 const getBankNavItems = (): NavItem[] => {
   return [
     {
+      iconNode: OverviewIcon,
       text: "Overview",
       link: bankRoutes.overview,
     },
@@ -195,6 +236,7 @@ const getBankNavItems = (): NavItem[] => {
       ],
     },
     {
+      iconNode: PurchaseOrdersIcon,
       text: "Purchase Orders",
       link: bankRoutes.purchaseOrders,
     },
@@ -211,10 +253,12 @@ const getBankNavItems = (): NavItem[] => {
       link: bankRoutes.customers,
     },
     {
+      iconNode: VendorsIcon,
       text: "Vendors",
       link: bankRoutes.vendors,
     },
     {
+      iconNode: PayorsIcon,
       text: "Payors",
       link: bankRoutes.payors,
     },
@@ -287,19 +331,7 @@ function Layout({ appBarTitle, children }: Props) {
     : getCustomerNavItems(productType, showBorrowingBasesChip);
 
   return (
-    <div className={classes.root}>
-      <AppBar position="fixed" className={classes.appBar} color="inherit">
-        <Toolbar className={classes.toolbar}>
-          <Box>
-            <Typography variant="h6" noWrap>
-              {appBarTitle}
-            </Typography>
-          </Box>
-          <Box>
-            <UserMenu />
-          </Box>
-        </Toolbar>
-      </AppBar>
+    <Wrapper>
       <Drawer
         className={classes.drawer}
         variant="permanent"
@@ -308,57 +340,47 @@ function Layout({ appBarTitle, children }: Props) {
         }}
         anchor="left"
       >
-        <Box display="flex" alignItems="center" minHeight={64} pl={1} pr={1}>
+        <Logo href={routes.root}>
           <img
             src={`${process.env.PUBLIC_URL}/logo.png`}
             alt="Logo"
-            width={150}
-            height={53}
+            width={156}
+            height={32}
           />
-          <Box ml={1.5}>
+        </Logo>
+        <SidebarItems>
+          <List className={classes.list}>
+            {navItems
+              .filter((customerPath) => customerPath.visible !== false)
+              .map((item, index) =>
+                item.link ? (
+                  <SidebarItem
+                    key={item.text + index}
+                    isSelected={Boolean(
+                      matchPath(location.pathname, item.link)
+                    )}
+                    chipCount={item.counter || null}
+                    IconNode={item.iconNode || null}
+                    label={item.text}
+                    to={item.link}
+                  />
+                ) : (
+                  <NestedListItem key={item.text + index} item={item} />
+                )
+              )}
+          </List>
+        </SidebarItems>
+        <Footer>
+          <Box>
             <EnvironmentChip />
           </Box>
-        </Box>
-        <List className={classes.list}>
-          {navItems
-            .filter((customerPath) => customerPath.visible !== false)
-            .map((item, index) =>
-              item.link ? (
-                <ListItem
-                  key={item.text + index}
-                  button
-                  component={Link}
-                  to={item.link}
-                  selected={Boolean(matchPath(location.pathname, item.link))}
-                >
-                  <ListItemText
-                    primaryTypographyProps={{
-                      className: classes.listItemText,
-                      variant: "subtitle1",
-                    }}
-                  >
-                    {item.text}
-                    {!!item.counter && (
-                      <Chip
-                        size="small"
-                        color="secondary"
-                        className={classes.chipCounter}
-                        label={item.counter}
-                      />
-                    )}
-                  </ListItemText>
-                </ListItem>
-              ) : (
-                <NestedListItem key={item.text + index} item={item} />
-              )
-            )}
-        </List>
+          <Box>
+            <UserMenu />
+          </Box>
+        </Footer>
       </Drawer>
-      <main className={classes.content}>
-        <div className={classes.toolbar} />
-        {children}
-      </main>
-    </div>
+      <Content>{children}</Content>
+    </Wrapper>
   );
 }
 

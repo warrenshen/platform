@@ -1,17 +1,18 @@
-import {
-  Badge,
-  Chip,
-  Collapse,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-} from "@material-ui/core";
+import { Chip, Collapse, ListItem, ListItemText } from "@material-ui/core";
 import List from "@material-ui/core/List";
 import { makeStyles } from "@material-ui/core/styles";
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
+import SidebarItem from "components/Shared/Layout/SidebarItem";
 import { useState } from "react";
-import { Link, matchPath, useLocation } from "react-router-dom";
+import { matchPath, useLocation } from "react-router-dom";
+import styled from "styled-components";
+
+const Wrapper = styled.div`
+  width: 100%;
+  margin-top: 8px;
+  margin-bottom: 8px;
+`;
 
 const useStyles = makeStyles((theme) => ({
   nested: {
@@ -56,18 +57,13 @@ const NestedListItem = ({ item }: Props) => {
     variant: "overline",
   };
 
-  const primaryTypographyProps: any = {
-    className: classes.listItemText,
-    variant: "subtitle1",
-  };
-
   const handleNestedListItemClick = (id: string): void => {
     localStorage.setItem(`nav-${id}`, JSON.stringify(!isOpen));
     isSetOpen(!isOpen);
   };
 
   return (
-    <>
+    <Wrapper>
       <ListItem button onClick={() => handleNestedListItemClick(item.text)}>
         <ListItemText primaryTypographyProps={headerTypographyProps}>
           {item.text}
@@ -87,33 +83,20 @@ const NestedListItem = ({ item }: Props) => {
       <Collapse in={isOpen} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
           {item.items.map((nestedItem: any, index: number) => (
-            <ListItem
-              key={nestedItem.text + nestedItem.index}
-              button
-              component={Link}
-              to={nestedItem.link}
-              selected={Boolean(matchPath(location.pathname, nestedItem.link))}
-              className={classes.nested}
-            >
-              {!!nestedItem.icon && (
-                <ListItemIcon className={classes.listItemIcon}>
-                  <Badge
-                    invisible={!nestedItem.count}
-                    color="secondary"
-                    badgeContent={nestedItem.counter}
-                  >
-                    {nestedItem.icon}
-                  </Badge>
-                </ListItemIcon>
+            <SidebarItem
+              isNested={true}
+              isSelected={Boolean(
+                matchPath(location.pathname, nestedItem.link)
               )}
-              <ListItemText primaryTypographyProps={primaryTypographyProps}>
-                {nestedItem.text}
-              </ListItemText>
-            </ListItem>
+              chipCount={nestedItem.count}
+              IconNode={null}
+              label={nestedItem.text}
+              to={nestedItem.link}
+            />
           ))}
         </List>
       </Collapse>
-    </>
+    </Wrapper>
   );
 };
 

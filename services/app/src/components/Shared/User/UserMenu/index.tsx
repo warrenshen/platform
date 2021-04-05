@@ -32,10 +32,23 @@ function UserMenu() {
     setAnchorEl(null);
   };
 
+  // TODO(warrenshen): handle long emails better.
   return (
     <Box>
-      <Box display="flex" flexDirection="row" alignItems="center">
-        <Box display="flex" flexDirection="column" alignItems="flex-end" mr={1}>
+      <Box display="flex" flexDirection="row" alignItems="center" py={1}>
+        <Box ml={1}>
+          <IconButton onClick={handleClick}>
+            <AccountCircle />
+          </IconButton>
+        </Box>
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="flex-start"
+          width={"100%"}
+          ml={1}
+          overflow="hidden"
+        >
           <Typography variant="button">
             {user?.role === UserRolesEnum.BankAdmin
               ? "Bespoke (Bank)"
@@ -43,9 +56,6 @@ function UserMenu() {
           </Typography>
           <Typography variant="caption">{user?.email}</Typography>
         </Box>
-        <IconButton onClick={handleClick}>
-          <AccountCircle />
-        </IconButton>
       </Box>
       <Menu
         anchorEl={anchorEl}
