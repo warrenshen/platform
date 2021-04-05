@@ -18,6 +18,11 @@ export enum ActionType {
   Copy,
 }
 
+export enum PaymentTypeEnum {
+  Advance = "advance",
+  Repayment = "repayment",
+}
+
 export enum PaymentStatusEnum {
   PARTIALLY_PAID = "partially_paid",
   PENDING = "pending",

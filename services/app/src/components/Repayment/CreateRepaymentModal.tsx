@@ -13,7 +13,6 @@ import {
 import { Alert } from "@material-ui/lab";
 import CreateRepaymentConfirmEffect from "components/Repayment/CreateRepaymentConfirmEffect";
 import CreateRepaymentSelectLoans from "components/Repayment/CreateRepaymentSelectLoans";
-import { PaymentTransferType } from "components/Shared/BankToBankTransfer";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
@@ -24,7 +23,7 @@ import {
   UserRolesEnum,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
-import { PaymentMethodEnum } from "lib/enum";
+import { PaymentMethodEnum, PaymentTypeEnum } from "lib/enum";
 import {
   computeSettlementDateForPayment,
   getSettlementTimelineConfigFromContract,
@@ -96,7 +95,7 @@ function CreateRepaymentModal({
 
   const [payment, setPayment] = useState<PaymentsInsertInput>({
     company_id: companyId,
-    type: PaymentTransferType.ToBank,
+    type: PaymentTypeEnum.Repayment,
     requested_amount: null,
     method: "",
     requested_payment_date: null,

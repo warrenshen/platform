@@ -9,16 +9,21 @@ import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import {
   BankAccounts,
   Companies,
+  PaymentsInsertInput,
   useGetBankAccountsByCompanyIdQuery,
 } from "generated/graphql";
-import { useEffect, useState } from "react";
 
 interface Props {
-  companyId: Companies["id"];
+  companyId: Companies["id"] | null;
+  payment: PaymentsInsertInput;
   onCompanyBankAccountSelection: (id: BankAccounts["id"]) => void;
 }
 
-function CompanyBank({ companyId, onCompanyBankAccountSelection }: Props) {
+function CompanyBank({
+  companyId,
+  payment,
+  onCompanyBankAccountSelection,
+}: Props) {
   const { data } = useGetBankAccountsByCompanyIdQuery({
     fetchPolicy: "network-only",
     variables: {
@@ -26,28 +31,12 @@ function CompanyBank({ companyId, onCompanyBankAccountSelection }: Props) {
     },
   });
 
-  const [companyBankAccountId, setCompanyBankAccountId] = useState<
-    BankAccounts["id"] | "None"
-  >("None");
-
-  useEffect(() => {
-    if (data?.bank_accounts.length === 1 && companyBankAccountId === "None") {
-      const id = data?.bank_accounts[0].id;
-      setCompanyBankAccountId(id);
-      onCompanyBankAccountSelection(id);
-    }
-  }, [
-    companyBankAccountId,
-    data?.bank_accounts,
-    onCompanyBankAccountSelection,
-  ]);
-
   if (!data || !data.bank_accounts) {
     return null;
   }
 
   const companyBankAccount = data.bank_accounts.find(
-    (bank_account) => bank_account.id === companyBankAccountId
+    (bank_account) => bank_account.id === payment.company_bank_account_id
   );
 
   return (
@@ -57,22 +46,19 @@ function CompanyBank({ companyId, onCompanyBankAccountSelection }: Props) {
         <Select
           id="select-bank-account"
           labelId="select-bank-account-label"
-          value={companyBankAccountId}
-          onChange={({ target: { value } }) => {
-            setCompanyBankAccountId(value);
-            onCompanyBankAccountSelection(value);
-          }}
+          value={payment.company_bank_account_id}
+          onChange={({ target: { value } }) =>
+            onCompanyBankAccountSelection(value)
+          }
         >
-          <MenuItem key="none" value="None">
+          <MenuItem key={"none"} value={""}>
             None
           </MenuItem>
-          {data.bank_accounts.map((bank_account) => {
-            return (
-              <MenuItem key={bank_account.id} value={bank_account.id}>
-                {`${bank_account.bank_name}: ${bank_account.account_title} (${bank_account.account_type})`}
-              </MenuItem>
-            );
-          })}
+          {data.bank_accounts.map((bank_account) => (
+            <MenuItem key={bank_account.id} value={bank_account.id}>
+              {`${bank_account.bank_name}: ${bank_account.account_title} (${bank_account.account_type})`}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
       {companyBankAccount && (

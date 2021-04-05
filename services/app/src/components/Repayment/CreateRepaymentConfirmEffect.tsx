@@ -204,9 +204,10 @@ function CreateRepaymentConfirmEffect({
                 </Box>
                 <CompanyBank
                   companyId={payment.company_id}
-                  onCompanyBankAccountSelection={(id: BankAccounts["id"]) =>
-                    setPayment({ ...payment, company_bank_account_id: id })
-                  }
+                  payment={payment}
+                  onCompanyBankAccountSelection={(
+                    id: BankAccounts["id"] | null
+                  ) => setPayment({ ...payment, company_bank_account_id: id })}
                 />
                 <Box mt={2}>
                   <Alert severity="info">
