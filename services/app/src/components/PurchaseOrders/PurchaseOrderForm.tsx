@@ -76,15 +76,15 @@ function PurchaseOrderForm({
             disabled={vendors.length <= 0}
             labelId="vendor-select-label"
             id="vendor-select"
-            value={vendors.length <= 0 ? "" : purchaseOrder.vendor_id}
+            value={vendors.length > 0 ? purchaseOrder.vendor_id || "" : ""}
             onChange={({ target: { value } }) =>
               setPurchaseOrder({
                 ...purchaseOrder,
-                vendor_id: value as string,
+                vendor_id: value || null,
               })
             }
           >
-            <MenuItem value="">
+            <MenuItem value={""}>
               <em>None</em>
             </MenuItem>
             {vendors.map((vendor) => (

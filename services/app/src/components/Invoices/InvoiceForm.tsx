@@ -65,11 +65,11 @@ export default function InvoiceForm({
             disabled={!payors.length}
             labelId="payor-select-label"
             id="payor-select"
-            value={!payors.length ? "" : invoice.payor_id}
+            value={payors.length > 0 ? invoice.payor_id || "" : ""}
             onChange={({ target: { value } }) =>
               setInvoice({
                 ...invoice,
-                payor_id: value as string,
+                payor_id: value || null,
               })
             }
           >

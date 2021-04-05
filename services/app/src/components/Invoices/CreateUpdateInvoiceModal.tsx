@@ -83,7 +83,7 @@ function CreateUpdateInvoiceModal({
 
   const newInvoice = {
     company_id: companyId,
-    payor_id: "",
+    payor_id: null,
     invoice_number: "",
     invoice_date: null,
     invoice_due_date: null,

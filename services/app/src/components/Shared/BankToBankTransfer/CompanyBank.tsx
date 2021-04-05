@@ -46,9 +46,9 @@ function CompanyBank({
         <Select
           id="select-bank-account"
           labelId="select-bank-account-label"
-          value={payment.company_bank_account_id}
+          value={payment.company_bank_account_id || ""}
           onChange={({ target: { value } }) =>
-            onCompanyBankAccountSelection(value)
+            onCompanyBankAccountSelection(value || null)
           }
         >
           <MenuItem key={"none"} value={""}>
