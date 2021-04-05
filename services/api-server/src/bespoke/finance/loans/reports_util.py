@@ -46,9 +46,9 @@ def update_company_balance(
 		if err:
 			msg = 'Error writing results to update customer balance. Error: {}'.format(err)
 			logging.error(msg)
-			event.failed().write_with_session(session)
+			event.set_failed().write_with_session(session)
 			return msg
-		event.succeeded().write_with_session(session)
+		event.set_succeeded().write_with_session(session)
 
 	logging.info(f"Successfully updated balance for '{company['name']}' with id '{company['id']}' for date '{report_date}'")
 	return None

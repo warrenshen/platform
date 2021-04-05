@@ -144,7 +144,7 @@ class ExpireActiveEbbaApplications(MethodView):
 					action=events.Actions.EBBA_APPLICATION_EXPIRE,
 					is_system=True,
 					data={'ebba_application_id': str(company.active_ebba_application_id)}
-				).succeeded().write_with_session(session)
+				).set_succeeded().write_with_session(session)
 				logging.info(f"Expiring active borrowing base for '{company.company_id}'")
 				company.active_ebba_application_id = None
 

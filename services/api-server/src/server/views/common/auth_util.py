@@ -17,11 +17,14 @@ UserPayloadDict = TypedDict('UserPayloadDict', {
 
 
 def get_claims_payload(user: models.User) -> UserPayloadDict:
+	user_id = str(user.id) if user.id else None
+	company_id = str(user.company_id) if user.company_id else None
+
 	claims_payload: UserPayloadDict = {
-		'X-Hasura-User-Id': str(user.id),
+		'X-Hasura-User-Id': user_id,
 		'X-Hasura-Default-Role': user.role,
 		'X-Hasura-Allowed-Roles': [user.role],
-		'X-Hasura-Company-Id': str(user.company_id),
+		'X-Hasura-Company-Id': company_id,
 	}
 	return claims_payload
 
@@ -56,7 +59,11 @@ class UserSession(object):
 		return self.payload['X-Hasura-Allowed-Roles']
 
 	def get_company_id(self) -> str:
-		return self.payload['X-Hasura-Company-Id']
+		company_id = self.payload['X-Hasura-Company-Id']
+		if company_id and company_id == 'None':
+			return None
+
+		return company_id
 
 	def get_user_id(self) -> str:
 		return self.payload['X-Hasura-User-Id']

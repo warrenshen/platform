@@ -101,16 +101,16 @@ class Event:
 		self._data.update(data)
 		return self
 
-	def succeeded(self) -> 'Event':
+	def set_succeeded(self) -> 'Event':
 		self._outcome = Outcomes.SUCCESS
 		return self
 
-	def failed(self) -> 'Event':
+	def set_failed(self) -> 'Event':
 		self._outcome = Outcomes.FAILURE
 		return self
 
-	def error(self, error: str) -> 'Event':
-		self.failed()
+	def set_error(self, error: str) -> 'Event':
+		self.set_failed()
 		self._error = error
 		return self
 
@@ -169,16 +169,19 @@ def wrap(action: str) -> Callable:
 				data={'request': data}
 			)
 
+			if user_session.is_bank_user() and 'company_id' in data:
+				event.company_id(data['company_id'])
+
 			response = fn(*args, event=event, **kwargs)
 
 			if 200 <= response.status_code < 300:
 				response_data = json.loads(response.data)
 				if response_data.get('status') != 'OK':
-					event.error(response_data.get('msg'))
+					event.set_error(response_data.get('msg'))
 				else:
-					event.succeeded()
+					event.set_succeeded()
 			else:
-				event.failed()
+				event.set_failed()
 
 			event.write()
 			return response
