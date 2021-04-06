@@ -69,9 +69,10 @@ fragment Loan on loans {
   outstanding_principal_balance
   outstanding_interest
   outstanding_fees
+  requested_at
   rejected_at
   funded_at
-  requested_at
+  closed_at
   company {
     id
     identifier

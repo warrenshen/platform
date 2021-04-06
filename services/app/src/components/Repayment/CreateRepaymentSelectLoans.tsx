@@ -6,32 +6,42 @@ import {
   makeStyles,
   MenuItem,
   Select,
+  TextField,
   Theme,
   Typography,
 } from "@material-ui/core";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import {
   FinancialSummaryFragment,
   LoanFragment,
+  LoanTypeEnum,
   PaymentsInsertInput,
   ProductTypeEnum,
+  useGetLoansByCompanyAndLoanTypeQuery,
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
-import { todayAsDateStringClient } from "lib/date";
+import { formatDateString, todayAsDateStringClient } from "lib/date";
 import {
   AllPaymentMethods,
   AllPaymentOptions,
   PaymentMethodEnum,
   PaymentMethodToLabel,
   PaymentOptionToLabel,
+  ProductTypeToLoanType,
 } from "lib/enum";
+import { createLoanPublicIdentifier } from "lib/loans";
+import { useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     inputField: {
       width: 300,
+    },
+    loanInputField: {
+      width: "100%",
     },
   })
 );
@@ -39,7 +49,6 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   productType: ProductTypeEnum | null;
   financialSummary: FinancialSummaryFragment | null;
-  selectedLoans: LoanFragment[];
   payment: PaymentsInsertInput;
   paymentOption: string;
   setPayment: (payment: PaymentsInsertInput) => void;
@@ -49,7 +58,6 @@ interface Props {
 function CreateRepaymentSelectLoans({
   productType,
   financialSummary,
-  selectedLoans,
   payment,
   paymentOption,
   setPayment,
@@ -58,6 +66,37 @@ function CreateRepaymentSelectLoans({
   const classes = useStyles();
   const isReverseDraftACH =
     payment.method === PaymentMethodEnum.ReverseDraftACH;
+
+  const [autocompleteInputValue, setAutocompleteInputValue] = useState("");
+
+  const loanType =
+    !!productType && productType in ProductTypeToLoanType
+      ? ProductTypeToLoanType[productType]
+      : null;
+
+  const { data } = useGetLoansByCompanyAndLoanTypeQuery({
+    skip: !payment || !loanType,
+    fetchPolicy: "network-only",
+    variables: {
+      companyId: payment?.company_id || "",
+      loanType: loanType || LoanTypeEnum.PurchaseOrder,
+    },
+  });
+  const selectedLoans = useMemo(
+    () =>
+      data?.loans.filter(
+        (loan) => payment.items_covered.loan_ids.indexOf(loan.id) >= 0
+      ) || [],
+    [data?.loans, payment.items_covered.loan_ids]
+  );
+  const notSelectedLoans = useMemo(
+    () =>
+      data?.loans.filter(
+        (loan) =>
+          !loan.closed_at && payment.items_covered.loan_ids.indexOf(loan.id) < 0
+      ) || [],
+    [data?.loans, payment.items_covered.loan_ids]
+  );
 
   return (
     <Box>
@@ -98,6 +137,49 @@ function CreateRepaymentSelectLoans({
             isSortingDisabled
             loans={selectedLoans}
           />
+          <Box display="flex" flexDirection="row" mt={3}>
+            <FormControl className={classes.loanInputField}>
+              <Autocomplete
+                autoHighlight
+                id="combo-box-demo"
+                style={{ width: "100%" }}
+                options={notSelectedLoans}
+                getOptionLabel={(loan) =>
+                  `${createLoanPublicIdentifier(
+                    loan
+                  )} | Amount: ${formatCurrency(
+                    loan.amount
+                  )} | Origination Date: ${formatDateString(
+                    loan.origination_date
+                  )}`
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Add another loan"
+                    variant="outlined"
+                  />
+                )}
+                inputValue={autocompleteInputValue}
+                value={null}
+                onInputChange={(_event, value: string) =>
+                  setAutocompleteInputValue(value)
+                }
+                onChange={(_event, value: LoanFragment | null) => {
+                  if (value) {
+                    setPayment({
+                      ...payment,
+                      items_covered: {
+                        ...payment.items_covered,
+                        loan_ids: [...payment.items_covered.loan_ids, value.id],
+                      },
+                    });
+                    setAutocompleteInputValue("");
+                  }
+                }}
+              />
+            </FormControl>
+          </Box>
         </Box>
       )}
       {productType !== ProductTypeEnum.LineOfCredit && (

@@ -101,7 +101,7 @@ function LoansFunded({
                   <CreateRepaymentModal
                     companyId={companyId}
                     productType={productType}
-                    selectedLoans={selectedLoans}
+                    initiallySelectedLoanIds={selectedLoanIds}
                     handleClose={() => {
                       handleDataChange();
                       handleClose();

@@ -20,8 +20,8 @@ import {
   Payments,
   PaymentsInsertInput,
   ProductTypeEnum,
+  useGetLoansByCompanyAndLoanTypeQuery,
   useGetPaymentForSettlementQuery,
-  useLoansByCompanyAndLoanTypeForBankQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -145,7 +145,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
       ? ProductTypeToLoanType[productType]
       : null;
 
-  const { data } = useLoansByCompanyAndLoanTypeForBankQuery({
+  const { data } = useGetLoansByCompanyAndLoanTypeQuery({
     skip: !payment,
     fetchPolicy: "network-only",
     variables: {

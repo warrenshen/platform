@@ -107,9 +107,9 @@ query GetClosedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
   }
 }
 
-query LoansByCompanyAndLoanTypeForBank(
+query GetLoansByCompanyAndLoanType(
   $companyId: uuid!
-  $loanType: loan_type_enum
+  $loanType: loan_type_enum!
 ) {
   loans(
     where: {

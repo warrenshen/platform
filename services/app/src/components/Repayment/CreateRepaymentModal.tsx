@@ -16,7 +16,7 @@ import CreateRepaymentSelectLoans from "components/Repayment/CreateRepaymentSele
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
-  LoanFragment,
+  Loans,
   PaymentsInsertInput,
   ProductTypeEnum,
   useGetCompanyWithDetailsByCompanyIdQuery,
@@ -58,14 +58,14 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum | null;
-  selectedLoans: LoanFragment[];
+  initiallySelectedLoanIds: Loans["id"][];
   handleClose: () => void;
 }
 
 function CreateRepaymentModal({
   companyId,
   productType,
-  selectedLoans,
+  initiallySelectedLoanIds,
   handleClose,
 }: Props) {
   const classes = useStyles();
@@ -101,7 +101,7 @@ function CreateRepaymentModal({
     requested_payment_date: null,
     settlement_date: null,
     items_covered: {
-      loan_ids: [],
+      loan_ids: initiallySelectedLoanIds,
       requested_to_principal: null,
       requested_to_interest: null,
       to_principal: null,
@@ -149,7 +149,7 @@ function CreateRepaymentModal({
       // the effect of this repayment assumption its amount is the requested amount.
       amount: payment.requested_amount,
       settlement_date: payment.settlement_date,
-      loan_ids: selectedLoans.map((selectedLoan) => selectedLoan.id),
+      loan_ids: payment.items_covered.loan_ids,
     });
 
     console.log({ type: "calculateRepaymentEffect", response });
@@ -255,7 +255,6 @@ function CreateRepaymentModal({
             <CreateRepaymentSelectLoans
               productType={productType}
               financialSummary={financialSummary}
-              selectedLoans={selectedLoans}
               payment={payment}
               paymentOption={paymentOption}
               setPayment={setPayment}

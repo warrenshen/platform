@@ -101,7 +101,7 @@ function CustomerOverviewPageContent({ companyId, productType }: Props) {
                   <CreateRepaymentModal
                     companyId={companyId}
                     productType={productType}
-                    selectedLoans={[]}
+                    initiallySelectedLoanIds={[]}
                     handleClose={() => {
                       refetch();
                       handleClose();
@@ -142,7 +142,7 @@ function CustomerOverviewPageContent({ companyId, productType }: Props) {
                     <CreateRepaymentModal
                       companyId={companyId}
                       productType={productType}
-                      selectedLoans={selectedLoans}
+                      initiallySelectedLoanIds={selectedLoanIds}
                       handleClose={() => {
                         refetch();
                         handleClose();
