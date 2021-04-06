@@ -2,6 +2,7 @@ import json
 import logging
 from typing import Any
 
+from bespoke import errors
 from bespoke.audit import events
 from bespoke.date import date_util
 from bespoke.db import models
@@ -65,7 +66,7 @@ class RespondToApprovalRequestView(MethodView):
 
 		for key in self.required_keys:
 			if key not in data:
-				return handler_util.make_error_response(f"Missing key: '{key}'")
+				raise errors.Error(f"Missing key: '{key}'")
 
 		invoice_id = data['invoice_id']
 		new_request_status = data['new_request_status']
@@ -73,13 +74,13 @@ class RespondToApprovalRequestView(MethodView):
 		link_val = data['link_val']
 
 		if not invoice_id:
-			return handler_util.make_error_response('No Invoice ID provided')
+			raise errors.Error('No Invoice ID provided')
 
 		if new_request_status not in [RequestStatusEnum.APPROVED, RequestStatusEnum.REJECTED]:
-			return handler_util.make_error_response('Invalid new request status provided')
+			raise errors.Error('Invalid new request status provided')
 
 		if new_request_status == RequestStatusEnum.REJECTED and not rejection_note:
-			return handler_util.make_error_response('Rejection note is required if response is rejected')
+			raise errors.Error('Rejection note is required if response is rejected')
 
 		with models.session_scope(current_app.session_maker) as session:
 			info, err = two_factor_util.get_two_factor_link(
@@ -89,7 +90,7 @@ class RespondToApprovalRequestView(MethodView):
 				session=session
 			)
 			if err:
-				return handler_util.make_error_response(err)
+				raise err
 
 			user = session.query(models.User) \
 				.filter(models.User.email == info['email']) \
@@ -120,7 +121,7 @@ class RespondToApprovalRequestView(MethodView):
 				.all()
 
 			if not customer_users:
-				return handler_util.make_error_response("No users configured for this customer")
+				raise errors.Error("No users configured for this customer")
 
 			template_name = sendgrid_util.TemplateNames.PAYOR_APPROVES_OR_REJECTS_INVOICE
 			template_data = {
@@ -138,7 +139,7 @@ class RespondToApprovalRequestView(MethodView):
 					emails
 				)
 				if err:
-					return handler_util.make_error_response(err)
+					raise err
 
 			session.delete(info['link']) # type: ignore
 

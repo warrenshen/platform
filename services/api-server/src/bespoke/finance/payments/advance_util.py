@@ -34,9 +34,10 @@ ARTIFACT_MODEL_INDEX = {
 	db_constants.LoanTypeEnum.INVOICE: models.Invoice,
 }
 
+@errors.return_error_tuple
 def fund_loans_with_advance(
 	req: FundLoansReqDict, bank_admin_user_id: str,
-	session_maker: Callable) -> Tuple[FundLoansRespDict, errors.Error]:
+	session_maker: Callable) -> FundLoansRespDict:
 
 	payment_input = req['payment']
 	loan_ids = req['loan_ids']
@@ -60,10 +61,10 @@ def fund_loans_with_advance(
 			).all())
 
 		if not loans:
-			return None, errors.Error('No loans found', details=err_details)
+			raise errors.Error('No loans found', details=err_details)
 
 		if len(loans) != len(loan_ids):
-			return None, errors.Error('Not all loans were found to fund in database', details=err_details)
+			raise errors.Error('Not all loans were found to fund in database', details=err_details)
 
 		already_funded_loan_ids: List[str] = []
 		not_approved_loan_ids: List[str] = []
@@ -77,11 +78,11 @@ def fund_loans_with_advance(
 			loan_dicts.append(loan.as_dict())
 
 		if not_approved_loan_ids:
-			return None, errors.Error('These loans are not approved yet. Please remove them from the advances process: {}'.format(
+			raise errors.Error('These loans are not approved yet. Please remove them from the advances process: {}'.format(
 				not_approved_loan_ids), details=err_details)
 
 		if already_funded_loan_ids:
-			return None, errors.Error('These loans have already been funded. Please remove them from the advances process: {}'.format(
+			raise errors.Error('These loans have already been funded. Please remove them from the advances process: {}'.format(
 				already_funded_loan_ids), details=err_details)
 
 		loans_sum = 0.0
@@ -93,7 +94,7 @@ def fund_loans_with_advance(
 		if not number_util.float_eq(loans_sum, advance_amount):
 			# NOTE: Only support exact amounts for now, where this advance covers exactly all
 			# the amounts of the loans listed.
-			return None, errors.Error('Advance amount must the sum of loans to fund exactly. Advance amount: {}, sum of loans: {}'.format(
+			raise errors.Error('Advance amount must the sum of loans to fund exactly. Advance amount: {}, sum of loans: {}'.format(
 				number_util.to_dollar_format(advance_amount),
 				number_util.to_dollar_format(loans_sum)), details=err_details)
 
@@ -112,13 +113,13 @@ def fund_loans_with_advance(
 		contracts_by_company_id, err = contract_util.get_active_contracts_by_company_id(
 			unique_company_ids, session, err_details)
 		if err:
-			return None, err
+			raise err
 
 		payment_method = payment_input['method']
 		should_charge_wire_fee = req['should_charge_wire_fee']
 
 		if payment_method != db_constants.PaymentMethodEnum.WIRE and should_charge_wire_fee is True:
-			return None, errors.Error('Cannot charge wire fee if payment method is not Wire', details=err_details)
+			raise errors.Error('Cannot charge wire fee if payment method is not Wire', details=err_details)
 
 		payment_date = date_util.load_date_str(payment_input['payment_date'])
 		settlement_date = date_util.load_date_str(payment_input['settlement_date'])
@@ -160,7 +161,7 @@ def fund_loans_with_advance(
 				cur_contract = contracts_by_company_id[company_id]
 				cur_wire_fee, err = cur_contract.get_wire_fee()
 				if err:
-					return None, err
+					raise err
 
 				t = payment_util.create_and_add_account_level_fee(
 					company_id=company_id,
@@ -179,11 +180,11 @@ def fund_loans_with_advance(
 			cur_contract = contracts_by_company_id[str(loan.company_id)]
 			maturity_date, err = cur_contract.get_maturity_date(settlement_date)
 			if err:
-				return None, err
+				raise err
 
 			adjusted_maturity_date, err = cur_contract.get_adjusted_maturity_date(settlement_date)
 			if err:
-				return None, err
+				raise err
 
 			loan.funded_at = date_util.now()
 			loan.funded_by_user_id = bank_admin_user_id
@@ -216,5 +217,5 @@ def fund_loans_with_advance(
 				if funded_amount >= artifact.max_loan_amount():
 					artifact.funded_at = date_util.now()
 
-	return FundLoansRespDict(status='OK'), None
+	return FundLoansRespDict(status='OK')
 

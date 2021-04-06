@@ -1,6 +1,7 @@
 import json
 from typing import Any, List, cast
 
+from bespoke import errors
 from bespoke.audit import events
 from bespoke.date import date_util
 from bespoke.db import models
@@ -25,7 +26,7 @@ class RespondToEbbaApplicationApprovalRequest(MethodView):
 
 		form = json.loads(request.data)
 		if not form:
-			return handler_util.make_error_response('No data provided')
+			raise errors.Error('No data provided')
 
 		required_keys = [
 			'ebba_application_id',
@@ -34,20 +35,20 @@ class RespondToEbbaApplicationApprovalRequest(MethodView):
 		]
 		for key in required_keys:
 			if key not in form:
-				return handler_util.make_error_response(f'Missing {key} in request')
+				raise errors.Error(f'Missing {key} in request')
 
 		ebba_application_id = form['ebba_application_id']
 		new_request_status = form['new_request_status']
 		rejection_note = form['rejection_note']
 
 		if not ebba_application_id:
-			return handler_util.make_error_response('No EBBA Application ID provided')
+			raise errors.Error('No EBBA Application ID provided')
 
 		if new_request_status not in [RequestStatusEnum.APPROVED, RequestStatusEnum.REJECTED]:
-			return handler_util.make_error_response('Invalid new request status provided')
+			raise errors.Error('Invalid new request status provided')
 
 		if new_request_status == RequestStatusEnum.REJECTED and not rejection_note:
-			return handler_util.make_error_response('Rejection note is required if response is rejected')
+			raise errors.Error('Rejection note is required if response is rejected')
 
 		with session_scope(current_app.session_maker) as session:
 			ebba_application = cast(
@@ -92,7 +93,7 @@ class RespondToEbbaApplicationApprovalRequest(MethodView):
 				models.User).filter_by(company_id=ebba_application.company_id).all())
 
 			if not customer_users:
-				return handler_util.make_error_response('There are no users configured for this customer')
+				raise errors.Error('There are no users configured for this customer')
 
 			customer_name = ebba_application.company.name
 			customer_emails = [user.email for user in customer_users]
@@ -128,13 +129,13 @@ class SubmitEbbaApplicationForApproval(MethodView):
 
 		form = json.loads(request.data)
 		if not form:
-			return handler_util.make_error_response('No data provided')
+			raise errors.Error('No data provided')
 
 		required_keys = ['ebba_application_id']
 
 		for key in required_keys:
 			if key not in form:
-				return handler_util.make_error_response(
+				raise errors.Error(
 					'Missing key {} in request'.format(key))
 
 		ebba_application_id = form['ebba_application_id']
@@ -150,10 +151,10 @@ class SubmitEbbaApplicationForApproval(MethodView):
 			)
 
 			if not ebba_application:
-				return handler_util.make_error_response('Could not find EBBA application with given ID')
+				raise errors.Error('Could not find EBBA application with given ID')
 
 			if not ebba_application.application_date:
-				return handler_util.make_error_response('Application month is required')
+				raise errors.Error('Application month is required')
 
 			customer_name = ebba_application.company.name
 

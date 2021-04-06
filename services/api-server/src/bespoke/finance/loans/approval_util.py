@@ -23,11 +23,12 @@ SubmitForApprovalRespDict = TypedDict('SubmitForApprovalRespDict', {
 	'loan_html': str
 })
 
+@errors.return_error_tuple
 def approve_loans(
 	req: ApproveLoansReqDict,
 	bank_admin_user_id: str,
 	session_maker: Callable
-) -> Tuple[ApproveLoansRespDict, errors.Error]:
+) -> ApproveLoansRespDict:
 	loan_ids = req['loan_ids']
 
 	err_details = {
@@ -46,10 +47,10 @@ def approve_loans(
 			).all())
 
 		if not loans:
-			return None, errors.Error('No loans found', details=err_details)
+			raise errors.Error('No loans found', details=err_details)
 
 		if len(loans) != len(loan_ids):
-			return None, errors.Error('Not all loans were found', details=err_details)
+			raise errors.Error('Not all loans were found', details=err_details)
 
 		approved_at = date_util.now()
 
@@ -66,9 +67,10 @@ def approve_loans(
 
 		session.flush()
 
-	return ApproveLoansRespDict(status='OK'), None
+	return ApproveLoansRespDict(status='OK')
 
-def submit_for_approval(loan_id: str, session_maker: Callable) -> Tuple[SubmitForApprovalRespDict, errors.Error]:
+@errors.return_error_tuple
+def submit_for_approval(loan_id: str, session_maker: Callable) -> SubmitForApprovalRespDict:
 
 	err_details = {
 		'loan_id': loan_id,
@@ -84,26 +86,26 @@ def submit_for_approval(loan_id: str, session_maker: Callable) -> Tuple[SubmitFo
 		)
 
 		if not loan:
-			return None, errors.Error('Could not find loan for given Loan ID', details=err_details)
+			raise errors.Error('Could not find loan for given Loan ID', details=err_details)
 
 		if loan.loan_type not in ALL_LOAN_TYPES:
-			return None, errors.Error('Loan type is not valid', details=err_details)
+			raise errors.Error('Loan type is not valid', details=err_details)
 
 		if not loan.artifact_id:
-			return None, errors.Error('Artifact is required', details=err_details)
+			raise errors.Error('Artifact is required', details=err_details)
 
 		if not loan.requested_payment_date:
-			return None, errors.Error('Invalid requested payment date', details=err_details)
+			raise errors.Error('Invalid requested payment date', details=err_details)
 
 		if loan.amount is None or loan.amount <= 0:
-			return None, errors.Error('Invalid amount', details=err_details)
+			raise errors.Error('Invalid amount', details=err_details)
 
 		financial_summary = financial_summary_util.get_latest_financial_summary(loan.company_id, session)
 		if not financial_summary:
-			return None, errors.Error('No financial summary associated with this customer, so we could not determine the max limit allowed', details=err_details)
+			raise errors.Error('No financial summary associated with this customer, so we could not determine the max limit allowed', details=err_details)
 
 		if loan.amount > financial_summary.available_limit:
-			return None, errors.Error('Loan amount requested exceeds the maximum limit for this account', details=err_details)
+			raise errors.Error('Loan amount requested exceeds the maximum limit for this account', details=err_details)
 
 		customer_name = None
 		loan_html = None
@@ -116,7 +118,7 @@ def submit_for_approval(loan_id: str, session_maker: Callable) -> Tuple[SubmitFo
 				).first()
 			)
 			if not purchase_order:
-				return None, errors.Error('No purchase order associated with this loan', details=err_details)
+				raise errors.Error('No purchase order associated with this loan', details=err_details)
 
 			customer_name = purchase_order.company.name
 
@@ -128,7 +130,7 @@ def submit_for_approval(loan_id: str, session_maker: Callable) -> Tuple[SubmitFo
 			proposed_loans_total_amount += float(loan.amount)
 
 			if proposed_loans_total_amount > float(purchase_order.amount):
-				return None, errors.Error('Requesting this loan puts you over the amount granted for this same Purchase Order', details=err_details)
+				raise errors.Error('Requesting this loan puts you over the amount granted for this same Purchase Order', details=err_details)
 
 			loan_html = f"""<ul>
 <li>Loan type: Inventory Financing</li>
@@ -173,7 +175,7 @@ def submit_for_approval(loan_id: str, session_maker: Callable) -> Tuple[SubmitFo
 </ul>"""
 
 		if not customer_name or not loan_html:
-			return None, errors.Error("Failed to generated HTML for loan")
+			raise errors.Error("Failed to generated HTML for loan")
 
 		loan.status = RequestStatusEnum.APPROVAL_REQUESTED
 		loan.requested_at = date_util.now()
@@ -183,4 +185,4 @@ def submit_for_approval(loan_id: str, session_maker: Callable) -> Tuple[SubmitFo
 	return SubmitForApprovalRespDict(
 		customer_name=customer_name,
 		loan_html=loan_html
-	), None
+	)

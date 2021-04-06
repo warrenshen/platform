@@ -117,6 +117,7 @@ def _apply_to(balance: LoanBalanceDict, category: str, amount_left: float) -> Tu
 		amount_left_to_use = amount_left - amount_applied
 		return amount_left_to_use, amount_applied
 
+@errors.return_error_tuple
 def calculate_repayment_effect(
 	company_id: str,
 	payment_option: str,
@@ -125,17 +126,17 @@ def calculate_repayment_effect(
 	loan_ids: List[str],
 	session_maker: Callable,
 	test_only_skip_interest_and_fees_calculation: bool = False,
-) -> Tuple[RepaymentEffectRespDict, errors.Error]:
+) -> RepaymentEffectRespDict:
 	# What loans and fees does would this payment pay off?
 
 	err_details = {'company_id': company_id, 'loan_ids': loan_ids, 'method': 'calculate_repayment_effect'}
 
 	if payment_option == 'custom_amount':
 		if not number_util.is_number(amount) or amount <= 0:
-			return None, errors.Error('Payment amount must greater than 0 when payment option is Custom Amount')
+			raise errors.Error('Payment amount must greater than 0 when payment option is Custom Amount')
 
 	if not settlement_date:
-		return None, errors.Error('Settlement date must be specified')
+		raise errors.Error('Settlement date must be specified')
 
 	payment_settlement_date = date_util.load_date_str(settlement_date)
 
@@ -147,19 +148,19 @@ def calculate_repayment_effect(
 				models.Contract.company_id == company_id
 			).all())
 		if not contracts:
-			return None, errors.Error('Cannot calculate repayment effect because no contracts are setup for this company')
+			raise errors.Error('Cannot calculate repayment effect because no contracts are setup for this company')
 
 		contract_dicts = [c.as_dict() for c in contracts]
 
 	contract_helper, err = contract_util.ContractHelper.build(company_id, contract_dicts)
 	if err:
-		return None, err
+		raise err
 
 	active_contract, err = contract_helper.get_contract(payment_settlement_date)
 	if err:
-		return None, err
+		raise err
 	if not active_contract:
-		return None, errors.Error('No active contract on settlement date')
+		raise errors.Error('No active contract on settlement date')
 	product_type, err = active_contract.get_product_type()
 
 	# Figure out how much is due by a particular date
@@ -185,7 +186,7 @@ def calculate_repayment_effect(
 				).all())
 		else:
 			if not loan_ids:
-				return None, errors.Error('No loan ids are selected')
+				raise errors.Error('No loan ids are selected')
 
 			loans = cast(
 				List[models.Loan],
@@ -196,7 +197,7 @@ def calculate_repayment_effect(
 				).all())
 
 			if len(loans) != len(loan_ids):
-				return None, errors.Error('Not all selected loans found')
+				raise errors.Error('Not all selected loans found')
 
 			# TODO(warrenshen): add this check back in and update unit tests.
 			# not_funded_loan_ids = [loan.id for loan in loans if not loan.funded_at]
@@ -205,7 +206,7 @@ def calculate_repayment_effect(
 
 			closed_loan_ids = [loan.id for loan in loans if loan.closed_at]
 			if len(closed_loan_ids) > 0:
-				return None, errors.Error('Some selected loans are closed already')
+				raise errors.Error('Some selected loans are closed already')
 
 		selected_loan_ids = set([])
 		for loan in loans:
@@ -255,7 +256,7 @@ def calculate_repayment_effect(
 			all_transaction_dicts, [p.as_dict() for p in existing_payments]
 		)
 		if err:
-			return None, err
+			raise err
 
 	# Calculate the loans "before" by running the loan calculator to determine
 	# the balance at that particular time.
@@ -287,7 +288,7 @@ def calculate_repayment_effect(
 			report_date
 		)
 		if errs:
-			return None, errors.Error('\n'.join([err.msg for err in errs]))
+			raise errors.Error('\n'.join([err.msg for err in errs]))
 
 		if test_only_skip_interest_and_fees_calculation:
 			loan_update['outstanding_interest'] = 0.0
@@ -323,7 +324,7 @@ def calculate_repayment_effect(
 			report_date
 		)
 		if errs:
-			return None, errors.Error('\n'.join([err.msg for err in errs]))
+			raise errors.Error('\n'.join([err.msg for err in errs]))
 
 		if test_only_skip_interest_and_fees_calculation:
 			loan_update['outstanding_interest'] = 0.0
@@ -448,7 +449,7 @@ def calculate_repayment_effect(
 
 		amount_as_credit_to_user = 0.0
 	else:
-		return None, errors.Error('Unrecognized payment option')
+		raise errors.Error('Unrecognized payment option')
 
 	payable_amount_principal = 0.0
 	payable_amount_interest = 0.0
@@ -506,15 +507,16 @@ def calculate_repayment_effect(
 		amount_to_pay=number_util.round_currency(amount_to_pay),
 		amount_as_credit_to_user=number_util.round_currency(amount_as_credit_to_user),
 		loans_past_due_but_not_selected=loans_past_due_but_not_selected,
-	), None
+	)
 
+@errors.return_error_tuple
 def create_repayment(
 	company_id: str,
 	payment_insert_input: payment_util.PaymentInsertInputDict,
 	user_id: str,
 	session_maker: Callable,
 	is_line_of_credit: bool,
-) -> Tuple[str, errors.Error]:
+) -> str:
 
 	err_details = {'company_id': company_id, 'method': 'create_repayment'}
 
@@ -526,36 +528,36 @@ def create_repayment(
 	loan_ids = None
 
 	if not payment_method:
-		return None, errors.Error('Payment method must be specified', details=err_details)
+		raise errors.Error('Payment method must be specified', details=err_details)
 
 	if not number_util.is_number(requested_amount) or requested_amount <= 0:
-		return None, errors.Error('Payment requested amount must greater than 0', details=err_details)
+		raise errors.Error('Payment requested amount must greater than 0', details=err_details)
 
 	if not requested_payment_date:
-		return None, errors.Error('Requested payment date must be specified', details=err_details)
+		raise errors.Error('Requested payment date must be specified', details=err_details)
 
 	if payment_method == PaymentMethodEnum.REVERSE_DRAFT_ACH and not company_bank_account_id:
-		return None, errors.Error('Bank account to trigger reverse from must be specified if payment method is Reverse Draft ACH', details=err_details)
+		raise errors.Error('Bank account to trigger reverse from must be specified if payment method is Reverse Draft ACH', details=err_details)
 
 	if is_line_of_credit:
 		if 'requested_to_principal' not in items_covered or 'requested_to_interest' not in items_covered:
-			return None, errors.Error('items_covered.requested_to_principal and items_covered.requested_to_interest must be specified', details=err_details)
+			raise errors.Error('items_covered.requested_to_principal and items_covered.requested_to_interest must be specified', details=err_details)
 
 		requested_to_principal = items_covered['requested_to_principal']
 		requested_to_interest = items_covered['requested_to_interest']
 
 		if requested_to_principal is None or requested_to_interest is None:
-			return None, errors.Error(f'Requested to principal and requested to interest must be specified')
+			raise errors.Error(f'Requested to principal and requested to interest must be specified')
 
 		if not number_util.float_eq(requested_amount, requested_to_principal + requested_to_interest):
-			return None, errors.Error(f'Requested breakdown of requested_to_principal vs requested_to_interest ({requested_to_principal}, {requested_to_interest}) does not sum up to requested amount ({requested_amount})')
+			raise errors.Error(f'Requested breakdown of requested_to_principal vs requested_to_interest ({requested_to_principal}, {requested_to_interest}) does not sum up to requested amount ({requested_amount})')
 	else:
 		if 'loan_ids' not in items_covered:
-			return None, errors.Error('items_covered.loan_ids must be specified', details=err_details)
+			raise errors.Error('items_covered.loan_ids must be specified', details=err_details)
 
 		loan_ids = items_covered['loan_ids']
 		if len(loan_ids) <= 0:
-			return None, errors.Error('At least one loan ID must be specified')
+			raise errors.Error('At least one loan ID must be specified')
 
 	payment_id = None
 
@@ -571,15 +573,15 @@ def create_repayment(
 				).all())
 
 			if len(loans) != len(loan_ids):
-				return None, errors.Error('Not all selected loans found')
+				raise errors.Error('Not all selected loans found')
 
 			not_funded_loan_ids = [loan.id for loan in loans if not loan.funded_at]
 			if len(not_funded_loan_ids) > 0:
-				return None, errors.Error('Not all selected loans are funded')
+				raise errors.Error('Not all selected loans are funded')
 
 			closed_loan_ids = [loan.id for loan in loans if loan.closed_at]
 			if len(closed_loan_ids) > 0:
-				return None, errors.Error('Some selected loans are closed already')
+				raise errors.Error('Some selected loans are closed already')
 
 		# Settlement date should not be set until the banker settles the payment.
 		payment_input = payment_util.RepaymentPaymentInputDict(
@@ -604,8 +606,9 @@ def create_repayment(
 		for loan in loans:
 			loan.payment_status = payment_status
 
-	return payment_id, None
+	return payment_id
 
+@errors.return_error_tuple
 def schedule_repayment(
 	company_id: str,
 	payment_id: str,
@@ -613,7 +616,7 @@ def schedule_repayment(
 	user_id: str,
 	session_maker: Callable,
 	is_line_of_credit: bool,
-) -> Tuple[str, errors.Error]:
+) -> str:
 
 	err_details = {'company_id': company_id, 'payment_id': payment_id, 'method': 'schedule_repayment'}
 
@@ -622,10 +625,10 @@ def schedule_repayment(
 	items_covered = req['items_covered']
 
 	if not number_util.is_number(payment_amount) or payment_amount <= 0:
-		return None, errors.Error('Payment amount must greater than 0', details=err_details)
+		raise errors.Error('Payment amount must greater than 0', details=err_details)
 
 	if not payment_date:
-		return None, errors.Error('Payment date must be specified', details=err_details)
+		raise errors.Error('Payment date must be specified', details=err_details)
 
 	payment_id = None
 
@@ -637,16 +640,16 @@ def schedule_repayment(
 			).first())
 
 		if not payment:
-			return None, errors.Error('No payment found to settle transaction', details=err_details)
+			raise errors.Error('No payment found to settle transaction', details=err_details)
 
 		if not payment.method == PaymentMethodEnum.REVERSE_DRAFT_ACH:
-			return None, errors.Error('Payment method must be Reverse Draft ACH', details=err_details)
+			raise errors.Error('Payment method must be Reverse Draft ACH', details=err_details)
 
 		if payment_amount > payment.requested_amount:
-			return None, errors.Error('Payment amount cannot be greater than requested payment amount', details=err_details)
+			raise errors.Error('Payment amount cannot be greater than requested payment amount', details=err_details)
 
 		if payment_date < payment.requested_payment_date:
-			return None, errors.Error('Payment date cannot be before the requested payment date', details=err_details)
+			raise errors.Error('Payment date cannot be before the requested payment date', details=err_details)
 
 		payment.amount = decimal.Decimal(payment_amount)
 		payment.payment_date = payment_date
@@ -656,14 +659,15 @@ def schedule_repayment(
 		session.flush()
 		payment_id = str(payment.id)
 
-	return payment_id, None
+	return payment_id
 
+@errors.return_error_tuple
 def settle_repayment(
 	req: SettleRepaymentReqDict,
 	user_id: str,
 	session_maker: Callable,
 	is_line_of_credit: bool,
-) -> Tuple[List[str], errors.Error]:
+) -> List[str]:
 
 	err_details = {
 		'method': 'settle_repayment',
@@ -671,7 +675,7 @@ def settle_repayment(
 	}
 
 	if not number_util.is_currency_rounded(req['amount']):
-		return None, errors.Error('Amount specified is not rounded to the penny')
+		raise errors.Error('Amount specified is not rounded to the penny')
 
 	company_id = req['company_id']
 	payment_amount = req['amount']
@@ -681,42 +685,42 @@ def settle_repayment(
 	transaction_inputs = []
 
 	if not deposit_date:
-		return None, errors.Error('deposit_date must be specified')
+		raise errors.Error('deposit_date must be specified')
 
 	if not settlement_date:
-		return None, errors.Error('settlement_date must be specified')
+		raise errors.Error('settlement_date must be specified')
 
 	if 'to_user_credit' not in items_covered:
-		return None, errors.Error('items_covered.to_user_credit must be specified', details=err_details)
+		raise errors.Error('items_covered.to_user_credit must be specified', details=err_details)
 
 	to_user_credit = items_covered['to_user_credit']
 
 	if not number_util.is_currency_rounded(to_user_credit):
-		return None, errors.Error('To user credit specified is not rounded to the penny')
+		raise errors.Error('To user credit specified is not rounded to the penny')
 
 	if is_line_of_credit:
 		if 'to_principal' not in items_covered or 'to_interest' not in items_covered:
-			return None, errors.Error('items_covered.to_principal and items_covered.to_interest must be specified', details=err_details)
+			raise errors.Error('items_covered.to_principal and items_covered.to_interest must be specified', details=err_details)
 
 		to_principal = items_covered['to_principal']
 		to_interest = items_covered['to_interest']
 
 		if not number_util.is_currency_rounded(to_principal):
-			return None, errors.Error('To principal specified is not rounded to the penny')
+			raise errors.Error('To principal specified is not rounded to the penny')
 
 		if not number_util.is_currency_rounded(to_interest):
-			return None, errors.Error('To interest specified is not rounded to the penny')
+			raise errors.Error('To interest specified is not rounded to the penny')
 
 		if not number_util.float_eq(payment_amount, to_principal + to_interest + to_user_credit):
-			return None, errors.Error(f'Sum of amount to principal ({number_util.to_dollar_format(to_principal)}), amount to interest ({number_util.to_dollar_format(to_interest)}), and credit to user ({number_util.to_dollar_format(to_user_credit)}) does not equal payment amount ({number_util.to_dollar_format(payment_amount)})', details=err_details)
+			raise errors.Error(f'Sum of amount to principal ({number_util.to_dollar_format(to_principal)}), amount to interest ({number_util.to_dollar_format(to_interest)}), and credit to user ({number_util.to_dollar_format(to_user_credit)}) does not equal payment amount ({number_util.to_dollar_format(payment_amount)})', details=err_details)
 	else:
 		if not items_covered or 'loan_ids' not in items_covered:
-			return None, errors.Error('items_covered.loan_ids must be specified', details=err_details)
+			raise errors.Error('items_covered.loan_ids must be specified', details=err_details)
 
 		transaction_inputs = req['transaction_inputs']
 
 		if not transaction_inputs or len(transaction_inputs) <= 0:
-			return None, errors.Error('transaction_inputs must be specified', details=err_details)
+			raise errors.Error('transaction_inputs must be specified', details=err_details)
 
 		transactions_sum = 0.0
 
@@ -724,28 +728,28 @@ def settle_repayment(
 			tx_input = transaction_inputs[i]
 
 			if tx_input['to_principal'] < 0 or tx_input['to_interest'] < 0 or tx_input['to_fees'] < 0:
-				return None, errors.Error('No negative values can be applied using transactions', details=err_details)
+				raise errors.Error('No negative values can be applied using transactions', details=err_details)
 
 			if not number_util.is_currency_rounded(tx_input['to_principal']):
-				return None, errors.Error('Transaction "{}" to_principal specified is not rounded to the penny'.format(i))
+				raise errors.Error('Transaction "{}" to_principal specified is not rounded to the penny'.format(i))
 
 			if not number_util.is_currency_rounded(tx_input['to_interest']):
-				return None, errors.Error('Transaction "{}" to_interest specified is not rounded to the penny'.format(i))
+				raise errors.Error('Transaction "{}" to_interest specified is not rounded to the penny'.format(i))
 
 			if not number_util.is_currency_rounded(tx_input['to_fees']):
-				return None, errors.Error('Transaction "{}" to_fees specified is not rounded to the penny'.format(i))
+				raise errors.Error('Transaction "{}" to_fees specified is not rounded to the penny'.format(i))
 
 			cur_sum = tx_input['to_principal'] + tx_input['to_interest'] + tx_input['to_fees']
 			if not number_util.float_eq(cur_sum, tx_input['amount']):
-				return None, errors.Error('Transaction at index {} does not balance with itself'.format(i), details=err_details)
+				raise errors.Error('Transaction at index {} does not balance with itself'.format(i), details=err_details)
 
 			transactions_sum += cur_sum
 
 		computed_payment_amount = transactions_sum + to_user_credit
 		if not number_util.float_eq(computed_payment_amount, payment_amount):
-			return None, errors.Error(f'Sum of transactions and credit to user ({computed_payment_amount}) does not equal payment amount ({payment_amount})', details=err_details)
+			raise errors.Error(f'Sum of transactions and credit to user ({computed_payment_amount}) does not equal payment amount ({payment_amount})', details=err_details)
 
-	def _settle_logic(session: Session) -> Tuple[bool, errors.Error]:
+	def _settle_logic(session: Session) -> bool:
 		# Get all contracts associated with company.
 		contracts = cast(
 			List[models.Contract],
@@ -753,26 +757,26 @@ def settle_repayment(
 				models.Contract.company_id == company_id
 			).all())
 		if not contracts:
-			return None, errors.Error('Cannot settle payment because no contracts are setup for this company')
+			raise errors.Error('Cannot settle payment because no contracts are setup for this company')
 
 		contract_dicts = [c.as_dict() for c in contracts]
 
 		contract_helper, err = contract_util.ContractHelper.build(company_id, contract_dicts)
 		if err:
-			return None, err
+			raise err
 
 		active_contract, err = contract_helper.get_contract(settlement_date)
 		if err:
-			return None, err
+			raise err
 		if not active_contract:
-			return None, errors.Error('No active contract on settlement date')
+			raise errors.Error('No active contract on settlement date')
 
 		loan_ids = []
 		loans = []
 		if is_line_of_credit:
 			product_type, err = active_contract.get_product_type()
 			if product_type != ProductType.LINE_OF_CREDIT:
-				return None, errors.Error('Customer is not of Line of Credit product type', details=err_details)
+				raise errors.Error('Customer is not of Line of Credit product type', details=err_details)
 
 			# TODO(warrenshen):
 			# Write a test to check that loans that do not have an origination date set
@@ -805,21 +809,21 @@ def settle_repayment(
 				).all())
 
 			if not loans:
-				return None, errors.Error('No loans associated with settlement request', details=err_details)
+				raise errors.Error('No loans associated with settlement request', details=err_details)
 
 			if len(loans) != len(loan_ids):
-				return None, errors.Error('Not all loans found in database to settle', details=err_details)
+				raise errors.Error('Not all loans found in database to settle', details=err_details)
 
 			if len(transaction_inputs) != len(loans):
-				return None, errors.Error('Unequal amount of transaction inputs provided relative to loans provided', details=err_details)
+				raise errors.Error('Unequal amount of transaction inputs provided relative to loans provided', details=err_details)
 
 		for loan in loans:
 			if not loan.origination_date:
-				return None, errors.Error('Loan {} is missing an origination date'.format(loan.id))
+				raise errors.Error('Loan {} is missing an origination date'.format(loan.id))
 
 			# Do not allow loans that are funded after the deposit date of this payment
 			if loan.origination_date > deposit_date:
-				return None, errors.Error('Cannot fund loan {} which has an origination date of {} with a payment being deposited earlier on {}'.format(
+				raise errors.Error('Cannot fund loan {} which has an origination date of {} with a payment being deposited earlier on {}'.format(
 					loan.id, loan.origination_date, deposit_date))
 
 		loan_id_to_loan = {}
@@ -850,7 +854,7 @@ def settle_repayment(
 			all_transaction_dicts, [p.as_dict() for p in existing_payments]
 		)
 		if err:
-			return None, err
+			raise err
 
 		# Do NOT allow settling a new payment for loans if payment.settlement_date is prior to
 		# the effective_date of any existing transaction(s) related to the loans.
@@ -872,7 +876,7 @@ def settle_repayment(
 		if len(effective_dates):
 			max_transaction_effective_date = max(effective_dates)
 			if settlement_date < max_transaction_effective_date:
-				return None, errors.Error('Cannot settle a new payment for loans since the settlement date is prior to the effective_date of one or more existing transaction(s) of loans')
+				raise errors.Error('Cannot settle a new payment for loans since the settlement date is prior to the effective_date of one or more existing transaction(s) of loans')
 
 		payment = cast(
 			models.Payment,
@@ -881,19 +885,19 @@ def settle_repayment(
 			).first())
 
 		if not payment:
-			return None, errors.Error('No payment found to settle transaction', details=err_details)
+			raise errors.Error('No payment found to settle transaction', details=err_details)
 
 		if payment.settled_at:
-			return None, errors.Error('Cannot use this payment because it has already been settled and applied to certain loans', details=err_details)
+			raise errors.Error('Cannot use this payment because it has already been settled and applied to certain loans', details=err_details)
 
 		if payment.type != db_constants.PaymentType.REPAYMENT:
-			return None, errors.Error('Can only apply repayments against loans', details=err_details)
+			raise errors.Error('Can only apply repayments against loans', details=err_details)
 
 		if not payment.payment_date:
-			return None, errors.Error('Payment must have a payment date')
+			raise errors.Error('Payment must have a payment date')
 
 		if deposit_date < payment.payment_date:
-			return None, errors.Error('Deposit date cannot be before the payment date', details=err_details)
+			raise errors.Error('Deposit date cannot be before the payment date', details=err_details)
 
 		# Note: it is important that we use `loan_ids` to create `loan_dicts`.
 		# This is because the order of `loan_ids` maps to the order of
@@ -927,7 +931,7 @@ def settle_repayment(
 				settlement_date
 			)
 			if errs:
-				return None, errors.Error('\n'.join([err.msg for err in errs]))
+				raise errors.Error('\n'.join([err.msg for err in errs]))
 
 			# Keep track of what this loan balance is as of the date that this repayment
 			# will settle (so we have to calculate the additional interest and fees that will accrue)
@@ -980,12 +984,12 @@ def settle_repayment(
 			# this means this repayment is an over-payment.
 			amount_to_principal_left = number_util.round_currency(amount_to_principal_left)
 			if amount_to_principal_left > 0.0:
-				return None, errors.Error(
+				raise errors.Error(
 					f'Outstanding principal may not be negative after payment: you must reduce the amount applied to principal by {number_util.to_dollar_format(amount_to_principal_left)}')
 
 			amount_interest_left = number_util.round_currency(amount_to_interest_left)
 			if amount_to_interest_left > 0.0:
-				return None, errors.Error(
+				raise errors.Error(
 					f'Outstanding interest may not be negative after payment: you must reduce the amount applied to interest by {number_util.to_dollar_format(amount_to_interest_left)}')
 
 		if to_user_credit > 0.0:
@@ -1043,15 +1047,15 @@ def settle_repayment(
 				balance_before['outstanding_fees'] - to_fees)
 
 			if new_outstanding_interest < 0:
-				return None, errors.Error(
+				raise errors.Error(
 					f'Interest on a loan may not be negative: you must reduce the amount applied to interest on {cur_loan_id} by {-1 * new_outstanding_interest}')
 
 			if new_outstanding_fees < 0:
-				return None, errors.Error(
+				raise errors.Error(
 					f'Fees on a loan may not be negative after payment: you must reduce the amount applied to interest on {cur_loan_id} by {-1 * new_outstanding_fees}')
 
 			if new_outstanding_principal_balance < 0:
-				return None, errors.Error(
+				raise errors.Error(
 					f'Principal on a loan may not be negative after payment: you must reduce the amount applied to principal on {cur_loan_id} by {-1 * new_outstanding_principal_balance}')
 
 			session.add(t)
@@ -1079,15 +1083,10 @@ def settle_repayment(
 		)
 
 		# TODO(warrenshen): change this to return payment_ids.
-		return True, None
+		return True
 
 	with session_scope(session_maker) as session:
-		success, err = _settle_logic(session)
-		if err:
-			session.rollback()
-			return None, err
-
-		session.flush()
+		_settle_logic(session)
 
 		transactions = cast(
 			List[models.Transaction],
@@ -1098,7 +1097,7 @@ def settle_repayment(
 
 	# TODO(warrenshen): change this to return payment_ids.
 	# This currently does not return transaction ids of credit_to_user transactions.
-	return transaction_ids, None
+	return transaction_ids
 
 UndoRepaymentReqDict = TypedDict('UndoRepaymentReqDict', {
 	'company_id': str,

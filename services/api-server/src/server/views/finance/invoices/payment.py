@@ -98,7 +98,7 @@ class RespondToPaymentRequestView(MethodView):
 
 		data, err = invoices_util.InvoicePaymentRequestResponse.from_dict(data)
 		if err:
-			return handler_util.make_error_response(err)
+			raise err
 
 		with models.session_scope(current_app.session_maker) as session:
 			info, err = two_factor_util.get_two_factor_link(
@@ -107,7 +107,7 @@ class RespondToPaymentRequestView(MethodView):
 				max_age_in_seconds=security_util.SECONDS_IN_DAY * 7,
 				session=session)
 			if err:
-				return handler_util.make_error_response(err)
+				raise err
 
 			user = session.query(models.User) \
 				.filter(models.User.email == info['email']) \
@@ -121,7 +121,7 @@ class RespondToPaymentRequestView(MethodView):
 				info['email'],
 				data)
 			if err:
-				return handler_util.make_error_response(err)
+				raise err
 
 			session.delete(info['link']) # type: ignore
 

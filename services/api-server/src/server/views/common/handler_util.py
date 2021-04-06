@@ -32,6 +32,8 @@ def catch_bad_json_request(f: Callable[..., Response]) -> Callable[..., Response
 	def inner_func(*args: Any, **kwargs: Any) -> Response:
 		try:
 			return f(*args, **kwargs)
+		except errors.Error as e:
+			return make_error_response(e)
 		except Exception as e:
 			# TODO(dlluncor): Log to sentry
 			logging.error(
