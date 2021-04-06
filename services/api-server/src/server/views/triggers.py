@@ -14,6 +14,7 @@ from server.views.common import auth_util, handler_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from sqlalchemy import func
+from typing import Callable, Tuple
 
 
 handler = Blueprint('triggers', __name__)
@@ -156,6 +157,20 @@ class ExpireActiveEbbaApplications(MethodView):
 		}))
 
 
+@errors.return_error_tuple
+def _set_needs_balance_recomputed(company_id: str, session_maker: Callable) -> Tuple[bool, errors.Error]:
+
+	if not company_id:
+		raise errors.Error("Failed to find company_id in request")
+
+	with models.session_scope(session_maker) as session:
+		_, err = models_util.set_needs_balance_recomputed(company_id, session)
+		if err:
+			logging.error(f"FAILED marking that company.needs_balance_recomputed for company: '{company_id}'")
+			raise errors.Error("Failed setting company dirty")
+
+		return True, None
+
 class SetDirtyCompanyBalancesView(MethodView):
 
 	decorators = [auth_util.requires_async_magic_header]
@@ -173,16 +188,10 @@ class SetDirtyCompanyBalancesView(MethodView):
 
 		logging.info(f"Marking that company.needs_balance_recomputed for company: '{company_id}'")
 
-		if not company_id:
+		success, err = _set_needs_balance_recomputed(company_id, current_app.session_maker)
+		if err:
 			return handler_util.make_error_response(
-				"Failed to find company_id in request", status_code=500)
-
-		with models.session_scope(current_app.session_maker) as session:
-			_, err = models_util.set_needs_balance_recomputed(company_id, session)
-			if err:
-				logging.error(f"FAILED marking that company.needs_balance_recomputed for company: '{company_id}'")
-				return handler_util.make_error_response(
-					"Failed setting company dirty", status_code=500)
+				'{}'.format(err), status_code=500)
 
 		logging.info(f"Finished marking that company.needs_balance_recomputed for company: '{company_id}'")
 

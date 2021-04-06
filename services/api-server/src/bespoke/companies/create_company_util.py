@@ -44,6 +44,7 @@ CreatePayorVendorInputDict = TypedDict('CreatePayorVendorInputDict', {
 	'user': create_user_util.UserInsertInputDict,
 })
 
+@errors.return_error_tuple
 def create_customer(
 	req: CreateCustomerInputDict, bank_admin_user_id: str,
 	session_maker: Callable) -> Tuple[CreateCustomerRespDict, errors.Error]:
@@ -58,7 +59,7 @@ def create_customer(
 				models.Company.name == company_name
 			).first())
 		if existing_company_by_name:
-			return None, errors.Error(f'A company with name "{company_name}" already exists')
+			raise errors.Error(f'A company with name "{company_name}" already exists')
 
 		existing_company_by_identifier = cast(
 			models.Company,
@@ -66,13 +67,13 @@ def create_customer(
 				models.Company.identifier == company_identifier
 			).first())
 		if existing_company_by_identifier:
-			return None, errors.Error(f'A company with identifier "{company_identifier}" already exists')
+			raise errors.Error(f'A company with identifier "{company_identifier}" already exists')
 
 		company_settings = models.CompanySettings()
 		session.add(company_settings)
 
 		if not req['contract']['product_config']:
-			return None, errors.Error('No product config specified')
+			raise errors.Error('No product config specified')
 
 		contract = models.Contract(
 			product_type=req['contract']['product_type'],
@@ -83,7 +84,7 @@ def create_customer(
 		)
 		contract_obj, err = contract_util.Contract.build(contract.as_dict(), validate=True)
 		if err:
-			return None, err
+			raise err
 
 		# Use whatever the produced product config is after using the validation logic
 		# from contract_util.Contract
@@ -113,6 +114,7 @@ def create_customer(
 		status='OK'
 	), None
 
+@errors.return_error_tuple
 def create_payor_vendor(
 	req: CreatePayorVendorInputDict,
 	session_maker: Callable,
@@ -124,7 +126,7 @@ def create_payor_vendor(
 	company_name = company_input['name']
 
 	if not company_name:
-		return None, errors.Error('Name must be specified')
+		raise errors.Error('Name must be specified')
 
 	user_input = req['user']
 	user_first_name = user_input['first_name']
@@ -133,13 +135,13 @@ def create_payor_vendor(
 	user_phone_number = user_input['phone_number']
 
 	if not user_first_name or not user_last_name:
-		return None, errors.Error('User full name must be specified')
+		raise errors.Error('User full name must be specified')
 
 	if not user_email:
-		return None, errors.Error('User email must be specified')
+		raise errors.Error('User email must be specified')
 
 	if not user_phone_number:
-		return None, errors.Error('User phone number must be specified')
+		raise errors.Error('User phone number must be specified')
 
 	with session_scope(session_maker) as session:
 		company_settings = models.CompanySettings()
@@ -160,7 +162,7 @@ def create_payor_vendor(
 			.filter(models.User.email == user_email) \
 			.first()
 		if existing_user:
-			return None, errors.Error('Email is already taken')
+			raise errors.Error('Email is already taken')
 
 		# Note: Payor / Vendor users do not have any role for now.
 		user = models.User()

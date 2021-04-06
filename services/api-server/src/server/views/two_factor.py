@@ -129,7 +129,7 @@ class GetSecureLinkPayloadView(MethodView):
 		form = json.loads(request.data)
 		link_signed_val = form.get('val')
 		if not link_signed_val:
-			return handler_util.make_error_response('Link provided is empty')
+			raise errors.Error('Link provided is empty')
 
 		provided_token_val = form.get('provided_token_val')
 		company_id = None
@@ -140,18 +140,18 @@ class GetSecureLinkPayloadView(MethodView):
 				link_signed_val, cfg.get_security_config(),
 				max_age_in_seconds=security_util.SECONDS_IN_DAY * 7, session=session)
 			if err:
-				return handler_util.make_error_response(err)
+				raise err
 
 			two_factor_link = two_factor_info['link']
 			form_info = cast(Dict, two_factor_link.form_info)
 			if not form_info:
-				return handler_util.make_error_response('No form information associated with this link')
+				raise errors.Error('No form information associated with this link')
 
 			email = two_factor_info['email']
 			user = cast(models.User, session.query(models.User).filter(
 				models.User.email == email).first())
 			if not user:
-				return handler_util.make_error_response('User opening this link does not exist in the system at all')
+				raise errors.Error('User opening this link does not exist in the system at all')
 
 			link_type = form_info.get('type')
 
@@ -159,7 +159,7 @@ class GetSecureLinkPayloadView(MethodView):
 				# Forgot password links dont need code approval
 				success, err = _approve_code(provided_token_val, two_factor_info)
 				if err:
-					return handler_util.make_error_response(err)
+					raise err
 
 			company_id = user.company_id
 
@@ -183,7 +183,7 @@ class GetSecureLinkPayloadView(MethodView):
 		elif link_type == db_constants.TwoFactorLinkType.FORGOT_PASSWORD:
 			pass
 		else:
-			return handler_util.make_error_response('Could not handle unknown payload type {}'.format(form_info.get('type')))
+			raise errors.Error('Could not handle unknown payload type {}'.format(form_info.get('type')))
 
 		return make_response(json.dumps({
 			'status': 'OK',

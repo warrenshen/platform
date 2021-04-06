@@ -45,6 +45,7 @@ UpdateThirdPartyUserRespDict = TypedDict('UpdateThirdPartyUserRespDict', {
 	'user_id': str,
 })
 
+@errors.return_error_tuple
 def create_bank_or_customer_user(
 	req: CreateBankCustomerInputDict,
 	session_maker: Callable,
@@ -59,13 +60,13 @@ def create_bank_or_customer_user(
 	phone_number = user_input['phone_number']
 
 	if not role:
-		return None, errors.Error('Role must be specified')
+		raise errors.Error('Role must be specified')
 
 	if not first_name or not last_name:
-		return None, errors.Error('Full name must be specified')
+		raise errors.Error('Full name must be specified')
 
 	if not email:
-		return None, errors.Error('Email must be specified')
+		raise errors.Error('Email must be specified')
 
 	user_id = None
 
@@ -75,15 +76,15 @@ def create_bank_or_customer_user(
 				.filter(models.Company.id == company_id) \
 				.first()
 			if not customer:
-				return None, errors.Error('Could not find customer')
+				raise errors.Error('Could not find customer')
 			if customer.company_type != CompanyType.Customer:
-				return None, errors.Error('Company is not Customer company type')
+				raise errors.Error('Company is not Customer company type')
 
 		existing_user = session.query(models.User) \
 			.filter(models.User.email == email) \
 			.first()
 		if existing_user:
-			return None, errors.Error('Email is already taken')
+			raise errors.Error('Email is already taken')
 
 		user = models.User()
 		user.company_id = company_id
@@ -99,11 +100,12 @@ def create_bank_or_customer_user(
 
 	return user_id, None
 
+@errors.return_error_tuple
 def create_third_party_user(
 	req: CreateThirdPartyUserInputDict,
 	session_maker: Callable,
 	is_payor: bool,
-) -> Tuple[CreateThirdPartyUserRespDict, errors.Error]:
+) -> CreateThirdPartyUserRespDict:
 	company_id = req['company_id']
 	user_input = req['user']
 	first_name = user_input['first_name']
@@ -112,10 +114,10 @@ def create_third_party_user(
 	phone_number = user_input['phone_number']
 
 	if not email:
-		return None, errors.Error('Email must be specified')
+		raise errors.Error('Email must be specified')
 
 	if not phone_number:
-		return None, errors.Error('Phone number must be specified')
+		raise errors.Error('Phone number must be specified')
 
 	user_id = None
 
@@ -124,17 +126,17 @@ def create_third_party_user(
 			.filter(models.Company.id == company_id) \
 			.first()
 		if not company:
-			return None, errors.Error('Could not find company')
+			raise errors.Error('Could not find company')
 		if is_payor and company.company_type != CompanyType.Payor:
-			return None, errors.Error('Company is not Payor company type')
+			raise errors.Error('Company is not Payor company type')
 		if not is_payor and company.company_type != CompanyType.Vendor:
-			return None, errors.Error('Company is not Vendor company type')
+			raise errors.Error('Company is not Vendor company type')
 
 		user = session.query(models.User) \
 			.filter(models.User.email == email) \
 			.first()
 		if user:
-			return None, errors.Error('Email is already taken')
+			raise errors.Error('Email is already taken')
 
 		user = models.User()
 		user.company_id = company_id
@@ -150,12 +152,13 @@ def create_third_party_user(
 	return CreateThirdPartyUserRespDict(
 		status='OK',
 		user_id=user_id,
-	), None
+	)
 
+@errors.return_error_tuple
 def update_third_party_user(
 	req: UpdateThirdPartyUserInputDict,
 	session_maker: Callable,
-) -> Tuple[CreateThirdPartyUserRespDict, errors.Error]:
+) -> UpdateThirdPartyUserRespDict:
 	user_id = req['user_id']
 	user_input = req['user']
 	first_name = user_input['first_name']
@@ -164,17 +167,17 @@ def update_third_party_user(
 	phone_number = user_input['phone_number']
 
 	if not email:
-		return None, errors.Error('Email must be specified')
+		raise errors.Error('Email must be specified')
 
 	if not phone_number:
-		return None, errors.Error('Phone number must be specified')
+		raise errors.Error('Phone number must be specified')
 
 	with session_scope(session_maker) as session:
 		user = session.query(models.User) \
 			.filter(models.User.id == user_id) \
 			.first()
 		if not user:
-			return None, errors.Error('Could not find existing user')
+			raise errors.Error('Could not find existing user')
 
 		user.first_name = first_name
 		user.last_name = last_name
@@ -184,4 +187,4 @@ def update_third_party_user(
 	return UpdateThirdPartyUserRespDict(
 		status='OK',
 		user_id=user_id,
-	), None
+	)
