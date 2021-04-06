@@ -141,6 +141,7 @@ function BankLoansActionRequiredTab() {
       </Box>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <LoansDataGrid
+          isArtifactVisible
           isCompanyVisible
           isMaturityVisible={false}
           isMultiSelectEnabled={check(role, Action.SelectLoan)}

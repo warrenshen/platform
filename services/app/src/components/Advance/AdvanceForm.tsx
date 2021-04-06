@@ -55,6 +55,7 @@ function PaymentAdvanceForm({
         <LoansDataGrid
           isCompanyVisible
           isSortingDisabled
+          isStatusVisible={false}
           loans={selectedLoans}
         />
       </Box>

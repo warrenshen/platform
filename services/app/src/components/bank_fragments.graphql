@@ -75,6 +75,44 @@ fragment Loan on loans {
   company {
     id
     identifier
+    name
+  }
+}
+
+fragment LoanArtifactLimited on loans {
+  id
+  loan_type
+  artifact_id
+  identifier
+  invoice {
+    id
+    invoice_number
+  }
+  line_of_credit {
+    id
+  }
+  purchase_order {
+    id
+    order_number
+  }
+}
+
+fragment LoanArtifact on loans {
+  id
+  loan_type
+  artifact_id
+  identifier
+  invoice {
+    id
+    ...Invoice
+  }
+  line_of_credit {
+    id
+    ...LineOfCredit
+  }
+  purchase_order {
+    id
+    ...PurchaseOrder
   }
 }
 

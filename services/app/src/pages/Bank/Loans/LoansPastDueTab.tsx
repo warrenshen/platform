@@ -35,6 +35,7 @@ function BankLoansPastDueTab() {
     <Container>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <LoansDataGrid
+          isArtifactVisible
           isCompanyVisible
           isDaysPastDueVisible
           isFilteringEnabled

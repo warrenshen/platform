@@ -2,21 +2,10 @@ subscription GetLoansForBank {
   loans {
     id
     ...Loan
+    ...LoanArtifactLimited
     company {
       id
       name
-    }
-    line_of_credit {
-      id
-      ...LineOfCredit
-    }
-    purchase_order {
-      id
-      order_number
-      vendor {
-        id
-        name
-      }
     }
   }
 }
@@ -33,22 +22,7 @@ subscription GetNotFundedLoansForBank {
   ) {
     id
     ...Loan
-    company {
-      id
-      name
-    }
-    line_of_credit {
-      id
-      ...LineOfCredit
-    }
-    purchase_order {
-      id
-      order_number
-      vendor {
-        id
-        name
-      }
-    }
+    ...LoanArtifactLimited
   }
 }
 
@@ -63,22 +37,7 @@ subscription GetFundedLoansForBank {
   ) {
     id
     ...Loan
-    company {
-      id
-      name
-    }
-    line_of_credit {
-      id
-      ...LineOfCredit
-    }
-    purchase_order {
-      id
-      order_number
-      vendor {
-        id
-        name
-      }
-    }
+    ...LoanArtifactLimited
   }
 }
 
@@ -105,14 +64,7 @@ query GetActiveLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
     ) {
       id
       ...LoanLimited
-      line_of_credit {
-        id
-        ...LineOfCredit
-      }
-      purchase_order {
-        id
-        order_number
-      }
+      ...LoanArtifactLimited
     }
   }
 }
@@ -132,14 +84,7 @@ query GetFundedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum!) {
   ) {
     id
     ...LoanLimited
-    line_of_credit {
-      id
-      ...LineOfCredit
-    }
-    purchase_order {
-      id
-      order_number
-    }
+    ...LoanArtifactLimited
   }
 }
 
@@ -157,14 +102,7 @@ query GetClosedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
     ) {
       id
       ...LoanLimited
-      line_of_credit {
-        id
-        ...LineOfCredit
-      }
-      purchase_order {
-        id
-        order_number
-      }
+      ...LoanArtifactLimited
     }
   }
 }
@@ -184,14 +122,7 @@ query LoansByCompanyAndLoanTypeForBank(
   ) {
     id
     ...Loan
-    line_of_credit {
-      id
-      ...LineOfCredit
-    }
-    purchase_order {
-      id
-      order_number
-    }
+    ...LoanArtifactLimited
   }
 }
 

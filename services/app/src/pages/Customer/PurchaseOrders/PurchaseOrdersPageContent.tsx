@@ -169,7 +169,7 @@ function CustomerPurchaseOrdersPageContent({ companyId, productType }: Props) {
       </Box>
       <Box className={classes.sectionSpace} />
       <Box className={classes.section}>
-        <Typography variant="h6">Funded</Typography>
+        <Typography variant="h6">Fully Funded</Typography>
         <Box className={classes.sectionSpace} />
         <PurchaseOrdersDataGrid
           isCompanyVisible={false}

@@ -25,8 +25,9 @@ function BankLoansAllTab() {
     <Container>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <LoansDataGrid
-          isExcelExport
+          isArtifactVisible
           isCompanyVisible
+          isExcelExport
           isFilteringEnabled
           isMaturityVisible
           loans={loans}

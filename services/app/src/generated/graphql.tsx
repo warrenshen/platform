@@ -7071,6 +7071,8 @@ export type Loans = {
   funded_by_user_id?: Maybe<Scalars["uuid"]>;
   id: Scalars["uuid"];
   identifier: Scalars["String"];
+  /** An object relationship */
+  invoice?: Maybe<Invoices>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   /** An object relationship */
   line_of_credit?: Maybe<LineOfCredits>;
@@ -7214,6 +7216,7 @@ export type LoansBoolExp = {
   funded_by_user_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   identifier?: Maybe<StringComparisonExp>;
+  invoice?: Maybe<InvoicesBoolExp>;
   is_deleted?: Maybe<BooleanComparisonExp>;
   line_of_credit?: Maybe<LineOfCreditsBoolExp>;
   loan_type?: Maybe<LoanTypeEnumComparisonExp>;
@@ -7269,6 +7272,7 @@ export type LoansInsertInput = {
   funded_by_user_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   identifier?: Maybe<Scalars["String"]>;
+  invoice?: Maybe<InvoicesObjRelInsertInput>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   line_of_credit?: Maybe<LineOfCreditsObjRelInsertInput>;
   loan_type?: Maybe<LoanTypeEnum>;
@@ -7457,6 +7461,7 @@ export type LoansOrderBy = {
   funded_by_user_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   identifier?: Maybe<OrderBy>;
+  invoice?: Maybe<InvoicesOrderBy>;
   is_deleted?: Maybe<OrderBy>;
   line_of_credit?: Maybe<LineOfCreditsOrderBy>;
   loan_type?: Maybe<OrderBy>;
@@ -15266,12 +15271,7 @@ export type GetCustomerOverviewQuery = {
         Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
       >;
       outstanding_loans: Array<
-        Pick<Loans, "id"> & {
-          line_of_credit?: Maybe<
-            Pick<LineOfCredits, "id"> & LineOfCreditFragment
-          >;
-          purchase_order?: Maybe<Pick<PurchaseOrders, "id" | "order_number">>;
-        } & LoanLimitedFragment
+        Pick<Loans, "id"> & LoanLimitedFragment & LoanArtifactLimitedFragment
       >;
       pending_payments: Array<Pick<Payments, "id"> & PaymentLimitedFragment>;
     }
@@ -15560,15 +15560,7 @@ export type GetLoanWithArtifactForCustomerQueryVariables = Exact<{
 }>;
 
 export type GetLoanWithArtifactForCustomerQuery = {
-  loans_by_pk?: Maybe<
-    {
-      company: Pick<Companies, "id" | "name">;
-      line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
-      purchase_order?: Maybe<
-        Pick<PurchaseOrders, "id"> & PurchaseOrderFragment
-      >;
-    } & LoanLimitedFragment
-  >;
+  loans_by_pk?: Maybe<LoanLimitedFragment & LoanArtifactFragment>;
 };
 
 export type GetLoanWithArtifactForBankQueryVariables = Exact<{
@@ -15576,15 +15568,7 @@ export type GetLoanWithArtifactForBankQueryVariables = Exact<{
 }>;
 
 export type GetLoanWithArtifactForBankQuery = {
-  loans_by_pk?: Maybe<
-    {
-      company: Pick<Companies, "id" | "name">;
-      line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
-      purchase_order?: Maybe<
-        Pick<PurchaseOrders, "id"> & PurchaseOrderFragment
-      >;
-    } & LoanFragment
-  >;
+  loans_by_pk?: Maybe<LoanFragment & LoanArtifactFragment>;
 };
 
 export type GetTransactionsForLoanQueryVariables = Exact<{
@@ -15626,13 +15610,8 @@ export type GetLoansForBankSubscription = {
   loans: Array<
     Pick<Loans, "id"> & {
       company: Pick<Companies, "id" | "name">;
-      line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
-      purchase_order?: Maybe<
-        Pick<PurchaseOrders, "id" | "order_number"> & {
-          vendor?: Maybe<Pick<Vendors, "id" | "name">>;
-        }
-      >;
-    } & LoanFragment
+    } & LoanFragment &
+      LoanArtifactLimitedFragment
   >;
 };
 
@@ -15641,17 +15620,7 @@ export type GetNotFundedLoansForBankSubscriptionVariables = Exact<{
 }>;
 
 export type GetNotFundedLoansForBankSubscription = {
-  loans: Array<
-    Pick<Loans, "id"> & {
-      company: Pick<Companies, "id" | "name">;
-      line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
-      purchase_order?: Maybe<
-        Pick<PurchaseOrders, "id" | "order_number"> & {
-          vendor?: Maybe<Pick<Vendors, "id" | "name">>;
-        }
-      >;
-    } & LoanFragment
-  >;
+  loans: Array<Pick<Loans, "id"> & LoanFragment & LoanArtifactLimitedFragment>;
 };
 
 export type GetFundedLoansForBankSubscriptionVariables = Exact<{
@@ -15659,17 +15628,7 @@ export type GetFundedLoansForBankSubscriptionVariables = Exact<{
 }>;
 
 export type GetFundedLoansForBankSubscription = {
-  loans: Array<
-    Pick<Loans, "id"> & {
-      company: Pick<Companies, "id" | "name">;
-      line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
-      purchase_order?: Maybe<
-        Pick<PurchaseOrders, "id" | "order_number"> & {
-          vendor?: Maybe<Pick<Vendors, "id" | "name">>;
-        }
-      >;
-    } & LoanFragment
-  >;
+  loans: Array<Pick<Loans, "id"> & LoanFragment & LoanArtifactLimitedFragment>;
 };
 
 export type GetActiveLoansForCompanyQueryVariables = Exact<{
@@ -15684,12 +15643,7 @@ export type GetActiveLoansForCompanyQuery = {
         Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
       >;
       loans: Array<
-        Pick<Loans, "id"> & {
-          line_of_credit?: Maybe<
-            Pick<LineOfCredits, "id"> & LineOfCreditFragment
-          >;
-          purchase_order?: Maybe<Pick<PurchaseOrders, "id" | "order_number">>;
-        } & LoanLimitedFragment
+        Pick<Loans, "id"> & LoanLimitedFragment & LoanArtifactLimitedFragment
       >;
     }
   >;
@@ -15702,10 +15656,7 @@ export type GetFundedLoansForCompanyQueryVariables = Exact<{
 
 export type GetFundedLoansForCompanyQuery = {
   loans: Array<
-    Pick<Loans, "id"> & {
-      line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
-      purchase_order?: Maybe<Pick<PurchaseOrders, "id" | "order_number">>;
-    } & LoanLimitedFragment
+    Pick<Loans, "id"> & LoanLimitedFragment & LoanArtifactLimitedFragment
   >;
 };
 
@@ -15718,12 +15669,7 @@ export type GetClosedLoansForCompanyQuery = {
   companies_by_pk?: Maybe<
     Pick<Companies, "id"> & {
       loans: Array<
-        Pick<Loans, "id"> & {
-          line_of_credit?: Maybe<
-            Pick<LineOfCredits, "id"> & LineOfCreditFragment
-          >;
-          purchase_order?: Maybe<Pick<PurchaseOrders, "id" | "order_number">>;
-        } & LoanLimitedFragment
+        Pick<Loans, "id"> & LoanLimitedFragment & LoanArtifactLimitedFragment
       >;
     }
   >;
@@ -15735,12 +15681,7 @@ export type LoansByCompanyAndLoanTypeForBankQueryVariables = Exact<{
 }>;
 
 export type LoansByCompanyAndLoanTypeForBankQuery = {
-  loans: Array<
-    Pick<Loans, "id"> & {
-      line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
-      purchase_order?: Maybe<Pick<PurchaseOrders, "id" | "order_number">>;
-    } & LoanFragment
-  >;
+  loans: Array<Pick<Loans, "id"> & LoanFragment & LoanArtifactLimitedFragment>;
 };
 
 export type GetLoansByLoanIdsQueryVariables = Exact<{
@@ -16080,6 +16021,28 @@ export type UpdateCompanySettingsMutation = {
   update_company_settings_by_pk?: Maybe<CompanySettingsFragment>;
 };
 
+export type GetUserQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type GetUserQuery = {
+  users_by_pk?: Maybe<Pick<Users, "id"> & UserFragment>;
+};
+
+export type GetUsersByRolesQueryVariables = Exact<{
+  roles: Array<UserRolesEnum>;
+}>;
+
+export type GetUsersByRolesQuery = {
+  users: Array<Pick<Users, "id"> & UserFragment>;
+};
+
+export type ListUsersByCompanyIdQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+}>;
+
+export type ListUsersByCompanyIdQuery = { users: Array<UserFragment> };
+
 export type AssignCollectionsBespokeBankAccountMutationVariables = Exact<{
   companySettingsId: Scalars["uuid"];
   bankAccountId?: Maybe<Scalars["uuid"]>;
@@ -16339,7 +16302,7 @@ export type LoanLimitedFragment = Pick<
   | "outstanding_fees"
   | "approved_at"
   | "funded_at"
-> & { company: Pick<Companies, "id" | "identifier"> };
+> & { company: Pick<Companies, "id" | "identifier" | "name"> };
 
 export type PaymentLimitedFragment = Pick<
   Payments,
@@ -16803,7 +16766,25 @@ export type LoanFragment = Pick<
   | "rejected_at"
   | "funded_at"
   | "requested_at"
-> & { company: Pick<Companies, "id" | "identifier"> };
+> & { company: Pick<Companies, "id" | "identifier" | "name"> };
+
+export type LoanArtifactLimitedFragment = Pick<
+  Loans,
+  "id" | "loan_type" | "artifact_id" | "identifier"
+> & {
+  invoice?: Maybe<Pick<Invoices, "id" | "invoice_number">>;
+  line_of_credit?: Maybe<Pick<LineOfCredits, "id">>;
+  purchase_order?: Maybe<Pick<PurchaseOrders, "id" | "order_number">>;
+};
+
+export type LoanArtifactFragment = Pick<
+  Loans,
+  "id" | "loan_type" | "artifact_id" | "identifier"
+> & {
+  invoice?: Maybe<Pick<Invoices, "id"> & InvoiceFragment>;
+  line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
+  purchase_order?: Maybe<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
+};
 
 export type ThirdPartyFragment = Pick<
   Companies,
@@ -16924,28 +16905,6 @@ export type UsersByEmailQuery = {
   users: Array<Pick<Users, "id" | "company_id" | "role">>;
 };
 
-export type GetUserQueryVariables = Exact<{
-  id: Scalars["uuid"];
-}>;
-
-export type GetUserQuery = {
-  users_by_pk?: Maybe<Pick<Users, "id"> & UserFragment>;
-};
-
-export type GetUsersByRolesQueryVariables = Exact<{
-  roles: Array<UserRolesEnum>;
-}>;
-
-export type GetUsersByRolesQuery = {
-  users: Array<Pick<Users, "id"> & UserFragment>;
-};
-
-export type ListUsersByCompanyIdQueryVariables = Exact<{
-  companyId: Scalars["uuid"];
-}>;
-
-export type ListUsersByCompanyIdQuery = { users: Array<UserFragment> };
-
 export const UserFragmentDoc = gql`
   fragment User on users {
     id
@@ -17005,30 +16964,6 @@ export const VendorPartnershipFragmentDoc = gql`
     approved_at
   }
 `;
-export const PurchaseOrderFragmentDoc = gql`
-  fragment PurchaseOrder on purchase_orders {
-    id
-    company_id
-    vendor_id
-    order_number
-    order_date
-    delivery_date
-    amount
-    is_cannabis
-    status
-    rejection_note
-    created_at
-    funded_at
-    company {
-      id
-      name
-    }
-    vendor {
-      id
-      name
-    }
-  }
-`;
 export const LoanLimitedFragmentDoc = gql`
   fragment LoanLimited on loans {
     id
@@ -17051,6 +16986,7 @@ export const LoanLimitedFragmentDoc = gql`
     company {
       id
       identifier
+      name
     }
   }
 `;
@@ -17130,18 +17066,6 @@ export const EbbaApplicationFileFragmentDoc = gql`
   }
   ${FileFragmentDoc}
 `;
-export const LineOfCreditFragmentDoc = gql`
-  fragment LineOfCredit on line_of_credits {
-    id
-    company_id
-    is_credit_for_vendor
-    recipient_vendor_id
-    recipient_vendor {
-      id
-      name
-    }
-  }
-`;
 export const FinancialSummaryFragmentDoc = gql`
   fragment FinancialSummary on financial_summaries {
     id
@@ -17171,35 +17095,6 @@ export const InvoiceFileFragmentDoc = gql`
     }
   }
   ${FileFragmentDoc}
-`;
-export const InvoiceFragmentDoc = gql`
-  fragment Invoice on invoices {
-    id
-    company_id
-    payor_id
-    invoice_number
-    subtotal_amount
-    total_amount
-    taxes_amount
-    invoice_date
-    invoice_due_date
-    advance_date
-    is_cannabis
-    status
-    created_at
-    funded_at
-    payment_requested_at
-    payment_confirmed_at
-    payment_rejected_at
-    company {
-      id
-      name
-    }
-    payor {
-      id
-      name
-    }
-  }
 `;
 export const PayorPartnershipFragmentDoc = gql`
   fragment PayorPartnership on company_payor_partnerships {
@@ -17283,8 +17178,116 @@ export const LoanFragmentDoc = gql`
     company {
       id
       identifier
+      name
     }
   }
+`;
+export const LoanArtifactLimitedFragmentDoc = gql`
+  fragment LoanArtifactLimited on loans {
+    id
+    loan_type
+    artifact_id
+    identifier
+    invoice {
+      id
+      invoice_number
+    }
+    line_of_credit {
+      id
+    }
+    purchase_order {
+      id
+      order_number
+    }
+  }
+`;
+export const InvoiceFragmentDoc = gql`
+  fragment Invoice on invoices {
+    id
+    company_id
+    payor_id
+    invoice_number
+    subtotal_amount
+    total_amount
+    taxes_amount
+    invoice_date
+    invoice_due_date
+    advance_date
+    is_cannabis
+    status
+    created_at
+    funded_at
+    payment_requested_at
+    payment_confirmed_at
+    payment_rejected_at
+    company {
+      id
+      name
+    }
+    payor {
+      id
+      name
+    }
+  }
+`;
+export const LineOfCreditFragmentDoc = gql`
+  fragment LineOfCredit on line_of_credits {
+    id
+    company_id
+    is_credit_for_vendor
+    recipient_vendor_id
+    recipient_vendor {
+      id
+      name
+    }
+  }
+`;
+export const PurchaseOrderFragmentDoc = gql`
+  fragment PurchaseOrder on purchase_orders {
+    id
+    company_id
+    vendor_id
+    order_number
+    order_date
+    delivery_date
+    amount
+    is_cannabis
+    status
+    rejection_note
+    created_at
+    funded_at
+    company {
+      id
+      name
+    }
+    vendor {
+      id
+      name
+    }
+  }
+`;
+export const LoanArtifactFragmentDoc = gql`
+  fragment LoanArtifact on loans {
+    id
+    loan_type
+    artifact_id
+    identifier
+    invoice {
+      id
+      ...Invoice
+    }
+    line_of_credit {
+      id
+      ...LineOfCredit
+    }
+    purchase_order {
+      id
+      ...PurchaseOrder
+    }
+  }
+  ${InvoiceFragmentDoc}
+  ${LineOfCreditFragmentDoc}
+  ${PurchaseOrderFragmentDoc}
 `;
 export const ThirdPartyFragmentDoc = gql`
   fragment ThirdParty on companies {
@@ -17651,14 +17654,7 @@ export const GetCustomerOverviewDocument = gql`
       ) {
         id
         ...LoanLimited
-        line_of_credit {
-          id
-          ...LineOfCredit
-        }
-        purchase_order {
-          id
-          order_number
-        }
+        ...LoanArtifactLimited
       }
       pending_payments: payments(
         where: {
@@ -17676,7 +17672,7 @@ export const GetCustomerOverviewDocument = gql`
   }
   ${FinancialSummaryFragmentDoc}
   ${LoanLimitedFragmentDoc}
-  ${LineOfCreditFragmentDoc}
+  ${LoanArtifactLimitedFragmentDoc}
   ${PaymentLimitedFragmentDoc}
 `;
 
@@ -19077,23 +19073,11 @@ export const GetLoanWithArtifactForCustomerDocument = gql`
   query GetLoanWithArtifactForCustomer($id: uuid!) {
     loans_by_pk(id: $id) {
       ...LoanLimited
-      company {
-        id
-        name
-      }
-      line_of_credit {
-        id
-        ...LineOfCredit
-      }
-      purchase_order {
-        id
-        ...PurchaseOrder
-      }
+      ...LoanArtifact
     }
   }
   ${LoanLimitedFragmentDoc}
-  ${LineOfCreditFragmentDoc}
-  ${PurchaseOrderFragmentDoc}
+  ${LoanArtifactFragmentDoc}
 `;
 
 /**
@@ -19148,23 +19132,11 @@ export const GetLoanWithArtifactForBankDocument = gql`
   query GetLoanWithArtifactForBank($id: uuid!) {
     loans_by_pk(id: $id) {
       ...Loan
-      company {
-        id
-        name
-      }
-      line_of_credit {
-        id
-        ...LineOfCredit
-      }
-      purchase_order {
-        id
-        ...PurchaseOrder
-      }
+      ...LoanArtifact
     }
   }
   ${LoanFragmentDoc}
-  ${LineOfCreditFragmentDoc}
-  ${PurchaseOrderFragmentDoc}
+  ${LoanArtifactFragmentDoc}
 `;
 
 /**
@@ -19387,26 +19359,15 @@ export const GetLoansForBankDocument = gql`
     loans {
       id
       ...Loan
+      ...LoanArtifactLimited
       company {
         id
         name
       }
-      line_of_credit {
-        id
-        ...LineOfCredit
-      }
-      purchase_order {
-        id
-        order_number
-        vendor {
-          id
-          name
-        }
-      }
     }
   }
   ${LoanFragmentDoc}
-  ${LineOfCreditFragmentDoc}
+  ${LoanArtifactLimitedFragmentDoc}
 `;
 
 /**
@@ -19452,26 +19413,11 @@ export const GetNotFundedLoansForBankDocument = gql`
     ) {
       id
       ...Loan
-      company {
-        id
-        name
-      }
-      line_of_credit {
-        id
-        ...LineOfCredit
-      }
-      purchase_order {
-        id
-        order_number
-        vendor {
-          id
-          name
-        }
-      }
+      ...LoanArtifactLimited
     }
   }
   ${LoanFragmentDoc}
-  ${LineOfCreditFragmentDoc}
+  ${LoanArtifactLimitedFragmentDoc}
 `;
 
 /**
@@ -19516,26 +19462,11 @@ export const GetFundedLoansForBankDocument = gql`
     ) {
       id
       ...Loan
-      company {
-        id
-        name
-      }
-      line_of_credit {
-        id
-        ...LineOfCredit
-      }
-      purchase_order {
-        id
-        order_number
-        vendor {
-          id
-          name
-        }
-      }
+      ...LoanArtifactLimited
     }
   }
   ${LoanFragmentDoc}
-  ${LineOfCreditFragmentDoc}
+  ${LoanArtifactLimitedFragmentDoc}
 `;
 
 /**
@@ -19592,20 +19523,13 @@ export const GetActiveLoansForCompanyDocument = gql`
       ) {
         id
         ...LoanLimited
-        line_of_credit {
-          id
-          ...LineOfCredit
-        }
-        purchase_order {
-          id
-          order_number
-        }
+        ...LoanArtifactLimited
       }
     }
   }
   ${FinancialSummaryFragmentDoc}
   ${LoanLimitedFragmentDoc}
-  ${LineOfCreditFragmentDoc}
+  ${LoanArtifactLimitedFragmentDoc}
 `;
 
 /**
@@ -19676,18 +19600,11 @@ export const GetFundedLoansForCompanyDocument = gql`
     ) {
       id
       ...LoanLimited
-      line_of_credit {
-        id
-        ...LineOfCredit
-      }
-      purchase_order {
-        id
-        order_number
-      }
+      ...LoanArtifactLimited
     }
   }
   ${LoanLimitedFragmentDoc}
-  ${LineOfCreditFragmentDoc}
+  ${LoanArtifactLimitedFragmentDoc}
 `;
 
 /**
@@ -19754,19 +19671,12 @@ export const GetClosedLoansForCompanyDocument = gql`
       ) {
         id
         ...LoanLimited
-        line_of_credit {
-          id
-          ...LineOfCredit
-        }
-        purchase_order {
-          id
-          order_number
-        }
+        ...LoanArtifactLimited
       }
     }
   }
   ${LoanLimitedFragmentDoc}
-  ${LineOfCreditFragmentDoc}
+  ${LoanArtifactLimitedFragmentDoc}
 `;
 
 /**
@@ -19834,18 +19744,11 @@ export const LoansByCompanyAndLoanTypeForBankDocument = gql`
     ) {
       id
       ...Loan
-      line_of_credit {
-        id
-        ...LineOfCredit
-      }
-      purchase_order {
-        id
-        order_number
-      }
+      ...LoanArtifactLimited
     }
   }
   ${LoanFragmentDoc}
-  ${LineOfCreditFragmentDoc}
+  ${LoanArtifactLimitedFragmentDoc}
 `;
 
 /**
@@ -21520,6 +21423,169 @@ export type UpdateCompanySettingsMutationResult = Apollo.MutationResult<UpdateCo
 export type UpdateCompanySettingsMutationOptions = Apollo.BaseMutationOptions<
   UpdateCompanySettingsMutation,
   UpdateCompanySettingsMutationVariables
+>;
+export const GetUserDocument = gql`
+  query GetUser($id: uuid!) {
+    users_by_pk(id: $id) {
+      id
+      ...User
+    }
+  }
+  ${UserFragmentDoc}
+`;
+
+/**
+ * __useGetUserQuery__
+ *
+ * To run a query within a React component, call `useGetUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetUserQuery(
+  baseOptions: Apollo.QueryHookOptions<GetUserQuery, GetUserQueryVariables>
+) {
+  return Apollo.useQuery<GetUserQuery, GetUserQueryVariables>(
+    GetUserDocument,
+    baseOptions
+  );
+}
+export function useGetUserLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetUserQuery, GetUserQueryVariables>
+) {
+  return Apollo.useLazyQuery<GetUserQuery, GetUserQueryVariables>(
+    GetUserDocument,
+    baseOptions
+  );
+}
+export type GetUserQueryHookResult = ReturnType<typeof useGetUserQuery>;
+export type GetUserLazyQueryHookResult = ReturnType<typeof useGetUserLazyQuery>;
+export type GetUserQueryResult = Apollo.QueryResult<
+  GetUserQuery,
+  GetUserQueryVariables
+>;
+export const GetUsersByRolesDocument = gql`
+  query GetUsersByRoles($roles: [user_roles_enum!]!) {
+    users(where: { role: { _in: $roles } }) {
+      id
+      ...User
+    }
+  }
+  ${UserFragmentDoc}
+`;
+
+/**
+ * __useGetUsersByRolesQuery__
+ *
+ * To run a query within a React component, call `useGetUsersByRolesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUsersByRolesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUsersByRolesQuery({
+ *   variables: {
+ *      roles: // value for 'roles'
+ *   },
+ * });
+ */
+export function useGetUsersByRolesQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetUsersByRolesQuery,
+    GetUsersByRolesQueryVariables
+  >
+) {
+  return Apollo.useQuery<GetUsersByRolesQuery, GetUsersByRolesQueryVariables>(
+    GetUsersByRolesDocument,
+    baseOptions
+  );
+}
+export function useGetUsersByRolesLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetUsersByRolesQuery,
+    GetUsersByRolesQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetUsersByRolesQuery,
+    GetUsersByRolesQueryVariables
+  >(GetUsersByRolesDocument, baseOptions);
+}
+export type GetUsersByRolesQueryHookResult = ReturnType<
+  typeof useGetUsersByRolesQuery
+>;
+export type GetUsersByRolesLazyQueryHookResult = ReturnType<
+  typeof useGetUsersByRolesLazyQuery
+>;
+export type GetUsersByRolesQueryResult = Apollo.QueryResult<
+  GetUsersByRolesQuery,
+  GetUsersByRolesQueryVariables
+>;
+export const ListUsersByCompanyIdDocument = gql`
+  query ListUsersByCompanyId($companyId: uuid!) {
+    users(where: { company_id: { _eq: $companyId } }) {
+      ...User
+    }
+  }
+  ${UserFragmentDoc}
+`;
+
+/**
+ * __useListUsersByCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useListUsersByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListUsersByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListUsersByCompanyIdQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useListUsersByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    ListUsersByCompanyIdQuery,
+    ListUsersByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    ListUsersByCompanyIdQuery,
+    ListUsersByCompanyIdQueryVariables
+  >(ListUsersByCompanyIdDocument, baseOptions);
+}
+export function useListUsersByCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    ListUsersByCompanyIdQuery,
+    ListUsersByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    ListUsersByCompanyIdQuery,
+    ListUsersByCompanyIdQueryVariables
+  >(ListUsersByCompanyIdDocument, baseOptions);
+}
+export type ListUsersByCompanyIdQueryHookResult = ReturnType<
+  typeof useListUsersByCompanyIdQuery
+>;
+export type ListUsersByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useListUsersByCompanyIdLazyQuery
+>;
+export type ListUsersByCompanyIdQueryResult = Apollo.QueryResult<
+  ListUsersByCompanyIdQuery,
+  ListUsersByCompanyIdQueryVariables
 >;
 export const AssignCollectionsBespokeBankAccountDocument = gql`
   mutation AssignCollectionsBespokeBankAccount(
@@ -23850,167 +23916,4 @@ export type UsersByEmailLazyQueryHookResult = ReturnType<
 export type UsersByEmailQueryResult = Apollo.QueryResult<
   UsersByEmailQuery,
   UsersByEmailQueryVariables
->;
-export const GetUserDocument = gql`
-  query GetUser($id: uuid!) {
-    users_by_pk(id: $id) {
-      id
-      ...User
-    }
-  }
-  ${UserFragmentDoc}
-`;
-
-/**
- * __useGetUserQuery__
- *
- * To run a query within a React component, call `useGetUserQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetUserQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useGetUserQuery(
-  baseOptions: Apollo.QueryHookOptions<GetUserQuery, GetUserQueryVariables>
-) {
-  return Apollo.useQuery<GetUserQuery, GetUserQueryVariables>(
-    GetUserDocument,
-    baseOptions
-  );
-}
-export function useGetUserLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<GetUserQuery, GetUserQueryVariables>
-) {
-  return Apollo.useLazyQuery<GetUserQuery, GetUserQueryVariables>(
-    GetUserDocument,
-    baseOptions
-  );
-}
-export type GetUserQueryHookResult = ReturnType<typeof useGetUserQuery>;
-export type GetUserLazyQueryHookResult = ReturnType<typeof useGetUserLazyQuery>;
-export type GetUserQueryResult = Apollo.QueryResult<
-  GetUserQuery,
-  GetUserQueryVariables
->;
-export const GetUsersByRolesDocument = gql`
-  query GetUsersByRoles($roles: [user_roles_enum!]!) {
-    users(where: { role: { _in: $roles } }) {
-      id
-      ...User
-    }
-  }
-  ${UserFragmentDoc}
-`;
-
-/**
- * __useGetUsersByRolesQuery__
- *
- * To run a query within a React component, call `useGetUsersByRolesQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetUsersByRolesQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetUsersByRolesQuery({
- *   variables: {
- *      roles: // value for 'roles'
- *   },
- * });
- */
-export function useGetUsersByRolesQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    GetUsersByRolesQuery,
-    GetUsersByRolesQueryVariables
-  >
-) {
-  return Apollo.useQuery<GetUsersByRolesQuery, GetUsersByRolesQueryVariables>(
-    GetUsersByRolesDocument,
-    baseOptions
-  );
-}
-export function useGetUsersByRolesLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetUsersByRolesQuery,
-    GetUsersByRolesQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    GetUsersByRolesQuery,
-    GetUsersByRolesQueryVariables
-  >(GetUsersByRolesDocument, baseOptions);
-}
-export type GetUsersByRolesQueryHookResult = ReturnType<
-  typeof useGetUsersByRolesQuery
->;
-export type GetUsersByRolesLazyQueryHookResult = ReturnType<
-  typeof useGetUsersByRolesLazyQuery
->;
-export type GetUsersByRolesQueryResult = Apollo.QueryResult<
-  GetUsersByRolesQuery,
-  GetUsersByRolesQueryVariables
->;
-export const ListUsersByCompanyIdDocument = gql`
-  query ListUsersByCompanyId($companyId: uuid!) {
-    users(where: { company_id: { _eq: $companyId } }) {
-      ...User
-    }
-  }
-  ${UserFragmentDoc}
-`;
-
-/**
- * __useListUsersByCompanyIdQuery__
- *
- * To run a query within a React component, call `useListUsersByCompanyIdQuery` and pass it any options that fit your needs.
- * When your component renders, `useListUsersByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useListUsersByCompanyIdQuery({
- *   variables: {
- *      companyId: // value for 'companyId'
- *   },
- * });
- */
-export function useListUsersByCompanyIdQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    ListUsersByCompanyIdQuery,
-    ListUsersByCompanyIdQueryVariables
-  >
-) {
-  return Apollo.useQuery<
-    ListUsersByCompanyIdQuery,
-    ListUsersByCompanyIdQueryVariables
-  >(ListUsersByCompanyIdDocument, baseOptions);
-}
-export function useListUsersByCompanyIdLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    ListUsersByCompanyIdQuery,
-    ListUsersByCompanyIdQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    ListUsersByCompanyIdQuery,
-    ListUsersByCompanyIdQueryVariables
-  >(ListUsersByCompanyIdDocument, baseOptions);
-}
-export type ListUsersByCompanyIdQueryHookResult = ReturnType<
-  typeof useListUsersByCompanyIdQuery
->;
-export type ListUsersByCompanyIdLazyQueryHookResult = ReturnType<
-  typeof useListUsersByCompanyIdLazyQuery
->;
-export type ListUsersByCompanyIdQueryResult = Apollo.QueryResult<
-  ListUsersByCompanyIdQuery,
-  ListUsersByCompanyIdQueryVariables
 >;

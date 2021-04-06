@@ -21,14 +21,7 @@ query GetCustomerOverview($companyId: uuid!, $loanType: loan_type_enum) {
     ) {
       id
       ...LoanLimited
-      line_of_credit {
-        id
-        ...LineOfCredit
-      }
-      purchase_order {
-        id
-        order_number
-      }
+      ...LoanArtifactLimited
     }
     pending_payments: payments(
       where: {

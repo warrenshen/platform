@@ -72,6 +72,7 @@ function BankLoansMaturingSoonTab() {
       </Box>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <LoansDataGrid
+          isArtifactVisible
           isCompanyVisible
           isFilteringEnabled
           isMaturityVisible

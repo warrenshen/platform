@@ -24,7 +24,7 @@ import { useContext, useEffect, useState } from "react";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     dialog: {
-      width: 600,
+      width: 900,
     },
     dialogTitle: {
       borderBottom: "1px solid #c7c7c7",
@@ -85,12 +85,12 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
   }, [payment.method, payment.payment_date, setPayment]);
 
   useEffect(() => {
-    // If user selects payment method Wire and amount greater than $25,000,
+    // If user selects payment method Wire and amount less than $25,000,
     // automatically check the "Charge Wire Fee" checkbox.
-    if (payment.method === PaymentMethodEnum.Wire && payment.amount > 25000) {
+    if (payment.method === PaymentMethodEnum.Wire && payment.amount < 25000) {
       setShouldChargeWireFee(true);
       snackbar.showInfo(
-        '"Charge Wire Fee?" auto-checked because amount is greater than $25,000.'
+        '"Charge Wire Fee?" auto-checked because amount is less than $25,000.'
       );
     } else if (payment.method !== PaymentMethodEnum.Wire) {
       setShouldChargeWireFee(false);

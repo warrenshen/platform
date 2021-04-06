@@ -1,7 +1,9 @@
 import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import { FilterList } from "@material-ui/icons";
+import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
+import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import PaymentStatusChip from "components/Shared/Chip/PaymentStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -24,6 +26,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 interface Props {
+  isArtifactVisible?: boolean;
   isCompanyVisible?: boolean;
   isExcelExport?: boolean;
   isDaysPastDueVisible?: boolean;
@@ -31,6 +34,7 @@ interface Props {
   isMaturityVisible?: boolean;
   isMultiSelectEnabled?: boolean;
   isSortingDisabled?: boolean;
+  isStatusVisible?: boolean;
   pager?: boolean;
   matureDays?: number;
   pageSize?: number;
@@ -44,6 +48,7 @@ interface Props {
 const getMaturityDate = (rowData: any) => new Date(rowData.maturity_date);
 
 function LoansDataGrid({
+  isArtifactVisible = false,
   isCompanyVisible = false,
   isExcelExport = false,
   isDaysPastDueVisible = false,
@@ -51,6 +56,7 @@ function LoansDataGrid({
   isMaturityVisible = false,
   isMultiSelectEnabled = false,
   isSortingDisabled = false,
+  isStatusVisible = true,
   pager = true,
   matureDays = 0,
   pageSize = 10,
@@ -127,7 +133,7 @@ function LoansDataGrid({
         ),
       },
       {
-        visible: !isMaturityVisible,
+        visible: isStatusVisible && !isMaturityVisible,
         dataField: "status",
         caption: "Approval Status",
         width: ColumnWidths.Status,
@@ -150,7 +156,7 @@ function LoansDataGrid({
         },
       },
       {
-        visible: isMaturityVisible,
+        visible: isStatusVisible && isMaturityVisible,
         dataField: "payment_status",
         caption: "Payment Status",
         width: ColumnWidths.Status,
@@ -190,6 +196,29 @@ function LoansDataGrid({
         ),
       },
       {
+        visible: isArtifactVisible,
+        dataField: "artifact_id",
+        caption: "Purchase Order / Invoice",
+        minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: ValueFormatterParams) => (
+          <Box display="flex" alignItems="center">
+            {params.row.data.purchase_order && (
+              <PurchaseOrderDrawerLauncher
+                label={params.row.data.purchase_order.order_number as string}
+                purchaseOrderId={params.row.data.purchase_order.id as string}
+              />
+            )}
+            {params.row.data.invoice && (
+              <InvoiceDrawerLauncher
+                label={params.row.data.invoice.invoice_number as string}
+                invoiceId={params.row.data.invoice.id as string}
+              />
+            )}
+            {params.row.data.line_of_credit && "N/A"}
+          </Box>
+        ),
+      },
+      {
         caption: "Loan Amount",
         dataField: "amount",
         width: ColumnWidths.Currency,
@@ -208,6 +237,16 @@ function LoansDataGrid({
           <DateDataGridCell
             dateString={params.row.data.requested_payment_date}
           />
+        ),
+      },
+      {
+        visible: isMaturityVisible,
+        caption: "Origination Date",
+        dataField: "origination_date",
+        width: ColumnWidths.Date,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell dateString={params.row.data.origination_date} />
         ),
       },
       {
@@ -267,7 +306,14 @@ function LoansDataGrid({
         ),
       },
     ],
-    [isCompanyVisible, isDaysPastDueVisible, isMaturityVisible, actionItems]
+    [
+      isArtifactVisible,
+      isCompanyVisible,
+      isDaysPastDueVisible,
+      isMaturityVisible,
+      isStatusVisible,
+      actionItems,
+    ]
   );
 
   const handleSelectionChanged = useMemo(

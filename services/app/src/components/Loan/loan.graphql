@@ -13,36 +13,14 @@ query GetLoanForCustomer($id: uuid!) {
 query GetLoanWithArtifactForCustomer($id: uuid!) {
   loans_by_pk(id: $id) {
     ...LoanLimited
-    company {
-      id
-      name
-    }
-    line_of_credit {
-      id
-      ...LineOfCredit
-    }
-    purchase_order {
-      id
-      ...PurchaseOrder
-    }
+    ...LoanArtifact
   }
 }
 
 query GetLoanWithArtifactForBank($id: uuid!) {
   loans_by_pk(id: $id) {
     ...Loan
-    company {
-      id
-      name
-    }
-    line_of_credit {
-      id
-      ...LineOfCredit
-    }
-    purchase_order {
-      id
-      ...PurchaseOrder
-    }
+    ...LoanArtifact
   }
 }
 
