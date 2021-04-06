@@ -23,11 +23,13 @@ const JWT_CLAIMS_KEY = "https://hasura.io/jwt/claims";
 function userFieldsFromToken(token: string) {
   const decodedToken: any = JwtDecode(token);
   const claims = decodedToken[JWT_CLAIMS_KEY];
-  // "X-Hasura-Company-Id" equals "None" for bank users.
-  console.log({ claims });
+
+  // "X-Hasura-User-Id" equals "" for anonymous users.
+  // "X-Hasura-Company-Id" equals "" or "None" for bank users.
   return {
-    id: claims["X-Hasura-User-Id"] || "",
+    id: claims["X-Hasura-User-Id"] || null,
     companyId:
+      claims["X-Hasura-Company-Id"] !== "" &&
       claims["X-Hasura-Company-Id"] !== "None"
         ? claims["X-Hasura-Company-Id"]
         : null,

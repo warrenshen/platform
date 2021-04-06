@@ -17,8 +17,8 @@ UserPayloadDict = TypedDict('UserPayloadDict', {
 
 
 def get_claims_payload(user: models.User) -> UserPayloadDict:
-	user_id = str(user.id) if user.id else None
-	company_id = str(user.company_id) if user.company_id else None
+	user_id = str(user.id) if user.id else ''
+	company_id = str(user.company_id) if user.company_id else ''
 
 	claims_payload: UserPayloadDict = {
 		'X-Hasura-User-Id': user_id,
