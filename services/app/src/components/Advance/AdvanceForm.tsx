@@ -52,7 +52,11 @@ function PaymentAdvanceForm({
         </Typography>
       </Box>
       <Box mt={3}>
-        <LoansDataGrid isSortingDisabled loans={selectedLoans} />
+        <LoansDataGrid
+          isCompanyVisible
+          isSortingDisabled
+          loans={selectedLoans}
+        />
       </Box>
       <Box mt={3}>
         <FormControl>

@@ -20,6 +20,7 @@ export enum Action {
   DeselectLoan = "loans:deselect",
   CreateAdvance = "loans:create-advance",
   RunBalances = "loans:run-balances",
+  CreateAdjustment = "loans:create-adjustment",
 
   // Purchase Orders
   AddPurchaseOrders = "purchase-orders:add",

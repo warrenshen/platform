@@ -19,6 +19,7 @@ export enum ActionType {
 }
 
 export enum PaymentTypeEnum {
+  Adjustment = "adjustment",
   Advance = "advance",
   Repayment = "repayment",
 }
