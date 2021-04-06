@@ -1,15 +1,14 @@
-import json
-import decimal
 import datetime
-from typing import Callable, Dict, Tuple
+import decimal
+import json
 from dataclasses import dataclass, fields
+from typing import Callable, Dict, Tuple
 
-from manage import app
-from bespoke.db import models, db_constants
 from bespoke.date import date_util
+from bespoke.db import db_constants, models
 from bespoke_test import auth_helper
 from bespoke_test.db import db_unittest, test_helper
-
+from manage import app
 from sqlalchemy.orm.session import Session
 
 
@@ -368,7 +367,7 @@ class TestUpdateInvoiceView(InvoiceViewTest):
 
 		response = self._make_request(seed, request)
 		self.assertEqual(response['status'], 'ERROR')
-		self.assertIn('Mismatched company ids', response['msg'])
+		self.assertIn('Access Denied', response['msg'])
 
 	def test_failure_on_permissions(self) -> None:
 		seed, customer_id, payor_id = self._setup()

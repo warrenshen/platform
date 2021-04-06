@@ -86,7 +86,7 @@ function CustomerPurchaseOrdersPageContent({ companyId, productType }: Props) {
       width="100%"
       className={classes.section}
     >
-      <Typography variant="h6">Not Funded</Typography>
+      <Typography variant="h6">Not Fully Funded</Typography>
       <Box mb={2} display="flex" flexDirection="row-reverse">
         <Can perform={Action.AddPurchaseOrders}>
           <ModalButton

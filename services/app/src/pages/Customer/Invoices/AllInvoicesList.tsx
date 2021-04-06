@@ -3,7 +3,6 @@ import CreateUpdateInvoiceModal from "components/Invoices/CreateUpdateInvoiceMod
 import InvoicesDataGrid from "components/Invoices/InvoicesDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import Page from "components/Shared/Page";
 import {
   Companies,
   InvoiceFragment,
@@ -14,6 +13,16 @@ import {
 import { Action } from "lib/auth/rbac-rules";
 import { ActionType } from "lib/enum";
 import { useMemo, useState } from "react";
+import styled from "styled-components";
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  flex: 1;
+
+  width: 100%;
+`;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -59,7 +68,7 @@ export default function AllInvoicesList({ companyId, productType }: Props) {
   );
 
   return (
-    <Page appBarTitle="Invoices">
+    <Container>
       <Box
         display="flex"
         flexDirection="column"
@@ -75,6 +84,7 @@ export default function AllInvoicesList({ companyId, productType }: Props) {
                 <CreateUpdateInvoiceModal
                   isInvoiceForLoan={false}
                   actionType={ActionType.New}
+                  companyId={companyId}
                   invoiceId={null}
                   handleClose={() => {
                     refetch();
@@ -93,6 +103,7 @@ export default function AllInvoicesList({ companyId, productType }: Props) {
                   <CreateUpdateInvoiceModal
                     isInvoiceForLoan={false}
                     actionType={ActionType.Update}
+                    companyId={companyId}
                     invoiceId={selectedInvoiceIds[0]}
                     handleClose={() => {
                       refetch();
@@ -114,6 +125,6 @@ export default function AllInvoicesList({ companyId, productType }: Props) {
           handleSelectedInvoices={handleSelectInvoices}
         />
       </Box>
-    </Page>
+    </Container>
   );
 }

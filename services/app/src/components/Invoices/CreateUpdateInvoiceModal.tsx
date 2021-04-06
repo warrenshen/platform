@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   createStyles,
   Dialog,
@@ -7,16 +8,20 @@ import {
   DialogTitle,
   makeStyles,
   Theme,
+  Typography,
 } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import InvoiceForm from "components/Invoices/InvoiceForm";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
+  Companies,
   InvoiceFileFragment,
   InvoiceFileTypeEnum,
   InvoicesInsertInput,
   RequestStatusEnum,
   useGetInvoiceByIdQuery,
   usePayorsByPartnerCompanyQuery,
+  UserRolesEnum,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -64,6 +69,7 @@ false: new invoice is for payment (does not require approval by Payor).
 interface Props {
   isInvoiceForLoan: boolean;
   actionType: ActionType;
+  companyId: Companies["id"];
   invoiceId: string | null;
   handleClose: () => void;
 }
@@ -71,6 +77,7 @@ interface Props {
 function CreateUpdateInvoiceModal({
   isInvoiceForLoan,
   actionType,
+  companyId,
   handleClose,
   invoiceId = null,
 }: Props) {
@@ -78,8 +85,9 @@ function CreateUpdateInvoiceModal({
   const snackbar = useSnackbar();
 
   const {
-    user: { companyId },
+    user: { role },
   } = useContext(CurrentUserContext);
+  const isBankUser = role === UserRolesEnum.BankAdmin;
 
   const newInvoice = {
     company_id: companyId,
@@ -156,7 +164,7 @@ function CreateUpdateInvoiceModal({
   const handleSaveDraft = async () => {
     const result = await upsertInvoice();
     if (result.status === "ERROR") {
-      snackbar.showError("Error! Could not upsert invoice");
+      snackbar.showError(`Error! Message: ${result.msg}`);
     } else {
       snackbar.showSuccess("Success! Invoice saved as draft");
       handleClose();
@@ -166,7 +174,7 @@ function CreateUpdateInvoiceModal({
   const handleSaveSubmit = async () => {
     const result = await upsertInvoice();
     if (result.status === "ERROR") {
-      snackbar.showError("Error! Could not upsert invoice");
+      snackbar.showError(`Error! Message: ${result.msg}`);
       return;
     }
 
@@ -239,6 +247,18 @@ function CreateUpdateInvoiceModal({
         {`${actionType === ActionType.Update ? "Edit" : "Create"} Invoice`}
       </DialogTitle>
       <DialogContent>
+        {isBankUser && (
+          <Box mt={2} mb={3}>
+            <Alert severity="warning">
+              <Typography variant="body1">
+                {`Warning: you are ${
+                  actionType === ActionType.Update ? "editing" : "creating"
+                } an invoice on behalf of this
+                customer (only bank admins can do this).`}
+              </Typography>
+            </Alert>
+          </Box>
+        )}
         <InvoiceForm
           isInvoiceForLoan={isInvoiceForLoan}
           companyId={companyId}

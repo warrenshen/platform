@@ -24,8 +24,9 @@ function userFieldsFromToken(token: string) {
   const decodedToken: any = JwtDecode(token);
   const claims = decodedToken[JWT_CLAIMS_KEY];
   // "X-Hasura-Company-Id" equals "None" for bank users.
+  console.log({ claims });
   return {
-    id: claims["X-Hasura-User-Id"],
+    id: claims["X-Hasura-User-Id"] || "",
     companyId:
       claims["X-Hasura-Company-Id"] !== "None"
         ? claims["X-Hasura-Company-Id"]

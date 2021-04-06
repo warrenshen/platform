@@ -130,6 +130,11 @@ const rules: Rules = {
       Action.EditPurchaseOrders,
       // Action.FundPurchaseOrders,
 
+      Action.AddInvoices,
+      Action.EditInvoices,
+      // Action.FundInvoices,
+      // Action.RequestPaymentOnInvoices,
+
       Action.AddPurchaseOrderLoan,
       Action.EditPurchaseOrderLoan,
       Action.RepayPurchaseOrderLoans,
