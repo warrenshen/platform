@@ -17,12 +17,18 @@ import {
   PaymentsInsertInput,
   TransactionsInsertInput,
 } from "generated/graphql";
+import { formatCurrency } from "lib/currency";
+import { formatDateString } from "lib/date";
+import { createLoanPublicIdentifier } from "lib/loans";
 import { useMemo } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     inputField: {
       width: 300,
+    },
+    loanInputField: {
+      width: "100%",
     },
   })
 );
@@ -59,7 +65,7 @@ function AdjustmentForm({
         </Typography>
       </Box>
       <Box display="flex" flexDirection="row" mt={3}>
-        <FormControl className={classes.inputField}>
+        <FormControl className={classes.loanInputField}>
           <InputLabel id="loan-select-label">Loan</InputLabel>
           <Select
             disabled={loans.length <= 0}
@@ -78,8 +84,12 @@ function AdjustmentForm({
             </MenuItem>
             {loans.map((loan) => (
               <MenuItem key={loan.id} value={loan.id}>
-                {`${loan.identifier} ${
-                  loan.identifier ? "(Approved)" : "(Not approved)"
+                {`${createLoanPublicIdentifier(loan)} | Amount: ${
+                  loan.amount ? formatCurrency(loan.amount) : "Error"
+                } | Origination Date: ${
+                  loan.origination_date
+                    ? formatDateString(loan.origination_date)
+                    : "Error"
                 }`}
               </MenuItem>
             ))}
