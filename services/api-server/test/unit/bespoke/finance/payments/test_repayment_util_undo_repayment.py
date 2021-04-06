@@ -183,3 +183,30 @@ class TestUndoRepayment(db_unittest.TestCase):
 		)
 		# You can settle the repayment because it was unsettled right before
 		self.assertIsNone(err)
+
+		delete_req = repayment_util.DeleteRepaymentReqDict(
+			company_id=company_id,
+			payment_id=payment_id
+		)
+		success, err = repayment_util.delete_repayment(
+			req=delete_req,
+			user_id=bank_admin_user_id,
+			session_maker=self.session_maker
+		)
+		# You cant delete a repayment until it is unsettled
+		self.assertIsNotNone(err)
+
+		success, err = repayment_util.undo_repayment(
+			req=undo_req,
+			user_id=bank_admin_user_id,
+			session_maker=self.session_maker
+		)
+		self.assertIsNone(err)
+
+		success, err = repayment_util.delete_repayment(
+			req=delete_req,
+			user_id=bank_admin_user_id,
+			session_maker=self.session_maker
+		)
+		# Now you can delete the repayment
+		self.assertIsNone(err)

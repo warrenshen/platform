@@ -1161,3 +1161,62 @@ def undo_repayment(
 			_unsettle_payment(cur_payment)
 
 	return True
+
+DeleteRepaymentReqDict = TypedDict('DeleteRepaymentReqDict', {
+	'company_id': str,
+	'payment_id': str
+})
+
+
+@errors.return_error_tuple
+def delete_repayment(
+	req: DeleteRepaymentReqDict,
+	user_id: str,
+	session_maker: Callable
+) -> bool:
+	# Mark payment as not settled
+	# Find any additional payments created from it, and mark them as is_deleted
+	# Mark transactions as is_deleted
+
+	with session_scope(session_maker) as session:
+		payment = cast(
+			models.Payment,
+			session.query(models.Payment).filter(
+				models.Payment.id == req['payment_id']
+			).first())
+
+		if not payment:
+			raise errors.Error('No payment found to delete')
+
+		if payment.settled_at:
+			raise errors.Error('Cannot delete a payment which is still settled. You must undo it first')
+
+		originated_payments = cast(
+			List[models.Payment],
+			session.query(models.Payment).filter(
+				models.Payment.originating_payment_id == req['payment_id']
+			).all())
+		if not originated_payments:
+			originated_payments = []
+
+		def _delete_payment(cur_payment: models.Payment) -> None:
+			cur_payment.is_deleted = True
+
+			transactions = cast(
+				List[models.Transaction],
+				session.query(models.Transaction).filter(
+					models.Transaction.payment_id == cur_payment.id
+				).all())
+
+			if not transactions:
+				raise errors.Error('No transactions are associated with payment {}, therefore we assume it never got settled'.format(
+					cur_payment.id))
+
+			for tx in transactions:
+				tx.is_deleted = True
+
+		_delete_payment(payment)
+		for cur_payment in originated_payments:
+			_delete_payment(cur_payment)
+
+	return True
