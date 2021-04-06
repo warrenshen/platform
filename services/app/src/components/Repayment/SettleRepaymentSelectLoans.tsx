@@ -14,13 +14,14 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   BankPayorFragment,
   Companies,
-  GetLoansByLoanIdsQuery,
-  LoanFragment,
   Loans,
+  LoanTypeEnum,
   PaymentsInsertInput,
   ProductTypeEnum,
+  useGetLoansByCompanyAndLoanTypeQuery,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
+import { ProductTypeToLoanType } from "lib/enum";
 import { useContext, useMemo } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -35,21 +36,13 @@ interface Props {
   payment: PaymentsInsertInput;
   customer: Companies;
   payor: BankPayorFragment;
-  allLoans: LoanFragment[];
-  selectedLoanIds: Loans["id"][];
-  selectedLoans: GetLoansByLoanIdsQuery["loans"];
   setPayment: (payment: PaymentsInsertInput) => void;
-  setSelectedLoanIds: (selectedLoanIds: Loans["id"][]) => void;
 }
 function SettleRepaymentSelectLoans({
   payment,
   customer,
   payor,
-  allLoans,
-  selectedLoanIds,
-  selectedLoans,
   setPayment,
-  setSelectedLoanIds,
 }: Props) {
   const {
     user: { role },
@@ -58,19 +51,46 @@ function SettleRepaymentSelectLoans({
   const classes = useStyles();
   const productType = customer.contract?.product_type;
 
-  const maturingOrPastDueLoans = useMemo(
+  const loanType =
+    !!productType && productType in ProductTypeToLoanType
+      ? ProductTypeToLoanType[productType]
+      : null;
+
+  const { data } = useGetLoansByCompanyAndLoanTypeQuery({
+    skip: !payment || !loanType,
+    fetchPolicy: "network-only",
+    variables: {
+      companyId: payment?.company_id || "",
+      loanType: loanType || LoanTypeEnum.PurchaseOrder,
+    },
+  });
+  const selectedLoans = useMemo(
     () =>
-      (allLoans || []).filter((loan) => {
-        const pastDueThreshold = new Date(Date.now());
-        const matureThreshold = new Date(
-          new Date(Date.now()).getTime() + 7 * 24 * 60 * 60 * 1000
-        );
-        const maturityDate = new Date(loan.maturity_date);
-        return (
-          matureThreshold > maturityDate || pastDueThreshold > maturityDate
-        );
-      }),
-    [allLoans]
+      data?.loans.filter(
+        (loan) => payment.items_covered.loan_ids.indexOf(loan.id) >= 0
+      ) || [],
+    [data?.loans, payment.items_covered.loan_ids]
+  );
+  const notSelectedLoans = useMemo(
+    () =>
+      data?.loans.filter((loan) => {
+        if (
+          !!loan.closed_at ||
+          payment.items_covered.loan_ids.indexOf(loan.id) >= 0
+        ) {
+          return false;
+        } else {
+          const pastDueThreshold = new Date(Date.now());
+          const matureThreshold = new Date(
+            new Date(Date.now()).getTime() + 7 * 24 * 60 * 60 * 1000
+          );
+          const maturityDate = new Date(loan.maturity_date);
+          return (
+            matureThreshold > maturityDate || pastDueThreshold > maturityDate
+          );
+        }
+      }) || [],
+    [data?.loans, payment.items_covered.loan_ids]
   );
 
   return payment && customer && payor ? (
@@ -170,11 +190,16 @@ function SettleRepaymentSelectLoans({
                         key: "deselect-loan",
                         label: "Remove",
                         handleClick: (params) =>
-                          setSelectedLoanIds(
-                            selectedLoanIds.filter(
-                              (loanId) => loanId !== params.row.data.id
-                            )
-                          ),
+                          setPayment({
+                            ...payment,
+                            items_covered: {
+                              ...payment.items_covered,
+                              loan_ids: payment.items_covered.loan_ids.filter(
+                                (loanId: Loans["id"]) =>
+                                  loanId !== params.row.data.id
+                              ),
+                            },
+                          }),
                       },
                     ]
                   : []
@@ -190,9 +215,7 @@ function SettleRepaymentSelectLoans({
               isMaturityVisible
               isSortingDisabled
               pageSize={5}
-              loans={maturingOrPastDueLoans.filter(
-                (loan) => !selectedLoanIds.includes(loan.id)
-              )}
+              loans={notSelectedLoans}
               actionItems={
                 check(role, Action.SelectLoan)
                   ? [
@@ -200,10 +223,16 @@ function SettleRepaymentSelectLoans({
                         key: "select-loan",
                         label: "Add",
                         handleClick: (params) =>
-                          setSelectedLoanIds([
-                            ...selectedLoanIds,
-                            params.row.data.id as Loans["id"],
-                          ]),
+                          setPayment({
+                            ...payment,
+                            items_covered: {
+                              ...payment.items_covered,
+                              loan_ids: [
+                                ...payment.items_covered.loan_ids,
+                                params.row.data.id as Loans["id"],
+                              ],
+                            },
+                          }),
                       },
                     ]
                   : []

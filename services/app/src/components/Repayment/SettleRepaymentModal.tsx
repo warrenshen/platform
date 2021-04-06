@@ -16,11 +16,9 @@ import {
   BankPayorFragment,
   Companies,
   Loans,
-  LoanTypeEnum,
   Payments,
   PaymentsInsertInput,
   ProductTypeEnum,
-  useGetLoansByCompanyAndLoanTypeQuery,
   useGetPaymentForSettlementQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -29,7 +27,6 @@ import {
   PaymentMethodEnum,
   PaymentMethodToLabel,
   PaymentOptionEnum,
-  ProductTypeToLoanType,
 } from "lib/enum";
 import {
   computeSettlementDateForPayment,
@@ -81,9 +78,6 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
   const [payor, setPayor] = useState<BankPayorFragment | null>(null);
   const [payment, setPayment] = useState<PaymentsInsertInput | null>(null);
 
-  // TODO(warrenshen): Use payment.items_covered instead of selectedLoanIds.
-  const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"][]>([]);
-
   const contract = customer?.contract || null;
   const productType = customer?.contract?.product_type || null;
 
@@ -103,7 +97,6 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
     onCompleted: (data) => {
       const existingPayment = data?.payments_by_pk;
       if (existingPayment) {
-        setSelectedLoanIds(existingPayment.items_covered?.loan_ids || []);
         setCustomer(existingPayment.company as Companies);
         setPayor(
           (existingPayment.invoice?.payor ||
@@ -123,7 +116,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
           deposit_date: existingPayment.payment_date, // Default deposit_date to payment_date
           settlement_date: null,
           items_covered: {
-            loan_ids: existingPayment.items_covered.loan_ids,
+            loan_ids: existingPayment.items_covered.loan_ids || [],
             requested_to_principal:
               existingPayment.items_covered.requested_to_principal,
             requested_to_interest:
@@ -139,28 +132,6 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
       }
     },
   });
-
-  const loanType =
-    !!productType && productType in ProductTypeToLoanType
-      ? ProductTypeToLoanType[productType]
-      : null;
-
-  const { data } = useGetLoansByCompanyAndLoanTypeQuery({
-    skip: !payment,
-    fetchPolicy: "network-only",
-    variables: {
-      companyId: payment?.company_id || "",
-      loanType: loanType || LoanTypeEnum.PurchaseOrder,
-    },
-    // If this runs, then the payment has been set. We only need to overwrite
-    // selectedLoanIds if they're empty
-    onCompleted: ({ loans }) => {
-      if (!selectedLoanIds.length) {
-        setSelectedLoanIds(loans.map((l) => l.id));
-      }
-    },
-  });
-  const allLoans = data?.loans;
 
   useEffect(() => {
     if (contract && payment?.method && payment?.deposit_date) {
@@ -195,7 +166,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
       payment_option: PaymentOptionEnum.CustomAmount,
       amount: payment.amount,
       settlement_date: payment.settlement_date,
-      loan_ids: selectedLoanIds,
+      loan_ids: payment.items_covered.loan_ids,
     });
 
     console.log({ type: "calculateRepaymentEffect", response });
@@ -251,7 +222,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
         amount: payment.amount,
         deposit_date: payment.deposit_date,
         settlement_date: payment.settlement_date,
-        items_covered: { ...payment.items_covered, loan_ids: selectedLoanIds },
+        items_covered: payment.items_covered,
         transaction_inputs: loansBeforeAfterPayment.map(
           (beforeAfterPaymentLoan) => beforeAfterPaymentLoan.transaction
         ),
@@ -306,12 +277,6 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
     [loansBeforeAfterPayment, setLoansBeforeAfterPayment]
   );
 
-  const selectedLoans = useMemo(() => {
-    return !allLoans
-      ? []
-      : allLoans.filter((l) => selectedLoanIds.indexOf(l.id) >= 0);
-  }, [allLoans, selectedLoanIds]);
-
   const isNextButtonDisabled =
     !payment?.amount || !payment?.deposit_date || !payment?.settlement_date;
   // TODO(warrenshen): also check if payment.items_covered is valid.
@@ -331,11 +296,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
             payment={payment}
             customer={customer}
             payor={payor!}
-            allLoans={allLoans || []}
-            selectedLoanIds={selectedLoanIds}
-            selectedLoans={selectedLoans}
             setPayment={setPayment}
-            setSelectedLoanIds={setSelectedLoanIds}
           />
         ) : (
           <SettleRepaymentConfirmEffect
