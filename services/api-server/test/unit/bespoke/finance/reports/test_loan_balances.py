@@ -528,6 +528,20 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				session, loan, amount=500.03,  payment_date='09/30/2020', effective_date='10/01/2020'
 			)
 
+			# A deleted loan and advance shouldnt affect the test either
+			loan2 = models.Loan(
+				company_id=company_id,
+				origination_date=date_util.load_date_str('10/01/2020'),
+				adjusted_maturity_date=date_util.load_date_str('10/05/2020'),
+				amount=decimal.Decimal(500.03)
+			)
+			session.add(loan2)
+			advance_tx2 = payment_test_helper.make_advance(
+				session, loan2, amount=500.03,  payment_date='09/30/2020', effective_date='10/01/2020'
+			)
+			loan2.is_deleted = True
+			advance_tx2.is_deleted
+
 			# Book an account-level fee and a credit, and make sure it doesnt influence
 			# any of the loan updates
 			payment_util.create_and_add_account_level_fee(
@@ -574,6 +588,19 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				payment_date='10/02/2020',
 				effective_date='10/03/2020'
 			)
+
+			# Because these transactions get deleted, these dont interrupt any of the financial
+			# calculations
+			cur_payment, cur_tx = payment_test_helper.make_repayment(
+				session, loan,
+				to_principal=50.0,
+				to_interest=3 * 0.002 * 500.03, # they are paying off 3 days worth of interest accrued here.
+				to_fees=0.0,
+				payment_date='10/02/2020',
+				effective_date='10/03/2020'
+			)
+			cur_payment.is_deleted = True
+			cur_tx.is_deleted = True
 
 			payment_util.create_and_add_adjustment(
 				company_id=company_id,

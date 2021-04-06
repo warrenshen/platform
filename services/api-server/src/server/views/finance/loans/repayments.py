@@ -212,8 +212,7 @@ class UndoRepaymentView(MethodView):
 
 		required_keys = [
 			'company_id',
-			'payment_id',
-			'is_line_of_credit',
+			'payment_id'
 		]
 		for key in required_keys:
 			if key not in form:
@@ -222,8 +221,7 @@ class UndoRepaymentView(MethodView):
 
 		user_session = auth_util.UserSession.from_session()
 
-		is_line_of_credit = form['is_line_of_credit']
-		transaction_ids, err = repayment_util.undo_repayment(
+		val, err = repayment_util.undo_repayment(
 			cast(repayment_util.UndoRepaymentReqDict, form),
 			user_session.get_user_id(),
 			current_app.session_maker

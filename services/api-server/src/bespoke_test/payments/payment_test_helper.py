@@ -1,5 +1,5 @@
 import decimal
-from typing import Any
+from typing import Any, Tuple
 
 from bespoke.date import date_util
 from bespoke.db import models
@@ -35,7 +35,7 @@ def make_advance(session: Any, loan: models.Loan, amount: float, payment_date: s
 def make_repayment(
 	session: Any, loan: models.Loan,
 	to_principal: float, to_interest: float, to_fees: float,
-	payment_date: str, effective_date: str) -> None:
+	payment_date: str, effective_date: str) -> Tuple[models.Payment, models.Transaction]:
 	amount = to_principal + to_interest + to_fees
 	payment = models.Payment(
 		type=PaymentType.REPAYMENT,
@@ -46,7 +46,8 @@ def make_repayment(
 	)
 	session.add(payment)
 	session.flush()
-	session.add(models.Transaction(
+
+	transaction = models.Transaction(
 		type=PaymentType.REPAYMENT,
 		amount=decimal.Decimal(amount),
 		loan_id=loan.id,
@@ -55,4 +56,6 @@ def make_repayment(
 		to_interest=decimal.Decimal(to_interest),
 		to_fees=decimal.Decimal(to_fees),
 		effective_date=date_util.load_date_str(effective_date)
-	))
+	)
+	session.add(transaction)
+	return payment, transaction

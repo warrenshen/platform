@@ -1102,18 +1102,62 @@ def settle_repayment(
 
 UndoRepaymentReqDict = TypedDict('UndoRepaymentReqDict', {
 	'company_id': str,
-	'payment_id': str,
-	'is_line_of_credit': bool
+	'payment_id': str
 })
 
+
+@errors.return_error_tuple
 def undo_repayment(
 	req: UndoRepaymentReqDict,
 	user_id: str,
 	session_maker: Callable
-) -> Tuple[bool, errors.Error]:
+) -> bool:
 	# Mark payment as not settled
-
 	# Find any additional payments created from it, and mark them as is_deleted
-
 	# Mark transactions as is_deleted
-	return None, errors.Error('Not implemented')
+
+	with session_scope(session_maker) as session:
+		payment = cast(
+			models.Payment,
+			session.query(models.Payment).filter(
+				models.Payment.id == req['payment_id']
+			).first())
+
+		if not payment:
+			raise errors.Error('No payment found to undo')
+
+		if not payment.settled_at:
+			raise errors.Error('Cannot undo a payment which is not settled')
+
+		originated_payments = cast(
+			List[models.Payment],
+			session.query(models.Payment).filter(
+				models.Payment.originating_payment_id == req['payment_id']
+			).all())
+		if not originated_payments:
+			originated_payments = []
+
+		def _unsettle_payment(cur_payment: models.Payment) -> None:
+			cur_payment.settled_at = None
+			cur_payment.settled_by_user_id = None
+			cur_payment.settlement_date = None
+			cur_payment.deposit_date = None
+
+			transactions = cast(
+				List[models.Transaction],
+				session.query(models.Transaction).filter(
+					models.Transaction.payment_id == cur_payment.id
+				).all())
+
+			if not transactions:
+				raise errors.Error('No transactions are associated with payment {}, therefore we assume it is not settled'.format(
+					cur_payment.id))
+
+			for tx in transactions:
+				tx.is_deleted = True
+
+		_unsettle_payment(payment)
+		for cur_payment in originated_payments:
+			_unsettle_payment(cur_payment)
+
+	return True
