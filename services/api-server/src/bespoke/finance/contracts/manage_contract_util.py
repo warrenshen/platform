@@ -98,7 +98,8 @@ def _update_loans_on_active_contract_updated(
 
 	return True, None
 
-def update_contract(req: UpdateContractReqDict, bank_admin_user_id: str, session_maker: Callable) -> Tuple[bool, errors.Error]:
+@errors.return_error_tuple
+def update_contract(req: UpdateContractReqDict, bank_admin_user_id: str, session_maker: Callable) -> bool:
 	err_details = {'req': req, 'method': 'update_contract'}
 
 	with session_scope(session_maker) as session:
@@ -108,28 +109,29 @@ def update_contract(req: UpdateContractReqDict, bank_admin_user_id: str, session
 				models.Contract.id == req['contract_id']
 			).first())
 		if not contract:
-			return False, errors.Error('Contract could not be found', details=err_details)
+			raise errors.Error('Contract could not be found', details=err_details)
 
 		if contract.terminated_at:
-			return False, errors.Error('Cannot modify a contract which already has been terminated or "frozen"', details=err_details)
+			raise errors.Error('Cannot modify a contract which already has been terminated or "frozen"', details=err_details)
 
 		if not req['contract_fields']['start_date']:
-			return False, errors.Error('Start date must be specified', details=err_details)
+			raise errors.Error('Start date must be specified', details=err_details)
 
 		if not req['contract_fields']['end_date']:
-			return False, errors.Error('End date must be specified', details=err_details)
+			raise errors.Error('End date must be specified', details=err_details)
 
 		_, err = _update_contract(contract, req['contract_fields'], bank_admin_user_id)
 		if err:
-			return None, err
+			raise err
 
 		_, err = _update_loans_on_active_contract_updated(contract, session)
 		if err:
-			return None, err
+			raise err
 
-	return True, None
+	return True
 
-def terminate_contract(req: TerminateContractReqDict, bank_admin_user_id: str, session_maker: Callable) -> Tuple[bool, errors.Error]:
+@errors.return_error_tuple
+def terminate_contract(req: TerminateContractReqDict, bank_admin_user_id: str, session_maker: Callable) -> bool:
 	err_details = {'req': req, 'method': 'terminate_contract'}
 
 	with session_scope(session_maker) as session:
@@ -139,7 +141,7 @@ def terminate_contract(req: TerminateContractReqDict, bank_admin_user_id: str, s
 				models.Contract.id == req['contract_id']
 			).first())
 		if not contract:
-			return False, errors.Error('Contract could not be found', details=err_details)
+			raise errors.Error('Contract could not be found', details=err_details)
 
 		company = cast(
 			models.Company,
@@ -147,12 +149,12 @@ def terminate_contract(req: TerminateContractReqDict, bank_admin_user_id: str, s
 				models.Company.id == contract.company_id
 			).first())
 		if not company:
-			return False, errors.Error('Contract does not have a Company', details=err_details)
+			raise errors.Error('Contract does not have a Company', details=err_details)
 
 		termination_date = date_util.load_date_str(req['termination_date'])
 
 		if termination_date > date_util.today_as_date():
-			return False, errors.Error('Cannot set contract termination date to a date in the future', details=err_details)
+			raise errors.Error('Cannot set contract termination date to a date in the future', details=err_details)
 
 		contract.adjusted_end_date = date_util.load_date_str(req['termination_date'])
 		contract.terminated_at = date_util.now()
@@ -162,11 +164,12 @@ def terminate_contract(req: TerminateContractReqDict, bank_admin_user_id: str, s
 
 		_, err = _update_loans_on_active_contract_updated(contract, session)
 		if err:
-			return None, err
+			raise err
 
-	return True, None
+	return True
 
-def add_new_contract(req: AddNewContractReqDict, bank_admin_user_id: str, session_maker: Callable) -> Tuple[bool, errors.Error]:
+@errors.return_error_tuple
+def add_new_contract(req: AddNewContractReqDict, bank_admin_user_id: str, session_maker: Callable) -> bool:
 	err_details = {'req': req, 'method': 'add_new_contract'}
 
 	with session_scope(session_maker) as session:
@@ -176,7 +179,7 @@ def add_new_contract(req: AddNewContractReqDict, bank_admin_user_id: str, sessio
 				models.Company.id == req['company_id']
 			).first())
 		if not company:
-			return False, errors.Error('Company could not be found', details=err_details)
+			raise errors.Error('Company could not be found', details=err_details)
 
 		existing_contracts = cast(
 			List[models.Contract],
@@ -189,7 +192,7 @@ def add_new_contract(req: AddNewContractReqDict, bank_admin_user_id: str, sessio
 		new_contract = models.Contract(company_id=company.id)
 		success, err = _update_contract(new_contract, req['contract_fields'], bank_admin_user_id)
 		if err:
-			return None, err
+			raise err
 
 		# Check no overlap in dates.
 		start_date = new_contract.start_date
@@ -198,19 +201,19 @@ def add_new_contract(req: AddNewContractReqDict, bank_admin_user_id: str, sessio
 		for cur_contract in existing_contracts:
 
 			if not cur_contract.adjusted_end_date:
-				return False, errors.Error('Adjusted end date must be set on the all contracts', details=err_details)
+				raise errors.Error('Adjusted end date must be set on the all contracts', details=err_details)
 
 			if start_date >= cur_contract.start_date and start_date <= cur_contract.adjusted_end_date:
-				return False, errors.Error('New contract start_date intersects with the current contract start and end date', details=err_details)
+				raise errors.Error('New contract start_date intersects with the current contract start and end date', details=err_details)
 
 			if end_date >= cur_contract.start_date and end_date <= cur_contract.adjusted_end_date:
-				return False, errors.Error('New contract end_date intersects with the current contract start and end date', details=err_details)
+				raise errors.Error('New contract end_date intersects with the current contract start and end date', details=err_details)
 
 		session.add(new_contract)
 
 		_, err = _update_loans_on_active_contract_updated(new_contract, session)
 		if err:
-			return None, err
+			raise err
 
 		session.flush()
 
@@ -218,4 +221,4 @@ def add_new_contract(req: AddNewContractReqDict, bank_admin_user_id: str, sessio
 		company.contract_id = new_contract_id
 		session.flush()
 
-	return True, None
+	return True

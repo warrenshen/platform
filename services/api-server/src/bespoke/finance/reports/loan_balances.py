@@ -240,7 +240,8 @@ class CustomerBalance(object):
 		self._company_name = company_dict['name']
 		self._company_id = company_dict['id']
 
-	def update(self, today: datetime.date) -> Tuple[CustomerUpdateDict, errors.Error]:
+	@errors.return_error_tuple
+	def update(self, today: datetime.date) -> CustomerUpdateDict:
 		# Get your contracts and loans
 		fetcher = per_customer_fetcher.Fetcher(per_customer_types.CompanyInfoDict(
 			id=self._company_id,
@@ -248,7 +249,7 @@ class CustomerBalance(object):
 		), self._session_maker, ignore_deleted=True)
 		_, err = fetcher.fetch()
 		if err:
-			return None, err
+			raise err
 
 		customer_info = fetcher.get_financials()
 		financials = customer_info['financials']
@@ -257,7 +258,7 @@ class CustomerBalance(object):
 		contract_helper, err = contract_util.ContractHelper.build(
 			self._company_id, financials['contracts'])
 		if err:
-			return None, err
+			raise err
 
 		# TODO(dlluncor): Allow someone who runs a report to tell us when is the
 		# start date to fetch information from.
@@ -298,7 +299,7 @@ class CustomerBalance(object):
 			threshold_info = threshold_accumulator.compute_threshold_info(
 				report_date=today)
 		except Exception as e:
-			return None, errors.Error(str(e))
+			raise errors.Error(str(e))
 
 		for loan in financials['loans']:
 			if not loan['origination_date']:
@@ -328,7 +329,7 @@ class CustomerBalance(object):
 				loan_update_dicts.append(loan_update_dict)
 
 		if all_errors:
-			return None, errors.Error(
+			raise errors.Error(
 				'Will not proceed with updates because there was more than 1 error during loan balance updating',
 				details={'errors': all_errors}
 			)
@@ -339,7 +340,7 @@ class CustomerBalance(object):
 			financials.get('active_ebba_application'),
 			today)
 		if err:
-			return None, err
+			raise err
 
 		summary_update, err = _get_summary_update(
 			customer_info,
@@ -349,7 +350,7 @@ class CustomerBalance(object):
 			fee_accumulator,
 			today)
 		if err:
-			return None, err
+			raise err
 
 		summary_update['total_principal_in_requested_state'] = total_principal_in_requested_state
 		summary_update['day_volume_threshold_met'] = threshold_info['day_threshold_met']
@@ -359,9 +360,10 @@ class CustomerBalance(object):
 			loan_updates=loan_update_dicts,
 			active_ebba_application_update=ebba_application_update,
 			summary_update=summary_update,
-		), None
+		)
 
-	def write(self, customer_update: CustomerUpdateDict) -> Tuple[bool, errors.Error]:
+	@errors.return_error_tuple
+	def write(self, customer_update: CustomerUpdateDict) -> bool:
 		loan_ids = []
 		loan_id_to_update = {}
 		for loan_update in customer_update['loan_updates']:
@@ -402,8 +404,6 @@ class CustomerBalance(object):
 					company_id=self._company_id
 				)
 
-
-
 			summary_update = customer_update['summary_update']
 
 			financial_summary.date = customer_update['today']
@@ -437,5 +437,5 @@ class CustomerBalance(object):
 			company = session.query(models.Company).get(self._company_id)
 			company.needs_balance_recomputed = False
 
-			return True, None
+			return True
 

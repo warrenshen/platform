@@ -1,7 +1,7 @@
 import datetime
 import logging
 from dataclasses import dataclass, fields
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
@@ -269,14 +269,14 @@ def update_invoice(
 			if len(request.files):
 				files = session.query(models.InvoiceFile).filter_by(invoice_id=existing_invoice.id).all()
 				for f in files:
-					session.delete(f) # type: ignore
+					cast(Callable, session.delete)(f)
 
 				session.commit()
 
 				for rf in request.files:
 					fm = models.InvoiceFile( # type: ignore
-						file_id=rf.file_id,
 						invoice_id=request.invoice.id,
+						file_id=rf.file_id,
 						file_type=rf.file_type,
 					)
 					session.add(fm)
@@ -350,7 +350,7 @@ def update_invoice_approval_status(
 
 	return None
 
-
+@errors.return_error
 def handle_invoice_approval_request(
 	session_maker: Callable,
 	sendgrid_client: sendgrid_util.Client,
@@ -358,7 +358,7 @@ def handle_invoice_approval_request(
 	) -> errors.Error:
 	err = is_invoice_ready_for_approval(session_maker, invoice_id)
 	if err:
-		return err
+		raise err
 
 	info = models.TwoFactorFormInfoDict(
 		type=db_constants.TwoFactorLinkType.CONFIRM_INVOICE,
@@ -390,21 +390,24 @@ def handle_invoice_approval_request(
 				two_factor_payload=payload,
 			)
 			if err:
-				return err
+				raise err
 
 			invoice.status = db_constants.RequestStatusEnum.APPROVAL_REQUESTED
 			invoice.requested_at = date_util.now()
+	except errors.Error as e:
+		raise e
 	except Exception as e:
 		logging.exception("Caught exception while sending approval notification email")
-		return errors.Error(str(e))
+		raise errors.Error(str(e))
+
 	return None
 
-
+@errors.return_error
 def send_one_notification_for_payment(
 	session: Session,
 	client: sendgrid_util.Client,
 	invoice: models.Invoice,
-	customer: models.Company) -> errors.Error:
+	customer: models.Company) -> None:
 
 	info = models.TwoFactorFormInfoDict(
 		type=db_constants.TwoFactorLinkType.PAY_INVOICE,
@@ -434,18 +437,17 @@ def send_one_notification_for_payment(
 			two_factor_payload=payload,
 		)
 		if err:
-			return err
+			raise err
 
 	# Update the payment_requested_at timestamp
 	invoice.payment_requested_at = date_util.now()
-	return None
 
-
+@errors.return_error
 def submit_invoices_for_payment(
 	session_maker: Callable,
 	client: sendgrid_util.Client,
 	company_id: str,
-	request: SubmitForPaymentRequest) -> errors.Error:
+	request: SubmitForPaymentRequest) -> None:
 
 	# Ensure that all of the invoices belong to the given company
 	with models.session_scope(session_maker) as session:
@@ -454,19 +456,19 @@ def submit_invoices_for_payment(
 			.all()
 
 		if len(invoices) != len(request.invoice_ids):
-			return errors.Error(
+			raise errors.Error(
 				"the number of retrieved invoices did not match the number of ids given")
 
 		mismatches = [invoice for invoice in invoices if str(invoice.company_id) != company_id]
 
 		if len(mismatches):
-			return errors.Error(
+			raise errors.Error(
 				f"{len(mismatches)} of the given invoices did not belong to the user")
 
 		# We also make sure that all of the invoices have an approved_at timestamp set
 		not_approved = [invoice for invoice in invoices if not invoice.approved_at]
 		if len(not_approved):
-			return errors.Error(f"{len(not_approved)} of the given invoices not yet approved")
+			raise errors.Error(f"{len(not_approved)} of the given invoices not yet approved")
 
 		# All good. For each invoice, send an email to the payor
 		customer = session.query(models.Company).get(company_id)
@@ -474,16 +476,15 @@ def submit_invoices_for_payment(
 		for invoice in invoices:
 			err = send_one_notification_for_payment(session, client, invoice, customer)
 			if err:
-				return err
+				raise err
 
-		return None
-
+@errors.return_error
 def submit_new_invoice_for_payment(
 	session_maker: Callable,
 	client: sendgrid_util.Client,
 	company_id: str,
 	invoice_id: str,
-) -> errors.Error:
+) -> None:
 	# Ensure that all of the invoices belong to the given company
 	with models.session_scope(session_maker) as session:
 		invoice = session.query(models.Invoice) \
@@ -491,7 +492,7 @@ def submit_new_invoice_for_payment(
 			.first()
 
 		if not invoice:
-			return errors.Error("Invoice not found")
+			raise errors.Error("Invoice not found")
 
 		# Approve invoice before it is sent out to payor for payment
 		invoice.status = db_constants.RequestStatusEnum.APPROVED
@@ -499,26 +500,25 @@ def submit_new_invoice_for_payment(
 		customer = session.query(models.Company).get(company_id)
 		err = send_one_notification_for_payment(session, client, invoice, customer)
 		if err:
-			return err
+			raise err
 
-		return None
-
+@errors.return_error
 def respond_to_payment_request(
 	session: Session,
 	client: sendgrid_util.Client,
 	email: str,
-	data: InvoicePaymentRequestResponse) -> errors.Error:
+	data: InvoicePaymentRequestResponse) -> None:
 
 	user = session.query(models.User) \
 		.filter(models.User.email == email) \
 		.first()
 	if not user:
-		return errors.Error("could not find user")
+		raise errors.Error("could not find user")
 
 	invoice = session.query(models.Invoice).get(data.invoice_id)
 
 	if invoice.payor_id != user.company_id:
-		return errors.Error("user cannot approve this invoice")
+		raise errors.Error("user cannot approve this invoice")
 
 	# Do we need to email folks when a payment is rejected?
 	if data.new_status == db_constants.RequestStatusEnum.REJECTED:

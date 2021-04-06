@@ -148,31 +148,31 @@ class Fetcher(object):
 
 		return True, None
 
-
-	def fetch(self) -> Tuple[bool, errors.Error]:
+	@errors.return_error_tuple
+	def fetch(self) -> bool:
 		_, err = self._fetch_contracts()
 		if err:
-			return None, err
+			raise err
 
 		_, err = self._fetch_company_details()
 		if err:
-			return None, err
+			raise err
 
 		_, err = self._fetch_loans()
 		if err:
-			return None, err
+			raise err
 
 		_, err = self._fetch_payments()
 		if err:
-			return None, err
+			raise err
 
 		_, err = self._fetch_transactions(self._payments)
 		if err:
-			return None, err
+			raise err
 
 		_, err = self._fetch_ebba_applications()
 		if err:
-			return None, err
+			raise err
 
 		# Use the 'active_ebba_application' in CompanySettings to find the
 		# EbbaApplicationDict associated with that application. If this becomes
@@ -184,10 +184,10 @@ class Fetcher(object):
 			if active_id:
 				matching = [app for app in self._ebba_applications if app["id"] == active_id]
 				if len(matching) != 1:
-					return False, errors.Error(f"Failed to find ebba application with id '{active_id}'")
+					raise errors.Error(f"Failed to find ebba application with id '{active_id}'")
 				self._active_ebba_application = matching[0]
 
-		return True, None
+		return True
 
 	def summary(self) -> str:
 		company_dict = self._company_info

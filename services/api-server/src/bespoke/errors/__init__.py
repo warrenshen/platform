@@ -29,3 +29,16 @@ def return_error_tuple(f: Callable[..., T]) -> Callable[..., Tuple[T, Error]]:
 			return None, Error('{}'.format(e))
 
 	return inner_func
+
+def return_error(f: Callable[..., T]) -> Callable[..., Error]:
+
+	def inner_func(*args: Any, **kwargs: Any) -> Error:
+		try:
+			f(*args, **kwargs)
+			return None
+		except Error as e:
+			return e
+		except Exception as e:
+			return Error('{}'.format(e))
+
+	return inner_func
