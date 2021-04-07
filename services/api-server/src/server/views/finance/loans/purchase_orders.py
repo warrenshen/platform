@@ -146,11 +146,12 @@ class UpsertRequest:
 
 		return upsert, None
 
+@errors.return_error
 def _validate_model_permissions(
 	session_maker: Callable,
 	company_id: str,
 	purchase_order_ids: List[str],
-	loan_ids: List[str]) -> errors.Error:
+	loan_ids: List[str]) -> None:
 	# Permissions validation
 	# We need to make sure this user has permission to work with these purchase
 	# orders and these loans (if applicable)
@@ -161,7 +162,7 @@ def _validate_model_permissions(
 			.count()
 
 		if count != len(purchase_order_ids):
-			return errors.Error("Access Denied")
+			raise errors.Error("Access Denied")
 
 		if loan_ids:
 			count = session.query(models.Loan) \
@@ -170,7 +171,7 @@ def _validate_model_permissions(
 				.count()
 
 			if count != len(loan_ids):
-				return errors.Error("Access Denied")
+				raise errors.Error("Access Denied")
 
 	return None
 
@@ -214,11 +215,11 @@ class UpsertPurchaseOrdersLoansView(MethodView):
 
 		# If the user is not a company admin, they cannot call this route
 		if not user_session.is_company_admin():
-			return handler_util.make_error_response("Access Denied")
+			raise errors.Error("Access Denied")
 
 		upsert, err = UpsertRequest.from_dict(json.loads(request.data))
 		if err:
-			return handler_util.make_error_response(err)
+			raise err
 
 		err = _validate_model_permissions(
 			current_app.session_maker,
@@ -226,7 +227,7 @@ class UpsertPurchaseOrdersLoansView(MethodView):
 			upsert.artifact_ids(),
 			upsert.loan_ids())
 		if err:
-			return handler_util.make_error_response(err)
+			raise err
 
 		# NB: We don't do many checks in here around the intergrity of the loan
 		# because those all happen when it gets submitted for approval and
@@ -279,7 +280,7 @@ class UpsertPurchaseOrdersLoansView(MethodView):
 			if upsert.status == LoanStatusEnum.APPROVAL_REQUESTED:
 				err = _handle_approval_email(customer_name, loan_dicts)
 				if err:
-					return handler_util.make_error_response(err)
+					raise err
 
 		with models.session_scope(current_app.session_maker) as session:
 			for event in loan_events:

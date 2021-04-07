@@ -162,6 +162,7 @@ def sum(vals: List[float]) -> float:
 
 	return sum_val
 
+@errors.return_error_tuple
 def create_and_add_adjustment(
 	company_id: str,
 	loan_id: str,

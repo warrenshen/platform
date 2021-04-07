@@ -44,7 +44,7 @@ class MakeAdjustmentView(MethodView):
 					'Missing key {} from make adjustment request'.format(key))
 
 		with models.session_scope(current_app.session_maker) as session:
-			payment_util.create_and_add_adjustment(
+			_, err = payment_util.create_and_add_adjustment(
 				company_id=form['company_id'],
 				loan_id=form['loan_id'],
 				tx_amount_dict=payment_util.TransactionAmountDict(
@@ -57,6 +57,8 @@ class MakeAdjustmentView(MethodView):
 				effective_date=date_util.load_date_str(form['settlement_date']),
 				session=session
 			)
+			if err:
+				raise err
 
 
 		resp = {

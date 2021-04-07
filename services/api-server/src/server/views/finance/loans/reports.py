@@ -1,6 +1,7 @@
 import json
 from typing import List, cast
 
+from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
@@ -41,7 +42,7 @@ class RunCustomerBalancesView(MethodView):
 					session.query(models.Company).filter(
 						models.Company.id == form['company_id']).first())
 				if not company:
-					return handler_util.make_error_response('No company found associated with this ID')
+					raise errors.Error('No company found associated with this ID')
 				company_dicts = [company.as_dict()]
 
 		report_date = date_util.load_date_str(form['report_date'])

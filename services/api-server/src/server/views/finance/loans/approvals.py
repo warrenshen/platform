@@ -18,9 +18,10 @@ from server.views.common import auth_util, handler_util
 
 handler = Blueprint('finance_loans_approvals', __name__)
 
+@errors.return_error_tuple
 def _send_bank_approved_loans_emails(
 	loan_ids: List[str],
-) -> Tuple[bool, errors.Error]:
+) -> bool:
 	cfg = cast(Config, current_app.app_config)
 	sendgrid_client = cast(sendgrid_util.Client,
 							current_app.sendgrid_client)
@@ -57,7 +58,7 @@ def _send_bank_approved_loans_emails(
 				).all())
 
 			if not customer_users:
-				return False, errors.Error('There are no users configured for this customer')
+				raise errors.Error('There are no users configured for this customer')
 
 			customer_name = customer.name
 			customer_identifier = customer.identifier
@@ -78,9 +79,9 @@ def _send_bank_approved_loans_emails(
 			_, err = sendgrid_client.send(
 				template_name, template_data, recipients)
 			if err:
-				return False, err
+				raise err
 
-	return True, None
+	return True
 
 class ApproveLoansView(MethodView):
 	decorators = [auth_util.bank_admin_required]
@@ -152,7 +153,7 @@ class RejectLoanView(MethodView):
 			)
 
 			if not loan:
-				return handler_util.make_error_response('Could not find loan for given Loan ID')
+				raise errors.Error('Could not find loan for given Loan ID')
 
 			customer_id = loan.company_id
 			# When a loan gets rejected, we clear out

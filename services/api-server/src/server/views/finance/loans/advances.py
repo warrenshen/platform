@@ -19,10 +19,11 @@ from server.views.common import auth_util, handler_util
 
 handler = Blueprint('finance_loans_advances', __name__)
 
+@errors.return_error_tuple
 def _send_bank_created_advances_emails(
 	loan_ids: List[str],
 	settlement_date: datetime.date,
-) -> Tuple[bool, errors.Error]:
+) -> bool:
 	cfg = cast(Config, current_app.app_config)
 	sendgrid_client = cast(sendgrid_util.Client,
 							current_app.sendgrid_client)
@@ -59,7 +60,7 @@ def _send_bank_created_advances_emails(
 				).all())
 
 			if not customer_users:
-				return False, errors.Error(f'There are no users configured for customer {customer.name}')
+				raise errors.Error(f'There are no users configured for customer {customer.name}')
 
 			# Get all contracts associated with company.
 			contracts = cast(
@@ -68,21 +69,21 @@ def _send_bank_created_advances_emails(
 					models.Contract.company_id == customer_id
 				).all())
 			if not contracts:
-				return False, errors.Error(f'There are no contracts are setup for customer {customer.name}')
+				raise errors.Error(f'There are no contracts are setup for customer {customer.name}')
 
 			contract_dicts = [c.as_dict() for c in contracts]
 
 			contract_helper, err = contract_util.ContractHelper.build(customer_id, contract_dicts)
 			if err:
-				return None, err
+				raise err
 
 			active_contract, err = contract_helper.get_contract(settlement_date)
 			if err:
-				return None, err
+				raise err
 
 			product_type, err = active_contract.get_product_type()
 			if err:
-				return False, err
+				raise err
 
 			customer_name = customer.name
 			customer_identifier = customer.identifier
@@ -107,7 +108,7 @@ def _send_bank_created_advances_emails(
 				recipients=customer_emails,
 			)
 			if err:
-				return False, err
+				raise err
 
 			# Step 2
 			# Email appropriate vendor(s).
@@ -134,7 +135,7 @@ def _send_bank_created_advances_emails(
 						).all())
 
 					if not vendor_users:
-						return False, errors.Error(f'There are no users configured for vendor {vendor.name}')
+						raise errors.Error(f'There are no users configured for vendor {vendor.name}')
 
 					template_data = {
 						'customer_name': customer_name,
@@ -150,7 +151,7 @@ def _send_bank_created_advances_emails(
 						recipients=vendor_emails,
 					)
 					if err:
-						return False, err
+						raise err
 			elif product_type == ProductType.LINE_OF_CREDIT:
 				# Email each vendor who received an advance.
 				for loan in customer_loans:
@@ -174,7 +175,7 @@ def _send_bank_created_advances_emails(
 							).all())
 
 						if not vendor_users:
-							return False, errors.Error(f'There are no users configured for vendor {vendor.name}')
+							raise errors.Error(f'There are no users configured for vendor {vendor.name}')
 
 						template_data = {
 							'customer_name': customer_name,
@@ -189,9 +190,9 @@ def _send_bank_created_advances_emails(
 							recipients=vendor_emails,
 						)
 						if err:
-							return False, err
+							raise err
 
-	return True, None
+	return True
 
 class HandleAdvanceView(MethodView):
 	decorators = [auth_util.bank_admin_required]
