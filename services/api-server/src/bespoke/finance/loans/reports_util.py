@@ -12,9 +12,6 @@ from bespoke.finance import financial_summary_util, number_util
 from bespoke.finance.reports import loan_balances
 from sqlalchemy.orm.session import Session
 
-CompanyBalanceComputeResult = Tuple[List[str], errors.Error]
-
-
 def update_company_balance(
 	session_maker: Callable,
 	company: models.CompanyDict,
@@ -47,6 +44,7 @@ def update_company_balance(
 			msg = 'Error writing results to update customer balance. Error: {}'.format(err)
 			logging.error(msg)
 			event.set_failed().write_with_session(session)
+			session.rollback()
 			return msg
 		event.set_succeeded().write_with_session(session)
 
@@ -186,7 +184,7 @@ def run_customer_balances_for_companies(
 	session_maker: Callable,
 	companies: List[models.CompanyDict],
 	report_date: datetime.date
-	) -> CompanyBalanceComputeResult:
+	) -> Tuple[List[str], errors.Error]:
 	"""Given a session_maker, a list of companies, and a report date, this function
 	updates the balance for each of the given companies. It then updates the
 	financial summary for the bank itself, deleting old financial summaries as
@@ -212,6 +210,7 @@ def run_customer_balances_for_companies(
 	with session_scope(session_maker) as session:
 		fatal_error = compute_and_update_bank_financial_summaries(session, report_date)
 		if fatal_error:
+			session.rollback()
 			return errors_list, fatal_error
 
 	return errors_list, None
@@ -224,7 +223,7 @@ def list_companies_that_need_balances_recomputed(session_maker: Callable) -> Lis
 
 
 def run_customer_balances_for_companies_that_need_recompute(
-    session_maker: Callable, report_date: datetime.date) -> CompanyBalanceComputeResult:
+    session_maker: Callable, report_date: datetime.date) -> Tuple[List[str], errors.Error]:
     companies = list_companies_that_need_balances_recomputed(session_maker)
     return run_customer_balances_for_companies(session_maker, companies, report_date)
 
@@ -237,6 +236,6 @@ def list_all_companies(session_maker: Callable) -> List[models.CompanyDict]:
 		return [company.as_dict() for company in companies]
 
 def run_customer_balances_for_all_companies(
-	session_maker: Callable, report_date: datetime.date) -> CompanyBalanceComputeResult:
+	session_maker: Callable, report_date: datetime.date) -> Tuple[List[str], errors.Error]:
 	companies = list_all_companies(session_maker)
 	return run_customer_balances_for_companies(session_maker, companies, report_date)

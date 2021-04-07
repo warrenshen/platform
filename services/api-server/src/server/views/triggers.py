@@ -190,8 +190,7 @@ class SetDirtyCompanyBalancesView(MethodView):
 
 		success, err = _set_needs_balance_recomputed(company_id, current_app.session_maker)
 		if err:
-			return handler_util.make_error_response(
-				'{}'.format(err), status_code=500)
+			raise errors.Error('{}'.format(err), http_code=500)
 
 		logging.info(f"Finished marking that company.needs_balance_recomputed for company: '{company_id}'")
 
