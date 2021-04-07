@@ -76,6 +76,7 @@ fragment PurchaseOrder on purchase_orders {
   status
   rejection_note
   created_at
+  approved_at
   funded_at
   company {
     id

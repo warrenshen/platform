@@ -19,20 +19,36 @@ query GetConfirmedPurchaseOrders {
   }
 }
 
-query PurchaseOrdersByCompanyId($company_id: uuid!) {
-  purchase_orders(where: { company_id: { _eq: $company_id } }) {
-    ...PurchaseOrder
-    company {
-      id
-      name
-    }
-  }
-}
-
 query GetFundablePurchaseOrders {
   purchase_orders(
     where: {
       _and: [{ status: { _eq: approved } }, { funded_at: { _is_null: true } }]
+    }
+  ) {
+    ...PurchaseOrder
+  }
+}
+
+query GetOpenPurchaseOrdersByCompanyId($company_id: uuid!) {
+  purchase_orders(
+    where: {
+      _and: [
+        { company_id: { _eq: $company_id } }
+        { funded_at: { _is_null: true } }
+      ]
+    }
+  ) {
+    ...PurchaseOrder
+  }
+}
+
+query GetClosedPurchaseOrdersByCompanyId($company_id: uuid!) {
+  purchase_orders(
+    where: {
+      _and: [
+        { company_id: { _eq: $company_id } }
+        { funded_at: { _is_null: false } }
+      ]
     }
   ) {
     ...PurchaseOrder

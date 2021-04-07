@@ -15921,6 +15921,22 @@ export type GetFundablePurchaseOrdersQuery = {
   purchase_orders: Array<PurchaseOrderFragment>;
 };
 
+export type GetOpenPurchaseOrdersByCompanyIdQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+}>;
+
+export type GetOpenPurchaseOrdersByCompanyIdQuery = {
+  purchase_orders: Array<PurchaseOrderFragment>;
+};
+
+export type GetClosedPurchaseOrdersByCompanyIdQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+}>;
+
+export type GetClosedPurchaseOrdersByCompanyIdQuery = {
+  purchase_orders: Array<PurchaseOrderFragment>;
+};
+
 export type GetPaymentQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -16277,6 +16293,7 @@ export type PurchaseOrderFragment = Pick<
   | "status"
   | "rejection_note"
   | "created_at"
+  | "approved_at"
   | "funded_at"
 > & {
   company: Pick<Companies, "id" | "name">;
@@ -17257,6 +17274,7 @@ export const PurchaseOrderFragmentDoc = gql`
     status
     rejection_note
     created_at
+    approved_at
     funded_at
     company {
       id
@@ -20970,6 +20988,134 @@ export type GetFundablePurchaseOrdersLazyQueryHookResult = ReturnType<
 export type GetFundablePurchaseOrdersQueryResult = Apollo.QueryResult<
   GetFundablePurchaseOrdersQuery,
   GetFundablePurchaseOrdersQueryVariables
+>;
+export const GetOpenPurchaseOrdersByCompanyIdDocument = gql`
+  query GetOpenPurchaseOrdersByCompanyId($company_id: uuid!) {
+    purchase_orders(
+      where: {
+        _and: [
+          { company_id: { _eq: $company_id } }
+          { funded_at: { _is_null: true } }
+        ]
+      }
+    ) {
+      ...PurchaseOrder
+    }
+  }
+  ${PurchaseOrderFragmentDoc}
+`;
+
+/**
+ * __useGetOpenPurchaseOrdersByCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useGetOpenPurchaseOrdersByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOpenPurchaseOrdersByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOpenPurchaseOrdersByCompanyIdQuery({
+ *   variables: {
+ *      company_id: // value for 'company_id'
+ *   },
+ * });
+ */
+export function useGetOpenPurchaseOrdersByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetOpenPurchaseOrdersByCompanyIdQuery,
+    GetOpenPurchaseOrdersByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetOpenPurchaseOrdersByCompanyIdQuery,
+    GetOpenPurchaseOrdersByCompanyIdQueryVariables
+  >(GetOpenPurchaseOrdersByCompanyIdDocument, baseOptions);
+}
+export function useGetOpenPurchaseOrdersByCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetOpenPurchaseOrdersByCompanyIdQuery,
+    GetOpenPurchaseOrdersByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetOpenPurchaseOrdersByCompanyIdQuery,
+    GetOpenPurchaseOrdersByCompanyIdQueryVariables
+  >(GetOpenPurchaseOrdersByCompanyIdDocument, baseOptions);
+}
+export type GetOpenPurchaseOrdersByCompanyIdQueryHookResult = ReturnType<
+  typeof useGetOpenPurchaseOrdersByCompanyIdQuery
+>;
+export type GetOpenPurchaseOrdersByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useGetOpenPurchaseOrdersByCompanyIdLazyQuery
+>;
+export type GetOpenPurchaseOrdersByCompanyIdQueryResult = Apollo.QueryResult<
+  GetOpenPurchaseOrdersByCompanyIdQuery,
+  GetOpenPurchaseOrdersByCompanyIdQueryVariables
+>;
+export const GetClosedPurchaseOrdersByCompanyIdDocument = gql`
+  query GetClosedPurchaseOrdersByCompanyId($company_id: uuid!) {
+    purchase_orders(
+      where: {
+        _and: [
+          { company_id: { _eq: $company_id } }
+          { funded_at: { _is_null: false } }
+        ]
+      }
+    ) {
+      ...PurchaseOrder
+    }
+  }
+  ${PurchaseOrderFragmentDoc}
+`;
+
+/**
+ * __useGetClosedPurchaseOrdersByCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useGetClosedPurchaseOrdersByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetClosedPurchaseOrdersByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetClosedPurchaseOrdersByCompanyIdQuery({
+ *   variables: {
+ *      company_id: // value for 'company_id'
+ *   },
+ * });
+ */
+export function useGetClosedPurchaseOrdersByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetClosedPurchaseOrdersByCompanyIdQuery,
+    GetClosedPurchaseOrdersByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetClosedPurchaseOrdersByCompanyIdQuery,
+    GetClosedPurchaseOrdersByCompanyIdQueryVariables
+  >(GetClosedPurchaseOrdersByCompanyIdDocument, baseOptions);
+}
+export function useGetClosedPurchaseOrdersByCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetClosedPurchaseOrdersByCompanyIdQuery,
+    GetClosedPurchaseOrdersByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetClosedPurchaseOrdersByCompanyIdQuery,
+    GetClosedPurchaseOrdersByCompanyIdQueryVariables
+  >(GetClosedPurchaseOrdersByCompanyIdDocument, baseOptions);
+}
+export type GetClosedPurchaseOrdersByCompanyIdQueryHookResult = ReturnType<
+  typeof useGetClosedPurchaseOrdersByCompanyIdQuery
+>;
+export type GetClosedPurchaseOrdersByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useGetClosedPurchaseOrdersByCompanyIdLazyQuery
+>;
+export type GetClosedPurchaseOrdersByCompanyIdQueryResult = Apollo.QueryResult<
+  GetClosedPurchaseOrdersByCompanyIdQuery,
+  GetClosedPurchaseOrdersByCompanyIdQueryVariables
 >;
 export const GetPaymentDocument = gql`
   query GetPayment($id: uuid!) {

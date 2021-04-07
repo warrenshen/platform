@@ -128,7 +128,7 @@ const rules: Rules = {
       // Bank on-behalf-of customer actions - bank performs on behalf of customer.
       Action.AddPurchaseOrders,
       Action.EditPurchaseOrders,
-      // Action.FundPurchaseOrders,
+      Action.FundPurchaseOrders,
 
       Action.AddInvoices,
       Action.EditInvoices,
