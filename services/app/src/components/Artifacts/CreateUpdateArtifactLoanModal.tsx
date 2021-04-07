@@ -2,15 +2,12 @@ import {
   Box,
   Button,
   createStyles,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   makeStyles,
   Theme,
   Typography,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
+import Modal from "components/Shared/Modal/Modal";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
@@ -36,8 +33,13 @@ import {
 } from "lib/finance/loans/artifacts";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useEffect, useMemo, useState } from "react";
+import styled from "styled-components";
 import ArtifactLoanForm, { ArtifactListItem } from "./ArtifactLoanForm";
 import { IdComponent } from "./interfaces";
+
+const StyledButton = styled(Button)`
+  flex: 1;
+`;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -239,9 +241,9 @@ export default function CreateUpdateArtifactLoanModal({
   const handleClickSaveDraft = async () => {
     const savedLoan = await upsertArtifactLoan();
     if (!savedLoan) {
-      alert("Could not upsert loan");
+      snackbar.showError(`Could not upsert loan.`);
     } else {
-      snackbar.showSuccess("Success! Loan saved as draft.");
+      snackbar.showSuccess("Loan saved as draft.");
       handleClose();
     }
   };
@@ -249,7 +251,7 @@ export default function CreateUpdateArtifactLoanModal({
   const handleClickSaveSubmit = async () => {
     const savedLoan = await upsertArtifactLoan();
     if (!savedLoan) {
-      alert("Could not upsert loan");
+      snackbar.showError(`Could not upsert loan.`);
     } else {
       // Since this is a SAVE AND SUBMIT action,
       // hit the SubmitForApproval endpoint.
@@ -259,12 +261,10 @@ export default function CreateUpdateArtifactLoanModal({
         },
       });
       if (response.status !== "OK") {
-        snackbar.showError(
-          `Error! Could not submit loan. Reason: ${response.msg}`
-        );
+        snackbar.showError(`Could not submit loan. Reason: ${response.msg}`);
       } else {
         snackbar.showSuccess(
-          "Success! Loan saved and submitted to Bespoke. You may view this advance request in the Loans section."
+          "Loan saved and submitted to Bespoke - you may view this financing request on the Loans page."
         );
         handleClose();
       }
@@ -280,9 +280,6 @@ export default function CreateUpdateArtifactLoanModal({
   const disabledSubmitReasons = [];
   if (!isFormValid || !selectedArtifact) {
     disabledSubmitReasons.push(`${artifactCopyUpper} has not been selected`);
-  }
-  if (isFormLoading) {
-    disabledSubmitReasons.push("Data is loading");
   }
   if (proposedLoansTotalAmount > totalAmountForArtifact) {
     disabledSubmitReasons.push(
@@ -320,48 +317,57 @@ export default function CreateUpdateArtifactLoanModal({
   // this artifact
   if (!canCreateLoan) {
     return (
-      <Dialog
-        open
-        onClose={handleClose}
-        maxWidth="xl"
-        classes={{ paper: classes.dialog }}
-      >
-        <DialogTitle className={classes.dialogTitle}>
-          Cannot create loan
-        </DialogTitle>
-        <DialogContent>
-          <Box mt={1}>
-            <Alert severity="warning">
-              <span>
-                The maximum amount has been requested for this{" "}
-                {artifactCopyLower} or it is not yet approved. You may close
-                this dialog and create a different {artifactCopyLower}
-                to create advances off of.
-              </span>
-            </Alert>
-          </Box>
-        </DialogContent>
-        <DialogActions className={classes.dialogActions}>
+      <Modal
+        title={"Cannot create loan"}
+        handleClose={handleClose}
+        actions={
           <Box>
             <Button onClick={handleClose}>Cancel</Button>
           </Box>
-        </DialogActions>
-      </Dialog>
+        }
+      >
+        <Box mt={1}>
+          <Alert severity="warning">
+            <span>
+              The maximum amount has been requested for this {artifactCopyLower}{" "}
+              or it is not yet approved. You may close this dialog and create a
+              different {artifactCopyLower} to create advances off of.
+            </span>
+          </Alert>
+        </Box>
+      </Modal>
     );
   }
 
-  // TODO(warrenshen): this is showing "Create Artifact Loan".
   return (
-    <Dialog
-      open
-      onClose={handleClose}
-      maxWidth="xl"
-      classes={{ paper: classes.dialog }}
+    <Modal
+      title={
+        actionType === ActionType.Update ? "Edit Loan" : "Request New Loan"
+      }
+      handleClose={handleClose}
+      actions={
+        <Box display="flex">
+          <StyledButton
+            disabled={isSaveDraftDisabled}
+            onClick={handleClickSaveDraft}
+            variant={"outlined"}
+            color={"default"}
+          >
+            Save as Draft
+          </StyledButton>
+          <StyledButton
+            className={classes.submitButton}
+            disabled={isSaveSubmitDisabled}
+            onClick={handleClickSaveSubmit}
+            variant="contained"
+            color="primary"
+          >
+            Save and Submit
+          </StyledButton>
+        </Box>
+      }
     >
-      <DialogTitle className={classes.dialogTitle}>
-        {actionType === ActionType.Update ? "Edit Loan" : "Request New Loan"}
-      </DialogTitle>
-      <DialogContent>
+      <>
         {isBankUser && (
           <Box mt={2} mb={3}>
             <Alert severity="warning">
@@ -387,7 +393,7 @@ export default function CreateUpdateArtifactLoanModal({
           InfoCard={InfoCard}
         />
         {disabledSubmitReasons.length > 0 && (
-          <Box mt={1}>
+          <Box mt={4}>
             <Alert severity="warning">
               <span>
                 Reasons you cannot submit, but can only save this as a draft
@@ -403,30 +409,8 @@ export default function CreateUpdateArtifactLoanModal({
             </Alert>
           </Box>
         )}
-      </DialogContent>
-      <DialogActions className={classes.dialogActions}>
-        <Box>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button
-            disabled={isSaveDraftDisabled}
-            onClick={handleClickSaveDraft}
-            variant={"contained"}
-            color={"secondary"}
-          >
-            Save as Draft
-          </Button>
-          <Button
-            className={classes.submitButton}
-            disabled={isSaveSubmitDisabled}
-            onClick={handleClickSaveSubmit}
-            variant="contained"
-            color="primary"
-          >
-            Save and Submit
-          </Button>
-        </Box>
-      </DialogActions>
-    </Dialog>
+      </>
+    </Modal>
   );
 }
 

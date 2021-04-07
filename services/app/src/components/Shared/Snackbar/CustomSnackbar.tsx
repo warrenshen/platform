@@ -2,7 +2,8 @@ import { Button, IconButton, Snackbar } from "@material-ui/core";
 import { ButtonProps } from "@material-ui/core/Button";
 import { SnackbarProps } from "@material-ui/core/Snackbar";
 import { Close } from "@material-ui/icons";
-import { Alert } from "@material-ui/lab";
+import { Alert, AlertTitle } from "@material-ui/lab";
+import { startCase } from "lodash";
 
 interface Props {
   message?: string;
@@ -24,7 +25,6 @@ export default function CustomSnackbar({
   return (
     <Snackbar autoHideDuration={30000} {...SnackbarProps}>
       <Alert
-        variant="filled"
         severity={customParameters?.type}
         action={
           <>
@@ -47,6 +47,7 @@ export default function CustomSnackbar({
           </>
         }
       >
+        <AlertTitle>{startCase(customParameters?.type)}</AlertTitle>
         {message}
       </Alert>
     </Snackbar>

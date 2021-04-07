@@ -160,7 +160,7 @@ function CustomerPurchaseOrdersOpenTab({ companyId, productType }: Props) {
         <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
           <Typography variant="h6">
-            Approved by Vendor | Ready to be Funded
+            Approved by Vendor & Ready to be Funded
           </Typography>
           <Box my={2} display="flex" flexDirection="row-reverse">
             <Can perform={Action.FundPurchaseOrders}>

@@ -159,6 +159,7 @@ function AuthenticateViaPhonePage({
               </Box>
               <Box mt={1}>
                 <TextField
+                  autoFocus
                   label="Enter code"
                   value={codeEntered}
                   onChange={({ target: { value } }) => setCodeEntered(value)}
