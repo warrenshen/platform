@@ -1,6 +1,7 @@
 import {
   Box,
   createStyles,
+  Divider,
   makeStyles,
   Theme,
   Typography,
@@ -17,7 +18,7 @@ interface Props {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     box: {
-      width: "33%",
+      width: "20%",
     },
   })
 );
@@ -53,24 +54,56 @@ function CustomerFinancialSummaryOverview({
     <Box display="flex" flexDirection="column" mt={2}>
       {isBalanceVisible && (
         <>
+          <Box display="flex" width="100%" justifyContent="space-between">
+            <Box display="flex" flexDirection="column">
+              <Box display="flex">
+                <Box display="flex" flexDirection="column" mb={6}>
+                  <Typography variant="h2">
+                    {financialSummary
+                      ? formatCurrency(
+                          financialSummary?.total_outstanding_principal
+                        )
+                      : "TBD"}
+                  </Typography>
+                  <Typography variant="subtitle1" color="textSecondary">
+                    Outstanding Principal
+                  </Typography>
+                </Box>
+              </Box>
+              <Box display="flex" justifyContent="space-between">
+                <Box display="flex" flexDirection="column">
+                  <Typography variant="h5">
+                    {financialSummary
+                      ? formatCurrency(financialSummary?.adjusted_total_limit)
+                      : "TBD"}
+                  </Typography>
+                  <Typography variant="subtitle1" color="textSecondary">
+                    Borrowing Limit
+                  </Typography>
+                </Box>
+                <Box display="flex" flexDirection="column">
+                  <Typography variant="h5">
+                    {financialSummary
+                      ? formatCurrency(financialSummary?.available_limit)
+                      : "TBD"}
+                  </Typography>
+                  <Typography variant="subtitle1" color="textSecondary">
+                    Left to Borrow
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+            <Box>
+              <StatBox financialSummary={financialSummary} />
+            </Box>
+          </Box>
+          <Box my={8}>
+            <Divider />
+          </Box>
           <Box display="flex" justifyContent="space-between" width="100%">
             <Box className={classes.box}>
               <Box display="flex" flexDirection="column">
-                <Typography variant="h4">
-                  {financialSummary
-                    ? formatCurrency(
-                        financialSummary?.total_outstanding_principal
-                      )
-                    : "TBD"}
-                </Typography>
-                <Typography variant="subtitle1" color="textSecondary">
-                  Outstanding Principal
-                </Typography>
-              </Box>
-            </Box>
-            <Box className={classes.box}>
-              <Box display="flex" flexDirection="column">
-                <Typography variant="h4">
+                <Typography variant="h5">
                   {financialSummary
                     ? formatCurrency(
                         financialSummary?.total_outstanding_interest
@@ -84,7 +117,7 @@ function CustomerFinancialSummaryOverview({
             </Box>
             <Box className={classes.box}>
               <Box display="flex" flexDirection="column">
-                <Typography variant="h4">
+                <Typography variant="h5">
                   {financialSummary
                     ? formatCurrency(financialSummary?.total_outstanding_fees)
                     : "TBD"}
@@ -94,24 +127,21 @@ function CustomerFinancialSummaryOverview({
                 </Typography>
               </Box>
             </Box>
-          </Box>
-          <Box mt={6} />
-          <Box display="flex" justifyContent="space-between" width="100%">
             <Box className={classes.box}>
               <Box display="flex" flexDirection="column">
-                <Typography variant="h4">
+                <Typography variant="h5">
                   {minimumMonthlyFee !== -1
                     ? formatCurrency(minimumMonthlyFee)
                     : "TBD"}
                 </Typography>
                 <Typography variant="subtitle1" color="textSecondary">
-                  Minimum Monthly Fee
+                  Minimum Interest Fee
                 </Typography>
               </Box>
             </Box>
             <Box className={classes.box}>
               <Box display="flex" flexDirection="column">
-                <Typography variant="h4">
+                <Typography variant="h5">
                   {accountFees !== -1 ? formatCurrency(accountFees) : "TBD"}
                 </Typography>
                 <Typography variant="subtitle1" color="textSecondary">
@@ -121,7 +151,7 @@ function CustomerFinancialSummaryOverview({
             </Box>
             <Box className={classes.box}>
               <Box display="flex" flexDirection="column">
-                <Typography variant="h4">
+                <Typography variant="h5">
                   {accountCredits !== -1
                     ? formatCurrency(accountCredits)
                     : "TBD"}
@@ -135,7 +165,6 @@ function CustomerFinancialSummaryOverview({
           <Box mt={6} />
         </>
       )}
-      <StatBox financialSummary={financialSummary} />
     </Box>
   );
 }

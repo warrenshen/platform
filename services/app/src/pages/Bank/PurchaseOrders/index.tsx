@@ -52,7 +52,7 @@ function BankPurchaseOrdersPage() {
             }
           >
             <Tab label="Not Confirmed POs" />
-            <Tab label="Confirmed Pos" />
+            <Tab label="Confirmed POs" />
             <Tab label="All POs" />
           </Tabs>
           {selectedTabIndex === 0 ? (

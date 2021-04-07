@@ -28,7 +28,7 @@ function CustomerContractPage() {
     <Page appBarTitle={"Contract"}>
       <PageContent title={"Contract"}>
         <Box>
-          <Typography variant="h6">
+          <Typography variant="body1">
             Review your current contract and view historical contracts with
             Bespoke.
           </Typography>

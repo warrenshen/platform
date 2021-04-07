@@ -20,10 +20,6 @@ function SettingsPage() {
     },
   });
 
-  if (!data || !data?.companies_by_pk) {
-    return null;
-  }
-
   const company = data?.companies_by_pk;
   const settings = data?.companies_by_pk
     ?.settings as CompanySettingsForCustomerFragment;

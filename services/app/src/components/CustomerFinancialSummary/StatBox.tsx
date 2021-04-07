@@ -1,6 +1,5 @@
 import {
   Box,
-  Card,
   createStyles,
   makeStyles,
   Theme,
@@ -8,22 +7,17 @@ import {
 } from "@material-ui/core";
 import ProgressBar from "components/Shared/ProgressBar";
 import { FinancialSummaryFragment } from "generated/graphql";
-import { formatCurrency } from "lib/currency";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    box: {
-      width: "33%",
-      minWidth: "350px",
-    },
+    box: {},
     statBoxContent: {
       display: "flex",
       flexDirection: "row",
       justifyContent: "space-between",
     },
     progress: {
-      marginTop: theme.spacing(2),
-      marginBottom: theme.spacing(2),
+      marginTop: theme.spacing(4),
     },
   })
 );
@@ -38,49 +32,25 @@ function StatBox({ financialSummary }: Props) {
   const outstandingAmount = financialSummary
     ? financialSummary.adjusted_total_limit - financialSummary.available_limit
     : 0;
-  const limitPercent = financialSummary
+  const limitPercent = financialSummary?.adjusted_total_limit
     ? (100 * outstandingAmount) / financialSummary.adjusted_total_limit
-    : 0;
+    : 100;
 
   return (
     <Box className={classes.box}>
-      <Card>
-        <Box display="flex" flexDirection="column" p={2}>
-          <Box style={{ textAlign: "start" }}>
-            <Typography variant="h4">
-              {financialSummary
-                ? formatCurrency(financialSummary.available_limit)
-                : "TBD"}
-            </Typography>
-            <Typography variant="body1" color="textSecondary">
-              Available Credit
-            </Typography>
-          </Box>
-          <div className={classes.progress}>
-            <ProgressBar value={limitPercent} />
-          </div>
-          <Box className={classes.statBoxContent}>
-            <Box>
-              <Typography variant="h5">
-                {financialSummary ? formatCurrency(outstandingAmount) : "TBD"}
-              </Typography>
-              <Typography variant="body1" color="textSecondary">
-                Outstanding Principal
-              </Typography>
-            </Box>
-            <Box>
-              <Typography variant="h5">
-                {financialSummary
-                  ? formatCurrency(financialSummary.adjusted_total_limit)
-                  : "TBD"}
-              </Typography>
-              <Typography variant="body1" color="textSecondary">
-                Maximum Credit Limit
-              </Typography>
-            </Box>
-          </Box>
+      <Box display="flex" flexDirection="column">
+        <Box style={{ textAlign: "start" }}>
+          <Typography variant="h2">
+            {financialSummary ? `${limitPercent}%` : "TBD"}
+          </Typography>
+          <Typography variant="body1" color="textSecondary">
+            Borrowing Limit Used
+          </Typography>
         </Box>
-      </Card>
+        <Box className={classes.progress}>
+          <ProgressBar value={limitPercent} />
+        </Box>
+      </Box>
     </Box>
   );
 }

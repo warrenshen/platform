@@ -39,7 +39,7 @@ function CustomerEbbaApplicationsPage() {
     <Page appBarTitle={"Borrowing Base"}>
       <PageContent title={"Borrowing Base"}>
         <Box>
-          <Typography variant="h6">
+          <Typography variant="body1">
             Review your current borrowing base, submit a new financial
             certification, and view historical certifications.
           </Typography>
