@@ -30,6 +30,7 @@ const useStyles = makeStyles((theme: Theme) =>
       flexDirection: "column",
 
       width: "100%",
+      marginTop: 24,
     },
     section: {
       display: "flex",
@@ -112,6 +113,7 @@ function CustomerOverviewPageContent({ companyId, productType }: Props) {
                   !canCreateUpdateNewLoan || selectedLoanIds.length !== 0
                 }
                 color={"default"}
+                variant={"outlined"}
                 label={"Request New Loan"}
                 modal={({ handleClose }) => (
                   <CreateUpdatePolymorphicLoanModal

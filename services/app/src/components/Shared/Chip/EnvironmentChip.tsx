@@ -15,7 +15,7 @@ const Chip = styled.div`
   flex: 1;
 
   padding: 8px 0px;
-  background-color: #3498db;
+  background-color: rgba(118, 147, 98, 1);
   color: white;
 `;
 

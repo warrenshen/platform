@@ -1,7 +1,7 @@
 import { CssBaseline } from "@material-ui/core";
+import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import * as Sentry from "@sentry/react";
 import { SnackbarProvider } from "material-ui-snackbar-provider";
-import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 import CustomSnackbar from "./components/Shared/Snackbar/CustomSnackbar";
@@ -9,6 +9,22 @@ import ApolloWrapper from "./contexts/ApolloClientProvider";
 import CurrentUserWrapper from "./contexts/CurrentUserProvider";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
+
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      main: "rgba(118, 147, 98, 1.0)",
+    },
+    // secondary: {
+    //   main: green[500],
+    // },
+  },
+  typography: {
+    button: {
+      textTransform: "none",
+    },
+  },
+});
 
 Sentry.init({
   dsn: process.env.REACT_APP_BESPOKE_SENTRY_DNS,
@@ -18,11 +34,13 @@ Sentry.init({
 ReactDOM.render(
   <CurrentUserWrapper>
     <ApolloWrapper>
-      <SnackbarProvider SnackbarComponent={CustomSnackbar}>
-        <CssBaseline>
-          <App />
-        </CssBaseline>
-      </SnackbarProvider>
+      <ThemeProvider theme={theme}>
+        <SnackbarProvider SnackbarComponent={CustomSnackbar}>
+          <CssBaseline>
+            <App />
+          </CssBaseline>
+        </SnackbarProvider>
+      </ThemeProvider>
     </ApolloWrapper>
   </CurrentUserWrapper>,
   document.getElementById("root")
