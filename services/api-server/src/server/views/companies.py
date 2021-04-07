@@ -1,6 +1,7 @@
 import json
 from typing import Any, List, cast
 
+from bespoke import errors
 from bespoke.audit import events
 from bespoke.companies import create_company_util
 from bespoke.db import db_constants, models
@@ -99,7 +100,7 @@ class CreatePayorVendorView(MethodView):
 				models.User).filter_by(company_id=company_id).all())
 
 			if not company_users:
-				return handler_util.make_error_response('There are no users configured for this customer')
+				raise errors.Error('There are no users configured for this customer')
 			company_emails = [user.email for user in company_users]
 
 			customer_name = customer.name
@@ -119,7 +120,7 @@ class CreatePayorVendorView(MethodView):
 			_, err = sendgrid_client.send(
 				template_name, template_data, recipients)
 			if err:
-				return handler_util.make_error_response(err)
+				raise err
 
 		return make_response(json.dumps({
 			'status': 'OK',

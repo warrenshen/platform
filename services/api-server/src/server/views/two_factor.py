@@ -30,12 +30,12 @@ class SendSMSCodeView(MethodView):
 		sms_client = cast(two_factor_util.SMSClient, current_app.sms_client)
 		form = json.loads(request.data)
 		if not form:
-			return handler_util.make_error_response('No data provided')
+			raise errors.Error('No data provided')
 
 		required_keys = ['link_val']
 		for key in required_keys:
 			if key not in form:
-				return handler_util.make_error_response(f'Missing {key} send code request')
+				raise errors.Error(f'Missing {key} send code request')
 
 		link_val = form['link_val']
 
@@ -44,19 +44,19 @@ class SendSMSCodeView(MethodView):
 				link_val, cfg.get_security_config(),
 				max_age_in_seconds=security_util.SECONDS_IN_DAY * 7, session=session)
 			if err:
-				return handler_util.make_error_response(err)
+				raise err
 
 			two_factor_link = two_factor_info['link']
 			email = two_factor_info['email']
 			token_states_dict = cast(Dict, two_factor_link.token_states)
 			if email not in token_states_dict:
-				return handler_util.make_error_response('Invalid email for link provided')
+				raise errors.Error('Invalid email for link provided')
 
 			existing_user = session.query(models.User) \
 				.filter(models.User.email == email) \
 				.first()
 			if not existing_user:
-				return handler_util.make_error_response('No user found matching email "{}"'.format(email))
+				raise errors.Error('No user found matching email "{}"'.format(email))
 			
 			link_type = cast(Dict, two_factor_link.form_info).get('type', '')
 			if link_type == db_constants.TwoFactorLinkType.FORGOT_PASSWORD:
@@ -70,7 +70,7 @@ class SendSMSCodeView(MethodView):
 			# Look up the phone number for this user
 			to_phone_number = existing_user.phone_number
 			if not to_phone_number:
-				return handler_util.make_error_response('A phone number must first be specified for the user associated with email "{}"'.format(email))
+				raise errors.Error('A phone number must first be specified for the user associated with email "{}"'.format(email))
 
 			token_val = security_util.mfa_code_generator()
 
@@ -86,7 +86,7 @@ class SendSMSCodeView(MethodView):
 			msg='Your Bespoke two-factor code is {}'.format(token_val)
 		)
 		if err:
-			return handler_util.make_error_response(err)
+			raise err
 
 		return make_response(json.dumps({
 			'status': 'OK',

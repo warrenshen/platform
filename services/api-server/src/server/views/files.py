@@ -1,12 +1,14 @@
 import json
 import logging
 import os
+import boto3
+import requests
 from datetime import datetime
 from io import BytesIO
 from typing import Callable, List, cast
 
-import boto3
-import requests
+
+from bespoke import errors
 from bespoke.db import models
 from bespoke.db.models import session_scope
 from botocore.exceptions import ClientError
@@ -131,10 +133,10 @@ class DownloadSignedUrlView(MethodView):
 			file_orms = cast(
 				List[models.File], session.query(models.File).filter(models.File.id.in_(file_ids)).all())
 			if not file_orms:
-				return handler_util.make_error_response('No file ids found that match these file ids')
+				raise errors.Error('No file ids found that match these file ids')
 
 			if len(file_orms) != len(file_ids):
-				return handler_util.make_error_response('Some file ids requested are not available in the database')
+				raise errors.Error('Some file ids requested are not available in the database')
 
 			paths = [file_orm.path for file_orm in file_orms]
 
@@ -154,7 +156,7 @@ class DownloadSignedUrlView(MethodView):
 				except ClientError as e:
 					logging.error(
 						'Exception generating presigned_url: {}'.format(e))
-					return handler_util.make_error_response('Failed to create download url')
+					raise errors.Error('Failed to create download url')
 
 			# Create file objects (with signed URL) for response.
 			files_data = []

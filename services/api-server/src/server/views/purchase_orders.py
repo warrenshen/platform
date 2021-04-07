@@ -1,6 +1,7 @@
 import json
 from typing import Any, Callable, List, cast
 
+from bespoke import errors
 from bespoke.audit import events
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
@@ -38,7 +39,7 @@ class RespondToApprovalRequestView(MethodView):
 
 		data = json.loads(request.data)
 		if not data:
-			return handler_util.make_error_response('No data provided')
+			raise errors.Error('No data provided')
 
 		required_keys = [
 			'purchase_order_id',
@@ -48,7 +49,7 @@ class RespondToApprovalRequestView(MethodView):
 		]
 		for key in required_keys:
 			if key not in data:
-				return handler_util.make_error_response(f'Missing {key} in respond to approval request')
+				raise errors.Error(f'Missing {key} in respond to approval request')
 
 		purchase_order_id = data['purchase_order_id']
 		new_request_status = data['new_request_status']
@@ -56,13 +57,13 @@ class RespondToApprovalRequestView(MethodView):
 		link_val = data['link_val']
 
 		if not purchase_order_id:
-			return handler_util.make_error_response('No Purchase Order ID provided')
+			raise errors.Error('No Purchase Order ID provided')
 
 		if new_request_status not in [RequestStatusEnum.APPROVED, RequestStatusEnum.REJECTED]:
-			return handler_util.make_error_response('Invalid new request status provided')
+			raise errors.Error('Invalid new request status provided')
 
 		if new_request_status == RequestStatusEnum.REJECTED and not rejection_note:
-			return handler_util.make_error_response('Rejection note is required if response is rejected')
+			raise errors.Error('Rejection note is required if response is rejected')
 
 		vendor_name = ''
 		customer_name = ''
@@ -118,7 +119,7 @@ class RespondToApprovalRequestView(MethodView):
 				models.User).filter_by(company_id=purchase_order.company_id).all())
 
 			if not customer_users:
-				return handler_util.make_error_response('There are no users configured for this customer')
+				raise errors.Error('There are no users configured for this customer')
 
 			vendor_name = purchase_order.vendor.name
 			customer_name = purchase_order.company.name
@@ -153,7 +154,7 @@ class RespondToApprovalRequestView(MethodView):
 		_, err = sendgrid_client.send(
 			template_name, template_data, recipients)
 		if err:
-			return handler_util.make_error_response(err)
+			raise err
 
 		return make_response(json.dumps({
 			'status': 'OK',
@@ -172,12 +173,12 @@ class SubmitForApprovalView(MethodView):
 
 		data = json.loads(request.data)
 		if not data:
-			return handler_util.make_error_response('No data provided')
+			raise errors.Error('No data provided')
 
 		purchase_order_id = data['purchase_order_id']
 
 		if not purchase_order_id:
-			return handler_util.make_error_response('No Purchase Order ID provided')
+			raise errors.Error('No Purchase Order ID provided')
 
 		vendor_emails = []
 		vendor_name = None
@@ -195,16 +196,16 @@ class SubmitForApprovalView(MethodView):
 			customer = purchase_order.company
 
 			if not purchase_order.order_number:
-				return handler_util.make_error_response('Invalid order number')
+				raise errors.Error('Invalid order number')
 
 			if not purchase_order.order_date:
-				return handler_util.make_error_response('Invalid order date')
+				raise errors.Error('Invalid order date')
 
 			if not purchase_order.delivery_date:
-				return handler_util.make_error_response('Invalid delivery date')
+				raise errors.Error('Invalid delivery date')
 
 			if purchase_order.amount is None or purchase_order.amount <= 0:
-				return handler_util.make_error_response('Invalid amount')
+				raise errors.Error('Invalid amount')
 
 			company_vendor_relationship = cast(
 				models.CompanyVendorPartnership, session.query(
@@ -216,13 +217,13 @@ class SubmitForApprovalView(MethodView):
 				is_vendor_missing_bank_account = True
 
 			if not company_vendor_relationship or company_vendor_relationship.approved_at is None:
-				return handler_util.make_error_response('Vendor is not approved')
+				raise errors.Error('Vendor is not approved')
 
 			purchase_order_file = cast(models.PurchaseOrderFile, session.query(
 				models.PurchaseOrderFile
 			).filter_by(purchase_order_id=purchase_order.id, file_type=PurchaseOrderFileTypeEnum.PurchaseOrder).first())
 			if not purchase_order_file:
-				return handler_util.make_error_response('File attachment is required')
+				raise errors.Error('File attachment is required')
 
 			vendor_name = vendor.name
 			customer_name = customer.name
@@ -231,7 +232,7 @@ class SubmitForApprovalView(MethodView):
 				models.User).filter_by(company_id=purchase_order.vendor_id).all())
 
 			if not vendor_users:
-				return handler_util.make_error_response('There are no users configured for this vendor')
+				raise errors.Error('There are no users configured for this vendor')
 
 			vendor_emails = [user.email for user in vendor_users]
 
@@ -264,7 +265,7 @@ class SubmitForApprovalView(MethodView):
 			two_factor_payload=two_factor_payload,
 		)
 		if err:
-			return handler_util.make_error_response(err)
+			raise err
 
 		# If vendor does NOT have a bank account set up yet,
 		# send an email to the Bespoke team letting them know about this.
@@ -279,8 +280,7 @@ class SubmitForApprovalView(MethodView):
 				recipients=current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES + current_app.app_config.OPS_EMAIL_ADDRESSES,
 			)
 			if err:
-				return handler_util.make_error_response(err)
-
+				raise err
 
 		return make_response(json.dumps({
 			'status': 'OK',

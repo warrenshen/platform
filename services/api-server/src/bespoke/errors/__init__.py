@@ -5,9 +5,10 @@ T = TypeVar('T')
 
 class Error(Exception):
 
-	def __init__(self, msg: str, details: Dict = None) -> None:
+	def __init__(self, msg: str, details: Dict = None, http_code: int = None) -> None:
 		self.msg = msg
 		self.details = details
+		self.http_code = http_code
 
 	def __str__(self) -> str:
 		if self.details:

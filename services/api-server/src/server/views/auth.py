@@ -2,6 +2,7 @@ import datetime
 import json
 from typing import Callable, Dict, List, cast
 
+from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
@@ -75,7 +76,7 @@ class ForgotPasswordView(MethodView):
 			user = session.query(models.User).filter(
 				models.User.email == email).first()
 			if not user or not user.role:
-				return handler_util.make_error_response(f'An account with email "{email}" does not exist', 401)
+				raise errors.Error(f'An account with email "{email}" does not exist', http_code=401)
 
 		sendgrid_client.send(
 			template_name=sendgrid_util.TemplateNames.USER_FORGOT_PASSWORD,
@@ -114,22 +115,22 @@ class ResetPasswordView(MethodView):
 				link_val, cfg.get_security_config(),
 				max_age_in_seconds=security_util.SECONDS_IN_DAY * 3, session=session)
 			if err:
-				return handler_util.make_error_response(err)
+				raise err
 
 			two_factor_link = two_factor_info['link']
 			form_info = cast(Dict, two_factor_link.form_info)
 			if not form_info:
-				return handler_util.make_error_response('No information associated with this form info to reset the password')
+				raise errors.Error('No information associated with this form info to reset the password')
 
 			if form_info['type'] != db_constants.TwoFactorLinkType.FORGOT_PASSWORD:
-				return handler_util.make_error_response('Invalid link type provided to reset the password')
+				raise errors.Error('Invalid link type provided to reset the password')
 
 			email = two_factor_info['email']
 
 			user = session.query(models.User).filter(
 				models.User.email == email).first()
 			if not user:
-				return handler_util.make_error_response('User {} does not exist'.format(email), 401)
+				raise errors.Error('User {} does not exist'.format(email), http_code=401)
 
 			# The user has sent back their password and a valid signed link value associated
 			# with this reset password sign-in request, so now we can reset their password.
@@ -158,7 +159,7 @@ class SignOutAccessView(MethodView):
 		try:
 			with session_scope(current_app.session_maker) as session:
 				if not userId:
-					return handler_util.make_error_response('Token without userId.', 500)
+					raise errors.Error('Token without userId.', http_code=500)
 				session.add(revoked_token)
 				return make_response(json.dumps({
 					'status': 'OK',
@@ -179,7 +180,7 @@ class SignOutRefreshView(MethodView):
 		try:
 			with session_scope(current_app.session_maker) as session:
 				if not userId:
-					return handler_util.make_error_response('Token without userId.', 500)
+					raise errors.Error('Token without userId.', http_code=500)
 				session.add(revoked_token)
 				return make_response(json.dumps({
 					'status': 'OK',

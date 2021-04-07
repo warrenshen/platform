@@ -1,6 +1,7 @@
 import json
 from typing import cast, Any
 
+from bespoke import errors
 from bespoke.db import db_constants, models, models_util
 from bespoke.db.models import session_scope
 from bespoke.audit import events
@@ -43,7 +44,7 @@ class UpdateContractView(MethodView):
 		with session_scope(current_app.session_maker) as session:
 			contract = session.query(models.Contract).filter(models.Contract.id == form["contract_id"]).first()
 			if not contract:
-				return handler_util.make_error_response(
+				raise errors.Error(
 					f"Failed to find contract specified in the request (id: {form['contract_id']})")
 
 		return make_response(json.dumps({

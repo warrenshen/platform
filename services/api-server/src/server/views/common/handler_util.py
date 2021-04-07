@@ -20,6 +20,10 @@ def make_error_response(error: Union[str, errors.Error], status_code: int = None
 	if not status_code:
 		status_code = 200
 
+	if error_obj.http_code:
+		# Set the status code of this HTTP response by giving the errors.Error precedence
+		status_code = error_obj.http_code
+
 	return Response(
 		response=json.dumps(
 		dict(status='ERROR', msg=error_obj.msg, err_details=error_obj.details)),
