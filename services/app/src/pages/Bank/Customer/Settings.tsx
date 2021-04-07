@@ -2,6 +2,7 @@ import { Box } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import CustomerSettings from "components/Settings/CustomerSettings";
 import CollectionsBank from "components/Shared/BespokeBankAssignment/CollectionsBank";
+import PageContent from "components/Shared/Page/PageContent";
 import {
   CompanySettingsFragment,
   ContractFragment,
@@ -24,7 +25,7 @@ function BankCustomerSettingsSubpage({ companyId }: Props) {
   const contract = data?.companies_by_pk?.contract as ContractFragment;
 
   return company ? (
-    <Box>
+    <PageContent title={"Settings"}>
       <CustomerSettings
         companyId={companyId}
         company={company}
@@ -51,7 +52,7 @@ function BankCustomerSettingsSubpage({ companyId }: Props) {
           </Box>
         </Box>
       </Box>
-    </Box>
+    </PageContent>
   ) : null;
 }
 

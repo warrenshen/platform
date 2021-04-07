@@ -11,6 +11,7 @@ import {
 import FinancialSummariesDataGrid from "components/CustomerFinancialSummaries/FinancialSummariesDataGrid";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import Page from "components/Shared/Page";
+import PageContent from "components/Shared/Page/PageContent";
 import {
   Companies,
   useGetCustomersWithMetadataQuery,
@@ -101,58 +102,60 @@ function BankReportsPage() {
 
   return (
     <Page appBarTitle={"Reports"}>
-      <Box className={classes.section}>
-        <Box mb={2}>
-          <DatePicker
-            className={classes.inputField}
-            id="report-date-date-picker"
-            label="Report Date"
-            disableFuture
-            value={selectedDate}
-            onChange={(value) =>
-              setSelectedDate(value || todayAsDateStringServer())
-            }
-          />
-        </Box>
-        <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-          <FinancialSummariesDataGrid
-            financialSummaries={financialSummariesByDate}
-            isExcelExport
-          />
-        </Box>
-      </Box>
-      <Box className={classes.sectionSpace} />
-      <Box className={classes.section}>
-        <Box mb={2}>
-          <FormControl className={classes.inputField}>
-            <InputLabel id="vendor-select-label">Customer</InputLabel>
-            <Select
-              disabled={customers.length <= 0}
-              labelId="customer-select-label"
-              id="customer-select"
-              value={companyId}
-              onChange={({ target: { value } }) =>
-                setCompanyId(value as string)
+      <PageContent title={"Reports"}>
+        <Box className={classes.section}>
+          <Box mb={2}>
+            <DatePicker
+              className={classes.inputField}
+              id="report-date-date-picker"
+              label="Report Date"
+              disableFuture
+              value={selectedDate}
+              onChange={(value) =>
+                setSelectedDate(value || todayAsDateStringServer())
               }
-            >
-              <MenuItem value="">
-                <em>None</em>
-              </MenuItem>
-              {customers.map((customer) => (
-                <MenuItem key={customer.id} value={customer.id}>
-                  {customer.name}
+            />
+          </Box>
+          <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
+            <FinancialSummariesDataGrid
+              financialSummaries={financialSummariesByDate}
+              isExcelExport
+            />
+          </Box>
+        </Box>
+        <Box className={classes.sectionSpace} />
+        <Box className={classes.section}>
+          <Box mb={2}>
+            <FormControl className={classes.inputField}>
+              <InputLabel id="vendor-select-label">Customer</InputLabel>
+              <Select
+                disabled={customers.length <= 0}
+                labelId="customer-select-label"
+                id="customer-select"
+                value={companyId}
+                onChange={({ target: { value } }) =>
+                  setCompanyId(value as string)
+                }
+              >
+                <MenuItem value="">
+                  <em>None</em>
                 </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+                {customers.map((customer) => (
+                  <MenuItem key={customer.id} value={customer.id}>
+                    {customer.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+          <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
+            <FinancialSummariesDataGrid
+              financialSummaries={financialSummariesByCompanyId}
+              isExcelExport
+            />
+          </Box>
         </Box>
-        <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-          <FinancialSummariesDataGrid
-            financialSummaries={financialSummariesByCompanyId}
-            isExcelExport
-          />
-        </Box>
-      </Box>
+      </PageContent>
     </Page>
   );
 }

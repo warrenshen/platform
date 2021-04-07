@@ -1,4 +1,5 @@
 import { Tab, Tabs } from "@material-ui/core";
+import PageContent from "components/Shared/Page/PageContent";
 import { ProductTypeEnum } from "generated/graphql";
 import CustomerLoansActiveTab from "pages/Customer/Loans/LoansActiveTab";
 import CustomerLoansClosedTab from "pages/Customer/Loans/LoansClosedTab";
@@ -24,26 +25,28 @@ function CustomerLoansPageContent({ companyId, productType }: Props) {
 
   return (
     <Container>
-      <Tabs
-        value={selectedTabIndex}
-        indicatorColor="primary"
-        textColor="primary"
-        onChange={(_event: any, value: number) => setSelectedTabIndex(value)}
-      >
-        <Tab label="Active Loans" />
-        <Tab label="Closed Loans" />
-      </Tabs>
-      {selectedTabIndex === 0 ? (
-        <CustomerLoansActiveTab
-          companyId={companyId}
-          productType={productType}
-        />
-      ) : (
-        <CustomerLoansClosedTab
-          companyId={companyId}
-          productType={productType}
-        />
-      )}
+      <PageContent title={"Loans"}>
+        <Tabs
+          value={selectedTabIndex}
+          indicatorColor="primary"
+          textColor="primary"
+          onChange={(_event: any, value: number) => setSelectedTabIndex(value)}
+        >
+          <Tab label="Active Loans" />
+          <Tab label="Closed Loans" />
+        </Tabs>
+        {selectedTabIndex === 0 ? (
+          <CustomerLoansActiveTab
+            companyId={companyId}
+            productType={productType}
+          />
+        ) : (
+          <CustomerLoansClosedTab
+            companyId={companyId}
+            productType={productType}
+          />
+        )}
+      </PageContent>
     </Container>
   );
 }

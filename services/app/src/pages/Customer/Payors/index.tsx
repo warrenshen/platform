@@ -2,6 +2,7 @@ import { Box } from "@material-ui/core";
 import AddPayorButton from "components/Payors/AddPayorButton";
 import PayorPartnershipsDataGrid from "components/Payors/PayorPartnershipsDataGrid";
 import Page from "components/Shared/Page";
+import PageContent from "components/Shared/Page/PageContent";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useListPayorPartnershipsByCompanyIdQuery } from "generated/graphql";
 import { sortBy } from "lodash";
@@ -21,12 +22,14 @@ function CustomerPayorsPage() {
 
   return (
     <Page appBarTitle="Payors">
-      <Box display="flex" flexDirection="row-reverse">
-        <AddPayorButton customerId={companyId} handleDataChange={refetch} />
-      </Box>
-      <Box display="flex" mt={3}>
-        <PayorPartnershipsDataGrid data={payors} />
-      </Box>
+      <PageContent title={"Payors"}>
+        <Box display="flex" flexDirection="row-reverse">
+          <AddPayorButton customerId={companyId} handleDataChange={refetch} />
+        </Box>
+        <Box display="flex" mt={3}>
+          <PayorPartnershipsDataGrid data={payors} />
+        </Box>
+      </PageContent>
     </Page>
   );
 }

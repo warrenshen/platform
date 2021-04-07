@@ -2,6 +2,7 @@ import { Box, Button, Typography } from "@material-ui/core";
 import ContractCard from "components/Contract/ContractCard";
 import CreateUpdateContractModal from "components/Contract/CreateUpdateContractModal";
 import ContractsDataGrid from "components/Contracts/ContractsDataGrid";
+import PageContent from "components/Shared/Page/PageContent";
 import { useGetCompanyForCustomerContractPageQuery } from "generated/graphql";
 import { ActionType } from "lib/enum";
 import { useState } from "react";
@@ -31,7 +32,7 @@ function BankCustomerContractSubpage({ companyId }: Props) {
   );
 
   return (
-    <Box>
+    <PageContent title={"Contract"}>
       {isEditContractTermsModalOpen && (
         <CreateUpdateContractModal
           actionType={ActionType.Update}
@@ -77,7 +78,7 @@ function BankCustomerContractSubpage({ companyId }: Props) {
         </Box>
         <ContractsDataGrid isExcelExport contracts={contracts} />
       </Box>
-    </Box>
+    </PageContent>
   );
 }
 

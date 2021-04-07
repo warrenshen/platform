@@ -26,7 +26,7 @@ import BankCustomerPurchaseOrdersSubpage from "./PurchaseOrders";
 import BankCustomerSettingsSubpage from "./Settings";
 import BankCustomerVendorsSubpage from "./Vendors";
 
-const DRAWER_WIDTH = 175;
+const DRAWER_WIDTH = 200;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -34,12 +34,13 @@ const useStyles = makeStyles((theme: Theme) =>
       display: "flex",
       flexDirection: "column",
       width: DRAWER_WIDTH,
+      paddingTop: 64,
+      marginLeft: 32,
     },
     content: {
       display: "flex",
       flexDirection: "column",
       width: `calc(100% - ${DRAWER_WIDTH}px)`,
-      paddingLeft: theme.spacing(3),
     },
     list: {
       padding: 0,

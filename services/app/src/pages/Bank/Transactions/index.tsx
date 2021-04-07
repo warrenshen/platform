@@ -1,4 +1,5 @@
 import Page from "components/Shared/Page";
+import PageContent from "components/Shared/Page/PageContent";
 import TransactionsDataGrid from "components/Transactions/TransactionsDataGrid";
 import { useGetTransactionsQuery } from "generated/graphql";
 
@@ -9,7 +10,9 @@ function BankTransactionsPage() {
 
   return (
     <Page appBarTitle={"Transactions"}>
-      <TransactionsDataGrid transactions={transactions} isExcelExport />
+      <PageContent title={"Transactions"}>
+        <TransactionsDataGrid transactions={transactions} isExcelExport />
+      </PageContent>
     </Page>
   );
 }

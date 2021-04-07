@@ -7,6 +7,7 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
+import PageContent from "components/Shared/Page/PageContent";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
@@ -143,61 +144,63 @@ function BankCustomersPage() {
 
   return (
     <Page appBarTitle={"Customers"}>
-      <Box
-        display="flex"
-        style={{ marginBottom: "1rem" }}
-        justifyContent="space-between"
-      >
-        <Box display="flex">
-          <TextField
-            label="Search"
-            value={searchQuery}
-            onChange={({ target: { value } }) => setSearchQuery(value)}
+      <PageContent title={"Customers"}>
+        <Box
+          display="flex"
+          style={{ marginBottom: "1rem" }}
+          justifyContent="space-between"
+        >
+          <Box display="flex">
+            <TextField
+              label="Search"
+              value={searchQuery}
+              onChange={({ target: { value } }) => setSearchQuery(value)}
+            />
+          </Box>
+          <Box display="flex" flexDirection="row-reverse">
+            {check(role, Action.ManipulateUser) && (
+              <Box>
+                <ModalButton
+                  label={"Create Customer"}
+                  color={"primary"}
+                  modal={({ handleClose }) => (
+                    <CreateCustomerModal
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            )}
+            {check(role, Action.RunBalances) && (
+              <Box mr={2}>
+                <ModalButton
+                  label={"Run Balances"}
+                  color={"default"}
+                  modal={({ handleClose }) => (
+                    <RunCustomerBalancesModal
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            )}
+          </Box>
+        </Box>
+        <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
+          <ControlledDataGrid
+            isExcelExport
+            pager
+            dataSource={customers}
+            columns={columns}
           />
         </Box>
-        <Box display="flex" flexDirection="row-reverse">
-          {check(role, Action.ManipulateUser) && (
-            <Box>
-              <ModalButton
-                label={"Create Customer"}
-                color={"primary"}
-                modal={({ handleClose }) => (
-                  <CreateCustomerModal
-                    handleClose={() => {
-                      refetch();
-                      handleClose();
-                    }}
-                  />
-                )}
-              />
-            </Box>
-          )}
-          {check(role, Action.RunBalances) && (
-            <Box mr={2}>
-              <ModalButton
-                label={"Run Balances"}
-                color={"default"}
-                modal={({ handleClose }) => (
-                  <RunCustomerBalancesModal
-                    handleClose={() => {
-                      refetch();
-                      handleClose();
-                    }}
-                  />
-                )}
-              />
-            </Box>
-          )}
-        </Box>
-      </Box>
-      <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-        <ControlledDataGrid
-          isExcelExport
-          pager
-          dataSource={customers}
-          columns={columns}
-        />
-      </Box>
+      </PageContent>
     </Page>
   );
 }

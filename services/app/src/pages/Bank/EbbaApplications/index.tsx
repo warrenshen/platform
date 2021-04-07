@@ -1,5 +1,6 @@
 import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
 import Page from "components/Shared/Page";
+import PageContent from "components/Shared/Page/PageContent";
 import { useEbbaApplicationsQuery } from "generated/graphql";
 
 function EbbaApplicationsPage() {
@@ -30,10 +31,12 @@ function EbbaApplicationsPage() {
 
   return (
     <Page appBarTitle={"Borrowing Bases"}>
-      <EbbaApplicationsDataGrid
-        ebbaApplications={ebbaApplications}
-        isExcelExport
-      />
+      <PageContent title={"Borrowing Bases"}>
+        <EbbaApplicationsDataGrid
+          ebbaApplications={ebbaApplications}
+          isExcelExport
+        />
+      </PageContent>
     </Page>
   );
 }

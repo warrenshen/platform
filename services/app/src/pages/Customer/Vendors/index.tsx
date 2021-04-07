@@ -1,5 +1,6 @@
 import { Box } from "@material-ui/core";
 import Page from "components/Shared/Page";
+import PageContent from "components/Shared/Page/PageContent";
 import AddVendorButton from "components/Vendors/AddVendorButton";
 import VendorPartnershipsDataGrid from "components/Vendors/VendorPartnershipsDataGrid";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
@@ -25,12 +26,14 @@ function CustomerVendorsPage() {
 
   return (
     <Page appBarTitle={"Vendors"}>
-      <Box display="flex" flexDirection="row-reverse">
-        <AddVendorButton customerId={companyId} handleDataChange={refetch} />
-      </Box>
-      <Box display="flex" mt={3}>
-        <VendorPartnershipsDataGrid vendorPartnerships={vendorPartnerships} />
-      </Box>
+      <PageContent title={"Vendors"}>
+        <Box display="flex" flexDirection="row-reverse">
+          <AddVendorButton customerId={companyId} handleDataChange={refetch} />
+        </Box>
+        <Box display="flex" mt={3}>
+          <VendorPartnershipsDataGrid vendorPartnerships={vendorPartnerships} />
+        </Box>
+      </PageContent>
     </Page>
   );
 }

@@ -4,6 +4,7 @@ import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBan
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import Page from "components/Shared/Page";
+import PageContent from "components/Shared/Page/PageContent";
 import EditUserProfileModal from "components/Users/EditUserProfileModal";
 import InviteUserModal from "components/Users/InviteUserModal";
 import UsersDataGrid from "components/Users/UsersDataGrid";
@@ -73,72 +74,58 @@ function BankSettingsPage() {
 
   return (
     <Page appBarTitle={"Settings"}>
-      <Box className={classes.section}>
-        <h2>Bank Accounts</h2>
-        <Can perform={Action.AddBankAccount}>
-          <Box display="flex" flexDirection="row-reverse" mb={3}>
-            <ModalButton
-              label={"Add Bank Account"}
-              modal={({ handleClose }) => (
-                <CreateUpdateBankAccountModal
-                  companyId={null}
-                  existingBankAccount={null}
-                  handleClose={() => {
-                    refetch();
-                    handleClose();
-                  }}
-                />
-              )}
-            />
-          </Box>
-        </Can>
-        <Box display="flex" flexWrap="wrap">
-          {accounts.map((account, index) => (
-            <Box key={index} mr={2} mb={2}>
-              <BankAccountInfoCard
-                isCannabisCompliantVisible
-                isEditAllowed={check(role, Action.EditBankAccount)}
-                isVerificationVisible
-                bankAccount={account}
+      <PageContent title={"Settings"}>
+        <Box className={classes.section}>
+          <h2>Bank Accounts</h2>
+          <Can perform={Action.AddBankAccount}>
+            <Box display="flex" flexDirection="row-reverse" mb={3}>
+              <ModalButton
+                label={"Add Bank Account"}
+                modal={({ handleClose }) => (
+                  <CreateUpdateBankAccountModal
+                    companyId={null}
+                    existingBankAccount={null}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
+                  />
+                )}
               />
             </Box>
-          ))}
-        </Box>
-      </Box>
-      <Box className={classes.sectionSpace} />
-      <Box className={classes.section}>
-        <h2>Users</h2>
-        <Can perform={Action.ManipulateUser}>
-          <Box
-            display="flex"
-            style={{ marginBottom: "1rem" }}
-            flexDirection="row-reverse"
-          >
-            <ModalButton
-              isDisabled={selectedUsers.length > 0}
-              label={"Invite User"}
-              modal={({ handleClose }) => (
-                <InviteUserModal
-                  companyId={null}
-                  userRoles={[
-                    UserRolesEnum.BankAdmin,
-                    UserRolesEnum.BankReadOnly,
-                  ]}
-                  handleClose={() => {
-                    refetchBankUsers();
-                    handleClose();
-                  }}
+          </Can>
+          <Box display="flex" flexWrap="wrap">
+            {accounts.map((account, index) => (
+              <Box key={index} mr={2} mb={2}>
+                <BankAccountInfoCard
+                  isCannabisCompliantVisible
+                  isEditAllowed={check(role, Action.EditBankAccount)}
+                  isVerificationVisible
+                  bankAccount={account}
                 />
-              )}
-            />
-            <Box mr={2}>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+        <Box className={classes.sectionSpace} />
+        <Box className={classes.section}>
+          <h2>Users</h2>
+          <Can perform={Action.ManipulateUser}>
+            <Box
+              display="flex"
+              style={{ marginBottom: "1rem" }}
+              flexDirection="row-reverse"
+            >
               <ModalButton
-                isDisabled={selectedUsers.length !== 1}
-                label={"Edit User"}
+                isDisabled={selectedUsers.length > 0}
+                label={"Invite User"}
                 modal={({ handleClose }) => (
-                  <EditUserProfileModal
-                    userId={selectedUsers[0].id}
-                    originalUserProfile={selectedUsers[0]}
+                  <InviteUserModal
+                    companyId={null}
+                    userRoles={[
+                      UserRolesEnum.BankAdmin,
+                      UserRolesEnum.BankReadOnly,
+                    ]}
                     handleClose={() => {
                       refetchBankUsers();
                       handleClose();
@@ -146,17 +133,33 @@ function BankSettingsPage() {
                   />
                 )}
               />
+              <Box mr={2}>
+                <ModalButton
+                  isDisabled={selectedUsers.length !== 1}
+                  label={"Edit User"}
+                  modal={({ handleClose }) => (
+                    <EditUserProfileModal
+                      userId={selectedUsers[0].id}
+                      originalUserProfile={selectedUsers[0]}
+                      handleClose={() => {
+                        refetchBankUsers();
+                        handleClose();
+                      }}
+                    />
+                  )}
+                />
+              </Box>
             </Box>
-          </Box>
-        </Can>
-        <UsersDataGrid
-          isCompanyVisible
-          isMultiSelectEnabled
-          users={users}
-          selectedUserIds={selectedUserIds}
-          handleSelectUsers={handleSelectUsers}
-        />
-      </Box>
+          </Can>
+          <UsersDataGrid
+            isCompanyVisible
+            isMultiSelectEnabled
+            users={users}
+            selectedUserIds={selectedUserIds}
+            handleSelectUsers={handleSelectUsers}
+          />
+        </Box>
+      </PageContent>
     </Page>
   );
 }

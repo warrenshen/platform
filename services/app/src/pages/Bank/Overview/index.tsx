@@ -9,6 +9,7 @@ import {
 import BankFinancialSummariesDataGrid from "components/BankFinancialSummaries/BankFinancialSummariesDataGrid";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import Page from "components/Shared/Page";
+import PageContent from "components/Shared/Page/PageContent";
 import {
   useGetFundedLoansForBankSubscription,
   useGetLatestBankFinancialSummariesSubscription,
@@ -105,85 +106,87 @@ function BankOverviewPage() {
 
   return (
     <Page appBarTitle={"Overview"}>
-      <Box className={classes.container}>
+      <PageContent title={"Overview"}>
+        <Box className={classes.container}>
+          <Box className={classes.section}>
+            <Typography variant="h6" gutterBottom={true}>
+              Dashboard
+            </Typography>
+            <Typography variant="body2" gutterBottom={true}>
+              {`Note: dashboard is updated on an hourly cadence (last update: ${
+                formatDatetimeString(
+                  filteredBankFinancialSummaries[0]?.updated_at
+                ) || "TBD"
+              }).`}
+            </Typography>
+            <BankFinancialSummariesDataGrid
+              bankFinancialSummaries={filteredBankFinancialSummaries}
+            />
+          </Box>
+        </Box>
+        <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
           <Typography variant="h6" gutterBottom={true}>
-            Dashboard
+            Loans Maturing in 14 Days
           </Typography>
-          <Typography variant="body2" gutterBottom={true}>
-            {`Note: dashboard is updated on an hourly cadence (last update: ${
-              formatDatetimeString(
-                filteredBankFinancialSummaries[0]?.updated_at
-              ) || "TBD"
-            }).`}
-          </Typography>
-          <BankFinancialSummariesDataGrid
-            bankFinancialSummaries={filteredBankFinancialSummaries}
-          />
-        </Box>
-      </Box>
-      <Box className={classes.sectionSpace} />
-      <Box className={classes.section}>
-        <Typography variant="h6" gutterBottom={true}>
-          Loans Maturing in 14 Days
-        </Typography>
-        <Box display="flex" flexDirection="column">
-          <Box pb={2} display="flex">
-            <Box mr={2} mt={"auto"} mb={"auto"}>
-              <Button
-                size="small"
-                color="primary"
-                variant="contained"
-                component={Link}
-                to={bankRoutes.loans}
-              >
-                View all
-              </Button>
+          <Box display="flex" flexDirection="column">
+            <Box pb={2} display="flex">
+              <Box mr={2} mt={"auto"} mb={"auto"}>
+                <Button
+                  size="small"
+                  color="primary"
+                  variant="contained"
+                  component={Link}
+                  to={bankRoutes.loans}
+                >
+                  View all
+                </Button>
+              </Box>
+            </Box>
+            <Box style={{ height: "auto", width: "100%" }}>
+              <LoansDataGrid
+                isArtifactVisible
+                isExcelExport
+                isCompanyVisible
+                isMaturityVisible
+                matureDays={14}
+                loans={maturingLoans}
+              />
             </Box>
           </Box>
-          <Box style={{ height: "auto", width: "100%" }}>
-            <LoansDataGrid
-              isArtifactVisible
-              isExcelExport
-              isCompanyVisible
-              isMaturityVisible
-              matureDays={14}
-              loans={maturingLoans}
-            />
-          </Box>
         </Box>
-      </Box>
-      <Box className={classes.sectionSpace} />
-      <Box className={classes.section}>
-        <Typography variant="h6" gutterBottom={true}>
-          Loans Past Due
-        </Typography>
-        <Box display="flex" flexDirection="column">
-          <Box pb={2} display="flex">
-            <Box mr={2} mt={"auto"} mb={"auto"}>
-              <Button
-                size="small"
-                color="primary"
-                variant="contained"
-                component={Link}
-                to={bankRoutes.loans}
-              >
-                View all
-              </Button>
+        <Box className={classes.sectionSpace} />
+        <Box className={classes.section}>
+          <Typography variant="h6" gutterBottom={true}>
+            Loans Past Due
+          </Typography>
+          <Box display="flex" flexDirection="column">
+            <Box pb={2} display="flex">
+              <Box mr={2} mt={"auto"} mb={"auto"}>
+                <Button
+                  size="small"
+                  color="primary"
+                  variant="contained"
+                  component={Link}
+                  to={bankRoutes.loans}
+                >
+                  View all
+                </Button>
+              </Box>
+            </Box>
+            <Box style={{ height: "auto", width: "100%" }}>
+              <LoansDataGrid
+                isArtifactVisible
+                isExcelExport
+                isCompanyVisible
+                isDaysPastDueVisible
+                isMaturityVisible
+                loans={pastDueLoans}
+              />
             </Box>
           </Box>
-          <Box style={{ height: "auto", width: "100%" }}>
-            <LoansDataGrid
-              isArtifactVisible
-              isExcelExport
-              isCompanyVisible
-              isDaysPastDueVisible
-              isMaturityVisible
-              loans={pastDueLoans}
-            />
-          </Box>
         </Box>
-      </Box>
+      </PageContent>
     </Page>
   );
 }

@@ -1,8 +1,8 @@
 import { Box, Typography } from "@material-ui/core";
 import EbbaApplicationCard from "components/EbbaApplication/EbbaApplicationCard";
 import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
+import PageContent from "components/Shared/Page/PageContent";
 import { useGetCompanyForCustomerBorrowingBaseQuery } from "generated/graphql";
-import React from "react";
 
 interface Props {
   companyId: string;
@@ -20,7 +20,7 @@ function BankCustomerEbbaApplicationsSubpage({ companyId }: Props) {
   const ebbaApplications = data?.companies_by_pk?.ebba_applications || [];
 
   return (
-    <Box>
+    <PageContent title={"Borrowing Base"}>
       <Box>
         <Box mb={1}>
           <Typography variant="h6">Active Borrowing Base</Typography>
@@ -43,7 +43,7 @@ function BankCustomerEbbaApplicationsSubpage({ companyId }: Props) {
           isExcelExport
         />
       </Box>
-    </Box>
+    </PageContent>
   );
 }
 

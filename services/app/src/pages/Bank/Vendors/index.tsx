@@ -1,5 +1,6 @@
 import { Box, TextField } from "@material-ui/core";
 import Page from "components/Shared/Page";
+import PageContent from "components/Shared/Page/PageContent";
 import VendorPartnershipsDataGrid from "components/Vendors/VendorPartnershipsDataGrid";
 import { useGetVendorPartnershipsForBankQuery } from "generated/graphql";
 import { filter, sortBy } from "lodash";
@@ -26,26 +27,28 @@ function BankVendorsPage() {
 
   return (
     <Page appBarTitle={"Vendors"}>
-      <Box
-        display="flex"
-        style={{ marginBottom: "1rem" }}
-        justifyContent="space-between"
-      >
-        <Box display="flex">
-          <TextField
-            label="Search"
-            value={searchQuery}
-            onChange={({ target: { value } }) => setSearchQuery(value)}
+      <PageContent title={"Vendors"}>
+        <Box
+          display="flex"
+          style={{ marginBottom: "1rem" }}
+          justifyContent="space-between"
+        >
+          <Box display="flex">
+            <TextField
+              label="Search"
+              value={searchQuery}
+              onChange={({ target: { value } }) => setSearchQuery(value)}
+            />
+          </Box>
+        </Box>
+        <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
+          <VendorPartnershipsDataGrid
+            isBankUserRole
+            isExcelExport
+            vendorPartnerships={vendorPartnerships}
           />
         </Box>
-      </Box>
-      <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-        <VendorPartnershipsDataGrid
-          isBankUserRole
-          isExcelExport
-          vendorPartnerships={vendorPartnerships}
-        />
-      </Box>
+      </PageContent>
     </Page>
   );
 }

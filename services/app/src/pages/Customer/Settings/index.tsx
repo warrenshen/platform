@@ -1,5 +1,6 @@
 import CustomerSettings from "components/Settings/CustomerSettings";
 import Page from "components/Shared/Page";
+import PageContent from "components/Shared/Page/PageContent";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   CompanySettingsForCustomerFragment,
@@ -30,16 +31,18 @@ function SettingsPage() {
 
   return (
     <Page appBarTitle={"Settings"}>
-      {company && (
-        <CustomerSettings
-          companyId={companyId}
-          company={company}
-          settings={settings}
-          contract={contract}
-          bankAccounts={data?.companies_by_pk?.bank_accounts || []}
-          handleDataChange={() => refetch()}
-        />
-      )}
+      <PageContent title={"Settings"}>
+        {company && (
+          <CustomerSettings
+            companyId={companyId}
+            company={company}
+            settings={settings}
+            contract={contract}
+            bankAccounts={data?.companies_by_pk?.bank_accounts || []}
+            handleDataChange={() => refetch()}
+          />
+        )}
+      </PageContent>
     </Page>
   );
 }

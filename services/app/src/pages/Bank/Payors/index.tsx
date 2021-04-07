@@ -1,6 +1,7 @@
 import { Box, TextField } from "@material-ui/core";
 import PayorPartnershipsDataGrid from "components/Payors/PayorPartnershipsDataGrid";
 import Page from "components/Shared/Page";
+import PageContent from "components/Shared/Page/PageContent";
 import { useGetPayorPartnershipsForBankQuery } from "generated/graphql";
 import { filter, sortBy } from "lodash";
 import { useMemo, useState } from "react";
@@ -27,26 +28,28 @@ export default function BankPayorsPage() {
 
   return (
     <Page appBarTitle="Payors">
-      <Box
-        display="flex"
-        style={{ marginBottom: "1rem" }}
-        justifyContent="space-between"
-      >
-        <Box display="flex">
-          <TextField
-            label="Search"
-            value={searchQuery}
-            onChange={({ target: { value } }) => setSearchQuery(value)}
+      <PageContent title={"Payors"}>
+        <Box
+          display="flex"
+          style={{ marginBottom: "1rem" }}
+          justifyContent="space-between"
+        >
+          <Box display="flex">
+            <TextField
+              label="Search"
+              value={searchQuery}
+              onChange={({ target: { value } }) => setSearchQuery(value)}
+            />
+          </Box>
+        </Box>
+        <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
+          <PayorPartnershipsDataGrid
+            isBankAccount
+            isExcelExport
+            data={payorPartnerships}
           />
         </Box>
-      </Box>
-      <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
-        <PayorPartnershipsDataGrid
-          isBankAccount
-          isExcelExport
-          data={payorPartnerships}
-        />
-      </Box>
+      </PageContent>
     </Page>
   );
 }

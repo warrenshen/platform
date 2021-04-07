@@ -1,4 +1,5 @@
 import { Box } from "@material-ui/core";
+import PageContent from "components/Shared/Page/PageContent";
 import AddVendorButton from "components/Vendors/AddVendorButton";
 import VendorPartnershipsDataGrid from "components/Vendors/VendorPartnershipsDataGrid";
 import { useGetVendorPartnershipsByCompanyIdQuery } from "generated/graphql";
@@ -25,7 +26,7 @@ function Vendors({ companyId }: Props) {
   );
 
   return (
-    <Box>
+    <PageContent title={"Vendors"}>
       <Box
         display="flex"
         style={{ marginBottom: "1rem" }}
@@ -41,7 +42,7 @@ function Vendors({ companyId }: Props) {
           vendorPartnerships={vendorPartnerships}
         />
       </Box>
-    </Box>
+    </PageContent>
   );
 }
 

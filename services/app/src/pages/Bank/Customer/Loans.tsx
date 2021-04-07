@@ -7,6 +7,16 @@ import { ProductTypeEnum } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import CustomerLoansPageContent from "pages/Customer/Loans/LoansPageContent";
 import { useHistory } from "react-router-dom";
+import styled from "styled-components";
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  flex: 1;
+
+  overflow: scroll;
+`;
 
 interface Props {
   companyId: string;
@@ -17,8 +27,8 @@ function BankCustomerLoansSubpage({ companyId, productType }: Props) {
   const history = useHistory();
 
   return (
-    <Box>
-      <Box mb={2} display="flex" flexDirection="row-reverse">
+    <Container>
+      <Box display="flex" flexDirection="row-reverse" px={12} pt={8} mb={2}>
         <Can perform={Action.RunBalances}>
           <Box>
             <ModalButton
@@ -59,7 +69,7 @@ function BankCustomerLoansSubpage({ companyId, productType }: Props) {
         companyId={companyId}
         productType={productType}
       />
-    </Box>
+    </Container>
   );
 }
 
