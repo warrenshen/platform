@@ -514,7 +514,7 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 		with models.session_scope(self.session_maker) as session:
 			p(session)
 
-			err = invoices_util.submit_invoices_for_payment(
+			success, err = invoices_util.submit_invoices_for_payment(
 				self.session_maker,
 				DumbSendgridClient(),
 				str(p.customers[0].id),
@@ -562,7 +562,7 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 		with models.session_scope(self.session_maker) as session:
 			p(session)
 
-			err = invoices_util.submit_invoices_for_payment(
+			success, err = invoices_util.submit_invoices_for_payment(
 				self.session_maker,
 				DumbSendgridClient(),
 				str(p.payors[0].id),
@@ -610,7 +610,7 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 		with models.session_scope(self.session_maker) as session:
 			p(session)
 
-			err = invoices_util.submit_invoices_for_payment(
+			success, err = invoices_util.submit_invoices_for_payment(
 				self.session_maker,
 				DumbSendgridClient(),
 				str(p.customers[0].id),
@@ -664,7 +664,7 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 
 			client = DumbSendgridClient()
 
-			err = invoices_util.submit_invoices_for_payment(
+			success, err = invoices_util.submit_invoices_for_payment(
 				self.session_maker,
 				client,
 				str(p.customers[0].id),

@@ -37,7 +37,7 @@ ARTIFACT_MODEL_INDEX = {
 @errors.return_error_tuple
 def fund_loans_with_advance(
 	req: FundLoansReqDict, bank_admin_user_id: str,
-	session_maker: Callable) -> FundLoansRespDict:
+	session_maker: Callable) -> Tuple[FundLoansRespDict, errors.Error]:
 
 	payment_input = req['payment']
 	loan_ids = req['loan_ids']
@@ -217,5 +217,5 @@ def fund_loans_with_advance(
 				if funded_amount >= artifact.max_loan_amount():
 					artifact.funded_at = date_util.now()
 
-	return FundLoansRespDict(status='OK')
+	return FundLoansRespDict(status='OK'), None
 

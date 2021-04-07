@@ -117,6 +117,7 @@ class CompanySettings(Base):
 	company_id = Column(GUID)
 	vendor_agreement_docusign_template = Column(Text)
 	payor_agreement_docusign_template = Column(Text)
+	has_autofinancing = Column(Boolean)
 	active_ebba_application_id = cast(GUID, Column(GUID, ForeignKey('ebba_applications.id')))
 
 	def as_dict(self) -> CompanySettingsDict:

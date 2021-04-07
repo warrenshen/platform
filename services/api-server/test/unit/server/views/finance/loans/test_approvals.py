@@ -59,13 +59,14 @@ class TestSubmitForApproval(db_unittest.TestCase):
 		else:
 			loan_id = loan_ids[test['loan_index']]
 
-		resp, err = approval_util.submit_for_approval(
-			loan_id=loan_id,
-			session_maker=session_maker
-		)
-		if test.get('in_err_msg'):
-			self.assertIn(test['in_err_msg'], err.msg if err else '')
-			return
+		with session_scope(session_maker) as session:
+			resp, err = approval_util.submit_for_approval(
+				loan_id=loan_id,
+				session=session
+			)
+			if test.get('in_err_msg'):
+				self.assertIn(test['in_err_msg'], err.msg if err else '')
+				return
 
 		self.assertIsNone(err)
 		self.assertIsNotNone(resp['customer_name'])

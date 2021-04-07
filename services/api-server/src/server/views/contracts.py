@@ -101,7 +101,7 @@ class AddNewContractView(MethodView):
 				return handler_util.make_error_response(
 					'Missing key {} in request'.format(key))
 
-		_, err = manage_contract_util.add_new_contract(
+		success, err = manage_contract_util.add_new_contract(
 			req=form, bank_admin_user_id=bank_admin_user_id,
 			session_maker=current_app.session_maker)
 		if err:

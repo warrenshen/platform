@@ -23,7 +23,7 @@ handler = Blueprint('finance_loans_advances', __name__)
 def _send_bank_created_advances_emails(
 	loan_ids: List[str],
 	settlement_date: datetime.date,
-) -> bool:
+) -> Tuple[bool, errors.Error]:
 	cfg = cast(Config, current_app.app_config)
 	sendgrid_client = cast(sendgrid_util.Client,
 							current_app.sendgrid_client)
@@ -192,7 +192,7 @@ def _send_bank_created_advances_emails(
 						if err:
 							raise err
 
-	return True
+	return True, None
 
 class HandleAdvanceView(MethodView):
 	decorators = [auth_util.bank_admin_required]

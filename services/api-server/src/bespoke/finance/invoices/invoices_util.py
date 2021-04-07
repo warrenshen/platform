@@ -350,12 +350,12 @@ def update_invoice_approval_status(
 
 	return None
 
-@errors.return_error
+@errors.return_error_tuple
 def handle_invoice_approval_request(
 	session_maker: Callable,
 	sendgrid_client: sendgrid_util.Client,
 	invoice_id: str
-	) -> errors.Error:
+	) -> Tuple[bool, errors.Error]:
 	err = is_invoice_ready_for_approval(session_maker, invoice_id)
 	if err:
 		raise err
@@ -400,14 +400,14 @@ def handle_invoice_approval_request(
 		logging.exception("Caught exception while sending approval notification email")
 		raise errors.Error(str(e))
 
-	return None
+	return True, None
 
-@errors.return_error
+@errors.return_error_tuple
 def send_one_notification_for_payment(
 	session: Session,
 	client: sendgrid_util.Client,
 	invoice: models.Invoice,
-	customer: models.Company) -> None:
+	customer: models.Company) -> Tuple[bool, errors.Error]:
 
 	info = models.TwoFactorFormInfoDict(
 		type=db_constants.TwoFactorLinkType.PAY_INVOICE,
@@ -442,12 +442,14 @@ def send_one_notification_for_payment(
 	# Update the payment_requested_at timestamp
 	invoice.payment_requested_at = date_util.now()
 
-@errors.return_error
+	return True, None
+
+@errors.return_error_tuple
 def submit_invoices_for_payment(
 	session_maker: Callable,
 	client: sendgrid_util.Client,
 	company_id: str,
-	request: SubmitForPaymentRequest) -> None:
+	request: SubmitForPaymentRequest) -> Tuple[bool, errors.Error]:
 
 	# Ensure that all of the invoices belong to the given company
 	with models.session_scope(session_maker) as session:
@@ -474,17 +476,19 @@ def submit_invoices_for_payment(
 		customer = session.query(models.Company).get(company_id)
 
 		for invoice in invoices:
-			err = send_one_notification_for_payment(session, client, invoice, customer)
+			success, err = send_one_notification_for_payment(session, client, invoice, customer)
 			if err:
 				raise err
 
-@errors.return_error
+	return True, None
+
+@errors.return_error_tuple
 def submit_new_invoice_for_payment(
 	session_maker: Callable,
 	client: sendgrid_util.Client,
 	company_id: str,
 	invoice_id: str,
-) -> None:
+) -> Tuple[bool, errors.Error]:
 	# Ensure that all of the invoices belong to the given company
 	with models.session_scope(session_maker) as session:
 		invoice = session.query(models.Invoice) \
@@ -498,16 +502,18 @@ def submit_new_invoice_for_payment(
 		invoice.status = db_constants.RequestStatusEnum.APPROVED
 
 		customer = session.query(models.Company).get(company_id)
-		err = send_one_notification_for_payment(session, client, invoice, customer)
+		success, err = send_one_notification_for_payment(session, client, invoice, customer)
 		if err:
 			raise err
 
-@errors.return_error
+	return True, None
+
+@errors.return_error_tuple
 def respond_to_payment_request(
 	session: Session,
 	client: sendgrid_util.Client,
 	email: str,
-	data: InvoicePaymentRequestResponse) -> None:
+	data: InvoicePaymentRequestResponse) -> Tuple[bool, errors.Error]:
 
 	user = session.query(models.User) \
 		.filter(models.User.email == email) \
@@ -547,4 +553,4 @@ def respond_to_payment_request(
 	session.refresh(payment)
 
 	invoice.payment_id = payment.id
-	return None
+	return True, None

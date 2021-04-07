@@ -1,7 +1,5 @@
 
-from typing import Any, Callable, Dict, Tuple, TypeVar
-
-T = TypeVar('T')
+from typing import cast, Any, Callable, Dict, Tuple, TypeVar
 
 class Error(Exception):
 
@@ -19,27 +17,17 @@ class Error(Exception):
 	def __repr__(self) -> str:
 		return str(self)
 
-def return_error_tuple(f: Callable[..., T]) -> Callable[..., Tuple[T, Error]]:
+# This machinery is needed to preserve the type of the function we are wrapping
+FError = TypeVar('FError', bound=Callable[..., Any])
 
-	def inner_func(*args: Any, **kwargs: Any) -> Tuple[T, Error]:
+def return_error_tuple(f: FError) -> FError:
+
+	def inner_func(*args: Any, **kwargs: Any) -> Tuple[Any, Error]:
 		try:
-			return f(*args, **kwargs), None
+			return f(*args, **kwargs)
 		except Error as e:
 			return None, e
 		except Exception as e:
 			return None, Error('{}'.format(e))
 
-	return inner_func
-
-def return_error(f: Callable[..., T]) -> Callable[..., Error]:
-
-	def inner_func(*args: Any, **kwargs: Any) -> Error:
-		try:
-			f(*args, **kwargs)
-			return None
-		except Error as e:
-			return e
-		except Exception as e:
-			return Error('{}'.format(e))
-
-	return inner_func
+	return cast(FError, inner_func)

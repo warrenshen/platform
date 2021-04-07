@@ -241,7 +241,7 @@ class CustomerBalance(object):
 		self._company_id = company_dict['id']
 
 	@errors.return_error_tuple
-	def update(self, today: datetime.date) -> CustomerUpdateDict:
+	def update(self, today: datetime.date) -> Tuple[CustomerUpdateDict, errors.Error]:
 		# Get your contracts and loans
 		fetcher = per_customer_fetcher.Fetcher(per_customer_types.CompanyInfoDict(
 			id=self._company_id,
@@ -360,10 +360,10 @@ class CustomerBalance(object):
 			loan_updates=loan_update_dicts,
 			active_ebba_application_update=ebba_application_update,
 			summary_update=summary_update,
-		)
+		), None
 
 	@errors.return_error_tuple
-	def write(self, customer_update: CustomerUpdateDict) -> bool:
+	def write(self, customer_update: CustomerUpdateDict) -> Tuple[bool, errors.Error]:
 		loan_ids = []
 		loan_id_to_update = {}
 		for loan_update in customer_update['loan_updates']:
@@ -437,5 +437,5 @@ class CustomerBalance(object):
 			company = session.query(models.Company).get(self._company_id)
 			company.needs_balance_recomputed = False
 
-			return True
+			return True, None
 

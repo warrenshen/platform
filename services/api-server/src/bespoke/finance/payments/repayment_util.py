@@ -126,7 +126,7 @@ def calculate_repayment_effect(
 	loan_ids: List[str],
 	session_maker: Callable,
 	test_only_skip_interest_and_fees_calculation: bool = False,
-) -> RepaymentEffectRespDict:
+) -> Tuple[RepaymentEffectRespDict, errors.Error]:
 	# What loans and fees does would this payment pay off?
 
 	err_details = {'company_id': company_id, 'loan_ids': loan_ids, 'method': 'calculate_repayment_effect'}
@@ -507,7 +507,7 @@ def calculate_repayment_effect(
 		amount_to_pay=number_util.round_currency(amount_to_pay),
 		amount_as_credit_to_user=number_util.round_currency(amount_as_credit_to_user),
 		loans_past_due_but_not_selected=loans_past_due_but_not_selected,
-	)
+	), None
 
 @errors.return_error_tuple
 def create_repayment(
@@ -516,7 +516,7 @@ def create_repayment(
 	user_id: str,
 	session_maker: Callable,
 	is_line_of_credit: bool,
-) -> str:
+) -> Tuple[str, errors.Error]:
 
 	err_details = {'company_id': company_id, 'method': 'create_repayment'}
 
@@ -606,7 +606,7 @@ def create_repayment(
 		for loan in loans:
 			loan.payment_status = payment_status
 
-	return payment_id
+	return payment_id, None
 
 @errors.return_error_tuple
 def schedule_repayment(
@@ -616,7 +616,7 @@ def schedule_repayment(
 	user_id: str,
 	session_maker: Callable,
 	is_line_of_credit: bool,
-) -> str:
+) -> Tuple[str, errors.Error]:
 
 	err_details = {'company_id': company_id, 'payment_id': payment_id, 'method': 'schedule_repayment'}
 
@@ -659,7 +659,7 @@ def schedule_repayment(
 		session.flush()
 		payment_id = str(payment.id)
 
-	return payment_id
+	return payment_id, None
 
 @errors.return_error_tuple
 def settle_repayment(
@@ -667,7 +667,7 @@ def settle_repayment(
 	user_id: str,
 	session_maker: Callable,
 	is_line_of_credit: bool,
-) -> List[str]:
+) -> Tuple[List[str], errors.Error]:
 
 	err_details = {
 		'method': 'settle_repayment',
@@ -1097,7 +1097,7 @@ def settle_repayment(
 
 	# TODO(warrenshen): change this to return payment_ids.
 	# This currently does not return transaction ids of credit_to_user transactions.
-	return transaction_ids
+	return transaction_ids, None
 
 UndoRepaymentReqDict = TypedDict('UndoRepaymentReqDict', {
 	'company_id': str,
@@ -1110,7 +1110,7 @@ def undo_repayment(
 	req: UndoRepaymentReqDict,
 	user_id: str,
 	session_maker: Callable
-) -> bool:
+) -> Tuple[bool, errors.Error]:
 	# Mark payment as not settled
 	# Find any additional payments created from it, and mark them as is_deleted
 	# Mark transactions as is_deleted
@@ -1159,7 +1159,7 @@ def undo_repayment(
 		for cur_payment in originated_payments:
 			_unsettle_payment(cur_payment)
 
-	return True
+	return True, None
 
 DeleteRepaymentReqDict = TypedDict('DeleteRepaymentReqDict', {
 	'company_id': str,
@@ -1172,7 +1172,7 @@ def delete_repayment(
 	req: DeleteRepaymentReqDict,
 	user_id: str,
 	session_maker: Callable
-) -> bool:
+) -> Tuple[bool, errors.Error]:
 	# Mark payment as not settled
 	# Find any additional payments created from it, and mark them as is_deleted
 	# Mark transactions as is_deleted
@@ -1218,4 +1218,4 @@ def delete_repayment(
 		for cur_payment in originated_payments:
 			_delete_payment(cur_payment)
 
-	return True
+	return True, None

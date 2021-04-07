@@ -41,7 +41,7 @@ class SubmitNewInvoiceForPaymentView(MethodView):
 
 		invoice_id = form['invoice_id']
 
-		err = invoices_util.submit_new_invoice_for_payment(
+		_, err = invoices_util.submit_new_invoice_for_payment(
 			current_app.session_maker,
 			current_app.sendgrid_client,
 			company_id,
@@ -73,7 +73,7 @@ class SubmitForPaymentView(MethodView):
 
 		data = invoices_util.SubmitForPaymentRequest.from_dict(data)
 
-		err = invoices_util.submit_invoices_for_payment(
+		_, err = invoices_util.submit_invoices_for_payment(
 			current_app.session_maker,
 			current_app.sendgrid_client,
 			company_id,
@@ -115,7 +115,7 @@ class RespondToPaymentRequestView(MethodView):
 			if user:
 				event.user_id(user.id)
 
-			err = invoices_util.respond_to_payment_request(
+			_, err = invoices_util.respond_to_payment_request(
 				session,
 				current_app.sendgrid_client,
 				info['email'],

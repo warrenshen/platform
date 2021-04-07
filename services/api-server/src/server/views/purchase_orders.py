@@ -9,6 +9,7 @@ from bespoke.db.db_constants import RequestStatusEnum
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance import number_util
+from bespoke.finance.loans import approval_util
 from bespoke.security import security_util, two_factor_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
@@ -128,8 +129,6 @@ class RespondToApprovalRequestView(MethodView):
 			if not user_session.is_bank_admin():
 				cast(Callable, session.delete)(two_factor_link) # retire the link now that it has been used
 
-			session.commit()
-
 		if action_type == 'Approved':
 			template_name = sendgrid_util.TemplateNames.VENDOR_APPROVED_PURCHASE_ORDER
 			template_data = {
@@ -139,6 +138,13 @@ class RespondToApprovalRequestView(MethodView):
 				'purchase_order_amount': purchase_order_amount,
 				'purchase_order_requested_date': purchase_order_requested_date,
 			}
+			# TODO(dlluncor): Implement autofinancing
+			#_, err = approval_util.submit_for_approval_if_has_autofinancing(
+			#	company_id=str(purchase_order.company_id),
+			#	session=session
+			#)
+			#if err:
+			#	raise err
 		else:
 			template_name = sendgrid_util.TemplateNames.VENDOR_REJECTED_PURCHASE_ORDER
 			template_data = {
@@ -238,8 +244,6 @@ class SubmitForApprovalView(MethodView):
 
 			purchase_order.status = RequestStatusEnum.APPROVAL_REQUESTED
 			purchase_order.requested_at = date_util.now()
-
-			session.commit()
 
 		form_info = models.TwoFactorFormInfoDict(
 			type=db_constants.TwoFactorLinkType.CONFIRM_PURCHASE_ORDER,

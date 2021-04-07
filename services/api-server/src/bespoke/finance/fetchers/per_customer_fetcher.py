@@ -149,7 +149,7 @@ class Fetcher(object):
 		return True, None
 
 	@errors.return_error_tuple
-	def fetch(self) -> bool:
+	def fetch(self) -> Tuple[bool, errors.Error]:
 		_, err = self._fetch_contracts()
 		if err:
 			raise err
@@ -187,7 +187,7 @@ class Fetcher(object):
 					raise errors.Error(f"Failed to find ebba application with id '{active_id}'")
 				self._active_ebba_application = matching[0]
 
-		return True
+		return True, None
 
 	def summary(self) -> str:
 		company_dict = self._company_info

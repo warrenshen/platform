@@ -96,20 +96,20 @@ def _list_artifacts_for_invoice(
 @errors.return_error_tuple
 def list_artifacts_for_create_loan(
 	company_id: str, product_type: str,
-	loan_id: str, session_maker: Callable) -> ListArtifactsResp:
+	loan_id: str, session_maker: Callable) -> Tuple[ListArtifactsResp, errors.Error]:
 	if product_type not in db_constants.PRODUCT_TYPES:
 		raise errors.Error('Invalid product type provided')
 
 	if product_type == db_constants.ProductType.LINE_OF_CREDIT:
-		return ListArtifactsResp(artifacts=[], status='OK')
+		return ListArtifactsResp(artifacts=[], status='OK'), None
 
 	elif product_type == db_constants.ProductType.INVENTORY_FINANCING \
 		or product_type == db_constants.ProductType.PURCHASE_MONEY_FINANCING:
 		artifacts = _list_artifacts_for_inventory(company_id, loan_id, session_maker)
-		return ListArtifactsResp(artifacts=artifacts, status='OK')
+		return ListArtifactsResp(artifacts=artifacts, status='OK'), None
 
 	elif product_type == db_constants.ProductType.INVOICE_FINANCING:
 		artifacts = _list_artifacts_for_invoice(company_id, loan_id, session_maker)
-		return ListArtifactsResp(artifacts=artifacts, status='OK')
+		return ListArtifactsResp(artifacts=artifacts, status='OK'), None
 
 	raise errors.Error('Invalid product type provided')

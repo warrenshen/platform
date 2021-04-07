@@ -105,7 +105,7 @@ def create_third_party_user(
 	req: CreateThirdPartyUserInputDict,
 	session_maker: Callable,
 	is_payor: bool,
-) -> CreateThirdPartyUserRespDict:
+) -> Tuple[CreateThirdPartyUserRespDict, errors.Error]:
 	company_id = req['company_id']
 	user_input = req['user']
 	first_name = user_input['first_name']
@@ -152,13 +152,13 @@ def create_third_party_user(
 	return CreateThirdPartyUserRespDict(
 		status='OK',
 		user_id=user_id,
-	)
+	), None
 
 @errors.return_error_tuple
 def update_third_party_user(
 	req: UpdateThirdPartyUserInputDict,
 	session_maker: Callable,
-) -> UpdateThirdPartyUserRespDict:
+) -> Tuple[UpdateThirdPartyUserRespDict, errors.Error]:
 	user_id = req['user_id']
 	user_input = req['user']
 	first_name = user_input['first_name']
@@ -187,4 +187,4 @@ def update_third_party_user(
 	return UpdateThirdPartyUserRespDict(
 		status='OK',
 		user_id=user_id,
-	)
+	), None

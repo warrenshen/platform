@@ -31,12 +31,12 @@ class SubmitForApprovalView(MethodView):
 		if not invoice_id:
 			return handler_util.make_error_response('no id in request')
 
-		err = invoices_util.handle_invoice_approval_request(
+		_, err = invoices_util.handle_invoice_approval_request(
 			current_app.session_maker,
 			current_app.sendgrid_client,
 			invoice_id)
 		if err:
-			return handler_util.make_error_response(err)
+			raise err
 
 		return make_response(json.dumps({
 			'status': 'OK',

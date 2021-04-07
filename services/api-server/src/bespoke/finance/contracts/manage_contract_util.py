@@ -99,7 +99,8 @@ def _update_loans_on_active_contract_updated(
 	return True, None
 
 @errors.return_error_tuple
-def update_contract(req: UpdateContractReqDict, bank_admin_user_id: str, session_maker: Callable) -> bool:
+def update_contract(
+	req: UpdateContractReqDict, bank_admin_user_id: str, session_maker: Callable) -> Tuple[bool, errors.Error]:
 	err_details = {'req': req, 'method': 'update_contract'}
 
 	with session_scope(session_maker) as session:
@@ -128,10 +129,11 @@ def update_contract(req: UpdateContractReqDict, bank_admin_user_id: str, session
 		if err:
 			raise err
 
-	return True
+	return True, None
 
 @errors.return_error_tuple
-def terminate_contract(req: TerminateContractReqDict, bank_admin_user_id: str, session_maker: Callable) -> bool:
+def terminate_contract(
+	req: TerminateContractReqDict, bank_admin_user_id: str, session_maker: Callable) -> Tuple[bool, errors.Error]:
 	err_details = {'req': req, 'method': 'terminate_contract'}
 
 	with session_scope(session_maker) as session:
@@ -166,10 +168,11 @@ def terminate_contract(req: TerminateContractReqDict, bank_admin_user_id: str, s
 		if err:
 			raise err
 
-	return True
+	return True, None
 
 @errors.return_error_tuple
-def add_new_contract(req: AddNewContractReqDict, bank_admin_user_id: str, session_maker: Callable) -> bool:
+def add_new_contract(
+	req: AddNewContractReqDict, bank_admin_user_id: str, session_maker: Callable) -> Tuple[bool, errors.Error]:
 	err_details = {'req': req, 'method': 'add_new_contract'}
 
 	with session_scope(session_maker) as session:
@@ -221,4 +224,4 @@ def add_new_contract(req: AddNewContractReqDict, bank_admin_user_id: str, sessio
 		company.contract_id = new_contract_id
 		session.flush()
 
-	return True
+	return True, None

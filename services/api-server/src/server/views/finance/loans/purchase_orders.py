@@ -146,12 +146,12 @@ class UpsertRequest:
 
 		return upsert, None
 
-@errors.return_error
+@errors.return_error_tuple
 def _validate_model_permissions(
 	session_maker: Callable,
 	company_id: str,
 	purchase_order_ids: List[str],
-	loan_ids: List[str]) -> None:
+	loan_ids: List[str]) -> Tuple[bool, errors.Error]:
 	# Permissions validation
 	# We need to make sure this user has permission to work with these purchase
 	# orders and these loans (if applicable)
@@ -173,7 +173,7 @@ def _validate_model_permissions(
 			if count != len(loan_ids):
 				raise errors.Error("Access Denied")
 
-	return None
+	return True, None
 
 def _handle_approval_email(
 	customer_name: str,
@@ -221,7 +221,7 @@ class UpsertPurchaseOrdersLoansView(MethodView):
 		if err:
 			raise err
 
-		err = _validate_model_permissions(
+		success, err = _validate_model_permissions(
 			current_app.session_maker,
 			company_id,
 			upsert.artifact_ids(),
@@ -262,8 +262,7 @@ class UpsertPurchaseOrdersLoansView(MethodView):
 					session.add(loan)
 
 					# We commit and refresh here so that the loan receives an ID
-					session.commit()
-					session.refresh(loan)
+					session.flush()
 
 					event.data(dict(loan.as_dict())) \
 						 .action(events.Actions.LOANS_CREATE_PURCHASE_ORDER_LOAN)

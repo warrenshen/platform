@@ -21,7 +21,7 @@ handler = Blueprint('finance_loans_approvals', __name__)
 @errors.return_error_tuple
 def _send_bank_approved_loans_emails(
 	loan_ids: List[str],
-) -> bool:
+) -> Tuple[bool, errors.Error]:
 	cfg = cast(Config, current_app.app_config)
 	sendgrid_client = cast(sendgrid_util.Client,
 							current_app.sendgrid_client)
@@ -81,7 +81,7 @@ def _send_bank_approved_loans_emails(
 			if err:
 				raise err
 
-	return True
+	return True, None
 
 class ApproveLoansView(MethodView):
 	decorators = [auth_util.bank_admin_required]
@@ -223,9 +223,10 @@ class SubmitForApprovalView(MethodView):
 		if not loan_id:
 			return handler_util.make_error_response('No Loan ID provided')
 
-		resp, err = approval_util.submit_for_approval(loan_id, current_app.session_maker)
-		if err:
-			return handler_util.make_error_response(err)
+		with session_scope(current_app.session_maker) as session:
+			resp, err = approval_util.submit_for_approval(loan_id, session)
+			if err:
+				raise err
 
 		template_name = sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_LOAN
 		template_data = {

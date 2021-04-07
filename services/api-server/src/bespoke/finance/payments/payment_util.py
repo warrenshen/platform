@@ -170,7 +170,7 @@ def create_and_add_adjustment(
 	created_by_user_id: str,
 	deposit_date: datetime.date,
 	effective_date: datetime.date,
-	session: Session) -> models.Transaction:
+	session: Session) -> Tuple[models.Transaction, errors.Error]:
 
 	tx_input = tx_amount_dict
 	amount = tx_input['to_principal'] + tx_input['to_interest'] + tx_input['to_fees']
@@ -204,7 +204,7 @@ def create_and_add_adjustment(
 	t.effective_date = effective_date
 
 	session.add(t)
-	return t
+	return t, None
 
 def create_and_add_credit_to_user(
 	company_id: str,

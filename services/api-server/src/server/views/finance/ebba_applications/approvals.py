@@ -98,8 +98,6 @@ class RespondToEbbaApplicationApprovalRequest(MethodView):
 			customer_name = ebba_application.company.name
 			customer_emails = [user.email for user in customer_users]
 
-			session.commit()
-
 		template_name = sendgrid_util.TemplateNames.BANK_USER_APPROVES_OR_REJECTS_EBBA_APPLICATION
 		template_data = {
 			'customer_name': customer_name,
@@ -160,8 +158,6 @@ class SubmitEbbaApplicationForApproval(MethodView):
 
 			ebba_application.status = RequestStatusEnum.APPROVAL_REQUESTED
 			ebba_application.requested_at = date_util.now()
-
-			session.commit()
 
 		# TODO (warrenshen): actually set up link to EBBA application here.
 		ebba_application_html = '<span>LINK HERE</span>'
