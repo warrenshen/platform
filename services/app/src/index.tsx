@@ -20,6 +20,7 @@ const theme = createMuiTheme({
     // },
   },
   typography: {
+    fontFamily: ["Inter", "sans-serif"].join(","),
     button: {
       textTransform: "none",
     },
