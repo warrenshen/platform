@@ -1,18 +1,8 @@
-import {
-  Box,
-  Button,
-  createStyles,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  makeStyles,
-  Theme,
-  Typography,
-} from "@material-ui/core";
+import { Box, Button, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import CreateRepaymentConfirmEffect from "components/Repayment/CreateRepaymentConfirmEffect";
 import CreateRepaymentSelectLoans from "components/Repayment/CreateRepaymentSelectLoans";
+import Modal from "components/Shared/Modal/Modal";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
@@ -38,23 +28,6 @@ import {
 import { LoanBeforeAfterPayment } from "lib/types";
 import { useContext, useEffect, useState } from "react";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    dialog: {
-      width: 600,
-    },
-    dialogTitle: {
-      borderBottom: "1px solid #c7c7c7",
-    },
-    dialogActions: {
-      margin: theme.spacing(2),
-    },
-    submitButton: {
-      marginLeft: theme.spacing(1),
-    },
-  })
-);
-
 interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum | null;
@@ -68,7 +41,6 @@ function CreateRepaymentModal({
   initiallySelectedLoanIds,
   handleClose,
 }: Props) {
-  const classes = useStyles();
   const snackbar = useSnackbar();
 
   const {
@@ -218,7 +190,7 @@ function CreateRepaymentModal({
       setErrMsg(response.msg);
     } else {
       setErrMsg("");
-      snackbar.showSuccess("Success! Payment submitted for review by Bespoke.");
+      snackbar.showSuccess("Payment submitted for review by Bespoke.");
       handleClose();
     }
   };
@@ -237,93 +209,73 @@ function CreateRepaymentModal({
       : "Notify";
 
   return (
-    <Dialog open fullWidth maxWidth="md" onClose={handleClose}>
-      <DialogTitle className={classes.dialogTitle}>Make Payment</DialogTitle>
-      <DialogContent style={{ minHeight: 400 }}>
-        <Box display="flex" flexDirection="column">
-          {isBankUser && (
-            <Box mt={2} mb={3}>
-              <Alert severity="info">
-                <Typography variant="body1">
-                  Warning: you are creating a payment on behalf of this customer
-                  (only bank admins can do this).
-                </Typography>
-              </Alert>
-            </Box>
-          )}
-          {isOnSelectLoans ? (
-            <CreateRepaymentSelectLoans
-              productType={productType}
-              financialSummary={financialSummary}
-              payment={payment}
-              paymentOption={paymentOption}
-              setPayment={setPayment}
-              setPaymentOption={setPaymentOption}
-            />
-          ) : (
-            <CreateRepaymentConfirmEffect
-              companyId={companyId}
-              productType={productType}
-              payableAmountPrincipal={
-                calculateEffectResponse?.payable_amount_principal || 0
-              }
-              payableAmountInterest={
-                calculateEffectResponse?.payable_amount_interest || 0
-              }
-              payment={payment}
-              loansBeforeAfterPayment={loansBeforeAfterPayment}
-              setPayment={setPayment}
-            />
-          )}
-        </Box>
-      </DialogContent>
-      <DialogActions className={classes.dialogActions}>
-        <Box display="flex" flexDirection="column" width="100%">
-          {errMsg && (
-            <Box display="flex" justifyContent="flex-end" width="100%">
-              <Typography variant="body1" color="secondary">
-                {errMsg}
+    <Modal
+      isPrimaryActionDisabled={
+        isOnSelectLoans ? isNextButtonDisabled : isActionButtonDisabled
+      }
+      title={"Make Payment"}
+      contentWidth={600}
+      primaryActionText={isOnSelectLoans ? "Next" : actionBtnText}
+      handleClose={handleClose}
+      handlePrimaryAction={
+        isOnSelectLoans ? handleClickNext : handleClickConfirm
+      }
+    >
+      <>
+        {isBankUser && (
+          <Box mt={2} mb={3}>
+            <Alert severity="info">
+              <Typography variant="body1">
+                Warning: you are creating a payment on behalf of this customer
+                (only bank admins can do this).
               </Typography>
-            </Box>
-          )}
-          <Box display="flex" justifyContent="space-between">
-            <Box>
-              {!isOnSelectLoans && (
-                <Button
-                  variant="contained"
-                  color="default"
-                  onClick={() => setIsOnSelectLoans(true)}
-                >
-                  Back to Step 1
-                </Button>
-              )}
-            </Box>
-            <Box>
-              <Button onClick={handleClose}>Cancel</Button>
-              {isOnSelectLoans ? (
-                <Button
-                  disabled={isNextButtonDisabled}
-                  variant="contained"
-                  color="primary"
-                  onClick={handleClickNext}
-                >
-                  Next
-                </Button>
-              ) : (
-                <Button
-                  disabled={isActionButtonDisabled}
-                  variant="contained"
-                  color="primary"
-                  onClick={handleClickConfirm}
-                >
-                  {actionBtnText}
-                </Button>
-              )}
-            </Box>
+            </Alert>
           </Box>
-        </Box>
-      </DialogActions>
-    </Dialog>
+        )}
+        {!isOnSelectLoans && (
+          <Box mb={2}>
+            <Button
+              variant="contained"
+              color="default"
+              onClick={() => setIsOnSelectLoans(true)}
+            >
+              Back to Step 1
+            </Button>
+          </Box>
+        )}
+        {isOnSelectLoans ? (
+          <CreateRepaymentSelectLoans
+            productType={productType}
+            financialSummary={financialSummary}
+            payment={payment}
+            paymentOption={paymentOption}
+            setPayment={setPayment}
+            setPaymentOption={setPaymentOption}
+          />
+        ) : (
+          <CreateRepaymentConfirmEffect
+            companyId={companyId}
+            productType={productType}
+            payableAmountPrincipal={
+              calculateEffectResponse?.payable_amount_principal || 0
+            }
+            payableAmountInterest={
+              calculateEffectResponse?.payable_amount_interest || 0
+            }
+            payment={payment}
+            loansBeforeAfterPayment={loansBeforeAfterPayment}
+            setPayment={setPayment}
+          />
+        )}
+        {errMsg && (
+          <Box display="flex" width="100%" mt={2}>
+            <Typography variant="body1" color="secondary">
+              {errMsg}
+            </Typography>
+          </Box>
+        )}
+      </>
+    </Modal>
   );
 }
 

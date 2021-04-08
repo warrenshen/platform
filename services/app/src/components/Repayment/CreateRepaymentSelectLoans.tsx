@@ -129,7 +129,7 @@ function CreateRepaymentSelectLoans({
       ) : (
         <Box display="flex" flexDirection="column">
           <Typography variant="body2">
-            You have selected the following loan(s) to make a payment towards.
+            Which loan(s) would you like to pay for?
           </Typography>
           <LoansDataGrid
             isDaysPastDueVisible

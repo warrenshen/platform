@@ -1,17 +1,6 @@
-import {
-  Box,
-  Button,
-  createStyles,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  makeStyles,
-  Theme,
-  Typography,
-} from "@material-ui/core";
-import ScheduleRepaymentConfirmEffect from "components/Repayment/ScheduleRepaymentConfirmEffect";
+import { Box, Typography } from "@material-ui/core";
 import ScheduleRepaymentSelectLoans from "components/Repayment/ScheduleRepaymentSelectLoans";
+import Modal from "components/Shared/Modal/Modal";
 import {
   BankAccounts,
   Companies,
@@ -24,37 +13,12 @@ import {
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { PaymentOptionEnum } from "lib/enum";
 import {
   computeSettlementDateForPayment,
   getSettlementTimelineConfigFromContract,
 } from "lib/finance/payments/advance";
-import {
-  calculateRepaymentEffect,
-  CalculateRepaymentEffectResp,
-  LoanBalance,
-  LoanTransaction,
-  scheduleRepaymentMutation,
-} from "lib/finance/payments/repayment";
-import { LoanBeforeAfterPayment } from "lib/types";
+import { scheduleRepaymentMutation } from "lib/finance/payments/repayment";
 import { useEffect, useState } from "react";
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    dialog: {
-      width: 600,
-    },
-    dialogTitle: {
-      borderBottom: "1px solid #c7c7c7",
-    },
-    dialogActions: {
-      margin: theme.spacing(2),
-    },
-    submitButton: {
-      marginLeft: theme.spacing(1),
-    },
-  })
-);
 
 interface Props {
   paymentId: Payments["id"];
@@ -62,13 +26,8 @@ interface Props {
 }
 
 function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
-  const classes = useStyles();
   const snackbar = useSnackbar();
 
-  // There are 2 states that we show, one when the user is selecting
-  // the payment method date, and payment type, and the next is when
-  // they have to "confirm" what they have selected.
-  const [isOnSelectLoans, setIsOnSelectLoans] = useState(true);
   const [errMsg, setErrMsg] = useState("");
 
   const [customer, setCustomer] = useState<Companies | null>(null);
@@ -84,14 +43,6 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
 
   const contract = customer?.contract || null;
   const productType = customer?.contract?.product_type || null;
-
-  const [
-    calculateEffectResponse,
-    setCalculateEffectResponse,
-  ] = useState<CalculateRepaymentEffectResp | null>(null);
-  const [loansBeforeAfterPayment, setLoansBeforeAfterPayment] = useState<
-    LoanBeforeAfterPayment[]
-  >([]);
 
   useGetPaymentForSettlementQuery({
     fetchPolicy: "network-only",
@@ -170,71 +121,6 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
     { loading: isScheduleRepaymentLoading },
   ] = useCustomMutation(scheduleRepaymentMutation);
 
-  // TODO(warrenshen): figure out if we want to keep handleClickNext or not?
-  const handleClickNext = async () => {
-    if (!payment || !customer) {
-      alert("Developer error: payment or customer does not exist.");
-      return;
-    }
-
-    const response = await calculateRepaymentEffect({
-      company_id: customer.id,
-      payment_option: PaymentOptionEnum.CustomAmount,
-      amount: payment.amount,
-      settlement_date: payment.settlement_date,
-      loan_ids: selectedLoans.map((selectedLoan) => selectedLoan.id),
-    });
-
-    console.log({ type: "calculateRepaymentEffect", response });
-
-    if (response.status !== "OK") {
-      setErrMsg(response.msg || "");
-    } else {
-      setErrMsg("");
-
-      if (!response.loans_to_show) {
-        alert("Developer error: response does not include loans_to_show.");
-        return;
-      }
-
-      setCalculateEffectResponse(response);
-      setPayment({
-        ...payment,
-        requested_amount: response.amount_to_pay || null,
-        items_covered: {
-          ...payment.items_covered,
-          loan_ids: response.loans_to_show.map(
-            (loanToShow) => loanToShow.loan_id
-          ),
-        },
-      });
-      setLoansBeforeAfterPayment(
-        response.loans_to_show.map((loanToShow) => {
-          const beforeLoan = loanToShow.before_loan_balance;
-          const afterLoan = loanToShow.after_loan_balance;
-          return {
-            loan_id: loanToShow.loan_id,
-            loan_balance_before: {
-              outstanding_principal_balance:
-                beforeLoan?.outstanding_principal_balance,
-              outstanding_interest: beforeLoan?.outstanding_interest,
-              outstanding_fees: beforeLoan?.outstanding_fees,
-            } as LoanBalance,
-            loan_balance_after: {
-              outstanding_principal_balance:
-                afterLoan.outstanding_principal_balance,
-              outstanding_interest: afterLoan.outstanding_interest,
-              outstanding_fees: afterLoan.outstanding_fees,
-              transaction: loanToShow.transaction as LoanTransaction,
-            } as LoanBalance,
-          } as LoanBeforeAfterPayment;
-        })
-      );
-
-      setIsOnSelectLoans(false);
-    }
-  };
-
   const handleClickConfirm = async () => {
     if (!payment || !customer) {
       alert("Developer error: payment or customer does not exist.");
@@ -261,7 +147,7 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
       setErrMsg(response.msg);
     } else {
       setErrMsg("");
-      snackbar.showSuccess("Success! Payment submitted.");
+      snackbar.showSuccess("Payment submitted.");
       handleClose();
     }
   };
@@ -272,86 +158,33 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
 
   const isNextButtonDisabled =
     !payment.method || !payment.payment_date || !payment.deposit_date;
-  const isActionButtonDisabled =
+  const isSubmitButtonDisabled =
     isNextButtonDisabled || isScheduleRepaymentLoading || payment.amount <= 0;
 
   return (
-    <Dialog open fullWidth maxWidth="md" onClose={handleClose}>
-      <DialogTitle className={classes.dialogTitle}>
-        Submit Reverse Draft ACH Payment
-      </DialogTitle>
-      <DialogContent style={{ minHeight: 400 }}>
-        {isOnSelectLoans ? (
-          <ScheduleRepaymentSelectLoans
-            payment={payment}
-            customer={customer}
-            customerBankAccount={customerBankAccount}
-            selectedLoans={selectedLoans}
-            setPayment={setPayment}
-          />
-        ) : (
-          <ScheduleRepaymentConfirmEffect
-            productType={productType}
-            payableAmountPrincipal={
-              calculateEffectResponse?.payable_amount_principal || 0
-            }
-            payableAmountInterest={
-              calculateEffectResponse?.payable_amount_interest || 0
-            }
-            payment={payment}
-            customer={customer}
-            loansBeforeAfterPayment={loansBeforeAfterPayment}
-            setPayment={setPayment}
-          />
-        )}
-      </DialogContent>
-      <DialogActions className={classes.dialogActions}>
-        <Box display="flex" flexDirection="column" width="100%">
-          {errMsg && (
-            <Box display="flex" justifyContent="flex-end" width="100%">
-              <Typography variant="body1" color="secondary">
-                {errMsg}
-              </Typography>
-            </Box>
-          )}
-          <Box display="flex" justifyContent="space-between">
-            <Box>
-              {!isOnSelectLoans && (
-                <Button
-                  variant="contained"
-                  color="default"
-                  onClick={() => setIsOnSelectLoans(true)}
-                >
-                  Back to Step 1
-                </Button>
-              )}
-            </Box>
-            <Box>
-              <Button onClick={handleClose}>Cancel</Button>
-              {isOnSelectLoans ? (
-                <Button
-                  disabled={isActionButtonDisabled}
-                  variant="contained"
-                  color="primary"
-                  onClick={handleClickConfirm}
-                >
-                  Submit
-                </Button>
-              ) : (
-                <Button
-                  disabled={isActionButtonDisabled}
-                  variant="contained"
-                  color="primary"
-                  onClick={handleClickNext}
-                >
-                  Schedule
-                </Button>
-              )}
-            </Box>
-          </Box>
+    <Modal
+      isPrimaryActionDisabled={isSubmitButtonDisabled}
+      title={"Submit Reverse Draft ACH Payment"}
+      contentWidth={600}
+      primaryActionText={"Submit"}
+      handleClose={handleClose}
+      handlePrimaryAction={handleClickConfirm}
+    >
+      <ScheduleRepaymentSelectLoans
+        payment={payment}
+        customer={customer}
+        customerBankAccount={customerBankAccount}
+        selectedLoans={selectedLoans}
+        setPayment={setPayment}
+      />
+      {errMsg && (
+        <Box display="flex" width="100%" mt={2}>
+          <Typography variant="body1" color="secondary">
+            {errMsg}
+          </Typography>
         </Box>
-      </DialogActions>
-    </Dialog>
+      )}
+    </Modal>
   );
 }
 

@@ -1,17 +1,7 @@
-import {
-  Box,
-  Button,
-  createStyles,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  makeStyles,
-  Theme,
-  Typography,
-} from "@material-ui/core";
+import { Box, Button, Typography } from "@material-ui/core";
 import SettleRepaymentConfirmEffect from "components/Repayment/SettleRepaymentConfirmEffect";
 import SettleRepaymentSelectLoans from "components/Repayment/SettleRepaymentSelectLoans";
+import Modal from "components/Shared/Modal/Modal";
 import {
   BankPayorFragment,
   Companies,
@@ -42,30 +32,12 @@ import {
 import { LoanBeforeAfterPayment } from "lib/types";
 import { useEffect, useMemo, useState } from "react";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    dialog: {
-      width: 500,
-    },
-    dialogTitle: {
-      borderBottom: "1px solid #c7c7c7",
-    },
-    dialogActions: {
-      margin: theme.spacing(2),
-    },
-    submitButton: {
-      marginLeft: theme.spacing(1),
-    },
-  })
-);
-
 interface Props {
   paymentId: Payments["id"];
   handleClose: () => void;
 }
 
 function SettleRepaymentModal({ paymentId, handleClose }: Props) {
-  const classes = useStyles();
   const snackbar = useSnackbar();
 
   // There are 2 states that we show, one when the user is selecting
@@ -284,84 +256,62 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
     isNextButtonDisabled || isSettleRepaymentLoading;
 
   return payment && customer ? (
-    <Dialog open fullWidth maxWidth="md" onClose={handleClose}>
-      <DialogTitle className={classes.dialogTitle}>
-        {`Settle ${
-          PaymentMethodToLabel[payment.method as PaymentMethodEnum]
-        } Payment`}
-      </DialogTitle>
-      <DialogContent>
-        {isOnSelectLoans ? (
-          <SettleRepaymentSelectLoans
-            payment={payment}
-            customer={customer}
-            payor={payor!}
-            setPayment={setPayment}
-          />
-        ) : (
-          <SettleRepaymentConfirmEffect
-            productType={productType}
-            payableAmountPrincipal={
-              calculateEffectResponse?.payable_amount_principal || 0
-            }
-            payableAmountInterest={
-              calculateEffectResponse?.payable_amount_interest || 0
-            }
-            payment={payment}
-            customer={customer}
-            loansBeforeAfterPayment={loansBeforeAfterPayment}
-            setLoanBeforeAfterPayment={setLoanBeforeAfterPayment}
-            setPayment={setPayment}
-          />
-        )}
-      </DialogContent>
-      <DialogActions className={classes.dialogActions}>
-        <Box display="flex" flexDirection="column" width="100%">
-          <Box display="flex" justifyContent="flex-end" width="100%">
-            {errMsg && (
-              <Typography variant="body1" color="secondary">
-                {errMsg}
-              </Typography>
-            )}
-          </Box>
-          <Box display="flex" justifyContent="space-between">
-            <Box>
-              {!isOnSelectLoans && (
-                <Button
-                  variant="contained"
-                  color="default"
-                  onClick={() => setIsOnSelectLoans(true)}
-                >
-                  Go Back
-                </Button>
-              )}
-            </Box>
-            <Box>
-              <Button onClick={handleClose}>Cancel</Button>
-              {isOnSelectLoans ? (
-                <Button
-                  disabled={isNextButtonDisabled}
-                  variant="contained"
-                  color="primary"
-                  onClick={handleClickNext}
-                >
-                  Next
-                </Button>
-              ) : (
-                <Button
-                  disabled={isSubmitButtonDisabled}
-                  variant="contained"
-                  color="primary"
-                  onClick={handleClickConfirm}
-                >
-                  Confirm
-                </Button>
-              )}
-            </Box>
-          </Box>
+    <Modal
+      isPrimaryActionDisabled={
+        isOnSelectLoans ? isNextButtonDisabled : isSubmitButtonDisabled
+      }
+      title={`Settle ${
+        PaymentMethodToLabel[payment.method as PaymentMethodEnum]
+      } Payment`}
+      contentWidth={600}
+      primaryActionText={isOnSelectLoans ? "Next" : "Confirm"}
+      handleClose={handleClose}
+      handlePrimaryAction={
+        isOnSelectLoans ? handleClickNext : handleClickConfirm
+      }
+    >
+      {!isOnSelectLoans && (
+        <Box mb={2}>
+          <Button
+            variant="contained"
+            color="default"
+            onClick={() => setIsOnSelectLoans(true)}
+          >
+            Go Back
+          </Button>
         </Box>
-      </DialogActions>
-    </Dialog>
+      )}
+      {isOnSelectLoans ? (
+        <SettleRepaymentSelectLoans
+          payment={payment}
+          customer={customer}
+          payor={payor!}
+          setPayment={setPayment}
+        />
+      ) : (
+        <SettleRepaymentConfirmEffect
+          productType={productType}
+          payableAmountPrincipal={
+            calculateEffectResponse?.payable_amount_principal || 0
+          }
+          payableAmountInterest={
+            calculateEffectResponse?.payable_amount_interest || 0
+          }
+          payment={payment}
+          customer={customer}
+          loansBeforeAfterPayment={loansBeforeAfterPayment}
+          setLoanBeforeAfterPayment={setLoanBeforeAfterPayment}
+          setPayment={setPayment}
+        />
+      )}
+      {errMsg && (
+        <Box display="flex" width="100%" mt={2}>
+          <Typography variant="body1" color="secondary">
+            {errMsg}
+          </Typography>
+        </Box>
+      )}
+    </Modal>
   ) : null;
 }
 

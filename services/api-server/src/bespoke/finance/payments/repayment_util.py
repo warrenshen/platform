@@ -186,7 +186,7 @@ def calculate_repayment_effect(
 				).all())
 		else:
 			if not loan_ids:
-				raise errors.Error('No loan ids are selected')
+				raise errors.Error('No loans are selected')
 
 			loans = cast(
 				List[models.Loan],
