@@ -4,14 +4,17 @@ import EbbaApplicationDrawerLauncher from "components/EbbaApplication/EbbaApplic
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
-import { EbbaApplicationsQuery, RequestStatusEnum } from "generated/graphql";
+import {
+  GetOpenEbbaApplicationsQuery,
+  RequestStatusEnum,
+} from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
   isCompanyVisible?: boolean;
   isExcelExport?: boolean;
-  ebbaApplications: EbbaApplicationsQuery["ebba_applications"];
+  ebbaApplications: GetOpenEbbaApplicationsQuery["ebba_applications"];
 }
 
 function EbbaApplicationsDataGrid({
@@ -42,7 +45,7 @@ function EbbaApplicationsDataGrid({
       {
         dataField: "status",
         caption: "Status",
-        width: 120,
+        width: ColumnWidths.Status,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
           <RequestStatusChip
@@ -65,6 +68,7 @@ function EbbaApplicationsDataGrid({
       {
         dataField: "monthly_accounts_receivable",
         caption: "Accounts Receivable",
+        width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell
@@ -75,6 +79,7 @@ function EbbaApplicationsDataGrid({
       {
         dataField: "monthly_inventory",
         caption: "Inventory",
+        width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.monthly_inventory} />
@@ -83,6 +88,7 @@ function EbbaApplicationsDataGrid({
       {
         dataField: "monthly_cash",
         caption: "Cash in Deposit Accounts",
+        width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.monthly_cash} />
@@ -91,6 +97,7 @@ function EbbaApplicationsDataGrid({
       {
         dataField: "amount_cash_in_daca",
         caption: "Cash in DACA Deposit Accounts",
+        width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.amount_cash_in_daca} />

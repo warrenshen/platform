@@ -15399,9 +15399,23 @@ export type UpdateEbbaApplicationMutation = {
   >;
 };
 
-export type EbbaApplicationsQueryVariables = Exact<{ [key: string]: never }>;
+export type GetOpenEbbaApplicationsQueryVariables = Exact<{
+  [key: string]: never;
+}>;
 
-export type EbbaApplicationsQuery = {
+export type GetOpenEbbaApplicationsQuery = {
+  ebba_applications: Array<
+    Pick<EbbaApplications, "id"> & {
+      company: Pick<Companies, "id" | "name">;
+    } & EbbaApplicationFragment
+  >;
+};
+
+export type GetClosedEbbaApplicationsQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetClosedEbbaApplicationsQuery = {
   ebba_applications: Array<
     Pick<EbbaApplications, "id"> & {
       company: Pick<Companies, "id" | "name">;
@@ -18209,9 +18223,10 @@ export type UpdateEbbaApplicationMutationOptions = Apollo.BaseMutationOptions<
   UpdateEbbaApplicationMutation,
   UpdateEbbaApplicationMutationVariables
 >;
-export const EbbaApplicationsDocument = gql`
-  query EbbaApplications {
+export const GetOpenEbbaApplicationsDocument = gql`
+  query GetOpenEbbaApplications {
     ebba_applications(
+      where: { approved_at: { _is_null: true } }
       order_by: [{ application_date: desc }, { created_at: desc }]
     ) {
       id
@@ -18226,51 +18241,115 @@ export const EbbaApplicationsDocument = gql`
 `;
 
 /**
- * __useEbbaApplicationsQuery__
+ * __useGetOpenEbbaApplicationsQuery__
  *
- * To run a query within a React component, call `useEbbaApplicationsQuery` and pass it any options that fit your needs.
- * When your component renders, `useEbbaApplicationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetOpenEbbaApplicationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOpenEbbaApplicationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useEbbaApplicationsQuery({
+ * const { data, loading, error } = useGetOpenEbbaApplicationsQuery({
  *   variables: {
  *   },
  * });
  */
-export function useEbbaApplicationsQuery(
+export function useGetOpenEbbaApplicationsQuery(
   baseOptions?: Apollo.QueryHookOptions<
-    EbbaApplicationsQuery,
-    EbbaApplicationsQueryVariables
+    GetOpenEbbaApplicationsQuery,
+    GetOpenEbbaApplicationsQueryVariables
   >
 ) {
-  return Apollo.useQuery<EbbaApplicationsQuery, EbbaApplicationsQueryVariables>(
-    EbbaApplicationsDocument,
-    baseOptions
-  );
+  return Apollo.useQuery<
+    GetOpenEbbaApplicationsQuery,
+    GetOpenEbbaApplicationsQueryVariables
+  >(GetOpenEbbaApplicationsDocument, baseOptions);
 }
-export function useEbbaApplicationsLazyQuery(
+export function useGetOpenEbbaApplicationsLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    EbbaApplicationsQuery,
-    EbbaApplicationsQueryVariables
+    GetOpenEbbaApplicationsQuery,
+    GetOpenEbbaApplicationsQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    EbbaApplicationsQuery,
-    EbbaApplicationsQueryVariables
-  >(EbbaApplicationsDocument, baseOptions);
+    GetOpenEbbaApplicationsQuery,
+    GetOpenEbbaApplicationsQueryVariables
+  >(GetOpenEbbaApplicationsDocument, baseOptions);
 }
-export type EbbaApplicationsQueryHookResult = ReturnType<
-  typeof useEbbaApplicationsQuery
+export type GetOpenEbbaApplicationsQueryHookResult = ReturnType<
+  typeof useGetOpenEbbaApplicationsQuery
 >;
-export type EbbaApplicationsLazyQueryHookResult = ReturnType<
-  typeof useEbbaApplicationsLazyQuery
+export type GetOpenEbbaApplicationsLazyQueryHookResult = ReturnType<
+  typeof useGetOpenEbbaApplicationsLazyQuery
 >;
-export type EbbaApplicationsQueryResult = Apollo.QueryResult<
-  EbbaApplicationsQuery,
-  EbbaApplicationsQueryVariables
+export type GetOpenEbbaApplicationsQueryResult = Apollo.QueryResult<
+  GetOpenEbbaApplicationsQuery,
+  GetOpenEbbaApplicationsQueryVariables
+>;
+export const GetClosedEbbaApplicationsDocument = gql`
+  query GetClosedEbbaApplications {
+    ebba_applications(
+      where: { approved_at: { _is_null: false } }
+      order_by: [{ application_date: desc }, { created_at: desc }]
+    ) {
+      id
+      ...EbbaApplication
+      company {
+        id
+        name
+      }
+    }
+  }
+  ${EbbaApplicationFragmentDoc}
+`;
+
+/**
+ * __useGetClosedEbbaApplicationsQuery__
+ *
+ * To run a query within a React component, call `useGetClosedEbbaApplicationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetClosedEbbaApplicationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetClosedEbbaApplicationsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetClosedEbbaApplicationsQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetClosedEbbaApplicationsQuery,
+    GetClosedEbbaApplicationsQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetClosedEbbaApplicationsQuery,
+    GetClosedEbbaApplicationsQueryVariables
+  >(GetClosedEbbaApplicationsDocument, baseOptions);
+}
+export function useGetClosedEbbaApplicationsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetClosedEbbaApplicationsQuery,
+    GetClosedEbbaApplicationsQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetClosedEbbaApplicationsQuery,
+    GetClosedEbbaApplicationsQueryVariables
+  >(GetClosedEbbaApplicationsDocument, baseOptions);
+}
+export type GetClosedEbbaApplicationsQueryHookResult = ReturnType<
+  typeof useGetClosedEbbaApplicationsQuery
+>;
+export type GetClosedEbbaApplicationsLazyQueryHookResult = ReturnType<
+  typeof useGetClosedEbbaApplicationsLazyQuery
+>;
+export type GetClosedEbbaApplicationsQueryResult = Apollo.QueryResult<
+  GetClosedEbbaApplicationsQuery,
+  GetClosedEbbaApplicationsQueryVariables
 >;
 export const PayorsByPartnerCompanyDocument = gql`
   query PayorsByPartnerCompany($companyId: uuid!) {

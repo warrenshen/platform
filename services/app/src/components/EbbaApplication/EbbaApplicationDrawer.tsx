@@ -97,17 +97,6 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
             mt={2}
           >
             <Typography variant="subtitle2" color="textSecondary">
-              Platform ID
-            </Typography>
-            <Typography variant={"body1"}>{ebbaApplication.id}</Typography>
-          </Box>
-          <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="flex-start"
-            mt={2}
-          >
-            <Typography variant="subtitle2" color="textSecondary">
               Status
             </Typography>
             <RequestStatusChip requestStatus={ebbaApplication.status} />
@@ -196,6 +185,19 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
             </Typography>
             <DownloadThumbnail fileIds={ebbaApplicationFileIds} />
           </Box>
+          {isBankUser && (
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="flex-start"
+              mt={2}
+            >
+              <Typography variant="subtitle2" color="textSecondary">
+                Platform ID
+              </Typography>
+              <Typography variant={"body1"}>{ebbaApplication.id}</Typography>
+            </Box>
+          )}
           {isBankUser && (
             <Box
               display="flex"

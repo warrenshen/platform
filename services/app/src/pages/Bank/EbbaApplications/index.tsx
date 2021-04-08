@@ -1,44 +1,37 @@
-import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
+import { Box, Tab, Tabs } from "@material-ui/core";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
-import { useEbbaApplicationsQuery } from "generated/graphql";
+import EbbaApplicationsActiveTab from "pages/Bank/EbbaApplications/EbbaApplicationsActiveTab";
+import EbbaApplicationsClosedTab from "pages/Bank/EbbaApplications/EbbaApplicationsClosedTab";
+import { useState } from "react";
 
-function EbbaApplicationsPage() {
-  // Note: we use the fetchPolicy "no-cache" here.
-  //
-  // The following component tree is rendered.
-  // EbbaApplicationsDataGrid >
-  // EbbaApplicationDrawerLauncher >
-  // EbbaApplicationDrawer >
-  // CreateUpdateEbbaApplicationModal
-  //
-  // When the user updates an EbbaApplication, this updates the Apollo cache
-  // and causes ebbaApplications in this component to update. This passes down
-  // updated ebbaApplications to the child data grid. Finally, the
-  // ControlledDataGrid component currently ALWAYS re-renders on data change,
-  // which causes the whole grid to re-render and forcefully close any
-  // EbbaApplicationDrawer that is open.
-
-  const { data, error } = useEbbaApplicationsQuery({
-    fetchPolicy: "no-cache",
-  });
-
-  if (error) {
-    alert("Error querying borrowing bases. " + error);
-  }
-
-  const ebbaApplications = data?.ebba_applications || [];
+function BankEbbaApplicationsPage() {
+  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   return (
     <Page appBarTitle={"Borrowing Bases"}>
       <PageContent title={"Borrowing Bases"}>
-        <EbbaApplicationsDataGrid
-          ebbaApplications={ebbaApplications}
-          isExcelExport
-        />
+        <Box flex={1} display="flex" flexDirection="column" width="100%">
+          <Tabs
+            value={selectedTabIndex}
+            indicatorColor="primary"
+            textColor="primary"
+            onChange={(_event: any, value: number) =>
+              setSelectedTabIndex(value)
+            }
+          >
+            <Tab label="Action Required" />
+            <Tab label="Confirmed" />
+          </Tabs>
+          {selectedTabIndex === 0 ? (
+            <EbbaApplicationsActiveTab />
+          ) : (
+            <EbbaApplicationsClosedTab />
+          )}
+        </Box>
       </PageContent>
     </Page>
   );
 }
 
-export default EbbaApplicationsPage;
+export default BankEbbaApplicationsPage;

@@ -1,5 +1,20 @@
-query EbbaApplications {
+query GetOpenEbbaApplications {
   ebba_applications(
+    where: { approved_at: { _is_null: true } }
+    order_by: [{ application_date: desc }, { created_at: desc }]
+  ) {
+    id
+    ...EbbaApplication
+    company {
+      id
+      name
+    }
+  }
+}
+
+query GetClosedEbbaApplications {
+  ebba_applications(
+    where: { approved_at: { _is_null: false } }
     order_by: [{ application_date: desc }, { created_at: desc }]
   ) {
     id
