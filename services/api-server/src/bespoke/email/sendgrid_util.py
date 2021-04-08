@@ -236,6 +236,9 @@ class Client(object):
 		self._security_cfg = security_config
 		self._session_maker = session_maker
 
+	def get_bank_notify_email_addresses(self) -> List[str]:
+		return self._cfg['bank_notify_email_addresses']
+
 	def send(self,
 			 template_name: str, template_data: Dict, recipients: List[str],
 			 two_factor_payload: TwoFactorPayloadDict = None) -> Tuple[bool, errors.Error]:

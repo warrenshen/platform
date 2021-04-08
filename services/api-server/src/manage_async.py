@@ -60,7 +60,8 @@ email_config = EmailConfigDict(
 		api_key=config.SENDGRID_API_KEY
 	),
 	flask_env=config.FLASK_ENV,
-	no_reply_email_addr=config.NO_REPLY_EMAIL_ADDRESS
+	no_reply_email_addr=config.NO_REPLY_EMAIL_ADDRESS,
+	bank_notify_email_addresses=config.BANK_NOTIFY_EMAIL_ADDRESSES
 )
 email_client = email_manager.new_client(email_config)
 app.sendgrid_client = sendgrid_util.Client(

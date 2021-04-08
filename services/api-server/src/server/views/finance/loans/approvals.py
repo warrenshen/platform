@@ -224,20 +224,15 @@ class SubmitForApprovalView(MethodView):
 			return handler_util.make_error_response('No Loan ID provided')
 
 		with session_scope(current_app.session_maker) as session:
-			resp, err = approval_util.submit_for_approval(loan_id, session)
+			resp, err = approval_util.submit_for_approval(
+				loan_id, session, triggered_by_autofinancing=False)
 			if err:
 				raise err
 
-		template_name = sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_LOAN
-		template_data = {
-			'customer_name': resp['customer_name'],
-			'loan_html': resp['loan_html']
-		}
-		recipients = cfg.BANK_NOTIFY_EMAIL_ADDRESSES
-		_, err = sendgrid_client.send(
-			template_name, template_data, recipients)
+		success, err = approval_util.send_loan_approval_requested_email(
+			sendgrid_client, resp)
 		if err:
-			return handler_util.make_error_response(err)
+			raise err
 
 		return make_response(json.dumps({
 			'status': 'OK',

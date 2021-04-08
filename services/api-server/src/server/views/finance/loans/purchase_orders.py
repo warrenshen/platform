@@ -177,11 +177,13 @@ def _validate_model_permissions(
 
 def _handle_approval_email(
 	customer_name: str,
-	loan_dicts: List[models.LoanDict]) -> errors.Error:
+	loan_dicts: List[models.LoanDict],
+	triggered_by_autofinancing: bool) -> errors.Error:
 	responses = []
 
 	for loan in loan_dicts:
-		response, err = approval_util.submit_for_approval(loan["id"], current_app.session_maker)
+		response, err = approval_util.submit_for_approval(
+			loan["id"], current_app.session_maker, triggered_by_autofinancing=triggered_by_autofinancing)
 		if err:
 			return err
 		responses.append(response)
@@ -191,6 +193,7 @@ def _handle_approval_email(
 	data = {
 		"customer_name": customer_name,
 		"loan_html": html,
+		"triggered_by_autofinancing": triggered_by_autofinancing
 	}
 
 	config = cast(Config, current_app.app_config)
@@ -277,7 +280,8 @@ class UpsertPurchaseOrdersLoansView(MethodView):
 				loan_events.append(event)
 
 			if upsert.status == LoanStatusEnum.APPROVAL_REQUESTED:
-				err = _handle_approval_email(customer_name, loan_dicts)
+				err = _handle_approval_email(
+					customer_name, loan_dicts, triggered_by_autofinancing=False)
 				if err:
 					raise err
 

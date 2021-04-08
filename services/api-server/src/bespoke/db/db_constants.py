@@ -84,6 +84,12 @@ ALL_LOAN_TYPES = [
 	LoanTypeEnum.INVOICE,
 ]
 
+PRODUCT_TYPE_TO_LOAN_TYPE = {
+	ProductType.INVENTORY_FINANCING: LoanTypeEnum.INVENTORY,
+	ProductType.LINE_OF_CREDIT: LoanTypeEnum.LINE_OF_CREDIT,
+	ProductType.INVOICE_FINANCING: LoanTypeEnum.INVOICE
+}
+
 # Payments
 
 class PaymentMethodEnum(object):

@@ -8,6 +8,7 @@ from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.db_constants import (ALL_LOAN_TYPES, LoanStatusEnum,
                                      LoanTypeEnum, RequestStatusEnum)
+from bespoke.email import sendgrid_util
 from bespoke.db.models import session_scope
 from bespoke.finance import financial_summary_util
 from bespoke.finance.loans import sibling_util
@@ -23,8 +24,31 @@ ApproveLoansRespDict = TypedDict('ApproveLoansRespDict', {
 
 SubmitForApprovalRespDict = TypedDict('SubmitForApprovalRespDict', {
 	'customer_name': str,
-	'loan_html': str
+	'loan_html': str,
+	'triggered_by_autofinancing': bool,
+	'loan_id': str
 })
+
+
+
+@errors.return_error_tuple
+def send_loan_approval_requested_email(
+	sendgrid_client: sendgrid_util.Client,
+	submit_resp: SubmitForApprovalRespDict) -> Tuple[bool, errors.Error]:
+
+	template_name = sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_LOAN
+	template_data = {
+		'customer_name': submit_resp['customer_name'],
+		'loan_html': submit_resp['loan_html'],
+		'triggered_by_autofinancing': submit_resp['triggered_by_autofinancing']
+	}
+	recipients = sendgrid_client.get_bank_notify_email_addresses()
+	_, err = sendgrid_client.send(
+		template_name, template_data, recipients)
+	if err:
+		return None, err
+
+	return True, None
 
 @errors.return_error_tuple
 def approve_loans(
@@ -71,7 +95,8 @@ def approve_loans(
 	return ApproveLoansRespDict(status='OK'), None
 
 @errors.return_error_tuple
-def submit_for_approval(loan_id: str, session: Session) -> Tuple[SubmitForApprovalRespDict, errors.Error]:
+def submit_for_approval(
+	loan_id: str, session: Session, triggered_by_autofinancing: bool) -> Tuple[SubmitForApprovalRespDict, errors.Error]:
 
 	err_details = {
 		'loan_id': loan_id,
@@ -181,10 +206,15 @@ def submit_for_approval(loan_id: str, session: Session) -> Tuple[SubmitForApprov
 	loan.requested_at = date_util.now()
 
 	return SubmitForApprovalRespDict(
+		triggered_by_autofinancing=triggered_by_autofinancing,
 		customer_name=customer_name,
-		loan_html=loan_html
+		loan_html=loan_html,
+		loan_id=str(loan.id)
 	), None
 
+
+# NOTE: Keep in sync with addLoan in CreateUpdateArtifactLoanModal. Relevant
+# code is:
 """
     company_id: isBankUser ? companyId : undefined,
     identifier: nextLoanIdentifier.toString(),
@@ -193,11 +223,9 @@ def submit_for_approval(loan_id: str, session: Session) -> Tuple[SubmitForApprov
     requested_payment_date: loan.requested_payment_date || null,
     amount: loan.amount || null,
 """
-
-# NOTE: Keep in sync with addLoan in CreateUpdateArtifactLoanModal
 @errors.return_error_tuple
 def submit_for_approval_if_has_autofinancing(
-	company_id: str, amount: float, artifact_id: str, session: Session) -> Tuple[bool, errors.Error]:
+	company_id: str, amount: float, artifact_id: str, session: Session) -> Tuple[SubmitForApprovalRespDict, errors.Error]:
 
 	company = cast(
 		models.Company,
@@ -207,21 +235,48 @@ def submit_for_approval_if_has_autofinancing(
 	if not company:
 		raise errors.Error('No company found to submit autofinancing for')
 
+	company_settings = cast(
+		models.CompanySettings,
+		session.query(models.CompanySettings).filter(
+			models.CompanySettings.id == company.company_settings_id
+		).first())
+
+	if not company_settings:
+		raise errors.Error('No company settings found, so we could not determine if autofinancing is an option')
+
+	if not company_settings.has_autofinancing:
+		# No need to request a loan if autofinancing is not enabled
+		return None, None
+
+	contract = cast(
+		models.Contract,
+		session.query(models.Contract).filter(
+			models.Contract.id == company.contract_id
+		).first())
+	if not contract:
+		raise errors.Error('No contract found for customer, therefore, cannot perform autofinancing')
+
 	company.latest_loan_identifier += 1
 	
+	loan_type = db_constants.PRODUCT_TYPE_TO_LOAN_TYPE.get(contract.product_type)
+	if not loan_type:
+		raise errors.Error('No loan type associated with product type {}'.format(loan_type))
+
 	loan = models.Loan()
 	loan.company_id = company_id
 	loan.identifier = '{}'.format(company.latest_loan_identifier)
+	loan.loan_type = loan_type
 	loan.artifact_id = artifact_id
-	loan.requested_payment_date = date_util.now() # using tz today
+	loan.requested_payment_date = date_util.now() # TODO(dlluncor): use customer timezone today
 	loan.amount = decimal.Decimal(amount)
 
 	session.add(loan)
+	session.flush()
 	loan_id = str(loan.id)
 
-	_, err = submit_for_approval(loan_id, session)
+	resp, err = submit_for_approval(loan_id, session, triggered_by_autofinancing=True)
 	if err:
 		raise err
 
-	return True, None
+	return resp, None
 

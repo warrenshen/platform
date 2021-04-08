@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Any
+from typing import Any, Callable, cast
 
 from bespoke import errors
 from bespoke.audit import events
@@ -9,6 +9,7 @@ from bespoke.db import models
 from bespoke.db.db_constants import RequestStatusEnum
 from bespoke.email import sendgrid_util
 from bespoke.finance import number_util
+from bespoke.finance.loans import approval_util
 from bespoke.finance.invoices import invoices_util
 from bespoke.security import security_util, two_factor_util
 from flask import Response, current_app, make_response, request
@@ -58,6 +59,8 @@ class RespondToApprovalRequestView(MethodView):
 	@events.wrap(events.Actions.INVOICE_RESPOND_TO_APPROVAL)
 	@handler_util.catch_bad_json_request
 	def post(self, event: events.Event, **kwargs: Any) -> Response:
+		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
+
 		data = json.loads(request.data)
 		if not data:
 			return handler_util.make_error_response("No data provided")
@@ -106,6 +109,22 @@ class RespondToApprovalRequestView(MethodView):
 			if new_request_status == RequestStatusEnum.APPROVED:
 				invoice.approved_at = date_util.now()
 				action_type = 'Approved'
+
+				submit_resp, err = approval_util.submit_for_approval_if_has_autofinancing(
+					company_id=str(invoice.company_id),
+					amount=float(invoice.subtotal_amount),
+					artifact_id=str(invoice.id),
+					session=session
+				)
+				if err:
+					raise err
+
+				if submit_resp:
+					# Only trigger the email if indeed we performed autofinancing
+					success, err = approval_util.send_loan_approval_requested_email(
+						sendgrid_client, submit_resp)
+					if err:
+						raise err
 			else:
 				invoice.rejected_at = date_util.now()
 				invoice.rejection_note = rejection_note
@@ -133,7 +152,7 @@ class RespondToApprovalRequestView(MethodView):
 
 			emails = [u.email for u in customer_users if u.email]
 			if len(emails):
-				_, err = current_app.sendgrid_client.send(
+				_, err = sendgrid_client.send(
 					template_name,
 					template_data,
 					emails
@@ -141,7 +160,7 @@ class RespondToApprovalRequestView(MethodView):
 				if err:
 					raise err
 
-			session.delete(info['link']) # type: ignore
+			cast(Callable, session.delete)(info['link'])
 
 		return make_response(json.dumps({
 			'status': 'OK',

@@ -138,13 +138,21 @@ class RespondToApprovalRequestView(MethodView):
 				'purchase_order_amount': purchase_order_amount,
 				'purchase_order_requested_date': purchase_order_requested_date,
 			}
-			# TODO(dlluncor): Implement autofinancing
-			#_, err = approval_util.submit_for_approval_if_has_autofinancing(
-			#	company_id=str(purchase_order.company_id),
-			#	session=session
-			#)
-			#if err:
-			#	raise err
+			submit_resp, err = approval_util.submit_for_approval_if_has_autofinancing(
+				company_id=str(purchase_order.company_id),
+				amount=float(purchase_order.amount),
+				artifact_id=str(purchase_order.id),
+				session=session
+			)
+			if err:
+				raise err
+
+			if submit_resp:
+				# Only trigger the email if indeed we performed autofinancing
+				success, err = approval_util.send_loan_approval_requested_email(
+					sendgrid_client, submit_resp)
+				if err:
+					raise err
 		else:
 			template_name = sendgrid_util.TemplateNames.VENDOR_REJECTED_PURCHASE_ORDER
 			template_data = {

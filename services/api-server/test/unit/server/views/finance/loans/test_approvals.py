@@ -1,10 +1,12 @@
+# Tests approval_util approval_util.py
 import datetime
 import decimal
+import json
 import uuid
 from typing import cast, List, Dict
 
 from bespoke.db import models, db_constants
-from bespoke.db.db_constants import LoanStatusEnum
+from bespoke.db.db_constants import LoanStatusEnum, LoanTypeEnum, ProductType
 from bespoke.db.models import session_scope
 from bespoke.finance.loans import approval_util
 from bespoke.finance import number_util
@@ -16,6 +18,42 @@ from bespoke_test.db import db_unittest
 from bespoke_test.db import test_helper
 
 # TODO(warren): Add a test for approve loan
+
+def _get_financial_summary(total_limit: float, available_limit: float) -> models.FinancialSummary:
+	return models.FinancialSummary(
+				total_limit=decimal.Decimal(total_limit),
+				adjusted_total_limit=decimal.Decimal(total_limit),
+				total_outstanding_principal=decimal.Decimal(0.0),
+				total_outstanding_principal_for_interest=decimal.Decimal(0.0),
+				total_outstanding_interest=decimal.Decimal(0.0), # unused
+				total_outstanding_fees=decimal.Decimal(0.0), # unused
+				total_principal_in_requested_state=decimal.Decimal(0.0), # unused
+				interest_accrued_today=decimal.Decimal(0.0), # unused
+				available_limit=decimal.Decimal(200.0),
+				minimum_monthly_payload={},
+				account_level_balance_payload={}
+	)
+
+def _get_late_fee_structure() -> str:
+	return json.dumps({
+		'1-14': 0.25,
+		'15-29': 0.50,
+		'30+': 1.0
+	})
+
+def _get_contract(product_type: str) -> models.Contract:
+	return models.Contract(
+		product_type=product_type,
+		product_config=contract_test_helper.create_contract_config(
+			product_type=product_type,
+			input_dict=ContractInputDict(
+				interest_rate=5.00,
+				maximum_principal_amount=120000.01,
+				max_days_until_repayment=0, # unused
+				late_fee_structure=_get_late_fee_structure(), # unused
+			)
+		)
+	)
 
 class TestSubmitForApproval(db_unittest.TestCase):
 
@@ -62,7 +100,8 @@ class TestSubmitForApproval(db_unittest.TestCase):
 		with session_scope(session_maker) as session:
 			resp, err = approval_util.submit_for_approval(
 				loan_id=loan_id,
-				session=session
+				session=session,
+				triggered_by_autofinancing=False
 			)
 			if test.get('in_err_msg'):
 				self.assertIn(test['in_err_msg'], err.msg if err else '')
@@ -85,18 +124,9 @@ class TestSubmitForApproval(db_unittest.TestCase):
 
 	def test_failure_no_loan(self) -> None:
 		test: Dict = {
-			'financial_summary': models.FinancialSummary(
-				total_limit=decimal.Decimal(200.0),
-				adjusted_total_limit=decimal.Decimal(200.0),
-				total_outstanding_principal=decimal.Decimal(0.0),
-				total_outstanding_principal_for_interest=decimal.Decimal(0.0),
-				total_outstanding_interest=decimal.Decimal(0.0), # unused
-				total_outstanding_fees=decimal.Decimal(0.0), # unused
-				total_principal_in_requested_state=decimal.Decimal(0.0), # unused
-				interest_accrued_today=decimal.Decimal(0.0), # unused
-				available_limit=decimal.Decimal(200.0),
-				minimum_monthly_payload={},
-				account_level_balance_payload={}
+			'financial_summary': _get_financial_summary(
+				total_limit=200.0,
+				available_limit=200.0,
 			),
 			'loans': [],
 			'loan_index': None,
@@ -108,18 +138,9 @@ class TestSubmitForApproval(db_unittest.TestCase):
 
 	def test_too_many_loans_from_one_purchase_order(self) -> None:
 		test: Dict = {
-			'financial_summary': models.FinancialSummary(
-				total_limit=decimal.Decimal(200.0),
-				adjusted_total_limit=decimal.Decimal(200.0),
-				total_outstanding_principal=decimal.Decimal(0.0),
-				total_outstanding_principal_for_interest=decimal.Decimal(0.0),
-				total_outstanding_interest=decimal.Decimal(0.0), # unused
-				total_outstanding_fees=decimal.Decimal(0.0), # unused
-				total_principal_in_requested_state=decimal.Decimal(0.0), # unused
-				interest_accrued_today=decimal.Decimal(0.0), # unused
-				available_limit=decimal.Decimal(200.0),
-				minimum_monthly_payload={},
-				account_level_balance_payload={}
+			'financial_summary': _get_financial_summary(
+				total_limit=200.0,
+				available_limit=200.0
 			),
 			'loans': [
 				models.Loan(
@@ -166,18 +187,9 @@ class TestSubmitForApproval(db_unittest.TestCase):
 	def test_failure_hit_max_limit_allowed(self) -> None:
 
 		test: Dict = {
-			'financial_summary': models.FinancialSummary(
-				total_limit=decimal.Decimal(1000.0),
-				adjusted_total_limit=decimal.Decimal(1000.0),
-				total_outstanding_principal=decimal.Decimal(0.0),
-				total_outstanding_principal_for_interest=decimal.Decimal(0.0),
-				total_outstanding_interest=decimal.Decimal(0.0), # unused
-				total_outstanding_fees=decimal.Decimal(0.0), # unused
-				total_principal_in_requested_state=decimal.Decimal(0.0), # unused
-				interest_accrued_today=decimal.Decimal(0.0), # unused
-				available_limit=decimal.Decimal(200.0),
-				minimum_monthly_payload={},
-				account_level_balance_payload={}
+			'financial_summary': _get_financial_summary(
+				total_limit=1000.0,
+				available_limit=200.0
 			),
 			'loans': [
 				models.Loan(
@@ -197,18 +209,9 @@ class TestSubmitForApproval(db_unittest.TestCase):
 
 	def test_sucess_many_loans_from_one_purchase_order_draft_doesnt_count(self) -> None:
 		test: Dict = {
-			'financial_summary': models.FinancialSummary(
-				total_limit=decimal.Decimal(200.0),
-				adjusted_total_limit=decimal.Decimal(200.0),
-				total_outstanding_principal=decimal.Decimal(0.0),
-				total_outstanding_principal_for_interest=decimal.Decimal(0.0),
-				total_outstanding_interest=decimal.Decimal(0.0), # unused
-				total_outstanding_fees=decimal.Decimal(0.0), # unused
-				total_principal_in_requested_state=decimal.Decimal(0.0), # unused
-				interest_accrued_today=decimal.Decimal(0.0), # unused
-				available_limit=decimal.Decimal(200.0),
-				minimum_monthly_payload={},
-				account_level_balance_payload={}
+			'financial_summary': _get_financial_summary(
+				total_limit=200.0,
+				available_limit=200.0
 			),
 			'loans': [
 				models.Loan(
@@ -242,18 +245,9 @@ class TestSubmitForApproval(db_unittest.TestCase):
 	def test_success_inventory_loan(self) -> None:
 
 		test: Dict = {
-			'financial_summary': models.FinancialSummary(
-				total_limit=decimal.Decimal(200.0),
-				adjusted_total_limit=decimal.Decimal(200.0),
-				total_outstanding_principal=decimal.Decimal(0.0),
-				total_outstanding_principal_for_interest=decimal.Decimal(0.0),
-				total_outstanding_interest=decimal.Decimal(0.0), # unused
-				total_outstanding_fees=decimal.Decimal(0.0), # unused
-				total_principal_in_requested_state=decimal.Decimal(0.0), # unused
-				interest_accrued_today=decimal.Decimal(0.0), # unused
-				available_limit=decimal.Decimal(200.0),
-				minimum_monthly_payload={},
-				account_level_balance_payload={}
+			'financial_summary': _get_financial_summary(
+				total_limit=200.0,
+				available_limit=200.0,
 			),
 			'loans': [
 				models.Loan(
@@ -267,5 +261,120 @@ class TestSubmitForApproval(db_unittest.TestCase):
 				amount=decimal.Decimal(100.0)
 			)],
 			'loan_artifact_indices': [0],
+		}
+		self._run_test(test)
+
+class TestSubmitViaAutoFinancing(db_unittest.TestCase):
+
+	def _run_test(self, test: Dict) -> None:
+		self.reset()
+		session_maker = self.session_maker
+		seed = test_helper.BasicSeed.create(self.session_maker, self)
+		seed.initialize()
+
+		financial_summary = test['financial_summary'] # Financial summary registered in the system
+		company_settings = test['company_settings']
+		contract = test['contract']
+		artifact = test['artifact'] # Artifacts registered in the system
+		artifact_id = None
+		artifact_amount = None
+		company_id = seed.get_company_id('company_admin', index=0)
+
+		with session_scope(session_maker) as session:
+
+			financial_summary.company_id = company_id
+			session.add(financial_summary)
+		
+			company_settings.company_id = company_id
+			session.add(company_settings)
+
+			contract.company_id = company_id
+			session.add(contract)
+
+			artifact.company_id = company_id
+			session.add(artifact)
+			session.flush()
+			artifact_id = str(artifact.id)
+			artifact_amount = float(artifact.amount)
+
+			company = cast(models.Company, session.query(models.Company).filter_by(
+				id=company_id
+			).first())
+			company.contract_id = str(contract.id)
+			company.company_settings_id = str(company_settings.id)
+
+		with session_scope(session_maker) as session:
+			resp, err = approval_util.submit_for_approval_if_has_autofinancing(
+				company_id=company_id,
+				amount=artifact_amount,
+				artifact_id=artifact_id,
+				session=session
+			)
+			if test.get('in_err_msg'):
+				self.assertIn(test['in_err_msg'], err.msg if err else '')
+				return
+
+		self.assertIsNone(err)
+
+		if test['expect_no_loan']:
+			self.assertIsNone(resp)
+			return
+
+		expected = test['expected_loan']
+		with session_scope(session_maker) as session:
+			loan_id = resp['loan_id']
+			loan = cast(
+				models.Loan,
+				session.query(models.Loan).filter_by(
+					id=loan_id
+				).first()
+			)
+			self.assertIsNotNone(loan)
+			self.assertIsNotNone(loan.requested_at)
+			self.assertEqual(LoanStatusEnum.APPROVAL_REQUESTED, loan.status)
+
+			self.assertEqual(company_id, loan.company_id)
+			self.assertEqual(expected.identifier, loan.identifier)
+			self.assertEqual(expected.loan_type, loan.loan_type)
+			self.assertEqual(artifact_id, str(loan.artifact_id))
+			self.assertAlmostEqual(float(expected.amount), float(loan.amount))
+			self.assertIsNotNone(loan.requested_payment_date)
+
+	def test_has_no_autofinancing(self) -> None:
+
+		test: Dict = {
+			'contract': _get_contract(product_type=ProductType.INVENTORY_FINANCING),
+			'financial_summary': _get_financial_summary(
+				total_limit=200.0,
+				available_limit=200.0,
+			),
+			'company_settings': models.CompanySettings(),
+			'artifact': models.PurchaseOrder(
+				amount=decimal.Decimal(100.0)
+			),
+			'expect_no_loan': True
+		}
+		self._run_test(test)
+
+	def test_has_autofinancing(self) -> None:
+
+		test: Dict = {
+			'contract': _get_contract(product_type=ProductType.INVENTORY_FINANCING),
+			'financial_summary': _get_financial_summary(
+				total_limit=200.0,
+				available_limit=200.0,
+			),
+			'company_settings': models.CompanySettings(
+				has_autofinancing=True
+			),
+			'artifact': models.PurchaseOrder(
+				amount=decimal.Decimal(100.1)
+			),
+			'expect_no_loan': False,
+			'expected_loan': models.Loan(
+				identifier='1',
+				loan_type=LoanTypeEnum.INVENTORY,
+				amount=decimal.Decimal(100.1)
+			)
 		}
 		self._run_test(test)

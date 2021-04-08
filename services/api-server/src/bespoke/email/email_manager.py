@@ -29,7 +29,8 @@ EmailConfigDict = TypedDict(
 		'support_email_addr': str,
 		'sendgrid_config': SendGridConfigDict,
 		'flask_env': str,
-		'no_reply_email_addr': str
+		'no_reply_email_addr': str,
+		'bank_notify_email_addresses': List[str]
 	})
 
 EmailDestination = Union[str, List[str]]
