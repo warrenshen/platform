@@ -1,17 +1,7 @@
-import {
-  Box,
-  Button,
-  createStyles,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  makeStyles,
-  Theme,
-  Typography,
-} from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import PurchaseOrderForm from "components/PurchaseOrders/PurchaseOrderForm";
+import Modal from "components/Shared/Modal/Modal";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
@@ -33,23 +23,6 @@ import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    dialog: {
-      width: 500,
-    },
-    dialogTitle: {
-      borderBottom: "1px solid #c7c7c7",
-    },
-    dialogActions: {
-      margin: theme.spacing(2),
-    },
-    submitButton: {
-      marginLeft: theme.spacing(1),
-    },
-  })
-);
-
 interface Props {
   actionType: ActionType;
   companyId: Companies["id"];
@@ -63,7 +36,6 @@ function CreateUpdatePurchaseOrderModal({
   purchaseOrderId,
   handleClose,
 }: Props) {
-  const classes = useStyles();
   const snackbar = useSnackbar();
 
   const {
@@ -262,18 +234,19 @@ function CreateUpdatePurchaseOrderModal({
     (!!purchaseOrder.is_cannabis && purchaseOrderCannabisFiles.length <= 0);
 
   return isDialogReady ? (
-    <Dialog
-      open
-      onClose={handleClose}
-      maxWidth="xl"
-      classes={{ paper: classes.dialog }}
+    <Modal
+      isPrimaryActionDisabled={isSaveSubmitDisabled}
+      isSecondaryActionDisabled={isSaveDraftDisabled}
+      title={`${
+        actionType === ActionType.Update ? "Edit" : "Create"
+      } Purchase Order`}
+      primaryActionText={"Save and Submit"}
+      secondaryActionText={"Save as Draft"}
+      handleClose={handleClose}
+      handlePrimaryAction={handleClickSaveSubmit}
+      handleSecondaryAction={handleClickSaveDraft}
     >
-      <DialogTitle className={classes.dialogTitle}>
-        {`${
-          actionType === ActionType.Update ? "Edit" : "Create"
-        } Purchase Order`}
-      </DialogTitle>
-      <DialogContent>
+      <>
         {isBankUser && (
           <Box mt={2} mb={3}>
             <Alert severity="warning">
@@ -296,28 +269,8 @@ function CreateUpdatePurchaseOrderModal({
           setPurchaseOrderFile={setPurchaseOrderFile}
           setPurchaseOrderCannabisFiles={setPurchaseOrderCannabisFiles}
         />
-      </DialogContent>
-      <DialogActions className={classes.dialogActions}>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button
-          disabled={isSaveDraftDisabled}
-          onClick={handleClickSaveDraft}
-          variant={"contained"}
-          color={"secondary"}
-        >
-          Save as Draft
-        </Button>
-        <Button
-          className={classes.submitButton}
-          disabled={isSaveSubmitDisabled}
-          onClick={handleClickSaveSubmit}
-          variant={"contained"}
-          color={"primary"}
-        >
-          Save and Submit
-        </Button>
-      </DialogActions>
-    </Dialog>
+      </>
+    </Modal>
   ) : null;
 }
 

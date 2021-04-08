@@ -1,11 +1,4 @@
-import {
-  Box,
-  Button,
-  createStyles,
-  makeStyles,
-  Theme,
-  Typography,
-} from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import Modal from "components/Shared/Modal/Modal";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
@@ -33,30 +26,8 @@ import {
 } from "lib/finance/loans/artifacts";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useEffect, useMemo, useState } from "react";
-import styled from "styled-components";
 import ArtifactLoanForm, { ArtifactListItem } from "./ArtifactLoanForm";
 import { IdComponent } from "./interfaces";
-
-const StyledButton = styled(Button)`
-  flex: 1;
-`;
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    dialog: {
-      width: 500,
-    },
-    dialogTitle: {
-      borderBottom: "1px solid #c7c7c7",
-    },
-    dialogActions: {
-      margin: theme.spacing(2),
-    },
-    submitButton: {
-      marginLeft: theme.spacing(1),
-    },
-  })
-);
 
 interface Props {
   actionType: ActionType;
@@ -81,7 +52,6 @@ export default function CreateUpdateArtifactLoanModal({
   InfoCard,
   handleClose,
 }: Props) {
-  const classes = useStyles();
   const snackbar = useSnackbar();
 
   const {
@@ -89,7 +59,7 @@ export default function CreateUpdateArtifactLoanModal({
   } = useContext(CurrentUserContext);
   const isBankUser = role === UserRolesEnum.BankAdmin;
 
-  const artifactCopyLower = getProductTypeCopy(productType!);
+  const artifactCopyLower = getProductTypeCopy(productType);
   const artifactCopyUpper = capsFirst(artifactCopyLower);
 
   // Default Loan for CREATE case.
@@ -320,18 +290,15 @@ export default function CreateUpdateArtifactLoanModal({
       <Modal
         title={"Cannot create loan"}
         handleClose={handleClose}
-        actions={
-          <Box>
-            <Button onClick={handleClose}>Cancel</Button>
-          </Box>
-        }
+        primaryActionText={"Close"}
+        handlePrimaryAction={handleClose}
       >
         <Box mt={1}>
           <Alert severity="warning">
             <span>
-              The maximum amount has been requested for this {artifactCopyLower}{" "}
-              or it is not yet approved. You may close this dialog and create a
-              different {artifactCopyLower} to create advances off of.
+              There is no remaining amount on this {artifactCopyLower} to
+              request a loan with. Please select a different {artifactCopyLower}
+              .
             </span>
           </Alert>
         </Box>
@@ -341,31 +308,16 @@ export default function CreateUpdateArtifactLoanModal({
 
   return (
     <Modal
+      isPrimaryActionDisabled={isSaveSubmitDisabled}
+      isSecondaryActionDisabled={isSaveDraftDisabled}
       title={
         actionType === ActionType.Update ? "Edit Loan" : "Request New Loan"
       }
+      primaryActionText={"Save and Submit"}
+      secondaryActionText={"Save as Draft"}
       handleClose={handleClose}
-      actions={
-        <Box display="flex">
-          <StyledButton
-            disabled={isSaveDraftDisabled}
-            onClick={handleClickSaveDraft}
-            variant={"outlined"}
-            color={"default"}
-          >
-            Save as Draft
-          </StyledButton>
-          <StyledButton
-            className={classes.submitButton}
-            disabled={isSaveSubmitDisabled}
-            onClick={handleClickSaveSubmit}
-            variant="contained"
-            color="primary"
-          >
-            Save and Submit
-          </StyledButton>
-        </Box>
-      }
+      handlePrimaryAction={handleClickSaveSubmit}
+      handleSecondaryAction={handleClickSaveDraft}
     >
       <>
         {isBankUser && (
@@ -416,8 +368,8 @@ export default function CreateUpdateArtifactLoanModal({
 
 const getProductTypeCopy = (productType: ProductTypeEnum) => {
   switch (productType) {
-    case (ProductTypeEnum.InventoryFinancing,
-    ProductTypeEnum.PurchaseMoneyFinancing):
+    case ProductTypeEnum.InventoryFinancing:
+    case ProductTypeEnum.PurchaseMoneyFinancing:
       return "purchase order";
     case ProductTypeEnum.InvoiceFinancing:
       return "invoice";
