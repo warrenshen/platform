@@ -8,10 +8,14 @@ query GetCompanySettings($companySettingsId: uuid!) {
 mutation UpdateCompanySettings(
   $companySettingsId: uuid!
   $vendorAgreementTemplateLink: String
+  $hasAutofinancing: Boolean
 ) {
   update_company_settings_by_pk(
     pk_columns: { id: $companySettingsId }
-    _set: { vendor_agreement_docusign_template: $vendorAgreementTemplateLink }
+    _set: {
+      vendor_agreement_docusign_template: $vendorAgreementTemplateLink
+      has_autofinancing: $hasAutofinancing
+    }
   ) {
     ...CompanySettings
   }

@@ -69,6 +69,18 @@ function CompanySettingsCard({ contract, settings, handleClick }: Props) {
               )}
             </Box>
           </Box>
+          <Box display="flex" pb={0.25}>
+            <Box className={classes.label}>Autofinancing</Box>
+            <Box>
+              <Typography variant="body2">
+                {settings.has_autofinancing ? (
+                  <span>Enabled</span>
+                ) : (
+                  <span>Disabled</span>
+                )}
+              </Typography>
+            </Box>
+          </Box>
         </Box>
       </CardContent>
       <Can perform={Action.EditUserAccountSettings}>

@@ -1,11 +1,13 @@
 import {
   Box,
   Button,
+  Checkbox,
   createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControlLabel,
   makeStyles,
   TextField,
   Theme,
@@ -16,7 +18,7 @@ import {
   useUpdateCompanySettingsMutation,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -70,6 +72,7 @@ function EditAccountSettingsModal({
         companySettingsId: settings.id,
         vendorAgreementTemplateLink:
           settings.vendor_agreement_docusign_template,
+        hasAutofinancing: settings.has_autofinancing,
       },
     });
 
@@ -113,6 +116,24 @@ function EditAccountSettingsModal({
                   vendor_agreement_docusign_template: value,
                 });
               }}
+            />
+          </Box>
+
+          <Box mb={2}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={settings.has_autofinancing || false}
+                  onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                    setSettings({
+                      ...settings,
+                      has_autofinancing: event.target.checked,
+                    });
+                  }}
+                  color="primary"
+                />
+              }
+              label={"Has Autofinancing?"}
             />
           </Box>
         </Box>
