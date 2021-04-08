@@ -160,8 +160,6 @@ def import_contracts(
 				models.Contract.start_date == parsed_start_date
 			).filter(
 				models.Contract.end_date == parsed_end_date
-			).filter(
-				models.Contract.adjusted_end_date == parsed_termination_date
 			).first())
 
 		if existing_contract:
@@ -198,7 +196,7 @@ def import_contracts(
 				product_config=product_config,
 				start_date=parsed_start_date,
 				end_date=parsed_end_date,
-				adjusted_end_date=parsed_termination_date,
+				adjusted_end_date=parsed_termination_date if parsed_termination_date else parsed_end_date,
 				terminated_at=parsed_terminated_at,
 			)
 
@@ -210,7 +208,7 @@ def import_contracts(
 			print(f'[{index + 1} of {contracts_count}] Created contract of {parsed_product_type} product type with start date {start_date} and end date {end_date} for {customer.name} ({customer.identifier})')
 
 			if not is_contract_terminated:
-				print(f'[{index + 1} of {contracts_count}] Contract with termination date {termination_date} is not terminated, setting it as the active contract for {customer.name} ({customer.identifier})...')
+				print(f'[{index + 1} of {contracts_count}] Contract with start date {start_date} and end date {end_date} is current, setting it as the active contract for {customer.name} ({customer.identifier})...')
 				customer.contract_id = contract_id
 
 def load_into_db_from_excel(session: Session, path: str) -> None:
