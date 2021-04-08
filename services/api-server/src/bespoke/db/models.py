@@ -228,6 +228,7 @@ class PurchaseOrder(Artifact):
 	approved_at = Column(DateTime)
 	rejected_at = Column(DateTime)
 	rejection_note = Column(Text)
+	bank_rejection_note = Column(Text)
 	funded_at = Column(DateTime)
 	is_cannabis = Column(Boolean)
 	is_deleted = Column(Boolean)
@@ -622,7 +623,7 @@ class Invoice(Artifact):
 	payment_rejection_note = Column(Text)
 	is_cannabis = Column(Boolean)
 	is_deleted = Column(Boolean)
-	
+
 	company = relationship(
 		'Company',
 		foreign_keys=[company_id]

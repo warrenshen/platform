@@ -46,7 +46,7 @@ export const LoanStatusToLabel = {
   [LoanStatusEnum.Drafted]: "Drafted",
   [LoanStatusEnum.ApprovalRequested]: "Pending",
   [LoanStatusEnum.Approved]: "Approved",
-  [LoanStatusEnum.Rejected]: "Rejected",
+  [LoanStatusEnum.Rejected]: "Changes Required",
   [LoanStatusEnum.PastDue]: "Past Due",
   [LoanStatusEnum.Funded]: "Funded",
   [LoanStatusEnum.Closed]: "Closed",
@@ -153,10 +153,10 @@ export const AllProductTypes = [
 
 // Request status enum related.
 export const RequestStatusToLabel = {
-  [RequestStatusEnum.Drafted]: "Drafted",
-  [RequestStatusEnum.ApprovalRequested]: "Pending",
+  [RequestStatusEnum.Drafted]: "Draft",
+  [RequestStatusEnum.ApprovalRequested]: "Pending Review",
   [RequestStatusEnum.Approved]: "Confirmed",
-  [RequestStatusEnum.Rejected]: "Rejected",
+  [RequestStatusEnum.Rejected]: "Changes Required",
 };
 
 // User Role enum related.

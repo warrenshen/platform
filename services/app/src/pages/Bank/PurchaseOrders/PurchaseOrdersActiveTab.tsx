@@ -1,5 +1,6 @@
 import { Box } from "@material-ui/core";
 import ApprovePurchaseOrderModal from "components/PurchaseOrder/ApprovePurchaseOrderModal";
+import RejectPurchaseOrderModal from "components/PurchaseOrder/RejectPurchaseOrderModal";
 import PurchaseOrdersDataGrid from "components/PurchaseOrders/PurchaseOrdersDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
@@ -49,22 +50,45 @@ function BankPurchaseOrdersActiveTab() {
   return (
     <Box mt={3}>
       <Box display="flex" flexDirection="row-reverse" mb={2}>
-        <Can perform={Action.AddPurchaseOrderLoan}>
-          <ModalButton
-            isDisabled={selectedPurchaseOrderIds.length !== 1}
-            label={"Approve PO"}
-            modal={({ handleClose }) =>
-              selectedPurchaseOrder ? (
-                <ApprovePurchaseOrderModal
-                  purchaseOrder={selectedPurchaseOrder}
-                  handleClose={() => {
-                    refetch();
-                    handleClose();
-                  }}
-                />
-              ) : null
-            }
-          />
+        <Can perform={Action.ApprovePurchaseOrders}>
+          <>
+            <Box>
+              <ModalButton
+                isDisabled={selectedPurchaseOrderIds.length !== 1}
+                label={"Approve PO"}
+                modal={({ handleClose }) =>
+                  selectedPurchaseOrder ? (
+                    <ApprovePurchaseOrderModal
+                      purchaseOrder={selectedPurchaseOrder}
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                        setSelectedPurchaseOrderIds([]);
+                      }}
+                    />
+                  ) : null
+                }
+              />
+            </Box>
+            <Box mr={2}>
+              <ModalButton
+                isDisabled={selectedPurchaseOrderIds.length !== 1}
+                label={"Reject PO"}
+                modal={({ handleClose }) =>
+                  selectedPurchaseOrder ? (
+                    <RejectPurchaseOrderModal
+                      purchaseOrderId={selectedPurchaseOrder.id}
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                        setSelectedPurchaseOrderIds([]);
+                      }}
+                    />
+                  ) : null
+                }
+              />
+            </Box>
+          </>
         </Can>
       </Box>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">

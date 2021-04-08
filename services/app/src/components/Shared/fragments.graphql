@@ -75,6 +75,7 @@ fragment PurchaseOrder on purchase_orders {
   is_cannabis
   status
   rejection_note
+  bank_rejection_note
   created_at
   approved_at
   funded_at

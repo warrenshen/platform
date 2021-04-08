@@ -27,7 +27,9 @@ class RespondToApprovalRequestView(MethodView):
 	"""
 	POST request that handles the following:
 	1. Vendor user approves a purchase order.
-	2. Bank user approves a purchase order on behalf of the vendor.
+	2. Vendor user rejects a purchase order - note is recorded in purchase_order.rejection_note.
+	3. Bank user approves a purchase order on behalf of the vendor.
+	4. Bank user rejects a purchase order - note is recorded in purchase_order.bank_rejection_note.
 	"""
 	decorators = [auth_util.login_required]
 
@@ -109,8 +111,12 @@ class RespondToApprovalRequestView(MethodView):
 			else:
 				purchase_order.status = RequestStatusEnum.REJECTED
 				purchase_order.rejected_at = date_util.now()
-				purchase_order.rejection_note = rejection_note
 				action_type = 'Rejected'
+
+				if user_session.is_bank_admin():
+					purchase_order.bank_rejection_note = rejection_note
+				else:
+					purchase_order.rejection_note = rejection_note
 
 			purchase_order_number = purchase_order.order_number
 			purchase_order_amount = number_util.to_dollar_format(float(purchase_order.amount))
@@ -153,10 +159,19 @@ class RespondToApprovalRequestView(MethodView):
 					sendgrid_client, submit_resp)
 				if err:
 					raise err
-		else:
+		elif not user_session.is_bank_admin():
 			template_name = sendgrid_util.TemplateNames.VENDOR_REJECTED_PURCHASE_ORDER
 			template_data = {
 				'vendor_name': vendor_name,
+				'customer_name': customer_name,
+				'purchase_order_number': purchase_order_number,
+				'purchase_order_amount': purchase_order_amount,
+				'purchase_order_requested_date': purchase_order_requested_date,
+				'rejection_note': rejection_note,
+			}
+		else:
+			template_name = sendgrid_util.TemplateNames.BANK_REJECTED_PURCHASE_ORDER
+			template_data = {
 				'customer_name': customer_name,
 				'purchase_order_number': purchase_order_number,
 				'purchase_order_amount': purchase_order_amount,

@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   purchaseOrder: PurchaseOrderFragment;
-  linkVal: string; // the link value used to generate this one-time reject ability
+  linkVal: string; // the link value used to generate this one-time approve ability
   handleClose: () => void;
   handleApproveSuccess: () => void;
 }

@@ -43,6 +43,7 @@ interface Props {
 
 function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
   const classes = useStyles();
+
   const {
     user: { role },
   } = useContext(CurrentUserContext);
@@ -96,9 +97,16 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
               <Typography variant="subtitle2" color="textSecondary">
                 Rejection Reason
               </Typography>
-              <Typography variant={"body1"}>
-                {purchaseOrder.rejection_note}
-              </Typography>
+              {!!purchaseOrder.rejection_note && (
+                <Typography variant={"body1"}>
+                  {purchaseOrder.rejection_note}
+                </Typography>
+              )}
+              {!!purchaseOrder.bank_rejection_note && (
+                <Typography variant={"body1"}>
+                  {purchaseOrder.bank_rejection_note}
+                </Typography>
+              )}
             </Box>
           )}
           {isBankUser && (

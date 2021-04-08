@@ -23,9 +23,9 @@ class TemplateNames(object):
 	# Email sent to Bespoke when a customer requests approval from a vendor who does not have a bank account set up.
 	CUSTOMER_REQUESTED_APPROVAL_NO_VENDOR_BANK_ACCOUNT = 'customer_requested_approval_no_vendor_bank_account'
 
-	VENDOR_APPROVES_OR_REJECTS_PURCHASE_ORDER = 'vendor_approves_or_rejects_purchase_order'
 	VENDOR_APPROVED_PURCHASE_ORDER = 'vendor_approved_purchase_order'
 	VENDOR_REJECTED_PURCHASE_ORDER = 'vendor_rejected_purchase_order'
+	BANK_REJECTED_PURCHASE_ORDER = 'bank_rejected_purchase_order'
 
 	PAYOR_AGREEMENT_WITH_CUSTOMER = 'payor_agreement_with_customer'
 	PAYOR_APPROVED_NOTIFY_CUSTOMER = 'payor_approved_notify_customer'
@@ -105,6 +105,10 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 	},
 	TemplateNames.VENDOR_REJECTED_PURCHASE_ORDER: {
 		'id': 'd-fd23a504eb8641139bd4a1efe0ae10fd',
+		'requires_secure_link': False
+	},
+	TemplateNames.BANK_REJECTED_PURCHASE_ORDER: {
+		'id': 'd-6da1a83e7e9648c5a7bff5005da76103',
 		'requires_secure_link': False
 	},
 

@@ -2805,6 +2805,7 @@ export type CompanySettings = {
   company?: Maybe<Companies>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at: Scalars["timestamptz"];
+  has_autofinancing?: Maybe<Scalars["Boolean"]>;
   id: Scalars["uuid"];
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
   updated_at: Scalars["timestamptz"];
@@ -2857,6 +2858,7 @@ export type CompanySettingsBoolExp = {
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
+  has_autofinancing?: Maybe<BooleanComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   payor_agreement_docusign_template?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
@@ -2880,6 +2882,7 @@ export type CompanySettingsInsertInput = {
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  has_autofinancing?: Maybe<Scalars["Boolean"]>;
   id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
@@ -2970,6 +2973,7 @@ export type CompanySettingsOrderBy = {
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  has_autofinancing?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   payor_agreement_docusign_template?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
@@ -2994,6 +2998,8 @@ export enum CompanySettingsSelectColumn {
   /** column name */
   CreatedAt = "created_at",
   /** column name */
+  HasAutofinancing = "has_autofinancing",
+  /** column name */
   Id = "id",
   /** column name */
   PayorAgreementDocusignTemplate = "payor_agreement_docusign_template",
@@ -3010,6 +3016,7 @@ export type CompanySettingsSetInput = {
   collections_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  has_autofinancing?: Maybe<Scalars["Boolean"]>;
   id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
@@ -3028,6 +3035,8 @@ export enum CompanySettingsUpdateColumn {
   CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  HasAutofinancing = "has_autofinancing",
   /** column name */
   Id = "id",
   /** column name */
@@ -10909,6 +10918,8 @@ export enum PurchaseOrderFilesUpdateColumn {
 export type PurchaseOrders = {
   amount?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  /** When bank rejects purchase order, this mandatory note explains the rejection */
+  bank_rejection_note?: Maybe<Scalars["String"]>;
   /** An object relationship */
   company: Companies;
   company_id: Scalars["uuid"];
@@ -10930,6 +10941,7 @@ export type PurchaseOrders = {
   /** An aggregated array relationship */
   purchase_order_files_aggregate: PurchaseOrderFilesAggregate;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
+  /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   status: RequestStatusEnum;
@@ -11040,6 +11052,7 @@ export type PurchaseOrdersBoolExp = {
   _or?: Maybe<Array<Maybe<PurchaseOrdersBoolExp>>>;
   amount?: Maybe<NumericComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
+  bank_rejection_note?: Maybe<StringComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
@@ -11076,6 +11089,7 @@ export type PurchaseOrdersIncInput = {
 export type PurchaseOrdersInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  bank_rejection_note?: Maybe<Scalars["String"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -11101,6 +11115,7 @@ export type PurchaseOrdersInsertInput = {
 export type PurchaseOrdersMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  bank_rejection_note?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   delivery_date?: Maybe<Scalars["date"]>;
@@ -11119,6 +11134,7 @@ export type PurchaseOrdersMaxFields = {
 export type PurchaseOrdersMaxOrderBy = {
   amount?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
+  bank_rejection_note?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   delivery_date?: Maybe<OrderBy>;
@@ -11137,6 +11153,7 @@ export type PurchaseOrdersMaxOrderBy = {
 export type PurchaseOrdersMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  bank_rejection_note?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   delivery_date?: Maybe<Scalars["date"]>;
@@ -11155,6 +11172,7 @@ export type PurchaseOrdersMinFields = {
 export type PurchaseOrdersMinOrderBy = {
   amount?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
+  bank_rejection_note?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   delivery_date?: Maybe<OrderBy>;
@@ -11194,6 +11212,7 @@ export type PurchaseOrdersOnConflict = {
 export type PurchaseOrdersOrderBy = {
   amount?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
+  bank_rejection_note?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
@@ -11226,6 +11245,8 @@ export enum PurchaseOrdersSelectColumn {
   Amount = "amount",
   /** column name */
   ApprovedAt = "approved_at",
+  /** column name */
+  BankRejectionNote = "bank_rejection_note",
   /** column name */
   CompanyId = "company_id",
   /** column name */
@@ -11262,6 +11283,7 @@ export enum PurchaseOrdersSelectColumn {
 export type PurchaseOrdersSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  bank_rejection_note?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   delivery_date?: Maybe<Scalars["date"]>;
@@ -11325,6 +11347,8 @@ export enum PurchaseOrdersUpdateColumn {
   Amount = "amount",
   /** column name */
   ApprovedAt = "approved_at",
+  /** column name */
+  BankRejectionNote = "bank_rejection_note",
   /** column name */
   CompanyId = "company_id",
   /** column name */
@@ -15903,16 +15927,6 @@ export type GetConfirmedPurchaseOrdersQuery = {
   purchase_orders: Array<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
 };
 
-export type PurchaseOrdersByCompanyIdQueryVariables = Exact<{
-  company_id: Scalars["uuid"];
-}>;
-
-export type PurchaseOrdersByCompanyIdQuery = {
-  purchase_orders: Array<
-    { company: Pick<Companies, "id" | "name"> } & PurchaseOrderFragment
-  >;
-};
-
 export type GetFundablePurchaseOrdersQueryVariables = Exact<{
   [key: string]: never;
 }>;
@@ -16292,6 +16306,7 @@ export type PurchaseOrderFragment = Pick<
   | "is_cannabis"
   | "status"
   | "rejection_note"
+  | "bank_rejection_note"
   | "created_at"
   | "approved_at"
   | "funded_at"
@@ -17273,6 +17288,7 @@ export const PurchaseOrderFragmentDoc = gql`
     is_cannabis
     status
     rejection_note
+    bank_rejection_note
     created_at
     approved_at
     funded_at
@@ -20867,67 +20883,6 @@ export type GetConfirmedPurchaseOrdersLazyQueryHookResult = ReturnType<
 export type GetConfirmedPurchaseOrdersQueryResult = Apollo.QueryResult<
   GetConfirmedPurchaseOrdersQuery,
   GetConfirmedPurchaseOrdersQueryVariables
->;
-export const PurchaseOrdersByCompanyIdDocument = gql`
-  query PurchaseOrdersByCompanyId($company_id: uuid!) {
-    purchase_orders(where: { company_id: { _eq: $company_id } }) {
-      ...PurchaseOrder
-      company {
-        id
-        name
-      }
-    }
-  }
-  ${PurchaseOrderFragmentDoc}
-`;
-
-/**
- * __usePurchaseOrdersByCompanyIdQuery__
- *
- * To run a query within a React component, call `usePurchaseOrdersByCompanyIdQuery` and pass it any options that fit your needs.
- * When your component renders, `usePurchaseOrdersByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = usePurchaseOrdersByCompanyIdQuery({
- *   variables: {
- *      company_id: // value for 'company_id'
- *   },
- * });
- */
-export function usePurchaseOrdersByCompanyIdQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    PurchaseOrdersByCompanyIdQuery,
-    PurchaseOrdersByCompanyIdQueryVariables
-  >
-) {
-  return Apollo.useQuery<
-    PurchaseOrdersByCompanyIdQuery,
-    PurchaseOrdersByCompanyIdQueryVariables
-  >(PurchaseOrdersByCompanyIdDocument, baseOptions);
-}
-export function usePurchaseOrdersByCompanyIdLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    PurchaseOrdersByCompanyIdQuery,
-    PurchaseOrdersByCompanyIdQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    PurchaseOrdersByCompanyIdQuery,
-    PurchaseOrdersByCompanyIdQueryVariables
-  >(PurchaseOrdersByCompanyIdDocument, baseOptions);
-}
-export type PurchaseOrdersByCompanyIdQueryHookResult = ReturnType<
-  typeof usePurchaseOrdersByCompanyIdQuery
->;
-export type PurchaseOrdersByCompanyIdLazyQueryHookResult = ReturnType<
-  typeof usePurchaseOrdersByCompanyIdLazyQuery
->;
-export type PurchaseOrdersByCompanyIdQueryResult = Apollo.QueryResult<
-  PurchaseOrdersByCompanyIdQuery,
-  PurchaseOrdersByCompanyIdQueryVariables
 >;
 export const GetFundablePurchaseOrdersDocument = gql`
   query GetFundablePurchaseOrders {
