@@ -193,7 +193,6 @@ function CustomerOverviewPageContent({ companyId, productType }: Props) {
               <Box display="flex" flexDirection="row-reverse" mb={2}>
                 <Can perform={Action.RepayPurchaseOrderLoans}>
                   <ModalButton
-                    isDisabled={selectedLoanIds.length <= 0}
                     label={"Make Payment"}
                     modal={({ handleClose }) => (
                       <CreateRepaymentModal

@@ -72,8 +72,6 @@ function LoansFunded({
   );
 
   const isLineOfCredit = productType === ProductTypeEnum.LineOfCredit;
-  const isCreateRepaymentDisabled =
-    !isLineOfCredit && selectedLoans.length <= 0;
 
   return (
     <Box className={classes.container}>
@@ -83,7 +81,6 @@ function LoansFunded({
           <Can perform={Action.RepayPurchaseOrderLoans}>
             <Box>
               <ModalButton
-                isDisabled={isCreateRepaymentDisabled}
                 label={"Make Payment"}
                 handleClick={({ handleOpen }) => {
                   const fundedLoans = selectedLoans.filter(

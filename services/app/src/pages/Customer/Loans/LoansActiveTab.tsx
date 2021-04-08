@@ -5,8 +5,6 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import { Alert } from "@material-ui/lab";
-import CustomerFinancialSummaryOverview from "components/CustomerFinancialSummary/CustomerFinancialSummaryOverview";
 import {
   Companies,
   ProductTypeEnum,
@@ -58,37 +56,8 @@ function CustomerLoansPageLoansTab({ companyId, productType }: Props) {
     alert("Error querying loans. " + error);
   }
 
-  const company = data?.companies_by_pk;
-  const financialSummary = company?.financial_summaries[0] || null;
-
-  const canCreateUpdateNewLoan =
-    financialSummary && financialSummary?.available_limit > 0;
-
   return (
     <Box className={classes.container} mt={3}>
-      <Box className={classes.section}>
-        <Box display="flex" flexDirection="column" mt={1} mb={2}>
-          {canCreateUpdateNewLoan ? (
-            <Alert severity="info" style={{ alignSelf: "flex-start" }}>
-              <Box maxWidth={600}>
-                You have available limit and can request new loans.
-              </Box>
-            </Alert>
-          ) : (
-            <Alert severity="warning">
-              <Box maxWidth={600}>
-                You have reached your limit and cannot request anymore new
-                loans. Please contact Bespoke if you believe this is a mistake.
-              </Box>
-            </Alert>
-          )}
-        </Box>
-        <CustomerFinancialSummaryOverview
-          isBalanceVisible={false}
-          financialSummary={financialSummary}
-        />
-      </Box>
-      <Box className={classes.sectionSpace} />
       <Box className={classes.section}>
         <Typography variant="h6">Not Funded Loans</Typography>
         <LoansNotFunded

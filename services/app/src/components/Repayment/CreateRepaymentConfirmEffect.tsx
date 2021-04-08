@@ -1,6 +1,3 @@
-// This component shows all the details about their repayment
-// before the user either clicks "Schedule" in the case of reverse_ach
-// or "Notify" in the case of all other payment types.
 import {
   Box,
   createStyles,
@@ -12,10 +9,8 @@ import {
 import { Alert } from "@material-ui/lab";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import LoansBeforeAfterPaymentPreview from "components/Repayment/LoansBeforeAfterPaymentPreview";
-import CompanyBank from "components/Shared/BankToBankTransfer/CompanyBank";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import {
-  BankAccounts,
   Companies,
   PaymentsInsertInput,
   ProductTypeEnum,
@@ -185,7 +180,7 @@ function CreateRepaymentConfirmEffect({
                 )}
                 <Box mt={2}>
                   <Alert severity="warning">
-                    After clicking "Notify", you must initiate this transfer for{" "}
+                    After clicking "Notify", you must initiate this transfer for
                     <b>{formatCurrency(payment.requested_amount)}</b> from your
                     bank account. Upon receipt Bespoke will mark this payment as
                     "settled," and apply towards outstanding loans and fees
@@ -195,37 +190,22 @@ function CreateRepaymentConfirmEffect({
               </>
             )}
             {payment.method === PaymentMethodEnum.ReverseDraftACH && (
-              <Box>
-                <Box mb={2}>
-                  <Typography variant="body1">
-                    Please specify which bank account you want Bespoke to
-                    withdraw the payment amount from.
-                  </Typography>
-                </Box>
-                <CompanyBank
-                  companyId={payment.company_id}
-                  payment={payment}
-                  onCompanyBankAccountSelection={(
-                    id: BankAccounts["id"] | null
-                  ) => setPayment({ ...payment, company_bank_account_id: id })}
-                />
-                <Box mt={2}>
-                  <Alert severity="info">
-                    Click "Schedule" for Bespoke to initiate this transfer for{" "}
-                    <b>{formatCurrency(payment.requested_amount)}</b> from your
-                    bank account.
-                    <br />
-                    <br />
-                    Upon receipt Bespoke will mark this payment as "settled,"
-                    and apply towards outstanding loans and fees accordingly.{" "}
-                  </Alert>{" "}
-                </Box>
+              <Box mt={2}>
+                <Alert severity="info">
+                  Click "Schedule" for Bespoke to initiate this transfer for
+                  <b>{formatCurrency(payment.requested_amount)}</b> from your
+                  bank account.
+                  <br />
+                  <br />
+                  Upon receipt Bespoke will mark this payment as "settled," and
+                  apply towards outstanding loans and fees accordingly.
+                </Alert>{" "}
               </Box>
             )}
             {payment.method === PaymentMethodEnum.Cash && (
               <Box mt={2}>
                 <Alert severity="info">
-                  After clicking "Notify", We will coordinate the collection of{" "}
+                  After clicking "Notify", We will coordinate the collection of
                   <b>{formatCurrency(payment.requested_amount)}</b>. Please
                   reach out to Bespoke support. This method of payment will
                   incur a $100 fee.

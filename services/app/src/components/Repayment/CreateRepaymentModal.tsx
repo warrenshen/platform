@@ -214,6 +214,7 @@ function CreateRepaymentModal({
         isOnSelectLoans ? isNextButtonDisabled : isActionButtonDisabled
       }
       title={"Make Payment"}
+      subtitle={isOnSelectLoans ? "Step 1 of 2" : "Step 2 of 2"}
       contentWidth={600}
       primaryActionText={isOnSelectLoans ? "Next" : actionBtnText}
       handleClose={handleClose}

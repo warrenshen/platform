@@ -29,11 +29,10 @@ const Container = styled.div`
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: center;
 
   align-self: stretch;
 
-  padding: 12px;
+  padding: 24px;
 `;
 
 const CloseButton = styled(Button)`
@@ -48,6 +47,21 @@ const CloseButtonContainer = styled.div`
   width: 100px;
 `;
 
+const HeaderContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const SubtitleText = styled.span`
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: gray;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+`;
+
 const Body = styled.div`
   display: flex;
   flex-direction: column;
@@ -58,9 +72,14 @@ const Body = styled.div`
   overflow: scroll;
 `;
 
-const Content = styled.div<{ $width: number; $padding?: number }>`
+const Content = styled.div<{
+  $width: number;
+  $paddingTop?: number;
+  $paddingBottom?: number;
+}>`
   width: ${(props) => props.$width}px;
-  padding: ${(props) => props.$padding}px 0px;
+  padding-top: ${(props) => props.$paddingTop || 0}px;
+  padding-bottom: ${(props) => props.$paddingBottom || 0}px;
 `;
 
 const Footer = styled.div`
@@ -89,6 +108,7 @@ interface Props {
   isPrimaryActionDisabled?: boolean;
   isSecondaryActionDisabled?: boolean;
   title: string;
+  subtitle?: string;
   contentWidth?: number;
   primaryActionText: string;
   secondaryActionText?: string;
@@ -102,6 +122,7 @@ export default function Modal({
   isPrimaryActionDisabled = false,
   isSecondaryActionDisabled = false,
   title,
+  subtitle,
   contentWidth = 500,
   primaryActionText,
   secondaryActionText,
@@ -126,11 +147,14 @@ export default function Modal({
               <CloseIcon />
             </CloseButton>
           </CloseButtonContainer>
-          <Typography variant={"h5"}>{title}</Typography>
+          <HeaderContent>
+            <Typography variant={"h5"}>{title}</Typography>
+            {!!subtitle && <SubtitleText>{subtitle}</SubtitleText>}
+          </HeaderContent>
           <CloseButtonContainer />
         </Header>
         <Body>
-          <Content $width={contentWidth} $padding={64}>
+          <Content $width={contentWidth} $paddingTop={64} $paddingBottom={128}>
             {children}
           </Content>
         </Body>

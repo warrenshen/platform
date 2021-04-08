@@ -12,9 +12,11 @@ import {
 } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
+import CompanyBank from "components/Shared/BankToBankTransfer/CompanyBank";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import {
+  BankAccounts,
   FinancialSummaryFragment,
   LoanFragment,
   LoanTypeEnum,
@@ -311,6 +313,25 @@ function CreateRepaymentSelectLoans({
             </Box>
           </Box>
         </>
+      )}
+      {payment.method === PaymentMethodEnum.ReverseDraftACH && (
+        <Box>
+          <Box mt={3}>
+            <Typography variant="subtitle2">
+              Which bank account would you like the payment to be withdrawn
+              from?
+            </Typography>
+          </Box>
+          <Box mt={1}>
+            <CompanyBank
+              companyId={payment.company_id}
+              payment={payment}
+              onCompanyBankAccountSelection={(id: BankAccounts["id"] | null) =>
+                setPayment({ ...payment, company_bank_account_id: id })
+              }
+            />
+          </Box>
+        </Box>
       )}
     </Box>
   );
