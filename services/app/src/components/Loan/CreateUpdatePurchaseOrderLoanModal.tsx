@@ -5,7 +5,7 @@ import {
   LoanTypeEnum,
   ProductTypeEnum,
   Scalars,
-  useGetFundablePurchaseOrdersQuery,
+  useGetFundablePurchaseOrdersByCompanyIdQuery,
 } from "generated/graphql";
 import { ActionType } from "lib/enum";
 
@@ -27,8 +27,11 @@ export default function CreateUpdatePurchaseOrderLoanModal({
   handleClose,
 }: Props) {
   // NOTE: This query implicitly has the companyId specified due to the table presets in Hasura
-  const { data, loading } = useGetFundablePurchaseOrdersQuery({
+  const { data, loading } = useGetFundablePurchaseOrdersByCompanyIdQuery({
     fetchPolicy: "network-only",
+    variables: {
+      company_id: companyId,
+    },
   });
 
   const purchaseOrders = data?.purchase_orders || [];

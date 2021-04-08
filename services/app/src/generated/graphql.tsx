@@ -15941,11 +15941,11 @@ export type GetConfirmedPurchaseOrdersQuery = {
   purchase_orders: Array<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
 };
 
-export type GetFundablePurchaseOrdersQueryVariables = Exact<{
-  [key: string]: never;
+export type GetFundablePurchaseOrdersByCompanyIdQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
 }>;
 
-export type GetFundablePurchaseOrdersQuery = {
+export type GetFundablePurchaseOrdersByCompanyIdQuery = {
   purchase_orders: Array<PurchaseOrderFragment>;
 };
 
@@ -20794,7 +20794,14 @@ export type UpdatePurchaseOrderMutationOptions = Apollo.BaseMutationOptions<
 >;
 export const GetPurchaseOrdersDocument = gql`
   query GetPurchaseOrders {
-    purchase_orders {
+    purchase_orders(
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
+    ) {
       id
       ...PurchaseOrder
     }
@@ -20851,7 +20858,19 @@ export type GetPurchaseOrdersQueryResult = Apollo.QueryResult<
 >;
 export const GetNotConfirmedPurchaseOrdersDocument = gql`
   query GetNotConfirmedPurchaseOrders {
-    purchase_orders(where: { approved_at: { _is_null: true } }) {
+    purchase_orders(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { approved_at: { _is_null: true } }
+        ]
+      }
+    ) {
       id
       ...PurchaseOrder
     }
@@ -20908,7 +20927,19 @@ export type GetNotConfirmedPurchaseOrdersQueryResult = Apollo.QueryResult<
 >;
 export const GetConfirmedPurchaseOrdersDocument = gql`
   query GetConfirmedPurchaseOrders {
-    purchase_orders(where: { approved_at: { _is_null: false } }) {
+    purchase_orders(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { approved_at: { _is_null: false } }
+        ]
+      }
+    ) {
       id
       ...PurchaseOrder
     }
@@ -20963,11 +20994,21 @@ export type GetConfirmedPurchaseOrdersQueryResult = Apollo.QueryResult<
   GetConfirmedPurchaseOrdersQuery,
   GetConfirmedPurchaseOrdersQueryVariables
 >;
-export const GetFundablePurchaseOrdersDocument = gql`
-  query GetFundablePurchaseOrders {
+export const GetFundablePurchaseOrdersByCompanyIdDocument = gql`
+  query GetFundablePurchaseOrdersByCompanyId($company_id: uuid!) {
     purchase_orders(
       where: {
-        _and: [{ status: { _eq: approved } }, { funded_at: { _is_null: true } }]
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { company_id: { _eq: $company_id } }
+          { approved_at: { _eq: true } }
+          { funded_at: { _is_null: true } }
+        ]
       }
     ) {
       ...PurchaseOrder
@@ -20977,57 +21018,64 @@ export const GetFundablePurchaseOrdersDocument = gql`
 `;
 
 /**
- * __useGetFundablePurchaseOrdersQuery__
+ * __useGetFundablePurchaseOrdersByCompanyIdQuery__
  *
- * To run a query within a React component, call `useGetFundablePurchaseOrdersQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetFundablePurchaseOrdersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetFundablePurchaseOrdersByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetFundablePurchaseOrdersByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetFundablePurchaseOrdersQuery({
+ * const { data, loading, error } = useGetFundablePurchaseOrdersByCompanyIdQuery({
  *   variables: {
+ *      company_id: // value for 'company_id'
  *   },
  * });
  */
-export function useGetFundablePurchaseOrdersQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetFundablePurchaseOrdersQuery,
-    GetFundablePurchaseOrdersQueryVariables
+export function useGetFundablePurchaseOrdersByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetFundablePurchaseOrdersByCompanyIdQuery,
+    GetFundablePurchaseOrdersByCompanyIdQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    GetFundablePurchaseOrdersQuery,
-    GetFundablePurchaseOrdersQueryVariables
-  >(GetFundablePurchaseOrdersDocument, baseOptions);
+    GetFundablePurchaseOrdersByCompanyIdQuery,
+    GetFundablePurchaseOrdersByCompanyIdQueryVariables
+  >(GetFundablePurchaseOrdersByCompanyIdDocument, baseOptions);
 }
-export function useGetFundablePurchaseOrdersLazyQuery(
+export function useGetFundablePurchaseOrdersByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    GetFundablePurchaseOrdersQuery,
-    GetFundablePurchaseOrdersQueryVariables
+    GetFundablePurchaseOrdersByCompanyIdQuery,
+    GetFundablePurchaseOrdersByCompanyIdQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    GetFundablePurchaseOrdersQuery,
-    GetFundablePurchaseOrdersQueryVariables
-  >(GetFundablePurchaseOrdersDocument, baseOptions);
+    GetFundablePurchaseOrdersByCompanyIdQuery,
+    GetFundablePurchaseOrdersByCompanyIdQueryVariables
+  >(GetFundablePurchaseOrdersByCompanyIdDocument, baseOptions);
 }
-export type GetFundablePurchaseOrdersQueryHookResult = ReturnType<
-  typeof useGetFundablePurchaseOrdersQuery
+export type GetFundablePurchaseOrdersByCompanyIdQueryHookResult = ReturnType<
+  typeof useGetFundablePurchaseOrdersByCompanyIdQuery
 >;
-export type GetFundablePurchaseOrdersLazyQueryHookResult = ReturnType<
-  typeof useGetFundablePurchaseOrdersLazyQuery
+export type GetFundablePurchaseOrdersByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useGetFundablePurchaseOrdersByCompanyIdLazyQuery
 >;
-export type GetFundablePurchaseOrdersQueryResult = Apollo.QueryResult<
-  GetFundablePurchaseOrdersQuery,
-  GetFundablePurchaseOrdersQueryVariables
+export type GetFundablePurchaseOrdersByCompanyIdQueryResult = Apollo.QueryResult<
+  GetFundablePurchaseOrdersByCompanyIdQuery,
+  GetFundablePurchaseOrdersByCompanyIdQueryVariables
 >;
 export const GetOpenPurchaseOrdersByCompanyIdDocument = gql`
   query GetOpenPurchaseOrdersByCompanyId($company_id: uuid!) {
     purchase_orders(
       where: {
         _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
           { company_id: { _eq: $company_id } }
           { funded_at: { _is_null: true } }
         ]
@@ -21092,6 +21140,12 @@ export const GetClosedPurchaseOrdersByCompanyIdDocument = gql`
     purchase_orders(
       where: {
         _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
           { company_id: { _eq: $company_id } }
           { funded_at: { _is_null: false } }
         ]
