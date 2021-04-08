@@ -14,7 +14,12 @@ function CustomerLoansPageContent({ companyId, productType }: Props) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   return (
-    <PageContent title={"Loans"}>
+    <PageContent
+      title={"Loans"}
+      subtitle={
+        "Request a new loan, edit an existing loan request, or make payments towards financed loans."
+      }
+    >
       <Tabs
         value={selectedTabIndex}
         indicatorColor="primary"

@@ -67,10 +67,6 @@ function CustomerLoansPageLoansTab({ companyId, productType }: Props) {
   return (
     <Box className={classes.container} mt={3}>
       <Box className={classes.section}>
-        <Typography variant="h6">
-          Request a new loan, edit an existing loan, and view active loans
-          associated with your account.
-        </Typography>
         <Box display="flex" flexDirection="column" mt={1} mb={2}>
           {canCreateUpdateNewLoan ? (
             <Alert severity="info" style={{ alignSelf: "flex-start" }}>
@@ -94,7 +90,7 @@ function CustomerLoansPageLoansTab({ companyId, productType }: Props) {
       </Box>
       <Box className={classes.sectionSpace} />
       <Box className={classes.section}>
-        <Typography variant="h6">Loans - Not Funded</Typography>
+        <Typography variant="h6">Not Funded Loans</Typography>
         <LoansNotFunded
           companyId={companyId}
           productType={productType}
@@ -106,7 +102,7 @@ function CustomerLoansPageLoansTab({ companyId, productType }: Props) {
         <>
           <Box className={classes.sectionSpace} />
           <Box className={classes.section}>
-            <Typography variant="h6">Loans - Funded</Typography>
+            <Typography variant="h6">Funded Loans</Typography>
             <LoansFunded
               companyId={companyId}
               productType={productType}

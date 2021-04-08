@@ -67,7 +67,7 @@ function CustomerLoansPageLoansClosedTab({ companyId, productType }: Props) {
   return (
     <Box className={classes.container} mt={3}>
       <Box className={classes.section}>
-        <Typography variant="h6">View your closed loans.</Typography>
+        <Typography variant="h6">Closed Loans</Typography>
       </Box>
       <Box className={classes.sectionSpace} />
       <Box className={classes.section}>

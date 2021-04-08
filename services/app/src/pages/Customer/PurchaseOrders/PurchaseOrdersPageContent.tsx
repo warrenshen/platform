@@ -14,7 +14,12 @@ function CustomerPurchaseOrdersPageContent({ companyId, productType }: Props) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   return (
-    <PageContent title={"Purchase Orders"}>
+    <PageContent
+      title={"Purchase Orders"}
+      subtitle={
+        "Submit a new PO, edit an existing PO, or request financing for approved POs."
+      }
+    >
       <Tabs
         value={selectedTabIndex}
         indicatorColor="primary"

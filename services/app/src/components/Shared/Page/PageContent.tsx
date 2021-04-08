@@ -20,14 +20,29 @@ const Header = styled.div`
   margin-bottom: 24px;
 `;
 
+const Copy = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  flex: 1;
+`;
+
 const Title = styled.span`
   font-size: 24px;
   font-weight: 400;
 `;
 
+const Subtitle = styled.span`
+  font-size: 16px;
+  font-weight: 400;
+  margin-top: 12px;
+`;
+
 const Actions = styled.div`
   display: flex;
   flex-direction: row-reverse;
+
+  flex: 1;
 `;
 
 const Content = styled.div`
@@ -41,16 +56,20 @@ const Content = styled.div`
 
 interface Props {
   title: string;
+  subtitle?: string;
   actions?: ReactNode;
   children: ReactNode;
 }
 
-function PageContent({ title, actions = null, children }: Props) {
+function PageContent({ title, subtitle, actions = null, children }: Props) {
   return (
     <Container>
       <Header>
-        <Title>{title}</Title>
-        {actions && <Actions>{actions}</Actions>}
+        <Copy>
+          <Title>{title}</Title>
+          {subtitle && <Subtitle>{subtitle}</Subtitle>}
+        </Copy>
+        <Actions>{actions}</Actions>
       </Header>
       <Content>{children}</Content>
     </Container>
