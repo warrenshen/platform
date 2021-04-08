@@ -315,6 +315,51 @@ class SubmitForApprovalView(MethodView):
 		}), 200)
 
 
+class DeleteView(MethodView):
+	decorators = [auth_util.login_required]
+
+	# @events.wrap(events.Actions.PURCHASE_ORDER_SUBMIT_FOR_APPROVAL)
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		data = json.loads(request.data)
+		if not data:
+			raise errors.Error('No data provided')
+
+		purchase_order_id = data['purchase_order_id']
+
+		if not purchase_order_id:
+			raise errors.Error('No Purchase Order ID provided')
+
+		user_session = auth_util.UserSession.from_session()
+
+		with session_scope(current_app.session_maker) as session:
+			purchase_order = cast(
+				models.PurchaseOrder,
+				session.query(models.PurchaseOrder).filter_by(
+					id=purchase_order_id).first()
+			)
+
+			if not user_session.is_bank_or_this_company_admin(str(purchase_order.company_id)):
+				return handler_util.make_error_response('Access Denied')
+
+			if (
+				purchase_order.requested_at or
+				purchase_order.approved_at or
+				purchase_order.rejected_at
+			):
+				raise errors.Error('Purchase Order is not a draft')
+
+			if purchase_order.is_deleted:
+				raise errors.Error('Purchase Order is already deleted')
+
+			purchase_order.is_deleted = True
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Purchase Order {} deleted'.format(purchase_order_id)
+		}), 200)
+
+
 handler.add_url_rule(
 	'/respond_to_approval_request',
 	view_func=RespondToApprovalRequestView.as_view(
@@ -325,4 +370,9 @@ handler.add_url_rule(
 	'/submit_for_approval',
 	view_func=SubmitForApprovalView.as_view(
 		name='submit_for_approval_view')
+)
+
+handler.add_url_rule(
+	'/delete',
+	view_func=DeleteView.as_view(name='delete_view')
 )

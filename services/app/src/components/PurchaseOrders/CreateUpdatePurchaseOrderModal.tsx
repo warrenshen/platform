@@ -184,9 +184,9 @@ function CreateUpdatePurchaseOrderModal({
   const handleClickSaveDraft = async () => {
     const savedPurchaseOrder = await upsertPurchaseOrder();
     if (!savedPurchaseOrder) {
-      snackbar.showError("Error! Could not upsert purchase order.");
+      snackbar.showError("Could not upsert purchase order.");
     } else {
-      snackbar.showSuccess("Success! Purchase order saved as draft.");
+      snackbar.showSuccess("Purchase order saved as draft.");
       handleClose();
     }
   };
@@ -194,7 +194,7 @@ function CreateUpdatePurchaseOrderModal({
   const handleClickSaveSubmit = async () => {
     const savedPurchaseOrder = await upsertPurchaseOrder();
     if (!savedPurchaseOrder) {
-      snackbar.showError("Error! Could not upsert purchase order.");
+      snackbar.showError("Could not upsert purchase order.");
     } else {
       // Since this is a SAVE AND SUBMIT action,
       // hit the PurchaseOrders.SubmitForApproval endpoint.
@@ -204,11 +204,9 @@ function CreateUpdatePurchaseOrderModal({
         },
       });
       if (response.status !== "OK") {
-        snackbar.showError(`Error! Message: ${response.msg}`);
+        snackbar.showError(`Message: ${response.msg}`);
       } else {
-        snackbar.showSuccess(
-          "Success! Purchase order saved and submitted to vendor."
-        );
+        snackbar.showSuccess("Purchase order saved and submitted to vendor.");
         handleClose();
       }
     }

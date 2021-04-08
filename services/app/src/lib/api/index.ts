@@ -47,6 +47,7 @@ export const ebbaApplicationsRoutes = {
 export const purchaseOrdersRoutes = {
   respondToApprovalRequest: "/purchase_orders/respond_to_approval_request",
   submitForApproval: "/purchase_orders/submit_for_approval",
+  delete: "/purchase_orders/delete",
 };
 
 export const invoicesRoutes = {

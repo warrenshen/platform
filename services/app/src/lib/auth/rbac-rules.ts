@@ -26,6 +26,7 @@ export enum Action {
   AddPurchaseOrders = "purchase-orders:add",
   ApprovePurchaseOrders = "purchase-orders:approve",
   EditPurchaseOrders = "purchase-orders:manipulate",
+  DeletePurchaseOrders = "purchase-orders:delete",
   FundPurchaseOrders = "purchase-orders:fund",
   ViewPurchaseOrdersActionMenu = "purchase-orders:view-action-menu",
 
@@ -128,6 +129,7 @@ const rules: Rules = {
       // Bank on-behalf-of customer actions - bank performs on behalf of customer.
       Action.AddPurchaseOrders,
       Action.EditPurchaseOrders,
+      Action.DeletePurchaseOrders,
       Action.FundPurchaseOrders,
 
       Action.AddInvoices,
@@ -200,6 +202,7 @@ const rules: Rules = {
 
       Action.AddPurchaseOrders,
       Action.EditPurchaseOrders,
+      Action.DeletePurchaseOrders,
       Action.FundPurchaseOrders,
 
       Action.AddInvoices,

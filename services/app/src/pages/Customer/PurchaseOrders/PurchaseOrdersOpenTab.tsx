@@ -7,6 +7,7 @@ import {
 } from "@material-ui/core";
 import CreateMultiplePurchaseOrdersLoansModal from "components/Loan/CreateMultiplePurchaseOrdersLoansModal";
 import CreateUpdatePurchaseOrderLoanModal from "components/Loan/CreateUpdatePurchaseOrderLoanModal";
+import DeletePurchaseOrderModal from "components/PurchaseOrder/DeletePurchaseOrderModal";
 import CreateUpdatePurchaseOrderModal from "components/PurchaseOrders/CreateUpdatePurchaseOrderModal";
 import PurchaseOrdersDataGrid from "components/PurchaseOrders/PurchaseOrdersDataGrid";
 import Can from "components/Shared/Can";
@@ -51,6 +52,7 @@ function CustomerPurchaseOrdersOpenTab({ companyId, productType }: Props) {
   const classes = useStyles();
 
   const { data, refetch, error } = useGetOpenPurchaseOrdersByCompanyIdQuery({
+    fetchPolicy: "network-only",
     variables: {
       company_id: companyId,
     },
@@ -77,6 +79,16 @@ function CustomerPurchaseOrdersOpenTab({ companyId, productType }: Props) {
   const [selectedPurchaseOrderIds, setSelectedPurchaseOrderIds] = useState<
     PurchaseOrders["id"][]
   >([]);
+
+  const selectedPurchaseOrder = useMemo(
+    () =>
+      selectedPurchaseOrderIds.length === 1
+        ? purchaseOrders.find(
+            (purchaseOrder) => purchaseOrder.id === selectedPurchaseOrderIds[0]
+          )
+        : null,
+    [purchaseOrders, selectedPurchaseOrderIds]
+  );
 
   const handleSelectPurchaseOrders = useMemo(
     () => (purchaseOrders: PurchaseOrderFragment[]) =>
@@ -113,7 +125,7 @@ function CustomerPurchaseOrdersOpenTab({ companyId, productType }: Props) {
         <Box my={2} display="flex" flexDirection="row-reverse">
           <Can perform={Action.AddPurchaseOrders}>
             <ModalButton
-              isDisabled={selectedPurchaseOrderIds.length !== 0}
+              isDisabled={!!selectedPurchaseOrder}
               label={"Create PO"}
               modal={({ handleClose }) => (
                 <CreateUpdatePurchaseOrderModal
@@ -129,9 +141,9 @@ function CustomerPurchaseOrdersOpenTab({ companyId, productType }: Props) {
             />
           </Can>
           <Can perform={Action.EditPurchaseOrders}>
-            <Box mr={1}>
+            <Box mr={2}>
               <ModalButton
-                isDisabled={selectedPurchaseOrderIds.length !== 1}
+                isDisabled={!selectedPurchaseOrder}
                 label={"Edit PO"}
                 modal={({ handleClose }) => (
                   <CreateUpdatePurchaseOrderModal
@@ -148,6 +160,27 @@ function CustomerPurchaseOrdersOpenTab({ companyId, productType }: Props) {
               />
             </Box>
           </Can>
+          {selectedPurchaseOrder && !selectedPurchaseOrder.requested_at && (
+            <Can perform={Action.DeletePurchaseOrders}>
+              <Box mr={2}>
+                <ModalButton
+                  isDisabled={!selectedPurchaseOrder}
+                  label={"Delete PO"}
+                  variant={"outlined"}
+                  modal={({ handleClose }) => (
+                    <DeletePurchaseOrderModal
+                      purchaseOrderId={selectedPurchaseOrderIds[0]}
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                        setSelectedPurchaseOrderIds([]);
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            </Can>
+          )}
         </Box>
         <Box>
           <PurchaseOrdersDataGrid

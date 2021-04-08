@@ -55,3 +55,27 @@ export async function respondToPurchaseOrderApprovalRequestMutation(
       }
     );
 }
+
+export type DeletePurchaseOrderReq = {
+  variables: {
+    purchaseOrderId: PurchaseOrders["id"];
+  };
+};
+
+export async function deletePurchaseOrderMutation(
+  req: DeletePurchaseOrderReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(purchaseOrdersRoutes.delete, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not respond to purchase order approval request",
+        };
+      }
+    );
+}

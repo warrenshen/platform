@@ -16322,6 +16322,7 @@ export type PurchaseOrderFragment = Pick<
   | "rejection_note"
   | "bank_rejection_note"
   | "created_at"
+  | "requested_at"
   | "approved_at"
   | "funded_at"
 > & {
@@ -17304,6 +17305,7 @@ export const PurchaseOrderFragmentDoc = gql`
     rejection_note
     bank_rejection_note
     created_at
+    requested_at
     approved_at
     funded_at
     company {

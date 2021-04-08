@@ -77,6 +77,7 @@ fragment PurchaseOrder on purchase_orders {
   rejection_note
   bank_rejection_note
   created_at
+  requested_at
   approved_at
   funded_at
   company {
