@@ -36,7 +36,9 @@ function BankCustomersPage() {
     const filteredCustomers = filter(
       data?.customers || [],
       (customer) =>
-        customer.name.toLowerCase().indexOf(searchQuery.toLowerCase()) >= 0
+        `${customer.name} ${customer.identifier}`
+          .toLowerCase()
+          .indexOf(searchQuery.toLowerCase()) >= 0
     );
     return sortBy(filteredCustomers, (customer) => customer.name);
   }, [searchQuery, data?.customers]);

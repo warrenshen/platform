@@ -40,19 +40,22 @@ def import_contracts(
 			factoring_fee_percentage,
 			factoring_fee_threshold,
 			adjusted_factoring_fee_percentage,
+			late_fee_structure, # Not used yet
 			wire_fee,
+			settlement_timeline, # Not used yet
 			borrowing_base_accounts_receivable_percentage,
 			borrowing_base_inventory_percentage,
 			borrowing_base_cash_percentage,
 			borrowing_base_cash_in_daca_percentage,
 		) = new_contract_tuple
 
+		parsed_customer_identifier = customer_identifier.strip()
 		parsed_start_date = date_util.load_date_str(start_date)
 		parsed_end_date = date_util.load_date_str(end_date)
-		parsed_termination_date = date_util.load_date_str(termination_date)
+		parsed_termination_date = date_util.load_date_str(termination_date) if termination_date else None
 		parsed_financing_terms = int(float(financing_terms))
 		parsed_maximum_amount = float(maximum_amount)
-		parsed_minimum_monthly_amount = float(minimum_monthly_amount)
+		parsed_minimum_monthly_amount = float(minimum_monthly_amount) if minimum_monthly_amount else 0.0
 		parsed_advance_rate = float(advance_rate)
 		parsed_factoring_fee_percentage = float(factoring_fee_percentage)
 		parsed_factoring_fee_threshold = float(factoring_fee_threshold) if factoring_fee_threshold else None
@@ -68,8 +71,11 @@ def import_contracts(
 			parsed_maximum_amount <= 0 or
 			parsed_minimum_monthly_amount is None or
 			parsed_advance_rate <= 0 or
+			parsed_advance_rate > 1 or
 			parsed_factoring_fee_percentage <= 0 or
 			parsed_factoring_fee_percentage > 1 or
+			(parsed_adjusted_factoring_fee_percentage and parsed_adjusted_factoring_fee_percentage <= 0) or
+			(parsed_adjusted_factoring_fee_percentage and parsed_adjusted_factoring_fee_percentage > 1) or
 			parsed_wire_fee is None or
 			(
 				parsed_borrowing_base_accounts_receivable_percentage is not None and
@@ -104,8 +110,16 @@ def import_contracts(
 			print(f'EXITING EARLY')
 			return
 
+		if (
+			not parsed_start_date or
+			not parsed_end_date
+		):
+			print(f'[{index + 1} of {contracts_count}] Invalid contract field(s): dates')
+			print(f'EXITING EARLY')
+			return
+
 		today_date = date_util.today_as_date()
-		is_contract_terminated = parsed_termination_date <= today_date
+		is_contract_terminated = parsed_termination_date and parsed_termination_date <= today_date
 		if is_contract_terminated:
 			parsed_terminated_at = datetime.combine(parsed_termination_date, time())
 		else:
@@ -123,25 +137,16 @@ def import_contracts(
 			print(f'EXITING EARLY')
 			return
 
-		if (
-			not parsed_start_date or
-			not parsed_end_date or
-			not parsed_termination_date
-		):
-			print(f'[{index + 1} of {contracts_count}] Invalid contract field(s): dates')
-			print(f'EXITING EARLY')
-			return
-
 		customer = cast(
 			models.Company,
 			session.query(models.Company).filter(
 				models.Company.company_type == CompanyType.Customer
 			).filter(
-				models.Company.identifier == customer_identifier
+				models.Company.identifier == parsed_customer_identifier
 			).first())
 
 		if not customer:
-			print(f'[{index + 1} of {contracts_count}] Customer with identifier {customer_identifier} does not exist')
+			print(f'[{index + 1} of {contracts_count}] Customer with identifier {parsed_customer_identifier} does not exist')
 			print(f'EXITING EARLY')
 			return
 
@@ -176,7 +181,7 @@ def import_contracts(
 				late_fee_structure='{"1-14": 0.25, "15-29": 0.5, "30+": 1.0}',
 				preceeding_business_day=False,
 				wire_fee=parsed_wire_fee,
-				repayment_type_settlement_timeline='{}',
+				repayment_type_settlement_timeline='{"wire": 1, "ach": 1, "reverse_draft_ach": 1, "check": 5, "cash": 5}',
 				borrowing_base_accounts_receivable_percentage=parsed_borrowing_base_accounts_receivable_percentage,
 				borrowing_base_inventory_percentage=parsed_borrowing_base_inventory_percentage,
 				borrowing_base_cash_percentage=parsed_borrowing_base_cash_percentage,

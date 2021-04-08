@@ -237,7 +237,7 @@ function CreateUpdateContractModal({
             <Alert severity="info">
               <Typography variant="body1">
                 Note: only bank admins may create / edit contracts (you are a
-                bank admin). Description text in blue is only visible to bank
+                bank admin). Description text in green is only visible to bank
                 users.
               </Typography>
             </Alert>

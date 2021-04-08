@@ -27,7 +27,7 @@ function EnvironmentChip() {
       return (
         <Wrapper>
           <Chip>
-            <Typography>STAGING</Typography>
+            <Typography>Staging</Typography>
           </Chip>
         </Wrapper>
       );
@@ -36,7 +36,7 @@ function EnvironmentChip() {
       return (
         <Wrapper>
           <Chip>
-            <Typography>LOCAL</Typography>
+            <Typography>Development</Typography>
           </Chip>
         </Wrapper>
       );
