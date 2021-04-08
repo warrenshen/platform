@@ -828,6 +828,80 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
+	def test_successful_advance_skip_zero_wire_fee(self) -> None:
+		tests: List[Dict] = [
+			{
+				'comment': 'Tests that a wire fee is not created if the wire fee value in contract is zero',
+				'contracts_by_company_index': {
+					0: [
+						_get_default_contract(
+							use_preceeding_business_day=False,
+							days_until_repayment=10,
+							wire_fee=0.0,
+						)
+					],
+					1: [
+						_get_default_contract(
+							use_preceeding_business_day=False,
+							days_until_repayment=20,
+							wire_fee=0.0
+						)
+					]
+				},
+				'loans': [
+					{
+						'amount': 10.01,
+					},
+					{
+						'amount': 20.02,
+					}
+				],
+				'should_charge_wire_fee': True,
+				'payment_method': PaymentMethodEnum.WIRE,
+				'payment_date': '10/18/2020',
+				'settlement_date':  '10/20/2020',
+				'company_indices': [0, 0],
+				'payment_input_amount': 30.03,
+				'expected_loans': [
+					{
+						'amount': 10.01,
+						'maturity_date': '10/30/2020',
+						'adjusted_maturity_date': '10/30/2020'
+					},
+					{
+						'amount': 20.02,
+						'maturity_date': '10/30/2020',
+						'adjusted_maturity_date': '10/30/2020'
+					}
+				],
+				'expected_payments': [
+					{
+						'amount': 30.03,
+						'company_index': 0,
+						'type': 'advance',
+						'method': PaymentMethodEnum.WIRE,
+					}
+				],
+				'expected_transactions': [
+					{
+						'amount': 10.01,
+						'loan_index': 0,
+						'payment_index': 0,
+						'type': 'advance'
+					},
+					{
+						'amount': 20.02,
+						'loan_index': 1,
+						'payment_index': 0,
+						'type': 'advance'
+					}
+				],
+			}
+		]
+
+		for test in tests:
+			self._run_test(test)
+
 	def test_failure_wire_fee_but_not_wire_method(self) -> None:
 		tests: List[Dict] = [
 			{

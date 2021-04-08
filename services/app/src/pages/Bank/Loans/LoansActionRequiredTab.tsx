@@ -55,12 +55,9 @@ function BankLoansActionRequiredTab() {
     if (response.status !== "OK") {
       snackbar.showError("Error! Could not approve loans.");
     } else {
-      // TODO (warrenshen):
-      // Instead of clearing the selection,
-      // can we update the content of the selected loans?
       setSelectedLoanIds([]);
       setSelectedLoans([]);
-      snackbar.showSuccess("Success! Loan(s) approved.");
+      snackbar.showSuccess("Loan(s) approved.");
     }
   };
 

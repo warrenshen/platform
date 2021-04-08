@@ -48,7 +48,7 @@ function PaymentAdvanceForm({
       <Box mt={3}>
         <Typography>
           You are recording advances(s) for the following loans. Please enter in
-          payment information for the payment sent out and then press "Submit".
+          information for the advance(s) and then press "Submit".
         </Typography>
       </Box>
       <Box mt={3}>

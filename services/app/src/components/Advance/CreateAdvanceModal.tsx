@@ -1,14 +1,5 @@
-import {
-  Button,
-  createStyles,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  makeStyles,
-  Theme,
-} from "@material-ui/core";
 import AdvanceForm from "components/Advance/AdvanceForm";
+import Modal from "components/Shared/Modal/Modal";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { LoanFragment, PaymentsInsertInput } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
@@ -21,30 +12,12 @@ import {
 } from "lib/finance/payments/advance";
 import { useContext, useEffect, useState } from "react";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    dialog: {
-      width: 900,
-    },
-    dialogTitle: {
-      borderBottom: "1px solid #c7c7c7",
-    },
-    dialogActions: {
-      margin: theme.spacing(2),
-    },
-    submitButton: {
-      marginLeft: theme.spacing(1),
-    },
-  })
-);
-
 interface Props {
   selectedLoans: LoanFragment[];
   handleClose: () => void;
 }
 
 function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
-  const classes = useStyles();
   const snackbar = useSnackbar();
   const {
     user: { companyId },
@@ -123,10 +96,10 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
     );
     if (response.data?.status === "ERROR") {
       snackbar.showError(
-        `Error! Could not create advance. Reason: ${response.data?.msg}`
+        `Could not create advance(s). Reason: ${response.data?.msg}`
       );
     } else {
-      snackbar.showSuccess("Success! Advance created.");
+      snackbar.showSuccess("Advance(s) created.");
       handleClose();
     }
   };
@@ -137,35 +110,22 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
   const isSubmitDisabled = !isFormValid || isFormLoading;
 
   return isDialogReady ? (
-    <Dialog
-      open
-      onClose={handleClose}
-      maxWidth="xl"
-      classes={{ paper: classes.dialog }}
+    <Modal
+      isPrimaryActionDisabled={isSubmitDisabled}
+      title={"Create Advance(s)"}
+      contentWidth={800}
+      primaryActionText={"Submit"}
+      handleClose={handleClose}
+      handlePrimaryAction={handleClickSubmit}
     >
-      <DialogTitle className={classes.dialogTitle}>Create Advance</DialogTitle>
-      <DialogContent>
-        <AdvanceForm
-          selectedLoans={selectedLoans}
-          payment={payment}
-          setPayment={setPayment}
-          shouldChargeWireFee={shouldChargeWireFee}
-          setShouldChargeWireFee={setShouldChargeWireFee}
-        />
-      </DialogContent>
-      <DialogActions className={classes.dialogActions}>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button
-          className={classes.submitButton}
-          disabled={isSubmitDisabled}
-          onClick={handleClickSubmit}
-          variant={"contained"}
-          color={"primary"}
-        >
-          Submit
-        </Button>
-      </DialogActions>
-    </Dialog>
+      <AdvanceForm
+        selectedLoans={selectedLoans}
+        payment={payment}
+        setPayment={setPayment}
+        shouldChargeWireFee={shouldChargeWireFee}
+        setShouldChargeWireFee={setShouldChargeWireFee}
+      />
+    </Modal>
   ) : null;
 }
 
