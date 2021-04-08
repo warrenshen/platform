@@ -1,19 +1,17 @@
 import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
+import PurchaseOrderInfoCard from "components/PurchaseOrder/PurchaseOrderInfoCard";
 import Modal from "components/Shared/Modal/Modal";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   PurchaseOrders,
-  PurchaseOrdersInsertInput,
-  RequestStatusEnum,
   usePurchaseOrderQuery,
   UserRolesEnum,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { deletePurchaseOrderMutation } from "lib/api/purchaseOrders";
-import { isNull, mergeWith } from "lodash";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 
 interface Props {
   purchaseOrderId: PurchaseOrders["id"] | null;
@@ -28,34 +26,16 @@ function DeletePurchaseOrderModal({ purchaseOrderId, handleClose }: Props) {
   } = useContext(CurrentUserContext);
   const isBankUser = role === UserRolesEnum.BankAdmin;
 
-  // Default PurchaseOrder for CREATE case.
-  const newPurchaseOrder = {
-    vendor_id: null,
-    order_number: "",
-    order_date: null,
-    delivery_date: null,
-    amount: null,
-    is_cannabis: true,
-    status: RequestStatusEnum.Drafted,
-  } as PurchaseOrdersInsertInput;
-
-  const [purchaseOrder, setPurchaseOrder] = useState(newPurchaseOrder);
-
-  const { loading: isExistingPurchaseOrderLoading } = usePurchaseOrderQuery({
+  const {
+    data,
+    loading: isExistingPurchaseOrderLoading,
+  } = usePurchaseOrderQuery({
     variables: {
       id: purchaseOrderId,
     },
-    onCompleted: (data) => {
-      const existingPurchaseOrder = data?.purchase_orders_by_pk;
-      if (existingPurchaseOrder) {
-        setPurchaseOrder(
-          mergeWith(newPurchaseOrder, existingPurchaseOrder, (a, b) =>
-            isNull(b) ? a : b
-          )
-        );
-      }
-    },
   });
+
+  const purchaseOrder = data?.purchase_orders_by_pk || null;
 
   const [
     deletePurchaseOrder,
@@ -98,6 +78,15 @@ function DeletePurchaseOrderModal({ purchaseOrderId, handleClose }: Props) {
               </Typography>
             </Alert>
           </Box>
+        )}
+        <Box mb={2}>
+          <Typography variant={"h6"}>
+            Are you sure you want to delete the following purchase order? You
+            cannot undo this action.
+          </Typography>
+        </Box>
+        {purchaseOrder && (
+          <PurchaseOrderInfoCard purchaseOrder={purchaseOrder} />
         )}
       </>
     </Modal>
