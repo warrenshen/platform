@@ -39,9 +39,11 @@ def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) 
 			funded_date,
 		) = new_loan_tuple
 
+		parsed_customer_identifier = customer_identifier.strip()
 		parsed_amount = float(amount)
 		parsed_origination_date = date_util.load_date_str(origination_date)
-		parsed_funded_at = datetime.combine(date_util.load_date_str(funded_date), time())
+		# Note we don't use the funded_date column from the XLSX.
+		parsed_funded_at = datetime.combine(parsed_origination_date, time())
 
 		try:
 			# If loan_identifier from XLSX is "25.0", convert it to 25.
@@ -53,6 +55,7 @@ def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) 
 			parsed_loan_identifier = loan_identifier
 
 		if (
+			not parsed_customer_identifier or
 			not parsed_loan_identifier or
 			not numeric_loan_identifier or
 			not parsed_amount or
@@ -69,11 +72,11 @@ def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) 
 			session.query(models.Company).filter(
 				models.Company.company_type == CompanyType.Customer
 			).filter(
-				models.Company.identifier == customer_identifier
+				models.Company.identifier == parsed_customer_identifier
 			).first())
 
 		if not customer:
-			print(f'[{index + 1} of {loans_count}] Customer with identifier {customer_identifier} does not exist')
+			print(f'[{index + 1} of {loans_count}] Customer with identifier {parsed_customer_identifier} does not exist')
 			print(f'EXITING EARLY')
 			return
 
@@ -239,11 +242,13 @@ def import_loans(session: Session, loan_tuples: List[List[str]]) -> None:
 			funded_date,
 		) = new_loan_tuple
 
+		parsed_customer_identifier = customer_identifier.strip()
 		parsed_amount = float(amount)
 		parsed_origination_date = date_util.load_date_str(origination_date)
 		parsed_maturity_date = date_util.load_date_str(maturity_date)
 		parsed_adjusted_maturity_date = date_util.load_date_str(adjusted_maturity_date)
-		parsed_funded_at = datetime.combine(date_util.load_date_str(funded_date), time())
+		# Note we don't use the funded_date column from the XLSX.
+		parsed_funded_at = datetime.combine(parsed_origination_date, time())
 
 		try:
 			# If loan_identifier from XLSX is "25.0", convert it to 25.
@@ -255,6 +260,7 @@ def import_loans(session: Session, loan_tuples: List[List[str]]) -> None:
 			parsed_loan_identifier = loan_identifier
 
 		if (
+			not parsed_customer_identifier or
 			not parsed_loan_identifier or
 			not numeric_loan_identifier or
 			not parsed_amount or
@@ -273,11 +279,11 @@ def import_loans(session: Session, loan_tuples: List[List[str]]) -> None:
 			session.query(models.Company).filter(
 				models.Company.company_type == CompanyType.Customer
 			).filter(
-				models.Company.identifier == customer_identifier
+				models.Company.identifier == parsed_customer_identifier
 			).first())
 
 		if not customer:
-			print(f'[{index + 1} of {loans_count}] Customer with identifier {customer_identifier} does not exist')
+			print(f'[{index + 1} of {loans_count}] Customer with identifier {parsed_customer_identifier} does not exist')
 			print(f'EXITING EARLY')
 			return
 

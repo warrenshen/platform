@@ -29,16 +29,32 @@ def import_funded_purchase_orders(
 			amount,
 		) = new_purchase_order_tuple
 
+		parsed_customer_identifier = customer_identifier.strip()
+		parsed_order_date = date_util.load_date_str(order_date) if order_date else None
+		parsed_funded_at = datetime.combine(date_util.load_date_str(funded_date), time())
+
+		# Note: we are ok with None for order date.
+		if (
+			not parsed_customer_identifier or
+			not order_number or
+			# not parsed_order_date or
+			not amount or
+			not parsed_funded_at
+		):
+			print(f'[{index + 1} of {purchase_orders_count}] Invalid purchase order field(s)')
+			print(f'EXITING EARLY')
+			return
+
 		customer = cast(
 			models.Company,
 			session.query(models.Company).filter(
 				models.Company.company_type == CompanyType.Customer
 			).filter(
-				models.Company.identifier == customer_identifier
+				models.Company.identifier == parsed_customer_identifier
 			).first())
 
 		if not customer:
-			print(f'[{index + 1} of {purchase_orders_count}] Customer with identifier {customer_identifier} does not exist')
+			print(f'[{index + 1} of {purchase_orders_count}] Customer with identifier {parsed_customer_identifier} does not exist')
 			print(f'EXITING EARLY')
 			return
 
@@ -68,20 +84,7 @@ def import_funded_purchase_orders(
 			print(f'EXITING EARLY')
 			return
 
-		print(f'[{index + 1} of {purchase_orders_count}] Found customer {customer_identifier} and vendor {vendor_name}')
-
-		order_date = date_util.load_date_str(order_date)
-		funded_at = datetime.combine(date_util.load_date_str(funded_date), time())
-
-		if (
-			not order_number or
-			not order_date or
-			not amount or
-			not funded_at
-		):
-			print(f'[{index + 1} of {purchase_orders_count}] Invalid purchase order field(s)')
-			print(f'EXITING EARLY')
-			return
+		print(f'[{index + 1} of {purchase_orders_count}] Found customer {parsed_customer_identifier} and vendor {vendor_name}')
 
 		existing_purchase_order = cast(
 			models.PurchaseOrder,
@@ -102,12 +105,12 @@ def import_funded_purchase_orders(
 				vendor_id=vendor.id,
 				status=RequestStatusEnum.APPROVED,
 				order_number=order_number,
-				order_date=order_date,
+				order_date=parsed_order_date,
 				delivery_date=None,
 				amount=amount,
-				requested_at=funded_at, # Set requested_at to funded_at.
-				approved_at=funded_at, # Set approved_at to approved_at.
-				funded_at=funded_at,
+				requested_at=parsed_funded_at, # Set requested_at to funded_at.
+				approved_at=parsed_funded_at, # Set approved_at to funded_at.
+				funded_at=parsed_funded_at,
 				is_cannabis=None, # Set is_cannabis to NULL, which means we do not know whether it is True or False.
 			)
 			session.add(purchase_order)

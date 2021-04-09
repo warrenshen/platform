@@ -37,6 +37,7 @@ def import_settled_advances(
 			settlement_date,
 		) = new_advance_tuple
 
+		parsed_customer_identifier = customer_identifier.strip()
 		parsed_amount = float(amount)
 		parsed_payment_date = date_util.load_date_str(payment_date)
 		parsed_deposit_date = date_util.load_date_str(deposit_date)
@@ -54,6 +55,7 @@ def import_settled_advances(
 			parsed_loan_identifier = loan_identifier
 
 		if (
+			not parsed_customer_identifier or
 			not parsed_loan_identifier or
 			not numeric_loan_identifier or
 			not parsed_amount or
@@ -71,11 +73,11 @@ def import_settled_advances(
 			session.query(models.Company).filter(
 				models.Company.company_type == CompanyType.Customer
 			).filter(
-				models.Company.identifier == customer_identifier
+				models.Company.identifier == parsed_customer_identifier
 			).first())
 
 		if not customer:
-			print(f'[{index + 1} of {advances_count}] Customer with identifier {customer_identifier} does not exist')
+			print(f'[{index + 1} of {advances_count}] Customer with identifier {parsed_customer_identifier} does not exist')
 			print(f'EXITING EARLY')
 			return
 

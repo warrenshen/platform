@@ -147,7 +147,7 @@ def import_funded_purchase_orders_leune(session: Session) -> None:
 				delivery_date=None,
 				amount=amount,
 				requested_at=funded_at, # Set requested_at to funded_at.
-				approved_at=funded_at, # Set approved_at to approved_at.
+				approved_at=funded_at, # Set approved_at to funded_at.
 				funded_at=funded_at,
 				is_cannabis=None, # Set is_cannabis to NULL, which means we do not know whether it is True or False.
 			)

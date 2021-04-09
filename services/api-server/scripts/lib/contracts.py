@@ -67,6 +67,7 @@ def import_contracts(
 		parsed_borrowing_base_cash_in_daca_percentage = float(borrowing_base_cash_in_daca_percentage) if borrowing_base_cash_in_daca_percentage else None
 
 		if (
+			not parsed_customer_identifier or
 			parsed_financing_terms <= 0 or
 			parsed_maximum_amount <= 0 or
 			parsed_minimum_monthly_amount is None or
@@ -162,9 +163,14 @@ def import_contracts(
 				models.Contract.end_date == parsed_end_date
 			).first())
 
+		parsed_adjusted_end_date = parsed_termination_date if parsed_termination_date else parsed_end_date
+
 		if existing_contract:
 			print(f'[{index + 1} of {contracts_count}] Contract of {parsed_product_type} product type with start date {start_date} and end date {end_date} already exists')
-			continue
+
+			if existing_contract.adjusted_end_date is None:
+				existing_contract.adjusted_end_date = parsed_adjusted_end_date
+				print(f'[{index + 1} of {contracts_count}] Updated contract of {parsed_product_type} product type with start date {start_date} and end date {end_date} for {customer.name} ({customer.identifier})')
 		else:
 			print(f'[{index + 1} of {contracts_count}] Contract of {parsed_product_type} product type with start date {start_date} and end date {end_date} does not exist, creating it...')
 
@@ -196,7 +202,7 @@ def import_contracts(
 				product_config=product_config,
 				start_date=parsed_start_date,
 				end_date=parsed_end_date,
-				adjusted_end_date=parsed_termination_date if parsed_termination_date else parsed_end_date,
+				adjusted_end_date=parsed_adjusted_end_date,
 				terminated_at=parsed_terminated_at,
 			)
 

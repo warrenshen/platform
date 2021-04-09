@@ -43,6 +43,7 @@ def import_settled_repayments(
 			wire_fee,
 		) = new_repayment_tuple
 
+		parsed_customer_identifier = customer_identifier.strip()
 		parsed_deposit_date = date_util.load_date_str(deposit_date)
 		parsed_settlement_date = date_util.load_date_str(settlement_date)
 		parsed_submitted_at = datetime.combine(parsed_deposit_date, time())
@@ -63,6 +64,7 @@ def import_settled_repayments(
 			parsed_loan_identifier = loan_identifier
 
 		if (
+			not parsed_customer_identifier or
 			not parsed_loan_identifier or
 			not numeric_loan_identifier or
 			not parsed_amount or
@@ -90,11 +92,11 @@ def import_settled_repayments(
 			session.query(models.Company).filter(
 				models.Company.company_type == CompanyType.Customer
 			).filter(
-				models.Company.identifier == customer_identifier
+				models.Company.identifier == parsed_customer_identifier
 			).first())
 
 		if not customer:
-			print(f'[{index + 1} of {repayments_count}] Customer with identifier {customer_identifier} does not exist')
+			print(f'[{index + 1} of {repayments_count}] Customer with identifier {parsed_customer_identifier} does not exist')
 			print(f'EXITING EARLY')
 			return
 
@@ -269,6 +271,7 @@ def import_settled_repayments_line_of_credit(
 		print(f'[{index + 1} of {repayments_count}]')
 		customer_identifier, payment_type, deposit_date, settlement_date, amount, to_principal, to_interest = new_repayment_tuple
 
+		parsed_customer_identifier = customer_identifier.strip()
 		parsed_deposit_date = date_util.load_date_str(deposit_date)
 		parsed_settlement_date = date_util.load_date_str(settlement_date)
 		parsed_submitted_at = datetime.combine(parsed_deposit_date, time())
@@ -279,6 +282,7 @@ def import_settled_repayments_line_of_credit(
 		parsed_to_interest = float(to_interest) if to_interest else 0.0
 
 		if (
+			not parsed_customer_identifier or
 			not parsed_amount or
 			parsed_amount <= 0 or
 			parsed_to_principal < 0 or
@@ -316,17 +320,17 @@ def import_settled_repayments_line_of_credit(
 				session.query(models.Company).filter(
 					models.Company.company_type == CompanyType.Customer
 				).filter(
-					models.Company.identifier == customer_identifier
+					models.Company.identifier == parsed_customer_identifier
 				).first())
 
 			if not customer:
-				print(f'[{index + 1} of {repayments_count}] Customer with identifier {customer_identifier} does not exist')
+				print(f'[{index + 1} of {repayments_count}] Customer with identifier {parsed_customer_identifier} does not exist')
 				print(f'EXITING EARLY')
 				return
 
 			customer_id = customer.id
 			customer_name = customer.name
-			customer_identifier = customer.identifier
+			parsed_customer_identifier = customer.identifier
 
 			existing_repayment = cast(
 				models.Payment,
@@ -344,7 +348,7 @@ def import_settled_repayments_line_of_credit(
 				print(f'[{index + 1} of {repayments_count}] Repayment with amount {parsed_amount} and settlement date {settlement_date} already exists')
 				continue
 
-			print(f'[{index + 1} of {repayments_count}] Repayment for {customer_name} ({customer_identifier}) does not exist, creating it...')
+			print(f'[{index + 1} of {repayments_count}] Repayment for {customer_name} ({parsed_customer_identifier}) does not exist, creating it...')
 
 			payment = models.Payment(
 				company_id=customer_id,
@@ -388,7 +392,7 @@ def import_settled_repayments_line_of_credit(
 			print(f'EXITING EARLY')
 			return
 
-		print(f'[{index + 1} of {repayments_count}] Created repayment for {customer_name} ({customer_identifier})')
+		print(f'[{index + 1} of {repayments_count}] Created repayment for {customer_name} ({parsed_customer_identifier})')
 
 		with session_scope(session_maker) as session:
 			# Load up a LoanCalculator and check if loan is closed.
