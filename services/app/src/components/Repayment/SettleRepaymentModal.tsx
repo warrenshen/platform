@@ -212,7 +212,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
   };
 
   const setLoanBeforeAfterPayment = useMemo(
-    () => (loanId: Loans["id"], field: string, value: number) => {
+    () => (loanId: Loans["id"], field: string, value: number | null) => {
       const newLoansBeforeAfterPayment = [...loansBeforeAfterPayment];
       const loanBeforeAfterPayment = newLoansBeforeAfterPayment.find(
         (loanBeforeAfterPayment) => loanBeforeAfterPayment.loan_id === loanId
@@ -228,20 +228,22 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
             loan_balance_after: loanBalanceAfter,
             transaction,
           } = loanBeforeAfterPayment;
+
           transaction[
             field as "to_principal" | "to_interest" | "to_fees"
           ] = value;
           transaction.amount =
-            transaction.to_principal +
-            transaction.to_interest +
-            transaction.to_fees;
+            (transaction.to_principal || 0) +
+            (transaction.to_interest || 0) +
+            (transaction.to_fees || 0);
           loanBalanceAfter.outstanding_principal_balance =
             loanBalanceBefore.outstanding_principal_balance -
-            transaction.to_principal;
+            (transaction.to_principal || 0);
           loanBalanceAfter.outstanding_interest =
-            loanBalanceBefore.outstanding_interest - transaction.to_interest;
+            loanBalanceBefore.outstanding_interest -
+            (transaction.to_interest || 0);
           loanBalanceAfter.outstanding_fees =
-            loanBalanceBefore.outstanding_fees - transaction.to_fees;
+            loanBalanceBefore.outstanding_fees - (transaction.to_fees || 0);
           setLoansBeforeAfterPayment(newLoansBeforeAfterPayment);
         }
       }

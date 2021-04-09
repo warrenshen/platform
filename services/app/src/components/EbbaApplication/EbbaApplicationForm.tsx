@@ -98,7 +98,7 @@ function EbbaApplicationForm({
                 isRequired
                 label={"Accounts Receivable ($)"}
                 value={ebbaApplication.monthly_accounts_receivable}
-                handleChange={(value: number) => {
+                handleChange={(value) => {
                   setEbbaApplication({
                     ...ebbaApplication,
                     monthly_accounts_receivable: value,
@@ -121,7 +121,7 @@ function EbbaApplicationForm({
                 isRequired
                 label={"Inventory ($)"}
                 value={ebbaApplication.monthly_inventory}
-                handleChange={(value: number) => {
+                handleChange={(value) => {
                   setEbbaApplication({
                     ...ebbaApplication,
                     monthly_inventory: value,
@@ -144,7 +144,7 @@ function EbbaApplicationForm({
                 isRequired
                 label={"Cash in Deposit Account(s)"}
                 value={ebbaApplication.monthly_cash}
-                handleChange={(value: number) => {
+                handleChange={(value) => {
                   setEbbaApplication({
                     ...ebbaApplication,
                     monthly_cash: value,
@@ -167,7 +167,7 @@ function EbbaApplicationForm({
                 isRequired
                 label={"Cash in DACA Deposit Account(s)"}
                 value={ebbaApplication.amount_cash_in_daca}
-                handleChange={(value: number) => {
+                handleChange={(value) => {
                   setEbbaApplication({
                     ...ebbaApplication,
                     amount_cash_in_daca: value,

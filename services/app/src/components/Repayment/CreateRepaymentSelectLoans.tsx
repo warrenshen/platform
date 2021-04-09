@@ -219,7 +219,7 @@ function CreateRepaymentSelectLoans({
                   <CurrencyInput
                     label={"Amount"}
                     value={payment.amount}
-                    handleChange={(value: number) => {
+                    handleChange={(value) => {
                       setPayment({ ...payment, requested_amount: value });
                     }}
                   />

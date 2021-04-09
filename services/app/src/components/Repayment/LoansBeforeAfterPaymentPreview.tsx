@@ -53,7 +53,7 @@ interface Props {
   setLoanBeforeAfterPayment?: (
     loanId: Loans["id"],
     field: string,
-    value: number
+    value: number | null
   ) => void;
 }
 
@@ -173,7 +173,7 @@ function LoansBeforeAfterPaymentPreview({
                               label={"To Principal"}
                               textAlign="right"
                               value={transaction.to_principal}
-                              handleChange={(value: number) =>
+                              handleChange={(value) =>
                                 setLoanBeforeAfterPayment(
                                   loanId,
                                   "to_principal",
@@ -187,7 +187,7 @@ function LoansBeforeAfterPaymentPreview({
                               label={"To Interest"}
                               textAlign="right"
                               value={transaction.to_interest}
-                              handleChange={(value: number) =>
+                              handleChange={(value) =>
                                 setLoanBeforeAfterPayment(
                                   loanId,
                                   "to_interest",
@@ -201,7 +201,7 @@ function LoansBeforeAfterPaymentPreview({
                               label={"To Fees"}
                               textAlign="right"
                               value={transaction.to_fees}
-                              handleChange={(value: number) =>
+                              handleChange={(value) =>
                                 setLoanBeforeAfterPayment(
                                   loanId,
                                   "to_fees",

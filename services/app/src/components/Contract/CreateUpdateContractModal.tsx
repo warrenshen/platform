@@ -213,11 +213,9 @@ function CreateUpdateContractModal({
           });
 
     if (response.status !== "OK") {
-      snackbar.showError(
-        `Error: could not update contract! Reason: ${response.msg}`
-      );
+      snackbar.showError(`Could not update contract. Reason: ${response.msg}`);
     } else {
-      snackbar.showSuccess("Success! Contract updated.");
+      snackbar.showSuccess("Contract updated.");
       handleClose();
     }
   };

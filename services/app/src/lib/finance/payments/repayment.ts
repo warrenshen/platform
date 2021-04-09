@@ -13,9 +13,9 @@ export type LoanBalance = {
 
 export type LoanTransaction = {
   amount: number;
-  to_fees: number;
-  to_interest: number;
-  to_principal: number;
+  to_fees: number | null;
+  to_interest: number | null;
+  to_principal: number | null;
 };
 
 type LoanToShow = {

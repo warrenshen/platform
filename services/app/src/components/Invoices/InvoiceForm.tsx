@@ -156,7 +156,7 @@ export default function InvoiceForm({
           <CurrencyInput
             label={"Subtotal Amount"}
             value={invoice.subtotal_amount}
-            handleChange={(value: number) =>
+            handleChange={(value) =>
               setInvoice({
                 ...invoice,
                 subtotal_amount: value,
@@ -171,7 +171,7 @@ export default function InvoiceForm({
           <CurrencyInput
             label={"Taxes"}
             value={invoice.taxes_amount}
-            handleChange={(value: number) =>
+            handleChange={(value) =>
               setInvoice({
                 ...invoice,
                 taxes_amount: value,
@@ -186,7 +186,7 @@ export default function InvoiceForm({
           <CurrencyInput
             label={"Total Amount"}
             value={invoice.total_amount}
-            handleChange={(value: number) =>
+            handleChange={(value) =>
               setInvoice({
                 ...invoice,
                 total_amount: value,

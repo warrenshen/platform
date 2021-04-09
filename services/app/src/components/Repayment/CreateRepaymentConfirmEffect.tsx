@@ -94,7 +94,7 @@ function CreateRepaymentConfirmEffect({
                 <CurrencyInput
                   label={"Payment Amount to Principal"}
                   value={payment.items_covered.requested_to_principal}
-                  handleChange={(value: number) => {
+                  handleChange={(value) => {
                     setPayment({
                       ...payment,
                       requested_amount:
@@ -118,7 +118,7 @@ function CreateRepaymentConfirmEffect({
                 <CurrencyInput
                   label={"Payment Amount to Interest"}
                   value={payment.items_covered.requested_to_interest}
-                  handleChange={(value: number) => {
+                  handleChange={(value) => {
                     setPayment({
                       ...payment,
                       requested_amount:

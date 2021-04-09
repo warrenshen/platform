@@ -37,10 +37,7 @@ const useStyles = makeStyles((theme: Theme) =>
       flexDirection: "column",
     },
     sectionSpace: {
-      height: theme.spacing(4),
-    },
-    box: {
-      width: "33%",
+      height: theme.spacing(6),
     },
   })
 );

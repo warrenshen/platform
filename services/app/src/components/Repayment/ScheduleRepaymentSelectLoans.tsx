@@ -61,7 +61,7 @@ function ScheduleRepaymentSelectLoans({
           <CurrencyInput
             label={"Amount"}
             value={payment.amount}
-            handleChange={(value: number) => {
+            handleChange={(value) => {
               setPayment({
                 ...payment,
                 amount: value,

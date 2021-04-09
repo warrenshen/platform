@@ -10,8 +10,8 @@ interface Props {
   maximumValue?: number;
   label: string;
   error?: string;
-  value: number;
-  handleChange?: (value: number) => void;
+  value: number | null;
+  handleChange?: (value: number | null) => void;
 }
 
 function CurrencyInput({
@@ -33,6 +33,7 @@ function CurrencyInput({
       required={isRequired}
       modifyValueOnWheel={false}
       currencySymbol={currencySymbol}
+      emptyInputBehavior={"null"}
       outputFormat={"number"}
       decimalPlaces={decimalPlaces}
       minimumValue={minimumValue?.toString()}
@@ -42,8 +43,8 @@ function CurrencyInput({
       error={!!error}
       helperText={error || ""}
       value={value}
-      onChange={(_event: any, value: number) =>
-        handleChange && handleChange(value)
+      onChange={(event: any, value: number) =>
+        handleChange && handleChange(event.target.value !== "" ? value : null)
       }
     />
   );

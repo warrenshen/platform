@@ -11,7 +11,6 @@ import { formatCurrency } from "lib/currency";
 import StatBox from "./StatBox";
 
 interface Props {
-  isBalanceVisible?: boolean;
   financialSummary: FinancialSummaryFragment | null;
 }
 
@@ -23,10 +22,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function CustomerFinancialSummaryOverview({
-  isBalanceVisible = true,
-  financialSummary,
-}: Props) {
+function CustomerFinancialSummaryOverview({ financialSummary }: Props) {
   const classes = useStyles();
 
   const minimumFeePayload = financialSummary?.minimum_monthly_payload;
@@ -34,6 +30,7 @@ function CustomerFinancialSummaryOverview({
 
   let minimumFee = -1;
   let feeDuration = "";
+
   if (minimumFeePayload && Object.keys(minimumFeePayload).length > 0) {
     // Three keys you can read from:
     // amount_short: How much you will be charged extra for not using the product enough
@@ -61,118 +58,120 @@ function CustomerFinancialSummaryOverview({
   }
   return (
     <Box display="flex" flexDirection="column" mt={2}>
-      {isBalanceVisible && (
-        <>
-          <Box display="flex" width="100%" justifyContent="space-between">
-            <Box display="flex" flexDirection="column">
-              <Box display="flex">
-                <Box display="flex" flexDirection="column" mb={6}>
-                  <Typography variant="h2">
-                    {financialSummary
-                      ? formatCurrency(
-                          financialSummary?.total_outstanding_principal
-                        )
-                      : "TBD"}
-                  </Typography>
-                  <Typography variant="subtitle1" color="textSecondary">
-                    Outstanding Principal
-                  </Typography>
-                </Box>
-              </Box>
-              <Box display="flex" justifyContent="space-between">
-                <Box display="flex" flexDirection="column">
-                  <Typography variant="h5">
-                    {financialSummary
-                      ? formatCurrency(financialSummary?.adjusted_total_limit)
-                      : "TBD"}
-                  </Typography>
-                  <Typography variant="subtitle1" color="textSecondary">
-                    Borrowing Limit
-                  </Typography>
-                </Box>
-                <Box display="flex" flexDirection="column">
-                  <Typography variant="h5">
-                    {financialSummary
-                      ? formatCurrency(financialSummary?.available_limit)
-                      : "TBD"}
-                  </Typography>
-                  <Typography variant="subtitle1" color="textSecondary">
-                    Left to Borrow
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-            <Box>
-              <StatBox financialSummary={financialSummary} />
+      <Box display="flex" width="100%" justifyContent="space-between">
+        <Box display="flex" flexDirection="column">
+          <Box display="flex">
+            <Box display="flex" flexDirection="column" mb={6}>
+              <Typography variant="h2">
+                {financialSummary
+                  ? formatCurrency(
+                      financialSummary?.total_outstanding_principal
+                    )
+                  : "TBD"}
+              </Typography>
+              <Typography variant="subtitle1" color="textSecondary">
+                Outstanding Principal
+              </Typography>
             </Box>
           </Box>
-          <Box my={8}>
-            <Divider />
-          </Box>
-          <Box display="flex" justifyContent="space-between" width="100%">
-            <Box className={classes.box}>
-              <Box display="flex" flexDirection="column">
-                <Typography variant="h5">
-                  {financialSummary
-                    ? formatCurrency(
-                        financialSummary?.total_outstanding_interest
-                      )
-                    : "TBD"}
-                </Typography>
-                <Typography variant="subtitle1" color="textSecondary">
-                  Accrued Interest
-                </Typography>
-              </Box>
+          <Box display="flex">
+            <Box
+              display="flex"
+              flexDirection="column"
+              flex={1}
+              minWidth={"200px"}
+            >
+              <Typography variant="h5">
+                {financialSummary
+                  ? formatCurrency(financialSummary?.adjusted_total_limit)
+                  : "TBD"}
+              </Typography>
+              <Typography variant="subtitle1" color="textSecondary">
+                Borrowing Limit
+              </Typography>
             </Box>
-            <Box className={classes.box}>
-              <Box display="flex" flexDirection="column">
-                <Typography variant="h5">
-                  {financialSummary
-                    ? formatCurrency(financialSummary?.total_outstanding_fees)
-                    : "TBD"}
-                </Typography>
-                <Typography variant="subtitle1" color="textSecondary">
-                  Accrued Fees
-                </Typography>
-              </Box>
-            </Box>
-            <Box className={classes.box}>
-              <Box display="flex" flexDirection="column">
-                <Typography variant="h5">
-                  {minimumFee !== -1 ? formatCurrency(minimumFee) : "TBD"}
-                </Typography>
-                <Typography variant="subtitle1" color="textSecondary">
-                  Minimum Interest Fee
-                  {minimumFee !== -1 ? " Due " + feeDuration : ""}
-                </Typography>
-              </Box>
-            </Box>
-            <Box className={classes.box}>
-              <Box display="flex" flexDirection="column">
-                <Typography variant="h5">
-                  {accountFees !== -1 ? formatCurrency(accountFees) : "TBD"}
-                </Typography>
-                <Typography variant="subtitle1" color="textSecondary">
-                  Account Fees
-                </Typography>
-              </Box>
-            </Box>
-            <Box className={classes.box}>
-              <Box display="flex" flexDirection="column">
-                <Typography variant="h5">
-                  {accountCredits !== -1
-                    ? formatCurrency(accountCredits)
-                    : "TBD"}
-                </Typography>
-                <Typography variant="subtitle1" color="textSecondary">
-                  Account Credits
-                </Typography>
-              </Box>
+            <Box mr={6} />
+            <Box
+              display="flex"
+              flexDirection="column"
+              flex={1}
+              minWidth={"200px"}
+            >
+              <Typography variant="h5">
+                {financialSummary
+                  ? formatCurrency(financialSummary?.available_limit)
+                  : "TBD"}
+              </Typography>
+              <Typography variant="subtitle1" color="textSecondary">
+                Left to Borrow
+              </Typography>
             </Box>
           </Box>
-          <Box mt={6} />
-        </>
-      )}
+        </Box>
+        <Box>
+          <StatBox financialSummary={financialSummary} />
+        </Box>
+      </Box>
+      <Box my={8}>
+        <Divider />
+      </Box>
+      <Box display="flex" justifyContent="space-between" width="100%">
+        <Box className={classes.box}>
+          <Box display="flex" flexDirection="column">
+            <Typography variant="h5">
+              {financialSummary
+                ? formatCurrency(financialSummary?.total_outstanding_interest)
+                : "TBD"}
+            </Typography>
+            <Typography variant="subtitle1" color="textSecondary">
+              Accrued Interest
+            </Typography>
+          </Box>
+        </Box>
+        <Box className={classes.box}>
+          <Box display="flex" flexDirection="column">
+            <Typography variant="h5">
+              {financialSummary
+                ? formatCurrency(financialSummary?.total_outstanding_fees)
+                : "TBD"}
+            </Typography>
+            <Typography variant="subtitle1" color="textSecondary">
+              Accrued Fees
+            </Typography>
+          </Box>
+        </Box>
+        <Box className={classes.box}>
+          <Box display="flex" flexDirection="column">
+            <Typography variant="h5">
+              {minimumFee !== -1 ? formatCurrency(minimumFee) : "TBD"}
+            </Typography>
+            <Typography variant="subtitle1" color="textSecondary">
+              Minimum Interest Fee
+              {minimumFee !== -1 ? " Due " + feeDuration : ""}
+            </Typography>
+          </Box>
+        </Box>
+        <Box className={classes.box}>
+          <Box display="flex" flexDirection="column">
+            <Typography variant="h5">
+              {accountFees !== -1 ? formatCurrency(accountFees) : "TBD"}
+            </Typography>
+            <Typography variant="subtitle1" color="textSecondary">
+              Account Fees
+            </Typography>
+          </Box>
+        </Box>
+        <Box className={classes.box}>
+          <Box display="flex" flexDirection="column">
+            <Typography variant="h5">
+              {accountCredits !== -1 ? formatCurrency(accountCredits) : "TBD"}
+            </Typography>
+            <Typography variant="subtitle1" color="textSecondary">
+              Account Credits
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
     </Box>
   );
 }

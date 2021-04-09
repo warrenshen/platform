@@ -163,7 +163,7 @@ export default function ReviewInvoicePaymentConfirmModal({
             <CurrencyInput
               label={"Amount"}
               value={state.amount}
-              handleChange={(value: number) =>
+              handleChange={(value) =>
                 setState({
                   ...state,
                   amount: value,

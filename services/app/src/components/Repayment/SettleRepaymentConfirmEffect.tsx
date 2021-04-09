@@ -37,7 +37,7 @@ interface Props {
   setLoanBeforeAfterPayment: (
     loanId: Loans["id"],
     field: string,
-    value: number
+    value: number | null
   ) => void;
   setPayment: (payment: PaymentsInsertInput) => void;
 }
@@ -96,7 +96,7 @@ function SettleRepaymentConfirmEffect({
               <CurrencyInput
                 label={"Payment Amount to Principal"}
                 value={payment.items_covered.to_principal}
-                handleChange={(value: number) =>
+                handleChange={(value) =>
                   setPayment({
                     ...payment,
                     items_covered: {
@@ -113,7 +113,7 @@ function SettleRepaymentConfirmEffect({
               <CurrencyInput
                 label={"Payment Amount to Interest"}
                 value={payment.items_covered.to_interest}
-                handleChange={(value: number) =>
+                handleChange={(value) =>
                   setPayment({
                     ...payment,
                     items_covered: {
@@ -152,7 +152,7 @@ function SettleRepaymentConfirmEffect({
           <CurrencyInput
             label={"Payment Amount to Holding Account"}
             value={payment.items_covered.to_user_credit}
-            handleChange={(value: number) =>
+            handleChange={(value) =>
               setPayment({
                 ...payment,
                 items_covered: {

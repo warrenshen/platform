@@ -19,6 +19,7 @@ import {
   ContractTermNames,
   getContractTermBankDescription,
   getContractTermCustomerDescription,
+  getContractTermIsHiddenIfNull,
 } from "lib/contracts";
 import { AllProductTypes, ProductTypeToLabel } from "lib/enum";
 import { groupBy } from "lodash";
@@ -207,7 +208,7 @@ function ContractTermsForm({
               errMsg.length > 0 && isFieldInvalid(item) ? errMsg : undefined
             }
             value={item.value !== undefined ? item.value : null}
-            handleChange={(value: number) => findAndReplaceInJSON(item, value)}
+            handleChange={(value) => findAndReplaceInJSON(item, value)}
           />
         );
       case item.type === "boolean":
@@ -354,7 +355,9 @@ function ContractTermsForm({
                           )}
                         </Typography>
                       </FormHelperText>
-                      {item.is_hidden_if_null && (
+                      {getContractTermIsHiddenIfNull(
+                        item.internal_name as ContractTermNames
+                      ) && (
                         <FormHelperText id={"description-hidden-if-blank"}>
                           <Typography color="primary" variant="caption">
                             ** This item will be hidden from the customer if you

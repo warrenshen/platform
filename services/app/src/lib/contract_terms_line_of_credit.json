@@ -55,8 +55,7 @@
         "internal_name": "borrowing_base_accounts_receivable_percentage",
         "display_name": "Borrowing Base AR Percentage",
         "value": null,
-        "nullable": true,
-        "is_hidden_if_null": true
+        "nullable": true
       },
       {
         "section": "Financing Terms",
@@ -65,8 +64,7 @@
         "internal_name": "borrowing_base_inventory_percentage",
         "display_name": "Borrowing Base Inventory Percentage",
         "value": null,
-        "nullable": true,
-        "is_hidden_if_null": true
+        "nullable": true
       },
       {
         "section": "Financing Terms",
@@ -75,8 +73,7 @@
         "internal_name": "borrowing_base_cash_percentage",
         "display_name": "Borrowing Base Cash in Deposit Accounts Percentage",
         "value": null,
-        "nullable": true,
-        "is_hidden_if_null": true
+        "nullable": true
       },
       {
         "section": "Financing Terms",
@@ -85,8 +82,7 @@
         "internal_name": "borrowing_base_cash_in_daca_percentage",
         "display_name": "Borrowing Base Cash in DACA Deposit Accounts Percentage",
         "value": null,
-        "nullable": true,
-        "is_hidden_if_null": true
+        "nullable": true
       },
       {
         "section": "Financing Terms",
@@ -104,8 +100,7 @@
         "internal_name": "factoring_fee_threshold",
         "display_name": "Volume Discount Threshold",
         "value": null,
-        "nullable": true,
-        "is_hidden_if_null": true
+        "nullable": true
       },
       {
         "section": "Financing Terms",
@@ -114,8 +109,7 @@
         "internal_name": "factoring_fee_threshold_starting_value",
         "display_name": "Volume Discount Starting Value",
         "value": null,
-        "nullable": true,
-        "is_hidden_if_null": true
+        "nullable": true
       },
       {
         "section": "Financing Terms",
@@ -124,8 +118,7 @@
         "internal_name": "adjusted_factoring_fee_percentage",
         "display_name": "Discounted Daily Interest Rate",
         "value": null,
-        "nullable": true,
-        "is_hidden_if_null": true
+        "nullable": true
       },
       {
         "section": "Financing Terms",

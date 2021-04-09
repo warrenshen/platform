@@ -20,6 +20,7 @@ import {
   ContractTermNames,
   createProductConfigFieldsFromContract,
   getContractTermCustomerDescription,
+  getContractTermIsHiddenIfNull,
 } from "lib/contracts";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
@@ -75,10 +76,10 @@ const renderSwitch = (item: any) => {
 
 function ContractDrawer({ contractId, handleClose }: Props) {
   const classes = useStyles();
+
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-
   const isBankUser = role === UserRolesEnum.BankAdmin;
 
   const { data } = useGetContractQuery({
@@ -139,11 +140,13 @@ function ContractDrawer({ contractId, handleClose }: Props) {
             <Typography variant="h5">Contract Details</Typography>
             {Object.entries(sections).map(([sectionName, content]) => (
               <Box key={sectionName} mt={2}>
-                <Typography variant="button">{sectionName}</Typography>
+                <Typography variant="h6">{sectionName}</Typography>
                 {content.map((item) =>
                   !(
-                    (item.is_hidden_if_null &&
-                      (item.value === null || item.value === 0)) ||
+                    (getContractTermIsHiddenIfNull(
+                      item.internal_name as ContractTermNames
+                    ) &&
+                      item.value === null) ||
                     item.is_hidden
                   ) ? (
                     <Box key={item.internal_name} mt={2}>

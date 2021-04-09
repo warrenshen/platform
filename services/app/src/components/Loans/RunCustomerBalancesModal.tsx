@@ -77,7 +77,7 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
         );
         handleClose();
       } else {
-        snackbar.showSuccess("Success! Customer balances recalculated.");
+        snackbar.showSuccess("Customer balances recalculated.");
         handleClose();
       }
     }

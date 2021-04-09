@@ -145,7 +145,7 @@ function AdjustmentForm({
             <CurrencyInput
               label={"To Principal"}
               value={transaction.to_principal}
-              handleChange={(value: number) =>
+              handleChange={(value) =>
                 setTransaction({
                   ...transaction,
                   to_principal: value,
@@ -164,7 +164,7 @@ function AdjustmentForm({
             <CurrencyInput
               label={"To Interest"}
               value={transaction.to_interest}
-              handleChange={(value: number) =>
+              handleChange={(value) =>
                 setTransaction({
                   ...transaction,
                   to_interest: value,
@@ -183,7 +183,7 @@ function AdjustmentForm({
             <CurrencyInput
               label={"To Fees"}
               value={transaction.to_fees}
-              handleChange={(value: number) =>
+              handleChange={(value) =>
                 setTransaction({
                   ...transaction,
                   to_fees: value,

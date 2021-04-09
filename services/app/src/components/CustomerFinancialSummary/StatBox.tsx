@@ -7,6 +7,7 @@ import {
 } from "@material-ui/core";
 import ProgressBar from "components/Shared/ProgressBar";
 import { FinancialSummaryFragment } from "generated/graphql";
+import { round } from "lodash";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -32,23 +33,24 @@ function StatBox({ financialSummary }: Props) {
   const outstandingAmount = financialSummary
     ? financialSummary.adjusted_total_limit - financialSummary.available_limit
     : 0;
-  const limitPercent = financialSummary?.adjusted_total_limit
+  const rawLimitPercent = financialSummary?.adjusted_total_limit
     ? (100 * outstandingAmount) / financialSummary.adjusted_total_limit
     : 100;
+  const roundedLimitPercent = round(rawLimitPercent, 1);
 
   return (
     <Box className={classes.box}>
       <Box display="flex" flexDirection="column">
         <Box style={{ textAlign: "start" }}>
           <Typography variant="h2">
-            {financialSummary ? `${limitPercent}%` : "TBD"}
+            {financialSummary ? `${roundedLimitPercent}%` : "TBD"}
           </Typography>
           <Typography variant="body1" color="textSecondary">
             Borrowing Limit Used
           </Typography>
         </Box>
         <Box className={classes.progress}>
-          <ProgressBar value={limitPercent} />
+          <ProgressBar value={roundedLimitPercent} />
         </Box>
       </Box>
     </Box>

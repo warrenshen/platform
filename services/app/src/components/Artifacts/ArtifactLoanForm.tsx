@@ -129,7 +129,7 @@ export default function ArtifactLoanForm({
           <CurrencyInput
             label={"Amount"}
             value={loan.amount}
-            handleChange={(value: number) =>
+            handleChange={(value) =>
               setLoan({
                 ...loan,
                 amount: value,
