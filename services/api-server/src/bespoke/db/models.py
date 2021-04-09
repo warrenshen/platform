@@ -398,8 +398,8 @@ class Loan(Base):
 	maturity_date = Column(Date)
 	adjusted_maturity_date = Column(Date)
 	amount = Column(Numeric, nullable=False)
-	payment_status = Column(String)
 	status = Column(String)
+	payment_status = Column(String)
 
 	requested_at = Column(DateTime)
 	closed_at = Column(DateTime)

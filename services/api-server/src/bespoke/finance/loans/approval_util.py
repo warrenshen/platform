@@ -1,18 +1,17 @@
 import decimal
 from typing import Callable, Dict, List, Tuple, cast
-from sqlalchemy.orm import Session
-from mypy_extensions import TypedDict
 
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.db_constants import (ALL_LOAN_TYPES, LoanStatusEnum,
                                      LoanTypeEnum, RequestStatusEnum)
-from bespoke.email import sendgrid_util
 from bespoke.db.models import session_scope
+from bespoke.email import sendgrid_util
 from bespoke.finance import financial_summary_util
 from bespoke.finance.loans import sibling_util
-
+from mypy_extensions import TypedDict
+from sqlalchemy.orm import Session
 
 ApproveLoansReqDict = TypedDict('ApproveLoansReqDict', {
 	'loan_ids': List[str],
@@ -257,7 +256,7 @@ def submit_for_approval_if_has_autofinancing(
 		raise errors.Error('No contract found for customer, therefore, cannot perform autofinancing')
 
 	company.latest_loan_identifier += 1
-	
+
 	loan_type = db_constants.PRODUCT_TYPE_TO_LOAN_TYPE.get(contract.product_type)
 	if not loan_type:
 		raise errors.Error('No loan type associated with product type {}'.format(loan_type))
@@ -269,6 +268,7 @@ def submit_for_approval_if_has_autofinancing(
 	loan.artifact_id = artifact_id
 	loan.requested_payment_date = date_util.now() # TODO(dlluncor): use customer timezone today
 	loan.amount = decimal.Decimal(amount)
+	loan.status = LoanStatusEnum.DRAFTED
 
 	session.add(loan)
 	session.flush()
@@ -279,4 +279,3 @@ def submit_for_approval_if_has_autofinancing(
 		raise err
 
 	return resp, None
-

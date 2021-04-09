@@ -135,49 +135,51 @@ class RespondToApprovalRequestView(MethodView):
 			if not user_session.is_bank_admin():
 				cast(Callable, session.delete)(two_factor_link) # retire the link now that it has been used
 
-		if action_type == 'Approved':
-			template_name = sendgrid_util.TemplateNames.VENDOR_APPROVED_PURCHASE_ORDER
-			template_data = {
-				'vendor_name': vendor_name,
-				'customer_name': customer_name,
-				'purchase_order_number': purchase_order_number,
-				'purchase_order_amount': purchase_order_amount,
-				'purchase_order_requested_date': purchase_order_requested_date,
-			}
-			submit_resp, err = approval_util.submit_for_approval_if_has_autofinancing(
-				company_id=str(purchase_order.company_id),
-				amount=float(purchase_order.amount),
-				artifact_id=str(purchase_order.id),
-				session=session
-			)
-			if err:
-				raise err
-
-			if submit_resp:
-				# Only trigger the email if indeed we performed autofinancing
-				success, err = approval_util.send_loan_approval_requested_email(
-					sendgrid_client, submit_resp)
+			if action_type == 'Approved':
+				submit_resp, err = approval_util.submit_for_approval_if_has_autofinancing(
+					company_id=str(purchase_order.company_id),
+					amount=float(purchase_order.amount),
+					artifact_id=str(purchase_order.id),
+					session=session
+				)
 				if err:
 					raise err
-		elif not user_session.is_bank_admin():
-			template_name = sendgrid_util.TemplateNames.VENDOR_REJECTED_PURCHASE_ORDER
-			template_data = {
-				'vendor_name': vendor_name,
-				'customer_name': customer_name,
-				'purchase_order_number': purchase_order_number,
-				'purchase_order_amount': purchase_order_amount,
-				'purchase_order_requested_date': purchase_order_requested_date,
-				'rejection_note': rejection_note,
-			}
-		else:
-			template_name = sendgrid_util.TemplateNames.BANK_REJECTED_PURCHASE_ORDER
-			template_data = {
-				'customer_name': customer_name,
-				'purchase_order_number': purchase_order_number,
-				'purchase_order_amount': purchase_order_amount,
-				'purchase_order_requested_date': purchase_order_requested_date,
-				'rejection_note': rejection_note,
-			}
+
+				if submit_resp:
+					# Only trigger the email if indeed we performed autofinancing
+					success, err = approval_util.send_loan_approval_requested_email(
+						sendgrid_client, submit_resp)
+					if err:
+						raise err
+
+				template_name = sendgrid_util.TemplateNames.VENDOR_APPROVED_PURCHASE_ORDER
+				template_data = {
+					'vendor_name': vendor_name,
+					'customer_name': customer_name,
+					'purchase_order_number': purchase_order_number,
+					'purchase_order_amount': purchase_order_amount,
+					'purchase_order_requested_date': purchase_order_requested_date,
+				}
+			else:
+				if user_session.is_bank_admin():
+					template_name = sendgrid_util.TemplateNames.BANK_REJECTED_PURCHASE_ORDER
+					template_data = {
+						'customer_name': customer_name,
+						'purchase_order_number': purchase_order_number,
+						'purchase_order_amount': purchase_order_amount,
+						'purchase_order_requested_date': purchase_order_requested_date,
+						'rejection_note': rejection_note,
+					}
+				else:
+					template_name = sendgrid_util.TemplateNames.VENDOR_REJECTED_PURCHASE_ORDER
+					template_data = {
+						'vendor_name': vendor_name,
+						'customer_name': customer_name,
+						'purchase_order_number': purchase_order_number,
+						'purchase_order_amount': purchase_order_amount,
+						'purchase_order_requested_date': purchase_order_requested_date,
+						'rejection_note': rejection_note,
+					}
 
 		recipients = customer_emails
 		_, err = sendgrid_client.send(

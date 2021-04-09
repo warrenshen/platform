@@ -92,11 +92,9 @@ function ReviewPurchaseOrderApproveModal({
       },
     });
     if (response.status !== "OK") {
-      snackbar.showError(
-        `Error! Something went wrong. Reason: ${response.data?.msg}`
-      );
+      snackbar.showError(`Something went wrong. Reason: ${response.msg}`);
     } else {
-      snackbar.showSuccess("Success! Purchase order approved.");
+      snackbar.showSuccess("Purchase order approved.");
       handleApproveSuccess();
     }
   };
