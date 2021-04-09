@@ -1,7 +1,26 @@
-import { Box } from "@material-ui/core";
-import Chip from "components/Shared/Chip";
+import { Typography } from "@material-ui/core";
 import { LoanStatusEnum } from "generated/graphql";
 import { PaymentStatusEnum, PaymentStatusToLabel } from "lib/enum";
+import styled from "styled-components";
+
+const Chip = styled.div<{ backgroundColor: string }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  flex: 1;
+
+  width: 150px;
+  padding: 6px 0px;
+  border-radius: 18px;
+  background-color: ${(props) => props.backgroundColor};
+  color: white;
+`;
+
+const Text = styled(Typography)`
+  font-size: 14px;
+  font-weight: 500;
+`;
 
 interface Props {
   paymentStatus: PaymentStatusEnum;
@@ -17,33 +36,31 @@ const StatusToColor = {
 
 function PaymentStatusChip({ paymentStatus }: Props) {
   return (
-    <Box>
-      <Chip
-        color={"white"}
-        background={
-          StatusToColor[
-            [
-              PaymentStatusEnum.PARTIALLY_PAID,
-              PaymentStatusEnum.PENDING,
-              PaymentStatusEnum.SCHEDULED,
-              PaymentStatusEnum.CLOSED,
-            ].includes(paymentStatus)
-              ? paymentStatus
-              : LoanStatusEnum.Funded
-          ]
-        }
-        label={
+    <Chip
+      backgroundColor={
+        StatusToColor[
           [
             PaymentStatusEnum.PARTIALLY_PAID,
             PaymentStatusEnum.PENDING,
             PaymentStatusEnum.SCHEDULED,
             PaymentStatusEnum.CLOSED,
           ].includes(paymentStatus)
-            ? PaymentStatusToLabel[paymentStatus]
-            : "No Payment"
-        }
-      />
-    </Box>
+            ? paymentStatus
+            : LoanStatusEnum.Funded
+        ]
+      }
+    >
+      <Text>
+        {[
+          PaymentStatusEnum.PARTIALLY_PAID,
+          PaymentStatusEnum.PENDING,
+          PaymentStatusEnum.SCHEDULED,
+          PaymentStatusEnum.CLOSED,
+        ].includes(paymentStatus)
+          ? PaymentStatusToLabel[paymentStatus]
+          : "No Payment"}
+      </Text>
+    </Chip>
   );
 }
 

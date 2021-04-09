@@ -34,8 +34,8 @@ export enum PaymentStatusEnum {
 // PaymentStatus internal name to label
 export const PaymentStatusToLabel = {
   [PaymentStatusEnum.PARTIALLY_PAID]: "Partially Paid",
-  [PaymentStatusEnum.PENDING]: "Pending",
-  [PaymentStatusEnum.SCHEDULED]: "Scheduled",
+  [PaymentStatusEnum.PENDING]: "Payment Pending",
+  [PaymentStatusEnum.SCHEDULED]: "Payment Scheduled",
   [PaymentStatusEnum.CLOSED]: "Closed",
 };
 
