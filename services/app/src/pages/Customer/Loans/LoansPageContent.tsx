@@ -22,6 +22,7 @@ function CustomerLoansPageContent({ companyId, productType }: Props) {
       : null;
 
   const { data, error } = useGetActiveLoansForCompanyQuery({
+    fetchPolicy: "network-only",
     variables: {
       companyId,
       loanType,

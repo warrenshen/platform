@@ -19,6 +19,7 @@ function CustomerEbbaApplicationsPage() {
 
   const { data, loading, refetch } = useGetCompanyForCustomerBorrowingBaseQuery(
     {
+      fetchPolicy: "network-only",
       variables: {
         companyId,
       },

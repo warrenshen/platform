@@ -45,6 +45,7 @@ export default function AllInvoicesList({ companyId, productType }: Props) {
   const classes = useStyles();
 
   const { data, refetch, error } = useGetInvoicesByCompanyIdQuery({
+    fetchPolicy: "network-only",
     variables: {
       company_id: companyId,
     },

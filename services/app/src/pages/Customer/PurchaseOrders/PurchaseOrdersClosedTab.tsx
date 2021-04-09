@@ -34,6 +34,7 @@ function CustomerPurchaseOrdersClosedTab({ companyId }: Props) {
   const classes = useStyles();
 
   const { data, error } = useGetClosedPurchaseOrdersByCompanyIdQuery({
+    fetchPolicy: "network-only",
     variables: {
       company_id: companyId,
     },

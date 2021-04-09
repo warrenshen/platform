@@ -56,6 +56,7 @@ export default function InvoicesFundedUnfundedList({
   const classes = useStyles();
 
   const { data, refetch, error } = useGetInvoicesByCompanyIdQuery({
+    fetchPolicy: "network-only",
     variables: {
       company_id: companyId,
     },

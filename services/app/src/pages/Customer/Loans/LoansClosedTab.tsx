@@ -51,6 +51,7 @@ function CustomerLoansPageLoansClosedTab({ companyId, productType }: Props) {
       : null;
 
   const { data, error } = useGetClosedLoansForCompanyQuery({
+    fetchPolicy: "network-only",
     variables: {
       companyId,
       loanType,

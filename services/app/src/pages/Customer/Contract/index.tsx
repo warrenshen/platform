@@ -14,6 +14,7 @@ function CustomerContractPage() {
   } = useContext(CurrentUserContext);
 
   const { data } = useGetCompanyForCustomerContractPageQuery({
+    fetchPolicy: "network-only",
     variables: {
       companyId,
     },
