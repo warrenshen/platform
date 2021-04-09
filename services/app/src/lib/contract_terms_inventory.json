@@ -43,7 +43,7 @@
         "section": "Limits",
         "type": "float",
         "format": "currency",
-        "internal_name": "minimum_monthly_amount",
+        "internal_name": "minimum_annual_amount",
         "display_name": "Minimum Annual Interest",
         "value": null,
         "nullable": true

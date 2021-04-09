@@ -19,7 +19,25 @@
         "internal_name": "minimum_monthly_amount",
         "display_name": "Minimum Monthly Interest",
         "value": null,
-        "nullable": false
+        "nullable": true
+      },
+      {
+        "section": "Limits",
+        "type": "float",
+        "format": "currency",
+        "internal_name": "minimum_quarterly_amount",
+        "display_name": "Minimum Quarterly Interest",
+        "value": null,
+        "nullable": true
+      },
+      {
+        "section": "Limits",
+        "type": "float",
+        "format": "currency",
+        "internal_name": "minimum_annual_amount",
+        "display_name": "Minimum Annual Interest",
+        "value": null,
+        "nullable": true
       },
       {
         "section": "Financing Terms",

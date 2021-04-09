@@ -29,16 +29,25 @@ function CustomerFinancialSummaryOverview({
 }: Props) {
   const classes = useStyles();
 
-  const minimumMonthlyPayload = financialSummary?.minimum_monthly_payload;
+  const minimumFeePayload = financialSummary?.minimum_monthly_payload;
   const accountBalancePayload = financialSummary?.account_level_balance_payload;
 
-  let minimumMonthlyFee = -1;
-  if (minimumMonthlyPayload && Object.keys(minimumMonthlyPayload).length > 0) {
+  let minimumFee = -1;
+  let feeDuration = "";
+  if (minimumFeePayload && Object.keys(minimumFeePayload).length > 0) {
     // Three keys you can read from:
     // amount_short: How much you will be charged extra for not using the product enough
     // minimum_amount: What is the minimum required revenue Bespoke gets from interest.
     // amount_accrued: How much you will pay this month in interest
-    minimumMonthlyFee = minimumMonthlyPayload.amount_short;
+    // duration: e.g., monthly, quarterly, annually
+    minimumFee = minimumFeePayload.amount_short;
+    const duration = minimumFeePayload.duration;
+
+    if (duration && duration.length > 0) {
+      feeDuration =
+        minimumFeePayload.duration.charAt(0).toUpperCase() +
+        minimumFeePayload.duration.slice(1);
+    }
   }
 
   let accountFees = -1;
@@ -130,12 +139,11 @@ function CustomerFinancialSummaryOverview({
             <Box className={classes.box}>
               <Box display="flex" flexDirection="column">
                 <Typography variant="h5">
-                  {minimumMonthlyFee !== -1
-                    ? formatCurrency(minimumMonthlyFee)
-                    : "TBD"}
+                  {minimumFee !== -1 ? formatCurrency(minimumFee) : "TBD"}
                 </Typography>
                 <Typography variant="subtitle1" color="textSecondary">
                   Minimum Interest Fee
+                  {minimumFee !== -1 ? " Due " + feeDuration : ""}
                 </Typography>
               </Box>
             </Box>

@@ -434,7 +434,19 @@ class Contract(object):
 		return self._field_dicts
 
 	def validate(self) -> errors.Error:
-		# Currently no common validation is done, but this is useful to have as a placeholder
+		minimum_monthly_amount, err = self._get_minimum_monthly_amount()
+		minimum_quarterly_amount, err = self._get_minimum_quarterly_amount()
+		minimum_annual_amount, err = self._get_minimum_annual_amount()
+
+		if minimum_monthly_amount and minimum_quarterly_amount:
+			return errors.Error('The minimum monthly and quarterly amount may not be set at the same time')
+
+		if minimum_quarterly_amount and minimum_annual_amount:
+			return errors.Error('The minimum quarterly and annual amount may not be set at the same time')
+
+		if minimum_monthly_amount and minimum_annual_amount:
+			return errors.Error('The minimum monthly and annual amount may not be set at the same time')
+
 		return None
 
 	def for_product_type(self) -> Tuple['Contract', errors.Error]:
