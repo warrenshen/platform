@@ -148,7 +148,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'minimum_monthly_payload': {
 						'minimum_amount': 2001.03,
 						'amount_accrued': 0.0,
-						'amount_short': 2001.03
+						'amount_short': 2001.03,
+						'duration': 'monthly'
 					},
 					'account_level_balance_payload': {
 							'fees_total': 0.0,
@@ -236,7 +237,150 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'minimum_monthly_payload': {
 							'minimum_amount': 200.03,
 							'amount_accrued': round((3 * 0.05 * 500.03) + (2 * 0.05 * 100.03), 2),
-							'amount_short': round(200.03 - ((3 * 0.05 * 500.03) + (2 * 0.05 * 100.03)), 2)
+							'amount_short': round(200.03 - ((3 * 0.05 * 500.03) + (2 * 0.05 * 100.03)), 2),
+							'duration': 'monthly'
+					},
+					'account_level_balance_payload': {
+							'fees_total': 0.0,
+							'credits_total': 0.0
+					},
+					'day_volume_threshold_met': None
+				}
+			}
+		]
+		for test in tests:
+			self._run_test(test)
+
+	def test_success_no_payments_two_loans_not_due_yet_quarterly_minimum_accrued(self) -> None:
+
+		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+			session.add(models.Contract(
+				company_id=company_id,
+				product_type=ProductType.INVENTORY_FINANCING,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.INVENTORY_FINANCING,
+					input_dict=ContractInputDict(
+						interest_rate=0.005,
+						maximum_principal_amount=120000.01,
+						minimum_quarterly_amount=20000.03,
+						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure(), # unused
+					)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('12/1/2020')
+			))
+			loan = models.Loan(
+				company_id=company_id,
+				origination_date=date_util.load_date_str('10/01/2020'),
+				adjusted_maturity_date=date_util.load_date_str('11/05/2020'),
+				amount=decimal.Decimal(500.03)
+			)
+			session.add(loan)
+			payment_test_helper.make_advance(
+				session, loan, amount=500.03, payment_date='10/01/2020', effective_date='10/01/2020')
+
+		tests: List[Dict] = [
+			{
+				'today': '11/3/2020', # It's been 34 days since the loan started, and no late fees have accrued.
+				'populate_fn': populate_fn,
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('11/05/2020'),
+						'outstanding_principal': 500.03,
+						'outstanding_principal_for_interest': 500.03,
+						'outstanding_interest': round(34 * 0.005 * 500.03, 2), # 10/03 - 10/01 is 2 days apart, +1 day, is 3 days of interest.
+						'outstanding_fees': 0.0,
+						'interest_accrued_today': round(0.005 * 500.03, 2)
+					},
+				],
+				'expected_summary_update': {
+					'product_type': 'inventory_financing',
+					'total_limit': 120000.01,
+					'adjusted_total_limit': 120000.01,
+					'total_outstanding_principal': 500.03,
+					'total_outstanding_principal_for_interest': 500.03,
+					'total_outstanding_interest': round((34 * 0.005 * 500.03), 2),
+					'total_outstanding_fees': 0.0,
+					'total_principal_in_requested_state': 0.0,
+					'total_interest_accrued_today': round(0.005 * 500.03, 2),
+					'available_limit': 120000.01 - (500.03),
+					'minimum_monthly_payload': {
+							'minimum_amount': 20000.03,
+							'amount_accrued': round((34 * 0.005 * 500.03), 2),
+							'amount_short': round(20000.03 - (34 * 0.005 * 500.03), 2),
+							'duration': 'quarterly'
+					},
+					'account_level_balance_payload': {
+							'fees_total': 0.0,
+							'credits_total': 0.0
+					},
+					'day_volume_threshold_met': None
+				}
+			}
+		]
+		for test in tests:
+			self._run_test(test)
+
+	def test_success_no_payments_two_loans_not_due_yet_yearly_minimum_accrued(self) -> None:
+
+		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+			session.add(models.Contract(
+				company_id=company_id,
+				product_type=ProductType.INVENTORY_FINANCING,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.INVENTORY_FINANCING,
+					input_dict=ContractInputDict(
+						interest_rate=0.005,
+						maximum_principal_amount=120000.01,
+						minimum_annual_amount=20000.03,
+						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure(), # unused
+					)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('12/1/2020')
+			))
+			loan = models.Loan(
+				company_id=company_id,
+				origination_date=date_util.load_date_str('09/01/2020'),
+				adjusted_maturity_date=date_util.load_date_str('10/10/2020'), # spans 2 quarters
+				amount=decimal.Decimal(500.03)
+			)
+			session.add(loan)
+			payment_test_helper.make_advance(
+				session, loan, amount=500.03, payment_date='09/01/2020', effective_date='09/01/2020')
+
+		tests: List[Dict] = [
+			{
+				'today': '10/05/2020', # It's been 35 days since the loan started, and no late fees have accrued.
+				'populate_fn': populate_fn,
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('10/10/2020'),
+						'outstanding_principal': 500.03,
+						'outstanding_principal_for_interest': 500.03,
+						'outstanding_interest': round(35 * 0.005 * 500.03, 2), # 10/03 - 10/01 is 2 days apart, +1 day, is 3 days of interest.
+						'outstanding_fees': 0.0,
+						'interest_accrued_today': round(0.005 * 500.03, 2)
+					},
+				],
+				'expected_summary_update': {
+					'product_type': 'inventory_financing',
+					'total_limit': 120000.01,
+					'adjusted_total_limit': 120000.01,
+					'total_outstanding_principal': 500.03,
+					'total_outstanding_principal_for_interest': 500.03,
+					'total_outstanding_interest': round((35 * 0.005 * 500.03), 2),
+					'total_outstanding_fees': 0.0,
+					'total_principal_in_requested_state': 0.0,
+					'total_interest_accrued_today': round(0.005 * 500.03, 2),
+					'available_limit': 120000.01 - (500.03),
+					'minimum_monthly_payload': {
+							'minimum_amount': 20000.03,
+							'amount_accrued': round((35 * 0.005 * 500.03), 2),
+							'amount_short': round(20000.03 - (35 * 0.005 * 500.03), 2),
+							'duration': 'annually'
 					},
 					'account_level_balance_payload': {
 							'fees_total': 0.0,
@@ -646,7 +790,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'minimum_monthly_payload': {
 							'minimum_amount': 1.03,
 							'amount_accrued': round(2 * 0.002 * 500.03, 2),
-							'amount_short': 0.0
+							'amount_short': 0.0,
+							'duration': 'monthly'
 					},
 					'account_level_balance_payload': {
 							'fees_total': 3000.02,
@@ -762,7 +907,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				'minimum_monthly_payload': {
 						'minimum_amount': 1.03,
 						'amount_accrued':0.0,
-						'amount_short': 1.03
+						'amount_short': 1.03,
+						'duration': 'monthly'
 				},
 				'account_level_balance_payload': {
 						'fees_total': 0.0,

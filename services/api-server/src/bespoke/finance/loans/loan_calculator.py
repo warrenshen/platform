@@ -150,30 +150,94 @@ AccumulatedAmountDict = TypedDict('AccumulatedAmountDict', {
 	'interest_amount': float
 })
 
+_MONTH_TO_QUARTER = {
+	1: 1,
+	2: 1,
+	3: 1,
+
+	4: 2,
+	5: 2,
+	6: 2,
+
+	7: 3,
+	8: 3,
+	9: 3,
+
+	10: 4,
+	11: 4,
+	12: 4
+}
+
 class FeeAccumulator(object):
 	"""
 		Helps keep track of how many fees have been paid over a particular period of time.
 	"""
 	def __init__(self) -> None:
 		self._month_to_amounts: Dict[finance_types.Month, AccumulatedAmountDict] = {}
-
+		self._quarter_to_amounts: Dict[finance_types.Quarter, AccumulatedAmountDict] = {}
+		self._year_to_amounts: Dict[finance_types.Year, AccumulatedAmountDict] = {}
+		
 	def init_with_date_range(self, start_date: datetime.date, end_date: datetime.date) -> None:
-		# Allows you to initialize what months must get included based on this date range
+		# Allows you to initialize what months, quarters, year must get included based on this date range
 		cur_date = start_date
 
 		while cur_date <= end_date:
 			self.accumulate(0.0, cur_date)
 			cur_date = start_date + timedelta(days=30)
 
-	def get_month_to_amounts(self) -> Dict[finance_types.Month, AccumulatedAmountDict]:
-		return self._month_to_amounts
+	def get_amount_accrued_by_duration(self, duration: str, day: datetime.date) -> Tuple[float, errors.Error]:
+
+		if duration == contract_util.MinimumAmountDuration.MONTHLY:
+			month = finance_types.Month(month=day.month, year=day.year)
+
+			if month not in self._month_to_amounts:
+				return None, errors.Error('{} is missing the minimum fees monthly amount'.format(month))
+
+			return self._month_to_amounts[month]['interest_amount'], None
+
+		elif duration == contract_util.MinimumAmountDuration.QUARTERLY:
+			quarter = finance_types.Quarter(quarter=_MONTH_TO_QUARTER[day.month], year=day.year)
+
+			if quarter not in self._quarter_to_amounts:
+				return None, errors.Error('{} is missing the minimum fees quarter amount'.format(quarter))
+
+			return self._quarter_to_amounts[quarter]['interest_amount'], None
+
+		elif duration == contract_util.MinimumAmountDuration.ANNUALLY:
+			year = finance_types.Year(year=day.year)
+
+			if year not in self._year_to_amounts:
+				return None, errors.Error('{} is missing the minimum fees year amount'.format(year))
+
+			return self._year_to_amounts[year]['interest_amount'], None
+
+
+		return None, errors.Error('Invalid duration provided to accrue interest: "{}"'.format(duration))
 
 	def accumulate(self, interest_for_day: float, day: datetime.date) -> None:
+		# Month accumulation
 		month = finance_types.Month(month=day.month, year=day.year)
 		if month not in self._month_to_amounts:
 			self._month_to_amounts[month] = AccumulatedAmountDict(interest_amount=0)
 
 		self._month_to_amounts[month]['interest_amount'] += interest_for_day
+
+		# Quarter accumulation
+		quarter_num = _MONTH_TO_QUARTER[day.month]
+		quarter = finance_types.Quarter(quarter=quarter_num, year=day.year)
+
+		if quarter not in self._quarter_to_amounts:
+			self._quarter_to_amounts[quarter] = AccumulatedAmountDict(interest_amount=0)
+
+		self._quarter_to_amounts[quarter]['interest_amount'] += interest_for_day
+
+		# Year accumulation
+		year = finance_types.Year(year=day.year)
+
+		if year not in self._year_to_amounts:
+			self._year_to_amounts[year] = AccumulatedAmountDict(interest_amount=0)
+
+		self._year_to_amounts[year]['interest_amount'] += interest_for_day
 
 
 class LoanCalculator(object):

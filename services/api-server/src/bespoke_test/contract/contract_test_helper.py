@@ -15,6 +15,8 @@ ContractInputDict = TypedDict('ContractInputDict', {
 	'late_fee_structure': str,
 	'preceeding_business_day': bool,
 	'minimum_monthly_amount': float,
+	'minimum_quarterly_amount': float,
+	'minimum_annual_amount': float,
 	'factoring_fee_threshold': float,
 	'factoring_fee_threshold_starting_value': float,
 	'adjusted_factoring_fee_percentage': float,
@@ -45,7 +47,15 @@ def create_contract_config(
 		},
 		{
 			'internal_name': 'minimum_monthly_amount',
-			'value': input_dict.get('minimum_monthly_amount', 0.0)
+			'value': input_dict.get('minimum_monthly_amount', None)
+		},
+		{
+			'internal_name': 'minimum_quarterly_amount',
+			'value': input_dict.get('minimum_quarterly_amount', None)
+		},
+		{
+			'internal_name': 'minimum_annual_amount',
+			'value': input_dict.get('minimum_annual_amount', None)
 		},
 		{
 			'internal_name': 'advance_rate',

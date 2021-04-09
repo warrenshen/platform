@@ -28,6 +28,11 @@ FullFieldDict = TypedDict('FullFieldDict', {
 	'nullable': bool
 })
 
+class MinimumAmountDuration(object):
+	MONTHLY = 'monthly'
+	QUARTERLY = 'quarterly'
+	ANNUALLY = 'annually'
+
 INTERNAL_LATE_FEE_INFINITY = sys.maxsize
 
 def _parse_late_fee_structure(late_fee_field: FullFieldDict) -> Tuple[List[Tuple[int, int, float]], errors.Error]:
@@ -116,6 +121,11 @@ def _parse_late_fee_structure(late_fee_field: FullFieldDict) -> Tuple[List[Tuple
 
 	return ranges, None
 
+MinimumOwedDict = TypedDict('MinimumOwedDict', {
+	'duration': str,
+	'amount': float
+})
+
 class Contract(object):
 	"""
 		Represents a contract stored as JSON
@@ -199,13 +209,13 @@ class Contract(object):
 
 		return field['value'], None
 
-	def _get_float_value(self, internal_name: str, is_nullable: bool = False) -> Tuple[float, errors.Error]:
+	def _get_float_value(self, internal_name: str, default_if_null: float = None) -> Tuple[float, errors.Error]:
 		field, err = self._get_field(internal_name)
 		if err:
 			return None, err
 
-		if field['value'] is None and is_nullable:
-			return 0.0, None
+		if field['value'] is None and default_if_null is not None:
+			return default_if_null, None
 
 		if type(field['value']) != float and type(field['value']) != int:
 			return None, errors.Error(
@@ -267,17 +277,48 @@ class Contract(object):
 	def get_maximum_principal_limit(self) -> Tuple[float, errors.Error]:
 		return self._get_float_value('maximum_amount')
 
-	def get_minimum_monthly_amount(self) -> Tuple[float, errors.Error]:
+	def _get_minimum_monthly_amount(self) -> Tuple[float, errors.Error]:
 		return self._get_float_value('minimum_monthly_amount')
 
+	def _get_minimum_quarterly_amount(self) -> Tuple[float, errors.Error]:
+		return self._get_float_value('minimum_quarterly_amount')
+
+	def _get_minimum_annual_amount(self) -> Tuple[float, errors.Error]:
+		return self._get_float_value('minimum_annual_amount')
+
+	def get_minimum_amount_owed_per_duration(self) -> Tuple[MinimumOwedDict, errors.Error]:
+		minimum_monthly_amount, err = self._get_minimum_monthly_amount()
+		if minimum_monthly_amount is not None:
+
+			return MinimumOwedDict(
+				duration=MinimumAmountDuration.MONTHLY,
+				amount=minimum_monthly_amount
+			), None
+
+		minimum_quarterly_amount, err = self._get_minimum_quarterly_amount()
+		if minimum_quarterly_amount is not None:
+			return MinimumOwedDict(
+				duration=MinimumAmountDuration.QUARTERLY,
+				amount=minimum_quarterly_amount
+			), None
+
+		minimum_annual_amount, err = self._get_minimum_annual_amount()
+		if minimum_annual_amount is not None:
+			return MinimumOwedDict(
+				duration=MinimumAmountDuration.ANNUALLY,
+				amount=minimum_annual_amount
+			), None
+
+		return None, errors.Error('No minimum amount is established for monthly, quarterly or annually')
+
 	def get_factoring_fee_threshold(self) -> Tuple[float, errors.Error]:
-		return self._get_float_value('factoring_fee_threshold', is_nullable=True)
+		return self._get_float_value('factoring_fee_threshold', default_if_null=0.0)
 
 	def get_factoring_fee_threshold_starting_value(self) -> Tuple[float, errors.Error]:
-		return self._get_float_value('factoring_fee_threshold_starting_value', is_nullable=False)
+		return self._get_float_value('factoring_fee_threshold_starting_value')
 
 	def get_discounted_interest_rate_due_to_factoring_fee(self) -> Tuple[float, errors.Error]:
-		factoring_fee_threshold, err = self._get_float_value('factoring_fee_threshold', is_nullable=True)
+		factoring_fee_threshold, err = self._get_float_value('factoring_fee_threshold', default_if_null=0.0)
 		if err:
 			return None, err
 
@@ -286,7 +327,7 @@ class Contract(object):
 		if factoring_fee_threshold <= 0.0:
 			return self.get_interest_rate()
 		else:
-			return self._get_float_value('adjusted_factoring_fee_percentage', is_nullable=True)
+			return self._get_float_value('adjusted_factoring_fee_percentage', default_if_null=0.0)
 
 	def get_interest_rate(self) -> Tuple[float, errors.Error]:
 		# Returns interest rate in decimal format (0.0 = 0%, 1.0 = 100%).
@@ -393,7 +434,8 @@ class Contract(object):
 		return self._field_dicts
 
 	def validate(self) -> errors.Error:
-		raise NotImplementedError("validate is not implemented on this class")
+		# Currently no common validation is done, but this is useful to have as a placeholder
+		return None
 
 	def for_product_type(self) -> Tuple['Contract', errors.Error]:
 		product_type, err = self.get_product_type()
@@ -448,6 +490,9 @@ class InventoryFinancingContract(Contract):
 		super(InventoryFinancingContract, self).__init__(c, private)
 
 	def validate(self) -> errors.Error:
+		err = super().validate()
+		if err:
+			return err
 		_, err = self.get_fee_multiplier(days_past_due=1)
 		return err
 
@@ -458,6 +503,10 @@ class InvoiceFinancingContract(Contract):
 		super(InvoiceFinancingContract, self).__init__(c, private)
 
 	def validate(self) -> errors.Error:
+		err = super().validate()
+		if err:
+			return err
+
 		_, err = self.get_fee_multiplier(days_past_due=1)
 		return err
 
@@ -468,6 +517,10 @@ class PMFContract(Contract):
 		super(PMFContract, self).__init__(c, private)
 
 	def validate(self) -> errors.Error:
+		err = super().validate()
+		if err:
+			return err
+
 		_, err = self.get_fee_multiplier(days_past_due=1)
 		return err
 
@@ -477,16 +530,16 @@ class LOCContract(Contract):
 		super(LOCContract, self).__init__(c, private)
 
 	def get_borrowing_base_accounts_receivable_percentage(self) -> Tuple[float, errors.Error]:
-		return self._get_float_value('borrowing_base_accounts_receivable_percentage', is_nullable=True)
+		return self._get_float_value('borrowing_base_accounts_receivable_percentage', default_if_null=0.0)
 
 	def get_borrowing_base_inventory_percentage(self) -> Tuple[float, errors.Error]:
-		return self._get_float_value('borrowing_base_inventory_percentage', is_nullable=True)
+		return self._get_float_value('borrowing_base_inventory_percentage', default_if_null=0.0)
 
 	def get_borrowing_base_cash_percentage(self) -> Tuple[float, errors.Error]:
-		return self._get_float_value('borrowing_base_cash_percentage', is_nullable=True)
+		return self._get_float_value('borrowing_base_cash_percentage', default_if_null=0.0)
 
 	def get_borrowing_base_cash_in_daca_percentage(self) -> Tuple[float, errors.Error]:
-		return self._get_float_value('borrowing_base_cash_in_daca_percentage', is_nullable=True)
+		return self._get_float_value('borrowing_base_cash_in_daca_percentage', default_if_null=0.0)
 
 	# Based on https://github.com/bespoke-capital/platform/blob/3d0574e2d1198137ff089f02ddafe383708c0d0e/services/app/src/components/EbbaApplication/CreateEbbaApplicationModal.tsx#L44-L76
 	def compute_borrowing_base(self, ebba: models.EbbaApplicationDict) -> Tuple[float, errors.Error]:
@@ -515,6 +568,10 @@ class LOCContract(Contract):
 		return borrowing_base, None
 
 	def validate(self) -> errors.Error:
+		err = super().validate()
+		if err:
+			return err
+
 		fields = (
 			'borrowing_base_accounts_receivable_percentage',
 			'borrowing_base_inventory_percentage',

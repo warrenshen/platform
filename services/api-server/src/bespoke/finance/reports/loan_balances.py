@@ -36,7 +36,8 @@ from mypy_extensions import TypedDict
 FeeDict = TypedDict('FeeDict', {
 	'amount_accrued': float, # how much has accrued in fees for the time period
 	'minimum_amount': float, # the minimum you must pay in a time period
-	'amount_short': float # how much you owe for a time period because of the minimum_due
+	'amount_short': float, # how much you owe for a time period because of the minimum_due
+	'duration': str # Over what duration is this fee owed
 })
 
 AccountBalanceDict = TypedDict('AccountBalanceDict', {
@@ -115,27 +116,35 @@ def _get_active_ebba_application_update(
 		calculated_borrowing_base=number_util.round_currency(calculated_borrowing_base),
 	), None
 
-def _get_cur_month_minimum_fees(contract_helper: contract_util.ContractHelper, today: datetime.date, fee_accumulator: loan_calculator.FeeAccumulator) -> Tuple[FeeDict, errors.Error]:
+def _get_cur_minimum_fees(contract_helper: contract_util.ContractHelper, today: datetime.date, fee_accumulator: loan_calculator.FeeAccumulator) -> Tuple[FeeDict, errors.Error]:
 	cur_contract, err = contract_helper.get_contract(today)
 	if err:
 		return None, err
-	minimum_monthly_due, err = cur_contract.get_minimum_monthly_amount()
+
+	minimum_owed_dict, err = cur_contract.get_minimum_amount_owed_per_duration()
+	has_no_duration_set = err is not None
+	if has_no_duration_set:
+		return FeeDict(
+			minimum_amount=0.0,
+			amount_accrued=0.0,
+			amount_short=0.0,
+			duration=None
+		), None
+
+
+	duration = minimum_owed_dict['duration']
+	amount_accrued, err = fee_accumulator.get_amount_accrued_by_duration(duration, today)
 	if err:
 		return None, err
 
-	month_to_fee_amounts = fee_accumulator.get_month_to_amounts()
-	month = finance_types.Month(month=today.month, year=today.year)
-	if month not in month_to_fee_amounts:
-		return None, errors.Error('{} is missing the minimum fees amount'.format(month))
-
-	amount_dict = month_to_fee_amounts[month]
-	amount_accrued = number_util.round_currency(amount_dict['interest_amount'])
-	amount_short = number_util.round_currency(max(0, minimum_monthly_due - amount_accrued))
+	minimum_due = minimum_owed_dict['amount']
+	amount_short = max(0, minimum_due - amount_accrued)
 
 	cur_month_fees = FeeDict(
-		minimum_amount=minimum_monthly_due,
-		amount_accrued=amount_accrued,
-		amount_short=amount_short,
+		minimum_amount=minimum_due,
+		amount_accrued=number_util.round_currency(amount_accrued),
+		amount_short=number_util.round_currency(amount_short),
+		duration=duration
 	)
 	return cur_month_fees, None
 
@@ -206,7 +215,7 @@ def _get_summary_update(
 		total_outstanding_fees += l['outstanding_fees']
 		total_interest_accrued_today += l['interest_accrued_today']
 
-	minimum_monthly_payload, err = _get_cur_month_minimum_fees(contract_helper, today, fee_accumulator)
+	minimum_monthly_payload, err = _get_cur_minimum_fees(contract_helper, today, fee_accumulator)
 	if err:
 		return None, err
 
