@@ -259,10 +259,17 @@ def import_loans(session: Session, loan_tuples: List[List[str]]) -> None:
 			numeric_loan_identifier = int("".join(filter(str.isdigit, loan_identifier)))
 			parsed_loan_identifier = loan_identifier
 
+		try:
+			# If artifact_identifier from XLSX is "25.0", convert it to 25.
+			numeric_artifact_identifier = int(float(artifact_identifier))
+			parsed_artifact_identifier = str(numeric_artifact_identifier)
+		except Exception:
+			parsed_artifact_identifier = artifact_identifier
+
 		if (
 			not parsed_customer_identifier or
 			not parsed_loan_identifier or
-			not numeric_loan_identifier or
+			not parsed_artifact_identifier or
 			not parsed_amount or
 			parsed_amount <= 0 or
 			not parsed_origination_date or
@@ -326,11 +333,11 @@ def import_loans(session: Session, loan_tuples: List[List[str]]) -> None:
 				session.query(models.PurchaseOrder).filter(
 					models.PurchaseOrder.company_id == customer.id
 				).filter(
-					models.PurchaseOrder.order_number == artifact_identifier
+					models.PurchaseOrder.order_number == parsed_artifact_identifier
 				).first())
 
 			if not existing_purchase_order:
-				print(f'[{index + 1} of {loans_count}] Purchase order with identifier {artifact_identifier} does not exist')
+				print(f'[{index + 1} of {loans_count}] Purchase order with identifier {parsed_artifact_identifier} does not exist')
 				print(f'EXITING EARLY')
 				return
 			else:

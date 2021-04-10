@@ -33,10 +33,17 @@ def import_funded_purchase_orders(
 		parsed_order_date = date_util.load_date_str(order_date) if order_date else None
 		parsed_funded_at = datetime.combine(date_util.load_date_str(funded_date), time())
 
+		try:
+			# If order_number from XLSX is "25.0", convert it to 25.
+			numeric_order_number = int(float(order_number))
+			parsed_order_number = str(numeric_order_number)
+		except Exception:
+			parsed_order_number = order_number
+
 		# Note: we are ok with None for order date.
 		if (
 			not parsed_customer_identifier or
-			not order_number or
+			not parsed_order_number or
 			# not parsed_order_date or
 			not amount or
 			not parsed_funded_at
@@ -93,18 +100,18 @@ def import_funded_purchase_orders(
 			).filter(
 				models.PurchaseOrder.vendor_id == vendor.id
 			).filter(
-				models.PurchaseOrder.order_number == order_number
+				models.PurchaseOrder.order_number == parsed_order_number
 			).first())
 
 		if existing_purchase_order:
-			print(f'[{index + 1} of {purchase_orders_count}] Purchase order {order_number} for {customer.name} ({customer.identifier}) already exists')
+			print(f'[{index + 1} of {purchase_orders_count}] Purchase order {parsed_order_number} for {customer.name} ({customer.identifier}) already exists')
 		else:
-			print(f'[{index + 1} of {purchase_orders_count}] Purchase order {order_number} for {customer.name} ({customer.identifier}) does not exist, creating it...')
+			print(f'[{index + 1} of {purchase_orders_count}] Purchase order {parsed_order_number} for {customer.name} ({customer.identifier}) does not exist, creating it...')
 			purchase_order = models.PurchaseOrder(
 				company_id=customer.id,
 				vendor_id=vendor.id,
 				status=RequestStatusEnum.APPROVED,
-				order_number=order_number,
+				order_number=parsed_order_number,
 				order_date=parsed_order_date,
 				delivery_date=None,
 				amount=amount,
@@ -115,7 +122,7 @@ def import_funded_purchase_orders(
 			)
 			session.add(purchase_order)
 
-			print(f'[{index + 1} of {purchase_orders_count}] Created purchase order {order_number} for {customer.name} ({customer.identifier})')
+			print(f'[{index + 1} of {purchase_orders_count}] Created purchase order {parsed_order_number} for {customer.name} ({customer.identifier})')
 
 def load_into_db_from_excel(session: Session, path: str) -> None:
 	print(f'Beginning import...')
