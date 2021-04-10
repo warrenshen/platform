@@ -17,6 +17,7 @@ import {
   useParams,
   useRouteMatch,
 } from "react-router-dom";
+import styled from "styled-components";
 import BankCustomerEbbaApplicationsSubpage from "./EbbaApplications";
 import BankCustomerInvoicesSubpage from "./Invoices";
 import BankCustomerLoansSubpage from "./Loans";
@@ -27,6 +28,12 @@ import BankCustomerSettingsSubpage from "./Settings";
 import BankCustomerVendorsSubpage from "./Vendors";
 
 const DRAWER_WIDTH = 200;
+
+const TitleText = styled.span`
+  margin-bottom: 24px;
+  font-size: 24px;
+  font-weight: 500;
+`;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -132,6 +139,7 @@ function BankCustomerPage() {
     <Page appBarTitle={customerName || ""}>
       <Box display="flex" width="100%">
         <Box className={classes.drawer}>
+          <TitleText>{customerName || ""}</TitleText>
           <List className={classes.list}>
             {getCustomerPaths(productType)
               .filter((customerPath) => customerPath.visible !== false)
