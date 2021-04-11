@@ -84,9 +84,12 @@ function AdjustmentForm({
             </MenuItem>
             {loans.map((loan) => (
               <MenuItem key={loan.id} value={loan.id}>
-                {`${createLoanPublicIdentifier(loan)} | Amount: ${
-                  loan.amount ? formatCurrency(loan.amount) : "Error"
-                } | Origination Date: ${
+                {`${createLoanPublicIdentifier(
+                  loan
+                )} | Amount: ${formatCurrency(
+                  loan.amount,
+                  "Error"
+                )} | Origination Date: ${
                   loan.origination_date
                     ? formatDateString(loan.origination_date)
                     : "Error"

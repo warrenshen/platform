@@ -179,11 +179,10 @@ function EbbaApplicationForm({
         </Box>
       )}
       <Box display="flex" flexDirection="column" mt={3}>
-        <Typography variant="body1">{`Calculated Borrowing Base: ${
-          calculatedBorrowingBase !== null
-            ? formatCurrency(calculatedBorrowingBase)
-            : "TBD"
-        }`}</Typography>
+        <Typography variant="body1">{`Calculated Borrowing Base: ${formatCurrency(
+          calculatedBorrowingBase,
+          "TBD"
+        )}`}</Typography>
         <Typography variant="body2" color="textSecondary">
           This borrowing base is calculated based on the numbers you entered
           above and your current active contract with Bespoke.

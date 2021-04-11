@@ -128,7 +128,7 @@ def reset_customers(
 		print(f'[{index + 1} of {customers_count}] Reset customer {customer.name} ({customer.identifier})')
 
 def load_into_db_from_excel(session: Session, path: str) -> None:
-	print(f'Beginning import...')
+	print(f'Beginning reset...')
 
 	workbook, err = excel_reader.ExcelWorkbook.load_xlsx(path)
 	if err:

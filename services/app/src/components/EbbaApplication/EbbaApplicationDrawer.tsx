@@ -134,9 +134,7 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
               Montly Accounts Receivable
             </Typography>
             <Typography variant={"body1"}>
-              {ebbaApplication.monthly_accounts_receivable !== null
-                ? formatCurrency(ebbaApplication.monthly_accounts_receivable)
-                : "-"}
+              {formatCurrency(ebbaApplication.monthly_accounts_receivable)}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
@@ -144,9 +142,7 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
               Monthly Inventory
             </Typography>
             <Typography variant={"body1"}>
-              {ebbaApplication.monthly_inventory !== null
-                ? formatCurrency(ebbaApplication.monthly_inventory)
-                : "-"}
+              {formatCurrency(ebbaApplication.monthly_inventory)}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
@@ -154,9 +150,7 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
               Monthly Cash
             </Typography>
             <Typography variant={"body1"}>
-              {ebbaApplication.monthly_cash !== null
-                ? formatCurrency(ebbaApplication.monthly_cash)
-                : "-"}
+              {formatCurrency(ebbaApplication.monthly_cash)}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
@@ -164,9 +158,7 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
               Monthly Cash in DACA
             </Typography>
             <Typography variant={"body1"}>
-              {ebbaApplication.amount_cash_in_daca !== null
-                ? formatCurrency(ebbaApplication.amount_cash_in_daca)
-                : "-"}
+              {formatCurrency(ebbaApplication.amount_cash_in_daca)}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
@@ -174,9 +166,7 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
               Calculated Borrowing Base
             </Typography>
             <Typography variant={"body1"}>
-              {ebbaApplication.calculated_borrowing_base !== null
-                ? formatCurrency(ebbaApplication.calculated_borrowing_base)
-                : "TBD"}
+              {formatCurrency(ebbaApplication.calculated_borrowing_base)}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>

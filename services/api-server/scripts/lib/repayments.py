@@ -253,10 +253,11 @@ def import_settled_repayments(
 				loan_update['outstanding_fees'] != 0.0
 			):
 				print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} did not close out loan')
+				loan.payment_status = PaymentStatusEnum.PARTIALLY_PAID
 			else:
 				print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} closed out loan, setting loan.closed_at to {parsed_settled_at}...')
-				loan.closed_at = parsed_settled_at
 				loan.payment_status = PaymentStatusEnum.CLOSED
+				loan.closed_at = parsed_settled_at
 
 
 # Line of credit is different, because we don't have a given loan identifier for each repayment.

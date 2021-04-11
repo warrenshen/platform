@@ -6,7 +6,7 @@ interface Props {
 }
 
 function CurrencyDataGridCell({ value }: Props) {
-  return <Box>{value !== null ? formatCurrency(value) : "-"}</Box>;
+  return <Box>{formatCurrency(value)}</Box>;
 }
 
 export default CurrencyDataGridCell;
