@@ -14,13 +14,17 @@ import DataGridActionMenu, {
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
   LoanFragment,
+  LoanLimitedFragment,
   Loans,
   LoanStatusEnum,
   LoanTypeEnum,
   RequestStatusEnum,
 } from "generated/graphql";
 import { AllLoanStatuses, LoanTypeToLabel, PaymentStatusEnum } from "lib/enum";
-import { createLoanPublicIdentifier } from "lib/loans";
+import {
+  createLoanDisbursementIdentifier,
+  createLoanIdentifier,
+} from "lib/loans";
 import { ColumnWidths } from "lib/tables";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -28,6 +32,7 @@ import { Link } from "react-router-dom";
 interface Props {
   isArtifactVisible?: boolean;
   isCompanyVisible?: boolean;
+  isDisbursementIdentifierVisible?: boolean;
   isExcelExport?: boolean;
   isDaysPastDueVisible?: boolean;
   isFilteringEnabled?: boolean;
@@ -50,8 +55,9 @@ const getMaturityDate = (rowData: any) => new Date(rowData.maturity_date);
 function LoansDataGrid({
   isArtifactVisible = false,
   isCompanyVisible = false,
-  isExcelExport = false,
   isDaysPastDueVisible = false,
+  isDisbursementIdentifierVisible = false,
+  isExcelExport = false,
   isFilteringEnabled = false,
   isMaturityVisible = false,
   isMultiSelectEnabled = false,
@@ -112,12 +118,26 @@ function LoansDataGrid({
   const columns = useMemo(
     () => [
       {
-        dataField: "id",
+        dataField: "identifier",
         caption: "Identifier",
         width: 120,
         cellRender: (params: ValueFormatterParams) => (
           <LoanDrawerLauncher
-            label={createLoanPublicIdentifier(params.row.data as LoanFragment)}
+            label={createLoanIdentifier(params.row.data as LoanLimitedFragment)}
+            loanId={params.row.data.id as string}
+          />
+        ),
+      },
+      {
+        visible: isDisbursementIdentifierVisible,
+        dataField: "disbursement_identifier",
+        caption: "Disbursement Identifier",
+        width: 120,
+        cellRender: (params: ValueFormatterParams) => (
+          <LoanDrawerLauncher
+            label={createLoanDisbursementIdentifier(
+              params.row.data as LoanLimitedFragment
+            )}
             loanId={params.row.data.id as string}
           />
         ),
@@ -310,6 +330,7 @@ function LoansDataGrid({
       isArtifactVisible,
       isCompanyVisible,
       isDaysPastDueVisible,
+      isDisbursementIdentifierVisible,
       isMaturityVisible,
       isStatusVisible,
       actionItems,

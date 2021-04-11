@@ -58,6 +58,7 @@ fragment Loan on loans {
   loan_type
   artifact_id
   identifier
+  disbursement_identifier
   status
   rejection_note
   notes

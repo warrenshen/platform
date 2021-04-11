@@ -16381,6 +16381,7 @@ export type LoanLimitedFragment = Pick<
   | "loan_type"
   | "artifact_id"
   | "identifier"
+  | "disbursement_identifier"
   | "status"
   | "rejection_note"
   | "payment_status"
@@ -16844,6 +16845,7 @@ export type LoanFragment = Pick<
   | "loan_type"
   | "artifact_id"
   | "identifier"
+  | "disbursement_identifier"
   | "status"
   | "rejection_note"
   | "notes"
@@ -17065,6 +17067,7 @@ export const LoanLimitedFragmentDoc = gql`
     loan_type
     artifact_id
     identifier
+    disbursement_identifier
     status
     rejection_note
     payment_status
@@ -17256,6 +17259,7 @@ export const LoanFragmentDoc = gql`
     loan_type
     artifact_id
     identifier
+    disbursement_identifier
     status
     rejection_note
     notes

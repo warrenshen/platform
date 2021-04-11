@@ -11,7 +11,7 @@ import DataGridActionMenu, {
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { LoanFragment, Loans, LoanStatusEnum } from "generated/graphql";
 import { PaymentStatusEnum } from "lib/enum";
-import { createLoanPublicIdentifier } from "lib/loans";
+import { createLoanIdentifier } from "lib/loans";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
@@ -53,7 +53,7 @@ export default function ArtifactLoansDataGrid({
         width: 120,
         cellRender: (params: ValueFormatterParams) => (
           <LoanDrawerLauncher
-            label={createLoanPublicIdentifier(params.row.data as LoanFragment)}
+            label={createLoanIdentifier(params.row.data as LoanFragment)}
             loanId={params.row.data.id as string}
           />
         ),

@@ -19,7 +19,7 @@ import {
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
-import { createLoanPublicIdentifier } from "lib/loans";
+import { createLoanIdentifier } from "lib/loans";
 import { useMemo } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -84,9 +84,7 @@ function AdjustmentForm({
             </MenuItem>
             {loans.map((loan) => (
               <MenuItem key={loan.id} value={loan.id}>
-                {`${createLoanPublicIdentifier(
-                  loan
-                )} | Amount: ${formatCurrency(
+                {`${createLoanIdentifier(loan)} | Amount: ${formatCurrency(
                   loan.amount,
                   "Error"
                 )} | Origination Date: ${

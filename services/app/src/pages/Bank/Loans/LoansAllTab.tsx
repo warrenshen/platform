@@ -27,6 +27,7 @@ function BankLoansAllTab() {
         <LoansDataGrid
           isArtifactVisible
           isCompanyVisible
+          isDisbursementIdentifierVisible
           isExcelExport
           isFilteringEnabled
           isMaturityVisible

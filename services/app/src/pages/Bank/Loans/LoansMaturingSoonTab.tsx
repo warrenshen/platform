@@ -74,6 +74,7 @@ function BankLoansMaturingSoonTab() {
         <LoansDataGrid
           isArtifactVisible
           isCompanyVisible
+          isDisbursementIdentifierVisible
           isFilteringEnabled
           isMaturityVisible
           isExcelExport

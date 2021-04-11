@@ -59,7 +59,7 @@ function RejectPurchaseOrderModal({ purchaseOrderId, handleClose }: Props) {
         link_val: null,
       },
     });
-    console.log({ response });
+
     if (response.status !== "OK") {
       snackbar.showError(`Something went wrong. Reason: ${response.msg}`);
     } else {

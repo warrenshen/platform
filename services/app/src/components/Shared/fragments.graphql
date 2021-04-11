@@ -95,6 +95,7 @@ fragment LoanLimited on loans {
   loan_type
   artifact_id
   identifier
+  disbursement_identifier
   status
   rejection_note
   payment_status

@@ -79,7 +79,7 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
   ]);
 
   const handleClickSubmit = async () => {
-    const params = {
+    const response = await authenticatedApi.post(loansRoutes.createAdvance, {
       payment: {
         company_id: payment.company_id,
         amount: payment.amount,
@@ -89,11 +89,8 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
       },
       loan_ids: selectedLoans.map((loan) => loan.id),
       should_charge_wire_fee: shouldChargeWireFee,
-    };
-    const response = await authenticatedApi.post(
-      loansRoutes.createAdvance,
-      params
-    );
+    });
+
     if (response.data?.status === "ERROR") {
       snackbar.showError(
         `Could not create advance(s). Reason: ${response.data?.msg}`

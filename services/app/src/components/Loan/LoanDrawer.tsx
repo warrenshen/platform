@@ -24,7 +24,10 @@ import {
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 import { LoanTypeToLabel } from "lib/enum";
-import { createLoanPublicIdentifier } from "lib/loans";
+import {
+  createLoanDisbursementIdentifier,
+  createLoanIdentifier,
+} from "lib/loans";
 import { useContext } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -43,10 +46,10 @@ interface Props {
 
 function LoanDrawer({ loanId, handleClose }: Props) {
   const classes = useStyles();
+
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-
   const isBankUser = role === UserRolesEnum.BankAdmin;
 
   const {
@@ -97,9 +100,24 @@ function LoanDrawer({ loanId, handleClose }: Props) {
               Identifier
             </Typography>
             <Typography variant={"body1"}>
-              {createLoanPublicIdentifier(loan)}
+              {createLoanIdentifier(loan)}
             </Typography>
           </Box>
+          {isBankUser && (
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="flex-start"
+              mt={2}
+            >
+              <Typography variant="subtitle2" color="textSecondary">
+                Disbursement Identifier
+              </Typography>
+              <Typography variant={"body1"}>
+                {createLoanDisbursementIdentifier(loan)}
+              </Typography>
+            </Box>
+          )}
           <Box
             display="flex"
             flexDirection="column"

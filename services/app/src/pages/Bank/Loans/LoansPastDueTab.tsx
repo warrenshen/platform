@@ -38,6 +38,7 @@ function BankLoansPastDueTab() {
           isArtifactVisible
           isCompanyVisible
           isDaysPastDueVisible
+          isDisbursementIdentifierVisible
           isFilteringEnabled
           isMaturityVisible
           isExcelExport
