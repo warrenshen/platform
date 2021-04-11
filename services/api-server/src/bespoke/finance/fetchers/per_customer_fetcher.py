@@ -11,6 +11,7 @@ from bespoke.db.models import (CompanyDict, CompanySettingsDict, ContractDict,
 from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
 
+
 def _loan_to_str(l: LoanDict) -> str:
 	return f"{l['id']},{l['origination_date']},{l['amount']},{l['status']}"
 
@@ -22,7 +23,7 @@ def _transaction_to_str(t: TransactionDict) -> str:
 
 class Fetcher(object):
 
-	def __init__(self, 
+	def __init__(self,
 		company_info_dict: per_customer_types.CompanyInfoDict, session_maker: Callable, ignore_deleted: bool):
 		self._company_id = company_info_dict['id']
 		self._session_maker = session_maker
@@ -64,9 +65,9 @@ class Fetcher(object):
 				)
 			if self._ignore_deleted:
 				query = query.filter(cast(Callable, models.Transaction.is_deleted.isnot)(True))
-			
+
 			transactions = cast(List[models.Transaction], query.all())
-			
+
 			if not transactions:
 				return True, None
 

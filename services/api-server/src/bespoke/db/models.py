@@ -96,6 +96,7 @@ class Company(Base):
 	needs_balance_recomputed = Column(Boolean, nullable=False, default=False) # is_dirty
 	dba_name = Column(String)
 	latest_loan_identifier = Column(Integer, nullable=False, default=0)
+	latest_disbursement_identifier = Column(Integer, nullable=False, default=0)
 
 	def as_dict(self) -> CompanyDict:
 		return CompanyDict(
@@ -391,6 +392,8 @@ class Loan(Base):
 	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 
 	identifier = Column(String)
+	disbursement_identifier = Column(String)
+
 	loan_type = Column(Text)
 	artifact_id = Column(GUID)
 	requested_payment_date = Column(Date)

@@ -65,7 +65,6 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		contracts_by_company_index = test['contracts_by_company_index']
 		input_loans = test['loans']
 		company_indices = test['company_indices']
-		payment_amount = test['payment_input_amount']
 		purchase_orders = test.get("purchase_orders", [])
 		bank_admin_user_id = seed.get_user_id('bank_admin')
 
@@ -113,31 +112,35 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				session.flush()
 				loan_ids.append(str(loan.id))
 
-		payment_date = test['payment_date']
-		settlement_date = test['settlement_date']
+		for advance in test['advances']:
+			payment_date = advance['payment_date']
+			settlement_date = advance['settlement_date']
+			loan_indices = advance['loan_indices']
 
-		req = advance_util.FundLoansReqDict(
-			loan_ids=loan_ids,
-			payment=payment_util.PaymentInsertInputDict(
-				company_id='unused',
-				type='unused',
-				requested_amount=None,
-				amount=payment_amount,
-				method=test['payment_method'] if 'payment_method' in test else PaymentMethodEnum.ACH,
-				requested_payment_date=None,
-				payment_date=payment_date,
-				settlement_date=settlement_date,
-				items_covered={'loan_ids': loan_ids},
-				company_bank_account_id=None,
-			),
-			should_charge_wire_fee=test['should_charge_wire_fee']
-		)
+			advance_loan_ids = [loan_ids[loan_index] for loan_index in loan_indices]
+			req = advance_util.FundLoansReqDict(
+				loan_ids=advance_loan_ids,
+				payment=payment_util.PaymentInsertInputDict(
+					company_id='unused',
+					type='unused',
+					requested_amount=None,
+					amount=advance['payment_input_amount'],
+					method=advance['payment_method'] if 'payment_method' in advance else PaymentMethodEnum.ACH,
+					requested_payment_date=None,
+					payment_date=payment_date,
+					settlement_date=settlement_date,
+					items_covered={'loan_ids': advance_loan_ids},
+					company_bank_account_id=None,
+				),
+				should_charge_wire_fee=advance['should_charge_wire_fee']
+			)
 
-		resp, err = advance_util.fund_loans_with_advance(
-			req=req,
-			bank_admin_user_id=bank_admin_user_id,
-			session_maker=session_maker
-		)
+			resp, err = advance_util.fund_loans_with_advance(
+				req=req,
+				bank_admin_user_id=bank_admin_user_id,
+				session_maker=session_maker
+			)
+
 		if test.get('in_err_msg'):
 			self.assertIn(test['in_err_msg'], err.msg)
 			return
@@ -160,13 +163,19 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				expected_loan = test['expected_loans'][i]
 				loan = loans[i]
 				company_id = seed.get_company_id('company_admin', index=company_indices[i])
+
 				self.assertEqual(company_id, loan.company_id)
+				self.assertEqual(expected_loan['disbursement_identifier'], loan.disbursement_identifier)
 				self.assertAlmostEqual(expected_loan['amount'], float(loan.amount))
 				self.assertAlmostEqual(expected_loan['amount'], float(loan.outstanding_principal_balance))
-				self.assertEqual(expected_loan['maturity_date'],
-												 date_util.date_to_str(loan.maturity_date))
-				self.assertEqual(expected_loan['adjusted_maturity_date'],
-												 date_util.date_to_str(loan.adjusted_maturity_date))
+				self.assertEqual(
+					expected_loan['maturity_date'],
+					date_util.date_to_str(loan.maturity_date),
+				)
+				self.assertEqual(
+					expected_loan['adjusted_maturity_date'],
+					date_util.date_to_str(loan.adjusted_maturity_date),
+				)
 				self.assertAlmostEqual(0.0, float(loan.outstanding_interest))
 				self.assertAlmostEqual(0.0, float(loan.outstanding_fees))
 
@@ -281,19 +290,26 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'amount': 20.02,
 					}
 				],
-				'should_charge_wire_fee': True,
-				'payment_method': PaymentMethodEnum.WIRE,
-				'payment_date': '10/18/2020',
-				'settlement_date':  '10/20/2020',
 				'company_indices': [0, 0],
-				'payment_input_amount': 30.03,
+				'advances': [
+					{
+						'should_charge_wire_fee': True,
+						'payment_method': PaymentMethodEnum.WIRE,
+						'payment_date': '10/18/2020',
+						'settlement_date': '10/20/2020',
+						'payment_input_amount': 30.03,
+						'loan_indices': [0, 1]
+					}
+				],
 				'expected_loans': [
 					{
+						'disbursement_identifier': '1A',
 						'amount': 10.01,
 						'maturity_date': '10/30/2020',
 						'adjusted_maturity_date': '10/30/2020'
 					},
 					{
+						'disbursement_identifier': '1B',
 						'amount': 20.02,
 						'maturity_date': '10/30/2020',
 						'adjusted_maturity_date': '10/30/2020'
@@ -373,36 +389,45 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'amount': 40.04,
 					}
 				],
-				'should_charge_wire_fee': True,
-				'payment_method': PaymentMethodEnum.WIRE,
-				'payment_date': '10/18/2020',
-				'settlement_date':  '10/20/2020',
 				'company_indices': [0, 1, 0, 1],
-				'payment_input_amount': 10.01 + 20.02 + 30.03 + 40.04,
+				'advances': [
+					{
+						'should_charge_wire_fee': True,
+						'payment_method': PaymentMethodEnum.WIRE,
+						'payment_date': '10/18/2020',
+						'settlement_date': '10/20/2020',
+						'payment_input_amount': 10.01 + 20.02 + 30.03 + 40.04,
+						'loan_indices': [0, 1, 2, 3]
+					}
+				],
 				'expected_loans': [
 					{
+						'disbursement_identifier': '1A',
 						'amount': 10.01,
 						'maturity_date': '10/24/2020', # Saturday
 						'adjusted_maturity_date': '10/26/2020' # skip from Saturday to Monday
 					},
 					{
+						'disbursement_identifier': '1A',
 						'amount': 20.02,
 						'maturity_date': '10/31/2020', # Saturday
 						'adjusted_maturity_date': '11/02/2020' # because use_preceeding_business_day=False
 					},
 					{
+						'disbursement_identifier': '1B',
 						'amount': 30.03,
 						'maturity_date': '10/24/2020', # Saturday
 						'adjusted_maturity_date': '10/26/2020' # skip from Saturday to Monday
 					},
 					{
+						'disbursement_identifier': '1B',
 						'amount': 40.04,
 						'maturity_date': '10/31/2020', # Saturday
 						'adjusted_maturity_date': '11/02/2020' # because use_preceeding_business_day=False
 					}
 				],
 				'expected_payments': [
-				  # We create two payments, one for each customer, plus the payments for the wire fees
+					# We create two payments, one for each customer, plus the payments for the wire fees
 					{
 						'amount': 10.01 + 30.03,
 						'company_index': 0,
@@ -427,7 +452,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					}
 				],
 				'expected_transactions': [
-				  # There is one transaction for each loan, but two transactions associated with each payment
+					# There is one transaction for each loan, but two transactions associated with each payment
 					{
 						'amount': 10.01,
 						'loan_index': 0,
@@ -487,13 +512,19 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'amount': 10.01,
 					},
 				],
-				'payment_date': '10/18/2020',
-				'settlement_date':  '10/20/2020',
 				'company_indices': [0],
-				'payment_input_amount': 10.01,
-				'should_charge_wire_fee': False,
+				'advances': [
+					{
+						'should_charge_wire_fee': False,
+						'payment_date': '10/18/2020',
+						'settlement_date': '10/20/2020',
+						'payment_input_amount': 10.01,
+						'loan_indices': [0]
+					}
+				],
 				'expected_loans': [
 					{
+						'disbursement_identifier': '1',
 						'amount': 10.01,
 						'maturity_date': '12/31/2020',
 						'adjusted_maturity_date': '12/31/2020'
@@ -524,7 +555,18 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 		resp, err = advance_util.fund_loans_with_advance(
 			req=advance_util.FundLoansReqDict(
 				loan_ids=[],
-				payment=None,
+				payment=payment_util.PaymentInsertInputDict(
+					company_id='unused',
+					type='unused',
+					method='ach',
+					requested_amount=None,
+					amount=0.2,
+					requested_payment_date=None,
+					payment_date='10/28/2020',
+					settlement_date='10/30/2020',
+					items_covered={ 'loan_ids': [] },
+					company_bank_account_id=None,
+			  	),
 				should_charge_wire_fee=False
 			),
 			bank_admin_user_id='',
@@ -551,8 +593,19 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 
 		resp, err = advance_util.fund_loans_with_advance(
 			req=advance_util.FundLoansReqDict(
-				payment=None,
 				loan_ids=loan_ids,
+				payment=payment_util.PaymentInsertInputDict(
+					company_id='unused',
+					type='unused',
+					method='ach',
+					requested_amount=None,
+					amount=0.2,
+					requested_payment_date=None,
+					payment_date='10/28/2020',
+					settlement_date='10/30/2020',
+					items_covered={ 'loan_ids': loan_ids },
+					company_bank_account_id=None,
+			  	),
 				should_charge_wire_fee=False
 			),
 			bank_admin_user_id='',
@@ -579,8 +632,19 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 
 		resp, err = advance_util.fund_loans_with_advance(
 			req=advance_util.FundLoansReqDict(
-				payment=None,
 				loan_ids=loan_ids,
+				payment=payment_util.PaymentInsertInputDict(
+					company_id='unused',
+					type='unused',
+					method='ach',
+					requested_amount=None,
+					amount=0.2,
+					requested_payment_date=None,
+					payment_date='10/28/2020',
+					settlement_date='10/30/2020',
+					items_covered={ 'loan_ids': loan_ids },
+					company_bank_account_id=None,
+			  	),
 				should_charge_wire_fee=False
 			),
 			bank_admin_user_id='',
@@ -605,8 +669,19 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 
 		resp, err = advance_util.fund_loans_with_advance(
 			req=advance_util.FundLoansReqDict(
-				payment=None,
 				loan_ids=loan_ids,
+				payment=payment_util.PaymentInsertInputDict(
+					company_id='unused',
+					type='unused',
+					method='ach',
+					requested_amount=None,
+					amount=0.2,
+					requested_payment_date=None,
+					payment_date='10/28/2020',
+					settlement_date='10/30/2020',
+					items_covered={ 'loan_ids': loan_ids },
+					company_bank_account_id=None,
+			  	),
 				should_charge_wire_fee=False
 			),
 			bank_admin_user_id='',
@@ -652,7 +727,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 			bank_admin_user_id='',
 			session_maker=self.session_maker
 		)
-		self.assertIn('exactly', err.msg)
+		self.assertIn('Advance amount must be equal to', err.msg)
 
 	def test_successful_purchase_order_fully_funded(self) -> None:
 		tests: List[Dict] = [
@@ -678,7 +753,6 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'amount': 30.03,
 					}
 				],
-				'should_charge_wire_fee': False,
 				'loans': [
 					{
 						'amount': 10.01,
@@ -691,17 +765,25 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'artifact_id': 'a012e58e-6378-450c-a753-943533f7ae88',
 					}
 				],
-				'payment_date': '10/18/2020',
-				'settlement_date':  '10/20/2020',
 				'company_indices': [0, 0],
-				'payment_input_amount': 30.03,
+				'advances': [
+					{
+						'should_charge_wire_fee': False,
+						'payment_date': '10/18/2020',
+						'settlement_date': '10/20/2020',
+						'payment_input_amount': 30.03,
+						'loan_indices': [0, 1]
+					}
+				],
 				'expected_loans': [
 					{
+						'disbursement_identifier': '1A',
 						'amount': 10.01,
 						'maturity_date': '10/30/2020',
 						'adjusted_maturity_date': '10/30/2020'
 					},
 					{
+						'disbursement_identifier': '1B',
 						'amount': 20.02,
 						'maturity_date': '10/30/2020',
 						'adjusted_maturity_date': '10/30/2020'
@@ -778,18 +860,25 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'artifact_id': 'a012e58e-6378-450c-a753-943533f7ae89',
 					}
 				],
-				'should_charge_wire_fee': False,
-				'payment_date': '10/18/2020',
-				'settlement_date':  '10/20/2020',
 				'company_indices': [0, 0],
-				'payment_input_amount': 30.03,
+				'advances': [
+					{
+						'should_charge_wire_fee': False,
+						'payment_date': '10/18/2020',
+						'settlement_date': '10/20/2020',
+						'payment_input_amount': 30.03,
+						'loan_indices': [0, 1]
+					}
+				],
 				'expected_loans': [
 					{
+						'disbursement_identifier': '1A',
 						'amount': 10.01,
 						'maturity_date': '10/30/2020',
 						'adjusted_maturity_date': '10/30/2020'
 					},
 					{
+						'disbursement_identifier': '1B',
 						'amount': 20.02,
 						'maturity_date': '10/30/2020',
 						'adjusted_maturity_date': '10/30/2020'
@@ -856,19 +945,26 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'amount': 20.02,
 					}
 				],
-				'should_charge_wire_fee': True,
-				'payment_method': PaymentMethodEnum.WIRE,
-				'payment_date': '10/18/2020',
-				'settlement_date':  '10/20/2020',
 				'company_indices': [0, 0],
-				'payment_input_amount': 30.03,
+				'advances': [
+					{
+						'should_charge_wire_fee': True,
+						'payment_method': PaymentMethodEnum.WIRE,
+						'payment_date': '10/18/2020',
+						'settlement_date': '10/20/2020',
+						'payment_input_amount': 30.03,
+						'loan_indices': [0, 1]
+					}
+				],
 				'expected_loans': [
 					{
+						'disbursement_identifier': '1A',
 						'amount': 10.01,
 						'maturity_date': '10/30/2020',
 						'adjusted_maturity_date': '10/30/2020'
 					},
 					{
+						'disbursement_identifier': '1B',
 						'amount': 20.02,
 						'maturity_date': '10/30/2020',
 						'adjusted_maturity_date': '10/30/2020'
@@ -930,19 +1026,26 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'amount': 20.02,
 					}
 				],
-				'should_charge_wire_fee': True,
-				'payment_method': PaymentMethodEnum.ACH, # This is wrong, it conflicts with should_charge_wire_fee.
-				'payment_date': '10/18/2020',
-				'settlement_date':  '10/20/2020',
 				'company_indices': [0, 0],
-				'payment_input_amount': 30.03,
+				'advances': [
+					{
+						'should_charge_wire_fee': True,
+						'payment_method': PaymentMethodEnum.ACH, # This is wrong, it conflicts with should_charge_wire_fee.
+						'payment_date': '10/18/2020',
+						'settlement_date': '10/20/2020',
+						'payment_input_amount': 30.03,
+						'loan_indices': [0, 1]
+					}
+				],
 				'expected_loans': [
 					{
+						'disbursement_identifier': '1A',
 						'amount': 10.01,
 						'maturity_date': '10/30/2020',
 						'adjusted_maturity_date': '10/30/2020'
 					},
 					{
+						'disbursement_identifier': '1B',
 						'amount': 20.02,
 						'maturity_date': '10/30/2020',
 						'adjusted_maturity_date': '10/30/2020'
@@ -983,6 +1086,145 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					}
 				],
 				'in_err_msg': 'Cannot charge wire fee if payment method is not Wire',
+			}
+		]
+
+		for test in tests:
+			self._run_test(test)
+
+	def test_successful_multiple_advances_one_customer(self) -> None:
+		tests: List[Dict] = [
+			{
+				'comment': 'Test multiple loans approved from one customer',
+				'contracts_by_company_index': {
+					0: [
+						_get_default_contract(
+							use_preceeding_business_day=False,
+							days_until_repayment=10,
+							wire_fee=50.0,
+						)
+					],
+					1: [
+						_get_default_contract(
+							use_preceeding_business_day=False,
+							days_until_repayment=20,
+							wire_fee=60.0
+						)
+					]
+				},
+				'loans': [
+					{
+						'amount': 10.01,
+					},
+					{
+						'amount': 20.02,
+					},
+					{
+						'amount': 30.03,
+					},
+					{
+						'amount': 40.04,
+					}
+				],
+				'company_indices': [0, 0, 0, 0],
+				'advances': [
+					{
+						'should_charge_wire_fee': False,
+						'payment_method': PaymentMethodEnum.WIRE,
+						'payment_date': '10/18/2020',
+						'settlement_date': '10/20/2020',
+						'payment_input_amount': 10.01,
+						'loan_indices': [0],
+					},
+					{
+						'should_charge_wire_fee': False,
+						'payment_method': PaymentMethodEnum.WIRE,
+						'payment_date': '10/18/2020',
+						'settlement_date': '10/20/2020',
+						'payment_input_amount': 20.02,
+						'loan_indices': [1],
+					},
+					{
+						'should_charge_wire_fee': False,
+						'payment_method': PaymentMethodEnum.WIRE,
+						'payment_date': '10/18/2020',
+						'settlement_date': '10/20/2020',
+						'payment_input_amount': 30.03 + 40.04,
+						'loan_indices': [2, 3],
+					}
+				],
+				'expected_loans': [
+					{
+						'disbursement_identifier': '1',
+						'amount': 10.01,
+						'maturity_date': '10/30/2020',
+						'adjusted_maturity_date': '10/30/2020'
+					},
+					{
+						'disbursement_identifier': '2',
+						'amount': 20.02,
+						'maturity_date': '10/30/2020',
+						'adjusted_maturity_date': '10/30/2020'
+					},
+					{
+						'disbursement_identifier': '3A',
+						'amount': 30.03,
+						'maturity_date': '10/30/2020',
+						'adjusted_maturity_date': '10/30/2020'
+					},
+					{
+						'disbursement_identifier': '3B',
+						'amount': 40.04,
+						'maturity_date': '10/30/2020',
+						'adjusted_maturity_date': '10/30/2020'
+					}
+				],
+				'expected_payments': [
+					{
+						'amount': 10.01,
+						'company_index': 0,
+						'type': 'advance',
+						'method': PaymentMethodEnum.WIRE,
+					},
+					{
+						'amount': 20.02,
+						'company_index': 0,
+						'type': 'advance',
+						'method': PaymentMethodEnum.WIRE,
+					},
+					{
+						'amount': 30.03 + 40.04,
+						'company_index': 0,
+						'type': 'advance',
+						'method': PaymentMethodEnum.WIRE,
+					}
+				],
+				'expected_transactions': [
+					{
+						'amount': 10.01,
+						'loan_index': 0,
+						'payment_index': 0,
+						'type': 'advance'
+					},
+					{
+						'amount': 20.02,
+						'loan_index': 1,
+						'payment_index': 1,
+						'type': 'advance'
+					},
+					{
+						'amount': 30.03,
+						'loan_index': 2,
+						'payment_index': 2,
+						'type': 'advance'
+					},
+					{
+						'amount': 40.04,
+						'loan_index': 3,
+						'payment_index': 2,
+						'type': 'advance'
+					}
+				],
 			}
 		]
 
