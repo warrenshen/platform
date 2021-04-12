@@ -11,12 +11,12 @@ import {
   TextField,
   Theme,
 } from "@material-ui/core";
+import PhoneInput from "components/Shared/FormInputs/PhoneInput";
 import {
   CompanyDocument,
   CompanyFragment,
   useUpdateCompanyProfileMutation,
 } from "generated/graphql";
-import { Maybe } from "graphql/jsutils/Maybe";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  company: Maybe<CompanyFragment>;
+  company: CompanyFragment;
   handleClose: () => void;
 }
 
@@ -63,7 +63,7 @@ function EditCompanyProfileModal({
             className={classes.nameInput}
             value={company?.name || ""}
             onChange={({ target: { value } }) => {
-              setCompany({ ...company, name: value } as CompanyFragment);
+              setCompany({ ...company, name: value });
             }}
           />
         </Box>
@@ -87,21 +87,19 @@ function EditCompanyProfileModal({
             className={classes.nameInput}
             value={company?.address || ""}
             onChange={({ target: { value } }) => {
-              setCompany({ ...company, address: value } as CompanyFragment);
+              setCompany({ ...company, address: value });
             }}
           />
         </Box>
         <Box pb={3} pt={2}>
-          <TextField
-            label="Phone number"
-            className={classes.nameInput}
-            value={company?.phone_number || ""}
-            onChange={({ target: { value } }) => {
+          <PhoneInput
+            value={company?.phone_number || null}
+            handleChange={(value) =>
               setCompany({
                 ...company,
                 phone_number: value,
-              } as CompanyFragment);
-            }}
+              })
+            }
           />
         </Box>
         <Box pb={3} pt={2}>
@@ -110,7 +108,7 @@ function EditCompanyProfileModal({
             className={classes.nameInput}
             value={company?.dba_name || ""}
             onChange={({ target: { value } }) => {
-              setCompany({ ...company, dba_name: value } as CompanyFragment);
+              setCompany({ ...company, dba_name: value });
             }}
           />
         </Box>

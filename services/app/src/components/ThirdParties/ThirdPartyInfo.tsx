@@ -1,5 +1,6 @@
 import { Box, Button, makeStyles, TextField } from "@material-ui/core";
 import Can from "components/Shared/Can";
+import PhoneInput from "components/Shared/FormInputs/PhoneInput";
 import {
   ThirdPartyFragment,
   useUpdateCompanyInfoMutation,
@@ -44,16 +45,14 @@ export default function ThirdPartyInfo({ company, editAction }: Props) {
               setEditedCompany({ ...editedCompany, name: value });
             }}
           />
-          <TextField
-            label="Phone number"
-            className={classes.baseInput}
-            value={editedCompany?.phone_number}
-            onChange={({ target: { value } }) => {
-              setEditedCompany({ ...editedCompany, phone_number: value });
-            }}
+          <PhoneInput
+            isRequired
+            value={editedCompany?.phone_number || null}
+            handleChange={(value) =>
+              setEditedCompany({ ...editedCompany, phone_number: value })
+            }
           />
         </Box>
-
         <Box display="flex" flexDirection="column" my={3}>
           <TextField
             label="Address"

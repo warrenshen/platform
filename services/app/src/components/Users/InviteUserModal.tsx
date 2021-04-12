@@ -14,6 +14,7 @@ import {
   TextField,
   Theme,
 } from "@material-ui/core";
+import PhoneInput from "components/Shared/FormInputs/PhoneInput";
 import { UserRolesEnum, UsersInsertInput } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -28,9 +29,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     dialogTitle: {
       borderBottom: "1px solid #c7c7c7",
-    },
-    usersInput: {
-      margin: theme.spacing(1),
     },
     dialogActions: {
       margin: theme.spacing(2),
@@ -92,11 +90,9 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
 
     if (response.status !== "OK") {
       setErrMsg(response.msg);
-      snackbar.showError(
-        `Error! Could not create user. Reason: ${response.msg}`
-      );
+      snackbar.showError(`Could not create user. Reason: ${response.msg}`);
     } else {
-      snackbar.showSuccess("Success! User created and sent a welcome email.");
+      snackbar.showSuccess("User created and sent a welcome email.");
       handleClose();
     }
   };
@@ -119,72 +115,77 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
       <DialogTitle className={classes.dialogTitle}>Invite New User</DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column">
-          <FormControl className={classes.usersInput}>
-            <InputLabel id="user-role-select-label">User Role</InputLabel>
-            <Select
+          <Box display="flex" flexDirection="column" mt={4}>
+            <FormControl>
+              <InputLabel id="user-role-select-label">User Role</InputLabel>
+              <Select
+                required
+                labelId="user-role-select-label"
+                value={user.role || ""}
+                onChange={({ target: { value } }) => {
+                  setUser({ ...user, role: value as UserRolesEnum });
+                }}
+              >
+                {userRoles.map((userRole) => (
+                  <MenuItem key={userRole} value={userRole}>
+                    {UserRoleToLabel[userRole]}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+          <Box display="flex" flexDirection="column" mt={4}>
+            <TextField
               required
-              labelId="user-role-select-label"
-              value={user.role || ""}
+              label="First Name"
+              value={user.first_name}
               onChange={({ target: { value } }) => {
-                setUser({ ...user, role: value as UserRolesEnum });
+                setUser({
+                  ...user,
+                  first_name: value,
+                });
               }}
-            >
-              {userRoles.map((userRole) => (
-                <MenuItem key={userRole} value={userRole}>
-                  {UserRoleToLabel[userRole]}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <TextField
-            required
-            label="First Name"
-            className={classes.usersInput}
-            value={user.first_name}
-            onChange={({ target: { value } }) => {
-              setUser({
-                ...user,
-                first_name: value,
-              });
-            }}
-          />
-          <TextField
-            required
-            label="Last Name"
-            className={classes.usersInput}
-            value={user.last_name}
-            onChange={({ target: { value } }) => {
-              setUser({
-                ...user,
-                last_name: value,
-              });
-            }}
-          />
-          <TextField
-            required
-            label="Email"
-            className={classes.usersInput}
-            error={!!user.email && !isEmailValid}
-            value={user.email}
-            onChange={({ target: { value } }) => {
-              setUser({
-                ...user,
-                email: value,
-              });
-            }}
-          />
-          <TextField
-            required
-            label="Phone Number"
-            className={classes.usersInput}
-            value={user.phone_number}
-            onChange={({ target: { value } }) => {
-              setUser({
-                ...user,
-                phone_number: value,
-              });
-            }}
-          />
+            />
+          </Box>
+          <Box display="flex" flexDirection="column" mt={4}>
+            <TextField
+              required
+              label="Last Name"
+              value={user.last_name}
+              onChange={({ target: { value } }) => {
+                setUser({
+                  ...user,
+                  last_name: value,
+                });
+              }}
+            />
+          </Box>
+          <Box display="flex" flexDirection="column" mt={4}>
+            <TextField
+              required
+              label="Email"
+              error={!!user.email && !isEmailValid}
+              value={user.email}
+              onChange={({ target: { value } }) => {
+                setUser({
+                  ...user,
+                  email: value,
+                });
+              }}
+            />
+          </Box>
+          <Box display="flex" flexDirection="column" mt={4}>
+            <PhoneInput
+              isRequired
+              value={user.phone_number || null}
+              handleChange={(value) =>
+                setUser({
+                  ...user,
+                  phone_number: value,
+                })
+              }
+            />
+          </Box>
           {errMsg && <div>Error: {errMsg}</div>}
         </Box>
       </DialogContent>

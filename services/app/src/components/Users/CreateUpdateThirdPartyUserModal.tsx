@@ -10,6 +10,7 @@ import {
   TextField,
   Theme,
 } from "@material-ui/core";
+import PhoneInput from "components/Shared/FormInputs/PhoneInput";
 import { useGetUserQuery, UsersInsertInput } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -28,9 +29,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     dialogTitle: {
       borderBottom: "1px solid #c7c7c7",
-    },
-    usersInput: {
-      margin: theme.spacing(1),
     },
     dialogActions: {
       margin: theme.spacing(2),
@@ -71,6 +69,7 @@ function CreateUpdateThirdPartyUserModal({
 
   const { loading: isExistingUserLoading } = useGetUserQuery({
     skip: actionType === ActionType.New,
+    fetchPolicy: "network-only",
     variables: {
       id: userId,
     },
@@ -113,11 +112,9 @@ function CreateUpdateThirdPartyUserModal({
 
       if (response.status !== "OK") {
         setErrMsg(response.msg);
-        snackbar.showError(
-          `Error! Could not update user. Reason: ${response.msg}`
-        );
+        snackbar.showError(`Could not update user. Reason: ${response.msg}`);
       } else {
-        snackbar.showSuccess("Success! User updated.");
+        snackbar.showSuccess("User updated.");
         handleClose();
       }
     } else {
@@ -169,54 +166,57 @@ function CreateUpdateThirdPartyUserModal({
       </DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column">
-          <TextField
-            required
-            label="First Name"
-            className={classes.usersInput}
-            value={user.first_name}
-            onChange={({ target: { value } }) => {
-              setUser({
-                ...user,
-                first_name: value,
-              });
-            }}
-          />
-          <TextField
-            required
-            label="Last Name"
-            className={classes.usersInput}
-            value={user.last_name}
-            onChange={({ target: { value } }) => {
-              setUser({
-                ...user,
-                last_name: value,
-              });
-            }}
-          />
-          <TextField
-            required
-            label="Email"
-            className={classes.usersInput}
-            value={user.email}
-            onChange={({ target: { value } }) => {
-              setUser({
-                ...user,
-                email: value,
-              });
-            }}
-          />
-          <TextField
-            required
-            label="Phone Number"
-            className={classes.usersInput}
-            value={user.phone_number}
-            onChange={({ target: { value } }) => {
-              setUser({
-                ...user,
-                phone_number: value,
-              });
-            }}
-          />
+          <Box display="flex" flexDirection="column" mt={4}>
+            <TextField
+              required
+              label="First Name"
+              value={user.first_name}
+              onChange={({ target: { value } }) => {
+                setUser({
+                  ...user,
+                  first_name: value,
+                });
+              }}
+            />
+          </Box>
+          <Box display="flex" flexDirection="column" mt={4}>
+            <TextField
+              required
+              label="Last Name"
+              value={user.last_name}
+              onChange={({ target: { value } }) => {
+                setUser({
+                  ...user,
+                  last_name: value,
+                });
+              }}
+            />
+          </Box>
+          <Box display="flex" flexDirection="column" mt={4}>
+            <TextField
+              required
+              label="Email"
+              value={user.email}
+              onChange={({ target: { value } }) =>
+                setUser({
+                  ...user,
+                  email: value,
+                })
+              }
+            />
+          </Box>
+          <Box display="flex" flexDirection="column" mt={4}>
+            <PhoneInput
+              isRequired
+              value={user.phone_number || null}
+              handleChange={(value) =>
+                setUser({
+                  ...user,
+                  phone_number: value,
+                })
+              }
+            />
+          </Box>
           {errMsg && <div>Error: {errMsg}</div>}
         </Box>
       </DialogContent>

@@ -5,6 +5,7 @@ import {
   TextField,
   Typography,
 } from "@material-ui/core";
+import PhoneInput from "components/Shared/FormInputs/PhoneInput";
 import {
   CompaniesInsertInput,
   CompanyTypeEnum,
@@ -83,13 +84,12 @@ export default function RegisterThirdPartyForm({
                 setContact({ ...contact, email: value });
               }}
             />
-            <TextField
-              required
-              label="Phone Number"
-              value={contact.phone_number}
-              onChange={({ target: { value } }) => {
-                setContact({ ...contact, phone_number: value });
-              }}
+            <PhoneInput
+              isRequired
+              value={contact.phone_number || null}
+              handleChange={(value) =>
+                setContact({ ...contact, phone_number: value })
+              }
             />
           </Box>
         </Box>

@@ -1,5 +1,6 @@
 import { Box, Button, makeStyles, TextField } from "@material-ui/core";
 import Can from "components/Shared/Can";
+import PhoneInput from "components/Shared/FormInputs/PhoneInput";
 import { useUpdateVendorInfoMutation, VendorFragment } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { useState } from "react";
@@ -42,16 +43,14 @@ function VendorInfo(props: Props) {
               setEditedVendor({ ...editedVendor, name: value });
             }}
           />
-          <TextField
-            label="Phone number"
-            className={classes.baseInput}
-            value={editedVendor?.phone_number}
-            onChange={({ target: { value } }) => {
-              setEditedVendor({ ...editedVendor, phone_number: value });
-            }}
+          <PhoneInput
+            isRequired
+            value={editedVendor.phone_number || null}
+            handleChange={(value) =>
+              setEditedVendor({ ...editedVendor, phone_number: value })
+            }
           />
         </Box>
-
         <Box display="flex" flexDirection="column" my={3}>
           <TextField
             label="Address"

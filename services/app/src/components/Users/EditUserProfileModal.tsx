@@ -10,6 +10,7 @@ import {
   TextField,
   Theme,
 } from "@material-ui/core";
+import PhoneInput from "components/Shared/FormInputs/PhoneInput";
 import {
   UserFragment,
   UserRolesEnum,
@@ -102,16 +103,14 @@ function EditUserProfileModal({
               });
             }}
           />
-          <TextField
-            label="Phone Number"
-            className={classes.usersInput}
-            value={userProfile.phone_number || ""}
-            onChange={({ target: { value } }) => {
+          <PhoneInput
+            value={userProfile.phone_number || null}
+            handleChange={(value) =>
               setUserProfile({
                 ...userProfile,
                 phone_number: value,
-              });
-            }}
+              })
+            }
           />
           <TextField
             disabled={true}

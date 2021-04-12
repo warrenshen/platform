@@ -1,6 +1,5 @@
 import { Button, createStyles, makeStyles, Theme } from "@material-ui/core";
 import { CompanyFragment } from "generated/graphql";
-import { Maybe } from "graphql/jsutils/Maybe";
 import { useState } from "react";
 import EditCompanyProfileModal from "./EditCompanyProfileModal";
 
@@ -13,7 +12,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  company: Maybe<CompanyFragment>;
+  company: CompanyFragment;
 }
 
 function EditButton({ company }: Props) {
