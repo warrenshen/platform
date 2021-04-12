@@ -12,6 +12,7 @@ import {
 } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
+import ExpectedDatePreview from "components/Repayment/ExpectedDatePreview";
 import CompanyBank from "components/Shared/BankToBankTransfer/CompanyBank";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
@@ -287,29 +288,23 @@ function CreateRepaymentSelectLoans({
               />
             </Box>
           </Box>
-          <Box mt={3}>
-            <Typography variant="subtitle2">
-              What is my expected settlement date?
-            </Typography>
-            <Typography variant="body2">
-              {`Based on your payment method and ${
-                isReverseDraftACH
-                  ? "requested withdraw date"
-                  : "specified deposit date"
-              }, this is the expected date when your payment will count towards your balance.`}
-            </Typography>
-            <Box mt={1}>
-              <DatePicker
-                className={classes.inputField}
-                id="payment-modal-settlement-date-date-picker"
-                label="Settlement Date"
-                disabled
-                disablePast
-                disableNonBankDays
-                value={payment.settlement_date}
-              />
+          {!!payment.requested_payment_date && (
+            <Box mt={3}>
+              <Typography variant="subtitle2">
+                What is my expected settlement date?
+              </Typography>
+              <Typography variant="body2">
+                {`Based on your payment method and ${
+                  isReverseDraftACH
+                    ? "requested withdraw date"
+                    : "specified deposit date"
+                }, this is the expected date when your payment will count towards your balance.`}
+              </Typography>
+              <Box mt={1}>
+                <ExpectedDatePreview dateString={payment.settlement_date} />
+              </Box>
             </Box>
-          </Box>
+          )}
         </>
       )}
       {payment.method === PaymentMethodEnum.ReverseDraftACH && (
