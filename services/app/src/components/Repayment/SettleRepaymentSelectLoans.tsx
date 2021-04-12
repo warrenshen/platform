@@ -103,7 +103,7 @@ function SettleRepaymentSelectLoans({
           <RequestedRepaymentPreview payment={payment} />
         </Box>
       </Box>
-      <Box display="flex" flexDirection="column" mt={3}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <Box display="flex" flexDirection="column">
           <Box mb={1}>
             <Typography variant="subtitle2">
@@ -120,7 +120,7 @@ function SettleRepaymentSelectLoans({
             />
           </FormControl>
         </Box>
-        <Box mt={3} mb={1}>
+        <Box mt={4} mb={1}>
           <Typography variant="subtitle2">
             Step 2: specify Deposit Date and Settlment Date (Settlement Date
             will automatically change when Deposit Date changes).
@@ -147,7 +147,7 @@ function SettleRepaymentSelectLoans({
           </Typography>
         </Box>
       </Box>
-      <Box display="flex" flexDirection="column" mt={3}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <DatePicker
           className={classes.inputField}
           id="settlement-date-date-picker"
@@ -170,7 +170,7 @@ function SettleRepaymentSelectLoans({
       </Box>
       {productType !== ProductTypeEnum.LineOfCredit && (
         <>
-          <Box display="flex" flexDirection="column" mt={3}>
+          <Box display="flex" flexDirection="column" mt={4}>
             <Box mb={1}>
               <Typography variant="subtitle2">
                 {`Step 2: select loans this payment will apply towards. The loans that ${customer.name} suggested are pre-selected, but the final selection is up to your discretion.`}
@@ -206,7 +206,7 @@ function SettleRepaymentSelectLoans({
               }
             />
           </Box>
-          <Box mt={3}>
+          <Box mt={4}>
             <Typography variant="body1">
               Loans not selected, but past due or maturing in 7 days:
             </Typography>

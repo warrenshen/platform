@@ -140,7 +140,7 @@ function CreateRepaymentSelectLoans({
             isSortingDisabled
             loans={selectedLoans}
           />
-          <Box display="flex" flexDirection="row" mt={3}>
+          <Box display="flex" flexDirection="row" mt={4}>
             <FormControl className={classes.loanInputField}>
               <Autocomplete
                 autoHighlight
@@ -185,7 +185,7 @@ function CreateRepaymentSelectLoans({
       )}
       {productType !== ProductTypeEnum.LineOfCredit && (
         <>
-          <Box mt={3}>
+          <Box mt={4}>
             <Typography variant="subtitle2">
               How much would you like to pay?
             </Typography>
@@ -228,7 +228,7 @@ function CreateRepaymentSelectLoans({
           </Box>
         </>
       )}
-      <Box mt={3}>
+      <Box mt={4}>
         <Typography variant="subtitle2">
           Which payment method do you plan to pay with?
         </Typography>
@@ -263,7 +263,7 @@ function CreateRepaymentSelectLoans({
       </Box>
       {payment.method && (
         <>
-          <Box mt={3}>
+          <Box mt={4}>
             <Typography variant="subtitle2">
               {isReverseDraftACH
                 ? "On which date would you like the payment to be withdrawn from your bank account?"
@@ -289,7 +289,7 @@ function CreateRepaymentSelectLoans({
             </Box>
           </Box>
           {!!payment.requested_payment_date && (
-            <Box mt={3}>
+            <Box mt={4}>
               <Typography variant="subtitle2">
                 What is my expected settlement date?
               </Typography>
@@ -309,7 +309,7 @@ function CreateRepaymentSelectLoans({
       )}
       {payment.method === PaymentMethodEnum.ReverseDraftACH && (
         <Box>
-          <Box mt={3}>
+          <Box mt={4}>
             <Typography variant="subtitle2">
               Which bank account would you like the payment to be withdrawn
               from?

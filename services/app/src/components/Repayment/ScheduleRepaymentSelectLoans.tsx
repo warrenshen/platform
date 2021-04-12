@@ -7,6 +7,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
+import ExpectedDatePreview from "components/Repayment/ExpectedDatePreview";
 import RequestedRepaymentPreview from "components/Repayment/RequestedRepaymentPreview";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
@@ -51,7 +52,7 @@ function ScheduleRepaymentSelectLoans({
           <RequestedRepaymentPreview payment={payment} />
         </Box>
       </Box>
-      <Box display="flex" flexDirection="column" mt={3}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <Box mb={1}>
           <Typography variant="subtitle2">
             What amount will you trigger the Reverse Draft ACH for?
@@ -70,7 +71,7 @@ function ScheduleRepaymentSelectLoans({
           />
         </FormControl>
       </Box>
-      <Box display="flex" flexDirection="column" mt={3}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <Box mb={1}>
           <Typography variant="subtitle2">
             When will you trigger the Reverse Draft ACH?
@@ -97,14 +98,15 @@ function ScheduleRepaymentSelectLoans({
           </Typography>
         </Box>
       </Box>
-      <Box display="flex" flexDirection="column" mt={3}>
-        <DatePicker
-          disabled
-          className={classes.inputField}
-          id="deposit-date-date-picker"
-          label="Expected Deposit Date"
-          value={payment.deposit_date}
-        />
+      <Box display="flex" flexDirection="column" mt={4}>
+        <Box>
+          <Typography variant="subtitle2">
+            What is the expected Deposit Date?
+          </Typography>
+        </Box>
+        <Box mt={1}>
+          <ExpectedDatePreview dateString={payment.deposit_date} />
+        </Box>
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
             Expected Deposit Date is the date we expect the payment to arrive to
@@ -112,14 +114,15 @@ function ScheduleRepaymentSelectLoans({
           </Typography>
         </Box>
       </Box>
-      <Box display="flex" flexDirection="column" mt={3}>
-        <DatePicker
-          disabled
-          className={classes.inputField}
-          id="settlement-date-date-picker"
-          label="Expected Settlement Date"
-          value={payment.settlement_date}
-        />
+      <Box display="flex" flexDirection="column" mt={4}>
+        <Box>
+          <Typography variant="subtitle2">
+            What is the expected Settlement Date?
+          </Typography>
+        </Box>
+        <Box mt={1}>
+          <ExpectedDatePreview dateString={payment.settlement_date} />
+        </Box>
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
             Expected Settlement Date is the date we expect the payment to be
@@ -127,7 +130,7 @@ function ScheduleRepaymentSelectLoans({
           </Typography>
         </Box>
       </Box>
-      <Box display="flex" flexDirection="column" mt={3}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <Box mb={1}>
           <Typography variant="subtitle2">
             Which bank account should you trigger the reverse from?

@@ -45,13 +45,13 @@ function PaymentAdvanceForm({
 
   return (
     <Box display="flex" flexDirection="column">
-      <Box mt={3}>
+      <Box mt={4}>
         <Typography>
           You are recording advances(s) for the following loans. Please enter in
           information for the advance(s) and then press "Submit".
         </Typography>
       </Box>
-      <Box mt={3}>
+      <Box mt={4}>
         <LoansDataGrid
           isCompanyVisible
           isSortingDisabled
@@ -59,12 +59,12 @@ function PaymentAdvanceForm({
           loans={selectedLoans}
         />
       </Box>
-      <Box mt={3}>
+      <Box mt={4}>
         <FormControl>
           <CurrencyInput isDisabled label={"Amount"} value={payment.amount} />
         </FormControl>
       </Box>
-      <Box mt={3}>
+      <Box mt={4}>
         <FormControl className={classes.inputField}>
           <InputLabel id="select-payment-method-label" required>
             Payment Method
@@ -90,7 +90,7 @@ function PaymentAdvanceForm({
           </Select>
         </FormControl>
       </Box>
-      <Box display="flex" flexDirection="column" mt={3}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <DatePicker
           disableNonBankDays
           className={classes.inputField}
@@ -110,7 +110,7 @@ function PaymentAdvanceForm({
           </Typography>
         </Box>
       </Box>
-      <Box display="flex" flexDirection="column" mt={3}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <DatePicker
           disableNonBankDays
           className={classes.inputField}
@@ -131,7 +131,7 @@ function PaymentAdvanceForm({
         </Box>
       </Box>
       {payment.method === PaymentMethodEnum.Wire && (
-        <Box mt={3}>
+        <Box mt={4}>
           <FormControlLabel
             control={
               <Checkbox
