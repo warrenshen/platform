@@ -154,6 +154,7 @@ function BankCustomersPage() {
         >
           <Box display="flex">
             <TextField
+              autoFocus
               label="Search"
               value={searchQuery}
               onChange={({ target: { value } }) => setSearchQuery(value)}

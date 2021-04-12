@@ -10,6 +10,7 @@ import {
   LoanFragment,
   Loans,
   ProductTypeEnum,
+  UserRolesEnum,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { ActionType } from "lib/enum";
@@ -51,6 +52,7 @@ function LoansNotFunded({
   const {
     user: { role },
   } = useContext(CurrentUserContext);
+  const isBankUser = role === UserRolesEnum.BankAdmin;
 
   const company = data?.companies_by_pk;
 
@@ -121,6 +123,7 @@ function LoansNotFunded({
       <Box className={classes.sectionSpace} />
       <Box display="flex" flex={1}>
         <PolymorphicLoansDataGrid
+          isDisbursementIdentifierVisible={isBankUser}
           isMaturityVisible={false}
           isMultiSelectEnabled={check(role, Action.SelectLoan)}
           isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}

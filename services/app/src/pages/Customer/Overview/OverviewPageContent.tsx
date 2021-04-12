@@ -18,6 +18,7 @@ import {
   LoanFragment,
   ProductTypeEnum,
   useGetCustomerOverviewQuery,
+  UserRolesEnum,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { ActionType, ProductTypeToLoanType } from "lib/enum";
@@ -53,6 +54,7 @@ function CustomerOverviewPageContent({ companyId, productType }: Props) {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
+  const isBankUser = role === UserRolesEnum.BankAdmin;
 
   const loanType =
     !!productType && productType in ProductTypeToLoanType
@@ -211,6 +213,7 @@ function CustomerOverviewPageContent({ companyId, productType }: Props) {
                   {loans.length > 0 ? (
                     <Box display="flex" flex={1}>
                       <PolymorphicLoansDataGrid
+                        isDisbursementIdentifierVisible={isBankUser}
                         isMultiSelectEnabled={check(role, Action.SelectLoan)}
                         isViewNotesEnabled={check(
                           role,

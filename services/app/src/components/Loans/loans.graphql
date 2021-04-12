@@ -34,6 +34,11 @@ subscription GetFundedLoansForBank {
         { closed_at: { _is_null: true } }
       ]
     }
+    order_by: [
+      { adjusted_maturity_date: asc }
+      { amount: asc }
+      { created_at: asc }
+    ]
   ) {
     id
     ...Loan
@@ -60,31 +65,16 @@ query GetActiveLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
           { rejected_at: { _is_null: true } }
         ]
       }
-      order_by: { adjusted_maturity_date: asc }
+      order_by: [
+        { adjusted_maturity_date: asc }
+        { amount: asc }
+        { created_at: asc }
+      ]
     ) {
       id
       ...LoanLimited
       ...LoanArtifactLimited
     }
-  }
-}
-
-query GetFundedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum!) {
-  loans(
-    where: {
-      _and: [
-        { company_id: { _eq: $companyId } }
-        { loan_type: { _eq: $loanType } }
-        { funded_at: { _is_null: false } }
-        { rejected_at: { _is_null: true } }
-        { closed_at: { _is_null: true } }
-      ]
-    }
-    order_by: { adjusted_maturity_date: asc }
-  ) {
-    id
-    ...LoanLimited
-    ...LoanArtifactLimited
   }
 }
 
@@ -98,7 +88,11 @@ query GetClosedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
           { loan_type: { _eq: $loanType } }
         ]
       }
-      order_by: { adjusted_maturity_date: asc }
+      order_by: [
+        { adjusted_maturity_date: asc }
+        { amount: asc }
+        { created_at: asc }
+      ]
     ) {
       id
       ...LoanLimited
@@ -118,7 +112,11 @@ query GetLoansByCompanyAndLoanType(
         { loan_type: { _eq: $loanType } }
       ]
     }
-    order_by: { adjusted_maturity_date: asc }
+    order_by: [
+      { adjusted_maturity_date: asc }
+      { amount: asc }
+      { created_at: asc }
+    ]
   ) {
     id
     ...Loan

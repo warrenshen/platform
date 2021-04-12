@@ -15731,17 +15731,6 @@ export type GetActiveLoansForCompanyQuery = {
   >;
 };
 
-export type GetFundedLoansForCompanyQueryVariables = Exact<{
-  companyId: Scalars["uuid"];
-  loanType: LoanTypeEnum;
-}>;
-
-export type GetFundedLoansForCompanyQuery = {
-  loans: Array<
-    Pick<Loans, "id"> & LoanLimitedFragment & LoanArtifactLimitedFragment
-  >;
-};
-
 export type GetClosedLoansForCompanyQueryVariables = Exact<{
   companyId: Scalars["uuid"];
   loanType?: Maybe<LoanTypeEnum>;
@@ -17756,6 +17745,11 @@ export const GetCustomerOverviewDocument = gql`
             { closed_at: { _is_null: true } }
           ]
         }
+        order_by: [
+          { adjusted_maturity_date: asc }
+          { amount: asc }
+          { created_at: asc }
+        ]
       ) {
         id
         ...LoanLimited
@@ -19689,7 +19683,11 @@ export const GetActiveLoansForCompanyDocument = gql`
             { rejected_at: { _is_null: true } }
           ]
         }
-        order_by: { adjusted_maturity_date: asc }
+        order_by: [
+          { adjusted_maturity_date: asc }
+          { amount: asc }
+          { created_at: asc }
+        ]
       ) {
         id
         ...LoanLimited
@@ -19751,81 +19749,6 @@ export type GetActiveLoansForCompanyQueryResult = Apollo.QueryResult<
   GetActiveLoansForCompanyQuery,
   GetActiveLoansForCompanyQueryVariables
 >;
-export const GetFundedLoansForCompanyDocument = gql`
-  query GetFundedLoansForCompany(
-    $companyId: uuid!
-    $loanType: loan_type_enum!
-  ) {
-    loans(
-      where: {
-        _and: [
-          { company_id: { _eq: $companyId } }
-          { loan_type: { _eq: $loanType } }
-          { funded_at: { _is_null: false } }
-          { rejected_at: { _is_null: true } }
-          { closed_at: { _is_null: true } }
-        ]
-      }
-      order_by: { adjusted_maturity_date: asc }
-    ) {
-      id
-      ...LoanLimited
-      ...LoanArtifactLimited
-    }
-  }
-  ${LoanLimitedFragmentDoc}
-  ${LoanArtifactLimitedFragmentDoc}
-`;
-
-/**
- * __useGetFundedLoansForCompanyQuery__
- *
- * To run a query within a React component, call `useGetFundedLoansForCompanyQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetFundedLoansForCompanyQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetFundedLoansForCompanyQuery({
- *   variables: {
- *      companyId: // value for 'companyId'
- *      loanType: // value for 'loanType'
- *   },
- * });
- */
-export function useGetFundedLoansForCompanyQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    GetFundedLoansForCompanyQuery,
-    GetFundedLoansForCompanyQueryVariables
-  >
-) {
-  return Apollo.useQuery<
-    GetFundedLoansForCompanyQuery,
-    GetFundedLoansForCompanyQueryVariables
-  >(GetFundedLoansForCompanyDocument, baseOptions);
-}
-export function useGetFundedLoansForCompanyLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetFundedLoansForCompanyQuery,
-    GetFundedLoansForCompanyQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    GetFundedLoansForCompanyQuery,
-    GetFundedLoansForCompanyQueryVariables
-  >(GetFundedLoansForCompanyDocument, baseOptions);
-}
-export type GetFundedLoansForCompanyQueryHookResult = ReturnType<
-  typeof useGetFundedLoansForCompanyQuery
->;
-export type GetFundedLoansForCompanyLazyQueryHookResult = ReturnType<
-  typeof useGetFundedLoansForCompanyLazyQuery
->;
-export type GetFundedLoansForCompanyQueryResult = Apollo.QueryResult<
-  GetFundedLoansForCompanyQuery,
-  GetFundedLoansForCompanyQueryVariables
->;
 export const GetClosedLoansForCompanyDocument = gql`
   query GetClosedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
     companies_by_pk(id: $companyId) {
@@ -19837,7 +19760,11 @@ export const GetClosedLoansForCompanyDocument = gql`
             { loan_type: { _eq: $loanType } }
           ]
         }
-        order_by: { adjusted_maturity_date: asc }
+        order_by: [
+          { adjusted_maturity_date: asc }
+          { amount: asc }
+          { created_at: asc }
+        ]
       ) {
         id
         ...LoanLimited

@@ -5,8 +5,9 @@ import { DataGridActionItem } from "components/Shared/DataGrid/DataGridActionMen
 import { LoanFragment, Loans, ProductTypeEnum } from "generated/graphql";
 
 interface Props {
-  isMaturityVisible?: boolean;
+  isDisbursementIdentifierVisible?: boolean;
   isExcelExport?: boolean;
+  isMaturityVisible?: boolean;
   isMultiSelectEnabled?: boolean;
   isViewNotesEnabled?: boolean;
   pager?: boolean;
@@ -18,9 +19,10 @@ interface Props {
 }
 
 function PolymorphicLoansDataGrid({
+  isDisbursementIdentifierVisible = false,
+  isExcelExport = false,
   isMaturityVisible = true,
   isMultiSelectEnabled,
-  isExcelExport = false,
   isViewNotesEnabled,
   pager,
   productType,
@@ -35,6 +37,7 @@ function PolymorphicLoansDataGrid({
   ) {
     return (
       <PurchaseOrderLoansDataGrid
+        isDisbursementIdentifierVisible={isDisbursementIdentifierVisible}
         isExcelExport={isExcelExport}
         isMaturityVisible={isMaturityVisible}
         isMultiSelectEnabled={isMultiSelectEnabled}
@@ -49,6 +52,7 @@ function PolymorphicLoansDataGrid({
   } else if (productType === ProductTypeEnum.LineOfCredit) {
     return (
       <LineOfCreditLoansDataGrid
+        isDisbursementIdentifierVisible={isDisbursementIdentifierVisible}
         isExcelExport={isExcelExport}
         isMaturityVisible={isMaturityVisible}
         isMultiSelectEnabled={isMultiSelectEnabled}
@@ -63,6 +67,7 @@ function PolymorphicLoansDataGrid({
   } else if (productType === ProductTypeEnum.InvoiceFinancing) {
     return (
       <InvoiceLoansDataGrid
+        isDisbursementIdentifierVisible={isDisbursementIdentifierVisible}
         isExcelExport={isExcelExport}
         isMaturityVisible={isMaturityVisible}
         isMultiSelectEnabled={isMultiSelectEnabled}

@@ -10,6 +10,7 @@ import {
   LoanFragment,
   Loans,
   ProductTypeEnum,
+  UserRolesEnum,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { Action, check } from "lib/auth/rbac-rules";
@@ -52,6 +53,7 @@ function LoansFunded({
   const {
     user: { role },
   } = useContext(CurrentUserContext);
+  const isBankUser = role === UserRolesEnum.BankAdmin;
 
   const company = data?.companies_by_pk;
   const loans = useMemo(
@@ -116,6 +118,7 @@ function LoansFunded({
       <Box className={classes.section}>
         <Box display="flex" flex={1}>
           <PolymorphicLoansDataGrid
+            isDisbursementIdentifierVisible={isBankUser}
             isMultiSelectEnabled={
               !isLineOfCredit && check(role, Action.SelectLoan)
             }

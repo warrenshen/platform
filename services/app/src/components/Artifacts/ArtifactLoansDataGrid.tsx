@@ -9,18 +9,27 @@ import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import { LoanFragment, Loans, LoanStatusEnum } from "generated/graphql";
+import {
+  LoanFragment,
+  LoanLimitedFragment,
+  Loans,
+  LoanStatusEnum,
+} from "generated/graphql";
 import { PaymentStatusEnum } from "lib/enum";
-import { createLoanIdentifier } from "lib/loans";
+import {
+  createLoanDisbursementIdentifier,
+  createLoanIdentifier,
+} from "lib/loans";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
+  isDisbursementIdentifierVisible?: boolean;
+  isExcelExport?: boolean;
   isMaturityVisible?: boolean; // Whether maturity date, principal balance, interest, and fees are visible.
   isMiniTable?: boolean;
   isMultiSelectEnabled?: boolean;
   isViewNotesEnabled?: boolean;
-  isExcelExport?: boolean;
   pager?: boolean;
   loans: LoanFragment[];
   actionItems?: DataGridActionItem[];
@@ -31,11 +40,12 @@ interface Props {
 }
 
 export default function ArtifactLoansDataGrid({
+  isDisbursementIdentifierVisible = false,
+  isExcelExport = false,
   isMaturityVisible = true,
   isMiniTable = false,
   isMultiSelectEnabled = false,
   isViewNotesEnabled = false,
-  isExcelExport = false,
   pager = true,
   artifactCaption,
   artifactCellRenderer,
@@ -48,12 +58,26 @@ export default function ArtifactLoansDataGrid({
   const columns = useMemo(
     () => [
       {
-        dataField: "id",
+        dataField: "identifier",
         caption: "Identifier",
         width: 120,
         cellRender: (params: ValueFormatterParams) => (
           <LoanDrawerLauncher
-            label={createLoanIdentifier(params.row.data as LoanFragment)}
+            label={createLoanIdentifier(params.row.data as LoanLimitedFragment)}
+            loanId={params.row.data.id as string}
+          />
+        ),
+      },
+      {
+        visible: isDisbursementIdentifierVisible,
+        dataField: "disbursement_identifier",
+        caption: "Disbursement Identifier",
+        width: 120,
+        cellRender: (params: ValueFormatterParams) => (
+          <LoanDrawerLauncher
+            label={createLoanDisbursementIdentifier(
+              params.row.data as LoanLimitedFragment
+            )}
             loanId={params.row.data.id as string}
           />
         ),
@@ -180,6 +204,7 @@ export default function ArtifactLoansDataGrid({
       },
     ],
     [
+      isDisbursementIdentifierVisible,
       isMaturityVisible,
       isMiniTable,
       isViewNotesEnabled,
@@ -199,6 +224,7 @@ export default function ArtifactLoansDataGrid({
   return (
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
       <ControlledDataGrid
+        isExcelExport={isExcelExport}
         pager={pager}
         pageSize={isMiniTable ? 10 : 10}
         select={isMultiSelectEnabled && !isMiniTable}
@@ -206,7 +232,6 @@ export default function ArtifactLoansDataGrid({
         columns={columns}
         selectedRowKeys={selectedLoanIds}
         onSelectionChanged={handleSelectionChanged}
-        isExcelExport={isExcelExport}
       />
     </Box>
   );

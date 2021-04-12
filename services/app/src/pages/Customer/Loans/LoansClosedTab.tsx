@@ -10,6 +10,7 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   ProductTypeEnum,
   useGetClosedLoansForCompanyQuery,
+  UserRolesEnum,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { ProductTypeToLoanType } from "lib/enum";
@@ -44,6 +45,7 @@ function CustomerLoansPageLoansClosedTab({ companyId, productType }: Props) {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
+  const isBankUser = role === UserRolesEnum.BankAdmin;
 
   const loanType =
     !!productType && productType in ProductTypeToLoanType
@@ -74,6 +76,7 @@ function CustomerLoansPageLoansClosedTab({ companyId, productType }: Props) {
       <Box className={classes.section}>
         <Box display="flex" flex={1}>
           <PolymorphicLoansDataGrid
+            isDisbursementIdentifierVisible={isBankUser}
             isMultiSelectEnabled={check(role, Action.SelectLoan)}
             isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
             productType={productType}

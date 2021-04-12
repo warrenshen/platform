@@ -18,6 +18,11 @@ query GetCustomerOverview($companyId: uuid!, $loanType: loan_type_enum) {
           { closed_at: { _is_null: true } }
         ]
       }
+      order_by: [
+        { adjusted_maturity_date: asc }
+        { amount: asc }
+        { created_at: asc }
+      ]
     ) {
       id
       ...LoanLimited
