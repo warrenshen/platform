@@ -9,7 +9,7 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../src")))
 from bespoke.db import models
 from bespoke.db.db_constants import CompanyType
 
-# name, identifier, contract_name,
+# name, identifier, contract_name
 NEW_CUSTOMER_TUPLES = [
 	('ThirtyOne Labs', '31L', 'BPX, LLC'),
     ('Leune', 'LU', 'KANIYO CO.'),

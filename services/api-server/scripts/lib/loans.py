@@ -36,7 +36,6 @@ def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) 
 			recipient_vendor_name,
 			amount,
 			origination_date,
-			funded_date,
 		) = new_loan_tuple
 
 		parsed_customer_identifier = customer_identifier.strip()
@@ -239,7 +238,6 @@ def import_loans(session: Session, loan_tuples: List[List[str]]) -> None:
 			origination_date,
 			maturity_date,
 			adjusted_maturity_date,
-			funded_date,
 		) = new_loan_tuple
 
 		parsed_customer_identifier = customer_identifier.strip()
