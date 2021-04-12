@@ -200,7 +200,7 @@ function ContractTermsForm({
           <CurrencyInput
             isRequired={!item.nullable}
             currencySymbol={getSymbol(item.format)}
-            decimalPlaces={item.format === "percentage" ? 5 : 2}
+            decimalPlaces={item.format === "percentage" ? 8 : 2}
             minimumValue={0}
             maximumValue={item.format === "percentage" ? 100 : undefined}
             label={item.display_name}
