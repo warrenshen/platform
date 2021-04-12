@@ -125,6 +125,10 @@ def reset_customers(
 			session.delete(purchase_order)
 		session.flush()
 
+		# Step 7: reset customer loan-related identifiers.
+		customer.latest_loan_identifier = 0
+		customer.latest_disbursement_identifier = 0
+
 		print(f'[{index + 1} of {customers_count}] Reset customer {customer.name} ({customer.identifier})')
 
 def load_into_db_from_excel(session: Session, path: str) -> None:

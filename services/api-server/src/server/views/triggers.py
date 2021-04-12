@@ -1,21 +1,20 @@
 import json
 import logging
 import typing
-from mypy_extensions import TypedDict
-
-from bespoke.date import date_util
-from bespoke.db.models import session_scope
-from bespoke.db import models, models_util
-from bespoke.audit import events
-from bespoke.email import sendgrid_util
-from bespoke.finance.loans import reports_util
-from bespoke import errors
-from server.views.common import auth_util, handler_util
-from flask import Blueprint, Response, current_app, make_response, request
-from flask.views import MethodView
-from sqlalchemy import func
 from typing import Callable, Tuple
 
+from bespoke import errors
+from bespoke.audit import events
+from bespoke.date import date_util
+from bespoke.db import models, models_util
+from bespoke.db.models import session_scope
+from bespoke.email import sendgrid_util
+from bespoke.finance.loans import reports_util
+from flask import Blueprint, Response, current_app, make_response, request
+from flask.views import MethodView
+from mypy_extensions import TypedDict
+from server.views.common import auth_util, handler_util
+from sqlalchemy import func
 
 handler = Blueprint('triggers', __name__)
 
