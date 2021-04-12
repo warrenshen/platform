@@ -21,7 +21,6 @@ function BankPaymentsAllTab() {
       <RepaymentsDataGrid
         isCompanyVisible
         isExcelExport
-        enableSelect={false}
         payments={payments}
         customerSearchQuery={""}
         onClickCustomerName={() => {}}

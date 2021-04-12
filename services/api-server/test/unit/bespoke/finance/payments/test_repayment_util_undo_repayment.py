@@ -104,7 +104,7 @@ class TestUndoRepayment(db_unittest.TestCase):
 
 		user_id = seed.get_user_id('company_admin', index=0)
 
-		
+
 		items_covered = payment_util.PaymentItemsCoveredDict(
 			loan_ids=loan_ids,
 			to_user_credit=0.0
@@ -185,7 +185,6 @@ class TestUndoRepayment(db_unittest.TestCase):
 		self.assertIsNone(err)
 
 		delete_req = repayment_util.DeleteRepaymentReqDict(
-			company_id=company_id,
 			payment_id=payment_id
 		)
 		success, err = repayment_util.delete_repayment(

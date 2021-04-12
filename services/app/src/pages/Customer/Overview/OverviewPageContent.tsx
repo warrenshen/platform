@@ -8,6 +8,7 @@ import {
 import CustomerFinancialSummaryOverview from "components/CustomerFinancialSummary/CustomerFinancialSummaryOverview";
 import CreateUpdatePolymorphicLoanModal from "components/Loan/CreateUpdatePolymorphicLoanModal";
 import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
+import DeletePaymentModal from "components/Payment/DeletePaymentModal";
 import CreateRepaymentModal from "components/Repayment/CreateRepaymentModal";
 import RepaymentsDataGrid from "components/Repayment/RepaymentsDataGrid";
 import Can from "components/Shared/Can";
@@ -16,6 +17,8 @@ import PageContent from "components/Shared/Page/PageContent";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   LoanFragment,
+  PaymentLimitedFragment,
+  Payments,
   ProductTypeEnum,
   useGetCustomerOverviewQuery,
   UserRolesEnum,
@@ -81,6 +84,21 @@ function CustomerOverviewPageContent({ companyId, productType }: Props) {
   const selectedLoanIds = useMemo(() => selectedLoans.map((loan) => loan.id), [
     selectedLoans,
   ]);
+
+  const [selectedPaymentIds, setSelectedPaymentIds] = useState<Payments["id"]>(
+    []
+  );
+
+  const selectedPaymentId = useMemo(
+    () => (selectedPaymentIds.length === 1 ? selectedPaymentIds[0] : null),
+    [selectedPaymentIds]
+  );
+
+  const handleSelectPayments = useMemo(
+    () => (payments: PaymentLimitedFragment[]) =>
+      setSelectedPaymentIds(payments.map((payment) => payment.id)),
+    [setSelectedPaymentIds]
+  );
 
   return (
     <PageContent
@@ -151,16 +169,36 @@ function CustomerOverviewPageContent({ companyId, productType }: Props) {
           <Box display="flex" flexDirection="row-reverse" mb={2}>
             {productType === ProductTypeEnum.LineOfCredit && (
               <Can perform={Action.RepayPurchaseOrderLoans}>
+                <Box>
+                  <ModalButton
+                    label={"Make Payment"}
+                    modal={({ handleClose }) => (
+                      <CreateRepaymentModal
+                        companyId={companyId}
+                        productType={productType}
+                        initiallySelectedLoanIds={[]}
+                        handleClose={() => {
+                          refetch();
+                          handleClose();
+                        }}
+                      />
+                    )}
+                  />
+                </Box>
+              </Can>
+            )}
+            {!!selectedPaymentId && (
+              <Can perform={Action.DeleteRepayments}>
                 <ModalButton
-                  label={"Make Payment"}
+                  label={"Delete Payment"}
+                  variant={"outlined"}
                   modal={({ handleClose }) => (
-                    <CreateRepaymentModal
-                      companyId={companyId}
-                      productType={productType}
-                      initiallySelectedLoanIds={[]}
+                    <DeletePaymentModal
+                      paymentId={selectedPaymentId}
                       handleClose={() => {
                         refetch();
                         handleClose();
+                        setSelectedPaymentIds([]);
                       }}
                     />
                   )}
@@ -172,7 +210,12 @@ function CustomerOverviewPageContent({ companyId, productType }: Props) {
             <Box display="flex" flexDirection="column" width="100%">
               <Box display="flex" flex={1}>
                 {payments.length > 0 ? (
-                  <RepaymentsDataGrid payments={payments} />
+                  <RepaymentsDataGrid
+                    isMultiSelectEnabled
+                    payments={payments}
+                    selectedPaymentIds={selectedPaymentIds}
+                    handleSelectPayments={handleSelectPayments}
+                  />
                 ) : (
                   <Typography variant="body1">No pending payments</Typography>
                 )}

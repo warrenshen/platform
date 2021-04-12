@@ -17758,6 +17758,12 @@ export const GetCustomerOverviewDocument = gql`
       pending_payments: payments(
         where: {
           _and: [
+            {
+              _or: [
+                { is_deleted: { _is_null: true } }
+                { is_deleted: { _eq: false } }
+              ]
+            }
             { type: { _eq: "repayment" } }
             { submitted_at: { _is_null: false } }
             { settled_at: { _is_null: true } }
@@ -19520,7 +19526,13 @@ export type UpdateLoanMutationOptions = Apollo.BaseMutationOptions<
 >;
 export const GetLoansForBankDocument = gql`
   subscription GetLoansForBank {
-    loans {
+    loans(
+      order_by: [
+        { adjusted_maturity_date: asc }
+        { amount: asc }
+        { created_at: asc }
+      ]
+    ) {
       id
       ...Loan
       ...LoanArtifactLimited
@@ -19623,6 +19635,11 @@ export const GetFundedLoansForBankDocument = gql`
           { closed_at: { _is_null: true } }
         ]
       }
+      order_by: [
+        { adjusted_maturity_date: asc }
+        { amount: asc }
+        { created_at: asc }
+      ]
     ) {
       id
       ...Loan
@@ -19837,7 +19854,11 @@ export const GetLoansByCompanyAndLoanTypeDocument = gql`
           { loan_type: { _eq: $loanType } }
         ]
       }
-      order_by: { adjusted_maturity_date: asc }
+      order_by: [
+        { adjusted_maturity_date: asc }
+        { amount: asc }
+        { created_at: asc }
+      ]
     ) {
       id
       ...Loan
@@ -21347,7 +21368,17 @@ export type GetPaymentForSettlementQueryResult = Apollo.QueryResult<
 export const GetPaymentsDocument = gql`
   subscription GetPayments {
     payments(
-      where: { type: { _eq: "repayment" } }
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { type: { _eq: "repayment" } }
+        ]
+      }
       order_by: { created_at: desc }
     ) {
       id
@@ -21411,6 +21442,12 @@ export const GetSubmittedPaymentsDocument = gql`
     payments(
       where: {
         _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
           { type: { _eq: "repayment" } }
           { submitted_at: { _is_null: false } }
           { settled_at: { _is_null: true } }

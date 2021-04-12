@@ -199,6 +199,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 			'expected_loans_to_show': [
 				LoanToShowDict(
 					loan_id='filled in by test',
+					loan_identifier='filled in by test',
 					transaction=TransactionInputDict(
 						amount=round(20.02 + 14 * daily_interest, 2),
 						to_principal=20.02,
@@ -258,6 +259,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 			'expected_loans_to_show': [
 				LoanToShowDict(
 					loan_id='filled in by test',
+					loan_identifier='filled in by test',
 					transaction=TransactionInputDict(
 						amount=20.37,
 						to_principal=20.00,
@@ -279,6 +281,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				),
 				LoanToShowDict(
 					loan_id='filled in by test',
+					loan_identifier='filled in by test',
 					transaction=TransactionInputDict(
 						amount=30.0 + 7 * daily_interest2,
 						to_principal=30.0,
@@ -352,6 +355,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				#
 				LoanToShowDict(
 					loan_id='filled in by test',
+					loan_identifier='filled in by test',
 					transaction=TransactionInputDict(
 						amount=10.4,
 						to_principal=10.0,
@@ -373,6 +377,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				),
 				LoanToShowDict(
 					loan_id='filled in by test',
+					loan_identifier='filled in by test',
 					transaction=TransactionInputDict(
 						amount=4.65, # 15.05 - 10.4
 						to_principal=3.69,
@@ -394,6 +399,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				),
 				LoanToShowDict(
 					loan_id='filled in by test',
+					loan_identifier='filled in by test',
 					# You didnt have money to pay off any of this loan.
 					transaction=TransactionInputDict(
 						amount=0.0,
@@ -458,6 +464,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				'expected_loans_to_show': [
 					LoanToShowDict(
 						loan_id='filled in by test',
+						loan_identifier='filled in by test',
 						transaction=TransactionInputDict(
 							amount=20.00 + (daily_interest1 * 9) + (daily_interest1 * 3 * 0.25),
 							to_principal=20.00,
@@ -479,6 +486,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 					),
 					LoanToShowDict(
 						loan_id='filled in by test',
+						loan_identifier='filled in by test',
 						transaction=TransactionInputDict(
 							amount=0.0,
 							to_principal=0.0,
@@ -531,6 +539,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				'expected_loans_to_show': [
 					LoanToShowDict(
 						loan_id='filled in by test',
+						loan_identifier='filled in by test',
 						transaction=TransactionInputDict(
 							amount=20.00 + round((daily_interest1 * 9), 2) + round((daily_interest1 * 3 * 0.25), 2),
 							to_principal=20.00,
@@ -552,6 +561,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 					),
 					LoanToShowDict(
 						loan_id='filled in by test',
+						loan_identifier='filled in by test',
 						transaction=TransactionInputDict(
 							amount=30.00 + round((daily_interest2 * 4), 2) + round((daily_interest2 * 1 * 0.25), 2),
 							to_principal=30.0,
@@ -616,6 +626,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				'expected_loans_to_show': [
 					LoanToShowDict(
 						loan_id='filled in by test',
+						loan_identifier='filled in by test',
 						transaction=TransactionInputDict(
 							amount=20.00,
 							to_principal=20.00,
@@ -637,6 +648,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 					),
 					LoanToShowDict(
 						loan_id='filled in by test',
+						loan_identifier='filled in by test',
 						transaction=TransactionInputDict(
 							amount=30.00,
 							to_principal=30.0,
@@ -716,6 +728,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				'expected_loans_to_show': [
 					LoanToShowDict(
 						loan_id='filled in by test',
+						loan_identifier='filled in by test',
 						transaction=TransactionInputDict(
 							amount=20.02,
 							to_principal=20.02,

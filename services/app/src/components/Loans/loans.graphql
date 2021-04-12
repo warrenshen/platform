@@ -1,5 +1,11 @@
 subscription GetLoansForBank {
-  loans {
+  loans(
+    order_by: [
+      { adjusted_maturity_date: asc }
+      { amount: asc }
+      { created_at: asc }
+    ]
+  ) {
     id
     ...Loan
     ...LoanArtifactLimited

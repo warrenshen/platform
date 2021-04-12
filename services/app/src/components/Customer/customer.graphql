@@ -31,6 +31,12 @@ query GetCustomerOverview($companyId: uuid!, $loanType: loan_type_enum) {
     pending_payments: payments(
       where: {
         _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
           { type: { _eq: "repayment" } }
           { submitted_at: { _is_null: false } }
           { settled_at: { _is_null: true } }

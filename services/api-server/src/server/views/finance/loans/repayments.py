@@ -245,7 +245,6 @@ class DeleteRepaymentView(MethodView):
 			return handler_util.make_error_response('No data provided')
 
 		required_keys = [
-			'company_id',
 			'payment_id'
 		]
 		for key in required_keys:

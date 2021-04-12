@@ -25,12 +25,12 @@ interface Props {
   isCompanyVisible?: boolean;
   isExcelExport?: boolean;
   isMethodVisible?: boolean;
+  isMultiSelectEnabled?: boolean;
   repaymentType?: RepaymentTypeEnum;
   payments: PaymentLimitedFragment[];
   customerSearchQuery?: string;
   onClickCustomerName?: (value: string) => void;
   actionItems?: DataGridActionItem[];
-  enableSelect?: boolean;
   selectedPaymentIds?: Payments["id"][];
   handleSelectPayments?: (payments: PaymentLimitedFragment[]) => void;
 }
@@ -39,8 +39,8 @@ function RepaymentsDataGrid({
   isCompanyVisible = false,
   isExcelExport = false,
   isMethodVisible = true,
+  isMultiSelectEnabled = false,
   repaymentType = RepaymentTypeEnum.Other,
-  enableSelect = false,
   payments,
   customerSearchQuery = "",
   onClickCustomerName,
@@ -235,7 +235,7 @@ function RepaymentsDataGrid({
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
       <ControlledDataGrid
         pager
-        select={enableSelect}
+        select={isMultiSelectEnabled}
         isExcelExport={isExcelExport}
         dataSource={rows}
         columns={columns}

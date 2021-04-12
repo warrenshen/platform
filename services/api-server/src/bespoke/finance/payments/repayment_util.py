@@ -47,6 +47,7 @@ LoanDictAndBalance = TypedDict('LoanDictAndBalance', {
 # We also show the before balance in terms of when the payment settles.
 LoanToShowDict = TypedDict('LoanToShowDict', {
 	'loan_id': str,
+	'loan_identifier': str,
 	'transaction': TransactionInputDict,
 	'before_loan_balance': LoanBalanceDict,
 	'after_loan_balance': LoanBalanceDict
@@ -339,6 +340,7 @@ def calculate_repayment_effect(
 		# List out the unselected, but overdue loans, and what their balances will be.
 		loans_past_due_but_not_selected.append(LoanToShowDict(
 			loan_id=past_due_loan_id,
+			loan_identifier=loan_past_due_dict["identifier"],
 			transaction=None,
 			before_loan_balance=loan_balance,
 			after_loan_balance=loan_balance,
@@ -347,7 +349,11 @@ def calculate_repayment_effect(
 	amount_to_pay = 0.0
 	loans_to_show = []
 
-	def _pay_off_balance_in_full(loan_id: str, before_balance: LoanBalanceDict) -> float:
+	def _pay_off_balance_in_full(
+		loan_id: str,
+		loan_identifier: str,
+		before_balance: LoanBalanceDict,
+	) -> float:
 		current_payment_amount = payment_util.sum([
 			before_balance['outstanding_principal_balance'],
 			before_balance['outstanding_interest'],
@@ -355,6 +361,7 @@ def calculate_repayment_effect(
 		])
 		loans_to_show.append(LoanToShowDict(
 			loan_id=loan_id,
+			loan_identifier=loan_identifier,
 			transaction=TransactionInputDict(
 				amount=current_payment_amount,
 				to_principal=_zero_if_null(before_balance['outstanding_principal_balance']),
@@ -396,6 +403,7 @@ def calculate_repayment_effect(
 
 			loans_to_show.append(LoanToShowDict(
 				loan_id=loan_dict['id'],
+				loan_identifier=loan_dict['identifier'],
 				transaction=TransactionInputDict(
 					amount=amount_used_fees + amount_used_interest + amount_used_principal,
 					to_principal=amount_used_principal,
@@ -419,12 +427,13 @@ def calculate_repayment_effect(
 		for loan_and_before_balance in loan_dict_and_balance_list:
 			balance_before = loan_and_before_balance['before_balance']
 			loan_dict = loan_and_before_balance['loan']
-			loan_id = loan_dict['id']
+
 			if loan_dict['adjusted_maturity_date'] > payment_settlement_date:
 				# You dont have to worry about paying off this loan yet.
 				# So the transaction has zero dollars and no effect to it.
 				loans_to_show.append(LoanToShowDict(
 					loan_id=loan_dict['id'],
+					loan_identifier=loan_dict['identifier'],
 					transaction=TransactionInputDict(
 						amount=0.0,
 						to_principal=0.0,
@@ -436,16 +445,24 @@ def calculate_repayment_effect(
 				))
 			else:
 				# Pay loans that have come due.
-				amount_to_pay += _pay_off_balance_in_full(loan_id, balance_before)
+				amount_to_pay += _pay_off_balance_in_full(
+					loan_dict['id'],
+					loan_dict['identifier'],
+					balance_before,
+				)
 
 		amount_as_credit_to_user = 0.0
+
 	elif payment_option == 'pay_in_full':
 
 		for loan_and_before_balance in loan_dict_and_balance_list:
 			balance_before = loan_and_before_balance['before_balance']
 			loan_dict = loan_and_before_balance['loan']
-			loan_id = loan_dict['id']
-			amount_to_pay += _pay_off_balance_in_full(loan_id, balance_before)
+			amount_to_pay += _pay_off_balance_in_full(
+				loan_dict['id'],
+				loan_dict['identifier'],
+				balance_before,
+			)
 
 		amount_as_credit_to_user = 0.0
 	else:
@@ -1162,7 +1179,6 @@ def undo_repayment(
 	return True, None
 
 DeleteRepaymentReqDict = TypedDict('DeleteRepaymentReqDict', {
-	'company_id': str,
 	'payment_id': str
 })
 
@@ -1207,10 +1223,9 @@ def delete_repayment(
 					models.Transaction.payment_id == cur_payment.id
 				).all())
 
-			if not transactions:
-				raise errors.Error('No transactions are associated with payment {}, therefore we assume it never got settled'.format(
-					cur_payment.id))
-
+			# Note: repayment may or may not have transactions.
+			# No transactions: customer creates repayment and then requests it to be deleted.
+			# Yes transactions: customer creates repayment, it is settled by bank, and then bank wants to delete it.
 			for tx in transactions:
 				tx.is_deleted = True
 

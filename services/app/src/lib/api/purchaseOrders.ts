@@ -74,7 +74,7 @@ export async function deletePurchaseOrderMutation(
         console.log("error", error);
         return {
           status: "ERROR",
-          msg: "Could not respond to purchase order approval request",
+          msg: "Could not delete purchase order",
         };
       }
     );

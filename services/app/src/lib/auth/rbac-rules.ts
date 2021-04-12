@@ -44,6 +44,7 @@ export enum Action {
   RequestPaymentOnInvoices = "invoices:request-payment",
 
   // Payments
+  DeleteRepayments = "payments:delete-repayments",
   SettleRepayment = "payments:settle-repayments",
 
   // Line of credit
@@ -163,6 +164,7 @@ const rules: Rules = {
       Action.CreateAdvance,
       Action.RunBalances,
 
+      Action.DeleteRepayments,
       Action.SettleRepayment,
 
       Action.EditUserAccountSettings,

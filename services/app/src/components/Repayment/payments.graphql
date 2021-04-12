@@ -1,6 +1,16 @@
 subscription GetPayments {
   payments(
-    where: { type: { _eq: "repayment" } }
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { type: { _eq: "repayment" } }
+      ]
+    }
     order_by: { created_at: desc }
   ) {
     id
@@ -31,6 +41,12 @@ subscription GetSubmittedPayments {
   payments(
     where: {
       _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
         { type: { _eq: "repayment" } }
         { submitted_at: { _is_null: false } }
         { settled_at: { _is_null: true } }

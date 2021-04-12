@@ -141,10 +141,10 @@ function BankPaymentsActionRequiredTab() {
           </Box>
           <RepaymentsDataGrid
             isCompanyVisible
-            isMethodVisible={false}
-            repaymentType={RepaymentTypeEnum.RequestedReverseDraftACH}
-            enableSelect
             isExcelExport
+            isMethodVisible={false}
+            isMultiSelectEnabled
+            repaymentType={RepaymentTypeEnum.RequestedReverseDraftACH}
             payments={scheduledPayments}
             customerSearchQuery={""}
             selectedPaymentIds={selectedSchedulePaymentIds}
@@ -175,10 +175,10 @@ function BankPaymentsActionRequiredTab() {
           </Box>
           <RepaymentsDataGrid
             isCompanyVisible
-            isMethodVisible={false}
-            repaymentType={RepaymentTypeEnum.ReverseDraftACH}
-            enableSelect
             isExcelExport
+            isMethodVisible={false}
+            isMultiSelectEnabled
+            repaymentType={RepaymentTypeEnum.ReverseDraftACH}
             payments={pendingReverseDraftPayments}
             customerSearchQuery={""}
             selectedPaymentIds={selectedSettlePaymentIds}
@@ -208,9 +208,9 @@ function BankPaymentsActionRequiredTab() {
             </Can>
           </Box>
           <RepaymentsDataGrid
-            enableSelect
             isCompanyVisible
             isExcelExport
+            isMultiSelectEnabled
             repaymentType={RepaymentTypeEnum.Other}
             payments={notifyPayments}
             customerSearchQuery={""}
