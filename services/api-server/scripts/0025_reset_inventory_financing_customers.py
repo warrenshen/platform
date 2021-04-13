@@ -51,59 +51,47 @@ def reset_customers(
 
 		print(f'[{index + 1} of {customers_count}] Resetting customer {customer.name} ({customer.identifier})')
 
-		# Step 2: delete repayment transactions.
-		repayments = session.query(models.Payment).filter(
-			models.Payment.company_id == customer.id
-		).filter(
-			models.Payment.type == PaymentType.REPAYMENT
-		).all()
+		def _reset_payments_by_type(payment_type):
+			payments = session.query(models.Payment).filter(
+				models.Payment.company_id == customer.id
+			).filter(
+				models.Payment.type == payment_type
+			).all()
 
-		repayment_ids = [str(repayment.id) for repayment in repayments]
+			payment_ids = [str(payment.id) for payment in payments]
 
-		repayment_transactions = session.query(models.Transaction).filter(
-			models.Transaction.payment_id.in_(repayment_ids)
-		).all()
+			payment_transactions = session.query(models.Transaction).filter(
+				models.Transaction.payment_id.in_(payment_ids)
+			).all()
 
-		print(f'[{index + 1} of {customers_count}] Resetting {len(repayment_transactions)} repayment transactions...')
+			print(f'[{index + 1} of {customers_count}] Resetting {len(payment_transactions)} {payment_type} transactions...')
 
-		for repayment_transaction in repayment_transactions:
-			session.delete(repayment_transaction)
-		session.flush()
+			for payment_transaction in payment_transactions:
+				session.delete(payment_transaction)
+			session.flush()
 
-		# Step 3: delete repayment payments.
-		print(f'[{index + 1} of {customers_count}] Resetting {len(repayments)} repayments...')
+			print(f'[{index + 1} of {customers_count}] Resetting {len(payments)} {payment_type} payments...')
 
-		for repayment in repayments:
-			session.delete(repayment)
-		session.flush()
+			for payment in payments:
+				session.delete(payment)
+			session.flush()
 
-		# Step 4: delete advance transactions.
-		advances = session.query(models.Payment).filter(
-			models.Payment.company_id == customer.id
-		).filter(
-			models.Payment.type == PaymentType.ADVANCE
-		).all()
+		# Step 2: delete repayment payments.
+		_reset_payments_by_type(PaymentType.REPAYMENT)
 
-		advance_ids = [str(advance.id) for advance in advances]
+		# Step 3: delete advance payments.
+		_reset_payments_by_type(PaymentType.ADVANCE)
 
-		advance_transactions = session.query(models.Transaction).filter(
-			models.Transaction.payment_id.in_(advance_ids)
-		).all()
+		# Step 4: delete credit to user payments.
+		_reset_payments_by_type(PaymentType.CREDIT_TO_USER)
 
-		print(f'[{index + 1} of {customers_count}] Resetting {len(advance_transactions)} advance transactions...')
+		# Step 5: delete fee payments.
+		_reset_payments_by_type(PaymentType.FEE)
 
-		for advance_transaction in advance_transactions:
-			session.delete(advance_transaction)
-		session.flush()
+		# Step 6: delete adjustment payments.
+		_reset_payments_by_type(PaymentType.ADJUSTMENT)
 
-		# Step 5: delete advance payments.
-		print(f'[{index + 1} of {customers_count}] Resetting {len(advances)} advances...')
-
-		for advance in advances:
-			session.delete(advance)
-		session.flush()
-
-		# Step 5: delete loans.
+		# Step 7: delete loans.
 		loans = session.query(models.Loan).filter(
 			models.Loan.company_id == customer.id
 		).all()
@@ -114,7 +102,7 @@ def reset_customers(
 			session.delete(loan)
 		session.flush()
 
-		# Step 6: delete artifacts.
+		# Step 8: delete artifacts.
 		purchase_orders = session.query(models.PurchaseOrder).filter(
 			models.PurchaseOrder.company_id == customer.id
 		).all()
@@ -125,7 +113,7 @@ def reset_customers(
 			session.delete(purchase_order)
 		session.flush()
 
-		# Step 7: reset customer loan-related identifiers.
+		# Step 9: reset customer loan-related identifiers.
 		customer.latest_loan_identifier = 0
 		customer.latest_disbursement_identifier = 0
 
