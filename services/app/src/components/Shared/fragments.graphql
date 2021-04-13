@@ -235,6 +235,20 @@ fragment FinancialSummary on financial_summaries {
   interest_accrued_today
 }
 
+fragment BankFinancialSummary on bank_financial_summaries {
+  id
+  updated_at
+  date
+  product_type
+  adjusted_total_limit
+  total_outstanding_principal
+  total_outstanding_interest
+  total_outstanding_fees
+  total_principal_in_requested_state
+  available_limit
+  interest_accrued_today
+}
+
 fragment InvoiceFile on invoice_files {
   invoice_id
   file_id

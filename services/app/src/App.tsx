@@ -19,7 +19,6 @@ import ReviewPurchaseOrderPage from "pages/Anonymous/ReviewPurchaseOrder";
 import ReviewPurchaseOrderCompletePage from "pages/Anonymous/ReviewPurchaseOrderComplete";
 import AnonymousSecureLinkPage from "pages/Anonymous/SecureLink";
 import SignIn from "pages/Anonymous/SignIn";
-import BankAdvancesPage from "pages/Bank/Advances";
 import BankCustomerPage from "pages/Bank/Customer";
 import BankCustomersPage from "pages/Bank/Customers";
 import BankEbbaApplicationsPage from "pages/Bank/EbbaApplications";
@@ -31,7 +30,6 @@ import BankPayorsPage from "pages/Bank/Payors";
 import BankPurchaseOrdersPage from "pages/Bank/PurchaseOrders";
 import BankReportsPage from "pages/Bank/Reports";
 import BankSettingsPage from "pages/Bank/Settings";
-import BankTransactionsPage from "pages/Bank/Transactions";
 import BankVendorsPage from "pages/Bank/Vendors";
 import CustomerContractPage from "pages/Customer/Contract";
 import CustomerEbbaApplicationsPage from "pages/Customer/EbbaApplications";
@@ -277,20 +275,6 @@ function App() {
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
         >
           <BankPaymentsPage />
-        </PrivateRoute>
-        <PrivateRoute
-          exact
-          path={bankRoutes.advances}
-          requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
-        >
-          <BankAdvancesPage />
-        </PrivateRoute>
-        <PrivateRoute
-          exact
-          path={bankRoutes.transactions}
-          requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
-        >
-          <BankTransactionsPage />
         </PrivateRoute>
         <PrivateRoute
           exact

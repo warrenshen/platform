@@ -3,18 +3,21 @@ import { ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import { GetFinancialSummariesByCompanyIdQuery } from "generated/graphql";
+import {
+  FinancialSummaryFragment,
+  GetFinancialSummariesByCompanyIdQuery,
+} from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
-  financialSummaries: GetFinancialSummariesByCompanyIdQuery["financial_summaries"];
   isExcelExport?: boolean;
+  financialSummaries: GetFinancialSummariesByCompanyIdQuery["financial_summaries"];
 }
 
 function FinancialSummariesDataGrid({
-  financialSummaries,
   isExcelExport = false,
+  financialSummaries,
 }: Props) {
   const rows = financialSummaries;
   const columns = useMemo(
@@ -122,6 +125,44 @@ function FinancialSummariesDataGrid({
           <CurrencyDataGridCell value={params.row.data.adjusted_total_limit} />
         ),
       },
+      {
+        dataField: "minimum_monthly_payload.duration",
+        caption: "Minimum Interest Duration",
+        width: ColumnWidths.Currency,
+        calculateCellValue: ({
+          minimum_monthly_payload: minimumMonthlyPayload,
+        }: FinancialSummaryFragment) => minimumMonthlyPayload?.duration || "-",
+      },
+      {
+        dataField: "minimum_monthly_payload.amount",
+        caption: "Minimum Interest Value",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => {
+          const minimumMonthlyPayload = params.row.data.minimum_monthly_payload;
+          const value = !!minimumMonthlyPayload
+            ? minimumMonthlyPayload.minimum_amount !== null
+              ? minimumMonthlyPayload.minimum_amount
+              : null
+            : null;
+          return <CurrencyDataGridCell value={value} />;
+        },
+      },
+      {
+        dataField: "minimum_monthly_payload.amount_short",
+        caption: "Minimum Interest Remaining",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+        cellRender: (params: ValueFormatterParams) => {
+          const minimumMonthlyPayload = params.row.data.minimum_monthly_payload;
+          const value = !!minimumMonthlyPayload
+            ? minimumMonthlyPayload.amount_short !== null
+              ? minimumMonthlyPayload.amount_short
+              : null
+            : null;
+          return <CurrencyDataGridCell value={value} />;
+        },
+      },
     ],
     []
   );
@@ -129,10 +170,10 @@ function FinancialSummariesDataGrid({
   return (
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
       <ControlledDataGrid
+        isExcelExport={isExcelExport}
         isSortingDisabled
         dataSource={rows}
         columns={columns}
-        isExcelExport={isExcelExport}
       />
     </Box>
   );

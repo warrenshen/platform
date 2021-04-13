@@ -238,14 +238,6 @@ const getBankNavItems = (): NavItem[] => {
       link: bankRoutes.payors,
     },
     {
-      text: "Advances",
-      link: bankRoutes.advances,
-    },
-    {
-      text: "Transactions",
-      link: bankRoutes.transactions,
-    },
-    {
       iconNode: ReportsIcon,
       text: "Reports",
       link: bankRoutes.reports,

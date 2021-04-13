@@ -16153,20 +16153,7 @@ export type GetLatestBankFinancialSummariesSubscriptionVariables = Exact<{
 
 export type GetLatestBankFinancialSummariesSubscription = {
   bank_financial_summaries: Array<
-    Pick<
-      BankFinancialSummaries,
-      | "id"
-      | "updated_at"
-      | "date"
-      | "product_type"
-      | "adjusted_total_limit"
-      | "total_outstanding_principal"
-      | "total_outstanding_interest"
-      | "total_outstanding_fees"
-      | "total_principal_in_requested_state"
-      | "available_limit"
-      | "interest_accrued_today"
-    >
+    Pick<BankFinancialSummaries, "id"> & BankFinancialSummaryFragment
   >;
 };
 
@@ -16496,6 +16483,21 @@ export type FinancialSummaryFragment = Pick<
   | "minimum_monthly_payload"
   | "account_level_balance_payload"
   | "day_volume_threshold_met"
+  | "interest_accrued_today"
+>;
+
+export type BankFinancialSummaryFragment = Pick<
+  BankFinancialSummaries,
+  | "id"
+  | "updated_at"
+  | "date"
+  | "product_type"
+  | "adjusted_total_limit"
+  | "total_outstanding_principal"
+  | "total_outstanding_interest"
+  | "total_outstanding_fees"
+  | "total_principal_in_requested_state"
+  | "available_limit"
   | "interest_accrued_today"
 >;
 
@@ -17181,6 +17183,21 @@ export const FinancialSummaryFragmentDoc = gql`
     minimum_monthly_payload
     account_level_balance_payload
     day_volume_threshold_met
+    interest_accrued_today
+  }
+`;
+export const BankFinancialSummaryFragmentDoc = gql`
+  fragment BankFinancialSummary on bank_financial_summaries {
+    id
+    updated_at
+    date
+    product_type
+    adjusted_total_limit
+    total_outstanding_principal
+    total_outstanding_interest
+    total_outstanding_fees
+    total_principal_in_requested_state
+    available_limit
     interest_accrued_today
   }
 `;
@@ -21923,18 +21940,10 @@ export const GetLatestBankFinancialSummariesDocument = gql`
   subscription GetLatestBankFinancialSummaries {
     bank_financial_summaries(limit: 4, order_by: { date: desc }) {
       id
-      updated_at
-      date
-      product_type
-      adjusted_total_limit
-      total_outstanding_principal
-      total_outstanding_interest
-      total_outstanding_fees
-      total_principal_in_requested_state
-      available_limit
-      interest_accrued_today
+      ...BankFinancialSummary
     }
   }
+  ${BankFinancialSummaryFragmentDoc}
 `;
 
 /**
