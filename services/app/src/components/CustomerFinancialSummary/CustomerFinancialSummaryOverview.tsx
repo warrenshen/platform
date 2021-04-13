@@ -56,6 +56,7 @@ function CustomerFinancialSummaryOverview({ financialSummary }: Props) {
     accountFees = accountBalancePayload.fees_total;
     accountCredits = accountBalancePayload.credits_total;
   }
+
   return (
     <Box display="flex" flexDirection="column" mt={2}>
       <Box display="flex" width="100%" justifyContent="space-between">
@@ -63,7 +64,7 @@ function CustomerFinancialSummaryOverview({ financialSummary }: Props) {
           <Box display="flex">
             <Box display="flex" flexDirection="column" mb={6}>
               <Typography variant="h2">
-                {financialSummary?.total_outstanding_principal
+                {financialSummary !== null
                   ? formatCurrency(financialSummary.total_outstanding_principal)
                   : "TBD"}
               </Typography>
@@ -80,7 +81,7 @@ function CustomerFinancialSummaryOverview({ financialSummary }: Props) {
               minWidth={"200px"}
             >
               <Typography variant="h5">
-                {financialSummary?.adjusted_total_limit
+                {financialSummary !== null
                   ? formatCurrency(financialSummary.adjusted_total_limit)
                   : "TBD"}
               </Typography>
@@ -96,7 +97,7 @@ function CustomerFinancialSummaryOverview({ financialSummary }: Props) {
               minWidth={"200px"}
             >
               <Typography variant="h5">
-                {financialSummary?.available_limit
+                {financialSummary !== null
                   ? formatCurrency(financialSummary.available_limit)
                   : "TBD"}
               </Typography>
@@ -117,7 +118,7 @@ function CustomerFinancialSummaryOverview({ financialSummary }: Props) {
         <Box className={classes.box}>
           <Box display="flex" flexDirection="column">
             <Typography variant="h5">
-              {financialSummary?.total_outstanding_interest
+              {financialSummary !== null
                 ? formatCurrency(financialSummary.total_outstanding_interest)
                 : "TBD"}
             </Typography>
@@ -129,7 +130,7 @@ function CustomerFinancialSummaryOverview({ financialSummary }: Props) {
         <Box className={classes.box}>
           <Box display="flex" flexDirection="column">
             <Typography variant="h5">
-              {financialSummary?.total_outstanding_fees
+              {financialSummary !== null
                 ? formatCurrency(financialSummary.total_outstanding_fees)
                 : "TBD"}
             </Typography>
