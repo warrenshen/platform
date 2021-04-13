@@ -8,6 +8,7 @@ from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.db_constants import ProductType
 from bespoke.db.models import session_scope
+from bespoke.finance import number_util
 from bespoke.finance.payments import payment_util
 from bespoke.finance.reports import loan_balances
 from bespoke_test.contract import contract_test_helper
@@ -253,7 +254,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
-	def test_success_no_payments_then_repayment_quarterly_minimum_accrued(self) -> None:
+	def test_success_repayment_quarterly_minimum_accrued_no_late_fee_once_loan_is_paid_off(self) -> None:
 
 		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
@@ -282,14 +283,15 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			payment_test_helper.make_advance(
 				session, loan, amount=500.03, payment_date='10/01/2020', effective_date='10/01/2020')
 
-			# Pay off the loan on the 4th
+			# Pay off the loan on the 4th, and the 37 days of interest accrued.
+			# No late fees accrue even though the payment settles after the loan reaches its maturity date
 			payment_test_helper.make_repayment(
 					session, loan,
 					to_principal=500.03,
-					to_interest=round(35 * 0.005 * 500.03, 2),
+					to_interest=round(37 * 0.005 * 500.03, 2),
 					to_fees=0.0,
 					payment_date='11/04/2020',
-					effective_date='11/04/2020'				
+					effective_date='11/06/2020'
 			)
 
 		tests: List[Dict] = [
@@ -320,8 +322,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'available_limit': 120000.01 - (500.03),
 					'minimum_monthly_payload': {
 							'minimum_amount': 20000.03,
-							'amount_accrued': round((34 * 0.005 * 500.03), 2),
-							'amount_short': round(20000.03 - (34 * 0.005 * 500.03), 2),
+							'amount_accrued': number_util.round_currency(34 * 0.005 * 500.03),
+							'amount_short': number_util.round_currency(20000.03 - (34 * 0.005 * 500.03)),
 							'duration': 'quarterly'
 					},
 					'account_level_balance_payload': {
@@ -332,7 +334,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				}
 			},
 			{
-				'today': '11/04/2020', # It's been 35 days since the loan started, and it gets fully paid off
+				'today': '11/06/2020', # It's been 35 days since the loan started, and it gets fully paid off
 				'populate_fn': populate_fn,
 				'expected_loan_updates': [
 					{

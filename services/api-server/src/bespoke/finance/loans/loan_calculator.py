@@ -408,7 +408,11 @@ class LoanCalculator(object):
 
 			interest_due_for_day = interest_rate_used * outstanding_principal_for_interest
 			outstanding_interest += interest_due_for_day
-			fee_due_for_day = fee_multiplier * interest_due_for_day
+
+			# If the customer does not have any outstanding principal, even though their principal for
+			# interest is accruing, dont charge any additional fees there.
+			has_outstanding_principal = number_util.float_gt(round(outstanding_principal, 2), 0.0)
+			fee_due_for_day = fee_multiplier * interest_due_for_day if has_outstanding_principal else 0.0
 			outstanding_fees += fee_due_for_day
 
 			if cur_date == today:
