@@ -21,11 +21,13 @@ def float_gt(a: float, b: float) -> bool:
 def is_currency_rounded(num: Union[float, decimal.Decimal]) -> bool:
 	return round(num, 2) == num
 
+# round(round(num, 5) + 0.0001, 2) is done so
+# 754.1249999999994 is rounded up to 754.13.
 def round_currency(num: float) -> float:
-	return round(num, 2)
+	return round(round(num, 5) + 0.0001, 2)
 
 def round_currency_decimal(num: decimal.Decimal) -> decimal.Decimal:
-	return round(num, 2)
+	return round(round(num, 5) + decimal.Decimal(0.0001), 2)
 
 def is_number(val: Any) -> bool:
 	if val is None:

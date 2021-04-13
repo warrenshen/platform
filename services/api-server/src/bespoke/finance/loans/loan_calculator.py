@@ -177,7 +177,7 @@ class FeeAccumulator(object):
 		self._month_to_amounts: Dict[finance_types.Month, AccumulatedAmountDict] = {}
 		self._quarter_to_amounts: Dict[finance_types.Quarter, AccumulatedAmountDict] = {}
 		self._year_to_amounts: Dict[finance_types.Year, AccumulatedAmountDict] = {}
-		
+
 	def init_with_date_range(self, start_date: datetime.date, end_date: datetime.date) -> None:
 		# Allows you to initialize what months, quarters, year must get included based on this date range
 		cur_date = start_date
@@ -353,7 +353,7 @@ class LoanCalculator(object):
 					outstanding_principal_for_interest += tx['to_principal']
 					outstanding_interest += tx['to_interest']
 					outstanding_fees += tx['to_fees']
-				
+
 				if payment_util.is_advance(tx):
 					has_been_funded = True
 
@@ -455,7 +455,7 @@ class LoanCalculator(object):
 
 		# NOTE: This will be handy later when we want to show to the user how
 		# we calculated all the interest and fees.
-		#print(self.get_summary())
+		# print(self.get_summary())
 
 		l = LoanUpdateDict(
 			loan_id=loan['id'],
