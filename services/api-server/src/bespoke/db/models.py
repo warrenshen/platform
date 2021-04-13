@@ -380,7 +380,8 @@ LoanDict = TypedDict('LoanDict', {
 	'status': str,
 	'outstanding_principal_balance': float,
 	'outstanding_interest': float,
-	'outstanding_fees': float
+	'outstanding_fees': float,
+	'closed_at': datetime.datetime
 })
 
 class Loan(Base):
@@ -436,7 +437,8 @@ class Loan(Base):
 			status=self.status,
 			outstanding_principal_balance=float_or_null(self.outstanding_principal_balance),
 			outstanding_interest=float_or_null(self.outstanding_interest),
-			outstanding_fees=float_or_null(self.outstanding_fees)
+			outstanding_fees=float_or_null(self.outstanding_fees),
+			closed_at=self.closed_at
 		)
 
 

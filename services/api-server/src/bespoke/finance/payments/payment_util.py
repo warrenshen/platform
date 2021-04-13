@@ -145,6 +145,17 @@ def is_repayment(p: Union[models.PaymentDict, models.TransactionDict]) -> bool:
 def is_adjustment(p: Union[models.PaymentDict, models.TransactionDict]) -> bool:
 	return p['type'] in db_constants.ADJUSTMENT_TYPES
 
+def should_close_loan(
+	new_outstanding_principal: float, new_outstanding_interest: float, 
+	new_outstanding_fees: float) -> bool:
+	return new_outstanding_principal <= 0.0 \
+				and new_outstanding_interest <= 0.0 \
+				and new_outstanding_fees <= 0.0
+
+def close_loan(cur_loan: models.Loan) -> None:
+	cur_loan.closed_at = date_util.now()
+	cur_loan.payment_status = db_constants.PaymentStatusEnum.CLOSED
+
 # Loans represent balances
 # Fees represent account level fees (not tied to a loan)
 

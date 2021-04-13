@@ -212,7 +212,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal_for_interest': 500.03,
 						'outstanding_interest': round(3 * 0.05 * 500.03, 2), # 10/03 - 10/01 is 2 days apart, +1 day, is 3 days of interest.
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.05 * 500.03, 2)
+						'interest_accrued_today': round(0.05 * 500.03, 2),
+						'should_close_loan': False
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('10/06/2020'),
@@ -220,7 +221,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal_for_interest': 100.03,
 						'outstanding_interest': round(2 * 0.05 * 100.03, 2), # 10/03 - 10/02 is 1 days apart, +1 day, is 2 days of interest.
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.05 * 100.03, 2)
+						'interest_accrued_today': round(0.05 * 100.03, 2),
+						'should_close_loan': False
 					}
 				],
 				'expected_summary_update': {
@@ -251,7 +253,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
-	def test_success_no_payments_two_loans_not_due_yet_quarterly_minimum_accrued(self) -> None:
+	def test_success_no_payments_then_repayment_quarterly_minimum_accrued(self) -> None:
 
 		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
@@ -280,6 +282,16 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			payment_test_helper.make_advance(
 				session, loan, amount=500.03, payment_date='10/01/2020', effective_date='10/01/2020')
 
+			# Pay off the loan on the 4th
+			payment_test_helper.make_repayment(
+					session, loan,
+					to_principal=500.03,
+					to_interest=round(35 * 0.005 * 500.03, 2),
+					to_fees=0.0,
+					payment_date='11/04/2020',
+					effective_date='11/04/2020'				
+			)
+
 		tests: List[Dict] = [
 			{
 				'today': '11/3/2020', # It's been 34 days since the loan started, and no late fees have accrued.
@@ -291,7 +303,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal_for_interest': 500.03,
 						'outstanding_interest': round(34 * 0.005 * 500.03, 2), # 10/03 - 10/01 is 2 days apart, +1 day, is 3 days of interest.
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.005 * 500.03, 2)
+						'interest_accrued_today': round(0.005 * 500.03, 2),
+						'should_close_loan': False
 					},
 				],
 				'expected_summary_update': {
@@ -317,6 +330,21 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					},
 					'day_volume_threshold_met': None
 				}
+			},
+			{
+				'today': '11/04/2020', # It's been 35 days since the loan started, and it gets fully paid off
+				'populate_fn': populate_fn,
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('11/05/2020'),
+						'outstanding_principal': 0.0,
+						'outstanding_principal_for_interest': 0.0,
+						'outstanding_interest': 0.0,
+						'outstanding_fees': 0.0,
+						'interest_accrued_today': round(0.005 * 500.03, 2),
+						'should_close_loan': True
+					},
+				],
 			}
 		]
 		for test in tests:
@@ -362,7 +390,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal_for_interest': 500.03,
 						'outstanding_interest': round(35 * 0.005 * 500.03, 2), # 10/03 - 10/01 is 2 days apart, +1 day, is 3 days of interest.
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.005 * 500.03, 2)
+						'interest_accrued_today': round(0.005 * 500.03, 2),
+						'should_close_loan': False
 					},
 				],
 				'expected_summary_update': {
@@ -490,7 +519,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal_for_interest': 100.00,
 						'outstanding_interest': round(3 * 0.05 * 500.03, 2), # 3 days of interest
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.05 * 500.03, 2)
+						'interest_accrued_today': round(0.05 * 500.03, 2),
+						'should_close_loan': False
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/2/2020'),
@@ -498,7 +528,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal_for_interest': 0.0,
 						'outstanding_interest': 0.0,
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': 0.0
+						'interest_accrued_today': 0.0,
+						'should_close_loan': False # hasnt been funded yet
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/3/2020'),
@@ -506,7 +537,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal_for_interest': 0.0,
 						'outstanding_interest': 0.0,
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': 0.0
+						'interest_accrued_today': 0.0,
+						'should_close_loan': False # hasnt been funded yet
 					}
 				],
 				'expected_day_volume_threshold_met': None
@@ -521,7 +553,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal_for_interest': 0.0,
 						'outstanding_interest': round(3 * 0.05 * 500.03, 2) + round(2 * 0.05 * 100.00, 2), # 5 days of interest
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.05 * 100.00, 2)
+						'interest_accrued_today': round(0.05 * 100.00, 2),
+						'should_close_loan': False
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/2/2020'),
@@ -529,7 +562,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal_for_interest': 100.0,
 						'outstanding_interest': round(1 * 0.05 * 600.03, 2), # 1 day of interest
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.05 * 600.03, 2)
+						'interest_accrued_today': round(0.05 * 600.03, 2),
+						'should_close_loan': False
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/3/2020'),
@@ -537,7 +571,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal_for_interest': 0.0,
 						'outstanding_interest': 0.0,
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': 0.0
+						'interest_accrued_today': 0.0,
+						'should_close_loan': False
 					}
 				],
 				'expected_day_volume_threshold_met': date_util.load_date_str('10/05/2020')
@@ -552,7 +587,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal_for_interest': 0.0,
 						'outstanding_interest': round(3 * 0.05 * 500.03, 2) + round(2 * 0.05 * 100.00, 2), # 5 days of interest, stopped accruing after repayment
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': 0.0
+						'interest_accrued_today': 0.0,
+						'should_close_loan': False
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/2/2020'),
@@ -560,7 +596,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal_for_interest': 100.0,
 						'outstanding_interest': round(1 * 0.05 * 600.03, 2) + round(4 * 0.01 * 100.0, 2), # 1 day of interest + 4 days at the lower rate
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.01 * 100.00, 2)
+						'interest_accrued_today': round(0.01 * 100.00, 2),
+						'should_close_loan': False
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/3/2020'),
@@ -568,7 +605,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal_for_interest': 700.03,
 						'outstanding_interest': round(3 * 0.01 * 700.03, 2), # You have 3 days, all at the discounted rate
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.01 * 700.03, 2)
+						'interest_accrued_today': round(0.01 * 700.03, 2),
+						'should_close_loan': False
 					}
 				],
 				'expected_day_volume_threshold_met': date_util.load_date_str('10/05/2020')
@@ -583,7 +621,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal_for_interest': 0.0,
 						'outstanding_interest': round(3 * 0.01 * 500.03, 2) + round(2 * 0.01 * 100.00, 2), # 5 days of interest, stopped accruing after repayment
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': 0.0
+						'interest_accrued_today': 0.0,
+						'should_close_loan': False
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/2/2020'),
@@ -591,7 +630,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal_for_interest': 100.0,
 						'outstanding_interest': round(1 * 0.01 * 600.03, 2) + round(4 * 0.01 * 100.0, 2), # All days at lower rate
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.01 * 100.0, 2)
+						'interest_accrued_today': round(0.01 * 100.0, 2),
+						'should_close_loan': False
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/3/2020'),
@@ -599,7 +639,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal_for_interest': 700.03,
 						'outstanding_interest': round(3 * 0.01 * 700.03, 2), # You have 3 days, all at the discounted rate
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.01 * 700.03, 2)
+						'interest_accrued_today': round(0.01 * 700.03, 2),
+						'should_close_loan': False
 					}
 				],
 				'expected_day_volume_threshold_met': date_util.load_date_str('01/01/2020')
@@ -614,7 +655,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal_for_interest': 0.0,
 						'outstanding_interest': round(3 * 0.05 * 500.03, 2) + round(2 * 0.01 * 100.00, 2), # 5 days of interest, stopped accruing after repayment
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': 0.0
+						'interest_accrued_today': 0.0,
+						'should_close_loan': False
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/2/2020'),
@@ -622,7 +664,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal_for_interest': 100.0,
 						'outstanding_interest': round(1 * 0.01 * 600.03, 2) + round(4 * 0.01 * 100.0, 2), # All days at lower rate
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.01 * 100.00, 2)
+						'interest_accrued_today': round(0.01 * 100.00, 2),
+						'should_close_loan': False
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/3/2020'),
@@ -630,7 +673,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal_for_interest': 700.03,
 						'outstanding_interest': round(3 * 0.01 * 700.03, 2), # You have 3 days, all at the discounted rate
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.01 * 700.03, 2)
+						'interest_accrued_today': round(0.01 * 700.03, 2),
+						'should_close_loan': False
 					}
 				],
 				'expected_day_volume_threshold_met': date_util.load_date_str('10/03/2020')
@@ -773,7 +817,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal_for_interest': 500.03,
 						'outstanding_interest': round(-1 * 0.002 * 500.03, 2), # They owe 2 days of interest, but pay off 3, so its -1 day of interest
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.002 * 500.03)
+						'interest_accrued_today': round(0.002 * 500.03),
+						'should_close_loan': False
 					}
 				],
 				'expected_summary_update': {
@@ -810,7 +855,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal_for_interest': 450.03,
 						'outstanding_interest': 0.0, # partial payment paid off interest
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.002 * 500.03, 2) # The repayment takes effect after the 3rd
+						'interest_accrued_today': round(0.002 * 500.03, 2), # The repayment takes effect after the 3rd
+						'should_close_loan': False
 					}
 				]
 			},
@@ -828,7 +874,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						# + 2.0 is adjustment for interest
 						'outstanding_interest': round(23 * daily_interest, 2) - 4.2,
 						'outstanding_fees': round((14 * daily_interest * 0.25) + (7 * daily_interest * 0.5), 2) + 2.0,
-						'interest_accrued_today': round(daily_interest, 2)
+						'interest_accrued_today': round(daily_interest, 2),
+						'should_close_loan': False
 					}
 				]
 			}

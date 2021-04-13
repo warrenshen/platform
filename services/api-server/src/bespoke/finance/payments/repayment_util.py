@@ -1081,13 +1081,14 @@ def settle_repayment(
 			cur_loan.outstanding_interest = decimal.Decimal(new_outstanding_interest)
 			cur_loan.outstanding_fees = decimal.Decimal(new_outstanding_fees)
 
-			no_outstanding_balance = new_outstanding_principal_balance <= 0.0 \
-				and new_outstanding_interest <= 0.0 \
-				and new_outstanding_fees <= 0.0
+			no_outstanding_balance = payment_util.should_close_loan(
+				new_outstanding_principal=new_outstanding_principal_balance,
+				new_outstanding_interest=new_outstanding_interest,
+				new_outstanding_fees=new_outstanding_fees
+			)
 
 			if no_outstanding_balance:
-				cur_loan.closed_at = date_util.now()
-				cur_loan.payment_status = PaymentStatusEnum.CLOSED
+				payment_util.close_loan(cur_loan)
 			else:
 				cur_loan.payment_status = PaymentStatusEnum.PARTIALLY_PAID
 

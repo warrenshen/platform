@@ -401,6 +401,9 @@ class CustomerBalance(object):
 				loan.outstanding_interest = decimal.Decimal(cur_loan_update['outstanding_interest'])
 				loan.outstanding_fees = decimal.Decimal(cur_loan_update['outstanding_fees'])
 
+				if cur_loan_update['should_close_loan']:
+					payment_util.close_loan(loan)
+
 			financial_summary = cast(
 				models.FinancialSummary,
 				session.query(models.FinancialSummary).filter(
