@@ -447,6 +447,13 @@ class Contract(object):
 		if minimum_monthly_amount and minimum_annual_amount:
 			return errors.Error('The minimum monthly and annual amount may not be set at the same time')
 
+		# Volume discount starting value check if the threshold is set.
+		factoring_fee_threshold, err = self.get_factoring_fee_threshold()
+		has_threshold_set = factoring_fee_threshold > 0.0
+		starting_value, starting_value_err = self.get_factoring_fee_threshold_starting_value()
+		if has_threshold_set and starting_value is None:
+			return errors.Error('Factoring Fee Threshold Starting Value must be set if the Factoring Fee Threshold is set')
+
 		return None
 
 	def for_product_type(self) -> Tuple['Contract', errors.Error]:

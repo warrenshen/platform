@@ -48,31 +48,31 @@ class ThresholdAccumulator(object):
 
 		self._date_to_txs[cur_date].append(tx)
 
-	def compute_threshold_info(self, report_date: datetime.date) -> ThresholdInfoDict:
+	def compute_threshold_info(self, report_date: datetime.date) -> Tuple[ThresholdInfoDict, errors.Error]:
 		contract, err = self._contract_helper.get_contract(report_date)
 		if err:
-			raise Exception(err.msg)
+			return None, err
 
 		start_date, err = contract.get_start_date()
 		if err:
-			raise Exception(err.msg)
+			return None, err
 
 		end_date, err = contract.get_adjusted_end_date()
 		if err:
-			raise Exception(err.msg)
+			return None, err
 
 		factoring_fee_threshold, err = contract.get_factoring_fee_threshold()
 		has_threshold_set = factoring_fee_threshold > 0.0
 		starting_value, starting_value_err = contract.get_factoring_fee_threshold_starting_value()
 		if has_threshold_set and starting_value is None:
-			raise Exception('Factoring fee threshold starting value must be set if a customers factoring fee threshold is set')
+			return None, errors.Error('Factoring fee threshold starting value must be set if a customers factoring fee threshold is set')
 
 		total_repayments_amount = starting_value if starting_value else 0.0
 		if has_threshold_set and total_repayments_amount >= factoring_fee_threshold:
 			# You crossed the threshold immediately because of carry-over
 			return ThresholdInfoDict(
 				day_threshold_met=start_date
-			)
+			), None
 
 		for cur_date, aug_txs in self._date_to_txs.items():
 
@@ -91,11 +91,11 @@ class ThresholdAccumulator(object):
 			if has_threshold_set and total_repayments_amount >= factoring_fee_threshold:
 				return ThresholdInfoDict(
 					day_threshold_met=cur_date
-				)
+				), None
 
 		return ThresholdInfoDict(
 			day_threshold_met=None
-		)
+		), None
 
 class BalanceRange(object):
 	"""

@@ -189,7 +189,7 @@ class TestContractHelper(unittest.TestCase):
 
 class TestContractMethods(unittest.TestCase):
 
-	def test_validate(self) -> None:
+	def test_validate_no_errors(self) -> None:
 		late_fee_structure = json.dumps({
 			'1-14': 0.25,
 			'15-29': 0.50,
@@ -216,6 +216,35 @@ class TestContractMethods(unittest.TestCase):
 		# dont have any minimums.
 		contract_obj, err = contract_util.Contract.build(contract.as_dict(), validate=True)
 		self.assertIsNone(err)
+
+	def test_validate_error_due_to_factoring_fee_threshold_but_no_starting_value(self) -> None:
+		late_fee_structure = json.dumps({
+			'1-14': 0.25,
+			'15-29': 0.50,
+			'30+': 1.0
+		})
+
+		contract = models.Contract(
+				company_id='some-uuid',
+				product_type=ProductType.INVENTORY_FINANCING,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.INVENTORY_FINANCING,
+					input_dict=ContractInputDict(
+						interest_rate=0.05,
+						maximum_principal_amount=120000.01,
+						minimum_monthly_amount=None,
+						max_days_until_repayment=0,
+						factoring_fee_threshold=20.0,
+						late_fee_structure=late_fee_structure,
+					)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('12/1/2020')
+		)
+		# Technically we allow the minimum amounts to all be null, since some customers
+		# dont have any minimums.
+		contract_obj, err = contract_util.Contract.build(contract.as_dict(), validate=True)
+		self.assertIn('Starting Value', err.msg)
 
 class TestLateFeeStructure(unittest.TestCase):
 
