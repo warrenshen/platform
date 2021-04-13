@@ -55,6 +55,7 @@ function LoanDrawer({ loanId, handleClose }: Props) {
   const {
     data: bankData,
     refetch: bankRefetch,
+    error: bankError,
   } = useGetLoanWithArtifactForBankQuery({
     skip: !isBankUser,
     variables: {
@@ -65,25 +66,35 @@ function LoanDrawer({ loanId, handleClose }: Props) {
   const {
     data: customerData,
     refetch: customerRefetch,
+    error: customerError,
   } = useGetLoanWithArtifactForCustomerQuery({
-    skip: !isBankUser,
+    skip: isBankUser,
     variables: {
       id: loanId,
     },
   });
 
-  const refetch = isBankUser ? bankRefetch : customerRefetch;
-
-  const loan = isBankUser ? bankData?.loans_by_pk : customerData?.loans_by_pk;
-  const bankLoan = bankData?.loans_by_pk;
-
-  const response = useGetTransactionsForLoanQuery({
+  const {
+    data: transactionsData,
+    error: transactionsError,
+  } = useGetTransactionsForLoanQuery({
+    skip: !isBankUser,
     variables: {
       loan_id: loanId,
     },
   });
 
-  const transactions = response.data?.transactions;
+  if (bankError || customerError || transactionsError) {
+    alert(
+      `Error loading loan: ${bankError || customerError || transactionsError}`
+    );
+  }
+
+  const refetch = isBankUser ? bankRefetch : customerRefetch;
+
+  const loan = isBankUser ? bankData?.loans_by_pk : customerData?.loans_by_pk;
+  const bankLoan = bankData?.loans_by_pk;
+  const transactions = transactionsData?.transactions;
 
   return loan ? (
     <Drawer open anchor="right" onClose={handleClose}>
@@ -301,7 +312,7 @@ function LoanDrawer({ loanId, handleClose }: Props) {
           </Typography>
           <Typography variant={"body1"}>{loan.id}</Typography>
         </Box>
-        {transactions && isBankUser && (
+        {isBankUser && transactions && (
           <Box mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
               Transactions
