@@ -71,9 +71,12 @@ def main() -> None:
 					print(f'Running for loan {loan.identifier} with amount {number_util.to_dollar_format(payment.amount)} and origination date {loan.origination_date}...')
 
 					disbursement_identifier = loan.identifier
-					loan.disbursement_identifier = disbursement_identifier
 
-					print(f'Assigned loan {loan.identifier} disbursement identifier {loan.disbursement_identifier}')
+					if loan.disbursement_identifier is None:
+						loan.disbursement_identifier = disbursement_identifier
+						print(f'Assigned loan {loan.identifier} disbursement identifier {loan.disbursement_identifier}')
+					else:
+						print(f'Loan {loan.identifier} already is disbursement identifier {loan.disbursement_identifier}')
 
 					try:
 						# If disbursement_identifier is "2", convert it to 2.
