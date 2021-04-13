@@ -26,6 +26,9 @@ const useStyles = makeStyles((theme: Theme) =>
     dialog: {
       width: 500,
     },
+    dialogActions: {
+      margin: theme.spacing(2),
+    },
   })
 );
 
@@ -105,9 +108,9 @@ function AddVendorModal({ customerId, handleClose }: Props) {
         setCompany={setVendor}
         errorMessage={errorMessage}
       />
-      <DialogActions>
+      <DialogActions className={classes.dialogActions}>
         <Box display="flex">
-          <Box pr={1}>
+          <Box mr={2}>
             <Button onClick={handleClose}>Cancel</Button>
           </Box>
           <Button

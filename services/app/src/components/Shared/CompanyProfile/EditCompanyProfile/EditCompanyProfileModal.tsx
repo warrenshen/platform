@@ -21,14 +21,9 @@ import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    nameInput: {
-      width: 400,
-    },
-    addressForm: {
-      width: 600,
-    },
-    addressSubForm: {
-      width: 140,
+    dialogActions: {
+      width: 500,
+      margin: theme.spacing(2),
     },
   })
 );
@@ -43,7 +38,9 @@ function EditCompanyProfileModal({
   handleClose,
 }: Props) {
   const classes = useStyles();
+
   const [company, setCompany] = useState(companyToEdit);
+
   const [
     updateCompany,
     { loading: updateCompanyLoading },
@@ -56,22 +53,20 @@ function EditCompanyProfileModal({
         <DialogContentText>
           Please provide details about company.
         </DialogContentText>
-        <Box pb={3} pt={2}>
+        <Box display="flex" flexDirection="column" mt={4}>
           <TextField
             label="Name"
             required
-            className={classes.nameInput}
             value={company?.name || ""}
             onChange={({ target: { value } }) => {
               setCompany({ ...company, name: value });
             }}
           />
         </Box>
-        <Box pb={3} pt={2}>
+        <Box display="flex" flexDirection="column" mt={4}>
           <TextField
             label="Identifier (Unique Short Code)"
             required
-            className={classes.nameInput}
             value={company?.identifier || ""}
             onChange={({ target: { value } }) => {
               setCompany({
@@ -81,17 +76,16 @@ function EditCompanyProfileModal({
             }}
           />
         </Box>
-        <Box pb={3} pt={2}>
+        <Box display="flex" flexDirection="column" mt={4}>
           <TextField
             label="Address"
-            className={classes.nameInput}
             value={company?.address || ""}
             onChange={({ target: { value } }) => {
               setCompany({ ...company, address: value });
             }}
           />
         </Box>
-        <Box pb={3} pt={2}>
+        <Box display="flex" flexDirection="column" mt={4}>
           <PhoneInput
             value={company?.phone_number || null}
             handleChange={(value) =>
@@ -102,20 +96,18 @@ function EditCompanyProfileModal({
             }
           />
         </Box>
-        <Box pb={3} pt={2}>
+        <Box display="flex" flexDirection="column" mt={4}>
           <TextField
             label="DBA"
-            className={classes.nameInput}
             value={company?.dba_name || ""}
             onChange={({ target: { value } }) => {
               setCompany({ ...company, dba_name: value });
             }}
           />
         </Box>
-        <Box pb={3} pt={2}>
+        <Box display="flex" flexDirection="column" mt={4}>
           <TextField
             label="EIN"
-            className={classes.nameInput}
             value={company?.employer_identification_number || ""}
             onChange={({ target: { value } }) => {
               setCompany({
@@ -126,9 +118,9 @@ function EditCompanyProfileModal({
           />
         </Box>
       </DialogContent>
-      <DialogActions>
+      <DialogActions className={classes.dialogActions}>
         <Box display="flex">
-          <Box pr={1}>
+          <Box mr={2}>
             <Button onClick={handleClose}>Cancel</Button>
           </Box>
           <Button

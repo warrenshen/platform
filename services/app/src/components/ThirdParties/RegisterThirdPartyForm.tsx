@@ -55,42 +55,50 @@ export default function RegisterThirdPartyForm({
             }}
           />
         </Box>
-        <Box display="flex" flexDirection="column" my={3}>
+        <Box display="flex" flexDirection="column" mt={4}>
           <Typography variant="subtitle1">
             {companyTypeUpper}'s Primary Contact
           </Typography>
           <Box display="flex" flexDirection="column" mx={2}>
-            <TextField
-              required
-              label="First Name"
-              value={contact.first_name}
-              onChange={({ target: { value } }) => {
-                setContact({ ...contact, first_name: value });
-              }}
-            />
-            <TextField
-              required
-              label="Last Name"
-              value={contact.last_name}
-              onChange={({ target: { value } }) => {
-                setContact({ ...contact, last_name: value });
-              }}
-            />
-            <TextField
-              required
-              label="Email"
-              value={contact.email}
-              onChange={({ target: { value } }) => {
-                setContact({ ...contact, email: value });
-              }}
-            />
-            <PhoneInput
-              isRequired
-              value={contact.phone_number || null}
-              handleChange={(value) =>
-                setContact({ ...contact, phone_number: value })
-              }
-            />
+            <Box display="flex" flexDirection="column" mt={2}>
+              <TextField
+                required
+                label="First Name"
+                value={contact.first_name}
+                onChange={({ target: { value } }) => {
+                  setContact({ ...contact, first_name: value });
+                }}
+              />
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <TextField
+                required
+                label="Last Name"
+                value={contact.last_name}
+                onChange={({ target: { value } }) => {
+                  setContact({ ...contact, last_name: value });
+                }}
+              />
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <TextField
+                required
+                label="Email"
+                value={contact.email}
+                onChange={({ target: { value } }) => {
+                  setContact({ ...contact, email: value });
+                }}
+              />
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <PhoneInput
+                isRequired
+                value={contact.phone_number || null}
+                handleChange={(value) =>
+                  setContact({ ...contact, phone_number: value })
+                }
+              />
+            </Box>
           </Box>
         </Box>
       </Box>
