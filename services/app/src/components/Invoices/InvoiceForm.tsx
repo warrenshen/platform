@@ -1,13 +1,10 @@
 import {
   Box,
-  createStyles,
   FormControl,
   InputLabel,
-  makeStyles,
   MenuItem,
   Select,
   TextField,
-  Theme,
   Typography,
 } from "@material-ui/core";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
@@ -21,14 +18,6 @@ import {
   PayorsByPartnerCompanyQuery,
 } from "generated/graphql";
 import { useMemo } from "react";
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    inputField: {
-      width: 300,
-    },
-  })
-);
 
 interface Props {
   isInvoiceForLoan: boolean;
@@ -49,8 +38,6 @@ export default function InvoiceForm({
   setInvoice,
   setInvoiceFile,
 }: Props) {
-  const classes = useStyles();
-
   const invoiceFileIds = useMemo(
     () => (invoiceFile ? [invoiceFile.file_id] : []),
     [invoiceFile]
@@ -58,8 +45,8 @@ export default function InvoiceForm({
 
   return (
     <Box display="flex" flexDirection="column">
-      <Box display="flex" flexDirection="row">
-        <FormControl className={classes.inputField}>
+      <Box display="flex" flexDirection="column">
+        <FormControl>
           <InputLabel id="payor-select-label">Payor</InputLabel>
           <Select
             disabled={!payors.length}
@@ -88,9 +75,8 @@ export default function InvoiceForm({
           </Select>
         </FormControl>
       </Box>
-      <Box mt={2}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <TextField
-          className={classes.inputField}
           label="Invoice Number"
           value={invoice.invoice_number}
           onChange={({ target: { value } }) =>
@@ -101,9 +87,8 @@ export default function InvoiceForm({
           }
         />
       </Box>
-      <Box mt={2}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <DatePicker
-          className={classes.inputField}
           id="invoice-date-date-picker"
           label="Invoice Date"
           value={invoice.invoice_date}
@@ -115,9 +100,8 @@ export default function InvoiceForm({
           }
         />
       </Box>
-      <Box mt={2}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <DatePicker
-          className={classes.inputField}
           id="invoice-due-date-date-picker"
           label="Due Date"
           value={invoice.invoice_due_date}
@@ -135,9 +119,8 @@ export default function InvoiceForm({
         </Box>
       </Box>
       {isInvoiceForLoan && (
-        <Box mt={2}>
+        <Box display="flex" flexDirection="column" mt={4}>
           <DatePicker
-            className={classes.inputField}
             id="invoice-advance-date-date-picker"
             label="Advance Date"
             disablePast
@@ -151,8 +134,8 @@ export default function InvoiceForm({
           />
         </Box>
       )}
-      <Box mt={2}>
-        <FormControl fullWidth className={classes.inputField}>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <FormControl fullWidth>
           <CurrencyInput
             label={"Subtotal Amount"}
             value={invoice.subtotal_amount}
@@ -166,8 +149,8 @@ export default function InvoiceForm({
           />
         </FormControl>
       </Box>
-      <Box mt={3}>
-        <FormControl fullWidth className={classes.inputField}>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <FormControl fullWidth>
           <CurrencyInput
             label={"Taxes"}
             value={invoice.taxes_amount}
@@ -181,8 +164,8 @@ export default function InvoiceForm({
           />
         </FormControl>
       </Box>
-      <Box mt={2}>
-        <FormControl fullWidth className={classes.inputField}>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <FormControl fullWidth>
           <CurrencyInput
             label={"Total Amount"}
             value={invoice.total_amount}
@@ -195,7 +178,7 @@ export default function InvoiceForm({
           />
         </FormControl>
       </Box>
-      <Box mt={3}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <Box mb={1}>
           <Typography variant="subtitle1" color="textSecondary">
             Invoice File Attachment

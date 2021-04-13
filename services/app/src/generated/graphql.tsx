@@ -21039,7 +21039,7 @@ export const GetFundablePurchaseOrdersByCompanyIdDocument = gql`
             ]
           }
           { company_id: { _eq: $company_id } }
-          { approved_at: { _eq: true } }
+          { approved_at: { _is_null: false } }
           { funded_at: { _is_null: true } }
         ]
       }

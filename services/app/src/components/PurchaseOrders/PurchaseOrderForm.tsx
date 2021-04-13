@@ -1,15 +1,12 @@
 import {
   Box,
   Checkbox,
-  createStyles,
   FormControl,
   FormControlLabel,
   InputLabel,
-  makeStyles,
   MenuItem,
   Select,
   TextField,
-  Theme,
   Typography,
 } from "@material-ui/core";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
@@ -23,14 +20,6 @@ import {
   VendorsByPartnerCompanyQuery,
 } from "generated/graphql";
 import { ChangeEvent, useMemo } from "react";
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    inputField: {
-      width: 300,
-    },
-  })
-);
 
 interface Props {
   companyId: string;
@@ -53,8 +42,6 @@ function PurchaseOrderForm({
   setPurchaseOrderFile,
   setPurchaseOrderCannabisFiles,
 }: Props) {
-  const classes = useStyles();
-
   const purchaseOrderFileIds = useMemo(
     () => (purchaseOrderFile ? [purchaseOrderFile.file_id] : []),
     [purchaseOrderFile]
@@ -69,8 +56,8 @@ function PurchaseOrderForm({
 
   return (
     <Box display="flex" flexDirection="column">
-      <Box display="flex" flexDirection="row">
-        <FormControl className={classes.inputField}>
+      <Box display="flex" flexDirection="column">
+        <FormControl>
           <InputLabel id="vendor-select-label">Vendor</InputLabel>
           <Select
             disabled={vendors.length <= 0}
@@ -99,9 +86,8 @@ function PurchaseOrderForm({
           </Select>
         </FormControl>
       </Box>
-      <Box mt={2}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <TextField
-          className={classes.inputField}
           label="PO Number"
           value={purchaseOrder.order_number}
           onChange={({ target: { value } }) =>
@@ -112,9 +98,8 @@ function PurchaseOrderForm({
           }
         />
       </Box>
-      <Box mt={2}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <DatePicker
-          className={classes.inputField}
           id="order-date-date-picker"
           label="PO Date"
           value={purchaseOrder.order_date}
@@ -126,9 +111,8 @@ function PurchaseOrderForm({
           }
         />
       </Box>
-      <Box mt={2}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <DatePicker
-          className={classes.inputField}
           id="delivery-date-date-picker"
           label="Delivery date"
           value={purchaseOrder.delivery_date}
@@ -140,21 +124,19 @@ function PurchaseOrderForm({
           }
         />
       </Box>
-      <Box mt={3}>
-        <FormControl fullWidth className={classes.inputField}>
-          <CurrencyInput
-            label="Amount"
-            value={purchaseOrder.amount}
-            handleChange={(value) =>
-              setPurchaseOrder({
-                ...purchaseOrder,
-                amount: value,
-              })
-            }
-          />
-        </FormControl>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <CurrencyInput
+          label="Amount"
+          value={purchaseOrder.amount}
+          handleChange={(value) =>
+            setPurchaseOrder({
+              ...purchaseOrder,
+              amount: value,
+            })
+          }
+        />
       </Box>
-      <Box mt={3}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <FormControlLabel
           control={
             <Checkbox
@@ -171,7 +153,7 @@ function PurchaseOrderForm({
           label={"Does this order include cannabis or derivatives?"}
         />
       </Box>
-      <Box mt={2}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <Box mb={1}>
           <Typography variant="subtitle1" color="textSecondary">
             Purchase Order File Attachment
@@ -201,7 +183,7 @@ function PurchaseOrderForm({
         </Box>
       </Box>
       {!!purchaseOrder.is_cannabis && (
-        <Box mt={2}>
+        <Box display="flex" flexDirection="column" mt={4}>
           <Box mb={1}>
             <Typography variant="subtitle1" color="textSecondary">
               Cannabis File Attachments

@@ -27,12 +27,18 @@ export default function CreateUpdatePurchaseOrderLoanModal({
   handleClose,
 }: Props) {
   // NOTE: This query implicitly has the companyId specified due to the table presets in Hasura
-  const { data, loading } = useGetFundablePurchaseOrdersByCompanyIdQuery({
-    fetchPolicy: "network-only",
-    variables: {
-      company_id: companyId,
-    },
-  });
+  const { data, loading, error } = useGetFundablePurchaseOrdersByCompanyIdQuery(
+    {
+      fetchPolicy: "network-only",
+      variables: {
+        company_id: companyId,
+      },
+    }
+  );
+
+  if (error) {
+    alert(`Error: ${error}`);
+  }
 
   const purchaseOrders = data?.purchase_orders || [];
 

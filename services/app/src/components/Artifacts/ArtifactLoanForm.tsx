@@ -1,9 +1,7 @@
 import {
   Box,
-  createStyles,
   FormControl,
   InputLabel,
-  makeStyles,
   MenuItem,
   Select,
   Typography,
@@ -13,14 +11,6 @@ import DatePicker from "components/Shared/FormInputs/DatePicker";
 import { LoansInsertInput } from "generated/graphql";
 import { Artifact } from "lib/finance/loans/artifacts";
 import { IdComponent } from "./interfaces";
-
-const useStyles = makeStyles(() =>
-  createStyles({
-    inputField: {
-      width: 300,
-    },
-  })
-);
 
 export interface ArtifactListItem {
   id: string;
@@ -48,8 +38,6 @@ export default function ArtifactLoanForm({
   InfoCard,
   setLoan,
 }: Props) {
-  const classes = useStyles();
-
   const artifactsList = approvedArtifacts.filter((a) => {
     const artifact = idToArtifact[a.id];
 
@@ -69,8 +57,8 @@ export default function ArtifactLoanForm({
 
   return (
     <Box display="flex" flexDirection="column">
-      <Box display="flex" flexDirection="row">
-        <FormControl className={classes.inputField}>
+      <Box display="flex" flexDirection="column">
+        <FormControl>
           <InputLabel id="artifact-select-label">{artifactTitle}</InputLabel>
           <Select
             disabled={!canEditArtifact || artifactsList.length <= 0}
@@ -97,13 +85,12 @@ export default function ArtifactLoanForm({
         </FormControl>
       </Box>
       {selectedArtifact && (
-        <Box display="flex" mt={3}>
+        <Box display="flex" flexDirection="column" mt={3}>
           <InfoCard id={selectedArtifact.artifact_id} />
         </Box>
       )}
-      <Box display="flex" flexDirection="column" mt={2}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <DatePicker
-          className={classes.inputField}
           id="requested-payment-date-date-picker"
           label="Requested Payment Date"
           disablePast
@@ -124,19 +111,17 @@ export default function ArtifactLoanForm({
           </Typography>
         </Box>
       </Box>
-      <Box mt={3}>
-        <FormControl className={classes.inputField}>
-          <CurrencyInput
-            label={"Amount"}
-            value={loan.amount}
-            handleChange={(value) =>
-              setLoan({
-                ...loan,
-                amount: value,
-              })
-            }
-          />
-        </FormControl>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <CurrencyInput
+          label={"Amount"}
+          value={loan.amount}
+          handleChange={(value) =>
+            setLoan({
+              ...loan,
+              amount: value,
+            })
+          }
+        />
       </Box>
     </Box>
   );
