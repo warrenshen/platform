@@ -25,8 +25,8 @@ function ContractsDataGrid({
     () => [
       {
         dataField: "id",
-        caption: "Platform ID",
-        minWidth: ColumnWidths.MinWidth,
+        caption: "Contract",
+        width: ColumnWidths.DateContract,
         cellRender: (params: ValueFormatterParams) => (
           <ContractDrawerLauncher
             label={`${formatDateString(

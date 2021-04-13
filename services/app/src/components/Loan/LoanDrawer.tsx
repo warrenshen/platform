@@ -25,8 +25,8 @@ import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 import { LoanTypeToLabel } from "lib/enum";
 import {
+  createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
-  createLoanIdentifier,
 } from "lib/loans";
 import { useContext } from "react";
 
@@ -100,7 +100,7 @@ function LoanDrawer({ loanId, handleClose }: Props) {
               Identifier
             </Typography>
             <Typography variant={"body1"}>
-              {createLoanIdentifier(loan)}
+              {createLoanCustomerIdentifier(loan)}
             </Typography>
           </Box>
           {isBankUser && (

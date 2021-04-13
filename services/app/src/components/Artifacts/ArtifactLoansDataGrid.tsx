@@ -17,8 +17,8 @@ import {
 } from "generated/graphql";
 import { PaymentStatusEnum } from "lib/enum";
 import {
+  createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
-  createLoanIdentifier,
 } from "lib/loans";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
@@ -63,7 +63,9 @@ export default function ArtifactLoansDataGrid({
         width: 120,
         cellRender: (params: ValueFormatterParams) => (
           <LoanDrawerLauncher
-            label={createLoanIdentifier(params.row.data as LoanLimitedFragment)}
+            label={createLoanCustomerIdentifier(
+              params.row.data as LoanLimitedFragment
+            )}
             loanId={params.row.data.id as string}
           />
         ),

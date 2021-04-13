@@ -22,8 +22,8 @@ import {
 } from "generated/graphql";
 import { AllLoanStatuses, LoanTypeToLabel, PaymentStatusEnum } from "lib/enum";
 import {
+  createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
-  createLoanIdentifier,
 } from "lib/loans";
 import { ColumnWidths } from "lib/tables";
 import { useEffect, useMemo, useState } from "react";
@@ -119,11 +119,13 @@ function LoansDataGrid({
     () => [
       {
         dataField: "identifier",
-        caption: "Identifier",
+        caption: "Customer Identifier",
         width: 120,
         cellRender: (params: ValueFormatterParams) => (
           <LoanDrawerLauncher
-            label={createLoanIdentifier(params.row.data as LoanLimitedFragment)}
+            label={createLoanCustomerIdentifier(
+              params.row.data as LoanLimitedFragment
+            )}
             loanId={params.row.data.id as string}
           />
         ),

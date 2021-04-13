@@ -35,7 +35,7 @@ import {
   PaymentOptionToLabel,
   ProductTypeToLoanType,
 } from "lib/enum";
-import { createLoanIdentifier } from "lib/loans";
+import { createLoanCustomerIdentifier } from "lib/loans";
 import { useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -148,7 +148,9 @@ function CreateRepaymentSelectLoans({
                 style={{ width: "100%" }}
                 options={notSelectedLoans}
                 getOptionLabel={(loan) =>
-                  `${createLoanIdentifier(loan)} | Amount: ${formatCurrency(
+                  `${createLoanCustomerIdentifier(
+                    loan
+                  )} | Amount: ${formatCurrency(
                     loan.amount
                   )} | Origination Date: ${formatDateString(
                     loan.origination_date
