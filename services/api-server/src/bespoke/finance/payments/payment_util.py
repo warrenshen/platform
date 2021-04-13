@@ -302,7 +302,103 @@ def create_and_add_account_level_fee(
 	session.add(t)
 	return t
 
+@errors.return_error_tuple
+def unsettle_payment(payment_type: str, payment_id: str, session: Session) -> Tuple[bool, errors.Error]:
+	# Mark payment as not settled
+	# Find any additional payments created from it, and mark them as is_deleted
+	# Mark transactions as is_deleted
+	payment = cast(
+		models.Payment,
+		session.query(models.Payment).filter(
+			models.Payment.id == payment_id
+		).first())
 
+	if not payment:
+		raise errors.Error(f'No {payment_type} found to undo')
+
+	if not payment.settled_at:
+		raise errors.Error(f'Cannot undo a {payment_type} which is not settled')
+
+	originated_payments = cast(
+		List[models.Payment],
+		session.query(models.Payment).filter(
+			models.Payment.originating_payment_id == payment_id
+		).all())
+	if not originated_payments:
+		originated_payments = []
+
+	def _unsettle_payment(cur_payment: models.Payment) -> None:
+		cur_payment.settled_at = None
+		cur_payment.settled_by_user_id = None
+		cur_payment.settlement_date = None
+		cur_payment.deposit_date = None
+
+		transactions = cast(
+			List[models.Transaction],
+			session.query(models.Transaction).filter(
+				models.Transaction.payment_id == cur_payment.id
+			).all())
+
+		if not transactions:
+			raise errors.Error(f'No transactions are associated with {payment_type} {cur_payment.id}, therefore we assume it is not settled')
+
+		for tx in transactions:
+			tx.is_deleted = True
+
+	_unsettle_payment(payment)
+	for cur_payment in originated_payments:
+		_unsettle_payment(cur_payment)
+
+	return True, None
+
+@errors.return_error_tuple
+def delete_payment(payment_type: str, payment_id: str, session: Session) -> Tuple[bool, errors.Error]:
+	# Mark payment as not settled
+	# Find any additional payments created from it, and mark them as is_deleted
+	# Mark transactions as is_deleted
+	payment = cast(
+		models.Payment,
+		session.query(models.Payment).filter(
+			models.Payment.id == payment_id
+		).first())
+
+	if not payment:
+		raise errors.Error(f'No {payment_type} found to delete')
+
+	if payment.settled_at:
+		raise errors.Error(f'Cannot delete a {payment_type} which is still settled. You must undo it first')
+
+	if payment.type != payment_type:
+		raise errors.Error(f'Cannot delete this payment which of type "{payment.type}" while you indicated you want to delete a "{payment_type}"')
+
+	originated_payments = cast(
+		List[models.Payment],
+		session.query(models.Payment).filter(
+			models.Payment.originating_payment_id == payment_id
+		).all())
+	if not originated_payments:
+		originated_payments = []
+
+	def _delete_payment(cur_payment: models.Payment) -> None:
+		cur_payment.is_deleted = True
+
+		transactions = cast(
+			List[models.Transaction],
+			session.query(models.Transaction).filter(
+				models.Transaction.payment_id == cur_payment.id
+			).all())
+
+		# Note: repayment may or may not have transactions.
+		# No transactions: customer creates repayment and then requests it to be deleted.
+		# Yes transactions: customer creates repayment, it is settled by bank, and then bank wants to delete it.
+		for tx in transactions:
+			tx.is_deleted = True
+
+	_delete_payment(payment)
+	for cur_payment in originated_payments:
+		_delete_payment(cur_payment)
+
+	return True, None
 
 
 

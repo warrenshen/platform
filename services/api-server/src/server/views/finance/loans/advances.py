@@ -235,5 +235,41 @@ class HandleAdvanceView(MethodView):
 		resp['status'] = 'OK'
 		return make_response(json.dumps(resp), 200)
 
+class DeleteAdvanceView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@events.wrap(events.Actions.LOANS_DELETE_ADVANCE)
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = cast(Dict, json.loads(request.data))
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'payment_id'
+		]
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} from delete advance request'.format(key))
+
+		user_session = auth_util.UserSession.from_session()
+
+		val, err = advance_util.delete_advance(
+			cast(advance_util.DeleteAdvanceReqDict, form),
+			user_session.get_user_id(),
+			current_app.session_maker
+		)
+
+		if err:
+			return handler_util.make_error_response(err)
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
 handler.add_url_rule(
 	'/handle_advance', view_func=HandleAdvanceView.as_view(name='handle_advance_view'))
+
+handler.add_url_rule(
+	'/delete_advance', view_func=DeleteAdvanceView.as_view(name='delete_advance_view'))

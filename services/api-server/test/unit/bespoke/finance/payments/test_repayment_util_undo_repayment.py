@@ -10,9 +10,6 @@ from bespoke.db.db_constants import PaymentStatusEnum, ProductType
 from bespoke.db.models import session_scope
 from bespoke.finance import number_util
 from bespoke.finance.payments import payment_util, repayment_util
-from bespoke.finance.payments.repayment_util import (LoanBalanceDict,
-                                                     LoanToShowDict,
-                                                     TransactionInputDict)
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
@@ -63,7 +60,7 @@ def _get_contract(company_id: str, is_line_of_credit: bool) -> models.Contract:
 
 class TestUndoRepayment(db_unittest.TestCase):
 
-	def test_undo_loan_with_spawned_payments(self) -> None:
+	def test_undo_and_delete_loan_with_spawned_payments(self) -> None:
 		self.reset()
 		session_maker = self.session_maker
 		seed = test_helper.BasicSeed.create(self.session_maker, self)

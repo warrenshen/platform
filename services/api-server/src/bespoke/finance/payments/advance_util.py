@@ -29,6 +29,7 @@ FundLoansReqDict = TypedDict('FundLoansReqDict', {
 })
 
 FundLoansRespDict = TypedDict('FundLoansRespDict', {
+	'payment_id': str, # payment ID for the advance
 	'status': str
 })
 
@@ -91,11 +92,16 @@ def fund_loans_with_advance(
 			raise errors.Error('Not all loans were found to fund in database', details=err_details)
 
 		already_funded_loan_ids: List[str] = []
+		already_set_dates_loan_ids: List[str] = []
 		not_approved_loan_ids: List[str] = []
 		for loan in loans:
 			loan_id = str(loan.id)
 			if loan.funded_at:
 				already_funded_loan_ids.append(loan_id)
+
+			if loan.origination_date or loan.maturity_date or loan.adjusted_maturity_date:
+				already_set_dates_loan_ids.append(loan_id)
+			
 			if not loan.approved_at:
 				not_approved_loan_ids.append(loan_id)
 
@@ -106,6 +112,10 @@ def fund_loans_with_advance(
 		if already_funded_loan_ids:
 			raise errors.Error('These loans have already been funded. Please remove them from the advances process: {}'.format(
 				already_funded_loan_ids), details=err_details)
+
+		if already_set_dates_loan_ids:
+			raise errors.Error('These loans either have their origination, maturity, or adjusted maturity date set. Please remove them from the advances process: {}'.format(
+				already_set_dates_loan_ids), details=err_details)
 
 		loans_sum = sum([float(loan.amount) for loan in loans])
 
@@ -260,4 +270,63 @@ def fund_loans_with_advance(
 				if funded_amount >= artifact.max_loan_amount():
 					artifact.funded_at = date_util.now()
 
-	return FundLoansRespDict(status='OK'), None
+	return FundLoansRespDict(
+		payment_id=payment_id,
+		status='OK'
+	), None
+
+DeleteAdvanceReqDict = TypedDict('DeleteAdvanceReqDict', {
+	'payment_id': str
+})
+
+@errors.return_error_tuple
+def delete_advance(
+	req: DeleteAdvanceReqDict,
+	user_id: str,
+	session_maker: Callable
+) -> Tuple[bool, errors.Error]:
+
+	with session_scope(session_maker) as session:
+		payment_id = req['payment_id']
+		success, err = payment_util.unsettle_payment(
+			payment_type=db_constants.PaymentType.ADVANCE,
+			payment_id=payment_id,
+			session=session
+		)
+		if err:
+			raise err
+
+		success, err = payment_util.delete_payment(
+				payment_type=db_constants.PaymentType.ADVANCE,
+				payment_id=payment_id,
+				session=session
+			)
+		if err:
+			raise err
+
+		transaction = cast(
+			models.Transaction,
+			session.query(models.Transaction).filter(
+				models.Transaction.payment_id == payment_id
+			).first())
+		if not transaction:
+			raise errors.Error('No settled payment found to delete')
+
+		if not transaction.loan_id:
+			raise errors.Error('No loan id associated with the settled payment')
+
+		loan = cast(
+			models.Loan,
+			session.query(models.Loan).filter(
+				models.Loan.id == transaction.loan_id).first())
+
+		if not loan:
+			raise errors.Error('Could not find loan associated with the payment being deleted')
+
+		loan.origination_date = None
+		loan.maturity_date = None
+		loan.adjusted_maturity_date = None
+		loan.funded_at = None
+		loan.funded_by_user_id = None
+
+	return True, None
