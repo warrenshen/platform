@@ -47,7 +47,7 @@ function BankFinancialSummariesDataGrid({ bankFinancialSummaries }: Props) {
       },
       {
         dataField: "total_outstanding_fees",
-        caption: "Accrued Fees",
+        caption: "Accrued Late Fees",
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell

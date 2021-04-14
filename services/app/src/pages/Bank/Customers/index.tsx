@@ -123,7 +123,7 @@ function BankCustomersPage() {
       },
       {
         dataField: "total_outstanding_fees",
-        caption: "Total Outstanding Fees",
+        caption: "Total Outstanding Late Fees",
         width: ColumnWidths.Currency,
         alignment: "right",
         calculateCellValue: (data: any) =>

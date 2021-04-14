@@ -135,7 +135,7 @@ function CustomerFinancialSummaryOverview({ financialSummary }: Props) {
                 : "TBD"}
             </Typography>
             <Typography variant="subtitle1" color="textSecondary">
-              Accrued Fees
+              Accrued Late Fees
             </Typography>
           </Box>
         </Box>

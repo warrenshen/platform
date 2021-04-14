@@ -87,7 +87,7 @@ function FinancialSummariesDataGrid({
       },
       {
         dataField: "total_outstanding_fees",
-        caption: "Outstanding Fees",
+        caption: "Outstanding Late Fees",
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (

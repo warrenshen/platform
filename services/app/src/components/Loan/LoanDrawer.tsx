@@ -265,7 +265,7 @@ function LoanDrawer({ loanId, handleClose }: Props) {
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
-              Outstanding Fees
+              Outstanding Late Fees
             </Typography>
             <Typography variant={"body1"}>
               {formatCurrency(loan.outstanding_fees)}

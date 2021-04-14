@@ -179,7 +179,7 @@ function AdjustmentForm({
       </Box>
       <Box mt={3}>
         <Typography variant="subtitle2">
-          How much do you want to adjust outstanding fees by?
+          How much do you want to adjust outstanding late fees by?
         </Typography>
         <Box mt={1}>
           <FormControl className={classes.inputField}>
