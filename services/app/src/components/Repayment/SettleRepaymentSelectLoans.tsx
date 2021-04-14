@@ -107,7 +107,7 @@ function SettleRepaymentSelectLoans({
         <Box display="flex" flexDirection="column">
           <Box mb={1}>
             <Typography variant="subtitle2">
-              Step 1: specify actual amount of this payment.
+              Specify actual amount of this payment.
             </Typography>
           </Box>
           <FormControl className={classes.inputField}>
@@ -122,8 +122,7 @@ function SettleRepaymentSelectLoans({
         </Box>
         <Box mt={4} mb={1}>
           <Typography variant="subtitle2">
-            Step 2: specify Deposit Date and Settlment Date (Settlement Date
-            will automatically change when Deposit Date changes).
+            Specify Deposit Date and Settlement Date.
           </Typography>
         </Box>
         <DatePicker

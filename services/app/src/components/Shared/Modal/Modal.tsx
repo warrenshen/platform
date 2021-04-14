@@ -98,6 +98,8 @@ const Buttons = styled.div`
 
 const StyledButton = styled(Button)`
   flex: 1;
+
+  padding: 8px 0px;
 `;
 
 const ButtonSpace = styled.div`
@@ -111,7 +113,7 @@ interface Props {
   subtitle?: string;
   contentWidth?: number;
   primaryActionText: string;
-  secondaryActionText?: string;
+  secondaryActionText?: string | null; // null = do not show secondary button.
   handleClose: () => void;
   handlePrimaryAction: () => void;
   handleSecondaryAction?: () => void;
@@ -162,16 +164,18 @@ export default function Modal({
           <Content $width={contentWidth}>
             <Buttons>
               {!!secondaryActionText && handleSecondaryAction && (
-                <StyledButton
-                  disabled={isSecondaryActionDisabled}
-                  onClick={handleSecondaryAction}
-                  variant={"outlined"}
-                  color={"default"}
-                >
-                  {secondaryActionText}
-                </StyledButton>
+                <>
+                  <StyledButton
+                    disabled={isSecondaryActionDisabled}
+                    onClick={handleSecondaryAction}
+                    variant={"outlined"}
+                    color={"default"}
+                  >
+                    {secondaryActionText}
+                  </StyledButton>
+                  <ButtonSpace />
+                </>
               )}
-              {!!secondaryActionText && <ButtonSpace />}
               <StyledButton
                 disabled={isPrimaryActionDisabled}
                 onClick={handlePrimaryAction}

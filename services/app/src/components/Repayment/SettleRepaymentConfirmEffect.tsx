@@ -1,11 +1,4 @@
-import {
-  Box,
-  createStyles,
-  FormControl,
-  makeStyles,
-  Theme,
-  Typography,
-} from "@material-ui/core";
+import { Box, FormControl, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import LoansBeforeAfterPaymentPreview from "components/Repayment/LoansBeforeAfterPaymentPreview";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
@@ -18,14 +11,6 @@ import {
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 import { LoanBeforeAfterPayment } from "lib/types";
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    inputField: {
-      width: 300,
-    },
-  })
-);
 
 interface Props {
   productType: ProductTypeEnum | null;
@@ -42,7 +27,7 @@ interface Props {
   setPayment: (payment: PaymentsInsertInput) => void;
 }
 
-function SettleRepaymentConfirmEffect({
+export default function SettleRepaymentConfirmEffect({
   productType,
   payableAmountPrincipal,
   payableAmountInterest,
@@ -52,15 +37,13 @@ function SettleRepaymentConfirmEffect({
   setLoanBeforeAfterPayment,
   setPayment,
 }: Props) {
-  const classes = useStyles();
-
   return (
     <Box>
       {productType === ProductTypeEnum.LineOfCredit ? (
-        <Box display="flex" flexDirection="column">
+        <Box display="flex" flexDirection="column" mt={4}>
           <Box mb={1}>
             <Typography variant="subtitle2">
-              Step 3: review / edit how payment will be applied to loan(s).
+              Review / edit how payment will be applied.
             </Typography>
           </Box>
           <Alert severity="info">
@@ -91,8 +74,8 @@ function SettleRepaymentConfirmEffect({
               {`Payment Amount: ${formatCurrency(payment.amount)}`}
             </Typography>
           </Box>
-          <Box mt={1}>
-            <FormControl className={classes.inputField}>
+          <Box display="flex" flexDirection="column" mt={1}>
+            <FormControl>
               <CurrencyInput
                 label={"Payment Amount to Principal"}
                 value={payment.items_covered.to_principal}
@@ -108,8 +91,8 @@ function SettleRepaymentConfirmEffect({
               />
             </FormControl>
           </Box>
-          <Box mt={1}>
-            <FormControl className={classes.inputField}>
+          <Box display="flex" flexDirection="column" mt={1}>
+            <FormControl>
               <CurrencyInput
                 label={"Payment Amount to Interest"}
                 value={payment.items_covered.to_interest}
@@ -127,10 +110,10 @@ function SettleRepaymentConfirmEffect({
           </Box>
         </Box>
       ) : (
-        <Box display="flex" flexDirection="column" mt={3}>
+        <Box display="flex" flexDirection="column" mt={4}>
           <Box mb={1}>
             <Typography variant="subtitle2">
-              Step 3: review / edit how payment will be applied to loan(s).
+              Review / edit how payment will be applied to loan(s).
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column">
@@ -147,8 +130,8 @@ function SettleRepaymentConfirmEffect({
           />
         </Box>
       )}
-      <Box mt={1}>
-        <FormControl className={classes.inputField}>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <FormControl>
           <CurrencyInput
             label={"Payment Amount to Holding Account"}
             value={payment.items_covered.to_user_credit}
@@ -167,5 +150,3 @@ function SettleRepaymentConfirmEffect({
     </Box>
   );
 }
-
-export default SettleRepaymentConfirmEffect;

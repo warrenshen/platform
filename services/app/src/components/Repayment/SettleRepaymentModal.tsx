@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import SettleRepaymentConfirmEffect from "components/Repayment/SettleRepaymentConfirmEffect";
 import SettleRepaymentSelectLoans from "components/Repayment/SettleRepaymentSelectLoans";
 import Modal from "components/Shared/Modal/Modal";
@@ -266,23 +266,14 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
         PaymentMethodToLabel[payment.method as PaymentMethodEnum]
       } Payment`}
       contentWidth={600}
-      primaryActionText={isOnSelectLoans ? "Next" : "Confirm"}
+      primaryActionText={isOnSelectLoans ? "Next step" : "Settle payment"}
+      secondaryActionText={!isOnSelectLoans ? "Back to step 1" : null}
       handleClose={handleClose}
       handlePrimaryAction={
         isOnSelectLoans ? handleClickNext : handleClickConfirm
       }
+      handleSecondaryAction={() => setIsOnSelectLoans(true)}
     >
-      {!isOnSelectLoans && (
-        <Box mb={2}>
-          <Button
-            variant="contained"
-            color="default"
-            onClick={() => setIsOnSelectLoans(true)}
-          >
-            Go Back
-          </Button>
-        </Box>
-      )}
       {isOnSelectLoans ? (
         <SettleRepaymentSelectLoans
           payment={payment}

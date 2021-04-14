@@ -173,7 +173,7 @@ def calculate_repayment_effect(
 			# TODO(warrenshen):
 			# Write a test to check that loans that do not have an origination date set
 			# (ex. rejected loans) are NOT fetched.
-			# Write a test to check that loans are fetch sorted by origination date.
+			# Write a test to check that loans are fetch sorted by [origination date, created at].
 			loans = cast(
 				List[models.Loan],
 				session.query(models.Loan).filter(
@@ -183,7 +183,8 @@ def calculate_repayment_effect(
 				).filter(
 					models.Loan.closed_at == None
 				).order_by(
-					models.Loan.origination_date.asc()
+					models.Loan.origination_date.asc(),
+					models.Loan.created_at.asc()
 				).all())
 		else:
 			if not loan_ids:
@@ -811,7 +812,8 @@ def settle_repayment(
 				).filter(
 					models.Loan.closed_at == None
 				).order_by(
-					models.Loan.origination_date.asc()
+					models.Loan.origination_date.asc(),
+					models.Loan.created_at.asc()
 				).all())
 
 			loan_ids = list(map(lambda loan: str(loan.id), loans))
@@ -1162,4 +1164,4 @@ def delete_repayment(
 		if err:
 			raise err
 
-	return True, None 
+	return True, None

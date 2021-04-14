@@ -4,6 +4,7 @@ import EbbaApplicationDrawerLauncher from "components/EbbaApplication/EbbaApplic
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
+import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
   GetOpenEbbaApplicationsQuery,
   RequestStatusEnum,
@@ -64,6 +65,9 @@ function EbbaApplicationsDataGrid({
         caption: "Application Date",
         width: ColumnWidths.Date,
         alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <DateDataGridCell dateString={params.row.data.application_date} />
+        ),
       },
       {
         dataField: "monthly_accounts_receivable",

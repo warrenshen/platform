@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import CreateRepaymentConfirmEffect from "components/Repayment/CreateRepaymentConfirmEffect";
 import CreateRepaymentSelectLoans from "components/Repayment/CreateRepaymentSelectLoans";
@@ -115,7 +115,7 @@ function CreateRepaymentModal({
       company_id: companyId,
       payment_option:
         productType === ProductTypeEnum.LineOfCredit
-          ? "pay_in_full"
+          ? "custom_amount"
           : paymentOption,
       // We use payment.requested_amount here since we want to calculate what is
       // the effect of this repayment assumption its amount is the requested amount.
@@ -182,7 +182,24 @@ function CreateRepaymentModal({
 
     const response = await createRepayment({
       company_id: companyId,
-      payment: { ...payment },
+      payment: {
+        company_id: payment.company_id,
+        type: payment.type,
+        requested_amount: payment.requested_amount,
+        method: payment.method,
+        requested_payment_date: payment.requested_payment_date,
+        settlement_date: payment.settlement_date,
+        items_covered: {
+          loan_ids: payment.items_covered.loan_ids,
+          requested_to_principal:
+            payment.items_covered.requested_to_principal || 0.0, // If user leaves this blank, coerce to zero.
+          requested_to_interest:
+            payment.items_covered.requestd_to_interest || 0.0, // If user leaves this blank, coerce to zero.
+          to_principal: payment.items_covered.to_principal,
+          to_interest: payment.items_covered.to_intereset,
+        },
+        company_bank_account_id: payment.company_bank_account_id,
+      },
       is_line_of_credit: productType === ProductTypeEnum.LineOfCredit,
     });
 
@@ -200,13 +217,15 @@ function CreateRepaymentModal({
     !payment.requested_payment_date ||
     !payment.settlement_date ||
     (productType !== ProductTypeEnum.LineOfCredit && !paymentOption) ||
-    (paymentOption === "custom" && !payment.requested_amount);
+    (paymentOption === "custom" && !payment.requested_amount) ||
+    (payment.method === PaymentMethodEnum.ReverseDraftACH &&
+      !payment.company_bank_account_id);
   const isActionButtonDisabled =
     !payment.method || payment.requested_amount <= 0;
   const actionBtnText =
     payment.method === PaymentMethodEnum.ReverseDraftACH
-      ? "Schedule"
-      : "Notify";
+      ? "Schedule payment"
+      : "Notify bank";
 
   return (
     <Modal
@@ -216,11 +235,13 @@ function CreateRepaymentModal({
       title={"Make Payment"}
       subtitle={isOnSelectLoans ? "Step 1 of 2" : "Step 2 of 2"}
       contentWidth={600}
-      primaryActionText={isOnSelectLoans ? "Next" : actionBtnText}
+      primaryActionText={isOnSelectLoans ? "Next step" : actionBtnText}
+      secondaryActionText={!isOnSelectLoans ? "Back to step 1" : null}
       handleClose={handleClose}
       handlePrimaryAction={
         isOnSelectLoans ? handleClickNext : handleClickConfirm
       }
+      handleSecondaryAction={() => setIsOnSelectLoans(true)}
     >
       <>
         {isBankUser && (
@@ -231,17 +252,6 @@ function CreateRepaymentModal({
                 (only bank admins can do this).
               </Typography>
             </Alert>
-          </Box>
-        )}
-        {!isOnSelectLoans && (
-          <Box mb={2}>
-            <Button
-              variant="contained"
-              color="default"
-              onClick={() => setIsOnSelectLoans(true)}
-            >
-              Back to Step 1
-            </Button>
           </Box>
         )}
         {isOnSelectLoans ? (

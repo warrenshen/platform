@@ -6,37 +6,25 @@ import {
   makeStyles,
   MenuItem,
   Select,
-  TextField,
   Theme,
   Typography,
 } from "@material-ui/core";
-import Autocomplete from "@material-ui/lab/Autocomplete";
-import LoansDataGrid from "components/Loans/LoansDataGrid";
+import CreateRepaymentDefaultSection from "components/Repayment/CreateRepaymentDefaultSection";
+import CreateRepaymentLineofCreditSection from "components/Repayment/CreateRepaymentLineofCreditSection";
 import ExpectedDatePreview from "components/Repayment/ExpectedDatePreview";
 import CompanyBank from "components/Shared/BankToBankTransfer/CompanyBank";
-import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import {
   BankAccounts,
   FinancialSummaryFragment,
-  LoanFragment,
-  LoanTypeEnum,
   PaymentsInsertInput,
   ProductTypeEnum,
-  useGetLoansByCompanyAndLoanTypeQuery,
 } from "generated/graphql";
-import { formatCurrency } from "lib/currency";
-import { formatDateString, todayAsDateStringClient } from "lib/date";
 import {
   AllPaymentMethods,
-  AllPaymentOptions,
   PaymentMethodEnum,
   PaymentMethodToLabel,
-  PaymentOptionToLabel,
-  ProductTypeToLoanType,
 } from "lib/enum";
-import { createLoanCustomerIdentifier } from "lib/loans";
-import { useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -67,168 +55,26 @@ function CreateRepaymentSelectLoans({
   setPaymentOption,
 }: Props) {
   const classes = useStyles();
+
   const isReverseDraftACH =
     payment.method === PaymentMethodEnum.ReverseDraftACH;
-
-  const [autocompleteInputValue, setAutocompleteInputValue] = useState("");
-
-  const loanType =
-    !!productType && productType in ProductTypeToLoanType
-      ? ProductTypeToLoanType[productType]
-      : null;
-
-  const { data } = useGetLoansByCompanyAndLoanTypeQuery({
-    skip: !payment || !loanType,
-    fetchPolicy: "network-only",
-    variables: {
-      companyId: payment?.company_id || "",
-      loanType: loanType || LoanTypeEnum.PurchaseOrder,
-    },
-  });
-  const selectedLoans = useMemo(
-    () =>
-      data?.loans.filter(
-        (loan) => payment.items_covered.loan_ids.indexOf(loan.id) >= 0
-      ) || [],
-    [data?.loans, payment.items_covered.loan_ids]
-  );
-  const notSelectedLoans = useMemo(
-    () =>
-      data?.loans.filter(
-        (loan) =>
-          !loan.closed_at && payment.items_covered.loan_ids.indexOf(loan.id) < 0
-      ) || [],
-    [data?.loans, payment.items_covered.loan_ids]
-  );
 
   return (
     <Box>
       {productType === ProductTypeEnum.LineOfCredit ? (
-        <Box display="flex" flexDirection="column">
-          <Box>
-            <Typography variant="body1">
-              {`As of today, ${todayAsDateStringClient()}, your outstanding principal and interest are:`}
-            </Typography>
-          </Box>
-          <Box mt={1}>
-            <Typography variant="body1">
-              {`Outstanding Principal: ${
-                financialSummary
-                  ? formatCurrency(financialSummary.total_outstanding_principal)
-                  : "Loading..."
-              }`}
-            </Typography>
-          </Box>
-          <Box mt={1}>
-            <Typography variant="body1">
-              {`Outstanding Interest: ${
-                financialSummary
-                  ? formatCurrency(financialSummary.total_outstanding_interest)
-                  : "Loading..."
-              }`}
-            </Typography>
-          </Box>
-        </Box>
+        <CreateRepaymentLineofCreditSection
+          financialSummary={financialSummary}
+          payment={payment}
+          setPayment={setPayment}
+        />
       ) : (
-        <Box display="flex" flexDirection="column">
-          <Typography variant="body2">
-            Which loan(s) would you like to pay for?
-          </Typography>
-          <LoansDataGrid
-            isDaysPastDueVisible
-            isMaturityVisible
-            isSortingDisabled
-            loans={selectedLoans}
-          />
-          <Box display="flex" flexDirection="row" mt={4}>
-            <FormControl className={classes.loanInputField}>
-              <Autocomplete
-                autoHighlight
-                id="combo-box-demo"
-                style={{ width: "100%" }}
-                options={notSelectedLoans}
-                getOptionLabel={(loan) =>
-                  `${createLoanCustomerIdentifier(
-                    loan
-                  )} | Amount: ${formatCurrency(
-                    loan.amount
-                  )} | Origination Date: ${formatDateString(
-                    loan.origination_date
-                  )}`
-                }
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Add another loan"
-                    variant="outlined"
-                  />
-                )}
-                inputValue={autocompleteInputValue}
-                value={null}
-                onInputChange={(_event, value: string) =>
-                  setAutocompleteInputValue(value)
-                }
-                onChange={(_event, value: LoanFragment | null) => {
-                  if (value) {
-                    setPayment({
-                      ...payment,
-                      items_covered: {
-                        ...payment.items_covered,
-                        loan_ids: [...payment.items_covered.loan_ids, value.id],
-                      },
-                    });
-                    setAutocompleteInputValue("");
-                  }
-                }}
-              />
-            </FormControl>
-          </Box>
-        </Box>
-      )}
-      {productType !== ProductTypeEnum.LineOfCredit && (
-        <>
-          <Box mt={4}>
-            <Typography variant="subtitle2">
-              How much would you like to pay?
-            </Typography>
-            <Box mt={1}>
-              <FormControl className={classes.inputField}>
-                <InputLabel id="select-payment-option-label">
-                  Payment Option
-                </InputLabel>
-                <Select
-                  id="select-payment-option"
-                  labelId="select-payment-option-label"
-                  value={paymentOption}
-                  onChange={({ target: { value } }) =>
-                    setPaymentOption(value as string)
-                  }
-                >
-                  {AllPaymentOptions.map((paymentOption) => {
-                    return (
-                      <MenuItem key={paymentOption} value={paymentOption}>
-                        {PaymentOptionToLabel[paymentOption]}
-                      </MenuItem>
-                    );
-                  })}
-                </Select>
-              </FormControl>
-            </Box>
-            {paymentOption === "custom_amount" && (
-              <Box mt={2}>
-                <FormControl className={classes.inputField}>
-                  <CurrencyInput
-                    label={"Amount"}
-                    value={payment.amount}
-                    handleChange={(value) => {
-                      setPayment({ ...payment, requested_amount: value });
-                    }}
-                  />
-                </FormControl>
-              </Box>
-            )}
-          </Box>
-        </>
+        <CreateRepaymentDefaultSection
+          productType={productType}
+          payment={payment}
+          paymentOption={paymentOption}
+          setPayment={setPayment}
+          setPaymentOption={setPaymentOption}
+        />
       )}
       <Box mt={4}>
         <Typography variant="subtitle2">
@@ -310,14 +156,14 @@ function CreateRepaymentSelectLoans({
         </>
       )}
       {payment.method === PaymentMethodEnum.ReverseDraftACH && (
-        <Box>
-          <Box mt={4}>
+        <Box mt={4}>
+          <Box>
             <Typography variant="subtitle2">
               Which bank account would you like the payment to be withdrawn
               from?
             </Typography>
           </Box>
-          <Box mt={1}>
+          <Box mt={2}>
             <CompanyBank
               companyId={payment.company_id}
               payment={payment}

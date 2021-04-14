@@ -1,15 +1,7 @@
-import {
-  Box,
-  createStyles,
-  FormControl,
-  makeStyles,
-  Theme,
-  Typography,
-} from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import LoansBeforeAfterPaymentPreview from "components/Repayment/LoansBeforeAfterPaymentPreview";
-import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import {
   Companies,
   PaymentsInsertInput,
@@ -17,17 +9,9 @@ import {
   useBankAccountsForTransferQuery,
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
-import { formatDateString } from "lib/date";
 import { PaymentMethodEnum } from "lib/enum";
 import { LoanBeforeAfterPayment } from "lib/types";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    inputField: {
-      width: 300,
-    },
-  })
-);
 interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum | null;
@@ -47,8 +31,6 @@ function CreateRepaymentConfirmEffect({
   payment,
   setPayment,
 }: Props) {
-  const classes = useStyles();
-
   const { data } = useBankAccountsForTransferQuery({
     fetchPolicy: "network-only",
     variables: {
@@ -60,9 +42,17 @@ function CreateRepaymentConfirmEffect({
 
   return (
     <Box>
+      <Box>
+        <Typography variant={"body1"}>Review payment</Typography>
+      </Box>
+      <Box>
+        <Typography variant={"body2"}>
+          Confirm payment details are all correct.
+        </Typography>
+      </Box>
       {productType === ProductTypeEnum.LineOfCredit ? (
         <Box>
-          <Alert severity="info">
+          {/* <Alert severity="info">
             <Box display="flex" flexDirection="column">
               <Typography variant="body1">
                 {`As of the settlement date, ${formatDateString(
@@ -132,7 +122,7 @@ function CreateRepaymentConfirmEffect({
                 />
               </FormControl>
             </Box>
-          </Box>
+          </Box> */}
           <Box mt={3}>
             <Typography variant="body1">
               {`Calculated Payment Amount: ${formatCurrency(
@@ -143,29 +133,19 @@ function CreateRepaymentConfirmEffect({
           </Box>
         </Box>
       ) : (
-        <>
-          <Box>
-            <Typography>
-              Step 2 of 2: Review expected effect of payment, in the form of
-              balances of loans before vs balances of loans after payment,
-              specify payment information, and submit payment.
-            </Typography>
-          </Box>
-          <Box mt={2}>
-            <LoansBeforeAfterPaymentPreview
-              isSettlePayment={false}
-              loansBeforeAfterPayment={loansBeforeAfterPayment}
-            />
-          </Box>
-        </>
+        <Box mt={2}>
+          <LoansBeforeAfterPaymentPreview
+            isSettlePayment={false}
+            loansBeforeAfterPayment={loansBeforeAfterPayment}
+          />
+        </Box>
       )}
-      <Box mt={2}>
-        {payment.requested_amount <= 0 && (
+      <Box mt={4}>
+        {payment.requested_amount <= 0 ? (
           <Box>No amount is currently due. No further action is required</Box>
-        )}
-        {payment.requested_amount > 0 && (
+        ) : (
           <Box>
-            <Box>Important payment instructions</Box>
+            <Typography variant="h6">Important payment instructions</Typography>
             {[PaymentMethodEnum.ACH, PaymentMethodEnum.Wire].includes(
               payment.method as PaymentMethodEnum
             ) && (

@@ -136,9 +136,9 @@ function PaymentAdvanceForm({
             control={
               <Checkbox
                 checked={shouldChargeWireFee}
-                onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                  setShouldChargeWireFee(event.target.checked);
-                }}
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  setShouldChargeWireFee(event.target.checked)
+                }
                 color="primary"
               />
             }
