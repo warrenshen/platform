@@ -1,6 +1,7 @@
 import {
   Box,
   Checkbox,
+  Divider,
   FormControl,
   FormControlLabel,
   Typography,
@@ -58,9 +59,12 @@ export default function CreateRepaymentLineofCreditSection({
           </Box>
         </Box>
       </Box>
-      <Box mt={4}>
+      <Box my={4}>
+        <Divider light />
+      </Box>
+      <Box>
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="body1">Payment amount</Typography>
+          <Typography variant="body1">Specify payment amount</Typography>
           <FormControlLabel
             control={
               <Checkbox

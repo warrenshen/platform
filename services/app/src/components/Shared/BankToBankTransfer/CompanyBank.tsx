@@ -40,8 +40,8 @@ function CompanyBank({
   );
 
   return (
-    <Box>
-      <FormControl fullWidth style={{ width: 200 }}>
+    <Box display="flex" flexDirection="column">
+      <FormControl>
         <InputLabel id="select-bank-account-label">Bank Account</InputLabel>
         <Select
           id="select-bank-account"
@@ -62,7 +62,7 @@ function CompanyBank({
         </Select>
       </FormControl>
       {companyBankAccount && (
-        <Box mt={1} width="fit-content">
+        <Box mt={2} width="fit-content">
           <BankAccountInfoCard bankAccount={companyBankAccount} />
         </Box>
       )}

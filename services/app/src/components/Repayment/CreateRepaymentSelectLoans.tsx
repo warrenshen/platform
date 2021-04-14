@@ -1,12 +1,10 @@
 import {
   Box,
-  createStyles,
+  Divider,
   FormControl,
   InputLabel,
-  makeStyles,
   MenuItem,
   Select,
-  Theme,
   Typography,
 } from "@material-ui/core";
 import CreateRepaymentDefaultSection from "components/Repayment/CreateRepaymentDefaultSection";
@@ -26,17 +24,6 @@ import {
   PaymentMethodToLabel,
 } from "lib/enum";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    inputField: {
-      width: 300,
-    },
-    loanInputField: {
-      width: "100%",
-    },
-  })
-);
-
 interface Props {
   productType: ProductTypeEnum | null;
   financialSummary: FinancialSummaryFragment | null;
@@ -54,8 +41,6 @@ function CreateRepaymentSelectLoans({
   setPayment,
   setPaymentOption,
 }: Props) {
-  const classes = useStyles();
-
   const isReverseDraftACH =
     payment.method === PaymentMethodEnum.ReverseDraftACH;
 
@@ -76,12 +61,15 @@ function CreateRepaymentSelectLoans({
           setPaymentOption={setPaymentOption}
         />
       )}
-      <Box mt={4}>
+      <Box my={6}>
+        <Divider light />
+      </Box>
+      <Box>
         <Typography variant="subtitle2">
           Which payment method do you plan to pay with?
         </Typography>
-        <Box mt={1}>
-          <FormControl className={classes.inputField}>
+        <Box display="flex" flexDirection="column" mt={1}>
+          <FormControl>
             <InputLabel id="select-payment-method-label">
               Payment Method
             </InputLabel>
@@ -117,9 +105,8 @@ function CreateRepaymentSelectLoans({
                 ? "On which date would you like the payment to be withdrawn from your bank account?"
                 : "On which date will the payment arrive to the Bespoke bank account?"}
             </Typography>
-            <Box mt={1}>
+            <Box display="flex" flexDirection="column" mt={1}>
               <DatePicker
-                className={classes.inputField}
                 id="payment-modal-payment-date-date-picker"
                 label={
                   isReverseDraftACH ? "Requested Withdraw Date" : "Deposit Date"
@@ -163,7 +150,7 @@ function CreateRepaymentSelectLoans({
               from?
             </Typography>
           </Box>
-          <Box mt={2}>
+          <Box mt={1}>
             <CompanyBank
               companyId={payment.company_id}
               payment={payment}

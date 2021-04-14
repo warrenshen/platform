@@ -275,7 +275,6 @@ function CreateRepaymentModal({
             }
             payment={payment}
             loansBeforeAfterPayment={loansBeforeAfterPayment}
-            setPayment={setPayment}
           />
         )}
         {errMsg && (
