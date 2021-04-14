@@ -226,7 +226,9 @@ function LoanDrawer({ loanId, handleClose }: Props) {
               Requested Payment Date
             </Typography>
             <Typography variant={"body1"}>
-              {formatDateString(loan.requested_payment_date)}
+              {loan.requested_payment_date
+                ? formatDateString(loan.requested_payment_date)
+                : "-"}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
