@@ -14,7 +14,8 @@ from sqlalchemy.orm.session import Session
 
 def import_funded_purchase_orders(
 	session: Session,
-	purchase_order_tuples: List[List[str]]) -> None:
+	purchase_order_tuples: List[List[str]],
+) -> None:
 	purchase_orders_count = len(purchase_order_tuples)
 	print(f'Creating {purchase_orders_count} purchase orders...')
 
