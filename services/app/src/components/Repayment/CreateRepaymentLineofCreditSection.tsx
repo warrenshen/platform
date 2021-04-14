@@ -59,7 +59,7 @@ export default function CreateRepaymentLineofCreditSection({
           </Box>
         </Box>
       </Box>
-      <Box my={4}>
+      <Box my={6}>
         <Divider light />
       </Box>
       <Box>

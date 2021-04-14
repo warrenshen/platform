@@ -1,5 +1,6 @@
 import {
   Box,
+  Divider,
   FormControl,
   InputLabel,
   MenuItem,
@@ -75,55 +76,64 @@ export default function CreateRepaymentDefaultSection({
 
   return (
     <Box display="flex" flexDirection="column">
-      <Typography variant="body2">
-        Which loan(s) would you like to pay for?
-      </Typography>
-      <LoansDataGrid
-        isDaysPastDueVisible
-        isMaturityVisible
-        isSortingDisabled
-        loans={selectedLoans}
-      />
-      <Box display="flex" flexDirection="column" mt={4}>
-        <FormControl>
-          <Autocomplete
-            autoHighlight
-            id="combo-box-demo"
-            style={{ width: "100%" }}
-            options={notSelectedLoans}
-            getOptionLabel={(loan) =>
-              `${createLoanCustomerIdentifier(loan)} | Amount: ${formatCurrency(
-                loan.amount
-              )} | Origination Date: ${formatDateString(loan.origination_date)}`
-            }
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Add another loan"
-                variant="outlined"
-              />
-            )}
-            inputValue={autocompleteInputValue}
-            value={null}
-            onInputChange={(_event, value: string) =>
-              setAutocompleteInputValue(value)
-            }
-            onChange={(_event, value: LoanFragment | null) => {
-              if (value) {
-                setPayment({
-                  ...payment,
-                  items_covered: {
-                    ...payment.items_covered,
-                    loan_ids: [...payment.items_covered.loan_ids, value.id],
-                  },
-                });
-                setAutocompleteInputValue("");
+      <Box>
+        <Typography variant="body2">
+          Which loan(s) would you like to pay for?
+        </Typography>
+        <LoansDataGrid
+          isDaysPastDueVisible
+          isMaturityVisible
+          isSortingDisabled
+          loans={selectedLoans}
+        />
+        <Box display="flex" flexDirection="column" mt={4}>
+          <FormControl>
+            <Autocomplete
+              autoHighlight
+              id="combo-box-demo"
+              style={{ width: "100%" }}
+              options={notSelectedLoans}
+              getOptionLabel={(loan) =>
+                `${createLoanCustomerIdentifier(
+                  loan
+                )} | Amount: ${formatCurrency(
+                  loan.amount
+                )} | Origination Date: ${formatDateString(
+                  loan.origination_date
+                )}`
               }
-            }}
-          />
-        </FormControl>
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Add another loan"
+                  variant="outlined"
+                />
+              )}
+              inputValue={autocompleteInputValue}
+              value={null}
+              onInputChange={(_event, value: string) =>
+                setAutocompleteInputValue(value)
+              }
+              onChange={(_event, value: LoanFragment | null) => {
+                if (value) {
+                  setPayment({
+                    ...payment,
+                    items_covered: {
+                      ...payment.items_covered,
+                      loan_ids: [...payment.items_covered.loan_ids, value.id],
+                    },
+                  });
+                  setAutocompleteInputValue("");
+                }
+              }}
+            />
+          </FormControl>
+        </Box>
       </Box>
-      <Box mt={4}>
+      <Box my={6}>
+        <Divider light />
+      </Box>
+      <Box>
         <Typography variant="subtitle2">
           How much would you like to pay?
         </Typography>
@@ -140,22 +150,20 @@ export default function CreateRepaymentDefaultSection({
                 setPaymentOption(value as string)
               }
             >
-              {AllPaymentOptions.map((paymentOption) => {
-                return (
-                  <MenuItem key={paymentOption} value={paymentOption}>
-                    {PaymentOptionToLabel[paymentOption]}
-                  </MenuItem>
-                );
-              })}
+              {AllPaymentOptions.map((paymentOption) => (
+                <MenuItem key={paymentOption} value={paymentOption}>
+                  {PaymentOptionToLabel[paymentOption]}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
         </Box>
         {paymentOption === "custom_amount" && (
-          <Box display="flex" flexDirection="column" mt={2}>
+          <Box display="flex" flexDirection="column" mt={4}>
             <FormControl>
               <CurrencyInput
                 label={"Amount"}
-                value={payment.amount}
+                value={payment.requested_amount}
                 handleChange={(value) => {
                   setPayment({ ...payment, requested_amount: value });
                 }}

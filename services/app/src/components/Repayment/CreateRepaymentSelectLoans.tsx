@@ -46,21 +46,23 @@ function CreateRepaymentSelectLoans({
 
   return (
     <Box>
-      {productType === ProductTypeEnum.LineOfCredit ? (
-        <CreateRepaymentLineofCreditSection
-          financialSummary={financialSummary}
-          payment={payment}
-          setPayment={setPayment}
-        />
-      ) : (
-        <CreateRepaymentDefaultSection
-          productType={productType}
-          payment={payment}
-          paymentOption={paymentOption}
-          setPayment={setPayment}
-          setPaymentOption={setPaymentOption}
-        />
-      )}
+      <Box>
+        {productType === ProductTypeEnum.LineOfCredit ? (
+          <CreateRepaymentLineofCreditSection
+            financialSummary={financialSummary}
+            payment={payment}
+            setPayment={setPayment}
+          />
+        ) : (
+          <CreateRepaymentDefaultSection
+            productType={productType}
+            payment={payment}
+            paymentOption={paymentOption}
+            setPayment={setPayment}
+            setPaymentOption={setPaymentOption}
+          />
+        )}
+      </Box>
       <Box my={6}>
         <Divider light />
       </Box>

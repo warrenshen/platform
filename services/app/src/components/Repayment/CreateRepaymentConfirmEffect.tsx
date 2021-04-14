@@ -97,7 +97,7 @@ function CreateRepaymentConfirmEffect({
           Confirm payment details are all correct.
         </Typography>
       </Box>
-      <Box my={4}>
+      <Box my={6}>
         <Divider light />
       </Box>
       <Box>
@@ -130,7 +130,7 @@ function CreateRepaymentConfirmEffect({
           />
         )}
       </Box>
-      <Box my={4}>
+      <Box my={6}>
         <Divider light />
       </Box>
       <Box>
