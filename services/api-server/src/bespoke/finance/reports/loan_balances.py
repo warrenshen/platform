@@ -131,13 +131,22 @@ def _get_cur_minimum_fees(contract_helper: contract_util.ContractHelper, today: 
 			duration=None
 		), None
 
+	contract_start_date, err = cur_contract.get_start_date()
+	if err:
+		return None, err
 
 	duration = minimum_owed_dict['duration']
 	amount_accrued, err = fee_accumulator.get_amount_accrued_by_duration(duration, today)
 	if err:
 		return None, err
 
-	minimum_due = minimum_owed_dict['amount']
+	# TODO(dlluncor): Incorporate this once get_prorated_fee_info is ready to go
+	#prorated_info = loan_calculator.get_prorated_fee_info(duration, contract_start_date, today)
+	prorated_fraction = 1 #prorated_info['fraction']
+
+	# Use a fraction to determine how much we pro-rate this fee.
+	minimum_due = minimum_owed_dict['amount'] * prorated_fraction
+
 	amount_short = max(0, minimum_due - amount_accrued)
 
 	cur_month_fees = FeeDict(

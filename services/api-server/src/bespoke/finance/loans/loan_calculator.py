@@ -7,6 +7,7 @@ import datetime
 import logging
 from collections import OrderedDict
 from datetime import timedelta
+from calendar import monthrange
 from typing import Dict, List, NamedTuple, Tuple
 
 from bespoke import errors
@@ -169,6 +170,141 @@ _MONTH_TO_QUARTER = {
 	12: 4
 }
 
+_QUARTER_TO_START_MONTH = {
+	1: 1,
+	2: 4,
+	3: 7,
+	4: 10
+}
+
+_QUARTER_TO_LAST_MONTH = {
+	1: 3,
+	2: 6,
+	3: 9,
+	4: 12
+}
+
+def _get_quarter(month: int) -> int:
+	return _MONTH_TO_QUARTER[month]
+
+def _get_start_month(quarter: int) -> int:
+	return _QUARTER_TO_START_MONTH[quarter]
+
+def _get_last_month(quarter: int) -> int:
+	return _QUARTER_TO_LAST_MONTH[quarter]
+
+def _num_days_in_month(day: datetime.date) -> int:
+	return monthrange(day.year, day.month)[1]
+
+def _get_num_days_into_quarter(day: datetime.date) -> int:
+	# Return how many days into the quarter this date is, e.g.,
+	# if the quarter starts on 1/1/2020 and day is 1/20/2020, then
+	# it returns 20, since it's 20 days into the quarter
+	start_month = _get_start_month(quarter=_get_quarter(day.month))
+	start_of_quarter_day = datetime.date(year=day.year, month=start_month, day=1)
+
+	return (day - start_of_quarter_day).days + 1
+
+class QuarterHelper(object):
+	"""
+		A class to help manage dealing with quarters of the year.
+	"""
+	def __init__(self, today: datetime.date) -> None:
+		# Our reference point that anchors ourselves to a particular quarter.
+		self.today = today
+		self._todays_quarter = _get_quarter(month=self.today.month)
+
+	def get_num_days_in_quarter(self) -> int:
+		# Get the number of days in this quarter that "today" belongs to.
+		start_month = _get_start_month(quarter=self._todays_quarter)
+		total_num_days = 0
+
+		for i in range(3):
+			# Sum up the number of days in the 3 months that span this quarter.
+			cur_month = start_month + i
+			cur_date = datetime.date(self.today.year, cur_month, 1) # First of the month
+			num_days_this_month = _num_days_in_month(cur_date)
+			total_num_days += num_days_this_month
+
+		return total_num_days
+
+	def has_overlap(self, day: datetime.date) -> bool:
+		# Does this day exist in the same quarter as "today"?
+
+		if self.today.year != day.year:
+			return False
+
+		if self._todays_quarter != _get_quarter(day.month):
+			return False
+
+		return True
+
+	def get_last_day(self) -> datetime.date:
+		# Returns the last day of the quarter.
+		last_month = _get_last_month(quarter=self._todays_quarter)
+		days_in_last_month = _num_days_in_month(datetime.date(self.today.year, last_month, 1))
+		return datetime.date(self.today.year, last_month, days_in_last_month)
+
+
+
+ProratedFeeInfoDict = TypedDict('ProratedFeeInfoDict', {
+	'numerator': int,
+	'denom': int,
+	'fraction': float,
+	'day_to_pay': datetime.date
+})
+
+def get_prorated_fee_info(duration: str, contract_start_date: datetime.date, today: datetime.date) -> ProratedFeeInfoDict:
+	start = contract_start_date 
+
+	if duration == contract_util.MinimumAmountDuration.MONTHLY:
+
+		num_days_in_month = _num_days_in_month(today)
+		last_day_of_month = datetime.date(today.year, today.month, num_days_in_month)
+		numerator = None
+
+		if start.year == today.year and start.month == today.month:
+			# If we are in the same month the contract started, then we have to consider
+			# pro-rating the fee
+			numerator = num_days_in_month - start.day + 1 # number of days you had the contract this month
+		else:
+			# No pro-rating is needed
+			numerator = num_days_in_month
+			
+		return ProratedFeeInfoDict(
+			numerator=numerator,
+			denom=num_days_in_month,
+			fraction=numerator / num_days_in_month,
+			day_to_pay=last_day_of_month
+		)
+	elif duration == contract_util.MinimumAmountDuration.QUARTERLY:
+		quarter_helper = QuarterHelper(today)
+		num_days_in_quarter = quarter_helper.get_num_days_in_quarter()
+
+		if quarter_helper.has_overlap(contract_start_date):
+			numerator = num_days_in_quarter - _get_num_days_into_quarter(start) + 1
+		else:
+			# No pro-rating is needed
+			numerator = num_days_in_quarter
+		
+		return ProratedFeeInfoDict(
+			numerator=numerator,
+			denom=num_days_in_quarter,
+			fraction=numerator / num_days_in_quarter,
+			day_to_pay=quarter_helper.get_last_day()
+		)
+	elif duration == contract_util.MinimumAmountDuration.ANNUALLY:
+		# You dont pro-rate the annual fee, and you only book it at the end
+		# of the 1 year anniversary.
+		return ProratedFeeInfoDict(
+			numerator=365,
+			denom=365,
+			fraction=1,
+			day_to_pay=datetime.date(start.year + 1, start.month, start.day)
+		)
+	else:
+		raise errors.Error('Invalid duration provided {}'.format(duration))
+
 class FeeAccumulator(object):
 	"""
 		Helps keep track of how many fees have been paid over a particular period of time.
@@ -183,7 +319,7 @@ class FeeAccumulator(object):
 		cur_date = start_date
 
 		while cur_date <= end_date:
-			self.accumulate(0.0, cur_date)
+			self.accumulate(start_date, end_date, 0.0, cur_date)
 			cur_date = start_date + timedelta(days=30)
 
 	def get_amount_accrued_by_duration(self, duration: str, day: datetime.date) -> Tuple[float, errors.Error]:
@@ -197,7 +333,7 @@ class FeeAccumulator(object):
 			return self._month_to_amounts[month]['interest_amount'], None
 
 		elif duration == contract_util.MinimumAmountDuration.QUARTERLY:
-			quarter = finance_types.Quarter(quarter=_MONTH_TO_QUARTER[day.month], year=day.year)
+			quarter = finance_types.Quarter(quarter=_get_quarter(month=day.month), year=day.year)
 
 			if quarter not in self._quarter_to_amounts:
 				return None, errors.Error('{} is missing the minimum fees quarter amount'.format(quarter))
@@ -205,6 +341,7 @@ class FeeAccumulator(object):
 			return self._quarter_to_amounts[quarter]['interest_amount'], None
 
 		elif duration == contract_util.MinimumAmountDuration.ANNUALLY:
+			# TODO(dlluncor): Accumulate within a year of the contract start date
 			year = finance_types.Year(year=day.year)
 
 			if year not in self._year_to_amounts:
@@ -215,7 +352,17 @@ class FeeAccumulator(object):
 
 		return None, errors.Error('Invalid duration provided to accrue interest: "{}"'.format(duration))
 
-	def accumulate(self, interest_for_day: float, day: datetime.date) -> None:
+	def accumulate(self, 
+		todays_contract_start_date: datetime.date, 
+		todays_contract_end_date: datetime.date,
+		interest_for_day: float, 
+		day: datetime.date
+	) -> None:
+		if day < todays_contract_start_date or day > todays_contract_end_date:
+			# Dont count these fees towards their accumulated total if it happened outside
+			# of the contract in-place when this report is generated.
+			return
+
 		# Month accumulation
 		month = finance_types.Month(month=day.month, year=day.year)
 		if month not in self._month_to_amounts:
@@ -331,6 +478,17 @@ class LoanCalculator(object):
 		has_been_funded = False
 
 		errors_list = []
+		todays_contract, err = self._contract_helper.get_contract(today)
+		if err:
+			return None, [err]
+
+		todays_contract_start_date, err = todays_contract.get_start_date()
+		if err:
+			return None, [err]
+
+		todays_contract_end_date, err = todays_contract.get_adjusted_end_date()
+		if err:
+			return None, [err]
 
 		# TODO(dlluncor): Error condition, the loan's origination_date is set, but there is no corresponding
 		# advance associated with this loan.
@@ -364,6 +522,11 @@ class LoanCalculator(object):
 
 			# Interest
 			cur_interest_rate, err = cur_contract.get_interest_rate()
+			if err:
+				errors_list.append(err)
+				continue
+
+			cur_contract_start_date, err = cur_contract.get_start_date()
 			if err:
 				errors_list.append(err)
 				continue
@@ -419,7 +582,11 @@ class LoanCalculator(object):
 				interest_accrued_today = interest_due_for_day
 
 			self._fee_accumulator.accumulate(
-				interest_for_day=interest_due_for_day, day=cur_date)
+				todays_contract_start_date=todays_contract_start_date,
+				todays_contract_end_date=todays_contract_end_date, 
+				interest_for_day=interest_due_for_day, 
+				day=cur_date
+			)
 
 			# Apply repayment transactions at the "end of the day"
 			self._note_today(

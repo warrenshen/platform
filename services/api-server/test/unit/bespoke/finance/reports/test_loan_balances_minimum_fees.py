@@ -2,6 +2,7 @@ import datetime
 import decimal
 import json
 import uuid
+import unittest
 from typing import Any, Callable, Dict, List, cast
 
 from bespoke.date import date_util
@@ -11,6 +12,7 @@ from bespoke.db.models import session_scope
 from bespoke.finance.payments import payment_util
 from bespoke.finance.reports import loan_balances
 from bespoke.finance.loans import loan_calculator
+from bespoke.finance.loans.loan_calculator import ProratedFeeInfoDict
 from bespoke.finance import contract_util
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
@@ -75,6 +77,86 @@ class TestMinimumFees(db_unittest.TestCase):
 				amount_accrued=0.0,
 				amount_short=0.0,
 				duration=None
+			)
+		}
+		self._run_test(test)
+
+class TestGetProratedFeeInfo(unittest.TestCase):
+
+	def _run_test(self, test: Dict) -> None:
+		fee_info = loan_calculator.get_prorated_fee_info(
+			duration=test['duration'],
+			contract_start_date=date_util.load_date_str(test['contract_start_date']),
+			today=date_util.load_date_str(test['today'])
+		)
+		test_helper.assertDeepAlmostEqual(self, test['expected_fee_info'], cast(Dict, fee_info))
+
+	def test_yearly(self) -> None:
+		test: Dict = {
+			'duration': contract_util.MinimumAmountDuration.ANNUALLY,
+			'contract_start_date': '01/10/2020',
+			'today': '10/20/2020', # doesnt play a factor in the yearly calculation
+			'expected_fee_info': ProratedFeeInfoDict(
+				numerator=365,
+				denom=365,
+				fraction=1,
+				day_to_pay=date_util.load_date_str('01/10/2021')
+			)
+		}
+		self._run_test(test)
+
+	def test_monthly_not_prorated(self) -> None:
+		test: Dict = {
+			'duration': contract_util.MinimumAmountDuration.MONTHLY,
+			'contract_start_date': '01/10/2020',
+			'today': '2/20/2020', # doesnt play a factor in the yearly calculation
+			'expected_fee_info': ProratedFeeInfoDict(
+				numerator=29,
+				denom=29,
+				fraction=1,
+				day_to_pay=date_util.load_date_str('02/29/2020')
+			)
+		}
+		self._run_test(test)
+
+	def test_monthly_prorated(self) -> None:
+		test: Dict = {
+			'duration': contract_util.MinimumAmountDuration.MONTHLY,
+			'contract_start_date': '02/10/2021',
+			'today': '2/20/2021', # doesnt play a factor in the yearly calculation
+			'expected_fee_info': ProratedFeeInfoDict(
+				numerator=19, # 28 days - 9 days before the contract took effect
+				denom=28,
+				fraction=19 / 28,
+				day_to_pay=date_util.load_date_str('02/28/2021')
+			)
+		}
+		self._run_test(test)
+
+	def test_monthly_prorated_first_day_of_month(self) -> None:
+		test: Dict = {
+			'duration': contract_util.MinimumAmountDuration.MONTHLY,
+			'contract_start_date': '02/01/2021',
+			'today': '2/20/2021', # doesnt play a factor in the yearly calculation
+			'expected_fee_info': ProratedFeeInfoDict(
+				numerator=28, # Still need to pay everything this month
+				denom=28,
+				fraction=1,
+				day_to_pay=date_util.load_date_str('02/28/2021')
+			)
+		}
+		self._run_test(test)
+
+	def test_quarterly_not_prorated(self) -> None:
+		test: Dict = {
+			'duration': contract_util.MinimumAmountDuration.QUARTERLY,
+			'contract_start_date': '05/10/2020',
+			'today': '12/20/2020', # Use today's quarter when not pro-rating
+			'expected_fee_info': ProratedFeeInfoDict(
+				numerator=31 + 30 + 31, # sum of the number of days in the quarter
+				denom=31 + 30 + 31,
+				fraction=1,
+				day_to_pay=date_util.load_date_str('12/31/2020')
 			)
 		}
 		self._run_test(test)
