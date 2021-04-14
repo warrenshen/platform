@@ -48,6 +48,7 @@ class Actions(object):
 	LOANS_UNDO_REPAYMENT = 'loans_undo_repayment'
 	LOANS_DELETE_REPAYMENT = 'loans_delete_repayment'
 	LOANS_DELETE_ADVANCE = 'loans_delete_advance'
+	LOANS_DELETE_LOAN = 'loans_delete_loan'
 
 	COMPANY_BALANCE_UPDATE = 'company_balance_update'
 

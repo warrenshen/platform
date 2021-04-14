@@ -24,7 +24,7 @@ from server.views.finance.invoices import routes as invoices_routes
 from server.views.finance.ebba_applications import \
     approvals as ebba_application_approvals
 from server.views.finance.loans import (
-	advances, adjustments, artifacts, approvals, repayments, reports, 
+	advances, adjustments, artifacts, approvals, repayments, reports, deletion, 
 	purchase_orders as loans_purchase_orders
 )
 
@@ -77,6 +77,7 @@ app.register_blueprint(artifacts.handler, url_prefix='/finance/loans/artifacts')
 app.register_blueprint(advances.handler, url_prefix='/finance/loans/advances')
 app.register_blueprint(approvals.handler, url_prefix='/finance/loans/approvals')
 app.register_blueprint(adjustments.handler, url_prefix='/finance/loans/adjustments')
+app.register_blueprint(deletion.handler, url_prefix='/finance/loans/deletion')
 app.register_blueprint(reports.handler, url_prefix='/finance/loans/reports')
 app.register_blueprint(loans_purchase_orders.handler, url_prefix='/finance/loans/purchase_orders')
 
