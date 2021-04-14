@@ -50,7 +50,8 @@ interface Props {
   handleSelectLoans?: (loans: LoanFragment[]) => void;
 }
 
-const getMaturityDate = (rowData: any) => new Date(rowData.maturity_date);
+const getMaturityDate = (rowData: any) =>
+  new Date(rowData.adjusted_maturity_date);
 
 function LoansDataGrid({
   isArtifactVisible = false,
@@ -274,11 +275,13 @@ function LoansDataGrid({
       {
         visible: isMaturityVisible,
         caption: "Maturity Date",
-        dataField: "maturity_date",
+        dataField: "adjusted_maturity_date",
         width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.maturity_date} />
+          <DateDataGridCell
+            dateString={params.row.data.adjusted_maturity_date}
+          />
         ),
       },
       {

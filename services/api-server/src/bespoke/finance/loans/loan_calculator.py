@@ -459,6 +459,7 @@ class LoanCalculator(object):
 
 		# NOTE: This will be handy later when we want to show to the user how
 		# we calculated all the interest and fees.
+		# print(f'Identifier: {loan["identifier"]}')
 		# print(self.get_summary())
 
 		l = LoanUpdateDict(

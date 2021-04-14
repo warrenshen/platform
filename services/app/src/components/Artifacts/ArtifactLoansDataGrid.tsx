@@ -165,11 +165,13 @@ export default function ArtifactLoansDataGrid({
       {
         visible: isMaturityVisible,
         caption: "Maturity Date",
-        dataField: "maturity_date",
+        dataField: "adjusted_maturity_date",
         width: ColumnWidths.Date,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.maturity_date} />
+          <DateDataGridCell
+            dateString={params.row.data.adjusted_maturity_date}
+          />
         ),
       },
       {
