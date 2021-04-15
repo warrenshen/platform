@@ -12,10 +12,10 @@ function BankAdvancesPage() {
     <Page appBarTitle={"Advances"}>
       <PageContent title={"Advances"}>
         <AdvancesDataGrid
+          isExcelExport
           payments={payments}
           customerSearchQuery={""}
           onClickCustomerName={() => {}}
-          isExcelExport
         />
       </PageContent>
     </Page>

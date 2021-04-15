@@ -42,10 +42,10 @@ interface Props {
 
 export default function InvoiceDrawer({ invoiceId, handleClose }: Props) {
   const classes = useStyles();
+
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-
   const isBankUser = role === UserRolesEnum.BankAdmin;
 
   const { data } = useGetInvoiceByIdQuery({
@@ -206,6 +206,7 @@ export default function InvoiceDrawer({ invoiceId, handleClose }: Props) {
             Loans
           </Typography>
           <InvoiceLoansDataGrid
+            isExcelExport={isBankUser}
             pager={false}
             isMiniTable
             loans={loans}

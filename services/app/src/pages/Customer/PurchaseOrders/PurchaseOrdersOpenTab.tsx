@@ -12,16 +12,18 @@ import CreateUpdatePurchaseOrderModal from "components/PurchaseOrders/CreateUpda
 import PurchaseOrdersDataGrid from "components/PurchaseOrders/PurchaseOrdersDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   ProductTypeEnum,
   PurchaseOrderFragment,
   PurchaseOrders,
   useGetOpenPurchaseOrdersByCompanyIdQuery,
+  UserRolesEnum,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { ActionType } from "lib/enum";
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -50,6 +52,11 @@ interface Props {
 
 function CustomerPurchaseOrdersOpenTab({ companyId, productType }: Props) {
   const classes = useStyles();
+
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = role === UserRolesEnum.BankAdmin;
 
   const { data, refetch, error } = useGetOpenPurchaseOrdersByCompanyIdQuery({
     fetchPolicy: "network-only",
@@ -185,6 +192,7 @@ function CustomerPurchaseOrdersOpenTab({ companyId, productType }: Props) {
         <Box>
           <PurchaseOrdersDataGrid
             isCompanyVisible={false}
+            isExcelExport={isBankUser}
             purchaseOrders={notApprovedPurchaseOrders}
             selectedPurchaseOrderIds={selectedPurchaseOrderIds}
             handleSelectPurchaseOrders={handleSelectPurchaseOrders}
@@ -229,6 +237,7 @@ function CustomerPurchaseOrdersOpenTab({ companyId, productType }: Props) {
           </Box>
           <PurchaseOrdersDataGrid
             isCompanyVisible={false}
+            isExcelExport={isBankUser}
             purchaseOrders={approvedPurchaseOrders}
             selectedPurchaseOrderIds={selectedApprovedPurchaseOrderIds}
             handleSelectPurchaseOrders={handleSelectApprovedPurchaseOrders}

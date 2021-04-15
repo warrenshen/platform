@@ -18,12 +18,12 @@ import { useMemo } from "react";
 
 interface Props {
   isCompanyVisible: boolean;
+  isExcelExport?: boolean;
   isMultiSelectEnabled?: boolean;
   invoices: InvoiceFragment[];
   actionItems?: DataGridActionItem[];
   selectedInvoiceIds?: Invoices["id"][];
   handleSelectedInvoices?: (invoices: InvoiceFragment[]) => void;
-  isExcelExport?: boolean;
 }
 
 export default function InvoicesDataGrid({

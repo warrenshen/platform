@@ -75,9 +75,9 @@ function BankLoansMaturingSoonTab() {
           isArtifactVisible
           isCompanyVisible
           isDisbursementIdentifierVisible
+          isExcelExport
           isFilteringEnabled
           isMaturityVisible
-          isExcelExport
           loans={maturingLoans}
           matureDays={matureDays}
         />

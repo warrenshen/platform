@@ -147,12 +147,6 @@ export default function ArtifactLoansDataGrid({
         ),
       },
       {
-        visible: !isMiniTable && isViewNotesEnabled,
-        dataField: "notes",
-        caption: "Internal Note",
-        minWidth: 300,
-      },
-      {
         visible: isMaturityVisible,
         caption: "Origination Date",
         dataField: "origination_date",
@@ -205,6 +199,12 @@ export default function ArtifactLoansDataGrid({
         cellRender: (params: ValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.outstanding_fees} />
         ),
+      },
+      {
+        visible: !isMiniTable && isViewNotesEnabled,
+        dataField: "notes",
+        caption: "Internal Note",
+        minWidth: 300,
       },
     ],
     [

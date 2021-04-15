@@ -1,10 +1,12 @@
 import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
 import PurchaseOrdersDataGrid from "components/PurchaseOrders/PurchaseOrdersDataGrid";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   useGetClosedPurchaseOrdersByCompanyIdQuery,
+  UserRolesEnum,
 } from "generated/graphql";
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -32,6 +34,11 @@ interface Props {
 
 function CustomerPurchaseOrdersClosedTab({ companyId }: Props) {
   const classes = useStyles();
+
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = role === UserRolesEnum.BankAdmin;
 
   const { data, error } = useGetClosedPurchaseOrdersByCompanyIdQuery({
     fetchPolicy: "network-only",
@@ -61,6 +68,7 @@ function CustomerPurchaseOrdersClosedTab({ companyId }: Props) {
         <Box className={classes.section}>
           <PurchaseOrdersDataGrid
             isCompanyVisible={false}
+            isExcelExport={isBankUser}
             isMultiSelectEnabled={false}
             purchaseOrders={purchaseOrders}
           />

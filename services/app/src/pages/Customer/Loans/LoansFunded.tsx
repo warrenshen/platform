@@ -119,6 +119,7 @@ function LoansFunded({
         <Box display="flex" flex={1}>
           <PolymorphicLoansDataGrid
             isDisbursementIdentifierVisible={isBankUser}
+            isExcelExport={isBankUser}
             isMultiSelectEnabled={
               !isLineOfCredit && check(role, Action.SelectLoan)
             }

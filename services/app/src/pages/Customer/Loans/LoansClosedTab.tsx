@@ -77,6 +77,7 @@ function CustomerLoansPageLoansClosedTab({ companyId, productType }: Props) {
         <Box display="flex" flex={1}>
           <PolymorphicLoansDataGrid
             isDisbursementIdentifierVisible={isBankUser}
+            isExcelExport={isBankUser}
             isMultiSelectEnabled={check(role, Action.SelectLoan)}
             isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
             productType={productType}

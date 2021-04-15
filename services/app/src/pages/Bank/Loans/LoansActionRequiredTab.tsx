@@ -140,10 +140,10 @@ function BankLoansActionRequiredTab() {
         <LoansDataGrid
           isArtifactVisible
           isCompanyVisible
+          isExcelExport
           isMaturityVisible={false}
           isMultiSelectEnabled={check(role, Action.SelectLoan)}
           isFilteringEnabled
-          isExcelExport
           loans={loans}
           selectedLoanIds={selectedLoanIds}
           handleSelectLoans={handleSelectLoans}

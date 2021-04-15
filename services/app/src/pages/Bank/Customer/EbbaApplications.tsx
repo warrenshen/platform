@@ -39,8 +39,8 @@ function BankCustomerEbbaApplicationsSubpage({ companyId }: Props) {
         </Box>
         <EbbaApplicationsDataGrid
           isCompanyVisible={false}
-          ebbaApplications={ebbaApplications}
           isExcelExport
+          ebbaApplications={ebbaApplications}
         />
       </Box>
     </PageContent>

@@ -39,9 +39,9 @@ function BankLoansPastDueTab() {
           isCompanyVisible
           isDaysPastDueVisible
           isDisbursementIdentifierVisible
+          isExcelExport
           isFilteringEnabled
           isMaturityVisible
-          isExcelExport
           loans={pastDueLoans}
         />
       </Box>

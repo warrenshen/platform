@@ -47,7 +47,6 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-
   const isBankUser = role === UserRolesEnum.BankAdmin;
 
   const { data } = usePurchaseOrderQuery({
@@ -197,8 +196,9 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
             Loans
           </Typography>
           <PurchaseOrderLoansDataGrid
-            pager={false}
+            isExcelExport={isBankUser}
             isMiniTable
+            pager={false}
             loans={loans}
             isMultiSelectEnabled={check(role, Action.SelectLoan)}
             isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}

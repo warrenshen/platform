@@ -11,16 +11,18 @@ import InvoicesDataGrid from "components/Invoices/InvoicesDataGrid";
 import RequestPaymentOnInvoiceModal from "components/Invoices/RequestPaymentOnInvoiceModal";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   InvoiceFragment,
   Invoices,
   ProductTypeEnum,
   useGetInvoicesByCompanyIdQuery,
+  UserRolesEnum,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { ActionType } from "lib/enum";
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -54,6 +56,11 @@ export default function InvoicesFundedUnfundedList({
   productType,
 }: Props) {
   const classes = useStyles();
+
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = role === UserRolesEnum.BankAdmin;
 
   const { data, refetch, error } = useGetInvoicesByCompanyIdQuery({
     fetchPolicy: "network-only",
@@ -176,6 +183,7 @@ export default function InvoicesFundedUnfundedList({
       <Box>
         <InvoicesDataGrid
           isCompanyVisible={false}
+          isExcelExport={isBankUser}
           invoices={unfundedInvoices}
           selectedInvoiceIds={selectedUnfundedInvoiceIds}
           handleSelectedInvoices={handleSelectUnfundedInvoiceIds}
@@ -205,6 +213,7 @@ export default function InvoicesFundedUnfundedList({
         </Box>
         <InvoicesDataGrid
           isCompanyVisible={false}
+          isExcelExport={isBankUser}
           isMultiSelectEnabled={true}
           invoices={fundedInvoices}
           selectedInvoiceIds={selectedFundedInvoiceIds}
