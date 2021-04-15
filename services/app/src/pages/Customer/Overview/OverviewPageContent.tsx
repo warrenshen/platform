@@ -7,7 +7,9 @@ import {
 } from "@material-ui/core";
 import CustomerFinancialSummaryOverview from "components/CustomerFinancialSummary/CustomerFinancialSummaryOverview";
 import CreateUpdatePolymorphicLoanModal from "components/Loan/CreateUpdatePolymorphicLoanModal";
+import CreateAdjustmentModal from "components/Loans/CreateAdjustmentModal";
 import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
+import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
 import DeletePaymentModal from "components/Payment/DeletePaymentModal";
 import CreateRepaymentModal from "components/Repayment/CreateRepaymentModal";
 import RepaymentsDataGrid from "components/Repayment/RepaymentsDataGrid";
@@ -103,7 +105,48 @@ function CustomerOverviewPageContent({ companyId, productType }: Props) {
   return (
     <PageContent
       title={"Overview"}
-      actions={
+      bankActions={
+        <>
+          <Can perform={Action.RunBalances}>
+            <Box>
+              <ModalButton
+                label={"Run Balances"}
+                color={"default"}
+                variant={"outlined"}
+                modal={({ handleClose }) => (
+                  <RunCustomerBalancesModal
+                    companyId={companyId}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          </Can>
+          <Can perform={Action.RunBalances}>
+            <Box mr={2}>
+              <ModalButton
+                label={"Create Adjustment"}
+                color={"default"}
+                variant={"outlined"}
+                modal={({ handleClose }) => (
+                  <CreateAdjustmentModal
+                    companyId={companyId}
+                    productType={productType}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          </Can>
+        </>
+      }
+      customerActions={
         <>
           <Can perform={Action.RepayPurchaseOrderLoans}>
             <Box>

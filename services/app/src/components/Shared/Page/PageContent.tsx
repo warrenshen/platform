@@ -1,4 +1,8 @@
-import { ReactNode } from "react";
+import { Box, Typography } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
+import { UserRolesEnum } from "generated/graphql";
+import { ReactNode, useContext } from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -57,19 +61,43 @@ const Content = styled.div`
 interface Props {
   title: string;
   subtitle?: string;
-  actions?: ReactNode;
+  bankActions?: ReactNode;
+  customerActions?: ReactNode;
   children: ReactNode;
 }
 
-function PageContent({ title, subtitle, actions = null, children }: Props) {
+function PageContent({
+  title,
+  subtitle,
+  bankActions = null,
+  customerActions = null,
+  children,
+}: Props) {
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = role === UserRolesEnum.BankAdmin;
+
   return (
     <Container>
+      {isBankUser && !!bankActions && (
+        <Box mb={4}>
+          <Alert severity="info">
+            <Box display="flex" flexDirection="column">
+              <Box mb={1}>
+                <Typography variant="h6">Bank admin actions</Typography>
+              </Box>
+              <Actions>{bankActions}</Actions>
+            </Box>
+          </Alert>
+        </Box>
+      )}
       <Header>
         <Copy>
           <Title>{title}</Title>
           {subtitle && <Subtitle>{subtitle}</Subtitle>}
         </Copy>
-        <Actions>{actions}</Actions>
+        <Actions>{customerActions}</Actions>
       </Header>
       <Content>{children}</Content>
     </Container>

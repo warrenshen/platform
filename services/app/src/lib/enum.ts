@@ -43,8 +43,8 @@ export const PaymentStatusToLabel = {
 // on the loan "request status"
 // Loan Status enum related.
 export const LoanStatusToLabel = {
-  [LoanStatusEnum.Drafted]: "Drafted",
-  [LoanStatusEnum.ApprovalRequested]: "Pending",
+  [LoanStatusEnum.Drafted]: "Draft",
+  [LoanStatusEnum.ApprovalRequested]: "Pending Approval",
   [LoanStatusEnum.Approved]: "Approved",
   [LoanStatusEnum.Rejected]: "Changes Required",
   [LoanStatusEnum.PastDue]: "Past Due",

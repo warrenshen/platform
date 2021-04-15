@@ -114,8 +114,8 @@ function LineOfCreditLoanForm({
         />
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
-            This is the date you want the recipient to receive financing. Given
-            enough advance notice, Bespoke Financial will adhere to this
+            This is the date you want the vendor to receive financing. Within
+            banking limitations, Bespoke Financial will try to adhere to this
             request.
           </Typography>
         </Box>

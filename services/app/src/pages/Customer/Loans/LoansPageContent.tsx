@@ -46,7 +46,7 @@ function CustomerLoansPageContent({ companyId, productType }: Props) {
       subtitle={
         "Request a new loan, edit an existing loan request, or make payments towards financed loans."
       }
-      actions={
+      customerActions={
         <Box display="flex" flexDirection="column">
           {canCreateUpdateNewLoan ? (
             <Alert severity="info" style={{ alignSelf: "flex-start" }}>
