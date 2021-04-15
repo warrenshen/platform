@@ -101,7 +101,7 @@ def fund_loans_with_advance(
 
 			if loan.origination_date or loan.maturity_date or loan.adjusted_maturity_date:
 				already_set_dates_loan_ids.append(loan_id)
-			
+
 			if not loan.approved_at:
 				not_approved_loan_ids.append(loan_id)
 
@@ -271,7 +271,7 @@ def fund_loans_with_advance(
 					artifact.funded_at = date_util.now()
 
 	return FundLoansRespDict(
-		payment_id=payment_id,
+		payment_id=str(payment_id),
 		status='OK'
 	), None
 

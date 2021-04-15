@@ -28,8 +28,6 @@ SubmitForApprovalRespDict = TypedDict('SubmitForApprovalRespDict', {
 	'loan_id': str
 })
 
-
-
 @errors.return_error_tuple
 def send_loan_approval_requested_email(
 	sendgrid_client: sendgrid_util.Client,
@@ -39,7 +37,7 @@ def send_loan_approval_requested_email(
 	template_data = {
 		'customer_name': submit_resp['customer_name'],
 		'loan_html': submit_resp['loan_html'],
-		'triggered_by_autofinancing': submit_resp['triggered_by_autofinancing']
+		'triggered_by_autofinancing': submit_resp['triggered_by_autofinancing'],
 	}
 	recipients = sendgrid_client.get_bank_notify_email_addresses()
 	_, err = sendgrid_client.send(
@@ -95,7 +93,10 @@ def approve_loans(
 
 @errors.return_error_tuple
 def submit_for_approval(
-	loan_id: str, session: Session, triggered_by_autofinancing: bool) -> Tuple[SubmitForApprovalRespDict, errors.Error]:
+	loan_id: str,
+	session: Session,
+	triggered_by_autofinancing: bool,
+) -> Tuple[SubmitForApprovalRespDict, errors.Error]:
 
 	err_details = {
 		'loan_id': loan_id,

@@ -1,6 +1,5 @@
 import AdvanceForm from "components/Advance/AdvanceForm";
 import Modal from "components/Shared/Modal/Modal";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { LoanFragment, PaymentsInsertInput } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, loansRoutes } from "lib/api";
@@ -10,7 +9,7 @@ import {
   computeSettlementDateForPayment,
   SettlementTimelineConfigForBankAdvance,
 } from "lib/finance/payments/advance";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Props {
   selectedLoans: LoanFragment[];
@@ -19,9 +18,6 @@ interface Props {
 
 function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
   const snackbar = useSnackbar();
-  const {
-    user: { companyId },
-  } = useContext(CurrentUserContext);
 
   const loansTotal = selectedLoans.reduce(
     (sum, loan) => sum + loan.amount || 0,
@@ -30,7 +26,6 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
 
   // Default PurchaseOrder for CREATE case.
   const newPayment = {
-    company_id: companyId,
     amount: loansTotal,
     method: "",
     payment_date: todayAsDateStringServer(),
@@ -81,7 +76,6 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
   const handleClickSubmit = async () => {
     const response = await authenticatedApi.post(loansRoutes.createAdvance, {
       payment: {
-        company_id: payment.company_id,
         amount: payment.amount,
         method: payment.method,
         payment_date: payment.payment_date,

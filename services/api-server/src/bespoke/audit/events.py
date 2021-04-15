@@ -166,7 +166,7 @@ def wrap(action: str) -> Callable:
 			data = json.loads(request.data)
 
 			event = new(
-				user_id= user_session.get_user_id(),
+				user_id=user_session.get_user_id(),
 				company_id=user_session.get_company_id(),
 				action=action,
 				data={'request': data}

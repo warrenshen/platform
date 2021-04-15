@@ -305,8 +305,8 @@ function CreateUpdateLineOfCreditLoanModal({
           <Button
             disabled={isSaveDraftDisabled}
             onClick={handleClickSaveDraft}
-            variant={"contained"}
-            color={"secondary"}
+            variant={"outlined"}
+            color={"default"}
           >
             Save as Draft
           </Button>

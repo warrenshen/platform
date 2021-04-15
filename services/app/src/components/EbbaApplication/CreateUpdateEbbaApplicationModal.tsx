@@ -253,10 +253,10 @@ function CreateUpdateEbbaApplicationModal({
         },
       });
       if (response.status === "ERROR") {
-        snackbar.showError(`Error! Message: ${response.msg}`);
+        snackbar.showError(`Message: ${response.msg}`);
       } else {
         snackbar.showSuccess(
-          "Success! Borrowing base certification saved and submitted to Bespoke."
+          "Borrowing base certification saved and submitted to Bespoke."
         );
         handleClose();
       }
