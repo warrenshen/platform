@@ -631,7 +631,41 @@ class LoanCalculator(object):
 		# print(self.get_summary())
 
 		def _format_output_value(value: float) -> float:
-			return number_util.round_currency(value) if should_round_output else value
+			# Since the above calculations do NOT round, we end up with non-zero
+			# values that are "in currency terms equal to zero". For example,
+			# 0.0015599999927644603 is equal to zero in terms of currency ($0.00).
+			# This may happen with outstanding interest or outstanding fees: closed
+			# loans may have non-zero but "in currency terms equal to zero"
+			# outstanding interest and outstanding fee values.
+			#
+			# In this method, we squash non-zero but
+			# "in currency terms equal to zero" values to zero.
+			#
+			# Why? Short answer: sum of negligable amounts can become significant.
+			#
+			# For example, say we have five closed loans, each with the following
+			# "in currency terms equal to zero" outstanding interest:
+			#
+			# 0.0023900000099530416
+			# 0.0002921595962277479
+			# 0.001145248212900185
+			# 0.00223000000715711622
+			# 0.0018319999945314294
+			#
+			# All of these interests are "in currency terms equal to zero", hence
+			# the loans are closed. BUT, the sum of these values equals 0.007889408,
+			# which in currency terms equals $0.01 due to rounding.
+			#
+			# Finally, the problem arises in places where we sum over many loans.
+			# This is exactly what we do to calculate financial summaries. If we do
+			# not squash "in currency terms equal to zero" values to zero, those
+			# sums we calculate end up including the values and end up incorrect.
+			if number_util.round_currency(value) == 0.0:
+				return 0.0
+			elif should_round_output:
+				return number_util.round_currency(value)
+			else:
+				return value
 
 		l = LoanUpdateDict(
 			loan_id=loan['id'],
