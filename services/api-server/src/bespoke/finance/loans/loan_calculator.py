@@ -5,9 +5,9 @@
 """
 import datetime
 import logging
+from calendar import monthrange
 from collections import OrderedDict
 from datetime import timedelta
-from calendar import monthrange
 from typing import Dict, List, NamedTuple, Tuple
 
 from bespoke import errors
@@ -255,7 +255,7 @@ ProratedFeeInfoDict = TypedDict('ProratedFeeInfoDict', {
 })
 
 def get_prorated_fee_info(duration: str, contract_start_date: datetime.date, today: datetime.date) -> ProratedFeeInfoDict:
-	start = contract_start_date 
+	start = contract_start_date
 
 	if duration == contract_util.MinimumAmountDuration.MONTHLY:
 
@@ -270,7 +270,7 @@ def get_prorated_fee_info(duration: str, contract_start_date: datetime.date, tod
 		else:
 			# No pro-rating is needed
 			numerator = num_days_in_month
-			
+
 		return ProratedFeeInfoDict(
 			numerator=numerator,
 			denom=num_days_in_month,
@@ -286,7 +286,7 @@ def get_prorated_fee_info(duration: str, contract_start_date: datetime.date, tod
 		else:
 			# No pro-rating is needed
 			numerator = num_days_in_quarter
-		
+
 		return ProratedFeeInfoDict(
 			numerator=numerator,
 			denom=num_days_in_quarter,
@@ -352,10 +352,10 @@ class FeeAccumulator(object):
 
 		return None, errors.Error('Invalid duration provided to accrue interest: "{}"'.format(duration))
 
-	def accumulate(self, 
-		todays_contract_start_date: datetime.date, 
+	def accumulate(self,
+		todays_contract_start_date: datetime.date,
 		todays_contract_end_date: datetime.date,
-		interest_for_day: float, 
+		interest_for_day: float,
 		day: datetime.date
 	) -> None:
 		if day < todays_contract_start_date or day > todays_contract_end_date:
@@ -446,7 +446,8 @@ class LoanCalculator(object):
 		threshold_info: ThresholdInfoDict,
 		loan: models.LoanDict,
 		augmented_transactions: List[models.AugmentedTransactionDict],
-		today: datetime.date
+		today: datetime.date,
+		should_round_output: bool = True,
 	) -> Tuple[LoanUpdateDict, List[errors.Error]]:
 		# Replay the history of the loan and all the expenses that are due as a result.
 		# Heres what you owe based on the transaction history applied to your loan.
@@ -583,8 +584,8 @@ class LoanCalculator(object):
 
 			self._fee_accumulator.accumulate(
 				todays_contract_start_date=todays_contract_start_date,
-				todays_contract_end_date=todays_contract_end_date, 
-				interest_for_day=interest_due_for_day, 
+				todays_contract_end_date=todays_contract_end_date,
+				interest_for_day=interest_due_for_day,
 				day=cur_date
 			)
 
@@ -629,15 +630,18 @@ class LoanCalculator(object):
 		# print(f'Identifier: {loan["identifier"]}')
 		# print(self.get_summary())
 
+		def _format_output_value(value: float) -> float:
+			return number_util.round_currency(value) if should_round_output else value
+
 		l = LoanUpdateDict(
 			loan_id=loan['id'],
 			adjusted_maturity_date=loan['adjusted_maturity_date'],
-			outstanding_principal=number_util.round_currency(outstanding_principal),
-			outstanding_principal_for_interest=number_util.round_currency(outstanding_principal_for_interest),
-			outstanding_interest=number_util.round_currency(outstanding_interest),
-			outstanding_fees=number_util.round_currency(outstanding_fees),
-			interest_accrued_today=number_util.round_currency(interest_accrued_today),
-			should_close_loan=False
+			outstanding_principal=_format_output_value(outstanding_principal),
+			outstanding_principal_for_interest=_format_output_value(outstanding_principal_for_interest),
+			outstanding_interest=_format_output_value(outstanding_interest),
+			outstanding_fees=_format_output_value(outstanding_fees),
+			interest_accrued_today=_format_output_value(interest_accrued_today),
+			should_close_loan=False,
 		)
 
 		if not loan['closed_at'] and has_been_funded:

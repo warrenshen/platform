@@ -17,7 +17,7 @@ def import_payor_vendor_users(
 	payor_vendor_users_tuples: List[List[str]],
 ) -> None:
 	users_count = len(payor_vendor_users_tuples)
-	print(f'Creating {users_count} purchase orders...')
+	print(f'Creating {users_count} payor vendor users...')
 
 	for index, new_payor_vendor_user_tuple in enumerate(payor_vendor_users_tuples):
 		print(f'[{index + 1} of {users_count}]')

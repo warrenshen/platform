@@ -58,24 +58,41 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		# Sort by increasing adjusted maturity date for consistency in tests
 		loan_updates = customer_update['loan_updates']
 		loan_updates.sort(key=lambda u: u['adjusted_maturity_date'])
+
 		self.assertEqual(len(test['expected_loan_updates']), len(loan_updates))
 		for i in range(len(loan_updates)):
-			expected_update = test['expected_loan_updates'][i]
-			actual_update = cast(Dict, loan_updates[i])
+			expected = test['expected_loan_updates'][i]
+			actual = cast(Dict, loan_updates[i])
 
-			copied_update = {**actual_update}
-
-			keys_to_delete = ['loan_id']
-			for key in keys_to_delete:
-				del copied_update[key]
-				if key in expected_update:
-					del expected_update[key]
-
-			test_helper.assertDeepAlmostEqual(self, expected_update, copied_update)
+			self.assertAlmostEqual(expected['adjusted_maturity_date'], actual['adjusted_maturity_date'])
+			self.assertAlmostEqual(expected['outstanding_principal'], number_util.round_currency(actual['outstanding_principal']))
+			self.assertAlmostEqual(expected['outstanding_principal_for_interest'], number_util.round_currency(actual['outstanding_principal_for_interest']))
+			self.assertAlmostEqual(expected['outstanding_interest'], number_util.round_currency(actual['outstanding_interest']))
+			self.assertAlmostEqual(expected['outstanding_fees'], number_util.round_currency(actual['outstanding_fees']))
+			self.assertAlmostEqual(expected['interest_accrued_today'], number_util.round_currency(actual['interest_accrued_today']))
+			self.assertAlmostEqual(expected['should_close_loan'], actual['should_close_loan'])
 
 		if test.get('expected_summary_update') is not None:
-			test_helper.assertDeepAlmostEqual(self, test['expected_summary_update'],
-				cast(Dict, customer_update['summary_update']))
+			expected = test['expected_summary_update']
+			actual = cast(Dict, customer_update['summary_update'])
+
+			self.assertAlmostEqual(expected['product_type'], actual['product_type'])
+			self.assertAlmostEqual(expected['total_limit'], number_util.round_currency(actual['total_limit']))
+			self.assertAlmostEqual(expected['adjusted_total_limit'], number_util.round_currency(actual['adjusted_total_limit']))
+			self.assertAlmostEqual(expected['available_limit'], number_util.round_currency(actual['available_limit']))
+			self.assertAlmostEqual(expected['total_outstanding_principal'], number_util.round_currency(actual['total_outstanding_principal']))
+			self.assertAlmostEqual(expected['total_outstanding_principal_for_interest'], number_util.round_currency(actual['total_outstanding_principal_for_interest']))
+			self.assertAlmostEqual(expected['total_outstanding_interest'], number_util.round_currency(actual['total_outstanding_interest']))
+			self.assertAlmostEqual(expected['total_outstanding_fees'], number_util.round_currency(actual['total_outstanding_fees']))
+			self.assertAlmostEqual(expected['total_principal_in_requested_state'], number_util.round_currency(actual['total_principal_in_requested_state']))
+			self.assertAlmostEqual(expected['total_interest_accrued_today'], number_util.round_currency(actual['total_interest_accrued_today']))
+			self.assertAlmostEqual(expected['minimum_monthly_payload']['minimum_amount'], actual['minimum_monthly_payload']['minimum_amount'])
+			self.assertAlmostEqual(expected['minimum_monthly_payload']['amount_accrued'], number_util.round_currency((actual['minimum_monthly_payload']['amount_accrued'])))
+			self.assertAlmostEqual(expected['minimum_monthly_payload']['amount_short'], number_util.round_currency((actual['minimum_monthly_payload']['amount_short'])))
+			self.assertAlmostEqual(expected['minimum_monthly_payload']['duration'], actual['minimum_monthly_payload']['duration'])
+			test_helper.assertDeepAlmostEqual(
+				self, expected['account_level_balance_payload'], cast(Dict, actual['account_level_balance_payload']))
+			self.assertAlmostEqual(expected['day_volume_threshold_met'], actual['day_volume_threshold_met'])
 
 		success, err = customer_balance.write(customer_update)
 		self.assertTrue(success)
@@ -90,20 +107,19 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			if test.get('expected_summary_update') is not None:
 				self.assertIsNotNone(financial_summary)
 				expected = test['expected_summary_update']
-				actual = financial_summary
 
-				self.assertAlmostEqual(expected['total_limit'], float(actual.total_limit))
-				self.assertAlmostEqual(expected['total_outstanding_principal'], float(actual.total_outstanding_principal))
-				self.assertAlmostEqual(expected['total_outstanding_principal_for_interest'], float(actual.total_outstanding_principal_for_interest))
-				self.assertAlmostEqual(expected['total_outstanding_interest'], float(actual.total_outstanding_interest))
-				self.assertAlmostEqual(expected['total_outstanding_fees'], float(actual.total_outstanding_fees))
-				self.assertAlmostEqual(expected['total_principal_in_requested_state'], float(actual.total_principal_in_requested_state))
-				self.assertAlmostEqual(expected['available_limit'], float(actual.available_limit))
+				self.assertAlmostEqual(expected['total_limit'], float(financial_summary.total_limit))
+				self.assertAlmostEqual(expected['total_outstanding_principal'], float(financial_summary.total_outstanding_principal))
+				self.assertAlmostEqual(expected['total_outstanding_principal_for_interest'], float(financial_summary.total_outstanding_principal_for_interest))
+				self.assertAlmostEqual(expected['total_outstanding_interest'], float(financial_summary.total_outstanding_interest))
+				self.assertAlmostEqual(expected['total_outstanding_fees'], float(financial_summary.total_outstanding_fees))
+				self.assertAlmostEqual(expected['total_principal_in_requested_state'], float(financial_summary.total_principal_in_requested_state))
+				self.assertAlmostEqual(expected['available_limit'], float(financial_summary.available_limit))
 
 				test_helper.assertDeepAlmostEqual(
-					self, expected['account_level_balance_payload'], cast(Dict, actual.account_level_balance_payload))
+					self, expected['account_level_balance_payload'], cast(Dict, financial_summary.account_level_balance_payload))
 				test_helper.assertDeepAlmostEqual(
-					self, expected['minimum_monthly_payload'], cast(Dict, actual.minimum_monthly_payload))
+					self, expected['minimum_monthly_payload'], cast(Dict, financial_summary.minimum_monthly_payload))
 
 			if 'expected_day_volume_threshold_met' in test:
 				self.assertEqual(
@@ -211,18 +227,18 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'adjusted_maturity_date': date_util.load_date_str('10/05/2020'),
 						'outstanding_principal': 500.03,
 						'outstanding_principal_for_interest': 500.03,
-						'outstanding_interest': round(3 * 0.05 * 500.03, 2), # 10/03 - 10/01 is 2 days apart, +1 day, is 3 days of interest.
+						'outstanding_interest': number_util.round_currency(3 * 0.05 * 500.03), # 10/03 - 10/01 is 2 days apart, +1 day, is 3 days of interest.
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.05 * 500.03, 2),
+						'interest_accrued_today': number_util.round_currency(0.05 * 500.03),
 						'should_close_loan': False
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('10/06/2020'),
 						'outstanding_principal': 100.03,
 						'outstanding_principal_for_interest': 100.03,
-						'outstanding_interest': round(2 * 0.05 * 100.03, 2), # 10/03 - 10/02 is 1 days apart, +1 day, is 2 days of interest.
+						'outstanding_interest': number_util.round_currency(2 * 0.05 * 100.03), # 10/03 - 10/02 is 1 days apart, +1 day, is 2 days of interest.
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.05 * 100.03, 2),
+						'interest_accrued_today': number_util.round_currency(0.05 * 100.03),
 						'should_close_loan': False
 					}
 				],
@@ -232,15 +248,15 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'adjusted_total_limit': 120000.01,
 					'total_outstanding_principal': 500.03 + 100.03,
 					'total_outstanding_principal_for_interest': 500.03 + 100.03,
-					'total_outstanding_interest': round((3 * 0.05 * 500.03), 2) + round((2 * 0.05 * 100.03), 2),
+					'total_outstanding_interest': number_util.round_currency((3 * 0.05 * 500.03) + (2 * 0.05 * 100.03)),
 					'total_outstanding_fees': 0.0,
 					'total_principal_in_requested_state': 0.0,
-					'total_interest_accrued_today': round(0.05 * 500.03, 2) + round(0.05 * 100.03, 2),
+					'total_interest_accrued_today': number_util.round_currency((0.05 * 500.03) + (0.05 * 100.03)),
 					'available_limit': 120000.01 - (500.03 + 100.03),
 					'minimum_monthly_payload': {
 							'minimum_amount': 200.03,
-							'amount_accrued': round((3 * 0.05 * 500.03) + (2 * 0.05 * 100.03), 2),
-							'amount_short': round(200.03 - ((3 * 0.05 * 500.03) + (2 * 0.05 * 100.03)), 2),
+							'amount_accrued': number_util.round_currency((3 * 0.05 * 500.03) + (2 * 0.05 * 100.03)),
+							'amount_short': number_util.round_currency(200.03 - ((3 * 0.05 * 500.03) + (2 * 0.05 * 100.03))),
 							'duration': 'monthly'
 					},
 					'account_level_balance_payload': {
@@ -288,7 +304,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			payment_test_helper.make_repayment(
 					session, loan,
 					to_principal=500.03,
-					to_interest=round(37 * 0.005 * 500.03, 2),
+					to_interest=number_util.round_currency(37 * 0.005 * 500.03),
 					to_fees=0.0,
 					payment_date='11/04/2020',
 					effective_date='11/06/2020'
@@ -303,9 +319,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'adjusted_maturity_date': date_util.load_date_str('11/05/2020'),
 						'outstanding_principal': 500.03,
 						'outstanding_principal_for_interest': 500.03,
-						'outstanding_interest': round(34 * 0.005 * 500.03, 2), # 10/03 - 10/01 is 2 days apart, +1 day, is 3 days of interest.
+						'outstanding_interest': number_util.round_currency(34 * 0.005 * 500.03), # 10/03 - 10/01 is 2 days apart, +1 day, is 3 days of interest.
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.005 * 500.03, 2),
+						'interest_accrued_today': number_util.round_currency(0.005 * 500.03),
 						'should_close_loan': False
 					},
 				],
@@ -315,11 +331,11 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'adjusted_total_limit': 120000.01,
 					'total_outstanding_principal': 500.03,
 					'total_outstanding_principal_for_interest': 500.03,
-					'total_outstanding_interest': round((34 * 0.005 * 500.03), 2),
+					'total_outstanding_interest': number_util.round_currency(34 * 0.005 * 500.03),
 					'total_outstanding_fees': 0.0,
 					'total_principal_in_requested_state': 0.0,
-					'total_interest_accrued_today': round(0.005 * 500.03, 2),
-					'available_limit': 120000.01 - (500.03),
+					'total_interest_accrued_today': number_util.round_currency(0.005 * 500.03),
+					'available_limit': 120000.01 - 500.03,
 					'minimum_monthly_payload': {
 							'minimum_amount': 20000.03,
 							'amount_accrued': number_util.round_currency(34 * 0.005 * 500.03),
@@ -343,7 +359,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal_for_interest': 0.0,
 						'outstanding_interest': 0.0,
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.005 * 500.03, 2),
+						'interest_accrued_today': number_util.round_currency(0.005 * 500.03),
 						'should_close_loan': True
 					},
 				],
@@ -390,9 +406,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'adjusted_maturity_date': date_util.load_date_str('10/10/2020'),
 						'outstanding_principal': 500.03,
 						'outstanding_principal_for_interest': 500.03,
-						'outstanding_interest': round(35 * 0.005 * 500.03, 2), # 10/03 - 10/01 is 2 days apart, +1 day, is 3 days of interest.
+						'outstanding_interest': number_util.round_currency(35 * 0.005 * 500.03), # 10/03 - 10/01 is 2 days apart, +1 day, is 3 days of interest.
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.005 * 500.03, 2),
+						'interest_accrued_today': number_util.round_currency(0.005 * 500.03),
 						'should_close_loan': False
 					},
 				],
@@ -402,15 +418,15 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'adjusted_total_limit': 120000.01,
 					'total_outstanding_principal': 500.03,
 					'total_outstanding_principal_for_interest': 500.03,
-					'total_outstanding_interest': round((35 * 0.005 * 500.03), 2),
+					'total_outstanding_interest': number_util.round_currency(35 * 0.005 * 500.03),
 					'total_outstanding_fees': 0.0,
 					'total_principal_in_requested_state': 0.0,
-					'total_interest_accrued_today': round(0.005 * 500.03, 2),
+					'total_interest_accrued_today': number_util.round_currency(0.005 * 500.03),
 					'available_limit': 120000.01 - (500.03),
 					'minimum_monthly_payload': {
 							'minimum_amount': 20000.03,
-							'amount_accrued': round((35 * 0.005 * 500.03), 2),
-							'amount_short': round(20000.03 - (35 * 0.005 * 500.03), 2),
+							'amount_accrued': number_util.round_currency(35 * 0.005 * 500.03),
+							'amount_short': number_util.round_currency(20000.03 - (35 * 0.005 * 500.03)),
 							'duration': 'annually'
 					},
 					'account_level_balance_payload': {
@@ -519,9 +535,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'adjusted_maturity_date': date_util.load_date_str('12/1/2020'),
 						'outstanding_principal': 100.00,
 						'outstanding_principal_for_interest': 100.00,
-						'outstanding_interest': round(3 * 0.05 * 500.03, 2), # 3 days of interest
+						'outstanding_interest': number_util.round_currency(3 * 0.05 * 500.03), # 3 days of interest
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.05 * 500.03, 2),
+						'interest_accrued_today': number_util.round_currency(0.05 * 500.03),
 						'should_close_loan': False
 					},
 					{
@@ -553,18 +569,18 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'adjusted_maturity_date': date_util.load_date_str('12/1/2020'),
 						'outstanding_principal': 0.0,
 						'outstanding_principal_for_interest': 0.0,
-						'outstanding_interest': round(3 * 0.05 * 500.03, 2) + round(2 * 0.05 * 100.00, 2), # 5 days of interest
+						'outstanding_interest': number_util.round_currency((3 * 0.05 * 500.03) + (2 * 0.05 * 100.00)), # 5 days of interest
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.05 * 100.00, 2),
+						'interest_accrued_today': number_util.round_currency(0.05 * 100.00),
 						'should_close_loan': False
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/2/2020'),
 						'outstanding_principal': 100.0,
 						'outstanding_principal_for_interest': 100.0,
-						'outstanding_interest': round(1 * 0.05 * 600.03, 2), # 1 day of interest
+						'outstanding_interest': number_util.round_currency(1 * 0.05 * 600.03), # 1 day of interest
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.05 * 600.03, 2),
+						'interest_accrued_today': number_util.round_currency(0.05 * 600.03),
 						'should_close_loan': False
 					},
 					{
@@ -587,7 +603,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'adjusted_maturity_date': date_util.load_date_str('12/1/2020'),
 						'outstanding_principal': 0.0,
 						'outstanding_principal_for_interest': 0.0,
-						'outstanding_interest': round(3 * 0.05 * 500.03, 2) + round(2 * 0.05 * 100.00, 2), # 5 days of interest, stopped accruing after repayment
+						'outstanding_interest': number_util.round_currency((3 * 0.05 * 500.03) + (2 * 0.05 * 100.00)), # 5 days of interest, stopped accruing after repayment
 						'outstanding_fees': 0.0,
 						'interest_accrued_today': 0.0,
 						'should_close_loan': False
@@ -596,18 +612,18 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'adjusted_maturity_date': date_util.load_date_str('12/2/2020'),
 						'outstanding_principal': 100.0,
 						'outstanding_principal_for_interest': 100.0,
-						'outstanding_interest': round(1 * 0.05 * 600.03, 2) + round(4 * 0.01 * 100.0, 2), # 1 day of interest + 4 days at the lower rate
+						'outstanding_interest': number_util.round_currency((1 * 0.05 * 600.03) + (4 * 0.01 * 100.0)), # 1 day of interest + 4 days at the lower rate
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.01 * 100.00, 2),
+						'interest_accrued_today': number_util.round_currency(0.01 * 100.00),
 						'should_close_loan': False
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/3/2020'),
 						'outstanding_principal': 700.03,
 						'outstanding_principal_for_interest': 700.03,
-						'outstanding_interest': round(3 * 0.01 * 700.03, 2), # You have 3 days, all at the discounted rate
+						'outstanding_interest': number_util.round_currency(3 * 0.01 * 700.03), # You have 3 days, all at the discounted rate
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.01 * 700.03, 2),
+						'interest_accrued_today': number_util.round_currency(0.01 * 700.03),
 						'should_close_loan': False
 					}
 				],
@@ -621,7 +637,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'adjusted_maturity_date': date_util.load_date_str('12/1/2020'),
 						'outstanding_principal': 0.0,
 						'outstanding_principal_for_interest': 0.0,
-						'outstanding_interest': round(3 * 0.01 * 500.03, 2) + round(2 * 0.01 * 100.00, 2), # 5 days of interest, stopped accruing after repayment
+						'outstanding_interest': number_util.round_currency((3 * 0.01 * 500.03) + (2 * 0.01 * 100.00)), # 5 days of interest, stopped accruing after repayment
 						'outstanding_fees': 0.0,
 						'interest_accrued_today': 0.0,
 						'should_close_loan': False
@@ -630,18 +646,18 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'adjusted_maturity_date': date_util.load_date_str('12/2/2020'),
 						'outstanding_principal': 100.0,
 						'outstanding_principal_for_interest': 100.0,
-						'outstanding_interest': round(1 * 0.01 * 600.03, 2) + round(4 * 0.01 * 100.0, 2), # All days at lower rate
+						'outstanding_interest': number_util.round_currency((1 * 0.01 * 600.03) + (4 * 0.01 * 100.0)), # All days at lower rate
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.01 * 100.0, 2),
+						'interest_accrued_today': number_util.round_currency(0.01 * 100.0),
 						'should_close_loan': False
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/3/2020'),
 						'outstanding_principal': 700.03,
 						'outstanding_principal_for_interest': 700.03,
-						'outstanding_interest': round(3 * 0.01 * 700.03, 2), # You have 3 days, all at the discounted rate
+						'outstanding_interest': number_util.round_currency(3 * 0.01 * 700.03), # You have 3 days, all at the discounted rate
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.01 * 700.03, 2),
+						'interest_accrued_today': number_util.round_currency(0.01 * 700.03),
 						'should_close_loan': False
 					}
 				],
@@ -655,7 +671,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'adjusted_maturity_date': date_util.load_date_str('12/1/2020'),
 						'outstanding_principal': 0.0,
 						'outstanding_principal_for_interest': 0.0,
-						'outstanding_interest': round(3 * 0.05 * 500.03, 2) + round(2 * 0.01 * 100.00, 2), # 5 days of interest, stopped accruing after repayment
+						'outstanding_interest': number_util.round_currency((3 * 0.05 * 500.03) + (2 * 0.01 * 100.00)), # 5 days of interest, stopped accruing after repayment
 						'outstanding_fees': 0.0,
 						'interest_accrued_today': 0.0,
 						'should_close_loan': False
@@ -664,18 +680,18 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'adjusted_maturity_date': date_util.load_date_str('12/2/2020'),
 						'outstanding_principal': 100.0,
 						'outstanding_principal_for_interest': 100.0,
-						'outstanding_interest': round(1 * 0.01 * 600.03, 2) + round(4 * 0.01 * 100.0, 2), # All days at lower rate
+						'outstanding_interest': number_util.round_currency((1 * 0.01 * 600.03) + (4 * 0.01 * 100.0)), # All days at lower rate
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.01 * 100.00, 2),
+						'interest_accrued_today': number_util.round_currency(0.01 * 100.00),
 						'should_close_loan': False
 					},
 					{
 						'adjusted_maturity_date': date_util.load_date_str('12/3/2020'),
 						'outstanding_principal': 700.03,
 						'outstanding_principal_for_interest': 700.03,
-						'outstanding_interest': round(3 * 0.01 * 700.03, 2), # You have 3 days, all at the discounted rate
+						'outstanding_interest': number_util.round_currency(3 * 0.01 * 700.03), # You have 3 days, all at the discounted rate
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.01 * 700.03, 2),
+						'interest_accrued_today': number_util.round_currency(0.01 * 700.03),
 						'should_close_loan': False
 					}
 				],
@@ -817,9 +833,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'adjusted_maturity_date': date_util.load_date_str('10/05/2020'),
 						'outstanding_principal': 450.03,
 						'outstanding_principal_for_interest': 500.03,
-						'outstanding_interest': round(-1 * 0.002 * 500.03, 2), # They owe 2 days of interest, but pay off 3, so its -1 day of interest
+						'outstanding_interest': number_util.round_currency(-1 * 0.002 * 500.03), # They owe 2 days of interest, but pay off 3, so its -1 day of interest
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.002 * 500.03),
+						'interest_accrued_today': number_util.round_currency(0.002 * 500.03),
 						'should_close_loan': False
 					}
 				],
@@ -829,14 +845,14 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'adjusted_total_limit': 120000.01,
 					'total_outstanding_principal': 450.03,
 					'total_outstanding_principal_for_interest': 500.03,
-					'total_outstanding_interest': round(-1 * 0.002 * 500.03, 2),
+					'total_outstanding_interest': number_util.round_currency(-1 * 0.002 * 500.03),
 					'total_outstanding_fees': 0.0,
 					'total_principal_in_requested_state': 0.0,
-					'total_interest_accrued_today': round(0.002 * 500.03),
+					'total_interest_accrued_today': number_util.round_currency(0.002 * 500.03),
 					'available_limit': 120000.01 - (450.03),
 					'minimum_monthly_payload': {
 							'minimum_amount': 1.03,
-							'amount_accrued': round(2 * 0.002 * 500.03, 2),
+							'amount_accrued': number_util.round_currency(2 * 0.002 * 500.03),
 							'amount_short': 0.0,
 							'duration': 'monthly'
 					},
@@ -857,7 +873,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'outstanding_principal_for_interest': 450.03,
 						'outstanding_interest': 0.0, # partial payment paid off interest
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': round(0.002 * 500.03, 2), # The repayment takes effect after the 3rd
+						'interest_accrued_today': number_util.round_currency(0.002 * 500.03), # The repayment takes effect after the 3rd
 						'should_close_loan': False
 					}
 				]
@@ -874,9 +890,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						# - 4.2 is for the adjustment
 						# - 1.0 is adjustment from principal
 						# + 2.0 is adjustment for interest
-						'outstanding_interest': round(23 * daily_interest, 2) - 4.2,
-						'outstanding_fees': round((14 * daily_interest * 0.25) + (7 * daily_interest * 0.5), 2) + 2.0,
-						'interest_accrued_today': round(daily_interest, 2),
+						'outstanding_interest': number_util.round_currency((23 * daily_interest) - 4.2),
+						'outstanding_fees': number_util.round_currency(((14 * daily_interest * 0.25) + (7 * daily_interest * 0.5)) + 2.0),
+						'interest_accrued_today': number_util.round_currency(daily_interest),
 						'should_close_loan': False
 					}
 				]

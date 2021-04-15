@@ -234,18 +234,18 @@ def _get_summary_update(
 
 	return SummaryUpdateDict(
 		product_type=product_type,
-		total_limit=number_util.round_currency(maximum_principal_limit),
-		adjusted_total_limit=number_util.round_currency(adjusted_total_limit),
-		total_outstanding_principal=number_util.round_currency(total_outstanding_principal),
-		total_outstanding_principal_for_interest=number_util.round_currency(total_outstanding_principal_for_interest),
-		total_outstanding_interest=number_util.round_currency(total_outstanding_interest),
-		total_outstanding_fees=number_util.round_currency(total_outstanding_fees),
+		total_limit=maximum_principal_limit,
+		adjusted_total_limit=adjusted_total_limit,
+		total_outstanding_principal=total_outstanding_principal,
+		total_outstanding_principal_for_interest=total_outstanding_principal_for_interest,
+		total_outstanding_interest=total_outstanding_interest,
+		total_outstanding_fees=total_outstanding_fees,
 		total_principal_in_requested_state=0.0,
-		total_interest_accrued_today=number_util.round_currency(total_interest_accrued_today),
-		available_limit=number_util.round_currency(max(0.0, adjusted_total_limit - total_outstanding_principal)),
+		total_interest_accrued_today=total_interest_accrued_today,
+		available_limit=max(0.0, adjusted_total_limit - total_outstanding_principal),
 		minimum_monthly_payload=minimum_monthly_payload,
 		account_level_balance_payload=account_level_balance,
-		day_volume_threshold_met=None
+		day_volume_threshold_met=None,
 	), None
 
 class CustomerBalance(object):
@@ -334,7 +334,8 @@ class CustomerBalance(object):
 				threshold_info,
 				loan,
 				transactions_for_loan,
-				today
+				today,
+				should_round_output=False,
 			)
 			if errors_list:
 				logging.error('Got these errors associated with loan {}'.format(loan['id']))
@@ -365,7 +366,9 @@ class CustomerBalance(object):
 			loan_update_dicts,
 			ebba_application_update,
 			fee_accumulator,
-			today)
+			today,
+		)
+
 		if err:
 			raise err
 
@@ -405,9 +408,9 @@ class CustomerBalance(object):
 
 			for loan in loans:
 				cur_loan_update = loan_id_to_update[str(loan.id)]
-				loan.outstanding_principal_balance = decimal.Decimal(cur_loan_update['outstanding_principal'])
-				loan.outstanding_interest = decimal.Decimal(cur_loan_update['outstanding_interest'])
-				loan.outstanding_fees = decimal.Decimal(cur_loan_update['outstanding_fees'])
+				loan.outstanding_principal_balance = decimal.Decimal(number_util.round_currency(cur_loan_update['outstanding_principal']))
+				loan.outstanding_interest = decimal.Decimal(number_util.round_currency(cur_loan_update['outstanding_interest']))
+				loan.outstanding_fees = decimal.Decimal(number_util.round_currency(cur_loan_update['outstanding_fees']))
 
 				if cur_loan_update['should_close_loan']:
 					payment_util.close_loan(loan)
@@ -425,17 +428,16 @@ class CustomerBalance(object):
 				)
 
 			summary_update = customer_update['summary_update']
-
 			financial_summary.date = customer_update['today']
-			financial_summary.total_limit = decimal.Decimal(summary_update['total_limit'])
-			financial_summary.adjusted_total_limit = decimal.Decimal(summary_update['adjusted_total_limit'])
-			financial_summary.total_outstanding_principal = decimal.Decimal(summary_update['total_outstanding_principal'])
-			financial_summary.total_outstanding_principal_for_interest = decimal.Decimal(summary_update['total_outstanding_principal_for_interest'])
-			financial_summary.total_outstanding_interest = decimal.Decimal(summary_update['total_outstanding_interest'])
-			financial_summary.total_outstanding_fees = decimal.Decimal(summary_update['total_outstanding_fees'])
-			financial_summary.total_principal_in_requested_state = decimal.Decimal(summary_update['total_principal_in_requested_state'])
-			financial_summary.interest_accrued_today = decimal.Decimal(summary_update['total_interest_accrued_today'])
-			financial_summary.available_limit = decimal.Decimal(summary_update['available_limit'])
+			financial_summary.total_limit = decimal.Decimal(number_util.round_currency(summary_update['total_limit']))
+			financial_summary.adjusted_total_limit = decimal.Decimal(number_util.round_currency(summary_update['adjusted_total_limit']))
+			financial_summary.total_outstanding_principal = decimal.Decimal(number_util.round_currency(summary_update['total_outstanding_principal']))
+			financial_summary.total_outstanding_principal_for_interest = decimal.Decimal(number_util.round_currency(summary_update['total_outstanding_principal_for_interest']))
+			financial_summary.total_outstanding_interest = decimal.Decimal(number_util.round_currency(summary_update['total_outstanding_interest']))
+			financial_summary.total_outstanding_fees = decimal.Decimal(number_util.round_currency(summary_update['total_outstanding_fees']))
+			financial_summary.total_principal_in_requested_state = decimal.Decimal(number_util.round_currency(summary_update['total_principal_in_requested_state']))
+			financial_summary.interest_accrued_today = decimal.Decimal(number_util.round_currency(summary_update['total_interest_accrued_today']))
+			financial_summary.available_limit = decimal.Decimal(number_util.round_currency(summary_update['available_limit']))
 			financial_summary.minimum_monthly_payload = cast(Dict, summary_update['minimum_monthly_payload'])
 			financial_summary.account_level_balance_payload = cast(Dict, summary_update['account_level_balance_payload'])
 			financial_summary.day_volume_threshold_met = summary_update['day_volume_threshold_met']
