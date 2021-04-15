@@ -91,7 +91,8 @@ export default function CreateRepaymentLineofCreditSection({
                   setPayment({
                     ...payment,
                     requested_amount:
-                      value + payment.items_covered.requested_to_interest,
+                      (value || 0.0) +
+                      (payment.items_covered.requested_to_interest || 0.0),
                     items_covered: {
                       ...payment.items_covered,
                       requested_to_principal: value,
@@ -116,7 +117,8 @@ export default function CreateRepaymentLineofCreditSection({
                     setPayment({
                       ...payment,
                       requested_amount:
-                        value + payment.items_covered.requested_to_principal,
+                        (value || 0.0) +
+                        (payment.items_covered.requested_to_principal || 0.0),
                       items_covered: {
                         ...payment.items_covered,
                         requested_to_interest: value,
@@ -128,14 +130,6 @@ export default function CreateRepaymentLineofCreditSection({
             </Box>
           </Box>
         )}
-        {/* <Box mt={4}>
-              <Typography variant="body1">
-                {`Calculated Payment Amount: ${formatCurrency(
-                  payment.items_covered.requested_to_principal +
-                    payment.items_covered.requested_to_interest
-                )}`}
-              </Typography>
-            </Box> */}
       </Box>
     </>
   );

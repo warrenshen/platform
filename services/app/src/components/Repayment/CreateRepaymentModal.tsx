@@ -194,7 +194,7 @@ function CreateRepaymentModal({
           requested_to_principal:
             payment.items_covered.requested_to_principal || 0.0, // If user leaves this blank, coerce to zero.
           requested_to_interest:
-            payment.items_covered.requestd_to_interest || 0.0, // If user leaves this blank, coerce to zero.
+            payment.items_covered.requested_to_interest || 0.0, // If user leaves this blank, coerce to zero.
           to_principal: payment.items_covered.to_principal,
           to_interest: payment.items_covered.to_intereset,
         },
