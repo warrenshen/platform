@@ -170,6 +170,11 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 		'requires_secure_link': False
 	},
 
+	TemplateNames.CUSTOMER_REQUESTED_REPAYMENT: {
+		'id': 'd-8dd4b164703a4fdeb5cf2a4c0faa097a',
+		'requires_secure_link': False
+	},
+
 	TemplateNames.USER_VENDOR_INVITED_TO_PLATFORM: {
 		'id': 'd-381ba29d06d04336afa56bb16e626eb8',
 		'requires_secure_link': False

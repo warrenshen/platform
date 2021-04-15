@@ -1,20 +1,94 @@
 import datetime
 import json
 import logging
-from typing import Any, Dict, cast
+from typing import Any, Callable, Dict, List, Tuple, cast
 
+from bespoke import errors
 from bespoke.audit import events
+from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
+from bespoke.email import sendgrid_util
+from bespoke.finance import number_util
 from bespoke.finance.fetchers import per_customer_fetcher
 from bespoke.finance.payments import payment_util, repayment_util
 from bespoke.finance.types import per_customer_types
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from mypy_extensions import TypedDict
+from server.config import Config
 from server.views.common import auth_util, handler_util
 
 handler = Blueprint('finance_loans_repayments', __name__)
+
+@errors.return_error_tuple
+def _send_customer_requested_repayment_emails(
+	payment_id: str,
+) -> Tuple[bool, errors.Error]:
+	sendgrid_client = cast(
+		sendgrid_util.Client,
+		current_app.sendgrid_client,
+	)
+
+	with session_scope(current_app.session_maker) as session:
+		payment = cast(
+			models.Payment,
+			session.query(models.Payment).get(payment_id))
+
+		customer = cast(
+			models.Company,
+			session.query(models.Company).get(payment.company_id))
+
+		template_data = {
+			'customer_name': customer.name,
+			'payment_amount': number_util.to_dollar_format(float(payment.requested_amount)),
+			'payment_method': payment.method,
+			'requested_payment_date': date_util.date_to_str(payment.requested_payment_date),
+		}
+		_, err = sendgrid_client.send(
+			template_name=sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_REPAYMENT,
+			template_data=template_data,
+			recipients=sendgrid_client.get_bank_notify_email_addresses(),
+		)
+		if err:
+			raise err
+
+	return True, None
+
+@errors.return_error_tuple
+def _send_bank_settled_repayment_emails(
+	payment_id: str,
+) -> Tuple[bool, errors.Error]:
+	sendgrid_client = cast(
+		sendgrid_util.Client,
+		current_app.sendgrid_client,
+	)
+
+	with session_scope(current_app.session_maker) as session:
+		payment = cast(
+			models.Payment,
+			session.query(models.Payment).get(payment_id))
+
+		customer = cast(
+			models.Company,
+			session.query(models.Company).get(payment.company_id))
+
+		template_data = {
+			'customer_name': customer.name,
+			'payment_amount': number_util.to_dollar_format(float(payment.amount)),
+			'payment_method': payment.method,
+			'payment_deposit_date': date_util.date_to_str(payment.deposit_date),
+			'payment_settlement_date': date_util.date_to_str(payment.settlement_date),
+		}
+		_, err = sendgrid_client.send(
+			template_name=sendgrid_util.TemplateNames.BANK_SETTLED_REPAYMENT,
+			template_data=template_data,
+			recipients=sendgrid_client.get_bank_notify_email_addresses(),
+		)
+		if err:
+			raise err
+
+	return True, None
 
 class CalculateRepaymentEffectView(MethodView):
 	decorators = [auth_util.login_required]
@@ -104,9 +178,14 @@ class CreateRepaymentView(MethodView):
 			logging.error(f"Failed to create repayment for company '{company_id}'; err: '{err}'")
 			return handler_util.make_error_response(err)
 
+		_, err = _send_customer_requested_repayment_emails(payment_id)
+
+		if err:
+			return handler_util.make_error_response(err)
+
 		return make_response(json.dumps({
 			'status': 'OK',
-			'payment_id': payment_id
+			'payment_id': payment_id,
 		}), 200)
 
 class ScheduleRepaymentView(MethodView):
@@ -195,6 +274,11 @@ class SettleRepaymentView(MethodView):
 
 		if err:
 			return handler_util.make_error_response(err)
+
+		# _, err = _send_bank_settled_repayment_emails(payment_id)
+
+		# if err:
+		# 	return handler_util.make_error_response(err)
 
 		return make_response(json.dumps({
 			'status': 'OK'
