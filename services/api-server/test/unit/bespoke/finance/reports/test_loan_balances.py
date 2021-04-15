@@ -116,10 +116,15 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				self.assertAlmostEqual(expected['total_principal_in_requested_state'], float(financial_summary.total_principal_in_requested_state))
 				self.assertAlmostEqual(expected['available_limit'], float(financial_summary.available_limit))
 
+				# Skip testing the prorated_info in the loan_balances and defer to the
+				# fee_util tests
+				min_monthly_payload = cast(Dict, financial_summary.minimum_monthly_payload)
+				del min_monthly_payload['prorated_info']
+
 				test_helper.assertDeepAlmostEqual(
 					self, expected['account_level_balance_payload'], cast(Dict, financial_summary.account_level_balance_payload))
 				test_helper.assertDeepAlmostEqual(
-					self, expected['minimum_monthly_payload'], cast(Dict, financial_summary.minimum_monthly_payload))
+					self, expected['minimum_monthly_payload'], min_monthly_payload)
 
 			if 'expected_day_volume_threshold_met' in test:
 				self.assertEqual(
@@ -286,40 +291,44 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						late_fee_structure=_get_late_fee_structure(), # unused
 					)
 				),
-				start_date=date_util.load_date_str('1/1/2020'),
+				start_date=date_util.load_date_str('10/03/2020'), # Contract starts mid-quarter so we need to pro-rate
 				adjusted_end_date=date_util.load_date_str('12/1/2020')
 			))
 			loan = models.Loan(
 				company_id=company_id,
-				origination_date=date_util.load_date_str('10/01/2020'),
+				origination_date=date_util.load_date_str('10/5/2020'),
 				adjusted_maturity_date=date_util.load_date_str('11/05/2020'),
 				amount=decimal.Decimal(500.03)
 			)
 			session.add(loan)
 			payment_test_helper.make_advance(
-				session, loan, amount=500.03, payment_date='10/01/2020', effective_date='10/01/2020')
+				session, loan, amount=500.03, payment_date='10/05/2020', effective_date='10/05/2020')
 
-			# Pay off the loan on the 4th, and the 37 days of interest accrued.
+			# Pay off the loan on the 4th, and the 33 days of interest accrued.
 			# No late fees accrue even though the payment settles after the loan reaches its maturity date
 			payment_test_helper.make_repayment(
 					session, loan,
 					to_principal=500.03,
-					to_interest=number_util.round_currency(37 * 0.005 * 500.03),
+					to_interest=number_util.round_currency(33 * 0.005 * 500.03),
 					to_fees=0.0,
 					payment_date='11/04/2020',
 					effective_date='11/06/2020'
 			)
 
+		numerator = 31 + 30 + 31 - 2 # Contract wasn't in effect for 2 days
+		denominator = 31 + 30 + 31 # October, November, December days
+		prorated_fraction = numerator / denominator
+
 		tests: List[Dict] = [
 			{
-				'today': '11/3/2020', # It's been 34 days since the loan started, and no late fees have accrued.
+				'today': '11/3/2020', # It's been 30 days since the loan started, and no late fees have accrued.
 				'populate_fn': populate_fn,
 				'expected_loan_updates': [
 					{
 						'adjusted_maturity_date': date_util.load_date_str('11/05/2020'),
 						'outstanding_principal': 500.03,
 						'outstanding_principal_for_interest': 500.03,
-						'outstanding_interest': number_util.round_currency(34 * 0.005 * 500.03), # 10/03 - 10/01 is 2 days apart, +1 day, is 3 days of interest.
+						'outstanding_interest': number_util.round_currency(30 * 0.005 * 500.03), # 10/03 - 10/01 is 2 days apart, +1 day, is 3 days of interest.
 						'outstanding_fees': 0.0,
 						'interest_accrued_today': number_util.round_currency(0.005 * 500.03),
 						'should_close_loan': False
@@ -331,15 +340,15 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'adjusted_total_limit': 120000.01,
 					'total_outstanding_principal': 500.03,
 					'total_outstanding_principal_for_interest': 500.03,
-					'total_outstanding_interest': number_util.round_currency(34 * 0.005 * 500.03),
+					'total_outstanding_interest': number_util.round_currency(30 * 0.005 * 500.03),
 					'total_outstanding_fees': 0.0,
 					'total_principal_in_requested_state': 0.0,
 					'total_interest_accrued_today': number_util.round_currency(0.005 * 500.03),
 					'available_limit': 120000.01 - 500.03,
 					'minimum_monthly_payload': {
-							'minimum_amount': 20000.03,
-							'amount_accrued': number_util.round_currency(34 * 0.005 * 500.03),
-							'amount_short': number_util.round_currency(20000.03 - (34 * 0.005 * 500.03)),
+							'minimum_amount': 20000.03 * prorated_fraction,
+							'amount_accrued': number_util.round_currency(30 * 0.005 * 500.03),
+							'amount_short': number_util.round_currency(20000.03 * prorated_fraction - (30 * 0.005 * 500.03)),
 							'duration': 'quarterly'
 					},
 					'account_level_balance_payload': {

@@ -10,7 +10,7 @@ from bespoke.db.db_constants import (LoanStatusEnum, PaymentMethodEnum,
                                      PaymentStatusEnum, ProductType)
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util, financial_summary_util, number_util
-from bespoke.finance.loans import loan_calculator
+from bespoke.finance.loans import loan_calculator, fee_util
 from bespoke.finance.payments import payment_util
 from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
@@ -266,7 +266,7 @@ def calculate_repayment_effect(
 	loan_dict_and_balance_list: List[LoanDictAndBalance] = []
 
 	# Find the before balances for the loans
-	fee_accumulator = loan_calculator.FeeAccumulator()
+	fee_accumulator = fee_util.FeeAccumulator()
 	financial_summary = financial_summary_util.get_latest_financial_summary(
 		company_id=company_id, session=session
 	)
@@ -309,7 +309,7 @@ def calculate_repayment_effect(
 		))
 
 	loans_past_due_but_not_selected = []
-	fee_accumulator_past_due = loan_calculator.FeeAccumulator()
+	fee_accumulator_past_due = fee_util.FeeAccumulator()
 	# List out the before balances for unselected, but overdue loans to show to the user.
 	for loan_past_due_dict in loans_past_due_dicts:
 		past_due_loan_id = loan_past_due_dict['id']
@@ -925,7 +925,7 @@ def settle_repayment(
 		loan_dict_and_balance_list: List[LoanDictAndBalance] = []
 
 		# Find the before balances for the loans
-		fee_accumulator = loan_calculator.FeeAccumulator()
+		fee_accumulator = fee_util.FeeAccumulator()
 
 		financial_summary = financial_summary_util.get_latest_financial_summary(
 			company_id=company_id, session=session

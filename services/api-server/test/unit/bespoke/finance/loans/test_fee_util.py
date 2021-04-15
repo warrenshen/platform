@@ -10,9 +10,8 @@ from bespoke.db import db_constants, models
 from bespoke.db.db_constants import ProductType
 from bespoke.db.models import session_scope
 from bespoke.finance.payments import payment_util
-from bespoke.finance.reports import loan_balances
-from bespoke.finance.loans import loan_calculator
-from bespoke.finance.loans.loan_calculator import ProratedFeeInfoDict
+from bespoke.finance.loans import fee_util
+from bespoke.finance.loans.fee_util import ProratedFeeInfoDict
 from bespoke.finance import contract_util
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
@@ -55,12 +54,12 @@ class TestMinimumFees(db_unittest.TestCase):
 		contracts = cast(List[models.Contract], test['contracts'])
 		today = date_util.load_date_str(test['today'])
 
-		fee_accumulator = loan_calculator.FeeAccumulator()
+		fee_accumulator = fee_util.FeeAccumulator()
 		contract_helper, err = contract_util.ContractHelper.build(
 			company_id=company_id, contract_dicts=[c.as_dict() for c in contracts]
 		)
 		self.assertIsNone(err)
-		fees_dict, err = loan_balances._get_cur_minimum_fees(contract_helper, today, fee_accumulator)
+		fees_dict, err = fee_util.get_cur_minimum_fees(contract_helper, today, fee_accumulator)
 		if test.get('in_err_msg'):
 			self.assertIn(test['in_err_msg'], err.msg)
 			return
@@ -72,11 +71,12 @@ class TestMinimumFees(db_unittest.TestCase):
 		test: Dict = {
 			'today': '10/01/2020',
 			'contracts': [_get_contract()],
-			'expected_fee_dict': loan_balances.FeeDict(
+			'expected_fee_dict': fee_util.FeeDict(
 				minimum_amount=0.0,
 				amount_accrued=0.0,
 				amount_short=0.0,
-				duration=None
+				duration=None,
+				prorated_info=None
 			)
 		}
 		self._run_test(test)
@@ -84,7 +84,7 @@ class TestMinimumFees(db_unittest.TestCase):
 class TestGetProratedFeeInfo(unittest.TestCase):
 
 	def _run_test(self, test: Dict) -> None:
-		fee_info = loan_calculator.get_prorated_fee_info(
+		fee_info = fee_util.get_prorated_fee_info(
 			duration=test['duration'],
 			contract_start_date=date_util.load_date_str(test['contract_start_date']),
 			today=date_util.load_date_str(test['today'])
@@ -100,7 +100,7 @@ class TestGetProratedFeeInfo(unittest.TestCase):
 				numerator=365,
 				denom=365,
 				fraction=1,
-				day_to_pay=date_util.load_date_str('01/10/2021')
+				day_to_pay='01/10/2021'
 			)
 		}
 		self._run_test(test)
@@ -114,7 +114,7 @@ class TestGetProratedFeeInfo(unittest.TestCase):
 				numerator=29,
 				denom=29,
 				fraction=1,
-				day_to_pay=date_util.load_date_str('02/29/2020')
+				day_to_pay='02/29/2020'
 			)
 		}
 		self._run_test(test)
@@ -128,7 +128,7 @@ class TestGetProratedFeeInfo(unittest.TestCase):
 				numerator=19, # 28 days - 9 days before the contract took effect
 				denom=28,
 				fraction=19 / 28,
-				day_to_pay=date_util.load_date_str('02/28/2021')
+				day_to_pay='02/28/2021'
 			)
 		}
 		self._run_test(test)
@@ -142,7 +142,7 @@ class TestGetProratedFeeInfo(unittest.TestCase):
 				numerator=28, # Still need to pay everything this month
 				denom=28,
 				fraction=1,
-				day_to_pay=date_util.load_date_str('02/28/2021')
+				day_to_pay='02/28/2021'
 			)
 		}
 		self._run_test(test)
@@ -156,7 +156,39 @@ class TestGetProratedFeeInfo(unittest.TestCase):
 				numerator=31 + 30 + 31, # sum of the number of days in the quarter
 				denom=31 + 30 + 31,
 				fraction=1,
-				day_to_pay=date_util.load_date_str('12/31/2020')
+				day_to_pay='12/31/2020'
+			)
+		}
+		self._run_test(test)
+
+	def test_quarterly_prorated(self) -> None:
+		numerator = 30 + 31 + 30 - (30 + 9)
+		denom = 30 + 31 + 30
+		test: Dict = {
+			'duration': contract_util.MinimumAmountDuration.QUARTERLY,
+			'contract_start_date': '05/10/2020',
+			'today': '06/20/2020', # Overlapping quarter, so we must pro-rate
+			'expected_fee_info': ProratedFeeInfoDict(
+				numerator=numerator, # sum of the number of days in the quarter
+				denom=denom,
+				fraction=numerator / denom,
+				day_to_pay='06/30/2020'
+			)
+		}
+		self._run_test(test)
+
+	def test_quarterly_not_prorated_first_day_of_quarter(self) -> None:
+		numerator = 30 + 31 + 30
+		denom = 30 + 31 + 30
+		test: Dict = {
+			'duration': contract_util.MinimumAmountDuration.QUARTERLY,
+			'contract_start_date': '04/01/2020',
+			'today': '06/20/2020', # Overlapping quarter, so we must pro-rate
+			'expected_fee_info': ProratedFeeInfoDict(
+				numerator=numerator, # sum of the number of days in the quarter
+				denom=denom,
+				fraction=1,
+				day_to_pay='06/30/2020'
 			)
 		}
 		self._run_test(test)

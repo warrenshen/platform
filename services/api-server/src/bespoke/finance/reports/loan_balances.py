@@ -27,18 +27,12 @@ from bespoke.db.db_constants import LoanStatusEnum, ProductType
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util, number_util
 from bespoke.finance.fetchers import per_customer_fetcher
-from bespoke.finance.loans import loan_calculator
+from bespoke.finance.loans import loan_calculator, fee_util
+from bespoke.finance.loans.fee_util import FeeDict
 from bespoke.finance.loans.loan_calculator import LoanUpdateDict
 from bespoke.finance.payments import payment_util
 from bespoke.finance.types import finance_types, per_customer_types
 from mypy_extensions import TypedDict
-
-FeeDict = TypedDict('FeeDict', {
-	'amount_accrued': float, # how much has accrued in fees for the time period
-	'minimum_amount': float, # the minimum you must pay in a time period
-	'amount_short': float, # how much you owe for a time period because of the minimum_due
-	'duration': str # Over what duration is this fee owed
-})
 
 AccountBalanceDict = TypedDict('AccountBalanceDict', {
 	'fees_total': float,
@@ -116,47 +110,6 @@ def _get_active_ebba_application_update(
 		calculated_borrowing_base=number_util.round_currency(calculated_borrowing_base),
 	), None
 
-def _get_cur_minimum_fees(contract_helper: contract_util.ContractHelper, today: datetime.date, fee_accumulator: loan_calculator.FeeAccumulator) -> Tuple[FeeDict, errors.Error]:
-	cur_contract, err = contract_helper.get_contract(today)
-	if err:
-		return None, err
-
-	minimum_owed_dict, err = cur_contract.get_minimum_amount_owed_per_duration()
-	has_no_duration_set = err is not None
-	if has_no_duration_set:
-		return FeeDict(
-			minimum_amount=0.0,
-			amount_accrued=0.0,
-			amount_short=0.0,
-			duration=None
-		), None
-
-	contract_start_date, err = cur_contract.get_start_date()
-	if err:
-		return None, err
-
-	duration = minimum_owed_dict['duration']
-	amount_accrued, err = fee_accumulator.get_amount_accrued_by_duration(duration, today)
-	if err:
-		return None, err
-
-	# TODO(dlluncor): Incorporate this once get_prorated_fee_info is ready to go
-	#prorated_info = loan_calculator.get_prorated_fee_info(duration, contract_start_date, today)
-	prorated_fraction = 1 #prorated_info['fraction']
-
-	# Use a fraction to determine how much we pro-rate this fee.
-	minimum_due = minimum_owed_dict['amount'] * prorated_fraction
-
-	amount_short = max(0, minimum_due - amount_accrued)
-
-	cur_month_fees = FeeDict(
-		minimum_amount=minimum_due,
-		amount_accrued=number_util.round_currency(amount_accrued),
-		amount_short=number_util.round_currency(amount_short),
-		duration=duration
-	)
-	return cur_month_fees, None
-
 def _get_account_level_balance(customer_info: per_customer_types.CustomerFinancials) -> Tuple[AccountBalanceDict, errors.Error]:
 	fees_total = 0.0
 	credits_total = 0.0
@@ -186,7 +139,7 @@ def _get_summary_update(
 	contract_helper: contract_util.ContractHelper,
 	loan_updates: List[LoanUpdateDict],
 	active_ebba_application_update: EbbaApplicationUpdateDict,
-	fee_accumulator: loan_calculator.FeeAccumulator,
+	fee_accumulator: fee_util.FeeAccumulator,
 	today: datetime.date
 	) -> Tuple[SummaryUpdateDict, errors.Error]:
 	cur_contract, err = contract_helper.get_contract(today)
@@ -224,7 +177,7 @@ def _get_summary_update(
 		total_outstanding_fees += l['outstanding_fees']
 		total_interest_accrued_today += l['interest_accrued_today']
 
-	minimum_monthly_payload, err = _get_cur_minimum_fees(contract_helper, today, fee_accumulator)
+	minimum_monthly_payload, err = fee_util.get_cur_minimum_fees(contract_helper, today, fee_accumulator)
 	if err:
 		return None, err
 
@@ -283,7 +236,7 @@ class CustomerBalance(object):
 		#
 		# For now, we just assume it's the same as today.
 		start_date = today
-		fee_accumulator = loan_calculator.FeeAccumulator()
+		fee_accumulator = fee_util.FeeAccumulator()
 		fee_accumulator.init_with_date_range(start_date, today)
 
 		all_errors = []
