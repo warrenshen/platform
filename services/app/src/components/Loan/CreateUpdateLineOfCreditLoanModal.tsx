@@ -1,17 +1,7 @@
-import {
-  Box,
-  Button,
-  createStyles,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  makeStyles,
-  Theme,
-  Typography,
-} from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import LineOfCreditLoanForm from "components/Loan/LineOfCreditLoanForm";
+import Modal from "components/Shared/Modal/Modal";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
@@ -35,26 +25,6 @@ import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    dialog: {
-      width: 500,
-    },
-    dialogTitle: {
-      borderBottom: "1px solid #c7c7c7",
-    },
-    purchaseOrderInput: {
-      width: 400,
-    },
-    dialogActions: {
-      margin: theme.spacing(2),
-    },
-    submitButton: {
-      marginLeft: theme.spacing(1),
-    },
-  })
-);
-
 interface Props {
   actionType: ActionType;
   companyId: Companies["id"];
@@ -68,7 +38,6 @@ function CreateUpdateLineOfCreditLoanModal({
   loanId = null,
   handleClose,
 }: Props) {
-  const classes = useStyles();
   const snackbar = useSnackbar();
 
   const {
@@ -269,16 +238,19 @@ function CreateUpdateLineOfCreditLoanModal({
     !loan?.amount;
 
   return isDialogReady ? (
-    <Dialog
-      open
-      onClose={handleClose}
-      maxWidth="xl"
-      classes={{ paper: classes.dialog }}
+    <Modal
+      isPrimaryActionDisabled={isSaveSubmitDisabled}
+      isSecondaryActionDisabled={isSaveDraftDisabled}
+      title={
+        actionType === ActionType.Update ? "Edit Loan" : "Request New Loan"
+      }
+      primaryActionText={"Save and Submit"}
+      secondaryActionText={"Save as Draft"}
+      handleClose={handleClose}
+      handlePrimaryAction={handleClickSaveSubmit}
+      handleSecondaryAction={handleClickSaveDraft}
     >
-      <DialogTitle className={classes.dialogTitle}>
-        {actionType === ActionType.Update ? "Edit Loan" : "Request New Loan"}
-      </DialogTitle>
-      <DialogContent>
+      <>
         {isBankUser && (
           <Box mt={2} mb={3}>
             <Alert severity="warning">
@@ -298,30 +270,8 @@ function CreateUpdateLineOfCreditLoanModal({
           setLineOfCredit={setLineOfCredit}
           setLoan={setLoan}
         />
-      </DialogContent>
-      <DialogActions className={classes.dialogActions}>
-        <Box>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button
-            disabled={isSaveDraftDisabled}
-            onClick={handleClickSaveDraft}
-            variant={"outlined"}
-            color={"default"}
-          >
-            Save as Draft
-          </Button>
-          <Button
-            className={classes.submitButton}
-            disabled={isSaveSubmitDisabled}
-            onClick={handleClickSaveSubmit}
-            variant="contained"
-            color="primary"
-          >
-            Save and Submit
-          </Button>
-        </Box>
-      </DialogActions>
-    </Dialog>
+      </>
+    </Modal>
   ) : null;
 }
 

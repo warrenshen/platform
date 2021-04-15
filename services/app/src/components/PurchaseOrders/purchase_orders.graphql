@@ -1,15 +1,16 @@
-query GetPurchaseOrders {
+subscription GetPurchaseOrders {
   purchase_orders(
     where: {
       _or: [{ is_deleted: { _is_null: true } }, { is_deleted: { _eq: false } }]
     }
+    order_by: [{ updated_at: desc }]
   ) {
     id
     ...PurchaseOrder
   }
 }
 
-query GetNotConfirmedPurchaseOrders {
+subscription GetNotConfirmedPurchaseOrders {
   purchase_orders(
     where: {
       _and: [
@@ -22,13 +23,14 @@ query GetNotConfirmedPurchaseOrders {
         { approved_at: { _is_null: true } }
       ]
     }
+    order_by: [{ requested_at: desc }, { created_at: desc }]
   ) {
     id
     ...PurchaseOrder
   }
 }
 
-query GetConfirmedPurchaseOrders {
+subscription GetConfirmedPurchaseOrders {
   purchase_orders(
     where: {
       _and: [
@@ -41,6 +43,7 @@ query GetConfirmedPurchaseOrders {
         { approved_at: { _is_null: false } }
       ]
     }
+    order_by: [{ approved_at: desc }, { created_at: desc }]
   ) {
     id
     ...PurchaseOrder

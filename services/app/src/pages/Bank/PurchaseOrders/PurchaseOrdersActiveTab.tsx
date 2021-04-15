@@ -7,13 +7,13 @@ import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   PurchaseOrderFragment,
   PurchaseOrders,
-  useGetNotConfirmedPurchaseOrdersQuery,
+  useGetNotConfirmedPurchaseOrdersSubscription,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { useMemo, useState } from "react";
 
 function BankPurchaseOrdersActiveTab() {
-  const { data, error, refetch } = useGetNotConfirmedPurchaseOrdersQuery();
+  const { data, error } = useGetNotConfirmedPurchaseOrdersSubscription();
 
   if (error) {
     window.console.log("Error querying purchase orders. Error: " + error);
@@ -61,7 +61,6 @@ function BankPurchaseOrdersActiveTab() {
                     <ApprovePurchaseOrderModal
                       purchaseOrder={selectedPurchaseOrder}
                       handleClose={() => {
-                        refetch();
                         handleClose();
                         setSelectedPurchaseOrderIds([]);
                       }}
@@ -79,7 +78,6 @@ function BankPurchaseOrdersActiveTab() {
                     <RejectPurchaseOrderModal
                       purchaseOrderId={selectedPurchaseOrder.id}
                       handleClose={() => {
-                        refetch();
                         handleClose();
                         setSelectedPurchaseOrderIds([]);
                       }}

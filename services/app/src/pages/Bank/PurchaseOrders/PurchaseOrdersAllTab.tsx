@@ -1,7 +1,7 @@
 import { Box } from "@material-ui/core";
 import PurchaseOrdersDataGrid from "components/PurchaseOrders/PurchaseOrdersDataGrid";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { useGetPurchaseOrdersQuery } from "generated/graphql";
+import { useGetPurchaseOrdersSubscription } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { useContext } from "react";
 
@@ -10,7 +10,7 @@ function BankPurchaseOrdersAllTab() {
     user: { role },
   } = useContext(CurrentUserContext);
 
-  const { data, error } = useGetPurchaseOrdersQuery();
+  const { data, error } = useGetPurchaseOrdersSubscription();
 
   if (error) {
     window.console.log("Error querying purchase orders. Error: " + error);

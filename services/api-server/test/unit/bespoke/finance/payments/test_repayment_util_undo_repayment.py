@@ -144,7 +144,7 @@ class TestUndoRepayment(db_unittest.TestCase):
 			],
 		)
 		bank_admin_user_id = seed.get_user_id('company_admin', index=0)
-		transaction_ids, err = repayment_util.settle_repayment(
+		_, err = repayment_util.settle_repayment(
 			req=req,
 			user_id=bank_admin_user_id,
 			session_maker=self.session_maker,
@@ -152,7 +152,7 @@ class TestUndoRepayment(db_unittest.TestCase):
 		)
 		self.assertIsNone(err)
 
-		transaction_ids, err = repayment_util.settle_repayment(
+		_, err = repayment_util.settle_repayment(
 			req=req,
 			user_id=bank_admin_user_id,
 			session_maker=self.session_maker,
@@ -172,7 +172,7 @@ class TestUndoRepayment(db_unittest.TestCase):
 		)
 		self.assertIsNone(err)
 
-		transaction_ids, err = repayment_util.settle_repayment(
+		_, err = repayment_util.settle_repayment(
 			req=req,
 			user_id=bank_admin_user_id,
 			session_maker=self.session_maker,

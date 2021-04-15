@@ -14626,7 +14626,7 @@ export type Users = {
   /** An object relationship */
   company?: Maybe<Companies>;
   company_id?: Maybe<Scalars["uuid"]>;
-  created_at?: Maybe<Scalars["timestamptz"]>;
+  created_at: Scalars["timestamptz"];
   email: Scalars["String"];
   first_name: Scalars["String"];
   full_name: Scalars["String"];
@@ -14635,6 +14635,7 @@ export type Users = {
   password?: Maybe<Scalars["String"]>;
   phone_number?: Maybe<Scalars["String"]>;
   role?: Maybe<UserRolesEnum>;
+  updated_at: Scalars["timestamptz"];
 };
 
 /** aggregated selection of "users" */
@@ -14685,6 +14686,7 @@ export type UsersBoolExp = {
   password?: Maybe<StringComparisonExp>;
   phone_number?: Maybe<StringComparisonExp>;
   role?: Maybe<UserRolesEnumComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
 };
 
 /** unique or primary key constraints on table "users" */
@@ -14708,6 +14710,7 @@ export type UsersInsertInput = {
   password?: Maybe<Scalars["String"]>;
   phone_number?: Maybe<Scalars["String"]>;
   role?: Maybe<UserRolesEnum>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** aggregate max on columns */
@@ -14721,6 +14724,7 @@ export type UsersMaxFields = {
   last_name?: Maybe<Scalars["String"]>;
   password?: Maybe<Scalars["String"]>;
   phone_number?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** order by max() on columns of table "users" */
@@ -14734,6 +14738,7 @@ export type UsersMaxOrderBy = {
   last_name?: Maybe<OrderBy>;
   password?: Maybe<OrderBy>;
   phone_number?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
 };
 
 /** aggregate min on columns */
@@ -14747,6 +14752,7 @@ export type UsersMinFields = {
   last_name?: Maybe<Scalars["String"]>;
   password?: Maybe<Scalars["String"]>;
   phone_number?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** order by min() on columns of table "users" */
@@ -14760,6 +14766,7 @@ export type UsersMinOrderBy = {
   last_name?: Maybe<OrderBy>;
   password?: Maybe<OrderBy>;
   phone_number?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
 };
 
 /** response of any mutation on the table "users" */
@@ -14796,6 +14803,7 @@ export type UsersOrderBy = {
   password?: Maybe<OrderBy>;
   phone_number?: Maybe<OrderBy>;
   role?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: "users" */
@@ -14825,6 +14833,8 @@ export enum UsersSelectColumn {
   PhoneNumber = "phone_number",
   /** column name */
   Role = "role",
+  /** column name */
+  UpdatedAt = "updated_at",
 }
 
 /** input type for updating data in table "users" */
@@ -14839,6 +14849,7 @@ export type UsersSetInput = {
   password?: Maybe<Scalars["String"]>;
   phone_number?: Maybe<Scalars["String"]>;
   role?: Maybe<UserRolesEnum>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** update columns of table "users" */
@@ -14863,6 +14874,8 @@ export enum UsersUpdateColumn {
   PhoneNumber = "phone_number",
   /** column name */
   Role = "role",
+  /** column name */
+  UpdatedAt = "updated_at",
 }
 
 /** expression to compare columns of type uuid. All fields are combined with logical 'AND'. */
@@ -15952,25 +15965,27 @@ export type UpdatePurchaseOrderMutation = {
   >;
 };
 
-export type GetPurchaseOrdersQueryVariables = Exact<{ [key: string]: never }>;
-
-export type GetPurchaseOrdersQuery = {
-  purchase_orders: Array<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
-};
-
-export type GetNotConfirmedPurchaseOrdersQueryVariables = Exact<{
+export type GetPurchaseOrdersSubscriptionVariables = Exact<{
   [key: string]: never;
 }>;
 
-export type GetNotConfirmedPurchaseOrdersQuery = {
+export type GetPurchaseOrdersSubscription = {
   purchase_orders: Array<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
 };
 
-export type GetConfirmedPurchaseOrdersQueryVariables = Exact<{
+export type GetNotConfirmedPurchaseOrdersSubscriptionVariables = Exact<{
   [key: string]: never;
 }>;
 
-export type GetConfirmedPurchaseOrdersQuery = {
+export type GetNotConfirmedPurchaseOrdersSubscription = {
+  purchase_orders: Array<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
+};
+
+export type GetConfirmedPurchaseOrdersSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetConfirmedPurchaseOrdersSubscription = {
   purchase_orders: Array<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
 };
 
@@ -20813,7 +20828,7 @@ export type UpdatePurchaseOrderMutationOptions = Apollo.BaseMutationOptions<
   UpdatePurchaseOrderMutationVariables
 >;
 export const GetPurchaseOrdersDocument = gql`
-  query GetPurchaseOrders {
+  subscription GetPurchaseOrders {
     purchase_orders(
       where: {
         _or: [
@@ -20821,6 +20836,7 @@ export const GetPurchaseOrdersDocument = gql`
           { is_deleted: { _eq: false } }
         ]
       }
+      order_by: [{ updated_at: desc }]
     ) {
       id
       ...PurchaseOrder
@@ -20830,54 +20846,37 @@ export const GetPurchaseOrdersDocument = gql`
 `;
 
 /**
- * __useGetPurchaseOrdersQuery__
+ * __useGetPurchaseOrdersSubscription__
  *
- * To run a query within a React component, call `useGetPurchaseOrdersQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetPurchaseOrdersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetPurchaseOrdersSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetPurchaseOrdersSubscription` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetPurchaseOrdersQuery({
+ * const { data, loading, error } = useGetPurchaseOrdersSubscription({
  *   variables: {
  *   },
  * });
  */
-export function useGetPurchaseOrdersQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetPurchaseOrdersQuery,
-    GetPurchaseOrdersQueryVariables
+export function useGetPurchaseOrdersSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetPurchaseOrdersSubscription,
+    GetPurchaseOrdersSubscriptionVariables
   >
 ) {
-  return Apollo.useQuery<
-    GetPurchaseOrdersQuery,
-    GetPurchaseOrdersQueryVariables
+  return Apollo.useSubscription<
+    GetPurchaseOrdersSubscription,
+    GetPurchaseOrdersSubscriptionVariables
   >(GetPurchaseOrdersDocument, baseOptions);
 }
-export function useGetPurchaseOrdersLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetPurchaseOrdersQuery,
-    GetPurchaseOrdersQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    GetPurchaseOrdersQuery,
-    GetPurchaseOrdersQueryVariables
-  >(GetPurchaseOrdersDocument, baseOptions);
-}
-export type GetPurchaseOrdersQueryHookResult = ReturnType<
-  typeof useGetPurchaseOrdersQuery
+export type GetPurchaseOrdersSubscriptionHookResult = ReturnType<
+  typeof useGetPurchaseOrdersSubscription
 >;
-export type GetPurchaseOrdersLazyQueryHookResult = ReturnType<
-  typeof useGetPurchaseOrdersLazyQuery
->;
-export type GetPurchaseOrdersQueryResult = Apollo.QueryResult<
-  GetPurchaseOrdersQuery,
-  GetPurchaseOrdersQueryVariables
->;
+export type GetPurchaseOrdersSubscriptionResult = Apollo.SubscriptionResult<GetPurchaseOrdersSubscription>;
 export const GetNotConfirmedPurchaseOrdersDocument = gql`
-  query GetNotConfirmedPurchaseOrders {
+  subscription GetNotConfirmedPurchaseOrders {
     purchase_orders(
       where: {
         _and: [
@@ -20890,6 +20889,7 @@ export const GetNotConfirmedPurchaseOrdersDocument = gql`
           { approved_at: { _is_null: true } }
         ]
       }
+      order_by: [{ requested_at: desc }, { created_at: desc }]
     ) {
       id
       ...PurchaseOrder
@@ -20899,54 +20899,37 @@ export const GetNotConfirmedPurchaseOrdersDocument = gql`
 `;
 
 /**
- * __useGetNotConfirmedPurchaseOrdersQuery__
+ * __useGetNotConfirmedPurchaseOrdersSubscription__
  *
- * To run a query within a React component, call `useGetNotConfirmedPurchaseOrdersQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetNotConfirmedPurchaseOrdersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetNotConfirmedPurchaseOrdersSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetNotConfirmedPurchaseOrdersSubscription` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetNotConfirmedPurchaseOrdersQuery({
+ * const { data, loading, error } = useGetNotConfirmedPurchaseOrdersSubscription({
  *   variables: {
  *   },
  * });
  */
-export function useGetNotConfirmedPurchaseOrdersQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetNotConfirmedPurchaseOrdersQuery,
-    GetNotConfirmedPurchaseOrdersQueryVariables
+export function useGetNotConfirmedPurchaseOrdersSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetNotConfirmedPurchaseOrdersSubscription,
+    GetNotConfirmedPurchaseOrdersSubscriptionVariables
   >
 ) {
-  return Apollo.useQuery<
-    GetNotConfirmedPurchaseOrdersQuery,
-    GetNotConfirmedPurchaseOrdersQueryVariables
+  return Apollo.useSubscription<
+    GetNotConfirmedPurchaseOrdersSubscription,
+    GetNotConfirmedPurchaseOrdersSubscriptionVariables
   >(GetNotConfirmedPurchaseOrdersDocument, baseOptions);
 }
-export function useGetNotConfirmedPurchaseOrdersLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetNotConfirmedPurchaseOrdersQuery,
-    GetNotConfirmedPurchaseOrdersQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    GetNotConfirmedPurchaseOrdersQuery,
-    GetNotConfirmedPurchaseOrdersQueryVariables
-  >(GetNotConfirmedPurchaseOrdersDocument, baseOptions);
-}
-export type GetNotConfirmedPurchaseOrdersQueryHookResult = ReturnType<
-  typeof useGetNotConfirmedPurchaseOrdersQuery
+export type GetNotConfirmedPurchaseOrdersSubscriptionHookResult = ReturnType<
+  typeof useGetNotConfirmedPurchaseOrdersSubscription
 >;
-export type GetNotConfirmedPurchaseOrdersLazyQueryHookResult = ReturnType<
-  typeof useGetNotConfirmedPurchaseOrdersLazyQuery
->;
-export type GetNotConfirmedPurchaseOrdersQueryResult = Apollo.QueryResult<
-  GetNotConfirmedPurchaseOrdersQuery,
-  GetNotConfirmedPurchaseOrdersQueryVariables
->;
+export type GetNotConfirmedPurchaseOrdersSubscriptionResult = Apollo.SubscriptionResult<GetNotConfirmedPurchaseOrdersSubscription>;
 export const GetConfirmedPurchaseOrdersDocument = gql`
-  query GetConfirmedPurchaseOrders {
+  subscription GetConfirmedPurchaseOrders {
     purchase_orders(
       where: {
         _and: [
@@ -20959,6 +20942,7 @@ export const GetConfirmedPurchaseOrdersDocument = gql`
           { approved_at: { _is_null: false } }
         ]
       }
+      order_by: [{ approved_at: desc }, { created_at: desc }]
     ) {
       id
       ...PurchaseOrder
@@ -20968,52 +20952,35 @@ export const GetConfirmedPurchaseOrdersDocument = gql`
 `;
 
 /**
- * __useGetConfirmedPurchaseOrdersQuery__
+ * __useGetConfirmedPurchaseOrdersSubscription__
  *
- * To run a query within a React component, call `useGetConfirmedPurchaseOrdersQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetConfirmedPurchaseOrdersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetConfirmedPurchaseOrdersSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetConfirmedPurchaseOrdersSubscription` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetConfirmedPurchaseOrdersQuery({
+ * const { data, loading, error } = useGetConfirmedPurchaseOrdersSubscription({
  *   variables: {
  *   },
  * });
  */
-export function useGetConfirmedPurchaseOrdersQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetConfirmedPurchaseOrdersQuery,
-    GetConfirmedPurchaseOrdersQueryVariables
+export function useGetConfirmedPurchaseOrdersSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetConfirmedPurchaseOrdersSubscription,
+    GetConfirmedPurchaseOrdersSubscriptionVariables
   >
 ) {
-  return Apollo.useQuery<
-    GetConfirmedPurchaseOrdersQuery,
-    GetConfirmedPurchaseOrdersQueryVariables
+  return Apollo.useSubscription<
+    GetConfirmedPurchaseOrdersSubscription,
+    GetConfirmedPurchaseOrdersSubscriptionVariables
   >(GetConfirmedPurchaseOrdersDocument, baseOptions);
 }
-export function useGetConfirmedPurchaseOrdersLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetConfirmedPurchaseOrdersQuery,
-    GetConfirmedPurchaseOrdersQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    GetConfirmedPurchaseOrdersQuery,
-    GetConfirmedPurchaseOrdersQueryVariables
-  >(GetConfirmedPurchaseOrdersDocument, baseOptions);
-}
-export type GetConfirmedPurchaseOrdersQueryHookResult = ReturnType<
-  typeof useGetConfirmedPurchaseOrdersQuery
+export type GetConfirmedPurchaseOrdersSubscriptionHookResult = ReturnType<
+  typeof useGetConfirmedPurchaseOrdersSubscription
 >;
-export type GetConfirmedPurchaseOrdersLazyQueryHookResult = ReturnType<
-  typeof useGetConfirmedPurchaseOrdersLazyQuery
->;
-export type GetConfirmedPurchaseOrdersQueryResult = Apollo.QueryResult<
-  GetConfirmedPurchaseOrdersQuery,
-  GetConfirmedPurchaseOrdersQueryVariables
->;
+export type GetConfirmedPurchaseOrdersSubscriptionResult = Apollo.SubscriptionResult<GetConfirmedPurchaseOrdersSubscription>;
 export const GetFundablePurchaseOrdersByCompanyIdDocument = gql`
   query GetFundablePurchaseOrdersByCompanyId($company_id: uuid!) {
     purchase_orders(

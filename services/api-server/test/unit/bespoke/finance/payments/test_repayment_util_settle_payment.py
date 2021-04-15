@@ -175,7 +175,7 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 
 	bank_admin_user_id = seed.get_user_id('bank_admin', index=0)
 
-	transaction_ids, err = repayment_util.settle_repayment(
+	_, err = repayment_util.settle_repayment(
 		req=req,
 		user_id=bank_admin_user_id,
 		session_maker=self.session_maker,
@@ -213,10 +213,10 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 		transactions = cast(
 			List[models.Transaction],
 			session.query(models.Transaction).filter(
-				models.Transaction.id.in_(transaction_ids)
+				models.Transaction.payment_id == payment_id
 			).all())
 
-		self.assertEqual(len(transaction_ids), len(transactions))
+		# self.assertEqual(len(transaction_ids), len(transactions))
 		transactions = [t for t in transactions]
 		transactions.sort(key=lambda t: t.amount, reverse=True) # Sort from largest to least
 
@@ -1134,7 +1134,7 @@ class TestSettlePayment(db_unittest.TestCase):
 			],
 		)
 
-		transaction_ids, err = repayment_util.settle_repayment(
+		payment_id, err = repayment_util.settle_repayment(
 			req=req,
 			user_id=user_id,
 			session_maker=self.session_maker,

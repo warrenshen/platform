@@ -1,7 +1,7 @@
 import { Box } from "@material-ui/core";
 import PurchaseOrdersDataGrid from "components/PurchaseOrders/PurchaseOrdersDataGrid";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { useGetConfirmedPurchaseOrdersQuery } from "generated/graphql";
+import { useGetConfirmedPurchaseOrdersSubscription } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { useContext } from "react";
 
@@ -10,7 +10,7 @@ function BankPurchaseOrdersClosedTab() {
     user: { role },
   } = useContext(CurrentUserContext);
 
-  const { data, error } = useGetConfirmedPurchaseOrdersQuery();
+  const { data, error } = useGetConfirmedPurchaseOrdersSubscription();
 
   if (error) {
     window.console.log("Error querying purchase orders. Error: " + error);
