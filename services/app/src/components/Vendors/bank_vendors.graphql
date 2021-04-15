@@ -30,12 +30,6 @@ query GetVendorPartnershipForBank($id: uuid!) {
           ...BankAccount
         }
       }
-      licenses {
-        id
-      }
-      agreements {
-        id
-      }
     }
     vendor_bank_account {
       id

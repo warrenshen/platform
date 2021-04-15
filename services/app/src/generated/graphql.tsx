@@ -16591,8 +16591,6 @@ export type GetVendorPartnershipForBankQuery = {
           collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
         };
         users: Array<ContactFragment>;
-        licenses: Array<Pick<CompanyLicenses, "id">>;
-        agreements: Array<Pick<CompanyAgreements, "id">>;
       } & ThirdPartyFragment;
       vendor_bank_account?: Maybe<
         Pick<BankAccounts, "id"> & BankAccountFragment
@@ -22867,12 +22865,6 @@ export const GetVendorPartnershipForBankDocument = gql`
           collections_bespoke_bank_account {
             ...BankAccount
           }
-        }
-        licenses {
-          id
-        }
-        agreements {
-          id
         }
       }
       vendor_bank_account {

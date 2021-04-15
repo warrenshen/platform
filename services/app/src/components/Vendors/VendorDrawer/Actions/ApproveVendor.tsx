@@ -50,6 +50,9 @@ function ApproveVendor(props: Props) {
     return null;
   }
 
+  const vendorLicense = data.company_vendor_partnerships_by_pk.company_license;
+  const vendorAgreement =
+    data.company_vendor_partnerships_by_pk.company_agreement;
   const vendor = data.company_vendor_partnerships_by_pk.vendor;
   const customerName = props.customerName;
 
@@ -73,11 +76,11 @@ function ApproveVendor(props: Props) {
       );
       return false;
     }
-    if (!vendor.licenses) {
+    if (!vendorLicense) {
       snackbar.showError("Vendor does not have any licesnses setup");
       return false;
     }
-    if (!vendor.agreements) {
+    if (!vendorAgreement) {
       snackbar.showError("Vendor does not have any agreements setup");
       return false;
     }
