@@ -14626,7 +14626,7 @@ export type Users = {
   /** An object relationship */
   company?: Maybe<Companies>;
   company_id?: Maybe<Scalars["uuid"]>;
-  created_at: Scalars["timestamptz"];
+  created_at?: Maybe<Scalars["timestamptz"]>;
   email: Scalars["String"];
   first_name: Scalars["String"];
   full_name: Scalars["String"];
@@ -14635,7 +14635,6 @@ export type Users = {
   password?: Maybe<Scalars["String"]>;
   phone_number?: Maybe<Scalars["String"]>;
   role?: Maybe<UserRolesEnum>;
-  updated_at: Scalars["timestamptz"];
 };
 
 /** aggregated selection of "users" */
@@ -14686,7 +14685,6 @@ export type UsersBoolExp = {
   password?: Maybe<StringComparisonExp>;
   phone_number?: Maybe<StringComparisonExp>;
   role?: Maybe<UserRolesEnumComparisonExp>;
-  updated_at?: Maybe<TimestamptzComparisonExp>;
 };
 
 /** unique or primary key constraints on table "users" */
@@ -14710,7 +14708,6 @@ export type UsersInsertInput = {
   password?: Maybe<Scalars["String"]>;
   phone_number?: Maybe<Scalars["String"]>;
   role?: Maybe<UserRolesEnum>;
-  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** aggregate max on columns */
@@ -14724,7 +14721,6 @@ export type UsersMaxFields = {
   last_name?: Maybe<Scalars["String"]>;
   password?: Maybe<Scalars["String"]>;
   phone_number?: Maybe<Scalars["String"]>;
-  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** order by max() on columns of table "users" */
@@ -14738,7 +14734,6 @@ export type UsersMaxOrderBy = {
   last_name?: Maybe<OrderBy>;
   password?: Maybe<OrderBy>;
   phone_number?: Maybe<OrderBy>;
-  updated_at?: Maybe<OrderBy>;
 };
 
 /** aggregate min on columns */
@@ -14752,7 +14747,6 @@ export type UsersMinFields = {
   last_name?: Maybe<Scalars["String"]>;
   password?: Maybe<Scalars["String"]>;
   phone_number?: Maybe<Scalars["String"]>;
-  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** order by min() on columns of table "users" */
@@ -14766,7 +14760,6 @@ export type UsersMinOrderBy = {
   last_name?: Maybe<OrderBy>;
   password?: Maybe<OrderBy>;
   phone_number?: Maybe<OrderBy>;
-  updated_at?: Maybe<OrderBy>;
 };
 
 /** response of any mutation on the table "users" */
@@ -14803,7 +14796,6 @@ export type UsersOrderBy = {
   password?: Maybe<OrderBy>;
   phone_number?: Maybe<OrderBy>;
   role?: Maybe<OrderBy>;
-  updated_at?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: "users" */
@@ -14833,8 +14825,6 @@ export enum UsersSelectColumn {
   PhoneNumber = "phone_number",
   /** column name */
   Role = "role",
-  /** column name */
-  UpdatedAt = "updated_at",
 }
 
 /** input type for updating data in table "users" */
@@ -14849,7 +14839,6 @@ export type UsersSetInput = {
   password?: Maybe<Scalars["String"]>;
   phone_number?: Maybe<Scalars["String"]>;
   role?: Maybe<UserRolesEnum>;
-  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** update columns of table "users" */
@@ -14874,8 +14863,6 @@ export enum UsersUpdateColumn {
   PhoneNumber = "phone_number",
   /** column name */
   Role = "role",
-  /** column name */
-  UpdatedAt = "updated_at",
 }
 
 /** expression to compare columns of type uuid. All fields are combined with logical 'AND'. */
@@ -16604,6 +16591,8 @@ export type GetVendorPartnershipForBankQuery = {
           collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
         };
         users: Array<ContactFragment>;
+        licenses: Array<Pick<CompanyLicenses, "id">>;
+        agreements: Array<Pick<CompanyAgreements, "id">>;
       } & ThirdPartyFragment;
       vendor_bank_account?: Maybe<
         Pick<BankAccounts, "id"> & BankAccountFragment
@@ -22878,6 +22867,12 @@ export const GetVendorPartnershipForBankDocument = gql`
           collections_bespoke_bank_account {
             ...BankAccount
           }
+        }
+        licenses {
+          id
+        }
+        agreements {
+          id
         }
       }
       vendor_bank_account {

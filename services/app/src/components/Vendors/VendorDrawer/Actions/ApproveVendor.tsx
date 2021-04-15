@@ -1,6 +1,11 @@
 import { Button } from "@material-ui/core";
+import * as Sentry from "@sentry/react";
 import ConfirmModal from "components/Shared/Confirmations/ConfirmModal";
-import { useUpdateCompanyVendorPartnershipApprovedAtMutation } from "generated/graphql";
+import {
+  useGetVendorPartnershipForBankQuery,
+  useUpdateCompanyVendorPartnershipApprovedAtMutation,
+} from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import { InventoryNotifier } from "lib/notifications/inventory";
 import { useState } from "react";
 
@@ -17,11 +22,35 @@ interface Props {
 function ApproveVendor(props: Props) {
   const [open, setOpen] = useState(false);
   const [errMsg, setErrMsg] = useState("");
+  const snackbar = useSnackbar();
 
   const [
     updateApprovedAt,
   ] = useUpdateCompanyVendorPartnershipApprovedAtMutation();
 
+  const vendorPartnershipId = props.vendorPartnershipId;
+
+  const {
+    data,
+    loading: isBankVendorPartnershipLoading,
+    error,
+    refetch,
+  } = useGetVendorPartnershipForBankQuery({
+    variables: {
+      id: vendorPartnershipId,
+    },
+  });
+
+  if (!data?.company_vendor_partnerships_by_pk) {
+    if (!isBankVendorPartnershipLoading) {
+      let msg = `Error querying for the bank vendor partner ${vendorPartnershipId}. Error: ${error}`;
+      window.console.log(msg);
+      Sentry.captureMessage(msg);
+    }
+    return null;
+  }
+
+  const vendor = data.company_vendor_partnerships_by_pk.vendor;
   const customerName = props.customerName;
 
   if (props.hasNoContactsSetup) {
@@ -33,6 +62,28 @@ function ApproveVendor(props: Props) {
     );
   }
 
+  const areVendorDetailsValid = () => {
+    if (!vendor.users) {
+      snackbar.showError("Vendor does not have any users setup");
+      return false;
+    }
+    if (!vendor.settings.collections_bespoke_bank_account) {
+      snackbar.showError(
+        "Vendor does not have a bank account setup for Bespoke to collect from"
+      );
+      return false;
+    }
+    if (!vendor.licenses) {
+      snackbar.showError("Vendor does not have any licesnses setup");
+      return false;
+    }
+    if (!vendor.agreements) {
+      snackbar.showError("Vendor does not have any agreements setup");
+      return false;
+    }
+    return true;
+  };
+
   return (
     <>
       {open && (
@@ -40,12 +91,21 @@ function ApproveVendor(props: Props) {
           title={`Would you like to approve vendor ${props.vendorName} for customer ${customerName}?`}
           errorMessage={errMsg}
           handleConfirm={async () => {
+            let isValid = areVendorDetailsValid();
+
+            if (!isValid) {
+              setOpen(false);
+              return;
+            }
+
             updateApprovedAt({
               variables: {
-                companyVendorPartnershipId: props.vendorPartnershipId,
+                companyVendorPartnershipId: vendorPartnershipId,
                 approvedAt: "now()",
               },
             });
+
+            refetch();
 
             let resp = await props.notifier.sendVendorApproved({
               vendor_id: props.vendorId,
