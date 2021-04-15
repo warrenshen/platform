@@ -36,6 +36,9 @@ run-customer-reports:
 run-customer-balances:
 	cd src && PYTHONPATH=$(PYTHONPATH) SERVER_ROOT_DIR=$(server_root_dir) python3 $(RUN_BALANCES_SCRIPT)
 
+run-metrc-script:
+	cd src && PYTHONPATH=$(PYTHONPATH) SERVER_ROOT_DIR=$(server_root_dir) python3 bespoke/metrc/metrc_util.py
+
 # For testing
 
 runshell:
