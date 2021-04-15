@@ -1975,7 +1975,9 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 
 	def test_failure_line_of_credit_loan_originated_after_payment(self) -> None:
 		"""
-		Tests that an overpayment on the interest gets rejected
+		Tests that a loan with an origination date in the future relative to
+		deposit date of repayment is not included in list of loans repayment
+		may pay off (as a result, repayment is an overpayment and fails)
 		"""
 		test: Dict = {
 			'loans': [
@@ -1995,29 +1997,29 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 				[{'type': 'advance', 'amount': 50.0, 'payment_date': '10/10/2020', 'effective_date': '10/10/2020'}],
 			],
 			'payment': {
-				'amount': 50.0 + 0.4 + 10.0, # 10.0 overpayment
+				'amount': 50.0,
 				'payment_method': 'ach',
 				'payment_date': '10/09/2020',
 				'settlement_date': '10/13/2020',
 				'items_covered': {
 					'requested_to_principal': 50.0,
-					'requested_to_interest': 0.4 + 10.0, # 10.0 overpayment
+					'requested_to_interest': 0.0,
 				},
 				'company_bank_account_id': None,
 			},
 			'settlement_payment': {
-				'amount': 50.0 + 0.4 + 10.0, # 10.0 overpayment
+				'amount': 50.0,
 				'payment_method': 'ach',
 				'payment_date': '10/09/2020',
 				'settlement_date': '10/13/2020',
 				'items_covered': {
 					'requested_to_principal': 50.0,
-					'requested_to_interest': 0.4 + 10.0, # 10.0 overpayment
+					'requested_to_interest': 0.0,
 					'to_principal': 50.0,
-					'to_interest': 0.4 + 10.0, # 10.0 overpayment
+					'to_interest': 0.0,
 					'to_user_credit': 0.0,
 				},
 			},
-			'in_err_msg': 'being deposited earlier',
+			'in_err_msg': 'Outstanding principal may not be negative after payment',
 		}
 		self._run_test(test)

@@ -10,7 +10,7 @@ from bespoke.db.db_constants import (LoanStatusEnum, PaymentMethodEnum,
                                      PaymentStatusEnum, ProductType)
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util, financial_summary_util, number_util
-from bespoke.finance.loans import loan_calculator, fee_util
+from bespoke.finance.loans import fee_util, loan_calculator
 from bespoke.finance.payments import payment_util
 from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
@@ -171,8 +171,8 @@ def calculate_repayment_effect(
 		loans = []
 		if product_type == ProductType.LINE_OF_CREDIT:
 			# TODO(warrenshen):
-			# Write a test to check that loans that do not have an origination date set
-			# (ex. rejected loans) are NOT fetched.
+			# Write a test to check that loans that do not have an origination date
+			# set (ex. rejected loans) are NOT fetched.
 			# Write a test to check that loans are fetch sorted by [origination date, created at].
 			loans = cast(
 				List[models.Loan],
@@ -797,8 +797,8 @@ def settle_repayment(
 				raise errors.Error('Customer is not of Line of Credit product type', details=err_details)
 
 			# TODO(warrenshen):
-			# Write a test to check that loans that do not have an origination date set
-			# (ex. rejected loans) are NOT fetched.
+			# Write a test to check that loans that do not have an origination date
+			# set (ex. rejected loans) are NOT fetched.
 			# Write a test to check that loans are fetch sorted by origination date.
 			loans = cast(
 				List[models.Loan],
@@ -807,8 +807,9 @@ def settle_repayment(
 				).filter(
 					models.Loan.origination_date != None
 				).filter(
-					# Do not fetch loans that have an origination_date in the future relative to this payment's settlement date.
-					models.Loan.origination_date <= settlement_date
+					# Do not fetch loans that have an origination_date
+					# in the future relative to this payment's deposit date.
+					models.Loan.origination_date <= deposit_date
 				).filter(
 					models.Loan.closed_at == None
 				).order_by(
