@@ -61,14 +61,16 @@ class CreateLoginView(MethodView):
 				cfg.PASSWORD_SALT, password)
 			user_email = existing_user.email
 
-		template_name = sendgrid_util.TemplateNames.USER_INVITED_TO_PLATFORM
 		template_data = {
 			'email': user_email,
 			'password': password,
+			'app_link': cfg.BESPOKE_DOMAIN,
 		}
-		recipients = [user_email]
 		_, err = sendgrid_client.send(
-			template_name, template_data, recipients)
+			template_name=sendgrid_util.TemplateNames.USER_INVITED_TO_PLATFORM,
+			template_data=template_data,
+			recipients=[user_email],
+		)
 		if err:
 			return handler_util.make_error_response(err)
 
@@ -130,14 +132,16 @@ class CreateBankCustomerUserView(MethodView):
 				cfg.PASSWORD_SALT, password)
 			user_email = existing_user.email
 
-		template_name = sendgrid_util.TemplateNames.USER_INVITED_TO_PLATFORM
 		template_data = {
 			'email': user_email,
 			'password': password,
+			'app_link': cfg.BESPOKE_DOMAIN,
 		}
-		recipients = [user_email]
 		_, err = sendgrid_client.send(
-			template_name, template_data, recipients)
+			template_name=sendgrid_util.TemplateNames.USER_INVITED_TO_PLATFORM,
+			template_data=template_data,
+			recipients=[user_email],
+		)
 		if err:
 			return handler_util.make_error_response(err)
 
