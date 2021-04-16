@@ -127,6 +127,10 @@ ADVANCE_TYPES = set([PaymentType.ADVANCE])
 REPAYMENT_TYPES = set([PaymentType.REPAYMENT])
 ADJUSTMENT_TYPES = set([PaymentType.ADJUSTMENT])
 
+class PurchaseOrderFileTypeEnum(object):
+	Cannabis = 'cannabis'
+	PurchaseOrder = 'purchase_order'
+
 class InvoiceFileTypeEnum(object):
 	Invoice = 'invoice'
 	Cannabis = 'cannabis'

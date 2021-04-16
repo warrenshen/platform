@@ -141,6 +141,7 @@ function CreateUpdateEbbaApplicationModal({
     loading: isExistingEbbaApplicationLoading,
   } = useGetEbbaApplicationQuery({
     skip: actionType === ActionType.New,
+    fetchPolicy: "network-only",
     variables: {
       id: ebbaApplicationId,
     },

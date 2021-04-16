@@ -182,12 +182,25 @@ class CompanyPayorPartnership(Base):
 	approved_at = Column(DateTime)
 
 
+PurchaseOrderFileDict = TypedDict('PurchaseOrderFileDict', {
+	'purchase_order_id': str,
+	'file_id': str,
+	'file_type': str,
+})
+
 class PurchaseOrderFile(Base):
 	__tablename__ = 'purchase_order_files'
 
-	purchase_order_id = cast(GUID, Column(GUID, ForeignKey('purchase_orders.id'), primary_key=True))
-	file_id = cast(GUID, Column(GUID, ForeignKey('files.id'), primary_key=True))
+	purchase_order_id = Column(GUID, primary_key=True, nullable=False)
+	file_id = Column(GUID, primary_key=True, nullable=False)
 	file_type = Column(String)
+
+	def as_dict(self) -> PurchaseOrderFileDict:
+		return PurchaseOrderFileDict(
+			purchase_order_id=str(self.purchase_order_id),
+			file_id=str(self.file_id),
+			file_type=self.file_type,
+		)
 
 PurchaseOrderDict = TypedDict('PurchaseOrderDict', {
 	'id': str,

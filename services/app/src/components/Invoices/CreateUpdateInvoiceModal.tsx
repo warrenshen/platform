@@ -117,6 +117,7 @@ function CreateUpdateInvoiceModal({
 
   const { loading: isExistingInvoiceLoading } = useGetInvoiceByIdQuery({
     skip: actionType === ActionType.New,
+    fetchPolicy: "network-only",
     variables: {
       id: invoiceId,
     },

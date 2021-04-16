@@ -10,15 +10,16 @@ import {
   PurchaseOrders,
   PurchaseOrdersInsertInput,
   RequestStatusEnum,
-  useAddPurchaseOrderMutation,
   usePurchaseOrderQuery,
   UserRolesEnum,
-  useUpdatePurchaseOrderMutation,
   useVendorsByPartnerCompanyQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { submitPurchaseOrderMutation } from "lib/api/purchaseOrders";
+import {
+  createUpdatePurchaseOrderAndSubmitMutation,
+  createUpdatePurchaseOrderAsDraftMutation,
+} from "lib/api/purchaseOrders";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
@@ -30,7 +31,7 @@ interface Props {
   handleClose: () => void;
 }
 
-function CreateUpdatePurchaseOrderModal({
+export default function CreateUpdatePurchaseOrderModal({
   actionType,
   companyId,
   purchaseOrderId,
@@ -71,6 +72,7 @@ function CreateUpdatePurchaseOrderModal({
 
   const { loading: isExistingPurchaseOrderLoading } = usePurchaseOrderQuery({
     skip: actionType === ActionType.New,
+    fetchPolicy: "network-only",
     variables: {
       id: purchaseOrderId,
     },
@@ -111,21 +113,16 @@ function CreateUpdatePurchaseOrderModal({
   const vendors = data?.vendors || [];
 
   const [
-    addPurchaseOrder,
-    { loading: isAddPurchaseOrderLoading },
-  ] = useAddPurchaseOrderMutation();
+    createUpdatePurchaseOrderAsDraft,
+    { loading: isCreateUpdatePurchaseOrderAsDraftLoading },
+  ] = useCustomMutation(createUpdatePurchaseOrderAsDraftMutation);
 
   const [
-    updatePurchaseOrder,
-    { loading: isUpdatePurchaseOrderLoading },
-  ] = useUpdatePurchaseOrderMutation();
+    createUpdatePurchaseOrderAndSubmit,
+    { loading: isCreateUpdatePurchaseOrderAndSubmitLoading },
+  ] = useCustomMutation(createUpdatePurchaseOrderAndSubmitMutation);
 
-  const [
-    submitPurchaseOrder,
-    { loading: isSubmitPurchaseOrderLoading },
-  ] = useCustomMutation(submitPurchaseOrderMutation);
-
-  const upsertPurchaseOrder = async () => {
+  const preparePurchaseOrderFiles = () => {
     const purchaseOrderFileData = purchaseOrderFile && {
       purchase_order_id: purchaseOrderFile.purchase_order_id,
       file_id: purchaseOrderFile.file_id,
@@ -142,49 +139,33 @@ function CreateUpdatePurchaseOrderModal({
       ...(purchaseOrderFileData ? [purchaseOrderFileData] : []),
       ...(cannabisPurchaseOrderFilesData || []),
     ];
-    if (actionType === ActionType.Update) {
-      const response = await updatePurchaseOrder({
-        variables: {
-          id: purchaseOrder.id,
-          purchaseOrder: {
-            vendor_id: purchaseOrder.vendor_id,
-            order_number: purchaseOrder.order_number || null,
-            order_date: purchaseOrder.order_date || null,
-            delivery_date: purchaseOrder.delivery_date || null,
-            amount: purchaseOrder.amount || null,
-            is_cannabis: purchaseOrder.is_cannabis,
-            status: RequestStatusEnum.Drafted,
-          },
-          purchaseOrderFiles: purchaseOrderFilesData,
-        },
-      });
-      return response.data?.update_purchase_orders_by_pk;
-    } else {
-      const response = await addPurchaseOrder({
-        variables: {
-          purchase_order: {
-            company_id: isBankUser ? companyId : undefined,
-            vendor_id: purchaseOrder.vendor_id,
-            order_number: purchaseOrder.order_number || null,
-            order_date: purchaseOrder.order_date || null,
-            delivery_date: purchaseOrder.delivery_date || null,
-            amount: purchaseOrder.amount || null,
-            is_cannabis: purchaseOrder.is_cannabis,
-            status: RequestStatusEnum.Drafted,
-            purchase_order_files: {
-              data: purchaseOrderFilesData,
-            },
-          },
-        },
-      });
-      return response.data?.insert_purchase_orders_one;
-    }
+    return purchaseOrderFilesData;
   };
 
   const handleClickSaveDraft = async () => {
-    const savedPurchaseOrder = await upsertPurchaseOrder();
-    if (!savedPurchaseOrder) {
-      snackbar.showError("Could not upsert purchase order.");
+    const purchaseOrderFilesData = preparePurchaseOrderFiles();
+
+    const response = await createUpdatePurchaseOrderAsDraft({
+      variables: {
+        purchase_order: {
+          id: actionType === ActionType.Update ? purchaseOrderId : null,
+          company_id: companyId,
+          vendor_id: purchaseOrder.vendor_id,
+          order_number: purchaseOrder.order_number || null,
+          order_date: purchaseOrder.order_date || null,
+          delivery_date: purchaseOrder.delivery_date || null,
+          amount: purchaseOrder.amount || null,
+          is_cannabis: purchaseOrder.is_cannabis,
+          status: RequestStatusEnum.Drafted,
+        },
+        purchase_order_files: purchaseOrderFilesData,
+      },
+    });
+
+    if (response.status !== "OK") {
+      snackbar.showError(
+        `Could not save purchase order as draft. Error: ${response.msg}`
+      );
     } else {
       snackbar.showSuccess("Purchase order saved as draft.");
       handleClose();
@@ -192,23 +173,32 @@ function CreateUpdatePurchaseOrderModal({
   };
 
   const handleClickSaveSubmit = async () => {
-    const savedPurchaseOrder = await upsertPurchaseOrder();
-    if (!savedPurchaseOrder) {
-      snackbar.showError("Could not upsert purchase order.");
-    } else {
-      // Since this is a SAVE AND SUBMIT action,
-      // hit the PurchaseOrders.SubmitForApproval endpoint.
-      const response = await submitPurchaseOrder({
-        variables: {
-          purchase_order_id: savedPurchaseOrder.id,
+    const purchaseOrderFilesData = preparePurchaseOrderFiles();
+
+    const response = await createUpdatePurchaseOrderAndSubmit({
+      variables: {
+        purchase_order: {
+          id: actionType === ActionType.Update ? purchaseOrderId : null,
+          company_id: companyId,
+          vendor_id: purchaseOrder.vendor_id,
+          order_number: purchaseOrder.order_number || null,
+          order_date: purchaseOrder.order_date || null,
+          delivery_date: purchaseOrder.delivery_date || null,
+          amount: purchaseOrder.amount || null,
+          is_cannabis: purchaseOrder.is_cannabis,
+          status: RequestStatusEnum.Drafted,
         },
-      });
-      if (response.status !== "OK") {
-        snackbar.showError(`Message: ${response.msg}`);
-      } else {
-        snackbar.showSuccess("Purchase order saved and submitted to vendor.");
-        handleClose();
-      }
+        purchase_order_files: purchaseOrderFilesData,
+      },
+    });
+
+    if (response.status !== "OK") {
+      snackbar.showError(
+        `Could not save and submit purchase order. Error: ${response.msg}`
+      );
+    } else {
+      snackbar.showSuccess("Purchase order saved and submitted to vendor.");
+      handleClose();
     }
   };
 
@@ -216,9 +206,8 @@ function CreateUpdatePurchaseOrderModal({
     !isExistingPurchaseOrderLoading && !isSelectableVendorsLoading;
   const isFormValid = !!purchaseOrder.vendor_id;
   const isFormLoading =
-    isAddPurchaseOrderLoading ||
-    isUpdatePurchaseOrderLoading ||
-    isSubmitPurchaseOrderLoading;
+    isCreateUpdatePurchaseOrderAsDraftLoading ||
+    isCreateUpdatePurchaseOrderAndSubmitLoading;
   const isSaveDraftDisabled =
     !isFormValid || isFormLoading || !purchaseOrder.order_number;
   const isSaveSubmitDisabled =
@@ -271,5 +260,3 @@ function CreateUpdatePurchaseOrderModal({
     </Modal>
   ) : null;
 }
-
-export default CreateUpdatePurchaseOrderModal;

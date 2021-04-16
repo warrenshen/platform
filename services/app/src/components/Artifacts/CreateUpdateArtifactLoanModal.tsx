@@ -76,6 +76,7 @@ export default function CreateUpdateArtifactLoanModal({
 
   const { loading: isExistingLoanLoading } = useGetLoanForCustomerQuery({
     skip: actionType === ActionType.New,
+    fetchPolicy: "network-only",
     variables: {
       id: loanId,
     },

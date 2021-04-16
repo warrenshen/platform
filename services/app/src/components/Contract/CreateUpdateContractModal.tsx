@@ -109,6 +109,7 @@ function CreateUpdateContractModal({
 
   const { loading: isExistingContractLoading } = useGetContractQuery({
     skip: actionType === ActionType.New,
+    fetchPolicy: "network-only",
     variables: {
       id: contractId,
     },

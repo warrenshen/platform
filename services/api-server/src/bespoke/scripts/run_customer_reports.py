@@ -2,17 +2,17 @@
 	A script to collect all customer reports and provide them to the Finance
 	team in a CSV format for them to use in Excel spreadsheets.
 """
-import os
 import logging
-
-from dotenv import load_dotenv
+import os
 from pathlib import Path
 from typing import List, cast
 
 from bespoke.db import models
 from bespoke.db.models import session_scope
-from bespoke.finance.reports import per_customer
 from bespoke.finance.fetchers import per_customer_fetcher
+from bespoke.finance.reports import per_customer
+from dotenv import load_dotenv
+
 load_dotenv(os.path.join(os.environ.get('SERVER_ROOT_DIR'), '.env'))
 
 logging.basicConfig(format='%(asctime)s [%(levelname)s] - %(message)s',
@@ -51,7 +51,7 @@ def main() -> None:
 		financial_info = fetcher.get_financials()
 		excel_creator = per_customer.ExcelCreator(financial_info)
 		excel_creator.populate()
-		
+
 		with open(f'out/{filename}', 'wb') as f:
 			excel_creator.wb.save(f)
 

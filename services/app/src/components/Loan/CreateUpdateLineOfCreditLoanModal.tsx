@@ -69,6 +69,7 @@ function CreateUpdateLineOfCreditLoanModal({
     loading: isExistingLoanLoading,
   } = useGetLoanWithArtifactForCustomerQuery({
     skip: actionType === ActionType.New,
+    fetchPolicy: "network-only",
     variables: {
       id: loanId,
     },

@@ -1,9 +1,64 @@
-import { PurchaseOrders, RequestStatusEnum } from "generated/graphql";
+import {
+  PurchaseOrderFilesInsertInput,
+  PurchaseOrders,
+  PurchaseOrdersInsertInput,
+  RequestStatusEnum,
+} from "generated/graphql";
 import {
   authenticatedApi,
   CustomMutationResponse,
   purchaseOrdersRoutes,
 } from "lib/api";
+
+export type CreateUpdatePurchaseOrderAsDraftReq = {
+  variables: {
+    purchase_order: PurchaseOrdersInsertInput;
+    purchase_order_files: PurchaseOrderFilesInsertInput[];
+  };
+};
+
+export async function createUpdatePurchaseOrderAsDraftMutation(
+  req: CreateUpdatePurchaseOrderAsDraftReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(purchaseOrdersRoutes.createUpdateAsDraft, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not save purchase order",
+        };
+      }
+    );
+}
+
+export type CreateUpdatePurchaseOrderAndSubmitReq = {
+  variables: {
+    purchase_order: PurchaseOrdersInsertInput;
+    purchase_order_files: PurchaseOrderFilesInsertInput[];
+  };
+};
+
+export async function createUpdatePurchaseOrderAndSubmitMutation(
+  req: CreateUpdatePurchaseOrderAndSubmitReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(purchaseOrdersRoutes.createUpdateAndSubmit, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not save and submit purchase order",
+        };
+      }
+    );
+}
 
 export type SubmitPurchaseOrderReq = {
   variables: {

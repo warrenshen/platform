@@ -25,8 +25,10 @@ class Actions(object):
 	INVOICE_SUBMIT_FOR_PAYMENT = 'invoice_submit_for_payment'
 	INVOICE_RESPOND_TO_PAYMENT_REQUEST = 'invoice_respond_to_payment_request'
 
+	PURCHASE_ORDER_CREATE_UPDATE = 'purchase_order_create_update'
 	PURCHASE_ORDER_SUBMIT_FOR_APPROVAL = 'purchase_order_submit_for_approval'
 	PURCHASE_ORDER_RESPOND_TO_APPROVAL = 'purchase_order_respond_to_approval'
+	PURCHASE_ORDER_DELETE = 'purchase_order_delete'
 
 	EBBA_APPLICATION_SUBMIT_FOR_APPROVAL = 'ebba_application_submit_for_approval'
 	EBBA_APPLICATION_RESPOND_TO_APPROVAL = 'ebba_application_respond_to_approval'
