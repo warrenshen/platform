@@ -47,7 +47,8 @@ CreatePayorVendorInputDict = TypedDict('CreatePayorVendorInputDict', {
 @errors.return_error_tuple
 def create_customer(
 	req: CreateCustomerInputDict, bank_admin_user_id: str,
-	session_maker: Callable) -> Tuple[CreateCustomerRespDict, errors.Error]:
+	session_maker: Callable,
+) -> Tuple[CreateCustomerRespDict, errors.Error]:
 
 	with session_scope(session_maker) as session:
 		company_name = req['company']['name']
@@ -56,18 +57,22 @@ def create_customer(
 		existing_company_by_name = cast(
 			models.Company,
 			session.query(models.Company).filter(
+				models.Company.company_type == CompanyType.Customer
+			).filter(
 				models.Company.name == company_name
 			).first())
 		if existing_company_by_name:
-			raise errors.Error(f'A company with name "{company_name}" already exists')
+			raise errors.Error(f'A customer with name "{company_name}" already exists')
 
 		existing_company_by_identifier = cast(
 			models.Company,
 			session.query(models.Company).filter(
+				models.Company.company_type == CompanyType.Customer
+			).filter(
 				models.Company.identifier == company_identifier
 			).first())
 		if existing_company_by_identifier:
-			raise errors.Error(f'A company with identifier "{company_identifier}" already exists')
+			raise errors.Error(f'A customer with identifier "{company_identifier}" already exists')
 
 		company_settings = models.CompanySettings()
 		session.add(company_settings)
