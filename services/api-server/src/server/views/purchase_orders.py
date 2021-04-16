@@ -126,6 +126,21 @@ def _create_update_purchase_order(
 	str,
 	errors.Error,
 ]:
+	is_create_purchase_order = False
+	customer_name = None
+	vendor_name = None
+	purchase_order_number = None
+	purchase_order_amount = None
+
+	if not request.purchase_order.company_id:
+		raise errors.Error('Company is required')
+
+	if not request.purchase_order.vendor_id:
+		raise errors.Error('Vendor is required')
+
+	if not request.purchase_order.order_number:
+		raise errors.Error('Order number is required')
+
 	with session_scope(session_maker) as session:
 		if request.purchase_order.id is not None:
 			existing_purchase_order = cast(
@@ -135,8 +150,7 @@ def _create_update_purchase_order(
 
 			for field in fields(PurchaseOrderData):
 				value = getattr(request.purchase_order, field.name)
-				if value is not None:
-					setattr(existing_purchase_order, field.name, value)
+				setattr(existing_purchase_order, field.name, value)
 
 			session.flush()
 
@@ -145,6 +159,16 @@ def _create_update_purchase_order(
 			purchase_order = request.purchase_order.to_model()
 			session.add(purchase_order)
 			session.flush()
+
+			is_create_purchase_order = True
+
+			vendor = purchase_order.vendor
+			customer = purchase_order.company
+
+			vendor_name = vendor.name
+			customer_name = customer.name
+			purchase_order_number = purchase_order.order_number
+			purchase_order_amount = number_util.to_dollar_format(float(purchase_order.amount)) if purchase_order.amount else None
 
 		purchase_order_id = str(purchase_order.id)
 
@@ -191,7 +215,27 @@ def _create_update_purchase_order(
 				session.add(purchase_order_file)
 				purchase_order_file_dicts.append(purchase_order_file.as_dict())
 
-		return purchase_order_id, None
+	if is_create_purchase_order:
+		sendgrid_client = cast(
+			sendgrid_util.Client,
+			current_app.sendgrid_client,
+		)
+
+		template_data = {
+			'customer_name': customer_name,
+			'vendor_name': vendor_name,
+			'purchase_order_number': purchase_order_number,
+			'purchase_order_amount': purchase_order_amount,
+		}
+		_, err = sendgrid_client.send(
+			template_name=sendgrid_util.TemplateNames.CUSTOMER_CREATED_PURCHASE_ORDER,
+			template_data=template_data,
+			recipients=current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES,
+		)
+		if err:
+			raise err
+
+	return purchase_order_id, None
 
 @errors.return_error_tuple
 def _submit_purchase_order_for_approval(
@@ -201,11 +245,6 @@ def _submit_purchase_order_for_approval(
 	str,
 	errors.Error,
 ]:
-	sendgrid_client = cast(
-		sendgrid_util.Client,
-		current_app.sendgrid_client,
-	)
-
 	is_vendor_missing_bank_account = False
 
 	with session_scope(session_maker) as session:
@@ -263,6 +302,11 @@ def _submit_purchase_order_for_approval(
 
 		purchase_order.status = RequestStatusEnum.APPROVAL_REQUESTED
 		purchase_order.requested_at = date_util.now()
+
+	sendgrid_client = cast(
+		sendgrid_util.Client,
+		current_app.sendgrid_client,
+	)
 
 	form_info = cast(Callable, models.TwoFactorFormInfoDict)(
 		type=db_constants.TwoFactorLinkType.CONFIRM_PURCHASE_ORDER,
