@@ -43,8 +43,6 @@ def _parse_late_fee_structure(late_fee_field: FullFieldDict) -> Tuple[List[Tuple
 
 	late_fee_structure_str = late_fee_field['value']
 	if not late_fee_structure_str:
-		# TODO(dlluncor): This should actually throw an error once we have
-		# contracts with late fee structures specified.
 		logging.error('Warning no late fee structure specified in contract')
 		return [], None
 

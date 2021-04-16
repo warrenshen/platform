@@ -251,11 +251,6 @@ class LoanCalculator(object):
 		if err:
 			return None, [err]
 
-		# TODO(dlluncor): Error condition, the loan's origination_date is set, but there is no corresponding
-		# advance associated with this loan.
-		# Data consistency check. The origination_date on the loan should match the effective_date on the
-		# first advance transaction that funds this loan.
-
 		for i in range(days_out):
 			cur_date = loan['origination_date'] + timedelta(days=i)
 			# Check each transaction and the effect it had on this loan
@@ -371,7 +366,6 @@ class LoanCalculator(object):
 				if payment_util.is_repayment(tx):
 					# The principal for interest calculations gets paid off on the settlement date
 					outstanding_principal_for_interest -= tx['to_principal']
-
 
 		if errors_list:
 			return None, errors_list

@@ -67,9 +67,6 @@ def get_nearest_business_day(reference_date: datetime.date, preceeding: bool) ->
 	cur_date = reference_date
 	sign = -1 if preceeding else 1
 
-	# TODO(dlluncor): Ensure we use the same business days on the frontend and backend
-	# are happy with the days we choose
-
 	for i in range(30):
 		is_weekday = np.is_busday(cur_date, weekmask='Mon Tue Wed Thu Fri')
 		is_not_us_holiday = cur_date not in us_holidays # type: ignore

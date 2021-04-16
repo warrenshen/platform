@@ -231,10 +231,10 @@ class CustomerBalance(object):
 		if err:
 			raise err
 
-		# TODO(dlluncor): Allow someone who runs a report to tell us when is the
-		# start date to fetch information from.
+		# NOTE: Consider an argument that allows someone who runs a report to 
+		# to specify the start date, not just the report date.
 		#
-		# For now, we just assume it's the same as today.
+		# For now, we just assume the start date is today.
 		start_date = today
 		fee_accumulator = fee_util.FeeAccumulator()
 		fee_accumulator.init_with_date_range(start_date, today)
