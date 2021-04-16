@@ -18,7 +18,7 @@ export type LoanTransaction = {
   to_principal: number | null;
 };
 
-type LoanToShow = {
+export type LoanToShow = {
   loan_id: Loans["id"];
   before_loan_balance: LoanBalance;
   after_loan_balance: LoanBalance;
@@ -27,22 +27,26 @@ type LoanToShow = {
 
 export type CalculateRepaymentEffectResp = {
   status: string;
-  msg?: string;
-  loans_to_show: LoanToShow[];
-  amount_to_pay: number;
-  payable_amount_principal: number;
-  payable_amount_interest: number;
+  msg: string;
+  data: {
+    loans_to_show: LoanToShow[];
+    amount_to_pay: number;
+    payable_amount_principal: number;
+    payable_amount_interest: number;
+  };
 };
 
-export async function calculateRepaymentEffect(req: {
-  company_id: string;
-  payment_option: string;
-  amount: number;
-  settlement_date: string;
-  loan_ids: string[];
+export async function calculateRepaymentEffectMutation(req: {
+  variables: {
+    company_id: string;
+    payment_option: string;
+    amount: number;
+    settlement_date: string;
+    loan_ids: string[];
+  };
 }): Promise<CalculateRepaymentEffectResp> {
   return authenticatedApi
-    .post(loansRoutes.calculateRepaymentEffect, req)
+    .post(loansRoutes.calculateRepaymentEffect, req.variables)
     .then((res) => {
       return res.data;
     })
@@ -60,13 +64,15 @@ export async function calculateRepaymentEffect(req: {
     );
 }
 
-export async function createRepayment(req: {
-  company_id: string;
-  payment: PaymentsInsertInput;
-  is_line_of_credit: boolean;
+export async function createRepaymentMutation(req: {
+  variables: {
+    company_id: string;
+    payment: PaymentsInsertInput;
+    is_line_of_credit: boolean;
+  };
 }): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(loansRoutes.createRepayment, req)
+    .post(loansRoutes.createRepayment, req.variables)
     .then((res) => {
       return res.data;
     })

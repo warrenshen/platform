@@ -23,9 +23,10 @@ import {
   getSettlementTimelineConfigFromContract,
 } from "lib/finance/payments/advance";
 import {
-  calculateRepaymentEffect,
+  calculateRepaymentEffectMutation,
   CalculateRepaymentEffectResp,
   LoanBalance,
+  LoanToShow,
   LoanTransaction,
   settleRepaymentMutation,
 } from "lib/finance/payments/repayment";
@@ -53,10 +54,9 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
   const contract = customer?.contract || null;
   const productType = customer?.contract?.product_type || null;
 
-  const [
-    calculateEffectResponse,
-    setCalculateEffectResponse,
-  ] = useState<CalculateRepaymentEffectResp | null>(null);
+  const [repaymentEffectData, setRepaymentEffectData] = useState<
+    CalculateRepaymentEffectResp["data"] | null
+  >(null);
   const [loansBeforeAfterPayment, setLoansBeforeAfterPayment] = useState<
     LoanBeforeAfterPayment[]
   >([]);
@@ -123,6 +123,11 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
   }, [contract, payment?.method, payment?.deposit_date, setPayment]);
 
   const [
+    calculateRepaymentEffect,
+    { loading: isCalculateRepaymentEffectLoading },
+  ] = useCustomMutation(calculateRepaymentEffectMutation);
+
+  const [
     settleRepayment,
     { loading: isSettleRepaymentLoading },
   ] = useCustomMutation(settleRepaymentMutation);
@@ -134,11 +139,13 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
     }
 
     const response = await calculateRepaymentEffect({
-      company_id: customer.id,
-      payment_option: PaymentOptionEnum.CustomAmount,
-      amount: payment.amount,
-      settlement_date: payment.settlement_date,
-      loan_ids: payment.items_covered.loan_ids,
+      variables: {
+        company_id: customer.id,
+        payment_option: PaymentOptionEnum.CustomAmount,
+        amount: payment.amount,
+        settlement_date: payment.settlement_date,
+        loan_ids: payment.items_covered.loan_ids,
+      },
     });
 
     console.log({ type: "calculateRepaymentEffect", response });
@@ -148,14 +155,16 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
     } else {
       setErrMsg("");
 
-      if (!response.loans_to_show) {
-        alert("Developer error: response does not include loans_afterwards.");
+      if (!response.data) {
+        alert("Developer error: response does not include data.");
         return;
       }
 
-      setCalculateEffectResponse(response);
+      const repaymentEffectData = response.data;
+
+      setRepaymentEffectData(repaymentEffectData);
       setLoansBeforeAfterPayment(
-        response.loans_to_show.map((loanToShow) => {
+        repaymentEffectData.loans_to_show.map((loanToShow: LoanToShow) => {
           const beforeLoan = loanToShow.before_loan_balance;
           const afterLoan = loanToShow.after_loan_balance;
           return {
@@ -251,11 +260,15 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
     [loansBeforeAfterPayment, setLoansBeforeAfterPayment]
   );
 
+  const isFormLoading =
+    isCalculateRepaymentEffectLoading || isSettleRepaymentLoading;
   const isNextButtonDisabled =
-    !payment?.amount || !payment?.deposit_date || !payment?.settlement_date;
+    isFormLoading ||
+    !payment?.amount ||
+    !payment?.deposit_date ||
+    !payment?.settlement_date;
   // TODO(warrenshen): also check if payment.items_covered is valid.
-  const isSubmitButtonDisabled =
-    isNextButtonDisabled || isSettleRepaymentLoading;
+  const isSubmitButtonDisabled = isNextButtonDisabled;
 
   return payment && customer ? (
     <Modal
@@ -285,10 +298,10 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
         <SettleRepaymentConfirmEffect
           productType={productType}
           payableAmountPrincipal={
-            calculateEffectResponse?.payable_amount_principal || 0
+            repaymentEffectData?.payable_amount_principal || 0
           }
           payableAmountInterest={
-            calculateEffectResponse?.payable_amount_interest || 0
+            repaymentEffectData?.payable_amount_interest || 0
           }
           payment={payment}
           customer={customer}

@@ -204,7 +204,8 @@ export default function CreateUpdatePurchaseOrderModal({
 
   const isDialogReady =
     !isExistingPurchaseOrderLoading && !isSelectableVendorsLoading;
-  const isFormValid = !!purchaseOrder.vendor_id;
+  // The minimum amount of information to save as draft is vendor and order number.
+  const isFormValid = !!purchaseOrder.vendor_id && !!purchaseOrder.order_number;
   const isFormLoading =
     isCreateUpdatePurchaseOrderAsDraftLoading ||
     isCreateUpdatePurchaseOrderAndSubmitLoading;

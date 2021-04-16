@@ -53,14 +53,18 @@ LoanToShowDict = TypedDict('LoanToShowDict', {
 	'after_loan_balance': LoanBalanceDict
 })
 
-RepaymentEffectRespDict = TypedDict('RepaymentEffectRespDict', {
-	'status': str,
+RepaymentEffectRespDataDict = TypedDict('RepaymentEffectRespDataDict', {
 	'payable_amount_principal': float,
 	'payable_amount_interest': float,
 	'loans_to_show': List[LoanToShowDict],
 	'amount_to_pay': float,
 	'amount_as_credit_to_user': float, # If the user overpaid more than what they could possibly owe, we keep this amount as a credit to them.
-	'loans_past_due_but_not_selected': List[LoanToShowDict]
+	'loans_past_due_but_not_selected': List[LoanToShowDict],
+})
+
+RepaymentEffectRespDict = TypedDict('RepaymentEffectRespDict', {
+	'status': str,
+	'data': RepaymentEffectRespDataDict,
 })
 
 ScheduleRepaymentReqDict = TypedDict('ScheduleRepaymentReqDict', {
@@ -519,12 +523,14 @@ def calculate_repayment_effect(
 
 	return RepaymentEffectRespDict(
 		status='OK',
-		payable_amount_principal=number_util.round_currency(payable_amount_principal),
-		payable_amount_interest=number_util.round_currency(payable_amount_interest),
-		loans_to_show=ordered_loans_to_show,
-		amount_to_pay=number_util.round_currency(amount_to_pay),
-		amount_as_credit_to_user=number_util.round_currency(amount_as_credit_to_user),
-		loans_past_due_but_not_selected=loans_past_due_but_not_selected,
+		data=RepaymentEffectRespDataDict(
+			payable_amount_principal=number_util.round_currency(payable_amount_principal),
+			payable_amount_interest=number_util.round_currency(payable_amount_interest),
+			loans_to_show=ordered_loans_to_show,
+			amount_to_pay=number_util.round_currency(amount_to_pay),
+			amount_as_credit_to_user=number_util.round_currency(amount_as_credit_to_user),
+			loans_past_due_but_not_selected=loans_past_due_but_not_selected,
+		),
 	), None
 
 @errors.return_error_tuple

@@ -117,20 +117,20 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 		)
 		self.assertIsNone(err)
 		self.assertEqual('OK', resp.get('status'), msg=err)
-		test_helper.assertIsCurrencyRounded(self, resp['amount_to_pay']) # Ensure this number is always down to 2 digits
-		self.assertEqual(test['expected_amount_to_pay'], resp['amount_to_pay'])
+		test_helper.assertIsCurrencyRounded(self, resp['data']['amount_to_pay']) # Ensure this number is always down to 2 digits
+		self.assertEqual(test['expected_amount_to_pay'], resp['data']['amount_to_pay'])
 
-		test_helper.assertIsCurrencyRounded(self, resp['amount_as_credit_to_user'])
-		self.assertAlmostEqual(test['expected_amount_as_credit_to_user'], resp['amount_as_credit_to_user'])
+		test_helper.assertIsCurrencyRounded(self, resp['data']['amount_as_credit_to_user'])
+		self.assertAlmostEqual(test['expected_amount_as_credit_to_user'], resp['data']['amount_as_credit_to_user'])
 
 		# Assert on the expected loans afterwards
-		self.assertEqual(len(test['expected_loans_to_show']), len(resp['loans_to_show']))
+		self.assertEqual(len(test['expected_loans_to_show']), len(resp['data']['loans_to_show']))
 
 		# Loans to show will be organized by the loan_ids order passed in
 		#resp['loans_to_show'].sort(key=lambda l: l['before_loan_balance']['amount'])
 
-		for i in range(len(resp['loans_to_show'])):
-			loan_to_show = resp['loans_to_show'][i]
+		for i in range(len(resp['data']['loans_to_show'])):
+			loan_to_show = resp['data']['loans_to_show'][i]
 			expected_loan_to_show = test['expected_loans_to_show'][i]
 			expected = expected_loan_to_show
 			actual = cast(Dict, loan_to_show)
@@ -146,12 +146,12 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 
 		# Assert on which loans ended up in the past due but not selected
 		# category
-		self.assertEqual(len(test['expected_past_due_but_not_selected_indices']), len(resp['loans_past_due_but_not_selected']))
-		resp['loans_past_due_but_not_selected'].sort(key = lambda l: l['before_loan_balance']['amount'])
+		self.assertEqual(len(test['expected_past_due_but_not_selected_indices']), len(resp['data']['loans_past_due_but_not_selected']))
+		resp['data']['loans_past_due_but_not_selected'].sort(key = lambda l: l['before_loan_balance']['amount'])
 
-		for i in range(len(resp['loans_past_due_but_not_selected'])):
-			actual = cast(Dict, resp['loans_past_due_but_not_selected'][i])
-			cur_loan_id_past_due = resp['loans_past_due_but_not_selected'][i]['loan_id']
+		for i in range(len(resp['data']['loans_past_due_but_not_selected'])):
+			actual = cast(Dict, resp['data']['loans_past_due_but_not_selected'][i])
+			cur_loan_id_past_due = resp['data']['loans_past_due_but_not_selected'][i]['loan_id']
 			expected_loan_id_past_due = loan_ids_not_selected[test['expected_past_due_but_not_selected_indices'][i]]
 			self.assertEqual(expected_loan_id_past_due, cur_loan_id_past_due)
 

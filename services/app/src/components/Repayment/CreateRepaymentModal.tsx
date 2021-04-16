@@ -12,6 +12,7 @@ import {
   useGetCompanyWithDetailsByCompanyIdQuery,
   UserRolesEnum,
 } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { PaymentMethodEnum, PaymentTypeEnum } from "lib/enum";
 import {
@@ -19,10 +20,11 @@ import {
   getSettlementTimelineConfigFromContract,
 } from "lib/finance/payments/advance";
 import {
-  calculateRepaymentEffect,
+  calculateRepaymentEffectMutation,
   CalculateRepaymentEffectResp,
-  createRepayment,
+  createRepaymentMutation,
   LoanBalance,
+  LoanToShow,
   LoanTransaction,
 } from "lib/finance/payments/repayment";
 import { LoanBeforeAfterPayment } from "lib/types";
@@ -85,10 +87,9 @@ function CreateRepaymentModal({
   // pay the minimum amount required, or to pay a custom amount.
   const [paymentOption, setPaymentOption] = useState("");
 
-  const [
-    calculateEffectResponse,
-    setCalculateEffectResponse,
-  ] = useState<CalculateRepaymentEffectResp | null>(null);
+  const [repaymentEffectData, setRepaymentEffectData] = useState<
+    CalculateRepaymentEffectResp["data"] | null
+  >(null);
   const [loansBeforeAfterPayment, setLoansBeforeAfterPayment] = useState<
     LoanBeforeAfterPayment[]
   >([]);
@@ -110,18 +111,30 @@ function CreateRepaymentModal({
     }
   }, [contract, payment.method, payment.requested_payment_date, setPayment]);
 
+  const [
+    calculateRepaymentEffect,
+    { loading: isCalculateRepaymentEffectLoading },
+  ] = useCustomMutation(calculateRepaymentEffectMutation);
+
+  const [
+    createRepayment,
+    { loading: isCreateRepaymentLoading },
+  ] = useCustomMutation(createRepaymentMutation);
+
   const handleClickNext = async () => {
     const response = await calculateRepaymentEffect({
-      company_id: companyId,
-      payment_option:
-        productType === ProductTypeEnum.LineOfCredit
-          ? "custom_amount"
-          : paymentOption,
-      // We use payment.requested_amount here since we want to calculate what is
-      // the effect of this repayment assumption its amount is the requested amount.
-      amount: payment.requested_amount,
-      settlement_date: payment.settlement_date,
-      loan_ids: payment.items_covered.loan_ids,
+      variables: {
+        company_id: companyId,
+        payment_option:
+          productType === ProductTypeEnum.LineOfCredit
+            ? "custom_amount"
+            : paymentOption,
+        // We use payment.requested_amount here since we want to calculate what is
+        // the effect of this repayment assumption its amount is the requested amount.
+        amount: payment.requested_amount,
+        settlement_date: payment.settlement_date,
+        loan_ids: payment.items_covered.loan_ids,
+      },
     });
 
     console.log({ type: "calculateRepaymentEffect", response });
@@ -131,24 +144,26 @@ function CreateRepaymentModal({
     } else {
       setErrMsg("");
 
-      if (!response.loans_to_show) {
-        alert("Developer error: response does not include loans_to_show.");
+      if (!response.data) {
+        alert("Developer error: response does not include data.");
         return;
       }
 
-      setCalculateEffectResponse(response);
+      const repaymentEffectData = response.data;
+
+      setRepaymentEffectData(repaymentEffectData);
       setPayment({
         ...payment,
-        requested_amount: response.amount_to_pay || null,
+        requested_amount: repaymentEffectData.amount_to_pay || null,
         items_covered: {
           ...payment.items_covered,
-          loan_ids: response.loans_to_show.map(
-            (loanToShow) => loanToShow.loan_id
+          loan_ids: repaymentEffectData.loans_to_show.map(
+            (loanToShow: LoanToShow) => loanToShow.loan_id
           ),
         },
       });
       setLoansBeforeAfterPayment(
-        response.loans_to_show.map((loanToShow) => {
+        repaymentEffectData.loans_to_show.map((loanToShow: LoanToShow) => {
           const beforeLoan = loanToShow.before_loan_balance;
           const afterLoan = loanToShow.after_loan_balance;
           return {
@@ -181,26 +196,28 @@ function CreateRepaymentModal({
     }
 
     const response = await createRepayment({
-      company_id: companyId,
-      payment: {
-        company_id: payment.company_id,
-        type: payment.type,
-        requested_amount: payment.requested_amount,
-        method: payment.method,
-        requested_payment_date: payment.requested_payment_date,
-        settlement_date: payment.settlement_date,
-        items_covered: {
-          loan_ids: payment.items_covered.loan_ids,
-          requested_to_principal:
-            payment.items_covered.requested_to_principal || 0.0, // If user leaves this blank, coerce to zero.
-          requested_to_interest:
-            payment.items_covered.requested_to_interest || 0.0, // If user leaves this blank, coerce to zero.
-          to_principal: payment.items_covered.to_principal,
-          to_interest: payment.items_covered.to_intereset,
+      variables: {
+        company_id: companyId,
+        payment: {
+          company_id: payment.company_id,
+          type: payment.type,
+          requested_amount: payment.requested_amount,
+          method: payment.method,
+          requested_payment_date: payment.requested_payment_date,
+          settlement_date: payment.settlement_date,
+          items_covered: {
+            loan_ids: payment.items_covered.loan_ids,
+            requested_to_principal:
+              payment.items_covered.requested_to_principal || 0.0, // If user leaves this blank, coerce to zero.
+            requested_to_interest:
+              payment.items_covered.requested_to_interest || 0.0, // If user leaves this blank, coerce to zero.
+            to_principal: payment.items_covered.to_principal,
+            to_interest: payment.items_covered.to_intereset,
+          },
+          company_bank_account_id: payment.company_bank_account_id,
         },
-        company_bank_account_id: payment.company_bank_account_id,
+        is_line_of_credit: productType === ProductTypeEnum.LineOfCredit,
       },
-      is_line_of_credit: productType === ProductTypeEnum.LineOfCredit,
     });
 
     if (response.status !== "OK") {
@@ -212,7 +229,10 @@ function CreateRepaymentModal({
     }
   };
 
+  const isFormLoading =
+    isCalculateRepaymentEffectLoading || isCreateRepaymentLoading;
   const isNextButtonDisabled =
+    isFormLoading ||
     !payment.method ||
     !payment.requested_payment_date ||
     !payment.settlement_date ||
@@ -220,9 +240,9 @@ function CreateRepaymentModal({
     (paymentOption === "custom" && !payment.requested_amount) ||
     (payment.method === PaymentMethodEnum.ReverseDraftACH &&
       !payment.company_bank_account_id);
-  const isActionButtonDisabled =
-    !payment.method || payment.requested_amount <= 0;
-  const actionBtnText =
+  const isSubmitButtonDisabled =
+    isNextButtonDisabled || payment.requested_amount <= 0;
+  const submitButtonText =
     payment.method === PaymentMethodEnum.ReverseDraftACH
       ? "Schedule payment"
       : "Notify bank";
@@ -230,12 +250,12 @@ function CreateRepaymentModal({
   return (
     <Modal
       isPrimaryActionDisabled={
-        isOnSelectLoans ? isNextButtonDisabled : isActionButtonDisabled
+        isOnSelectLoans ? isNextButtonDisabled : isSubmitButtonDisabled
       }
       title={"Make Payment"}
       subtitle={isOnSelectLoans ? "Step 1 of 2" : "Step 2 of 2"}
       contentWidth={600}
-      primaryActionText={isOnSelectLoans ? "Next step" : actionBtnText}
+      primaryActionText={isOnSelectLoans ? "Next step" : submitButtonText}
       secondaryActionText={!isOnSelectLoans ? "Back to step 1" : null}
       handleClose={handleClose}
       handlePrimaryAction={
@@ -268,10 +288,10 @@ function CreateRepaymentModal({
             companyId={companyId}
             productType={productType}
             payableAmountPrincipal={
-              calculateEffectResponse?.payable_amount_principal || 0
+              repaymentEffectData?.payable_amount_principal || 0
             }
             payableAmountInterest={
-              calculateEffectResponse?.payable_amount_interest || 0
+              repaymentEffectData?.payable_amount_interest || 0
             }
             payment={payment}
             loansBeforeAfterPayment={loansBeforeAfterPayment}
