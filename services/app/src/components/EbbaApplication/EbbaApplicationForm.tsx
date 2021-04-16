@@ -17,6 +17,7 @@ import {
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { useMemo } from "react";
+
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     inputField: {
