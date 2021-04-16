@@ -5,7 +5,7 @@ from datetime import timedelta, timezone
 from typing import Callable, Dict, List, Text, Tuple, cast
 
 from bespoke import errors
-from bespoke.config.config_util import is_development_env
+from bespoke.config.config_util import is_development_env, is_prod_env
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
@@ -274,6 +274,8 @@ class Client(object):
 			'template_id': template_id,
 		}
 
+		is_prod = is_prod_env(self._cfg['flask_env'])
+
 		if not _requires_secure_link(template_name):
 			try:
 				self._email_client.send_dynamic_email_template(
@@ -284,7 +286,10 @@ class Client(object):
 			except Exception as e:
 				logging.error('Could not send email: {}'.format(e))
 				err_details['error'] = '{}'.format(e)
-				return None, errors.Error('Could not successfully send email', details=err_details)
+				msg = 'Could not successfully send email'
+				if not is_prod:
+					msg = 'Could not send email: {}'.format(e)
+				return None, errors.Error(msg, details=err_details)
 
 			return True, None
 
@@ -329,6 +334,9 @@ class Client(object):
 			except Exception as e:
 				logging.error('Could not send email: {}'.format(e))
 				err_details['error'] = '{}'.format(e)
-				return None, errors.Error('Could not successfully send email', details=err_details)
+				msg = 'Could not successfully send email'
+				if not is_prod:
+					msg = 'Could not send email: {}'.format(e)
+				return None, errors.Error(msg, details=err_details)
 
 		return True, None
