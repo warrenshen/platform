@@ -199,7 +199,7 @@ class RejectLoanView(MethodView):
 		_, err = sendgrid_client.send(
 			template_name, template_data, recipients)
 		if err:
-			return handler_util.make_error_response(err)
+			raise err
 
 		return make_response(json.dumps({
 			'status': 'OK'

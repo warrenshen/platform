@@ -61,18 +61,18 @@ class CreateLoginView(MethodView):
 				cfg.PASSWORD_SALT, password)
 			user_email = existing_user.email
 
-		template_data = {
-			'email': user_email,
-			'password': password,
-			'app_link': cfg.BESPOKE_DOMAIN,
-		}
-		_, err = sendgrid_client.send(
-			template_name=sendgrid_util.TemplateNames.USER_INVITED_TO_PLATFORM,
-			template_data=template_data,
-			recipients=[user_email],
-		)
-		if err:
-			return handler_util.make_error_response(err)
+			template_data = {
+				'email': user_email,
+				'password': password,
+				'app_link': cfg.BESPOKE_DOMAIN,
+			}
+			_, err = sendgrid_client.send(
+				template_name=sendgrid_util.TemplateNames.USER_INVITED_TO_PLATFORM,
+				template_data=template_data,
+				recipients=[user_email],
+			)
+			if err:
+				raise err
 
 		return make_response(json.dumps({
 			'status': 'OK'
@@ -132,18 +132,18 @@ class CreateBankCustomerUserView(MethodView):
 				cfg.PASSWORD_SALT, password)
 			user_email = existing_user.email
 
-		template_data = {
-			'email': user_email,
-			'password': password,
-			'app_link': cfg.BESPOKE_DOMAIN,
-		}
-		_, err = sendgrid_client.send(
-			template_name=sendgrid_util.TemplateNames.USER_INVITED_TO_PLATFORM,
-			template_data=template_data,
-			recipients=[user_email],
-		)
-		if err:
-			return handler_util.make_error_response(err)
+			template_data = {
+				'email': user_email,
+				'password': password,
+				'app_link': cfg.BESPOKE_DOMAIN,
+			}
+			_, err = sendgrid_client.send(
+				template_name=sendgrid_util.TemplateNames.USER_INVITED_TO_PLATFORM,
+				template_data=template_data,
+				recipients=[user_email],
+			)
+			if err:
+				raise err
 
 		return make_response(json.dumps({
 			'status': 'OK'
@@ -219,7 +219,7 @@ class CreatePayorVendorUserView(MethodView):
 			_, err = sendgrid_client.send(
 				template_name, template_data, recipients)
 			if err:
-				return handler_util.make_error_response(err)
+				raise err
 
 		create_user_resp['status'] = 'OK'
 		return make_response(json.dumps(create_user_resp))

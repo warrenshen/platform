@@ -159,19 +159,19 @@ class SubmitEbbaApplicationForApproval(MethodView):
 			ebba_application.status = RequestStatusEnum.APPROVAL_REQUESTED
 			ebba_application.requested_at = date_util.now()
 
-		# TODO (warrenshen): actually set up link to EBBA application here.
-		ebba_application_html = '<span>LINK HERE</span>'
-		template_name = sendgrid_util.TemplateNames.CUSTOMER_SUBMITTED_EBBA_APPLICATION
-		template_data = {
-			'customer_name': customer_name,
-			'ebba_application_html': ebba_application_html
-		}
-		recipients = cfg.BANK_NOTIFY_EMAIL_ADDRESSES
-		_, err = sendgrid_client.send(
-			template_name, template_data, recipients
-		)
-		if err:
-			return handler_util.make_error_response(err)
+			# TODO (warrenshen): actually set up link to EBBA application here.
+			ebba_application_html = '<span>LINK HERE</span>'
+			template_name = sendgrid_util.TemplateNames.CUSTOMER_SUBMITTED_EBBA_APPLICATION
+			template_data = {
+				'customer_name': customer_name,
+				'ebba_application_html': ebba_application_html
+			}
+			recipients = cfg.BANK_NOTIFY_EMAIL_ADDRESSES
+			_, err = sendgrid_client.send(
+				template_name, template_data, recipients
+			)
+			if err:
+				raise err
 
 		return make_response(json.dumps({
 			'status': 'OK',

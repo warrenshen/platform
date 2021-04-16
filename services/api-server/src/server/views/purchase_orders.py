@@ -215,25 +215,25 @@ def _create_update_purchase_order(
 				session.add(purchase_order_file)
 				purchase_order_file_dicts.append(purchase_order_file.as_dict())
 
-	if is_create_purchase_order:
-		sendgrid_client = cast(
-			sendgrid_util.Client,
-			current_app.sendgrid_client,
-		)
+		if is_create_purchase_order:
+			sendgrid_client = cast(
+				sendgrid_util.Client,
+				current_app.sendgrid_client,
+			)
 
-		template_data = {
-			'customer_name': customer_name,
-			'vendor_name': vendor_name,
-			'purchase_order_number': purchase_order_number,
-			'purchase_order_amount': purchase_order_amount,
-		}
-		_, err = sendgrid_client.send(
-			template_name=sendgrid_util.TemplateNames.CUSTOMER_CREATED_PURCHASE_ORDER,
-			template_data=template_data,
-			recipients=current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES,
-		)
-		if err:
-			raise err
+			template_data = {
+				'customer_name': customer_name,
+				'vendor_name': vendor_name,
+				'purchase_order_number': purchase_order_number,
+				'purchase_order_amount': purchase_order_amount,
+			}
+			_, err = sendgrid_client.send(
+				template_name=sendgrid_util.TemplateNames.CUSTOMER_CREATED_PURCHASE_ORDER,
+				template_data=template_data,
+				recipients=current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES,
+			)
+			if err:
+				raise err
 
 	return purchase_order_id, None
 
@@ -303,51 +303,51 @@ def _submit_purchase_order_for_approval(
 		purchase_order.status = RequestStatusEnum.APPROVAL_REQUESTED
 		purchase_order.requested_at = date_util.now()
 
-	sendgrid_client = cast(
-		sendgrid_util.Client,
-		current_app.sendgrid_client,
-	)
+		sendgrid_client = cast(
+			sendgrid_util.Client,
+			current_app.sendgrid_client,
+		)
 
-	form_info = cast(Callable, models.TwoFactorFormInfoDict)(
-		type=db_constants.TwoFactorLinkType.CONFIRM_PURCHASE_ORDER,
-		payload={
-			'purchase_order_id': purchase_order_id
-		}
-	)
-	two_factor_payload = sendgrid_util.TwoFactorPayloadDict(
-		form_info=form_info,
-		expires_at=date_util.hours_from_today(24 * 7)
-	)
+		form_info = cast(Callable, models.TwoFactorFormInfoDict)(
+			type=db_constants.TwoFactorLinkType.CONFIRM_PURCHASE_ORDER,
+			payload={
+				'purchase_order_id': purchase_order_id
+			}
+		)
+		two_factor_payload = sendgrid_util.TwoFactorPayloadDict(
+			form_info=form_info,
+			expires_at=date_util.hours_from_today(24 * 7)
+		)
 
-	# Send the email to the vendor for them to approve or reject this purchase order
-	# Get the vendor_id and find its users
-	template_data = {
-		'vendor_name': vendor_name,
-		'customer_name': customer_name
-	}
-	_, err = sendgrid_client.send(
-		template_name=sendgrid_util.TemplateNames.VENDOR_TO_APPROVE_PURCHASE_ORDER,
-		template_data=template_data,
-		recipients=vendor_emails,
-		two_factor_payload=two_factor_payload,
-	)
-	if err:
-		raise err
-
-	# If vendor does NOT have a bank account set up yet,
-	# send an email to the Bespoke team letting them know about this.
-	if is_vendor_missing_bank_account:
+		# Send the email to the vendor for them to approve or reject this purchase order
+		# Get the vendor_id and find its users
 		template_data = {
 			'vendor_name': vendor_name,
-			'customer_name': customer_name,
+			'customer_name': customer_name
 		}
 		_, err = sendgrid_client.send(
-			template_name=sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_APPROVAL_NO_VENDOR_BANK_ACCOUNT,
+			template_name=sendgrid_util.TemplateNames.VENDOR_TO_APPROVE_PURCHASE_ORDER,
 			template_data=template_data,
-			recipients=current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES + current_app.app_config.OPS_EMAIL_ADDRESSES,
+			recipients=vendor_emails,
+			two_factor_payload=two_factor_payload,
 		)
 		if err:
 			raise err
+
+		# If vendor does NOT have a bank account set up yet,
+		# send an email to the Bespoke team letting them know about this.
+		if is_vendor_missing_bank_account:
+			template_data = {
+				'vendor_name': vendor_name,
+				'customer_name': customer_name,
+			}
+			_, err = sendgrid_client.send(
+				template_name=sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_APPROVAL_NO_VENDOR_BANK_ACCOUNT,
+				template_data=template_data,
+				recipients=current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES + current_app.app_config.OPS_EMAIL_ADDRESSES,
+			)
+			if err:
+				raise err
 
 	return purchase_order_id, None
 
@@ -497,46 +497,46 @@ class SubmitForApprovalView(MethodView):
 			purchase_order.status = RequestStatusEnum.APPROVAL_REQUESTED
 			purchase_order.requested_at = date_util.now()
 
-		form_info = models.TwoFactorFormInfoDict(
-			type=db_constants.TwoFactorLinkType.CONFIRM_PURCHASE_ORDER,
-			payload={
-				'purchase_order_id': purchase_order_id
-			}
-		)
-		two_factor_payload = sendgrid_util.TwoFactorPayloadDict(
-			form_info=form_info,
-			expires_at=date_util.hours_from_today(24 * 7)
-		)
+			form_info = models.TwoFactorFormInfoDict(
+				type=db_constants.TwoFactorLinkType.CONFIRM_PURCHASE_ORDER,
+				payload={
+					'purchase_order_id': purchase_order_id
+				}
+			)
+			two_factor_payload = sendgrid_util.TwoFactorPayloadDict(
+				form_info=form_info,
+				expires_at=date_util.hours_from_today(24 * 7)
+			)
 
-		# Send the email to the vendor for them to approve or reject this purchase order
-		# Get the vendor_id and find its users
-		template_data = {
-			'vendor_name': vendor_name,
-			'customer_name': customer_name
-		}
-		_, err = sendgrid_client.send(
-			template_name=sendgrid_util.TemplateNames.VENDOR_TO_APPROVE_PURCHASE_ORDER,
-			template_data=template_data,
-			recipients=vendor_emails,
-			two_factor_payload=two_factor_payload,
-		)
-		if err:
-			raise err
-
-		# If vendor does NOT have a bank account set up yet,
-		# send an email to the Bespoke team letting them know about this.
-		if is_vendor_missing_bank_account:
+			# Send the email to the vendor for them to approve or reject this purchase order
+			# Get the vendor_id and find its users
 			template_data = {
 				'vendor_name': vendor_name,
-				'customer_name': customer_name,
+				'customer_name': customer_name
 			}
 			_, err = sendgrid_client.send(
-				template_name=sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_APPROVAL_NO_VENDOR_BANK_ACCOUNT,
+				template_name=sendgrid_util.TemplateNames.VENDOR_TO_APPROVE_PURCHASE_ORDER,
 				template_data=template_data,
-				recipients=current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES + current_app.app_config.OPS_EMAIL_ADDRESSES,
+				recipients=vendor_emails,
+				two_factor_payload=two_factor_payload,
 			)
 			if err:
 				raise err
+
+			# If vendor does NOT have a bank account set up yet,
+			# send an email to the Bespoke team letting them know about this.
+			if is_vendor_missing_bank_account:
+				template_data = {
+					'vendor_name': vendor_name,
+					'customer_name': customer_name,
+				}
+				_, err = sendgrid_client.send(
+					template_name=sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_APPROVAL_NO_VENDOR_BANK_ACCOUNT,
+					template_data=template_data,
+					recipients=current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES + current_app.app_config.OPS_EMAIL_ADDRESSES,
+				)
+				if err:
+					raise err
 
 		return make_response(json.dumps({
 			'status': 'OK',
@@ -701,11 +701,11 @@ class RespondToApprovalRequestView(MethodView):
 						'rejection_note': rejection_note,
 					}
 
-		recipients = customer_emails
-		_, err = sendgrid_client.send(
-			template_name, template_data, recipients)
-		if err:
-			raise err
+			recipients = customer_emails
+			_, err = sendgrid_client.send(
+				template_name, template_data, recipients)
+			if err:
+				raise err
 
 		return make_response(json.dumps({
 			'status': 'OK',
