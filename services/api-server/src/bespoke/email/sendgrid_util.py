@@ -243,8 +243,12 @@ def _maybe_add_extra_recipients(
 
 class Client(object):
 
-	def __init__(self, email_client: email_manager.EmailSender, session_maker: Callable,
-				 security_config: security_util.ConfigDict) -> None:
+	def __init__(
+		self,
+		email_client: email_manager.EmailSender,
+		session_maker: Callable,
+		security_config: security_util.ConfigDict,
+	) -> None:
 		self._email_client = email_client
 		self._cfg = email_client.config
 		self._security_cfg = security_config
@@ -289,11 +293,14 @@ class Client(object):
 					template_data=template_data,
 				)
 			except Exception as e:
-				logging.error('Could not send email: {}'.format(e))
 				err_details['error'] = '{}'.format(e)
-				msg = 'Could not successfully send email'
-				if not is_prod:
-					msg = f'Could not send email with template {template_name}: {e}'
+				if is_prod:
+					logging.error('Could not send email: {}'.format(e))
+					msg = 'Could not successfully send email'
+				else:
+					logging.error(f'Could not send email with template {template_name} to {recipients}: {e}')
+					logging.error(f'Send email error details: {err_details}')
+					msg = f'Could not send email with template {template_name} to {recipients}: {e}'
 				return None, errors.Error(msg, details=err_details)
 
 			return True, None
@@ -337,11 +344,14 @@ class Client(object):
 					template_data=cur_template_data
 				)
 			except Exception as e:
-				logging.error('Could not send email: {}'.format(e))
 				err_details['error'] = '{}'.format(e)
-				msg = 'Could not successfully send email'
-				if not is_prod:
-					msg = f'Could not send email with template {template_name}: {e}'
+				if is_prod:
+					logging.error('Could not send email: {}'.format(e))
+					msg = 'Could not successfully send email'
+				else:
+					logging.error(f'Could not send email with template {template_name} to {recipients}: {e}')
+					logging.error(f'Send email error details: {err_details}')
+					msg = f'Could not send email with template {template_name} to {recipients}: {e}'
 				return None, errors.Error(msg, details=err_details)
 
 		return True, None
