@@ -13,7 +13,8 @@ function BankPurchaseOrdersAllTab() {
   const { data, error } = useGetPurchaseOrdersSubscription();
 
   if (error) {
-    window.console.log("Error querying purchase orders. Error: " + error);
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
   }
 
   const purchaseOrders = data?.purchase_orders || [];

@@ -68,8 +68,10 @@ export default function InvoicesFundedUnfundedList({
       company_id: companyId,
     },
   });
-  if (!!error) {
-    console.error("Failed fetching company invoices:", error);
+
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
   }
 
   const invoices = useMemo(() => data?.invoices || [], [data?.invoices]);

@@ -15,7 +15,8 @@ export default function BankInvoicesPage() {
   const { data, error } = useGetInvoicesQuery();
 
   if (error) {
-    console.error("Error querying invoices. Error:", error);
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
   }
 
   const invoices = data?.invoices || [];

@@ -23,7 +23,8 @@ function EbbaApplicationsActiveTab() {
   });
 
   if (error) {
-    alert("Error querying borrowing bases. " + error);
+    alert(`Error in query: ${error.message}`);
+    console.log({ error });
   }
 
   const ebbaApplications = data?.ebba_applications || [];

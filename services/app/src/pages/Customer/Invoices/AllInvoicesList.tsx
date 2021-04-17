@@ -50,8 +50,10 @@ export default function AllInvoicesList({ companyId, productType }: Props) {
       company_id: companyId,
     },
   });
-  if (!!error) {
-    console.error("Failed fetching company invoices:", error);
+
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
   }
 
   console.log(data);

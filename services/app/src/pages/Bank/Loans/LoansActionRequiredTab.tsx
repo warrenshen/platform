@@ -35,7 +35,8 @@ function BankLoansActionRequiredTab() {
   const { data, error } = useGetNotFundedLoansForBankSubscription();
 
   if (error) {
-    alert("Error querying loans. " + error);
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
   }
 
   // State for modal(s).

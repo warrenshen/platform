@@ -17,7 +17,8 @@ function BankLoansPastDueTab() {
   const { data, error } = useGetFundedLoansForBankSubscription();
 
   if (error) {
-    alert("Error querying purchase order loans. " + error);
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
   }
 
   const loans = data?.loans;

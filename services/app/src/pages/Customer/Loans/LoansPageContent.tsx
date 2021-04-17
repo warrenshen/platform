@@ -30,7 +30,8 @@ function CustomerLoansPageContent({ companyId, productType }: Props) {
   });
 
   if (error) {
-    alert("Error querying loans. " + error);
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
   }
 
   const company = data?.companies_by_pk;

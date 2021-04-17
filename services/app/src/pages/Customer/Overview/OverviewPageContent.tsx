@@ -66,13 +66,18 @@ function CustomerOverviewPageContent({ companyId, productType }: Props) {
       ? ProductTypeToLoanType[productType]
       : null;
 
-  const { data, refetch } = useGetCustomerOverviewQuery({
+  const { data, refetch, error } = useGetCustomerOverviewQuery({
     fetchPolicy: "network-only",
     variables: {
       companyId,
       loanType,
     },
   });
+
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
+  }
 
   const company = data?.companies_by_pk;
   const financialSummary = company?.financial_summaries[0] || null;

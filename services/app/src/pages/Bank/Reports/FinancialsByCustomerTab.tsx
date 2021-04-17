@@ -60,13 +60,14 @@ function BankReportsPage() {
   });
 
   if (customersError) {
-    alert("Error querying customers. " + customersError);
+    console.error({ error: customersError });
+    alert(`Error in query (details in console): ${customersError.message}`);
   }
 
   if (financialSummariesByCompanyIdError) {
+    console.error({ error: financialSummariesByCompanyIdError });
     alert(
-      "Error querying financial summaries by companyId. " +
-        financialSummariesByCompanyIdError
+      `Error in query (details in console): ${financialSummariesByCompanyIdError.message}`
     );
   }
 

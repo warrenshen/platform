@@ -54,7 +54,8 @@ function CustomerLoansPageLoansTab({ companyId, productType }: Props) {
   });
 
   if (error) {
-    alert("Error querying loans. " + error);
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
   }
 
   return (

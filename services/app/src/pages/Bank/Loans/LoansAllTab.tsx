@@ -16,7 +16,8 @@ function BankLoansAllTab() {
   const { data, error } = useGetLoansForBankSubscription();
 
   if (error) {
-    alert("Error querying loans. " + error);
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
   }
 
   const loans = data?.loans || [];

@@ -16,7 +16,8 @@ function BankPurchaseOrdersActiveTab() {
   const { data, error } = useGetNotConfirmedPurchaseOrdersSubscription();
 
   if (error) {
-    window.console.log("Error querying purchase orders. Error: " + error);
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
   }
 
   const purchaseOrders = useMemo(() => data?.purchase_orders || [], [
