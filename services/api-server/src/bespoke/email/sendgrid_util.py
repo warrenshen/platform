@@ -253,9 +253,13 @@ class Client(object):
 	def get_bank_notify_email_addresses(self) -> List[str]:
 		return self._cfg['bank_notify_email_addresses']
 
-	def send(self,
-			 template_name: str, template_data: Dict, recipients: List[str],
-			 two_factor_payload: TwoFactorPayloadDict = None) -> Tuple[bool, errors.Error]:
+	def send(
+		self,
+		template_name: str,
+		template_data: Dict,
+		recipients: List[str],
+		two_factor_payload: TwoFactorPayloadDict = None,
+	) -> Tuple[bool, errors.Error]:
 
 		# Validate whether recipient emails are valid.
 		for recipient_email in recipients:
@@ -272,6 +276,7 @@ class Client(object):
 		err_details = {
 			'template_name': template_name,
 			'template_id': template_id,
+			'template_data': template_data,
 		}
 
 		is_prod = is_prod_env(self._cfg['flask_env'])
@@ -281,14 +286,14 @@ class Client(object):
 				self._email_client.send_dynamic_email_template(
 					to_=recipients,
 					template_id=template_id,
-					template_data=template_data
+					template_data=template_data,
 				)
 			except Exception as e:
 				logging.error('Could not send email: {}'.format(e))
 				err_details['error'] = '{}'.format(e)
 				msg = 'Could not successfully send email'
 				if not is_prod:
-					msg = 'Could not send email: {}'.format(e)
+					msg = f'Could not send email with template {template_name}: {e}'
 				return None, errors.Error(msg, details=err_details)
 
 			return True, None
@@ -336,7 +341,7 @@ class Client(object):
 				err_details['error'] = '{}'.format(e)
 				msg = 'Could not successfully send email'
 				if not is_prod:
-					msg = 'Could not send email: {}'.format(e)
+					msg = f'Could not send email with template {template_name}: {e}'
 				return None, errors.Error(msg, details=err_details)
 
 		return True, None

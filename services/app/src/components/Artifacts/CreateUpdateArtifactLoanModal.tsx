@@ -269,7 +269,9 @@ export default function CreateUpdateArtifactLoanModal({
     disabledSubmitReasons.push("Amount is not specified");
   }
 
-  const isSaveSubmitDisabled = disabledSubmitReasons.length > 0;
+  const isSaveSubmitDisabled =
+    isSaveDraftDisabled || disabledSubmitReasons.length > 0;
+
   // If the purchase order ID is being passed in through the props, this means that the
   // user cannot select a purchase order themselves.
   const disableArtifactEditing = artifactId !== null;
