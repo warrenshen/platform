@@ -17,7 +17,7 @@ from bespoke.db.db_constants import (ALL_LOAN_TYPES, CompanyType,
 from bespoke.db.models import session_scope
 from bespoke.excel import excel_reader
 from bespoke.finance import contract_util, number_util
-from bespoke.finance.loans import loan_calculator
+from bespoke.finance.loans import fee_util, loan_calculator
 from bespoke.finance.payments import repayment_util
 
 
@@ -227,7 +227,7 @@ def import_settled_repayments(
 				print(f'EXITING EARLY')
 				return
 
-			fee_accumulator = loan_calculator.FeeAccumulator()
+			fee_accumulator = fee_util.FeeAccumulator()
 			calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
 			transactions_for_loan = loan_calculator.get_transactions_for_loan(
 				str(loan.id),
