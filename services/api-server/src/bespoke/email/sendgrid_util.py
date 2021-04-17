@@ -230,16 +230,23 @@ TwoFactorPayloadDict = TypedDict('TwoFactorPayloadDict', {
 })
 
 def _maybe_add_extra_recipients(
-	recipients: List[str], cfg: email_manager.EmailConfigDict, template_name: str) -> List[str]:
+	recipients: List[str],
+	cfg: email_manager.EmailConfigDict,
+	template_name: str,
+) -> List[str]:
 	if is_development_env(cfg['flask_env']):
 		return recipients
 
 	if template_name in TEMPLATES_TO_EXCLUDE_FROM_BESPOKE_NOTIFICATIONS:
 		return recipients
 
-	recipients.append(cfg['no_reply_email_addr'])
-
-	return recipients
+	no_reply_email_addr = cfg['no_reply_email_addr']
+	if no_reply_email_addr not in recipients:
+		# We use list concatenation and NOT .append() so
+		# that we do not mutate the given recipients parameter.
+		return recipients + [no_reply_email_addr]
+	else:
+		return recipients
 
 class Client(object):
 

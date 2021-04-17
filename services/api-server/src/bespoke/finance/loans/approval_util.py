@@ -31,8 +31,8 @@ SubmitForApprovalRespDict = TypedDict('SubmitForApprovalRespDict', {
 @errors.return_error_tuple
 def send_loan_approval_requested_email(
 	sendgrid_client: sendgrid_util.Client,
-	submit_resp: SubmitForApprovalRespDict) -> Tuple[bool, errors.Error]:
-
+	submit_resp: SubmitForApprovalRespDict,
+) -> Tuple[bool, errors.Error]:
 	template_name = sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_LOAN
 	template_data = {
 		'customer_name': submit_resp['customer_name'],
