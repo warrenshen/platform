@@ -236,7 +236,7 @@ export default function CreateUpdatePurchaseOrderModal({
     >
       <>
         {isBankUser && (
-          <Box mt={2} mb={3}>
+          <Box mt={2} mb={6}>
             <Alert severity="warning">
               <Typography variant="body1">
                 {`Warning: you are ${

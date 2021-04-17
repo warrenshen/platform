@@ -265,7 +265,7 @@ function CreateRepaymentModal({
     >
       <>
         {isBankUser && (
-          <Box mt={2} mb={3}>
+          <Box mt={2} mb={6}>
             <Alert severity="info">
               <Typography variant="body1">
                 Warning: you are creating a payment on behalf of this customer

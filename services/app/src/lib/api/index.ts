@@ -48,7 +48,6 @@ export const purchaseOrdersRoutes = {
   createUpdateAsDraft: "/purchase_orders/create_update_as_draft",
   createUpdateAndSubmit: "/purchase_orders/create_update_and_submit",
   respondToApprovalRequest: "/purchase_orders/respond_to_approval_request",
-  submitForApproval: "/purchase_orders/submit_for_approval",
   delete: "/purchase_orders/delete",
 };
 

@@ -172,7 +172,7 @@ function SettleRepaymentSelectLoans({
           <Box display="flex" flexDirection="column" mt={4}>
             <Box mb={1}>
               <Typography variant="subtitle2">
-                {`Step 2: select loans this payment will apply towards. The loans that ${customer.name} suggested are pre-selected, but the final selection is up to your discretion.`}
+                {`Select which loans this payment will apply towards. The loans that ${customer.name} suggested are pre-selected, but the final selection is up to your discretion.`}
               </Typography>
             </Box>
             <Typography variant="body1">Selected loans:</Typography>

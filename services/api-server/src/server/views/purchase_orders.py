@@ -127,10 +127,6 @@ def _create_update_purchase_order(
 	errors.Error,
 ]:
 	is_create_purchase_order = False
-	customer_name = None
-	vendor_name = None
-	purchase_order_number = None
-	purchase_order_amount = None
 
 	if not request.purchase_order.company_id:
 		raise errors.Error('Company is required')
@@ -164,11 +160,6 @@ def _create_update_purchase_order(
 
 			vendor = purchase_order.vendor
 			customer = purchase_order.company
-
-			vendor_name = vendor.name
-			customer_name = customer.name
-			purchase_order_number = purchase_order.order_number
-			purchase_order_amount = number_util.to_dollar_format(float(purchase_order.amount)) if purchase_order.amount else None
 
 		purchase_order_id = str(purchase_order.id)
 
@@ -222,10 +213,10 @@ def _create_update_purchase_order(
 			)
 
 			template_data = {
-				'customer_name': customer_name,
-				'vendor_name': vendor_name,
-				'purchase_order_number': purchase_order_number,
-				'purchase_order_amount': purchase_order_amount,
+				'customer_name': customer.name,
+				'vendor_name': vendor.name,
+				'purchase_order_number': purchase_order.order_number,
+				'purchase_order_amount': number_util.to_dollar_format(float(purchase_order.amount)) if purchase_order.amount else None,
 			}
 			_, err = sendgrid_client.send(
 				template_name=sendgrid_util.TemplateNames.CUSTOMER_CREATED_PURCHASE_ORDER,
@@ -269,10 +260,11 @@ def _submit_purchase_order_for_approval(
 			raise errors.Error('Invalid amount')
 
 		company_vendor_relationship = cast(
-			models.CompanyVendorPartnership, session.query(
-			models.CompanyVendorPartnership).filter_by(
+			models.CompanyVendorPartnership,
+			session.query(models.CompanyVendorPartnership).filter_by(
 				company_id=customer.id,
-				vendor_id=vendor.id).first())
+				vendor_id=vendor.id,
+			).first())
 
 		if not company_vendor_relationship.vendor_bank_id:
 			is_vendor_missing_bank_account = True
@@ -289,16 +281,11 @@ def _submit_purchase_order_for_approval(
 		if not purchase_order_file:
 			raise errors.Error('File attachment is required')
 
-		vendor_name = vendor.name
-		customer_name = customer.name
-
 		vendor_users = cast(List[models.User], session.query(
 			models.User).filter_by(company_id=purchase_order.vendor_id).all())
 
 		if not vendor_users:
 			raise errors.Error('There are no users configured for this vendor')
-
-		vendor_emails = [user.email for user in vendor_users]
 
 		purchase_order.status = RequestStatusEnum.APPROVAL_REQUESTED
 		purchase_order.requested_at = date_util.now()
@@ -322,13 +309,13 @@ def _submit_purchase_order_for_approval(
 		# Send the email to the vendor for them to approve or reject this purchase order
 		# Get the vendor_id and find its users
 		template_data = {
-			'vendor_name': vendor_name,
-			'customer_name': customer_name
+			'vendor_name': vendor.name,
+			'customer_name': customer.name,
 		}
 		_, err = sendgrid_client.send(
 			template_name=sendgrid_util.TemplateNames.VENDOR_TO_APPROVE_PURCHASE_ORDER,
 			template_data=template_data,
-			recipients=vendor_emails,
+			recipients=[user.email for user in vendor_users],
 			two_factor_payload=two_factor_payload,
 		)
 		if err:
@@ -338,8 +325,8 @@ def _submit_purchase_order_for_approval(
 		# send an email to the Bespoke team letting them know about this.
 		if is_vendor_missing_bank_account:
 			template_data = {
-				'vendor_name': vendor_name,
-				'customer_name': customer_name,
+				'vendor_name': vendor.name,
+				'customer_name': customer.name,
 			}
 			_, err = sendgrid_client.send(
 				template_name=sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_APPROVAL_NO_VENDOR_BANK_ACCOUNT,
@@ -417,132 +404,6 @@ class CreateUpdateAndSubmitView(MethodView):
 			}
 		}))
 
-class SubmitForApprovalView(MethodView):
-	decorators = [auth_util.login_required]
-
-	@events.wrap(events.Actions.PURCHASE_ORDER_SUBMIT_FOR_APPROVAL)
-	@handler_util.catch_bad_json_request
-	def post(self, **kwargs: Any) -> Response:
-		sendgrid_client = cast(sendgrid_util.Client,
-							   current_app.sendgrid_client)
-
-		data = json.loads(request.data)
-		if not data:
-			raise errors.Error('No data provided')
-
-		purchase_order_id = data['purchase_order_id']
-
-		if not purchase_order_id:
-			raise errors.Error('No Purchase Order ID provided')
-
-		vendor_emails = []
-		vendor_name = None
-		is_vendor_missing_bank_account = False
-		customer_name = None
-
-		with session_scope(current_app.session_maker) as session:
-			purchase_order = cast(
-				models.PurchaseOrder,
-				session.query(models.PurchaseOrder).filter_by(
-					id=purchase_order_id).first()
-			)
-
-			vendor = purchase_order.vendor
-			customer = purchase_order.company
-
-			if not purchase_order.order_number:
-				raise errors.Error('Invalid order number')
-
-			if not purchase_order.order_date:
-				raise errors.Error('Invalid order date')
-
-			if not purchase_order.delivery_date:
-				raise errors.Error('Invalid delivery date')
-
-			if purchase_order.amount is None or purchase_order.amount <= 0:
-				raise errors.Error('Invalid amount')
-
-			company_vendor_relationship = cast(
-				models.CompanyVendorPartnership, session.query(
-				models.CompanyVendorPartnership).filter_by(
-					company_id=customer.id,
-					vendor_id=vendor.id).first())
-
-			if not company_vendor_relationship.vendor_bank_id:
-				is_vendor_missing_bank_account = True
-
-			if not company_vendor_relationship or company_vendor_relationship.approved_at is None:
-				raise errors.Error('Vendor is not approved')
-
-			purchase_order_file = cast(models.PurchaseOrderFile, session.query(
-				models.PurchaseOrderFile
-			).filter_by(
-				purchase_order_id=purchase_order.id,
-				file_type=db_constants.PurchaseOrderFileTypeEnum.PurchaseOrder,
-			).first())
-			if not purchase_order_file:
-				raise errors.Error('File attachment is required')
-
-			vendor_name = vendor.name
-			customer_name = customer.name
-
-			vendor_users = cast(List[models.User], session.query(
-				models.User).filter_by(company_id=purchase_order.vendor_id).all())
-
-			if not vendor_users:
-				raise errors.Error('There are no users configured for this vendor')
-
-			vendor_emails = [user.email for user in vendor_users]
-
-			purchase_order.status = RequestStatusEnum.APPROVAL_REQUESTED
-			purchase_order.requested_at = date_util.now()
-
-			form_info = models.TwoFactorFormInfoDict(
-				type=db_constants.TwoFactorLinkType.CONFIRM_PURCHASE_ORDER,
-				payload={
-					'purchase_order_id': purchase_order_id
-				}
-			)
-			two_factor_payload = sendgrid_util.TwoFactorPayloadDict(
-				form_info=form_info,
-				expires_at=date_util.hours_from_today(24 * 7)
-			)
-
-			# Send the email to the vendor for them to approve or reject this purchase order
-			# Get the vendor_id and find its users
-			template_data = {
-				'vendor_name': vendor_name,
-				'customer_name': customer_name
-			}
-			_, err = sendgrid_client.send(
-				template_name=sendgrid_util.TemplateNames.VENDOR_TO_APPROVE_PURCHASE_ORDER,
-				template_data=template_data,
-				recipients=vendor_emails,
-				two_factor_payload=two_factor_payload,
-			)
-			if err:
-				raise err
-
-			# If vendor does NOT have a bank account set up yet,
-			# send an email to the Bespoke team letting them know about this.
-			if is_vendor_missing_bank_account:
-				template_data = {
-					'vendor_name': vendor_name,
-					'customer_name': customer_name,
-				}
-				_, err = sendgrid_client.send(
-					template_name=sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_APPROVAL_NO_VENDOR_BANK_ACCOUNT,
-					template_data=template_data,
-					recipients=current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES + current_app.app_config.OPS_EMAIL_ADDRESSES,
-				)
-				if err:
-					raise err
-
-		return make_response(json.dumps({
-			'status': 'OK',
-			'msg': 'Purchase Order {} submitted for approval'.format(purchase_order_id)
-		}), 200)
-
 class RespondToApprovalRequestView(MethodView):
 	"""
 	POST request that handles the following:
@@ -557,8 +418,10 @@ class RespondToApprovalRequestView(MethodView):
 	@handler_util.catch_bad_json_request
 	def post(self, event: events.Event, **kwargs: Any) -> Response:
 		cfg = cast(Config, current_app.app_config)
-		sendgrid_client = cast(sendgrid_util.Client,
-							   current_app.sendgrid_client)
+		sendgrid_client = cast(
+			sendgrid_util.Client,
+			current_app.sendgrid_client,
+		)
 
 		data = json.loads(request.data)
 		if not data:
@@ -774,12 +637,6 @@ handler.add_url_rule(
 	'/respond_to_approval_request',
 	view_func=RespondToApprovalRequestView.as_view(
 		name='respond_to_approval_request')
-)
-
-handler.add_url_rule(
-	'/submit_for_approval',
-	view_func=SubmitForApprovalView.as_view(
-		name='submit_for_approval_view')
 )
 
 handler.add_url_rule(

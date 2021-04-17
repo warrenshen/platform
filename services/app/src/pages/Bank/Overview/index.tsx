@@ -45,24 +45,27 @@ function BankOverviewPage() {
     error: latestBankFinancialSummariesError,
   } = useGetLatestBankFinancialSummariesSubscription();
 
-  const { data, error } = useGetFundedLoansForBankSubscription();
+  const {
+    data: fundedLoansData,
+    error: fundedLoansError,
+  } = useGetFundedLoansForBankSubscription();
 
   if (latestBankFinancialSummariesError) {
     alert(
       "Error querying bank financial summaries. " +
-        latestBankFinancialSummariesError
+        latestBankFinancialSummariesError.message
     );
   }
 
-  if (error) {
-    alert("Error querying loans. " + error);
+  if (fundedLoansError) {
+    alert("Error querying loans. " + fundedLoansError.message);
   }
 
   const bankFinancialSummaries =
     latestBankFinancialSummariesData?.bank_financial_summaries || [];
   let filteredBankFinancialSummaries = bankFinancialSummaries;
 
-  const loans = data?.loans;
+  const loans = fundedLoansData?.loans;
   const maturingLoans = useMemo(
     () =>
       (loans || []).filter((loan) => {
