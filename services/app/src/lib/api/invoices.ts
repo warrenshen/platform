@@ -89,6 +89,30 @@ export async function updateInvoiceMutation(
     );
 }
 
+export type DeleteInvoiceMutationReq = {
+  variables: {
+    invoice_id: Invoices["id"];
+  };
+};
+
+export async function deleteInvoiceMutation(
+  req: DeleteInvoiceMutationReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(invoicesRoutes.delete, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not delete invoice",
+        };
+      }
+    );
+}
+
 export async function submitInvoiceForApproval(
   request: SubmitInvoiceForApprovalRequest
 ): Promise<CustomMutationResponse> {

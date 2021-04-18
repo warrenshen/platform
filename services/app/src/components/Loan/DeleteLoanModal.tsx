@@ -7,6 +7,10 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { deleteLoanMutation } from "lib/api/loans";
 import { formatCurrency } from "lib/currency";
+import {
+  createLoanCustomerIdentifier,
+  createLoanDisbursementIdentifier,
+} from "lib/loans";
 import { useContext } from "react";
 
 interface Props {
@@ -84,14 +88,16 @@ export default function DeleteLoanModal({ loanId, handleClose }: Props) {
               <Typography variant="subtitle2" color="textSecondary">
                 Identifier
               </Typography>
-              <Typography variant={"body1"}>{loan.identifier}</Typography>
+              <Typography variant={"body1"}>
+                {createLoanCustomerIdentifier(loan)}
+              </Typography>
             </Box>
             <Box display="flex" flexDirection="column" mt={2}>
               <Typography variant="subtitle2" color="textSecondary">
                 Disbursement Identifier
               </Typography>
               <Typography variant={"body1"}>
-                {loan.disbursement_identifier}
+                {createLoanDisbursementIdentifier(loan)}
               </Typography>
             </Box>
             <Box display="flex" flexDirection="column" mt={2}>

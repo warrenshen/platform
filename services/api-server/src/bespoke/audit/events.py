@@ -20,6 +20,7 @@ class Actions(object):
 
 	INVOICE_UPDATE = 'invoice_update'
 	INVOICE_CREATE = 'invoice_create'
+	INVOICE_DELETE = 'invoice_delete'
 	INVOICE_SUBMIT_FOR_APPROVAL = 'invoice_submit_for_approval'
 	INVOICE_RESPOND_TO_APPROVAL = 'invoice_respond_to_approval'
 	INVOICE_SUBMIT_FOR_PAYMENT = 'invoice_submit_for_payment'

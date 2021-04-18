@@ -54,6 +54,7 @@ export const purchaseOrdersRoutes = {
 export const invoicesRoutes = {
   create: "/invoices/create",
   update: "/invoices/update",
+  delete: "/invoices/delete",
   submitForApproval: "/invoices/submit_for_approval",
   respondToApprovalRequest: "/invoices/respond_to_approval_request",
   submitForPayment: "/invoices/submit_for_payment",

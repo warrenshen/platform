@@ -89,7 +89,7 @@ export async function respondToPurchaseOrderApprovalRequestMutation(
 
 export type DeletePurchaseOrderReq = {
   variables: {
-    purchaseOrderId: PurchaseOrders["id"];
+    purchase_order_id: PurchaseOrders["id"];
   };
 };
 

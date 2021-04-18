@@ -275,8 +275,8 @@ function CreateUpdateInvoiceModal({
         <Button
           disabled={isSaveDraftDisabled}
           onClick={handleSaveDraft}
-          variant="contained"
-          color="secondary"
+          variant="outlined"
+          color="default"
         >
           Save as Draft
         </Button>

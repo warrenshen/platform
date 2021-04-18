@@ -45,6 +45,7 @@ export enum Action {
   FundInvoices = "invoices:fund",
   ViewInvoicesActionMenu = "invoices:view-action-menu",
   RequestPaymentOnInvoices = "invoices:request-payment",
+  DeleteInvoices = "invoices:delete",
 
   // Payments
   DeleteRepayments = "payments:delete-repayments",
@@ -138,6 +139,7 @@ const rules: Rules = {
 
       Action.AddInvoices,
       Action.EditInvoices,
+      Action.DeleteInvoices,
       // Action.FundInvoices,
       // Action.RequestPaymentOnInvoices,
 

@@ -1,7 +1,8 @@
 import json
 import logging
-from typing import Any
+from typing import Any, cast
 
+from bespoke import errors
 from bespoke.audit import events
 from bespoke.db import models
 from bespoke.finance.invoices import invoices_util
@@ -80,3 +81,47 @@ class UpdateInvoiceView(MethodView):
 				'files': files,
 			}
 		}))
+
+class DeleteInvoiceView(MethodView):
+	decorators = [auth_util.login_required]
+
+	# @events.wrap(events.Actions.PURCHASE_ORDER_DELETE)
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		data = json.loads(request.data)
+		if not data:
+			raise errors.Error('No data provided')
+
+		invoice_id = data['invoice_id']
+
+		if not invoice_id:
+			raise errors.Error('No Invoice ID provided')
+
+		user_session = auth_util.UserSession.from_session()
+
+		with models.session_scope(current_app.session_maker) as session:
+			invoice = cast(
+				models.Invoice,
+				session.query(models.Invoice).filter_by(
+					id=invoice_id
+				).first())
+
+			if not user_session.is_bank_or_this_company_admin(str(invoice.company_id)):
+				return handler_util.make_error_response('Access Denied')
+
+			if (
+				invoice.requested_at or
+				invoice.approved_at or
+				invoice.rejected_at
+			):
+				raise errors.Error('Invoice is not a draft')
+
+			if invoice.is_deleted:
+				raise errors.Error('Invoice is already deleted')
+
+			invoice.is_deleted = True
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Invoice {} deleted'.format(invoice_id)
+		}), 200)

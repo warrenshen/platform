@@ -5,6 +5,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import DeleteInvoiceModal from "components/Invoice/DeleteInvoiceModal";
 import CreateUpdateInvoiceLoanModal from "components/Invoices/CreateUpdateInvoiceLoanModal";
 import CreateUpdateInvoiceModal from "components/Invoices/CreateUpdateInvoiceModal";
 import InvoicesDataGrid from "components/Invoices/InvoicesDataGrid";
@@ -100,6 +101,16 @@ export default function InvoicesFundedUnfundedList({
     Invoices["id"][]
   >([]);
 
+  const selectedUnfundedInvoice = useMemo(
+    () =>
+      selectedUnfundedInvoiceIds.length === 1
+        ? unfundedInvoices.find(
+            (invoice) => invoice.id === selectedUnfundedInvoiceIds[0]
+          )
+        : null,
+    [unfundedInvoices, selectedUnfundedInvoiceIds]
+  );
+
   const handleSelectUnfundedInvoiceIds = useMemo(
     () => (invoices: InvoiceFragment[]) =>
       setSelectedUnfundedInvoiceIds(invoices.map((i) => i.id)),
@@ -137,14 +148,14 @@ export default function InvoicesFundedUnfundedList({
           <Can perform={Action.EditInvoices}>
             <Box mr={1}>
               <ModalButton
-                isDisabled={selectedUnfundedInvoiceIds.length !== 1}
+                isDisabled={!selectedUnfundedInvoice}
                 label={"Edit Invoice"}
                 modal={({ handleClose }) => (
                   <CreateUpdateInvoiceModal
                     isInvoiceForLoan
                     actionType={ActionType.Update}
                     companyId={companyId}
-                    invoiceId={selectedUnfundedInvoiceIds[0]}
+                    invoiceId={selectedUnfundedInvoice?.id}
                     handleClose={() => {
                       refetch();
                       handleClose();
@@ -158,7 +169,7 @@ export default function InvoicesFundedUnfundedList({
           <Can perform={Action.FundInvoices}>
             <Box mr={1}>
               <ModalButton
-                isDisabled={selectedUnfundedInvoiceIds.length !== 1}
+                isDisabled={!selectedUnfundedInvoice}
                 label={"Fund Invoice"}
                 modal={({ handleClose }) => {
                   const handler = () => {
@@ -172,11 +183,30 @@ export default function InvoicesFundedUnfundedList({
                       productType={productType}
                       actionType={ActionType.New}
                       loanId=""
-                      artifactId={selectedUnfundedInvoiceIds[0]}
+                      artifactId={selectedUnfundedInvoice?.id}
                       handleClose={handler}
                     />
                   );
                 }}
+              />
+            </Box>
+          </Can>
+          <Can perform={Action.DeleteInvoices}>
+            <Box mr={2}>
+              <ModalButton
+                isDisabled={!selectedUnfundedInvoice}
+                label={"Delete Invoice"}
+                variant={"outlined"}
+                modal={({ handleClose }) => (
+                  <DeleteInvoiceModal
+                    invoiceId={selectedUnfundedInvoice?.id}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                      setSelectedUnfundedInvoiceIds([]);
+                    }}
+                  />
+                )}
               />
             </Box>
           </Can>

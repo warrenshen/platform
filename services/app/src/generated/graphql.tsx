@@ -18766,7 +18766,14 @@ export type GetInvoiceForReviewQueryResult = Apollo.QueryResult<
 >;
 export const GetInvoicesDocument = gql`
   query GetInvoices {
-    invoices {
+    invoices(
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
+    ) {
       id
       ...Invoice
     }
@@ -18821,7 +18828,19 @@ export type GetInvoicesQueryResult = Apollo.QueryResult<
 >;
 export const GetInvoicesByCompanyIdDocument = gql`
   query GetInvoicesByCompanyId($company_id: uuid!) {
-    invoices(where: { company_id: { _eq: $company_id } }) {
+    invoices(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { company_id: { _eq: $company_id } }
+        ]
+      }
+    ) {
       ...Invoice
       company {
         id
@@ -18889,6 +18908,12 @@ export const GetApprovedInvoicesByCompanyIdDocument = gql`
     invoices(
       where: {
         _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
           { approved_at: { _is_null: false } }
           { funded_at: { _is_null: true } }
           { company_id: { _eq: $companyId } }
