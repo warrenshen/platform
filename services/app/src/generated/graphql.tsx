@@ -19527,6 +19527,12 @@ export type UpdateLoanMutationOptions = Apollo.BaseMutationOptions<
 export const GetLoansForBankDocument = gql`
   subscription GetLoansForBank {
     loans(
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
       order_by: [
         { adjusted_maturity_date: asc }
         { amount: asc }
@@ -19581,6 +19587,12 @@ export const GetNotFundedLoansForBankDocument = gql`
     loans(
       where: {
         _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
           { funded_at: { _is_null: true } }
           { closed_at: { _is_null: true } }
         ]
@@ -19631,6 +19643,12 @@ export const GetFundedLoansForBankDocument = gql`
     loans(
       where: {
         _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
           { funded_at: { _is_null: false } }
           { closed_at: { _is_null: true } }
         ]
@@ -19695,6 +19713,12 @@ export const GetActiveLoansForCompanyDocument = gql`
       loans(
         where: {
           _and: [
+            {
+              _or: [
+                { is_deleted: { _is_null: true } }
+                { is_deleted: { _eq: false } }
+              ]
+            }
             { loan_type: { _eq: $loanType } }
             { closed_at: { _is_null: true } }
             { rejected_at: { _is_null: true } }
@@ -19773,6 +19797,12 @@ export const GetClosedLoansForCompanyDocument = gql`
       loans(
         where: {
           _and: [
+            {
+              _or: [
+                { is_deleted: { _is_null: true } }
+                { is_deleted: { _eq: false } }
+              ]
+            }
             { closed_at: { _is_null: false } }
             { loan_type: { _eq: $loanType } }
           ]
@@ -19850,6 +19880,12 @@ export const GetLoansByCompanyAndLoanTypeDocument = gql`
     loans(
       where: {
         _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
           { company_id: { _eq: $companyId } }
           { loan_type: { _eq: $loanType } }
         ]

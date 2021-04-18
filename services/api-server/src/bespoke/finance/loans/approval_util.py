@@ -147,12 +147,13 @@ def submit_for_approval(
 
 		customer_name = purchase_order.company.name
 
-		proposed_loans_total_amount = sibling_util.get_loan_sum_on_artifact(
+		artifact_id = str(loan.artifact_id)
+
+		proposed_loans_total_amount = sibling_util.get_loan_sum_per_artifact(
 			session,
-			artifact_id=loan.artifact_id,
-			excluding_loan_id=loan.id
-		)
-		proposed_loans_total_amount += float(loan.amount)
+			artifact_ids=[artifact_id],
+			excluding_loan_id=None,
+		)[artifact_id]
 
 		if proposed_loans_total_amount > float(purchase_order.amount):
 			raise errors.Error('Requesting this loan puts you over the amount granted for this same Purchase Order', details=err_details)

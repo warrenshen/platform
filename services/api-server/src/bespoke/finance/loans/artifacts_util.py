@@ -30,7 +30,10 @@ def _process_artifacts_by_id(
 	artifact_ids = list(artifacts_by_id.keys())
 
 	used_amounts_per_id = sibling_util.get_loan_sum_per_artifact(
-		session, artifact_ids, excluding_loan_id=loan_id)
+		session,
+		artifact_ids,
+		excluding_loan_id=loan_id,
+	)
 	for artifact_id, used_amount in used_amounts_per_id.items():
 		artifacts_by_id[artifact_id]['amount_remaining'] -= used_amount
 		artifacts_by_id[artifact_id]['amount_remaining'] = max(0, artifacts_by_id[artifact_id]['amount_remaining'])

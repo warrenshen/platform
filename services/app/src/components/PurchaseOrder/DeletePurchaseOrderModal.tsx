@@ -30,6 +30,7 @@ function DeletePurchaseOrderModal({ purchaseOrderId, handleClose }: Props) {
     data,
     loading: isExistingPurchaseOrderLoading,
   } = usePurchaseOrderQuery({
+    fetchPolicy: "network-only",
     variables: {
       id: purchaseOrderId,
     },

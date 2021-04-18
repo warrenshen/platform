@@ -1,17 +1,16 @@
 import datetime
 import decimal
 import uuid
-from typing import cast, List, Dict
+from typing import Dict, List, cast
 
-from bespoke.db import models, db_constants
+from bespoke.date import date_util
+from bespoke.db import db_constants, models
 from bespoke.db.db_constants import LoanStatusEnum
 from bespoke.db.models import session_scope
-from bespoke.finance.loans import artifacts_util
 from bespoke.finance import number_util
-from bespoke.date import date_util
+from bespoke.finance.loans import artifacts_util
+from bespoke_test.db import db_unittest, test_helper
 
-from bespoke_test.db import db_unittest
-from bespoke_test.db import test_helper
 
 class TestListArtifactsForCreateLoan(db_unittest.TestCase):
 
@@ -179,6 +178,41 @@ class TestListArtifactsForCreateLoan(db_unittest.TestCase):
 					'artifact_id': None, # filled in by test
 					'total_amount': 700.0,
 					'amount_remaining': 700.0 - 130.02 # check that your loan (200.02 amount) is not included
+				}
+			]
+		}
+		self._run_test(test)
+
+	def test_inventory_financing_exclude_deleted_loan(self) -> None:
+		test: Dict = {
+			'product_type': db_constants.ProductType.INVENTORY_FINANCING,
+			'loans': [
+				models.Loan(
+					loan_type=db_constants.LoanTypeEnum.INVENTORY,
+					requested_payment_date=date_util.load_date_str('10/01/2020'),
+					amount=decimal.Decimal(200.02),
+					status=db_constants.LoanStatusEnum.APPROVAL_REQUESTED
+				),
+				models.Loan(
+					loan_type=db_constants.LoanTypeEnum.INVENTORY,
+					requested_payment_date=date_util.load_date_str('10/01/2020'),
+					amount=decimal.Decimal(130.02),
+					status=db_constants.LoanStatusEnum.APPROVED,
+					is_deleted=True,
+				)
+			],
+			'artifacts': [
+				models.PurchaseOrder(
+					amount=decimal.Decimal(700.0)
+				),
+			],
+			'loan_artifact_indices': [0, 0],
+			'loan_id_index': 0,
+			'expected_artifacts': [
+				{
+					'artifact_id': None, # filled in by test
+					'total_amount': 700.0,
+					'amount_remaining': 700.0,
 				}
 			]
 		}

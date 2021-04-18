@@ -18,8 +18,11 @@ export enum Action {
   ViewLoanInternalNote = "loans:view-internal-note",
   SelectLoan = "loans:select",
   DeselectLoan = "loans:deselect",
+  DeleteLoans = "loans:delete",
   CreateAdvance = "loans:create-advance",
   RunBalances = "loans:run-balances",
+
+  // Adjustments
   CreateAdjustment = "loans:create-adjustment",
 
   // Purchase Orders
@@ -141,6 +144,7 @@ const rules: Rules = {
       Action.AddPurchaseOrderLoan,
       Action.EditPurchaseOrderLoan,
       Action.RepayPurchaseOrderLoans,
+      Action.DeleteLoans,
 
       // Bank on-behalf-of vendor actions - bank performs on behalf of vendor.
       Action.ApprovePurchaseOrders,

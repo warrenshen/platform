@@ -3,35 +3,33 @@ import datetime
 import decimal
 import json
 import uuid
-from typing import cast, List, Dict
+from typing import Dict, List, cast
 
-from bespoke.db import models, db_constants
+from bespoke.date import date_util
+from bespoke.db import db_constants, models
 from bespoke.db.db_constants import LoanStatusEnum, LoanTypeEnum, ProductType
 from bespoke.db.models import session_scope
-from bespoke.finance.loans import approval_util
 from bespoke.finance import number_util
-from bespoke.date import date_util
-
+from bespoke.finance.loans import approval_util
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
-from bespoke_test.db import db_unittest
-from bespoke_test.db import test_helper
+from bespoke_test.db import db_unittest, test_helper
 
 # TODO(warren): Add a test for approve loan
 
 def _get_financial_summary(total_limit: float, available_limit: float) -> models.FinancialSummary:
 	return models.FinancialSummary(
-				total_limit=decimal.Decimal(total_limit),
-				adjusted_total_limit=decimal.Decimal(total_limit),
-				total_outstanding_principal=decimal.Decimal(0.0),
-				total_outstanding_principal_for_interest=decimal.Decimal(0.0),
-				total_outstanding_interest=decimal.Decimal(0.0), # unused
-				total_outstanding_fees=decimal.Decimal(0.0), # unused
-				total_principal_in_requested_state=decimal.Decimal(0.0), # unused
-				interest_accrued_today=decimal.Decimal(0.0), # unused
-				available_limit=decimal.Decimal(200.0),
-				minimum_monthly_payload={},
-				account_level_balance_payload={}
+		total_limit=decimal.Decimal(total_limit),
+		adjusted_total_limit=decimal.Decimal(total_limit),
+		total_outstanding_principal=decimal.Decimal(0.0),
+		total_outstanding_principal_for_interest=decimal.Decimal(0.0),
+		total_outstanding_interest=decimal.Decimal(0.0), # unused
+		total_outstanding_fees=decimal.Decimal(0.0), # unused
+		total_principal_in_requested_state=decimal.Decimal(0.0), # unused
+		interest_accrued_today=decimal.Decimal(0.0), # unused
+		available_limit=decimal.Decimal(200.0),
+		minimum_monthly_payload={},
+		account_level_balance_payload={}
 	)
 
 def _get_late_fee_structure() -> str:
@@ -284,7 +282,7 @@ class TestSubmitViaAutoFinancing(db_unittest.TestCase):
 
 			financial_summary.company_id = company_id
 			session.add(financial_summary)
-		
+
 			company_settings.company_id = company_id
 			session.add(company_settings)
 

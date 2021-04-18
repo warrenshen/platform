@@ -157,7 +157,7 @@ function CustomerPurchaseOrdersOpenTab({ companyId, productType }: Props) {
                   <CreateUpdatePurchaseOrderModal
                     actionType={ActionType.Update}
                     companyId={companyId}
-                    purchaseOrderId={selectedPurchaseOrderIds[0]}
+                    purchaseOrderId={selectedPurchaseOrder?.id}
                     handleClose={() => {
                       refetch();
                       handleClose();

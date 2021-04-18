@@ -66,6 +66,9 @@ export const loansRoutes = {
   submitForApproval: "/finance/loans/approvals/submit_for_approval",
   approveLoans: "/finance/loans/approvals/approve_loans",
   rejectLoan: "/finance/loans/approvals/reject_loan",
+
+  deleteLoan: "/finance/loans/deletion/delete_loan",
+
   runCustomerBalances: "/finance/loans/reports/run_customer_balances",
 
   // Payments related.

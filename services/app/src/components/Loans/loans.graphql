@@ -1,5 +1,8 @@
 subscription GetLoansForBank {
   loans(
+    where: {
+      _or: [{ is_deleted: { _is_null: true } }, { is_deleted: { _eq: false } }]
+    }
     order_by: [
       { adjusted_maturity_date: asc }
       { amount: asc }
@@ -20,6 +23,12 @@ subscription GetNotFundedLoansForBank {
   loans(
     where: {
       _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
         { funded_at: { _is_null: true } }
         { closed_at: { _is_null: true } }
       ]
@@ -36,6 +45,12 @@ subscription GetFundedLoansForBank {
   loans(
     where: {
       _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
         { funded_at: { _is_null: false } }
         { closed_at: { _is_null: true } }
       ]
@@ -66,6 +81,12 @@ query GetActiveLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
     loans(
       where: {
         _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
           { loan_type: { _eq: $loanType } }
           { closed_at: { _is_null: true } }
           { rejected_at: { _is_null: true } }
@@ -90,6 +111,12 @@ query GetClosedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
     loans(
       where: {
         _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
           { closed_at: { _is_null: false } }
           { loan_type: { _eq: $loanType } }
         ]
@@ -114,6 +141,12 @@ query GetLoansByCompanyAndLoanType(
   loans(
     where: {
       _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
         { company_id: { _eq: $companyId } }
         { loan_type: { _eq: $loanType } }
       ]

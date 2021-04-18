@@ -1,5 +1,6 @@
 import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
 import CreateUpdatePolymorphicLoanModal from "components/Loan/CreateUpdatePolymorphicLoanModal";
+import DeleteLoanModal from "components/Loan/DeleteLoanModal";
 import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
@@ -69,6 +70,14 @@ function LoansNotFunded({
   // State for modal(s).
   const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"][]>([]);
 
+  const selectedLoan = useMemo(
+    () =>
+      selectedLoanIds.length === 1
+        ? loans.find((loan) => loan.id === selectedLoanIds[0])
+        : null,
+    [loans, selectedLoanIds]
+  );
+
   const handleSelectLoans = useMemo(
     () => (loans: LoanFragment[]) =>
       setSelectedLoanIds(loans.map((loan) => loan.id)),
@@ -100,7 +109,7 @@ function LoansNotFunded({
         <Can perform={Action.EditPurchaseOrderLoan}>
           <Box mr={2}>
             <ModalButton
-              isDisabled={selectedLoanIds.length !== 1}
+              isDisabled={!selectedLoan}
               label={"Edit Loan"}
               modal={({ handleClose }) => (
                 <CreateUpdatePolymorphicLoanModal
@@ -108,7 +117,26 @@ function LoansNotFunded({
                   productType={productType}
                   actionType={ActionType.Update}
                   artifactId={null}
-                  loanId={selectedLoanIds[0]}
+                  loanId={selectedLoan?.id}
+                  handleClose={() => {
+                    handleDataChange();
+                    handleClose();
+                    setSelectedLoanIds([]);
+                  }}
+                />
+              )}
+            />
+          </Box>
+        </Can>
+        <Can perform={Action.DeleteLoans}>
+          <Box mr={2}>
+            <ModalButton
+              isDisabled={!selectedLoan}
+              label={"Delete Loan"}
+              variant={"outlined"}
+              modal={({ handleClose }) => (
+                <DeleteLoanModal
+                  loanId={selectedLoan?.id}
                   handleClose={() => {
                     handleDataChange();
                     handleClose();

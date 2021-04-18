@@ -25,6 +25,30 @@ export async function submitLoanMutation(
     );
 }
 
+type DeleteLoanReq = {
+  variables: {
+    loan_id: Loans["id"];
+  };
+};
+
+export async function deleteLoanMutation(
+  req: DeleteLoanReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(loansRoutes.deleteLoan, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not delete loan",
+        };
+      }
+    );
+}
+
 export async function approveLoans(
   loanIds: Loans["id"][]
 ): Promise<{ status: string; msg: string }> {

@@ -435,6 +435,7 @@ class Loan(Base):
 	outstanding_principal_balance = Column(Numeric)
 	outstanding_interest = Column(Numeric)
 	outstanding_fees = Column(Numeric)
+
 	is_deleted = Column(Boolean)
 
 	def as_dict(self) -> LoanDict:
