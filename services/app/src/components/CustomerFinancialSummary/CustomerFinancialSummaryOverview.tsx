@@ -6,9 +6,10 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import GaugeProgressBar from "components/Shared/ProgressBar/GaugeProgressBar";
 import { FinancialSummaryFragment } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
-import StatBox from "./StatBox";
+import { round } from "lodash";
 
 interface Props {
   financialSummary: FinancialSummaryFragment | null;
@@ -56,6 +57,14 @@ function CustomerFinancialSummaryOverview({ financialSummary }: Props) {
     accountFees = accountBalancePayload.fees_total;
     accountCredits = accountBalancePayload.credits_total;
   }
+
+  const outstandingAmount = financialSummary
+    ? financialSummary.adjusted_total_limit - financialSummary.available_limit
+    : 0;
+  const rawLimitPercent = financialSummary?.adjusted_total_limit
+    ? (100 * outstandingAmount) / financialSummary.adjusted_total_limit
+    : 100;
+  const roundedLimitPercent = round(rawLimitPercent, 1);
 
   return (
     <Box display="flex" flexDirection="column" mt={2}>
@@ -108,10 +117,10 @@ function CustomerFinancialSummaryOverview({ financialSummary }: Props) {
           </Box>
         </Box>
         <Box>
-          <StatBox financialSummary={financialSummary} />
+          <GaugeProgressBar value={roundedLimitPercent} />
         </Box>
       </Box>
-      <Box my={8}>
+      <Box mb={8}>
         <Divider />
       </Box>
       <Box display="flex" justifyContent="space-between" width="100%">
