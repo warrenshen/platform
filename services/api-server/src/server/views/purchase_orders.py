@@ -152,6 +152,19 @@ def _create_update_purchase_order(
 
 			purchase_order = existing_purchase_order
 		else:
+			duplicate_purchase_order = cast(
+				models.PurchaseOrder,
+				session.query(models.PurchaseOrder).filter(
+					cast(Callable, models.PurchaseOrder.is_deleted.isnot)(True)
+				).filter(
+					models.PurchaseOrder.vendor_id == request.purchase_order.vendor_id
+				).filter(
+					models.PurchaseOrder.order_number == request.purchase_order.order_number
+				).first())
+
+			if duplicate_purchase_order is not None:
+				raise errors.Error(f'A purchase order with this vendor and PO number already exists')
+
 			purchase_order = request.purchase_order.to_model()
 			session.add(purchase_order)
 			session.flush()
