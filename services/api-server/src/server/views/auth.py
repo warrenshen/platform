@@ -135,7 +135,11 @@ class ResetPasswordView(MethodView):
 			# The user has sent back their password and a valid signed link value associated
 			# with this reset password sign-in request, so now we can reset their password.
 
-			# TODO(dlluncor): Create password security requirements everywhere.
+			success, errors_list = security_util.meets_password_complexity_requirements(password)
+			if errors_list:
+				return handler_util.make_error_response('Password does not meet complexity requirements: {}'.format(
+					', '.join(['{}'.format(err) for err in errors_list])))
+
 			user.password = security_util.hash_password(
 				cfg.PASSWORD_SALT, password)
 			session.commit()

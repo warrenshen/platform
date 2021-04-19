@@ -45,10 +45,7 @@ class CreateLoginView(MethodView):
 		if not user_session.is_bank_or_this_company_admin(form['company_id']):
 			return handler_util.make_error_response('Access Denied')
 
-		# TODO(dlluncor): Better create password mechanism
-		code = security_util.mfa_code_generator()
-		password = f'${code}!'
-		password = password[0:3] + 'a' + password[3:5] + 'z'
+		password = security_util.generate_temp_password()
 		user_email = ''
 
 		with session_scope(current_app.session_maker) as session:
@@ -112,10 +109,7 @@ class CreateBankCustomerUserView(MethodView):
 		if err:
 			return handler_util.make_error_response(err)
 
-		# TODO(dlluncor): Better create password mechanism
-		code = security_util.mfa_code_generator()
-		password = f'${code}!'
-		password = password[0:3] + 'a' + password[3:5] + 'z'
+		password = security_util.generate_temp_password()
 		user_email = ''
 
 		sendgrid_client = cast(sendgrid_util.Client,

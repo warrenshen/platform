@@ -1,7 +1,8 @@
 import hashlib
 import random
+import re
 import string
-from typing import cast, Tuple
+from typing import cast, Tuple, List
 
 from itsdangerous import URLSafeTimedSerializer
 from mypy_extensions import TypedDict
@@ -40,6 +41,63 @@ def get_link_info_from_url(val: str, cfg: ConfigDict, max_age_in_seconds: int) -
 	except Exception as e:
 		return None, errors.Error('Link has expired', details={'e': str(e)})
 
+_SPECIAL_CHARS = '!#$%*+,-;<=>?@[]^_'
+
+def generate_temp_password() -> str:
+	lower_char = random.choice(string.ascii_lowercase)
+	upper_char = random.choice(string.ascii_uppercase)
+	digit_char = random.choice(string.digits)
+	special_char = random.choice(_SPECIAL_CHARS)
+
+	lower_char2 = random.choice(string.ascii_lowercase)
+	upper_char2 = random.choice(string.ascii_uppercase)
+	digit_char2 = random.choice(string.digits)
+	special_char2 = random.choice(_SPECIAL_CHARS)
+
+	letters = [
+		lower_char, upper_char, digit_char, special_char,
+		lower_char2, upper_char2, digit_char2, special_char2
+	]
+	password = ''.join(letters)
+	
+	success, errors_list = meets_password_complexity_requirements(password)
+	if errors_list:
+		raise errors.Error(', '.join(['{}'.format(err) for err in errors_list]))
+		
+	return password
+
+has_specialchar_regexp = re.compile('[^0-9a-zA-Z]+')
+
+def meets_password_complexity_requirements(password: str) -> Tuple[bool, List[errors.Error]]:
+	errors_list: List[errors.Error] = []
+	if not password:
+		password = ''
+
+	def _add_error(msg: str) -> None:
+		errors_list.append(errors.Error(msg))
+
+	if len(password) < 8:
+		_add_error('must be at least 8 characters long')
+
+	if not re.search("[a-z]", password):
+		_add_error('must contain at least one lowercase letter')
+
+	if not re.search("[A-Z]", password):
+		_add_error('must contain at least one uppercase letter')
+
+	if not re.search("[0-9]", password):
+		_add_error('must contain at least one number')
+
+	if not has_specialchar_regexp.search(password):
+		_add_error('must contain at least one allowed special character')
+
+	if re.search("\s", password):
+		_add_error('no spaces allowed in the password')
+
+	if errors_list:
+		return False, errors_list
+
+	return True, None
 
 def hash_password(password_salt: str, password: str) -> str:
 	return sha256.hash(password_salt + password)
