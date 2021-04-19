@@ -12,7 +12,7 @@ export default function PhoneInput({ isRequired, value, handleChange }: Props) {
       disableAreaCodes
       required={isRequired}
       defaultCountry={"us"}
-      regions={["america", "europe"]}
+      regions={["america", "asia", "europe", "oceania"]}
       label={"Phone Number"}
       value={value}
       onChange={(value: string | null, countryData: any) => handleChange(value)}
