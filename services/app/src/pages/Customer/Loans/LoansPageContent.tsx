@@ -1,11 +1,13 @@
-import { Box, Tab, Tabs } from "@material-ui/core";
-import { Alert } from "@material-ui/lab";
+import { Box, Tab, Tabs, Typography } from "@material-ui/core";
 import PageContent from "components/Shared/Page/PageContent";
+import LinearProgressBar from "components/Shared/ProgressBar/LinearProgressBar";
 import {
   ProductTypeEnum,
   useGetActiveLoansForCompanyQuery,
 } from "generated/graphql";
+import { formatCurrency } from "lib/currency";
 import { ProductTypeToLoanType } from "lib/enum";
+import { round } from "lodash";
 import CustomerLoansActiveTab from "pages/Customer/Loans/LoansActiveTab";
 import CustomerLoansClosedTab from "pages/Customer/Loans/LoansClosedTab";
 import { useState } from "react";
@@ -16,6 +18,8 @@ interface Props {
 }
 
 function CustomerLoansPageContent({ companyId, productType }: Props) {
+  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+
   const loanType =
     !!productType && productType in ProductTypeToLoanType
       ? ProductTypeToLoanType[productType]
@@ -36,10 +40,14 @@ function CustomerLoansPageContent({ companyId, productType }: Props) {
 
   const company = data?.companies_by_pk;
   const financialSummary = company?.financial_summaries[0] || null;
-  const canCreateUpdateNewLoan =
-    financialSummary && financialSummary?.available_limit > 0;
 
-  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+  const outstandingAmount = financialSummary
+    ? financialSummary.adjusted_total_limit - financialSummary.available_limit
+    : 0;
+  const rawLimitPercent = financialSummary?.adjusted_total_limit
+    ? (100 * outstandingAmount) / financialSummary.adjusted_total_limit
+    : 100;
+  const roundedLimitPercent = round(rawLimitPercent, 1);
 
   return (
     <PageContent
@@ -48,21 +56,22 @@ function CustomerLoansPageContent({ companyId, productType }: Props) {
         "Request a new loan, edit an existing loan request, or make payments towards financed loans."
       }
       customerActions={
-        <Box display="flex" flexDirection="column">
-          {canCreateUpdateNewLoan ? (
-            <Alert severity="info" style={{ alignSelf: "flex-start" }}>
-              <Box maxWidth={600}>
-                You have available limit and can request new loans.
-              </Box>
-            </Alert>
-          ) : (
-            <Alert severity="warning">
-              <Box maxWidth={600}>
-                You have reached your limit and cannot request anymore new
-                loans. Please contact Bespoke if you believe this is a mistake.
-              </Box>
-            </Alert>
-          )}
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          width={300}
+        >
+          <LinearProgressBar value={roundedLimitPercent} />
+          <Box mt={1}>
+            <Typography variant="body2">
+              {`${
+                financialSummary !== null
+                  ? formatCurrency(financialSummary.available_limit)
+                  : "TBD"
+              } left to borrow`}
+            </Typography>
+          </Box>
         </Box>
       }
     >

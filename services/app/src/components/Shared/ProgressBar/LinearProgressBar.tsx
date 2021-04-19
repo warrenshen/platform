@@ -1,14 +1,14 @@
-import { withStyles } from "@material-ui/core/styles";
 import LinearProgress from "@material-ui/core/LinearProgress";
+import { withStyles } from "@material-ui/core/styles";
 
 const BorderLinearProgress = withStyles((theme) => ({
   root: {
+    width: "100%",
     height: 10,
     borderRadius: 5,
   },
   colorPrimary: {
-    backgroundColor:
-      theme.palette.grey[theme.palette.type === "light" ? 200 : 700],
+    backgroundColor: "rgba(122, 151, 101, 0.15)",
   },
   bar: {
     borderRadius: 5,
@@ -17,11 +17,9 @@ const BorderLinearProgress = withStyles((theme) => ({
 }))(LinearProgress);
 
 interface Props {
-  value?: number;
+  value: number | null;
 }
 
-function ProgressBar({ value = 0 }: Props) {
-  return <BorderLinearProgress variant="determinate" value={value} />;
+export default function LinearProgressBar({ value }: Props) {
+  return <BorderLinearProgress variant="determinate" value={value || 0.0} />;
 }
-
-export default ProgressBar;

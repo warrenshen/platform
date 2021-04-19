@@ -8,8 +8,11 @@ import {
 } from "@material-ui/core";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
+import LinearProgressBar from "components/Shared/ProgressBar/LinearProgressBar";
 import { LoansInsertInput } from "generated/graphql";
+import { formatCurrency } from "lib/currency";
 import { Artifact } from "lib/finance/loans/artifacts";
+import { round } from "lodash";
 import { IdComponent } from "./interfaces";
 
 export interface ArtifactListItem {
@@ -55,6 +58,14 @@ export default function ArtifactLoanForm({
     return null;
   }
 
+  const roundedLimitPercent = selectedArtifact
+    ? round(
+        (100 * (selectedArtifact.amount_remaining || 0.0)) /
+          selectedArtifact.total_amount,
+        1
+      )
+    : 0.0;
+
   return (
     <Box display="flex" flexDirection="column">
       <Box display="flex" flexDirection="column">
@@ -85,9 +96,29 @@ export default function ArtifactLoanForm({
         </FormControl>
       </Box>
       {selectedArtifact && (
-        <Box display="flex" flexDirection="column" mt={3}>
-          <InfoCard id={selectedArtifact.artifact_id} />
-        </Box>
+        <>
+          <Box display="flex" flexDirection="column" mt={3}>
+            <InfoCard id={selectedArtifact.artifact_id} />
+          </Box>
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            width={300}
+            mt={2}
+          >
+            <LinearProgressBar value={roundedLimitPercent} />
+            <Box mt={1}>
+              <Typography variant="body2">
+                {`${
+                  selectedArtifact
+                    ? formatCurrency(selectedArtifact.amount_remaining)
+                    : "TBD"
+                } left to finance`}
+              </Typography>
+            </Box>
+          </Box>
+        </>
       )}
       <Box display="flex" flexDirection="column" mt={4}>
         <DatePicker

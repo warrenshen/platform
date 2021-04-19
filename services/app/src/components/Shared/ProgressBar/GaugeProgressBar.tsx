@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme) => ({
     position: "relative",
   },
   bottom: {
-    color: theme.palette.grey[theme.palette.type === "light" ? 200 : 700],
+    color: "rgba(122, 151, 101, 0.15)",
   },
   top: {
     color: "#1a90ff",

@@ -254,11 +254,9 @@ export default function CreateUpdateArtifactLoanModal({
   }
   if (proposedLoansTotalAmount > totalAmountForArtifact) {
     disabledSubmitReasons.push(
-      `Requested total exceeds amount available on this ${artifactCopyLower}. The total principal against this ${artifactCopyLower} would be ` +
-        formatCurrency(proposedLoansTotalAmount) +
-        " versus the " +
-        formatCurrency(totalAmountForArtifact) +
-        " allowed"
+      `Requested amount exceeds amount available to finance. The amount available to finance is ${formatCurrency(
+        selectedArtifact.amount_remaining
+      )}.`
     );
   }
 
