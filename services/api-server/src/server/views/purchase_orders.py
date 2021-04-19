@@ -543,6 +543,7 @@ class RespondToApprovalRequestView(MethodView):
 					'purchase_order_amount': purchase_order_amount,
 					'purchase_order_requested_date': purchase_order_requested_date,
 				}
+				recipients = customer_emails + sendgrid_client.get_bank_notify_email_addresses()
 			else:
 				if user_session.is_bank_admin():
 					template_name = sendgrid_util.TemplateNames.BANK_REJECTED_PURCHASE_ORDER
@@ -553,6 +554,7 @@ class RespondToApprovalRequestView(MethodView):
 						'purchase_order_requested_date': purchase_order_requested_date,
 						'rejection_note': rejection_note,
 					}
+					recipients = customer_emails
 				else:
 					template_name = sendgrid_util.TemplateNames.VENDOR_REJECTED_PURCHASE_ORDER
 					template_data = {
@@ -563,10 +565,13 @@ class RespondToApprovalRequestView(MethodView):
 						'purchase_order_requested_date': purchase_order_requested_date,
 						'rejection_note': rejection_note,
 					}
+					recipients = customer_emails + sendgrid_client.get_bank_notify_email_addresses()
 
-			recipients = customer_emails
 			_, err = sendgrid_client.send(
-				template_name, template_data, recipients)
+				template_name=template_name,
+				template_data=template_data,
+				recipients=recipients,
+			)
 			if err:
 				raise err
 
