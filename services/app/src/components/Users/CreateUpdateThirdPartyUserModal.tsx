@@ -133,11 +133,9 @@ function CreateUpdateThirdPartyUserModal({
 
       if (response.status !== "OK") {
         setErrMsg(response.msg);
-        snackbar.showError(
-          `Error! Could not create user. Reason: ${response.msg}`
-        );
+        snackbar.showError(`Could not create user. Error: ${response.msg}`);
       } else {
-        snackbar.showSuccess("Success! User created and sent a welcome email.");
+        snackbar.showSuccess("User created and sent a welcome email.");
         handleClose();
       }
     }
