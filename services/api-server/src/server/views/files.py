@@ -68,6 +68,17 @@ def _check_file_permission(
 	if user_session.has_bank_reader_permission():
 		return True, None
 
+	file_in_db = cast(
+		models.File,
+		session.query(models.File).filter(
+			models.File.id == file_id
+		).first())
+
+	if file_in_db and _eq_company_id(file_in_db.company_id):
+		# If the company matches on the 'files' table itself, then no
+		# need to check on more file specific tables.
+		return True, None
+
 	if file_type == FileTypeEnum.COMPANY_AGREEMENT:
 		company_agreement = cast(
 			models.CompanyAgreement,
