@@ -105,10 +105,7 @@ function CreateRepaymentConfirmEffect({
           <Box>
             <Box mb={2}>
               <Typography variant="body1">
-                {`Payment Amount: ${formatCurrency(
-                  payment.items_covered.requested_to_principal +
-                    payment.items_covered.requested_to_interest
-                )}`}
+                {`Payment Amount: ${formatCurrency(payment.requested_amount)}`}
               </Typography>
             </Box>
             <Typography variant="body2">
@@ -124,10 +121,21 @@ function CreateRepaymentConfirmEffect({
             </Typography>
           </Box>
         ) : (
-          <LoansBeforeAfterPaymentPreview
-            isSettlePayment={false}
-            loansBeforeAfterPayment={loansBeforeAfterPayment}
-          />
+          <>
+            <Box>
+              <Box mb={2}>
+                <Typography variant="body1">
+                  {`Payment Amount: ${formatCurrency(
+                    payment.requested_amount
+                  )}`}
+                </Typography>
+              </Box>
+            </Box>
+            <LoansBeforeAfterPaymentPreview
+              isSettlePayment={false}
+              loansBeforeAfterPayment={loansBeforeAfterPayment}
+            />
+          </>
         )}
       </Box>
       <Box my={6}>

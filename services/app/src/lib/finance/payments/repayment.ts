@@ -20,6 +20,7 @@ export type LoanTransaction = {
 
 export type LoanToShow = {
   loan_id: Loans["id"];
+  loan_identifier: Loans["identifier"];
   before_loan_balance: LoanBalance;
   after_loan_balance: LoanBalance;
   transaction: LoanTransaction;

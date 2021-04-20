@@ -120,7 +120,7 @@ function LoansDataGrid({
     () => [
       {
         dataField: "identifier",
-        caption: "Customer Identifier",
+        caption: "Loan Identifier",
         width: 120,
         cellRender: (params: ValueFormatterParams) => (
           <LoanDrawerLauncher

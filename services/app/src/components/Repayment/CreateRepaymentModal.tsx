@@ -168,6 +168,7 @@ function CreateRepaymentModal({
           const afterLoan = loanToShow.after_loan_balance;
           return {
             loan_id: loanToShow.loan_id,
+            loan_identifier: loanToShow.loan_identifier,
             loan_balance_before: {
               outstanding_principal_balance:
                 beforeLoan?.outstanding_principal_balance,
@@ -254,7 +255,7 @@ function CreateRepaymentModal({
       }
       title={"Make Payment"}
       subtitle={isOnSelectLoans ? "Step 1 of 2" : "Step 2 of 2"}
-      contentWidth={600}
+      contentWidth={700}
       primaryActionText={isOnSelectLoans ? "Next step" : submitButtonText}
       secondaryActionText={!isOnSelectLoans ? "Back to step 1" : null}
       handleClose={handleClose}

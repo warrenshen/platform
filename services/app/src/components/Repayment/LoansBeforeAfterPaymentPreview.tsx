@@ -83,17 +83,22 @@ function LoansBeforeAfterPaymentPreview({
         <Box display="flex" flexDirection="column" width={"100%"}>
           <Box display="flex" width="100%">
             <Box display="flex" justifyContent="space-between" flex={1}>
-              <Box display="flex" justifyContent="flex-end" width={"33%"}>
+              <Box display="flex" justifyContent="flex-start" width={"25%"}>
+                <Typography variant="subtitle2" align="left">
+                  Identifier
+                </Typography>
+              </Box>
+              <Box display="flex" justifyContent="flex-end" width={"25%"}>
                 <Typography variant="subtitle2" align="right">
                   Principal
                 </Typography>
               </Box>
-              <Box display="flex" justifyContent="flex-end" width={"33%"}>
+              <Box display="flex" justifyContent="flex-end" width={"25%"}>
                 <Typography variant="subtitle2" align="right">
                   Interest
                 </Typography>
               </Box>
-              <Box display="flex" justifyContent="flex-end" width={"33%"}>
+              <Box display="flex" justifyContent="flex-end" width={"25%"}>
                 <Typography variant="subtitle2" align="right">
                   Fees
                 </Typography>
@@ -124,18 +129,29 @@ function LoansBeforeAfterPaymentPreview({
             {loansBeforeAfterPayment.map((loanBeforeAfterPayment) => {
               const {
                 loan_id: loanId,
+                loan_identifier: loanIdentifier,
                 loan_balance_before: loanBalanceBefore,
                 loan_balance_after: loanBalanceAfter,
                 transaction,
               } = loanBeforeAfterPayment;
+
               return (
                 <Box key={loanId} display="flex" width={"100%"} mt={2}>
                   <Box display="flex" flexDirection="column" flex={1}>
                     <Box display="flex" justifyContent="space-between">
                       <Box
                         display="flex"
+                        justifyContent="flex-start"
+                        width={"25%"}
+                      >
+                        <Typography variant="subtitle2" align="left">
+                          {loanIdentifier}
+                        </Typography>
+                      </Box>
+                      <Box
+                        display="flex"
                         justifyContent="flex-end"
-                        width={"33%"}
+                        width={"25%"}
                       >
                         <Typography variant="subtitle2" align="right">
                           {formatCurrency(
@@ -146,7 +162,7 @@ function LoansBeforeAfterPaymentPreview({
                       <Box
                         display="flex"
                         justifyContent="flex-end"
-                        width={"33%"}
+                        width={"25%"}
                       >
                         <Typography variant="subtitle2" align="right">
                           {formatCurrency(
@@ -157,7 +173,7 @@ function LoansBeforeAfterPaymentPreview({
                       <Box
                         display="flex"
                         justifyContent="flex-end"
-                        width={"33%"}
+                        width={"25%"}
                       >
                         <Typography variant="subtitle2" align="right">
                           {formatCurrency(loanBalanceBefore.outstanding_fees)}
