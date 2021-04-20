@@ -93,10 +93,10 @@ class Company(Base):
 	name = Column(String)
 	identifier = Column(String)
 	contract_name = Column(String)
-	needs_balance_recomputed = Column(Boolean, nullable=False, default=False) # is_dirty
 	dba_name = Column(String)
 	latest_loan_identifier = Column(Integer, nullable=False, default=0)
 	latest_disbursement_identifier = Column(Integer, nullable=False, default=0)
+	needs_balance_recomputed = Column(Boolean, nullable=False, default=False) # is_dirty
 
 	def as_dict(self) -> CompanyDict:
 		return CompanyDict(

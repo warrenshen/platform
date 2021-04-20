@@ -9515,6 +9515,7 @@ export type Payments = {
   created_at: Scalars["timestamptz"];
   /** The date when payment is credited to destination account */
   deposit_date?: Maybe<Scalars["date"]>;
+  disbursement_identifier?: Maybe<Scalars["String"]>;
   id: Scalars["uuid"];
   /** An object relationship */
   invoice?: Maybe<Invoices>;
@@ -9635,6 +9636,7 @@ export type PaymentsBoolExp = {
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   deposit_date?: Maybe<DateComparisonExp>;
+  disbursement_identifier?: Maybe<StringComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   invoice?: Maybe<InvoicesBoolExp>;
   is_deleted?: Maybe<BooleanComparisonExp>;
@@ -9692,6 +9694,7 @@ export type PaymentsInsertInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   deposit_date?: Maybe<Scalars["date"]>;
+  disbursement_identifier?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   invoice?: Maybe<InvoicesObjRelInsertInput>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
@@ -9720,6 +9723,7 @@ export type PaymentsMaxFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   deposit_date?: Maybe<Scalars["date"]>;
+  disbursement_identifier?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   method?: Maybe<Scalars["String"]>;
   originating_payment_id?: Maybe<Scalars["uuid"]>;
@@ -9743,6 +9747,7 @@ export type PaymentsMaxOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   deposit_date?: Maybe<OrderBy>;
+  disbursement_identifier?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   method?: Maybe<OrderBy>;
   originating_payment_id?: Maybe<OrderBy>;
@@ -9766,6 +9771,7 @@ export type PaymentsMinFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   deposit_date?: Maybe<Scalars["date"]>;
+  disbursement_identifier?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   method?: Maybe<Scalars["String"]>;
   originating_payment_id?: Maybe<Scalars["uuid"]>;
@@ -9789,6 +9795,7 @@ export type PaymentsMinOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   deposit_date?: Maybe<OrderBy>;
+  disbursement_identifier?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   method?: Maybe<OrderBy>;
   originating_payment_id?: Maybe<OrderBy>;
@@ -9835,6 +9842,7 @@ export type PaymentsOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   deposit_date?: Maybe<OrderBy>;
+  disbursement_identifier?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   invoice?: Maybe<InvoicesOrderBy>;
   is_deleted?: Maybe<OrderBy>;
@@ -9879,6 +9887,8 @@ export enum PaymentsSelectColumn {
   /** column name */
   DepositDate = "deposit_date",
   /** column name */
+  DisbursementIdentifier = "disbursement_identifier",
+  /** column name */
   Id = "id",
   /** column name */
   IsDeleted = "is_deleted",
@@ -9919,6 +9929,7 @@ export type PaymentsSetInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   deposit_date?: Maybe<Scalars["date"]>;
+  disbursement_identifier?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   items_covered?: Maybe<Scalars["jsonb"]>;
@@ -9997,6 +10008,8 @@ export enum PaymentsUpdateColumn {
   CreatedAt = "created_at",
   /** column name */
   DepositDate = "deposit_date",
+  /** column name */
+  DisbursementIdentifier = "disbursement_identifier",
   /** column name */
   Id = "id",
   /** column name */
@@ -16284,6 +16297,7 @@ export type CompanyFragment = Pick<
   | "id"
   | "identifier"
   | "name"
+  | "contract_name"
   | "dba_name"
   | "employer_identification_number"
   | "address"
@@ -17007,6 +17021,7 @@ export const CompanyFragmentDoc = gql`
     id
     identifier
     name
+    contract_name
     dba_name
     employer_identification_number
     address

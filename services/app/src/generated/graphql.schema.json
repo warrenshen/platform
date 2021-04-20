@@ -62240,6 +62240,18 @@
             "deprecationReason": null
           },
           {
+            "name": "disbursement_identifier",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "id",
             "description": null,
             "args": [],
@@ -63093,6 +63105,16 @@
             "defaultValue": null
           },
           {
+            "name": "disbursement_identifier",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "String_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "id",
             "description": null,
             "type": {
@@ -63479,6 +63501,16 @@
             "defaultValue": null
           },
           {
+            "name": "disbursement_identifier",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "id",
             "description": null,
             "type": {
@@ -63739,6 +63771,18 @@
             "deprecationReason": null
           },
           {
+            "name": "disbursement_identifier",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "id",
             "description": null,
             "args": [],
@@ -63969,6 +64013,16 @@
             "defaultValue": null
           },
           {
+            "name": "disbursement_identifier",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "id",
             "description": null,
             "type": {
@@ -64173,6 +64227,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "date",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "disbursement_identifier",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "isDeprecated": false,
@@ -64400,6 +64466,16 @@
           },
           {
             "name": "deposit_date",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "disbursement_identifier",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -64773,6 +64849,16 @@
             "defaultValue": null
           },
           {
+            "name": "disbursement_identifier",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "id",
             "description": null,
             "type": {
@@ -65052,6 +65138,12 @@
             "deprecationReason": null
           },
           {
+            "name": "disbursement_identifier",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "id",
             "description": "column name",
             "isDeprecated": false,
@@ -65202,6 +65294,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "date",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "disbursement_identifier",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "defaultValue": null
@@ -65669,6 +65771,12 @@
           },
           {
             "name": "deposit_date",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "disbursement_identifier",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

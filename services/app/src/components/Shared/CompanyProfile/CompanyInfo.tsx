@@ -37,6 +37,10 @@ function CompanyInfo({ company, isEditAllowed = true }: Props) {
             <Box>{company?.identifier}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
+            <Box className={classes.label}>Contract Name</Box>
+            <Box>{company?.contract_name}</Box>
+          </Box>
+          <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Address</Box>
             <Box>{company?.address}</Box>
           </Box>

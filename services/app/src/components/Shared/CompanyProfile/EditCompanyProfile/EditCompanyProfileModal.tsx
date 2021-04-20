@@ -12,12 +12,14 @@ import {
   Theme,
 } from "@material-ui/core";
 import PhoneInput from "components/Shared/FormInputs/PhoneInput";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   CompanyDocument,
   CompanyFragment,
+  UserRolesEnum,
   useUpdateCompanyProfileMutation,
 } from "generated/graphql";
-import { useState } from "react";
+import { useContext, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -39,6 +41,11 @@ function EditCompanyProfileModal({
 }: Props) {
   const classes = useStyles();
 
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = role === UserRolesEnum.BankAdmin;
+
   const [company, setCompany] = useState(companyToEdit);
 
   const [
@@ -55,39 +62,62 @@ function EditCompanyProfileModal({
         </DialogContentText>
         <Box display="flex" flexDirection="column" mt={4}>
           <TextField
-            label="Name"
+            disabled={!isBankUser}
+            label="Identifier (Unique Short Code)"
             required
-            value={company?.name || ""}
-            onChange={({ target: { value } }) => {
-              setCompany({ ...company, name: value });
-            }}
+            value={company.identifier || ""}
+            onChange={({ target: { value } }) =>
+              setCompany({
+                ...company,
+                identifier: value,
+              })
+            }
           />
         </Box>
         <Box display="flex" flexDirection="column" mt={4}>
           <TextField
-            label="Identifier (Unique Short Code)"
+            disabled={!isBankUser}
+            label="Name"
             required
-            value={company?.identifier || ""}
-            onChange={({ target: { value } }) => {
-              setCompany({
-                ...company,
-                identifier: value,
-              } as CompanyFragment);
-            }}
+            value={company.name || ""}
+            onChange={({ target: { value } }) =>
+              setCompany({ ...company, name: value })
+            }
+          />
+        </Box>
+        <Box display="flex" flexDirection="column" mt={4}>
+          <TextField
+            disabled={!isBankUser}
+            label="Contract Name"
+            required
+            value={company.contract_name || ""}
+            onChange={({ target: { value } }) =>
+              setCompany({ ...company, contract_name: value })
+            }
+          />
+        </Box>
+        <Box display="flex" flexDirection="column" mt={4}>
+          <TextField
+            disabled={!isBankUser}
+            label="DBA"
+            value={company.dba_name || ""}
+            onChange={({ target: { value } }) =>
+              setCompany({ ...company, dba_name: value })
+            }
           />
         </Box>
         <Box display="flex" flexDirection="column" mt={4}>
           <TextField
             label="Address"
-            value={company?.address || ""}
-            onChange={({ target: { value } }) => {
-              setCompany({ ...company, address: value });
-            }}
+            value={company.address || ""}
+            onChange={({ target: { value } }) =>
+              setCompany({ ...company, address: value })
+            }
           />
         </Box>
         <Box display="flex" flexDirection="column" mt={4}>
           <PhoneInput
-            value={company?.phone_number || null}
+            value={company.phone_number || null}
             handleChange={(value) =>
               setCompany({
                 ...company,
@@ -98,23 +128,14 @@ function EditCompanyProfileModal({
         </Box>
         <Box display="flex" flexDirection="column" mt={4}>
           <TextField
-            label="DBA"
-            value={company?.dba_name || ""}
-            onChange={({ target: { value } }) => {
-              setCompany({ ...company, dba_name: value });
-            }}
-          />
-        </Box>
-        <Box display="flex" flexDirection="column" mt={4}>
-          <TextField
             label="EIN"
-            value={company?.employer_identification_number || ""}
-            onChange={({ target: { value } }) => {
+            value={company.employer_identification_number || ""}
+            onChange={({ target: { value } }) =>
               setCompany({
                 ...company,
                 employer_identification_number: value,
-              } as CompanyFragment);
-            }}
+              })
+            }
           />
         </Box>
       </DialogContent>
@@ -128,22 +149,25 @@ function EditCompanyProfileModal({
             onClick={async () => {
               await updateCompany({
                 variables: {
-                  id: company?.id,
+                  id: company.id,
                   company: {
-                    identifier: company?.identifier,
-                    address: company?.address,
-                    phone_number: company?.phone_number,
+                    identifier: isBankUser ? company.identifier : undefined,
+                    name: isBankUser ? company.name : undefined,
+                    contract_name: isBankUser
+                      ? company.contract_name
+                      : undefined,
+                    dba_name: isBankUser ? company.dba_name : undefined,
+                    address: company.address,
+                    phone_number: company.phone_number,
                     employer_identification_number:
-                      company?.employer_identification_number,
-                    dba_name: company?.dba_name,
-                    name: company?.name,
+                      company.employer_identification_number,
                   },
                 },
                 refetchQueries: [
                   {
                     query: CompanyDocument,
                     variables: {
-                      companyId: company?.id,
+                      companyId: company.id,
                     },
                   },
                 ],

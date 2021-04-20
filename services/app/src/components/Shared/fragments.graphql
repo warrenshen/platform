@@ -36,6 +36,7 @@ fragment Company on companies {
   id
   identifier
   name
+  contract_name
   dba_name
   employer_identification_number
   address

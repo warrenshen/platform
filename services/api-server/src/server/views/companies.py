@@ -35,8 +35,10 @@ class CreateCustomerView(MethodView):
 				return handler_util.make_error_response(f'Missing {key} in response to create company')
 
 		resp, err = create_company_util.create_customer(
-			req=form, bank_admin_user_id=bank_admin_user_id,
-			session_maker=current_app.session_maker)
+			req=form,
+			bank_admin_user_id=bank_admin_user_id,
+			session_maker=current_app.session_maker,
+		)
 		if err:
 			return handler_util.make_error_response(err)
 

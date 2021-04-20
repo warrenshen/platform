@@ -15,7 +15,9 @@ from mypy_extensions import TypedDict
 # Should match with the graphql types for inserting objects into the DB.
 CompanyInsertInputDict = TypedDict('CompanyInsertInputDict', {
 	'name': str,
-	'identifier': str
+	'identifier': str,
+	'contract_name': str,
+	'dba_name': str
 })
 
 CompanySettingsInsertInputDict = TypedDict('CompanySettingsInsertInputDict', {
@@ -53,6 +55,8 @@ def create_customer(
 	with session_scope(session_maker) as session:
 		company_name = req['company']['name']
 		company_identifier = req['company']['identifier']
+		company_contract_name = req['company']['contract_name']
+		company_dba_name = req['company']['dba_name']
 
 		existing_company_by_name = cast(
 			models.Company,
@@ -104,6 +108,8 @@ def create_customer(
 			company_type=CompanyType.Customer,
 			name=company_name,
 			identifier=company_identifier,
+			contract_name=company_contract_name,
+			dba_name=company_dba_name,
 			company_settings_id=company_settings_id,
 			contract_id=contract_id,
 		)

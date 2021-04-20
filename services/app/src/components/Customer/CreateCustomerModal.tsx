@@ -50,12 +50,17 @@ function CreateCustomerModal({ handleClose }: Props) {
   const snackbar = useSnackbar();
   const classes = useStyles();
 
-  const [customer, setCustomer] = useState<CompaniesInsertInput>({});
+  const [customer, setCustomer] = useState<CompaniesInsertInput>({
+    name: null,
+    identifier: null,
+    contract_name: null,
+    dba_name: null,
+  });
   const [companySetting] = useState<CompanySettingsInsertInput>({});
-
   const [contract, setContract] = useState<ContractsInsertInput>({
     product_type: null,
     start_date: null,
+    end_date: null,
   });
   const [currentJSONConfig, setCurrentJSONConfig] = useState<any>({});
 
@@ -137,18 +142,17 @@ function CreateCustomerModal({ handleClose }: Props) {
     });
 
     if (response.status !== "OK") {
-      snackbar.showError(
-        `Error: could not create customer! Reason: ${response.msg}`
-      );
+      snackbar.showError(`Could not create customer! Error: ${response.msg}`);
     } else {
-      snackbar.showSuccess("Success! Customer created.");
+      snackbar.showSuccess("Customer created.");
       handleClose();
     }
   };
 
-  const isCreateDisabled =
+  const isSubmitDisabled =
     !customer.name ||
     !customer.identifier ||
+    !customer.contract_name ||
     !contract.product_type ||
     !contract.start_date;
 
@@ -162,11 +166,11 @@ function CreateCustomerModal({ handleClose }: Props) {
             <TextField
               className={classes.input}
               label="Customer Name"
-              placeholder="Distributor Example, Inc."
+              placeholder="Distributor Example"
               value={customer.name || ""}
-              onChange={({ target: { value } }) => {
-                setCustomer({ ...customer, name: value });
-              }}
+              onChange={({ target: { value } }) =>
+                setCustomer({ ...customer, name: value })
+              }
             />
           </Box>
           <Box mt={2}>
@@ -175,9 +179,31 @@ function CreateCustomerModal({ handleClose }: Props) {
               label="Company Identifier (Unique Short Name)"
               placeholder="DEI"
               value={customer.identifier || ""}
-              onChange={({ target: { value } }) => {
-                setCustomer({ ...customer, identifier: value });
-              }}
+              onChange={({ target: { value } }) =>
+                setCustomer({ ...customer, identifier: value })
+              }
+            />
+          </Box>
+          <Box mt={2}>
+            <TextField
+              className={classes.input}
+              label="Contract Name"
+              placeholder="DISTRIBUTOR EXAMPLE, INC."
+              value={customer.contract_name || ""}
+              onChange={({ target: { value } }) =>
+                setCustomer({ ...customer, contract_name: value })
+              }
+            />
+          </Box>
+          <Box mt={2}>
+            <TextField
+              className={classes.input}
+              label="DBA"
+              placeholder="DBA 1, DBA 2"
+              value={customer.dba_name || ""}
+              onChange={({ target: { value } }) =>
+                setCustomer({ ...customer, dba_name: value })
+              }
             />
           </Box>
         </Box>
@@ -204,7 +230,7 @@ function CreateCustomerModal({ handleClose }: Props) {
       <DialogActions className={classes.dialogActions}>
         <Button onClick={handleClose}>Cancel</Button>
         <Button
-          disabled={isCreateDisabled}
+          disabled={isSubmitDisabled}
           variant="contained"
           color="primary"
           onClick={handleClickCreate}
