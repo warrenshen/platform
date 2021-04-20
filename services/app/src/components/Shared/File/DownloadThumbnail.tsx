@@ -46,7 +46,7 @@ interface Props {
   fileType: string;
 }
 
-function DownloadThumbnail({ fileIds, fileType }: Props) {
+export default function DownloadThumbnail({ fileIds, fileType }: Props) {
   const [filesWithSignedUrls, setFilesWithSignedUrls] = useState<
     FileWithSignedURL[]
   >([]);
@@ -59,6 +59,7 @@ function DownloadThumbnail({ fileIds, fileType }: Props) {
           file_type: fileType,
         });
         if (response.status !== "OK") {
+          console.log({ response });
           alert(response.msg);
         } else {
           setFilesWithSignedUrls(response.files);
@@ -67,7 +68,7 @@ function DownloadThumbnail({ fileIds, fileType }: Props) {
     };
     setFilesWithSignedUrls([]);
     getFilesWithSignedUrls();
-  }, [fileIds, setFilesWithSignedUrls]);
+  }, [fileIds, fileType, setFilesWithSignedUrls]);
 
   return (
     <Box display="flex" flexDirection="column">
@@ -102,5 +103,3 @@ function DownloadThumbnail({ fileIds, fileType }: Props) {
     </Box>
   );
 }
-
-export default DownloadThumbnail;
