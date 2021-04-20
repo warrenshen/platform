@@ -47,6 +47,18 @@ def send_loan_approval_requested_email(
 
 	return True, None
 
+def _check_artifact_limit(artifact_id: str, artifact_amount: float, artifact_display_name: str, session: Session, err_details: Dict) -> Tuple[bool, errors.Error]:
+	proposed_loans_total_amount = sibling_util.get_loan_sum_per_artifact(
+		session,
+		artifact_ids=[artifact_id],
+		excluding_loan_id=None,
+	)[artifact_id]
+
+	if proposed_loans_total_amount > float(artifact_amount):
+		return None, errors.Error('Requesting this loan puts you over the amount granted for this same {}'.format(artifact_display_name), details=err_details)
+
+	return True, None
+
 @errors.return_error_tuple
 def approve_loans(
 	req: ApproveLoansReqDict,
@@ -59,9 +71,6 @@ def approve_loans(
 		'loan_ids': loan_ids,
 		'method': 'approve_loans'
 	}
-
-	# TODO(dlluncor): Check that this loan doesnt exceed the limit associated with
-	# the artifact.
 
 	with session_scope(session_maker) as session:
 		loans = cast(
@@ -76,18 +85,57 @@ def approve_loans(
 		if len(loans) != len(loan_ids):
 			raise errors.Error('Not all loans were found', details=err_details)
 
+		company_ids = set([])
+		for loan in loans:
+			company_ids.add(loan.company_id)
+
+		company_id_to_available_limit = {}
+
+		for company_id in company_ids:
+			fin_summary = financial_summary_util.get_latest_financial_summary(company_id, session)
+			if not fin_summary:
+				raise errors.Error('Financial summary missing for company {}. Cannot approve loan'.format(company_id))
+			company_id_to_available_limit[company_id] = fin_summary.available_limit
+
 		approved_at = date_util.now()
 
-		# TODO(dlluncor): When approving loans, also check whether a customer has
-		# gone over their allotted amount of principal.
-
 		for loan in loans:
+			# Check whether a customer has gone over their allotted amount of principal.
+			available_limit = company_id_to_available_limit[loan.company_id]
+
+			if loan.amount > available_limit:
+				raise errors.Error('Loan amount requested exceeds the maximum limit for company {}. Loan amount: {}. Remaining limit: {}'.format(
+					loan.company_id, loan.amount, available_limit))
+
+			# Check that this loan doesnt exceed the limit associated with the artifact.
+
+			if loan.loan_type == LoanTypeEnum.INVENTORY:
+
+				purchase_order = cast(
+					models.PurchaseOrder,
+					session.query(models.PurchaseOrder).filter_by(
+						id=loan.artifact_id
+					).first())
+
+				success, err = _check_artifact_limit(
+					artifact_id=str(loan.artifact_id), 
+					artifact_amount=float(purchase_order.amount),
+					artifact_display_name='Purchase Order',
+					session=session,
+					err_details={}
+				)
+				if err:
+					raise err
+
 			loan.status = db_constants.LoanStatusEnum.APPROVED
 			loan.approved_at = approved_at
 			loan.approved_by_user_id = bank_admin_user_id
 			# When a loan gets approved, we clear out the rejected at status.
 			loan.rejected_at = None
 			loan.rejected_by_user_id = None
+
+			# Draw down the limit for calculation purposes
+			company_id_to_available_limit[loan.company_id] -= loan.amount
 
 	return ApproveLoansRespDict(status='OK'), None
 
@@ -149,14 +197,15 @@ def submit_for_approval(
 
 		artifact_id = str(loan.artifact_id)
 
-		proposed_loans_total_amount = sibling_util.get_loan_sum_per_artifact(
-			session,
-			artifact_ids=[artifact_id],
-			excluding_loan_id=None,
-		)[artifact_id]
-
-		if proposed_loans_total_amount > float(purchase_order.amount):
-			raise errors.Error('Requesting this loan puts you over the amount granted for this same Purchase Order', details=err_details)
+		success, err = _check_artifact_limit(
+			artifact_id=artifact_id, 
+			artifact_amount=float(purchase_order.amount),
+			artifact_display_name='Purchase Order',
+			session=session,
+			err_details=err_details
+		)
+		if err:
+			raise err
 
 		loan_html = f"""<ul>
 <li>Loan type: Inventory Financing</li>

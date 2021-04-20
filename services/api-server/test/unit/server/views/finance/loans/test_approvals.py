@@ -15,8 +15,6 @@ from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
 
-# TODO(warren): Add a test for approve loan
-
 def _get_financial_summary(total_limit: float, available_limit: float) -> models.FinancialSummary:
 	return models.FinancialSummary(
 		total_limit=decimal.Decimal(total_limit),
@@ -27,7 +25,7 @@ def _get_financial_summary(total_limit: float, available_limit: float) -> models
 		total_outstanding_fees=decimal.Decimal(0.0), # unused
 		total_principal_in_requested_state=decimal.Decimal(0.0), # unused
 		interest_accrued_today=decimal.Decimal(0.0), # unused
-		available_limit=decimal.Decimal(200.0),
+		available_limit=decimal.Decimal(available_limit),
 		minimum_monthly_payload={},
 		account_level_balance_payload={}
 	)
@@ -252,6 +250,158 @@ class TestSubmitForApproval(db_unittest.TestCase):
 					loan_type=db_constants.LoanTypeEnum.INVENTORY,
 					requested_payment_date=date_util.load_date_str('10/01/2020'),
 					amount=decimal.Decimal(50.02)
+				)
+			],
+			'loan_index': 0,
+			'artifacts': [models.PurchaseOrder(
+				amount=decimal.Decimal(100.0)
+			)],
+			'loan_artifact_indices': [0],
+		}
+		self._run_test(test)
+
+class TestApproveLoans(db_unittest.TestCase):
+
+	def _run_test(self, test: Dict) -> None:
+		self.reset()
+		session_maker = self.session_maker
+		seed = test_helper.BasicSeed.create(self.session_maker, self)
+		seed.initialize()
+
+		financial_summary = test['financial_summary'] # Financial summary registered in the system
+		loans = test['loans'] # Loans registered in the system
+		artifacts = test['artifacts'] # Artifacts registered in the system
+		artifact_indices = test['loan_artifact_indices'] # Parallel array to test['loans'], describes which artifact index in test['artifacts'] this loan is associated with
+
+		loan_ids = []
+		artifact_ids = []
+		company_id = seed.get_company_id('company_admin', index=0)
+		bank_admin_user_id = seed.get_company_id('bank_admin', index=0)
+
+		with session_scope(session_maker) as session:
+
+			financial_summary.company_id = company_id
+			session.add(financial_summary)
+
+			for i in range(len(artifacts)):
+				artifact = artifacts[i]
+				artifact.company_id = company_id
+				session.add(artifact)
+				session.flush()
+				artifact_ids.append(str(artifact.id))
+
+			for i in range(len(loans)):
+				loan = loans[i]
+				loan.company_id = company_id
+				loan.artifact_id = artifact_ids[artifact_indices[i]]
+				session.add(loan)
+				session.flush()
+				loan_ids.append(str(loan.id))
+
+		if test['loan_index'] is None:
+			loan_id = str(uuid.uuid4())
+		else:
+			loan_id = loan_ids[test['loan_index']]
+
+		with session_scope(session_maker) as session:
+			loan = cast(
+				models.Loan,
+				session.query(models.Loan).filter_by(
+					id=loan_id
+				).first()
+			)
+			self.assertIsNotNone(loan)
+			self.assertIsNotNone(loan.requested_at)
+			self.assertEqual(LoanStatusEnum.APPROVAL_REQUESTED, loan.status)
+
+		approve_resp, err = approval_util.approve_loans(
+			req={'loan_ids': [loan_id]},
+			bank_admin_user_id=bank_admin_user_id,
+			session_maker=session_maker
+		)
+
+		if test.get('in_err_msg'):
+			# Checks the err msg for the approve_loans method
+			self.assertIn(test['in_err_msg'], err.msg if err else '')
+			return
+
+		self.assertIsNone(err)
+
+		with session_scope(session_maker) as session:
+			loan = cast(
+				models.Loan,
+				session.query(models.Loan).filter_by(
+					id=loan_id
+				).first()
+			)
+			self.assertIsNotNone(loan)
+			self.assertIsNotNone(loan.approved_at)
+			self.assertEqual(bank_admin_user_id, loan.approved_by_user_id)
+			self.assertIsNone(loan.rejected_at)
+			self.assertEqual(LoanStatusEnum.APPROVED, loan.status)
+
+
+	def test_approve_loan_failure_exceeds_available_limit(self) -> None:
+		test: Dict = {
+			'financial_summary': _get_financial_summary(
+				total_limit=200.0,
+				available_limit=10.0
+			),
+			'loans': [
+				models.Loan(
+					loan_type=db_constants.LoanTypeEnum.INVENTORY,
+					requested_payment_date=date_util.load_date_str('10/01/2020'),
+					amount=decimal.Decimal(50.02),
+					status=LoanStatusEnum.APPROVAL_REQUESTED,
+					requested_at=date_util.now()
+				)
+			],
+			'loan_index': 0,
+			'artifacts': [models.PurchaseOrder(
+				amount=decimal.Decimal(100.0)
+			)],
+			'loan_artifact_indices': [0],
+			'in_err_msg': 'exceeds the maximum limit'
+		}
+		self._run_test(test)
+
+	def test_approve_loan_failure_exceeds_artifact_limit(self) -> None:
+		test: Dict = {
+			'financial_summary': _get_financial_summary(
+				total_limit=500.0,
+				available_limit=300.0
+			),
+			'loans': [
+				models.Loan(
+					loan_type=db_constants.LoanTypeEnum.INVENTORY,
+					requested_payment_date=date_util.load_date_str('10/01/2020'),
+					amount=decimal.Decimal(150.02),
+					status=LoanStatusEnum.APPROVAL_REQUESTED,
+					requested_at=date_util.now()
+				)
+			],
+			'loan_index': 0,
+			'artifacts': [models.PurchaseOrder(
+				amount=decimal.Decimal(100.0)
+			)],
+			'loan_artifact_indices': [0],
+			'in_err_msg': 'over the amount granted'
+		}
+		self._run_test(test)
+
+	def test_approve_loan_success(self) -> None:
+		test: Dict = {
+			'financial_summary': _get_financial_summary(
+				total_limit=200.0,
+				available_limit=200.0,
+			),
+			'loans': [
+				models.Loan(
+					loan_type=db_constants.LoanTypeEnum.INVENTORY,
+					requested_payment_date=date_util.load_date_str('10/01/2020'),
+					amount=decimal.Decimal(50.02),
+					status=LoanStatusEnum.APPROVAL_REQUESTED,
+					requested_at=date_util.now()
 				)
 			],
 			'loan_index': 0,
