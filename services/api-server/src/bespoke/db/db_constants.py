@@ -8,7 +8,14 @@ class UserRoles(object):
 	PURCHASE_ORDER_REVIEWER = 'purchase_order_reviewer'
 	INVOICE_REVIEWER = 'invoice_reviewer'
 
-BANK_ROLES = ['bank_admin'] # Having any of these roles means you are a Bespoke bank user
+ALL_BANK_READER_ROLES = ['bank_admin', 'bank_read_only']
+
+class FileTypeEnum(object):
+	COMPANY_AGREEMENT = 'company_agreement'
+	COMPANY_LICENSE = 'company_license'
+	EBBA_APPLICATION = 'ebba_application'
+	INVOICE = 'invoice'
+	PURCHASE_ORDER = 'purchase_order'
 
 class TwoFactorLinkType(object):
 	CONFIRM_PURCHASE_ORDER = 'confirm_purchase_order'

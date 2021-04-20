@@ -242,7 +242,7 @@ class SendNotificationView(MethodView):
 		# However in the bank case, they can trigger an email notification on behalf
 		# of a user.
 		company_id = user_session.get_company_id()
-		if user_session.is_bank_user():
+		if user_session.is_bank_admin():
 			if 'company_id' not in form['input_data']:
 				return handler_util.make_error_response('"company_id" must be specified in the input_data if you are a bank user')
 			company_id = form['input_data']['company_id']

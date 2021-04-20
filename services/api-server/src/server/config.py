@@ -37,6 +37,7 @@ class Config(object):
 		self.URL_SECRET_KEY = os.environ.get('URL_SECRET_KEY')
 
 		self.EMAIL_PROVIDER = os.environ.get('EMAIL_PROVIDER', 'sendgrid')
+		self.CHECK_FILE_PERMISSIONS = _string_to_bool(os.environ.get('CHECK_FILE_PERMISSIONS'))
 
 		# Email
 		self.NO_REPLY_EMAIL_ADDRESS = os.environ.get(

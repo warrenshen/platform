@@ -175,7 +175,7 @@ def wrap(action: str) -> Callable:
 				data={'request': data}
 			)
 
-			if user_session.is_bank_user() and 'company_id' in data:
+			if user_session.is_bank_admin() and 'company_id' in data:
 				event.company_id(data['company_id'])
 
 			response = fn(*args, event=event, **kwargs)

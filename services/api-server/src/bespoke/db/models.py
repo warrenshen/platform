@@ -104,6 +104,20 @@ class Company(Base):
 			name=self.name
 		)
 
+class CompanyAgreement(Base):
+	__tablename__ = 'company_agreements'
+
+	id = cast(GUID, Column(GUID, nullable=False, primary_key=True))
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id'), nullable=False))
+	file_id = cast(GUID, Column(GUID, ForeignKey('files.id'), nullable=False))
+
+class CompanyLicense(Base):
+	__tablename__ = 'company_licenses'
+
+	id = cast(GUID, Column(GUID, nullable=False, primary_key=True))
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id'), nullable=False))
+	file_id = cast(GUID, Column(GUID, ForeignKey('files.id'), nullable=False))
+
 CompanySettingsDict = TypedDict('CompanySettingsDict', {
 	'id': str,
 	'vendor_agreement_docusign_template': str,
@@ -591,6 +605,12 @@ class EbbaApplication(Base):
 			rejected_at=self.rejected_at,
 			rejection_note=self.rejection_note,
 		)
+
+class EbbaApplicationFile(Base):
+	__tablename__ = 'ebba_application_files'
+
+	ebba_application_id = cast(GUID, Column(GUID, ForeignKey('ebba_applications.id'), nullable=False, primary_key=True))
+	file_id = cast(GUID, Column(GUID, ForeignKey('files.id'), nullable=False, primary_key=True))
 
 
 InvoiceDict = TypedDict('InvoiceDict', {
