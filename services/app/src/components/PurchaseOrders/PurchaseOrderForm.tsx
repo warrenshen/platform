@@ -19,6 +19,7 @@ import {
   PurchaseOrdersInsertInput,
   VendorsByPartnerCompanyQuery,
 } from "generated/graphql";
+import { FileTypeEnum } from "lib/enum";
 import { ChangeEvent, useMemo } from "react";
 
 interface Props {
@@ -160,7 +161,10 @@ function PurchaseOrderForm({
           </Typography>
         </Box>
         {purchaseOrderFile && (
-          <DownloadThumbnail fileIds={purchaseOrderFileIds} />
+          <DownloadThumbnail
+            fileIds={purchaseOrderFileIds}
+            fileType={FileTypeEnum.PURCHASE_ORDER}
+          />
         )}
         <Box mt={1}>
           <FileUploadDropzone
@@ -194,7 +198,10 @@ function PurchaseOrderForm({
             </Typography>
           </Box>
           {purchaseOrderCannabisFiles.length > 0 && (
-            <DownloadThumbnail fileIds={purchaseOrderCannabisFileIds} />
+            <DownloadThumbnail
+              fileIds={purchaseOrderCannabisFileIds}
+              fileType={FileTypeEnum.PURCHASE_ORDER}
+            />
           )}
           <Box mt={1}>
             <FileUploadDropzone

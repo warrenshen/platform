@@ -20,6 +20,7 @@ import {
 import { Action, check } from "lib/auth/rbac-rules";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
+import { FileTypeEnum } from "lib/enum";
 import { useContext, useMemo } from "react";
 import InvoiceLoansDataGrid from "./InvoiceLoansDataGrid";
 
@@ -177,7 +178,10 @@ export default function InvoiceDrawer({ invoiceId, handleClose }: Props) {
                 Invoice File Attachment
               </Typography>
             </Box>
-            <DownloadThumbnail fileIds={invoiceFileIds} />
+            <DownloadThumbnail
+              fileIds={invoiceFileIds}
+              fileType={FileTypeEnum.INVOICE}
+            />
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <FormControlLabel
@@ -197,7 +201,10 @@ export default function InvoiceDrawer({ invoiceId, handleClose }: Props) {
                   Shipping Manifest, Certificate of Analysis
                 </Typography>
               </Box>
-              <DownloadThumbnail fileIds={invoiceCannabisFileIds} />
+              <DownloadThumbnail
+                fileIds={invoiceCannabisFileIds}
+                fileType={FileTypeEnum.INVOICE}
+              />
             </Box>
           )}
         </Box>

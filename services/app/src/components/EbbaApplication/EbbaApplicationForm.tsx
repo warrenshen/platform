@@ -16,6 +16,7 @@ import {
   Scalars,
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
+import { FileTypeEnum } from "lib/enum";
 import { useMemo } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -200,7 +201,10 @@ function EbbaApplicationForm({
           </Typography>
         </Box>
         {ebbaApplicationFiles.length > 0 && (
-          <DownloadThumbnail fileIds={ebbaApplicationFileIds} />
+          <DownloadThumbnail
+            fileIds={ebbaApplicationFileIds}
+            fileType={FileTypeEnum.EBBA_APPLICATION}
+          />
         )}
         <Box mt={1}>
           <FileUploadDropzone

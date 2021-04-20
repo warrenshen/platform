@@ -14,6 +14,7 @@ import {
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
+import { FileTypeEnum } from "lib/enum";
 import { anonymousRoutes } from "lib/routes";
 import { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
@@ -172,14 +173,20 @@ function ReviewPurchaseOrderPage({ location }: Props) {
           <Typography variant="subtitle2" color="textSecondary">
             Purchase Order File
           </Typography>
-          <DownloadThumbnail fileIds={purchaseOrderFileIds} />
+          <DownloadThumbnail
+            fileIds={purchaseOrderFileIds}
+            fileType={FileTypeEnum.PURCHASE_ORDER}
+          />
         </Box>
         {purchaseOrder?.is_cannabis && (
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
               Cannabis or Derivatives File(s)
             </Typography>
-            <DownloadThumbnail fileIds={purchaseOrderCannabisFileIds} />
+            <DownloadThumbnail
+              fileIds={purchaseOrderCannabisFileIds}
+              fileType={FileTypeEnum.PURCHASE_ORDER}
+            />
           </Box>
         )}
         <Box display="flex" justifyContent="center" mt={4}>

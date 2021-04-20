@@ -26,6 +26,7 @@ import {
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { Action } from "lib/auth/rbac-rules";
+import { FileTypeEnum } from "lib/enum";
 import { InventoryNotifier } from "lib/notifications/inventory";
 import { omit } from "lodash";
 import { useMemo } from "react";
@@ -129,7 +130,10 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
           </Grid>
           {licenseFileId && (
             <Grid item>
-              <DownloadThumbnail fileIds={licenseFileIds} />
+              <DownloadThumbnail
+                fileIds={licenseFileIds}
+                fileType={FileTypeEnum.COMPANY_LICENSE}
+              />
             </Grid>
           )}
           <Box mt={1} mb={2}>
@@ -179,7 +183,10 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
           </Grid>
           {agreementFileId && (
             <Grid item>
-              <DownloadThumbnail fileIds={agreementFileIds} />
+              <DownloadThumbnail
+                fileIds={agreementFileIds}
+                fileType={FileTypeEnum.COMPANY_AGREEMENT}
+              />
             </Grid>
           )}
           <Box mt={1} mb={2}>

@@ -13,6 +13,7 @@ import {
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
+import { FileTypeEnum } from "lib/enum";
 import { anonymousRoutes } from "lib/routes";
 import ReviewInvoicePaymentConfirmModal from "pages/Anonymous/ReviewInvoicePayment/ReviewInvoicePaymentConfirmModal";
 import ReviewInvoicePaymentRejectModal from "pages/Anonymous/ReviewInvoicePayment/ReviewInvoicePaymentRejectModal";
@@ -173,7 +174,10 @@ export default function ReviewInvoicePaymentPage(props: Props) {
           <Typography variant="subtitle2" color="textSecondary">
             Invoice File
           </Typography>
-          <DownloadThumbnail fileIds={invoiceFileIds} />
+          <DownloadThumbnail
+            fileIds={invoiceFileIds}
+            fileType={FileTypeEnum.INVOICE}
+          />
         </Box>
         {collectionsAccount && (
           <Box mr={3} className={classes.paymentInfo}>

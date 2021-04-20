@@ -4,6 +4,7 @@ import { authenticatedApi, fileRoutes } from "lib/api";
 import { useEffect, useState } from "react";
 
 type DownloadSignedURLReq = {
+  file_type: string;
   file_ids: string[];
 };
 
@@ -42,9 +43,10 @@ async function downloadFilesWithSignedUrls(
 
 interface Props {
   fileIds: string[];
+  fileType: string;
 }
 
-function DownloadThumbnail({ fileIds }: Props) {
+function DownloadThumbnail({ fileIds, fileType }: Props) {
   const [filesWithSignedUrls, setFilesWithSignedUrls] = useState<
     FileWithSignedURL[]
   >([]);
@@ -54,6 +56,7 @@ function DownloadThumbnail({ fileIds }: Props) {
       if (fileIds.length > 0) {
         const response = await downloadFilesWithSignedUrls({
           file_ids: fileIds,
+          file_type: fileType,
         });
         if (response.status !== "OK") {
           alert(response.msg);

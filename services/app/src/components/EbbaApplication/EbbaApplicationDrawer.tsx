@@ -22,7 +22,7 @@ import {
 import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, ebbaApplicationsRoutes } from "lib/api";
 import { formatCurrency } from "lib/currency";
-import { ActionType } from "lib/enum";
+import { ActionType, FileTypeEnum } from "lib/enum";
 import { useContext, useMemo } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -173,7 +173,10 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
             <Typography variant="subtitle2" color="textSecondary">
               File Attachments
             </Typography>
-            <DownloadThumbnail fileIds={ebbaApplicationFileIds} />
+            <DownloadThumbnail
+              fileIds={ebbaApplicationFileIds}
+              fileType={FileTypeEnum.EBBA_APPLICATION}
+            />
           </Box>
           {isBankUser && (
             <Box

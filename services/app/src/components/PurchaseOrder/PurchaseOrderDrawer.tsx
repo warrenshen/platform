@@ -22,6 +22,7 @@ import {
 import { Action, check } from "lib/auth/rbac-rules";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
+import { FileTypeEnum } from "lib/enum";
 import { useContext, useMemo } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -164,7 +165,10 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
                 Purchase Order File Attachment
               </Typography>
             </Box>
-            <DownloadThumbnail fileIds={purchaseOrderFileIds} />
+            <DownloadThumbnail
+              fileIds={purchaseOrderFileIds}
+              fileType={FileTypeEnum.PURCHASE_ORDER}
+            />
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <FormControlLabel
@@ -187,7 +191,10 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
                   Shipping Manifest, Certificate of Analysis
                 </Typography>
               </Box>
-              <DownloadThumbnail fileIds={purchaseOrderCannabisFileIds} />
+              <DownloadThumbnail
+                fileIds={purchaseOrderCannabisFileIds}
+                fileType={FileTypeEnum.PURCHASE_ORDER}
+              />
             </Box>
           )}
         </Box>

@@ -18,6 +18,16 @@ export enum ActionType {
   Copy,
 }
 
+// File type enum is used for permissions when accessing files.
+// We need to know from which file table the user is intending to read from.
+export enum FileTypeEnum {
+  COMPANY_AGREEMENT = "company_agreement",
+  COMPANY_LICENSE = "company_license",
+  EBBA_APPLICATION = "ebba_application",
+  INVOICE = "invoice",
+  PURCHASE_ORDER = "purchase_order",
+}
+
 export enum PaymentTypeEnum {
   Adjustment = "adjustment",
   Advance = "advance",

@@ -14,6 +14,7 @@ import {
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
+import { FileTypeEnum } from "lib/enum";
 import { anonymousRoutes } from "lib/routes";
 import { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
@@ -171,7 +172,10 @@ export default function ReviewInvoicePage(props: Props) {
           <Typography variant="subtitle2" color="textSecondary">
             Invoice File
           </Typography>
-          <DownloadThumbnail fileIds={invoiceFileIds} />
+          <DownloadThumbnail
+            fileIds={invoiceFileIds}
+            fileType={FileTypeEnum.INVOICE}
+          />
         </Box>
         <Box display="flex" justifyContent="center" mt={4}>
           {isApproveModalOpen && (

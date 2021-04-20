@@ -17,6 +17,7 @@ import {
   InvoicesInsertInput,
   PayorsByPartnerCompanyQuery,
 } from "generated/graphql";
+import { FileTypeEnum } from "lib/enum";
 import { useMemo } from "react";
 
 interface Props {
@@ -184,7 +185,12 @@ export default function InvoiceForm({
             Invoice File Attachment
           </Typography>
         </Box>
-        {invoiceFile && <DownloadThumbnail fileIds={invoiceFileIds} />}
+        {invoiceFile && (
+          <DownloadThumbnail
+            fileIds={invoiceFileIds}
+            fileType={FileTypeEnum.INVOICE}
+          />
+        )}
         <Box mt={1}>
           <FileUploadDropzone
             companyId={companyId}

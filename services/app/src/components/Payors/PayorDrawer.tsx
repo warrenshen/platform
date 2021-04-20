@@ -26,6 +26,7 @@ import {
   useUpdatePayorLicenseIdMutation,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
+import { FileTypeEnum } from "lib/enum";
 import { InventoryNotifier } from "lib/notifications/inventory";
 import { omit } from "lodash";
 import { useMemo } from "react";
@@ -126,7 +127,10 @@ function PayorDrawer({ partnershipId, handleClose }: Props) {
           </Grid>
           {licenseFileId && (
             <Grid item>
-              <DownloadThumbnail fileIds={licenseFileIds} />
+              <DownloadThumbnail
+                fileIds={licenseFileIds}
+                fileType={FileTypeEnum.COMPANY_LICENSE}
+              />
             </Grid>
           )}
         </Grid>
@@ -188,7 +192,10 @@ function PayorDrawer({ partnershipId, handleClose }: Props) {
           </Grid>
           {agreementFileId && (
             <Grid item>
-              <DownloadThumbnail fileIds={agreementFileIds} />
+              <DownloadThumbnail
+                fileIds={agreementFileIds}
+                fileType={FileTypeEnum.COMPANY_AGREEMENT}
+              />
             </Grid>
           )}
         </Grid>
