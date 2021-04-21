@@ -1022,7 +1022,7 @@ def settle_repayment(
 			payment_util.create_and_add_credit_to_user(
 				company_id=req['company_id'],
 				amount=to_user_credit,
-				originating_payment_id=req['payment_id'],
+				payment_id=req['payment_id'],
 				created_by_user_id=user_id,
 				payment_date=deposit_date,
 				effective_date=settlement_date,
