@@ -165,7 +165,7 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
     <Modal
       isPrimaryActionDisabled={isSubmitButtonDisabled}
       title={"Submit Reverse Draft ACH Payment"}
-      contentWidth={600}
+      contentWidth={800}
       primaryActionText={"Submit"}
       handleClose={handleClose}
       handlePrimaryAction={handleClickConfirm}

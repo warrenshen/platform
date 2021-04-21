@@ -31,6 +31,7 @@ import BankPurchaseOrdersPage from "pages/Bank/PurchaseOrders";
 import BankReportsPage from "pages/Bank/Reports";
 import BankSettingsPage from "pages/Bank/Settings";
 import BankVendorsPage from "pages/Bank/Vendors";
+import CustomerAccountPage from "pages/Customer/Account";
 import CustomerContractPage from "pages/Customer/Contract";
 import CustomerEbbaApplicationsPage from "pages/Customer/EbbaApplications";
 import CustomerInvoicesPages from "pages/Customer/Invoices";
@@ -232,6 +233,16 @@ function App() {
           ]}
         >
           <CustomerPayorsPage />
+        </PrivateRoute>
+        <PrivateRoute
+          exact
+          path={customerRoutes.account}
+          requiredRoles={[
+            UserRolesEnum.CompanyAdmin,
+            UserRolesEnum.CompanyReadOnly,
+          ]}
+        >
+          <CustomerAccountPage />
         </PrivateRoute>
         {/* Bank user routes */}
         <PrivateRoute

@@ -5,6 +5,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import DeletePaymentModal from "components/Payment/DeletePaymentModal";
 import RepaymentsDataGrid, {
   RepaymentTypeEnum,
 } from "components/Repayment/RepaymentsDataGrid";
@@ -130,14 +131,33 @@ function BankPaymentsActionRequiredTab() {
                     <ScheduleRepaymentModal
                       paymentId={selectedSchedulePaymentIds[0]}
                       handleClose={() => {
-                        setSelectedSchedulePaymentIds([]);
                         handleClose();
+                        setSelectedSchedulePaymentIds([]);
                       }}
                     />
                   )}
                 />
               </Box>
             </Can>
+            {selectedSchedulePaymentIds.length === 1 && (
+              <Can perform={Action.DeleteRepayments}>
+                <Box mr={2}>
+                  <ModalButton
+                    label={"Delete Payment"}
+                    variant={"outlined"}
+                    modal={({ handleClose }) => (
+                      <DeletePaymentModal
+                        paymentId={selectedSchedulePaymentIds[0]}
+                        handleClose={() => {
+                          handleClose();
+                          setSelectedSchedulePaymentIds([]);
+                        }}
+                      />
+                    )}
+                  />
+                </Box>
+              </Can>
+            )}
           </Box>
           <RepaymentsDataGrid
             isCompanyVisible
@@ -164,14 +184,33 @@ function BankPaymentsActionRequiredTab() {
                     <SettleRepaymentModal
                       paymentId={selectedSettlePaymentIds[0]}
                       handleClose={() => {
-                        setSelectedSettlePaymentIds([]);
                         handleClose();
+                        setSelectedSettlePaymentIds([]);
                       }}
                     />
                   )}
                 />
               </Box>
             </Can>
+            {selectedSettlePaymentIds.length === 1 && (
+              <Can perform={Action.DeleteRepayments}>
+                <Box mr={2}>
+                  <ModalButton
+                    label={"Delete Payment"}
+                    variant={"outlined"}
+                    modal={({ handleClose }) => (
+                      <DeletePaymentModal
+                        paymentId={selectedSettlePaymentIds[0]}
+                        handleClose={() => {
+                          handleClose();
+                          setSelectedSettlePaymentIds([]);
+                        }}
+                      />
+                    )}
+                  />
+                </Box>
+              </Can>
+            )}
           </Box>
           <RepaymentsDataGrid
             isCompanyVisible
@@ -206,6 +245,25 @@ function BankPaymentsActionRequiredTab() {
                 />
               </Box>
             </Can>
+            {selectedNotifyPaymentIds.length === 1 && (
+              <Can perform={Action.DeleteRepayments}>
+                <Box mr={2}>
+                  <ModalButton
+                    label={"Delete Payment"}
+                    variant={"outlined"}
+                    modal={({ handleClose }) => (
+                      <DeletePaymentModal
+                        paymentId={selectedNotifyPaymentIds[0]}
+                        handleClose={() => {
+                          handleClose();
+                          setSelectedNotifyPaymentIds([]);
+                        }}
+                      />
+                    )}
+                  />
+                </Box>
+              </Can>
+            )}
           </Box>
           <RepaymentsDataGrid
             isCompanyVisible

@@ -89,6 +89,12 @@ function DeletePaymentModal({ paymentId, handleClose }: Props) {
           <>
             <Box display="flex" flexDirection="column" mt={2}>
               <Typography variant="subtitle2" color="textSecondary">
+                Customer Name
+              </Typography>
+              <Typography variant={"body1"}>{payment.company.name}</Typography>
+            </Box>
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
                 Method
               </Typography>
               <Typography variant={"body1"}>

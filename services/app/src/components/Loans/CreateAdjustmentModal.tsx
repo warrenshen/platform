@@ -1,4 +1,3 @@
-import { createStyles, makeStyles, Theme } from "@material-ui/core";
 import AdjustmentForm from "components/Loans/AdjustmentForm";
 import Modal from "components/Shared/Modal/Modal";
 import {
@@ -14,23 +13,6 @@ import { PaymentTypeEnum, ProductTypeToLoanType } from "lib/enum";
 import { createAdjustmentMutation } from "lib/finance/payments/adjustment";
 import { useState } from "react";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    dialog: {
-      width: 600,
-    },
-    dialogTitle: {
-      borderBottom: "1px solid #c7c7c7",
-    },
-    dialogActions: {
-      margin: theme.spacing(2),
-    },
-    submitButton: {
-      marginLeft: theme.spacing(1),
-    },
-  })
-);
-
 interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
@@ -43,7 +25,6 @@ export default function CreateAdjustmentModal({
   productType,
   handleClose,
 }: Props) {
-  const classes = useStyles();
   const snackbar = useSnackbar();
 
   const loanType =

@@ -33,8 +33,10 @@ function RequestedRepaymentPreview({ payment }: Props) {
               payment.requested_amount
             )}`}
           </Typography>
-          {(payment.items_covered.requested_to_principal ||
-            payment.items_covered.requested_to_interest) && (
+          {!!(
+            payment.items_covered.requested_to_principal ||
+            payment.items_covered.requested_to_interest
+          ) && (
             <>
               <Typography variant="subtitle2">
                 {`Amount to Principal: ${formatCurrency(

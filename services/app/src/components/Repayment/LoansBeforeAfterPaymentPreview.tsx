@@ -100,7 +100,7 @@ function LoansBeforeAfterPaymentPreview({
               </Box>
               <Box display="flex" justifyContent="flex-end" width={"25%"}>
                 <Typography variant="subtitle2" align="right">
-                  Fees
+                  Late Fees
                 </Typography>
               </Box>
             </Box>

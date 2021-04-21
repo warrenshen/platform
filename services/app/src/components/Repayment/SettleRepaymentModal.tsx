@@ -278,7 +278,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
       title={`Settle ${
         PaymentMethodToLabel[payment.method as PaymentMethodEnum]
       } Payment`}
-      contentWidth={600}
+      contentWidth={800}
       primaryActionText={isOnSelectLoans ? "Next step" : "Settle payment"}
       secondaryActionText={!isOnSelectLoans ? "Back to step 1" : null}
       handleClose={handleClose}
