@@ -72,3 +72,40 @@ subscription GetSubmittedPayments {
     }
   }
 }
+
+query GetPaymentsForCompany($company_id: uuid!) {
+  companies_by_pk(id: $company_id) {
+    id
+    payments(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { type: { _eq: "repayment" } }
+          { settlement_date: { _is_null: false } }
+        ]
+      }
+      order_by: [{ settlement_date: desc }, { created_at: desc }]
+    ) {
+      id
+      ...PaymentLimited
+      transactions {
+        id
+        ...Transaction
+        loan {
+          id
+          ...LoanLimited
+          ...LoanArtifactLimited
+        }
+        payment {
+          id
+          ...PaymentLimited
+        }
+      }
+    }
+  }
+}

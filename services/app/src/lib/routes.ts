@@ -30,6 +30,7 @@ export const customerRoutes = {
   ebbaApplications: "/1/borrowing-base",
   loans: "/1/loans",
   overview: "/1/overview",
+  payments: "/1/payments",
   purchaseOrders: "/1/purchase-orders",
   settings: "/1/settings",
   vendors: "/1/vendors",
@@ -45,8 +46,9 @@ export const bankRoutes = {
   customer: {
     contract: "/contract",
     ebbaApplications: "/borrowing-base",
-    overview: "/overview",
     loans: "/loans",
+    overview: "/overview",
+    payments: "/payments",
     purchaseOrders: "/purchase-orders",
     vendors: "/vendors",
     payors: "/payors",

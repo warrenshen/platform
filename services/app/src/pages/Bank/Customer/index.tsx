@@ -22,6 +22,7 @@ import BankCustomerEbbaApplicationsSubpage from "./EbbaApplications";
 import BankCustomerInvoicesSubpage from "./Invoices";
 import BankCustomerLoansSubpage from "./Loans";
 import BankCustomerOverviewSubpage from "./Overview";
+import BankCustomerPaymentsSubpage from "./Payments";
 import BankCustomerPayorsSubpage from "./Payors";
 import BankCustomerPurchaseOrdersSubpage from "./PurchaseOrders";
 import BankCustomerSettingsSubpage from "./Settings";
@@ -90,6 +91,11 @@ const getCustomerPaths = (productType: ProductTypeEnum) => [
     path: bankRoutes.customer.invoices,
     component: BankCustomerInvoicesSubpage,
     label: "Invoices",
+  },
+  {
+    path: bankRoutes.customer.payments,
+    component: BankCustomerPaymentsSubpage,
+    label: "Payments",
   },
   {
     visible: productType !== ProductTypeEnum.InvoiceFinancing,

@@ -1,7 +1,7 @@
 query GetFinancialSummariesByCompanyId($companyId: uuid!) {
   financial_summaries(
     where: { company_id: { _eq: $companyId } }
-    order_by: { date: asc }
+    order_by: { date: desc }
   ) {
     id
     ...FinancialSummary

@@ -9545,6 +9545,10 @@ export type Payments = {
   /** An object relationship */
   submitted_by_user?: Maybe<Users>;
   submitted_by_user_id?: Maybe<Scalars["uuid"]>;
+  /** An array relationship */
+  transactions: Array<Transactions>;
+  /** An aggregated array relationship */
+  transactions_aggregate: TransactionsAggregate;
   type: Scalars["String"];
   updated_at: Scalars["timestamptz"];
 };
@@ -9557,6 +9561,34 @@ export type Payments = {
  */
 export type PaymentsItemsCoveredArgs = {
   path?: Maybe<Scalars["String"]>;
+};
+
+/**
+ * Payments are dollar amounts transferred to and from the bank
+ *
+ *
+ * columns and relationships of "payments"
+ */
+export type PaymentsTransactionsArgs = {
+  distinct_on?: Maybe<Array<TransactionsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<TransactionsOrderBy>>;
+  where?: Maybe<TransactionsBoolExp>;
+};
+
+/**
+ * Payments are dollar amounts transferred to and from the bank
+ *
+ *
+ * columns and relationships of "payments"
+ */
+export type PaymentsTransactionsAggregateArgs = {
+  distinct_on?: Maybe<Array<TransactionsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<TransactionsOrderBy>>;
+  where?: Maybe<TransactionsBoolExp>;
 };
 
 /** aggregated selection of "payments" */
@@ -9654,6 +9686,7 @@ export type PaymentsBoolExp = {
   submitted_at?: Maybe<TimestamptzComparisonExp>;
   submitted_by_user?: Maybe<UsersBoolExp>;
   submitted_by_user_id?: Maybe<UuidComparisonExp>;
+  transactions?: Maybe<TransactionsBoolExp>;
   type?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
 };
@@ -9712,6 +9745,7 @@ export type PaymentsInsertInput = {
   submitted_at?: Maybe<Scalars["timestamptz"]>;
   submitted_by_user?: Maybe<UsersObjRelInsertInput>;
   submitted_by_user_id?: Maybe<Scalars["uuid"]>;
+  transactions?: Maybe<TransactionsArrRelInsertInput>;
   type?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
@@ -9860,6 +9894,7 @@ export type PaymentsOrderBy = {
   submitted_at?: Maybe<OrderBy>;
   submitted_by_user?: Maybe<UsersOrderBy>;
   submitted_by_user_id?: Maybe<OrderBy>;
+  transactions_aggregate?: Maybe<TransactionsAggregateOrderBy>;
   type?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
 };
@@ -13844,6 +13879,8 @@ export type Transactions = {
   effective_date: Scalars["date"];
   id: Scalars["uuid"];
   is_deleted?: Maybe<Scalars["Boolean"]>;
+  /** An object relationship */
+  loan?: Maybe<Loans>;
   loan_id?: Maybe<Scalars["uuid"]>;
   modified_at: Scalars["timestamptz"];
   modified_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -13933,6 +13970,7 @@ export type TransactionsBoolExp = {
   effective_date?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   is_deleted?: Maybe<BooleanComparisonExp>;
+  loan?: Maybe<LoansBoolExp>;
   loan_id?: Maybe<UuidComparisonExp>;
   modified_at?: Maybe<TimestamptzComparisonExp>;
   modified_by_user_id?: Maybe<UuidComparisonExp>;
@@ -13967,6 +14005,7 @@ export type TransactionsInsertInput = {
   effective_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
+  loan?: Maybe<LoansObjRelInsertInput>;
   loan_id?: Maybe<Scalars["uuid"]>;
   modified_at?: Maybe<Scalars["timestamptz"]>;
   modified_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -14080,6 +14119,7 @@ export type TransactionsOrderBy = {
   effective_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   is_deleted?: Maybe<OrderBy>;
+  loan?: Maybe<LoansOrderBy>;
   loan_id?: Maybe<OrderBy>;
   modified_at?: Maybe<OrderBy>;
   modified_by_user_id?: Maybe<OrderBy>;
@@ -16065,6 +16105,31 @@ export type GetSubmittedPaymentsSubscription = {
   >;
 };
 
+export type GetPaymentsForCompanyQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+}>;
+
+export type GetPaymentsForCompanyQuery = {
+  companies_by_pk?: Maybe<
+    Pick<Companies, "id"> & {
+      payments: Array<
+        Pick<Payments, "id"> & {
+          transactions: Array<
+            Pick<Transactions, "id"> & {
+              loan?: Maybe<
+                Pick<Loans, "id"> &
+                  LoanLimitedFragment &
+                  LoanArtifactLimitedFragment
+              >;
+              payment: Pick<Payments, "id"> & PaymentLimitedFragment;
+            } & TransactionFragment
+          >;
+        } & PaymentLimitedFragment
+      >;
+    }
+  >;
+};
+
 export type GetContractQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -17978,7 +18043,7 @@ export const GetFinancialSummariesByCompanyIdDocument = gql`
   query GetFinancialSummariesByCompanyId($companyId: uuid!) {
     financial_summaries(
       where: { company_id: { _eq: $companyId } }
-      order_by: { date: asc }
+      order_by: { date: desc }
     ) {
       id
       ...FinancialSummary
@@ -21410,6 +21475,97 @@ export type GetSubmittedPaymentsSubscriptionHookResult = ReturnType<
   typeof useGetSubmittedPaymentsSubscription
 >;
 export type GetSubmittedPaymentsSubscriptionResult = Apollo.SubscriptionResult<GetSubmittedPaymentsSubscription>;
+export const GetPaymentsForCompanyDocument = gql`
+  query GetPaymentsForCompany($company_id: uuid!) {
+    companies_by_pk(id: $company_id) {
+      id
+      payments(
+        where: {
+          _and: [
+            {
+              _or: [
+                { is_deleted: { _is_null: true } }
+                { is_deleted: { _eq: false } }
+              ]
+            }
+            { type: { _eq: "repayment" } }
+            { settlement_date: { _is_null: false } }
+          ]
+        }
+        order_by: [{ settlement_date: desc }, { created_at: desc }]
+      ) {
+        id
+        ...PaymentLimited
+        transactions {
+          id
+          ...Transaction
+          loan {
+            id
+            ...LoanLimited
+            ...LoanArtifactLimited
+          }
+          payment {
+            id
+            ...PaymentLimited
+          }
+        }
+      }
+    }
+  }
+  ${PaymentLimitedFragmentDoc}
+  ${TransactionFragmentDoc}
+  ${LoanLimitedFragmentDoc}
+  ${LoanArtifactLimitedFragmentDoc}
+`;
+
+/**
+ * __useGetPaymentsForCompanyQuery__
+ *
+ * To run a query within a React component, call `useGetPaymentsForCompanyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPaymentsForCompanyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPaymentsForCompanyQuery({
+ *   variables: {
+ *      company_id: // value for 'company_id'
+ *   },
+ * });
+ */
+export function useGetPaymentsForCompanyQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetPaymentsForCompanyQuery,
+    GetPaymentsForCompanyQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetPaymentsForCompanyQuery,
+    GetPaymentsForCompanyQueryVariables
+  >(GetPaymentsForCompanyDocument, baseOptions);
+}
+export function useGetPaymentsForCompanyLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetPaymentsForCompanyQuery,
+    GetPaymentsForCompanyQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetPaymentsForCompanyQuery,
+    GetPaymentsForCompanyQueryVariables
+  >(GetPaymentsForCompanyDocument, baseOptions);
+}
+export type GetPaymentsForCompanyQueryHookResult = ReturnType<
+  typeof useGetPaymentsForCompanyQuery
+>;
+export type GetPaymentsForCompanyLazyQueryHookResult = ReturnType<
+  typeof useGetPaymentsForCompanyLazyQuery
+>;
+export type GetPaymentsForCompanyQueryResult = Apollo.QueryResult<
+  GetPaymentsForCompanyQuery,
+  GetPaymentsForCompanyQueryVariables
+>;
 export const GetContractDocument = gql`
   query GetContract($id: uuid!) {
     contracts_by_pk(id: $id) {

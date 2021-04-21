@@ -164,6 +164,11 @@ const getCustomerNavItems = (
       link: customerRoutes.invoices,
     },
     {
+      iconNode: PaymentsIcon,
+      text: "Payments",
+      link: customerRoutes.payments,
+    },
+    {
       visible: productType !== ProductTypeEnum.InvoiceFinancing,
       iconNode: VendorsIcon,
       text: "Vendors",
