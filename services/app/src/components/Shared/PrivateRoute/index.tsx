@@ -1,4 +1,7 @@
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   useGetCompanyWithDetailsByCompanyIdQuery,
   UserRolesEnum,
@@ -35,7 +38,7 @@ function PrivateRoute(props: Props & RouteProps) {
   const company = data?.companies_by_pk;
 
   useEffect(() => {
-    if (role !== UserRolesEnum.BankAdmin && company?.contract?.product_type) {
+    if (!isRoleBankUser(role) && company?.contract?.product_type) {
       setUserProductType(company?.contract?.product_type);
     }
   }, [role, company?.contract?.product_type, setUserProductType]);

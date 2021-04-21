@@ -2,6 +2,13 @@ import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
 import { ProductTypeEnum, UserRolesEnum, Users } from "generated/graphql";
 import { createContext } from "react";
 
+export function isRoleBankUser(role?: UserRolesEnum | null) {
+  return (
+    !!role &&
+    [UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly].includes(role)
+  );
+}
+
 export type User = {
   id: Users["id"];
   companyId: Users["company_id"] | null;

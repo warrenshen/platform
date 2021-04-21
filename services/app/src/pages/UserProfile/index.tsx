@@ -11,8 +11,11 @@ import { grey } from "@material-ui/core/colors";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
 import EditUserProfileModal from "components/Users/EditUserProfileModal";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { UserRolesEnum, useUserByIdQuery } from "generated/graphql";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
+import { useUserByIdQuery } from "generated/graphql";
 import { useContext, useState } from "react";
 
 const useStyles = makeStyles({
@@ -71,7 +74,7 @@ function UserProfile() {
                 <Box display="flex" pb={0.25}>
                   <Box className={classes.label}>Company</Box>
                   <Box>
-                    {user?.role === UserRolesEnum.BankAdmin
+                    {isRoleBankUser(user?.role)
                       ? "Bespoke (Bank)"
                       : user?.company?.name}
                   </Box>

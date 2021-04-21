@@ -9,7 +9,10 @@ import {
   Theme,
 } from "@material-ui/core";
 import EbbaApplicationForm from "components/EbbaApplication/EbbaApplicationForm";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   Companies,
   EbbaApplicationFilesInsertInput,
@@ -18,7 +21,6 @@ import {
   useAddEbbaApplicationMutation,
   useGetCompanyWithActiveContractQuery,
   useGetEbbaApplicationQuery,
-  UserRolesEnum,
   useUpdateEbbaApplicationMutation,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -68,7 +70,7 @@ function CreateUpdateEbbaApplicationModal({
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const isBankUser = role === UserRolesEnum.BankAdmin;
+  const isBankUser = isRoleBankUser(role);
 
   const { data } = useGetCompanyWithActiveContractQuery({
     variables: {

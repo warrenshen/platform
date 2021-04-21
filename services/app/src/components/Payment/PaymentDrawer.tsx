@@ -6,8 +6,11 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { Payments, useGetPaymentQuery, UserRolesEnum } from "generated/graphql";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
+import { Payments, useGetPaymentQuery } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString, formatDatetimeString } from "lib/date";
 import { useContext } from "react";
@@ -31,11 +34,11 @@ interface Props {
 
 function PaymentDrawer({ paymentId, handleClose }: Props) {
   const classes = useStyles();
+
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-
-  const isBankUser = role === UserRolesEnum.BankAdmin;
+  const isBankUser = isRoleBankUser(role);
 
   const { data } = useGetPaymentQuery({
     variables: {

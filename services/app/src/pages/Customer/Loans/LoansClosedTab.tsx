@@ -6,11 +6,13 @@ import {
   Typography,
 } from "@material-ui/core";
 import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   ProductTypeEnum,
   useGetClosedLoansForCompanyQuery,
-  UserRolesEnum,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { ProductTypeToLoanType } from "lib/enum";
@@ -45,7 +47,7 @@ function CustomerLoansPageLoansClosedTab({ companyId, productType }: Props) {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const isBankUser = role === UserRolesEnum.BankAdmin;
+  const isBankUser = isRoleBankUser(role);
 
   const loanType =
     !!productType && productType in ProductTypeToLoanType

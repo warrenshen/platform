@@ -1,8 +1,11 @@
 import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import Modal from "components/Shared/Modal/Modal";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { Loans, useGetLoanQuery, UserRolesEnum } from "generated/graphql";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
+import { Loans, useGetLoanQuery } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { deleteLoanMutation } from "lib/api/loans";
@@ -24,7 +27,7 @@ export default function DeleteLoanModal({ loanId, handleClose }: Props) {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const isBankUser = role === UserRolesEnum.BankAdmin;
+  const isBankUser = isRoleBankUser(role);
 
   const { data, loading: isExistingLoanLoading } = useGetLoanQuery({
     fetchPolicy: "network-only",

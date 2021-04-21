@@ -1,12 +1,11 @@
 import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import Modal from "components/Shared/Modal/Modal";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
-  PurchaseOrders,
-  useGetPaymentQuery,
-  UserRolesEnum,
-} from "generated/graphql";
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
+import { PurchaseOrders, useGetPaymentQuery } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { deleteRepaymentMutation } from "lib/api/payments";
@@ -26,7 +25,7 @@ function DeletePaymentModal({ paymentId, handleClose }: Props) {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const isBankUser = role === UserRolesEnum.BankAdmin;
+  const isBankUser = isRoleBankUser(role);
 
   const { data, loading: isExistingPaymentLoading } = useGetPaymentQuery({
     fetchPolicy: "network-only",

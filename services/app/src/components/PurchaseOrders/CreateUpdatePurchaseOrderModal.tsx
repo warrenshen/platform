@@ -2,7 +2,10 @@ import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import PurchaseOrderForm from "components/PurchaseOrders/PurchaseOrderForm";
 import Modal from "components/Shared/Modal/Modal";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   Companies,
   PurchaseOrderFileFragment,
@@ -11,7 +14,6 @@ import {
   PurchaseOrdersInsertInput,
   RequestStatusEnum,
   usePurchaseOrderQuery,
-  UserRolesEnum,
   useVendorsByPartnerCompanyQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -42,7 +44,7 @@ export default function CreateUpdatePurchaseOrderModal({
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const isBankUser = role === UserRolesEnum.BankAdmin;
+  const isBankUser = isRoleBankUser(role);
 
   // Default PurchaseOrder for CREATE case.
   const newPurchaseOrder = {

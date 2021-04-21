@@ -16,14 +16,16 @@ import RepaymentsDataGrid from "components/Repayment/RepaymentsDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import PageContent from "components/Shared/Page/PageContent";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   LoanFragment,
   PaymentLimitedFragment,
   Payments,
   ProductTypeEnum,
   useGetCustomerOverviewQuery,
-  UserRolesEnum,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { ActionType, ProductTypeToLoanType } from "lib/enum";
@@ -59,7 +61,7 @@ function CustomerOverviewPageContent({ companyId, productType }: Props) {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const isBankUser = role === UserRolesEnum.BankAdmin;
+  const isBankUser = isRoleBankUser(role);
 
   const loanType =
     !!productType && productType in ProductTypeToLoanType

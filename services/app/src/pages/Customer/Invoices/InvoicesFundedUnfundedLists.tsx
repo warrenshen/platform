@@ -12,14 +12,16 @@ import InvoicesDataGrid from "components/Invoices/InvoicesDataGrid";
 import RequestPaymentOnInvoiceModal from "components/Invoices/RequestPaymentOnInvoiceModal";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   Companies,
   InvoiceFragment,
   Invoices,
   ProductTypeEnum,
   useGetInvoicesByCompanyIdQuery,
-  UserRolesEnum,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { ActionType } from "lib/enum";
@@ -61,7 +63,7 @@ export default function InvoicesFundedUnfundedList({
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const isBankUser = role === UserRolesEnum.BankAdmin;
+  const isBankUser = isRoleBankUser(role);
 
   const { data, refetch, error } = useGetInvoicesByCompanyIdQuery({
     fetchPolicy: "network-only",

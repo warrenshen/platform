@@ -10,12 +10,14 @@ import {
 } from "@material-ui/core";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   InvoiceFileTypeEnum,
   Invoices,
   useGetInvoiceByIdQuery,
-  UserRolesEnum,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { formatCurrency } from "lib/currency";
@@ -47,7 +49,7 @@ export default function InvoiceDrawer({ invoiceId, handleClose }: Props) {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const isBankUser = role === UserRolesEnum.BankAdmin;
+  const isBankUser = isRoleBankUser(role);
 
   const { data } = useGetInvoiceByIdQuery({
     variables: {

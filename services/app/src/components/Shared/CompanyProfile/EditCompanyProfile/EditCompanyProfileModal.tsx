@@ -12,11 +12,13 @@ import {
   Theme,
 } from "@material-ui/core";
 import PhoneInput from "components/Shared/FormInputs/PhoneInput";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   CompanyDocument,
   CompanyFragment,
-  UserRolesEnum,
   useUpdateCompanyProfileMutation,
 } from "generated/graphql";
 import { useContext, useState } from "react";
@@ -44,7 +46,7 @@ function EditCompanyProfileModal({
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const isBankUser = role === UserRolesEnum.BankAdmin;
+  const isBankUser = isRoleBankUser(role);
 
   const [company, setCompany] = useState(companyToEdit);
 

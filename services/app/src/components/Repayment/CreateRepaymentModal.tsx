@@ -3,14 +3,16 @@ import { Alert } from "@material-ui/lab";
 import CreateRepaymentConfirmEffect from "components/Repayment/CreateRepaymentConfirmEffect";
 import CreateRepaymentSelectLoans from "components/Repayment/CreateRepaymentSelectLoans";
 import Modal from "components/Shared/Modal/Modal";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   Companies,
   Loans,
   PaymentsInsertInput,
   ProductTypeEnum,
   useGetCompanyWithDetailsByCompanyIdQuery,
-  UserRolesEnum,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -48,7 +50,7 @@ function CreateRepaymentModal({
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const isBankUser = role === UserRolesEnum.BankAdmin;
+  const isBankUser = isRoleBankUser(role);
 
   const { data } = useGetCompanyWithDetailsByCompanyIdQuery({
     fetchPolicy: "network-only",

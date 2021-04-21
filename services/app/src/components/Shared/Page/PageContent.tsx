@@ -1,7 +1,9 @@
 import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { UserRolesEnum } from "generated/graphql";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import { ReactNode, useContext } from "react";
 import styled from "styled-components";
 
@@ -76,7 +78,7 @@ function PageContent({
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const isBankUser = role === UserRolesEnum.BankAdmin;
+  const isBankUser = isRoleBankUser(role);
 
   return (
     <Container>

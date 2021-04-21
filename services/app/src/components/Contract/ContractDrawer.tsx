@@ -10,12 +10,11 @@ import {
   Typography,
 } from "@material-ui/core";
 import JsonContractTerm from "components/Contract/JsonContractTerm";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
-  Contracts,
-  useGetContractQuery,
-  UserRolesEnum,
-} from "generated/graphql";
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
+import { Contracts, useGetContractQuery } from "generated/graphql";
 import {
   ContractTermNames,
   createProductConfigFieldsFromContract,
@@ -80,7 +79,7 @@ function ContractDrawer({ contractId, handleClose }: Props) {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const isBankUser = role === UserRolesEnum.BankAdmin;
+  const isBankUser = isRoleBankUser(role);
 
   const { data } = useGetContractQuery({
     variables: {

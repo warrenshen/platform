@@ -12,14 +12,16 @@ import CreateUpdatePurchaseOrderModal from "components/PurchaseOrders/CreateUpda
 import PurchaseOrdersDataGrid from "components/PurchaseOrders/PurchaseOrdersDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   Companies,
   ProductTypeEnum,
   PurchaseOrderFragment,
   PurchaseOrders,
   useGetOpenPurchaseOrdersByCompanyIdQuery,
-  UserRolesEnum,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { ActionType } from "lib/enum";
@@ -56,7 +58,7 @@ function CustomerPurchaseOrdersOpenTab({ companyId, productType }: Props) {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const isBankUser = role === UserRolesEnum.BankAdmin;
+  const isBankUser = isRoleBankUser(role);
 
   const { data, refetch, error } = useGetOpenPurchaseOrdersByCompanyIdQuery({
     fetchPolicy: "network-only",

@@ -11,13 +11,15 @@ import {
 import PurchaseOrderLoansDataGrid from "components/Loans/PurchaseOrderLoansDataGrid";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   PurchaseOrderFileTypeEnum,
   PurchaseOrders,
   RequestStatusEnum,
   usePurchaseOrderQuery,
-  UserRolesEnum,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { formatCurrency } from "lib/currency";
@@ -48,7 +50,7 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const isBankUser = role === UserRolesEnum.BankAdmin;
+  const isBankUser = isRoleBankUser(role);
 
   const { data } = usePurchaseOrderQuery({
     variables: {

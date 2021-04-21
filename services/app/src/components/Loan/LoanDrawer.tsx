@@ -11,7 +11,10 @@ import PurchaseOrderInfoCard from "components/PurchaseOrder/PurchaseOrderInfoCar
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import TransactionsDataGrid from "components/Transactions/TransactionsDataGrid";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   Loans,
   LoanStatusEnum,
@@ -19,7 +22,6 @@ import {
   useGetLoanWithArtifactForBankQuery,
   useGetLoanWithArtifactForCustomerQuery,
   useGetTransactionsForLoanQuery,
-  UserRolesEnum,
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
@@ -50,7 +52,7 @@ function LoanDrawer({ loanId, handleClose }: Props) {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const isBankUser = role === UserRolesEnum.BankAdmin;
+  const isBankUser = isRoleBankUser(role);
 
   const {
     data: bankData,

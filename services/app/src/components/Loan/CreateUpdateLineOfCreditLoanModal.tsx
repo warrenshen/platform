@@ -2,7 +2,10 @@ import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import LineOfCreditLoanForm from "components/Loan/LineOfCreditLoanForm";
 import Modal from "components/Shared/Modal/Modal";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   Companies,
   LineOfCreditsInsertInput,
@@ -15,7 +18,6 @@ import {
   useApprovedVendorsByPartnerCompanyIdQuery,
   useGetCompanyNextLoanIdentifierMutation,
   useGetLoanWithArtifactForCustomerQuery,
-  UserRolesEnum,
   useUpdateLineOfCreditAndLoanMutation,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -43,7 +45,7 @@ function CreateUpdateLineOfCreditLoanModal({
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const isBankUser = role === UserRolesEnum.BankAdmin;
+  const isBankUser = isRoleBankUser(role);
 
   const newLineOfCredit: LineOfCreditsInsertInput = {
     company_id: companyId,

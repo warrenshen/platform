@@ -12,7 +12,10 @@ import {
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import InvoiceForm from "components/Invoices/InvoiceForm";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   Companies,
   InvoiceFileFragment,
@@ -21,7 +24,6 @@ import {
   RequestStatusEnum,
   useGetInvoiceByIdQuery,
   usePayorsByPartnerCompanyQuery,
-  UserRolesEnum,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -87,7 +89,7 @@ function CreateUpdateInvoiceModal({
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const isBankUser = role === UserRolesEnum.BankAdmin;
+  const isBankUser = isRoleBankUser(role);
 
   const newInvoice = {
     company_id: companyId,

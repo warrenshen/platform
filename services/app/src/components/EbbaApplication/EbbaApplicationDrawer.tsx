@@ -12,12 +12,14 @@ import ReviewEbbaApplicationRejectModal from "components/EbbaApplication/ReviewE
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   EbbaApplications,
   RequestStatusEnum,
   useGetEbbaApplicationQuery,
-  UserRolesEnum,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, ebbaApplicationsRoutes } from "lib/api";
@@ -47,7 +49,7 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
     user: { role },
   } = useContext(CurrentUserContext);
 
-  const isBankUser = role === UserRolesEnum.BankAdmin;
+  const isBankUser = isRoleBankUser(role);
 
   const { data, refetch } = useGetEbbaApplicationQuery({
     variables: {

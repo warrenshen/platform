@@ -4,14 +4,16 @@ import DeleteLoanModal from "components/Loan/DeleteLoanModal";
 import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   Companies,
   GetActiveLoansForCompanyQuery,
   LoanFragment,
   Loans,
   ProductTypeEnum,
-  UserRolesEnum,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { ActionType } from "lib/enum";
@@ -53,7 +55,7 @@ function LoansNotFunded({
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const isBankUser = role === UserRolesEnum.BankAdmin;
+  const isBankUser = isRoleBankUser(role);
 
   const company = data?.companies_by_pk;
 

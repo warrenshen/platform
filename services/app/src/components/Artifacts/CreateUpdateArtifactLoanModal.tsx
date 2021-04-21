@@ -1,7 +1,10 @@
 import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import Modal from "components/Shared/Modal/Modal";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   Companies,
   LoansInsertInput,
@@ -12,7 +15,6 @@ import {
   useAddLoanMutation,
   useGetCompanyNextLoanIdentifierMutation,
   useGetLoanForCustomerQuery,
-  UserRolesEnum,
   useUpdateLoanMutation,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -57,7 +59,7 @@ export default function CreateUpdateArtifactLoanModal({
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const isBankUser = role === UserRolesEnum.BankAdmin;
+  const isBankUser = isRoleBankUser(role);
 
   const artifactCopyLower = getProductTypeCopy(productType);
   const artifactCopyUpper = capsFirst(artifactCopyLower);

@@ -2,12 +2,11 @@ import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import PurchaseOrderInfoCard from "components/PurchaseOrder/PurchaseOrderInfoCard";
 import Modal from "components/Shared/Modal/Modal";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
-  PurchaseOrders,
-  usePurchaseOrderQuery,
-  UserRolesEnum,
-} from "generated/graphql";
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
+import { PurchaseOrders, usePurchaseOrderQuery } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { deletePurchaseOrderMutation } from "lib/api/purchaseOrders";
@@ -24,7 +23,7 @@ function DeletePurchaseOrderModal({ purchaseOrderId, handleClose }: Props) {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const isBankUser = role === UserRolesEnum.BankAdmin;
+  const isBankUser = isRoleBankUser(role);
 
   const {
     data,

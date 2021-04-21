@@ -6,11 +6,13 @@ import BespokeFinancialLogo from "components/Shared/Layout/logo.png";
 import NestedListItem from "components/Shared/Layout/NestedListItem";
 import SidebarItem from "components/Shared/Layout/SidebarItem";
 import UserMenu from "components/Shared/User/UserMenu";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   ProductTypeEnum,
   useGetCompanyForCustomerBorrowingBaseQuery,
-  UserRolesEnum,
 } from "generated/graphql";
 import { withinNDaysOfNowOrBefore } from "lib/date";
 import { bankRoutes, customerRoutes, routes } from "lib/routes";
@@ -69,7 +71,7 @@ const Footer = styled.div`
   flex-direction: column;
 `;
 
-const DRAWER_WIDTH = 250;
+const DRAWER_WIDTH = 260;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -286,10 +288,7 @@ function Layout({ appBarTitle, children }: Props) {
     (!ebbaApplication ||
       withinNDaysOfNowOrBefore(ebbaApplication.expires_at, 15));
 
-  const navItems = [
-    UserRolesEnum.BankAdmin,
-    UserRolesEnum.BankReadOnly,
-  ].includes(role)
+  const navItems = isRoleBankUser(role)
     ? getBankNavItems()
     : getCustomerNavItems(productType, showBorrowingBasesChip);
 

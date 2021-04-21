@@ -1,5 +1,8 @@
 import PrivateRoute from "components/Shared/PrivateRoute";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import "devextreme/dist/css/dx.common.css";
 import "devextreme/dist/css/dx.material.blue.light.css";
 import { UserRolesEnum } from "generated/graphql";
@@ -116,7 +119,7 @@ function App() {
             UserRolesEnum.CompanyReadOnly,
           ]}
         >
-          {role === UserRolesEnum.BankAdmin ? (
+          {isRoleBankUser(role) ? (
             <Redirect to={bankRoutes.overview} />
           ) : (
             <Redirect to={customerRoutes.overview} />

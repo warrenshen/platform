@@ -5,8 +5,11 @@ import {
 } from "@apollo/client";
 import { Box, IconButton, Menu, MenuItem, Typography } from "@material-ui/core";
 import { AccountCircle } from "@material-ui/icons";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { UserRolesEnum, useUserByIdQuery } from "generated/graphql";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
+import { useUserByIdQuery } from "generated/graphql";
 import { routes } from "lib/routes";
 import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
@@ -56,7 +59,7 @@ function UserMenu() {
           overflow="hidden"
         >
           <Typography variant="button">
-            {user?.role === UserRolesEnum.BankAdmin
+            {isRoleBankUser(user?.role)
               ? "Bespoke (Bank)"
               : user?.company?.name}
           </Typography>
