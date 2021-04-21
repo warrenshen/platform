@@ -163,7 +163,7 @@ function AuthenticateViaTwoFactorPage({
   const msgToUser =
     messageMethod === "phone"
       ? `For security reasons, please authenticate via phone to continue. A text message with a code was sent to ${phoneNumber}. If this phone number is incorrect, please contact Bespoke Financial.`
-      : `For security reasons, please authenticate via email to continue. An email with a code was sent to ${email}. If this email is incorrect, please contact Bespoke Financial`;
+      : `For security reasons, please authenticate via email to continue. An email with a code was sent to ${email}. If this email is incorrect, please contact Bespoke Financial.`;
 
   const resendMsg =
     messageMethod === "phone"
