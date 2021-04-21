@@ -149,15 +149,15 @@ function AuthenticateViaPhonePage({
     <Box className={classes.wrapper}>
       <Box className={classes.container}>
         <Box display="flex" flexDirection="column">
-          <Typography variant="h5">Authentiate via phone</Typography>
+          <Typography variant="h5">Authentiate via phone (2FA)</Typography>
           {phoneNumber ? (
             <Box>
-              <Box mt={1}>
+              <Box mt={2}>
                 <Typography variant="body2">
-                  {`For security reasons, please authenticate via a text message to continue. A text message with a code was sent to ${phoneNumber}. If this phone number is incorrect, please contact Bespoke Financial.`}
+                  {`For security reasons, please authenticate via phone to continue. A text message with a code was sent to ${phoneNumber}. If this phone number is incorrect, please contact Bespoke Financial.`}
                 </Typography>
               </Box>
-              <Box mt={1}>
+              <Box display="flex" flexDirection="column" mt={3}>
                 <TextField
                   autoFocus
                   label="Enter code"
@@ -165,24 +165,24 @@ function AuthenticateViaPhonePage({
                   onChange={({ target: { value } }) => setCodeEntered(value)}
                 />
               </Box>
-              <Box mt={3}>
-                <Box display="flex" justifyContent="space-between">
-                  <Button
-                    variant={"contained"}
-                    color={"default"}
-                    onClick={handleClickResend}
-                  >
-                    Resend Text
-                  </Button>
-                  <Button
-                    disabled={isSubmitDisabled}
-                    variant={"contained"}
-                    color={"primary"}
-                    onClick={handleClickSubmit}
-                  >
-                    Submit Code
-                  </Button>
-                </Box>
+              <Box display="flex" flexDirection="column" mt={4}>
+                <Button
+                  disabled={isSubmitDisabled}
+                  variant={"contained"}
+                  color={"primary"}
+                  onClick={handleClickSubmit}
+                >
+                  Continue
+                </Button>
+              </Box>
+              <Box display="flex" flexDirection="column" mt={1}>
+                <Button
+                  variant={"text"}
+                  color={"primary"}
+                  onClick={handleClickResend}
+                >
+                  Resend code via text message
+                </Button>
               </Box>
             </Box>
           ) : (

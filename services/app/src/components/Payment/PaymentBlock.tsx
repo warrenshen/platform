@@ -30,7 +30,7 @@ export default function PaymentBlock({ payment }: Props) {
         <Typography variant="h6">Payment</Typography>
         <Box display="flex" justifyContent="space-between" my={2}>
           <Box display="flex">
-            <Box display="flex" flexDirection="column">
+            <Box display="flex" flexDirection="column" width={200}>
               <Typography variant="subtitle2" color="textSecondary">
                 Method
               </Typography>
@@ -40,7 +40,7 @@ export default function PaymentBlock({ payment }: Props) {
                   : "Unknown"}
               </Typography>
             </Box>
-            <Box display="flex" flexDirection="column" ml={8}>
+            <Box display="flex" flexDirection="column" width={200}>
               <Typography variant="subtitle2" color="textSecondary">
                 Deposit Date
               </Typography>
