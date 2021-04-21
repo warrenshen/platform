@@ -65,13 +65,13 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function ReviewInvoicePage(props: Props) {
   const classes = useStyles();
+  const history = useHistory();
 
   const location: any = props.location;
   const payload = location.state?.payload;
   const linkVal = location.state?.link_val;
   const invoiceId = payload?.invoice_id;
 
-  const history = useHistory();
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
 

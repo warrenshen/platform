@@ -77,9 +77,9 @@ export default function CreateAdjustmentModal({
     });
 
     if (response.status !== "OK") {
-      snackbar.showError(`Error! Reason: ${response.msg}`);
+      snackbar.showError(`Error: ${response.msg}`);
     } else {
-      snackbar.showSuccess("Success! Payment submitted for review by Bespoke.");
+      snackbar.showSuccess("Adjustment created.");
       handleClose();
     }
   };
@@ -97,6 +97,7 @@ export default function CreateAdjustmentModal({
     <Modal
       isPrimaryActionDisabled={isSubmitDisabled}
       title={"Create Adjustment"}
+      contentWidth={800}
       primaryActionText={"Submit"}
       handleClose={handleClose}
       handlePrimaryAction={handleClickSubmit}

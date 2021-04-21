@@ -20,6 +20,7 @@ import {
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { useMemo, useState } from "react";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -51,6 +52,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function BankPaymentsActionRequiredTab() {
   const classes = useStyles();
+  const history = useHistory();
 
   const { data } = useGetSubmittedPaymentsSubscription();
 
@@ -168,6 +170,9 @@ function BankPaymentsActionRequiredTab() {
             payments={scheduledPayments}
             customerSearchQuery={""}
             selectedPaymentIds={selectedSchedulePaymentIds}
+            onClickCustomerName={(customerId) =>
+              history.push(`/customers/${customerId}/overview`)
+            }
             handleSelectPayments={handleSelectSchedulePayments}
           />
         </Box>
@@ -221,6 +226,9 @@ function BankPaymentsActionRequiredTab() {
             payments={pendingReverseDraftPayments}
             customerSearchQuery={""}
             selectedPaymentIds={selectedSettlePaymentIds}
+            onClickCustomerName={(customerId) =>
+              history.push(`/customers/${customerId}/overview`)
+            }
             handleSelectPayments={handleSelectSettlePayments}
           />
         </Box>
@@ -273,6 +281,9 @@ function BankPaymentsActionRequiredTab() {
             payments={notifyPayments}
             customerSearchQuery={""}
             selectedPaymentIds={selectedNotifyPaymentIds}
+            onClickCustomerName={(customerId) =>
+              history.push(`/customers/${customerId}/overview`)
+            }
             handleSelectPayments={handleSelectNotifyPayments}
           />
         </Box>

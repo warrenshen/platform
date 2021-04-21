@@ -9,7 +9,7 @@ import DataGridActionMenu, {
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
-import { PaymentLimitedFragment, Payments } from "generated/graphql";
+import { Companies, PaymentLimitedFragment, Payments } from "generated/graphql";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
 import { useMemo, useState } from "react";
@@ -29,9 +29,9 @@ interface Props {
   repaymentType?: RepaymentTypeEnum;
   payments: PaymentLimitedFragment[];
   customerSearchQuery?: string;
-  onClickCustomerName?: (value: string) => void;
   actionItems?: DataGridActionItem[];
   selectedPaymentIds?: Payments["id"][];
+  onClickCustomerName?: (customerId: Companies["id"]) => void;
   handleSelectPayments?: (payments: PaymentLimitedFragment[]) => void;
 }
 
@@ -43,9 +43,9 @@ function RepaymentsDataGrid({
   repaymentType = RepaymentTypeEnum.Other,
   payments,
   customerSearchQuery = "",
-  onClickCustomerName,
   actionItems,
   selectedPaymentIds,
+  onClickCustomerName,
   handleSelectPayments,
 }: Props) {
   const isClosed = repaymentType === RepaymentTypeEnum.Closed;
@@ -101,21 +101,24 @@ function RepaymentsDataGrid({
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
         calculateCellValue: ({ company }: any) => company?.name,
-        cellRender: (params: ValueFormatterParams) => (
-          <ClickableDataGridCell
-            label={params.row.data.company.name}
-            onClick={() => {
-              if (onClickCustomerName) {
-                onClickCustomerName(params.row.data.company?.name);
-                dataGrid?.instance.filter([
-                  "company.name",
-                  "=",
-                  params.row.data.company?.name,
-                ]);
-              }
-            }}
-          />
-        ),
+        cellRender: (params: ValueFormatterParams) =>
+          onClickCustomerName ? (
+            <ClickableDataGridCell
+              label={params.row.data.company.name}
+              onClick={() => {
+                if (onClickCustomerName) {
+                  onClickCustomerName(params.row.data.company.id);
+                  dataGrid?.instance.filter([
+                    "company.name",
+                    "=",
+                    params.row.data.company.name,
+                  ]);
+                }
+              }}
+            />
+          ) : (
+            params.row.data.company.name
+          ),
       },
       {
         caption: "Payor",
