@@ -39,11 +39,11 @@ export default function CustomerPaymentsPageContent({ companyId }: Props) {
     >
       <Box>
         {payments.map((payment, index) => (
-          <>
+          <Box key={payment.id}>
             <Box my={4}>
               <Divider />
             </Box>
-            <Box key={payment.id} mt={8}>
+            <Box>
               <Box display="flex" justifyContent="space-between" width="100%">
                 <Typography>{`Payment ${index + 1}`}</Typography>
                 <Typography>{`Method: ${
@@ -85,7 +85,7 @@ export default function CustomerPaymentsPageContent({ companyId }: Props) {
                 </Box>
               ))}
             </Box>
-          </>
+          </Box>
         ))}
       </Box>
     </PageContent>

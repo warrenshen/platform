@@ -148,11 +148,6 @@ def import_settled_repayments(
 		else:
 			print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} for {customer.name} ({customer.identifier}) does not exist, creating it...')
 
-			if parsed_wire_fee > 0:
-				# TODO(warrenshen): support case where wire_fee > 0.
-				print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} with settlement date {settlement_date} includes wire fee payment, skipping...')
-				continue
-
 			repayment = models.Payment(
 				company_id=customer.id,
 				type=PaymentType.REPAYMENT,
@@ -166,7 +161,7 @@ def import_settled_repayments(
 			session.add(repayment)
 			session.flush()
 
-			transaction = models.Transaction(
+			to_loan_transaction = models.Transaction(
 				payment_id=repayment.id,
 				loan_id=loan.id,
 				type=PaymentType.REPAYMENT,
@@ -177,8 +172,23 @@ def import_settled_repayments(
 				to_fees=decimal.Decimal(parsed_to_fees),
 				effective_date=parsed_settlement_date,
 			)
-			session.add(transaction)
+			session.add(to_loan_transaction)
 			session.flush()
+
+			if parsed_wire_fee > 0:
+				to_account_transaction = models.Transaction(
+					payment_id=repayment.id,
+					loan_id=None,
+					type=PaymentType.REPAYMENT,
+					subtype=None,
+					amount=parsed_wire_fee,
+					to_principal=None,
+					to_interest=None,
+					to_fees=None,
+					effective_date=parsed_settlement_date,
+				)
+				session.add(to_account_transaction)
+				session.flush()
 
 			print(f'[{index + 1} of {repayments_count}] Created repayment on loan {parsed_loan_identifier} for {customer.name} ({customer.identifier})')
 

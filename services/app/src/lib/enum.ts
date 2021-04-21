@@ -86,6 +86,7 @@ export enum PaymentMethodEnum {
   Wire = "wire",
   Check = "check",
   Cash = "cash",
+  Unknown = "unknown",
 }
 
 export const PaymentMethodToLabel = {
@@ -94,6 +95,7 @@ export const PaymentMethodToLabel = {
   [PaymentMethodEnum.Wire]: "Wire",
   [PaymentMethodEnum.Check]: "Check",
   [PaymentMethodEnum.Cash]: "Cash",
+  [PaymentMethodEnum.Unknown]: "Unknown",
 };
 
 export const AllPaymentMethods = [
