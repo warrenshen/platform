@@ -16,6 +16,7 @@ import {
   Users,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
+import { BankUserRoles } from "lib/enum";
 import { useContext, useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -122,10 +123,7 @@ function BankSettingsPage() {
                 modal={({ handleClose }) => (
                   <InviteUserModal
                     companyId={null}
-                    userRoles={[
-                      UserRolesEnum.BankAdmin,
-                      UserRolesEnum.BankReadOnly,
-                    ]}
+                    userRoles={BankUserRoles}
                     handleClose={() => {
                       refetchBankUsers();
                       handleClose();
@@ -140,6 +138,7 @@ function BankSettingsPage() {
                   modal={({ handleClose }) => (
                     <EditUserProfileModal
                       userId={selectedUsers[0].id}
+                      userRoles={BankUserRoles}
                       originalUserProfile={selectedUsers[0]}
                       handleClose={() => {
                         refetchBankUsers();

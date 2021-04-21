@@ -179,6 +179,16 @@ export const UserRoleToLabel = {
   [UserRolesEnum.CompanyReadOnly]: "Company User (View Only)",
 };
 
+export const BankUserRoles = [
+  UserRolesEnum.BankAdmin,
+  UserRolesEnum.BankReadOnly,
+];
+
+export const CompanyUserRoles = [
+  UserRolesEnum.CompanyAdmin,
+  UserRolesEnum.CompanyReadOnly,
+];
+
 // Mapping for when we look up loans based on ProductType
 export const ProductTypeToLoanType = {
   [ProductTypeEnum.InventoryFinancing]: LoanTypeEnum.PurchaseOrder,

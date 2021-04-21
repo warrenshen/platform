@@ -17,10 +17,10 @@ import {
   CompanySettingsFragment,
   ContractFragment,
   useListUsersByCompanyIdQuery,
-  UserRolesEnum,
   Users,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
+import { CompanyUserRoles } from "lib/enum";
 import { useContext, useMemo, useState } from "react";
 
 interface Props {
@@ -140,10 +140,7 @@ function Settings({
             modal={({ handleClose }) => (
               <InviteUserModal
                 companyId={companyId}
-                userRoles={[
-                  UserRolesEnum.CompanyAdmin,
-                  UserRolesEnum.CompanyReadOnly,
-                ]}
+                userRoles={CompanyUserRoles}
                 handleClose={() => {
                   refetch();
                   handleClose();
@@ -158,6 +155,7 @@ function Settings({
               modal={({ handleClose }) => (
                 <EditUserProfileModal
                   userId={selectedUsers[0].id}
+                  userRoles={CompanyUserRoles}
                   originalUserProfile={selectedUsers[0]}
                   handleClose={() => {
                     refetch();

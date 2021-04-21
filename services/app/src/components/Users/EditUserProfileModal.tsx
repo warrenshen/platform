@@ -6,18 +6,24 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
+  InputLabel,
   makeStyles,
+  MenuItem,
+  Select,
   TextField,
   Theme,
 } from "@material-ui/core";
 import PhoneInput from "components/Shared/FormInputs/PhoneInput";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   UserFragment,
   UserRolesEnum,
   useUpdateUserMutation,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
-import { useState } from "react";
+import { UserRoleToLabel } from "lib/enum";
+import { useContext, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -26,9 +32,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     dialogTitle: {
       borderBottom: "1px solid #c7c7c7",
-    },
-    usersInput: {
-      margin: theme.spacing(1),
     },
     dialogActions: {
       margin: theme.spacing(2),
@@ -41,17 +44,23 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   userId: string;
+  userRoles: UserRolesEnum[];
   originalUserProfile: UserFragment;
   handleClose: () => void;
 }
 
 function EditUserProfileModal({
   userId,
+  userRoles,
   originalUserProfile,
   handleClose,
 }: Props) {
   const snackbar = useSnackbar();
   const classes = useStyles();
+
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
 
   const [userProfile, setUserProfile] = useState(originalUserProfile);
 
@@ -69,72 +78,77 @@ function EditUserProfileModal({
       </DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column">
-          <TextField
-            label="First Name"
-            className={classes.usersInput}
-            value={userProfile.first_name}
-            onChange={({ target: { value } }) => {
-              setUserProfile({
-                ...userProfile,
-                first_name: value,
-              });
-            }}
-          />
-          <TextField
-            label="Last Name"
-            className={classes.usersInput}
-            value={userProfile.last_name}
-            onChange={({ target: { value } }) => {
-              setUserProfile({
-                ...userProfile,
-                last_name: value,
-              });
-            }}
-          />
-          <TextField
-            disabled={true}
-            label="Email"
-            className={classes.usersInput}
-            value={userProfile.email}
-            onChange={({ target: { value } }) => {
-              setUserProfile({
-                ...userProfile,
-                email: value,
-              });
-            }}
-          />
-          <PhoneInput
-            value={userProfile.phone_number || null}
-            handleChange={(value) =>
-              setUserProfile({
-                ...userProfile,
-                phone_number: value,
-              })
-            }
-          />
-          <TextField
-            disabled={true}
-            label="Role"
-            className={classes.usersInput}
-            value={userProfile.role}
-            onChange={({ target: { value } }) => {
-              let roleEnum = null;
-              if (value === UserRolesEnum.BankAdmin) {
-                roleEnum = UserRolesEnum.BankAdmin;
-              } else if (value === UserRolesEnum.CompanyAdmin) {
-                roleEnum = UserRolesEnum.CompanyAdmin;
+          <Box display="flex" flexDirection="column" mt={4}>
+            <FormControl>
+              <InputLabel id="user-role-select-label">User Role</InputLabel>
+              <Select
+                disabled={role !== UserRolesEnum.BankAdmin} // ONLY bank ADMINs can edit role of a user.
+                required
+                labelId="user-role-select-label"
+                value={userProfile.role || ""}
+                onChange={({ target: { value } }) =>
+                  setUserProfile({
+                    ...userProfile,
+                    role: value as UserRolesEnum,
+                  })
+                }
+              >
+                {userRoles.map((userRole) => (
+                  <MenuItem key={userRole} value={userRole}>
+                    {UserRoleToLabel[userRole]}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+          <Box display="flex" flexDirection="column" mt={4}>
+            <TextField
+              label="First Name"
+              value={userProfile.first_name}
+              onChange={({ target: { value } }) =>
+                setUserProfile({
+                  ...userProfile,
+                  first_name: value,
+                })
               }
-
-              if (!roleEnum) {
-                return;
+            />
+          </Box>
+          <Box display="flex" flexDirection="column" mt={4}>
+            <TextField
+              label="Last Name"
+              value={userProfile.last_name}
+              onChange={({ target: { value } }) =>
+                setUserProfile({
+                  ...userProfile,
+                  last_name: value,
+                })
               }
-
-              setUserProfile({
-                ...userProfile,
-                role: roleEnum,
-              });
-            }}
-          />
+            />
+          </Box>
+          <Box display="flex" flexDirection="column" mt={4}>
+            <TextField
+              disabled={true}
+              label="Email"
+              value={userProfile.email}
+              onChange={({ target: { value } }) =>
+                setUserProfile({
+                  ...userProfile,
+                  email: value,
+                })
+              }
+            />
+          </Box>
+          <Box display="flex" flexDirection="column" mt={4}>
+            <PhoneInput
+              value={userProfile.phone_number || null}
+              handleChange={(value) =>
+                setUserProfile({
+                  ...userProfile,
+                  phone_number: value,
+                })
+              }
+            />
+          </Box>
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
@@ -152,6 +166,7 @@ function EditUserProfileModal({
                 variables: {
                   id: userProfile.id,
                   user: {
+                    role: userProfile.role,
                     first_name: userProfile.first_name,
                     last_name: userProfile.last_name,
                     phone_number: userProfile.phone_number,

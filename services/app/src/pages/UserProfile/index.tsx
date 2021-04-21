@@ -16,6 +16,7 @@ import {
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
 import { useUserByIdQuery } from "generated/graphql";
+import { BankUserRoles, CompanyUserRoles } from "lib/enum";
 import { useContext, useState } from "react";
 
 const useStyles = makeStyles({
@@ -29,6 +30,7 @@ function UserProfile() {
   const classes = useStyles();
 
   const { user: currentUser } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(currentUser?.role);
 
   const [open, setOpen] = useState(false);
 
@@ -45,7 +47,8 @@ function UserProfile() {
       <PageContent title={"Users"}>
         {user && open && (
           <EditUserProfileModal
-            userId={currentUser.id}
+            userId={user.id}
+            userRoles={isBankUser ? BankUserRoles : CompanyUserRoles}
             originalUserProfile={user}
             handleClose={() => setOpen(false)}
           />
