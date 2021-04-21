@@ -555,6 +555,7 @@ class RespondToApprovalRequestView(MethodView):
 					'purchase_order_number': purchase_order_number,
 					'purchase_order_amount': purchase_order_amount,
 					'purchase_order_requested_date': purchase_order_requested_date,
+					'is_autofinancing_enabled': submit_resp['triggered_by_autofinancing'],
 				}
 				recipients = customer_emails + sendgrid_client.get_bank_notify_email_addresses()
 			else:

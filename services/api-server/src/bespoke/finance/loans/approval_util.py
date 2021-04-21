@@ -33,15 +33,16 @@ def send_loan_approval_requested_email(
 	sendgrid_client: sendgrid_util.Client,
 	submit_resp: SubmitForApprovalRespDict,
 ) -> Tuple[bool, errors.Error]:
-	template_name = sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_LOAN
 	template_data = {
 		'customer_name': submit_resp['customer_name'],
 		'loan_html': submit_resp['loan_html'],
 		'triggered_by_autofinancing': submit_resp['triggered_by_autofinancing'],
 	}
-	recipients = sendgrid_client.get_bank_notify_email_addresses()
 	_, err = sendgrid_client.send(
-		template_name, template_data, recipients)
+		template_name=sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_LOAN,
+		template_data=template_data,
+		recipients=sendgrid_client.get_bank_notify_email_addresses(),
+	)
 	if err:
 		return None, err
 
@@ -118,7 +119,7 @@ def approve_loans(
 					).first())
 
 				success, err = _check_artifact_limit(
-					artifact_id=str(loan.artifact_id), 
+					artifact_id=str(loan.artifact_id),
 					artifact_amount=float(purchase_order.amount),
 					artifact_display_name='Purchase Order',
 					session=session,
@@ -198,7 +199,7 @@ def submit_for_approval(
 		artifact_id = str(loan.artifact_id)
 
 		success, err = _check_artifact_limit(
-			artifact_id=artifact_id, 
+			artifact_id=artifact_id,
 			artifact_amount=float(purchase_order.amount),
 			artifact_display_name='Purchase Order',
 			session=session,
