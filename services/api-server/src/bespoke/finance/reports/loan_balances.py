@@ -27,7 +27,7 @@ from bespoke.db.db_constants import LoanStatusEnum, ProductType
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util, number_util
 from bespoke.finance.fetchers import per_customer_fetcher
-from bespoke.finance.loans import loan_calculator, fee_util
+from bespoke.finance.loans import fee_util, loan_calculator
 from bespoke.finance.loans.fee_util import FeeDict
 from bespoke.finance.loans.loan_calculator import LoanUpdateDict
 from bespoke.finance.payments import payment_util
@@ -126,8 +126,8 @@ def _get_account_level_balance(customer_info: per_customer_types.CustomerFinanci
 		elif tx_type in db_constants.CREDIT_TO_USER_TYPES:
 			credits_total += tx['amount']
 		else:
-			return None, errors.Error('Transaction {} has a type "{}" which is neither a fee nor a credit to a user. This implies an unregistered or incorrect transaction type'.format(
-				tx['id'], tx_type))
+			return None, errors.Error(
+				f'Transaction {tx["id"]} has a type "{tx_type}" which is neither a fee nor a credit to a user. This implies an unregistered or incorrect transaction type')
 
 	return AccountBalanceDict(
 		fees_total=number_util.round_currency(fees_total),
@@ -231,7 +231,7 @@ class CustomerBalance(object):
 		if err:
 			raise err
 
-		# NOTE: Consider an argument that allows someone who runs a report to 
+		# NOTE: Consider an argument that allows someone who runs a report to
 		# to specify the start date, not just the report date.
 		#
 		# For now, we just assume the start date is today.

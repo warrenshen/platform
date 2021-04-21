@@ -139,7 +139,7 @@ def import_settled_repayments(
 			).filter(
 				models.Transaction.effective_date == parsed_settlement_date
 			).filter(
-				models.Transaction.amount == parsed_amount
+				models.Transaction.amount == amount_to_loan
 			).first())
 
 		if existing_repayment_transaction:
@@ -152,7 +152,7 @@ def import_settled_repayments(
 				company_id=customer.id,
 				type=PaymentType.REPAYMENT,
 				method=PaymentMethodEnum.UNKNOWN,
-				amount=amount_to_loan,
+				amount=parsed_amount,
 				deposit_date=parsed_deposit_date,
 				settlement_date=parsed_settlement_date,
 				submitted_at=parsed_submitted_at,
@@ -181,10 +181,10 @@ def import_settled_repayments(
 					loan_id=None,
 					type=PaymentType.REPAYMENT,
 					subtype=None,
-					amount=parsed_wire_fee,
-					to_principal=None,
-					to_interest=None,
-					to_fees=None,
+					amount=amount_to_account,
+					to_principal=decimal.Decimal(0.0),
+					to_interest=decimal.Decimal(0.0),
+					to_fees=decimal.Decimal(0.0),
 					effective_date=parsed_settlement_date,
 				)
 				session.add(to_account_transaction)

@@ -761,7 +761,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			# any of the loan updates
 			payment_util.create_and_add_account_level_fee(
 				company_id=company_id,
-				subtype='wire_fee', amount=1000.01, 
+				subtype='wire_fee', amount=1000.01,
 				originating_payment_id=advance_tx.payment_id,
 				created_by_user_id=seed.get_user_id('bank_admin'),
 				payment_date=date_util.load_date_str('10/01/2020'),
@@ -771,7 +771,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 			payment_util.create_and_add_account_level_fee(
 				company_id=company_id,
-				subtype='wire_fee', amount=2000.01, 
+				subtype='wire_fee', amount=2000.01,
 				originating_payment_id=advance_tx.payment_id,
 				created_by_user_id=seed.get_user_id('bank_admin'),
 				payment_date=date_util.load_date_str('10/01/2020'),
@@ -781,7 +781,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 			payment_util.create_and_add_credit_to_user(
 				company_id=company_id,
-				amount=3000.02, 
+				amount=3000.02,
 				payment_id=advance_tx.payment_id,
 				created_by_user_id=seed.get_user_id('bank_admin'),
 				payment_date=date_util.load_date_str('10/01/2020'),
@@ -791,7 +791,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 			payment_util.create_and_add_credit_to_user(
 				company_id=company_id,
-				amount=4000.02, 
+				amount=4000.02,
 				payment_id=advance_tx.payment_id,
 				created_by_user_id=seed.get_user_id('bank_admin'),
 				payment_date=date_util.load_date_str('10/01/2020'),
