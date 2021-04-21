@@ -56,16 +56,18 @@ interface Props {
   onCodeSubmitted: () => void;
 }
 
-const sendTwoFactorSMSMessage = async (req: {
+const sendTwoFactorMessage = async (req: {
   link_val: string | null;
 }): Promise<{
   status: string;
   msg: string;
   phone_number: string;
+  email: string;
+  message_method: string;
   link_type: string;
 }> => {
   return unAuthenticatedApi
-    .post(twoFactorRoutes.sendTwoFactorSMSCode, req)
+    .post(twoFactorRoutes.sendTwoFactorCode, req)
     .then((res) => {
       return res.data;
     })
@@ -83,7 +85,7 @@ const sendTwoFactorSMSMessage = async (req: {
     );
 };
 
-function AuthenticateViaPhonePage({
+function AuthenticateViaTwoFactorPage({
   linkVal,
   codeEntered,
   setCodeEntered,
@@ -92,18 +94,23 @@ function AuthenticateViaPhonePage({
   const classes = useStyles();
   const snackbar = useSnackbar();
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
   const [linkType, setLinkType] = useState<string>("");
+  const [messageMethod, setMessageMethod] = useState<string>("phone");
+
   const sentMessageOnLoad = useRef(false);
 
   const handleClickResend = useCallback(() => {
-    sendTwoFactorSMSMessage({ link_val: linkVal }).then(function (resp) {
+    sendTwoFactorMessage({ link_val: linkVal }).then(function (resp) {
       if (resp.status !== "OK") {
-        snackbar.showError("Failed to send sms message: " + resp.msg);
+        snackbar.showError("Failed to send message: " + resp.msg);
         return;
       }
       // Fill in some details for the UI
       setPhoneNumber(resp.phone_number);
       setLinkType(resp.link_type);
+      setMessageMethod(resp.message_method);
+      setEmail(resp.email);
 
       if (resp.link_type === "forgot_password") {
         // In the forgot_password case, we immediately request that we pull out
@@ -145,17 +152,33 @@ function AuthenticateViaPhonePage({
     );
   }
 
+  const hasContactInfo =
+    messageMethod === "phone" ? phoneNumber.length > 0 : email.length > 0;
+
+  const authenticateTitle =
+    messageMethod === "phone"
+      ? "Authentiate via phone (2FA)"
+      : "Authenticate via email (2FA)";
+
+  const msgToUser =
+    messageMethod === "phone"
+      ? `For security reasons, please authenticate via phone to continue. A text message with a code was sent to ${phoneNumber}. If this phone number is incorrect, please contact Bespoke Financial.`
+      : `For security reasons, please authenticate via email to continue. An email with a code was sent to ${email}. If this email is incorrect, please contact Bespoke Financial`;
+
+  const resendMsg =
+    messageMethod === "phone"
+      ? "Resend code via text message"
+      : "Resend code via email";
+
   return (
     <Box className={classes.wrapper}>
       <Box className={classes.container}>
         <Box display="flex" flexDirection="column">
-          <Typography variant="h5">Authentiate via phone (2FA)</Typography>
-          {phoneNumber ? (
+          <Typography variant="h5">{authenticateTitle}</Typography>
+          {hasContactInfo ? (
             <Box>
               <Box mt={2}>
-                <Typography variant="body2">
-                  {`For security reasons, please authenticate via phone to continue. A text message with a code was sent to ${phoneNumber}. If this phone number is incorrect, please contact Bespoke Financial.`}
-                </Typography>
+                <Typography variant="body2">{msgToUser}</Typography>
               </Box>
               <Box display="flex" flexDirection="column" mt={3}>
                 <TextField
@@ -181,7 +204,7 @@ function AuthenticateViaPhonePage({
                   color={"primary"}
                   onClick={handleClickResend}
                 >
-                  Resend code via text message
+                  {resendMsg}
                 </Button>
               </Box>
             </Box>
@@ -189,7 +212,7 @@ function AuthenticateViaPhonePage({
             <Box>
               <Box mt={1}>
                 <Typography variant="body2">
-                  {`Error: we do not have your phone number in our records. Please contact Bespoke Financial to set up a phone number.`}
+                  {`Error: we do not have your contact information in our records. Please contact Bespoke Financial to set up your contact information.`}
                 </Typography>
               </Box>
             </Box>
@@ -200,4 +223,4 @@ function AuthenticateViaPhonePage({
   );
 }
 
-export default AuthenticateViaPhonePage;
+export default AuthenticateViaTwoFactorPage;

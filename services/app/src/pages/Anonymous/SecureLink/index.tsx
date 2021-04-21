@@ -5,7 +5,7 @@ import { setAccessToken, setRefreshToken } from "lib/auth/tokenStorage";
 import { anonymousRoutes } from "lib/routes";
 import { useCallback, useContext, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
-import AuthenticateViaPhonePage from "../AuthenticateViaPhone";
+import AuthenticateViaTwoFactorPage from "../AuthenticateViaTwoFactor";
 
 type FormInfo = {
   type: string;
@@ -102,7 +102,7 @@ function SecureLink() {
   }, [linkVal, history, resetUser, codeEntered, snackbar]);
 
   return (
-    <AuthenticateViaPhonePage
+    <AuthenticateViaTwoFactorPage
       linkVal={linkVal}
       codeEntered={codeEntered}
       setCodeEntered={setCodeEntered}

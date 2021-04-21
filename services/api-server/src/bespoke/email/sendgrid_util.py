@@ -64,6 +64,7 @@ class TemplateNames(object):
 	USER_PAYOR_INVITED_TO_PLATFORM = 'user_payor_invited_to_platform'
 	USER_INVITED_TO_PLATFORM = 'user_invited_to_platform'
 	USER_FORGOT_PASSWORD = 'user_forgot_password'
+	USER_TWO_FACTOR_CODE = 'user_two_factor_code'
 
 	OPS_TRIGGER_NOTIFICATION = 'ops_trigger_notification'
 
@@ -195,6 +196,10 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 	TemplateNames.USER_FORGOT_PASSWORD: {
 		'id': 'd-7a8a3b36662a45d5bdaa03441b6715b0',
 		'requires_secure_link': True
+	},
+	TemplateNames.USER_TWO_FACTOR_CODE: {
+		'id': 'd-7aacf432a38c4d35bedc736b3a6ac18d',
+		'requires_secure_link': False
 	},
 
 	TemplateNames.OPS_TRIGGER_NOTIFICATION: {

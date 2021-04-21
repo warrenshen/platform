@@ -22,12 +22,17 @@ from server.views.common import auth_util, handler_util
 handler = Blueprint('two_factor', __name__)
 
 
-class SendSMSCodeView(MethodView):
+class SendCodeView(MethodView):
+	"""
+		Sends either an email or SMS to authenticate via two factor.
+	"""
 
 	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
 		cfg = cast(Config, current_app.app_config)
 		sms_client = cast(two_factor_util.SMSClient, current_app.sms_client)
+		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
+
 		form = json.loads(request.data)
 		if not form:
 			raise errors.Error('No data provided')
@@ -57,7 +62,7 @@ class SendSMSCodeView(MethodView):
 				.first()
 			if not existing_user:
 				raise errors.Error('No user found matching email "{}"'.format(email))
-			
+
 			link_type = cast(Dict, two_factor_link.form_info).get('type', '')
 			if link_type == db_constants.TwoFactorLinkType.FORGOT_PASSWORD:
 				# Forgot your password links dont require 2FA
@@ -67,30 +72,52 @@ class SendSMSCodeView(MethodView):
 					'link_type': link_type
 				}))
 
-			# Look up the phone number for this user
-			to_phone_number = existing_user.phone_number
-			if not to_phone_number:
-				raise errors.Error('A phone number must first be specified for the user associated with email "{}"'.format(email))
+			company_settings = session.query(models.CompanySettings) \
+				.filter(models.CompanySettings.company_id == existing_user.company_id) \
+				.first()
+			if not company_settings:
+				raise errors.Error('No company settings associated with your user. Cannot proceed')
 
 			token_val = security_util.mfa_code_generator()
 
+			# Send two-factor code via SMS for everyone
+			to_phone_number = ''
+			message_method = 'phone'
+
+			if company_settings.two_factor_message_method == 'email':
+				message_method = 'email'
+				_, err = sendgrid_client.send(
+					sendgrid_util.TemplateNames.USER_TWO_FACTOR_CODE,
+					template_data={'token_val': token_val},
+					recipients=[email],
+				)
+				if err:
+					raise err
+			else:
+				# Look up the phone number for this user and send that message
+				to_phone_number = existing_user.phone_number
+				if not to_phone_number:
+					raise errors.Error('A phone number must first be specified for the user associated with email "{}"'.format(email))
+
+				_, err = sms_client.send_text_message(
+					to_=to_phone_number,
+					msg='Your Bespoke two-factor code is {}'.format(token_val)
+				)
+				if err:
+					raise err
+
+			# Save two-factor code secret in the DB
 			token_states_dict[email] = {
 				'token_val': token_val,
 				'expires_in': date_util.datetime_to_str(date_util.now() + timedelta(minutes=5))
 			}
 			cast(Callable, flag_modified)(two_factor_link, 'token_states')
 
-		# Send two-factor code via SMS for everyone
-		_, err = sms_client.send_text_message(
-			to_=to_phone_number,
-			msg='Your Bespoke two-factor code is {}'.format(token_val)
-		)
-		if err:
-			raise err
-
 		return make_response(json.dumps({
 			'status': 'OK',
 			'phone_number': to_phone_number,
+			'email': email,
+			'message_method': message_method,
 			'link_type': link_type
 		}), 200)
 
@@ -198,4 +225,4 @@ handler.add_url_rule(
 	'/get_secure_link_payload', view_func=GetSecureLinkPayloadView.as_view(name='get_secure_link_payload_view'))
 
 handler.add_url_rule(
-	'/send_sms_code', view_func=SendSMSCodeView.as_view(name='send_sms_code_view'))
+	'/send_code', view_func=SendCodeView.as_view(name='send_code_view'))
