@@ -1,12 +1,9 @@
 import {
   Box,
-  createStyles,
   FormControl,
   InputLabel,
-  makeStyles,
   MenuItem,
   Select,
-  Theme,
   Typography,
 } from "@material-ui/core";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
@@ -19,19 +16,11 @@ import {
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
-import { createLoanCustomerIdentifier } from "lib/loans";
+import {
+  createLoanCustomerIdentifier,
+  createLoanDisbursementIdentifier,
+} from "lib/loans";
 import { useMemo } from "react";
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    inputField: {
-      width: 300,
-    },
-    loanInputField: {
-      width: "100%",
-    },
-  })
-);
 
 interface Props {
   payment: PaymentsInsertInput;
@@ -48,8 +37,6 @@ function AdjustmentForm({
   setPayment,
   setTransaction,
 }: Props) {
-  const classes = useStyles();
-
   const selectedLoans = useMemo(() => {
     const selectedLoan = loans.find((loan) => loan.id === transaction.loan_id);
     return selectedLoan ? [selectedLoan] : [];
@@ -64,8 +51,8 @@ function AdjustmentForm({
           outstanding interest).
         </Typography>
       </Box>
-      <Box display="flex" flexDirection="row" mt={3}>
-        <FormControl className={classes.loanInputField}>
+      <Box display="flex" flexDirection="column" mt={3}>
+        <FormControl>
           <InputLabel id="loan-select-label">Loan</InputLabel>
           <Select
             disabled={loans.length <= 0}
@@ -85,6 +72,8 @@ function AdjustmentForm({
             {loans.map((loan) => (
               <MenuItem key={loan.id} value={loan.id}>
                 {`${createLoanCustomerIdentifier(
+                  loan
+                )} | ${createLoanDisbursementIdentifier(
                   loan
                 )} | Amount: ${formatCurrency(
                   loan.amount,
@@ -112,7 +101,6 @@ function AdjustmentForm({
       <Box display="flex" flexDirection="column" mt={3}>
         <DatePicker
           disableNonBankDays
-          className={classes.inputField}
           id="deposit-date-date-picker"
           label="Deposit Date"
           value={payment.deposit_date}
@@ -127,7 +115,6 @@ function AdjustmentForm({
       <Box display="flex" flexDirection="column" mt={3}>
         <DatePicker
           disableNonBankDays
-          className={classes.inputField}
           id="settlement-date-date-picker"
           label="Settlement Date"
           value={payment.settlement_date}
@@ -139,12 +126,12 @@ function AdjustmentForm({
           }
         />
       </Box>
-      <Box mt={3}>
+      <Box display="flex" flexDirection="column" mt={3}>
         <Typography variant="subtitle2">
           How much do you want to adjust outstanding principal by?
         </Typography>
-        <Box mt={1}>
-          <FormControl className={classes.inputField}>
+        <Box display="flex" flexDirection="column" mt={1}>
+          <FormControl>
             <CurrencyInput
               label={"To Principal"}
               value={transaction.to_principal}
@@ -158,12 +145,12 @@ function AdjustmentForm({
           </FormControl>
         </Box>
       </Box>
-      <Box mt={3}>
+      <Box display="flex" flexDirection="column" mt={3}>
         <Typography variant="subtitle2">
           How much do you want to adjust outstanding interest by?
         </Typography>
-        <Box mt={1}>
-          <FormControl className={classes.inputField}>
+        <Box display="flex" flexDirection="column" mt={1}>
+          <FormControl>
             <CurrencyInput
               label={"To Interest"}
               value={transaction.to_interest}
@@ -177,12 +164,12 @@ function AdjustmentForm({
           </FormControl>
         </Box>
       </Box>
-      <Box mt={3}>
+      <Box display="flex" flexDirection="column" mt={3}>
         <Typography variant="subtitle2">
           How much do you want to adjust outstanding late fees by?
         </Typography>
-        <Box mt={1}>
-          <FormControl className={classes.inputField}>
+        <Box display="flex" flexDirection="column" mt={1}>
+          <FormControl>
             <CurrencyInput
               label={"To Fees"}
               value={transaction.to_fees}

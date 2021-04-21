@@ -1,14 +1,6 @@
-import {
-  Button,
-  createStyles,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  makeStyles,
-  Theme,
-} from "@material-ui/core";
+import { createStyles, makeStyles, Theme } from "@material-ui/core";
 import AdjustmentForm from "components/Loans/AdjustmentForm";
+import Modal from "components/Shared/Modal/Modal";
 import {
   Companies,
   PaymentsInsertInput,
@@ -46,7 +38,11 @@ interface Props {
 }
 
 // Only bank users can create an adjustment.
-function CreateAdjustmentModal({ companyId, productType, handleClose }: Props) {
+export default function CreateAdjustmentModal({
+  companyId,
+  productType,
+  handleClose,
+}: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
 
@@ -117,33 +113,20 @@ function CreateAdjustmentModal({ companyId, productType, handleClose }: Props) {
     isCreateAdjustmentLoading;
 
   return (
-    <Dialog open fullWidth maxWidth="md" onClose={handleClose}>
-      <DialogTitle className={classes.dialogTitle}>
-        Create Adjustment
-      </DialogTitle>
-      <DialogContent style={{ minHeight: 400 }}>
-        <AdjustmentForm
-          payment={payment}
-          transaction={transaction}
-          loans={loans}
-          setPayment={setPayment}
-          setTransaction={setTransaction}
-        />
-      </DialogContent>
-      <DialogActions className={classes.dialogActions}>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button
-          className={classes.submitButton}
-          disabled={isSubmitDisabled}
-          onClick={handleClickSubmit}
-          variant={"contained"}
-          color={"primary"}
-        >
-          Submit
-        </Button>
-      </DialogActions>
-    </Dialog>
+    <Modal
+      isPrimaryActionDisabled={isSubmitDisabled}
+      title={"Create Adjustment"}
+      primaryActionText={"Submit"}
+      handleClose={handleClose}
+      handlePrimaryAction={handleClickSubmit}
+    >
+      <AdjustmentForm
+        payment={payment}
+        transaction={transaction}
+        loans={loans}
+        setPayment={setPayment}
+        setTransaction={setTransaction}
+      />
+    </Modal>
   );
 }
-
-export default CreateAdjustmentModal;

@@ -85,6 +85,10 @@ function CustomerOverviewPageContent({ companyId, productType }: Props) {
   const loans = company?.outstanding_loans || [];
   const canCreateUpdateNewLoan =
     financialSummary?.available_limit && financialSummary?.available_limit > 0;
+  const canCreateRepaymentLoan =
+    financialSummary?.total_outstanding_principal > 0 ||
+    financialSummary?.total_outstanding_interest > 0 ||
+    financialSummary?.total_outstanding_fees;
 
   const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
 
@@ -156,6 +160,7 @@ function CustomerOverviewPageContent({ companyId, productType }: Props) {
           <Can perform={Action.RepayPurchaseOrderLoans}>
             <Box>
               <ModalButton
+                isDisabled={!canCreateRepaymentLoan}
                 label={"Make Payment"}
                 modal={({ handleClose }) => (
                   <CreateRepaymentModal
@@ -219,6 +224,7 @@ function CustomerOverviewPageContent({ companyId, productType }: Props) {
               <Can perform={Action.RepayPurchaseOrderLoans}>
                 <Box>
                   <ModalButton
+                    isDisabled={!canCreateRepaymentLoan}
                     label={"Make Payment"}
                     modal={({ handleClose }) => (
                       <CreateRepaymentModal
@@ -284,6 +290,7 @@ function CustomerOverviewPageContent({ companyId, productType }: Props) {
               <Box display="flex" flexDirection="row-reverse" mb={2}>
                 <Can perform={Action.RepayPurchaseOrderLoans}>
                   <ModalButton
+                    isDisabled={!canCreateRepaymentLoan}
                     label={"Make Payment"}
                     modal={({ handleClose }) => (
                       <CreateRepaymentModal
