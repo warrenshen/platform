@@ -34,7 +34,7 @@ import BankPurchaseOrdersPage from "pages/Bank/PurchaseOrders";
 import BankReportsPage from "pages/Bank/Reports";
 import BankSettingsPage from "pages/Bank/Settings";
 import BankVendorsPage from "pages/Bank/Vendors";
-import CustomerAccountPage from "pages/Customer/Account";
+import CustomerAccountPage from "pages/Customer/AccountFeesCredits";
 import CustomerContractPage from "pages/Customer/Contract";
 import CustomerEbbaApplicationsPage from "pages/Customer/EbbaApplications";
 import CustomerInvoicesPages from "pages/Customer/Invoices";

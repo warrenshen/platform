@@ -7,10 +7,15 @@ import {
   Typography,
 } from "@material-ui/core";
 import GaugeProgressBar from "components/Shared/ProgressBar/GaugeProgressBar";
-import { FinancialSummaryFragment } from "generated/graphql";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
+import { Companies, FinancialSummaryFragment } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { customerRoutes } from "lib/routes";
 import { round } from "lodash";
+import { useContext } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
@@ -20,6 +25,7 @@ const LinkText = styled.span`
 `;
 
 interface Props {
+  companyId: Companies["id"];
   financialSummary: FinancialSummaryFragment | null;
 }
 
@@ -32,8 +38,16 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function CustomerFinancialSummaryOverview({ financialSummary }: Props) {
+function CustomerFinancialSummaryOverview({
+  companyId,
+  financialSummary,
+}: Props) {
   const classes = useStyles();
+
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(role);
 
   const minimumFeePayload = financialSummary?.minimum_monthly_payload;
   const accountBalancePayload = financialSummary?.account_level_balance_payload;
@@ -74,6 +88,10 @@ function CustomerFinancialSummaryOverview({ financialSummary }: Props) {
     ? (100 * outstandingAmount) / financialSummary.adjusted_total_limit
     : 100;
   const roundedLimitPercent = round(rawLimitPercent, 1);
+
+  const customerAccountFeesCreditsRoute = isBankUser
+    ? `/customers/${companyId}/account`
+    : customerRoutes.account;
 
   return (
     <Box display="flex" flexDirection="column" mt={2}>
@@ -177,7 +195,7 @@ function CustomerFinancialSummaryOverview({ financialSummary }: Props) {
               Accrued Account Fees
             </Typography>
             <Link
-              to={customerRoutes.account}
+              to={customerAccountFeesCreditsRoute}
               style={{ textDecoration: "none" }}
             >
               <LinkText>View details</LinkText>
@@ -193,7 +211,7 @@ function CustomerFinancialSummaryOverview({ financialSummary }: Props) {
               Holding Account Credits
             </Typography>
             <Link
-              to={customerRoutes.account}
+              to={customerAccountFeesCreditsRoute}
               style={{ textDecoration: "none" }}
             >
               <LinkText>View details</LinkText>

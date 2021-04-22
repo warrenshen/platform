@@ -209,6 +209,7 @@ function CustomerOverviewPageContent({ companyId, productType }: Props) {
       <Box className={classes.container}>
         <Box className={classes.section}>
           <CustomerFinancialSummaryOverview
+            companyId={companyId}
             financialSummary={financialSummary}
           />
         </Box>

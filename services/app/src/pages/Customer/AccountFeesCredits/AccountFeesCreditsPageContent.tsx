@@ -179,27 +179,6 @@ export default function CustomerAccountPageContent({
             <Typography variant="h6">Account Fees</Typography>
           </Box>
           <Box display="flex" flexDirection="row-reverse" mb={2}>
-            {productType === ProductTypeEnum.LineOfCredit && (
-              <Can perform={Action.RepayPurchaseOrderLoans}>
-                <Box>
-                  <ModalButton
-                    isDisabled={!canCreateRepaymentLoan}
-                    label={"Make Payment"}
-                    modal={({ handleClose }) => (
-                      <CreateRepaymentModal
-                        companyId={companyId}
-                        productType={productType}
-                        initiallySelectedLoanIds={[]}
-                        handleClose={() => {
-                          refetch();
-                          handleClose();
-                        }}
-                      />
-                    )}
-                  />
-                </Box>
-              </Can>
-            )}
             {!!selectedPaymentId && (
               <Can perform={Action.DeleteRepayments}>
                 <ModalButton

@@ -18,6 +18,7 @@ import {
   useRouteMatch,
 } from "react-router-dom";
 import styled from "styled-components";
+import BankCustomerAccountFeesCreditsSubpage from "./AccountFeesCredits";
 import BankCustomerEbbaApplicationsSubpage from "./EbbaApplications";
 import BankCustomerInvoicesSubpage from "./Invoices";
 import BankCustomerLoansSubpage from "./Loans";
@@ -120,6 +121,11 @@ const getCustomerPaths = (productType: ProductTypeEnum) => [
     path: bankRoutes.customer.settings,
     component: BankCustomerSettingsSubpage,
     label: "Settings",
+  },
+  {
+    visible: false,
+    path: bankRoutes.customer.accountFeesCredits,
+    component: BankCustomerAccountFeesCreditsSubpage,
   },
 ];
 

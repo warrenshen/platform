@@ -45,6 +45,7 @@ export const bankRoutes = {
   overview: "/overview",
   customerRoot: "/customers/:companyId",
   customer: {
+    accountFeesCredits: "/account",
     contract: "/contract",
     ebbaApplications: "/borrowing-base",
     loans: "/loans",
