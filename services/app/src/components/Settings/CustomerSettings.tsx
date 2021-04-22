@@ -2,7 +2,7 @@ import { Box, Typography } from "@material-ui/core";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBankAccountModal";
 import CompanySettingsCard from "components/Settings/CompanySettingsCard";
-import EditCompanySettingsModal from "components/Settings/EditCompanySettingsModal";
+import EditCustomerSettingsModal from "components/Settings/EditCustomerSettingsModal";
 import Can from "components/Shared/Can";
 import CompanyInfo from "components/Shared/CompanyProfile/CompanyInfo";
 import ModalButton from "components/Shared/Modal/ModalButton";
@@ -79,7 +79,7 @@ function Settings({
         </Box>
         <Box mt={3}>
           {accountSettingsOpen && (
-            <EditCompanySettingsModal
+            <EditCustomerSettingsModal
               companyId={companyId}
               existingSettings={settings}
               handleClose={() => {

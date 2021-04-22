@@ -15,7 +15,7 @@ import {
 import {
   CompanySettingsForCustomerFragment,
   CompanySettingsFragment,
-  useUpdateCompanySettingsMutation,
+  useUpdateCustomerSettingsMutation,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { ChangeEvent, useState } from "react";
@@ -61,13 +61,13 @@ function EditAccountSettingsModal({
   const snackbar = useSnackbar();
   const classes = useStyles();
 
-  const [updateCompanySettings] = useUpdateCompanySettingsMutation();
+  const [updateCustomerSettings] = useUpdateCustomerSettingsMutation();
   const [settings, setSettings] = useState<
     CompanySettingsFragment | CompanySettingsForCustomerFragment
   >(existingSettings);
 
   const handleClickSave = async () => {
-    const response = await updateCompanySettings({
+    const response = await updateCustomerSettings({
       variables: {
         companySettingsId: settings.id,
         vendorAgreementTemplateLink:
@@ -78,9 +78,9 @@ function EditAccountSettingsModal({
 
     const savedCompanySettings = response.data?.update_company_settings_by_pk;
     if (!savedCompanySettings) {
-      snackbar.showError("Error! Could not update company settings.");
+      snackbar.showError("Could not update settings.");
     } else {
-      snackbar.showSuccess("Success! Updated company settings.");
+      snackbar.showSuccess("Updated settings.");
       handleClose();
     }
   };

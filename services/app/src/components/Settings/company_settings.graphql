@@ -1,11 +1,11 @@
-query GetCompanySettings($companySettingsId: uuid!) {
-  company_settings_by_pk(id: $companySettingsId) {
+query GetCompanySettings($company_settings_id: uuid!) {
+  company_settings_by_pk(id: $company_settings_id) {
     ...CompanySettings
   }
 }
 
 # Account-level settings which can be modified in the EditAccountSettings component
-mutation UpdateCompanySettings(
+mutation UpdateCustomerSettings(
   $companySettingsId: uuid!
   $vendorAgreementTemplateLink: String
   $hasAutofinancing: Boolean
@@ -16,6 +16,18 @@ mutation UpdateCompanySettings(
       vendor_agreement_docusign_template: $vendorAgreementTemplateLink
       has_autofinancing: $hasAutofinancing
     }
+  ) {
+    ...CompanySettings
+  }
+}
+
+mutation UpdateCompanySettings(
+  $company_settings_id: uuid!
+  $company_settings: company_settings_set_input!
+) {
+  update_company_settings_by_pk(
+    pk_columns: { id: $company_settings_id }
+    _set: $company_settings
   ) {
     ...CompanySettings
   }

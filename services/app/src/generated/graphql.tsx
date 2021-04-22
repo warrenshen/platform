@@ -2839,6 +2839,7 @@ export type CompanySettings = {
   has_autofinancing?: Maybe<Scalars["Boolean"]>;
   id: Scalars["uuid"];
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  two_factor_message_method?: Maybe<Scalars["String"]>;
   updated_at: Scalars["timestamptz"];
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
 };
@@ -2892,6 +2893,7 @@ export type CompanySettingsBoolExp = {
   has_autofinancing?: Maybe<BooleanComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   payor_agreement_docusign_template?: Maybe<StringComparisonExp>;
+  two_factor_message_method?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
   vendor_agreement_docusign_template?: Maybe<StringComparisonExp>;
 };
@@ -2916,6 +2918,7 @@ export type CompanySettingsInsertInput = {
   has_autofinancing?: Maybe<Scalars["Boolean"]>;
   id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  two_factor_message_method?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
 };
@@ -2929,6 +2932,7 @@ export type CompanySettingsMaxFields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  two_factor_message_method?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
 };
@@ -2942,6 +2946,7 @@ export type CompanySettingsMaxOrderBy = {
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   payor_agreement_docusign_template?: Maybe<OrderBy>;
+  two_factor_message_method?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_agreement_docusign_template?: Maybe<OrderBy>;
 };
@@ -2955,6 +2960,7 @@ export type CompanySettingsMinFields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  two_factor_message_method?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
 };
@@ -2968,6 +2974,7 @@ export type CompanySettingsMinOrderBy = {
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   payor_agreement_docusign_template?: Maybe<OrderBy>;
+  two_factor_message_method?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_agreement_docusign_template?: Maybe<OrderBy>;
 };
@@ -3007,6 +3014,7 @@ export type CompanySettingsOrderBy = {
   has_autofinancing?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   payor_agreement_docusign_template?: Maybe<OrderBy>;
+  two_factor_message_method?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_agreement_docusign_template?: Maybe<OrderBy>;
 };
@@ -3035,6 +3043,8 @@ export enum CompanySettingsSelectColumn {
   /** column name */
   PayorAgreementDocusignTemplate = "payor_agreement_docusign_template",
   /** column name */
+  TwoFactorMessageMethod = "two_factor_message_method",
+  /** column name */
   UpdatedAt = "updated_at",
   /** column name */
   VendorAgreementDocusignTemplate = "vendor_agreement_docusign_template",
@@ -3050,6 +3060,7 @@ export type CompanySettingsSetInput = {
   has_autofinancing?: Maybe<Scalars["Boolean"]>;
   id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  two_factor_message_method?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
 };
@@ -3072,6 +3083,8 @@ export enum CompanySettingsUpdateColumn {
   Id = "id",
   /** column name */
   PayorAgreementDocusignTemplate = "payor_agreement_docusign_template",
+  /** column name */
+  TwoFactorMessageMethod = "two_factor_message_method",
   /** column name */
   UpdatedAt = "updated_at",
   /** column name */
@@ -16130,6 +16143,33 @@ export type GetPaymentsForCompanyQuery = {
   >;
 };
 
+export type GetCompanySettingsQueryVariables = Exact<{
+  company_settings_id: Scalars["uuid"];
+}>;
+
+export type GetCompanySettingsQuery = {
+  company_settings_by_pk?: Maybe<CompanySettingsFragment>;
+};
+
+export type UpdateCustomerSettingsMutationVariables = Exact<{
+  companySettingsId: Scalars["uuid"];
+  vendorAgreementTemplateLink?: Maybe<Scalars["String"]>;
+  hasAutofinancing?: Maybe<Scalars["Boolean"]>;
+}>;
+
+export type UpdateCustomerSettingsMutation = {
+  update_company_settings_by_pk?: Maybe<CompanySettingsFragment>;
+};
+
+export type UpdateCompanySettingsMutationVariables = Exact<{
+  company_settings_id: Scalars["uuid"];
+  company_settings: CompanySettingsSetInput;
+}>;
+
+export type UpdateCompanySettingsMutation = {
+  update_company_settings_by_pk?: Maybe<CompanySettingsFragment>;
+};
+
 export type GetContractQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -16140,24 +16180,6 @@ export type GetContractQuery = {
       company?: Maybe<Pick<Companies, "id" | "name">>;
     } & ContractFragment
   >;
-};
-
-export type GetCompanySettingsQueryVariables = Exact<{
-  companySettingsId: Scalars["uuid"];
-}>;
-
-export type GetCompanySettingsQuery = {
-  company_settings_by_pk?: Maybe<CompanySettingsFragment>;
-};
-
-export type UpdateCompanySettingsMutationVariables = Exact<{
-  companySettingsId: Scalars["uuid"];
-  vendorAgreementTemplateLink?: Maybe<Scalars["String"]>;
-  hasAutofinancing?: Maybe<Scalars["Boolean"]>;
-}>;
-
-export type UpdateCompanySettingsMutation = {
-  update_company_settings_by_pk?: Maybe<CompanySettingsFragment>;
 };
 
 export type GetUserQueryVariables = Exact<{
@@ -16651,7 +16673,7 @@ export type GetVendorPartnershipForBankQuery = {
       vendor: {
         settings: Pick<CompanySettings, "id"> & {
           collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
-        };
+        } & CompanySettingsFragment;
         users: Array<ContactFragment>;
       } & ThirdPartyFragment;
       vendor_bank_account?: Maybe<
@@ -16878,6 +16900,7 @@ export type CompanySettingsFragment = Pick<
   | "vendor_agreement_docusign_template"
   | "collections_bespoke_bank_account_id"
   | "has_autofinancing"
+  | "two_factor_message_method"
 >;
 
 export type VendorFragment = Pick<
@@ -17308,6 +17331,7 @@ export const CompanySettingsFragmentDoc = gql`
     vendor_agreement_docusign_template
     collections_bespoke_bank_account_id
     has_autofinancing
+    two_factor_message_method
   }
 `;
 export const VendorFragmentDoc = gql`
@@ -21566,6 +21590,180 @@ export type GetPaymentsForCompanyQueryResult = Apollo.QueryResult<
   GetPaymentsForCompanyQuery,
   GetPaymentsForCompanyQueryVariables
 >;
+export const GetCompanySettingsDocument = gql`
+  query GetCompanySettings($company_settings_id: uuid!) {
+    company_settings_by_pk(id: $company_settings_id) {
+      ...CompanySettings
+    }
+  }
+  ${CompanySettingsFragmentDoc}
+`;
+
+/**
+ * __useGetCompanySettingsQuery__
+ *
+ * To run a query within a React component, call `useGetCompanySettingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompanySettingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCompanySettingsQuery({
+ *   variables: {
+ *      company_settings_id: // value for 'company_settings_id'
+ *   },
+ * });
+ */
+export function useGetCompanySettingsQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetCompanySettingsQuery,
+    GetCompanySettingsQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetCompanySettingsQuery,
+    GetCompanySettingsQueryVariables
+  >(GetCompanySettingsDocument, baseOptions);
+}
+export function useGetCompanySettingsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCompanySettingsQuery,
+    GetCompanySettingsQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetCompanySettingsQuery,
+    GetCompanySettingsQueryVariables
+  >(GetCompanySettingsDocument, baseOptions);
+}
+export type GetCompanySettingsQueryHookResult = ReturnType<
+  typeof useGetCompanySettingsQuery
+>;
+export type GetCompanySettingsLazyQueryHookResult = ReturnType<
+  typeof useGetCompanySettingsLazyQuery
+>;
+export type GetCompanySettingsQueryResult = Apollo.QueryResult<
+  GetCompanySettingsQuery,
+  GetCompanySettingsQueryVariables
+>;
+export const UpdateCustomerSettingsDocument = gql`
+  mutation UpdateCustomerSettings(
+    $companySettingsId: uuid!
+    $vendorAgreementTemplateLink: String
+    $hasAutofinancing: Boolean
+  ) {
+    update_company_settings_by_pk(
+      pk_columns: { id: $companySettingsId }
+      _set: {
+        vendor_agreement_docusign_template: $vendorAgreementTemplateLink
+        has_autofinancing: $hasAutofinancing
+      }
+    ) {
+      ...CompanySettings
+    }
+  }
+  ${CompanySettingsFragmentDoc}
+`;
+export type UpdateCustomerSettingsMutationFn = Apollo.MutationFunction<
+  UpdateCustomerSettingsMutation,
+  UpdateCustomerSettingsMutationVariables
+>;
+
+/**
+ * __useUpdateCustomerSettingsMutation__
+ *
+ * To run a mutation, you first call `useUpdateCustomerSettingsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCustomerSettingsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCustomerSettingsMutation, { data, loading, error }] = useUpdateCustomerSettingsMutation({
+ *   variables: {
+ *      companySettingsId: // value for 'companySettingsId'
+ *      vendorAgreementTemplateLink: // value for 'vendorAgreementTemplateLink'
+ *      hasAutofinancing: // value for 'hasAutofinancing'
+ *   },
+ * });
+ */
+export function useUpdateCustomerSettingsMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateCustomerSettingsMutation,
+    UpdateCustomerSettingsMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    UpdateCustomerSettingsMutation,
+    UpdateCustomerSettingsMutationVariables
+  >(UpdateCustomerSettingsDocument, baseOptions);
+}
+export type UpdateCustomerSettingsMutationHookResult = ReturnType<
+  typeof useUpdateCustomerSettingsMutation
+>;
+export type UpdateCustomerSettingsMutationResult = Apollo.MutationResult<UpdateCustomerSettingsMutation>;
+export type UpdateCustomerSettingsMutationOptions = Apollo.BaseMutationOptions<
+  UpdateCustomerSettingsMutation,
+  UpdateCustomerSettingsMutationVariables
+>;
+export const UpdateCompanySettingsDocument = gql`
+  mutation UpdateCompanySettings(
+    $company_settings_id: uuid!
+    $company_settings: company_settings_set_input!
+  ) {
+    update_company_settings_by_pk(
+      pk_columns: { id: $company_settings_id }
+      _set: $company_settings
+    ) {
+      ...CompanySettings
+    }
+  }
+  ${CompanySettingsFragmentDoc}
+`;
+export type UpdateCompanySettingsMutationFn = Apollo.MutationFunction<
+  UpdateCompanySettingsMutation,
+  UpdateCompanySettingsMutationVariables
+>;
+
+/**
+ * __useUpdateCompanySettingsMutation__
+ *
+ * To run a mutation, you first call `useUpdateCompanySettingsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCompanySettingsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCompanySettingsMutation, { data, loading, error }] = useUpdateCompanySettingsMutation({
+ *   variables: {
+ *      company_settings_id: // value for 'company_settings_id'
+ *      company_settings: // value for 'company_settings'
+ *   },
+ * });
+ */
+export function useUpdateCompanySettingsMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateCompanySettingsMutation,
+    UpdateCompanySettingsMutationVariables
+  >
+) {
+  return Apollo.useMutation<
+    UpdateCompanySettingsMutation,
+    UpdateCompanySettingsMutationVariables
+  >(UpdateCompanySettingsDocument, baseOptions);
+}
+export type UpdateCompanySettingsMutationHookResult = ReturnType<
+  typeof useUpdateCompanySettingsMutation
+>;
+export type UpdateCompanySettingsMutationResult = Apollo.MutationResult<UpdateCompanySettingsMutation>;
+export type UpdateCompanySettingsMutationOptions = Apollo.BaseMutationOptions<
+  UpdateCompanySettingsMutation,
+  UpdateCompanySettingsMutationVariables
+>;
 export const GetContractDocument = gql`
   query GetContract($id: uuid!) {
     contracts_by_pk(id: $id) {
@@ -21625,124 +21823,6 @@ export type GetContractLazyQueryHookResult = ReturnType<
 export type GetContractQueryResult = Apollo.QueryResult<
   GetContractQuery,
   GetContractQueryVariables
->;
-export const GetCompanySettingsDocument = gql`
-  query GetCompanySettings($companySettingsId: uuid!) {
-    company_settings_by_pk(id: $companySettingsId) {
-      ...CompanySettings
-    }
-  }
-  ${CompanySettingsFragmentDoc}
-`;
-
-/**
- * __useGetCompanySettingsQuery__
- *
- * To run a query within a React component, call `useGetCompanySettingsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCompanySettingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCompanySettingsQuery({
- *   variables: {
- *      companySettingsId: // value for 'companySettingsId'
- *   },
- * });
- */
-export function useGetCompanySettingsQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    GetCompanySettingsQuery,
-    GetCompanySettingsQueryVariables
-  >
-) {
-  return Apollo.useQuery<
-    GetCompanySettingsQuery,
-    GetCompanySettingsQueryVariables
-  >(GetCompanySettingsDocument, baseOptions);
-}
-export function useGetCompanySettingsLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetCompanySettingsQuery,
-    GetCompanySettingsQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    GetCompanySettingsQuery,
-    GetCompanySettingsQueryVariables
-  >(GetCompanySettingsDocument, baseOptions);
-}
-export type GetCompanySettingsQueryHookResult = ReturnType<
-  typeof useGetCompanySettingsQuery
->;
-export type GetCompanySettingsLazyQueryHookResult = ReturnType<
-  typeof useGetCompanySettingsLazyQuery
->;
-export type GetCompanySettingsQueryResult = Apollo.QueryResult<
-  GetCompanySettingsQuery,
-  GetCompanySettingsQueryVariables
->;
-export const UpdateCompanySettingsDocument = gql`
-  mutation UpdateCompanySettings(
-    $companySettingsId: uuid!
-    $vendorAgreementTemplateLink: String
-    $hasAutofinancing: Boolean
-  ) {
-    update_company_settings_by_pk(
-      pk_columns: { id: $companySettingsId }
-      _set: {
-        vendor_agreement_docusign_template: $vendorAgreementTemplateLink
-        has_autofinancing: $hasAutofinancing
-      }
-    ) {
-      ...CompanySettings
-    }
-  }
-  ${CompanySettingsFragmentDoc}
-`;
-export type UpdateCompanySettingsMutationFn = Apollo.MutationFunction<
-  UpdateCompanySettingsMutation,
-  UpdateCompanySettingsMutationVariables
->;
-
-/**
- * __useUpdateCompanySettingsMutation__
- *
- * To run a mutation, you first call `useUpdateCompanySettingsMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateCompanySettingsMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateCompanySettingsMutation, { data, loading, error }] = useUpdateCompanySettingsMutation({
- *   variables: {
- *      companySettingsId: // value for 'companySettingsId'
- *      vendorAgreementTemplateLink: // value for 'vendorAgreementTemplateLink'
- *      hasAutofinancing: // value for 'hasAutofinancing'
- *   },
- * });
- */
-export function useUpdateCompanySettingsMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdateCompanySettingsMutation,
-    UpdateCompanySettingsMutationVariables
-  >
-) {
-  return Apollo.useMutation<
-    UpdateCompanySettingsMutation,
-    UpdateCompanySettingsMutationVariables
-  >(UpdateCompanySettingsDocument, baseOptions);
-}
-export type UpdateCompanySettingsMutationHookResult = ReturnType<
-  typeof useUpdateCompanySettingsMutation
->;
-export type UpdateCompanySettingsMutationResult = Apollo.MutationResult<UpdateCompanySettingsMutation>;
-export type UpdateCompanySettingsMutationOptions = Apollo.BaseMutationOptions<
-  UpdateCompanySettingsMutation,
-  UpdateCompanySettingsMutationVariables
 >;
 export const GetUserDocument = gql`
   query GetUser($id: uuid!) {
@@ -22897,6 +22977,7 @@ export const GetVendorPartnershipForBankDocument = gql`
         ...ThirdParty
         settings {
           id
+          ...CompanySettings
           collections_bespoke_bank_account {
             ...BankAccount
           }

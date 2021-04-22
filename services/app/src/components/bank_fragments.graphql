@@ -38,6 +38,7 @@ fragment CompanySettings on company_settings {
   vendor_agreement_docusign_template
   collections_bespoke_bank_account_id
   has_autofinancing
+  two_factor_message_method
 }
 
 ## Purchase Order Financing

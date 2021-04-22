@@ -72,7 +72,7 @@ function ApproveVendor(props: Props) {
     }
     if (!vendor.settings.collections_bespoke_bank_account) {
       snackbar.showError(
-        "Vendor does not have a bank account setup for Bespoke to collect from"
+        "Vendor does not have a bank account setup for Bespoke to send advances to"
       );
       return false;
     }

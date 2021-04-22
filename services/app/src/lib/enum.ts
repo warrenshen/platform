@@ -212,3 +212,18 @@ export const CompanyTypeToDisplayUpper = {
   [CompanyTypeEnum.Payor]: "Payor",
   [CompanyTypeEnum.Customer]: "Customer",
 };
+
+export enum TwoFactorMessageMethodEnum {
+  Email = "email",
+  Phone = "phone",
+}
+
+export const TwoFactorMessageMethodToLabel = {
+  [TwoFactorMessageMethodEnum.Email]: "Email",
+  [TwoFactorMessageMethodEnum.Phone]: "Phone",
+};
+
+export const AllTwoFactorMessageMethods = [
+  TwoFactorMessageMethodEnum.Email,
+  TwoFactorMessageMethodEnum.Phone,
+];

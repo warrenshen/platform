@@ -20167,6 +20167,18 @@
             "deprecationReason": null
           },
           {
+            "name": "two_factor_message_method",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "updated_at",
             "description": null,
             "args": [],
@@ -20572,6 +20584,16 @@
             "defaultValue": null
           },
           {
+            "name": "two_factor_message_method",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "String_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "updated_at",
             "description": null,
             "type": {
@@ -20740,6 +20762,16 @@
             "defaultValue": null
           },
           {
+            "name": "two_factor_message_method",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "updated_at",
             "description": null,
             "type": {
@@ -20854,6 +20886,18 @@
             "deprecationReason": null
           },
           {
+            "name": "two_factor_message_method",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "updated_at",
             "description": null,
             "args": [],
@@ -20951,6 +20995,16 @@
           },
           {
             "name": "payor_agreement_docusign_template",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "two_factor_message_method",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -21074,6 +21128,18 @@
             "deprecationReason": null
           },
           {
+            "name": "two_factor_message_method",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "updated_at",
             "description": null,
             "args": [],
@@ -21171,6 +21237,16 @@
           },
           {
             "name": "payor_agreement_docusign_template",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "two_factor_message_method",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -21474,6 +21550,16 @@
             "defaultValue": null
           },
           {
+            "name": "two_factor_message_method",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "updated_at",
             "description": null,
             "type": {
@@ -21580,6 +21666,12 @@
             "deprecationReason": null
           },
           {
+            "name": "two_factor_message_method",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "updated_at",
             "description": "column name",
             "isDeprecated": false,
@@ -21681,6 +21773,16 @@
             "defaultValue": null
           },
           {
+            "name": "two_factor_message_method",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "updated_at",
             "description": null,
             "type": {
@@ -21757,6 +21859,12 @@
           },
           {
             "name": "payor_agreement_docusign_template",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "two_factor_message_method",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

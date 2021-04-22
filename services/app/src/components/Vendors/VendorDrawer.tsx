@@ -11,7 +11,9 @@ import * as Sentry from "@sentry/react";
 import Can from "components/Shared/Can";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileUploadDropzone from "components/Shared/File/UploadDropzone";
+import ModalButton from "components/Shared/Modal/ModalButton";
 import ContactsList from "components/ThirdParties/ContactsList";
+import UpdateThirdPartyCompanySettingsModal from "components/ThirdParties/UpdateThirdPartyCompanySettingsModal";
 import ApproveVendor from "components/Vendors/VendorDrawer/Actions/ApproveVendor";
 import BankAccount from "components/Vendors/VendorDrawer/BankAccount";
 import VendorInfo from "components/Vendors/VendorDrawer/VendorInfo";
@@ -26,7 +28,11 @@ import {
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { Action } from "lib/auth/rbac-rules";
-import { FileTypeEnum } from "lib/enum";
+import {
+  FileTypeEnum,
+  TwoFactorMessageMethodEnum,
+  TwoFactorMessageMethodToLabel,
+} from "lib/enum";
 import { InventoryNotifier } from "lib/notifications/inventory";
 import { omit } from "lodash";
 import { useMemo } from "react";
@@ -91,8 +97,8 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
     return null;
   }
 
-  const vendor = data.company_vendor_partnerships_by_pk.vendor;
   const customer = data.company_vendor_partnerships_by_pk.company;
+  const vendor = data.company_vendor_partnerships_by_pk.vendor;
 
   const customerName = customer?.name;
 
@@ -230,7 +236,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
             />
           </Box>
         </Box>
-        <Typography variant="h6"> Notifications </Typography>
+        <Typography variant="h6">Notifications</Typography>
         <Can perform={Action.SendVendorAgreements}>
           <Box mt={1} mb={2}>
             <SendVendorAgreements
@@ -242,8 +248,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
             />
           </Box>
         </Can>
-
-        <Typography variant="h6"> Actions </Typography>
+        <Typography variant="h6">Actions</Typography>
         <Can perform={Action.ApproveVendor}>
           <Box mt={1} mb={2}>
             <ApproveVendor
@@ -257,6 +262,34 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
             />
           </Box>
         </Can>
+        <Typography variant="h6">Settings</Typography>
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2" color="textSecondary">
+            2FA Method
+          </Typography>
+          {!!vendor.settings.two_factor_message_method
+            ? TwoFactorMessageMethodToLabel[
+                vendor.settings
+                  .two_factor_message_method as TwoFactorMessageMethodEnum
+              ]
+            : "None"}
+        </Box>
+        <Box mt={2}>
+          <ModalButton
+            label={"Edit"}
+            color="default"
+            variant="outlined"
+            modal={({ handleClose }) => (
+              <UpdateThirdPartyCompanySettingsModal
+                companySettingsId={vendor.settings.id}
+                handleClose={() => {
+                  refetch();
+                  handleClose();
+                }}
+              />
+            )}
+          />
+        </Box>
       </Box>
     </Drawer>
   );
