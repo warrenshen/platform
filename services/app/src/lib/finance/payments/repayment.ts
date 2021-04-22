@@ -42,6 +42,7 @@ export async function calculateRepaymentEffectMutation(req: {
     company_id: string;
     payment_option: string;
     amount: number;
+    deposit_date: string;
     settlement_date: string;
     loan_ids: string[];
   };

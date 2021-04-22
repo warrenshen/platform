@@ -134,6 +134,7 @@ function CreateRepaymentModal({
         // We use payment.requested_amount here since we want to calculate what is
         // the effect of this repayment assumption its amount is the requested amount.
         amount: payment.requested_amount,
+        deposit_date: payment.requested_payment_date,
         settlement_date: payment.settlement_date,
         loan_ids: payment.items_covered.loan_ids,
       },

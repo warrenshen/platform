@@ -103,6 +103,7 @@ class CalculateRepaymentEffectView(MethodView):
 			'company_id',
 			'payment_option',
 			'amount',
+			'deposit_date',
 			'settlement_date',
 			'loan_ids',
 		]
@@ -119,6 +120,7 @@ class CalculateRepaymentEffectView(MethodView):
 		company_id = form['company_id']
 		payment_option = form['payment_option']
 		amount = form['amount']
+		deposit_date = form['deposit_date']
 		settlement_date = form['settlement_date']
 		loan_ids = form['loan_ids']
 
@@ -128,6 +130,7 @@ class CalculateRepaymentEffectView(MethodView):
 			company_id,
 			payment_option,
 			amount,
+			deposit_date,
 			settlement_date,
 			loan_ids,
 			current_app.session_maker,

@@ -283,7 +283,7 @@ class CustomerBalance(object):
 			transactions_for_loan = loan_id_to_transactions[loan['id']]
 
 			calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
-			loan_update_dict, errors_list = calculator.calculate_loan_balance(
+			calculate_result, errors_list = calculator.calculate_loan_balance(
 				threshold_info,
 				loan,
 				transactions_for_loan,
@@ -297,6 +297,7 @@ class CustomerBalance(object):
 
 				all_errors.extend(errors_list)
 			else:
+				loan_update_dict = calculate_result['loan_update']
 				loan_update_dicts.append(loan_update_dict)
 
 		if all_errors:

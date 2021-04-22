@@ -143,6 +143,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
         company_id: customer.id,
         payment_option: PaymentOptionEnum.CustomAmount,
         amount: payment.amount,
+        deposit_date: payment.deposit_date,
         settlement_date: payment.settlement_date,
         loan_ids: payment.items_covered.loan_ids,
       },

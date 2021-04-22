@@ -15,6 +15,12 @@ from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 
+class RepaymentOption(object):
+
+	CUSTOM_AMOUNT = 'custom_amount'
+	PAY_MINIMUM_DUE = 'pay_minimum_due'
+	PAY_IN_FULL = 'pay_in_full'
+
 PaymentItemsCoveredDict = TypedDict('PaymentItemsCoveredDict', {
 	'loan_ids': List[str],
 	'invoice_ids': List[str],
