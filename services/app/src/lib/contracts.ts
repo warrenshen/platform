@@ -37,6 +37,7 @@ export enum ContractTermNames {
   WireFee = "wire_fee",
   PrecedingBusinessDay = "preceeding_business_day",
   ClearanceDaysStructure = "repayment_type_settlement_timeline",
+  Timezone = "timezone",
 }
 
 const ContractTermNameToConfigs = {
@@ -142,6 +143,12 @@ const ContractTermNameToConfigs = {
     [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]:
       "The additional number of days after a payment deposit until the loan is closed",
+    [ContractTermConfigs.IsHiddenIfNull]: false,
+  },
+  [ContractTermNames.Timezone]: {
+    [ContractTermConfigs.BankDescription]: "",
+    [ContractTermConfigs.CustomerDescription]:
+      "Used to determine submission cut-off times for financing requests",
     [ContractTermConfigs.IsHiddenIfNull]: false,
   },
 };

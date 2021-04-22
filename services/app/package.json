@@ -50,6 +50,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.1",
     "react-use": "^15.3.4",
+    "select-timezone-material-ui": "^2.6.0",
     "styled-components": "^5.2.3",
     "subscriptions-transport-ws": "^0.9.18",
     "typescript": "^4.1.2",

@@ -24,6 +24,7 @@ import {
 import { AllProductTypes, ProductTypeToLabel } from "lib/enum";
 import { groupBy } from "lodash";
 import { ChangeEvent, useMemo } from "react";
+import SelectTimezoneMaterialUi from "select-timezone-material-ui";
 
 const useStyles = makeStyles({
   section: {
@@ -183,6 +184,17 @@ function ContractTermsForm({
             required={!item.nullable}
             value={item.value || null}
             onChange={(value: any) => findAndReplaceInJSON(item, value)}
+          />
+        );
+      case item.type === "timezone":
+        return (
+          <SelectTimezoneMaterialUi
+            id={item.internal_name}
+            label="Timezone"
+            helperText="Please select a timezone from the list"
+            onChange={(value: any) => {
+              findAndReplaceInJSON(item, value);
+            }}
           />
         );
       case item.type === "float":

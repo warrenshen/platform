@@ -130,6 +130,14 @@
         "nullable": false
       },
       {
+        "section": "Financing Terms",
+        "type": "timezone",
+        "internal_name": "timezone",
+        "display_name": "Timezone",
+        "value": null,
+        "nullable": false
+      },
+      {
         "section": "Settlement",
         "type": "json",
         "fields": [
