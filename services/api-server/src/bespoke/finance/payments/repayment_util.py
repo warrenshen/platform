@@ -1024,7 +1024,6 @@ def settle_repayment(
 				amount=to_user_credit,
 				payment_id=req['payment_id'],
 				created_by_user_id=user_id,
-				payment_date=deposit_date,
 				effective_date=settlement_date,
 				session=session
 			)

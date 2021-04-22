@@ -1,6 +1,6 @@
 import Page from "components/Shared/Page";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import CustomerLoansPageContent from "pages/Customer/Loans/LoansPageContent";
+import CustomerAccountPageContent from "pages/Customer/Account/AccountPageContent";
 import { useContext } from "react";
 
 export default function CustomerAccountPage() {
@@ -11,7 +11,7 @@ export default function CustomerAccountPage() {
   return (
     <Page appBarTitle={"Account"}>
       {companyId && productType && (
-        <CustomerLoansPageContent
+        <CustomerAccountPageContent
           companyId={companyId}
           productType={productType}
         />

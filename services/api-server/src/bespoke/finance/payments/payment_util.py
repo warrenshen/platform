@@ -146,7 +146,7 @@ def is_adjustment(p: Union[models.PaymentDict, models.TransactionDict]) -> bool:
 	return p['type'] in db_constants.ADJUSTMENT_TYPES
 
 def should_close_loan(
-	new_outstanding_principal: float, new_outstanding_interest: float, 
+	new_outstanding_principal: float, new_outstanding_interest: float,
 	new_outstanding_fees: float) -> bool:
 	return new_outstanding_principal <= 0.0 \
 				and new_outstanding_interest <= 0.0 \
@@ -222,7 +222,6 @@ def create_and_add_credit_to_user(
 	amount: float,
 	payment_id: str,
 	created_by_user_id: str,
-	payment_date: datetime.date,
 	effective_date: datetime.date,
 	session: Session) -> models.Transaction:
 

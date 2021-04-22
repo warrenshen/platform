@@ -9,7 +9,15 @@ import {
 import GaugeProgressBar from "components/Shared/ProgressBar/GaugeProgressBar";
 import { FinancialSummaryFragment } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
+import { customerRoutes } from "lib/routes";
 import { round } from "lodash";
+import { Link } from "react-router-dom";
+import styled from "styled-components";
+
+const LinkText = styled.span`
+  color: rgba(118, 147, 98, 1);
+  font-size: 14px;
+`;
 
 interface Props {
   financialSummary: FinancialSummaryFragment | null;
@@ -19,6 +27,7 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     box: {
       width: "20%",
+      paddingRight: 12,
     },
   })
 );
@@ -165,8 +174,14 @@ function CustomerFinancialSummaryOverview({ financialSummary }: Props) {
               {accountFees !== -1 ? formatCurrency(accountFees) : "TBD"}
             </Typography>
             <Typography variant="subtitle1" color="textSecondary">
-              Account Fees
+              Accrued Account Fees
             </Typography>
+            <Link
+              to={customerRoutes.account}
+              style={{ textDecoration: "none" }}
+            >
+              <LinkText>View details</LinkText>
+            </Link>
           </Box>
         </Box>
         <Box className={classes.box}>
@@ -175,8 +190,14 @@ function CustomerFinancialSummaryOverview({ financialSummary }: Props) {
               {accountCredits !== -1 ? formatCurrency(accountCredits) : "TBD"}
             </Typography>
             <Typography variant="subtitle1" color="textSecondary">
-              Account Credits
+              Holding Account Credits
             </Typography>
+            <Link
+              to={customerRoutes.account}
+              style={{ textDecoration: "none" }}
+            >
+              <LinkText>View details</LinkText>
+            </Link>
           </Box>
         </Box>
       </Box>

@@ -15425,6 +15425,22 @@ export type GetCustomerOverviewQuery = {
   >;
 };
 
+export type GetCustomerAccountQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+}>;
+
+export type GetCustomerAccountQuery = {
+  companies_by_pk?: Maybe<
+    Pick<Companies, "id"> & {
+      financial_summaries: Array<
+        Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
+      >;
+      fee_payments: Array<Pick<Payments, "id"> & PaymentLimitedFragment>;
+      pending_payments: Array<Pick<Payments, "id"> & PaymentLimitedFragment>;
+    }
+  >;
+};
+
 export type GetCustomerForBankQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -17933,6 +17949,108 @@ export type GetCustomerOverviewLazyQueryHookResult = ReturnType<
 export type GetCustomerOverviewQueryResult = Apollo.QueryResult<
   GetCustomerOverviewQuery,
   GetCustomerOverviewQueryVariables
+>;
+export const GetCustomerAccountDocument = gql`
+  query GetCustomerAccount($companyId: uuid!) {
+    companies_by_pk(id: $companyId) {
+      id
+      financial_summaries(
+        order_by: { date: desc }
+        where: { date: { _is_null: false } }
+        limit: 1
+      ) {
+        id
+        ...FinancialSummary
+      }
+      fee_payments: payments(
+        where: {
+          _and: [
+            {
+              _or: [
+                { is_deleted: { _is_null: true } }
+                { is_deleted: { _eq: false } }
+              ]
+            }
+            { type: { _eq: "fee" } }
+          ]
+        }
+        order_by: [{ deposit_date: desc }, { settlement_date: desc }]
+      ) {
+        id
+        ...PaymentLimited
+      }
+      pending_payments: payments(
+        where: {
+          _and: [
+            {
+              _or: [
+                { is_deleted: { _is_null: true } }
+                { is_deleted: { _eq: false } }
+              ]
+            }
+            { type: { _eq: "repayment" } }
+            { submitted_at: { _is_null: false } }
+            { settled_at: { _is_null: true } }
+          ]
+        }
+        order_by: { created_at: asc }
+      ) {
+        id
+        ...PaymentLimited
+      }
+    }
+  }
+  ${FinancialSummaryFragmentDoc}
+  ${PaymentLimitedFragmentDoc}
+`;
+
+/**
+ * __useGetCustomerAccountQuery__
+ *
+ * To run a query within a React component, call `useGetCustomerAccountQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerAccountQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomerAccountQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useGetCustomerAccountQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetCustomerAccountQuery,
+    GetCustomerAccountQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetCustomerAccountQuery,
+    GetCustomerAccountQueryVariables
+  >(GetCustomerAccountDocument, baseOptions);
+}
+export function useGetCustomerAccountLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCustomerAccountQuery,
+    GetCustomerAccountQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetCustomerAccountQuery,
+    GetCustomerAccountQueryVariables
+  >(GetCustomerAccountDocument, baseOptions);
+}
+export type GetCustomerAccountQueryHookResult = ReturnType<
+  typeof useGetCustomerAccountQuery
+>;
+export type GetCustomerAccountLazyQueryHookResult = ReturnType<
+  typeof useGetCustomerAccountLazyQuery
+>;
+export type GetCustomerAccountQueryResult = Apollo.QueryResult<
+  GetCustomerAccountQuery,
+  GetCustomerAccountQueryVariables
 >;
 export const GetCustomerForBankDocument = gql`
   query GetCustomerForBank($id: uuid!) {

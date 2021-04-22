@@ -49,6 +49,56 @@ query GetCustomerOverview($companyId: uuid!, $loanType: loan_type_enum) {
   }
 }
 
+query GetCustomerAccount($companyId: uuid!) {
+  companies_by_pk(id: $companyId) {
+    id
+    financial_summaries(
+      order_by: { date: desc }
+      where: { date: { _is_null: false } }
+      limit: 1
+    ) {
+      id
+      ...FinancialSummary
+    }
+    fee_payments: payments(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { type: { _eq: "fee" } }
+        ]
+      }
+      order_by: [{ deposit_date: desc }, { settlement_date: desc }]
+    ) {
+      id
+      ...PaymentLimited
+    }
+    pending_payments: payments(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { type: { _eq: "repayment" } }
+          { submitted_at: { _is_null: false } }
+          { settled_at: { _is_null: true } }
+        ]
+      }
+      order_by: { created_at: asc }
+    ) {
+      id
+      ...PaymentLimited
+    }
+  }
+}
+
 query GetCustomerForBank($id: uuid!) {
   companies_by_pk(id: $id) {
     id
