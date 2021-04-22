@@ -160,6 +160,7 @@ function Settings({
                   handleClose={() => {
                     refetch();
                     handleClose();
+                    setSelectedUsers([]);
                   }}
                 />
               )}

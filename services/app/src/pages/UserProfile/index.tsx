@@ -34,7 +34,7 @@ function UserProfile() {
 
   const [open, setOpen] = useState(false);
 
-  const { data } = useUserByIdQuery({
+  const { data, refetch } = useUserByIdQuery({
     variables: {
       id: currentUser.id,
     },
@@ -50,7 +50,10 @@ function UserProfile() {
             userId={user.id}
             userRoles={isBankUser ? BankUserRoles : CompanyUserRoles}
             originalUserProfile={user}
-            handleClose={() => setOpen(false)}
+            handleClose={() => {
+              refetch();
+              setOpen(false);
+            }}
           />
         )}
         <Box display="flex">

@@ -73,14 +73,12 @@ function EditUserProfileModal({
       maxWidth="xl"
       classes={{ paper: classes.dialog }}
     >
-      <DialogTitle className={classes.dialogTitle}>
-        Edit User Profile
-      </DialogTitle>
+      <DialogTitle className={classes.dialogTitle}>Edit User</DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column">
           <Box display="flex" flexDirection="column" mt={4}>
             <FormControl>
-              <InputLabel id="user-role-select-label">User Role</InputLabel>
+              <InputLabel id="user-role-select-label">Role</InputLabel>
               <Select
                 disabled={role !== UserRolesEnum.BankAdmin} // ONLY bank ADMINs can edit role of a user.
                 required
@@ -157,29 +155,33 @@ function EditUserProfileModal({
           <Button
             className={classes.submitButton}
             disabled={
+              !userProfile.role ||
               !userProfile.first_name ||
               !userProfile.last_name ||
               !userProfile.email
             }
             onClick={async () => {
-              await updateUser({
+              const response = await updateUser({
                 variables: {
                   id: userProfile.id,
                   user: {
-                    role: userProfile.role,
+                    role:
+                      role === UserRolesEnum.BankAdmin
+                        ? userProfile.role
+                        : undefined,
                     first_name: userProfile.first_name,
                     last_name: userProfile.last_name,
                     phone_number: userProfile.phone_number,
                   },
                 },
-                optimisticResponse: {
-                  update_users_by_pk: {
-                    ...(userProfile as UserFragment),
-                  },
-                },
               });
-              snackbar.showSuccess("Success! User updated.");
-              handleClose();
+              const savedUser = response.data?.update_users_by_pk;
+              if (!savedUser) {
+                snackbar.showError("Could not update user.");
+              } else {
+                snackbar.showSuccess("User updated.");
+                handleClose();
+              }
             }}
             variant="contained"
             color="primary"

@@ -17,7 +17,7 @@ import {
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
 import { BankUserRoles } from "lib/enum";
-import { useContext, useMemo, useState } from "react";
+import { useCallback, useContext, useMemo, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -46,17 +46,22 @@ function BankSettingsPage() {
     user: { role },
   } = useContext(CurrentUserContext);
 
-  const { data: bankAccountsData, refetch } = useGetBespokeBankAccountsQuery();
+  const {
+    data: bankAccountsData,
+    refetch: refetchBankAccounts,
+  } = useGetBespokeBankAccountsQuery();
   const accounts = bankAccountsData?.bank_accounts || [];
 
-  const {
-    data: usersData,
-    refetch: refetchBankUsers,
-  } = useGetUsersByRolesQuery({
+  const { data: usersData, refetch: refetchUsers } = useGetUsersByRolesQuery({
     variables: {
       roles: [UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly],
     },
   });
+
+  const refetch = useCallback(() => {
+    refetchBankAccounts();
+    refetchUsers();
+  }, [refetchBankAccounts, refetchUsers]);
 
   const users = usersData?.users || [];
 
@@ -125,7 +130,7 @@ function BankSettingsPage() {
                     companyId={null}
                     userRoles={BankUserRoles}
                     handleClose={() => {
-                      refetchBankUsers();
+                      refetch();
                       handleClose();
                     }}
                   />
@@ -141,8 +146,9 @@ function BankSettingsPage() {
                       userRoles={BankUserRoles}
                       originalUserProfile={selectedUsers[0]}
                       handleClose={() => {
-                        refetchBankUsers();
+                        refetch();
                         handleClose();
+                        setSelectedUsers([]);
                       }}
                     />
                   )}

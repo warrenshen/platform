@@ -9,16 +9,16 @@ query UserById($id: uuid!) {
   }
 }
 
-mutation UpdateUser($id: uuid!, $user: users_set_input!) {
-  update_users_by_pk(pk_columns: { id: $id }, _set: $user) {
-    ...User
-  }
-}
-
 query UsersByEmail($email: String!) {
   users(where: { email: { _eq: $email } }) {
     id
     company_id
     role
+  }
+}
+
+mutation UpdateUser($id: uuid!, $user: users_set_input!) {
+  update_users_by_pk(pk_columns: { id: $id }, _set: $user) {
+    ...User
   }
 }
