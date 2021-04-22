@@ -311,6 +311,7 @@ def calculate_repayment_effect(
 	payment_to_include = loan_calculator.IncludedPaymentDict(
 		option=payment_option,
 		custom_amount=amount,
+		custom_amount_split=None,
 		deposit_date=payment_deposit_date,
 		settlement_date=payment_settlement_date
 	)
@@ -871,79 +872,133 @@ def settle_repayment(
 				day_threshold_met=None
 			)
 
-		for loan_dict in loan_dicts:
-			calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
-			transactions_for_loan = loan_calculator.get_transactions_for_loan(
-				loan_dict['id'], all_augmented_transactions)
-			calculate_result, errs = calculator.calculate_loan_balance(
-				threshold_info,
-				loan_dict,
-				transactions_for_loan,
-				settlement_date
-			)
-			if errs:
-				raise errors.Error('\n'.join([err.msg for err in errs]))
-
-			loan_update = calculate_result['loan_update']
-
-			# Keep track of what this loan balance is as of the date that this repayment
-			# will settle (so we have to calculate the additional interest and fees that will accrue)
-			loan_dict_and_balance_list.append(LoanDictAndBalance(
-				loan=loan_dict,
-				before_balance=LoanBalanceDict(
-					amount=loan_dict['amount'],
-					outstanding_principal_balance=loan_update['outstanding_principal'],
-					outstanding_interest=loan_update['outstanding_interest'],
-					outstanding_fees=loan_update['outstanding_fees']
-				)
-			))
+		# We basically want to repeat what happens in the calculate repayment effect logic
+		# We want to compute how much will be owed assuming this transaction goes through.
+		# We don't want to go negative on interest or principal, hence we compute what would
+		# be the outstanding principal, interest and fees, run the transaction and ensure that
+		# we don't end up with negative numbers there.
+		loan_dict_and_balance_list = []
 
 		if is_line_of_credit:
 			payment_amount_to_principal = req['items_covered']['to_principal']
 			payment_amount_to_interest = req['items_covered']['to_interest']
-			amount_to_principal_left = payment_amount_to_principal
-			amount_to_interest_left = payment_amount_to_interest
 
 			# Apply in the order of earliest maturity date to latest maturity date
 			# while trying to cover as much of the loan coming due earliest
 			# Also paying off loans and fees takes preference over principal.
-			loan_dict_and_balance_list.sort(key=lambda l: (l['loan']['adjusted_maturity_date'], l['loan']['origination_date'], l['loan']['created_at']))
-			for loan_and_before_balance in loan_dict_and_balance_list:
-				balance_before = loan_and_before_balance['before_balance']
-				loan_dict = loan_and_before_balance['loan']
+			loan_dicts.sort(key=lambda l: (l['adjusted_maturity_date'], l['origination_date'], l['created_at']))
 
-				if (
-					amount_to_principal_left <= 0 and
-					amount_to_interest_left <= 0
-				):
+			payment_to_include = loan_calculator.IncludedPaymentDict(
+				option=payment_util.RepaymentOption.CUSTOM_AMOUNT_FOR_SETTLING_LOC,
+				custom_amount=None,
+				custom_amount_split={
+					'to_principal': payment_amount_to_principal,
+					'to_interest': payment_amount_to_interest,
+					'to_fees': None # Not used when settling an LOC loan
+				},
+				deposit_date=deposit_date,
+				settlement_date=settlement_date
+			)
+
+			for loan_dict in loan_dicts:
+				calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
+				transactions_for_loan = loan_calculator.get_transactions_for_loan(
+					loan_dict['id'], all_augmented_transactions)
+				calculate_result, errs = calculator.calculate_loan_balance(
+					threshold_info,
+					loan_dict,
+					transactions_for_loan,
+					today=settlement_date,
+					payment_to_include=payment_to_include
+				)
+				if errs:
+					raise errors.Error('\n'.join([err.msg for err in errs]))
+
+				before_loan_update = calculate_result['payment_effect']['loan_update_before_payment']
+				cur_transaction = calculate_result['payment_effect']['transaction']
+
+				# Keep track of what this loan balance is as of the date that this repayment
+				# will settle (so we have to calculate the additional interest and fees that will accrue)
+				loan_dict_and_balance_list.append(LoanDictAndBalance(
+					loan=loan_dict,
+					before_balance=LoanBalanceDict(
+						amount=loan_dict['amount'],
+						outstanding_principal_balance=before_loan_update['outstanding_principal'],
+						outstanding_interest=before_loan_update['outstanding_interest'],
+						outstanding_fees=before_loan_update['outstanding_fees']
+					)
+				))
+
+				if cur_transaction['amount'] <= 0:
 					# If there it no amount left to pay (for neither principal nor interest),
 					# skip and do not create a TransactionInputDict.
 					continue
 
-				# Order MATTERS: payment is applied to interest, fees, and principal, in that order.
-				amount_to_interest_left, amount_used_interest = _apply_to(balance_before, 'interest', amount_to_interest_left)
-				amount_to_interest_left, amount_used_fees = _apply_to(balance_before, 'fees', amount_to_interest_left)
-				amount_to_principal_left, amount_used_principal = _apply_to(balance_before, 'principal', amount_to_principal_left)
-
 				transaction_inputs.append(TransactionInputDict(
-					amount=number_util.round_currency(
-						amount_used_fees + amount_used_interest + amount_used_principal),
-					to_principal=number_util.round_currency(amount_used_principal),
-					to_interest=number_util.round_currency(amount_used_interest),
-					to_fees=number_util.round_currency(amount_used_fees)
+					amount=number_util.round_currency(cur_transaction['amount']),
+					to_principal=number_util.round_currency(cur_transaction['to_principal']),
+					to_interest=number_util.round_currency(cur_transaction['to_interest']),
+					to_fees=number_util.round_currency(cur_transaction['to_fees'])
 				))
 
 			# If there is remaining amount to pay (for either principal or interest),
 			# this means this repayment is an over-payment.
+			amount_to_principal_left = payment_to_include['custom_amount_split']['to_principal']
 			amount_to_principal_left = number_util.round_currency(amount_to_principal_left)
 			if amount_to_principal_left > 0.0:
 				raise errors.Error(
-					f'Outstanding principal may not be negative after payment: you must reduce the amount applied to principal by {number_util.to_dollar_format(amount_to_principal_left)}')
+					f'Amount of principal left after payment may not be greater than 0: you must reduce the amount applied to principal by {number_util.to_dollar_format(amount_to_principal_left)}')
 
-			amount_interest_left = number_util.round_currency(amount_to_interest_left)
+			amount_to_interest_left = payment_to_include['custom_amount_split']['to_interest']
+			amount_to_interest_left = number_util.round_currency(amount_to_interest_left)
 			if amount_to_interest_left > 0.0:
 				raise errors.Error(
-					f'Outstanding interest may not be negative after payment: you must reduce the amount applied to interest by {number_util.to_dollar_format(amount_to_interest_left)}')
+					f'Amount of interest left after payment may not be greater than 0: you must reduce the amount applied to interest by {number_util.to_dollar_format(amount_to_interest_left)}')
+		else:
+			# The non-LOC case
+
+			for i in range(len(loan_dicts)):
+				loan_dict = loan_dicts[i]
+				tx_input = transaction_inputs[i]
+				# Calculate each loan separately, as there is one transaction specified by the user
+				# per loan.
+				payment_to_include = loan_calculator.IncludedPaymentDict(
+					option=payment_util.RepaymentOption.CUSTOM_AMOUNT_FOR_SETTLING_NON_LOC_LOAN,
+					custom_amount=None,
+					custom_amount_split={
+						'to_principal': tx_input['to_principal'],
+						'to_interest': tx_input['to_interest'],
+						'to_fees': tx_input['to_fees']
+					},
+					deposit_date=deposit_date,
+					settlement_date=settlement_date
+				)
+				calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
+				transactions_for_loan = loan_calculator.get_transactions_for_loan(
+					loan_dict['id'], all_augmented_transactions)
+				calculate_result, errs = calculator.calculate_loan_balance(
+					threshold_info,
+					loan_dict,
+					transactions_for_loan,
+					today=settlement_date,
+					payment_to_include=payment_to_include
+				)
+				if errs:
+					raise errors.Error('\n'.join([err.msg for err in errs]))
+
+				before_loan_update = calculate_result['payment_effect']['loan_update_before_payment']
+
+				# Keep track of what this loan balance is as of the date that this repayment
+				# will settle (so we have to calculate the additional interest and fees that will accrue)
+				loan_dict_and_balance_list.append(LoanDictAndBalance(
+					loan=loan_dict,
+					before_balance=LoanBalanceDict(
+						amount=loan_dict['amount'],
+						outstanding_principal_balance=before_loan_update['outstanding_principal'],
+						outstanding_interest=before_loan_update['outstanding_interest'],
+						outstanding_fees=before_loan_update['outstanding_fees']
+					)
+				))
 
 		if to_user_credit > 0.0:
 			payment_util.create_and_add_credit_to_user(

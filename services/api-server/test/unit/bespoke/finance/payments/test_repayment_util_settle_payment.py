@@ -407,7 +407,7 @@ class TestSettlePayment(db_unittest.TestCase):
 					]
 				],
 				'payment': {
-					'amount': round(51.02 + 0.31 + 0.03, 2),
+					'amount': round(51.02 + 0.31, 2),
 					'payment_method': 'ach',
 					'payment_date': '10/10/2020',
 					'settlement_date': '10/12/2020',
@@ -417,23 +417,23 @@ class TestSettlePayment(db_unittest.TestCase):
 					'company_bank_account_id': None,
 				},
 				'expected_payment': {
-					'amount': 51.02 + 0.31 + 0.03
+					'amount': 51.02 + 0.31
 				},
 				'transaction_inputs': [
 					{
-						'amount': 51.02 + 0.31 + 0.03,
+						'amount': 51.02 + 0.31,
 						'to_principal': 51.02,
 						'to_interest': 0.31,
-						'to_fees': 0.03,
+						'to_fees': 0.00,
 					}
 				],
 				'expected_transactions': [
 					{
 						'type': db_constants.PaymentType.REPAYMENT,
-						'amount': 51.02 + 0.31 + 0.03,
+						'amount': 51.02 + 0.31,
 						'to_principal': 51.02,
 						'to_interest': 0.31,
-						'to_fees': 0.03,
+						'to_fees': 0.00,
 						'loan_id_index': 0,
 					}
 				],
@@ -1920,7 +1920,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 					'to_user_credit': 0.0,
 				},
 			},
-			'in_err_msg': 'Outstanding principal may not be negative after payment',
+			'in_err_msg': 'Amount of principal left',
 		}
 		self._run_test(test)
 
@@ -1969,7 +1969,7 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 					'to_user_credit': 0.0,
 				},
 			},
-			'in_err_msg': 'Outstanding interest may not be negative after payment',
+			'in_err_msg': 'Amount of interest left',
 		}
 		self._run_test(test)
 
@@ -2020,6 +2020,6 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 					'to_user_credit': 0.0,
 				},
 			},
-			'in_err_msg': 'Outstanding principal may not be negative after payment',
+			'in_err_msg': 'Amount of principal left',
 		}
 		self._run_test(test)

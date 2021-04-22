@@ -33,9 +33,16 @@ ThresholdInfoDict = TypedDict('ThresholdInfoDict', {
 	'day_threshold_met': datetime.date
 })
 
+CustomAmountSplitDict = TypedDict('CustomAmountSplitDict', {
+	'to_principal': float,
+	'to_interest': float,
+	'to_fees': float
+})
+
 IncludedPaymentDict = TypedDict('IncludedPaymentDict', {
 	'option': str, # a value in RepaymentOption
 	'custom_amount': float, # needed when RepaymentOption == 'custom_amount'
+	'custom_amount_split': CustomAmountSplitDict, # Takes precedence over 'custom_amount'. This is used when creating transactions for settling an LOC payment, or settling a non-LOC payment
 	'deposit_date': datetime.date,
 	'settlement_date': datetime.date
 })
@@ -251,6 +258,37 @@ def _determine_transaction(
 				to_interest=amount_used_interest,
 				to_fees=amount_used_fees,
 		)
+	elif payment_option == payment_util.RepaymentOption.CUSTOM_AMOUNT_FOR_SETTLING_LOC:
+
+		amount_to_principal_left = payment_to_include['custom_amount_split']['to_principal']
+		amount_to_interest_left = payment_to_include['custom_amount_split']['to_interest']
+
+		amount_to_interest_left, amount_used_interest = _apply_to(cur_loan_update, 'interest', amount_to_interest_left)
+		amount_to_interest_left, amount_used_fees = _apply_to(cur_loan_update, 'fees', amount_to_interest_left)
+		amount_to_principal_left, amount_used_principal = _apply_to(cur_loan_update, 'principal', amount_to_principal_left)
+
+		return TransactionInputDict(
+				amount=amount_used_fees + amount_used_interest + amount_used_principal,
+				to_principal=amount_used_principal,
+				to_interest=amount_used_interest,
+				to_fees=amount_used_fees,
+		)
+	elif payment_option == payment_util.RepaymentOption.CUSTOM_AMOUNT_FOR_SETTLING_NON_LOC_LOAN:
+
+		amount_to_principal_left = payment_to_include['custom_amount_split']['to_principal']
+		amount_to_interest_left = payment_to_include['custom_amount_split']['to_interest']
+		amount_to_fees_left = payment_to_include['custom_amount_split']['to_fees']
+
+		amount_to_interest_left, amount_used_interest = _apply_to(cur_loan_update, 'interest', amount_to_interest_left)
+		amount_to_fees_left, amount_used_fees = _apply_to(cur_loan_update, 'fees', amount_to_fees_left)
+		amount_to_principal_left, amount_used_principal = _apply_to(cur_loan_update, 'principal', amount_to_principal_left)
+
+		return TransactionInputDict(
+				amount=amount_used_fees + amount_used_interest + amount_used_principal,
+				to_principal=amount_used_principal,
+				to_interest=amount_used_interest,
+				to_fees=amount_used_fees,
+		)
 
 	raise errors.Error('Invalid payment option provided {}'.format(payment_option))
 
@@ -428,12 +466,22 @@ class LoanCalculator(object):
 
 			return l
 
-		def _reduce_custom_amount_remaining(amount_used: float) -> None:
+		def _reduce_custom_amount_remaining(tx: TransactionInputDict) -> None:
 			if not payment_to_include:
 				return
 
 			if payment_to_include['option'] == payment_util.RepaymentOption.CUSTOM_AMOUNT:
-				payment_to_include['custom_amount'] -= amount_used
+				payment_to_include['custom_amount'] -= tx['amount']
+
+			elif payment_to_include['option'] == payment_util.RepaymentOption.CUSTOM_AMOUNT_FOR_SETTLING_LOC:
+				payment_to_include['custom_amount_split']['to_principal'] -= tx['to_principal']
+				payment_to_include['custom_amount_split']['to_interest'] -= tx['to_interest']
+				payment_to_include['custom_amount_split']['to_interest'] -= tx['to_fees']
+			
+			elif payment_to_include['option'] == payment_util.RepaymentOption.CUSTOM_AMOUNT_FOR_SETTLING_NON_LOC_LOAN:
+				payment_to_include['custom_amount_split']['to_principal'] -= tx['to_principal']
+				payment_to_include['custom_amount_split']['to_interest'] -= tx['to_interest']
+				payment_to_include['custom_amount_split']['to_fees'] -= tx['to_fees']
 
 		def _is_after_repayment_deposit_date(cur_date: datetime.date) -> bool:
 			return payment_to_include and cur_date > payment_to_include['deposit_date'] and cur_date <= payment_to_include['settlement_date']
@@ -572,7 +620,7 @@ class LoanCalculator(object):
 				inserted_repayment_transaction = _determine_transaction(
 					loan, loan_update_before_payment, payment_to_include
 				)
-				_reduce_custom_amount_remaining(inserted_repayment_transaction['amount'])
+				_reduce_custom_amount_remaining(inserted_repayment_transaction)
 
 				# The outstanding principal for a payment gets reduced on the payment date
 				outstanding_principal -= inserted_repayment_transaction['to_principal']
@@ -596,7 +644,7 @@ class LoanCalculator(object):
 				cur_transaction = _determine_transaction(
 					loan, cur_loan_update, payment_to_include
 				)
-				_reduce_custom_amount_remaining(cur_transaction['amount'])
+				_reduce_custom_amount_remaining(cur_transaction)
 				# You also want to incorporate the transaction details on the settlement date,
 				# which will pay off any additional interest and fees that accumulated.
 				outstanding_principal -= cur_transaction['to_principal']
