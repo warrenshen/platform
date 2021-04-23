@@ -18,6 +18,8 @@ class Actions(object):
 	CONTRACT_TERMINATE = 'contract_terminate'
 	CONTRACT_CREATE = 'contract_create'
 
+	FINANCE_MAKE_ACCOUNT_LEVEL_FEE = 'finance_make_account_level_fee'
+
 	INVOICE_UPDATE = 'invoice_update'
 	INVOICE_CREATE = 'invoice_create'
 	INVOICE_DELETE = 'invoice_delete'

@@ -284,7 +284,7 @@ def create_and_add_account_level_fee(
 	t.to_principal = decimal.Decimal(0.0)
 	t.to_interest = decimal.Decimal(0.0)
 	t.to_fees = decimal.Decimal(0.0)
-	# NOTE: no loan_id is set for credits
+	# NOTE: no loan_id is set for fees
 	t.payment_id = payment_id
 	t.created_by_user_id = created_by_user_id
 	t.effective_date = effective_date
