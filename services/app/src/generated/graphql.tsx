@@ -17859,9 +17859,14 @@ export const GetCustomerOverviewDocument = gql`
       outstanding_loans: loans(
         where: {
           _and: [
+            {
+              _or: [
+                { is_deleted: { _is_null: true } }
+                { is_deleted: { _eq: false } }
+              ]
+            }
             { loan_type: { _eq: $loanType } }
             { funded_at: { _is_null: false } }
-            { rejected_at: { _is_null: true } }
             { closed_at: { _is_null: true } }
           ]
         }
@@ -19968,7 +19973,6 @@ export const GetActiveLoansForCompanyDocument = gql`
             }
             { loan_type: { _eq: $loanType } }
             { closed_at: { _is_null: true } }
-            { rejected_at: { _is_null: true } }
           ]
         }
         order_by: [
@@ -20050,8 +20054,8 @@ export const GetClosedLoansForCompanyDocument = gql`
                 { is_deleted: { _eq: false } }
               ]
             }
-            { closed_at: { _is_null: false } }
             { loan_type: { _eq: $loanType } }
+            { closed_at: { _is_null: false } }
           ]
         }
         order_by: [
