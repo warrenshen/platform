@@ -293,6 +293,32 @@ export type ProductConfigField = {
   is_hidden?: boolean;
 };
 
+export const isProductConfigFieldInvalid = (item: ProductConfigField) => {
+  if (item.type === "date") {
+    if (!item.value || !item.value.toString().length) {
+      return !item.nullable;
+    } else {
+      return isNaN(Date.parse(item.value));
+    }
+  } else if (item.type === "float") {
+    if (!item.nullable) {
+      return item.value === null || !item.value.toString().length;
+    }
+  } else if (item.type !== "boolean") {
+    if (
+      [
+        ContractTermNames.LateFeeStructure,
+        ContractTermNames.ClearanceDaysStructure,
+      ].includes(item.internal_name as ContractTermNames)
+    ) {
+      return item.value === null || !item.value.toString().length;
+    } else if (!item.nullable) {
+      return !item.value || !item.value.toString().length;
+    }
+  }
+  return false;
+};
+
 // TODO (warrenshen): remove hardcoded `fields[1]` if possible.
 const formatValueForClient = (
   type: string,

@@ -20,6 +20,7 @@ import {
   getContractTermBankDescription,
   getContractTermCustomerDescription,
   getContractTermIsHiddenIfNull,
+  isProductConfigFieldInvalid,
 } from "lib/contracts";
 import { AllProductTypes, ProductTypeToLabel } from "lib/enum";
 import { groupBy } from "lodash";
@@ -63,10 +64,7 @@ interface Props {
   errMsg?: string;
   contract: ContractsInsertInput;
   currentJSONConfig: any;
-  isFieldInvalid: (item: any) => boolean;
   setContract: (contract: ContractsInsertInput) => void;
-  setIsLateFeeDynamicFormValid: (isValid: boolean) => void;
-  setIsRepaymentSettlementTimelineValid: (isValid: boolean) => void;
   setCurrentJSONConfig: (jsonConfig: any) => void;
 }
 
@@ -76,11 +74,8 @@ function ContractTermsForm({
   errMsg = "",
   contract,
   currentJSONConfig,
-  isFieldInvalid,
   setContract,
   setCurrentJSONConfig,
-  setIsLateFeeDynamicFormValid,
-  setIsRepaymentSettlementTimelineValid,
 }: Props) {
   const classes = useStyles();
   const sections = useMemo(() => groupBy(currentJSONConfig, (d) => d.section), [
@@ -179,7 +174,7 @@ function ContractTermsForm({
           <DatePicker
             className={classes.datePicker}
             id={item.internal_name}
-            error={errMsg.length > 0 && isFieldInvalid(item)}
+            error={errMsg.length > 0 && isProductConfigFieldInvalid(item)}
             label={item.display_name}
             required={!item.nullable}
             value={item.value || null}
@@ -216,7 +211,9 @@ function ContractTermsForm({
             maximumValue={item.format === "percentage" ? 100 : undefined}
             label={item.display_name}
             error={
-              errMsg.length > 0 && isFieldInvalid(item) ? errMsg : undefined
+              errMsg.length > 0 && isProductConfigFieldInvalid(item)
+                ? errMsg
+                : undefined
             }
             value={item.value !== undefined ? item.value : null}
             handleChange={(value) => findAndReplaceInJSON(item, value)}
@@ -244,10 +241,9 @@ function ContractTermsForm({
             name={item.display_name}
             initialValues={getLateFeeDynamicFormInitialValues(item)}
             showValidationResult={errMsg.length > 0}
-            handleChange={(value: any, error) => {
-              setIsLateFeeDynamicFormValid(error);
-              parseLateFeeDynamicFormValue(item, value);
-            }}
+            handleChange={(value: any) =>
+              parseLateFeeDynamicFormValue(item, value)
+            }
           />
         );
       case item.internal_name === "repayment_type_settlement_timeline":
@@ -257,17 +253,16 @@ function ContractTermsForm({
             name={item.display_name}
             initialValues={getRepaymentSettlementTimelineInitialValues(item)}
             showValidationResult={false}
-            handleChange={(value: any, error) => {
-              setIsRepaymentSettlementTimelineValid(error);
-              parseRepaymentSettlementTimelineFormValue(item, value);
-            }}
+            handleChange={(value: any) =>
+              parseRepaymentSettlementTimelineFormValue(item, value)
+            }
           />
         );
       default:
         return (
           <TextField
             className={classes.inputField}
-            error={errMsg.length > 0 && isFieldInvalid(item)}
+            error={errMsg.length > 0 && isProductConfigFieldInvalid(item)}
             label={item.display_name}
             placeholder=""
             required={!item.nullable}

@@ -22,6 +22,8 @@ import { createCustomer } from "lib/api/companies";
 import {
   createProductConfigFieldsFromProductType,
   createProductConfigForServer,
+  isProductConfigFieldInvalid,
+  ProductConfigField,
 } from "lib/contracts";
 import { useEffect, useState } from "react";
 
@@ -62,7 +64,9 @@ function CreateCustomerModal({ handleClose }: Props) {
     start_date: null,
     end_date: null,
   });
-  const [currentJSONConfig, setCurrentJSONConfig] = useState<any>({});
+  const [currentJSONConfig, setCurrentJSONConfig] = useState<
+    ProductConfigField[]
+  >([]);
 
   const [errMsg, setErrMsg] = useState("");
 
@@ -74,50 +78,17 @@ function CreateCustomerModal({ handleClose }: Props) {
     }
   }, [contract.product_type]);
 
-  const [
-    isLateFeeDynamicFormValid,
-    setIsLateFeeDynamicFormValid,
-  ] = useState<boolean>(false);
-
-  const [
-    isRepaymentSettlementTimelineValid,
-    setIsRepaymentSettlementTimelineValid,
-  ] = useState<boolean>(false);
-
-  const isFieldInvalid = (item: any) => {
-    if (item.type === "date") {
-      if (!item.value || !item.value.toString().length) {
-        return !item.nullable;
-      } else {
-        return isNaN(Date.parse(item.value));
-      }
-    } else if (item.type === "float") {
-      if (!item.nullable) {
-        return item.value === null || !item.value.toString().length;
-      }
-    } else if (item.type !== "boolean") {
-      if (item.internal_name === "late_fee_structure") {
-        return !isLateFeeDynamicFormValid;
-      } else if (item.internal_name === "repayment_type_settlement_timeline") {
-        return !isRepaymentSettlementTimelineValid;
-      } else if (!item.nullable) {
-        return !item.value || !item.value.toString().length;
-      }
-    }
-    return false;
-  };
-
   const handleClickCreate = async () => {
     if (!contract || !contract.product_type) {
       console.log("Developer error");
       return;
     }
 
-    const error = Object.values(currentJSONConfig)
-      .filter((item: any) => isFieldInvalid(item))
-      .toString().length;
-    if (error) {
-      setErrMsg("Please complete all required fields.");
+    const invalidFields = Object.values(currentJSONConfig)
+      .filter((item) => isProductConfigFieldInvalid(item))
+      .map((item) => item.display_name);
+    if (invalidFields.length > 0) {
+      setErrMsg(`Please correct invalid fields: ${invalidFields.join(", ")}.`);
       return;
     }
 
@@ -215,14 +186,9 @@ function CreateCustomerModal({ handleClose }: Props) {
               isStartDateEditable
               errMsg={errMsg}
               contract={contract}
-              isFieldInvalid={isFieldInvalid}
               currentJSONConfig={currentJSONConfig}
               setContract={setContract}
               setCurrentJSONConfig={setCurrentJSONConfig}
-              setIsLateFeeDynamicFormValid={setIsLateFeeDynamicFormValid}
-              setIsRepaymentSettlementTimelineValid={
-                setIsRepaymentSettlementTimelineValid
-              }
             />
           </Box>
         </Box>

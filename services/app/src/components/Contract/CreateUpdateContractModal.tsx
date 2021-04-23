@@ -25,6 +25,7 @@ import {
   createProductConfigFieldsFromContract,
   createProductConfigFieldsFromProductType,
   createProductConfigForServer,
+  isProductConfigFieldInvalid,
   ProductConfigField,
   updateContractMutation,
 } from "lib/contracts";
@@ -97,15 +98,6 @@ function CreateUpdateContractModal({
   const [currentJSONConfig, setCurrentJSONConfig] = useState<
     ProductConfigField[]
   >([]);
-  const [
-    isLateFeeDynamicFormValid,
-    setIsLateFeeDynamicFormValid,
-  ] = useState<boolean>(false);
-
-  const [
-    isRepaymentSettlementTimelineValid,
-    setIsRepaymentSettlementTimelineValid,
-  ] = useState<boolean>(false);
 
   const { loading: isExistingContractLoading } = useGetContractQuery({
     skip: actionType === ActionType.New,
@@ -149,35 +141,12 @@ function CreateUpdateContractModal({
     { loading: isUpdateContractLoading },
   ] = useCustomMutation(updateContractMutation);
 
-  const isFieldInvalid = (item: any) => {
-    if (item.type === "date") {
-      if (!item.value || !item.value.toString().length) {
-        return !item.nullable;
-      } else {
-        return isNaN(Date.parse(item.value));
-      }
-    } else if (item.type === "float") {
-      if (!item.nullable) {
-        return item.value === null || !item.value.toString().length;
-      }
-    } else if (item.type !== "boolean") {
-      if (item.internal_name === "late_fee_structure") {
-        return !isLateFeeDynamicFormValid;
-      } else if (item.internal_name === "repayment_type_settlement_timeline") {
-        return !isRepaymentSettlementTimelineValid;
-      } else if (!item.nullable) {
-        return !item.value || !item.value.toString().length;
-      }
-    }
-    return false;
-  };
-
   const handleSubmit = async () => {
-    const error = Object.values(currentJSONConfig)
-      .filter((item: any) => isFieldInvalid(item))
-      .toString().length;
-    if (error) {
-      setErrMsg("Please complete all required fields.");
+    const invalidFields = Object.values(currentJSONConfig)
+      .filter((item) => isProductConfigFieldInvalid(item))
+      .map((item) => item.display_name);
+    if (invalidFields.length > 0) {
+      setErrMsg(`Please correct invalid fields: ${invalidFields.join(", ")}.`);
       return;
     }
 
@@ -247,13 +216,8 @@ function CreateUpdateContractModal({
             errMsg={errMsg}
             contract={contract}
             currentJSONConfig={currentJSONConfig}
-            isFieldInvalid={isFieldInvalid}
             setContract={setContract}
             setCurrentJSONConfig={setCurrentJSONConfig}
-            setIsLateFeeDynamicFormValid={setIsLateFeeDynamicFormValid}
-            setIsRepaymentSettlementTimelineValid={
-              setIsRepaymentSettlementTimelineValid
-            }
           />
           {errMsg && (
             <Box className={classes.errorBox} mt={3}>
