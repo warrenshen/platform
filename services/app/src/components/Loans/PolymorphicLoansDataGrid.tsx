@@ -1,50 +1,47 @@
+import {
+  ArtifactLoansDataGridFlagProps,
+  ArtifactLoansDataGridLoansProps,
+} from "components/Artifacts/ArtifactLoansDataGrid";
 import InvoiceLoansDataGrid from "components/Invoices/InvoiceLoansDataGrid";
 import LineOfCreditLoansDataGrid from "components/Loans/LineOfCreditLoansDataGrid";
 import PurchaseOrderLoansDataGrid from "components/Loans/PurchaseOrderLoansDataGrid";
-import { DataGridActionItem } from "components/Shared/DataGrid/DataGridActionMenu";
-import { LoanFragment, Loans, ProductTypeEnum } from "generated/graphql";
+import { ProductTypeEnum } from "generated/graphql";
 
 interface Props {
-  isDisbursementIdentifierVisible?: boolean;
-  isExcelExport?: boolean;
-  isMaturityVisible?: boolean;
-  isMultiSelectEnabled?: boolean;
-  isViewNotesEnabled?: boolean;
-  pager?: boolean;
   productType: ProductTypeEnum | null;
-  loans: LoanFragment[];
-  actionItems?: DataGridActionItem[];
-  selectedLoanIds?: Loans["id"][];
-  handleSelectLoans?: (loans: LoanFragment[]) => void;
 }
 
 function PolymorphicLoansDataGrid({
+  isApprovalStatusVisible = false,
   isDisbursementIdentifierVisible = false,
   isExcelExport = false,
   isMaturityVisible = true,
   isMultiSelectEnabled,
+  isOriginationDateVisible = true,
+  isRequestedDateVisible = false,
   isViewNotesEnabled,
   pager,
   productType,
   loans,
-  actionItems,
   selectedLoanIds,
   handleSelectLoans,
-}: Props) {
+}: ArtifactLoansDataGridFlagProps & ArtifactLoansDataGridLoansProps & Props) {
   if (
     productType === ProductTypeEnum.InventoryFinancing ||
     productType === ProductTypeEnum.PurchaseMoneyFinancing
   ) {
     return (
       <PurchaseOrderLoansDataGrid
+        isApprovalStatusVisible={isApprovalStatusVisible}
         isDisbursementIdentifierVisible={isDisbursementIdentifierVisible}
         isExcelExport={isExcelExport}
         isMaturityVisible={isMaturityVisible}
         isMultiSelectEnabled={isMultiSelectEnabled}
+        isOriginationDateVisible={isOriginationDateVisible}
+        isRequestedDateVisible={isRequestedDateVisible}
         isViewNotesEnabled={isViewNotesEnabled}
         pager={pager}
         loans={loans}
-        actionItems={actionItems}
         selectedLoanIds={selectedLoanIds}
         handleSelectLoans={handleSelectLoans}
       />
@@ -52,14 +49,16 @@ function PolymorphicLoansDataGrid({
   } else if (productType === ProductTypeEnum.LineOfCredit) {
     return (
       <LineOfCreditLoansDataGrid
+        isApprovalStatusVisible={isApprovalStatusVisible}
         isDisbursementIdentifierVisible={isDisbursementIdentifierVisible}
         isExcelExport={isExcelExport}
         isMaturityVisible={isMaturityVisible}
         isMultiSelectEnabled={isMultiSelectEnabled}
+        isOriginationDateVisible={isOriginationDateVisible}
+        isRequestedDateVisible={isRequestedDateVisible}
         isViewNotesEnabled={isViewNotesEnabled}
         pager={pager}
         loans={loans}
-        actionItems={actionItems}
         selectedLoanIds={selectedLoanIds}
         handleSelectLoans={handleSelectLoans}
       />
@@ -67,14 +66,16 @@ function PolymorphicLoansDataGrid({
   } else if (productType === ProductTypeEnum.InvoiceFinancing) {
     return (
       <InvoiceLoansDataGrid
+        isApprovalStatusVisible={isApprovalStatusVisible}
         isDisbursementIdentifierVisible={isDisbursementIdentifierVisible}
         isExcelExport={isExcelExport}
         isMaturityVisible={isMaturityVisible}
         isMultiSelectEnabled={isMultiSelectEnabled}
+        isOriginationDateVisible={isOriginationDateVisible}
+        isRequestedDateVisible={isRequestedDateVisible}
         isViewNotesEnabled={isViewNotesEnabled}
         pager={pager}
         loans={loans}
-        actionItems={actionItems}
         selectedLoanIds={selectedLoanIds}
         handleSelectLoans={handleSelectLoans}
       />

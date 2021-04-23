@@ -69,20 +69,16 @@ function CustomerLoansPageLoansTab({ companyId, productType }: Props) {
           handleDataChange={refetch}
         />
       </Box>
-      {productType !== ProductTypeEnum.LineOfCredit && (
-        <>
-          <Box className={classes.sectionSpace} />
-          <Box className={classes.section}>
-            <Typography variant="h6">Funded Loans</Typography>
-            <LoansFunded
-              companyId={companyId}
-              productType={productType}
-              data={data}
-              handleDataChange={refetch}
-            />
-          </Box>
-        </>
-      )}
+      <Box className={classes.sectionSpace} />
+      <Box className={classes.section}>
+        <Typography variant="h6">Funded Loans</Typography>
+        <LoansFunded
+          companyId={companyId}
+          productType={productType}
+          data={data}
+          handleDataChange={refetch}
+        />
+      </Box>
     </Box>
   );
 }

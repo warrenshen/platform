@@ -153,10 +153,13 @@ function LoansNotFunded({
       <Box className={classes.sectionSpace} />
       <Box display="flex" flex={1}>
         <PolymorphicLoansDataGrid
+          isApprovalStatusVisible
           isDisbursementIdentifierVisible={isBankUser}
           isExcelExport={isBankUser}
           isMaturityVisible={false}
           isMultiSelectEnabled={check(role, Action.SelectLoan)}
+          isOriginationDateVisible={false}
+          isRequestedDateVisible
           isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
           productType={productType}
           loans={loans}

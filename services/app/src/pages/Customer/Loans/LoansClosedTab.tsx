@@ -81,11 +81,12 @@ function CustomerLoansPageLoansClosedTab({ companyId, productType }: Props) {
           <PolymorphicLoansDataGrid
             isDisbursementIdentifierVisible={isBankUser}
             isExcelExport={isBankUser}
-            isMultiSelectEnabled={check(role, Action.SelectLoan)}
+            // We do not show loan outstanding principal, interest, late fees for Line of Credit.
+            isMaturityVisible={productType !== ProductTypeEnum.LineOfCredit}
+            isMultiSelectEnabled={false}
             isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
             productType={productType}
             loans={loans}
-            actionItems={[]}
           />
         </Box>
       </Box>

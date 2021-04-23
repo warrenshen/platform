@@ -5,9 +5,6 @@ import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import PaymentStatusChip from "components/Shared/Chip/PaymentStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
-import DataGridActionMenu, {
-  DataGridActionItem,
-} from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
   LoanFragment,
@@ -23,37 +20,49 @@ import {
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
-interface Props {
+export interface ArtifactLoansDataGridFlagProps {
+  isApprovalStatusVisible?: boolean;
   isDisbursementIdentifierVisible?: boolean;
   isExcelExport?: boolean;
   isMaturityVisible?: boolean; // Whether maturity date, principal balance, interest, and fees are visible.
   isMiniTable?: boolean;
   isMultiSelectEnabled?: boolean;
+  isOriginationDateVisible?: boolean; // Whether origination date is visible.
+  isRequestedDateVisible?: boolean; // Whether requested payment date is visible.
   isViewNotesEnabled?: boolean;
   pager?: boolean;
-  loans: LoanFragment[];
-  actionItems?: DataGridActionItem[];
-  selectedLoanIds?: Loans["id"][];
+}
+
+interface ArtifactLoansDataGridArtifactProps {
   artifactCaption: string;
   artifactCellRenderer: (params: ValueFormatterParams) => JSX.Element;
+}
+
+export interface ArtifactLoansDataGridLoansProps {
+  loans: LoanFragment[];
+  selectedLoanIds?: Loans["id"][];
   handleSelectLoans?: (loans: LoanFragment[]) => void;
 }
 
 export default function ArtifactLoansDataGrid({
+  isApprovalStatusVisible = false,
   isDisbursementIdentifierVisible = false,
   isExcelExport = false,
   isMaturityVisible = true,
   isMiniTable = false,
   isMultiSelectEnabled = false,
+  isOriginationDateVisible = true,
+  isRequestedDateVisible = false,
   isViewNotesEnabled = false,
   pager = true,
   artifactCaption,
   artifactCellRenderer,
   loans,
-  actionItems,
   selectedLoanIds,
   handleSelectLoans,
-}: Props) {
+}: ArtifactLoansDataGridFlagProps &
+  ArtifactLoansDataGridArtifactProps &
+  ArtifactLoansDataGridLoansProps) {
   const rows = loans;
   const columns = useMemo(
     () => [
@@ -85,17 +94,7 @@ export default function ArtifactLoansDataGrid({
         ),
       },
       {
-        visible: !isMiniTable && !!actionItems && actionItems.length > 0,
-        dataField: "action",
-        caption: "Action",
-        alignment: "center",
-        minWidth: 100,
-        cellRender: (params: ValueFormatterParams) => (
-          <DataGridActionMenu params={params} actionItems={actionItems} />
-        ),
-      },
-      {
-        visible: !isMaturityVisible,
+        visible: isApprovalStatusVisible,
         dataField: "status",
         caption: "Approval Status",
         width: ColumnWidths.Status,
@@ -135,7 +134,7 @@ export default function ArtifactLoansDataGrid({
         ),
       },
       {
-        visible: !isMiniTable && !isMaturityVisible,
+        visible: !isMiniTable && isRequestedDateVisible,
         caption: "Requested Payment Date",
         dataField: "requested_payment_date",
         width: ColumnWidths.Date,
@@ -147,7 +146,7 @@ export default function ArtifactLoansDataGrid({
         ),
       },
       {
-        visible: isMaturityVisible,
+        visible: isOriginationDateVisible,
         caption: "Origination Date",
         dataField: "origination_date",
         width: ColumnWidths.Date,
@@ -208,11 +207,13 @@ export default function ArtifactLoansDataGrid({
       },
     ],
     [
+      isApprovalStatusVisible,
       isDisbursementIdentifierVisible,
       isMaturityVisible,
       isMiniTable,
+      isOriginationDateVisible,
+      isRequestedDateVisible,
       isViewNotesEnabled,
-      actionItems,
       artifactCaption,
       artifactCellRenderer,
     ]

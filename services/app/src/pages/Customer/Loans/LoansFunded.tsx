@@ -122,6 +122,8 @@ function LoansFunded({
           <PolymorphicLoansDataGrid
             isDisbursementIdentifierVisible={isBankUser}
             isExcelExport={isBankUser}
+            // We do not show loan outstanding principal, interest, late fees for Line of Credit.
+            isMaturityVisible={productType !== ProductTypeEnum.LineOfCredit}
             isMultiSelectEnabled={
               !isLineOfCredit && check(role, Action.SelectLoan)
             }
