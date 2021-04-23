@@ -192,9 +192,8 @@ function ContractTermsForm({
             id={item.internal_name}
             label="Timezone"
             helperText="Please select a timezone from the list"
-            onChange={(value: any) => {
-              findAndReplaceInJSON(item, value);
-            }}
+            defaultTimezoneName={item.value || null}
+            onChange={(value: any) => findAndReplaceInJSON(item, value)}
           />
         );
       case item.type === "float":

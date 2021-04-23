@@ -23,11 +23,6 @@ export default function CustomerPaymentsPageContent({ companyId }: Props) {
 
   const company = data?.companies_by_pk;
   const payments = useMemo(() => company?.payments || [], [company]);
-  const transactions = useMemo(
-    () => payments.flatMap((payment) => payment.transactions),
-    [payments]
-  );
-  console.log({ payments, transactions });
 
   return (
     <PageContent

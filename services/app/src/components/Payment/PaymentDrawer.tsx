@@ -47,7 +47,6 @@ function PaymentDrawer({ paymentId, handleClose }: Props) {
   });
 
   const payment = data?.payments_by_pk;
-  console.log({ payment });
 
   return payment ? (
     <Drawer open anchor="right" onClose={handleClose}>
