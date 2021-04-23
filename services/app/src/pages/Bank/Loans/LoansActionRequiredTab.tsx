@@ -1,5 +1,6 @@
 import { Box, Button } from "@material-ui/core";
 import CreateAdvanceModal from "components/Advance/CreateAdvanceModal";
+import DeleteLoanModal from "components/Loan/DeleteLoanModal";
 import ReviewLoanRejectModal from "components/Loan/ReviewLoanRejectModal";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import Can from "components/Shared/Can";
@@ -40,12 +41,16 @@ function BankLoansActionRequiredTab() {
   }
 
   // State for modal(s).
-  const [selectedLoans, setSelectedLoans] = useState<LoanFragment[]>([]);
   const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"]>([]);
+
+  const selectedLoans = useMemo(
+    () =>
+      data?.loans.filter((loan) => selectedLoanIds.indexOf(loan.id) >= 0) || [],
+    [data?.loans, selectedLoanIds]
+  );
 
   const handleSelectLoans = useMemo(
     () => (loans: LoanFragment[]) => {
-      setSelectedLoans(loans);
       setSelectedLoanIds(loans.map((loan) => loan.id));
     },
     [setSelectedLoanIds]
@@ -57,12 +62,20 @@ function BankLoansActionRequiredTab() {
       snackbar.showError("Error! Could not approve loans.");
     } else {
       setSelectedLoanIds([]);
-      setSelectedLoans([]);
       snackbar.showSuccess("Loan(s) approved.");
     }
   };
 
   const loans = useMemo(() => data?.loans || [], [data?.loans]);
+
+  const selectedLoan = useMemo(
+    () =>
+      selectedLoanIds.length === 1
+        ? loans.find((loan) => loan.id === selectedLoanIds[0])
+        : null,
+    [loans, selectedLoanIds]
+  );
+
   const approvalRequestedSelectedLoans = useMemo(
     () =>
       selectedLoans.filter(
@@ -70,6 +83,7 @@ function BankLoansActionRequiredTab() {
       ),
     [selectedLoans]
   );
+
   const approvedSelectedLoans = useMemo(
     () =>
       selectedLoans.filter((loan) => loan.status === LoanStatusEnum.Approved),
@@ -92,7 +106,6 @@ function BankLoansActionRequiredTab() {
                   selectedLoans={selectedLoans}
                   handleClose={() => {
                     handleClose();
-                    setSelectedLoans([]);
                     setSelectedLoanIds([]);
                   }}
                 />
@@ -128,7 +141,6 @@ function BankLoansActionRequiredTab() {
                   loanId={selectedLoanIds[0]}
                   handleClose={() => {
                     handleClose();
-                    setSelectedLoans([]);
                     setSelectedLoanIds([]);
                   }}
                 />
@@ -136,6 +148,26 @@ function BankLoansActionRequiredTab() {
             />
           </Box>
         </Can>
+        {!!selectedLoan && (
+          <Can perform={Action.DeleteLoans}>
+            <Box mr={2}>
+              <ModalButton
+                isDisabled={!selectedLoan}
+                label={"Delete Loan"}
+                variant={"outlined"}
+                modal={({ handleClose }) => (
+                  <DeleteLoanModal
+                    loanId={selectedLoan?.id}
+                    handleClose={() => {
+                      handleClose();
+                      setSelectedLoanIds([]);
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          </Can>
+        )}
       </Box>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <LoansDataGrid
