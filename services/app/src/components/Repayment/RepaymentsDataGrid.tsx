@@ -133,16 +133,12 @@ function RepaymentsDataGrid({
         ),
       },
       {
-        visible: true || isMethodVisible,
+        visible: isMethodVisible,
         dataField: "method",
         caption: "Method",
         minWidth: ColumnWidths.MinWidth,
-        calculateCellValue: ({ method }: PaymentLimitedFragment) => method,
-        cellRender: (params: ValueFormatterParams) => (
-          <Box>
-            {PaymentMethodToLabel[params.row.data.method as PaymentMethodEnum]}
-          </Box>
-        ),
+        calculateCellValue: ({ method }: PaymentLimitedFragment) =>
+          PaymentMethodToLabel[method as PaymentMethodEnum],
       },
       {
         visible: isRequestedReverseDraftACH,

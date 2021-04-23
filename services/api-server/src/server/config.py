@@ -40,15 +40,16 @@ class Config(object):
 		self.CHECK_FILE_PERMISSIONS = _string_to_bool(os.environ.get('CHECK_FILE_PERMISSIONS'))
 
 		# Email
-		self.NO_REPLY_EMAIL_ADDRESS = os.environ.get(
-			'NO_REPLY_EMAIL_ADDRESS', 'do-not-reply@bespokefinancial.com')
 		if is_development_env(self.FLASK_ENV):
 			self.NO_REPLY_EMAIL_ADDRESS = 'do-not-reply-development@bespokefinancial.com'
+		else:
+			self.NO_REPLY_EMAIL_ADDRESS = os.environ.get(
+				'NO_REPLY_EMAIL_ADDRESS',
+				'do-not-reply@bespokefinancial.com')
 
 		# List of emails reviewed by Bespoke Financial's operations team.
-		self.BANK_NOTIFY_EMAIL_ADDRESSES = list(map(
-			lambda s: s.strip(),
-			os.environ.get('BANK_NOTIFY_EMAIL_ADDRESSES', 'jira+bank@bespokefinancial.com').split(',')))
+		bank_notify_email_addresses_str = os.environ.get('BANK_NOTIFY_EMAIL_ADDRESSES', '')
+		self.BANK_NOTIFY_EMAIL_ADDRESSES = list(map(lambda s: s.strip(), bank_notify_email_addresses_str.split(','))) if bank_notify_email_addresses_str else []
 
 		# List of emails reviewed by development team of this App.
 		self.OPS_EMAIL_ADDRESSES = list(map(

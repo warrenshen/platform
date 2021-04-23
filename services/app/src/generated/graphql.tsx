@@ -16157,6 +16157,14 @@ export type GetPaymentsForCompanyQuery = {
       >;
     }
   >;
+  transactions: Array<
+    Pick<Transactions, "id"> & {
+      loan?: Maybe<
+        Pick<Loans, "id"> & LoanLimitedFragment & LoanArtifactLimitedFragment
+      >;
+      payment: PaymentLimitedFragment;
+    } & TransactionFragment
+  >;
 };
 
 export type GetCompanySettingsQueryVariables = Exact<{
@@ -21655,6 +21663,32 @@ export const GetPaymentsForCompanyDocument = gql`
             ...PaymentLimited
           }
         }
+      }
+    }
+    transactions(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { type: { _eq: "repayment" } }
+          { payment: { company_id: { _eq: $company_id } } }
+        ]
+      }
+      order_by: [{ effective_date: desc }, { created_at: desc }]
+    ) {
+      id
+      ...Transaction
+      loan {
+        id
+        ...LoanLimited
+        ...LoanArtifactLimited
+      }
+      payment {
+        ...PaymentLimited
       }
     }
   }
