@@ -123,6 +123,8 @@ def _get_account_level_balance(customer_info: per_customer_types.CustomerFinanci
 		# Account level transactions have no loan_id associated with them
 		if tx_type in db_constants.FEE_TYPES:
 			fees_total += tx['amount']
+		elif tx_type == db_constants.PaymentType.REPAYMENT_ACCOUNT_FEE:
+			fees_total -= tx['amount']
 		elif tx_type in db_constants.CREDIT_TO_USER_TYPES:
 			credits_total += tx['amount']
 		else:

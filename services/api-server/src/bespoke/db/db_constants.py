@@ -116,8 +116,9 @@ ALL_PAYMENT_METHODS = (
 )
 
 class PaymentType(object):
-	REPAYMENT = 'repayment'
 	ADVANCE = 'advance'
+	REPAYMENT = 'repayment' # Repayment of loan
+	REPAYMENT_ACCOUNT_FEE = 'repayment_account_fee' # Repayment of account fee
 	CREDIT_TO_USER = 'credit_to_user' # Bespoke giving $ credit to a user
 	FEE = 'fee' # Bespoke charging the user a fee
 	ADJUSTMENT = 'adjustment' # A manual adjustment to balance the books, or correct for rounding issues
