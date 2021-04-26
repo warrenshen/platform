@@ -774,6 +774,27 @@ def create_engine() -> Engine:
 	)
 
 
+class BankAccount(Base):
+	__tablename__ = 'bank_accounts'
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id'), nullable=True))
+
+	bank_name = Column(String, nullable=False)
+	account_type = Column(String, nullable=False)
+	account_number = Column(String, nullable=False)
+	routing_number = Column(String, nullable=False)
+	can_ach = Column(Boolean, nullable=True)
+	can_wire = Column(Boolean, nullable=True)
+	recipient_name = Column(String)
+	recipient_address = Column(String)
+	bank_address = Column(String)
+	account_title = Column(String)
+	verified_date = Column(Date)
+	is_cannabis_compliant = Column(Boolean, default=False)
+	verified_at = Column(DateTime)
+
+
 class RetryingQuery(_Query):
 	__retry_count__ = 4
 
