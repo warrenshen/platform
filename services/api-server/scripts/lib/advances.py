@@ -68,6 +68,9 @@ def import_settled_advances(
 			print(f'EXITING EARLY')
 			return
 
+		numeric_payment_disbursement_identifier = numeric_loan_identifier
+		parsed_payment_disbursement_identifier = str(numeric_loan_identifier)
+
 		customer = cast(
 			models.Company,
 			session.query(models.Company).filter(
@@ -144,38 +147,46 @@ def import_settled_advances(
 		if existing_advance and existing_transaction:
 			print(f'[{index + 1} of {advances_count}] Advance on loan {parsed_loan_identifier} with settlement date {settlement_date} already exists')
 			continue
-		else:
-			print(f'[{index + 1} of {advances_count}] Advance on loan {parsed_loan_identifier} for {customer.name} ({customer.identifier}) does not exist, creating it...')
 
-			advance = models.Payment(
-				company_id=customer.id,
-				type=PaymentType.ADVANCE,
-				method=PaymentMethodEnum.UNKNOWN,
-				amount=parsed_amount,
-				payment_date=parsed_payment_date,
-				deposit_date=parsed_deposit_date,
-				settlement_date=parsed_settlement_date,
-				submitted_at=parsed_submitted_at,
-				settled_at=parsed_settled_at,
-			)
-			session.add(advance)
-			session.flush()
+		print(f'[{index + 1} of {advances_count}] Advance on loan {parsed_loan_identifier} for {customer.name} ({customer.identifier}) does not exist, creating it...')
 
-			transaction = models.Transaction(
-				payment_id=advance.id,
-				loan_id=loan.id,
-				type=PaymentType.ADVANCE,
-				subtype=None,
-				amount=parsed_amount,
-				to_principal=decimal.Decimal(parsed_amount),
-				to_interest=decimal.Decimal(0.0),
-				to_fees=decimal.Decimal(0.0),
-				effective_date=parsed_settlement_date,
-			)
-			session.add(transaction)
-			session.flush()
+		advance = models.Payment(
+			company_id=customer.id,
+			settlement_identifier=parsed_payment_disbursement_identifier,
+			type=PaymentType.ADVANCE,
+			method=PaymentMethodEnum.UNKNOWN,
+			amount=parsed_amount,
+			payment_date=parsed_payment_date,
+			deposit_date=parsed_deposit_date,
+			settlement_date=parsed_settlement_date,
+			submitted_at=parsed_submitted_at,
+			settled_at=parsed_settled_at,
+		)
+		session.add(advance)
+		session.flush()
 
-			print(f'[{index + 1} of {advances_count}] Created advance on loan {parsed_loan_identifier} for {customer.name} ({customer.identifier})')
+		transaction = models.Transaction(
+			payment_id=advance.id,
+			loan_id=loan.id,
+			type=PaymentType.ADVANCE,
+			subtype=None,
+			amount=parsed_amount,
+			to_principal=decimal.Decimal(parsed_amount),
+			to_interest=decimal.Decimal(0.0),
+			to_fees=decimal.Decimal(0.0),
+			effective_date=parsed_settlement_date,
+		)
+		session.add(transaction)
+		session.flush()
+
+		print(f'[{index + 1} of {advances_count}] Created advance on loan {parsed_loan_identifier} for {customer.name} ({customer.identifier})')
+
+		customer_latest_disbursement_identifier = customer.latest_disbursement_identifier
+		new_latest_disbursement_identifier = max(numeric_payment_disbursement_identifier, customer_latest_disbursement_identifier)
+		customer.latest_disbursement_identifier = new_latest_disbursement_identifier
+
+		print(f'Customer {customer.name} latest_disbursement_identifier is now "{new_latest_disbursement_identifier}"')
+		session.flush()
 
 def load_into_db_from_excel(session: Session, path: str) -> None:
 	print(f'Beginning import...')

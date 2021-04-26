@@ -14,6 +14,7 @@ import {
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import JsonFormInput from "components/Shared/FormInputs/JsonFormInput";
+import { format, parse } from "date-fns";
 import { ContractsInsertInput, ProductTypeEnum } from "generated/graphql";
 import {
   ContractTermNames,
@@ -22,6 +23,7 @@ import {
   getContractTermIsHiddenIfNull,
   isProductConfigFieldInvalid,
 } from "lib/contracts";
+import { DateFormatServer } from "lib/date";
 import { AllProductTypes, ProductTypeToLabel } from "lib/enum";
 import { groupBy } from "lodash";
 import { ChangeEvent, useMemo } from "react";
@@ -315,12 +317,23 @@ function ContractTermsForm({
           id="start-date-date-picker"
           label="Start Date"
           value={contract.start_date}
-          onChange={(value) =>
+          onChange={(value) => {
+            // Set start date and end date (one year after start date).
+            const startDateObject = value
+              ? parse(value, DateFormatServer, new Date())
+              : null;
+            const endDateObject = startDateObject
+              ? startDateObject.setFullYear(startDateObject.getFullYear() + 1)
+              : null;
+            const endDate = endDateObject
+              ? format(endDateObject, DateFormatServer)
+              : null;
             setContract({
               ...contract,
               start_date: value,
-            })
-          }
+              end_date: endDate,
+            });
+          }}
         />
       </Box>
       <Box mb={3}>

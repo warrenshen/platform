@@ -36,7 +36,6 @@ export default function CustomerPaymentsPageContent({ companyId }: Props) {
   const transactions = useMemo(() => data?.transactions || [], [
     data?.transactions,
   ]);
-  console.log({ data });
 
   return (
     <PageContent
