@@ -7,7 +7,7 @@ from bespoke import errors
 from bespoke.companies import create_user_util
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.db_constants import CompanyType
+from bespoke.db.db_constants import CompanyType, TwoFactorMessageMethod
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
 from mypy_extensions import TypedDict
@@ -156,6 +156,7 @@ def create_payor_vendor(
 
 	with session_scope(session_maker) as session:
 		company_settings = models.CompanySettings()
+		company_settings.two_factor_message_method = TwoFactorMessageMethod.PHONE
 		session.add(company_settings)
 		session.flush()
 		company_settings_id = str(company_settings.id)

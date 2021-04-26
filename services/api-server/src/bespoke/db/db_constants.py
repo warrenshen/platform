@@ -29,6 +29,10 @@ REVIEWER_LINK_TYPE_TO_ROLE = {
 	TwoFactorLinkType.PAY_INVOICE: UserRoles.INVOICE_REVIEWER,
 }
 
+class TwoFactorMessageMethod(object):
+	EMAIL = 'email'
+	PHONE = 'phone'
+
 # Contracts
 
 class ProductType(object):
