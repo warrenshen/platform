@@ -19,9 +19,9 @@ def main():
 
 	#url = 'https://sandbox-api-ca.metrc.com/facilities/v1'
 	base_url = 'https://api-ca.metrc.com'
-	#url = f'{base_url}/facilities/v1'
+	url = f'{base_url}/facilities/v1'
 	#url = f'{base_url}/packages/v1/active?licenseNumber=123-ABC&lastModifiedStart=2018-01-17T06:30:00Z&lastModifiedEnd=2018-01-17T17:30:00Z'
-	url = 'https://api-ca.metrc.com/packages/v1/active?licenseNumber=C11-0000995-LIC&lastModifiedStart=2020-04-10&lastModifiedEnd=2020-04-20'
+	#url = 'https://api-ca.metrc.com/packages/v1/active?licenseNumber=C11-0000995-LIC&lastModifiedStart=2020-04-10&lastModifiedEnd=2020-04-20'
 	#url = f'{base_url}/harvests/v1/waste/types'
 
 	# json = json_data
