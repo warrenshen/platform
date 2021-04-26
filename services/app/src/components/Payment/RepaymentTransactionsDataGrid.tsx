@@ -2,6 +2,7 @@ import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
+import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
 import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
@@ -40,11 +41,14 @@ export default function RepaymentTransactionsDataGrid({
         dataField: "payment.settlement_identifier",
         caption: "Payment #",
         minWidth: ColumnWidths.MinWidth,
-        calculateCellValue: ({
-          payment,
-        }: {
-          payment: PaymentLimitedFragment;
-        }) => `P${payment.settlement_identifier}`,
+        cellRender: (params: ValueFormatterParams) => (
+          <PaymentDrawerLauncher
+            paymentId={params.row.data.payment.id}
+            label={
+              `P${params.row.data.payment.settlement_identifier}` as string
+            }
+          />
+        ),
       },
       {
         dataField: "payment.method",

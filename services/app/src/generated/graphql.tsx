@@ -21725,7 +21725,11 @@ export const GetPaymentsForCompanyDocument = gql`
           { payment: { company_id: { _eq: $company_id } } }
         ]
       }
-      order_by: [{ effective_date: desc }, { created_at: desc }]
+      order_by: [
+        { payment: { deposit_date: desc } }
+        { payment: { settlement_date: desc } }
+        { payment: { created_at: desc } }
+      ]
     ) {
       id
       ...Transaction
