@@ -89,14 +89,20 @@ class Company(Base):
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	company_settings_id = Column(GUID, nullable=False)
 	contract_id = Column(GUID)
+
 	company_type = Column(String, nullable=False, default=CompanyType.Customer)
 	name = Column(String)
 	identifier = Column(String)
 	contract_name = Column(String)
 	dba_name = Column(String)
-	latest_loan_identifier = Column(Integer, nullable=False, default=0)
-	latest_disbursement_identifier = Column(Integer, nullable=False, default=0)
 	needs_balance_recomputed = Column(Boolean, nullable=False, default=False) # is_dirty
+
+	# Last created identifier for a loan belonging to this company.
+	latest_loan_identifier = Column(Integer, nullable=False, default=0)
+	# Last created identifier for an advance payment belonging to this company.
+	latest_disbursement_identifier = Column(Integer, nullable=False, default=0)
+	# Last created identifier for a repayment payment belonging to this company.
+	latest_repayment_identifier = Column(Integer, nullable=False, default=0)
 
 	def as_dict(self) -> CompanyDict:
 		return CompanyDict(
@@ -317,8 +323,17 @@ class Payment(Base):
 	__tablename__ = 'payments'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
-	type = Column(String)
 	company_id = Column(GUID, nullable=False)
+
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+
+	# Identifier of payment, unique under scope (company_id, type, settlement_identifier).
+	# Essentially denotes the 1st, 2nd, etc advance of a company
+	# and the 1st, 2nd, etc repayment of a company.
+	settlement_identifier = Column(String)
+
+	type = Column(String)
 	method = Column(String)
 	requested_amount = Column(Numeric)
 	amount = Column(Numeric)

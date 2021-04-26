@@ -11164,6 +11164,22 @@
             "deprecationReason": null
           },
           {
+            "name": "latest_repayment_identifier",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "licenses",
             "description": "An array relationship",
             "args": [
@@ -12740,6 +12756,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "latest_repayment_identifier",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -12765,6 +12793,16 @@
           },
           {
             "name": "latest_loan_identifier",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "latest_repayment_identifier",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -13083,6 +13121,16 @@
             "defaultValue": null
           },
           {
+            "name": "latest_repayment_identifier",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "Int_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "licenses",
             "description": null,
             "type": {
@@ -13268,6 +13316,16 @@
           },
           {
             "name": "latest_loan_identifier",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "latest_repayment_identifier",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -13539,6 +13597,16 @@
           },
           {
             "name": "latest_loan_identifier",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "latest_repayment_identifier",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -13854,6 +13922,18 @@
             "deprecationReason": null
           },
           {
+            "name": "latest_repayment_identifier",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "name",
             "description": null,
             "args": [],
@@ -14047,6 +14127,16 @@
           },
           {
             "name": "latest_loan_identifier",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "latest_repayment_identifier",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -14272,6 +14362,18 @@
             "deprecationReason": null
           },
           {
+            "name": "latest_repayment_identifier",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "name",
             "description": null,
             "args": [],
@@ -14465,6 +14567,16 @@
           },
           {
             "name": "latest_loan_identifier",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "latest_repayment_identifier",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -14938,6 +15050,16 @@
             "defaultValue": null
           },
           {
+            "name": "latest_repayment_identifier",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "licenses_aggregate",
             "description": null,
             "type": {
@@ -15200,6 +15322,12 @@
             "deprecationReason": null
           },
           {
+            "name": "latest_repayment_identifier",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "name",
             "description": "column name",
             "isDeprecated": false,
@@ -15385,6 +15513,16 @@
             "defaultValue": null
           },
           {
+            "name": "latest_repayment_identifier",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "name",
             "description": null,
             "type": {
@@ -15477,6 +15615,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "latest_repayment_identifier",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -15502,6 +15652,16 @@
           },
           {
             "name": "latest_loan_identifier",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "latest_repayment_identifier",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -15543,6 +15703,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "latest_repayment_identifier",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -15568,6 +15740,16 @@
           },
           {
             "name": "latest_loan_identifier",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "latest_repayment_identifier",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -15609,6 +15791,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "latest_repayment_identifier",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -15634,6 +15828,16 @@
           },
           {
             "name": "latest_loan_identifier",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "latest_repayment_identifier",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -15675,6 +15879,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "latest_repayment_identifier",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -15700,6 +15916,16 @@
           },
           {
             "name": "latest_loan_identifier",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "latest_repayment_identifier",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -15806,6 +16032,12 @@
             "deprecationReason": null
           },
           {
+            "name": "latest_repayment_identifier",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "name",
             "description": "column name",
             "isDeprecated": false,
@@ -15872,6 +16104,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "latest_repayment_identifier",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -15897,6 +16141,16 @@
           },
           {
             "name": "latest_loan_identifier",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "latest_repayment_identifier",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -15938,6 +16192,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "latest_repayment_identifier",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -15963,6 +16229,16 @@
           },
           {
             "name": "latest_loan_identifier",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "latest_repayment_identifier",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -16004,6 +16280,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "latest_repayment_identifier",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -16029,6 +16317,16 @@
           },
           {
             "name": "latest_loan_identifier",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "latest_repayment_identifier",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -62348,18 +62646,6 @@
             "deprecationReason": null
           },
           {
-            "name": "disbursement_identifier",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "id",
             "description": null,
             "args": [],
@@ -62371,6 +62657,18 @@
                 "name": "uuid",
                 "ofType": null
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "identifier",
+            "description": "Unique identifier for payments scoped to (company_id, identifier)",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -62545,6 +62843,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "date",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "settlement_identifier",
+            "description": "Unique identifier for settled payments scoped to (company_id, type, settlement_identifier)",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "isDeprecated": false,
@@ -63387,21 +63697,21 @@
             "defaultValue": null
           },
           {
-            "name": "disbursement_identifier",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "String_comparison_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "id",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "uuid_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "identifier",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "String_comparison_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -63532,6 +63842,16 @@
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "date_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "settlement_identifier",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "String_comparison_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -63793,21 +64113,21 @@
             "defaultValue": null
           },
           {
-            "name": "disbursement_identifier",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "id",
             "description": null,
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "identifier",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "defaultValue": null
@@ -63943,6 +64263,16 @@
             "defaultValue": null
           },
           {
+            "name": "settlement_identifier",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "submitted_at",
             "description": null,
             "type": {
@@ -64073,24 +64403,24 @@
             "deprecationReason": null
           },
           {
-            "name": "disbursement_identifier",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "id",
             "description": null,
             "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "identifier",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "isDeprecated": false,
@@ -64199,6 +64529,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "date",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "settlement_identifier",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "isDeprecated": false,
@@ -64315,7 +64657,7 @@
             "defaultValue": null
           },
           {
-            "name": "disbursement_identifier",
+            "name": "id",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -64325,7 +64667,7 @@
             "defaultValue": null
           },
           {
-            "name": "id",
+            "name": "identifier",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -64416,6 +64758,16 @@
           },
           {
             "name": "settlement_date",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "settlement_identifier",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -64535,24 +64887,24 @@
             "deprecationReason": null
           },
           {
-            "name": "disbursement_identifier",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "id",
             "description": null,
             "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "identifier",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "isDeprecated": false,
@@ -64661,6 +65013,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "date",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "settlement_identifier",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "isDeprecated": false,
@@ -64777,7 +65141,7 @@
             "defaultValue": null
           },
           {
-            "name": "disbursement_identifier",
+            "name": "id",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -64787,7 +65151,7 @@
             "defaultValue": null
           },
           {
-            "name": "id",
+            "name": "identifier",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -64878,6 +65242,16 @@
           },
           {
             "name": "settlement_date",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "settlement_identifier",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -65151,7 +65525,7 @@
             "defaultValue": null
           },
           {
-            "name": "disbursement_identifier",
+            "name": "id",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -65161,7 +65535,7 @@
             "defaultValue": null
           },
           {
-            "name": "id",
+            "name": "identifier",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -65292,6 +65666,16 @@
           },
           {
             "name": "settlement_date",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "settlement_identifier",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -65450,13 +65834,13 @@
             "deprecationReason": null
           },
           {
-            "name": "disbursement_identifier",
+            "name": "id",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
           },
           {
-            "name": "id",
+            "name": "identifier",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -65523,6 +65907,12 @@
           },
           {
             "name": "settlement_date",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "settlement_identifier",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -65611,21 +66001,21 @@
             "defaultValue": null
           },
           {
-            "name": "disbursement_identifier",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "id",
             "description": null,
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "identifier",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "defaultValue": null
@@ -65736,6 +66126,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "date",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "settlement_identifier",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "defaultValue": null
@@ -66088,13 +66488,13 @@
             "deprecationReason": null
           },
           {
-            "name": "disbursement_identifier",
+            "name": "id",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
           },
           {
-            "name": "id",
+            "name": "identifier",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -66161,6 +66561,12 @@
           },
           {
             "name": "settlement_date",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "settlement_identifier",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

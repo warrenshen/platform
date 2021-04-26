@@ -110,77 +110,88 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 			loan_ids.append(str(loan.id))
 			loans.append(loan)
 
-		for i in range(len(test['transaction_lists'])):
-			transaction_list = test['transaction_lists'][i]
-			loan = loans[i]
-			for tx in transaction_list:
-				_apply_transaction(tx, session, loan)
+			# Create transaction for advance on the loan.
+			advance_transaction = {
+				'type': db_constants.PaymentType.ADVANCE,
+				'amount': l['amount'],
+				'payment_date': l['origination_date'],
+				'effective_date': l['origination_date']
+			}
+			_apply_transaction(advance_transaction, session, loan)
 
 	user_id = seed.get_user_id('company_admin', index=0)
 
-	# Make sure we have a payment already registered in the system that we are settling.
-	payment_id, err = repayment_util.create_repayment(
-		company_id=company_id,
-		payment_insert_input=payment_util.PaymentInsertInputDict(
-			company_id='unused',
-			type='unused',
-			method=test['payment']['payment_method'],
-			requested_amount=number_util.round_currency(test['payment']['amount']),
-			amount=None,
-			requested_payment_date='10/10/2020',
-			payment_date=None,
-			settlement_date='10/10/2020', # unused
-			items_covered={ 'loan_ids': loan_ids },
-			company_bank_account_id=test['payment']['company_bank_account_id'],
-		),
-		user_id=user_id,
-		session_maker=self.session_maker,
-		is_line_of_credit=False)
-	self.assertIsNone(err)
+	payment_ids = []
+	for payment_dict in test['payments']:
+		loan_indices = payment_dict['loan_indices'] if 'loan_indices' in payment_dict else None
+		if loan_indices:
+			repayment_loan_ids = [loan_ids[loan_index] for loan_index in loan_indices]
+		else:
+			repayment_loan_ids = loan_ids
 
-	# Say the payment has already been applied if the test has this value set.
-	with session_scope(session_maker) as session:
-		payment = cast(
-			models.Payment,
-			session.query(models.Payment).filter(
-				models.Payment.id == payment_id
-			).first())
-		# TODO(warrenshen): actually do the "schedule payment" flow to set the payment date.
-		payment.payment_date = date_util.load_date_str(test['payment']['payment_date'])
-		if payment and test['payment'].get('settled_at'):
-			payment.settled_at = test['payment']['settled_at']
+		# Make sure we have a payment already registered in the system that we are settling.
+		payment_id, err = repayment_util.create_repayment(
+			company_id=company_id,
+			payment_insert_input=payment_util.PaymentInsertInputDict(
+				company_id='unused',
+				type='unused',
+				method=payment_dict['payment_method'],
+				requested_amount=number_util.round_currency(payment_dict['amount']),
+				amount=None,
+				requested_payment_date='10/10/2020',
+				payment_date=None,
+				settlement_date='10/10/2020', # unused
+				items_covered={ 'loan_ids': repayment_loan_ids },
+				company_bank_account_id=payment_dict['company_bank_account_id'],
+			),
+			user_id=user_id,
+			session_maker=self.session_maker,
+			is_line_of_credit=False)
+		self.assertIsNone(err)
+		payment_ids.append(payment_id)
 
-		if payment and test['payment'].get('type'):
-			payment.type = test['payment']['type']
+		# Say the payment has already been applied if the test has this value set.
+		with session_scope(session_maker) as session:
+			payment = cast(
+				models.Payment,
+				session.query(models.Payment).filter(
+					models.Payment.id == payment_id
+				).first())
+			# TODO(warrenshen): actually do the "schedule payment" flow to set the payment date.
+			payment.payment_date = date_util.load_date_str(payment_dict['payment_date'])
+			if payment and payment_dict.get('settled_at'):
+				payment.settled_at = payment_dict['settled_at']
 
-	settlement_payment = test['settlement_payment'] if 'settlement_payment' in test else test['payment']
+			if payment and payment_dict.get('type'):
+				payment.type = payment_dict['type']
 
-	if is_line_of_credit:
-		items_covered = settlement_payment['items_covered']
-	else:
-		items_covered = settlement_payment['items_covered'] if 'items_covered' in settlement_payment else {}
-		if 'to_user_credit' not in items_covered:
-			items_covered['to_user_credit'] = 0.0
-		items_covered['loan_ids'] = loan_ids
+		if is_line_of_credit:
+			items_covered = payment_dict['items_covered']
+		else:
+			items_covered = payment_dict['items_covered'] if 'items_covered' in payment_dict else {}
+			if 'to_user_credit' not in items_covered:
+				items_covered['to_user_credit'] = 0.0
+			items_covered['loan_ids'] = repayment_loan_ids
 
-	req = repayment_util.SettleRepaymentReqDict(
-		company_id=company_id,
-		payment_id=payment_id,
-		amount=number_util.round_currency(settlement_payment['amount']),
-		deposit_date=settlement_payment['payment_date'],
-		settlement_date=settlement_payment['settlement_date'],
-		items_covered=items_covered,
-		transaction_inputs=test['transaction_inputs'],
-	)
+		req = repayment_util.SettleRepaymentReqDict(
+			company_id=company_id,
+			payment_id=payment_id,
+			amount=number_util.round_currency(payment_dict['amount']),
+			deposit_date=payment_dict['payment_date'],
+			settlement_date=payment_dict['settlement_date'],
+			items_covered=items_covered,
+			transaction_inputs=payment_dict['transaction_inputs'] if 'transaction_inputs' in payment_dict else None,
+		)
 
-	bank_admin_user_id = seed.get_user_id('bank_admin', index=0)
+		bank_admin_user_id = seed.get_user_id('bank_admin', index=0)
 
-	_, err = repayment_util.settle_repayment(
-		req=req,
-		user_id=bank_admin_user_id,
-		session_maker=self.session_maker,
-		is_line_of_credit=is_line_of_credit,
-	)
+		_, err = repayment_util.settle_repayment(
+			req=req,
+			user_id=bank_admin_user_id,
+			session_maker=self.session_maker,
+			is_line_of_credit=is_line_of_credit,
+		)
+
 	if test.get('in_err_msg'):
 		self.assertIn(test['in_err_msg'], err.msg)
 		return
@@ -188,60 +199,65 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 		self.assertIsNone(err)
 
 	with session_scope(session_maker) as session:
-		payment = cast(
-			models.Payment,
-			session.query(models.Payment).filter(
-				models.Payment.id == payment_id
-			).first())
+		for i in range(len(test['expected_payments'])):
+			original_payment = test['payments'][i]
+			expected_payment = test['expected_payments'][i]
+			payment_id = payment_ids[i]
+			payment = cast(
+				models.Payment,
+				session.query(models.Payment).filter(
+					models.Payment.id == payment_id
+				).first())
 
-		# Assertions on the payment
-		if test.get('expected_payment'):
-			self.assertAlmostEqual(test['expected_payment']['amount'], float(payment.amount))
-		else:
-			self.assertAlmostEqual(test['payment']['amount'], float(payment.amount))
-		self.assertEqual(db_constants.PaymentType.REPAYMENT, payment.type)
-		self.assertEqual(company_id, payment.company_id)
-		self.assertEqual(test['payment']['payment_method'], payment.method)
-		self.assertIsNotNone(payment.submitted_at)
-		self.assertEqual(user_id, payment.submitted_by_user_id)
-		self.assertEqual(test['payment']['payment_date'], date_util.date_to_str(payment.payment_date))
-		self.assertEqual(test['payment']['settlement_date'], date_util.date_to_str(payment.settlement_date))
-		self.assertIsNotNone(payment.settled_at)
-		self.assertEqual(bank_admin_user_id, payment.settled_by_user_id)
+			# Assertions on the payment
+			self.assertAlmostEqual(expected_payment['amount'], float(payment.amount))
+			self.assertEqual(db_constants.PaymentType.REPAYMENT, payment.type)
+			self.assertEqual(company_id, payment.company_id)
+			self.assertEqual(
+				expected_payment['settlement_identifier'] if 'settlement_identifier' in expected_payment else None,
+				payment.settlement_identifier,
+			)
+			self.assertEqual(original_payment['payment_method'], payment.method)
+			self.assertIsNotNone(payment.submitted_at)
+			self.assertEqual(user_id, payment.submitted_by_user_id)
+			self.assertEqual(original_payment['payment_date'], date_util.date_to_str(payment.payment_date))
+			self.assertEqual(original_payment['settlement_date'], date_util.date_to_str(payment.settlement_date))
+			self.assertIsNotNone(payment.settled_at)
+			self.assertEqual(bank_admin_user_id, payment.settled_by_user_id)
 
-		# Assertions on transactions
-		transactions = cast(
-			List[models.Transaction],
-			session.query(models.Transaction).filter(
-				models.Transaction.payment_id == payment_id
-			).all())
+			# Assertions on transactions
+			transactions = cast(
+				List[models.Transaction],
+				session.query(models.Transaction).filter(
+					models.Transaction.payment_id == payment_id
+				).all())
 
-		# self.assertEqual(len(transaction_ids), len(transactions))
-		transactions = [t for t in transactions]
-		transactions.sort(key=lambda t: t.amount, reverse=True) # Sort from largest to least
+			# self.assertEqual(len(transaction_ids), len(transactions))
+			transactions = [t for t in transactions]
+			transactions.sort(key=lambda t: t.amount, reverse=True) # Sort from largest to least
 
-		# TODO(warrenshen): add this assert back in. This assert currently does not
-		# work because `expected_transactions` includes credit_to_user transactions
-		# but `transactions` does not.
-		# self.assertEqual(len(test['expected_transactions']), len(transactions))
-		for i in range(len(transactions)):
-			tx = transactions[i]
-			tx_input = test['expected_transactions'][i]
+			# TODO(warrenshen): add this assert back in. This assert currently does not
+			# work because `expected_transactions` includes credit_to_user transactions
+			# but `transactions` does not.
+			# self.assertEqual(len(test['expected_transactions']), len(transactions))
+			for i in range(len(transactions)):
+				tx = transactions[i]
+				tx_input = expected_payment['expected_transactions'][i]
 
-			self.assertEqual(tx_input['type'], tx.type)
-			self.assertAlmostEqual(tx_input['amount'], float(tx.amount))
-			self.assertAlmostEqual(tx_input['to_principal'], float(tx.to_principal))
-			self.assertAlmostEqual(tx_input['to_fees'], float(tx.to_fees))
+				self.assertEqual(tx_input['type'], tx.type)
+				self.assertAlmostEqual(tx_input['amount'], float(tx.amount))
+				self.assertAlmostEqual(tx_input['to_principal'], float(tx.to_principal))
+				self.assertAlmostEqual(tx_input['to_fees'], float(tx.to_fees))
 
-			loan_id_index = tx_input['loan_id_index']
-			if loan_id_index is None:
-				self.assertIsNone(tx.loan_id)
-			else:
-				self.assertEqual(loan_ids[loan_id_index], str(tx.loan_id))
+				loan_id_index = tx_input['loan_id_index']
+				if loan_id_index is None:
+					self.assertIsNone(tx.loan_id)
+				else:
+					self.assertEqual(loan_ids[loan_id_index], str(tx.loan_id))
 
-			self.assertEqual(payment_id, str(tx.payment_id))
-			self.assertEqual(bank_admin_user_id, tx.created_by_user_id)
-			self.assertEqual(test['payment']['settlement_date'], date_util.date_to_str(tx.effective_date))
+				self.assertEqual(payment_id, str(tx.payment_id))
+				self.assertEqual(bank_admin_user_id, tx.created_by_user_id)
+				self.assertEqual(original_payment['settlement_date'], date_util.date_to_str(tx.effective_date))
 
 		# Assert on loans
 		loans = cast(
@@ -266,7 +282,7 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 			else:
 				self.assertIsNone(cur_loan.closed_at) # we are not closed yet
 
-class TestSettlePayment(db_unittest.TestCase):
+class TestSettleRepayment(db_unittest.TestCase):
 
 	def _run_test(self, test: Dict) -> None:
 		test['is_line_of_credit'] = False
@@ -293,70 +309,55 @@ class TestSettlePayment(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 					}
 				],
-				'transaction_lists': [
-					# Transactions are parallel to the loans defined in the test.
-					# These will be advances or repayments made against their respective loans.
-					[
-						{
-							'type': 'advance',
-							'amount': 50.0,
-							'payment_date': '10/10/2020',
-							'effective_date': '10/10/2020'
-						}
-					],
-					[
-						{
-							'type': 'advance',
-							'amount': 40.0,
-							'payment_date': '10/10/2020',
-							'effective_date': '10/10/2020'
-						}
-					]
+				'payments': [
+					{
+						'amount': 40.0 + 0.3 + 20.0 + 0.24,
+						'payment_method': 'ach',
+						'payment_date': '10/10/2020',
+						'settlement_date': '10/12/2020',
+						'company_bank_account_id': None,
+						'items_covered': {
+							'to_user_credit': 0.0,
+						},
+						'transaction_inputs': [
+							{
+								'amount': 40.0 + 0.3,
+								'to_principal': 40.0,
+								'to_interest': 0.3,
+								'to_fees': 0.0,
+							},
+							{
+								'amount': 20.0 + 0.24,
+								'to_principal': 20.0,
+								'to_interest': 0.24,
+								'to_fees': 0.0,
+							}
+						],
+					},
 				],
-				'payment': {
-					'amount': 40.0 + 0.3 + 20.0 + 0.24,
-					'payment_method': 'ach',
-					'payment_date': '10/10/2020',
-					'settlement_date': '10/12/2020',
-					'items_covered': {
-						'to_user_credit': 0.0,
+				'expected_payments': [
+					{
+						'settlement_identifier': '1',
+						'amount': 40.0 + 0.3 + 20.0 + 0.24,
+						'expected_transactions': [
+							{
+								'type': db_constants.PaymentType.REPAYMENT,
+								'amount': 40.0 + 0.3,
+								'to_principal': 40.0,
+								'to_interest': 0.3,
+								'to_fees': 0.0,
+								'loan_id_index': 0,
+							},
+							{
+								'type': db_constants.PaymentType.REPAYMENT,
+								'amount': 20.0 + 0.24,
+								'to_principal': 20.0,
+								'to_interest': 0.24,
+								'to_fees': 0.0,
+								'loan_id_index': 1
+							}
+						],
 					},
-					'company_bank_account_id': None,
-				},
-				'expected_payment': {
-					'amount': 40.0 + 0.3 + 20.0 + 0.24
-				},
-				'transaction_inputs': [
-					{
-						'amount': 40.0 + 0.3,
-						'to_principal': 40.0,
-						'to_interest': 0.3,
-						'to_fees': 0.0,
-					},
-					{
-						'amount': 20.0 + 0.24,
-						'to_principal': 20.0,
-						'to_interest': 0.24,
-						'to_fees': 0.0,
-					}
-				],
-				'expected_transactions': [
-					{
-						'type': db_constants.PaymentType.REPAYMENT,
-						'amount': 40.0 + 0.3,
-						'to_principal': 40.0,
-						'to_interest': 0.3,
-						'to_fees': 0.0,
-						'loan_id_index': 0,
-					},
-					{
-						'type': db_constants.PaymentType.REPAYMENT,
-						'amount': 20.0 + 0.24,
-						'to_principal': 20.0,
-						'to_interest': 0.24,
-						'to_fees': 0.0,
-						'loan_id_index': 1
-					}
 				],
 				'loans_after_payment': [
 					{
@@ -394,48 +395,41 @@ class TestSettlePayment(db_unittest.TestCase):
 						'outstanding_fees': 0.0, # unused
 					}
 				],
-				'transaction_lists': [
-					# Transactions are parallel to the loans defined in the test.
-					# These will be advances or repayments made against their respective loans.
-					[
-						{
-							'type': 'advance',
-							'amount': 51.02,
-							'payment_date': '10/10/2020',
-							'effective_date': '10/10/2020'
-						}
-					]
-				],
-				'payment': {
-					'amount': round(51.02 + 0.31, 2),
-					'payment_method': 'ach',
-					'payment_date': '10/10/2020',
-					'settlement_date': '10/12/2020',
-					'items_covered': {
-						'to_user_credit': 0.0,
+				'payments': [
+					{
+						'amount': round(51.02 + 0.31, 2),
+						'payment_method': 'ach',
+						'payment_date': '10/10/2020',
+						'settlement_date': '10/12/2020',
+						'company_bank_account_id': None,
+						'items_covered': {
+							'to_user_credit': 0.0,
+						},
+						'transaction_inputs': [
+							{
+								'amount': 51.02 + 0.31,
+								'to_principal': 51.02,
+								'to_interest': 0.31,
+								'to_fees': 0.00,
+							}
+						],
 					},
-					'company_bank_account_id': None,
-				},
-				'expected_payment': {
-					'amount': 51.02 + 0.31
-				},
-				'transaction_inputs': [
-					{
-						'amount': 51.02 + 0.31,
-						'to_principal': 51.02,
-						'to_interest': 0.31,
-						'to_fees': 0.00,
-					}
 				],
-				'expected_transactions': [
+				'expected_payments': [
 					{
-						'type': db_constants.PaymentType.REPAYMENT,
+						'settlement_identifier': '1',
 						'amount': 51.02 + 0.31,
-						'to_principal': 51.02,
-						'to_interest': 0.31,
-						'to_fees': 0.00,
-						'loan_id_index': 0,
-					}
+						'expected_transactions': [
+							{
+								'type': db_constants.PaymentType.REPAYMENT,
+								'amount': 51.02 + 0.31,
+								'to_principal': 51.02,
+								'to_interest': 0.31,
+								'to_fees': 0.00,
+								'loan_id_index': 0,
+							}
+						],
+					},
 				],
 				'loans_after_payment': [
 					{
@@ -466,56 +460,49 @@ class TestSettlePayment(db_unittest.TestCase):
 					'outstanding_fees': 0.0,
 				}
 			],
-			'transaction_lists': [
-				# Transactions are parallel to the loans defined in the test.
-				# These will be advances or repayments made against their respective loans.
-				[
-					{
-						'type': 'advance',
-						'amount': 50.0,
-						'payment_date': '10/10/2020',
-						'effective_date': '10/10/2020'
-					}
-				]
-			],
-			'payment': {
-				'amount': 55.0 + 0.3 + 0.0,
-				'payment_method': 'ach',
-				'payment_date': '10/10/2020',
-				'settlement_date': '10/12/2020',
-				'items_covered': {
-					'to_user_credit': 5.0,
+			'payments':  [
+				{
+					'amount': 55.0 + 0.3 + 0.0,
+					'payment_method': 'ach',
+					'payment_date': '10/10/2020',
+					'settlement_date': '10/12/2020',
+					'company_bank_account_id': None,
+					'items_covered': {
+						'to_user_credit': 5.0,
+					},
+					'transaction_inputs': [
+						{
+							'amount': 50.0 + 0.3 + 0.0,
+							'to_principal': 50.0,
+							'to_interest': 0.3,
+							'to_fees': 0.0,
+						}
+					],
 				},
-				'company_bank_account_id': None,
-			},
-			'expected_payment': {
-				'amount': 55.0 + 0.3 + 0.0
-			},
-			'transaction_inputs': [
-				{
-					'amount': 50.0 + 0.3 + 0.0,
-					'to_principal': 50.0,
-					'to_interest': 0.3,
-					'to_fees': 0.0,
-				}
 			],
-			'expected_transactions': [
-				# Sort order is from largest to smallest
+			'expected_payments': [
 				{
-					'amount': 50.0 + 0.3 + 0.0,
-					'to_principal': 50.0, # $5 overpayment on principal
-					'to_interest': 0.3,
-					'to_fees': 0.0,
-					'type': db_constants.PaymentType.REPAYMENT,
-					'loan_id_index': 0
-				},
-				{
-					'amount': 5.0,
-					'to_principal': 0.0,
-					'to_interest': 0.0,
-					'to_fees': 0.0,
-					'type': db_constants.PaymentType.CREDIT_TO_USER,
-					'loan_id_index': None
+					'settlement_identifier': '1',
+					'amount': 55.0 + 0.3 + 0.0,
+					'expected_transactions': [
+						# Sort order is from largest to smallest
+						{
+							'amount': 50.0 + 0.3 + 0.0,
+							'to_principal': 50.0, # $5 overpayment on principal
+							'to_interest': 0.3,
+							'to_fees': 0.0,
+							'type': db_constants.PaymentType.REPAYMENT,
+							'loan_id_index': 0
+						},
+						{
+							'amount': 5.0,
+							'to_principal': 0.0,
+							'to_interest': 0.0,
+							'to_fees': 0.0,
+							'type': db_constants.PaymentType.CREDIT_TO_USER,
+							'loan_id_index': None
+						},
+					],
 				},
 			],
 			'loans_after_payment': [
@@ -559,83 +546,60 @@ class TestSettlePayment(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 					}
 				],
-				'transaction_lists': [
-					# Transactions are parallel to the loans defined in the test.
-					# These will be advances or repayments made against their respective loans.
-					[
-						{
-							'type': 'advance',
-							'amount': 50.0,
-							'payment_date': '10/10/2020',
-							'effective_date': '10/10/2020'
-						}
-					],
-					[
-						{
-							'type': 'advance',
-							'amount': 40.0,
-							'payment_date': '10/10/2020',
-							'effective_date': '10/10/2020'
-						}
-					],
-					[
-						{
-							'type': 'advance',
-							'amount': 30.0,
-							'payment_date': '10/10/2020',
-							'effective_date': '10/10/2020'
-						}
-					],
-				],
-				'payment': {
-					'amount': 50.0 + 0.3 + 40.0 + 0.24 + 0.0 + 0.0,
-					'payment_method': 'ach',
-					'payment_date': '10/10/2020',
-					'settlement_date': '10/12/2020',
-					'items_covered': {
-						'to_user_credit': 0.0,
-					},
-					'company_bank_account_id': None,
-				},
-				'expected_payment': {
-					'amount': 50.0 + 0.3 + 40.0 + 0.24 + 0.0 + 0.0,
-				},
-				'transaction_inputs': [
+				'payments': [
 					{
-						'amount': 50.0 + 0.3,
-						'to_principal': 50.0,
-						'to_interest': 0.3,
-						'to_fees': 0.0,
-					},
-					{
-						'amount': 40.0 + 0.24,
-						'to_principal': 40.0,
-						'to_interest': 0.24,
-						'to_fees': 0.0,
-					},
-					{
-						'amount': 0.0,
-						'to_principal': 0.0,
-						'to_interest': 0.0,
-						'to_fees': 0.0,
+						'amount': 50.0 + 0.3 + 40.0 + 0.24 + 0.0 + 0.0,
+						'payment_method': 'ach',
+						'payment_date': '10/10/2020',
+						'settlement_date': '10/12/2020',
+						'company_bank_account_id': None,
+						'items_covered': {
+							'to_user_credit': 0.0,
+						},
+						'transaction_inputs': [
+							{
+								'amount': 50.0 + 0.3,
+								'to_principal': 50.0,
+								'to_interest': 0.3,
+								'to_fees': 0.0,
+							},
+							{
+								'amount': 40.0 + 0.24,
+								'to_principal': 40.0,
+								'to_interest': 0.24,
+								'to_fees': 0.0,
+							},
+							{
+								'amount': 0.0,
+								'to_principal': 0.0,
+								'to_interest': 0.0,
+								'to_fees': 0.0,
+							},
+						],
 					},
 				],
-				'expected_transactions': [
+				'expected_payments': [
 					{
-						'type': db_constants.PaymentType.REPAYMENT,
-						'amount': 50.0 + 0.3,
-						'to_principal': 50.0,
-						'to_interest': 0.3,
-						'to_fees': 0.0,
-						'loan_id_index': 0,
-					},
-					{
-						'type': db_constants.PaymentType.REPAYMENT,
-						'amount': 40.0 + 0.24,
-						'to_principal': 40.0,
-						'to_interest': 0.24,
-						'to_fees': 0.0,
-						'loan_id_index': 1
+						'settlement_identifier': '1',
+						'amount': 50.0 + 0.3 + 40.0 + 0.24 + 0.0 + 0.0,
+						'expected_transactions': [
+							{
+								'type': db_constants.PaymentType.REPAYMENT,
+								'amount': 50.0 + 0.3,
+								'to_principal': 50.0,
+								'to_interest': 0.3,
+								'to_fees': 0.0,
+								'loan_id_index': 0,
+							},
+							{
+								'type': db_constants.PaymentType.REPAYMENT,
+								'amount': 40.0 + 0.24,
+								'to_principal': 40.0,
+								'to_interest': 0.24,
+								'to_fees': 0.0,
+								'loan_id_index': 1
+							},
+						],
 					},
 				],
 				'loans_after_payment': [
@@ -695,99 +659,76 @@ class TestSettlePayment(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 					}, # Overpaid with negative balance
 				],
-				'transaction_lists': [
-					# Transactions are parallel to the loans defined in the test.
-					# These will be advances or repayments made against their respective loans.
-					[
-						{
-							'type': 'advance',
-							'amount': 50.0,
-							'payment_date': '10/10/2020',
-							'effective_date': '10/10/2020'
-						},
-					],
-					[
-						{
-							'type': 'advance',
-							'amount': 40.0,
-							'payment_date': '10/10/2020',
-							'effective_date': '10/10/2020'
-						},
-					],
-					[
-						{
-							'type': 'advance',
-							'amount': 30.0,
-							'payment_date': '10/10/2020',
-							'effective_date': '10/10/2020'
-						},
-					],
-				],
-				'payment': {
-					'amount': 45.0 + 40.0 + 0.24 + 30.0 + 0.18 + 5.0, # 5.0 is the overpayment
-					'payment_method': 'ach',
-					'payment_date': '10/10/2020',
-					'settlement_date': '10/12/2020',
-					'items_covered': {
-						'to_user_credit': 5.0,
-					},
-					'company_bank_account_id': None,
-				},
-				'expected_payment': {
-					'amount': 45.0 + 40.0 + 0.24 + 30.0 + 0.18 + 5.0
-				},
-				'transaction_inputs': [
+				'payments': [
 					{
-						'amount': 45.0,
-						'to_principal': 45.0,
-						'to_interest': 0.0,
-						'to_fees': 0.0
-					},
-					{
-						'amount': 40.0 + 0.24,
-						'to_principal': 40.0,
-						'to_interest': 0.24,
-						'to_fees': 0.0
-					},
-					{
-						'amount': 30.0 + 0.18,
-						'to_principal': 30.0,
-						'to_interest': 0.18,
-						'to_fees': 0.0
+						'amount': 45.0 + 40.0 + 0.24 + 30.0 + 0.18 + 5.0, # 5.0 is the overpayment
+						'payment_method': 'ach',
+						'payment_date': '10/10/2020',
+						'settlement_date': '10/12/2020',
+						'company_bank_account_id': None,
+						'items_covered': {
+							'to_user_credit': 5.0,
+						},
+						'transaction_inputs': [
+							{
+								'amount': 45.0,
+								'to_principal': 45.0,
+								'to_interest': 0.0,
+								'to_fees': 0.0
+							},
+							{
+								'amount': 40.0 + 0.24,
+								'to_principal': 40.0,
+								'to_interest': 0.24,
+								'to_fees': 0.0
+							},
+							{
+								'amount': 30.0 + 0.18,
+								'to_principal': 30.0,
+								'to_interest': 0.18,
+								'to_fees': 0.0
+							},
+						],
 					},
 				],
-				'expected_transactions': [
+				'expected_payments': [
 					{
-						'amount': 45.0,
-						'to_principal': 45.0,
-						'to_interest': 0.0,
-						'to_fees': 0.0,
-						'type': db_constants.PaymentType.REPAYMENT,
-						'loan_id_index': 0
-					},
-					{
-						'amount': 40.0 + 0.24,
-						'to_principal': 40.0,
-						'to_interest': 0.24,
-						'to_fees': 0.0,
-						'type': db_constants.PaymentType.REPAYMENT,
-						'loan_id_index': 1
-					},
-					{
-						'amount': 30.0 + 0.18,
-						'to_principal': 30.0,
-						'to_interest': 0.18,
-						'to_fees': 0.0,
-						'type': db_constants.PaymentType.REPAYMENT,
-						'loan_id_index': 2
-					},
-					{
-						'amount': 5.0,
-						'to_principal': 0.0,
-						'to_interest': 0.0,
-						'to_fees': 0.0,
-						'type': db_constants.PaymentType.CREDIT_TO_USER,
-						'loan_id_index': None
+						'settlement_identifier': '1',
+						'amount': 45.0 + 40.0 + 0.24 + 30.0 + 0.18 + 5.0,
+						'expected_transactions': [
+							{
+								'amount': 45.0,
+								'to_principal': 45.0,
+								'to_interest': 0.0,
+								'to_fees': 0.0,
+								'type': db_constants.PaymentType.REPAYMENT,
+								'loan_id_index': 0
+							},
+							{
+								'amount': 40.0 + 0.24,
+								'to_principal': 40.0,
+								'to_interest': 0.24,
+								'to_fees': 0.0,
+								'type': db_constants.PaymentType.REPAYMENT,
+								'loan_id_index': 1
+							},
+							{
+								'amount': 30.0 + 0.18,
+								'to_principal': 30.0,
+								'to_interest': 0.18,
+								'to_fees': 0.0,
+								'type': db_constants.PaymentType.REPAYMENT,
+								'loan_id_index': 2
+							},
+							{
+								'amount': 5.0,
+								'to_principal': 0.0,
+								'to_interest': 0.0,
+								'to_fees': 0.0,
+								'type': db_constants.PaymentType.CREDIT_TO_USER,
+								'loan_id_index': None
+							},
+						],
 					},
 				],
 				'loans_after_payment': [
@@ -818,6 +759,112 @@ class TestSettlePayment(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
+	def test_fully_paid_over_two_payments(self) -> None:
+		tests: List[Dict] = [
+			{
+				'loans': [
+					{
+						'amount': 50.0,
+						'origination_date': '10/10/2020',
+						'maturity_date': '10/24/2020',
+						'outstanding_principal_balance': 50.0,
+						'outstanding_interest': 0.3,
+						'outstanding_fees': 0.0,
+					}, # Partially and closed
+					{
+						'amount': 40.0,
+						'origination_date': '10/10/2020',
+						'maturity_date': '10/24/2020',
+						'outstanding_principal_balance': 40.0,
+						'outstanding_interest': 0.24,
+						'outstanding_fees': 0.0,
+					}, # Paid and closed
+				],
+				'payments': [
+					{
+						'amount': 50.0 + 0.3,
+						'payment_method': 'ach',
+						'payment_date': '10/10/2020',
+						'settlement_date': '10/12/2020',
+						'company_bank_account_id': None,
+						'transaction_inputs': [
+							{
+								'amount': 50.0 + 0.3,
+								'to_principal': 50.0,
+								'to_interest': 0.3,
+								'to_fees': 0.0
+							},
+						],
+						'loan_indices': [0],
+					},
+					{
+						'amount': 40.0 + 0.24,
+						'payment_method': 'ach',
+						'payment_date': '10/10/2020',
+						'settlement_date': '10/12/2020',
+						'company_bank_account_id': None,
+						'transaction_inputs': [
+							{
+								'amount': 40.0 + 0.24,
+								'to_principal': 40.0,
+								'to_interest': 0.24,
+								'to_fees': 0.0
+							},
+						],
+						'loan_indices': [1],
+					},
+				],
+				'expected_payments': [
+					{
+						'settlement_identifier': '1',
+						'amount': 50.0 + 0.3,
+						'expected_transactions': [
+							{
+								'amount': 50.0 + 0.3,
+								'to_principal': 50.0,
+								'to_interest': 0.3,
+								'to_fees': 0.0,
+								'type': db_constants.PaymentType.REPAYMENT,
+								'loan_id_index': 0
+							},
+						],
+					},
+					{
+						'settlement_identifier': '2',
+						'amount': 40.0 + 0.24,
+						'expected_transactions': [
+							{
+								'amount': 40.0 + 0.24,
+								'to_principal': 40.0,
+								'to_interest': 0.24,
+								'to_fees': 0.0,
+								'type': db_constants.PaymentType.REPAYMENT,
+								'loan_id_index': 1
+							},
+						],
+					},
+				],
+				'loans_after_payment': [
+					{
+						'amount': 50.0,
+						'outstanding_principal_balance': 50.0 - 50.0,
+						'outstanding_interest': 0.3 - 0.3,
+						'outstanding_fees': 0.0,
+						'payment_status': PaymentStatusEnum.CLOSED
+					},
+					{
+						'amount': 40.0,
+						'outstanding_principal_balance': 40.0 - 40.0,
+						'outstanding_interest': 0.24 - 0.24,
+						'outstanding_fees': 0.0,
+						'payment_status': PaymentStatusEnum.CLOSED
+					},
+				]
+			}
+		]
+		for test in tests:
+			self._run_test(test)
+
 	def test_failure_overpayment_the_wrong_way_using_principal_overpayment(self) -> None:
 		"""
 		Tests that an overpayment on the principal gets rejected
@@ -833,53 +880,46 @@ class TestSettlePayment(db_unittest.TestCase):
 					'outstanding_fees': 0.0,
 				}
 			],
-			'transaction_lists': [
-				# Transactions are parallel to the loans defined in the test.
-				# These will be advances or repayments made against their respective loans.
-				[
-					{
-						'type': 'advance',
-						'amount': 50.0,
-						'payment_date': '10/10/2020',
-						'effective_date': '10/10/2020'
-					}
-				]
-			],
-			'payment': {
-				'amount': 55.0 + 0.3 + 0.0,
-				'payment_method': 'ach',
-				'payment_date': '10/10/2020',
-				'settlement_date': '10/12/2020',
-				'company_bank_account_id': None,
-			},
-			'expected_payment': {
-				'amount': 55.0 + 0.3 + 0.0
-			},
-			'transaction_inputs': [
+			'payments': [
 				{
 					'amount': 55.0 + 0.3 + 0.0,
-					'to_principal': 55.0,
-					'to_interest': 0.3,
-					'to_fees': 0.0,
-				}
-			],
-			'expected_transactions': [
-				# Sort order is from largest to smallest
-				{
-					'amount': 50.0 + 0.3 + 0.0,
-					'to_principal': 50.0, # $5 overpayment on principal
-					'to_interest': 0.3,
-					'to_fees': 0.0,
-					'type': db_constants.PaymentType.REPAYMENT,
-					'loan_id_index': 0
+					'payment_method': 'ach',
+					'payment_date': '10/10/2020',
+					'settlement_date': '10/12/2020',
+					'company_bank_account_id': None,
+					'transaction_inputs': [
+						{
+							'amount': 55.0 + 0.3 + 0.0,
+							'to_principal': 55.0,
+							'to_interest': 0.3,
+							'to_fees': 0.0,
+						}
+					],
 				},
+			],
+			'expected_payments': [
 				{
-					'amount': 5.0,
-					'to_principal': 0.0,
-					'to_interest': 0.0,
-					'to_fees': 0.0,
-					'type': db_constants.PaymentType.CREDIT_TO_USER,
-					'loan_id_index': None
+					'settlement_identifier': '1',
+					'amount': 55.0 + 0.3 + 0.0,
+					'expected_transactions': [
+						# Sort order is from largest to smallest
+						{
+							'amount': 50.0 + 0.3 + 0.0,
+							'to_principal': 50.0, # $5 overpayment on principal
+							'to_interest': 0.3,
+							'to_fees': 0.0,
+							'type': db_constants.PaymentType.REPAYMENT,
+							'loan_id_index': 0
+						},
+						{
+							'amount': 5.0,
+							'to_principal': 0.0,
+							'to_interest': 0.0,
+							'to_fees': 0.0,
+							'type': db_constants.PaymentType.CREDIT_TO_USER,
+							'loan_id_index': None
+						},
+					],
 				},
 			],
 			'loans_after_payment': [
@@ -896,7 +936,6 @@ class TestSettlePayment(db_unittest.TestCase):
 		self._run_test(test)
 
 	def test_failure_transactions_overpay_on_interest_and_fees_get_stored_on_principal(self) -> None:
-
 		test: Dict = {
 			'loans': [
 				{
@@ -916,49 +955,34 @@ class TestSettlePayment(db_unittest.TestCase):
 					'outstanding_fees': 0.0,
 				}
 			],
-			'transaction_lists': [
-				# Transactions are parallel to the loans defined in the test.
-				# These will be advances or repayments made against their respective loans.
-				[
-					{
-						'type': 'advance',
-						'amount': 50.0,
-						'payment_date': '10/10/2020',
-						'effective_date': '10/10/2020'
-					},
-				],
-				[
-					{
-						'type': 'advance',
-						'amount': 40.0,
-						'payment_date': '10/10/2020',
-						'effective_date': '10/10/2020'
-					},
-				],
-			],
-			'payment': {
-				'amount': (50.0 + 0.3 + 10.0 + 5.0) + (40.0 + 0.0 + 5.0 + 1.0),
-				'payment_method': 'ach',
-				'payment_date': '10/10/2020',
-				'settlement_date': '10/12/2020',
-				'company_bank_account_id': None,
-			},
-			'expected_payment': {
-				'amount': (50.0 + 0.3 + 10.0 + 5.0) + (40.0 + 0.0 + 5.0 + 1.0)
-			},
-			'transaction_inputs': [
+			'payments': [
 				{
-					'amount': 50.0 + 0.3 + 10.0 + 5.0,
-					'to_principal': 50.0,
-					'to_interest': 0.3 + 10.0, # $10 overpayment on interest
-					'to_fees': 5.0, # $5 overpayment on fees
+					'amount': (50.0 + 0.3 + 10.0 + 5.0) + (40.0 + 0.0 + 5.0 + 1.0),
+					'payment_method': 'ach',
+					'payment_date': '10/10/2020',
+					'settlement_date': '10/12/2020',
+					'company_bank_account_id': None,
+					'transaction_inputs': [
+						{
+							'amount': 50.0 + 0.3 + 10.0 + 5.0,
+							'to_principal': 50.0,
+							'to_interest': 0.3 + 10.0, # $10 overpayment on interest
+							'to_fees': 5.0, # $5 overpayment on fees
+						},
+						{
+							'amount': 40.0 + 0.0 + 5.0 + 1.0,
+							'to_principal': 40.0, # $10 overpayment on principal
+							'to_interest': 0.0 + 5.0, # $5 overpayment on interest
+							'to_fees': 1.0, # $1 overpayment on fees
+						}
+					],
 				},
+			],
+			'expected_payments': [
 				{
-					'amount': 40.0 + 0.0 + 5.0 + 1.0,
-					'to_principal': 40.0, # $10 overpayment on principal
-					'to_interest': 0.0 + 5.0, # $5 overpayment on interest
-					'to_fees': 1.0, # $1 overpayment on fees
-				}
+					'settlement_identifier': '1',
+					'amount': (50.0 + 0.3 + 10.0 + 5.0) + (40.0 + 0.0 + 5.0 + 1.0)
+				},
 			],
 			'loans_after_payment': [
 				{
@@ -994,45 +1018,38 @@ class TestSettlePayment(db_unittest.TestCase):
 					'outstanding_fees': 0.0,
 				}
 			],
-			'transaction_lists': [
-				# Transactions are parallel to the loans defined in the test.
-				# These will be advances or repayments made against their respective loans.
-				[
-					{
-						'type': 'advance',
-						'amount': 50.0,
-						'payment_date': '10/10/2020',
-						'effective_date': '10/10/2020'
-					},
-				],
-			],
-			'payment': {
-				'amount': 50.0 + 0.0 + 0.0,
-				'payment_method': 'ach',
-				'payment_date': '10/10/2020',
-				'settlement_date': '10/12/2020',
-				'company_bank_account_id': None,
-			},
-			'expected_payment': {
-				'amount': 50.0 + 0.0 + 0.0,
-			},
-			'transaction_inputs': [
+			'payments': [
 				{
 					'amount': 50.0 + 0.0 + 0.0,
-					'to_principal': 50.0,
-					'to_interest': 0.0,
-					'to_fees': 0.0,
-				}
+					'payment_method': 'ach',
+					'payment_date': '10/10/2020',
+					'settlement_date': '10/12/2020',
+					'company_bank_account_id': None,
+					'transaction_inputs': [
+						{
+							'amount': 50.0 + 0.0 + 0.0,
+							'to_principal': 50.0,
+							'to_interest': 0.0,
+							'to_fees': 0.0,
+						}
+					],
+				},
 			],
-			'expected_transactions': [
+			'expected_payments': [
 				{
+					'settlement_identifier': '1',
 					'amount': 50.0 + 0.0 + 0.0,
-					'to_principal': 50.0,
-					'to_interest': 0.0,
-					'to_fees': 0.0,
-					'type': db_constants.PaymentType.REPAYMENT,
-					'loan_id_index': 0
-				}
+					'expected_transactions': [
+						{
+							'amount': 50.0 + 0.0 + 0.0,
+							'to_principal': 50.0,
+							'to_interest': 0.0,
+							'to_fees': 0.0,
+							'type': db_constants.PaymentType.REPAYMENT,
+							'loan_id_index': 0
+						}
+					],
+				},
 			],
 			'loans_after_payment': [
 				{
@@ -1062,35 +1079,28 @@ class TestSettlePayment(db_unittest.TestCase):
 					'outstanding_fees': 0.0,
 				}
 			],
-			'transaction_lists': [
-				# Transactions are parallel to the loans defined in the test.
-				# These will be advances or repayments made against their respective loans.
-				[
-					{
-						'type': 'advance',
-						'amount': 50.0,
-						'payment_date': '10/10/2020',
-						'effective_date': '10/10/2020'
-					},
-				],
-			],
-			'payment': {
-				'amount': 50.0 + 10.0 + 0.0 + 0.0,
-				'payment_method': 'ach',
-				'payment_date': '10/10/2020',
-				'settlement_date': '10/12/2020',
-				'company_bank_account_id': None,
-			},
-			'expected_payment': {
-				'amount': 50.0 + 10.0 + 0.0 + 0.0,
-			},
-			'transaction_inputs': [
+			'payments': [
 				{
 					'amount': 50.0 + 10.0 + 0.0 + 0.0,
-					'to_principal': 50.0 + 10.0, # $10 overpayment on principal
-					'to_interest': 0.0, # underpayment on interest
-					'to_fees': 0.0,
-				}
+					'payment_method': 'ach',
+					'payment_date': '10/10/2020',
+					'settlement_date': '10/12/2020',
+					'company_bank_account_id': None,
+					'transaction_inputs': [
+						{
+							'amount': 50.0 + 10.0 + 0.0 + 0.0,
+							'to_principal': 50.0 + 10.0, # $10 overpayment on principal
+							'to_interest': 0.0, # underpayment on interest
+							'to_fees': 0.0,
+						}
+					],
+				},
+			],
+			'expected_payments': [
+				{
+					'settlement_identifier': '1',
+					'amount': 50.0 + 10.0 + 0.0 + 0.0,
+				},
 			],
 			'loans_after_payment': [
 				{
@@ -1162,40 +1172,22 @@ class TestSettlePayment(db_unittest.TestCase):
 					'outstanding_fees': 0.0,
 				}
 			],
-			'transaction_lists': [
-				# Transactions are parallel to the loans defined in the test.
-				# These will be advances or repayments made against their respective loans.
-				[
-					{
-						'type': 'advance',
-						'amount': 50.0,
-						'payment_date': '10/10/2020',
-						'effective_date': '10/10/2020'
-					},
-				],
-				[
-					{
-						'type': 'advance',
-						'amount': 40.0,
-						'payment_date': '10/10/2020',
-						'effective_date': '10/10/2020'
-					},
-				],
-			],
-			'payment': {
-				'amount': 30.0 + 0.0 + 0.0,
-				'payment_method': 'unused',
-				'payment_date': '10/10/20',
-				'settlement_date': '10/10/20',
-				'company_bank_account_id': None,
-			},
-			'transaction_inputs': [
+			'payments': [
 				{
 					'amount': 30.0 + 0.0 + 0.0,
-					'to_principal': 30.0,
-					'to_interest': 0.0,
-					'to_fees': 0.0,
-				}
+					'payment_method': 'unused',
+					'payment_date': '10/10/20',
+					'settlement_date': '10/10/20',
+					'company_bank_account_id': None,
+					'transaction_inputs': [
+						{
+							'amount': 30.0 + 0.0 + 0.0,
+							'to_principal': 30.0,
+							'to_interest': 0.0,
+							'to_fees': 0.0,
+						}
+					],
+				},
 			],
 			'in_err_msg': 'Unequal amount of transaction'
 		}
@@ -1213,33 +1205,23 @@ class TestSettlePayment(db_unittest.TestCase):
 					'outstanding_fees': 20.01
 				},
 			],
-			'transaction_lists': [
-				# Transactions are parallel to the loans defined in the test.
-				# These will be advances or repayments made against their respective loans.
-				[
-					{
-						'type': 'advance',
-						'amount': 50.0,
-						'payment_date': '10/10/2020',
-						'effective_date': '10/10/2020'
-					},
-				],
-			],
-			'payment': {
-				'amount': 30.0 + 0.0 + 0.0,
-				'payment_method': 'unused',
-				'settled_at': date_util.today_as_date(),
-				'payment_date': '10/10/20',
-				'settlement_date': '10/10/20',
-				'company_bank_account_id': None,
-			},
-			'transaction_inputs': [
+			'payments': [
 				{
 					'amount': 30.0 + 0.0 + 0.0,
-					'to_principal': 30.0,
-					'to_interest': 0.0,
-					'to_fees': 0.0,
-				}
+					'payment_method': 'unused',
+					'settled_at': date_util.today_as_date(),
+					'payment_date': '10/10/20',
+					'settlement_date': '10/10/20',
+					'company_bank_account_id': None,
+					'transaction_inputs': [
+						{
+							'amount': 30.0 + 0.0 + 0.0,
+							'to_principal': 30.0,
+							'to_interest': 0.0,
+							'to_fees': 0.0,
+						}
+					],
+				},
 			],
 			'in_err_msg': 'already been settled'
 		}
@@ -1257,33 +1239,23 @@ class TestSettlePayment(db_unittest.TestCase):
 					'outstanding_fees': 20.01
 				},
 			],
-			'transaction_lists': [
-				# Transactions are parallel to the loans defined in the test.
-				# These will be advances or repayments made against their respective loans.
-				[
-					{
-						'type': 'advance',
-						'amount': 50.0,
-						'payment_date': '10/10/2020',
-						'effective_date': '10/10/2020'
-					},
-				],
-			],
-			'payment': {
-				'type': db_constants.PaymentType.ADVANCE,
-				'amount': 30.0 + 0.0 + 0.0,
-				'payment_method': 'unused',
-				'payment_date': '10/10/20',
-				'settlement_date': '10/10/20',
-				'company_bank_account_id': None,
-			},
-			'transaction_inputs': [
+			'payments': [
 				{
+					'type': db_constants.PaymentType.ADVANCE,
 					'amount': 30.0 + 0.0 + 0.0,
-					'to_principal': 30.0,
-					'to_interest': 0.0,
-					'to_fees': 0.0,
-				}
+					'payment_method': 'unused',
+					'payment_date': '10/10/20',
+					'settlement_date': '10/10/20',
+					'company_bank_account_id': None,
+					'transaction_inputs': [
+						{
+							'amount': 30.0 + 0.0 + 0.0,
+							'to_principal': 30.0,
+							'to_interest': 0.0,
+							'to_fees': 0.0,
+						}
+					],
+				},
 			],
 			'in_err_msg': 'only apply repayments'
 		}
@@ -1302,32 +1274,22 @@ class TestSettlePayment(db_unittest.TestCase):
 					'outstanding_fees': 20.01
 				},
 			],
-			'transaction_lists': [
-				# Transactions are parallel to the loans defined in the test.
-				# These will be advances or repayments made against their respective loans.
-				[
-					{
-						'type': 'advance',
-						'amount': 50.0,
-						'payment_date': '10/10/2020',
-						'effective_date': '10/10/2020'
-					},
-				],
-			],
-			'payment': {
-				'amount': 30.0 + 0.0 + 0.0,
-				'payment_method': 'unused',
-				'payment_date': '10/10/20',
-				'settlement_date': '10/10/20',
-				'company_bank_account_id': None,
-			},
-			'transaction_inputs': [
+			'payments': [
 				{
-					'amount': 30.0 + 0.0 + 0.0 + err_amount,
-					'to_principal': 30.0,
-					'to_interest': 0.0,
-					'to_fees': 0.0 + err_amount,
-				}
+					'amount': 30.0 + 0.0 + 0.0,
+					'payment_method': 'unused',
+					'payment_date': '10/10/20',
+					'settlement_date': '10/10/20',
+					'company_bank_account_id': None,
+					'transaction_inputs': [
+						{
+							'amount': 30.0 + 0.0 + 0.0 + err_amount,
+							'to_principal': 30.0,
+							'to_interest': 0.0,
+							'to_fees': 0.0 + err_amount,
+						}
+					],
+				},
 			],
 			'in_err_msg': 'Sum of transactions and credit to user'
 		}
@@ -1346,33 +1308,23 @@ class TestSettlePayment(db_unittest.TestCase):
 					'outstanding_fees': 20.01
 				},
 			],
-			'transaction_lists': [
-				# Transactions are parallel to the loans defined in the test.
-				# These will be advances or repayments made against their respective loans.
-				[
-					{
-						'type': 'advance',
-						'amount': 50.0,
-						'payment_date': '10/10/2020',
-						'effective_date': '10/10/2020'
-					},
-				],
-			],
-			'payment': {
-				'amount': 30.0 + 0.0 + 0.0 + err_amount,
-				'payment_method': 'unused',
-				'payment_date': '10/10/20',
-				'settlement_date': '10/10/20',
-				'company_bank_account_id': None,
-			},
-			'transaction_inputs': [
+			'payments': [
 				{
-					'amount': 30.0 + 0.0 + 0.0,
-					'to_principal': 30.0,
-					'to_interest': 0.0,
-					'to_fees': 0.0 + err_amount,
-					'to_user_credit': 0.0,
-				}
+					'amount': 30.0 + 0.0 + 0.0 + err_amount,
+					'payment_method': 'unused',
+					'payment_date': '10/10/20',
+					'settlement_date': '10/10/20',
+					'company_bank_account_id': None,
+					'transaction_inputs': [
+						{
+							'amount': 30.0 + 0.0 + 0.0,
+							'to_principal': 30.0,
+							'to_interest': 0.0,
+							'to_fees': 0.0 + err_amount,
+							'to_user_credit': 0.0,
+						}
+					],
+				},
 			],
 			'in_err_msg': 'Transaction at index 0 does not balance'
 		}
@@ -1399,33 +1351,36 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 					},
 				],
-				'transaction_lists': [
-					# Transactions are parallel to the loans defined in the test.
-					# These will be advances or repayments made against their respective loans.
-					[{'type': 'advance', 'amount': 50.0, 'payment_date': '10/10/2020', 'effective_date': '10/10/2020'}],
-				],
-				'payment': {
-					'amount': 50.0 + 0.4,
-					'payment_method': 'ach',
-					'payment_date': '10/11/2020',
-					'settlement_date': '10/13/2020',
-					'items_covered': {
-						'requested_to_principal': 50.0,
-						'requested_to_interest': 0.4,
-						'to_principal': 50.0,
-						'to_interest': 0.4,
-						'to_user_credit': 0.0,
-					 },
-					 'company_bank_account_id': None,
-				},
-				'expected_transactions': [
+				'payments': [
 					{
 						'amount': 50.0 + 0.4,
-						'to_principal': 50.0,
-						'to_interest': 0.4,
-						'to_fees': 0.0,
-						'type': db_constants.PaymentType.REPAYMENT,
-						'loan_id_index': 0
+						'payment_method': 'ach',
+						'payment_date': '10/11/2020',
+						'settlement_date': '10/13/2020',
+						'company_bank_account_id': None,
+						'items_covered': {
+							'requested_to_principal': 50.0,
+							'requested_to_interest': 0.4,
+							'to_principal': 50.0,
+							'to_interest': 0.4,
+							'to_user_credit': 0.0,
+						},
+					},
+				],
+				'expected_payments': [
+					{
+						'settlement_identifier': '1',
+						'amount': 50.0 + 0.4,
+						'expected_transactions': [
+							{
+								'amount': 50.0 + 0.4,
+								'to_principal': 50.0,
+								'to_interest': 0.4,
+								'to_fees': 0.0,
+								'type': db_constants.PaymentType.REPAYMENT,
+								'loan_id_index': 0
+							},
+						],
 					},
 				],
 				'loans_after_payment': [
@@ -1456,39 +1411,42 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 					},
 				],
-				'transaction_lists': [
-					# Transactions are parallel to the loans defined in the test.
-					# These will be advances or repayments made against their respective loans.
-					[{'type': 'advance', 'amount': 50.0, 'payment_date': '10/10/2020', 'effective_date': '10/10/2020'}],
+				'payments': [
+					{
+						'amount': 50.0 + 0.4 + 10.0,
+						'payment_method': 'ach',
+						'payment_date': '10/11/2020',
+						'settlement_date': '10/13/2020',
+						'company_bank_account_id': None,
+						'items_covered': {
+							'to_principal': 50.0,
+							'to_interest': 0.4,
+							'to_user_credit': 10.0,
+						},
+					},
 				],
-				'payment': {
-					'amount': 50.0 + 0.4 + 10.0,
-					'payment_method': 'ach',
-					'payment_date': '10/11/2020',
-					'settlement_date': '10/13/2020',
-					'items_covered': {
-						'to_principal': 50.0,
-						'to_interest': 0.4,
-						'to_user_credit': 10.0,
-					},
-					'company_bank_account_id': None,
-				},
-				'expected_transactions': [
+				'expected_payments': [
 					{
-						'amount': 50.0 + 0.4,
-						'to_principal': 50.0,
-						'to_interest': 0.4,
-						'to_fees': 0.0,
-						'type': db_constants.PaymentType.REPAYMENT,
-						'loan_id_index': 0
-					},
-					{
-						'amount': 10.0,
-						'to_principal': 0.0,
-						'to_interest': 0.0,
-						'to_fees': 0.0,
-						'type': db_constants.PaymentType.CREDIT_TO_USER,
-						'loan_id_index': None
+						'settlement_identifier': '1',
+						'amount': 50.0 + 0.4 + 10.0,
+						'expected_transactions': [
+							{
+								'amount': 50.0 + 0.4,
+								'to_principal': 50.0,
+								'to_interest': 0.4,
+								'to_fees': 0.0,
+								'type': db_constants.PaymentType.REPAYMENT,
+								'loan_id_index': 0
+							},
+							{
+								'amount': 10.0,
+								'to_principal': 0.0,
+								'to_interest': 0.0,
+								'to_fees': 0.0,
+								'type': db_constants.PaymentType.CREDIT_TO_USER,
+								'loan_id_index': None
+							},
+						],
 					},
 				],
 				'loans_after_payment': [
@@ -1519,33 +1477,36 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 					},
 				],
-				'transaction_lists': [
-					# Transactions are parallel to the loans defined in the test.
-					# These will be advances or repayments made against their respective loans.
-					[{'type': 'advance', 'amount': 50.0, 'payment_date': '10/10/2020', 'effective_date': '10/10/2020'}],
-				],
-				'payment': {
-					'amount': 50.0 + 0.0,
-					'payment_method': 'ach',
-					'payment_date': '10/11/2020',
-					'settlement_date': '10/13/2020',
-					'items_covered': {
-						'requested_to_principal': 50.0,
-						'requested_to_interest': 0.0,
-						'to_principal': 50.0,
-						'to_interest': 0.0,
-						'to_user_credit': 0.0,
-					},
-					'company_bank_account_id': None,
-				},
-				'expected_transactions': [
+				'payments': [
 					{
 						'amount': 50.0 + 0.0,
-						'to_principal': 50.0,
-						'to_interest': 0.0,
-						'to_fees': 0.0,
-						'type': db_constants.PaymentType.REPAYMENT,
-						'loan_id_index': 0
+						'payment_method': 'ach',
+						'payment_date': '10/11/2020',
+						'settlement_date': '10/13/2020',
+						'items_covered': {
+							'requested_to_principal': 50.0,
+							'requested_to_interest': 0.0,
+							'to_principal': 50.0,
+							'to_interest': 0.0,
+							'to_user_credit': 0.0,
+						},
+						'company_bank_account_id': None,
+					},
+				],
+				'expected_payments': [
+					{
+						'settlement_identifier': '1',
+						'amount': 50.0 + 0.0,
+						'expected_transactions': [
+							{
+								'amount': 50.0 + 0.0,
+								'to_principal': 50.0,
+								'to_interest': 0.0,
+								'to_fees': 0.0,
+								'type': db_constants.PaymentType.REPAYMENT,
+								'loan_id_index': 0
+							},
+						],
 					},
 				],
 				'loans_after_payment': [
@@ -1576,33 +1537,36 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 						'outstanding_fees': 0.0,
 					},
 				],
-				'transaction_lists': [
-					# Transactions are parallel to the loans defined in the test.
-					# These will be advances or repayments made against their respective loans.
-					[{'type': 'advance', 'amount': 50.0, 'payment_date': '10/10/2020', 'effective_date': '10/10/2020'}],
-				],
-				'payment': {
-					'amount': 0.0 + 0.4,
-					'payment_method': 'ach',
-					'payment_date': '10/11/2020',
-					'settlement_date': '10/13/2020',
-					'items_covered': {
-						'requested_to_principal': 0.0,
-						'requested_to_interest': 0.4,
-						'to_principal': 0.0,
-						'to_interest': 0.4,
-						'to_user_credit': 0.0,
-					},
-					'company_bank_account_id': None,
-				},
-				'expected_transactions': [
+				'payments': [
 					{
 						'amount': 0.0 + 0.4,
-						'to_principal': 0.0,
-						'to_interest': 0.4,
-						'to_fees': 0.0,
-						'type': db_constants.PaymentType.REPAYMENT,
-						'loan_id_index': 0
+						'payment_method': 'ach',
+						'payment_date': '10/11/2020',
+						'settlement_date': '10/13/2020',
+						'company_bank_account_id': None,
+						'items_covered': {
+							'requested_to_principal': 0.0,
+							'requested_to_interest': 0.4,
+							'to_principal': 0.0,
+							'to_interest': 0.4,
+							'to_user_credit': 0.0,
+						},
+					},
+				],
+				'expected_payments': [
+					{
+						'settlement_identifier': '1',
+						'amount': 0.0 + 0.4,
+						'expected_transactions': [
+							{
+								'amount': 0.0 + 0.4,
+								'to_principal': 0.0,
+								'to_interest': 0.4,
+								'to_fees': 0.0,
+								'type': db_constants.PaymentType.REPAYMENT,
+								'loan_id_index': 0
+							},
+						],
 					},
 				],
 				'loans_after_payment': [
@@ -1642,43 +1606,45 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 						'outstanding_fees': 0.0
 					},
 				],
-				'transaction_lists': [
-					# Transactions are parallel to the loans defined in the test.
-					# These will be advances or repayments made against their respective loans.
-					[{'type': 'advance', 'amount': 50.0, 'payment_date': '10/10/2020', 'effective_date': '10/10/2020'}],
-					[{'type': 'advance', 'amount': 100.0, 'payment_date': '10/11/2020', 'effective_date': '10/11/2020'}],
+				'payments': [
+					{
+						'amount': 50.0 + 0.4 + 100 + 0.6,
+						'payment_method': 'ach',
+						'payment_date': '10/11/2020',
+						'settlement_date': '10/13/2020',
+						'company_bank_account_id': None,
+						'items_covered': {
+							'requested_to_principal': 50.0 + 100.0,
+							'requested_to_interest': 0.4 + 0.6,
+							'to_principal': 50.0 + 100.0,
+							'to_interest': 0.4 + 0.6,
+							'to_user_credit': 0.0,
+						},
+					},
 				],
-				'payment': {
-					'amount': 50.0 + 0.4 + 100 + 0.6,
-					'payment_method': 'ach',
-					'payment_date': '10/11/2020',
-					'settlement_date': '10/13/2020',
-					'items_covered': {
-						'requested_to_principal': 50.0 + 100.0,
-						'requested_to_interest': 0.4 + 0.6,
-						'to_principal': 50.0 + 100.0,
-						'to_interest': 0.4 + 0.6,
-						'to_user_credit': 0.0,
-					},
-					'company_bank_account_id': None,
-				},
-				'expected_transactions': [
+				'expected_payments': [
 					{
-						'amount': 100.0 + 0.6,
-						'to_principal': 100.0,
-						'to_interest': 0.6,
-						'to_fees': 0.0,
-						'type': db_constants.PaymentType.REPAYMENT,
-						'loan_id_index': 1
+						'settlement_identifier': '1',
+						'amount': 50.0 + 0.4 + 100 + 0.6,
+						'expected_transactions': [
+							{
+								'amount': 100.0 + 0.6,
+								'to_principal': 100.0,
+								'to_interest': 0.6,
+								'to_fees': 0.0,
+								'type': db_constants.PaymentType.REPAYMENT,
+								'loan_id_index': 1
+							},
+							{
+								'amount': 50.0 + 0.4,
+								'to_principal': 50.0,
+								'to_interest': 0.4,
+								'to_fees': 0.0,
+								'type': db_constants.PaymentType.REPAYMENT,
+								'loan_id_index': 0
+							}
+						],
 					},
-					{
-						'amount': 50.0 + 0.4,
-						'to_principal': 50.0,
-						'to_interest': 0.4,
-						'to_fees': 0.0,
-						'type': db_constants.PaymentType.REPAYMENT,
-						'loan_id_index': 0
-					}
 				],
 				'loans_after_payment': [
 					{
@@ -1724,42 +1690,44 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 						'outstanding_fees': 0.0
 					},
 				],
-				'transaction_lists': [
-					# Transactions are parallel to the loans defined in the test.
-					# These will be advances or repayments made against their respective loans.
-					[{'type': 'advance', 'amount': 50.0, 'payment_date': '10/10/2020', 'effective_date': '10/10/2020'}],
-					[{'type': 'advance', 'amount': 100.0, 'payment_date': '10/11/2020', 'effective_date': '10/11/2020'}],
+				'payments': [
+					{
+						'amount': 50.0 + 0.0 + 60.0 + 0.0,
+						'payment_method': 'ach',
+						'payment_date': '10/11/2020',
+						'settlement_date': '10/13/2020',
+						'company_bank_account_id': None,
+						'items_covered': {
+							'requested_to_principal': 50.0 + 60.0,
+							'requested_to_interest': 0.0 + 0.0,
+							'to_principal': 50.0 + 60.0,
+							'to_interest': 0.0 + 0.0,
+							'to_user_credit': 0.0,
+						},
+					},
 				],
-				'payment': {
-					'amount': 50.0 + 0.0 + 60.0 + 0.0,
-					'payment_method': 'ach',
-					'payment_date': '10/11/2020',
-					'settlement_date': '10/13/2020',
-					'items_covered': {
-						'requested_to_principal': 50.0 + 60.0,
-						'requested_to_interest': 0.0 + 0.0,
-						'to_principal': 50.0 + 60.0,
-						'to_interest': 0.0 + 0.0,
-						'to_user_credit': 0.0,
-					},
-					'company_bank_account_id': None,
-				},
-				'expected_transactions': [
+				'expected_payments': [
 					{
-						'amount': 60.0 + 0.0,
-						'to_principal': 60.0,
-						'to_interest': 0.0,
-						'to_fees': 0.0,
-						'type': db_constants.PaymentType.REPAYMENT,
-						'loan_id_index': 1
-					},
-					{
-						'amount': 50.0 + 0.0,
-						'to_principal': 50.0,
-						'to_interest': 0.0,
-						'to_fees': 0.0,
-						'type': db_constants.PaymentType.REPAYMENT,
-						'loan_id_index': 0
+						'settlement_identifier': '1',
+						'amount': 50.0 + 0.0 + 60.0 + 0.0,
+						'expected_transactions': [
+							{
+								'amount': 60.0 + 0.0,
+								'to_principal': 60.0,
+								'to_interest': 0.0,
+								'to_fees': 0.0,
+								'type': db_constants.PaymentType.REPAYMENT,
+								'loan_id_index': 1
+							},
+							{
+								'amount': 50.0 + 0.0,
+								'to_principal': 50.0,
+								'to_interest': 0.0,
+								'to_fees': 0.0,
+								'type': db_constants.PaymentType.REPAYMENT,
+								'loan_id_index': 0
+							},
+						],
 					},
 				],
 				'loans_after_payment': [
@@ -1796,35 +1764,22 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 					'outstanding_fees': 0.0
 				},
 			],
-			'transaction_lists': [
-				# Transactions are parallel to the loans defined in the test.
-				# These will be advances or repayments made against their respective loans.
-				[{'type': 'advance', 'amount': 50.0, 'payment_date': '10/10/2020', 'effective_date': '10/10/2020'}],
+			'payments': [
+				{
+					'amount': 50.0 + 0.4,
+					'payment_method': 'ach',
+					'payment_date': '10/11/2020',
+					'settlement_date': '10/13/2020',
+					'company_bank_account_id': None,
+					'items_covered': {
+						'requested_to_principal': 50.0,
+						'requested_to_interest': 0.4,
+						'to_principal': 50.0,
+						'to_interest': 0.0, # to_interest is wrong here.
+						'to_user_credit': 0.0,
+					},
+				},
 			],
-			'payment': {
-				'amount': 50.0 + 0.4,
-				'payment_method': 'ach',
-				'payment_date': '10/11/2020',
-				'settlement_date': '10/13/2020',
-				'items_covered': {
-					'requested_to_principal': 50.0,
-					'requested_to_interest': 0.4,
-				},
-				'company_bank_account_id': None,
-			},
-			'settlement_payment': {
-				'amount': 50.0 + 0.4,
-				'payment_method': 'ach',
-				'payment_date': '10/11/2020',
-				'settlement_date': '10/13/2020',
-				'items_covered': {
-					'requested_to_principal': 50.0,
-					'requested_to_interest': 0.4,
-					'to_principal': 50.0,
-					'to_interest': 0.0, # to_interest is wrong here.
-					'to_user_credit': 0.0,
-				},
-			},
 			'in_err_msg': 'Sum of amount to principal',
 		}
 		self._run_test(test)
@@ -1842,35 +1797,22 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 					'outstanding_fees': 0.0
 				},
 			],
-			'transaction_lists': [
-				# Transactions are parallel to the loans defined in the test.
-				# These will be advances or repayments made against their respective loans.
-				[{'type': 'advance', 'amount': 50.0, 'payment_date': '10/10/2020', 'effective_date': '10/10/2020'}],
+			'payments': [
+				{
+					'amount': 50.0 + 0.4,
+					'payment_method': 'ach',
+					'payment_date': '10/11/2020',
+					'settlement_date': '10/13/2020',
+					'company_bank_account_id': None,
+					'items_covered': {
+						'requested_to_principal': 50.0,
+						'requested_to_interest': 0.4,
+						'to_principal': 50.0,
+						'to_interest': 0.0,
+						'to_user_credit': 10.0, # to_user_credit is wrong here
+					},
+				},
 			],
-			'payment': {
-				'amount': 50.0 + 0.4,
-				'payment_method': 'ach',
-				'payment_date': '10/11/2020',
-				'settlement_date': '10/13/2020',
-				'items_covered': {
-					'requested_to_principal': 50.0,
-					'requested_to_interest': 0.4,
-				},
-				'company_bank_account_id': None,
-			},
-			'settlement_payment': {
-				'amount': 50.0 + 0.4 + 0.0,
-				'payment_method': 'ach',
-				'payment_date': '10/11/2020',
-				'settlement_date': '10/13/2020',
-				'items_covered': {
-					'requested_to_principal': 50.0,
-					'requested_to_interest': 0.4,
-					'to_principal': 50.0,
-					'to_interest': 0.0,
-					'to_user_credit': 10.0, # to_user_credit is wrong here
-				},
-			},
 			'in_err_msg': 'Sum of amount to principal',
 		}
 		self._run_test(test)
@@ -1891,35 +1833,22 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 					'outstanding_fees': 0.0
 				},
 			],
-			'transaction_lists': [
-				# Transactions are parallel to the loans defined in the test.
-				# These will be advances or repayments made against their respective loans.
-				[{'type': 'advance', 'amount': 50.0, 'payment_date': '10/10/2020', 'effective_date': '10/10/2020'}],
+			'payments': [
+				{
+					'amount': 50.0 + 0.4 + 10.0, # 10.0 overpayment
+					'payment_method': 'ach',
+					'payment_date': '10/11/2020',
+					'settlement_date': '10/13/2020',
+					'company_bank_account_id': None,
+					'items_covered': {
+						'requested_to_principal': 50.0 + 10.0, # 10.0 overpayment
+						'requested_to_interest': 0.4,
+						'to_principal': 50.0 + 10.0, # 10.0 overpayment
+						'to_interest': 0.4,
+						'to_user_credit': 0.0,
+					},
+				},
 			],
-			'payment': {
-				'amount': 50.0 + 0.4 + 10.0, # 10.0 overpayment
-				'payment_method': 'ach',
-				'payment_date': '10/11/2020',
-				'settlement_date': '10/13/2020',
-				'items_covered': {
-					'requested_to_principal': 50.0 + 10.0, # 10.0 overpayment
-					'requested_to_interest': 0.4,
-				},
-				'company_bank_account_id': None,
-			},
-			'settlement_payment': {
-				'amount': 50.0 + 0.4 + 10.0, # 10.0 overpayment
-				'payment_method': 'ach',
-				'payment_date': '10/11/2020',
-				'settlement_date': '10/13/2020',
-				'items_covered': {
-					'requested_to_principal': 50.0 + 10.0, # 10.0 overpayment
-					'requested_to_interest': 0.4,
-					'to_principal': 50.0 + 10.0, # 10.0 overpayment
-					'to_interest': 0.4,
-					'to_user_credit': 0.0,
-				},
-			},
 			'in_err_msg': 'Amount of principal left',
 		}
 		self._run_test(test)
@@ -1940,35 +1869,22 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 					'outstanding_fees': 0.0
 				},
 			],
-			'transaction_lists': [
-				# Transactions are parallel to the loans defined in the test.
-				# These will be advances or repayments made against their respective loans.
-				[{'type': 'advance', 'amount': 50.0, 'payment_date': '10/10/2020', 'effective_date': '10/10/2020'}],
+			'payments': [
+				{
+					'amount': 50.0 + 0.4 + 10.0, # 10.0 overpayment
+					'payment_method': 'ach',
+					'payment_date': '10/11/2020',
+					'settlement_date': '10/13/2020',
+					'company_bank_account_id': None,
+					'items_covered': {
+						'requested_to_principal': 50.0,
+						'requested_to_interest': 0.4 + 10.0, # 10.0 overpayment
+						'to_principal': 50.0,
+						'to_interest': 0.4 + 10.0, # 10.0 overpayment
+						'to_user_credit': 0.0,
+					},
+				},
 			],
-			'payment': {
-				'amount': 50.0 + 0.4 + 10.0, # 10.0 overpayment
-				'payment_method': 'ach',
-				'payment_date': '10/11/2020',
-				'settlement_date': '10/13/2020',
-				'items_covered': {
-					'requested_to_principal': 50.0,
-					'requested_to_interest': 0.4 + 10.0, # 10.0 overpayment
-				},
-				'company_bank_account_id': None,
-			},
-			'settlement_payment': {
-				'amount': 50.0 + 0.4 + 10.0, # 10.0 overpayment
-				'payment_method': 'ach',
-				'payment_date': '10/11/2020',
-				'settlement_date': '10/13/2020',
-				'items_covered': {
-					'requested_to_principal': 50.0,
-					'requested_to_interest': 0.4 + 10.0, # 10.0 overpayment
-					'to_principal': 50.0,
-					'to_interest': 0.4 + 10.0, # 10.0 overpayment
-					'to_user_credit': 0.0,
-				},
-			},
 			'in_err_msg': 'Amount of interest left',
 		}
 		self._run_test(test)
@@ -1991,35 +1907,22 @@ class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 					'outstanding_fees': 0.0
 				},
 			],
-			'transaction_lists': [
-				# Transactions are parallel to the loans defined in the test.
-				# These will be advances or repayments made against their respective loans.
-				[{'type': 'advance', 'amount': 50.0, 'payment_date': '10/10/2020', 'effective_date': '10/10/2020'}],
+			'payments': [
+				{
+					'amount': 50.0,
+					'payment_method': 'ach',
+					'payment_date': '10/09/2020',
+					'settlement_date': '10/13/2020',
+					'company_bank_account_id': None,
+					'items_covered': {
+						'requested_to_principal': 50.0,
+						'requested_to_interest': 0.0,
+						'to_principal': 50.0,
+						'to_interest': 0.0,
+						'to_user_credit': 0.0,
+					},
+				},
 			],
-			'payment': {
-				'amount': 50.0,
-				'payment_method': 'ach',
-				'payment_date': '10/09/2020',
-				'settlement_date': '10/13/2020',
-				'items_covered': {
-					'requested_to_principal': 50.0,
-					'requested_to_interest': 0.0,
-				},
-				'company_bank_account_id': None,
-			},
-			'settlement_payment': {
-				'amount': 50.0,
-				'payment_method': 'ach',
-				'payment_date': '10/09/2020',
-				'settlement_date': '10/13/2020',
-				'items_covered': {
-					'requested_to_principal': 50.0,
-					'requested_to_interest': 0.0,
-					'to_principal': 50.0,
-					'to_interest': 0.0,
-					'to_user_credit': 0.0,
-				},
-			},
 			'in_err_msg': 'Amount of principal left',
 		}
 		self._run_test(test)

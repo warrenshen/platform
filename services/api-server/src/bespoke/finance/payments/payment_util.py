@@ -15,11 +15,12 @@ from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 
+
 class RepaymentOption(object):
 
 	CUSTOM_AMOUNT_FOR_SETTLING_LOC = 'custom_amount_for_settling_loc'
 	CUSTOM_AMOUNT_FOR_SETTLING_NON_LOC_LOAN = 'custom_amount_for_settling_non_loc_loan'
-	
+
 	CUSTOM_AMOUNT = 'custom_amount'
 	PAY_MINIMUM_DUE = 'pay_minimum_due'
 	PAY_IN_FULL = 'pay_in_full'
@@ -101,6 +102,7 @@ def create_repayment_payment(
 
 def make_advance_payment_settled(
 	payment: models.Payment,
+	settlement_identifier: str,
 	amount: decimal.Decimal,
 	payment_date: datetime.date,
 	settlement_date: datetime.date,
@@ -115,16 +117,18 @@ def make_advance_payment_settled(
 	settlement_date:
 	When the payment arrived to a Customer bank and when interest starts to accrue
 	"""
-	payment.settled_at = date_util.now()
-	payment.settled_by_user_id = settled_by_user_id
+	payment.settlement_identifier = settlement_identifier
 	payment.amount = amount
 	payment.payment_date = payment_date
 	# For advances, deposit date is always equal to the settlement date.
 	payment.deposit_date = settlement_date
 	payment.settlement_date = settlement_date
+	payment.settled_at = date_util.now()
+	payment.settled_by_user_id = settled_by_user_id
 
 def make_repayment_payment_settled(
 	payment: models.Payment,
+	settlement_identifier: str,
 	amount: decimal.Decimal,
 	deposit_date: datetime.date,
 	settlement_date: datetime.date,
@@ -139,11 +143,12 @@ def make_repayment_payment_settled(
 		settlement_date:
 		When the payment arrived to a Bespoke bank and is applied to interest balance
 	"""
-	payment.settled_at = date_util.now()
-	payment.settled_by_user_id = settled_by_user_id
+	payment.settlement_identifier = settlement_identifier
 	payment.amount = amount
 	payment.deposit_date = deposit_date
 	payment.settlement_date = settlement_date
+	payment.settled_at = date_util.now()
+	payment.settled_by_user_id = settled_by_user_id
 
 def is_advance(p: Union[models.PaymentDict, models.TransactionDict]) -> bool:
 	return p['type'] in db_constants.ADVANCE_TYPES

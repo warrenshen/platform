@@ -354,13 +354,13 @@ def calculate_repayment_effect(
 
 		amount_used = payment_effect['transaction']['amount']
 		amount_to_pay += amount_used
-		
+
 	if payment_option == RepaymentOption.CUSTOM_AMOUNT:
 		amount_as_credit_to_user = amount - amount_to_pay
-		# in the custom_amount case, we always say the user will pay the amount 
-		# they specified, even though only a portion of it may be going to pay off the 
+		# in the custom_amount case, we always say the user will pay the amount
+		# they specified, even though only a portion of it may be going to pay off the
 		# loans, and some goes to credit
-		amount_to_pay = amount 
+		amount_to_pay = amount
 
 	loans_past_due_but_not_selected = []
 	fee_accumulator_past_due = fee_util.FeeAccumulator()
@@ -628,6 +628,8 @@ def settle_repayment(
 		raise errors.Error('Amount specified is not rounded to the penny')
 
 	company_id = req['company_id']
+	payment_id = req['payment_id']
+
 	payment_amount = req['amount']
 	deposit_date = date_util.load_date_str(req['deposit_date'])
 	settlement_date = date_util.load_date_str(req['settlement_date'])
@@ -833,7 +835,7 @@ def settle_repayment(
 		payment = cast(
 			models.Payment,
 			session.query(models.Payment).filter(
-				models.Payment.id == req['payment_id']
+				models.Payment.id == payment_id
 			).first())
 
 		if not payment:
@@ -1002,9 +1004,9 @@ def settle_repayment(
 
 		if to_user_credit > 0.0:
 			payment_util.create_and_add_credit_to_user(
-				company_id=req['company_id'],
+				company_id=company_id,
 				amount=to_user_credit,
-				payment_id=req['payment_id'],
+				payment_id=payment_id,
 				created_by_user_id=user_id,
 				effective_date=settlement_date,
 				session=session
@@ -1038,7 +1040,7 @@ def settle_repayment(
 			t.to_interest = decimal.Decimal(tx_input['to_interest'])
 			t.to_fees = decimal.Decimal(tx_input['to_fees'])
 			t.loan_id = cur_loan_id
-			t.payment_id = req['payment_id']
+			t.payment_id = payment_id
 			t.created_by_user_id = user_id
 			t.effective_date = settlement_date
 
@@ -1082,8 +1084,17 @@ def settle_repayment(
 			else:
 				cur_loan.payment_status = PaymentStatusEnum.PARTIALLY_PAID
 
+		company = cast(
+			models.Company,
+			session.query(models.Company).get(company_id))
+
+		# Generate a repayment identifier for this payment for this company.
+		company.latest_repayment_identifier += 1
+		repayment_identifier = str(company.latest_repayment_identifier)
+
 		payment_util.make_repayment_payment_settled(
 			payment,
+			settlement_identifier=repayment_identifier,
 			amount=decimal.Decimal(payment_amount),
 			deposit_date=deposit_date,
 			settlement_date=settlement_date,
@@ -1099,7 +1110,7 @@ def settle_repayment(
 		transactions = cast(
 			List[models.Transaction],
 			session.query(models.Transaction).filter(
-				models.Transaction.payment_id == req['payment_id']
+				models.Transaction.payment_id == payment_id
 			).all())
 		transaction_ids = list(map(lambda transaction: transaction.id, transactions))
 

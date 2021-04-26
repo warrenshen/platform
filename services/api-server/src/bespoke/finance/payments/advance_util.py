@@ -147,27 +147,6 @@ def fund_loans_with_advance(
 				models.Company,
 				session.query(models.Company).get(company_id))
 
-			amount_to_company = sum([float(loan.amount) for loan in loans_for_company])
-			payment = payment_util.create_payment(
-				company_id,
-				payment_util.PaymentInputDict(
-					type=db_constants.PaymentType.ADVANCE,
-					amount=amount_to_company,
-					payment_method=payment_method,
-				),
-				user_id=bank_admin_user_id
-			)
-			payment_util.make_advance_payment_settled(
-				payment,
-				amount=decimal.Decimal(amount_to_company),
-				payment_date=payment_date,
-				settlement_date=settlement_date,
-				settled_by_user_id=bank_admin_user_id,
-			)
-			session.add(payment)
-			session.flush()
-			payment_id = payment.id
-
 			# What is the disbursement identifier?
 			#
 			# Disbursement identifier is a legacy algorithm
@@ -185,6 +164,29 @@ def fund_loans_with_advance(
 			# Generate a disbursement identifier for this payment for this company.
 			company.latest_disbursement_identifier += 1
 			disbursement_identifier = str(company.latest_disbursement_identifier)
+
+			amount_to_company = sum([float(loan.amount) for loan in loans_for_company])
+			payment = payment_util.create_payment(
+				company_id,
+				payment_util.PaymentInputDict(
+					type=db_constants.PaymentType.ADVANCE,
+					amount=amount_to_company,
+					payment_method=payment_method,
+				),
+				user_id=bank_admin_user_id
+			)
+
+			payment_util.make_advance_payment_settled(
+				payment,
+				settlement_identifier=disbursement_identifier,
+				amount=decimal.Decimal(amount_to_company),
+				payment_date=payment_date,
+				settlement_date=settlement_date,
+				settled_by_user_id=bank_admin_user_id,
+			)
+			session.add(payment)
+			session.flush()
+			payment_id = payment.id
 
 			for index, loan in enumerate(loans_for_company):
 				# Generate a disbursement identifier for this loan

@@ -1317,6 +1317,7 @@ export type Companies = {
   latest_disbursement_identifier: Scalars["Int"];
   /** The latest loan identifier created for loans belonging to this company; increment this value to get a new loan identifier for a new loan */
   latest_loan_identifier: Scalars["Int"];
+  latest_repayment_identifier: Scalars["Int"];
   /** An array relationship */
   licenses: Array<CompanyLicenses>;
   /** An aggregated array relationship */
@@ -1711,12 +1712,14 @@ export type CompaniesArrRelInsertInput = {
 export type CompaniesAvgFields = {
   latest_disbursement_identifier?: Maybe<Scalars["Float"]>;
   latest_loan_identifier?: Maybe<Scalars["Float"]>;
+  latest_repayment_identifier?: Maybe<Scalars["Float"]>;
 };
 
 /** order by avg() on columns of table "companies" */
 export type CompaniesAvgOrderBy = {
   latest_disbursement_identifier?: Maybe<OrderBy>;
   latest_loan_identifier?: Maybe<OrderBy>;
+  latest_repayment_identifier?: Maybe<OrderBy>;
 };
 
 /** Boolean expression to filter rows from the table "companies". All fields are combined with a logical 'AND'. */
@@ -1750,6 +1753,7 @@ export type CompaniesBoolExp = {
   invoices?: Maybe<InvoicesBoolExp>;
   latest_disbursement_identifier?: Maybe<IntComparisonExp>;
   latest_loan_identifier?: Maybe<IntComparisonExp>;
+  latest_repayment_identifier?: Maybe<IntComparisonExp>;
   licenses?: Maybe<CompanyLicensesBoolExp>;
   loans?: Maybe<LoansBoolExp>;
   name?: Maybe<StringComparisonExp>;
@@ -1778,6 +1782,7 @@ export enum CompaniesConstraint {
 export type CompaniesIncInput = {
   latest_disbursement_identifier?: Maybe<Scalars["Int"]>;
   latest_loan_identifier?: Maybe<Scalars["Int"]>;
+  latest_repayment_identifier?: Maybe<Scalars["Int"]>;
 };
 
 /** input type for inserting data into table "companies" */
@@ -1808,6 +1813,7 @@ export type CompaniesInsertInput = {
   invoices?: Maybe<InvoicesArrRelInsertInput>;
   latest_disbursement_identifier?: Maybe<Scalars["Int"]>;
   latest_loan_identifier?: Maybe<Scalars["Int"]>;
+  latest_repayment_identifier?: Maybe<Scalars["Int"]>;
   licenses?: Maybe<CompanyLicensesArrRelInsertInput>;
   loans?: Maybe<LoansArrRelInsertInput>;
   name?: Maybe<Scalars["String"]>;
@@ -1839,6 +1845,7 @@ export type CompaniesMaxFields = {
   identifier?: Maybe<Scalars["String"]>;
   latest_disbursement_identifier?: Maybe<Scalars["Int"]>;
   latest_loan_identifier?: Maybe<Scalars["Int"]>;
+  latest_repayment_identifier?: Maybe<Scalars["Int"]>;
   name?: Maybe<Scalars["String"]>;
   phone_number?: Maybe<Scalars["String"]>;
   state?: Maybe<Scalars["String"]>;
@@ -1861,6 +1868,7 @@ export type CompaniesMaxOrderBy = {
   identifier?: Maybe<OrderBy>;
   latest_disbursement_identifier?: Maybe<OrderBy>;
   latest_loan_identifier?: Maybe<OrderBy>;
+  latest_repayment_identifier?: Maybe<OrderBy>;
   name?: Maybe<OrderBy>;
   phone_number?: Maybe<OrderBy>;
   state?: Maybe<OrderBy>;
@@ -1883,6 +1891,7 @@ export type CompaniesMinFields = {
   identifier?: Maybe<Scalars["String"]>;
   latest_disbursement_identifier?: Maybe<Scalars["Int"]>;
   latest_loan_identifier?: Maybe<Scalars["Int"]>;
+  latest_repayment_identifier?: Maybe<Scalars["Int"]>;
   name?: Maybe<Scalars["String"]>;
   phone_number?: Maybe<Scalars["String"]>;
   state?: Maybe<Scalars["String"]>;
@@ -1905,6 +1914,7 @@ export type CompaniesMinOrderBy = {
   identifier?: Maybe<OrderBy>;
   latest_disbursement_identifier?: Maybe<OrderBy>;
   latest_loan_identifier?: Maybe<OrderBy>;
+  latest_repayment_identifier?: Maybe<OrderBy>;
   name?: Maybe<OrderBy>;
   phone_number?: Maybe<OrderBy>;
   state?: Maybe<OrderBy>;
@@ -1961,6 +1971,7 @@ export type CompaniesOrderBy = {
   invoices_aggregate?: Maybe<InvoicesAggregateOrderBy>;
   latest_disbursement_identifier?: Maybe<OrderBy>;
   latest_loan_identifier?: Maybe<OrderBy>;
+  latest_repayment_identifier?: Maybe<OrderBy>;
   licenses_aggregate?: Maybe<CompanyLicensesAggregateOrderBy>;
   loans_aggregate?: Maybe<LoansAggregateOrderBy>;
   name?: Maybe<OrderBy>;
@@ -2013,6 +2024,8 @@ export enum CompaniesSelectColumn {
   /** column name */
   LatestLoanIdentifier = "latest_loan_identifier",
   /** column name */
+  LatestRepaymentIdentifier = "latest_repayment_identifier",
+  /** column name */
   Name = "name",
   /** column name */
   NeedsBalanceRecomputed = "needs_balance_recomputed",
@@ -2042,6 +2055,7 @@ export type CompaniesSetInput = {
   identifier?: Maybe<Scalars["String"]>;
   latest_disbursement_identifier?: Maybe<Scalars["Int"]>;
   latest_loan_identifier?: Maybe<Scalars["Int"]>;
+  latest_repayment_identifier?: Maybe<Scalars["Int"]>;
   name?: Maybe<Scalars["String"]>;
   needs_balance_recomputed?: Maybe<Scalars["Boolean"]>;
   phone_number?: Maybe<Scalars["String"]>;
@@ -2054,48 +2068,56 @@ export type CompaniesSetInput = {
 export type CompaniesStddevFields = {
   latest_disbursement_identifier?: Maybe<Scalars["Float"]>;
   latest_loan_identifier?: Maybe<Scalars["Float"]>;
+  latest_repayment_identifier?: Maybe<Scalars["Float"]>;
 };
 
 /** order by stddev() on columns of table "companies" */
 export type CompaniesStddevOrderBy = {
   latest_disbursement_identifier?: Maybe<OrderBy>;
   latest_loan_identifier?: Maybe<OrderBy>;
+  latest_repayment_identifier?: Maybe<OrderBy>;
 };
 
 /** aggregate stddev_pop on columns */
 export type CompaniesStddevPopFields = {
   latest_disbursement_identifier?: Maybe<Scalars["Float"]>;
   latest_loan_identifier?: Maybe<Scalars["Float"]>;
+  latest_repayment_identifier?: Maybe<Scalars["Float"]>;
 };
 
 /** order by stddev_pop() on columns of table "companies" */
 export type CompaniesStddevPopOrderBy = {
   latest_disbursement_identifier?: Maybe<OrderBy>;
   latest_loan_identifier?: Maybe<OrderBy>;
+  latest_repayment_identifier?: Maybe<OrderBy>;
 };
 
 /** aggregate stddev_samp on columns */
 export type CompaniesStddevSampFields = {
   latest_disbursement_identifier?: Maybe<Scalars["Float"]>;
   latest_loan_identifier?: Maybe<Scalars["Float"]>;
+  latest_repayment_identifier?: Maybe<Scalars["Float"]>;
 };
 
 /** order by stddev_samp() on columns of table "companies" */
 export type CompaniesStddevSampOrderBy = {
   latest_disbursement_identifier?: Maybe<OrderBy>;
   latest_loan_identifier?: Maybe<OrderBy>;
+  latest_repayment_identifier?: Maybe<OrderBy>;
 };
 
 /** aggregate sum on columns */
 export type CompaniesSumFields = {
   latest_disbursement_identifier?: Maybe<Scalars["Int"]>;
   latest_loan_identifier?: Maybe<Scalars["Int"]>;
+  latest_repayment_identifier?: Maybe<Scalars["Int"]>;
 };
 
 /** order by sum() on columns of table "companies" */
 export type CompaniesSumOrderBy = {
   latest_disbursement_identifier?: Maybe<OrderBy>;
   latest_loan_identifier?: Maybe<OrderBy>;
+  latest_repayment_identifier?: Maybe<OrderBy>;
 };
 
 /** update columns of table "companies" */
@@ -2129,6 +2151,8 @@ export enum CompaniesUpdateColumn {
   /** column name */
   LatestLoanIdentifier = "latest_loan_identifier",
   /** column name */
+  LatestRepaymentIdentifier = "latest_repayment_identifier",
+  /** column name */
   Name = "name",
   /** column name */
   NeedsBalanceRecomputed = "needs_balance_recomputed",
@@ -2146,36 +2170,42 @@ export enum CompaniesUpdateColumn {
 export type CompaniesVarPopFields = {
   latest_disbursement_identifier?: Maybe<Scalars["Float"]>;
   latest_loan_identifier?: Maybe<Scalars["Float"]>;
+  latest_repayment_identifier?: Maybe<Scalars["Float"]>;
 };
 
 /** order by var_pop() on columns of table "companies" */
 export type CompaniesVarPopOrderBy = {
   latest_disbursement_identifier?: Maybe<OrderBy>;
   latest_loan_identifier?: Maybe<OrderBy>;
+  latest_repayment_identifier?: Maybe<OrderBy>;
 };
 
 /** aggregate var_samp on columns */
 export type CompaniesVarSampFields = {
   latest_disbursement_identifier?: Maybe<Scalars["Float"]>;
   latest_loan_identifier?: Maybe<Scalars["Float"]>;
+  latest_repayment_identifier?: Maybe<Scalars["Float"]>;
 };
 
 /** order by var_samp() on columns of table "companies" */
 export type CompaniesVarSampOrderBy = {
   latest_disbursement_identifier?: Maybe<OrderBy>;
   latest_loan_identifier?: Maybe<OrderBy>;
+  latest_repayment_identifier?: Maybe<OrderBy>;
 };
 
 /** aggregate variance on columns */
 export type CompaniesVarianceFields = {
   latest_disbursement_identifier?: Maybe<Scalars["Float"]>;
   latest_loan_identifier?: Maybe<Scalars["Float"]>;
+  latest_repayment_identifier?: Maybe<Scalars["Float"]>;
 };
 
 /** order by variance() on columns of table "companies" */
 export type CompaniesVarianceOrderBy = {
   latest_disbursement_identifier?: Maybe<OrderBy>;
   latest_loan_identifier?: Maybe<OrderBy>;
+  latest_repayment_identifier?: Maybe<OrderBy>;
 };
 
 /**
@@ -9528,8 +9558,9 @@ export type Payments = {
   created_at: Scalars["timestamptz"];
   /** The date when payment is credited to destination account */
   deposit_date?: Maybe<Scalars["date"]>;
-  disbursement_identifier?: Maybe<Scalars["String"]>;
   id: Scalars["uuid"];
+  /** Unique identifier for payments scoped to (company_id, identifier) */
+  identifier?: Maybe<Scalars["String"]>;
   /** An object relationship */
   invoice?: Maybe<Invoices>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
@@ -9553,6 +9584,8 @@ export type Payments = {
   settled_by_user_id?: Maybe<Scalars["uuid"]>;
   /** The date when payment is settled and is effective for financial calculations */
   settlement_date?: Maybe<Scalars["date"]>;
+  /** Unique identifier for settled payments scoped to (company_id, type, settlement_identifier) */
+  settlement_identifier?: Maybe<Scalars["String"]>;
   /** When this payment record was originally added to the Postgres DB */
   submitted_at: Scalars["timestamptz"];
   /** An object relationship */
@@ -9681,8 +9714,8 @@ export type PaymentsBoolExp = {
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   deposit_date?: Maybe<DateComparisonExp>;
-  disbursement_identifier?: Maybe<StringComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  identifier?: Maybe<StringComparisonExp>;
   invoice?: Maybe<InvoicesBoolExp>;
   is_deleted?: Maybe<BooleanComparisonExp>;
   items_covered?: Maybe<JsonbComparisonExp>;
@@ -9696,6 +9729,7 @@ export type PaymentsBoolExp = {
   settled_by_user?: Maybe<UsersBoolExp>;
   settled_by_user_id?: Maybe<UuidComparisonExp>;
   settlement_date?: Maybe<DateComparisonExp>;
+  settlement_identifier?: Maybe<StringComparisonExp>;
   submitted_at?: Maybe<TimestamptzComparisonExp>;
   submitted_by_user?: Maybe<UsersBoolExp>;
   submitted_by_user_id?: Maybe<UuidComparisonExp>;
@@ -9740,8 +9774,8 @@ export type PaymentsInsertInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   deposit_date?: Maybe<Scalars["date"]>;
-  disbursement_identifier?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
+  identifier?: Maybe<Scalars["String"]>;
   invoice?: Maybe<InvoicesObjRelInsertInput>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   items_covered?: Maybe<Scalars["jsonb"]>;
@@ -9755,6 +9789,7 @@ export type PaymentsInsertInput = {
   settled_by_user?: Maybe<UsersObjRelInsertInput>;
   settled_by_user_id?: Maybe<Scalars["uuid"]>;
   settlement_date?: Maybe<Scalars["date"]>;
+  settlement_identifier?: Maybe<Scalars["String"]>;
   submitted_at?: Maybe<Scalars["timestamptz"]>;
   submitted_by_user?: Maybe<UsersObjRelInsertInput>;
   submitted_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -9770,8 +9805,8 @@ export type PaymentsMaxFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   deposit_date?: Maybe<Scalars["date"]>;
-  disbursement_identifier?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
+  identifier?: Maybe<Scalars["String"]>;
   method?: Maybe<Scalars["String"]>;
   originating_payment_id?: Maybe<Scalars["uuid"]>;
   payment_date?: Maybe<Scalars["date"]>;
@@ -9781,6 +9816,7 @@ export type PaymentsMaxFields = {
   settled_at?: Maybe<Scalars["timestamptz"]>;
   settled_by_user_id?: Maybe<Scalars["uuid"]>;
   settlement_date?: Maybe<Scalars["date"]>;
+  settlement_identifier?: Maybe<Scalars["String"]>;
   submitted_at?: Maybe<Scalars["timestamptz"]>;
   submitted_by_user_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
@@ -9794,8 +9830,8 @@ export type PaymentsMaxOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   deposit_date?: Maybe<OrderBy>;
-  disbursement_identifier?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  identifier?: Maybe<OrderBy>;
   method?: Maybe<OrderBy>;
   originating_payment_id?: Maybe<OrderBy>;
   payment_date?: Maybe<OrderBy>;
@@ -9805,6 +9841,7 @@ export type PaymentsMaxOrderBy = {
   settled_at?: Maybe<OrderBy>;
   settled_by_user_id?: Maybe<OrderBy>;
   settlement_date?: Maybe<OrderBy>;
+  settlement_identifier?: Maybe<OrderBy>;
   submitted_at?: Maybe<OrderBy>;
   submitted_by_user_id?: Maybe<OrderBy>;
   type?: Maybe<OrderBy>;
@@ -9818,8 +9855,8 @@ export type PaymentsMinFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   deposit_date?: Maybe<Scalars["date"]>;
-  disbursement_identifier?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
+  identifier?: Maybe<Scalars["String"]>;
   method?: Maybe<Scalars["String"]>;
   originating_payment_id?: Maybe<Scalars["uuid"]>;
   payment_date?: Maybe<Scalars["date"]>;
@@ -9829,6 +9866,7 @@ export type PaymentsMinFields = {
   settled_at?: Maybe<Scalars["timestamptz"]>;
   settled_by_user_id?: Maybe<Scalars["uuid"]>;
   settlement_date?: Maybe<Scalars["date"]>;
+  settlement_identifier?: Maybe<Scalars["String"]>;
   submitted_at?: Maybe<Scalars["timestamptz"]>;
   submitted_by_user_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
@@ -9842,8 +9880,8 @@ export type PaymentsMinOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   deposit_date?: Maybe<OrderBy>;
-  disbursement_identifier?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  identifier?: Maybe<OrderBy>;
   method?: Maybe<OrderBy>;
   originating_payment_id?: Maybe<OrderBy>;
   payment_date?: Maybe<OrderBy>;
@@ -9853,6 +9891,7 @@ export type PaymentsMinOrderBy = {
   settled_at?: Maybe<OrderBy>;
   settled_by_user_id?: Maybe<OrderBy>;
   settlement_date?: Maybe<OrderBy>;
+  settlement_identifier?: Maybe<OrderBy>;
   submitted_at?: Maybe<OrderBy>;
   submitted_by_user_id?: Maybe<OrderBy>;
   type?: Maybe<OrderBy>;
@@ -9889,8 +9928,8 @@ export type PaymentsOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   deposit_date?: Maybe<OrderBy>;
-  disbursement_identifier?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  identifier?: Maybe<OrderBy>;
   invoice?: Maybe<InvoicesOrderBy>;
   is_deleted?: Maybe<OrderBy>;
   items_covered?: Maybe<OrderBy>;
@@ -9904,6 +9943,7 @@ export type PaymentsOrderBy = {
   settled_by_user?: Maybe<UsersOrderBy>;
   settled_by_user_id?: Maybe<OrderBy>;
   settlement_date?: Maybe<OrderBy>;
+  settlement_identifier?: Maybe<OrderBy>;
   submitted_at?: Maybe<OrderBy>;
   submitted_by_user?: Maybe<UsersOrderBy>;
   submitted_by_user_id?: Maybe<OrderBy>;
@@ -9935,9 +9975,9 @@ export enum PaymentsSelectColumn {
   /** column name */
   DepositDate = "deposit_date",
   /** column name */
-  DisbursementIdentifier = "disbursement_identifier",
-  /** column name */
   Id = "id",
+  /** column name */
+  Identifier = "identifier",
   /** column name */
   IsDeleted = "is_deleted",
   /** column name */
@@ -9961,6 +10001,8 @@ export enum PaymentsSelectColumn {
   /** column name */
   SettlementDate = "settlement_date",
   /** column name */
+  SettlementIdentifier = "settlement_identifier",
+  /** column name */
   SubmittedAt = "submitted_at",
   /** column name */
   SubmittedByUserId = "submitted_by_user_id",
@@ -9977,8 +10019,8 @@ export type PaymentsSetInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   deposit_date?: Maybe<Scalars["date"]>;
-  disbursement_identifier?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
+  identifier?: Maybe<Scalars["String"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   items_covered?: Maybe<Scalars["jsonb"]>;
   method?: Maybe<Scalars["String"]>;
@@ -9990,6 +10032,7 @@ export type PaymentsSetInput = {
   settled_at?: Maybe<Scalars["timestamptz"]>;
   settled_by_user_id?: Maybe<Scalars["uuid"]>;
   settlement_date?: Maybe<Scalars["date"]>;
+  settlement_identifier?: Maybe<Scalars["String"]>;
   submitted_at?: Maybe<Scalars["timestamptz"]>;
   submitted_by_user_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
@@ -10057,9 +10100,9 @@ export enum PaymentsUpdateColumn {
   /** column name */
   DepositDate = "deposit_date",
   /** column name */
-  DisbursementIdentifier = "disbursement_identifier",
-  /** column name */
   Id = "id",
+  /** column name */
+  Identifier = "identifier",
   /** column name */
   IsDeleted = "is_deleted",
   /** column name */
@@ -10082,6 +10125,8 @@ export enum PaymentsUpdateColumn {
   SettledByUserId = "settled_by_user_id",
   /** column name */
   SettlementDate = "settlement_date",
+  /** column name */
+  SettlementIdentifier = "settlement_identifier",
   /** column name */
   SubmittedAt = "submitted_at",
   /** column name */
@@ -16484,6 +16529,7 @@ export type LoanLimitedFragment = Pick<
 export type PaymentLimitedFragment = Pick<
   Payments,
   | "id"
+  | "settlement_identifier"
   | "submitted_at"
   | "settled_at"
   | "type"
@@ -17192,6 +17238,7 @@ export const LoanLimitedFragmentDoc = gql`
 export const PaymentLimitedFragmentDoc = gql`
   fragment PaymentLimited on payments {
     id
+    settlement_identifier
     submitted_at
     settled_at
     type

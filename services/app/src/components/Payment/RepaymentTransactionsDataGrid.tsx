@@ -37,9 +37,14 @@ export default function RepaymentTransactionsDataGrid({
   const columns = useMemo(
     () => [
       {
-        dataField: "payment.id",
+        dataField: "payment.settlement_identifier",
         caption: "Payment #",
         minWidth: ColumnWidths.MinWidth,
+        calculateCellValue: ({
+          payment,
+        }: {
+          payment: PaymentLimitedFragment;
+        }) => `P${payment.settlement_identifier}`,
       },
       {
         dataField: "payment.method",

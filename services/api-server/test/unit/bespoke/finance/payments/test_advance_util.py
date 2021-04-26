@@ -116,8 +116,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 			payment_date = advance['payment_date']
 			settlement_date = advance['settlement_date']
 			loan_indices = advance['loan_indices']
-
 			advance_loan_ids = [loan_ids[loan_index] for loan_index in loan_indices]
+
 			req = advance_util.FundLoansReqDict(
 				loan_ids=advance_loan_ids,
 				payment=payment_util.PaymentInsertInputDict(
@@ -194,6 +194,10 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				payment = payments[i]
 				exp_payment = test['expected_payments'][i]
 				exp_company_id = seed.get_company_id('company_admin', index=exp_payment['company_index'])
+				self.assertEqual(
+					exp_payment['settlement_identifier'] if 'settlement_identifier' in exp_payment else None,
+					payment.settlement_identifier,
+				)
 				self.assertAlmostEqual(exp_payment['amount'], float(payment.amount))
 				self.assertEqual(exp_payment['type'], payment.type)
 				self.assertEqual(exp_company_id, payment.company_id)
@@ -317,6 +321,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				],
 				'expected_payments': [
 					{
+						'settlement_identifier': '1',
 						'amount': 30.03,
 						'company_index': 0,
 						'type': 'advance',
@@ -429,6 +434,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				'expected_payments': [
 					# We create two payments, one for each customer, plus the payments for the wire fees
 					{
+						'settlement_identifier': '1',
 						'amount': 10.01 + 30.03,
 						'company_index': 0,
 						'type': 'advance',
@@ -445,6 +451,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 						'type': 'fee'
 					},
 					{
+						'settlement_identifier': '1',
 						'amount': 20.02 + 40.04,
 						'company_index': 1,
 						'type': 'advance',
@@ -532,6 +539,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				],
 				'expected_payments': [
 					{
+						'settlement_identifier': '1',
 						'amount': 10.01,
 						'company_index': 0,
 						'type': 'advance'
@@ -791,6 +799,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				],
 				'expected_payments': [
 					{
+						'settlement_identifier': '1',
 						'amount': 30.03,
 						'company_index': 0,
 						'type': 'advance'
@@ -886,6 +895,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				],
 				'expected_payments': [
 					{
+						'settlement_identifier': '1',
 						'amount': 30.03,
 						'company_index': 0,
 						'type': 'advance'
@@ -972,6 +982,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				],
 				'expected_payments': [
 					{
+						'settlement_identifier': '1',
 						'amount': 30.03,
 						'company_index': 0,
 						'type': 'advance',
@@ -1053,6 +1064,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				],
 				'expected_payments': [
 					{
+						'settlement_identifier': '1',
 						'amount': 30.03,
 						'company_index': 0,
 						'type': 'advance',
@@ -1181,18 +1193,21 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				],
 				'expected_payments': [
 					{
+						'settlement_identifier': '1',
 						'amount': 10.01,
 						'company_index': 0,
 						'type': 'advance',
 						'method': PaymentMethodEnum.WIRE,
 					},
 					{
+						'settlement_identifier': '2',
 						'amount': 20.02,
 						'company_index': 0,
 						'type': 'advance',
 						'method': PaymentMethodEnum.WIRE,
 					},
 					{
+						'settlement_identifier': '3',
 						'amount': 30.03 + 40.04,
 						'company_index': 0,
 						'type': 'advance',

@@ -119,6 +119,7 @@ fragment LoanLimited on loans {
 
 fragment PaymentLimited on payments {
   id
+  settlement_identifier
   submitted_at
   settled_at
   type
