@@ -161,7 +161,7 @@ function BankCustomersPage() {
             />
           </Box>
           <Box display="flex" flexDirection="row-reverse">
-            {check(role, Action.ManipulateUser) && (
+            {check(role, Action.EditCustomerSettings) && (
               <Box>
                 <ModalButton
                   label={"Create Customer"}

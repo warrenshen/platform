@@ -191,13 +191,7 @@ const rules: Rules = {
 
       Action.ManipulateUser,
     ],
-    dynamic: [
-      {
-        action: Action.ManipulateUser,
-        condition: ({ currentUserId, userIdForCheck }: ActionData) =>
-          currentUserId === userIdForCheck,
-      },
-    ],
+    dynamic: [],
   },
   [UserRolesEnum.BankReadOnly]: {
     static: [Action.ViewLoanInternalNote],
@@ -229,13 +223,7 @@ const rules: Rules = {
       Action.ViewPurchaseOrdersActionMenu,
       Action.EditLineOfCredit,
     ],
-    dynamic: [
-      {
-        action: Action.ManipulateUser,
-        condition: ({ currentUserId, userIdForCheck }: ActionData) =>
-          currentUserId === userIdForCheck,
-      },
-    ],
+    dynamic: [],
   },
   [UserRolesEnum.CompanyReadOnly]: {
     static: [],

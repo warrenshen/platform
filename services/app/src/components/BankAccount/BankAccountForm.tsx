@@ -26,7 +26,7 @@ function BankAccountForm({ bankAccount, setBankAccount, role }: Props) {
 
   return (
     <Box mb={3} display="flex" flexDirection="column" className={classes.form}>
-      <Box mt={1}>
+      <Box mt={2}>
         <TextField
           label="Bank Name"
           required
@@ -36,7 +36,7 @@ function BankAccountForm({ bankAccount, setBankAccount, role }: Props) {
           }}
         />
       </Box>
-      <Box mt={1}>
+      <Box mt={2}>
         <TextField
           label="Account Title"
           placeholder="Title on the account"
@@ -47,7 +47,7 @@ function BankAccountForm({ bankAccount, setBankAccount, role }: Props) {
           }}
         />
       </Box>
-      <Box mt={1}>
+      <Box mt={2}>
         <TextField
           label="Account Type"
           placeholder="Checking, Savings, etc"
@@ -58,7 +58,7 @@ function BankAccountForm({ bankAccount, setBankAccount, role }: Props) {
           }}
         />
       </Box>
-      <Box mt={1}>
+      <Box mt={2}>
         <TextField
           label="Routing Number"
           required
@@ -68,7 +68,7 @@ function BankAccountForm({ bankAccount, setBankAccount, role }: Props) {
           }}
         />
       </Box>
-      <Box mt={1}>
+      <Box mt={2}>
         <TextField
           label="Account Number"
           required
@@ -112,30 +112,36 @@ function BankAccountForm({ bankAccount, setBankAccount, role }: Props) {
       />
       {bankAccount.can_wire && (
         <Box ml={4}>
-          <TextField
-            className={classes.form}
-            label="Bank Address"
-            value={bankAccount.bank_address}
-            onChange={({ target: { value } }) => {
-              setBankAccount({ ...bankAccount, bank_address: value });
-            }}
-          />
-          <TextField
-            label="Recipient Name"
-            className={classes.form}
-            value={bankAccount.recipient_name}
-            onChange={({ target: { value } }) => {
-              setBankAccount({ ...bankAccount, recipient_name: value });
-            }}
-          />
-          <TextField
-            label="Recipient Address"
-            className={classes.form}
-            value={bankAccount.recipient_address}
-            onChange={({ target: { value } }) => {
-              setBankAccount({ ...bankAccount, recipient_address: value });
-            }}
-          />
+          <Box mt={2}>
+            <TextField
+              className={classes.form}
+              label="Bank Address"
+              value={bankAccount.bank_address}
+              onChange={({ target: { value } }) => {
+                setBankAccount({ ...bankAccount, bank_address: value });
+              }}
+            />
+          </Box>
+          <Box mt={2}>
+            <TextField
+              label="Recipient Name"
+              className={classes.form}
+              value={bankAccount.recipient_name}
+              onChange={({ target: { value } }) => {
+                setBankAccount({ ...bankAccount, recipient_name: value });
+              }}
+            />
+          </Box>
+          <Box mt={2}>
+            <TextField
+              label="Recipient Address"
+              className={classes.form}
+              value={bankAccount.recipient_address}
+              onChange={({ target: { value } }) => {
+                setBankAccount({ ...bankAccount, recipient_address: value });
+              }}
+            />
+          </Box>
         </Box>
       )}
       {role === UserRolesEnum.BankAdmin && (

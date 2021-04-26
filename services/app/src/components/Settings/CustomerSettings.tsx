@@ -134,38 +134,42 @@ function Settings({
       <Box>
         <h2>Users</h2>
         <Box display="flex" flexDirection="row-reverse">
-          <ModalButton
-            isDisabled={selectedUsers.length > 0}
-            label={"Invite User"}
-            modal={({ handleClose }) => (
-              <InviteUserModal
-                companyId={companyId}
-                userRoles={CompanyUserRoles}
-                handleClose={() => {
-                  refetch();
-                  handleClose();
-                }}
-              />
-            )}
-          />
-          <Box mr={2}>
+          <Can perform={Action.ManipulateUser}>
             <ModalButton
-              isDisabled={selectedUsers.length !== 1}
-              label={"Edit User"}
+              isDisabled={selectedUsers.length > 0}
+              label={"Invite User"}
               modal={({ handleClose }) => (
-                <EditUserProfileModal
-                  userId={selectedUsers[0].id}
+                <InviteUserModal
+                  companyId={companyId}
                   userRoles={CompanyUserRoles}
-                  originalUserProfile={selectedUsers[0]}
                   handleClose={() => {
                     refetch();
                     handleClose();
-                    setSelectedUsers([]);
                   }}
                 />
               )}
             />
-          </Box>
+          </Can>
+          <Can perform={Action.ManipulateUser}>
+            <Box mr={2}>
+              <ModalButton
+                isDisabled={selectedUsers.length !== 1}
+                label={"Edit User"}
+                modal={({ handleClose }) => (
+                  <EditUserProfileModal
+                    userId={selectedUsers[0].id}
+                    userRoles={CompanyUserRoles}
+                    originalUserProfile={selectedUsers[0]}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                      setSelectedUsers([]);
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          </Can>
         </Box>
         <Box display="flex" mt={3}>
           {users.length > 0 ? (

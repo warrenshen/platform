@@ -90,7 +90,7 @@ function InviteUserModal({ companyId, userRoles, handleClose }: Props) {
 
     if (response.status !== "OK") {
       setErrMsg(response.msg);
-      snackbar.showError(`Could not create user. Reason: ${response.msg}`);
+      snackbar.showError(`Could not create user. Error: ${response.msg}`);
     } else {
       snackbar.showSuccess("User created and sent a welcome email.");
       handleClose();
