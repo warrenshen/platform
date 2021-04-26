@@ -1209,7 +1209,7 @@ class TestSettleRepayment(db_unittest.TestCase):
 				{
 					'amount': 30.0 + 0.0 + 0.0,
 					'payment_method': 'unused',
-					'settled_at': date_util.today_as_date(),
+					'settled_at': date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE),
 					'payment_date': '10/10/20',
 					'settlement_date': '10/10/20',
 					'company_bank_account_id': None,

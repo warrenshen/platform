@@ -46,7 +46,7 @@ def main() -> None:
 			print(f'EXITING EARLY')
 			return
 
-		effective_date = date_util.now_in_pst().date()
+		effective_date = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
 		payment_util.create_and_add_adjustment(
 			company_id=str(customer.id),
 			loan_id=str(loan.id),

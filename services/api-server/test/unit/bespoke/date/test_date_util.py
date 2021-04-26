@@ -43,6 +43,9 @@ class TestDateUtil(unittest.TestCase):
 				date_util.num_calendar_days_passed(d1, d2)
 			)
 
+	def test_now_as_date(self) -> None:
+		self.assertEqual(10, len(date_util.date_to_str(date_util.now_as_date('US/Pacific'))))
+
 	def test_get_nearest_business_day(self) -> None:
 		tests: List[Dict] = [
 			{

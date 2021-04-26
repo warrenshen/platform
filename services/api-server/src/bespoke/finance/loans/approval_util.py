@@ -9,6 +9,7 @@ from bespoke.db.db_constants import (ALL_LOAN_TYPES, LoanStatusEnum,
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance import financial_summary_util
+from bespoke.finance import contract_util
 from bespoke.finance.loans import sibling_util
 from mypy_extensions import TypedDict
 from sqlalchemy.orm import Session
@@ -313,12 +314,20 @@ def submit_for_approval_if_has_autofinancing(
 	if not loan_type:
 		raise errors.Error('No loan type associated with product type {}'.format(loan_type))
 
+	contract_obj, err = contract_util.Contract.build(contract.as_dict(), validate=False)
+	if err:
+		raise err
+
+	timezone, err = contract_obj.get_timezone_str()
+	if err:
+		raise err
+
 	loan = models.Loan()
 	loan.company_id = company_id
 	loan.identifier = '{}'.format(company.latest_loan_identifier)
 	loan.loan_type = loan_type
 	loan.artifact_id = artifact_id
-	loan.requested_payment_date = date_util.now() # TODO(dlluncor): use customer timezone today
+	loan.requested_payment_date = date_util.now_as_date(timezone)
 	loan.amount = decimal.Decimal(amount)
 	loan.status = LoanStatusEnum.DRAFTED
 

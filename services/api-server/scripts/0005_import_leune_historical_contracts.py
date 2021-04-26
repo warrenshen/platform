@@ -34,7 +34,7 @@ def import_historical_contracts_leune(session: Session) -> None:
 		parsed_end_date = date_util.load_date_str(end_date)
 		parsed_termination_date = date_util.load_date_str(termination_date)
 
-		today_date = date_util.today_as_date()
+		today_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
 		is_contract_terminated = parsed_termination_date <= today_date
 		if is_contract_terminated:
 			parsed_terminated_at = datetime.combine(parsed_termination_date, time())

@@ -73,7 +73,7 @@ class UpdateDirtyCompanyBalancesView(MethodView):
 
 		descriptive_errors, fatal_error = reports_util.run_customer_balances_for_companies_that_need_recompute(
 			current_app.session_maker,
-			date_util.now_in_pst().date()
+			date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
 		)
 		if fatal_error:
 			logging.error(f"Got fatal error while recomputing balances for companies that need it: '{fatal_error}'")
@@ -98,7 +98,7 @@ class UpdateAllCompanyBalancesView(MethodView):
 
 		descriptive_errors, fatal_error = reports_util.run_customer_balances_for_all_companies(
 			current_app.session_maker,
-			date_util.now_in_pst().date()
+			date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
 		)
 		if fatal_error:
 			logging.error(f"Got fatal error while recomputing balances for all companies: '{fatal_error}'")

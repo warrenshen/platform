@@ -89,7 +89,7 @@ def import_contracts(
 		if parsed_borrowing_base_cash_in_daca_percentage and parsed_borrowing_base_cash_in_daca_percentage > 1.0:
 			parsed_borrowing_base_cash_in_daca_percentage /= 100.0
 
-		today_date = date_util.today_as_date()
+		today_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
 		is_contract_terminated = parsed_termination_date and parsed_termination_date <= today_date
 		if is_contract_terminated:
 			parsed_terminated_at = datetime.combine(parsed_termination_date, time())

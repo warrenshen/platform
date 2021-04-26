@@ -22,6 +22,7 @@ ContractInputDict = TypedDict('ContractInputDict', {
 	'adjusted_factoring_fee_percentage': float,
 	'wire_fee': float,
 	'repayment_type_settlement_timeline': str,
+	'timezone': str,
 	# LOC contracts
 	'borrowing_base_accounts_receivable_percentage': float,
 	'borrowing_base_inventory_percentage': float,
@@ -56,6 +57,10 @@ def create_contract_config(
 		{
 			'internal_name': 'minimum_annual_amount',
 			'value': input_dict.get('minimum_annual_amount', None)
+		},
+		{
+			'internal_name': 'timezone',
+			'value': input_dict.get('timezone', None)
 		},
 		{
 			'internal_name': 'advance_rate',

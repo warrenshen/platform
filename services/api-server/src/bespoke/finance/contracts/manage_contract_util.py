@@ -155,7 +155,7 @@ def terminate_contract(
 
 		termination_date = date_util.load_date_str(req['termination_date'])
 
-		if termination_date > date_util.today_as_date():
+		if termination_date > date_util.now_as_date(date_util.DEFAULT_TIMEZONE):
 			raise errors.Error('Cannot set contract termination date to a date in the future', details=err_details)
 
 		contract.adjusted_end_date = date_util.load_date_str(req['termination_date'])

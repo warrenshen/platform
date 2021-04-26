@@ -7,6 +7,7 @@ import numpy as np
 from dateutil import parser, relativedelta
 
 us_holidays = holidays.UnitedStates()
+DEFAULT_TIMEZONE = 'US/Pacific'
 
 def human_readable_yearmonthday(dt: datetime.datetime) -> str:
 	return dt.strftime('%m/%d/%Y')
@@ -22,10 +23,10 @@ def hours_from_today(hours: int) -> datetime.datetime:
 def now() -> datetime.datetime:
 	return datetime.datetime.now(timezone.utc)
 
-def now_in_pst() -> datetime.datetime:
+def now_as_date(timezone: str) -> datetime.date:
 	dt = datetime.datetime.now(pytz.utc)
-	dt = dt.astimezone(pytz.timezone('US/Pacific'))
-	return dt
+	dt = dt.astimezone(pytz.timezone(timezone))
+	return dt.date()
 
 def datetime_to_str(dt: datetime.datetime) -> str:
 	return dt.isoformat()
@@ -42,9 +43,6 @@ def load_date_str(date_str: str) -> datetime.date:
 		02/11/2020 is Feb 11th 2020
 	"""
 	return parser.parse(date_str).replace(tzinfo=datetime.timezone.utc).date()
-
-def today_as_date() -> datetime.date:
-	return load_date_str(date_to_str(now()))
 
 def calculate_ebba_application_expires_at(application_date: datetime.datetime) -> datetime.datetime:
 	return (application_date + relativedelta.relativedelta(months=1)).replace(15)
