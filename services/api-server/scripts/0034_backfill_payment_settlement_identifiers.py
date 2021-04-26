@@ -23,6 +23,17 @@ def main() -> None:
 	with models.session_scope(session_maker) as session:
 		print(f'Running...')
 
+		payments = session.query(models.Payment).filter(
+			models.Payment.deposit_date.is_(None)
+		).filter(
+			models.Payment.settlement_date.isnot(None)
+		).all()
+
+		print(f'Found {len(payments)} payments with settlement date but not deposit date, setting deposit date to settlement date...')
+
+		for payment in payments:
+			payment.deposit_date = payment.settlement_date
+
 		customers = session.query(models.Company).filter(
 			models.Company.company_type == CompanyType.Customer
 		).all()
