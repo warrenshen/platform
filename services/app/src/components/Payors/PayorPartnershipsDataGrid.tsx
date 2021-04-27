@@ -40,7 +40,7 @@ export default function PayorPartnershipsDataGrid({
   const columns = useMemo(
     () => [
       {
-        dataField: isBankAccount ? "payor.name" : "payor_limited.name",
+        dataField: "payor.name",
         caption: "Payor Name",
         minWidth: ColumnWidths.MinWidth,
         ...(isBankAccount && {
@@ -55,24 +55,14 @@ export default function PayorPartnershipsDataGrid({
         }),
       },
       {
+        visible: !!isDrilldownByCustomer ? false : !!isBankAccount,
         dataField: "company.name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
-        visible: !!isDrilldownByCustomer ? false : !!isBankAccount,
-      },
-      {
-        dataField: "address",
-        caption: "Address",
-        visible: !!isDrilldownByCustomer,
-      },
-      {
-        dataField: "phone_number",
-        caption: "Phone Number",
-        visible: !!isDrilldownByCustomer,
       },
       {
         dataField: "payor_agreement_id",
-        caption: "Signed payor Agreement",
+        caption: "Signed Payor Agreement",
         alignment: "center",
         width: isBankAccount ? 195 : 225,
         calculateCellValue: (data: any) =>
@@ -81,7 +71,7 @@ export default function PayorPartnershipsDataGrid({
       },
       {
         dataField: "payor_license_id",
-        caption: "Verified license",
+        caption: "Verified License",
         alignment: "center",
         calculateCellValue: (data: any) =>
           !!data.payor_license_id ? "Yes" : "No",
