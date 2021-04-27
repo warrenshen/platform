@@ -20350,7 +20350,7 @@
           },
           {
             "name": "advances_bespoke_bank_account_id",
-            "description": null,
+            "description": "Currently not used",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -20374,7 +20374,7 @@
           },
           {
             "name": "collections_bespoke_bank_account_id",
-            "description": null,
+            "description": "For CUSTOMER and PAYOR companies, this is the Bespoke Financial bank account company sends payments to",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -23114,7 +23114,7 @@
           },
           {
             "name": "vendor_bank_id",
-            "description": null,
+            "description": "Bank account which Bespoke Financial sends advances to",
             "args": [],
             "type": {
               "kind": "SCALAR",

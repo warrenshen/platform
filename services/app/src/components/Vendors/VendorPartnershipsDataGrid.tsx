@@ -43,7 +43,7 @@ function VendorPartnershipsDataGrid({
   const columns = useMemo(
     () => [
       {
-        dataField: isBankUserRole ? "vendor.name" : "vendor_limited.name",
+        dataField: "vendor.name",
         caption: "Vendor Name",
         minWidth: ColumnWidths.MinWidth,
         ...(isBankUserRole && {
@@ -62,16 +62,6 @@ function VendorPartnershipsDataGrid({
         dataField: "company.name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
-      },
-      {
-        dataField: "address",
-        caption: "Address",
-        visible: !!isDrilldownByCustomer,
-      },
-      {
-        dataField: "phone_number",
-        caption: "Phone Number",
-        visible: !!isDrilldownByCustomer,
       },
       {
         dataField: "vendor_agreement_id",

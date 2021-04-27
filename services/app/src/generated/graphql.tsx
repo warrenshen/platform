@@ -2858,9 +2858,11 @@ export type CompanySettings = {
   active_ebba_application_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
   advances_bespoke_bank_account?: Maybe<BankAccounts>;
+  /** Currently not used */
   advances_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
   collections_bespoke_bank_account?: Maybe<BankAccounts>;
+  /** For CUSTOMER and PAYOR companies, this is the Bespoke Financial bank account company sends payments to */
   collections_bespoke_bank_account_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
   company?: Maybe<Companies>;
@@ -3279,6 +3281,7 @@ export type CompanyVendorPartnerships = {
   vendor_agreement_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
   vendor_bank_account?: Maybe<BankAccounts>;
+  /** Bank account which Bespoke Financial sends advances to */
   vendor_bank_id?: Maybe<Scalars["uuid"]>;
   vendor_id: Scalars["uuid"];
   vendor_license_id?: Maybe<Scalars["uuid"]>;
@@ -16472,17 +16475,6 @@ export type ContractFragment = Pick<
   | "terminated_at"
 >;
 
-export type VendorPartnershipFragment = Pick<
-  CompanyVendorPartnerships,
-  | "id"
-  | "company_id"
-  | "vendor_id"
-  | "vendor_bank_id"
-  | "vendor_agreement_id"
-  | "vendor_license_id"
-  | "approved_at"
->;
-
 export type PurchaseOrderFragment = Pick<
   PurchaseOrders,
   | "id"
@@ -16672,6 +16664,20 @@ export type InvoiceFragment = Pick<
   payor?: Maybe<Pick<Payors, "id" | "name">>;
 };
 
+export type VendorPartnershipFragment = Pick<
+  CompanyVendorPartnerships,
+  | "id"
+  | "company_id"
+  | "vendor_id"
+  | "vendor_bank_id"
+  | "vendor_agreement_id"
+  | "vendor_license_id"
+  | "approved_at"
+> & {
+  company: Pick<Companies, "id" | "name">;
+  vendor: Pick<Companies, "id" | "name">;
+};
+
 export type PayorPartnershipFragment = Pick<
   CompanyPayorPartnerships,
   | "id"
@@ -16680,7 +16686,10 @@ export type PayorPartnershipFragment = Pick<
   | "payor_agreement_id"
   | "payor_license_id"
   | "approved_at"
->;
+> & {
+  company: Pick<Companies, "id" | "name">;
+  payor?: Maybe<Pick<Companies, "id" | "name">>;
+};
 
 export type UpdateCompanyInfoMutationVariables = Exact<{
   id: Scalars["uuid"];
@@ -16876,22 +16885,8 @@ export type GetVendorPartnershipsByCompanyIdQueryVariables = Exact<{
 export type GetVendorPartnershipsByCompanyIdQuery = {
   company_vendor_partnerships: Array<
     {
-      vendor: Pick<Companies, "id"> & ThirdPartyFragment;
-      vendor_bank_account?: Maybe<Pick<BankAccounts, "id" | "verified_at">>;
-    } & VendorPartnershipFragment
-  >;
-};
-
-export type VendorPartnershipsByCompanyIdQueryVariables = Exact<{
-  companyId: Scalars["uuid"];
-}>;
-
-export type VendorPartnershipsByCompanyIdQuery = {
-  company_vendor_partnerships: Array<
-    Pick<CompanyVendorPartnerships, "id"> & {
       vendor_limited?: Maybe<VendorLimitedFragment>;
-      vendor_bank_account?: Maybe<Pick<BankAccounts, "id" | "verified_at">>;
-    } & VendorPartnershipFragment
+    } & VendorPartnershipLimitedFragment
   >;
 };
 
@@ -17098,6 +17093,19 @@ export type VendorLimitedFragment = Pick<Vendors, "id" | "name">;
 
 export type PayorLimitedFragment = Pick<Payors, "id" | "name">;
 
+export type VendorPartnershipLimitedFragment = Pick<
+  CompanyVendorPartnerships,
+  | "id"
+  | "company_id"
+  | "vendor_id"
+  | "vendor_agreement_id"
+  | "vendor_license_id"
+  | "approved_at"
+> & {
+  company: Pick<Companies, "id" | "name">;
+  vendor: Pick<Companies, "id" | "name">;
+};
+
 export type GetCustomersWithMetadataQueryVariables = Exact<{
   [key: string]: never;
 }>;
@@ -17197,17 +17205,6 @@ export const ContractFragmentDoc = gql`
     end_date
     adjusted_end_date
     terminated_at
-  }
-`;
-export const VendorPartnershipFragmentDoc = gql`
-  fragment VendorPartnership on company_vendor_partnerships {
-    id
-    company_id
-    vendor_id
-    vendor_bank_id
-    vendor_agreement_id
-    vendor_license_id
-    approved_at
   }
 `;
 export const LoanLimitedFragmentDoc = gql`
@@ -17359,6 +17356,25 @@ export const InvoiceFileFragmentDoc = gql`
   }
   ${FileFragmentDoc}
 `;
+export const VendorPartnershipFragmentDoc = gql`
+  fragment VendorPartnership on company_vendor_partnerships {
+    id
+    company_id
+    vendor_id
+    vendor_bank_id
+    vendor_agreement_id
+    vendor_license_id
+    approved_at
+    company {
+      id
+      name
+    }
+    vendor {
+      id
+      name
+    }
+  }
+`;
 export const PayorPartnershipFragmentDoc = gql`
   fragment PayorPartnership on company_payor_partnerships {
     id
@@ -17367,6 +17383,14 @@ export const PayorPartnershipFragmentDoc = gql`
     payor_agreement_id
     payor_license_id
     approved_at
+    company {
+      id
+      name
+    }
+    payor {
+      id
+      name
+    }
   }
 `;
 export const ContactFragmentDoc = gql`
@@ -17657,6 +17681,24 @@ export const PayorLimitedFragmentDoc = gql`
   fragment PayorLimited on payors {
     id
     name
+  }
+`;
+export const VendorPartnershipLimitedFragmentDoc = gql`
+  fragment VendorPartnershipLimited on company_vendor_partnerships {
+    id
+    company_id
+    vendor_id
+    vendor_agreement_id
+    vendor_license_id
+    approved_at
+    company {
+      id
+      name
+    }
+    vendor {
+      id
+      name
+    }
   }
 `;
 export const GetAdvancesDocument = gql`
@@ -23886,19 +23928,14 @@ export type AddCompanyVendorLicenseMutationOptions = Apollo.BaseMutationOptions<
 export const GetVendorPartnershipsByCompanyIdDocument = gql`
   query GetVendorPartnershipsByCompanyId($companyId: uuid!) {
     company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
-      ...VendorPartnership
-      vendor {
-        id
-        ...ThirdParty
-      }
-      vendor_bank_account {
-        id
-        verified_at
+      ...VendorPartnershipLimited
+      vendor_limited {
+        ...VendorLimited
       }
     }
   }
-  ${VendorPartnershipFragmentDoc}
-  ${ThirdPartyFragmentDoc}
+  ${VendorPartnershipLimitedFragmentDoc}
+  ${VendorLimitedFragmentDoc}
 `;
 
 /**
@@ -23948,72 +23985,6 @@ export type GetVendorPartnershipsByCompanyIdLazyQueryHookResult = ReturnType<
 export type GetVendorPartnershipsByCompanyIdQueryResult = Apollo.QueryResult<
   GetVendorPartnershipsByCompanyIdQuery,
   GetVendorPartnershipsByCompanyIdQueryVariables
->;
-export const VendorPartnershipsByCompanyIdDocument = gql`
-  query VendorPartnershipsByCompanyId($companyId: uuid!) {
-    company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
-      id
-      ...VendorPartnership
-      vendor_limited {
-        ...VendorLimited
-      }
-      vendor_bank_account {
-        id
-        verified_at
-      }
-    }
-  }
-  ${VendorPartnershipFragmentDoc}
-  ${VendorLimitedFragmentDoc}
-`;
-
-/**
- * __useVendorPartnershipsByCompanyIdQuery__
- *
- * To run a query within a React component, call `useVendorPartnershipsByCompanyIdQuery` and pass it any options that fit your needs.
- * When your component renders, `useVendorPartnershipsByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useVendorPartnershipsByCompanyIdQuery({
- *   variables: {
- *      companyId: // value for 'companyId'
- *   },
- * });
- */
-export function useVendorPartnershipsByCompanyIdQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    VendorPartnershipsByCompanyIdQuery,
-    VendorPartnershipsByCompanyIdQueryVariables
-  >
-) {
-  return Apollo.useQuery<
-    VendorPartnershipsByCompanyIdQuery,
-    VendorPartnershipsByCompanyIdQueryVariables
-  >(VendorPartnershipsByCompanyIdDocument, baseOptions);
-}
-export function useVendorPartnershipsByCompanyIdLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    VendorPartnershipsByCompanyIdQuery,
-    VendorPartnershipsByCompanyIdQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    VendorPartnershipsByCompanyIdQuery,
-    VendorPartnershipsByCompanyIdQueryVariables
-  >(VendorPartnershipsByCompanyIdDocument, baseOptions);
-}
-export type VendorPartnershipsByCompanyIdQueryHookResult = ReturnType<
-  typeof useVendorPartnershipsByCompanyIdQuery
->;
-export type VendorPartnershipsByCompanyIdLazyQueryHookResult = ReturnType<
-  typeof useVendorPartnershipsByCompanyIdLazyQuery
->;
-export type VendorPartnershipsByCompanyIdQueryResult = Apollo.QueryResult<
-  VendorPartnershipsByCompanyIdQuery,
-  VendorPartnershipsByCompanyIdQueryVariables
 >;
 export const VendorsByPartnerCompanyDocument = gql`
   query VendorsByPartnerCompany($companyId: uuid!) {

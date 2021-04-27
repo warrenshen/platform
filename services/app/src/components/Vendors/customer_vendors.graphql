@@ -1,27 +1,8 @@
 query GetVendorPartnershipsByCompanyId($companyId: uuid!) {
   company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
-    ...VendorPartnership
-    vendor {
-      id
-      ...ThirdParty
-    }
-    vendor_bank_account {
-      id
-      verified_at
-    }
-  }
-}
-
-query VendorPartnershipsByCompanyId($companyId: uuid!) {
-  company_vendor_partnerships(where: { company_id: { _eq: $companyId } }) {
-    id
-    ...VendorPartnership
+    ...VendorPartnershipLimited
     vendor_limited {
       ...VendorLimited
-    }
-    vendor_bank_account {
-      id
-      verified_at
     }
   }
 }

@@ -77,14 +77,6 @@ function ApproveVendor(props: Props) {
       );
       return false;
     }
-    if (!vendorLicense) {
-      snackbar.showError("Vendor does not have any licenses setup");
-      return false;
-    }
-    if (!vendorAgreement) {
-      snackbar.showError("Vendor does not have any agreements setup");
-      return false;
-    }
     return true;
   };
 

@@ -56,16 +56,6 @@ fragment Contract on contracts {
 
 ## Purchase Order Financing
 
-fragment VendorPartnership on company_vendor_partnerships {
-  id
-  company_id
-  vendor_id
-  vendor_bank_id
-  vendor_agreement_id
-  vendor_license_id
-  approved_at
-}
-
 fragment PurchaseOrder on purchase_orders {
   id
   company_id
@@ -290,6 +280,24 @@ fragment Invoice on invoices {
   }
 }
 
+fragment VendorPartnership on company_vendor_partnerships {
+  id
+  company_id
+  vendor_id
+  vendor_bank_id
+  vendor_agreement_id
+  vendor_license_id
+  approved_at
+  company {
+    id
+    name
+  }
+  vendor {
+    id
+    name
+  }
+}
+
 fragment PayorPartnership on company_payor_partnerships {
   id
   company_id
@@ -297,4 +305,12 @@ fragment PayorPartnership on company_payor_partnerships {
   payor_agreement_id
   payor_license_id
   approved_at
+  company {
+    id
+    name
+  }
+  payor {
+    id
+    name
+  }
 }
