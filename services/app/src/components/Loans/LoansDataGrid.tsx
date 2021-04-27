@@ -119,6 +119,16 @@ function LoansDataGrid({
   const columns = useMemo(
     () => [
       {
+        visible: !!actionItems && actionItems.length > 0,
+        dataField: "action",
+        caption: "Action",
+        alignment: "center",
+        width: 80,
+        cellRender: (params: ValueFormatterParams) => (
+          <DataGridActionMenu params={params} actionItems={actionItems} />
+        ),
+      },
+      {
         dataField: "identifier",
         caption: "Loan Identifier",
         width: 120,
@@ -143,16 +153,6 @@ function LoansDataGrid({
             )}
             loanId={params.row.data.id as string}
           />
-        ),
-      },
-      {
-        visible: !!actionItems && actionItems.length > 0,
-        dataField: "action",
-        caption: "Action",
-        alignment: "center",
-        width: 70,
-        cellRender: (params: ValueFormatterParams) => (
-          <DataGridActionMenu params={params} actionItems={actionItems} />
         ),
       },
       {
@@ -287,14 +287,14 @@ function LoansDataGrid({
       {
         visible: !isDaysPastDueVisible && isMaturityVisible,
         caption: "Maturing in (Days)",
-        width: 150,
+        width: 100,
         alignment: "right",
         calculateCellValue: (row: any) => maturingInDaysRenderer({ data: row }),
       },
       {
         visible: isDaysPastDueVisible,
         caption: "Days Past Due",
-        width: 130,
+        width: 100,
         alignment: "right",
         calculateCellValue: (row: any) => daysPastDueRenderer({ data: row }),
       },

@@ -170,6 +170,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
           const afterLoan = loanToShow.after_loan_balance;
           return {
             loan_id: loanToShow.loan_id,
+            loan_identifier: loanToShow.loan_identifier,
             loan_balance_before: {
               outstanding_principal_balance:
                 beforeLoan?.outstanding_principal_balance,
@@ -279,7 +280,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
       title={`Settle ${
         PaymentMethodToLabel[payment.method as PaymentMethodEnum]
       } Payment`}
-      contentWidth={800}
+      contentWidth={1000}
       primaryActionText={isOnSelectLoans ? "Next step" : "Settle payment"}
       secondaryActionText={!isOnSelectLoans ? "Back to step 1" : null}
       handleClose={handleClose}

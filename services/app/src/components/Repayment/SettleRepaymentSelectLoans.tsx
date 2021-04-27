@@ -73,23 +73,12 @@ function SettleRepaymentSelectLoans({
   );
   const notSelectedLoans = useMemo(
     () =>
-      data?.loans.filter((loan) => {
-        if (
-          !!loan.closed_at ||
-          payment.items_covered.loan_ids.indexOf(loan.id) >= 0
-        ) {
-          return false;
-        } else {
-          const pastDueThreshold = new Date(Date.now());
-          const matureThreshold = new Date(
-            new Date(Date.now()).getTime() + 7 * 24 * 60 * 60 * 1000
-          );
-          const maturityDate = new Date(loan.maturity_date);
-          return (
-            matureThreshold > maturityDate || pastDueThreshold > maturityDate
-          );
-        }
-      }) || [],
+      data?.loans.filter(
+        (loan) =>
+          !loan.closed_at &&
+          !!loan.origination_date &&
+          payment.items_covered.loan_ids.indexOf(loan.id) < 0
+      ) || [],
     [data?.loans, payment.items_covered.loan_ids]
   );
 
@@ -175,9 +164,10 @@ function SettleRepaymentSelectLoans({
                 {`Select which loans this payment will apply towards. The loans that ${customer.name} suggested are pre-selected, but the final selection is up to your discretion.`}
               </Typography>
             </Box>
-            <Typography variant="body1">Selected loans:</Typography>
+            <Typography variant="subtitle1">Selected loans</Typography>
             <LoansDataGrid
               isDaysPastDueVisible
+              isDisbursementIdentifierVisible
               isMaturityVisible
               isSortingDisabled
               pager={false}
@@ -206,14 +196,13 @@ function SettleRepaymentSelectLoans({
             />
           </Box>
           <Box mt={4}>
-            <Typography variant="body1">
-              Loans not selected, but past due or maturing in 7 days:
-            </Typography>
+            <Typography variant="subtitle1">Not selected loans</Typography>
             <LoansDataGrid
               isDaysPastDueVisible
+              isDisbursementIdentifierVisible
               isMaturityVisible
               isSortingDisabled
-              pageSize={5}
+              pageSize={25}
               loans={notSelectedLoans}
               actionItems={
                 check(role, Action.SelectLoan)

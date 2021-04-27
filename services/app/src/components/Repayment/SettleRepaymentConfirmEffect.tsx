@@ -1,4 +1,4 @@
-import { Box, FormControl, Typography } from "@material-ui/core";
+import { Box, Divider, FormControl, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import LoansBeforeAfterPaymentPreview from "components/Repayment/LoansBeforeAfterPaymentPreview";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
@@ -39,97 +39,100 @@ export default function SettleRepaymentConfirmEffect({
 }: Props) {
   return (
     <Box>
-      {productType === ProductTypeEnum.LineOfCredit ? (
-        <Box display="flex" flexDirection="column" mt={4}>
-          <Box mb={1}>
-            <Typography variant="subtitle2">
-              Review / edit how payment will be applied.
-            </Typography>
-          </Box>
-          <Alert severity="info">
-            <Box display="flex" flexDirection="column">
+      <Box>
+        <Typography variant={"h6"}>Review payment</Typography>
+      </Box>
+      <Box>
+        <Typography variant={"body2"}>
+          Confirm payment details are all correct.
+        </Typography>
+      </Box>
+      <Box my={6}>
+        <Divider light />
+      </Box>
+      <Box>
+        {productType === ProductTypeEnum.LineOfCredit ? (
+          <Box display="flex" flexDirection="column" mt={4}>
+            <Alert severity="info">
+              <Box display="flex" flexDirection="column">
+                <Typography variant="body1">
+                  {`As of the settlement date, ${formatDateString(
+                    payment.settlement_date
+                  )}, ${customer.name}'s balances will be:`}
+                </Typography>
+              </Box>
+              <Box mt={1}>
+                <Typography variant="body1">
+                  {`Outstanding Principal: ${formatCurrency(
+                    payableAmountPrincipal
+                  )}`}
+                </Typography>
+              </Box>
+              <Box mt={1}>
+                <Typography variant="body1">
+                  {`Outstanding Interest: ${formatCurrency(
+                    payableAmountInterest
+                  )}`}
+                </Typography>
+              </Box>
+            </Alert>
+            <Box mt={1}>
               <Typography variant="body1">
-                {`As of the settlement date, ${formatDateString(
+                {`Payment Amount: ${formatCurrency(payment.amount)}`}
+              </Typography>
+            </Box>
+            <Box display="flex" flexDirection="column" mt={1}>
+              <FormControl>
+                <CurrencyInput
+                  label={"Payment Amount to Principal"}
+                  value={payment.items_covered.to_principal}
+                  handleChange={(value) =>
+                    setPayment({
+                      ...payment,
+                      items_covered: {
+                        ...payment.items_covered,
+                        to_principal: value,
+                      },
+                    })
+                  }
+                />
+              </FormControl>
+            </Box>
+            <Box display="flex" flexDirection="column" mt={1}>
+              <FormControl>
+                <CurrencyInput
+                  label={"Payment Amount to Interest"}
+                  value={payment.items_covered.to_interest}
+                  handleChange={(value) =>
+                    setPayment({
+                      ...payment,
+                      items_covered: {
+                        ...payment.items_covered,
+                        to_interest: value,
+                      },
+                    })
+                  }
+                />
+              </FormControl>
+            </Box>
+          </Box>
+        ) : (
+          <Box display="flex" flexDirection="column" mt={4}>
+            <Box display="flex" flexDirection="column" mb={1}>
+              <Typography variant="body1">
+                {`Before payment balances are as of the settlement date, ${formatDateString(
                   payment.settlement_date
-                )}, ${customer.name}'s balances will be:`}
+                )}.`}
               </Typography>
             </Box>
-            <Box mt={1}>
-              <Typography variant="body1">
-                {`Outstanding Principal: ${formatCurrency(
-                  payableAmountPrincipal
-                )}`}
-              </Typography>
-            </Box>
-            <Box mt={1}>
-              <Typography variant="body1">
-                {`Outstanding Interest: ${formatCurrency(
-                  payableAmountInterest
-                )}`}
-              </Typography>
-            </Box>
-          </Alert>
-          <Box mt={1}>
-            <Typography variant="body1">
-              {`Payment Amount: ${formatCurrency(payment.amount)}`}
-            </Typography>
+            <LoansBeforeAfterPaymentPreview
+              isSettlePayment
+              loansBeforeAfterPayment={loansBeforeAfterPayment}
+              setLoanBeforeAfterPayment={setLoanBeforeAfterPayment}
+            />
           </Box>
-          <Box display="flex" flexDirection="column" mt={1}>
-            <FormControl>
-              <CurrencyInput
-                label={"Payment Amount to Principal"}
-                value={payment.items_covered.to_principal}
-                handleChange={(value) =>
-                  setPayment({
-                    ...payment,
-                    items_covered: {
-                      ...payment.items_covered,
-                      to_principal: value,
-                    },
-                  })
-                }
-              />
-            </FormControl>
-          </Box>
-          <Box display="flex" flexDirection="column" mt={1}>
-            <FormControl>
-              <CurrencyInput
-                label={"Payment Amount to Interest"}
-                value={payment.items_covered.to_interest}
-                handleChange={(value) =>
-                  setPayment({
-                    ...payment,
-                    items_covered: {
-                      ...payment.items_covered,
-                      to_interest: value,
-                    },
-                  })
-                }
-              />
-            </FormControl>
-          </Box>
-        </Box>
-      ) : (
-        <Box display="flex" flexDirection="column" mt={4}>
-          <Box mb={1}>
-            <Typography variant="subtitle2">
-              Review / edit how payment will be applied to loan(s).
-            </Typography>
-          </Box>
-          <Box display="flex" flexDirection="column">
-            <Typography variant="body1">
-              {`Before payment balances are as of the settlement date, ${formatDateString(
-                payment.settlement_date
-              )}.`}
-            </Typography>
-          </Box>
-          <LoansBeforeAfterPaymentPreview
-            isSettlePayment
-            loansBeforeAfterPayment={loansBeforeAfterPayment}
-            setLoanBeforeAfterPayment={setLoanBeforeAfterPayment}
-          />
-        </Box>
-      )}
+        )}
+      </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <FormControl>
           <CurrencyInput

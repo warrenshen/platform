@@ -39,10 +39,10 @@ const useStyles = makeStyles((theme: Theme) =>
       display: "flex",
       justifyContent: "flex-end",
 
-      flex: 1,
+      flex: 6,
     },
     loanAfterPayment: {
-      flex: 1,
+      flex: 4,
     },
   })
 );
@@ -82,7 +82,7 @@ function LoansBeforeAfterPaymentPreview({
       <Box className={classes.loanBeforeAfterPayment}>
         <Box display="flex" flexDirection="column" width={"100%"}>
           <Box display="flex" width="100%">
-            <Box display="flex" justifyContent="space-between" flex={1}>
+            <Box display="flex" justifyContent="space-between" flex={6}>
               <Box display="flex" justifyContent="flex-start" width={"25%"}>
                 <Typography variant="subtitle2" align="left">
                   Identifier
@@ -107,7 +107,7 @@ function LoansBeforeAfterPaymentPreview({
             <Box className={classes.middle}>
               <ArrowRightAlt />
             </Box>
-            <Box display="flex" justifyContent="space-between" flex={1}>
+            <Box display="flex" justifyContent="space-between" flex={4}>
               <Box display="flex" justifyContent="flex-end" width={"33%"}>
                 <Typography variant="subtitle2" align="right">
                   Principal
@@ -137,7 +137,7 @@ function LoansBeforeAfterPaymentPreview({
 
               return (
                 <Box key={loanId} display="flex" width={"100%"} mt={2}>
-                  <Box display="flex" flexDirection="column" flex={1}>
+                  <Box display="flex" flexDirection="column" flex={6} mt={2}>
                     <Box display="flex" justifyContent="space-between">
                       <Box
                         display="flex"
@@ -183,8 +183,9 @@ function LoansBeforeAfterPaymentPreview({
                     {isSettlePayment &&
                       isEditMode &&
                       setLoanBeforeAfterPayment && (
-                        <Box display="flex" mb={2}>
-                          <Box mr={1}>
+                        <Box display="flex" mt={2} mb={2}>
+                          <Box mr={1} width={"25%"} />
+                          <Box mr={1} width={"25%"}>
                             <CurrencyInput
                               label={"To Principal"}
                               textAlign="right"
@@ -198,7 +199,7 @@ function LoansBeforeAfterPaymentPreview({
                               }
                             />
                           </Box>
-                          <Box mr={1}>
+                          <Box mr={1} width={"25%"}>
                             <CurrencyInput
                               label={"To Interest"}
                               textAlign="right"
@@ -212,7 +213,7 @@ function LoansBeforeAfterPaymentPreview({
                               }
                             />
                           </Box>
-                          <Box>
+                          <Box width={"25%"}>
                             <CurrencyInput
                               label={"To Fees"}
                               textAlign="right"
@@ -229,14 +230,15 @@ function LoansBeforeAfterPaymentPreview({
                         </Box>
                       )}
                   </Box>
-                  <Box className={classes.middle}>
+                  <Box className={classes.middle} mt={2}>
                     <ArrowRightAlt />
                   </Box>
                   <Box
                     key={loanId}
                     display="flex"
                     flexDirection="column"
-                    flex={1}
+                    flex={4}
+                    mt={2}
                   >
                     <Box display="flex" justifyContent="space-between">
                       <Box
@@ -277,7 +279,7 @@ function LoansBeforeAfterPaymentPreview({
             })}
           </Box>
           {isSettlePayment && (
-            <Box width={"100%"} height={48} mt={2}>
+            <Box width={"100%"} height={48} mt={4}>
               <Button
                 variant="contained"
                 color="default"
