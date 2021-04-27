@@ -19,6 +19,8 @@ class Actions(object):
 	CONTRACT_CREATE = 'contract_create'
 
 	FINANCE_MAKE_ACCOUNT_LEVEL_FEE = 'finance_make_account_level_fee'
+	FINANCE_MAKE_ACCOUNT_LEVEL_FEE_REPAYMENT = 'finance_make_account_level_fee_repayment'
+	FINANCE_SETTLE_ACCOUNT_LEVEL_FEE_REPAYMENT = 'finance_settle_account_level_fee_repayment'
 
 	INVOICE_UPDATE = 'invoice_update'
 	INVOICE_CREATE = 'invoice_create'

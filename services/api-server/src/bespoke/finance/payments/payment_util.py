@@ -32,7 +32,8 @@ PaymentItemsCoveredDict = TypedDict('PaymentItemsCoveredDict', {
 	'requested_to_interest': float,
 	'to_principal': float,
 	'to_interest': float,
-	'to_user_credit': float,
+	'to_fees': float,
+	'to_user_credit': float
 }, total=False)
 
 PaymentInputDict = TypedDict('PaymentInputDict', {
@@ -84,12 +85,13 @@ def create_payment(
 
 def create_repayment_payment(
 	company_id: str,
+	payment_type: str,
 	payment_input: RepaymentPaymentInputDict,
-	user_id: str) -> models.Payment:
+	created_by_user_id: str) -> models.Payment:
 
 	payment = models.Payment()
 	payment.company_id = company_id
-	payment.type = db_constants.PaymentType.REPAYMENT
+	payment.type = payment_type
 	payment.method = payment_input['payment_method']
 	payment.requested_amount = decimal.Decimal(payment_input['requested_amount'])
 	payment.requested_payment_date = payment_input['requested_payment_date']
@@ -97,7 +99,9 @@ def create_repayment_payment(
 	payment.items_covered = cast(Dict[str, Any], payment_input['items_covered'])
 	payment.company_bank_account_id = payment_input['company_bank_account_id']
 	payment.submitted_at = datetime.datetime.now()
-	payment.submitted_by_user_id = user_id
+	payment.submitted_by_user_id = created_by_user_id
+	payment.requested_by_user_id = created_by_user_id
+
 	return payment
 
 def make_advance_payment_settled(
@@ -125,6 +129,16 @@ def make_advance_payment_settled(
 	payment.settlement_date = settlement_date
 	payment.settled_at = date_util.now()
 	payment.settled_by_user_id = settled_by_user_id
+
+def get_and_increment_repayment_identifier(company_id: str, session: Session) -> str:
+	company = cast(
+		models.Company,
+		session.query(models.Company).get(company_id))
+
+	# Generate a repayment identifier for this payment for this company.
+	company.latest_repayment_identifier += 1
+	repayment_identifier = str(company.latest_repayment_identifier)
+	return repayment_identifier
 
 def make_repayment_payment_settled(
 	payment: models.Payment,
@@ -261,7 +275,7 @@ def create_and_add_account_level_fee(
 	created_by_user_id: str,
 	payment_date: datetime.date,
 	effective_date: datetime.date,
-	session: Session) -> models.Transaction:
+	session: Session) -> str:
 
 	payment = create_payment(
 		company_id=company_id,
@@ -295,7 +309,30 @@ def create_and_add_account_level_fee(
 	t.effective_date = effective_date
 
 	session.add(t)
-	return t
+	return payment_id
+
+def create_and_add_account_level_fee_repayment(
+	company_id: str,
+	payment_input: RepaymentPaymentInputDict,
+	created_by_user_id: str,
+	session: Session
+) -> Tuple[str, errors.Error]:
+
+	if payment_input['payment_method'] == db_constants.PaymentMethodEnum.REVERSE_DRAFT_ACH:
+		return None, errors.Error('Reverse Draft ACH not supported as a payment type for fee repayment yet')
+
+	payment = create_repayment_payment(
+		company_id=company_id,
+		payment_type=db_constants.PaymentType.REPAYMENT_OF_ACCOUNT_FEE,
+		payment_input=payment_input,
+		created_by_user_id=created_by_user_id
+	)
+	payment.payment_date = payment_input['requested_payment_date']
+	session.add(payment)
+	session.flush()
+	payment_id = str(payment.id)
+
+	return payment_id, None
 
 @errors.return_error_tuple
 def unsettle_payment(payment_type: str, payment_id: str, session: Session) -> Tuple[bool, errors.Error]:

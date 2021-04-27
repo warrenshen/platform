@@ -219,7 +219,7 @@ def fund_loans_with_advance(
 				# If wire fee specified in contract is greater than zero,
 				# create a wire fee (an account level fee).
 				if cur_wire_fee > 0.0:
-					t = payment_util.create_and_add_account_level_fee(
+					payment_util.create_and_add_account_level_fee(
 						company_id=company_id,
 						subtype=db_constants.TransactionSubType.WIRE_FEE,
 						amount=cur_wire_fee,
@@ -229,7 +229,6 @@ def fund_loans_with_advance(
 						effective_date=settlement_date,
 						session=session
 					)
-					session.add(t)
 
 		for loan in loans:
 			cur_contract = contracts_by_company_id[str(loan.company_id)]

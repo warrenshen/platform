@@ -14,21 +14,7 @@ from bespoke.finance.loans import approval_util
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
-
-def _get_financial_summary(total_limit: float, available_limit: float) -> models.FinancialSummary:
-	return models.FinancialSummary(
-		total_limit=decimal.Decimal(total_limit),
-		adjusted_total_limit=decimal.Decimal(total_limit),
-		total_outstanding_principal=decimal.Decimal(0.0),
-		total_outstanding_principal_for_interest=decimal.Decimal(0.0),
-		total_outstanding_interest=decimal.Decimal(0.0), # unused
-		total_outstanding_fees=decimal.Decimal(0.0), # unused
-		total_principal_in_requested_state=decimal.Decimal(0.0), # unused
-		interest_accrued_today=decimal.Decimal(0.0), # unused
-		available_limit=decimal.Decimal(available_limit),
-		minimum_monthly_payload={},
-		account_level_balance_payload={}
-	)
+from bespoke_test.finance import finance_test_helper
 
 def _get_late_fee_structure() -> str:
 	return json.dumps({
@@ -120,7 +106,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 
 	def test_failure_no_loan(self) -> None:
 		test: Dict = {
-			'financial_summary': _get_financial_summary(
+			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
 				available_limit=200.0,
 			),
@@ -134,7 +120,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 
 	def test_too_many_loans_from_one_purchase_order(self) -> None:
 		test: Dict = {
-			'financial_summary': _get_financial_summary(
+			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
 				available_limit=200.0
 			),
@@ -183,7 +169,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 	def test_failure_hit_max_limit_allowed(self) -> None:
 
 		test: Dict = {
-			'financial_summary': _get_financial_summary(
+			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=1000.0,
 				available_limit=200.0
 			),
@@ -205,7 +191,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 
 	def test_sucess_many_loans_from_one_purchase_order_draft_doesnt_count(self) -> None:
 		test: Dict = {
-			'financial_summary': _get_financial_summary(
+			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
 				available_limit=200.0
 			),
@@ -241,7 +227,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 	def test_success_inventory_loan(self) -> None:
 
 		test: Dict = {
-			'financial_summary': _get_financial_summary(
+			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
 				available_limit=200.0,
 			),
@@ -343,7 +329,7 @@ class TestApproveLoans(db_unittest.TestCase):
 
 	def test_approve_loan_failure_exceeds_available_limit(self) -> None:
 		test: Dict = {
-			'financial_summary': _get_financial_summary(
+			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
 				available_limit=10.0
 			),
@@ -367,7 +353,7 @@ class TestApproveLoans(db_unittest.TestCase):
 
 	def test_approve_loan_failure_exceeds_artifact_limit(self) -> None:
 		test: Dict = {
-			'financial_summary': _get_financial_summary(
+			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=500.0,
 				available_limit=300.0
 			),
@@ -391,7 +377,7 @@ class TestApproveLoans(db_unittest.TestCase):
 
 	def test_approve_loan_success(self) -> None:
 		test: Dict = {
-			'financial_summary': _get_financial_summary(
+			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
 				available_limit=200.0,
 			),
@@ -492,7 +478,7 @@ class TestSubmitViaAutoFinancing(db_unittest.TestCase):
 
 		test: Dict = {
 			'contract': _get_contract(product_type=ProductType.INVENTORY_FINANCING),
-			'financial_summary': _get_financial_summary(
+			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
 				available_limit=200.0,
 			),
@@ -508,7 +494,7 @@ class TestSubmitViaAutoFinancing(db_unittest.TestCase):
 
 		test: Dict = {
 			'contract': _get_contract(product_type=ProductType.INVENTORY_FINANCING),
-			'financial_summary': _get_financial_summary(
+			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
 				available_limit=200.0,
 			),

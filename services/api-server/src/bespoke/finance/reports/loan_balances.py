@@ -34,11 +34,6 @@ from bespoke.finance.payments import payment_util
 from bespoke.finance.types import finance_types, per_customer_types
 from mypy_extensions import TypedDict
 
-AccountBalanceDict = TypedDict('AccountBalanceDict', {
-	'fees_total': float,
-	'credits_total': float
-})
-
 SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 	'product_type': str,
 	'total_limit': float,
@@ -51,7 +46,7 @@ SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 	'total_interest_accrued_today': float,
 	'available_limit': float,
 	'minimum_monthly_payload': FeeDict,
-	'account_level_balance_payload': AccountBalanceDict,
+	'account_level_balance_payload': finance_types.AccountBalanceDict,
 	'day_volume_threshold_met': datetime.date
 })
 
@@ -110,7 +105,7 @@ def _get_active_ebba_application_update(
 		calculated_borrowing_base=number_util.round_currency(calculated_borrowing_base),
 	), None
 
-def _get_account_level_balance(customer_info: per_customer_types.CustomerFinancials) -> Tuple[AccountBalanceDict, errors.Error]:
+def _get_account_level_balance(customer_info: per_customer_types.CustomerFinancials) -> Tuple[finance_types.AccountBalanceDict, errors.Error]:
 	fees_total = 0.0
 	credits_total = 0.0
 
@@ -123,7 +118,7 @@ def _get_account_level_balance(customer_info: per_customer_types.CustomerFinanci
 		# Account level transactions have no loan_id associated with them
 		if tx_type in db_constants.FEE_TYPES:
 			fees_total += tx['amount']
-		elif tx_type == db_constants.PaymentType.REPAYMENT_ACCOUNT_FEE:
+		elif tx_type == db_constants.PaymentType.REPAYMENT_OF_ACCOUNT_FEE:
 			fees_total -= tx['amount']
 		elif tx_type in db_constants.CREDIT_TO_USER_TYPES:
 			credits_total += tx['amount']
@@ -131,7 +126,7 @@ def _get_account_level_balance(customer_info: per_customer_types.CustomerFinanci
 			return None, errors.Error(
 				f'Transaction {tx["id"]} has a type "{tx_type}" which is neither a fee nor a credit to a user. This implies an unregistered or incorrect transaction type')
 
-	return AccountBalanceDict(
+	return finance_types.AccountBalanceDict(
 		fees_total=number_util.round_currency(fees_total),
 		credits_total=number_util.round_currency(credits_total)
 	), None

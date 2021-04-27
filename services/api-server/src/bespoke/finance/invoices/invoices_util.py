@@ -535,8 +535,9 @@ def respond_to_payment_request(
 	invoice.payment_confirmed_at = date_util.now()
 
 	payment = payment_util.create_repayment_payment(
-		str(invoice.company_id),
-		payment_util.RepaymentPaymentInputDict(
+		company_id=str(invoice.company_id),
+		payment_type=db_constants.PaymentType.REPAYMENT,
+		payment_input=payment_util.RepaymentPaymentInputDict(
 			payment_method=str(data.payment_method),
 			requested_amount=data.amount,
 			requested_payment_date=data.anticipated_payment_date,
@@ -546,7 +547,7 @@ def respond_to_payment_request(
 			),
 			company_bank_account_id=None,
 		),
-		str(user.id))
+		created_by_user_id=str(user.id))
 
 	session.add(payment)
 	session.commit()
