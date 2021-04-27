@@ -150,11 +150,11 @@ function CreateUpdateBankAccountModal({
 
   const handleSubmit = async () => {
     let fn = handleCreateBankAccount;
-    let successMessage = "Success! Bank account created.";
+    let successMessage = "Bank account created.";
 
     if (existingBankAccount) {
       fn = handleUpdateBankAccount;
-      successMessage = "Success! Bank account updated.";
+      successMessage = "Bank account updated.";
     }
 
     try {

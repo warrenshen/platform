@@ -52,8 +52,6 @@ function ApproveVendor(props: Props) {
   }
 
   const companyVendorPartnership = data.company_vendor_partnerships_by_pk;
-  const vendorLicense = companyVendorPartnership.company_license;
-  const vendorAgreement = companyVendorPartnership.company_agreement;
   const vendor = companyVendorPartnership.vendor;
   const customerName = props.customerName;
 

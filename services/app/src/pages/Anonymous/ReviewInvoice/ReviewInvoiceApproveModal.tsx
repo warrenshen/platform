@@ -63,7 +63,7 @@ export default function ReviewInvoiceApproveModal({
         `Error! Something went wrong. Reason: ${response.data?.msg}`
       );
     } else {
-      snackbar.showSuccess("Success! Invoice approved.");
+      snackbar.showSuccess("Invoice approved.");
       handleApproveSuccess();
     }
   };

@@ -13,8 +13,8 @@ import {
   PurchaseOrders,
   PurchaseOrdersInsertInput,
   RequestStatusEnum,
+  useGetVendorsByPartnerCompanyQuery,
   usePurchaseOrderQuery,
-  useVendorsByPartnerCompanyQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -106,7 +106,7 @@ export default function CreateUpdatePurchaseOrderModal({
   const {
     data,
     loading: isSelectableVendorsLoading,
-  } = useVendorsByPartnerCompanyQuery({
+  } = useGetVendorsByPartnerCompanyQuery({
     fetchPolicy: "network-only",
     variables: {
       companyId,

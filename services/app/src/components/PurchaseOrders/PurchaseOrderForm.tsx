@@ -14,10 +14,10 @@ import FileUploadDropzone from "components/Shared/File/UploadDropzone";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import {
+  GetVendorsByPartnerCompanyQuery,
   PurchaseOrderFileFragment,
   PurchaseOrderFileTypeEnum,
   PurchaseOrdersInsertInput,
-  VendorsByPartnerCompanyQuery,
 } from "generated/graphql";
 import { FileTypeEnum } from "lib/enum";
 import { ChangeEvent, useMemo } from "react";
@@ -27,7 +27,7 @@ interface Props {
   purchaseOrder: PurchaseOrdersInsertInput;
   purchaseOrderFile?: PurchaseOrderFileFragment;
   purchaseOrderCannabisFiles: PurchaseOrderFileFragment[];
-  vendors: VendorsByPartnerCompanyQuery["vendors"];
+  vendors: GetVendorsByPartnerCompanyQuery["vendors"];
   setPurchaseOrder: (purchaseOrder: PurchaseOrdersInsertInput) => void;
   setPurchaseOrderFile: (file: PurchaseOrderFileFragment) => void;
   setPurchaseOrderCannabisFiles: (files: PurchaseOrderFileFragment[]) => void;

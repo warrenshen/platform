@@ -60,9 +60,7 @@ function ReviewLoanRejectModal({ loanId, handleClose }: Props) {
         `Error! Could not reject loan. Reason: ${response.msg}`
       );
     } else {
-      snackbar.showSuccess(
-        "Success! Loan rejected and email sent to customer."
-      );
+      snackbar.showSuccess("Loan rejected and email sent to customer.");
       handleClose();
     }
   };

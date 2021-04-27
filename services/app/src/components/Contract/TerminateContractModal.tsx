@@ -105,7 +105,7 @@ function TerminateContractModal({ contractId, handleClose }: Props) {
         `Error: could not terminate contract! Reason: ${response.msg}`
       );
     } else {
-      snackbar.showSuccess("Success! Contract terminated.");
+      snackbar.showSuccess("Contract terminated.");
       handleClose();
     }
   };

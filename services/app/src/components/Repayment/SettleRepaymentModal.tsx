@@ -216,7 +216,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
       setErrMsg(response.msg || "Error!");
     } else {
       setErrMsg("");
-      snackbar.showSuccess("Success! Payment settled.");
+      snackbar.showSuccess("Payment settled.");
       handleClose();
     }
   };

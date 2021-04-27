@@ -169,7 +169,7 @@ function CreateUpdateInvoiceModal({
     if (result.status === "ERROR") {
       snackbar.showError(`Error! Message: ${result.msg}`);
     } else {
-      snackbar.showSuccess("Success! Invoice saved as draft");
+      snackbar.showSuccess("Invoice saved as draft");
       handleClose();
     }
   };
@@ -193,7 +193,7 @@ function CreateUpdateInvoiceModal({
           snackbar.showError(`Error! Message: ${response.msg}`);
         } else {
           snackbar.showSuccess(
-            "Success! Invoice saved and submitted to payor for approval."
+            "Invoice saved and submitted to payor for approval."
           );
           handleClose();
         }
@@ -207,7 +207,7 @@ function CreateUpdateInvoiceModal({
         if (response.status !== "OK") {
           snackbar.showError(`Error! Message: ${response.msg}`);
         } else {
-          snackbar.showSuccess("Success! Invoice sent to payor for payment.");
+          snackbar.showSuccess("Invoice sent to payor for payment.");
           handleClose();
         }
       }

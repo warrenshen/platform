@@ -15,9 +15,9 @@ import {
   Scalars,
   useAddLineOfCreditMutation,
   useAddLoanMutation,
-  useApprovedVendorsByPartnerCompanyIdQuery,
   useGetCompanyNextLoanIdentifierMutation,
   useGetLoanWithArtifactForCustomerQuery,
+  useGetVendorsByPartnerCompanyQuery,
   useUpdateLineOfCreditAndLoanMutation,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -96,13 +96,13 @@ function CreateUpdateLineOfCreditLoanModal({
   const {
     data,
     loading: isApprovedVendorsLoading,
-  } = useApprovedVendorsByPartnerCompanyIdQuery({
+  } = useGetVendorsByPartnerCompanyQuery({
     fetchPolicy: "network-only",
     variables: {
       companyId,
     },
   });
-  const selectableVendors = data?.vendors || [];
+  const vendors = data?.vendors || [];
 
   const [
     addLineOfCredit,
@@ -194,7 +194,7 @@ function CreateUpdateLineOfCreditLoanModal({
     if (!savedLineOfCredit) {
       alert("Could not upsert loan");
     } else {
-      snackbar.showSuccess("Success! Loan saved as draft.");
+      snackbar.showSuccess("Loan saved as draft.");
       handleClose();
     }
   };
@@ -218,7 +218,7 @@ function CreateUpdateLineOfCreditLoanModal({
         snackbar.showError(response.msg);
       } else {
         snackbar.showSuccess(
-          "Success! Loan saved and submitted to Bespoke. You may view this advance request in the Loans section."
+          "Loan saved and submitted to Bespoke. You may view this advance request in the Loans section."
         );
         handleClose();
       }
@@ -234,9 +234,13 @@ function CreateUpdateLineOfCreditLoanModal({
     isSubmitLoanLoading;
   const isSaveDraftDisabled = !isFormValid || isFormLoading;
 
+  const isRecipientVendorNotApproved =
+    lineOfCredit.is_credit_for_vendor &&
+    !vendors?.find((vendor) => vendor.id === lineOfCredit.recipient_vendor_id)
+      ?.company_vendor_partnerships[0].approved_at;
   const isSaveSubmitDisabled =
-    !isFormValid ||
-    isFormLoading ||
+    isSaveDraftDisabled ||
+    isRecipientVendorNotApproved ||
     !loan?.requested_payment_date ||
     !loan?.amount;
 
@@ -269,7 +273,7 @@ function CreateUpdateLineOfCreditLoanModal({
         <LineOfCreditLoanForm
           lineOfCredit={lineOfCredit}
           loan={loan}
-          selectableVendors={selectableVendors}
+          vendors={vendors}
           setLineOfCredit={setLineOfCredit}
           setLoan={setLoan}
         />

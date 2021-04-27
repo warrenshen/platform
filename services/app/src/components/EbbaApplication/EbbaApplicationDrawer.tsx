@@ -83,7 +83,7 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
       snackbar.showError(`Error! Message: ${response.data?.msg}`);
     } else {
       refetch();
-      snackbar.showSuccess("Success! Borrowing base certification approved.");
+      snackbar.showSuccess("Borrowing base certification approved.");
     }
   };
 

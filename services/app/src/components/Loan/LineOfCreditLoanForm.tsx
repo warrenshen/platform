@@ -1,50 +1,37 @@
 import {
   Box,
   Checkbox,
-  createStyles,
   FormControl,
   FormControlLabel,
   InputLabel,
-  makeStyles,
   MenuItem,
   Select,
-  Theme,
   Typography,
 } from "@material-ui/core";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import {
-  ApprovedVendorsByPartnerCompanyIdQuery,
+  GetVendorsByPartnerCompanyQuery,
   LineOfCreditsInsertInput,
   LoansInsertInput,
 } from "generated/graphql";
 import { ChangeEvent } from "react";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    inputField: {
-      width: 300,
-    },
-  })
-);
-
 interface Props {
   lineOfCredit: LineOfCreditsInsertInput;
   loan: LoansInsertInput;
-  selectableVendors: ApprovedVendorsByPartnerCompanyIdQuery["vendors"];
+  vendors: GetVendorsByPartnerCompanyQuery["vendors"];
   setLineOfCredit: (lineOfCredit: LineOfCreditsInsertInput) => void;
   setLoan: (loan: LoansInsertInput) => void;
 }
 
-function LineOfCreditLoanForm({
+export default function LineOfCreditLoanForm({
   lineOfCredit,
   loan,
-  selectableVendors,
+  vendors,
   setLineOfCredit,
   setLoan,
 }: Props) {
-  const classes = useStyles();
-
   return (
     <Box display="flex" flexDirection="column">
       <Box>
@@ -65,41 +52,43 @@ function LineOfCreditLoanForm({
         />
       </Box>
       {lineOfCredit.is_credit_for_vendor && (
-        <Box display="flex" flexDirection="row" mt={3}>
-          <FormControl className={classes.inputField}>
+        <Box display="flex" flexDirection="column" mt={4}>
+          <FormControl>
             <InputLabel id="recipient-vendor-select-label">
               Recipient Vendor
             </InputLabel>
             <Select
-              disabled={selectableVendors.length <= 0}
+              disabled={vendors.length <= 0}
               labelId="recipient-vendor-select-label"
               id="recipient-vendor-select"
-              value={lineOfCredit.recipient_vendor_id || ""}
-              onChange={({ target: { value } }) => {
-                const selectedVendor = selectableVendors?.find(
-                  (selectableVendor) => selectableVendor.id === value
-                );
+              value={
+                vendors.length > 0 ? lineOfCredit.recipient_vendor_id || "" : ""
+              }
+              onChange={({ target: { value } }) =>
                 setLineOfCredit({
                   ...lineOfCredit,
-                  recipient_vendor_id: selectedVendor?.id,
-                });
-              }}
+                  recipient_vendor_id: value || null,
+                })
+              }
             >
               <MenuItem value="">
                 <em>None</em>
               </MenuItem>
-              {selectableVendors?.map((vendor) => (
+              {vendors.map((vendor) => (
                 <MenuItem key={vendor.id} value={vendor.id}>
-                  {vendor.name}
+                  {`${vendor.name} ${
+                    vendor.company_vendor_partnerships[0]?.approved_at
+                      ? "(Approved)"
+                      : "(Not approved)"
+                  }`}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
         </Box>
       )}
-      <Box display="flex" flexDirection="column" mt={2}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <DatePicker
-          className={classes.inputField}
           id="requested-payment-date-date-picker"
           label="Requested Payment Date"
           disablePast
@@ -122,8 +111,8 @@ function LineOfCreditLoanForm({
           </Typography>
         </Box>
       </Box>
-      <Box mt={3}>
-        <FormControl className={classes.inputField}>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <FormControl>
           <CurrencyInput
             label={"Amount"}
             value={loan.amount}
@@ -139,5 +128,3 @@ function LineOfCreditLoanForm({
     </Box>
   );
 }
-
-export default LineOfCreditLoanForm;

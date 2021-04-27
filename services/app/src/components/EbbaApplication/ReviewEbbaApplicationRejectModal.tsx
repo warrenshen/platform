@@ -61,7 +61,7 @@ function ReviewEbbaApplicationRejectModal({
     if (response.data?.status === "ERROR") {
       snackbar.showError(`Error! Message: ${response.data?.msg}`);
     } else {
-      snackbar.showSuccess("Success! Borrowing base certification rejected.");
+      snackbar.showSuccess("Borrowing base certification rejected.");
       handleRejectSuccess();
     }
   };

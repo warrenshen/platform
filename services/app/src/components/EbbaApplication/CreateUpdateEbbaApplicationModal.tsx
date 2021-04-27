@@ -247,7 +247,7 @@ function CreateUpdateEbbaApplicationModal({
     // If bank user is editing the ebba application,
     // there is no need to submit it to the bank.
     if (isBankUser) {
-      snackbar.showSuccess("Success! Borrowing base certification saved.");
+      snackbar.showSuccess("Borrowing base certification saved.");
       handleClose();
     } else {
       const response = await submitEbbaApplication({

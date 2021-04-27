@@ -77,7 +77,7 @@ function AddVendorModal({ customerId, handleClose }: Props) {
       );
     } else {
       snackbar.showSuccess(
-        "Success! Partner company created and user sent a welcome email."
+        "Partner company created and user sent a welcome email."
       );
       handleClose();
     }

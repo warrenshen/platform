@@ -94,6 +94,7 @@ fragment LoanArtifactLimited on loans {
   }
   line_of_credit {
     id
+    ...LineOfCredit
   }
   purchase_order {
     id
