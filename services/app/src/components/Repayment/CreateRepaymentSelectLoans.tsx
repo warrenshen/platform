@@ -26,7 +26,7 @@ import {
 
 interface Props {
   isBankUser: boolean;
-  productType: ProductTypeEnum | null;
+  productType: ProductTypeEnum;
   financialSummary: FinancialSummaryFragment | null;
   payment: PaymentsInsertInput;
   paymentOption: string;

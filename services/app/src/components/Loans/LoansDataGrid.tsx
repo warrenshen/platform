@@ -53,7 +53,7 @@ interface Props {
 const getMaturityDate = (rowData: any) =>
   new Date(rowData.adjusted_maturity_date);
 
-function LoansDataGrid({
+export default function LoansDataGrid({
   isArtifactVisible = false,
   isCompanyVisible = false,
   isDaysPastDueVisible = false,
@@ -371,5 +371,3 @@ function LoansDataGrid({
     />
   );
 }
-
-export default LoansDataGrid;

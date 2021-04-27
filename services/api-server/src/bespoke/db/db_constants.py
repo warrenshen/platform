@@ -1,5 +1,5 @@
 """
-  Constants for things that can get stored in the DB
+Constants for things that can get stored in the DB
 """
 
 # Auth

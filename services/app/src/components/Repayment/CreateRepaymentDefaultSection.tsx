@@ -29,7 +29,7 @@ import { createLoanCustomerIdentifier } from "lib/loans";
 import { useMemo, useState } from "react";
 
 interface Props {
-  productType: ProductTypeEnum | null;
+  productType: ProductTypeEnum;
   payment: PaymentsInsertInput;
   paymentOption: string;
   setPayment: (payment: PaymentsInsertInput) => void;
@@ -45,10 +45,7 @@ export default function CreateRepaymentDefaultSection({
 }: Props) {
   const [autocompleteInputValue, setAutocompleteInputValue] = useState("");
 
-  const loanType =
-    !!productType && productType in ProductTypeToLoanType
-      ? ProductTypeToLoanType[productType]
-      : null;
+  const loanType = ProductTypeToLoanType[productType];
 
   const { data } = useGetLoansByCompanyAndLoanTypeQuery({
     skip: !payment || !loanType,

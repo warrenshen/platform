@@ -34,7 +34,7 @@ import { useContext, useEffect, useState } from "react";
 
 interface Props {
   companyId: Companies["id"];
-  productType: ProductTypeEnum | null;
+  productType: ProductTypeEnum;
   initiallySelectedLoanIds: Loans["id"][];
   handleClose: () => void;
 }
