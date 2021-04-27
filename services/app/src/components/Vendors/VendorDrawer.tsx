@@ -121,15 +121,19 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
         />
         <Typography variant="h6">Bank Information</Typography>
         <Typography variant="subtitle2">
-          Specify which bank account Bespoke will send advances to:
+          Specify which bank account Bespoke Financial will send advances to:
         </Typography>
-        <BankAccount
-          companyId={vendor.id}
-          companyVendorPartnershipId={data.company_vendor_partnerships_by_pk.id}
-          bankAccount={
-            data.company_vendor_partnerships_by_pk.vendor_bank_account
-          }
-        />
+        <Box display="flex" mt={1}>
+          <BankAccount
+            companyId={vendor.id}
+            companyVendorPartnershipId={
+              data.company_vendor_partnerships_by_pk.id
+            }
+            bankAccount={
+              data.company_vendor_partnerships_by_pk.vendor_bank_account
+            }
+          />
+        </Box>
         <Box flexDirection="column">
           <Grid item>
             <Typography variant="h6">Licenses</Typography>
@@ -173,7 +177,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
                 });
                 if (response.data?.update_company_vendor_partnerships_by_pk) {
                   refetch();
-                  snackbar.showSuccess("Success! Vendor license uploaded.");
+                  snackbar.showSuccess("Vendor license uploaded.");
                 } else {
                   snackbar.showError(
                     "Error! Vendor license could not be uploaded."
@@ -226,7 +230,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
                 });
                 if (response.data?.update_company_vendor_partnerships_by_pk) {
                   refetch();
-                  snackbar.showSuccess("Success! Vendor agreement uploaded.");
+                  snackbar.showSuccess("Vendor agreement uploaded.");
                 } else {
                   snackbar.showError(
                     "Error! Vendor agreement could not be uploaded."

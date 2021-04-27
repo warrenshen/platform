@@ -16477,6 +16477,7 @@ export type VendorPartnershipFragment = Pick<
   | "id"
   | "company_id"
   | "vendor_id"
+  | "vendor_bank_id"
   | "vendor_agreement_id"
   | "vendor_license_id"
   | "approved_at"
@@ -17203,6 +17204,7 @@ export const VendorPartnershipFragmentDoc = gql`
     id
     company_id
     vendor_id
+    vendor_bank_id
     vendor_agreement_id
     vendor_license_id
     approved_at

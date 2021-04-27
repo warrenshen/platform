@@ -110,6 +110,10 @@ function PayorDrawer({ partnershipId, handleClose }: Props) {
           handleDataChange={refetch}
         />
         <Typography variant="h6">Bank Information</Typography>
+        <Typography variant="subtitle2">
+          Specify which Bespoke Financial bank account Payor will send payments
+          to:
+        </Typography>
         <Box display="flex" mt={1}>
           <CollectionsBank
             companySettingsId={payor.settings?.id}

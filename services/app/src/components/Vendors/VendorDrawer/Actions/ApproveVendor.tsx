@@ -36,6 +36,7 @@ function ApproveVendor(props: Props) {
     error,
     refetch,
   } = useGetVendorPartnershipForBankQuery({
+    fetchPolicy: "network-only",
     variables: {
       id: vendorPartnershipId,
     },
@@ -50,10 +51,10 @@ function ApproveVendor(props: Props) {
     return null;
   }
 
-  const vendorLicense = data.company_vendor_partnerships_by_pk.company_license;
-  const vendorAgreement =
-    data.company_vendor_partnerships_by_pk.company_agreement;
-  const vendor = data.company_vendor_partnerships_by_pk.vendor;
+  const companyVendorPartnership = data.company_vendor_partnerships_by_pk;
+  const vendorLicense = companyVendorPartnership.company_license;
+  const vendorAgreement = companyVendorPartnership.company_agreement;
+  const vendor = companyVendorPartnership.vendor;
   const customerName = props.customerName;
 
   if (props.hasNoContactsSetup) {
@@ -66,18 +67,18 @@ function ApproveVendor(props: Props) {
   }
 
   const areVendorDetailsValid = () => {
-    if (!vendor.users) {
+    if (vendor.users.length <= 0) {
       snackbar.showError("Vendor does not have any users setup");
       return false;
     }
-    if (!vendor.settings.collections_bespoke_bank_account) {
+    if (!companyVendorPartnership.vendor_bank_id) {
       snackbar.showError(
-        "Vendor does not have a bank account setup for Bespoke to send advances to"
+        "Vendor does not have a bank account setup for Bespoke Financial to send advances to"
       );
       return false;
     }
     if (!vendorLicense) {
-      snackbar.showError("Vendor does not have any licesnses setup");
+      snackbar.showError("Vendor does not have any licenses setup");
       return false;
     }
     if (!vendorAgreement) {

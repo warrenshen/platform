@@ -42,7 +42,7 @@ function BankAccount(props: {
   const [addingNewAccount, setAddingNewAccount] = useState(false);
 
   return (
-    <>
+    <Box display="flex" flexDirection="column">
       <Box display="flex" mt={1}>
         {data?.bank_accounts.length ? (
           <Box mr={1}>
@@ -116,7 +116,7 @@ function BankAccount(props: {
           </Box>
         )}
       </Box>
-    </>
+    </Box>
   );
 }
 

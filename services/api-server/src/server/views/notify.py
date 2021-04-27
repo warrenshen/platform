@@ -91,8 +91,12 @@ class NotifyHelper(object):
 				settings = actual_settings
 
 			company_name = company.name
-			company_users = cast(List[models.User], session.query(
-				models.User).filter_by(company_id=company_id).all())
+			company_users = cast(
+				List[models.User],
+				session.query(models.User).filter_by(
+					company_id=company_id
+				).all())
+
 			if company_users:
 				recipients = [_user_to_recipient(
 					user) for user in company_users]

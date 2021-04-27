@@ -60,6 +60,7 @@ fragment VendorPartnership on company_vendor_partnerships {
   id
   company_id
   vendor_id
+  vendor_bank_id
   vendor_agreement_id
   vendor_license_id
   approved_at
