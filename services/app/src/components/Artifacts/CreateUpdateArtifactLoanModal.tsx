@@ -336,10 +336,11 @@ export default function CreateUpdateArtifactLoanModal({
           </Box>
         )}
         <ArtifactLoanForm
-          artifactTitle={getProductTypeArtifactTitle(productType!)}
           canEditArtifact={
             actionType === ActionType.New && !disableArtifactEditing
           }
+          artifactTitle={getProductTypeArtifactTitle(productType!)}
+          productType={productType}
           loan={loan}
           setLoan={setLoan}
           approvedArtifacts={approvedArtifacts}

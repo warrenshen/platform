@@ -9,7 +9,7 @@ import {
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import LinearProgressBar from "components/Shared/ProgressBar/LinearProgressBar";
-import { LoansInsertInput } from "generated/graphql";
+import { LoansInsertInput, ProductTypeEnum } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { Artifact } from "lib/finance/loans/artifacts";
 import { round } from "lodash";
@@ -21,8 +21,9 @@ export interface ArtifactListItem {
 }
 
 interface Props {
-  artifactTitle: string;
   canEditArtifact: boolean;
+  artifactTitle: string;
+  productType: ProductTypeEnum;
   loan: LoansInsertInput;
   approvedArtifacts: ArtifactListItem[];
   selectedArtifact?: Artifact;
@@ -32,8 +33,9 @@ interface Props {
 }
 
 export default function ArtifactLoanForm({
-  artifactTitle,
   canEditArtifact,
+  artifactTitle,
+  productType,
   loan,
   approvedArtifacts,
   selectedArtifact,
@@ -136,9 +138,16 @@ export default function ArtifactLoanForm({
         />
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
-            This is the date you want the vendor to receive financing. Within
+            {`This is the date you want ${
+              ![
+                ProductTypeEnum.InvoiceFinancing,
+                ProductTypeEnum.LineOfCredit,
+              ].includes(productType)
+                ? "the vendor "
+                : ""
+            }to receive financing. Within
             banking limitations, Bespoke Financial will try to adhere to this
-            request.
+            request.`}
           </Typography>
         </Box>
       </Box>

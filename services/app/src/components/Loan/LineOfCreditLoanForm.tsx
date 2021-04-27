@@ -114,9 +114,11 @@ function LineOfCreditLoanForm({
         />
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
-            This is the date you want the vendor to receive financing. Within
+            {`This is the date you want ${
+              lineOfCredit.is_credit_for_vendor ? "the vendor " : ""
+            }to receive financing. Within
             banking limitations, Bespoke Financial will try to adhere to this
-            request.
+            request.`}
           </Typography>
         </Box>
       </Box>
