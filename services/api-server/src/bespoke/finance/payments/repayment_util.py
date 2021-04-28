@@ -1,5 +1,6 @@
 
 import datetime
+from dateutil import parser
 import decimal
 from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 
@@ -475,6 +476,7 @@ def create_repayment(
 	user_id: str,
 	session_maker: Callable,
 	is_line_of_credit: bool,
+	now_for_test: datetime.datetime = None
 ) -> Tuple[str, errors.Error]:
 
 	err_details = {'company_id': company_id, 'method': 'create_repayment'}
@@ -542,6 +544,23 @@ def create_repayment(
 			if len(closed_loan_ids) > 0:
 				raise errors.Error('Some selected loans are closed already')
 
+		company_id_to_obj, err = contract_util.get_active_contracts_by_company_id([company_id], session, err_details={'method': 'create repayment'})
+		if err:
+			raise err
+
+		contract_obj = company_id_to_obj[company_id]
+		timezone, err = contract_obj.get_timezone_str()
+		if err:
+			raise err
+
+		is_scheduled = payment_method == PaymentMethodEnum.REVERSE_DRAFT_ACH
+		meets_cutoff, meets_cutoff_err = date_util.meets_noon_cutoff(
+			requested_payment_date, timezone, now=now_for_test)
+
+		if is_scheduled and meets_cutoff_err:
+			raise errors.Error('Cannot set the requested payment date to {} because {}'.format(
+				requested_payment_date, meets_cutoff_err))
+
 		# Settlement date should not be set until the banker settles the payment.
 		payment_input = payment_util.RepaymentPaymentInputDict(
 			payment_method=payment_method,
@@ -561,7 +580,6 @@ def create_repayment(
 		session.flush()
 		payment_id = str(payment.id)
 
-		is_scheduled = payment_method == PaymentMethodEnum.REVERSE_DRAFT_ACH
 		payment_status = PaymentStatusEnum.SCHEDULED if is_scheduled else PaymentStatusEnum.PENDING
 
 		for loan in loans:

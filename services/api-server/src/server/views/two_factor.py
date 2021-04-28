@@ -1,5 +1,6 @@
 import datetime
 import json
+from dateutil import parser
 
 from bespoke.db import models
 from bespoke.db.models import session_scope
@@ -137,7 +138,8 @@ def _approve_code(provided_token_val: str, two_factor_info: two_factor_util.TwoF
 		token_val = token_dict['token_val']
 
 		# NOTE: Handle expiration times for tokens
-		expires_datetime = date_util.load_datetime_str(token_dict['expires_in'])
+		# We want to give the expires_in a timezone, so we default it to UTC
+		expires_datetime = parser.parse(token_dict['expires_in']).replace(tzinfo=datetime.timezone.utc)
 		if date_util.now() > expires_datetime: 
 			return None, errors.Error('Token has expired, please request a new one')
 

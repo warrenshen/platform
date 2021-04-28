@@ -1,11 +1,13 @@
 """
 	A file that helps you create contracts for different products
 """
-from typing import Dict
+from typing import Dict, cast
 
+from bespoke.db import models
 from bespoke.db import db_constants
 from bespoke.db.db_constants import ProductType
 from mypy_extensions import TypedDict
+from sqlalchemy.orm.session import Session
 
 ContractInputDict = TypedDict('ContractInputDict', {
 	'interest_rate': float,
@@ -124,3 +126,21 @@ def create_contract_config(
 			'fields': fields
 		}
 	}
+
+def set_and_add_contract_for_company(
+	contract: models.Contract, company_id: str, session: Session) -> None:
+	session.add(contract)
+	session.flush()
+	contract_id = str(contract.id)
+
+	company = cast(
+		models.Company,
+		session.query(models.Company).filter(
+			models.Company.id == company_id
+		).first())
+
+	if not company:
+		raise Exception('No company found matching company_id={}'.format(company_id))
+
+	company.contract_id = contract_id
+

@@ -89,7 +89,7 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 
 	with session_scope(session_maker) as session:
 		contract = _get_contract(company_id, is_line_of_credit=is_line_of_credit)
-		session.add(contract)
+		contract_test_helper.set_and_add_contract_for_company(contract, company_id, session)
 
 		for i in range(len(test['loans'])):
 			l = test['loans'][i]
@@ -131,7 +131,7 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 
 		# Make sure we have a payment already registered in the system that we are settling.
 		payment_id, err = repayment_util.create_repayment(
-			company_id=company_id,
+			company_id=str(company_id),
 			payment_insert_input=payment_util.PaymentInsertInputDict(
 				company_id='unused',
 				type='unused',
@@ -174,7 +174,7 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 			items_covered['loan_ids'] = repayment_loan_ids
 
 		req = repayment_util.SettleRepaymentReqDict(
-			company_id=company_id,
+			company_id=str(company_id),
 			payment_id=payment_id,
 			amount=number_util.round_currency(payment_dict['amount']),
 			deposit_date=payment_dict['payment_date'],

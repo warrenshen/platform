@@ -1,3 +1,4 @@
+import datetime
 import decimal
 from typing import Callable, Dict, List, Tuple, cast
 
@@ -146,6 +147,7 @@ def submit_for_approval(
 	loan_id: str,
 	session: Session,
 	triggered_by_autofinancing: bool,
+	now_for_test: datetime.datetime = None
 ) -> Tuple[SubmitForApprovalRespDict, errors.Error]:
 
 	err_details = {
@@ -181,6 +183,22 @@ def submit_for_approval(
 
 	if loan.amount > financial_summary.available_limit:
 		raise errors.Error('Loan amount requested exceeds the maximum limit for this account', details=err_details)
+
+	company_id = str(loan.company_id)
+	company_id_to_obj, err = contract_util.get_active_contracts_by_company_id([company_id], session, err_details={'method': 'request loan for approval'})
+	if err:
+		raise err
+
+	contract_obj = company_id_to_obj[company_id]
+	timezone, err = contract_obj.get_timezone_str()
+	if err:
+		raise err
+
+	meets_noon_cutoff, meets_noon_cutoff_err = date_util.meets_noon_cutoff(loan.requested_payment_date, timezone, now=now_for_test)
+
+	if meets_noon_cutoff_err:
+		raise errors.Error('Cannot set the requested payment date to {} because {}'.format(loan.requested_payment_date, meets_noon_cutoff_err))
+			#it is currently after 12 noon in your timezone. Please select the next day'.format(loan.requested_payment_date))
 
 	customer_name = None
 	loan_html = None
@@ -277,7 +295,8 @@ def submit_for_approval(
 """
 @errors.return_error_tuple
 def submit_for_approval_if_has_autofinancing(
-	company_id: str, amount: float, artifact_id: str, session: Session) -> Tuple[SubmitForApprovalRespDict, errors.Error]:
+	company_id: str, amount: float, artifact_id: str, session: Session,
+	now_for_test: datetime.datetime = None) -> Tuple[SubmitForApprovalRespDict, errors.Error]:
 
 	company = cast(
 		models.Company,
@@ -322,12 +341,14 @@ def submit_for_approval_if_has_autofinancing(
 	if err:
 		raise err
 
+	requested_payment_date = date_util.get_earliest_requested_payment_date(timezone)
+
 	loan = models.Loan()
 	loan.company_id = company_id
 	loan.identifier = '{}'.format(company.latest_loan_identifier)
 	loan.loan_type = loan_type
 	loan.artifact_id = artifact_id
-	loan.requested_payment_date = date_util.now_as_date(timezone)
+	loan.requested_payment_date = requested_payment_date
 	loan.amount = decimal.Decimal(amount)
 	loan.status = LoanStatusEnum.DRAFTED
 
@@ -335,7 +356,7 @@ def submit_for_approval_if_has_autofinancing(
 	session.flush()
 	loan_id = str(loan.id)
 
-	resp, err = submit_for_approval(loan_id, session, triggered_by_autofinancing=True)
+	resp, err = submit_for_approval(loan_id, session, triggered_by_autofinancing=True, now_for_test=now_for_test)
 	if err:
 		raise err
 

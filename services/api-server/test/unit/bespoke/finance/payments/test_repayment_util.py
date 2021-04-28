@@ -2,6 +2,7 @@ import datetime
 import decimal
 import json
 import uuid
+from dateutil import parser
 from typing import Any, Dict, List, cast
 
 from bespoke.date import date_util
@@ -776,6 +777,9 @@ class TestCreatePayment(db_unittest.TestCase):
 		loan_ids = []
 		amounts = test['loan_amounts']
 		with session_scope(session_maker) as session:
+			contract = _get_contract(company_id)
+			contract_test_helper.set_and_add_contract_for_company(contract, company_id, session)
+
 			for i in range(len(amounts)):
 				amount = amounts[i]
 				loan = models.Loan(
@@ -788,11 +792,11 @@ class TestCreatePayment(db_unittest.TestCase):
 				session.flush()
 				loan_ids.append(str(loan.id))
 
-		payment_date = '10/05/2019'
+		payment_date = test['requested_payment_date']
 		user_id = seed.get_user_id('company_admin', index=0)
 		payment_input_amount = test['payment_amount']
 		payment_id, err = repayment_util.create_repayment(
-			company_id=company_id,
+			company_id=str(company_id),
 			payment_insert_input=payment_util.PaymentInsertInputDict(
 				company_id='unused',
 				type='unused',
@@ -807,8 +811,14 @@ class TestCreatePayment(db_unittest.TestCase):
 			),
 			user_id=user_id,
 			session_maker=self.session_maker,
-			is_line_of_credit=False)
-		self.assertIsNone(err)
+			is_line_of_credit=False,
+			now_for_test=test['now_for_test']
+		)
+		if test.get('in_err_msg'):
+			self.assertIn(test['in_err_msg'], err.msg)
+			return
+		else:
+			self.assertIsNone(err)
 
 		with session_scope(session_maker) as session:
 			payment = cast(
@@ -848,6 +858,8 @@ class TestCreatePayment(db_unittest.TestCase):
 	def test_schedule_payment_reverse_draft_ach(self) -> None:
 		tests: List[Dict] = [
 			{
+				'now_for_test': parser.parse('2019-10-01T16:33:27.69-08:00'),
+				'requested_payment_date': '10/05/2019',
 				'payment_amount': 30.1,
 				'payment_method': 'reverse_draft_ach',
 				'company_bank_account_id': str(uuid.uuid4()),
@@ -867,9 +879,50 @@ class TestCreatePayment(db_unittest.TestCase):
 		for test in tests:
 			self._run_test(test)
 
+	def test_reject_schedule_payment_reverse_draft_ach_because_of_noon_cutoff(self) -> None:
+		tests: List[Dict] = [
+			{
+				'now_for_test': parser.parse('2019-10-05T16:33:27.69-08:00'),
+				'requested_payment_date': '10/05/2019',
+				'payment_amount': 30.1,
+				'payment_method': 'reverse_draft_ach',
+				'company_bank_account_id': str(uuid.uuid4()),
+				'loan_amounts': [20.1, 30.1],
+				'in_err_msg': 'after 12 noon'
+			}
+		]
+		for test in tests:
+			self._run_test(test)
+
 	def test_notify_payment(self) -> None:
 		tests: List[Dict] = [
 			{
+				'now_for_test': parser.parse('2019-10-01T16:33:27.69-08:00'),
+				'requested_payment_date': '10/05/2019',
+				'payment_amount': 40.1,
+				'payment_method': 'ach',
+				'company_bank_account_id': None,
+				'loan_amounts': [30.1, 40.1],
+				'expected_loans': [
+					models.Loan(
+						amount=decimal.Decimal(30.1),
+						payment_status=PaymentStatusEnum.PENDING
+					),
+					models.Loan(
+						amount=decimal.Decimal(40.1),
+						payment_status=PaymentStatusEnum.PENDING
+					)
+				]
+			}
+		]
+		for test in tests:
+			self._run_test(test)
+
+	def test_notify_payment_no_worry_about_noon_cutoff(self) -> None:
+		tests: List[Dict] = [
+			{
+				'now_for_test': parser.parse('2019-10-05T16:33:27.69-08:00'),
+				'requested_payment_date': '10/05/2019',
 				'payment_amount': 40.1,
 				'payment_method': 'ach',
 				'company_bank_account_id': None,

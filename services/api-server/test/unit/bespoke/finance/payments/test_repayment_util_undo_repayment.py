@@ -78,10 +78,10 @@ class TestUndoRepayment(db_unittest.TestCase):
 
 		with session_scope(session_maker) as session:
 			contract = _get_contract(company_id, is_line_of_credit=False)
-			session.add(contract)
+			contract_test_helper.set_and_add_contract_for_company(contract, company_id, session)
 
 			loan = models.Loan(
-				company_id=company_id,
+				company_id=str(company_id),
 				amount=decimal.Decimal(l['amount']),
 				origination_date=date_util.load_date_str(l['origination_date']),
 				maturity_date=date_util.load_date_str(l['maturity_date']),
@@ -108,7 +108,7 @@ class TestUndoRepayment(db_unittest.TestCase):
 		)
 		# Make sure we have a payment already registered in the system that we are settling.
 		payment_id, err = repayment_util.create_repayment(
-			company_id=company_id,
+			company_id=str(company_id),
 			payment_insert_input=payment_util.PaymentInsertInputDict(
 				company_id='unused',
 				type='unused',

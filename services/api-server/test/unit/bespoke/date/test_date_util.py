@@ -1,4 +1,5 @@
 import unittest
+from dateutil.parser import parse
 from typing import List, Dict
 
 from bespoke.date import date_util
@@ -42,6 +43,47 @@ class TestDateUtil(unittest.TestCase):
 				test['num_days'], 
 				date_util.num_calendar_days_passed(d1, d2)
 			)
+
+	def test_meets_noon_cutoff(self) -> None:
+		tests: List[Dict] = [
+			{
+				'now': '2020-10-20T16:33:27.69+00:00',
+				'requested_date': '10/20/2020',
+				'timezone': 'US/Pacific',
+				'meets_cutoff': True,
+				'reason': '4:33pm UTC is 8:33am PST, so it meets the cutoff'
+			},
+			{
+				'now': '2020-10-20T12:33:27.69-08:00',
+				'requested_date': '10/20/2020',
+				'timezone': 'US/Pacific',
+				'meets_cutoff': False,
+				'reason': 'Its currently 12:33pm so they must request the next day'
+			},
+			{
+				'now': '2020-10-20T00:33:27.69+00:00',
+				'requested_date': '10/18/2020',
+				'timezone': 'US/Pacific',
+				'meets_cutoff': False,
+				'reason': '12:33am UTC is 4:33am PST the day before, so it cannot meet the cutoff'
+			},
+			{
+				'now': '2020-10-20T00:33:27.69-08:00',
+				'requested_date': '10/21/2020',
+				'timezone': 'US/Pacific',
+				'meets_cutoff': True,
+				'reason': 'Requesting the day after is fine as well'
+			}
+		]
+
+		for i in range(len(tests)):
+			test = tests[i]
+			now = parse(test['now'])
+			requested_date = date_util.load_date_str(test['requested_date'])
+			meets_cutoff, err = date_util.meets_noon_cutoff(requested_date, test['timezone'], now=now)
+
+			self.assertEqual(
+				test['meets_cutoff'], meets_cutoff, msg='Test {} failed. Err {}'.format(i, err))
 
 	def test_now_as_date(self) -> None:
 		self.assertEqual(10, len(date_util.date_to_str(date_util.now_as_date('US/Pacific'))))

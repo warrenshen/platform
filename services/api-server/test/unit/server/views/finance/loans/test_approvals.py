@@ -3,6 +3,7 @@ import datetime
 import decimal
 import json
 import uuid
+from dateutil import parser
 from typing import Dict, List, cast
 
 from bespoke.date import date_util
@@ -55,6 +56,9 @@ class TestSubmitForApproval(db_unittest.TestCase):
 		company_id = seed.get_company_id('company_admin', index=0)
 
 		with session_scope(session_maker) as session:
+			contract = test['contract']
+			contract.company_id = company_id
+			contract_test_helper.set_and_add_contract_for_company(contract, company_id, session)
 
 			financial_summary.company_id = company_id
 			session.add(financial_summary)
@@ -83,7 +87,8 @@ class TestSubmitForApproval(db_unittest.TestCase):
 			resp, err = approval_util.submit_for_approval(
 				loan_id=loan_id,
 				session=session,
-				triggered_by_autofinancing=False
+				triggered_by_autofinancing=False,
+				now_for_test=test['now_for_test']
 			)
 			if test.get('in_err_msg'):
 				self.assertIn(test['in_err_msg'], err.msg if err else '')
@@ -106,6 +111,8 @@ class TestSubmitForApproval(db_unittest.TestCase):
 
 	def test_failure_no_loan(self) -> None:
 		test: Dict = {
+			'contract': _get_contract(product_type=ProductType.INVENTORY_FINANCING),
+			'now_for_test': parser.parse('2019-10-01T16:33:27.69-08:00'),
 			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
 				available_limit=200.0,
@@ -120,6 +127,8 @@ class TestSubmitForApproval(db_unittest.TestCase):
 
 	def test_too_many_loans_from_one_purchase_order(self) -> None:
 		test: Dict = {
+			'contract': _get_contract(product_type=ProductType.INVENTORY_FINANCING),
+			'now_for_test': parser.parse('2019-10-01T16:33:27.69-08:00'),
 			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
 				available_limit=200.0
@@ -169,6 +178,8 @@ class TestSubmitForApproval(db_unittest.TestCase):
 	def test_failure_hit_max_limit_allowed(self) -> None:
 
 		test: Dict = {
+			'contract': _get_contract(product_type=ProductType.INVENTORY_FINANCING),
+			'now_for_test': parser.parse('2019-10-01T16:33:27.69-08:00'),
 			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=1000.0,
 				available_limit=200.0
@@ -191,6 +202,8 @@ class TestSubmitForApproval(db_unittest.TestCase):
 
 	def test_sucess_many_loans_from_one_purchase_order_draft_doesnt_count(self) -> None:
 		test: Dict = {
+			'contract': _get_contract(product_type=ProductType.INVENTORY_FINANCING),
+			'now_for_test': parser.parse('2019-09-01T16:33:27.69-08:00'),
 			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
 				available_limit=200.0
@@ -227,6 +240,8 @@ class TestSubmitForApproval(db_unittest.TestCase):
 	def test_success_inventory_loan(self) -> None:
 
 		test: Dict = {
+			'contract': _get_contract(product_type=ProductType.INVENTORY_FINANCING),
+			'now_for_test': parser.parse('2019-09-01T16:33:27.69-08:00'),
 			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
 				available_limit=200.0,
@@ -243,6 +258,31 @@ class TestSubmitForApproval(db_unittest.TestCase):
 				amount=decimal.Decimal(100.0)
 			)],
 			'loan_artifact_indices': [0],
+		}
+		self._run_test(test)
+
+	def test_failure_inventory_loan_past_noon_cutoff(self) -> None:
+
+		test: Dict = {
+			'contract': _get_contract(product_type=ProductType.INVENTORY_FINANCING),
+			'now_for_test': parser.parse('2020-10-01T16:33:27.69-08:00'), # its 4:33pm PST, so were past the cutoff to request a 10/01/2020 loan request
+			'financial_summary': finance_test_helper.get_default_financial_summary(
+				total_limit=200.0,
+				available_limit=200.0,
+			),
+			'loans': [
+				models.Loan(
+					loan_type=db_constants.LoanTypeEnum.INVENTORY,
+					requested_payment_date=date_util.load_date_str('10/01/2020'),
+					amount=decimal.Decimal(50.02)
+				)
+			],
+			'loan_index': 0,
+			'artifacts': [models.PurchaseOrder(
+				amount=decimal.Decimal(100.0)
+			)],
+			'loan_artifact_indices': [0],
+			'in_err_msg': 'after 12 noon'
 		}
 		self._run_test(test)
 
@@ -265,6 +305,9 @@ class TestApproveLoans(db_unittest.TestCase):
 		bank_admin_user_id = seed.get_company_id('bank_admin', index=0)
 
 		with session_scope(session_maker) as session:
+			contract = test['contract']
+			contract.company_id = company_id
+			contract_test_helper.set_and_add_contract_for_company(contract, company_id, session)
 
 			financial_summary.company_id = company_id
 			session.add(financial_summary)
@@ -329,6 +372,7 @@ class TestApproveLoans(db_unittest.TestCase):
 
 	def test_approve_loan_failure_exceeds_available_limit(self) -> None:
 		test: Dict = {
+			'contract': _get_contract(product_type=ProductType.INVENTORY_FINANCING),
 			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
 				available_limit=10.0
@@ -353,6 +397,7 @@ class TestApproveLoans(db_unittest.TestCase):
 
 	def test_approve_loan_failure_exceeds_artifact_limit(self) -> None:
 		test: Dict = {
+			'contract': _get_contract(product_type=ProductType.INVENTORY_FINANCING),
 			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=500.0,
 				available_limit=300.0
@@ -377,6 +422,7 @@ class TestApproveLoans(db_unittest.TestCase):
 
 	def test_approve_loan_success(self) -> None:
 		test: Dict = {
+			'contract': _get_contract(product_type=ProductType.INVENTORY_FINANCING),
 			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
 				available_limit=200.0,
@@ -442,7 +488,8 @@ class TestSubmitViaAutoFinancing(db_unittest.TestCase):
 				company_id=company_id,
 				amount=artifact_amount,
 				artifact_id=artifact_id,
-				session=session
+				session=session,
+				now_for_test=test['now_for_test']
 			)
 			if test.get('in_err_msg'):
 				self.assertIn(test['in_err_msg'], err.msg if err else '')
@@ -478,6 +525,7 @@ class TestSubmitViaAutoFinancing(db_unittest.TestCase):
 
 		test: Dict = {
 			'contract': _get_contract(product_type=ProductType.INVENTORY_FINANCING),
+			'now_for_test': parser.parse('2020-10-01T16:33:27.69-08:00'), # Say "now" is in the past so the request for the loan is always after the noon cut-off
 			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
 				available_limit=200.0,
@@ -494,6 +542,7 @@ class TestSubmitViaAutoFinancing(db_unittest.TestCase):
 
 		test: Dict = {
 			'contract': _get_contract(product_type=ProductType.INVENTORY_FINANCING),
+			'now_for_test': parser.parse('2020-10-01T16:33:27.69-08:00'), # Say "now" is in the past so the request for the loan is always after the noon cut-off
 			'financial_summary': finance_test_helper.get_default_financial_summary(
 				total_limit=200.0,
 				available_limit=200.0,
