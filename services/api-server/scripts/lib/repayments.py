@@ -145,130 +145,136 @@ def import_settled_repayments(
 		if existing_repayment_transaction:
 			print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} with settlement date {settlement_date} already exists')
 			continue
-		else:
-			print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} for {customer.name} ({customer.identifier}) does not exist, creating it...')
 
-			repayment = models.Payment(
-				company_id=customer.id,
-				type=PaymentType.REPAYMENT,
-				method=PaymentMethodEnum.UNKNOWN,
-				amount=parsed_amount,
-				deposit_date=parsed_deposit_date,
-				settlement_date=parsed_settlement_date,
-				submitted_at=parsed_submitted_at,
-				settled_at=parsed_settled_at,
-			)
-			session.add(repayment)
-			session.flush()
+		print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} for {customer.name} ({customer.identifier}) does not exist, creating it...')
 
-			to_loan_transaction = models.Transaction(
+		customer.latest_repayment_identifier += 1
+		new_latest_repayment_identifier = customer.latest_repayment_identifier
+
+		repayment = models.Payment(
+			company_id=customer.id,
+			settlement_identifier=str(new_latest_repayment_identifier),
+			type=PaymentType.REPAYMENT,
+			method=PaymentMethodEnum.UNKNOWN,
+			amount=parsed_amount,
+			deposit_date=parsed_deposit_date,
+			settlement_date=parsed_settlement_date,
+			submitted_at=parsed_submitted_at,
+			settled_at=parsed_settled_at,
+		)
+		session.add(repayment)
+		session.flush()
+
+		to_loan_transaction = models.Transaction(
+			payment_id=repayment.id,
+			loan_id=loan.id,
+			type=PaymentType.REPAYMENT,
+			subtype=None,
+			amount=amount_to_loan,
+			to_principal=decimal.Decimal(parsed_to_principal),
+			to_interest=decimal.Decimal(parsed_to_interest),
+			to_fees=decimal.Decimal(parsed_to_fees),
+			effective_date=parsed_settlement_date,
+		)
+		session.add(to_loan_transaction)
+		session.flush()
+
+		if parsed_wire_fee > 0:
+			to_account_transaction = models.Transaction(
 				payment_id=repayment.id,
-				loan_id=loan.id,
+				loan_id=None,
 				type=PaymentType.REPAYMENT,
 				subtype=None,
-				amount=amount_to_loan,
-				to_principal=decimal.Decimal(parsed_to_principal),
-				to_interest=decimal.Decimal(parsed_to_interest),
-				to_fees=decimal.Decimal(parsed_to_fees),
+				amount=amount_to_account,
+				to_principal=decimal.Decimal(0.0),
+				to_interest=decimal.Decimal(0.0),
+				to_fees=decimal.Decimal(0.0),
 				effective_date=parsed_settlement_date,
 			)
-			session.add(to_loan_transaction)
+			session.add(to_account_transaction)
 			session.flush()
 
-			if parsed_wire_fee > 0:
-				to_account_transaction = models.Transaction(
-					payment_id=repayment.id,
-					loan_id=None,
-					type=PaymentType.REPAYMENT,
-					subtype=None,
-					amount=amount_to_account,
-					to_principal=decimal.Decimal(0.0),
-					to_interest=decimal.Decimal(0.0),
-					to_fees=decimal.Decimal(0.0),
-					effective_date=parsed_settlement_date,
-				)
-				session.add(to_account_transaction)
-				session.flush()
+		print(f'[{index + 1} of {repayments_count}] Created repayment on loan {parsed_loan_identifier} for {customer.name} ({customer.identifier})')
+		print(f'Customer {customer.name} latest_repayment_identifier is now "{customer.latest_repayment_identifier}"')
 
-			print(f'[{index + 1} of {repayments_count}] Created repayment on loan {parsed_loan_identifier} for {customer.name} ({customer.identifier})')
+		# Load up a LoanCalculator and check if loan is closed.
+		# If so, set loan.closed_at to parsed_settled_at. Otherwise, continue.
+		contracts = cast(
+			List[models.Contract],
+			session.query(models.Contract).filter(
+				models.Contract.company_id == customer.id
+			).all())
+		if not contracts:
+			print(f'[{index + 1} of {repayments_count}] No contracts are setup for this {customer.name}')
+			print(f'EXITING EARLY')
+			return
 
-			# Load up a LoanCalculator and check if loan is closed.
-			# If so, set loan.closed_at to parsed_settled_at. Otherwise, continue.
-			contracts = cast(
-				List[models.Contract],
-				session.query(models.Contract).filter(
-					models.Contract.company_id == customer.id
-				).all())
-			if not contracts:
-				print(f'[{index + 1} of {repayments_count}] No contracts are setup for this {customer.name}')
-				print(f'EXITING EARLY')
-				return
+		contract_dicts = [c.as_dict() for c in contracts]
 
-			contract_dicts = [c.as_dict() for c in contracts]
+		contract_helper, err = contract_util.ContractHelper.build(customer.id, contract_dicts)
+		if err:
+			print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} failed because of error with ContractHelper: {err}')
+			print(f'EXITING EARLY')
+			return
 
-			contract_helper, err = contract_util.ContractHelper.build(customer.id, contract_dicts)
-			if err:
-				print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} failed because of error with ContractHelper: {err}')
-				print(f'EXITING EARLY')
-				return
+		# Get all transactions associated with loan
+		transactions = cast(
+			List[models.Transaction],
+			session.query(models.Transaction).filter(
+				models.Transaction.loan_id == loan.id
+			).all())
 
-			# Get all transactions associated with loan
-			transactions = cast(
-				List[models.Transaction],
-				session.query(models.Transaction).filter(
-					models.Transaction.loan_id == loan.id
-				).all())
+		# Get all payments associated with loan
+		payment_ids = list(set([transaction.payment_id for transaction in transactions]))
 
-			# Get all payments associated with loan
-			payment_ids = list(set([transaction.payment_id for transaction in transactions]))
+		payments = cast(
+			List[models.Payment],
+			session.query(models.Payment).filter(
+				models.Payment.id.in_(payment_ids)
+			).all())
 
-			payments = cast(
-				List[models.Payment],
-				session.query(models.Payment).filter(
-					models.Payment.id.in_(payment_ids)
-				).all())
+		augmented_transactions, err = models_util.get_augmented_transactions(
+			[transaction.as_dict() for transaction in transactions],
+			[payment.as_dict() for payment in payments],
+		)
+		if err:
+			print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} failed because of error with augmented transactions: {err}')
+			print(f'EXITING EARLY')
+			return
 
-			augmented_transactions, err = models_util.get_augmented_transactions(
-				[transaction.as_dict() for transaction in transactions],
-				[payment.as_dict() for payment in payments],
-			)
-			if err:
-				print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} failed because of error with augmented transactions: {err}')
-				print(f'EXITING EARLY')
-				return
+		fee_accumulator = fee_util.FeeAccumulator()
+		calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
+		transactions_for_loan = loan_calculator.get_transactions_for_loan(
+			str(loan.id),
+			augmented_transactions,
+		)
 
-			fee_accumulator = fee_util.FeeAccumulator()
-			calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
-			transactions_for_loan = loan_calculator.get_transactions_for_loan(
-				str(loan.id),
-				augmented_transactions,
-			)
+		calculate_result_dict, errs = calculator.calculate_loan_balance(
+			loan_calculator.ThresholdInfoDict(day_threshold_met=None),
+			loan.as_dict(),
+			transactions_for_loan,
+			parsed_settlement_date
+		)
 
-			loan_update, errs = calculator.calculate_loan_balance(
-				loan_calculator.ThresholdInfoDict(day_threshold_met=None),
-				loan.as_dict(),
-				transactions_for_loan,
-				parsed_settlement_date
-			)
+		if errs:
+			print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} failed because of error with LoanCalculator: {errs}')
+			print(f'EXITING EARLY')
+			return
 
-			if errs:
-				print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} failed because of error with LoanCalculator: {errs}')
-				print(f'EXITING EARLY')
-				return
+		loan_update = calculate_result_dict['loan_update']
 
-			if (
-				loan_update['outstanding_principal'] != 0.0 or
-				loan_update['outstanding_principal_for_interest'] != 0.0 or
-				loan_update['outstanding_interest'] != 0.0 or
-				loan_update['outstanding_fees'] != 0.0
-			):
-				print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} did not close out loan')
-				loan.payment_status = PaymentStatusEnum.PARTIALLY_PAID
-			else:
-				print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} closed out loan, setting loan.closed_at to {parsed_settled_at}...')
-				loan.payment_status = PaymentStatusEnum.CLOSED
-				loan.closed_at = parsed_settled_at
-
+		if (
+			loan_update['outstanding_principal'] != 0.0 or
+			loan_update['outstanding_principal_for_interest'] != 0.0 or
+			loan_update['outstanding_interest'] != 0.0 or
+			loan_update['outstanding_fees'] != 0.0
+		):
+			print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} did not close out loan')
+			loan.payment_status = PaymentStatusEnum.PARTIALLY_PAID
+		else:
+			print(f'[{index + 1} of {repayments_count}] Repayment on loan {parsed_loan_identifier} closed out loan, setting loan.closed_at to {parsed_settled_at}...')
+			loan.payment_status = PaymentStatusEnum.CLOSED
+			loan.closed_at = parsed_settled_at
 
 # Line of credit is different, because we don't have a given loan identifier for each repayment.
 def import_settled_repayments_line_of_credit(

@@ -20,9 +20,10 @@ interface Props {
 }
 
 function ApproveVendor(props: Props) {
+  const snackbar = useSnackbar();
+
   const [open, setOpen] = useState(false);
   const [errMsg, setErrMsg] = useState("");
-  const snackbar = useSnackbar();
 
   const [
     updateApprovedAt,
@@ -78,44 +79,47 @@ function ApproveVendor(props: Props) {
     return true;
   };
 
+  const handleClickSubmit = async () => {
+    let isValid = areVendorDetailsValid();
+
+    if (!isValid) {
+      setOpen(false);
+      return;
+    }
+
+    updateApprovedAt({
+      variables: {
+        companyVendorPartnershipId: vendorPartnershipId,
+        approvedAt: "now()",
+      },
+    });
+
+    refetch();
+
+    let resp = await props.notifier.sendVendorApproved({
+      vendor_id: props.vendorId,
+      company_id: props.customerId,
+    });
+
+    if (resp.status !== "OK") {
+      setErrMsg(
+        "Could not send notify vendor approved, notify customer email. Error: " +
+          resp.msg
+      );
+      return;
+    } else {
+      snackbar.showSuccess("Vendor approved.");
+      setOpen(false);
+    }
+  };
+
   return (
     <>
       {open && (
         <ConfirmModal
           title={`Would you like to approve vendor ${props.vendorName} for customer ${customerName}?`}
           errorMessage={errMsg}
-          handleConfirm={async () => {
-            let isValid = areVendorDetailsValid();
-
-            if (!isValid) {
-              setOpen(false);
-              return;
-            }
-
-            updateApprovedAt({
-              variables: {
-                companyVendorPartnershipId: vendorPartnershipId,
-                approvedAt: "now()",
-              },
-            });
-
-            refetch();
-
-            let resp = await props.notifier.sendVendorApproved({
-              vendor_id: props.vendorId,
-              company_id: props.customerId,
-            });
-
-            if (resp.status !== "OK") {
-              setErrMsg(
-                "Could not send notify vendor approved, notify customer email. Error: " +
-                  resp.msg
-              );
-              return;
-            }
-
-            setOpen(false);
-          }}
+          handleConfirm={handleClickSubmit}
           handleClose={() => setOpen(false)}
         />
       )}

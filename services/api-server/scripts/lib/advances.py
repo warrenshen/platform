@@ -69,7 +69,6 @@ def import_settled_advances(
 			return
 
 		numeric_payment_disbursement_identifier = numeric_loan_identifier
-		parsed_payment_disbursement_identifier = str(numeric_loan_identifier)
 
 		customer = cast(
 			models.Company,
@@ -152,7 +151,7 @@ def import_settled_advances(
 
 		advance = models.Payment(
 			company_id=customer.id,
-			settlement_identifier=parsed_payment_disbursement_identifier,
+			settlement_identifier=str(numeric_payment_disbursement_identifier),
 			type=PaymentType.ADVANCE,
 			method=PaymentMethodEnum.UNKNOWN,
 			amount=parsed_amount,
@@ -204,4 +203,3 @@ def load_into_db_from_excel(session: Session, path: str) -> None:
 	filtered_advance_tuples = list(filter(lambda advance_tuple: advance_tuple[0] is not '', advance_tuples[1:]))
 	import_settled_advances(session, filtered_advance_tuples)
 	print(f'Finished import')
-

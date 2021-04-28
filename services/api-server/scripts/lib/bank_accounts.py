@@ -46,6 +46,10 @@ def import_vendor_bank_accounts(
 			is_cannabis_compliant,
 		) = new_vendor_bank_account_tuple
 
+		if bank_name == '':
+			print(f'[{index + 1} of {vendor_bank_accounts_count}] Bank name is blank, skipping...')
+			continue
+
 		parsed_customer_name = customer_name.strip()
 		parsed_vendor_name = vendor_name.strip()
 		parsed_bank_name = bank_name.strip()
@@ -60,19 +64,17 @@ def import_vendor_bank_accounts(
 		parsed_recipient_name = recipient_name.strip() or None
 		parsed_recipient_address = recipient_address.strip() or None
 		parsed_is_bank_account_transfer_verified = True if is_bank_account_transfer_verified == 'Y' else False # Unused.
-		parsed_verified_date = date_util.load_date_str(verified_date)
+		parsed_verified_date = date_util.load_date_str(verified_date) if verified_date else None
 		parsed_is_cannabis_compliant = True if is_cannabis_compliant == 'Y' else False
-		parsed_verified_at = datetime.combine(parsed_verified_date, time())
+		parsed_verified_at = datetime.combine(parsed_verified_date, time()) if parsed_verified_date else None
 
 		if (
 			not parsed_customer_name or
 			not parsed_vendor_name or
-			not parsed_bank_name or
 			not parsed_account_title or
 			not parsed_account_type or
 			not parsed_routing_number or
-			not parsed_account_number or
-			not parsed_verified_date
+			not parsed_account_number
 		):
 			print(f'[{index + 1} of {vendor_bank_accounts_count}] Invalid field(s)')
 			print(f'EXITING EARLY')
@@ -100,9 +102,9 @@ def import_vendor_bank_accounts(
 			).first())
 
 		if not vendor:
-			print(f'[{index + 1} of {vendor_bank_accounts_count}] Vendor with name {parsed_vendor_name} does not exist')
-			print(f'EXITING EARLY')
-			return
+			print(f'[{index + 1} of {vendor_bank_accounts_count}] WARNING: Vendor with name {parsed_vendor_name} does not exist')
+			print(f'[{index + 1} of {vendor_bank_accounts_count}] SKIPPING')
+			continue
 
 		company_vendor_partnership = session.query(models.CompanyVendorPartnership).filter(
 			models.CompanyVendorPartnership.company_id == customer.id

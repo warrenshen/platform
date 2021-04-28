@@ -66,6 +66,8 @@ def import_payors_vendors(
 		existing_company_by_name = cast(
 			models.Company,
 			session.query(models.Company).filter(
+				models.Company.company_type.in_([CompanyType.Payor, CompanyType.Vendor])
+			).filter(
 				models.Company.name == company_name
 			).first())
 

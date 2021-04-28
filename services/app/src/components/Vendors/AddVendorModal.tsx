@@ -72,13 +72,9 @@ function AddVendorModal({ customerId, handleClose }: Props) {
 
     if (response.status !== "OK") {
       setErrorMessage(response.msg);
-      snackbar.showError(
-        `Error! Could not create partner company. Reason: ${response.msg}`
-      );
+      snackbar.showError(`Could not create vendor. Reason: ${response.msg}`);
     } else {
-      snackbar.showSuccess(
-        "Partner company created and user sent a welcome email."
-      );
+      snackbar.showSuccess("Vendor created and user sent a welcome email.");
       handleClose();
     }
   };

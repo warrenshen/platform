@@ -1,3 +1,7 @@
+"""
+DATABASE_URL=postgres+psycopg2://postgres:postgrespassword@localhost:5432/postgres python scripts/
+"""
+
 import os
 import sys
 from os import path

@@ -72,13 +72,9 @@ function AddPayorModal({ customerId, handleClose }: Props) {
 
     if (response.status !== "OK") {
       setErrorMessage(response.msg);
-      snackbar.showError(
-        `Error! Could not create partner company. Reason: ${response.msg}`
-      );
+      snackbar.showError(`Could not create payor. Reason: ${response.msg}`);
     } else {
-      snackbar.showSuccess(
-        "Partner company created and user sent a welcome email."
-      );
+      snackbar.showSuccess("Payor created and user sent a welcome email.");
       handleClose();
     }
   };

@@ -1,6 +1,7 @@
 import { Button } from "@material-ui/core";
 import ConfirmModal from "components/Shared/Confirmations/ConfirmModal";
 import { useUpdateCompanyPayorPartnershipApprovedAtMutation } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
 import { InventoryNotifier } from "lib/notifications/inventory";
 import { useState } from "react";
 
@@ -23,6 +24,8 @@ export default function ApprovePayor({
   customerName,
   notifier,
 }: Props) {
+  const snackbar = useSnackbar();
+
   const [open, setOpen] = useState(false);
   const [errMsg, setErrMsg] = useState("");
 
@@ -39,6 +42,31 @@ export default function ApprovePayor({
     );
   }
 
+  const handleClickSubmit = async () => {
+    updateApprovedAt({
+      variables: {
+        companyPayorPartnershipId: payorPartnershipId,
+        approvedAt: "now()",
+      },
+    });
+
+    let resp = await notifier.sendPayorApproved({
+      payor_id: payorId,
+      company_id: customerId,
+    });
+
+    if (resp.status !== "OK") {
+      setErrMsg(
+        "Could not send notify payor approved, notify customer email. Error: " +
+          resp.msg
+      );
+      return;
+    } else {
+      snackbar.showSuccess("Payor approved.");
+      setOpen(false);
+    }
+  };
+
   return (
     <>
       {open && (
@@ -46,29 +74,7 @@ export default function ApprovePayor({
           title={`Would you like to approve payor ${payorName} for customer ${customerName}?`}
           errorMessage={errMsg}
           handleClose={() => setOpen(false)}
-          handleConfirm={async () => {
-            updateApprovedAt({
-              variables: {
-                companyPayorPartnershipId: payorPartnershipId,
-                approvedAt: "now()",
-              },
-            });
-
-            let resp = await notifier.sendPayorApproved({
-              payor_id: payorId,
-              company_id: customerId,
-            });
-
-            if (resp.status !== "OK") {
-              setErrMsg(
-                "Could not send notify payor approved, notify customer email. Error: " +
-                  resp.msg
-              );
-              return;
-            }
-
-            setOpen(false);
-          }}
+          handleConfirm={handleClickSubmit}
         />
       )}
       <Button
