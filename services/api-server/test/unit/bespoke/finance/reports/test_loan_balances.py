@@ -780,7 +780,6 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			)
 
 			payment_util.create_and_add_credit_to_user(
-				company_id=company_id,
 				amount=3000.02,
 				payment_id=advance_tx.payment_id,
 				created_by_user_id=seed.get_user_id('bank_admin'),
@@ -789,7 +788,6 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			)
 
 			payment_util.create_and_add_credit_to_user(
-				company_id=company_id,
 				amount=4000.02,
 				payment_id=advance_tx.payment_id,
 				created_by_user_id=seed.get_user_id('bank_admin'),

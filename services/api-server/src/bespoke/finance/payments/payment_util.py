@@ -33,7 +33,8 @@ PaymentItemsCoveredDict = TypedDict('PaymentItemsCoveredDict', {
 	'to_principal': float,
 	'to_interest': float,
 	'to_fees': float,
-	'to_user_credit': float
+	'to_user_credit': float,
+	'to_account_fees': float,
 }, total=False)
 
 PaymentInputDict = TypedDict('PaymentInputDict', {
@@ -246,13 +247,12 @@ def create_and_add_adjustment(
 	return t, None
 
 def create_and_add_credit_to_user(
-	company_id: str,
 	amount: float,
 	payment_id: str,
 	created_by_user_id: str,
 	effective_date: datetime.date,
-	session: Session) -> models.Transaction:
-
+	session: Session,
+) -> models.Transaction:
 	t = models.Transaction()
 	t.type = db_constants.PaymentType.CREDIT_TO_USER
 	t.amount = decimal.Decimal(amount)
@@ -260,6 +260,26 @@ def create_and_add_credit_to_user(
 	t.to_interest = decimal.Decimal(0.0)
 	t.to_fees = decimal.Decimal(0.0)
 	# NOTE: no loan_id is set for credits
+	t.payment_id = payment_id
+	t.created_by_user_id = created_by_user_id
+	t.effective_date = effective_date
+
+	session.add(t)
+	return t
+
+def create_and_add_repayment_of_account_fee(
+	amount: float,
+	payment_id: str,
+	created_by_user_id: str,
+	effective_date: datetime.date,
+	session: Session,
+) -> models.Transaction:
+	t = models.Transaction()
+	t.type = db_constants.PaymentType.REPAYMENT_OF_ACCOUNT_FEE
+	t.amount = decimal.Decimal(amount)
+	t.to_principal = decimal.Decimal(0.0)
+	t.to_interest = decimal.Decimal(0.0)
+	t.to_fees = decimal.Decimal(0.0)
 	t.payment_id = payment_id
 	t.created_by_user_id = created_by_user_id
 	t.effective_date = effective_date

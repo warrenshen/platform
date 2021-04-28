@@ -694,7 +694,6 @@ class ContractHelper(object):
 			prev_contract = sorted_contract_dicts[i - 1]
 			cur_contract = sorted_contract_dicts[i]
 			if cur_contract['start_date'] < prev_contract['adjusted_end_date']:
-				return None, errors.Error('Contract #{} has a start and end range which overlaps in time with Contract #{}'.format(
-					(i-1) + 1, i + 1))
+				return None, errors.Error(f'Contract #{(i - 1) + 1} has a start and end range ({prev_contract["start_date"]}, {prev_contract["adjusted_end_date"]}) which overlaps in time with Contract #{i + 1} ({cur_contract["start_date"]}, {cur_contract["adjusted_end_date"]})')
 
 		return ContractHelper(sorted_contract_dicts, private=True), None

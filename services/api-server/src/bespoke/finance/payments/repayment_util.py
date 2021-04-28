@@ -1,6 +1,5 @@
 
 import datetime
-from dateutil import parser
 import decimal
 from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 
@@ -14,7 +13,8 @@ from bespoke.finance import contract_util, financial_summary_util, number_util
 from bespoke.finance.loans import fee_util, loan_calculator
 from bespoke.finance.payments import payment_util
 from bespoke.finance.payments.payment_util import RepaymentOption
-from bespoke.finance.types import per_customer_types, finance_types
+from bespoke.finance.types import finance_types, per_customer_types
+from dateutil import parser
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 
@@ -571,9 +571,9 @@ def create_repayment(
 			company_bank_account_id=company_bank_account_id,
 		)
 		payment = payment_util.create_repayment_payment(
-			company_id=company_id, 
+			company_id=company_id,
 			payment_type=db_constants.PaymentType.REPAYMENT,
-			payment_input=payment_input, 
+			payment_input=payment_input,
 			created_by_user_id=user_id
 		)
 		session.add(payment)
@@ -652,9 +652,6 @@ def settle_repayment_of_fee(
 		'req': req
 	}
 
-	if not number_util.is_currency_rounded(req['amount']):
-		raise errors.Error('Amount specified is not rounded to the penny')
-
 	company_id = req['company_id']
 	payment_id = req['payment_id']
 
@@ -662,6 +659,9 @@ def settle_repayment_of_fee(
 	deposit_date = date_util.load_date_str(req['deposit_date'])
 	settlement_date = date_util.load_date_str(req['settlement_date'])
 	items_covered = req['items_covered']
+
+	if not number_util.is_currency_rounded(payment_amount):
+		raise errors.Error('Amount specified is not rounded to the penny')
 
 	if not deposit_date:
 		raise errors.Error('deposit_date must be specified')
@@ -723,7 +723,6 @@ def settle_repayment_of_fee(
 		tx_ids = []
 		if to_user_credit > 0.0:
 			credit_tx = payment_util.create_and_add_credit_to_user(
-				company_id=company_id,
 				amount=to_user_credit,
 				payment_id=payment_id,
 				created_by_user_id=user_id,
@@ -733,17 +732,14 @@ def settle_repayment_of_fee(
 			session.flush()
 			tx_ids.append(str(credit_tx.id))
 
-		# Create the repayment of fee transaction
-		t = models.Transaction()
-		t.type = db_constants.PaymentType.REPAYMENT_OF_ACCOUNT_FEE
-		t.amount = decimal.Decimal(to_fees)
-		t.to_principal = decimal.Decimal(0.0)
-		t.to_interest = decimal.Decimal(0.0)
-		t.to_fees = decimal.Decimal(0.0)
-		t.payment_id = payment_id
-		t.created_by_user_id = user_id
-		t.effective_date = settlement_date
-		session.add(t)
+		# Create the repayment of account fee transaction
+		t = payment_util.create_and_add_repayment_of_account_fee(
+			amount=to_fees,
+			payment_id=payment_id,
+			created_by_user_id=user_id,
+			effective_date=settlement_date,
+			session=session,
+		)
 
 		repayment_identifier = payment_util.get_and_increment_repayment_identifier(company_id, session)
 
@@ -774,9 +770,6 @@ def settle_repayment(
 		'req': req
 	}
 
-	if not number_util.is_currency_rounded(req['amount']):
-		raise errors.Error('Amount specified is not rounded to the penny')
-
 	company_id = req['company_id']
 	payment_id = req['payment_id']
 
@@ -785,6 +778,9 @@ def settle_repayment(
 	settlement_date = date_util.load_date_str(req['settlement_date'])
 	items_covered = req['items_covered']
 	transaction_inputs = []
+
+	if not number_util.is_currency_rounded(payment_amount):
+		raise errors.Error('Amount specified is not rounded to the penny')
 
 	if not deposit_date:
 		raise errors.Error('deposit_date must be specified')
@@ -796,6 +792,7 @@ def settle_repayment(
 		raise errors.Error('items_covered.to_user_credit must be specified', details=err_details)
 
 	to_user_credit = items_covered['to_user_credit']
+	to_account_fees = items_covered['to_account_fees'] if 'to_account_fees' in items_covered else 0.0
 
 	if not number_util.is_currency_rounded(to_user_credit):
 		raise errors.Error('To user credit specified is not rounded to the penny')
@@ -813,7 +810,8 @@ def settle_repayment(
 		if not number_util.is_currency_rounded(to_interest):
 			raise errors.Error('To interest specified is not rounded to the penny')
 
-		if not number_util.float_eq(payment_amount, to_principal + to_interest + to_user_credit):
+		computed_payment_amount = to_principal + to_interest + to_user_credit + to_account_fees
+		if not number_util.float_eq(payment_amount, computed_payment_amount):
 			raise errors.Error(f'Sum of amount to principal ({number_util.to_dollar_format(to_principal)}), amount to interest ({number_util.to_dollar_format(to_interest)}), and credit to user ({number_util.to_dollar_format(to_user_credit)}) does not equal payment amount ({number_util.to_dollar_format(payment_amount)})', details=err_details)
 	else:
 		if not items_covered or 'loan_ids' not in items_covered:
@@ -847,7 +845,7 @@ def settle_repayment(
 
 			transactions_sum += cur_sum
 
-		computed_payment_amount = transactions_sum + to_user_credit
+		computed_payment_amount = transactions_sum + to_user_credit + to_account_fees
 		if not number_util.float_eq(computed_payment_amount, payment_amount):
 			raise errors.Error(f'Sum of transactions and credit to user ({computed_payment_amount}) does not equal payment amount ({payment_amount})', details=err_details)
 
@@ -1154,12 +1152,20 @@ def settle_repayment(
 
 		if to_user_credit > 0.0:
 			payment_util.create_and_add_credit_to_user(
-				company_id=company_id,
 				amount=to_user_credit,
 				payment_id=payment_id,
 				created_by_user_id=user_id,
 				effective_date=settlement_date,
 				session=session
+			)
+
+		if to_account_fees > 0.0:
+			payment_util.create_and_add_repayment_of_account_fee(
+				amount=to_account_fees,
+				payment_id=payment_id,
+				created_by_user_id=user_id,
+				effective_date=settlement_date,
+				session=session,
 			)
 
 		for i in range(len(transaction_inputs)):
