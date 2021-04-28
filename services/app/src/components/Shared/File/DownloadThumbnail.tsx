@@ -18,7 +18,6 @@ type FileWithSignedURL = {
 type DownloadSignedURLResponse = {
   status: string;
   msg?: string;
-  urls: string[];
   files: FileWithSignedURL[];
 };
 
