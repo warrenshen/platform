@@ -259,37 +259,38 @@ class DownloadSignedUrlView(MethodView):
 			if len(file_orms) != len(file_ids):
 				raise errors.Error('Some file ids requested are not available in the database')
 
-			paths = [file_orm.path for file_orm in file_orms]
+			file_id_to_file_orm = {}
+			for file_orm in file_orms:
+				file_id_to_file_orm[str(file_orm.id)] = file_orm
 
-			urls = []
-			for i in range(len(paths)):
+			# Create file objects (with signed URL) for response.
+			files_data = []
+
+			for i in range(len(file_ids)):
 				try:
-					path = paths[i]
+					file_id = file_ids[i]
+					file_orm = file_id_to_file_orm[file_id]
+
 					url = s3_client.generate_presigned_url(
 						'get_object',
 						Params={
 							'Bucket': bucket_name,
-							'Key': path
+							'Key': file_orm.path
 						},
 						ExpiresIn=300,
 					)
-					urls.append(url)
+					files_data.append({
+						'id': file_id,
+						'name': file_orm.name,
+						'path': file_orm.path,
+						'url': url
+					})
 				except ClientError as e:
 					logging.error(
 						'Exception generating presigned_url: {}'.format(e))
 					raise errors.Error('Failed to create download url')
 
-			# Create file objects (with signed URL) for response.
-			files_data = []
-			for file_orm, file_url in zip(file_orms, urls):
-				files_data.append({
-					'id': str(file_orm.id),
-					'name': file_orm.name,
-					'path': file_orm.path,
-					'url': url
-				})
-
-			return make_response(json.dumps({'status': 'OK', 'files': files_data, 'urls': urls}), 200)
+			return make_response(json.dumps({'status': 'OK', 'files': files_data}), 200)
 
 
 class UploadSignedUrlView(MethodView):
