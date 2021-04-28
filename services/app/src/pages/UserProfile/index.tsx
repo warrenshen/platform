@@ -35,6 +35,7 @@ function UserProfile() {
   const [open, setOpen] = useState(false);
 
   const { data, refetch } = useUserByIdQuery({
+    fetchPolicy: "network-only",
     variables: {
       id: currentUser.id,
     },

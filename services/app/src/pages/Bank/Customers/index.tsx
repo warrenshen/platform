@@ -28,7 +28,9 @@ function BankCustomersPage() {
   } = useContext(CurrentUserContext);
 
   const { url } = useRouteMatch();
-  const { data, refetch } = useGetCustomersWithMetadataQuery();
+  const { data, refetch } = useGetCustomersWithMetadataQuery({
+    fetchPolicy: "network-only",
+  });
 
   const [searchQuery, setSearchQuery] = useState("");
 

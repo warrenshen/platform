@@ -7,7 +7,9 @@ import { filter, sortBy } from "lodash";
 import { useMemo, useState } from "react";
 
 function BankVendorsPage() {
-  const { data } = useGetVendorPartnershipsForBankQuery();
+  const { data } = useGetVendorPartnershipsForBankQuery({
+    fetchPolicy: "network-only",
+  });
 
   const [searchQuery, setSearchQuery] = useState("");
 

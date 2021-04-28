@@ -12,7 +12,9 @@ export default function BankInvoicesPage() {
     user: { role },
   } = useContext(CurrentUserContext);
 
-  const { data, error } = useGetInvoicesQuery();
+  const { data, error } = useGetInvoicesQuery({
+    fetchPolicy: "network-only",
+  });
 
   if (error) {
     console.error({ error });
