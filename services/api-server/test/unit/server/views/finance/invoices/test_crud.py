@@ -18,7 +18,6 @@ class InvoiceConfig:
 	invoice_number: str
 	invoice_date: datetime.date
 	invoice_due_date: datetime.date
-	advance_date: datetime.date
 	subtotal_amount: float
 	total_amount: float
 	taxes_amount: float
@@ -41,7 +40,6 @@ class InvoiceViewTest(db_unittest.TestCase):
 			'0',
 			date_util.load_date_str("03/10/2021"),
 			date_util.load_date_str("03/31/2021"),
-			date_util.load_date_str("03/12/2021"),
 			250000.0,
 			300000.0,
 			10000.0,
@@ -51,7 +49,6 @@ class InvoiceViewTest(db_unittest.TestCase):
 			'1',
 			date_util.load_date_str("03/10/2021"),
 			date_util.load_date_str("03/31/2021"),
-			date_util.load_date_str("03/12/2021"),
 			250000.0,
 			300000.0,
 			10000.0,
@@ -61,7 +58,6 @@ class InvoiceViewTest(db_unittest.TestCase):
 			'2',
 			date_util.load_date_str("03/10/2021"),
 			date_util.load_date_str("03/31/2021"),
-			date_util.load_date_str("03/12/2021"),
 			250000.0,
 			300000.0,
 			10000.0,
@@ -131,7 +127,6 @@ class InvoiceViewTest(db_unittest.TestCase):
 						invoice_number=invoice.invoice_number,
 						invoice_date=invoice.invoice_date,
 						invoice_due_date=invoice.invoice_due_date,
-						advance_date=invoice.advance_date,
 						subtotal_amount=invoice.subtotal_amount,
 						total_amount=invoice.total_amount,
 						taxes_amount=invoice.taxes_amount,
@@ -171,10 +166,6 @@ class InvoiceViewTest(db_unittest.TestCase):
 		invoice_due_date = ri.get('invoice_due_date')
 		if invoice_due_date:
 			self.assertEqual(date_util.load_date_str(invoice_due_date), invoice.invoice_due_date)
-
-		advance_date = ri.get('advance_date')
-		if advance_date:
-			self.assertEqual(date_util.load_date_str(advance_date), invoice.advance_date)
 
 		subtotal_amount = ri.get('subtotal_amount')
 		if subtotal_amount:
@@ -222,7 +213,6 @@ class TestCreateInvoiceView(InvoiceViewTest):
 				'payor_id': str(payor_id),
 				'invoice_date': '03/23/2021',
 				'invoice_due_date': '05/23/2021',
-				'advance_date': '04/23/2021',
 				'subtotal_amount': 420,
 				'total_amount': 420,
 				'taxes_amount': 420,
@@ -282,7 +272,6 @@ class TestUpdateInvoiceView(InvoiceViewTest):
 				'payor_id': str(payor_id),
 				'invoice_date': '10/23/2021',
 				'invoice_due_date': '12/23/2021',
-				'advance_date': '11/23/2021',
 				'subtotal_amount': 4200,
 				'total_amount': 4200,
 				'taxes_amount': 4200,
@@ -321,7 +310,6 @@ class TestUpdateInvoiceView(InvoiceViewTest):
 				'payor_id': str(payor_id),
 				'invoice_date': '10/23/2021',
 				'invoice_due_date': '12/23/2021',
-				'advance_date': '11/23/2021',
 				'subtotal_amount': 4200,
 				'total_amount': 4200,
 				'taxes_amount': 4200,
@@ -358,7 +346,6 @@ class TestUpdateInvoiceView(InvoiceViewTest):
 				'payor_id': str(customer_id),
 				'invoice_date': '10/23/2021',
 				'invoice_due_date': '12/23/2021',
-				'advance_date': '11/23/2021',
 				'subtotal_amount': 4200,
 				'total_amount': 4200,
 				'taxes_amount': 4200,
@@ -384,7 +371,6 @@ class TestUpdateInvoiceView(InvoiceViewTest):
 				'payor_id': str(payor_id),
 				'invoice_date': '10/23/2021',
 				'invoice_due_date': '12/23/2021',
-				'advance_date': '11/23/2021',
 				'subtotal_amount': 4200,
 				'total_amount': 4200,
 				'taxes_amount': 4200,

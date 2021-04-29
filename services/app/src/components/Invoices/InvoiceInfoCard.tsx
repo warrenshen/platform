@@ -22,10 +22,14 @@ const useStyles = makeStyles({
 });
 
 interface Props {
+  isApprovedStatusVisible?: boolean;
   invoice: InvoiceFragment;
 }
 
-function InvoiceInfoCard({ invoice }: Props) {
+export default function InvoiceInfoCard({
+  isApprovedStatusVisible = true,
+  invoice,
+}: Props) {
   const classes = useStyles();
 
   return (
@@ -49,10 +53,6 @@ function InvoiceInfoCard({ invoice }: Props) {
             <Box>{formatDateString(invoice.invoice_due_date)}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
-            <Box className={classes.label}>Advance Date</Box>
-            <Box>{formatDateString(invoice.advance_date)}</Box>
-          </Box>
-          <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Subtotal Amount</Box>
             <Box>{formatCurrency(invoice.subtotal_amount)}</Box>
           </Box>
@@ -64,18 +64,18 @@ function InvoiceInfoCard({ invoice }: Props) {
             <Box className={classes.label}>Total Amount</Box>
             <Box>{formatCurrency(invoice.total_amount)}</Box>
           </Box>
-          <Box display="flex" alignItems="center" pt={0.5} pb={1}>
-            <CheckCircle
-              color={invoice.status === "approved" ? "primary" : "disabled"}
-            />
-            <Box ml={0.5}>
-              <Typography variant="body1">Approved</Typography>
+          {isApprovedStatusVisible && (
+            <Box display="flex" alignItems="center" pt={0.5} pb={1}>
+              <CheckCircle
+                color={invoice.status === "approved" ? "primary" : "disabled"}
+              />
+              <Box ml={0.5}>
+                <Typography variant="body1">Approved</Typography>
+              </Box>
             </Box>
-          </Box>
+          )}
         </CardContent>
       </Card>
     </Box>
   );
 }
-
-export default InvoiceInfoCard;

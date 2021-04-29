@@ -21,7 +21,6 @@ import { FileTypeEnum } from "lib/enum";
 import { useMemo } from "react";
 
 interface Props {
-  isInvoiceForLoan: boolean;
   companyId: string;
   invoice: InvoicesInsertInput;
   invoiceFile?: InvoiceFileFragment;
@@ -31,7 +30,6 @@ interface Props {
 }
 
 export default function InvoiceForm({
-  isInvoiceForLoan,
   companyId,
   invoice,
   invoiceFile,
@@ -119,22 +117,6 @@ export default function InvoiceForm({
           </Typography>
         </Box>
       </Box>
-      {isInvoiceForLoan && (
-        <Box display="flex" flexDirection="column" mt={4}>
-          <DatePicker
-            id="invoice-advance-date-date-picker"
-            label="Advance Date"
-            disablePast
-            value={invoice.advance_date}
-            onChange={(value) =>
-              setInvoice({
-                ...invoice,
-                advance_date: value,
-              })
-            }
-          />
-        </Box>
-      )}
       <Box display="flex" flexDirection="column" mt={4}>
         <FormControl fullWidth>
           <CurrencyInput

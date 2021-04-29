@@ -84,7 +84,7 @@ export default function ReviewInvoiceApproveModal({
           not paid off this invoice to {invoice.company.name} yet.
         </DialogContentText>
         <Box display="flex" flexDirection="row" justifyContent="center">
-          <InvoiceInfoCard invoice={invoice} />
+          <InvoiceInfoCard isApprovedStatusVisible={false} invoice={invoice} />
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>

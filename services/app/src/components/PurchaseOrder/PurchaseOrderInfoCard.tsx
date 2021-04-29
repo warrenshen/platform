@@ -22,10 +22,14 @@ const useStyles = makeStyles({
 });
 
 interface Props {
+  isApprovedStatusVisible?: boolean;
   purchaseOrder: PurchaseOrderFragment;
 }
 
-function PurchaseOrderInfoCard(props: Props) {
+export default function PurchaseOrderInfoCard({
+  isApprovedStatusVisible = true,
+  purchaseOrder,
+}: Props) {
   const classes = useStyles();
 
   return (
@@ -34,40 +38,38 @@ function PurchaseOrderInfoCard(props: Props) {
         <CardContent>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Vendor</Box>
-            <Box>{props.purchaseOrder.vendor?.name}</Box>
+            <Box>{purchaseOrder.vendor?.name}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>PO Number</Box>
-            <Box>{props.purchaseOrder.order_number}</Box>
+            <Box>{purchaseOrder.order_number}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>PO Date</Box>
-            <Box>{formatDateString(props.purchaseOrder.order_date)}</Box>
+            <Box>{formatDateString(purchaseOrder.order_date)}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Delivery Date</Box>
-            <Box>{formatDateString(props.purchaseOrder.delivery_date)}</Box>
+            <Box>{formatDateString(purchaseOrder.delivery_date)}</Box>
           </Box>
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Amount</Box>
-            <Box>{formatCurrency(props.purchaseOrder.amount)}</Box>
+            <Box>{formatCurrency(purchaseOrder.amount)}</Box>
           </Box>
-          <Box display="flex" alignItems="center" pt={0.5} pb={1}>
-            <CheckCircle
-              color={
-                props.purchaseOrder.status === "approved"
-                  ? "primary"
-                  : "disabled"
-              }
-            />
-            <Box ml={0.5}>
-              <Typography variant="body1">Approved</Typography>
+          {isApprovedStatusVisible && (
+            <Box display="flex" alignItems="center" pt={0.5} pb={1}>
+              <CheckCircle
+                color={
+                  purchaseOrder.status === "approved" ? "primary" : "disabled"
+                }
+              />
+              <Box ml={0.5}>
+                <Typography variant="body1">Approved</Typography>
+              </Box>
             </Box>
-          </Box>
+          )}
         </CardContent>
       </Card>
     </Box>
   );
 }
-
-export default PurchaseOrderInfoCard;

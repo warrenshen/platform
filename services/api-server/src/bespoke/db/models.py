@@ -643,7 +643,6 @@ InvoiceDict = TypedDict('InvoiceDict', {
 	'taxes_amount': float,
 	'invoice_date': datetime.date,
 	'invoice_due_date': datetime.date,
-	'advance_date': datetime.date,
 	'status': str,
 	'requested_at': datetime.datetime,
 	'approved_at': datetime.datetime,
@@ -670,7 +669,6 @@ class Invoice(Artifact):
 	taxes_amount = Column(Numeric)
 	invoice_date = Column(Date)
 	invoice_due_date = Column(Date)
-	advance_date = Column(Date)
 	status = Column(String)
 	requested_at = Column(DateTime)
 	approved_at = Column(DateTime)
@@ -706,7 +704,6 @@ class Invoice(Artifact):
 			taxes_amount=float_or_null(self.taxes_amount),
 			invoice_date=self.invoice_date,
 			invoice_due_date=self.invoice_due_date,
-			advance_date=self.advance_date,
 			status=self.status,
 			requested_at=self.requested_at,
 			approved_at=self.approved_at,

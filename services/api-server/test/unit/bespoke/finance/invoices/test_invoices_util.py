@@ -333,7 +333,6 @@ class TestIsInvoiceReadyForApproval(db_unittest.TestCase):
 						taxes_amount=-10,
 						invoice_date=date_util.load_date_str("03/18/2021"),
 						invoice_due_date=date_util.load_date_str("04/18/2021"),
-						advance_date=date_util.load_date_str("03/31/2021")
 					)),
 				'taxes_amount cannot be negative'
 			),
@@ -355,7 +354,6 @@ class TestIsInvoiceReadyForApproval(db_unittest.TestCase):
 						taxes_amount=10,
 						invoice_date=date_util.load_date_str("03/18/2021"),
 						invoice_due_date=date_util.load_date_str("04/18/2021"),
-						advance_date=date_util.load_date_str("03/31/2021")
 					))
 					.add_file(lambda p: models.File())
 					.add_invoice_file(lambda p: models.InvoiceFile( # type: ignore
@@ -383,7 +381,6 @@ class TestIsInvoiceReadyForApproval(db_unittest.TestCase):
 						taxes_amount=10,
 						invoice_date=date_util.load_date_str("03/18/2021"),
 						invoice_due_date=date_util.load_date_str("04/18/2021"),
-						advance_date=date_util.load_date_str("03/31/2021")
 					))
 					.add_file(lambda p: models.File())
 					.add_invoice_file(lambda p: models.InvoiceFile( # type: ignore
@@ -411,7 +408,6 @@ class TestIsInvoiceReadyForApproval(db_unittest.TestCase):
 						taxes_amount=10,
 						invoice_date=date_util.load_date_str("03/18/2021"),
 						invoice_due_date=date_util.load_date_str("04/18/2021"),
-						advance_date=date_util.load_date_str("03/31/2021")
 					))
 					.add_file(lambda p: models.File())
 					.add_invoice_file(lambda p: models.InvoiceFile( # type: ignore
@@ -440,7 +436,6 @@ class TestIsInvoiceReadyForApproval(db_unittest.TestCase):
 						taxes_amount=10,
 						invoice_date=date_util.load_date_str("03/18/2021"),
 						invoice_due_date=date_util.load_date_str("04/18/2021"),
-						advance_date=date_util.load_date_str("03/31/2021")
 					))
 					.add_file(lambda p: models.File())
 					.add_invoice_file(lambda p: models.InvoiceFile( # type: ignore
@@ -494,7 +489,6 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 				taxes_amount=10,
 				invoice_date=date_util.load_date_str("03/18/2021"),
 				invoice_due_date=date_util.load_date_str("04/18/2021"),
-				advance_date=date_util.load_date_str("03/31/2021")
 			)) \
 			.add_file(lambda p: models.File()) \
 			.add_invoice_file(lambda p: models.InvoiceFile( # type: ignore
@@ -542,7 +536,6 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 				taxes_amount=10,
 				invoice_date=date_util.load_date_str("03/18/2021"),
 				invoice_due_date=date_util.load_date_str("04/18/2021"),
-				advance_date=date_util.load_date_str("03/31/2021")
 			)) \
 			.add_file(lambda p: models.File()) \
 			.add_invoice_file(lambda p: models.InvoiceFile( # type: ignore
@@ -590,7 +583,6 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 				taxes_amount=10,
 				invoice_date=date_util.load_date_str("03/18/2021"),
 				invoice_due_date=date_util.load_date_str("04/18/2021"),
-				advance_date=date_util.load_date_str("03/31/2021")
 			)) \
 			.add_file(lambda p: models.File()) \
 			.add_invoice_file(lambda p: models.InvoiceFile( # type: ignore
@@ -638,7 +630,6 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 				taxes_amount=10,
 				invoice_date=date_util.load_date_str("03/18/2021"),
 				invoice_due_date=date_util.load_date_str("04/18/2021"),
-				advance_date=date_util.load_date_str("03/31/2021"),
 				approved_at=date_util.now(),
 			)) \
 			.add_file(lambda p: models.File()) \

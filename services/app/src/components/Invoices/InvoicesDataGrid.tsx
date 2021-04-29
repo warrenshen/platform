@@ -135,15 +135,6 @@ export default function InvoicesDataGrid({
           <DateDataGridCell dateString={params.row.data.invoice_due_date} />
         ),
       },
-      {
-        caption: "Advance Date",
-        dataField: "advance_date",
-        width: ColumnWidths.Date,
-        alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.advance_date} />
-        ),
-      },
     ],
     [isCompanyVisible, actionItems]
   );

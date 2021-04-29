@@ -1,17 +1,7 @@
-import {
-  Box,
-  Button,
-  createStyles,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  makeStyles,
-  Theme,
-  Typography,
-} from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import InvoiceForm from "components/Invoices/InvoiceForm";
+import Modal from "components/Shared/Modal/Modal";
 import {
   CurrentUserContext,
   isRoleBankUser,
@@ -37,23 +27,6 @@ import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    dialog: {
-      width: 500,
-    },
-    dialogTitle: {
-      borderBottom: "1px solid #c7c7c7",
-    },
-    dialogActions: {
-      margin: theme.spacing(2),
-    },
-    submitButton: {
-      marginLeft: theme.spacing(1),
-    },
-  })
-);
-
 const mapFiles = (files: any[]) =>
   !files
     ? []
@@ -76,14 +49,13 @@ interface Props {
   handleClose: () => void;
 }
 
-function CreateUpdateInvoiceModal({
+export default function CreateUpdateInvoiceModal({
   isInvoiceForLoan,
   actionType,
   companyId,
   handleClose,
   invoiceId = null,
 }: Props) {
-  const classes = useStyles();
   const snackbar = useSnackbar();
 
   const {
@@ -100,7 +72,6 @@ function CreateUpdateInvoiceModal({
     subtotal_amount: null,
     total_amount: null,
     taxes_amount: null,
-    advance_date: null,
     is_cannabis: false,
     status: RequestStatusEnum.Drafted,
   } as InvoicesInsertInput;
@@ -164,7 +135,7 @@ function CreateUpdateInvoiceModal({
     });
   };
 
-  const handleSaveDraft = async () => {
+  const handleClickSaveDraft = async () => {
     const result = await upsertInvoice();
     if (result.status === "ERROR") {
       snackbar.showError(`Error! Message: ${result.msg}`);
@@ -174,7 +145,7 @@ function CreateUpdateInvoiceModal({
     }
   };
 
-  const handleSaveSubmit = async () => {
+  const handleClickSaveSubmit = async () => {
     const result = await upsertInvoice();
     if (result.status === "ERROR") {
       snackbar.showError(`Error! Message: ${result.msg}`);
@@ -229,7 +200,6 @@ function CreateUpdateInvoiceModal({
     !invoice.invoice_number ||
     !invoice.invoice_date ||
     !invoice.invoice_due_date ||
-    (isInvoiceForLoan && !invoice.advance_date) ||
     !invoice.subtotal_amount ||
     !invoice.total_amount ||
     !invoiceFile;
@@ -240,60 +210,36 @@ function CreateUpdateInvoiceModal({
   }
 
   return (
-    <Dialog
-      open
-      onClose={handleClose}
-      maxWidth="xl"
-      classes={{ paper: classes.dialog }}
+    <Modal
+      isPrimaryActionDisabled={isSaveSubmitDisabled}
+      isSecondaryActionDisabled={isSaveDraftDisabled}
+      title={`${actionType === ActionType.Update ? "Edit" : "Create"} Invoice`}
+      primaryActionText={"Save and Submit"}
+      secondaryActionText={"Save as Draft"}
+      handleClose={handleClose}
+      handlePrimaryAction={handleClickSaveSubmit}
+      handleSecondaryAction={handleClickSaveDraft}
     >
-      <DialogTitle className={classes.dialogTitle}>
-        {`${actionType === ActionType.Update ? "Edit" : "Create"} Invoice`}
-      </DialogTitle>
-      <DialogContent>
-        {isBankUser && (
-          <Box mt={2} mb={6}>
-            <Alert severity="warning">
-              <Typography variant="body1">
-                {`Warning: you are ${
-                  actionType === ActionType.Update ? "editing" : "creating"
-                } an invoice on behalf of this
+      {isBankUser && (
+        <Box mt={2} mb={6}>
+          <Alert severity="warning">
+            <Typography variant="body1">
+              {`Warning: you are ${
+                actionType === ActionType.Update ? "editing" : "creating"
+              } an invoice on behalf of this
                 customer (only bank admins can do this).`}
-              </Typography>
-            </Alert>
-          </Box>
-        )}
-        <InvoiceForm
-          isInvoiceForLoan={isInvoiceForLoan}
-          companyId={companyId}
-          invoice={invoice}
-          invoiceFile={invoiceFile}
-          payors={payors}
-          setInvoice={setInvoice}
-          setInvoiceFile={setInvoiceFile}
-        />
-      </DialogContent>
-      <DialogActions className={classes.dialogActions}>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button
-          disabled={isSaveDraftDisabled}
-          onClick={handleSaveDraft}
-          variant="outlined"
-          color="default"
-        >
-          Save as Draft
-        </Button>
-        <Button
-          className={classes.submitButton}
-          disabled={isSaveSubmitDisabled}
-          onClick={handleSaveSubmit}
-          variant="contained"
-          color="primary"
-        >
-          Save and Submit
-        </Button>
-      </DialogActions>
-    </Dialog>
+            </Typography>
+          </Alert>
+        </Box>
+      )}
+      <InvoiceForm
+        companyId={companyId}
+        invoice={invoice}
+        invoiceFile={invoiceFile}
+        payors={payors}
+        setInvoice={setInvoice}
+        setInvoiceFile={setInvoiceFile}
+      />
+    </Modal>
   );
 }
-
-export default CreateUpdateInvoiceModal;

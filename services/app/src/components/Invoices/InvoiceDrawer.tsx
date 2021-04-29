@@ -1,9 +1,7 @@
 import {
   Box,
-  Checkbox,
   createStyles,
   Drawer,
-  FormControlLabel,
   makeStyles,
   Theme,
   Typography,
@@ -66,13 +64,6 @@ export default function InvoiceDrawer({ invoiceId, handleClose }: Props) {
       (f) => f.file_type === InvoiceFileTypeEnum.Invoice
     );
     return files && files.length ? [files[0].file_id] : [];
-  }, [invoice]);
-
-  const invoiceCannabisFileIds = useMemo(() => {
-    const files = invoice?.invoice_files
-      .filter((f) => f.file_type === InvoiceFileTypeEnum.Cannabis)
-      .map((f) => f.file_id);
-    return files && files.length ? files : [];
   }, [invoice]);
 
   if (!invoice || !loans) {
@@ -144,14 +135,6 @@ export default function InvoiceDrawer({ invoiceId, handleClose }: Props) {
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
-              Advance Date
-            </Typography>
-            <Typography variant={"body1"}>
-              {formatDateString(invoice.advance_date)}
-            </Typography>
-          </Box>
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Typography variant="subtitle2" color="textSecondary">
               Subtotal Amount
             </Typography>
             <Typography variant={"body1"}>
@@ -185,30 +168,6 @@ export default function InvoiceDrawer({ invoiceId, handleClose }: Props) {
               fileType={FileTypeEnum.INVOICE}
             />
           </Box>
-          <Box display="flex" flexDirection="column" mt={2}>
-            <FormControlLabel
-              control={
-                <Checkbox disabled={true} checked={!!invoice.is_cannabis} />
-              }
-              label={"Order includes cannabis or derivatives"}
-            />
-          </Box>
-          {!!invoice.is_cannabis && (
-            <Box display="flex" flexDirection="column" mt={2}>
-              <Box mb={1}>
-                <Typography variant="subtitle2" color="textSecondary">
-                  Cannabis File Attachments
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Shipping Manifest, Certificate of Analysis
-                </Typography>
-              </Box>
-              <DownloadThumbnail
-                fileIds={invoiceCannabisFileIds}
-                fileType={FileTypeEnum.INVOICE}
-              />
-            </Box>
-          )}
         </Box>
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">

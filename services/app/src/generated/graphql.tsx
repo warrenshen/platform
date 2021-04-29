@@ -15700,7 +15700,6 @@ export type GetInvoiceForReviewQuery = {
       | "invoice_number"
       | "invoice_date"
       | "invoice_due_date"
-      | "advance_date"
       | "subtotal_amount"
       | "total_amount"
       | "taxes_amount"
@@ -16677,7 +16676,6 @@ export type InvoiceFragment = Pick<
   | "taxes_amount"
   | "invoice_date"
   | "invoice_due_date"
-  | "advance_date"
   | "is_cannabis"
   | "status"
   | "created_at"
@@ -17529,7 +17527,6 @@ export const InvoiceFragmentDoc = gql`
     taxes_amount
     invoice_date
     invoice_due_date
-    advance_date
     is_cannabis
     status
     created_at
@@ -19021,7 +19018,6 @@ export const GetInvoiceForReviewDocument = gql`
       invoice_number
       invoice_date
       invoice_due_date
-      advance_date
       subtotal_amount
       total_amount
       taxes_amount

@@ -18,7 +18,6 @@ REQUIRED_KEYS_FOR_APPROVAL = (
 	'taxes_amount',
 	'invoice_date',
 	'invoice_due_date',
-	'advance_date',
 )
 
 REQUIRED_POSITIVE_VALUES_FOR_APPROVAL = (
@@ -52,7 +51,6 @@ class InvoiceData:
 	taxes_amount: float
 	invoice_date: datetime.date
 	invoice_due_date: datetime.date
-	advance_date: datetime.date
 	status: str
 	rejection_note: str
 	is_cannabis: bool
@@ -68,7 +66,6 @@ class InvoiceData:
 			taxes_amount=self.taxes_amount,
 			invoice_date=self.invoice_date,
 			invoice_due_date=self.invoice_due_date,
-			advance_date=self.advance_date,
 			status=self.status,
 			rejection_note=self.rejection_note,
 			is_cannabis=self.is_cannabis,
@@ -110,7 +107,6 @@ class InvoiceData:
 			InvoiceData.parse_numeric_safely(d, 'taxes_amount'),
 			InvoiceData.parse_date_safely(d, 'invoice_date'),
 			InvoiceData.parse_date_safely(d, 'invoice_due_date'),
-			InvoiceData.parse_date_safely(d, 'advance_date'),
 			d.get('status'),
 			d.get('rejection_note'),
 			d.get('is_cannabis'),
