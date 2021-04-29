@@ -22,6 +22,9 @@ def import_settled_advances(
 	session: Session,
 	advance_tuples,
 ) -> None:
+	"""
+	Imports advances for all product types.
+	"""
 	advances_count = len(advance_tuples)
 	print(f'Running for {advances_count} advances...')
 
@@ -39,9 +42,13 @@ def import_settled_advances(
 
 		parsed_customer_identifier = customer_identifier.strip()
 		parsed_amount = float(amount)
-		parsed_payment_date = date_util.load_date_str(payment_date)
+		parsed_payment_date = date_util.load_date_str(payment_date) if payment_date else None
 		parsed_deposit_date = date_util.load_date_str(deposit_date)
 		parsed_settlement_date = date_util.load_date_str(settlement_date)
+
+		if not parsed_payment_date:
+			parsed_payment_date = parsed_deposit_date
+
 		parsed_submitted_at = datetime.combine(parsed_payment_date, time())
 		parsed_settled_at = datetime.combine(parsed_settlement_date, time())
 
@@ -50,14 +57,19 @@ def import_settled_advances(
 			numeric_loan_identifier = int(float(loan_identifier))
 			parsed_loan_identifier = str(numeric_loan_identifier)
 		except Exception:
-			# If loan_identifier from XLSX is "25A", convert it to 25.
-			numeric_loan_identifier = int("".join(filter(str.isdigit, loan_identifier)))
-			parsed_loan_identifier = loan_identifier
+			# If loan_identifier is "PB", leave it as is.
+			# This is a special identifier signifying "Previous Balance".
+			if loan_identifier.strip() == "PB":
+				numeric_loan_identifier = 0
+				parsed_loan_identifier = "PB"
+			else:
+				# If loan_identifier from XLSX is "25A", convert it to 25.
+				numeric_loan_identifier = int("".join(filter(str.isdigit, loan_identifier)))
+				parsed_loan_identifier = loan_identifier
 
 		if (
 			not parsed_customer_identifier or
 			not parsed_loan_identifier or
-			not numeric_loan_identifier or
 			not parsed_amount or
 			parsed_amount <= 0 or
 			not parsed_payment_date or

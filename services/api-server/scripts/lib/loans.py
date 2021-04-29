@@ -23,6 +23,9 @@ from bespoke.finance.payments import repayment_util
 
 
 def import_loans(session: Session, loan_tuples: List[List[str]]) -> None:
+	"""
+	Imports loans for all product types except for Line of Credit.
+	"""
 	loans_count = len(loan_tuples)
 	print(f'Running for {loans_count} loans...')
 
@@ -172,24 +175,6 @@ def import_loans(session: Session, loan_tuples: List[List[str]]) -> None:
 		print(f'Customer {customer.name} latest_loan_identifier is now "{new_latest_loan_identifier}"')
 		session.flush()
 
-def load_into_db_from_excel(session: Session, path: str) -> None:
-	print(f'Beginning import...')
-
-	workbook, err = excel_reader.ExcelWorkbook.load_xlsx(path)
-	if err:
-		raise Exception(err)
-
-	sheet, err = workbook.get_sheet_by_index(0)
-	if err:
-		raise Exception(err)
-
-	loan_tuples = sheet['rows']
-	# TODO(warrenshen): in the future, handle line of credit loans as well.
-	# Skip the header row and filter out empty rows.
-	filtered_loan_tuples = list(filter(lambda loan_tuple: loan_tuple[0] is not '', loan_tuples[1:]))
-	import_loans(session, filtered_loan_tuples)
-	print(f'Finished import')
-
 def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) -> None:
 	loans_count = len(loan_tuples)
 	print(f'Running for {loans_count} loans...')
@@ -200,8 +185,8 @@ def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) 
 			customer_identifier,
 			loan_identifier,
 			loan_type,
-			is_credit_for_vendor,
-			recipient_vendor_name,
+			# is_credit_for_vendor,
+			# recipient_vendor_name,
 			amount,
 			origination_date,
 		) = new_loan_tuple
@@ -217,14 +202,18 @@ def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) 
 			numeric_loan_identifier = int(float(loan_identifier))
 			parsed_loan_identifier = str(numeric_loan_identifier)
 		except Exception:
-			# If loan_identifier from XLSX is "25A", convert it to 25.
-			numeric_loan_identifier = int("".join(filter(str.isdigit, loan_identifier)))
-			parsed_loan_identifier = loan_identifier
+			# If loan_identifier is "PB", leave it as is.
+			# This is a special identifier signifying "Previous Balance".
+			if loan_identifier.strip() == "PB":
+				parsed_loan_identifier = "PB"
+			else:
+				# If loan_identifier from XLSX is "25A", convert it to 25.
+				numeric_loan_identifier = int("".join(filter(str.isdigit, loan_identifier)))
+				parsed_loan_identifier = loan_identifier
 
 		if (
 			not parsed_customer_identifier or
 			not parsed_loan_identifier or
-			not numeric_loan_identifier or
 			not parsed_amount or
 			parsed_amount <= 0 or
 			not parsed_origination_date or
@@ -270,7 +259,7 @@ def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) 
 				continue
 
 		parsed_loan_type = None
-		if loan_type == 'line_of_credit':
+		if loan_type in ['line_of_credit', 'line of credit']:
 			parsed_loan_type = LoanTypeEnum.LINE_OF_CREDIT
 
 		if parsed_loan_type not in ALL_LOAN_TYPES:
@@ -278,16 +267,8 @@ def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) 
 			print(f'EXITING EARLY')
 			return
 
-		parsed_is_credit_for_vendor = None
-		if is_credit_for_vendor == 'TRUE':
-			parsed_is_credit_for_vendor = True
-		elif is_credit_for_vendor == 'FALSE':
-			parsed_is_credit_for_vendor = False
-		else:
-			print(f'[{index + 1} of {loans_count}] Invalid loan field(s): is_credit_for_vendor')
-			print(f'EXITING EARLY')
-			return
-
+		parsed_is_credit_for_vendor = False
+		recipient_vendor_name = None
 		vendor_id = None
 
 		if parsed_is_credit_for_vendor:
@@ -320,7 +301,7 @@ def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) 
 
 		contract_helper, err = contract_util.ContractHelper.build(customer.id, contract_dicts)
 		if err:
-			print(f'[{index + 1} of {loans_count}] Repayment on loan {parsed_loan_identifier} failed because of error with ContractHelper: {err}')
+			print(f'[{index + 1} of {loans_count}] Loan {parsed_loan_identifier} failed because of error with ContractHelper: {err}')
 			print(f'EXITING EARLY')
 			return
 
@@ -384,9 +365,29 @@ def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) 
 
 		print(f'[{index + 1} of {loans_count}] Created loan {parsed_loan_identifier} for {customer.name} ({customer.identifier})')
 
-		customer_latest_loan_identifier = customer.latest_loan_identifier
-		new_latest_loan_identifier = max(numeric_loan_identifier, customer_latest_loan_identifier)
-		customer.latest_loan_identifier = new_latest_loan_identifier
+		if parsed_loan_identifier != "PB":
+			customer_latest_loan_identifier = customer.latest_loan_identifier
+			new_latest_loan_identifier = max(numeric_loan_identifier, customer_latest_loan_identifier)
+			customer.latest_loan_identifier = new_latest_loan_identifier
 
-		print(f'Customer {customer.name} latest_loan_identifier is now "{new_latest_loan_identifier}"')
-		session.flush()
+			print(f'Customer {customer.name} latest_loan_identifier is now "{new_latest_loan_identifier}"')
+			session.flush()
+
+# Normal (not line of credit) loans.
+def load_into_db_from_excel(session: Session, path: str) -> None:
+	print(f'Beginning import...')
+
+	workbook, err = excel_reader.ExcelWorkbook.load_xlsx(path)
+	if err:
+		raise Exception(err)
+
+	sheet, err = workbook.get_sheet_by_index(0)
+	if err:
+		raise Exception(err)
+
+	loan_tuples = sheet['rows']
+	# TODO(warrenshen): in the future, handle line of credit loans as well.
+	# Skip the header row and filter out empty rows.
+	filtered_loan_tuples = list(filter(lambda loan_tuple: loan_tuple[0] is not '', loan_tuples[1:]))
+	import_loans(session, filtered_loan_tuples)
+	print(f'Finished import')

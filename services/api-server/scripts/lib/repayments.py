@@ -25,6 +25,9 @@ def import_settled_repayments(
 	session: Session,
 	repayment_tuples,
 ) -> None:
+	"""
+	Imports repayments for all product types except for Line of Credit.
+	"""
 	repayments_count = len(repayment_tuples)
 	print(f'Running for {repayments_count} repayments...')
 
@@ -39,8 +42,8 @@ def import_settled_repayments(
 			amount,
 			to_principal,
 			to_interest,
-			to_fees,
-			wire_fee,
+			to_late_fees,
+			to_wire_fee,
 		) = new_repayment_tuple
 
 		parsed_customer_identifier = customer_identifier.strip()
@@ -51,8 +54,8 @@ def import_settled_repayments(
 		parsed_amount = float(amount)
 		parsed_to_principal = float(to_principal or 0) # Value may be ''.
 		parsed_to_interest = float(to_interest or 0)
-		parsed_to_fees = float(to_fees or 0)
-		parsed_wire_fee = float(wire_fee or 0)
+		parsed_to_late_fees = float(to_late_fees or 0)
+		parsed_to_wire_fee = float(to_wire_fee or 0)
 
 		try:
 			# If loan_identifier from XLSX is "25.0", convert it to 25.
@@ -71,9 +74,9 @@ def import_settled_repayments(
 			parsed_amount <= 0 or
 			parsed_to_principal < 0 or
 			parsed_to_interest < 0 or
-			parsed_to_fees < 0 or
-			parsed_wire_fee < 0 or
-			not number_util.float_eq(parsed_amount, parsed_to_principal + parsed_to_interest + parsed_to_fees + parsed_wire_fee)
+			parsed_to_late_fees < 0 or
+			parsed_to_wire_fee < 0 or
+			not number_util.float_eq(parsed_amount, parsed_to_principal + parsed_to_interest + parsed_to_late_fees + parsed_to_wire_fee)
 		):
 			print(f'[{index + 1} of {repayments_count}] Invalid repayment field(s): numbers')
 			print(f'EXITING EARLY')
@@ -122,8 +125,8 @@ def import_settled_repayments(
 			print(f'EXITING EARLY')
 			return
 
-		amount_to_loan = parsed_to_principal + parsed_to_interest + parsed_to_fees
-		amount_to_account = parsed_wire_fee
+		amount_to_loan = parsed_to_principal + parsed_to_interest + parsed_to_late_fees
+		amount_to_account = parsed_to_wire_fee
 
 		if not number_util.float_eq(parsed_amount, amount_to_loan + amount_to_account):
 			print(f'[{index + 1} of {repayments_count}] Invalid repayment field(s): math')
@@ -173,13 +176,13 @@ def import_settled_repayments(
 			amount=amount_to_loan,
 			to_principal=decimal.Decimal(parsed_to_principal),
 			to_interest=decimal.Decimal(parsed_to_interest),
-			to_fees=decimal.Decimal(parsed_to_fees),
+			to_fees=decimal.Decimal(parsed_to_late_fees),
 			effective_date=parsed_settlement_date,
 		)
 		session.add(to_loan_transaction)
 		session.flush()
 
-		if parsed_wire_fee > 0:
+		if parsed_to_wire_fee > 0:
 			to_account_transaction = models.Transaction(
 				payment_id=repayment.id,
 				loan_id=None,
@@ -276,27 +279,54 @@ def import_settled_repayments(
 			loan.payment_status = PaymentStatusEnum.CLOSED
 			loan.closed_at = parsed_settled_at
 
-# Line of credit is different, because we don't have a given loan identifier for each repayment.
 def import_settled_repayments_line_of_credit(
 	session_maker: Callable,
 	repayment_tuples,
 ) -> None:
+	"""
+	Imports loans for Line of Credit product type.
+	Line of Credit is different because we don't have a given loan identifier for each repayment.
+	"""
 	repayments_count = len(repayment_tuples)
 	print(f'Running for {repayments_count} repayments...')
 
 	for index, new_repayment_tuple in enumerate(repayment_tuples):
 		print(f'[{index + 1} of {repayments_count}]')
-		customer_identifier, payment_type, deposit_date, settlement_date, amount, to_principal, to_interest = new_repayment_tuple
+		(
+			customer_identifier,
+			payment_type,
+			deposit_date,
+			settlement_date,
+			amount,
+			to_principal,
+			to_interest,
+			to_late_fees,
+			to_wire_fee,
+			to_minimum_fee,
+		) = new_repayment_tuple
 
 		parsed_customer_identifier = customer_identifier.strip()
+
+		if parsed_customer_identifier in ['5MIL', 'DF', 'SC']:
+			print(f'[{index + 1} of {repayments_count}] Customer is in blacklist, skipping...')
+			continue
+
 		parsed_deposit_date = date_util.load_date_str(deposit_date)
 		parsed_settlement_date = date_util.load_date_str(settlement_date)
 		parsed_submitted_at = datetime.combine(parsed_deposit_date, time())
 		parsed_settled_at = datetime.combine(parsed_settlement_date, time())
 
-		parsed_amount = float(amount)
-		parsed_to_principal = float(to_principal) if to_principal else 0.0
-		parsed_to_interest = float(to_interest) if to_interest else 0.0
+		parsed_amount = number_util.round_currency(float(amount))
+		parsed_to_principal = number_util.round_currency(float(to_principal)) if to_principal else 0.0
+		parsed_to_interest = number_util.round_currency(float(to_interest)) if to_interest else 0.0
+		parsed_to_late_fees = number_util.round_currency(float(to_late_fees)) if to_late_fees else 0.0
+		parsed_to_wire_fee = number_util.round_currency(float(to_wire_fee)) if to_wire_fee else 0.0
+		parsed_to_minimum_fee = number_util.round_currency(float(to_minimum_fee)) if to_minimum_fee else 0.0
+
+		if parsed_to_late_fees > 0.0:
+			print(f'[{index + 1} of {repayments_count}] Invalid repayment field(s): to late fees')
+			print(f'EXITING EARLY')
+			return
 
 		if (
 			not parsed_customer_identifier or
@@ -304,8 +334,14 @@ def import_settled_repayments_line_of_credit(
 			parsed_amount <= 0 or
 			parsed_to_principal < 0 or
 			parsed_to_interest < 0 or
-			not number_util.float_eq(parsed_amount, parsed_to_principal + parsed_to_interest)
+			parsed_to_wire_fee < 0 or
+			parsed_to_minimum_fee < 0 or
+			not number_util.float_eq(
+				parsed_amount,
+				parsed_to_principal + parsed_to_interest + parsed_to_wire_fee + parsed_to_minimum_fee
+			)
 		):
+			print(parsed_amount, parsed_to_principal, parsed_to_interest, parsed_to_late_fees, parsed_to_wire_fee)
 			print(f'[{index + 1} of {repayments_count}] Invalid repayment field(s): numbers')
 			print(f'EXITING EARLY')
 			return
@@ -358,6 +394,8 @@ def import_settled_repayments_line_of_credit(
 				).filter(
 					models.Payment.amount == parsed_amount
 				).filter(
+					models.Payment.deposit_date == parsed_deposit_date
+				).filter(
 					models.Payment.settlement_date == parsed_settlement_date
 				).first())
 
@@ -367,18 +405,23 @@ def import_settled_repayments_line_of_credit(
 
 			print(f'[{index + 1} of {repayments_count}] Repayment for {customer_name} ({parsed_customer_identifier}) does not exist, creating it...')
 
-			payment = models.Payment(
+			customer.latest_repayment_identifier += 1
+			new_latest_repayment_identifier = customer.latest_repayment_identifier
+
+			repayment = models.Payment(
 				company_id=customer_id,
+				settlement_identifier=str(new_latest_repayment_identifier),
 				type=PaymentType.REPAYMENT,
 				method=PaymentMethodEnum.UNKNOWN,
-				payment_date=deposit_date,
+				amount=parsed_amount,
+				payment_date=parsed_deposit_date,
+				deposit_date=parsed_deposit_date,
+				settlement_date=parsed_settlement_date,
 				submitted_at=parsed_submitted_at,
 			)
-
-			session.add(payment)
+			session.add(repayment)
 			session.flush()
-
-			payment_id = str(payment.id)
+			payment_id = str(repayment.id)
 
 		if not payment_id:
 			print(f'[{index + 1} of {repayments_count}] Could not create repayment')
@@ -396,6 +439,7 @@ def import_settled_repayments_line_of_credit(
 					'to_principal': parsed_to_principal,
 					'to_interest': parsed_to_interest,
 					'to_user_credit': 0.0,
+					'to_account_fees': parsed_to_wire_fee + parsed_to_minimum_fee,
 				},
 				transaction_inputs=None,
 			),
@@ -420,7 +464,8 @@ def import_settled_repayments_line_of_credit(
 					models.Contract.company_id == customer_id
 				).all())
 			if not contracts:
-				return None, errors.Error('Error: no contracts are setup for this company!!')
+				print(f'[{index + 1} of {repayments_count}] Error: no contracts are setup for this company!!')
+				return None
 
 			contract_dicts = [c.as_dict() for c in contracts]
 
@@ -470,14 +515,14 @@ def import_settled_repayments_line_of_credit(
 					print(f'EXITING EARLY')
 					return
 
-				fee_accumulator = loan_calculator.FeeAccumulator()
+				fee_accumulator = fee_util.FeeAccumulator()
 				calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
 				transactions_for_loan = loan_calculator.get_transactions_for_loan(
 					str(loan.id),
 					augmented_transactions,
 				)
 
-				loan_update, errs = calculator.calculate_loan_balance(
+				calculate_result_dict, errs = calculator.calculate_loan_balance(
 					loan_calculator.ThresholdInfoDict(day_threshold_met=None),
 					loan.as_dict(),
 					transactions_for_loan,
@@ -488,6 +533,8 @@ def import_settled_repayments_line_of_credit(
 					print(f'[{index + 1} of {repayments_count}] Repayment on loan {loan.identifier} failed because of error with LoanCalculator: {errs}')
 					print(f'EXITING EARLY')
 					return
+
+				loan_update = calculate_result_dict['loan_update']
 
 				if (
 					loan_update['outstanding_principal'] != 0.0 or
