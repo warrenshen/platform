@@ -156,13 +156,15 @@ def _get_summary_update(
 
 	adjusted_total_limit = maximum_principal_limit
 
-	# The adjusted_total_limit for line of credit contracts uses the borrowing
-	# base as its adjusted_total_limit
+	# The adjusted total limit for Line of Credit customers is the
+	# minimum of contract maximum limit and calculated borrowing base.
 	if product_type == ProductType.LINE_OF_CREDIT:
-		if active_ebba_application_update:
-			adjusted_total_limit = active_ebba_application_update['calculated_borrowing_base']
-		else:
-			adjusted_total_limit = 0.0
+		adjusted_total_limit = min(
+			maximum_principal_limit,
+			active_ebba_application_update['calculated_borrowing_base'] if active_ebba_application_update else 0.0,
+		)
+	else:
+		adjusted_total_limit = maximum_principal_limit
 
 	total_outstanding_principal = 0.0
 	total_outstanding_principal_for_interest = 0.0

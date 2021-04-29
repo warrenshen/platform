@@ -950,11 +950,10 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 		i = 0
 		for test in tests:
-			#print('TEST {}'.format(i))
 			self._run_test(test)
 			i += 1
 
-	def test_success_compute_borrowing_base(self) -> None:
+	def test_success_adjusted_total_limit_contract_limit_greater_than_computed_borrowing_base(self) -> None:
 		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
@@ -1002,7 +1001,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		#  ((100k * 0.5) / 100.0)
 		#  + ((100k * 0.25) / 100.0)
 		#  + ((1M * 0.75) / 100.0)
-		# = $8,250
+		# Computed borrowing base: $825,000
+		# Contract max limit: $1,200,000
 		self._run_test({
 			'today': '10/1/2020',
 			'expected_loan_updates': [],
@@ -1019,14 +1019,14 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				'total_interest_accrued_today': 0.0,
 				'available_limit': 825000,
 				'minimum_monthly_payload': {
-						'minimum_amount': 1.03,
-						'amount_accrued': 0.0,
-						'amount_short': 1.03,
-						'duration': 'monthly'
+					'minimum_amount': 1.03,
+					'amount_accrued': 0.0,
+					'amount_short': 1.03,
+					'duration': 'monthly'
 				},
 				'account_level_balance_payload': {
-						'fees_total': 0.0,
-						'credits_total': 0.0
+					'fees_total': 0.0,
+					'credits_total': 0.0
 				},
 				'day_volume_threshold_met': None
 			}
@@ -1036,7 +1036,85 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			ebba = session.query(models.EbbaApplication).first()
 			self.assertEqual(ebba.calculated_borrowing_base, 825000)
 
-	def test_success_line_of_credit_without_borrowing_base(self) -> None:
+	def test_success_adjusted_total_limit_contract_limit_less_than_computed_borrowing_base(self) -> None:
+		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+			session.add(models.Contract(
+				company_id=company_id,
+				product_type=ProductType.LINE_OF_CREDIT,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.LINE_OF_CREDIT,
+					input_dict=ContractInputDict(
+						interest_rate=0.05,
+						maximum_principal_amount=450000,
+						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure(), # unused
+						borrowing_base_accounts_receivable_percentage=0.5,
+						borrowing_base_inventory_percentage=0.25,
+						borrowing_base_cash_percentage=0.75,
+						borrowing_base_cash_in_daca_percentage=0.25,
+					)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('12/1/2020')
+			))
+
+			# Due to an open issue with sqlalchemy-stubs written by Dropbox
+			# https://github.com/dropbox/sqlalchemy-stubs/issues/97
+			ebba = models.EbbaApplication( # type: ignore
+				company_id=company_id,
+				monthly_accounts_receivable=decimal.Decimal(100000.0), # 100k
+				monthly_inventory=decimal.Decimal(100000.0), #100k
+				monthly_cash=decimal.Decimal(1000000.0), # 1M
+				amount_cash_in_daca=decimal.Decimal(0.0),
+				status="approved",
+			)
+			session.add(ebba)
+			session.commit()
+			session.refresh(ebba)
+
+			company_settings = session \
+				.query(models.CompanySettings) \
+				.filter(models.CompanySettings.company_id == company_id) \
+				.first()
+
+			company_settings.active_ebba_application_id = ebba.id
+
+		# Computed borrowing base: $825,000
+		# Contract max limit: $450,000
+		self._run_test({
+			'today': '10/1/2020',
+			'expected_loan_updates': [],
+			'populate_fn': populate_fn,
+			'expected_summary_update': {
+				'product_type': 'line_of_credit',
+				'total_limit': 450000,
+				'adjusted_total_limit': 450000,
+				'total_outstanding_principal': 0.0,
+				'total_outstanding_principal_for_interest': 0.0,
+				'total_outstanding_interest': 0.0,
+				'total_outstanding_fees': 0.0,
+				'total_principal_in_requested_state': 0.0,
+				'total_interest_accrued_today': 0.0,
+				'available_limit': 450000,
+				'minimum_monthly_payload': {
+					'minimum_amount': 0.0,
+					'amount_accrued': 0.0,
+					'amount_short': 0.0,
+					'duration': None
+				},
+				'account_level_balance_payload': {
+					'fees_total': 0.0,
+					'credits_total': 0.0
+				},
+				'day_volume_threshold_met': None
+			}
+		})
+
+		with session_scope(self.session_maker) as session:
+			ebba = session.query(models.EbbaApplication).first()
+			self.assertEqual(ebba.calculated_borrowing_base, 825000)
+
+	def test_success_adjusted_total_limit_without_borrowing_base(self) -> None:
 		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
@@ -1058,9 +1136,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				adjusted_end_date=date_util.load_date_str('12/1/2020')
 			))
 
-		# Expected available limit: 0.0.
+		# Expected available limit: $0.
 		# Without an active borrowing base certification (ebba_application),
-		# calculated borrowing base - and as a result, available limit - both equal 0.0.
+		# calculated borrowing base - and as a result, available limit - both equal $0.
 		self._run_test({
 			'today': '10/1/2020',
 			'expected_loan_updates': [],
@@ -1077,14 +1155,14 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				'total_interest_accrued_today': 0.0,
 				'available_limit': 0.0,
 				'minimum_monthly_payload': {
-						'minimum_amount': 0.0,
-						'amount_accrued': 0.0,
-						'amount_short': 0.0,
-						'duration': None
+					'minimum_amount': 0.0,
+					'amount_accrued': 0.0,
+					'amount_short': 0.0,
+					'duration': None
 				},
 				'account_level_balance_payload': {
-						'fees_total': 0.0,
-						'credits_total': 0.0
+					'fees_total': 0.0,
+					'credits_total': 0.0
 				},
 				'day_volume_threshold_met': None
 			}
