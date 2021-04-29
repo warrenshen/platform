@@ -32,24 +32,6 @@ def main() -> None:
 
 	print(f'Beginning import...')
 
-	with models.session_scope(session_maker) as session:
-		loans_sheet, err = workbook.get_sheet_by_index(0)
-		if err:
-			raise Exception(err)
-
-		advances_sheet, err = workbook.get_sheet_by_index(1)
-		if err:
-			raise Exception(err)
-
-		loan_tuples = loans_sheet['rows']
-		filtered_loan_tuples = list(filter(lambda loan_tuple: loan_tuple[0] is not '', loan_tuples[1:]))
-		loans.import_line_of_credit_loans(session, filtered_loan_tuples)
-
-		advance_tuples = advances_sheet['rows']
-		# Skip the header row and filter out empty rows.
-		filtered_advance_tuples = list(filter(lambda advance_tuple: advance_tuple[0] is not '', advance_tuples[1:]))
-		advances.import_settled_advances(session, filtered_advance_tuples)
-
 	repayments_sheet, err = workbook.get_sheet_by_index(2)
 	if err:
 		raise Exception(err)

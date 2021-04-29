@@ -1,7 +1,8 @@
+import datetime
 import decimal
 import os
 import sys
-from datetime import datetime, time
+import time
 from os import path
 from typing import Any, Callable, Dict, List, Tuple, Union, cast
 
@@ -50,8 +51,8 @@ def import_settled_repayments(
 		parsed_customer_identifier = customer_identifier.strip()
 		parsed_deposit_date = date_util.load_date_str(deposit_date)
 		parsed_settlement_date = date_util.load_date_str(settlement_date)
-		parsed_submitted_at = datetime.combine(parsed_deposit_date, time())
-		parsed_settled_at = datetime.combine(parsed_settlement_date, time())
+		parsed_submitted_at = datetime.datetime.combine(parsed_deposit_date, datetime.time())
+		parsed_settled_at = datetime.datetime.combine(parsed_settlement_date, datetime.time())
 		parsed_amount = float(amount)
 		parsed_to_principal = float(to_principal or 0) # Value may be ''.
 		parsed_to_interest = float(to_interest or 0)
@@ -308,15 +309,10 @@ def import_settled_repayments_line_of_credit(
 		) = new_repayment_tuple
 
 		parsed_customer_identifier = customer_identifier.strip()
-
-		if parsed_customer_identifier in ['SC']:
-			print(f'[{index + 1} of {repayments_count}] Customer is in blacklist, skipping...')
-			continue
-
 		parsed_deposit_date = date_util.load_date_str(deposit_date)
 		parsed_settlement_date = date_util.load_date_str(settlement_date)
-		parsed_submitted_at = datetime.combine(parsed_deposit_date, time())
-		parsed_settled_at = datetime.combine(parsed_settlement_date, time())
+		parsed_submitted_at = datetime.datetime.combine(parsed_deposit_date, datetime.time())
+		parsed_settled_at = datetime.datetime.combine(parsed_settlement_date, datetime.time())
 
 		parsed_amount = number_util.round_currency(float(amount))
 		parsed_to_principal = number_util.round_currency(float(to_principal)) if to_principal else 0.0
@@ -341,10 +337,24 @@ def import_settled_repayments_line_of_credit(
 			parsed_to_minimum_fee < 0 or
 			not number_util.float_eq(
 				parsed_amount,
-				parsed_to_principal + parsed_to_interest + parsed_to_wire_fee + parsed_to_minimum_fee
+				(
+					parsed_to_principal +
+					parsed_to_interest +
+					parsed_to_wire_fee +
+					parsed_to_minimum_fee +
+					parsed_to_customer
+				)
 			)
 		):
-			print(parsed_amount, parsed_to_principal, parsed_to_interest, parsed_to_late_fees, parsed_to_wire_fee)
+			print(
+				parsed_amount,
+				parsed_to_principal,
+				parsed_to_interest,
+				parsed_to_late_fees,
+				parsed_to_wire_fee,
+				parsed_to_minimum_fee,
+				parsed_to_customer,
+			)
 			print(f'[{index + 1} of {repayments_count}] Invalid repayment field(s): numbers')
 			print(f'EXITING EARLY')
 			return
@@ -402,29 +412,32 @@ def import_settled_repayments_line_of_credit(
 					models.Payment.settlement_date == parsed_settlement_date
 				).first())
 
-			if existing_repayment:
+			if not existing_repayment:
+				print(f'[{index + 1} of {repayments_count}] Repayment for {customer_name} ({parsed_customer_identifier}) does not exist, creating it...')
+
+				customer.latest_repayment_identifier += 1
+				new_latest_repayment_identifier = customer.latest_repayment_identifier
+
+				repayment = models.Payment(
+					company_id=customer_id,
+					settlement_identifier=str(new_latest_repayment_identifier),
+					type=PaymentType.REPAYMENT,
+					method=PaymentMethodEnum.UNKNOWN,
+					amount=parsed_amount,
+					payment_date=parsed_deposit_date,
+					deposit_date=parsed_deposit_date,
+					settlement_date=parsed_settlement_date,
+					submitted_at=parsed_submitted_at,
+				)
+				session.add(repayment)
+				session.flush()
+				payment_id = str(repayment.id)
+			elif existing_repayment.settled_at:
 				print(f'[{index + 1} of {repayments_count}] Repayment with amount {parsed_amount} and settlement date {settlement_date} already exists')
 				continue
-
-			print(f'[{index + 1} of {repayments_count}] Repayment for {customer_name} ({parsed_customer_identifier}) does not exist, creating it...')
-
-			customer.latest_repayment_identifier += 1
-			new_latest_repayment_identifier = customer.latest_repayment_identifier
-
-			repayment = models.Payment(
-				company_id=customer_id,
-				settlement_identifier=str(new_latest_repayment_identifier),
-				type=PaymentType.REPAYMENT,
-				method=PaymentMethodEnum.UNKNOWN,
-				amount=parsed_amount,
-				payment_date=parsed_deposit_date,
-				deposit_date=parsed_deposit_date,
-				settlement_date=parsed_settlement_date,
-				submitted_at=parsed_submitted_at,
-			)
-			session.add(repayment)
-			session.flush()
-			payment_id = str(repayment.id)
+			elif existing_repayment and not existing_repayment.settled_at:
+				payment_id = str(existing_repayment.id)
+				print(f'[{index + 1} of {repayments_count}] Repayment for {customer_name} ({parsed_customer_identifier}) exists but is not settled, settling it...')
 
 		if not payment_id:
 			print(f'[{index + 1} of {repayments_count}] Could not create repayment')
@@ -441,7 +454,7 @@ def import_settled_repayments_line_of_credit(
 				items_covered={
 					'to_principal': parsed_to_principal,
 					'to_interest': parsed_to_interest,
-					'to_user_credit': 0.0,
+					'to_user_credit': parsed_to_customer,
 					'to_account_fees': parsed_to_wire_fee + parsed_to_minimum_fee,
 				},
 				transaction_inputs=None,
@@ -452,6 +465,7 @@ def import_settled_repayments_line_of_credit(
 		)
 
 		if err:
+			print(parsed_deposit_date, parsed_settlement_date, parsed_amount, parsed_to_principal, parsed_to_interest, parsed_to_late_fees, parsed_to_wire_fee, parsed_to_minimum_fee, parsed_to_customer)
 			print(f'[{index + 1} of {repayments_count}] Could not settle repayment because of err: {err}')
 			print(f'EXITING EARLY')
 			return
@@ -469,13 +483,7 @@ def import_settled_repayments_line_of_credit(
 			)
 
 		if parsed_to_customer > 0.0:
-			payment_util.create_and_add_credit_to_user(
-				amount=parsed_to_customer,
-				payment_id=payment_id,
-				created_by_user_id=None,
-				effective_date=parsed_settlement_date,
-				session=session,
-			)
+			print('TODO: pay out from holding account to customer')
 
 		print(f'[{index + 1} of {repayments_count}] Created repayment for {customer_name} ({parsed_customer_identifier})')
 
@@ -571,6 +579,8 @@ def import_settled_repayments_line_of_credit(
 					print(f'[{index + 1} of {repayments_count}] Repayment on loan {loan.identifier} closed out loan, setting loan.closed_at to {parsed_settled_at}...')
 					loan.closed_at = parsed_settled_at
 					loan.payment_status = PaymentStatusEnum.CLOSED
+
+		time.sleep(0.5)
 
 def load_into_db_from_excel(session: Session, path: str) -> None:
 	print(f'Beginning import...')

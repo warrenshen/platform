@@ -328,7 +328,7 @@ def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) 
 			print(f'EXITING EARLY')
 			return
 
-		print(f'[{index + 1} of {loans_count}] Loan {parsed_loan_identifier} for {customer.name} ({customer.identifier}) does not exist, creating it...')
+		print(f'[{index + 1} of {loans_count}] Loan {parsed_loan_identifier} for {customer.name} ({customer.identifier}) with amount {parsed_amount} does not exist, creating it...')
 
 		line_of_credit = models.LineOfCredit(
 			company_id=customer.id,
