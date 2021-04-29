@@ -71,18 +71,7 @@ def _update_loans_on_active_contract_updated(
 
 	product_type, err = contract_obj.get_product_type()
 	if err:
-		return False, err
-
-	if product_type != ProductType.LINE_OF_CREDIT:
-		return True, None
-
-	maturity_date, err = contract_obj.get_maturity_date(None)
-	if err:
-		return False, err
-
-	adjusted_maturity_date, err = contract_obj.get_adjusted_maturity_date(None)
-	if err:
-		return False, err
+		return False, err	
 
 	loans = cast(
 		List[models.Loan],
@@ -92,9 +81,37 @@ def _update_loans_on_active_contract_updated(
 			models.Loan.closed_at == None
 		).all())
 
-	for loan in loans:
-		loan.maturity_date = maturity_date
-		loan.adjusted_maturity_date = adjusted_maturity_date
+	if product_type == ProductType.LINE_OF_CREDIT:		
+		maturity_date, err = contract_obj.get_maturity_date(None)
+		if err:
+			return False, err
+
+		adjusted_maturity_date, err = contract_obj.get_adjusted_maturity_date(None)
+		if err:
+			return False, err
+
+		for loan in loans:
+			loan.maturity_date = maturity_date
+			loan.adjusted_maturity_date = adjusted_maturity_date
+
+	else:
+		for loan in loans:
+			if not loan.origination_date:
+				continue
+
+			# In the non-line of credit case, the maturity date is determined by
+			# taking the origination_date and adding the financing terms to that
+			maturity_date, err = contract_obj.get_maturity_date(loan.origination_date)
+			if err:
+				return False, err
+
+			adjusted_maturity_date, err = contract_obj.get_adjusted_maturity_date(loan.origination_date)
+			if err:
+				return False, err
+
+			loan.maturity_date = maturity_date
+			loan.adjusted_maturity_date = adjusted_maturity_date
+
 
 	return True, None
 
