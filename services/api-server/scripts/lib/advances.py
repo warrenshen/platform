@@ -16,6 +16,7 @@ from bespoke.db.db_constants import (ALL_LOAN_TYPES, CompanyType,
                                      PaymentType)
 from bespoke.excel import excel_reader
 from bespoke.finance import number_util
+from bespoke.finance.payments import payment_util
 
 
 def import_settled_advances(
@@ -192,12 +193,47 @@ def import_settled_advances(
 
 		print(f'[{index + 1} of {advances_count}] Created advance on loan {parsed_loan_identifier} for {customer.name} ({customer.identifier})')
 
-		customer_latest_disbursement_identifier = customer.latest_disbursement_identifier
-		new_latest_disbursement_identifier = max(numeric_payment_disbursement_identifier, customer_latest_disbursement_identifier)
-		customer.latest_disbursement_identifier = new_latest_disbursement_identifier
+		# If loan_identifier is "PB", we perform special hard-coded logic.
+		if parsed_loan_identifier == 'PB':
+			if parsed_customer_identifier == '5MIL':
+				payment_util.create_and_add_adjustment(
+					company_id=str(customer.id),
+					loan_id=str(loan.id),
+					tx_amount_dict=payment_util.TransactionAmountDict(
+						to_principal=0.0,
+						to_interest=48870.15,
+						to_fees=0.0,
+					),
+					created_by_user_id=None,
+					deposit_date=parsed_deposit_date,
+					effective_date=parsed_settlement_date,
+					session=session,
+				)
+			elif parsed_customer_identifier == 'DF':
+				payment_util.create_and_add_adjustment(
+					company_id=str(customer.id),
+					loan_id=str(loan.id),
+					tx_amount_dict=payment_util.TransactionAmountDict(
+						to_principal=0.0,
+						to_interest=187982.54,
+						to_fees=0.0,
+					),
+					created_by_user_id=None,
+					deposit_date=parsed_deposit_date,
+					effective_date=parsed_settlement_date,
+					session=session,
+				)
+			else:
+				print(f'[{index + 1} of {advances_count}] Invalid advance field(s): PB but not in whitelist')
+				print(f'EXITING EARLY')
+				return
+		else:
+			customer_latest_disbursement_identifier = customer.latest_disbursement_identifier
+			new_latest_disbursement_identifier = max(numeric_payment_disbursement_identifier, customer_latest_disbursement_identifier)
+			customer.latest_disbursement_identifier = new_latest_disbursement_identifier
 
-		print(f'Customer {customer.name} latest_disbursement_identifier is now "{new_latest_disbursement_identifier}"')
-		session.flush()
+			print(f'Customer {customer.name} latest_disbursement_identifier is now "{new_latest_disbursement_identifier}"')
+			session.flush()
 
 def load_into_db_from_excel(session: Session, path: str) -> None:
 	print(f'Beginning import...')

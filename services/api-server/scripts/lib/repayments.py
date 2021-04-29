@@ -307,7 +307,7 @@ def import_settled_repayments_line_of_credit(
 
 		parsed_customer_identifier = customer_identifier.strip()
 
-		if parsed_customer_identifier in ['5MIL', 'DF', 'SC']:
+		if parsed_customer_identifier in ['SC']:
 			print(f'[{index + 1} of {repayments_count}] Customer is in blacklist, skipping...')
 			continue
 

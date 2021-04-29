@@ -60,7 +60,7 @@ PaymentEffectDict = TypedDict('PaymentEffectDict', {
 })
 
 CalculateResultDict = TypedDict('CalculateResultDict', {
-	'payment_effect': PaymentEffectDict,	
+	'payment_effect': PaymentEffectDict,
 	'loan_update': LoanUpdateDict
 })
 
@@ -477,7 +477,7 @@ class LoanCalculator(object):
 				payment_to_include['custom_amount_split']['to_principal'] -= tx['to_principal']
 				payment_to_include['custom_amount_split']['to_interest'] -= tx['to_interest']
 				payment_to_include['custom_amount_split']['to_interest'] -= tx['to_fees']
-			
+
 			elif payment_to_include['option'] == payment_util.RepaymentOption.CUSTOM_AMOUNT_FOR_SETTLING_NON_LOC_LOAN:
 				payment_to_include['custom_amount_split']['to_principal'] -= tx['to_principal']
 				payment_to_include['custom_amount_split']['to_interest'] -= tx['to_interest']
@@ -654,14 +654,14 @@ class LoanCalculator(object):
 				# The final transaction the user owes is the sum of what they owed on the deposit_date
 				# plus any additional fees and interest come the settlement_date
 				final_repayment_transaction = _sum_transactions(inserted_repayment_transaction, cur_transaction)
-				
+
 				# The purpose of loan_update_before_payment is to show the user what the state of the loan
 				# would be on the settlement_date had they not paid for anything.
 				#
 				# So we need to include these additional outstanding balances which may have accrued
 				# between the payment_date and settlement_date
 				loan_update_before_payment['outstanding_principal'] += additional_principal_after_repayment
-				loan_update_before_payment['outstanding_interest'] += additional_interest_after_repayment 
+				loan_update_before_payment['outstanding_interest'] += additional_interest_after_repayment
 				loan_update_before_payment['outstanding_fees'] += additional_fees_after_repayment
 
 				payment_effect_dict = PaymentEffectDict(

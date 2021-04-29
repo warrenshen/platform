@@ -204,8 +204,8 @@ def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) 
 		except Exception:
 			# If loan_identifier is "PB", leave it as is.
 			# This is a special identifier signifying "Previous Balance".
-			if loan_identifier.strip() == "PB":
-				parsed_loan_identifier = "PB"
+			if loan_identifier.strip() == 'PB':
+				parsed_loan_identifier = 'PB'
 			else:
 				# If loan_identifier from XLSX is "25A", convert it to 25.
 				numeric_loan_identifier = int("".join(filter(str.isdigit, loan_identifier)))
@@ -365,7 +365,7 @@ def import_line_of_credit_loans(session: Session, loan_tuples: List[List[str]]) 
 
 		print(f'[{index + 1} of {loans_count}] Created loan {parsed_loan_identifier} for {customer.name} ({customer.identifier})')
 
-		if parsed_loan_identifier != "PB":
+		if parsed_loan_identifier != 'PB':
 			customer_latest_loan_identifier = customer.latest_loan_identifier
 			new_latest_loan_identifier = max(numeric_loan_identifier, customer_latest_loan_identifier)
 			customer.latest_loan_identifier = new_latest_loan_identifier

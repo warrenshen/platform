@@ -8,15 +8,16 @@ from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.db_constants import ProductType
 from bespoke.db.models import session_scope
-from bespoke.finance import number_util
-from bespoke.finance import financial_summary_util
-from bespoke.finance.payments import payment_util, repayment_util, repayment_util_fees
+from bespoke.finance import financial_summary_util, number_util
+from bespoke.finance.payments import (payment_util, repayment_util,
+                                      repayment_util_fees)
 from bespoke.finance.reports import loan_balances
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
-from bespoke_test.payments import payment_test_helper
 from bespoke_test.finance import finance_test_helper
+from bespoke_test.payments import payment_test_helper
+
 
 def _get_late_fee_structure() -> str:
 	return json.dumps({
@@ -77,7 +78,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			expected = test['expected_summary_update']
 			actual = cast(Dict, customer_update['summary_update'])
 
-			self.assertAlmostEqual(expected['product_type'], actual['product_type'])
+			self.assertEqual(expected['product_type'], actual['product_type'])
 			self.assertAlmostEqual(expected['total_limit'], number_util.round_currency(actual['total_limit']))
 			self.assertAlmostEqual(expected['adjusted_total_limit'], number_util.round_currency(actual['adjusted_total_limit']))
 			self.assertAlmostEqual(expected['available_limit'], number_util.round_currency(actual['available_limit']))
@@ -90,10 +91,10 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			self.assertAlmostEqual(expected['minimum_monthly_payload']['minimum_amount'], actual['minimum_monthly_payload']['minimum_amount'])
 			self.assertAlmostEqual(expected['minimum_monthly_payload']['amount_accrued'], number_util.round_currency((actual['minimum_monthly_payload']['amount_accrued'])))
 			self.assertAlmostEqual(expected['minimum_monthly_payload']['amount_short'], number_util.round_currency((actual['minimum_monthly_payload']['amount_short'])))
-			self.assertAlmostEqual(expected['minimum_monthly_payload']['duration'], actual['minimum_monthly_payload']['duration'])
+			self.assertEqual(expected['minimum_monthly_payload']['duration'], actual['minimum_monthly_payload']['duration'])
 			test_helper.assertDeepAlmostEqual(
 				self, expected['account_level_balance_payload'], cast(Dict, actual['account_level_balance_payload']))
-			self.assertAlmostEqual(expected['day_volume_threshold_met'], actual['day_volume_threshold_met'])
+			self.assertEqual(expected['day_volume_threshold_met'], actual['day_volume_threshold_met'])
 
 		success, err = customer_balance.write(customer_update)
 		self.assertTrue(success)
@@ -780,7 +781,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 			payment_util.create_and_add_account_level_fee(
 				company_id=company_id,
-				subtype='wire_fee', 
+				subtype='wire_fee',
 				amount=2000.01,
 				originating_payment_id=advance_tx.payment_id,
 				created_by_user_id=seed.get_user_id('bank_admin'),
@@ -795,11 +796,11 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				payment_input=cast(payment_util.RepaymentPaymentInputDict, {
 					'payment_method': 'ach',
 					'requested_amount': 12.03,
-					'requested_payment_date': date_util.load_date_str('10/01/2020'), 
+					'requested_payment_date': date_util.load_date_str('10/01/2020'),
 					'payment_date': date_util.load_date_str('10/01/2020'),
 					'items_covered': {},
 					'company_bank_account_id': str(uuid.uuid4())
-				}), 
+				}),
 				created_by_user_id=seed.get_user_id('bank_admin'),
 				session=session
 			)
@@ -1019,7 +1020,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				'available_limit': 825000,
 				'minimum_monthly_payload': {
 						'minimum_amount': 1.03,
-						'amount_accrued':0.0,
+						'amount_accrued': 0.0,
 						'amount_short': 1.03,
 						'duration': 'monthly'
 				},
@@ -1035,14 +1036,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			ebba = session.query(models.EbbaApplication).first()
 			self.assertEqual(ebba.calculated_borrowing_base, 825000)
 
-	def test_failure_line_of_credit_without_borrowing_base(self) -> None:
-		self.reset()
-		seed = test_helper.BasicSeed.create(self.session_maker, self)
-		seed.initialize()
-
-		company_id = seed.get_company_id('company_admin', index=0)
-
-		with session_scope(self.session_maker) as session:
+	def test_success_line_of_credit_without_borrowing_base(self) -> None:
+		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(
 				company_id=company_id,
 				product_type=ProductType.LINE_OF_CREDIT,
@@ -1050,7 +1045,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					product_type=ProductType.LINE_OF_CREDIT,
 					input_dict=ContractInputDict(
 						interest_rate=0.05,
-						maximum_principal_amount=120000.01,
+						maximum_principal_amount=1200000,
 						max_days_until_repayment=0, # unused
 						late_fee_structure=_get_late_fee_structure(), # unused
 						borrowing_base_accounts_receivable_percentage=0.5,
@@ -1063,15 +1058,34 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				adjusted_end_date=date_util.load_date_str('12/1/2020')
 			))
 
-		customer_balance = loan_balances.CustomerBalance(
-			company_dict=models.CompanyDict(
-				name='Distributor 1',
-				id=company_id,
-			),
-			session_maker=self.session_maker
-		)
-		customer_update, err = customer_balance.update(
-			today=date_util.load_date_str('10/01/2020')
-		)
-		self.assertIsNotNone(err)
-		self.assertIn("Attempt to compute a new borrowing base for LINE_OF_CREDIT contract", str(err))
+		# Expected available limit: 0.0.
+		# Without an active borrowing base certification (ebba_application),
+		# calculated borrowing base - and as a result, available limit - both equal 0.0.
+		self._run_test({
+			'today': '10/1/2020',
+			'expected_loan_updates': [],
+			'populate_fn': populate_fn,
+			'expected_summary_update': {
+				'product_type': 'line_of_credit',
+				'total_limit': 1200000,
+				'adjusted_total_limit': 0.0,
+				'total_outstanding_principal': 0.0,
+				'total_outstanding_principal_for_interest': 0.0,
+				'total_outstanding_interest': 0.0,
+				'total_outstanding_fees': 0.0,
+				'total_principal_in_requested_state': 0.0,
+				'total_interest_accrued_today': 0.0,
+				'available_limit': 0.0,
+				'minimum_monthly_payload': {
+						'minimum_amount': 0.0,
+						'amount_accrued': 0.0,
+						'amount_short': 0.0,
+						'duration': None
+				},
+				'account_level_balance_payload': {
+						'fees_total': 0.0,
+						'credits_total': 0.0
+				},
+				'day_volume_threshold_met': None
+			}
+		})

@@ -87,23 +87,23 @@ def _get_active_ebba_application_update(
 
 	cur_contract = cast(contract_util.LOCContract, cur_contract)
 
-	# If we don't have an active borrowing base, something is wrong
+	# If we don't have an active borrowing base, return 0.0.
 	if not ebba_application:
-		err = errors.Error(
-			f"Attempt to compute a new borrowing base for LINE_OF_CREDIT contract without an active borrowing base '{cur_contract.contract_id}'")
-		logging.error(str(err))
-		return None, err
+		return EbbaApplicationUpdateDict(
+			id=None,
+			calculated_borrowing_base=0.0,
+		), None
+	else:
+		calculated_borrowing_base, err = cur_contract.compute_borrowing_base(ebba_application)
+		if err:
+			logging.error(
+				f"Failed computing borrowing base for contract '{cur_contract.contract_id}' and ebba application '{ebba_application['id']}'")
+			return None, err
 
-	calculated_borrowing_base, err = cur_contract.compute_borrowing_base(ebba_application)
-	if err:
-		logging.error(
-			f"Failed computing borrowing base for contract '{cur_contract.contract_id}' and ebba application '{ebba_application['id']}'")
-		return None, err
-
-	return EbbaApplicationUpdateDict(
-		id=ebba_application['id'],
-		calculated_borrowing_base=number_util.round_currency(calculated_borrowing_base),
-	), None
+		return EbbaApplicationUpdateDict(
+			id=ebba_application['id'],
+			calculated_borrowing_base=number_util.round_currency(calculated_borrowing_base),
+		), None
 
 def _get_account_level_balance(customer_info: per_customer_types.CustomerFinancials) -> Tuple[finance_types.AccountBalanceDict, errors.Error]:
 	fees_total = 0.0
@@ -399,13 +399,13 @@ class CustomerBalance(object):
 			if should_add_summary:
 				session.add(financial_summary)
 
-			# Update the active ebba application's calculated borrowing base to
-			# reflect the value as a product of the current contract. These are
+			# If there is an active ebba application, update its calculated borrowing
+			# base to reflect the value as a product of the current contract. These are
 			# first computed in the UI and stored on the server. However, if the
 			# contract changes, then the calculated value we've stored may no
 			# longer reflect the terms of the company's contract.
 			active_ebba_application_update = customer_update.get('active_ebba_application_update')
-			if active_ebba_application_update:
+			if active_ebba_application_update and active_ebba_application_update['id'] is not None:
 				app = session.query(models.EbbaApplication).get(active_ebba_application_update['id'])
 				app.calculated_borrowing_base = decimal.Decimal(active_ebba_application_update['calculated_borrowing_base'])
 
