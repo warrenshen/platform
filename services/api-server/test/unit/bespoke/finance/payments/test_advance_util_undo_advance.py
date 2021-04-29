@@ -119,6 +119,7 @@ class TestUndoAdvance(db_unittest.TestCase):
 					settlement_date='10/12/2020',
 					items_covered={'loan_ids': loan_ids},
 					company_bank_account_id=None,
+					customer_note=''
 				),
 				should_charge_wire_fee=True
 			),
@@ -173,6 +174,7 @@ class TestUndoAdvance(db_unittest.TestCase):
 					settlement_date='10/12/2020',
 					items_covered={'loan_ids': loan_ids},
 					company_bank_account_id=None,
+					customer_note=''
 				),
 				should_charge_wire_fee=True
 			),

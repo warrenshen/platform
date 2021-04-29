@@ -50,6 +50,7 @@ class TestRepaymentOfFees(db_unittest.TestCase):
 					payment_date=None,
 					items_covered=items_covered,
 					company_bank_account_id=test['company_bank_account_id'],
+					customer_note=''
 				),
 				created_by_user_id=user_id,
 				session=session)

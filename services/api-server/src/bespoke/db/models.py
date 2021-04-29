@@ -343,6 +343,8 @@ class Payment(Base):
 	settlement_date = Column(Date)
 	items_covered = Column(JSON)
 	company_bank_account_id = Column(GUID)
+	customer_note = Column(Text)
+	bank_note = Column(Text)
 
 	requested_by_user_id = Column(GUID)
 	submitted_at = Column(DateTime)
@@ -351,6 +353,7 @@ class Payment(Base):
 	settled_by_user_id = Column(GUID)
 	originating_payment_id = Column(GUID)
 	is_deleted = Column(Boolean)
+
 
 	def as_dict(self) -> PaymentDict:
 		return PaymentDict(

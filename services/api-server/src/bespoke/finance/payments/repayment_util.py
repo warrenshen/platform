@@ -569,6 +569,7 @@ def create_repayment(
 			payment_date=requested_payment_date if payment_method != PaymentMethodEnum.REVERSE_DRAFT_ACH else None,
 			items_covered=items_covered,
 			company_bank_account_id=company_bank_account_id,
+			customer_note=payment_insert_input.get('customer_note')
 		)
 		payment = payment_util.create_repayment_payment(
 			company_id=company_id,

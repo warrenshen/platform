@@ -808,6 +808,7 @@ class TestCreatePayment(db_unittest.TestCase):
 				settlement_date='unused',
 				items_covered={ 'loan_ids': loan_ids },
 				company_bank_account_id=test['company_bank_account_id'],
+				customer_note=''
 			),
 			user_id=user_id,
 			session_maker=self.session_maker,
@@ -959,6 +960,7 @@ class TestCreatePayment(db_unittest.TestCase):
 				settlement_date='unused',
 				items_covered={ 'loan_ids': [str(uuid.uuid4())] },
 				company_bank_account_id=str(uuid.uuid4()),
+				customer_note=''
 			),
 			user_id=user_id,
 			session_maker=self.session_maker,
@@ -995,6 +997,7 @@ class TestCreatePayment(db_unittest.TestCase):
 				settlement_date='unused',
 				items_covered={ 'loan_ids': [loan_id] },
 				company_bank_account_id=str(uuid.uuid4()),
+				customer_note=''
 			),
 			user_id=user_id,
 			session_maker=self.session_maker,

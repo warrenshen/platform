@@ -131,6 +131,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					settlement_date=settlement_date,
 					items_covered={'loan_ids': advance_loan_ids},
 					company_bank_account_id=None,
+					customer_note=''
 				),
 				should_charge_wire_fee=advance['should_charge_wire_fee']
 			)
@@ -574,6 +575,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					settlement_date='10/30/2020',
 					items_covered={ 'loan_ids': [] },
 					company_bank_account_id=None,
+					customer_note=''
 			  	),
 				should_charge_wire_fee=False
 			),
@@ -613,6 +615,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					settlement_date='10/30/2020',
 					items_covered={ 'loan_ids': loan_ids },
 					company_bank_account_id=None,
+					customer_note=''
 			  	),
 				should_charge_wire_fee=False
 			),
@@ -652,6 +655,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					settlement_date='10/30/2020',
 					items_covered={ 'loan_ids': loan_ids },
 					company_bank_account_id=None,
+					customer_note=''
 			  	),
 				should_charge_wire_fee=False
 			),
@@ -689,6 +693,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					settlement_date='10/30/2020',
 					items_covered={ 'loan_ids': loan_ids },
 					company_bank_account_id=None,
+					customer_note=''
 			  	),
 				should_charge_wire_fee=False
 			),
@@ -728,6 +733,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					settlement_date='10/30/2020',
 					items_covered={'loan_ids': loan_ids},
 					company_bank_account_id=None,
+					customer_note=''
 			  	),
 				loan_ids=loan_ids,
 				should_charge_wire_fee=False

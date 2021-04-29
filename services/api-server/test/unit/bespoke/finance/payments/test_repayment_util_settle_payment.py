@@ -143,6 +143,7 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 				settlement_date='10/10/2020', # unused
 				items_covered={ 'loan_ids': repayment_loan_ids },
 				company_bank_account_id=payment_dict['company_bank_account_id'],
+				customer_note=''
 			),
 			user_id=user_id,
 			session_maker=self.session_maker,

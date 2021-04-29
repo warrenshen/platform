@@ -120,6 +120,7 @@ class TestUndoRepayment(db_unittest.TestCase):
 				settlement_date='10/10/2020', # unused
 				items_covered=items_covered,
 				company_bank_account_id=None,
+				customer_note=''
 			),
 			user_id=user_id,
 			session_maker=self.session_maker,
