@@ -62562,6 +62562,18 @@
             "deprecationReason": null
           },
           {
+            "name": "bank_note",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "company",
             "description": "An object relationship",
             "args": [],
@@ -62629,6 +62641,18 @@
                 "name": "timestamptz",
                 "ofType": null
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "customer_note",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -63637,6 +63661,16 @@
             "defaultValue": null
           },
           {
+            "name": "bank_note",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "String_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "company",
             "description": null,
             "type": {
@@ -63682,6 +63716,16 @@
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "timestamptz_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "customer_note",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "String_comparison_exp",
               "ofType": null
             },
             "defaultValue": null
@@ -64053,6 +64097,16 @@
             "defaultValue": null
           },
           {
+            "name": "bank_note",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "company",
             "description": null,
             "type": {
@@ -64098,6 +64152,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "timestamptz",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "customer_note",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "defaultValue": null
@@ -64355,6 +64419,18 @@
             "deprecationReason": null
           },
           {
+            "name": "bank_note",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "company_bank_account_id",
             "description": null,
             "args": [],
@@ -64385,6 +64461,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "timestamptz",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "customer_note",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "isDeprecated": false,
@@ -64617,6 +64705,16 @@
             "defaultValue": null
           },
           {
+            "name": "bank_note",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "company_bank_account_id",
             "description": null,
             "type": {
@@ -64638,6 +64736,16 @@
           },
           {
             "name": "created_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "customer_note",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -64839,6 +64947,18 @@
             "deprecationReason": null
           },
           {
+            "name": "bank_note",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "company_bank_account_id",
             "description": null,
             "args": [],
@@ -64869,6 +64989,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "timestamptz",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "customer_note",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "isDeprecated": false,
@@ -65101,6 +65233,16 @@
             "defaultValue": null
           },
           {
+            "name": "bank_note",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "company_bank_account_id",
             "description": null,
             "type": {
@@ -65122,6 +65264,16 @@
           },
           {
             "name": "created_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "customer_note",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -65465,6 +65617,16 @@
             "defaultValue": null
           },
           {
+            "name": "bank_note",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "company",
             "description": null,
             "type": {
@@ -65506,6 +65668,16 @@
           },
           {
             "name": "created_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "customer_note",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -65810,6 +65982,12 @@
             "deprecationReason": null
           },
           {
+            "name": "bank_note",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "company_bank_account_id",
             "description": "column name",
             "isDeprecated": false,
@@ -65823,6 +66001,12 @@
           },
           {
             "name": "created_at",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "customer_note",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -65961,6 +66145,16 @@
             "defaultValue": null
           },
           {
+            "name": "bank_note",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "company_bank_account_id",
             "description": null,
             "type": {
@@ -65986,6 +66180,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "timestamptz",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "customer_note",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "defaultValue": null
@@ -66464,6 +66668,12 @@
             "deprecationReason": null
           },
           {
+            "name": "bank_note",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "company_bank_account_id",
             "description": "column name",
             "isDeprecated": false,
@@ -66477,6 +66687,12 @@
           },
           {
             "name": "created_at",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "customer_note",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

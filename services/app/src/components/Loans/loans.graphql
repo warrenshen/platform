@@ -5,6 +5,7 @@ subscription GetLoansForBank {
     }
     order_by: [
       { adjusted_maturity_date: asc }
+      { origination_date: asc }
       { amount: asc }
       { created_at: asc }
     ]
@@ -57,6 +58,7 @@ subscription GetFundedLoansForBank {
     }
     order_by: [
       { adjusted_maturity_date: asc }
+      { origination_date: asc }
       { amount: asc }
       { created_at: asc }
     ]
@@ -93,6 +95,7 @@ query GetActiveLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
       }
       order_by: [
         { adjusted_maturity_date: asc }
+        { origination_date: asc }
         { amount: asc }
         { created_at: asc }
       ]
@@ -122,6 +125,7 @@ query GetClosedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
       }
       order_by: [
         { adjusted_maturity_date: asc }
+        { origination_date: asc }
         { amount: asc }
         { created_at: asc }
       ]
@@ -152,6 +156,7 @@ query GetLoansByCompanyAndLoanType(
     }
     order_by: [
       { adjusted_maturity_date: asc }
+      { origination_date: asc }
       { amount: asc }
       { created_at: asc }
     ]

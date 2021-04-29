@@ -9552,6 +9552,7 @@ export enum OrderBy {
 export type Payments = {
   /** The amount this payment actually is, as opposed to the requested amount */
   amount?: Maybe<Scalars["numeric"]>;
+  bank_note?: Maybe<Scalars["String"]>;
   /** An object relationship */
   company: Companies;
   /** An object relationship */
@@ -9559,6 +9560,7 @@ export type Payments = {
   company_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id: Scalars["uuid"];
   created_at: Scalars["timestamptz"];
+  customer_note?: Maybe<Scalars["String"]>;
   /** The date when payment is credited to destination account */
   deposit_date?: Maybe<Scalars["date"]>;
   id: Scalars["uuid"];
@@ -9711,11 +9713,13 @@ export type PaymentsBoolExp = {
   _not?: Maybe<PaymentsBoolExp>;
   _or?: Maybe<Array<Maybe<PaymentsBoolExp>>>;
   amount?: Maybe<NumericComparisonExp>;
+  bank_note?: Maybe<StringComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
   company_bank_account?: Maybe<BankAccountsBoolExp>;
   company_bank_account_id?: Maybe<UuidComparisonExp>;
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
+  customer_note?: Maybe<StringComparisonExp>;
   deposit_date?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   identifier?: Maybe<StringComparisonExp>;
@@ -9771,11 +9775,13 @@ export type PaymentsIncInput = {
 /** input type for inserting data into table "payments" */
 export type PaymentsInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
+  bank_note?: Maybe<Scalars["String"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_bank_account?: Maybe<BankAccountsObjRelInsertInput>;
   company_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  customer_note?: Maybe<Scalars["String"]>;
   deposit_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   identifier?: Maybe<Scalars["String"]>;
@@ -9804,9 +9810,11 @@ export type PaymentsInsertInput = {
 /** aggregate max on columns */
 export type PaymentsMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
+  bank_note?: Maybe<Scalars["String"]>;
   company_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  customer_note?: Maybe<Scalars["String"]>;
   deposit_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   identifier?: Maybe<Scalars["String"]>;
@@ -9829,9 +9837,11 @@ export type PaymentsMaxFields = {
 /** order by max() on columns of table "payments" */
 export type PaymentsMaxOrderBy = {
   amount?: Maybe<OrderBy>;
+  bank_note?: Maybe<OrderBy>;
   company_bank_account_id?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  customer_note?: Maybe<OrderBy>;
   deposit_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   identifier?: Maybe<OrderBy>;
@@ -9854,9 +9864,11 @@ export type PaymentsMaxOrderBy = {
 /** aggregate min on columns */
 export type PaymentsMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
+  bank_note?: Maybe<Scalars["String"]>;
   company_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  customer_note?: Maybe<Scalars["String"]>;
   deposit_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   identifier?: Maybe<Scalars["String"]>;
@@ -9879,9 +9891,11 @@ export type PaymentsMinFields = {
 /** order by min() on columns of table "payments" */
 export type PaymentsMinOrderBy = {
   amount?: Maybe<OrderBy>;
+  bank_note?: Maybe<OrderBy>;
   company_bank_account_id?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  customer_note?: Maybe<OrderBy>;
   deposit_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   identifier?: Maybe<OrderBy>;
@@ -9925,11 +9939,13 @@ export type PaymentsOnConflict = {
 /** ordering options when selecting data from "payments" */
 export type PaymentsOrderBy = {
   amount?: Maybe<OrderBy>;
+  bank_note?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
   company_bank_account?: Maybe<BankAccountsOrderBy>;
   company_bank_account_id?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  customer_note?: Maybe<OrderBy>;
   deposit_date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   identifier?: Maybe<OrderBy>;
@@ -9970,11 +9986,15 @@ export enum PaymentsSelectColumn {
   /** column name */
   Amount = "amount",
   /** column name */
+  BankNote = "bank_note",
+  /** column name */
   CompanyBankAccountId = "company_bank_account_id",
   /** column name */
   CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  CustomerNote = "customer_note",
   /** column name */
   DepositDate = "deposit_date",
   /** column name */
@@ -10018,9 +10038,11 @@ export enum PaymentsSelectColumn {
 /** input type for updating data in table "payments" */
 export type PaymentsSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
+  bank_note?: Maybe<Scalars["String"]>;
   company_bank_account_id?: Maybe<Scalars["uuid"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  customer_note?: Maybe<Scalars["String"]>;
   deposit_date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   identifier?: Maybe<Scalars["String"]>;
@@ -10095,11 +10117,15 @@ export enum PaymentsUpdateColumn {
   /** column name */
   Amount = "amount",
   /** column name */
+  BankNote = "bank_note",
+  /** column name */
   CompanyBankAccountId = "company_bank_account_id",
   /** column name */
   CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  CustomerNote = "customer_note",
   /** column name */
   DepositDate = "deposit_date",
   /** column name */
@@ -17959,6 +17985,7 @@ export const GetCustomerOverviewDocument = gql`
         }
         order_by: [
           { adjusted_maturity_date: asc }
+          { origination_date: asc }
           { amount: asc }
           { created_at: asc }
         ]
@@ -19874,6 +19901,7 @@ export const GetLoansForBankDocument = gql`
       }
       order_by: [
         { adjusted_maturity_date: asc }
+        { origination_date: asc }
         { amount: asc }
         { created_at: asc }
       ]
@@ -19994,6 +20022,7 @@ export const GetFundedLoansForBankDocument = gql`
       }
       order_by: [
         { adjusted_maturity_date: asc }
+        { origination_date: asc }
         { amount: asc }
         { created_at: asc }
       ]
@@ -20064,6 +20093,7 @@ export const GetActiveLoansForCompanyDocument = gql`
         }
         order_by: [
           { adjusted_maturity_date: asc }
+          { origination_date: asc }
           { amount: asc }
           { created_at: asc }
         ]
@@ -20147,6 +20177,7 @@ export const GetClosedLoansForCompanyDocument = gql`
         }
         order_by: [
           { adjusted_maturity_date: asc }
+          { origination_date: asc }
           { amount: asc }
           { created_at: asc }
         ]
@@ -20230,6 +20261,7 @@ export const GetLoansByCompanyAndLoanTypeDocument = gql`
       }
       order_by: [
         { adjusted_maturity_date: asc }
+        { origination_date: asc }
         { amount: asc }
         { created_at: asc }
       ]
