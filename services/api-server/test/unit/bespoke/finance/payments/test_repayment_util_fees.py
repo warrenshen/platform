@@ -76,24 +76,24 @@ class TestRepaymentOfFees(db_unittest.TestCase):
 			self.assertEqual(items_covered, cast(Dict, payment.items_covered))
 			self.assertEqual(test['company_bank_account_id'], str(payment.company_bank_account_id) if payment.company_bank_account_id else None)
 
-		# Now settle the repayment
-		settle = test['settlement']
+			# Now settle the repayment
+			settle = test['settlement']
 
-		tx_ids, err = repayment_util.settle_repayment_of_fee(
-			req=repayment_util.SettleRepayFeeReqDict(
-				company_id=company_id,
-				payment_id=payment_id,
-				amount=settle['amount'],
-				deposit_date=settle['deposit_date'],
-				settlement_date=settle['settlement_date'],
-				items_covered=payment_util.PaymentItemsCoveredDict(
-					to_fees=settle['to_fees'],
-					to_user_credit=settle['to_user_credit']
-				)
-			),
-			user_id=user_id,
-			session_maker=self.session_maker
-		)
+			tx_ids, err = repayment_util.settle_repayment_of_fee(
+				req=repayment_util.SettleRepayFeeReqDict(
+					company_id=company_id,
+					payment_id=payment_id,
+					amount=settle['amount'],
+					deposit_date=settle['deposit_date'],
+					settlement_date=settle['settlement_date'],
+					items_covered=payment_util.PaymentItemsCoveredDict(
+						to_fees=settle['to_fees'],
+						to_user_credit=settle['to_user_credit']
+					)
+				),
+				user_id=user_id,
+				session=session
+			)
 		self.assertIsNone(err)
 		self.assertIsNotNone(tx_ids)
 

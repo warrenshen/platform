@@ -9,13 +9,14 @@ from bespoke.db import db_constants, models
 from bespoke.db.db_constants import ProductType
 from bespoke.db.models import session_scope
 from bespoke.finance import number_util
-from bespoke.finance.payments import payment_util
+from bespoke.finance import financial_summary_util
+from bespoke.finance.payments import payment_util, repayment_util
 from bespoke.finance.reports import loan_balances
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
 from bespoke_test.payments import payment_test_helper
-
+from bespoke_test.finance import finance_test_helper
 
 def _get_late_fee_structure() -> str:
 	return json.dumps({
@@ -99,10 +100,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 		self.assertIsNone(err)
 
 		with session_scope(self.session_maker) as session:
-			financial_summary = cast(
-				models.FinancialSummary,
-				session.query(models.FinancialSummary).filter(
-					models.FinancialSummary.company_id == company_id).first())
+			financial_summary = financial_summary_util.get_latest_financial_summary(company_id, session)
 
 			if test.get('expected_summary_update') is not None:
 				self.assertIsNotNone(financial_summary)
@@ -732,6 +730,16 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				start_date=date_util.load_date_str('1/1/2020'),
 				adjusted_end_date=date_util.load_date_str('12/1/2020')
 			))
+			financial_summary = finance_test_helper.get_default_financial_summary(
+				total_limit=100.0,
+				available_limit=100.0
+			)
+			financial_summary.date = date_util.load_date_str('01/01/1960')
+			financial_summary.account_level_balance_payload = {
+				'fees_total': 200.0
+			}
+			financial_summary.company_id = company_id
+			session.add(financial_summary)
 			loan = models.Loan(
 				company_id=company_id,
 				origination_date=date_util.load_date_str('10/01/2020'),
@@ -761,7 +769,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			# any of the loan updates
 			payment_util.create_and_add_account_level_fee(
 				company_id=company_id,
-				subtype='wire_fee', amount=1000.01,
+				subtype='wire_fee',
+				amount=1000.01,
 				originating_payment_id=advance_tx.payment_id,
 				created_by_user_id=seed.get_user_id('bank_admin'),
 				payment_date=date_util.load_date_str('10/01/2020'),
@@ -771,13 +780,43 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 
 			payment_util.create_and_add_account_level_fee(
 				company_id=company_id,
-				subtype='wire_fee', amount=2000.01,
+				subtype='wire_fee', 
+				amount=2000.01,
 				originating_payment_id=advance_tx.payment_id,
 				created_by_user_id=seed.get_user_id('bank_admin'),
 				payment_date=date_util.load_date_str('10/01/2020'),
 				effective_date=date_util.load_date_str('10/01/2020'),
 				session=session
 			)
+
+			# Repay part of the fee
+			payment_id, err = payment_util.create_and_add_account_level_fee_repayment(
+				company_id=company_id,
+				payment_input=cast(payment_util.RepaymentPaymentInputDict, {
+					'payment_method': 'ach',
+					'requested_amount': 12.03,
+					'requested_payment_date': date_util.load_date_str('10/01/2020'), 
+					'payment_date': date_util.load_date_str('10/01/2020'),
+					'items_covered': {},
+					'company_bank_account_id': str(uuid.uuid4())
+				}), 
+				created_by_user_id=seed.get_user_id('bank_admin'),
+				session=session
+			)
+			self.assertIsNone(err)
+			tx_ids, err = repayment_util.settle_repayment_of_fee(
+				req={
+					'company_id': company_id,
+					'payment_id': payment_id,
+					'amount': 12.03,
+					'deposit_date': '10/01/2020',
+					'settlement_date': '10/01/2020',
+					'items_covered': {'to_user_credit': 0.0, 'to_fees': 12.03}
+				},
+				user_id=seed.get_user_id('bank_admin'),
+				session=session
+			)
+			self.assertIsNone(err)
 
 			payment_util.create_and_add_credit_to_user(
 				amount=3000.02,
@@ -866,7 +905,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 							'duration': 'monthly'
 					},
 					'account_level_balance_payload': {
-							'fees_total': 3000.02,
+							'fees_total': 1000.01 + 2000.01 - 12.03, # wire_fee_1 + wire_fee_2 - repayment_of_fee
 							'credits_total': 7000.04
 					},
 					'day_volume_threshold_met': None

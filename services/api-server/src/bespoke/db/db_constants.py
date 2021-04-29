@@ -126,6 +126,7 @@ class PaymentType(object):
 	CREDIT_TO_USER = 'credit_to_user' # Bespoke giving $ credit to a user
 	FEE = 'fee' # Bespoke charging the user a fee
 	ADJUSTMENT = 'adjustment' # A manual adjustment to balance the books, or correct for rounding issues
+	USER_CREDIT_TO_ACCOUNT_FEE = 'user_credit_to_account_fee' # User credit is applied to an account-level fee
 
 class TransactionSubType(object):
 	WIRE_FEE = 'wire_fee'

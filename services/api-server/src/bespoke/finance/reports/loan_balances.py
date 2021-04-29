@@ -122,6 +122,9 @@ def _get_account_level_balance(customer_info: per_customer_types.CustomerFinanci
 			fees_total -= tx['amount']
 		elif tx_type in db_constants.CREDIT_TO_USER_TYPES:
 			credits_total += tx['amount']
+		elif tx_type == db_constants.PaymentType.USER_CREDIT_TO_ACCOUNT_FEE:
+			fees_total -= tx['amount']
+			credits_total -= tx['amount']
 		else:
 			return None, errors.Error(
 				f'Transaction {tx["id"]} has a type "{tx_type}" which is neither a fee nor a credit to a user. This implies an unregistered or incorrect transaction type')

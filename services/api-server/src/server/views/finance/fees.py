@@ -126,11 +126,14 @@ class SettleAccountLevelFeeRepaymentView(MethodView):
 
 		user_session = auth_util.UserSession.from_session()
 
-		transaction_ids, err = repayment_util.settle_repayment_of_fee(
-			cast(repayment_util.SettleRepayFeeReqDict, form),
-			user_session.get_user_id(),
-			current_app.session_maker
-		)
+		with models.session_scope(current_app.session_maker) as session:
+			transaction_ids, err = repayment_util.settle_repayment_of_fee(
+				cast(repayment_util.SettleRepayFeeReqDict, form),
+				user_session.get_user_id(),
+				session
+			)
+			if err:
+				raise err
 
 		if err:
 			return handler_util.make_error_response(err)
