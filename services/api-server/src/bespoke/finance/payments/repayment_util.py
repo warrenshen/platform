@@ -1,4 +1,3 @@
-
 import datetime
 import decimal
 from typing import Any, Callable, Dict, List, Optional, Tuple, cast
@@ -11,7 +10,7 @@ from bespoke.db.db_constants import (LoanStatusEnum, PaymentMethodEnum,
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util, financial_summary_util, number_util
 from bespoke.finance.loans import fee_util, loan_calculator
-from bespoke.finance.payments import payment_util
+from bespoke.finance.payments import payment_util, repayment_util_fees
 from bespoke.finance.payments.payment_util import RepaymentOption
 from bespoke.finance.types import finance_types, per_customer_types
 from dateutil import parser
@@ -85,15 +84,6 @@ SettleRepaymentReqDict = TypedDict('SettleRepaymentReqDict', {
 	'settlement_date': str, # Effective date of all the transactions as well
 	'items_covered': payment_util.PaymentItemsCoveredDict,
 	'transaction_inputs': List[TransactionInputDict],
-})
-
-SettleRepayFeeReqDict = TypedDict('SettleRepayFeeReqDict', {
-	'company_id': str,
-	'payment_id': str,
-	'amount': float,
-	'deposit_date': str, # When the payment was deposited into the bank
-	'settlement_date': str, # Effective date of all the transactions as well
-	'items_covered': payment_util.PaymentItemsCoveredDict
 })
 
 def _zero_if_null(val: Optional[float]) -> float:
@@ -642,122 +632,6 @@ def schedule_repayment(
 	return payment_id, None
 
 @errors.return_error_tuple
-def settle_repayment_of_fee(
-	req: SettleRepayFeeReqDict,
-	user_id: str,
-	session: Session
-) -> Tuple[List[str], errors.Error]:
-
-	err_details = {
-		'method': 'settle_repayment_of_fee',
-		'req': req
-	}
-
-	company_id = req['company_id']
-	payment_id = req['payment_id']
-
-	payment_amount = req['amount']
-	deposit_date = date_util.load_date_str(req['deposit_date'])
-	settlement_date = date_util.load_date_str(req['settlement_date'])
-	items_covered = req['items_covered']
-
-	if not number_util.is_currency_rounded(payment_amount):
-		raise errors.Error('Amount specified is not rounded to the penny')
-
-	if not deposit_date:
-		raise errors.Error('deposit_date must be specified')
-
-	if not settlement_date:
-		raise errors.Error('settlement_date must be specified')
-
-	if 'to_user_credit' not in items_covered:
-		raise errors.Error('items_covered.to_user_credit must be specified', details=err_details)
-
-	to_user_credit = items_covered['to_user_credit']
-	to_fees = items_covered['to_fees']
-
-	if not number_util.is_currency_rounded(to_user_credit):
-		raise errors.Error('To user credit specified is not rounded to the penny')
-
-	if not number_util.is_currency_rounded(to_fees):
-		raise errors.Error('To fees specified is not rounded to the penny')
-
-
-	payment = cast(
-		models.Payment,
-		session.query(models.Payment).filter(
-			models.Payment.id == payment_id
-		).first())
-
-	if not payment:
-		raise errors.Error('No payment found to settle transaction', details=err_details)
-
-	if payment.settled_at:
-		raise errors.Error('Cannot use this payment because it has already been settled and applied to the users account', details=err_details)
-
-	if payment.type != db_constants.PaymentType.REPAYMENT_OF_ACCOUNT_FEE:
-		raise errors.Error('Can only apply repayments against account fees using this method', details=err_details)
-
-	if not payment.payment_date:
-		raise errors.Error('Payment must have a payment date')
-
-	if deposit_date < payment.payment_date:
-		raise errors.Error('Deposit date cannot be before the user specified payment date', details=err_details)
-
-	financial_summary = financial_summary_util.get_latest_financial_summary(
-		company_id=company_id, session=session
-	)
-	if not financial_summary:
-		raise errors.Error('No financial summary found for the customer')
-
-	if not number_util.float_eq(req['amount'], to_fees + to_user_credit):
-		raise errors.Error('Payment amount of ${} does not equal ${} + ${} (to_fees + to_user_credit)'.format(
-			req['amount'], to_fees, to_user_credit))
-
-	account_balance_dict = cast(finance_types.AccountBalanceDict, financial_summary.account_level_balance_payload)
-	if to_fees > account_balance_dict['fees_total']:
-		overpayment_amount = to_fees - account_balance_dict['fees_total']
-		raise errors.Error('Cannot repay ${} worth of fees because the total due by the customer is ${}. Please reduce the amount paid by ${} or credit it back to the user'.format(
-			to_fees, account_balance_dict['fees_total'], overpayment_amount))
-
-	tx_ids = []
-	if to_user_credit > 0.0:
-		credit_tx = payment_util.create_and_add_credit_to_user(
-			amount=to_user_credit,
-			payment_id=payment_id,
-			created_by_user_id=user_id,
-			effective_date=settlement_date,
-			session=session
-		)
-		session.flush()
-		tx_ids.append(str(credit_tx.id))
-
-	# Create the repayment of account fee transaction
-	t = payment_util.create_and_add_repayment_of_account_fee(
-		amount=to_fees,
-		payment_id=payment_id,
-		created_by_user_id=user_id,
-		effective_date=settlement_date,
-		session=session,
-	)
-
-	repayment_identifier = payment_util.get_and_increment_repayment_identifier(company_id, session)
-
-	payment_util.make_repayment_payment_settled(
-		payment,
-		settlement_identifier=repayment_identifier,
-		amount=decimal.Decimal(req['amount']),
-		deposit_date=deposit_date,
-		settlement_date=settlement_date,
-		settled_by_user_id=user_id,
-	)
-	session.flush()
-	transaction_id = str(t.id)
-	tx_ids.append(transaction_id)
-
-	return tx_ids, None
-
-@errors.return_error_tuple
 def settle_repayment(
 	req: SettleRepaymentReqDict,
 	user_id: str,
@@ -1160,7 +1034,7 @@ def settle_repayment(
 			)
 
 		if to_account_fees > 0.0:
-			payment_util.create_and_add_repayment_of_account_fee(
+			repayment_util_fees.create_and_add_repayment_of_account_fee(
 				amount=to_account_fees,
 				payment_id=payment_id,
 				created_by_user_id=user_id,

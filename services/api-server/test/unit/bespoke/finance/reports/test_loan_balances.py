@@ -10,7 +10,7 @@ from bespoke.db.db_constants import ProductType
 from bespoke.db.models import session_scope
 from bespoke.finance import number_util
 from bespoke.finance import financial_summary_util
-from bespoke.finance.payments import payment_util, repayment_util
+from bespoke.finance.payments import payment_util, repayment_util, repayment_util_fees
 from bespoke.finance.reports import loan_balances
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
@@ -790,7 +790,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			)
 
 			# Repay part of the fee
-			payment_id, err = payment_util.create_and_add_account_level_fee_repayment(
+			payment_id, err = repayment_util_fees.create_and_add_account_level_fee_repayment(
 				company_id=company_id,
 				payment_input=cast(payment_util.RepaymentPaymentInputDict, {
 					'payment_method': 'ach',
@@ -804,7 +804,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				session=session
 			)
 			self.assertIsNone(err)
-			tx_ids, err = repayment_util.settle_repayment_of_fee(
+			tx_ids, err = repayment_util_fees.settle_repayment_of_fee(
 				req={
 					'company_id': company_id,
 					'payment_id': payment_id,

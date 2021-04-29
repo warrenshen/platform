@@ -10,7 +10,7 @@ from bespoke.db.db_constants import (PaymentMethodEnum, PaymentStatusEnum,
                                      ProductType)
 from bespoke.db.models import session_scope
 from bespoke.finance import number_util
-from bespoke.finance.payments import payment_util, repayment_util
+from bespoke.finance.payments import payment_util, repayment_util, repayment_util_fees
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
@@ -41,7 +41,7 @@ class TestRepaymentOfFees(db_unittest.TestCase):
 			financial_summary.account_level_balance_payload = {'fees_total': test['fees_total']}
 			session.add(financial_summary)
 
-			payment_id, err = payment_util.create_and_add_account_level_fee_repayment(
+			payment_id, err = repayment_util_fees.create_and_add_account_level_fee_repayment(
 				company_id=company_id,
 				payment_input=payment_util.RepaymentPaymentInputDict(
 					payment_method=test['payment_method'],
@@ -79,8 +79,8 @@ class TestRepaymentOfFees(db_unittest.TestCase):
 			# Now settle the repayment
 			settle = test['settlement']
 
-			tx_ids, err = repayment_util.settle_repayment_of_fee(
-				req=repayment_util.SettleRepayFeeReqDict(
+			tx_ids, err = repayment_util_fees.settle_repayment_of_fee(
+				req=repayment_util_fees.SettleRepayFeeReqDict(
 					company_id=company_id,
 					payment_id=payment_id,
 					amount=settle['amount'],

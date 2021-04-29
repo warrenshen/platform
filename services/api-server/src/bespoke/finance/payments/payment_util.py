@@ -271,25 +271,6 @@ def create_and_add_credit_to_user(
 	session.add(t)
 	return t
 
-def create_and_add_repayment_of_account_fee(
-	amount: float,
-	payment_id: str,
-	created_by_user_id: str,
-	effective_date: datetime.date,
-	session: Session,
-) -> models.Transaction:
-	t = models.Transaction()
-	t.type = db_constants.PaymentType.REPAYMENT_OF_ACCOUNT_FEE
-	t.amount = decimal.Decimal(amount)
-	t.to_principal = decimal.Decimal(0.0)
-	t.to_interest = decimal.Decimal(0.0)
-	t.to_fees = decimal.Decimal(0.0)
-	t.payment_id = payment_id
-	t.created_by_user_id = created_by_user_id
-	t.effective_date = effective_date
-
-	session.add(t)
-	return t
 
 def create_and_add_account_level_fee(
 	company_id: str,
@@ -334,29 +315,6 @@ def create_and_add_account_level_fee(
 
 	session.add(t)
 	return payment_id
-
-def create_and_add_account_level_fee_repayment(
-	company_id: str,
-	payment_input: RepaymentPaymentInputDict,
-	created_by_user_id: str,
-	session: Session
-) -> Tuple[str, errors.Error]:
-
-	if payment_input['payment_method'] == db_constants.PaymentMethodEnum.REVERSE_DRAFT_ACH:
-		return None, errors.Error('Reverse Draft ACH not supported as a payment type for fee repayment yet')
-
-	payment = create_repayment_payment(
-		company_id=company_id,
-		payment_type=db_constants.PaymentType.REPAYMENT_OF_ACCOUNT_FEE,
-		payment_input=payment_input,
-		created_by_user_id=created_by_user_id
-	)
-	payment.payment_date = payment_input['requested_payment_date']
-	session.add(payment)
-	session.flush()
-	payment_id = str(payment.id)
-
-	return payment_id, None
 
 @errors.return_error_tuple
 def unsettle_payment(payment_type: str, payment_id: str, session: Session) -> Tuple[bool, errors.Error]:

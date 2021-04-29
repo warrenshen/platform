@@ -7,7 +7,7 @@ from bespoke.audit import events
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
-from bespoke.finance.payments import payment_util, repayment_util
+from bespoke.finance.payments import payment_util, repayment_util_fees
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from mypy_extensions import TypedDict
@@ -86,7 +86,7 @@ class MakeAccountLevelFeeRepaymentView(MethodView):
 					'Missing key {} from make account level fee repayment'.format(key))
 
 		with models.session_scope(current_app.session_maker) as session:
-			payment_id, err = payment_util.create_and_add_account_level_fee_repayment(
+			payment_id, err = repayment_util_fees.create_and_add_account_level_fee_repayment(
 				company_id=form['company_id'],
 				payment_input=form['payment'],
 				created_by_user_id=user_session.get_user_id(),
@@ -127,8 +127,8 @@ class SettleAccountLevelFeeRepaymentView(MethodView):
 		user_session = auth_util.UserSession.from_session()
 
 		with models.session_scope(current_app.session_maker) as session:
-			transaction_ids, err = repayment_util.settle_repayment_of_fee(
-				cast(repayment_util.SettleRepayFeeReqDict, form),
+			transaction_ids, err = repayment_util_fees.settle_repayment_of_fee(
+				cast(repayment_util_fees.SettleRepayFeeReqDict, form),
 				user_session.get_user_id(),
 				session
 			)
