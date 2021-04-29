@@ -130,6 +130,7 @@ class PaymentType(object):
 
 class TransactionSubType(object):
 	WIRE_FEE = 'wire_fee'
+	MINIMUM_INTEREST_FEE = 'minimum_interest_fee'
 
 # There might be many types that represent a fee, credit to user, etc
 CREDIT_TO_USER_TYPES = set([PaymentType.CREDIT_TO_USER])

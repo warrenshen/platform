@@ -13,12 +13,13 @@ from bespoke.date import date_util
 from bespoke.db import models, models_util
 from bespoke.db.db_constants import (ALL_LOAN_TYPES, CompanyType,
                                      LoanStatusEnum, PaymentMethodEnum,
-                                     PaymentStatusEnum, PaymentType)
+                                     PaymentStatusEnum, PaymentType,
+                                     TransactionSubType)
 from bespoke.db.models import session_scope
 from bespoke.excel import excel_reader
 from bespoke.finance import contract_util, number_util
 from bespoke.finance.loans import fee_util, loan_calculator
-from bespoke.finance.payments import repayment_util
+from bespoke.finance.payments import payment_util, repayment_util
 
 
 def import_settled_repayments(
@@ -303,6 +304,7 @@ def import_settled_repayments_line_of_credit(
 			to_late_fees,
 			to_wire_fee,
 			to_minimum_fee,
+			to_customer, # Part of payment passed through to customer.
 		) = new_repayment_tuple
 
 		parsed_customer_identifier = customer_identifier.strip()
@@ -322,6 +324,7 @@ def import_settled_repayments_line_of_credit(
 		parsed_to_late_fees = number_util.round_currency(float(to_late_fees)) if to_late_fees else 0.0
 		parsed_to_wire_fee = number_util.round_currency(float(to_wire_fee)) if to_wire_fee else 0.0
 		parsed_to_minimum_fee = number_util.round_currency(float(to_minimum_fee)) if to_minimum_fee else 0.0
+		parsed_to_customer = number_util.round_currency(float(to_customer)) if to_customer else 0.0
 
 		if parsed_to_late_fees > 0.0:
 			print(f'[{index + 1} of {repayments_count}] Invalid repayment field(s): to late fees')
@@ -452,6 +455,27 @@ def import_settled_repayments_line_of_credit(
 			print(f'[{index + 1} of {repayments_count}] Could not settle repayment because of err: {err}')
 			print(f'EXITING EARLY')
 			return
+
+		if parsed_to_minimum_fee > 0.0:
+			payment_util.create_and_add_account_level_fee(
+				company_id=customer_id,
+				subtype=TransactionSubType.MINIMUM_INTEREST_FEE,
+				amount=parsed_to_minimum_fee,
+				originating_payment_id=None,
+				created_by_user_id=None,
+				payment_date=parsed_deposit_date,
+				effective_date=parsed_settlement_date,
+				session=session,
+			)
+
+		if parsed_to_customer > 0.0:
+			payment_util.create_and_add_credit_to_user(
+				amount=parsed_to_customer,
+				payment_id=payment_id,
+				created_by_user_id=None,
+				effective_date=parsed_settlement_date,
+				session=session,
+			)
 
 		print(f'[{index + 1} of {repayments_count}] Created repayment for {customer_name} ({parsed_customer_identifier})')
 
