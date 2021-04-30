@@ -398,6 +398,18 @@ def import_settled_repayments_line_of_credit(
 			customer_name = customer.name
 			parsed_customer_identifier = customer.identifier
 
+			if parsed_to_minimum_fee > 0.0:
+				payment_util.create_and_add_account_level_fee(
+					company_id=customer_id,
+					subtype=TransactionSubType.MINIMUM_INTEREST_FEE,
+					amount=parsed_to_minimum_fee,
+					originating_payment_id=None,
+					created_by_user_id=None,
+					payment_date=parsed_deposit_date,
+					effective_date=parsed_settlement_date,
+					session=session,
+				)
+
 			existing_repayment = cast(
 				models.Payment,
 				session.query(models.Payment).filter(
@@ -465,25 +477,23 @@ def import_settled_repayments_line_of_credit(
 		)
 
 		if err:
-			print(parsed_deposit_date, parsed_settlement_date, parsed_amount, parsed_to_principal, parsed_to_interest, parsed_to_late_fees, parsed_to_wire_fee, parsed_to_minimum_fee, parsed_to_customer)
+			print(
+				parsed_deposit_date,
+				parsed_settlement_date, parsed_amount,
+				parsed_to_principal,
+				parsed_to_interest,
+				parsed_to_late_fees,
+				parsed_to_wire_fee,
+				parsed_to_minimum_fee,
+				parsed_to_customer,
+			)
 			print(f'[{index + 1} of {repayments_count}] Could not settle repayment because of err: {err}')
 			print(f'EXITING EARLY')
 			return
 
-		if parsed_to_minimum_fee > 0.0:
-			payment_util.create_and_add_account_level_fee(
-				company_id=customer_id,
-				subtype=TransactionSubType.MINIMUM_INTEREST_FEE,
-				amount=parsed_to_minimum_fee,
-				originating_payment_id=None,
-				created_by_user_id=None,
-				payment_date=parsed_deposit_date,
-				effective_date=parsed_settlement_date,
-				session=session,
-			)
-
 		if parsed_to_customer > 0.0:
 			print('TODO: pay out from holding account to customer')
+
 
 		print(f'[{index + 1} of {repayments_count}] Created repayment for {customer_name} ({parsed_customer_identifier})')
 

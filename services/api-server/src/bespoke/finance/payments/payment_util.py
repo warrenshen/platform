@@ -17,7 +17,6 @@ from sqlalchemy.orm.session import Session
 
 
 class RepaymentOption(object):
-
 	CUSTOM_AMOUNT_FOR_SETTLING_LOC = 'custom_amount_for_settling_loc'
 	CUSTOM_AMOUNT_FOR_SETTLING_NON_LOC_LOAN = 'custom_amount_for_settling_non_loc_loan'
 
