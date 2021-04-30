@@ -7,6 +7,7 @@ import { authenticatedApi, CustomMutationResponse, loansRoutes } from "lib/api";
 export type RunCustomerBalancesReq = {
   variables: {
     company_id?: Companies["id"];
+    start_date: string;
     report_date: string;
   };
 };

@@ -44,6 +44,9 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
 
+  const [startDate, setStartDate] = useState<string | null>(
+    todayAsDateStringServer()
+  );
   const [reportDate, setReportDate] = useState<string | null>(
     todayAsDateStringServer()
   );
@@ -61,6 +64,7 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
       const response = await runCustomerBalances({
         variables: {
           company_id: companyId,
+          start_date: startDate,
           report_date: reportDate,
         },
       });
@@ -83,7 +87,9 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
     }
   };
 
-  const isSaveDisabled = !reportDate || isRunCustomerBalancesLoading;
+  const isFormLoading = isRunCustomerBalancesLoading;
+  const isCancelDisabled = isFormLoading;
+  const isSaveDisabled = isFormLoading || !startDate || !reportDate;
 
   return (
     <Dialog
@@ -99,17 +105,23 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
       </DialogTitle>
       <DialogContent>
         <Typography variant="body2" color="textSecondary">
-          {`Select a Report Date below. This report date will be used as "today"
-          to re-calculate balances for all loans of ${
+          {`Select a range of dates below. For each date in the range (inclusive) given,
+          financials (loans and summary) will be re-calculated for ${
             companyId ? "this customer" : "all customers"
-          }. For example,
-          a report date of "02/18/20" will result in the balances of all loans
-          of this customer being calculated as if today is "02/18/20".`}
+          }.`}
         </Typography>
-        <Box display="flex" flexDirection="column" mt={2}>
+        <Box display="flex" flexDirection="column" mt={4}>
           <DatePicker
-            id="report-date-date-picker"
-            label="Report Date"
+            id="start-date-date-picker"
+            label="Start Date"
+            value={startDate}
+            onChange={(value) => setStartDate(value)}
+          />
+        </Box>
+        <Box display="flex" flexDirection="column" mt={4}>
+          <DatePicker
+            id="end-date-date-picker"
+            label="End Date"
             value={reportDate}
             onChange={(value) => setReportDate(value)}
           />
@@ -117,7 +129,9 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
         <Box>
-          <Button onClick={handleClose}>Cancel</Button>
+          <Button disabled={isCancelDisabled} onClick={handleClose}>
+            Cancel
+          </Button>
           <Button
             className={classes.submitButton}
             disabled={isSaveDisabled}
