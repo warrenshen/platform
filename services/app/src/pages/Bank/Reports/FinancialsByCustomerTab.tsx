@@ -15,6 +15,7 @@ import {
   useGetFinancialSummariesByCompanyIdQuery,
 } from "generated/graphql";
 import { useState } from "react";
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -39,6 +40,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function BankReportsPage() {
   const classes = useStyles();
+  const history = useHistory();
 
   const [companyId, setCompanyId] = useState<Companies["id"]>("");
 
@@ -107,6 +109,9 @@ function BankReportsPage() {
           <FinancialSummariesDataGrid
             isExcelExport
             financialSummaries={financialSummariesByCompanyId}
+            onClickCustomerName={(customerId) =>
+              history.push(`/customers/${customerId}/overview`)
+            }
           />
         </Box>
       </Box>

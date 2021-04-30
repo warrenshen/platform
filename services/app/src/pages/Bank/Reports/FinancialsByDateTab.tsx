@@ -4,6 +4,7 @@ import DatePicker from "components/Shared/FormInputs/DatePicker";
 import { useGetFinancialSummariesByDateQuery } from "generated/graphql";
 import { todayAsDateStringServer } from "lib/date";
 import { useState } from "react";
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -28,6 +29,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function BankReportsPage() {
   const classes = useStyles();
+  const history = useHistory();
 
   const [selectedDate, setSelectedDate] = useState(todayAsDateStringServer());
 
@@ -70,6 +72,9 @@ function BankReportsPage() {
           <FinancialSummariesDataGrid
             isExcelExport
             financialSummaries={financialSummariesByDate}
+            onClickCustomerName={(customerId) =>
+              history.push(`/customers/${customerId}/overview`)
+            }
           />
         </Box>
       </Box>

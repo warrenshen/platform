@@ -7,6 +7,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
+import * as Sentry from "@sentry/react";
 import axios from "axios";
 import { FileFragment } from "generated/graphql";
 import { authenticatedApi, fileRoutes } from "lib/api";
@@ -93,7 +94,7 @@ const uploadFile = async (
   const fileInDB = getSignedURLResp.file_in_db;
 
   if (uploadViaServer) {
-    let options = {
+    const options = {
       headers: {
         "X-Bespoke-Content-Type": contentType,
         "X-Bespoke-FilePath": path,
@@ -101,15 +102,16 @@ const uploadFile = async (
         "Content-Type": "multipart/form-data",
       },
     };
-    var formData = new FormData();
+    const formData = new FormData();
     formData.append("file", file);
     return authenticatedApi
       .put(fileRoutes.uploadSignedUrl, formData, options)
       .then((res) => {
         return { status: "OK", file_in_db: fileInDB };
       })
-      .catch((err) => {
-        console.log(err);
+      .catch((e) => {
+        Sentry.captureException(e);
+
         return {
           status: "ERROR",
           msg: "Something went wrong uploading the file",
@@ -136,8 +138,9 @@ const uploadFile = async (
     .then((res) => {
       return { status: "OK", file_in_db: fileInDB };
     })
-    .catch((err) => {
-      console.log(err);
+    .catch((e) => {
+      Sentry.captureException(e);
+
       return {
         status: "ERROR",
         msg: "Something went wrong uploading the file",

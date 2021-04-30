@@ -1,9 +1,11 @@
 import { Box } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
+import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
+  Companies,
   FinancialSummaryFragment,
   GetFinancialSummariesByCompanyIdQuery,
 } from "generated/graphql";
@@ -13,11 +15,13 @@ import { useMemo } from "react";
 interface Props {
   isExcelExport?: boolean;
   financialSummaries: GetFinancialSummariesByCompanyIdQuery["financial_summaries"];
+  onClickCustomerName?: (customerId: Companies["id"]) => void;
 }
 
 function FinancialSummariesDataGrid({
   isExcelExport = false,
   financialSummaries,
+  onClickCustomerName,
 }: Props) {
   const rows = financialSummaries;
   const columns = useMemo(
@@ -35,11 +39,15 @@ function FinancialSummariesDataGrid({
         dataField: "company.name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
-          <Box display="flex" alignItems="center">
-            <Box>{(params.row.data.company?.name || "-") as string}</Box>
-          </Box>
-        ),
+        cellRender: (params: ValueFormatterParams) =>
+          onClickCustomerName ? (
+            <ClickableDataGridCell
+              label={params.row.data.company.name}
+              onClick={() => onClickCustomerName(params.row.data.company.id)}
+            />
+          ) : (
+            params.row.data.company?.name || "-"
+          ),
       },
       {
         dataField: "total_outstanding_principal",
@@ -164,7 +172,7 @@ function FinancialSummariesDataGrid({
         },
       },
     ],
-    []
+    [onClickCustomerName]
   );
 
   return (

@@ -1,14 +1,12 @@
 import json
 import logging
 import os
-import boto3
-import requests
 from datetime import datetime
 from io import BytesIO
-from sqlalchemy.orm.session import Session
 from typing import Any, Callable, List, Tuple, cast
 
-
+import boto3
+import requests
 from bespoke import errors
 from bespoke.db import models
 from bespoke.db.db_constants import FileTypeEnum
@@ -18,8 +16,9 @@ from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from mypy_extensions import TypedDict
 from server.config import Config
-from server.views.common.auth_util import UserPayloadDict, UserSession
 from server.views.common import auth_util, handler_util
+from server.views.common.auth_util import UserPayloadDict, UserSession
+from sqlalchemy.orm.session import Session
 
 handler = Blueprint('files', __name__)
 
