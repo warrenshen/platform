@@ -18,9 +18,12 @@ class Actions(object):
 	CONTRACT_TERMINATE = 'contract_terminate'
 	CONTRACT_CREATE = 'contract_create'
 
+	FINANCE_DISBURSE_CREDIT_TO_CUSTOMER = 'finance_disburse_credit_to_customer'
 	FINANCE_MAKE_ACCOUNT_LEVEL_FEE = 'finance_make_account_level_fee'
 	FINANCE_MAKE_ACCOUNT_LEVEL_FEE_REPAYMENT = 'finance_make_account_level_fee_repayment'
+	FINANCE_MAKE_ACCOUNT_LEVEL_FEE_REPAYMENT_WITH_ACCOUNT_CREDIT = 'finance_make_account_level_fee_repayment_with_account_credit'
 	FINANCE_SETTLE_ACCOUNT_LEVEL_FEE_REPAYMENT = 'finance_settle_account_level_fee_repayment'
+	FINANCE_SETTLE_ACCOUNT_LEVEL_FEE_REPAYMENT_WITH_ACCOUNT_CREDIT = 'finance_settle_account_level_fee_repayment_with_account_credit'
 
 	INVOICE_UPDATE = 'invoice_update'
 	INVOICE_CREATE = 'invoice_create'
