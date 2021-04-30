@@ -8,6 +8,7 @@ from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
+from bespoke.finance import contract_util
 from bespoke.finance.loans import sibling_util
 from mypy_extensions import TypedDict
 from sqlalchemy.orm import Session
@@ -73,14 +74,32 @@ def _list_artifacts_for_inventory(
 def _list_artifacts_for_invoice(
 	company_id: str,
 	loan_id: str,
-	session_maker: Callable) -> List[ArtifactDict]:
-
+	session_maker: Callable,
+) -> List[ArtifactDict]:
 	with session_scope(session_maker) as session:
-		invoices = session.query(models.Invoice) \
-			.filter(models.Invoice.company_id == company_id) \
-			.all()
+		invoices = cast(
+			List[models.Invoice],
+			session.query(models.Invoice).filter(
+				models.Invoice.company_id == company_id
+			).all())
 
 		if not invoices:
+			return []
+
+		active_contract, err = contract_util.get_active_contract_by_company_id(
+			company_id=company_id,
+			session=session,
+		)
+
+		if err:
+			return []
+
+		if not active_contract:
+			return []
+
+		advance_rate, err = active_contract.get_advance_rate()
+
+		if err:
 			return []
 
 		artifacts_by_id = {}
@@ -88,18 +107,22 @@ def _list_artifacts_for_invoice(
 		for invoice in invoices:
 			invoice_id = str(invoice.id)
 
-			amount = float(invoice.subtotal_amount) if invoice.subtotal_amount else 0.0
+			subtotal_amount = float(invoice.subtotal_amount) if invoice.subtotal_amount else 0.0
+			fundable_amount = subtotal_amount * advance_rate
 			artifacts_by_id[invoice_id] = ArtifactDict(
 				artifact_id=invoice_id,
-				total_amount=amount,
-				amount_remaining=amount,
+				total_amount=fundable_amount,
+				amount_remaining=fundable_amount,
 			)
 		return  _process_artifacts_by_id(session, artifacts_by_id, loan_id)
 
 @errors.return_error_tuple
 def list_artifacts_for_create_loan(
-	company_id: str, product_type: str,
-	loan_id: str, session_maker: Callable) -> Tuple[ListArtifactsResp, errors.Error]:
+	company_id: str,
+	product_type: str,
+	loan_id: str,
+	session_maker: Callable,
+) -> Tuple[ListArtifactsResp, errors.Error]:
 	if product_type not in db_constants.PRODUCT_TYPES:
 		raise errors.Error('Invalid product type provided')
 

@@ -5,12 +5,31 @@ from typing import Dict, List, cast
 
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
-from bespoke.db.db_constants import LoanStatusEnum
+from bespoke.db.db_constants import LoanStatusEnum, ProductType
 from bespoke.db.models import session_scope
 from bespoke.finance import number_util
 from bespoke.finance.loans import artifacts_util
+from bespoke_test.contract import contract_test_helper
+from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
 
+
+def _get_default_contract(advance_rate: float) -> models.Contract:
+	return models.Contract(
+		product_type=ProductType.INVOICE_FINANCING,
+		product_config=contract_test_helper.create_contract_config(
+			product_type=ProductType.INVOICE_FINANCING,
+			input_dict=ContractInputDict(
+				advance_rate=advance_rate,
+				wire_fee=25.0,
+				interest_rate=0.05,
+				maximum_principal_amount=120000.01,
+				max_days_until_repayment=120,
+				late_fee_structure='', # unused
+				preceeding_business_day=False
+			)
+		)
+	)
 
 class TestListArtifactsForCreateLoan(db_unittest.TestCase):
 
@@ -30,6 +49,21 @@ class TestListArtifactsForCreateLoan(db_unittest.TestCase):
 		loan_ids = []
 		artifact_ids = []
 		with session_scope(session_maker) as session:
+			if 'contract' in test:
+				contract = test['contract']
+				contract.company_id = company_id
+
+				session.add(contract)
+				session.flush()
+				contract_id = str(contract.id)
+
+				company = cast(
+					models.Company,
+					session.query(models.Company).filter(
+						models.Company.id == company_id
+					).first())
+				company.contract_id = contract_id
+				session.flush()
 
 			for i in range(len(artifacts)):
 				artifact = artifacts[i]
@@ -219,8 +253,13 @@ class TestListArtifactsForCreateLoan(db_unittest.TestCase):
 		self._run_test(test)
 
 	def test_invoice_financing_many_loans_from_two_purchase_orders(self) -> None:
+		ADVANCE_RATE = 0.8
+
 		test: Dict = {
 			'product_type': db_constants.ProductType.INVOICE_FINANCING,
+			'contract': _get_default_contract(
+				advance_rate=ADVANCE_RATE
+			),
 			'loans': [
 				models.Loan(
 					loan_type=db_constants.LoanTypeEnum.INVOICE,
@@ -270,26 +309,31 @@ class TestListArtifactsForCreateLoan(db_unittest.TestCase):
 			'expected_artifacts': [
 				{
 					'artifact_id': None, # filled in by test
-					'total_amount': 100.0,
-					'amount_remaining': 0 # would normally send the amount remaining negative
+					'total_amount': 100.0 * ADVANCE_RATE,
+					'amount_remaining': 0.0 # would normally send the amount remaining negative
 				},
 				{
 					'artifact_id': None, # filled in by test
-					'total_amount': 200.0,
-					'amount_remaining': 200.0 - (50.02 + 10.01)
+					'total_amount': 200.0 * ADVANCE_RATE,
+					'amount_remaining': (200.0 * ADVANCE_RATE) - (50.02 + 10.01)
 				},
 				{
 					'artifact_id': None, # filled in by test
-					'total_amount': 300.0,
-					'amount_remaining': 300.0 # no loans associated with this artifact
+					'total_amount': 300.0 * ADVANCE_RATE,
+					'amount_remaining': 300.0 * ADVANCE_RATE # no loans associated with this artifact
 				}
 			]
 		}
 		self._run_test(test)
 
 	def test_invoice_financing_exclude_loan_id(self) -> None:
+		ADVANCE_RATE = 0.8
+
 		test: Dict = {
 			'product_type': db_constants.ProductType.INVOICE_FINANCING,
+			'contract': _get_default_contract(
+				advance_rate=ADVANCE_RATE
+			),
 			'loans': [
 				models.Loan(
 					loan_type=db_constants.LoanTypeEnum.INVOICE,
@@ -314,8 +358,8 @@ class TestListArtifactsForCreateLoan(db_unittest.TestCase):
 			'expected_artifacts': [
 				{
 					'artifact_id': None, # filled in by test
-					'total_amount': 700.0,
-					'amount_remaining': 700.0 - 130.02 # check that your loan (200.02 amount) is not included
+					'total_amount': 700.0 * ADVANCE_RATE,
+					'amount_remaining': (700.0 * ADVANCE_RATE) - 130.02 # check that your loan (200.02 amount) is not included
 				}
 			]
 		}

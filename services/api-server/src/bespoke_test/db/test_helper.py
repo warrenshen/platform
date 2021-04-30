@@ -183,9 +183,9 @@ class BasicSeed(object):
 			first bank_admin setup in the system, and so on and so forth.
 		"""
 		if account_role == 'bank_admin':
-			return self.data['bank_admins'][index]['user']['company_id']
+			return str(self.data['bank_admins'][index]['user']['company_id'])
 		elif account_role == 'company_admin':
-			return self.data['company_admins'][index]['user']['company_id']
+			return str(self.data['company_admins'][index]['user']['company_id'])
 
 		raise Exception('Unsupported account_role for get_company_id')
 
@@ -195,9 +195,9 @@ class BasicSeed(object):
 			second bank_admin setup in the system, and so on and so forth.
 		"""
 		if account_role == 'bank_admin':
-			return self.data['bank_admins'][index]['user']['user_id']
+			return str(self.data['bank_admins'][index]['user']['user_id'])
 		elif account_role == 'company_admin':
-			return self.data['company_admins'][index]['user']['user_id']
+			return str(self.data['company_admins'][index]['user']['user_id'])
 
 		raise Exception('Unsupported account_role for get_user_id')
 

@@ -534,7 +534,7 @@ def create_repayment(
 			if len(closed_loan_ids) > 0:
 				raise errors.Error('Some selected loans are closed already')
 
-		company_id_to_obj, err = contract_util.get_active_contracts_by_company_id([company_id], session, err_details={'method': 'create repayment'})
+		company_id_to_obj, err = contract_util.get_active_contracts_by_company_ids([company_id], session, err_details={'method': 'create repayment'})
 		if err:
 			raise err
 

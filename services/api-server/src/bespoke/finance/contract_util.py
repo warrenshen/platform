@@ -13,8 +13,8 @@ from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 
 FieldDict = TypedDict('FieldDict', {
-		'name': str,
-		'value': str
+	'name': str,
+	'value': str
 })
 
 FullFieldDict = TypedDict('FullFieldDict', {
@@ -280,6 +280,9 @@ class Contract(object):
 
 	def get_maximum_principal_limit(self) -> Tuple[float, errors.Error]:
 		return self._get_float_value('maximum_amount')
+
+	def get_advance_rate(self) -> Tuple[float, errors.Error]:
+		return self._get_float_value('advance_rate')
 
 	def _get_minimum_monthly_amount(self) -> Tuple[float, errors.Error]:
 		return self._get_float_value('minimum_monthly_amount')
@@ -615,9 +618,11 @@ class LOCContract(Contract):
 		return None
 
 
-def get_active_contracts_by_company_id(
-	company_ids: List[str], session: Session,
-	err_details: Dict) -> Tuple[Dict[str, Contract], errors.Error]:
+def get_active_contracts_by_company_ids(
+	company_ids: List[str],
+	session: Session,
+	err_details: Dict,
+) -> Tuple[Dict[str, Contract], errors.Error]:
 	companies = cast(
 		List[models.Company],
 		session.query(models.Company).filter(
@@ -654,6 +659,25 @@ def get_active_contracts_by_company_id(
 		company_id_to_contract[company_id] = contract_obj
 
 	return company_id_to_contract, None
+
+
+def get_active_contract_by_company_id(
+	company_id: str,
+	session: Session,
+) -> Tuple[Contract, errors.Error]:
+	company_id_to_contract, err = get_active_contracts_by_company_ids(
+		company_ids=[company_id],
+		session=session,
+		err_details={
+			'method': 'get_active_contract_by_company_id',
+		},
+	)
+
+	if err:
+		return None, err
+
+	return company_id_to_contract[company_id], None
+
 
 class ContractHelper(object):
 

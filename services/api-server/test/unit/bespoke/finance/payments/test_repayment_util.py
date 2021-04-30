@@ -2,7 +2,6 @@ import datetime
 import decimal
 import json
 import uuid
-from dateutil import parser
 from typing import Any, Dict, List, cast
 
 from bespoke.date import date_util
@@ -19,6 +18,7 @@ from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
 from bespoke_test.payments import payment_test_helper
+from dateutil import parser
 
 INTEREST_RATE = 0.002 # 0.2%
 
@@ -831,11 +831,11 @@ class TestCreatePayment(db_unittest.TestCase):
 			# Assertions on the payment
 			self.assertAlmostEqual(payment_input_amount, float(payment.requested_amount))
 			self.assertEqual(db_constants.PaymentType.REPAYMENT, payment.type)
-			self.assertEqual(company_id, payment.company_id)
+			self.assertEqual(company_id, str(payment.company_id))
 			self.assertEqual(test['payment_method'], payment.method)
 			self.assertIsNotNone(payment.submitted_at)
-			self.assertEqual(user_id, payment.submitted_by_user_id)
-			self.assertEqual(user_id, payment.requested_by_user_id)
+			self.assertEqual(user_id, str(payment.submitted_by_user_id))
+			self.assertEqual(user_id, str(payment.requested_by_user_id))
 			self.assertEqual(payment_date, date_util.date_to_str(payment.requested_payment_date))
 			self.assertIsNone(payment.settlement_date)
 			self.assertEqual(loan_ids, cast(Dict, payment.items_covered)['loan_ids'])

@@ -3,7 +3,6 @@ import datetime
 import decimal
 import json
 import uuid
-from dateutil import parser
 from typing import Dict, List, cast
 
 from bespoke.date import date_util
@@ -16,6 +15,8 @@ from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
 from bespoke_test.finance import finance_test_helper
+from dateutil import parser
+
 
 def _get_late_fee_structure() -> str:
 	return json.dumps({
@@ -365,7 +366,7 @@ class TestApproveLoans(db_unittest.TestCase):
 			)
 			self.assertIsNotNone(loan)
 			self.assertIsNotNone(loan.approved_at)
-			self.assertEqual(bank_admin_user_id, loan.approved_by_user_id)
+			self.assertEqual(bank_admin_user_id, str(loan.approved_by_user_id))
 			self.assertIsNone(loan.rejected_at)
 			self.assertEqual(LoanStatusEnum.APPROVED, loan.status)
 
@@ -514,7 +515,7 @@ class TestSubmitViaAutoFinancing(db_unittest.TestCase):
 			self.assertIsNotNone(loan.requested_at)
 			self.assertEqual(LoanStatusEnum.APPROVAL_REQUESTED, loan.status)
 
-			self.assertEqual(company_id, loan.company_id)
+			self.assertEqual(company_id, str(loan.company_id))
 			self.assertEqual(expected.identifier, loan.identifier)
 			self.assertEqual(expected.loan_type, loan.loan_type)
 			self.assertEqual(artifact_id, str(loan.artifact_id))

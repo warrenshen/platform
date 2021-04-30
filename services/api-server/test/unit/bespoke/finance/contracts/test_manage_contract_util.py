@@ -1,19 +1,17 @@
 import json
 import unittest
-
-from typing import List, Dict, cast
+from typing import Dict, List, cast
 
 from bespoke.date import date_util
+from bespoke.db import models
 from bespoke.db.db_constants import ProductType
 from bespoke.db.models import session_scope
-from bespoke.db import models
 from bespoke.finance import contract_util
 from bespoke.finance.contracts import manage_contract_util
-
 from bespoke_test.contract import contract_test_helper
 from bespoke_test.contract.contract_test_helper import ContractInputDict
-from bespoke_test.db import db_unittest
-from bespoke_test.db import test_helper
+from bespoke_test.db import db_unittest, test_helper
+
 
 def _get_default_contract_config(overrides: Dict) -> Dict:
 	contract_dict = ContractInputDict(
@@ -81,7 +79,7 @@ class TestAddNewContract(db_unittest.TestCase):
 			self.assertEqual(contract_fields['start_date'], date_util.date_to_str(cur_contract.start_date))
 			self.assertEqual(contract_fields['end_date'], date_util.date_to_str(cur_contract.end_date))
 			self.assertEqual(contract_fields['end_date'], date_util.date_to_str(cur_contract.adjusted_end_date))
-			self.assertEqual(user_id, cur_contract.modified_by_user_id)
+			self.assertEqual(user_id, str(cur_contract.modified_by_user_id))
 
 	def test_failure_no_overlapping_contract_dates(self) -> None:
 		session_maker = self.session_maker

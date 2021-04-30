@@ -213,18 +213,18 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 			# Assertions on the payment
 			self.assertAlmostEqual(expected_payment['amount'], float(payment.amount))
 			self.assertEqual(db_constants.PaymentType.REPAYMENT, payment.type)
-			self.assertEqual(company_id, payment.company_id)
+			self.assertEqual(company_id, str(payment.company_id))
 			self.assertEqual(
 				expected_payment['settlement_identifier'] if 'settlement_identifier' in expected_payment else None,
 				payment.settlement_identifier,
 			)
 			self.assertEqual(original_payment['payment_method'], payment.method)
 			self.assertIsNotNone(payment.submitted_at)
-			self.assertEqual(user_id, payment.submitted_by_user_id)
+			self.assertEqual(user_id, str(payment.submitted_by_user_id))
 			self.assertEqual(original_payment['payment_date'], date_util.date_to_str(payment.payment_date))
 			self.assertEqual(original_payment['settlement_date'], date_util.date_to_str(payment.settlement_date))
 			self.assertIsNotNone(payment.settled_at)
-			self.assertEqual(bank_admin_user_id, payment.settled_by_user_id)
+			self.assertEqual(bank_admin_user_id, str(payment.settled_by_user_id))
 
 			# Assertions on transactions
 			transactions = cast(
@@ -257,7 +257,7 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 					self.assertEqual(loan_ids[loan_id_index], str(tx.loan_id))
 
 				self.assertEqual(payment_id, str(tx.payment_id))
-				self.assertEqual(bank_admin_user_id, tx.created_by_user_id)
+				self.assertEqual(bank_admin_user_id, str(tx.created_by_user_id))
 				self.assertEqual(original_payment['settlement_date'], date_util.date_to_str(tx.effective_date))
 
 		# Assert on loans

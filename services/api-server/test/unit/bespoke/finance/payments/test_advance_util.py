@@ -165,7 +165,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				loan = loans[i]
 				company_id = seed.get_company_id('company_admin', index=company_indices[i])
 
-				self.assertEqual(company_id, loan.company_id)
+				self.assertEqual(company_id, str(loan.company_id))
 				self.assertEqual(expected_loan['disbursement_identifier'], loan.disbursement_identifier)
 				self.assertAlmostEqual(expected_loan['amount'], float(loan.amount))
 				self.assertAlmostEqual(expected_loan['amount'], float(loan.outstanding_principal_balance))
@@ -181,7 +181,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				self.assertAlmostEqual(0.0, float(loan.outstanding_fees))
 
 				self.assertIsNotNone(loan.funded_at)
-				self.assertEqual(bank_admin_user_id, loan.funded_by_user_id)
+				self.assertEqual(bank_admin_user_id, str(loan.funded_by_user_id))
 
 			# Validate payments
 			payments = cast(
@@ -201,7 +201,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				)
 				self.assertAlmostEqual(exp_payment['amount'], float(payment.amount))
 				self.assertEqual(exp_payment['type'], payment.type)
-				self.assertEqual(exp_company_id, payment.company_id)
+				self.assertEqual(exp_company_id, str(payment.company_id))
 
 				if exp_payment['type'] == 'advance':
 					self.assertEqual(exp_payment['method'] if 'method' in exp_payment else PaymentMethodEnum.ACH, payment.method)
@@ -217,8 +217,8 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				self.assertEqual(payment_date, date_util.date_to_str(payment.payment_date))
 				# For advances, deposit date is always equal to the settlement date.
 				self.assertEqual(settlement_date, date_util.date_to_str(payment.settlement_date))
-				self.assertEqual(bank_admin_user_id, payment.settled_by_user_id)
-				self.assertEqual(bank_admin_user_id, payment.submitted_by_user_id)
+				self.assertEqual(bank_admin_user_id, str(payment.settled_by_user_id))
+				self.assertEqual(bank_admin_user_id, str(payment.submitted_by_user_id))
 
 			# Validate transactions
 			transactions = cast(
@@ -257,7 +257,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 				self.assertEqual(matching_payment.settlement_date, transaction.effective_date)
 				self.assertEqual(matching_payment.id, transaction.payment_id)
 
-				self.assertEqual(bank_admin_user_id, transaction.created_by_user_id)
+				self.assertEqual(bank_admin_user_id, str(transaction.created_by_user_id))
 
 			for purchase_order_id in test.get('expected_funded_purchase_order_ids', []):
 				po = session.query(models.PurchaseOrder).get(purchase_order_id)
