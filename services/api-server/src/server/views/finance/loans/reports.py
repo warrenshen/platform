@@ -1,5 +1,6 @@
 import json
 from typing import List, cast
+from datetime import timedelta
 
 from bespoke import errors
 from bespoke.date import date_util
@@ -46,19 +47,33 @@ class RunCustomerBalancesView(MethodView):
 				company_dicts = [company.as_dict()]
 
 		report_date = date_util.load_date_str(form['report_date'])
+		start_date = report_date
 
-		descriptive_errors, fatal_error = reports_util.run_customer_balances_for_companies(
-			session_maker,
-			company_dicts,
-			report_date
-		)
+		if form.get('start_date'):
+			start_date = date_util.load_date_str(form['start_date'])
 
-		if fatal_error:
-			return handler_util.make_error_response(fatal_error)
+		if start_date > report_date:
+			return handler_util.make_error_response('Start date must be the same day or before the report_date')
+
+		cur_date = start_date
+		all_descriptive_errors = []
+
+		while cur_date <= report_date:
+			descriptive_errors, fatal_error = reports_util.run_customer_balances_for_companies(
+				session_maker,
+				company_dicts,
+				cur_date
+			)
+
+			if fatal_error:
+				return handler_util.make_error_response(fatal_error)
+
+			all_descriptive_errors.extend(descriptive_errors)
+			cur_date = cur_date + timedelta(days=1)
 
 		resp = {
 			'status': 'OK',
-			'errors': descriptive_errors
+			'errors': all_descriptive_errors
 		}
 		return make_response(json.dumps(resp), 200)
 
