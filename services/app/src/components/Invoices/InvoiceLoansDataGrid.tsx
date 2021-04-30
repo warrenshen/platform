@@ -38,7 +38,7 @@ export default function InvoiceLoansDataGrid({
       artifactCaption="Invoice Number"
       artifactCellRenderer={(params: ValueFormatterParams) => (
         <InvoiceDrawerLauncher
-          label={params.row.data.invoice?.invoice_id as string}
+          label={params.row.data.invoice?.invoice_number as string}
           invoiceId={params.row.data.invoice?.id as string}
         />
       )}
