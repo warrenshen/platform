@@ -113,8 +113,7 @@ export default function ReviewInvoicePaymentConfirmModal({
         <DialogContentText>
           Please affirm your intent to pay this invoice. We'd like to know the
           date you expect to make your payment and by what means. If you intend
-          to pay less than the subtotal amount, please inform us of that as
-          well.
+          to pay less than the total amount, please inform us of that as well.
         </DialogContentText>
         <Box display="flex" flexDirection="column" mt={2}>
           <DatePicker

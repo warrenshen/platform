@@ -39,9 +39,7 @@ function ReviewPurchaseOrderCompletePage() {
           <Typography variant="h5">Thank you!</Typography>
           <Box mt={1}>
             <Typography variant="body2">
-              Your decision to approve or reject the purchase order was saved
-              successfully. If we need any further information from you, we will
-              contact you directly. You may now close this page.
+              Your response was saved successfully. You may now close this page.
             </Typography>
           </Box>
         </Box>

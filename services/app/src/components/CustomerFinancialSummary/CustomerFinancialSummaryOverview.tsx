@@ -11,7 +11,11 @@ import {
   CurrentUserContext,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
-import { Companies, FinancialSummaryFragment } from "generated/graphql";
+import {
+  Companies,
+  FinancialSummaryFragment,
+  ProductTypeEnum,
+} from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { customerRoutes } from "lib/routes";
 import { round } from "lodash";
@@ -26,6 +30,7 @@ const LinkText = styled.span`
 
 interface Props {
   companyId: Companies["id"];
+  productType: ProductTypeEnum;
   financialSummary: FinancialSummaryFragment | null;
 }
 
@@ -38,8 +43,9 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function CustomerFinancialSummaryOverview({
+export default function CustomerFinancialSummaryOverview({
   companyId,
+  productType,
   financialSummary,
 }: Props) {
   const classes = useStyles();
@@ -155,7 +161,9 @@ function CustomerFinancialSummaryOverview({
           <Box display="flex" flexDirection="column">
             <Typography variant="h5">
               {financialSummary !== null
-                ? formatCurrency(financialSummary.total_outstanding_interest)
+                ? formatCurrency(
+                    Math.max(0.0, financialSummary.total_outstanding_interest)
+                  )
                 : "TBD"}
             </Typography>
             <Typography variant="subtitle1" color="textSecondary">
@@ -167,7 +175,9 @@ function CustomerFinancialSummaryOverview({
           <Box display="flex" flexDirection="column">
             <Typography variant="h5">
               {financialSummary !== null
-                ? formatCurrency(financialSummary.total_outstanding_fees)
+                ? formatCurrency(
+                    Math.max(0.0, financialSummary.total_outstanding_fees)
+                  )
                 : "TBD"}
             </Typography>
             <Typography variant="subtitle1" color="textSecondary">
@@ -208,7 +218,11 @@ function CustomerFinancialSummaryOverview({
               {accountCredits !== -1 ? formatCurrency(accountCredits) : "TBD"}
             </Typography>
             <Typography variant="subtitle1" color="textSecondary">
-              Holding Account Credits
+              {`Holding Account Credits${
+                productType === ProductTypeEnum.InvoiceFinancing
+                  ? " (Excess Reserves)"
+                  : ""
+              }`}
             </Typography>
             <Link
               to={customerAccountFeesCreditsRoute}
@@ -222,5 +236,3 @@ function CustomerFinancialSummaryOverview({
     </Box>
   );
 }
-
-export default CustomerFinancialSummaryOverview;
