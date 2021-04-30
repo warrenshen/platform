@@ -35,6 +35,60 @@ query GetInvoicesByCompanyId($company_id: uuid!) {
   }
 }
 
+query GetOpenInvoicesByCompanyId($company_id: uuid!) {
+  invoices(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { company_id: { _eq: $company_id } }
+        { funded_at: { _is_null: true } }
+      ]
+    }
+  ) {
+    ...Invoice
+    company {
+      id
+      name
+    }
+    payor {
+      id
+      name
+    }
+  }
+}
+
+query GetClosedInvoicesByCompanyId($company_id: uuid!) {
+  invoices(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { company_id: { _eq: $company_id } }
+        { funded_at: { _is_null: false } }
+      ]
+    }
+  ) {
+    ...Invoice
+    company {
+      id
+      name
+    }
+    payor {
+      id
+      name
+    }
+  }
+}
+
 query GetApprovedInvoicesByCompanyId($companyId: uuid!) {
   invoices(
     where: {
@@ -45,9 +99,9 @@ query GetApprovedInvoicesByCompanyId($companyId: uuid!) {
             { is_deleted: { _eq: false } }
           ]
         }
+        { company_id: { _eq: $companyId } }
         { approved_at: { _is_null: false } }
         { funded_at: { _is_null: true } }
-        { company_id: { _eq: $companyId } }
       ]
     }
   ) {

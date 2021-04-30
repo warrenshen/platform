@@ -15747,6 +15747,32 @@ export type GetInvoicesByCompanyIdQuery = {
   >;
 };
 
+export type GetOpenInvoicesByCompanyIdQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+}>;
+
+export type GetOpenInvoicesByCompanyIdQuery = {
+  invoices: Array<
+    {
+      company: Pick<Companies, "id" | "name">;
+      payor?: Maybe<Pick<Payors, "id" | "name">>;
+    } & InvoiceFragment
+  >;
+};
+
+export type GetClosedInvoicesByCompanyIdQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+}>;
+
+export type GetClosedInvoicesByCompanyIdQuery = {
+  invoices: Array<
+    {
+      company: Pick<Companies, "id" | "name">;
+      payor?: Maybe<Pick<Payors, "id" | "name">>;
+    } & InvoiceFragment
+  >;
+};
+
 export type GetApprovedInvoicesByCompanyIdQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
@@ -16112,14 +16138,6 @@ export type GetConfirmedPurchaseOrdersSubscription = {
   purchase_orders: Array<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
 };
 
-export type GetFundablePurchaseOrdersByCompanyIdQueryVariables = Exact<{
-  company_id: Scalars["uuid"];
-}>;
-
-export type GetFundablePurchaseOrdersByCompanyIdQuery = {
-  purchase_orders: Array<PurchaseOrderFragment>;
-};
-
 export type GetOpenPurchaseOrdersByCompanyIdQueryVariables = Exact<{
   company_id: Scalars["uuid"];
 }>;
@@ -16133,6 +16151,14 @@ export type GetClosedPurchaseOrdersByCompanyIdQueryVariables = Exact<{
 }>;
 
 export type GetClosedPurchaseOrdersByCompanyIdQuery = {
+  purchase_orders: Array<PurchaseOrderFragment>;
+};
+
+export type GetFundablePurchaseOrdersByCompanyIdQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+}>;
+
+export type GetFundablePurchaseOrdersByCompanyIdQuery = {
   purchase_orders: Array<PurchaseOrderFragment>;
 };
 
@@ -16679,6 +16705,7 @@ export type InvoiceFragment = Pick<
   | "is_cannabis"
   | "status"
   | "created_at"
+  | "approved_at"
   | "funded_at"
   | "payment_requested_at"
   | "payment_confirmed_at"
@@ -17530,6 +17557,7 @@ export const InvoiceFragmentDoc = gql`
     is_cannabis
     status
     created_at
+    approved_at
     funded_at
     payment_requested_at
     payment_confirmed_at
@@ -19240,6 +19268,162 @@ export type GetInvoicesByCompanyIdQueryResult = Apollo.QueryResult<
   GetInvoicesByCompanyIdQuery,
   GetInvoicesByCompanyIdQueryVariables
 >;
+export const GetOpenInvoicesByCompanyIdDocument = gql`
+  query GetOpenInvoicesByCompanyId($company_id: uuid!) {
+    invoices(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { company_id: { _eq: $company_id } }
+          { funded_at: { _is_null: true } }
+        ]
+      }
+    ) {
+      ...Invoice
+      company {
+        id
+        name
+      }
+      payor {
+        id
+        name
+      }
+    }
+  }
+  ${InvoiceFragmentDoc}
+`;
+
+/**
+ * __useGetOpenInvoicesByCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useGetOpenInvoicesByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOpenInvoicesByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOpenInvoicesByCompanyIdQuery({
+ *   variables: {
+ *      company_id: // value for 'company_id'
+ *   },
+ * });
+ */
+export function useGetOpenInvoicesByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetOpenInvoicesByCompanyIdQuery,
+    GetOpenInvoicesByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetOpenInvoicesByCompanyIdQuery,
+    GetOpenInvoicesByCompanyIdQueryVariables
+  >(GetOpenInvoicesByCompanyIdDocument, baseOptions);
+}
+export function useGetOpenInvoicesByCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetOpenInvoicesByCompanyIdQuery,
+    GetOpenInvoicesByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetOpenInvoicesByCompanyIdQuery,
+    GetOpenInvoicesByCompanyIdQueryVariables
+  >(GetOpenInvoicesByCompanyIdDocument, baseOptions);
+}
+export type GetOpenInvoicesByCompanyIdQueryHookResult = ReturnType<
+  typeof useGetOpenInvoicesByCompanyIdQuery
+>;
+export type GetOpenInvoicesByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useGetOpenInvoicesByCompanyIdLazyQuery
+>;
+export type GetOpenInvoicesByCompanyIdQueryResult = Apollo.QueryResult<
+  GetOpenInvoicesByCompanyIdQuery,
+  GetOpenInvoicesByCompanyIdQueryVariables
+>;
+export const GetClosedInvoicesByCompanyIdDocument = gql`
+  query GetClosedInvoicesByCompanyId($company_id: uuid!) {
+    invoices(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { company_id: { _eq: $company_id } }
+          { funded_at: { _is_null: false } }
+        ]
+      }
+    ) {
+      ...Invoice
+      company {
+        id
+        name
+      }
+      payor {
+        id
+        name
+      }
+    }
+  }
+  ${InvoiceFragmentDoc}
+`;
+
+/**
+ * __useGetClosedInvoicesByCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useGetClosedInvoicesByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetClosedInvoicesByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetClosedInvoicesByCompanyIdQuery({
+ *   variables: {
+ *      company_id: // value for 'company_id'
+ *   },
+ * });
+ */
+export function useGetClosedInvoicesByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetClosedInvoicesByCompanyIdQuery,
+    GetClosedInvoicesByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetClosedInvoicesByCompanyIdQuery,
+    GetClosedInvoicesByCompanyIdQueryVariables
+  >(GetClosedInvoicesByCompanyIdDocument, baseOptions);
+}
+export function useGetClosedInvoicesByCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetClosedInvoicesByCompanyIdQuery,
+    GetClosedInvoicesByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetClosedInvoicesByCompanyIdQuery,
+    GetClosedInvoicesByCompanyIdQueryVariables
+  >(GetClosedInvoicesByCompanyIdDocument, baseOptions);
+}
+export type GetClosedInvoicesByCompanyIdQueryHookResult = ReturnType<
+  typeof useGetClosedInvoicesByCompanyIdQuery
+>;
+export type GetClosedInvoicesByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useGetClosedInvoicesByCompanyIdLazyQuery
+>;
+export type GetClosedInvoicesByCompanyIdQueryResult = Apollo.QueryResult<
+  GetClosedInvoicesByCompanyIdQuery,
+  GetClosedInvoicesByCompanyIdQueryVariables
+>;
 export const GetApprovedInvoicesByCompanyIdDocument = gql`
   query GetApprovedInvoicesByCompanyId($companyId: uuid!) {
     invoices(
@@ -19251,9 +19435,9 @@ export const GetApprovedInvoicesByCompanyIdDocument = gql`
               { is_deleted: { _eq: false } }
             ]
           }
+          { company_id: { _eq: $companyId } }
           { approved_at: { _is_null: false } }
           { funded_at: { _is_null: true } }
-          { company_id: { _eq: $companyId } }
         ]
       }
     ) {
@@ -21227,77 +21411,6 @@ export type GetConfirmedPurchaseOrdersSubscriptionHookResult = ReturnType<
   typeof useGetConfirmedPurchaseOrdersSubscription
 >;
 export type GetConfirmedPurchaseOrdersSubscriptionResult = Apollo.SubscriptionResult<GetConfirmedPurchaseOrdersSubscription>;
-export const GetFundablePurchaseOrdersByCompanyIdDocument = gql`
-  query GetFundablePurchaseOrdersByCompanyId($company_id: uuid!) {
-    purchase_orders(
-      where: {
-        _and: [
-          {
-            _or: [
-              { is_deleted: { _is_null: true } }
-              { is_deleted: { _eq: false } }
-            ]
-          }
-          { company_id: { _eq: $company_id } }
-          { approved_at: { _is_null: false } }
-          { funded_at: { _is_null: true } }
-        ]
-      }
-    ) {
-      ...PurchaseOrder
-    }
-  }
-  ${PurchaseOrderFragmentDoc}
-`;
-
-/**
- * __useGetFundablePurchaseOrdersByCompanyIdQuery__
- *
- * To run a query within a React component, call `useGetFundablePurchaseOrdersByCompanyIdQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetFundablePurchaseOrdersByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetFundablePurchaseOrdersByCompanyIdQuery({
- *   variables: {
- *      company_id: // value for 'company_id'
- *   },
- * });
- */
-export function useGetFundablePurchaseOrdersByCompanyIdQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    GetFundablePurchaseOrdersByCompanyIdQuery,
-    GetFundablePurchaseOrdersByCompanyIdQueryVariables
-  >
-) {
-  return Apollo.useQuery<
-    GetFundablePurchaseOrdersByCompanyIdQuery,
-    GetFundablePurchaseOrdersByCompanyIdQueryVariables
-  >(GetFundablePurchaseOrdersByCompanyIdDocument, baseOptions);
-}
-export function useGetFundablePurchaseOrdersByCompanyIdLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetFundablePurchaseOrdersByCompanyIdQuery,
-    GetFundablePurchaseOrdersByCompanyIdQueryVariables
-  >
-) {
-  return Apollo.useLazyQuery<
-    GetFundablePurchaseOrdersByCompanyIdQuery,
-    GetFundablePurchaseOrdersByCompanyIdQueryVariables
-  >(GetFundablePurchaseOrdersByCompanyIdDocument, baseOptions);
-}
-export type GetFundablePurchaseOrdersByCompanyIdQueryHookResult = ReturnType<
-  typeof useGetFundablePurchaseOrdersByCompanyIdQuery
->;
-export type GetFundablePurchaseOrdersByCompanyIdLazyQueryHookResult = ReturnType<
-  typeof useGetFundablePurchaseOrdersByCompanyIdLazyQuery
->;
-export type GetFundablePurchaseOrdersByCompanyIdQueryResult = Apollo.QueryResult<
-  GetFundablePurchaseOrdersByCompanyIdQuery,
-  GetFundablePurchaseOrdersByCompanyIdQueryVariables
->;
 export const GetOpenPurchaseOrdersByCompanyIdDocument = gql`
   query GetOpenPurchaseOrdersByCompanyId($company_id: uuid!) {
     purchase_orders(
@@ -21437,6 +21550,77 @@ export type GetClosedPurchaseOrdersByCompanyIdLazyQueryHookResult = ReturnType<
 export type GetClosedPurchaseOrdersByCompanyIdQueryResult = Apollo.QueryResult<
   GetClosedPurchaseOrdersByCompanyIdQuery,
   GetClosedPurchaseOrdersByCompanyIdQueryVariables
+>;
+export const GetFundablePurchaseOrdersByCompanyIdDocument = gql`
+  query GetFundablePurchaseOrdersByCompanyId($company_id: uuid!) {
+    purchase_orders(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { company_id: { _eq: $company_id } }
+          { approved_at: { _is_null: false } }
+          { funded_at: { _is_null: true } }
+        ]
+      }
+    ) {
+      ...PurchaseOrder
+    }
+  }
+  ${PurchaseOrderFragmentDoc}
+`;
+
+/**
+ * __useGetFundablePurchaseOrdersByCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useGetFundablePurchaseOrdersByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetFundablePurchaseOrdersByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetFundablePurchaseOrdersByCompanyIdQuery({
+ *   variables: {
+ *      company_id: // value for 'company_id'
+ *   },
+ * });
+ */
+export function useGetFundablePurchaseOrdersByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetFundablePurchaseOrdersByCompanyIdQuery,
+    GetFundablePurchaseOrdersByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetFundablePurchaseOrdersByCompanyIdQuery,
+    GetFundablePurchaseOrdersByCompanyIdQueryVariables
+  >(GetFundablePurchaseOrdersByCompanyIdDocument, baseOptions);
+}
+export function useGetFundablePurchaseOrdersByCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetFundablePurchaseOrdersByCompanyIdQuery,
+    GetFundablePurchaseOrdersByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetFundablePurchaseOrdersByCompanyIdQuery,
+    GetFundablePurchaseOrdersByCompanyIdQueryVariables
+  >(GetFundablePurchaseOrdersByCompanyIdDocument, baseOptions);
+}
+export type GetFundablePurchaseOrdersByCompanyIdQueryHookResult = ReturnType<
+  typeof useGetFundablePurchaseOrdersByCompanyIdQuery
+>;
+export type GetFundablePurchaseOrdersByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useGetFundablePurchaseOrdersByCompanyIdLazyQuery
+>;
+export type GetFundablePurchaseOrdersByCompanyIdQueryResult = Apollo.QueryResult<
+  GetFundablePurchaseOrdersByCompanyIdQuery,
+  GetFundablePurchaseOrdersByCompanyIdQueryVariables
 >;
 export const GetPaymentDocument = gql`
   query GetPayment($id: uuid!) {

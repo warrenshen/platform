@@ -265,6 +265,7 @@ fragment Invoice on invoices {
   is_cannabis
   status
   created_at
+  approved_at
   funded_at
   payment_requested_at
   payment_confirmed_at

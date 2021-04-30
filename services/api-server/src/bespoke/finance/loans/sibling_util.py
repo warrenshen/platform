@@ -47,7 +47,7 @@ def get_loan_sum_per_artifact(
 		).filter(
 			models.Loan.artifact_id.in_(artifact_ids)
 		).filter(
-			models.Loan.id != excluding_loan_id
+			models.Loan.id != (excluding_loan_id or None)
 		).all())
 
 	sibling_loans_per_artifact: Dict[str, List[models.Loan]] = {}

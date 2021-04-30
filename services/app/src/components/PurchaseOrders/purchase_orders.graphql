@@ -50,26 +50,6 @@ subscription GetConfirmedPurchaseOrders {
   }
 }
 
-query GetFundablePurchaseOrdersByCompanyId($company_id: uuid!) {
-  purchase_orders(
-    where: {
-      _and: [
-        {
-          _or: [
-            { is_deleted: { _is_null: true } }
-            { is_deleted: { _eq: false } }
-          ]
-        }
-        { company_id: { _eq: $company_id } }
-        { approved_at: { _is_null: false } }
-        { funded_at: { _is_null: true } }
-      ]
-    }
-  ) {
-    ...PurchaseOrder
-  }
-}
-
 query GetOpenPurchaseOrdersByCompanyId($company_id: uuid!) {
   purchase_orders(
     where: {
@@ -101,6 +81,26 @@ query GetClosedPurchaseOrdersByCompanyId($company_id: uuid!) {
         }
         { company_id: { _eq: $company_id } }
         { funded_at: { _is_null: false } }
+      ]
+    }
+  ) {
+    ...PurchaseOrder
+  }
+}
+
+query GetFundablePurchaseOrdersByCompanyId($company_id: uuid!) {
+  purchase_orders(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { company_id: { _eq: $company_id } }
+        { approved_at: { _is_null: false } }
+        { funded_at: { _is_null: true } }
       ]
     }
   ) {
