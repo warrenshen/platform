@@ -250,6 +250,47 @@ def create_and_add_adjustment(
 	session.add(t)
 	return t, None
 
+@errors.return_error_tuple
+def create_and_add_credit_payout_to_customer(
+	company_id: str,
+	payment_method: str,
+	amount: float,
+	created_by_user_id: str,
+	deposit_date: datetime.date,
+	effective_date: datetime.date,
+	session: Session) -> Tuple[models.Transaction, errors.Error]:
+
+	payment = create_payment(
+		company_id=company_id,
+		payment_input=PaymentInputDict(
+			type=db_constants.PaymentType.PAYOUT_USER_CREDIT_TO_CUSTOMER,
+			payment_method=payment_method,
+			amount=amount
+		),
+		user_id=created_by_user_id
+	)
+	payment.deposit_date = deposit_date
+	payment.settlement_date = effective_date
+	payment.settled_at = date_util.now()
+	payment.settled_by_user_id = created_by_user_id
+	payment.items_covered = {}
+	session.add(payment)
+	session.flush()
+	payment_id = str(payment.id)
+
+	t = models.Transaction()
+	t.type = db_constants.PaymentType.PAYOUT_USER_CREDIT_TO_CUSTOMER
+	t.amount = decimal.Decimal(amount)
+	t.to_principal = decimal.Decimal(0.0)
+	t.to_interest = decimal.Decimal(0.0)
+	t.to_fees = decimal.Decimal(0.0)
+	t.payment_id = payment_id
+	t.created_by_user_id = created_by_user_id
+	t.effective_date = effective_date
+
+	session.add(t)
+	return t, None
+
 def create_and_add_credit_to_user(
 	amount: float,
 	payment_id: str,

@@ -26,6 +26,13 @@ SettleRepayFeeReqDict = TypedDict('SettleRepayFeeReqDict', {
 	'items_covered': payment_util.PaymentItemsCoveredDict
 })
 
+SettleRepayFeeWithAccountCreditReqDict = TypedDict('SettleRepayFeeWithAccountCreditReqDict', {
+	'company_id': str,
+	'payment_id': str,
+	'amount': float,
+	'effective_date': str
+})
+
 def create_and_add_repayment_of_account_fee(
 	amount: float,
 	payment_id: str,
@@ -42,7 +49,25 @@ def create_and_add_repayment_of_account_fee(
 	t.payment_id = payment_id
 	t.created_by_user_id = created_by_user_id
 	t.effective_date = effective_date
+	session.add(t)
+	return t
 
+def create_and_add_repayment_of_account_fee_with_user_credit(
+	amount: float,
+	payment_id: str,
+	created_by_user_id: str,
+	effective_date: datetime.date,
+	session: Session,
+) -> models.Transaction:
+	t = models.Transaction()
+	t.type = db_constants.PaymentType.USER_CREDIT_TO_ACCOUNT_FEE
+	t.amount = decimal.Decimal(amount)
+	t.to_principal = decimal.Decimal(0.0)
+	t.to_interest = decimal.Decimal(0.0)
+	t.to_fees = decimal.Decimal(0.0)
+	t.payment_id = payment_id
+	t.created_by_user_id = created_by_user_id
+	t.effective_date = effective_date
 	session.add(t)
 	return t
 
@@ -85,12 +110,95 @@ def create_and_add_account_level_fee_repayment_with_account_credit(
 		payment_input=payment_input,
 		created_by_user_id=created_by_user_id
 	)
-	payment.payment_date = payment_input['requested_payment_date']
 	session.add(payment)
 	session.flush()
 	payment_id = str(payment.id)
 
 	return payment_id, None
+
+@errors.return_error_tuple
+def settle_repayment_of_fee_with_account_credit(
+	req: SettleRepayFeeWithAccountCreditReqDict,
+	user_id: str,
+	session: Session
+) -> Tuple[List[str], errors.Error]:
+
+	err_details = {
+		'method': 'settle_repayment_of_fee_with_account_credit',
+		'req': req
+	}
+
+	company_id = req['company_id']
+	payment_id = req['payment_id']
+
+	payment_amount = req['amount']
+	effective_date = date_util.load_date_str(req['effective_date'])
+
+	if not number_util.is_currency_rounded(payment_amount):
+		raise errors.Error('Amount specified is not rounded to the penny')
+
+	if not effective_date:
+		raise errors.Error('effective_date must be specified')
+
+	payment = cast(
+		models.Payment,
+		session.query(models.Payment).filter(
+			models.Payment.id == payment_id
+		).first())
+
+	if not payment:
+		raise errors.Error('No payment found to settle transaction', details=err_details)
+
+	if payment.settled_at:
+		raise errors.Error('Cannot use this payment because it has already been settled and applied to the users account', details=err_details)
+
+	if payment.type != db_constants.PaymentType.USER_CREDIT_TO_ACCOUNT_FEE:
+		raise errors.Error('Can only apply user credits to account fees using this method', details=err_details)
+
+	financial_summary = financial_summary_util.get_latest_financial_summary(
+		company_id=company_id, session=session
+	)
+	if not financial_summary:
+		raise errors.Error('No financial summary found for the customer')
+
+	account_balance_dict = cast(finance_types.AccountBalanceDict, financial_summary.account_level_balance_payload)
+
+	if payment_amount > account_balance_dict['fees_total']:
+		overpayment_amount = payment_amount - account_balance_dict['fees_total']
+		raise errors.Error('Cannot repay ${} worth of fees because the total due by the customer is ${}. Please reduce the amount paid by ${}'.format(
+			payment_amount, account_balance_dict['fees_total'], overpayment_amount))
+
+	if payment_amount > account_balance_dict['credits_total']:
+		overpayment_amount = payment_amount - account_balance_dict['credits_total']
+		raise errors.Error('Cannot repay ${} worth of fees because the total credits available to the customer is ${}. Please reduce the amount paid by ${}'.format(
+			payment_amount, account_balance_dict['credits_total'], overpayment_amount))
+
+	# Create the repayment of account fee transaction
+	t = create_and_add_repayment_of_account_fee_with_user_credit(
+		amount=payment_amount,
+		payment_id=payment_id,
+		created_by_user_id=user_id,
+		effective_date=effective_date,
+		session=session,
+	)
+
+	repayment_identifier = payment_util.get_and_increment_repayment_identifier(company_id, session)
+
+	payment_util.make_repayment_payment_settled(
+		payment,
+		settlement_identifier=repayment_identifier,
+		amount=decimal.Decimal(payment_amount),
+		deposit_date=effective_date,
+		settlement_date=effective_date,
+		settled_by_user_id=user_id,
+	)
+	payment.payment_date = effective_date
+	session.flush()
+	transaction_id = str(t.id)
+	tx_ids = []
+	tx_ids.append(transaction_id)
+
+	return tx_ids, None
 
 @errors.return_error_tuple
 def settle_repayment_of_fee(

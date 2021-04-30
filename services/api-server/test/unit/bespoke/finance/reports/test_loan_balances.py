@@ -737,7 +737,8 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			)
 			financial_summary.date = date_util.load_date_str('01/01/1960')
 			financial_summary.account_level_balance_payload = {
-				'fees_total': 200.0
+				'fees_total': 200.0, # This will get overwritten by the test, but is needed for some of the settle fee functions to pass validlation
+				'credits_total': 200.0 # This will get overwritten by the test, but is needed for some of the settle fee functions to pass validlation
 			}
 			financial_summary.company_id = company_id
 			session.add(financial_summary)
@@ -835,6 +836,46 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				session=session
 			)
 
+			# Repay a fee with a user credit
+			payment_id, err = repayment_util_fees.create_and_add_account_level_fee_repayment_with_account_credit(
+				company_id=company_id,
+				payment_input=cast(payment_util.RepaymentPaymentInputDict, {
+					'payment_method': 'none',
+					'requested_amount': 2.01,
+					'requested_payment_date': date_util.load_date_str('10/01/2020'),
+					'payment_date': date_util.load_date_str('10/01/2020'),
+					'items_covered': {},
+					'company_bank_account_id': str(uuid.uuid4())
+				}),
+				created_by_user_id=seed.get_user_id('bank_admin'),
+				session=session
+			)
+			self.assertIsNone(err)
+
+			tx_ids, err = repayment_util_fees.settle_repayment_of_fee_with_account_credit(
+				req={
+					'company_id': company_id,
+					'payment_id': payment_id,
+					'amount': 2.01,
+					'effective_date': '10/01/2020'
+				},
+				user_id=seed.get_user_id('bank_admin'),
+				session=session
+			)
+			self.assertIsNone(err)
+
+			tx_id, err = payment_util.create_and_add_credit_payout_to_customer(
+				company_id=company_id,
+				payment_method='ach',
+				amount=850.06,
+				created_by_user_id=seed.get_user_id('bank_admin'),
+				deposit_date=date_util.load_date_str('10/01/2020'),
+				effective_date=date_util.load_date_str('10/01/2020'),
+				session=session
+			)
+			self.assertIsNone(err)
+
+
 			payment_test_helper.make_repayment(
 				session, loan,
 				to_principal=50.0,
@@ -906,8 +947,10 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 							'duration': 'monthly'
 					},
 					'account_level_balance_payload': {
-							'fees_total': 1000.01 + 2000.01 - 12.03, # wire_fee_1 + wire_fee_2 - repayment_of_fee
-							'credits_total': 7000.04
+							# wire_fee_1 + wire_fee_2 - repayment_of_fee - repayment_of_fee_with_credit
+							'fees_total': 1000.01 + 2000.01 - 12.03 - 2.01,
+							# credit_1 + credit_2 - repayment_of_fee_with_credit - payout_to_customer
+							'credits_total': 3000.02 + 4000.02 +  - 2.01 - 850.06
 					},
 					'day_volume_threshold_met': None
 				}
