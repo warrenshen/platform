@@ -53,6 +53,7 @@ function BankReportsPage() {
     data: financialSummariesByCompanyIdData,
     error: financialSummariesByCompanyIdError,
   } = useGetFinancialSummariesByCompanyIdQuery({
+    fetchPolicy: "network-only",
     skip: !companyId,
     variables: {
       companyId: companyId,
