@@ -477,16 +477,6 @@ def import_settled_repayments_line_of_credit(
 		)
 
 		if err:
-			print(
-				parsed_deposit_date,
-				parsed_settlement_date, parsed_amount,
-				parsed_to_principal,
-				parsed_to_interest,
-				parsed_to_late_fees,
-				parsed_to_wire_fee,
-				parsed_to_minimum_fee,
-				parsed_to_customer,
-			)
 			print(f'[{index + 1} of {repayments_count}] Could not settle repayment because of err: {err}')
 			print(f'EXITING EARLY')
 			return
