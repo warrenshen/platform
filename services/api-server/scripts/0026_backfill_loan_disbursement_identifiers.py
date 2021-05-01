@@ -82,8 +82,11 @@ def main() -> None:
 						# If disbursement_identifier is "2", convert it to 2.
 						numeric_disbursement_identifier = int(float(disbursement_identifier))
 					except Exception:
-						# If disbursement_identifier from XLSX is "2A", convert it to 2.
-						numeric_disbursement_identifier = int("".join(filter(str.isdigit, disbursement_identifier)))
+						if disbursement_identifier == 'PB':
+							numeric_disbursement_identifier = 0
+						else:
+							# If disbursement_identifier from XLSX is "2A", convert it to 2.
+							numeric_disbursement_identifier = int("".join(filter(str.isdigit, disbursement_identifier)))
 
 					latest_disbursement_identifier = max(latest_disbursement_identifier, numeric_disbursement_identifier)
 

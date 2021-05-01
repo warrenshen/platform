@@ -51,6 +51,7 @@ export default function CreateAdjustmentModal({
     data,
     loading: isSelectableLoansLoading,
   } = useGetActiveLoansForCompanyQuery({
+    fetchPolicy: "network-only",
     variables: {
       companyId,
       loanType,
