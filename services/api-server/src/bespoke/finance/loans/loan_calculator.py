@@ -198,7 +198,8 @@ def _apply_to(cur_loan_update: LoanUpdateDict, category: str, amount_left: float
 		amount_applied = amount_left
 		return amount_left_to_use, amount_applied
 	else:
-		amount_applied = outstanding_amount
+		# Only pay off up to the rounded amount
+		amount_applied = number_util.round_currency(outstanding_amount)
 		amount_left_to_use = amount_left - amount_applied
 		return amount_left_to_use, amount_applied
 
@@ -292,7 +293,7 @@ def _determine_transaction(
 
 	raise errors.Error('Invalid payment option provided {}'.format(payment_option))
 
-def _format_output_value(value: float, should_round: bool) -> float:
+def _format_output_value(value: float, should_round: bool, is_final_output: bool) -> float:
 	# Since the above calculations do NOT round, we end up with non-zero
 	# values that are "in currency terms equal to zero". For example,
 	# 0.0015599999927644603 is equal to zero in terms of currency ($0.00).
@@ -322,6 +323,11 @@ def _format_output_value(value: float, should_round: bool) -> float:
 	# This is exactly what we do to calculate financial summaries. If we do
 	# not squash "in currency terms equal to zero" values to zero, those
 	# sums we calculate end up including the values and end up incorrect.
+	if not is_final_output:
+		# If we literally just want the number, and it's not used for the final state
+		# of the loan, then just return the raw float value.
+		return value
+
 	if number_util.round_currency(value) == 0.0:
 		return 0.0
 	elif should_round:
@@ -441,15 +447,15 @@ class LoanCalculator(object):
 		if err:
 			return None, [err]
 
-		def _get_loan_update_dict(should_round: bool) -> LoanUpdateDict:
+		def _get_loan_update_dict(should_round: bool, is_final_output: bool) -> LoanUpdateDict:
 			l = LoanUpdateDict(
 				loan_id=loan['id'],
 				adjusted_maturity_date=loan['adjusted_maturity_date'],
-				outstanding_principal=_format_output_value(outstanding_principal, should_round),
-				outstanding_principal_for_interest=_format_output_value(outstanding_principal_for_interest, should_round),
-				outstanding_interest=_format_output_value(outstanding_interest, should_round),
-				outstanding_fees=_format_output_value(outstanding_fees, should_round),
-				interest_accrued_today=_format_output_value(interest_accrued_today, should_round),
+				outstanding_principal=_format_output_value(outstanding_principal, should_round, is_final_output),
+				outstanding_principal_for_interest=_format_output_value(outstanding_principal_for_interest, should_round, is_final_output),
+				outstanding_interest=_format_output_value(outstanding_interest, should_round, is_final_output),
+				outstanding_fees=_format_output_value(outstanding_fees, should_round, is_final_output),
+				interest_accrued_today=_format_output_value(interest_accrued_today, should_round, is_final_output),
 				should_close_loan=False,
 			)
 
@@ -616,16 +622,20 @@ class LoanCalculator(object):
 			if payment_to_include and payment_to_include['deposit_date'] == cur_date:
 				# Incorporate this payment and snapshot what the state of the balance was
 				# before this payment was incorporated
-				loan_update_before_payment = _get_loan_update_dict(should_round=False)
+				loan_update_before_payment = _get_loan_update_dict(should_round=False, is_final_output=False)
 				inserted_repayment_transaction = _determine_transaction(
 					loan, loan_update_before_payment, payment_to_include
 				)
+
 				_reduce_custom_amount_remaining(inserted_repayment_transaction)
 
 				# The outstanding principal for a payment gets reduced on the payment date
 				outstanding_principal -= inserted_repayment_transaction['to_principal']
 				outstanding_interest -= inserted_repayment_transaction['to_interest']
 				outstanding_fees -= inserted_repayment_transaction['to_fees']
+				# 10/20
+				# to_interest: 200.0
+				# pay off: 10.0
 
 
 			for aug_tx in transactions_on_settlement_date:
@@ -640,7 +650,7 @@ class LoanCalculator(object):
 
 				# Because some additional fees and interest may have accrued during these days
 				# we also need to pay them off in the repayment effect logic.
-				cur_loan_update = _get_loan_update_dict(should_round=False)
+				cur_loan_update = _get_loan_update_dict(should_round=False, is_final_output=False)
 				cur_transaction = _determine_transaction(
 					loan, cur_loan_update, payment_to_include
 				)
@@ -686,7 +696,7 @@ class LoanCalculator(object):
 		# print(f'Identifier: {loan["identifier"]}')
 		# print(self.get_summary())
 
-		l = _get_loan_update_dict(should_round=should_round_output)
+		l = _get_loan_update_dict(should_round=should_round_output, is_final_output=True)
 
 		return CalculateResultDict(
 			payment_effect=payment_effect_dict,

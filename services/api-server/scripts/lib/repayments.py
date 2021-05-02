@@ -430,6 +430,7 @@ def import_settled_repayments_line_of_credit(
 				customer.latest_repayment_identifier += 1
 				new_latest_repayment_identifier = customer.latest_repayment_identifier
 
+				print('Customer paid {}'.format(parsed_amount))
 				repayment = models.Payment(
 					company_id=customer_id,
 					settlement_identifier=str(new_latest_repayment_identifier),

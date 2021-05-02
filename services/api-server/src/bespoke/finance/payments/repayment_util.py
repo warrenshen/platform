@@ -933,7 +933,8 @@ def settle_repayment(
 					loan_dict,
 					transactions_for_loan,
 					today=settlement_date,
-					payment_to_include=payment_to_include
+					payment_to_include=payment_to_include,
+					should_round_output=False
 				)
 				if errs:
 					raise errors.Error('\n'.join([err.msg for err in errs]))
@@ -943,27 +944,42 @@ def settle_repayment(
 
 				# Keep track of what this loan balance is as of the date that this repayment
 				# will settle (so we have to calculate the additional interest and fees that will accrue)
-				loan_dict_and_balance_list.append(LoanDictAndBalance(
-					loan=loan_dict,
-					before_balance=LoanBalanceDict(
+				cur_before_balance = LoanBalanceDict(
 						amount=loan_dict['amount'],
 						outstanding_principal_balance=before_loan_update['outstanding_principal'],
 						outstanding_interest=before_loan_update['outstanding_interest'],
 						outstanding_fees=before_loan_update['outstanding_fees']
-					)
-				))
+				)
 
 				if cur_transaction['amount'] <= 0:
 					# If there it no amount left to pay (for neither principal nor interest),
 					# skip and do not create a TransactionInputDict.
 					continue
 
-				transaction_inputs.append(TransactionInputDict(
-					amount=number_util.round_currency(cur_transaction['amount']),
-					to_principal=number_util.round_currency(cur_transaction['to_principal']),
-					to_interest=number_util.round_currency(cur_transaction['to_interest']),
-					to_fees=number_util.round_currency(cur_transaction['to_fees'])
+				loan_dict_and_balance_list.append(LoanDictAndBalance(
+					loan=loan_dict,
+					before_balance=cur_before_balance
 				))
+
+				#print('Before balance {} {} {}'.format(
+				#	cur_before_balance['outstanding_principal_balance'],
+				#	cur_before_balance['outstanding_interest'],
+				#	cur_before_balance['outstanding_fees']
+				#))
+
+				transaction_inputs.append(TransactionInputDict(
+					amount=cur_transaction['amount'],
+					to_principal=cur_transaction['to_principal'],
+					to_interest=cur_transaction['to_interest'],
+					to_fees=cur_transaction['to_fees']
+				))
+
+				#print('Cur transaction {} {} {}'.format(
+				#	cur_transaction['to_principal'],
+				#	cur_transaction['to_interest'],
+				#	cur_transaction['to_fees']
+				#))
+				#print('')
 
 			# If there is remaining amount to pay (for either principal or interest),
 			# this means this repayment is an over-payment.
@@ -975,9 +991,10 @@ def settle_repayment(
 
 			amount_to_interest_left = payment_to_include['custom_amount_split']['to_interest']
 			amount_to_interest_left = number_util.round_currency(amount_to_interest_left)
+
 			if amount_to_interest_left > 0.0:
 				raise errors.Error(
-					f'Amount of interest left after payment may not be greater than 0: you must reduce the amount applied to interest by {number_util.to_dollar_format(amount_to_interest_left)}')
+					f'Amount of interest left after payment may not be greater than 0: you must increase the amount applied to interest by {number_util.to_dollar_format(amount_to_interest_left)}')
 		else:
 			# The non-LOC case
 
@@ -1005,7 +1022,8 @@ def settle_repayment(
 					loan_dict,
 					transactions_for_loan,
 					today=settlement_date,
-					payment_to_include=payment_to_include
+					payment_to_include=payment_to_include,
+					should_round_output=True
 				)
 				if errs:
 					raise errors.Error('\n'.join([err.msg for err in errs]))
@@ -1066,9 +1084,9 @@ def settle_repayment(
 			t = models.Transaction()
 			t.type = db_constants.PaymentType.REPAYMENT
 			t.amount = decimal.Decimal(tx_input['amount'])
-			t.to_principal = decimal.Decimal(tx_input['to_principal'])
-			t.to_interest = decimal.Decimal(tx_input['to_interest'])
-			t.to_fees = decimal.Decimal(tx_input['to_fees'])
+			t.to_principal = decimal.Decimal(number_util.round_currency(tx_input['to_principal']))
+			t.to_interest = decimal.Decimal(number_util.round_currency(tx_input['to_interest']))
+			t.to_fees = decimal.Decimal(number_util.round_currency(tx_input['to_fees']))
 			t.loan_id = cur_loan_id
 			t.payment_id = payment_id
 			t.created_by_user_id = user_id
@@ -1085,13 +1103,19 @@ def settle_repayment(
 			new_outstanding_fees = number_util.round_currency(
 				balance_before['outstanding_fees'] - to_fees)
 
+			#print('=====')
+			#print('Loan: {}'.format(cur_loan_id))
+			#print('Balance before {}'.format(balance_before))
+			#print('To principal: {}. To interest: {}. To fees {}'.format(to_principal, to_interest, to_fees))
+			#print('=====')
+
 			if new_outstanding_interest < 0:
 				raise errors.Error(
 					f'Interest on a loan may not be negative: you must reduce the amount applied to interest on {cur_loan_id} by {-1 * new_outstanding_interest}')
 
 			if new_outstanding_fees < 0:
 				raise errors.Error(
-					f'Fees on a loan may not be negative after payment: you must reduce the amount applied to interest on {cur_loan_id} by {-1 * new_outstanding_fees}')
+					f'Fees on a loan may not be negative after payment: you must reduce the amount applied to fees on {cur_loan_id} by {-1 * new_outstanding_fees}')
 
 			if new_outstanding_principal_balance < 0:
 				raise errors.Error(
