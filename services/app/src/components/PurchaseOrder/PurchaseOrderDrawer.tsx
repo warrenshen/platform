@@ -30,7 +30,7 @@ import { useContext, useMemo } from "react";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     drawerContent: {
-      width: 500,
+      width: 600,
       paddingBottom: theme.spacing(16),
     },
     propertyLabel: {

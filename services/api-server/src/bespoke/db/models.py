@@ -729,8 +729,8 @@ InvoiceFileDict = TypedDict('InvoiceFileDict', {
 class InvoiceFile(Base):
 	__tablename__ = 'invoice_files'
 
-	invoice_id = cast(GUID, Column(GUID, ForeignKey('invoices.id'), nullable=False, primary_key=True))
-	file_id = cast(GUID, Column(GUID, ForeignKey('files.id'), nullable=False, primary_key=True))
+	invoice_id = Column(GUID, primary_key=True, nullable=False)
+	file_id = Column(GUID, primary_key=True, nullable=False)
 	file_type = Column(String)
 
 	def as_dict(self) -> InvoiceFileDict:

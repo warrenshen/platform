@@ -130,16 +130,16 @@ export default function CreateUpdatePurchaseOrderModal({
       file_id: purchaseOrderFile.file_id,
       file_type: purchaseOrderFile.file_type,
     };
-    const cannabisPurchaseOrderFilesData =
-      purchaseOrderCannabisFiles &&
-      purchaseOrderCannabisFiles.map((purchaseOrderFile) => ({
+    const purchaseOrderCannabisFilesData = purchaseOrderCannabisFiles.map(
+      (purchaseOrderFile) => ({
         purchase_order_id: purchaseOrderFile.purchase_order_id,
         file_id: purchaseOrderFile.file_id,
         file_type: purchaseOrderFile.file_type,
-      }));
+      })
+    );
     const purchaseOrderFilesData = [
       ...(purchaseOrderFileData ? [purchaseOrderFileData] : []),
-      ...(cannabisPurchaseOrderFilesData || []),
+      ...purchaseOrderCannabisFilesData,
     ];
     return purchaseOrderFilesData;
   };
@@ -153,10 +153,10 @@ export default function CreateUpdatePurchaseOrderModal({
           id: actionType === ActionType.Update ? purchaseOrderId : null,
           company_id: companyId,
           vendor_id: purchaseOrder.vendor_id,
-          order_number: purchaseOrder.order_number || null,
-          order_date: purchaseOrder.order_date || null,
-          delivery_date: purchaseOrder.delivery_date || null,
-          amount: purchaseOrder.amount || null,
+          order_number: purchaseOrder.order_number,
+          order_date: purchaseOrder.order_date,
+          delivery_date: purchaseOrder.delivery_date,
+          amount: purchaseOrder.amount,
           is_cannabis: purchaseOrder.is_cannabis,
           status: RequestStatusEnum.Drafted,
         },
@@ -254,7 +254,7 @@ export default function CreateUpdatePurchaseOrderModal({
           purchaseOrder={purchaseOrder}
           purchaseOrderFile={purchaseOrderFile}
           purchaseOrderCannabisFiles={purchaseOrderCannabisFiles}
-          vendors={data?.vendors || []}
+          vendors={vendors}
           setPurchaseOrder={setPurchaseOrder}
           setPurchaseOrderFile={setPurchaseOrderFile}
           setPurchaseOrderCannabisFiles={setPurchaseOrderCannabisFiles}

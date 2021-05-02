@@ -1,17 +1,15 @@
 from flask import Blueprint
 from server.views.finance.invoices.approval import (
     RespondToApprovalRequestView, SubmitForApprovalView)
-from server.views.finance.invoices.crud import (CreateInvoiceView,
-                                                DeleteInvoiceView,
-                                                UpdateInvoiceView)
+from server.views.finance.invoices.crud import (CreateUpdateAsDraftView,
+                                                DeleteInvoiceView)
 from server.views.finance.invoices.payment import (
     RespondToPaymentRequestView, SubmitForPaymentView,
     SubmitNewInvoiceForPaymentView)
 
 handler = Blueprint('finance_invoices', __name__)
 
-handler.add_url_rule('/create', view_func=CreateInvoiceView.as_view('create'))
-handler.add_url_rule('/update', view_func=UpdateInvoiceView.as_view('update'))
+handler.add_url_rule('/create_update_as_draft', view_func=CreateUpdateAsDraftView.as_view('create_update_as_draft'))
 handler.add_url_rule('/delete', view_func=DeleteInvoiceView.as_view('delete'))
 
 handler.add_url_rule(

@@ -1,4 +1,5 @@
 import datetime
+import decimal
 import logging
 from dataclasses import dataclass, fields
 from typing import Callable, Dict, List, Optional, Tuple, cast
@@ -40,6 +41,7 @@ class InvoiceFileItem:
 			d.get('file_type')
 		)
 
+
 @dataclass
 class InvoiceData:
 	id: str
@@ -47,8 +49,8 @@ class InvoiceData:
 	payor_id: str
 	invoice_number: str
 	subtotal_amount: float
-	total_amount: float
 	taxes_amount: float
+	total_amount: float
 	invoice_date: datetime.date
 	invoice_due_date: datetime.date
 	status: str
@@ -61,29 +63,15 @@ class InvoiceData:
 			company_id=self.company_id,
 			payor_id=self.payor_id,
 			invoice_number=self.invoice_number,
-			subtotal_amount=self.subtotal_amount,
-			total_amount=self.total_amount,
-			taxes_amount=self.taxes_amount,
+			subtotal_amount=decimal.Decimal(self.subtotal_amount) if self.subtotal_amount is not None else None,
+			taxes_amount=decimal.Decimal(self.taxes_amount) if self.taxes_amount is not None else None,
+			total_amount=decimal.Decimal(self.total_amount) if self.total_amount is not None else None,
 			invoice_date=self.invoice_date,
 			invoice_due_date=self.invoice_due_date,
 			status=self.status,
 			rejection_note=self.rejection_note,
 			is_cannabis=self.is_cannabis,
 		)
-
-	@staticmethod
-	def parse_date_safely(obj: Dict, key: str) -> Optional[datetime.date]:
-		value = obj.get(key)
-		if value:
-			return date_util.load_date_str(value)
-		return None
-
-	@staticmethod
-	def parse_numeric_safely(obj: Dict, key: str) -> Optional[float]:
-		value = obj.get(key)
-		if value or value == 0:
-			return float(value)
-		return None
 
 	@staticmethod
 	def from_dict(d: Dict) -> Tuple['InvoiceData', errors.Error]:
@@ -112,21 +100,35 @@ class InvoiceData:
 			d.get('is_cannabis'),
 		), None
 
-
-@dataclass
-class UpsertRequest:
-	invoice: InvoiceData
-	files: List[InvoiceFileItem]
+	@staticmethod
+	def parse_date_safely(obj: Dict, key: str) -> Optional[datetime.date]:
+		value = obj.get(key)
+		if value:
+			return date_util.load_date_str(value)
+		return None
 
 	@staticmethod
-	def from_dict(d: Dict) -> Tuple['UpsertRequest', errors.Error]:
+	def parse_numeric_safely(obj: Dict, key: str) -> Optional[float]:
+		value = obj.get(key)
+		if value or value == 0:
+			return float(value)
+		return None
+
+
+@dataclass
+class InvoiceUpsertRequest:
+	invoice: InvoiceData
+	invoice_files: List[InvoiceFileItem]
+
+	@staticmethod
+	def from_dict(d: Dict) -> Tuple['InvoiceUpsertRequest', errors.Error]:
 		data, err = InvoiceData.from_dict(d.get('invoice'))
 		if err:
 			return None, err
 
-		return UpsertRequest(
+		return InvoiceUpsertRequest(
 			data,
-			[InvoiceFileItem.from_dict(f) for f in d.get('files', [])]
+			[InvoiceFileItem.from_dict(f) for f in d.get('invoice_files', [])]
 		), None
 
 
@@ -219,69 +221,112 @@ class InvoicePaymentRequestResponse:
 			payment_method
 		), None
 
-
-def create_invoice(
+@errors.return_error_tuple
+def create_update_invoice(
 	session_maker: Callable,
-	request: UpsertRequest
-	) -> Tuple[models.InvoiceDict, List[models.InvoiceFileDict], errors.Error]:
+	request: InvoiceUpsertRequest
+) -> Tuple[str, errors.Error]:
+	is_create_invoice = False
 
-	try:
-		with models.session_scope(session_maker) as session:
-			m = request.invoice.to_model()
-			session.add(m)
-			session.commit()
-			session.refresh(m)
-
-			files = []
-			for f in request.files:
-				fm = models.InvoiceFile( # type: ignore
-					file_id=f.file_id,
-					invoice_id=m.id,
-					file_type=f.file_type
-				)
-				session.add(fm)
-				files.append(fm.as_dict())
-			return m.as_dict(), files, None
-	except Exception as e:
-		logging.exception("Caught exception while creating an invoice")
-		return None, None, errors.Error(str(e))
-
-
-def update_invoice(
-	session_maker: Callable,
-	request: UpsertRequest
-	) -> Tuple[models.InvoiceDict, List[models.InvoiceFileDict], errors.Error]:
-
-	try:
-		with models.session_scope(session_maker) as session:
-			existing_invoice = session.query(models.Invoice).get(request.invoice.id)
+	with models.session_scope(session_maker) as session:
+		if request.invoice.id is not None:
+			existing_invoice = cast(
+				models.Invoice,
+				session.query(models.Invoice).get(request.invoice.id))
 
 			for field in fields(InvoiceData):
 				value = getattr(request.invoice, field.name)
 				if value is not None:
 					setattr(existing_invoice, field.name, value)
 
-			file_dicts = []
-			if len(request.files):
-				files = session.query(models.InvoiceFile).filter_by(invoice_id=existing_invoice.id).all()
-				for f in files:
-					cast(Callable, session.delete)(f)
+			session.flush()
+			invoice = existing_invoice
+		else:
+			duplicate_invoice = cast(
+				models.Invoice,
+				session.query(models.Invoice).filter(
+					cast(Callable, models.Invoice.is_deleted.isnot)(True)
+				).filter(
+					models.Invoice.payor_id == request.invoice.payor_id
+				).filter(
+					models.Invoice.invoice_number == request.invoice.invoice_number
+				).first())
 
-				session.commit()
+			if duplicate_invoice is not None:
+				raise errors.Error(f'An invoice with this payor and invoice number already exists')
 
-				for rf in request.files:
-					fm = models.InvoiceFile( # type: ignore
-						invoice_id=request.invoice.id,
-						file_id=rf.file_id,
-						file_type=rf.file_type,
-					)
-					session.add(fm)
-					file_dicts.append(fm.as_dict())
+			invoice = request.invoice.to_model()
+			session.add(invoice)
+			session.flush()
 
-			return existing_invoice.as_dict(), file_dicts, None
-	except Exception as e:
-		logging.exception("Caught exception while updating an invoice")
-		return None, None, errors.Error(str(e))
+			is_create_invoice = True
+
+		invoice_id = str(invoice.id)
+
+		existing_invoice_files = cast(
+			List[models.InvoiceFile],
+			session.query(models.InvoiceFile).filter(
+				models.InvoiceFile.invoice_id == invoice_id
+			).all())
+
+		invoice_files_to_delete = []
+		for existing_invoice_file in existing_invoice_files:
+			is_invoice_file_deleted = len(list(filter(
+				lambda invoice_file_request: (
+					invoice_file_request.invoice_id == existing_invoice_file.invoice_id and
+					invoice_file_request.file_id == existing_invoice_file.file_id and
+					invoice_file_request.file_type == existing_invoice_file.file_type
+				),
+				request.invoice_files
+			))) <= 0
+			if is_invoice_file_deleted:
+				invoice_files_to_delete.append(existing_invoice_file)
+
+		for invoice_file_to_delete in invoice_files_to_delete:
+			cast(Callable, session.delete)(invoice_file_to_delete)
+
+		session.flush()
+
+		invoice_file_dicts = []
+		for invoice_file_request in request.invoice_files:
+			existing_invoice_file = cast(
+				models.InvoiceFile,
+				session.query(models.InvoiceFile).get([
+					invoice_file_request.invoice_id,
+					invoice_file_request.file_id,
+				]))
+			if existing_invoice_file:
+				invoice_file_dicts.append(existing_invoice_file.as_dict())
+			else:
+				invoice_file = models.InvoiceFile(
+					file_id=invoice_file_request.file_id,
+					invoice_id=invoice_id,
+					file_type=invoice_file_request.file_type,
+				)
+				session.add(invoice_file)
+				invoice_file_dicts.append(invoice_file.as_dict())
+
+		# if is_create_invoice:
+			# sendgrid_client = cast(
+			# 	sendgrid_util.Client,
+			# 	current_app.sendgrid_client,
+			# )
+
+			# template_data = {
+			# 	'customer_name': customer.name,
+			# 	'vendor_name': vendor.name,
+			# 	'purchase_order_number': purchase_order.order_number,
+			# 	'purchase_order_amount': number_util.to_dollar_format(float(purchase_order.amount)) if purchase_order.amount else None,
+			# }
+			# _, err = sendgrid_client.send(
+			# 	template_name=sendgrid_util.TemplateNames.CUSTOMER_CREATED_PURCHASE_ORDER,
+			# 	template_data=template_data,
+			# 	recipients=current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES,
+			# )
+			# if err:
+			# 	raise err
+
+	return invoice_id, None
 
 
 def is_invoice_ready_for_approval(

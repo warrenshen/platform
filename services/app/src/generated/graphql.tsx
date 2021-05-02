@@ -5958,6 +5958,7 @@ export type Invoices = {
   /** An aggregated array relationship */
   invoice_files_aggregate: InvoiceFilesAggregate;
   invoice_number: Scalars["String"];
+  /** This field is used for Invoice Financing product type but NOT for Purchase Money Financing product type */
   is_cannabis: Scalars["Boolean"];
   is_deleted?: Maybe<Scalars["Boolean"]>;
   /** An array relationship */
@@ -15680,6 +15681,9 @@ export type GetInvoiceByIdQueryVariables = Exact<{
 export type GetInvoiceByIdQuery = {
   invoices_by_pk?: Maybe<
     {
+      company: Pick<Companies, "id"> & {
+        contract?: Maybe<Pick<Contracts, "id" | "product_type">>;
+      };
       loans: Array<Pick<Loans, "id"> & LoanFragment>;
       invoice_files: Array<InvoiceFileFragment>;
     } & InvoiceFragment
@@ -18980,6 +18984,13 @@ export const GetInvoiceByIdDocument = gql`
   query GetInvoiceById($id: uuid!) {
     invoices_by_pk(id: $id) {
       ...Invoice
+      company {
+        id
+        contract {
+          id
+          product_type
+        }
+      }
       loans(where: { loan_type: { _eq: invoice } }) {
         id
         ...Loan

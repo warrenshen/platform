@@ -1,6 +1,13 @@
 query GetInvoiceById($id: uuid!) {
   invoices_by_pk(id: $id) {
     ...Invoice
+    company {
+      id
+      contract {
+        id
+        product_type
+      }
+    }
     loans(where: { loan_type: { _eq: invoice } }) {
       id
       ...Loan

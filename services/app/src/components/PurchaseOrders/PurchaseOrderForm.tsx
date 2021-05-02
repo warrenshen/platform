@@ -90,7 +90,7 @@ function PurchaseOrderForm({
       <Box display="flex" flexDirection="column" mt={4}>
         <TextField
           label="PO Number"
-          value={purchaseOrder.order_number}
+          value={purchaseOrder.order_number || ""}
           onChange={({ target: { value } }) =>
             setPurchaseOrder({
               ...purchaseOrder,

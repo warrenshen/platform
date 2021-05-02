@@ -52,8 +52,7 @@ export const purchaseOrdersRoutes = {
 };
 
 export const invoicesRoutes = {
-  create: "/invoices/create",
-  update: "/invoices/update",
+  createUpdateAsDraft: "/invoices/create_update_as_draft",
   delete: "/invoices/delete",
   submitForApproval: "/invoices/submit_for_approval",
   respondToApprovalRequest: "/invoices/respond_to_approval_request",

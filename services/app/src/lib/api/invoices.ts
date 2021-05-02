@@ -25,7 +25,7 @@ type InvoiceFileItem = {
 export type UpsertInvoiceRequest = {
   variables: {
     invoice: InvoicesInsertInput;
-    files: InvoiceFileItem[];
+    invoice_files: InvoiceFileItem[];
   };
 };
 
@@ -53,11 +53,11 @@ export type RespondToInvoicePaymentRequest = {
   };
 };
 
-export async function createInvoiceMutation(
+export async function createUpdateInvoiceAsDraftMutation(
   request: UpsertInvoiceRequest
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(invoicesRoutes.create, request.variables)
+    .post(invoicesRoutes.createUpdateAsDraft, request.variables)
     .then((response) => response.data)
     .then(
       (response) => response,
@@ -66,24 +66,6 @@ export async function createInvoiceMutation(
         return {
           status: "ERROR",
           msg: "Failed to create an invoice",
-        };
-      }
-    );
-}
-
-export async function updateInvoiceMutation(
-  request: UpsertInvoiceRequest
-): Promise<CustomMutationResponse> {
-  return authenticatedApi
-    .post(invoicesRoutes.update, request.variables)
-    .then((response) => response.data)
-    .then(
-      (response) => response,
-      (error) => {
-        console.error("Failed to update an invoice. Err:", error);
-        return {
-          status: "ERROR",
-          msg: "Failed to update an invoice",
         };
       }
     );

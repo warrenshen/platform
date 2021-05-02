@@ -11,48 +11,17 @@ from flask.views import MethodView
 from server.views.common import auth_util, handler_util
 
 
-class CreateInvoiceView(MethodView):
-
+class CreateUpdateAsDraftView(MethodView):
 	decorators = [auth_util.login_required]
 
 	@events.wrap(events.Actions.INVOICE_CREATE)
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
 		user_session = auth_util.UserSession.from_session()
-
-		request_data = json.loads(request.data)
-		data, err = invoices_util.UpsertRequest.from_dict(request_data)
-		if err:
-			return handler_util.make_error_response(err)
-
-		if not user_session.is_bank_or_this_company_admin(data.invoice.company_id):
-			return handler_util.make_error_response("Access Denied", status_code=403)
-
-		invoice, files, err = invoices_util.create_invoice(current_app.session_maker, data)
-		if err:
-			return handler_util.make_error_response(err)
-
-		return make_response(json.dumps({
-			'status': 'OK',
-			'msg': 'Success',
-			'data': {
-				'invoice': models.safe_serialize(invoice),
-				'files': files,
-			}
-		}))
-
-class UpdateInvoiceView(MethodView):
-
-	decorators = [auth_util.login_required]
-
-	@events.wrap(events.Actions.INVOICE_UPDATE)
-	@handler_util.catch_bad_json_request
-	def post(self, **kwargs: Any) -> Response:
-		user_session = auth_util.UserSession.from_session()
 		company_id = user_session.get_company_id()
 
 		request_data = json.loads(request.data)
-		data, err = invoices_util.UpsertRequest.from_dict(request_data)
+		data, err = invoices_util.InvoiceUpsertRequest.from_dict(request_data)
 		if err:
 			return handler_util.make_error_response(err)
 
@@ -60,7 +29,7 @@ class UpdateInvoiceView(MethodView):
 			return handler_util.make_error_response("Access Denied", status_code=403)
 
 		# Assert that this invoice belongs to the company
-		if user_session.is_company_admin():
+		if user_session.is_company_admin() and data.invoice.id:
 			try:
 				with models.session_scope(current_app.session_maker) as session:
 					invoice = session.query(models.Invoice).get(data.invoice.id)
@@ -69,7 +38,7 @@ class UpdateInvoiceView(MethodView):
 				logging.exception("Failed checking that invoice belongs to company")
 				return handler_util.make_error_response("Invoice does not belong to company admin")
 
-		invoice_dict, files, err = invoices_util.update_invoice(current_app.session_maker, data)
+		invoice_id, err = invoices_util.create_update_invoice(current_app.session_maker, data)
 		if err:
 			return handler_util.make_error_response(err)
 
@@ -77,8 +46,7 @@ class UpdateInvoiceView(MethodView):
 			'status': 'OK',
 			'msg': 'Success',
 			'data': {
-				'invoice': models.safe_serialize(invoice_dict),
-				'files': files,
+				'invoice_id': invoice_id,
 			}
 		}))
 

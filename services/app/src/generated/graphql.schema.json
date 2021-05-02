@@ -41455,7 +41455,7 @@
           },
           {
             "name": "is_cannabis",
-            "description": null,
+            "description": "This field is used for Invoice Financing product type but NOT for Purchase Money Financing product type",
             "args": [],
             "type": {
               "kind": "NON_NULL",

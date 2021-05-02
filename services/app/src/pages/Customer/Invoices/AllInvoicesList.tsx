@@ -89,6 +89,7 @@ export default function AllInvoicesList({ companyId, productType }: Props) {
                   actionType={ActionType.New}
                   companyId={companyId}
                   invoiceId={null}
+                  productType={productType}
                   handleClose={() => {
                     refetch();
                     handleClose();
@@ -108,6 +109,7 @@ export default function AllInvoicesList({ companyId, productType }: Props) {
                     actionType={ActionType.Update}
                     companyId={companyId}
                     invoiceId={selectedInvoiceIds[0]}
+                    productType={productType}
                     handleClose={() => {
                       refetch();
                       handleClose();

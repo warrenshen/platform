@@ -1,5 +1,10 @@
 import { ProductTypeEnum } from "generated/graphql";
 
+export function isInvoiceFinancingProductType(
+  productType: ProductTypeEnum | null
+) {
+  return productType === ProductTypeEnum.InvoiceFinancing;
+}
 export class SettingsHelper {
   _productType: ProductTypeEnum;
 
@@ -9,15 +14,15 @@ export class SettingsHelper {
 
   shouldShowVendorAgreement(): boolean {
     return (
-      this._productType == ProductTypeEnum.InventoryFinancing ||
-      this._productType == ProductTypeEnum.PurchaseMoneyFinancing
+      this._productType === ProductTypeEnum.InventoryFinancing ||
+      this._productType === ProductTypeEnum.PurchaseMoneyFinancing
     );
   }
 
   shouldShowNoticeOfAssignment(): boolean {
     return (
-      this._productType == ProductTypeEnum.InvoiceFinancing ||
-      this._productType == ProductTypeEnum.PurchaseMoneyFinancing
+      this._productType === ProductTypeEnum.InvoiceFinancing ||
+      this._productType === ProductTypeEnum.PurchaseMoneyFinancing
     );
   }
 }

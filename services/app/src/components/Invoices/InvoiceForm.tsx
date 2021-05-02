@@ -1,6 +1,8 @@
 import {
   Box,
+  Checkbox,
   FormControl,
+  FormControlLabel,
   InputLabel,
   MenuItem,
   Select,
@@ -12,34 +14,47 @@ import FileUploadDropzone from "components/Shared/File/UploadDropzone";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import {
+  Companies,
   InvoiceFileFragment,
   InvoiceFileTypeEnum,
   InvoicesInsertInput,
   PayorsByPartnerCompanyQuery,
+  ProductTypeEnum,
 } from "generated/graphql";
 import { FileTypeEnum } from "lib/enum";
-import { useMemo } from "react";
+import { isInvoiceFinancingProductType } from "lib/settings";
+import { ChangeEvent, useMemo } from "react";
 
 interface Props {
-  companyId: string;
+  companyId: Companies["id"];
+  productType: ProductTypeEnum;
   invoice: InvoicesInsertInput;
   invoiceFile?: InvoiceFileFragment;
+  invoiceCannabisFiles: InvoiceFileFragment[];
   payors: PayorsByPartnerCompanyQuery["payors"];
   setInvoice: (invoice: InvoicesInsertInput) => void;
   setInvoiceFile: (file: InvoiceFileFragment) => void;
+  setInvoiceCannabisFiles: (files: InvoiceFileFragment[]) => void;
 }
 
 export default function InvoiceForm({
   companyId,
+  productType,
   invoice,
   invoiceFile,
+  invoiceCannabisFiles,
   payors,
   setInvoice,
   setInvoiceFile,
+  setInvoiceCannabisFiles,
 }: Props) {
   const invoiceFileIds = useMemo(
     () => (invoiceFile ? [invoiceFile.file_id] : []),
     [invoiceFile]
+  );
+  const invoiceCannabisFileIds = useMemo(
+    () => invoiceCannabisFiles.map((invoiceFile) => invoiceFile.file_id),
+    [invoiceCannabisFiles]
   );
 
   return (
@@ -77,7 +92,7 @@ export default function InvoiceForm({
       <Box display="flex" flexDirection="column" mt={4}>
         <TextField
           label="Invoice Number"
-          value={invoice.invoice_number}
+          value={invoice.invoice_number || ""}
           onChange={({ target: { value } }) =>
             setInvoice({
               ...invoice,
@@ -161,6 +176,25 @@ export default function InvoiceForm({
           />
         </FormControl>
       </Box>
+      {isInvoiceFinancingProductType(productType) && (
+        <Box display="flex" flexDirection="column" mt={4}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={!!invoice.is_cannabis}
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  setInvoice({
+                    ...invoice,
+                    is_cannabis: event.target.checked,
+                  })
+                }
+                color="primary"
+              />
+            }
+            label={"Does this order include cannabis or derivatives?"}
+          />
+        </Box>
+      )}
       <Box display="flex" flexDirection="column" mt={4}>
         <Box mb={1}>
           <Typography variant="subtitle1" color="textSecondary">
@@ -192,6 +226,45 @@ export default function InvoiceForm({
             }}
           />
         </Box>
+        {!!invoice.is_cannabis && (
+          <Box display="flex" flexDirection="column" mt={4}>
+            <Box mb={1}>
+              <Typography variant="subtitle1" color="textSecondary">
+                Cannabis File Attachments
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                Please upload the following: Shipping Manifest, Certificate of
+                Analysis.
+              </Typography>
+            </Box>
+            {invoiceCannabisFileIds.length > 0 && (
+              <DownloadThumbnail
+                fileIds={invoiceCannabisFileIds}
+                fileType={FileTypeEnum.INVOICE}
+              />
+            )}
+            <Box mt={1}>
+              <FileUploadDropzone
+                companyId={companyId}
+                docType="invoice"
+                onUploadComplete={async (response) => {
+                  if (!response.succeeded) {
+                    return;
+                  }
+                  const { files_in_db: files } = response;
+                  setInvoiceCannabisFiles(
+                    files.map((file) => ({
+                      invoice_id: invoice.id,
+                      file_id: file.id,
+                      file_type: InvoiceFileTypeEnum.Cannabis,
+                      file: file,
+                    }))
+                  );
+                }}
+              />
+            </Box>
+          </Box>
+        )}
       </Box>
     </Box>
   );

@@ -43,7 +43,7 @@ class TestUpsertRequestParsing(unittest.TestCase):
 		]
 
 		for test in tests:
-			_, err = invoices_util.UpsertRequest.from_dict(test.received)
+			_, err = invoices_util.InvoiceUpsertRequest.from_dict(test.received)
 			self.assertIn(test.expected_error, str(err))
 
 

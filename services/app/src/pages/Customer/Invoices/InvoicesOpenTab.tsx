@@ -151,6 +151,7 @@ export default function CustomerInvoicesOpenTab({
                   actionType={ActionType.New}
                   companyId={companyId}
                   invoiceId={null}
+                  productType={productType}
                   handleClose={() => {
                     refetch();
                     handleClose();
@@ -170,6 +171,7 @@ export default function CustomerInvoicesOpenTab({
                     actionType={ActionType.Update}
                     companyId={companyId}
                     invoiceId={selectedNotApprovedInvoice?.id}
+                    productType={productType}
                     handleClose={() => {
                       refetch();
                       handleClose();

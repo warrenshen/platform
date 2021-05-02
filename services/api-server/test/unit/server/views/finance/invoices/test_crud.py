@@ -181,7 +181,7 @@ class InvoiceViewTest(db_unittest.TestCase):
 
 	def _check_request_response(self, request: Dict, response: Dict) -> None:
 		with models.session_scope(self.session_maker) as session:
-			invoice = session.query(models.Invoice).get(response['data']['invoice']['id'])
+			invoice = session.query(models.Invoice).get(response['data']['invoice_id'])
 			self._check_request_invoice_fields(request, invoice)
 
 			for f in request.get('files', []):
@@ -197,11 +197,11 @@ class InvoiceViewTest(db_unittest.TestCase):
 				.filter(models.InvoiceFile.invoice_id == invoice.id) \
 				.count()
 
-			self.assertEqual(c, len(request.get('files', [])))
+			self.assertEqual(c, len(request.get('invoice_files', [])))
 
 class TestCreateInvoiceView(InvoiceViewTest):
 
-	route = "/invoices/create"
+	route = "/invoices/create_update_as_draft"
 
 	def test_success_on_create_full(self) -> None:
 		seed, customer_id, payor_id = self._setup()
@@ -218,7 +218,7 @@ class TestCreateInvoiceView(InvoiceViewTest):
 				'taxes_amount': 420,
 				'is_cannabis': True,
 			},
-			'files': [
+			'invoice_files': [
 				{
 					'file_id': self.files[0].id,
 					'file_type': db_constants.InvoiceFileTypeEnum.Invoice
@@ -229,7 +229,7 @@ class TestCreateInvoiceView(InvoiceViewTest):
 				},
 				{
 					'file_id': self.files[2].id,
-					'file_type': db_constants.InvoiceFileTypeEnum.Invoice
+					'file_type': db_constants.InvoiceFileTypeEnum.Cannabis
 				}
 			]
 		}
@@ -253,13 +253,13 @@ class TestCreateInvoiceView(InvoiceViewTest):
 		self.assertEqual(response['status'], 'OK')
 
 		with models.session_scope(self.session_maker) as session:
-			invoice = session.query(models.Invoice).get(response['data']['invoice']['id'])
+			invoice = session.query(models.Invoice).get(response['data']['invoice_id'])
 			self._check_request_invoice_fields(request, invoice)
 
 
 class TestUpdateInvoiceView(InvoiceViewTest):
 
-	route = "/invoices/update"
+	route = "/invoices/create_update_as_draft"
 
 	def test_success_on_update(self) -> None:
 		seed, customer_id, payor_id = self._setup()
@@ -314,7 +314,7 @@ class TestUpdateInvoiceView(InvoiceViewTest):
 				'total_amount': 4200,
 				'taxes_amount': 4200,
 			},
-			'files': [
+			'invoice_files': [
 				{
 					'file_id': self.files[3].id,
 					'file_type': db_constants.InvoiceFileTypeEnum.Invoice

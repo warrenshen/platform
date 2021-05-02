@@ -1,7 +1,9 @@
 import {
   Box,
+  Checkbox,
   createStyles,
   Drawer,
+  FormControlLabel,
   makeStyles,
   Theme,
   Typography,
@@ -21,13 +23,14 @@ import { Action, check } from "lib/auth/rbac-rules";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 import { FileTypeEnum } from "lib/enum";
+import { isInvoiceFinancingProductType } from "lib/settings";
 import { useContext, useMemo } from "react";
 import InvoiceLoansDataGrid from "./InvoiceLoansDataGrid";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     drawerContent: {
-      width: 500,
+      width: 600,
       paddingBottom: theme.spacing(16),
     },
     propertyLabel: {
@@ -56,15 +59,25 @@ export default function InvoiceDrawer({ invoiceId, handleClose }: Props) {
   });
 
   const invoice = data?.invoices_by_pk;
-
   const loans = invoice?.loans;
+  const productType = invoice?.company?.contract?.product_type || null;
 
   const invoiceFileIds = useMemo(() => {
-    const files = invoice?.invoice_files.filter(
-      (f) => f.file_type === InvoiceFileTypeEnum.Invoice
-    );
-    return files && files.length ? [files[0].file_id] : [];
+    const invoiceFile = invoice?.invoice_files.filter(
+      (invoiceFile) => invoiceFile.file_type === InvoiceFileTypeEnum.Invoice
+    )[0];
+    return invoiceFile ? [invoiceFile.file_id] : [];
   }, [invoice]);
+  const invoiceCannabisFileIds = useMemo(
+    () =>
+      invoice?.invoice_files
+        .filter(
+          (invoiceFile) =>
+            invoiceFile.file_type === InvoiceFileTypeEnum.Cannabis
+        )
+        .map((invoiceFile) => invoiceFile.file_id) || [],
+    [invoice]
+  );
 
   if (!invoice || !loans) {
     return null;
@@ -157,6 +170,16 @@ export default function InvoiceDrawer({ invoiceId, handleClose }: Props) {
               {formatCurrency(invoice.total_amount)}
             </Typography>
           </Box>
+          {isInvoiceFinancingProductType(productType) && (
+            <Box display="flex" flexDirection="column" mt={2}>
+              <FormControlLabel
+                control={
+                  <Checkbox disabled={true} checked={!!invoice.is_cannabis} />
+                }
+                label={"Order includes cannabis or derivatives"}
+              />
+            </Box>
+          )}
           <Box display="flex" flexDirection="column" mt={2}>
             <Box mb={1}>
               <Typography variant="subtitle2" color="textSecondary">
@@ -169,6 +192,22 @@ export default function InvoiceDrawer({ invoiceId, handleClose }: Props) {
             />
           </Box>
         </Box>
+        {!!invoice.is_cannabis && (
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Box mb={1}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Cannabis File Attachments
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                Shipping Manifest, Certificate of Analysis
+              </Typography>
+            </Box>
+            <DownloadThumbnail
+              fileIds={invoiceCannabisFileIds}
+              fileType={FileTypeEnum.INVOICE}
+            />
+          </Box>
+        )}
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">
             Loans

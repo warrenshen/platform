@@ -10,7 +10,9 @@ import {
   Companies,
   InvoiceFileFragment,
   InvoiceFileTypeEnum,
+  Invoices,
   InvoicesInsertInput,
+  ProductTypeEnum,
   RequestStatusEnum,
   useGetInvoiceByIdQuery,
   usePayorsByPartnerCompanyQuery,
@@ -18,23 +20,13 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import {
-  createInvoiceMutation,
+  createUpdateInvoiceAsDraftMutation,
   submitInvoiceForApproval,
   submitNewInvoiceForPaymentMutation,
-  updateInvoiceMutation,
 } from "lib/api/invoices";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
-
-const mapFiles = (files: any[]) =>
-  !files
-    ? []
-    : files.map((f) => ({
-        invoice_id: f.invoice_id,
-        file_id: f.file_id,
-        file_type: f.file_type,
-      }));
 
 /*
 isInvoiceForLoan
@@ -45,7 +37,8 @@ interface Props {
   isInvoiceForLoan: boolean;
   actionType: ActionType;
   companyId: Companies["id"];
-  invoiceId: string | null;
+  invoiceId: Invoices["id"] | null;
+  productType: ProductTypeEnum;
   handleClose: () => void;
 }
 
@@ -53,8 +46,9 @@ export default function CreateUpdateInvoiceModal({
   isInvoiceForLoan,
   actionType,
   companyId,
-  handleClose,
   invoiceId = null,
+  productType,
+  handleClose,
 }: Props) {
   const snackbar = useSnackbar();
 
@@ -72,13 +66,16 @@ export default function CreateUpdateInvoiceModal({
     subtotal_amount: null,
     total_amount: null,
     taxes_amount: null,
-    is_cannabis: false,
+    is_cannabis: true,
     status: RequestStatusEnum.Drafted,
   } as InvoicesInsertInput;
 
   const [invoice, setInvoice] = useState(newInvoice);
 
   const [invoiceFile, setInvoiceFile] = useState<InvoiceFileFragment>();
+  const [invoiceCannabisFiles, setInvoiceCannabisFiles] = useState<
+    InvoiceFileFragment[]
+  >([]);
 
   const { data, loading: isPayorsLoading } = usePayorsByPartnerCompanyQuery({
     fetchPolicy: "network-only",
@@ -105,18 +102,19 @@ export default function CreateUpdateInvoiceModal({
           (f) => f.file_type === InvoiceFileTypeEnum.Invoice
         )[0]
       );
+      setInvoiceCannabisFiles(
+        existingInvoice.invoice_files.filter(
+          (invoiceFile) =>
+            invoiceFile.file_type === InvoiceFileTypeEnum.Cannabis
+        )
+      );
     },
   });
 
   const [
-    createInvoice,
-    { loading: isCreateInvoiceLoading },
-  ] = useCustomMutation(createInvoiceMutation);
-
-  const [
-    updateInvoice,
-    { loading: isUpdateInvoiceLoading },
-  ] = useCustomMutation(updateInvoiceMutation);
+    createUpdateInvoiceAsDraft,
+    { loading: isCreateUpdateInvoiceAsDraftLoading },
+  ] = useCustomMutation(createUpdateInvoiceAsDraftMutation);
 
   const [
     submitNewInvoiceForPayment,
@@ -124,21 +122,57 @@ export default function CreateUpdateInvoiceModal({
   ] = useCustomMutation(submitNewInvoiceForPaymentMutation);
 
   const upsertInvoice = async () => {
-    const files = [...mapFiles([invoiceFile].filter((f) => !!f))];
+    const invoiceFilesData = prepareInvoiceFiles();
 
-    const fn = actionType === ActionType.New ? createInvoice : updateInvoice;
-    return await fn({
+    const response = await createUpdateInvoiceAsDraft({
       variables: {
-        invoice,
-        files,
+        invoice: {
+          id: actionType === ActionType.Update ? invoiceId : null,
+          company_id: companyId,
+          payor_id: invoice.payor_id,
+          invoice_number: invoice.invoice_number,
+          subtotal_amount: invoice.subtotal_amount,
+          taxes_amount: invoice.taxes_amount,
+          total_amount: invoice.total_amount,
+          invoice_date: invoice.invoice_date,
+          invoice_due_date: invoice.invoice_due_date,
+          is_cannabis: invoice.is_cannabis,
+          status: RequestStatusEnum.Drafted,
+        },
+        invoice_files: invoiceFilesData,
       },
     });
+
+    return response;
+  };
+
+  const prepareInvoiceFiles = () => {
+    const invoiceFileData = invoiceFile && {
+      invoice_id: invoiceFile.invoice_id,
+      file_id: invoiceFile.file_id,
+      file_type: invoiceFile.file_type,
+    };
+    const invoiceCannabisFilesData = invoiceCannabisFiles.map(
+      (invoiceFile) => ({
+        invoice_id: invoiceFile.invoice_id,
+        file_id: invoiceFile.file_id,
+        file_type: invoiceFile.file_type,
+      })
+    );
+    const invoiceFilesData = [
+      ...(invoiceFileData ? [invoiceFileData] : []),
+      ...invoiceCannabisFilesData,
+    ];
+    return invoiceFilesData;
   };
 
   const handleClickSaveDraft = async () => {
-    const result = await upsertInvoice();
-    if (result.status === "ERROR") {
-      snackbar.showError(`Error! Message: ${result.msg}`);
+    const response = await upsertInvoice();
+
+    if (response.status !== "OK") {
+      snackbar.showError(
+        `Could not save invoice as draft. Error: ${response.msg}`
+      );
     } else {
       snackbar.showSuccess("Invoice saved as draft");
       handleClose();
@@ -146,22 +180,26 @@ export default function CreateUpdateInvoiceModal({
   };
 
   const handleClickSaveSubmit = async () => {
-    const result = await upsertInvoice();
-    if (result.status === "ERROR") {
-      snackbar.showError(`Error! Message: ${result.msg}`);
-      return;
+    const upsertResponse = await upsertInvoice();
+
+    if (upsertResponse.status !== "OK") {
+      snackbar.showError(
+        `Could not save invoice. Error: ${upsertResponse.msg}`
+      );
     }
 
-    if (result.data && result.data.invoice) {
+    if (upsertResponse.data && upsertResponse.data.invoice_id) {
       if (isInvoiceForLoan) {
         const response = await submitInvoiceForApproval({
           variables: {
-            id: result.data.invoice.id,
+            id: upsertResponse.data.invoice_id,
           },
         });
 
         if (response.status !== "OK") {
-          snackbar.showError(`Error! Message: ${response.msg}`);
+          snackbar.showError(
+            `Could not submit invoice. Error: ${response.msg}`
+          );
         } else {
           snackbar.showSuccess(
             "Invoice saved and submitted to payor for approval."
@@ -171,14 +209,16 @@ export default function CreateUpdateInvoiceModal({
       } else {
         const response = await submitNewInvoiceForPayment({
           variables: {
-            invoice_id: result.data.invoice.id,
+            invoice_id: upsertResponse.data.invoice_id,
           },
         });
 
         if (response.status !== "OK") {
-          snackbar.showError(`Error! Message: ${response.msg}`);
+          snackbar.showError(
+            `Could not submit invoice. Error: ${response.msg}`
+          );
         } else {
-          snackbar.showSuccess("Invoice sent to payor for payment.");
+          snackbar.showSuccess("Invoice saved and sent to payor for payment.");
           handleClose();
         }
       }
@@ -188,9 +228,7 @@ export default function CreateUpdateInvoiceModal({
   const isReady = !isExistingInvoiceLoading && !isPayorsLoading;
   const isFormValid = !!invoice.payor_id;
   const isFormLoading =
-    isCreateInvoiceLoading ||
-    isUpdateInvoiceLoading ||
-    isSubmitNewInvoiceForPaymentLoading;
+    isCreateUpdateInvoiceAsDraftLoading || isSubmitNewInvoiceForPaymentLoading;
   const isSaveDraftDisabled =
     !isFormValid || isFormLoading || !invoice.invoice_number;
   const isSaveSubmitDisabled =
@@ -234,11 +272,14 @@ export default function CreateUpdateInvoiceModal({
       )}
       <InvoiceForm
         companyId={companyId}
+        productType={productType}
         invoice={invoice}
         invoiceFile={invoiceFile}
+        invoiceCannabisFiles={invoiceCannabisFiles}
         payors={payors}
         setInvoice={setInvoice}
         setInvoiceFile={setInvoiceFile}
+        setInvoiceCannabisFiles={setInvoiceCannabisFiles}
       />
     </Modal>
   );
