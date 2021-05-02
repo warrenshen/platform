@@ -1,0 +1,23 @@
+import { ProductTypeEnum } from "generated/graphql";
+
+export class SettingsHelper {
+  _productType: ProductTypeEnum;
+
+  constructor(producType: ProductTypeEnum) {
+    this._productType = producType;
+  }
+
+  shouldShowVendorAgreement(): boolean {
+    return (
+      this._productType == ProductTypeEnum.InventoryFinancing ||
+      this._productType == ProductTypeEnum.PurchaseMoneyFinancing
+    );
+  }
+
+  shouldShowNoticeOfAssignment(): boolean {
+    return (
+      this._productType == ProductTypeEnum.InvoiceFinancing ||
+      this._productType == ProductTypeEnum.PurchaseMoneyFinancing
+    );
+  }
+}

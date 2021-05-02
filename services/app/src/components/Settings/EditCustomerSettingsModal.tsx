@@ -15,9 +15,11 @@ import {
 import {
   CompanySettingsForCustomerFragment,
   CompanySettingsFragment,
+  ContractFragment,
   useUpdateCustomerSettingsMutation,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
+import { SettingsHelper } from "lib/settings";
 import { ChangeEvent, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -46,6 +48,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
+  contract: ContractFragment | null;
   companyId: string;
   existingSettings:
     | CompanySettingsFragment
@@ -54,6 +57,7 @@ interface Props {
 }
 
 function EditAccountSettingsModal({
+  contract,
   companyId,
   existingSettings,
   handleClose,
@@ -72,6 +76,7 @@ function EditAccountSettingsModal({
         companySettingsId: settings.id,
         vendorAgreementTemplateLink:
           settings.vendor_agreement_docusign_template,
+        payorAgreementTemplateLink: settings.payor_agreement_docusign_template,
         hasAutofinancing: settings.has_autofinancing,
       },
     });
@@ -85,7 +90,12 @@ function EditAccountSettingsModal({
     }
   };
 
+  if (contract === null) {
+    return null;
+  }
+
   const isSaveDisabled = false;
+  const settingsHelper = new SettingsHelper(contract.product_type);
 
   return (
     <Dialog
@@ -105,20 +115,36 @@ function EditAccountSettingsModal({
           flexDirection="column"
           className={classes.form}
         >
-          <Box mb={2}>
-            <TextField
-              label="Vendor Agreement"
-              placeholder="http://docusign.com/link/to/template"
-              value={settings.vendor_agreement_docusign_template || ""}
-              onChange={({ target: { value } }) => {
-                setSettings({
-                  ...settings,
-                  vendor_agreement_docusign_template: value,
-                });
-              }}
-            />
-          </Box>
-
+          {settingsHelper.shouldShowVendorAgreement() && (
+            <Box mb={2}>
+              <TextField
+                label="Vendor Agreement"
+                placeholder="http://docusign.com/link/to/template"
+                value={settings.vendor_agreement_docusign_template || ""}
+                onChange={({ target: { value } }) => {
+                  setSettings({
+                    ...settings,
+                    vendor_agreement_docusign_template: value,
+                  });
+                }}
+              />
+            </Box>
+          )}
+          {settingsHelper.shouldShowNoticeOfAssignment() && (
+            <Box mb={2}>
+              <TextField
+                label="Notice of Assignment"
+                placeholder="http://docusign.com/link/to/template"
+                value={settings.payor_agreement_docusign_template || ""}
+                onChange={({ target: { value } }) => {
+                  setSettings({
+                    ...settings,
+                    payor_agreement_docusign_template: value,
+                  });
+                }}
+              />
+            </Box>
+          )}
           <Box mb={2}>
             <FormControlLabel
               control={

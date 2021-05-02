@@ -16277,6 +16277,7 @@ export type GetCompanySettingsQuery = {
 export type UpdateCustomerSettingsMutationVariables = Exact<{
   companySettingsId: Scalars["uuid"];
   vendorAgreementTemplateLink?: Maybe<Scalars["String"]>;
+  payorAgreementTemplateLink?: Maybe<Scalars["String"]>;
   hasAutofinancing?: Maybe<Scalars["Boolean"]>;
 }>;
 
@@ -17001,6 +17002,7 @@ export type CompanySettingsFragment = Pick<
   | "id"
   | "company_id"
   | "vendor_agreement_docusign_template"
+  | "payor_agreement_docusign_template"
   | "collections_bespoke_bank_account_id"
   | "has_autofinancing"
   | "two_factor_message_method"
@@ -17122,6 +17124,7 @@ export type CompanySettingsForCustomerFragment = Pick<
   | "id"
   | "company_id"
   | "vendor_agreement_docusign_template"
+  | "payor_agreement_docusign_template"
   | "collections_bespoke_bank_account_id"
   | "has_autofinancing"
 >;
@@ -17463,6 +17466,7 @@ export const CompanySettingsFragmentDoc = gql`
     id
     company_id
     vendor_agreement_docusign_template
+    payor_agreement_docusign_template
     collections_bespoke_bank_account_id
     has_autofinancing
     two_factor_message_method
@@ -17706,6 +17710,7 @@ export const CompanySettingsForCustomerFragmentDoc = gql`
     id
     company_id
     vendor_agreement_docusign_template
+    payor_agreement_docusign_template
     collections_bespoke_bank_account_id
     has_autofinancing
   }
@@ -22102,12 +22107,14 @@ export const UpdateCustomerSettingsDocument = gql`
   mutation UpdateCustomerSettings(
     $companySettingsId: uuid!
     $vendorAgreementTemplateLink: String
+    $payorAgreementTemplateLink: String
     $hasAutofinancing: Boolean
   ) {
     update_company_settings_by_pk(
       pk_columns: { id: $companySettingsId }
       _set: {
         vendor_agreement_docusign_template: $vendorAgreementTemplateLink
+        payor_agreement_docusign_template: $payorAgreementTemplateLink
         has_autofinancing: $hasAutofinancing
       }
     ) {
@@ -22136,6 +22143,7 @@ export type UpdateCustomerSettingsMutationFn = Apollo.MutationFunction<
  *   variables: {
  *      companySettingsId: // value for 'companySettingsId'
  *      vendorAgreementTemplateLink: // value for 'vendorAgreementTemplateLink'
+ *      payorAgreementTemplateLink: // value for 'payorAgreementTemplateLink'
  *      hasAutofinancing: // value for 'hasAutofinancing'
  *   },
  * });

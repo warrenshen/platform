@@ -80,6 +80,7 @@ function Settings({
         <Box mt={3}>
           {accountSettingsOpen && (
             <EditCustomerSettingsModal
+              contract={contract}
               companyId={companyId}
               existingSettings={settings}
               handleClose={() => {

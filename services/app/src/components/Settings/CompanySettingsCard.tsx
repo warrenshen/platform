@@ -18,6 +18,7 @@ import {
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { ProductTypeToLabel } from "lib/enum";
+import { SettingsHelper } from "lib/settings";
 
 interface Props {
   contract: ContractFragment | null;
@@ -41,6 +42,12 @@ const useStyles = makeStyles(() =>
 function CompanySettingsCard({ contract, settings, handleClick }: Props) {
   const classes = useStyles();
 
+  if (contract === null) {
+    return null;
+  }
+
+  const settingsHelper = new SettingsHelper(contract.product_type);
+
   return (
     <Card className={classes.card}>
       <CardContent>
@@ -53,22 +60,42 @@ function CompanySettingsCard({ contract, settings, handleClick }: Props) {
               </Typography>
             </Box>
           </Box>
-          <Box display="flex" pb={0.25}>
-            <Box className={classes.label}>Vendor Agreement</Box>
-            <Box>
-              {settings.vendor_agreement_docusign_template ? (
-                <Link
-                  href={settings.vendor_agreement_docusign_template}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  Link
-                </Link>
-              ) : (
-                <Typography variant="body2">TBD</Typography>
-              )}
+          {settingsHelper.shouldShowVendorAgreement() && (
+            <Box display="flex" pb={0.25}>
+              <Box className={classes.label}>Vendor Agreement</Box>
+              <Box>
+                {settings.vendor_agreement_docusign_template ? (
+                  <Link
+                    href={settings.vendor_agreement_docusign_template}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    Link
+                  </Link>
+                ) : (
+                  <Typography variant="body2">TBD</Typography>
+                )}
+              </Box>
             </Box>
-          </Box>
+          )}
+          {settingsHelper.shouldShowNoticeOfAssignment() && (
+            <Box display="flex" pb={0.25}>
+              <Box className={classes.label}>Notice of Assignment</Box>
+              <Box>
+                {settings.payor_agreement_docusign_template ? (
+                  <Link
+                    href={settings.payor_agreement_docusign_template}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    Link
+                  </Link>
+                ) : (
+                  <Typography variant="body2">TBD</Typography>
+                )}
+              </Box>
+            </Box>
+          )}
           <Box display="flex" pb={0.25}>
             <Box className={classes.label}>Autofinancing</Box>
             <Box>
