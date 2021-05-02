@@ -399,16 +399,23 @@ def import_settled_repayments_line_of_credit(
 			parsed_customer_identifier = customer.identifier
 
 			if parsed_to_minimum_fee > 0.0:
-				payment_util.create_and_add_account_level_fee(
+				_, err = payment_util.create_and_add_account_level_fee(
 					company_id=customer_id,
 					subtype=TransactionSubType.MINIMUM_INTEREST_FEE,
 					amount=parsed_to_minimum_fee,
 					originating_payment_id=None,
 					created_by_user_id=None,
 					payment_date=parsed_deposit_date,
-					effective_date=parsed_settlement_date,
+					effective_date=parsed_deposit_date,
 					session=session,
 				)
+
+				if err:
+					print(f'[{index + 1} of {repayments_count}] Could not create account level fee because of err: {err}')
+					print(f'EXITING EARLY')
+					return
+				else:
+					print(f'[{index + 1} of {repayments_count}] Created account level fee for {customer_name} ({parsed_customer_identifier}) of amount {parsed_to_minimum_fee}')
 
 			existing_repayment = cast(
 				models.Payment,
@@ -430,7 +437,6 @@ def import_settled_repayments_line_of_credit(
 				customer.latest_repayment_identifier += 1
 				new_latest_repayment_identifier = customer.latest_repayment_identifier
 
-				print('Customer paid {}'.format(parsed_amount))
 				repayment = models.Payment(
 					company_id=customer_id,
 					settlement_identifier=str(new_latest_repayment_identifier),
@@ -482,11 +488,26 @@ def import_settled_repayments_line_of_credit(
 			print(f'EXITING EARLY')
 			return
 
-		if parsed_to_customer > 0.0:
-			print('TODO: pay out from holding account to customer')
-
-
 		print(f'[{index + 1} of {repayments_count}] Created repayment for {customer_name} ({parsed_customer_identifier})')
+
+		if parsed_to_customer > 0.0:
+			with session_scope(session_maker) as session:
+				_, err = payment_util.create_and_add_credit_payout_to_customer(
+					company_id=customer_id,
+					payment_method=PaymentMethodEnum.UNKNOWN,
+					amount=parsed_to_customer,
+					created_by_user_id=None,
+					deposit_date=parsed_settlement_date,
+					effective_date=parsed_settlement_date,
+					session=session,
+				)
+
+				if err:
+					print(f'[{index + 1} of {repayments_count}] Could not create payout to customer because of err: {err}')
+					print(f'EXITING EARLY')
+					return
+				else:
+					print(f'[{index + 1} of {repayments_count}] Created payout to customer for {customer_name} ({parsed_customer_identifier}) of amount {parsed_to_customer}')
 
 		with session_scope(session_maker) as session:
 			# Load up a LoanCalculator and check if loan is closed.
