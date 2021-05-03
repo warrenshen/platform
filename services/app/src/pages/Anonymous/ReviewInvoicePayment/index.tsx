@@ -265,24 +265,13 @@ export default function ReviewInvoicePaymentPage(props: Props) {
               }
             />
           )}
-          <Box mr={2}>
+          <Box display="flex">
             <Button
-              disabled={false}
-              onClick={() => setIsRejectModalOpen(true)}
-              variant={"contained"}
-              color={"default"}
-            >
-              Reject
-            </Button>
-          </Box>
-          <Box>
-            <Button
-              disabled={false}
               onClick={() => setIsConfirmModalOpen(true)}
               variant={"contained"}
               color={"primary"}
             >
-              Confirm
+              Notify Bespoke Financial of Payment
             </Button>
           </Box>
         </Box>

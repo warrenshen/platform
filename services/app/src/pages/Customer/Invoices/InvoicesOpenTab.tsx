@@ -247,7 +247,7 @@ export default function CustomerInvoicesOpenTab({
             <Box mr={1}>
               <ModalButton
                 isDisabled={!selectedApprovedInvoiceIds.length}
-                label={"Request Payment"}
+                label={"Request Payment From Payor"}
                 modal={({ handleClose }) => (
                   <RequestPaymentOnInvoiceModal
                     invoices={invoices.filter(
