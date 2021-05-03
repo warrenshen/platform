@@ -94,8 +94,18 @@ export default function ReviewInvoicePaymentPage(props: Props) {
     )[0];
     return invoiceFile ? [invoiceFile.file_id] : [];
   }, [invoice]);
+  const invoiceCannabisFileIds = useMemo(
+    () =>
+      invoice?.invoice_files
+        .filter(
+          (invoiceFile) =>
+            invoiceFile.file_type === InvoiceFileTypeEnum.Cannabis
+        )
+        .map((invoiceFile) => invoiceFile.file_id) || [],
+    [invoice]
+  );
 
-  // If we've already confirmed this invoice, redirect to the complete page
+  // If we've already paid off this invoice, redirect to the complete page
   if (
     invoice &&
     (invoice.payment_confirmed_at || invoice.payment_rejected_at)
@@ -179,6 +189,17 @@ export default function ReviewInvoicePaymentPage(props: Props) {
             fileType={FileTypeEnum.INVOICE}
           />
         </Box>
+        {invoice?.is_cannabis && (
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
+              Cannabis or Derivatives File(s)
+            </Typography>
+            <DownloadThumbnail
+              fileIds={invoiceCannabisFileIds}
+              fileType={FileTypeEnum.INVOICE}
+            />
+          </Box>
+        )}
         {collectionsAccount && (
           <Box mr={3} className={classes.paymentInfo}>
             <Typography variant="subtitle1">Payment Information</Typography>

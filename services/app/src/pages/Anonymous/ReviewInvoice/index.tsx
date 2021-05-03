@@ -89,6 +89,16 @@ export default function ReviewInvoicePage(props: Props) {
     )[0];
     return invoiceFile ? [invoiceFile.file_id] : [];
   }, [invoice]);
+  const invoiceCannabisFileIds = useMemo(
+    () =>
+      invoice?.invoice_files
+        .filter(
+          (invoiceFile) =>
+            invoiceFile.file_type === InvoiceFileTypeEnum.Cannabis
+        )
+        .map((invoiceFile) => invoiceFile.file_id) || [],
+    [invoice]
+  );
 
   if (
     invoice &&
@@ -177,6 +187,17 @@ export default function ReviewInvoicePage(props: Props) {
             fileType={FileTypeEnum.INVOICE}
           />
         </Box>
+        {invoice?.is_cannabis && (
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
+              Cannabis or Derivatives File(s)
+            </Typography>
+            <DownloadThumbnail
+              fileIds={invoiceCannabisFileIds}
+              fileType={FileTypeEnum.INVOICE}
+            />
+          </Box>
+        )}
         <Box display="flex" justifyContent="center" mt={4}>
           {isApproveModalOpen && (
             <ReviewInvoiceApproveModal

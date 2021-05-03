@@ -91,16 +91,16 @@ function ReviewPurchaseOrderPage({ location }: Props) {
     )[0];
     return purchaseOrderFile ? [purchaseOrderFile.file_id] : [];
   }, [purchaseOrder]);
-  const purchaseOrderCannabisFileIds = useMemo(() => {
-    return (
+  const purchaseOrderCannabisFileIds = useMemo(
+    () =>
       purchaseOrder?.purchase_order_files
         .filter(
           (purchaseOrderFile) =>
             purchaseOrderFile.file_type === PurchaseOrderFileTypeEnum.Cannabis
         )
-        .map((purchaseOrderFile) => purchaseOrderFile.file_id) || []
-    );
-  }, [purchaseOrder]);
+        .map((purchaseOrderFile) => purchaseOrderFile.file_id) || [],
+    [purchaseOrder]
+  );
 
   if (
     purchaseOrder &&
