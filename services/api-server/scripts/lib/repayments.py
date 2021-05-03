@@ -399,7 +399,7 @@ def import_settled_repayments_line_of_credit(
 			parsed_customer_identifier = customer.identifier
 
 			if parsed_to_minimum_fee > 0.0:
-				_, err = payment_util.create_and_add_account_level_fee(
+				_ = payment_util.create_and_add_account_level_fee(
 					company_id=customer_id,
 					subtype=TransactionSubType.MINIMUM_INTEREST_FEE,
 					amount=parsed_to_minimum_fee,
@@ -410,12 +410,7 @@ def import_settled_repayments_line_of_credit(
 					session=session,
 				)
 
-				if err:
-					print(f'[{index + 1} of {repayments_count}] Could not create account level fee because of err: {err}')
-					print(f'EXITING EARLY')
-					return
-				else:
-					print(f'[{index + 1} of {repayments_count}] Created account level fee for {customer_name} ({parsed_customer_identifier}) of amount {parsed_to_minimum_fee}')
+				print(f'[{index + 1} of {repayments_count}] Created account level fee for {customer_name} ({parsed_customer_identifier}) of amount {parsed_to_minimum_fee}')
 
 			existing_repayment = cast(
 				models.Payment,

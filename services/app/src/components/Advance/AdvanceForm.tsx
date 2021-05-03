@@ -12,9 +12,9 @@ import {
   Typography,
 } from "@material-ui/core";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
-import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import { GetLoansByLoanIdsQuery, PaymentsInsertInput } from "generated/graphql";
+import { formatCurrency } from "lib/currency";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
 import { ChangeEvent } from "react";
 
@@ -61,9 +61,12 @@ export default function AdvanceForm({
         />
       </Box>
       <Box mt={4}>
-        <FormControl>
-          <CurrencyInput isDisabled label={"Amount"} value={payment.amount} />
-        </FormControl>
+        <Typography variant="body2" color="textSecondary">
+          Amount
+        </Typography>
+        <Typography variant="body1">
+          {formatCurrency(payment.amount)}
+        </Typography>
       </Box>
       <Box mt={4}>
         <FormControl className={classes.inputField}>

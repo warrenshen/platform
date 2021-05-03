@@ -1,7 +1,7 @@
 import AdvanceForm from "components/Advance/AdvanceForm";
 import Modal from "components/Shared/Modal/Modal";
 import {
-  LoanFragment,
+  Loans,
   PaymentsInsertInput,
   useGetLoansByLoanIdsQuery,
 } from "generated/graphql";
@@ -16,27 +16,15 @@ import {
 import { useEffect, useState } from "react";
 
 interface Props {
-  selectedLoanIds: LoanFragment[];
+  selectedLoanIds: Loans["id"];
   handleClose: () => void;
 }
 
 function CreateAdvanceModal({ selectedLoanIds, handleClose }: Props) {
   const snackbar = useSnackbar();
 
-  const { data } = useGetLoansByLoanIdsQuery({
-    variables: {
-      loan_ids: selectedLoanIds,
-    },
-  });
-  console.log({ data });
-  const selectedLoans = data?.loans || [];
-  const loansTotal = selectedLoans.reduce(
-    (sum, loan) => sum + loan.amount || 0,
-    0
-  );
-
   const newPayment = {
-    amount: loansTotal,
+    amount: null,
     method: "",
     payment_date: todayAsDateStringServer(),
     settlement_date: null,
@@ -44,6 +32,22 @@ function CreateAdvanceModal({ selectedLoanIds, handleClose }: Props) {
 
   const [payment, setPayment] = useState(newPayment);
   const [shouldChargeWireFee, setShouldChargeWireFee] = useState(false);
+
+  const { data } = useGetLoansByLoanIdsQuery({
+    variables: {
+      loan_ids: selectedLoanIds,
+    },
+    onCompleted: (data) => {
+      const selectedLoans = data?.loans || [];
+      setPayment({
+        ...payment,
+        amount: selectedLoans.reduce((sum, loan) => sum + loan.amount || 0, 0),
+      });
+    },
+  });
+
+  const selectedLoans = data?.loans || [];
+  console.log({ data, selectedLoans });
 
   useEffect(() => {
     // When user changes payment method or payment date,
