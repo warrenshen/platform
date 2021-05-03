@@ -87,8 +87,11 @@ def main() -> None:
 					# If disbursement_identifier is "2", convert it to 2.
 					numeric_disbursement_identifier = int(float(raw_disbursement_identifier))
 				except Exception:
-					# If disbursement_identifier from XLSX is "2A", convert it to 2.
-					numeric_disbursement_identifier = int("".join(filter(str.isdigit, raw_disbursement_identifier)))
+					if raw_disbursement_identifier.strip() == 'PB':
+						numeric_disbursement_identifier = 0
+					else:
+						# If disbursement_identifier from XLSX is "2A", convert it to 2.
+						numeric_disbursement_identifier = int("".join(filter(str.isdigit, raw_disbursement_identifier)))
 
 				print(f'Setting advance settlement identifier to {numeric_disbursement_identifier}')
 				# advance.settlement_identifier = str(numeric_disbursement_identifier)

@@ -126,10 +126,20 @@ function ContractDrawer({ contractId, handleClose }: Props) {
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
-              End Date
+              Expected End Date
             </Typography>
             <Typography variant={"body1"}>
               {contract.end_date ? formatDateString(contract.end_date) : "-"}
+            </Typography>
+          </Box>
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
+              Termination Date
+            </Typography>
+            <Typography variant={"body1"}>
+              {!!contract.terminated_at
+                ? formatDateString(contract.adjusted_end_date)
+                : "TBD"}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
