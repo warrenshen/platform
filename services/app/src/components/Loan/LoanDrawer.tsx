@@ -6,6 +6,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import InvoiceInfoCard from "components/Invoices/InvoiceInfoCard";
 import UpdateLoanNotesModal from "components/Loans/UpdateLoanNotesModal";
 import PurchaseOrderInfoCard from "components/PurchaseOrder/PurchaseOrderInfoCard";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
@@ -208,6 +209,22 @@ function LoanDrawer({ loanId, handleClose }: Props) {
                     <PurchaseOrderInfoCard
                       purchaseOrder={loan.purchase_order}
                     />
+                  </Box>
+                ) : (
+                  <Typography variant="body1">Not found</Typography>
+                )}
+              </Box>
+            </>
+          )}
+          {loan.loan_type === LoanTypeEnum.Invoice && (
+            <>
+              <Box display="flex" flexDirection="column" mt={2}>
+                <Typography variant="subtitle2" color="textSecondary">
+                  Invoice
+                </Typography>
+                {loan.invoice ? (
+                  <Box mt={1}>
+                    <InvoiceInfoCard invoice={loan.invoice} />
                   </Box>
                 ) : (
                   <Typography variant="body1">Not found</Typography>
