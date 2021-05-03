@@ -161,7 +161,7 @@ function FileUploadDropzone({
   isSaveAutomatic = true,
   companyId,
   docType,
-  maxFilesAllowed = 10,
+  maxFilesAllowed = 25,
   onUploadComplete,
 }: Props) {
   const classes = useStyles();

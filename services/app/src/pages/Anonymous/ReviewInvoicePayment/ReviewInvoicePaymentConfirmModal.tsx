@@ -107,7 +107,7 @@ export default function ReviewInvoicePaymentConfirmModal({
       classes={{ paper: classes.dialog }}
     >
       <DialogTitle className={classes.dialogTitle}>
-        Confirm Your Payment
+        Notify Bespoke Financial of Payment
       </DialogTitle>
       <DialogContent>
         <DialogContentText>
