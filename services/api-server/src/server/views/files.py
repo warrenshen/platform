@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 from io import BytesIO
 from typing import Any, Callable, List, Tuple, cast
+from botocore.config import Config as BotocoreConfig
 
 import boto3
 import requests
@@ -53,6 +54,9 @@ def _save_file_to_db(
 			id=str(file_orm.id),
 			path=file_orm.path
 		)
+
+def _get_s3_client() -> Any:
+	return boto3.client('s3', region_name='us-west-2', config = BotocoreConfig(signature_version = 's3v4', s3={'addressing_style': 'virtual'}))
 
 def _check_file_permission(
 	check_file_permissions: bool, file_type: str, file_id: str, user_session: UserSession, session: Session) -> Tuple[bool, errors.Error]:
@@ -173,7 +177,7 @@ class PutSignedUrlView(MethodView):
 
 	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
-		s3_client = boto3.client('s3')
+		s3_client = _get_s3_client()
 		cfg = cast(Config, current_app.app_config)
 		bucket_name = cfg.S3_BUCKET_NAME
 
@@ -228,7 +232,7 @@ class DownloadSignedUrlView(MethodView):
 
 	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
-		s3_client = boto3.client('s3')
+		s3_client = _get_s3_client()
 		cfg = cast(Config, current_app.app_config)
 		bucket_name = cfg.S3_BUCKET_NAME
 
@@ -278,6 +282,7 @@ class DownloadSignedUrlView(MethodView):
 						},
 						ExpiresIn=300,
 					)
+
 					files_data.append({
 						'id': file_id,
 						'name': file_orm.name,
@@ -297,7 +302,7 @@ class UploadSignedUrlView(MethodView):
 
 	@handler_util.catch_bad_json_request
 	def put(self) -> Response:
-		s3_client = boto3.client('s3')
+		s3_client = _get_s3_client()
 		cfg = cast(Config, current_app.app_config)
 		bucket_name = cfg.S3_BUCKET_NAME
 
