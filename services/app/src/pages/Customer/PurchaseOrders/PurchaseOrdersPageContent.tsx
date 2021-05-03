@@ -17,7 +17,7 @@ function CustomerPurchaseOrdersPageContent({ companyId, productType }: Props) {
     <PageContent
       title={"Purchase Orders"}
       subtitle={
-        "Submit a new PO, edit an existing PO, or request financing for approved POs."
+        "Create new POs, edit existing POs, and request financing for approved POs."
       }
     >
       <Tabs

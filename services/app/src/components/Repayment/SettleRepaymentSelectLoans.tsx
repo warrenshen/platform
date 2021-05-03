@@ -166,6 +166,7 @@ function SettleRepaymentSelectLoans({
             </Box>
             <Typography variant="subtitle1">Selected loans</Typography>
             <LoansDataGrid
+              isArtifactVisible
               isDaysPastDueVisible
               isDisbursementIdentifierVisible
               isMaturityVisible
@@ -198,6 +199,7 @@ function SettleRepaymentSelectLoans({
           <Box mt={4}>
             <Typography variant="subtitle1">Not selected loans</Typography>
             <LoansDataGrid
+              isArtifactVisible
               isDaysPastDueVisible
               isDisbursementIdentifierVisible
               isMaturityVisible

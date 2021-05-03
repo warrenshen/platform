@@ -20,7 +20,7 @@ export default function InvoicesFundedUnfundedList({
     <PageContent
       title={"Invoices"}
       subtitle={
-        "Submit a new invoice, edit an existing invoice, or request financing for approved invoices."
+        "Create new invoices, edit existing invoices, and request financing for approved invoices."
       }
     >
       <Tabs

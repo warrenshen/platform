@@ -84,9 +84,11 @@ function BankLoansActionRequiredTab() {
     [selectedLoans]
   );
 
-  const approvedSelectedLoans = useMemo(
+  const approvedSelectedLoanIds = useMemo(
     () =>
-      selectedLoans.filter((loan) => loan.status === LoanStatusEnum.Approved),
+      selectedLoans
+        .filter((loan) => loan.status === LoanStatusEnum.Approved)
+        .map((loan) => loan.id),
     [selectedLoans]
   );
 
@@ -98,12 +100,12 @@ function BankLoansActionRequiredTab() {
             <ModalButton
               isDisabled={
                 approvalRequestedSelectedLoans.length > 0 ||
-                approvedSelectedLoans.length <= 0
+                approvedSelectedLoanIds.length <= 0
               }
               label={"Create Advance"}
               modal={({ handleClose }) => (
                 <CreateAdvanceModal
-                  selectedLoans={selectedLoans}
+                  selectedLoanIds={approvedSelectedLoanIds}
                   handleClose={() => {
                     handleClose();
                     setSelectedLoanIds([]);
@@ -118,7 +120,7 @@ function BankLoansActionRequiredTab() {
             <Button
               disabled={
                 approvalRequestedSelectedLoans.length <= 0 ||
-                approvedSelectedLoans.length > 0
+                approvedSelectedLoanIds.length > 0
               }
               variant="contained"
               color="primary"
@@ -133,7 +135,7 @@ function BankLoansActionRequiredTab() {
             <ModalButton
               isDisabled={
                 approvalRequestedSelectedLoans.length !== 1 ||
-                approvedSelectedLoans.length > 0
+                approvedSelectedLoanIds.length > 0
               }
               label={"Reject Loan"}
               modal={({ handleClose }) => (

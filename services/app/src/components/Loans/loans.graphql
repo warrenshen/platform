@@ -167,9 +167,10 @@ query GetLoansByCompanyAndLoanType(
   }
 }
 
-query GetLoansByLoanIds($loanIds: [uuid!]) {
-  loans(where: { id: { _in: $loanIds } }) {
+query GetLoansByLoanIds($loan_ids: [uuid!]!) {
+  loans(where: { id: { _in: $loan_ids } }) {
     id
     ...Loan
+    ...LoanArtifact
   }
 }

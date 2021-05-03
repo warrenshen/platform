@@ -105,7 +105,7 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
   const { data: selectedLoansData } = useGetLoansByLoanIdsQuery({
     skip: !payment?.items_covered?.loan_ids,
     variables: {
-      loanIds: payment?.items_covered?.loan_ids || [],
+      loan_ids: payment?.items_covered?.loan_ids || [],
     },
   });
 

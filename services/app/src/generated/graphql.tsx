@@ -15954,11 +15954,11 @@ export type GetLoansByCompanyAndLoanTypeQuery = {
 };
 
 export type GetLoansByLoanIdsQueryVariables = Exact<{
-  loanIds?: Maybe<Array<Scalars["uuid"]>>;
+  loan_ids: Array<Scalars["uuid"]>;
 }>;
 
 export type GetLoansByLoanIdsQuery = {
-  loans: Array<Pick<Loans, "id"> & LoanFragment>;
+  loans: Array<Pick<Loans, "id"> & LoanFragment & LoanArtifactFragment>;
 };
 
 export type GetBankPayorPartnershipQueryVariables = Exact<{
@@ -20521,13 +20521,15 @@ export type GetLoansByCompanyAndLoanTypeQueryResult = Apollo.QueryResult<
   GetLoansByCompanyAndLoanTypeQueryVariables
 >;
 export const GetLoansByLoanIdsDocument = gql`
-  query GetLoansByLoanIds($loanIds: [uuid!]) {
-    loans(where: { id: { _in: $loanIds } }) {
+  query GetLoansByLoanIds($loan_ids: [uuid!]!) {
+    loans(where: { id: { _in: $loan_ids } }) {
       id
       ...Loan
+      ...LoanArtifact
     }
   }
   ${LoanFragmentDoc}
+  ${LoanArtifactFragmentDoc}
 `;
 
 /**
@@ -20542,12 +20544,12 @@ export const GetLoansByLoanIdsDocument = gql`
  * @example
  * const { data, loading, error } = useGetLoansByLoanIdsQuery({
  *   variables: {
- *      loanIds: // value for 'loanIds'
+ *      loan_ids: // value for 'loan_ids'
  *   },
  * });
  */
 export function useGetLoansByLoanIdsQuery(
-  baseOptions?: Apollo.QueryHookOptions<
+  baseOptions: Apollo.QueryHookOptions<
     GetLoansByLoanIdsQuery,
     GetLoansByLoanIdsQueryVariables
   >

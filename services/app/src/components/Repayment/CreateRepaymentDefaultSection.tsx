@@ -78,6 +78,7 @@ export default function CreateRepaymentDefaultSection({
           Which loan(s) would you like to pay for?
         </Typography>
         <LoansDataGrid
+          isArtifactVisible
           isDaysPastDueVisible
           isMaturityVisible
           isSortingDisabled

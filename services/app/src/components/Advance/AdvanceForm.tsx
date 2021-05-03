@@ -14,7 +14,7 @@ import {
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
-import { LoanFragment, PaymentsInsertInput } from "generated/graphql";
+import { GetLoansByLoanIdsQuery, PaymentsInsertInput } from "generated/graphql";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
 import { ChangeEvent } from "react";
 
@@ -28,13 +28,13 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   payment: PaymentsInsertInput;
-  selectedLoans: LoanFragment[];
+  selectedLoans: GetLoansByLoanIdsQuery["loans"];
   setPayment: (payment: PaymentsInsertInput) => void;
   shouldChargeWireFee: boolean;
   setShouldChargeWireFee: (val: boolean) => void;
 }
 
-function PaymentAdvanceForm({
+export default function AdvanceForm({
   payment,
   selectedLoans,
   setPayment,
@@ -53,6 +53,7 @@ function PaymentAdvanceForm({
       </Box>
       <Box mt={4}>
         <LoansDataGrid
+          isArtifactVisible
           isCompanyVisible
           isSortingDisabled
           isStatusVisible={false}
@@ -155,5 +156,3 @@ function PaymentAdvanceForm({
     </Box>
   );
 }
-
-export default PaymentAdvanceForm;

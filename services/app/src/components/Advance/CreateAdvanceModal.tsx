@@ -1,6 +1,10 @@
 import AdvanceForm from "components/Advance/AdvanceForm";
 import Modal from "components/Shared/Modal/Modal";
-import { LoanFragment, PaymentsInsertInput } from "generated/graphql";
+import {
+  LoanFragment,
+  PaymentsInsertInput,
+  useGetLoansByLoanIdsQuery,
+} from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, loansRoutes } from "lib/api";
 import { todayAsDateStringServer } from "lib/date";
@@ -12,19 +16,25 @@ import {
 import { useEffect, useState } from "react";
 
 interface Props {
-  selectedLoans: LoanFragment[];
+  selectedLoanIds: LoanFragment[];
   handleClose: () => void;
 }
 
-function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
+function CreateAdvanceModal({ selectedLoanIds, handleClose }: Props) {
   const snackbar = useSnackbar();
 
+  const { data } = useGetLoansByLoanIdsQuery({
+    variables: {
+      loan_ids: selectedLoanIds,
+    },
+  });
+  console.log({ data });
+  const selectedLoans = data?.loans || [];
   const loansTotal = selectedLoans.reduce(
     (sum, loan) => sum + loan.amount || 0,
     0
   );
 
-  // Default PurchaseOrder for CREATE case.
   const newPayment = {
     amount: loansTotal,
     method: "",
@@ -81,13 +91,13 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
         payment_date: payment.payment_date,
         settlement_date: payment.settlement_date,
       },
-      loan_ids: selectedLoans.map((loan) => loan.id),
+      loan_ids: selectedLoanIds,
       should_charge_wire_fee: shouldChargeWireFee,
     });
 
     if (response.data?.status === "ERROR") {
       snackbar.showError(
-        `Could not create advance(s). Reason: ${response.data?.msg}`
+        `Could not create advance(s). Error: ${response.data?.msg}`
       );
     } else {
       snackbar.showSuccess("Advance(s) created.");
@@ -104,7 +114,7 @@ function CreateAdvanceModal({ selectedLoans, handleClose }: Props) {
     <Modal
       isPrimaryActionDisabled={isSubmitDisabled}
       title={"Create Advance(s)"}
-      contentWidth={800}
+      contentWidth={1000}
       primaryActionText={"Submit"}
       handleClose={handleClose}
       handlePrimaryAction={handleClickSubmit}

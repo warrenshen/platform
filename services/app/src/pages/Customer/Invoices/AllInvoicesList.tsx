@@ -3,6 +3,7 @@ import CreateUpdateInvoiceModal from "components/Invoices/CreateUpdateInvoiceMod
 import InvoicesDataGrid from "components/Invoices/InvoicesDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
+import PageContent from "components/Shared/Page/PageContent";
 import {
   Companies,
   InvoiceFragment,
@@ -56,8 +57,6 @@ export default function AllInvoicesList({ companyId, productType }: Props) {
     alert(`Error in query (details in console): ${error.message}`);
   }
 
-  console.log(data);
-
   const invoices = useMemo(() => data?.invoices || [], [data?.invoices]);
 
   const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<
@@ -71,65 +70,70 @@ export default function AllInvoicesList({ companyId, productType }: Props) {
   );
 
   return (
-    <Container>
-      <Box
-        display="flex"
-        flexDirection="column"
-        width="100%"
-        className={classes.section}
-      >
-        <Box mb={2} display="flex" flexDirection="row-reverse">
-          <Can perform={Action.AddInvoices}>
-            <ModalButton
-              isDisabled={selectedInvoiceIds.length !== 0}
-              label={"Create Invoice for Payor"}
-              modal={({ handleClose }) => (
-                <CreateUpdateInvoiceModal
-                  isInvoiceForLoan={false}
-                  actionType={ActionType.New}
-                  companyId={companyId}
-                  invoiceId={null}
-                  productType={productType}
-                  handleClose={() => {
-                    refetch();
-                    handleClose();
-                  }}
-                />
-              )}
-            />
-          </Can>
-          <Can perform={Action.EditInvoices}>
-            <Box mr={1}>
+    <PageContent
+      title={"Invoices"}
+      subtitle={"Create invoices and send invoices to Payors for payment."}
+    >
+      <Container>
+        <Box
+          display="flex"
+          flexDirection="column"
+          width="100%"
+          className={classes.section}
+        >
+          <Box mb={2} display="flex" flexDirection="row-reverse">
+            <Can perform={Action.AddInvoices}>
               <ModalButton
-                isDisabled={selectedInvoiceIds.length !== 1}
-                label={"Edit Invoice"}
+                isDisabled={selectedInvoiceIds.length !== 0}
+                label={"Create Invoice for Payor"}
                 modal={({ handleClose }) => (
                   <CreateUpdateInvoiceModal
                     isInvoiceForLoan={false}
-                    actionType={ActionType.Update}
+                    actionType={ActionType.New}
                     companyId={companyId}
-                    invoiceId={selectedInvoiceIds[0]}
+                    invoiceId={null}
                     productType={productType}
                     handleClose={() => {
                       refetch();
                       handleClose();
-                      handleSelectInvoices([]);
                     }}
                   />
                 )}
               />
-            </Box>
-          </Can>
+            </Can>
+            <Can perform={Action.EditInvoices}>
+              <Box mr={1}>
+                <ModalButton
+                  isDisabled={selectedInvoiceIds.length !== 1}
+                  label={"Edit Invoice"}
+                  modal={({ handleClose }) => (
+                    <CreateUpdateInvoiceModal
+                      isInvoiceForLoan={false}
+                      actionType={ActionType.Update}
+                      companyId={companyId}
+                      invoiceId={selectedInvoiceIds[0]}
+                      productType={productType}
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                        handleSelectInvoices([]);
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            </Can>
+          </Box>
         </Box>
-      </Box>
-      <Box>
-        <InvoicesDataGrid
-          isCompanyVisible={false}
-          invoices={invoices}
-          selectedInvoiceIds={selectedInvoiceIds}
-          handleSelectedInvoices={handleSelectInvoices}
-        />
-      </Box>
-    </Container>
+        <Box>
+          <InvoicesDataGrid
+            isCompanyVisible={false}
+            invoices={invoices}
+            selectedInvoiceIds={selectedInvoiceIds}
+            handleSelectedInvoices={handleSelectInvoices}
+          />
+        </Box>
+      </Container>
+    </PageContent>
   );
 }

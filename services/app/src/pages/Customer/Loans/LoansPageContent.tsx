@@ -52,9 +52,7 @@ function CustomerLoansPageContent({ companyId, productType }: Props) {
   return (
     <PageContent
       title={"Loans"}
-      subtitle={
-        "Request a new loan, edit an existing loan request, or make payments towards financed loans."
-      }
+      subtitle={"Request new loans and make payments towards financed loans."}
       customerActions={
         <Box
           display="flex"
