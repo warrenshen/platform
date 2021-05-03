@@ -572,7 +572,7 @@ class LoanCalculator(object):
 
 			if outstanding_principal_for_interest == 0:
 				interest_rate_used = 0.0
-			elif outstanding_principal_for_interest < 0:
+			elif number_util.round_currency(outstanding_principal_for_interest) < 0:
 				logging.warn(f'Outstanding principal for interest ({outstanding_principal_for_interest}) is negative on {cur_date} for loan {loan["id"]}')
 				interest_due_for_day = 0.0
 
