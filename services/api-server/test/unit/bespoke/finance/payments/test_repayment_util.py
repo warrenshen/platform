@@ -309,7 +309,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 
 		self._run_test(test)
 
-	def test_custom_amount_multiple_loans_cant_pay_off_everything(self) -> None:
+	def test_custom_amount_multiple_loans_cant_pay_off_everything_no_fees(self) -> None:
 		daily_interest1 = INTEREST_RATE * 10.00 # == 0.02
 		daily_interest2 = INTEREST_RATE * 30.00
 		daily_interest3 = INTEREST_RATE * 50.00
@@ -382,12 +382,12 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 					loan_identifier='filled in by test',
 					transaction=TransactionInputDict(
 						amount=4.65, # 15.05 - 10.4
-						to_principal=3.99,
-						# You pay off the interest first on the deposit_date, and the remaining
+						to_principal=3.69,
+						# You pay off the interest up through the settlement date, and the remaining
 						# money goes to the principal.
 						#
-						# Any exccess interest and fees cant be paid off (that got accumulated due to the settlement date)
-						to_interest=daily_interest2 * 11, # 0.66
+						# Any exccess principal cant be paid off
+						to_interest=daily_interest2 * 16, # 0.66
 						to_fees=0.0
 					),
 					before_loan_balance=LoanBalanceDict(
@@ -398,8 +398,130 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 					),
 					after_loan_balance=LoanBalanceDict(
 						amount=30.00,
-						outstanding_principal_balance=30.0 - 3.99,
-						outstanding_interest=daily_interest2 * 5,
+						outstanding_principal_balance=30.0 - 3.69,
+						outstanding_interest=0.0,
+						outstanding_fees=0.0
+					)
+				),
+				LoanToShowDict(
+					loan_id='filled in by test',
+					loan_identifier='filled in by test',
+					# You didnt have money to pay off any of this loan.
+					transaction=TransactionInputDict(
+						amount=0.0,
+						to_principal=0.0,
+						to_interest=0.0,
+						to_fees=0.0
+					),
+					before_loan_balance=LoanBalanceDict(
+						amount=50.00,
+						outstanding_principal_balance=50.0,
+						outstanding_interest=daily_interest3 * 11,
+						outstanding_fees=0.0
+					),
+					after_loan_balance=LoanBalanceDict(
+						amount=50.00,
+						outstanding_principal_balance=50.0,
+						outstanding_interest=daily_interest3 * 11,
+						outstanding_fees=0.0
+					)
+				)
+			],
+			'expected_past_due_but_not_selected_indices': []
+		}
+
+		self._run_test(test)
+
+	def test_custom_amount_multiple_loans_cant_pay_off_everything_has_fees(self) -> None:
+		daily_interest1 = INTEREST_RATE * 10.00 # == 0.02
+		daily_interest2 = INTEREST_RATE * 30.00 # == 0.06
+		daily_interest3 = INTEREST_RATE * 50.00
+
+		test: Dict = {
+			'comment': 'The user pays exactly what they specified',
+			'loans': [
+				models.Loan(
+					amount=decimal.Decimal(10.00),
+					origination_date=date_util.load_date_str('2/01/2020'),
+					adjusted_maturity_date=date_util.load_date_str('02/10/2020')
+				),
+				models.Loan(
+					amount=decimal.Decimal(30.00),
+					origination_date=date_util.load_date_str('02/05/2020'),
+					adjusted_maturity_date=date_util.load_date_str('02/12/2020')
+				),
+				models.Loan(
+					amount=decimal.Decimal(50.00),
+					origination_date=date_util.load_date_str('02/10/2020'),
+					adjusted_maturity_date=date_util.load_date_str('10/14/2020')
+				)
+			],
+			'transaction_lists': [
+				# Transactions are parallel to the loans defined in the test.
+				# These will be advances or repayments made against their respective loans.
+				[{'type': 'advance', 'amount': 10.00, 'payment_date': '02/01/2020', 'effective_date': '02/01/2020'}],
+				[{'type': 'advance', 'amount': 30.00, 'payment_date': '02/05/2020', 'effective_date': '02/05/2020'}],
+				[{'type': 'advance', 'amount': 50.00, 'payment_date': '02/10/2020', 'effective_date': '02/10/2020'}]
+			],
+			'deposit_date': '02/15/2020',
+			'settlement_date': '02/20/2020',
+			'payment_option': 'custom_amount',
+			'payment_input_amount': 15.05,
+			'expected_amount_to_pay': 15.05,
+			'expected_amount_as_credit_to_user': 0.0,
+			'expected_loans_to_show': [
+				# We don't have enough money to pay off the second two loans,
+				# and we have a partial repayment to the 2nd loan.
+				LoanToShowDict(
+					loan_id='filled in by test',
+					loan_identifier='filled in by test',
+					# We have 5 days of fee payments on the first loan that all get paid off
+					# From 02/10/2020 to 02/15/2020 (the deposit_date) and then the fees
+					# stop accumulating since its a full repayment on 02/15/2020
+					transaction=TransactionInputDict(
+						amount=number_util.round_currency(10.0 + (daily_interest1 * 20) + daily_interest1 * 5 * 0.25), 
+						to_principal=10.0,
+						to_interest=0.4, # (daily_interest1 * 20)
+						to_fees=number_util.round_currency(daily_interest1 * 5 * 0.25)
+					),
+					before_loan_balance=LoanBalanceDict(
+						amount=10.00,
+						outstanding_principal_balance=10.0,
+						outstanding_interest=0.4, # (daily_interest1 * 20)
+						outstanding_fees=number_util.round_currency(daily_interest1 * 5 * 0.25)
+					),
+					after_loan_balance=LoanBalanceDict(
+						amount=10.00,
+						outstanding_principal_balance=0.0,
+						outstanding_interest=0.0,
+						outstanding_fees=0.0
+					)
+				),
+				LoanToShowDict(
+					loan_id='filled in by test',
+					loan_identifier='filled in by test',
+					transaction=TransactionInputDict(
+						amount=15.05 - 10.43, # 10.43 is the amount paid to the first loan
+						to_principal=(15.05 - 10.43) - 0.96 - 0.12,
+						# You pay off the interest up through the settlement date, and the remaining
+						# money goes to the principal.
+						#
+						# Any exccess principal cant be paid off
+						to_interest=daily_interest2 * 16, # 0.96
+						# 8 days of late fees that include settlement days
+						# because you didnt do the full repayment of the principal
+						to_fees=8 * daily_interest2 * 0.25 # 0.12
+					),
+					before_loan_balance=LoanBalanceDict(
+						amount=30.00,
+						outstanding_principal_balance=30.0,
+						outstanding_interest=daily_interest2 * 16,
+						outstanding_fees=8 * daily_interest2 * 0.25
+					),
+					after_loan_balance=LoanBalanceDict(
+						amount=30.00,
+						outstanding_principal_balance=30.0 - ((15.05 - 10.43) - 0.96 - 0.12),
+						outstanding_interest=0.0,
 						outstanding_fees=0.0
 					)
 				),

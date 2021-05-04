@@ -332,7 +332,7 @@ def calculate_repayment_effect(
 
 		loan_after_payment = calculate_result['loan_update']
 		payment_effect = calculate_result['payment_effect']
-		loan_before_payment = payment_effect['loan_update_before_payment']
+		loan_before_payment = payment_effect['loan_state_before_payment']
 
 		loans_to_show.append(LoanToShowDict(
 			loan_id=loan_dict['id'],
@@ -939,7 +939,7 @@ def settle_repayment(
 				if errs:
 					raise errors.Error('\n'.join([err.msg for err in errs]))
 
-				before_loan_update = calculate_result['payment_effect']['loan_update_before_payment']
+				before_loan_update = calculate_result['payment_effect']['loan_state_before_payment']
 				cur_transaction = calculate_result['payment_effect']['transaction']
 
 				# Keep track of what this loan balance is as of the date that this repayment
@@ -1028,7 +1028,7 @@ def settle_repayment(
 				if errs:
 					raise errors.Error('\n'.join([err.msg for err in errs]))
 
-				before_loan_update = calculate_result['payment_effect']['loan_update_before_payment']
+				before_loan_update = calculate_result['payment_effect']['loan_state_before_payment']
 
 				# Keep track of what this loan balance is as of the date that this repayment
 				# will settle (so we have to calculate the additional interest and fees that will accrue)
