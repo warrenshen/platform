@@ -5,8 +5,9 @@ import {
   PaymentsInsertInput,
   useGetLoansByLoanIdsQuery,
 } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { authenticatedApi, loansRoutes } from "lib/api";
+import { createAdvanceMutation } from "lib/api/payments";
 import { todayAsDateStringServer } from "lib/date";
 import { PaymentMethodEnum } from "lib/enum";
 import {
@@ -20,7 +21,10 @@ interface Props {
   handleClose: () => void;
 }
 
-function CreateAdvanceModal({ selectedLoanIds, handleClose }: Props) {
+export default function CreateAdvanceModal({
+  selectedLoanIds,
+  handleClose,
+}: Props) {
   const snackbar = useSnackbar();
 
   const newPayment = {
@@ -47,7 +51,11 @@ function CreateAdvanceModal({ selectedLoanIds, handleClose }: Props) {
   });
 
   const selectedLoans = data?.loans || [];
-  console.log({ data, selectedLoans });
+
+  const [
+    createAdvance,
+    { loading: isCreateAdvanceLoading },
+  ] = useCustomMutation(createAdvanceMutation);
 
   useEffect(() => {
     // When user changes payment method or payment date,
@@ -88,21 +96,21 @@ function CreateAdvanceModal({ selectedLoanIds, handleClose }: Props) {
   ]);
 
   const handleClickSubmit = async () => {
-    const response = await authenticatedApi.post(loansRoutes.createAdvance, {
-      payment: {
-        amount: payment.amount,
-        method: payment.method,
-        payment_date: payment.payment_date,
-        settlement_date: payment.settlement_date,
+    const response = await createAdvance({
+      variables: {
+        payment: {
+          amount: payment.amount,
+          method: payment.method,
+          payment_date: payment.payment_date,
+          settlement_date: payment.settlement_date,
+        },
+        loan_ids: selectedLoanIds,
+        should_charge_wire_fee: shouldChargeWireFee,
       },
-      loan_ids: selectedLoanIds,
-      should_charge_wire_fee: shouldChargeWireFee,
     });
 
-    if (response.data?.status === "ERROR") {
-      snackbar.showError(
-        `Could not create advance(s). Error: ${response.data?.msg}`
-      );
+    if (response.status !== "OK") {
+      snackbar.showError(`Could not create advance(s). Error: ${response.msg}`);
     } else {
       snackbar.showSuccess("Advance(s) created.");
       handleClose();
@@ -111,7 +119,7 @@ function CreateAdvanceModal({ selectedLoanIds, handleClose }: Props) {
 
   const isDialogReady = true;
   const isFormValid = !!payment.method;
-  const isFormLoading = false;
+  const isFormLoading = isCreateAdvanceLoading;
   const isSubmitDisabled = !isFormValid || isFormLoading;
 
   return isDialogReady ? (
@@ -133,5 +141,3 @@ function CreateAdvanceModal({ selectedLoanIds, handleClose }: Props) {
     </Modal>
   ) : null;
 }
-
-export default CreateAdvanceModal;

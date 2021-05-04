@@ -59,10 +59,10 @@ function BankLoansActionRequiredTab() {
   const handleApproveLoans = async () => {
     const response = await approveLoans(selectedLoanIds);
     if (response.status !== "OK") {
-      snackbar.showError("Error! Could not approve loans.");
+      snackbar.showError(`Could not approve loans. Error: ${response.msg}`);
     } else {
-      setSelectedLoanIds([]);
       snackbar.showSuccess("Loan(s) approved.");
+      setSelectedLoanIds([]);
     }
   };
 

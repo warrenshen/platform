@@ -71,8 +71,6 @@ def fund_loans_with_advance(
 	payment_date = date_util.load_date_str(payment_input['payment_date'])
 	settlement_date = date_util.load_date_str(payment_input['settlement_date'])
 
-	payment_dict: models.PaymentDict = None
-
 	with session_scope(session_maker) as session:
 		# Note we order loans by [amount, created_at]. This order by
 		# impacts which disbursement identifiers are assigned to which loans.
