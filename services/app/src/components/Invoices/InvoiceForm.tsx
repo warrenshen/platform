@@ -9,8 +9,7 @@ import {
   TextField,
   Typography,
 } from "@material-ui/core";
-import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
-import FileUploadDropzone from "components/Shared/File/UploadDropzone";
+import FileUploader from "components/Shared/File/FileUploader";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import {
@@ -29,11 +28,11 @@ interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
   invoice: InvoicesInsertInput;
-  invoiceFile?: InvoiceFileFragment;
+  invoiceFile: InvoiceFileFragment | null;
   invoiceCannabisFiles: InvoiceFileFragment[];
   payors: PayorsByPartnerCompanyQuery["payors"];
   setInvoice: (invoice: InvoicesInsertInput) => void;
-  setInvoiceFile: (file: InvoiceFileFragment) => void;
+  setInvoiceFile: (file: InvoiceFileFragment | null) => void;
   setInvoiceCannabisFiles: (files: InvoiceFileFragment[]) => void;
 }
 
@@ -201,31 +200,21 @@ export default function InvoiceForm({
             Invoice File Attachment
           </Typography>
         </Box>
-        {invoiceFile && (
-          <DownloadThumbnail
-            fileIds={invoiceFileIds}
-            fileType={FileTypeEnum.INVOICE}
-          />
-        )}
-        <Box mt={1}>
-          <FileUploadDropzone
-            companyId={companyId}
-            docType="invoice"
-            maxFilesAllowed={1}
-            onUploadComplete={async (response) => {
-              if (!response.succeeded) {
-                return;
-              }
-              const file = response.files_in_db[0];
-              setInvoiceFile({
-                invoice_id: invoice.id,
-                file_id: file.id,
-                file_type: InvoiceFileTypeEnum.Invoice,
-                file: file,
-              });
-            }}
-          />
-        </Box>
+        <FileUploader
+          companyId={companyId}
+          fileType={FileTypeEnum.INVOICE}
+          maxFilesAllowed={1}
+          fileIds={invoiceFileIds}
+          handleDeleteFileById={() => setInvoiceFile(null)}
+          handleNewFiles={(files) =>
+            setInvoiceFile({
+              invoice_id: invoice.id,
+              file_id: files[0].id,
+              file_type: InvoiceFileTypeEnum.Invoice,
+              file: files[0],
+            })
+          }
+        />
         {!!invoice.is_cannabis && (
           <Box display="flex" flexDirection="column" mt={4}>
             <Box mb={1}>
@@ -237,32 +226,30 @@ export default function InvoiceForm({
                 Analysis.
               </Typography>
             </Box>
-            {invoiceCannabisFileIds.length > 0 && (
-              <DownloadThumbnail
-                fileIds={invoiceCannabisFileIds}
-                fileType={FileTypeEnum.INVOICE}
-              />
-            )}
-            <Box mt={1}>
-              <FileUploadDropzone
-                companyId={companyId}
-                docType="invoice"
-                onUploadComplete={async (response) => {
-                  if (!response.succeeded) {
-                    return;
-                  }
-                  const { files_in_db: files } = response;
-                  setInvoiceCannabisFiles(
-                    files.map((file) => ({
-                      invoice_id: invoice.id,
-                      file_id: file.id,
-                      file_type: InvoiceFileTypeEnum.Cannabis,
-                      file: file,
-                    }))
-                  );
-                }}
-              />
-            </Box>
+            <FileUploader
+              companyId={companyId}
+              fileType={FileTypeEnum.INVOICE}
+              fileIds={invoiceCannabisFileIds}
+              handleDeleteFileById={(fileId) =>
+                setInvoiceCannabisFiles(
+                  invoiceCannabisFiles.filter(
+                    (invoiceCannabisFile) =>
+                      invoiceCannabisFile.file_id !== fileId
+                  )
+                )
+              }
+              handleNewFiles={(files) =>
+                setInvoiceCannabisFiles([
+                  ...invoiceCannabisFiles,
+                  ...files.map((file) => ({
+                    invoice_id: invoice.id,
+                    file_id: file.id,
+                    file_type: InvoiceFileTypeEnum.Cannabis,
+                    file: file,
+                  })),
+                ])
+              }
+            />
           </Box>
         )}
       </Box>

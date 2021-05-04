@@ -6,8 +6,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
-import FileUploadDropzone from "components/Shared/File/UploadDropzone";
+import FileUploader from "components/Shared/File/FileUploader";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import {
@@ -42,7 +41,7 @@ interface Props {
   ) => void;
 }
 
-function EbbaApplicationForm({
+export default function EbbaApplicationForm({
   isAccountsReceivableVisible,
   isInventoryVisible,
   isCashVisible,
@@ -100,12 +99,12 @@ function EbbaApplicationForm({
                 isRequired
                 label={"Accounts Receivable ($)"}
                 value={ebbaApplication.monthly_accounts_receivable}
-                handleChange={(value) => {
+                handleChange={(value) =>
                   setEbbaApplication({
                     ...ebbaApplication,
                     monthly_accounts_receivable: value,
-                  });
-                }}
+                  })
+                }
               />
             </FormControl>
           </Box>
@@ -123,12 +122,12 @@ function EbbaApplicationForm({
                 isRequired
                 label={"Inventory ($)"}
                 value={ebbaApplication.monthly_inventory}
-                handleChange={(value) => {
+                handleChange={(value) =>
                   setEbbaApplication({
                     ...ebbaApplication,
                     monthly_inventory: value,
-                  });
-                }}
+                  })
+                }
               />
             </FormControl>
           </Box>
@@ -146,12 +145,12 @@ function EbbaApplicationForm({
                 isRequired
                 label={"Cash in Deposit Account(s)"}
                 value={ebbaApplication.monthly_cash}
-                handleChange={(value) => {
+                handleChange={(value) =>
                   setEbbaApplication({
                     ...ebbaApplication,
                     monthly_cash: value,
-                  });
-                }}
+                  })
+                }
               />
             </FormControl>
           </Box>
@@ -169,12 +168,12 @@ function EbbaApplicationForm({
                 isRequired
                 label={"Cash in DACA Deposit Account(s)"}
                 value={ebbaApplication.amount_cash_in_daca}
-                handleChange={(value) => {
+                handleChange={(value) =>
                   setEbbaApplication({
                     ...ebbaApplication,
                     amount_cash_in_daca: value,
-                  });
-                }}
+                  })
+                }
               />
             </FormControl>
           </Box>
@@ -190,7 +189,7 @@ function EbbaApplicationForm({
           above and your current active contract with Bespoke.
         </Typography>
       </Box>
-      <Box mt={3}>
+      <Box display="flex" flexDirection="column" mt={3}>
         <Box mb={1}>
           <Typography variant="subtitle1" color="textSecondary">
             File Attachment(s)
@@ -200,33 +199,28 @@ function EbbaApplicationForm({
             numbers. One file attachment for each number is preferred.
           </Typography>
         </Box>
-        {ebbaApplicationFiles.length > 0 && (
-          <DownloadThumbnail
-            fileIds={ebbaApplicationFileIds}
-            fileType={FileTypeEnum.EBBA_APPLICATION}
-          />
-        )}
-        <Box mt={1}>
-          <FileUploadDropzone
-            companyId={companyId}
-            docType={"ebba_application"}
-            onUploadComplete={async (response) => {
-              if (!response.succeeded) {
-                return;
-              }
-              const { files_in_db: files } = response;
-              setEbbaApplicationFiles(
-                files.map((file) => ({
-                  ebba_application: ebbaApplication.id,
-                  file_id: file.id,
-                }))
-              );
-            }}
-          />
-        </Box>
+        <FileUploader
+          companyId={companyId}
+          fileType={FileTypeEnum.EBBA_APPLICATION}
+          fileIds={ebbaApplicationFileIds}
+          handleDeleteFileById={(fileId) =>
+            setEbbaApplicationFiles(
+              ebbaApplicationFiles.filter(
+                (ebbaApplicationFile) => ebbaApplicationFile.file_id !== fileId
+              )
+            )
+          }
+          handleNewFiles={(files) =>
+            setEbbaApplicationFiles([
+              ...ebbaApplicationFiles,
+              ...files.map((file) => ({
+                ebba_application_id: ebbaApplication.id,
+                file_id: file.id,
+              })),
+            ])
+          }
+        />
       </Box>
     </Box>
   );
 }
-
-export default EbbaApplicationForm;

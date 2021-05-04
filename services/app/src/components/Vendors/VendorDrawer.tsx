@@ -10,7 +10,7 @@ import {
 import * as Sentry from "@sentry/react";
 import Can from "components/Shared/Can";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
-import FileUploadDropzone from "components/Shared/File/UploadDropzone";
+import FileUploadDropzone from "components/Shared/File/FileUploadDropzone";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import ContactsList from "components/ThirdParties/ContactsList";
 import UpdateThirdPartyCompanySettingsModal from "components/ThirdParties/UpdateThirdPartyCompanySettingsModal";

@@ -18,6 +18,7 @@ import styled from "styled-components";
 const Email = styled.span`
   width: 100%;
   overflow: hidden;
+  white-space: nowrap;
   text-overflow: ellipsis;
 `;
 

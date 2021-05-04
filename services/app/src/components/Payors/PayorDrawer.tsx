@@ -12,7 +12,7 @@ import ApprovePayor from "components/Payors/ApprovePayor";
 import CollectionsBank from "components/Shared/BespokeBankAssignment/CollectionsBank";
 import Can from "components/Shared/Can";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
-import FileUploadDropzone from "components/Shared/File/UploadDropzone";
+import FileUploadDropzone from "components/Shared/File/FileUploadDropzone";
 import ContactsList from "components/ThirdParties/ContactsList";
 import ThirdPartyInfo from "components/ThirdParties/ThirdPartyInfo";
 import {

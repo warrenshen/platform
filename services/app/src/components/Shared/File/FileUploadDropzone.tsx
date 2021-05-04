@@ -157,7 +157,7 @@ interface Props {
   onUploadComplete: (resp: OnUploadCompleteResp) => void;
 }
 
-function FileUploadDropzone({
+export default function FileUploadDropzone({
   isSaveAutomatic = true,
   companyId,
   docType,
@@ -304,7 +304,9 @@ function FileUploadDropzone({
               <Typography color="textPrimary">
                 {isDragActive
                   ? "Drop the files here ..."
-                  : "Drag-and-drop files here, or click here to select"}
+                  : `Drag-and-drop file${
+                      maxFilesAllowed > 1 ? "(s)" : ""
+                    } or press to select`}
               </Typography>
             </Box>
           </Box>
@@ -354,5 +356,3 @@ function FileUploadDropzone({
     </Box>
   );
 }
-
-export default FileUploadDropzone;

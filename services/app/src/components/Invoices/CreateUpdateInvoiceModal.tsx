@@ -72,7 +72,9 @@ export default function CreateUpdateInvoiceModal({
 
   const [invoice, setInvoice] = useState(newInvoice);
 
-  const [invoiceFile, setInvoiceFile] = useState<InvoiceFileFragment>();
+  const [invoiceFile, setInvoiceFile] = useState<InvoiceFileFragment | null>(
+    null
+  );
   const [invoiceCannabisFiles, setInvoiceCannabisFiles] = useState<
     InvoiceFileFragment[]
   >([]);

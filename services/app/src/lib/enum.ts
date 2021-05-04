@@ -25,7 +25,11 @@ export enum FileTypeEnum {
   COMPANY_LICENSE = "company_license",
   EBBA_APPLICATION = "ebba_application",
   INVOICE = "invoice",
+  PAYOR_AGREEMENT = "payor_agreement",
+  PAYOR_LICENSE = "payor_license",
   PURCHASE_ORDER = "purchase_order",
+  VENDOR_AGREEMENT = "vendor_agreement",
+  VENDOR_LICENSE = "vendor_license",
 }
 
 export enum PaymentTypeEnum {

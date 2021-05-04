@@ -1,7 +1,45 @@
-import { Box, Link, Typography } from "@material-ui/core";
+import { Box, Button, Link, Typography } from "@material-ui/core";
 import InsertDriveFileIcon from "@material-ui/icons/InsertDriveFile";
+import { ReactComponent as CloseIcon } from "components/Shared/Layout/Icons/Close.svg";
 import { authenticatedApi, fileRoutes } from "lib/api";
 import { useEffect, useState } from "react";
+import styled from "styled-components";
+
+const File = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  height: 36px;
+  margin-bottom: 8px;
+  border: 1px solid rgba(95, 90, 84, 0.2);
+  border-radius: 3px;
+`;
+
+const FileLink = styled(Link)`
+  display: flex;
+  align-items: center;
+
+  flex: 1;
+
+  height: 36px;
+  padding: 0px 8px;
+  overflow: hidden;
+`;
+
+const FileLinkText = styled.span`
+  width: 100%;
+  height: 20px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+
+const CloseButton = styled(Button)`
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+`;
 
 type DownloadSignedURLReq = {
   file_type: string;
@@ -43,9 +81,14 @@ async function downloadFilesWithSignedUrls(
 interface Props {
   fileIds: string[];
   fileType: string;
+  deleteFileId?: (fileId: string) => void;
 }
 
-export default function DownloadThumbnail({ fileIds, fileType }: Props) {
+export default function DownloadThumbnail({
+  fileIds,
+  fileType,
+  deleteFileId,
+}: Props) {
   const [filesWithSignedUrls, setFilesWithSignedUrls] = useState<
     FileWithSignedURL[]
   >([]);
@@ -81,20 +124,27 @@ export default function DownloadThumbnail({ fileIds, fileType }: Props) {
         {filesWithSignedUrls.length > 0 && (
           <Box display="flex" flexDirection="column" mt={1}>
             {filesWithSignedUrls.map((fileWithSignedUrl) => (
-              <Link
-                key={fileWithSignedUrl.id}
-                href={fileWithSignedUrl.url}
-                target={"_blank"}
-              >
-                <Box display="flex" alignItems="center">
-                  <InsertDriveFileIcon />
-                  <Box ml={1}>
-                    <Typography variant={"subtitle2"} color={"primary"}>
-                      {fileWithSignedUrl.name}
-                    </Typography>
+              <File>
+                <FileLink
+                  key={fileWithSignedUrl.id}
+                  href={fileWithSignedUrl.url}
+                  target={"_blank"}
+                >
+                  <Box mr={1}>
+                    <InsertDriveFileIcon />
                   </Box>
-                </Box>
-              </Link>
+                  <FileLinkText>{fileWithSignedUrl.name}</FileLinkText>
+                </FileLink>
+                {deleteFileId && (
+                  <CloseButton
+                    onClick={() =>
+                      deleteFileId && deleteFileId(fileWithSignedUrl.id)
+                    }
+                  >
+                    <CloseIcon />
+                  </CloseButton>
+                )}
+              </File>
             ))}
           </Box>
         )}

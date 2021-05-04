@@ -67,7 +67,7 @@ export default function CreateUpdatePurchaseOrderModal({
   const [
     purchaseOrderFile,
     setPurchaseOrderFile,
-  ] = useState<PurchaseOrderFileFragment>();
+  ] = useState<PurchaseOrderFileFragment | null>(null);
   const [purchaseOrderCannabisFiles, setPurchaseOrderCannabisFiles] = useState<
     PurchaseOrderFileFragment[]
   >([]);

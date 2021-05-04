@@ -9,8 +9,7 @@ import {
   TextField,
   Typography,
 } from "@material-ui/core";
-import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
-import FileUploadDropzone from "components/Shared/File/UploadDropzone";
+import FileUploader from "components/Shared/File/FileUploader";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
 import {
@@ -25,11 +24,11 @@ import { ChangeEvent, useMemo } from "react";
 interface Props {
   companyId: string;
   purchaseOrder: PurchaseOrdersInsertInput;
-  purchaseOrderFile?: PurchaseOrderFileFragment;
+  purchaseOrderFile: PurchaseOrderFileFragment | null;
   purchaseOrderCannabisFiles: PurchaseOrderFileFragment[];
   vendors: GetVendorsByPartnerCompanyQuery["vendors"];
   setPurchaseOrder: (purchaseOrder: PurchaseOrdersInsertInput) => void;
-  setPurchaseOrderFile: (file: PurchaseOrderFileFragment) => void;
+  setPurchaseOrderFile: (file: PurchaseOrderFileFragment | null) => void;
   setPurchaseOrderCannabisFiles: (files: PurchaseOrderFileFragment[]) => void;
 }
 
@@ -160,31 +159,21 @@ function PurchaseOrderForm({
             Purchase Order File Attachment
           </Typography>
         </Box>
-        {purchaseOrderFile && (
-          <DownloadThumbnail
-            fileIds={purchaseOrderFileIds}
-            fileType={FileTypeEnum.PURCHASE_ORDER}
-          />
-        )}
-        <Box mt={1}>
-          <FileUploadDropzone
-            companyId={companyId}
-            docType="purchase_order"
-            maxFilesAllowed={1}
-            onUploadComplete={async (response) => {
-              if (!response.succeeded) {
-                return;
-              }
-              const file = response.files_in_db[0];
-              setPurchaseOrderFile({
-                purchase_order_id: purchaseOrder.id,
-                file_id: file.id,
-                file_type: PurchaseOrderFileTypeEnum.PurchaseOrder,
-                file: file,
-              });
-            }}
-          />
-        </Box>
+        <FileUploader
+          companyId={companyId}
+          fileType={FileTypeEnum.PURCHASE_ORDER}
+          maxFilesAllowed={1}
+          fileIds={purchaseOrderFileIds}
+          handleDeleteFileById={() => setPurchaseOrderFile(null)}
+          handleNewFiles={(files) =>
+            setPurchaseOrderFile({
+              purchase_order_id: purchaseOrder.id,
+              file_id: files[0].id,
+              file_type: PurchaseOrderFileTypeEnum.PurchaseOrder,
+              file: files[0],
+            })
+          }
+        />
       </Box>
       {!!purchaseOrder.is_cannabis && (
         <Box display="flex" flexDirection="column" mt={4}>
@@ -197,32 +186,29 @@ function PurchaseOrderForm({
               Analysis.
             </Typography>
           </Box>
-          {purchaseOrderCannabisFiles.length > 0 && (
-            <DownloadThumbnail
-              fileIds={purchaseOrderCannabisFileIds}
-              fileType={FileTypeEnum.PURCHASE_ORDER}
-            />
-          )}
-          <Box mt={1}>
-            <FileUploadDropzone
-              companyId={companyId}
-              docType="purchase_order"
-              onUploadComplete={async (response) => {
-                if (!response.succeeded) {
-                  return;
-                }
-                const { files_in_db: files } = response;
-                setPurchaseOrderCannabisFiles(
-                  files.map((file) => ({
-                    purchase_order_id: purchaseOrder.id,
-                    file_id: file.id,
-                    file_type: PurchaseOrderFileTypeEnum.Cannabis,
-                    file: file,
-                  }))
-                );
-              }}
-            />
-          </Box>
+          <FileUploader
+            companyId={companyId}
+            fileType={FileTypeEnum.PURCHASE_ORDER}
+            fileIds={purchaseOrderCannabisFileIds}
+            handleDeleteFileById={(fileId) =>
+              setPurchaseOrderCannabisFiles(
+                purchaseOrderCannabisFiles.filter(
+                  (purchaseOrderFile) => purchaseOrderFile.file_id !== fileId
+                )
+              )
+            }
+            handleNewFiles={(files) =>
+              setPurchaseOrderCannabisFiles([
+                ...purchaseOrderCannabisFiles,
+                ...files.map((file) => ({
+                  purchase_order_id: purchaseOrder.id,
+                  file_id: file.id,
+                  file_type: PurchaseOrderFileTypeEnum.Cannabis,
+                  file: file,
+                })),
+              ])
+            }
+          />
         </Box>
       )}
     </Box>
