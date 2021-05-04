@@ -103,7 +103,11 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
   const customerName = customer?.name;
 
   const notifier = new InventoryNotifier();
-  const hasNoContactsSetup = !vendor.users || !customer?.users;
+  const hasNoContactsSetup =
+    !vendor.users ||
+    vendor.users.length == 0 ||
+    !customer?.users ||
+    customer.users.length == 0;
 
   return (
     <Drawer open anchor="right" onClose={onClose}>

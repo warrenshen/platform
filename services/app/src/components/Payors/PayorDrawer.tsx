@@ -90,7 +90,18 @@ function PayorDrawer({ partnershipId, handleClose }: Props) {
   const customerName = customer.name;
 
   const notifier = new InventoryNotifier();
-  const hasNoContactsSetup = !payor || !payor.users || !customer?.users;
+  const hasNoContactsSetup =
+    !payor ||
+    !payor.users ||
+    payor.users.length === 0 ||
+    !customer?.users ||
+    customer.users.length === 0;
+
+  const hasNoPayorAgreementSetup = !data.company_payor_partnerships_by_pk
+    .payor_agreement;
+  const hasNoLicense = !data.company_payor_partnerships_by_pk.payor_license;
+  const hasNoCollectionsBankAccount = !payor.settings
+    ?.collections_bespoke_bank_account;
 
   return (
     <Drawer open anchor="right" onClose={handleClose}>
@@ -250,7 +261,10 @@ function PayorDrawer({ partnershipId, handleClose }: Props) {
         <Can perform={Action.ApprovePayor}>
           <Box mt={1} mb={2}>
             <ApprovePayor
+              hasNoCollectionsBankAccount={hasNoCollectionsBankAccount}
+              hasNoLicense={hasNoLicense}
               hasNoContactsSetup={hasNoContactsSetup}
+              hasNoPayorAgreementSetup={hasNoPayorAgreementSetup}
               payorId={payor.id}
               payorName={payor.name}
               customerId={customer.id}
