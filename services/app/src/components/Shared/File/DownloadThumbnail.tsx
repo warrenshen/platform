@@ -124,7 +124,7 @@ export default function DownloadThumbnail({
         {filesWithSignedUrls.length > 0 && (
           <Box display="flex" flexDirection="column" mt={1}>
             {filesWithSignedUrls.map((fileWithSignedUrl) => (
-              <File>
+              <File key={fileWithSignedUrl.id}>
                 <FileLink
                   key={fileWithSignedUrl.id}
                   href={fileWithSignedUrl.url}

@@ -138,7 +138,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
             }
           />
         </Box>
-        <Box flexDirection="column">
+        <Box display="flex" flexDirection="column">
           <Grid item>
             <Typography variant="h6">Licenses</Typography>
           </Grid>
@@ -191,7 +191,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
             />
           </Box>
         </Box>
-        <Box flexDirection="column">
+        <Box display="flex" flexDirection="column">
           <Grid item>
             <Typography variant="h6">Vendor Agreement</Typography>
           </Grid>

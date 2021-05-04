@@ -15,16 +15,16 @@ from sqlalchemy.orm import Session
 REQUIRED_KEYS_FOR_APPROVAL = (
 	'invoice_number',
 	'subtotal_amount',
-	'total_amount',
 	'taxes_amount',
+	'total_amount',
 	'invoice_date',
 	'invoice_due_date',
 )
 
 REQUIRED_POSITIVE_VALUES_FOR_APPROVAL = (
 	'subtotal_amount',
+	'taxes_amount',
 	'total_amount',
-	'taxes_amount'
 )
 
 @dataclass

@@ -133,11 +133,10 @@ function PayorDrawer({ partnershipId, handleClose }: Props) {
             }
           />
         </Box>
-        <Grid container direction="column">
+        <Box display="flex" flexDirection="column">
           <Grid item>
             <Typography variant="h6" display="inline">
-              {" "}
-              Licenses{" "}
+              Licenses
             </Typography>
           </Grid>
           {licenseFileId && (
@@ -148,14 +147,6 @@ function PayorDrawer({ partnershipId, handleClose }: Props) {
               />
             </Grid>
           )}
-        </Grid>
-        <Box
-          mt={1}
-          mb={2}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
           <Box mt={1} mb={2}>
             <FileUploadDropzone
               companyId={payor.id}
@@ -199,7 +190,7 @@ function PayorDrawer({ partnershipId, handleClose }: Props) {
             />
           </Box>
         </Box>
-        <Grid container direction="column">
+        <Box display="flex" flexDirection="column">
           <Grid item>
             <Typography variant="h6" display="inline">
               Payor Agreement
@@ -213,50 +204,49 @@ function PayorDrawer({ partnershipId, handleClose }: Props) {
               />
             </Grid>
           )}
-        </Grid>
-        <Box mt={1} mb={2}>
-          <FileUploadDropzone
-            companyId={payor.id}
-            docType="payor_agreement"
-            maxFilesAllowed={1}
-            onUploadComplete={async (resp) => {
-              if (!resp.succeeded) {
-                return;
-              }
-              const fileId = resp.files_in_db[0].id;
+          <Box mt={1} mb={2}>
+            <FileUploadDropzone
+              companyId={payor.id}
+              docType="payor_agreement"
+              maxFilesAllowed={1}
+              onUploadComplete={async (resp) => {
+                if (!resp.succeeded) {
+                  return;
+                }
+                const fileId = resp.files_in_db[0].id;
 
-              const agreement: CompanyAgreementsInsertInput = {
-                file_id: fileId,
-                company_id: payor.id,
-              };
+                const agreement: CompanyAgreementsInsertInput = {
+                  file_id: fileId,
+                  company_id: payor.id,
+                };
 
-              const companyAgreement = await addCompanyPayorAgreement({
-                variables: {
-                  payorAgreement: agreement,
-                },
-              });
-
-              const payorAgreementId =
-                companyAgreement.data?.insert_company_agreements_one?.id;
-
-              await updatePayorAgreementId({
-                variables: {
-                  companyPayorPartnershipId: partnershipId,
-                  payorAgreementId: payorAgreementId,
-                },
-                refetchQueries: [
-                  {
-                    query: GetBankPayorPartnershipDocument,
-                    variables: {
-                      id: partnershipId,
-                    },
+                const companyAgreement = await addCompanyPayorAgreement({
+                  variables: {
+                    payorAgreement: agreement,
                   },
-                ],
-              });
-            }}
-          />
-        </Box>
+                });
 
+                const payorAgreementId =
+                  companyAgreement.data?.insert_company_agreements_one?.id;
+
+                await updatePayorAgreementId({
+                  variables: {
+                    companyPayorPartnershipId: partnershipId,
+                    payorAgreementId: payorAgreementId,
+                  },
+                  refetchQueries: [
+                    {
+                      query: GetBankPayorPartnershipDocument,
+                      variables: {
+                        id: partnershipId,
+                      },
+                    },
+                  ],
+                });
+              }}
+            />
+          </Box>
+        </Box>
         <Typography variant="h6"> Actions </Typography>
         <Can perform={Action.ApprovePayor}>
           <Box mt={1} mb={2}>
