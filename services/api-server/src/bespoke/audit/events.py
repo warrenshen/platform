@@ -133,8 +133,8 @@ class Event:
 			return None
 		try:
 			session.add(models.AuditEvent( # type: ignore
-				user_id=self._user_id,
-				company_id=self._company_id,
+				user_id=self._user_id if self._user_id else None, # to prevent '' from causing a bad hexadecimal insertion
+				company_id=self._company_id if self._company_id else None, # to prevent '' from causing a bad hexadecimal insertion
 				is_system=self._is_system,
 				action=self._action,
 				outcome=self._outcome,
