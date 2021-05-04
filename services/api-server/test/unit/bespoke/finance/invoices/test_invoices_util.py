@@ -291,6 +291,60 @@ class DumbSendgridClient(sendgrid_util.Client):
 		self.count += 1
 		return True, None
 
+class TestCreateInvoice(db_unittest.TestCase):
+
+	@dataclass
+	class Test:
+		prepare: 'PrepareDatabase'
+		expected_error: str
+
+	def test_create_invoice(self) -> None:
+		p = PrepareDatabase() \
+			.add_customer(lambda p: models.Company(
+				name='Big Green Bongs'
+			)) \
+			.add_payor(lambda p: models.Company(
+				name='We Buy Weed'
+			)) \
+			.link_customers_and_payors(approved=True) \
+			.add_file(lambda p: models.File())
+
+		with models.session_scope(self.session_maker) as session:
+			p(session)
+
+			invoice_data, err = invoices_util.InvoiceData.from_dict({
+				'id': None,
+				'company_id': p.customers[0].id,
+				'payor_id': p.payors[0].id,
+				'invoice_number': '420',
+				'subtotal_amount': 10000,
+				'taxes_amount': 10,
+				'total_amount': 10010,
+				'invoice_date': '03/18/2021',
+				'invoice_due_date': '04/18/2021',
+				'status': None,
+				'rejection_note': None,
+				'is_cannabis': None,
+			})
+
+			self.assertIsNone(err)
+
+			invoice_id, err = invoices_util.create_update_invoice(
+				self.session_maker,
+				# DumbSendgridClient(),
+				# str(p.payors[0].id),
+				invoices_util.InvoiceUpsertRequest(
+					invoice=invoice_data,
+					invoice_files=[invoices_util.InvoiceFileItem.from_dict({
+						'file_id': p.files[0].id,
+						'invoice_id': None,
+						'file_type': db_constants.InvoiceFileTypeEnum.Invoice,
+					})],
+				))
+
+			self.assertIsNone(err)
+			self.assertIsNotNone(invoice_id)
+
 class TestIsInvoiceReadyForApproval(db_unittest.TestCase):
 
 	@dataclass
@@ -329,8 +383,8 @@ class TestIsInvoiceReadyForApproval(db_unittest.TestCase):
 						company_id=p.customers[0].id,
 						payor_id=p.payors[0].id,
 						subtotal_amount=10000,
-						total_amount=10010,
 						taxes_amount=-10,
+						total_amount=10010,
 						invoice_date=date_util.load_date_str("03/18/2021"),
 						invoice_due_date=date_util.load_date_str("04/18/2021"),
 					)),
@@ -350,8 +404,8 @@ class TestIsInvoiceReadyForApproval(db_unittest.TestCase):
 						company_id=p.customers[0].id,
 						payor_id=p.payors[0].id,
 						subtotal_amount=10000,
-						total_amount=10010,
 						taxes_amount=10,
+						total_amount=10010,
 						invoice_date=date_util.load_date_str("03/18/2021"),
 						invoice_due_date=date_util.load_date_str("04/18/2021"),
 					))
@@ -377,8 +431,8 @@ class TestIsInvoiceReadyForApproval(db_unittest.TestCase):
 						company_id=p.customers[0].id,
 						payor_id=p.payors[0].id,
 						subtotal_amount=10000,
-						total_amount=10010,
 						taxes_amount=10,
+						total_amount=10010,
 						invoice_date=date_util.load_date_str("03/18/2021"),
 						invoice_due_date=date_util.load_date_str("04/18/2021"),
 					))
@@ -404,8 +458,8 @@ class TestIsInvoiceReadyForApproval(db_unittest.TestCase):
 						company_id=p.customers[0].id,
 						payor_id=p.payors[0].id,
 						subtotal_amount=10000,
-						total_amount=10010,
 						taxes_amount=10,
+						total_amount=10010,
 						invoice_date=date_util.load_date_str("03/18/2021"),
 						invoice_due_date=date_util.load_date_str("04/18/2021"),
 					))
@@ -432,8 +486,8 @@ class TestIsInvoiceReadyForApproval(db_unittest.TestCase):
 						company_id=p.customers[0].id,
 						payor_id=p.payors[0].id,
 						subtotal_amount=10000,
-						total_amount=10010,
 						taxes_amount=10,
+						total_amount=10010,
 						invoice_date=date_util.load_date_str("03/18/2021"),
 						invoice_due_date=date_util.load_date_str("04/18/2021"),
 					))
@@ -485,8 +539,8 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 				company_id=p.customers[0].id,
 				payor_id=p.payors[0].id,
 				subtotal_amount=10000,
-				total_amount=10010,
 				taxes_amount=10,
+				total_amount=10010,
 				invoice_date=date_util.load_date_str("03/18/2021"),
 				invoice_due_date=date_util.load_date_str("04/18/2021"),
 			)) \
@@ -532,8 +586,8 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 				company_id=p.customers[0].id,
 				payor_id=p.payors[0].id,
 				subtotal_amount=10000,
-				total_amount=10010,
 				taxes_amount=10,
+				total_amount=10010,
 				invoice_date=date_util.load_date_str("03/18/2021"),
 				invoice_due_date=date_util.load_date_str("04/18/2021"),
 			)) \
@@ -579,8 +633,8 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 				company_id=p.customers[0].id,
 				payor_id=p.payors[0].id,
 				subtotal_amount=10000,
-				total_amount=10010,
 				taxes_amount=10,
+				total_amount=10010,
 				invoice_date=date_util.load_date_str("03/18/2021"),
 				invoice_due_date=date_util.load_date_str("04/18/2021"),
 			)) \
@@ -626,8 +680,8 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 				company_id=p.customers[0].id,
 				payor_id=p.payors[0].id,
 				subtotal_amount=10000,
-				total_amount=10010,
 				taxes_amount=10,
+				total_amount=10010,
 				invoice_date=date_util.load_date_str("03/18/2021"),
 				invoice_due_date=date_util.load_date_str("04/18/2021"),
 				approved_at=date_util.now(),

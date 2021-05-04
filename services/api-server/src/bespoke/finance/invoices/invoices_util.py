@@ -86,18 +86,18 @@ class InvoiceData:
 				return None, errors.Error('invalid invoice_date')
 
 		return InvoiceData(
-			d.get('id'),
-			d.get('company_id'),
-			d.get('payor_id'),
-			d.get('invoice_number'),
-			InvoiceData.parse_numeric_safely(d, 'subtotal_amount'),
-			InvoiceData.parse_numeric_safely(d, 'total_amount'),
-			InvoiceData.parse_numeric_safely(d, 'taxes_amount'),
-			InvoiceData.parse_date_safely(d, 'invoice_date'),
-			InvoiceData.parse_date_safely(d, 'invoice_due_date'),
-			d.get('status'),
-			d.get('rejection_note'),
-			d.get('is_cannabis'),
+			id=d.get('id'),
+			company_id=d.get('company_id'),
+			payor_id=d.get('payor_id'),
+			invoice_number=d.get('invoice_number'),
+			subtotal_amount=InvoiceData.parse_numeric_safely(d, 'subtotal_amount'),
+			taxes_amount=InvoiceData.parse_numeric_safely(d, 'taxes_amount'),
+			total_amount=InvoiceData.parse_numeric_safely(d, 'total_amount'),
+			invoice_date=InvoiceData.parse_date_safely(d, 'invoice_date'),
+			invoice_due_date=InvoiceData.parse_date_safely(d, 'invoice_due_date'),
+			status=d.get('status'),
+			rejection_note=d.get('rejection_note'),
+			is_cannabis=d.get('is_cannabis'),
 		), None
 
 	@staticmethod
