@@ -8,7 +8,7 @@ from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.db_constants import RequestStatusEnum
 from bespoke.email import sendgrid_util
-from bespoke.finance import number_util
+from bespoke.finance import number_util, contract_util
 from bespoke.finance.loans import approval_util
 from bespoke.finance.invoices import invoices_util
 from bespoke.security import security_util, two_factor_util
@@ -110,9 +110,24 @@ class RespondToApprovalRequestView(MethodView):
 				invoice.approved_at = date_util.now()
 				action_type = 'Approved'
 
+				active_contract, err = contract_util.get_active_contract_by_company_id(
+					company_id=str(invoice.company_id),
+					session=session,
+				)
+				if err:
+					raise err
+
+				if not active_contract:
+					raise errors.Error('No active contract in place for the companys invoice')
+
+				advance_rate, err = active_contract.get_advance_rate()
+
+				if err:
+					raise err
+
 				submit_resp, err = approval_util.submit_for_approval_if_has_autofinancing(
 					company_id=str(invoice.company_id),
-					amount=float(invoice.subtotal_amount),
+					amount=float(invoice.subtotal_amount) * advance_rate,
 					artifact_id=str(invoice.id),
 					session=session
 				)

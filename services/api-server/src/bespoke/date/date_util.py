@@ -64,8 +64,10 @@ def get_earliest_requested_payment_date(timezone: str) -> datetime.date:
 	if meets_cutoff:
 		return requested_date
 
-	# Find the next business day for the requested payment date
-	return get_nearest_business_day(requested_date, preceeding=False)
+	# Find the nearest business day, starting from
+	# the next day being the earliest possible day.
+	next_date = requested_date + timedelta(days=1)
+	return get_nearest_business_day(next_date, preceeding=False)
 
 def datetime_to_str(dt: datetime.datetime) -> str:
 	return dt.isoformat()

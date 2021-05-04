@@ -289,6 +289,9 @@ class Client(object):
 		recipients = _maybe_add_extra_recipients(
 			recipients, self._cfg, template_name)
 
+		if not recipients:
+			return None, errors.Error('Cannot send an email when no recipients are specified')
+
 		err_details = {
 			'template_name': template_name,
 			'template_id': template_id,
