@@ -68,7 +68,7 @@ interface Props {
   children: ReactNode;
 }
 
-function PageContent({
+export default function PageContent({
   title,
   subtitle,
   bankActions = null,
@@ -105,5 +105,3 @@ function PageContent({
     </Container>
   );
 }
-
-export default PageContent;

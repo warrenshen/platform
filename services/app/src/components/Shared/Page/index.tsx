@@ -6,8 +6,6 @@ interface Props {
   children: ReactNode;
 }
 
-function Page({ appBarTitle, children }: Props) {
+export default function Page({ appBarTitle, children }: Props) {
   return <Layout appBarTitle={appBarTitle}>{children}</Layout>;
 }
-
-export default Page;

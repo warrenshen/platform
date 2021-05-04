@@ -1,66 +1,19 @@
 import {
   Box,
   Button,
-  createStyles,
   FormHelperText,
   Link,
-  makeStyles,
   TextField,
-  Theme,
+  Typography,
 } from "@material-ui/core";
-import BespokeFinancialLogo from "components/Shared/Layout/logo.png";
+import AuthPage from "components/Shared/Page/AuthPage";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { anonymousRoutes, routes } from "lib/routes";
 import { useContext, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { useTitle } from "react-use";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    container: {
-      width: "100%",
-      height: "100%",
-      float: "left",
-      margin: 0,
-      padding: 0,
-      backgroundSize: "cover",
-      overflow: "hidden",
-      backgroundImage: `url(${process.env.PUBLIC_URL}/signInBackground.jpg)`,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    formContainer: {
-      background: "white",
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center",
-      width: 400,
-      padding: theme.spacing(4),
-    },
-    imageBox: {
-      display: "flex",
-      justifyContent: "center",
-    },
-    formInput: {
-      margin: theme.spacing(1),
-    },
-    forgotLink: {
-      position: "relative",
-      margin: "auto",
-    },
-    signInButton: {
-      marginTop: theme.spacing(1),
-      marginBottom: theme.spacing(3),
-      width: 120,
-      marginLeft: "auto",
-      marginRight: "auto",
-    },
-  })
-);
-
-function SignIn() {
-  const classes = useStyles();
+export default function SignInPage() {
   useTitle("Sign In | Bespoke");
 
   const { signIn } = useContext(CurrentUserContext);
@@ -88,59 +41,61 @@ function SignIn() {
   };
 
   return (
-    <Box className={classes.container}>
-      <form onSubmit={onFormSubmit} className={classes.formContainer}>
-        <Box className={classes.imageBox}>
-          <img
-            src={BespokeFinancialLogo}
-            alt="Bespoke Financial Logo"
-            width={156}
-            height={32}
-          />
+    <AuthPage>
+      <Box display="flex" flexDirection="column">
+        <Box display="flex" flexDirection="column" alignItems="center">
+          <Typography variant="h5">Sign in</Typography>
         </Box>
-        <TextField
-          data-cy="sign-in-input-email"
-          label="Email"
-          className={classes.formInput}
-          value={email}
-          onChange={({ target: { value } }) => {
-            setEmail(value);
-          }}
-        />
-        <TextField
-          data-cy="sign-in-input-password"
-          type="password"
-          label="Password"
-          className={classes.formInput}
-          value={password}
-          onChange={({ target: { value } }) => {
-            setPassword(value);
-          }}
-        />
-        <FormHelperText className={classes.formInput} error>
-          {error}
-        </FormHelperText>
-        <Button
-          data-cy="sign-in-button"
-          type="submit"
-          className={classes.signInButton}
-          disabled={!email || !password}
-          variant="contained"
-          color="primary"
-        >
-          Sign in
-        </Button>
-        <div className={classes.forgotLink}>
-          <Link
-            key={anonymousRoutes.forgotPassword}
-            href={anonymousRoutes.forgotPassword}
-          >
-            Forgot password?
-          </Link>
-        </div>
-      </form>
-    </Box>
+      </Box>
+      <Box display="flex" flexDirection="column">
+        <form onSubmit={onFormSubmit}>
+          <Box display="flex" flexDirection="column" mt={2}>
+            <TextField
+              data-cy="sign-in-input-email"
+              label="Email"
+              value={email}
+              onChange={({ target: { value } }) => {
+                setEmail(value);
+              }}
+            />
+          </Box>
+          <Box display="flex" flexDirection="column" mt={2}>
+            <TextField
+              data-cy="sign-in-input-password"
+              type="password"
+              label="Password"
+              value={password}
+              onChange={({ target: { value } }) => {
+                setPassword(value);
+              }}
+            />
+          </Box>
+          {!!error && (
+            <Box display="flex" flexDirection="column" mt={2}>
+              <FormHelperText error>{error}</FormHelperText>
+            </Box>
+          )}
+          <Box display="flex" flexDirection="column" mt={4}>
+            <Button
+              data-cy="sign-in-button"
+              type="submit"
+              disabled={!email || !password}
+              variant="contained"
+              color="primary"
+            >
+              Sign in
+            </Button>
+          </Box>
+          <Box display="flex" flexDirection="column" alignItems="center" mt={4}>
+            <Link
+              key={anonymousRoutes.forgotPassword}
+              href={anonymousRoutes.forgotPassword}
+            >
+              Forgot password?
+            </Link>
+          </Box>
+        </form>
+      </Box>
+    </AuthPage>
   );
 }
-
-export default SignIn;

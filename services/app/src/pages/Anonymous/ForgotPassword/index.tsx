@@ -1,15 +1,12 @@
 import {
   Box,
   Button,
-  createStyles,
   FormHelperText,
   Link,
-  makeStyles,
   TextField,
-  Theme,
   Typography,
 } from "@material-ui/core";
-import BespokeFinancialLogo from "components/Shared/Layout/logo.png";
+import AuthPage from "components/Shared/Page/AuthPage";
 import { authenticatedApi, authRoutes } from "lib/api";
 import { routes } from "lib/routes";
 import { useMemo, useState } from "react";
@@ -19,66 +16,7 @@ interface Props {
   location: any;
 }
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    container: {
-      width: "100%",
-      height: "100%",
-      float: "left",
-      margin: 0,
-      padding: 0,
-      backgroundSize: "cover",
-      overflow: "hidden",
-      backgroundImage: `url(${process.env.PUBLIC_URL}/signInBackground.jpg)`,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    formContainer: {
-      background: "white",
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center",
-      width: 400,
-      padding: theme.spacing(4),
-    },
-    imageBox: {
-      display: "flex",
-      justifyContent: "center",
-    },
-    formInput: {
-      display: "flex",
-      margin: theme.spacing(2),
-    },
-    error: {
-      marginTop: 0,
-      marginLeft: theme.spacing(2),
-      marginRight: theme.spacing(2),
-    },
-    form: {
-      height: "80px",
-    },
-    text: {
-      margin: theme.spacing(1),
-      textAlign: "center",
-      whiteSpace: "pre",
-    },
-    formHeader: {
-      fontSize: "18px",
-      margin: "auto",
-      padding: "12px 0",
-    },
-    submitButton: {
-      marginTop: theme.spacing(2),
-      width: 120,
-      marginLeft: "auto",
-      marginRight: "auto",
-    },
-  })
-);
-
-function ForgotPassword(props: Props) {
-  const classes = useStyles();
+export default function ForgotPasswordPage(props: Props) {
   useTitle("Forgot Password | Bespoke");
 
   const [error, setError] = useState("");
@@ -110,33 +48,25 @@ function ForgotPassword(props: Props) {
   };
 
   return (
-    <>
-      <Box className={classes.container}>
-        <form onSubmit={onFormSubmit} className={classes.formContainer}>
-          <Link key={routes.signIn} href={routes.signIn}>
-            ← Back
-          </Link>
-          <Box className={classes.imageBox}>
-            <img
-              src={BespokeFinancialLogo}
-              alt="Bespoke Financial Logo"
-              width={156}
-              height={32}
-            />
+    <AuthPage>
+      <Box display="flex" flexDirection="column">
+        <Box display="flex" flexDirection="column" alignItems="center">
+          <Typography variant="h5">Forgot password</Typography>
+          <Box mt={1}>
+            <Typography variant="body2">
+              Enter your email below to reset your password.
+            </Typography>
           </Box>
+        </Box>
+      </Box>
+      <Box display="flex" flexDirection="column">
+        <form onSubmit={onFormSubmit}>
           {!success ? (
             <>
-              <Typography className={classes.formHeader}>
-                Forgot your password?
-              </Typography>
-              <div className={classes.text}>
-                Enter your email below to reset your password.
-              </div>
-              <div className={classes.form}>
+              <Box display="flex" flexDirection="column" mt={2}>
                 <TextField
                   data-cy="email-input"
                   label="Email"
-                  className={classes.formInput}
                   value={email}
                   error={!!email.length && !correctEmail}
                   required
@@ -146,37 +76,43 @@ function ForgotPassword(props: Props) {
                     setEmail(value);
                   }}
                 />
-              </div>
-              {error && (
-                <FormHelperText className={classes.error} error>
-                  {error}
-                </FormHelperText>
+              </Box>
+              {!!error && (
+                <Box display="flex" flexDirection="column" mt={2}>
+                  <FormHelperText error>{error}</FormHelperText>
+                </Box>
               )}
-              <Button
-                data-cy="submit-button"
-                type="submit"
-                className={classes.submitButton}
-                disabled={!correctEmail}
-                variant="contained"
-                color="primary"
-              >
-                Submit
-              </Button>
+              <Box display="flex" flexDirection="column" mt={4}>
+                <Button
+                  data-cy="submit-button"
+                  type="submit"
+                  disabled={!correctEmail}
+                  variant="contained"
+                  color="primary"
+                >
+                  Submit
+                </Button>
+              </Box>
             </>
           ) : (
-            <>
-              <Typography className={classes.formHeader}>
-                {"Email was sent"}
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              mt={4}
+            >
+              <Typography variant="body1">
+                Success! Please check your email for the next step.
               </Typography>
-              <Typography className={classes.text}>
-                {"Please check your email for the next step."}
-              </Typography>
-            </>
+            </Box>
           )}
+          <Box display="flex" flexDirection="column" alignItems="center" mt={4}>
+            <Link key={routes.signIn} href={routes.signIn}>
+              Sign in instead?
+            </Link>
+          </Box>
         </form>
       </Box>
-    </>
+    </AuthPage>
   );
 }
-
-export default ForgotPassword;

@@ -1,14 +1,11 @@
 import {
   Box,
   Button,
-  createStyles,
   FormHelperText,
-  makeStyles,
   TextField,
-  Theme,
   Typography,
 } from "@material-ui/core";
-import BespokeFinancialLogo from "components/Shared/Layout/logo.png";
+import AuthPage from "components/Shared/Page/AuthPage";
 import { authenticatedApi, authRoutes } from "lib/api";
 import { routes } from "lib/routes";
 import { useMemo, useState } from "react";
@@ -19,61 +16,7 @@ interface Props {
   location: any;
 }
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    container: {
-      width: "100%",
-      height: "100%",
-      float: "left",
-      margin: 0,
-      padding: 0,
-      backgroundSize: "cover",
-      overflow: "hidden",
-      backgroundImage: `url(${process.env.PUBLIC_URL}/signInBackground.jpg)`,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    formContainer: {
-      background: "white",
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center",
-      width: 400,
-      padding: theme.spacing(4),
-    },
-    imageBox: {
-      display: "flex",
-      justifyContent: "center",
-    },
-    formInput: {
-      display: "flex",
-      margin: theme.spacing(2),
-    },
-    error: {
-      marginTop: 0,
-      marginLeft: theme.spacing(2),
-      marginRight: theme.spacing(2),
-    },
-    form: {
-      height: "150px",
-    },
-    formHeader: {
-      fontSize: "18px",
-      margin: "auto",
-      padding: "12px 0",
-    },
-    submitButton: {
-      marginTop: theme.spacing(2),
-      width: 120,
-      marginLeft: "auto",
-      marginRight: "auto",
-    },
-  })
-);
-
 function ResetPassword(props: Props) {
-  const classes = useStyles();
   useTitle("Reset Password | Bespoke");
 
   const linkVal = props.location.state?.link_val;
@@ -124,42 +67,41 @@ function ResetPassword(props: Props) {
   };
 
   return (
-    <>
-      <Box className={classes.container}>
-        <form onSubmit={onFormSubmit} className={classes.formContainer}>
-          <Box className={classes.imageBox}>
-            <img
-              src={BespokeFinancialLogo}
-              alt="Bespoke Financial Logo"
-              width={156}
-              height={32}
-            />
+    <AuthPage>
+      <Box display="flex" flexDirection="column">
+        <Box display="flex" flexDirection="column" alignItems="center">
+          <Typography variant="h5">Reset password</Typography>
+          <Box mt={1}>
+            <Typography variant="body2">
+              Enter your new password below.
+            </Typography>
           </Box>
+        </Box>
+      </Box>
+      <Box display="flex" flexDirection="column">
+        <form onSubmit={onFormSubmit}>
           {!success ? (
             <>
-              <Typography className={classes.formHeader}>
-                Reset password
-              </Typography>
-              <div className={classes.form}>
+              <Box display="flex" flexDirection="column" mt={2}>
                 <TextField
                   data-cy="reset-password-input"
                   type="password"
                   label="New password"
                   required
-                  className={classes.formInput}
                   value={password}
                   onChange={({ target: { value } }) => {
                     error.length && setError("");
                     setPassword(value);
                   }}
                 />
+              </Box>
+              <Box display="flex" flexDirection="column" mt={2}>
                 <TextField
                   data-cy="reset-password-input-confirmation"
                   type="password"
                   label="Confirm password"
                   error={passwordsMatch}
                   required
-                  className={classes.formInput}
                   value={confirmationPassword}
                   helperText={passwordsMatch ? "Passwords do not match" : ""}
                   onChange={({ target: { value } }) => {
@@ -167,43 +109,52 @@ function ResetPassword(props: Props) {
                     setConfirmationPassword(value);
                   }}
                 />
-              </div>
-              {error && (
-                <FormHelperText className={classes.error} error>
-                  {error}
-                </FormHelperText>
+              </Box>
+              {!!error && (
+                <Box display="flex" flexDirection="column" mt={2}>
+                  <FormHelperText error>{error}</FormHelperText>
+                </Box>
               )}
-              <Button
-                data-cy="submit-button"
-                type="submit"
-                className={classes.submitButton}
-                disabled={!canSubmit}
-                variant="contained"
-                color="primary"
-              >
-                Submit
-              </Button>
+              <Box display="flex" flexDirection="column" mt={4}>
+                <Button
+                  data-cy="submit-button"
+                  type="submit"
+                  disabled={!canSubmit}
+                  variant="contained"
+                  color="primary"
+                >
+                  Submit
+                </Button>
+              </Box>
             </>
           ) : (
             <>
-              <Typography className={classes.formInput}>
-                Password has been successfully updated!
-              </Typography>
-              <Button
-                data-cy="submit-button"
-                type="submit"
-                className={classes.submitButton}
-                variant="contained"
-                color="primary"
-                onClick={() => history.push(routes.signIn)}
+              <Box
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                mt={4}
               >
-                Sign in
-              </Button>
+                <Typography variant="body1">
+                  Success! Password changed.
+                </Typography>
+              </Box>
+              <Box display="flex" flexDirection="column" mt={2}>
+                <Button
+                  data-cy="submit-button"
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  onClick={() => history.push(routes.signIn)}
+                >
+                  Sign in
+                </Button>
+              </Box>
             </>
           )}
         </form>
       </Box>
-    </>
+    </AuthPage>
   );
 }
 
