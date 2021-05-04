@@ -49,7 +49,7 @@ function SettleRepaymentModal({ paymentId, handleClose }: Props) {
 
   const [customer, setCustomer] = useState<Companies | null>(null);
   const [payor, setPayor] = useState<BankPayorFragment | null>(null);
-  const [payment, setPayment] = useState<PaymentsInsertInput | null>(null);
+  const [payment, setPayment] = useState<PaymentsInsertInput>({});
 
   const contract = customer?.contract || null;
   const productType = customer?.contract?.product_type || null;

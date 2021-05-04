@@ -6,11 +6,11 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import { ValueFormatterParams } from "@material-ui/data-grid";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import RequestedRepaymentPreview from "components/Repayment/RequestedRepaymentPreview";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   BankPayorFragment,
   Companies,
@@ -20,9 +20,8 @@ import {
   ProductTypeEnum,
   useGetLoansByCompanyAndLoanTypeQuery,
 } from "generated/graphql";
-import { Action, check } from "lib/auth/rbac-rules";
 import { ProductTypeToLoanType } from "lib/enum";
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -36,18 +35,15 @@ interface Props {
   payment: PaymentsInsertInput;
   customer: Companies;
   payor: BankPayorFragment;
-  setPayment: (payment: PaymentsInsertInput) => void;
+  setPayment: React.Dispatch<React.SetStateAction<PaymentsInsertInput>>;
 }
+
 function SettleRepaymentSelectLoans({
   payment,
   customer,
   payor,
   setPayment,
 }: Props) {
-  const {
-    user: { role },
-  } = useContext(CurrentUserContext);
-
   const classes = useStyles();
   const productType = customer.contract?.product_type;
 
@@ -60,10 +56,11 @@ function SettleRepaymentSelectLoans({
     skip: !payment || !loanType,
     fetchPolicy: "network-only",
     variables: {
-      companyId: payment?.company_id || "",
+      companyId: payment.company_id || "",
       loanType: loanType || LoanTypeEnum.PurchaseOrder,
     },
   });
+
   const selectedLoans = useMemo(
     () =>
       data?.loans.filter(
@@ -71,6 +68,7 @@ function SettleRepaymentSelectLoans({
       ) || [],
     [data?.loans, payment.items_covered.loan_ids]
   );
+
   const notSelectedLoans = useMemo(
     () =>
       data?.loans.filter(
@@ -80,6 +78,47 @@ function SettleRepaymentSelectLoans({
           payment.items_covered.loan_ids.indexOf(loan.id) < 0
       ) || [],
     [data?.loans, payment.items_covered.loan_ids]
+  );
+
+  const selectedLoansActionItems = useMemo(
+    () => [
+      {
+        key: "deselect-loan",
+        label: "Remove",
+        handleClick: (params: ValueFormatterParams) =>
+          setPayment((payment) => ({
+            ...payment,
+            items_covered: {
+              ...payment.items_covered,
+              loan_ids: payment.items_covered.loan_ids.filter(
+                (loanId: Loans["id"]) => loanId !== params.row.data.id
+              ),
+            },
+          })),
+      },
+    ],
+    [setPayment]
+  );
+
+  const notSelectedLoansActionItems = useMemo(
+    () => [
+      {
+        key: "select-loan",
+        label: "Add",
+        handleClick: (params: ValueFormatterParams) =>
+          setPayment((payment) => ({
+            ...payment,
+            items_covered: {
+              ...payment.items_covered,
+              loan_ids: [
+                ...payment.items_covered.loan_ids,
+                params.row.data.id as Loans["id"],
+              ],
+            },
+          })),
+      },
+    ],
+    [setPayment]
   );
 
   return payment && customer && payor ? (
@@ -103,9 +142,9 @@ function SettleRepaymentSelectLoans({
             <CurrencyInput
               label={"Amount"}
               value={payment.amount}
-              handleChange={(value) => {
-                setPayment({ ...payment, amount: value });
-              }}
+              handleChange={(value) =>
+                setPayment({ ...payment, amount: value })
+              }
             />
           </FormControl>
         </Box>
@@ -121,12 +160,12 @@ function SettleRepaymentSelectLoans({
           disableNonBankDays
           disabledBefore={payment.payment_date}
           value={payment.deposit_date}
-          onChange={(value) => {
+          onChange={(value) =>
             setPayment({
               ...payment,
               deposit_date: value,
-            });
-          }}
+            })
+          }
         />
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
@@ -173,27 +212,7 @@ function SettleRepaymentSelectLoans({
               isSortingDisabled
               pager={false}
               loans={selectedLoans}
-              actionItems={
-                check(role, Action.DeselectLoan)
-                  ? [
-                      {
-                        key: "deselect-loan",
-                        label: "Remove",
-                        handleClick: (params) =>
-                          setPayment({
-                            ...payment,
-                            items_covered: {
-                              ...payment.items_covered,
-                              loan_ids: payment.items_covered.loan_ids.filter(
-                                (loanId: Loans["id"]) =>
-                                  loanId !== params.row.data.id
-                              ),
-                            },
-                          }),
-                      },
-                    ]
-                  : []
-              }
+              actionItems={selectedLoansActionItems}
             />
           </Box>
           <Box mt={4}>
@@ -206,27 +225,7 @@ function SettleRepaymentSelectLoans({
               isSortingDisabled
               pageSize={25}
               loans={notSelectedLoans}
-              actionItems={
-                check(role, Action.SelectLoan)
-                  ? [
-                      {
-                        key: "select-loan",
-                        label: "Add",
-                        handleClick: (params) =>
-                          setPayment({
-                            ...payment,
-                            items_covered: {
-                              ...payment.items_covered,
-                              loan_ids: [
-                                ...payment.items_covered.loan_ids,
-                                params.row.data.id as Loans["id"],
-                              ],
-                            },
-                          }),
-                      },
-                    ]
-                  : []
-              }
+              actionItems={notSelectedLoansActionItems}
             />
           </Box>
         </>
