@@ -137,6 +137,35 @@ query GetClosedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
   }
 }
 
+query GetAllLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
+  companies_by_pk(id: $companyId) {
+    id
+    loans(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { loan_type: { _eq: $loanType } }
+        ]
+      }
+      order_by: [
+        { adjusted_maturity_date: asc }
+        { origination_date: asc }
+        { amount: asc }
+        { created_at: asc }
+      ]
+    ) {
+      id
+      ...LoanLimited
+      ...LoanArtifactLimited
+    }
+  }
+}
+
 query GetLoansByCompanyAndLoanType(
   $companyId: uuid!
   $loanType: loan_type_enum!

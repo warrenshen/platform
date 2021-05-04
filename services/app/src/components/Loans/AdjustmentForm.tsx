@@ -1,11 +1,5 @@
-import {
-  Box,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Typography,
-} from "@material-ui/core";
+import { Box, FormControl, TextField, Typography } from "@material-ui/core";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DatePicker from "components/Shared/FormInputs/DatePicker";
@@ -20,7 +14,7 @@ import {
   createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
 } from "lib/loans";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 interface Props {
   payment: PaymentsInsertInput;
@@ -37,6 +31,8 @@ function AdjustmentForm({
   setPayment,
   setTransaction,
 }: Props) {
+  const [autocompleteInputValue, setAutocompleteInputValue] = useState("");
+
   const selectedLoans = useMemo(() => {
     const selectedLoan = loans.find((loan) => loan.id === transaction.loan_id);
     return selectedLoan ? [selectedLoan] : [];
@@ -53,39 +49,45 @@ function AdjustmentForm({
       </Box>
       <Box display="flex" flexDirection="column" mt={3}>
         <FormControl>
-          <InputLabel id="loan-select-label">Loan</InputLabel>
-          <Select
-            disabled={loans.length <= 0}
-            labelId="loan-select-label"
-            id="loan-select"
-            value={loans.length > 0 ? transaction.loan_id || "" : ""}
-            onChange={({ target: { value } }) =>
+          <Autocomplete
+            autoHighlight
+            id="combo-box-demo"
+            options={loans}
+            getOptionLabel={(loan) =>
+              `${createLoanCustomerIdentifier(
+                loan
+              )} | ${createLoanDisbursementIdentifier(
+                loan
+              )} | Amount: ${formatCurrency(
+                loan.amount,
+                "Error"
+              )} | Origination Date: ${
+                loan.origination_date
+                  ? formatDateString(loan.origination_date)
+                  : "Error"
+              } | Outstanding Principal: ${formatCurrency(
+                loan.outstanding_principal_balance
+              )} | Outstanding Interest: ${formatCurrency(
+                loan.outstanding_interest
+              )} | Outstanding Late Fees: ${formatCurrency(
+                loan.outstanding_fees
+              )}`
+            }
+            renderInput={(params) => (
+              <TextField {...params} label="Select loan" variant="outlined" />
+            )}
+            inputValue={autocompleteInputValue}
+            value={null}
+            onInputChange={(_event, value: string) =>
+              setAutocompleteInputValue(value)
+            }
+            onChange={(_event, loan: LoanFragment | null) =>
               setTransaction({
                 ...transaction,
-                loan_id: value || null,
+                loan_id: loan?.id || null,
               })
             }
-          >
-            <MenuItem value={""}>
-              <em>None</em>
-            </MenuItem>
-            {loans.map((loan) => (
-              <MenuItem key={loan.id} value={loan.id}>
-                {`${createLoanCustomerIdentifier(
-                  loan
-                )} | ${createLoanDisbursementIdentifier(
-                  loan
-                )} | Amount: ${formatCurrency(
-                  loan.amount,
-                  "Error"
-                )} | Origination Date: ${
-                  loan.origination_date
-                    ? formatDateString(loan.origination_date)
-                    : "Error"
-                }`}
-              </MenuItem>
-            ))}
-          </Select>
+          />
         </FormControl>
       </Box>
       {selectedLoans.length > 0 && (

@@ -112,13 +112,13 @@ export default function CreateRepaymentDefaultSection({
               onInputChange={(_event, value: string) =>
                 setAutocompleteInputValue(value)
               }
-              onChange={(_event, value: LoanFragment | null) => {
-                if (value) {
+              onChange={(_event, loan: LoanFragment | null) => {
+                if (loan) {
                   setPayment({
                     ...payment,
                     items_covered: {
                       ...payment.items_covered,
-                      loan_ids: [...payment.items_covered.loan_ids, value.id],
+                      loan_ids: [...payment.items_covered.loan_ids, loan.id],
                     },
                   });
                   setAutocompleteInputValue("");

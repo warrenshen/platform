@@ -15944,6 +15944,21 @@ export type GetClosedLoansForCompanyQuery = {
   >;
 };
 
+export type GetAllLoansForCompanyQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+  loanType?: Maybe<LoanTypeEnum>;
+}>;
+
+export type GetAllLoansForCompanyQuery = {
+  companies_by_pk?: Maybe<
+    Pick<Companies, "id"> & {
+      loans: Array<
+        Pick<Loans, "id"> & LoanLimitedFragment & LoanArtifactLimitedFragment
+      >;
+    }
+  >;
+};
+
 export type GetLoansByCompanyAndLoanTypeQueryVariables = Exact<{
   companyId: Scalars["uuid"];
   loanType: LoanTypeEnum;
@@ -20436,6 +20451,88 @@ export type GetClosedLoansForCompanyLazyQueryHookResult = ReturnType<
 export type GetClosedLoansForCompanyQueryResult = Apollo.QueryResult<
   GetClosedLoansForCompanyQuery,
   GetClosedLoansForCompanyQueryVariables
+>;
+export const GetAllLoansForCompanyDocument = gql`
+  query GetAllLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
+    companies_by_pk(id: $companyId) {
+      id
+      loans(
+        where: {
+          _and: [
+            {
+              _or: [
+                { is_deleted: { _is_null: true } }
+                { is_deleted: { _eq: false } }
+              ]
+            }
+            { loan_type: { _eq: $loanType } }
+          ]
+        }
+        order_by: [
+          { adjusted_maturity_date: asc }
+          { origination_date: asc }
+          { amount: asc }
+          { created_at: asc }
+        ]
+      ) {
+        id
+        ...LoanLimited
+        ...LoanArtifactLimited
+      }
+    }
+  }
+  ${LoanLimitedFragmentDoc}
+  ${LoanArtifactLimitedFragmentDoc}
+`;
+
+/**
+ * __useGetAllLoansForCompanyQuery__
+ *
+ * To run a query within a React component, call `useGetAllLoansForCompanyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllLoansForCompanyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllLoansForCompanyQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *      loanType: // value for 'loanType'
+ *   },
+ * });
+ */
+export function useGetAllLoansForCompanyQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetAllLoansForCompanyQuery,
+    GetAllLoansForCompanyQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetAllLoansForCompanyQuery,
+    GetAllLoansForCompanyQueryVariables
+  >(GetAllLoansForCompanyDocument, baseOptions);
+}
+export function useGetAllLoansForCompanyLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetAllLoansForCompanyQuery,
+    GetAllLoansForCompanyQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetAllLoansForCompanyQuery,
+    GetAllLoansForCompanyQueryVariables
+  >(GetAllLoansForCompanyDocument, baseOptions);
+}
+export type GetAllLoansForCompanyQueryHookResult = ReturnType<
+  typeof useGetAllLoansForCompanyQuery
+>;
+export type GetAllLoansForCompanyLazyQueryHookResult = ReturnType<
+  typeof useGetAllLoansForCompanyLazyQuery
+>;
+export type GetAllLoansForCompanyQueryResult = Apollo.QueryResult<
+  GetAllLoansForCompanyQuery,
+  GetAllLoansForCompanyQueryVariables
 >;
 export const GetLoansByCompanyAndLoanTypeDocument = gql`
   query GetLoansByCompanyAndLoanType(

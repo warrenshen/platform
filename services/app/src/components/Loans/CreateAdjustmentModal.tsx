@@ -5,7 +5,7 @@ import {
   PaymentsInsertInput,
   ProductTypeEnum,
   TransactionsInsertInput,
-  useGetActiveLoansForCompanyQuery,
+  useGetAllLoansForCompanyQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -27,10 +27,7 @@ export default function CreateAdjustmentModal({
 }: Props) {
   const snackbar = useSnackbar();
 
-  const loanType =
-    !!productType && productType in ProductTypeToLoanType
-      ? ProductTypeToLoanType[productType]
-      : null;
+  const loanType = ProductTypeToLoanType[productType];
 
   const [payment, setPayment] = useState<PaymentsInsertInput>({
     company_id: companyId,
@@ -50,7 +47,7 @@ export default function CreateAdjustmentModal({
   const {
     data,
     loading: isSelectableLoansLoading,
-  } = useGetActiveLoansForCompanyQuery({
+  } = useGetAllLoansForCompanyQuery({
     fetchPolicy: "network-only",
     variables: {
       companyId,
