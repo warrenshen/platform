@@ -1,5 +1,9 @@
 {
   "$schema": "https://raw.githubusercontent.com/cypress-io/cypress/develop/cli/schema/cypress.schema.json",
   "baseUrl": "http://localhost:3005",
-  "chromeWebSecurity": false
+  "chromeWebSecurity": false,
+  "env": {
+    "apiServerUrl": "http://localhost:7000",
+    "graphqlServerUrl": "http://localhost:8080/v1/graphql"
+  }
 }
