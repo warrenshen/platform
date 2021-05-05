@@ -158,7 +158,6 @@ function SettleRepaymentSelectLoans({
           id="payment-date-date-picker"
           label="Deposit Date"
           disableNonBankDays
-          disabledBefore={payment.payment_date}
           value={payment.deposit_date}
           onChange={(value) =>
             setPayment({

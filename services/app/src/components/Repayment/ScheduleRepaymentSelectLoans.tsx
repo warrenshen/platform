@@ -82,7 +82,6 @@ function ScheduleRepaymentSelectLoans({
           id="payment-date-date-picker"
           label="Payment Date"
           disableNonBankDays
-          disabledBefore={payment.requested_payment_date}
           value={payment.payment_date}
           onChange={(value) => {
             setPayment({
