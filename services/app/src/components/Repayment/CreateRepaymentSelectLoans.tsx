@@ -11,7 +11,7 @@ import CreateRepaymentDefaultSection from "components/Repayment/CreateRepaymentD
 import CreateRepaymentLineofCreditSection from "components/Repayment/CreateRepaymentLineofCreditSection";
 import ExpectedDatePreview from "components/Repayment/ExpectedDatePreview";
 import CompanyBank from "components/Shared/BankToBankTransfer/CompanyBank";
-import DatePicker from "components/Shared/FormInputs/DatePicker";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import {
   BankAccounts,
   FinancialSummaryFragment,
@@ -110,7 +110,7 @@ function CreateRepaymentSelectLoans({
                 : "On which date will the payment arrive to the Bespoke bank account?"}
             </Typography>
             <Box display="flex" flexDirection="column" mt={1}>
-              <DatePicker
+              <DateInput
                 id="payment-modal-payment-date-date-picker"
                 label={
                   isReverseDraftACH ? "Requested Withdraw Date" : "Deposit Date"

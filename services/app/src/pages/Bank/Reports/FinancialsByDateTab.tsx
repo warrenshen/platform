@@ -1,6 +1,6 @@
 import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
 import FinancialSummariesDataGrid from "components/CustomerFinancialSummaries/FinancialSummariesDataGrid";
-import DatePicker from "components/Shared/FormInputs/DatePicker";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import { useGetFinancialSummariesByDateQuery } from "generated/graphql";
 import { todayAsDateStringServer } from "lib/date";
 import { useState } from "react";
@@ -57,7 +57,7 @@ function BankReportsPage() {
     <Box className={classes.container}>
       <Box className={classes.section} mt={4}>
         <Box mb={2}>
-          <DatePicker
+          <DateInput
             className={classes.inputField}
             id="report-date-date-picker"
             label="Report Date"

@@ -12,7 +12,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
-import DatePicker from "components/Shared/FormInputs/DatePicker";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import { GetLoansByLoanIdsQuery, PaymentsInsertInput } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
@@ -95,7 +95,7 @@ export default function AdvanceForm({
         </FormControl>
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
-        <DatePicker
+        <DateInput
           disableNonBankDays
           className={classes.inputField}
           id="payment-date-date-picker"
@@ -115,7 +115,7 @@ export default function AdvanceForm({
         </Box>
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
-        <DatePicker
+        <DateInput
           disableNonBankDays
           className={classes.inputField}
           id="settlement-date-date-picker"

@@ -10,7 +10,7 @@ import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import ExpectedDatePreview from "components/Repayment/ExpectedDatePreview";
 import RequestedRepaymentPreview from "components/Repayment/RequestedRepaymentPreview";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
-import DatePicker from "components/Shared/FormInputs/DatePicker";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import {
   BankAccounts,
   Companies,
@@ -77,7 +77,7 @@ function ScheduleRepaymentSelectLoans({
             When will you trigger the Reverse Draft ACH?
           </Typography>
         </Box>
-        <DatePicker
+        <DateInput
           className={classes.inputField}
           id="payment-date-date-picker"
           label="Payment Date"

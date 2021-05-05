@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
-import DatePicker from "components/Shared/FormInputs/DatePicker";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import {
   GetVendorsByPartnerCompanyQuery,
   LineOfCreditsInsertInput,
@@ -88,7 +88,7 @@ export default function LineOfCreditLoanForm({
         </Box>
       )}
       <Box display="flex" flexDirection="column" mt={4}>
-        <DatePicker
+        <DateInput
           id="requested-payment-date-date-picker"
           label="Requested Payment Date"
           disablePast

@@ -7,7 +7,7 @@ import {
   DialogTitle,
   makeStyles,
 } from "@material-ui/core";
-import DatePicker from "components/Shared/FormInputs/DatePicker";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import {
   Contracts,
   ContractsInsertInput,
@@ -121,7 +121,7 @@ function TerminateContractModal({ contractId, handleClose }: Props) {
       <DialogContent>
         <Box display="flex" flexDirection="column">
           <Box mb={3}>
-            <DatePicker
+            <DateInput
               disabled
               className={classes.inputField}
               id="end-date-date-picker"
@@ -130,7 +130,7 @@ function TerminateContractModal({ contractId, handleClose }: Props) {
             />
           </Box>
           <Box mb={3}>
-            <DatePicker
+            <DateInput
               disableFuture
               className={classes.inputField}
               id="termination-date-date-picker"

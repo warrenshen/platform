@@ -23,6 +23,15 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
+import { password, users } from "../fixtures/logins";
+
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      loginCustomerAdmin: typeof loginCustomerAdmin;
+    }
+  }
+}
 
 Cypress.Commands.add("dataCy", (value) => {
   return cy.get(`[data-cy=${value}]`);
@@ -31,3 +40,25 @@ Cypress.Commands.add("dataCy", (value) => {
 Cypress.Commands.add("dataCySelector", (value, selector) => {
   return cy.get(`[data-cy=${value}] *> ${selector}`);
 });
+
+Cypress.Commands.add("loginBankAdmin", () => {
+  cy.visit("/");
+
+  cy.dataCySelector("sign-in-input-email", "input").type(users.bankAdmin);
+  cy.dataCySelector("sign-in-input-password", "input").type(password);
+  cy.dataCy("sign-in-button").click();
+
+  cy.url().should("include", "overview");
+});
+
+function loginCustomerAdmin() {
+  cy.visit("/");
+
+  cy.dataCySelector("sign-in-input-email", "input").type(users.customerAdmin);
+  cy.dataCySelector("sign-in-input-password", "input").type(password);
+  cy.dataCy("sign-in-button").click();
+
+  cy.url().should("include", "overview");
+}
+
+Cypress.Commands.add("loginCustomerAdmin", loginCustomerAdmin);

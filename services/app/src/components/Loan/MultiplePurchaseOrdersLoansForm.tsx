@@ -3,7 +3,7 @@ import { ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import DatePicker from "components/Shared/FormInputs/DatePicker";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import { formatCurrency } from "lib/currency";
 import { PurchaseOrderLoanUpsert } from "lib/finance/loans/purchaseOrders";
 import { ColumnWidths } from "lib/tables";
@@ -107,7 +107,7 @@ export default function MultiplePurchaseOrdersLoansForm({
         </p>
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
-        <DatePicker
+        <DateInput
           className={classes.inputField}
           id="requested-payment-date-date-picker"
           label="Requested Payment Date"

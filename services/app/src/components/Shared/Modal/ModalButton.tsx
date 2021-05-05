@@ -2,6 +2,7 @@ import { Box, Button } from "@material-ui/core";
 import { ReactNode, useState } from "react";
 
 interface Props {
+  "data-cy"?: string;
   isDisabled?: boolean;
   label: string;
   color?: "inherit" | "primary" | "secondary" | "default" | undefined;
@@ -12,6 +13,7 @@ interface Props {
 }
 
 function ModalButton({
+  "data-cy": dataCy,
   isDisabled = false,
   label,
   color,
@@ -26,6 +28,7 @@ function ModalButton({
     <Box>
       {isOpen && modal({ handleClose: () => setIsOpen(false) })}
       <Button
+        data-cy={dataCy}
         disabled={isOpen || isDisabled}
         color={color || "primary"}
         size={size || "medium"}

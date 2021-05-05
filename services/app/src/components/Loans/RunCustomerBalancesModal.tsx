@@ -10,7 +10,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import DatePicker from "components/Shared/FormInputs/DatePicker";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import { Companies } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -111,7 +111,7 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
           }.`}
         </Typography>
         <Box display="flex" flexDirection="column" mt={4}>
-          <DatePicker
+          <DateInput
             id="start-date-date-picker"
             label="Start Date"
             value={startDate}
@@ -119,7 +119,7 @@ function RunCustomerBalancesModal({ companyId, handleClose }: Props) {
           />
         </Box>
         <Box display="flex" flexDirection="column" mt={4}>
-          <DatePicker
+          <DateInput
             id="end-date-date-picker"
             label="End Date"
             value={reportDate}

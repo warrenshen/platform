@@ -15,7 +15,7 @@ import {
   Theme,
 } from "@material-ui/core";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
-import DatePicker from "components/Shared/FormInputs/DatePicker";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import {
   InvoiceFragment,
   PaymentsInsertInput,
@@ -116,7 +116,7 @@ export default function ReviewInvoicePaymentConfirmModal({
           to pay less than the total amount, please inform us of that as well.
         </DialogContentText>
         <Box display="flex" flexDirection="column" mt={2}>
-          <DatePicker
+          <DateInput
             className={classes.inputField}
             id="payment-date-date-picker"
             label="Payment Date"

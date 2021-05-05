@@ -12,7 +12,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
-import DatePicker from "components/Shared/FormInputs/DatePicker";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import JsonFormInput from "components/Shared/FormInputs/JsonFormInput";
 import { format, parse } from "date-fns";
 import { ContractsInsertInput, ProductTypeEnum } from "generated/graphql";
@@ -173,7 +173,7 @@ function ContractTermsForm({
     switch (true) {
       case item.type === "date":
         return (
-          <DatePicker
+          <DateInput
             className={classes.datePicker}
             id={item.internal_name}
             error={errMsg.length > 0 && isProductConfigFieldInvalid(item)}
@@ -311,7 +311,7 @@ function ContractTermsForm({
         </FormControl>
       </Box>
       <Box mb={3}>
-        <DatePicker
+        <DateInput
           disabled={!isStartDateEditable}
           className={classes.inputField}
           id="start-date-date-picker"
@@ -337,7 +337,7 @@ function ContractTermsForm({
         />
       </Box>
       <Box mb={3}>
-        <DatePicker
+        <DateInput
           className={classes.inputField}
           id="end-date-date-picker"
           label="Expected End Date"

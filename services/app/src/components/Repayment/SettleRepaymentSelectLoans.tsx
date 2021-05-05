@@ -10,7 +10,7 @@ import { ValueFormatterParams } from "@material-ui/data-grid";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import RequestedRepaymentPreview from "components/Repayment/RequestedRepaymentPreview";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
-import DatePicker from "components/Shared/FormInputs/DatePicker";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import {
   BankPayorFragment,
   Companies,
@@ -153,7 +153,7 @@ function SettleRepaymentSelectLoans({
             Specify Deposit Date and Settlement Date.
           </Typography>
         </Box>
-        <DatePicker
+        <DateInput
           className={classes.inputField}
           id="payment-date-date-picker"
           label="Deposit Date"
@@ -175,7 +175,7 @@ function SettleRepaymentSelectLoans({
         </Box>
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
-        <DatePicker
+        <DateInput
           className={classes.inputField}
           id="settlement-date-date-picker"
           label="Settlement Date"

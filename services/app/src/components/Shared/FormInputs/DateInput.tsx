@@ -9,6 +9,7 @@ import { DateFormatServer } from "lib/date";
 import { addYearToBankHolidays, bankHolidays } from "lib/holidays";
 
 interface Props {
+  "data-cy"?: string;
   className?: string;
   id: string;
   label: string;
@@ -23,10 +24,11 @@ interface Props {
   onChange?: (value: string | null) => void;
 }
 
-function DatePicker(props: Props) {
+export default function DateInput(props: Props) {
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <KeyboardDatePicker
+        data-cy={props["data-cy"]}
         className={props.className || ""}
         disableToolbar
         disableFuture={props.disableFuture}
@@ -87,5 +89,3 @@ function DatePicker(props: Props) {
     </MuiPickersUtilsProvider>
   );
 }
-
-export default DatePicker;

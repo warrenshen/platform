@@ -11,7 +11,7 @@ import {
 } from "@material-ui/core";
 import FileUploader from "components/Shared/File/FileUploader";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
-import DatePicker from "components/Shared/FormInputs/DatePicker";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import {
   GetVendorsByPartnerCompanyQuery,
   PurchaseOrderFileFragment,
@@ -88,6 +88,7 @@ function PurchaseOrderForm({
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <TextField
+          data-cy="create-purchase-order-input-order-number"
           label="PO Number"
           value={purchaseOrder.order_number || ""}
           onChange={({ target: { value } }) =>
@@ -99,7 +100,8 @@ function PurchaseOrderForm({
         />
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
-        <DatePicker
+        <DateInput
+          data-cy="create-purchase-order-input-order-date"
           id="order-date-date-picker"
           label="PO Date"
           value={purchaseOrder.order_date}
@@ -112,7 +114,8 @@ function PurchaseOrderForm({
         />
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
-        <DatePicker
+        <DateInput
+          data-cy="create-purchase-order-input-delivery-date"
           id="delivery-date-date-picker"
           label="Delivery date"
           value={purchaseOrder.delivery_date}
@@ -126,6 +129,7 @@ function PurchaseOrderForm({
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <CurrencyInput
+          data-cy="create-purchase-order-input-amount"
           label="Amount"
           value={purchaseOrder.amount}
           handleChange={(value) =>
@@ -140,6 +144,7 @@ function PurchaseOrderForm({
         <FormControlLabel
           control={
             <Checkbox
+              data-cy="create-purchase-order-input-is-cannabis"
               checked={!!purchaseOrder.is_cannabis}
               onChange={(event: ChangeEvent<HTMLInputElement>) =>
                 setPurchaseOrder({

@@ -2,7 +2,7 @@ import { Box, FormControl, TextField, Typography } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
-import DatePicker from "components/Shared/FormInputs/DatePicker";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import {
   LoanFragment,
   PaymentsInsertInput,
@@ -101,7 +101,7 @@ function AdjustmentForm({
         </Box>
       )}
       <Box display="flex" flexDirection="column" mt={3}>
-        <DatePicker
+        <DateInput
           disableNonBankDays
           id="deposit-date-date-picker"
           label="Deposit Date"
@@ -115,7 +115,7 @@ function AdjustmentForm({
         />
       </Box>
       <Box display="flex" flexDirection="column" mt={3}>
-        <DatePicker
+        <DateInput
           disableNonBankDays
           id="settlement-date-date-picker"
           label="Settlement Date"

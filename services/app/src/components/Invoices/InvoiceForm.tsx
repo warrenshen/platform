@@ -11,7 +11,7 @@ import {
 } from "@material-ui/core";
 import FileUploader from "components/Shared/File/FileUploader";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
-import DatePicker from "components/Shared/FormInputs/DatePicker";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import {
   Companies,
   InvoiceFileFragment,
@@ -101,7 +101,7 @@ export default function InvoiceForm({
         />
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
-        <DatePicker
+        <DateInput
           id="invoice-date-date-picker"
           label="Invoice Date"
           value={invoice.invoice_date}
@@ -114,7 +114,7 @@ export default function InvoiceForm({
         />
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
-        <DatePicker
+        <DateInput
           id="invoice-due-date-date-picker"
           label="Due Date"
           value={invoice.invoice_due_date}

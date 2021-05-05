@@ -5,7 +5,7 @@ import {
   makeStyles,
   TextField,
 } from "@material-ui/core";
-import DatePicker from "components/Shared/FormInputs/DatePicker";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import { BankAccountsInsertInput, UserRolesEnum } from "generated/graphql";
 import { ChangeEvent } from "react";
 
@@ -166,7 +166,7 @@ function BankAccountForm({ bankAccount, setBankAccount, role }: Props) {
       )}
       {role === UserRolesEnum.BankAdmin && !!bankAccount.verified_at && (
         <Box mt={2}>
-          <DatePicker
+          <DateInput
             id="date-picker-verified-date"
             label="Verified Date"
             value={bankAccount.verified_date}

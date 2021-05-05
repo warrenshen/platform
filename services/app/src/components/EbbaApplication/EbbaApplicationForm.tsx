@@ -8,7 +8,7 @@ import {
 } from "@material-ui/core";
 import FileUploader from "components/Shared/File/FileUploader";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
-import DatePicker from "components/Shared/FormInputs/DatePicker";
+import DateInput from "components/Shared/FormInputs/DateInput";
 import {
   EbbaApplicationFilesInsertInput,
   EbbaApplicationsInsertInput,
@@ -70,7 +70,7 @@ export default function EbbaApplicationForm({
           What date would you like to submit a certification for?
         </Typography>
         <Box mt={1}>
-          <DatePicker
+          <DateInput
             disableFuture
             required
             className={classes.inputField}

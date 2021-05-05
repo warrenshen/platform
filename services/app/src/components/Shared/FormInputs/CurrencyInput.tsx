@@ -1,6 +1,8 @@
+import { Box } from "@material-ui/core";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 
 interface Props {
+  "data-cy"?: string;
   isDisabled?: boolean;
   isRequired?: boolean;
   textAlign?: "left" | "right";
@@ -14,7 +16,8 @@ interface Props {
   handleChange?: (value: number | null) => void;
 }
 
-function CurrencyInput({
+export default function CurrencyInput({
+  "data-cy": dataCy,
   isDisabled = false,
   isRequired = false,
   textAlign = "left",
@@ -28,26 +31,26 @@ function CurrencyInput({
   handleChange,
 }: Props) {
   return (
-    <CurrencyTextField
-      disabled={isDisabled}
-      required={isRequired}
-      modifyValueOnWheel={false}
-      currencySymbol={currencySymbol}
-      emptyInputBehavior={"null"}
-      outputFormat={"number"}
-      decimalPlaces={decimalPlaces}
-      minimumValue={minimumValue?.toString()}
-      maximumValue={maximumValue?.toString()}
-      textAlign={textAlign}
-      label={label}
-      error={!!error}
-      helperText={error || ""}
-      value={value}
-      onChange={(event: any, value: number) =>
-        handleChange && handleChange(event.target.value !== "" ? value : null)
-      }
-    />
+    <Box display="flex" flexDirection="column" data-cy={dataCy}>
+      <CurrencyTextField
+        disabled={isDisabled}
+        required={isRequired}
+        modifyValueOnWheel={false}
+        currencySymbol={currencySymbol}
+        emptyInputBehavior={"null"}
+        outputFormat={"number"}
+        decimalPlaces={decimalPlaces}
+        minimumValue={minimumValue?.toString()}
+        maximumValue={maximumValue?.toString()}
+        textAlign={textAlign}
+        label={label}
+        error={!!error}
+        helperText={error || ""}
+        value={value}
+        onChange={(event: any, value: number) =>
+          handleChange && handleChange(event.target.value !== "" ? value : null)
+        }
+      />
+    </Box>
   );
 }
-
-export default CurrencyInput;
