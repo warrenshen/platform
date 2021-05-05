@@ -62,9 +62,10 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
+    "cypress": "./node_modules/.bin/cypress open",
     "gql-gen": "graphql-codegen --config codegen.js --require dotenv/config",
-    "prettier-write": "prettier --config .prettierrc --write \"src/**/*.{js,ts,jsx,tsx,json}\"",
-    "prettier": "prettier --config .prettierrc --check \"src/**/*.{js,ts,jsx,tsx,json}\""
+    "prettier-write": "prettier --config .prettierrc --write \"src/**/*.{js,ts,jsx,tsx,json}\" \"cypress/**/*.{js,ts}\"",
+    "prettier": "prettier --config .prettierrc --check \"src/**/*.{js,ts,jsx,tsx,json}\" \"cypress/**/*.{js,ts}\""
   },
   "eslintConfig": {
     "extends": [

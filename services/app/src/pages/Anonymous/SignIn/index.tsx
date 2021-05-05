@@ -35,7 +35,7 @@ export default function SignInPage() {
       await signIn(email, password);
       history.push(state?.from || routes.root);
     } catch (err) {
-      setError("Error! Please double check your information and try again.");
+      setError("Error: email and password combination not valid.");
       setPassword("");
     }
   };
@@ -72,7 +72,9 @@ export default function SignInPage() {
           </Box>
           {!!error && (
             <Box display="flex" flexDirection="column" mt={2}>
-              <FormHelperText error>{error}</FormHelperText>
+              <FormHelperText data-cy="sign-in-error" error>
+                {error}
+              </FormHelperText>
             </Box>
           )}
           <Box display="flex" flexDirection="column" mt={4}>
