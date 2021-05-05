@@ -19,12 +19,9 @@ import BankAccount from "components/Vendors/VendorDrawer/BankAccount";
 import VendorInfo from "components/Vendors/VendorDrawer/VendorInfo";
 import {
   CompanyAgreementsInsertInput,
-  CompanyLicensesInsertInput,
   useAddCompanyVendorAgreementMutation,
-  useAddCompanyVendorLicenseMutation,
   useGetVendorPartnershipForBankQuery,
   useUpdateVendorAgreementIdMutation,
-  useUpdateVendorLicenseIdMutation,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { Action } from "lib/auth/rbac-rules";
@@ -33,6 +30,7 @@ import {
   TwoFactorMessageMethodEnum,
   TwoFactorMessageMethodToLabel,
 } from "lib/enum";
+import { updateLicensesMutation } from "lib/licenses";
 import { InventoryNotifier } from "lib/notifications/inventory";
 import { omit } from "lodash";
 import { useMemo } from "react";
@@ -73,20 +71,12 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
   const [updateVendorAgreementId] = useUpdateVendorAgreementIdMutation();
   const [addCompanyVendorAgreement] = useAddCompanyVendorAgreementMutation();
 
-  const [updateVendorLicenseId] = useUpdateVendorLicenseIdMutation();
-  const [addVendorLicense] = useAddCompanyVendorLicenseMutation();
-
   const agreementFileId =
     data?.company_vendor_partnerships_by_pk?.company_agreement?.file_id;
-  const licenseFileId =
-    data?.company_vendor_partnerships_by_pk?.company_license?.file_id;
 
   const agreementFileIds = useMemo(() => {
     return agreementFileId ? [agreementFileId] : [];
   }, [agreementFileId]);
-  const licenseFileIds = useMemo(() => {
-    return licenseFileId ? [licenseFileId] : [];
-  }, [licenseFileId]);
 
   if (!data?.company_vendor_partnerships_by_pk) {
     if (!isBankVendorPartnershipLoading) {
@@ -100,6 +90,9 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
   const customer = data.company_vendor_partnerships_by_pk.company;
   const vendor = data.company_vendor_partnerships_by_pk.vendor;
 
+  const licenseFileIds = vendor.licenses?.map((l) => {
+    return l.file_id;
+  });
   const customerName = customer?.name;
 
   const notifier = new InventoryNotifier();
@@ -142,7 +135,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
           <Grid item>
             <Typography variant="h6">Licenses</Typography>
           </Grid>
-          {licenseFileId && (
+          {licenseFileIds.length > 0 && (
             <Grid item>
               <DownloadThumbnail
                 fileIds={licenseFileIds}
@@ -154,32 +147,24 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
             <FileUploadDropzone
               companyId={vendor.id}
               docType="vendor_license"
-              maxFilesAllowed={1}
               onUploadComplete={async (resp) => {
                 if (!resp.succeeded) {
                   return;
                 }
-                const fileId = resp.files_in_db[0].id;
-                // This is an agreement that the vendor signs with Bespoke, therefore
-                // company_id is vendor.id
-                const license: CompanyLicensesInsertInput = {
-                  file_id: fileId,
-                  company_id: vendor.id,
-                };
-                const vendorLicense = await addVendorLicense({
+
+                const fileIds = resp.files_in_db.map((f) => {
+                  return f.id;
+                });
+
+                // The vendorLicenseId is whatever the most recent vendor license is.
+                // Really this vendor_license_id is populated for convenience
+                const response = await updateLicensesMutation({
                   variables: {
-                    vendorLicense: license,
+                    company_id: vendor.id,
+                    file_ids: fileIds,
                   },
                 });
-                const vendorLicenseId =
-                  vendorLicense.data?.insert_company_licenses_one?.id;
-                const response = await updateVendorLicenseId({
-                  variables: {
-                    companyVendorPartnershipId: vendorPartnershipId,
-                    vendorLicenseId: vendorLicenseId,
-                  },
-                });
-                if (response.data?.update_company_vendor_partnerships_by_pk) {
+                if (response.status === "OK") {
                   refetch();
                   snackbar.showSuccess("Vendor license uploaded.");
                 } else {

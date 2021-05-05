@@ -18,7 +18,7 @@ from bespoke.email.email_manager import EmailConfigDict, SendGridConfigDict
 from bespoke.security import two_factor_util
 from server.config import get_config, is_development_env
 from server.views import (
-	auth, companies, contracts, files, healthcheck, metrc, notify, purchase_orders,
+	auth, companies, contracts, files, healthcheck, licenses, metrc, notify, purchase_orders,
 	two_factor, users)
 from server.views.finance.invoices import routes as invoices_routes
 from server.views.finance.ebba_applications import \
@@ -59,6 +59,7 @@ app.register_blueprint(auth.handler, url_prefix='/auth')
 app.register_blueprint(companies.handler, url_prefix='/companies')
 app.register_blueprint(contracts.handler, url_prefix='/contracts')
 app.register_blueprint(files.handler, url_prefix='/files')
+app.register_blueprint(licenses.handler, url_prefix='/licenses')
 app.register_blueprint(two_factor.handler, url_prefix='/two_factor')
 app.register_blueprint(users.handler, url_prefix='/users')
 

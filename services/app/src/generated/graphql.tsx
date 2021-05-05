@@ -16826,6 +16826,7 @@ export type GetVendorPartnershipForBankQuery = {
           collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
         } & CompanySettingsFragment;
         users: Array<ContactFragment>;
+        licenses: Array<CompanyLicenseFragment>;
       } & ThirdPartyFragment;
       vendor_bank_account?: Maybe<
         Pick<BankAccounts, "id"> & BankAccountFragment
@@ -16845,6 +16846,7 @@ export type GetVendorPartnershipsForBankQuery = {
       vendor: {
         settings: Pick<CompanySettings, "id">;
         users: Array<ContactFragment>;
+        licenses: Array<CompanyLicenseFragment>;
       } & ThirdPartyFragment;
       vendor_bank_account?: Maybe<Pick<BankAccounts, "id" | "verified_at">>;
     } & VendorPartnershipFragment
@@ -16926,27 +16928,6 @@ export type AddCompanyVendorAgreementMutationVariables = Exact<{
 
 export type AddCompanyVendorAgreementMutation = {
   insert_company_agreements_one?: Maybe<CompanyAgreementFragment>;
-};
-
-export type UpdateVendorLicenseIdMutationVariables = Exact<{
-  companyVendorPartnershipId: Scalars["uuid"];
-  vendorLicenseId: Scalars["uuid"];
-}>;
-
-export type UpdateVendorLicenseIdMutation = {
-  update_company_vendor_partnerships_by_pk?: Maybe<
-    Pick<CompanyVendorPartnerships, "id"> & {
-      company_license?: Maybe<CompanyLicenseFragment>;
-    }
-  >;
-};
-
-export type AddCompanyVendorLicenseMutationVariables = Exact<{
-  vendorLicense: CompanyLicensesInsertInput;
-}>;
-
-export type AddCompanyVendorLicenseMutation = {
-  insert_company_licenses_one?: Maybe<CompanyLicenseFragment>;
 };
 
 export type GetVendorPartnershipsByCompanyIdQueryVariables = Exact<{
@@ -23559,6 +23540,9 @@ export const GetVendorPartnershipForBankDocument = gql`
             ...BankAccount
           }
         }
+        licenses {
+          ...CompanyLicense
+        }
       }
       vendor_bank_account {
         id
@@ -23640,6 +23624,9 @@ export const GetVendorPartnershipsForBankDocument = gql`
         users {
           ...Contact
         }
+        licenses {
+          ...CompanyLicense
+        }
       }
       vendor_bank_account {
         id
@@ -23650,6 +23637,7 @@ export const GetVendorPartnershipsForBankDocument = gql`
   ${VendorPartnershipFragmentDoc}
   ${ThirdPartyFragmentDoc}
   ${ContactFragmentDoc}
+  ${CompanyLicenseFragmentDoc}
 `;
 
 /**
@@ -24132,116 +24120,6 @@ export type AddCompanyVendorAgreementMutationResult = Apollo.MutationResult<AddC
 export type AddCompanyVendorAgreementMutationOptions = Apollo.BaseMutationOptions<
   AddCompanyVendorAgreementMutation,
   AddCompanyVendorAgreementMutationVariables
->;
-export const UpdateVendorLicenseIdDocument = gql`
-  mutation UpdateVendorLicenseId(
-    $companyVendorPartnershipId: uuid!
-    $vendorLicenseId: uuid!
-  ) {
-    update_company_vendor_partnerships_by_pk(
-      pk_columns: { id: $companyVendorPartnershipId }
-      _set: { vendor_license_id: $vendorLicenseId }
-    ) {
-      id
-      company_license {
-        ...CompanyLicense
-      }
-    }
-  }
-  ${CompanyLicenseFragmentDoc}
-`;
-export type UpdateVendorLicenseIdMutationFn = Apollo.MutationFunction<
-  UpdateVendorLicenseIdMutation,
-  UpdateVendorLicenseIdMutationVariables
->;
-
-/**
- * __useUpdateVendorLicenseIdMutation__
- *
- * To run a mutation, you first call `useUpdateVendorLicenseIdMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateVendorLicenseIdMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateVendorLicenseIdMutation, { data, loading, error }] = useUpdateVendorLicenseIdMutation({
- *   variables: {
- *      companyVendorPartnershipId: // value for 'companyVendorPartnershipId'
- *      vendorLicenseId: // value for 'vendorLicenseId'
- *   },
- * });
- */
-export function useUpdateVendorLicenseIdMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdateVendorLicenseIdMutation,
-    UpdateVendorLicenseIdMutationVariables
-  >
-) {
-  return Apollo.useMutation<
-    UpdateVendorLicenseIdMutation,
-    UpdateVendorLicenseIdMutationVariables
-  >(UpdateVendorLicenseIdDocument, baseOptions);
-}
-export type UpdateVendorLicenseIdMutationHookResult = ReturnType<
-  typeof useUpdateVendorLicenseIdMutation
->;
-export type UpdateVendorLicenseIdMutationResult = Apollo.MutationResult<UpdateVendorLicenseIdMutation>;
-export type UpdateVendorLicenseIdMutationOptions = Apollo.BaseMutationOptions<
-  UpdateVendorLicenseIdMutation,
-  UpdateVendorLicenseIdMutationVariables
->;
-export const AddCompanyVendorLicenseDocument = gql`
-  mutation AddCompanyVendorLicense(
-    $vendorLicense: company_licenses_insert_input!
-  ) {
-    insert_company_licenses_one(object: $vendorLicense) {
-      ...CompanyLicense
-    }
-  }
-  ${CompanyLicenseFragmentDoc}
-`;
-export type AddCompanyVendorLicenseMutationFn = Apollo.MutationFunction<
-  AddCompanyVendorLicenseMutation,
-  AddCompanyVendorLicenseMutationVariables
->;
-
-/**
- * __useAddCompanyVendorLicenseMutation__
- *
- * To run a mutation, you first call `useAddCompanyVendorLicenseMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddCompanyVendorLicenseMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [addCompanyVendorLicenseMutation, { data, loading, error }] = useAddCompanyVendorLicenseMutation({
- *   variables: {
- *      vendorLicense: // value for 'vendorLicense'
- *   },
- * });
- */
-export function useAddCompanyVendorLicenseMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    AddCompanyVendorLicenseMutation,
-    AddCompanyVendorLicenseMutationVariables
-  >
-) {
-  return Apollo.useMutation<
-    AddCompanyVendorLicenseMutation,
-    AddCompanyVendorLicenseMutationVariables
-  >(AddCompanyVendorLicenseDocument, baseOptions);
-}
-export type AddCompanyVendorLicenseMutationHookResult = ReturnType<
-  typeof useAddCompanyVendorLicenseMutation
->;
-export type AddCompanyVendorLicenseMutationResult = Apollo.MutationResult<AddCompanyVendorLicenseMutation>;
-export type AddCompanyVendorLicenseMutationOptions = Apollo.BaseMutationOptions<
-  AddCompanyVendorLicenseMutation,
-  AddCompanyVendorLicenseMutationVariables
 >;
 export const GetVendorPartnershipsByCompanyIdDocument = gql`
   query GetVendorPartnershipsByCompanyId($companyId: uuid!) {

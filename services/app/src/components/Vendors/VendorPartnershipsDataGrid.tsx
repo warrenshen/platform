@@ -73,11 +73,11 @@ function VendorPartnershipsDataGrid({
         cellRender: verificationCellRenderer,
       },
       {
-        dataField: "vendor_license_id",
+        dataField: "vendor.licenses",
         caption: "Verified License",
         alignment: "center",
         calculateCellValue: (data: any) =>
-          !!data.vendor_license_id ? "Yes" : "No",
+          data.vendor.licenses?.length > 0 ? "Yes" : "No",
         cellRender: verificationCellRenderer,
       },
       {

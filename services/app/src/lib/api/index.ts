@@ -21,6 +21,10 @@ export const companyRoutes = {
   createPayorVendor: "/companies/create_payor_vendor",
 };
 
+export const licenseRoutes = {
+  updateLicenses: "/licenses/update_licenses",
+};
+
 export const contractRoutes = {
   addContract: "/contracts/add_new_contract",
   terminateContract: "/contracts/terminate_contract",

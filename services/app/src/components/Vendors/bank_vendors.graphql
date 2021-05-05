@@ -31,6 +31,9 @@ query GetVendorPartnershipForBank($id: uuid!) {
           ...BankAccount
         }
       }
+      licenses {
+        ...CompanyLicense
+      }
     }
     vendor_bank_account {
       id
@@ -53,6 +56,9 @@ query GetVendorPartnershipsForBank {
       }
       users {
         ...Contact
+      }
+      licenses {
+        ...CompanyLicense
       }
     }
     vendor_bank_account {
@@ -141,30 +147,5 @@ mutation AddCompanyVendorAgreement(
 ) {
   insert_company_agreements_one(object: $vendorAgreement) {
     ...CompanyAgreement
-  }
-}
-
-## License mutations
-
-mutation UpdateVendorLicenseId(
-  $companyVendorPartnershipId: uuid!
-  $vendorLicenseId: uuid!
-) {
-  update_company_vendor_partnerships_by_pk(
-    pk_columns: { id: $companyVendorPartnershipId }
-    _set: { vendor_license_id: $vendorLicenseId }
-  ) {
-    id
-    company_license {
-      ...CompanyLicense
-    }
-  }
-}
-
-mutation AddCompanyVendorLicense(
-  $vendorLicense: company_licenses_insert_input!
-) {
-  insert_company_licenses_one(object: $vendorLicense) {
-    ...CompanyLicense
   }
 }
