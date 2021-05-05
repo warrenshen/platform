@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict
 from io import BytesIO
 
 class Boto3Client(object):
@@ -9,5 +9,5 @@ class Boto3Client(object):
 	def upload_fileobj(self, f: BytesIO, bucket_name: str, key_name: str) -> None:
 		pass
 
-def client(val: str, region_name: str, config: Any) -> Boto3Client:
+def client(val: str) -> Boto3Client:
 	pass
