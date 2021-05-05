@@ -160,7 +160,9 @@ def _get_summary_update(
 
 	# The adjusted total limit for Line of Credit customers is the
 	# minimum of contract maximum limit and calculated borrowing base.
-	if product_type == ProductType.LINE_OF_CREDIT:
+	include_borrowing_base_for_limits, _ = cur_contract.get_include_borrowing_base_for_limits()
+
+	if product_type == ProductType.LINE_OF_CREDIT and include_borrowing_base_for_limits:
 		adjusted_total_limit = min(
 			maximum_principal_limit,
 			active_ebba_application_update['calculated_borrowing_base'] if active_ebba_application_update else 0.0,

@@ -293,6 +293,9 @@ class Contract(object):
 	def _get_minimum_annual_amount(self) -> Tuple[float, errors.Error]:
 		return self._get_float_value('minimum_annual_amount')
 
+	def get_include_borrowing_base_for_limits(self) -> Tuple[bool, errors.Error]:
+		return self._get_bool_value('include_borrowing_base_for_limits')
+
 	def get_minimum_amount_owed_per_duration(self) -> Tuple[MinimumOwedDict, errors.Error]:
 		minimum_monthly_amount, err = self._get_minimum_monthly_amount()
 		if minimum_monthly_amount is not None:

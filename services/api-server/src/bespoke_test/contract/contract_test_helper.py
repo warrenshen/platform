@@ -29,7 +29,7 @@ ContractInputDict = TypedDict('ContractInputDict', {
 	'borrowing_base_accounts_receivable_percentage': float,
 	'borrowing_base_inventory_percentage': float,
 	'borrowing_base_cash_percentage': float,
-	'borrowing_base_cash_in_daca_percentage': float,
+	'borrowing_base_cash_in_daca_percentage': float
 }, total=False)
 
 def create_contract_config(
@@ -118,6 +118,15 @@ def create_contract_config(
 		for field in borrowing_base_fields:
 			value = input_dict.get(field)
 			fields.append({'internal_name': field, 'value': value})
+
+		# TODO(dlluncor): Remove this feature once we figure out how we want to
+		# treat borrowing limits in the long-term.
+		fields.extend([
+			{
+				'internal_name': 	'include_borrowing_base_for_limits',
+				'value': True
+			}
+		])
 
 	return {
 		'version': version_key,
