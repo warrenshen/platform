@@ -1,5 +1,5 @@
 import { Box } from "@material-ui/core";
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import { FilterList } from "@material-ui/icons";
 import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
@@ -13,6 +13,7 @@ import DataGridActionMenu, {
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
+  LoanArtifactLimitedFragment,
   LoanFragment,
   LoanLimitedFragment,
   Loans,
@@ -44,10 +45,23 @@ interface Props {
   matureDays?: number;
   pageSize?: number;
   filterByStatus?: RequestStatusEnum;
-  loans: LoanFragment[];
+  loans: (LoanFragment & LoanArtifactLimitedFragment)[];
   actionItems?: DataGridActionItem[];
   selectedLoanIds?: Loans["id"][];
   handleSelectLoans?: (loans: LoanFragment[]) => void;
+}
+
+function getRows(
+  loans: (LoanFragment & LoanArtifactLimitedFragment)[]
+): RowsProp {
+  return loans.map((loan) => ({
+    ...loan,
+    artifact_name: loan.purchase_order
+      ? loan.purchase_order.order_number
+      : loan.invoice
+      ? loan.invoice.invoice_number
+      : "N/A",
+  }));
 }
 
 const getMaturityDate = (rowData: any) =>
@@ -74,7 +88,7 @@ export default function LoansDataGrid({
   handleSelectLoans,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
-  const rows = loans;
+  const rows = getRows(loans);
 
   useEffect(() => {
     if (!dataGrid) {
@@ -220,20 +234,20 @@ export default function LoansDataGrid({
       },
       {
         visible: isArtifactVisible,
-        dataField: "artifact_id",
+        dataField: "artifact_name",
         caption: "Purchase Order / Invoice",
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <Box display="flex" alignItems="center">
             {params.row.data.purchase_order && (
               <PurchaseOrderDrawerLauncher
-                label={params.row.data.purchase_order.order_number as string}
+                label={params.row.data.artifact_name as string}
                 purchaseOrderId={params.row.data.purchase_order.id as string}
               />
             )}
             {params.row.data.invoice && (
               <InvoiceDrawerLauncher
-                label={params.row.data.invoice.invoice_number as string}
+                label={params.row.data.artifact_name as string}
                 invoiceId={params.row.data.invoice.id as string}
               />
             )}
