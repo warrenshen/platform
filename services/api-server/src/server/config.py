@@ -67,6 +67,10 @@ class Config(object):
 		self.BESPOKE_DOMAIN = os.environ.get(
 			'BESPOKE_DOMAIN', 'http://localhost:3005')
 
+		# Metrc
+		self.METRC_VENDOR_KEY_CA = os.environ.get('METRC_VENDOR_KEY_CA')
+		self.METRC_USER_KEY = os.environ.get('METRC_USER_KEY')
+
 		# Files
 		self.S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
 
