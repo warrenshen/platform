@@ -1,9 +1,7 @@
-import { ValueFormatterParams } from "@material-ui/data-grid";
 import ArtifactLoansDataGrid, {
   ArtifactLoansDataGridFlagProps,
   ArtifactLoansDataGridLoansProps,
 } from "components/Artifacts/ArtifactLoansDataGrid";
-import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
 
 export default function PurchaseOrderLoansDataGrid({
   isApprovalStatusVisible = false,
@@ -35,13 +33,7 @@ export default function PurchaseOrderLoansDataGrid({
       loans={loans}
       selectedLoanIds={selectedLoanIds}
       handleSelectLoans={handleSelectLoans}
-      artifactCaption="Purchase Order"
-      artifactCellRenderer={(params: ValueFormatterParams) => (
-        <PurchaseOrderDrawerLauncher
-          label={params.row.data.purchase_order?.order_number as string}
-          purchaseOrderId={params.row.data.purchase_order?.id as string}
-        />
-      )}
+      artifactCaption={"Purchase Order"}
     />
   );
 }

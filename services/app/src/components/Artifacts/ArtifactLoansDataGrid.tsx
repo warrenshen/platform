@@ -1,14 +1,16 @@
 import { Box } from "@material-ui/core";
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
+import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import PaymentStatusChip from "components/Shared/Chip/PaymentStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
+  LoanArtifactLimitedFragment,
   LoanFragment,
-  LoanLimitedFragment,
   Loans,
   LoanStatusEnum,
 } from "generated/graphql";
@@ -35,13 +37,29 @@ export interface ArtifactLoansDataGridFlagProps {
 
 interface ArtifactLoansDataGridArtifactProps {
   artifactCaption: string;
-  artifactCellRenderer: (params: ValueFormatterParams) => JSX.Element;
 }
 
 export interface ArtifactLoansDataGridLoansProps {
-  loans: LoanFragment[];
+  loans: (LoanFragment & LoanArtifactLimitedFragment)[];
   selectedLoanIds?: Loans["id"][];
   handleSelectLoans?: (loans: LoanFragment[]) => void;
+}
+
+function getRows(
+  loans: (LoanFragment & LoanArtifactLimitedFragment)[]
+): RowsProp {
+  return loans.map((loan) => ({
+    ...loan,
+    customer_identifier: createLoanCustomerIdentifier(loan),
+    disbursement_identifier: createLoanDisbursementIdentifier(loan),
+    artifact_name: loan.purchase_order
+      ? loan.purchase_order.order_number
+      : loan.invoice
+      ? loan.invoice.invoice_number
+      : loan.line_of_credit?.is_credit_for_vendor
+      ? loan.line_of_credit.recipient_vendor?.name
+      : "N/A",
+  }));
 }
 
 export default function ArtifactLoansDataGrid({
@@ -56,25 +74,23 @@ export default function ArtifactLoansDataGrid({
   isViewNotesEnabled = false,
   pager = true,
   artifactCaption,
-  artifactCellRenderer,
   loans,
   selectedLoanIds,
   handleSelectLoans,
 }: ArtifactLoansDataGridFlagProps &
   ArtifactLoansDataGridArtifactProps &
   ArtifactLoansDataGridLoansProps) {
-  const rows = loans;
+  const rows = useMemo(() => getRows(loans), [loans]);
+
   const columns = useMemo(
     () => [
       {
-        dataField: "identifier",
-        caption: "Identifier",
+        dataField: "customer_identifier",
+        caption: "Customer Identifier",
         width: 120,
         cellRender: (params: ValueFormatterParams) => (
           <LoanDrawerLauncher
-            label={createLoanCustomerIdentifier(
-              params.row.data as LoanLimitedFragment
-            )}
+            label={params.row.data.customer_identifier}
             loanId={params.row.data.id as string}
           />
         ),
@@ -86,9 +102,7 @@ export default function ArtifactLoansDataGrid({
         width: 120,
         cellRender: (params: ValueFormatterParams) => (
           <LoanDrawerLauncher
-            label={createLoanDisbursementIdentifier(
-              params.row.data as LoanLimitedFragment
-            )}
+            label={params.row.data.disbursement_identifier}
             loanId={params.row.data.id as string}
           />
         ),
@@ -119,10 +133,26 @@ export default function ArtifactLoansDataGrid({
       },
       {
         visible: !isMiniTable,
-        dataField: "artifact_id",
+        dataField: "artifact_name",
         caption: artifactCaption,
         minWidth: ColumnWidths.MinWidth,
-        cellRender: artifactCellRenderer,
+        cellRender: (params: ValueFormatterParams) => (
+          <Box display="flex" alignItems="center">
+            {params.row.data.purchase_order && (
+              <PurchaseOrderDrawerLauncher
+                label={params.row.data.artifact_name as string}
+                purchaseOrderId={params.row.data.purchase_order.id as string}
+              />
+            )}
+            {params.row.data.invoice && (
+              <InvoiceDrawerLauncher
+                label={params.row.data.artifact_name as string}
+                invoiceId={params.row.data.invoice.id as string}
+              />
+            )}
+            {params.row.data.line_of_credit && "N/A"}
+          </Box>
+        ),
       },
       {
         caption: "Amount",
@@ -215,7 +245,6 @@ export default function ArtifactLoansDataGrid({
       isRequestedDateVisible,
       isViewNotesEnabled,
       artifactCaption,
-      artifactCellRenderer,
     ]
   );
 

@@ -15,7 +15,6 @@ import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
   LoanArtifactLimitedFragment,
   LoanFragment,
-  LoanLimitedFragment,
   Loans,
   LoanStatusEnum,
   LoanTypeEnum,
@@ -56,6 +55,8 @@ function getRows(
 ): RowsProp {
   return loans.map((loan) => ({
     ...loan,
+    customer_identifier: createLoanCustomerIdentifier(loan),
+    disbursement_identifier: createLoanDisbursementIdentifier(loan),
     artifact_name: loan.purchase_order
       ? loan.purchase_order.order_number
       : loan.invoice
@@ -88,7 +89,7 @@ export default function LoansDataGrid({
   handleSelectLoans,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
-  const rows = getRows(loans);
+  const rows = useMemo(() => getRows(loans), [loans]);
 
   useEffect(() => {
     if (!dataGrid) {
@@ -143,14 +144,12 @@ export default function LoansDataGrid({
         ),
       },
       {
-        dataField: "identifier",
-        caption: "Loan Identifier",
+        dataField: "customer_identifier",
+        caption: "Customer Identifier",
         width: 120,
         cellRender: (params: ValueFormatterParams) => (
           <LoanDrawerLauncher
-            label={createLoanCustomerIdentifier(
-              params.row.data as LoanLimitedFragment
-            )}
+            label={params.row.data.customer_identifier}
             loanId={params.row.data.id as string}
           />
         ),
@@ -162,9 +161,7 @@ export default function LoansDataGrid({
         width: 120,
         cellRender: (params: ValueFormatterParams) => (
           <LoanDrawerLauncher
-            label={createLoanDisbursementIdentifier(
-              params.row.data as LoanLimitedFragment
-            )}
+            label={params.row.data.disbursement_identifier}
             loanId={params.row.data.id as string}
           />
         ),

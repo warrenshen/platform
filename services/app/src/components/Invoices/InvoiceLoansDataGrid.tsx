@@ -1,9 +1,7 @@
-import { ValueFormatterParams } from "@material-ui/data-grid";
 import ArtifactLoansDataGrid, {
   ArtifactLoansDataGridFlagProps,
   ArtifactLoansDataGridLoansProps,
 } from "components/Artifacts/ArtifactLoansDataGrid";
-import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
 
 export default function InvoiceLoansDataGrid({
   isApprovalStatusVisible = false,
@@ -35,13 +33,7 @@ export default function InvoiceLoansDataGrid({
       loans={loans}
       selectedLoanIds={selectedLoanIds}
       handleSelectLoans={handleSelectLoans}
-      artifactCaption="Invoice Number"
-      artifactCellRenderer={(params: ValueFormatterParams) => (
-        <InvoiceDrawerLauncher
-          label={params.row.data.invoice?.invoice_number as string}
-          invoiceId={params.row.data.invoice?.id as string}
-        />
-      )}
+      artifactCaption={"Invoice Number"}
     />
   );
 }
