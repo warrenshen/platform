@@ -60,6 +60,55 @@ export async function createUpdatePurchaseOrderAndSubmitMutation(
     );
 }
 
+export type UpdatePurchaseOrderReq = {
+  variables: {
+    purchase_order: PurchaseOrdersInsertInput;
+    purchase_order_files: PurchaseOrderFilesInsertInput[];
+  };
+};
+
+export async function updatePurchaseOrderMutation(
+  req: UpdatePurchaseOrderReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(purchaseOrdersRoutes.update, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not update purchase order",
+        };
+      }
+    );
+}
+
+export type SubmitPurchaseOrderReq = {
+  variables: {
+    purchase_order: PurchaseOrdersInsertInput;
+  };
+};
+
+export async function submitPurchaseOrderMutation(
+  req: SubmitPurchaseOrderReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(purchaseOrdersRoutes.submit, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not submit purchase order",
+        };
+      }
+    );
+}
+
 export type RespondToPurchaseOrderApprovalReq = {
   variables: {
     purchase_order_id: PurchaseOrders["id"];

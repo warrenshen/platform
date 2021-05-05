@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   createStyles,
   makeStyles,
   Theme,
@@ -23,6 +24,9 @@ import {
   PurchaseOrders,
   useGetOpenPurchaseOrdersByCompanyIdQuery,
 } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
+import useSnackbar from "hooks/useSnackbar";
+import { submitPurchaseOrderMutation } from "lib/api/purchaseOrders";
 import { Action } from "lib/auth/rbac-rules";
 import { ActionType } from "lib/enum";
 import { useContext, useMemo, useState } from "react";
@@ -39,10 +43,6 @@ const Container = styled.div`
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    section: {
-      display: "flex",
-      flexDirection: "column",
-    },
     sectionSpace: {
       height: theme.spacing(4),
     },
@@ -54,15 +54,19 @@ interface Props {
   productType: ProductTypeEnum;
 }
 
-function CustomerPurchaseOrdersOpenTab({ companyId, productType }: Props) {
+export default function CustomerPurchaseOrdersOpenTab({
+  companyId,
+  productType,
+}: Props) {
   const classes = useStyles();
+  const snackbar = useSnackbar();
 
   const {
     user: { role },
   } = useContext(CurrentUserContext);
   const isBankUser = isRoleBankUser(role);
 
-  const { data, refetch, error } = useGetOpenPurchaseOrdersByCompanyIdQuery({
+  const { data, error, refetch } = useGetOpenPurchaseOrdersByCompanyIdQuery({
     fetchPolicy: "network-only",
     variables: {
       company_id: companyId,
@@ -78,42 +82,57 @@ function CustomerPurchaseOrdersOpenTab({ companyId, productType }: Props) {
     data?.purchase_orders,
   ]);
 
+  // Not approved POs
   const notApprovedPurchaseOrders = useMemo(
     () => purchaseOrders.filter((purchaseOrder) => !purchaseOrder.approved_at),
     [purchaseOrders]
   );
 
-  const approvedPurchaseOrders = useMemo(
-    () => purchaseOrders.filter((purchaseOrder) => !!purchaseOrder.approved_at),
-    [purchaseOrders]
-  );
+  const [
+    selectedNotApprovedPurchaseOrderIds,
+    setSelectedNotApprovedPurchaseOrderIds,
+  ] = useState<PurchaseOrders["id"][]>([]);
 
-  const [selectedPurchaseOrderIds, setSelectedPurchaseOrderIds] = useState<
-    PurchaseOrders["id"][]
-  >([]);
-
-  const selectedPurchaseOrder = useMemo(
+  const selectedNotApprovedPurchaseOrder = useMemo(
     () =>
-      selectedPurchaseOrderIds.length === 1
+      selectedNotApprovedPurchaseOrderIds.length === 1
         ? purchaseOrders.find(
-            (purchaseOrder) => purchaseOrder.id === selectedPurchaseOrderIds[0]
+            (purchaseOrder) =>
+              purchaseOrder.id === selectedNotApprovedPurchaseOrderIds[0]
           )
         : null,
-    [purchaseOrders, selectedPurchaseOrderIds]
+    [purchaseOrders, selectedNotApprovedPurchaseOrderIds]
   );
 
   const handleSelectPurchaseOrders = useMemo(
     () => (purchaseOrders: PurchaseOrderFragment[]) =>
-      setSelectedPurchaseOrderIds(
+      setSelectedNotApprovedPurchaseOrderIds(
         purchaseOrders.map((purchaseOrder) => purchaseOrder.id)
       ),
-    [setSelectedPurchaseOrderIds]
+    [setSelectedNotApprovedPurchaseOrderIds]
+  );
+
+  // Approved POs
+  const approvedPurchaseOrders = useMemo(
+    () => purchaseOrders.filter((purchaseOrder) => !!purchaseOrder.approved_at),
+    [purchaseOrders]
   );
 
   const [
     selectedApprovedPurchaseOrderIds,
     setSelectedApprovedPurchaseOrderIds,
   ] = useState<PurchaseOrders["id"][]>([]);
+
+  const selectedApprovedPurchaseOrder = useMemo(
+    () =>
+      selectedApprovedPurchaseOrderIds.length === 1
+        ? approvedPurchaseOrders.find(
+            (approvedPurchaseOrder) =>
+              approvedPurchaseOrder.id === selectedApprovedPurchaseOrderIds[0]
+          )
+        : null,
+    [approvedPurchaseOrders, selectedApprovedPurchaseOrderIds]
+  );
 
   const handleSelectApprovedPurchaseOrders = useMemo(
     () => (purchaseOrders: PurchaseOrderFragment[]) =>
@@ -123,21 +142,51 @@ function CustomerPurchaseOrdersOpenTab({ companyId, productType }: Props) {
     [setSelectedApprovedPurchaseOrderIds]
   );
 
+  const [
+    submitPurchaseOrder,
+    { loading: isSubmitPurchaseOrderLoading },
+  ] = useCustomMutation(submitPurchaseOrderMutation);
+
+  const handleSubmitPurchaseOrder = async () => {
+    const purchaseOrder = selectedNotApprovedPurchaseOrder;
+
+    if (!purchaseOrder) {
+      alert(
+        "Developer error! Selected not approved purchase order is required."
+      );
+      return;
+    }
+
+    const response = await submitPurchaseOrder({
+      variables: {
+        purchase_order: purchaseOrder,
+      },
+    });
+
+    if (response.status !== "OK") {
+      snackbar.showError(
+        `Could not submit purchase order to vendor. Error: ${response.msg}`
+      );
+    } else {
+      snackbar.showSuccess(
+        `Purchase order ${purchaseOrder.order_number} submitted to vendor for review.`
+      );
+      refetch();
+      setSelectedNotApprovedPurchaseOrderIds([]);
+    }
+  };
+
+  const isFormLoading = isSubmitPurchaseOrderLoading;
+
   return (
     <Container>
-      <Box
-        flex={1}
-        display="flex"
-        flexDirection="column"
-        width="100%"
-        className={classes.section}
-      >
+      <Box flex={1} display="flex" flexDirection="column" width="100%">
         <Box className={classes.sectionSpace} />
         <Typography variant="h6">Not Approved by Vendor Yet</Typography>
         <Box my={2} display="flex" flexDirection="row-reverse">
           <Can perform={Action.AddPurchaseOrders}>
             <ModalButton
-              isDisabled={!!selectedPurchaseOrder}
+              isDisabled={!!selectedNotApprovedPurchaseOrder}
               label={"Create PO"}
               modal={({ handleClose }) => (
                 <CreateUpdatePurchaseOrderModal
@@ -155,56 +204,69 @@ function CustomerPurchaseOrdersOpenTab({ companyId, productType }: Props) {
           <Can perform={Action.EditPurchaseOrders}>
             <Box mr={2}>
               <ModalButton
-                isDisabled={!selectedPurchaseOrder}
+                isDisabled={!selectedNotApprovedPurchaseOrder}
                 label={"Edit PO"}
                 modal={({ handleClose }) => (
                   <CreateUpdatePurchaseOrderModal
                     actionType={ActionType.Update}
                     companyId={companyId}
-                    purchaseOrderId={selectedPurchaseOrder?.id}
+                    purchaseOrderId={selectedNotApprovedPurchaseOrder?.id}
                     handleClose={() => {
                       refetch();
                       handleClose();
-                      setSelectedPurchaseOrderIds([]);
+                      setSelectedNotApprovedPurchaseOrderIds([]);
                     }}
                   />
                 )}
               />
             </Box>
           </Can>
-          {selectedPurchaseOrder && !selectedPurchaseOrder.requested_at && (
-            <Can perform={Action.DeletePurchaseOrders}>
-              <Box mr={2}>
-                <ModalButton
-                  isDisabled={!selectedPurchaseOrder}
-                  label={"Delete PO"}
-                  variant={"outlined"}
-                  modal={({ handleClose }) => (
-                    <DeletePurchaseOrderModal
-                      purchaseOrderId={selectedPurchaseOrderIds[0]}
-                      handleClose={() => {
-                        refetch();
-                        handleClose();
-                        setSelectedPurchaseOrderIds([]);
-                      }}
-                    />
-                  )}
-                />
-              </Box>
-            </Can>
-          )}
+          <Can perform={Action.EditPurchaseOrders}>
+            <Box mr={2}>
+              <Button
+                disabled={!selectedNotApprovedPurchaseOrder || isFormLoading}
+                variant="contained"
+                color="primary"
+                onClick={handleSubmitPurchaseOrder}
+              >
+                Submit PO to Vendor
+              </Button>
+            </Box>
+          </Can>
+          {selectedNotApprovedPurchaseOrder &&
+            !selectedNotApprovedPurchaseOrder.requested_at && (
+              <Can perform={Action.DeletePurchaseOrders}>
+                <Box mr={2}>
+                  <ModalButton
+                    isDisabled={!selectedNotApprovedPurchaseOrder}
+                    label={"Delete PO"}
+                    variant={"outlined"}
+                    modal={({ handleClose }) => (
+                      <DeletePurchaseOrderModal
+                        purchaseOrderId={selectedNotApprovedPurchaseOrderIds[0]}
+                        handleClose={() => {
+                          refetch();
+                          handleClose();
+                          setSelectedNotApprovedPurchaseOrderIds([]);
+                        }}
+                      />
+                    )}
+                  />
+                </Box>
+              </Can>
+            )}
         </Box>
         <Box>
           <PurchaseOrdersDataGrid
             isCompanyVisible={false}
             isExcelExport={isBankUser}
             purchaseOrders={notApprovedPurchaseOrders}
-            selectedPurchaseOrderIds={selectedPurchaseOrderIds}
+            selectedPurchaseOrderIds={selectedNotApprovedPurchaseOrderIds}
             handleSelectPurchaseOrders={handleSelectPurchaseOrders}
           />
         </Box>
         <Box className={classes.sectionSpace} />
-        <Box className={classes.section}>
+        <Box display="flex" flexDirection="column">
           <Typography variant="h6">
             Approved by Vendor & Ready to be Funded
           </Typography>
@@ -239,6 +301,26 @@ function CustomerPurchaseOrdersOpenTab({ companyId, productType }: Props) {
                 />
               </Box>
             </Can>
+            <Can perform={Action.EditPurchaseOrders}>
+              <Box mr={2}>
+                <ModalButton
+                  isDisabled={!selectedApprovedPurchaseOrder}
+                  label={"Edit PO"}
+                  modal={({ handleClose }) => (
+                    <CreateUpdatePurchaseOrderModal
+                      actionType={ActionType.Update}
+                      companyId={companyId}
+                      purchaseOrderId={selectedApprovedPurchaseOrder?.id}
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                        setSelectedApprovedPurchaseOrderIds([]);
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            </Can>
           </Box>
           <PurchaseOrdersDataGrid
             isCompanyVisible={false}
@@ -252,5 +334,3 @@ function CustomerPurchaseOrdersOpenTab({ companyId, productType }: Props) {
     </Container>
   );
 }
-
-export default CustomerPurchaseOrdersOpenTab;

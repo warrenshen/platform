@@ -21,6 +21,7 @@ import useSnackbar from "hooks/useSnackbar";
 import {
   createUpdatePurchaseOrderAndSubmitMutation,
   createUpdatePurchaseOrderAsDraftMutation,
+  updatePurchaseOrderMutation,
 } from "lib/api/purchaseOrders";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
@@ -40,6 +41,8 @@ export default function CreateUpdatePurchaseOrderModal({
   handleClose,
 }: Props) {
   const snackbar = useSnackbar();
+
+  const isActionTypeUpdate = actionType === ActionType.Update;
 
   const {
     user: { role },
@@ -80,7 +83,7 @@ export default function CreateUpdatePurchaseOrderModal({
     },
     onCompleted: (data) => {
       const existingPurchaseOrder = data?.purchase_orders_by_pk;
-      if (actionType === ActionType.Update && existingPurchaseOrder) {
+      if (isActionTypeUpdate && existingPurchaseOrder) {
         setPurchaseOrder(
           mergeWith(newPurchaseOrder, existingPurchaseOrder, (a, b) =>
             isNull(b) ? a : b
@@ -124,6 +127,25 @@ export default function CreateUpdatePurchaseOrderModal({
     { loading: isCreateUpdatePurchaseOrderAndSubmitLoading },
   ] = useCustomMutation(createUpdatePurchaseOrderAndSubmitMutation);
 
+  const [
+    updatePurchaseOrder,
+    { loading: isUpdatePurchaseOrderLoading },
+  ] = useCustomMutation(updatePurchaseOrderMutation);
+
+  const preparePurchaseOrder = () => {
+    return {
+      id: isActionTypeUpdate ? purchaseOrderId : null,
+      company_id: companyId,
+      vendor_id: purchaseOrder.vendor_id,
+      order_number: purchaseOrder.order_number,
+      order_date: purchaseOrder.order_date,
+      delivery_date: purchaseOrder.delivery_date,
+      amount: purchaseOrder.amount,
+      is_cannabis: purchaseOrder.is_cannabis,
+      status: RequestStatusEnum.Drafted,
+    };
+  };
+
   const preparePurchaseOrderFiles = () => {
     const purchaseOrderFileData = purchaseOrderFile && {
       purchase_order_id: purchaseOrderFile.purchase_order_id,
@@ -145,22 +167,10 @@ export default function CreateUpdatePurchaseOrderModal({
   };
 
   const handleClickSaveDraft = async () => {
-    const purchaseOrderFilesData = preparePurchaseOrderFiles();
-
     const response = await createUpdatePurchaseOrderAsDraft({
       variables: {
-        purchase_order: {
-          id: actionType === ActionType.Update ? purchaseOrderId : null,
-          company_id: companyId,
-          vendor_id: purchaseOrder.vendor_id,
-          order_number: purchaseOrder.order_number,
-          order_date: purchaseOrder.order_date,
-          delivery_date: purchaseOrder.delivery_date,
-          amount: purchaseOrder.amount,
-          is_cannabis: purchaseOrder.is_cannabis,
-          status: RequestStatusEnum.Drafted,
-        },
-        purchase_order_files: purchaseOrderFilesData,
+        purchase_order: preparePurchaseOrder(),
+        purchase_order_files: preparePurchaseOrderFiles(),
       },
     });
 
@@ -169,28 +179,18 @@ export default function CreateUpdatePurchaseOrderModal({
         `Could not save purchase order as draft. Error: ${response.msg}`
       );
     } else {
-      snackbar.showSuccess("Purchase order saved as draft.");
+      snackbar.showSuccess(
+        `Purchase order ${purchaseOrder.order_number} saved as draft.`
+      );
       handleClose();
     }
   };
 
   const handleClickSaveSubmit = async () => {
-    const purchaseOrderFilesData = preparePurchaseOrderFiles();
-
     const response = await createUpdatePurchaseOrderAndSubmit({
       variables: {
-        purchase_order: {
-          id: actionType === ActionType.Update ? purchaseOrderId : null,
-          company_id: companyId,
-          vendor_id: purchaseOrder.vendor_id,
-          order_number: purchaseOrder.order_number || null,
-          order_date: purchaseOrder.order_date || null,
-          delivery_date: purchaseOrder.delivery_date || null,
-          amount: purchaseOrder.amount || null,
-          is_cannabis: purchaseOrder.is_cannabis,
-          status: RequestStatusEnum.Drafted,
-        },
-        purchase_order_files: purchaseOrderFilesData,
+        purchase_order: preparePurchaseOrder(),
+        purchase_order_files: preparePurchaseOrderFiles(),
       },
     });
 
@@ -199,7 +199,29 @@ export default function CreateUpdatePurchaseOrderModal({
         `Could not save and submit purchase order. Error: ${response.msg}`
       );
     } else {
-      snackbar.showSuccess("Purchase order saved and submitted to vendor.");
+      snackbar.showSuccess(
+        `Purchase order ${purchaseOrder.order_number} saved and submitted to vendor for review.`
+      );
+      handleClose();
+    }
+  };
+
+  const handleClickUpdate = async () => {
+    const response = await updatePurchaseOrder({
+      variables: {
+        purchase_order: preparePurchaseOrder(),
+        purchase_order_files: preparePurchaseOrderFiles(),
+      },
+    });
+
+    if (response.status !== "OK") {
+      snackbar.showError(
+        `Could not update purchase order. Error: ${response.msg}`
+      );
+    } else {
+      snackbar.showSuccess(
+        `Purchase order ${purchaseOrder.order_number} saved.`
+      );
       handleClose();
     }
   };
@@ -210,11 +232,12 @@ export default function CreateUpdatePurchaseOrderModal({
   const isFormValid = !!purchaseOrder.vendor_id && !!purchaseOrder.order_number;
   const isFormLoading =
     isCreateUpdatePurchaseOrderAsDraftLoading ||
-    isCreateUpdatePurchaseOrderAndSubmitLoading;
-  const isSaveDraftDisabled =
+    isCreateUpdatePurchaseOrderAndSubmitLoading ||
+    isUpdatePurchaseOrderLoading;
+  const isSecondaryActionDisabled =
     !isFormValid || isFormLoading || !purchaseOrder.order_number;
-  const isSaveSubmitDisabled =
-    isSaveDraftDisabled ||
+  const isPrimaryActionDisabled =
+    isSecondaryActionDisabled ||
     !vendors?.find((vendor) => vendor.id === purchaseOrder.vendor_id)
       ?.company_vendor_partnerships[0].approved_at ||
     !purchaseOrder.order_date ||
@@ -225,16 +248,16 @@ export default function CreateUpdatePurchaseOrderModal({
 
   return isDialogReady ? (
     <Modal
-      isPrimaryActionDisabled={isSaveSubmitDisabled}
-      isSecondaryActionDisabled={isSaveDraftDisabled}
-      title={`${
-        actionType === ActionType.Update ? "Edit" : "Create"
-      } Purchase Order`}
-      primaryActionText={"Save and Submit"}
-      secondaryActionText={"Save as Draft"}
+      isPrimaryActionDisabled={isPrimaryActionDisabled}
+      isSecondaryActionDisabled={isSecondaryActionDisabled}
+      title={`${isActionTypeUpdate ? "Edit" : "Create"} Purchase Order`}
+      primaryActionText={isActionTypeUpdate ? "Save" : "Save and Submit"}
+      secondaryActionText={!isActionTypeUpdate ? "Save as Draft" : null}
       handleClose={handleClose}
-      handlePrimaryAction={handleClickSaveSubmit}
-      handleSecondaryAction={handleClickSaveDraft}
+      handlePrimaryAction={
+        isActionTypeUpdate ? handleClickUpdate : handleClickSaveSubmit
+      }
+      handleSecondaryAction={!isActionTypeUpdate ? handleClickSaveDraft : null}
     >
       <>
         {isBankUser && (
@@ -242,7 +265,7 @@ export default function CreateUpdatePurchaseOrderModal({
             <Alert severity="warning">
               <Typography variant="body1">
                 {`Warning: you are ${
-                  actionType === ActionType.Update ? "editing" : "creating"
+                  isActionTypeUpdate ? "editing" : "creating"
                 } a purchase order on behalf of this
                 customer (only bank admins can do this).`}
               </Typography>

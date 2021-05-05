@@ -49,6 +49,71 @@ class CreateUpdateAsDraftView(MethodView):
 			}
 		}))
 
+class UpdateView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@events.wrap(events.Actions.PURCHASE_ORDER_CREATE_UPDATE)
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		user_session = auth_util.UserSession.from_session()
+
+		request_data = json.loads(request.data)
+		data, err = purchase_orders_util.PurchaseOrderUpsertRequest.from_dict(request_data)
+		if err:
+			return handler_util.make_error_response(err)
+
+		if not user_session.is_bank_or_this_company_admin(data.purchase_order.company_id):
+			return handler_util.make_error_response("Access Denied", status_code=403)
+
+		if not data.purchase_order.id:
+			return handler_util.make_error_response("Purchase Order ID is required", status_code=400)
+
+		purchase_order_id, err = purchase_orders_util.create_update_purchase_order(current_app.session_maker, data)
+		if err:
+			return handler_util.make_error_response(err)
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Success',
+			'data': {
+				'purchase_order_id': purchase_order_id,
+			}
+		}))
+
+class SubmitView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@events.wrap(events.Actions.PURCHASE_ORDER_SUBMIT_FOR_APPROVAL)
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		user_session = auth_util.UserSession.from_session()
+
+		request_data = json.loads(request.data)
+		data, err = purchase_orders_util.PurchaseOrderUpsertRequest.from_dict(request_data)
+		if err:
+			return handler_util.make_error_response(err)
+
+		if not user_session.is_bank_or_this_company_admin(data.purchase_order.company_id):
+			return handler_util.make_error_response("Access Denied", status_code=403)
+
+		if not data.purchase_order.id:
+			return handler_util.make_error_response("Purchase Order ID is required", status_code=400)
+
+		purchase_order_id, err = purchase_orders_util.submit_purchase_order_for_approval(
+			current_app.session_maker,
+			data.purchase_order.id,
+		)
+		if err:
+			return handler_util.make_error_response(err)
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Success',
+			'data': {
+				'purchase_order_id': purchase_order_id,
+			}
+		}))
+
 class CreateUpdateAndSubmitView(MethodView):
 	decorators = [auth_util.login_required]
 
@@ -320,6 +385,16 @@ handler.add_url_rule(
 	view_func=CreateUpdateAndSubmitView.as_view(
 		name='create_update_and_submit',
 	),
+)
+
+handler.add_url_rule(
+	'/update',
+	view_func=UpdateView.as_view(name='update'),
+)
+
+handler.add_url_rule(
+	'/submit',
+	view_func=SubmitView.as_view(name='submit'),
 )
 
 handler.add_url_rule(

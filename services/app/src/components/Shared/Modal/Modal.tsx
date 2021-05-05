@@ -116,7 +116,7 @@ interface Props {
   secondaryActionText?: string | null; // null = do not show secondary button.
   handleClose: () => void;
   handlePrimaryAction: () => void;
-  handleSecondaryAction?: () => void;
+  handleSecondaryAction?: (() => void) | null;
   children: ReactNode;
 }
 

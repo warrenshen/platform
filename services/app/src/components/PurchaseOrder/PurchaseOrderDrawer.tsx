@@ -53,6 +53,7 @@ function PurchaseOrderDrawer({ purchaseOrderId, handleClose }: Props) {
   const isBankUser = isRoleBankUser(role);
 
   const { data } = usePurchaseOrderQuery({
+    fetchPolicy: "network-only",
     variables: {
       id: purchaseOrderId,
     },

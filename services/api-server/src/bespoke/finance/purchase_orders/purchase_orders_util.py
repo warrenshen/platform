@@ -79,14 +79,14 @@ class PurchaseOrderData:
 				return None, errors.Error('invalid delivery_date')
 
 		return PurchaseOrderData(
-			d.get('id'),
-			d.get('company_id'),
-			d.get('vendor_id'),
-			d.get('order_number'),
-			PurchaseOrderData.parse_date_safely(d, 'order_date'),
-			PurchaseOrderData.parse_date_safely(d, 'delivery_date'),
-			PurchaseOrderData.parse_numeric_safely(d, 'amount'),
-			d.get('is_cannabis'),
+			id=d.get('id'),
+			company_id=d.get('company_id'),
+			vendor_id=d.get('vendor_id'),
+			order_number=d.get('order_number'),
+			order_date=PurchaseOrderData.parse_date_safely(d, 'order_date'),
+			delivery_date=PurchaseOrderData.parse_date_safely(d, 'delivery_date'),
+			amount=PurchaseOrderData.parse_numeric_safely(d, 'amount'),
+			is_cannabis=d.get('is_cannabis'),
 		), None
 
 	@staticmethod
@@ -242,10 +242,7 @@ def create_update_purchase_order(
 def submit_purchase_order_for_approval(
 	session_maker: Callable,
 	purchase_order_id: str,
-) -> Tuple[
-	str,
-	errors.Error,
-]:
+) -> Tuple[str, errors.Error]:
 	is_vendor_missing_bank_account = False
 
 	with session_scope(session_maker) as session:
@@ -257,17 +254,20 @@ def submit_purchase_order_for_approval(
 		vendor = purchase_order.vendor
 		customer = purchase_order.company
 
+		if not purchase_order:
+			raise errors.Error('Could not find purchase order')
+
 		if not purchase_order.order_number:
-			raise errors.Error('Invalid order number')
+			raise errors.Error('Order number is required')
 
 		if not purchase_order.order_date:
-			raise errors.Error('Invalid order date')
+			raise errors.Error('Order date is required')
 
 		if not purchase_order.delivery_date:
-			raise errors.Error('Invalid delivery date')
+			raise errors.Error('Delivery date is required')
 
 		if purchase_order.amount is None or purchase_order.amount <= 0:
-			raise errors.Error('Invalid amount')
+			raise errors.Error('Valid amount is required')
 
 		company_vendor_relationship = cast(
 			models.CompanyVendorPartnership,
@@ -282,17 +282,36 @@ def submit_purchase_order_for_approval(
 		if not company_vendor_relationship or company_vendor_relationship.approved_at is None:
 			raise errors.Error('Vendor is not approved')
 
-		purchase_order_file = cast(models.PurchaseOrderFile, session.query(
-			models.PurchaseOrderFile
-		).filter_by(
-			purchase_order_id=purchase_order.id,
-			file_type=db_constants.PurchaseOrderFileTypeEnum.PurchaseOrder,
-		).first())
-		if not purchase_order_file:
-			raise errors.Error('File attachment is required')
+		purchase_order_file = cast(
+			models.PurchaseOrderFile,
+			session.query(
+				models.PurchaseOrderFile
+			).filter_by(
+				purchase_order_id=purchase_order.id,
+				file_type=db_constants.PurchaseOrderFileTypeEnum.PurchaseOrder,
+			).first())
 
-		vendor_users = cast(List[models.User], session.query(
-			models.User).filter_by(company_id=purchase_order.vendor_id).all())
+		if not purchase_order_file:
+			raise errors.Error('Purchase order file attachment is required')
+
+		if purchase_order.is_cannabis:
+			purchase_order_cannabis_files = cast(
+				List[models.PurchaseOrderFile],
+				session.query(
+					models.PurchaseOrderFile
+				).filter_by(
+					purchase_order_id=purchase_order.id,
+					file_type=db_constants.PurchaseOrderFileTypeEnum.Cannabis,
+				).all())
+
+			if len(purchase_order_cannabis_files) <= 0:
+				raise errors.Error('Purchase order cannabis file attachment(s) are required')
+
+		vendor_users = cast(
+			List[models.User],
+			session.query(models.User).filter_by(
+				company_id=purchase_order.vendor_id
+			).all())
 
 		if not vendor_users:
 			raise errors.Error('There are no users configured for this vendor')
