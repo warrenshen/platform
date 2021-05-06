@@ -254,6 +254,7 @@ def settle_repayment_of_fee_with_account_credit(
 @errors.return_error_tuple
 def settle_repayment_of_fee(
 	req: SettleRepayFeeReqDict,
+	should_settle_payment: bool,
 	user_id: str,
 	session: Session
 ) -> Tuple[List[str], errors.Error]:
@@ -287,10 +288,9 @@ def settle_repayment_of_fee(
 		raise errors.Error('items_covered.to_user_credit must be specified', details=err_details)
 
 	to_user_credit = items_covered['to_user_credit']
-	to_fees = items_covered['to_fees']
+	to_fees = items_covered['to_account_fees']
 
 	if to_user_credit is None or to_fees is None:
-		print(req)
 		raise errors.Error('To user credit and to fees must be numbers', details=err_details)
 
 	if not number_util.is_currency_rounded(to_user_credit):
@@ -298,7 +298,6 @@ def settle_repayment_of_fee(
 
 	if not number_util.is_currency_rounded(to_fees):
 		raise errors.Error('To fees specified is not rounded to the penny')
-
 
 	payment = cast(
 		models.Payment,
@@ -311,9 +310,6 @@ def settle_repayment_of_fee(
 
 	if payment.settled_at:
 		raise errors.Error('Cannot use this payment because it has already been settled and applied to the users account', details=err_details)
-
-	if payment.type != db_constants.PaymentType.REPAYMENT_OF_ACCOUNT_FEE:
-		raise errors.Error('Can only apply repayments against account fees using this method', details=err_details)
 
 	if not payment.payment_date:
 		raise errors.Error('Payment must have a payment date')
@@ -358,16 +354,18 @@ def settle_repayment_of_fee(
 		session=session,
 	)
 
-	repayment_identifier = payment_util.get_and_increment_repayment_identifier(company_id, session)
+	if should_settle_payment:
+		repayment_identifier = payment_util.get_and_increment_repayment_identifier(company_id, session)
 
-	payment_util.make_repayment_payment_settled(
-		payment,
-		settlement_identifier=repayment_identifier,
-		amount=decimal.Decimal(req['amount']),
-		deposit_date=deposit_date,
-		settlement_date=settlement_date,
-		settled_by_user_id=user_id,
-	)
+		payment_util.make_repayment_payment_settled(
+			payment,
+			settlement_identifier=repayment_identifier,
+			amount=decimal.Decimal(req['amount']),
+			deposit_date=deposit_date,
+			settlement_date=settlement_date,
+			settled_by_user_id=user_id,
+		)
+
 	session.flush()
 	transaction_id = str(t.id)
 	tx_ids.append(transaction_id)

@@ -1054,13 +1054,24 @@ def settle_repayment(
 			)
 
 		if to_account_fees > 0.0:
-			repayment_util_fees.create_and_add_repayment_of_account_fee(
-				amount=to_account_fees,
-				payment_id=payment_id,
-				created_by_user_id=user_id,
-				effective_date=settlement_date,
-				session=session,
+			tx_ids, err = repayment_util_fees.settle_repayment_of_fee(
+				req={
+					'company_id': company_id,
+					'payment_id': payment_id,
+					'amount': to_account_fees,
+					'deposit_date': date_util.date_to_str(settlement_date),
+					'settlement_date': date_util.date_to_str(settlement_date),
+					'items_covered': {
+						'to_account_fees': to_account_fees,
+						'to_user_credit': 0.0 # never set the user credit here because we create it above
+					}
+				},
+				should_settle_payment=False, # because we are part of a larger payment that gets settled at the end of this method
+				user_id=user_id,
+				session=session
 			)
+			if err:
+				raise err
 
 		for i in range(len(transaction_inputs)):
 			tx_input = transaction_inputs[i]

@@ -87,10 +87,11 @@ class TestRepaymentOfFees(db_unittest.TestCase):
 					deposit_date=settle['deposit_date'],
 					settlement_date=settle['settlement_date'],
 					items_covered=payment_util.PaymentItemsCoveredDict(
-						to_fees=settle['to_fees'],
+						to_account_fees=settle['to_account_fees'],
 						to_user_credit=settle['to_user_credit']
 					)
 				),
+				should_settle_payment=True,
 				user_id=user_id,
 				session=session
 			)
@@ -145,7 +146,7 @@ class TestRepaymentOfFees(db_unittest.TestCase):
 				'company_bank_account_id': str(uuid.uuid4()),
 				'settlement': {
 					'amount': 30.1,
-					'to_fees': 30.0,
+					'to_account_fees': 30.0,
 					'to_user_credit': 0.1,
 					'deposit_date': '10/12/2019',
 					'settlement_date': '10/14/2019'

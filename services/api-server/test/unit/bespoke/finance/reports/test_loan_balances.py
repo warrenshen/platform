@@ -813,8 +813,9 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'amount': 12.03,
 					'deposit_date': '10/01/2020',
 					'settlement_date': '10/01/2020',
-					'items_covered': {'to_user_credit': 0.0, 'to_fees': 12.03}
+					'items_covered': {'to_user_credit': 0.0, 'to_account_fees': 12.03}
 				},
+				should_settle_payment=True,
 				user_id=seed.get_user_id('bank_admin'),
 				session=session
 			)
