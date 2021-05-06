@@ -16,6 +16,12 @@ from dateutil import parser
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 
+ScheduleRepayFeeReqDict = TypedDict('ScheduleRepayFeeReqDict', {
+	'company_id': str,
+	'payment_id': str,
+	'amount': float,
+	'payment_date': str
+})
 
 SettleRepayFeeReqDict = TypedDict('SettleRepayFeeReqDict', {
 	'company_id': str,
@@ -101,8 +107,12 @@ def create_and_add_account_level_fee_repayment_with_account_credit(
 	session: Session
 ) -> Tuple[str, errors.Error]:
 
-	if payment_input['payment_method'] == db_constants.PaymentMethodEnum.REVERSE_DRAFT_ACH:
-		return None, errors.Error('Reverse Draft ACH not supported as a payment type for fee repayment with account credit yet')
+	payment_method = payment_input['payment_method']
+
+	if payment_method == PaymentMethodEnum.REVERSE_DRAFT_ACH and not payment_input['company_bank_account_id']:
+		raise errors.Error('Bank account to trigger reverse from must be specified if payment method is Reverse Draft ACH', details={})
+
+	payment_input['payment_date'] = payment_input['requested_payment_date'] if payment_method != PaymentMethodEnum.REVERSE_DRAFT_ACH else None
 
 	payment = payment_util.create_repayment_payment(
 		company_id=company_id,
@@ -115,6 +125,51 @@ def create_and_add_account_level_fee_repayment_with_account_credit(
 	payment_id = str(payment.id)
 
 	return payment_id, None
+
+@errors.return_error_tuple
+def schedule_repayment_of_fee(
+	req: ScheduleRepayFeeReqDict,
+	user_id: str,
+	session: Session
+) -> Tuple[str, errors.Error]:
+
+	err_details = {
+		'method': 'schedule_repayment_of_fee',
+		'req': req
+	}
+
+	payment_date = date_util.load_date_str(req['payment_date'])
+	payment_amount = req['amount']
+
+	if not number_util.is_number(payment_amount) or payment_amount <= 0:
+		raise errors.Error('Payment amount must greater than 0', details=err_details)
+
+	if not payment_date:
+		raise errors.Error('Payment date must be specified', details=err_details)
+
+	payment = cast(
+		models.Payment,
+		session.query(models.Payment).filter(
+			models.Payment.id == req['payment_id']
+		).first())
+
+	if not payment:
+		raise errors.Error('No payment found to schedule transaction', details=err_details)
+
+	if not payment.method == PaymentMethodEnum.REVERSE_DRAFT_ACH:
+		raise errors.Error('Payment method must be Reverse Draft ACH', details=err_details)
+
+	if payment_amount > payment.requested_amount:
+		raise errors.Error('Payment amount cannot be greater than requested payment amount', details=err_details)
+
+	if payment_date < payment.requested_payment_date:
+		raise errors.Error('Payment date cannot be before the requested payment date', details=err_details)
+
+	payment.amount = decimal.Decimal(payment_amount)
+	payment.payment_date = payment_date
+
+	return str(payment.id), None
+
 
 @errors.return_error_tuple
 def settle_repayment_of_fee_with_account_credit(

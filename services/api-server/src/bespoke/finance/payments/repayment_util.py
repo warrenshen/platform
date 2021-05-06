@@ -610,7 +610,7 @@ def schedule_repayment(
 			).first())
 
 		if not payment:
-			raise errors.Error('No payment found to settle transaction', details=err_details)
+			raise errors.Error('No payment found to schedule transaction', details=err_details)
 
 		if not payment.method == PaymentMethodEnum.REVERSE_DRAFT_ACH:
 			raise errors.Error('Payment method must be Reverse Draft ACH', details=err_details)

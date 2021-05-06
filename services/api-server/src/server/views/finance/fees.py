@@ -101,6 +101,46 @@ class MakeAccountLevelFeeRepaymentView(MethodView):
 		}
 		return make_response(json.dumps(resp), 200)
 
+class ScheduleAccountLevelFeeRepaymentView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@events.wrap(events.Actions.FINANCE_SCHEDULE_ACCOUNT_LEVEL_FEE_REPAYMENT)
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = cast(Dict, json.loads(request.data))
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'company_id',
+			'payment_id',
+			'amount',
+			'payment_date'
+		]
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} from schedule account level fee repayment'.format(key))
+
+		user_session = auth_util.UserSession.from_session()
+
+		with models.session_scope(current_app.session_maker) as session:
+			payment_id, err = repayment_util_fees.schedule_repayment_of_fee(
+				cast(repayment_util_fees.ScheduleRepayFeeReqDict, form),
+				user_session.get_user_id(),
+				session
+			)
+			if err:
+				raise err
+
+		if err:
+			return handler_util.make_error_response(err)
+
+		return make_response(json.dumps({
+			'payment_id': payment_id,
+			'status': 'OK'
+		}), 200)
+
 class SettleAccountLevelFeeRepaymentView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
@@ -230,6 +270,9 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/make_account_level_fee_repayment_with_account_credit', view_func=MakeAccountLevelFeeRepaymentWithAccountCreditView.as_view(name='make_account_level_fee_repayment_with_account_credit_view'))
+
+handler.add_url_rule(
+	'/schedule_account_level_fee_repayment', view_func=ScheduleAccountLevelFeeRepaymentView.as_view(name='schedule_account_level_fee_repayment_view'))
 
 handler.add_url_rule(
 	'/settle_account_level_fee_repayment', view_func=SettleAccountLevelFeeRepaymentView.as_view(name='settle_account_level_fee_repayment_view'))

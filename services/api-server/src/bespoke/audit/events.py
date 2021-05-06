@@ -22,6 +22,7 @@ class Actions(object):
 	FINANCE_MAKE_ACCOUNT_LEVEL_FEE = 'finance_make_account_level_fee'
 	FINANCE_MAKE_ACCOUNT_LEVEL_FEE_REPAYMENT = 'finance_make_account_level_fee_repayment'
 	FINANCE_MAKE_ACCOUNT_LEVEL_FEE_REPAYMENT_WITH_ACCOUNT_CREDIT = 'finance_make_account_level_fee_repayment_with_account_credit'
+	FINANCE_SCHEDULE_ACCOUNT_LEVEL_FEE_REPAYMENT = 'finance_schedule_account_level_fee_repayment'
 	FINANCE_SETTLE_ACCOUNT_LEVEL_FEE_REPAYMENT = 'finance_settle_account_level_fee_repayment'
 	FINANCE_SETTLE_ACCOUNT_LEVEL_FEE_REPAYMENT_WITH_ACCOUNT_CREDIT = 'finance_settle_account_level_fee_repayment_with_account_credit'
 
