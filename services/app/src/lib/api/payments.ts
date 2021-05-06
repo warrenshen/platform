@@ -88,3 +88,50 @@ export async function createAccountLevelFeeMutation(
       }
     );
 }
+
+export type CreateAccountLevelFeeRepaymentReq = {
+  variables: {
+    company_id: Companies["id"];
+    payment: PaymentsInsertInput;
+  };
+};
+
+export async function createAccountLevelFeeRepaymentMutation(
+  req: CreateAccountLevelFeeRepaymentReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(feesRoutes.createAccountLevelFeeRepayment, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not create account fee repayment",
+        };
+      }
+    );
+}
+
+export type SettleAccountLevelFeeRepaymentReq = {
+  variables: {};
+};
+
+export async function settleAccountLevelFeeRepaymentMutation(
+  req: SettleAccountLevelFeeRepaymentReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(feesRoutes.settleAccountLevelFeeRepayment, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not settle account fee repayment",
+        };
+      }
+    );
+}

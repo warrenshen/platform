@@ -8,7 +8,7 @@ import {
 import CreateAccountLevelFeeModal from "components/Fee/CreateAccountLevelFeeModal";
 import DeletePaymentModal from "components/Payment/DeletePaymentModal";
 import FeesDataGrid from "components/Payment/FeesDataGrid";
-import CreateRepaymentModal from "components/Repayment/CreateRepaymentModal";
+import CreateAccountFeesRepaymentModal from "components/Repayment/CreateAccountFeesRepaymentModal";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import PageContent from "components/Shared/Page/PageContent";
@@ -81,15 +81,14 @@ export default function CustomerAccountPageContent({
     financialSummary?.total_outstanding_fees;
 
   const accountBalancePayload = financialSummary?.account_level_balance_payload;
-  let accountFees = -1;
-  let accountCredits = -1;
-  if (accountBalancePayload && Object.keys(accountBalancePayload).length > 0) {
-    // Keys you can use:
-    //  fees_total: How many account-level fees in $ you owe currently
-    //  credits_total: How many credits does Bespoke owe you due to overpayments
-    accountFees = accountBalancePayload.fees_total;
-    accountCredits = accountBalancePayload.credits_total;
-  }
+  const accountFees =
+    accountBalancePayload?.fees_total != null
+      ? accountBalancePayload.fees_total
+      : null;
+  const accountCredits =
+    accountBalancePayload?.credits_total != null
+      ? accountBalancePayload.credits_total
+      : null;
 
   const [selectedPaymentIds, setSelectedPaymentIds] = useState<Payments["id"]>(
     []
@@ -133,10 +132,9 @@ export default function CustomerAccountPageContent({
                 isDisabled={!canCreateRepaymentLoan}
                 label={"Make Payment"}
                 modal={({ handleClose }) => (
-                  <CreateRepaymentModal
+                  <CreateAccountFeesRepaymentModal
                     companyId={companyId}
                     productType={productType}
-                    initiallySelectedLoanIds={[]}
                     handleClose={() => {
                       refetch();
                       handleClose();
@@ -154,7 +152,7 @@ export default function CustomerAccountPageContent({
           <Box>
             <Box display="flex" flexDirection="column">
               <Typography variant="h5">
-                {accountFees !== -1 ? formatCurrency(accountFees) : "TBD"}
+                {formatCurrency(accountFees, "TBD")}
               </Typography>
               <Typography variant="subtitle1" color="textSecondary">
                 Accrued Account Fees
@@ -164,7 +162,7 @@ export default function CustomerAccountPageContent({
           <Box mt={2}>
             <Box display="flex" flexDirection="column">
               <Typography variant="h5">
-                {accountCredits !== -1 ? formatCurrency(accountCredits) : "TBD"}
+                {formatCurrency(accountCredits, "TBD")}
               </Typography>
               <Typography variant="subtitle1" color="textSecondary">
                 Holding Account Credits

@@ -36,6 +36,7 @@ export enum PaymentTypeEnum {
   Adjustment = "adjustment",
   Advance = "advance",
   Repayment = "repayment",
+  RepaymentOfAccountFee = "repayment_account_fee",
 }
 
 export enum PaymentStatusEnum {

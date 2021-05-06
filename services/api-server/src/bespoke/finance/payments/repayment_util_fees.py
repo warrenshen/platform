@@ -275,6 +275,9 @@ def settle_repayment_of_fee(
 	settlement_date = date_util.load_date_str(req['settlement_date'])
 	items_covered = req['items_covered']
 
+	if not payment_amount:
+		raise errors.Error('Amount must be specified')
+
 	if not number_util.is_currency_rounded(payment_amount):
 		raise errors.Error('Amount specified is not rounded to the penny')
 
@@ -289,6 +292,10 @@ def settle_repayment_of_fee(
 
 	to_user_credit = items_covered['to_user_credit']
 	to_fees = items_covered['to_fees']
+
+	if to_user_credit is None or to_fees is None:
+		print(req)
+		raise errors.Error('To user credit and to fees must be numbers', details=err_details)
 
 	if not number_util.is_currency_rounded(to_user_credit):
 		raise errors.Error('To user credit specified is not rounded to the penny')

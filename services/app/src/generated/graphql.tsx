@@ -21969,7 +21969,7 @@ export const GetSubmittedPaymentsDocument = gql`
               { is_deleted: { _eq: false } }
             ]
           }
-          { type: { _eq: "repayment" } }
+          { type: { _in: ["repayment", "repayment_account_fee"] } }
           { submitted_at: { _is_null: false } }
           { settled_at: { _is_null: true } }
         ]

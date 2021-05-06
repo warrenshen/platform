@@ -37,7 +37,7 @@ export default function FeeForm({
             <Select
               id="select-fee-type"
               labelId="select-fee-type-label"
-              value={transaction.subtype}
+              value={transaction.subtype || ""}
               onChange={({ target: { value } }) =>
                 setTransaction({
                   ...transaction,

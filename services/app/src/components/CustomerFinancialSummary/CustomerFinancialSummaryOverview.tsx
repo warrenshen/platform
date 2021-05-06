@@ -56,7 +56,6 @@ export default function CustomerFinancialSummaryOverview({
   const isBankUser = isRoleBankUser(role);
 
   const minimumFeePayload = financialSummary?.minimum_monthly_payload;
-  const accountBalancePayload = financialSummary?.account_level_balance_payload;
 
   let minimumFee = -1;
   let feeDuration = "";
@@ -77,15 +76,15 @@ export default function CustomerFinancialSummaryOverview({
     }
   }
 
-  let accountFees = -1;
-  let accountCredits = -1;
-  if (accountBalancePayload && Object.keys(accountBalancePayload).length > 0) {
-    // Keys you can use:
-    //  fees_total: How many account-level fees in $ you owe currently
-    //  credits_total: How many credits does Bespoke owe you due to overpayments
-    accountFees = accountBalancePayload.fees_total;
-    accountCredits = accountBalancePayload.credits_total;
-  }
+  const accountBalancePayload = financialSummary?.account_level_balance_payload;
+  const accountFees =
+    accountBalancePayload?.fees_total != null
+      ? accountBalancePayload.fees_total
+      : null;
+  const accountCredits =
+    accountBalancePayload?.credits_total != null
+      ? accountBalancePayload.credits_total
+      : null;
 
   const outstandingAmount = financialSummary
     ? financialSummary.adjusted_total_limit - financialSummary.available_limit
@@ -199,7 +198,7 @@ export default function CustomerFinancialSummaryOverview({
         <Box className={classes.box}>
           <Box display="flex" flexDirection="column">
             <Typography variant="h5">
-              {accountFees !== -1 ? formatCurrency(accountFees) : "TBD"}
+              {formatCurrency(accountFees, "TBD")}
             </Typography>
             <Typography variant="subtitle1" color="textSecondary">
               Accrued Account Fees
@@ -215,7 +214,7 @@ export default function CustomerFinancialSummaryOverview({
         <Box className={classes.box}>
           <Box display="flex" flexDirection="column">
             <Typography variant="h5">
-              {accountCredits !== -1 ? formatCurrency(accountCredits) : "TBD"}
+              {formatCurrency(accountCredits, "TBD")}
             </Typography>
             <Typography variant="subtitle1" color="textSecondary">
               {`Holding Account Credits${

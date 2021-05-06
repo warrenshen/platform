@@ -86,9 +86,17 @@ class MakeAccountLevelFeeRepaymentView(MethodView):
 					'Missing key {} from make account level fee repayment'.format(key))
 
 		with models.session_scope(current_app.session_maker) as session:
+			payment_input = form['payment']
+			payment_method = payment_input['method']
+			requested_payment_date = payment_input['requested_payment_date']
+			payment_date = requested_payment_date if payment_method != db_constants.PaymentMethodEnum.REVERSE_DRAFT_ACH else None
+
+			payment_input['payment_method'] = payment_method
+			payment_input['payment_date'] = payment_date
+
 			payment_id, err = repayment_util_fees.create_and_add_account_level_fee_repayment(
 				company_id=form['company_id'],
-				payment_input=form['payment'],
+				payment_input=payment_input,
 				created_by_user_id=user_session.get_user_id(),
 				session=session
 			)
