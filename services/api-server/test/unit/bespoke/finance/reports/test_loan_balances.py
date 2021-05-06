@@ -775,7 +775,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				amount=1000.01,
 				originating_payment_id=advance_tx.payment_id,
 				created_by_user_id=seed.get_user_id('bank_admin'),
-				payment_date=date_util.load_date_str('10/01/2020'),
+				deposit_date=date_util.load_date_str('10/01/2020'),
 				effective_date=date_util.load_date_str('10/01/2020'),
 				session=session
 			)
@@ -786,7 +786,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				amount=2000.01,
 				originating_payment_id=advance_tx.payment_id,
 				created_by_user_id=seed.get_user_id('bank_admin'),
-				payment_date=date_util.load_date_str('10/01/2020'),
+				deposit_date=date_util.load_date_str('10/01/2020'),
 				effective_date=date_util.load_date_str('10/01/2020'),
 				session=session
 			)

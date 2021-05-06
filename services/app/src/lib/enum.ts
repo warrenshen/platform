@@ -231,3 +231,21 @@ export const AllTwoFactorMessageMethods = [
   TwoFactorMessageMethodEnum.Email,
   TwoFactorMessageMethodEnum.Phone,
 ];
+
+export enum FeeTypeEnum {
+  CustomFee = "custom_fee",
+  MinimumInterestFee = "minimum_interest_fee",
+  WireFee = "wire_fee",
+}
+
+export const FeeTypeToLabel = {
+  [FeeTypeEnum.MinimumInterestFee]: "Minimum Interest Fee",
+  [FeeTypeEnum.WireFee]: "Wire Fee",
+  [FeeTypeEnum.CustomFee]: "Custom Fee",
+};
+
+export const AllFeeTypes = [
+  FeeTypeEnum.MinimumInterestFee,
+  FeeTypeEnum.WireFee,
+  FeeTypeEnum.CustomFee,
+];

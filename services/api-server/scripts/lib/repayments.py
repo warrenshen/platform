@@ -405,7 +405,7 @@ def import_settled_repayments_line_of_credit(
 					amount=parsed_to_minimum_fee,
 					originating_payment_id=None,
 					created_by_user_id=None,
-					payment_date=parsed_deposit_date,
+					deposit_date=parsed_deposit_date,
 					effective_date=parsed_deposit_date,
 					session=session,
 				)

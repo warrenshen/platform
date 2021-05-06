@@ -82,6 +82,10 @@ query GetCustomerAccount($companyId: uuid!) {
     ) {
       id
       ...PaymentLimited
+      transactions {
+        id
+        ...Transaction
+      }
     }
     pending_payments: payments(
       where: {

@@ -5,7 +5,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import CreateAdjustmentModal from "components/Loans/CreateAdjustmentModal";
+import CreateAccountLevelFeeModal from "components/Fee/CreateAccountLevelFeeModal";
 import DeletePaymentModal from "components/Payment/DeletePaymentModal";
 import FeesDataGrid from "components/Payment/FeesDataGrid";
 import CreateRepaymentModal from "components/Repayment/CreateRepaymentModal";
@@ -108,13 +108,12 @@ export default function CustomerAccountPageContent({
           <Can perform={Action.RunBalances}>
             <Box mr={2}>
               <ModalButton
-                label={"Create Account Fee (WIP)"}
+                label={"Create Account Fee"}
                 color={"default"}
                 variant={"outlined"}
                 modal={({ handleClose }) => (
-                  <CreateAdjustmentModal
+                  <CreateAccountLevelFeeModal
                     companyId={companyId}
-                    productType={productType}
                     handleClose={() => {
                       refetch();
                       handleClose();

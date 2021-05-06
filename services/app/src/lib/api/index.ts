@@ -96,6 +96,10 @@ export const loansRoutes = {
   upsertPurchaseOrdersLoans: "/finance/loans/purchase_orders/upsert",
 };
 
+export const feesRoutes = {
+  createAccountLevelFee: "/finance/fees/make_account_level_fee",
+};
+
 export const twoFactorRoutes = {
   getSecureLinkPayload: "/two_factor/get_secure_link_payload",
   sendTwoFactorCode: "/two_factor/send_code",

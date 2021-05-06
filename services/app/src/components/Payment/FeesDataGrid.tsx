@@ -1,11 +1,17 @@
 import { Box } from "@material-ui/core";
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
-import { Companies, PaymentLimitedFragment, Payments } from "generated/graphql";
+import {
+  Companies,
+  PaymentLimitedFragment,
+  Payments,
+  TransactionFragment,
+  Transactions,
+} from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
 import { useMemo, useState } from "react";
 
@@ -22,10 +28,23 @@ interface Props {
   isMethodVisible?: boolean;
   isMultiSelectEnabled?: boolean;
   repaymentType?: RepaymentTypeEnum;
-  fees: PaymentLimitedFragment[];
+  fees: (PaymentLimitedFragment & {
+    transactions: Array<Pick<Transactions, "id"> & TransactionFragment>;
+  })[];
   selectedPaymentIds?: Payments["id"][];
   onClickCustomerName?: (customerId: Companies["id"]) => void;
   handleSelectPayments?: (payments: PaymentLimitedFragment[]) => void;
+}
+
+function getRows(
+  fees: (PaymentLimitedFragment & {
+    transactions: Array<Pick<Transactions, "id"> & TransactionFragment>;
+  })[]
+): RowsProp {
+  return fees.map((fee) => ({
+    ...fee,
+    fee_name: fee.transactions[0]?.subtype,
+  }));
 }
 
 export default function FeesDataGrid({
@@ -38,15 +57,20 @@ export default function FeesDataGrid({
   handleSelectPayments,
 }: Props) {
   const [dataGrid, setDataGrid] = useState<any>(null);
-  const rows = fees;
+  const rows = useMemo(() => getRows(fees), [fees]);
+
   const columns = useMemo(
     () => [
       {
+        caption: "Fee",
+        dataField: "fee_name",
+        minWidth: ColumnWidths.MinWidth,
+      },
+      {
+        visible: false,
         caption: "Submitted At",
         minWidth: ColumnWidths.MinWidth,
         alignment: "right",
-        calculateCellValue: ({ submitted_at }: PaymentLimitedFragment) =>
-          submitted_at,
         cellRender: (params: ValueFormatterParams) => (
           <DatetimeDataGridCell
             isTimeVisible

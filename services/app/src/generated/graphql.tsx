@@ -15510,7 +15510,11 @@ export type GetCustomerAccountQuery = {
       financial_summaries: Array<
         Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
       >;
-      fee_payments: Array<Pick<Payments, "id"> & PaymentLimitedFragment>;
+      fee_payments: Array<
+        Pick<Payments, "id"> & {
+          transactions: Array<Pick<Transactions, "id"> & TransactionFragment>;
+        } & PaymentLimitedFragment
+      >;
       pending_payments: Array<Pick<Payments, "id"> & PaymentLimitedFragment>;
     }
   >;
@@ -17112,6 +17116,7 @@ export type TransactionFragment = Pick<
   | "loan_id"
   | "payment_id"
   | "type"
+  | "subtype"
   | "amount"
   | "effective_date"
   | "to_principal"
@@ -17698,6 +17703,7 @@ export const TransactionFragmentDoc = gql`
     loan_id
     payment_id
     type
+    subtype
     amount
     effective_date
     to_principal
@@ -18127,6 +18133,10 @@ export const GetCustomerAccountDocument = gql`
       ) {
         id
         ...PaymentLimited
+        transactions {
+          id
+          ...Transaction
+        }
       }
       pending_payments: payments(
         where: {
@@ -18151,6 +18161,7 @@ export const GetCustomerAccountDocument = gql`
   }
   ${FinancialSummaryFragmentDoc}
   ${PaymentLimitedFragmentDoc}
+  ${TransactionFragmentDoc}
 `;
 
 /**

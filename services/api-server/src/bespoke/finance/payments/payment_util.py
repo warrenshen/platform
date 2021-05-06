@@ -15,6 +15,7 @@ from bespoke.finance.types import per_customer_types
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 
+
 class RepaymentOption(object):
 	CUSTOM_AMOUNT_FOR_SETTLING_LOC = 'custom_amount_for_settling_loc'
 	CUSTOM_AMOUNT_FOR_SETTLING_NON_LOC_LOAN = 'custom_amount_for_settling_non_loc_loan'
@@ -317,7 +318,7 @@ def create_and_add_account_level_fee(
 	amount: float,
 	originating_payment_id: str,
 	created_by_user_id: str,
-	payment_date: datetime.date,
+	deposit_date: datetime.date,
 	effective_date: datetime.date,
 	session: Session) -> str:
 
@@ -331,7 +332,7 @@ def create_and_add_account_level_fee(
 		user_id=created_by_user_id
 	)
 	payment.originating_payment_id = originating_payment_id
-	payment.payment_date = payment_date
+	payment.deposit_date = deposit_date
 	payment.settlement_date = effective_date
 	payment.settled_at = date_util.now()
 	payment.settled_by_user_id = created_by_user_id

@@ -24,7 +24,7 @@ interface Props {
   setTransaction: (transaction: TransactionsInsertInput) => void;
 }
 
-function AdjustmentForm({
+export default function AdjustmentForm({
   payment,
   transaction,
   loans,
@@ -40,14 +40,14 @@ function AdjustmentForm({
 
   return (
     <Box display="flex" flexDirection="column">
-      <Box mt={3}>
+      <Box mt={4}>
         <Typography>
           You are creating an adjustment on a loan. Adjustment values may be
           POSITIVE or NEGATIVE (ex. increase outstanding interest or decrease
           outstanding interest).
         </Typography>
       </Box>
-      <Box display="flex" flexDirection="column" mt={3}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <FormControl>
           <Autocomplete
             autoHighlight
@@ -91,7 +91,7 @@ function AdjustmentForm({
         </FormControl>
       </Box>
       {selectedLoans.length > 0 && (
-        <Box mt={3}>
+        <Box mt={4}>
           <LoansDataGrid
             isDaysPastDueVisible
             isMaturityVisible
@@ -100,7 +100,7 @@ function AdjustmentForm({
           />
         </Box>
       )}
-      <Box display="flex" flexDirection="column" mt={3}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <DateInput
           disableNonBankDays
           id="deposit-date-date-picker"
@@ -114,7 +114,7 @@ function AdjustmentForm({
           }
         />
       </Box>
-      <Box display="flex" flexDirection="column" mt={3}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <DateInput
           disableNonBankDays
           id="settlement-date-date-picker"
@@ -128,7 +128,7 @@ function AdjustmentForm({
           }
         />
       </Box>
-      <Box display="flex" flexDirection="column" mt={3}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <Typography variant="subtitle2">
           How much do you want to adjust outstanding principal by?
         </Typography>
@@ -147,7 +147,7 @@ function AdjustmentForm({
           </FormControl>
         </Box>
       </Box>
-      <Box display="flex" flexDirection="column" mt={3}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <Typography variant="subtitle2">
           How much do you want to adjust outstanding interest by?
         </Typography>
@@ -166,7 +166,7 @@ function AdjustmentForm({
           </FormControl>
         </Box>
       </Box>
-      <Box display="flex" flexDirection="column" mt={3}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <Typography variant="subtitle2">
           How much do you want to adjust outstanding late fees by?
         </Typography>
@@ -188,5 +188,3 @@ function AdjustmentForm({
     </Box>
   );
 }
-
-export default AdjustmentForm;

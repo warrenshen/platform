@@ -33,7 +33,7 @@ class MakeAccountLevelFeeView(MethodView):
 			'company_id',
 			'subtype',
 			'amount',
-			'payment_date',
+			'deposit_date',
 			'settlement_date',
 		]
 
@@ -49,7 +49,7 @@ class MakeAccountLevelFeeView(MethodView):
 				amount=form['amount'],
 				originating_payment_id=None,
 				created_by_user_id=user_session.get_user_id(),
-				payment_date=date_util.load_date_str(form['payment_date']),
+				deposit_date=date_util.load_date_str(form['deposit_date']),
 				effective_date=date_util.load_date_str(form['settlement_date']),
 				session=session
 			)

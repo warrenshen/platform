@@ -1,5 +1,15 @@
-import { Loans, Payments, PaymentsInsertInput } from "generated/graphql";
-import { authenticatedApi, CustomMutationResponse, loansRoutes } from "lib/api";
+import {
+  Companies,
+  Loans,
+  Payments,
+  PaymentsInsertInput,
+} from "generated/graphql";
+import {
+  authenticatedApi,
+  CustomMutationResponse,
+  feesRoutes,
+  loansRoutes,
+} from "lib/api";
 
 export type CreateAdvanceReq = {
   variables: {
@@ -46,6 +56,34 @@ export async function deleteRepaymentMutation(
         return {
           status: "ERROR",
           msg: "Could not delete payment",
+        };
+      }
+    );
+}
+
+export type CreateAccountLevelFeeReq = {
+  variables: {
+    company_id: Companies["id"];
+    subtype: string;
+    amount: number;
+    payment_date: string;
+    settlement_date: string;
+  };
+};
+
+export async function createAccountLevelFeeMutation(
+  req: CreateAccountLevelFeeReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(feesRoutes.createAccountLevelFee, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not create account fee",
         };
       }
     );

@@ -205,16 +205,17 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 
 				if exp_payment['type'] == 'advance':
 					self.assertEqual(exp_payment['method'] if 'method' in exp_payment else PaymentMethodEnum.ACH, payment.method)
+					self.assertEqual(payment_date, date_util.date_to_str(payment.payment_date))
 					self.assertEqual(settlement_date, date_util.date_to_str(payment.deposit_date))
 				else:
 					# No payment method associated with fees or credits
 					self.assertEqual('', payment.method)
-					# Fees or credits dont get settled immediately
-					self.assertIsNone(payment.deposit_date)
+					# Fee does not have payment date.
+					# Fee settlement date is the same as advance settlement date
+					self.assertEqual(settlement_date, date_util.date_to_str(payment.deposit_date))
 
 				self.assertIsNotNone(payment.settled_at)
 				self.assertIsNotNone(payment.submitted_at)
-				self.assertEqual(payment_date, date_util.date_to_str(payment.payment_date))
 				# For advances, deposit date is always equal to the settlement date.
 				self.assertEqual(settlement_date, date_util.date_to_str(payment.settlement_date))
 				self.assertEqual(bank_admin_user_id, str(payment.settled_by_user_id))
