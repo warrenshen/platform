@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function BankReportsPage() {
+export default function BankReportsFinancialsByDateTab() {
   const classes = useStyles();
   const history = useHistory();
 
@@ -70,6 +70,7 @@ function BankReportsPage() {
         </Box>
         <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
           <FinancialSummariesDataGrid
+            isCustomerNameFixed
             isExcelExport
             financialSummaries={financialSummariesByDate}
             onClickCustomerName={(customerId) =>
@@ -81,5 +82,3 @@ function BankReportsPage() {
     </Box>
   );
 }
-
-export default BankReportsPage;

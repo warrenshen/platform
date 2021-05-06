@@ -13,12 +13,14 @@ import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
+  isCustomerNameFixed?: boolean;
   isExcelExport?: boolean;
   financialSummaries: GetFinancialSummariesByCompanyIdQuery["financial_summaries"];
   onClickCustomerName?: (customerId: Companies["id"]) => void;
 }
 
 function FinancialSummariesDataGrid({
+  isCustomerNameFixed = false,
   isExcelExport = false,
   financialSummaries,
   onClickCustomerName,
@@ -27,6 +29,7 @@ function FinancialSummariesDataGrid({
   const columns = useMemo(
     () => [
       {
+        fixed: true,
         dataField: "date",
         caption: "Date",
         width: ColumnWidths.Date,
@@ -36,6 +39,7 @@ function FinancialSummariesDataGrid({
         ),
       },
       {
+        fixed: isCustomerNameFixed,
         dataField: "company.name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
@@ -172,7 +176,7 @@ function FinancialSummariesDataGrid({
         },
       },
     ],
-    [onClickCustomerName]
+    [isCustomerNameFixed, onClickCustomerName]
   );
 
   return (

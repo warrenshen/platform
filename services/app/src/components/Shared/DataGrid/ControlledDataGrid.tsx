@@ -1,5 +1,6 @@
 import DataGrid, {
   Column,
+  ColumnFixing,
   Export,
   FilterRow,
   IColumnProps,
@@ -130,13 +131,15 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
         onSelectionChanged={onSelectionChanged}
         onOptionChanged={onOptionChanged}
       >
+        <ColumnFixing enabled={true} />
         <Export enabled={isExcelExport} />
         <FilterRow visible={filtering?.enable} showOperationChooser={false} />
         {columns.map(
           (
             {
-              dataField,
+              fixed,
               visible,
+              dataField,
               caption,
               width,
               minWidth,
@@ -149,8 +152,9 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
           ) => (
             <Column
               key={index}
-              caption={caption}
+              fixed={fixed}
               visible={visible}
+              caption={caption}
               dataField={dataField}
               width={width}
               minWidth={minWidth}

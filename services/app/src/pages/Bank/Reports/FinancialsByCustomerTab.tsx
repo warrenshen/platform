@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function BankReportsPage() {
+export default function BankReportsFinancialsByCustomerTab() {
   const classes = useStyles();
   const history = useHistory();
 
@@ -118,5 +118,3 @@ function BankReportsPage() {
     </Box>
   );
 }
-
-export default BankReportsPage;
