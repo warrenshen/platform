@@ -22,7 +22,8 @@ export const companyRoutes = {
 };
 
 export const licenseRoutes = {
-  updateLicenses: "/licenses/update_licenses",
+  addLicenses: "/licenses/add_licenses",
+  deleteLicense: "/licenses/delete_license",
 };
 
 export const contractRoutes = {

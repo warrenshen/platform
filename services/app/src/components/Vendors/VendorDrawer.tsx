@@ -11,6 +11,7 @@ import * as Sentry from "@sentry/react";
 import Can from "components/Shared/Can";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileUploadDropzone from "components/Shared/File/FileUploadDropzone";
+import FileUploader from "components/Shared/File/FileUploader";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import ContactsList from "components/ThirdParties/ContactsList";
 import UpdateThirdPartyCompanySettingsModal from "components/ThirdParties/UpdateThirdPartyCompanySettingsModal";
@@ -30,7 +31,7 @@ import {
   TwoFactorMessageMethodEnum,
   TwoFactorMessageMethodToLabel,
 } from "lib/enum";
-import { updateLicensesMutation } from "lib/licenses";
+import { addLicensesMutation, deleteLicenseMutation } from "lib/licenses";
 import { InventoryNotifier } from "lib/notifications/inventory";
 import { omit } from "lodash";
 import { useMemo } from "react";
@@ -135,30 +136,34 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
           <Grid item>
             <Typography variant="h6">Licenses</Typography>
           </Grid>
-          {licenseFileIds.length > 0 && (
-            <Grid item>
-              <DownloadThumbnail
-                fileIds={licenseFileIds}
-                fileType={FileTypeEnum.COMPANY_LICENSE}
-              />
-            </Grid>
-          )}
           <Box mt={1} mb={2}>
-            <FileUploadDropzone
+            <FileUploader
               companyId={vendor.id}
-              docType="vendor_license"
-              onUploadComplete={async (resp) => {
-                if (!resp.succeeded) {
-                  return;
-                }
+              fileType={FileTypeEnum.VENDOR_LICENSE}
+              fileIds={licenseFileIds}
+              handleDeleteFileById={async (fileId) => {
+                const response = await deleteLicenseMutation({
+                  variables: {
+                    company_id: vendor.id,
+                    file_id: fileId,
+                  },
+                });
 
-                const fileIds = resp.files_in_db.map((f) => {
+                if (response.status === "OK") {
+                  refetch();
+                  snackbar.showSuccess("Vendor license deleted");
+                } else {
+                  snackbar.showError("Vendor license could not be deleted");
+                }
+              }}
+              handleNewFiles={async (files) => {
+                const fileIds = files.map((f) => {
                   return f.id;
                 });
 
                 // The vendorLicenseId is whatever the most recent vendor license is.
                 // Really this vendor_license_id is populated for convenience
-                const response = await updateLicensesMutation({
+                const response = await addLicensesMutation({
                   variables: {
                     company_id: vendor.id,
                     file_ids: fileIds,
@@ -166,10 +171,10 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
                 });
                 if (response.status === "OK") {
                   refetch();
-                  snackbar.showSuccess("Vendor license uploaded.");
+                  snackbar.showSuccess("Vendor licenses uploaded.");
                 } else {
                   snackbar.showError(
-                    "Error! Vendor license could not be uploaded."
+                    "Error! Vendor licenses could not be uploaded."
                   );
                 }
               }}

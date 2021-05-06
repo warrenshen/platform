@@ -17,7 +17,40 @@ from server.views.common.auth_util import UserSession
 
 handler = Blueprint('licenses', __name__)
 
-class UpdateLicensesView(MethodView):
+class DeleteLicenseView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		cfg = cast(Config, current_app.app_config)
+		user_session = auth_util.UserSession.from_session()
+
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'company_id', 'file_id'
+		]
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} in request'.format(key))
+
+		with session_scope(current_app.session_maker) as session:
+			success, err = licenses_util.delete_license(
+				company_id=form['company_id'],
+				file_id=form['file_id'],
+				session=session
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
+class AddLicensesView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
 	@handler_util.catch_bad_json_request
@@ -38,7 +71,7 @@ class UpdateLicensesView(MethodView):
 					'Missing key {} in request'.format(key))
 
 		with session_scope(current_app.session_maker) as session:
-			license_ids, err = licenses_util.update_licenses(
+			license_ids, err = licenses_util.add_licenses(
 				company_id=form['company_id'],
 				file_ids=form['file_ids'],
 				session=session
@@ -52,5 +85,8 @@ class UpdateLicensesView(MethodView):
 		}), 200)
 
 handler.add_url_rule(
-	'/update_licenses', view_func=UpdateLicensesView.as_view(name='update_licenses_view'))
+	'/delete_license', view_func=DeleteLicenseView.as_view(name='delete_license_view'))
+
+handler.add_url_rule(
+	'/add_licenses', view_func=AddLicensesView.as_view(name='add_licenses_view'))
 
