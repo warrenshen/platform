@@ -565,58 +565,10 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 			success, err = invoices_util.submit_invoices_for_payment(
 				self.session_maker,
 				DumbSendgridClient(),
-				str(p.customers[0].id),
 				invoices_util.SubmitForPaymentRequest([PrepareDatabase.mint_guid()]))
 
 			self.assertIn(
 				'the number of retrieved invoices did not match the number of ids given',
-				str(err))
-
-	def test_customer_mismatch(self) -> None:
-		p = PrepareDatabase() \
-			.add_customer(lambda p: models.Company(
-				name='Big Green Bongs'
-			)) \
-			.add_payor(lambda p: models.Company(
-				name='We Buy Weed'
-			)) \
-			.link_customers_and_payors(approved=True) \
-			.add_invoice(lambda p: models.Invoice( # type: ignore
-				invoice_number='420',
-				company_id=p.customers[0].id,
-				payor_id=p.payors[0].id,
-				subtotal_amount=10000,
-				taxes_amount=10,
-				total_amount=10010,
-				invoice_date=date_util.load_date_str("03/18/2021"),
-				invoice_due_date=date_util.load_date_str("04/18/2021"),
-			)) \
-			.add_file(lambda p: models.File()) \
-			.add_invoice_file(lambda p: models.InvoiceFile( # type: ignore
-				file_id=p.files[0].id,
-				invoice_id=p.invoices[0].id,
-				file_type=db_constants.InvoiceFileTypeEnum.Invoice
-			)) \
-			.add_user(lambda p: models.User(
-				company_id=p.payors[0].id,
-				email='peter@webuyweed.com',
-				password='xxxx',
-				role='peter the payor',
-				first_name='Peter',
-				last_name='Payor',
-			))
-
-		with models.session_scope(self.session_maker) as session:
-			p(session)
-
-			success, err = invoices_util.submit_invoices_for_payment(
-				self.session_maker,
-				DumbSendgridClient(),
-				str(p.payors[0].id),
-				invoices_util.SubmitForPaymentRequest([p.invoices[0].id]))
-
-			self.assertIn(
-				'1 of the given invoices did not belong to the user',
 				str(err))
 
 	def test_not_approved(self) -> None:
@@ -659,7 +611,6 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 			success, err = invoices_util.submit_invoices_for_payment(
 				self.session_maker,
 				DumbSendgridClient(),
-				str(p.customers[0].id),
 				invoices_util.SubmitForPaymentRequest([p.invoices[0].id]))
 
 			self.assertIn(
@@ -712,7 +663,6 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 			success, err = invoices_util.submit_invoices_for_payment(
 				self.session_maker,
 				client,
-				str(p.customers[0].id),
 				invoices_util.SubmitForPaymentRequest([invoice_id]))
 			self.assertIsNone(err)
 			self.assertEqual(client.count, 1)

@@ -489,9 +489,8 @@ def send_one_notification_for_payment(
 def submit_invoices_for_payment(
 	session_maker: Callable,
 	client: sendgrid_util.Client,
-	company_id: str,
-	request: SubmitForPaymentRequest) -> Tuple[bool, errors.Error]:
-
+	request: SubmitForPaymentRequest
+) -> Tuple[bool, errors.Error]:
 	# Ensure that all of the invoices belong to the given company
 	with models.session_scope(session_maker) as session:
 		invoices = session.query(models.Invoice) \
@@ -502,21 +501,15 @@ def submit_invoices_for_payment(
 			raise errors.Error(
 				"the number of retrieved invoices did not match the number of ids given")
 
-		mismatches = [invoice for invoice in invoices if str(invoice.company_id) != company_id]
-
-		if len(mismatches):
-			raise errors.Error(
-				f"{len(mismatches)} of the given invoices did not belong to the user")
-
 		# We also make sure that all of the invoices have an approved_at timestamp set
 		not_approved = [invoice for invoice in invoices if not invoice.approved_at]
 		if len(not_approved):
 			raise errors.Error(f"{len(not_approved)} of the given invoices not yet approved")
 
 		# All good. For each invoice, send an email to the payor
-		customer = session.query(models.Company).get(company_id)
-
 		for invoice in invoices:
+			customer = session.query(models.Company).get(invoice.company_id)
+
 			success, err = send_one_notification_for_payment(session, client, invoice, customer)
 			if err:
 				raise err
@@ -527,7 +520,6 @@ def submit_invoices_for_payment(
 def submit_new_invoice_for_payment(
 	session_maker: Callable,
 	client: sendgrid_util.Client,
-	company_id: str,
 	invoice_id: str,
 ) -> Tuple[bool, errors.Error]:
 	# Ensure that all of the invoices belong to the given company
@@ -542,7 +534,7 @@ def submit_new_invoice_for_payment(
 		# Approve invoice before it is sent out to payor for payment
 		invoice.status = db_constants.RequestStatusEnum.APPROVED
 
-		customer = session.query(models.Company).get(company_id)
+		customer = session.query(models.Company).get(invoice.company_id)
 		success, err = send_one_notification_for_payment(session, client, invoice, customer)
 		if err:
 			raise err

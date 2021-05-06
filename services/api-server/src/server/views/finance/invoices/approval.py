@@ -8,9 +8,9 @@ from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.db_constants import RequestStatusEnum
 from bespoke.email import sendgrid_util
-from bespoke.finance import number_util, contract_util
-from bespoke.finance.loans import approval_util
+from bespoke.finance import contract_util, number_util
 from bespoke.finance.invoices import invoices_util
+from bespoke.finance.loans import approval_util
 from bespoke.security import security_util, two_factor_util
 from flask import Response, current_app, make_response, request
 from flask.views import MethodView

@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Any
+from typing import Any, cast
 
 from bespoke.audit import events
 from bespoke.date import date_util
@@ -24,7 +24,6 @@ class SubmitNewInvoiceForPaymentView(MethodView):
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
 		user_session = auth_util.UserSession.from_session()
-		company_id = user_session.get_company_id()
 
 		form = json.loads(request.data)
 		if not form:
@@ -36,15 +35,24 @@ class SubmitNewInvoiceForPaymentView(MethodView):
 			if key not in form:
 				return handler_util.make_error_response(f'Missing {key} in respond to create login')
 
-		if not user_session.is_company_admin():
-			return handler_util.make_error_response("Access Denied", status_code=403)
-
 		invoice_id = form['invoice_id']
+
+		with models.session_scope(current_app.session_maker) as session:
+			invoice = cast(
+				models.Invoice,
+				session.query(models.Invoice).filter_by(
+					id=invoice_id
+				).first())
+
+			if not invoice:
+				return handler_util.make_error_response('Invoice not found')
+
+			if not user_session.is_bank_or_this_company_admin(str(invoice.company_id)):
+				return handler_util.make_error_response("Access Denied", status_code=403)
 
 		_, err = invoices_util.submit_new_invoice_for_payment(
 			current_app.session_maker,
 			current_app.sendgrid_client,
-			company_id,
 			invoice_id,
 		)
 		if err:
@@ -65,19 +73,31 @@ class SubmitForPaymentView(MethodView):
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
 		user_session = auth_util.UserSession.from_session()
-		company_id = user_session.get_company_id()
 		data = json.loads(request.data)
 
-		if not user_session.is_company_admin():
-			return handler_util.make_error_response("Access Denied", status_code=403)
-
 		data = invoices_util.SubmitForPaymentRequest.from_dict(data)
+
+		if not user_session.is_bank_admin():
+			if not user_session.is_company_admin():
+				return handler_util.make_error_response("Access Denied", status_code=403)
+
+			company_id = user_session.get_company_id()
+
+			with models.session_scope(current_app.session_maker) as session:
+				invoices = session.query(models.Invoice) \
+					.filter(models.Invoice.id.in_(data.invoice_ids)) \
+					.all()
+
+				mismatches = [invoice for invoice in invoices if str(invoice.company_id) != company_id]
+
+				if len(mismatches):
+					return handler_util.make_error_response("Access Denied", status_code=403)
 
 		_, err = invoices_util.submit_invoices_for_payment(
 			current_app.session_maker,
 			current_app.sendgrid_client,
-			company_id,
-			data)
+			data,
+		)
 		if err:
 			return handler_util.make_error_response(err)
 
