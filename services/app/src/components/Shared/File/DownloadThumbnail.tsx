@@ -108,7 +108,6 @@ export default function DownloadThumbnail({
         }
       }
     };
-    setFilesWithSignedUrls([]);
     getFilesWithSignedUrls();
   }, [fileIds, fileType, setFilesWithSignedUrls]);
 
