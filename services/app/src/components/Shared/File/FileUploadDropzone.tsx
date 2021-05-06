@@ -184,7 +184,15 @@ export default function FileUploadDropzone({
           return { status: "ERROR", msg: resp.msg || "", file_in_db: null };
         }
         return uploadFile(file, resp).then((uploadResp) => {
-          return uploadResp;
+          if (uploadResp.status === "OK") {
+            return uploadResp;
+          }
+          // Try to upload the file again but turn on the upload_via_server flag
+          // in the case that S3 caused the issue with a user's browser
+          resp.upload_via_server = true;
+          return uploadFile(file, resp).then((uploadResp2) => {
+            return uploadResp2;
+          });
         });
       });
     };
