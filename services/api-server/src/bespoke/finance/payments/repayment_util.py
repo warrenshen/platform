@@ -611,14 +611,17 @@ def schedule_repayment(
 		if not payment:
 			raise errors.Error('No payment found to schedule transaction', details=err_details)
 
+		################################
+		# Validations
+		# Note that we do not enforce payment.payment_date >= payment.requested_payment_date.
+		# This is because the bank may decide to initiate the reverse draft earlier than when
+		# the customer requested the bank to.
+		################################
 		if not payment.method == PaymentMethodEnum.REVERSE_DRAFT_ACH:
 			raise errors.Error('Payment method must be Reverse Draft ACH', details=err_details)
 
 		if payment_amount > payment.requested_amount:
 			raise errors.Error('Payment amount cannot be greater than requested payment amount', details=err_details)
-
-		if payment_date < payment.requested_payment_date:
-			raise errors.Error('Payment date cannot be before the requested payment date', details=err_details)
 
 		payment.amount = decimal.Decimal(payment_amount)
 		payment.payment_date = payment_date

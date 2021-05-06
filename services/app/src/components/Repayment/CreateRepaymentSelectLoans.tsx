@@ -25,7 +25,6 @@ import {
 } from "lib/enum";
 
 interface Props {
-  isBankUser: boolean;
   productType: ProductTypeEnum;
   financialSummary: FinancialSummaryFragment | null;
   payment: PaymentsInsertInput;
@@ -35,7 +34,6 @@ interface Props {
 }
 
 function CreateRepaymentSelectLoans({
-  isBankUser,
   productType,
   financialSummary,
   payment,
@@ -115,7 +113,7 @@ function CreateRepaymentSelectLoans({
                 label={
                   isReverseDraftACH ? "Requested Withdraw Date" : "Deposit Date"
                 }
-                disablePast={!isBankUser}
+                disablePast
                 disableNonBankDays
                 value={payment.requested_payment_date}
                 onChange={(value) => {

@@ -280,7 +280,6 @@ function CreateRepaymentModal({
         )}
         {isOnSelectLoans ? (
           <CreateRepaymentSelectLoans
-            isBankUser={isBankUser}
             productType={productType}
             financialSummary={financialSummary}
             payment={payment}
