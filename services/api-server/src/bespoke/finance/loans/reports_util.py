@@ -12,6 +12,7 @@ from bespoke.finance import financial_summary_util, number_util
 from bespoke.finance.reports import loan_balances
 from sqlalchemy.orm.session import Session
 
+
 def update_company_balance(
 	session_maker: Callable,
 	company: models.CompanyDict,
@@ -21,6 +22,7 @@ def update_company_balance(
 
 	customer_balance = loan_balances.CustomerBalance(company, session_maker)
 	customer_update_dict, err = customer_balance.update(today=report_date)
+
 	if err:
 		msg = 'Error updating customer balance for company "{}". Error: {}'.format(
 			company['name'], err
@@ -28,25 +30,26 @@ def update_company_balance(
 		logging.error(msg)
 		return msg
 
-	event = events.new(
-		company_id=company['id'],
-		is_system=True,
-		action=events.Actions.COMPANY_BALANCE_UPDATE,
-		data={
-			'report_date': date_util.date_to_str(report_date),
-			'loan_ids': [l['loan_id'] for l in customer_update_dict['loan_updates']],
-		}
-	)
+	if customer_update_dict is not None:
+		event = events.new(
+			company_id=company['id'],
+			is_system=True,
+			action=events.Actions.COMPANY_BALANCE_UPDATE,
+			data={
+				'report_date': date_util.date_to_str(report_date),
+				'loan_ids': [l['loan_id'] for l in customer_update_dict['loan_updates']],
+			}
+		)
 
-	with session_scope(session_maker) as session:
-		success, err = customer_balance.write(customer_update_dict)
-		if err:
-			msg = 'Error writing results to update customer balance. Error: {}'.format(err)
-			logging.error(msg)
-			event.set_failed().write_with_session(session)
-			session.rollback()
-			return msg
-		event.set_succeeded().write_with_session(session)
+		with session_scope(session_maker) as session:
+			success, err = customer_balance.write(customer_update_dict)
+			if err:
+				msg = 'Error writing results to update customer balance. Error: {}'.format(err)
+				logging.error(msg)
+				event.set_failed().write_with_session(session)
+				session.rollback()
+				return msg
+			event.set_succeeded().write_with_session(session)
 
 	logging.info(f"Successfully updated balance for '{company['name']}' with id '{company['id']}' for date '{report_date}'")
 	return None

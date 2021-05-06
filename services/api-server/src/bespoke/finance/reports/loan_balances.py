@@ -219,6 +219,9 @@ class CustomerBalance(object):
 
 	@errors.return_error_tuple
 	def update(self, today: datetime.date) -> Tuple[CustomerUpdateDict, errors.Error]:
+		"""
+		Returns None if company does not have any contracts.
+		"""
 		# Get your contracts and loans
 		fetcher = per_customer_fetcher.Fetcher(per_customer_types.CompanyInfoDict(
 			id=self._company_id,
@@ -230,7 +233,9 @@ class CustomerBalance(object):
 
 		customer_info = fetcher.get_financials()
 		financials = customer_info['financials']
-		num_loans = len(financials['loans'])
+
+		if not financials['contracts']:
+			return None, None
 
 		contract_helper, err = contract_util.ContractHelper.build(
 			self._company_id, financials['contracts'])
