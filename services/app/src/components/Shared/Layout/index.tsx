@@ -13,6 +13,8 @@ import {
 import {
   ProductTypeEnum,
   useGetCompanyForCustomerBorrowingBaseQuery,
+  useGetLoansCountForBankSubscription,
+  useGetPaymentsCountForBankSubscription,
 } from "generated/graphql";
 import { withinNDaysOfNowOrBefore } from "lib/date";
 import { bankRoutes, customerRoutes, routes } from "lib/routes";
@@ -197,7 +199,10 @@ const getCustomerNavItems = (
   ];
 };
 
-const getBankNavItems = (): NavItem[] => {
+const getBankNavItems = (
+  loansCount: number,
+  paymentsCount: number
+): NavItem[] => {
   return [
     {
       iconNode: OverviewIcon,
@@ -208,11 +213,13 @@ const getBankNavItems = (): NavItem[] => {
       iconNode: LoansIcon,
       text: "Loans",
       link: bankRoutes.loans,
+      counter: loansCount,
     },
     {
       iconNode: PaymentsIcon,
       text: "Payments",
       link: bankRoutes.payments,
+      counter: paymentsCount,
     },
     {
       iconNode: PurchaseOrdersIcon,
@@ -262,19 +269,33 @@ interface Props {
   children: ReactNode;
 }
 
-function Layout({ appBarTitle, children }: Props) {
+export default function Layout({ appBarTitle, children }: Props) {
   useTitle(`${appBarTitle} | Bespoke`);
 
   const classes = useStyles();
   const location = useLocation();
+
   const {
     user: { role, productType, companyId },
   } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(role);
+
+  const { data: loansCountData } = useGetLoansCountForBankSubscription({
+    skip: !isBankUser,
+  });
+
+  const { data: paymentsCountData } = useGetPaymentsCountForBankSubscription({
+    skip: !isBankUser,
+  });
+
+  const loansCount = loansCountData?.loans?.length || 0;
+  const paymentsCount = paymentsCountData?.payments?.length || 0;
 
   const {
     data,
     loading: borrowingBaseLoading,
   } = useGetCompanyForCustomerBorrowingBaseQuery({
+    skip: isBankUser,
     variables: {
       companyId,
     },
@@ -288,8 +309,8 @@ function Layout({ appBarTitle, children }: Props) {
     (!ebbaApplication ||
       withinNDaysOfNowOrBefore(ebbaApplication.expires_at, 15));
 
-  const navItems = isRoleBankUser(role)
-    ? getBankNavItems()
+  const navItems = isBankUser
+    ? getBankNavItems(loansCount, paymentsCount)
     : getCustomerNavItems(productType, showBorrowingBasesChip);
 
   return (
@@ -345,5 +366,3 @@ function Layout({ appBarTitle, children }: Props) {
     </Wrapper>
   );
 }
-
-export default Layout;

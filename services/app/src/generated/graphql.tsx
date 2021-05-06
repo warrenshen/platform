@@ -16374,6 +16374,22 @@ export type GetLatestBankFinancialSummariesSubscription = {
   >;
 };
 
+export type GetLoansCountForBankSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetLoansCountForBankSubscription = {
+  loans: Array<Pick<Loans, "id">>;
+};
+
+export type GetPaymentsCountForBankSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetPaymentsCountForBankSubscription = {
+  payments: Array<Pick<Payments, "id">>;
+};
+
 export type GetCompanyWithActiveContractQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
@@ -22647,6 +22663,111 @@ export type GetLatestBankFinancialSummariesSubscriptionHookResult = ReturnType<
   typeof useGetLatestBankFinancialSummariesSubscription
 >;
 export type GetLatestBankFinancialSummariesSubscriptionResult = Apollo.SubscriptionResult<GetLatestBankFinancialSummariesSubscription>;
+export const GetLoansCountForBankDocument = gql`
+  subscription GetLoansCountForBank {
+    loans(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { funded_at: { _is_null: true } }
+          { closed_at: { _is_null: true } }
+        ]
+      }
+      order_by: { requested_payment_date: asc }
+    ) {
+      id
+    }
+  }
+`;
+
+/**
+ * __useGetLoansCountForBankSubscription__
+ *
+ * To run a query within a React component, call `useGetLoansCountForBankSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetLoansCountForBankSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetLoansCountForBankSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetLoansCountForBankSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetLoansCountForBankSubscription,
+    GetLoansCountForBankSubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetLoansCountForBankSubscription,
+    GetLoansCountForBankSubscriptionVariables
+  >(GetLoansCountForBankDocument, baseOptions);
+}
+export type GetLoansCountForBankSubscriptionHookResult = ReturnType<
+  typeof useGetLoansCountForBankSubscription
+>;
+export type GetLoansCountForBankSubscriptionResult = Apollo.SubscriptionResult<GetLoansCountForBankSubscription>;
+export const GetPaymentsCountForBankDocument = gql`
+  subscription GetPaymentsCountForBank {
+    payments(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { type: { _eq: "repayment" } }
+          { method: { _eq: "reverse_draft_ach" } }
+          { payment_date: { _is_null: true } }
+        ]
+      }
+      order_by: { created_at: desc }
+    ) {
+      id
+    }
+  }
+`;
+
+/**
+ * __useGetPaymentsCountForBankSubscription__
+ *
+ * To run a query within a React component, call `useGetPaymentsCountForBankSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetPaymentsCountForBankSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPaymentsCountForBankSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetPaymentsCountForBankSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetPaymentsCountForBankSubscription,
+    GetPaymentsCountForBankSubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetPaymentsCountForBankSubscription,
+    GetPaymentsCountForBankSubscriptionVariables
+  >(GetPaymentsCountForBankDocument, baseOptions);
+}
+export type GetPaymentsCountForBankSubscriptionHookResult = ReturnType<
+  typeof useGetPaymentsCountForBankSubscription
+>;
+export type GetPaymentsCountForBankSubscriptionResult = Apollo.SubscriptionResult<GetPaymentsCountForBankSubscription>;
 export const GetCompanyWithActiveContractDocument = gql`
   query GetCompanyWithActiveContract($companyId: uuid!) {
     companies_by_pk(id: $companyId) {

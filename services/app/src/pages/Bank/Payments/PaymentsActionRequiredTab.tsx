@@ -94,7 +94,7 @@ export default function BankPaymentsActionRequiredTab() {
   );
 
   // Filtered payments
-  const scheduledPayments = useMemo(
+  const notScheduledPayments = useMemo(
     () =>
       payments.filter(
         (payment) =>
@@ -167,7 +167,7 @@ export default function BankPaymentsActionRequiredTab() {
             isMethodVisible={false}
             isMultiSelectEnabled
             repaymentType={RepaymentTypeEnum.RequestedReverseDraftACH}
-            payments={scheduledPayments}
+            payments={notScheduledPayments}
             customerSearchQuery={""}
             selectedPaymentIds={selectedSchedulePaymentIds}
             onClickCustomerName={(customerId) =>

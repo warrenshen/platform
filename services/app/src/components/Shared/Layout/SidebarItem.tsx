@@ -10,6 +10,7 @@ const Wrapper = styled.div<{ isNested: boolean }>`
 
 const Container = styled(Link)<{ $isSelected: boolean }>`
   display: flex;
+  justify-content: space-between;
   align-items: center;
 
   height: 40px;
@@ -29,6 +30,11 @@ const Container = styled(Link)<{ $isSelected: boolean }>`
   }
 `;
 
+const PrimaryContent = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 const IconWrapper = styled.div`
   padding-top: 4px;
   margin-right: 8px;
@@ -43,13 +49,15 @@ const Chip = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  background: red;
-  color: white;
+
   height: 24px;
   min-width: 24px;
   padding: 0px 6p;
   margin-left: 8px;
   margin-bottom: 2px;
+
+  color: white;
+  background-color: rgba(203, 166, 121, 0.75);
   border-radius: 12px;
   font-weight: 600;
   letterspacing: 1px;
@@ -75,18 +83,20 @@ function SidebarItem({
   return (
     <Wrapper isNested={isNested}>
       <Container $isSelected={isSelected} to={to}>
-        {IconNode && (
-          <IconWrapper>
-            <IconNode
-              fill={isSelected ? "rgba(203, 166, 121, 1.0)" : "#2c3e50"}
-              stroke={isSelected ? "rgba(203, 166, 121, 1.0)" : "#2c3e50"}
-            />
-          </IconWrapper>
-        )}
-        <PrimaryText isNested={isNested}>{label}</PrimaryText>
+        <PrimaryContent>
+          {IconNode && (
+            <IconWrapper>
+              <IconNode
+                fill={isSelected ? "rgba(203, 166, 121, 1.0)" : "#2c3e50"}
+                stroke={isSelected ? "rgba(203, 166, 121, 1.0)" : "#2c3e50"}
+              />
+            </IconWrapper>
+          )}
+          <PrimaryText isNested={isNested}>{label}</PrimaryText>
+        </PrimaryContent>
         {!!chipCount && (
           <Chip>
-            <Typography>{chipCount}</Typography>
+            <Typography variant="body2">{chipCount}</Typography>
           </Chip>
         )}
       </Container>
