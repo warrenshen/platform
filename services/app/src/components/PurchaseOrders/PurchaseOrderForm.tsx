@@ -60,6 +60,7 @@ function PurchaseOrderForm({
         <FormControl>
           <InputLabel id="vendor-select-label">Vendor</InputLabel>
           <Select
+            data-cy="purchase-order-form-input-vendor"
             disabled={vendors.length <= 0}
             labelId="vendor-select-label"
             id="vendor-select"
@@ -74,8 +75,14 @@ function PurchaseOrderForm({
             <MenuItem value={""}>
               <em>None</em>
             </MenuItem>
-            {vendors.map((vendor) => (
-              <MenuItem key={vendor.id} value={vendor.id}>
+            {vendors.map((vendor, index) => (
+              <MenuItem
+                data-cy={`purchase-order-form-input-vendor-menu-item-${
+                  index + 1
+                }`}
+                key={vendor.id}
+                value={vendor.id}
+              >
                 {`${vendor.name} ${
                   vendor.company_vendor_partnerships[0]?.approved_at
                     ? "(Approved)"
@@ -88,7 +95,7 @@ function PurchaseOrderForm({
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <TextField
-          data-cy="create-purchase-order-input-order-number"
+          data-cy="purchase-order-form-input-order-number"
           label="PO Number"
           value={purchaseOrder.order_number || ""}
           onChange={({ target: { value } }) =>
@@ -101,7 +108,7 @@ function PurchaseOrderForm({
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <DateInput
-          data-cy="create-purchase-order-input-order-date"
+          data-cy="purchase-order-form-input-order-date"
           id="order-date-date-picker"
           label="PO Date"
           value={purchaseOrder.order_date}
@@ -115,7 +122,7 @@ function PurchaseOrderForm({
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <DateInput
-          data-cy="create-purchase-order-input-delivery-date"
+          data-cy="purchase-order-form-input-delivery-date"
           id="delivery-date-date-picker"
           label="Delivery date"
           value={purchaseOrder.delivery_date}
@@ -129,7 +136,7 @@ function PurchaseOrderForm({
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <CurrencyInput
-          data-cy="create-purchase-order-input-amount"
+          data-cy="purchase-order-form-input-amount"
           label="Amount"
           value={purchaseOrder.amount}
           handleChange={(value) =>
@@ -144,7 +151,7 @@ function PurchaseOrderForm({
         <FormControlLabel
           control={
             <Checkbox
-              data-cy="create-purchase-order-input-is-cannabis"
+              data-cy="purchase-order-form-input-is-cannabis"
               checked={!!purchaseOrder.is_cannabis}
               onChange={(event: ChangeEvent<HTMLInputElement>) =>
                 setPurchaseOrder({
@@ -165,6 +172,7 @@ function PurchaseOrderForm({
           </Typography>
         </Box>
         <FileUploader
+          data-cy="purchase-order-form-file-uploader-purchase-order-file"
           companyId={companyId}
           fileType={FileTypeEnum.PURCHASE_ORDER}
           maxFilesAllowed={1}

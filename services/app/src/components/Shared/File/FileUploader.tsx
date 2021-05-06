@@ -5,6 +5,7 @@ import { Companies, FileFragment, Files } from "generated/graphql";
 import { FileTypeEnum } from "lib/enum";
 
 interface Props {
+  "data-cy"?: string;
   companyId: Companies["id"];
   fileType: FileTypeEnum; // what type of document is this? e.g., purchase_order, etc. This is used for the S3 path, not tied to a DB table
   maxFilesAllowed?: number; // maximum number of files a user may upload, 10 is the default
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export default function FileUploader({
+  "data-cy": dataCy,
   companyId,
   fileType,
   maxFilesAllowed,
@@ -32,7 +34,7 @@ export default function FileUploader({
           />
         </Box>
       )}
-      <Box>
+      <Box data-cy={dataCy}>
         <FileUploadDropzone
           companyId={companyId}
           docType={fileType}

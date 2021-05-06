@@ -107,11 +107,13 @@ const ButtonSpace = styled.div`
 `;
 
 interface Props {
+  dataCy?: string;
   isPrimaryActionDisabled?: boolean;
   isSecondaryActionDisabled?: boolean;
   title: string;
   subtitle?: string;
   contentWidth?: number;
+  primaryActionDataCy?: string;
   primaryActionText: string;
   secondaryActionText?: string | null; // null = do not show secondary button.
   handleClose: () => void;
@@ -121,11 +123,13 @@ interface Props {
 }
 
 export default function Modal({
+  dataCy,
   isPrimaryActionDisabled = false,
   isSecondaryActionDisabled = false,
   title,
   subtitle,
   contentWidth = 500,
+  primaryActionDataCy,
   primaryActionText,
   secondaryActionText,
   handleClose,
@@ -142,7 +146,7 @@ export default function Modal({
       onClose={handleClose}
       classes={{ paper: classes.dialog }}
     >
-      <Container>
+      <Container data-cy={dataCy}>
         <Header>
           <CloseButtonContainer>
             <CloseButton onClick={handleClose}>
@@ -177,6 +181,7 @@ export default function Modal({
                 </>
               )}
               <StyledButton
+                data-cy={primaryActionDataCy}
                 disabled={isPrimaryActionDisabled}
                 onClick={handlePrimaryAction}
                 variant={"contained"}

@@ -7,22 +7,34 @@ describe("Create purchase order", () => {
 
     cy.dataCy("create-purchase-order-button").click();
 
-    cy.dataCySelector("create-purchase-order-input-order-number", "input").type(
-      "PO123123123"
+    cy.dataCy("create-purchase-order-modal").should("be.visible");
+
+    cy.dataCy("purchase-order-form-input-vendor").click();
+    cy.dataCy("purchase-order-form-input-vendor-menu-item-1").click();
+    // TODO(warren): Replace usage of Date.now().toString() in the future.
+    cy.dataCySelector("purchase-order-form-input-order-number", "input").type(
+      `PO-${Date.now().toString()}`
     );
-    cy.dataCySelector("create-purchase-order-input-order-date", "input").type(
+    cy.dataCySelector("purchase-order-form-input-order-date", "input").type(
       "05/05/2021"
     );
-    cy.dataCySelector(
-      "create-purchase-order-input-delivery-date",
-      "input"
-    ).type("05/05/2021");
-    cy.dataCySelector("create-purchase-order-input-amount", "input").type(
+    cy.dataCySelector("purchase-order-form-input-delivery-date", "input").type(
+      "05/05/2021"
+    );
+    cy.dataCySelector("purchase-order-form-input-amount", "input").type(
       "42000"
     );
     cy.dataCySelector(
-      "create-purchase-order-input-is-cannabis",
+      "purchase-order-form-input-is-cannabis",
       "input"
     ).uncheck();
+    cy.dataCySelector(
+      "purchase-order-form-file-uploader-purchase-order-file",
+      "input"
+    ).attachFile("files/sample.pdf");
+
+    cy.dataCy("create-purchase-order-modal-button-save-and-submit").click();
+
+    cy.dataCy("create-purchase-order-modal").should("not.exist");
   });
 });

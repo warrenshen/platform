@@ -248,9 +248,11 @@ export default function CreateUpdatePurchaseOrderModal({
 
   return isDialogReady ? (
     <Modal
+      dataCy={"create-purchase-order-modal"}
       isPrimaryActionDisabled={isPrimaryActionDisabled}
       isSecondaryActionDisabled={isSecondaryActionDisabled}
       title={`${isActionTypeUpdate ? "Edit" : "Create"} Purchase Order`}
+      primaryActionDataCy={"create-purchase-order-modal-button-save-and-submit"}
       primaryActionText={isActionTypeUpdate ? "Save" : "Save and Submit"}
       secondaryActionText={!isActionTypeUpdate ? "Save as Draft" : null}
       handleClose={handleClose}
