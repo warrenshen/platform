@@ -294,7 +294,11 @@ class Contract(object):
 		return self._get_float_value('minimum_annual_amount')
 
 	def get_include_borrowing_base_for_limits(self) -> Tuple[bool, errors.Error]:
-		return self._get_bool_value('include_borrowing_base_for_limits')
+		# Yes, we include borrowing base in credit limit calculations for all LOC customers.
+		# Previously we did not for a temporary period of time (hence the commented out code).
+
+		# return self._get_bool_value('include_borrowing_base_for_limits')
+		return True, None
 
 	def get_minimum_amount_owed_per_duration(self) -> Tuple[MinimumOwedDict, errors.Error]:
 		minimum_monthly_amount, err = self._get_minimum_monthly_amount()
