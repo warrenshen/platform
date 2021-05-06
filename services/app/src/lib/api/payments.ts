@@ -114,8 +114,47 @@ export async function createAccountLevelFeeRepaymentMutation(
     );
 }
 
+export type ScheduleAccountLevelFeeRepaymentReq = {
+  variables: {
+    company_id: string;
+    payment_id: string;
+    amount: number;
+    payment_date: string;
+    items_covered: any;
+    is_line_of_credit: boolean;
+  };
+};
+
+export async function scheduleAccountLevelFeeRepaymentMutation(
+  req: ScheduleAccountLevelFeeRepaymentReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(feesRoutes.scheduleAccountLevelFeeRepayment, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => response,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not schedule account fee repayment",
+        };
+      }
+    );
+}
+
 export type SettleAccountLevelFeeRepaymentReq = {
-  variables: {};
+  variables: {
+    company_id: string;
+    payment_id: string;
+    amount: number;
+    deposit_date: string;
+    settlement_date: string;
+    items_covered: any;
+    is_line_of_credit: boolean;
+  };
 };
 
 export async function settleAccountLevelFeeRepaymentMutation(

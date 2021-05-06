@@ -62,12 +62,12 @@ function ScheduleRepaymentSelectLoans({
           <CurrencyInput
             label={"Amount"}
             value={payment.amount}
-            handleChange={(value) => {
+            handleChange={(value) =>
               setPayment({
                 ...payment,
                 amount: value,
-              });
-            }}
+              })
+            }
           />
         </FormControl>
       </Box>
@@ -83,12 +83,12 @@ function ScheduleRepaymentSelectLoans({
           label="Payment Date"
           disableNonBankDays
           value={payment.payment_date}
-          onChange={(value) => {
+          onChange={(value) =>
             setPayment({
               ...payment,
               payment_date: value,
-            });
-          }}
+            })
+          }
         />
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">

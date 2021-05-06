@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function BankPaymentsActionRequiredTab() {
+export default function BankPaymentsActionRequiredTab() {
   const classes = useStyles();
   const history = useHistory();
 
@@ -291,5 +291,3 @@ function BankPaymentsActionRequiredTab() {
     </Container>
   );
 }
-
-export default BankPaymentsActionRequiredTab;

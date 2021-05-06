@@ -13,6 +13,8 @@ import {
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
+import { scheduleAccountLevelFeeRepaymentMutation } from "lib/api/payments";
+import { PaymentTypeEnum } from "lib/enum";
 import {
   computeSettlementDateForPayment,
   getSettlementTimelineConfigFromContract,
@@ -25,7 +27,10 @@ interface Props {
   handleClose: () => void;
 }
 
-function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
+export default function ScheduleRepaymentModal({
+  paymentId,
+  handleClose,
+}: Props) {
   const snackbar = useSnackbar();
 
   const [errMsg, setErrMsg] = useState("");
@@ -121,6 +126,11 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
     { loading: isScheduleRepaymentLoading },
   ] = useCustomMutation(scheduleRepaymentMutation);
 
+  const [
+    scheduleAccountLevelFeeRepayment,
+    { loading: isScheduleAccountLevelFeeRepaymentLoading },
+  ] = useCustomMutation(scheduleAccountLevelFeeRepaymentMutation);
+
   const handleClickConfirm = async () => {
     if (!payment || !customer) {
       alert("Developer error: payment or customer does not exist.");
@@ -132,7 +142,12 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
       return;
     }
 
-    const response = await scheduleRepayment({
+    const fn =
+      payment.type === PaymentTypeEnum.RepaymentOfAccountFee
+        ? scheduleAccountLevelFeeRepayment
+        : scheduleRepayment;
+
+    const response = await fn({
       variables: {
         company_id: customer.id,
         payment_id: paymentId,
@@ -159,7 +174,10 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
   const isNextButtonDisabled =
     !payment.method || !payment.payment_date || !payment.deposit_date;
   const isSubmitButtonDisabled =
-    isNextButtonDisabled || isScheduleRepaymentLoading || payment.amount <= 0;
+    isNextButtonDisabled ||
+    isScheduleRepaymentLoading ||
+    isScheduleAccountLevelFeeRepaymentLoading ||
+    payment.amount <= 0;
 
   return (
     <Modal
@@ -187,5 +205,3 @@ function ScheduleRepaymentModal({ paymentId, handleClose }: Props) {
     </Modal>
   );
 }
-
-export default ScheduleRepaymentModal;

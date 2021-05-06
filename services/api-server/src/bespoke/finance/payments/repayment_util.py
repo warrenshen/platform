@@ -592,7 +592,6 @@ def schedule_repayment(
 
 	payment_date = date_util.load_date_str(req['payment_date'])
 	payment_amount = req['amount']
-	items_covered = req['items_covered']
 
 	if not number_util.is_number(payment_amount) or payment_amount <= 0:
 		raise errors.Error('Payment amount must greater than 0', details=err_details)

@@ -83,17 +83,13 @@ def create_and_add_account_level_fee_repayment(
 	created_by_user_id: str,
 	session: Session
 ) -> Tuple[str, errors.Error]:
-
-	if payment_input['payment_method'] == db_constants.PaymentMethodEnum.REVERSE_DRAFT_ACH:
-		return None, errors.Error('Reverse Draft ACH not supported as a payment type for fee repayment yet')
-
 	payment = payment_util.create_repayment_payment(
 		company_id=company_id,
 		payment_type=db_constants.PaymentType.REPAYMENT_OF_ACCOUNT_FEE,
 		payment_input=payment_input,
 		created_by_user_id=created_by_user_id
 	)
-	payment.payment_date = payment_input['requested_payment_date']
+	payment.payment_date = payment_input['requested_payment_date'] if payment_input['payment_method'] != PaymentMethodEnum.REVERSE_DRAFT_ACH else None
 	session.add(payment)
 	session.flush()
 	payment_id = str(payment.id)
