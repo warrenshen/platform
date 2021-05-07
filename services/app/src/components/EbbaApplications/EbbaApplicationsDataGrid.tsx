@@ -6,6 +6,8 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
+  EbbaApplicationFragment,
+  EbbaApplications,
   GetOpenEbbaApplicationsQuery,
   RequestStatusEnum,
 } from "generated/graphql";
@@ -15,13 +17,21 @@ import { useMemo } from "react";
 interface Props {
   isCompanyVisible?: boolean;
   isExcelExport?: boolean;
+  isMultiSelectEnabled?: boolean;
   ebbaApplications: GetOpenEbbaApplicationsQuery["ebba_applications"];
+  selectedEbbaApplicationIds?: EbbaApplications["id"][];
+  handleSelectEbbaApplications?: (
+    ebbaApplications: EbbaApplicationFragment[]
+  ) => void;
 }
 
-function EbbaApplicationsDataGrid({
+export default function EbbaApplicationsDataGrid({
   isCompanyVisible = true,
   isExcelExport = false,
+  isMultiSelectEnabled = false,
   ebbaApplications,
+  selectedEbbaApplicationIds,
+  handleSelectEbbaApplications,
 }: Props) {
   const rows = useMemo(
     () =>
@@ -121,16 +131,26 @@ function EbbaApplicationsDataGrid({
     [isCompanyVisible]
   );
 
+  const handleSelectionChanged = useMemo(
+    () => ({ selectedRowsData }: any) =>
+      handleSelectEbbaApplications &&
+      handleSelectEbbaApplications(
+        selectedRowsData as EbbaApplicationFragment[]
+      ),
+    [handleSelectEbbaApplications]
+  );
+
   return (
     <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
       <ControlledDataGrid
+        isExcelExport={isExcelExport}
         pager
+        select={isMultiSelectEnabled}
         dataSource={rows}
         columns={columns}
-        isExcelExport={isExcelExport}
+        selectedRowKeys={selectedEbbaApplicationIds}
+        onSelectionChanged={handleSelectionChanged}
       />
     </Box>
   );
 }
-
-export default EbbaApplicationsDataGrid;

@@ -28,3 +28,27 @@ export async function submitEbbaApplicationMutation(
       }
     );
 }
+
+export type DeleteEbbaApplicationReq = {
+  variables: {
+    ebba_application_id: EbbaApplications["id"];
+  };
+};
+
+export async function deleteEbbaApplicationMutation(
+  req: DeleteEbbaApplicationReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(ebbaApplicationsRoutes.delete, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not delete borrowing base",
+        };
+      }
+    );
+}

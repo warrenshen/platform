@@ -44,6 +44,7 @@ export const notifyRoutes = {
 };
 
 export const ebbaApplicationsRoutes = {
+  delete: "finance/ebba_applications/approvals/delete",
   respondToApprovalRequest:
     "finance/ebba_applications/approvals/respond_to_approval_request",
   submitForApproval: "/finance/ebba_applications/approvals/submit_for_approval",

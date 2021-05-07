@@ -42,6 +42,7 @@ class Actions(object):
 	EBBA_APPLICATION_SUBMIT_FOR_APPROVAL = 'ebba_application_submit_for_approval'
 	EBBA_APPLICATION_RESPOND_TO_APPROVAL = 'ebba_application_respond_to_approval'
 	EBBA_APPLICATION_EXPIRE = 'ebba_application_expire'
+	EBBA_APPLICATION_DELETE = 'ebba_application_delete'
 
 	LOGIN_CREATE = 'login_create'
 

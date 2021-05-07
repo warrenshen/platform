@@ -178,11 +178,56 @@ class SubmitEbbaApplicationForApproval(MethodView):
 			'msg': ''
 		}), 200)
 
+class DeleteEbbaApplicationView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@events.wrap(events.Actions.EBBA_APPLICATION_DELETE)
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		data = json.loads(request.data)
+		if not data:
+			raise errors.Error('No data provided')
+
+		ebba_application_id = data['ebba_application_id']
+
+		if not ebba_application_id:
+			raise errors.Error('No EBBA Application ID provided')
+
+		user_session = auth_util.UserSession.from_session()
+
+		with session_scope(current_app.session_maker) as session:
+			ebba_application = cast(
+				models.EbbaApplication,
+				session.query(models.EbbaApplication).filter_by(
+					id=ebba_application_id).first())
+
+			if not user_session.is_bank_or_this_company_admin(str(ebba_application.company_id)):
+				return handler_util.make_error_response('Access Denied')
+
+			if ebba_application.approved_at:
+				raise errors.Error('Borrowing base is already approved')
+
+			if ebba_application.is_deleted:
+				raise errors.Error('Borrowing base is already deleted')
+
+			ebba_application.is_deleted = True
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Borrowing base {} deleted'.format(ebba_application_id)
+		}), 200)
+
 handler.add_url_rule(
 	'/respond_to_approval_request',
 	view_func=RespondToEbbaApplicationApprovalRequest.as_view(name='respond_to_ebba_application_approval_request')
 )
+
 handler.add_url_rule(
 	'/submit_for_approval',
 	view_func=SubmitEbbaApplicationForApproval.as_view(name='submit_ebba_application_for_approval')
+)
+
+handler.add_url_rule(
+	'/delete',
+	view_func=DeleteEbbaApplicationView.as_view(name='delete_ebba_application')
 )

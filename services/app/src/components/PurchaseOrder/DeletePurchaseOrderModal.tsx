@@ -13,7 +13,7 @@ import { deletePurchaseOrderMutation } from "lib/api/purchaseOrders";
 import { useContext } from "react";
 
 interface Props {
-  purchaseOrderId: PurchaseOrders["id"] | null;
+  purchaseOrderId: PurchaseOrders["id"];
   handleClose: () => void;
 }
 

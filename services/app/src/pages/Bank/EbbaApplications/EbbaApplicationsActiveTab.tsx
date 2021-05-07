@@ -1,8 +1,15 @@
 import { Box } from "@material-ui/core";
+import DeleteEbbaApplicationModal from "components/EbbaApplication/DeleteEbbaApplicationModal";
 import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
-import { useGetOpenEbbaApplicationsQuery } from "generated/graphql";
+import ModalButton from "components/Shared/Modal/ModalButton";
+import {
+  EbbaApplicationFragment,
+  EbbaApplications,
+  useGetOpenEbbaApplicationsQuery,
+} from "generated/graphql";
+import { useMemo, useState } from "react";
 
-function EbbaApplicationsActiveTab() {
+export default function EbbaApplicationsActiveTab() {
   // Note: we use the fetchPolicy "no-cache" here.
   //
   // The following component tree is rendered.
@@ -18,7 +25,7 @@ function EbbaApplicationsActiveTab() {
   // which causes the whole grid to re-render and forcefully close any
   // EbbaApplicationDrawer that is open.
 
-  const { data, error } = useGetOpenEbbaApplicationsQuery({
+  const { data, error, refetch } = useGetOpenEbbaApplicationsQuery({
     fetchPolicy: "no-cache",
   });
 
@@ -27,19 +34,58 @@ function EbbaApplicationsActiveTab() {
     console.log({ error });
   }
 
-  const ebbaApplications = data?.ebba_applications || [];
+  const ebbaApplications = useMemo(() => data?.ebba_applications || [], [data]);
+
+  const [selectedEbbaApplicationIds, setSelectedEbbaApplicationIds] = useState<
+    EbbaApplications["id"][]
+  >([]);
+
+  const selectedEbbaApplication = useMemo(
+    () =>
+      selectedEbbaApplicationIds.length === 1
+        ? ebbaApplications.find(
+            (ebbaApplication) =>
+              ebbaApplication.id === selectedEbbaApplicationIds[0]
+          )
+        : null,
+    [ebbaApplications, selectedEbbaApplicationIds]
+  );
+
+  const handleSelectEbbaApplications = useMemo(
+    () => (ebbaApplications: EbbaApplicationFragment[]) =>
+      setSelectedEbbaApplicationIds(
+        ebbaApplications.map((ebbaApplication) => ebbaApplication.id)
+      ),
+    [setSelectedEbbaApplicationIds]
+  );
 
   return (
     <Box>
-      <Box display="flex" flexDirection="row-reverse" mb={2} />
+      <Box display="flex" flexDirection="row-reverse" mb={4}>
+        {!!selectedEbbaApplication && (
+          <ModalButton
+            label={"Delete Certification"}
+            modal={({ handleClose }) => (
+              <DeleteEbbaApplicationModal
+                ebbaApplicationId={selectedEbbaApplication.id}
+                handleClose={() => {
+                  refetch();
+                  handleClose();
+                }}
+              />
+            )}
+          />
+        )}
+      </Box>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <EbbaApplicationsDataGrid
           isExcelExport
+          isMultiSelectEnabled
           ebbaApplications={ebbaApplications}
+          selectedEbbaApplicationIds={selectedEbbaApplicationIds}
+          handleSelectEbbaApplications={handleSelectEbbaApplications}
         />
       </Box>
     </Box>
   );
 }
-
-export default EbbaApplicationsActiveTab;

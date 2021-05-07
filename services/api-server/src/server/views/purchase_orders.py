@@ -405,5 +405,5 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/delete',
-	view_func=DeleteView.as_view(name='delete_view')
+	view_func=DeleteView.as_view(name='delete')
 )

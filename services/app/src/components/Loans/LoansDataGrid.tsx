@@ -368,6 +368,7 @@ export default function LoansDataGrid({
   return (
     <ControlledDataGrid
       ref={(ref) => setDataGrid(ref)}
+      isExcelExport={isExcelExport}
       isSortingDisabled={isSortingDisabled}
       filtering={filtering}
       pager={pager}
@@ -378,7 +379,6 @@ export default function LoansDataGrid({
       columns={columns}
       selectedRowKeys={selectedLoanIds}
       onSelectionChanged={handleSelectionChanged}
-      isExcelExport={isExcelExport}
     />
   );
 }

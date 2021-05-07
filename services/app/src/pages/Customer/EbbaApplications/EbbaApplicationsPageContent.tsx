@@ -1,16 +1,20 @@
 import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import CreateUpdateEbbaApplicationModal from "components/EbbaApplication/CreateUpdateEbbaApplicationModal";
+import DeleteEbbaApplicationModal from "components/EbbaApplication/DeleteEbbaApplicationModal";
 import EbbaApplicationCard from "components/EbbaApplication/EbbaApplicationCard";
 import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import PageContent from "components/Shared/Page/PageContent";
 import {
   Companies,
+  EbbaApplicationFragment,
+  EbbaApplications,
   useGetCompanyForCustomerBorrowingBaseQuery,
 } from "generated/graphql";
 import { withinNDaysOfNowOrBefore } from "lib/date";
 import { ActionType } from "lib/enum";
+import { useMemo, useState } from "react";
 
 interface Props {
   companyId: Companies["id"];
@@ -30,12 +34,39 @@ export default function CustomerEbbaApplicationsPageContent({
 
   const activeEbbaApplication =
     data?.companies_by_pk?.settings?.active_ebba_application;
-  const ebbaApplications = data?.companies_by_pk?.ebba_applications || [];
+  const ebbaApplications = useMemo(
+    () => data?.companies_by_pk?.ebba_applications || [],
+    [data]
+  );
 
   const isActiveApplicationValid = !!activeEbbaApplication;
   const isActiveApplicationExpiringSoon = withinNDaysOfNowOrBefore(
     activeEbbaApplication?.expires_at,
     15
+  );
+
+  // State for modal(s).
+  const [selectedEbbaApplicationIds, setSelectedEbbaApplicationIds] = useState<
+    EbbaApplications["id"][]
+  >([]);
+
+  const selectedEbbaApplication = useMemo(
+    () =>
+      selectedEbbaApplicationIds.length === 1
+        ? ebbaApplications.find(
+            (ebbaApplication) =>
+              ebbaApplication.id === selectedEbbaApplicationIds[0]
+          )
+        : null,
+    [ebbaApplications, selectedEbbaApplicationIds]
+  );
+
+  const handleSelectEbbaApplications = useMemo(
+    () => (ebbaApplications: EbbaApplicationFragment[]) =>
+      setSelectedEbbaApplicationIds(
+        ebbaApplications.map((ebbaApplication) => ebbaApplication.id)
+      ),
+    [setSelectedEbbaApplicationIds]
   );
 
   return (
@@ -100,7 +131,7 @@ export default function CustomerEbbaApplicationsPageContent({
                     You do not have an up-to-date borrowing base certification.
                     Please submit a new borrowing base certification for
                     approval to establish your borrowing base. Otherwise, you
-                    will not be able to request new loans.
+                    will not be able to request new ebbaApplications.
                   </Box>
                 </Alert>
               ))}
@@ -115,9 +146,28 @@ export default function CustomerEbbaApplicationsPageContent({
               Historical Borrowing Base Certifications
             </Typography>
           </Box>
+          <Box display="flex" flexDirection="row-reverse" mt={2} mb={2}>
+            {!!selectedEbbaApplication && (
+              <ModalButton
+                label={"Delete Certification"}
+                modal={({ handleClose }) => (
+                  <DeleteEbbaApplicationModal
+                    ebbaApplicationId={selectedEbbaApplication.id}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            )}
+          </Box>
           <EbbaApplicationsDataGrid
             isCompanyVisible={false}
+            isMultiSelectEnabled
             ebbaApplications={ebbaApplications}
+            selectedEbbaApplicationIds={selectedEbbaApplicationIds}
+            handleSelectEbbaApplications={handleSelectEbbaApplications}
           />
         </Box>
       </Box>

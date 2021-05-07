@@ -603,6 +603,7 @@ class EbbaApplication(Base):
 	requested_at = Column(DateTime)
 	approved_at = Column(DateTime)
 	rejected_at = Column(DateTime)
+	is_deleted = Column(Boolean, nullable=False, default=False)
 
 	company = relationship(
 		'Company',

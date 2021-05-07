@@ -87,6 +87,14 @@ export default function DeleteLoanModal({ loanId, handleClose }: Props) {
         </Box>
         {loan && (
           <>
+            {isBankUser && (
+              <Box display="flex" flexDirection="column" mt={2}>
+                <Typography variant="subtitle2" color="textSecondary">
+                  Company
+                </Typography>
+                <Typography variant={"body1"}>{loan.company?.name}</Typography>
+              </Box>
+            )}
             <Box display="flex" flexDirection="column" mt={2}>
               <Typography variant="subtitle2" color="textSecondary">
                 Identifier
