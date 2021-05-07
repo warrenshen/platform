@@ -169,7 +169,7 @@ export default function CreateUpdateEbbaApplicationModal({
   );
 
   const upsertEbbaApplication = async () => {
-    if (actionType === ActionType.Update) {
+    if (isActionTypeUpdate) {
       const response = await updateEbbaApplication({
         variables: {
           id: ebbaApplication.id,
@@ -191,6 +191,7 @@ export default function CreateUpdateEbbaApplicationModal({
       const response = await addEbbaApplication({
         variables: {
           ebbaApplication: {
+            company_id: isBankUser ? companyId : undefined,
             application_date: ebbaApplication.application_date,
             monthly_accounts_receivable:
               ebbaApplication.monthly_accounts_receivable,
@@ -218,9 +219,9 @@ export default function CreateUpdateEbbaApplicationModal({
       return;
     }
 
-    // If bank user is editing the ebba application,
+    // If editing the ebba application (only done by bank user),
     // there is no need to submit it to the bank.
-    if (isBankUser) {
+    if (isActionTypeUpdate) {
       snackbar.showSuccess("Borrowing base certification saved.");
       handleClose();
     } else {
@@ -259,7 +260,7 @@ export default function CreateUpdateEbbaApplicationModal({
       dataCy={"create-purchase-order-modal"}
       isPrimaryActionDisabled={isSubmitDisabled}
       title={`${
-        actionType === ActionType.Update ? "Edit" : "Create"
+        isActionTypeUpdate ? "Edit" : "Create"
       } Borrowing Base Certification`}
       contentWidth={800}
       primaryActionDataCy={

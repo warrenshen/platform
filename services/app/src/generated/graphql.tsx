@@ -22863,6 +22863,12 @@ export const GetCompanyForCustomerBorrowingBaseDocument = gql`
     companies_by_pk(id: $companyId) {
       id
       ebba_applications(
+        where: {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
         order_by: [{ application_date: desc }, { created_at: desc }]
       ) {
         id
