@@ -42,27 +42,28 @@ def import_payor_vendor_users(
 		parsed_last_name = last_name.strip()
 		parsed_email = email.strip()
 
-		try:
-			numeric_phone_number = int(float(phone_number))
-			parsed_phone_number = str(numeric_phone_number)
-		except Exception:
-			numeric_phone_number = int("".join(filter(str.isdigit, phone_number)))
-			parsed_phone_number = numeric_phone_number
+		if phone_number == '':
+			parsed_phone_number = None
+		else:
+			try:
+				numeric_phone_number = int(float(phone_number))
+				parsed_phone_number = str(numeric_phone_number)
+			except Exception:
+				numeric_phone_number = int("".join(filter(str.isdigit, phone_number)))
+				parsed_phone_number = numeric_phone_number
 
 		if country.strip() in ['China', 'United States']:
 			parsed_country = country.strip()
 		else:
-			print(f'[{index + 1} of {users_count}] Invalid user field(s): country')
-			print(f'EXITING EARLY')
-			return
+			print(f'[{index + 1} of {users_count}] WARNING: Payor / vendor with name {parsed_payor_vendor_name} does not have a valid country, defaulting to "United States"')
+			parsed_country = 'United States'
 
 		if (
 			not parsed_customer_name or
 			not parsed_payor_vendor_name or
 			not parsed_first_name or
-			not parsed_last_name or
-			not parsed_email or
-			not parsed_phone_number
+			parsed_last_name is None or
+			not parsed_email
 		):
 			print(f'[{index + 1} of {users_count}] Invalid user field(s)')
 			print(f'EXITING EARLY')

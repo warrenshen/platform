@@ -113,9 +113,9 @@ def import_vendor_bank_accounts(
 		).first()
 
 		if not company_vendor_partnership:
-			print(f'[{index + 1} of {vendor_bank_accounts_count}] Partnership between customer {parsed_customer_name} and vendor {parsed_vendor_name} does not exist')
-			print(f'EXITING EARLY')
-			return
+			print(f'[{index + 1} of {vendor_bank_accounts_count}] WARNING: Partnership between customer {parsed_customer_name} and vendor {parsed_vendor_name} does not exist')
+			print(f'[{index + 1} of {vendor_bank_accounts_count}] SKIPPING')
+			continue
 
 		existing_bank_account = session.query(models.BankAccount).filter(
 			models.BankAccount.company_id == vendor.id
