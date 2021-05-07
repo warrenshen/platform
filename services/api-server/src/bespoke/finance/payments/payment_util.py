@@ -356,6 +356,29 @@ def create_and_add_account_level_fee(
 	session.add(t)
 	return payment_id
 
+def _reset_payment_status_on_loans(loan_ids: List[str], session: Session) -> None:
+	loans = cast(
+		List[models.Loan],
+		session.query(models.Loan).filter(
+			models.Loan.id.in_(loan_ids)
+		).all())
+
+	for loan in loans:
+		# Check if there is a non-deleted repayment transaction, which indicates
+		# this original loan was partially paid
+		repayment_transaction = cast(
+			models.Transaction,
+			session.query(models.Transaction).filter(
+				models.Transaction.type == db_constants.PaymentType.REPAYMENT
+			).filter(models.Transaction.loan_id == str(loan.id)).filter(
+   			cast(Callable, models.Invoice.is_deleted.isnot)(True)
+    ).first())
+
+		if repayment_transaction:
+			loan.payment_status = db_constants.PaymentStatusEnum.PARTIALLY_PAID
+		else:
+			loan.payment_status = None
+
 @errors.return_error_tuple
 def unsettle_payment(payment_type: str, payment_id: str, session: Session) -> Tuple[bool, errors.Error]:
 	# Mark payment as not settled
@@ -409,27 +432,7 @@ def unsettle_payment(payment_type: str, payment_id: str, session: Session) -> Tu
 
 	loan_ids = list(loan_ids_set)
 
-	loans = cast(
-		List[models.Loan],
-		session.query(models.Loan).filter(
-			models.Loan.id.in_(loan_ids)
-		).all())
-
-	for loan in loans:
-		# Check if there is a non-deleted repayment transaction, which indicates
-		# this original loan was partially paid
-		repayment_transaction = cast(
-			models.Transaction,
-			session.query(models.Transaction).filter(
-				models.Transaction.type == db_constants.PaymentType.REPAYMENT
-			).filter(models.Transaction.loan_id == str(loan.id)).filter(
-   			cast(Callable, models.Invoice.is_deleted.isnot)(True)
-    ).first())
-
-		if repayment_transaction:
-			loan.payment_status = db_constants.PaymentStatusEnum.PARTIALLY_PAID
-		else:
-			loan.payment_status = None
+	_reset_payment_status_on_loans(loan_ids, session)
 
 	return True, None
 
@@ -461,6 +464,8 @@ def delete_payment(payment_type: str, payment_id: str, session: Session) -> Tupl
 	if not originated_payments:
 		originated_payments = []
 
+	loan_ids_set = set([])
+
 	def _delete_payment(cur_payment: models.Payment) -> None:
 		cur_payment.is_deleted = True
 
@@ -475,10 +480,15 @@ def delete_payment(payment_type: str, payment_id: str, session: Session) -> Tupl
 		# Yes transactions: customer creates repayment, it is settled by bank, and then bank wants to delete it.
 		for tx in transactions:
 			tx.is_deleted = True
+			if tx.loan_id:
+				loan_ids_set.add(str(tx.loan_id))
 
 	_delete_payment(payment)
 	for cur_payment in originated_payments:
 		_delete_payment(cur_payment)
+
+	loan_ids = list(loan_ids_set)
+	_reset_payment_status_on_loans(loan_ids, session)
 
 	return True, None
 
