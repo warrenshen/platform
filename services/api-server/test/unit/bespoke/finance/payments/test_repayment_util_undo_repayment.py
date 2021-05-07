@@ -153,6 +153,15 @@ class TestUndoRepayment(db_unittest.TestCase):
 		)
 		self.assertIsNone(err)
 
+		with session_scope(self.session_maker) as session:
+			loans = cast(
+				List[models.Loan],
+				session.query(models.Loan).filter(
+					models.Loan.id.in_(loan_ids)
+				).all())
+			for loan in loans:
+				self.assertEqual(PaymentStatusEnum.PARTIALLY_PAID, loan.payment_status)
+
 		_, err = repayment_util.settle_repayment(
 			req=req,
 			user_id=bank_admin_user_id,
@@ -172,6 +181,15 @@ class TestUndoRepayment(db_unittest.TestCase):
 			session_maker=self.session_maker
 		)
 		self.assertIsNone(err)
+
+		with session_scope(self.session_maker) as session:
+			loans = cast(
+				List[models.Loan],
+				session.query(models.Loan).filter(
+					models.Loan.id.in_(loan_ids)
+				).all())
+			for loan in loans:
+				self.assertEqual(None, loan.payment_status)
 
 		_, err = repayment_util.settle_repayment(
 			req=req,

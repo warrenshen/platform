@@ -381,6 +381,8 @@ def unsettle_payment(payment_type: str, payment_id: str, session: Session) -> Tu
 	if not originated_payments:
 		originated_payments = []
 
+	loan_ids_set = set([])
+
 	def _unsettle_payment(cur_payment: models.Payment) -> None:
 		cur_payment.settled_at = None
 		cur_payment.settled_by_user_id = None
@@ -398,10 +400,36 @@ def unsettle_payment(payment_type: str, payment_id: str, session: Session) -> Tu
 
 		for tx in transactions:
 			tx.is_deleted = True
+			if tx.loan_id:
+				loan_ids_set.add(str(tx.loan_id))
 
 	_unsettle_payment(payment)
 	for cur_payment in originated_payments:
 		_unsettle_payment(cur_payment)
+
+	loan_ids = list(loan_ids_set)
+
+	loans = cast(
+		List[models.Loan],
+		session.query(models.Loan).filter(
+			models.Loan.id.in_(loan_ids)
+		).all())
+
+	for loan in loans:
+		# Check if there is a non-deleted repayment transaction, which indicates
+		# this original loan was partially paid
+		repayment_transaction = cast(
+			models.Transaction,
+			session.query(models.Transaction).filter(
+				models.Transaction.type == db_constants.PaymentType.REPAYMENT
+			).filter(models.Transaction.loan_id == str(loan.id)).filter(
+   			cast(Callable, models.Invoice.is_deleted.isnot)(True)
+    ).first())
+
+		if repayment_transaction:
+			loan.payment_status = db_constants.PaymentStatusEnum.PARTIALLY_PAID
+		else:
+			loan.payment_status = None
 
 	return True, None
 
