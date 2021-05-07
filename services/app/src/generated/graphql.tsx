@@ -16399,6 +16399,14 @@ export type GetPaymentsCountForBankSubscription = {
   payments: Array<Pick<Payments, "id">>;
 };
 
+export type GetEbbaApplicationsCountForBankSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetEbbaApplicationsCountForBankSubscription = {
+  ebba_applications: Array<Pick<EbbaApplications, "id">>;
+};
+
 export type GetCompanyWithActiveContractQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
@@ -22797,6 +22805,57 @@ export type GetPaymentsCountForBankSubscriptionHookResult = ReturnType<
   typeof useGetPaymentsCountForBankSubscription
 >;
 export type GetPaymentsCountForBankSubscriptionResult = Apollo.SubscriptionResult<GetPaymentsCountForBankSubscription>;
+export const GetEbbaApplicationsCountForBankDocument = gql`
+  subscription GetEbbaApplicationsCountForBank {
+    ebba_applications(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { application_date: { _is_null: false } }
+          { approved_at: { _is_null: true } }
+        ]
+      }
+    ) {
+      id
+    }
+  }
+`;
+
+/**
+ * __useGetEbbaApplicationsCountForBankSubscription__
+ *
+ * To run a query within a React component, call `useGetEbbaApplicationsCountForBankSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetEbbaApplicationsCountForBankSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetEbbaApplicationsCountForBankSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetEbbaApplicationsCountForBankSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetEbbaApplicationsCountForBankSubscription,
+    GetEbbaApplicationsCountForBankSubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetEbbaApplicationsCountForBankSubscription,
+    GetEbbaApplicationsCountForBankSubscriptionVariables
+  >(GetEbbaApplicationsCountForBankDocument, baseOptions);
+}
+export type GetEbbaApplicationsCountForBankSubscriptionHookResult = ReturnType<
+  typeof useGetEbbaApplicationsCountForBankSubscription
+>;
+export type GetEbbaApplicationsCountForBankSubscriptionResult = Apollo.SubscriptionResult<GetEbbaApplicationsCountForBankSubscription>;
 export const GetCompanyWithActiveContractDocument = gql`
   query GetCompanyWithActiveContract($companyId: uuid!) {
     companies_by_pk(id: $companyId) {

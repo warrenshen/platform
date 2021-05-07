@@ -46,6 +46,25 @@ subscription GetPaymentsCountForBank {
   }
 }
 
+subscription GetEbbaApplicationsCountForBank {
+  ebba_applications(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { application_date: { _is_null: false } }
+        { approved_at: { _is_null: true } }
+      ]
+    }
+  ) {
+    id
+  }
+}
+
 query GetCompanyWithActiveContract($companyId: uuid!) {
   companies_by_pk(id: $companyId) {
     id

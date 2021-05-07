@@ -13,6 +13,7 @@ import {
 import {
   ProductTypeEnum,
   useGetCompanyForCustomerBorrowingBaseQuery,
+  useGetEbbaApplicationsCountForBankSubscription,
   useGetLoansCountForBankSubscription,
   useGetPaymentsCountForBankSubscription,
 } from "generated/graphql";
@@ -201,7 +202,8 @@ const getCustomerNavItems = (
 
 const getBankNavItems = (
   loansCount: number,
-  paymentsCount: number
+  paymentsCount: number,
+  ebbaApplicationsCount: number
 ): NavItem[] => {
   return [
     {
@@ -230,6 +232,7 @@ const getBankNavItems = (
       iconNode: BorrowingBasesIcon,
       text: "Borrowing Bases",
       link: bankRoutes.ebbaApplications,
+      counter: ebbaApplicationsCount,
     },
     {
       iconNode: InvoicesIcon,
@@ -288,8 +291,17 @@ export default function Layout({ appBarTitle, children }: Props) {
     skip: !isBankUser,
   });
 
+  const {
+    data: ebbaApplicationsCountData,
+  } = useGetEbbaApplicationsCountForBankSubscription({
+    skip: !isBankUser,
+  });
+
   const loansCount = loansCountData?.loans?.length || 0;
   const paymentsCount = paymentsCountData?.payments?.length || 0;
+  const ebbaApplicationsCount =
+    ebbaApplicationsCountData?.ebba_applications?.length || 0;
+  console.log({ ebba: ebbaApplicationsCountData?.ebba_applications });
 
   const {
     data,
@@ -310,7 +322,7 @@ export default function Layout({ appBarTitle, children }: Props) {
       withinNDaysOfNowOrBefore(ebbaApplication.expires_at, 15));
 
   const navItems = isBankUser
-    ? getBankNavItems(loansCount, paymentsCount)
+    ? getBankNavItems(loansCount, paymentsCount, ebbaApplicationsCount)
     : getCustomerNavItems(productType, showBorrowingBasesChip);
 
   return (
