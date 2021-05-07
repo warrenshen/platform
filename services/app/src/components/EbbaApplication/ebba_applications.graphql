@@ -1,6 +1,16 @@
 query GetOpenEbbaApplications {
   ebba_applications(
-    where: { approved_at: { _is_null: true } }
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { approved_at: { _is_null: true } }
+      ]
+    }
     order_by: [{ application_date: desc }, { created_at: desc }]
   ) {
     id
@@ -14,7 +24,17 @@ query GetOpenEbbaApplications {
 
 query GetClosedEbbaApplications {
   ebba_applications(
-    where: { approved_at: { _is_null: false } }
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { approved_at: { _is_null: false } }
+      ]
+    }
     order_by: [{ application_date: desc }, { created_at: desc }]
   ) {
     id

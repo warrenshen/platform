@@ -1,14 +1,7 @@
-import {
-  Button,
-  createStyles,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  makeStyles,
-  Theme,
-} from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import EbbaApplicationForm from "components/EbbaApplication/EbbaApplicationForm";
+import Modal from "components/Shared/Modal/Modal";
 import {
   CurrentUserContext,
   isRoleBankUser,
@@ -31,26 +24,6 @@ import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useMemo, useState } from "react";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    dialog: {
-      width: 500,
-    },
-    dialogTitle: {
-      borderBottom: "1px solid #c7c7c7",
-    },
-    purchaseOrderInput: {
-      width: "200px",
-    },
-    dialogActions: {
-      margin: theme.spacing(2),
-    },
-    submitButton: {
-      marginLeft: theme.spacing(1),
-    },
-  })
-);
-
 interface Props {
   actionType: ActionType;
   companyId: Companies["id"];
@@ -58,14 +31,15 @@ interface Props {
   handleClose: () => void;
 }
 
-function CreateUpdateEbbaApplicationModal({
+export default function CreateUpdateEbbaApplicationModal({
   actionType,
   companyId,
   ebbaApplicationId = null,
   handleClose,
 }: Props) {
   const snackbar = useSnackbar();
-  const classes = useStyles();
+
+  const isActionTypeUpdate = actionType === ActionType.Update;
 
   const {
     user: { role },
@@ -281,45 +255,44 @@ function CreateUpdateEbbaApplicationModal({
     ebbaApplicationFiles.length <= 0;
 
   return isDialogReady ? (
-    <Dialog
-      open
-      onClose={handleClose}
-      maxWidth="xl"
-      classes={{ paper: classes.dialog }}
+    <Modal
+      dataCy={"create-purchase-order-modal"}
+      isPrimaryActionDisabled={isSubmitDisabled}
+      title={`${
+        actionType === ActionType.Update ? "Edit" : "Create"
+      } Borrowing Base Certification`}
+      contentWidth={800}
+      primaryActionDataCy={
+        "create-ebba-application-modal-button-save-and-submit"
+      }
+      primaryActionText={"Submit"}
+      handleClose={handleClose}
+      handlePrimaryAction={handleClickSubmit}
     >
-      <DialogTitle className={classes.dialogTitle}>
-        {`${
-          actionType === ActionType.Update ? "Edit" : "Create"
-        } Borrowing Base Certification`}
-      </DialogTitle>
-      <DialogContent>
-        <EbbaApplicationForm
-          isAccountsReceivableVisible={isAccountsReceivableVisible}
-          isInventoryVisible={isInventoryVisible}
-          isCashVisible={isCashVisible}
-          isCashInDacaVisible={isCashInDacaVisible}
-          companyId={companyId}
-          calculatedBorrowingBase={calculatedBorrowingBase}
-          ebbaApplication={ebbaApplication}
-          ebbaApplicationFiles={ebbaApplicationFiles}
-          setEbbaApplication={setEbbaApplication}
-          setEbbaApplicationFiles={setEbbaApplicationFiles}
-        />
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button
-          className={classes.submitButton}
-          disabled={isSubmitDisabled}
-          onClick={handleClickSubmit}
-          variant={"contained"}
-          color={"primary"}
-        >
-          Submit
-        </Button>
-      </DialogActions>
-    </Dialog>
+      {isBankUser && (
+        <Box mt={2} mb={6}>
+          <Alert severity="warning">
+            <Typography variant="body1">
+              {`Warning: you are ${
+                isActionTypeUpdate ? "editing" : "creating"
+              } a borrowing base certification on behalf of this
+                customer (only bank admins can do this).`}
+            </Typography>
+          </Alert>
+        </Box>
+      )}
+      <EbbaApplicationForm
+        isAccountsReceivableVisible={isAccountsReceivableVisible}
+        isInventoryVisible={isInventoryVisible}
+        isCashVisible={isCashVisible}
+        isCashInDacaVisible={isCashInDacaVisible}
+        companyId={companyId}
+        calculatedBorrowingBase={calculatedBorrowingBase}
+        ebbaApplication={ebbaApplication}
+        ebbaApplicationFiles={ebbaApplicationFiles}
+        setEbbaApplication={setEbbaApplication}
+        setEbbaApplicationFiles={setEbbaApplicationFiles}
+      />
+    </Modal>
   ) : null;
 }
-
-export default CreateUpdateEbbaApplicationModal;

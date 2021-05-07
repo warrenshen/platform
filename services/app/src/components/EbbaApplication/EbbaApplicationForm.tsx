@@ -65,7 +65,7 @@ export default function EbbaApplicationForm({
 
   return (
     <Box display="flex" flexDirection="column">
-      <Box display="flex" flexDirection="column" mt={2}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <Typography variant="subtitle2">
           What date would you like to submit a certification for?
         </Typography>
@@ -88,7 +88,7 @@ export default function EbbaApplicationForm({
         </Box>
       </Box>
       {isAccountsReceivableVisible && (
-        <Box display="flex" flexDirection="column" mt={2}>
+        <Box display="flex" flexDirection="column" mt={4}>
           <Typography variant="subtitle2">
             For the month of the date you specified above, how much accounts
             receivable do you have?
@@ -111,7 +111,7 @@ export default function EbbaApplicationForm({
         </Box>
       )}
       {isInventoryVisible && (
-        <Box display="flex" flexDirection="column" mt={2}>
+        <Box display="flex" flexDirection="column" mt={4}>
           <Typography variant="subtitle2">
             For the month of the date you specified above, how much inventory do
             you have?
@@ -134,7 +134,7 @@ export default function EbbaApplicationForm({
         </Box>
       )}
       {isCashVisible && (
-        <Box display="flex" flexDirection="column" mt={2}>
+        <Box display="flex" flexDirection="column" mt={4}>
           <Typography variant="subtitle2">
             As of the date you specified above, how much cash do you have in
             Deposit Accounts(s)?
@@ -157,7 +157,7 @@ export default function EbbaApplicationForm({
         </Box>
       )}
       {isCashInDacaVisible && (
-        <Box display="flex" flexDirection="column" mt={2}>
+        <Box display="flex" flexDirection="column" mt={4}>
           <Typography variant="subtitle2">
             As of the date you specified above, how much cash do you have in
             DACA Deposit Account(s)?
@@ -179,24 +179,25 @@ export default function EbbaApplicationForm({
           </Box>
         </Box>
       )}
-      <Box display="flex" flexDirection="column" mt={3}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <Typography variant="body1">{`Calculated Borrowing Base: ${formatCurrency(
           calculatedBorrowingBase,
           "TBD"
         )}`}</Typography>
         <Typography variant="body2" color="textSecondary">
-          This borrowing base is calculated based on the numbers you entered
-          above and your current active contract with Bespoke.
+          This borrowing base is calculated based on the financial information
+          you entered above and your current active contract with Bespoke.
         </Typography>
       </Box>
-      <Box display="flex" flexDirection="column" mt={3}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <Box mb={1}>
           <Typography variant="subtitle1" color="textSecondary">
             File Attachment(s)
           </Typography>
           <Typography variant="body2" color="textSecondary">
             Please upload file attachment(s) that serve as proof of the above
-            numbers. One file attachment for each number is preferred.
+            financial information. One file attachment for each number is
+            preferred.
           </Typography>
         </Box>
         <FileUploader

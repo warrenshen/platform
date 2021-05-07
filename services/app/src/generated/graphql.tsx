@@ -4043,6 +4043,7 @@ export type EbbaApplications = {
   ebba_application_files_aggregate: EbbaApplicationFilesAggregate;
   expires_at: Scalars["date"];
   id: Scalars["uuid"];
+  is_deleted: Scalars["Boolean"];
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
@@ -4162,6 +4163,7 @@ export type EbbaApplicationsBoolExp = {
   ebba_application_files?: Maybe<EbbaApplicationFilesBoolExp>;
   expires_at?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  is_deleted?: Maybe<BooleanComparisonExp>;
   monthly_accounts_receivable?: Maybe<NumericComparisonExp>;
   monthly_cash?: Maybe<NumericComparisonExp>;
   monthly_inventory?: Maybe<NumericComparisonExp>;
@@ -4199,6 +4201,7 @@ export type EbbaApplicationsInsertInput = {
   ebba_application_files?: Maybe<EbbaApplicationFilesArrRelInsertInput>;
   expires_at?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
@@ -4318,6 +4321,7 @@ export type EbbaApplicationsOrderBy = {
   ebba_application_files_aggregate?: Maybe<EbbaApplicationFilesAggregateOrderBy>;
   expires_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  is_deleted?: Maybe<OrderBy>;
   monthly_accounts_receivable?: Maybe<OrderBy>;
   monthly_cash?: Maybe<OrderBy>;
   monthly_inventory?: Maybe<OrderBy>;
@@ -4352,6 +4356,8 @@ export enum EbbaApplicationsSelectColumn {
   /** column name */
   Id = "id",
   /** column name */
+  IsDeleted = "is_deleted",
+  /** column name */
   MonthlyAccountsReceivable = "monthly_accounts_receivable",
   /** column name */
   MonthlyCash = "monthly_cash",
@@ -4379,6 +4385,7 @@ export type EbbaApplicationsSetInput = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   expires_at?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
@@ -4479,6 +4486,8 @@ export enum EbbaApplicationsUpdateColumn {
   ExpiresAt = "expires_at",
   /** column name */
   Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
   /** column name */
   MonthlyAccountsReceivable = "monthly_accounts_receivable",
   /** column name */
@@ -18679,7 +18688,17 @@ export type UpdateEbbaApplicationMutationOptions = Apollo.BaseMutationOptions<
 export const GetOpenEbbaApplicationsDocument = gql`
   query GetOpenEbbaApplications {
     ebba_applications(
-      where: { approved_at: { _is_null: true } }
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { approved_at: { _is_null: true } }
+        ]
+      }
       order_by: [{ application_date: desc }, { created_at: desc }]
     ) {
       id
@@ -18743,7 +18762,17 @@ export type GetOpenEbbaApplicationsQueryResult = Apollo.QueryResult<
 export const GetClosedEbbaApplicationsDocument = gql`
   query GetClosedEbbaApplications {
     ebba_applications(
-      where: { approved_at: { _is_null: false } }
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { approved_at: { _is_null: false } }
+        ]
+      }
       order_by: [{ application_date: desc }, { created_at: desc }]
     ) {
       id

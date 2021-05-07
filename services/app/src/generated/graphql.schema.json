@@ -28201,6 +28201,22 @@
             "deprecationReason": null
           },
           {
+            "name": "is_deleted",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "monthly_accounts_receivable",
             "description": null,
             "args": [],
@@ -28970,6 +28986,16 @@
             "defaultValue": null
           },
           {
+            "name": "is_deleted",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "Boolean_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "monthly_accounts_receivable",
             "description": null,
             "type": {
@@ -29234,6 +29260,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "is_deleted",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null
@@ -30277,6 +30313,16 @@
             "defaultValue": null
           },
           {
+            "name": "is_deleted",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "monthly_accounts_receivable",
             "description": null,
             "type": {
@@ -30443,6 +30489,12 @@
             "deprecationReason": null
           },
           {
+            "name": "is_deleted",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "monthly_accounts_receivable",
             "description": "column name",
             "isDeprecated": false,
@@ -30575,6 +30627,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "is_deleted",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null
@@ -31244,6 +31306,12 @@
           },
           {
             "name": "id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "is_deleted",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
