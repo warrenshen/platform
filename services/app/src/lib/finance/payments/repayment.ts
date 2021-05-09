@@ -26,15 +26,50 @@ export type LoanToShow = {
   transaction: LoanTransaction;
 };
 
+export type LoanBeforeAfterPayment = {
+  loan_id: Loans["id"];
+  loan_identifier: Loans["identifier"];
+  loan_balance_before: LoanBalance;
+  loan_balance_after: LoanBalance;
+  transaction: LoanTransaction;
+};
+
+type CalculateRepaymentEffectRespData = {
+  loans_to_show: LoanToShow[];
+  amount_to_pay: number;
+  payable_amount_principal: number;
+  payable_amount_interest: number;
+};
+
+export function getLoansBeforeAfterPayment(
+  repaymentEffectData: CalculateRepaymentEffectRespData
+) {
+  return repaymentEffectData.loans_to_show.map((loanToShow: LoanToShow) => {
+    const beforeLoan = loanToShow.before_loan_balance;
+    const afterLoan = loanToShow.after_loan_balance;
+    return {
+      loan_id: loanToShow.loan_id,
+      loan_identifier: loanToShow.loan_identifier,
+      loan_balance_before: {
+        outstanding_principal_balance:
+          beforeLoan?.outstanding_principal_balance,
+        outstanding_interest: beforeLoan?.outstanding_interest,
+        outstanding_fees: beforeLoan?.outstanding_fees,
+      } as LoanBalance,
+      loan_balance_after: {
+        outstanding_principal_balance: afterLoan.outstanding_principal_balance,
+        outstanding_interest: afterLoan.outstanding_interest,
+        outstanding_fees: afterLoan.outstanding_fees,
+        transaction: loanToShow.transaction as LoanTransaction,
+      } as LoanBalance,
+    } as LoanBeforeAfterPayment;
+  });
+}
+
 export type CalculateRepaymentEffectResp = {
   status: string;
   msg: string;
-  data: {
-    loans_to_show: LoanToShow[];
-    amount_to_pay: number;
-    payable_amount_principal: number;
-    payable_amount_interest: number;
-  };
+  data: CalculateRepaymentEffectRespData;
 };
 
 export async function calculateRepaymentEffectMutation(req: {

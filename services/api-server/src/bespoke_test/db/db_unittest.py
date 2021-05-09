@@ -2,18 +2,18 @@
 	A class that helps you setup tests against a test SQLLite database
 """
 import datetime
-import sqlalchemy
 import unittest
-
 from pathlib import Path
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy_utils.functions import database_exists
 from typing import Callable
 
+import sqlalchemy
 from bespoke.db import models
 from bespoke_test.db import test_helper
 from manage import app
 from manage_async import app as async_app
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy_utils.functions import database_exists
+
 
 def get_db_url() -> str:
 	return 'sqlite:///tmp/test.db'

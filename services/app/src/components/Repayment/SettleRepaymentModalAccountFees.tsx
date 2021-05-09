@@ -107,14 +107,14 @@ export default function SettleRepaymentModalAccountFees({
               <FormControl>
                 <CurrencyInput
                   label={"Amount"}
-                  value={payment.requested_amount}
+                  value={payment.amount}
                   handleChange={(value) =>
                     setPayment({
                       ...payment,
                       amount: value,
                       items_covered: {
                         ...payment.items_covered,
-                        to_fees: value,
+                        to_account_fees: value,
                       },
                     })
                   }

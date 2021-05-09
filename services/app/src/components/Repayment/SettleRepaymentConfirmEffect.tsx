@@ -10,7 +10,7 @@ import {
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
-import { LoanBeforeAfterPayment } from "lib/types";
+import { LoanBeforeAfterPayment } from "lib/finance/payments/repayment";
 
 interface Props {
   productType: ProductTypeEnum | null;

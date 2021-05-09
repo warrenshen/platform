@@ -25,11 +25,10 @@ import {
   calculateRepaymentEffectMutation,
   CalculateRepaymentEffectResp,
   createRepaymentMutation,
-  LoanBalance,
+  getLoansBeforeAfterPayment,
+  LoanBeforeAfterPayment,
   LoanToShow,
-  LoanTransaction,
 } from "lib/finance/payments/repayment";
-import { LoanBeforeAfterPayment } from "lib/types";
 import { useContext, useEffect, useState } from "react";
 
 interface Props {
@@ -39,7 +38,7 @@ interface Props {
   handleClose: () => void;
 }
 
-function CreateRepaymentModal({
+export default function CreateRepaymentModal({
   companyId,
   productType,
   initiallySelectedLoanIds,
@@ -80,8 +79,7 @@ function CreateRepaymentModal({
       loan_ids: initiallySelectedLoanIds,
       requested_to_principal: null,
       requested_to_interest: null,
-      to_principal: null,
-      to_interest: null,
+      requested_to_account_fees: null,
     },
     company_bank_account_id: null,
   });
@@ -166,29 +164,8 @@ function CreateRepaymentModal({
         },
       });
       setLoansBeforeAfterPayment(
-        repaymentEffectData.loans_to_show.map((loanToShow: LoanToShow) => {
-          const beforeLoan = loanToShow.before_loan_balance;
-          const afterLoan = loanToShow.after_loan_balance;
-          return {
-            loan_id: loanToShow.loan_id,
-            loan_identifier: loanToShow.loan_identifier,
-            loan_balance_before: {
-              outstanding_principal_balance:
-                beforeLoan?.outstanding_principal_balance,
-              outstanding_interest: beforeLoan?.outstanding_interest,
-              outstanding_fees: beforeLoan?.outstanding_fees,
-            } as LoanBalance,
-            loan_balance_after: {
-              outstanding_principal_balance:
-                afterLoan.outstanding_principal_balance,
-              outstanding_interest: afterLoan.outstanding_interest,
-              outstanding_fees: afterLoan.outstanding_fees,
-              transaction: loanToShow.transaction as LoanTransaction,
-            } as LoanBalance,
-          } as LoanBeforeAfterPayment;
-        })
+        getLoansBeforeAfterPayment(repaymentEffectData)
       );
-
       setIsOnSelectLoans(false);
     }
   };
@@ -215,8 +192,8 @@ function CreateRepaymentModal({
               payment.items_covered.requested_to_principal || 0.0, // If user leaves this blank, coerce to zero.
             requested_to_interest:
               payment.items_covered.requested_to_interest || 0.0, // If user leaves this blank, coerce to zero.
-            to_principal: payment.items_covered.to_principal,
-            to_interest: payment.items_covered.to_intereset,
+            requested_to_account_fees:
+              payment.items_covered.requested_to_account_fees || 0.0, // If user leaves this blank, coerce to zero.
           },
           company_bank_account_id: payment.company_bank_account_id,
         },
@@ -312,5 +289,3 @@ function CreateRepaymentModal({
     </Modal>
   );
 }
-
-export default CreateRepaymentModal;

@@ -510,6 +510,9 @@ def create_repayment(
 		if len(loan_ids) <= 0:
 			raise errors.Error('At least one loan ID must be specified')
 
+	if 'requested_to_account_fees' not in items_covered:
+		raise errors.Error('Requested to account fees must be specified', details=err_details)
+
 	payment_id = None
 
 	with session_scope(session_maker) as session:
@@ -534,11 +537,10 @@ def create_repayment(
 			if len(closed_loan_ids) > 0:
 				raise errors.Error('Some selected loans are closed already')
 
-		company_id_to_obj, err = contract_util.get_active_contracts_by_company_ids([company_id], session, err_details={'method': 'create repayment'})
+		contract_obj, err = contract_util.get_active_contract_by_company_id(company_id, session)
 		if err:
 			raise err
 
-		contract_obj = company_id_to_obj[company_id]
 		timezone, err = contract_obj.get_timezone_str()
 		if err:
 			raise err
@@ -585,7 +587,7 @@ def schedule_repayment(
 	req: ScheduleRepaymentReqDict,
 	user_id: str,
 	session_maker: Callable,
-	is_line_of_credit: bool,
+	is_line_of_credit: bool, # Not used.
 ) -> Tuple[str, errors.Error]:
 
 	err_details = {'company_id': company_id, 'payment_id': payment_id, 'method': 'schedule_repayment'}
@@ -617,7 +619,7 @@ def schedule_repayment(
 		# This is because the bank may decide to initiate the reverse draft earlier than when
 		# the customer requested the bank to.
 		################################
-		if not payment.method == PaymentMethodEnum.REVERSE_DRAFT_ACH:
+		if payment.method != PaymentMethodEnum.REVERSE_DRAFT_ACH:
 			raise errors.Error('Payment method must be Reverse Draft ACH', details=err_details)
 
 		if payment_amount > payment.requested_amount:
@@ -664,14 +666,17 @@ def settle_repayment(
 	if not settlement_date:
 		raise errors.Error('settlement_date must be specified')
 
-	if 'to_user_credit' not in items_covered:
-		raise errors.Error('items_covered.to_user_credit must be specified', details=err_details)
+	if 'to_account_fees' not in items_covered or 'to_user_credit' not in items_covered:
+		raise errors.Error('To account fees and to user credit must be specified', details=err_details)
 
+	to_account_fees = items_covered['to_account_fees']
 	to_user_credit = items_covered['to_user_credit']
-	to_account_fees = items_covered['to_account_fees'] if 'to_account_fees' in items_covered else 0.0
+
+	if not number_util.is_currency_rounded(to_account_fees):
+		raise errors.Error('To account fees specified is not rounded to the penny', details=err_details)
 
 	if not number_util.is_currency_rounded(to_user_credit):
-		raise errors.Error('To user credit specified is not rounded to the penny')
+		raise errors.Error('To user credit specified is not rounded to the penny', details=err_details)
 
 	if is_line_of_credit:
 		if 'to_principal' not in items_covered or 'to_interest' not in items_covered:
@@ -681,12 +686,12 @@ def settle_repayment(
 		to_interest = items_covered['to_interest']
 
 		if not number_util.is_currency_rounded(to_principal):
-			raise errors.Error('To principal specified is not rounded to the penny')
+			raise errors.Error('To principal specified is not rounded to the penny', details=err_details)
 
 		if not number_util.is_currency_rounded(to_interest):
-			raise errors.Error('To interest specified is not rounded to the penny')
+			raise errors.Error('To interest specified is not rounded to the penny', details=err_details)
 
-		computed_payment_amount = to_principal + to_interest + to_user_credit + to_account_fees
+		computed_payment_amount = to_principal + to_interest + to_account_fees + to_user_credit
 		if not number_util.float_eq(payment_amount, computed_payment_amount):
 			raise errors.Error(f'Sum of amount to principal ({number_util.to_dollar_format(to_principal)}), amount to interest ({number_util.to_dollar_format(to_interest)}), and credit to user ({number_util.to_dollar_format(to_user_credit)}) does not equal payment amount ({number_util.to_dollar_format(payment_amount)})', details=err_details)
 	else:
@@ -721,7 +726,7 @@ def settle_repayment(
 
 			transactions_sum += cur_sum
 
-		computed_payment_amount = transactions_sum + to_user_credit + to_account_fees
+		computed_payment_amount = transactions_sum + to_account_fees + to_user_credit
 		if not number_util.float_eq(computed_payment_amount, payment_amount):
 			raise errors.Error(f'Sum of transactions and credit to user ({computed_payment_amount}) does not equal payment amount ({payment_amount})', details=err_details)
 

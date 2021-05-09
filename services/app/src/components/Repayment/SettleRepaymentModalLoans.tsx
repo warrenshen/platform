@@ -24,11 +24,11 @@ import {
   calculateRepaymentEffectMutation,
   CalculateRepaymentEffectResp,
   LoanBalance,
+  LoanBeforeAfterPayment,
   LoanToShow,
   LoanTransaction,
   settleRepaymentMutation,
 } from "lib/finance/payments/repayment";
-import { LoanBeforeAfterPayment } from "lib/types";
 import { useEffect, useMemo, useState } from "react";
 
 interface Props {

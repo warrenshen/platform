@@ -104,7 +104,9 @@ class TestUndoRepayment(db_unittest.TestCase):
 
 		items_covered = payment_util.PaymentItemsCoveredDict(
 			loan_ids=loan_ids,
-			to_user_credit=0.0
+			requested_to_account_fees=0.0,
+			to_account_fees=0.0,
+			to_user_credit=0.0,
 		)
 		# Make sure we have a payment already registered in the system that we are settling.
 		payment_id, err = repayment_util.create_repayment(

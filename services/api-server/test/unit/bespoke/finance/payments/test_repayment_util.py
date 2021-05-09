@@ -479,7 +479,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 					# From 02/10/2020 to 02/15/2020 (the deposit_date) and then the fees
 					# stop accumulating since its a full repayment on 02/15/2020
 					transaction=TransactionInputDict(
-						amount=number_util.round_currency(10.0 + (daily_interest1 * 20) + daily_interest1 * 5 * 0.25), 
+						amount=number_util.round_currency(10.0 + (daily_interest1 * 20) + daily_interest1 * 5 * 0.25),
 						to_principal=10.0,
 						to_interest=0.4, # (daily_interest1 * 20)
 						to_fees=number_util.round_currency(daily_interest1 * 5 * 0.25)
@@ -928,7 +928,10 @@ class TestCreatePayment(db_unittest.TestCase):
 				requested_payment_date=payment_date,
 				payment_date=None,
 				settlement_date='unused',
-				items_covered={ 'loan_ids': loan_ids },
+				items_covered={
+					'loan_ids': loan_ids,
+					'requested_to_account_fees': 0.0,
+				},
 				company_bank_account_id=test['company_bank_account_id'],
 				customer_note=''
 			),
@@ -1080,7 +1083,10 @@ class TestCreatePayment(db_unittest.TestCase):
 				requested_payment_date='10/10/2020',
 				payment_date=None,
 				settlement_date='unused',
-				items_covered={ 'loan_ids': [str(uuid.uuid4())] },
+				items_covered={
+					'loan_ids': [str(uuid.uuid4())],
+					'requested_to_account_fees': 0.0,
+				},
 				company_bank_account_id=str(uuid.uuid4()),
 				customer_note=''
 			),
@@ -1117,7 +1123,10 @@ class TestCreatePayment(db_unittest.TestCase):
 				requested_payment_date='10/10/2020',
 				payment_date=None,
 				settlement_date='unused',
-				items_covered={ 'loan_ids': [loan_id] },
+				items_covered={
+					'loan_ids': [loan_id],
+					'requested_to_account_fees': 0.0,
+				},
 				company_bank_account_id=str(uuid.uuid4()),
 				customer_note=''
 			),

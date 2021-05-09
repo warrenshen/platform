@@ -141,7 +141,10 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 				requested_payment_date='10/10/2020',
 				payment_date=None,
 				settlement_date='10/10/2020', # unused
-				items_covered={ 'loan_ids': repayment_loan_ids },
+				items_covered={
+					'loan_ids': repayment_loan_ids,
+					'requested_to_account_fees': 0.0,
+				},
 				company_bank_account_id=payment_dict['company_bank_account_id'],
 				customer_note=''
 			),
@@ -173,6 +176,9 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 			if 'to_user_credit' not in items_covered:
 				items_covered['to_user_credit'] = 0.0
 			items_covered['loan_ids'] = repayment_loan_ids
+
+		if 'to_account_fees' not in items_covered:
+			items_covered['to_account_fees'] = 0.0
 
 		req = repayment_util.SettleRepaymentReqDict(
 			company_id=str(company_id),
@@ -1133,6 +1139,7 @@ class TestSettleRepayment(db_unittest.TestCase):
 			settlement_date='10/10/20',
 			items_covered={
 				'loan_ids': [str(uuid.uuid4())],
+				'to_account_fees': 0.0,
 				'to_user_credit': 0.0,
 			},
 			transaction_inputs=[

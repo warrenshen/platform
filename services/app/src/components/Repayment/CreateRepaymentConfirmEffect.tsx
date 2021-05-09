@@ -10,7 +10,7 @@ import {
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
-import { LoanBeforeAfterPayment } from "lib/types";
+import { LoanBeforeAfterPayment } from "lib/finance/payments/repayment";
 
 interface Props {
   companyId: Companies["id"];

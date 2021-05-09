@@ -13,7 +13,7 @@ import { ArrowRightAlt } from "@material-ui/icons";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import { Loans } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
-import { LoanBeforeAfterPayment } from "lib/types";
+import { LoanBeforeAfterPayment } from "lib/finance/payments/repayment";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>

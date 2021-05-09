@@ -7,7 +7,8 @@ from bespoke.audit import events
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
-from bespoke.finance.payments import payment_util, repayment_util_fees
+from bespoke.finance.payments import (payment_util, repayment_util,
+                                      repayment_util_fees)
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from mypy_extensions import TypedDict
@@ -128,18 +129,24 @@ class ScheduleAccountLevelFeeRepaymentView(MethodView):
 		for key in required_keys:
 			if key not in form:
 				return handler_util.make_error_response(
-					'Missing key {} from schedule account level fee repayment'.format(key))
+					'Missing key {} from schedule repayment request'.format(key))
 
 		user_session = auth_util.UserSession.from_session()
 
-		with models.session_scope(current_app.session_maker) as session:
-			payment_id, err = repayment_util_fees.schedule_repayment_of_fee(
-				cast(repayment_util_fees.ScheduleRepayFeeReqDict, form),
-				user_session.get_user_id(),
-				session
-			)
-			if err:
-				raise err
+		if not user_session.is_bank_or_this_company_admin(form['company_id']):
+			return handler_util.make_error_response('Access Denied')
+
+		company_id = form['company_id']
+		payment_id = form['payment_id']
+		is_line_of_credit = False # Not used by method.
+		payment_id, err = repayment_util.schedule_repayment(
+			company_id,
+			payment_id,
+			cast(repayment_util.ScheduleRepaymentReqDict, form),
+			user_session.get_user_id(),
+			current_app.session_maker,
+			is_line_of_credit=is_line_of_credit,
+		)
 
 		if err:
 			return handler_util.make_error_response(err)

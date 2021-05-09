@@ -134,6 +134,7 @@ export default function LoansDataGrid({
   const columns = useMemo(
     () => [
       {
+        fixed: true,
         visible: !!actionItems && actionItems.length > 0,
         dataField: "action",
         caption: "Action",
