@@ -22079,7 +22079,7 @@ export const GetPaymentsForCompanyDocument = gql`
                 { is_deleted: { _eq: false } }
               ]
             }
-            { type: { _eq: "repayment" } }
+            { type: { _in: ["repayment", "repayment_account_fee"] } }
             { settlement_date: { _is_null: false } }
           ]
         }

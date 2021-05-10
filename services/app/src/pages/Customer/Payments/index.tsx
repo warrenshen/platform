@@ -3,7 +3,7 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import CustomerPaymentsPageContent from "pages/Customer/Payments/PaymentsPageContent";
 import { useContext } from "react";
 
-function CustomerPaymentsPage() {
+export default function CustomerPaymentsPage() {
   const {
     user: { companyId, productType },
   } = useContext(CurrentUserContext);
@@ -16,5 +16,3 @@ function CustomerPaymentsPage() {
     </Page>
   );
 }
-
-export default CustomerPaymentsPage;
