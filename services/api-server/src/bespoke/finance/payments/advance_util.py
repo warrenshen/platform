@@ -296,10 +296,10 @@ def delete_advance(
 			raise err
 
 		success, err = payment_util.delete_payment(
-				payment_type=db_constants.PaymentType.ADVANCE,
-				payment_id=payment_id,
-				session=session
-			)
+			payment_types=[db_constants.PaymentType.ADVANCE],
+			payment_id=payment_id,
+			session=session
+		)
 		if err:
 			raise err
 

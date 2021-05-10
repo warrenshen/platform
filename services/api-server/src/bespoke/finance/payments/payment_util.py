@@ -449,7 +449,11 @@ def unsettle_payment(payment_type: str, payment_id: str, session: Session) -> Tu
 	return True, None
 
 @errors.return_error_tuple
-def delete_payment(payment_type: str, payment_id: str, session: Session) -> Tuple[bool, errors.Error]:
+def delete_payment(
+	payment_types: List[str],
+	payment_id: str,
+	session: Session,
+) -> Tuple[bool, errors.Error]:
 	# Mark payment as not settled
 	# Find any additional payments created from it, and mark them as is_deleted
 	# Mark transactions as is_deleted
@@ -460,13 +464,13 @@ def delete_payment(payment_type: str, payment_id: str, session: Session) -> Tupl
 		).first())
 
 	if not payment:
-		raise errors.Error(f'No {payment_type} found to delete')
+		raise errors.Error(f'No payment found to delete')
 
 	if payment.settled_at:
-		raise errors.Error(f'Cannot delete a {payment_type} which is still settled. You must undo it first')
+		raise errors.Error(f'Cannot delete a payment of type {payment.type} which is still settled. You must undo it first')
 
-	if payment.type != payment_type:
-		raise errors.Error(f'Cannot delete this payment which of type "{payment.type}" while you indicated you want to delete a "{payment_type}"')
+	if payment.type not in payment_types:
+		raise errors.Error(f'Cannot delete this payment which of type "{payment.type}" when you indicated you want to delete a payment of type "{payment_types}"')
 
 	originated_payments = cast(
 		List[models.Payment],

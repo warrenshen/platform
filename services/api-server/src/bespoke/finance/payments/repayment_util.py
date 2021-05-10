@@ -1225,10 +1225,13 @@ def delete_repayment(
 
 	with session_scope(session_maker) as session:
 		success, err = payment_util.delete_payment(
-				payment_type=db_constants.PaymentType.REPAYMENT,
-				payment_id=req['payment_id'],
-				session=session
-			)
+			payment_types=[
+				db_constants.PaymentType.REPAYMENT,
+				db_constants.PaymentType.REPAYMENT_OF_ACCOUNT_FEE,
+			],
+			payment_id=req['payment_id'],
+			session=session
+		)
 		if err:
 			raise err
 
