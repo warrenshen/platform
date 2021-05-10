@@ -876,11 +876,14 @@ def settle_repayment(
 		if payment.type != db_constants.PaymentType.REPAYMENT:
 			raise errors.Error('Can only apply repayments against loans', details=err_details)
 
+		################################
+		# Validations
+		# Note that we do not enforce payment.deposit_date >= payment.payment_date.
+		# This is because the bank may decide to set the deposit date to earlier than the
+		# payment date in case the payment date is incorrect.
+		################################
 		if not payment.payment_date:
 			raise errors.Error('Payment must have a payment date')
-
-		if deposit_date < payment.payment_date:
-			raise errors.Error('Deposit date cannot be before the payment date', details=err_details)
 
 		# Note: it is important that we use `loan_ids` to create `loan_dicts`.
 		# This is because the order of `loan_ids` maps to the order of
