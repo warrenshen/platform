@@ -99,17 +99,53 @@ def import_payor_vendor_users(
 			continue
 
 		existing_user_by_email = session.query(models.User).filter(
-				models.User.email == parsed_email
-			).first()
+			models.User.email == parsed_email
+		).first()
 
 		# If there is a user (who does not belong to the target payor / vendor)
-		# with a conflicting email, update the email of the user intend to create.
+		# with a conflicting email, adjust the email of the user we intend to create.
+		# Adjustment: name@email.com => name+{customer_short_name}@email.com.
 		if existing_user_by_email:
 			email_fragment_one, email_fragment_two = parsed_email.split('@')
 			customer_short_name = parsed_customer_name.split(' ')[0].lower()
 			email_fragment_one += f'+{customer_short_name}'
-			parsed_email = f'{email_fragment_one}@{email_fragment_two}'
-			print(f'[{index + 1} of {users_count}] User with email {email} already exists, setting email to {parsed_email}...')
+			new_parsed_email = f'{email_fragment_one}@{email_fragment_two}'
+			print(f'[{index + 1} of {users_count}] User with email {parsed_email} already exists, setting email to {new_parsed_email}...')
+			parsed_email = new_parsed_email
+
+		existing_payor_vendor_user = session.query(models.User).filter(
+				models.User.company_id == payor_vendor.id
+			).filter(
+				models.User.first_name == parsed_first_name
+			).filter(
+				models.User.last_name == parsed_last_name
+			).filter(
+				models.User.email == parsed_email
+			).first()
+
+		if existing_payor_vendor_user:
+			print(f'[{index + 1} of {users_count}] User {parsed_first_name} ({parsed_email}) for {payor_vendor.name} already exists')
+
+			if existing_payor_vendor_user.phone_number != parsed_phone_number:
+				existing_payor_vendor_user.phone_number = parsed_phone_number
+
+			continue
+
+		existing_user_by_email = session.query(models.User).filter(
+			models.User.email == parsed_email
+		).first()
+
+		# If there is a user (who does not belong to the target payor / vendor
+		# but does belong to the target customer) with a conflicting email,
+		# adjust the email of the user we intend to create.
+		# Adjustment: name+{customer_short_name}@email.com => name+{customer_short_name}+{payor_vendor_short_name}@email.com.
+		if existing_user_by_email:
+			email_fragment_one, email_fragment_two = parsed_email.split('@')
+			payor_vendor_short_name = parsed_payor_vendor_name.split(' ')[0].lower()
+			email_fragment_one += f'+{payor_vendor_short_name}'
+			new_parsed_email = f'{email_fragment_one}@{email_fragment_two}'
+			print(f'[{index + 1} of {users_count}] User with email {parsed_email} already exists, setting email to {new_parsed_email}...')
+			parsed_email = new_parsed_email
 
 		existing_payor_vendor_user = session.query(models.User).filter(
 				models.User.company_id == payor_vendor.id
