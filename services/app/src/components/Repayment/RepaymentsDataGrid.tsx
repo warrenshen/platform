@@ -59,12 +59,23 @@ function RepaymentsDataGrid({
       payments.map((payment) => ({
         ...payment,
         amount: isOther ? payment.requested_amount : payment.amount,
+        submitted_by_name: payment.submitted_by_user?.full_name,
       })),
     [isOther, payments]
   );
   const columns = useMemo(
     () => [
       {
+        dataField: "id",
+        caption: "Payment ID",
+        width: 140,
+        calculateCellValue: ({ id }: PaymentLimitedFragment) => id,
+        cellRender: (params: ValueFormatterParams) => (
+          <PaymentDrawerLauncher paymentId={params.row.data.id as string} />
+        ),
+      },
+      {
+        dataField: "submitted_at",
         caption: "Submitted At",
         width: ColumnWidths.Date,
         alignment: "right",
@@ -78,13 +89,9 @@ function RepaymentsDataGrid({
         ),
       },
       {
-        dataField: "id",
-        caption: "Payment ID",
-        width: 140,
-        calculateCellValue: ({ id }: PaymentLimitedFragment) => id,
-        cellRender: (params: ValueFormatterParams) => (
-          <PaymentDrawerLauncher paymentId={params.row.data.id as string} />
-        ),
+        dataField: "submitted_by_name",
+        caption: "Submitted By",
+        minWidth: ColumnWidths.MinWidth,
       },
       {
         visible: !!actionItems && actionItems.length > 0,

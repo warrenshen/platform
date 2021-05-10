@@ -10,10 +10,6 @@ query GetPayment($id: uuid!) {
       id
       full_name
     }
-    submitted_by_user {
-      id
-      full_name
-    }
   }
 }
 
@@ -36,10 +32,6 @@ query GetPaymentForSettlement($id: uuid!) {
     company_bank_account {
       id
       ...BankAccount
-    }
-    submitted_by_user {
-      id
-      full_name
     }
     invoice {
       id

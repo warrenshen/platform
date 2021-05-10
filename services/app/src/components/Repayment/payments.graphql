@@ -19,10 +19,6 @@ subscription GetPayments {
       id
       name
     }
-    submitted_by_user {
-      id
-      full_name
-    }
     settled_by_user {
       id
       full_name
@@ -58,10 +54,6 @@ subscription GetSubmittedPayments {
     company {
       id
       name
-    }
-    submitted_by_user {
-      id
-      full_name
     }
     invoice {
       id

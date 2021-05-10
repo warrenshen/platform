@@ -122,6 +122,10 @@ fragment PaymentLimited on payments {
   deposit_date
   settlement_date
   items_covered
+  submitted_by_user {
+    id
+    full_name
+  }
 }
 
 ## Files

@@ -15454,7 +15454,6 @@ export type GetAdvancesQuery = {
   payments: Array<
     Pick<Payments, "id"> & {
       company: Pick<Companies, "id" | "name">;
-      submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
     } & PaymentFragment
   >;
 };
@@ -16203,7 +16202,6 @@ export type GetPaymentQuery = {
     Pick<Payments, "id"> & {
       company: Pick<Companies, "id" | "name">;
       settled_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
-      submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
     } & PaymentLimitedFragment
   >;
 };
@@ -16224,7 +16222,6 @@ export type GetPaymentForSettlementQuery = {
       company_bank_account?: Maybe<
         Pick<BankAccounts, "id"> & BankAccountFragment
       >;
-      submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
       invoice?: Maybe<
         Pick<Invoices, "id"> & {
           payor?: Maybe<Pick<Payors, "id"> & BankPayorFragment>;
@@ -16240,7 +16237,6 @@ export type GetPaymentsSubscription = {
   payments: Array<
     Pick<Payments, "id"> & {
       company: Pick<Companies, "id" | "name">;
-      submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
       settled_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
       invoice?: Maybe<
         Pick<Invoices, "id"> & { payor?: Maybe<Pick<Payors, "id" | "name">> }
@@ -16257,7 +16253,6 @@ export type GetSubmittedPaymentsSubscription = {
   payments: Array<
     Pick<Payments, "id"> & {
       company: Pick<Companies, "id" | "name">;
-      submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
       invoice?: Maybe<
         Pick<Invoices, "id"> & { payor?: Maybe<Pick<Payors, "id" | "name">> }
       >;
@@ -16642,7 +16637,7 @@ export type PaymentLimitedFragment = Pick<
   | "deposit_date"
   | "settlement_date"
   | "items_covered"
->;
+> & { submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">> };
 
 export type FileFragment = Pick<Files, "id" | "name" | "path">;
 
@@ -17140,7 +17135,10 @@ export type PaymentFragment = Pick<
   | "deposit_date"
   | "settlement_date"
   | "items_covered"
-> & { company_bank_account?: Maybe<BankAccountFragment> };
+> & {
+  company_bank_account?: Maybe<BankAccountFragment>;
+  submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
+};
 
 export type TransactionFragment = Pick<
   Transactions,
@@ -17327,6 +17325,10 @@ export const PaymentLimitedFragmentDoc = gql`
     deposit_date
     settlement_date
     items_covered
+    submitted_by_user {
+      id
+      full_name
+    }
   }
 `;
 export const FileFragmentDoc = gql`
@@ -17726,6 +17728,10 @@ export const PaymentFragmentDoc = gql`
     company_bank_account {
       ...BankAccount
     }
+    submitted_by_user {
+      id
+      full_name
+    }
   }
   ${BankAccountFragmentDoc}
 `;
@@ -17792,10 +17798,6 @@ export const GetAdvancesDocument = gql`
       company {
         id
         name
-      }
-      submitted_by_user {
-        id
-        full_name
       }
     }
   }
@@ -21795,10 +21797,6 @@ export const GetPaymentDocument = gql`
         id
         full_name
       }
-      submitted_by_user {
-        id
-        full_name
-      }
     }
   }
   ${PaymentLimitedFragmentDoc}
@@ -21870,10 +21868,6 @@ export const GetPaymentForSettlementDocument = gql`
       company_bank_account {
         id
         ...BankAccount
-      }
-      submitted_by_user {
-        id
-        full_name
       }
       invoice {
         id
@@ -21961,10 +21955,6 @@ export const GetPaymentsDocument = gql`
         id
         name
       }
-      submitted_by_user {
-        id
-        full_name
-      }
       settled_by_user {
         id
         full_name
@@ -22033,10 +22023,6 @@ export const GetSubmittedPaymentsDocument = gql`
       company {
         id
         name
-      }
-      submitted_by_user {
-        id
-        full_name
       }
       invoice {
         id

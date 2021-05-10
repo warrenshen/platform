@@ -166,6 +166,10 @@ fragment Payment on payments {
   company_bank_account {
     ...BankAccount
   }
+  submitted_by_user {
+    id
+    full_name
+  }
 }
 
 fragment Transaction on transactions {
