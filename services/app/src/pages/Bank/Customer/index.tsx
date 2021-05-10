@@ -4,6 +4,7 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Page from "components/Shared/Page";
 import PrivateRoute from "components/Shared/PrivateRoute";
 import {
+  Companies,
   ProductTypeEnum,
   useGetCustomerForBankQuery,
   UserRolesEnum,
@@ -60,7 +61,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const getCustomerPaths = (productType: ProductTypeEnum) => [
+const getCustomerPaths = (productType: ProductTypeEnum | null) => [
   {
     path: bankRoutes.customer.overview,
     component: BankCustomerOverviewSubpage,
@@ -73,22 +74,29 @@ const getCustomerPaths = (productType: ProductTypeEnum) => [
   },
   {
     visible:
-      productType === ProductTypeEnum.InventoryFinancing ||
-      productType === ProductTypeEnum.PurchaseMoneyFinancing,
+      !!productType &&
+      [
+        ProductTypeEnum.InventoryFinancing,
+        ProductTypeEnum.PurchaseMoneyFinancing,
+      ].includes(productType),
     path: bankRoutes.customer.purchaseOrders,
     component: BankCustomerPurchaseOrdersSubpage,
     label: "Purchase Orders",
   },
   {
-    visible: productType === ProductTypeEnum.LineOfCredit,
+    visible:
+      !!productType && [ProductTypeEnum.LineOfCredit].includes(productType),
     path: bankRoutes.customer.ebbaApplications,
     component: BankCustomerEbbaApplicationsSubpage,
     label: "Borrowing Base",
   },
   {
     visible:
-      productType === ProductTypeEnum.InvoiceFinancing ||
-      productType === ProductTypeEnum.PurchaseMoneyFinancing,
+      !!productType &&
+      [
+        ProductTypeEnum.InvoiceFinancing,
+        ProductTypeEnum.PurchaseMoneyFinancing,
+      ].includes(productType),
     path: bankRoutes.customer.invoices,
     component: BankCustomerInvoicesSubpage,
     label: "Invoices",
@@ -99,15 +107,24 @@ const getCustomerPaths = (productType: ProductTypeEnum) => [
     label: "Payments",
   },
   {
-    visible: productType !== ProductTypeEnum.InvoiceFinancing,
+    visible:
+      !!productType &&
+      [
+        ProductTypeEnum.InventoryFinancing,
+        ProductTypeEnum.LineOfCredit,
+        ProductTypeEnum.PurchaseMoneyFinancing,
+      ].includes(productType),
     path: bankRoutes.customer.vendors,
     component: BankCustomerVendorsSubpage,
     label: "Vendors",
   },
   {
     visible:
-      productType === ProductTypeEnum.InvoiceFinancing ||
-      productType === ProductTypeEnum.PurchaseMoneyFinancing,
+      !!productType &&
+      [
+        ProductTypeEnum.InvoiceFinancing,
+        ProductTypeEnum.PurchaseMoneyFinancing,
+      ].includes(productType),
     path: bankRoutes.customer.payors,
     component: BankCustomerPayorsSubpage,
     label: "Payors",
@@ -129,9 +146,9 @@ const getCustomerPaths = (productType: ProductTypeEnum) => [
   },
 ];
 
-function BankCustomerPage() {
+export default function BankCustomerPage() {
   const { companyId } = useParams<{
-    companyId: string;
+    companyId: Companies["id"];
   }>();
   const { url, path } = useRouteMatch();
   const location = useLocation();
@@ -145,7 +162,7 @@ function BankCustomerPage() {
 
   const customer = data?.companies_by_pk;
   const customerName = customer?.name;
-  const productType = customer?.contract?.product_type || ProductTypeEnum.None;
+  const productType = customer?.contract?.product_type || null;
 
   return (
     <Page appBarTitle={customerName || ""}>
@@ -180,23 +197,23 @@ function BankCustomerPage() {
               ))}
           </List>
         </Box>
-        <Box className={classes.content}>
-          {getCustomerPaths(productType).map((customerPath) => (
-            <PrivateRoute
-              key={customerPath.path}
-              path={`${path}${customerPath.path}`}
-              requiredRoles={[
-                UserRolesEnum.BankAdmin,
-                UserRolesEnum.BankReadOnly,
-              ]}
-            >
-              {customerPath.component({ companyId, productType })}
-            </PrivateRoute>
-          ))}
-        </Box>
+        {productType && (
+          <Box className={classes.content}>
+            {getCustomerPaths(productType).map((customerPath) => (
+              <PrivateRoute
+                key={customerPath.path}
+                path={`${path}${customerPath.path}`}
+                requiredRoles={[
+                  UserRolesEnum.BankAdmin,
+                  UserRolesEnum.BankReadOnly,
+                ]}
+              >
+                {customerPath.component({ companyId, productType })}
+              </PrivateRoute>
+            ))}
+          </Box>
+        )}
       </Box>
     </Page>
   );
 }
-
-export default BankCustomerPage;

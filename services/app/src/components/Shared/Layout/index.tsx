@@ -140,21 +140,25 @@ const getCustomerNavItems = (
       link: customerRoutes.overview,
     },
     {
-      visible: productType !== null,
+      visible: !!productType,
       iconNode: LoansIcon,
       text: "Loans",
       link: customerRoutes.loans,
     },
     {
       visible:
-        productType === ProductTypeEnum.InventoryFinancing ||
-        productType === ProductTypeEnum.PurchaseMoneyFinancing,
+        !!productType &&
+        [
+          ProductTypeEnum.InventoryFinancing,
+          ProductTypeEnum.PurchaseMoneyFinancing,
+        ].includes(productType),
       iconNode: PurchaseOrdersIcon,
       text: "Purchase Orders",
       link: customerRoutes.purchaseOrders,
     },
     {
-      visible: productType === ProductTypeEnum.LineOfCredit,
+      visible:
+        !!productType && [ProductTypeEnum.LineOfCredit].includes(productType),
       iconNode: PurchaseOrdersIcon,
       text: "Borrowing Base",
       link: customerRoutes.ebbaApplications,
@@ -162,8 +166,11 @@ const getCustomerNavItems = (
     },
     {
       visible:
-        productType === ProductTypeEnum.InvoiceFinancing ||
-        productType === ProductTypeEnum.PurchaseMoneyFinancing,
+        !!productType &&
+        [
+          ProductTypeEnum.InvoiceFinancing,
+          ProductTypeEnum.PurchaseMoneyFinancing,
+        ].includes(productType),
       iconNode: InvoicesIcon,
       text: "Invoices",
       link: customerRoutes.invoices,
@@ -174,15 +181,24 @@ const getCustomerNavItems = (
       link: customerRoutes.payments,
     },
     {
-      visible: productType !== ProductTypeEnum.InvoiceFinancing,
+      visible:
+        !!productType &&
+        [
+          ProductTypeEnum.InventoryFinancing,
+          ProductTypeEnum.LineOfCredit,
+          ProductTypeEnum.PurchaseMoneyFinancing,
+        ].includes(productType),
       iconNode: VendorsIcon,
       text: "Vendors",
       link: customerRoutes.vendors,
     },
     {
       visible:
-        productType === ProductTypeEnum.InvoiceFinancing ||
-        productType === ProductTypeEnum.PurchaseMoneyFinancing,
+        !!productType &&
+        [
+          ProductTypeEnum.InvoiceFinancing,
+          ProductTypeEnum.PurchaseMoneyFinancing,
+        ].includes(productType),
       iconNode: PayorsIcon,
       text: "Payors",
       link: customerRoutes.payors,
