@@ -7,7 +7,8 @@ import {
   PaymentsInsertInput,
   useGetPaymentForSettlementQuery,
 } from "generated/graphql";
-import { PaymentTypeEnum } from "lib/enum";
+import { addBizDays } from "lib/date";
+import { PaymentMethodEnum, PaymentTypeEnum } from "lib/enum";
 import { useState } from "react";
 
 interface Props {
@@ -36,6 +37,10 @@ export default function SettleRepaymentModal({
           (existingPayment.invoice?.payor ||
             existingPayment.company) as BankPayorFragment
         );
+        const initialDepositDate = addBizDays(
+          existingPayment.payment_date,
+          existingPayment.method === PaymentMethodEnum.ReverseDraftACH ? 1 : 0
+        );
         setPayment({
           id: existingPayment.id,
           company_id: existingPayment.company_id,
@@ -47,10 +52,11 @@ export default function SettleRepaymentModal({
           amount: existingPayment.amount || existingPayment.requested_amount,
           requested_payment_date: existingPayment.requested_payment_date,
           payment_date: existingPayment.payment_date,
-          deposit_date: existingPayment.payment_date, // Default deposit_date to payment_date
+          // Default deposit_date to payment_date.
+          deposit_date: initialDepositDate,
           settlement_date:
             existingPayment.type === PaymentTypeEnum.RepaymentOfAccountFee
-              ? existingPayment.payment_date
+              ? initialDepositDate
               : null,
           items_covered: {
             loan_ids: existingPayment.items_covered.loan_ids || [],

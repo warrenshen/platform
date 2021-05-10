@@ -14,6 +14,7 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { scheduleAccountLevelFeeRepaymentMutation } from "lib/api/payments";
+import { addBizDays } from "lib/date";
 import { PaymentTypeEnum } from "lib/enum";
 import {
   computeSettlementDateForPayment,
@@ -68,8 +69,12 @@ export default function ScheduleRepaymentModal({
           method: existingPayment.method,
           requested_amount: existingPayment.requested_amount,
           amount: existingPayment.requested_amount,
+          // requested_payment_date: the date customer requests payment to LEAVE their bank account.
           requested_payment_date: existingPayment.requested_payment_date,
-          payment_date: existingPayment.requested_payment_date, // Default payment_date to requested_payment_date
+          // payment_date: the date payment is submitted to bank. We default payment_date to requested_payment_date - 1 day.
+          payment_date: existingPayment.requested_payment_date
+            ? addBizDays(existingPayment.requested_payment_date, -1)
+            : null,
           items_covered: {
             loan_ids: existingPayment.items_covered.loan_ids,
             requested_to_principal:
@@ -88,8 +93,9 @@ export default function ScheduleRepaymentModal({
 
   useEffect(() => {
     if (contract && payment?.method && payment?.payment_date) {
-      // For Reverse Draft ACH payment method, deposit date equals payment date.
-      const depositDate = payment.payment_date;
+      // For Reverse Draft ACH payment method, deposit date equals payment date + 1 day.
+      // Why? Banks execute the payment the day after you submit it to them.
+      const depositDate = addBizDays(payment.payment_date, 1);
       const settlementTimelineConfig = getSettlementTimelineConfigFromContract(
         contract
       );

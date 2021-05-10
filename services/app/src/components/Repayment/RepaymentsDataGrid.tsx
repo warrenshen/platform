@@ -10,6 +10,7 @@ import DataGridActionMenu, {
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
 import { Companies, PaymentLimitedFragment, Payments } from "generated/graphql";
+import { addBizDays } from "lib/date";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
 import { useMemo, useState } from "react";
@@ -59,6 +60,10 @@ function RepaymentsDataGrid({
       payments.map((payment) => ({
         ...payment,
         amount: isOther ? payment.requested_amount : payment.amount,
+        expected_deposit_date: addBizDays(
+          payment.payment_date,
+          payment.method === PaymentMethodEnum.ReverseDraftACH ? 1 : 0
+        ),
         submitted_by_name: payment.submitted_by_user?.full_name,
       })),
     [isOther, payments]
@@ -186,27 +191,29 @@ function RepaymentsDataGrid({
       },
       {
         visible: isReverseDraftACH || isOther,
+        dataField: "expected_deposit_date",
         caption: "Expected Deposit Date",
         width: ColumnWidths.Date,
         alignment: "right",
-        calculateCellValue: ({ payment_date }: PaymentLimitedFragment) =>
-          payment_date,
         cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.payment_date} />
+          <DateDataGridCell
+            dateString={params.row.data.expected_deposit_date}
+          />
         ),
       },
       {
         visible: isClosed,
+        dataField: "deposit_date",
         caption: "Deposit Date",
         width: ColumnWidths.Date,
         alignment: "right",
-        calculateCellValue: ({ deposit_date }: any) => deposit_date,
         cellRender: (params: ValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.deposit_date} />
         ),
       },
       {
         visible: isClosed,
+        dataField: "settlement_date",
         caption: "Settlement Date",
         width: ColumnWidths.Date,
         alignment: "right",

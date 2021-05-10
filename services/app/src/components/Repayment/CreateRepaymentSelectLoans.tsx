@@ -18,6 +18,7 @@ import {
   PaymentsInsertInput,
   ProductTypeEnum,
 } from "generated/graphql";
+import { addBizDays, todayAsDateStringServer } from "lib/date";
 import {
   AllPaymentMethods,
   PaymentMethodEnum,
@@ -43,6 +44,10 @@ function CreateRepaymentSelectLoans({
 }: Props) {
   const isReverseDraftACH =
     payment.method === PaymentMethodEnum.ReverseDraftACH;
+  const disabledBefore = addBizDays(
+    todayAsDateStringServer(),
+    new Date().getHours() >= 12 ? 2 : 1
+  );
 
   return (
     <Box>
@@ -115,6 +120,7 @@ function CreateRepaymentSelectLoans({
                 }
                 disablePast
                 disableNonBankDays
+                disabledBefore={disabledBefore}
                 value={payment.requested_payment_date}
                 onChange={(value) => {
                   setPayment({

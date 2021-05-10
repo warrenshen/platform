@@ -17,6 +17,7 @@ import {
   GetLoansByLoanIdsQuery,
   PaymentsInsertInput,
 } from "generated/graphql";
+import { addBizDays } from "lib/date";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -90,12 +91,13 @@ function ScheduleRepaymentSelectLoans({
             })
           }
         />
-        {payment.payment_date < payment.requested_payment_date && (
+        {payment.payment_date !==
+          addBizDays(payment.requested_payment_date, -1) && (
           <Box mt={1}>
             <Typography variant="body2" color="secondary">
-              Warning: you have selected a payment date that is BEFORE the
-              requested payment date. This is a valid selection but please
-              double check that you intended to do this.
+              Warning: you have selected a payment date that is NOT the business
+              day before the requested deposit / withdraw date. This is a valid
+              selection but please double check that you intended to do this.
             </Typography>
           </Box>
         )}

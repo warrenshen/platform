@@ -166,6 +166,15 @@ function SettleRepaymentSelectLoans({
             })
           }
         />
+        {payment.deposit_date !== payment.requested_payment_date && (
+          <Box mt={1}>
+            <Typography variant="body2" color="secondary">
+              Warning: you have selected a deposit date that is NOT the
+              requested deposit / withdraw date. This is a valid selection but
+              please double check that you intended to do this.
+            </Typography>
+          </Box>
+        )}
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
             Deposit Date is the date the payment arrived to a Bespoke bank
