@@ -43,14 +43,20 @@ const useStyles = makeStyles((theme: Theme) =>
     drawer: {
       display: "flex",
       flexDirection: "column",
+
       width: DRAWER_WIDTH,
+      height: "100%",
       paddingTop: 64,
       marginLeft: 32,
+      overflow: "scroll",
     },
     content: {
       display: "flex",
       flexDirection: "column",
+
       width: `calc(100% - ${DRAWER_WIDTH}px)`,
+      height: "100%",
+      overflow: "scroll",
     },
     list: {
       padding: 0,
@@ -197,22 +203,21 @@ export default function BankCustomerPage() {
               ))}
           </List>
         </Box>
-        {productType && (
-          <Box className={classes.content}>
-            {getCustomerPaths(productType).map((customerPath) => (
-              <PrivateRoute
-                key={customerPath.path}
-                path={`${path}${customerPath.path}`}
-                requiredRoles={[
-                  UserRolesEnum.BankAdmin,
-                  UserRolesEnum.BankReadOnly,
-                ]}
-              >
-                {customerPath.component({ companyId, productType })}
-              </PrivateRoute>
-            ))}
-          </Box>
-        )}
+        <Box className={classes.content}>
+          {getCustomerPaths(productType).map((customerPath) => (
+            <PrivateRoute
+              key={customerPath.path}
+              exact
+              path={`${path}${customerPath.path}`}
+              requiredRoles={[
+                UserRolesEnum.BankAdmin,
+                UserRolesEnum.BankReadOnly,
+              ]}
+            >
+              {customerPath.component({ companyId, productType })}
+            </PrivateRoute>
+          ))}
+        </Box>
       </Box>
     </Page>
   );

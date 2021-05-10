@@ -55,7 +55,7 @@ export default function PaymentBlock({ payment }: Props) {
           </Box>
         </Box>
         {payment.transactions.map((transaction, index) => (
-          <>
+          <Box key={transaction.id}>
             <Box my={2}>
               <Divider light />
             </Box>
@@ -158,7 +158,7 @@ export default function PaymentBlock({ payment }: Props) {
                 </Typography>
               </Box>
             </Box>
-          </>
+          </Box>
         ))}
       </Box>
     </Container>

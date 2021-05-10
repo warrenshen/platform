@@ -1,9 +1,9 @@
-import { ProductTypeEnum } from "generated/graphql";
+import { Companies, ProductTypeEnum } from "generated/graphql";
 import CustomerAccountPageContent from "pages/Customer/AccountFeesCredits/AccountFeesCreditsPageContent";
 
 interface Props {
-  companyId: string;
-  productType: ProductTypeEnum;
+  companyId: Companies["id"];
+  productType: ProductTypeEnum | null;
 }
 
 export default function BankCustomerAccountFeesCreditsSubpage({
@@ -11,9 +11,11 @@ export default function BankCustomerAccountFeesCreditsSubpage({
   productType,
 }: Props) {
   return (
-    <CustomerAccountPageContent
-      companyId={companyId}
-      productType={productType}
-    />
+    !!productType && (
+      <CustomerAccountPageContent
+        companyId={companyId}
+        productType={productType}
+      />
+    )
   );
 }

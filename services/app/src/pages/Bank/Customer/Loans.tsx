@@ -1,15 +1,21 @@
-import { ProductTypeEnum } from "generated/graphql";
+import { Companies, ProductTypeEnum } from "generated/graphql";
 import CustomerLoansPageContent from "pages/Customer/Loans/LoansPageContent";
 
 interface Props {
-  companyId: string;
-  productType: ProductTypeEnum;
+  companyId: Companies["id"];
+  productType: ProductTypeEnum | null;
 }
 
-function BankCustomerLoansSubpage({ companyId, productType }: Props) {
+export default function BankCustomerLoansSubpage({
+  companyId,
+  productType,
+}: Props) {
   return (
-    <CustomerLoansPageContent companyId={companyId} productType={productType} />
+    !!productType && (
+      <CustomerLoansPageContent
+        companyId={companyId}
+        productType={productType}
+      />
+    )
   );
 }
-
-export default BankCustomerLoansSubpage;

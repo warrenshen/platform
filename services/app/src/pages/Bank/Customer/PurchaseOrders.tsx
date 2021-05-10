@@ -3,16 +3,19 @@ import CustomerPurchaseOrdersPageContent from "pages/Customer/PurchaseOrders/Pur
 
 interface Props {
   companyId: Companies["id"];
-  productType: ProductTypeEnum;
+  productType: ProductTypeEnum | null;
 }
 
-function BankCustomerPurchaseOrdersSubpage({ companyId, productType }: Props) {
+export default function BankCustomerPurchaseOrdersSubpage({
+  companyId,
+  productType,
+}: Props) {
   return (
-    <CustomerPurchaseOrdersPageContent
-      companyId={companyId}
-      productType={productType}
-    />
+    !!productType && (
+      <CustomerPurchaseOrdersPageContent
+        companyId={companyId}
+        productType={productType}
+      />
+    )
   );
 }
-
-export default BankCustomerPurchaseOrdersSubpage;

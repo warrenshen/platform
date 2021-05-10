@@ -317,7 +317,6 @@ export default function Layout({ appBarTitle, children }: Props) {
   const paymentsCount = paymentsCountData?.payments?.length || 0;
   const ebbaApplicationsCount =
     ebbaApplicationsCountData?.ebba_applications?.length || 0;
-  console.log({ ebba: ebbaApplicationsCountData?.ebba_applications });
 
   const {
     data,
