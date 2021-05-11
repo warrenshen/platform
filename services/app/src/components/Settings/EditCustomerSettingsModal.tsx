@@ -56,7 +56,7 @@ interface Props {
   handleClose: () => void;
 }
 
-function EditAccountSettingsModal({
+export default function EditCustomerSettingsModal({
   contract,
   companyId,
   existingSettings,
@@ -178,5 +178,3 @@ function EditAccountSettingsModal({
     </Dialog>
   );
 }
-
-export default EditAccountSettingsModal;

@@ -32,7 +32,7 @@ interface Props {
   handleDataChange: () => void;
 }
 
-function Settings({
+export default function CustomerSettings({
   companyId,
   company,
   settings,
@@ -189,5 +189,3 @@ function Settings({
     </Box>
   );
 }
-
-export default Settings;

@@ -15,6 +15,7 @@ interface Props {
 
 function BankCustomerSettingsSubpage({ companyId }: Props) {
   const { data, refetch } = useCompanyQuery({
+    fetchPolicy: "network-only",
     variables: {
       companyId,
     },

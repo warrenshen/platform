@@ -15,6 +15,7 @@ function SettingsPage() {
   } = useContext(CurrentUserContext);
 
   const { data, refetch } = useCompanyForCustomerQuery({
+    fetchPolicy: "network-only",
     variables: {
       companyId,
     },
