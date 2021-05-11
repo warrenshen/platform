@@ -5,7 +5,7 @@ import {
 } from "@material-ui/pickers";
 import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
 import { format, parse } from "date-fns";
-import { DateFormatServer } from "lib/date";
+import { DateFormatClient, DateFormatServer } from "lib/date";
 import { addYearToBankHolidays, bankHolidays } from "lib/holidays";
 
 interface Props {
@@ -67,7 +67,7 @@ export default function DateInput(props: Props) {
           }
         }}
         variant="inline"
-        format="MM/dd/yyyy"
+        format={DateFormatClient}
         margin="none"
         id={props.id}
         label={props.label}

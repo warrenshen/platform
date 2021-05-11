@@ -1,25 +1,20 @@
 import { Box } from "@material-ui/core";
-import { format, parseISO } from "date-fns";
-import { DateFormatClient, TimeFormatClient } from "lib/date";
+import { formatDatetimeString } from "lib/date";
 
 interface Props {
   isTimeVisible?: boolean;
   datetimeString?: string;
 }
 
-function DatetimeDataGridCell({ isTimeVisible, datetimeString }: Props) {
+export default function DatetimeDataGridCell({
+  isTimeVisible = false,
+  datetimeString,
+}: Props) {
   return (
     <Box>
-      {datetimeString
-        ? format(
-            parseISO(datetimeString),
-            isTimeVisible
-              ? `${DateFormatClient} ${TimeFormatClient}`
-              : DateFormatClient
-          )
+      {!!datetimeString
+        ? formatDatetimeString(datetimeString, isTimeVisible)
         : "-"}
     </Box>
   );
 }
-
-export default DatetimeDataGridCell;

@@ -26,7 +26,7 @@ export function formatDateString(dateString: string) {
     try {
       return format(
         parse(dateString, DateFormatServer, new Date()),
-        "MM/dd/yyyy"
+        DateFormatClient
       );
     } catch (error) {
       console.error(
@@ -37,14 +37,19 @@ export function formatDateString(dateString: string) {
   }
 }
 
-export function formatDatetimeString(datetimeString: string) {
+export function formatDatetimeString(
+  datetimeString: string,
+  isTimeVisible: boolean = true
+) {
   if (!datetimeString) {
     return "Invalid Datetime";
   } else {
     try {
       return format(
         parseISO(datetimeString),
-        `${DateFormatClient} ${TimeFormatClient}`
+        isTimeVisible
+          ? `${DateFormatClient} ${TimeFormatClient}`
+          : DateFormatClient
       );
     } catch (error) {
       console.error(

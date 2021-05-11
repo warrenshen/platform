@@ -112,8 +112,12 @@ export const twoFactorRoutes = {
   sendTwoFactorCode: "/two_factor/send_code",
 };
 
+const isTestEnv = process.env.REACT_APP_BESPOKE_ENVIRONMENT === "test";
+
 const api = axios.create({
-  baseURL: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}`,
+  baseURL: isTestEnv
+    ? "http://localhost:7002"
+    : `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}`,
 });
 
 api.interceptors.request.use(async (config) => {
@@ -130,7 +134,9 @@ api.interceptors.request.use(async (config) => {
 export const authenticatedApi = api;
 
 export const unAuthenticatedApi = axios.create({
-  baseURL: `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}`,
+  baseURL: isTestEnv
+    ? "http://localhost:7002"
+    : `${process.env.REACT_APP_BESPOKE_API_ENDPOINT}`,
 });
 
 export type CustomMutationResponse = {
