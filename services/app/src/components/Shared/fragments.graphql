@@ -32,6 +32,12 @@ fragment CompanyLicense on company_licenses {
   file_id
 }
 
+fragment CompanyMinimal on companies {
+  id
+  name
+  dba_name
+}
+
 fragment Company on companies {
   id
   identifier

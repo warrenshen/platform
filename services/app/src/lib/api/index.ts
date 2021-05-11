@@ -18,7 +18,8 @@ export const fileRoutes = {
 
 export const companyRoutes = {
   createCustomer: "/companies/create_customer",
-  createPayorVendor: "/companies/create_payor_vendor",
+  createPartnershipRequest: "/companies/create_partnership_request",
+  createPartnership: "/companies/create_partnership",
 };
 
 export const licenseRoutes = {

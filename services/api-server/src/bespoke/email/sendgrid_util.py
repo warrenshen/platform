@@ -62,6 +62,8 @@ class TemplateNames(object):
 
 	USER_VENDOR_INVITED_TO_PLATFORM = 'user_vendor_invited_to_platform'
 	USER_PAYOR_INVITED_TO_PLATFORM = 'user_payor_invited_to_platform'
+	USER_REQUESTS_PARTNER_ON_PLATFORM = 'user_requests_partner_on_platform'
+
 	USER_INVITED_TO_PLATFORM = 'user_invited_to_platform'
 	USER_FORGOT_PASSWORD = 'user_forgot_password'
 	USER_TWO_FACTOR_CODE = 'user_two_factor_code'
@@ -187,6 +189,10 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 	},
 	TemplateNames.USER_PAYOR_INVITED_TO_PLATFORM: {
 		'id': 'd-013f2164d131461193c928e928b5c86d',
+		'requires_secure_link': False
+	},
+	TemplateNames.USER_REQUESTS_PARTNER_ON_PLATFORM: {
+		'id': 'd-eeafbf79aaf343c28ede89745033966e',
 		'requires_secure_link': False
 	},
 	TemplateNames.USER_INVITED_TO_PLATFORM: {

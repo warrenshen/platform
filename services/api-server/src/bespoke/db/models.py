@@ -183,6 +183,16 @@ class Contract(Base):
 			adjusted_end_date=self.adjusted_end_date
 		)
 
+class CompanyPartnershipRequest(Base):
+	__tablename__ = 'company_partnership_requests'
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	requesting_company_id = Column(GUID, nullable=False)
+	two_factor_message_method = Column(String, nullable=False)
+	company_type = Column(String, nullable=False)
+	company_name = Column(String, nullable=False)
+	user_info = Column(JSON, nullable=False)
+	requested_by_user_id = Column(GUID, nullable=False)
 
 class CompanyVendorPartnership(Base):
 	__tablename__ = 'company_vendor_partnerships'

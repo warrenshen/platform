@@ -2603,6 +2603,232 @@ export enum CompanyLicensesUpdateColumn {
   Id = "id",
 }
 
+/** columns and relationships of "company_partnership_requests" */
+export type CompanyPartnershipRequests = {
+  company_name: Scalars["String"];
+  company_type: Scalars["String"];
+  created_at: Scalars["timestamptz"];
+  id: Scalars["uuid"];
+  /** An object relationship */
+  requested_by_user: Users;
+  requested_by_user_id: Scalars["uuid"];
+  /** An object relationship */
+  requesting_company: Companies;
+  requesting_company_id: Scalars["uuid"];
+  two_factor_message_method: Scalars["String"];
+  user_info: Scalars["json"];
+};
+
+/** columns and relationships of "company_partnership_requests" */
+export type CompanyPartnershipRequestsUserInfoArgs = {
+  path?: Maybe<Scalars["String"]>;
+};
+
+/** aggregated selection of "company_partnership_requests" */
+export type CompanyPartnershipRequestsAggregate = {
+  aggregate?: Maybe<CompanyPartnershipRequestsAggregateFields>;
+  nodes: Array<CompanyPartnershipRequests>;
+};
+
+/** aggregate fields of "company_partnership_requests" */
+export type CompanyPartnershipRequestsAggregateFields = {
+  count?: Maybe<Scalars["Int"]>;
+  max?: Maybe<CompanyPartnershipRequestsMaxFields>;
+  min?: Maybe<CompanyPartnershipRequestsMinFields>;
+};
+
+/** aggregate fields of "company_partnership_requests" */
+export type CompanyPartnershipRequestsAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<CompanyPartnershipRequestsSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** order by aggregate values of table "company_partnership_requests" */
+export type CompanyPartnershipRequestsAggregateOrderBy = {
+  count?: Maybe<OrderBy>;
+  max?: Maybe<CompanyPartnershipRequestsMaxOrderBy>;
+  min?: Maybe<CompanyPartnershipRequestsMinOrderBy>;
+};
+
+/** input type for inserting array relation for remote table "company_partnership_requests" */
+export type CompanyPartnershipRequestsArrRelInsertInput = {
+  data: Array<CompanyPartnershipRequestsInsertInput>;
+  on_conflict?: Maybe<CompanyPartnershipRequestsOnConflict>;
+};
+
+/** Boolean expression to filter rows from the table "company_partnership_requests". All fields are combined with a logical 'AND'. */
+export type CompanyPartnershipRequestsBoolExp = {
+  _and?: Maybe<Array<Maybe<CompanyPartnershipRequestsBoolExp>>>;
+  _not?: Maybe<CompanyPartnershipRequestsBoolExp>;
+  _or?: Maybe<Array<Maybe<CompanyPartnershipRequestsBoolExp>>>;
+  company_name?: Maybe<StringComparisonExp>;
+  company_type?: Maybe<StringComparisonExp>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
+  id?: Maybe<UuidComparisonExp>;
+  requested_by_user?: Maybe<UsersBoolExp>;
+  requested_by_user_id?: Maybe<UuidComparisonExp>;
+  requesting_company?: Maybe<CompaniesBoolExp>;
+  requesting_company_id?: Maybe<UuidComparisonExp>;
+  two_factor_message_method?: Maybe<StringComparisonExp>;
+  user_info?: Maybe<JsonComparisonExp>;
+};
+
+/** unique or primary key constraints on table "company_partnership_requests" */
+export enum CompanyPartnershipRequestsConstraint {
+  /** unique or primary key constraint */
+  CompanyPartnershipRequestsPkey = "company_partnership_requests_pkey",
+}
+
+/** input type for inserting data into table "company_partnership_requests" */
+export type CompanyPartnershipRequestsInsertInput = {
+  company_name?: Maybe<Scalars["String"]>;
+  company_type?: Maybe<Scalars["String"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  requested_by_user?: Maybe<UsersObjRelInsertInput>;
+  requested_by_user_id?: Maybe<Scalars["uuid"]>;
+  requesting_company?: Maybe<CompaniesObjRelInsertInput>;
+  requesting_company_id?: Maybe<Scalars["uuid"]>;
+  two_factor_message_method?: Maybe<Scalars["String"]>;
+  user_info?: Maybe<Scalars["json"]>;
+};
+
+/** aggregate max on columns */
+export type CompanyPartnershipRequestsMaxFields = {
+  company_name?: Maybe<Scalars["String"]>;
+  company_type?: Maybe<Scalars["String"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  requested_by_user_id?: Maybe<Scalars["uuid"]>;
+  requesting_company_id?: Maybe<Scalars["uuid"]>;
+  two_factor_message_method?: Maybe<Scalars["String"]>;
+};
+
+/** order by max() on columns of table "company_partnership_requests" */
+export type CompanyPartnershipRequestsMaxOrderBy = {
+  company_name?: Maybe<OrderBy>;
+  company_type?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  requested_by_user_id?: Maybe<OrderBy>;
+  requesting_company_id?: Maybe<OrderBy>;
+  two_factor_message_method?: Maybe<OrderBy>;
+};
+
+/** aggregate min on columns */
+export type CompanyPartnershipRequestsMinFields = {
+  company_name?: Maybe<Scalars["String"]>;
+  company_type?: Maybe<Scalars["String"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  requested_by_user_id?: Maybe<Scalars["uuid"]>;
+  requesting_company_id?: Maybe<Scalars["uuid"]>;
+  two_factor_message_method?: Maybe<Scalars["String"]>;
+};
+
+/** order by min() on columns of table "company_partnership_requests" */
+export type CompanyPartnershipRequestsMinOrderBy = {
+  company_name?: Maybe<OrderBy>;
+  company_type?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  requested_by_user_id?: Maybe<OrderBy>;
+  requesting_company_id?: Maybe<OrderBy>;
+  two_factor_message_method?: Maybe<OrderBy>;
+};
+
+/** response of any mutation on the table "company_partnership_requests" */
+export type CompanyPartnershipRequestsMutationResponse = {
+  /** number of affected rows by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data of the affected rows by the mutation */
+  returning: Array<CompanyPartnershipRequests>;
+};
+
+/** input type for inserting object relation for remote table "company_partnership_requests" */
+export type CompanyPartnershipRequestsObjRelInsertInput = {
+  data: CompanyPartnershipRequestsInsertInput;
+  on_conflict?: Maybe<CompanyPartnershipRequestsOnConflict>;
+};
+
+/** on conflict condition type for table "company_partnership_requests" */
+export type CompanyPartnershipRequestsOnConflict = {
+  constraint: CompanyPartnershipRequestsConstraint;
+  update_columns: Array<CompanyPartnershipRequestsUpdateColumn>;
+  where?: Maybe<CompanyPartnershipRequestsBoolExp>;
+};
+
+/** ordering options when selecting data from "company_partnership_requests" */
+export type CompanyPartnershipRequestsOrderBy = {
+  company_name?: Maybe<OrderBy>;
+  company_type?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  requested_by_user?: Maybe<UsersOrderBy>;
+  requested_by_user_id?: Maybe<OrderBy>;
+  requesting_company?: Maybe<CompaniesOrderBy>;
+  requesting_company_id?: Maybe<OrderBy>;
+  two_factor_message_method?: Maybe<OrderBy>;
+  user_info?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "company_partnership_requests" */
+export type CompanyPartnershipRequestsPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "company_partnership_requests" */
+export enum CompanyPartnershipRequestsSelectColumn {
+  /** column name */
+  CompanyName = "company_name",
+  /** column name */
+  CompanyType = "company_type",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  RequestedByUserId = "requested_by_user_id",
+  /** column name */
+  RequestingCompanyId = "requesting_company_id",
+  /** column name */
+  TwoFactorMessageMethod = "two_factor_message_method",
+  /** column name */
+  UserInfo = "user_info",
+}
+
+/** input type for updating data in table "company_partnership_requests" */
+export type CompanyPartnershipRequestsSetInput = {
+  company_name?: Maybe<Scalars["String"]>;
+  company_type?: Maybe<Scalars["String"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  requested_by_user_id?: Maybe<Scalars["uuid"]>;
+  requesting_company_id?: Maybe<Scalars["uuid"]>;
+  two_factor_message_method?: Maybe<Scalars["String"]>;
+  user_info?: Maybe<Scalars["json"]>;
+};
+
+/** update columns of table "company_partnership_requests" */
+export enum CompanyPartnershipRequestsUpdateColumn {
+  /** column name */
+  CompanyName = "company_name",
+  /** column name */
+  CompanyType = "company_type",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  RequestedByUserId = "requested_by_user_id",
+  /** column name */
+  RequestingCompanyId = "requesting_company_id",
+  /** column name */
+  TwoFactorMessageMethod = "two_factor_message_method",
+  /** column name */
+  UserInfo = "user_info",
+}
+
 /** columns and relationships of "company_payor_partnerships" */
 export type CompanyPayorPartnerships = {
   approved_at?: Maybe<Scalars["timestamptz"]>;
@@ -7905,6 +8131,10 @@ export type MutationRoot = {
   delete_company_licenses?: Maybe<CompanyLicensesMutationResponse>;
   /** delete single row from the table: "company_licenses" */
   delete_company_licenses_by_pk?: Maybe<CompanyLicenses>;
+  /** delete data from the table: "company_partnership_requests" */
+  delete_company_partnership_requests?: Maybe<CompanyPartnershipRequestsMutationResponse>;
+  /** delete single row from the table: "company_partnership_requests" */
+  delete_company_partnership_requests_by_pk?: Maybe<CompanyPartnershipRequests>;
   /** delete data from the table: "company_payor_partnerships" */
   delete_company_payor_partnerships?: Maybe<CompanyPayorPartnershipsMutationResponse>;
   /** delete single row from the table: "company_payor_partnerships" */
@@ -8041,6 +8271,10 @@ export type MutationRoot = {
   insert_company_licenses?: Maybe<CompanyLicensesMutationResponse>;
   /** insert a single row into the table: "company_licenses" */
   insert_company_licenses_one?: Maybe<CompanyLicenses>;
+  /** insert data into the table: "company_partnership_requests" */
+  insert_company_partnership_requests?: Maybe<CompanyPartnershipRequestsMutationResponse>;
+  /** insert a single row into the table: "company_partnership_requests" */
+  insert_company_partnership_requests_one?: Maybe<CompanyPartnershipRequests>;
   /** insert data into the table: "company_payor_partnerships" */
   insert_company_payor_partnerships?: Maybe<CompanyPayorPartnershipsMutationResponse>;
   /** insert a single row into the table: "company_payor_partnerships" */
@@ -8181,6 +8415,10 @@ export type MutationRoot = {
   update_company_licenses?: Maybe<CompanyLicensesMutationResponse>;
   /** update single row of the table: "company_licenses" */
   update_company_licenses_by_pk?: Maybe<CompanyLicenses>;
+  /** update data of the table: "company_partnership_requests" */
+  update_company_partnership_requests?: Maybe<CompanyPartnershipRequestsMutationResponse>;
+  /** update single row of the table: "company_partnership_requests" */
+  update_company_partnership_requests_by_pk?: Maybe<CompanyPartnershipRequests>;
   /** update data of the table: "company_payor_partnerships" */
   update_company_payor_partnerships?: Maybe<CompanyPayorPartnershipsMutationResponse>;
   /** update single row of the table: "company_payor_partnerships" */
@@ -8352,6 +8590,16 @@ export type MutationRootDeleteCompanyLicensesArgs = {
 
 /** mutation root */
 export type MutationRootDeleteCompanyLicensesByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** mutation root */
+export type MutationRootDeleteCompanyPartnershipRequestsArgs = {
+  where: CompanyPartnershipRequestsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteCompanyPartnershipRequestsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -8708,6 +8956,18 @@ export type MutationRootInsertCompanyLicensesArgs = {
 export type MutationRootInsertCompanyLicensesOneArgs = {
   object: CompanyLicensesInsertInput;
   on_conflict?: Maybe<CompanyLicensesOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertCompanyPartnershipRequestsArgs = {
+  objects: Array<CompanyPartnershipRequestsInsertInput>;
+  on_conflict?: Maybe<CompanyPartnershipRequestsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertCompanyPartnershipRequestsOneArgs = {
+  object: CompanyPartnershipRequestsInsertInput;
+  on_conflict?: Maybe<CompanyPartnershipRequestsOnConflict>;
 };
 
 /** mutation root */
@@ -9138,6 +9398,18 @@ export type MutationRootUpdateCompanyLicensesArgs = {
 export type MutationRootUpdateCompanyLicensesByPkArgs = {
   _set?: Maybe<CompanyLicensesSetInput>;
   pk_columns: CompanyLicensesPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateCompanyPartnershipRequestsArgs = {
+  _set?: Maybe<CompanyPartnershipRequestsSetInput>;
+  where: CompanyPartnershipRequestsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateCompanyPartnershipRequestsByPkArgs = {
+  _set?: Maybe<CompanyPartnershipRequestsSetInput>;
+  pk_columns: CompanyPartnershipRequestsPkColumnsInput;
 };
 
 /** mutation root */
@@ -11638,6 +11910,12 @@ export type QueryRoot = {
   company_licenses_aggregate: CompanyLicensesAggregate;
   /** fetch data from the table: "company_licenses" using primary key columns */
   company_licenses_by_pk?: Maybe<CompanyLicenses>;
+  /** fetch data from the table: "company_partnership_requests" */
+  company_partnership_requests: Array<CompanyPartnershipRequests>;
+  /** fetch aggregated fields from the table: "company_partnership_requests" */
+  company_partnership_requests_aggregate: CompanyPartnershipRequestsAggregate;
+  /** fetch data from the table: "company_partnership_requests" using primary key columns */
+  company_partnership_requests_by_pk?: Maybe<CompanyPartnershipRequests>;
   /** fetch data from the table: "company_payor_partnerships" */
   company_payor_partnerships: Array<CompanyPayorPartnerships>;
   /** fetch aggregated fields from the table: "company_payor_partnerships" */
@@ -11945,6 +12223,29 @@ export type QueryRootCompanyLicensesAggregateArgs = {
 
 /** query root */
 export type QueryRootCompanyLicensesByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** query root */
+export type QueryRootCompanyPartnershipRequestsArgs = {
+  distinct_on?: Maybe<Array<CompanyPartnershipRequestsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyPartnershipRequestsOrderBy>>;
+  where?: Maybe<CompanyPartnershipRequestsBoolExp>;
+};
+
+/** query root */
+export type QueryRootCompanyPartnershipRequestsAggregateArgs = {
+  distinct_on?: Maybe<Array<CompanyPartnershipRequestsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyPartnershipRequestsOrderBy>>;
+  where?: Maybe<CompanyPartnershipRequestsBoolExp>;
+};
+
+/** query root */
+export type QueryRootCompanyPartnershipRequestsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -12966,6 +13267,12 @@ export type SubscriptionRoot = {
   company_licenses_aggregate: CompanyLicensesAggregate;
   /** fetch data from the table: "company_licenses" using primary key columns */
   company_licenses_by_pk?: Maybe<CompanyLicenses>;
+  /** fetch data from the table: "company_partnership_requests" */
+  company_partnership_requests: Array<CompanyPartnershipRequests>;
+  /** fetch aggregated fields from the table: "company_partnership_requests" */
+  company_partnership_requests_aggregate: CompanyPartnershipRequestsAggregate;
+  /** fetch data from the table: "company_partnership_requests" using primary key columns */
+  company_partnership_requests_by_pk?: Maybe<CompanyPartnershipRequests>;
   /** fetch data from the table: "company_payor_partnerships" */
   company_payor_partnerships: Array<CompanyPayorPartnerships>;
   /** fetch aggregated fields from the table: "company_payor_partnerships" */
@@ -13273,6 +13580,29 @@ export type SubscriptionRootCompanyLicensesAggregateArgs = {
 
 /** subscription root */
 export type SubscriptionRootCompanyLicensesByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** subscription root */
+export type SubscriptionRootCompanyPartnershipRequestsArgs = {
+  distinct_on?: Maybe<Array<CompanyPartnershipRequestsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyPartnershipRequestsOrderBy>>;
+  where?: Maybe<CompanyPartnershipRequestsBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootCompanyPartnershipRequestsAggregateArgs = {
+  distinct_on?: Maybe<Array<CompanyPartnershipRequestsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyPartnershipRequestsOrderBy>>;
+  where?: Maybe<CompanyPartnershipRequestsBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootCompanyPartnershipRequestsByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -16554,6 +16884,11 @@ export type CompanyLicenseFragment = Pick<
   "id" | "company_id" | "file_id"
 >;
 
+export type CompanyMinimalFragment = Pick<
+  Companies,
+  "id" | "name" | "dba_name"
+>;
+
 export type CompanyFragment = Pick<
   Companies,
   | "id"
@@ -17119,6 +17454,18 @@ export type BankPayorFragment = Pick<
   | "phone_number"
 >;
 
+export type PartnershipRequestFragment = Pick<
+  CompanyPartnershipRequests,
+  | "id"
+  | "requesting_company_id"
+  | "two_factor_message_method"
+  | "company_type"
+  | "company_name"
+  | "user_info"
+  | "created_at"
+  | "requested_by_user_id"
+>;
+
 export type PaymentFragment = Pick<
   Payments,
   | "id"
@@ -17206,6 +17553,24 @@ export type CompanyVendorsQuery = {
   company_vendor_partnerships: Array<{ vendor: Pick<Companies, "name"> }>;
 };
 
+export type GetPartnershipRequestsForBankSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetPartnershipRequestsForBankSubscription = {
+  company_partnership_requests: Array<
+    Pick<CompanyPartnershipRequests, "id"> & {
+      requesting_company: Pick<Companies, "id" | "name">;
+    } & PartnershipRequestFragment
+  >;
+};
+
+export type GetAllCompaniesQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetAllCompaniesQuery = {
+  companies: Array<Pick<Companies, "id"> & CompanyMinimalFragment>;
+};
+
 export type UserByIdQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -17257,6 +17622,13 @@ export const CompanyLicenseFragmentDoc = gql`
     id
     company_id
     file_id
+  }
+`;
+export const CompanyMinimalFragmentDoc = gql`
+  fragment CompanyMinimal on companies {
+    id
+    name
+    dba_name
   }
 `;
 export const CompanyFragmentDoc = gql`
@@ -17688,6 +18060,18 @@ export const BankPayorFragmentDoc = gql`
     city
     zip_code
     phone_number
+  }
+`;
+export const PartnershipRequestFragmentDoc = gql`
+  fragment PartnershipRequest on company_partnership_requests {
+    id
+    requesting_company_id
+    two_factor_message_method
+    company_type
+    company_name
+    user_info
+    created_at
+    requested_by_user_id
   }
 `;
 export const BankAccountFragmentDoc = gql`
@@ -24661,6 +25045,107 @@ export type CompanyVendorsLazyQueryHookResult = ReturnType<
 export type CompanyVendorsQueryResult = Apollo.QueryResult<
   CompanyVendorsQuery,
   CompanyVendorsQueryVariables
+>;
+export const GetPartnershipRequestsForBankDocument = gql`
+  subscription GetPartnershipRequestsForBank {
+    company_partnership_requests(order_by: [{ created_at: asc }]) {
+      id
+      ...PartnershipRequest
+      requesting_company {
+        id
+        name
+      }
+    }
+  }
+  ${PartnershipRequestFragmentDoc}
+`;
+
+/**
+ * __useGetPartnershipRequestsForBankSubscription__
+ *
+ * To run a query within a React component, call `useGetPartnershipRequestsForBankSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetPartnershipRequestsForBankSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPartnershipRequestsForBankSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetPartnershipRequestsForBankSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetPartnershipRequestsForBankSubscription,
+    GetPartnershipRequestsForBankSubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetPartnershipRequestsForBankSubscription,
+    GetPartnershipRequestsForBankSubscriptionVariables
+  >(GetPartnershipRequestsForBankDocument, baseOptions);
+}
+export type GetPartnershipRequestsForBankSubscriptionHookResult = ReturnType<
+  typeof useGetPartnershipRequestsForBankSubscription
+>;
+export type GetPartnershipRequestsForBankSubscriptionResult = Apollo.SubscriptionResult<GetPartnershipRequestsForBankSubscription>;
+export const GetAllCompaniesDocument = gql`
+  query GetAllCompanies {
+    companies: companies(order_by: { name: asc }) {
+      id
+      ...CompanyMinimal
+    }
+  }
+  ${CompanyMinimalFragmentDoc}
+`;
+
+/**
+ * __useGetAllCompaniesQuery__
+ *
+ * To run a query within a React component, call `useGetAllCompaniesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllCompaniesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllCompaniesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAllCompaniesQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetAllCompaniesQuery,
+    GetAllCompaniesQueryVariables
+  >
+) {
+  return Apollo.useQuery<GetAllCompaniesQuery, GetAllCompaniesQueryVariables>(
+    GetAllCompaniesDocument,
+    baseOptions
+  );
+}
+export function useGetAllCompaniesLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetAllCompaniesQuery,
+    GetAllCompaniesQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetAllCompaniesQuery,
+    GetAllCompaniesQueryVariables
+  >(GetAllCompaniesDocument, baseOptions);
+}
+export type GetAllCompaniesQueryHookResult = ReturnType<
+  typeof useGetAllCompaniesQuery
+>;
+export type GetAllCompaniesLazyQueryHookResult = ReturnType<
+  typeof useGetAllCompaniesLazyQuery
+>;
+export type GetAllCompaniesQueryResult = Apollo.QueryResult<
+  GetAllCompaniesQuery,
+  GetAllCompaniesQueryVariables
 >;
 export const UserByIdDocument = gql`
   query UserById($id: uuid!) {

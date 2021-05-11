@@ -271,6 +271,11 @@ const getBankNavItems = (
       link: bankRoutes.payors,
     },
     {
+      iconNode: PayorsIcon,
+      text: "Partnerships",
+      link: bankRoutes.partnerships,
+    },
+    {
       iconNode: ReportsIcon,
       text: "Reports",
       link: bankRoutes.reports,

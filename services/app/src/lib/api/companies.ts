@@ -1,6 +1,7 @@
 import {
   Companies,
   CompaniesInsertInput,
+  CompanyPartnershipRequests,
   CompanySettingsInsertInput,
   ContractsInsertInput,
   UsersInsertInput,
@@ -44,7 +45,7 @@ export async function createCustomer(
     );
 }
 
-type CreatePayorVendorMutationReq = {
+type CreatePartnershipRequestMutationReq = {
   variables: {
     is_payor: boolean;
     customer_id: Companies["id"];
@@ -53,11 +54,41 @@ type CreatePayorVendorMutationReq = {
   };
 };
 
-export async function createPayorVendorMutation(
-  req: CreatePayorVendorMutationReq
+export async function createPartnershipRequestMutation(
+  req: CreatePartnershipRequestMutationReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(companyRoutes.createPayorVendor, req.variables)
+    .post(companyRoutes.createPartnershipRequest, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not create partner company",
+        };
+      }
+    );
+}
+
+type CreatePartnershipMutationReq = {
+  variables: {
+    partnership_request_id: CompanyPartnershipRequests["id"];
+    should_create_company: boolean;
+    partner_company_id: Companies["id"];
+  };
+};
+
+export async function createPartnershipMutation(
+  req: CreatePartnershipMutationReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companyRoutes.createPartnership, req.variables)
     .then((res) => {
       return res.data;
     })

@@ -1,0 +1,17 @@
+subscription GetPartnershipRequestsForBank {
+  company_partnership_requests(order_by: [{ created_at: asc }]) {
+    id
+    ...PartnershipRequest
+    requesting_company {
+      id
+      name
+    }
+  }
+}
+
+query GetAllCompanies {
+  companies: companies(order_by: { name: asc }) {
+    id
+    ...CompanyMinimal
+  }
+}

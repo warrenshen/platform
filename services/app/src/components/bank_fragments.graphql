@@ -146,6 +146,17 @@ fragment BankPayor on payors {
   phone_number
 }
 
+fragment PartnershipRequest on company_partnership_requests {
+  id
+  requesting_company_id
+  two_factor_message_method
+  company_type
+  company_name
+  user_info
+  created_at
+  requested_by_user_id
+}
+
 ## Finance
 
 fragment Payment on payments {

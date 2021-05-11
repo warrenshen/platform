@@ -28,6 +28,7 @@ import BankEbbaApplicationsPage from "pages/Bank/EbbaApplications";
 import BankInvoicesPage from "pages/Bank/Invoices";
 import BankLoansPage from "pages/Bank/Loans";
 import BankOverviewPage from "pages/Bank/Overview";
+import BankPartnershipsPage from "pages/Bank/Partnerships";
 import BankPaymentsPage from "pages/Bank/Payments";
 import BankPayorsPage from "pages/Bank/Payors";
 import BankPurchaseOrdersPage from "pages/Bank/PurchaseOrders";
@@ -315,6 +316,13 @@ function App() {
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
         >
           <BankPayorsPage />
+        </PrivateRoute>
+        <PrivateRoute
+          exact
+          path={bankRoutes.partnerships}
+          requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
+        >
+          <BankPartnershipsPage />
         </PrivateRoute>
         <PrivateRoute
           exact

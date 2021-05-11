@@ -61,6 +61,7 @@ export const bankRoutes = {
   customers: "/customers",
   ebbaApplications: "/borrowing-bases",
   loans: "/loans",
+  partnerships: "/partnerships",
   payments: "/payments",
   payors: "/payors",
   purchaseOrders: "/purchase-orders",

@@ -18,7 +18,7 @@ import {
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { createPayorVendorMutation } from "lib/api/companies";
+import { createPartnershipRequestMutation } from "lib/api/companies";
 import { useContext, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -58,7 +58,7 @@ function AddPayorModal({ customerId, handleClose }: Props) {
   const [
     createPayorVendor,
     { loading: isCreatePayorVendorLoading },
-  ] = useCustomMutation(createPayorVendorMutation);
+  ] = useCustomMutation(createPartnershipRequestMutation);
 
   const handleRegisterClick = async () => {
     const response = await createPayorVendor({
@@ -72,9 +72,13 @@ function AddPayorModal({ customerId, handleClose }: Props) {
 
     if (response.status !== "OK") {
       setErrorMessage(response.msg);
-      snackbar.showError(`Could not create payor. Reason: ${response.msg}`);
+      snackbar.showError(
+        `Could not create payor request. Reason: ${response.msg}`
+      );
     } else {
-      snackbar.showSuccess("Payor created and user sent a welcome email.");
+      snackbar.showSuccess(
+        "Payor request created and Bespoke support staff have been notified"
+      );
       handleClose();
     }
   };
