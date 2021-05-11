@@ -5,7 +5,7 @@ import DataGridActionMenu, {
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import { CompanyPartnershipRequests } from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 interface Props {
   isExcelExport?: boolean;
@@ -39,7 +39,6 @@ export default function PartnershipsDataGrid({
   selectedRequestIds,
   handleSelectRequests,
 }: Props) {
-  const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = useMemo(() => getRows(partnershipRequests), [
     partnershipRequests,
   ]);
@@ -98,7 +97,6 @@ export default function PartnershipsDataGrid({
 
   return (
     <ControlledDataGrid
-      ref={(ref) => setDataGrid(ref)}
       isExcelExport={isExcelExport}
       isSortingDisabled={isSortingDisabled}
       filtering={filtering}
