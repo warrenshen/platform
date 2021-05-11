@@ -67,5 +67,6 @@ export const bankRoutes = {
   invoices: "/invoices",
   reports: "/reports",
   settings: "/settings",
+  transfers: "/transfers",
   vendors: "/vendors",
 };

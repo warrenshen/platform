@@ -112,6 +112,10 @@ export const twoFactorRoutes = {
   sendTwoFactorCode: "/two_factor/send_code",
 };
 
+export const metrcRoutes = {
+  getTransfers: "/metrc/get_transfers",
+};
+
 const isTestEnv = process.env.REACT_APP_BESPOKE_ENVIRONMENT === "test";
 
 const api = axios.create({

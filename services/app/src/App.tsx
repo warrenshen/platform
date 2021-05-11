@@ -33,6 +33,7 @@ import BankPayorsPage from "pages/Bank/Payors";
 import BankPurchaseOrdersPage from "pages/Bank/PurchaseOrders";
 import BankReportsPage from "pages/Bank/Reports";
 import BankSettingsPage from "pages/Bank/Settings";
+import BankTransfersPage from "pages/Bank/Transfers";
 import BankVendorsPage from "pages/Bank/Vendors";
 import CustomerAccountPage from "pages/Customer/AccountFeesCredits";
 import CustomerContractPage from "pages/Customer/Contract";
@@ -328,6 +329,13 @@ function App() {
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
         >
           <BankSettingsPage />
+        </PrivateRoute>
+        <PrivateRoute
+          exact
+          path={bankRoutes.transfers}
+          requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
+        >
+          <BankTransfersPage />
         </PrivateRoute>
         <Route>
           <Redirect to={routes.root} />

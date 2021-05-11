@@ -7,7 +7,7 @@ import BankReportFinancialsByDateTab from "pages/Bank/Reports/FinancialsByDateTa
 import BankReportTransactionsTab from "pages/Bank/Reports/TransactionsTab";
 import { useState } from "react";
 
-function BankReportsPage() {
+export default function BankReportsPage() {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   return (
@@ -37,5 +37,3 @@ function BankReportsPage() {
     </Page>
   );
 }
-
-export default BankReportsPage;

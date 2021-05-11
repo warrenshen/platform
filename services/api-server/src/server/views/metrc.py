@@ -1,13 +1,13 @@
 import json
 from datetime import timedelta
-from dateutil import parser
-from typing import cast, Any, List
+from typing import Any, List, cast
 
 from bespoke import errors
+from bespoke.audit import events
 from bespoke.db import db_constants, models, models_util
 from bespoke.db.models import session_scope
 from bespoke.metrc import metrc_util
-from bespoke.audit import events
+from dateutil import parser
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from mypy_extensions import TypedDict
@@ -52,7 +52,7 @@ class GetTransfersView(MethodView):
 			user_key=cfg.METRC_USER_KEY
 		)
 		rest = metrc_util.REST(
-			auth_dict, 
+			auth_dict,
 			license_id=form['license_id'],
 			us_state=us_state
 		)
@@ -82,15 +82,18 @@ class GetTransfersView(MethodView):
 				resp = rest.get(f'/transfers/v1/delivery/{transfer_id}/packages')
 				t_packages_json = json.loads(resp.content)
 
-				transfer_packages = metrc_util.TransferPackages(t_packages_json)
+				transfer_packages = metrc_util.TransferPackages(transfer_id, t_packages_json)
 				include_packages_header = len(all_transfer_package_rows) == 0
 				all_transfer_package_rows.extend(transfer_packages.to_rows(
 					include_header=include_packages_header))
 
 		return make_response(json.dumps({
 			'status': 'OK',
-			'transfer_rows': all_transfers_rows,
-			'transfer_package_rows': all_transfer_package_rows
+			'msg': 'Success',
+			'data': {
+				'transfer_rows': all_transfers_rows,
+				'transfer_package_rows': all_transfer_package_rows
+			},
 		}), 200)
 
 handler.add_url_rule(

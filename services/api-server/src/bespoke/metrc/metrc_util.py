@@ -1,10 +1,11 @@
 import base64
-import requests
 import os
+from typing import Dict, List, Tuple
+
+import requests
 from dateutil import parser
 from dotenv import load_dotenv
 from mypy_extensions import TypedDict
-from typing import Dict, List, Tuple
 from requests.auth import HTTPBasicAuth
 
 AuthDict = TypedDict('AuthDict', {
@@ -13,17 +14,17 @@ AuthDict = TypedDict('AuthDict', {
 })
 
 def _dicts_to_rows(
-	dicts: List[Dict], 
+	dicts: List[Dict],
 	col_specs: List[Tuple[str, str]],
-	include_header: bool) -> List[List[str]]:	
+	include_header: bool) -> List[List[str]]:
 	title_row = []
 	rows: List[List[str]] = []
-			
+
 	for t in dicts:
 		row = []
 		for i in range(len(col_specs)):
 			col_spec = col_specs[i]
-			if len(rows) == 0: # its the first row we are dealing with 
+			if len(rows) == 0: # its the first row we are dealing with
 				title_row.append(col_spec[0])
 
 			key_name = col_spec[1]
@@ -40,12 +41,16 @@ def _dicts_to_rows(
 	return rows
 
 class TransferPackages(object):
-		
-	def __init__(self, transfer_packages: List[Dict]) -> None:
+
+	def __init__(self, delivery_id: str, transfer_packages: List[Dict]) -> None:
+		self.delivery_id = delivery_id
 		self._packages = transfer_packages
+		for package in self._packages:
+			package['DeliveryId'] = delivery_id
 
 	def to_rows(self, include_header: bool) -> List[List[str]]:
 		col_specs = [
+				('Delivery Id', 'DeliveryId'),
 				('Package Id', 'PackageId'),
 				('Package', 'PackageLabel'),
 				('Package Type', 'PackageType'),
@@ -63,7 +68,7 @@ class TransferPackages(object):
 		return _dicts_to_rows(self._packages, col_specs, include_header)
 
 class Transfers(object):
-		
+
 	def __init__(self, transfers: List[Dict]) -> None:
 		self._transfers = transfers
 
@@ -76,6 +81,8 @@ class Transfers(object):
 
 	def to_rows(self, include_header: bool) -> List[List[str]]:
 		col_specs = [
+				('Transfer Id', 'Id'),
+				('Delivery Id', 'DeliveryId'),
 				('Manifest', 'ManifestNumber'),
 				('Origin Lic', 'ShipperFacilityLicenseNumber'),
 				('Origin Facility', 'ShipperFacilityName'),
@@ -90,14 +97,14 @@ class Transfers(object):
 		return _dicts_to_rows(self._transfers, col_specs, include_header)
 
 class REST(object):
-		
+
 	def __init__(self, auth_dict: AuthDict, license_id: str, us_state: str, debug: bool = False) -> None:
 		self.auth = HTTPBasicAuth(auth_dict['vendor_key'], auth_dict['user_key'])
 		self.license_id = license_id
 		abbr = us_state.lower()
 		self.base_url = f'https://api-{abbr}.metrc.com'
 		self.debug = debug
-			
+
 	def get(self, path: str, time_range: List = None) -> requests.models.Response:
 		url = self.base_url + path
 
@@ -110,7 +117,7 @@ class REST(object):
 		if time_range:
 			if len(time_range) == 1:
 				lastModifiedStart = parser.parse(time_range[0]).isoformat()
-				url += '&lastModifiedStart=' + lastModifiedStart                
+				url += '&lastModifiedStart=' + lastModifiedStart
 			else:
 				lastModifiedStart = parser.parse(time_range[0]).isoformat()
 				lastModifiedEnd = parser.parse(time_range[1]).isoformat()
