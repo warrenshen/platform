@@ -44,10 +44,9 @@ function CreateRepaymentSelectLoans({
 }: Props) {
   const isReverseDraftACH =
     payment.method === PaymentMethodEnum.ReverseDraftACH;
-  const disabledBefore = addBizDays(
-    todayAsDateStringServer(),
-    new Date().getHours() >= 12 ? 2 : 1
-  );
+  const disabledBefore = isReverseDraftACH
+    ? addBizDays(todayAsDateStringServer(), new Date().getHours() >= 12 ? 2 : 1)
+    : undefined;
 
   return (
     <Box>
