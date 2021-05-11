@@ -69,8 +69,9 @@ export default function SettleRepaymentModal({
             // Default to_principal, to_interest, and to_account_fees to their requested counterparts.
             to_principal: existingPayment.items_covered.requested_to_principal,
             to_interest: existingPayment.items_covered.requested_to_interest,
+            // Default to_account_fees to 0.0 for backwards compatibility.
             to_account_fees:
-              existingPayment.items_covered.requested_to_account_fees,
+              existingPayment.items_covered.requested_to_account_fees || 0.0,
             to_user_credit: 0.0,
           },
         } as PaymentsInsertInput);

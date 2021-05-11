@@ -666,6 +666,11 @@ def settle_repayment(
 	if not settlement_date:
 		raise errors.Error('settlement_date must be specified')
 
+	# TODO(warrenshen): remove this temporary fix.
+	# Temporary fix for backwards compatibility.
+	if 'to_account_fees' not in items_covered:
+		items_covered['to_account_fees'] = 0.0
+
 	if 'to_account_fees' not in items_covered or 'to_user_credit' not in items_covered:
 		raise errors.Error('To account fees and to user credit must be specified', details=err_details)
 
