@@ -60,10 +60,12 @@ function RepaymentsDataGrid({
       payments.map((payment) => ({
         ...payment,
         amount: isOther ? payment.requested_amount : payment.amount,
-        expected_deposit_date: addBizDays(
-          payment.payment_date,
-          payment.method === PaymentMethodEnum.ReverseDraftACH ? 1 : 0
-        ),
+        expected_deposit_date: !!payment.payment_date
+          ? addBizDays(
+              payment.payment_date,
+              payment.method === PaymentMethodEnum.ReverseDraftACH ? 1 : 0
+            )
+          : null,
         submitted_by_name: payment.submitted_by_user?.full_name,
       })),
     [isOther, payments]
