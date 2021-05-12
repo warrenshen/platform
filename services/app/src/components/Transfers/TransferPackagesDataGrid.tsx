@@ -75,7 +75,7 @@ export default function TransferPackagesDataGrid({
       {
         dataField: "package_number",
         caption: "Package Number",
-        minWidth: ColumnWidths.MinWidth,
+        minWidth: 240,
       },
       {
         dataField: "package_type",
