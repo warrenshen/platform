@@ -117,7 +117,7 @@ def import_loans(session: Session, loan_tuples: List[List[str]]) -> None:
 				continue
 
 		parsed_loan_type = None
-		if loan_type == 'Inventory':
+		if loan_type == 'Inventory' or loan_type == 'PMF':
 			parsed_loan_type = LoanTypeEnum.INVENTORY
 
 		if parsed_loan_type not in ALL_LOAN_TYPES:
