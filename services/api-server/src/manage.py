@@ -16,33 +16,36 @@ from bespoke.db.models import session_scope
 from bespoke.email import email_manager, sendgrid_util
 from bespoke.email.email_manager import EmailConfigDict, SendGridConfigDict
 from bespoke.security import two_factor_util
-from server.config import get_config, is_development_env
-from server.views import (
-	auth, companies, contracts, files, healthcheck, licenses, metrc, notify, purchase_orders,
-	two_factor, users)
-from server.views.finance.invoices import routes as invoices_routes
+from server.config import get_config, is_development_env, is_test_env
+from server.views import (auth, companies, contracts, files, healthcheck,
+                          licenses, metrc, notify, purchase_orders, two_factor,
+                          users)
+from server.views.finance import credits, fees
 from server.views.finance.ebba_applications import \
     approvals as ebba_application_approvals
-from server.views.finance import (fees, credits)
-from server.views.finance.loans import (
-	advances, adjustments, artifacts, approvals, repayments, reports, deletion, 
-	purchase_orders as loans_purchase_orders
-)
+from server.views.finance.invoices import routes as invoices_routes
+from server.views.finance.loans import (adjustments, advances, approvals,
+                                        artifacts, deletion)
+from server.views.finance.loans import purchase_orders as loans_purchase_orders
+from server.views.finance.loans import repayments, reports
 
-if is_development_env(os.environ.get('FLASK_ENV')):
+if is_test_env(os.environ.get('FLASK_ENV')):
+	load_dotenv(os.path.join(os.environ.get('SERVER_ROOT_DIR'), '.env.test'))
+else:
 	load_dotenv(os.path.join(os.environ.get('SERVER_ROOT_DIR'), '.env'))
 
 config = get_config()
 
-sentry_sdk.init(
-	dsn=config.SENTRY_DSN,
-	integrations=[FlaskIntegration()],
-	environment=config.FLASK_ENV,
-	# Set traces_sample_rate to 1.0 to capture 100%
-	# of transactions for performance monitoring.
-	# We recommend adjusting this value in production,
-	traces_sample_rate=1.0
-)
+if not is_test_env(os.environ.get('FLASK_ENV')):
+	sentry_sdk.init(
+		dsn=config.SENTRY_DSN,
+		integrations=[FlaskIntegration()],
+		environment=config.FLASK_ENV,
+		# Set traces_sample_rate to 1.0 to capture 100%
+		# of transactions for performance monitoring.
+		# We recommend adjusting this value in production,
+		traces_sample_rate=1.0
+	)
 
 logging.basicConfig(format='%(asctime)s [%(levelname)s] - %(message)s',
 					datefmt='%m/%d/%Y %H:%M:%S',
@@ -116,7 +119,7 @@ if not config.IS_TEST_ENV:
 	app.sms_client = two_factor_util.SMSClient(
 		account_sid=config.TWILIO_ACCOUNT_SID,
 		auth_token=config.TWILIO_AUTH_TOKEN,
-		from_=config.TWILIO_FROM_NUMBER	
+		from_=config.TWILIO_FROM_NUMBER
 	)
 
 

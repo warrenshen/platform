@@ -59,9 +59,40 @@ CreatePartnershipRequestInputDict = TypedDict('CreatePartnershipRequestInputDict
 	'user': create_user_util.UserInsertInputDict,
 })
 
+def create_customer_company(
+	name: str,
+	identifier: str,
+	contract_name: str,
+	dba_name: str,
+	session: Session,
+) -> models.Company:
+	company_settings = models.CompanySettings()
+	session.add(company_settings)
+
+	session.flush()
+	company_settings_id = str(company_settings.id)
+
+	company = models.Company(
+		company_type=CompanyType.Customer,
+		name=name,
+		identifier=identifier,
+		contract_name=contract_name,
+		dba_name=dba_name,
+		company_settings_id=company_settings_id,
+	)
+
+	session.add(company)
+	session.flush()
+
+	company_id = str(company.id)
+	company_settings.company_id = company_id
+
+	return company
+
 @errors.return_error_tuple
 def create_customer(
-	req: CreateCustomerInputDict, bank_admin_user_id: str,
+	req: CreateCustomerInputDict,
+	bank_admin_user_id: str,
 	session_maker: Callable,
 ) -> Tuple[CreateCustomerRespDict, errors.Error]:
 
@@ -91,9 +122,6 @@ def create_customer(
 		if existing_company_by_identifier:
 			raise errors.Error(f'A customer with identifier "{company_identifier}" already exists')
 
-		company_settings = models.CompanySettings()
-		session.add(company_settings)
-
 		if not req['contract']['product_config']:
 			raise errors.Error('No product config specified')
 
@@ -114,25 +142,19 @@ def create_customer(
 		session.add(contract)
 
 		session.flush()
-		company_settings_id = str(company_settings.id)
 		contract_id = str(contract.id)
 
-		company = models.Company(
-			company_type=CompanyType.Customer,
+		company = create_customer_company(
 			name=company_name,
 			identifier=company_identifier,
 			contract_name=company_contract_name,
 			dba_name=company_dba_name,
-			company_settings_id=company_settings_id,
-			contract_id=contract_id,
+			session=session,
 		)
-		session.add(company)
-		session.flush()
+
 		company_id = str(company.id)
-
-		company_settings.company_id = company_id
+		company.contract_id = contract_id
 		contract.company_id = company_id
-
 
 	return CreateCustomerRespDict(
 		status='OK'
@@ -279,7 +301,7 @@ def create_partnership_request(
 	partnership_req.two_factor_message_method = TwoFactorMessageMethod.PHONE
 	partnership_req.company_type = CompanyType.Payor if is_payor else CompanyType.Vendor
 	partnership_req.company_name = company_name
-	partnership_req.requested_by_user_id = requested_user_id 
+	partnership_req.requested_by_user_id = requested_user_id
 
 	partnership_req.user_info = {
 		'first_name': user_first_name,

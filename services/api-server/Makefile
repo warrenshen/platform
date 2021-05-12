@@ -25,6 +25,9 @@ endif
 runlocal:
 	cd src && FLASK_ENV=development PYTHONPATH=$(PYTHONPATH) SERVER_ROOT_DIR=$(server_root_dir) gunicorn --reload --bind 0.0.0.0:7000 --timeout 300 --threads 4 manage:app
 
+run-local-cypress:
+	cd src && FLASK_ENV=test PYTHONPATH=$(PYTHONPATH) SERVER_ROOT_DIR=$(server_root_dir) gunicorn --reload --bind 0.0.0.0:7002 --timeout 300 --threads 1 manage:app
+
 run-async-local:
 	cd src && FLASK_ENV=development PYTHONPATH=$(PYTHONPATH) SERVER_ROOT_DIR=$(server_root_dir) gunicorn --reload --bind 0.0.0.0:7001 --timeout 300 --threads 2 manage_async:app
 
@@ -38,6 +41,9 @@ run-customer-balances:
 
 run-metrc-script:
 	cd src && PYTHONPATH=$(PYTHONPATH) SERVER_ROOT_DIR=$(server_root_dir) python3 bespoke/metrc/metrc_util.py
+
+run-test-seed-db:
+	cd src && FLASK_ENV=test PYTHONPATH=$(PYTHONPATH) SERVER_ROOT_DIR=$(server_root_dir) python3 bespoke/db/main.py setup_test
 
 # For testing
 

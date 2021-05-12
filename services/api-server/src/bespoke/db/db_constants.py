@@ -5,10 +5,26 @@ Constants for things that can get stored in the DB
 # Auth
 
 class UserRoles(object):
+	BANK_ADMIN = 'bank_admin'
+	BANK_READ_ONLY = 'bank_read_only'
+	COMPANY_ADMIN = 'company_admin'
+	COMPANY_READ_ONLY = 'company_read_only'
 	PURCHASE_ORDER_REVIEWER = 'purchase_order_reviewer'
 	INVOICE_REVIEWER = 'invoice_reviewer'
 
-ALL_BANK_READER_ROLES = ['bank_admin', 'bank_read_only']
+ALL_USER_ROLES = [
+	UserRoles.BANK_ADMIN,
+	UserRoles.BANK_READ_ONLY,
+	UserRoles.COMPANY_ADMIN,
+	UserRoles.COMPANY_READ_ONLY,
+	UserRoles.PURCHASE_ORDER_REVIEWER,
+	UserRoles.INVOICE_REVIEWER,
+]
+
+ALL_BANK_READER_ROLES = [
+	UserRoles.BANK_ADMIN,
+	UserRoles.BANK_READ_ONLY,
+]
 
 class FileTypeEnum(object):
 	COMPANY_AGREEMENT = 'company_agreement'

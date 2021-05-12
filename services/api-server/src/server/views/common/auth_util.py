@@ -1,11 +1,13 @@
 from functools import wraps
-from typing import Any, Callable, List
+from typing import Any, Callable, List, cast
 
 from bespoke import errors
 from bespoke.db import db_constants, models
+from bespoke.security import security_util
 from flask import Response, abort, current_app, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from mypy_extensions import TypedDict
+from server.config import Config
 from server.views.common import handler_util
 
 UserPayloadDict = TypedDict('UserPayloadDict', {
@@ -106,3 +108,8 @@ def requires_async_magic_header(f: Callable) -> Callable:
 			abort(401)
 		return f(*args, **kwargs)
 	return wrapped
+
+
+def create_login_for_user(user: models.User, password: str) -> None:
+	cfg = cast(Config, current_app.app_config)
+	user.password = security_util.hash_password(cfg.PASSWORD_SALT, password)

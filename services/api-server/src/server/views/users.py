@@ -54,8 +54,7 @@ class CreateLoginView(MethodView):
 			if not existing_user:
 				return handler_util.make_error_response('No user id found')
 
-			existing_user.password = security_util.hash_password(
-				cfg.PASSWORD_SALT, password)
+			auth_util.create_login_for_user(existing_user, password)
 			user_email = existing_user.email
 
 			template_data = {

@@ -1,16 +1,15 @@
-import json
 import datetime
 import decimal
-from typing import Callable, Dict, Any
+import json
 from dataclasses import dataclass
+from typing import Any, Callable, Dict
 
-from manage import app
-from bespoke.db.db_constants import RequestStatusEnum, LoanStatusEnum
 from bespoke.db import models
+from bespoke.db.db_constants import LoanStatusEnum, RequestStatusEnum
 from bespoke.db.models import session_scope
-from bespoke_test.db import db_unittest
-from bespoke_test.db import test_helper
 from bespoke_test import auth_helper
+from bespoke_test.db import db_unittest, test_helper
+from manage import app
 from sqlalchemy.orm.session import Session
 
 

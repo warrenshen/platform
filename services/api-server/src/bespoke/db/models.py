@@ -13,6 +13,7 @@ from bespoke.date import date_util
 from bespoke.db.db_constants import CompanyType
 from fastapi_utils.guid_type import GUID, GUID_DEFAULT_SQLITE
 from mypy_extensions import TypedDict
+from server.config import is_test_env
 from sqlalchemy import (JSON, BigInteger, Boolean, Column, Date, DateTime,
                         Float, ForeignKey, Integer, Numeric, String, Text)
 from sqlalchemy.dialects.postgresql import UUID
@@ -55,6 +56,28 @@ def safe_serialize(d: Any) -> Any:
 
 	return d
 
+
+def get_db_url() -> str:
+	return os.environ.get('DATABASE_URL')
+
+
+def create_engine() -> Engine:
+	return sqlalchemy.create_engine(
+		get_db_url(),
+		connect_args={
+			'connect_timeout': 100,
+			"options": "-c statement_timeout=3000",
+		},
+		pool_pre_ping=True,  # to prevent disconnect errors from causing runtime errors
+		pool_recycle=3600,  # dont let connections last for longer than 1 hr
+		# we want old connections to be recycled and thrown out, so only use the most recent connections
+		pool_use_lifo=True,
+		pool_size=3,  # Only allow 3 connections at most at once
+		# We dont want to keep connections in memory, currently we only have about 100 max connections
+		poolclass=QueuePool
+	)
+
+
 class User(Base):
 	__tablename__ = 'users'
 
@@ -66,6 +89,13 @@ class User(Base):
 	first_name = Column(Text, nullable=False)
 	last_name = Column(Text, nullable=False)
 	phone_number = Column(Text)
+
+
+class UserRole(Base):
+	__tablename__ = 'user_roles'
+
+	value = Column(String, primary_key=True)
+	display_name = Column(String)
 
 
 class Customer(Base):
@@ -540,7 +570,7 @@ class RevokedTokenModel(Base):
 	__tablename__ = 'revoked_tokens'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
-	user_id = Column(GUID, nullable=False)
+	user_id = cast(GUID, Column(GUID, ForeignKey('users.id'), nullable=False))
 	jti = Column(String(120), nullable=False)
 
 
@@ -764,25 +794,6 @@ class AuditEvent(Base):
 	outcome = Column(String, nullable=False)
 	data = Column(JSON, nullable=True)
 	error = Column(String, nullable=True)
-
-
-def get_db_url() -> str:
-	return os.environ.get('DATABASE_URL')
-
-
-def create_engine() -> Engine:
-	return sqlalchemy.create_engine(
-		get_db_url(),
-		connect_args={'connect_timeout': 100,
-					  "options": "-c statement_timeout=3000"},
-		pool_pre_ping=True,  # to prevent disconnect errors from causing runtime errors
-		pool_recycle=3600,  # dont let connections last for longer than 1 hr
-		# we want old connections to be recycled and thrown out, so only use the most recent connections
-		pool_use_lifo=True,
-		pool_size=3,  # Only allow 3 connections at most at once
-		# We dont want to keep connections in memory, currently we only have about 100 max connections
-		poolclass=QueuePool
-	)
 
 
 class BankAccount(Base):

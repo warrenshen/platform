@@ -83,12 +83,12 @@ class ForgotPasswordView(MethodView):
 			template_data={},
 			recipients=[email],
 			two_factor_payload=sendgrid_util.TwoFactorPayloadDict(
-			  form_info=models.TwoFactorFormInfoDict(
-			  	type=db_constants.TwoFactorLinkType.FORGOT_PASSWORD,
-			  	payload={}
-			  ),
-			  expires_at=date_util.hours_from_today(24 * 3) # 3 days
-		  )
+				form_info=models.TwoFactorFormInfoDict(
+					type=db_constants.TwoFactorLinkType.FORGOT_PASSWORD,
+					payload={}
+				),
+				expires_at=date_util.hours_from_today(24 * 3) # 3 days
+			)
 		)
 
 		return make_response(json.dumps({
@@ -159,7 +159,7 @@ class SignOutAccessView(MethodView):
 		jti = get_raw_jwt()['jti']
 		userId = get_raw_jwt()[
 			'https://hasura.io/jwt/claims']['X-Hasura-User-Id']
-		revoked_token = models.RevokedTokenModel(jti=jti, user_id=userId)
+		revoked_token = models.RevokedTokenModel(jti=jti, user_id=userId) # type: ignore
 		try:
 			with session_scope(current_app.session_maker) as session:
 				if not userId:
@@ -180,7 +180,7 @@ class SignOutRefreshView(MethodView):
 		jti = get_raw_jwt()['jti']
 		userId = get_raw_jwt()[
 			'https://hasura.io/jwt/claims']['X-Hasura-User-Id']
-		revoked_token = models.RevokedTokenModel(jti=jti, user_id=userId)
+		revoked_token = models.RevokedTokenModel(jti=jti, user_id=userId) # type: ignore
 		try:
 			with session_scope(current_app.session_maker) as session:
 				if not userId:

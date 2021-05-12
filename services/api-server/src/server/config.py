@@ -2,7 +2,7 @@ import json
 import os
 from typing import Dict
 
-from bespoke.config.config_util import is_development_env
+from bespoke.config.config_util import is_development_env, is_test_env
 from bespoke.security import security_util
 
 
@@ -20,16 +20,14 @@ class Config(object):
 		self.JWT_SECRET_KEY = jwt_config['key']
 		self.JWT_ALGORITHM = jwt_config['type']
 		self.JWT_IDENTITY_CLAIM = 'https://hasura.io/jwt/claims'
-		self.JWT_ACCESS_TOKEN_EXPIRES = 60 * \
-			15  # 15 minutes in seconds (default)
-		self.JWT_REFRESH_TOKEN_EXPIRES = 60 * 60 * \
-			24 * 30  # 30 days in seconds (default)
+		self.JWT_ACCESS_TOKEN_EXPIRES = 60 * 15  # 15 minutes in seconds (default)
+		self.JWT_REFRESH_TOKEN_EXPIRES = 60 * 60 * 24 * 30  # 30 days in seconds (default)
 		self.JWT_BLACKLIST_ENABLED = True
 		self.JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
 
 		# General
 		self.FLASK_ENV = os.environ.get('FLASK_ENV')
-		self.IS_TEST_ENV = _string_to_bool(os.environ.get('IS_TEST_ENV'))
+		self.IS_TEST_ENV = self.FLASK_ENV == 'test' or _string_to_bool(os.environ.get('IS_TEST_ENV'))
 
 		# Security
 		self.PASSWORD_SALT = os.environ.get('PASSWORD_SALT')
