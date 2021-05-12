@@ -87,6 +87,13 @@ class GetTransfersView(MethodView):
 				all_transfer_package_rows.extend(transfer_packages.to_rows(
 					include_header=include_packages_header))
 
+				# Code to be used in the future: fetch lab test result by package id.
+				# package_ids = transfer_packages.get_package_ids()
+				# for package_id in package_ids:
+				# 	if package_id == '4674851' or package_id == 4674851:
+				# 		resp = rest.get(f'/labtests/v1/results?packageId={package_id}')
+				# 		package_json = json.loads(resp.content)
+
 		return make_response(json.dumps({
 			'status': 'OK',
 			'msg': 'Success',

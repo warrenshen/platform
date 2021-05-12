@@ -48,6 +48,9 @@ class TransferPackages(object):
 		for package in self._packages:
 			package['DeliveryId'] = delivery_id
 
+	def get_package_ids(self) -> List[str]:
+		return [t['PackageId'] for t in self._packages]
+
 	def to_rows(self, include_header: bool) -> List[List[str]]:
 		col_specs = [
 				('Delivery Id', 'DeliveryId'),
