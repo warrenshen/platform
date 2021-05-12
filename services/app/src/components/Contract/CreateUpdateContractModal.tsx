@@ -1,17 +1,13 @@
 import {
   Box,
-  Button,
   createStyles,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   makeStyles,
   Theme,
   Typography,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import ContractTermsForm from "components/Contract/ContractTermsForm";
+import Modal from "components/Shared/Modal/Modal";
 import {
   Companies,
   Contracts,
@@ -76,7 +72,7 @@ interface Props {
   handleClose: () => void;
 }
 
-function CreateUpdateContractModal({
+export default function CreateUpdateContractModal({
   actionType,
   companyId,
   contractId,
@@ -141,7 +137,7 @@ function CreateUpdateContractModal({
     { loading: isUpdateContractLoading },
   ] = useCustomMutation(updateContractMutation);
 
-  const handleSubmit = async () => {
+  const handleClickSubmit = async () => {
     const invalidFields = Object.values(currentJSONConfig)
       .filter((item) => isProductConfigFieldInvalid(item))
       .map((item) => item.display_name);
@@ -195,55 +191,39 @@ function CreateUpdateContractModal({
     !isDialogReady || isAddContractLoading || isUpdateContractLoading;
 
   return isDialogReady ? (
-    <Dialog open onClose={handleClose} fullWidth>
-      <DialogTitle className={classes.dialogTitle}>
-        {`${actionType === ActionType.Update ? "Edit" : "Create"} Contract`}
-      </DialogTitle>
-      <DialogContent>
-        <Box display="flex" flexDirection="column">
-          <Box mb={3}>
-            <Alert severity="info">
-              <Typography variant="body1">
-                Note: only bank admins may create / edit contracts (you are a
-                bank admin). Description text in green is only visible to bank
-                users.
-              </Typography>
-            </Alert>
-          </Box>
-          <ContractTermsForm
-            isProductTypeEditable={actionType === ActionType.New}
-            isStartDateEditable
-            errMsg={errMsg}
-            contract={contract}
-            currentJSONConfig={currentJSONConfig}
-            setContract={setContract}
-            setCurrentJSONConfig={setCurrentJSONConfig}
-          />
-          {errMsg && (
-            <Box className={classes.errorBox} mt={3}>
-              {errMsg}
-            </Box>
-          )}
+    <Modal
+      dataCy={"create-contract-modal"}
+      isPrimaryActionDisabled={isSubmitDisabled}
+      title={`${actionType === ActionType.Update ? "Edit" : "Create"} Contract`}
+      primaryActionDataCy={"create-contract-modal-button-submit"}
+      primaryActionText={"Save"}
+      handleClose={handleClose}
+      handlePrimaryAction={handleClickSubmit}
+    >
+      <Box display="flex" flexDirection="column">
+        <Box mb={3}>
+          <Alert severity="info">
+            <Typography variant="body1">
+              Note: only bank admins may create / edit contracts (you are a bank
+              admin). Description text in green is only visible to bank users.
+            </Typography>
+          </Alert>
         </Box>
-      </DialogContent>
-      <DialogActions className={classes.dialogActions}>
-        <Box display="flex">
-          <Box pr={1}>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button
-              disabled={isSubmitDisabled}
-              variant="contained"
-              color="primary"
-              type="submit"
-              onClick={handleSubmit}
-            >
-              Save
-            </Button>
+        <ContractTermsForm
+          isProductTypeEditable={actionType === ActionType.New}
+          isStartDateEditable
+          errMsg={errMsg}
+          contract={contract}
+          currentJSONConfig={currentJSONConfig}
+          setContract={setContract}
+          setCurrentJSONConfig={setCurrentJSONConfig}
+        />
+        {errMsg && (
+          <Box className={classes.errorBox} mt={3}>
+            {errMsg}
           </Box>
-        </Box>
-      </DialogActions>
-    </Dialog>
+        )}
+      </Box>
+    </Modal>
   ) : null;
 }
-
-export default CreateUpdateContractModal;

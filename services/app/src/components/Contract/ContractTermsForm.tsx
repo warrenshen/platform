@@ -33,16 +33,9 @@ const useStyles = makeStyles({
   section: {
     fontWeight: 400,
     fontSize: "18px",
-    marginTop: "1.5rem",
-    "&:first-of-type": {
-      marginTop: 0,
-    },
   },
   sectionName: {
     marginBottom: "1.5rem",
-  },
-  inputField: {
-    width: 300,
   },
   datePicker: {
     width: 300,
@@ -263,7 +256,6 @@ function ContractTermsForm({
       default:
         return (
           <TextField
-            className={classes.inputField}
             error={errMsg.length > 0 && isProductConfigFieldInvalid(item)}
             label={item.display_name}
             placeholder=""
@@ -282,8 +274,13 @@ function ContractTermsForm({
 
   return (
     <Box display="flex" flexDirection="column">
-      <Box className={classes.section} mb={3}>
-        <FormControl className={classes.inputField}>
+      <Box
+        display="flex"
+        flexDirection="column"
+        className={classes.section}
+        mt={6}
+      >
+        <FormControl>
           <InputLabel id="select-product-type-label">Product Type</InputLabel>
           <Select
             disabled={!isProductTypeEditable}
@@ -300,7 +297,7 @@ function ContractTermsForm({
                     : {},
               });
             }}
-            style={{ width: 200 }}
+            // style={{ width: 200 }}
           >
             {AllProductTypes.map((productType) => (
               <MenuItem key={productType} value={productType}>
@@ -310,10 +307,9 @@ function ContractTermsForm({
           </Select>
         </FormControl>
       </Box>
-      <Box mb={3}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <DateInput
           disabled={!isStartDateEditable}
-          className={classes.inputField}
           id="start-date-date-picker"
           label="Start Date"
           value={contract.start_date}
@@ -336,9 +332,8 @@ function ContractTermsForm({
           }}
         />
       </Box>
-      <Box mb={3}>
+      <Box display="flex" flexDirection="column" mt={4}>
         <DateInput
-          className={classes.inputField}
           id="end-date-date-picker"
           label="Expected End Date"
           value={contract.end_date}
@@ -352,7 +347,7 @@ function ContractTermsForm({
       </Box>
       <Box display="flex" flexDirection="column">
         {Object.entries(sections).map(([sectionName, content]) => (
-          <Box key={sectionName} className={classes.section}>
+          <Box key={sectionName} className={classes.section} mt={6}>
             <Typography variant="h6" className={classes.sectionName}>
               {sectionName}
             </Typography>

@@ -261,30 +261,28 @@ export default function CreateUpdatePurchaseOrderModal({
       }
       handleSecondaryAction={!isActionTypeUpdate ? handleClickSaveDraft : null}
     >
-      <>
-        {isBankUser && (
-          <Box mt={2} mb={6}>
-            <Alert severity="warning">
-              <Typography variant="body1">
-                {`Warning: you are ${
-                  isActionTypeUpdate ? "editing" : "creating"
-                } a purchase order on behalf of this
+      {isBankUser && (
+        <Box mt={2} mb={6}>
+          <Alert severity="warning">
+            <Typography variant="body1">
+              {`Warning: you are ${
+                isActionTypeUpdate ? "editing" : "creating"
+              } a purchase order on behalf of this
                 customer (only bank admins can do this).`}
-              </Typography>
-            </Alert>
-          </Box>
-        )}
-        <PurchaseOrderForm
-          companyId={companyId}
-          purchaseOrder={purchaseOrder}
-          purchaseOrderFile={purchaseOrderFile}
-          purchaseOrderCannabisFiles={purchaseOrderCannabisFiles}
-          vendors={vendors}
-          setPurchaseOrder={setPurchaseOrder}
-          setPurchaseOrderFile={setPurchaseOrderFile}
-          setPurchaseOrderCannabisFiles={setPurchaseOrderCannabisFiles}
-        />
-      </>
+            </Typography>
+          </Alert>
+        </Box>
+      )}
+      <PurchaseOrderForm
+        companyId={companyId}
+        purchaseOrder={purchaseOrder}
+        purchaseOrderFile={purchaseOrderFile}
+        purchaseOrderCannabisFiles={purchaseOrderCannabisFiles}
+        vendors={vendors}
+        setPurchaseOrder={setPurchaseOrder}
+        setPurchaseOrderFile={setPurchaseOrderFile}
+        setPurchaseOrderCannabisFiles={setPurchaseOrderCannabisFiles}
+      />
     </Modal>
   ) : null;
 }

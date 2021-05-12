@@ -59,6 +59,10 @@ SEED_USER_TUPLES = [
 ]
 
 def _setup_db_test() -> None:
+	if not is_test_env(os.environ.get('FLASK_ENV')):
+		print('This is only intended to be used in a test environment')
+		return
+
 	db_url = models.get_db_url()
 
 	print(f'Seeding TEST database at engine url {db_url}...')
