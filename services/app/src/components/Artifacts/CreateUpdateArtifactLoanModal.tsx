@@ -322,50 +322,48 @@ export default function CreateUpdateArtifactLoanModal({
       handlePrimaryAction={handleClickSaveSubmit}
       handleSecondaryAction={handleClickSaveDraft}
     >
-      <>
-        {isBankUser && (
-          <Box mt={2} mb={6}>
-            <Alert severity="warning">
-              <Typography variant="body1">
-                {`Warning: you are ${
-                  actionType === ActionType.Update ? "editing" : "requesting"
-                } a loan on behalf of this
+      {isBankUser && (
+        <Box mt={2} mb={6}>
+          <Alert severity="warning">
+            <Typography variant="body1">
+              {`Warning: you are ${
+                actionType === ActionType.Update ? "editing" : "requesting"
+              } a loan on behalf of this
                 customer (only bank admins can do this).`}
-              </Typography>
-            </Alert>
-          </Box>
-        )}
-        <ArtifactLoanForm
-          canEditArtifact={
-            actionType === ActionType.New && !disableArtifactEditing
-          }
-          artifactTitle={getProductTypeArtifactTitle(productType!)}
-          productType={productType}
-          loan={loan}
-          setLoan={setLoan}
-          approvedArtifacts={approvedArtifacts}
-          selectedArtifact={selectedArtifact}
-          idToArtifact={idToArtifact}
-          InfoCard={InfoCard}
-        />
-        {disabledSubmitReasons.length > 0 && (
-          <Box mt={4}>
-            <Alert severity="warning">
-              <span>
-                Reasons you cannot submit, but can only save this as a draft
-              </span>
-              <br />
-              <div>
-                <ul>
-                  {disabledSubmitReasons.map((reason, index) => {
-                    return <li key={"disabled-reason-" + index}>{reason}</li>;
-                  })}
-                </ul>
-              </div>
-            </Alert>
-          </Box>
-        )}
-      </>
+            </Typography>
+          </Alert>
+        </Box>
+      )}
+      <ArtifactLoanForm
+        canEditArtifact={
+          actionType === ActionType.New && !disableArtifactEditing
+        }
+        artifactTitle={getProductTypeArtifactTitle(productType!)}
+        productType={productType}
+        loan={loan}
+        setLoan={setLoan}
+        approvedArtifacts={approvedArtifacts}
+        selectedArtifact={selectedArtifact}
+        idToArtifact={idToArtifact}
+        InfoCard={InfoCard}
+      />
+      {disabledSubmitReasons.length > 0 && (
+        <Box mt={4}>
+          <Alert severity="warning">
+            <span>
+              Reasons you cannot submit, but can only save this as a draft
+            </span>
+            <br />
+            <div>
+              <ul>
+                {disabledSubmitReasons.map((reason, index) => {
+                  return <li key={"disabled-reason-" + index}>{reason}</li>;
+                })}
+              </ul>
+            </div>
+          </Alert>
+        </Box>
+      )}
     </Modal>
   );
 }

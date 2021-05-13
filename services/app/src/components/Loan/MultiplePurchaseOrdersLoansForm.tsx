@@ -98,12 +98,7 @@ export default function MultiplePurchaseOrdersLoansForm({
       <Box>
         <p>
           These {purchaseOrderLoans.length} loans total to{" "}
-          <strong>{formatCurrency(loanTotal)}</strong> and (when funded) will
-          reduce your balance of{" "}
-          <strong>{formatCurrency(balanceRemaining)}</strong> to{" "}
-          <strong>{formatCurrency(balanceRemaining - loanTotal)}</strong>{" "}
-          (barring any other changes to your balance). All payments for these
-          loans will be made on the date your request below.
+          <strong>{formatCurrency(loanTotal)}</strong>.
         </p>
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>

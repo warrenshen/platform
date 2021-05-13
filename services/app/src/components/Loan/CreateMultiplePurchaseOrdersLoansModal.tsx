@@ -1,17 +1,21 @@
 import {
   Box,
-  Button,
   createStyles,
   Dialog,
-  DialogActions,
   DialogContent,
   DialogTitle,
   makeStyles,
   Theme,
+  Typography,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import Modal from "components/Shared/Modal/Modal";
 import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
+import {
+  Companies,
   GetPurchaseOrdersForIdsQuery,
   LoanFragment,
   Loans,
@@ -68,24 +72,31 @@ const COPY = {
 };
 
 interface Props {
+  companyId: Companies["id"];
   artifactIds: Scalars["uuid"][];
   handleClose: () => void;
 }
 
 export default function CreateMultiplePurchaseOrdersLoansModal({
+  companyId,
   artifactIds,
   handleClose,
 }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
 
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(role);
+
   const [paymentDate, setPaymentDate] = useState<string | null>(null);
 
   const {
-    user: { companyId, productType },
+    user: { productType },
   } = useContext(CurrentUserContext);
 
-  const { data: customer } = useGetCustomerOverviewQuery({
+  const { data: customerData } = useGetCustomerOverviewQuery({
     variables: {
       companyId,
       loanType:
@@ -95,24 +106,28 @@ export default function CreateMultiplePurchaseOrdersLoansModal({
     },
   });
 
-  const { data: purchaseOrders, loading } = useGetPurchaseOrdersForIdsQuery({
-    variables: {
-      purchaseOrderIds: artifactIds,
-    },
-  });
+  const { data: purchaseOrdersData, loading } = useGetPurchaseOrdersForIdsQuery(
+    {
+      variables: {
+        purchaseOrderIds: artifactIds,
+      },
+    }
+  );
 
   const [upsertPurchaseOrdersLoans] = useCustomMutation(
     upsertPurchaseOrdersLoansMutation
   );
 
-  if (!customer || loading) {
+  if (!customerData || loading) {
     return null; // Early Return and wait for the purchase order to show up
   }
 
   // Perform all of the math
-  const computedLoans = computeLoans(purchaseOrders?.purchase_orders || []);
+  const computedLoans = computeLoans(purchaseOrdersData?.purchase_orders || []);
   const loanTotal = sumPossibleLoans(computedLoans);
-  const customerBalanceRemainingNow = grabCustomerBalanceRemaining(customer);
+  const customerBalanceRemainingNow = grabCustomerBalanceRemaining(
+    customerData
+  );
   const forecastedBalanceRemaining = customerBalanceRemainingNow - loanTotal;
 
   // Our only requirement to submit is a paymentDate
@@ -122,7 +137,11 @@ export default function CreateMultiplePurchaseOrdersLoansModal({
   const handleClick = async (status: LoanStatusEnum) => {
     const data = decorateLoansWithPaymentDate(computedLoans, paymentDate!);
     const response = await upsertPurchaseOrdersLoans({
-      variables: { data, status },
+      variables: {
+        company_id: companyId,
+        status,
+        data,
+      },
     });
 
     if (response.status === "ERROR") {
@@ -142,7 +161,7 @@ export default function CreateMultiplePurchaseOrdersLoansModal({
   // Partial errors are:
   // 1. Some of the selected POs are fully funded
   // 2. Some of the selected POS are not approved
-  const returnedPurchaseOrderCount = (purchaseOrders?.purchase_orders || [])
+  const returnedPurchaseOrderCount = (purchaseOrdersData?.purchase_orders || [])
     .length;
   const errBalanceExceeded = forecastedBalanceRemaining < 0;
   const errNoLoansPossible = computedLoans.length === 0;
@@ -218,57 +237,46 @@ export default function CreateMultiplePurchaseOrdersLoansModal({
 
   // Finally, actually render the one we'd like rendered
   return (
-    <Dialog
-      open
-      onClose={handleClose}
-      classes={{ paper: classes.dialog }}
-      maxWidth="xl"
+    <Modal
+      dataCy={"create-multiple-purchase-order-loans-modal"}
+      isPrimaryActionDisabled={areButtonsDisabled}
+      isSecondaryActionDisabled={areButtonsDisabled}
+      title={"Request Multiple Loans"}
+      contentWidth={800}
+      primaryActionText={"Save and Submit"}
+      secondaryActionText={"Save as Draft"}
+      handleClose={handleClose}
+      handlePrimaryAction={() => handleClick(LoanStatusEnum.ApprovalRequested)}
+      handleSecondaryAction={() => handleClick(LoanStatusEnum.Drafted)}
     >
-      <DialogTitle className={classes.dialogTitle}>
-        Create Multiple Inventory Loans
-      </DialogTitle>
-      <DialogContent>
-        <Box mt={1}>
+      {isBankUser && (
+        <Box mt={2} mb={6}>
           <Alert severity="warning">
-            <span>
-              Note: you are requesting loans for MULTIPLE purchase orders. All
-              loans requested will have the same Requested Payment Date and be
-              for the full remaining amount on each purchase order.
-            </span>
+            <Typography variant="body1">
+              {`Warning: you are requesting loans on behalf of this
+                customer (only bank admins can do this).`}
+            </Typography>
           </Alert>
         </Box>
-        {hasPartialError && <Box>{err}</Box>}
-        <MultiplePurchaseOrdersLoansForm
-          purchaseOrderLoans={computedLoans}
-          paymentDate={paymentDate}
-          setPaymentDate={setPaymentDate}
-          loanTotal={loanTotal}
-          balanceRemaining={customerBalanceRemainingNow}
-        />
-      </DialogContent>
-      <DialogActions className={classes.dialogActions}>
-        <Box>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button
-            disabled={areButtonsDisabled}
-            onClick={() => handleClick(LoanStatusEnum.Drafted)}
-            variant={"contained"}
-            color={"secondary"}
-          >
-            Save as Draft
-          </Button>
-          <Button
-            className={classes.submitButton}
-            disabled={areButtonsDisabled}
-            onClick={() => handleClick(LoanStatusEnum.ApprovalRequested)}
-            variant="contained"
-            color="primary"
-          >
-            Save and Submit
-          </Button>
-        </Box>
-      </DialogActions>
-    </Dialog>
+      )}
+      <Box mt={1}>
+        <Alert severity="warning">
+          <span>
+            Note: you are requesting loans for MULTIPLE purchase orders. All
+            loans requested will have the same Requested Payment Date and be for
+            the full remaining amount on each purchase order.
+          </span>
+        </Alert>
+      </Box>
+      {hasPartialError && <Box>{err}</Box>}
+      <MultiplePurchaseOrdersLoansForm
+        purchaseOrderLoans={computedLoans}
+        paymentDate={paymentDate}
+        setPaymentDate={setPaymentDate}
+        loanTotal={loanTotal}
+        balanceRemaining={customerBalanceRemainingNow}
+      />
+    </Modal>
   );
 }
 

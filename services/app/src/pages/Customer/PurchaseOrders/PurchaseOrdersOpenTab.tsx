@@ -275,8 +275,8 @@ export default function CustomerPurchaseOrdersOpenTab({
             <Can perform={Action.FundPurchaseOrders}>
               <Box>
                 <ModalButton
-                  isDisabled={!selectedApprovedPurchaseOrderIds.length}
-                  label={"Fund PO"}
+                  isDisabled={selectedApprovedPurchaseOrderIds.length <= 0}
+                  label={"Fund PO(s)"}
                   modal={({ handleClose }) => {
                     const handler = () => {
                       refetch();
@@ -285,6 +285,7 @@ export default function CustomerPurchaseOrdersOpenTab({
                     };
                     return selectedApprovedPurchaseOrderIds.length > 1 ? (
                       <CreateMultiplePurchaseOrdersLoansModal
+                        companyId={companyId}
                         artifactIds={selectedApprovedPurchaseOrderIds}
                         handleClose={handler}
                       />

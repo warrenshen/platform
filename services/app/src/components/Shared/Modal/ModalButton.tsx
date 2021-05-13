@@ -12,7 +12,7 @@ interface Props {
   modal: ({ handleClose }: { handleClose: () => void }) => ReactNode;
 }
 
-function ModalButton({
+export default function ModalButton({
   dataCy,
   isDisabled = false,
   label,
@@ -46,5 +46,3 @@ function ModalButton({
     </Box>
   );
 }
-
-export default ModalButton;

@@ -1,4 +1,8 @@
-import { LoanStatusEnum, PurchaseOrderFragment } from "generated/graphql";
+import {
+  Companies,
+  LoanStatusEnum,
+  PurchaseOrderFragment,
+} from "generated/graphql";
 import { authenticatedApi, loansRoutes } from "lib/api";
 
 export type LoanUpsert = {
@@ -13,8 +17,9 @@ export type PurchaseOrderLoanUpsert = {
   artifact: PurchaseOrderFragment;
 };
 
-export type PurchaseOrdersLoansUpsert = {
+export type PurchaseOrdersLoansUpsertReq = {
   variables: {
+    company_id: Companies["id"];
     status: LoanStatusEnum;
     data: PurchaseOrderLoanUpsert[];
   };
@@ -26,7 +31,7 @@ export type PurchaseOrdersLoansUpsertResponse = {
 };
 
 export async function upsertPurchaseOrdersLoansMutation(
-  request: PurchaseOrdersLoansUpsert
+  request: PurchaseOrdersLoansUpsertReq
 ): Promise<PurchaseOrdersLoansUpsertResponse> {
   return authenticatedApi
     .post(loansRoutes.upsertPurchaseOrdersLoans, request.variables)

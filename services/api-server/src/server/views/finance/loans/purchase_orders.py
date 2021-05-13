@@ -15,6 +15,7 @@ from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from server.config import Config
 from server.views.common import auth_util, handler_util
+from sqlalchemy.orm import Session
 
 handler = Blueprint('finance_loans_purchase_orders', __name__)
 
@@ -148,7 +149,6 @@ class UpsertRequest:
 
 @errors.return_error_tuple
 def _validate_model_permissions(
-	session_maker: Callable,
 	company_id: str,
 	purchase_order_ids: List[str],
 	loan_ids: List[str]) -> Tuple[bool, errors.Error]:
@@ -176,6 +176,7 @@ def _validate_model_permissions(
 	return True, None
 
 def _handle_approval_email(
+	session: Session,
 	customer_name: str,
 	loan_dicts: List[models.LoanDict],
 	triggered_by_autofinancing: bool) -> errors.Error:
@@ -183,7 +184,10 @@ def _handle_approval_email(
 
 	for loan in loan_dicts:
 		response, err = approval_util.submit_for_approval(
-			loan["id"], current_app.session_maker, triggered_by_autofinancing=triggered_by_autofinancing)
+			loan["id"],
+			session,
+			triggered_by_autofinancing=triggered_by_autofinancing,
+		)
 		if err:
 			return err
 		responses.append(response)
@@ -214,18 +218,18 @@ class UpsertPurchaseOrdersLoansView(MethodView):
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
 		user_session = auth_util.UserSession.from_session()
-		company_id = user_session.get_company_id()
+		form = json.loads(request.data)
+		company_id = form["company_id"]
 
 		# If the user is not a company admin, they cannot call this route
-		if not user_session.is_company_admin():
+		if not user_session.is_bank_or_this_company_admin(company_id):
 			raise errors.Error("Access Denied")
 
-		upsert, err = UpsertRequest.from_dict(json.loads(request.data))
+		upsert, err = UpsertRequest.from_dict(form)
 		if err:
 			raise err
 
 		success, err = _validate_model_permissions(
-			current_app.session_maker,
 			company_id,
 			upsert.artifact_ids(),
 			upsert.loan_ids())
@@ -268,20 +272,24 @@ class UpsertPurchaseOrdersLoansView(MethodView):
 					session.flush()
 
 					event.data(dict(loan.as_dict())) \
-						 .action(events.Actions.LOANS_CREATE_PURCHASE_ORDER_LOAN)
+						.action(events.Actions.LOANS_CREATE_PURCHASE_ORDER_LOAN)
 				else:
 					loan = session.query(models.Loan).get(item.loan.id)
 					loan.amount = item.loan.amount
 					loan.requested_payment_date = item.loan.requested_payment_date
 					event.data(dict(loan.as_dict()))\
-						 .action(events.Actions.LOANS_UPDATE_PURCHASE_ORDER_LOAN)
+						.action(events.Actions.LOANS_UPDATE_PURCHASE_ORDER_LOAN)
 
 				loan_dicts.append(loan.as_dict())
 				loan_events.append(event)
 
 			if upsert.status == LoanStatusEnum.APPROVAL_REQUESTED:
 				err = _handle_approval_email(
-					customer_name, loan_dicts, triggered_by_autofinancing=False)
+					session,
+					customer_name,
+					loan_dicts,
+					triggered_by_autofinancing=False,
+				)
 				if err:
 					raise err
 

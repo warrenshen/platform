@@ -2,7 +2,7 @@ import datetime
 import decimal
 import json
 from dataclasses import dataclass
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, cast
 
 from bespoke.db import models
 from bespoke.db.db_constants import LoanStatusEnum, RequestStatusEnum
@@ -57,10 +57,6 @@ class TestUpsertPurchaseOrdersLoansView(db_unittest.TestCase):
 				data=json.dumps(request),
 				headers=headers)
 			return json.loads(response.data)
-
-	def _run_simple_test(self, request: Any) -> Dict:
-		seed = self._setup()
-		return self._make_request(seed, request)
 
 	def _run_test_with_populate(self, populate: Callable, request: Dict) -> Dict:
 		seed = self._setup()
@@ -218,7 +214,9 @@ class TestUpsertPurchaseOrdersLoansView(db_unittest.TestCase):
 		]
 
 		for test in tests:
-			response = self._run_simple_test(test["request"])
+			seed = self._setup()
+			cast(Dict[Any, Any], test["request"])["company_id"] = seed.get_company_id('company_admin', index=0)
+			response = self._make_request(seed, cast(Dict[Any, Any], test["request"]))
 			self.assertEqual(response["status"], "ERROR")
 			self.assertIn(test["err_contains"], response["msg"])
 
@@ -233,6 +231,7 @@ class TestUpsertPurchaseOrdersLoansView(db_unittest.TestCase):
 			))
 
 		response = self._run_test_with_populate(populate, {
+			"company_id": 'fake-company-id',
 			"status": LoanStatusEnum.APPROVAL_REQUESTED,
 			"data": [
 				{
@@ -251,7 +250,11 @@ class TestUpsertPurchaseOrdersLoansView(db_unittest.TestCase):
 		self.assertIn("Access Denied", response["msg"])
 
 	def test_does_a_save(self) -> None:
-		response = self._run_simple_test({
+		seed = self._setup()
+		company_id = seed.get_company_id('company_admin', index=0)
+
+		response = self._make_request(seed, {
+			"company_id": company_id,
 			"status": LoanStatusEnum.DRAFTED,
 			"data": [
 				{
@@ -282,8 +285,3 @@ class TestUpsertPurchaseOrdersLoansView(db_unittest.TestCase):
 			self.assertEqual(len(loans), 2)
 			artifact_ids = [str(loan.artifact_id) for loan in loans]
 			self.assertEqual(set(artifact_ids), {self.purchase_orders[0].id, self.purchase_orders[1].id})
-
-
-
-
-
