@@ -117,7 +117,7 @@ class Company(Base):
 	__tablename__ = 'companies'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
-	company_settings_id = Column(GUID, nullable=False)
+	company_settings_id = Column(GUID)
 	contract_id = Column(GUID)
 
 	company_type = Column(String, nullable=False, default=CompanyType.Customer)
