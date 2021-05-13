@@ -17580,6 +17580,14 @@ export type CompanyVendorsQuery = {
   company_vendor_partnerships: Array<{ vendor: Pick<Companies, "name"> }>;
 };
 
+export type GetPartnershipRequestsCountForBankSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetPartnershipRequestsCountForBankSubscription = {
+  company_partnership_requests: Array<Pick<CompanyPartnershipRequests, "id">>;
+};
+
 export type GetPartnershipRequestsForBankSubscriptionVariables = Exact<{
   [key: string]: never;
 }>;
@@ -25074,6 +25082,44 @@ export type CompanyVendorsQueryResult = Apollo.QueryResult<
   CompanyVendorsQuery,
   CompanyVendorsQueryVariables
 >;
+export const GetPartnershipRequestsCountForBankDocument = gql`
+  subscription GetPartnershipRequestsCountForBank {
+    company_partnership_requests {
+      id
+    }
+  }
+`;
+
+/**
+ * __useGetPartnershipRequestsCountForBankSubscription__
+ *
+ * To run a query within a React component, call `useGetPartnershipRequestsCountForBankSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetPartnershipRequestsCountForBankSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPartnershipRequestsCountForBankSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetPartnershipRequestsCountForBankSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetPartnershipRequestsCountForBankSubscription,
+    GetPartnershipRequestsCountForBankSubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetPartnershipRequestsCountForBankSubscription,
+    GetPartnershipRequestsCountForBankSubscriptionVariables
+  >(GetPartnershipRequestsCountForBankDocument, baseOptions);
+}
+export type GetPartnershipRequestsCountForBankSubscriptionHookResult = ReturnType<
+  typeof useGetPartnershipRequestsCountForBankSubscription
+>;
+export type GetPartnershipRequestsCountForBankSubscriptionResult = Apollo.SubscriptionResult<GetPartnershipRequestsCountForBankSubscription>;
 export const GetPartnershipRequestsForBankDocument = gql`
   subscription GetPartnershipRequestsForBank {
     company_partnership_requests(order_by: [{ created_at: asc }]) {

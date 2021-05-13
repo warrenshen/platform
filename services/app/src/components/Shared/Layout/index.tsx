@@ -15,6 +15,7 @@ import {
   useGetCompanyForCustomerBorrowingBaseQuery,
   useGetEbbaApplicationsCountForBankSubscription,
   useGetLoansCountForBankSubscription,
+  useGetPartnershipRequestsCountForBankSubscription,
   useGetPaymentsCountForBankSubscription,
 } from "generated/graphql";
 import { withinNDaysOfNowOrBefore } from "lib/date";
@@ -230,7 +231,8 @@ const getCustomerNavItems = (
 const getBankNavItems = (
   loansCount: number,
   paymentsCount: number,
-  ebbaApplicationsCount: number
+  ebbaApplicationsCount: number,
+  partnershipRequestsCount: number
 ): NavItem[] => {
   return [
     {
@@ -295,6 +297,7 @@ const getBankNavItems = (
       iconNode: PayorsIcon,
       text: "Partnerships",
       link: bankRoutes.partnerships,
+      counter: partnershipRequestsCount,
     },
     {
       dataCy: "reports",
@@ -336,6 +339,12 @@ export default function Layout({ appBarTitle, children }: Props) {
   });
 
   const {
+    data: partnershipRequestsCountData,
+  } = useGetPartnershipRequestsCountForBankSubscription({
+    skip: !isBankUser,
+  });
+
+  const {
     data: ebbaApplicationsCountData,
   } = useGetEbbaApplicationsCountForBankSubscription({
     skip: !isBankUser,
@@ -345,6 +354,8 @@ export default function Layout({ appBarTitle, children }: Props) {
   const paymentsCount = paymentsCountData?.payments?.length || 0;
   const ebbaApplicationsCount =
     ebbaApplicationsCountData?.ebba_applications?.length || 0;
+  const partnershipRequestsCount =
+    partnershipRequestsCountData?.company_partnership_requests?.length || 0;
 
   const {
     data,
@@ -365,7 +376,12 @@ export default function Layout({ appBarTitle, children }: Props) {
       withinNDaysOfNowOrBefore(ebbaApplication.expires_at, 15));
 
   const navItems = isBankUser
-    ? getBankNavItems(loansCount, paymentsCount, ebbaApplicationsCount)
+    ? getBankNavItems(
+        loansCount,
+        paymentsCount,
+        ebbaApplicationsCount,
+        partnershipRequestsCount
+      )
     : getCustomerNavItems(productType, showBorrowingBasesChip);
 
   return (

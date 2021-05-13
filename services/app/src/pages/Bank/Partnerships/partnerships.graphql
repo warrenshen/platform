@@ -1,3 +1,9 @@
+subscription GetPartnershipRequestsCountForBank {
+  company_partnership_requests {
+    id
+  }
+}
+
 subscription GetPartnershipRequestsForBank {
   company_partnership_requests(order_by: [{ created_at: asc }]) {
     id
