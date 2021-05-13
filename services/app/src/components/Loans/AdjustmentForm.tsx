@@ -14,7 +14,7 @@ import {
   createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
 } from "lib/loans";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 interface Props {
   payment: PaymentsInsertInput;
@@ -31,8 +31,6 @@ export default function AdjustmentForm({
   setPayment,
   setTransaction,
 }: Props) {
-  const [autocompleteInputValue, setAutocompleteInputValue] = useState("");
-
   const selectedLoans = useMemo(() => {
     const selectedLoan = loans.find((loan) => loan.id === transaction.loan_id);
     return selectedLoan ? [selectedLoan] : [];
@@ -76,12 +74,7 @@ export default function AdjustmentForm({
             renderInput={(params) => (
               <TextField {...params} label="Select loan" variant="outlined" />
             )}
-            inputValue={autocompleteInputValue}
-            value={null}
-            onInputChange={(_event, value: string) =>
-              setAutocompleteInputValue(value)
-            }
-            onChange={(_event, loan: LoanFragment | null) =>
+            onChange={(_event, loan) =>
               setTransaction({
                 ...transaction,
                 loan_id: loan?.id || null,

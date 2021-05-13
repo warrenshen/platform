@@ -14,10 +14,10 @@ import {
   Typography,
 } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
-import { CompanyMinimalFragment } from "generated/graphql";
+import { Companies, CompanyMinimalFragment } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { createPartnershipMutation } from "lib/api/companies";
-import React, { useState } from "react";
+import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -42,7 +42,7 @@ interface Props {
   handleClose: () => void;
 }
 
-function HandlePartnershipRequestModal({
+export default function HandlePartnershipRequestModal({
   partnerRequest,
   allCompanies,
   handleClose,
@@ -51,14 +51,16 @@ function HandlePartnershipRequestModal({
   const classes = useStyles();
 
   const isSubmitDisabled = false;
-  const [selectedCompany, setSelectedCompany] = useState<any>(null);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<Companies["id"]>(
+    null
+  );
 
   const handleSubmit = async () => {
     const response = await createPartnershipMutation({
       variables: {
         partnership_request_id: partnerRequest.id,
-        should_create_company: selectedCompany === null,
-        partner_company_id: selectedCompany?.id,
+        should_create_company: selectedCompanyId === null,
+        partner_company_id: selectedCompanyId,
       },
     });
     if (response.status !== "OK") {
@@ -131,28 +133,27 @@ function HandlePartnershipRequestModal({
         </Box>
         <Box display="flex" flexDirection="column">
           <Typography variant={"body1"}>
-            Choose a pre-existing company if the partner already exists on the
+            Choose a pre-existing company if the company already exists on the
             platform
           </Typography>
-          <Autocomplete
-            autoHighlight
-            id="auto-complete-company"
-            options={allCompanies}
-            getOptionLabel={(company: any) => company?.name}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Select partner company"
-                variant="outlined"
-              />
-            )}
-            inputValue={selectedCompany ? selectedCompany?.name : ""}
-            value={null}
-            onInputChange={(_event, value: string) => {}}
-            onChange={(_event, company: any) => {
-              setSelectedCompany(company);
-            }}
-          />
+          <Box mt={2}>
+            <Autocomplete
+              autoHighlight
+              id="auto-complete-company"
+              options={allCompanies}
+              getOptionLabel={(company) => company.name}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Select partner company"
+                  variant="outlined"
+                />
+              )}
+              onChange={(_event, company) =>
+                setSelectedCompanyId(company?.id || null)
+              }
+            />
+          </Box>
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
@@ -171,5 +172,3 @@ function HandlePartnershipRequestModal({
     </Dialog>
   );
 }
-
-export default HandlePartnershipRequestModal;

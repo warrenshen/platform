@@ -12,7 +12,6 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import {
-  LoanFragment,
   LoanTypeEnum,
   PaymentsInsertInput,
   ProductTypeEnum,
@@ -26,7 +25,7 @@ import {
   ProductTypeToLoanType,
 } from "lib/enum";
 import { createLoanCustomerIdentifier } from "lib/loans";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 interface Props {
   productType: ProductTypeEnum;
@@ -43,8 +42,6 @@ export default function CreateRepaymentDefaultSection({
   setPayment,
   setPaymentOption,
 }: Props) {
-  const [autocompleteInputValue, setAutocompleteInputValue] = useState("");
-
   const loanType = ProductTypeToLoanType[productType];
 
   const { data } = useGetLoansByCompanyAndLoanTypeQuery({
@@ -107,12 +104,7 @@ export default function CreateRepaymentDefaultSection({
                   variant="outlined"
                 />
               )}
-              inputValue={autocompleteInputValue}
-              value={null}
-              onInputChange={(_event, value: string) =>
-                setAutocompleteInputValue(value)
-              }
-              onChange={(_event, loan: LoanFragment | null) => {
+              onChange={(_event, loan) => {
                 if (loan) {
                   setPayment({
                     ...payment,
@@ -121,7 +113,6 @@ export default function CreateRepaymentDefaultSection({
                       loan_ids: [...payment.items_covered.loan_ids, loan.id],
                     },
                   });
-                  setAutocompleteInputValue("");
                 }
               }}
             />
