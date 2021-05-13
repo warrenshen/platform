@@ -224,6 +224,8 @@ class CompanyPartnershipRequest(Base):
 	user_info = Column(JSON, nullable=False)
 	requested_by_user_id = Column(GUID, nullable=False)
 	license_info = Column(JSON, nullable=False)
+	settled_at = Column(DateTime)
+	settled_by_user_id = Column(GUID)
 
 class CompanyVendorPartnership(Base):
 	__tablename__ = 'company_vendor_partnerships'

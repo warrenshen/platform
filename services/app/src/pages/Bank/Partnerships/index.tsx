@@ -2,6 +2,7 @@ import { Tab, Tabs } from "@material-ui/core";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
 import PartnershipsActionRequiredTab from "pages/Bank/Partnerships/ActionRequiredTab";
+import PartnershipsClosedTab from "pages/Bank/Partnerships/ClosedTab";
 import { useState } from "react";
 import styled from "styled-components";
 
@@ -34,9 +35,14 @@ function BankPartnershipsPage() {
             }
           >
             <Tab label="Action Required" />
+            <Tab label="Closed" />
           </Tabs>
           <SectionSpace />
-          {selectedTabIndex === 0 && <PartnershipsActionRequiredTab />}
+          {selectedTabIndex === 0 ? (
+            <PartnershipsActionRequiredTab />
+          ) : (
+            <PartnershipsClosedTab />
+          )}
         </Container>
       </PageContent>
     </Page>

@@ -2452,6 +2452,7 @@ export type CompanyLicenses = {
   file: Files;
   file_id: Scalars["uuid"];
   id: Scalars["uuid"];
+  license_number?: Maybe<Scalars["String"]>;
 };
 
 /** aggregated selection of "company_licenses" */
@@ -2496,6 +2497,7 @@ export type CompanyLicensesBoolExp = {
   file?: Maybe<FilesBoolExp>;
   file_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  license_number?: Maybe<StringComparisonExp>;
 };
 
 /** unique or primary key constraints on table "company_licenses" */
@@ -2511,6 +2513,7 @@ export type CompanyLicensesInsertInput = {
   file?: Maybe<FilesObjRelInsertInput>;
   file_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
+  license_number?: Maybe<Scalars["String"]>;
 };
 
 /** aggregate max on columns */
@@ -2518,6 +2521,7 @@ export type CompanyLicensesMaxFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   file_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
+  license_number?: Maybe<Scalars["String"]>;
 };
 
 /** order by max() on columns of table "company_licenses" */
@@ -2525,6 +2529,7 @@ export type CompanyLicensesMaxOrderBy = {
   company_id?: Maybe<OrderBy>;
   file_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  license_number?: Maybe<OrderBy>;
 };
 
 /** aggregate min on columns */
@@ -2532,6 +2537,7 @@ export type CompanyLicensesMinFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   file_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
+  license_number?: Maybe<Scalars["String"]>;
 };
 
 /** order by min() on columns of table "company_licenses" */
@@ -2539,6 +2545,7 @@ export type CompanyLicensesMinOrderBy = {
   company_id?: Maybe<OrderBy>;
   file_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  license_number?: Maybe<OrderBy>;
 };
 
 /** response of any mutation on the table "company_licenses" */
@@ -2569,6 +2576,7 @@ export type CompanyLicensesOrderBy = {
   file?: Maybe<FilesOrderBy>;
   file_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  license_number?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: "company_licenses" */
@@ -2584,6 +2592,8 @@ export enum CompanyLicensesSelectColumn {
   FileId = "file_id",
   /** column name */
   Id = "id",
+  /** column name */
+  LicenseNumber = "license_number",
 }
 
 /** input type for updating data in table "company_licenses" */
@@ -2591,6 +2601,7 @@ export type CompanyLicensesSetInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   file_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
+  license_number?: Maybe<Scalars["String"]>;
 };
 
 /** update columns of table "company_licenses" */
@@ -2601,6 +2612,8 @@ export enum CompanyLicensesUpdateColumn {
   FileId = "file_id",
   /** column name */
   Id = "id",
+  /** column name */
+  LicenseNumber = "license_number",
 }
 
 /** columns and relationships of "company_partnership_requests" */
@@ -2616,6 +2629,8 @@ export type CompanyPartnershipRequests = {
   /** An object relationship */
   requesting_company: Companies;
   requesting_company_id: Scalars["uuid"];
+  settled_at?: Maybe<Scalars["timestamptz"]>;
+  settled_by_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method: Scalars["String"];
   user_info: Scalars["json"];
 };
@@ -2676,6 +2691,8 @@ export type CompanyPartnershipRequestsBoolExp = {
   requested_by_user_id?: Maybe<UuidComparisonExp>;
   requesting_company?: Maybe<CompaniesBoolExp>;
   requesting_company_id?: Maybe<UuidComparisonExp>;
+  settled_at?: Maybe<TimestamptzComparisonExp>;
+  settled_by_user_id?: Maybe<UuidComparisonExp>;
   two_factor_message_method?: Maybe<StringComparisonExp>;
   user_info?: Maybe<JsonComparisonExp>;
 };
@@ -2697,6 +2714,8 @@ export type CompanyPartnershipRequestsInsertInput = {
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requesting_company?: Maybe<CompaniesObjRelInsertInput>;
   requesting_company_id?: Maybe<Scalars["uuid"]>;
+  settled_at?: Maybe<Scalars["timestamptz"]>;
+  settled_by_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
   user_info?: Maybe<Scalars["json"]>;
 };
@@ -2709,6 +2728,8 @@ export type CompanyPartnershipRequestsMaxFields = {
   id?: Maybe<Scalars["uuid"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requesting_company_id?: Maybe<Scalars["uuid"]>;
+  settled_at?: Maybe<Scalars["timestamptz"]>;
+  settled_by_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
 };
 
@@ -2720,6 +2741,8 @@ export type CompanyPartnershipRequestsMaxOrderBy = {
   id?: Maybe<OrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
   requesting_company_id?: Maybe<OrderBy>;
+  settled_at?: Maybe<OrderBy>;
+  settled_by_user_id?: Maybe<OrderBy>;
   two_factor_message_method?: Maybe<OrderBy>;
 };
 
@@ -2731,6 +2754,8 @@ export type CompanyPartnershipRequestsMinFields = {
   id?: Maybe<Scalars["uuid"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requesting_company_id?: Maybe<Scalars["uuid"]>;
+  settled_at?: Maybe<Scalars["timestamptz"]>;
+  settled_by_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
 };
 
@@ -2742,6 +2767,8 @@ export type CompanyPartnershipRequestsMinOrderBy = {
   id?: Maybe<OrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
   requesting_company_id?: Maybe<OrderBy>;
+  settled_at?: Maybe<OrderBy>;
+  settled_by_user_id?: Maybe<OrderBy>;
   two_factor_message_method?: Maybe<OrderBy>;
 };
 
@@ -2777,6 +2804,8 @@ export type CompanyPartnershipRequestsOrderBy = {
   requested_by_user_id?: Maybe<OrderBy>;
   requesting_company?: Maybe<CompaniesOrderBy>;
   requesting_company_id?: Maybe<OrderBy>;
+  settled_at?: Maybe<OrderBy>;
+  settled_by_user_id?: Maybe<OrderBy>;
   two_factor_message_method?: Maybe<OrderBy>;
   user_info?: Maybe<OrderBy>;
 };
@@ -2803,6 +2832,10 @@ export enum CompanyPartnershipRequestsSelectColumn {
   /** column name */
   RequestingCompanyId = "requesting_company_id",
   /** column name */
+  SettledAt = "settled_at",
+  /** column name */
+  SettledByUserId = "settled_by_user_id",
+  /** column name */
   TwoFactorMessageMethod = "two_factor_message_method",
   /** column name */
   UserInfo = "user_info",
@@ -2817,6 +2850,8 @@ export type CompanyPartnershipRequestsSetInput = {
   license_info?: Maybe<Scalars["json"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requesting_company_id?: Maybe<Scalars["uuid"]>;
+  settled_at?: Maybe<Scalars["timestamptz"]>;
+  settled_by_user_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
   user_info?: Maybe<Scalars["json"]>;
 };
@@ -2837,6 +2872,10 @@ export enum CompanyPartnershipRequestsUpdateColumn {
   RequestedByUserId = "requested_by_user_id",
   /** column name */
   RequestingCompanyId = "requesting_company_id",
+  /** column name */
+  SettledAt = "settled_at",
+  /** column name */
+  SettledByUserId = "settled_by_user_id",
   /** column name */
   TwoFactorMessageMethod = "two_factor_message_method",
   /** column name */
@@ -17491,6 +17530,8 @@ export type PartnershipRequestFragment = Pick<
   | "created_at"
   | "requested_by_user_id"
   | "license_info"
+  | "settled_by_user_id"
+  | "settled_at"
 >;
 
 export type PaymentFragment = Pick<
@@ -17586,6 +17627,18 @@ export type GetPartnershipRequestsCountForBankSubscriptionVariables = Exact<{
 
 export type GetPartnershipRequestsCountForBankSubscription = {
   company_partnership_requests: Array<Pick<CompanyPartnershipRequests, "id">>;
+};
+
+export type GetSettledPartnershipRequestsForBankSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetSettledPartnershipRequestsForBankSubscription = {
+  company_partnership_requests: Array<
+    Pick<CompanyPartnershipRequests, "id"> & {
+      requesting_company: Pick<Companies, "id" | "name">;
+    } & PartnershipRequestFragment
+  >;
 };
 
 export type GetPartnershipRequestsForBankSubscriptionVariables = Exact<{
@@ -18108,6 +18161,8 @@ export const PartnershipRequestFragmentDoc = gql`
     created_at
     requested_by_user_id
     license_info
+    settled_by_user_id
+    settled_at
   }
 `;
 export const BankAccountFragmentDoc = gql`
@@ -25084,7 +25139,7 @@ export type CompanyVendorsQueryResult = Apollo.QueryResult<
 >;
 export const GetPartnershipRequestsCountForBankDocument = gql`
   subscription GetPartnershipRequestsCountForBank {
-    company_partnership_requests {
+    company_partnership_requests(where: { settled_at: { _is_null: true } }) {
       id
     }
   }
@@ -25120,9 +25175,59 @@ export type GetPartnershipRequestsCountForBankSubscriptionHookResult = ReturnTyp
   typeof useGetPartnershipRequestsCountForBankSubscription
 >;
 export type GetPartnershipRequestsCountForBankSubscriptionResult = Apollo.SubscriptionResult<GetPartnershipRequestsCountForBankSubscription>;
+export const GetSettledPartnershipRequestsForBankDocument = gql`
+  subscription GetSettledPartnershipRequestsForBank {
+    company_partnership_requests(
+      order_by: [{ created_at: asc }]
+      where: { settled_at: { _is_null: false } }
+    ) {
+      id
+      ...PartnershipRequest
+      requesting_company {
+        id
+        name
+      }
+    }
+  }
+  ${PartnershipRequestFragmentDoc}
+`;
+
+/**
+ * __useGetSettledPartnershipRequestsForBankSubscription__
+ *
+ * To run a query within a React component, call `useGetSettledPartnershipRequestsForBankSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetSettledPartnershipRequestsForBankSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSettledPartnershipRequestsForBankSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetSettledPartnershipRequestsForBankSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetSettledPartnershipRequestsForBankSubscription,
+    GetSettledPartnershipRequestsForBankSubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetSettledPartnershipRequestsForBankSubscription,
+    GetSettledPartnershipRequestsForBankSubscriptionVariables
+  >(GetSettledPartnershipRequestsForBankDocument, baseOptions);
+}
+export type GetSettledPartnershipRequestsForBankSubscriptionHookResult = ReturnType<
+  typeof useGetSettledPartnershipRequestsForBankSubscription
+>;
+export type GetSettledPartnershipRequestsForBankSubscriptionResult = Apollo.SubscriptionResult<GetSettledPartnershipRequestsForBankSubscription>;
 export const GetPartnershipRequestsForBankDocument = gql`
   subscription GetPartnershipRequestsForBank {
-    company_partnership_requests(order_by: [{ created_at: asc }]) {
+    company_partnership_requests(
+      order_by: [{ created_at: asc }]
+      where: { settled_at: { _is_null: true } }
+    ) {
       id
       ...PartnershipRequest
       requesting_company {

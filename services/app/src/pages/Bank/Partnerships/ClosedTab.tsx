@@ -6,7 +6,7 @@ import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   CompanyPartnershipRequests,
   useGetAllCompaniesQuery,
-  useGetPartnershipRequestsForBankSubscription,
+  useGetSettledPartnershipRequestsForBankSubscription,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { useMemo, useState } from "react";
@@ -21,8 +21,8 @@ const Container = styled.div`
   width: 100%;
 `;
 
-function ActionRequiredTab() {
-  const { data, error } = useGetPartnershipRequestsForBankSubscription();
+function ClosedTab() {
+  const { data, error } = useGetSettledPartnershipRequestsForBankSubscription();
 
   if (error) {
     console.error({ error });
@@ -96,11 +96,11 @@ function ActionRequiredTab() {
           partnershipRequests={partnershipRequests}
           selectedRequestIds={selectedRequestIds}
           handleSelectRequests={handleSelectRequests}
-          isClosedTab={false}
+          isClosedTab={true}
         />
       </Box>
     </Container>
   );
 }
 
-export default ActionRequiredTab;
+export default ClosedTab;

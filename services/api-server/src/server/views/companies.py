@@ -68,7 +68,8 @@ class CreatePartnershipView(MethodView):
 
 			resp, err = create_company_util.create_partnership(
 				req=cast(create_company_util.CreatePartnershipInputDict, form),
-				session=session
+				session=session,
+				bank_admin_user_id=user_session.get_user_id()
 			)
 			if err:
 				return handler_util.make_error_response(err)

@@ -4,6 +4,7 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
+import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
 import { CompanyPartnershipRequests } from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
@@ -14,6 +15,7 @@ interface Props {
   isSortingDisabled?: boolean;
   pager?: boolean;
   pageSize?: number;
+  isClosedTab: boolean;
   partnershipRequests: any[];
   actionItems?: DataGridActionItem[];
   selectedRequestIds?: CompanyPartnershipRequests["id"][];
@@ -35,6 +37,7 @@ export default function PartnershipsDataGrid({
   isSortingDisabled = false,
   pager = true,
   pageSize = 10,
+  isClosedTab,
   partnershipRequests,
   actionItems,
   selectedRequestIds,
@@ -80,6 +83,26 @@ export default function PartnershipsDataGrid({
         dataField: "created_at",
         width: ColumnWidths.Type,
         alignment: "center",
+        visible: !isClosedTab,
+        cellRender: (params: ValueFormatterParams) => (
+          <DatetimeDataGridCell
+            isTimeVisible
+            datetimeString={params.row.data.created_at}
+          />
+        ),
+      },
+      {
+        caption: "Closed At",
+        dataField: "settled_at",
+        width: ColumnWidths.Type,
+        alignment: "center",
+        visible: isClosedTab,
+        cellRender: (params: ValueFormatterParams) => (
+          <DatetimeDataGridCell
+            isTimeVisible
+            datetimeString={params.row.data.settled_at}
+          />
+        ),
       },
       {
         caption: "License IDs",
@@ -95,7 +118,7 @@ export default function PartnershipsDataGrid({
         ),
       },
     ],
-    [actionItems]
+    [actionItems, isClosedTab]
   );
 
   const handleSelectionChanged = useMemo(

@@ -223,7 +223,8 @@ def _create_partner_company_and_its_first_user(
 @errors.return_error_tuple
 def create_partnership(
 	req: CreatePartnershipInputDict,
-	session: Session
+	session: Session,
+	bank_admin_user_id: str,
 ) -> Tuple[CreatePartnershipRespDict, errors.Error]:
 
 	partnership_req = cast(
@@ -263,7 +264,8 @@ def create_partnership(
 		raise errors.Error('Unexpected company_type {}'.format(company_type))
 
 	# Weve fulfilled the partnership request so we can delete it now
-	cast(Callable, session.delete)(partnership_req)
+	partnership_req.settled_at = date_util.now()
+	partnership_req.settled_by_user_id = bank_admin_user_id
 
 	return CreatePartnershipRespDict(
 		company_id=company_id,

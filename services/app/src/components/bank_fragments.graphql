@@ -156,6 +156,8 @@ fragment PartnershipRequest on company_partnership_requests {
   created_at
   requested_by_user_id
   license_info
+  settled_by_user_id
+  settled_at
 }
 
 ## Finance
