@@ -1,3 +1,4 @@
+import { Box } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DataGridActionMenu, {
@@ -79,6 +80,19 @@ export default function PartnershipsDataGrid({
         dataField: "created_at",
         width: ColumnWidths.Type,
         alignment: "center",
+      },
+      {
+        caption: "License IDs",
+        dataField: "license_info",
+        width: ColumnWidths.Type,
+        alignment: "center",
+        cellRender: (params: ValueFormatterParams) => (
+          <Box>
+            {params.row.data.license_info
+              ? params.row.data.license_info.license_ids.join(", ")
+              : ""}
+          </Box>
+        ),
       },
     ],
     [actionItems]

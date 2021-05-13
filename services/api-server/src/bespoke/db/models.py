@@ -223,6 +223,7 @@ class CompanyPartnershipRequest(Base):
 	company_name = Column(String, nullable=False)
 	user_info = Column(JSON, nullable=False)
 	requested_by_user_id = Column(GUID, nullable=False)
+	license_info = Column(JSON, nullable=False)
 
 class CompanyVendorPartnership(Base):
 	__tablename__ = 'company_vendor_partnerships'

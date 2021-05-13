@@ -12,6 +12,7 @@ import {
   UserRolesEnum,
   UsersInsertInput,
 } from "generated/graphql";
+import { LicenseInfo } from "lib/api/companies";
 import { CompanyTypeToDisplayLower, CompanyTypeToDisplayUpper } from "lib/enum";
 
 interface Props {
@@ -21,6 +22,8 @@ interface Props {
   setContact: (contact: UsersInsertInput) => void;
   company: CompaniesInsertInput;
   setCompany: (company: CompaniesInsertInput) => void;
+  licenseInfo: LicenseInfo;
+  setLicenseInfo: (info: LicenseInfo) => void;
   errorMessage: string | null;
 }
 
@@ -31,6 +34,8 @@ export default function RegisterThirdPartyForm({
   setContact,
   company,
   setCompany,
+  licenseInfo,
+  setLicenseInfo,
   errorMessage,
 }: Props) {
   // In practice, these should never be "Unknown"
@@ -52,6 +57,19 @@ export default function RegisterThirdPartyForm({
             value={company.name}
             onChange={({ target: { value } }) => {
               setCompany({ ...company, name: value });
+            }}
+          />
+        </Box>
+        <Box display="flex" flexDirection="column" mt={2}>
+          <TextField
+            required
+            label="License IDs (comma separated)"
+            value={licenseInfo.license_ids.join(",")}
+            onChange={({ target: { value } }) => {
+              let licenseIds = value.split(",").map((l) => {
+                return l.trim();
+              });
+              setLicenseInfo({ ...licenseInfo, license_ids: licenseIds });
             }}
           />
         </Box>

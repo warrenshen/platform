@@ -53,10 +53,15 @@ CreatePartnershipRespDict = TypedDict('CreatePartnershipRespDict', {
 	'customer_id': str, # the person who requested the partnership
 })
 
+LicenseInfoDict = TypedDict('LicenseInfoDict', {
+	'license_ids': List[str]
+})
+
 CreatePartnershipRequestInputDict = TypedDict('CreatePartnershipRequestInputDict', {
 	'customer_id': str,
 	'company': CompanyInsertInputDict,
 	'user': create_user_util.UserInsertInputDict,
+	'license_info': LicenseInfoDict
 })
 
 def create_customer_company(
@@ -302,6 +307,7 @@ def create_partnership_request(
 	partnership_req.company_type = CompanyType.Payor if is_payor else CompanyType.Vendor
 	partnership_req.company_name = company_name
 	partnership_req.requested_by_user_id = requested_user_id
+	partnership_req.license_info = cast(Dict, req['license_info'])
 
 	partnership_req.user_info = {
 		'first_name': user_first_name,

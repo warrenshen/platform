@@ -18,7 +18,10 @@ import {
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { createPartnershipRequestMutation } from "lib/api/companies";
+import {
+  createPartnershipRequestMutation,
+  LicenseInfo,
+} from "lib/api/companies";
 import { useContext, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -54,6 +57,9 @@ function AddPayorModal({ customerId, handleClose }: Props) {
     email: "",
     phone_number: "",
   });
+  const [licenseInfo, setLicenseInfo] = useState<LicenseInfo>({
+    license_ids: [],
+  });
 
   const [
     createPayorVendor,
@@ -67,6 +73,7 @@ function AddPayorModal({ customerId, handleClose }: Props) {
         customer_id: customerId,
         company: payor,
         user: contact,
+        license_info: licenseInfo,
       },
     });
 
@@ -89,7 +96,8 @@ function AddPayorModal({ customerId, handleClose }: Props) {
     !contact.last_name ||
     !contact.email ||
     !contact.phone_number ||
-    isCreatePayorVendorLoading;
+    isCreatePayorVendorLoading ||
+    licenseInfo.license_ids.length === 0;
 
   return (
     <Dialog
@@ -107,6 +115,8 @@ function AddPayorModal({ customerId, handleClose }: Props) {
         company={payor}
         setCompany={setPayor}
         errorMessage={errorMessage}
+        licenseInfo={licenseInfo}
+        setLicenseInfo={setLicenseInfo}
       />
       <DialogActions className={classes.dialogActions}>
         <Box display="flex">

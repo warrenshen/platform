@@ -9770,13 +9770,9 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "uuid",
-                "ofType": null
-              }
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -12098,13 +12094,9 @@
             "description": "An object relationship",
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "company_settings",
-                "ofType": null
-              }
+              "kind": "OBJECT",
+              "name": "company_settings",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -18730,6 +18722,29 @@
             "deprecationReason": null
           },
           {
+            "name": "license_info",
+            "description": null,
+            "args": [
+              {
+                "name": "path",
+                "description": "JSON select path",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                },
+                "defaultValue": null
+              }
+            ],
+            "type": {
+              "kind": "SCALAR",
+              "name": "json",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "requested_by_user",
             "description": "An object relationship",
             "args": [],
@@ -19134,6 +19149,16 @@
             "defaultValue": null
           },
           {
+            "name": "license_info",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "json_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "requested_by_user",
             "description": null,
             "type": {
@@ -19257,6 +19282,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "license_info",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "json",
               "ofType": null
             },
             "defaultValue": null
@@ -19868,6 +19903,16 @@
             "defaultValue": null
           },
           {
+            "name": "license_info",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "requested_by_user",
             "description": null,
             "type": {
@@ -19990,6 +20035,12 @@
             "deprecationReason": null
           },
           {
+            "name": "license_info",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "requested_by_user_id",
             "description": "column name",
             "isDeprecated": false,
@@ -20058,6 +20109,16 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "license_info",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "json",
               "ofType": null
             },
             "defaultValue": null
@@ -20135,6 +20196,12 @@
           },
           {
             "name": "id",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "license_info",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

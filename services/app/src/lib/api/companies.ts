@@ -45,12 +45,17 @@ export async function createCustomer(
     );
 }
 
+export type LicenseInfo = {
+  license_ids: Array<string>;
+};
+
 type CreatePartnershipRequestMutationReq = {
   variables: {
     is_payor: boolean;
     customer_id: Companies["id"];
     company: CompaniesInsertInput;
     user: UsersInsertInput;
+    license_info: LicenseInfo;
   };
 };
 

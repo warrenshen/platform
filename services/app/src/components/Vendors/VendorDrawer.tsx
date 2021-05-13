@@ -265,10 +265,10 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
           <Typography variant="subtitle2" color="textSecondary">
             2FA Method
           </Typography>
-          {!!vendor.settings.two_factor_message_method
+          {!!vendor.settings?.two_factor_message_method
             ? TwoFactorMessageMethodToLabel[
                 vendor.settings
-                  .two_factor_message_method as TwoFactorMessageMethodEnum
+                  ?.two_factor_message_method as TwoFactorMessageMethodEnum
               ]
             : "None"}
         </Box>
@@ -279,7 +279,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
             variant="outlined"
             modal={({ handleClose }) => (
               <UpdateThirdPartyCompanySettingsModal
-                companySettingsId={vendor.settings.id}
+                companySettingsId={vendor.settings?.id}
                 handleClose={() => {
                   refetch();
                   handleClose();

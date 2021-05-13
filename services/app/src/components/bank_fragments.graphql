@@ -155,6 +155,7 @@ fragment PartnershipRequest on company_partnership_requests {
   user_info
   created_at
   requested_by_user_id
+  license_info
 }
 
 ## Finance

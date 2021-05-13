@@ -1273,7 +1273,7 @@ export type Companies = {
   company_payor_partnerships_by_payor: Array<CompanyPayorPartnerships>;
   /** An aggregated array relationship */
   company_payor_partnerships_by_payor_aggregate: CompanyPayorPartnershipsAggregate;
-  company_settings_id: Scalars["uuid"];
+  company_settings_id?: Maybe<Scalars["uuid"]>;
   company_type: CompanyTypeEnum;
   /** An array relationship */
   company_vendor_partnerships: Array<CompanyVendorPartnerships>;
@@ -1342,7 +1342,7 @@ export type Companies = {
   /** An aggregated array relationship */
   purchase_orders_by_vendor_aggregate: PurchaseOrdersAggregate;
   /** An object relationship */
-  settings: CompanySettings;
+  settings?: Maybe<CompanySettings>;
   state?: Maybe<Scalars["String"]>;
   /** An object relationship */
   type: CompanyType;
@@ -2609,6 +2609,7 @@ export type CompanyPartnershipRequests = {
   company_type: Scalars["String"];
   created_at: Scalars["timestamptz"];
   id: Scalars["uuid"];
+  license_info?: Maybe<Scalars["json"]>;
   /** An object relationship */
   requested_by_user: Users;
   requested_by_user_id: Scalars["uuid"];
@@ -2617,6 +2618,11 @@ export type CompanyPartnershipRequests = {
   requesting_company_id: Scalars["uuid"];
   two_factor_message_method: Scalars["String"];
   user_info: Scalars["json"];
+};
+
+/** columns and relationships of "company_partnership_requests" */
+export type CompanyPartnershipRequestsLicenseInfoArgs = {
+  path?: Maybe<Scalars["String"]>;
 };
 
 /** columns and relationships of "company_partnership_requests" */
@@ -2665,6 +2671,7 @@ export type CompanyPartnershipRequestsBoolExp = {
   company_type?: Maybe<StringComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  license_info?: Maybe<JsonComparisonExp>;
   requested_by_user?: Maybe<UsersBoolExp>;
   requested_by_user_id?: Maybe<UuidComparisonExp>;
   requesting_company?: Maybe<CompaniesBoolExp>;
@@ -2685,6 +2692,7 @@ export type CompanyPartnershipRequestsInsertInput = {
   company_type?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  license_info?: Maybe<Scalars["json"]>;
   requested_by_user?: Maybe<UsersObjRelInsertInput>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requesting_company?: Maybe<CompaniesObjRelInsertInput>;
@@ -2764,6 +2772,7 @@ export type CompanyPartnershipRequestsOrderBy = {
   company_type?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  license_info?: Maybe<OrderBy>;
   requested_by_user?: Maybe<UsersOrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
   requesting_company?: Maybe<CompaniesOrderBy>;
@@ -2788,6 +2797,8 @@ export enum CompanyPartnershipRequestsSelectColumn {
   /** column name */
   Id = "id",
   /** column name */
+  LicenseInfo = "license_info",
+  /** column name */
   RequestedByUserId = "requested_by_user_id",
   /** column name */
   RequestingCompanyId = "requesting_company_id",
@@ -2803,6 +2814,7 @@ export type CompanyPartnershipRequestsSetInput = {
   company_type?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  license_info?: Maybe<Scalars["json"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requesting_company_id?: Maybe<Scalars["uuid"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
@@ -2819,6 +2831,8 @@ export enum CompanyPartnershipRequestsUpdateColumn {
   CreatedAt = "created_at",
   /** column name */
   Id = "id",
+  /** column name */
+  LicenseInfo = "license_info",
   /** column name */
   RequestedByUserId = "requested_by_user_id",
   /** column name */
@@ -15812,9 +15826,11 @@ export type BankAccountsForTransferQuery = {
   bank_accounts: Array<BankAccountFragment>;
   companies_by_pk?: Maybe<
     Pick<Companies, "id"> & {
-      settings: Pick<CompanySettings, "id"> & {
-        collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
-      };
+      settings?: Maybe<
+        Pick<CompanySettings, "id"> & {
+          collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
+        }
+      >;
     }
   >;
 };
@@ -16327,15 +16343,17 @@ export type GetBankPayorPartnershipQuery = {
     {
       payor?: Maybe<
         {
-          settings: Pick<CompanySettings, "id"> & {
-            collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
-          };
+          settings?: Maybe<
+            Pick<CompanySettings, "id"> & {
+              collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
+            }
+          >;
           users: Array<ContactFragment>;
         } & ThirdPartyFragment
       >;
       company: {
         users: Array<ContactFragment>;
-        settings: CompanySettingsFragment;
+        settings?: Maybe<CompanySettingsFragment>;
       } & CompanyFragment;
       payor_agreement?: Maybe<CompanyAgreementFragment>;
       payor_license?: Maybe<CompanyLicenseFragment>;
@@ -16353,7 +16371,7 @@ export type GetPayorPartnershipsForBankQuery = {
       company: Pick<Companies, "id" | "name">;
       payor?: Maybe<
         {
-          settings: Pick<CompanySettings, "id">;
+          settings?: Maybe<Pick<CompanySettings, "id">>;
           users: Array<ContactFragment>;
         } & ThirdPartyFragment
       >;
@@ -16756,11 +16774,13 @@ export type GetCompanyForCustomerBorrowingBaseQuery = {
           company: Pick<Companies, "id" | "name">;
         } & EbbaApplicationFragment
       >;
-      settings: Pick<CompanySettings, "id"> & {
-        active_ebba_application?: Maybe<
-          Pick<EbbaApplications, "id"> & EbbaApplicationFragment
-        >;
-      };
+      settings?: Maybe<
+        Pick<CompanySettings, "id"> & {
+          active_ebba_application?: Maybe<
+            Pick<EbbaApplications, "id"> & EbbaApplicationFragment
+          >;
+        }
+      >;
     }
   >;
 };
@@ -16812,9 +16832,11 @@ export type CompanyQuery = {
   companies_by_pk?: Maybe<
     {
       bank_accounts: Array<BankAccountFragment>;
-      settings: {
-        collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
-      } & CompanySettingsFragment;
+      settings?: Maybe<
+        {
+          collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
+        } & CompanySettingsFragment
+      >;
       contract?: Maybe<ContractFragment>;
     } & CompanyFragment
   >;
@@ -16828,9 +16850,11 @@ export type CompanyForCustomerQuery = {
   companies_by_pk?: Maybe<
     Pick<Companies, "id"> & {
       bank_accounts: Array<BankAccountFragment>;
-      settings: {
-        collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
-      } & CompanySettingsForCustomerFragment;
+      settings?: Maybe<
+        {
+          collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
+        } & CompanySettingsForCustomerFragment
+      >;
       contract?: Maybe<ContractFragment>;
     } & CompanyFragment
   >;
@@ -17184,14 +17208,16 @@ export type GetVendorPartnershipForBankQuery = {
     {
       company: {
         users: Array<ContactFragment>;
-        settings: CompanySettingsFragment;
+        settings?: Maybe<CompanySettingsFragment>;
       } & CompanyFragment;
       company_agreement?: Maybe<CompanyAgreementFragment>;
       company_license?: Maybe<CompanyLicenseFragment>;
       vendor: {
-        settings: Pick<CompanySettings, "id"> & {
-          collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
-        } & CompanySettingsFragment;
+        settings?: Maybe<
+          Pick<CompanySettings, "id"> & {
+            collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
+          } & CompanySettingsFragment
+        >;
         users: Array<ContactFragment>;
         licenses: Array<CompanyLicenseFragment>;
       } & ThirdPartyFragment;
@@ -17211,7 +17237,7 @@ export type GetVendorPartnershipsForBankQuery = {
     {
       company: Pick<Companies, "id" | "name">;
       vendor: {
-        settings: Pick<CompanySettings, "id">;
+        settings?: Maybe<Pick<CompanySettings, "id">>;
         users: Array<ContactFragment>;
         licenses: Array<CompanyLicenseFragment>;
       } & ThirdPartyFragment;
@@ -17464,6 +17490,7 @@ export type PartnershipRequestFragment = Pick<
   | "user_info"
   | "created_at"
   | "requested_by_user_id"
+  | "license_info"
 >;
 
 export type PaymentFragment = Pick<
@@ -17540,7 +17567,7 @@ export type GetCustomersWithMetadataQuery = {
       financial_summaries: Array<
         Pick<FinancialSummaries, "id"> & FinancialSummaryFragment
       >;
-      settings: Pick<CompanySettings, "id"> & CompanySettingsFragment;
+      settings?: Maybe<Pick<CompanySettings, "id"> & CompanySettingsFragment>;
     } & CustomerForBankFragment
   >;
 };
@@ -18072,6 +18099,7 @@ export const PartnershipRequestFragmentDoc = gql`
     user_info
     created_at
     requested_by_user_id
+    license_info
   }
 `;
 export const BankAccountFragmentDoc = gql`

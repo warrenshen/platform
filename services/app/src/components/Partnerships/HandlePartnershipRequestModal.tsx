@@ -108,12 +108,22 @@ function HandlePartnershipRequestModal({
             {partnerRequest.company_type}
           </Typography>
         </Box>
-        <Box display="flex" flexDirection="column">
+        <Box display="flex" flexDirection="column" mb={1}>
           <Typography variant="subtitle2" color="textSecondary">
             New Partner Name
           </Typography>
           <Typography variant={"body1"}>
             {partnerRequest.company_name}
+          </Typography>
+        </Box>
+        <Box display="flex" flexDirection="column">
+          <Typography variant="subtitle2" color="textSecondary">
+            New Partner License IDs
+          </Typography>
+          <Typography variant={"body1"}>
+            {partnerRequest.license_info
+              ? partnerRequest.license_info.license_ids.join(", ")
+              : ""}
           </Typography>
         </Box>
         <Box mb={2} mt={2}>
