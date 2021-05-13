@@ -1,3 +1,14 @@
+describe("Create inventory financing customer", () => {
+  it("can create customer", () => {
+    cy.loginBankAdmin();
+
+    cy.dataCy("sidebar-item-customers").click();
+    cy.url().should("include", "customers");
+
+    cy.dataCy("create-customer-button").click();
+  });
+});
+
 describe("Create purchase order", () => {
   it("can create and save purchase order as draft", () => {
     cy.loginCustomerAdmin();

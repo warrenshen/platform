@@ -64,6 +64,7 @@ const Chip = styled.div`
 `;
 
 interface Props {
+  dataCy: string;
   isNested?: boolean;
   isSelected: boolean;
   chipCount?: number | null;
@@ -72,7 +73,8 @@ interface Props {
   to: string;
 }
 
-function SidebarItem({
+export default function SidebarItem({
+  dataCy,
   isNested = false,
   isSelected,
   chipCount,
@@ -81,7 +83,7 @@ function SidebarItem({
   to,
 }: Props) {
   return (
-    <Wrapper isNested={isNested}>
+    <Wrapper isNested={isNested} data-cy={`sidebar-item-${dataCy}`}>
       <Container $isSelected={isSelected} to={to}>
         <PrimaryContent>
           {IconNode && (
@@ -103,5 +105,3 @@ function SidebarItem({
     </Wrapper>
   );
 }
-
-export default SidebarItem;

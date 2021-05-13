@@ -166,6 +166,7 @@ function BankCustomersPage() {
             {check(role, Action.EditCustomerSettings) && (
               <Box>
                 <ModalButton
+                  dataCy={"create-customer-button"}
                   label={"Create Customer"}
                   color={"primary"}
                   modal={({ handleClose }) => (

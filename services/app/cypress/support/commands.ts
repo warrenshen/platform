@@ -28,6 +28,7 @@ import { password, users } from "../fixtures/logins";
 declare global {
   namespace Cypress {
     interface Chainable {
+      loginBankAdmin: typeof loginBankAdmin;
       loginCustomerAdmin: typeof loginCustomerAdmin;
     }
   }
@@ -41,7 +42,7 @@ Cypress.Commands.add("dataCySelector", (value, selector) => {
   return cy.get(`[data-cy=${value}] *> ${selector}`);
 });
 
-Cypress.Commands.add("loginBankAdmin", () => {
+function loginBankAdmin() {
   cy.visit("/");
 
   cy.dataCySelector("sign-in-input-email", "input").type(users.bankAdmin);
@@ -49,7 +50,7 @@ Cypress.Commands.add("loginBankAdmin", () => {
   cy.dataCy("sign-in-button").click();
 
   cy.url().should("include", "overview");
-});
+}
 
 function loginCustomerAdmin() {
   cy.visit("/");
@@ -61,4 +62,5 @@ function loginCustomerAdmin() {
   cy.url().should("include", "overview");
 }
 
+Cypress.Commands.add("loginBankAdmin", loginBankAdmin);
 Cypress.Commands.add("loginCustomerAdmin", loginCustomerAdmin);

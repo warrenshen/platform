@@ -119,6 +119,7 @@ const useStyles = makeStyles((theme: Theme) =>
 // If NavItem contains a link, we assume it to not be nested (items will not exist).
 // If NavItem does not contain a link, we assume it to be nested (items will exist).
 type NavItem = {
+  dataCy: string;
   visible?: boolean;
   text: string;
   link?: string;
@@ -135,17 +136,20 @@ const getCustomerNavItems = (
 ): NavItem[] => {
   return [
     {
+      dataCy: "overview",
       iconNode: OverviewIcon,
       text: "Overview",
       link: customerRoutes.overview,
     },
     {
+      dataCy: "loans",
       visible: !!productType,
       iconNode: LoansIcon,
       text: "Loans",
       link: customerRoutes.loans,
     },
     {
+      dataCy: "purchase-orders",
       visible:
         !!productType &&
         [
@@ -157,6 +161,7 @@ const getCustomerNavItems = (
       link: customerRoutes.purchaseOrders,
     },
     {
+      dataCy: "borrowing-base",
       visible:
         !!productType && [ProductTypeEnum.LineOfCredit].includes(productType),
       iconNode: PurchaseOrdersIcon,
@@ -165,6 +170,7 @@ const getCustomerNavItems = (
       counter: showBorrowingBasesChip ? 1 : 0,
     },
     {
+      dataCy: "invoices",
       visible:
         !!productType &&
         [
@@ -176,11 +182,13 @@ const getCustomerNavItems = (
       link: customerRoutes.invoices,
     },
     {
+      dataCy: "payments",
       iconNode: PaymentsIcon,
       text: "Payments",
       link: customerRoutes.payments,
     },
     {
+      dataCy: "vendors",
       visible:
         !!productType &&
         [
@@ -193,6 +201,7 @@ const getCustomerNavItems = (
       link: customerRoutes.vendors,
     },
     {
+      dataCy: "payors",
       visible:
         !!productType &&
         [
@@ -204,11 +213,13 @@ const getCustomerNavItems = (
       link: customerRoutes.payors,
     },
     {
+      dataCy: "contract",
       iconNode: ContractsIcon,
       text: "Contract",
       link: customerRoutes.contract,
     },
     {
+      dataCy: "settings",
       iconNode: SettingsIcon,
       text: "Settings",
       link: customerRoutes.settings,
@@ -223,64 +234,76 @@ const getBankNavItems = (
 ): NavItem[] => {
   return [
     {
+      dataCy: "overview",
       iconNode: OverviewIcon,
       text: "Overview",
       link: bankRoutes.overview,
     },
     {
+      dataCy: "loans",
       iconNode: LoansIcon,
       text: "Loans",
       link: bankRoutes.loans,
       counter: loansCount,
     },
     {
+      dataCy: "payments",
       iconNode: PaymentsIcon,
       text: "Payments",
       link: bankRoutes.payments,
       counter: paymentsCount,
     },
     {
+      dataCy: "purchase-orders",
       iconNode: PurchaseOrdersIcon,
       text: "Purchase Orders",
       link: bankRoutes.purchaseOrders,
     },
     {
+      dataCy: "borrowing bases",
       iconNode: BorrowingBasesIcon,
       text: "Borrowing Bases",
       link: bankRoutes.ebbaApplications,
       counter: ebbaApplicationsCount,
     },
     {
+      dataCy: "invoices",
       iconNode: InvoicesIcon,
       text: "Invoices",
       link: bankRoutes.invoices,
     },
     {
+      dataCy: "customers",
       iconNode: CustomersIcon,
       text: "Customers",
       link: bankRoutes.customers,
     },
     {
+      dataCy: "vendors",
       iconNode: VendorsIcon,
       text: "Vendors",
       link: bankRoutes.vendors,
     },
     {
+      dataCy: "payors",
       iconNode: PayorsIcon,
       text: "Payors",
       link: bankRoutes.payors,
     },
     {
+      dataCy: "partnerships",
       iconNode: PayorsIcon,
       text: "Partnerships",
       link: bankRoutes.partnerships,
     },
     {
+      dataCy: "reports",
       iconNode: ReportsIcon,
       text: "Reports",
       link: bankRoutes.reports,
     },
     {
+      dataCy: "settings",
       iconNode: SettingsIcon,
       text: "Settings",
       link: bankRoutes.settings,
@@ -371,6 +394,7 @@ export default function Layout({ appBarTitle, children }: Props) {
                 item.link ? (
                   <SidebarItem
                     key={item.text + index}
+                    dataCy={item.dataCy}
                     isSelected={Boolean(
                       matchPath(location.pathname, item.link)
                     )}

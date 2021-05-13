@@ -2,7 +2,7 @@ import { Box, Button } from "@material-ui/core";
 import { ReactNode, useState } from "react";
 
 interface Props {
-  "data-cy"?: string;
+  dataCy?: string;
   isDisabled?: boolean;
   label: string;
   color?: "inherit" | "primary" | "secondary" | "default" | undefined;
@@ -13,7 +13,7 @@ interface Props {
 }
 
 function ModalButton({
-  "data-cy": dataCy,
+  dataCy,
   isDisabled = false,
   label,
   color,
