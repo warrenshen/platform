@@ -252,12 +252,34 @@ def create_partnership(
 	company_type = partnership_req.company_type
 
 	if company_type == CompanyType.Payor:
+
+		prev_partnership = cast(
+			models.CompanyPayorPartnership,
+			session.query(models.CompanyPayorPartnership).filter(
+				models.CompanyPayorPartnership.company_id == customer_id
+			).filter(
+				models.CompanyPayorPartnership.payor_id == company_id
+			).first())
+		if prev_partnership:
+			raise errors.Error('Partnership already exists. Please delete this payor partnership request')
+
 		company_payor_partnership = models.CompanyPayorPartnership(
 			company_id=customer_id,
 			payor_id=company_id,
 		)
 		session.add(company_payor_partnership)
 	elif company_type == CompanyType.Vendor:
+
+		prev_vendor_partnership = cast(
+			models.CompanyVendorPartnership,
+			session.query(models.CompanyVendorPartnership).filter(
+				models.CompanyVendorPartnership.company_id == customer_id
+			).filter(
+				models.CompanyVendorPartnership.vendor_id == company_id
+			).first())
+		if prev_vendor_partnership:
+			raise errors.Error('Partnership already exists. Please delete this vendor partnership request')
+
 		company_vendor_partnership = models.CompanyVendorPartnership(
 			company_id=customer_id,
 			vendor_id=company_id,
