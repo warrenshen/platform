@@ -110,7 +110,7 @@ export default function CreateUpdateArtifactLoanModal({
 
   const selectedArtifact = idToArtifact[loan.artifact_id];
 
-  if (selectedArtifact) {
+  if (!!selectedArtifact) {
     amountUsedOnArtifact =
       selectedArtifact.total_amount - selectedArtifact.amount_remaining;
     totalAmountForArtifact = selectedArtifact.total_amount;
@@ -254,7 +254,7 @@ export default function CreateUpdateArtifactLoanModal({
   if (!isFormValid || !selectedArtifact) {
     disabledSubmitReasons.push(`${artifactCopyUpper} has not been selected`);
   }
-  if (proposedLoansTotalAmount > totalAmountForArtifact) {
+  if (!!selectedArtifact && proposedLoansTotalAmount > totalAmountForArtifact) {
     disabledSubmitReasons.push(
       `Requested amount exceeds amount available to finance. The amount available to finance is ${formatCurrency(
         selectedArtifact.amount_remaining
