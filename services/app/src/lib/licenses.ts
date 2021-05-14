@@ -1,4 +1,8 @@
-import { Companies, Files } from "generated/graphql";
+import {
+  Companies,
+  CompanyLicensesInsertInput,
+  Files,
+} from "generated/graphql";
 import {
   authenticatedApi,
   CustomMutationResponse,
@@ -34,6 +38,33 @@ export async function addLicensesMutation(
         return {
           status: "ERROR",
           msg: "Could not add licenses",
+        };
+      }
+    );
+}
+
+export type CreateUpdateLicensesReq = {
+  variables: {
+    company_id: Companies["id"];
+    company_licenses: CompanyLicensesInsertInput[];
+  };
+};
+
+export async function createUpdateLicensesMutation(
+  req: CreateUpdateLicensesReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(licenseRoutes.createUpdateLicenses, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => response,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not update licenses",
         };
       }
     );

@@ -1,4 +1,23 @@
 ## Queries
+query GetVendorCompanyFileAttachments($company_id: uuid!) {
+  companies_by_pk(id: $company_id) {
+    ...ThirdParty
+    agreements {
+      ...CompanyAgreement
+    }
+    licenses(
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
+    ) {
+      ...CompanyLicense
+    }
+  }
+}
+
 query GetVendorPartnershipForBank($id: uuid!) {
   company_vendor_partnerships_by_pk(id: $id) {
     ...VendorPartnership
@@ -31,7 +50,14 @@ query GetVendorPartnershipForBank($id: uuid!) {
           ...BankAccount
         }
       }
-      licenses {
+      licenses(
+        where: {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+      ) {
         ...CompanyLicense
       }
     }

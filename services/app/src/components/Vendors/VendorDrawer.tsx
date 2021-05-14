@@ -11,9 +11,9 @@ import * as Sentry from "@sentry/react";
 import Can from "components/Shared/Can";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileUploadDropzone from "components/Shared/File/FileUploadDropzone";
-import FileUploader from "components/Shared/File/FileUploader";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import ContactsList from "components/ThirdParties/ContactsList";
+import UpdateCompanyLicensesModal from "components/ThirdParties/UpdateCompanyLicensesModal";
 import UpdateThirdPartyCompanySettingsModal from "components/ThirdParties/UpdateThirdPartyCompanySettingsModal";
 import ApproveVendor from "components/Vendors/VendorDrawer/Actions/ApproveVendor";
 import BankAccount from "components/Vendors/VendorDrawer/BankAccount";
@@ -31,7 +31,6 @@ import {
   TwoFactorMessageMethodEnum,
   TwoFactorMessageMethodToLabel,
 } from "lib/enum";
-import { addLicensesMutation, deleteLicenseMutation } from "lib/licenses";
 import { InventoryNotifier } from "lib/notifications/inventory";
 import { omit } from "lodash";
 import { useMemo } from "react";
@@ -91,10 +90,8 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
   const customer = data.company_vendor_partnerships_by_pk.company;
   const vendor = data.company_vendor_partnerships_by_pk.vendor;
 
-  const licenseFileIds = vendor.licenses?.map((l) => {
-    return l.file_id;
-  });
   const customerName = customer?.name;
+  const companyLicenses = vendor.licenses || [];
 
   const notifier = new InventoryNotifier();
   const hasNoContactsSetup =
@@ -136,49 +133,36 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
           <Grid item>
             <Typography variant="h6">Licenses</Typography>
           </Grid>
-          <Box mt={1} mb={2}>
-            <FileUploader
-              companyId={vendor.id}
-              fileType={FileTypeEnum.VENDOR_LICENSE}
-              fileIds={licenseFileIds}
-              handleDeleteFileById={async (fileId) => {
-                const response = await deleteLicenseMutation({
-                  variables: {
-                    company_id: vendor.id,
-                    file_id: fileId,
-                  },
-                });
-
-                if (response.status === "OK") {
-                  refetch();
-                  snackbar.showSuccess("Vendor license deleted");
-                } else {
-                  snackbar.showError("Vendor license could not be deleted");
-                }
-              }}
-              handleNewFiles={async (files) => {
-                const fileIds = files.map((f) => {
-                  return f.id;
-                });
-
-                // The vendorLicenseId is whatever the most recent vendor license is.
-                // Really this vendor_license_id is populated for convenience
-                const response = await addLicensesMutation({
-                  variables: {
-                    company_id: vendor.id,
-                    file_ids: fileIds,
-                  },
-                });
-                if (response.status === "OK") {
-                  refetch();
-                  snackbar.showSuccess("Vendor licenses uploaded.");
-                } else {
-                  snackbar.showError(
-                    "Error! Vendor licenses could not be uploaded."
-                  );
-                }
-              }}
+          <Box mt={1} mb={1}>
+            <ModalButton
+              label={"Edit Licenses"}
+              color="default"
+              variant="outlined"
+              modal={({ handleClose }) => (
+                <UpdateCompanyLicensesModal
+                  companyId={vendor.id}
+                  vendorPartnershipId={vendorPartnershipId}
+                  handleClose={() => {
+                    refetch();
+                    handleClose();
+                  }}
+                />
+              )}
             />
+          </Box>
+          <Box mt={1} mb={2}>
+            {companyLicenses.map((companyLicense) => (
+              <Box key={companyLicense.id}>
+                <Typography>{companyLicense.license_number}</Typography>
+                {!!companyLicense.file_id && (
+                  <DownloadThumbnail
+                    isCountVisible={false}
+                    fileIds={[companyLicense.file_id]}
+                    fileType={FileTypeEnum.COMPANY_LICENSE}
+                  />
+                )}
+              </Box>
+            ))}
           </Box>
         </Box>
         <Box display="flex" flexDirection="column">
@@ -274,7 +258,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
         </Box>
         <Box mt={2}>
           <ModalButton
-            label={"Edit"}
+            label={"Edit 2FA"}
             color="default"
             variant="outlined"
             modal={({ handleClose }) => (

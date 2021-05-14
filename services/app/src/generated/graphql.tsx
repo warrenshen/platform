@@ -2452,6 +2452,7 @@ export type CompanyLicenses = {
   file: Files;
   file_id: Scalars["uuid"];
   id: Scalars["uuid"];
+  is_deleted: Scalars["Boolean"];
   license_number?: Maybe<Scalars["String"]>;
 };
 
@@ -2497,6 +2498,7 @@ export type CompanyLicensesBoolExp = {
   file?: Maybe<FilesBoolExp>;
   file_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  is_deleted?: Maybe<BooleanComparisonExp>;
   license_number?: Maybe<StringComparisonExp>;
 };
 
@@ -2513,6 +2515,7 @@ export type CompanyLicensesInsertInput = {
   file?: Maybe<FilesObjRelInsertInput>;
   file_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   license_number?: Maybe<Scalars["String"]>;
 };
 
@@ -2576,6 +2579,7 @@ export type CompanyLicensesOrderBy = {
   file?: Maybe<FilesOrderBy>;
   file_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  is_deleted?: Maybe<OrderBy>;
   license_number?: Maybe<OrderBy>;
 };
 
@@ -2593,6 +2597,8 @@ export enum CompanyLicensesSelectColumn {
   /** column name */
   Id = "id",
   /** column name */
+  IsDeleted = "is_deleted",
+  /** column name */
   LicenseNumber = "license_number",
 }
 
@@ -2601,6 +2607,7 @@ export type CompanyLicensesSetInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   file_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   license_number?: Maybe<Scalars["String"]>;
 };
 
@@ -2612,6 +2619,8 @@ export enum CompanyLicensesUpdateColumn {
   FileId = "file_id",
   /** column name */
   Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
   /** column name */
   LicenseNumber = "license_number",
 }
@@ -16944,7 +16953,7 @@ export type CompanyAgreementFragment = Pick<
 
 export type CompanyLicenseFragment = Pick<
   CompanyLicenses,
-  "id" | "company_id" | "file_id"
+  "id" | "company_id" | "file_id" | "license_number"
 >;
 
 export type CompanyMinimalFragment = Pick<
@@ -17236,6 +17245,19 @@ export type AddVendorContactMutationVariables = Exact<{
 
 export type AddVendorContactMutation = {
   insert_users_one?: Maybe<ContactFragment>;
+};
+
+export type GetVendorCompanyFileAttachmentsQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+}>;
+
+export type GetVendorCompanyFileAttachmentsQuery = {
+  companies_by_pk?: Maybe<
+    {
+      agreements: Array<CompanyAgreementFragment>;
+      licenses: Array<CompanyLicenseFragment>;
+    } & ThirdPartyFragment
+  >;
 };
 
 export type GetVendorPartnershipForBankQueryVariables = Exact<{
@@ -17710,6 +17732,7 @@ export const CompanyLicenseFragmentDoc = gql`
     id
     company_id
     file_id
+    license_number
   }
 `;
 export const CompanyMinimalFragmentDoc = gql`
@@ -24191,6 +24214,78 @@ export type AddVendorContactMutationOptions = Apollo.BaseMutationOptions<
   AddVendorContactMutation,
   AddVendorContactMutationVariables
 >;
+export const GetVendorCompanyFileAttachmentsDocument = gql`
+  query GetVendorCompanyFileAttachments($company_id: uuid!) {
+    companies_by_pk(id: $company_id) {
+      ...ThirdParty
+      agreements {
+        ...CompanyAgreement
+      }
+      licenses(
+        where: {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+      ) {
+        ...CompanyLicense
+      }
+    }
+  }
+  ${ThirdPartyFragmentDoc}
+  ${CompanyAgreementFragmentDoc}
+  ${CompanyLicenseFragmentDoc}
+`;
+
+/**
+ * __useGetVendorCompanyFileAttachmentsQuery__
+ *
+ * To run a query within a React component, call `useGetVendorCompanyFileAttachmentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetVendorCompanyFileAttachmentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetVendorCompanyFileAttachmentsQuery({
+ *   variables: {
+ *      company_id: // value for 'company_id'
+ *   },
+ * });
+ */
+export function useGetVendorCompanyFileAttachmentsQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetVendorCompanyFileAttachmentsQuery,
+    GetVendorCompanyFileAttachmentsQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetVendorCompanyFileAttachmentsQuery,
+    GetVendorCompanyFileAttachmentsQueryVariables
+  >(GetVendorCompanyFileAttachmentsDocument, baseOptions);
+}
+export function useGetVendorCompanyFileAttachmentsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetVendorCompanyFileAttachmentsQuery,
+    GetVendorCompanyFileAttachmentsQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetVendorCompanyFileAttachmentsQuery,
+    GetVendorCompanyFileAttachmentsQueryVariables
+  >(GetVendorCompanyFileAttachmentsDocument, baseOptions);
+}
+export type GetVendorCompanyFileAttachmentsQueryHookResult = ReturnType<
+  typeof useGetVendorCompanyFileAttachmentsQuery
+>;
+export type GetVendorCompanyFileAttachmentsLazyQueryHookResult = ReturnType<
+  typeof useGetVendorCompanyFileAttachmentsLazyQuery
+>;
+export type GetVendorCompanyFileAttachmentsQueryResult = Apollo.QueryResult<
+  GetVendorCompanyFileAttachmentsQuery,
+  GetVendorCompanyFileAttachmentsQueryVariables
+>;
 export const GetVendorPartnershipForBankDocument = gql`
   query GetVendorPartnershipForBank($id: uuid!) {
     company_vendor_partnerships_by_pk(id: $id) {
@@ -24227,7 +24322,14 @@ export const GetVendorPartnershipForBankDocument = gql`
             ...BankAccount
           }
         }
-        licenses {
+        licenses(
+          where: {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+        ) {
           ...CompanyLicense
         }
       }

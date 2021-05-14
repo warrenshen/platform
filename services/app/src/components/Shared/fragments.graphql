@@ -30,6 +30,7 @@ fragment CompanyLicense on company_licenses {
   id
   company_id
   file_id
+  license_number
 }
 
 fragment CompanyMinimal on companies {

@@ -79,12 +79,14 @@ async function downloadFilesWithSignedUrls(
 }
 
 interface Props {
+  isCountVisible?: boolean;
   fileIds: string[];
   fileType: string;
   deleteFileId?: (fileId: string) => void;
 }
 
 export default function DownloadThumbnail({
+  isCountVisible = true,
   fileIds,
   fileType,
   deleteFileId,
@@ -114,12 +116,13 @@ export default function DownloadThumbnail({
   return (
     <Box display="flex" flexDirection="column">
       <Box display="flex" flexDirection="column">
-        <Box>
-          <Typography
-            variant={"body2"}
-            color={"textSecondary"}
-          >{`${fileIds.length} file(s) attached`}</Typography>
-        </Box>
+        {isCountVisible && (
+          <Box>
+            <Typography variant={"body2"} color={"textSecondary"}>
+              {`${fileIds.length} file(s) attached`}
+            </Typography>
+          </Box>
+        )}
         {filesWithSignedUrls.length > 0 && (
           <Box display="flex" flexDirection="column" mt={1}>
             {filesWithSignedUrls.map((fileWithSignedUrl) => (

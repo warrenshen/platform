@@ -24,6 +24,7 @@ export const companyRoutes = {
 
 export const licenseRoutes = {
   addLicenses: "/licenses/add_licenses",
+  createUpdateLicenses: "/licenses/create_update_licenses",
   deleteLicense: "/licenses/delete_license",
 };
 
