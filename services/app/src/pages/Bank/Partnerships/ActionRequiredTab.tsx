@@ -6,7 +6,6 @@ import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   CompanyPartnershipRequests,
-  useGetAllCompaniesQuery,
   useGetPartnershipRequestsForBankSubscription,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
@@ -28,15 +27,6 @@ function ActionRequiredTab() {
   if (error) {
     console.error({ error });
     alert(`Error in query (details in console): ${error.message}`);
-  }
-
-  const {
-    data: companiesData,
-    error: companiesError,
-  } = useGetAllCompaniesQuery();
-  if (companiesError) {
-    console.error({ companiesError });
-    alert(`Error in query (details in console): ${companiesError.message}`);
   }
 
   // State for modal(s).
@@ -64,18 +54,32 @@ function ActionRequiredTab() {
     [data?.company_partnership_requests]
   );
 
-  const allCompanies = useMemo(() => companiesData?.companies || [], [
-    companiesData?.companies,
-  ]);
-
   return (
     <Container>
       <Box mb={2} display="flex" flexDirection="row-reverse">
+        <Can perform={Action.RejectLoan}>
+          <Box>
+            <ModalButton
+              isDisabled={selectedRequestIds.length !== 1}
+              label={"Triage Request"}
+              modal={({ handleClose }) => (
+                <HandlePartnershipRequestModal
+                  partnerRequest={selectedRequests[0]}
+                  handleClose={() => {
+                    handleClose();
+                    setSelectedRequestIds([]);
+                  }}
+                />
+              )}
+            />
+          </Box>
+        </Can>
         <Can perform={Action.IsBankAdmin}>
           <Box mr={2}>
             <ModalButton
               isDisabled={selectedRequestIds.length !== 1}
               label={"Delete Request"}
+              variant={"outlined"}
               modal={({ handleClose }) => (
                 <DeletePartnershipRequestModal
                   partnerRequest={selectedRequests[0]}
@@ -88,33 +92,16 @@ function ActionRequiredTab() {
             />
           </Box>
         </Can>
-        <Can perform={Action.IsBankAdmin}>
-          <Box mr={2}>
-            <ModalButton
-              isDisabled={selectedRequestIds.length !== 1}
-              label={"Handle Request"}
-              modal={({ handleClose }) => (
-                <HandlePartnershipRequestModal
-                  partnerRequest={selectedRequests[0]}
-                  allCompanies={allCompanies}
-                  handleClose={() => {
-                    handleClose();
-                    setSelectedRequestIds([]);
-                  }}
-                />
-              )}
-            />
-          </Box>
-        </Can>
       </Box>
       <Box flex={1} display="flex" flexDirection="column" overflow="scroll">
         <PartnershipsDataGrid
+          isClosedTab={false}
           isExcelExport
           isFilteringEnabled={false}
+          isMultiSelectEnabled
           partnershipRequests={partnershipRequests}
           selectedRequestIds={selectedRequestIds}
           handleSelectRequests={handleSelectRequests}
-          isClosedTab={false}
         />
       </Box>
     </Container>

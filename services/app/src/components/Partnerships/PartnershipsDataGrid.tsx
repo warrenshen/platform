@@ -12,6 +12,7 @@ import { useMemo } from "react";
 interface Props {
   isExcelExport?: boolean;
   isFilteringEnabled?: boolean;
+  isMultiSelectEnabled?: boolean;
   isSortingDisabled?: boolean;
   pager?: boolean;
   pageSize?: number;
@@ -34,6 +35,7 @@ function getRows(requests: any[]): RowsProp {
 export default function PartnershipsDataGrid({
   isExcelExport = false,
   isFilteringEnabled = false,
+  isMultiSelectEnabled = false,
   isSortingDisabled = false,
   pager = true,
   pageSize = 10,
@@ -138,7 +140,7 @@ export default function PartnershipsDataGrid({
       isSortingDisabled={isSortingDisabled}
       filtering={filtering}
       pager={pager}
-      select={true}
+      select={isMultiSelectEnabled}
       pageSize={pageSize}
       allowedPageSizes={allowedPageSizes}
       dataSource={rows}

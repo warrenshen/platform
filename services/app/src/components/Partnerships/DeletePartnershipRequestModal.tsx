@@ -12,10 +12,8 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import { Companies } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { deletePartnershipRequestMutation } from "lib/api/companies";
-import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -47,9 +45,6 @@ export default function DeletePartnershipRequestModal({
   const classes = useStyles();
 
   const isSubmitDisabled = false;
-  const [selectedCompanyId, setSelectedCompanyId] = useState<Companies["id"]>(
-    null
-  );
 
   const handleSubmit = async () => {
     const response = await deletePartnershipRequestMutation({

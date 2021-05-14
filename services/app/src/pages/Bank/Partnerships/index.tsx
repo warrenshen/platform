@@ -23,8 +23,8 @@ function BankPartnershipsPage() {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   return (
-    <Page appBarTitle={"Partnerships"}>
-      <PageContent title={"Partnerships"}>
+    <Page appBarTitle={"Partnership Requests"}>
+      <PageContent title={"Partnership Requests"}>
         <Container>
           <Tabs
             value={selectedTabIndex}
@@ -35,7 +35,7 @@ function BankPartnershipsPage() {
             }
           >
             <Tab label="Action Required" />
-            <Tab label="Closed" />
+            <Tab label="Closed Requests" />
           </Tabs>
           <SectionSpace />
           {selectedTabIndex === 0 ? (

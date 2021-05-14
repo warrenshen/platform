@@ -1313,6 +1313,7 @@ export type Companies = {
   invoices: Array<Invoices>;
   /** An aggregated array relationship */
   invoices_aggregate: InvoicesAggregate;
+  is_cannabis?: Maybe<Scalars["Boolean"]>;
   /** The latest disbursement (payment) identifier assigned to loans belonging to this company when an advance is made; increment this value to get a new disbursement identifier for a new payment */
   latest_disbursement_identifier: Scalars["Int"];
   /** The latest loan identifier created for loans belonging to this company; increment this value to get a new loan identifier for a new loan */
@@ -1751,6 +1752,7 @@ export type CompaniesBoolExp = {
   identifier?: Maybe<StringComparisonExp>;
   invoice_by_payor?: Maybe<InvoicesBoolExp>;
   invoices?: Maybe<InvoicesBoolExp>;
+  is_cannabis?: Maybe<BooleanComparisonExp>;
   latest_disbursement_identifier?: Maybe<IntComparisonExp>;
   latest_loan_identifier?: Maybe<IntComparisonExp>;
   latest_repayment_identifier?: Maybe<IntComparisonExp>;
@@ -1811,6 +1813,7 @@ export type CompaniesInsertInput = {
   identifier?: Maybe<Scalars["String"]>;
   invoice_by_payor?: Maybe<InvoicesArrRelInsertInput>;
   invoices?: Maybe<InvoicesArrRelInsertInput>;
+  is_cannabis?: Maybe<Scalars["Boolean"]>;
   latest_disbursement_identifier?: Maybe<Scalars["Int"]>;
   latest_loan_identifier?: Maybe<Scalars["Int"]>;
   latest_repayment_identifier?: Maybe<Scalars["Int"]>;
@@ -1969,6 +1972,7 @@ export type CompaniesOrderBy = {
   identifier?: Maybe<OrderBy>;
   invoice_by_payor_aggregate?: Maybe<InvoicesAggregateOrderBy>;
   invoices_aggregate?: Maybe<InvoicesAggregateOrderBy>;
+  is_cannabis?: Maybe<OrderBy>;
   latest_disbursement_identifier?: Maybe<OrderBy>;
   latest_loan_identifier?: Maybe<OrderBy>;
   latest_repayment_identifier?: Maybe<OrderBy>;
@@ -2020,6 +2024,8 @@ export enum CompaniesSelectColumn {
   /** column name */
   Identifier = "identifier",
   /** column name */
+  IsCannabis = "is_cannabis",
+  /** column name */
   LatestDisbursementIdentifier = "latest_disbursement_identifier",
   /** column name */
   LatestLoanIdentifier = "latest_loan_identifier",
@@ -2053,6 +2059,7 @@ export type CompaniesSetInput = {
   employer_identification_number?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   identifier?: Maybe<Scalars["String"]>;
+  is_cannabis?: Maybe<Scalars["Boolean"]>;
   latest_disbursement_identifier?: Maybe<Scalars["Int"]>;
   latest_loan_identifier?: Maybe<Scalars["Int"]>;
   latest_repayment_identifier?: Maybe<Scalars["Int"]>;
@@ -2146,6 +2153,8 @@ export enum CompaniesUpdateColumn {
   Id = "id",
   /** column name */
   Identifier = "identifier",
+  /** column name */
+  IsCannabis = "is_cannabis",
   /** column name */
   LatestDisbursementIdentifier = "latest_disbursement_identifier",
   /** column name */
@@ -2449,8 +2458,8 @@ export type CompanyLicenses = {
   company: Companies;
   company_id: Scalars["uuid"];
   /** An object relationship */
-  file: Files;
-  file_id: Scalars["uuid"];
+  file?: Maybe<Files>;
+  file_id?: Maybe<Scalars["uuid"]>;
   id: Scalars["uuid"];
   is_deleted: Scalars["Boolean"];
   license_number?: Maybe<Scalars["String"]>;
@@ -2631,6 +2640,7 @@ export type CompanyPartnershipRequests = {
   company_type: Scalars["String"];
   created_at: Scalars["timestamptz"];
   id: Scalars["uuid"];
+  is_cannabis?: Maybe<Scalars["Boolean"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   license_info?: Maybe<Scalars["json"]>;
   /** An object relationship */
@@ -2696,6 +2706,7 @@ export type CompanyPartnershipRequestsBoolExp = {
   company_type?: Maybe<StringComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  is_cannabis?: Maybe<BooleanComparisonExp>;
   is_deleted?: Maybe<BooleanComparisonExp>;
   license_info?: Maybe<JsonComparisonExp>;
   requested_by_user?: Maybe<UsersBoolExp>;
@@ -2720,6 +2731,7 @@ export type CompanyPartnershipRequestsInsertInput = {
   company_type?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_cannabis?: Maybe<Scalars["Boolean"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   license_info?: Maybe<Scalars["json"]>;
   requested_by_user?: Maybe<UsersObjRelInsertInput>;
@@ -2811,6 +2823,7 @@ export type CompanyPartnershipRequestsOrderBy = {
   company_type?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  is_cannabis?: Maybe<OrderBy>;
   is_deleted?: Maybe<OrderBy>;
   license_info?: Maybe<OrderBy>;
   requested_by_user?: Maybe<UsersOrderBy>;
@@ -2839,6 +2852,8 @@ export enum CompanyPartnershipRequestsSelectColumn {
   /** column name */
   Id = "id",
   /** column name */
+  IsCannabis = "is_cannabis",
+  /** column name */
   IsDeleted = "is_deleted",
   /** column name */
   LicenseInfo = "license_info",
@@ -2862,6 +2877,7 @@ export type CompanyPartnershipRequestsSetInput = {
   company_type?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_cannabis?: Maybe<Scalars["Boolean"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   license_info?: Maybe<Scalars["json"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -2882,6 +2898,8 @@ export enum CompanyPartnershipRequestsUpdateColumn {
   CreatedAt = "created_at",
   /** column name */
   Id = "id",
+  /** column name */
+  IsCannabis = "is_cannabis",
   /** column name */
   IsDeleted = "is_deleted",
   /** column name */
@@ -17557,10 +17575,11 @@ export type PartnershipRequestFragment = Pick<
   | "two_factor_message_method"
   | "company_type"
   | "company_name"
+  | "license_info"
+  | "is_cannabis"
   | "user_info"
   | "created_at"
   | "requested_by_user_id"
-  | "license_info"
   | "settled_by_user_id"
   | "settled_at"
 >;
@@ -17684,10 +17703,16 @@ export type GetPartnershipRequestsForBankSubscription = {
   >;
 };
 
-export type GetAllCompaniesQueryVariables = Exact<{ [key: string]: never }>;
+export type GetCompaniesWithLicensesQueryVariables = Exact<{
+  [key: string]: never;
+}>;
 
-export type GetAllCompaniesQuery = {
-  companies: Array<Pick<Companies, "id"> & CompanyMinimalFragment>;
+export type GetCompaniesWithLicensesQuery = {
+  companies: Array<
+    Pick<Companies, "id"> & {
+      licenses: Array<Pick<CompanyLicenses, "id" | "license_number">>;
+    } & CompanyMinimalFragment
+  >;
 };
 
 export type UserByIdQueryVariables = Exact<{
@@ -18189,10 +18214,11 @@ export const PartnershipRequestFragmentDoc = gql`
     two_factor_message_method
     company_type
     company_name
+    license_info
+    is_cannabis
     user_info
     created_at
     requested_by_user_id
-    license_info
     settled_by_user_id
     settled_at
   }
@@ -25400,62 +25426,73 @@ export type GetPartnershipRequestsForBankSubscriptionHookResult = ReturnType<
   typeof useGetPartnershipRequestsForBankSubscription
 >;
 export type GetPartnershipRequestsForBankSubscriptionResult = Apollo.SubscriptionResult<GetPartnershipRequestsForBankSubscription>;
-export const GetAllCompaniesDocument = gql`
-  query GetAllCompanies {
+export const GetCompaniesWithLicensesDocument = gql`
+  query GetCompaniesWithLicenses {
     companies: companies(order_by: { name: asc }) {
       id
       ...CompanyMinimal
+      licenses(
+        where: {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+      ) {
+        id
+        license_number
+      }
     }
   }
   ${CompanyMinimalFragmentDoc}
 `;
 
 /**
- * __useGetAllCompaniesQuery__
+ * __useGetCompaniesWithLicensesQuery__
  *
- * To run a query within a React component, call `useGetAllCompaniesQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetAllCompaniesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetCompaniesWithLicensesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompaniesWithLicensesQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetAllCompaniesQuery({
+ * const { data, loading, error } = useGetCompaniesWithLicensesQuery({
  *   variables: {
  *   },
  * });
  */
-export function useGetAllCompaniesQuery(
+export function useGetCompaniesWithLicensesQuery(
   baseOptions?: Apollo.QueryHookOptions<
-    GetAllCompaniesQuery,
-    GetAllCompaniesQueryVariables
+    GetCompaniesWithLicensesQuery,
+    GetCompaniesWithLicensesQueryVariables
   >
 ) {
-  return Apollo.useQuery<GetAllCompaniesQuery, GetAllCompaniesQueryVariables>(
-    GetAllCompaniesDocument,
-    baseOptions
-  );
+  return Apollo.useQuery<
+    GetCompaniesWithLicensesQuery,
+    GetCompaniesWithLicensesQueryVariables
+  >(GetCompaniesWithLicensesDocument, baseOptions);
 }
-export function useGetAllCompaniesLazyQuery(
+export function useGetCompaniesWithLicensesLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    GetAllCompaniesQuery,
-    GetAllCompaniesQueryVariables
+    GetCompaniesWithLicensesQuery,
+    GetCompaniesWithLicensesQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    GetAllCompaniesQuery,
-    GetAllCompaniesQueryVariables
-  >(GetAllCompaniesDocument, baseOptions);
+    GetCompaniesWithLicensesQuery,
+    GetCompaniesWithLicensesQueryVariables
+  >(GetCompaniesWithLicensesDocument, baseOptions);
 }
-export type GetAllCompaniesQueryHookResult = ReturnType<
-  typeof useGetAllCompaniesQuery
+export type GetCompaniesWithLicensesQueryHookResult = ReturnType<
+  typeof useGetCompaniesWithLicensesQuery
 >;
-export type GetAllCompaniesLazyQueryHookResult = ReturnType<
-  typeof useGetAllCompaniesLazyQuery
+export type GetCompaniesWithLicensesLazyQueryHookResult = ReturnType<
+  typeof useGetCompaniesWithLicensesLazyQuery
 >;
-export type GetAllCompaniesQueryResult = Apollo.QueryResult<
-  GetAllCompaniesQuery,
-  GetAllCompaniesQueryVariables
+export type GetCompaniesWithLicensesQueryResult = Apollo.QueryResult<
+  GetCompaniesWithLicensesQuery,
+  GetCompaniesWithLicensesQueryVariables
 >;
 export const UserByIdDocument = gql`
   query UserById($id: uuid!) {

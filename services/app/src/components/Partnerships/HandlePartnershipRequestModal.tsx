@@ -1,59 +1,47 @@
 import {
   Box,
-  Button,
-  createStyles,
-  Dialog,
-  DialogActions,
-  DialogContent,
+  Checkbox,
   DialogContentText,
-  DialogTitle,
   Divider,
-  makeStyles,
+  FormControlLabel,
   TextField,
-  Theme,
   Typography,
 } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
-import { Companies, CompanyMinimalFragment } from "generated/graphql";
+import Modal from "components/Shared/Modal/Modal";
+import {
+  Companies,
+  GetPartnershipRequestsForBankSubscription,
+  useGetCompaniesWithLicensesQuery,
+} from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { createPartnershipMutation } from "lib/api/companies";
-import { useState } from "react";
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    dialog: {
-      width: 400,
-    },
-    dialogTitle: {
-      borderBottom: "1px solid #c7c7c7",
-    },
-    dialogActions: {
-      margin: theme.spacing(2),
-    },
-    submitButton: {
-      marginLeft: theme.spacing(1),
-    },
-  })
-);
+import { useMemo, useState } from "react";
 
 interface Props {
-  partnerRequest: any;
-  allCompanies: CompanyMinimalFragment[];
+  partnerRequest: GetPartnershipRequestsForBankSubscription["company_partnership_requests"][0];
   handleClose: () => void;
 }
 
 export default function HandlePartnershipRequestModal({
   partnerRequest,
-  allCompanies,
   handleClose,
 }: Props) {
   const snackbar = useSnackbar();
-  const classes = useStyles();
 
   const isSubmitDisabled = false;
   const [selectedCompanyId, setSelectedCompanyId] = useState<Companies["id"]>(
     null
   );
+
+  const { data, error } = useGetCompaniesWithLicensesQuery();
+
+  if (error) {
+    console.error({ error });
+    alert(`Error in query (details in console): ${error.message}`);
+  }
+
+  const companies = useMemo(() => data?.companies || [], [data?.companies]);
 
   const handleSubmit = async () => {
     const response = await createPartnershipMutation({
@@ -76,99 +64,116 @@ export default function HandlePartnershipRequestModal({
   };
 
   return (
-    <Dialog
-      open
-      onClose={handleClose}
-      maxWidth="lg"
-      classes={{ paper: classes.dialog }}
+    <Modal
+      dataCy={"triage-partnership-request-modal"}
+      isPrimaryActionDisabled={isSubmitDisabled}
+      title={"Triage Partnership Request"}
+      primaryActionText={"Submit"}
+      contentWidth={600}
+      handleClose={handleClose}
+      handlePrimaryAction={handleSubmit}
     >
-      <DialogTitle className={classes.dialogTitle}>
-        Create Partnership
-      </DialogTitle>
-      <DialogContent>
-        <DialogContentText>
-          Please confirm the partnership request. If the partner is an existing
-          company, please use the dropdown, otherwise a new company will be
-          created.
-        </DialogContentText>
-        <Box display="flex" flexDirection="column">
-          <Typography variant="subtitle2" color="textSecondary">
-            Requesting Company
-          </Typography>
-          <Typography variant={"body1"}>
-            {partnerRequest.requesting_company.name}
-          </Typography>
+      <DialogContentText>
+        Please review the following partnership request. A customer requests to
+        partner with a payor / vendor. If the payor / vendor company already
+        exists, please specify this below so a duplicate company is not created.
+      </DialogContentText>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Requesting Company (Customer)
+        </Typography>
+        <Typography variant={"body1"}>
+          {partnerRequest.requesting_company.name}
+        </Typography>
+      </Box>
+      <Box mb={4} mt={4}>
+        <Divider />
+      </Box>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Partner Company Type
+        </Typography>
+        <Typography variant={"body1"}>{partnerRequest.company_type}</Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Partner Company Name
+        </Typography>
+        <Typography variant={"body1"}>{partnerRequest.company_name}</Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <FormControlLabel
+          control={
+            <Checkbox disabled={true} checked={!!partnerRequest.is_cannabis} />
+          }
+          label={"Is this company a cannabis company?"}
+        />
+      </Box>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Partner Company License IDs
+        </Typography>
+        <Typography variant={"body1"}>
+          {partnerRequest.license_info
+            ? partnerRequest.license_info.license_ids.join(", ")
+            : "N/A"}
+        </Typography>
+      </Box>
+      <Box mb={4} mt={4}>
+        <Divider />
+      </Box>
+      <Box display="flex" flexDirection="column">
+        <Typography variant="subtitle2" color="textSecondary">
+          Partner Company Primary Contact Info
+        </Typography>
+        <Typography variant={"body1"}>
+          {partnerRequest.user_info
+            ? `${partnerRequest.user_info.first_name} ${partnerRequest.user_info.last_name}`
+            : ""}
+        </Typography>
+        <Typography variant={"body1"}>
+          {partnerRequest.user_info ? `${partnerRequest.user_info.email}` : ""}
+        </Typography>
+        <Typography variant={"body1"}>
+          {partnerRequest.user_info
+            ? `${partnerRequest.user_info.phone_number}`
+            : ""}
+        </Typography>
+      </Box>
+      <Box mb={4} mt={4}>
+        <Divider />
+      </Box>
+      <Box display="flex" flexDirection="column">
+        <Typography variant={"body1"}>
+          Does the partner company above ALREADY exist in the system? If yes,
+          please select this existing company in the dropdown below. If you do
+          not select a company below, a NEW company will be created.
+        </Typography>
+        <Box mt={4}>
+          <Autocomplete
+            autoHighlight
+            id="auto-complete-company"
+            options={companies}
+            getOptionLabel={(company) => {
+              const licenses = company.licenses
+                .filter((companyLicense) => !!companyLicense.license_number)
+                .map((companyLicense) => companyLicense.license_number)
+                .join(", ");
+              return `${company.name}${licenses ? " | " : ""}${licenses}`;
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Select partner company"
+                variant="outlined"
+              />
+            )}
+            onChange={(_event, company) =>
+              setSelectedCompanyId(company?.id || null)
+            }
+          />
         </Box>
-        <Box mb={2} mt={2}>
-          <Divider />
-        </Box>
-        <Box display="flex" flexDirection="column" mb={1}>
-          <Typography variant="subtitle2" color="textSecondary">
-            New Partner Type
-          </Typography>
-          <Typography variant={"body1"}>
-            {partnerRequest.company_type}
-          </Typography>
-        </Box>
-        <Box display="flex" flexDirection="column" mb={1}>
-          <Typography variant="subtitle2" color="textSecondary">
-            New Partner Name
-          </Typography>
-          <Typography variant={"body1"}>
-            {partnerRequest.company_name}
-          </Typography>
-        </Box>
-        <Box display="flex" flexDirection="column">
-          <Typography variant="subtitle2" color="textSecondary">
-            New Partner License IDs
-          </Typography>
-          <Typography variant={"body1"}>
-            {partnerRequest.license_info
-              ? partnerRequest.license_info.license_ids.join(", ")
-              : ""}
-          </Typography>
-        </Box>
-        <Box mb={2} mt={2}>
-          <Divider />
-        </Box>
-        <Box display="flex" flexDirection="column">
-          <Typography variant={"body1"}>
-            Choose a pre-existing company if the company already exists on the
-            platform
-          </Typography>
-          <Box mt={2}>
-            <Autocomplete
-              autoHighlight
-              id="auto-complete-company"
-              options={allCompanies}
-              getOptionLabel={(company) => company.name}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Select partner company"
-                  variant="outlined"
-                />
-              )}
-              onChange={(_event, company) =>
-                setSelectedCompanyId(company?.id || null)
-              }
-            />
-          </Box>
-        </Box>
-      </DialogContent>
-      <DialogActions className={classes.dialogActions}>
-        <Button variant={"contained"} color={"default"} onClick={handleClose}>
-          Cancel
-        </Button>
-        <Button
-          disabled={isSubmitDisabled}
-          variant={"contained"}
-          color={"primary"}
-          onClick={handleSubmit}
-        >
-          Create
-        </Button>
-      </DialogActions>
-    </Dialog>
+      </Box>
+    </Modal>
   );
 }

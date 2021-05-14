@@ -50,7 +50,10 @@ function AddVendorModal({ customerId, handleClose }: Props) {
 
   const [errorMessage, setErrorMessage] = useState("");
 
-  const [vendor, setVendor] = useState<CompaniesInsertInput>({ name: "" });
+  const [vendor, setVendor] = useState<CompaniesInsertInput>({
+    name: "",
+    is_cannabis: true,
+  });
   const [contact, setContact] = useState<UsersInsertInput>({
     first_name: "",
     last_name: "",

@@ -50,7 +50,10 @@ function AddPayorModal({ customerId, handleClose }: Props) {
 
   const [errorMessage, setErrorMessage] = useState("");
 
-  const [payor, setPayor] = useState<CompaniesInsertInput>({ name: "" });
+  const [payor, setPayor] = useState<CompaniesInsertInput>({
+    name: "",
+    is_cannabis: true,
+  });
   const [contact, setContact] = useState<UsersInsertInput>({
     first_name: "",
     last_name: "",

@@ -152,10 +152,11 @@ fragment PartnershipRequest on company_partnership_requests {
   two_factor_message_method
   company_type
   company_name
+  license_info
+  is_cannabis
   user_info
   created_at
   requested_by_user_id
-  license_info
   settled_by_user_id
   settled_at
 }

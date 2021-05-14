@@ -18,7 +18,8 @@ CompanyInsertInputDict = TypedDict('CompanyInsertInputDict', {
 	'name': str,
 	'identifier': str,
 	'contract_name': str,
-	'dba_name': str
+	'dba_name': str,
+	'is_cannabis': bool,
 })
 
 CompanySettingsInsertInputDict = TypedDict('CompanySettingsInsertInputDict', {
@@ -172,8 +173,9 @@ def create_customer(
 # Just create the partnership with a company_id
 
 def _create_partner_company_and_its_first_user(
-	partnership_req: models.CompanyPartnershipRequest, session: Session) -> str:
-
+	partnership_req: models.CompanyPartnershipRequest,
+	session: Session,
+) -> str:
 	user_input = cast(Dict, partnership_req.user_info)
 	user_first_name = user_input['first_name']
 	user_last_name = user_input['last_name']
@@ -199,6 +201,7 @@ def _create_partner_company_and_its_first_user(
 		company_settings_id=company_settings_id,
 		company_type=partnership_req.company_type,
 		name=partnership_req.company_name,
+		is_cannabis=partnership_req.is_cannabis,
 	)
 	session.add(company)
 	session.flush()
@@ -302,6 +305,7 @@ def create_partnership_request(
 
 	company_input = req['company']
 	company_name = company_input['name']
+	is_cannabis = company_input['is_cannabis']
 
 	if not company_name:
 		raise errors.Error('Name must be specified')
@@ -326,6 +330,7 @@ def create_partnership_request(
 	partnership_req.two_factor_message_method = TwoFactorMessageMethod.PHONE
 	partnership_req.company_type = CompanyType.Payor if is_payor else CompanyType.Vendor
 	partnership_req.company_name = company_name
+	partnership_req.is_cannabis = is_cannabis
 	partnership_req.requested_by_user_id = requested_user_id
 	partnership_req.license_info = cast(Dict, req['license_info'])
 

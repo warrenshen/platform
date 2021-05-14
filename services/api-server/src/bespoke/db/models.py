@@ -125,6 +125,8 @@ class Company(Base):
 	identifier = Column(String)
 	contract_name = Column(String)
 	dba_name = Column(String)
+	is_cannabis = Column(Boolean)
+
 	needs_balance_recomputed = Column(Boolean, nullable=False, default=False) # is_dirty
 
 	# Last created identifier for a loan belonging to this company.
@@ -223,9 +225,10 @@ class CompanyPartnershipRequest(Base):
 	two_factor_message_method = Column(String, nullable=False)
 	company_type = Column(String, nullable=False)
 	company_name = Column(String, nullable=False)
+	is_cannabis = Column(Boolean)
+	license_info = Column(JSON, nullable=False)
 	user_info = Column(JSON, nullable=False)
 	requested_by_user_id = Column(GUID, nullable=False)
-	license_info = Column(JSON, nullable=False)
 	settled_at = Column(DateTime)
 	settled_by_user_id = Column(GUID)
 	is_deleted = Column(Boolean)
