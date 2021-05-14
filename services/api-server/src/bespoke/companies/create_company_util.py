@@ -274,6 +274,24 @@ def create_partnership(
 	), None
 
 @errors.return_error_tuple
+def delete_partnership_request(
+	partnership_request_id: str,
+	session: Session
+) -> Tuple[bool, errors.Error]:
+
+	partnership_req = cast(
+		models.CompanyPartnershipRequest,
+		session.query(models.CompanyPartnershipRequest).filter(
+			models.CompanyPartnershipRequest.id == partnership_request_id
+		).first())
+	if not partnership_req:
+		raise errors.Error('No partnership request found to delete this partnership')
+	
+	partnership_req.is_deleted = True
+
+	return True, None
+
+@errors.return_error_tuple
 def create_partnership_request(
 	req: CreatePartnershipRequestInputDict,
 	requested_user_id: str,

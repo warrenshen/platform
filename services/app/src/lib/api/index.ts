@@ -19,6 +19,7 @@ export const fileRoutes = {
 export const companyRoutes = {
   createCustomer: "/companies/create_customer",
   createPartnershipRequest: "/companies/create_partnership_request",
+  deletePartnershipRequest: "/companies/delete_partnership_request",
   createPartnership: "/companies/create_partnership",
 };
 

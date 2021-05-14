@@ -75,6 +75,9 @@ export enum Action {
 
   // Settings
   EditUserAccountSettings = "account_settings:edit",
+
+  // Catch-all for whether the person is a bank admin
+  IsBankAdmin = "perm:is_bank_admin",
 }
 
 export interface ActionData {
@@ -190,6 +193,8 @@ const rules: Rules = {
       Action.SendPayorAgreements,
 
       Action.ManipulateUser,
+
+      Action.IsBankAdmin,
     ],
     dynamic: [],
   },

@@ -1,5 +1,10 @@
 subscription GetPartnershipRequestsCountForBank {
-  company_partnership_requests(where: { settled_at: { _is_null: true } }) {
+  company_partnership_requests(
+    where: {
+      settled_at: { _is_null: true }
+      _or: [{ is_deleted: { _is_null: true } }, { is_deleted: { _eq: false } }]
+    }
+  ) {
     id
   }
 }
@@ -7,7 +12,10 @@ subscription GetPartnershipRequestsCountForBank {
 subscription GetSettledPartnershipRequestsForBank {
   company_partnership_requests(
     order_by: [{ created_at: asc }]
-    where: { settled_at: { _is_null: false } }
+    where: {
+      settled_at: { _is_null: false }
+      _or: [{ is_deleted: { _is_null: true } }, { is_deleted: { _eq: false } }]
+    }
   ) {
     id
     ...PartnershipRequest
@@ -21,7 +29,10 @@ subscription GetSettledPartnershipRequestsForBank {
 subscription GetPartnershipRequestsForBank {
   company_partnership_requests(
     order_by: [{ created_at: asc }]
-    where: { settled_at: { _is_null: true } }
+    where: {
+      settled_at: { _is_null: true }
+      _or: [{ is_deleted: { _is_null: true } }, { is_deleted: { _eq: false } }]
+    }
   ) {
     id
     ...PartnershipRequest

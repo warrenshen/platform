@@ -2631,6 +2631,7 @@ export type CompanyPartnershipRequests = {
   company_type: Scalars["String"];
   created_at: Scalars["timestamptz"];
   id: Scalars["uuid"];
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   license_info?: Maybe<Scalars["json"]>;
   /** An object relationship */
   requested_by_user: Users;
@@ -2695,6 +2696,7 @@ export type CompanyPartnershipRequestsBoolExp = {
   company_type?: Maybe<StringComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  is_deleted?: Maybe<BooleanComparisonExp>;
   license_info?: Maybe<JsonComparisonExp>;
   requested_by_user?: Maybe<UsersBoolExp>;
   requested_by_user_id?: Maybe<UuidComparisonExp>;
@@ -2718,6 +2720,7 @@ export type CompanyPartnershipRequestsInsertInput = {
   company_type?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   license_info?: Maybe<Scalars["json"]>;
   requested_by_user?: Maybe<UsersObjRelInsertInput>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -2808,6 +2811,7 @@ export type CompanyPartnershipRequestsOrderBy = {
   company_type?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  is_deleted?: Maybe<OrderBy>;
   license_info?: Maybe<OrderBy>;
   requested_by_user?: Maybe<UsersOrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
@@ -2835,6 +2839,8 @@ export enum CompanyPartnershipRequestsSelectColumn {
   /** column name */
   Id = "id",
   /** column name */
+  IsDeleted = "is_deleted",
+  /** column name */
   LicenseInfo = "license_info",
   /** column name */
   RequestedByUserId = "requested_by_user_id",
@@ -2856,6 +2862,7 @@ export type CompanyPartnershipRequestsSetInput = {
   company_type?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   license_info?: Maybe<Scalars["json"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requesting_company_id?: Maybe<Scalars["uuid"]>;
@@ -2875,6 +2882,8 @@ export enum CompanyPartnershipRequestsUpdateColumn {
   CreatedAt = "created_at",
   /** column name */
   Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
   /** column name */
   LicenseInfo = "license_info",
   /** column name */
@@ -25241,7 +25250,15 @@ export type CompanyVendorsQueryResult = Apollo.QueryResult<
 >;
 export const GetPartnershipRequestsCountForBankDocument = gql`
   subscription GetPartnershipRequestsCountForBank {
-    company_partnership_requests(where: { settled_at: { _is_null: true } }) {
+    company_partnership_requests(
+      where: {
+        settled_at: { _is_null: true }
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
+    ) {
       id
     }
   }
@@ -25281,7 +25298,13 @@ export const GetSettledPartnershipRequestsForBankDocument = gql`
   subscription GetSettledPartnershipRequestsForBank {
     company_partnership_requests(
       order_by: [{ created_at: asc }]
-      where: { settled_at: { _is_null: false } }
+      where: {
+        settled_at: { _is_null: false }
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
     ) {
       id
       ...PartnershipRequest
@@ -25328,7 +25351,13 @@ export const GetPartnershipRequestsForBankDocument = gql`
   subscription GetPartnershipRequestsForBank {
     company_partnership_requests(
       order_by: [{ created_at: asc }]
-      where: { settled_at: { _is_null: true } }
+      where: {
+        settled_at: { _is_null: true }
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
     ) {
       id
       ...PartnershipRequest

@@ -72,7 +72,7 @@ class CreatePartnershipView(MethodView):
 				bank_admin_user_id=user_session.get_user_id()
 			)
 			if err:
-				return handler_util.make_error_response(err)
+				raise err
 
 			sendgrid_client = cast(sendgrid_util.Client,
 								   current_app.sendgrid_client)
@@ -123,6 +123,37 @@ class CreatePartnershipView(MethodView):
 		return make_response(json.dumps({
 			'status': 'OK',
 			'company_id': resp['company_id'],
+		}))
+
+class DeletePartnershipRequestView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'partnership_request_id'
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in request')
+
+		user_session = UserSession.from_session()
+
+		with session_scope(current_app.session_maker) as session:
+			success, err = create_company_util.delete_partnership_request(
+				partnership_request_id=form['partnership_request_id'],
+				session=session
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK'
 		}))
 
 class CreatePartnershipRequestView(MethodView):
@@ -214,3 +245,6 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/create_partnership_request', view_func=CreatePartnershipRequestView.as_view(name='create_partnership_request_view'))
+
+handler.add_url_rule(
+	'/delete_partnership_request', view_func=DeletePartnershipRequestView.as_view(name='delete_partnership_request_view'))

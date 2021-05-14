@@ -1,4 +1,5 @@
 import { Box } from "@material-ui/core";
+import DeletePartnershipRequestModal from "components/Partnerships/DeletePartnershipRequestModal";
 import HandlePartnershipRequestModal from "components/Partnerships/HandlePartnershipRequestModal";
 import PartnershipsDataGrid from "components/Partnerships/PartnershipsDataGrid";
 import Can from "components/Shared/Can";
@@ -70,7 +71,24 @@ function ActionRequiredTab() {
   return (
     <Container>
       <Box mb={2} display="flex" flexDirection="row-reverse">
-        <Can perform={Action.RejectLoan}>
+        <Can perform={Action.IsBankAdmin}>
+          <Box mr={2}>
+            <ModalButton
+              isDisabled={selectedRequestIds.length !== 1}
+              label={"Delete Request"}
+              modal={({ handleClose }) => (
+                <DeletePartnershipRequestModal
+                  partnerRequest={selectedRequests[0]}
+                  handleClose={() => {
+                    handleClose();
+                    setSelectedRequestIds([]);
+                  }}
+                />
+              )}
+            />
+          </Box>
+        </Can>
+        <Can perform={Action.IsBankAdmin}>
           <Box mr={2}>
             <ModalButton
               isDisabled={selectedRequestIds.length !== 1}

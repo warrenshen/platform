@@ -59,6 +59,30 @@ type CreatePartnershipRequestMutationReq = {
   };
 };
 
+export async function deletePartnershipRequestMutation(req: {
+  variables: {
+    partnership_request_id: string;
+  };
+}): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companyRoutes.deletePartnershipRequest, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not create partner company",
+        };
+      }
+    );
+}
+
 export async function createPartnershipRequestMutation(
   req: CreatePartnershipRequestMutationReq
 ): Promise<CustomMutationResponse> {
