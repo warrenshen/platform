@@ -31,7 +31,7 @@ from server.views.finance.loans import repayments, reports
 
 if is_test_env(os.environ.get('FLASK_ENV')):
 	load_dotenv(os.path.join(os.environ.get('SERVER_ROOT_DIR'), '.env.test'))
-else:
+elif is_development_env(os.environ.get('FLASK_ENV')):
 	load_dotenv(os.path.join(os.environ.get('SERVER_ROOT_DIR'), '.env'))
 
 config = get_config()

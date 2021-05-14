@@ -10,13 +10,13 @@ from bespoke.db.db_constants import ALL_USER_ROLES, CompanyType, UserRoles
 from bespoke.db.models import session_scope
 from dotenv import load_dotenv
 from manage import app
-from server.config import is_test_env
+from server.config import is_development_env, is_test_env
 from server.views.common import auth_util
 from sqlalchemy.orm import sessionmaker
 
 if is_test_env(os.environ.get('FLASK_ENV')):
 	load_dotenv(os.path.join(os.environ.get('SERVER_ROOT_DIR'), '.env.test'))
-else:
+elif is_development_env(os.environ.get('FLASK_ENV')):
 	load_dotenv(os.path.join(os.environ.get('SERVER_ROOT_DIR'), '.env'))
 
 
