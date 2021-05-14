@@ -153,7 +153,9 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
           <Box mt={1} mb={2}>
             {companyLicenses.map((companyLicense) => (
               <Box key={companyLicense.id}>
-                <Typography>{companyLicense.license_number}</Typography>
+                <Typography>
+                  {companyLicense.license_number || "License Number TBD"}
+                </Typography>
                 {!!companyLicense.file_id && (
                   <DownloadThumbnail
                     isCountVisible={false}

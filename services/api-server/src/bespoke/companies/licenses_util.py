@@ -72,6 +72,15 @@ def create_update_licenses(
 		license_number = company_license_input['license_number']
 		file_id = company_license_input['file_id']
 
+		################################
+		# Validations
+		# Note that we do not enforce that file id is present. This is because
+		# we want to allow bank user to enter in a license with only a license
+		# number and then later on upload the corresponding file attachment.
+		################################
+		if not license_number:
+			raise errors.Error('License number is required')
+
 		if company_license_id:
 			existing_company_license = cast(
 				models.CompanyLicense,

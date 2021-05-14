@@ -56,9 +56,6 @@ class CreateUpdateLicensesView(MethodView):
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
-		cfg = cast(Config, current_app.app_config)
-		user_session = auth_util.UserSession.from_session()
-
 		form = json.loads(request.data)
 		if not form:
 			return handler_util.make_error_response('No data provided')

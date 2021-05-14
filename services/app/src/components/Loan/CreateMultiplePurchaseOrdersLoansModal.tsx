@@ -145,10 +145,11 @@ export default function CreateMultiplePurchaseOrdersLoansModal({
     });
 
     if (response.status === "ERROR") {
-      return snackbar.showMessage(response.msg);
+      snackbar.showError(response.msg);
+    } else {
+      snackbar.showSuccess(copyWriter(`submit.${status}`, data.length));
+      handleClose();
     }
-    snackbar.showSuccess(copyWriter(`submit.${status}`, data.length));
-    handleClose();
   };
 
   // Check for possible errors. The fatal errors are:

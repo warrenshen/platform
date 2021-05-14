@@ -132,7 +132,7 @@ function AddVendorModal({ customerId, handleClose }: Props) {
             color="primary"
             onClick={handleRegisterClick}
           >
-            Register
+            Submit
           </Button>
         </Box>
       </DialogActions>

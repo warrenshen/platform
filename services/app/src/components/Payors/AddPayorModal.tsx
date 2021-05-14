@@ -132,7 +132,7 @@ function AddPayorModal({ customerId, handleClose }: Props) {
             color="primary"
             onClick={handleRegisterClick}
           >
-            Register
+            Submit
           </Button>
         </Box>
       </DialogActions>
