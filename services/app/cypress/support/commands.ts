@@ -30,6 +30,7 @@ declare global {
     interface Chainable {
       loginBankAdmin: typeof loginBankAdmin;
       loginCustomerAdmin: typeof loginCustomerAdmin;
+      resetDatabase: typeof resetDatabase;
     }
   }
 }
@@ -45,7 +46,7 @@ Cypress.Commands.add("dataCySelector", (value, selector) => {
 function loginBankAdmin() {
   cy.visit("/");
 
-  cy.dataCySelector("sign-in-input-email", "input").type(users.bankAdmin);
+  cy.dataCySelector("sign-in-input-email", "input").type(users.bank.admin);
   cy.dataCySelector("sign-in-input-password", "input").type(password);
   cy.dataCy("sign-in-button").click();
 
@@ -55,12 +56,19 @@ function loginBankAdmin() {
 function loginCustomerAdmin() {
   cy.visit("/");
 
-  cy.dataCySelector("sign-in-input-email", "input").type(users.customerAdmin);
+  cy.dataCySelector("sign-in-input-email", "input").type(
+    users.customer.inventoryFinancing.admin
+  );
   cy.dataCySelector("sign-in-input-password", "input").type(password);
   cy.dataCy("sign-in-button").click();
 
   cy.url().should("include", "overview");
 }
 
+function resetDatabase() {
+  cy.exec("docker exec bespoke-api-server-test make run-test-seed-db");
+}
+
 Cypress.Commands.add("loginBankAdmin", loginBankAdmin);
 Cypress.Commands.add("loginCustomerAdmin", loginCustomerAdmin);
+Cypress.Commands.add("resetDatabase", resetDatabase);

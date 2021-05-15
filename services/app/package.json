@@ -42,6 +42,7 @@
   },
   "scripts": {
     "start": "cross-env PORT=3005 react-scripts start",
+    "start-test": "cross-env REACT_APP_BESPOKE_ENVIRONMENT=test PORT=3006 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",

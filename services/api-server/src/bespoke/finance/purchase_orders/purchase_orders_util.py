@@ -208,7 +208,7 @@ def create_update_purchase_order(
 			if existing_purchase_order_file:
 				purchase_order_file_dicts.append(existing_purchase_order_file.as_dict())
 			else:
-				purchase_order_file = models.PurchaseOrderFile(
+				purchase_order_file = models.PurchaseOrderFile( # type: ignore
 					file_id=purchase_order_file_request.file_id,
 					purchase_order_id=purchase_order_id,
 					file_type=purchase_order_file_request.file_type,

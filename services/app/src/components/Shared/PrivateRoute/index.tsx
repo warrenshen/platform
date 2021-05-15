@@ -14,7 +14,7 @@ interface Props {
   requiredRoles: Array<UserRolesEnum>;
 }
 
-function PrivateRoute(props: Props & RouteProps) {
+export default function PrivateRoute(props: Props & RouteProps) {
   const { children, component, ...rest } = props;
   const {
     user: { companyId, role },
@@ -63,5 +63,3 @@ function PrivateRoute(props: Props & RouteProps) {
     />
   );
 }
-
-export default PrivateRoute;

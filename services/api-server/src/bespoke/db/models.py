@@ -261,8 +261,8 @@ PurchaseOrderFileDict = TypedDict('PurchaseOrderFileDict', {
 class PurchaseOrderFile(Base):
 	__tablename__ = 'purchase_order_files'
 
-	purchase_order_id = Column(GUID, primary_key=True, nullable=False)
-	file_id = Column(GUID, primary_key=True, nullable=False)
+	purchase_order_id = cast(GUID, Column(GUID, ForeignKey('purchase_orders.id'), primary_key=True, nullable=True))
+	file_id = cast(GUID, Column(GUID, ForeignKey('files.id'), primary_key=True, nullable=True))
 	file_type = Column(String)
 
 	def as_dict(self) -> PurchaseOrderFileDict:

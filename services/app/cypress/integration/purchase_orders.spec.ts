@@ -1,5 +1,6 @@
 describe("Create inventory financing customer", () => {
   it("can create customer", () => {
+    cy.resetDatabase();
     cy.loginBankAdmin();
 
     cy.dataCy("sidebar-item-customers").click();

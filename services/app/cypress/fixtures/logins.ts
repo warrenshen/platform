@@ -1,6 +1,12 @@
 export const users = {
-  bankAdmin: "jira+bank@bespokefinancial.com",
-  customerAdmin: "jira+customer@bespokefinancial.com",
+  bank: {
+    admin: "admin@bank.com",
+  },
+  customer: {
+    inventoryFinancing: {
+      admin: "inventoryfinancing@customer.com",
+    },
+  },
 };
 
 export const password = "password123";

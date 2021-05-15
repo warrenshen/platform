@@ -120,8 +120,8 @@ const uploadFile = async (
       });
   }
 
-  // This method is needed in prod because we upload directly to the S3 URL. In local
-  // we can't do this directly because of CORS.
+  // This method is needed in prod because we upload directly to the S3 URL.
+  // In local we can't do this directly because of CORS.
   const putURL = url;
   const options = {
     params: {

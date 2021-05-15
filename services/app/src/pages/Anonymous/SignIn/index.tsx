@@ -54,9 +54,7 @@ export default function SignInPage() {
               data-cy="sign-in-input-email"
               label="Email"
               value={email}
-              onChange={({ target: { value } }) => {
-                setEmail(value);
-              }}
+              onChange={({ target: { value } }) => setEmail(value)}
             />
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
@@ -65,9 +63,7 @@ export default function SignInPage() {
               type="password"
               label="Password"
               value={password}
-              onChange={({ target: { value } }) => {
-                setPassword(value);
-              }}
+              onChange={({ target: { value } }) => setPassword(value)}
             />
           </Box>
           {!!error && (

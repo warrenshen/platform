@@ -4,7 +4,7 @@ describe("Sign in: bank user", () => {
   it("can sign in with valid email/password", () => {
     cy.visit("/");
 
-    cy.dataCySelector("sign-in-input-email", "input").type(users.bankAdmin);
+    cy.dataCySelector("sign-in-input-email", "input").type(users.bank.admin);
     cy.dataCySelector("sign-in-input-password", "input").type(password);
     cy.dataCy("sign-in-button").click();
 
@@ -16,7 +16,9 @@ describe("Sign in: customer user", () => {
   it("can sign in with valid email/password", () => {
     cy.visit("/");
 
-    cy.dataCySelector("sign-in-input-email", "input").type(users.customerAdmin);
+    cy.dataCySelector("sign-in-input-email", "input").type(
+      users.customer.inventoryFinancing.admin
+    );
     cy.dataCySelector("sign-in-input-password", "input").type(password);
     cy.dataCy("sign-in-button").click();
 
@@ -28,7 +30,9 @@ describe("Sign in: invalid credentials", () => {
   it("should show error message with invalid email/password", () => {
     cy.visit("/");
 
-    cy.dataCySelector("sign-in-input-email", "input").type(users.customerAdmin);
+    cy.dataCySelector("sign-in-input-email", "input").type(
+      users.customer.inventoryFinancing.admin
+    );
     cy.dataCySelector("sign-in-input-password", "input").type("invalid");
     cy.dataCy("sign-in-button").click();
 
