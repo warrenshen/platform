@@ -1,7 +1,8 @@
 import sys
 from os import path
+from typing import Any, List, cast
+
 from sqlalchemy.orm.session import Session
-from typing import cast, List, Any
 
 # Path hack before we try to import bespoke
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../src")))
@@ -9,6 +10,7 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../src")))
 from bespoke import errors
 from bespoke.db import models
 from bespoke.excel import excel_reader
+
 
 def _check_no_dangling_references(company_id: str, session: Session) -> None:
 	existing_company = cast(
@@ -42,8 +44,8 @@ def _delete_company(company_id: str, session: Session) -> None:
 
 	pre_db_classes = [
 		models.AuditEvent, models.BankAccount, models.CompanyAgreement,
-		models.CompanyLicense, models.EbbaApplication, models.File, 
-		models.FinancialSummary, models.Invoice, models.LineOfCredit, 
+		models.CompanyLicense, models.EbbaApplication, models.File,
+		models.FinancialSummary, models.Invoice, models.LineOfCredit,
 		models.Loan, models.Payment, models.PurchaseOrder, models.User,
 		models.Contract, models.CompanySettings
 	]
@@ -89,7 +91,7 @@ def dedupe(session: Session, path: str) -> None:
 			# (2) Change partnership
 			# (3) Change LineOfCredit recipient_vendor_id
 			# (4) Transfer bank account of previous vendor
-			
+
 			# 1
 			purchase_orders = session.query(models.PurchaseOrder).filter(
 				models.PurchaseOrder.vendor_id == to_delete_company_id
@@ -117,10 +119,10 @@ def dedupe(session: Session, path: str) -> None:
 				models.BankAccount.company_id == to_delete_company_id
 			).all()
 			for bank_account in bank_accounts:
-				bank_account.company_id = replacing_company_id		
+				bank_account.company_id = replacing_company_id
 
 		elif partnership_type == 'payor':
-			# (1) Change partnership and (2) invoice payor_id 
+			# (1) Change partnership and (2) invoice payor_id
 
 			# 1
 			company_payor_partnerships = session.query(models.CompanyPayorPartnership).filter(
@@ -141,5 +143,3 @@ def dedupe(session: Session, path: str) -> None:
 
 		# Delete everything about the company ID to delete
 		_delete_company(to_delete_company_id, session)
-
-

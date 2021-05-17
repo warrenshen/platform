@@ -55,11 +55,23 @@ def import_vendor_bank_accounts(
 		parsed_bank_name = bank_name.strip()
 		parsed_account_title = account_title.strip()
 		parsed_account_type = account_type.strip()
-		parsed_routing_number = routing_number.strip()
-		parsed_account_number = account_number.strip()
+
+		try:
+			numeric_routing_number = int(float(routing_number.strip()))
+			parsed_routing_number = str(numeric_routing_number)
+		except Exception:
+			numeric_routing_number = int("".join(filter(str.isdigit, routing_number)))
+			parsed_routing_number = numeric_routing_number
+
+		try:
+			numeric_account_number = int(float(account_number.strip()))
+			parsed_account_number = str(numeric_account_number)
+		except Exception:
+			numeric_account_number = int("".join(filter(str.isdigit, account_number)))
+			parsed_account_number = numeric_account_number
+
 		parsed_is_ach = True if is_ach == 'Y' else False
 		parsed_is_wire = True if is_wire == 'Y' else False
-		parsed_wire_routing_number = wire_routing_number.strip() or None # Unused.
 		parsed_bank_address = bank_address.strip() or None
 		parsed_recipient_name = recipient_name.strip() or None
 		parsed_recipient_address = recipient_address.strip() or None
