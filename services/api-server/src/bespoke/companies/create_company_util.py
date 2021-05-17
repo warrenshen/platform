@@ -79,7 +79,7 @@ def create_customer_company(
 	company_settings_id = str(company_settings.id)
 
 	company = models.Company(
-		company_type=CompanyType.Customer,
+		is_customer=True,
 		name=name,
 		identifier=identifier,
 		contract_name=contract_name,
@@ -111,7 +111,7 @@ def create_customer(
 		existing_company_by_name = cast(
 			models.Company,
 			session.query(models.Company).filter(
-				models.Company.company_type == CompanyType.Customer
+				cast(Callable, models.Company.is_customer.is_)(True)
 			).filter(
 				models.Company.name == company_name
 			).first())
@@ -121,7 +121,7 @@ def create_customer(
 		existing_company_by_identifier = cast(
 			models.Company,
 			session.query(models.Company).filter(
-				models.Company.company_type == CompanyType.Customer
+				cast(Callable, models.Company.is_customer.is_)(True)
 			).filter(
 				models.Company.identifier == company_identifier
 			).first())
@@ -199,7 +199,9 @@ def _create_partner_company_and_its_first_user(
 
 	company = models.Company(
 		company_settings_id=company_settings_id,
-		company_type=partnership_req.company_type,
+		is_customer=False,
+		is_payor=partnership_req.company_type == CompanyType.Payor,
+		is_vendor=partnership_req.company_type == CompanyType.Vendor,
 		name=partnership_req.company_name,
 		is_cannabis=partnership_req.is_cannabis,
 	)

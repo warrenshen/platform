@@ -86,7 +86,7 @@ def import_settled_advances(
 		customer = cast(
 			models.Company,
 			session.query(models.Company).filter(
-				models.Company.company_type == CompanyType.Customer
+				models.Company.is_customer.is_(True)
 			).filter(
 				models.Company.identifier == parsed_customer_identifier
 			).first())

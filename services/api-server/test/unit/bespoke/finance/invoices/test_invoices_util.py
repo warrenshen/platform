@@ -210,7 +210,7 @@ class PrepareDatabase:
 	) -> 'PrepareDatabase':
 		co = fn(self)
 		co.id = PrepareDatabase.mint_guid()
-		co.company_type = db_constants.CompanyType.Customer
+		co.is_customer = True
 		self.customers.append(self._prepare_company(co))
 		return self
 
@@ -219,7 +219,7 @@ class PrepareDatabase:
 	) -> 'PrepareDatabase':
 		co = fn(self)
 		co.id = PrepareDatabase.mint_guid()
-		co.company_type = db_constants.CompanyType.Payor
+		co.is_payor = True
 		self.payors.append(self._prepare_company(co))
 		return self
 

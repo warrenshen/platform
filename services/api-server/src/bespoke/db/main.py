@@ -100,7 +100,7 @@ def _setup_db_test() -> None:
 				name, identifier, contract_name = seed_customer_tuple
 
 				existing_customer = session.query(models.Company).filter_by(
-					company_type=CompanyType.Customer,
+					is_customer=True,
 					identifier=identifier,
 				).first()
 

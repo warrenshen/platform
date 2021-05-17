@@ -234,7 +234,7 @@ def run_customer_balances_for_companies_that_need_recompute(
 def list_all_companies(session_maker: Callable) -> List[models.CompanyDict]:
 	with session_scope(session_maker) as session:
 		companies = session.query(models.Company) \
-			.filter(models.Company.company_type == db_constants.CompanyType.Customer) \
+			.filter(cast(Callable, models.Company.is_customer.is_)(True)) \
 			.all()
 		return [company.as_dict() for company in companies]
 

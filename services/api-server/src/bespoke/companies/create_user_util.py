@@ -77,7 +77,7 @@ def create_bank_or_customer_user(
 				.first()
 			if not customer:
 				raise errors.Error('Could not find customer')
-			if customer.company_type != CompanyType.Customer:
+			if not customer.is_customer:
 				raise errors.Error('Company is not Customer company type')
 
 		existing_user = session.query(models.User) \
@@ -127,9 +127,9 @@ def create_third_party_user(
 			.first()
 		if not company:
 			raise errors.Error('Could not find company')
-		if is_payor and company.company_type != CompanyType.Payor:
+		if is_payor and not company.is_payor:
 			raise errors.Error('Company is not Payor company type')
-		if not is_payor and company.company_type != CompanyType.Vendor:
+		if not is_payor and not company.is_vendor:
 			raise errors.Error('Company is not Vendor company type')
 
 		user = session.query(models.User) \

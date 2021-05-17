@@ -83,7 +83,7 @@ def import_vendor_bank_accounts(
 		customer = cast(
 			models.Company,
 			session.query(models.Company).filter(
-				models.Company.company_type == CompanyType.Customer
+				models.Company.is_customer.is_(True)
 			).filter(
 				models.Company.name == parsed_customer_name
 			).first())
@@ -96,7 +96,7 @@ def import_vendor_bank_accounts(
 		vendor = cast(
 			models.Company,
 			session.query(models.Company).filter(
-				models.Company.company_type == CompanyType.Vendor
+				models.Company.is_vendor.is_(True)
 			).filter(
 				models.Company.name == parsed_vendor_name
 			).first())
