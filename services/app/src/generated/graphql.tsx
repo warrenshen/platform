@@ -1314,6 +1314,9 @@ export type Companies = {
   /** An aggregated array relationship */
   invoices_aggregate: InvoicesAggregate;
   is_cannabis?: Maybe<Scalars["Boolean"]>;
+  is_customer?: Maybe<Scalars["Boolean"]>;
+  is_payor?: Maybe<Scalars["Boolean"]>;
+  is_vendor?: Maybe<Scalars["Boolean"]>;
   /** The latest disbursement (payment) identifier assigned to loans belonging to this company when an advance is made; increment this value to get a new disbursement identifier for a new payment */
   latest_disbursement_identifier: Scalars["Int"];
   /** The latest loan identifier created for loans belonging to this company; increment this value to get a new loan identifier for a new loan */
@@ -1753,6 +1756,9 @@ export type CompaniesBoolExp = {
   invoice_by_payor?: Maybe<InvoicesBoolExp>;
   invoices?: Maybe<InvoicesBoolExp>;
   is_cannabis?: Maybe<BooleanComparisonExp>;
+  is_customer?: Maybe<BooleanComparisonExp>;
+  is_payor?: Maybe<BooleanComparisonExp>;
+  is_vendor?: Maybe<BooleanComparisonExp>;
   latest_disbursement_identifier?: Maybe<IntComparisonExp>;
   latest_loan_identifier?: Maybe<IntComparisonExp>;
   latest_repayment_identifier?: Maybe<IntComparisonExp>;
@@ -1814,6 +1820,9 @@ export type CompaniesInsertInput = {
   invoice_by_payor?: Maybe<InvoicesArrRelInsertInput>;
   invoices?: Maybe<InvoicesArrRelInsertInput>;
   is_cannabis?: Maybe<Scalars["Boolean"]>;
+  is_customer?: Maybe<Scalars["Boolean"]>;
+  is_payor?: Maybe<Scalars["Boolean"]>;
+  is_vendor?: Maybe<Scalars["Boolean"]>;
   latest_disbursement_identifier?: Maybe<Scalars["Int"]>;
   latest_loan_identifier?: Maybe<Scalars["Int"]>;
   latest_repayment_identifier?: Maybe<Scalars["Int"]>;
@@ -1973,6 +1982,9 @@ export type CompaniesOrderBy = {
   invoice_by_payor_aggregate?: Maybe<InvoicesAggregateOrderBy>;
   invoices_aggregate?: Maybe<InvoicesAggregateOrderBy>;
   is_cannabis?: Maybe<OrderBy>;
+  is_customer?: Maybe<OrderBy>;
+  is_payor?: Maybe<OrderBy>;
+  is_vendor?: Maybe<OrderBy>;
   latest_disbursement_identifier?: Maybe<OrderBy>;
   latest_loan_identifier?: Maybe<OrderBy>;
   latest_repayment_identifier?: Maybe<OrderBy>;
@@ -2026,6 +2038,12 @@ export enum CompaniesSelectColumn {
   /** column name */
   IsCannabis = "is_cannabis",
   /** column name */
+  IsCustomer = "is_customer",
+  /** column name */
+  IsPayor = "is_payor",
+  /** column name */
+  IsVendor = "is_vendor",
+  /** column name */
   LatestDisbursementIdentifier = "latest_disbursement_identifier",
   /** column name */
   LatestLoanIdentifier = "latest_loan_identifier",
@@ -2060,6 +2078,9 @@ export type CompaniesSetInput = {
   id?: Maybe<Scalars["uuid"]>;
   identifier?: Maybe<Scalars["String"]>;
   is_cannabis?: Maybe<Scalars["Boolean"]>;
+  is_customer?: Maybe<Scalars["Boolean"]>;
+  is_payor?: Maybe<Scalars["Boolean"]>;
+  is_vendor?: Maybe<Scalars["Boolean"]>;
   latest_disbursement_identifier?: Maybe<Scalars["Int"]>;
   latest_loan_identifier?: Maybe<Scalars["Int"]>;
   latest_repayment_identifier?: Maybe<Scalars["Int"]>;
@@ -2155,6 +2176,12 @@ export enum CompaniesUpdateColumn {
   Identifier = "identifier",
   /** column name */
   IsCannabis = "is_cannabis",
+  /** column name */
+  IsCustomer = "is_customer",
+  /** column name */
+  IsPayor = "is_payor",
+  /** column name */
+  IsVendor = "is_vendor",
   /** column name */
   LatestDisbursementIdentifier = "latest_disbursement_identifier",
   /** column name */
@@ -25144,7 +25171,7 @@ export type CompanyVendorPartnershipForVendorQueryResult = Apollo.QueryResult<
 export const GetCustomersWithMetadataDocument = gql`
   query GetCustomersWithMetadata {
     customers: companies(
-      where: { company_type: { _eq: customer } }
+      where: { is_customer: { _eq: true } }
       order_by: { name: asc }
     ) {
       id

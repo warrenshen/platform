@@ -1,6 +1,6 @@
 query GetCustomersWithMetadata {
   customers: companies(
-    where: { company_type: { _eq: customer } }
+    where: { is_customer: { _eq: true } }
     order_by: { name: asc }
   ) {
     id
