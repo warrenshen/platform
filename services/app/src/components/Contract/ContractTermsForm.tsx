@@ -63,7 +63,7 @@ interface Props {
   setCurrentJSONConfig: (jsonConfig: any) => void;
 }
 
-function ContractTermsForm({
+export default function ContractTermsForm({
   isProductTypeEditable = false,
   isStartDateEditable = false,
   errMsg = "",
@@ -274,12 +274,7 @@ function ContractTermsForm({
 
   return (
     <Box display="flex" flexDirection="column">
-      <Box
-        display="flex"
-        flexDirection="column"
-        className={classes.section}
-        mt={6}
-      >
+      <Box display="flex" flexDirection="column" className={classes.section}>
         <FormControl>
           <InputLabel id="select-product-type-label">Product Type</InputLabel>
           <Select
@@ -297,7 +292,6 @@ function ContractTermsForm({
                     : {},
               });
             }}
-            // style={{ width: 200 }}
           >
             {AllProductTypes.map((productType) => (
               <MenuItem key={productType} value={productType}>
@@ -394,5 +388,3 @@ function ContractTermsForm({
     </Box>
   );
 }
-
-export default ContractTermsForm;

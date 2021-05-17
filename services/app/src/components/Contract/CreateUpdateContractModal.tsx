@@ -201,7 +201,7 @@ export default function CreateUpdateContractModal({
       handlePrimaryAction={handleClickSubmit}
     >
       <Box display="flex" flexDirection="column">
-        <Box mb={3}>
+        <Box mt={2} mb={6}>
           <Alert severity="info">
             <Typography variant="body1">
               Note: only bank admins may create / edit contracts (you are a bank

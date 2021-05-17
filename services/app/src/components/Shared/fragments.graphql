@@ -200,6 +200,10 @@ fragment EbbaApplication on ebba_applications {
   rejection_note
   created_at
   expires_at
+  submitted_by_user {
+    id
+    full_name
+  }
 }
 
 fragment EbbaApplicationFile on ebba_application_files {

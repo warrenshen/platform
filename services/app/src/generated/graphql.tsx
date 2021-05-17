@@ -4393,6 +4393,9 @@ export type EbbaApplications = {
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   status: RequestStatusEnum;
+  /** An object relationship */
+  submitted_by_user?: Maybe<Users>;
+  submitted_by_user_id?: Maybe<Scalars["uuid"]>;
   updated_at: Scalars["timestamptz"];
 };
 
@@ -4513,6 +4516,8 @@ export type EbbaApplicationsBoolExp = {
   rejection_note?: Maybe<StringComparisonExp>;
   requested_at?: Maybe<TimestamptzComparisonExp>;
   status?: Maybe<RequestStatusEnumComparisonExp>;
+  submitted_by_user?: Maybe<UsersBoolExp>;
+  submitted_by_user_id?: Maybe<UuidComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
 };
 
@@ -4551,6 +4556,8 @@ export type EbbaApplicationsInsertInput = {
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   status?: Maybe<RequestStatusEnum>;
+  submitted_by_user?: Maybe<UsersObjRelInsertInput>;
+  submitted_by_user_id?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -4570,6 +4577,7 @@ export type EbbaApplicationsMaxFields = {
   rejected_at?: Maybe<Scalars["timestamp"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
+  submitted_by_user_id?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -4589,6 +4597,7 @@ export type EbbaApplicationsMaxOrderBy = {
   rejected_at?: Maybe<OrderBy>;
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
+  submitted_by_user_id?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
 };
 
@@ -4608,6 +4617,7 @@ export type EbbaApplicationsMinFields = {
   rejected_at?: Maybe<Scalars["timestamp"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
+  submitted_by_user_id?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -4627,6 +4637,7 @@ export type EbbaApplicationsMinOrderBy = {
   rejected_at?: Maybe<OrderBy>;
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
+  submitted_by_user_id?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
 };
 
@@ -4671,6 +4682,8 @@ export type EbbaApplicationsOrderBy = {
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
   status?: Maybe<OrderBy>;
+  submitted_by_user?: Maybe<UsersOrderBy>;
+  submitted_by_user_id?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
 };
 
@@ -4714,6 +4727,8 @@ export enum EbbaApplicationsSelectColumn {
   /** column name */
   Status = "status",
   /** column name */
+  SubmittedByUserId = "submitted_by_user_id",
+  /** column name */
   UpdatedAt = "updated_at",
 }
 
@@ -4735,6 +4750,7 @@ export type EbbaApplicationsSetInput = {
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   status?: Maybe<RequestStatusEnum>;
+  submitted_by_user_id?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -4844,6 +4860,8 @@ export enum EbbaApplicationsUpdateColumn {
   RequestedAt = "requested_at",
   /** column name */
   Status = "status",
+  /** column name */
+  SubmittedByUserId = "submitted_by_user_id",
   /** column name */
   UpdatedAt = "updated_at",
 }
@@ -17154,7 +17172,7 @@ export type EbbaApplicationFragment = Pick<
   | "rejection_note"
   | "created_at"
   | "expires_at"
->;
+> & { submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">> };
 
 export type EbbaApplicationFileFragment = Pick<
   EbbaApplicationFiles,
@@ -17922,6 +17940,10 @@ export const EbbaApplicationFragmentDoc = gql`
     rejection_note
     created_at
     expires_at
+    submitted_by_user {
+      id
+      full_name
+    }
   }
 `;
 export const EbbaApplicationFileFragmentDoc = gql`

@@ -60,7 +60,7 @@ function PurchaseOrderForm({
         <FormControl>
           <InputLabel id="vendor-select-label">Vendor</InputLabel>
           <Select
-            data-cy="purchase-order-form-input-vendor"
+            data-cy={"purchase-order-form-input-vendor"}
             disabled={vendors.length <= 0}
             labelId="vendor-select-label"
             id="vendor-select"
@@ -95,7 +95,7 @@ function PurchaseOrderForm({
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <TextField
-          data-cy="purchase-order-form-input-order-number"
+          data-cy={"purchase-order-form-input-order-number"}
           label="PO Number"
           value={purchaseOrder.order_number || ""}
           onChange={({ target: { value } }) =>
@@ -108,7 +108,7 @@ function PurchaseOrderForm({
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <DateInput
-          data-cy="purchase-order-form-input-order-date"
+          dataCy={"purchase-order-form-input-order-date"}
           id="order-date-date-picker"
           label="PO Date"
           value={purchaseOrder.order_date}
@@ -122,7 +122,7 @@ function PurchaseOrderForm({
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <DateInput
-          data-cy="purchase-order-form-input-delivery-date"
+          dataCy={"purchase-order-form-input-delivery-date"}
           id="delivery-date-date-picker"
           label="Delivery date"
           value={purchaseOrder.delivery_date}
@@ -136,7 +136,7 @@ function PurchaseOrderForm({
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <CurrencyInput
-          data-cy="purchase-order-form-input-amount"
+          dataCy={"purchase-order-form-input-amount"}
           label="Amount"
           value={purchaseOrder.amount}
           handleChange={(value) =>
@@ -151,7 +151,7 @@ function PurchaseOrderForm({
         <FormControlLabel
           control={
             <Checkbox
-              data-cy="purchase-order-form-input-is-cannabis"
+              data-cy={"purchase-order-form-input-is-cannabis"}
               checked={!!purchaseOrder.is_cannabis}
               onChange={(event: ChangeEvent<HTMLInputElement>) =>
                 setPurchaseOrder({
@@ -172,7 +172,7 @@ function PurchaseOrderForm({
           </Typography>
         </Box>
         <FileUploader
-          data-cy="purchase-order-form-file-uploader-purchase-order-file"
+          dataCy={"purchase-order-form-file-uploader-purchase-order-file"}
           companyId={companyId}
           fileType={FileTypeEnum.PURCHASE_ORDER}
           maxFilesAllowed={1}

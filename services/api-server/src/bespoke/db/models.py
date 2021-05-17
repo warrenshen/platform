@@ -656,6 +656,7 @@ class EbbaApplication(Base):
 	approved_at = Column(DateTime)
 	rejected_at = Column(DateTime)
 	is_deleted = Column(Boolean, nullable=False, default=False)
+	submitted_by_user_id = Column(GUID)
 
 	company = relationship(
 		'Company',

@@ -5,7 +5,7 @@ import { Companies, FileFragment, Files } from "generated/graphql";
 import { FileTypeEnum } from "lib/enum";
 
 interface Props {
-  "data-cy"?: string;
+  dataCy?: string;
   isCountVisible?: boolean;
   companyId: Companies["id"];
   fileType: FileTypeEnum; // what type of document is this? e.g., purchase_order, etc. This is used for the S3 path, not tied to a DB table
@@ -16,7 +16,7 @@ interface Props {
 }
 
 export default function FileUploader({
-  "data-cy": dataCy,
+  dataCy,
   isCountVisible = true,
   companyId,
   fileType,

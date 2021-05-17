@@ -1,17 +1,13 @@
 import {
   Box,
-  Button,
   createStyles,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   makeStyles,
   TextField,
   Theme,
   Typography,
 } from "@material-ui/core";
 import ContractTermsForm from "components/Contract/ContractTermsForm";
+import Modal from "components/Shared/Modal/Modal";
 import {
   CompaniesInsertInput,
   CompanySettingsInsertInput,
@@ -48,7 +44,7 @@ interface Props {
   handleClose: () => void;
 }
 
-function CreateCustomerModal({ handleClose }: Props) {
+export default function CreateCustomerModal({ handleClose }: Props) {
   const snackbar = useSnackbar();
   const classes = useStyles();
 
@@ -128,84 +124,78 @@ function CreateCustomerModal({ handleClose }: Props) {
     !contract.start_date;
 
   return (
-    <Dialog open onClose={handleClose} classes={{ paper: classes.dialog }}>
-      <DialogTitle className={classes.dialogTitle}>Create Customer</DialogTitle>
-      <DialogContent>
-        <Box display="flex" flexDirection="column" mb={2}>
+    <Modal
+      isPrimaryActionDisabled={isSubmitDisabled}
+      title={"Create Customer"}
+      primaryActionText={"Save"}
+      handleClose={handleClose}
+      handlePrimaryAction={handleClickCreate}
+    >
+      <Box display="flex" flexDirection="column">
+        <Box mb={2}>
           <Typography variant="h6">Company Information</Typography>
-          <Box>
-            <TextField
-              className={classes.input}
-              label="Customer Name"
-              placeholder="Distributor Example"
-              value={customer.name || ""}
-              onChange={({ target: { value } }) =>
-                setCustomer({ ...customer, name: value })
-              }
-            />
-          </Box>
-          <Box mt={2}>
-            <TextField
-              className={classes.input}
-              label="Company Identifier (Unique Short Name)"
-              placeholder="DEI"
-              value={customer.identifier || ""}
-              onChange={({ target: { value } }) =>
-                setCustomer({ ...customer, identifier: value })
-              }
-            />
-          </Box>
-          <Box mt={2}>
-            <TextField
-              className={classes.input}
-              label="Contract Name"
-              placeholder="DISTRIBUTOR EXAMPLE, INC."
-              value={customer.contract_name || ""}
-              onChange={({ target: { value } }) =>
-                setCustomer({ ...customer, contract_name: value })
-              }
-            />
-          </Box>
-          <Box mt={2}>
-            <TextField
-              className={classes.input}
-              label="DBA"
-              placeholder="DBA 1, DBA 2"
-              value={customer.dba_name || ""}
-              onChange={({ target: { value } }) =>
-                setCustomer({ ...customer, dba_name: value })
-              }
-            />
-          </Box>
         </Box>
-        <Box mt={4}>
+        <Box>
+          <TextField
+            className={classes.input}
+            label="Customer Name"
+            placeholder="Distributor Example"
+            value={customer.name || ""}
+            onChange={({ target: { value } }) =>
+              setCustomer({ ...customer, name: value })
+            }
+          />
+        </Box>
+        <Box mt={2}>
+          <TextField
+            className={classes.input}
+            label="Company Identifier (Unique Short Name)"
+            placeholder="DEI"
+            value={customer.identifier || ""}
+            onChange={({ target: { value } }) =>
+              setCustomer({ ...customer, identifier: value })
+            }
+          />
+        </Box>
+        <Box mt={2}>
+          <TextField
+            className={classes.input}
+            label="Contract Name"
+            placeholder="DISTRIBUTOR EXAMPLE, INC."
+            value={customer.contract_name || ""}
+            onChange={({ target: { value } }) =>
+              setCustomer({ ...customer, contract_name: value })
+            }
+          />
+        </Box>
+        <Box mt={2}>
+          <TextField
+            className={classes.input}
+            label="DBA"
+            placeholder="DBA 1, DBA 2"
+            value={customer.dba_name || ""}
+            onChange={({ target: { value } }) =>
+              setCustomer({ ...customer, dba_name: value })
+            }
+          />
+        </Box>
+      </Box>
+      <Box mt={6}>
+        <Box mb={2}>
           <Typography variant="h6">Contract Information</Typography>
-          <Box display="flex" flexDirection="column" mt={2}>
-            <ContractTermsForm
-              isProductTypeEditable
-              isStartDateEditable
-              errMsg={errMsg}
-              contract={contract}
-              currentJSONConfig={currentJSONConfig}
-              setContract={setContract}
-              setCurrentJSONConfig={setCurrentJSONConfig}
-            />
-          </Box>
         </Box>
-      </DialogContent>
-      <DialogActions className={classes.dialogActions}>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button
-          disabled={isSubmitDisabled}
-          variant="contained"
-          color="primary"
-          onClick={handleClickCreate}
-        >
-          Create
-        </Button>
-      </DialogActions>
-    </Dialog>
+        <Box display="flex" flexDirection="column">
+          <ContractTermsForm
+            isProductTypeEditable
+            isStartDateEditable
+            errMsg={errMsg}
+            contract={contract}
+            currentJSONConfig={currentJSONConfig}
+            setContract={setContract}
+            setCurrentJSONConfig={setCurrentJSONConfig}
+          />
+        </Box>
+      </Box>
+    </Modal>
   );
 }
-
-export default CreateCustomerModal;

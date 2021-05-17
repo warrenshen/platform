@@ -38,6 +38,7 @@ export default function EbbaApplicationsDataGrid({
       ebbaApplications.map((ebbaApplication) => ({
         ...ebbaApplication,
         company_name: ebbaApplication.company?.name,
+        submitted_by_name: ebbaApplication.submitted_by_user?.full_name,
       })),
     [ebbaApplications]
   );
@@ -63,6 +64,11 @@ export default function EbbaApplicationsDataGrid({
             requestStatus={params.row.data.status as RequestStatusEnum}
           />
         ),
+      },
+      {
+        dataField: "submitted_by_name",
+        caption: "Submitted By",
+        minWidth: ColumnWidths.MinWidth,
       },
       {
         visible: isCompanyVisible,

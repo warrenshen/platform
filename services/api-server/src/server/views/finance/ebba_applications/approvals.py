@@ -125,6 +125,8 @@ class SubmitEbbaApplicationForApproval(MethodView):
 		cfg = cast(Config, current_app.app_config)
 		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
+		user_session = auth_util.UserSession.from_session()
+
 		form = json.loads(request.data)
 		if not form:
 			raise errors.Error('No data provided')
@@ -158,6 +160,7 @@ class SubmitEbbaApplicationForApproval(MethodView):
 
 			ebba_application.status = RequestStatusEnum.APPROVAL_REQUESTED
 			ebba_application.requested_at = date_util.now()
+			ebba_application.submitted_by_user_id = user_session.get_user_id()
 
 			# TODO (warrenshen): actually set up link to EBBA application here.
 			ebba_application_html = '<span>LINK HERE</span>'

@@ -30646,6 +30646,30 @@
             "deprecationReason": null
           },
           {
+            "name": "submitted_by_user",
+            "description": "An object relationship",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "users",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "submitted_by_user_id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "updated_at",
             "description": null,
             "args": [],
@@ -31407,6 +31431,26 @@
             "defaultValue": null
           },
           {
+            "name": "submitted_by_user",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "users_bool_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "submitted_by_user_id",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "uuid_comparison_exp",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "updated_at",
             "description": null,
             "type": {
@@ -31686,6 +31730,26 @@
             "defaultValue": null
           },
           {
+            "name": "submitted_by_user",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "users_obj_rel_insert_input",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "submitted_by_user_id",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "updated_at",
             "description": null,
             "type": {
@@ -31874,6 +31938,18 @@
             "deprecationReason": null
           },
           {
+            "name": "submitted_by_user_id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "updated_at",
             "description": null,
             "args": [],
@@ -32029,6 +32105,16 @@
           },
           {
             "name": "requested_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "submitted_by_user_id",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -32226,6 +32312,18 @@
             "deprecationReason": null
           },
           {
+            "name": "submitted_by_user_id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "updated_at",
             "description": null,
             "args": [],
@@ -32381,6 +32479,16 @@
           },
           {
             "name": "requested_at",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "submitted_by_user_id",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -32734,6 +32842,26 @@
             "defaultValue": null
           },
           {
+            "name": "submitted_by_user",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "users_order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "submitted_by_user_id",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "order_by",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "updated_at",
             "description": null,
             "type": {
@@ -32873,6 +33001,12 @@
           },
           {
             "name": "status",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "submitted_by_user_id",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null
@@ -33048,6 +33182,16 @@
             "type": {
               "kind": "ENUM",
               "name": "request_status_enum",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "submitted_by_user_id",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "uuid",
               "ofType": null
             },
             "defaultValue": null
@@ -33695,6 +33839,12 @@
           },
           {
             "name": "status",
+            "description": "column name",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "submitted_by_user_id",
             "description": "column name",
             "isDeprecated": false,
             "deprecationReason": null

@@ -2,7 +2,7 @@ import { Box } from "@material-ui/core";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 
 interface Props {
-  "data-cy"?: string;
+  dataCy?: string;
   isDisabled?: boolean;
   isRequired?: boolean;
   textAlign?: "left" | "right";
@@ -17,7 +17,7 @@ interface Props {
 }
 
 export default function CurrencyInput({
-  "data-cy": dataCy,
+  dataCy,
   isDisabled = false,
   isRequired = false,
   textAlign = "left",

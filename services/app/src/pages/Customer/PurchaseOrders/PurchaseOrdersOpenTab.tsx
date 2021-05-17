@@ -186,7 +186,7 @@ export default function CustomerPurchaseOrdersOpenTab({
         <Box my={2} display="flex" flexDirection="row-reverse">
           <Can perform={Action.AddPurchaseOrders}>
             <ModalButton
-              data-cy="create-purchase-order-button"
+              dataCy={"create-purchase-order-button"}
               isDisabled={!!selectedNotApprovedPurchaseOrder}
               label={"Create PO"}
               modal={({ handleClose }) => (

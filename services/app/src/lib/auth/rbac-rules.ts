@@ -220,6 +220,7 @@ const rules: Rules = {
       Action.AddPurchaseOrderLoan,
       Action.EditPurchaseOrderLoan,
       Action.RepayPurchaseOrderLoans,
+      Action.DeleteLoans,
 
       Action.SelectLoan,
       Action.DeselectLoan,

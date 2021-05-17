@@ -180,6 +180,14 @@ function EbbaApplicationDrawer({ ebbaApplicationId, handleClose }: Props) {
               fileType={FileTypeEnum.EBBA_APPLICATION}
             />
           </Box>
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
+              Submitted By
+            </Typography>
+            <Typography variant={"body1"}>
+              {ebbaApplication.submitted_by_user?.full_name || "-"}
+            </Typography>
+          </Box>
           {isBankUser && (
             <Box
               display="flex"
