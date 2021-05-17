@@ -126,6 +126,9 @@ class Company(Base):
 	contract_name = Column(String)
 	dba_name = Column(String)
 	is_cannabis = Column(Boolean)
+	is_customer = Column(Boolean)
+	is_vendor = Column(Boolean)
+	is_payor = Column(Boolean)
 
 	needs_balance_recomputed = Column(Boolean, nullable=False, default=False) # is_dirty
 
