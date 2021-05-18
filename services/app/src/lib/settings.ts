@@ -5,6 +5,12 @@ export function isInvoiceFinancingProductType(
 ) {
   return productType === ProductTypeEnum.InvoiceFinancing;
 }
+
+export function isPurchaseMoneyFinancingProductType(
+  productType: ProductTypeEnum | null
+) {
+  return productType === ProductTypeEnum.PurchaseMoneyFinancing;
+}
 export class SettingsHelper {
   _productType: ProductTypeEnum;
 

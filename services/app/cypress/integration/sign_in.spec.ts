@@ -2,6 +2,7 @@ import { password, users } from "../fixtures/logins";
 
 describe("Sign in: bank user", () => {
   it("can sign in with valid email/password", () => {
+    cy.resetDatabase();
     cy.visit("/");
 
     cy.dataCySelector("sign-in-input-email", "input").type(users.bank.admin);
@@ -14,6 +15,7 @@ describe("Sign in: bank user", () => {
 
 describe("Sign in: customer user", () => {
   it("can sign in with valid email/password", () => {
+    cy.resetDatabase();
     cy.visit("/");
 
     cy.dataCySelector("sign-in-input-email", "input").type(
@@ -28,6 +30,7 @@ describe("Sign in: customer user", () => {
 
 describe("Sign in: invalid credentials", () => {
   it("should show error message with invalid email/password", () => {
+    cy.resetDatabase();
     cy.visit("/");
 
     cy.dataCySelector("sign-in-input-email", "input").type(

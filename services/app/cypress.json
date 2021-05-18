@@ -4,5 +4,9 @@
   "chromeWebSecurity": false,
   "env": {
     "apiServerUrl": "http://localhost:7002"
+  },
+  "reporter": "junit",
+  "reporterOptions": {
+    "mochaFile": "cypress/results/output.xml"
   }
 }

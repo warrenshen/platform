@@ -1,5 +1,6 @@
 describe("Create inventory financing customer", () => {
   it("can create customer", () => {
+    cy.wait(5 * 60 * 1000);
     cy.resetDatabase();
     cy.loginBankAdmin();
 

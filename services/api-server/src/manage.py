@@ -17,9 +17,9 @@ from bespoke.email import email_manager, sendgrid_util
 from bespoke.email.email_manager import EmailConfigDict, SendGridConfigDict
 from bespoke.security import two_factor_util
 from server.config import get_config, is_development_env, is_test_env
-from server.views import (auth, companies, contracts, files, healthcheck,
-                          licenses, metrc, notify, purchase_orders, two_factor,
-                          users)
+from server.views import (auth, companies, contracts, cypress, files,
+                          healthcheck, licenses, metrc, notify,
+                          purchase_orders, two_factor, users)
 from server.views.finance import credits, fees
 from server.views.finance.ebba_applications import \
     approvals as ebba_application_approvals
@@ -57,6 +57,9 @@ CORS(app)
 manager = Manager(app)
 
 app.config.update(config.as_dict())
+
+if is_test_env(os.environ.get('FLASK_ENV')) or is_development_env(os.environ.get('FLASK_ENV')):
+	app.register_blueprint(cypress.handler, url_prefix='/cypress')
 
 app.register_blueprint(auth.handler, url_prefix='/auth')
 app.register_blueprint(companies.handler, url_prefix='/companies')

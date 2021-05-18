@@ -44,7 +44,7 @@ Cypress.Commands.add("dataCySelector", (value, selector) => {
 });
 
 function loginBankAdmin() {
-  cy.visit("/");
+  cy.visit("/", { timeout: 5 * 60 * 1000 });
 
   cy.dataCySelector("sign-in-input-email", "input").type(users.bank.admin);
   cy.dataCySelector("sign-in-input-password", "input").type(password);
@@ -54,7 +54,7 @@ function loginBankAdmin() {
 }
 
 function loginCustomerAdmin() {
-  cy.visit("/");
+  cy.visit("/", { timeout: 5 * 60 * 1000 });
 
   cy.dataCySelector("sign-in-input-email", "input").type(
     users.customer.inventoryFinancing.admin
@@ -66,7 +66,7 @@ function loginCustomerAdmin() {
 }
 
 function resetDatabase() {
-  cy.exec("docker exec bespoke-api-server-test make run-test-seed-db");
+  cy.request("POST", `${Cypress.env("apiServerUrl")}/cypress/reset_database`);
 }
 
 Cypress.Commands.add("loginBankAdmin", loginBankAdmin);
