@@ -141,7 +141,6 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
               modal={({ handleClose }) => (
                 <UpdateCompanyLicensesModal
                   companyId={vendor.id}
-                  vendorPartnershipId={vendorPartnershipId}
                   handleClose={() => {
                     refetch();
                     handleClose();

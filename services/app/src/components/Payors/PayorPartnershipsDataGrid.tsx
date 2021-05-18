@@ -70,11 +70,11 @@ export default function PayorPartnershipsDataGrid({
         cellRender: verificationCellRenderer,
       },
       {
-        dataField: "payor_license_id",
+        dataField: "payor.licenses",
         caption: "Verified License",
         alignment: "center",
         calculateCellValue: (data: any) =>
-          !!data.payor_license_id ? "Yes" : "No",
+          data.payor.licenses?.length > 0 ? "Yes" : "No",
         cellRender: verificationCellRenderer,
       },
       {

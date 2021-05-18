@@ -21131,20 +21131,8 @@
             "deprecationReason": null
           },
           {
-            "name": "payor_license",
-            "description": "An object relationship",
-            "args": [],
-            "type": {
-              "kind": "OBJECT",
-              "name": "company_licenses",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "payor_license_id",
-            "description": null,
+            "description": "Currently not used",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -21526,16 +21514,6 @@
             "defaultValue": null
           },
           {
-            "name": "payor_license",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "company_licenses_bool_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "payor_license_id",
             "description": null,
             "type": {
@@ -21685,16 +21663,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "payor_license",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "company_licenses_obj_rel_insert_input",
               "ofType": null
             },
             "defaultValue": null
@@ -22365,16 +22333,6 @@
             "type": {
               "kind": "ENUM",
               "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "payor_license",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "company_licenses_order_by",
               "ofType": null
             },
             "defaultValue": null
@@ -25342,18 +25300,6 @@
             "deprecationReason": null
           },
           {
-            "name": "company_license",
-            "description": "An object relationship",
-            "args": [],
-            "type": {
-              "kind": "OBJECT",
-              "name": "company_licenses",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "created_at",
             "description": null,
             "args": [],
@@ -25483,7 +25429,7 @@
           },
           {
             "name": "vendor_license_id",
-            "description": null,
+            "description": "Currently not used",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -25793,16 +25739,6 @@
             "defaultValue": null
           },
           {
-            "name": "company_license",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "company_licenses_bool_exp",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
             "name": "created_at",
             "description": null,
             "type": {
@@ -25972,16 +25908,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "uuid",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "company_license",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "company_licenses_obj_rel_insert_input",
               "ofType": null
             },
             "defaultValue": null
@@ -26716,16 +26642,6 @@
             "type": {
               "kind": "ENUM",
               "name": "order_by",
-              "ofType": null
-            },
-            "defaultValue": null
-          },
-          {
-            "name": "company_license",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "company_licenses_order_by",
               "ofType": null
             },
             "defaultValue": null

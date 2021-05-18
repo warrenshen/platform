@@ -7,8 +7,6 @@ import { useState } from "react";
 
 interface Props {
   hasNoCollectionsBankAccount: boolean;
-  hasNoLicense: boolean;
-  hasNoPayorAgreementSetup: boolean;
   hasNoContactsSetup: boolean;
   payorPartnershipId: string;
   payorId: string;
@@ -20,8 +18,6 @@ interface Props {
 
 export default function ApprovePayor({
   hasNoCollectionsBankAccount,
-  hasNoLicense,
-  hasNoPayorAgreementSetup,
   hasNoContactsSetup,
   payorPartnershipId,
   payorId,

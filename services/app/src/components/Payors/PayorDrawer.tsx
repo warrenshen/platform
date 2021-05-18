@@ -13,17 +13,16 @@ import CollectionsBank from "components/Shared/BespokeBankAssignment/Collections
 import Can from "components/Shared/Can";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileUploadDropzone from "components/Shared/File/FileUploadDropzone";
+import ModalButton from "components/Shared/Modal/ModalButton";
 import ContactsList from "components/ThirdParties/ContactsList";
 import ThirdPartyInfo from "components/ThirdParties/ThirdPartyInfo";
+import UpdateCompanyLicensesModal from "components/ThirdParties/UpdateCompanyLicensesModal";
 import {
   CompanyAgreementsInsertInput,
-  CompanyLicensesInsertInput,
   GetBankPayorPartnershipDocument,
   useAddCompanyPayorAgreementMutation,
-  useAddCompanyPayorLicenseMutation,
   useGetBankPayorPartnershipQuery,
   useUpdatePayorAgreementIdMutation,
-  useUpdatePayorLicenseIdMutation,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { FileTypeEnum } from "lib/enum";
@@ -60,20 +59,12 @@ function PayorDrawer({ partnershipId, handleClose }: Props) {
   const [updatePayorAgreementId] = useUpdatePayorAgreementIdMutation();
   const [addCompanyPayorAgreement] = useAddCompanyPayorAgreementMutation();
 
-  const [updatePayorLicenseId] = useUpdatePayorLicenseIdMutation();
-  const [addPayorLicense] = useAddCompanyPayorLicenseMutation();
-
   const agreementFileId =
     data?.company_payor_partnerships_by_pk?.payor_agreement?.file_id;
-  const licenseFileId =
-    data?.company_payor_partnerships_by_pk?.payor_license?.file_id;
 
   const agreementFileIds = useMemo(() => {
     return agreementFileId ? [agreementFileId] : [];
   }, [agreementFileId]);
-  const licenseFileIds = useMemo(() => {
-    return licenseFileId ? [licenseFileId] : [];
-  }, [licenseFileId]);
 
   if (!data?.company_payor_partnerships_by_pk) {
     if (!loading) {
@@ -84,10 +75,11 @@ function PayorDrawer({ partnershipId, handleClose }: Props) {
     return null;
   }
 
-  const payor = data.company_payor_partnerships_by_pk.payor!;
   const customer = data.company_payor_partnerships_by_pk.company!;
+  const payor = data.company_payor_partnerships_by_pk.payor!;
 
   const customerName = customer.name;
+  const companyLicenses = payor.licenses || [];
 
   const notifier = new InventoryNotifier();
   const hasNoContactsSetup =
@@ -97,9 +89,6 @@ function PayorDrawer({ partnershipId, handleClose }: Props) {
     !customer?.users ||
     customer.users.length === 0;
 
-  const hasNoPayorAgreementSetup = !data.company_payor_partnerships_by_pk
-    .payor_agreement;
-  const hasNoLicense = !data.company_payor_partnerships_by_pk.payor_license;
   const hasNoCollectionsBankAccount = !payor.settings
     ?.collections_bespoke_bank_account;
 
@@ -135,59 +124,39 @@ function PayorDrawer({ partnershipId, handleClose }: Props) {
         </Box>
         <Box display="flex" flexDirection="column">
           <Grid item>
-            <Typography variant="h6" display="inline">
-              Licenses
-            </Typography>
+            <Typography variant="h6">Licenses</Typography>
           </Grid>
-          {licenseFileId && (
-            <Grid item>
-              <DownloadThumbnail
-                fileIds={licenseFileIds}
-                fileType={FileTypeEnum.COMPANY_LICENSE}
-              />
-            </Grid>
-          )}
-          <Box mt={1} mb={2}>
-            <FileUploadDropzone
-              companyId={payor.id}
-              docType="payor_license"
-              maxFilesAllowed={1}
-              onUploadComplete={async (resp) => {
-                if (!resp.succeeded) {
-                  return;
-                }
-                const fileId = resp.files_in_db[0].id;
-
-                const license: CompanyLicensesInsertInput = {
-                  file_id: fileId,
-                  company_id: payor.id,
-                };
-
-                const payorLicense = await addPayorLicense({
-                  variables: {
-                    payorLicense: license,
-                  },
-                });
-
-                const payorLicenseId =
-                  payorLicense.data?.insert_company_licenses_one?.id;
-
-                await updatePayorLicenseId({
-                  variables: {
-                    companyPayorPartnershipId: partnershipId,
-                    payorLicenseId: payorLicenseId,
-                  },
-                  refetchQueries: [
-                    {
-                      query: GetBankPayorPartnershipDocument,
-                      variables: {
-                        id: partnershipId,
-                      },
-                    },
-                  ],
-                });
-              }}
+          <Box mt={1} mb={1}>
+            <ModalButton
+              label={"Edit Licenses"}
+              color="default"
+              variant="outlined"
+              modal={({ handleClose }) => (
+                <UpdateCompanyLicensesModal
+                  companyId={payor.id}
+                  handleClose={() => {
+                    refetch();
+                    handleClose();
+                  }}
+                />
+              )}
             />
+          </Box>
+          <Box mt={1} mb={2}>
+            {companyLicenses.map((companyLicense) => (
+              <Box key={companyLicense.id}>
+                <Typography>
+                  {companyLicense.license_number || "License Number TBD"}
+                </Typography>
+                {!!companyLicense.file_id && (
+                  <DownloadThumbnail
+                    isCountVisible={false}
+                    fileIds={[companyLicense.file_id]}
+                    fileType={FileTypeEnum.COMPANY_LICENSE}
+                  />
+                )}
+              </Box>
+            ))}
           </Box>
         </Box>
         <Box display="flex" flexDirection="column">
@@ -252,9 +221,7 @@ function PayorDrawer({ partnershipId, handleClose }: Props) {
           <Box mt={1} mb={2}>
             <ApprovePayor
               hasNoCollectionsBankAccount={hasNoCollectionsBankAccount}
-              hasNoLicense={hasNoLicense}
               hasNoContactsSetup={hasNoContactsSetup}
-              hasNoPayorAgreementSetup={hasNoPayorAgreementSetup}
               payorId={payor.id}
               payorName={payor.name}
               customerId={customer.id}

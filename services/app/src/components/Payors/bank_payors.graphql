@@ -3,6 +3,16 @@ query GetBankPayorPartnership($id: uuid!) {
     ...PayorPartnership
     payor {
       ...ThirdParty
+      licenses(
+        where: {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+      ) {
+        ...CompanyLicense
+      }
       settings {
         id
         collections_bespoke_bank_account {
@@ -24,9 +34,6 @@ query GetBankPayorPartnership($id: uuid!) {
     }
     payor_agreement {
       ...CompanyAgreement
-    }
-    payor_license {
-      ...CompanyLicense
     }
   }
 }
@@ -88,28 +95,5 @@ mutation AddCompanyPayorAgreement(
 ) {
   insert_company_agreements_one(object: $payorAgreement) {
     ...CompanyAgreement
-  }
-}
-
-## License mutations
-
-mutation UpdatePayorLicenseId(
-  $companyPayorPartnershipId: uuid!
-  $payorLicenseId: uuid!
-) {
-  update_company_payor_partnerships_by_pk(
-    pk_columns: { id: $companyPayorPartnershipId }
-    _set: { payor_license_id: $payorLicenseId }
-  ) {
-    id
-    payor_license {
-      ...CompanyLicense
-    }
-  }
-}
-
-mutation AddCompanyPayorLicense($payorLicense: company_licenses_insert_input!) {
-  insert_company_licenses_one(object: $payorLicense) {
-    ...CompanyLicense
   }
 }

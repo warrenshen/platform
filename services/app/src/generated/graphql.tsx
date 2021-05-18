@@ -2959,8 +2959,7 @@ export type CompanyPayorPartnerships = {
   payor_agreement?: Maybe<CompanyAgreements>;
   payor_agreement_id?: Maybe<Scalars["uuid"]>;
   payor_id: Scalars["uuid"];
-  /** An object relationship */
-  payor_license?: Maybe<CompanyLicenses>;
+  /** Currently not used */
   payor_license_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
   payor_limited?: Maybe<Payors>;
@@ -3013,7 +3012,6 @@ export type CompanyPayorPartnershipsBoolExp = {
   payor_agreement?: Maybe<CompanyAgreementsBoolExp>;
   payor_agreement_id?: Maybe<UuidComparisonExp>;
   payor_id?: Maybe<UuidComparisonExp>;
-  payor_license?: Maybe<CompanyLicensesBoolExp>;
   payor_license_id?: Maybe<UuidComparisonExp>;
   payor_limited?: Maybe<PayorsBoolExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
@@ -3038,7 +3036,6 @@ export type CompanyPayorPartnershipsInsertInput = {
   payor_agreement?: Maybe<CompanyAgreementsObjRelInsertInput>;
   payor_agreement_id?: Maybe<Scalars["uuid"]>;
   payor_id?: Maybe<Scalars["uuid"]>;
-  payor_license?: Maybe<CompanyLicensesObjRelInsertInput>;
   payor_license_id?: Maybe<Scalars["uuid"]>;
   payor_limited?: Maybe<PayorsObjRelInsertInput>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
@@ -3124,7 +3121,6 @@ export type CompanyPayorPartnershipsOrderBy = {
   payor_agreement?: Maybe<CompanyAgreementsOrderBy>;
   payor_agreement_id?: Maybe<OrderBy>;
   payor_id?: Maybe<OrderBy>;
-  payor_license?: Maybe<CompanyLicensesOrderBy>;
   payor_license_id?: Maybe<OrderBy>;
   payor_limited?: Maybe<PayorsOrderBy>;
   updated_at?: Maybe<OrderBy>;
@@ -3611,8 +3607,6 @@ export type CompanyVendorPartnerships = {
   /** An object relationship */
   company: Companies;
   company_id: Scalars["uuid"];
-  /** An object relationship */
-  company_license?: Maybe<CompanyLicenses>;
   created_at: Scalars["timestamptz"];
   id: Scalars["uuid"];
   updated_at: Scalars["timestamptz"];
@@ -3626,6 +3620,7 @@ export type CompanyVendorPartnerships = {
   /** Bank account which Bespoke Financial sends advances to */
   vendor_bank_id?: Maybe<Scalars["uuid"]>;
   vendor_id: Scalars["uuid"];
+  /** Currently not used */
   vendor_license_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
   vendor_limited?: Maybe<Vendors>;
@@ -3671,7 +3666,6 @@ export type CompanyVendorPartnershipsBoolExp = {
   approved_at?: Maybe<TimestamptzComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
-  company_license?: Maybe<CompanyLicensesBoolExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
@@ -3698,7 +3692,6 @@ export type CompanyVendorPartnershipsInsertInput = {
   approved_at?: Maybe<Scalars["timestamptz"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
-  company_license?: Maybe<CompanyLicensesObjRelInsertInput>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
@@ -3790,7 +3783,6 @@ export type CompanyVendorPartnershipsOrderBy = {
   approved_at?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
-  company_license?: Maybe<CompanyLicensesOrderBy>;
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
@@ -16463,6 +16455,7 @@ export type GetBankPayorPartnershipQuery = {
     {
       payor?: Maybe<
         {
+          licenses: Array<CompanyLicenseFragment>;
           settings?: Maybe<
             Pick<CompanySettings, "id"> & {
               collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
@@ -16476,7 +16469,6 @@ export type GetBankPayorPartnershipQuery = {
         settings?: Maybe<CompanySettingsFragment>;
       } & CompanyFragment;
       payor_agreement?: Maybe<CompanyAgreementFragment>;
-      payor_license?: Maybe<CompanyLicenseFragment>;
     } & PayorPartnershipFragment
   >;
 };
@@ -16536,27 +16528,6 @@ export type AddCompanyPayorAgreementMutationVariables = Exact<{
 
 export type AddCompanyPayorAgreementMutation = {
   insert_company_agreements_one?: Maybe<CompanyAgreementFragment>;
-};
-
-export type UpdatePayorLicenseIdMutationVariables = Exact<{
-  companyPayorPartnershipId: Scalars["uuid"];
-  payorLicenseId: Scalars["uuid"];
-}>;
-
-export type UpdatePayorLicenseIdMutation = {
-  update_company_payor_partnerships_by_pk?: Maybe<
-    Pick<CompanyPayorPartnerships, "id"> & {
-      payor_license?: Maybe<CompanyLicenseFragment>;
-    }
-  >;
-};
-
-export type AddCompanyPayorLicenseMutationVariables = Exact<{
-  payorLicense: CompanyLicensesInsertInput;
-}>;
-
-export type AddCompanyPayorLicenseMutation = {
-  insert_company_licenses_one?: Maybe<CompanyLicenseFragment>;
 };
 
 export type ListPayorPartnershipsByCompanyIdQueryVariables = Exact<{
@@ -17253,7 +17224,6 @@ export type VendorPartnershipFragment = Pick<
   | "vendor_id"
   | "vendor_bank_id"
   | "vendor_agreement_id"
-  | "vendor_license_id"
   | "approved_at"
 > & {
   company: Pick<Companies, "id" | "name">;
@@ -17262,12 +17232,7 @@ export type VendorPartnershipFragment = Pick<
 
 export type PayorPartnershipFragment = Pick<
   CompanyPayorPartnerships,
-  | "id"
-  | "company_id"
-  | "payor_id"
-  | "payor_agreement_id"
-  | "payor_license_id"
-  | "approved_at"
+  "id" | "company_id" | "payor_id" | "payor_agreement_id" | "approved_at"
 > & {
   company: Pick<Companies, "id" | "name">;
   payor?: Maybe<Pick<Companies, "id" | "name">>;
@@ -17339,20 +17304,20 @@ export type GetVendorPartnershipForBankQueryVariables = Exact<{
 export type GetVendorPartnershipForBankQuery = {
   company_vendor_partnerships_by_pk?: Maybe<
     {
-      company: {
-        users: Array<ContactFragment>;
-        settings?: Maybe<CompanySettingsFragment>;
-      } & CompanyFragment;
-      vendor_agreement?: Maybe<CompanyAgreementFragment>;
       vendor: {
+        licenses: Array<CompanyLicenseFragment>;
         settings?: Maybe<
           Pick<CompanySettings, "id"> & {
             collections_bespoke_bank_account?: Maybe<BankAccountFragment>;
           } & CompanySettingsFragment
         >;
         users: Array<ContactFragment>;
-        licenses: Array<CompanyLicenseFragment>;
       } & ThirdPartyFragment;
+      company: {
+        users: Array<ContactFragment>;
+        settings?: Maybe<CompanySettingsFragment>;
+      } & CompanyFragment;
+      vendor_agreement?: Maybe<CompanyAgreementFragment>;
       vendor_bank_account?: Maybe<
         Pick<BankAccounts, "id"> & BankAccountFragment
       >;
@@ -17680,12 +17645,7 @@ export type PayorLimitedFragment = Pick<Payors, "id" | "name">;
 
 export type VendorPartnershipLimitedFragment = Pick<
   CompanyVendorPartnerships,
-  | "id"
-  | "company_id"
-  | "vendor_id"
-  | "vendor_agreement_id"
-  | "vendor_license_id"
-  | "approved_at"
+  "id" | "company_id" | "vendor_id" | "vendor_agreement_id" | "approved_at"
 > & {
   company: Pick<Companies, "id" | "name">;
   vendor: Pick<Companies, "id" | "name">;
@@ -18008,7 +17968,6 @@ export const VendorPartnershipFragmentDoc = gql`
     vendor_id
     vendor_bank_id
     vendor_agreement_id
-    vendor_license_id
     approved_at
     company {
       id
@@ -18026,7 +17985,6 @@ export const PayorPartnershipFragmentDoc = gql`
     company_id
     payor_id
     payor_agreement_id
-    payor_license_id
     approved_at
     company {
       id
@@ -18359,7 +18317,6 @@ export const VendorPartnershipLimitedFragmentDoc = gql`
     company_id
     vendor_id
     vendor_agreement_id
-    vendor_license_id
     approved_at
     company {
       id
@@ -21311,6 +21268,16 @@ export const GetBankPayorPartnershipDocument = gql`
       ...PayorPartnership
       payor {
         ...ThirdParty
+        licenses(
+          where: {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+        ) {
+          ...CompanyLicense
+        }
         settings {
           id
           collections_bespoke_bank_account {
@@ -21333,19 +21300,16 @@ export const GetBankPayorPartnershipDocument = gql`
       payor_agreement {
         ...CompanyAgreement
       }
-      payor_license {
-        ...CompanyLicense
-      }
     }
   }
   ${PayorPartnershipFragmentDoc}
   ${ThirdPartyFragmentDoc}
+  ${CompanyLicenseFragmentDoc}
   ${BankAccountFragmentDoc}
   ${ContactFragmentDoc}
   ${CompanyFragmentDoc}
   ${CompanySettingsFragmentDoc}
   ${CompanyAgreementFragmentDoc}
-  ${CompanyLicenseFragmentDoc}
 `;
 
 /**
@@ -21682,116 +21646,6 @@ export type AddCompanyPayorAgreementMutationResult = Apollo.MutationResult<AddCo
 export type AddCompanyPayorAgreementMutationOptions = Apollo.BaseMutationOptions<
   AddCompanyPayorAgreementMutation,
   AddCompanyPayorAgreementMutationVariables
->;
-export const UpdatePayorLicenseIdDocument = gql`
-  mutation UpdatePayorLicenseId(
-    $companyPayorPartnershipId: uuid!
-    $payorLicenseId: uuid!
-  ) {
-    update_company_payor_partnerships_by_pk(
-      pk_columns: { id: $companyPayorPartnershipId }
-      _set: { payor_license_id: $payorLicenseId }
-    ) {
-      id
-      payor_license {
-        ...CompanyLicense
-      }
-    }
-  }
-  ${CompanyLicenseFragmentDoc}
-`;
-export type UpdatePayorLicenseIdMutationFn = Apollo.MutationFunction<
-  UpdatePayorLicenseIdMutation,
-  UpdatePayorLicenseIdMutationVariables
->;
-
-/**
- * __useUpdatePayorLicenseIdMutation__
- *
- * To run a mutation, you first call `useUpdatePayorLicenseIdMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdatePayorLicenseIdMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updatePayorLicenseIdMutation, { data, loading, error }] = useUpdatePayorLicenseIdMutation({
- *   variables: {
- *      companyPayorPartnershipId: // value for 'companyPayorPartnershipId'
- *      payorLicenseId: // value for 'payorLicenseId'
- *   },
- * });
- */
-export function useUpdatePayorLicenseIdMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdatePayorLicenseIdMutation,
-    UpdatePayorLicenseIdMutationVariables
-  >
-) {
-  return Apollo.useMutation<
-    UpdatePayorLicenseIdMutation,
-    UpdatePayorLicenseIdMutationVariables
-  >(UpdatePayorLicenseIdDocument, baseOptions);
-}
-export type UpdatePayorLicenseIdMutationHookResult = ReturnType<
-  typeof useUpdatePayorLicenseIdMutation
->;
-export type UpdatePayorLicenseIdMutationResult = Apollo.MutationResult<UpdatePayorLicenseIdMutation>;
-export type UpdatePayorLicenseIdMutationOptions = Apollo.BaseMutationOptions<
-  UpdatePayorLicenseIdMutation,
-  UpdatePayorLicenseIdMutationVariables
->;
-export const AddCompanyPayorLicenseDocument = gql`
-  mutation AddCompanyPayorLicense(
-    $payorLicense: company_licenses_insert_input!
-  ) {
-    insert_company_licenses_one(object: $payorLicense) {
-      ...CompanyLicense
-    }
-  }
-  ${CompanyLicenseFragmentDoc}
-`;
-export type AddCompanyPayorLicenseMutationFn = Apollo.MutationFunction<
-  AddCompanyPayorLicenseMutation,
-  AddCompanyPayorLicenseMutationVariables
->;
-
-/**
- * __useAddCompanyPayorLicenseMutation__
- *
- * To run a mutation, you first call `useAddCompanyPayorLicenseMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddCompanyPayorLicenseMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [addCompanyPayorLicenseMutation, { data, loading, error }] = useAddCompanyPayorLicenseMutation({
- *   variables: {
- *      payorLicense: // value for 'payorLicense'
- *   },
- * });
- */
-export function useAddCompanyPayorLicenseMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    AddCompanyPayorLicenseMutation,
-    AddCompanyPayorLicenseMutationVariables
-  >
-) {
-  return Apollo.useMutation<
-    AddCompanyPayorLicenseMutation,
-    AddCompanyPayorLicenseMutationVariables
-  >(AddCompanyPayorLicenseDocument, baseOptions);
-}
-export type AddCompanyPayorLicenseMutationHookResult = ReturnType<
-  typeof useAddCompanyPayorLicenseMutation
->;
-export type AddCompanyPayorLicenseMutationResult = Apollo.MutationResult<AddCompanyPayorLicenseMutation>;
-export type AddCompanyPayorLicenseMutationOptions = Apollo.BaseMutationOptions<
-  AddCompanyPayorLicenseMutation,
-  AddCompanyPayorLicenseMutationVariables
 >;
 export const ListPayorPartnershipsByCompanyIdDocument = gql`
   query ListPayorPartnershipsByCompanyId($companyId: uuid!) {
@@ -24373,6 +24227,29 @@ export const GetVendorPartnershipForBankDocument = gql`
   query GetVendorPartnershipForBank($id: uuid!) {
     company_vendor_partnerships_by_pk(id: $id) {
       ...VendorPartnership
+      vendor {
+        ...ThirdParty
+        licenses(
+          where: {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+        ) {
+          ...CompanyLicense
+        }
+        settings {
+          id
+          ...CompanySettings
+          collections_bespoke_bank_account {
+            ...BankAccount
+          }
+        }
+        users {
+          ...Contact
+        }
+      }
       company {
         ...Company
         users {
@@ -24385,34 +24262,6 @@ export const GetVendorPartnershipForBankDocument = gql`
       vendor_agreement {
         ...CompanyAgreement
       }
-      vendor {
-        ...ThirdParty
-        settings {
-          id
-          ...CompanySettings
-          collections_bespoke_bank_account {
-            ...BankAccount
-          }
-        }
-        users {
-          ...Contact
-        }
-        settings {
-          collections_bespoke_bank_account {
-            ...BankAccount
-          }
-        }
-        licenses(
-          where: {
-            _or: [
-              { is_deleted: { _is_null: true } }
-              { is_deleted: { _eq: false } }
-            ]
-          }
-        ) {
-          ...CompanyLicense
-        }
-      }
       vendor_bank_account {
         id
         ...BankAccount
@@ -24420,13 +24269,13 @@ export const GetVendorPartnershipForBankDocument = gql`
     }
   }
   ${VendorPartnershipFragmentDoc}
-  ${CompanyFragmentDoc}
-  ${ContactFragmentDoc}
-  ${CompanySettingsFragmentDoc}
-  ${CompanyAgreementFragmentDoc}
   ${ThirdPartyFragmentDoc}
-  ${BankAccountFragmentDoc}
   ${CompanyLicenseFragmentDoc}
+  ${CompanySettingsFragmentDoc}
+  ${BankAccountFragmentDoc}
+  ${ContactFragmentDoc}
+  ${CompanyFragmentDoc}
+  ${CompanyAgreementFragmentDoc}
 `;
 
 /**

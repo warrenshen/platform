@@ -15,7 +15,6 @@ import { useMemo, useState } from "react";
 
 interface Props {
   companyId: Companies["id"];
-  vendorPartnershipId: string;
   handleClose: () => void;
 }
 
@@ -123,7 +122,6 @@ function CompanyLicenseForm({
 
 export default function UpdateCompanyLicensesModal({
   companyId,
-  vendorPartnershipId,
   handleClose,
 }: Props) {
   const snackbar = useSnackbar();
