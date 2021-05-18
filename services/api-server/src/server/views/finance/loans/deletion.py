@@ -19,7 +19,7 @@ from server.views.common import auth_util, handler_util
 handler = Blueprint('finance_loans_deletion', __name__)
 
 class DeleteLoanView(MethodView):
-	decorators = [auth_util.bank_admin_required]
+	decorators = [auth_util.login_required]
 
 	@events.wrap(events.Actions.LOANS_DELETE_LOAN)
 	@handler_util.catch_bad_json_request
@@ -36,7 +36,19 @@ class DeleteLoanView(MethodView):
 				return handler_util.make_error_response(
 					'Missing key {} from delete loan request'.format(key))
 
+		loan_id = form['loan_id']
+
 		user_session = auth_util.UserSession.from_session()
+
+		with session_scope(current_app.session_maker) as session:
+			loan = cast(
+				models.Loan,
+				session.query(models.Loan).filter_by(
+					id=loan_id
+				).first())
+
+			if not user_session.is_bank_or_this_company_admin(str(loan.company_id)):
+				return handler_util.make_error_response('Access Denied')
 
 		val, err = delete_util.delete_loan(
 			cast(delete_util.DeleteLoanReqDict, form),

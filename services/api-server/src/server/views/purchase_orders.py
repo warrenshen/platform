@@ -348,8 +348,8 @@ class DeleteView(MethodView):
 			purchase_order = cast(
 				models.PurchaseOrder,
 				session.query(models.PurchaseOrder).filter_by(
-					id=purchase_order_id).first()
-			)
+					id=purchase_order_id
+				).first())
 
 			if not user_session.is_bank_or_this_company_admin(str(purchase_order.company_id)):
 				return handler_util.make_error_response('Access Denied')
