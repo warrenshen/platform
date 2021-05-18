@@ -21,7 +21,7 @@ import {
   ProductTypeEnum,
 } from "generated/graphql";
 import { FileTypeEnum } from "lib/enum";
-import { isInvoiceFinancingProductType } from "lib/settings";
+import { isPurchaseMoneyFinancingProductType } from "lib/settings";
 import { ChangeEvent, useMemo } from "react";
 
 interface Props {
@@ -175,7 +175,7 @@ export default function InvoiceForm({
           />
         </FormControl>
       </Box>
-      {isInvoiceFinancingProductType(productType) && (
+      {isPurchaseMoneyFinancingProductType(productType) && (
         <Box display="flex" flexDirection="column" mt={4}>
           <FormControlLabel
             control={

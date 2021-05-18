@@ -23,7 +23,7 @@ import { Action, check } from "lib/auth/rbac-rules";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
 import { FileTypeEnum } from "lib/enum";
-import { isInvoiceFinancingProductType } from "lib/settings";
+import { isPurchaseMoneyFinancingProductType } from "lib/settings";
 import { useContext, useMemo } from "react";
 import InvoiceLoansDataGrid from "./InvoiceLoansDataGrid";
 
@@ -170,7 +170,7 @@ export default function InvoiceDrawer({ invoiceId, handleClose }: Props) {
               {formatCurrency(invoice.total_amount)}
             </Typography>
           </Box>
-          {isInvoiceFinancingProductType(productType) && (
+          {isPurchaseMoneyFinancingProductType(productType) && (
             <Box display="flex" flexDirection="column" mt={2}>
               <FormControlLabel
                 control={
