@@ -31,6 +31,7 @@ def import_funded_purchase_orders(
 		) = new_purchase_order_tuple
 
 		parsed_customer_identifier = customer_identifier.strip()
+		parsed_vendor_name = vendor_name.strip()
 		parsed_order_date = date_util.load_date_str(order_date) if order_date else None
 		parsed_funded_at = datetime.combine(date_util.load_date_str(funded_date), time())
 
@@ -44,6 +45,7 @@ def import_funded_purchase_orders(
 		# Note: we are ok with None for order date.
 		if (
 			not parsed_customer_identifier or
+			not parsed_vendor_name or
 			not parsed_order_number or
 			# not parsed_order_date or
 			not amount or
@@ -71,11 +73,11 @@ def import_funded_purchase_orders(
 			session.query(models.Company).filter(
 				models.Company.company_type == CompanyType.Vendor
 			).filter(
-				models.Company.name == vendor_name
+				models.Company.name == parsed_vendor_name
 			).first())
 
 		if not vendor:
-			print(f'[{index + 1} of {purchase_orders_count}] Vendor with name {vendor_name} does not exist')
+			print(f'[{index + 1} of {purchase_orders_count}] Vendor with name {parsed_vendor_name} does not exist')
 			print(f'EXITING EARLY')
 			return
 
@@ -88,11 +90,11 @@ def import_funded_purchase_orders(
 			).first())
 
 		if not customer_vendor_partnership:
-			print(f'[{index + 1} of {purchase_orders_count}] Customer {customer.name} and Vendor {vendor_name} do not have a partnership')
+			print(f'[{index + 1} of {purchase_orders_count}] Customer {customer.name} and Vendor {parsed_vendor_name} do not have a partnership')
 			print(f'EXITING EARLY')
 			return
 
-		print(f'[{index + 1} of {purchase_orders_count}] Found customer {parsed_customer_identifier} and vendor {vendor_name}')
+		print(f'[{index + 1} of {purchase_orders_count}] Found customer {parsed_customer_identifier} and vendor {parsed_vendor_name}')
 
 		existing_purchase_order = cast(
 			models.PurchaseOrder,

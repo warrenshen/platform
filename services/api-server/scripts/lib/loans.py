@@ -117,8 +117,10 @@ def import_loans(session: Session, loan_tuples: List[List[str]]) -> None:
 				continue
 
 		parsed_loan_type = None
-		if loan_type == 'Inventory' or loan_type == 'PMF':
+		if loan_type in ['Inventory', 'PMF']:
 			parsed_loan_type = LoanTypeEnum.INVENTORY
+		elif loan_type in ['invoice', 'Invoice']:
+			parsed_loan_type = LoanTypeEnum.INVOICE
 
 		if parsed_loan_type not in ALL_LOAN_TYPES:
 			print(f'[{index + 1} of {loans_count}] Invalid loan field(s)')
@@ -142,6 +144,22 @@ def import_loans(session: Session, loan_tuples: List[List[str]]) -> None:
 				return
 			else:
 				artifact_id = existing_purchase_order.id
+
+		elif parsed_loan_type == LoanTypeEnum.INVOICE:
+			existing_invoice = cast(
+				models.Invoice,
+				session.query(models.Invoice).filter(
+					models.Invoice.company_id == customer.id
+				).filter(
+					models.Invoice.invoice_number == parsed_artifact_identifier
+				).first())
+
+			if not existing_invoice:
+				print(f'[{index + 1} of {loans_count}] Invoice with identifier {parsed_artifact_identifier} does not exist')
+				print(f'EXITING EARLY')
+				return
+			else:
+				artifact_id = existing_invoice.id
 
 		if not artifact_id:
 			print(f'[{index + 1} of {loans_count}] Invalid artifact')
