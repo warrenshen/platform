@@ -13,15 +13,6 @@ from bespoke.excel import excel_reader
 
 
 def _check_no_dangling_references(company_id: str, session: Session) -> None:
-	existing_company = cast(
-		models.Company,
-		session.query(models.Company).filter(
-			models.Company.id == company_id
-		).first())
-
-	if not existing_company:
-		raise errors.Error('No company found with ID {}'.format(company_id))
-
 	payment = cast(
 		models.Payment,
 		session.query(models.Payment).filter(
@@ -29,7 +20,7 @@ def _check_no_dangling_references(company_id: str, session: Session) -> None:
 		).first())
 
 	if payment:
-		raise errors.Error('Company {} has an existing payment, so we can delete this company'.format(company_id))
+		raise errors.Error('Company {} has an existing payment, so we cannot delete this company'.format(company_id))
 
 def _delete_company(company_id: str, session: Session) -> None:
 
@@ -80,15 +71,37 @@ def dedupe(session: Session, path: str) -> None:
 	filtered_row_tuples = list(filter(lambda tup: tup[0] is not '', row_tuples[1:]))
 
 	for row in filtered_row_tuples:
+		# (replace_company_id, to_delete_company_id, partnership_type)
 		replacing_company_id = row[0]
 		to_delete_company_id = row[1]
 		partnership_type = row[2]
+
 		print('Deduping data from row {}'.format(row))
+
+		existing_replacing_company = cast(
+			models.Company,
+			session.query(models.Company).filter(
+				models.Company.id == replacing_company_id
+			).first())
+
+		if not existing_replacing_company:
+			raise errors.Error('No company found with ID {}'.format(replacing_company_id))
+
+		existing_to_delete_company = cast(
+			models.Company,
+			session.query(models.Company).filter(
+				models.Company.id == to_delete_company_id
+			).first())
+
+		if not existing_to_delete_company:
+			raise errors.Error('No company found with ID {}'.format(to_delete_company_id))
+
 		_check_no_dangling_references(to_delete_company_id, session)
 
 		if partnership_type == 'vendor':
 			# (1) Change PurchaseOrder vendor_id
-			# (2) Change partnership
+			# (2) Change vendor agreements
+			# (3) Change vendor partnership
 			# (3) Change LineOfCredit recipient_vendor_id
 			# (4) Transfer bank account of previous vendor
 
@@ -100,21 +113,27 @@ def dedupe(session: Session, path: str) -> None:
 				purchase_order.vendor_id = replacing_company_id
 
 			# 2
+			company_agreements = session.query(models.CompanyAgreement).filter(
+				models.CompanyAgreement.company_id == to_delete_company_id
+			).all()
+			for company_agreement in company_agreements:
+				company_agreement.company_id = replacing_company_id
+
+			# 3
 			company_vendor_partnerships = session.query(models.CompanyVendorPartnership).filter(
 				models.CompanyVendorPartnership.vendor_id == to_delete_company_id
 			).all()
-
 			for partnership in company_vendor_partnerships:
 				partnership.vendor_id = replacing_company_id
 
-			# 3
+			# 4
 			line_of_credits = session.query(models.LineOfCredit).filter(
 				models.LineOfCredit.recipient_vendor_id == to_delete_company_id
 			).all()
 			for line_of_credit in line_of_credits:
 				line_of_credit.recipient_vendor_id = replacing_company_id
 
-			# 4
+			# 5
 			bank_accounts = session.query(models.BankAccount).filter(
 				models.BankAccount.company_id == to_delete_company_id
 			).all()
@@ -122,9 +141,18 @@ def dedupe(session: Session, path: str) -> None:
 				bank_account.company_id = replacing_company_id
 
 		elif partnership_type == 'payor':
-			# (1) Change partnership and (2) invoice payor_id
+			# (1) Change payor agreements
+			# (2) Change payor partnership
+			# (3) Change Invoice payor_id
 
 			# 1
+			company_agreements = session.query(models.CompanyAgreement).filter(
+				models.CompanyAgreement.company_id == to_delete_company_id
+			).all()
+			for company_agreement in company_agreements:
+				company_agreement.company_id = replacing_company_id
+
+			# 2
 			company_payor_partnerships = session.query(models.CompanyPayorPartnership).filter(
 				models.CompanyPayorPartnership.payor_id == to_delete_company_id
 			).all()
@@ -132,12 +160,13 @@ def dedupe(session: Session, path: str) -> None:
 			for partnership in company_payor_partnerships:
 				partnership.payor_id = replacing_company_id
 
-			# 2
+			# 3
 			invoices = session.query(models.Invoice).filter(
 				models.Invoice.payor_id == to_delete_company_id
 			).all()
 			for invoice in invoices:
 				invoice.payor_id = replacing_company_id
+
 		else:
 			raise errors.Error('Unexpected partnership_type {}'.format(partnership_type))
 
