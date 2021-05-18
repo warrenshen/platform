@@ -72,7 +72,7 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
   const [addCompanyVendorAgreement] = useAddCompanyVendorAgreementMutation();
 
   const agreementFileId =
-    data?.company_vendor_partnerships_by_pk?.company_agreement?.file_id;
+    data?.company_vendor_partnerships_by_pk?.vendor_agreement?.file_id;
 
   const agreementFileIds = useMemo(() => {
     return agreementFileId ? [agreementFileId] : [];

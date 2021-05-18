@@ -3610,8 +3610,6 @@ export type CompanyVendorPartnerships = {
   approved_at?: Maybe<Scalars["timestamptz"]>;
   /** An object relationship */
   company: Companies;
-  /** An object relationship */
-  company_agreement?: Maybe<CompanyAgreements>;
   company_id: Scalars["uuid"];
   /** An object relationship */
   company_license?: Maybe<CompanyLicenses>;
@@ -3620,6 +3618,8 @@ export type CompanyVendorPartnerships = {
   updated_at: Scalars["timestamptz"];
   /** An object relationship */
   vendor: Companies;
+  /** An object relationship */
+  vendor_agreement?: Maybe<CompanyAgreements>;
   vendor_agreement_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
   vendor_bank_account?: Maybe<BankAccounts>;
@@ -3670,13 +3670,13 @@ export type CompanyVendorPartnershipsBoolExp = {
   _or?: Maybe<Array<Maybe<CompanyVendorPartnershipsBoolExp>>>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
-  company_agreement?: Maybe<CompanyAgreementsBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   company_license?: Maybe<CompanyLicensesBoolExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
   vendor?: Maybe<CompaniesBoolExp>;
+  vendor_agreement?: Maybe<CompanyAgreementsBoolExp>;
   vendor_agreement_id?: Maybe<UuidComparisonExp>;
   vendor_bank_account?: Maybe<BankAccountsBoolExp>;
   vendor_bank_id?: Maybe<UuidComparisonExp>;
@@ -3697,13 +3697,13 @@ export enum CompanyVendorPartnershipsConstraint {
 export type CompanyVendorPartnershipsInsertInput = {
   approved_at?: Maybe<Scalars["timestamptz"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
-  company_agreement?: Maybe<CompanyAgreementsObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
   company_license?: Maybe<CompanyLicensesObjRelInsertInput>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor?: Maybe<CompaniesObjRelInsertInput>;
+  vendor_agreement?: Maybe<CompanyAgreementsObjRelInsertInput>;
   vendor_agreement_id?: Maybe<Scalars["uuid"]>;
   vendor_bank_account?: Maybe<BankAccountsObjRelInsertInput>;
   vendor_bank_id?: Maybe<Scalars["uuid"]>;
@@ -3789,13 +3789,13 @@ export type CompanyVendorPartnershipsOnConflict = {
 export type CompanyVendorPartnershipsOrderBy = {
   approved_at?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
-  company_agreement?: Maybe<CompanyAgreementsOrderBy>;
   company_id?: Maybe<OrderBy>;
   company_license?: Maybe<CompanyLicensesOrderBy>;
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor?: Maybe<CompaniesOrderBy>;
+  vendor_agreement?: Maybe<CompanyAgreementsOrderBy>;
   vendor_agreement_id?: Maybe<OrderBy>;
   vendor_bank_account?: Maybe<BankAccountsOrderBy>;
   vendor_bank_id?: Maybe<OrderBy>;
@@ -17343,8 +17343,7 @@ export type GetVendorPartnershipForBankQuery = {
         users: Array<ContactFragment>;
         settings?: Maybe<CompanySettingsFragment>;
       } & CompanyFragment;
-      company_agreement?: Maybe<CompanyAgreementFragment>;
-      company_license?: Maybe<CompanyLicenseFragment>;
+      vendor_agreement?: Maybe<CompanyAgreementFragment>;
       vendor: {
         settings?: Maybe<
           Pick<CompanySettings, "id"> & {
@@ -17443,7 +17442,7 @@ export type UpdateVendorAgreementIdMutationVariables = Exact<{
 export type UpdateVendorAgreementIdMutation = {
   update_company_vendor_partnerships_by_pk?: Maybe<
     Pick<CompanyVendorPartnerships, "id"> & {
-      company_agreement?: Maybe<CompanyAgreementFragment>;
+      vendor_agreement?: Maybe<CompanyAgreementFragment>;
     }
   >;
 };
@@ -24383,11 +24382,8 @@ export const GetVendorPartnershipForBankDocument = gql`
           ...CompanySettings
         }
       }
-      company_agreement {
+      vendor_agreement {
         ...CompanyAgreement
-      }
-      company_license {
-        ...CompanyLicense
       }
       vendor {
         ...ThirdParty
@@ -24428,9 +24424,9 @@ export const GetVendorPartnershipForBankDocument = gql`
   ${ContactFragmentDoc}
   ${CompanySettingsFragmentDoc}
   ${CompanyAgreementFragmentDoc}
-  ${CompanyLicenseFragmentDoc}
   ${ThirdPartyFragmentDoc}
   ${BankAccountFragmentDoc}
+  ${CompanyLicenseFragmentDoc}
 `;
 
 /**
@@ -24894,7 +24890,7 @@ export const UpdateVendorAgreementIdDocument = gql`
       _set: { vendor_agreement_id: $vendorAgreementId }
     ) {
       id
-      company_agreement {
+      vendor_agreement {
         ...CompanyAgreement
       }
     }
