@@ -3,6 +3,7 @@
   "baseUrl": "http://localhost:3006",
   "chromeWebSecurity": false,
   "env": {
+    "isDocker": false,
     "apiServerUrl": "http://localhost:7002"
   },
   "reporter": "junit",

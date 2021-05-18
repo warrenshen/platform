@@ -25,19 +25,13 @@ const createApolloClient = (user: User) => {
     };
   });
 
-  const isTestEnv = process.env.REACT_APP_BESPOKE_ENVIRONMENT === "test";
-
   const httpLink = new HttpLink({
-    uri: isTestEnv
-      ? "http://localhost:8081/v1/graphql"
-      : process.env.REACT_APP_BESPOKE_GRAPHQL_ENDPOINT,
+    uri: process.env.REACT_APP_BESPOKE_GRAPHQL_ENDPOINT,
     credentials: "include",
   });
 
   const wsLink = new WebSocketLink({
-    uri: isTestEnv
-      ? "ws://localhost:8081/v1/graphql"
-      : process.env.REACT_APP_BESPOKE_WS_GRAPHQL_ENDPOINT || "",
+    uri: process.env.REACT_APP_BESPOKE_WS_GRAPHQL_ENDPOINT || "",
     options: {
       lazy: true,
       reconnect: true,

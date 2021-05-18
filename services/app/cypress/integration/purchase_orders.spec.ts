@@ -1,6 +1,9 @@
 describe("Create inventory financing customer", () => {
   it("can create customer", () => {
-    cy.wait(5 * 60 * 1000);
+    if (Cypress.env("isDocker") === true) {
+      cy.wait(5 * 60 * 1000);
+    }
+
     cy.resetDatabase();
     cy.loginBankAdmin();
 
