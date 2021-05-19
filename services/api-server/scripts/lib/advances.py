@@ -11,9 +11,7 @@ from sqlalchemy.orm.session import Session
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../src")))
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.db_constants import (ALL_LOAN_TYPES, CompanyType,
-                                     LoanStatusEnum, PaymentMethodEnum,
-                                     PaymentType)
+from bespoke.db.db_constants import PaymentMethodEnum, PaymentType
 from bespoke.excel import excel_reader
 from bespoke.finance import number_util
 from bespoke.finance.payments import payment_util
@@ -42,7 +40,7 @@ def import_settled_advances(
 		) = new_advance_tuple
 
 		parsed_customer_identifier = customer_identifier.strip()
-		parsed_amount = float(amount)
+		parsed_amount = number_util.round_currency(float(amount))
 		parsed_payment_date = date_util.load_date_str(payment_date) if payment_date else None
 		parsed_deposit_date = date_util.load_date_str(deposit_date)
 		parsed_settlement_date = date_util.load_date_str(settlement_date)
