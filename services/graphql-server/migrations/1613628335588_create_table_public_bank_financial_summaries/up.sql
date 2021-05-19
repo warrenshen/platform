@@ -1,0 +1,2 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE TABLE "public"."bank_financial_summaries"("id" uuid NOT NULL DEFAULT gen_random_uuid(), "date" date NOT NULL, "product_type" text NOT NULL, "total_limit" numeric NOT NULL, "total_outstanding_principal" numeric NOT NULL, "total_outstanding_interest" numeric NOT NULL, "total_principal_in_requested_state" numeric NOT NULL, "available_limit" numeric NOT NULL, PRIMARY KEY ("id") , UNIQUE ("id"));

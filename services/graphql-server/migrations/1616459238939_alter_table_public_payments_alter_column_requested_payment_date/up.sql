@@ -1,0 +1,1 @@
+COMMENT ON COLUMN "public"."payments"."requested_payment_date" IS E'The date the customer requests the payment to arrive to the recipient bank account (a better name for this column is requested_deposit_date)';

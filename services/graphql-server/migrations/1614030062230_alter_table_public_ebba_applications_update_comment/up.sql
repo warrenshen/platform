@@ -1,0 +1,1 @@
+COMMENT ON TABLE "public"."ebba_applications" IS E'EBBA stands for Eligible Borrowing Base Amount: this is a table of applications to borrow via a line of credit with information required to determine a Borrowing Base';

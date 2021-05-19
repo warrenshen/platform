@@ -12,10 +12,11 @@ COPY package.json ./
 COPY yarn.lock ./
 
 # Installs all node packages
+ENV NODE_ENV=development
 RUN yarn install
 
 # Uses port which is used by the actual application
 EXPOSE 3006
 
 # Finally runs the application
-CMD ["yarn", "start-test"]
+CMD yarn start-test

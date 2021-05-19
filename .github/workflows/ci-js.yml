@@ -5,12 +5,12 @@ on:
     branches:
       - master
     paths:
-      - 'services/app/**'
+      - "services/app/**"
   pull_request:
     branches:
       - master
     paths:
-      - 'services/app/**'
+      - "services/app/**"
 
 jobs:
   app:

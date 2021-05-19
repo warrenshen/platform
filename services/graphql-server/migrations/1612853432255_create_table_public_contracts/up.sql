@@ -1,0 +1,2 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE TABLE "public"."contracts"("id" uuid NOT NULL DEFAULT gen_random_uuid(), "company_id" uuid NOT NULL, "product_type" text NOT NULL, "product_config" jsonb NOT NULL DEFAULT jsonb_build_object(), "start_date" date NOT NULL, "end_date" date, PRIMARY KEY ("id") , FOREIGN KEY ("company_id") REFERENCES "public"."companies"("id") ON UPDATE restrict ON DELETE restrict, UNIQUE ("id")); COMMENT ON TABLE "public"."contracts" IS E'Contracts are stored for a date range and associated with a company_id';

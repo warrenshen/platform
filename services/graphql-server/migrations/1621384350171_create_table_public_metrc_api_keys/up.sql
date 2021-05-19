@@ -1,0 +1,2 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE TABLE "public"."metrc_api_keys"("id" uuid NOT NULL DEFAULT gen_random_uuid(), "encrypted_api_key" text NOT NULL, "company_id" uuid NOT NULL, "created_at" Timestamp  NOT NULL DEFAULT now(), "last_used_at" timestamptz NOT NULL, "is_functioning" boolean NOT NULL, PRIMARY KEY ("id") , FOREIGN KEY ("company_id") REFERENCES "public"."companies"("id") ON UPDATE restrict ON DELETE restrict, UNIQUE ("id")); COMMENT ON TABLE "public"."metrc_api_keys" IS E'List of API keys we use to connect to Metrc';

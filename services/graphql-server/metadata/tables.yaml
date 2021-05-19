@@ -1,0 +1,3376 @@
+- table:
+    schema: public
+    name: audit_events
+- table:
+    schema: public
+    name: bank_accounts
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  array_relationships:
+  - name: assigned_companies_for_advances_in_settings
+    using:
+      foreign_key_constraint_on:
+        column: advances_bespoke_bank_account_id
+        table:
+          schema: public
+          name: company_settings
+  - name: assigned_companies_for_collection_in_settings
+    using:
+      foreign_key_constraint_on:
+        column: collections_bespoke_bank_account_id
+        table:
+          schema: public
+          name: company_settings
+  insert_permissions:
+  - role: bank_admin
+    permission:
+      check: {}
+      columns:
+      - account_number
+      - account_title
+      - account_type
+      - bank_address
+      - bank_name
+      - can_ach
+      - can_wire
+      - company_id
+      - is_cannabis_compliant
+      - recipient_address
+      - recipient_name
+      - routing_number
+      - verified_at
+      - verified_date
+      backend_only: false
+  - role: company_admin
+    permission:
+      check:
+        company_id:
+          _eq: X-Hasura-Company-Id
+      set:
+        company_id: x-hasura-Company-Id
+      columns:
+      - account_number
+      - account_title
+      - account_type
+      - bank_address
+      - bank_name
+      - can_ach
+      - can_wire
+      - is_cannabis_compliant
+      - recipient_address
+      - recipient_name
+      - routing_number
+      backend_only: false
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - account_number
+      - account_title
+      - account_type
+      - bank_address
+      - bank_name
+      - can_ach
+      - can_wire
+      - company_id
+      - created_at
+      - id
+      - is_cannabis_compliant
+      - recipient_address
+      - recipient_name
+      - routing_number
+      - updated_at
+      - verified_at
+      - verified_date
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - account_number
+      - account_title
+      - account_type
+      - bank_address
+      - bank_name
+      - can_ach
+      - can_wire
+      - company_id
+      - created_at
+      - id
+      - is_cannabis_compliant
+      - recipient_address
+      - recipient_name
+      - routing_number
+      - updated_at
+      - verified_at
+      - verified_date
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - account_number
+      - account_title
+      - account_type
+      - bank_address
+      - bank_name
+      - can_ach
+      - can_wire
+      - company_id
+      - created_at
+      - id
+      - is_cannabis_compliant
+      - recipient_address
+      - recipient_name
+      - routing_number
+      - updated_at
+      - verified_at
+      - verified_date
+      filter:
+        _or:
+        - company_id:
+            _eq: X-Hasura-Company-Id
+        - assigned_companies_for_collection_in_settings:
+            company_id:
+              _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - account_number
+      - account_title
+      - account_type
+      - bank_address
+      - bank_name
+      - can_ach
+      - can_wire
+      - company_id
+      - created_at
+      - id
+      - is_cannabis_compliant
+      - recipient_address
+      - recipient_name
+      - routing_number
+      - updated_at
+      - verified_at
+      - verified_date
+      filter:
+        _or:
+        - company_id:
+            _eq: X-Hasura-Company-Id
+        - assigned_companies_for_collection_in_settings:
+            company_id:
+              _eq: X-Hasura-Company-Id
+  - role: invoice_reviewer
+    permission:
+      columns:
+      - account_number
+      - account_title
+      - account_type
+      - bank_address
+      - bank_name
+      - can_ach
+      - can_wire
+      - company_id
+      - id
+      - is_cannabis_compliant
+      - recipient_address
+      - recipient_name
+      - routing_number
+      - verified_at
+      - verified_date
+      filter:
+        assigned_companies_for_collection_in_settings:
+          company:
+            id:
+              _eq: X-Hasura-Company-Id
+  - role: purchase_order_reviewer
+    permission:
+      columns:
+      - account_number
+      - account_title
+      - account_type
+      - bank_address
+      - bank_name
+      - company_id
+      - id
+      - recipient_address
+      - recipient_name
+      - routing_number
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  update_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - account_number
+      - account_title
+      - account_type
+      - bank_address
+      - bank_name
+      - can_ach
+      - can_wire
+      - is_cannabis_compliant
+      - recipient_address
+      - recipient_name
+      - routing_number
+      - verified_at
+      - verified_date
+      filter: {}
+      check: null
+  - role: company_admin
+    permission:
+      columns:
+      - account_number
+      - account_title
+      - account_type
+      - bank_address
+      - bank_name
+      - can_ach
+      - can_wire
+      - is_cannabis_compliant
+      - recipient_address
+      - recipient_name
+      - routing_number
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+      check: null
+- table:
+    schema: public
+    name: bank_financial_summaries
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - adjusted_total_limit
+      - available_limit
+      - created_at
+      - date
+      - id
+      - interest_accrued_today
+      - product_type
+      - total_limit
+      - total_outstanding_fees
+      - total_outstanding_interest
+      - total_outstanding_principal
+      - total_outstanding_principal_for_interest
+      - total_principal_in_requested_state
+      - updated_at
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - adjusted_total_limit
+      - available_limit
+      - created_at
+      - date
+      - id
+      - interest_accrued_today
+      - product_type
+      - total_limit
+      - total_outstanding_fees
+      - total_outstanding_interest
+      - total_outstanding_principal
+      - total_outstanding_principal_for_interest
+      - total_principal_in_requested_state
+      - updated_at
+      filter: {}
+- table:
+    schema: public
+    name: companies
+  object_relationships:
+  - name: contract
+    using:
+      foreign_key_constraint_on: contract_id
+  - name: settings
+    using:
+      foreign_key_constraint_on: company_settings_id
+  - name: type
+    using:
+      foreign_key_constraint_on: company_type
+  array_relationships:
+  - name: agreements
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          schema: public
+          name: company_agreements
+  - name: bank_accounts
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          schema: public
+          name: bank_accounts
+  - name: company_payor_partnerships
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          schema: public
+          name: company_payor_partnerships
+  - name: company_payor_partnerships_by_payor
+    using:
+      foreign_key_constraint_on:
+        column: payor_id
+        table:
+          schema: public
+          name: company_payor_partnerships
+  - name: company_vendor_partnerships
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          schema: public
+          name: company_vendor_partnerships
+  - name: company_vendor_partnerships_by_vendor
+    using:
+      foreign_key_constraint_on:
+        column: vendor_id
+        table:
+          schema: public
+          name: company_vendor_partnerships
+  - name: contracts
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          schema: public
+          name: contracts
+  - name: ebba_applications
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          schema: public
+          name: ebba_applications
+  - name: financial_summaries
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          schema: public
+          name: financial_summaries
+  - name: invoice_by_payor
+    using:
+      foreign_key_constraint_on:
+        column: payor_id
+        table:
+          schema: public
+          name: invoices
+  - name: invoices
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          schema: public
+          name: invoices
+  - name: licenses
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          schema: public
+          name: company_licenses
+  - name: loans
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          schema: public
+          name: loans
+  - name: payments
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          schema: public
+          name: payments
+  - name: purchase_orders
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          schema: public
+          name: purchase_orders
+  - name: purchase_orders_by_vendor
+    using:
+      foreign_key_constraint_on:
+        column: vendor_id
+        table:
+          schema: public
+          name: purchase_orders
+  - name: users
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          schema: public
+          name: users
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - address
+      - city
+      - company_settings_id
+      - company_type
+      - contract_id
+      - contract_name
+      - country
+      - created_at
+      - dba_name
+      - employer_identification_number
+      - id
+      - identifier
+      - is_cannabis
+      - is_customer
+      - is_payor
+      - is_vendor
+      - latest_loan_identifier
+      - name
+      - phone_number
+      - state
+      - updated_at
+      - zip_code
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - address
+      - city
+      - company_settings_id
+      - company_type
+      - contract_id
+      - contract_name
+      - country
+      - created_at
+      - dba_name
+      - employer_identification_number
+      - id
+      - identifier
+      - is_cannabis
+      - is_customer
+      - is_payor
+      - is_vendor
+      - latest_loan_identifier
+      - name
+      - phone_number
+      - state
+      - updated_at
+      - zip_code
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - address
+      - city
+      - company_settings_id
+      - company_type
+      - contract_id
+      - contract_name
+      - country
+      - created_at
+      - dba_name
+      - employer_identification_number
+      - id
+      - identifier
+      - is_cannabis
+      - is_customer
+      - is_payor
+      - is_vendor
+      - latest_loan_identifier
+      - name
+      - phone_number
+      - state
+      - updated_at
+      - zip_code
+      filter:
+        _or:
+        - id:
+            _eq: X-Hasura-Company-Id
+        - company_vendor_partnerships_by_vendor:
+            company_id:
+              _eq: X-Hasura-Company-Id
+        - company_payor_partnerships_by_payor:
+            company_id:
+              _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - address
+      - city
+      - company_settings_id
+      - company_type
+      - contract_id
+      - contract_name
+      - country
+      - created_at
+      - dba_name
+      - employer_identification_number
+      - id
+      - identifier
+      - is_cannabis
+      - is_customer
+      - is_payor
+      - is_vendor
+      - latest_loan_identifier
+      - name
+      - phone_number
+      - state
+      - updated_at
+      - zip_code
+      filter:
+        _or:
+        - id:
+            _eq: X-Hasura-Company-Id
+        - company_vendor_partnerships_by_vendor:
+            company_id:
+              _eq: X-Hasura-Company-Id
+        - company_payor_partnerships_by_payor:
+            company_id:
+              _eq: X-Hasura-Company-Id
+  - role: invoice_reviewer
+    permission:
+      columns:
+      - company_type
+      - id
+      - is_customer
+      - is_payor
+      - is_vendor
+      - name
+      filter:
+        invoices:
+          payor_id:
+            _eq: X-Hasura-Company-Id
+  - role: purchase_order_reviewer
+    permission:
+      columns:
+      - company_type
+      - id
+      - is_customer
+      - is_payor
+      - is_vendor
+      - name
+      filter:
+        purchase_orders:
+          vendor_id:
+            _eq: X-Hasura-Company-Id
+  update_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - address
+      - city
+      - company_settings_id
+      - company_type
+      - contract_id
+      - contract_name
+      - country
+      - dba_name
+      - employer_identification_number
+      - identifier
+      - is_customer
+      - is_payor
+      - is_vendor
+      - latest_loan_identifier
+      - name
+      - needs_balance_recomputed
+      - phone_number
+      - state
+      - zip_code
+      filter: {}
+      check: null
+  - role: company_admin
+    permission:
+      columns:
+      - address
+      - city
+      - country
+      - dba_name
+      - employer_identification_number
+      - name
+      - latest_loan_identifier
+      - phone_number
+      - state
+      - zip_code
+      filter:
+        id:
+          _eq: X-Hasura-Company-Id
+      check: null
+- table:
+    schema: public
+    name: company_agreements
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  array_relationships:
+  - name: company_payor_partnerships
+    using:
+      foreign_key_constraint_on:
+        column: payor_agreement_id
+        table:
+          schema: public
+          name: company_payor_partnerships
+  - name: company_vendor_partnerships
+    using:
+      foreign_key_constraint_on:
+        column: vendor_agreement_id
+        table:
+          schema: public
+          name: company_vendor_partnerships
+  insert_permissions:
+  - role: bank_admin
+    permission:
+      check: {}
+      columns:
+      - company_id
+      - file_id
+      backend_only: false
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - company_id
+      - file_id
+      - id
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - id
+      - company_id
+      - file_id
+      filter: {}
+  update_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - company_id
+      - file_id
+      filter: {}
+      check: null
+  delete_permissions:
+  - role: bank_admin
+    permission:
+      filter: {}
+- table:
+    schema: public
+    name: company_licenses
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  - name: file
+    using:
+      foreign_key_constraint_on: file_id
+  insert_permissions:
+  - role: bank_admin
+    permission:
+      check: {}
+      columns:
+      - company_id
+      - file_id
+      - license_number
+      backend_only: false
+  - role: company_admin
+    permission:
+      check: {}
+      set:
+        company_id: x-hasura-Company-Id
+      columns:
+      - file_id
+      backend_only: false
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - company_id
+      - file_id
+      - id
+      - is_deleted
+      - license_number
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - company_id
+      - file_id
+      - id
+      - is_deleted
+      - license_number
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - company_id
+      - file_id
+      - id
+      - is_deleted
+      - license_number
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - company_id
+      - file_id
+      - id
+      - is_deleted
+      - license_number
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+- table:
+    schema: public
+    name: company_partnership_requests
+  object_relationships:
+  - name: requested_by_user
+    using:
+      foreign_key_constraint_on: requested_by_user_id
+  - name: requesting_company
+    using:
+      foreign_key_constraint_on: requesting_company_id
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - company_name
+      - company_type
+      - created_at
+      - id
+      - is_cannabis
+      - is_deleted
+      - license_info
+      - requested_by_user_id
+      - requesting_company_id
+      - settled_at
+      - settled_by_user_id
+      - two_factor_message_method
+      - user_info
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - company_name
+      - company_type
+      - created_at
+      - id
+      - is_cannabis
+      - is_deleted
+      - license_info
+      - requested_by_user_id
+      - requesting_company_id
+      - settled_at
+      - settled_by_user_id
+      - two_factor_message_method
+      - user_info
+      filter: {}
+- table:
+    schema: public
+    name: company_payor_partnerships
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  - name: payor
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: companies
+        column_mapping:
+          payor_id: id
+  - name: payor_agreement
+    using:
+      foreign_key_constraint_on: payor_agreement_id
+  - name: payor_limited
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: payors
+        column_mapping:
+          payor_id: id
+  insert_permissions:
+  - role: bank_admin
+    permission:
+      check: {}
+      columns:
+      - company_id
+      backend_only: false
+  - role: company_admin
+    permission:
+      check:
+        company_id:
+          _eq: X-Hasura-Company-Id
+      columns: []
+      backend_only: false
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - approved_at
+      - company_id
+      - id
+      - payor_agreement_id
+      - payor_id
+      - payor_license_id
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - approved_at
+      - company_id
+      - id
+      - payor_agreement_id
+      - payor_id
+      - payor_license_id
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - approved_at
+      - company_id
+      - id
+      - payor_agreement_id
+      - payor_id
+      - payor_license_id
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - approved_at
+      - company_id
+      - id
+      - payor_agreement_id
+      - payor_id
+      - payor_license_id
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  - role: invoice_reviewer
+    permission:
+      columns:
+      - company_id
+      - id
+      - payor_id
+      filter:
+        payor_id:
+          _eq: X-Hasura-Company-Id
+  update_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - approved_at
+      - payor_agreement_id
+      - payor_license_id
+      filter: {}
+      check: {}
+- table:
+    schema: public
+    name: company_settings
+  object_relationships:
+  - name: active_ebba_application
+    using:
+      foreign_key_constraint_on: active_ebba_application_id
+  - name: advances_bespoke_bank_account
+    using:
+      foreign_key_constraint_on: advances_bespoke_bank_account_id
+  - name: collections_bespoke_bank_account
+    using:
+      foreign_key_constraint_on: collections_bespoke_bank_account_id
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  - name: metrc_api_key
+    using:
+      foreign_key_constraint_on: metrc_api_key_id
+  insert_permissions:
+  - role: bank_admin
+    permission:
+      check: {}
+      columns:
+      - advances_bespoke_bank_account_id
+      - collections_bespoke_bank_account_id
+      - company_id
+      - has_autofinancing
+      - payor_agreement_docusign_template
+      - two_factor_message_method
+      - vendor_agreement_docusign_template
+      backend_only: false
+  - role: company_admin
+    permission:
+      check: {}
+      columns: []
+      backend_only: false
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - active_ebba_application_id
+      - advances_bespoke_bank_account_id
+      - collections_bespoke_bank_account_id
+      - company_id
+      - has_autofinancing
+      - id
+      - metrc_api_key_id
+      - payor_agreement_docusign_template
+      - two_factor_message_method
+      - vendor_agreement_docusign_template
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - active_ebba_application_id
+      - advances_bespoke_bank_account_id
+      - collections_bespoke_bank_account_id
+      - company_id
+      - has_autofinancing
+      - id
+      - metrc_api_key_id
+      - payor_agreement_docusign_template
+      - two_factor_message_method
+      - vendor_agreement_docusign_template
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - active_ebba_application_id
+      - collections_bespoke_bank_account_id
+      - company_id
+      - has_autofinancing
+      - id
+      - payor_agreement_docusign_template
+      - two_factor_message_method
+      - vendor_agreement_docusign_template
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - active_ebba_application_id
+      - collections_bespoke_bank_account_id
+      - company_id
+      - has_autofinancing
+      - id
+      - payor_agreement_docusign_template
+      - two_factor_message_method
+      - vendor_agreement_docusign_template
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  - role: invoice_reviewer
+    permission:
+      columns:
+      - collections_bespoke_bank_account_id
+      - id
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  update_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - advances_bespoke_bank_account_id
+      - collections_bespoke_bank_account_id
+      - has_autofinancing
+      - payor_agreement_docusign_template
+      - two_factor_message_method
+      - vendor_agreement_docusign_template
+      filter: {}
+      check: null
+- table:
+    schema: public
+    name: company_type
+  is_enum: true
+- table:
+    schema: public
+    name: company_vendor_partnerships
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  - name: vendor
+    using:
+      foreign_key_constraint_on: vendor_id
+  - name: vendor_agreement
+    using:
+      foreign_key_constraint_on: vendor_agreement_id
+  - name: vendor_bank_account
+    using:
+      foreign_key_constraint_on: vendor_bank_id
+  - name: vendor_limited
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: vendors
+        column_mapping:
+          vendor_id: id
+  insert_permissions:
+  - role: bank_admin
+    permission:
+      check: {}
+      columns:
+      - company_id
+      backend_only: false
+  - role: company_admin
+    permission:
+      check:
+        company_id:
+          _eq: X-Hasura-Company-Id
+      set:
+        company_id: x-hasura-Company-Id
+      columns: []
+      backend_only: false
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - approved_at
+      - company_id
+      - created_at
+      - id
+      - updated_at
+      - vendor_agreement_id
+      - vendor_bank_id
+      - vendor_id
+      - vendor_license_id
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - id
+      - company_id
+      - vendor_id
+      - vendor_agreement_id
+      - vendor_bank_id
+      - vendor_license_id
+      - created_at
+      - updated_at
+      - approved_at
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - approved_at
+      - company_id
+      - created_at
+      - id
+      - updated_at
+      - vendor_agreement_id
+      - vendor_id
+      - vendor_license_id
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - approved_at
+      - company_id
+      - created_at
+      - id
+      - updated_at
+      - vendor_agreement_id
+      - vendor_id
+      - vendor_license_id
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  - role: purchase_order_reviewer
+    permission:
+      columns:
+      - company_id
+      - id
+      - vendor_bank_id
+      - vendor_id
+      filter:
+        vendor_id:
+          _eq: X-Hasura-Company-Id
+  update_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - approved_at
+      - vendor_agreement_id
+      - vendor_bank_id
+      - vendor_license_id
+      filter: {}
+      check: null
+- table:
+    schema: public
+    name: contracts
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  - name: modified_by_user
+    using:
+      foreign_key_constraint_on: modified_by_user_id
+  - name: terminated_by_user
+    using:
+      foreign_key_constraint_on: terminated_by_user_id
+  array_relationships:
+  - name: companies
+    using:
+      foreign_key_constraint_on:
+        column: contract_id
+        table:
+          schema: public
+          name: companies
+  insert_permissions:
+  - role: bank_admin
+    permission:
+      check: {}
+      columns:
+      - company_id
+      - end_date
+      - product_config
+      - product_type
+      - start_date
+      backend_only: false
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - adjusted_end_date
+      - company_id
+      - end_date
+      - id
+      - modified_at
+      - modified_by_user_id
+      - product_config
+      - product_type
+      - start_date
+      - terminated_at
+      - terminated_by_user_id
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - adjusted_end_date
+      - company_id
+      - end_date
+      - id
+      - modified_at
+      - modified_by_user_id
+      - product_config
+      - product_type
+      - start_date
+      - terminated_at
+      - terminated_by_user_id
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - adjusted_end_date
+      - company_id
+      - end_date
+      - id
+      - product_config
+      - product_type
+      - start_date
+      - terminated_at
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - company_id
+      - end_date
+      - id
+      - product_config
+      - product_type
+      - start_date
+      - terminated_at
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  update_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - company_id
+      - end_date
+      - id
+      - product_config
+      - product_type
+      - start_date
+      filter: {}
+      check: null
+  event_triggers:
+  - name: contracts_changed
+    definition:
+      enable_manual: false
+      insert:
+        columns: '*'
+      delete:
+        columns: '*'
+      update:
+        columns:
+        - end_date
+        - start_date
+        - product_config
+        - product_type
+        - modified_at
+        - terminated_at
+        - company_id
+        - id
+        - modified_by_user_id
+        - terminated_by_user_id
+        - adjusted_end_date
+    retry_conf:
+      num_retries: 1
+      interval_sec: 10
+      timeout_sec: 60
+    webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/set_dirty_company_balances_view'
+    headers:
+    - name: x-api-key
+      value_from_env: ASYNC_SERVER_API_KEY
+- table:
+    schema: public
+    name: ebba_application_files
+  object_relationships:
+  - name: ebba_application
+    using:
+      foreign_key_constraint_on: ebba_application_id
+  - name: file
+    using:
+      foreign_key_constraint_on: file_id
+  insert_permissions:
+  - role: bank_admin
+    permission:
+      check: {}
+      columns:
+      - ebba_application_id
+      - file_id
+      backend_only: false
+  - role: company_admin
+    permission:
+      check:
+        ebba_application:
+          company_id:
+            _eq: X-Hasura-Company-Id
+      columns:
+      - ebba_application_id
+      - file_id
+      backend_only: false
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - ebba_application_id
+      - file_id
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - ebba_application_id
+      - file_id
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - ebba_application_id
+      - file_id
+      filter:
+        ebba_application:
+          company_id:
+            _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - ebba_application_id
+      - file_id
+      filter:
+        ebba_application:
+          company_id:
+            _eq: X-Hasura-Company-Id
+  delete_permissions:
+  - role: bank_admin
+    permission:
+      filter: {}
+- table:
+    schema: public
+    name: ebba_applications
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  - name: submitted_by_user
+    using:
+      foreign_key_constraint_on: submitted_by_user_id
+  array_relationships:
+  - name: ebba_application_files
+    using:
+      foreign_key_constraint_on:
+        column: ebba_application_id
+        table:
+          schema: public
+          name: ebba_application_files
+  insert_permissions:
+  - role: bank_admin
+    permission:
+      check: {}
+      columns:
+      - amount_cash_in_daca
+      - application_date
+      - calculated_borrowing_base
+      - company_id
+      - expires_at
+      - monthly_accounts_receivable
+      - monthly_cash
+      - monthly_inventory
+      backend_only: false
+  - role: company_admin
+    permission:
+      check:
+        company_id:
+          _eq: X-Hasura-Company-Id
+      set:
+        company_id: x-hasura-Company-Id
+      columns:
+      - amount_cash_in_daca
+      - application_date
+      - calculated_borrowing_base
+      - expires_at
+      - monthly_accounts_receivable
+      - monthly_cash
+      - monthly_inventory
+      backend_only: false
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - amount_cash_in_daca
+      - application_date
+      - approved_at
+      - calculated_borrowing_base
+      - company_id
+      - created_at
+      - expires_at
+      - id
+      - is_deleted
+      - monthly_accounts_receivable
+      - monthly_cash
+      - monthly_inventory
+      - rejected_at
+      - rejection_note
+      - requested_at
+      - status
+      - submitted_by_user_id
+      - updated_at
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - amount_cash_in_daca
+      - application_date
+      - approved_at
+      - calculated_borrowing_base
+      - company_id
+      - created_at
+      - expires_at
+      - id
+      - is_deleted
+      - monthly_accounts_receivable
+      - monthly_cash
+      - monthly_inventory
+      - rejected_at
+      - rejection_note
+      - requested_at
+      - status
+      - submitted_by_user_id
+      - updated_at
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - amount_cash_in_daca
+      - application_date
+      - approved_at
+      - calculated_borrowing_base
+      - company_id
+      - created_at
+      - expires_at
+      - id
+      - is_deleted
+      - monthly_accounts_receivable
+      - monthly_cash
+      - monthly_inventory
+      - rejection_note
+      - requested_at
+      - status
+      - submitted_by_user_id
+      - updated_at
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - amount_cash_in_daca
+      - application_date
+      - approved_at
+      - calculated_borrowing_base
+      - company_id
+      - created_at
+      - expires_at
+      - id
+      - is_deleted
+      - monthly_accounts_receivable
+      - monthly_cash
+      - monthly_inventory
+      - rejection_note
+      - requested_at
+      - status
+      - submitted_by_user_id
+      - updated_at
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  update_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - amount_cash_in_daca
+      - application_date
+      - calculated_borrowing_base
+      - expires_at
+      - monthly_accounts_receivable
+      - monthly_cash
+      - monthly_inventory
+      filter: {}
+      check: null
+- table:
+    schema: public
+    name: files
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  - name: created_by
+    using:
+      foreign_key_constraint_on: created_by_user_id
+  array_relationships:
+  - name: company_licenses
+    using:
+      foreign_key_constraint_on:
+        column: file_id
+        table:
+          schema: public
+          name: company_licenses
+  - name: invoice_files
+    using:
+      foreign_key_constraint_on:
+        column: file_id
+        table:
+          schema: public
+          name: invoice_files
+  - name: purchase_order_files
+    using:
+      foreign_key_constraint_on:
+        column: file_id
+        table:
+          schema: public
+          name: purchase_order_files
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - sequential_id
+      - size
+      - extension
+      - mime_type
+      - name
+      - path
+      - created_at
+      - updated_at
+      - company_id
+      - created_by_user_id
+      - id
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - id
+      - sequential_id
+      - company_id
+      - name
+      - path
+      - extension
+      - size
+      - mime_type
+      - created_by_user_id
+      - created_at
+      - updated_at
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - id
+      - sequential_id
+      - company_id
+      - name
+      - path
+      - extension
+      - size
+      - mime_type
+      - created_by_user_id
+      - created_at
+      - updated_at
+      filter:
+        _or:
+        - purchase_order_files:
+            purchase_order:
+              _or:
+              - company_id:
+                  _eq: X-Hasura-Company-Id
+              - vendor_id:
+                  _eq: X-Hasura-Company-Id
+        - company_licenses:
+            company_id:
+              _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - sequential_id
+      - size
+      - extension
+      - mime_type
+      - name
+      - path
+      - created_at
+      - updated_at
+      - company_id
+      - created_by_user_id
+      - id
+      filter:
+        _or:
+        - purchase_order_files:
+            purchase_order:
+              _or:
+              - company_id:
+                  _eq: X-Hasura-Company-Id
+              - vendor_id:
+                  _eq: X-Hasura-Company-Id
+        - company_licenses:
+            company_id:
+              _eq: X-Hasura-Company-Id
+  - role: invoice_reviewer
+    permission:
+      columns:
+      - id
+      - sequential_id
+      - company_id
+      - name
+      - path
+      - extension
+      - size
+      - mime_type
+      - created_by_user_id
+      - created_at
+      - updated_at
+      filter:
+        invoice_files:
+          invoice:
+            payor_id:
+              _eq: X-Hasura-Company-Id
+  - role: purchase_order_reviewer
+    permission:
+      columns:
+      - company_id
+      - created_at
+      - created_by_user_id
+      - extension
+      - id
+      - mime_type
+      - name
+      - path
+      - sequential_id
+      - size
+      - updated_at
+      filter:
+        purchase_order_files:
+          purchase_order:
+            vendor_id:
+              _eq: X-Hasura-Company-Id
+- table:
+    schema: public
+    name: financial_summaries
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - account_level_balance_payload
+      - adjusted_total_limit
+      - available_limit
+      - company_id
+      - date
+      - day_volume_threshold_met
+      - id
+      - interest_accrued_today
+      - minimum_monthly_payload
+      - total_limit
+      - total_outstanding_fees
+      - total_outstanding_interest
+      - total_outstanding_principal
+      - total_outstanding_principal_for_interest
+      - total_principal_in_requested_state
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - account_level_balance_payload
+      - adjusted_total_limit
+      - available_limit
+      - company_id
+      - date
+      - day_volume_threshold_met
+      - id
+      - interest_accrued_today
+      - minimum_monthly_payload
+      - total_limit
+      - total_outstanding_fees
+      - total_outstanding_interest
+      - total_outstanding_principal
+      - total_outstanding_principal_for_interest
+      - total_principal_in_requested_state
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - account_level_balance_payload
+      - adjusted_total_limit
+      - available_limit
+      - company_id
+      - date
+      - day_volume_threshold_met
+      - id
+      - interest_accrued_today
+      - minimum_monthly_payload
+      - total_limit
+      - total_outstanding_fees
+      - total_outstanding_interest
+      - total_outstanding_principal
+      - total_outstanding_principal_for_interest
+      - total_principal_in_requested_state
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - account_level_balance_payload
+      - adjusted_total_limit
+      - available_limit
+      - company_id
+      - date
+      - day_volume_threshold_met
+      - id
+      - interest_accrued_today
+      - minimum_monthly_payload
+      - total_limit
+      - total_outstanding_fees
+      - total_outstanding_interest
+      - total_outstanding_principal
+      - total_outstanding_principal_for_interest
+      - total_principal_in_requested_state
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+- table:
+    schema: public
+    name: invoice_file_type
+  is_enum: true
+- table:
+    schema: public
+    name: invoice_files
+  object_relationships:
+  - name: file
+    using:
+      foreign_key_constraint_on: file_id
+  - name: invoice
+    using:
+      foreign_key_constraint_on: invoice_id
+  insert_permissions:
+  - role: company_admin
+    permission:
+      check:
+        invoice:
+          _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - payor_id:
+              _eq: X-Hasura-Company-Id
+      columns:
+      - file_type
+      - file_id
+      - invoice_id
+      backend_only: false
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - invoice_id
+      - file_id
+      - file_type
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - file_type
+      - file_id
+      - invoice_id
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - file_type
+      - file_id
+      - invoice_id
+      filter:
+        invoice:
+          _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - payor_id:
+              _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - file_type
+      - file_id
+      - invoice_id
+      filter:
+        invoice:
+          _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - payor_id:
+              _eq: X-Hasura-Company-Id
+  - role: invoice_reviewer
+    permission:
+      columns:
+      - invoice_id
+      - file_id
+      - file_type
+      filter:
+        invoice:
+          payor_id:
+            _eq: X-Hasura-Company-Id
+  delete_permissions:
+  - role: company_admin
+    permission:
+      filter:
+        invoice:
+          _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - payor_id:
+              _eq: X-Hasura-Company-Id
+- table:
+    schema: public
+    name: invoices
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  - name: payment
+    using:
+      foreign_key_constraint_on: payment_id
+  - name: payor
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: payors
+        column_mapping:
+          payor_id: id
+  array_relationships:
+  - name: invoice_files
+    using:
+      foreign_key_constraint_on:
+        column: invoice_id
+        table:
+          schema: public
+          name: invoice_files
+  - name: loans
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: loans
+        column_mapping:
+          id: artifact_id
+  insert_permissions:
+  - role: company_admin
+    permission:
+      check:
+        payor:
+          company_payor_partnerships:
+            company_id:
+              _eq: X-Hasura-Company-Id
+      columns:
+      - advance_date
+      - company_id
+      - invoice_date
+      - invoice_due_date
+      - invoice_number
+      - is_cannabis
+      - payor_id
+      - status
+      - subtotal_amount
+      - taxes_amount
+      - total_amount
+      backend_only: false
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - advance_date
+      - approved_at
+      - company_id
+      - created_at
+      - funded_at
+      - id
+      - invoice_date
+      - invoice_due_date
+      - invoice_number
+      - is_cannabis
+      - is_deleted
+      - payment_confirmed_at
+      - payment_rejected_at
+      - payment_rejection_note
+      - payment_requested_at
+      - payor_id
+      - rejected_at
+      - rejection_note
+      - requested_at
+      - status
+      - subtotal_amount
+      - taxes_amount
+      - total_amount
+      - updated_at
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - advance_date
+      - approved_at
+      - company_id
+      - created_at
+      - funded_at
+      - id
+      - invoice_date
+      - invoice_due_date
+      - invoice_number
+      - is_cannabis
+      - is_deleted
+      - payor_id
+      - rejected_at
+      - rejection_note
+      - requested_at
+      - status
+      - subtotal_amount
+      - taxes_amount
+      - total_amount
+      - updated_at
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - advance_date
+      - approved_at
+      - company_id
+      - created_at
+      - funded_at
+      - id
+      - invoice_date
+      - invoice_due_date
+      - invoice_number
+      - is_cannabis
+      - is_deleted
+      - payment_confirmed_at
+      - payment_rejected_at
+      - payment_requested_at
+      - payor_id
+      - rejected_at
+      - requested_at
+      - status
+      - subtotal_amount
+      - taxes_amount
+      - total_amount
+      - updated_at
+      filter:
+        _or:
+        - company_id:
+            _eq: X-Hasura-Company-Id
+        - payor_id:
+            _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - advance_date
+      - approved_at
+      - company_id
+      - created_at
+      - funded_at
+      - id
+      - invoice_date
+      - invoice_due_date
+      - invoice_number
+      - is_cannabis
+      - is_deleted
+      - payment_rejected_at
+      - payment_requested_at
+      - payor_id
+      - rejected_at
+      - requested_at
+      - status
+      - subtotal_amount
+      - taxes_amount
+      - total_amount
+      - updated_at
+      filter:
+        _or:
+        - company_id:
+            _eq: X-Hasura-Company-Id
+        - payor_id:
+            _eq: X-Hasura-Company-Id
+  - role: invoice_reviewer
+    permission:
+      columns:
+      - advance_date
+      - approved_at
+      - company_id
+      - created_at
+      - funded_at
+      - id
+      - invoice_date
+      - invoice_due_date
+      - invoice_number
+      - is_cannabis
+      - is_deleted
+      - payment_confirmed_at
+      - payment_rejected_at
+      - payment_rejection_note
+      - payment_requested_at
+      - payor_id
+      - rejected_at
+      - rejection_note
+      - requested_at
+      - status
+      - subtotal_amount
+      - taxes_amount
+      - total_amount
+      - updated_at
+      filter:
+        payor_id:
+          _eq: X-Hasura-Company-Id
+  update_permissions:
+  - role: company_admin
+    permission:
+      columns:
+      - advance_date
+      - invoice_date
+      - invoice_due_date
+      - invoice_number
+      - is_cannabis
+      - payor_id
+      - status
+      - subtotal_amount
+      - taxes_amount
+      - total_amount
+      filter:
+        payor:
+          company_payor_partnerships:
+            company_id:
+              _eq: X-Hasura-Company-Id
+      check: null
+  - role: invoice_reviewer
+    permission:
+      columns:
+      - approved_at
+      - payment_confirmed_at
+      - payment_rejected_at
+      - payment_rejection_note
+      - rejected_at
+      - rejection_note
+      filter:
+        payor_id:
+          _eq: X-Hasura-Company-Id
+      check: null
+  delete_permissions:
+  - role: company_admin
+    permission:
+      filter:
+        payor:
+          company_payor_partnerships:
+            company_id:
+              _eq: X-Hasura-Company-Id
+- table:
+    schema: public
+    name: line_of_credits
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  - name: recipient_vendor
+    using:
+      foreign_key_constraint_on: recipient_vendor_id
+  insert_permissions:
+  - role: bank_admin
+    permission:
+      check: {}
+      columns:
+      - company_id
+      - is_credit_for_vendor
+      - recipient_vendor_id
+      backend_only: false
+  - role: company_admin
+    permission:
+      check:
+        company_id:
+          _eq: X-Hasura-Company-Id
+      set:
+        company_id: x-hasura-Company-Id
+      columns:
+      - is_credit_for_vendor
+      - recipient_vendor_id
+      backend_only: false
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - id
+      - recipient_vendor_id
+      - is_credit_for_vendor
+      - company_id
+      - created_at
+      - updated_at
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - is_credit_for_vendor
+      - created_at
+      - updated_at
+      - company_id
+      - id
+      - recipient_vendor_id
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - company_id
+      - id
+      - is_credit_for_vendor
+      - recipient_vendor_id
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - company_id
+      - id
+      - is_credit_for_vendor
+      - recipient_vendor_id
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  update_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - is_credit_for_vendor
+      - recipient_vendor_id
+      filter: {}
+      check: null
+  - role: company_admin
+    permission:
+      columns:
+      - is_credit_for_vendor
+      - recipient_vendor_id
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+      check: null
+- table:
+    schema: public
+    name: loan_status
+  is_enum: true
+- table:
+    schema: public
+    name: loan_type
+  is_enum: true
+- table:
+    schema: public
+    name: loans
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  - name: invoice
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: invoices
+        column_mapping:
+          artifact_id: id
+  - name: line_of_credit
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: line_of_credits
+        column_mapping:
+          artifact_id: id
+  - name: purchase_order
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: purchase_orders
+        column_mapping:
+          artifact_id: id
+  array_relationships:
+  - name: transactions
+    using:
+      foreign_key_constraint_on:
+        column: loan_id
+        table:
+          schema: public
+          name: transactions
+  insert_permissions:
+  - role: bank_admin
+    permission:
+      check: {}
+      columns:
+      - amount
+      - artifact_id
+      - company_id
+      - identifier
+      - loan_type
+      - requested_payment_date
+      backend_only: false
+  - role: company_admin
+    permission:
+      check:
+        company_id:
+          _eq: X-Hasura-Company-Id
+      set:
+        company_id: x-hasura-Company-Id
+      columns:
+      - amount
+      - artifact_id
+      - identifier
+      - loan_type
+      - requested_payment_date
+      backend_only: false
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - adjusted_maturity_date
+      - amount
+      - approved_at
+      - approved_by_user_id
+      - artifact_id
+      - closed_at
+      - company_id
+      - created_at
+      - disbursement_identifier
+      - funded_at
+      - funded_by_user_id
+      - id
+      - identifier
+      - is_deleted
+      - loan_type
+      - maturity_date
+      - modified_at
+      - modified_by_user_id
+      - notes
+      - origination_date
+      - outstanding_fees
+      - outstanding_interest
+      - outstanding_principal_balance
+      - payment_status
+      - rejected_at
+      - rejected_by_user_id
+      - rejection_note
+      - requested_at
+      - requested_by_user_id
+      - requested_payment_date
+      - status
+      - updated_at
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - adjusted_maturity_date
+      - amount
+      - approved_at
+      - approved_by_user_id
+      - artifact_id
+      - closed_at
+      - company_id
+      - created_at
+      - disbursement_identifier
+      - funded_at
+      - funded_by_user_id
+      - id
+      - identifier
+      - is_deleted
+      - loan_type
+      - maturity_date
+      - modified_at
+      - modified_by_user_id
+      - notes
+      - origination_date
+      - outstanding_fees
+      - outstanding_interest
+      - outstanding_principal_balance
+      - payment_status
+      - rejected_at
+      - rejected_by_user_id
+      - rejection_note
+      - requested_at
+      - requested_by_user_id
+      - requested_payment_date
+      - status
+      - updated_at
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - adjusted_maturity_date
+      - amount
+      - approved_at
+      - artifact_id
+      - closed_at
+      - company_id
+      - created_at
+      - disbursement_identifier
+      - funded_at
+      - id
+      - identifier
+      - is_deleted
+      - loan_type
+      - maturity_date
+      - notes
+      - origination_date
+      - outstanding_fees
+      - outstanding_interest
+      - outstanding_principal_balance
+      - payment_status
+      - rejected_at
+      - rejection_note
+      - requested_at
+      - requested_by_user_id
+      - requested_payment_date
+      - status
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - adjusted_maturity_date
+      - amount
+      - approved_at
+      - artifact_id
+      - closed_at
+      - company_id
+      - created_at
+      - disbursement_identifier
+      - funded_at
+      - id
+      - identifier
+      - is_deleted
+      - loan_type
+      - maturity_date
+      - notes
+      - origination_date
+      - outstanding_fees
+      - outstanding_interest
+      - outstanding_principal_balance
+      - payment_status
+      - rejected_at
+      - rejection_note
+      - requested_at
+      - requested_by_user_id
+      - requested_payment_date
+      - status
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  update_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - amount
+      - notes
+      - rejection_note
+      - requested_payment_date
+      filter: {}
+      check: null
+  - role: company_admin
+    permission:
+      columns:
+      - amount
+      - notes
+      - requested_payment_date
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+      check: null
+  event_triggers:
+  - name: loans_changed
+    definition:
+      enable_manual: true
+      insert:
+        columns: '*'
+      delete:
+        columns: '*'
+      update:
+        columns:
+        - adjusted_maturity_date
+        - maturity_date
+        - amount
+        - outstanding_fees
+        - outstanding_interest
+        - outstanding_principal_balance
+        - identifier
+        - loan_type
+        - notes
+        - rejection_note
+        - approved_at
+        - closed_at
+        - created_at
+        - funded_at
+        - modified_at
+        - rejected_at
+        - requested_at
+        - updated_at
+        - approved_by_user_id
+        - artifact_id
+        - company_id
+        - funded_by_user_id
+        - id
+        - modified_by_user_id
+        - rejected_by_user_id
+        - requested_by_user_id
+        - payment_status
+        - status
+        - origination_date
+        - requested_payment_date
+    retry_conf:
+      num_retries: 0
+      interval_sec: 10
+      timeout_sec: 60
+    webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/set_dirty_company_balances_view'
+    headers:
+    - name: x-api-key
+      value_from_env: ASYNC_SERVER_API_KEY
+- table:
+    schema: public
+    name: metrc_api_keys
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - company_id
+      - created_at
+      - id
+      - is_functioning
+      - last_used_at
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - company_id
+      - created_at
+      - id
+      - is_functioning
+      - last_used_at
+      filter: {}
+- table:
+    schema: public
+    name: metrc_packages
+  object_relationships:
+  - name: metrc_transfer
+    using:
+      foreign_key_constraint_on: transfer_id
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - id
+      - package_id
+      - transfer_id
+      - delivery_id
+      - label
+      - type
+      - product_name
+      - package_payload
+      - lab_results_payload
+      - lab_results_status
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - lab_results_payload
+      - package_payload
+      - delivery_id
+      - label
+      - lab_results_status
+      - package_id
+      - product_name
+      - type
+      - id
+      - transfer_id
+      filter: {}
+- table:
+    schema: public
+    name: metrc_transfers
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  - name: company_license
+    using:
+      foreign_key_constraint_on: license_id
+  array_relationships:
+  - name: metrc_packages
+    using:
+      foreign_key_constraint_on:
+        column: transfer_id
+        table:
+          schema: public
+          name: metrc_packages
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - id
+      - company_id
+      - license_id
+      - created_date
+      - delivery_id
+      - manifest_number
+      - transfer_payload
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - created_date
+      - transfer_payload
+      - delivery_id
+      - manifest_number
+      - company_id
+      - id
+      - license_id
+      filter: {}
+- table:
+    schema: public
+    name: payments
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  - name: company_bank_account
+    using:
+      foreign_key_constraint_on: company_bank_account_id
+  - name: invoice
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: invoices
+        column_mapping:
+          id: payment_id
+  - name: settled_by_user
+    using:
+      foreign_key_constraint_on: settled_by_user_id
+  - name: submitted_by_user
+    using:
+      foreign_key_constraint_on: submitted_by_user_id
+  array_relationships:
+  - name: transactions
+    using:
+      foreign_key_constraint_on:
+        column: payment_id
+        table:
+          schema: public
+          name: transactions
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - amount
+      - bank_note
+      - company_bank_account_id
+      - company_id
+      - created_at
+      - customer_note
+      - deposit_date
+      - id
+      - identifier
+      - is_deleted
+      - items_covered
+      - method
+      - originating_payment_id
+      - payment_date
+      - requested_amount
+      - requested_by_user_id
+      - requested_payment_date
+      - settled_at
+      - settled_by_user_id
+      - settlement_date
+      - settlement_identifier
+      - submitted_at
+      - submitted_by_user_id
+      - type
+      - updated_at
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - amount
+      - bank_note
+      - company_bank_account_id
+      - company_id
+      - created_at
+      - customer_note
+      - deposit_date
+      - id
+      - identifier
+      - is_deleted
+      - items_covered
+      - method
+      - originating_payment_id
+      - payment_date
+      - requested_amount
+      - requested_by_user_id
+      - requested_payment_date
+      - settled_at
+      - settled_by_user_id
+      - settlement_date
+      - settlement_identifier
+      - submitted_at
+      - submitted_by_user_id
+      - type
+      - updated_at
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - amount
+      - company_bank_account_id
+      - company_id
+      - created_at
+      - customer_note
+      - deposit_date
+      - id
+      - identifier
+      - is_deleted
+      - items_covered
+      - method
+      - originating_payment_id
+      - payment_date
+      - requested_amount
+      - requested_by_user_id
+      - requested_payment_date
+      - settled_at
+      - settlement_date
+      - settlement_identifier
+      - submitted_at
+      - submitted_by_user_id
+      - type
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - amount
+      - company_bank_account_id
+      - company_id
+      - created_at
+      - customer_note
+      - deposit_date
+      - id
+      - identifier
+      - is_deleted
+      - items_covered
+      - method
+      - originating_payment_id
+      - payment_date
+      - requested_amount
+      - requested_by_user_id
+      - requested_payment_date
+      - settled_at
+      - settlement_date
+      - settlement_identifier
+      - submitted_at
+      - submitted_by_user_id
+      - type
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  event_triggers:
+  - name: payments_changed
+    definition:
+      enable_manual: true
+      insert:
+        columns: '*'
+      delete:
+        columns: '*'
+      update:
+        columns:
+        - method
+        - type
+        - created_at
+        - updated_at
+        - company_bank_account_id
+        - company_id
+        - id
+        - settled_by_user_id
+        - submitted_by_user_id
+        - items_covered
+        - requested_amount
+        - amount
+        - requested_payment_date
+        - deposit_date
+        - payment_date
+        - settlement_date
+        - requested_by_user_id
+        - settled_at
+        - submitted_at
+    retry_conf:
+      num_retries: 0
+      interval_sec: 10
+      timeout_sec: 60
+    webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/set_dirty_company_balances_view'
+    headers:
+    - name: x-api-key
+      value_from_env: ASYNC_SERVER_API_KEY
+- table:
+    schema: public
+    name: payors
+  object_relationships:
+  - name: settings
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: company_settings
+        column_mapping:
+          company_settings_id: id
+  array_relationships:
+  - name: company_payor_partnerships
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: company_payor_partnerships
+        column_mapping:
+          id: payor_id
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - id
+      - name
+      - employer_identification_number
+      - address
+      - country
+      - state
+      - city
+      - zip_code
+      - created_at
+      - updated_at
+      - dba_name
+      - phone_number
+      - company_settings_id
+      - contract_id
+      - identifier
+      - latest_loan_identifier
+      - needs_balance_recomputed
+      - company_type
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - needs_balance_recomputed
+      - latest_loan_identifier
+      - address
+      - city
+      - company_type
+      - country
+      - dba_name
+      - employer_identification_number
+      - identifier
+      - name
+      - phone_number
+      - state
+      - zip_code
+      - created_at
+      - updated_at
+      - company_settings_id
+      - contract_id
+      - id
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - address
+      - dba_name
+      - id
+      - name
+      - phone_number
+      filter:
+        company_payor_partnerships:
+          company_id:
+            _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - address
+      - dba_name
+      - id
+      - name
+      - phone_number
+      filter:
+        company_payor_partnerships:
+          company_id:
+            _eq: X-Hasura-Company-Id
+  - role: invoice_reviewer
+    permission:
+      columns:
+      - address
+      - company_settings_id
+      - dba_name
+      - id
+      - name
+      - phone_number
+      filter:
+        id:
+          _eq: X-Hasura-Company-Id
+  update_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - needs_balance_recomputed
+      - latest_loan_identifier
+      - address
+      - city
+      - company_type
+      - country
+      - dba_name
+      - employer_identification_number
+      - identifier
+      - name
+      - phone_number
+      - state
+      - zip_code
+      - created_at
+      - updated_at
+      - company_settings_id
+      - contract_id
+      - id
+      filter: {}
+      check: null
+  delete_permissions:
+  - role: bank_admin
+    permission:
+      filter: {}
+- table:
+    schema: public
+    name: product_type
+  is_enum: true
+- table:
+    schema: public
+    name: purchase_order_file_type
+  is_enum: true
+- table:
+    schema: public
+    name: purchase_order_files
+  object_relationships:
+  - name: file
+    using:
+      foreign_key_constraint_on: file_id
+  - name: purchase_order
+    using:
+      foreign_key_constraint_on: purchase_order_id
+  insert_permissions:
+  - role: bank_admin
+    permission:
+      check: {}
+      columns:
+      - file_id
+      - file_type
+      - purchase_order_id
+      backend_only: false
+  - role: company_admin
+    permission:
+      check:
+        purchase_order:
+          _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - vendor_id:
+              _eq: X-Hasura-Company-Id
+      columns:
+      - file_id
+      - file_type
+      - purchase_order_id
+      backend_only: false
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - file_id
+      - file_type
+      - purchase_order_id
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - file_id
+      - file_type
+      - purchase_order_id
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - file_id
+      - file_type
+      - purchase_order_id
+      filter:
+        purchase_order:
+          _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - vendor_id:
+              _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - file_id
+      - file_type
+      - purchase_order_id
+      filter:
+        purchase_order:
+          _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - vendor_id:
+              _eq: X-Hasura-Company-Id
+  - role: purchase_order_reviewer
+    permission:
+      columns:
+      - file_id
+      - file_type
+      - purchase_order_id
+      filter:
+        purchase_order:
+          vendor_id:
+            _eq: X-Hasura-Company-Id
+  delete_permissions:
+  - role: bank_admin
+    permission:
+      filter: {}
+  - role: company_admin
+    permission:
+      filter:
+        purchase_order:
+          _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - vendor_id:
+              _eq: X-Hasura-Company-Id
+- table:
+    schema: public
+    name: purchase_orders
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  - name: vendor
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: vendors
+        column_mapping:
+          vendor_id: id
+  array_relationships:
+  - name: loans
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: loans
+        column_mapping:
+          id: artifact_id
+  - name: purchase_order_files
+    using:
+      foreign_key_constraint_on:
+        column: purchase_order_id
+        table:
+          schema: public
+          name: purchase_order_files
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - amount
+      - approved_at
+      - bank_rejection_note
+      - company_id
+      - created_at
+      - delivery_date
+      - funded_at
+      - id
+      - is_cannabis
+      - is_deleted
+      - order_date
+      - order_number
+      - rejected_at
+      - rejection_note
+      - requested_at
+      - status
+      - updated_at
+      - vendor_id
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - amount
+      - approved_at
+      - bank_rejection_note
+      - company_id
+      - created_at
+      - delivery_date
+      - funded_at
+      - id
+      - is_cannabis
+      - is_deleted
+      - order_date
+      - order_number
+      - rejected_at
+      - rejection_note
+      - requested_at
+      - status
+      - updated_at
+      - vendor_id
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - amount
+      - approved_at
+      - bank_rejection_note
+      - company_id
+      - created_at
+      - delivery_date
+      - funded_at
+      - id
+      - is_cannabis
+      - is_deleted
+      - order_date
+      - order_number
+      - rejection_note
+      - requested_at
+      - status
+      - updated_at
+      - vendor_id
+      filter:
+        _or:
+        - company_id:
+            _eq: X-Hasura-Company-Id
+        - vendor_id:
+            _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - amount
+      - approved_at
+      - bank_rejection_note
+      - company_id
+      - created_at
+      - delivery_date
+      - funded_at
+      - id
+      - is_cannabis
+      - is_deleted
+      - order_date
+      - order_number
+      - rejection_note
+      - requested_at
+      - status
+      - updated_at
+      - vendor_id
+      filter:
+        _or:
+        - company_id:
+            _eq: X-Hasura-Company-Id
+        - vendor_id:
+            _eq: X-Hasura-Company-Id
+  - role: purchase_order_reviewer
+    permission:
+      columns:
+      - amount
+      - approved_at
+      - company_id
+      - created_at
+      - delivery_date
+      - id
+      - is_cannabis
+      - is_deleted
+      - order_date
+      - order_number
+      - rejected_at
+      - rejection_note
+      - requested_at
+      - status
+      - updated_at
+      - vendor_id
+      filter:
+        vendor_id:
+          _eq: X-Hasura-Company-Id
+  update_permissions:
+  - role: purchase_order_reviewer
+    permission:
+      columns:
+      - approved_at
+      - rejected_at
+      - rejection_note
+      filter:
+        vendor_id:
+          _eq: X-Hasura-Company-Id
+      check: null
+- table:
+    schema: public
+    name: request_status
+  is_enum: true
+- table:
+    schema: public
+    name: revoked_tokens
+- table:
+    schema: public
+    name: transactions
+  object_relationships:
+  - name: loan
+    using:
+      foreign_key_constraint_on: loan_id
+  - name: payment
+    using:
+      foreign_key_constraint_on: payment_id
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - amount
+      - created_at
+      - created_by_user_id
+      - effective_date
+      - id
+      - is_deleted
+      - loan_id
+      - modified_at
+      - modified_by_user_id
+      - payment_id
+      - subtype
+      - to_fees
+      - to_interest
+      - to_principal
+      - type
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - amount
+      - created_at
+      - created_by_user_id
+      - effective_date
+      - id
+      - is_deleted
+      - loan_id
+      - modified_at
+      - modified_by_user_id
+      - payment_id
+      - subtype
+      - to_fees
+      - to_interest
+      - to_principal
+      - type
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - amount
+      - created_at
+      - effective_date
+      - id
+      - is_deleted
+      - loan_id
+      - payment_id
+      - subtype
+      - to_fees
+      - to_interest
+      - to_principal
+      - type
+      filter:
+        payment:
+          company_id:
+            _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - amount
+      - created_at
+      - effective_date
+      - id
+      - is_deleted
+      - loan_id
+      - payment_id
+      - subtype
+      - to_fees
+      - to_interest
+      - to_principal
+      - type
+      filter:
+        payment:
+          company_id:
+            _eq: X-Hasura-Company-Id
+- table:
+    schema: public
+    name: two_factor_links
+- table:
+    schema: public
+    name: user_roles
+  is_enum: true
+- table:
+    schema: public
+    name: users
+  object_relationships:
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - company_id
+      - created_at
+      - email
+      - first_name
+      - full_name
+      - id
+      - last_name
+      - phone_number
+      - role
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - company_id
+      - created_at
+      - email
+      - first_name
+      - full_name
+      - id
+      - last_name
+      - phone_number
+      - role
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - company_id
+      - created_at
+      - email
+      - first_name
+      - full_name
+      - id
+      - last_name
+      - phone_number
+      - role
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - company_id
+      - created_at
+      - email
+      - first_name
+      - full_name
+      - id
+      - last_name
+      - phone_number
+      - role
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+  update_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - email
+      - first_name
+      - last_name
+      - phone_number
+      - role
+      filter: {}
+      check: null
+  - role: company_admin
+    permission:
+      columns:
+      - first_name
+      - last_name
+      - phone_number
+      filter:
+        company_id:
+          _eq: X-Hasura-Company-Id
+      check: null
+- table:
+    schema: public
+    name: vendors
+  array_relationships:
+  - name: company_vendor_partnerships
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: company_vendor_partnerships
+        column_mapping:
+          id: vendor_id
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - id
+      - name
+      - employer_identification_number
+      - address
+      - country
+      - state
+      - city
+      - zip_code
+      - created_at
+      - updated_at
+      - dba_name
+      - phone_number
+      - company_settings_id
+      - contract_id
+      - identifier
+      - latest_loan_identifier
+      - needs_balance_recomputed
+      - company_type
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - needs_balance_recomputed
+      - latest_loan_identifier
+      - address
+      - city
+      - company_type
+      - country
+      - dba_name
+      - employer_identification_number
+      - identifier
+      - name
+      - phone_number
+      - state
+      - zip_code
+      - created_at
+      - updated_at
+      - company_settings_id
+      - contract_id
+      - id
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - address
+      - dba_name
+      - id
+      - name
+      - phone_number
+      filter:
+        company_vendor_partnerships:
+          company_id:
+            _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - address
+      - dba_name
+      - id
+      - name
+      - phone_number
+      filter:
+        company_vendor_partnerships:
+          company_id:
+            _eq: X-Hasura-Company-Id
+  - role: purchase_order_reviewer
+    permission:
+      columns:
+      - address
+      - dba_name
+      - id
+      - name
+      - phone_number
+      filter:
+        id:
+          _eq: X-Hasura-Company-Id
+  update_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - needs_balance_recomputed
+      - latest_loan_identifier
+      - address
+      - city
+      - company_type
+      - country
+      - dba_name
+      - employer_identification_number
+      - identifier
+      - name
+      - phone_number
+      - state
+      - zip_code
+      - created_at
+      - updated_at
+      - company_settings_id
+      - contract_id
+      - id
+      filter: {}
+      check: null
+  delete_permissions:
+  - role: bank_admin
+    permission:
+      filter: {}

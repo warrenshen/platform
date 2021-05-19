@@ -1,0 +1,1 @@
+COMMENT ON COLUMN "public"."two_factor_links"."token_states" IS E'One link_id may have been sent to many emails. So we want to keep track of each email and what two-factor code they may need to enter separately as a key in this dictionary.';

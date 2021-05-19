@@ -1,0 +1,2 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE TABLE "public"."purchase_order_files"("id" uuid NOT NULL DEFAULT gen_random_uuid(), "purchase_order_id" uuid NOT NULL, "file_id" uuid NOT NULL, PRIMARY KEY ("id") , FOREIGN KEY ("file_id") REFERENCES "public"."files"("id") ON UPDATE restrict ON DELETE restrict, FOREIGN KEY ("purchase_order_id") REFERENCES "public"."purchase_orders"("id") ON UPDATE restrict ON DELETE restrict, UNIQUE ("id")); COMMENT ON TABLE "public"."purchase_order_files" IS E'Files attached to purchase orders';

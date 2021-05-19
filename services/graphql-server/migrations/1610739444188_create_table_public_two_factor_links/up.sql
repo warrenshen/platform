@@ -1,0 +1,2 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE TABLE "public"."two_factor_links"("id" uuid NOT NULL DEFAULT gen_random_uuid(), "form_info" JSON NOT NULL DEFAULT json_build_object(), "expires_at" timestamptz NOT NULL, "token_states" JSON DEFAULT json_build_object(), PRIMARY KEY ("id") , UNIQUE ("id")); COMMENT ON TABLE "public"."two_factor_links" IS E'Links that are secured behind two factor auth';

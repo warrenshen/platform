@@ -10,6 +10,7 @@ COPY wait-for-it.sh .
 # to small "started / finished" and avoid 1000s of lines of progress messages
 # https://github.com/cypress-io/cypress/issues/1243
 ENV CI=1
+ENV NODE_ENV=development
 RUN yarn install
 
 # verify that Cypress has been installed correctly.

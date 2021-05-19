@@ -1,0 +1,1 @@
+CREATE TABLE "public"."line_of_credits"("id" uuid NOT NULL, "recipient_vendor_id" uuid, "is_credit_for_vendor" boolean NOT NULL, PRIMARY KEY ("id") , FOREIGN KEY ("recipient_vendor_id") REFERENCES "public"."companies"("id") ON UPDATE restrict ON DELETE restrict);

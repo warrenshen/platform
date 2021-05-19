@@ -1,0 +1,2 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE TABLE "public"."metrc_packages"("id" uuid NOT NULL DEFAULT gen_random_uuid(), "package_id" text NOT NULL, "transfer_id" uuid NOT NULL, "delivery_id" text NOT NULL, "label" text NOT NULL, "type" text NOT NULL, "product_name" text NOT NULL, "package_payload" json NOT NULL, "lab_results_payload" json NOT NULL, "lab_results_status" text NOT NULL, PRIMARY KEY ("id") , FOREIGN KEY ("transfer_id") REFERENCES "public"."metrc_transfers"("id") ON UPDATE restrict ON DELETE restrict, UNIQUE ("id"), UNIQUE ("package_id"));

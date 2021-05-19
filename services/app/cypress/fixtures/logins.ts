@@ -6,6 +6,9 @@ export const users = {
     inventoryFinancing: {
       admin: "inventoryfinancing@customer.com",
     },
+    lineOfCredit: {
+      admin: "lineofcredit@customer.com",
+    },
   },
 };
 

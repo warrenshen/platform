@@ -1,0 +1,1 @@
+CREATE TABLE "public"."purchase_order_file_type"("value" text NOT NULL, "display_name" text NOT NULL, PRIMARY KEY ("value") , UNIQUE ("value")); COMMENT ON TABLE "public"."purchase_order_file_type" IS E'Enum for PurchaseOrderFile types';

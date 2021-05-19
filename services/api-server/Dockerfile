@@ -8,4 +8,4 @@ ENV PYTHONPATH=/app/src/
 
 EXPOSE 7000
 
-CMD ["make", "run-local-cypress"]
+CMD make run-local-cypress

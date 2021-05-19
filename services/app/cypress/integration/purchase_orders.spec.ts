@@ -1,17 +1,25 @@
 describe("Create inventory financing customer", () => {
-  it("can create customer", () => {
-    if (Cypress.env("isDocker") === true) {
-      cy.wait(5 * 60 * 1000);
+  it(
+    "can create customer",
+    {
+      retries: {
+        runMode: 5,
+      },
+    },
+    () => {
+      if (Cypress.env("isDocker") === true) {
+        cy.wait(1 * 60 * 1000);
+      }
+
+      cy.resetDatabase();
+      cy.loginBankAdmin();
+
+      cy.dataCy("sidebar-item-customers").click();
+      cy.url().should("include", "customers");
+
+      cy.dataCy("create-customer-button").click();
     }
-
-    cy.resetDatabase();
-    cy.loginBankAdmin();
-
-    cy.dataCy("sidebar-item-customers").click();
-    cy.url().should("include", "customers");
-
-    cy.dataCy("create-customer-button").click();
-  });
+  );
 });
 
 describe("Create purchase order", () => {

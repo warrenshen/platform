@@ -7,4 +7,4 @@ ENV PYTHONPATH=/app/src/
 
 EXPOSE 7001
 
-CMD ["make", "run-async-local"]
+CMD make run-async-local
