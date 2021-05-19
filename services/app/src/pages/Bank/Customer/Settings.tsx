@@ -1,11 +1,13 @@
 import { Box } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
+import MetrcApiKeys from "components/Settings/Bank/MetrcApiKeys";
 import CustomerSettings from "components/Settings/CustomerSettings";
 import CollectionsBank from "components/Shared/BespokeBankAssignment/CollectionsBank";
 import PageContent from "components/Shared/Page/PageContent";
 import {
   CompanySettingsFragment,
   ContractFragment,
+  MetrcApiKeyFragment,
   useCompanyQuery,
 } from "generated/graphql";
 
@@ -24,6 +26,8 @@ function BankCustomerSettingsSubpage({ companyId }: Props) {
   const company = data?.companies_by_pk;
   const settings = data?.companies_by_pk?.settings as CompanySettingsFragment;
   const contract = data?.companies_by_pk?.contract as ContractFragment;
+  const metrcApiKey = data?.companies_by_pk?.settings
+    ?.metrc_api_key as MetrcApiKeyFragment;
 
   return company ? (
     <PageContent title={"Settings"}>
@@ -50,6 +54,12 @@ function BankCustomerSettingsSubpage({ companyId }: Props) {
                 company.settings?.collections_bespoke_bank_account || undefined
               }
             />
+          </Box>
+        </Box>
+        <Box>
+          <h4>Metrc API Keys</h4>
+          <Box display="flex">
+            <MetrcApiKeys metrcApiKey={metrcApiKey}></MetrcApiKeys>
           </Box>
         </Box>
       </Box>

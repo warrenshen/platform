@@ -42,6 +42,13 @@ fragment CompanySettings on company_settings {
   two_factor_message_method
 }
 
+fragment MetrcApiKey on metrc_api_keys {
+  id
+  created_at
+  last_used_at
+  is_functioning
+}
+
 ## Purchase Order Financing
 
 fragment Vendor on companies {

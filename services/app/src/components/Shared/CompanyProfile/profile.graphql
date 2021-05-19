@@ -9,6 +9,9 @@ query Company($companyId: uuid!) {
       collections_bespoke_bank_account {
         ...BankAccount
       }
+      metrc_api_key {
+        ...MetrcApiKey
+      }
     }
     contract {
       ...Contract
