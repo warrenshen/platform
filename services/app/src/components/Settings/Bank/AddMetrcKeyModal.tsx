@@ -49,7 +49,7 @@ function AddMetrcKeyModal({ companySettingsId, handleClose }: Props) {
     const response = await addApiKey({
       variables: {
         company_settings_id: companySettingsId,
-        api_key: apiKey,
+        api_key: apiKey.trim(),
       },
     });
 

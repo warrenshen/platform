@@ -118,6 +118,7 @@ export const twoFactorRoutes = {
 export const metrcRoutes = {
   getTransfers: "/metrc/get_transfers",
   addApiKey: "/metrc/add_api_key",
+  viewApiKey: "/metrc/view_api_key",
 };
 
 const api = axios.create({

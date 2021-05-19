@@ -169,6 +169,27 @@ def add_api_key(
 
 	return True, None
 
+@errors.return_error_tuple
+def view_api_key(
+	metrc_api_key_id: str, 
+	security_cfg: security_util.ConfigDict, 
+	session: Session
+) -> Tuple[str, errors.Error]:
+	metrc_api_key = cast(
+		models.MetrcApiKey,
+		session.query(models.MetrcApiKey).filter(
+			models.MetrcApiKey.id == metrc_api_key_id
+		).first())
+
+	if not metrc_api_key:
+		raise errors.Error('No metrc api key found, so we could not present the underlying key')
+
+	api_key = security_util.decode_secret_string(
+		security_cfg, metrc_api_key.encrypted_api_key
+	)
+	
+	return api_key, None
+
 def main() -> None:
 	load_dotenv(os.path.join(os.environ.get('SERVER_ROOT_DIR'), '.env'))
 

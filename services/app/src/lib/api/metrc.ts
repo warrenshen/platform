@@ -67,7 +67,30 @@ export async function addApiKeyMutation(req: {
         console.log("error", error);
         return {
           status: "ERROR",
-          msg: "Could not get transfers",
+          msg: "Could not add api key",
+        };
+      }
+    );
+}
+
+export async function viewApiKey(req: {
+  variables: {
+    metrc_api_key_id: string;
+  };
+}): Promise<{
+  status: string;
+  api_key: string;
+}> {
+  return authenticatedApi
+    .post(metrcRoutes.viewApiKey, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not view api key",
         };
       }
     );
