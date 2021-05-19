@@ -178,6 +178,7 @@ class CompanySettings(Base):
 	has_autofinancing = Column(Boolean)
 	two_factor_message_method = Column(Text)
 	active_ebba_application_id = cast(GUID, Column(GUID, ForeignKey('ebba_applications.id')))
+	metrc_api_key_id = cast(GUID, Column(GUID, ForeignKey('metrc_api_keys.id')))
 
 	def as_dict(self) -> CompanySettingsDict:
 		return CompanySettingsDict(
@@ -287,6 +288,19 @@ def float_or_null(val: Optional[decimal.Decimal]) -> float:
 
 	return float(val)
 
+## Metrc
+
+class MetrcApiKey(Base):
+	__tablename__ = 'metrc_api_keys'
+
+	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	encrypted_api_key = Column(String)
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	last_used_at = Column(DateTime)
+	is_functioning = Column(Boolean)
+
+## End Metrc
 
 class Artifact(Base):
 	__abstract__ = True

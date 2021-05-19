@@ -59,7 +59,10 @@ function BankCustomerSettingsSubpage({ companyId }: Props) {
         <Box>
           <h4>Metrc API Keys</h4>
           <Box display="flex">
-            <MetrcApiKeys metrcApiKey={metrcApiKey}></MetrcApiKeys>
+            <MetrcApiKeys
+              metrcApiKey={metrcApiKey}
+              companySettingsId={settings?.id}
+            ></MetrcApiKeys>
           </Box>
         </Box>
       </Box>

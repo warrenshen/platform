@@ -25,7 +25,6 @@ ConfigDict = TypedDict('ConfigDict', {
 def get_secure_link(cfg: ConfigDict, two_factor_row_id: str) -> str:
 	return cfg['BESPOKE_DOMAIN'] + '/get-secure-link?val=' + two_factor_row_id
 
-
 def get_url_serializer(cfg: ConfigDict) -> URLSafeTimedSerializer:
 	secret_key = cfg['URL_SECRET_KEY']
 	signer_kwargs = dict(key_derivation='hmac', digest_method=hashlib.sha256)
@@ -33,6 +32,11 @@ def get_url_serializer(cfg: ConfigDict) -> URLSafeTimedSerializer:
 		secret_key, salt=cfg['URL_SALT'], signer_kwargs=signer_kwargs
 	)
 
+def encode_secret_string(cfg: ConfigDict, original_string: str) -> str:
+	return get_url_serializer(cfg).dumps(original_string)
+
+def decode_secret_string(cfg: ConfigDict, encoded_string: str) -> str:
+	return get_url_serializer(cfg).loads(encoded_string)
 
 def get_link_info_from_url(val: str, cfg: ConfigDict, max_age_in_seconds: int) -> Tuple[LinkInfoDict, errors.Error]:
 	url_serializer = get_url_serializer(cfg)

@@ -8260,8 +8260,8 @@ export type MetrcApiKeys = {
   created_at: Scalars["timestamp"];
   encrypted_api_key: Scalars["String"];
   id: Scalars["uuid"];
-  is_functioning: Scalars["Boolean"];
-  last_used_at: Scalars["timestamptz"];
+  is_functioning?: Maybe<Scalars["Boolean"]>;
+  last_used_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** aggregated selection of "metrc_api_keys" */

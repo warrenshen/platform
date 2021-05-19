@@ -1,12 +1,17 @@
 import base64
 import os
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, cast
 
 import requests
 from dateutil import parser
 from dotenv import load_dotenv
 from mypy_extensions import TypedDict
 from requests.auth import HTTPBasicAuth
+from sqlalchemy.orm.session import Session
+
+from bespoke import errors
+from bespoke.db import models
+from bespoke.security import security_util
 
 AuthDict = TypedDict('AuthDict', {
 	'vendor_key': str,
@@ -135,6 +140,34 @@ class REST(object):
 				raise Exception('Code: {}. Reason: {}. Response: {}'.format(resp.status_code, resp.reason, resp.content.decode('utf-8')))
 
 		return resp
+
+@errors.return_error_tuple
+def add_api_key(
+	api_key: str, 
+	company_settings_id: str, 
+	security_cfg: security_util.ConfigDict, 
+	session: Session
+) -> Tuple[bool, errors.Error]:
+	company_settings = cast(
+		models.CompanySettings,
+		session.query(models.CompanySettings).filter(
+			models.CompanySettings.id == company_settings_id
+		).first())
+
+	if not company_settings:
+		raise errors.Error('No company settings found, so we could not save the Metrc API key')
+
+	metrc_api_key = models.MetrcApiKey()
+	metrc_api_key.encrypted_api_key = security_util.encode_secret_string(
+		security_cfg, api_key
+	)
+	metrc_api_key.company_id = company_settings.company_id
+	session.add(metrc_api_key)
+	session.flush()
+
+	company_settings.metrc_api_key_id = metrc_api_key.id
+
+	return True, None
 
 def main() -> None:
 	load_dotenv(os.path.join(os.environ.get('SERVER_ROOT_DIR'), '.env'))

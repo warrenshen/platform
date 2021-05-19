@@ -51,3 +51,24 @@ export async function getTransfersMutation(
       }
     );
 }
+
+export async function addApiKeyMutation(req: {
+  variables: {
+    company_settings_id: string;
+    api_key: string;
+  };
+}): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(metrcRoutes.addApiKey, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not get transfers",
+        };
+      }
+    );
+}
