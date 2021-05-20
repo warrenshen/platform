@@ -1,5 +1,4 @@
 # https://github.com/hasura/graphql-engine/issues/4651#issuecomment-637506254
-
 FROM hasura/graphql-engine:v1.3.3.cli-migrations-v2
 
 ENV HASURA_GRAPHQL_CLI_ENVIRONMENT=default
