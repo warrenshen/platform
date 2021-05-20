@@ -175,6 +175,7 @@ def calculate_repayment_effect(
 
 	# Figure out how much is due by a particular date
 	loan_dicts = []
+	artifact_id_to_invoice_dict = {}
 
 	with session_scope(session_maker) as session:
 		loans = []
@@ -220,9 +221,12 @@ def calculate_repayment_effect(
 				raise errors.Error('Some selected loans are closed already')
 
 		selected_loan_ids = set([])
+		artifact_ids = []
 		for loan in loans:
 			selected_loan_ids.add(str(loan.id))
 			loan_dicts.append(loan.as_dict())
+			if loan.artifact_id:
+				artifact_ids.append(str(loan.artifact_id))
 
 		loans_past_due = cast(
 			List[models.Loan],
@@ -240,6 +244,8 @@ def calculate_repayment_effect(
 			past_due_loan_id = str(loan_past_due.id)
 			loans_past_due_ids.add(past_due_loan_id)
 			loans_past_due_dicts.append(loan_past_due.as_dict())
+			if loan_past_due.artifact_id:
+				artifact_ids.append(str(loan_past_due.artifact_id))
 
 		# Get transactions associated with all the loans selected.
 		all_loan_ids = selected_loan_ids.union(loans_past_due_ids)
@@ -249,6 +255,16 @@ def calculate_repayment_effect(
 				models.Transaction.loan_id.in_(all_loan_ids)
 			).all())
 
+		invoices = cast(
+			List[models.Invoice],
+			session.query(models.Invoice).filter(
+				models.Invoice.id.in_(artifact_ids)
+			).all()
+		)
+		if invoices:
+			for inv in invoices:
+				artifact_id_to_invoice_dict[str(inv.id)] = inv.as_dict()
+			
 		# Get the payments associated with the loan
 		all_transaction_dicts = []
 		all_payment_ids = []
@@ -320,9 +336,11 @@ def calculate_repayment_effect(
 		calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
 		transactions_for_loan = loan_calculator.get_transactions_for_loan(
 			loan_dict['id'], all_augmented_transactions)
+		invoice_dict = artifact_id_to_invoice_dict.get(loan_dict['artifact_id'])
 		calculate_result, errs = calculator.calculate_loan_balance(
 			threshold_info,
 			loan_dict,
+			invoice_dict,
 			transactions_for_loan,
 			report_date,
 			payment_to_include=payment_to_include
@@ -373,9 +391,13 @@ def calculate_repayment_effect(
 		calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator_past_due)
 		transactions_for_loan = loan_calculator.get_transactions_for_loan(
 			past_due_loan_id, all_augmented_transactions)
+
+		invoice_dict = artifact_id_to_invoice_dict.get(loan_past_due_dict['artifact_id'])
+
 		calculate_result, errs = calculator.calculate_loan_balance(
 			threshold_info,
 			loan_past_due_dict,
+			invoice_dict,
 			transactions_for_loan,
 			report_date
 		)
@@ -815,8 +837,23 @@ def settle_repayment(
 					loan.id, loan.origination_date, deposit_date))
 
 		loan_id_to_loan = {}
+		artifact_id_to_invoice_dict = {}
+		artifact_ids = []
+
 		for loan in loans:
 			loan_id_to_loan[str(loan.id)] = loan
+			if loan.artifact_id:
+				artifact_ids.append(str(loan.artifact_id))
+
+		invoices = cast(
+			List[models.Invoice],
+			session.query(models.Invoice).filter(
+				models.Invoice.id.in_(artifact_ids)
+			).all())
+
+		if invoices:
+			for inv in invoices:
+				artifact_id_to_invoice_dict[str(inv.id)] = inv.as_dict()
 
 		transactions = cast(
 			List[models.Transaction],
@@ -943,9 +980,12 @@ def settle_repayment(
 				calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
 				transactions_for_loan = loan_calculator.get_transactions_for_loan(
 					loan_dict['id'], all_augmented_transactions)
+				invoice_dict = None # Because we are dealing with LOC here
+
 				calculate_result, errs = calculator.calculate_loan_balance(
 					threshold_info,
 					loan_dict,
+					invoice_dict,
 					transactions_for_loan,
 					today=settlement_date,
 					payment_to_include=payment_to_include,
@@ -1032,9 +1072,12 @@ def settle_repayment(
 				calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
 				transactions_for_loan = loan_calculator.get_transactions_for_loan(
 					loan_dict['id'], all_augmented_transactions)
+				invoice_dict = artifact_id_to_invoice_dict.get(loan_dict['artifact_id'])
+
 				calculate_result, errs = calculator.calculate_loan_balance(
 					threshold_info,
 					loan_dict,
+					invoice_dict,
 					transactions_for_loan,
 					today=settlement_date,
 					payment_to_include=payment_to_include,

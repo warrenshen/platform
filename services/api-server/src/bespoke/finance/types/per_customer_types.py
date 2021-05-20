@@ -8,13 +8,14 @@ from typing import List
 from bespoke.db.models import (
 	AugmentedTransactionDict,
 	ContractDict, CompanyDict, CompanySettingsDict,
-	LoanDict, TransactionDict, PaymentDict, EbbaApplicationDict
+	LoanDict, TransactionDict, PaymentDict, EbbaApplicationDict, InvoiceDict
 )
 
 Financials = TypedDict('Financials', {
 	'contracts': List[ContractDict],
 	'loans': List[LoanDict],
 	'payments': List[PaymentDict],
+	'invoices': List[InvoiceDict],
 	'augmented_transactions': List[AugmentedTransactionDict],
 	'ebba_applications': List[EbbaApplicationDict],
 	'active_ebba_application': EbbaApplicationDict,

@@ -483,6 +483,7 @@ class Transaction(Base):
 LoanDict = TypedDict('LoanDict', {
 	'id': str,
 	'company_id': str,
+	'artifact_id': str,
 	'identifier': str,
 	'created_at': datetime.datetime,
 	'origination_date': datetime.date,
@@ -541,6 +542,7 @@ class Loan(Base):
 		return LoanDict(
 			id=str(self.id),
 			company_id=str(self.company_id),
+			artifact_id=str(self.artifact_id) if self.artifact_id else None,
 			identifier=self.identifier,
 			created_at=self.created_at,
 			origination_date=self.origination_date,

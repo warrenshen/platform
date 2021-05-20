@@ -11,7 +11,7 @@ from typing import Dict, List, NamedTuple, Tuple
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import models
+from bespoke.db import models, db_constants
 from bespoke.finance import contract_util, number_util
 from bespoke.finance.loans import fee_util
 from bespoke.finance.payments import payment_util
@@ -404,9 +404,11 @@ class LoanCalculator(object):
 			self, 
 			cur_date: datetime.date, 
 			loan: models.LoanDict,
+			invoice: models.InvoiceDict,
 			threshold_info: ThresholdInfoDict,
 			outstanding_principal: float,
-			outstanding_principal_for_interest: float
+			outstanding_principal_for_interest: float,
+			amount_paid_back_on_loan: float
 		) -> Tuple[InterestFeeInfoDict, errors.Error]:
 			cur_contract, err = self._contract_helper.get_contract(cur_date)
 			if err:
@@ -418,6 +420,10 @@ class LoanCalculator(object):
 				return None, err
 
 			cur_contract_start_date, err = cur_contract.get_start_date()
+			if err:
+				return None, err
+
+			product_type, err = cur_contract.get_product_type()
 			if err:
 				return None, err
 
@@ -453,13 +459,24 @@ class LoanCalculator(object):
 
 					interest_rate_used = reduced_interest_rate
 
-			if outstanding_principal_for_interest == 0:
+			is_invoice_financing = product_type == db_constants.ProductType.INVOICE_FINANCING
+			amount_to_pay_interest_on = None
+
+			if is_invoice_financing:
+				if not invoice:
+					return None, errors.Error('No invoice found associated with this loan, could not compute any financial details')
+
+				amount_to_pay_interest_on = max(0.0, invoice['subtotal_amount'] - amount_paid_back_on_loan)
+			else:
+				amount_to_pay_interest_on = outstanding_principal_for_interest
+
+			if amount_to_pay_interest_on == 0:
 				interest_rate_used = 0.0
-			elif number_util.round_currency(outstanding_principal_for_interest) < 0:
-				logging.warn(f'Outstanding principal for interest ({outstanding_principal_for_interest}) is negative on {cur_date} for loan {loan["id"]}')
+			elif number_util.round_currency(amount_to_pay_interest_on) < 0:
+				logging.warn(f'Amount to pay interest on ({amount_to_pay_interest_on}) is negative on {cur_date} for loan {loan["id"]}')
 				interest_due_for_day = 0.0
 
-			interest_due_for_day = interest_rate_used * outstanding_principal_for_interest
+			interest_due_for_day = interest_rate_used * amount_to_pay_interest_on
 			# If the customer does not have any outstanding principal, even though their principal for
 			# interest is accruing, dont charge any additional fees there.
 			has_outstanding_principal = number_util.float_gt(round(outstanding_principal, 2), 0.0)
@@ -475,6 +492,7 @@ class LoanCalculator(object):
 		self,
 		threshold_info: ThresholdInfoDict,
 		loan: models.LoanDict,
+		invoice: models.InvoiceDict, # Filled in if this loan is related to invoice financing
 		augmented_transactions: List[models.AugmentedTransactionDict],
 		today: datetime.date,
 		should_round_output: bool = True,
@@ -508,6 +526,7 @@ class LoanCalculator(object):
 		outstanding_fees = 0.0
 		interest_accrued_today = 0.0
 		has_been_funded = False
+		amount_paid_back_on_loan = 0.0
 
 		# Variables used to calculate the repayment effect
 		payment_effect_dict = None # Only filled in when payment_to_include is incorporated
@@ -570,10 +589,12 @@ class LoanCalculator(object):
 
 			interest_fee_info, err = self._get_interest_and_fees_due_on_day(
 				cur_date, 
-				loan, 
+				loan,
+				invoice,
 				threshold_info,
 				outstanding_principal=outstanding_principal,
-				outstanding_principal_for_interest=outstanding_principal_for_interest
+				outstanding_principal_for_interest=outstanding_principal_for_interest,
+				amount_paid_back_on_loan=amount_paid_back_on_loan
 			)
 			if err:
 				errors_list.append(err)
@@ -613,6 +634,7 @@ class LoanCalculator(object):
 					outstanding_principal -= tx['to_principal']
 					outstanding_interest -= tx['to_interest']
 					outstanding_fees -= tx['to_fees']
+					amount_paid_back_on_loan += tx['amount']
 
 			if payment_to_include and payment_to_include['deposit_date'] == cur_date:
 				# Incorporate this payment and snapshot what the state of the balance was
@@ -638,9 +660,11 @@ class LoanCalculator(object):
 					inner_interest_fee_info, err = self._get_interest_and_fees_due_on_day(
 						inner_cur_date,
 						loan,
+						invoice,
 						threshold_info,
 						outstanding_principal=outstanding_principal,
-						outstanding_principal_for_interest=outstanding_principal_for_interest
+						outstanding_principal_for_interest=outstanding_principal_for_interest,
+						amount_paid_back_on_loan=amount_paid_back_on_loan
 					)
 					if err:
 						inner_has_err = err
@@ -701,6 +725,7 @@ class LoanCalculator(object):
 				outstanding_principal -= inserted_repayment_transaction['to_principal']
 				outstanding_interest -= inserted_repayment_transaction['to_interest']
 				outstanding_fees -= inserted_repayment_transaction['to_fees']
+				amount_paid_back_on_loan += inserted_repayment_transaction['amount']
 
 				payment_effect_dict = PaymentEffectDict(
 					loan_state_before_payment=loan_state_before_payment,

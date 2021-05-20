@@ -276,6 +276,10 @@ class CustomerBalance(object):
 
 			loan_id_to_transactions[loan['id']] = transactions_for_loan
 
+		artifact_id_to_invoice = {}
+		for invoice in financials['invoices']:
+			artifact_id_to_invoice[invoice['id']] = invoice
+
 		# Calculate a summary for the factoring fee threshold
 		threshold_info, err = threshold_accumulator.compute_threshold_info(
 			report_date=today)
@@ -292,11 +296,13 @@ class CustomerBalance(object):
 				continue
 
 			transactions_for_loan = loan_id_to_transactions[loan['id']]
+			invoice = artifact_id_to_invoice.get(loan['artifact_id'])
 
 			calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
 			calculate_result, errors_list = calculator.calculate_loan_balance(
 				threshold_info,
 				loan,
+				invoice,
 				transactions_for_loan,
 				today,
 				should_round_output=False,

@@ -997,6 +997,173 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			self._run_test(test)
 			i += 1
 
+	def test_success_one_payment_one_loan_invoice_financing_past_due_with_account_balances(self) -> None:
+
+		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
+			session.add(models.Contract(
+				company_id=company_id,
+				product_type=ProductType.INVOICE_FINANCING,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.INVOICE_FINANCING,
+					input_dict=ContractInputDict(
+						interest_rate=0.002,
+						maximum_principal_amount=120000.01,
+						minimum_monthly_amount=1.03,
+						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure(),
+					)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('12/1/2020')
+			))
+			financial_summary = finance_test_helper.get_default_financial_summary(
+				total_limit=100.0,
+				available_limit=100.0
+			)
+			financial_summary.date = date_util.load_date_str('01/01/1960')
+			financial_summary.company_id = company_id
+			session.add(financial_summary)
+
+			invoice = models.Invoice()
+			invoice.company_id = cast(Any, company_id)
+			invoice.subtotal_amount = decimal.Decimal(430.02)
+			session.add(invoice)
+			session.flush()
+			artifact_id = str(invoice.id)
+
+			loan = models.Loan(
+				company_id=company_id,
+				origination_date=date_util.load_date_str('10/01/2020'),
+				adjusted_maturity_date=date_util.load_date_str('10/05/2020'),
+				amount=decimal.Decimal(500.03),
+				artifact_id=artifact_id
+			)
+			session.add(loan)
+			advance_tx = payment_test_helper.make_advance(
+				session, loan, amount=500.03,  payment_date='09/30/2020', effective_date='10/01/2020'
+			)
+
+			# A deleted loan and advance shouldnt affect the test either
+			loan2 = models.Loan(
+				company_id=company_id,
+				origination_date=date_util.load_date_str('10/01/2020'),
+				adjusted_maturity_date=date_util.load_date_str('10/05/2020'),
+				amount=decimal.Decimal(500.03)
+			)
+			session.add(loan2)
+			advance_tx2 = payment_test_helper.make_advance(
+				session, loan2, amount=500.03,  payment_date='09/30/2020', effective_date='10/01/2020'
+			)
+			loan2.is_deleted = True
+			advance_tx2.is_deleted
+
+			payment_test_helper.make_repayment(
+				session, loan,
+				to_principal=50.0,
+				to_interest=1.1, # they pay off some portion of the interest
+				to_fees=0.0,
+				payment_date='10/02/2020',
+				effective_date='10/03/2020'
+			)
+
+			# Because these transactions get deleted, these dont interrupt any of the financial
+			# calculations
+			cur_payment, cur_tx = payment_test_helper.make_repayment(
+				session, loan,
+				to_principal=50.0,
+				to_interest=3 * 0.002 * 500.03, # they are paying off 3 days worth of interest accrued here.
+				to_fees=0.0,
+				payment_date='10/02/2020',
+				effective_date='10/03/2020'
+			)
+			cur_payment.is_deleted = True
+			cur_tx.is_deleted = True
+
+		daily_interest_after_repayment = (430.02  - 51.1) * 0.002
+
+		tests: List[Dict] = [
+			# Due to invoice financing, the interest accrued is based on the difference
+			# between the subtotal on the invoice and the amount they have repaid on the loan
+			{
+				'today': '10/02/2020', # On the repayment payment date, you only reduce the outstanding principal balance
+				'populate_fn': populate_fn,
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('10/05/2020'),
+						'outstanding_principal': 450.03,
+						'outstanding_principal_for_interest': 500.03,
+						'outstanding_interest': number_util.round_currency(430.02 * 0.002 * 2 - 1.1), # They owe 2 days of interest, but pay off 3, so its -1 day of interest
+						'outstanding_fees': 0.0,
+						'interest_accrued_today': number_util.round_currency(430.02 * 0.002),
+						'should_close_loan': False
+					}
+				],
+				'expected_summary_update': {
+					'product_type': 'invoice_financing',
+					'total_limit': 120000.01,
+					'adjusted_total_limit': 120000.01,
+					'total_outstanding_principal': 450.03,
+					'total_outstanding_principal_for_interest': 500.03,
+					'total_outstanding_interest': number_util.round_currency(430.02 * 0.002 * 2 - 1.1),
+					'total_outstanding_fees': 0.0,
+					'total_principal_in_requested_state': 0.0,
+					'total_interest_accrued_today': number_util.round_currency(430.02 * 0.002),
+					'available_limit': 120000.01 - (450.03),
+					'minimum_monthly_payload': {
+							'minimum_amount': 1.03,
+							'amount_accrued': number_util.round_currency(2 * 0.002 * 430.02),
+							'amount_short': 0.0,
+							'duration': 'monthly'
+					},
+					'account_level_balance_payload': {
+							'fees_total': 0.0,
+							'credits_total': 0.0
+					},
+					'day_volume_threshold_met': None
+				}
+			},
+			{
+				'today': '10/03/2020',
+				'populate_fn': populate_fn,
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('10/05/2020'),
+						'outstanding_principal': 450.03,
+						'outstanding_principal_for_interest': 450.03,
+						# first_two_days_carryover + one_more_day which includes the 1.1 you already paid
+						'outstanding_interest': number_util.round_currency((430.02 * 0.002 * 2 - 1.1) + ((430.02  - 51.1) * 0.002 * 1)),
+						'outstanding_fees': 0.0,
+						'interest_accrued_today': number_util.round_currency((430.02  - 51.1) * 0.002 * 1),
+						'should_close_loan': False
+					}
+				]
+			},
+			{
+				'today': '10/26/2020', # It's been 21 days that the loan is late.
+				'populate_fn': populate_fn,
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('10/05/2020'),
+						'outstanding_principal': 450.03,
+						'outstanding_principal_for_interest': 450.03,
+						# 23 days of interest accrued on 450.03 after the first partial repayment
+						# - 4.2 is for the adjustment
+						# - 1.0 is adjustment from principal
+						# + 2.0 is adjustment for interest
+						'outstanding_interest': number_util.round_currency((430.02 * 0.002 * 2 - 1.1) + ((430.02  - 51.1) * 0.002 * 24)),
+						'outstanding_fees': number_util.round_currency(((14 * daily_interest_after_repayment * 0.25) + (7 * daily_interest_after_repayment * 0.5))),
+						'interest_accrued_today': number_util.round_currency((430.02  - 51.1) * 0.002),
+						'should_close_loan': False
+					}
+				]
+			}
+		]
+
+		i = 0
+		for test in tests:
+			self._run_test(test)
+			i += 1
+
 	def test_success_adjusted_total_limit_contract_limit_greater_than_computed_borrowing_base(self) -> None:
 		def populate_fn(session: Any, seed: test_helper.BasicSeed, company_id: str) -> None:
 			session.add(models.Contract(

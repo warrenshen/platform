@@ -33,6 +33,7 @@ class Fetcher(object):
 		self._contracts: List[ContractDict] = []
 		self._loans: List[LoanDict] = []
 		self._payments: List[PaymentDict] = []
+		self._invoices: List[models.InvoiceDict] = []
 		self._augmented_transactions: List[per_customer_types.AugmentedTransactionDict] = []
 		self._ebba_applications: List[EbbaApplicationDict] = []
 		self._active_ebba_application: EbbaApplicationDict = None
@@ -118,6 +119,34 @@ class Fetcher(object):
 
 		return True, None
 
+	def _fetch_invoices(self, loans: List[models.LoanDict]) -> Tuple[bool, errors.Error]:
+		if not loans:
+			return True, None
+
+		artifact_ids = []
+		for loan in loans:
+			if loan['artifact_id']:
+				artifact_ids.append(loan['artifact_id'])
+
+		with session_scope(self._session_maker) as session:
+			query = session.query(models.Invoice).filter(
+					models.Invoice.company_id == self._company_id
+				).filter(
+					models.Invoice.id.in_(artifact_ids)
+				)
+
+			if self._ignore_deleted:
+				query = query.filter(cast(Callable, models.Invoice.is_deleted.isnot)(True))
+
+			# Order by oldest loans to newest loans
+			invoices = cast(List[models.Invoice], query.all())
+			if not invoices:
+				return True, None
+
+			self._invoices = [inv.as_dict() for inv in invoices]
+
+		return True, None
+
 	def _fetch_company_details(self) -> Tuple[bool, errors.Error]:
 		# Which type of product is this customer using?
 		with session_scope(self._session_maker) as session:
@@ -171,6 +200,10 @@ class Fetcher(object):
 		if err:
 			raise err
 
+		_, err = self._fetch_invoices(self._loans)
+		if err:
+			raise err
+
 		_, err = self._fetch_ebba_applications()
 		if err:
 			raise err
@@ -208,6 +241,7 @@ class Fetcher(object):
 				contracts=self._contracts,
 				loans=self._loans,
 				payments=self._payments,
+				invoices=self._invoices,
 				augmented_transactions=self._augmented_transactions,
 				ebba_applications=self._ebba_applications,
 				active_ebba_application=self._active_ebba_application
