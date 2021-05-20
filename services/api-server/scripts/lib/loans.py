@@ -12,9 +12,7 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../src")))
 from bespoke.date import date_util
 from bespoke.db import models, models_util
 from bespoke.db.db_constants import (ALL_LOAN_TYPES, CompanyType,
-                                     LoanStatusEnum, LoanTypeEnum,
-                                     PaymentMethodEnum, PaymentStatusEnum,
-                                     PaymentType)
+                                     LoanStatusEnum, LoanTypeEnum)
 from bespoke.db.models import session_scope
 from bespoke.excel import excel_reader
 from bespoke.finance import contract_util, number_util
