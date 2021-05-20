@@ -24,6 +24,7 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 import "cypress-file-upload";
+import { format } from "date-fns";
 import { password, users } from "../fixtures/logins";
 declare global {
   namespace Cypress {
@@ -31,6 +32,7 @@ declare global {
       loginBankAdmin: typeof loginBankAdmin;
       loginCustomerAdmin: typeof loginCustomerAdmin;
       resetDatabase: typeof resetDatabase;
+      todayAsDateStringClient: typeof todayAsDateStringClient;
     }
   }
 }
@@ -69,6 +71,13 @@ function resetDatabase() {
   cy.request("POST", `${Cypress.env("apiServerUrl")}/cypress/reset_database`);
 }
 
+export const DateFormatClient = "MM/dd/yyyy";
+
+function todayAsDateStringClient(): string {
+  return format(new Date(), DateFormatClient);
+}
+
 Cypress.Commands.add("loginBankAdmin", loginBankAdmin);
 Cypress.Commands.add("loginCustomerAdmin", loginCustomerAdmin);
 Cypress.Commands.add("resetDatabase", resetDatabase);
+Cypress.Commands.add("todayAsDateStringClient", todayAsDateStringClient);

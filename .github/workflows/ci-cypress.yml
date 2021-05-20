@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: docker-compose -f docker-compose.test.yaml build
-      - run: docker-compose -f docker-compose.test.yaml up --abort-on-container-exit --exit-code-from bespoke-cypress-test
+      - run: docker-compose -f docker-compose.ci.yaml build
+      - run: docker-compose -f docker-compose.ci.yaml up --abort-on-container-exit --exit-code-from bespoke-cypress-ci
       # Confirm whether Cypress ran correctly by looking at output file
       - run: cat app/cypress/results/output.xml

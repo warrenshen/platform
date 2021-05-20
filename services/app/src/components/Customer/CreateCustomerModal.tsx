@@ -125,6 +125,7 @@ export default function CreateCustomerModal({ handleClose }: Props) {
 
   return (
     <Modal
+      dataCy={"create-customer-modal"}
       isPrimaryActionDisabled={isSubmitDisabled}
       title={"Create Customer"}
       primaryActionText={"Save"}
@@ -137,6 +138,7 @@ export default function CreateCustomerModal({ handleClose }: Props) {
         </Box>
         <Box>
           <TextField
+            data-cy={"customer-form-input-name"}
             className={classes.input}
             label="Customer Name"
             placeholder="Distributor Example"
@@ -148,9 +150,10 @@ export default function CreateCustomerModal({ handleClose }: Props) {
         </Box>
         <Box mt={2}>
           <TextField
+            data-cy={"customer-form-input-identifier"}
             className={classes.input}
             label="Company Identifier (Unique Short Name)"
-            placeholder="DEI"
+            placeholder="DE"
             value={customer.identifier || ""}
             onChange={({ target: { value } }) =>
               setCustomer({ ...customer, identifier: value })
@@ -159,6 +162,7 @@ export default function CreateCustomerModal({ handleClose }: Props) {
         </Box>
         <Box mt={2}>
           <TextField
+            data-cy={"customer-form-input-contract-name"}
             className={classes.input}
             label="Contract Name"
             placeholder="DISTRIBUTOR EXAMPLE, INC."
@@ -170,6 +174,7 @@ export default function CreateCustomerModal({ handleClose }: Props) {
         </Box>
         <Box mt={2}>
           <TextField
+            data-cy={"customer-form-input-dba"}
             className={classes.input}
             label="DBA"
             placeholder="DBA 1, DBA 2"

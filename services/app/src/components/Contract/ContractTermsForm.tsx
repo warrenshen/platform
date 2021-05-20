@@ -20,8 +20,10 @@ import {
   ContractTermNames,
   getContractTermBankDescription,
   getContractTermCustomerDescription,
+  getContractTermDataCy,
   getContractTermIsHiddenIfNull,
   isProductConfigFieldInvalid,
+  ProductConfigField,
 } from "lib/contracts";
 import { DateFormatServer } from "lib/date";
 import { AllProductTypes, ProductTypeToLabel } from "lib/enum";
@@ -162,113 +164,121 @@ export default function ContractTermsForm({
     return result;
   };
 
-  const renderSwitch = (item: any) => {
-    switch (true) {
-      case item.type === "date":
-        return (
-          <DateInput
-            className={classes.datePicker}
-            id={item.internal_name}
-            error={errMsg.length > 0 && isProductConfigFieldInvalid(item)}
-            label={item.display_name}
-            required={!item.nullable}
-            value={item.value || null}
-            onChange={(value: any) => findAndReplaceInJSON(item, value)}
-          />
-        );
-      case item.type === "timezone":
-        return (
-          <SelectTimezoneMaterialUi
-            id={item.internal_name}
-            label="Timezone"
-            helperText="Please select a timezone from the list"
-            defaultTimezoneName={item.value || null}
-            onChange={(value: any) => findAndReplaceInJSON(item, value)}
-          />
-        );
-      case item.type === "float":
-        const getSymbol = (format: string) => {
-          switch (true) {
-            case format === "percentage":
-              return "%";
-            case format === "currency":
-              return "$";
-            default:
-              return "";
+  const renderSwitch = (item: ProductConfigField) => {
+    const dataCy = getContractTermDataCy(item.internal_name)
+      ? `contract-terms-form-input-${getContractTermDataCy(item.internal_name)}`
+      : undefined;
+
+    if (item.type === "date") {
+      return (
+        <DateInput
+          dataCy={dataCy}
+          className={classes.datePicker}
+          id={item.internal_name}
+          error={errMsg.length > 0 && isProductConfigFieldInvalid(item)}
+          label={item.display_name}
+          required={!item.nullable}
+          value={item.value || null}
+          onChange={(value: any) => findAndReplaceInJSON(item, value)}
+        />
+      );
+    } else if (item.type === "timezone") {
+      return (
+        <SelectTimezoneMaterialUi
+          data-cy={dataCy}
+          id={item.internal_name}
+          label="Timezone"
+          helperText="Please select a timezone from the list"
+          defaultTimezoneName={item.value || null}
+          onChange={(value: any) => findAndReplaceInJSON(item, value)}
+        />
+      );
+    } else if (item.type === "float") {
+      const getSymbol = (format: string | undefined) => {
+        switch (format) {
+          case "percentage":
+            return "%";
+          case "currency":
+            return "$";
+          default:
+            return "";
+        }
+      };
+      return (
+        <CurrencyInput
+          dataCy={dataCy}
+          isRequired={!item.nullable}
+          currencySymbol={getSymbol(item.format)}
+          decimalPlaces={item.format === "percentage" ? 8 : 2}
+          minimumValue={0}
+          maximumValue={item.format === "percentage" ? 100 : undefined}
+          label={item.display_name}
+          error={
+            errMsg.length > 0 && isProductConfigFieldInvalid(item)
+              ? errMsg
+              : undefined
           }
-        };
-        return (
-          <CurrencyInput
-            isRequired={!item.nullable}
-            currencySymbol={getSymbol(item.format)}
-            decimalPlaces={item.format === "percentage" ? 8 : 2}
-            minimumValue={0}
-            maximumValue={item.format === "percentage" ? 100 : undefined}
-            label={item.display_name}
-            error={
-              errMsg.length > 0 && isProductConfigFieldInvalid(item)
-                ? errMsg
-                : undefined
-            }
-            value={item.value !== undefined ? item.value : null}
-            handleChange={(value) => findAndReplaceInJSON(item, value)}
-          />
-        );
-      case item.type === "boolean":
-        return (
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={!!item.value}
-                onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                  findAndReplaceInJSON(item, event.target.checked);
-                }}
-                color="primary"
-              />
-            }
-            label={item.display_name}
-          />
-        );
-      case item.internal_name === "late_fee_structure":
-        return (
-          <JsonFormInput
-            fields={item.fields}
-            name={item.display_name}
-            initialValues={getLateFeeDynamicFormInitialValues(item)}
-            showValidationResult={errMsg.length > 0}
-            handleChange={(value: any) =>
-              parseLateFeeDynamicFormValue(item, value)
-            }
-          />
-        );
-      case item.internal_name === "repayment_type_settlement_timeline":
-        return (
-          <JsonFormInput
-            fields={item.fields}
-            name={item.display_name}
-            initialValues={getRepaymentSettlementTimelineInitialValues(item)}
-            showValidationResult={false}
-            handleChange={(value: any) =>
-              parseRepaymentSettlementTimelineFormValue(item, value)
-            }
-          />
-        );
-      default:
-        return (
-          <TextField
-            error={errMsg.length > 0 && isProductConfigFieldInvalid(item)}
-            label={item.display_name}
-            placeholder=""
-            required={!item.nullable}
-            value={item.value || ""}
-            onChange={({ target: { value } }) =>
-              findAndReplaceInJSON(
-                item,
-                item.type === "integer" ? value.replace(/[^0-9]/g, "") : value
-              )
-            }
-          />
-        );
+          value={item.value !== undefined ? item.value : null}
+          handleChange={(value) => findAndReplaceInJSON(item, value)}
+        />
+      );
+    } else if (item.type === "boolean") {
+      return (
+        <FormControlLabel
+          control={
+            <Checkbox
+              data-cy={dataCy}
+              checked={!!item.value}
+              onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                findAndReplaceInJSON(item, event.target.checked);
+              }}
+              color="primary"
+            />
+          }
+          label={item.display_name}
+        />
+      );
+    } else if (item.internal_name === "late_fee_structure") {
+      return (
+        <JsonFormInput
+          fields={item.fields}
+          name={item.display_name}
+          initialValues={getLateFeeDynamicFormInitialValues(item)}
+          showValidationResult={errMsg.length > 0}
+          handleChange={(value: any) =>
+            parseLateFeeDynamicFormValue(item, value)
+          }
+        />
+      );
+    } else if (item.internal_name === "repayment_type_settlement_timeline") {
+      return (
+        <JsonFormInput
+          fields={item.fields}
+          name={item.display_name}
+          initialValues={getRepaymentSettlementTimelineInitialValues(item)}
+          showValidationResult={false}
+          handleChange={(value: any) =>
+            parseRepaymentSettlementTimelineFormValue(item, value)
+          }
+        />
+      );
+    } else {
+      return (
+        <TextField
+          data-cy={dataCy}
+          error={errMsg.length > 0 && isProductConfigFieldInvalid(item)}
+          label={item.display_name}
+          placeholder=""
+          required={!item.nullable}
+          value={item.value || ""}
+          onChange={({ target: { value } }) =>
+            findAndReplaceInJSON(
+              item,
+              item.type === "integer" ? value.replace(/[^0-9]/g, "") : value
+            )
+          }
+        />
+      );
     }
   };
 
@@ -278,6 +288,7 @@ export default function ContractTermsForm({
         <FormControl>
           <InputLabel id="select-product-type-label">Product Type</InputLabel>
           <Select
+            data-cy={"contract-form-input-product-type"}
             disabled={!isProductTypeEditable}
             id="select-product-type"
             labelId="select-product-type-label"
@@ -293,8 +304,14 @@ export default function ContractTermsForm({
               });
             }}
           >
-            {AllProductTypes.map((productType) => (
-              <MenuItem key={productType} value={productType}>
+            {AllProductTypes.map((productType, index) => (
+              <MenuItem
+                data-cy={`contract-form-input-product-type-menu-item-${
+                  index + 1
+                }`}
+                key={productType}
+                value={productType}
+              >
                 {ProductTypeToLabel[productType as ProductTypeEnum]}
               </MenuItem>
             ))}
@@ -303,6 +320,7 @@ export default function ContractTermsForm({
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <DateInput
+          dataCy={"contract-form-input-start-date"}
           disabled={!isStartDateEditable}
           id="start-date-date-picker"
           label="Start Date"
@@ -328,6 +346,7 @@ export default function ContractTermsForm({
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <DateInput
+          dataCy={"contract-form-input-end-date"}
           id="end-date-date-picker"
           label="Expected End Date"
           value={contract.end_date}

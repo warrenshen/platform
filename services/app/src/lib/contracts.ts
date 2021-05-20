@@ -16,6 +16,7 @@ export enum ContractTermConfigs {
   BankDescription = "bank",
   CustomerDescription = "customer",
   IsHiddenIfNull = "is_hidden_if_null",
+  DataCy = "data_cy",
 }
 
 export enum ContractTermNames {
@@ -42,116 +43,146 @@ export enum ContractTermNames {
 
 const ContractTermNameToConfigs = {
   [ContractTermNames.FinancingTerms]: {
+    [ContractTermConfigs.DataCy]: "financing-terms",
     [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]: "",
     [ContractTermConfigs.IsHiddenIfNull]: false,
   },
   [ContractTermNames.MaximumAmount]: {
+    [ContractTermConfigs.DataCy]: "maximum-amount",
     [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]: "",
     [ContractTermConfigs.IsHiddenIfNull]: false,
   },
   [ContractTermNames.MinimumMonthlyAmount]: {
+    [ContractTermConfigs.DataCy]: "minimum-monthly-amount",
     [ContractTermConfigs.BankDescription]:
       "ONLY ONE of minimum monthly, quarterly, or annual amount may have a value (leave the other two fields blank)",
     [ContractTermConfigs.CustomerDescription]: "",
     [ContractTermConfigs.IsHiddenIfNull]: true,
   },
   [ContractTermNames.MinimumQuarterlyAmount]: {
+    [ContractTermConfigs.DataCy]: "minimum-quarterly-amount",
     [ContractTermConfigs.BankDescription]:
       "ONLY ONE of minimum monthly, quarterly, or annual amount may have a value (leave the other two fields blank)",
     [ContractTermConfigs.CustomerDescription]: "",
     [ContractTermConfigs.IsHiddenIfNull]: true,
   },
   [ContractTermNames.MinimumAnnualAmount]: {
+    [ContractTermConfigs.DataCy]: "minimum-annual-amount",
     [ContractTermConfigs.BankDescription]:
       "ONLY ONE of minimum monthly, quarterly, or annual amount may have a value (leave the other two fields blank)",
     [ContractTermConfigs.CustomerDescription]: "",
     [ContractTermConfigs.IsHiddenIfNull]: true,
   },
   [ContractTermNames.BorrowingBaseAccountsReceivablePercentage]: {
+    [ContractTermConfigs.DataCy]: null,
     [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]:
       "% of AR amount used in determining borrowing base",
     [ContractTermConfigs.IsHiddenIfNull]: true,
   },
   [ContractTermNames.BorrowingBaseInventoryPercentage]: {
+    [ContractTermConfigs.DataCy]: null,
     [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]:
       "% of inventory amount used in determining borrowing base",
     [ContractTermConfigs.IsHiddenIfNull]: true,
   },
   [ContractTermNames.BorrowingBaseCashPercentage]: {
+    [ContractTermConfigs.DataCy]: null,
     [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]:
       "% of cash amount in Deposit Accounts used in determining borrowing base",
     [ContractTermConfigs.IsHiddenIfNull]: true,
   },
   [ContractTermNames.BorrowingBaseCashInDacaPercentage]: {
+    [ContractTermConfigs.DataCy]: null,
     [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]:
       "% of cash amount in DACA Deposit Accounts used in determining borrowing base",
     [ContractTermConfigs.IsHiddenIfNull]: true,
   },
   [ContractTermNames.AdvanceRate]: {
+    [ContractTermConfigs.DataCy]: "advance-rate",
     [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]:
       "The maximum amount of a PO / Invoice that may be financed",
     [ContractTermConfigs.IsHiddenIfNull]: false,
   },
   [ContractTermNames.FactoringFeePercentage]: {
+    [ContractTermConfigs.DataCy]: "factoring-fee-percentage",
     [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]: "",
     [ContractTermConfigs.IsHiddenIfNull]: false,
   },
   [ContractTermNames.FactoringFeeThreshold]: {
+    [ContractTermConfigs.DataCy]: null,
     [ContractTermConfigs.BankDescription]:
       "If customer meets this amount, a reduced interest rate will be used for principal above this amount",
     [ContractTermConfigs.CustomerDescription]: "",
     [ContractTermConfigs.IsHiddenIfNull]: true,
   },
   [ContractTermNames.FactoringFeeThresholdStartingValue]: {
+    [ContractTermConfigs.DataCy]: null,
     [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]: "",
     [ContractTermConfigs.IsHiddenIfNull]: true,
   },
   [ContractTermNames.AdjustedFactoringFeePercentage]: {
+    [ContractTermConfigs.DataCy]: null,
     [ContractTermConfigs.BankDescription]:
       "If customer meets the Volume Discount Threshold, this interest rate will be used",
     [ContractTermConfigs.CustomerDescription]: "",
     [ContractTermConfigs.IsHiddenIfNull]: true,
   },
   [ContractTermNames.LateFeeStructure]: {
+    [ContractTermConfigs.DataCy]: null,
     [ContractTermConfigs.BankDescription]:
       "Example: 1-14: 25%, 15-29: 50%, 30+: 100%",
     [ContractTermConfigs.CustomerDescription]: "",
     [ContractTermConfigs.IsHiddenIfNull]: false,
   },
   [ContractTermNames.WireFee]: {
+    [ContractTermConfigs.DataCy]: null,
     [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]:
       "The amount to be reimbursed by the borrower if payments are sent via wire",
     [ContractTermConfigs.IsHiddenIfNull]: false,
   },
   [ContractTermNames.PrecedingBusinessDay]: {
+    [ContractTermConfigs.DataCy]: null,
     [ContractTermConfigs.BankDescription]:
       "versus Succeeding Business Day (for adjusted maturity date)",
     [ContractTermConfigs.CustomerDescription]: "",
     [ContractTermConfigs.IsHiddenIfNull]: true,
   },
   [ContractTermNames.ClearanceDaysStructure]: {
+    [ContractTermConfigs.DataCy]: null,
     [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]:
       "The additional number of days after a payment deposit until the loan is closed",
     [ContractTermConfigs.IsHiddenIfNull]: false,
   },
   [ContractTermNames.Timezone]: {
+    [ContractTermConfigs.DataCy]: null,
     [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]:
       "Used to determine submission cut-off times for financing requests",
     [ContractTermConfigs.IsHiddenIfNull]: false,
   },
 };
+
+export function getContractTermDataCy(contractTermName: ContractTermNames) {
+  if (!ContractTermNameToConfigs[contractTermName]) {
+    console.error(`Unknown contract term "${contractTermName}", returning "".`);
+    return "";
+  } else {
+    return ContractTermNameToConfigs[contractTermName][
+      ContractTermConfigs.DataCy
+    ];
+  }
+}
 
 export function getContractTermBankDescription(
   contractTermName: ContractTermNames
@@ -285,7 +316,7 @@ export type ProductConfigField = {
   type: string;
   fields?: ProductConfigField[];
   format?: string;
-  internal_name: string;
+  internal_name: ContractTermNames;
   display_name: string;
   value: any;
   description?: string;

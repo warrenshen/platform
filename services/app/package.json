@@ -42,7 +42,7 @@
   },
   "scripts": {
     "start": "cross-env PORT=3005 react-scripts start",
-    "start-test": "./node_modules/.bin/cross-env REACT_APP_BESPOKE_ENVIRONMENT=test PORT=3006 react-scripts start",
+    "start-test": "./node_modules/.bin/cross-env PORT=3006 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
@@ -82,7 +82,7 @@
     "@types/jwt-decode": "^3.1.0",
     "@types/lodash": "^4.14.165",
     "@types/node": "^12.0.0",
-    "@types/react": "^16.9.53",
+    "@types/react": "^17.0.6",
     "@types/react-dom": "^16.9.8",
     "@types/react-router-dom": "^5.1.6",
     "@types/styled-components": "^5.1.9",
