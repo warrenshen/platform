@@ -40,7 +40,7 @@ interface Props {
   handleClose: () => void;
 }
 
-function AddVendorModal({ customerId, handleClose }: Props) {
+export default function AddVendorModal({ customerId, handleClose }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
 
@@ -100,7 +100,7 @@ function AddVendorModal({ customerId, handleClose }: Props) {
     !contact.email ||
     !contact.phone_number ||
     isCreatePayorVendorLoading ||
-    licenseInfo.license_ids.length === 0;
+    (!!vendor.is_cannabis && licenseInfo.license_ids.length === 0);
 
   return (
     <Dialog
@@ -139,5 +139,3 @@ function AddVendorModal({ customerId, handleClose }: Props) {
     </Dialog>
   );
 }
-
-export default AddVendorModal;

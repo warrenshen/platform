@@ -40,7 +40,7 @@ interface Props {
   handleClose: () => void;
 }
 
-function AddPayorModal({ customerId, handleClose }: Props) {
+export default function AddPayorModal({ customerId, handleClose }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
 
@@ -100,7 +100,7 @@ function AddPayorModal({ customerId, handleClose }: Props) {
     !contact.email ||
     !contact.phone_number ||
     isCreatePayorVendorLoading ||
-    licenseInfo.license_ids.length === 0;
+    (!!payor.is_cannabis && licenseInfo.license_ids.length === 0);
 
   return (
     <Dialog
@@ -139,5 +139,3 @@ function AddPayorModal({ customerId, handleClose }: Props) {
     </Dialog>
   );
 }
-
-export default AddPayorModal;
