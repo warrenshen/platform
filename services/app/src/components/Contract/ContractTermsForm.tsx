@@ -44,13 +44,8 @@ const useStyles = makeStyles({
     marginTop: 0,
     marginBottom: 0,
   },
-  dialogTitle: {
-    borderBottom: "1px solid #c7c7c7",
-    marginBottom: "1rem",
-  },
   errorBox: {
     color: "red",
-    position: "absolute",
     bottom: "1rem",
   },
 });
@@ -241,6 +236,7 @@ export default function ContractTermsForm({
     } else if (item.internal_name === "late_fee_structure") {
       return (
         <JsonFormInput
+          dataCy={dataCy}
           fields={item.fields}
           name={item.display_name}
           initialValues={getLateFeeDynamicFormInitialValues(item)}
@@ -253,6 +249,7 @@ export default function ContractTermsForm({
     } else if (item.internal_name === "repayment_type_settlement_timeline") {
       return (
         <JsonFormInput
+          dataCy={dataCy}
           fields={item.fields}
           name={item.display_name}
           initialValues={getRepaymentSettlementTimelineInitialValues(item)}
@@ -398,12 +395,12 @@ export default function ContractTermsForm({
             )}
           </Box>
         ))}
-        {errMsg && (
-          <Box className={classes.errorBox} mt={3}>
-            {errMsg}
-          </Box>
-        )}
       </Box>
+      {errMsg && (
+        <Box className={classes.errorBox} mt={3}>
+          {errMsg}
+        </Box>
+      )}
     </Box>
   );
 }

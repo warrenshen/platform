@@ -25,6 +25,7 @@ const useStyles = makeStyles({
 });
 
 interface Props {
+  dataCy?: string;
   name?: string;
   fields: any;
   showValidationResult?: boolean;
@@ -32,7 +33,8 @@ interface Props {
   handleChange: (value: any, error: boolean) => void;
 }
 
-function JsonFormInput({
+export default function JsonFormInput({
+  dataCy,
   name,
   fields,
   showValidationResult,
@@ -110,9 +112,9 @@ function JsonFormInput({
       <Box mb={0.5}>
         <Typography variant="caption">{name}</Typography>
       </Box>
-      {rows.map((row, i) => (
-        <Box key={i} className={classes.row} mb={1}>
-          {Object.keys(row).map((key) => {
+      {rows.map((row, xIndex) => (
+        <Box key={xIndex} className={classes.row} mb={1}>
+          {Object.keys(row).map((key, yIndex) => {
             const field = fields.find((f: any) => f.display_name === key);
 
             if (field.options) {
@@ -124,51 +126,69 @@ function JsonFormInput({
                 <FormControl key={`${idString}-form-control`}>
                   <InputLabel id={`${idString}-input-label`}>{key}</InputLabel>
                   <Select
+                    data-cy={
+                      !!dataCy ? `${dataCy}-${xIndex}-${yIndex}` : undefined
+                    }
                     id={idString}
                     labelId={`${idString}-label`}
                     value={row[key]}
                     style={{ width: 200, marginRight: 6 }}
-                    onChange={({ target: { value } }) => {
-                      handleChangeInput(value as string, key, i);
-                    }}
+                    onChange={({ target: { value } }) =>
+                      handleChangeInput(value as string, key, xIndex)
+                    }
                   >
-                    {field.options.map((option: any) => (
-                      <MenuItem key={option.value} value={option.value}>
+                    {field.options.map((option: any, zIndex: number) => (
+                      <MenuItem
+                        data-cy={
+                          !!dataCy
+                            ? `${dataCy}-${xIndex}-${yIndex}-menu-item-${
+                                zIndex + 1
+                              }`
+                            : undefined
+                        }
+                        key={option.value}
+                        value={option.value}
+                      >
                         {option.display_name}
                       </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
               );
+            } else {
+              return (
+                <Box key={key + yIndex} mr={1}>
+                  <TextField
+                    data-cy={
+                      !!dataCy ? `${dataCy}-${xIndex}-${yIndex}` : undefined
+                    }
+                    error={
+                      showValidationResult && isFieldInvalid(row[key], field)
+                    }
+                    label={key}
+                    placeholder=""
+                    required={!field.nullable}
+                    value={row[key]}
+                    onChange={({ target: { value } }) =>
+                      handleChangeInput(value, key, xIndex)
+                    }
+                  />
+                </Box>
+              );
             }
-
-            return (
-              <Box key={key + i} mr={1}>
-                <TextField
-                  error={
-                    showValidationResult && isFieldInvalid(row[key], field)
-                  }
-                  label={key}
-                  placeholder=""
-                  required={!field.nullable}
-                  value={row[key]}
-                  onChange={({ target: { value } }) => {
-                    handleChangeInput(value, key, i);
-                  }}
-                />
-              </Box>
-            );
           })}
           <Button
+            data-cy={!!dataCy ? `${dataCy}-remove-button` : undefined}
             className={classes.action}
             variant="outlined"
-            onClick={() => handleRemoveInputRow(i)}
+            onClick={() => handleRemoveInputRow(xIndex)}
           >
             –
           </Button>
         </Box>
       ))}
       <Button
+        data-cy={!!dataCy ? `${dataCy}-add-button` : undefined}
         className={classes.action}
         variant="outlined"
         onClick={handleAddInputRow}
@@ -178,5 +198,3 @@ function JsonFormInput({
     </Box>
   );
 }
-
-export default JsonFormInput;

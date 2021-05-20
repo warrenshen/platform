@@ -43,17 +43,69 @@ describe("Create inventory financing customer", () => {
       );
 
       // Enter contract terms information.
+      // Financing terms
       cy.dataCySelector(
         "contract-terms-form-input-financing-terms",
         "input"
       ).type("90");
+      // Maximum amount
       cy.dataCySelector(
         "contract-terms-form-input-maximum-amount",
         "input"
       ).type("1000000");
+      // Advance rate
       cy.dataCySelector("contract-terms-form-input-advance-rate", "input").type(
         "100"
       );
+      // Interest rate
+      cy.dataCySelector(
+        "contract-terms-form-input-interest-rate",
+        "input"
+      ).type("0.1");
+      // Late fee structure
+      cy.dataCySelector("contract-terms-form-input-wire-fee", "input").type(
+        "25"
+      );
+      // Timezone
+      // Clearance Days
+      cy.dataCy(
+        "contract-terms-form-input-clearance-days-structure-0-0"
+      ).click();
+      cy.dataCy(
+        "contract-terms-form-input-clearance-days-structure-0-0-menu-item-1"
+      ).click();
+      cy.dataCySelector(
+        "contract-terms-form-input-clearance-days-structure-0-1",
+        "input"
+      ).type("1");
+      cy.dataCy(
+        "contract-terms-form-input-clearance-days-structure-add-button"
+      ).click();
+      cy.dataCy(
+        "contract-terms-form-input-clearance-days-structure-1-0"
+      ).click();
+      cy.dataCy(
+        "contract-terms-form-input-clearance-days-structure-1-0-menu-item-2"
+      ).click();
+      cy.dataCySelector(
+        "contract-terms-form-input-clearance-days-structure-1-1",
+        "input"
+      ).type("1");
+      cy.dataCy(
+        "contract-terms-form-input-clearance-days-structure-add-button"
+      ).click();
+      cy.dataCy(
+        "contract-terms-form-input-clearance-days-structure-2-0"
+      ).click();
+      cy.dataCy(
+        "contract-terms-form-input-clearance-days-structure-2-0-menu-item-3"
+      ).click();
+      cy.dataCySelector(
+        "contract-terms-form-input-clearance-days-structure-2-1",
+        "input"
+      ).type("1");
+
+      cy.dataCy("create-customer-modal-primary-button").click();
     }
   );
 });

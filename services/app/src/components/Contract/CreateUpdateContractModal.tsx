@@ -195,7 +195,6 @@ export default function CreateUpdateContractModal({
       dataCy={"create-contract-modal"}
       isPrimaryActionDisabled={isSubmitDisabled}
       title={`${actionType === ActionType.Update ? "Edit" : "Create"} Contract`}
-      primaryActionDataCy={"create-contract-modal-button-submit"}
       primaryActionText={"Save"}
       handleClose={handleClose}
       handlePrimaryAction={handleClickSubmit}

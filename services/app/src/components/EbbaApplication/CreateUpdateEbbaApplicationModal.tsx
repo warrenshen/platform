@@ -263,9 +263,6 @@ export default function CreateUpdateEbbaApplicationModal({
         isActionTypeUpdate ? "Edit" : "Create"
       } Borrowing Base Certification`}
       contentWidth={800}
-      primaryActionDataCy={
-        "create-ebba-application-modal-button-save-and-submit"
-      }
       primaryActionText={"Submit"}
       handleClose={handleClose}
       handlePrimaryAction={handleClickSubmit}

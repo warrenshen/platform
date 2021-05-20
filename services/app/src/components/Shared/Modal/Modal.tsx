@@ -113,7 +113,6 @@ interface Props {
   title: string;
   subtitle?: string;
   contentWidth?: number;
-  primaryActionDataCy?: string;
   primaryActionText: string;
   secondaryActionText?: string | null; // null = do not show secondary button.
   handleClose: () => void;
@@ -129,7 +128,6 @@ export default function Modal({
   title,
   subtitle,
   contentWidth = 500,
-  primaryActionDataCy,
   primaryActionText,
   secondaryActionText,
   handleClose,
@@ -181,7 +179,7 @@ export default function Modal({
                 </>
               )}
               <StyledButton
-                data-cy={primaryActionDataCy}
+                data-cy={!!dataCy ? `${dataCy}-primary-button` : undefined}
                 disabled={isPrimaryActionDisabled}
                 onClick={handlePrimaryAction}
                 variant={"contained"}

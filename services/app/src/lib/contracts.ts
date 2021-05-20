@@ -111,7 +111,7 @@ const ContractTermNameToConfigs = {
     [ContractTermConfigs.IsHiddenIfNull]: false,
   },
   [ContractTermNames.FactoringFeePercentage]: {
-    [ContractTermConfigs.DataCy]: "factoring-fee-percentage",
+    [ContractTermConfigs.DataCy]: "interest-rate",
     [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]: "",
     [ContractTermConfigs.IsHiddenIfNull]: false,
@@ -137,14 +137,14 @@ const ContractTermNameToConfigs = {
     [ContractTermConfigs.IsHiddenIfNull]: true,
   },
   [ContractTermNames.LateFeeStructure]: {
-    [ContractTermConfigs.DataCy]: null,
+    [ContractTermConfigs.DataCy]: "late-fee-structure",
     [ContractTermConfigs.BankDescription]:
       "Example: 1-14: 25%, 15-29: 50%, 30+: 100%",
     [ContractTermConfigs.CustomerDescription]: "",
     [ContractTermConfigs.IsHiddenIfNull]: false,
   },
   [ContractTermNames.WireFee]: {
-    [ContractTermConfigs.DataCy]: null,
+    [ContractTermConfigs.DataCy]: "wire-fee",
     [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]:
       "The amount to be reimbursed by the borrower if payments are sent via wire",
@@ -158,14 +158,14 @@ const ContractTermNameToConfigs = {
     [ContractTermConfigs.IsHiddenIfNull]: true,
   },
   [ContractTermNames.ClearanceDaysStructure]: {
-    [ContractTermConfigs.DataCy]: null,
+    [ContractTermConfigs.DataCy]: "clearance-days-structure",
     [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]:
       "The additional number of days after a payment deposit until the loan is closed",
     [ContractTermConfigs.IsHiddenIfNull]: false,
   },
   [ContractTermNames.Timezone]: {
-    [ContractTermConfigs.DataCy]: null,
+    [ContractTermConfigs.DataCy]: "timezone",
     [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]:
       "Used to determine submission cut-off times for financing requests",
