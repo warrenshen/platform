@@ -181,11 +181,12 @@ export default function ContractTermsForm({
       return (
         <SelectTimezoneMaterialUi
           data-cy={dataCy}
+          showTimezoneOffset
           id={item.internal_name}
           label="Timezone"
           helperText="Please select a timezone from the list"
-          defaultTimezoneName={item.value || null}
-          onChange={(value: any) => findAndReplaceInJSON(item, value)}
+          timezoneName={item.value || null}
+          onChange={(timezoneName) => findAndReplaceInJSON(item, timezoneName)}
         />
       );
     } else if (item.type === "float") {
