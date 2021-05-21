@@ -51,7 +51,8 @@ IncludedPaymentDict = TypedDict('IncludedPaymentDict', {
 	'custom_amount': float, # needed when RepaymentOption == 'custom_amount'
 	'custom_amount_split': CustomAmountSplitDict, # Takes precedence over 'custom_amount'. This is used when creating transactions for settling an LOC payment, or settling a non-LOC payment
 	'deposit_date': datetime.date,
-	'settlement_date': datetime.date
+	'settlement_date': datetime.date,
+	'should_pay_principal_first': bool
 })
 
 TransactionInputDict = TypedDict('TransactionInputDict', {
@@ -226,6 +227,7 @@ def _determine_transaction(
 	# Determine what transaction gets created given the payment options provided
 	# Paying off interest and fees takes preference over principal.
 	payment_option = payment_to_include['option']
+	should_pay_principal_first = payment_to_include['should_pay_principal_first']
 
 	def _pay_in_full() -> TransactionInputDict:
 		to_principal = cur_loan_state['outstanding_principal']
@@ -259,9 +261,15 @@ def _determine_transaction(
 	elif payment_option == payment_util.RepaymentOption.CUSTOM_AMOUNT:
 
 		amount_left = payment_to_include['custom_amount']
+
+		if should_pay_principal_first:
+			amount_left, amount_used_principal = _apply_to(cur_loan_state, 'principal', amount_left)
+
 		amount_left, amount_used_interest = _apply_to(cur_loan_state, 'interest', amount_left)
 		amount_left, amount_used_fees = _apply_to(cur_loan_state, 'fees', amount_left)
-		amount_left, amount_used_principal = _apply_to(cur_loan_state, 'principal', amount_left)
+		
+		if not should_pay_principal_first:
+			amount_left, amount_used_principal = _apply_to(cur_loan_state, 'principal', amount_left)
 
 		return TransactionInputDict(
 				amount=amount_used_fees + amount_used_interest + amount_used_principal,

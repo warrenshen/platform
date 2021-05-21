@@ -131,6 +131,7 @@ def calculate_repayment_effect(
 	deposit_date: str,
 	settlement_date: str,
 	loan_ids: List[str],
+	should_pay_principal_first: bool,
 	session_maker: Callable
 ) -> Tuple[RepaymentEffectRespDict, errors.Error]:
 	# What loans and fees does would this payment pay off?
@@ -329,7 +330,8 @@ def calculate_repayment_effect(
 		custom_amount=amount,
 		custom_amount_split=None,
 		deposit_date=payment_deposit_date,
-		settlement_date=payment_settlement_date
+		settlement_date=payment_settlement_date,
+		should_pay_principal_first=should_pay_principal_first
 	)
 
 	for loan_dict in loan_dicts:
@@ -973,7 +975,8 @@ def settle_repayment(
 					'to_fees': None # Not used when settling an LOC loan
 				},
 				deposit_date=deposit_date,
-				settlement_date=settlement_date
+				settlement_date=settlement_date,
+				should_pay_principal_first=False
 			)
 
 			for loan_dict in loan_dicts:
@@ -1067,7 +1070,8 @@ def settle_repayment(
 						'to_fees': tx_input['to_fees']
 					},
 					deposit_date=deposit_date,
-					settlement_date=settlement_date
+					settlement_date=settlement_date,
+					should_pay_principal_first=False
 				)
 				calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
 				transactions_for_loan = loan_calculator.get_transactions_for_loan(

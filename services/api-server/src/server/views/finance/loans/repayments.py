@@ -123,6 +123,7 @@ class CalculateRepaymentEffectView(MethodView):
 		deposit_date = form['deposit_date']
 		settlement_date = form['settlement_date']
 		loan_ids = form['loan_ids']
+		should_pay_principal_first = form.get('should_pay_principal_first')
 
 		# NOTE: Fetching information is likely a slow task, so we probably want to
 		# turn this into an async operation.
@@ -133,6 +134,7 @@ class CalculateRepaymentEffectView(MethodView):
 			deposit_date,
 			settlement_date,
 			loan_ids,
+			should_pay_principal_first,
 			current_app.session_maker,
 		)
 		if err:

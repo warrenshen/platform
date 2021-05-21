@@ -114,6 +114,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 			deposit_date=test['deposit_date'],
 			settlement_date=test['settlement_date'],
 			loan_ids=loan_ids,
+			should_pay_principal_first=False,
 			session_maker=session_maker
 		)
 		self.assertIsNone(err)
