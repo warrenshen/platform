@@ -634,7 +634,6 @@ class LoanCalculator(object):
 					outstanding_principal -= tx['to_principal']
 					outstanding_interest -= tx['to_interest']
 					outstanding_fees -= tx['to_fees']
-					amount_paid_back_on_loan += tx['amount']
 
 			if payment_to_include and payment_to_include['deposit_date'] == cur_date:
 				# Incorporate this payment and snapshot what the state of the balance was
@@ -725,7 +724,6 @@ class LoanCalculator(object):
 				outstanding_principal -= inserted_repayment_transaction['to_principal']
 				outstanding_interest -= inserted_repayment_transaction['to_interest']
 				outstanding_fees -= inserted_repayment_transaction['to_fees']
-				amount_paid_back_on_loan += inserted_repayment_transaction['amount']
 
 				payment_effect_dict = PaymentEffectDict(
 					loan_state_before_payment=loan_state_before_payment,
@@ -737,6 +735,7 @@ class LoanCalculator(object):
 				if payment_util.is_repayment(tx):
 					# The principal for interest calculations gets paid off on the settlement date
 					outstanding_principal_for_interest -= tx['to_principal']
+					amount_paid_back_on_loan += tx['amount']
 
 				# You also want to incorporate the interest and fees that will accumulate on the settlement date,
 		
@@ -744,6 +743,7 @@ class LoanCalculator(object):
 				# Since it is the settlement date, whatever got applied to principal on this date
 				# reduces their outstanding_principal_for_interest
 				outstanding_principal_for_interest -= inserted_repayment_transaction['to_principal']
+				amount_paid_back_on_loan += inserted_repayment_transaction['amount']
 
 		if errors_list:
 			return None, errors_list

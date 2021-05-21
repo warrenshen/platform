@@ -1130,10 +1130,10 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'adjusted_maturity_date': date_util.load_date_str('10/05/2020'),
 						'outstanding_principal': 450.03,
 						'outstanding_principal_for_interest': 450.03,
-						# first_two_days_carryover + one_more_day which includes the 1.1 you already paid
-						'outstanding_interest': number_util.round_currency((430.02 * 0.002 * 2 - 1.1) + ((430.02  - 51.1) * 0.002 * 1)),
+						# first_two_days_carryover + settlement day, which doesnt include repayment (because repayment influence happens at the end of the settlement day)
+						'outstanding_interest': number_util.round_currency((430.02 * 0.002 * 3 - 1.1)),
 						'outstanding_fees': 0.0,
-						'interest_accrued_today': number_util.round_currency((430.02  - 51.1) * 0.002 * 1),
+						'interest_accrued_today': number_util.round_currency(430.02 * 0.002 * 1),
 						'should_close_loan': False
 					}
 				]
@@ -1150,7 +1150,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						# - 4.2 is for the adjustment
 						# - 1.0 is adjustment from principal
 						# + 2.0 is adjustment for interest
-						'outstanding_interest': number_util.round_currency((430.02 * 0.002 * 2 - 1.1) + ((430.02  - 51.1) * 0.002 * 24)),
+						'outstanding_interest': number_util.round_currency((430.02 * 0.002 * 3 - 1.1) + ((430.02  - 51.1) * 0.002 * 23)),
 						'outstanding_fees': number_util.round_currency(((14 * daily_interest_after_repayment * 0.25) + (7 * daily_interest_after_repayment * 0.5))),
 						'interest_accrued_today': number_util.round_currency((430.02  - 51.1) * 0.002),
 						'should_close_loan': False
