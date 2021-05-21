@@ -67,7 +67,7 @@ export default function CreateUpdateInvoiceModal({
     subtotal_amount: null,
     total_amount: null,
     taxes_amount: null,
-    is_cannabis: isPurchaseMoneyFinancingProductType(productType),
+    is_cannabis: isPurchaseMoneyFinancingProductType(productType) ? true : null,
     status: RequestStatusEnum.Drafted,
   } as InvoicesInsertInput;
 
