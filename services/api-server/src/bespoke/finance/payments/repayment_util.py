@@ -264,7 +264,7 @@ def calculate_repayment_effect(
 		if invoices:
 			for inv in invoices:
 				artifact_id_to_invoice_dict[str(inv.id)] = inv.as_dict()
-			
+
 		# Get the payments associated with the loan
 		all_transaction_dicts = []
 		all_payment_ids = []
@@ -739,17 +739,17 @@ def settle_repayment(
 				raise errors.Error('No negative values can be applied using transactions', details=err_details)
 
 			if not number_util.is_currency_rounded(tx_input['to_principal']):
-				raise errors.Error('Transaction "{}" to_principal specified is not rounded to the penny'.format(i))
+				raise errors.Error(f'Transaction "{i}" to_principal ({tx_input["to_principal"]}) specified is not rounded to the penny')
 
 			if not number_util.is_currency_rounded(tx_input['to_interest']):
-				raise errors.Error('Transaction "{}" to_interest specified is not rounded to the penny'.format(i))
+				raise errors.Error(f'Transaction "{i}" to_interest ({tx_input["to_interest"]}) specified is not rounded to the penny')
 
 			if not number_util.is_currency_rounded(tx_input['to_fees']):
-				raise errors.Error('Transaction "{}" to_fees specified is not rounded to the penny'.format(i))
+				raise errors.Error(f'Transaction "{i}" to_fees ({tx_input["to_fees"]}) specified is not rounded to the penny')
 
 			cur_sum = tx_input['to_principal'] + tx_input['to_interest'] + tx_input['to_fees']
 			if not number_util.float_eq(cur_sum, tx_input['amount']):
-				raise errors.Error('Transaction at index {} does not balance with itself'.format(i), details=err_details)
+				raise errors.Error(f'Transaction at index {i} does not balance with itself', details=err_details)
 
 			transactions_sum += cur_sum
 

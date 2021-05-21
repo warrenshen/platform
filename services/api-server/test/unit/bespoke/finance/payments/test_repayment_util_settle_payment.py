@@ -18,7 +18,7 @@ from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
 from bespoke_test.payments import payment_test_helper
 
-INTEREST_RATE = 0.002 # 0.2%
+DEFAULT_INTEREST_RATE = 0.002 # 0.2%
 
 def _get_late_fee_structure() -> str:
 	return json.dumps({
@@ -27,15 +27,36 @@ def _get_late_fee_structure() -> str:
 		'30+': 1.0
 	})
 
-def _get_contract(company_id: str, is_line_of_credit: bool) -> models.Contract:
-	if is_line_of_credit:
+def _get_contract(
+	company_id: str,
+	product_type: str,
+	interest_rate: float = DEFAULT_INTEREST_RATE,
+) -> models.Contract:
+	if product_type == ProductType.LINE_OF_CREDIT:
 		return models.Contract(
 			company_id=company_id,
 			product_type=ProductType.LINE_OF_CREDIT,
 			product_config=contract_test_helper.create_contract_config(
 				product_type=ProductType.LINE_OF_CREDIT,
 				input_dict=ContractInputDict(
-					interest_rate=INTEREST_RATE,
+					interest_rate=interest_rate,
+					maximum_principal_amount=120000.01,
+					max_days_until_repayment=0, # unused
+					late_fee_structure=_get_late_fee_structure(),
+				)
+			),
+			start_date=date_util.load_date_str('1/1/2020'),
+			adjusted_end_date=date_util.load_date_str('12/1/2020')
+		)
+	elif product_type == ProductType.INVOICE_FINANCING:
+		return models.Contract(
+			company_id=company_id,
+			product_type=ProductType.INVOICE_FINANCING,
+			product_config=contract_test_helper.create_contract_config(
+				product_type=ProductType.INVOICE_FINANCING,
+				input_dict=ContractInputDict(
+					interest_rate=interest_rate,
+					advance_rate=0.8,
 					maximum_principal_amount=120000.01,
 					max_days_until_repayment=0, # unused
 					late_fee_structure=_get_late_fee_structure(),
@@ -51,7 +72,7 @@ def _get_contract(company_id: str, is_line_of_credit: bool) -> models.Contract:
 			product_config=contract_test_helper.create_contract_config(
 				product_type=ProductType.INVENTORY_FINANCING,
 				input_dict=ContractInputDict(
-					interest_rate=INTEREST_RATE,
+					interest_rate=interest_rate,
 					maximum_principal_amount=120000.01,
 					max_days_until_repayment=0, # unused
 					late_fee_structure=_get_late_fee_structure(),
@@ -82,19 +103,41 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 	seed = test_helper.BasicSeed.create(self.session_maker, self)
 	seed.initialize()
 
+	invoice_ids = []
+	invoices = []
 	loan_ids = []
 	loans = []
+
 	company_id = seed.get_company_id('company_admin', index=0)
-	is_line_of_credit = test['is_line_of_credit']
+	product_type = test['product_type']
+	is_invoice_financing = product_type == ProductType.INVOICE_FINANCING
+	is_line_of_credit = product_type == ProductType.LINE_OF_CREDIT
+	interest_rate = test['interest_rate'] if 'interest_rate' in test else DEFAULT_INTEREST_RATE
 
 	with session_scope(session_maker) as session:
-		contract = _get_contract(company_id, is_line_of_credit=is_line_of_credit)
+		contract = _get_contract(company_id, product_type=product_type, interest_rate=interest_rate)
 		contract_test_helper.set_and_add_contract_for_company(contract, company_id, session)
 
-		for i in range(len(test['loans'])):
-			l = test['loans'][i]
+		if product_type == ProductType.INVOICE_FINANCING:
+			for i in range(len(test['invoices'])):
+				l = test['invoices'][i]
+				invoice = models.Invoice( # type: ignore
+					company_id=company_id,
+					subtotal_amount=decimal.Decimal(l['subtotal_amount']),
+					taxes_amount=decimal.Decimal(l['taxes_amount']),
+					total_amount=decimal.Decimal(l['total_amount']),
+					invoice_date=date_util.load_date_str(l['invoice_date']),
+					invoice_due_date=date_util.load_date_str(l['invoice_date']),
+				)
+				session.add(invoice)
+				session.flush()
+				invoice_ids.append(str(invoice.id))
+				invoices.append(invoice)
+
+		for i, l in enumerate(test['loans']):
 			loan = models.Loan(
 				company_id=company_id,
+				artifact_id=invoice_ids[i] if is_invoice_financing else None,
 				amount=decimal.Decimal(l['amount']),
 				origination_date=date_util.load_date_str(l['origination_date']),
 				maturity_date=date_util.load_date_str(l['maturity_date']),
@@ -292,7 +335,7 @@ def _run_test(self: db_unittest.TestCase, test: Dict) -> None:
 class TestSettleRepayment(db_unittest.TestCase):
 
 	def _run_test(self, test: Dict) -> None:
-		test['is_line_of_credit'] = False
+		test['product_type'] = ProductType.INVENTORY_FINANCING
 		_run_test(self, test)
 
 	def test_partially_paid(self) -> None:
@@ -1128,7 +1171,7 @@ class TestSettleRepayment(db_unittest.TestCase):
 		user_id = seed.get_user_id('company_admin', index=0)
 
 		with session_scope(self.session_maker) as session:
-			contract = _get_contract(company_id, is_line_of_credit=False)
+			contract = _get_contract(company_id, ProductType.INVENTORY_FINANCING)
 			session.add(contract)
 
 		req = repayment_util.SettleRepaymentReqDict(
@@ -1338,10 +1381,124 @@ class TestSettleRepayment(db_unittest.TestCase):
 		}
 		self._run_test(test)
 
+class TestSettleRepaymentInvoiceFinancing(db_unittest.TestCase):
+
+	def _run_test(self, test: Dict) -> None:
+		test['product_type'] = ProductType.INVOICE_FINANCING
+		_run_test(self, test)
+
+	def test_invoice_financing_single_loan_payment_one_fully_pays_subtotal(self) -> None:
+		# Day 1: interest accrues.
+		# Day 2: interest accrues, payments pays off some principal and interest.
+		#   Payment amount equals invoice subtotal amount, so no further interest accrues.
+		# Day 3: no interest accrues.
+		interest_rate = 0.50 # 50%
+		subtotal_amount = 100.0
+		payment_one_amount = 50.0 + (subtotal_amount * interest_rate)
+		payment_two_amount = 30.0 + ((subtotal_amount - payment_one_amount) * interest_rate)
+
+		tests: List[Dict] = [
+			{
+				'interest_rate': interest_rate,
+				'invoices': [
+					{
+						'subtotal_amount': subtotal_amount,
+						'taxes_amount': 0.0,
+						'total_amount': subtotal_amount,
+						'invoice_date': '10/10/2020',
+					},
+				],
+				'loans': [
+					{
+						'origination_date': '10/10/2020',
+						'maturity_date': '10/21/2020',
+						'adjusted_maturity_date': '10/21/2020',
+						'amount': 80.0,
+						'outstanding_principal_balance': 80.0,
+						'outstanding_interest': 0.0,
+						'outstanding_fees': 0.0,
+					},
+				],
+				'payments': [
+					{
+						'amount': payment_one_amount,
+						'payment_method': 'ach',
+						'payment_date': '10/11/2020',
+						'settlement_date': '10/11/2020',
+						'company_bank_account_id': None,
+						'transaction_inputs': [
+							{
+								'amount': payment_one_amount,
+								'to_principal': 50.0,
+								'to_interest': subtotal_amount * interest_rate,
+								'to_fees': 0.0,
+							},
+						],
+					},
+					{
+						'amount': payment_two_amount,
+						'payment_method': 'ach',
+						'payment_date': '10/12/2020',
+						'settlement_date': '10/12/2020',
+						'company_bank_account_id': None,
+						'transaction_inputs': [
+							{
+								'amount': payment_two_amount,
+								'to_principal': 30.0,
+								'to_interest': (subtotal_amount - payment_one_amount) * interest_rate,
+								'to_fees': 0.0,
+							},
+						],
+					},
+				],
+				'expected_payments': [
+					{
+						'settlement_identifier': '1',
+						'amount': payment_one_amount,
+						'expected_transactions': [
+							{
+								'amount': payment_one_amount,
+								'to_principal': 50.0,
+								'to_interest': subtotal_amount * interest_rate,
+								'to_fees': 0.0,
+								'type': db_constants.PaymentType.REPAYMENT,
+								'loan_id_index': 0
+							},
+						],
+					},
+					{
+						'settlement_identifier': '2',
+						'amount': payment_two_amount,
+						'expected_transactions': [
+							{
+								'amount': payment_two_amount,
+								'to_principal': 30.0,
+								'to_interest': (subtotal_amount - payment_one_amount) * interest_rate,
+								'to_fees': 0.0,
+								'type': db_constants.PaymentType.REPAYMENT,
+								'loan_id_index': 0
+							},
+						],
+					},
+				],
+				'loans_after_payment': [
+					{
+						'amount': 80.0,
+						'outstanding_principal_balance': 80.0 - 50.0 - 30.0,
+						'outstanding_interest': (50.0 + 50.0 + 0.0) - (50.0),
+						'outstanding_fees': 0.0,
+						'payment_status': PaymentStatusEnum.PARTIALLY_PAID
+					},
+				]
+			}
+		]
+		for test in tests:
+			self._run_test(test)
+
 class TestSettleRepaymentLineOfCredit(db_unittest.TestCase):
 
 	def _run_test(self, test: Dict) -> None:
-		test['is_line_of_credit'] = True
+		test['product_type'] = ProductType.LINE_OF_CREDIT
 		test['transaction_inputs'] = []
 		_run_test(self, test)
 
