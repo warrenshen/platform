@@ -19,7 +19,7 @@ import {
   PurchaseOrdersInsertInput,
 } from "generated/graphql";
 import { FileTypeEnum } from "lib/enum";
-import { ChangeEvent, useMemo } from "react";
+import { useMemo } from "react";
 
 interface Props {
   companyId: string;
@@ -153,7 +153,7 @@ function PurchaseOrderForm({
             <Checkbox
               data-cy={"purchase-order-form-input-is-cannabis"}
               checked={!!purchaseOrder.is_cannabis}
-              onChange={(event: ChangeEvent<HTMLInputElement>) =>
+              onChange={(event) =>
                 setPurchaseOrder({
                   ...purchaseOrder,
                   is_cannabis: event.target.checked,

@@ -80,6 +80,7 @@ export async function calculateRepaymentEffectMutation(req: {
     deposit_date: string;
     settlement_date: string;
     loan_ids: string[];
+    should_pay_principal_first: boolean;
   };
 }): Promise<CalculateRepaymentEffectResp> {
   return authenticatedApi
@@ -95,7 +96,7 @@ export async function calculateRepaymentEffectMutation(req: {
         console.log("error", error);
         return {
           status: "ERROR",
-          msg: "Could not calculate effect of payment for the loan(s)",
+          msg: "Could not calculate effect of payment",
         };
       }
     );

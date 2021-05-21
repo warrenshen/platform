@@ -57,6 +57,7 @@ export default function SettleRepaymentModalLoans({
   const contract = customer?.contract || null;
   const productType = customer?.contract?.product_type || null;
 
+  const [shouldPayPrincipalFirst, setShouldPayPrincipalFirst] = useState(false);
   const [repaymentEffectData, setRepaymentEffectData] = useState<
     CalculateRepaymentEffectResp["data"] | null
   >(null);
@@ -105,6 +106,7 @@ export default function SettleRepaymentModalLoans({
         deposit_date: payment.deposit_date,
         settlement_date: payment.settlement_date,
         loan_ids: payment.items_covered.loan_ids,
+        should_pay_principal_first: shouldPayPrincipalFirst,
       },
     });
 
@@ -250,10 +252,12 @@ export default function SettleRepaymentModalLoans({
     >
       {isOnSelectLoans ? (
         <SettleRepaymentSelectLoans
+          shouldPayPrincipalFirst={shouldPayPrincipalFirst}
           payment={payment}
           customer={customer}
           payor={payor!}
           setPayment={setPayment}
+          setShouldPayPrincipalFirst={setShouldPayPrincipalFirst}
         />
       ) : (
         <SettleRepaymentConfirmEffect

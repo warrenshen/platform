@@ -135,6 +135,7 @@ export default function CreateRepaymentModal({
         deposit_date: payment.requested_payment_date,
         settlement_date: payment.settlement_date,
         loan_ids: payment.items_covered.loan_ids,
+        should_pay_principal_first: false, // Always false for "create repayment".
       },
     });
 

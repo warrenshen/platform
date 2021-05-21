@@ -106,6 +106,7 @@ class CalculateRepaymentEffectView(MethodView):
 			'deposit_date',
 			'settlement_date',
 			'loan_ids',
+			'should_pay_principal_first',
 		]
 		for key in required_keys:
 			if key not in form:

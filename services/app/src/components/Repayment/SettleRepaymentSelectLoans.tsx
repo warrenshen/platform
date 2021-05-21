@@ -1,7 +1,9 @@
 import {
   Box,
+  Checkbox,
   createStyles,
   FormControl,
+  FormControlLabel,
   makeStyles,
   Theme,
   Typography,
@@ -32,17 +34,21 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
+  shouldPayPrincipalFirst: boolean;
   payment: PaymentsInsertInput;
   customer: Companies;
   payor: BankPayorFragment;
   setPayment: React.Dispatch<React.SetStateAction<PaymentsInsertInput>>;
+  setShouldPayPrincipalFirst: (shouldPayPrincipalFirst: boolean) => void;
 }
 
 function SettleRepaymentSelectLoans({
+  shouldPayPrincipalFirst,
   payment,
   customer,
   payor,
   setPayment,
+  setShouldPayPrincipalFirst,
 }: Props) {
   const classes = useStyles();
   const productType = customer.contract?.product_type;
@@ -238,6 +244,25 @@ function SettleRepaymentSelectLoans({
           </Box>
         </>
       )}
+      <Box display="flex" flexDirection="column" mt={4}>
+        <Typography variant="body1" color="textSecondary">
+          Advanced settings
+        </Typography>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={shouldPayPrincipalFirst}
+              onChange={(event) =>
+                setShouldPayPrincipalFirst(event.target.checked)
+              }
+              color="primary"
+            />
+          }
+          label={
+            "Apply payment in the following non-standard order: principal, interest, fees?"
+          }
+        />
+      </Box>
     </Box>
   ) : null;
 }
