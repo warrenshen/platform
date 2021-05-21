@@ -20,6 +20,7 @@ import {
 } from "generated/graphql";
 import { withinNDaysOfNowOrBefore } from "lib/date";
 import { bankRoutes, customerRoutes, routes } from "lib/routes";
+import { isPayorsTabVisible, isVendorsTabVisible } from "lib/settings";
 import { ReactNode, useContext } from "react";
 import { matchPath, useLocation } from "react-router-dom";
 import { useTitle } from "react-use";
@@ -190,25 +191,14 @@ const getCustomerNavItems = (
     },
     {
       dataCy: "vendors",
-      visible:
-        !!productType &&
-        [
-          ProductTypeEnum.InventoryFinancing,
-          ProductTypeEnum.LineOfCredit,
-          ProductTypeEnum.PurchaseMoneyFinancing,
-        ].includes(productType),
+      visible: isVendorsTabVisible(productType),
       iconNode: VendorsIcon,
       text: "Vendors",
       link: customerRoutes.vendors,
     },
     {
       dataCy: "payors",
-      visible:
-        !!productType &&
-        [
-          ProductTypeEnum.InvoiceFinancing,
-          ProductTypeEnum.PurchaseMoneyFinancing,
-        ].includes(productType),
+      visible: isPayorsTabVisible(productType),
       iconNode: PayorsIcon,
       text: "Payors",
       link: customerRoutes.payors,

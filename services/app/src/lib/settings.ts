@@ -1,5 +1,38 @@
 import { ProductTypeEnum } from "generated/graphql";
 
+function isProductTypeNone(productType: ProductTypeEnum | null) {
+  return productType === ProductTypeEnum.None || productType === null;
+}
+
+export function isVendorsTabVisible(productType: ProductTypeEnum | null) {
+  // Vendors tab is visible if either
+  // 1. Product type is None OR
+  // 2. Product type is not Invoice Financing
+  return (
+    isProductTypeNone(productType) ||
+    (!!productType &&
+      [
+        ProductTypeEnum.InventoryFinancing,
+        ProductTypeEnum.LineOfCredit,
+        ProductTypeEnum.PurchaseMoneyFinancing,
+      ].includes(productType))
+  );
+}
+
+export function isPayorsTabVisible(productType: ProductTypeEnum | null) {
+  // Vendors tab is visible if either
+  // 1. Product type is None OR
+  // 2. Product type is Invoice Financing or Purchase Money Financing
+  return (
+    isProductTypeNone(productType) ||
+    (!!productType &&
+      [
+        ProductTypeEnum.InvoiceFinancing,
+        ProductTypeEnum.PurchaseMoneyFinancing,
+      ].includes(productType))
+  );
+}
+
 export function isInvoiceFinancingProductType(
   productType: ProductTypeEnum | null
 ) {

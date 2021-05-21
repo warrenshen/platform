@@ -10,6 +10,7 @@ import {
   UserRolesEnum,
 } from "generated/graphql";
 import { bankRoutes } from "lib/routes";
+import { isPayorsTabVisible, isVendorsTabVisible } from "lib/settings";
 import BankCustomerContractPage from "pages/Bank/Customer/Contract";
 import {
   Link,
@@ -113,24 +114,13 @@ const getCustomerPaths = (productType: ProductTypeEnum | null) => [
     label: "Payments",
   },
   {
-    visible:
-      !!productType &&
-      [
-        ProductTypeEnum.InventoryFinancing,
-        ProductTypeEnum.LineOfCredit,
-        ProductTypeEnum.PurchaseMoneyFinancing,
-      ].includes(productType),
+    visible: isVendorsTabVisible(productType),
     path: bankRoutes.customer.vendors,
     component: BankCustomerVendorsSubpage,
     label: "Vendors",
   },
   {
-    visible:
-      !!productType &&
-      [
-        ProductTypeEnum.InvoiceFinancing,
-        ProductTypeEnum.PurchaseMoneyFinancing,
-      ].includes(productType),
+    visible: isPayorsTabVisible(productType),
     path: bankRoutes.customer.payors,
     component: BankCustomerPayorsSubpage,
     label: "Payors",
