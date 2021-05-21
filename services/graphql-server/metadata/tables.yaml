@@ -2541,6 +2541,7 @@
       - requested_amount
       - requested_by_user_id
       - requested_payment_date
+      - reversed_at
       - settled_at
       - settled_by_user_id
       - settlement_date
@@ -2570,6 +2571,7 @@
       - requested_amount
       - requested_by_user_id
       - requested_payment_date
+      - reversed_at
       - settled_at
       - settled_by_user_id
       - settlement_date
@@ -2598,6 +2600,7 @@
       - requested_amount
       - requested_by_user_id
       - requested_payment_date
+      - reversed_at
       - settled_at
       - settlement_date
       - settlement_identifier
@@ -2626,6 +2629,7 @@
       - requested_amount
       - requested_by_user_id
       - requested_payment_date
+      - reversed_at
       - settled_at
       - settlement_date
       - settlement_identifier
