@@ -37,7 +37,7 @@ class SignInView(MethodView):
 
 		with session_scope(current_app.session_maker) as session:
 			user = cast(models.User, session.query(models.User).filter(
-				models.User.email == email).first())
+				models.User.email == email.lower()).first())
 			if not user:
 				return handler_util.make_error_response('User {} does not exist'.format(email), 401)
 
@@ -74,7 +74,7 @@ class ForgotPasswordView(MethodView):
 
 		with session_scope(current_app.session_maker) as session:
 			user = session.query(models.User).filter(
-				models.User.email == email).first()
+				models.User.email == email.lower()).first()
 			if not user or not user.role:
 				raise errors.Error(f'An account with email "{email}" does not exist', http_code=401)
 
@@ -128,7 +128,7 @@ class ResetPasswordView(MethodView):
 			email = two_factor_info['email']
 
 			user = session.query(models.User).filter(
-				models.User.email == email).first()
+				models.User.email == email.lower()).first()
 			if not user:
 				raise errors.Error('User {} does not exist'.format(email), http_code=401)
 

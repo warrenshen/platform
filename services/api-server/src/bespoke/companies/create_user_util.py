@@ -81,7 +81,7 @@ def create_bank_or_customer_user(
 				raise errors.Error('Company is not Customer company type')
 
 		existing_user = session.query(models.User) \
-			.filter(models.User.email == email) \
+			.filter(models.User.email == email.lower()) \
 			.first()
 		if existing_user:
 			raise errors.Error('Email is already taken')
@@ -91,7 +91,7 @@ def create_bank_or_customer_user(
 		user.role = role
 		user.first_name = first_name
 		user.last_name = last_name
-		user.email = email
+		user.email = email.lower()
 		user.phone_number = phone_number
 
 		session.add(user)
@@ -133,7 +133,7 @@ def create_third_party_user(
 			raise errors.Error('Company is not Vendor company type')
 
 		user = session.query(models.User) \
-			.filter(models.User.email == email) \
+			.filter(models.User.email == email.lower()) \
 			.first()
 		if user:
 			raise errors.Error('Email is already taken')
@@ -142,7 +142,7 @@ def create_third_party_user(
 		user.company_id = company_id
 		user.first_name = first_name
 		user.last_name = last_name
-		user.email = email
+		user.email = email.lower()
 		user.phone_number = phone_number
 
 		session.add(user)
@@ -181,7 +181,7 @@ def update_third_party_user(
 
 		user.first_name = first_name
 		user.last_name = last_name
-		user.email = email
+		user.email = email.lower()
 		user.phone_number = phone_number
 
 	return UpdateThirdPartyUserRespDict(
