@@ -109,6 +109,7 @@ def _list_artifacts_for_invoice(
 
 			subtotal_amount = float(invoice.subtotal_amount) if invoice.subtotal_amount else 0.0
 			fundable_amount = subtotal_amount * advance_rate
+
 			artifacts_by_id[invoice_id] = ArtifactDict(
 				artifact_id=invoice_id,
 				total_amount=fundable_amount,

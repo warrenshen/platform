@@ -234,7 +234,7 @@ export default function CustomerInvoicesOpenTab({
                       companyId={companyId}
                       productType={productType}
                       actionType={ActionType.New}
-                      loanId=""
+                      loanId={null}
                       artifactId={selectedApprovedInvoice?.id}
                       handleClose={handler}
                     />

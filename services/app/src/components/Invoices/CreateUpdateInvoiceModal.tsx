@@ -25,6 +25,7 @@ import {
   submitNewInvoiceForPaymentMutation,
 } from "lib/api/invoices";
 import { ActionType } from "lib/enum";
+import { isPurchaseMoneyFinancingProductType } from "lib/settings";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
 
@@ -66,7 +67,7 @@ export default function CreateUpdateInvoiceModal({
     subtotal_amount: null,
     total_amount: null,
     taxes_amount: null,
-    is_cannabis: true,
+    is_cannabis: isPurchaseMoneyFinancingProductType(productType),
     status: RequestStatusEnum.Drafted,
   } as InvoicesInsertInput;
 

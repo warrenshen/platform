@@ -143,7 +143,7 @@ const rules: Rules = {
       Action.AddInvoices,
       Action.EditInvoices,
       Action.DeleteInvoices,
-      // Action.FundInvoices,
+      Action.FundInvoices,
       // Action.RequestPaymentOnInvoices,
 
       Action.AddPurchaseOrderLoan,
