@@ -11,7 +11,7 @@ from typing import Dict, List, NamedTuple, Tuple
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import models, db_constants
+from bespoke.db import db_constants, models
 from bespoke.finance import contract_util, number_util
 from bespoke.finance.loans import fee_util
 from bespoke.finance.payments import payment_util
@@ -267,7 +267,7 @@ def _determine_transaction(
 
 		amount_left, amount_used_interest = _apply_to(cur_loan_state, 'interest', amount_left)
 		amount_left, amount_used_fees = _apply_to(cur_loan_state, 'fees', amount_left)
-		
+
 		if not should_pay_principal_first:
 			amount_left, amount_used_principal = _apply_to(cur_loan_state, 'principal', amount_left)
 
@@ -285,7 +285,7 @@ def _determine_transaction(
 		amount_to_interest_left, amount_used_interest = _apply_to(cur_loan_state, 'interest', amount_to_interest_left)
 		amount_to_interest_left, amount_used_fees = _apply_to(cur_loan_state, 'fees', amount_to_interest_left)
 		amount_to_principal_left, amount_used_principal = _apply_to(cur_loan_state, 'principal', amount_to_principal_left)
-		
+
 		return TransactionInputDict(
 				amount=amount_used_fees + amount_used_interest + amount_used_principal,
 				to_principal=amount_used_principal,
@@ -409,8 +409,8 @@ class LoanCalculator(object):
 		return '\n'.join(lines)
 
 	def _get_interest_and_fees_due_on_day(
-			self, 
-			cur_date: datetime.date, 
+			self,
+			cur_date: datetime.date,
 			loan: models.LoanDict,
 			invoice: models.InvoiceDict,
 			threshold_info: ThresholdInfoDict,
@@ -474,7 +474,12 @@ class LoanCalculator(object):
 				if not invoice:
 					return None, errors.Error('No invoice found associated with this loan, could not compute any financial details')
 
-				amount_to_pay_interest_on = max(0.0, invoice['subtotal_amount'] - amount_paid_back_on_loan)
+				if number_util.float_eq(outstanding_principal_for_interest, 0.0):
+					# If loan is fully paid, there is no amount to pay interest on.
+					amount_to_pay_interest_on = 0.0
+				else:
+					# If loan is not fully paid, amount to pay interest on is based on invoice subtotal and amount paid back.
+					amount_to_pay_interest_on = max(0.0, invoice['subtotal_amount'] - amount_paid_back_on_loan)
 			else:
 				amount_to_pay_interest_on = outstanding_principal_for_interest
 
@@ -489,6 +494,7 @@ class LoanCalculator(object):
 			# interest is accruing, dont charge any additional fees there.
 			has_outstanding_principal = number_util.float_gt(round(outstanding_principal, 2), 0.0)
 			fee_due_for_day = fee_multiplier * interest_due_for_day if has_outstanding_principal else 0.0
+
 			return InterestFeeInfoDict(
 				interest_due_for_day=interest_due_for_day,
 				interest_rate_used=interest_rate_used,
@@ -573,7 +579,6 @@ class LoanCalculator(object):
 		def _is_after_repayment_deposit_date(cur_date: datetime.date) -> bool:
 			return payment_to_include and cur_date > payment_to_include['deposit_date'] and cur_date <= payment_to_include['settlement_date']
 
-
 		for i in range(days_out):
 			cur_date = loan['origination_date'] + timedelta(days=i)
 			# Check each transaction and the effect it had on this loan
@@ -596,7 +601,7 @@ class LoanCalculator(object):
 					has_been_funded = True
 
 			interest_fee_info, err = self._get_interest_and_fees_due_on_day(
-				cur_date, 
+				cur_date,
 				loan,
 				invoice,
 				threshold_info,
@@ -655,7 +660,7 @@ class LoanCalculator(object):
 
 				# Calculate the fees and interest that will accrue in between the deposit
 				# and settlement date.
-				inner_cur_date = cur_date 
+				inner_cur_date = cur_date
 				inner_end_date = payment_to_include['settlement_date']
 				additional_interest = 0.0
 				additional_fees = 0.0
@@ -689,7 +694,7 @@ class LoanCalculator(object):
 				#
 				# So we need to include these additional outstanding balances which may have accrued
 				# between the payment_date and settlement_date
-				# 
+				#
 				# To calculate the interest due is easy, since we just add the interest
 				# accrued due to the settlement days
 				loan_state_before_payment['outstanding_interest'] += additional_interest
@@ -708,7 +713,7 @@ class LoanCalculator(object):
 					loan, loan_state_before_payment, payment_to_include
 				)
 				has_enough_to_pay_principal_at_deposit_date = number_util.float_eq(
-					loan_state_before_payment['outstanding_principal'], 
+					loan_state_before_payment['outstanding_principal'],
 					temp_transaction['to_principal']
 				)
 
@@ -726,7 +731,7 @@ class LoanCalculator(object):
 
 				_reduce_custom_amount_remaining(inserted_repayment_transaction)
 
-				# Only interest and fees get paid on this date because we need to wait until the 
+				# Only interest and fees get paid on this date because we need to wait until the
 				# settlement date to pay for interest and fees, and then pay off whatever we can
 				# to the principal.
 				outstanding_principal -= inserted_repayment_transaction['to_principal']
@@ -746,7 +751,7 @@ class LoanCalculator(object):
 					amount_paid_back_on_loan += tx['amount']
 
 				# You also want to incorporate the interest and fees that will accumulate on the settlement date,
-		
+
 			if payment_to_include and payment_to_include['settlement_date'] == cur_date:
 				# Since it is the settlement date, whatever got applied to principal on this date
 				# reduces their outstanding_principal_for_interest
