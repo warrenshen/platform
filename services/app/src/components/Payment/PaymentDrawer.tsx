@@ -6,6 +6,9 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import DeletePaymentModal from "components/Payment/DeletePaymentModal";
+import PaymentStatusChip from "components/Shared/Chip/PaymentStatusChip";
+import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   CurrentUserContext,
   isRoleBankUser,
@@ -13,6 +16,8 @@ import {
 import { Payments, useGetPaymentQuery } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString, formatDatetimeString } from "lib/date";
+import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
+import { getPaymentStatus } from "lib/finance/payments/repayment";
 import { useContext } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -32,7 +37,7 @@ interface Props {
   handleClose: () => void;
 }
 
-function PaymentDrawer({ paymentId, handleClose }: Props) {
+export default function PaymentDrawer({ paymentId, handleClose }: Props) {
   const classes = useStyles();
 
   const {
@@ -40,7 +45,7 @@ function PaymentDrawer({ paymentId, handleClose }: Props) {
   } = useContext(CurrentUserContext);
   const isBankUser = isRoleBankUser(role);
 
-  const { data } = useGetPaymentQuery({
+  const { data, refetch } = useGetPaymentQuery({
     variables: {
       id: paymentId,
     },
@@ -63,6 +68,17 @@ function PaymentDrawer({ paymentId, handleClose }: Props) {
           </Typography>
           <Typography variant={"body1"}>{payment.id}</Typography>
         </Box>
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="flex-start"
+          mt={2}
+        >
+          <Typography variant="subtitle2" color="textSecondary">
+            Status
+          </Typography>
+          <PaymentStatusChip paymentStatus={getPaymentStatus(payment)} />
+        </Box>
         <Box display="flex" flexDirection="column">
           {isBankUser && (
             <Box display="flex" flexDirection="column" mt={2}>
@@ -82,7 +98,9 @@ function PaymentDrawer({ paymentId, handleClose }: Props) {
             <Typography variant="subtitle2" color="textSecondary">
               Method
             </Typography>
-            <Typography variant={"body1"}>{payment.method}</Typography>
+            <Typography variant={"body1"}>
+              {PaymentMethodToLabel[payment.method as PaymentMethodEnum]}
+            </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
@@ -156,10 +174,35 @@ function PaymentDrawer({ paymentId, handleClose }: Props) {
               {payment.submitted_by_user?.full_name || "-"}
             </Typography>
           </Box>
+          {isBankUser && (
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="flex-start"
+              mt={2}
+            >
+              <Typography variant="subtitle2" color="textSecondary">
+                Actions
+              </Typography>
+              <Box mt={1}>
+                <ModalButton
+                  label={"Delete Payment"}
+                  color={"default"}
+                  modal={({ handleClose }) => (
+                    <DeletePaymentModal
+                      paymentId={payment.id}
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            </Box>
+          )}
         </Box>
       </Box>
     </Drawer>
   ) : null;
 }
-
-export default PaymentDrawer;

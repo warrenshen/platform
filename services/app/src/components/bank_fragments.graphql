@@ -176,6 +176,7 @@ fragment Payment on payments {
   created_at
   submitted_at
   settled_at
+  reversed_at
   type
   method
   requested_amount
@@ -185,6 +186,7 @@ fragment Payment on payments {
   deposit_date
   settlement_date
   items_covered
+  is_deleted
   company_bank_account {
     ...BankAccount
   }

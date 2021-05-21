@@ -1,5 +1,4 @@
 import { Typography } from "@material-ui/core";
-import { LoanStatusEnum } from "generated/graphql";
 import { PaymentStatusEnum, PaymentStatusToLabel } from "lib/enum";
 import styled from "styled-components";
 
@@ -27,41 +26,17 @@ interface Props {
 }
 
 const StatusToColor = {
-  [LoanStatusEnum.Funded]: "#3498db", // Blue,
-  [PaymentStatusEnum.PARTIALLY_PAID]: "#e67e22", // Orange
-  [PaymentStatusEnum.PENDING]: "#f1c40f", // Yellow
-  [PaymentStatusEnum.SCHEDULED]: "#f1c40f", // Yellow
-  [PaymentStatusEnum.CLOSED]: "#9b59b6", // Purple
+  [PaymentStatusEnum.AwaitingSubmit]: "#e67e22", // Orange
+  [PaymentStatusEnum.AwaitingSettlement]: "#f1c40f", // Yellow
+  [PaymentStatusEnum.Settled]: "#2ecc71", // Green
+  [PaymentStatusEnum.Reversed]: "#e74c3c", // Red
+  [PaymentStatusEnum.Deleted]: "#bdc3c7", // Gray
 };
 
-function PaymentStatusChip({ paymentStatus }: Props) {
+export default function PaymentStatusChip({ paymentStatus }: Props) {
   return (
-    <Chip
-      backgroundColor={
-        StatusToColor[
-          [
-            PaymentStatusEnum.PARTIALLY_PAID,
-            PaymentStatusEnum.PENDING,
-            PaymentStatusEnum.SCHEDULED,
-            PaymentStatusEnum.CLOSED,
-          ].includes(paymentStatus)
-            ? paymentStatus
-            : LoanStatusEnum.Funded
-        ]
-      }
-    >
-      <Text>
-        {[
-          PaymentStatusEnum.PARTIALLY_PAID,
-          PaymentStatusEnum.PENDING,
-          PaymentStatusEnum.SCHEDULED,
-          PaymentStatusEnum.CLOSED,
-        ].includes(paymentStatus)
-          ? PaymentStatusToLabel[paymentStatus]
-          : "No Payment"}
-      </Text>
+    <Chip backgroundColor={StatusToColor[paymentStatus]}>
+      <Text>{PaymentStatusToLabel[paymentStatus]}</Text>
     </Chip>
   );
 }
-
-export default PaymentStatusChip;

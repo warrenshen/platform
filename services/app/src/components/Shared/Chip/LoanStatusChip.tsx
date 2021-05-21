@@ -36,12 +36,10 @@ const StatusToColor = {
   [LoanStatusEnum.Closed]: "#9b59b6", // Purple
 };
 
-function LoanStatusChip({ loanStatus }: Props) {
+export default function LoanStatusChip({ loanStatus }: Props) {
   return (
     <Chip backgroundColor={StatusToColor[loanStatus]}>
       <Text>{LoanStatusToLabel[loanStatus]}</Text>
     </Chip>
   );
 }
-
-export default LoanStatusChip;

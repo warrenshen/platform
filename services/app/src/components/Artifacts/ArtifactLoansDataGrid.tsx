@@ -3,8 +3,8 @@ import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
+import LoanPaymentStatusChip from "components/Shared/Chip/LoanPaymentStatusChip";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
-import PaymentStatusChip from "components/Shared/Chip/PaymentStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
@@ -14,7 +14,7 @@ import {
   Loans,
   LoanStatusEnum,
 } from "generated/graphql";
-import { PaymentStatusEnum } from "lib/enum";
+import { LoanPaymentStatusEnum } from "lib/enum";
 import {
   createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
@@ -126,8 +126,8 @@ export default function ArtifactLoansDataGrid({
         width: ColumnWidths.Status,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
-          <PaymentStatusChip
-            paymentStatus={params.value as PaymentStatusEnum}
+          <LoanPaymentStatusChip
+            paymentStatus={params.value as LoanPaymentStatusEnum}
           />
         ),
       },

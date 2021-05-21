@@ -4,8 +4,8 @@ import { FilterList } from "@material-ui/icons";
 import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
+import LoanPaymentStatusChip from "components/Shared/Chip/LoanPaymentStatusChip";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
-import PaymentStatusChip from "components/Shared/Chip/PaymentStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DataGridActionMenu, {
@@ -20,7 +20,11 @@ import {
   LoanTypeEnum,
   RequestStatusEnum,
 } from "generated/graphql";
-import { AllLoanStatuses, LoanTypeToLabel, PaymentStatusEnum } from "lib/enum";
+import {
+  AllLoanStatuses,
+  LoanPaymentStatusEnum,
+  LoanTypeToLabel,
+} from "lib/enum";
 import {
   createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
@@ -197,8 +201,10 @@ export default function LoansDataGrid({
         width: ColumnWidths.Status,
         alignment: "center",
         cellRender: (params: ValueFormatterParams) => (
-          <PaymentStatusChip
-            paymentStatus={params.row.data.payment_status as PaymentStatusEnum}
+          <LoanPaymentStatusChip
+            paymentStatus={
+              params.row.data.payment_status as LoanPaymentStatusEnum
+            }
           />
         ),
       },

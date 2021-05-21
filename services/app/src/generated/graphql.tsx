@@ -10846,6 +10846,8 @@ export type Payments = {
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   /** The date the customer requests the payment to arrive to the recipient bank account (a better name for this column is requested_deposit_date) */
   requested_payment_date?: Maybe<Scalars["date"]>;
+  /** When a payment was reversed: reversed payments do not have any transactions associated with them, but we retain them for record-keeping sake */
+  reversed_at?: Maybe<Scalars["timestamptz"]>;
   /** When this payment has been settled and applied to loans. This can only be done once. */
   settled_at?: Maybe<Scalars["timestamptz"]>;
   /** An object relationship */
@@ -10996,6 +10998,7 @@ export type PaymentsBoolExp = {
   requested_amount?: Maybe<NumericComparisonExp>;
   requested_by_user_id?: Maybe<UuidComparisonExp>;
   requested_payment_date?: Maybe<DateComparisonExp>;
+  reversed_at?: Maybe<TimestamptzComparisonExp>;
   settled_at?: Maybe<TimestamptzComparisonExp>;
   settled_by_user?: Maybe<UsersBoolExp>;
   settled_by_user_id?: Maybe<UuidComparisonExp>;
@@ -11058,6 +11061,7 @@ export type PaymentsInsertInput = {
   requested_amount?: Maybe<Scalars["numeric"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requested_payment_date?: Maybe<Scalars["date"]>;
+  reversed_at?: Maybe<Scalars["timestamptz"]>;
   settled_at?: Maybe<Scalars["timestamptz"]>;
   settled_by_user?: Maybe<UsersObjRelInsertInput>;
   settled_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -11088,6 +11092,7 @@ export type PaymentsMaxFields = {
   requested_amount?: Maybe<Scalars["numeric"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requested_payment_date?: Maybe<Scalars["date"]>;
+  reversed_at?: Maybe<Scalars["timestamptz"]>;
   settled_at?: Maybe<Scalars["timestamptz"]>;
   settled_by_user_id?: Maybe<Scalars["uuid"]>;
   settlement_date?: Maybe<Scalars["date"]>;
@@ -11115,6 +11120,7 @@ export type PaymentsMaxOrderBy = {
   requested_amount?: Maybe<OrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
   requested_payment_date?: Maybe<OrderBy>;
+  reversed_at?: Maybe<OrderBy>;
   settled_at?: Maybe<OrderBy>;
   settled_by_user_id?: Maybe<OrderBy>;
   settlement_date?: Maybe<OrderBy>;
@@ -11142,6 +11148,7 @@ export type PaymentsMinFields = {
   requested_amount?: Maybe<Scalars["numeric"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requested_payment_date?: Maybe<Scalars["date"]>;
+  reversed_at?: Maybe<Scalars["timestamptz"]>;
   settled_at?: Maybe<Scalars["timestamptz"]>;
   settled_by_user_id?: Maybe<Scalars["uuid"]>;
   settlement_date?: Maybe<Scalars["date"]>;
@@ -11169,6 +11176,7 @@ export type PaymentsMinOrderBy = {
   requested_amount?: Maybe<OrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
   requested_payment_date?: Maybe<OrderBy>;
+  reversed_at?: Maybe<OrderBy>;
   settled_at?: Maybe<OrderBy>;
   settled_by_user_id?: Maybe<OrderBy>;
   settlement_date?: Maybe<OrderBy>;
@@ -11222,6 +11230,7 @@ export type PaymentsOrderBy = {
   requested_amount?: Maybe<OrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
   requested_payment_date?: Maybe<OrderBy>;
+  reversed_at?: Maybe<OrderBy>;
   settled_at?: Maybe<OrderBy>;
   settled_by_user?: Maybe<UsersOrderBy>;
   settled_by_user_id?: Maybe<OrderBy>;
@@ -11282,6 +11291,8 @@ export enum PaymentsSelectColumn {
   /** column name */
   RequestedPaymentDate = "requested_payment_date",
   /** column name */
+  ReversedAt = "reversed_at",
+  /** column name */
   SettledAt = "settled_at",
   /** column name */
   SettledByUserId = "settled_by_user_id",
@@ -11318,6 +11329,7 @@ export type PaymentsSetInput = {
   requested_amount?: Maybe<Scalars["numeric"]>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   requested_payment_date?: Maybe<Scalars["date"]>;
+  reversed_at?: Maybe<Scalars["timestamptz"]>;
   settled_at?: Maybe<Scalars["timestamptz"]>;
   settled_by_user_id?: Maybe<Scalars["uuid"]>;
   settlement_date?: Maybe<Scalars["date"]>;
@@ -11412,6 +11424,8 @@ export enum PaymentsUpdateColumn {
   RequestedByUserId = "requested_by_user_id",
   /** column name */
   RequestedPaymentDate = "requested_payment_date",
+  /** column name */
+  ReversedAt = "reversed_at",
   /** column name */
   SettledAt = "settled_at",
   /** column name */
@@ -18109,6 +18123,7 @@ export type PaymentLimitedFragment = Pick<
   | "settlement_identifier"
   | "submitted_at"
   | "settled_at"
+  | "reversed_at"
   | "type"
   | "method"
   | "requested_amount"
@@ -18118,6 +18133,7 @@ export type PaymentLimitedFragment = Pick<
   | "deposit_date"
   | "settlement_date"
   | "items_covered"
+  | "is_deleted"
 > & { submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">> };
 
 export type FileFragment = Pick<Files, "id" | "name" | "path">;
@@ -18611,6 +18627,7 @@ export type PaymentFragment = Pick<
   | "created_at"
   | "submitted_at"
   | "settled_at"
+  | "reversed_at"
   | "type"
   | "method"
   | "requested_amount"
@@ -18620,6 +18637,7 @@ export type PaymentFragment = Pick<
   | "deposit_date"
   | "settlement_date"
   | "items_covered"
+  | "is_deleted"
 > & {
   company_bank_account?: Maybe<BankAccountFragment>;
   submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
@@ -18848,6 +18866,7 @@ export const PaymentLimitedFragmentDoc = gql`
     settlement_identifier
     submitted_at
     settled_at
+    reversed_at
     type
     method
     requested_amount
@@ -18857,6 +18876,7 @@ export const PaymentLimitedFragmentDoc = gql`
     deposit_date
     settlement_date
     items_covered
+    is_deleted
     submitted_by_user {
       id
       full_name
@@ -19274,6 +19294,7 @@ export const PaymentFragmentDoc = gql`
     created_at
     submitted_at
     settled_at
+    reversed_at
     type
     method
     requested_amount
@@ -19283,6 +19304,7 @@ export const PaymentFragmentDoc = gql`
     deposit_date
     settlement_date
     items_covered
+    is_deleted
     company_bank_account {
       ...BankAccount
     }

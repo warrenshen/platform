@@ -1,8 +1,13 @@
 // This file is for library code to handle logic (mostly handled by the backend)
 // when it comes to creating payment transactions
 
-import { Loans, PaymentsInsertInput } from "generated/graphql";
+import {
+  Loans,
+  PaymentLimitedFragment,
+  PaymentsInsertInput,
+} from "generated/graphql";
 import { authenticatedApi, CustomMutationResponse, loansRoutes } from "lib/api";
+import { PaymentStatusEnum } from "lib/enum";
 
 export type LoanBalance = {
   loan_id?: Loans["id"];
@@ -33,6 +38,20 @@ export type LoanBeforeAfterPayment = {
   loan_balance_after: LoanBalance;
   transaction: LoanTransaction;
 };
+
+export function getPaymentStatus(payment: PaymentLimitedFragment) {
+  if (!!payment.is_deleted) {
+    return PaymentStatusEnum.Deleted;
+  } else if (!!payment.reversed_at) {
+    return PaymentStatusEnum.Reversed;
+  } else if (!!payment.settled_at) {
+    return PaymentStatusEnum.Settled;
+  } else if (!!payment.submitted_at) {
+    return PaymentStatusEnum.AwaitingSettlement;
+  } else {
+    return PaymentStatusEnum.AwaitingSubmit;
+  }
+}
 
 type CalculateRepaymentEffectRespData = {
   loans_to_show: LoanToShow[];
@@ -187,6 +206,33 @@ export async function settleRepaymentMutation(
         return {
           status: "ERROR",
           msg: "Could not settle payment",
+        };
+      }
+    );
+}
+
+export type UndoRepaymentReq = {
+  variables: {
+    company_id: string;
+    payment_id: string;
+  };
+};
+
+export async function undoRepaymentMutation(
+  req: UndoRepaymentReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(loansRoutes.undoRepayment, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => response,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not undo payment",
         };
       }
     );

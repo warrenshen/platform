@@ -40,6 +40,24 @@ export enum PaymentTypeEnum {
 }
 
 export enum PaymentStatusEnum {
+  // Awaiting submit by bank user.
+  AwaitingSubmit = "awaiting_submit",
+  // Awaiting settle by bank user.
+  AwaitingSettlement = "awaiting_settlement",
+  Settled = "settled",
+  Reversed = "reversed",
+  Deleted = "deleted",
+}
+
+export const PaymentStatusToLabel = {
+  [PaymentStatusEnum.AwaitingSubmit]: "Awaiting Submission",
+  [PaymentStatusEnum.AwaitingSettlement]: "Awaiting Settlement",
+  [PaymentStatusEnum.Settled]: "Settled",
+  [PaymentStatusEnum.Reversed]: "Reversed",
+  [PaymentStatusEnum.Deleted]: "Deleted",
+};
+
+export enum LoanPaymentStatusEnum {
   PARTIALLY_PAID = "partially_paid",
   PENDING = "pending",
   SCHEDULED = "scheduled",
@@ -47,11 +65,11 @@ export enum PaymentStatusEnum {
 }
 
 // PaymentStatus internal name to label
-export const PaymentStatusToLabel = {
-  [PaymentStatusEnum.PARTIALLY_PAID]: "Partially Paid",
-  [PaymentStatusEnum.PENDING]: "Payment Pending",
-  [PaymentStatusEnum.SCHEDULED]: "Payment Scheduled",
-  [PaymentStatusEnum.CLOSED]: "Closed",
+export const LoanPaymentStatusToLabel = {
+  [LoanPaymentStatusEnum.PARTIALLY_PAID]: "Partially Paid",
+  [LoanPaymentStatusEnum.PENDING]: "Payment Pending",
+  [LoanPaymentStatusEnum.SCHEDULED]: "Payment Scheduled",
+  [LoanPaymentStatusEnum.CLOSED]: "Closed",
 };
 
 // TODO(dlluncor): Remove references to PastDue, Funded, Closed as these are not valid statuses

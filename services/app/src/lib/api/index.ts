@@ -90,6 +90,7 @@ export const loansRoutes = {
   createRepayment: "/finance/loans/repayments/create_repayment",
   scheduleRepayment: "/finance/loans/repayments/schedule_repayment",
   settleRepayment: "/finance/loans/repayments/settle_repayment",
+  undoRepayment: "/finance/loans/repayments/undo_repayment",
   deleteRepayment: "/finance/loans/repayments/delete_repayment",
 
   // Artifacts related.
