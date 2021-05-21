@@ -5,12 +5,13 @@ DATABASE_URL=postgres+psycopg2://postgres:postgrespassword@localhost:5432/postgr
 import os
 import sys
 from os import path
-from typing import cast, List
+from typing import List, cast
 
 # Path hack before we try to import bespoke
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../src")))
 
 from bespoke.db import models
+
 
 def main() -> None:
 	if not os.environ.get("DATABASE_URL"):
@@ -25,8 +26,28 @@ def main() -> None:
 			List[models.User],
 			session.query(models.User).all())
 
-		for user in users:
-			user.email = user.email.lower()
+		users_count = len(users)
+
+		for index, user in enumerate(users):
+			print(f'[{index + 1} of {users_count}]')
+
+			current_email = user.email
+			new_email = user.email.lower()
+
+			print(f'[{index + 1} of {users_count}] Running for user with email {current_email}')
+
+			if current_email == new_email:
+				continue
+
+			existing_users = cast(
+				List[models.User],
+				session.query(models.User).filter_by(email=new_email).all())
+
+			if len(existing_users) > 0:
+				print(f'[{index + 1} of {users_count}] Error: user(s) with the new email {new_email} already exist, skipping...')
+				continue
+
+			user.email = new_email
 
 if __name__ == "__main__":
 	main()
