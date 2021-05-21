@@ -12,8 +12,7 @@ from sqlalchemy.orm.session import Session
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../src")))
 from bespoke.date import date_util
 from bespoke.db import models, models_util
-from bespoke.db.db_constants import (ALL_LOAN_TYPES, CompanyType,
-                                     LoanStatusEnum, PaymentMethodEnum,
+from bespoke.db.db_constants import (CompanyType, PaymentMethodEnum,
                                      PaymentStatusEnum, PaymentType,
                                      TransactionSubType)
 from bespoke.db.models import session_scope
@@ -254,11 +253,19 @@ def import_settled_repayments(
 			augmented_transactions,
 		)
 
+		# Note: invoice may or may not exist, both are valid cases.
+		# For Invoice Financing product type an invoice is supposed to exist,
+		# but for other product types an invoice is not supposed to exist.
+		invoice = cast(
+			models.Invoice,
+			session.query(models.Invoice).get(loan.artifact_id))
+
 		calculate_result_dict, errs = calculator.calculate_loan_balance(
-			loan_calculator.ThresholdInfoDict(day_threshold_met=None),
-			loan.as_dict(),
-			transactions_for_loan,
-			parsed_settlement_date
+			threshold_info=loan_calculator.ThresholdInfoDict(day_threshold_met=None),
+			loan=loan.as_dict(),
+			invoice=invoice.as_dict() if invoice else None,
+			augmented_transactions=transactions_for_loan,
+			today=parsed_settlement_date,
 		)
 
 		if errs:
