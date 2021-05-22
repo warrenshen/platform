@@ -449,6 +449,24 @@ def unsettle_payment(payment_type: str, payment_id: str, session: Session) -> Tu
 	return True, None
 
 @errors.return_error_tuple
+def reverse_payment(payment_type: str, payment_id: str, session: Session) -> Tuple[bool, errors.Error]:
+	success, err = unsettle_payment(payment_type, payment_id, session)
+	if err:
+		raise err
+
+	payment = cast(
+		models.Payment,
+		session.query(models.Payment).filter(
+			models.Payment.id == payment_id
+		).first())
+
+	if not payment:
+		raise errors.Error(f'No payment found to reverse')
+
+	payment.reversed_at = date_util.now()
+	return True, None	
+
+@errors.return_error_tuple
 def delete_payment(
 	payment_types: List[str],
 	payment_id: str,
@@ -468,6 +486,9 @@ def delete_payment(
 
 	if payment.settled_at:
 		raise errors.Error(f'Cannot delete a payment of type {payment.type} which is still settled. You must undo it first')
+
+	if payment.reversed_at:
+		raise errors.Error('Cannot delete a payment which is already reversed')
 
 	if payment.type not in payment_types:
 		raise errors.Error(f'Cannot delete this payment which of type "{payment.type}" when you indicated you want to delete a payment of type "{payment_types}"')

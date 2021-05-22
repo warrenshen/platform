@@ -896,8 +896,29 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				payment_date='10/02/2020',
 				effective_date='10/03/2020'
 			)
-			cur_payment.is_deleted = True
-			cur_tx.is_deleted = True
+			success, err = payment_util.unsettle_payment(
+				payment_type=cur_payment.type,
+				payment_id=str(cur_payment.id),
+				session=session
+			)
+			self.assertIsNone(err)
+
+			# Because these transactions get reversed, these dont interrupt any of the financial
+			# calculations
+			cur_payment2, cur_tx2 = payment_test_helper.make_repayment(
+				session, loan,
+				to_principal=52.0,
+				to_interest=34 * 0.002 * 500.03, # they are paying off 3 days worth of interest accrued here.
+				to_fees=0.0,
+				payment_date='10/02/2020',
+				effective_date='10/03/2020'
+			)
+			success, err = payment_util.reverse_payment(
+				payment_type=cur_payment2.type,
+				payment_id=str(cur_payment2.id),
+				session=session
+			)
+			self.assertIsNone(err)
 
 			payment_util.create_and_add_adjustment(
 				company_id=company_id,

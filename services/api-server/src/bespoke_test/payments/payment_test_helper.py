@@ -43,6 +43,7 @@ def make_repayment(
 		company_id=loan.company_id,
 		payment_date=date_util.load_date_str(payment_date),
 		deposit_date=date_util.load_date_str(payment_date),
+		settled_at=date_util.now()
 	)
 	session.add(payment)
 	session.flush()

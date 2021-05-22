@@ -290,6 +290,40 @@ class SettleRepaymentView(MethodView):
 			'status': 'OK'
 		}), 200)
 
+class ReverseRepaymentView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@events.wrap(events.Actions.LOANS_REVERSE_REPAYMENT)
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = cast(Dict, json.loads(request.data))
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'company_id',
+			'payment_id'
+		]
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} from reverse payment request'.format(key))
+
+		user_session = auth_util.UserSession.from_session()
+
+		val, err = repayment_util.reverse_repayment(
+			cast(repayment_util.ReverseRepaymentReqDict, form),
+			user_session.get_user_id(),
+			current_app.session_maker
+		)
+
+		if err:
+			return handler_util.make_error_response(err)
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
 class UndoRepaymentView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
@@ -368,6 +402,9 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/settle_repayment', view_func=SettleRepaymentView.as_view(name='settle_repayment_view'))
+
+handler.add_url_rule(
+	'/reverse_repayment', view_func=ReverseRepaymentView.as_view(name='reverse_repayment_view'))
 
 handler.add_url_rule(
 	'/undo_repayment', view_func=UndoRepaymentView.as_view(name='undo_repayment_view'))

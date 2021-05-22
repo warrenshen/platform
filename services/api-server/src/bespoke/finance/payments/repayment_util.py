@@ -917,6 +917,9 @@ def settle_repayment(
 		if payment.settled_at:
 			raise errors.Error('Cannot use this payment because it has already been settled and applied to certain loans', details=err_details)
 
+		if payment.reversed_at:
+			raise errors.Error('Cannot use this payment because it has already been reversed', details=err_details)
+
 		if payment.type != db_constants.PaymentType.REPAYMENT:
 			raise errors.Error('Can only apply repayments against loans', details=err_details)
 
@@ -1254,6 +1257,29 @@ def undo_repayment(
 
 	with session_scope(session_maker) as session:
 		success, err = payment_util.unsettle_payment(
+				payment_type=db_constants.PaymentType.REPAYMENT,
+				payment_id=req['payment_id'],
+				session=session
+			)
+		if err:
+			raise err
+
+	return True, None
+
+ReverseRepaymentReqDict = TypedDict('ReverseRepaymentReqDict', {
+	'company_id': str,
+	'payment_id': str
+})
+
+@errors.return_error_tuple
+def reverse_repayment(
+	req: ReverseRepaymentReqDict,
+	user_id: str,
+	session_maker: Callable
+) -> Tuple[bool, errors.Error]:
+
+	with session_scope(session_maker) as session:
+		success, err = payment_util.reverse_payment(
 				payment_type=db_constants.PaymentType.REPAYMENT,
 				payment_id=req['payment_id'],
 				session=session

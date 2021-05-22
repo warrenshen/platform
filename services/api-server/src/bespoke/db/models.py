@@ -419,6 +419,7 @@ class Payment(Base):
 	settled_by_user_id = Column(GUID)
 	originating_payment_id = Column(GUID)
 	is_deleted = Column(Boolean)
+	reversed_at = Column(DateTime)
 
 
 	def as_dict(self) -> PaymentDict:
