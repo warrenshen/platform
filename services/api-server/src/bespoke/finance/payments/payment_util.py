@@ -383,7 +383,7 @@ def _reset_payment_status_on_loans(loan_ids: List[str], session: Session) -> Non
 			session.query(models.Transaction).filter(
 				models.Transaction.type == db_constants.PaymentType.REPAYMENT
 			).filter(models.Transaction.loan_id == str(loan.id)).filter(
-   			cast(Callable, models.Invoice.is_deleted.isnot)(True)
+   			cast(Callable, models.Transaction.is_deleted.isnot)(True)
     ).first())
 
 		if repayment_transaction:
@@ -444,6 +444,7 @@ def unsettle_payment(payment_type: str, payment_id: str, session: Session) -> Tu
 
 	loan_ids = list(loan_ids_set)
 
+	session.flush()
 	_reset_payment_status_on_loans(loan_ids, session)
 
 	return True, None

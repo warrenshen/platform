@@ -198,8 +198,7 @@ class SetDirtyCompanyBalancesView(MethodView):
 
 
 class DownloadMetrcDataView(MethodView):
-	# TODO(dlluncor): Add back
-	#decorators = [auth_util.requires_async_magic_header]
+	decorators = [auth_util.requires_async_magic_header]
 
 	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
