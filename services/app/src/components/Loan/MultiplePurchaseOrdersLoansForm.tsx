@@ -27,7 +27,7 @@ interface Props {
 const columns = [
   {
     dataField: "vendor_name",
-    caption: "Vendor",
+    caption: "Vendor Name",
     minWidth: ColumnWidths.MinWidth,
     cellRender: (params: ValueFormatterParams) => (
       <span>{params.row.data.artifact.vendor.name}</span>

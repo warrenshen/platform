@@ -18566,9 +18566,17 @@ export type LoanArtifactLimitedFragment = Pick<
   Loans,
   "id" | "loan_type" | "artifact_id" | "identifier"
 > & {
-  invoice?: Maybe<Pick<Invoices, "id" | "invoice_number">>;
+  invoice?: Maybe<
+    Pick<Invoices, "id" | "invoice_number"> & {
+      payor?: Maybe<Pick<Payors, "id" | "name">>;
+    }
+  >;
   line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
-  purchase_order?: Maybe<Pick<PurchaseOrders, "id" | "order_number">>;
+  purchase_order?: Maybe<
+    Pick<PurchaseOrders, "id" | "order_number"> & {
+      vendor?: Maybe<Pick<Vendors, "id" | "name">>;
+    }
+  >;
 };
 
 export type LoanArtifactFragment = Pick<
@@ -19137,6 +19145,10 @@ export const LoanArtifactLimitedFragmentDoc = gql`
     invoice {
       id
       invoice_number
+      payor {
+        id
+        name
+      }
     }
     line_of_credit {
       id
@@ -19145,6 +19157,10 @@ export const LoanArtifactLimitedFragmentDoc = gql`
     purchase_order {
       id
       order_number
+      vendor {
+        id
+        name
+      }
     }
   }
   ${LineOfCreditFragmentDoc}

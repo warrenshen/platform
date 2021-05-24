@@ -82,12 +82,12 @@ export default function InvoicesDataGrid({
       {
         visible: isCompanyVisible,
         dataField: "company_name",
-        caption: "Customer",
+        caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
       },
       {
         dataField: "payor_name",
-        caption: "Payor",
+        caption: "Payor Name",
         minWidth: ColumnWidths.MinWidth,
       },
       {

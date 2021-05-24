@@ -91,6 +91,7 @@ fragment Loan on loans {
   }
 }
 
+# The core fields for when the artifact related to a loan is shown.
 fragment LoanArtifactLimited on loans {
   id
   loan_type
@@ -99,6 +100,10 @@ fragment LoanArtifactLimited on loans {
   invoice {
     id
     invoice_number
+    payor {
+      id
+      name
+    }
   }
   line_of_credit {
     id
@@ -107,6 +112,10 @@ fragment LoanArtifactLimited on loans {
   purchase_order {
     id
     order_number
+    vendor {
+      id
+      name
+    }
   }
 }
 

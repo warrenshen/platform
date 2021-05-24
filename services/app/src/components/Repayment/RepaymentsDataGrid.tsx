@@ -135,7 +135,7 @@ function RepaymentsDataGrid({
           ),
       },
       {
-        caption: "Payor",
+        caption: "Payor Name",
         width: ColumnWidths.MinWidth,
         calculateCellValue: ({ invoice, company }: any) =>
           invoice?.payor.name || company?.name,

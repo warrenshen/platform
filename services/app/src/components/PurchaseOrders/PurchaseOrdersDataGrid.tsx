@@ -83,12 +83,12 @@ function PurchaseOrdersDataGrid({
       {
         visible: isCompanyVisible,
         dataField: "company_name",
-        caption: "Customer",
+        caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
       },
       {
         dataField: "vendor_name",
-        caption: "Vendor",
+        caption: "Vendor Name",
         minWidth: ColumnWidths.MinWidth,
       },
       {

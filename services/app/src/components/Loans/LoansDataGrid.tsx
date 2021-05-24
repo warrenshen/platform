@@ -66,6 +66,7 @@ function getRows(
       : loan.invoice
       ? loan.invoice.invoice_number
       : "N/A",
+    vendor_name: loan.purchase_order ? loan.purchase_order.vendor?.name : "N/A",
   }));
 }
 
@@ -258,6 +259,11 @@ export default function LoansDataGrid({
             {params.row.data.line_of_credit && "N/A"}
           </Box>
         ),
+      },
+      {
+        dataField: "vendor_name",
+        caption: "Vendor Name",
+        minWidth: ColumnWidths.MinWidth,
       },
       {
         caption: "Loan Amount",
