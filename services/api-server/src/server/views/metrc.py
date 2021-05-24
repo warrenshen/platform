@@ -6,7 +6,7 @@ from bespoke import errors
 from bespoke.audit import events
 from bespoke.db import db_constants, models, models_util
 from bespoke.db.models import session_scope
-from bespoke.metrc import metrc_util
+from bespoke.metrc import metrc_util, metrc_common_util, transfers_util
 from dateutil import parser
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
@@ -38,22 +38,21 @@ class GetTransfersView(MethodView):
 					'Missing key {} in request'.format(key))
 
 		us_state = form.get('us_state', 'CA')
-		state_to_vendor_key = {
-			'CA': cfg.METRC_VENDOR_KEY_CA
-		}
 
-		if us_state not in state_to_vendor_key:
-			return handler_util.make_error_response('{} is not supported as a US state'.format(us_state))
+		auth_provider = cfg.get_metrc_auth_provider()
 
-		vendor_key = state_to_vendor_key[us_state]
+		vendor_key, err = auth_provider.get_vendor_key_by_state(us_state)
 
-		auth_dict = metrc_util.AuthDict(
+		if err:
+			return handler_util.make_error_response(err)
+
+		auth_dict = metrc_common_util.AuthDict(
 			vendor_key=vendor_key,
-			user_key=cfg.METRC_USER_KEY
+			user_key=auth_provider.get_user_key()
 		)
-		rest = metrc_util.REST(
+		rest = metrc_common_util.REST(
 			auth_dict,
-			license_id=form['license_id'],
+			license_number=form['license_id'],
 			us_state=us_state
 		)
 
@@ -72,7 +71,7 @@ class GetTransfersView(MethodView):
 			resp = rest.get('/transfers/v1/incoming', time_range=[cur_date_str])
 			transfers = json.loads(resp.content)
 			cur_date = cur_date + timedelta(days=1)
-			transfers_obj = metrc_util.Transfers.build(transfers)
+			transfers_obj = transfers_util.Transfers.build(transfers)
 			include_transfers_header = len(all_transfers_rows) == 0
 			transfers_rows = transfers_obj.to_rows(include_header=include_transfers_header)
 			all_transfers_rows.extend(transfers_rows)
@@ -82,7 +81,7 @@ class GetTransfersView(MethodView):
 				resp = rest.get(f'/transfers/v1/delivery/{transfer_id}/packages')
 				t_packages_json = json.loads(resp.content)
 
-				transfer_packages = metrc_util.TransferPackages(transfer_id, t_packages_json)
+				transfer_packages = transfers_util.TransferPackages(transfer_id, t_packages_json)
 				include_packages_header = len(all_transfer_package_rows) == 0
 				all_transfer_package_rows.extend(transfer_packages.to_rows(
 					include_header=include_packages_header))

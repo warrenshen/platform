@@ -1,7 +1,11 @@
 import json
 import logging
 import typing
-from typing import Callable, Tuple
+from typing import Callable, Tuple, cast
+from flask import Blueprint, Response, current_app, make_response, request
+from flask.views import MethodView
+from mypy_extensions import TypedDict
+from sqlalchemy import func
 
 from bespoke import errors
 from bespoke.audit import events
@@ -10,11 +14,10 @@ from bespoke.db import models, models_util
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance.loans import reports_util
-from flask import Blueprint, Response, current_app, make_response, request
-from flask.views import MethodView
-from mypy_extensions import TypedDict
+from bespoke.metrc import metrc_util
+from server.config import Config
 from server.views.common import auth_util, handler_util
-from sqlalchemy import func
+
 
 handler = Blueprint('triggers', __name__)
 
@@ -64,7 +67,6 @@ def _send_ops_notification(data: NotificationTemplateData) -> errors.Error:
 
 
 class UpdateDirtyCompanyBalancesView(MethodView):
-
 	decorators = [auth_util.requires_async_magic_header]
 
 	@handler_util.catch_bad_json_request
@@ -89,7 +91,6 @@ class UpdateDirtyCompanyBalancesView(MethodView):
 
 
 class UpdateAllCompanyBalancesView(MethodView):
-
 	decorators = [auth_util.requires_async_magic_header]
 
 	@handler_util.catch_bad_json_request
@@ -121,7 +122,6 @@ class UpdateAllCompanyBalancesView(MethodView):
 
 
 class ExpireActiveEbbaApplications(MethodView):
-
 	decorators = [auth_util.requires_async_magic_header]
 
 	# This function cannot be type checked because it uses "join" which is an
@@ -171,7 +171,6 @@ def _set_needs_balance_recomputed(company_id: str, session_maker: Callable) -> T
 		return True, None
 
 class SetDirtyCompanyBalancesView(MethodView):
-
 	decorators = [auth_util.requires_async_magic_header]
 
 	@handler_util.catch_bad_json_request
@@ -198,6 +197,31 @@ class SetDirtyCompanyBalancesView(MethodView):
 		}))
 
 
+class DownloadMetrcDataView(MethodView):
+	# TODO(dlluncor): Add back
+	#decorators = [auth_util.requires_async_magic_header]
+
+	@handler_util.catch_bad_json_request
+	def post(self) -> Response:
+		logging.info("Received request to download metrc data")
+		cfg = cast(Config, current_app.app_config)
+
+		#		data = json.loads(request.data)
+
+		success, err = metrc_util.download_data_for_all_customers(
+			auth_provider=cfg.get_metrc_auth_provider(),
+			security_cfg=cfg.get_security_config(), 
+			session_maker=current_app.session_maker
+		)
+		if err:
+			raise errors.Error('{}'.format(err), http_code=500)
+
+		logging.info(f"Finished downloading metrc data for all customers")
+
+		return make_response(json.dumps({
+			"status": "OK"
+		}))
+
 
 handler.add_url_rule(
 	'/update-dirty-customer-balances',
@@ -216,3 +240,7 @@ handler.add_url_rule(
 handler.add_url_rule(
 	'/set_dirty_company_balances_view',
 	view_func=SetDirtyCompanyBalancesView.as_view(name='set_dirty_company_balances_view'))
+
+handler.add_url_rule(
+	"/download-metrc-data",
+	view_func=DownloadMetrcDataView.as_view(name='download_metrc_data_view'))

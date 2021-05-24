@@ -47,6 +47,8 @@ services:
       context: api-server
       dockerfile: Dockerfile-async
     container_name: bespoke-async-server
+    ports:
+      - 7001:7001
     depends_on:
       - bespoke-graphql-engine
     volumes:

@@ -300,6 +300,32 @@ class MetrcApiKey(Base):
 	last_used_at = Column(DateTime)
 	is_functioning = Column(Boolean)
 
+class MetrcTransfer(Base):
+	__tablename__ = 'metrc_transfers'
+
+	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	license_id = cast(GUID, Column(GUID, ForeignKey('company_licenses.id')))
+	created_date = Column(Date)
+	delivery_id = Column(String)
+	manifest_number = Column(String)
+	transfer_payload = Column(JSON)
+
+class MetrcPackage(Base):
+	__tablename__ = 'metrc_packages'
+
+	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
+	package_id = Column(String)
+	transfer_id = cast(GUID, Column(GUID, ForeignKey('metrc_transfers.id')))
+	delivery_id = Column(String)
+	label = Column(String)
+	type = Column(String)
+	product_name = Column(String)
+	package_payload = Column(JSON)
+	lab_results_payload = Column(JSON)
+	lab_results_status = Column(String)
+
+
 ## End Metrc
 
 class Artifact(Base):

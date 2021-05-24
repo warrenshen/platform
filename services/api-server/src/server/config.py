@@ -2,7 +2,7 @@ import json
 import os
 from typing import Dict
 
-from bespoke.config.config_util import is_development_env, is_test_env
+from bespoke.config.config_util import is_development_env, is_test_env, MetrcAuthProvider
 from bespoke.security import security_util
 
 
@@ -86,6 +86,14 @@ class Config(object):
 			URL_SECRET_KEY=self.URL_SECRET_KEY,
 			URL_SALT=self.URL_SALT,
 			BESPOKE_DOMAIN=self.BESPOKE_DOMAIN
+		)
+
+	def get_metrc_auth_provider(self) -> MetrcAuthProvider:
+		return MetrcAuthProvider(
+			user_key=self.METRC_USER_KEY,
+			state_to_vendor_key={
+				'CA': self.METRC_VENDOR_KEY_CA
+			}
 		)
 
 	def is_development_env(self) -> bool:

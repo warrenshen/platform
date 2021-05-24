@@ -1,7 +1,8 @@
 import base64
 import os
-from typing import Dict, List, Tuple, cast
+from typing import Callable, Dict, List, Tuple, cast
 
+import logging
 import requests
 from dateutil import parser
 from dotenv import load_dotenv
@@ -10,136 +11,13 @@ from requests.auth import HTTPBasicAuth
 from sqlalchemy.orm.session import Session
 
 from bespoke import errors
+from bespoke.config.config_util import MetrcAuthProvider
+from bespoke.date import date_util
 from bespoke.db import models
+from bespoke.db.models import session_scope
+from bespoke.metrc import transfers_util
+from bespoke.metrc.metrc_common_util import CompanyInfo, AuthDict, LicenseDict
 from bespoke.security import security_util
-
-AuthDict = TypedDict('AuthDict', {
-	'vendor_key': str,
-	'user_key': str
-})
-
-def _dicts_to_rows(
-	dicts: List[Dict],
-	col_specs: List[Tuple[str, str]],
-	include_header: bool) -> List[List[str]]:
-	title_row = []
-	rows: List[List[str]] = []
-
-	for t in dicts:
-		row = []
-		for i in range(len(col_specs)):
-			col_spec = col_specs[i]
-			if len(rows) == 0: # its the first row we are dealing with
-				title_row.append(col_spec[0])
-
-			key_name = col_spec[1]
-			val = t[key_name]
-			if val is None:
-				val = ''
-			row.append('{}'.format(val))
-
-		rows.append(row)
-
-	if include_header:
-		return [title_row] + rows
-
-	return rows
-
-class TransferPackages(object):
-
-	def __init__(self, delivery_id: str, transfer_packages: List[Dict]) -> None:
-		self.delivery_id = delivery_id
-		self._packages = transfer_packages
-		for package in self._packages:
-			package['DeliveryId'] = delivery_id
-
-	def get_package_ids(self) -> List[str]:
-		return [t['PackageId'] for t in self._packages]
-
-	def to_rows(self, include_header: bool) -> List[List[str]]:
-		col_specs = [
-				('Delivery Id', 'DeliveryId'),
-				('Package Id', 'PackageId'),
-				('Package', 'PackageLabel'),
-				('Package Type', 'PackageType'),
-				('Item', 'ProductName'),
-				('Item Category', 'ProductCategoryName'),
-				('Item Strain Name', 'ItemStrainName'),
-				('Item State', 'ShipmentPackageState'),
-				('Received Qty', 'ReceivedQuantity'),
-				('UoM', 'ReceivedUnitOfMeasureName'),
-				('Item Unit Qty', 'ItemUnitQuantity'),
-				('Item Unit Weight', 'ItemUnitWeight'),
-				('Is Testing Sample', 'IsTestingSample')
-				# ReceiverDollarAmount
-		]
-		return _dicts_to_rows(self._packages, col_specs, include_header)
-
-class Transfers(object):
-
-	def __init__(self, transfers: List[Dict]) -> None:
-		self._transfers = transfers
-
-	@staticmethod
-	def build(transfers: List[Dict]) -> 'Transfers':
-		return Transfers(transfers)
-
-	def get_delivery_ids(self) -> List[str]:
-		return [t['DeliveryId'] for t in self._transfers]
-
-	def to_rows(self, include_header: bool) -> List[List[str]]:
-		col_specs = [
-				('Transfer Id', 'Id'),
-				('Delivery Id', 'DeliveryId'),
-				('Manifest', 'ManifestNumber'),
-				('Origin Lic', 'ShipperFacilityLicenseNumber'),
-				('Origin Facility', 'ShipperFacilityName'),
-				# Origin Facility Type
-				('Dest Lic', 'RecipientFacilityLicenseNumber'),
-				('Destination Facility', 'RecipientFacilityName'),
-				('Type', 'ShipmentTypeName'),
-				('Received', 'ReceivedDateTime'),
-				('Num Packages', 'PackageCount')
-		]
-
-		return _dicts_to_rows(self._transfers, col_specs, include_header)
-
-class REST(object):
-
-	def __init__(self, auth_dict: AuthDict, license_id: str, us_state: str, debug: bool = False) -> None:
-		self.auth = HTTPBasicAuth(auth_dict['vendor_key'], auth_dict['user_key'])
-		self.license_id = license_id
-		abbr = us_state.lower()
-		self.base_url = f'https://api-{abbr}.metrc.com'
-		self.debug = debug
-
-	def get(self, path: str, time_range: List = None) -> requests.models.Response:
-		url = self.base_url + path
-
-		needs_q_mark = '?' not in path
-		if needs_q_mark:
-			url += '?licenseNumber=' + self.license_id
-		else:
-			url += '&licenseNumber=' + self.license_id
-
-		if time_range:
-			if len(time_range) == 1:
-				lastModifiedStart = parser.parse(time_range[0]).isoformat()
-				url += '&lastModifiedStart=' + lastModifiedStart
-			else:
-				lastModifiedStart = parser.parse(time_range[0]).isoformat()
-				lastModifiedEnd = parser.parse(time_range[1]).isoformat()
-				url += '&lastModifiedStart=' + lastModifiedStart + '&lastModifiedEnd=' + lastModifiedEnd
-
-		if self.debug:
-			print(url)
-
-		resp = requests.get(url, auth=self.auth)
-
-		if not resp.ok:
-				raise Exception('Code: {}. Reason: {}. Response: {}'.format(resp.status_code, resp.reason, resp.content.decode('utf-8')))
-
-		return resp
 
 @errors.return_error_tuple
 def add_api_key(
@@ -190,6 +68,130 @@ def view_api_key(
 	
 	return api_key, None
 
+### Download logic
+
+def _get_companies_with_metrc_keys(
+	auth_provider: MetrcAuthProvider, 
+	security_cfg: security_util.ConfigDict, 
+	session_maker: Callable) -> List[CompanyInfo]:
+	company_infos = []
+
+	# Find all customers that have a metrc key 
+	with session_scope(session_maker) as session:
+		companies = cast(
+			List[models.Company],
+			session.query(models.Company).all())
+
+		company_settings_ids = []
+		company_id_to_name = {}
+		for company in companies:
+			if not company.company_settings_id:
+				continue
+			company_settings_ids.append(str(company.company_settings_id))
+			company_id_to_name[str(company.id)] = company.name
+
+		company_settings = cast(
+			List[models.CompanySettings],
+			session.query(models.CompanySettings).filter(
+				models.CompanySettings.id.in_(company_settings_ids)
+		).all())
+
+		metrc_api_key_ids = []
+		for company_setting in company_settings:
+			if not company_setting.metrc_api_key_id:
+				continue
+
+			metrc_api_key_ids.append(str(company_setting.metrc_api_key_id))
+
+		metrc_api_keys = cast(
+			List[models.MetrcApiKey],
+			session.query(models.MetrcApiKey).filter(
+				models.MetrcApiKey.id.in_(metrc_api_key_ids)
+		).all())
+
+
+		company_ids_with_metrc_keys = set([])
+		for metrc_api_key in metrc_api_keys:
+			company_id = str(metrc_api_key.company_id)
+			company_ids_with_metrc_keys.add(company_id)
+
+		all_licenses = cast(
+			List[models.CompanyLicense],
+			session.query(models.CompanyLicense).filter(
+				models.CompanyLicense.company_id.in_(company_ids_with_metrc_keys)
+			).filter(
+   					cast(Callable, models.CompanyLicense.is_deleted.isnot)(True)
+    	).all())
+
+		company_id_to_licenses: Dict[str, List[LicenseDict]] = {}
+		for license in all_licenses:
+			company_id = str(license.company_id)
+			if company_id not in company_id_to_licenses:
+				company_id_to_licenses[company_id] = []
+
+			company_id_to_licenses[company_id].append(LicenseDict(
+				license_id=str(license.id),
+				license_number=license.license_number
+			))
+
+		for metrc_api_key in metrc_api_keys:
+			company_id = str(metrc_api_key.company_id)
+			company_name = company_id_to_name[company_id]
+			api_key = security_util.decode_secret_string(
+				security_cfg, metrc_api_key.encrypted_api_key
+			)
+
+			if company_id not in company_id_to_licenses:
+				logging.warn('Company ID {}, Name: "{}" has no licenses saved in the DB, skipping...'.format(
+										 company_id, company_id_to_name[company_id]))
+				continue
+
+			logging.info('Company name: {} has metrc key {}'.format(company_name, api_key))
+			company_infos.append(CompanyInfo(
+				company_id=company_id,
+				name=company_name,
+				us_state='CA', # TODO(dlluncor): save the us state associated with the key
+				licenses=company_id_to_licenses[company_id],
+				auth_dict=AuthDict(
+					vendor_key=api_key,
+					user_key=auth_provider.get_user_key()
+				)
+			))
+
+	return company_infos
+
+@errors.return_error_tuple
+def download_data_for_all_customers(
+	auth_provider: MetrcAuthProvider, 
+	security_cfg: security_util.ConfigDict, 
+	session_maker: Callable
+) -> Tuple[bool, errors.Error]:
+	
+	company_infos = _get_companies_with_metrc_keys(
+		auth_provider, security_cfg, session_maker)
+
+	errs = []
+	cur_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
+
+	for company_info in company_infos:
+
+		with session_scope(session_maker) as session:
+
+				# Download transfers data for the particular day
+				_, err = transfers_util.populate_transfers_table(
+					cur_date=cur_date,
+					company_info=company_info,
+					session=session
+				)
+				if err:
+					session.rollback()
+					errs.append(err)
+
+	# TODO(dlluncor): Handle errs
+	return None, None
+
+### End download logic
+
 def main() -> None:
 	load_dotenv(os.path.join(os.environ.get('SERVER_ROOT_DIR'), '.env'))
 
@@ -218,152 +220,3 @@ def main() -> None:
 
 if __name__ == '__main__':
 	main()
-
-"""
-
-response = requests.get(url, auth=HTTPBasicAuth(vendor_key, user_key))
-response.status_code
-
-
-# In[6]:
-
-
-response.json()
-
-
-# In[ ]:
-
-
-GET /packages/v1/active?licenseNumber=123-ABC&lastModifiedStart=2018-01-17T06:30:00Z&lastModifiedEnd=2018-01-17T17:30:00Z
-
-
-# In[34]:
-
-
-url = 'https://api-ca.metrc.com/packages/v1/active?licenseNumber=C11-0000995-LIC&lastModifiedStart=2020-04-10&lastModifiedEnd=2020-04-20'
-
-
-# In[42]:
-
-
-url = 'https://api-ca.metrc.com/packages/v1/active?licenseNumber=C11-0000995-LIC&lastModifiedStart=2020-04-14'
-
-
-# In[43]:
-
-
-response = requests.get(url, auth=HTTPBasicAuth(vendor_key, user_key))
-response.status_code
-
-
-# In[44]:
-
-
-response.json()
-
-
-# In[10]:
-
-
-url = 'https://api-ca.metrc.com/transfers/v1/types?licenseNumber=C11-0000995-LIC'
-
-
-# In[11]:
-
-
-response = requests.get(url, auth=HTTPBasicAuth(vendor_key, user_key))
-response.status_code
-
-
-# In[12]:
-
-
-response.json()
-
-
-# In[7]:
-
-
-url = 'https://api-ca.metrc.com/transfers/v1/incoming?licenseNumber=CCL19-0005288&lastModifiedStart=2020-04-20'
-
-
-# In[22]:
-
-
-url = 'https://api-ca.metrc.com/transfers/v1/incoming?licenseNumber=CDPH-10002016&lastModifiedStart=2020-04-01'
-
-
-# In[25]:
-
-
-url = 'https://api-ca.metrc.com/transfers/v1/incoming?licenseNumber=C11-0000425-LIC&lastModifiedStart=2020-04-01'
-
-
-# In[26]:
-
-
-response = requests.get(url, auth=HTTPBasicAuth(vendor_key, user_key))
-response.status_code
-
-
-# In[27]:
-
-
-response.json()
-
-
-# In[19]:
-
-
-url = 'https://api-ca.metrc.com/transfers/v1/outgoing?licenseNumber=CCL19-0005288&lastModifiedStart=2020-04-10'
-
-
-# In[48]:
-
-
-url = 'https://api-ca.metrc.com/transfers/v1/outgoing?licenseNumber=CDPH-10002016&lastModifiedStart=2020-04-10&lastModifiedEnd=2020-04-11'
-
-
-# In[46]:
-
-
-url = 'https://api-ca.metrc.com/transfers/v1/outgoing?licenseNumber=CDPH-10002016&lastModifiedStart=2020-04-10&lastModifiedEnd=2020-04-12'
-
-
-# In[ ]:
-
-
-url = 'https://api-ca.metrc.com/transfers/v1/outgoing?licenseNumber=C11-0000425-LIC&lastModifiedStart=2020-04-10'
-
-
-# In[49]:
-
-
-response = requests.get(url, auth=HTTPBasicAuth(vendor_key, user_key))
-response.status_code
-
-
-# In[50]:
-
-
-response.json()
-
-
-# In[53]:
-
-
-url = 'https://api-ca.metrc.com/transfers/v1/delivery/ 438326/packages'
-
-
-# In[54]:
-
-
-response = requests.get(url, auth=HTTPBasicAuth(vendor_key, user_key))
-response.status_code
-
-
-# In[ ]:
-
-
-# 0000438326
-"""
