@@ -19647,8 +19647,8 @@ export const GetCustomerOverviewDocument = gql`
         order_by: [
           { adjusted_maturity_date: asc }
           { origination_date: asc }
-          { amount: asc }
           { created_at: asc }
+          { amount: asc }
         ]
       ) {
         id
@@ -21752,8 +21752,8 @@ export const GetLoansForBankDocument = gql`
       order_by: [
         { adjusted_maturity_date: asc }
         { origination_date: asc }
-        { amount: asc }
         { created_at: asc }
+        { amount: asc }
       ]
     ) {
       id
@@ -21873,8 +21873,8 @@ export const GetFundedLoansForBankDocument = gql`
       order_by: [
         { adjusted_maturity_date: asc }
         { origination_date: asc }
-        { amount: asc }
         { created_at: asc }
+        { amount: asc }
       ]
     ) {
       id
@@ -21944,8 +21944,8 @@ export const GetActiveLoansForCompanyDocument = gql`
         order_by: [
           { adjusted_maturity_date: asc }
           { origination_date: asc }
-          { amount: asc }
           { created_at: asc }
+          { amount: asc }
         ]
       ) {
         id
@@ -22028,8 +22028,8 @@ export const GetClosedLoansForCompanyDocument = gql`
         order_by: [
           { adjusted_maturity_date: asc }
           { origination_date: asc }
-          { amount: asc }
           { created_at: asc }
+          { amount: asc }
         ]
       ) {
         id
@@ -22110,8 +22110,8 @@ export const GetAllLoansForCompanyDocument = gql`
         order_by: [
           { adjusted_maturity_date: asc }
           { origination_date: asc }
-          { amount: asc }
           { created_at: asc }
+          { amount: asc }
         ]
       ) {
         id
@@ -22194,8 +22194,8 @@ export const GetLoansByCompanyAndLoanTypeDocument = gql`
       order_by: [
         { adjusted_maturity_date: asc }
         { origination_date: asc }
-        { amount: asc }
         { created_at: asc }
+        { amount: asc }
       ]
     ) {
       id

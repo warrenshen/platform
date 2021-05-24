@@ -26,8 +26,8 @@ query GetCustomerOverview($companyId: uuid!, $loanType: loan_type_enum) {
       order_by: [
         { adjusted_maturity_date: asc }
         { origination_date: asc }
-        { amount: asc }
         { created_at: asc }
+        { amount: asc }
       ]
     ) {
       id
