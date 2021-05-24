@@ -95,3 +95,25 @@ export async function viewApiKey(req: {
       }
     );
 }
+
+export async function syncMetrcData(req: {
+  variables: {
+    cur_date: string;
+  };
+}): Promise<{
+  status: string;
+}> {
+  return authenticatedApi
+    .post(metrcRoutes.syncMetrcData, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not sync metrc data",
+        };
+      }
+    );
+}

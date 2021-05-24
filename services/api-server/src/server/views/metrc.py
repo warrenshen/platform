@@ -1,8 +1,10 @@
+import logging
 import json
 from datetime import timedelta
 from typing import Any, List, cast
 
 from bespoke import errors
+from bespoke.date import date_util
 from bespoke.audit import events
 from bespoke.db import db_constants, models, models_util
 from bespoke.db.models import session_scope
@@ -172,6 +174,35 @@ class ViewApiKeyView(MethodView):
 			'api_key': api_key
 		}), 200)		
 
+class SyncMetrcDataView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self) -> Response:
+		logging.info("Received request to download metrc data from the SYNC endpoint")
+		cfg = cast(Config, current_app.app_config)
+
+		data = json.loads(request.data)
+
+		start_date = date_util.load_date_str(data['cur_date'])
+		end_date = start_date
+
+		success, err = metrc_util.download_data_for_all_customers(
+			auth_provider=cfg.get_metrc_auth_provider(),
+			security_cfg=cfg.get_security_config(),
+			start_date=start_date,
+			end_date=end_date,
+			session_maker=current_app.session_maker
+		)
+		if err:
+			raise errors.Error('{}'.format(err), http_code=500)
+
+		logging.info(f"Finished syncing metrc data for all customers")
+
+		return make_response(json.dumps({
+			"status": "OK"
+		}))
+
 handler.add_url_rule(
 	'/get_transfers', view_func=GetTransfersView.as_view(name='get_transfers_view'))
 
@@ -180,3 +211,6 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/view_api_key', view_func=ViewApiKeyView.as_view(name='view_api_key_view'))
+
+handler.add_url_rule(
+	'/sync_metrc_data', view_func=SyncMetrcDataView.as_view(name='sync_metrc_data_view'))
