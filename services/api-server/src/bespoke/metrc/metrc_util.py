@@ -2,9 +2,11 @@ import base64
 import os
 from typing import Callable, Dict, List, Tuple, cast
 
+import  datetime
 import logging
 import requests
 from dateutil import parser
+from datetime import timedelta
 from dotenv import load_dotenv
 from mypy_extensions import TypedDict
 from requests.auth import HTTPBasicAuth
@@ -163,7 +165,9 @@ def _get_companies_with_metrc_keys(
 @errors.return_error_tuple
 def download_data_for_all_customers(
 	auth_provider: MetrcAuthProvider, 
-	security_cfg: security_util.ConfigDict, 
+	security_cfg: security_util.ConfigDict,
+	start_date: datetime.date,
+	end_date: datetime.date,
 	session_maker: Callable
 ) -> Tuple[bool, errors.Error]:
 	
@@ -171,21 +175,23 @@ def download_data_for_all_customers(
 		auth_provider, security_cfg, session_maker)
 
 	errs = []
-	cur_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
 
 	for company_info in company_infos:
+		cur_date = start_date
+		while cur_date <= end_date:
+			with session_scope(session_maker) as session:
 
-		with session_scope(session_maker) as session:
+					# Download transfers data for the particular day
+					_, err = transfers_util.populate_transfers_table(
+						cur_date=cur_date,
+						company_info=company_info,
+						session=session
+					)
+					if err:
+						session.rollback()
+						errs.append(err)
 
-				# Download transfers data for the particular day
-				_, err = transfers_util.populate_transfers_table(
-					cur_date=cur_date,
-					company_info=company_info,
-					session=session
-				)
-				if err:
-					session.rollback()
-					errs.append(err)
+			cur_date = cur_date + timedelta(days=1)
 
 	# TODO(dlluncor): Handle errs
 	return None, None

@@ -17974,6 +17974,7 @@ export type CompanyQuery = {
         } & CompanySettingsFragment
       >;
       contract?: Maybe<ContractFragment>;
+      licenses: Array<CompanyLicenseFragment>;
     } & CompanyFragment
   >;
 };
@@ -24679,6 +24680,16 @@ export const CompanyDocument = gql`
       contract {
         ...Contract
       }
+      licenses(
+        where: {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+      ) {
+        ...CompanyLicense
+      }
     }
   }
   ${CompanyFragmentDoc}
@@ -24686,6 +24697,7 @@ export const CompanyDocument = gql`
   ${CompanySettingsFragmentDoc}
   ${MetrcApiKeyFragmentDoc}
   ${ContractFragmentDoc}
+  ${CompanyLicenseFragmentDoc}
 `;
 
 /**
