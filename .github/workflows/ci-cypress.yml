@@ -3,12 +3,12 @@ name: CI Cypress
 on:
   push:
     branches:
-      - master
+      - staging
     paths:
       - "services/app/**"
   pull_request:
     branches:
-      - master
+      - staging
     paths:
       - "services/app/**"
 
