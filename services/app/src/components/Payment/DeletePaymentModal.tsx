@@ -80,7 +80,7 @@ function DeletePaymentModal({ paymentId, handleClose }: Props) {
         )}
         <Box mb={2}>
           <Typography variant={"h6"}>
-            Are you sure you want to delete the following payment? You cannot
+            Are you sure you want to delete the following payment? You CANNOT
             undo this action.
           </Typography>
         </Box>

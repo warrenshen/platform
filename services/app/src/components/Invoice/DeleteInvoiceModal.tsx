@@ -81,7 +81,7 @@ export default function DeleteInvoiceModal({ invoiceId, handleClose }: Props) {
         )}
         <Box mb={2}>
           <Typography variant={"h6"}>
-            Are you sure you want to delete the following invoice? You cannot
+            Are you sure you want to delete the following invoice? You CANNOT
             undo this action.
           </Typography>
         </Box>

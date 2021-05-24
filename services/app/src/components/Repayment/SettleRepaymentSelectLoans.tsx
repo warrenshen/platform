@@ -62,7 +62,7 @@ function SettleRepaymentSelectLoans({
     skip: !payment || !loanType,
     fetchPolicy: "network-only",
     variables: {
-      companyId: payment.company_id || "",
+      companyId: payment.company_id,
       loanType: loanType || LoanTypeEnum.PurchaseOrder,
     },
   });

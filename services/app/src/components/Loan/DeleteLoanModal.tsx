@@ -81,7 +81,7 @@ export default function DeleteLoanModal({ loanId, handleClose }: Props) {
         )}
         <Box mb={2}>
           <Typography variant={"h6"}>
-            Are you sure you want to delete the following loan? You cannot undo
+            Are you sure you want to delete the following loan? You CANNOT undo
             this action.
           </Typography>
         </Box>

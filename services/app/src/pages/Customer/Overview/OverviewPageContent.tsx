@@ -21,6 +21,7 @@ import {
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
 import {
+  Companies,
   LoanFragment,
   PaymentLimitedFragment,
   Payments,
@@ -51,7 +52,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  companyId: string;
+  companyId: Companies["id"];
   productType: ProductTypeEnum;
 }
 

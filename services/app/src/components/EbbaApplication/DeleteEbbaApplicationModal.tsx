@@ -88,7 +88,7 @@ export default function DeleteEbbaApplicationModal({
         <Box mb={2}>
           <Typography variant={"h6"}>
             Are you sure you want to delete the following borrowing base
-            certification? You cannot undo this action.
+            certification? You CANNOT undo this action.
           </Typography>
         </Box>
         {ebbaApplication && (

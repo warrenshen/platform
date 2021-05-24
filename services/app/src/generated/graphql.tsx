@@ -17766,14 +17766,6 @@ export type GetPaymentsForCompanyQuery = {
       >;
     }
   >;
-  transactions: Array<
-    Pick<Transactions, "id"> & {
-      loan?: Maybe<
-        Pick<Loans, "id"> & LoanLimitedFragment & LoanArtifactLimitedFragment
-      >;
-      payment: PaymentLimitedFragment;
-    } & TransactionFragment
-  >;
 };
 
 export type GetCompanySettingsQueryVariables = Exact<{
@@ -18121,6 +18113,7 @@ export type LoanLimitedFragment = Pick<
 export type PaymentLimitedFragment = Pick<
   Payments,
   | "id"
+  | "company_id"
   | "settlement_identifier"
   | "submitted_at"
   | "settled_at"
@@ -18872,6 +18865,7 @@ export const LoanLimitedFragmentDoc = gql`
 export const PaymentLimitedFragmentDoc = gql`
   fragment PaymentLimited on payments {
     id
+    company_id
     settlement_identifier
     submitted_at
     settled_at
@@ -19673,6 +19667,7 @@ export const GetCustomerOverviewDocument = gql`
             { type: { _in: ["repayment", "repayment_account_fee"] } }
             { submitted_at: { _is_null: false } }
             { settled_at: { _is_null: true } }
+            { reversed_at: { _is_null: true } }
           ]
         }
       ) {
@@ -19781,6 +19776,7 @@ export const GetCustomerAccountDocument = gql`
             { type: { _eq: "repayment" } }
             { submitted_at: { _is_null: false } }
             { settled_at: { _is_null: true } }
+            { reversed_at: { _is_null: true } }
           ]
         }
         order_by: { created_at: asc }
@@ -23508,6 +23504,7 @@ export const GetSubmittedPaymentsDocument = gql`
           { type: { _in: ["repayment", "repayment_account_fee"] } }
           { submitted_at: { _is_null: false } }
           { settled_at: { _is_null: true } }
+          { reversed_at: { _is_null: true } }
         ]
       }
     ) {
@@ -23573,14 +23570,29 @@ export const GetPaymentsForCompanyDocument = gql`
               ]
             }
             { type: { _in: ["repayment", "repayment_account_fee"] } }
-            { settlement_date: { _is_null: false } }
+            {
+              _or: [
+                { reversed_at: { _is_null: false } }
+                { settlement_date: { _is_null: false } }
+              ]
+            }
           ]
         }
-        order_by: [{ settlement_date: desc }, { created_at: desc }]
+        order_by: [
+          { deposit_date: desc }
+          { settlement_date: desc }
+          { created_at: desc }
+        ]
       ) {
         id
         ...PaymentLimited
-        transactions {
+        transactions(
+          order_by: [
+            { payment: { deposit_date: desc } }
+            { payment: { settlement_date: desc } }
+            { payment: { created_at: desc } }
+          ]
+        ) {
           id
           ...Transaction
           loan {
@@ -23593,36 +23605,6 @@ export const GetPaymentsForCompanyDocument = gql`
             ...PaymentLimited
           }
         }
-      }
-    }
-    transactions(
-      where: {
-        _and: [
-          {
-            _or: [
-              { is_deleted: { _is_null: true } }
-              { is_deleted: { _eq: false } }
-            ]
-          }
-          { type: { _eq: "repayment" } }
-          { payment: { company_id: { _eq: $company_id } } }
-        ]
-      }
-      order_by: [
-        { payment: { deposit_date: desc } }
-        { payment: { settlement_date: desc } }
-        { payment: { created_at: desc } }
-      ]
-    ) {
-      id
-      ...Transaction
-      loan {
-        id
-        ...LoanLimited
-        ...LoanArtifactLimited
-      }
-      payment {
-        ...PaymentLimited
       }
     }
   }

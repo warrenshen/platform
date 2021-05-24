@@ -33,9 +33,6 @@ export default function CustomerPaymentsPageContent({ companyId }: Props) {
 
   const company = data?.companies_by_pk;
   const payments = useMemo(() => company?.payments || [], [company]);
-  const transactions = useMemo(() => data?.transactions || [], [
-    data?.transactions,
-  ]);
 
   return (
     <PageContent
@@ -45,7 +42,7 @@ export default function CustomerPaymentsPageContent({ companyId }: Props) {
       <Box mt={4}>
         <RepaymentTransactionsDataGrid
           isExcelExport={isBankUser}
-          transactions={transactions}
+          payments={payments}
         />
       </Box>
       <Box mt={4}>

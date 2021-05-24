@@ -8,21 +8,49 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
+  GetPaymentsForCompanyQuery,
   LoanLimitedFragment,
   PaymentLimitedFragment,
   Payments,
-  TransactionFragment,
 } from "generated/graphql";
 import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
 import { createLoanDisbursementIdentifier } from "lib/loans";
 import { ColumnWidths } from "lib/tables";
+import { flatten } from "lodash";
 import { useMemo } from "react";
+
+function getRows(
+  payments: NonNullable<
+    GetPaymentsForCompanyQuery["companies_by_pk"]
+  >["payments"]
+) {
+  return flatten(
+    payments.map((payment) =>
+      !!payment.reversed_at
+        ? [
+            {
+              id: `${payment.id}-0`,
+              status: "Reversed",
+              payment: payment,
+            },
+          ]
+        : payment.transactions.map((transaction) => ({
+            id: `${payment.id}-${transaction.id}`,
+            status: "Settled",
+            payment: payment,
+            transaction: transaction,
+          }))
+    )
+  );
+}
 
 interface Props {
   isExcelExport?: boolean;
   isMethodVisible?: boolean;
   isMultiSelectEnabled?: boolean;
-  transactions: TransactionFragment[];
+  payments: NonNullable<
+    GetPaymentsForCompanyQuery["companies_by_pk"]
+  >["payments"];
   selectedPaymentIds?: Payments["id"][];
   handleSelectPayments?: (payments: PaymentLimitedFragment[]) => void;
 }
@@ -30,11 +58,11 @@ interface Props {
 export default function RepaymentTransactionsDataGrid({
   isExcelExport = false,
   isMultiSelectEnabled = false,
-  transactions,
+  payments,
   selectedPaymentIds,
   handleSelectPayments,
 }: Props) {
-  const rows = transactions;
+  const rows = useMemo(() => getRows(payments), [payments]);
   const columns = useMemo(
     () => [
       {
@@ -70,6 +98,11 @@ export default function RepaymentTransactionsDataGrid({
         ),
       },
       {
+        dataField: "status",
+        caption: "Payment Status",
+        width: ColumnWidths.Status,
+      },
+      {
         dataField: "payment.deposit_date",
         caption: "Payment Deposit Date",
         width: ColumnWidths.Date,
@@ -90,7 +123,7 @@ export default function RepaymentTransactionsDataGrid({
         ),
       },
       {
-        dataField: "loan.disbursement_identifier",
+        dataField: "transaction.loan.disbursement_identifier",
         caption: "Loan Disbursement Identifier",
         width: 120,
         cellRender: (params: ValueFormatterParams) => (
@@ -109,7 +142,7 @@ export default function RepaymentTransactionsDataGrid({
         ),
       },
       {
-        dataField: "loan.artifact_id",
+        dataField: "transaction.loan.artifact_id",
         caption: "Purchase Order / Invoice",
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
@@ -135,39 +168,39 @@ export default function RepaymentTransactionsDataGrid({
         ),
       },
       {
-        dataField: "amount",
+        dataField: "transaction.amount",
         caption: "Transaction Total Amount",
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.amount} />
+          <CurrencyDataGridCell value={params.row.data.amount || null} />
         ),
       },
       {
+        dataField: "transaction.to_principal",
         caption: "Transaction To Principal",
-        dataField: "to_principal",
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.to_principal} />
+          <CurrencyDataGridCell value={params.row.data.to_principal || null} />
         ),
       },
       {
+        dataField: "transaction.to_interest",
         caption: "Transaction To Interest",
-        dataField: "to_interest",
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.to_interest} />
+          <CurrencyDataGridCell value={params.row.data.to_interest || null} />
         ),
       },
       {
+        dataField: "transaction.to_fees",
         caption: "Transaction To Fees",
-        dataField: "to_fees",
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.to_fees} />
+          <CurrencyDataGridCell value={params.row.data.to_fees || null} />
         ),
       },
     ],

@@ -211,6 +211,33 @@ export async function settleRepaymentMutation(
     );
 }
 
+export type ReverseRepaymentReq = {
+  variables: {
+    company_id: string;
+    payment_id: string;
+  };
+};
+
+export async function reverseRepaymentMutation(
+  req: ReverseRepaymentReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(loansRoutes.reverseRepayment, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => response,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not reverse payment",
+        };
+      }
+    );
+}
+
 export type UndoRepaymentReq = {
   variables: {
     company_id: string;
