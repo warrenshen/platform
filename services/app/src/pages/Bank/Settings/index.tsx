@@ -82,11 +82,11 @@ function BankSettingsPage() {
     <Page appBarTitle={"Settings"}>
       <PageContent title={"Settings"}>
         <Box className={classes.section}>
-          <h2>Bank Accounts</h2>
+          <h2>Bespoke Financial Bank Accounts</h2>
           <Can perform={Action.AddBankAccount}>
             <Box display="flex" flexDirection="row-reverse" mb={3}>
               <ModalButton
-                label={"Add Bank Account"}
+                label={"Add BF Bank Account"}
                 modal={({ handleClose }) => (
                   <CreateUpdateBankAccountModal
                     companyId={null}
@@ -115,16 +115,12 @@ function BankSettingsPage() {
         </Box>
         <Box className={classes.sectionSpace} />
         <Box className={classes.section}>
-          <h2>Users</h2>
+          <h2>Bespoke Financial Users</h2>
           <Can perform={Action.ManipulateUser}>
-            <Box
-              display="flex"
-              style={{ marginBottom: "1rem" }}
-              flexDirection="row-reverse"
-            >
+            <Box display="flex" flexDirection="row-reverse" mb={2}>
               <ModalButton
                 isDisabled={selectedUsers.length > 0}
-                label={"Invite User"}
+                label={"Invite BF User"}
                 modal={({ handleClose }) => (
                   <InviteUserModal
                     companyId={null}
@@ -139,7 +135,7 @@ function BankSettingsPage() {
               <Box mr={2}>
                 <ModalButton
                   isDisabled={selectedUsers.length !== 1}
-                  label={"Edit User"}
+                  label={"Edit BF User"}
                   modal={({ handleClose }) => (
                     <EditUserProfileModal
                       userId={selectedUsers[0].id}
@@ -157,7 +153,6 @@ function BankSettingsPage() {
             </Box>
           </Can>
           <UsersDataGrid
-            isCompanyVisible
             isMultiSelectEnabled
             users={users}
             selectedUserIds={selectedUserIds}

@@ -175,7 +175,6 @@ export default function CustomerSettings({
         <Box display="flex" mt={3}>
           {users.length > 0 ? (
             <UsersDataGrid
-              isCompanyVisible={false}
               isMultiSelectEnabled
               users={users}
               selectedUserIds={selectedUserIds}
