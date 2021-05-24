@@ -72,9 +72,7 @@ export default function RepaymentTransactionsDataGrid({
         cellRender: (params: ValueFormatterParams) => (
           <PaymentDrawerLauncher
             paymentId={params.row.data.payment.id}
-            label={
-              `P${params.row.data.payment.settlement_identifier}` as string
-            }
+            label={`P${params.row.data.payment.settlement_identifier}`}
           />
         ),
       },

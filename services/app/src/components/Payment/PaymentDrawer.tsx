@@ -141,6 +141,8 @@ export default function PaymentDrawer({ paymentId, handleClose }: Props) {
           <Typography variant={"body1"}>
             {payment.settlement_date
               ? formatDateString(payment.settlement_date)
+              : !!payment.reversed_at
+              ? "-"
               : "TBD"}
           </Typography>
         </Box>
@@ -193,6 +195,7 @@ export default function PaymentDrawer({ paymentId, handleClose }: Props) {
             </Typography>
             <Box mt={1}>
               <ModalButton
+                isDisabled={!!payment.reversed_at}
                 label={"Reverse Payment"}
                 color={"default"}
                 modal={({ handleClose }) => (

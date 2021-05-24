@@ -1,9 +1,15 @@
 import { Box, Divider, Typography } from "@material-ui/core";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
+import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
 import { GetPaymentsForCompanyQuery } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
-import { PaymentMethodEnum, PaymentMethodToLabel } from "lib/enum";
+import {
+  PaymentMethodEnum,
+  PaymentMethodToLabel,
+  PaymentStatusEnum,
+  PaymentStatusToLabel,
+} from "lib/enum";
 import { createLoanCustomerIdentifier } from "lib/loans";
 import styled from "styled-components";
 
@@ -27,9 +33,32 @@ export default function PaymentBlock({ payment }: Props) {
   return (
     <Container>
       <Box display="flex" flexDirection="column" width="100%">
-        <Typography variant="h6">Payment</Typography>
+        <Typography variant="h6">{`Payment P${payment.settlement_identifier}`}</Typography>
         <Box display="flex" justifyContent="space-between" my={2}>
           <Box display="flex">
+            <Box display="flex" flexDirection="column" width={200}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Identifier
+              </Typography>
+              <PaymentDrawerLauncher
+                paymentId={payment.id}
+                label={`P${payment.settlement_identifier}`}
+              />
+            </Box>
+            <Box display="flex" flexDirection="column" width={200}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Status
+              </Typography>
+              <Typography>
+                {
+                  PaymentStatusToLabel[
+                    !!payment.reversed_at
+                      ? PaymentStatusEnum.Reversed
+                      : PaymentStatusEnum.Settled
+                  ]
+                }
+              </Typography>
+            </Box>
             <Box display="flex" flexDirection="column" width={200}>
               <Typography variant="subtitle2" color="textSecondary">
                 Method
@@ -54,112 +83,113 @@ export default function PaymentBlock({ payment }: Props) {
             <Typography>{formatCurrency(payment.amount)}</Typography>
           </Box>
         </Box>
-        {payment.transactions.map((transaction, index) => (
-          <Box key={transaction.id}>
-            <Box my={2}>
-              <Divider light />
-            </Box>
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              width="100%"
-              pl={4}
-              mt={2}
-            >
-              <Box display="flex" justifyContent="flex-start" width={50}>
-                <Typography variant="body2" color="textSecondary">
-                  {index + 1}
-                </Typography>
+        {!payment.reversed_at &&
+          payment.transactions.map((transaction, index) => (
+            <Box key={transaction.id}>
+              <Box my={2}>
+                <Divider light />
               </Box>
-              {transaction.loan ? (
-                <Box display="flex" flexDirection="column" flex={1}>
-                  <Typography variant="subtitle2" color="textSecondary">
-                    Payment To
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                width="100%"
+                pl={4}
+                mt={2}
+              >
+                <Box display="flex" justifyContent="flex-start" width={50}>
+                  <Typography variant="body2" color="textSecondary">
+                    {index + 1}
                   </Typography>
-                  <Box display="flex">
-                    <LoanDrawerLauncher
-                      label={`Loan ${createLoanCustomerIdentifier(
-                        transaction.loan
-                      )}`}
-                      loanId={transaction.loan_id}
-                    />
+                </Box>
+                {transaction.loan ? (
+                  <Box display="flex" flexDirection="column" flex={1}>
+                    <Typography variant="subtitle2" color="textSecondary">
+                      Payment To
+                    </Typography>
+                    <Box display="flex">
+                      <LoanDrawerLauncher
+                        label={`Loan ${createLoanCustomerIdentifier(
+                          transaction.loan
+                        )}`}
+                        loanId={transaction.loan_id}
+                      />
+                    </Box>
                   </Box>
+                ) : (
+                  <Box display="flex" flexDirection="column" flex={1}>
+                    <Typography variant="subtitle2" color="textSecondary">
+                      Payment To
+                    </Typography>
+                    <Typography variant="body1">Account</Typography>
+                  </Box>
+                )}
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="flex-end"
+                  width={150}
+                >
+                  {transaction.loan && (
+                    <>
+                      <Typography variant="subtitle2" color="textSecondary">
+                        To Principal
+                      </Typography>
+                      <Typography variant="body1">
+                        {formatCurrency(transaction.to_principal)}
+                      </Typography>
+                    </>
+                  )}
                 </Box>
-              ) : (
-                <Box display="flex" flexDirection="column" flex={1}>
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="flex-end"
+                  width={150}
+                >
+                  {transaction.loan && (
+                    <>
+                      <Typography variant="subtitle2" color="textSecondary">
+                        To Interest
+                      </Typography>
+                      <Typography variant="body1">
+                        {formatCurrency(transaction.to_interest)}
+                      </Typography>
+                    </>
+                  )}
+                </Box>
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="flex-end"
+                  width={150}
+                >
+                  {transaction.loan && (
+                    <>
+                      <Typography variant="subtitle2" color="textSecondary">
+                        To Late Fees
+                      </Typography>
+                      <Typography variant="body1">
+                        {formatCurrency(transaction.to_fees)}
+                      </Typography>
+                    </>
+                  )}
+                </Box>
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="flex-end"
+                  width={150}
+                >
                   <Typography variant="subtitle2" color="textSecondary">
-                    Payment To
+                    Total
                   </Typography>
-                  <Typography variant="body1">Account</Typography>
+                  <Typography variant="body1">
+                    {formatCurrency(transaction.amount)}
+                  </Typography>
                 </Box>
-              )}
-              <Box
-                display="flex"
-                flexDirection="column"
-                alignItems="flex-end"
-                width={150}
-              >
-                {transaction.loan && (
-                  <>
-                    <Typography variant="subtitle2" color="textSecondary">
-                      To Principal
-                    </Typography>
-                    <Typography variant="body1">
-                      {formatCurrency(transaction.to_principal)}
-                    </Typography>
-                  </>
-                )}
-              </Box>
-              <Box
-                display="flex"
-                flexDirection="column"
-                alignItems="flex-end"
-                width={150}
-              >
-                {transaction.loan && (
-                  <>
-                    <Typography variant="subtitle2" color="textSecondary">
-                      To Interest
-                    </Typography>
-                    <Typography variant="body1">
-                      {formatCurrency(transaction.to_interest)}
-                    </Typography>
-                  </>
-                )}
-              </Box>
-              <Box
-                display="flex"
-                flexDirection="column"
-                alignItems="flex-end"
-                width={150}
-              >
-                {transaction.loan && (
-                  <>
-                    <Typography variant="subtitle2" color="textSecondary">
-                      To Late Fees
-                    </Typography>
-                    <Typography variant="body1">
-                      {formatCurrency(transaction.to_fees)}
-                    </Typography>
-                  </>
-                )}
-              </Box>
-              <Box
-                display="flex"
-                flexDirection="column"
-                alignItems="flex-end"
-                width={150}
-              >
-                <Typography variant="subtitle2" color="textSecondary">
-                  Total
-                </Typography>
-                <Typography variant="body1">
-                  {formatCurrency(transaction.amount)}
-                </Typography>
               </Box>
             </Box>
-          </Box>
-        ))}
+          ))}
       </Box>
     </Container>
   );
