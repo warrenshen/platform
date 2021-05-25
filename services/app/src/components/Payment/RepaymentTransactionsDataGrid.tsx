@@ -126,12 +126,12 @@ export default function RepaymentTransactionsDataGrid({
         width: 120,
         cellRender: (params: ValueFormatterParams) => (
           <Box>
-            {params.row.data.loan ? (
+            {params.row.data.transaction?.loan ? (
               <LoanDrawerLauncher
                 label={createLoanDisbursementIdentifier(
-                  params.row.data.loan as LoanLimitedFragment
+                  params.row.data.transaction.loan as LoanLimitedFragment
                 )}
-                loanId={params.row.data.loan.id as string}
+                loanId={params.row.data.transaction.loan.id as string}
               />
             ) : (
               "N/A"
@@ -145,20 +145,26 @@ export default function RepaymentTransactionsDataGrid({
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) => (
           <Box display="flex" alignItems="center">
-            {params.row.data.loan?.purchase_order && (
+            {params.row.data.transaction?.loan?.purchase_order && (
               <PurchaseOrderDrawerLauncher
                 label={
-                  params.row.data.loan.purchase_order.order_number as string
+                  params.row.data.transaction.loan.purchase_order
+                    .order_number as string
                 }
                 purchaseOrderId={
-                  params.row.data.loan.purchase_order.id as string
+                  params.row.data.transaction.loan.purchase_order.id as string
                 }
               />
             )}
-            {params.row.data.loan?.invoice && (
+            {params.row.data.transaction?.loan?.invoice && (
               <InvoiceDrawerLauncher
-                label={params.row.data.loan.invoice.invoice_number as string}
-                invoiceId={params.row.data.loan.invoice.id as string}
+                label={
+                  params.row.data.transaction.loan.invoice
+                    .invoice_number as string
+                }
+                invoiceId={
+                  params.row.data.transaction.loan.invoice.id as string
+                }
               />
             )}
             {params.row.data.line_of_credit && "N/A"}
@@ -171,7 +177,9 @@ export default function RepaymentTransactionsDataGrid({
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.amount || null} />
+          <CurrencyDataGridCell
+            value={params.row.data.transaction?.amount || null}
+          />
         ),
       },
       {
@@ -180,7 +188,13 @@ export default function RepaymentTransactionsDataGrid({
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.to_principal || null} />
+          <CurrencyDataGridCell
+            value={
+              params.row.data.transaction?.to_principal
+                ? params.row.data.transaction.to_principal
+                : null
+            }
+          />
         ),
       },
       {
@@ -189,7 +203,13 @@ export default function RepaymentTransactionsDataGrid({
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.to_interest || null} />
+          <CurrencyDataGridCell
+            value={
+              params.row.data.transaction?.to_interest != null
+                ? params.row.data.transaction.to_interest
+                : null
+            }
+          />
         ),
       },
       {
@@ -198,7 +218,13 @@ export default function RepaymentTransactionsDataGrid({
         width: ColumnWidths.Currency,
         alignment: "right",
         cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.to_fees || null} />
+          <CurrencyDataGridCell
+            value={
+              params.row.data.transaction?.to_fees != null
+                ? params.row.data.transaction.to_fees
+                : null
+            }
+          />
         ),
       },
     ],
