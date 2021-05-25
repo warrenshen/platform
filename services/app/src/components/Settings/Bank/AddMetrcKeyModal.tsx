@@ -80,6 +80,7 @@ function AddMetrcKeyModal({ companySettingsId, handleClose }: Props) {
         </Box>
         <Box display="flex" flexDirection="column">
           <TextField
+            autoFocus
             label="API Key"
             required
             value={apiKey}

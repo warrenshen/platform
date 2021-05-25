@@ -66,7 +66,11 @@ function getRows(
       : loan.invoice
       ? loan.invoice.invoice_number
       : "N/A",
-    vendor_name: loan.purchase_order ? loan.purchase_order.vendor?.name : "N/A",
+    vendor_name: loan.purchase_order
+      ? loan.purchase_order.vendor?.name
+      : loan.line_of_credit
+      ? loan.line_of_credit.recipient_vendor?.name
+      : "N/A",
   }));
 }
 
