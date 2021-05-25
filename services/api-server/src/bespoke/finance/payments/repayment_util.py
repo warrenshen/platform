@@ -254,6 +254,8 @@ def calculate_repayment_effect(
 			List[models.Transaction],
 			session.query(models.Transaction).filter(
 				models.Transaction.loan_id.in_(all_loan_ids)
+			).filter(
+				cast(Callable, models.Transaction.is_deleted.isnot)(True)
 			).all())
 
 		invoices = cast(
@@ -861,6 +863,8 @@ def settle_repayment(
 			List[models.Transaction],
 			session.query(models.Transaction).filter(
 				models.Transaction.loan_id.in_(loan_ids)
+			).filter(
+				cast(Callable, models.Transaction.is_deleted.isnot)(True)
 			).all())
 
 		# Get the payments associated with the loan

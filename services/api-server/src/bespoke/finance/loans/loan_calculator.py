@@ -712,6 +712,7 @@ class LoanCalculator(object):
 				temp_transaction = _determine_transaction(
 					loan, loan_state_before_payment, payment_to_include
 				)
+
 				has_enough_to_pay_principal_at_deposit_date = number_util.float_eq(
 					loan_state_before_payment['outstanding_principal'],
 					temp_transaction['to_principal']

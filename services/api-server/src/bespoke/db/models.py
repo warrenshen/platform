@@ -468,7 +468,8 @@ TransactionDict = TypedDict('TransactionDict', {
 	'to_principal': float,
 	'to_interest': float,
 	'to_fees': float,
-	'effective_date': datetime.date
+	'effective_date': datetime.date,
+	'is_deleted': bool
 })
 
 # Transaction with some additional pieces of information
@@ -503,7 +504,8 @@ class Transaction(Base):
 			to_principal=float(self.to_principal),
 			to_interest=float(self.to_interest),
 			to_fees=float(self.to_fees),
-			effective_date=self.effective_date
+			effective_date=self.effective_date,
+			is_deleted=self.is_deleted
 		)
 
 
