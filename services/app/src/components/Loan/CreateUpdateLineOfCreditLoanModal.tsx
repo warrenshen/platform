@@ -58,8 +58,6 @@ function CreateUpdateLineOfCreditLoanModal({
     company_id: companyId,
     loan_type: LoanTypeEnum.LineOfCredit,
     requested_payment_date: null,
-    maturity_date: null,
-    adjusted_maturity_date: null,
     amount: null,
     status: LoanStatusEnum.Drafted,
   };

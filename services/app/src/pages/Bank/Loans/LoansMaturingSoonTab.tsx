@@ -39,7 +39,7 @@ function BankLoansMaturingSoonTab() {
         const matureThreshold = new Date(
           new Date(Date.now()).getTime() + matureDays * 24 * 60 * 60 * 1000
         );
-        const maturityDate = new Date(loan.maturity_date);
+        const maturityDate = new Date(loan.adjusted_maturity_date);
         return (
           matureThreshold > maturityDate && pastDueThreshold < maturityDate
         );

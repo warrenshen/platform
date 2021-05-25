@@ -26,7 +26,7 @@ function BankLoansPastDueTab() {
     () =>
       (loans || []).filter((loan) => {
         const pastDueThreshold = new Date(Date.now());
-        const maturityDate = new Date(loan.maturity_date);
+        const maturityDate = new Date(loan.adjusted_maturity_date);
         return pastDueThreshold > maturityDate;
       }),
     [loans]

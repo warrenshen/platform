@@ -265,7 +265,9 @@ function LoanDrawer({ loanId, handleClose }: Props) {
               Maturity Date
             </Typography>
             <Typography variant={"body1"}>
-              {loan.maturity_date ? formatDateString(loan.maturity_date) : "-"}
+              {loan.adjusted_maturity_date
+                ? formatDateString(loan.adjusted_maturity_date)
+                : "-"}
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>

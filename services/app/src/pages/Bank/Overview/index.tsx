@@ -73,7 +73,7 @@ function BankOverviewPage() {
         const matureThreshold = new Date(
           new Date(Date.now()).getTime() + 14 * 24 * 60 * 60 * 1000
         );
-        const maturityDate = new Date(loan.maturity_date);
+        const maturityDate = new Date(loan.adjusted_maturity_date);
         return (
           matureThreshold > maturityDate && pastDueThreshold < maturityDate
         );
@@ -84,7 +84,7 @@ function BankOverviewPage() {
     () =>
       (loans || []).filter((loan) => {
         const pastDueThreshold = new Date(Date.now());
-        const maturityDate = new Date(loan.maturity_date);
+        const maturityDate = new Date(loan.adjusted_maturity_date);
         return pastDueThreshold > maturityDate;
       }),
     [loans]
