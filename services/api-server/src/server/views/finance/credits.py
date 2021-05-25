@@ -43,7 +43,7 @@ class DisburseCreditToCustomerView(MethodView):
 					'Missing key {} from make account level fee request'.format(key))
 
 		with models.session_scope(current_app.session_maker) as session:
-			tx_id, err = payment_util.create_and_add_credit_payout_to_customer(
+			payment_id, err = payment_util.create_and_add_credit_payout_to_customer(
 				company_id=form['company_id'],
 				payment_method=form['payment_method'],
 				amount=form['amount'],
@@ -57,7 +57,7 @@ class DisburseCreditToCustomerView(MethodView):
 
 		resp = {
 			'status': 'OK',
-			'transaction_id': tx_id
+			'payment_id': payment_id
 		}
 		return make_response(json.dumps(resp), 200)
 

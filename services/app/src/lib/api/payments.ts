@@ -6,6 +6,7 @@ import {
 } from "generated/graphql";
 import {
   authenticatedApi,
+  creditsRoutes,
   CustomMutationResponse,
   feesRoutes,
   loansRoutes,
@@ -170,6 +171,34 @@ export async function settleAccountLevelFeeRepaymentMutation(
         return {
           status: "ERROR",
           msg: "Could not settle account fee repayment",
+        };
+      }
+    );
+}
+
+export type DisburseCreditToCustomerReq = {
+  variables: {
+    company_id: string;
+    payment_method: string;
+    amount: number;
+    deposit_date: string;
+    settlment_date: string;
+  };
+};
+
+export async function disburseCreditToCustomerMutation(
+  req: DisburseCreditToCustomerReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(creditsRoutes.disburseCreditToCustomer, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not disburse holding account credit to customer",
         };
       }
     );

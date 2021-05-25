@@ -269,7 +269,7 @@ def create_and_add_credit_payout_to_customer(
 	created_by_user_id: str,
 	deposit_date: datetime.date,
 	effective_date: datetime.date,
-	session: Session) -> Tuple[models.Transaction, errors.Error]:
+	session: Session) -> Tuple[str, errors.Error]:
 
 	payment = create_payment(
 		company_id=company_id,
@@ -300,7 +300,7 @@ def create_and_add_credit_payout_to_customer(
 	t.effective_date = effective_date
 
 	session.add(t)
-	return t, None
+	return payment_id, None
 
 def create_and_add_credit_to_user(
 	amount: float,
@@ -422,7 +422,7 @@ def unsettle_payment(payment_type: str, payment_id: str, is_undo: bool, session:
 		cur_payment.settled_at = None
 		cur_payment.settled_by_user_id = None
 		cur_payment.settlement_date = None
-		
+
 		if is_undo:
 			# Only in the undo case does the deposit_date get cleared
 			cur_payment.deposit_date = None
@@ -468,7 +468,7 @@ def reverse_payment(payment_type: str, payment_id: str, session: Session) -> Tup
 		raise errors.Error(f'No payment found to reverse')
 
 	payment.reversed_at = date_util.now()
-	return True, None	
+	return True, None
 
 @errors.return_error_tuple
 def delete_payment(

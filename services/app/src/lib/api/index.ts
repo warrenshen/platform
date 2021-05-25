@@ -112,6 +112,10 @@ export const feesRoutes = {
     "/finance/fees/settle_account_level_fee_repayment",
 };
 
+export const creditsRoutes = {
+  disburseCreditToCustomer: "/finance/credits/disburse_credit_to_customer",
+};
+
 export const twoFactorRoutes = {
   getSecureLinkPayload: "/two_factor/get_secure_link_payload",
   sendTwoFactorCode: "/two_factor/send_code",

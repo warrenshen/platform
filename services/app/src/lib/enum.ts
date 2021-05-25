@@ -37,6 +37,7 @@ export enum PaymentTypeEnum {
   Advance = "advance",
   Repayment = "repayment",
   RepaymentOfAccountFee = "repayment_account_fee",
+  PayoutUserCreditToCustomer = "payout_user_credit_to_customer",
 }
 
 export enum PaymentStatusEnum {
@@ -127,6 +128,12 @@ export const AllPaymentMethods = [
   PaymentMethodEnum.Wire,
   PaymentMethodEnum.Cash,
   PaymentMethodEnum.Check,
+];
+
+// Payment methods that bank (Bespoke Financial) may pay with.
+export const BankPaymentMethods = [
+  PaymentMethodEnum.ACH,
+  PaymentMethodEnum.Wire,
 ];
 
 // Payment methods that a Payor may pay with.
