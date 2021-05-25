@@ -416,7 +416,8 @@ class LoanCalculator(object):
 			threshold_info: ThresholdInfoDict,
 			outstanding_principal: float,
 			outstanding_principal_for_interest: float,
-			amount_paid_back_on_loan: float
+			amount_paid_back_on_loan: float,
+			loan_paid_by_maturity_date: bool
 		) -> Tuple[InterestFeeInfoDict, errors.Error]:
 			cur_contract, err = self._contract_helper.get_contract(cur_date)
 			if err:
@@ -490,10 +491,12 @@ class LoanCalculator(object):
 				interest_due_for_day = 0.0
 
 			interest_due_for_day = interest_rate_used * amount_to_pay_interest_on
-			# If the customer does not have any outstanding principal, even though their principal for
-			# interest is accruing, dont charge any additional fees there.
-			has_outstanding_principal = number_util.float_gt(round(outstanding_principal, 2), 0.0)
-			fee_due_for_day = fee_multiplier * interest_due_for_day if has_outstanding_principal else 0.0
+			#print('Loan maturity date {}, Date: {}, Interest Due: {}, Fee Multiplier: {}'.format(
+			#	loan['adjusted_maturity_date'], cur_date, interest_due_for_day, fee_multiplier))
+			
+			# If the customer does not have any outstanding principal by the loan maturity date, 
+			# even though their principal for interest is accruing, dont charge any additional fees there.
+			fee_due_for_day = 0.0 if loan_paid_by_maturity_date else fee_multiplier * interest_due_for_day
 
 			return InterestFeeInfoDict(
 				interest_due_for_day=interest_due_for_day,
@@ -541,6 +544,7 @@ class LoanCalculator(object):
 		interest_accrued_today = 0.0
 		has_been_funded = False
 		amount_paid_back_on_loan = 0.0
+		loan_paid_by_maturity_date= False
 
 		# Variables used to calculate the repayment effect
 		payment_effect_dict = None # Only filled in when payment_to_include is incorporated
@@ -607,7 +611,8 @@ class LoanCalculator(object):
 				threshold_info,
 				outstanding_principal=outstanding_principal,
 				outstanding_principal_for_interest=outstanding_principal_for_interest,
-				amount_paid_back_on_loan=amount_paid_back_on_loan
+				amount_paid_back_on_loan=amount_paid_back_on_loan,
+				loan_paid_by_maturity_date=loan_paid_by_maturity_date
 			)
 			if err:
 				errors_list.append(err)
@@ -647,6 +652,8 @@ class LoanCalculator(object):
 					outstanding_principal -= tx['to_principal']
 					outstanding_interest -= tx['to_interest']
 					outstanding_fees -= tx['to_fees']
+					if number_util.float_lte(outstanding_principal, 0.0) and cur_date <= loan['adjusted_maturity_date']:
+						loan_paid_by_maturity_date = True
 
 			if payment_to_include and payment_to_include['deposit_date'] == cur_date:
 				# Incorporate this payment and snapshot what the state of the balance was
@@ -676,7 +683,8 @@ class LoanCalculator(object):
 						threshold_info,
 						outstanding_principal=outstanding_principal,
 						outstanding_principal_for_interest=outstanding_principal_for_interest,
-						amount_paid_back_on_loan=amount_paid_back_on_loan
+						amount_paid_back_on_loan=amount_paid_back_on_loan,
+						loan_paid_by_maturity_date=loan_paid_by_maturity_date
 					)
 					if err:
 						inner_has_err = err
@@ -713,16 +721,16 @@ class LoanCalculator(object):
 					loan, loan_state_before_payment, payment_to_include
 				)
 
-				has_enough_to_pay_principal_at_deposit_date = number_util.float_eq(
+				has_enough_to_pay_principal_by_maturity_date = number_util.float_eq(
 					loan_state_before_payment['outstanding_principal'],
 					temp_transaction['to_principal']
-				)
+				) and cur_date <= loan['adjusted_maturity_date']
 
-				if has_enough_to_pay_principal_at_deposit_date:
+				if has_enough_to_pay_principal_by_maturity_date:
 					pass
 				else:
 					# If they dont have enough money to pay off the principal and interest
-					# by the deposit date (which ends up creating a partial payment)
+					# by the maturity date (which ends up creating a partial payment)
 					# means they owe the additional fees accrued due to the settlement days
 					loan_state_before_payment['outstanding_fees'] += additional_fees
 
@@ -738,6 +746,8 @@ class LoanCalculator(object):
 				outstanding_principal -= inserted_repayment_transaction['to_principal']
 				outstanding_interest -= inserted_repayment_transaction['to_interest']
 				outstanding_fees -= inserted_repayment_transaction['to_fees']
+				if number_util.float_lte(outstanding_principal, 0.0) and cur_date <= loan['adjusted_maturity_date']:
+					loan_paid_by_maturity_date = True
 
 				payment_effect_dict = PaymentEffectDict(
 					loan_state_before_payment=loan_state_before_payment,
