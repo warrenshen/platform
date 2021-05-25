@@ -23578,18 +23578,13 @@ export const GetPaymentsForCompanyDocument = gql`
             }
           ]
         }
-        order_by: [
-          { deposit_date: desc }
-          { settlement_date: desc }
-          { created_at: desc }
-        ]
+        order_by: [{ deposit_date: desc }, { created_at: desc }]
       ) {
         id
         ...PaymentLimited
         transactions(
           order_by: [
             { payment: { deposit_date: desc } }
-            { payment: { settlement_date: desc } }
             { payment: { created_at: desc } }
           ]
         ) {
