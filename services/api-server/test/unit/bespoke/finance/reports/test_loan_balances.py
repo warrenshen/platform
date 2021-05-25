@@ -899,6 +899,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			success, err = payment_util.unsettle_payment(
 				payment_type=cur_payment.type,
 				payment_id=str(cur_payment.id),
+				is_undo=True,
 				session=session
 			)
 			self.assertIsNone(err)

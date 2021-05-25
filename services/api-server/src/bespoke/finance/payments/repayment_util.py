@@ -1263,6 +1263,7 @@ def undo_repayment(
 		success, err = payment_util.unsettle_payment(
 				payment_type=db_constants.PaymentType.REPAYMENT,
 				payment_id=req['payment_id'],
+				is_undo=True,
 				session=session
 			)
 		if err:

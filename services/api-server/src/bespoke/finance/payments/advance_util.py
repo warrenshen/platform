@@ -290,6 +290,7 @@ def delete_advance(
 		success, err = payment_util.unsettle_payment(
 			payment_type=db_constants.PaymentType.ADVANCE,
 			payment_id=payment_id,
+			is_undo=True,
 			session=session
 		)
 		if err:

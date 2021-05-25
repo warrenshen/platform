@@ -392,7 +392,7 @@ def _reset_payment_status_on_loans(loan_ids: List[str], session: Session) -> Non
 			loan.payment_status = None
 
 @errors.return_error_tuple
-def unsettle_payment(payment_type: str, payment_id: str, session: Session) -> Tuple[bool, errors.Error]:
+def unsettle_payment(payment_type: str, payment_id: str, is_undo: bool, session: Session) -> Tuple[bool, errors.Error]:
 	# Mark payment as not settled
 	# Find any additional payments created from it, and mark them as is_deleted
 	# Mark transactions as is_deleted
@@ -422,7 +422,10 @@ def unsettle_payment(payment_type: str, payment_id: str, session: Session) -> Tu
 		cur_payment.settled_at = None
 		cur_payment.settled_by_user_id = None
 		cur_payment.settlement_date = None
-		cur_payment.deposit_date = None
+		
+		if is_undo:
+			# Only in the undo case does the deposit_date get cleared
+			cur_payment.deposit_date = None
 
 		transactions = cast(
 			List[models.Transaction],
@@ -451,7 +454,7 @@ def unsettle_payment(payment_type: str, payment_id: str, session: Session) -> Tu
 
 @errors.return_error_tuple
 def reverse_payment(payment_type: str, payment_id: str, session: Session) -> Tuple[bool, errors.Error]:
-	success, err = unsettle_payment(payment_type, payment_id, session)
+	success, err = unsettle_payment(payment_type, payment_id, is_undo=False, session=session)
 	if err:
 		raise err
 
