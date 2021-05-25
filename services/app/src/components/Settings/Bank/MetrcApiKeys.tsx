@@ -5,15 +5,21 @@ import ModalButton from "components/Shared/Modal/ModalButton";
 import { CompanySettings, MetrcApiKeyFragment } from "generated/graphql";
 import { viewApiKey } from "lib/api/metrc";
 import { useState } from "react";
+
 interface Props {
   companySettingsId: CompanySettings["id"];
   metrcApiKey: MetrcApiKeyFragment;
+  handleDataChange: () => void;
 }
 
-export default function MetrcApiKeys(props: Props) {
+export default function MetrcApiKeys({
+  companySettingsId,
+  metrcApiKey,
+  handleDataChange,
+}: Props) {
   const [apiKeyValue, setApiKeyValue] = useState<string>("");
 
-  if (props.metrcApiKey) {
+  if (metrcApiKey) {
     return (
       <Box>
         <Box>Metrc API key is setup</Box>
@@ -24,7 +30,7 @@ export default function MetrcApiKeys(props: Props) {
           onClick={async () => {
             const resp = await viewApiKey({
               variables: {
-                metrc_api_key_id: props.metrcApiKey.id,
+                metrc_api_key_id: metrcApiKey.id,
               },
             });
             if (resp.status === "OK") {
@@ -48,13 +54,14 @@ export default function MetrcApiKeys(props: Props) {
             label={"Add API Key"}
             modal={({ handleClose }) => (
               <AddMetrcKeyModal
-                companySettingsId={props.companySettingsId}
+                companySettingsId={companySettingsId}
                 handleClose={() => {
+                  handleDataChange();
                   handleClose();
                 }}
               />
             )}
-          ></ModalButton>
+          />
         </Box>
       </Box>
     );

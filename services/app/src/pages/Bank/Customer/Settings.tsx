@@ -105,7 +105,8 @@ function BankCustomerSettingsSubpage({ companyId }: Props) {
             <MetrcApiKeys
               metrcApiKey={metrcApiKey}
               companySettingsId={settings?.id}
-            ></MetrcApiKeys>
+              handleDataChange={refetch}
+            />
           </Box>
         </Box>
       </Box>
