@@ -17,6 +17,7 @@ from bespoke.config.config_util import MetrcAuthProvider
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
+from bespoke.finance import contract_util
 from bespoke.metrc import transfers_util
 from bespoke.metrc.metrc_common_util import CompanyInfo, LicenseAuthDict
 from bespoke.security import security_util
@@ -76,7 +77,7 @@ def _get_companies_with_metrc_keys(
 	auth_provider: MetrcAuthProvider, 
 	security_cfg: security_util.ConfigDict,
 	specific_company_id: str,
-	session_maker: Callable) -> List[CompanyInfo]:
+	session_maker: Callable) -> Tuple[List[CompanyInfo], errors.Error]:
 	company_infos = []
 
 	# Find all customers that have a metrc key 
@@ -94,12 +95,22 @@ def _get_companies_with_metrc_keys(
 				session.query(models.Company).all())
 
 		company_settings_ids = []
+		company_ids = []
 		company_id_to_name = {}
 		for company in companies:
 			if not company.company_settings_id:
 				continue
 			company_settings_ids.append(str(company.company_settings_id))
 			company_id_to_name[str(company.id)] = company.name
+			company_ids.append(str(company.id))
+
+		company_id_to_contract, err = contract_util.get_active_contracts_by_company_ids(
+			company_ids=company_ids,
+			session=session,
+			err_details={}
+		)
+		if err:
+			return None, err
 
 		company_settings = cast(
 			List[models.CompanySettings],
@@ -140,10 +151,18 @@ def _get_companies_with_metrc_keys(
 			if company_id not in company_id_to_licenses:
 				company_id_to_licenses[company_id] = []
 
+			cur_contract = company_id_to_contract.get(company_id)
+			if not cur_contract:
+				return None, errors.Error('Company ID: "{}" is missing an active contract but has metrc licenses'.format(company_id))
+
+			us_state, err = cur_contract.get_us_state()
+			if err:
+				return None, err
+
 			company_id_to_licenses[company_id].append(LicenseAuthDict(
 				license_id=str(license.id),
 				license_number=license.license_number,
-				us_state='CA', # TODO(dlluncor): save the us state associated with the key
+				us_state=us_state,
 				vendor_key=None
 			))
 
@@ -172,7 +191,7 @@ def _get_companies_with_metrc_keys(
 				user_key=auth_provider.get_user_key(),
 			))
 
-	return company_infos
+	return company_infos, None
 
 def _download_data(
 	specific_company_id: str,
@@ -184,12 +203,14 @@ def _download_data(
 ) -> Tuple[bool, List[errors.Error], errors.Error]:
 	# Return: success, all_errs, fatal_error
 
-	company_infos = _get_companies_with_metrc_keys(
+	company_infos, err = _get_companies_with_metrc_keys(
 			auth_provider,
 			security_cfg,
 			specific_company_id=specific_company_id,
 			session_maker=session_maker
 		)
+	if err:
+		return None, [], err
 
 	errs = []
 

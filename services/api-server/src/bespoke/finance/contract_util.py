@@ -278,6 +278,12 @@ class Contract(object):
 
 		return self._config['timezone'], None
 
+	def get_us_state(self) -> Tuple[str, errors.Error]:
+		if 'us_state' not in self._config:
+			return 'CA', None
+
+		return self._config['us_state'], None
+
 	def get_maximum_principal_limit(self) -> Tuple[float, errors.Error]:
 		return self._get_float_value('maximum_amount')
 
