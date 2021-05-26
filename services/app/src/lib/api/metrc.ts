@@ -46,6 +46,11 @@ import { authenticatedApi, CustomMutationResponse, metrcRoutes } from "lib/api";
 //    "EstimatedReturnArrivalDateTime":null,
 //    "ActualReturnArrivalDateTime":null
 // }
+
+//    "CreatedDateTime":"2021-05-24T23:05:36+00:00",
+//    "EstimatedDepartureDateTime":"2021-05-24T16:30:00.000",
+//    "EstimatedArrivalDateTime":"2021-05-24T19:30:00.000",
+//    "ReceivedDateTime":"2021-05-25T17:47:58+00:00",
 export type MetrcTransferPayload = {
   ShipperFacilityLicenseNumber: string;
   ShipperFacilityName: string;
@@ -54,6 +59,66 @@ export type MetrcTransferPayload = {
   EstimatedDepartureTime: string;
   EstimatedArrivalDateTime: string;
   ReceivedDateTime: string;
+};
+
+// {
+//    "PackageId":14311173,
+//    "PackageLabel":"1A4060300009FD8000002851",
+//    "PackageType":"Product",
+//    "SourceHarvestNames":"Harvest 17 - GMO x Grape Pie 16Apr21",
+//    "SourcePackageLabels":"1A40603000020EC000002989",
+//    "ProductName":"GMO x Grape Pie - Bulk",
+//    "ProductCategoryName":"Flower",
+//    "ItemStrainName":"GMO x Grape Pie",
+//    "ItemUnitCbdPercent":null,
+//    "ItemUnitCbdContent":null,
+//    "ItemUnitCbdContentUnitOfMeasureName":null,
+//    "ItemUnitCbdContentDose":null,
+//    "ItemUnitCbdContentDoseUnitOfMeasureName":null,
+//    "ItemUnitThcPercent":null,
+//    "ItemUnitThcContent":null,
+//    "ItemUnitThcContentUnitOfMeasureName":null,
+//    "ItemUnitThcContentDose":null,
+//    "ItemUnitThcContentDoseUnitOfMeasureName":null,
+//    "ItemUnitVolume":null,
+//    "ItemUnitVolumeUnitOfMeasureName":null,
+//    "ItemUnitWeight":null,
+//    "ItemUnitWeightUnitOfMeasureName":null,
+//    "ItemServingSize":"",
+//    "ItemSupplyDurationDays":null,
+//    "ItemUnitQuantity":null,
+//    "ItemUnitQuantityUnitOfMeasureName":null,
+//    "LabTestingState":"NotSubmitted",
+//    "ProductionBatchNumber":null,
+//    "IsTradeSample":false,
+//    "IsTradeSamplePersistent":false,
+//    "SourcePackageIsTradeSample":false,
+//    "IsDonation":false,
+//    "SourcePackageIsDonation":false,
+//    "IsTestingSample":false,
+//    "ProductRequiresRemediation":false,
+//    "ContainsRemediatedProduct":false,
+//    "RemediationDate":null,
+//    "ShipmentPackageState":"Accepted",
+//    "ShippedQuantity":20,
+//    "ShippedUnitOfMeasureName":"Pounds",
+//    "GrossUnitOfWeightName":null,
+//    "ReceivedQuantity":20,
+//    "ReceivedUnitOfMeasureName":"Pounds",
+//    "DeliveryId":1978406
+// }
+export type MetrcPackagePayload = {
+  SourceHarvestNames: string;
+  SourcePackageLabels: string;
+  ProductCategoryName: string;
+  LabTestingState: string;
+  ItemCategory: string;
+  ItemStrainName: string;
+  ItemState: string;
+  ReceivedQuantity: string;
+  ItemUnitQuantity: string;
+  ItemUnitWeight: string;
+  IsTestingSample: string;
 };
 
 export type TransferPackage = {

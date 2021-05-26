@@ -5,26 +5,36 @@ import {
   MenuItem,
   Select,
   TextField,
+  Typography,
 } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
+import FileUploader from "components/Shared/File/FileUploader";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import {
+  Companies,
   GetVendorsByPartnerCompanyQuery,
   MetrcTransferFragment,
+  PurchaseOrderFileFragment,
+  PurchaseOrderFileTypeEnum,
   PurchaseOrderMetrcTransferFragment,
   PurchaseOrdersInsertInput,
 } from "generated/graphql";
 import { MetrcTransferPayload } from "lib/api/metrc";
+import { FileTypeEnum } from "lib/enum";
+import { useMemo } from "react";
 
 interface Props {
+  companyId: Companies["id"];
   purchaseOrder: PurchaseOrdersInsertInput;
+  purchaseOrderFile: PurchaseOrderFileFragment | null;
   selectableMetrcTransfers: NonNullable<
     GetVendorsByPartnerCompanyQuery["companies_by_pk"]
   >["metrc_transfers"];
   selectableVendors: GetVendorsByPartnerCompanyQuery["vendors"];
   selectedMetrcTransfers: MetrcTransferFragment[];
   setPurchaseOrder: (purchaseOrder: PurchaseOrdersInsertInput) => void;
+  setPurchaseOrderFile: (file: PurchaseOrderFileFragment | null) => void;
   setPurchaseOrderMetrcTransfers: React.Dispatch<
     React.SetStateAction<PurchaseOrderMetrcTransferFragment[]>
   >;
@@ -33,13 +43,21 @@ interface Props {
 // As of this commit, this form is the version of the "create purchase order"
 // form when user creates a purchase order from a Metrc manifest.
 export default function PurchaseOrderFormV2({
+  companyId,
   purchaseOrder,
+  purchaseOrderFile,
   selectableMetrcTransfers,
   selectableVendors,
   selectedMetrcTransfers,
   setPurchaseOrder,
+  setPurchaseOrderFile,
   setPurchaseOrderMetrcTransfers,
 }: Props) {
+  const purchaseOrderFileIds = useMemo(
+    () => (purchaseOrderFile ? [purchaseOrderFile.file_id] : []),
+    [purchaseOrderFile]
+  );
+
   return (
     <Box display="flex" flexDirection="column">
       <Box display="flex" flexDirection="column">
@@ -151,20 +169,6 @@ export default function PurchaseOrderFormV2({
         />
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
-        <DateInput
-          dataCy={"purchase-order-form-input-delivery-date"}
-          id="delivery-date-date-picker"
-          label="Delivery date"
-          value={purchaseOrder.delivery_date}
-          onChange={(value) =>
-            setPurchaseOrder({
-              ...purchaseOrder,
-              delivery_date: value,
-            })
-          }
-        />
-      </Box>
-      <Box display="flex" flexDirection="column" mt={4}>
         <CurrencyInput
           dataCy={"purchase-order-form-input-amount"}
           label="Amount"
@@ -173,6 +177,29 @@ export default function PurchaseOrderFormV2({
             setPurchaseOrder({
               ...purchaseOrder,
               amount: value,
+            })
+          }
+        />
+      </Box>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <Box mb={1}>
+          <Typography variant="subtitle1" color="textSecondary">
+            Purchase Order File Attachment
+          </Typography>
+        </Box>
+        <FileUploader
+          dataCy={"purchase-order-form-file-uploader-purchase-order-file"}
+          companyId={companyId}
+          fileType={FileTypeEnum.PURCHASE_ORDER}
+          maxFilesAllowed={1}
+          fileIds={purchaseOrderFileIds}
+          handleDeleteFileById={() => setPurchaseOrderFile(null)}
+          handleNewFiles={(files) =>
+            setPurchaseOrderFile({
+              purchase_order_id: purchaseOrder.id,
+              file_id: files[0].id,
+              file_type: PurchaseOrderFileTypeEnum.PurchaseOrder,
+              file: files[0],
             })
           }
         />

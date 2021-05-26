@@ -352,11 +352,14 @@ export default function CreateUpdatePurchaseOrderModal({
       )}
       {!!purchaseOrder.is_metrc_based ? (
         <PurchaseOrderFormV2
+          companyId={companyId}
           purchaseOrder={purchaseOrder}
+          purchaseOrderFile={purchaseOrderFile}
           selectableMetrcTransfers={selectableMetrcTransfers}
           selectableVendors={selectableVendors}
           selectedMetrcTransfers={selectedMetrcTransfers}
           setPurchaseOrder={setPurchaseOrder}
+          setPurchaseOrderFile={setPurchaseOrderFile}
           setPurchaseOrderMetrcTransfers={setPurchaseOrderMetrcTransfers}
         />
       ) : (

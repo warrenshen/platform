@@ -17972,7 +17972,15 @@ export type PurchaseOrderQuery = {
     {
       loans: Array<Pick<Loans, "id"> & LoanLimitedFragment>;
       purchase_order_files: Array<PurchaseOrderFileFragment>;
-      purchase_order_metrc_transfers: Array<PurchaseOrderMetrcTransferFragment>;
+      purchase_order_metrc_transfers: Array<
+        Pick<PurchaseOrderMetrcTransfers, "id"> & {
+          metrc_transfer: Pick<MetrcTransfers, "id"> & {
+            metrc_packages: Array<
+              Pick<MetrcPackages, "id"> & MetrcPackageFragment
+            >;
+          } & MetrcTransferFragment;
+        } & PurchaseOrderMetrcTransferFragment
+      >;
     } & PurchaseOrderFragment
   >;
 };
@@ -23221,7 +23229,16 @@ export const PurchaseOrderDocument = gql`
         ...PurchaseOrderFile
       }
       purchase_order_metrc_transfers {
+        id
         ...PurchaseOrderMetrcTransfer
+        metrc_transfer {
+          id
+          ...MetrcTransfer
+          metrc_packages {
+            id
+            ...MetrcPackage
+          }
+        }
       }
     }
   }
@@ -23229,6 +23246,8 @@ export const PurchaseOrderDocument = gql`
   ${LoanLimitedFragmentDoc}
   ${PurchaseOrderFileFragmentDoc}
   ${PurchaseOrderMetrcTransferFragmentDoc}
+  ${MetrcTransferFragmentDoc}
+  ${MetrcPackageFragmentDoc}
 `;
 
 /**

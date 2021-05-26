@@ -113,10 +113,10 @@ interface Props {
   title: string;
   subtitle?: string;
   contentWidth?: number;
-  primaryActionText: string;
+  primaryActionText?: string;
   secondaryActionText?: string | null; // null = do not show secondary button.
   handleClose: () => void;
-  handlePrimaryAction: () => void;
+  handlePrimaryAction?: () => void;
   handleSecondaryAction?: (() => void) | null;
   children: ReactNode;
 }
@@ -162,34 +162,36 @@ export default function Modal({
             {children}
           </Content>
         </Body>
-        <Footer>
-          <Content $width={contentWidth}>
-            <Buttons>
-              {!!secondaryActionText && handleSecondaryAction && (
-                <>
-                  <StyledButton
-                    disabled={isSecondaryActionDisabled}
-                    onClick={handleSecondaryAction}
-                    variant={"outlined"}
-                    color={"default"}
-                  >
-                    {secondaryActionText}
-                  </StyledButton>
-                  <ButtonSpace />
-                </>
-              )}
-              <StyledButton
-                data-cy={!!dataCy ? `${dataCy}-primary-button` : undefined}
-                disabled={isPrimaryActionDisabled}
-                onClick={handlePrimaryAction}
-                variant={"contained"}
-                color={"primary"}
-              >
-                {primaryActionText}
-              </StyledButton>
-            </Buttons>
-          </Content>
-        </Footer>
+        {!!primaryActionText && !!handlePrimaryAction && (
+          <Footer>
+            <Content $width={contentWidth}>
+              <Buttons>
+                {!!secondaryActionText && handleSecondaryAction && (
+                  <>
+                    <StyledButton
+                      disabled={isSecondaryActionDisabled}
+                      onClick={handleSecondaryAction}
+                      variant={"outlined"}
+                      color={"default"}
+                    >
+                      {secondaryActionText}
+                    </StyledButton>
+                    <ButtonSpace />
+                  </>
+                )}
+                <StyledButton
+                  data-cy={!!dataCy ? `${dataCy}-primary-button` : undefined}
+                  disabled={isPrimaryActionDisabled}
+                  onClick={handlePrimaryAction}
+                  variant={"contained"}
+                  color={"primary"}
+                >
+                  {primaryActionText}
+                </StyledButton>
+              </Buttons>
+            </Content>
+          </Footer>
+        )}
       </Container>
     </Dialog>
   );

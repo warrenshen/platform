@@ -9,7 +9,16 @@ query PurchaseOrder($id: uuid!) {
       ...PurchaseOrderFile
     }
     purchase_order_metrc_transfers {
+      id
       ...PurchaseOrderMetrcTransfer
+      metrc_transfer {
+        id
+        ...MetrcTransfer
+        metrc_packages {
+          id
+          ...MetrcPackage
+        }
+      }
     }
   }
 }
