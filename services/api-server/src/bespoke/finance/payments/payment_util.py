@@ -10,8 +10,8 @@ from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
 from bespoke.db.models import session_scope
-from bespoke.finance import number_util
-from bespoke.finance.types import per_customer_types
+from bespoke.finance import number_util, financial_summary_util
+from bespoke.finance.types import per_customer_types, finance_types
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 
@@ -270,6 +270,19 @@ def create_and_add_credit_payout_to_customer(
 	deposit_date: datetime.date,
 	effective_date: datetime.date,
 	session: Session) -> Tuple[str, errors.Error]:
+
+	financial_summary = financial_summary_util.get_latest_financial_summary(
+		company_id=company_id, session=session
+	)
+	if not financial_summary:
+		raise errors.Error('No financial summary found for the customer')
+
+	account_balance_dict = cast(finance_types.AccountBalanceDict, financial_summary.account_level_balance_payload)
+
+	if amount > account_balance_dict['credits_total']:
+		overpayment_amount = amount - account_balance_dict['credits_total']
+		raise errors.Error('Cannot disburse ${} worth of fees because the total credits available to the customer is ${}. Please reduce the amount disbursed by ${}'.format(
+			amount, account_balance_dict['credits_total'], overpayment_amount))
 
 	payment = create_payment(
 		company_id=company_id,

@@ -874,7 +874,23 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				effective_date=date_util.load_date_str('10/01/2020'),
 				session=session
 			)
-			self.assertIsNone(err)
+			self.assertIn('Cannot disburse', err.msg) # not enough credits stored in the financial summary
+
+			financial_summary.account_level_balance_payload = {
+				'fees_total': 200.0,
+				'credits_total': 8000.0
+			}
+
+			tx_id, err = payment_util.create_and_add_credit_payout_to_customer(
+				company_id=company_id,
+				payment_method='ach',
+				amount=850.06,
+				created_by_user_id=seed.get_user_id('bank_admin'),
+				deposit_date=date_util.load_date_str('10/01/2020'),
+				effective_date=date_util.load_date_str('10/01/2020'),
+				session=session
+			)
+			self.assertIsNone(err) # now we have enough redits stored in the financial summary
 
 
 			payment_test_helper.make_repayment(
