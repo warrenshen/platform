@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 
 from datetime import timedelta
 from dateutil import parser
@@ -109,6 +110,9 @@ class Transfers(object):
 def populate_transfers_table(cur_date: datetime.date, company_info: CompanyInfo, session: Session) -> Tuple[bool, errors.Error]:
 
 	for license in company_info.licenses:
+		logging.info('Downloading transfers for company "{}" on date: {}'.format(
+			company_info.name, cur_date
+		))
 		rest = metrc_common_util.REST(
 			metrc_common_util.AuthDict(
 				vendor_key=license['vendor_key'],

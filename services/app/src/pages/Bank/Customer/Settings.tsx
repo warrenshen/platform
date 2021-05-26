@@ -1,6 +1,7 @@
 import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import MetrcApiKeys from "components/Settings/Bank/MetrcApiKeys";
+import SyncMetrcData from "components/Settings/Bank/SyncMetrcData";
 import CustomerSettings from "components/Settings/CustomerSettings";
 import CollectionsBank from "components/Shared/BespokeBankAssignment/CollectionsBank";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
@@ -107,6 +108,13 @@ function BankCustomerSettingsSubpage({ companyId }: Props) {
               companySettingsId={settings?.id}
               handleDataChange={refetch}
             />
+          </Box>
+        </Box>
+
+        <Box mt={3} mb={1}>
+          <Typography variant="subtitle1">Sync Metrc Data</Typography>
+          <Box display="flex">
+            <SyncMetrcData companyId={company.id}></SyncMetrcData>
           </Box>
         </Box>
       </Box>

@@ -96,6 +96,30 @@ export async function viewApiKey(req: {
     );
 }
 
+export async function syncMetrcDataPerCustomer(req: {
+  variables: {
+    start_date: string;
+    end_date: string;
+    company_id: string;
+  };
+}): Promise<{
+  status: string;
+}> {
+  return authenticatedApi
+    .post(metrcRoutes.syncMetrcDataPerCustomer, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not sync metrc data per customer",
+        };
+      }
+    );
+}
+
 export async function syncMetrcData(req: {
   variables: {
     cur_date: string;
