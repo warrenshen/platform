@@ -1330,6 +1330,14 @@ export type Companies = {
   loans: Array<Loans>;
   /** An aggregated array relationship */
   loans_aggregate: LoansAggregate;
+  /** An array relationship */
+  metrc_api_keys: Array<MetrcApiKeys>;
+  /** An aggregated array relationship */
+  metrc_api_keys_aggregate: MetrcApiKeysAggregate;
+  /** An array relationship */
+  metrc_transfers: Array<MetrcTransfers>;
+  /** An aggregated array relationship */
+  metrc_transfers_aggregate: MetrcTransfersAggregate;
   name: Scalars["String"];
   needs_balance_recomputed: Scalars["Boolean"];
   /** An array relationship */
@@ -1593,6 +1601,42 @@ export type CompaniesLoansAggregateArgs = {
 };
 
 /** columns and relationships of "companies" */
+export type CompaniesMetrcApiKeysArgs = {
+  distinct_on?: Maybe<Array<MetrcApiKeysSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcApiKeysOrderBy>>;
+  where?: Maybe<MetrcApiKeysBoolExp>;
+};
+
+/** columns and relationships of "companies" */
+export type CompaniesMetrcApiKeysAggregateArgs = {
+  distinct_on?: Maybe<Array<MetrcApiKeysSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcApiKeysOrderBy>>;
+  where?: Maybe<MetrcApiKeysBoolExp>;
+};
+
+/** columns and relationships of "companies" */
+export type CompaniesMetrcTransfersArgs = {
+  distinct_on?: Maybe<Array<MetrcTransfersSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcTransfersOrderBy>>;
+  where?: Maybe<MetrcTransfersBoolExp>;
+};
+
+/** columns and relationships of "companies" */
+export type CompaniesMetrcTransfersAggregateArgs = {
+  distinct_on?: Maybe<Array<MetrcTransfersSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcTransfersOrderBy>>;
+  where?: Maybe<MetrcTransfersBoolExp>;
+};
+
+/** columns and relationships of "companies" */
 export type CompaniesPaymentsArgs = {
   distinct_on?: Maybe<Array<PaymentsSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -1764,6 +1808,8 @@ export type CompaniesBoolExp = {
   latest_repayment_identifier?: Maybe<IntComparisonExp>;
   licenses?: Maybe<CompanyLicensesBoolExp>;
   loans?: Maybe<LoansBoolExp>;
+  metrc_api_keys?: Maybe<MetrcApiKeysBoolExp>;
+  metrc_transfers?: Maybe<MetrcTransfersBoolExp>;
   name?: Maybe<StringComparisonExp>;
   needs_balance_recomputed?: Maybe<BooleanComparisonExp>;
   payments?: Maybe<PaymentsBoolExp>;
@@ -1828,6 +1874,8 @@ export type CompaniesInsertInput = {
   latest_repayment_identifier?: Maybe<Scalars["Int"]>;
   licenses?: Maybe<CompanyLicensesArrRelInsertInput>;
   loans?: Maybe<LoansArrRelInsertInput>;
+  metrc_api_keys?: Maybe<MetrcApiKeysArrRelInsertInput>;
+  metrc_transfers?: Maybe<MetrcTransfersArrRelInsertInput>;
   name?: Maybe<Scalars["String"]>;
   needs_balance_recomputed?: Maybe<Scalars["Boolean"]>;
   payments?: Maybe<PaymentsArrRelInsertInput>;
@@ -1990,6 +2038,8 @@ export type CompaniesOrderBy = {
   latest_repayment_identifier?: Maybe<OrderBy>;
   licenses_aggregate?: Maybe<CompanyLicensesAggregateOrderBy>;
   loans_aggregate?: Maybe<LoansAggregateOrderBy>;
+  metrc_api_keys_aggregate?: Maybe<MetrcApiKeysAggregateOrderBy>;
+  metrc_transfers_aggregate?: Maybe<MetrcTransfersAggregateOrderBy>;
   name?: Maybe<OrderBy>;
   needs_balance_recomputed?: Maybe<OrderBy>;
   payments_aggregate?: Maybe<PaymentsAggregateOrderBy>;
@@ -9073,6 +9123,10 @@ export type MutationRoot = {
   delete_purchase_order_files?: Maybe<PurchaseOrderFilesMutationResponse>;
   /** delete single row from the table: "purchase_order_files" */
   delete_purchase_order_files_by_pk?: Maybe<PurchaseOrderFiles>;
+  /** delete data from the table: "purchase_order_metrc_transfers" */
+  delete_purchase_order_metrc_transfers?: Maybe<PurchaseOrderMetrcTransfersMutationResponse>;
+  /** delete single row from the table: "purchase_order_metrc_transfers" */
+  delete_purchase_order_metrc_transfers_by_pk?: Maybe<PurchaseOrderMetrcTransfers>;
   /** delete data from the table: "purchase_orders" */
   delete_purchase_orders?: Maybe<PurchaseOrdersMutationResponse>;
   /** delete single row from the table: "purchase_orders" */
@@ -9227,6 +9281,10 @@ export type MutationRoot = {
   insert_purchase_order_files?: Maybe<PurchaseOrderFilesMutationResponse>;
   /** insert a single row into the table: "purchase_order_files" */
   insert_purchase_order_files_one?: Maybe<PurchaseOrderFiles>;
+  /** insert data into the table: "purchase_order_metrc_transfers" */
+  insert_purchase_order_metrc_transfers?: Maybe<PurchaseOrderMetrcTransfersMutationResponse>;
+  /** insert a single row into the table: "purchase_order_metrc_transfers" */
+  insert_purchase_order_metrc_transfers_one?: Maybe<PurchaseOrderMetrcTransfers>;
   /** insert data into the table: "purchase_orders" */
   insert_purchase_orders?: Maybe<PurchaseOrdersMutationResponse>;
   /** insert a single row into the table: "purchase_orders" */
@@ -9381,6 +9439,10 @@ export type MutationRoot = {
   update_purchase_order_files?: Maybe<PurchaseOrderFilesMutationResponse>;
   /** update single row of the table: "purchase_order_files" */
   update_purchase_order_files_by_pk?: Maybe<PurchaseOrderFiles>;
+  /** update data of the table: "purchase_order_metrc_transfers" */
+  update_purchase_order_metrc_transfers?: Maybe<PurchaseOrderMetrcTransfersMutationResponse>;
+  /** update single row of the table: "purchase_order_metrc_transfers" */
+  update_purchase_order_metrc_transfers_by_pk?: Maybe<PurchaseOrderMetrcTransfers>;
   /** update data of the table: "purchase_orders" */
   update_purchase_orders?: Maybe<PurchaseOrdersMutationResponse>;
   /** update single row of the table: "purchase_orders" */
@@ -9719,6 +9781,16 @@ export type MutationRootDeletePurchaseOrderFilesArgs = {
 export type MutationRootDeletePurchaseOrderFilesByPkArgs = {
   file_id: Scalars["uuid"];
   purchase_order_id: Scalars["uuid"];
+};
+
+/** mutation root */
+export type MutationRootDeletePurchaseOrderMetrcTransfersArgs = {
+  where: PurchaseOrderMetrcTransfersBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeletePurchaseOrderMetrcTransfersByPkArgs = {
+  id: Scalars["uuid"];
 };
 
 /** mutation root */
@@ -10164,6 +10236,18 @@ export type MutationRootInsertPurchaseOrderFilesArgs = {
 export type MutationRootInsertPurchaseOrderFilesOneArgs = {
   object: PurchaseOrderFilesInsertInput;
   on_conflict?: Maybe<PurchaseOrderFilesOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertPurchaseOrderMetrcTransfersArgs = {
+  objects: Array<PurchaseOrderMetrcTransfersInsertInput>;
+  on_conflict?: Maybe<PurchaseOrderMetrcTransfersOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertPurchaseOrderMetrcTransfersOneArgs = {
+  object: PurchaseOrderMetrcTransfersInsertInput;
+  on_conflict?: Maybe<PurchaseOrderMetrcTransfersOnConflict>;
 };
 
 /** mutation root */
@@ -10681,6 +10765,18 @@ export type MutationRootUpdatePurchaseOrderFilesArgs = {
 export type MutationRootUpdatePurchaseOrderFilesByPkArgs = {
   _set?: Maybe<PurchaseOrderFilesSetInput>;
   pk_columns: PurchaseOrderFilesPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdatePurchaseOrderMetrcTransfersArgs = {
+  _set?: Maybe<PurchaseOrderMetrcTransfersSetInput>;
+  where: PurchaseOrderMetrcTransfersBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdatePurchaseOrderMetrcTransfersByPkArgs = {
+  _set?: Maybe<PurchaseOrderMetrcTransfersSetInput>;
+  pk_columns: PurchaseOrderMetrcTransfersPkColumnsInput;
 };
 
 /** mutation root */
@@ -12371,6 +12467,194 @@ export enum PurchaseOrderFilesUpdateColumn {
   PurchaseOrderId = "purchase_order_id",
 }
 
+/** columns and relationships of "purchase_order_metrc_transfers" */
+export type PurchaseOrderMetrcTransfers = {
+  created_at: Scalars["timestamptz"];
+  id: Scalars["uuid"];
+  /** An object relationship */
+  metrc_transfer: MetrcTransfers;
+  metrc_transfer_id: Scalars["uuid"];
+  /** An object relationship */
+  purchase_order: PurchaseOrders;
+  purchase_order_id: Scalars["uuid"];
+  updated_at: Scalars["timestamptz"];
+};
+
+/** aggregated selection of "purchase_order_metrc_transfers" */
+export type PurchaseOrderMetrcTransfersAggregate = {
+  aggregate?: Maybe<PurchaseOrderMetrcTransfersAggregateFields>;
+  nodes: Array<PurchaseOrderMetrcTransfers>;
+};
+
+/** aggregate fields of "purchase_order_metrc_transfers" */
+export type PurchaseOrderMetrcTransfersAggregateFields = {
+  count?: Maybe<Scalars["Int"]>;
+  max?: Maybe<PurchaseOrderMetrcTransfersMaxFields>;
+  min?: Maybe<PurchaseOrderMetrcTransfersMinFields>;
+};
+
+/** aggregate fields of "purchase_order_metrc_transfers" */
+export type PurchaseOrderMetrcTransfersAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<PurchaseOrderMetrcTransfersSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** order by aggregate values of table "purchase_order_metrc_transfers" */
+export type PurchaseOrderMetrcTransfersAggregateOrderBy = {
+  count?: Maybe<OrderBy>;
+  max?: Maybe<PurchaseOrderMetrcTransfersMaxOrderBy>;
+  min?: Maybe<PurchaseOrderMetrcTransfersMinOrderBy>;
+};
+
+/** input type for inserting array relation for remote table "purchase_order_metrc_transfers" */
+export type PurchaseOrderMetrcTransfersArrRelInsertInput = {
+  data: Array<PurchaseOrderMetrcTransfersInsertInput>;
+  on_conflict?: Maybe<PurchaseOrderMetrcTransfersOnConflict>;
+};
+
+/** Boolean expression to filter rows from the table "purchase_order_metrc_transfers". All fields are combined with a logical 'AND'. */
+export type PurchaseOrderMetrcTransfersBoolExp = {
+  _and?: Maybe<Array<Maybe<PurchaseOrderMetrcTransfersBoolExp>>>;
+  _not?: Maybe<PurchaseOrderMetrcTransfersBoolExp>;
+  _or?: Maybe<Array<Maybe<PurchaseOrderMetrcTransfersBoolExp>>>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
+  id?: Maybe<UuidComparisonExp>;
+  metrc_transfer?: Maybe<MetrcTransfersBoolExp>;
+  metrc_transfer_id?: Maybe<UuidComparisonExp>;
+  purchase_order?: Maybe<PurchaseOrdersBoolExp>;
+  purchase_order_id?: Maybe<UuidComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
+};
+
+/** unique or primary key constraints on table "purchase_order_metrc_transfers" */
+export enum PurchaseOrderMetrcTransfersConstraint {
+  /** unique or primary key constraint */
+  PurchaseOrderMetrcTransferPurchaseOrderIdMetrcTransKey = "purchase_order_metrc_transfer_purchase_order_id_metrc_trans_key",
+  /** unique or primary key constraint */
+  PurchaseOrderMetrcTransfersPkey = "purchase_order_metrc_transfers_pkey",
+}
+
+/** input type for inserting data into table "purchase_order_metrc_transfers" */
+export type PurchaseOrderMetrcTransfersInsertInput = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  metrc_transfer?: Maybe<MetrcTransfersObjRelInsertInput>;
+  metrc_transfer_id?: Maybe<Scalars["uuid"]>;
+  purchase_order?: Maybe<PurchaseOrdersObjRelInsertInput>;
+  purchase_order_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate max on columns */
+export type PurchaseOrderMetrcTransfersMaxFields = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  metrc_transfer_id?: Maybe<Scalars["uuid"]>;
+  purchase_order_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** order by max() on columns of table "purchase_order_metrc_transfers" */
+export type PurchaseOrderMetrcTransfersMaxOrderBy = {
+  created_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  metrc_transfer_id?: Maybe<OrderBy>;
+  purchase_order_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** aggregate min on columns */
+export type PurchaseOrderMetrcTransfersMinFields = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  metrc_transfer_id?: Maybe<Scalars["uuid"]>;
+  purchase_order_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** order by min() on columns of table "purchase_order_metrc_transfers" */
+export type PurchaseOrderMetrcTransfersMinOrderBy = {
+  created_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  metrc_transfer_id?: Maybe<OrderBy>;
+  purchase_order_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** response of any mutation on the table "purchase_order_metrc_transfers" */
+export type PurchaseOrderMetrcTransfersMutationResponse = {
+  /** number of affected rows by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data of the affected rows by the mutation */
+  returning: Array<PurchaseOrderMetrcTransfers>;
+};
+
+/** input type for inserting object relation for remote table "purchase_order_metrc_transfers" */
+export type PurchaseOrderMetrcTransfersObjRelInsertInput = {
+  data: PurchaseOrderMetrcTransfersInsertInput;
+  on_conflict?: Maybe<PurchaseOrderMetrcTransfersOnConflict>;
+};
+
+/** on conflict condition type for table "purchase_order_metrc_transfers" */
+export type PurchaseOrderMetrcTransfersOnConflict = {
+  constraint: PurchaseOrderMetrcTransfersConstraint;
+  update_columns: Array<PurchaseOrderMetrcTransfersUpdateColumn>;
+  where?: Maybe<PurchaseOrderMetrcTransfersBoolExp>;
+};
+
+/** ordering options when selecting data from "purchase_order_metrc_transfers" */
+export type PurchaseOrderMetrcTransfersOrderBy = {
+  created_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  metrc_transfer?: Maybe<MetrcTransfersOrderBy>;
+  metrc_transfer_id?: Maybe<OrderBy>;
+  purchase_order?: Maybe<PurchaseOrdersOrderBy>;
+  purchase_order_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "purchase_order_metrc_transfers" */
+export type PurchaseOrderMetrcTransfersPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "purchase_order_metrc_transfers" */
+export enum PurchaseOrderMetrcTransfersSelectColumn {
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  MetrcTransferId = "metrc_transfer_id",
+  /** column name */
+  PurchaseOrderId = "purchase_order_id",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
+/** input type for updating data in table "purchase_order_metrc_transfers" */
+export type PurchaseOrderMetrcTransfersSetInput = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  metrc_transfer_id?: Maybe<Scalars["uuid"]>;
+  purchase_order_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** update columns of table "purchase_order_metrc_transfers" */
+export enum PurchaseOrderMetrcTransfersUpdateColumn {
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  MetrcTransferId = "metrc_transfer_id",
+  /** column name */
+  PurchaseOrderId = "purchase_order_id",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
 /** columns and relationships of "purchase_orders" */
 export type PurchaseOrders = {
   amount?: Maybe<Scalars["numeric"]>;
@@ -12387,6 +12671,8 @@ export type PurchaseOrders = {
   /** Whether this purchase order includes "cannabis or derivatives"; NULL means unknown (neither true nor false) */
   is_cannabis?: Maybe<Scalars["Boolean"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
+  /** Whether this purchase order is based on Metrc manifests; this may be true even if purchase order does not have associated manifests purchase order is a draft */
+  is_metrc_based?: Maybe<Scalars["Boolean"]>;
   /** An array relationship */
   loans: Array<Loans>;
   /** An aggregated array relationship */
@@ -12397,6 +12683,10 @@ export type PurchaseOrders = {
   purchase_order_files: Array<PurchaseOrderFiles>;
   /** An aggregated array relationship */
   purchase_order_files_aggregate: PurchaseOrderFilesAggregate;
+  /** An array relationship */
+  purchase_order_metrc_transfers: Array<PurchaseOrderMetrcTransfers>;
+  /** An aggregated array relationship */
+  purchase_order_metrc_transfers_aggregate: PurchaseOrderMetrcTransfersAggregate;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
@@ -12442,6 +12732,24 @@ export type PurchaseOrdersPurchaseOrderFilesAggregateArgs = {
   offset?: Maybe<Scalars["Int"]>;
   order_by?: Maybe<Array<PurchaseOrderFilesOrderBy>>;
   where?: Maybe<PurchaseOrderFilesBoolExp>;
+};
+
+/** columns and relationships of "purchase_orders" */
+export type PurchaseOrdersPurchaseOrderMetrcTransfersArgs = {
+  distinct_on?: Maybe<Array<PurchaseOrderMetrcTransfersSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<PurchaseOrderMetrcTransfersOrderBy>>;
+  where?: Maybe<PurchaseOrderMetrcTransfersBoolExp>;
+};
+
+/** columns and relationships of "purchase_orders" */
+export type PurchaseOrdersPurchaseOrderMetrcTransfersAggregateArgs = {
+  distinct_on?: Maybe<Array<PurchaseOrderMetrcTransfersSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<PurchaseOrderMetrcTransfersOrderBy>>;
+  where?: Maybe<PurchaseOrderMetrcTransfersBoolExp>;
 };
 
 /** aggregated selection of "purchase_orders" */
@@ -12518,10 +12826,12 @@ export type PurchaseOrdersBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   is_cannabis?: Maybe<BooleanComparisonExp>;
   is_deleted?: Maybe<BooleanComparisonExp>;
+  is_metrc_based?: Maybe<BooleanComparisonExp>;
   loans?: Maybe<LoansBoolExp>;
   order_date?: Maybe<DateComparisonExp>;
   order_number?: Maybe<StringComparisonExp>;
   purchase_order_files?: Maybe<PurchaseOrderFilesBoolExp>;
+  purchase_order_metrc_transfers?: Maybe<PurchaseOrderMetrcTransfersBoolExp>;
   rejected_at?: Maybe<TimestamptzComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
   requested_at?: Maybe<TimestamptzComparisonExp>;
@@ -12555,10 +12865,12 @@ export type PurchaseOrdersInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_cannabis?: Maybe<Scalars["Boolean"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
+  is_metrc_based?: Maybe<Scalars["Boolean"]>;
   loans?: Maybe<LoansArrRelInsertInput>;
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
   purchase_order_files?: Maybe<PurchaseOrderFilesArrRelInsertInput>;
+  purchase_order_metrc_transfers?: Maybe<PurchaseOrderMetrcTransfersArrRelInsertInput>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -12678,10 +12990,12 @@ export type PurchaseOrdersOrderBy = {
   id?: Maybe<OrderBy>;
   is_cannabis?: Maybe<OrderBy>;
   is_deleted?: Maybe<OrderBy>;
+  is_metrc_based?: Maybe<OrderBy>;
   loans_aggregate?: Maybe<LoansAggregateOrderBy>;
   order_date?: Maybe<OrderBy>;
   order_number?: Maybe<OrderBy>;
   purchase_order_files_aggregate?: Maybe<PurchaseOrderFilesAggregateOrderBy>;
+  purchase_order_metrc_transfers_aggregate?: Maybe<PurchaseOrderMetrcTransfersAggregateOrderBy>;
   rejected_at?: Maybe<OrderBy>;
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
@@ -12719,6 +13033,8 @@ export enum PurchaseOrdersSelectColumn {
   /** column name */
   IsDeleted = "is_deleted",
   /** column name */
+  IsMetrcBased = "is_metrc_based",
+  /** column name */
   OrderDate = "order_date",
   /** column name */
   OrderNumber = "order_number",
@@ -12748,6 +13064,7 @@ export type PurchaseOrdersSetInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_cannabis?: Maybe<Scalars["Boolean"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
+  is_metrc_based?: Maybe<Scalars["Boolean"]>;
   order_date?: Maybe<Scalars["date"]>;
   order_number?: Maybe<Scalars["String"]>;
   rejected_at?: Maybe<Scalars["timestamptz"]>;
@@ -12820,6 +13137,8 @@ export enum PurchaseOrdersUpdateColumn {
   IsCannabis = "is_cannabis",
   /** column name */
   IsDeleted = "is_deleted",
+  /** column name */
+  IsMetrcBased = "is_metrc_based",
   /** column name */
   OrderDate = "order_date",
   /** column name */
@@ -13054,6 +13373,12 @@ export type QueryRoot = {
   purchase_order_files_aggregate: PurchaseOrderFilesAggregate;
   /** fetch data from the table: "purchase_order_files" using primary key columns */
   purchase_order_files_by_pk?: Maybe<PurchaseOrderFiles>;
+  /** fetch data from the table: "purchase_order_metrc_transfers" */
+  purchase_order_metrc_transfers: Array<PurchaseOrderMetrcTransfers>;
+  /** fetch aggregated fields from the table: "purchase_order_metrc_transfers" */
+  purchase_order_metrc_transfers_aggregate: PurchaseOrderMetrcTransfersAggregate;
+  /** fetch data from the table: "purchase_order_metrc_transfers" using primary key columns */
+  purchase_order_metrc_transfers_by_pk?: Maybe<PurchaseOrderMetrcTransfers>;
   /** fetch data from the table: "purchase_orders" */
   purchase_orders: Array<PurchaseOrders>;
   /** fetch aggregated fields from the table: "purchase_orders" */
@@ -13814,6 +14139,29 @@ export type QueryRootPurchaseOrderFilesByPkArgs = {
 };
 
 /** query root */
+export type QueryRootPurchaseOrderMetrcTransfersArgs = {
+  distinct_on?: Maybe<Array<PurchaseOrderMetrcTransfersSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<PurchaseOrderMetrcTransfersOrderBy>>;
+  where?: Maybe<PurchaseOrderMetrcTransfersBoolExp>;
+};
+
+/** query root */
+export type QueryRootPurchaseOrderMetrcTransfersAggregateArgs = {
+  distinct_on?: Maybe<Array<PurchaseOrderMetrcTransfersSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<PurchaseOrderMetrcTransfersOrderBy>>;
+  where?: Maybe<PurchaseOrderMetrcTransfersBoolExp>;
+};
+
+/** query root */
+export type QueryRootPurchaseOrderMetrcTransfersByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** query root */
 export type QueryRootPurchaseOrdersArgs = {
   distinct_on?: Maybe<Array<PurchaseOrdersSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -14498,6 +14846,12 @@ export type SubscriptionRoot = {
   purchase_order_files_aggregate: PurchaseOrderFilesAggregate;
   /** fetch data from the table: "purchase_order_files" using primary key columns */
   purchase_order_files_by_pk?: Maybe<PurchaseOrderFiles>;
+  /** fetch data from the table: "purchase_order_metrc_transfers" */
+  purchase_order_metrc_transfers: Array<PurchaseOrderMetrcTransfers>;
+  /** fetch aggregated fields from the table: "purchase_order_metrc_transfers" */
+  purchase_order_metrc_transfers_aggregate: PurchaseOrderMetrcTransfersAggregate;
+  /** fetch data from the table: "purchase_order_metrc_transfers" using primary key columns */
+  purchase_order_metrc_transfers_by_pk?: Maybe<PurchaseOrderMetrcTransfers>;
   /** fetch data from the table: "purchase_orders" */
   purchase_orders: Array<PurchaseOrders>;
   /** fetch aggregated fields from the table: "purchase_orders" */
@@ -15255,6 +15609,29 @@ export type SubscriptionRootPurchaseOrderFilesAggregateArgs = {
 export type SubscriptionRootPurchaseOrderFilesByPkArgs = {
   file_id: Scalars["uuid"];
   purchase_order_id: Scalars["uuid"];
+};
+
+/** subscription root */
+export type SubscriptionRootPurchaseOrderMetrcTransfersArgs = {
+  distinct_on?: Maybe<Array<PurchaseOrderMetrcTransfersSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<PurchaseOrderMetrcTransfersOrderBy>>;
+  where?: Maybe<PurchaseOrderMetrcTransfersBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootPurchaseOrderMetrcTransfersAggregateArgs = {
+  distinct_on?: Maybe<Array<PurchaseOrderMetrcTransfersSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<PurchaseOrderMetrcTransfersOrderBy>>;
+  where?: Maybe<PurchaseOrderMetrcTransfersBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootPurchaseOrderMetrcTransfersByPkArgs = {
+  id: Scalars["uuid"];
 };
 
 /** subscription root */
@@ -18279,6 +18656,31 @@ export type PayorPartnershipFragment = Pick<
   payor?: Maybe<Pick<Companies, "id" | "name">>;
 };
 
+export type MetrcTransferFragment = Pick<
+  MetrcTransfers,
+  | "id"
+  | "company_id"
+  | "license_id"
+  | "delivery_id"
+  | "created_date"
+  | "manifest_number"
+  | "transfer_payload"
+>;
+
+export type MetrcPackageFragment = Pick<
+  MetrcPackages,
+  | "id"
+  | "package_id"
+  | "transfer_id"
+  | "delivery_id"
+  | "label"
+  | "type"
+  | "product_name"
+  | "package_payload"
+  | "lab_results_payload"
+  | "lab_results_status"
+>;
+
 export type UpdateCompanyInfoMutationVariables = Exact<{
   id: Scalars["uuid"];
   company: CompaniesSetInput;
@@ -18453,6 +18855,10 @@ export type GetVendorsByPartnerCompanyQueryVariables = Exact<{
 }>;
 
 export type GetVendorsByPartnerCompanyQuery = {
+  companies_by_pk?: Maybe<{
+    metrc_api_keys: Array<Pick<MetrcApiKeys, "id">>;
+    metrc_transfers: Array<Pick<MetrcTransfers, "id"> & MetrcTransferFragment>;
+  }>;
   vendors: Array<
     Pick<Vendors, "id"> & {
       company_vendor_partnerships: Array<
@@ -19028,6 +19434,31 @@ export const PayorPartnershipFragmentDoc = gql`
       id
       name
     }
+  }
+`;
+export const MetrcTransferFragmentDoc = gql`
+  fragment MetrcTransfer on metrc_transfers {
+    id
+    company_id
+    license_id
+    delivery_id
+    created_date
+    manifest_number
+    transfer_payload
+  }
+`;
+export const MetrcPackageFragmentDoc = gql`
+  fragment MetrcPackage on metrc_packages {
+    id
+    package_id
+    transfer_id
+    delivery_id
+    label
+    type
+    product_name
+    package_payload
+    lab_results_payload
+    lab_results_status
   }
 `;
 export const ContactFragmentDoc = gql`
@@ -25805,6 +26236,15 @@ export type GetVendorPartnershipsByCompanyIdQueryResult = Apollo.QueryResult<
 >;
 export const GetVendorsByPartnerCompanyDocument = gql`
   query GetVendorsByPartnerCompany($companyId: uuid!) {
+    companies_by_pk(id: $companyId) {
+      metrc_api_keys(where: { is_functioning: { _eq: true } }) {
+        id
+      }
+      metrc_transfers {
+        id
+        ...MetrcTransfer
+      }
+    }
     vendors(
       where: {
         company_vendor_partnerships: { company_id: { _eq: $companyId } }
@@ -25819,6 +26259,7 @@ export const GetVendorsByPartnerCompanyDocument = gql`
       }
     }
   }
+  ${MetrcTransferFragmentDoc}
   ${VendorLimitedFragmentDoc}
 `;
 

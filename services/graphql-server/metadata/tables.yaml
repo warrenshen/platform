@@ -381,6 +381,13 @@
         table:
           schema: public
           name: loans
+  - name: metrc_api_keys
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          schema: public
+          name: metrc_api_keys
   - name: metrc_transfers
     using:
       foreign_key_constraint_on:

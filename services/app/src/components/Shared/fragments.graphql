@@ -330,3 +330,26 @@ fragment PayorPartnership on company_payor_partnerships {
     name
   }
 }
+
+fragment MetrcTransfer on metrc_transfers {
+  id
+  company_id
+  license_id
+  delivery_id
+  created_date
+  manifest_number
+  transfer_payload
+}
+
+fragment MetrcPackage on metrc_packages {
+  id
+  package_id
+  transfer_id
+  delivery_id
+  label
+  type
+  product_name
+  package_payload
+  lab_results_payload
+  lab_results_status
+}

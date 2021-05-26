@@ -13,6 +13,7 @@ import FileUploader from "components/Shared/File/FileUploader";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import {
+  Companies,
   GetVendorsByPartnerCompanyQuery,
   PurchaseOrderFileFragment,
   PurchaseOrderFileTypeEnum,
@@ -22,7 +23,7 @@ import { FileTypeEnum } from "lib/enum";
 import { useMemo } from "react";
 
 interface Props {
-  companyId: string;
+  companyId: Companies["id"];
   purchaseOrder: PurchaseOrdersInsertInput;
   purchaseOrderFile: PurchaseOrderFileFragment | null;
   purchaseOrderCannabisFiles: PurchaseOrderFileFragment[];
@@ -32,7 +33,7 @@ interface Props {
   setPurchaseOrderCannabisFiles: (files: PurchaseOrderFileFragment[]) => void;
 }
 
-function PurchaseOrderForm({
+export default function PurchaseOrderForm({
   companyId,
   purchaseOrder,
   purchaseOrderFile,
@@ -227,5 +228,3 @@ function PurchaseOrderForm({
     </Box>
   );
 }
-
-export default PurchaseOrderForm;

@@ -1,6 +1,7 @@
-import { Box, Typography } from "@material-ui/core";
+import { Box, Checkbox, FormControlLabel, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import PurchaseOrderForm from "components/PurchaseOrder/PurchaseOrderForm";
+import PurchaseOrderFormV2 from "components/PurchaseOrder/PurchaseOrderFormV2";
 import Modal from "components/Shared/Modal/Modal";
 import {
   CurrentUserContext,
@@ -57,6 +58,7 @@ export default function CreateUpdatePurchaseOrderModal({
     delivery_date: null,
     amount: null,
     is_cannabis: true,
+    is_metrc_based: null, // null = not known yet
     status: RequestStatusEnum.Drafted,
   } as PurchaseOrdersInsertInput;
 
@@ -116,6 +118,10 @@ export default function CreateUpdatePurchaseOrderModal({
     },
   });
   const vendors = data?.vendors || [];
+  const metrcApiKeys = data?.companies_by_pk?.metrc_api_keys || [];
+  const metrcTransfers = data?.companies_by_pk?.metrc_transfers || [];
+
+  const isMetrcEnabled = metrcApiKeys.length > 0;
 
   const [
     createUpdatePurchaseOrderAsDraft,
@@ -246,7 +252,11 @@ export default function CreateUpdatePurchaseOrderModal({
     !purchaseOrderFile ||
     (!!purchaseOrder.is_cannabis && purchaseOrderCannabisFiles.length <= 0);
 
-  return isDialogReady ? (
+  if (!isDialogReady) {
+    return null;
+  }
+
+  return (
     <Modal
       dataCy={"create-purchase-order-modal"}
       isPrimaryActionDisabled={isPrimaryActionDisabled}
@@ -272,16 +282,44 @@ export default function CreateUpdatePurchaseOrderModal({
           </Alert>
         </Box>
       )}
-      <PurchaseOrderForm
-        companyId={companyId}
-        purchaseOrder={purchaseOrder}
-        purchaseOrderFile={purchaseOrderFile}
-        purchaseOrderCannabisFiles={purchaseOrderCannabisFiles}
-        vendors={vendors}
-        setPurchaseOrder={setPurchaseOrder}
-        setPurchaseOrderFile={setPurchaseOrderFile}
-        setPurchaseOrderCannabisFiles={setPurchaseOrderCannabisFiles}
-      />
+      {isMetrcEnabled && (
+        <Box display="flex" flexDirection="column" mb={4}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={!!purchaseOrder.is_metrc_based}
+                onChange={(event) =>
+                  setPurchaseOrder({
+                    ...purchaseOrder,
+                    is_metrc_based: event.target.checked,
+                  })
+                }
+                color="primary"
+              />
+            }
+            label={"Create purchase order from Metrc manifest(s)?"}
+          />
+        </Box>
+      )}
+      {!!purchaseOrder.is_metrc_based ? (
+        <PurchaseOrderFormV2
+          purchaseOrder={purchaseOrder}
+          metrcTransfers={metrcTransfers}
+          vendors={vendors}
+          setPurchaseOrder={setPurchaseOrder}
+        />
+      ) : (
+        <PurchaseOrderForm
+          companyId={companyId}
+          purchaseOrder={purchaseOrder}
+          purchaseOrderFile={purchaseOrderFile}
+          purchaseOrderCannabisFiles={purchaseOrderCannabisFiles}
+          vendors={vendors}
+          setPurchaseOrder={setPurchaseOrder}
+          setPurchaseOrderFile={setPurchaseOrderFile}
+          setPurchaseOrderCannabisFiles={setPurchaseOrderCannabisFiles}
+        />
+      )}
     </Modal>
-  ) : null;
+  );
 }

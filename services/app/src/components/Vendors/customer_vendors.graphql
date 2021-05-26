@@ -8,6 +8,15 @@ query GetVendorPartnershipsByCompanyId($companyId: uuid!) {
 }
 
 query GetVendorsByPartnerCompany($companyId: uuid!) {
+  companies_by_pk(id: $companyId) {
+    metrc_api_keys(where: { is_functioning: { _eq: true } }) {
+      id
+    }
+    metrc_transfers {
+      id
+      ...MetrcTransfer
+    }
+  }
   vendors(
     where: { company_vendor_partnerships: { company_id: { _eq: $companyId } } }
     order_by: { name: asc }
