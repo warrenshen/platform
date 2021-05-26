@@ -131,10 +131,18 @@
         "is_hidden": true
       },
       {
-        "section": "Financing Terms",
+        "section": "Location",
         "type": "timezone",
         "internal_name": "timezone",
         "display_name": "Timezone",
+        "value": null,
+        "nullable": false
+      },
+      {
+        "section": "Location",
+        "type": "us_state",
+        "internal_name": "us_state",
+        "display_name": "US State",
         "value": null,
         "nullable": false
       },
