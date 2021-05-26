@@ -381,6 +381,13 @@
         table:
           schema: public
           name: loans
+  - name: metrc_transfers
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          schema: public
+          name: metrc_transfers
   - name: payments
     using:
       foreign_key_constraint_on:
@@ -2913,6 +2920,65 @@
               _eq: X-Hasura-Company-Id
 - table:
     schema: public
+    name: purchase_order_metrc_transfers
+  object_relationships:
+  - name: metrc_transfer
+    using:
+      foreign_key_constraint_on: metrc_transfer_id
+  - name: purchase_order
+    using:
+      foreign_key_constraint_on: purchase_order_id
+  select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+      - id
+      - purchase_order_id
+      - metrc_transfer_id
+      - created_at
+      - updated_at
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+      - created_at
+      - updated_at
+      - id
+      - metrc_transfer_id
+      - purchase_order_id
+      filter: {}
+  - role: company_admin
+    permission:
+      columns:
+      - created_at
+      - updated_at
+      - id
+      - metrc_transfer_id
+      - purchase_order_id
+      filter:
+        purchase_order:
+          _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - vendor_id:
+              _eq: X-Hasura-Company-Id
+  - role: company_read_only
+    permission:
+      columns:
+      - created_at
+      - updated_at
+      - id
+      - metrc_transfer_id
+      - purchase_order_id
+      filter:
+        purchase_order:
+          _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - vendor_id:
+              _eq: X-Hasura-Company-Id
+- table:
+    schema: public
     name: purchase_orders
   object_relationships:
   - name: company
@@ -2942,6 +3008,13 @@
         table:
           schema: public
           name: purchase_order_files
+  - name: purchase_order_metrc_transfers
+    using:
+      foreign_key_constraint_on:
+        column: purchase_order_id
+        table:
+          schema: public
+          name: purchase_order_metrc_transfers
   select_permissions:
   - role: bank_admin
     permission:

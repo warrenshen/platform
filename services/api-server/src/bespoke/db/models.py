@@ -359,6 +359,7 @@ class PurchaseOrder(Artifact):
 	funded_at = Column(DateTime)
 	is_cannabis = Column(Boolean)
 	is_deleted = Column(Boolean)
+	is_metrc_based = Column(Boolean)
 
 	vendor = relationship(
 		'Company',
