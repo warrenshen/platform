@@ -9,8 +9,10 @@ import {
 } from "contexts/CurrentUserContext";
 import {
   Companies,
+  MetrcTransferFragment,
   PurchaseOrderFileFragment,
   PurchaseOrderFileTypeEnum,
+  PurchaseOrderMetrcTransferFragment,
   PurchaseOrders,
   PurchaseOrdersInsertInput,
   RequestStatusEnum,
@@ -26,7 +28,7 @@ import {
 } from "lib/api/purchaseOrders";
 import { ActionType } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 
 interface Props {
   actionType: ActionType;
@@ -76,6 +78,10 @@ export default function CreateUpdatePurchaseOrderModal({
   const [purchaseOrderCannabisFiles, setPurchaseOrderCannabisFiles] = useState<
     PurchaseOrderFileFragment[]
   >([]);
+  const [
+    purchaseOrderMetrcTransfers,
+    setPurchaseOrderMetrcTransfers,
+  ] = useState<PurchaseOrderMetrcTransferFragment[]>([]);
 
   const { loading: isExistingPurchaseOrderLoading } = usePurchaseOrderQuery({
     skip: actionType === ActionType.New,
@@ -104,6 +110,9 @@ export default function CreateUpdatePurchaseOrderModal({
               purchaseOrderFile.file_type === PurchaseOrderFileTypeEnum.Cannabis
           )
         );
+        setPurchaseOrderMetrcTransfers(
+          existingPurchaseOrder.purchase_order_metrc_transfers
+        );
       }
     },
   });
@@ -117,9 +126,35 @@ export default function CreateUpdatePurchaseOrderModal({
       companyId,
     },
   });
-  const vendors = data?.vendors || [];
+  const selectableVendors = data?.vendors || [];
+  const allMetrcTransfers = useMemo(
+    () => data?.companies_by_pk?.metrc_transfers || [],
+    [data?.companies_by_pk]
+  );
+  const selectedMetrcTransfers = useMemo(
+    () =>
+      purchaseOrderMetrcTransfers
+        .map((purchaseOrderMetrcTransfer) =>
+          allMetrcTransfers.find(
+            (metrcTransfer) =>
+              metrcTransfer.id === purchaseOrderMetrcTransfer.metrc_transfer_id
+          )
+        )
+        .filter((selectedMetrcTransfer) => !!selectedMetrcTransfer),
+    [allMetrcTransfers, purchaseOrderMetrcTransfers]
+  ) as MetrcTransferFragment[];
+  const selectableMetrcTransfers = useMemo(
+    () =>
+      allMetrcTransfers.filter(
+        (metrcTransfer) =>
+          !selectedMetrcTransfers.find(
+            (selectedMetrcTransfer) =>
+              selectedMetrcTransfer.id === metrcTransfer.id
+          )
+      ),
+    [allMetrcTransfers, selectedMetrcTransfers]
+  );
   const metrcApiKeys = data?.companies_by_pk?.metrc_api_keys || [];
-  const metrcTransfers = data?.companies_by_pk?.metrc_transfers || [];
 
   const isMetrcEnabled = metrcApiKeys.length > 0;
 
@@ -148,6 +183,7 @@ export default function CreateUpdatePurchaseOrderModal({
       delivery_date: purchaseOrder.delivery_date,
       amount: purchaseOrder.amount,
       is_cannabis: purchaseOrder.is_cannabis,
+      is_metrc_based: purchaseOrder.is_metrc_based,
       status: RequestStatusEnum.Drafted,
     };
   };
@@ -172,12 +208,23 @@ export default function CreateUpdatePurchaseOrderModal({
     return purchaseOrderFilesData;
   };
 
+  const preparePurchaseOrderMetrcTransfers = () => {
+    return selectedMetrcTransfers.map((selectedMetrcTransfer) => ({
+      purchase_order_id: purchaseOrder.id,
+      metrc_transfer_id: selectedMetrcTransfer.id,
+    }));
+  };
+
+  const prepareMutationVariables = () => {
+    return {
+      purchase_order: preparePurchaseOrder(),
+      purchase_order_files: preparePurchaseOrderFiles(),
+      purchase_order_metrc_transfers: preparePurchaseOrderMetrcTransfers(),
+    };
+  };
   const handleClickSaveDraft = async () => {
     const response = await createUpdatePurchaseOrderAsDraft({
-      variables: {
-        purchase_order: preparePurchaseOrder(),
-        purchase_order_files: preparePurchaseOrderFiles(),
-      },
+      variables: prepareMutationVariables(),
     });
 
     if (response.status !== "OK") {
@@ -194,10 +241,7 @@ export default function CreateUpdatePurchaseOrderModal({
 
   const handleClickSaveSubmit = async () => {
     const response = await createUpdatePurchaseOrderAndSubmit({
-      variables: {
-        purchase_order: preparePurchaseOrder(),
-        purchase_order_files: preparePurchaseOrderFiles(),
-      },
+      variables: prepareMutationVariables(),
     });
 
     if (response.status !== "OK") {
@@ -214,10 +258,7 @@ export default function CreateUpdatePurchaseOrderModal({
 
   const handleClickUpdate = async () => {
     const response = await updatePurchaseOrder({
-      variables: {
-        purchase_order: preparePurchaseOrder(),
-        purchase_order_files: preparePurchaseOrderFiles(),
-      },
+      variables: prepareMutationVariables(),
     });
 
     if (response.status !== "OK") {
@@ -234,23 +275,31 @@ export default function CreateUpdatePurchaseOrderModal({
 
   const isDialogReady =
     !isExistingPurchaseOrderLoading && !isSelectableVendorsLoading;
-  // The minimum amount of information to save as draft is vendor and order number.
-  const isFormValid = !!purchaseOrder.vendor_id && !!purchaseOrder.order_number;
+  // The minimum amount of information to save as draft is:
+  // If Metrc based: Metrc manifest(s) and order number
+  // If not Metrc based: vendor and order number
+  const isFormValid =
+    (purchaseOrder.is_metrc_based && !!purchaseOrder.order_number) ||
+    (!purchaseOrder.is_metrc_based &&
+      !!purchaseOrder.vendor_id &&
+      !!purchaseOrder.order_number);
   const isFormLoading =
     isCreateUpdatePurchaseOrderAsDraftLoading ||
     isCreateUpdatePurchaseOrderAndSubmitLoading ||
     isUpdatePurchaseOrderLoading;
   const isSecondaryActionDisabled =
     !isFormValid || isFormLoading || !purchaseOrder.order_number;
-  const isPrimaryActionDisabled =
-    isSecondaryActionDisabled ||
-    !vendors?.find((vendor) => vendor.id === purchaseOrder.vendor_id)
-      ?.company_vendor_partnerships[0].approved_at ||
-    !purchaseOrder.order_date ||
-    !purchaseOrder.delivery_date ||
-    !purchaseOrder.amount ||
-    !purchaseOrderFile ||
-    (!!purchaseOrder.is_cannabis && purchaseOrderCannabisFiles.length <= 0);
+  const isPrimaryActionDisabled = isActionTypeUpdate
+    ? isSecondaryActionDisabled
+    : isSecondaryActionDisabled ||
+      !selectableVendors?.find(
+        (vendor) => vendor.id === purchaseOrder.vendor_id
+      )?.company_vendor_partnerships[0].approved_at ||
+      !purchaseOrder.order_date ||
+      !purchaseOrder.delivery_date ||
+      !purchaseOrder.amount ||
+      !purchaseOrderFile ||
+      (!!purchaseOrder.is_cannabis && purchaseOrderCannabisFiles.length <= 0);
 
   if (!isDialogReady) {
     return null;
@@ -304,9 +353,11 @@ export default function CreateUpdatePurchaseOrderModal({
       {!!purchaseOrder.is_metrc_based ? (
         <PurchaseOrderFormV2
           purchaseOrder={purchaseOrder}
-          metrcTransfers={metrcTransfers}
-          vendors={vendors}
+          selectableMetrcTransfers={selectableMetrcTransfers}
+          selectableVendors={selectableVendors}
+          selectedMetrcTransfers={selectedMetrcTransfers}
           setPurchaseOrder={setPurchaseOrder}
+          setPurchaseOrderMetrcTransfers={setPurchaseOrderMetrcTransfers}
         />
       ) : (
         <PurchaseOrderForm
@@ -314,7 +365,7 @@ export default function CreateUpdatePurchaseOrderModal({
           purchaseOrder={purchaseOrder}
           purchaseOrderFile={purchaseOrderFile}
           purchaseOrderCannabisFiles={purchaseOrderCannabisFiles}
-          vendors={vendors}
+          selectableVendors={selectableVendors}
           setPurchaseOrder={setPurchaseOrder}
           setPurchaseOrderFile={setPurchaseOrderFile}
           setPurchaseOrderCannabisFiles={setPurchaseOrderCannabisFiles}

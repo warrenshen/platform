@@ -276,6 +276,23 @@ class PurchaseOrderFile(Base):
 			file_type=self.file_type,
 		)
 
+PurchaseOrderMetrcTransferDict = TypedDict('PurchaseOrderMetrcTransferDict', {
+	'purchase_order_id': str,
+	'metrc_transfer_id': str,
+})
+
+class PurchaseOrderMetrcTransfer(Base):
+	__tablename__ = 'purchase_order_metrc_transfers'
+
+	purchase_order_id = cast(GUID, Column(GUID, ForeignKey('purchase_orders.id'), primary_key=True, nullable=True))
+	metrc_transfer_id = cast(GUID, Column(GUID, ForeignKey('metrc_transfers.id'), primary_key=True, nullable=True))
+
+	def as_dict(self) -> PurchaseOrderMetrcTransferDict:
+		return PurchaseOrderMetrcTransferDict(
+			purchase_order_id=str(self.purchase_order_id),
+			metrc_transfer_id=str(self.metrc_transfer_id),
+		)
+
 PurchaseOrderDict = TypedDict('PurchaseOrderDict', {
 	'id': str,
 	'order_number': str,
@@ -339,7 +356,7 @@ class Artifact(Base):
 
 class PurchaseOrder(Artifact):
 	"""
-					Purchase orders created by customers for financing
+	Purchase orders created by customers for financing
 	"""
 	__tablename__ = 'purchase_orders'
 

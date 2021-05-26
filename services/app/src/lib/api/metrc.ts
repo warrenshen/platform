@@ -1,5 +1,61 @@
 import { authenticatedApi, CustomMutationResponse, metrcRoutes } from "lib/api";
 
+// {
+//    "Id":1977406,
+//    "ManifestNumber":"0001977406",
+//    "ShipmentLicenseType":"Licensed",
+//    "ShipperFacilityLicenseNumber":"C11-0000574-LIC",
+//    "ShipperFacilityName":"MATADA, LLC",
+//    "Name":null,
+//    "TransporterFacilityLicenseNumber":"",
+//    "TransporterFacilityName":"",
+//    "DriverName":"",
+//    "DriverOccupationalLicenseNumber":"",
+//    "DriverVehicleLicenseNumber":"",
+//    "VehicleMake":"",
+//    "VehicleModel":"",
+//    "VehicleLicensePlateNumber":"",
+//    "DeliveryCount":1,
+//    "ReceivedDeliveryCount":1,
+//    "PackageCount":2,
+//    "ReceivedPackageCount":2,
+//    "ContainsPlantPackage":false,
+//    "ContainsProductPackage":true,
+//    "ContainsTradeSample":false,
+//    "ContainsDonation":false,
+//    "ContainsTestingSample":false,
+//    "ContainsProductRequiresRemediation":false,
+//    "ContainsRemediatedProductPackage":false,
+//    "CreatedDateTime":"2021-05-24T23:05:36+00:00",
+//    "CreatedByUserName":"Christian Molidor",
+//    "LastModified":"2021-05-25T10:47:58-07:00",
+//    "DeliveryId":1978406,
+//    "RecipientFacilityLicenseNumber":"C11-0000314-LIC",
+//    "RecipientFacilityName":"Med For America Inc.",
+//    "ShipmentTypeName":"Transfer",
+//    "ShipmentTransactionType":"Standard",
+//    "EstimatedDepartureDateTime":"2021-05-24T16:30:00.000",
+//    "ActualDepartureDateTime":null,
+//    "EstimatedArrivalDateTime":"2021-05-24T19:30:00.000",
+//    "ActualArrivalDateTime":null,
+//    "DeliveryPackageCount":2,
+//    "DeliveryReceivedPackageCount":2,
+//    "ReceivedDateTime":"2021-05-25T17:47:58+00:00",
+//    "EstimatedReturnDepartureDateTime":null,
+//    "ActualReturnDepartureDateTime":null,
+//    "EstimatedReturnArrivalDateTime":null,
+//    "ActualReturnArrivalDateTime":null
+// }
+export type MetrcTransferPayload = {
+  ShipperFacilityLicenseNumber: string;
+  ShipperFacilityName: string;
+  PackageCount: number;
+  ShipmentTransactionType: string;
+  EstimatedDepartureTime: string;
+  EstimatedArrivalDateTime: string;
+  ReceivedDateTime: string;
+};
+
 export type TransferPackage = {
   // Transfer fields.
   transfer_id: string;

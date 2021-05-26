@@ -1,11 +1,10 @@
-import requests
-
-from mypy_extensions import TypedDict
 from typing import Dict, List, Tuple, cast
-from requests.auth import HTTPBasicAuth
-from dateutil import parser
 
+import requests
 from bespoke import errors
+from dateutil import parser
+from mypy_extensions import TypedDict
+from requests.auth import HTTPBasicAuth
 
 AuthDict = TypedDict('AuthDict', {
 	'vendor_key': str,
@@ -61,7 +60,7 @@ class REST(object):
 		resp = requests.get(url, auth=self.auth)
 
 		if not resp.ok:
-				raise Exception('Code: {}. Reason: {}. Response: {}'.format(resp.status_code, resp.reason, resp.content.decode('utf-8')))
+			raise Exception('Code: {}. Reason: {}. Response: {}'.format(resp.status_code, resp.reason, resp.content.decode('utf-8')))
 
 		return resp
 

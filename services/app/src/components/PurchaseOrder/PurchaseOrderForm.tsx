@@ -27,7 +27,7 @@ interface Props {
   purchaseOrder: PurchaseOrdersInsertInput;
   purchaseOrderFile: PurchaseOrderFileFragment | null;
   purchaseOrderCannabisFiles: PurchaseOrderFileFragment[];
-  vendors: GetVendorsByPartnerCompanyQuery["vendors"];
+  selectableVendors: GetVendorsByPartnerCompanyQuery["vendors"];
   setPurchaseOrder: (purchaseOrder: PurchaseOrdersInsertInput) => void;
   setPurchaseOrderFile: (file: PurchaseOrderFileFragment | null) => void;
   setPurchaseOrderCannabisFiles: (files: PurchaseOrderFileFragment[]) => void;
@@ -38,7 +38,7 @@ export default function PurchaseOrderForm({
   purchaseOrder,
   purchaseOrderFile,
   purchaseOrderCannabisFiles,
-  vendors,
+  selectableVendors,
   setPurchaseOrder,
   setPurchaseOrderFile,
   setPurchaseOrderCannabisFiles,
@@ -62,10 +62,12 @@ export default function PurchaseOrderForm({
           <InputLabel id="vendor-select-label">Vendor</InputLabel>
           <Select
             data-cy={"purchase-order-form-input-vendor"}
-            disabled={vendors.length <= 0}
+            disabled={selectableVendors.length <= 0}
             labelId="vendor-select-label"
             id="vendor-select"
-            value={vendors.length > 0 ? purchaseOrder.vendor_id || "" : ""}
+            value={
+              selectableVendors.length > 0 ? purchaseOrder.vendor_id || "" : ""
+            }
             onChange={({ target: { value } }) =>
               setPurchaseOrder({
                 ...purchaseOrder,
@@ -76,7 +78,7 @@ export default function PurchaseOrderForm({
             <MenuItem value={""}>
               <em>None</em>
             </MenuItem>
-            {vendors.map((vendor, index) => (
+            {selectableVendors.map((vendor, index) => (
               <MenuItem
                 data-cy={`purchase-order-form-input-vendor-menu-item-${
                   index + 1

@@ -1,5 +1,6 @@
 import {
   PurchaseOrderFilesInsertInput,
+  PurchaseOrderMetrcTransfersInsertInput,
   PurchaseOrders,
   PurchaseOrdersInsertInput,
   RequestStatusEnum,
@@ -14,6 +15,7 @@ export type CreateUpdatePurchaseOrderAsDraftReq = {
   variables: {
     purchase_order: PurchaseOrdersInsertInput;
     purchase_order_files: PurchaseOrderFilesInsertInput[];
+    purchase_order_metrc_transfers: PurchaseOrderMetrcTransfersInsertInput[];
   };
 };
 
@@ -39,6 +41,7 @@ export type CreateUpdatePurchaseOrderAndSubmitReq = {
   variables: {
     purchase_order: PurchaseOrdersInsertInput;
     purchase_order_files: PurchaseOrderFilesInsertInput[];
+    purchase_order_metrc_transfers: PurchaseOrderMetrcTransfersInsertInput[];
   };
 };
 

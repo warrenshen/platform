@@ -2838,29 +2838,6 @@
   - name: purchase_order
     using:
       foreign_key_constraint_on: purchase_order_id
-  insert_permissions:
-  - role: bank_admin
-    permission:
-      check: {}
-      columns:
-      - file_id
-      - file_type
-      - purchase_order_id
-      backend_only: false
-  - role: company_admin
-    permission:
-      check:
-        purchase_order:
-          _or:
-          - company_id:
-              _eq: X-Hasura-Company-Id
-          - vendor_id:
-              _eq: X-Hasura-Company-Id
-      columns:
-      - file_id
-      - file_type
-      - purchase_order_id
-      backend_only: false
   select_permissions:
   - role: bank_admin
     permission:

@@ -72,6 +72,7 @@ fragment PurchaseOrder on purchase_orders {
   delivery_date
   amount
   is_cannabis
+  is_metrc_based
   status
   rejection_note
   bank_rejection_note
@@ -352,4 +353,10 @@ fragment MetrcPackage on metrc_packages {
   package_payload
   lab_results_payload
   lab_results_status
+}
+
+fragment PurchaseOrderMetrcTransfer on purchase_order_metrc_transfers {
+  id
+  purchase_order_id
+  metrc_transfer_id
 }

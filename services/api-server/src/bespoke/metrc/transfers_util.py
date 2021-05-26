@@ -1,17 +1,16 @@
 import datetime
 import json
 import logging
-
 from datetime import timedelta
-from dateutil import parser
-from sqlalchemy.orm.session import Session
 from typing import Any, Dict, List, Tuple, cast
 
 from bespoke import errors
-from bespoke.db import models
 from bespoke.date import date_util
+from bespoke.db import models
 from bespoke.metrc import metrc_common_util
 from bespoke.metrc.metrc_common_util import CompanyInfo
+from dateutil import parser
+from sqlalchemy.orm.session import Session
 
 
 class TransferPackages(object):
@@ -129,7 +128,6 @@ def populate_transfers_table(cur_date: datetime.date, company_info: CompanyInfo,
 			company_id=company_info.company_id,
 			license_id=license['license_id']
 		)
-		
 		for metrc_transfer in metrc_transfers:
 			session.add(metrc_transfer)
 			session.flush()

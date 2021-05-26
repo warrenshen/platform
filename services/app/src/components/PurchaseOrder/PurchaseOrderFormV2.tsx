@@ -11,35 +11,58 @@ import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import {
   GetVendorsByPartnerCompanyQuery,
+  MetrcTransferFragment,
+  PurchaseOrderMetrcTransferFragment,
   PurchaseOrdersInsertInput,
 } from "generated/graphql";
+import { MetrcTransferPayload } from "lib/api/metrc";
 
 interface Props {
   purchaseOrder: PurchaseOrdersInsertInput;
-  metrcTransfers: NonNullable<
+  selectableMetrcTransfers: NonNullable<
     GetVendorsByPartnerCompanyQuery["companies_by_pk"]
   >["metrc_transfers"];
-  vendors: GetVendorsByPartnerCompanyQuery["vendors"];
+  selectableVendors: GetVendorsByPartnerCompanyQuery["vendors"];
+  selectedMetrcTransfers: MetrcTransferFragment[];
   setPurchaseOrder: (purchaseOrder: PurchaseOrdersInsertInput) => void;
+  setPurchaseOrderMetrcTransfers: React.Dispatch<
+    React.SetStateAction<PurchaseOrderMetrcTransferFragment[]>
+  >;
 }
 
 // As of this commit, this form is the version of the "create purchase order"
 // form when user creates a purchase order from a Metrc manifest.
 export default function PurchaseOrderFormV2({
   purchaseOrder,
-  metrcTransfers,
-  vendors,
+  selectableMetrcTransfers,
+  selectableVendors,
+  selectedMetrcTransfers,
   setPurchaseOrder,
+  setPurchaseOrderMetrcTransfers,
 }: Props) {
   return (
     <Box display="flex" flexDirection="column">
       <Box display="flex" flexDirection="column">
+        {selectedMetrcTransfers.map((selectedMetrcTransfer) => (
+          <Box>{selectedMetrcTransfer.manifest_number}</Box>
+        ))}
         <Autocomplete
           autoHighlight
-          id="auto-complete-company"
-          options={metrcTransfers}
+          id="auto-complete-transfers"
+          options={selectableMetrcTransfers}
           getOptionLabel={(metrcTransfer) => {
-            return `${metrcTransfer.manifest_number}`;
+            const metrcTransferPayload = metrcTransfer.transfer_payload as MetrcTransferPayload;
+            return `Manifest #${
+              metrcTransfer.manifest_number
+            } | Vendor (Shipper) : ${
+              metrcTransferPayload.ShipperFacilityName
+            } | Created Date: ${
+              metrcTransfer.created_date
+            } | Package(s) Count: ${
+              metrcTransferPayload.PackageCount != null
+                ? metrcTransferPayload.PackageCount
+                : "Unknown"
+            }`;
           }}
           renderInput={(params) => (
             <TextField
@@ -48,9 +71,17 @@ export default function PurchaseOrderFormV2({
               variant="outlined"
             />
           )}
-          onChange={(_event, metrcTransfer) =>
-            console.log({ selectedTransfer: metrcTransfer })
-          }
+          onChange={(_event, metrcTransfer) => {
+            if (metrcTransfer) {
+              setPurchaseOrderMetrcTransfers((purchaseOrderMetrcTransfers) => [
+                ...purchaseOrderMetrcTransfers,
+                {
+                  purchase_order_id: purchaseOrder.id,
+                  metrc_transfer_id: metrcTransfer.id,
+                } as PurchaseOrderMetrcTransferFragment,
+              ]);
+            }
+          }}
         />
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
@@ -58,10 +89,12 @@ export default function PurchaseOrderFormV2({
           <InputLabel id="vendor-select-label">Vendor</InputLabel>
           <Select
             data-cy={"purchase-order-form-input-vendor"}
-            disabled={vendors.length <= 0}
+            disabled={selectableVendors.length <= 0}
             labelId="vendor-select-label"
             id="vendor-select"
-            value={vendors.length > 0 ? purchaseOrder.vendor_id || "" : ""}
+            value={
+              selectableVendors.length > 0 ? purchaseOrder.vendor_id || "" : ""
+            }
             onChange={({ target: { value } }) =>
               setPurchaseOrder({
                 ...purchaseOrder,
@@ -72,7 +105,7 @@ export default function PurchaseOrderFormV2({
             <MenuItem value={""}>
               <em>None</em>
             </MenuItem>
-            {vendors.map((vendor, index) => (
+            {selectableVendors.map((vendor, index) => (
               <MenuItem
                 data-cy={`purchase-order-form-input-vendor-menu-item-${
                   index + 1

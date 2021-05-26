@@ -22,16 +22,29 @@ from server.views.common import auth_util, handler_util
 
 @dataclass
 class PurchaseOrderFileItem:
-	file_id: str
 	purchase_order_id: str
+	file_id: str
 	file_type: str
 
 	@staticmethod
 	def from_dict(d: Dict) -> 'PurchaseOrderFileItem':
 		return PurchaseOrderFileItem(
-			d.get('file_id'),
-			d.get('purchase_order_id'),
-			d.get('file_type')
+			purchase_order_id=d.get('purchase_order_id'),
+			file_id=d.get('file_id'),
+			file_type=d.get('file_type')
+		)
+
+
+@dataclass
+class PurchaseOrderMetrcTransferItem:
+	purchase_order_id: str
+	metrc_transfer_id: str
+
+	@staticmethod
+	def from_dict(d: Dict) -> 'PurchaseOrderMetrcTransferItem':
+		return PurchaseOrderMetrcTransferItem(
+			purchase_order_id=d.get('purchase_order_id'),
+			metrc_transfer_id=d.get('metrc_transfer_id'),
 		)
 
 
@@ -45,6 +58,7 @@ class PurchaseOrderData:
 	delivery_date: datetime.date
 	amount: float
 	is_cannabis: bool
+	is_metrc_based: bool
 
 	def to_model(self) -> models.PurchaseOrder:
 		return models.PurchaseOrder( # type: ignore
@@ -56,6 +70,7 @@ class PurchaseOrderData:
 			delivery_date=self.delivery_date,
 			amount=decimal.Decimal(self.amount) if self.amount is not None else None,
 			is_cannabis=self.is_cannabis,
+			is_metrc_based=self.is_metrc_based,
 			status=db_constants.RequestStatusEnum.DRAFTED,
 		)
 
@@ -87,6 +102,7 @@ class PurchaseOrderData:
 			delivery_date=PurchaseOrderData.parse_date_safely(d, 'delivery_date'),
 			amount=PurchaseOrderData.parse_numeric_safely(d, 'amount'),
 			is_cannabis=d.get('is_cannabis'),
+			is_metrc_based=d.get('is_metrc_based'),
 		), None
 
 	@staticmethod
@@ -108,6 +124,7 @@ class PurchaseOrderData:
 class PurchaseOrderUpsertRequest:
 	purchase_order: PurchaseOrderData
 	purchase_order_files: List[PurchaseOrderFileItem]
+	purchase_order_metrc_transfers: List[PurchaseOrderMetrcTransferItem]
 
 	@staticmethod
 	def from_dict(d: Dict) -> Tuple['PurchaseOrderUpsertRequest', errors.Error]:
@@ -116,8 +133,9 @@ class PurchaseOrderUpsertRequest:
 			return None, err
 
 		return PurchaseOrderUpsertRequest(
-			data,
-			[PurchaseOrderFileItem.from_dict(f) for f in d.get('purchase_order_files', [])]
+			purchase_order=data,
+			purchase_order_files=[PurchaseOrderFileItem.from_dict(item) for item in d.get('purchase_order_files', [])],
+			purchase_order_metrc_transfers=[PurchaseOrderMetrcTransferItem.from_dict(item) for item in d.get('purchase_order_metrc_transfers', [])]
 		), None
 
 @errors.return_error_tuple
@@ -135,6 +153,9 @@ def create_update_purchase_order(
 
 	if not request.purchase_order.order_number:
 		raise errors.Error('Order number is required')
+
+	if not request.purchase_order.is_metrc_based and len(request.purchase_order_metrc_transfers) > 0:
+		raise errors.Error('Metrc transfers not allowed if purchase order is not Metrc based')
 
 	with session_scope(session_maker) as session:
 		if request.purchase_order.id is not None:
@@ -173,6 +194,7 @@ def create_update_purchase_order(
 
 		purchase_order_id = str(purchase_order.id)
 
+		# Purchase order files
 		existing_purchase_order_files = cast(
 			List[models.PurchaseOrderFile],
 			session.query(models.PurchaseOrderFile).filter(
@@ -208,13 +230,55 @@ def create_update_purchase_order(
 			if existing_purchase_order_file:
 				purchase_order_file_dicts.append(existing_purchase_order_file.as_dict())
 			else:
-				purchase_order_file = models.PurchaseOrderFile( # type: ignore
-					file_id=purchase_order_file_request.file_id,
+				new_purchase_order_file = models.PurchaseOrderFile( # type: ignore
 					purchase_order_id=purchase_order_id,
+					file_id=purchase_order_file_request.file_id,
 					file_type=purchase_order_file_request.file_type,
 				)
-				session.add(purchase_order_file)
-				purchase_order_file_dicts.append(purchase_order_file.as_dict())
+				session.add(new_purchase_order_file)
+				purchase_order_file_dicts.append(new_purchase_order_file.as_dict())
+
+		# Purchase order Metrc transfers
+		existing_purchase_order_metrc_transfers = cast(
+			List[models.PurchaseOrderMetrcTransfer],
+			session.query(models.PurchaseOrderMetrcTransfer).filter(
+				models.PurchaseOrderMetrcTransfer.purchase_order_id == purchase_order_id
+			).all())
+
+		purchase_order_metrc_transfers_to_delete = []
+		for existing_purchase_order_metrc_transfer in existing_purchase_order_metrc_transfers:
+			is_purchase_order_metrc_transfer_deleted = len(list(filter(
+				lambda purchase_order_metrc_transfer_request: (
+					purchase_order_metrc_transfer_request.purchase_order_id == existing_purchase_order_metrc_transfer.purchase_order_id and
+					purchase_order_metrc_transfer_request.metrc_transfer_id == existing_purchase_order_metrc_transfer.metrc_transfer_id
+				),
+				request.purchase_order_metrc_transfers
+			))) <= 0
+			if is_purchase_order_metrc_transfer_deleted:
+				purchase_order_metrc_transfers_to_delete.append(existing_purchase_order_metrc_transfer)
+
+		for purchase_order_metrc_transfer_to_delete in purchase_order_metrc_transfers_to_delete:
+			cast(Callable, session.delete)(purchase_order_metrc_transfer_to_delete)
+
+		session.flush()
+
+		purchase_order_metrc_transfer_dicts = []
+		for purchase_order_metrc_transfer_request in request.purchase_order_metrc_transfers:
+			existing_purchase_order_metrc_transfer = cast(
+				models.PurchaseOrderMetrcTransfer,
+				session.query(models.PurchaseOrderMetrcTransfer).get([
+					purchase_order_metrc_transfer_request.purchase_order_id,
+					purchase_order_metrc_transfer_request.metrc_transfer_id,
+				]))
+			if existing_purchase_order_metrc_transfer:
+				purchase_order_metrc_transfer_dicts.append(existing_purchase_order_metrc_transfer.as_dict())
+			else:
+				new_purchase_order_metrc_transfer = models.PurchaseOrderMetrcTransfer( # type: ignore
+					purchase_order_id=purchase_order_id,
+					metrc_transfer_id=purchase_order_metrc_transfer_request.metrc_transfer_id,
+				)
+				session.add(new_purchase_order_metrc_transfer)
+				purchase_order_metrc_transfer_dicts.append(new_purchase_order_metrc_transfer.as_dict())
 
 		if is_create_purchase_order:
 			sendgrid_client = cast(

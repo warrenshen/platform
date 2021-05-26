@@ -17972,6 +17972,7 @@ export type PurchaseOrderQuery = {
     {
       loans: Array<Pick<Loans, "id"> & LoanLimitedFragment>;
       purchase_order_files: Array<PurchaseOrderFileFragment>;
+      purchase_order_metrc_transfers: Array<PurchaseOrderMetrcTransferFragment>;
     } & PurchaseOrderFragment
   >;
 };
@@ -18453,6 +18454,7 @@ export type PurchaseOrderFragment = Pick<
   | "delivery_date"
   | "amount"
   | "is_cannabis"
+  | "is_metrc_based"
   | "status"
   | "rejection_note"
   | "bank_rejection_note"
@@ -18679,6 +18681,11 @@ export type MetrcPackageFragment = Pick<
   | "package_payload"
   | "lab_results_payload"
   | "lab_results_status"
+>;
+
+export type PurchaseOrderMetrcTransferFragment = Pick<
+  PurchaseOrderMetrcTransfers,
+  "id" | "purchase_order_id" | "metrc_transfer_id"
 >;
 
 export type UpdateCompanyInfoMutationVariables = Exact<{
@@ -19461,6 +19468,13 @@ export const MetrcPackageFragmentDoc = gql`
     lab_results_status
   }
 `;
+export const PurchaseOrderMetrcTransferFragmentDoc = gql`
+  fragment PurchaseOrderMetrcTransfer on purchase_order_metrc_transfers {
+    id
+    purchase_order_id
+    metrc_transfer_id
+  }
+`;
 export const ContactFragmentDoc = gql`
   fragment Contact on users {
     id
@@ -19630,6 +19644,7 @@ export const PurchaseOrderFragmentDoc = gql`
     delivery_date
     amount
     is_cannabis
+    is_metrc_based
     status
     rejection_note
     bank_rejection_note
@@ -23205,11 +23220,15 @@ export const PurchaseOrderDocument = gql`
       purchase_order_files {
         ...PurchaseOrderFile
       }
+      purchase_order_metrc_transfers {
+        ...PurchaseOrderMetrcTransfer
+      }
     }
   }
   ${PurchaseOrderFragmentDoc}
   ${LoanLimitedFragmentDoc}
   ${PurchaseOrderFileFragmentDoc}
+  ${PurchaseOrderMetrcTransferFragmentDoc}
 `;
 
 /**
@@ -26240,7 +26259,7 @@ export const GetVendorsByPartnerCompanyDocument = gql`
       metrc_api_keys(where: { is_functioning: { _eq: true } }) {
         id
       }
-      metrc_transfers {
+      metrc_transfers(order_by: { created_date: desc }) {
         id
         ...MetrcTransfer
       }

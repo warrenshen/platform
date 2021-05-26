@@ -8,6 +8,9 @@ query PurchaseOrder($id: uuid!) {
     purchase_order_files {
       ...PurchaseOrderFile
     }
+    purchase_order_metrc_transfers {
+      ...PurchaseOrderMetrcTransfer
+    }
   }
 }
 
