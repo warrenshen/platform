@@ -18,7 +18,7 @@ from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.metrc import transfers_util
-from bespoke.metrc.metrc_common_util import CompanyInfo, AuthDict, LicenseDict
+from bespoke.metrc.metrc_common_util import CompanyInfo, LicenseAuthDict
 from bespoke.security import security_util
 
 @errors.return_error_tuple
@@ -74,15 +74,24 @@ def view_api_key(
 
 def _get_companies_with_metrc_keys(
 	auth_provider: MetrcAuthProvider, 
-	security_cfg: security_util.ConfigDict, 
+	security_cfg: security_util.ConfigDict,
+	specific_company_id: str,
 	session_maker: Callable) -> List[CompanyInfo]:
 	company_infos = []
 
 	# Find all customers that have a metrc key 
 	with session_scope(session_maker) as session:
-		companies = cast(
-			List[models.Company],
-			session.query(models.Company).all())
+		if specific_company_id:
+			companies = cast(
+				List[models.Company],
+				session.query(models.Company).filter(
+					models.Company.id == specific_company_id
+				).all())
+
+		else:
+			companies = cast(
+				List[models.Company],
+				session.query(models.Company).all())
 
 		company_settings_ids = []
 		company_id_to_name = {}
@@ -125,15 +134,17 @@ def _get_companies_with_metrc_keys(
    					cast(Callable, models.CompanyLicense.is_deleted.isnot)(True)
     	).all())
 
-		company_id_to_licenses: Dict[str, List[LicenseDict]] = {}
+		company_id_to_licenses: Dict[str, List[LicenseAuthDict]] = {}
 		for license in all_licenses:
 			company_id = str(license.company_id)
 			if company_id not in company_id_to_licenses:
 				company_id_to_licenses[company_id] = []
 
-			company_id_to_licenses[company_id].append(LicenseDict(
+			company_id_to_licenses[company_id].append(LicenseAuthDict(
 				license_id=str(license.id),
-				license_number=license.license_number
+				license_number=license.license_number,
+				us_state='CA', # TODO(dlluncor): save the us state associated with the key
+				vendor_key=None
 			))
 
 		for metrc_api_key in metrc_api_keys:
@@ -148,31 +159,37 @@ def _get_companies_with_metrc_keys(
 										 company_id, company_id_to_name[company_id]))
 				continue
 
+			license_auths = company_id_to_licenses[company_id]
+			for license_auth in license_auths:
+				# For now, one customer has one vendor key
+				license_auth['vendor_key'] = api_key
+
 			logging.info('Company name: {} has metrc key {}'.format(company_name, api_key))
 			company_infos.append(CompanyInfo(
 				company_id=company_id,
 				name=company_name,
-				us_state='CA', # TODO(dlluncor): save the us state associated with the key
-				licenses=company_id_to_licenses[company_id],
-				auth_dict=AuthDict(
-					vendor_key=api_key,
-					user_key=auth_provider.get_user_key()
-				)
+				licenses=license_auths,
+				user_key=auth_provider.get_user_key(),
 			))
 
 	return company_infos
 
-@errors.return_error_tuple
-def download_data_for_all_customers(
+def _download_data(
+	specific_company_id: str,
 	auth_provider: MetrcAuthProvider, 
 	security_cfg: security_util.ConfigDict,
 	start_date: datetime.date,
 	end_date: datetime.date,
 	session_maker: Callable
-) -> Tuple[bool, errors.Error]:
-	
+) -> Tuple[bool, List[errors.Error], errors.Error]:
+	# Return: success, all_errs, fatal_error
+
 	company_infos = _get_companies_with_metrc_keys(
-		auth_provider, security_cfg, session_maker)
+			auth_provider,
+			security_cfg,
+			specific_company_id=specific_company_id,
+			session_maker=session_maker
+		)
 
 	errs = []
 
@@ -193,8 +210,47 @@ def download_data_for_all_customers(
 
 			cur_date = cur_date + timedelta(days=1)
 
-	# TODO(dlluncor): Handle errs
-	return None, None
+	if specific_company_id and errs:
+		return False, errs, errors.Error('{}'.format(errs))
+
+	return True, errs, None
+
+@errors.return_error_tuple
+def download_data_for_one_customer(
+	company_id: str,
+	auth_provider: MetrcAuthProvider, 
+	security_cfg: security_util.ConfigDict,
+	start_date: datetime.date,
+	end_date: datetime.date,
+	session_maker: Callable
+) -> Tuple[bool, List[errors.Error], errors.Error]:
+	
+	return _download_data(
+		specific_company_id=company_id,
+		auth_provider=auth_provider, 
+		security_cfg=security_cfg,
+		start_date=start_date,
+		end_date=end_date,
+		session_maker=session_maker
+	)
+
+@errors.return_error_tuple
+def download_data_for_all_customers(
+	auth_provider: MetrcAuthProvider, 
+	security_cfg: security_util.ConfigDict,
+	start_date: datetime.date,
+	end_date: datetime.date,
+	session_maker: Callable
+) -> Tuple[bool, List[errors.Error], errors.Error]:
+	
+	return _download_data(
+		specific_company_id=None,
+		auth_provider=auth_provider, 
+		security_cfg=security_cfg,
+		start_date=start_date,
+		end_date=end_date,
+		session_maker=session_maker
+	)
 
 ### End download logic
 

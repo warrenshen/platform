@@ -216,20 +216,21 @@ class DownloadMetrcDataView(MethodView):
 		if data.get('end_date'):
 			end_date = date_util.load_date_str(data['end_date'])
 
-		success, err = metrc_util.download_data_for_all_customers(
+		success, errs, fatal_err = metrc_util.download_data_for_all_customers(
 			auth_provider=cfg.get_metrc_auth_provider(),
 			security_cfg=cfg.get_security_config(),
 			start_date=start_date,
 			end_date=end_date,
 			session_maker=current_app.session_maker
 		)
-		if err:
-			raise errors.Error('{}'.format(err), http_code=500)
+		if fatal_err:
+			raise errors.Error('{}'.format(fatal_err), http_code=500)
 
 		logging.info(f"Finished downloading metrc data for all customers")
 
 		return make_response(json.dumps({
-			"status": "OK"
+			'status': 'OK',
+			'errors': ['{}'.format(err) for err in errs]
 		}))
 
 

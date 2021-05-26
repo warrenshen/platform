@@ -174,6 +174,37 @@ class ViewApiKeyView(MethodView):
 			'api_key': api_key
 		}), 200)		
 
+class SyncMetrcDataPerCustomerView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self) -> Response:
+		logging.info("Received request to download metrc data for 1 customer using the SYNC endpoint")
+		cfg = cast(Config, current_app.app_config)
+
+		data = json.loads(request.data)
+
+		start_date = date_util.load_date_str(data['start_date'])
+		end_date = date_util.load_date_str(data['end_date'])
+
+		success, errs, fatal_err = metrc_util.download_data_for_one_customer(
+			company_id=data['company_id'],
+			auth_provider=cfg.get_metrc_auth_provider(),
+			security_cfg=cfg.get_security_config(),
+			start_date=start_date,
+			end_date=end_date,
+			session_maker=current_app.session_maker
+		)
+		if fatal_err:
+			raise errors.Error('{}'.format(fatal_err), http_code=500)
+
+		logging.info(f"Finished syncing metrc data for 1 customer")
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'errors': ['{}'.format(err) for err in errs]
+		}))
+
 class SyncMetrcDataView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
@@ -187,20 +218,21 @@ class SyncMetrcDataView(MethodView):
 		start_date = date_util.load_date_str(data['cur_date'])
 		end_date = start_date
 
-		success, err = metrc_util.download_data_for_all_customers(
+		success, errs, fatal_err = metrc_util.download_data_for_all_customers(
 			auth_provider=cfg.get_metrc_auth_provider(),
 			security_cfg=cfg.get_security_config(),
 			start_date=start_date,
 			end_date=end_date,
 			session_maker=current_app.session_maker
 		)
-		if err:
-			raise errors.Error('{}'.format(err), http_code=500)
+		if fatal_err:
+			raise errors.Error('{}'.format(fatal_err), http_code=500)
 
 		logging.info(f"Finished syncing metrc data for all customers")
 
 		return make_response(json.dumps({
-			"status": "OK"
+			'status': 'OK',
+			'errors': ['{}'.format(err) for err in errs]
 		}))
 
 handler.add_url_rule(
@@ -211,6 +243,9 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/view_api_key', view_func=ViewApiKeyView.as_view(name='view_api_key_view'))
+
+handler.add_url_rule(
+	'/sync_metrc_data_per_customer', view_func=SyncMetrcDataPerCustomerView.as_view(name='sync_metrc_data_per_customer_view'))
 
 handler.add_url_rule(
 	'/sync_metrc_data', view_func=SyncMetrcDataView.as_view(name='sync_metrc_data_view'))

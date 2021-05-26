@@ -12,19 +12,20 @@ AuthDict = TypedDict('AuthDict', {
 	'user_key': str
 })
 
-LicenseDict = TypedDict('LicenseDict', {
+LicenseAuthDict = TypedDict('LicenseAuthDict', {
 	'license_id': str,
-	'license_number': str
+	'license_number': str,
+	'us_state': str,
+	'vendor_key': str
 })
 
 class CompanyInfo(object):
 
-	def __init__(self, company_id: str, name: str, us_state: str, licenses: List[LicenseDict], auth_dict: AuthDict) -> None:
+	def __init__(self, company_id: str, name: str, licenses: List[LicenseAuthDict], user_key: str) -> None:
 		self.company_id = company_id
 		self.name = name
-		self.us_state = us_state
 		self.licenses = licenses
-		self.auth_dict = auth_dict
+		self.user_key = user_key
 
 
 class REST(object):

@@ -107,16 +107,15 @@ class Transfers(object):
 
 @errors.return_error_tuple
 def populate_transfers_table(cur_date: datetime.date, company_info: CompanyInfo, session: Session) -> Tuple[bool, errors.Error]:
-	auth_dict = company_info.auth_dict
-
-	all_transfers_rows: List[List[str]] = []
-	all_transfer_package_rows: List[List[str]] = []
 
 	for license in company_info.licenses:
 		rest = metrc_common_util.REST(
-			auth_dict,
+			metrc_common_util.AuthDict(
+				vendor_key=license['vendor_key'],
+				user_key=company_info.user_key
+			),
 			license_number=license['license_number'],
-			us_state=company_info.us_state
+			us_state=license['us_state']
 		)
 
 		cur_date_str = cur_date.strftime('%m/%d/%Y')
