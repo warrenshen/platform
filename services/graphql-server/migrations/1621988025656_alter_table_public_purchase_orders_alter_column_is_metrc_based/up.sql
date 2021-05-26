@@ -1,0 +1,1 @@
+COMMENT ON COLUMN "public"."purchase_orders"."is_metrc_based" IS E'Whether this purchase order is based on Metrc manifests; this may be true even if purchase order does not have associated manifests purchase order is a draft';

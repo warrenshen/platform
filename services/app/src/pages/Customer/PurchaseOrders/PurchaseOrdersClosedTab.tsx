@@ -1,6 +1,6 @@
 import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
-import CreateUpdatePurchaseOrderModal from "components/PurchaseOrders/CreateUpdatePurchaseOrderModal";
-import PurchaseOrdersDataGrid from "components/PurchaseOrders/PurchaseOrdersDataGrid";
+import CreateUpdatePurchaseOrderModal from "components/PurchaseOrder/CreateUpdatePurchaseOrderModal";
+import PurchaseOrdersDataGrid from "components/PurchaseOrder/PurchaseOrdersDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {

@@ -8,9 +8,9 @@ import {
 } from "@material-ui/core";
 import CreateMultiplePurchaseOrdersLoansModal from "components/Loan/CreateMultiplePurchaseOrdersLoansModal";
 import CreateUpdatePurchaseOrderLoanModal from "components/Loan/CreateUpdatePurchaseOrderLoanModal";
+import CreateUpdatePurchaseOrderModal from "components/PurchaseOrder/CreateUpdatePurchaseOrderModal";
 import DeletePurchaseOrderModal from "components/PurchaseOrder/DeletePurchaseOrderModal";
-import CreateUpdatePurchaseOrderModal from "components/PurchaseOrders/CreateUpdatePurchaseOrderModal";
-import PurchaseOrdersDataGrid from "components/PurchaseOrders/PurchaseOrdersDataGrid";
+import PurchaseOrdersDataGrid from "components/PurchaseOrder/PurchaseOrdersDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {

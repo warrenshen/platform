@@ -1,5 +1,5 @@
 import { Box } from "@material-ui/core";
-import PurchaseOrdersDataGrid from "components/PurchaseOrders/PurchaseOrdersDataGrid";
+import PurchaseOrdersDataGrid from "components/PurchaseOrder/PurchaseOrdersDataGrid";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useGetPurchaseOrdersSubscription } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";

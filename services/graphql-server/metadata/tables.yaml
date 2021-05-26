@@ -2956,6 +2956,7 @@
       - id
       - is_cannabis
       - is_deleted
+      - is_metrc_based
       - order_date
       - order_number
       - rejected_at
@@ -2978,6 +2979,7 @@
       - id
       - is_cannabis
       - is_deleted
+      - is_metrc_based
       - order_date
       - order_number
       - rejected_at
@@ -3000,6 +3002,7 @@
       - id
       - is_cannabis
       - is_deleted
+      - is_metrc_based
       - order_date
       - order_number
       - rejection_note
@@ -3026,6 +3029,7 @@
       - id
       - is_cannabis
       - is_deleted
+      - is_metrc_based
       - order_date
       - order_number
       - rejection_note
@@ -3050,6 +3054,7 @@
       - id
       - is_cannabis
       - is_deleted
+      - is_metrc_based
       - order_date
       - order_number
       - rejected_at

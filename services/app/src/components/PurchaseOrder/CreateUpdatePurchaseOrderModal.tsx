@@ -1,6 +1,6 @@
 import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
-import PurchaseOrderForm from "components/PurchaseOrders/PurchaseOrderForm";
+import PurchaseOrderForm from "components/PurchaseOrder/PurchaseOrderForm";
 import Modal from "components/Shared/Modal/Modal";
 import {
   CurrentUserContext,

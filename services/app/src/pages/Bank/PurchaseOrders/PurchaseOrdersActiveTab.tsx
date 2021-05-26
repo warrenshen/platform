@@ -1,7 +1,7 @@
 import { Box } from "@material-ui/core";
 import ApprovePurchaseOrderModal from "components/PurchaseOrder/ApprovePurchaseOrderModal";
+import PurchaseOrdersDataGrid from "components/PurchaseOrder/PurchaseOrdersDataGrid";
 import RejectPurchaseOrderModal from "components/PurchaseOrder/RejectPurchaseOrderModal";
-import PurchaseOrdersDataGrid from "components/PurchaseOrders/PurchaseOrdersDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
