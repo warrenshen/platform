@@ -1,7 +1,6 @@
 import {
   Box,
   createStyles,
-  Drawer,
   makeStyles,
   Theme,
   Typography,
@@ -9,7 +8,9 @@ import {
 import InvoiceInfoCard from "components/Invoices/InvoiceInfoCard";
 import UpdateLoanNotesModal from "components/Loans/UpdateLoanNotesModal";
 import PurchaseOrderInfoCard from "components/PurchaseOrder/PurchaseOrderInfoCard";
+import LoanPaymentStatusChip from "components/Shared/Chip/LoanPaymentStatusChip";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
+import Modal from "components/Shared/Modal/Modal";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import TransactionsDataGrid from "components/Transactions/TransactionsDataGrid";
 import {
@@ -26,7 +27,7 @@ import {
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
-import { LoanTypeToLabel } from "lib/enum";
+import { LoanPaymentStatusEnum, LoanTypeToLabel } from "lib/enum";
 import {
   createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
@@ -47,7 +48,7 @@ interface Props {
   handleClose: () => void;
 }
 
-function LoanDrawer({ loanId, handleClose }: Props) {
+export default function LoanDrawer({ loanId, handleClose }: Props) {
   const classes = useStyles();
 
   const {
@@ -99,10 +100,26 @@ function LoanDrawer({ loanId, handleClose }: Props) {
   const bankLoan = bankData?.loans_by_pk;
   const transactions = transactionsData?.transactions;
 
-  return loan ? (
-    <Drawer open anchor="right" onClose={handleClose}>
+  if (!loan) {
+    return null;
+  }
+
+  const isMaturityVisible = !!loan.origination_date;
+
+  return (
+    <Modal
+      title={"Loan"}
+      subtitle={
+        isMaturityVisible
+          ? `${createLoanCustomerIdentifier(
+              loan
+            )} | ${createLoanDisbursementIdentifier(loan)}`
+          : createLoanCustomerIdentifier(loan)
+      }
+      contentWidth={1000}
+      handleClose={handleClose}
+    >
       <Box className={classes.drawerContent} p={4}>
-        <Typography variant="h5">Loan</Typography>
         <Box display="flex" flexDirection="column" mt={2}>
           <Box
             display="flex"
@@ -117,7 +134,7 @@ function LoanDrawer({ loanId, handleClose }: Props) {
               {createLoanCustomerIdentifier(loan)}
             </Typography>
           </Box>
-          {isBankUser && (
+          {isMaturityVisible && isBankUser && (
             <Box
               display="flex"
               flexDirection="column"
@@ -132,24 +149,44 @@ function LoanDrawer({ loanId, handleClose }: Props) {
               </Typography>
             </Box>
           )}
-          <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="flex-start"
-            mt={2}
-          >
-            <Typography variant="subtitle2" color="textSecondary">
-              Status
-            </Typography>
-            <LoanStatusChip loanStatus={loan.status} />
-          </Box>
-          {loan.status === LoanStatusEnum.Rejected && (
-            <Box display="flex" flexDirection="column" mt={2}>
+          {isMaturityVisible ? (
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="flex-start"
+              mt={2}
+            >
               <Typography variant="subtitle2" color="textSecondary">
-                Rejection Reason
+                Payment Status
               </Typography>
-              <Typography variant={"body1"}>{loan.rejection_note}</Typography>
+              <LoanPaymentStatusChip
+                paymentStatus={loan.payment_status as LoanPaymentStatusEnum}
+              />
             </Box>
+          ) : (
+            <>
+              <Box
+                display="flex"
+                flexDirection="column"
+                alignItems="flex-start"
+                mt={2}
+              >
+                <Typography variant="subtitle2" color="textSecondary">
+                  Approval Status
+                </Typography>
+                <LoanStatusChip loanStatus={loan.status} />
+              </Box>
+              {loan.status === LoanStatusEnum.Rejected && (
+                <Box display="flex" flexDirection="column" mt={2}>
+                  <Typography variant="subtitle2" color="textSecondary">
+                    Rejection Reason
+                  </Typography>
+                  <Typography variant={"body1"}>
+                    {loan.rejection_note}
+                  </Typography>
+                </Box>
+              )}
+            </>
           )}
           {isBankUser && (
             <Box
@@ -171,7 +208,7 @@ function LoanDrawer({ loanId, handleClose }: Props) {
           {isBankUser && (
             <Box display="flex" flexDirection="column" mt={2}>
               <Typography variant="subtitle2" color="textSecondary">
-                Company
+                Customer Name
               </Typography>
               <Typography variant={"body1"}>{loan.company?.name}</Typography>
             </Box>
@@ -351,8 +388,6 @@ function LoanDrawer({ loanId, handleClose }: Props) {
           </Box>
         )}
       </Box>
-    </Drawer>
-  ) : null;
+    </Modal>
+  );
 }
-
-export default LoanDrawer;

@@ -313,14 +313,14 @@ export default function LoansDataGrid({
         ),
       },
       {
-        visible: !isDaysPastDueVisible && isMaturityVisible,
+        visible: isMaturityVisible && !isDaysPastDueVisible,
         caption: "Maturing in (Days)",
         width: 100,
         alignment: "right",
         calculateCellValue: (row: any) => maturingInDaysRenderer({ data: row }),
       },
       {
-        visible: isDaysPastDueVisible,
+        visible: isMaturityVisible && isDaysPastDueVisible,
         caption: "Days Past Due",
         width: 100,
         alignment: "right",

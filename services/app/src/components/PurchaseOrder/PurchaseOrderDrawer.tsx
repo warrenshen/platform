@@ -104,7 +104,7 @@ export default function PurchaseOrderDrawer({
         {isBankUser && (
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">
-              Customer
+              Customer Name
             </Typography>
             <Typography variant={"body1"}>
               {purchaseOrder.company?.name}
