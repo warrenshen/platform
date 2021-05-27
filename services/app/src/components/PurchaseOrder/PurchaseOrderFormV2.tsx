@@ -19,6 +19,7 @@ import styled from "styled-components";
 
 const Manifest = styled.div`
   display: flex;
+  flex-direction: column;
 
   padding: 12px 12px;
   border: 1px solid rgba(95, 90, 84, 0.1);
@@ -105,13 +106,28 @@ export default function PurchaseOrderFormV2({
         />
         {selectedMetrcTransfers.length > 0 && (
           <Box display="flex" flexDirection="column" mt={2}>
-            {selectedMetrcTransfers.map((selectedMetrcTransfer) => (
-              <Manifest key={selectedMetrcTransfer.id}>
-                <Typography variant="body1">
-                  {`Manifest #${selectedMetrcTransfer.manifest_number}`}
-                </Typography>
-              </Manifest>
-            ))}
+            {selectedMetrcTransfers.map((selectedMetrcTransfer) => {
+              const metrcTransferPayload = selectedMetrcTransfer.transfer_payload as MetrcTransferPayload;
+              return (
+                <Manifest key={selectedMetrcTransfer.id}>
+                  <Typography variant="body1">
+                    {`Manifest #: ${selectedMetrcTransfer.manifest_number}`}
+                  </Typography>
+                  <Typography variant="body2">
+                    {`Vendor: ${
+                      selectedMetrcTransfer.vendor?.name || "Unknown"
+                    }`}
+                  </Typography>
+                  <Typography variant="body2">
+                    {`Package(s) count: ${
+                      metrcTransferPayload.PackageCount != null
+                        ? metrcTransferPayload.PackageCount
+                        : "Unknown"
+                    }`}
+                  </Typography>
+                </Manifest>
+              );
+            })}
           </Box>
         )}
       </Box>

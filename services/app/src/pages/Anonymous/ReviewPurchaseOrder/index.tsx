@@ -10,7 +10,7 @@ import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import {
   PurchaseOrderFileTypeEnum,
   RequestStatusEnum,
-  usePurchaseOrderForReviewQuery,
+  useGetPurchaseOrderForReviewQuery,
 } from "generated/graphql";
 import { formatCurrency } from "lib/currency";
 import { formatDateString } from "lib/date";
@@ -77,7 +77,7 @@ function ReviewPurchaseOrderPage({ location }: Props) {
   const {
     data,
     loading: isPurchaseOrderLoading,
-  } = usePurchaseOrderForReviewQuery({
+  } = useGetPurchaseOrderForReviewQuery({
     variables: {
       id: purchaseOrderId,
     },

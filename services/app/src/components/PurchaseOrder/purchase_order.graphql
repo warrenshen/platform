@@ -23,7 +23,7 @@ query PurchaseOrder($id: uuid!) {
   }
 }
 
-query PurchaseOrderForReview($id: uuid!) {
+query GetPurchaseOrderForReview($id: uuid!) {
   purchase_orders_by_pk(id: $id) {
     id
     company_id
@@ -33,6 +33,7 @@ query PurchaseOrderForReview($id: uuid!) {
     delivery_date
     amount
     is_cannabis
+    is_metrc_based
     status
     created_at
     purchase_order_files {
@@ -47,6 +48,18 @@ query PurchaseOrderForReview($id: uuid!) {
     vendor {
       id
       name
+    }
+    purchase_order_metrc_transfers {
+      id
+      ...PurchaseOrderMetrcTransfer
+      metrc_transfer {
+        id
+        ...MetrcTransfer
+        metrc_packages {
+          id
+          ...MetrcPackage
+        }
+      }
     }
   }
 }

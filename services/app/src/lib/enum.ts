@@ -1,5 +1,4 @@
 import {
-  CompanyTypeEnum,
   LoanStatusEnum,
   LoanTypeEnum,
   ProductTypeEnum,
@@ -10,6 +9,12 @@ import InventoryContractTermsJson from "./contract_terms_inventory.json";
 import InvoiceContractTermsJson from "./contract_terms_invoice.json";
 import LineOfCreditContractTermsJson from "./contract_terms_line_of_credit.json";
 import PMFContractTermsJson from "./contract_terms_purchase_money_financing.json";
+
+export enum CompanyTypeEnum {
+  Customer = "customer",
+  Payor = "payor",
+  Vendor = "vendor",
+}
 
 // Action Type enum related.
 export enum ActionType {

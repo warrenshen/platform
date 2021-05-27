@@ -115,6 +115,9 @@ function VendorDrawer({ vendorPartnershipId, onClose }: Props) {
           handleDataChange={refetch}
         />
         <Typography variant="h6">Bank Information</Typography>
+        <Typography variant="body2" color="secondary">
+          Warning: bank account NOT configured yet.
+        </Typography>
         <Typography variant="subtitle2">
           Specify which bank account Bespoke Financial will send advances to:
         </Typography>

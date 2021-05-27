@@ -313,7 +313,7 @@ def delete_partnership_request(
 		).first())
 	if not partnership_req:
 		raise errors.Error('No partnership request found to delete this partnership')
-	
+
 	partnership_req.is_deleted = True
 
 	return True, None
