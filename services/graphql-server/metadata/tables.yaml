@@ -2436,6 +2436,8 @@
       - package_payload
       - lab_results_payload
       - lab_results_status
+      - created_at
+      - updated_at
       filter: {}
   - role: bank_read_only
     permission:
@@ -2448,6 +2450,8 @@
       - package_id
       - product_name
       - type
+      - created_at
+      - updated_at
       - id
       - transfer_id
       filter: {}
@@ -2491,6 +2495,23 @@
               _eq: X-Hasura-Company-Id
           - vendor_id:
               _eq: X-Hasura-Company-Id
+  - role: purchase_order_reviewer
+    permission:
+      columns:
+      - id
+      - package_id
+      - transfer_id
+      - delivery_id
+      - label
+      - type
+      - product_name
+      - package_payload
+      - lab_results_payload
+      - lab_results_status
+      filter:
+        metrc_transfer:
+          vendor_id:
+            _eq: X-Hasura-Company-Id
 - table:
     schema: public
     name: metrc_transfers
@@ -2516,27 +2537,31 @@
   - role: bank_admin
     permission:
       columns:
+      - id
       - company_id
+      - license_id
       - created_date
       - delivery_id
-      - id
-      - license_id
       - manifest_number
       - transfer_payload
-      - transfer_type
       - vendor_id
+      - transfer_type
+      - created_at
+      - updated_at
       filter: {}
   - role: bank_read_only
     permission:
       columns:
-      - company_id
       - created_date
+      - transfer_payload
       - delivery_id
+      - manifest_number
+      - transfer_type
+      - created_at
+      - updated_at
+      - company_id
       - id
       - license_id
-      - manifest_number
-      - transfer_payload
-      - transfer_type
       - vendor_id
       filter: {}
   - role: company_admin
@@ -2575,6 +2600,21 @@
             _eq: X-Hasura-Company-Id
         - vendor_id:
             _eq: X-Hasura-Company-Id
+  - role: purchase_order_reviewer
+    permission:
+      columns:
+      - id
+      - company_id
+      - license_id
+      - created_date
+      - delivery_id
+      - manifest_number
+      - transfer_payload
+      - vendor_id
+      - transfer_type
+      filter:
+        vendor_id:
+          _eq: X-Hasura-Company-Id
 - table:
     schema: public
     name: payments
@@ -3034,6 +3074,16 @@
               _eq: X-Hasura-Company-Id
           - vendor_id:
               _eq: X-Hasura-Company-Id
+  - role: purchase_order_reviewer
+    permission:
+      columns:
+      - id
+      - metrc_transfer_id
+      - purchase_order_id
+      filter:
+        purchase_order:
+          vendor_id:
+            _eq: X-Hasura-Company-Id
 - table:
     schema: public
     name: purchase_orders

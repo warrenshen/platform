@@ -318,6 +318,7 @@ def submit_purchase_order_for_approval(
 		vendor = purchase_order.vendor
 		customer = purchase_order.company
 
+		# Validation 1: validations for all POs.
 		if not purchase_order:
 			raise errors.Error('Could not find purchase order')
 
@@ -326,9 +327,6 @@ def submit_purchase_order_for_approval(
 
 		if not purchase_order.order_date:
 			raise errors.Error('Order date is required')
-
-		if not purchase_order.delivery_date:
-			raise errors.Error('Delivery date is required')
 
 		if purchase_order.amount is None or purchase_order.amount <= 0:
 			raise errors.Error('Valid amount is required')
@@ -339,12 +337,6 @@ def submit_purchase_order_for_approval(
 				company_id=customer.id,
 				vendor_id=vendor.id,
 			).first())
-
-		if not company_vendor_relationship.vendor_bank_id:
-			is_vendor_missing_bank_account = True
-
-		if not company_vendor_relationship or company_vendor_relationship.approved_at is None:
-			raise errors.Error('Vendor is not approved')
 
 		purchase_order_file = cast(
 			models.PurchaseOrderFile,
@@ -358,18 +350,11 @@ def submit_purchase_order_for_approval(
 		if not purchase_order_file:
 			raise errors.Error('Purchase order file attachment is required')
 
-		if purchase_order.is_cannabis:
-			purchase_order_cannabis_files = cast(
-				List[models.PurchaseOrderFile],
-				session.query(
-					models.PurchaseOrderFile
-				).filter_by(
-					purchase_order_id=purchase_order.id,
-					file_type=db_constants.PurchaseOrderFileTypeEnum.Cannabis,
-				).all())
+		if not company_vendor_relationship.vendor_bank_id:
+			is_vendor_missing_bank_account = True
 
-			if len(purchase_order_cannabis_files) <= 0:
-				raise errors.Error('Purchase order cannabis file attachment(s) are required')
+		if not company_vendor_relationship or company_vendor_relationship.approved_at is None:
+			raise errors.Error('Vendor is not approved')
 
 		vendor_users = cast(
 			List[models.User],
@@ -379,6 +364,37 @@ def submit_purchase_order_for_approval(
 
 		if not vendor_users:
 			raise errors.Error('There are no users configured for this vendor')
+
+		# Validation 2: validations for purchase_orders.is_metrc_based = True POs.
+		if purchase_order.is_metrc_based:
+			purchase_order_metrc_transfers = cast(
+				List[models.PurchaseOrderMetrcTransfer],
+				session.query(
+					models.PurchaseOrderMetrcTransfer
+				).filter_by(
+					purchase_order_id=purchase_order.id
+				).all())
+
+			if len(purchase_order_metrc_transfers) <= 0:
+				raise errors.Error('Purchase order Metrc manifest(s) are required')
+
+		# Validation 3: validations for purchase_orders.is_metrc_based = False POs.
+		if not purchase_order.is_metrc_based:
+			if not purchase_order.delivery_date:
+				raise errors.Error('Delivery date is required')
+
+			if purchase_order.is_cannabis:
+				purchase_order_cannabis_files = cast(
+					List[models.PurchaseOrderFile],
+					session.query(
+						models.PurchaseOrderFile
+					).filter_by(
+						purchase_order_id=purchase_order.id,
+						file_type=db_constants.PurchaseOrderFileTypeEnum.Cannabis,
+					).all())
+
+				if len(purchase_order_cannabis_files) <= 0:
+					raise errors.Error('Purchase order cannabis file attachment(s) are required')
 
 		purchase_order.status = RequestStatusEnum.APPROVAL_REQUESTED
 		purchase_order.requested_at = date_util.now()
