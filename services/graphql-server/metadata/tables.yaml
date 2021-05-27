@@ -2471,6 +2471,9 @@
   - name: company_license
     using:
       foreign_key_constraint_on: license_id
+  - name: vendor
+    using:
+      foreign_key_constraint_on: vendor_id
   array_relationships:
   - name: metrc_packages
     using:
@@ -2483,24 +2486,26 @@
   - role: bank_admin
     permission:
       columns:
-      - id
       - company_id
-      - license_id
       - created_date
       - delivery_id
+      - id
+      - license_id
       - manifest_number
       - transfer_payload
+      - vendor_id
       filter: {}
   - role: bank_read_only
     permission:
       columns:
-      - created_date
-      - transfer_payload
-      - delivery_id
-      - manifest_number
       - company_id
+      - created_date
+      - delivery_id
       - id
       - license_id
+      - manifest_number
+      - transfer_payload
+      - vendor_id
       filter: {}
 - table:
     schema: public

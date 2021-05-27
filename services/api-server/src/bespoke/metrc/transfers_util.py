@@ -126,6 +126,25 @@ class Transfers(object):
 
 		return metrc_common_util.dicts_to_rows(self._transfers, col_specs, include_header)
 
+def _match_and_add_vendor_id_to_transfers(metrc_transfers: List[models.MetrcTransfer], session: Session) -> None:
+
+	shipper_license_numbers = []
+	for metrc_transfer in metrc_transfers:
+		shipper_license_number = '{}'.format(cast(Dict, metrc_transfer.transfer_payload)['ShipperFacilityLicenseNumber'])
+		shipper_license_numbers.append(shipper_license_number)
+
+	shipper_licenses = session.query(models.CompanyLicense).filter(
+		models.CompanyLicense.license_number.in_(shipper_license_numbers)
+	).all()
+	shipper_license_to_company_id = {}
+	for shipper_license in shipper_licenses:
+		shipper_license_to_company_id[str(shipper_license.company_id)] = shipper_license.license_number
+
+	for metrc_transfer in metrc_transfers:
+		shipper_license_number = '{}'.format(cast(Dict, metrc_transfer.transfer_payload)['ShipperFacilityLicenseNumber'])
+		vendor_id = shipper_license_to_company_id.get(shipper_license_number)		
+		if vendor_id:
+			metrc_transfer.vendor_id = cast(Any, vendor_id)
 
 @errors.return_error_tuple
 def populate_transfers_table(cur_date: datetime.date, company_info: CompanyInfo, session: Session) -> Tuple[bool, errors.Error]:
@@ -153,6 +172,9 @@ def populate_transfers_table(cur_date: datetime.date, company_info: CompanyInfo,
 
 		all_metrc_packages = []
 		package_id_to_metrc_transfer = {}
+
+		# Look up company ids for vendors that might match
+		_match_and_add_vendor_id_to_transfers(metrc_transfers, session)
 
 		for metrc_transfer in metrc_transfers:
 			logging.info('Downloading data for metrc transfer delivery_id={}'.format(metrc_transfer.delivery_id))
