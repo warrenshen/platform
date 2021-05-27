@@ -167,8 +167,9 @@ def _match_and_add_licenses_to_transfers(
 		recipient_license_number = '{}'.format(cast(Dict, metrc_transfer.transfer_payload)['RecipientFacilityLicenseNumber'])
 		recipient_company_id = recipient_license_to_company_id.get(recipient_license_number)
 
-		company_matches = vendor_company_id and recipient_company_id and vendor_company_id == recipient_company_id
-		if company_matches:
+		company_matches_via_licenses = vendor_company_id and recipient_company_id and vendor_company_id == recipient_company_id
+		company_matches_via_ids = vendor_company_id and vendor_company_id == metrc_transfer.company_id 
+		if company_matches_via_licenses or company_matches_via_ids:
 			metrc_transfer.transfer_type = f'{transfer_type_prefix}_INTERNAL'
 		else:
 			metrc_transfer.transfer_type = f'{transfer_type_prefix}_FROM_VENDOR'
