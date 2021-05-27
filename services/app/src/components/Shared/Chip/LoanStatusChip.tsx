@@ -27,7 +27,7 @@ interface Props {
 }
 
 const StatusToColor = {
-  [LoanStatusEnum.Drafted]: "#bdc3c7", // Gray
+  [LoanStatusEnum.Drafted]: "f", // Gray
   [LoanStatusEnum.ApprovalRequested]: "#f1c40f", // Yellow
   [LoanStatusEnum.Approved]: "#2ecc71", // Green
   [LoanStatusEnum.Rejected]: "#e67e22", // Orange

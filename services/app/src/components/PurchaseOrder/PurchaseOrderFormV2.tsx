@@ -15,6 +15,15 @@ import {
 import { MetrcTransferPayload } from "lib/api/metrc";
 import { FileTypeEnum } from "lib/enum";
 import { useMemo } from "react";
+import styled from "styled-components";
+
+const Manifest = styled.div`
+  display: flex;
+
+  padding: 12px 12px;
+  border: 1px solid rgba(95, 90, 84, 0.1);
+  border-radius: 3px;
+`;
 
 interface Props {
   companyId: Companies["id"];
@@ -23,7 +32,6 @@ interface Props {
   selectableMetrcTransfers: NonNullable<
     GetVendorsByPartnerCompanyQuery["companies_by_pk"]
   >["metrc_transfers"];
-  selectableVendors: GetVendorsByPartnerCompanyQuery["vendors"];
   selectedMetrcTransfers: MetrcTransferFragment[];
   setPurchaseOrder: (purchaseOrder: PurchaseOrdersInsertInput) => void;
   setPurchaseOrderFile: (file: PurchaseOrderFileFragment | null) => void;
@@ -39,7 +47,6 @@ export default function PurchaseOrderFormV2({
   purchaseOrder,
   purchaseOrderFile,
   selectableMetrcTransfers,
-  selectableVendors,
   selectedMetrcTransfers,
   setPurchaseOrder,
   setPurchaseOrderFile,
@@ -55,9 +62,6 @@ export default function PurchaseOrderFormV2({
   return (
     <Box display="flex" flexDirection="column">
       <Box display="flex" flexDirection="column">
-        {selectedMetrcTransfers.map((selectedMetrcTransfer) => (
-          <Box>{selectedMetrcTransfer.manifest_number}</Box>
-        ))}
         <Autocomplete
           autoHighlight
           id="auto-complete-transfers"
@@ -99,6 +103,17 @@ export default function PurchaseOrderFormV2({
             }
           }}
         />
+        {selectedMetrcTransfers.length > 0 && (
+          <Box display="flex" flexDirection="column" mt={2}>
+            {selectedMetrcTransfers.map((selectedMetrcTransfer) => (
+              <Manifest key={selectedMetrcTransfer.id}>
+                <Typography variant="body1">
+                  {`Manifest #${selectedMetrcTransfer.manifest_number}`}
+                </Typography>
+              </Manifest>
+            ))}
+          </Box>
+        )}
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <TextField

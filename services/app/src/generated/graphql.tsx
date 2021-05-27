@@ -18708,7 +18708,7 @@ export type MetrcTransferFragment = Pick<
   | "created_date"
   | "manifest_number"
   | "transfer_payload"
->;
+> & { vendor?: Maybe<Pick<Companies, "id" | "name">> };
 
 export type MetrcPackageFragment = Pick<
   MetrcPackages,
@@ -19495,6 +19495,10 @@ export const MetrcTransferFragmentDoc = gql`
     created_date
     manifest_number
     transfer_payload
+    vendor {
+      id
+      name
+    }
   }
 `;
 export const MetrcPackageFragmentDoc = gql`

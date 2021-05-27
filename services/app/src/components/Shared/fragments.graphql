@@ -342,6 +342,10 @@ fragment MetrcTransfer on metrc_transfers {
   created_date
   manifest_number
   transfer_payload
+  vendor {
+    id
+    name
+  }
 }
 
 fragment MetrcPackage on metrc_packages {
