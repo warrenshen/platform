@@ -1,13 +1,12 @@
 import datetime
+from datetime import timedelta, timezone
+from typing import Tuple
+
 import holidays
 import numpy as np
 import pytz
-
-from datetime import timedelta, timezone
-from typing import Tuple
-from dateutil import parser, relativedelta
-
 from bespoke import errors
+from dateutil import parser, relativedelta
 
 us_holidays = holidays.UnitedStates()
 DEFAULT_TIMEZONE = 'US/Pacific'

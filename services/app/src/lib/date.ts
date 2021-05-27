@@ -3,9 +3,12 @@ import {
   addMonths,
   differenceInDays,
   format,
+  getYear,
+  isEqual,
   parse,
   parseISO,
 } from "date-fns";
+import { getBankHolidays, Holiday } from "date-fns-holiday-us";
 
 export const DateFormatClient = "MM/dd/yyyy";
 export const DateFormatServer = "yyyy-MM-dd";
@@ -60,14 +63,33 @@ export function formatDatetimeString(
   }
 }
 
+function isBankHoliday(date: Date) {
+  const holidays = getBankHolidays(getYear(date));
+  return (
+    Object.keys(holidays).filter((holidayName) => {
+      return isEqual(date, holidays[holidayName as Holiday].date);
+    }).length > 0
+  );
+}
+
 export function addBizDays(dateString: string, days: number) {
   if (!dateString) {
     return "Invalid Date";
   }
-
-  const date = parse(dateString, DateFormatServer, new Date());
-  const result = addBusinessDays(date, days);
-  return format(result, DateFormatServer);
+  // Add days to given date, skipping non-business days.
+  // Non-business days are weekends and bank holidays.
+  // Ex. 05/28/21 + 2 business days = 06/02/21, since
+  // 05/29/21 and 05/30/21 are weekend days and 05/31/21 is a holiday.
+  const inputDate = parse(dateString, DateFormatServer, new Date());
+  let resultDate = inputDate;
+  while (days > 0) {
+    resultDate = addBusinessDays(resultDate, 1);
+    while (isBankHoliday(resultDate)) {
+      resultDate = addBusinessDays(resultDate, 1);
+    }
+    days -= 1;
+  }
+  return format(resultDate, DateFormatServer);
 }
 
 export function computeEbbaApplicationExpiresAt(dateString: string): string {
