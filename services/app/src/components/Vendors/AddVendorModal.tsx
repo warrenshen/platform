@@ -18,6 +18,7 @@ import {
 import {
   Companies,
   CompaniesInsertInput,
+  CompanyTypeEnum,
   UsersInsertInput,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -26,7 +27,6 @@ import {
   createPartnershipRequestMutation,
   LicenseInfo,
 } from "lib/api/companies";
-import { CompanyTypeEnum } from "lib/enum";
 import { useContext, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>

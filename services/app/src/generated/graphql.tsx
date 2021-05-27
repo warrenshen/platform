@@ -1274,7 +1274,7 @@ export type Companies = {
   /** An aggregated array relationship */
   company_payor_partnerships_by_payor_aggregate: CompanyPayorPartnershipsAggregate;
   company_settings_id?: Maybe<Scalars["uuid"]>;
-  company_type: Scalars["String"];
+  company_type: CompanyTypeEnum;
   /** An array relationship */
   company_vendor_partnerships: Array<CompanyVendorPartnerships>;
   /** An aggregated array relationship */
@@ -1780,7 +1780,7 @@ export type CompaniesBoolExp = {
   company_payor_partnerships?: Maybe<CompanyPayorPartnershipsBoolExp>;
   company_payor_partnerships_by_payor?: Maybe<CompanyPayorPartnershipsBoolExp>;
   company_settings_id?: Maybe<UuidComparisonExp>;
-  company_type?: Maybe<StringComparisonExp>;
+  company_type?: Maybe<CompanyTypeEnumComparisonExp>;
   company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsBoolExp>;
   company_vendor_partnerships_by_vendor?: Maybe<CompanyVendorPartnershipsBoolExp>;
   contract?: Maybe<ContractsBoolExp>;
@@ -1845,7 +1845,7 @@ export type CompaniesInsertInput = {
   company_payor_partnerships?: Maybe<CompanyPayorPartnershipsArrRelInsertInput>;
   company_payor_partnerships_by_payor?: Maybe<CompanyPayorPartnershipsArrRelInsertInput>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
-  company_type?: Maybe<Scalars["String"]>;
+  company_type?: Maybe<CompanyTypeEnum>;
   company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsArrRelInsertInput>;
   company_vendor_partnerships_by_vendor?: Maybe<CompanyVendorPartnershipsArrRelInsertInput>;
   contract?: Maybe<ContractsObjRelInsertInput>;
@@ -1891,7 +1891,6 @@ export type CompaniesMaxFields = {
   address?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
-  company_type?: Maybe<Scalars["String"]>;
   contract_id?: Maybe<Scalars["uuid"]>;
   contract_name?: Maybe<Scalars["String"]>;
   country?: Maybe<Scalars["String"]>;
@@ -1915,7 +1914,6 @@ export type CompaniesMaxOrderBy = {
   address?: Maybe<OrderBy>;
   city?: Maybe<OrderBy>;
   company_settings_id?: Maybe<OrderBy>;
-  company_type?: Maybe<OrderBy>;
   contract_id?: Maybe<OrderBy>;
   contract_name?: Maybe<OrderBy>;
   country?: Maybe<OrderBy>;
@@ -1939,7 +1937,6 @@ export type CompaniesMinFields = {
   address?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
-  company_type?: Maybe<Scalars["String"]>;
   contract_id?: Maybe<Scalars["uuid"]>;
   contract_name?: Maybe<Scalars["String"]>;
   country?: Maybe<Scalars["String"]>;
@@ -1963,7 +1960,6 @@ export type CompaniesMinOrderBy = {
   address?: Maybe<OrderBy>;
   city?: Maybe<OrderBy>;
   company_settings_id?: Maybe<OrderBy>;
-  company_type?: Maybe<OrderBy>;
   contract_id?: Maybe<OrderBy>;
   contract_name?: Maybe<OrderBy>;
   country?: Maybe<OrderBy>;
@@ -2117,7 +2113,7 @@ export type CompaniesSetInput = {
   address?: Maybe<Scalars["String"]>;
   city?: Maybe<Scalars["String"]>;
   company_settings_id?: Maybe<Scalars["uuid"]>;
-  company_type?: Maybe<Scalars["String"]>;
+  company_type?: Maybe<CompanyTypeEnum>;
   contract_id?: Maybe<Scalars["uuid"]>;
   contract_name?: Maybe<Scalars["String"]>;
   country?: Maybe<Scalars["String"]>;
@@ -3526,6 +3522,145 @@ export enum CompanySettingsUpdateColumn {
   UpdatedAt = "updated_at",
   /** column name */
   VendorAgreementDocusignTemplate = "vendor_agreement_docusign_template",
+}
+
+/** columns and relationships of "company_type" */
+export type CompanyType = {
+  value: Scalars["String"];
+};
+
+/** aggregated selection of "company_type" */
+export type CompanyTypeAggregate = {
+  aggregate?: Maybe<CompanyTypeAggregateFields>;
+  nodes: Array<CompanyType>;
+};
+
+/** aggregate fields of "company_type" */
+export type CompanyTypeAggregateFields = {
+  count?: Maybe<Scalars["Int"]>;
+  max?: Maybe<CompanyTypeMaxFields>;
+  min?: Maybe<CompanyTypeMinFields>;
+};
+
+/** aggregate fields of "company_type" */
+export type CompanyTypeAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<CompanyTypeSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** order by aggregate values of table "company_type" */
+export type CompanyTypeAggregateOrderBy = {
+  count?: Maybe<OrderBy>;
+  max?: Maybe<CompanyTypeMaxOrderBy>;
+  min?: Maybe<CompanyTypeMinOrderBy>;
+};
+
+/** input type for inserting array relation for remote table "company_type" */
+export type CompanyTypeArrRelInsertInput = {
+  data: Array<CompanyTypeInsertInput>;
+  on_conflict?: Maybe<CompanyTypeOnConflict>;
+};
+
+/** Boolean expression to filter rows from the table "company_type". All fields are combined with a logical 'AND'. */
+export type CompanyTypeBoolExp = {
+  _and?: Maybe<Array<Maybe<CompanyTypeBoolExp>>>;
+  _not?: Maybe<CompanyTypeBoolExp>;
+  _or?: Maybe<Array<Maybe<CompanyTypeBoolExp>>>;
+  value?: Maybe<StringComparisonExp>;
+};
+
+/** unique or primary key constraints on table "company_type" */
+export enum CompanyTypeConstraint {
+  /** unique or primary key constraint */
+  CompanyTypePkey = "company_type_pkey",
+}
+
+export enum CompanyTypeEnum {
+  Customer = "customer",
+  Payor = "payor",
+  Vendor = "vendor",
+}
+
+/** expression to compare columns of type company_type_enum. All fields are combined with logical 'AND'. */
+export type CompanyTypeEnumComparisonExp = {
+  _eq?: Maybe<CompanyTypeEnum>;
+  _in?: Maybe<Array<CompanyTypeEnum>>;
+  _is_null?: Maybe<Scalars["Boolean"]>;
+  _neq?: Maybe<CompanyTypeEnum>;
+  _nin?: Maybe<Array<CompanyTypeEnum>>;
+};
+
+/** input type for inserting data into table "company_type" */
+export type CompanyTypeInsertInput = {
+  value?: Maybe<Scalars["String"]>;
+};
+
+/** aggregate max on columns */
+export type CompanyTypeMaxFields = {
+  value?: Maybe<Scalars["String"]>;
+};
+
+/** order by max() on columns of table "company_type" */
+export type CompanyTypeMaxOrderBy = {
+  value?: Maybe<OrderBy>;
+};
+
+/** aggregate min on columns */
+export type CompanyTypeMinFields = {
+  value?: Maybe<Scalars["String"]>;
+};
+
+/** order by min() on columns of table "company_type" */
+export type CompanyTypeMinOrderBy = {
+  value?: Maybe<OrderBy>;
+};
+
+/** response of any mutation on the table "company_type" */
+export type CompanyTypeMutationResponse = {
+  /** number of affected rows by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data of the affected rows by the mutation */
+  returning: Array<CompanyType>;
+};
+
+/** input type for inserting object relation for remote table "company_type" */
+export type CompanyTypeObjRelInsertInput = {
+  data: CompanyTypeInsertInput;
+  on_conflict?: Maybe<CompanyTypeOnConflict>;
+};
+
+/** on conflict condition type for table "company_type" */
+export type CompanyTypeOnConflict = {
+  constraint: CompanyTypeConstraint;
+  update_columns: Array<CompanyTypeUpdateColumn>;
+  where?: Maybe<CompanyTypeBoolExp>;
+};
+
+/** ordering options when selecting data from "company_type" */
+export type CompanyTypeOrderBy = {
+  value?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "company_type" */
+export type CompanyTypePkColumnsInput = {
+  value: Scalars["String"];
+};
+
+/** select columns of table "company_type" */
+export enum CompanyTypeSelectColumn {
+  /** column name */
+  Value = "value",
+}
+
+/** input type for updating data in table "company_type" */
+export type CompanyTypeSetInput = {
+  value?: Maybe<Scalars["String"]>;
+};
+
+/** update columns of table "company_type" */
+export enum CompanyTypeUpdateColumn {
+  /** column name */
+  Value = "value",
 }
 
 /** columns and relationships of "company_vendor_partnerships" */
@@ -8980,6 +9115,10 @@ export type MutationRoot = {
   delete_company_settings?: Maybe<CompanySettingsMutationResponse>;
   /** delete single row from the table: "company_settings" */
   delete_company_settings_by_pk?: Maybe<CompanySettings>;
+  /** delete data from the table: "company_type" */
+  delete_company_type?: Maybe<CompanyTypeMutationResponse>;
+  /** delete single row from the table: "company_type" */
+  delete_company_type_by_pk?: Maybe<CompanyType>;
   /** delete data from the table: "company_vendor_partnerships" */
   delete_company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsMutationResponse>;
   /** delete single row from the table: "company_vendor_partnerships" */
@@ -9132,6 +9271,10 @@ export type MutationRoot = {
   insert_company_settings?: Maybe<CompanySettingsMutationResponse>;
   /** insert a single row into the table: "company_settings" */
   insert_company_settings_one?: Maybe<CompanySettings>;
+  /** insert data into the table: "company_type" */
+  insert_company_type?: Maybe<CompanyTypeMutationResponse>;
+  /** insert a single row into the table: "company_type" */
+  insert_company_type_one?: Maybe<CompanyType>;
   /** insert data into the table: "company_vendor_partnerships" */
   insert_company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsMutationResponse>;
   /** insert a single row into the table: "company_vendor_partnerships" */
@@ -9288,6 +9431,10 @@ export type MutationRoot = {
   update_company_settings?: Maybe<CompanySettingsMutationResponse>;
   /** update single row of the table: "company_settings" */
   update_company_settings_by_pk?: Maybe<CompanySettings>;
+  /** update data of the table: "company_type" */
+  update_company_type?: Maybe<CompanyTypeMutationResponse>;
+  /** update single row of the table: "company_type" */
+  update_company_type_by_pk?: Maybe<CompanyType>;
   /** update data of the table: "company_vendor_partnerships" */
   update_company_vendor_partnerships?: Maybe<CompanyVendorPartnershipsMutationResponse>;
   /** update single row of the table: "company_vendor_partnerships" */
@@ -9494,6 +9641,16 @@ export type MutationRootDeleteCompanySettingsArgs = {
 /** mutation root */
 export type MutationRootDeleteCompanySettingsByPkArgs = {
   id: Scalars["uuid"];
+};
+
+/** mutation root */
+export type MutationRootDeleteCompanyTypeArgs = {
+  where: CompanyTypeBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteCompanyTypeByPkArgs = {
+  value: Scalars["String"];
 };
 
 /** mutation root */
@@ -9895,6 +10052,18 @@ export type MutationRootInsertCompanySettingsArgs = {
 export type MutationRootInsertCompanySettingsOneArgs = {
   object: CompanySettingsInsertInput;
   on_conflict?: Maybe<CompanySettingsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertCompanyTypeArgs = {
+  objects: Array<CompanyTypeInsertInput>;
+  on_conflict?: Maybe<CompanyTypeOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertCompanyTypeOneArgs = {
+  object: CompanyTypeInsertInput;
+  on_conflict?: Maybe<CompanyTypeOnConflict>;
 };
 
 /** mutation root */
@@ -10373,6 +10542,18 @@ export type MutationRootUpdateCompanySettingsArgs = {
 export type MutationRootUpdateCompanySettingsByPkArgs = {
   _set?: Maybe<CompanySettingsSetInput>;
   pk_columns: CompanySettingsPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateCompanyTypeArgs = {
+  _set?: Maybe<CompanyTypeSetInput>;
+  where: CompanyTypeBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateCompanyTypeByPkArgs = {
+  _set?: Maybe<CompanyTypeSetInput>;
+  pk_columns: CompanyTypePkColumnsInput;
 };
 
 /** mutation root */
@@ -13166,6 +13347,12 @@ export type QueryRoot = {
   company_settings_aggregate: CompanySettingsAggregate;
   /** fetch data from the table: "company_settings" using primary key columns */
   company_settings_by_pk?: Maybe<CompanySettings>;
+  /** fetch data from the table: "company_type" */
+  company_type: Array<CompanyType>;
+  /** fetch aggregated fields from the table: "company_type" */
+  company_type_aggregate: CompanyTypeAggregate;
+  /** fetch data from the table: "company_type" using primary key columns */
+  company_type_by_pk?: Maybe<CompanyType>;
   /** fetch data from the table: "company_vendor_partnerships" */
   company_vendor_partnerships: Array<CompanyVendorPartnerships>;
   /** fetch aggregated fields from the table: "company_vendor_partnerships" */
@@ -13549,6 +13736,29 @@ export type QueryRootCompanySettingsAggregateArgs = {
 /** query root */
 export type QueryRootCompanySettingsByPkArgs = {
   id: Scalars["uuid"];
+};
+
+/** query root */
+export type QueryRootCompanyTypeArgs = {
+  distinct_on?: Maybe<Array<CompanyTypeSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyTypeOrderBy>>;
+  where?: Maybe<CompanyTypeBoolExp>;
+};
+
+/** query root */
+export type QueryRootCompanyTypeAggregateArgs = {
+  distinct_on?: Maybe<Array<CompanyTypeSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyTypeOrderBy>>;
+  where?: Maybe<CompanyTypeBoolExp>;
+};
+
+/** query root */
+export type QueryRootCompanyTypeByPkArgs = {
+  value: Scalars["String"];
 };
 
 /** query root */
@@ -14610,6 +14820,12 @@ export type SubscriptionRoot = {
   company_settings_aggregate: CompanySettingsAggregate;
   /** fetch data from the table: "company_settings" using primary key columns */
   company_settings_by_pk?: Maybe<CompanySettings>;
+  /** fetch data from the table: "company_type" */
+  company_type: Array<CompanyType>;
+  /** fetch aggregated fields from the table: "company_type" */
+  company_type_aggregate: CompanyTypeAggregate;
+  /** fetch data from the table: "company_type" using primary key columns */
+  company_type_by_pk?: Maybe<CompanyType>;
   /** fetch data from the table: "company_vendor_partnerships" */
   company_vendor_partnerships: Array<CompanyVendorPartnerships>;
   /** fetch aggregated fields from the table: "company_vendor_partnerships" */
@@ -14993,6 +15209,29 @@ export type SubscriptionRootCompanySettingsAggregateArgs = {
 /** subscription root */
 export type SubscriptionRootCompanySettingsByPkArgs = {
   id: Scalars["uuid"];
+};
+
+/** subscription root */
+export type SubscriptionRootCompanyTypeArgs = {
+  distinct_on?: Maybe<Array<CompanyTypeSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyTypeOrderBy>>;
+  where?: Maybe<CompanyTypeBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootCompanyTypeAggregateArgs = {
+  distinct_on?: Maybe<Array<CompanyTypeSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<CompanyTypeOrderBy>>;
+  where?: Maybe<CompanyTypeBoolExp>;
+};
+
+/** subscription root */
+export type SubscriptionRootCompanyTypeByPkArgs = {
+  value: Scalars["String"];
 };
 
 /** subscription root */
@@ -18591,6 +18830,18 @@ export type GetTransactionsQuery = {
         company: Pick<Companies, "id" | "name">;
       };
     } & TransactionFragment
+  >;
+};
+
+export type GetMetrcTransferQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type GetMetrcTransferQuery = {
+  metrc_transfers_by_pk?: Maybe<
+    Pick<MetrcTransfers, "id"> & {
+      metrc_packages: Array<Pick<MetrcPackages, "id"> & MetrcPackageFragment>;
+    } & MetrcTransferFragment
   >;
 };
 
@@ -25421,6 +25672,69 @@ export type GetTransactionsLazyQueryHookResult = ReturnType<
 export type GetTransactionsQueryResult = Apollo.QueryResult<
   GetTransactionsQuery,
   GetTransactionsQueryVariables
+>;
+export const GetMetrcTransferDocument = gql`
+  query GetMetrcTransfer($id: uuid!) {
+    metrc_transfers_by_pk(id: $id) {
+      id
+      ...MetrcTransfer
+      metrc_packages {
+        id
+        ...MetrcPackage
+      }
+    }
+  }
+  ${MetrcTransferFragmentDoc}
+  ${MetrcPackageFragmentDoc}
+`;
+
+/**
+ * __useGetMetrcTransferQuery__
+ *
+ * To run a query within a React component, call `useGetMetrcTransferQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMetrcTransferQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMetrcTransferQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetMetrcTransferQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetMetrcTransferQuery,
+    GetMetrcTransferQueryVariables
+  >
+) {
+  return Apollo.useQuery<GetMetrcTransferQuery, GetMetrcTransferQueryVariables>(
+    GetMetrcTransferDocument,
+    baseOptions
+  );
+}
+export function useGetMetrcTransferLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetMetrcTransferQuery,
+    GetMetrcTransferQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetMetrcTransferQuery,
+    GetMetrcTransferQueryVariables
+  >(GetMetrcTransferDocument, baseOptions);
+}
+export type GetMetrcTransferQueryHookResult = ReturnType<
+  typeof useGetMetrcTransferQuery
+>;
+export type GetMetrcTransferLazyQueryHookResult = ReturnType<
+  typeof useGetMetrcTransferLazyQuery
+>;
+export type GetMetrcTransferQueryResult = Apollo.QueryResult<
+  GetMetrcTransferQuery,
+  GetMetrcTransferQueryVariables
 >;
 export const GetVendorCompanyFileAttachmentsDocument = gql`
   query GetVendorCompanyFileAttachments($company_id: uuid!) {

@@ -1,8 +1,11 @@
-import { Box, TextField, Typography } from "@material-ui/core";
+import { Box, Button, TextField, Typography } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import FileUploader from "components/Shared/File/FileUploader";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
+import { ReactComponent as CloseIcon } from "components/Shared/Layout/Icons/Close.svg";
+import ModalButton from "components/Shared/Modal/ModalButton";
+import MetrcTransferModal from "components/Transfers/MetrcTransferModal";
 import {
   Companies,
   GetVendorsByPartnerCompanyQuery,
@@ -13,17 +16,23 @@ import {
   PurchaseOrdersInsertInput,
 } from "generated/graphql";
 import { MetrcTransferPayload } from "lib/api/metrc";
+import { formatDateString, formatDatetimeString } from "lib/date";
 import { FileTypeEnum } from "lib/enum";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import styled from "styled-components";
 
 const Manifest = styled.div`
   display: flex;
-  flex-direction: column;
 
   padding: 12px 12px;
   border: 1px solid rgba(95, 90, 84, 0.1);
   border-radius: 3px;
+`;
+
+const CloseButton = styled(Button)`
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
 `;
 
 interface Props {
@@ -58,6 +67,8 @@ export default function PurchaseOrderFormV2({
     [purchaseOrderFile]
   );
 
+  const [autocompleteInputValue, setAutocompleteInputValue] = useState("");
+
   // TODO(warrenshen): once at least one Metrc transfer is selected, user should
   // only be able to add additional Metrc transfers belonging to the same vendor.
   return (
@@ -67,19 +78,15 @@ export default function PurchaseOrderFormV2({
           autoHighlight
           id="auto-complete-transfers"
           options={selectableMetrcTransfers}
+          inputValue={autocompleteInputValue}
+          value={null}
           getOptionLabel={(metrcTransfer) => {
             const metrcTransferPayload = metrcTransfer.transfer_payload as MetrcTransferPayload;
-            return `Manifest #${
-              metrcTransfer.manifest_number
-            } | Vendor (Shipper) : ${
-              metrcTransferPayload.ShipperFacilityName
-            } | Created Date: ${
-              metrcTransfer.created_date
-            } | Package(s) Count: ${
-              metrcTransferPayload.PackageCount != null
-                ? metrcTransferPayload.PackageCount
-                : "Unknown"
-            }`;
+            return `${metrcTransfer.manifest_number} ${
+              metrcTransfer.vendor?.name || ""
+            } ${formatDatetimeString(
+              metrcTransferPayload.ReceivedDateTime
+            )} ${formatDateString(metrcTransfer.created_date)}`;
           }}
           renderInput={(params) => (
             <TextField
@@ -88,6 +95,36 @@ export default function PurchaseOrderFormV2({
               variant="outlined"
             />
           )}
+          renderOption={(metrcTransfer) => {
+            const metrcTransferPayload = metrcTransfer.transfer_payload as MetrcTransferPayload;
+            return (
+              <Box py={0.5}>
+                <Typography variant="body1">
+                  {`Manifest #${metrcTransfer.manifest_number}`}
+                </Typography>
+                <Typography variant="body2">
+                  {`Vendor: ${metrcTransfer.vendor?.name || "Unknown"}`}
+                </Typography>
+                <Typography variant="body2">
+                  {`Received at: ${formatDatetimeString(
+                    metrcTransferPayload.ReceivedDateTime
+                  )}`}
+                </Typography>
+                <Typography variant="body2">
+                  {`Created date: ${formatDateString(
+                    metrcTransfer.created_date
+                  )}`}
+                </Typography>
+                <Typography variant="body2">
+                  {`Package(s) count: ${
+                    metrcTransferPayload.PackageCount != null
+                      ? metrcTransferPayload.PackageCount
+                      : "Unknown"
+                  }`}
+                </Typography>
+              </Box>
+            );
+          }}
           onChange={(_event, metrcTransfer) => {
             if (metrcTransfer) {
               setPurchaseOrder({
@@ -101,31 +138,75 @@ export default function PurchaseOrderFormV2({
                   metrc_transfer_id: metrcTransfer.id,
                 } as PurchaseOrderMetrcTransferFragment,
               ]);
+              setAutocompleteInputValue("");
             }
           }}
+          onInputChange={(_event, value) => setAutocompleteInputValue(value)}
         />
         {selectedMetrcTransfers.length > 0 && (
-          <Box display="flex" flexDirection="column" mt={2}>
+          <Box display="flex" flexDirection="column">
             {selectedMetrcTransfers.map((selectedMetrcTransfer) => {
               const metrcTransferPayload = selectedMetrcTransfer.transfer_payload as MetrcTransferPayload;
               return (
-                <Manifest key={selectedMetrcTransfer.id}>
-                  <Typography variant="body1">
-                    {`Manifest #: ${selectedMetrcTransfer.manifest_number}`}
-                  </Typography>
-                  <Typography variant="body2">
-                    {`Vendor: ${
-                      selectedMetrcTransfer.vendor?.name || "Unknown"
-                    }`}
-                  </Typography>
-                  <Typography variant="body2">
-                    {`Package(s) count: ${
-                      metrcTransferPayload.PackageCount != null
-                        ? metrcTransferPayload.PackageCount
-                        : "Unknown"
-                    }`}
-                  </Typography>
-                </Manifest>
+                <Box key={selectedMetrcTransfer.id} mt={2}>
+                  <Manifest>
+                    <Box display="flex" flexDirection="column" flex={1}>
+                      <Typography variant="body1">
+                        {`Manifest #${selectedMetrcTransfer.manifest_number}`}
+                      </Typography>
+                      <Typography variant="body2">
+                        {`Vendor: ${
+                          selectedMetrcTransfer.vendor?.name || "Unknown"
+                        }`}
+                      </Typography>
+                      <Typography variant="body2">
+                        {`Received at: ${formatDatetimeString(
+                          metrcTransferPayload.ReceivedDateTime
+                        )}`}
+                      </Typography>
+                      <Typography variant="body2">
+                        {`Package(s) count: ${
+                          metrcTransferPayload.PackageCount != null
+                            ? metrcTransferPayload.PackageCount
+                            : "Unknown"
+                        }`}
+                      </Typography>
+                    </Box>
+                    <Box
+                      display="flex"
+                      flexDirection="column"
+                      justifyContent="space-between"
+                      alignItems="flex-end"
+                    >
+                      <CloseButton
+                        onClick={() =>
+                          setPurchaseOrderMetrcTransfers(
+                            (purchaseOrderMetrcTransfers) =>
+                              purchaseOrderMetrcTransfers.filter(
+                                (purchaseOrderMetrcTransfer) =>
+                                  purchaseOrderMetrcTransfer.metrc_transfer_id !==
+                                  selectedMetrcTransfer.id
+                              )
+                          )
+                        }
+                      >
+                        <CloseIcon />
+                      </CloseButton>
+                      <ModalButton
+                        label={"View"}
+                        color="default"
+                        size="small"
+                        variant="outlined"
+                        modal={({ handleClose }) => (
+                          <MetrcTransferModal
+                            metrcTransferId={selectedMetrcTransfer.id}
+                            handleClose={handleClose}
+                          />
+                        )}
+                      />
+                    </Box>
+                  </Manifest>
+                </Box>
               );
             })}
           </Box>

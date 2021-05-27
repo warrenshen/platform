@@ -1,0 +1,10 @@
+query GetMetrcTransfer($id: uuid!) {
+  metrc_transfers_by_pk(id: $id) {
+    id
+    ...MetrcTransfer
+    metrc_packages {
+      id
+      ...MetrcPackage
+    }
+  }
+}

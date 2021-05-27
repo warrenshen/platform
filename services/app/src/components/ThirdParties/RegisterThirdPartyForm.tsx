@@ -10,15 +10,12 @@ import {
 import PhoneInput from "components/Shared/FormInputs/PhoneInput";
 import {
   CompaniesInsertInput,
+  CompanyTypeEnum,
   UserRolesEnum,
   UsersInsertInput,
 } from "generated/graphql";
 import { LicenseInfo } from "lib/api/companies";
-import {
-  CompanyTypeEnum,
-  CompanyTypeToDisplayLower,
-  CompanyTypeToDisplayUpper,
-} from "lib/enum";
+import { CompanyTypeToDisplayLower, CompanyTypeToDisplayUpper } from "lib/enum";
 import { ChangeEvent } from "react";
 
 interface Props {

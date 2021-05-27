@@ -26,9 +26,6 @@ const useStyles = makeStyles((theme: Theme) =>
       width: 500,
       paddingBottom: theme.spacing(16),
     },
-    propertyLabel: {
-      flexGrow: 1,
-    },
   })
 );
 
